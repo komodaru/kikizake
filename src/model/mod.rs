@@ -66,6 +66,8 @@ impl Api for ddraw::Ddraw {
 impl Api for gdiplus::Gdiplus {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         gdiplus::Gdiplus::op(self, op, out)
+    }
+}
 impl Api for dwrite::Dwrite {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         dwrite::Dwrite::op(self, op, out)
