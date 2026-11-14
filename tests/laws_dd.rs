@@ -55,6 +55,8 @@ fn z_values_are_monotone() {
     // (z 1 is not drawn by the software rasterizers, D3D7.ZRANGE)
     assert_eq!(tri_z(Depth::Z16, 1.0), 65535);
     assert_eq!(tri_z(Depth::Z32, 1.0), 0xffff_ff00);
+    // (z · 2^32 less 1 a float exactly: kept, not chopped further)
+    assert_eq!(tri_z(Depth::Z32, 1.0 / 256.0), 0x00ff_ffff);
     // d3d7dev zrange (over 0x80000000) and zhist (over 0xffffffff)
     for (m, a, b) in [(1, 0x0041_8936, 0x0041_89ff), (500, 0x7fff_ff80, 0x7fff_ffff), (990, 0xfd70_a300, 0xfd70_a3ff), (999, 0xffbe_7600, 0xffbe_76ff)] {
         let z = m as f32 / 1000.0;
@@ -278,8 +280,11 @@ fn suites_stay_modeled() {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
-            let un = cases.iter().filter(|c| matches!(run_case(c), Err(Fail::Unmodeled(_)))).count();
+            let res: Vec<_> = cases.iter().map(run_case).collect();
+            let un = res.iter().filter(|r| matches!(r, Err(Fail::Unmodeled(_)))).count();
             assert_eq!(un, n, "{s}-{arch}");
+            // (a generated line the model calls bad would be skipped as well)
+            assert!(res.iter().all(|r| !matches!(r, Err(Fail::Bad | Fail::Empty))), "{s}-{arch}: a bad line");
         }
     }
     model::set_arch(32);
