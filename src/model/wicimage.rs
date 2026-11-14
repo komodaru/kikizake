@@ -1568,7 +1568,27 @@ impl WicImage {
                 out.push("wconv 00000000".into());
                 self.cur = Some(c);
             }
-            "wcolor" => return Err(Fail::Unmodeled("WICIMAGE.COLOR.TRANSFORM")),
+            "wcolor" => {
+                let (a, b, f) = (n(1)?, n(2)?, fmt_static(t.get(3).ok_or(Fail::Bad)?));
+                if !(1..=2).contains(&a) || !(1..=2).contains(&b) {
+                    return Err(Fail::Unmodeled("WICIMAGE.COLOR.EXIF.BAD"));
+                }
+                let Some(c) = &self.cur else {
+                    out.push("wcolor -".into());
+                    return Ok(true);
+                };
+                let hr = color_transform(c.fmt, f, a == b);
+                hit("WICIMAGE.COLOR.INIT");
+                out.push(format!("wcolor 00000000 00000000 {hr:08x}"));
+                if hr == 0 {
+                    if !(a == b && c.fmt == f) || COLOR_RGB.contains(&c.fmt) {
+                        return Err(Fail::Unmodeled("WICIMAGE.COLOR.TRANSFORM"));
+                    }
+                    // (MEASURED: golden wiccolor xf-idx8-idx8-11, xf-cmyk-cmyk-11, xf-gray8-gray8-11:
+                    // the source's pixels as they are)
+                    hit("WICIMAGE.COLOR.SAME");
+                }
+            }
             "wctx" => {
                 let v = n(1)?;
                 if v == 1 || v == 2 {
@@ -1733,6 +1753,27 @@ impl WicImage {
             }
         }
         Ok(())
+    }
+}
+
+/// the sources IWICColorTransform takes between RGB contexts
+const COLOR_RGB: [&str; 7] = ["bgr24", "bgr565", "bgra", "pbgra", "rgb24", "rgba", "rgba64"];
+
+/// MEASURED (golden wiccolor xf-*: 12 sources into 8 formats between every pair of the sRGB and
+/// Adobe RGB contexts): IWICColorTransform::Initialize's answer. A source in the same context and
+/// format is taken as it is; else an RGB source into 24bppBGR, 32bppBGRA, 32bppPBGRA or 64bppRGBA,
+/// and nothing else: indexed and BlackWhite sources and the indexed and 48bppRGB targets
+/// WINCODEC_ERR_UNSUPPORTEDPIXELFORMAT, gray and CMYK ones 0x800707db (ERROR_INVALID_TRANSFORM)
+pub fn color_transform(from: &str, to: &str, same_context: bool) -> u32 {
+    let rgb = COLOR_RGB.contains(&from);
+    if same_context && from == to {
+        0
+    } else if from == "bw" || from.starts_with("idx") || (rgb && (to.starts_with("idx") || to == "rgb48")) {
+        0x88982f80
+    } else if !rgb || !["bgr24", "bgra", "pbgra", "rgba64"].contains(&to) {
+        0x800707db
+    } else {
+        0
     }
 }
 
