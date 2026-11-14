@@ -893,6 +893,27 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>
     }
 }
 
+/// the pixels of D3DFILL_POINT: MEASURED (d3d7dev fillmode-*-1-*: 48 x 2 random triangles,
+/// LASTPIXEL on and off, every drawer) each vertex at its position rounded, x.5 up on the
+/// software rasterizers and down on the HAL; the ramp device draws no points
+fn points(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
+    hit(clause::D3D7_POINT);
+    let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
+    let round = |c: i64| match family {
+        Family::Soft { .. } | Family::Ramp => (c + 8).div_euclid(16),
+        Family::Hw { .. } => (c + 7).div_euclid(16),
+    };
+    if family == Family::Ramp {
+        return Ok(cover);
+    }
+    for (x, y) in v.map(|(x, y)| (round(x), round(y))) {
+        if (0..w).contains(&x) && (0..h).contains(&y) {
+            cover[usize::try_from(y * w + x).map_err(|_| Fail::Bad)?] = true;
+        }
+    }
+    Ok(cover)
+}
+
 /// one channel (at bit `sh` of ARGB) of the color at pixel (px, py): flat, or Gouraud
 fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Res<u32> {
     let ch = |c: u32| c >> sh & 255;
@@ -1015,12 +1036,14 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         Cull::Ccw => area < 0,
         Cull::Cw => area > 0,
     };
-    if area == 0 || culled {
-        return Ok(());
-    }
     match st.fill {
         Fill::Solid => {}
+        // (points of a culled or flat triangle, and points of several colors, not measured)
+        Fill::Point if st.cull == Cull::None && area != 0 && tri.c[0] == tri.c[1] && tri.c[0] == tri.c[2] && tri.spec[0] == tri.spec[1] && tri.spec[0] == tri.spec[2] => {}
         Fill::Point | Fill::Wireframe => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+    }
+    if area == 0 || culled {
+        return Ok(());
     }
     // MEASURED (d3d7dev zrange: z from -1 to 2 on every device): a triangle with z below 0 or
     // above 1 is not drawn, nor one at 1 except by the T&L HAL
@@ -1030,7 +1053,10 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         return Ok(());
     }
     let (w, h) = (rt.w, rt.h);
-    let cover = coverage(family, v, w, h)?;
+    let cover = match st.fill {
+        Fill::Point => points(family, v, w, h)?,
+        Fill::Solid | Fill::Wireframe => coverage(family, v, w, h)?,
+    };
     let zv = match (st.zenable, rt.depth, family) {
         (false, _, _) => None,
         (true, None, _) => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
