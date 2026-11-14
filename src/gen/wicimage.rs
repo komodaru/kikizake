@@ -1103,7 +1103,9 @@ pub fn wicencode() -> String {
     for c in ENCODERS {
         for f in &names {
             let bytes = if *c == "bmp" { "wbytes\n" } else { "" };
-            writeln!(s, "case enc-{c}-{f}\nwbits {f} 5 3 {seed}\nwencode {c}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
+            // (GIF: the palette it writes too)
+            let pal = if *c == "gif" { "wsrcpal\n" } else { "" };
+            writeln!(s, "case enc-{c}-{f}\nwbits {f} 5 3 {seed}\nwencode {c}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\n{pal}end").unwrap();
             seed += 1;
         }
     }
