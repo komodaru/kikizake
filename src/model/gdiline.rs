@@ -299,23 +299,27 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             match sl.pen_value()? {
                 None => {
                     // a null pen: the interior is one pixel larger each way
-                    sl.fill_rect(l, t, r - 1, b - 1)?;
+                    sl.fill_shape(l, t, r - 1, b - 1)?;
                 }
                 Some(v) => {
-                    if !matches!(sl.ext.pen, Pen::Plain { width: 0 | 1, .. }) || sl.ext.rop2 != 13 {
-                        return Err(Fail::Unmodeled(open::GDI_SHAPE_RECTPEN));
-                    }
-                    if r - l < 2 || b - t < 2 {
-                        return Err(Fail::Unmodeled(open::GDI_SHAPE_RECTTHIN));
-                    }
-                    sl.fill_rect(l + 1, t + 1, r - 1, b - 1)?;
-                    for x in l..r {
-                        sl.plot(x, t, v);
-                        sl.plot(x, b - 1, v);
-                    }
-                    for y in t + 1..b - 1 {
-                        sl.plot(l, y, v);
-                        sl.plot(r - 1, y, v);
+                    if r - l < 1 || b - t < 1 {
+                        // MEASURED: an empty rectangle draws nothing
+                        hit(clause::GDI_SHAPE_RECTTHIN);
+                    } else {
+                        // MEASURED (through XOR and NOT): the outline is four lines, each
+                        // without its last pixel, from (l, t) through (r - 1, t), (r - 1, b - 1)
+                        // and (l, b - 1) back; a one pixel wide or high rectangle so passes
+                        // its inner pixels twice, and one pixel draws nothing
+                        if r - l < 3 || b - t < 3 {
+                            hit(clause::GDI_SHAPE_RECTTHIN);
+                        }
+                        sl.fill_shape(l + 1, t + 1, r - 1, b - 1)?;
+                        let c = [(l, t), (r - 1, t), (r - 1, b - 1), (l, b - 1)];
+                        for i in 0..4 {
+                            for (x, y) in line_pixels(c[i], c[(i + 1) % 4]) {
+                                sl.plot(x, y, v);
+                            }
+                        }
                     }
                 }
             }

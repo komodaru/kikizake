@@ -18,8 +18,7 @@ GDI.RECT.FRAME doc | FrameRect | a border one logical unit wide around the recta
 GDI.RECT.INVERT doc | InvertRect | inverts the rectangle's pixels (a logical NOT of each value)
 GDI.RECT.EMPTY measured | golden lines fillrect-*, framerect-*, invertrect-* (31 cases) | FillRect and InvertRect take the corners in either order and draw nothing for an empty rectangle, returning 1; FrameRect fails (0) when right < left or bottom < top, and with right == left or bottom == top still draws its edges (top row t, bottom row b - 1, ...)
 GDI.SHAPE.RECT doc | Rectangle | outlined with the pen, filled with the brush; "The rectangle that is drawn excludes the bottom and right edges"; with the null pen the filled area is (l, t) - (r - 1, b - 1) exclusive
-GDI.SHAPE.RECTPEN open | Rectangle | a rectangle outlined by a wider pen, PS_INSIDEFRAME, or a binary raster operation other than R2_COPYPEN
-GDI.SHAPE.RECTTHIN open | Rectangle | a rectangle one pixel wide or high with a pen
+GDI.SHAPE.RECTTHIN measured | golden lines rect-both rect-nobrush random-* | Rectangle with a one pixel pen: the brush over (l + 1, t + 1) - (r - 1, b - 1) through ROP2, then the outline as four lines without their last pixels, (l, t) -> (r - 1, t) -> (r - 1, b - 1) -> (l, b - 1) -> (l, t), through ROP2 (one pixel wide or high: its inner pixels twice, one pixel: nothing); an empty rectangle draws nothing
 GDI.SHAPE.BRUSH open | Rectangle, FillRect, FillRgn | shapes filled with a hatched or pattern brush
 GDI.SHAPE.POLYFILL measured | golden lines polygon-* | Polygon: the brush over CreatePolygonRgn's region of the points in the DC's fill mode (GDI.RGN.POLYSCAN), then the pen's outline closed back to the first point
 GDI.SHAPE.CURVE open | Ellipse, RoundRect, Arc, ArcTo, Pie, Chord | the pixels of ellipses and their parts
