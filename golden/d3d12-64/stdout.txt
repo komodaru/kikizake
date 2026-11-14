@@ -16749,6 +16749,96 @@ msq hr 80004005
 case incr
 device12 ok
 incr 40 40 20 8
+case fp-stencil-19
+device12 ok
+fp 0 27 64 1e 1 200 1e 190
+fp 3c00 3c 64 1e 1 200 1e 64
+total 7664
+fp 0 27 40 40 1 200 40 100
+fp 8000 27 40 40 1 200 40 100
+fp 10000 27 40 40 1 200 40 100
+fp 18000 3c 40 40 1 200 40 40
+fp 20000 3c 40 40 1 200 40 40
+fp 28000 3c 40 40 1 200 40 40
+total 2fe40
+fp 40 27 96 1 1 400 1 258
+fp 440 27 12c 1 1 600 1 4b0
+total 8b0
+case fp-stencil-20
+device12 ok
+fp 0 27 64 1e 1 200 1e 190
+fp 3c00 3c 64 1e 1 200 1e 64
+total 7664
+fp 0 27 40 40 1 200 40 100
+fp 8000 27 40 40 1 200 40 100
+fp 10000 27 40 40 1 200 40 100
+fp 18000 3c 40 40 1 200 40 40
+fp 20000 3c 40 40 1 200 40 40
+fp 28000 3c 40 40 1 200 40 40
+total 2fe40
+fp 40 27 96 1 1 400 1 258
+fp 440 27 12c 1 1 600 1 4b0
+total 8b0
+case fp-stencil-44
+device12 ok
+fp 0 27 64 1e 1 200 1e 190
+fp 3c00 3c 64 1e 1 200 1e 64
+total 7664
+fp 0 27 40 40 1 200 40 100
+fp 8000 27 40 40 1 200 40 100
+fp 10000 27 40 40 1 200 40 100
+fp 18000 3c 40 40 1 200 40 40
+fp 20000 3c 40 40 1 200 40 40
+fp 28000 3c 40 40 1 200 40 40
+total 2fe40
+fp 40 27 96 1 1 400 1 258
+fp 440 27 12c 1 1 600 1 4b0
+total 8b0
+case fp-stencil-45
+device12 ok
+fp 0 27 64 1e 1 200 1e 190
+fp 3c00 3c 64 1e 1 200 1e 64
+total 7664
+fp 0 27 40 40 1 200 40 100
+fp 8000 27 40 40 1 200 40 100
+fp 10000 27 40 40 1 200 40 100
+fp 18000 3c 40 40 1 200 40 40
+fp 20000 3c 40 40 1 200 40 40
+fp 28000 3c 40 40 1 200 40 40
+total 2fe40
+fp 40 27 96 1 1 400 1 258
+fp 440 27 12c 1 1 600 1 4b0
+total 8b0
+case fp-onemip-89-2
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 80070057
+case fp-onemip-89-3
+device12 ok
+fp 0 59 7 3 1 100 3 1c
+total 21c
+create hr 00000001
+case fp-onemip-89-4
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 80070057
+case fp-onemip-101-2
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 80070057
+case fp-onemip-101-3
+device12 ok
+fp 0 65 7 3 1 100 3 1c
+total 21c
+create hr 00000001
+case fp-onemip-101-4
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 80070057
 case copy-1
 device12 ok
 copy 0 first 030a11181f262d343b424950575e656c
