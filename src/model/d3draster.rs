@@ -465,9 +465,9 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         hit(clause::D3DRASTER_NOVIEWPORT);
         return Ok(());
     };
-    if !matches!(top, 4 | 5) {
+    let Some(topo) = Topo::of(top) else {
         return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
-    }
+    };
     let view = m.views[tv].clone().unwrap();
     let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_RTFMT))?;
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
@@ -502,33 +502,382 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     // (a triangle wholly past the buffer reads zeros, a point at w = 0, and with a zero stride
     // all three vertices are one point: nothing drawn, so the draw stops there)
     let nv = u64::try_from(vtx.len()).unwrap_or(u64::MAX).saturating_mul(4).checked_div(u64::from(stride)).map_or(1, |n| n + 1);
-    let ntri = match top {
-        4 => u64::from(count / 3).min(nv.div_ceil(3)),
-        _ => u64::from(count.saturating_sub(2)).min(nv),
+    let nprim = match topo {
+        Topo::Points => u64::from(count).min(nv),
+        Topo::Lines => u64::from(count / 2).min(nv.div_ceil(2)),
+        Topo::LineStrip => u64::from(count.saturating_sub(1)).min(nv),
+        Topo::Tris => u64::from(count / 3).min(nv.div_ceil(3)),
+        Topo::TriStrip => u64::from(count.saturating_sub(2)).min(nv),
     };
-    let ntri = u32::try_from(ntri).unwrap_or(u32::MAX);
+    let nprim = u32::try_from(nprim).unwrap_or(u32::MAX);
+    let tg = Target { dev, vp, size: (rw, rh), view: &view, fmt: rt_fmt, sub: rt_sub, dsv: dsv.as_ref() };
     for i in 0..instances {
-        for p in 0..ntri {
-            // (strips: every other triangle's first two vertices swapped; the leading vertex first)
-            let idx = match top {
-                4 => [3 * p, 3 * p + 1, 3 * p + 2],
-                _ if p % 2 == 0 => [p, p + 1, p + 2],
-                _ => {
-                    hit(clause::D3DRASTER_STRIP);
-                    [p + 1, p, p + 2]
+        // (the lines of the draw, or the edges of its triangles in wireframe: drawn together,
+        // since whether a line's end lights its pixel depends on the lines after it)
+        let mut segs: Vec<Seg> = Vec::new();
+        for p in 0..nprim {
+            match topo {
+                Topo::Points => point(m, &d, &tg, ps, fetch(p, i)?)?,
+                Topo::Lines | Topo::LineStrip => {
+                    let k = if topo == Topo::Lines { 2 * p } else { p };
+                    let a = fetch(k, i)?;
+                    segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a });
                 }
-            };
-            let lead = if top == 5 { p } else { 3 * p };
-            let tri = [fetch(idx[0], i)?, fetch(idx[1], i)?, fetch(idx[2], i)?];
-            let leadv = fetch(lead, i)?;
-            triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), &view, rt_fmt, rt_sub, dsv.as_ref())?;
+                Topo::Tris | Topo::TriStrip => {
+                    // (strips: every other triangle's first two vertices swapped; the leading
+                    // vertex first)
+                    let idx = match topo {
+                        Topo::Tris => [3 * p, 3 * p + 1, 3 * p + 2],
+                        _ if p % 2 == 0 => [p, p + 1, p + 2],
+                        _ => {
+                            hit(clause::D3DRASTER_STRIP);
+                            [p + 1, p, p + 2]
+                        }
+                    };
+                    let lead = if topo == Topo::TriStrip { p } else { 3 * p };
+                    let tri = [fetch(idx[0], i)?, fetch(idx[1], i)?, fetch(idx[2], i)?];
+                    let leadv = fetch(lead, i)?;
+                    triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), &view, rt_fmt, rt_sub, dsv.as_ref(), &mut segs)?;
+                }
+            }
+        }
+        lines(m, &d, &tg, ps, &segs)?;
+    }
+    Ok(())
+}
+
+/// the primitive topologies the model draws (D3D11_PRIMITIVE_TOPOLOGY 1 to 5)
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Topo {
+    Points,
+    Lines,
+    LineStrip,
+    Tris,
+    TriStrip,
+}
+
+impl Topo {
+    fn of(top: u32) -> Option<Topo> {
+        match top {
+            1 => Some(Topo::Points),
+            2 => Some(Topo::Lines),
+            3 => Some(Topo::LineStrip),
+            4 => Some(Topo::Tris),
+            5 => Some(Topo::TriStrip),
+            _ => None,
+        }
+    }
+}
+
+/// what a primitive is drawn into
+struct Target<'a> {
+    dev: Dev,
+    vp: [f32; 6],
+    size: (u32, u32),
+    view: &'a super::d3dres::View,
+    fmt: &'static Format,
+    sub: u32,
+    dsv: Option<&'a super::d3dres::View>,
+}
+
+impl Target<'_> {
+    /// a pixel inside the target, its center inside the viewport and (when on) the scissor
+    /// rectangle (D3DRASTER.VPCLIP)
+    fn drawable(&self, d: &Draw, (px, py): (i64, i64)) -> bool {
+        let [vx, vy, vw, vh, _, _] = self.vp;
+        let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
+        (0..i64::from(self.size.0)).contains(&px)
+            && (0..i64::from(self.size.1)).contains(&py)
+            && cx >= vx
+            && cx < vx + vw
+            && cy >= vy
+            && cy < vy + vh
+            && (d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3])
+    }
+
+    /// a depth in the clip volume's [0, 1] onto the viewport's range
+    fn depth(&self, z: f32) -> f32 {
+        let [_, _, _, _, minz, maxz] = self.vp;
+        let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
+        (minz + z * (maxz - minz)).clamp(lo, hi)
+    }
+
+    fn put(&self, m: &mut D3dres, d: &Draw, (px, py): (i64, i64), z: f32, out: [u32; 4]) -> Res<()> {
+        let at = (usize::try_from(px).unwrap_or(0), usize::try_from(py).unwrap_or(0), self.size.0 as usize);
+        output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out)
+    }
+}
+
+/// a position in 1/256 pixels (16.8 fixed point, D3DRASTER.SNAP)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+struct Sub {
+    x: i64,
+    y: i64,
+}
+
+/// a coordinate snapped to 1/256 pixel, rounding half to even (2^31 pixels: past any guard
+/// band; the products of the edge tests stay within i128)
+fn snap256(v: f32) -> i64 {
+    let x = f64::from(v).clamp(-2147483648.0, 2147483648.0) * 256.0;
+    let f = x.floor();
+    let r = x - f;
+    (if r > 0.5 || r == 0.5 && (f as i64) % 2 != 0 { f + 1.0 } else { f }) as i64
+}
+
+/// a clip position through the viewport transform, snapped
+fn snapped(vp: [f32; 6], q: &[f32; 4]) -> Sub {
+    let [vx, vy, vw, vh, _, _] = vp;
+    Sub { x: snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), y: snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)) }
+}
+
+/// a vertex's w that the model can draw with: positive and every coordinate finite
+fn drawable_w(v: &Vert) -> Res<()> {
+    if !(v.pos[3] > 0.0) || v.pos.iter().any(|x| !x.is_finite()) {
+        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+    }
+    Ok(())
+}
+
+/// (MEASURED, WARP: probe-points-*, every pixel) a point inside the clip volume lights the
+/// one pixel (ceil(x) - 1, ceil(y) - 1) of its snapped position, in the vertex's color
+fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert) -> Res<()> {
+    hit(clause::D3DRASTER_POINT);
+    drawable_w(&v)?;
+    let q = v.pos;
+    if !(-q[3] <= q[0] && q[0] <= q[3] && -q[3] <= q[1] && q[1] <= q[3]) {
+        hit(clause::D3DRASTER_CLIP);
+        return Ok(());
+    }
+    let z = q[2] / q[3];
+    if !(0.0..=1.0).contains(&z) {
+        // (outside the depth range a point is wholly in or out, as a triangle on one side)
+        if d.rast[6] != 0 {
+            hit(clause::D3DRASTER_DEPTHCLIP);
+            return Ok(());
+        }
+    }
+    let s = snapped(tg.vp, &q);
+    let px = ((s.x - 1).div_euclid(256), (s.y - 1).div_euclid(256));
+    if !tg.drawable(d, px) {
+        return Ok(());
+    }
+    let out = flat_color(ps, v.color)?;
+    tg.put(m, d, px, tg.depth(z), out)
+}
+
+/// what the color programs write for a primitive of one color: points, and lines through the
+/// constant input
+fn flat_color(ps: &str, c: [f32; 4]) -> Res<[u32; 4]> {
+    match ps {
+        "ps" => Ok(c.map(f32::to_bits)),
+        "psflat" => {
+            hit(clause::D3DRASTER_FLAT);
+            Ok(c.map(f32::to_bits))
+        }
+        _ => Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY)),
+    }
+}
+
+/// a line of the draw, as the vertex shader leaves it
+struct Seg {
+    a: Vert,
+    b: Vert,
+    lead: Vert,
+}
+
+/// a line clipped and snapped
+struct Line {
+    a: Sub,
+    b: Sub,
+    ca: [f32; 4],
+    cb: [f32; 4],
+    lead: [f32; 4],
+    /// |dy| > |dx|: the y-major diamond (its right corner in)
+    ymaj: bool,
+    z: f32,
+}
+
+/// the diamond of half-diagonal 1/2 pixel, in 1/256
+const DIAMOND: i128 = 128;
+
+impl Line {
+    /// (MEASURED, WARP, by the Rasterization Rules' figure: probe-lines-*, probe-linestrip-*,
+    /// probe-wire-*) p, scaled by s, in the diamond of the pixel whose center is c: its
+    /// inside, its lower-left and lower-right edges and bottom corner, and for a y-major line
+    /// also its right corner
+    fn in_diamond(&self, p: (i128, i128), c: (i128, i128), s: i128) -> bool {
+        let (dx, dy) = (p.0 - c.0 * s, p.1 - c.1 * s);
+        let (d, r) = (dx.abs() + dy.abs(), DIAMOND * s);
+        if d != r {
+            return d < r;
+        }
+        dx == 0 && dy == r || dx == r && dy == 0 && self.ymaj || dy > 0 && dx != 0
+    }
+
+    /// some point of the line in the pixel's diamond
+    fn meets(&self, c: (i128, i128)) -> bool {
+        let (a, b) = ((i128::from(self.a.x), i128::from(self.a.y)), (i128::from(self.b.x), i128::from(self.b.y)));
+        let (dx, dy) = (b.0 - a.0, b.1 - a.1);
+        // the chord's parameters t0 <= t <= t1 inside the closed diamond, as n / d (d > 0)
+        let less = |p: (i128, i128), q: (i128, i128)| p.0 * q.1 < q.0 * p.1;
+        let (mut t0, mut t1) = ((0i128, 1i128), (1i128, 1i128));
+        for (u, v) in [(1i128, 1i128), (1, -1), (-1, 1), (-1, -1)] {
+            let num = DIAMOND - (u * (a.0 - c.0) + v * (a.1 - c.1));
+            let den = u * dx + v * dy;
+            match den.signum() {
+                0 if num < 0 => return false,
+                0 => {}
+                1 => {
+                    if less((num, den), t1) {
+                        t1 = (num, den);
+                    }
+                }
+                _ => {
+                    if less(t0, (-num, -den)) {
+                        t0 = (-num, -den);
+                    }
+                }
+            }
+        }
+        if less(t1, t0) {
+            return false;
+        }
+        // (inside the open diamond somewhere along a chord of length, unless it runs along an
+        // edge: then its middle tells; a chord of no length is one point)
+        let mid = (t0.0 * t1.1 + t1.0 * t0.1, 2 * t0.1 * t1.1);
+        [t0, t1, mid].iter().any(|&(n, s)| self.in_diamond((a.0 * s + dx * n, a.1 * s + dy * n), c, s))
+    }
+
+    /// the line exits the pixel's diamond going from a to b: it meets it and b is not in it
+    fn lights(&self, c: (i128, i128)) -> bool {
+        self.meets(c) && !self.in_diamond((i128::from(self.b.x), i128::from(self.b.y)), c, 1)
+    }
+
+    /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels) the color
+    /// along the line: a plane over the major axis, g = 1 / (b - a), per channel the gradient
+    /// (cb - ca) g, C = ca - grad a, the value C + grad c at the pixel center, in f32
+    fn color(&self, (px, py): (i64, i64)) -> [f32; 4] {
+        let (a, b, c) = if self.ymaj { (self.a.y, self.b.y, py as f32 + 0.5) } else { (self.a.x, self.b.x, px as f32 + 0.5) };
+        let (a, b) = (a as f32 / 256.0, b as f32 / 256.0);
+        let g = 1.0 / (b - a);
+        [0, 1, 2, 3].map(|k| {
+            let grad = (self.cb[k] - self.ca[k]) * g;
+            let c0 = self.ca[k] - grad * a;
+            c0 + grad * c
+        })
+    }
+}
+
+/// a line clipped to -w <= x <= w and -w <= y <= w in that order, in f32: the end outside a
+/// plane moves to a + (b - a) t, t = da / (da - db), its color with it; None when wholly out
+fn clip_line(mut a: Vert, mut b: Vert) -> Option<(Vert, Vert)> {
+    for plane in 0..4 {
+        let dist = |q: &Vert| match plane {
+            0 => q.pos[3] + q.pos[0],
+            1 => q.pos[3] - q.pos[0],
+            2 => q.pos[3] + q.pos[1],
+            _ => q.pos[3] - q.pos[1],
+        };
+        let (da, db) = (dist(&a), dist(&b));
+        match (da >= 0.0, db >= 0.0) {
+            (false, false) => return None,
+            (true, true) => continue,
+            (ina, _) => {
+                let t = da / (da - db);
+                let lerp = |p: [f32; 4], q: [f32; 4]| [0, 1, 2, 3].map(|k| p[k] + (q[k] - p[k]) * t);
+                let v = Vert { pos: lerp(a.pos, b.pos), color: lerp(a.color, b.color) };
+                if ina {
+                    b = v;
+                } else {
+                    a = v;
+                }
+            }
+        }
+    }
+    Some((a, b))
+}
+
+/// the lines of one draw (line lists and strips, the edges of wireframe triangles), in order
+fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<()> {
+    if segs.is_empty() {
+        return Ok(());
+    }
+    hit(clause::D3DRASTER_LINE);
+    // (MEASURED: lines with the multisample or antialiased-line state are drawn as quads,
+    // not measured; nor colors along a line with w other than 1)
+    if d.rast[8] != 0 || d.rast[9] != 0 {
+        return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
+    }
+    let mut ls: Vec<Line> = Vec::new();
+    for s in segs {
+        drawable_w(&s.a)?;
+        drawable_w(&s.b)?;
+        let (za, zb) = (s.a.pos[2] / s.a.pos[3], s.b.pos[2] / s.b.pos[3]);
+        let inside = |z: f32| (0.0..=1.0).contains(&z);
+        if d.rast[6] != 0 && !(inside(za) && inside(zb)) {
+            if za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0 {
+                hit(clause::D3DRASTER_DEPTHCLIP);
+                continue;
+            }
+            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPZ));
+        }
+        if za != zb {
+            return Err(Fail::Unmodeled(open::D3DRASTER_INTERP));
+        }
+        if (s.a.pos[3] != 1.0 || s.b.pos[3] != 1.0) && s.a.color != s.b.color && ps == "ps" {
+            return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
+        }
+        let Some((a, b)) = clip_line(s.a, s.b) else {
+            hit(clause::D3DRASTER_CLIP);
+            continue;
+        };
+        let (pa, pb) = (snapped(tg.vp, &a.pos), snapped(tg.vp, &b.pos));
+        if pa == pb {
+            // (no length: it exits no diamond)
+            hit(clause::D3DRASTER_DEGENERATE);
+            continue;
+        }
+        let ymaj = (pb.y - pa.y).abs() > (pb.x - pa.x).abs();
+        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, lead: s.lead.color, ymaj, z: tg.depth(za) });
+    }
+    let center = |(px, py): (i64, i64)| (i128::from(px) * 256 + 128, i128::from(py) * 256 + 128);
+    for (i, l) in ls.iter().enumerate() {
+        // (an end inside a pixel's diamond: Windows lights that pixel for some lines and not
+        // others, the rule not yet found (probe-lineend-*); unless a later line lights it)
+        let (bx, by) = (l.b.x.div_euclid(256), l.b.y.div_euclid(256));
+        for py in by - 1..=by + 1 {
+            for px in bx - 1..=bx + 1 {
+                let c = center((px, py));
+                if l.in_diamond((i128::from(l.b.x), i128::from(l.b.y)), c, 1) && tg.drawable(d, (px, py)) && !ls[i + 1..].iter().any(|k| k.lights(c)) {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
+                }
+            }
+        }
+        let (x0, x1) = (l.a.x.min(l.b.x).div_euclid(256) - 1, l.a.x.max(l.b.x).div_euclid(256) + 1);
+        let (y0, y1) = (l.a.y.min(l.b.y).div_euclid(256) - 1, l.a.y.max(l.b.y).div_euclid(256) + 1);
+        let (x0, y0) = (x0.max(0), y0.max(0));
+        let (x1, y1) = (x1.min(i64::from(tg.size.0) - 1), y1.min(i64::from(tg.size.1) - 1));
+        for py in y0..=y1 {
+            for px in x0..=x1 {
+                if !tg.drawable(d, (px, py)) || !l.lights(center((px, py))) {
+                    continue;
+                }
+                let out = match ps {
+                    "ps" => {
+                        hit(clause::D3DRASTER_LINE_COLOR);
+                        l.color((px, py)).map(f32::to_bits)
+                    }
+                    _ => flat_color(ps, l.lead)?,
+                };
+                tg.put(m, d, (px, py), l.z, out)?;
+            }
         }
     }
     Ok(())
 }
 
 #[allow(clippy::too_many_arguments)]
-fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>) -> Res<()> {
+fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, wire: &mut Vec<Seg>) -> Res<()> {
     // (every vertex at w <= 0: wholly outside the clip volume, or (w = 0, so x = y = 0 inside
     // it) a point: nothing drawn, probe-vb-past)
     if tri.iter().all(|v| v.pos[3] <= 0.0 && v.pos.iter().all(|x| x.is_finite()) && (v.pos[3] < 0.0 || v.pos[0] == 0.0 && v.pos[1] == 0.0)) {
@@ -580,8 +929,16 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     if d.rast[1] == 2 && front || d.rast[1] == 3 && !front {
         return Ok(());
     }
-    if d.rast[0] != 3 {
-        return Err(Fail::Unmodeled(open::D3DRASTER_WIREFRAME));
+    // (MEASURED, WARP: probe-wire-*, probe-wireframe) wireframe: the triangle's edges as
+    // lines, from the vertex of least clip x on: 0 to 1, 1 to 2, 2 to 0
+    if d.rast[0] == 2 {
+        hit(clause::D3DRASTER_WIREFRAME);
+        let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
+        let t: [Vert; 3] = [0, 1, 2].map(|i| tri[(k0 + i) % 3]);
+        for e in 0..3 {
+            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead });
+        }
+        return Ok(());
     }
     let v = if cw { [p[0], p[1], p[2]] } else { [p[0], p[2], p[1]] };
     let order = if cw { [0, 1, 2] } else { [0, 2, 1] };
@@ -593,7 +950,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     // space, and the pieces' new vertices snapped as any other, tri-2: so an edge moves by up
     // to the snapping of its new end)
     let poly = clip_xy(tri.map(|v| v.pos));
-    let pieces: Vec<[(i64, i64); 3]> = if poly.len() == 3 && poly.iter().zip(tri.iter()).all(|(a, b)| *a == b.pos) {
+    let unclipped = poly.len() == 3 && poly.iter().zip(tri.iter()).all(|(a, b)| *a == b.pos);
+    let planes = unclipped.then(|| Planes::new(tri, |q| {
+        let (x, y) = snap2(q);
+        (x as f32 / 256.0, y as f32 / 256.0)
+    }));
+    let pieces: Vec<[(i64, i64); 3]> = if unclipped {
         vec![v]
     } else {
         hit(clause::D3DRASTER_CLIP);
@@ -659,11 +1021,53 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 w[order[2]] = w2;
                 w
             };
-            let out = shade(m, ps, tri, lead, prim, front, (px, py), z, bary, d)?;
+            let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, bary, d)?;
             output(m, dev, d, view, rt_fmt, rt_sub, dsv, (px as usize, py as usize, rw as usize), z, out)?;
         }
     }
     Ok(())
+}
+
+/// (MEASURED, WARP: probe-interp-affine-*, probe-interp-persp-*, every pixel bit for bit) a
+/// triangle's perspective-correct color: the vertices turned so the least clip x comes first,
+/// each at its snapped screen position; a plane per attribute a, with
+/// A = (x1 - x0)(y2 - y0) - (y1 - y0)(x2 - x0), gx = (d1 (y2 - y0) - d2 (y1 - y0)) (1 / A),
+/// gy = (d2 (x1 - x0) - d1 (x2 - x0)) (1 / A), C = (a0 - gx x0) - gy y0 and the value at a pixel
+/// center (C + gy cy) + gx cx, all in f32; planes of 1/w and of a (1/w), the color their quotient
+/// a/w times 1 / (1/w)
+struct Planes {
+    xs: [f32; 3],
+    ys: [f32; 3],
+    iw: [f32; 3],
+    aw: [[f32; 4]; 3],
+}
+
+impl Planes {
+    fn new(tri: &[Vert; 3], screen: impl Fn(&[f32; 4]) -> (f32, f32)) -> Planes {
+        // (the first of the least clip x, as a stable rotation)
+        let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
+        let t: [&Vert; 3] = [0, 1, 2].map(|i| &tri[(k0 + i) % 3]);
+        let s = t.map(|v| screen(&v.pos));
+        let iw = t.map(|v| 1.0 / v.pos[3]);
+        let aw = [0, 1, 2].map(|i| t[i].color.map(|a| a * iw[i]));
+        Planes { xs: s.map(|p| p.0), ys: s.map(|p| p.1), iw, aw }
+    }
+
+    fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
+        let ([x0, x1, x2], [y0, y1, y2]) = (self.xs, self.ys);
+        let area = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
+        let r = 1.0 / area;
+        let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+        let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
+        let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
+        let c = (a[0] - gx * x0) - gy * y0;
+        (c + gy * cy) + gx * cx
+    }
+
+    fn at(&self, cx: f32, cy: f32) -> [f32; 4] {
+        let q = 1.0 / self.plane(self.iw, cx, cy);
+        [0, 1, 2, 3].map(|k| self.plane(self.aw.map(|a| a[k]), cx, cy) * q)
+    }
 }
 
 /// a triangle clipped to -w <= x <= w and -w <= y <= w (Sutherland-Hodgman, in single
@@ -699,7 +1103,7 @@ fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
 
 /// the pixel shader: what it writes to SV_Target, as bits (floats or uints)
 #[allow(clippy::too_many_arguments)]
-fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bool, (px, py): (i64, i64), z: Option<f32>, bary: [f64; 3], d: &Draw) -> Res<[u32; 4]> {
+fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: Vert, prim: u32, front: bool, (px, py): (i64, i64), z: Option<f32>, bary: [f64; 3], d: &Draw) -> Res<[u32; 4]> {
     let same = |f: &dyn Fn(&Vert) -> [f32; 4]| -> Res<[f32; 4]> {
         let a = f(&tri[0]);
         if tri.iter().all(|v| f(v) == a) {
@@ -709,7 +1113,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
         }
     };
     Ok(match ps {
-        "ps" => same(&|v| v.color)?.map(f32::to_bits),
+        "ps" => match planes {
+            Some(p) => {
+                hit(clause::D3DRASTER_INTERP_PLANE);
+                p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits)
+            }
+            None => same(&|v| v.color)?.map(f32::to_bits),
+        },
         "psflat" => {
             hit(clause::D3DRASTER_FLAT);
             lead.color.map(f32::to_bits)

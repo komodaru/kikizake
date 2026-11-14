@@ -632,6 +632,78 @@ fn probes(s: &mut String, dev: &str) {
         }
         writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }
+    // to fit what D3DRASTER.TOPOLOGY leaves open: line ends inside a pixel's diamond (16
+    // short lines a case, each alone in a 4 x 4 cell, ending near the cell's pixel (2, 2) from
+    // every direction), lines with w, the multisample and antialiased-line states, the
+    // adjacency and patch topologies, points and lines through the other programs
+    let mut r3 = XorShift32::new(0x11e_e7d);
+    for i in 0..8u32 {
+        begin(s, dev, &format!("probe-lineend-{i}"), 16, 16, 28, "ps");
+        for cell in 0..16u32 {
+            let (cx, cy) = ((cell % 4 * 4) as f32 + 2.5, (cell / 4 * 4) as f32 + 2.5);
+            let (ox, oy) = loop {
+                let (a, b) = (r3.range(-127, 128), r3.range(-127, 128));
+                if a.abs() + b.abs() < 128 {
+                    break (a as f32 / 256.0, b as f32 / 256.0);
+                }
+            };
+            let (dx, dy) = loop {
+                let (a, b) = (r3.range(-256, 257) as f32, r3.range(-256, 257) as f32);
+                if a.abs() + b.abs() >= 64.0 {
+                    break (a, b);
+                }
+            };
+            let len = (1.2 + r3.range(0, 154) as f32 / 256.0) / (dx * dx + dy * dy).sqrt();
+            let (bx, by) = (cx + ox, cy + oy);
+            let grid = |v: f32| (v * 256.0).round() / 256.0;
+            vertex(s, grid(bx - dx * len), grid(by - dy * len), 0.5, color(i * 37 + 2 * cell), 16.0, 16.0);
+            vertex(s, bx, by, 0.5, color(i * 37 + 2 * cell + 1), 16.0, 16.0);
+        }
+        writeln!(s, "draw 2 32 32").unwrap();
+        read_rt(s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    for i in 0..4u32 {
+        begin(s, dev, &format!("probe-linesw-{i}"), 16, 16, 2, "ps");
+        for _ in 0..8 {
+            let (x, y, w) = (px(&mut r3, 0, 16), px(&mut r3, 0, 16), 0.25 + 3.75 * unit(&mut r3));
+            let (nx, ny) = (x / 16.0 * 2.0 - 1.0, 1.0 - y / 16.0 * 2.0);
+            let c = [unit(&mut r3), unit(&mut r3), unit(&mut r3), unit(&mut r3)];
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(nx * w), fb(ny * w), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+        }
+        writeln!(s, "draw 2 8 32").unwrap();
+        read_rt(s, 0, 2, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    let some = |s: &mut String, r: &mut XorShift32, n: u32| {
+        for k in 0..n {
+            vertex(s, px(r, 0, 16), px(r, 0, 16), 0.5, color(k * 7 + 3), 16.0, 16.0);
+        }
+    };
+    for (name, rast) in [("ms", "rast 3 1 0 0 0 0 1 0 1 0"), ("aa", "rast 3 1 0 0 0 0 1 0 0 1"), ("msaa", "rast 3 1 0 0 0 0 1 0 1 1")] {
+        begin(s, dev, &format!("probe-lines-{name}"), 16, 16, 28, "ps");
+        writeln!(s, "{rast}").unwrap();
+        some(s, &mut r3, 8);
+        writeln!(s, "draw 2 8 32").unwrap();
+        read_rt(s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    for top in [10u32, 11, 12, 13, 33] {
+        begin(s, dev, &format!("probe-topology-{top}"), 16, 16, 28, "ps");
+        some(s, &mut r3, 12);
+        writeln!(s, "draw {top} 12 32").unwrap();
+        read_rt(s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    for (top, n) in [(1u32, 12u32), (2, 8)] {
+        for ps in ["psflat", "pspos", "psprim"] {
+            begin(s, dev, &format!("probe-top{top}-{ps}"), 16, 16, 2, ps);
+            some(s, &mut r3, n);
+            writeln!(s, "draw {top} {n} 32").unwrap();
+            read_rt(s, 0, 2, 16, 16);
+            writeln!(s, "end").unwrap();
+        }
+    }
     // a constant buffer bound (no program reads it)
     begin(s, dev, "probe-cbuf", 16, 16, 28, "ps");
     writeln!(s, "buf 2 16 0 4 0 0 0\ncbuf 2").unwrap();

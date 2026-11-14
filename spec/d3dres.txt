@@ -80,7 +80,10 @@ D3DRASTER.VP10 measured | D3D10_VIEWPORT (INT TopLeftX, TopLeftY); probe-vp-frac
 D3DRASTER.DRAW doc | ID3D11DeviceContext::Draw, DrawInstanced | the vertices through the pipeline
 D3DRASTER.INCOMPLETE measured | Draw; probe-incomplete | a draw without programs and an input layout draws nothing; nothing is drawn without a target or depth view to draw to
 D3DRASTER.NOVIEWPORT measured | RSSetViewports; probe-noviewport | a draw without a viewport draws nothing
-D3DRASTER.TOPOLOGY open | (none) | points and lines
+D3DRASTER.TOPOLOGY open | (none) | the lists and strips with adjacency, patch lists; points and lines through programs other than ps and psflat; lines with the multisample or antialiased-line state; colors along a line with w other than 1; a line's end inside a pixel's diamond that no later line lights (lit for some lines, not others: probe-lineend-*)
+D3DRASTER.POINT measured | Point Rasterization Rules; probe-points-* (WARP, every pixel) | a point inside the clip volume lights the one pixel (ceil(x) - 1, ceil(y) - 1) of its snapped position, in its vertex's values
+D3DRASTER.LINE measured | Aliased Line Rasterization Rules (the figure); probe-lines-*, probe-linestrip-*, probe-wire-* (WARP, every pixel but the end rule of D3DRASTER.TOPOLOGY) | a line is clipped to the viewport planes in f32 (the end outside a plane moves to a + (b - a) da / (da - db), its attributes with it), snapped; it lights a pixel when it exits the pixel's diamond going from its start to its end: it meets the diamond (its inside, lower-left and lower-right edges and bottom corner, for a y-major line also its right corner) and its end is not in it; strips as the separate lines in order
+D3DRASTER.LINE.COLOR measured | probe-lines-*, probe-linestrip-*, probe-wire-* (WARP, 904 pixels) | the color along a line: a plane over the major axis, gradient (cb - ca) (1 / (b - a)), C = ca - gradient a, the value C + gradient c at the pixel center's major coordinate, in f32
 D3DRASTER.RTFMT excluded | (the model) | a target of a format the model does not know: every target the suites make has a known format
 D3DRASTER.RTKIND open | (none) | targets other than one single-sampled 2D view: multisampled, arrays, a depth view alone
 D3DRASTER.VBPAST measured | Draw (out of bounds vertex buffer reads); probe-vb-past | vertices past the vertex buffer read as zeros
@@ -93,11 +96,12 @@ D3DRASTER.CLIPZ open | (none) | a triangle that crosses the depth range
 D3DRASTER.SNAP assumed | Rasterization Rules | vertices snapped to 1/256 of a pixel, rounding half to even
 D3DRASTER.DEGENERATE doc | Rasterization Rules | a triangle of zero area draws nothing
 D3DRASTER.CULL doc | D3D11_CULL_MODE, D3D11_RASTERIZER_DESC (FrontCounterClockwise) | clockwise triangles face front unless FrontCounterClockwise
-D3DRASTER.WIREFRAME open | D3D11_FILL_MODE | wireframe fill
+D3DRASTER.WIREFRAME measured | D3D11_FILL_MODE; probe-wire-*, probe-wireframe (WARP, every pixel) | wireframe: after culling, a triangle's edges drawn as lines (D3DRASTER.LINE) from its vertex of least clip x: 0 to 1, 1 to 2, 2 to 0, colored along each edge
 D3DRASTER.VPCLIP assumed | D3D11_VIEWPORT | a pixel is drawn only if its center is in the viewport (x <= c < x + width)
 D3DRASTER.SCISSOR doc | ID3D11DeviceContext::RSSetScissorRects | with ScissorEnable, pixels outside left..right, top..bottom are not drawn
 D3DRASTER.TOPLEFT doc | Rasterization Rules (top-left rule) | a pixel center on an edge is inside only on a top or left edge
-D3DRASTER.INTERP open | (none) | attributes that vary over a triangle
+D3DRASTER.INTERP open | (none) | attributes that vary over a clipped triangle, or into SV_Position's depth
+D3DRASTER.INTERP.PLANE measured | Rasterization Rules (attribute interpolation); probe-interp-affine-*, probe-interp-persp-* (WARP, every pixel bit for bit) | an unclipped triangle's color: the vertices turned so the least clip x comes first at their snapped positions; per attribute a plane of f32 gradients (times 1 / the doubled area), C = (a0 - gx x0) - gy y0, value (C + gy cy) + gx cx; planes of 1/w and a/w, the color a/w times 1 / (1/w)
 D3DRASTER.FLAT doc | Primitive Topologies (the leading vertex), dcl_input_ps constant | a constant input takes the leading vertex's value
 D3DRASTER.POS doc | Semantics (SV_Position) | the pixel center, the depth
 D3DRASTER.POSW measured | Semantics (SV_Position) (WARP) | SV_Position.w is the clip w
