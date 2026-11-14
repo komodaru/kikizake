@@ -70,6 +70,7 @@ pub mod e {
     pub const FOG_COLOR: u32 = 0xb66;
     pub const POLYGON_OFFSET_FILL: u32 = 0x8037;
     pub const LIGHTING: u32 = 0xb50;
+    pub const COLOR_MATERIAL: u32 = 0xb57;
     pub const POINT_SMOOTH: u32 = 0xb10;
     pub const POLYGON_SMOOTH: u32 = 0xb41;
     pub const MAP_COLOR: u32 = 0xd10;
@@ -1868,6 +1869,25 @@ impl Ctx {
         }
     }
 
+    /// a vertex's color under GL_LIGHTING with every light off and the initial material
+    /// (MEASURED, golden opengl-32 render-caps-0: the scene's ambient times the material's
+    /// ambient 0.2, the material's diffuse alpha 1, whatever the current color: GL.LIGHTING)
+    fn lit(&self, c: [f32; 4]) -> [f32; 4] {
+        if !self.cap(LIGHTING) {
+            return c;
+        }
+        hit(clause::GL_LIGHTING);
+        let a = match self.get(0xb53) {
+            Ok(Some(v)) => match v[0] {
+                V::C(x) | V::F(x) => x,
+                _ => 0.2,
+            },
+            _ => 0.2,
+        };
+        let l = a * 0.2;
+        [l, l, l, 1.0]
+    }
+
     fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
         let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
         let c = xform(self.top(1), e);
@@ -1885,10 +1905,16 @@ impl Ctx {
 
     fn end(&mut self, mode: u32) -> Res<()> {
         let verts = std::mem::take(&mut self.verts);
-        // (lighting, face culling and antialiasing are not measured)
-        if [LIGHTING, CULL_FACE, POINT_SMOOTH, POLYGON_SMOOTH].iter().any(|c| self.cap(*c)) {
+        // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
+        // color materials and color index lighting are not measured)
+        let alpha_used = self.pf.rgba[3].0 > 0 || self.cap(BLEND) || self.cap(ALPHA_TEST);
+        if (mode == POINTS && self.cap(POINT_SMOOTH)) || (mode != POINTS && self.cap(POLYGON_SMOOTH) && alpha_used) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
+        if self.cap(LIGHTING) && (self.pf.ty != 0 || self.cap(COLOR_MATERIAL) || (0x4000..=0x4007).any(|l| self.cap(l))) {
+            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+        }
+        let verts: Vec<_> = verts.into_iter().map(|(v, c)| (v, self.lit(c))).collect();
         match mode {
             POINTS => {
                 hit(clause::GL_POINT);
@@ -1968,6 +1994,29 @@ impl Ctx {
                     if x0 >= x1 || y0 >= y1 {
                         continue;
                     }
+                    // (MEASURED, golden opengl-32 render-caps-1: under GL_CULL_FACE a rectangle
+                    // facing the culled way is not drawn, its facing the sign of its window area
+                    // and glFrontFace; GL_FRONT_AND_BACK culls every one: GL.CULL)
+                    if self.cap(CULL_FACE) {
+                        hit(clause::GL_CULL);
+                        let area: f64 = (0..4).map(|k| xs[k] * ys[(k + 1) % 4] - xs[(k + 1) % 4] * ys[k]).sum();
+                        let front = (area > 0.0) == (self.front_face == CCW);
+                        let culled = match self.cull_mode {
+                            FRONT => front,
+                            BACK => !front,
+                            _ => true,
+                        };
+                        if culled {
+                            continue;
+                        }
+                    }
+                    // (MEASURED, golden opengl-32 render-caps-3: under GL_POLYGON_SMOOTH every
+                    // pixel the rectangle covers any of is drawn, with no alpha to show the
+                    // coverage in: GL.POLYGON.SMOOTH)
+                    let smooth = self.cap(POLYGON_SMOOTH);
+                    if smooth {
+                        hit(clause::GL_POLYGON_SMOOTH);
+                    }
                     // a pixel whose center is on an edge (MEASURED, golden opengl-32 rect-*, tie-x-*,
                     // tie-y-*, tie-vp-*: every vertical and horizontal edge through pixel centers):
                     // as if the vertices were moved a little toward the window point of normalized
@@ -1987,7 +2036,7 @@ impl Ctx {
                     // opengl-32 tie-x-2, rect-16: in, where tie-x-* and tie-y-* have it out)
                     for cx in [x0, x1] {
                         for cy in [y0, y1] {
-                            if on(cx) && on(cy) && (0.0..W as f64).contains(&cx) && (0.0..H as f64).contains(&cy) {
+                            if !smooth && on(cx) && on(cy) && (0.0..W as f64).contains(&cx) && (0.0..H as f64).contains(&cy) {
                                 let ix = (cx == x0 && x0 > px) || (cx == x1 && x1 < px);
                                 let iy = (cy == y0 && y0 > py) || (cy == y1 && y1 < py);
                                 if ix != iy {
@@ -2033,7 +2082,12 @@ impl Ctx {
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
-                            if inside(cx, x0, x1, px) && inside(cy, y0, y1, py) {
+                            let covered = if smooth {
+                                (x as f64 + 1.0) > x0 && (x as f64) < x1 && (y as f64 + 1.0) > y0 && (y as f64) < y1
+                            } else {
+                                inside(cx, x0, x1, px) && inside(cy, y0, y1, py)
+                            };
+                            if covered {
                                 let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                                 if r.is_err() {
                                     self.never = NeverPath::Other;

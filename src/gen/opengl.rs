@@ -1286,10 +1286,31 @@ fn measure(s: &mut String) {
         write!(s, "case render-caps-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable {}\ngl glPointSize 3\n", ctx(32), h(cap)).unwrap();
         writeln!(s, "gl glColor4ub 200 100 50 255\ngl glRectf 1 1 7 7\ngl glColor4ub 50 200 100 128\ngl glRectf 15 1 9 7\ngl glRectf 9.25 9.25 14.5 14.75\ngl glColor4ub 10 20 250 255\ngl glBegin 0\ngl glVertex2f 3.5 12.5\ngl glVertex2f 5.3 9.7\ngl glEnd").unwrap();
         read_all(s);
-        writeln!(s, "gl glCullFace 0x404\ngl glFrontFace 0x900\ngl glColor4ub 250 250 0 255\ngl glRectf 2 10 6 14\ngl glRectf 1.5 14.5 0.5 9.5").unwrap();
+        writeln!(s, "gl glCullFace 0x404\ngl glFrontFace 0x900\ngl glColor4ub 250 250 0 255\ngl glRectf 2 10 6 14\ngl glRectf 1.75 14.25 0.25 9.75").unwrap();
         read_all(s);
         writeln!(s, "glerr\nend").unwrap();
     }
+    // culling both faces; antialiased points of every size at random positions; lighting
+    // with GL_COLOR_MATERIAL
+    write!(s, "case render-caps-4\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb44\ngl glCullFace 0x408\ngl glColor4ub 200 100 50 255\ngl glRectf 1 1 7 7\ngl glRectf 15 1 9 7\ngl glBegin 0\ngl glVertex2f 3.5 12.5\ngl glEnd\n", ctx(32)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    for k in 0..4 {
+        write!(s, "case smooth-points-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb10\n", ctx(32)).unwrap();
+        for _ in 0..4 {
+            writeln!(s, "gl glClear 0x4000\ngl glPointSize {}", (q.next() % 40) as f64 / 4.0 + 0.5).unwrap();
+            writeln!(s, "gl glColor4ub 255 255 255 255\ngl glBegin 0\ngl glVertex2f {} {}\ngl glEnd", (q.next() % 1000) as f64 / 1000.0 * 8.0 + 4.0, (q.next() % 1000) as f64 / 1000.0 * 8.0 + 4.0).unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    write!(s, "case lighting-material\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb50\ngl glEnable 0xb57\n", ctx(32)).unwrap();
+    for i in 0..16 {
+        let (x0, y0) = (i % 4 * 4, i / 4 * 4);
+        writeln!(s, "gl glColor4ub {} {} {} 255\ngl glRectf {x0} {y0} {} {}", q.next() & 255, q.next() & 255, q.next() & 255, x0 + 4, y0 + 4).unwrap();
+    }
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
     // fog over flat quads, one depth each, in every mode on the RGBA bit depths, a fog color,
     // the state read back; and color index fog and points
     let mut q = XorShift32::new(0x0960_200b);
