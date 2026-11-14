@@ -170,6 +170,11 @@ fn mutated_cases_never_panic() {
         let cases: Vec<&str> = text.split("\ncase ").skip(1).collect();
         for _ in 0..600 {
             let c = cases[next() as usize % cases.len()];
+            // (the size suites make textures of up to 1 GiB: mutated, their reads and clears
+            // would touch all of it)
+            if c.starts_with("big-") {
+                continue;
+            }
             let mut lines: Vec<Vec<String>> = c.lines().map(|l| l.split(' ').map(String::from).collect()).collect();
             for _ in 0..1 + next() % 3 {
                 let li = 1 + next() as usize % (lines.len() - 1).max(1);
@@ -178,6 +183,7 @@ fn mutated_cases_never_panic() {
                 if l[0] == "draw" {
                     continue;
                 }
+                let sized = l[0] == "tex" || l[0] == "buf";
                 let wi = next() as usize % l.len();
                 let w = &mut l[wi];
                 let v: i64 = w.strip_prefix("0x").map_or_else(|| w.parse().unwrap_or(0), |x| i64::from_str_radix(x, 16).unwrap_or(0));
@@ -185,6 +191,8 @@ fn mutated_cases_never_panic() {
                     0 => "0".into(),
                     1 => "1".into(),
                     2 => "0xffffffff".into(),
+                    // (sizes kept to what a test touches: below 2^16)
+                    3 if sized => format!("{:#x}", next() & 0xffff),
                     3 => format!("{:#x}", next()),
                     4 => (v + 1).to_string(),
                     _ => (v - 1).max(0).to_string(),

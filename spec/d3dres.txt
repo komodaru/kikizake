@@ -3,10 +3,10 @@ D3DRES.NODEV doc | (the executor) | without a device the resource and drawing li
 D3DRES.FMT open | CheckFormatSupport, D3D11_FORMAT_SUPPORT, CheckMultisampleQualityLevels | what each device reports for each format
 D3DRES.DESC measured | D3D11_TEXTURE1D_DESC, D3D11_TEXTURE2D_DESC, D3D11_TEXTURE3D_DESC, D3D11_USAGE, D3D11_BIND_FLAG, D3D11_CPU_ACCESS_FLAG; tex-format-*, tex2-*, tex-random-* (1100 descriptions per suite, 0 differ) | which texture descriptions CreateTexture* accept: usage and CPU access, the format's support bits (dimension, MIP, TEXTURECUBE, CPU_LOCKABLE, binds; a typeless format by its group's), sizes, mips, binds, flags, samples
 D3DRES.DESC.USAGEFF measured | tex2-f*-usage-u* | usage 0xffffffff passes as staging does
-D3DRES.X86CRASH measured | x86-usageff-0, tex2-f28-usage-u3 (x86 WARP) | the x86 runtime ends the program on usage 0xffffffff and on an unknown usage with CPU access; the cases end with these lines
+D3DRES.X86CRASH measured | x86-usageff-0, x86-usage-cpu-0 (x86 WARP) | the x86 runtime ends the program on a texture of usage 0xffffffff (other unknown usages are refused); the cases end with these lines
 D3DRES.DESC.SIZE measured | tex2-f*-w-*, tex2-f*-h-*, probe-size | a size of 0x80000000 or more is refused
 D3DRES.DESC.BIG measured | D3D11_REQ_TEXTURE1D_U_DIMENSION, D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION; big-0, big-1, big-bytes, tex2-f*-w-* (WARP) | 1D textures stop at 16384 (11_0) or 8192 (10_x), 3D at 2048; a 2D texture's check, with one level and one slice, passes up to 2^23 texels a side whatever the texel's bytes (8388608 wide passes, 8650752 not; 32768 square passes), with more levels or slices the level's sizes hold
-D3DRES.DESC.BIGBYTES open | big-make | making (not checking) a 2D texture past the level's sizes: whether WARP allocates it
+D3DRES.DESC.BIGBYTES open | big-make, big-make-huge | making a 2D texture past the level's sizes: made up to 1 GiB (16385 square); past that, whether WARP allocates it
 D3DRES.DESC.BUF measured | D3D11_BUFFER_DESC, D3D10_BUFFER_DESC; buf-* | which buffer descriptions CreateBuffer accepts: a size, bind flags (a constant buffer alone, 16-byte multiples), CPU access, raw (SRV or UAV) and structured (a stride of 4n dividing the size, at most 2048) buffers; the stride reads back 0 unless structured
 D3DRES.DESC.MISC measured | D3D11_RESOURCE_MISC_FLAG, D3D10_RESOURCE_MISC_FLAG; tex2-f*-misc-* | the flags a texture takes: 11: GENERATE_MIPS (with SRV and RTV), SHARED, TEXTURECUBE (2D, square, 6n slices), RESOURCE_CLAMP, SHARED_KEYEDMUTEX, GDI_COMPATIBLE (B8G8R8A8 formats), RESTRICTED_CONTENT (2D, not immutable or staging); 10: GENERATE_MIPS, SHARED, TEXTURECUBE
 D3DRES.DESC.CUBE10 measured | d3d10res tex-random-16 | Direct3D 10 drops TEXTURECUBE from a 1D or 3D description and makes it
@@ -40,11 +40,11 @@ D3DRES.COPY doc | ID3D11DeviceContext::CopyResource | every subresource copied
 D3DRES.COPY.FORMAT doc | CopyResource, Format Conversion using Direct3D 10.1 | compatible: one typeless group, or (10.1 and later) a block compressed format and an uncompressed format of the block's bits with equal integer or float components
 D3DRES.COPY.IGNORED assumed | CopyResource (invalid parameters: the call is not run) | an incompatible copy changes nothing
 D3DRES.COPYSUB doc | ID3D11DeviceContext::CopySubresourceRegion | the box's elements to (x, y, z)
-D3DRES.COPYSUB.BAD open | probe-copysub-empty, probe-copysub-buftex | an empty source box; a buffer to a texture or back
+D3DRES.COPYSUB.BAD measured | probe-copysub-empty, probe-copysub-buftex, probe-copysub-texbuf (WARP) | an empty source box, or a buffer to a texture or back: nothing changes
 D3DRES.COPYSUB.IGNORED measured | CopySubresourceRegion; probe-copysub-dsub, -ssub, -immutable, -ms (WARP) | a missing subresource on either side, an immutable destination or sample counts that differ: nothing changes; textures of other dimensions copy the box (probe-copysub-dim); a box past the source removes the device (probe-copysub-srcbox)
 D3DRES.RESOLVE doc | ID3D11DeviceContext::ResolveSubresource | samples averaged: one value in every sample gives that value
 D3DRES.RESOLVE.IGNORED measured | ResolveSubresource; probe-resolve-single, -ms-dst, -format (WARP) | a single-sampled source, a multisampled destination or a format of another group changes nothing
-D3DRES.RESOLVE.BAD open | probe-resolve-dsub | a missing subresource, or textures of other dimensions
+D3DRES.RESOLVE.BAD measured | probe-resolve-dsub, probe-resolve-dim (WARP) | a missing subresource, or textures of other dimensions: nothing changes
 D3DRES.RESOLVE.SIZE measured | ResolveSubresource; probe-resolve-size (WARP) | sizes that differ resolve where both are
 D3DRES.READ doc | (the executor) | the staging copy of the subresource, row by row
 D3DRES.READ.MS measured | (the executor); probe-read-ms | a multisampled resource reads as zeros (the copy to its single-sampled staging texture does not run)

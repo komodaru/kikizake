@@ -334,8 +334,11 @@ impl D3dres {
                     hit(clause::D3DRES_RESOLVE_IGNORED);
                     return Ok(true);
                 }
+                // (MEASURED: a missing subresource, or textures of other dimensions: nothing
+                // changes, probe-resolve-dsub, probe-resolve-dim)
                 if ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.dim != src.d.dim {
-                    return Err(Fail::Unmodeled(open::D3DRES_RESOLVE_BAD));
+                    hit(clause::D3DRES_RESOLVE_BAD);
+                    return Ok(true);
                 }
                 // (MEASURED: sizes that differ resolve where both are, probe-resolve-size)
                 let (srb, srows, _) = src.layout(ss);
@@ -344,7 +347,7 @@ impl D3dres {
                     hit(clause::D3DRES_RESOLVE_SIZE);
                 }
                 let (Some(sv), Some(dv)) = (src.subs[ss as usize].as_ref(), dst.subs[ds as usize].as_mut()) else {
-                    return Err(Fail::Unmodeled(open::D3DRES_RESOLVE_BAD));
+                    return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
                 };
                 let w = srb.min(drb);
                 for y in 0..srows.min(drows) {
@@ -396,10 +399,10 @@ impl D3dres {
             self.res[s] = None;
         }
         let kind = if buf { "buf" } else { "tex" };
-        // (MEASURED: the x86 runtime dies on usage 0xffffffff (x86-usageff-0 line 2) and on an
-        // unknown usage with CPU access (tex2-f28-usage-u3 line 6), for textures (buffers answer:
-        // buf-cbdyn-usage); x86-64 answers both)
-        if super::arch() == 32 && !buf && (d.usage == 0xffff_ffff || d.usage > 3 && d.cpu != 0) {
+        // (MEASURED: the x86 runtime dies on a texture of usage 0xffffffff, x86-usageff-0
+        // line 2; an unknown usage with CPU access is refused, x86-usage-cpu-0; buffers
+        // answer, buf-cbdyn-usage; x86-64 answers all)
+        if super::arch() == 32 && !buf && d.usage == 0xffff_ffff {
             hit(clause::D3DRES_X86CRASH);
             return Err(Fail::Crash);
         }
@@ -420,9 +423,9 @@ impl D3dres {
             out.push(format!("{kind} hr {hr:08x}"));
             return Ok(());
         }
-        // (MEASURED: one past the level's sizes is made up to 4 MiB, big-0; past that, as
-        // against checking it, big-make)
-        if !buf && super::d3dres_check::past_level_size(dev, &g) && Resource::zeroed_bytes(&g) > 1 << 22 {
+        // (MEASURED: past the level's sizes it is made as checked, up to 1 GiB, big-make;
+        // past that, big-make-huge)
+        if !buf && super::d3dres_check::past_level_size(dev, &g) && Resource::zeroed_bytes(&g) > 1 << 30 {
             return Err(Fail::Unmodeled(open::D3DRES_DESC_BIGBYTES));
         }
         let words = desc_words(dev, &g);
@@ -697,15 +700,24 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
         hit(clause::D3DRES_COPYSUB_IGNORED);
         return Ok(false);
     }
-    // (MEASURED: textures of other dimensions copy the box all the same, probe-copysub-dim)
+    // (MEASURED: textures of other dimensions copy the box all the same, probe-copysub-dim; a
+    // buffer to a texture or back changes nothing, probe-copysub-buftex, -texbuf)
     if (dst.d.dim == 4) != (src.d.dim == 4) {
-        return Err(Fail::Unmodeled(open::D3DRES_COPYSUB_BAD));
+        hit(clause::D3DRES_COPYSUB_BAD);
+        return Ok(false);
     }
     if dst.d.dim == 4 {
         let (l, r) = bx.map_or((0, src.d.w as usize), |x| (x[0] as usize, x[3] as usize));
         let x = at.0 as usize;
-        if r <= l || x + (r - l) > dst.d.w as usize || r > src.d.w as usize {
-            return Err(Fail::Unmodeled(open::D3DRES_COPYSUB_BAD));
+        // (as for textures: an empty box changes nothing, one past either buffer removes the
+        // device, probe-copysub-buf)
+        if r <= l {
+            hit(clause::D3DRES_COPYSUB_BAD);
+            return Ok(false);
+        }
+        if x.saturating_add(r - l) > dst.d.w as usize || r > src.d.w as usize {
+            hit(clause::D3DRES_REMOVED);
+            return Ok(true);
         }
         let s = src.subs[0].as_ref().unwrap()[l..r].to_vec();
         dst.subs[0].as_mut().unwrap()[x..x + (r - l)].copy_from_slice(&s);
@@ -720,7 +732,8 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
     let (drb, drows, dsl) = dst.layout(ds);
     let (sel, del) = ((sf.bits / 8) as usize, (df.bits / 8) as usize);
     if sel != del {
-        return Err(Fail::Unmodeled(open::D3DRES_COPYSUB_BAD));
+        hit(clause::D3DRES_COPY_IGNORED);
+        return Ok(false);
     }
     let (l, t, f, r, b, k) = match bx {
         None => (0, 0, 0, srb / sel, srows, ssl),
@@ -730,8 +743,10 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
         }
     };
     let (dx, dy, dz) = (at.0 as usize / df.bw as usize, at.1 as usize / df.bh as usize, at.2 as usize);
+    // (MEASURED: an empty box changes nothing, probe-copysub-empty)
     if r <= l || b <= t || k <= f {
-        return Err(Fail::Unmodeled(open::D3DRES_COPYSUB_BAD));
+        hit(clause::D3DRES_COPYSUB_BAD);
+        return Ok(false);
     }
     // (MEASURED: a box past the source removes the device too, probe-copysub-srcbox)
     if r * sel > srb || b > srows || k > ssl {

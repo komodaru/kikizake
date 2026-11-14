@@ -444,6 +444,7 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "end").unwrap();
     // making them: one past the level's size, 32 MiB wide, 1 GiB square, then a read of the first
     writeln!(s, "case big-make\n{dev}\n{}\nread 0 0 16 1 1\n{}\n{}\nend", tex2("0", 16385, 1, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("0", 1 << 23, 1, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("0", 16385, 16385, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+    writeln!(s, "case big-make-huge\n{dev}\n{}\n{}\n{}\nend", tex2("0", 23171, 23171, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("0", 32768, 32768, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("0", 1 << 23, 4096, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
     // BUFFEREX and buffer render target views of a plain buffer: formats, ranges, flags
     writeln!(s, "case view-b-bufex\n{dev}\nbuf 0 256 0 {} 0 0 0", h(if d3d11 { SRV | RTV | UAV } else { SRV | RTV })).unwrap();
     for f in [0x1cu32, 0x2a, 0x29, 0x1d] {
@@ -510,6 +511,8 @@ fn suite(d3d11: bool) -> String {
         ("copysub-texbuf", t44(0, SRV, 1), "buf 1 64 0 8 0 0 0".to_string(), "copysub 1 0 0 0 0 0 0\nread 1 0 64 1 1\ncopysub 1 0 0 0 0 0 0 0 0 0 4 1 1\nread 1 0 64 1 1"),
         ("resolve-dsub", t44(0, RTV, 4), t44(1, SRV, 1), "resolve 1 1 0 0 28\nread 1 0 16 4 1\nresolve 1 0 0 1 28\nread 1 0 16 4 1"),
         ("resolve-dim", t44(0, RTV, 4), tex1d.clone(), "resolve 1 0 0 0 28\nread 1 0 64 1 1"),
+        ("copysub-buf", "buf 0 64 0 8 0 0 0".to_string(), "buf 1 64 0 8 0 0 0".to_string(), "copysub 1 0 8 0 0 0 0 0 0 0 16 1 1\nread 1 0 64 1 1\ncopysub 1 0 0 0 0 0 0 4 0 0 4 1 1\nread 1 0 64 1 1\ncopysub 1 0 0 0 0 0 0 0 0 0 72 1 1\nread 1 0 64 1 1"),
+        ("copysub-bufpast", "buf 0 64 0 8 0 0 0".to_string(), "buf 1 64 0 8 0 0 0".to_string(), "copysub 1 0 60 0 0 0 0 0 0 0 16 1 1\nread 1 0 64 1 1"),
     ] {
         let fill = if a.contains(" 0x20 ") { "rtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\n" } else { "update 0 0 3 16 0\n" };
         writeln!(s, "case probe-{name}\n{dev}\n{a}\n{b}\n{fill}{body}\nend").unwrap();
