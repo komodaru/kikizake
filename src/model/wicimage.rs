@@ -844,6 +844,9 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         (24, None) => "bgr24",
         (32, None) | (32, Some([0x00ff_0000, 0x0000_ff00, 0x0000_00ff, 0])) => "bgr32",
         (32, Some([0x00ff_0000, 0x0000_ff00, 0x0000_00ff, 0xff00_0000])) => "bgra",
+        // (MEASURED golden wicencode enc-bmp-gray16, -rgb48, -rgba64: what the encoder writes of
+        // 64bppRGBAFixedPoint, 64 bits a pixel, decodes as it)
+        (64, None) => "rgba64fixed",
         (16 | 32, Some(m)) => {
             hit(clause::WICIMAGE_BMP_FIELDS);
             let mut i = Img::new(w, h, "bgr32");
@@ -868,6 +871,11 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
     for y in 0..h as usize {
         let sy = if top { y } else { h as usize - 1 - y };
         i.px[y * n..y * n + n].copy_from_slice(&data[sy * src_stride..sy * src_stride + n]);
+        if bpp == 64 {
+            for p in i.px[y * n..y * n + n].chunks_exact_mut(8) {
+                swap_red_blue16(p);
+            }
+        }
     }
     if bpp <= 8 {
         hit(clause::WICIMAGE_BMP_PALETTE);
@@ -2863,8 +2871,14 @@ fn lzw_encode(min: u32, px: &[u8]) -> Vec<u8> {
     out
 }
 
+/// a 64-bit pixel's first and third 16-bit samples swapped (RGBA as BMP's BGRA and back)
+fn swap_red_blue16(p: &mut [u8]) {
+    p.swap(0, 4);
+    p.swap(1, 5);
+}
+
 pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
-    if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32", "bgra", "pbgra"].contains(&i.fmt) {
+    if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32", "bgra", "pbgra", "rgba64fixed"].contains(&i.fmt) {
         return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER));
     }
     hit(clause::WICIMAGE_ENCODE_BMP);
@@ -2875,6 +2889,12 @@ pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
         let src = &i.px[y * i.stride()..(y + 1) * i.stride()];
         let d = (i.h as usize - 1 - y) * st;
         px[d..d + src.len()].copy_from_slice(src);
+        // (MEASURED golden enc-bmp-rgb48, -rgba64: 64 bits a pixel are written blue first)
+        if i.fmt == "rgba64fixed" {
+            for p in px[d..d + src.len()].chunks_exact_mut(8) {
+                swap_red_blue16(p);
+            }
+        }
     }
     let pal: Vec<u32> = i.pal.clone().unwrap_or_default();
     let ppm = (i.dpi.0 / 0.0254 + 0.5) as u32;

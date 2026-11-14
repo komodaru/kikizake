@@ -2387,8 +2387,6 @@ wicdecode png-ihdr-method-12-2
 wicdecode png-ihdr-method-12-255
 wicencode enc-bmp-cmyk
 wicencode enc-bmp-gray16
-wicencode enc-bmp-rgb48
-wicencode enc-bmp-rgba64
 wicencode enc-dds-bgr555
 wicencode enc-dds-bgr565
 wicencode enc-dds-bgra
