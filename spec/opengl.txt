@@ -93,7 +93,8 @@ GL.DEPTH.TEST doc | glDepthFunc | with GL_DEPTH_TEST the fragment's depth compar
 GL.DEPTH.FIXED measured | (none) | a window depth for a 32-bit buffer: z times 2^32 compared in full, stored in 32 bits, so 1.0 fails GL_LEQUAL against a cleared 1.0 yet stores 0 (opengl golden depth-*)
 GL.DEPTH.CLEAR measured | glClearDepth | in a 32-bit buffer: z times 0x7fffffff truncated, shifted left one: 1.0 gives 0xfffffffe (opengl golden depth-*)
 GL.DEPTH.BITS measured | glClear, glClearDepth, depth test | a 16-bit depth buffer stores z times 0x7fff truncated, shifted left by one, for clears and fragments alike, and compares those (opengl golden edge-depth-16, depth16-*: 1.0 gives 0xfffe, 0.5 0x7ffe)
-GL.DEPTH.NEVER open | glDepthFunc (GL_NEVER) | under GL_NEVER Windows writes scattered pixels of the primitives along diagonals; no rule found (opengl golden depth-0)
+GL.DEPTH.NEVER open | glDepthFunc (GL_NEVER) | quads from glBegin (both executors) and glRect on the x86-64 executor draw scattered pixels under GL_NEVER: the first three columns of each span and a diagonal band that depends on the rectangle's size; no rule found (opengl golden depth-0, never-more-* on opengl-64)
+GL.DEPTH.NEVER.CLIP measured | glDepthFunc (GL_NEVER) | on the x86 executor a glRect inside the viewport draws nothing; one the viewport cuts draws nothing until a glRect inside it has been drawn under GL_NEVER in the context, and after that, while the depth mask is on, is drawn whole with the depth left as it is (opengl golden never-*, never-more-*: 120 rectangles)
 GL.DEPTHMASK doc | glDepthMask | the depth write mask
 GL.DEPTHRANGE doc | glDepthRange | the near and far window depths, clamped to 0..1
 GL.BLENDFUNC doc | glBlendFunc | the source and destination factors recorded

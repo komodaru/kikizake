@@ -411,6 +411,12 @@ pub struct Ctx {
     pub fb: Vec<[u32; 4]>,
     pub depth: Vec<Depth>,
     pub stencil: Vec<u32>,
+    /// which primitive the fragments come from, for GL_NEVER (GL.DEPTH.NEVER.CLIP)
+    pub never: NeverPath,
+    /// an unclipped rectangle has been drawn under GL_NEVER (GL.DEPTH.NEVER.CLIP)
+    pub never_primed: bool,
+    /// the quad being drawn is a glRect's
+    pub rect_call: bool,
     /// the DIB's bits a pixel
     pub bpp: u32,
     /// the vertices since glBegin: object position, color
@@ -473,6 +479,9 @@ impl Ctx {
             fb: vec![[0; 4]; W * H],
             depth: vec![Depth(0); W * H],
             stencil: vec![0; W * H],
+            never: NeverPath::Other,
+            never_primed: false,
+            rect_call: false,
             bpp,
             verts: Vec::new(),
         }
@@ -1445,7 +1454,10 @@ impl Ctx {
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
                     self.verts.push(([x, y, 0.0], self.current()));
                 }
-                self.end(QUADS)?;
+                self.rect_call = true;
+                let r = self.end(QUADS);
+                self.rect_call = false;
+                r?;
             }
             "glDrawBuffer" | "glReadBuffer" => {
                 // a single-buffered DIB has the front left buffer only (MEASURED, golden opengl-32
@@ -1655,15 +1667,28 @@ impl Ctx {
                         }
                     }
                     hit(clause::GL_RASTER_RECT);
+                    let clipped = x0 != xs[0].min(xs[1]) || x1 != xs[0].max(xs[1]) || y0 != ys[0].min(ys[2]) || y1 != ys[0].max(ys[2]);
+                    // (the x86-64 executor and quads from glBegin draw scattered pixels under NEVER:
+                    // GL.DEPTH.NEVER)
+                    self.never = match (self.rect_call && crate::model::arch() == 32, clipped) {
+                        (true, true) => NeverPath::Clipped,
+                        (true, false) => NeverPath::Unclipped,
+                        (false, _) => NeverPath::Other,
+                    };
                     let c = q[3].1;
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
                             if inside(cx, x0, x1, px) && inside(cy, y0, y1, py) {
-                                self.fragment(Frag { x, y, c, z: w[0][2], trunc: false })?;
+                                let r = self.fragment(Frag { x, y, c, z: w[0][2], trunc: false });
+                                if r.is_err() {
+                                    self.never = NeverPath::Other;
+                                }
+                                r?;
                             }
                         }
                     }
+                    self.never = NeverPath::Other;
                 }
             }
             _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
@@ -1761,16 +1786,31 @@ impl Ctx {
             hit(clause::GL_DEPTH_TEST);
             // (golden opengl-32 depth-0: under NEVER Windows writes scattered pixels of the
             // primitives along diagonals, no pattern found yet)
-            if self.depth_func == NEVER {
-                return Err(Fail::Unmodeled(open::GL_DEPTH_NEVER));
-            }
-            if !compare_u(self.depth_func, z, u64::from(self.depth[i].bits())) {
+            // (MEASURED, golden opengl-32 never-*, never-more-*: under NEVER a rectangle inside the
+            // viewport draws nothing; one the viewport cuts is drawn whole, its depth not written,
+            // once a rectangle inside it has been drawn under NEVER and while the depth mask is on,
+            // and draws nothing before)
+            let pass = if self.depth_func == NEVER {
+                hit(clause::GL_DEPTH_NEVER_CLIP);
+                match self.never {
+                    NeverPath::Unclipped => {
+                        self.never_primed = true;
+                        false
+                    }
+                    NeverPath::Clipped => self.never_primed && self.depth_mask,
+                    NeverPath::Other => return Err(Fail::Unmodeled(open::GL_DEPTH_NEVER)),
+                }
+            } else {
+                compare_u(self.depth_func, z, u64::from(self.depth[i].bits()))
+            };
+            if !pass {
                 if has_stencil {
                     self.stencil_update(i, self.stencil_op[1]);
                 }
                 return Ok(());
             }
-            if self.depth_mask {
+            // (a rectangle drawn under NEVER leaves the depth as it is)
+            if self.depth_mask && self.depth_func != NEVER {
                 self.depth[i] = Depth(z);
             }
         }
@@ -2349,6 +2389,17 @@ fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
 /// (golden opengl-32 depth-types-0)
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Depth(pub u64);
+
+/// the primitive a fragment under GL_NEVER comes from
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum NeverPath {
+    /// a glRect inside the viewport (x86 executor)
+    Unclipped,
+    /// a glRect the viewport cuts (x86 executor)
+    Clipped,
+    /// anything else (GL.DEPTH.NEVER)
+    Other,
+}
 
 impl Depth {
     /// the bits the buffer holds
