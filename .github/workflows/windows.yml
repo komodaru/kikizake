@@ -101,8 +101,10 @@ jobs:
           for n in ${{ needs.build.outputs.stale }}; do
             mkdir -p "ref/$n"
             s=$SECONDS
-            timeout 600 "./exe/$n.exe" > "ref/$n/stdout.txt" 2> "ref/$n/stderr.txt"
-            echo $? > "ref/$n/exit"
+            # (bash -e: an executor that crashes must not end the loop; its exit status is the answer)
+            st=0
+            timeout 600 "./exe/$n.exe" > "ref/$n/stdout.txt" 2> "ref/$n/stderr.txt" || st=$?
+            echo $st > "ref/$n/exit"
             echo "$n: exit $(cat "ref/$n/exit"), $(wc -l < "ref/$n/stdout.txt") lines, $((SECONDS - s)) s"
           done
       - uses: actions/upload-artifact@v7.0.2
