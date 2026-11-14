@@ -622,7 +622,18 @@ impl Ctx {
             0xb63 => vec![F(self.fog.start)],
             0xb64 => vec![F(self.fog.end)],
             0xb65 => i(i64::from(self.fog.mode.name())),
-            0xb66 => c4(self.fog.color),
+            0xb66 => {
+                // (MEASURED, golden opengl-32 fog-rects-*: kept times each channel's largest value,
+                // a missing alpha red's, and read back times its reciprocal: 0.668 gives
+                // 0x3f2b020d on 8 bits, 0.941 0x3f70e560 on 5: GL.FOG.STATE)
+                let b = self.bits();
+                let mut v = self.fog.color;
+                for k in 0..4 {
+                    let m = ((1u64 << if b[k] == 0 { b[0] } else { b[k] }) - 1) as f32;
+                    v[k] = v[k] * m * (1.0 / m);
+                }
+                c4(v)
+            }
             0xb70 => vec![C(self.depth_range[0]), C(self.depth_range[1])],
             0xb72 => vec![B(self.depth_mask)],
             0xb73 => vec![C(self.clear_depth as f32)],
@@ -1102,6 +1113,24 @@ fn is_func(f: u32) -> bool {
     (NEVER..=ALWAYS).contains(&f)
 }
 
+/// how a fragment's color components become channel values
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ToFixed {
+    /// a flat, unfogged polygon or point: rounded on 8-bit channels (GL.COLOR.TOFIXED)
+    Nearest,
+    /// from glDrawPixels, and fogged points: truncated to 8-bit channels (GL.DRAW.TOFIXED, GL.FOG.TOFIXED)
+    Trunc,
+    /// a fogged one: one 32nd added and truncated, as on channels under 8 bits (GL.FOG.TOFIXED)
+    Span,
+}
+
+/// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FixedZ {
+    pub bits: u32,
+    pub value: u64,
+}
+
 /// a fragment: window position, color, depth in 0..1
 #[derive(Clone, Copy, Debug)]
 pub struct Frag {
@@ -1109,10 +1138,10 @@ pub struct Frag {
     pub y: i64,
     pub c: [f32; 4],
     pub z: f64,
-    /// from glDrawPixels, whose colors are truncated to the channels (GL.DRAW.TOFIXED)
-    pub trunc: bool,
+    /// how the color becomes the channels' values
+    pub fixed: ToFixed,
     /// a depth already in the 32-bit buffer's fixed point (a depth image's element)
-    pub zfixed: Option<u64>,
+    pub zfixed: Option<FixedZ>,
 }
 
 impl Ctx {
@@ -1823,6 +1852,22 @@ impl Ctx {
         [f * c[0] + (1.0 - f) * k[0], f * c[1] + (1.0 - f) * k[1], f * c[2] + (1.0 - f) * k[2], c[3]]
     }
 
+    /// how a primitive's fragments become channel values: fogged ones another way (GL.FOG.TOFIXED)
+    fn span(&self) -> ToFixed {
+        if self.cap(FOG) { ToFixed::Span } else { ToFixed::Nearest }
+    }
+
+    /// how a point's fragments become channel values (MEASURED, golden opengl-32 fog-points: 192
+    /// fogged channels truncated, without the 32nd polygons add: GL.FOG.TOFIXED)
+    fn point_fixed(&self) -> ToFixed {
+        if self.cap(FOG) {
+            hit(clause::GL_FOG_TOFIXED);
+            ToFixed::Trunc
+        } else {
+            ToFixed::Nearest
+        }
+    }
+
     fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
         let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
         let c = xform(self.top(1), e);
@@ -1895,7 +1940,7 @@ impl Ctx {
                         for i in 0..n as i64 {
                             let (x, y) = (x0 as i64 + i, y0 as i64 + j);
                             if (0..W as i64).contains(&x) && (0..H as i64).contains(&y) {
-                                self.fragment(Frag { x, y, c: self.fogged(c, v), z: w[2], trunc: false, zfixed: None })?;
+                                self.fragment(Frag { x, y, c: self.fogged(c, v), z: w[2], fixed: self.point_fixed(), zfixed: None })?;
                             }
                         }
                     }
@@ -1968,20 +2013,28 @@ impl Ctx {
                     // (MEASURED, golden opengl-32 other-calls-1: a flat polygon's depth moved by
                     // units times 2^-23 under GL_POLYGON_OFFSET_FILL, the factor times its zero
                     // slope adding nothing: GL.POLYGON.OFFSET)
-                    let z = if self.cap(POLYGON_OFFSET_FILL) {
-                        hit(clause::GL_POLYGON_OFFSET);
-                        if self.pf.depth != 32 {
-                            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+                    let (z, zfixed) = match (self.cap(POLYGON_OFFSET_FILL), self.pf.depth) {
+                        (false, _) => (w[0][2], None),
+                        (true, 16) => {
+                            // (MEASURED, golden opengl-32 poly-offset-1: on 16 bits units of
+                            // 1/32767, z times 32767 plus the units truncated, shifted left by one;
+                            // past 1.0 the buffer's 0, below 0 its 0)
+                            hit(clause::GL_POLYGON_OFFSET);
+                            let v = (w[0][2] as f32 * 32767.0 + self.offset.1).floor();
+                            let v = if (0.0..32768.0).contains(&v) { (v as u64) << 1 } else { 0 };
+                            (w[0][2], Some(FixedZ { bits: 16, value: v }))
                         }
-                        w[0][2] + f64::from(self.offset.1) * (2f64).powi(-23)
-                    } else {
-                        w[0][2]
+                        (true, _) => {
+                            // (in floats: golden poly-offset-0, -0.5 units on 0.8755)
+                            hit(clause::GL_POLYGON_OFFSET);
+                            (f64::from(w[0][2] as f32 + self.offset.1 * 2f32.powi(-23)), None)
+                        }
                     };
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
                             if inside(cx, x0, x1, px) && inside(cy, y0, y1, py) {
-                                let r = self.fragment(Frag { x, y, c, z, trunc: false, zfixed: None });
+                                let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                                 if r.is_err() {
                                     self.never = NeverPath::Other;
                                 }
@@ -2073,7 +2126,7 @@ impl Ctx {
         let has_stencil = self.pf.stencil > 0 && self.cap(STENCIL_TEST);
         let z = match f.zfixed {
             _ if !(self.pf.depth > 0 && self.cap(DEPTH_TEST)) => 0,
-            Some(z) if self.pf.depth == 32 => z,
+            Some(z) if z.bits == self.pf.depth => z.value,
             _ => Ctx::depth_fixed(f.z, self.pf.depth)?,
         };
         if has_stencil {
@@ -2126,7 +2179,16 @@ impl Ctx {
             // color index mode: the index in the format's bits, the logic operation, the index
             // write mask (MEASURED, golden opengl-32 ci-*)
             let m = low_bits(self.pf.color);
-            let mut v = index_bits(f64::from(f.c[0])) & m;
+            // (MEASURED, golden opengl-32 fog-ci: a fogged polygon's fractional index dithered, the
+            // matrix's entry plus one half over 16 added and truncated: GL.FOG.TOFIXED; an
+            // image's fraction truncated, golden transfer-other-ci)
+            let ci = if f.fixed == ToFixed::Span && self.cap(DITHER) {
+                hit(clause::GL_FOG_TOFIXED);
+                f64::from(f.c[0] + dither_threshold(f.x, f.y))
+            } else {
+                f64::from(f.c[0])
+            };
+            let mut v = index_bits(ci) & m;
             if self.cap(INDEX_LOGIC_OP) {
                 v = logic(self.logic_op, v, self.fb[i][0]) & m;
             }
@@ -2157,11 +2219,16 @@ impl Ctx {
                     0
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
-                } else if f.trunc && bits[k] == 8 {
+                } else if f.fixed == ToFixed::Span && bits[k] == 8 {
+                    // (MEASURED, golden opengl-32 fog-rects-0, 2, 3: 288 fogged channels on 32 and
+                    // 24 bits fit floor(c * 255 + 1/32), where unfogged rectangles round)
+                    hit(clause::GL_FOG_TOFIXED);
+                    (c[k] * 255.0 + 1.0 / 32.0).floor() as u32
+                } else if f.fixed == ToFixed::Trunc && bits[k] == 8 {
                     // (MEASURED, golden opengl-32 draw-*: every type truncated to 8-bit channels; scissor-mask-*: rounded to 5-bit ones)
                     hit(clause::GL_DRAW_TOFIXED);
                     (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
-                } else if !f.trunc && bits[k] < 8 && self.color_mask == [true; 4] {
+                } else if f.fixed != ToFixed::Trunc && bits[k] < 8 && self.color_mask == [true; 4] {
                     // (MEASURED, golden opengl-32 dither-1: with every channel writable, 768 channels of a 16-bit DIB fit
                     // floor(c * 31 + b) for b in [0.0275, 0.0314), one 32nd taken; scissor-mask-*: under a color mask rounded)
                     hit(clause::GL_COLOR_TOFIXED16);
@@ -3115,7 +3182,7 @@ impl Ctx {
                         hit(clause::GL_DRAW_INDEX);
                         self.transfer([0.0; 4])?.map(|v| v as f32)
                     };
-                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, trunc: true, zfixed: None })?;
+                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;
                 }
             }
             return Ok(());
@@ -3141,7 +3208,7 @@ impl Ctx {
                         self.draw_stencil(ox + i as i64, oy + j as i64, self.index_map(true, self.shifted(f64::from(index_value(&e, t)? as f32))));
                     } else {
                         let (z, zfixed) = depth_element(&e, t, self.depth_transfer);
-                        self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c: self.raster_color, z, trunc: true, zfixed: Some(zfixed) })?;
+                        self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c: self.raster_color, z, fixed: ToFixed::Trunc, zfixed: Some(FixedZ { bits: 32, value: zfixed }) })?;
                     }
                 }
             }
@@ -3193,7 +3260,7 @@ impl Ctx {
                 let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
                 let c = c.map(|v| v as f32);
                 if !zoomed {
-                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, trunc: true, zfixed: None })?;
+                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;
                     continue;
                 }
                 // (MEASURED, golden opengl-32 pixel-zoom: image pixel (i, j) covers the window
@@ -3211,7 +3278,7 @@ impl Ctx {
                     for x in (x0.floor() as i64).max(0)..=(x1.ceil() as i64).min(W as i64 - 1) {
                         let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
                         if cx >= x0 && cx < x1 && cy > y0 && cy <= y1 {
-                            self.fragment(Frag { x, y, c, z: rz, trunc: true, zfixed: None })?;
+                            self.fragment(Frag { x, y, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;
                         }
                     }
                 }
