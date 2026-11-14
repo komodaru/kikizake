@@ -2415,6 +2415,24 @@ dxgifactory 0
 swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
 sclatency 0x2f
 end
+case chain-edge5-latency-29
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x29
+end
+case chain-edge5-latency-2a
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x2a
+end
+case chain-edge5-latency-2b
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x2b
+end
 case chain-edge3-size-16384x14250x2
 device12
 dxgifactory 0

@@ -875,6 +875,9 @@ pub fn dxgi() -> String {
     for n in [34u32, 36, 40, 44, 47] {
         edge.push((format!("chain-edge4-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
     }
+    for n in [41u32, 42, 43] {
+        edge.push((format!("chain-edge5-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
+    }
     for h in [14250u32, 14500, 14750] {
         let mut d = CHAIN;
         d[0] = 16384;
