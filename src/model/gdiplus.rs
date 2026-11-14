@@ -772,9 +772,6 @@ impl Gdiplus {
                 if indexed(b.f) {
                     hit("GP.FILL.INDEXED");
                 }
-                if !copy && matches!(q, 2 | 3) {
-                    return Err(Fail::Unmodeled("GP.FILL.GAMMA"));
-                }
                 if !(0..=4).contains(&q) {
                     return Err(Fail::Bad);
                 }
@@ -798,6 +795,30 @@ impl Gdiplus {
                         over(sp, d)
                     }
                 };
+                // (gamma corrected, MEASURED: SourceOver of a pixel of a 32-bit format (ARGB, PARGB, RGB)
+                // in 64bppPARGB words, in float as the executor rounds (GP.FILL.GAMMA))
+                let gamma = !copy && matches!(q, 2 | 3);
+                if gamma && super::arch() == 32 {
+                    return Err(Fail::Unmodeled("GP.FILL.GAMMA"));
+                }
+                let p64 = format("64bppPARGB").unwrap();
+                let rd = rounding();
+                let s64 = convert(pargb, p64, sp as u64, &[])?;
+                let word = |v: u64, k: u32| (v >> (16 * k) & 0xffff) as f32;
+                let rest = rd.sub(1.0, rd.div(word(s64, 3), 8192.0));
+                let mix = |s: f32, d: f32| rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff;
+                let gam = |f: usize, v: u64| -> Res<u64> {
+                    hit("GP.FILL.GAMMA.X64");
+                    let d = convert(f, p64, v, &[])?;
+                    let o = (0..4).fold(0, |o, k| o | mix(word(s64, k), word(d, k)) << (16 * k));
+                    let mut r = convert(p64, f, o, &[])?;
+                    if FORMATS[f].0 == "32bppRGB" {
+                        // (32bppRGB: the colors as opaque, its alpha byte blended as an alpha)
+                        let a = mix(word(s64, 3), widen_alpha(v >> 24) as f32);
+                        r = r & 0xff_ffff | (narrow_alpha(a) as u64) << 24;
+                    }
+                    Ok(r)
+                };
                 if bits(b.f) >= 48 || indexed(b.f) {
                     // (MEASURED: a Graphics of a 16-bit channel or indexed bitmap works on a copy of
                     // all of it, 32bppARGB or 32bppPARGB, written back once it draws: the pixels it
@@ -811,7 +832,17 @@ impl Gdiplus {
                                 continue;
                             }
                             let mut q = convert(b.f, bf, b.px(x, y), &[])?;
-                            if inside(x, y) {
+                            if inside(x, y) && gamma && indexed(b.f) {
+                                hit("GP.FILL.GAMMA.X64");
+                                // (gamma corrected into an indexed bitmap: the premultiplied linear
+                                // words narrowed as they are, as over black)
+                                let d = convert(bf, p64, q, &[])?;
+                                let o = (0..3).fold(0xff00_0000u32, |o, k| o | narrow(mix(word(s64, k), word(d, k))) << (8 * k));
+                                b.set_px(x, y, from_argb(b.f, o)?);
+                                continue;
+                            } else if inside(x, y) && gamma {
+                                q = gam(bf, q)?;
+                            } else if inside(x, y) {
                                 let d = convert(bf, pargb, q, &[])? as u32;
                                 q = convert(pargb, bf, blend(d) as u64, &[])?;
                             }
@@ -834,6 +865,9 @@ impl Gdiplus {
                             // (x86-64: the destination widened as LockBits does, the blend rounded)
                             let p = if copy {
                                 blend(d)
+                            } else if gamma {
+                                // (gamma corrected: the destination widened as LockBits does)
+                                gam(argb, convert(b.f, argb, v as u64, &[])?)? as u32
                             } else if super::arch() == 64 {
                                 over(sp, convert(b.f, pargb, v as u64, &[])? as u32)
                             } else {
@@ -846,6 +880,11 @@ impl Gdiplus {
                     for y in y0..y1 {
                         for x in x0..x1 {
                             let (x, y) = (x as u32, y as u32);
+                            if gamma {
+                                let v = gam(b.f, b.px(x, y))?;
+                                b.set_px(x, y, v);
+                                continue;
+                            }
                             // (32bppRGB: its bytes as premultiplied, as they are)
                             let rgb = FORMATS[b.f].0 == "32bppRGB";
                             let d = if rgb { b.px(x, y) } else { convert(b.f, pargb, b.px(x, y), &[])? };
