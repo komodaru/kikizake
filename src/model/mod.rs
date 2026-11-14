@@ -75,6 +75,19 @@ pub fn arch() -> u32 {
     ARCH.with(|c| c.get())
 }
 
+thread_local! {
+    static CPU: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
+}
+
+/// the processor the executor ran on, as its "cpu ..." line says (x9cpu): an input to the model
+/// like the executor's width, since D3DX picks its code by it; None where no answer says
+pub fn set_cpu(line: Option<String>) {
+    CPU.with(|c| *c.borrow_mut() = line);
+}
+pub fn cpu() -> Option<String> {
+    CPU.with(|c| c.borrow().clone())
+}
+
 /// one case's lines, or why the model has none
 pub fn run_case(case: &Case) -> Res<Vec<String>> {
     run_case_ended(case).0

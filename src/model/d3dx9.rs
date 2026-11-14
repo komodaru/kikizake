@@ -307,12 +307,20 @@ impl Api for D3dx9 {
                 hit(clause::D3DX9_DECLLENGTH);
                 out.push(format!("declsize {} len {}", decl_size(&e), e.len()));
             }
+            "x9cpu" => {
+                // (the executor's processor, an input: crate::model::set_cpu)
+                let Some(c) = crate::model::cpu() else {
+                    return Err(Fail::Unmodeled(open::D3DX9_F16_CPU));
+                };
+                out.push(c);
+            }
             "x9f16" => {
                 hit(clause::D3DX9_F16);
                 let w = words(op, 1)?;
                 // (MEASURED, d3dx9 f16-*, 3688 values: x86 does the array 8 at a time and then
-                // the rest one by one, x64 4 at a time and then the rest, conversions that differ)
-                let x64 = crate::model::arch() == 64;
+                // the rest one by one; x64 4 at a time and then the rest, conversions that differ,
+                // or on another processor as x86 does: golden 465fd71)
+                let x64 = crate::model::arch() == 64 && !cpu_as_x86()?;
                 let bulk = if x64 { w.len() - w.len() % 4 } else { w.len() - w.len() % 8 };
                 let f = |i: usize, x: u32| match (x64, i < bulk) {
                     (false, true) => f16_block(x),
@@ -374,6 +382,17 @@ pub fn f16_one(x: u32) -> u16 {
 /// a float as a half the way x64's D3DXFloat32To16Array does: exponent 31 a number, ties to
 /// even, 0x7fff past 131008 and for infinities, a NaN's mantissa rounded with the quiet bit set;
 /// denormals rounded 4 at a time, the rest of the array's truncated (MEASURED: d3dx9 f16-*)
+/// whether x64's D3DXFloat32To16Array goes as x86's on the executor's processor (OPEN, guessed:
+/// where the processor has AVX; D3DX9.F16.CPU)
+fn cpu_as_x86() -> Res<bool> {
+    if crate::model::arch() != 64 {
+        return Ok(false);
+    }
+    let c = crate::model::cpu().ok_or(Fail::Unmodeled(open::D3DX9_F16_CPU))?;
+    let ecx = c.split(' ').nth(2).and_then(|v| u32::from_str_radix(v, 16).ok()).ok_or(Fail::Bad)?;
+    Ok(ecx & 1 << 28 != 0)
+}
+
 pub fn f16_x64(x: u32, four: bool) -> u16 {
     let s = (x >> 16 & 0x8000) as u16;
     let (i, m) = (x & 0x7fff_ffff, x & 0x7f_ffff);

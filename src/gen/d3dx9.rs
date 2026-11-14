@@ -91,6 +91,10 @@ pub fn d3dx9() -> String {
     v.extend((0..400).map(|_| r.next()));
     v.extend((0..400).map(|_| (r.next() & 0x87ff_ffff) | 0x3000_0000));
     for (i, chunk) in v.chunks(70).collect::<Vec<_>>().chunks(10).enumerate() {
+        if i == 0 {
+            // (the processor: x64's D3DX converts by it, D3DX9.F16.CPU)
+            writeln!(s, "case cpu\nx9cpu").unwrap();
+        }
         writeln!(s, "case f16-{i}").unwrap();
         for c in chunk {
             write!(s, "x9f16").unwrap();

@@ -1,5 +1,6 @@
 #include "core.h"
 #include <d3d9.h>
+#include <cpuid.h>
 /* D3DX 9 (d3dx9_43.dll, loaded when a line first asks for it; `x9 none` without it): vertex
  * formats and declarations, 16-bit floats, and surface loading from memory (SPEC.md "D3DX 9").
  * The function types are written here (d3dx9.h is not needed). */
@@ -86,6 +87,18 @@ static void op_declsize(void) {
     out("declsize %u len %u\n", f(e, 0), g(e));
 }
 
+/* x9cpu: the processor D3DX picks its code by (cpuid: vendor, leaf 1 ecx and edx, leaf 7 ebx) */
+static void op_cpu(void) {
+    unsigned a, b, c, d;
+    char v[13] = { 0 };
+    __cpuid(0, a, b, c, d);
+    memcpy(v, &b, 4); memcpy(v + 4, &d, 4); memcpy(v + 8, &c, 4);
+    unsigned max = a, e1c = 0, e1d = 0, e7b = 0;
+    if (max >= 1) { __cpuid(1, a, b, c, d); e1c = c; e1d = d; }
+    if (max >= 7) { __cpuid_count(7, 0, a, b, c, d); e7b = b; }
+    out("cpu %s %08x %08x %08x\n", v, e1c, e1d, e7b);
+}
+
 /* x9f16 <float bits>...: D3DXFloat32To16Array; x9f32 <half bits>...: D3DXFloat16To32Array */
 static void op_f16(void) {
     WORD *(WINAPI *f)(WORD *, const float *, UINT) = fn("D3DXFloat32To16Array");
@@ -149,6 +162,7 @@ static const struct kz_op d3dx9_ops[] = {
     { "x9fvfdecl", op_fvfdecl },
     { "x9declfvf", op_declfvf },
     { "x9declsize", op_declsize },
+    { "x9cpu", op_cpu },
     { "x9f16", op_f16 },
     { "x9f32", op_f32 },
     { "x9load", op_load },

@@ -9,6 +9,7 @@ D3DX9.DECLFVF.INVALID measured | D3DXFVFFromDeclarator; golden d3dx9 decl-* (320
 D3DX9.DECLSIZE doc | D3DXGetDeclVertexSize | the vertex size of one stream: the end of the furthest of its elements
 D3DX9.DECLLENGTH doc | D3DXGetDeclLength | the number of elements before D3DDECL_END
 D3DX9.F16 measured | D3DXFloat32To16Array, D3DXFLOAT16; golden d3dx9 f16-* (3688 values, x86 and x64) | x86: 8 at a time IEEE with ties toward zero, infinity past 65504 and for infinities and NaNs; the rest one by one with exponent 31 a number, ties to even, 0x7fff past 131008. x64: 4 at a time and the rest, both exponent 31 a number, ties to even, 0x7fff past 131008 and for infinities, NaNs quiet with the mantissa rounded; the rest's denormals truncated
+D3DX9.F16.CPU open | golden d3dx9-64 of 730a5c6 and 96fa286 (cases f16-*, x9cpu) | which processor feature has x64's D3DXFloat32To16Array go as x86's (8 at a time) rather than 4 at a time: the two runs' answers differ, AVX guessed
 D3DX9.F32 measured | D3DXFloat16To32Array, D3DXFLOAT16; golden d3dx9 f32-* (every half) | exponent 31 is a number like the others: no infinities or NaNs
 D3DX9.LOAD doc | D3DXLoadSurfaceFromMemory, IDirect3DDevice9::CreateOffscreenPlainSurface | the source picture converted into the surface's format; a system memory surface of a format the device does not take (and R8G8B8, X8B8G8R8): D3DERR_INVALIDCALL
 D3DX9.LOAD.COPY assumed | D3DXLoadSurfaceFromMemory | a format into itself: the bytes as they are

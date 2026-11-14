@@ -44,6 +44,16 @@ fn models_match_windows() {
                 eprintln!("kikizake_{s}-{arch}: no answer from Windows yet");
                 continue;
             };
+            // (the processor the answer came from, where it says: an input, model::set_cpu)
+            let want = match g.lines().find(|l| l.starts_with("cpu ")) {
+                Some(c) => {
+                    model::set_cpu(Some(c.to_string()));
+                    let w = model::run(s, &cases);
+                    model::set_cpu(None);
+                    w
+                }
+                None => want,
+            };
             let r = compare::compare_text(&want, &g);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));

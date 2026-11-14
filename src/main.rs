@@ -32,6 +32,8 @@ fn main() {
             if std::env::var("KIKIZAKE_ARCH").as_deref() == Ok("64") {
                 model::set_arch(64);
             }
+            // (KIKIZAKE_CPU="cpu ...": the processor line of the answer compared with)
+            model::set_cpu(std::env::var("KIKIZAKE_CPU").ok());
             let text = match rest {
                 [f] => read(f),
                 _ => gen::suite(suite).unwrap_or_default(),
