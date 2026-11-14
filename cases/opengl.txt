@@ -15616,6 +15616,8 @@ end
 case read-formats
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glDisable 0xbd0
+gl glClearStencil 0xb5
+gl glClear 0x400
 gldraw 16 16 0x1908 0x1401 700 1024
 glread 1 2 3 2 0x1903 0x1401 128
 glerr
@@ -32429,6 +32431,129 @@ glread 0 0 16 16 0x1908 0x1401 1024
 gl glPixelTransferi 0xd10 1
 glread 0 0 16 16 0x1908 0x1401 1024
 glread 0 0 16 16 0x1908 0x1406 1024
+glerr
+end
+case bitmap-index-0
+glctx 8 29
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glPixelStorei 0xcf1 0
+gl glPixelStorei 0xcf2 0
+gl glPixelStorei 0xcf3 0
+gl glPixelStorei 0xcf4 0
+gl glPixelStorei 0xcf5 4
+gldraw 13 3 0x1900 0x1a00 61880 64
+glerr
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelStorei 0xd01 0
+gl glPixelStorei 0xd02 0
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 0
+gl glPixelStorei 0xd05 4
+glread 0 0 13 3 0x1900 0x1a00 64
+glerr
+gl glPixelStorei 0xd01 0
+gl glPixelStorei 0xd02 0
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 0
+gl glPixelStorei 0xd05 4
+gl glClear 0x4000
+gl glPixelStorei 0xcf1 1
+gl glPixelStorei 0xcf2 0
+gl glPixelStorei 0xcf3 0
+gl glPixelStorei 0xcf4 0
+gl glPixelStorei 0xcf5 1
+gldraw 13 3 0x1900 0x1a00 15905 64
+glerr
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelStorei 0xd01 1
+gl glPixelStorei 0xd02 0
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 0
+gl glPixelStorei 0xd05 1
+glread 0 0 13 3 0x1900 0x1a00 64
+glerr
+gl glPixelStorei 0xd01 0
+gl glPixelStorei 0xd02 0
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 0
+gl glPixelStorei 0xd05 4
+gl glClear 0x4000
+gl glPixelStorei 0xcf1 0
+gl glPixelStorei 0xcf2 20
+gl glPixelStorei 0xcf3 1
+gl glPixelStorei 0xcf4 3
+gl glPixelStorei 0xcf5 2
+gldraw 13 3 0x1900 0x1a00 40949 64
+glerr
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelStorei 0xd01 0
+gl glPixelStorei 0xd02 20
+gl glPixelStorei 0xd03 1
+gl glPixelStorei 0xd04 3
+gl glPixelStorei 0xd05 2
+glread 0 0 13 3 0x1900 0x1a00 64
+glerr
+gl glPixelStorei 0xd01 0
+gl glPixelStorei 0xd02 0
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 0
+gl glPixelStorei 0xd05 4
+gl glClear 0x4000
+gl glPixelStorei 0xcf1 1
+gl glPixelStorei 0xcf2 16
+gl glPixelStorei 0xcf3 0
+gl glPixelStorei 0xcf4 5
+gl glPixelStorei 0xcf5 8
+gldraw 13 3 0x1900 0x1a00 32333 64
+glerr
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelStorei 0xd01 1
+gl glPixelStorei 0xd02 16
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 5
+gl glPixelStorei 0xd05 8
+glread 0 0 13 3 0x1900 0x1a00 64
+glerr
+gl glPixelStorei 0xd01 0
+gl glPixelStorei 0xd02 0
+gl glPixelStorei 0xd03 0
+gl glPixelStorei 0xd04 0
+gl glPixelStorei 0xd05 4
+end
+case bitmap-index-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClearStencil 0xa5
+gl glClear 0x400
+glread 0 0 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 1
+glread 2 1 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 0
+gl glClearStencil 0x5a
+gl glClear 0x400
+glread 0 0 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 1
+glread 2 1 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 0
+gl glClearStencil 1
+gl glClear 0x400
+glread 0 0 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 1
+glread 2 1 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 0
+gl glClearStencil 0xfe
+gl glClear 0x400
+glread 0 0 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 1
+glread 2 1 13 3 0x1901 0x1a00 64
+gl glPixelStorei 0xd01 0
 glerr
 end
 case edge-attrib

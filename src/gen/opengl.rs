@@ -536,7 +536,9 @@ pub fn opengl() -> String {
     }
 
     // glReadPixels: every format and type over a random picture, then the pack parameters
-    writeln!(s, "case read-formats\n{}gl glDisable 0xbd0", ctx(32)).unwrap();
+    // (the stencil buffer cleared to a value: before its first clear it holds what the memory
+    // held, 0xbe on one executor and 1 on the other in this case's first answers)
+    writeln!(s, "case read-formats\n{}gl glDisable 0xbd0\ngl glClearStencil 0xb5\ngl glClear 0x400", ctx(32)).unwrap();
     random_dst(&mut s, 700);
     for fm in READ_FORMATS {
         for ty in TYPES {
@@ -1149,5 +1151,33 @@ fn measure(s: &mut String) {
     writeln!(s, "gl glPixelTransferi 0xd10 1").unwrap();
     read_all(s);
     writeln!(s, "glread 0 0 16 16 {} {} 1024", h(RGBA), h(FLOAT)).unwrap();
+    writeln!(s, "glerr\nend").unwrap();
+    // GL_BITMAP images of color indices drawn in color index mode under the unpack parameters,
+    // and indices and stencil values read back as GL_BITMAP under the pack ones (13 pixels a row:
+    // a partial last byte)
+    let mut q = XorShift32::new(0x0960_2008);
+    write!(s, "case bitmap-index-0\nglctx 8 29\n{ORTHO}").unwrap();
+    // (store: lsb first, row length, skip rows, skip pixels, alignment)
+    for (lsb, rl, sr, sp, al) in [(0, 0, 0, 0, 4), (1, 0, 0, 0, 1), (0, 20, 1, 3, 2), (1, 16, 0, 5, 8)] {
+        writeln!(s, "gl glClear 0x4000").unwrap();
+        for (pn, v) in [(0xcf1, lsb), (0xcf2, rl), (0xcf3, sr), (0xcf4, sp), (0xcf5, al)] {
+            writeln!(s, "gl glPixelStorei {} {v}", h(pn)).unwrap();
+        }
+        writeln!(s, "gldraw 13 3 {} {} {} 64\nglerr", h(COLOR_INDEX), h(BITMAP), q.next() & 0xffff).unwrap();
+        writeln!(s, "glread 0 0 16 4 {} {} 64", h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+        for (pn, v) in [(0xd01, lsb), (0xd02, rl), (0xd03, sr), (0xd04, sp), (0xd05, al)] {
+            writeln!(s, "gl glPixelStorei {} {v}", h(pn)).unwrap();
+        }
+        writeln!(s, "glread 0 0 13 3 {} {} 64\nglerr", h(COLOR_INDEX), h(BITMAP)).unwrap();
+        for pn in [0xd01, 0xd02, 0xd03, 0xd04] {
+            writeln!(s, "gl glPixelStorei {} 0", h(pn)).unwrap();
+        }
+        writeln!(s, "gl glPixelStorei 0xd05 4").unwrap();
+    }
+    writeln!(s, "end").unwrap();
+    write!(s, "case bitmap-index-1\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}").unwrap();
+    for v in [0xa5u32, 0x5a, 0x01, 0xfe] {
+        writeln!(s, "gl glClearStencil {}\ngl glClear 0x400\nglread 0 0 13 3 {} {} 64\ngl glPixelStorei 0xd01 1\nglread 2 1 13 3 {} {} 64\ngl glPixelStorei 0xd01 0", h(v), h(STENCIL_INDEX), h(BITMAP), h(STENCIL_INDEX), h(BITMAP)).unwrap();
+    }
     writeln!(s, "glerr\nend").unwrap();
 }

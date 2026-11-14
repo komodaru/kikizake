@@ -140,7 +140,7 @@ GL.PIXELTRANSFER.OTHER open | glPixelTransfer | color maps, index shifts and dep
 GL.PIXELS.ENUM measured | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM, nothing written (opengl golden edge-pixels-errors)
 GL.PIXELS.VALUE measured | glReadPixels, glDrawPixels (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE (opengl golden edge-pixels-errors)
 GL.PIXELS.NOBUFFER measured | glReadPixels (GL_INVALID_OPERATION) | reading GL_COLOR_INDEX in RGBA mode (before the type is looked at), or depth or stencil without such a buffer: GL_INVALID_OPERATION (opengl golden edge-pixels-errors)
-GL.PIXELS.BITMAP.INDEX open | glReadPixels, glDrawPixels | GL_BITMAP with GL_COLOR_INDEX or GL_STENCIL_INDEX
+GL.PIXELS.BITMAP.INDEX measured | glReadPixels, glDrawPixels | GL_BITMAP with GL_COLOR_INDEX or GL_STENCIL_INDEX: read, each pixel's low bit, rows of the row length in bits padded to the alignment, the first pixel in a byte's high bit unless GL_PACK_LSB_FIRST, the other bits of a partial byte left as they are; drawn as color indices, each bit the index 0 or 1 (opengl golden edge-bitmap-read-stencil, bitmap-index-*)
 GL.READ doc | glReadPixels | the rectangle's pixels from the bottom row up, converted to the format and type
 GL.READ.CONVERT measured | glReadPixels | components (read as channel times the float reciprocal of its maximum) in floats: GL_UNSIGNED_BYTE times 255 rounded, GL_UNSIGNED_SHORT times 65535, GL_BYTE times 127.5, GL_SHORT times 32767.5 truncated, GL_UNSIGNED_INT times 4294964992 and GL_INT times 2147482496 truncated, GL_FLOAT as is (opengl golden read-*: 2343 elements)
 GL.READ.LUMINANCE doc | glReadPixels | luminance: red + green + blue, clamped to 1

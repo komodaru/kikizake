@@ -2430,6 +2430,19 @@ fn type_size(t: u32) -> Option<usize> {
     })
 }
 
+/// the bit of pixel (i, j) of a GL_BITMAP image under the pack / unpack parameters: (byte, the
+/// bit's mask) (GL 1.1 3.6.3: rows of the row length in bits padded to the alignment, the first
+/// pixel in a byte's high bit unless GL_UNPACK_LSB_FIRST)
+fn bitmap_bit(store: &[i64; 6], w: i64, i: usize, j: usize) -> (usize, u8) {
+    hit(clause::GL_PIXELSTORE_LAYOUT);
+    let l = if store[2] > 0 { store[2] as usize } else { w as usize };
+    let a = store[5] as usize;
+    let k = a * l.div_ceil(8 * a);
+    let p = store[4] as usize + i;
+    let bit = p % 8;
+    (store[3] as usize * k + j * k + p / 8, if store[1] != 0 { 1 << bit } else { 0x80 >> bit })
+}
+
 /// the element offsets of a w x h image under the pack / unpack parameters (glPixelStore):
 /// (start of row j, elements a row), in elements of `size` bytes
 fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
@@ -2440,13 +2453,6 @@ fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
     (store[4] as usize * n + store[3] as usize * k, k)
 }
 
-/// a component (0..1) to an element of a type (MEASURED, golden opengl-32 read-*: in floats,
-/// truncated but for UNSIGNED_BYTE; signed types scale by half of 2^n - 1, the 32-bit ones by the largest float below
-/// 2^31 - 1024 and twice that; GL.READ.CONVERT)
-/// a color index element's value, each type as the integer or float it holds (unsigned bytes in
-/// ci-*, the others in ci-types-*)
-/// an index's bits: truncated to a 32-bit integer, an index out of its range giving 0x80000000
-/// (MEASURED, golden opengl-32 ci-types-*: indices drawn as floats past 2^31 store 0)
 /// a depth sample: the fragment's fixed-point depth, which at 1.0 is 2^32 in a 32-bit buffer;
 /// the depth test and UNSIGNED_INT reads see its low 32 bits, the other read types all of it
 /// (golden opengl-32 depth-types-0)
@@ -2476,6 +2482,8 @@ pub fn low_bits(n: u32) -> u32 {
     u32::try_from((1u64 << n.min(32)) - 1).unwrap_or(u32::MAX)
 }
 
+/// an index's bits: truncated to a 32-bit integer, an index out of its range giving 0x80000000
+/// (MEASURED, golden opengl-32 ci-types-*: indices drawn as floats past 2^31 store 0)
 pub fn index_bits(v: f64) -> u32 {
     let t = v.trunc();
     if t >= -2147483648.0 && t < 2147483648.0 {
@@ -2486,6 +2494,8 @@ pub fn index_bits(v: f64) -> u32 {
     }
 }
 
+/// a color index element's value, each type as the integer or float it holds (unsigned bytes in
+/// ci-*, the others in ci-types-*)
 pub fn index_value(b: &[u8], t: u32) -> Res<f64> {
     let a = |n: usize| -> [u8; 4] {
         let mut x = [0u8; 4];
@@ -2504,6 +2514,9 @@ pub fn index_value(b: &[u8], t: u32) -> Res<f64> {
     }
 }
 
+/// a component (0..1) to an element of a type (MEASURED, golden opengl-32 read-*: in floats,
+/// truncated but for UNSIGNED_BYTE; signed types scale by half of 2^n - 1, the 32-bit ones by the largest float below
+/// 2^31 - 1024 and twice that; GL.READ.CONVERT)
 pub fn from_float(c: f32, t: u32) -> Vec<u8> {
     hit(clause::GL_READ_CONVERT);
     match t {
@@ -2568,7 +2581,7 @@ impl Ctx {
                 self.error(INVALID_OPERATION);
                 return Ok(None);
             }
-            return Err(Fail::Unmodeled(open::GL_PIXELS_BITMAP_INDEX));
+            hit(clause::GL_PIXELS_BITMAP_INDEX);
         }
         if (f == COLOR_INDEX && read && self.pf.ty == 0) || (f == DEPTH_COMPONENT && self.pf.depth == 0) || (f == STENCIL_INDEX && self.pf.stencil == 0) {
             hit(clause::GL_PIXELS_NOBUFFER);
@@ -2599,6 +2612,29 @@ impl Ctx {
             hit(clause::GL_PIXELSTORE_SWAP);
         }
         hit(clause::GL_READ);
+        if size == 0 {
+            // indices or stencil values as GL_BITMAP: each pixel's low bit, the other bits of a
+            // byte left as they are (MEASURED, golden opengl-32 edge-bitmap-read-stencil,
+            // bitmap-index-*: GL.PIXELS.BITMAP.INDEX)
+            for j in 0..h as usize {
+                for i in 0..w as usize {
+                    let (px, py) = (x + i as i64, y + j as i64);
+                    if px < 0 || py < 0 || px >= W as i64 || py >= H as i64 {
+                        hit(clause::GL_READ_OUTSIDE);
+                        continue;
+                    }
+                    let p = py as usize * W + px as usize;
+                    let v = if f == COLOR_INDEX { self.fb[p][0] } else { self.stencil[p] };
+                    let (at, m) = bitmap_bit(&self.pack, w, i, j);
+                    let Some(b) = buf.get_mut(at) else {
+                        hit(clause::GL_READ_BUFFER);
+                        continue;
+                    };
+                    if v & 1 != 0 { *b |= m } else { *b &= !m }
+                }
+            }
+            return Ok(());
+        }
         let (start, k) = layout(&self.pack, comps.len(), size, w);
         for j in 0..h as usize {
             for i in 0..w as usize {
@@ -2711,6 +2747,26 @@ impl Ctx {
             return Err(Fail::Unmodeled(open::GL_DRAW_DEPTHSTENCIL));
         }
         hit(clause::GL_DRAW);
+        if size == 0 {
+            // a GL_BITMAP image of color indices: each bit the index 0 or 1 (MEASURED, golden
+            // opengl-32 bitmap-index-*: GL.PIXELS.BITMAP.INDEX)
+            for j in 0..h as usize {
+                for i in 0..w as usize {
+                    let (at, m) = bitmap_bit(&self.unpack, w, i, j);
+                    let Some(b) = data.get(at) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
+                    let v = if b & m != 0 { 1.0 } else { 0.0 };
+                    let c = if self.pf.ty != 0 {
+                        hit(clause::GL_COLORINDEX);
+                        [v, 0.0, 0.0, 0.0]
+                    } else {
+                        hit(clause::GL_DRAW_INDEX);
+                        self.transfer([0.0; 4])?.map(|v| v as f32)
+                    };
+                    self.fragment(Frag { x: i as i64, y: j as i64, c, z: 0.0, trunc: true })?;
+                }
+            }
+            return Ok(());
+        }
         let (start, k) = layout(&self.unpack, comps.len(), size, w);
         for j in 0..h as usize {
             for i in 0..w as usize {
