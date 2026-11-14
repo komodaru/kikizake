@@ -1289,8 +1289,9 @@ struct Planes {
 
 impl Planes {
     fn new(tri: &[Vert; 3], screen: impl Fn(&[f32; 4]) -> (f32, f32)) -> Planes {
-        // (the first of the least clip x, as a stable rotation)
-        let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
+        // (the last of the least clip x, as a stable rotation: MEASURED, WARP, probe-filter-float,
+        // -unorm16, where two share it)
+        let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] <= tri[k].pos[0] { i } else { k });
         let t: [&Vert; 3] = [0, 1, 2].map(|i| &tri[(k0 + i) % 3]);
         let s = t.map(|v| screen(&v.pos));
         let iw = t.map(|v| 1.0 / v.pos[3]);
@@ -1510,15 +1511,31 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 return at((uv[0] * w as f32).floor() as i64, (uv[1] * h as f32).floor() as i64);
             }
             hit(clause::D3DRASTER_FILTER_LINEAR);
-            if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
-                return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
-            }
             let split = |c: f32, n: u32| {
                 let s = c * n as f32 - 0.5;
                 let i = s.floor();
                 (i as i64, ((s - i) * 256.0).floor() as i64)
             };
             let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
+            // (MEASURED, WARP: probe-filter-float, -unorm16, 2048 values) float texels and
+            // 16-bit UNORM ones (as their floats): in f32, between the rows first, l = a + (c -
+            // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
+            // 1/256 below the fraction
+            let wide = format(v.format()).is_some_and(|f| f.num == Num::Float || f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16));
+            if wide {
+                hit(clause::D3DRASTER_FILTER_FLOAT);
+                let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
+                let f = |t: [u32; 4]| t.map(f32::from_bits);
+                let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
+                return Ok([0, 1, 2, 3].map(|k| {
+                    let l = a[k] + (c[k] - a[k]) * fv;
+                    let r = b[k] + (e[k] - b[k]) * fv;
+                    (l + (r - l) * fu).to_bits()
+                }));
+            }
+            if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
+                return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+            }
             let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
             let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
             [0, 1, 2, 3].map(|k| {
