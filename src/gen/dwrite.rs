@@ -546,4 +546,28 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
         writeln!(s, "case gdisidebot-{k}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" "), gids.join(" ")).unwrap();
     }
+    // sideways bottoms one sample row apart (centred in it at 13 ppem, rows -8 to 19) under vertical origins
+    // and advances of 9 to 11 and 0 to 3 pixels more, at 13, 26 and 39 ppem: where does the
+    // bottom side bearing leave the em fraction differences?
+    let mut k = 0;
+    for asc in [1340i16, 1486, 1640] {
+        for (d, half) in (0..4i64).flat_map(|d| [(d, 0i64), (d, 1)]) {
+            let v = ((asc as i64 * 13 * 128 + 65 * 2000).div_euclid(128 * 2000)) as i64;
+            let vadv = ((v + d) * 2000 + 6) / 13;
+            let gs: Vec<_> = (0..14i64).map(|j| {
+                let b = -((2 * (j + 14 * half - 8) + 1) * 2000).div_euclid(12 * 13);
+                (1000u16, vec![(0i16, b as i16, 500i16, (b + 500) as i16)])
+            }).collect();
+            let mut f = font_with(0x0fd1_0000 + k, 2000, &gs);
+            f.os2 = Some(4);
+            f.typo = (asc, (asc as i64 - vadv) as i16, 0);
+            let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
+            write!(s, "case gdisideorg-{k}\n{}\n", font_line(&f)).unwrap();
+            for pp in [13, 26, 39] {
+                writeln!(s, "dwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}", gids.join(" "), gids.join(" ")).unwrap();
+            }
+            writeln!(s, "dwglyph 1 {}\nend", gids.join(" ")).unwrap();
+            k += 1;
+        }
+    }
 }
