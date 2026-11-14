@@ -21,7 +21,7 @@ use crate::spec::hit;
 use crate::ttf::{glyph_of, parse, Parsed};
 
 /// whether the GDI-compatible glyph metrics are modelled: not yet (DW.GDI.GLYPH, open), the
-/// model below matches most of them but not every rounding
+/// model below matches all but 5 sideways bottom side bearings
 const GDI_GLYPH: bool = false;
 
 #[derive(Default)]
@@ -408,7 +408,15 @@ impl Dwrite {
                         (false, false) => (v as i64 * fix + 0x8000) >> 16,
                     };
                     // (a length of k / n pixels in design units, rounded)
-                    let du = |k: i64, n: i64| (2 * k * upm + n * ppem).div_euclid(2 * n * ppem) as i32;
+                    let du = |k: i64, n: i64| {
+                        // (MEASURED: through the em fraction in 16.16, k / (n ppem) rounded to 1/65536)
+                        let f = (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
+                        (2 * f * upm + 65536).div_euclid(131072) as i32
+                    };
+                    // (the em fraction alone, and a fraction back in design units: a side bearing
+                    // is the difference of its two edges' em fractions, each rounded on its own)
+                    let ef = |k: i64, n: i64| (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
+                    let fu = |f: i64| (2 * f * upm + 65536).div_euclid(131072) as i32;
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
                         (Some(_), _) => (None, None),
                         (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
@@ -422,10 +430,10 @@ impl Dwrite {
                         *g = GlyphMetrics {
                             adv: du(advp, 1) as u32,
                             lsb: du(bb.0, nx),
-                            rsb: du(nx * advp - bb.2, nx),
-                            tsb: du(ny * voyp + bb.1, ny),
+                            rsb: fu(ef(advp, 1) - ef(bb.2, nx)),
+                            tsb: fu(ef(voyp, 1) + ef(bb.1, ny)),
                             advh: du(advhp, 1) as u32,
-                            bsb: du(ny * (advhp - voyp) - bb.3, ny),
+                            bsb: fu(ef(advhp, 1) - ef(voyp, 1) - ef(bb.3, ny)),
                             voy: du(voyp, 1),
                         };
                     }

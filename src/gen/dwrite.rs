@@ -425,4 +425,15 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case gdiback-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 0 {}\ndwgdiglyph {} 2 0 0 {}\nend", font_line(&f), gids.join(" "), pp / 2, gids.join(" ")).unwrap();
         }
     }
+    // sideways GDI compatible metrics: boxes whose bottoms step through the pixel (the bottom
+    // side bearing, back in design units), every upm, sizes and both placements
+    for upm in [1000u16, 2000, 2048] {
+        for pp in (9..=63i64).step_by(6) {
+            let u = upm as i64;
+            let gs: Vec<_> = (0..14i64).map(|j| ((u / 2) as u16, vec![(0i16, (j * u / 27 - u / 4) as i16, (u / 4) as i16, (j * u / 27 + u / 4) as i16)])).collect();
+            let f = font_with(0x0fc0_0000 + u as u32 * 256 + pp as u32, upm, &gs);
+            let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
+            writeln!(s, "case gdiside-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
+        }
+    }
 }
