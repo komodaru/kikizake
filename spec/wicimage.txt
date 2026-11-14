@@ -19,10 +19,11 @@ WICIMAGE.SCALE.CUBIC.VERTICAL open | (none) | down: every column of ramps comes 
 WICIMAGE.SCALE.FANT measured | WICBitmapInterpolationMode (Fant: all the pixels that map to it) | Fant's resampling: each output pixel the average over its span of the source, which within a source pixel is the linear interpolation from that pixel's value at its start to the next pixel's value at its end; exact in both directions, rounded once, halves up (golden wicscale: 303 gray cases, all as Windows; floating point or rounding between the passes misses up to 5)
 WICIMAGE.SCALE.HQCUBIC measured | WICBitmapInterpolationMode (HighQualityCubic: a kernel resized with the scale) | Catmull-Rom about the exact center ((i + 0.5) * source / output - 0.5), widened by source / output when shrinking, the weights normalized, taps outside the picture its edge pixels; both directions without rounding between them, rounded once (golden wicscale: 303 gray cases, all as Windows)
 WICIMAGE.SCALE.WIDE open | (none) | the filters in the formats of more than 8 bits a channel (Fant's 32bppGrayFloat and 128bppPRGBAFloat, HighQualityCubic's 16-bit formats, 32bppRGBA and 8bppAlpha)
-WICIMAGE.SCALE.SIZE open | IWICBitmapScaler::Initialize | a size of 0 or past 65535 (and, not run by the model, more than 2^22 pixels)
+WICIMAGE.SCALE.SIZE measured | IWICBitmapScaler::Initialize | a size of 0: E_INVALIDARG; a row of the working format past 2^32 bits, or a picture past 2^32 bytes (rows padded to 4 bytes, so 1 x 2147483647 gray8 fails): 0x80070216 (arithmetic overflow); the source kept on failure; any other size made (65535 x 65535, 100000 x 1) (golden wicscale size-*, bigsize-*: 14 cases)
+WICIMAGE.SCALE.BIG excluded | (none) | the pixels of a scaler past 2^22 pixels: the model holds only its size (no case reads them)
 # flip/rotators and clippers
 WICIMAGE.FLIP measured | WICBitmapTransformOptions | FlipHorizontal (around the vertical axis) and FlipVertical of the source, then Rotate90/180/270 clockwise (the low two bits); the format as it is (golden wictransform: all 16 combinations on 15 formats; the documentation does not say the order)
-WICIMAGE.FLIP.BAD open | IWICBitmapFlipRotator::Initialize | options outside 0x1b
+WICIMAGE.FLIP.BAD measured | IWICBitmapFlipRotator::Initialize | options outside 0x1b: S_OK, the other bits ignored (golden wictransform flipbad-*: 4 to 0xffffffff, 17 values)
 WICIMAGE.CLIP doc | IWICBitmapClipper::Initialize | the rectangle of the source, in its format
 WICIMAGE.CLIP.RECT measured | IWICBitmapClipper::Initialize | a rectangle not inside the source, or empty: E_INVALIDARG (golden wictransform)
 WICIMAGE.CONVERT doc | IWICFormatConverter (spec/wic.txt) | a converter on the current source converts as the wic suite's convert does

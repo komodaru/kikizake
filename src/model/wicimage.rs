@@ -1538,6 +1538,9 @@ impl WicImage {
         }
         let n = |i: usize| t.get(i).and_then(|v| crate::case::num(v)).ok_or(Fail::Bad);
         let needs_cur = !matches!(t[0], "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
+        if needs_cur && self.cur.as_ref().is_some_and(|c| c.px.is_empty()) && !matches!(t[0], "winfo" | "wscale") {
+            return Err(Fail::Unmodeled("WICIMAGE.SCALE.BIG"));
+        }
         if needs_cur && self.cur.is_none() {
             if t[0] == "wpixels" && ![1, 5, 7].contains(&t.len()) {
                 return Err(Fail::Bad);
@@ -1563,18 +1566,42 @@ impl WicImage {
                 if !["nn", "linear", "cubic", "fant", "hqcubic"].contains(&m) {
                     return Err(Fail::Bad);
                 }
-                if w <= 0 || h <= 0 || w > 0xffff || h > 0xffff || w * h > 1 << 22 {
-                    return Err(Fail::Unmodeled("WICIMAGE.SCALE.SIZE"));
+                let (w, h) = (w as u32 as u64, h as u32 as u64);
+                let c = self.cur.clone().unwrap(); let c = &c;
+                // MEASURED (golden wicscale size-*, bigsize-*): a size of 0 E_INVALIDARG, one
+                // whose rows (in bits) or picture (in bytes, rows padded to 4 bytes) pass 32 bits arithmetic overflow, the
+                // source kept; others are made, however large
+                let bits = bits_of(scale_formats(c.fmt, m).0) as u64;
+                let hr = if w == 0 || h == 0 {
+                    E_INVALIDARG
+                } else if w * bits >= 1 << 32 || (w * bits).div_ceil(32) * 4 * h >= 1 << 32 {
+                    ARITHMETIC_OVERFLOW
+                } else {
+                    0
+                };
+                hit("WICIMAGE.SCALE.SIZE");
+                out.push(format!("wscale {hr:08x}"));
+                if hr != 0 {
+                    return Ok(true);
                 }
-                let s = scale(self.cur.as_ref().unwrap(), w as u32, h as u32, m)?;
-                out.push("wscale 00000000".into());
+                if w * h > 1 << 22 || c.px.is_empty() {
+                    // (a picture the model does not hold: its size only)
+                    let (wf, _) = scale_formats(c.fmt, m);
+                    self.cur = Some(Img { w: w as u32, h: h as u32, px: vec![], pal: None, fmt: scale_formats(c.fmt, m).1, ..Img::new(1, 1, wf) });
+                    self.cur.as_mut().unwrap().dpi = c.dpi;
+                    return Ok(true);
+                }
+                let s = scale(c, w as u32, h as u32, m)?;
                 self.cur = Some(s);
             }
             "wflip" => {
+                // MEASURED (golden wictransform flipbad-*: 17 values): the bits besides the
+                // rotation and the two flips are ignored
                 let o = n(1)? as u32;
                 if o & !0x1b != 0 {
-                    return Err(Fail::Unmodeled("WICIMAGE.FLIP.BAD"));
+                    hit("WICIMAGE.FLIP.BAD");
                 }
+                let o = o & 0x1b;
                 hit("WICIMAGE.FLIP");
                 out.push("wflip 00000000".into());
                 self.cur = Some(flip(self.cur.as_ref().unwrap(), o));
