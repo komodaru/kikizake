@@ -25,13 +25,13 @@ D2D.BOUNDS.RRECT measured | ID2D1Geometry::GetBounds | (the rounded rectangle ha
 D2D.BOUNDS.RECTXF measured | ID2D1Geometry::GetBounds | a rectangle through a world transform: the smallest and largest of its four corners through it (golden d2d-32/-64: xbounds-*, rect-*)
 D2D.BOUNDS.RRECTXF open | ID2D1Geometry::GetBounds | a rounded rectangle through a world transform
 D2D.BOUNDS.PATH doc | ID2D1Geometry::GetBounds | a path of straight lines: the smallest and largest of its points through the transform (measured: path-*)
-D2D.BOUNDS.PATHNAN open | ID2D1Geometry::GetBounds | a path with a NaN point
+D2D.BOUNDS.PATHNAN measured | ID2D1Geometry::GetBounds | a path with a NaN in any point has four ffffffff bounds, with or without a transform (golden d2d-32/-64: path-nan, path-nan2)
 D2D.BOUNDS.NAN measured | ID2D1Geometry::GetBounds | through a transform, an axis on which a corner is NaN has both bounds ffffffff (an infinite edge times a zero element is one); an ellipse with a NaN gives four ffffffff with or without a transform (golden d2d-32/-64: rect-4, rect-5, ell-4)
 D2D.BOUNDS.ELL measured | ID2D1Geometry::GetBounds | an ellipse under a scale and translation: center minus and plus the radii, through the transform; a negative radius counts as its size (golden d2d-32/-64: ell-*)
 D2D.BOUNDS.ELLXF open | ID2D1Geometry::GetBounds | an ellipse through a rotation or skew, or with an infinite value
 D2D.IN.TOL measured | ID2D1Geometry::FillContainsPoint (flatteningTolerance: points missing the fill by less than it are still inside) | a point strictly nearer than the tolerance to the outline is inside, one at exactly the tolerance is not (golden d2d-32/-64: intol-*, points 0.25 from a side in in-*)
 D2D.IN.TOL0 measured | ID2D1Geometry::FillContainsPoint | a tolerance of 0 is taken as the default 0.25 (golden d2d-32/-64: intol-0); 0.01 is used as given
-D2D.IN.EDGE open | ID2D1Geometry::FillContainsPoint | a point within 1/1000 past the tolerance from the outline
+D2D.IN.EDGE measured | ID2D1Geometry::FillContainsPoint | a point just past the tolerance is out: 0.2505 from a side with the tolerance 0.25 (golden d2d-32/-64: in-edge)
 D2D.IN.ALT doc | D2D1_FILL_MODE (ALTERNATE) | inside where a ray crosses an odd number of sides (measured: in-*-alt)
 D2D.IN.WIND doc | D2D1_FILL_MODE (WINDING) | inside where the winding number is not zero (measured: in-*-wind)
 D2D.IN.ELL measured | ID2D1Geometry::FillContainsPoint | an ellipse holds the points inside its curve (golden d2d-32/-64: in-ell, points at least 0.56 from the curve)
@@ -42,8 +42,7 @@ D2D.AREA.POLY measured | ID2D1Geometry::ComputeArea | a path of straight lines: 
 D2D.AREA.CURVE open | ID2D1Geometry::ComputeArea | ellipses and rounded rectangles (their flattening: the 2 x 1 ellipse's area is that of an octagon, 4 sqrt 2)
 D2D.LEN measured | ID2D1Geometry::ComputeLength | each side's sqrt(dx dx + dy dy) in f32, summed in f32 in order over every figure, the closing side of closed figures included (golden d2d-32/-64: 66 paths bit for bit; f64 sums and per-figure sums do not match)
 D2D.LEN.CURVE open | ID2D1Geometry::ComputeLength | ellipses and rounded rectangles (their flattening)
-D2D.CMP doc | ID2D1Geometry::CompareWithGeometry, D2D1_GEOMETRY_RELATION | rectangles apart: DISJOINT (1); this one inside the other: IS_CONTAINED (2); the other inside this one: CONTAINS (3); else OVERLAP (4)
-D2D.CMP.EDGE measured | ID2D1Geometry::CompareWithGeometry | rectangles compared as closed sets, the tolerance not widening them: touching is OVERLAP, equal ones IS_CONTAINED both ways, a gap of 1/8 DISJOINT, containment with shared edges CONTAINS / IS_CONTAINED (golden d2d-32/-64: 40 cases)
+D2D.CMP measured | ID2D1Geometry::CompareWithGeometry | rectangles (D2D1_GEOMETRY_RELATION: apart DISJOINT 1, inside the other IS_CONTAINED 2, holding the other CONTAINS 3, else OVERLAP 4) compared as closed sets, the tolerance not widening them: touching is OVERLAP, equal ones IS_CONTAINED both ways, a gap of 1/8 DISJOINT, containment with shared edges CONTAINS / IS_CONTAINED (golden d2d-32/-64: 40 cases)
 D2D.CMP.SHAPE open | ID2D1Geometry::CompareWithGeometry | anything but two rectangles (cmp-path: the path square CONTAINS a rectangle inside it, a geometry compared with itself is IS_CONTAINED)
 D2D.COUNT measured | ID2D1PathGeometry::GetFigureCount, GetSegmentCount | the figures, and the segments: one per line, and the closing line of a closed figure (golden d2d-32/-64: path-*, sink-*)
 D2D.COUNT.NOPATH doc | ID2D1PathGeometry | a rectangle geometry has no ID2D1PathGeometry interface
@@ -65,3 +64,4 @@ D2D.FILL.AACOVER measured | D2D1_ANTIALIAS_MODE_PER_PRIMITIVE | an axis-aligned 
 D2D.FILL.AA open | D2D1_ANTIALIAS_MODE_PER_PRIMITIVE | antialiased partial coverage in other cases: colors over a background come within 1 of s cov + d (1 - sa cov) rounded, but not bit for bit (golden d2d-32/-64: aa-c*, 17 pixels, 8 exact)
 D2D.FILL.CURVE open | ID2D1RenderTarget::FillGeometry | curves
 D2D.FILL.OVER measured | D2D1_PRIMITIVE_BLEND_SOURCE_OVER | a translucent color over the target: the premultiplied source s plus round(d (255 - sa) / 255) for each byte (golden d2d-32/-64: over-*, 60 fills)
+D2D.SIMP open | ID2D1Geometry::Simplify, Outline, Widen, CombineWithGeometry, Tessellate | what a geometry gives a sink

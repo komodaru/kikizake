@@ -124,7 +124,8 @@ pub fn skew(ax: f32, ay: f32, cx: f32, cy: f32) -> M {
     let tx = via_f64(ax * DEG, f64::tan);
     let ty = via_f64(ay * DEG, f64::tan);
     let (m11, m12, m21, m22) = (1.0f32, ty, tx, 1.0f32);
-    [m11, m12, m21, m22, cx - (cx * m11 + cy * m21), cy - (cx * m12 + cy * m22)]
+    // (m11 and m22 are 1: cx m11 is cx)
+    [m11, m12, m21, m22, cx - (cx + cy * m21), cy - (cx * m12 + cy)]
 }
 
 /// D2D1ConvertColorSpace. MEASURED (golden d2d-32/-64, cs-*): a space other than sRGB (1) or
@@ -209,8 +210,10 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
         (Geom::Rect(_) | Geom::Path { .. }, _) => {
             let (_, figs, m0) = g.lines().unwrap();
             let m = mul(&m0, m.unwrap_or(&IDENTITY));
+            // (MEASURED: a path with a NaN anywhere has four NaN bounds, every bit set)
             if matches!(g, Geom::Path { .. }) && figs.iter().flat_map(|f| f.pts.iter()).any(|p| p.0.is_nan() || p.1.is_nan()) {
-                return Err(Fail::Unmodeled("D2D.BOUNDS.PATHNAN"));
+                hit("D2D.BOUNDS.PATHNAN");
+                return Ok(NAN_BOUNDS);
             }
             let mut b = [f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY];
             hit(if matches!(g, Geom::Rect(_)) { "D2D.BOUNDS.RECTXF" } else { "D2D.BOUNDS.PATH" });
@@ -224,13 +227,12 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
                 }
             }
             // (MEASURED: an axis with a NaN corner has both its bounds NaN, every bit set)
-            if nx || ny {
-                hit("D2D.BOUNDS.NAN");
-            }
             if nx {
+                hit("D2D.BOUNDS.NAN");
                 (b[0], b[2]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
             }
             if ny {
+                hit("D2D.BOUNDS.NAN");
                 (b[1], b[3]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
             }
             Ok(b)
@@ -321,8 +323,9 @@ pub fn contains(g: &Geom, x: f32, y: f32, tol: f32) -> Res<bool> {
     if d < tol {
         return Ok(true);
     }
-    if d != tol && d < tol + 1e-3 {
-        return Err(Fail::Unmodeled("D2D.IN.EDGE"));
+    // (MEASURED: 0.2505 from a side with the tolerance 0.25 is out)
+    if d < tol + 1e-3 {
+        hit("D2D.IN.EDGE");
     }
     let w = winding(&ps, p);
     hit(if wind { "D2D.IN.WIND" } else { "D2D.IN.ALT" });
@@ -334,8 +337,8 @@ pub fn contains(g: &Geom, x: f32, y: f32, tol: f32) -> Res<bool> {
 pub fn region_area(ps: &[Vec<(f64, f64)>], wind: bool) -> f64 {
     let edges: Vec<((f64, f64), (f64, f64))> = ps.iter().flat_map(|p| segs(p)).filter(|(a, b)| a.1 != b.1).collect();
     let mut ys: Vec<f64> = ps.iter().flatten().map(|p| p.1).collect();
-    for (i, &(a, b)) in edges.iter().enumerate() {
-        for &(c, d) in &edges[i + 1..] {
+    for &(a, b) in &edges {
+        for &(c, d) in &edges {
             let den = (b.0 - a.0) * (d.1 - c.1) - (b.1 - a.1) * (d.0 - c.0);
             if den == 0.0 {
                 continue;
@@ -359,7 +362,7 @@ pub fn region_area(ps: &[Vec<(f64, f64)>], wind: bool) -> f64 {
         let (mut n, mut w0, mut w1, mut from) = (0i32, 0.0, 0.0, None);
         for e in act {
             let was = if wind { n != 0 } else { n % 2 != 0 };
-            n += if e.1 .1 > e.0 .1 { 1 } else { -1 };
+            n += (e.1 .1 - e.0 .1).signum() as i32;
             let now = if wind { n != 0 } else { n % 2 != 0 };
             if !was && now {
                 from = Some(e);
@@ -414,9 +417,6 @@ pub fn relation(a: &Geom, b: &Geom) -> Res<u32> {
     hit("D2D.CMP");
     // (MEASURED: as closed sets, no tolerance: touching is OVERLAP, equal is IS_CONTAINED, a
     // gap of 1/8 is DISJOINT)
-    if a[0] == b[2] || b[0] == a[2] || a[1] == b[3] || b[1] == a[3] || (0..4).any(|i| a[i] == b[i]) {
-        hit("D2D.CMP.EDGE");
-    }
     let inside = |p: [f32; 4], q: [f32; 4]| p[0] >= q[0] && p[1] >= q[1] && p[2] <= q[2] && p[3] <= q[3];
     Ok(if a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1] {
         1
@@ -635,6 +635,40 @@ impl D2d {
                 out.push("path 00000000 00000000".into());
             }
             "d2sink" => self.sink(op, out)?,
+            "d2simp" | "d2outline" | "d2widen" | "d2combine" | "d2tess" => {
+                let g = self.geom(op, 1, out)?;
+                let mut at = 2;
+                match t[0].as_str() {
+                    "d2simp" => {
+                        if !matches!(t.get(2).map(String::as_str), Some("lines" | "cubics")) {
+                            return Err(Fail::Bad);
+                        }
+                        at = 3;
+                    }
+                    "d2widen" => {
+                        f(op, 2)?;
+                        at = 3;
+                    }
+                    "d2combine" => {
+                        self.geom(op, 2, out)?.ok_or(Fail::Unmodeled("D2D.SIMP"))?;
+                        if !matches!(t.get(3).map(String::as_str), Some("union" | "intersect" | "xor" | "exclude")) {
+                            return Err(Fail::Bad);
+                        }
+                        at = 4;
+                    }
+                    _ => {}
+                }
+                if len > at {
+                    f(op, at)?;
+                }
+                if len > at + 1 {
+                    return Err(Fail::Bad);
+                }
+                if g.is_none() {
+                    return Ok(true);
+                }
+                return Err(Fail::Unmodeled("D2D.SIMP"));
+            }
             "d2bounds" => {
                 let g = self.geom(op, 1, out)?;
                 let m = if len > 2 { Some(mat(op, 2)?) } else { None };

@@ -245,6 +245,10 @@ fn geometry(s: &mut String, r: &mut XorShift32) {
     }
     // (compared with Windows only for now: transformed curves, NaN in a path, just past the tolerance)
     writeln!(s, "case rrect-xf\nd2rrect 0 0 0 8 4 1 1\nd2bounds 0 0 1 -1 0 0 0\nend\ncase ell-xf\nd2ell 0 0 0 2 1\nd2bounds 0 0 1 -1 0 0 0\nend").unwrap();
+    for (i, m) in ["1 1 -1 1 0 0", "1 0 1 1 0 0", "2 1 0.5 -1 3 4", "0.75 -0.5 0.25 1.5 -2 1"].iter().enumerate() {
+        writeln!(s, "case rrect-xf{i}\nd2rrect 0 0 0 8 4 1 1\nd2bounds 0 {m}\nd2rrect 1 1 1 7 9 3 2\nd2bounds 1 {m}\nend\ncase ell-xf{i}\nd2ell 0 0 0 2 1\nd2bounds 0 {m}\nd2ell 1 3 -2 4 0.5\nd2bounds 1 {m}\nend").unwrap();
+    }
+    writeln!(s, "case path-nan2\nd2path 0 alt m 0 0 4 {NAN} 4 4 z\nd2bounds 0\nd2bounds 0 2 0 0 2 1 1\nd2path 1 alt m 0 0 4 0 4 4 z m {NAN} {NAN} 1 1 o\nd2bounds 1\nend").unwrap();
     writeln!(s, "case path-nan\nd2path 0 alt m 0 0 {NAN} 4 4 4 z\nd2bounds 0\nend\ncase in-edge\nd2rect 0 0 0 8 8\nd2in 0 8.2505 4\nend").unwrap();
     writeln!(s, "case cmp-same\nd2rect 0 1 1 3 3\nd2cmp 0 0\nend").unwrap();
     writeln!(s, "case cmp-path\nd2path 0 alt m 0 0 8 0 8 8 0 8 z\nd2rect 1 2 2 4 4\nd2ell 2 20 20 1 1\nd2cmp 0 1\nd2cmp 1 0\nd2cmp 0 2\nd2cmp 2 0\nd2cmp 0 0\nend").unwrap();

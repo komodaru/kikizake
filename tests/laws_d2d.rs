@@ -256,3 +256,37 @@ fn sink_states_exhaustive() {
     }
     assert!(n > 9000);
 }
+
+/// the generators write only lines the executor runs as written: the model answers no d2d case
+/// with "bad line", and refuses lines the executor refuses
+#[test]
+fn no_bad_lines() {
+    let out = model::run("d2d", &parse_cases(&kikizake::gen::suite("d2d").unwrap()));
+    assert!(!out.contains("unmodeled bad line"), "{}", out.lines().zip(out.lines().skip(1)).find(|l| l.1 == "unmodeled bad line").map(|l| l.0).unwrap_or(""));
+    let dashes = vec!["1"; 33].join(" ");
+    for l in ["d2target 0 4", "d2target 4 65", "d2target 4 4 4", "d2target 4", "d2aa maybe", "d2aa per per", "d2xform 1 0 0 1 0", "d2bounds 0 1 0 0 1 0", "d2rect 8 0 0 1 1", "d2path 0 odd m 0 0 1 1 z", "d2path 0 alt m 0 0 1 1", "d2path 0 alt 1 1 z", &format!("d2stroke 0 0 0 0 10 5 0 {dashes}")] {
+        let c = &parse_cases(&format!("case p\nd2target 2 2\n{l}\nend\n"))[0];
+        assert_eq!(run_case(c), Err(model::Fail::Bad), "{l}");
+    }
+    let dashes = vec!["1"; 32].join(" ");
+    assert!(run(&format!("d2stroke 0 0 0 0 10 5 0 {dashes}\n"))[0].starts_with("stroke = "));
+    assert_eq!(run("d2target 64 1\nd2aa per\nd2aa aliased\nd2xform 1 0 0 1 0 0\n"), vec!["target 00000000"]);
+}
+
+proptest! {
+    /// a transformed rectangle's area is the rectangle's times |det|, and its length follows
+    /// the sides (exact for these transforms)
+    #[test]
+    fn transformed_areas(l in -8i32..8, t in -8i32..8, w in 0i32..9, h in 0i32..9, k in 0usize..6) {
+        let ms: [M; 6] = [[2.0, 0.0, 0.0, 2.0, 1.0, 1.0], [0.0, 1.0, -1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 1.0, 1.0, 0.0, 0.0], [-1.0, 0.0, 0.0, 1.0, 3.0, 0.0], [0.5, 0.0, 0.0, 4.0, 0.0, 0.0], [1.0, 1.0, -1.0, 1.0, 0.0, 0.0]];
+        let m = ms[k];
+        let r = rect(l as f32, t as f32, (l + w) as f32, (t + h) as f32);
+        let x = Geom::Xf(Box::new(r.clone()), m);
+        let det = (m[0] * m[3] - m[1] * m[2]).abs();
+        prop_assert_eq!(area(&x).unwrap(), (w * h) as f32 * det);
+        if m[1] == 0.0 && m[2] == 0.0 {
+            prop_assert_eq!(length(&x).unwrap(), 2.0 * (w as f32 * m[0].abs() + h as f32 * m[3].abs()));
+        }
+        prop_assert_eq!(length(&r).unwrap(), (2 * (w + h)) as f32);
+    }
+}
