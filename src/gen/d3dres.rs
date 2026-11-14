@@ -522,8 +522,9 @@ fn suite(d3d11: bool) -> String {
     isolate_x86_crashes(&s)
 }
 
-/// the texture lines one of which ends the x86 executor (golden d3d11res-32 and d3d10res-32 stop
-/// in tex2-f28-usage-u0: usage 0xffffffff, or immutable with a render target, depth or UAV bind),
+/// the texture lines that end the x86 executor (golden d3d11res-32 and d3d10res-32: an unknown
+/// usage with CPU access, tex2-f28-usage-u3 line 6; suspected: usage 0xffffffff, immutable with
+/// a render target, depth or UAV bind),
 /// out of their cases into cases of their own at the end, so that the rest is answered (each
 /// refused, by the model: the lines stay as a size 0 texture, refused the same way)
 fn isolate_x86_crashes(s: &str) -> String {
@@ -533,17 +534,19 @@ fn isolate_x86_crashes(s: &str) -> String {
             return None;
         }
         let num = |s: &str| if let Some(x) = s.strip_prefix("0x") { u32::from_str_radix(x, 16).ok() } else { s.parse().ok() };
-        let (usage, bind) = (num(t[8])?, num(t[9])?);
-        if usage == 0xffff_ffff && bind != 0 {
+        let (usage, bind, cpu) = (num(t[8])?, num(t[9])?, num(t[10])?);
+        if usage == 0xffff_ffff {
             Some(0)
         } else if usage == 1 && bind & (0x20 | 0x40 | 0x80) != 0 {
             Some(1)
+        } else if usage > 3 && cpu != 0 {
+            Some(2)
         } else {
             None
         }
     };
     let mut out = String::new();
-    let mut moved: [Vec<(String, String)>; 2] = [vec![], vec![]];
+    let mut moved: [Vec<(String, String)>; 3] = [vec![], vec![], vec![]];
     let mut dev = String::new();
     let mut prev = "";
     for l in s.lines() {
@@ -554,9 +557,10 @@ fn isolate_x86_crashes(s: &str) -> String {
         match kind(l) {
             Some(k) => {
                 moved[k].push((dev.clone(), l.to_string()));
-                // (in its place a size-0 texture: refused as it is, the slot emptied as by it)
+                // (in its place the same description as staging: refused as it is when it
+                // binds, or made as the staging texture an unknown usage stands for)
                 let mut t: Vec<&str> = l.split(' ').take(14).collect();
-                t[3] = "0";
+                t[8] = "3";
                 out += &t.join(" ");
                 out += "\n";
             }
@@ -566,7 +570,7 @@ fn isolate_x86_crashes(s: &str) -> String {
             }
         }
     }
-    for (k, name) in [(0, "x86-usageff"), (1, "x86-immutable-bound")] {
+    for (k, name) in [(0, "x86-usageff"), (1, "x86-immutable-bound"), (2, "x86-usage-cpu")] {
         let mut devs: Vec<&String> = moved[k].iter().map(|m| &m.0).collect();
         devs.dedup();
         devs.sort();
