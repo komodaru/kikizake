@@ -538,6 +538,18 @@ fn probes(s: &mut String, dev: &str) {
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
     tri(s, half, one);
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    // to fit what D3DRASTER.RTKIND leaves open: where the samples are, by the share of a
+    // pixel's samples that triangles' slanted edges cover (the resolve's average)
+    for n in [2u32, 4, 8] {
+        writeln!(s, "case probe-rt-ms{n}-edges\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 {n} 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for t in [[(0.0f32, 0.0f32), (16.0, 1.0), (0.0, 3.0)], [(0.0, 4.0), (16.0, 4.0), (8.0, 8.0)], [(3.0, 9.0), (4.0, 16.0), (0.5, 16.0)], [(9.0, 9.0), (15.5, 10.25), (11.0, 15.75)]] {
+            for (x, y) in t {
+                vertex(s, x, y, 0.5, [1.0; 4], 16.0, 16.0);
+            }
+        }
+        writeln!(s, "draw 4 12 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    }
     // an input layout against a refused program
     let mut broken = shader("vs");
     broken[5] ^= 1;
@@ -696,6 +708,47 @@ fn probes(s: &mut String, dev: &str) {
         writeln!(s, "draw 2 8 32").unwrap();
         read_rt(s, 0, 28, 16, 16);
         writeln!(s, "end").unwrap();
+    }
+    // to fit D3DRASTER.LINE.QUAD to the bit, and the alpha antialiased lines that
+    // D3DRASTER.TOPOLOGY leaves open, in float targets: horizontal and vertical lines with a
+    // row (column) of centers 176/256 to 183/256 from them (a half width of 0.7 or of
+    // sqrt 2 / 2) and ends -4/256 to 3/256 from a center; lines alone in 8 x 8 cells, half of
+    // them with w
+    // (their own numbers, so the cases after them keep theirs)
+    let mut r4 = XorShift32::new(0x9_11e5);
+    for (name, rast) in [("ms", "rast 3 1 0 0 0 0 1 0 1 0"), ("aa", "rast 3 1 0 0 0 0 1 0 0 1")] {
+        for vert in [false, true] {
+            begin(s, dev, &format!("probe-lines{name}-{}", if vert { "col" } else { "row" }), 16, 16, 2, "ps");
+            writeln!(s, "{rast}").unwrap();
+            for k in 0..8u32 {
+                let off = (2 * k) as f32 + 0.5 + (176 + k) as f32 / 256.0;
+                let (e0, e1) = (1.5 + (k as f32 - 4.0) / 256.0, 14.5 + (3.0 - k as f32) / 256.0);
+                let (a, b) = if vert { ((off, e0), (off, e1)) } else { ((e0, off), (e1, off)) };
+                vertex(s, a.0, a.1, 0.5, color(2 * k), 16.0, 16.0);
+                vertex(s, b.0, b.1, 0.5, color(2 * k + 1), 16.0, 16.0);
+            }
+            writeln!(s, "draw 2 16 32").unwrap();
+            read_rt(s, 0, 2, 16, 16);
+            writeln!(s, "end").unwrap();
+        }
+        for i in 0..4u32 {
+            begin(s, dev, &format!("probe-lines{name}-{i}"), 16, 16, 2, "ps");
+            writeln!(s, "{rast}").unwrap();
+            for cell in 0..4u32 {
+                let (ox, oy) = ((cell % 2 * 8) as f32, (cell / 2 * 8) as f32);
+                for _ in 0..2 {
+                    let (x, y) = (ox + 1.75 + 4.5 * unit(&mut r4), oy + 1.75 + 4.5 * unit(&mut r4));
+                    let grid = |v: f32| (v * 256.0).round() / 256.0;
+                    let w = if cell % 2 == 1 { 0.25 + 3.75 * unit(&mut r4) } else { 1.0 };
+                    let (nx, ny) = (grid(x) / 16.0 * 2.0 - 1.0, 1.0 - grid(y) / 16.0 * 2.0);
+                    let c = [unit(&mut r4), unit(&mut r4), unit(&mut r4), unit(&mut r4)];
+                    writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(nx * w), fb(ny * w), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+                }
+            }
+            writeln!(s, "draw 2 8 32").unwrap();
+            read_rt(s, 0, 2, 16, 16);
+            writeln!(s, "end").unwrap();
+        }
     }
     for top in [10u32, 11, 12, 13] {
         begin(s, dev, &format!("probe-topology-{top}"), 16, 16, 28, "ps");

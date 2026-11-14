@@ -487,11 +487,20 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
     let (rw, rh, _) = {
         let r = m.res[view.res].as_ref().unwrap();
-        if r.d.count > 1 || r.d.dim != 2 {
+        if r.d.dim != 2 {
             return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
         }
         r.size(r.mip_of(rt_sub))
     };
+    // (a multisampled target: D3DRASTER.MS.WHOLE, triangles only, the viewport on whole pixels)
+    let samples = m.res[view.res].as_ref().unwrap().d.count;
+    if samples > 1 {
+        let [vx, vy, vw, vh, _, _] = vp;
+        let whole = [vx, vy, vx + vw, vy + vh].iter().all(|v| v.fract() == 0.0);
+        if !whole || !matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) || d.rast[0] == 2 {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
+    }
     let dsv = d.depth.map(|v| m.views[v].clone().unwrap());
     let instances = inst.max(1);
     // the vertices through the vertex shader
@@ -535,7 +544,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         let mut segs: Vec<Seg> = Vec::new();
         for p in 0..nprim {
             match topo {
-                Topo::Points => point(m, &d, &tg, ps, fetch(p, i)?)?,
+                Topo::Points => point(m, &d, &tg, ps, fetch(p, i)?, p)?,
                 Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj => {
                     // (MEASURED, WARP: probe-topology-10 to -13, D3DRASTER.ADJ) with adjacency and no geometry
                     // program, the adjacent vertices are skipped: lines 4p + 1 to 4p + 2, and
@@ -550,7 +559,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                         _ => p,
                     };
                     let a = fetch(k, i)?;
-                    segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a });
+                    segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a, prim: p, front: true });
                 }
                 Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj => {
                     // (strips: every other triangle's first two vertices swapped; the leading
@@ -574,7 +583,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                     };
                     let tri = [fetch(idx[0], i)?, fetch(idx[1], i)?, fetch(idx[2], i)?];
                     let leadv = fetch(lead, i)?;
-                    triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), &view, rt_fmt, rt_sub, dsv.as_ref(), &mut segs)?;
+                    triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), samples, &view, rt_fmt, rt_sub, dsv.as_ref(), &mut segs)?;
                 }
             }
         }
@@ -685,7 +694,7 @@ fn drawable_w(v: &Vert) -> Res<()> {
 
 /// (MEASURED, WARP: probe-points-*, every pixel) a point inside the clip volume lights the
 /// one pixel (ceil(x) - 1, ceil(y) - 1) of its snapped position, in the vertex's color
-fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert) -> Res<()> {
+fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) -> Res<()> {
     hit(clause::D3DRASTER_POINT);
     drawable_w(&v)?;
     let q = v.pos;
@@ -706,18 +715,33 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert) -> Res<()> {
     if !tg.drawable(d, px) {
         return Ok(());
     }
-    let out = flat_color(ps, v.color)?;
-    tg.put(m, d, px, tg.depth(z), out)
+    let z = tg.depth(z);
+    let out = prim_out(ps, v.color, px, z, Some(q[3]), prim, true)?;
+    tg.put(m, d, px, z, out)
 }
 
-/// what the color programs write for a primitive of one color: points, and lines through the
-/// constant input
-fn flat_color(ps: &str, c: [f32; 4]) -> Res<[u32; 4]> {
+/// what the programs write for a point or a line's pixel: its vertex's (or leading vertex's)
+/// color, the pixel's position, or the primitive's index
+/// (MEASURED, WARP: probe-top1-*, probe-top2-*) as for triangles: SV_Position is the pixel
+/// center, the depth and the clip w; points and lines face front
+fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: Option<f32>, prim: u32, front: bool) -> Res<[u32; 4]> {
     match ps {
         "ps" => Ok(c.map(f32::to_bits)),
         "psflat" => {
             hit(clause::D3DRASTER_FLAT);
             Ok(c.map(f32::to_bits))
+        }
+        "pspos" => {
+            hit(clause::D3DRASTER_POS);
+            let w = w.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
+            if w != 1.0 {
+                hit(clause::D3DRASTER_POSW);
+            }
+            Ok([px as f32 + 0.5, py as f32 + 0.5, z, w].map(f32::to_bits))
+        }
+        "psprim" => {
+            hit(clause::D3DRASTER_PRIM);
+            Ok([(prim as f32).to_bits(), if front { 1.0f32 } else { 0.0 }.to_bits(), 0, 1.0f32.to_bits()])
         }
         _ => Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY)),
     }
@@ -728,6 +752,9 @@ struct Seg {
     a: Vert,
     b: Vert,
     lead: Vert,
+    /// SV_PrimitiveID, SV_IsFrontFace (the triangle's, for wireframe edges)
+    prim: u32,
+    front: bool,
 }
 
 /// a line clipped and snapped
@@ -740,6 +767,10 @@ struct Line {
     iwa: f32,
     iwb: f32,
     lead: [f32; 4],
+    prim: u32,
+    front: bool,
+    /// the clip w, where the ends share it
+    w: Option<f32>,
     /// |dy| > |dx|: the y-major diamond (its right corner in)
     ymaj: bool,
     z: f32,
@@ -747,6 +778,97 @@ struct Line {
 
 /// the diamond of half-diagonal 1/2 pixel, in 1/256
 const DIAMOND: i128 = 128;
+
+/// how lines are drawn, by the rasterizer state's MultisampleEnable and
+/// AntialiasedLineEnable
+#[derive(Clone, Copy)]
+enum LineMode {
+    /// neither: the diamond exit rule
+    Aliased,
+    /// MultisampleEnable (with or without the other): D3DRASTER.LINE.QUAD
+    Quad,
+}
+
+impl LineMode {
+    fn of(d: &Draw) -> Res<LineMode> {
+        match (d.rast[8] != 0, d.rast[9] != 0) {
+            (false, false) => Ok(LineMode::Aliased),
+            (true, _) => {
+                hit(clause::D3DRASTER_LINE_QUAD);
+                Ok(LineMode::Quad)
+            }
+            // (alpha antialiased lines: not measured to the bit)
+            (false, true) => Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY)),
+        }
+    }
+}
+
+/// how a triangle covers a pixel's closed square, and so every sample of it wherever the
+/// samples are
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Cover {
+    None,
+    Part,
+    Full,
+}
+
+/// (MEASURED, WARP: probe-rt-ms) a pixel of a multisampled target whose sample square (the
+/// sample positions are -8/16 to 7/16 from the center: x to x + 15/16) is wholly inside a
+/// triangle (or the convex outline of its clipped pieces) has every sample covered; one
+/// wholly outside, none (the separating axes of a convex polygon, clockwise, and a square; in
+/// 1/256 pixel, y down); a pixel between is Part
+fn square_cover(t: &[(i64, i64)], (px, py): (i64, i64)) -> Cover {
+    hit(clause::D3DRASTER_MS_WHOLE);
+    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
+        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
+        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
+    };
+    let (x0, y0) = (px * 256, py * 256);
+    const SPAN: i64 = 256 * 15 / 16;
+    let corners = [(x0, y0), (x0 + SPAN, y0), (x0, y0 + SPAN), (x0 + SPAN, y0 + SPAN)];
+    let n = t.len();
+    // (a corner on an edge is in by the top-left rule: a top edge runs right, a left edge up)
+    let inside = |e: usize| {
+        let (a, b) = (t[e], t[(e + 1) % n]);
+        let top_left = b.1 < a.1 || b.1 == a.1 && b.0 > a.0;
+        corners.map(|c| {
+            let w = cross(a, b, c);
+            w > 0 || w == 0 && top_left
+        })
+    };
+    if (0..n).all(|e| inside(e).iter().all(|i| *i)) {
+        return Cover::Full;
+    }
+    let apart = (0..n).any(|e| inside(e).iter().all(|i| !*i))
+        || t.iter().all(|v| v.0 < x0)
+        || t.iter().all(|v| v.0 > x0 + SPAN)
+        || t.iter().all(|v| v.1 < y0)
+        || t.iter().all(|v| v.1 > y0 + SPAN);
+    if apart { Cover::None } else { Cover::Part }
+}
+
+/// half the width of a multisample line, in pixels
+const QUAD_HALF: f32 = 0.7;
+
+/// c inside the triangle t (either winding) by the top-left rule, in 1/256 pixel, y down
+fn tri_covers(t: [(i64, i64); 3], c: (i64, i64)) -> bool {
+    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
+        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
+        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
+    };
+    let t = match cross(t[0], t[1], t[2]).signum() {
+        0 => return false,
+        1 => t,
+        _ => [t[0], t[2], t[1]],
+    };
+    // (a top edge runs right along y; a left edge goes up)
+    let top_left = |a: (i64, i64), b: (i64, i64)| a.1 == b.1 && b.0 > a.0 || b.1 < a.1;
+    (0..3).all(|e| {
+        let (a, b) = (t[e], t[(e + 1) % 3]);
+        let w = cross(a, b, c);
+        w > 0 || w == 0 && top_left(a, b)
+    })
+}
 
 impl Line {
     /// (MEASURED, WARP, by the Rasterization Rules' figure: probe-lines-*, probe-linestrip-*,
@@ -824,6 +946,29 @@ impl Line {
         inside && passed
     }
 
+    /// (MEASURED, WARP: probe-lines-ms, -msaa, 84 pixels) with the multisample state a line
+    /// is the rectangle 1.4 pixels wide along it, ending at its ends: its corners a +- n,
+    /// b +- n (n the normal of length 0.7, in f32) snapped, as two triangles a + n, b + n,
+    /// b - n and a + n, b - n, a - n by the top-left rule; the values are the covering
+    /// triangle's planes (D3DRASTER.INTERP.PLANE) over the snapped corners, a's values at
+    /// a +- n and b's at b +- n (84 UNORM pixels)
+    fn quad(&self, (px, py): (i64, i64)) -> Option<Planes> {
+        let (ax, ay, bx, by) = (self.a.x as f32 / 256.0, self.a.y as f32 / 256.0, self.b.x as f32 / 256.0, self.b.y as f32 / 256.0);
+        let (dx, dy) = (bx - ax, by - ay);
+        let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
+        let (nx, ny) = (-dy * k, dx * k);
+        let q = |x: f32, y: f32| (snap256(x), snap256(y));
+        let corner = [(q(ax + nx, ay + ny), false), (q(bx + nx, by + ny), true), (q(bx - nx, by - ny), true), (q(ax - nx, ay - ny), false)];
+        let c = (px * 256 + 128, py * 256 + 128);
+        let t = [[0, 1, 2], [0, 2, 3]].into_iter().map(|t| t.map(|i| corner[i])).find(|t| tri_covers(t.map(|v| v.0), c))?;
+        // (the first of the least x, as Planes::new)
+        let k0 = (0..3).fold(0, |k, i| if t[i].0 .0 < t[k].0 .0 { i } else { k });
+        let t: [((i64, i64), bool); 3] = [0, 1, 2].map(|i| t[(k0 + i) % 3]);
+        let iw = t.map(|v| if v.1 { self.iwb } else { self.iwa });
+        let aw = [0, 1, 2].map(|i| (if t[i].1 { self.cb } else { self.ca }).map(|a| a * iw[i]));
+        Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw })
+    }
+
     /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels;
     /// probe-linesw-*, 114 pixels) the color along the line, perspective-correct: a plane over
     /// the major axis for 1/w and for each channel's c/w, g = 1 / (b - a), the gradient
@@ -878,11 +1023,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         return Ok(());
     }
     hit(clause::D3DRASTER_LINE);
-    // (lines with the multisample or antialiased-line state: drawn as quads or with alpha,
-    // not measured)
-    if d.rast[8] != 0 || d.rast[9] != 0 {
-        return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
-    }
+    let mode = LineMode::of(d)?;
     let mut ls: Vec<Line> = Vec::new();
     for s in segs {
         drawable_w(&s.a)?;
@@ -910,7 +1051,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
             continue;
         }
         let ymaj = (pb.y - pa.y).abs() > (pb.x - pa.x).abs();
-        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, ymaj, z: tg.depth(za) });
+        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: (a.pos[3] == b.pos[3]).then_some(a.pos[3]), ymaj, z: tg.depth(za) });
     }
     let center = |(px, py): (i64, i64)| (i128::from(px) * 256 + 128, i128::from(py) * 256 + 128);
     for l in &ls {
@@ -920,15 +1061,25 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         let (x1, y1) = (x1.min(i64::from(tg.size.0) - 1), y1.min(i64::from(tg.size.1) - 1));
         for py in y0..=y1 {
             for px in x0..=x1 {
-                if !tg.drawable(d, (px, py)) || !l.lights(center((px, py))) {
+                // (a multisample line's triangle there)
+                let quad = match mode {
+                    LineMode::Aliased if l.lights(center((px, py))) => None,
+                    LineMode::Aliased => continue,
+                    LineMode::Quad => match l.quad((px, py)) {
+                        Some(p) => Some(p),
+                        None => continue,
+                    },
+                };
+                if !tg.drawable(d, (px, py)) {
                     continue;
                 }
-                let out = match ps {
-                    "ps" => {
+                let out = match (ps, quad) {
+                    ("ps", None) => {
                         hit(clause::D3DRASTER_LINE_COLOR);
                         l.color((px, py)).map(f32::to_bits)
                     }
-                    _ => flat_color(ps, l.lead)?,
+                    ("ps", Some(p)) => p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits),
+                    _ => prim_out(ps, l.lead, (px, py), l.z, l.w, l.prim, l.front)?,
                 };
                 tg.put(m, d, (px, py), l.z, out)?;
             }
@@ -938,7 +1089,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, wire: &mut Vec<Seg>) -> Res<()> {
+fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), samples: u32, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, wire: &mut Vec<Seg>) -> Res<()> {
     // (every vertex at w <= 0: wholly outside the clip volume, or (w = 0, so x = y = 0 inside
     // it) a point: nothing drawn, probe-vb-past)
     if tri.iter().all(|v| v.pos[3] <= 0.0 && v.pos.iter().all(|x| x.is_finite()) && (v.pos[3] < 0.0 || v.pos[0] == 0.0 && v.pos[1] == 0.0)) {
@@ -1017,7 +1168,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
         let t: [Vert; 3] = [0, 1, 2].map(|i| tri[(k0 + i) % 3]);
         for e in 0..3 {
-            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead });
+            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead, prim, front });
         }
         return Ok(());
     }
@@ -1052,6 +1203,23 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             .map(|t| if cross(t[0], t[1], t[2]) > 0 { t } else { [t[0], t[2], t[1]] })
             .collect()
     };
+    // (the snapped outline, clockwise, where it is convex: what a multisampled pixel's
+    // samples are tested against as a whole)
+    let outline: Option<Vec<(i64, i64)>> = (samples > 1).then(|| {
+        let mut q: Vec<(i64, i64)> = if unclipped { v.to_vec() } else { poly.iter().map(snap2).collect() };
+        q.dedup();
+        if q.len() > 1 && q[0] == q[q.len() - 1] {
+            q.pop();
+        }
+        let turns: Vec<i128> = (0..q.len()).map(|i| cross(q[i], q[(i + 1) % q.len()], q[(i + 2) % q.len()])).collect();
+        if turns.iter().all(|t| *t <= 0) {
+            q.reverse();
+        }
+        q
+    }).filter(|q| q.len() >= 3 && (0..q.len()).all(|i| cross(q[i], q[(i + 1) % q.len()], q[(i + 2) % q.len()]) >= 0));
+    if samples > 1 && outline.is_none() && !pieces.is_empty() {
+        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+    }
     // depth: one value per triangle in these cases
     let z = {
         let zz: Vec<f32> = zs.iter().map(|z| minz + z * (maxz - minz)).collect();
@@ -1091,6 +1259,9 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                     w > 0 || w == 0 && top_left(a, b)
                 })
             };
+            if outline.as_ref().is_some_and(|q| square_cover(q, (px, py)) == Cover::Part) {
+                return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            }
             if !pieces.iter().any(inside) {
                 continue;
             }
