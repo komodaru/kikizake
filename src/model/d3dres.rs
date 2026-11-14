@@ -275,10 +275,10 @@ impl D3dres {
             super::d3draster::op(self, dev, op, out)?;
             return Ok(true);
         }
-        // (samples that differ in a pixel, D3DRASTER.MS.SAMPLES: only clears, draws and
-        // resolves are modeled on them)
+        // (samples that differ in a pixel, D3DRASTER.MS.SAMPLES: only clears, draws, resolves
+        // and reads (zeros, D3DRES.READ.MS) are modeled on them)
         let at: &[usize] = match name {
-            "update" | "read" => &[1],
+            "update" => &[1],
             "copy" => &[1, 2],
             "copysub" => &[1, 6],
             _ => &[],
@@ -827,6 +827,10 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
         return Ok(());
     }
     // (MEASURED: a subresource past the last reads as zeros, probe-read-sub)
+    // (more than 16 MiB of zeros: not measured)
+    if rb.saturating_mul(rows.saturating_mul(slices).min(1 << 16)) > 1 << 24 {
+        return Err(Fail::Unmodeled(open::D3DRES_READ_PAST));
+    }
     if sub >= res.nsubs() {
         hit(clause::D3DRES_READ_BAD);
         out.push(format!("read {rows} {slices}"));

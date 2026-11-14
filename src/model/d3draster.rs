@@ -660,7 +660,8 @@ impl Target<'_> {
     fn depth(&self, z: f32) -> f32 {
         let [_, _, _, _, minz, maxz] = self.vp;
         let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-        (minz + z * (maxz - minz)).clamp(lo, hi)
+        // (max and min, not clamp: a range of NaN leaves the value)
+        (minz + z * (maxz - minz)).max(lo).min(hi)
     }
 
     fn put(&self, m: &mut D3dres, d: &Draw, (px, py): (i64, i64), z: f32, out: [u32; 4]) -> Res<()> {
@@ -1211,7 +1212,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             None
         } else {
             let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-            Some(zz[0].clamp(lo, hi))
+            Some(zz[0].max(lo).min(hi))
         }
     };
     // the pixels: inside the target, the viewport and (when on) the scissor rectangle
@@ -1277,6 +1278,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let r = m.res[view.res].as_mut().unwrap();
             let base = r.subs[rt_sub as usize].clone().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
             let n = mask.len();
+            // (the model keeps samples of targets up to 64 MiB of them)
+            if base.len().saturating_mul(n) > 64 << 20 {
+                return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            }
             if r.samples.len() <= rt_sub as usize {
                 r.samples.resize(rt_sub as usize + 1, None);
             }
@@ -1510,20 +1515,19 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let filter = Filter::of(s[0]).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
             // pixel spans, as the 2 x 2 quad's differences give them)
-            let linear = if filter.min == filter.mag {
+            let linear = if filter.min == filter.mag && r.d.mips == 1 {
                 filter.mag
             } else {
                 let (qx, qy) = (px & !1, py & !1);
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
                 let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * w as f64).powi(2) + (f64::from(b[1] - a[1]) * h as f64).powi(2)).sqrt();
                 let rho = span(q[0], q[1]).max(span(q[0], q[2]));
-                // (MEASURED, WARP: probe-filter-min, -min-point) a span of one texel magnifies, of
-                // 1.25 minifies; with more than one mip level the level is not measured
+                // (MEASURED, WARP: probe-filter-min, -min-point, -rho-*) a span of up to one texel
+                // magnifies, past it minifies (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25); with
+                // more than one mip level the level is not measured
                 if rho <= 1.0 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
                     filter.mag
-                } else if rho < 1.25 {
-                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 } else if r.d.mips == 1 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
                     filter.min

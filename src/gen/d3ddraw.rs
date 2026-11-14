@@ -827,6 +827,19 @@ fn probes(s: &mut String, dev: &str) {
         }
         writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }
+    // what D3DRASTER.FILTER leaves open: anisotropic filtering, linear filtering of sRGB and
+    // SNORM texels, minifying a texture with mips (two texels a pixel)
+    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5))] {
+        writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        let pitch = format(fmt).unwrap().row_bytes(4);
+        writeln!(s, "tex 1 2 4 4 1 {mips} {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("pssample"))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (x, y, u, v) in [(-1.0f32, 1.0f32, uv.0, uv.0), (1.0, 1.0, uv.1, uv.0), (-1.0, -1.0, uv.0, uv.1), (1.0, -1.0, uv.1, uv.1)] {
+            writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
+    }
     // a constant buffer bound (no program reads it)
     begin(s, dev, "probe-cbuf", 16, 16, 28, "ps");
     writeln!(s, "buf 2 16 0 4 0 0 0\ncbuf 2").unwrap();
