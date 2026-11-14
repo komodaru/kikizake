@@ -223,6 +223,17 @@ static void op_glmat(void) {
     ((void (WINAPI *)(const float *))p)(m);
 }
 
+/* glfogv <pname> <1..4 floats>: glFogfv with the floats, the rest of four 0 */
+static void op_glfogv(void) {
+    NOCTX();
+    float v[4] = { 0, 0, 0, 0 };
+    if (ntok < 3 || ntok > 6) { bad = 1; return; }
+    long p = num(1);
+    for (int i = 2; i < ntok; i++) v[i - 2] = (float)fl(i);
+    if (bad) return;
+    ((void (WINAPI *)(long, const float *))glf("glFogfv"))(p, v);
+}
+
 /* glerr: glGetError until GL_NO_ERROR (at most 8): "glerr <codes...>", or "glerr 0" */
 static void op_glerr(void) {
     NOCTX();
@@ -339,6 +350,7 @@ static const struct kz_op opengl_ops[] = {
     { "glctx", op_glctx },
     { "gl", op_gl },
     { "glmat", op_glmat },
+    { "glfogv", op_glfogv },
     { "glerr", op_glerr },
     { "glget", op_glget },
     { "glisen", op_glisen },

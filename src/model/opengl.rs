@@ -61,6 +61,14 @@ pub mod e {
     pub const TEXTURE: u32 = 0x1702;
 
     pub const COLOR_INDEX: u32 = 0x1900;
+    pub const FOG: u32 = 0xb60;
+    pub const FOG_INDEX: u32 = 0xb61;
+    pub const FOG_DENSITY: u32 = 0xb62;
+    pub const FOG_START: u32 = 0xb63;
+    pub const FOG_END: u32 = 0xb64;
+    pub const FOG_MODE: u32 = 0xb65;
+    pub const FOG_COLOR: u32 = 0xb66;
+    pub const POLYGON_OFFSET_FILL: u32 = 0x8037;
     pub const MAP_COLOR: u32 = 0xd10;
     pub const INDEX_SHIFT: u32 = 0xd12;
     pub const INDEX_OFFSET: u32 = 0xd13;
@@ -420,6 +428,10 @@ pub struct Ctx {
     /// origin at depth 0), and its color
     pub raster: Option<[f64; 3]>,
     pub raster_color: [f32; 4],
+    /// glFog
+    pub fog: Fog,
+    /// glPolygonOffset: (factor, units)
+    pub offset: (f32, f32),
     pub line_width: f32,
     pub point_size: f32,
     pub cull_mode: u32,
@@ -495,6 +507,8 @@ impl Ctx {
             zoom: (1.0, 1.0),
             raster: Some([0.0; 3]),
             raster_color: [1.0; 4],
+            fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
+            offset: (0.0, 0.0),
             line_width: 1.0,
             point_size: 1.0,
             cull_mode: BACK,
@@ -597,12 +611,12 @@ impl Ctx {
             0xb54 => i(self.shade as i64),
             0xb55 => i(FRONT_AND_BACK as i64),
             0xb56 => i(0x1602),
-            0xb61 => vec![F(0.0)],
-            0xb62 => vec![F(1.0)],
-            0xb63 => vec![F(0.0)],
-            0xb64 => vec![F(1.0)],
-            0xb65 => i(0x800),
-            0xb66 => c4([0.0; 4]),
+            0xb61 => vec![F(self.fog.index)],
+            0xb62 => vec![F(self.fog.density)],
+            0xb63 => vec![F(self.fog.start)],
+            0xb64 => vec![F(self.fog.end)],
+            0xb65 => i(i64::from(self.fog.mode.name())),
+            0xb66 => c4(self.fog.color),
             0xb70 => vec![C(self.depth_range[0]), C(self.depth_range[1])],
             0xb72 => vec![B(self.depth_mask)],
             0xb73 => vec![C(self.clear_depth as f32)],
@@ -677,7 +691,8 @@ impl Ctx {
             0xdd3 => vec![I(1), I(1)],
             // (MEASURED, golden opengl-32 defaults-*: the feedback type reads 0, not GL_2D)
             0xdf1 | 0xdf2 | 0xdf4 => i(0),
-            0x2a00 | 0x8038 => vec![F(0.0)],
+            0x8038 => vec![F(self.offset.0)],
+            0x2a00 => vec![F(self.offset.1)],
             0x8068 | 0x8069 => i(0),
             0x807a | 0x8088 => i(4),
             0x8081 => i(4),
@@ -887,7 +902,7 @@ impl Gl {
                 out.push(format!("glcur {c} {c}"));
                 return Ok(true);
             }
-            "gl" | "glmat" | "glerr" | "glget" | "glisen" | "glstr" | "glread" | "gldraw" | "gldib" | "glrelease" => {}
+            "gl" | "glmat" | "glfogv" | "glerr" | "glget" | "glisen" | "glstr" | "glread" | "gldraw" | "gldib" | "glrelease" => {}
             _ => return Ok(false),
         }
         let Some(ctx) = self.ctx.as_mut() else {
@@ -928,6 +943,21 @@ impl Gl {
                     let i = ctx.mi();
                     let top = ctx.stacks[i].last_mut().unwrap();
                     *top = if t[1] == "load" { m } else { mat_mul(top, &m) };
+                }
+            }
+            "glfogv" => {
+                if t.len() < 3 || t.len() > 6 {
+                    return Err(Fail::Bad);
+                }
+                let p = num(&t[1]).ok_or(Fail::Bad)? as u32;
+                let mut v = [0f32; 4];
+                for k in 2..t.len() {
+                    v[k - 2] = parse_float(&t[k])? as f32;
+                }
+                if ctx.in_begin.is_some() {
+                    ctx.error(INVALID_OPERATION);
+                } else {
+                    ctx.fog_param(p, &v, true);
                 }
             }
             "glerr" => {
@@ -1443,6 +1473,11 @@ impl Ctx {
                 self.raster = inside.then(|| [(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0]);
                 self.raster_color = self.current();
             }
+            "glFogf" => self.fog_param(u(a, 0), &[fl(a, 1) as f32], false),
+            "glPolygonOffset" => {
+                hit(clause::GL_POLYGON_OFFSET_STATE);
+                self.offset = (fl(a, 0) as f32, fl(a, 1) as f32);
+            }
             "glPixelZoom" => {
                 // (golden opengl-32 edge-other-call: no error; images drawn zoomed are GL.CALL.OTHER)
                 hit(clause::GL_PIXELTRANSFER);
@@ -1637,6 +1672,62 @@ impl TryFrom<u32> for AccumOp {
     }
 }
 
+/// glFog's modes (GL_EXP 0x800, GL_EXP2 0x801, GL_LINEAR 0x2601)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FogMode {
+    Exp,
+    Exp2,
+    Linear,
+}
+
+impl TryFrom<u32> for FogMode {
+    type Error = ();
+    fn try_from(m: u32) -> Result<FogMode, ()> {
+        match m {
+            0x800 => Ok(FogMode::Exp),
+            0x801 => Ok(FogMode::Exp2),
+            0x2601 => Ok(FogMode::Linear),
+            _ => Err(()),
+        }
+    }
+}
+
+impl FogMode {
+    pub fn name(self) -> u32 {
+        match self {
+            FogMode::Exp => 0x800,
+            FogMode::Exp2 => 0x801,
+            FogMode::Linear => 0x2601,
+        }
+    }
+}
+
+/// the fog state glFog sets
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Fog {
+    pub mode: FogMode,
+    pub density: f32,
+    pub start: f32,
+    pub end: f32,
+    pub index: f32,
+    pub color: [f32; 4],
+}
+
+impl Fog {
+    /// the fog factor at a vertex `z` from the eye, held to 0..1 (GL 1.1 3.9; MEASURED, golden
+    /// opengl-32 other-calls-2: the distance is |z| in eye coordinates, the factor taken at the
+    /// vertices and interpolated across the primitive: GL.FOG.APPLY)
+    pub fn factor(&self, z: f64) -> f32 {
+        let c = z.abs() as f32;
+        let f = match self.mode {
+            FogMode::Linear => (self.end - c) / (self.end - self.start),
+            FogMode::Exp => (-(self.density * c)).exp(),
+            FogMode::Exp2 => (-(self.density * c) * (self.density * c)).exp(),
+        };
+        if f.is_nan() { 0.0 } else { f.clamp(0.0, 1.0) }
+    }
+}
+
 /// the transform of a vertex to window coordinates (x, y, z in 0..1)
 fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
     let mut r = [0f64; 4];
@@ -1647,6 +1738,66 @@ fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
 }
 
 impl Ctx {
+    /// glFogf / glFogfv: one of the fog values (GL 1.1 3.9: a negative density INVALID_VALUE,
+    /// a mode or name not fog's INVALID_ENUM, the color by the vector call only)
+    fn fog_param(&mut self, p: u32, v: &[f32], vector: bool) {
+        match (p, v) {
+            (FOG_MODE, [m, ..]) => match FogMode::try_from(*m as u32) {
+                Ok(m) => {
+                    hit(clause::GL_FOG_STATE);
+                    self.fog.mode = m;
+                }
+                Err(()) => {
+                    hit(clause::GL_FOG_ENUM);
+                    self.error(INVALID_ENUM);
+                }
+            },
+            (FOG_DENSITY, [d, ..]) if *d < 0.0 => {
+                hit(clause::GL_FOG_ENUM);
+                self.error(INVALID_VALUE);
+            }
+            (FOG_DENSITY, [d, ..]) => {
+                hit(clause::GL_FOG_STATE);
+                self.fog.density = *d;
+            }
+            (FOG_START, [d, ..]) => {
+                hit(clause::GL_FOG_STATE);
+                self.fog.start = *d;
+            }
+            (FOG_END, [d, ..]) => {
+                hit(clause::GL_FOG_STATE);
+                self.fog.end = *d;
+            }
+            (FOG_INDEX, [d, ..]) => {
+                hit(clause::GL_FOG_STATE);
+                self.fog.index = *d;
+            }
+            (FOG_COLOR, [r, g, b, al, ..]) if vector => {
+                hit(clause::GL_FOG_STATE);
+                self.fog.color = [*r, *g, *b, *al].map(|c| c.clamp(0.0, 1.0));
+            }
+            _ => {
+                hit(clause::GL_FOG_ENUM);
+                self.error(INVALID_ENUM);
+            }
+        }
+    }
+
+    /// a vertex's color fogged at its eye z (GL.FOG.APPLY): the RGB toward the fog color, alpha
+    /// kept; a color index plus the fog index times one less the factor
+    fn fogged(&self, c: [f32; 4], v: [f64; 3]) -> [f32; 4] {
+        if !self.cap(FOG) {
+            return c;
+        }
+        hit(clause::GL_FOG_APPLY);
+        let f = self.fog.factor(xform(self.top(0), [v[0], v[1], v[2], 1.0])[2]);
+        if self.pf.ty != 0 {
+            return [c[0] + (1.0 - f) * self.fog.index, 0.0, 0.0, 0.0];
+        }
+        let k = self.fog.color;
+        [f * c[0] + (1.0 - f) * k[0], f * c[1] + (1.0 - f) * k[1], f * c[2] + (1.0 - f) * k[2], c[3]]
+    }
+
     fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
         let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
         let c = xform(self.top(1), e);
@@ -1715,7 +1866,7 @@ impl Ctx {
                         for i in 0..n as i64 {
                             let (x, y) = (x0 as i64 + i, y0 as i64 + j);
                             if (0..W as i64).contains(&x) && (0..H as i64).contains(&y) {
-                                self.fragment(Frag { x, y, c, z: w[2], trunc: false, zfixed: None })?;
+                                self.fragment(Frag { x, y, c: self.fogged(c, v), z: w[2], trunc: false, zfixed: None })?;
                             }
                         }
                     }
@@ -1780,12 +1931,28 @@ impl Ctx {
                         (true, false) => NeverPath::Unclipped,
                         (false, _) => NeverPath::Other,
                     };
-                    let c = q[3].1;
+                    // fogged at the vertices: the rectangle's are at one depth in eye coordinates
+                    let c = self.fogged(q[3].1, q[3].0);
+                    if q.iter().any(|v| self.fogged(q[3].1, v.0) != c) {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                    }
+                    // (MEASURED, golden opengl-32 other-calls-1: a flat polygon's depth moved by
+                    // units times 2^-23 under GL_POLYGON_OFFSET_FILL, the factor times its zero
+                    // slope adding nothing: GL.POLYGON.OFFSET)
+                    let z = if self.cap(POLYGON_OFFSET_FILL) {
+                        hit(clause::GL_POLYGON_OFFSET);
+                        if self.pf.depth != 32 {
+                            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+                        }
+                        w[0][2] + f64::from(self.offset.1) * (2f64).powi(-23)
+                    } else {
+                        w[0][2]
+                    };
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
                             if inside(cx, x0, x1, px) && inside(cy, y0, y1, py) {
-                                let r = self.fragment(Frag { x, y, c, z: w[0][2], trunc: false, zfixed: None });
+                                let r = self.fragment(Frag { x, y, c, z, trunc: false, zfixed: None });
                                 if r.is_err() {
                                     self.never = NeverPath::Other;
                                 }
@@ -2194,6 +2361,7 @@ impl Ctx {
             self.cull_mode = s.cull_mode;
             self.front_face = s.front_face;
             self.poly_mode = s.poly_mode;
+            self.offset = s.offset;
         }
         if mask & attrib::PIXEL_MODE != 0 {
             self.transfer = s.transfer;
@@ -2205,6 +2373,9 @@ impl Ctx {
         }
         if mask & attrib::LIGHTING != 0 {
             self.shade = s.shade;
+        }
+        if mask & attrib::FOG != 0 {
+            self.fog = s.fog;
         }
         if mask & attrib::DEPTH != 0 {
             self.depth_func = s.depth_func;
@@ -2874,6 +3045,10 @@ impl Ctx {
         // (zoomed depth, stencil and bitmap images are not measured)
         let zoomed = self.zoom != (1.0, 1.0);
         if zoomed && (size == 0 || f == DEPTH_COMPONENT || f == STENCIL_INDEX) {
+            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+        }
+        // (fog on the fragments of images is not measured)
+        if self.cap(FOG) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
         hit(clause::GL_DRAW);

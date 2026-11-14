@@ -1256,4 +1256,49 @@ fn measure(s: &mut String) {
     write!(s, "case transfer-maps-stencil\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}").unwrap();
     writeln!(s, "gl glClearStencil 0x5a\ngl glClear 0x400\ngl glPixelTransferi 0xd11 1\ngldraw 16 4 {} {} 78 64\nglread 0 0 16 4 {} {} 64\ngl glPixelTransferi 0xd11 0\nglread 0 0 16 4 {} {} 64", h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
     writeln!(s, "glerr\ngl glPixelTransferi 0xd16 1\nglerr\ngl glPixelTransferf 0xd00 1\nglerr\nend").unwrap();
+    // fog over flat quads, one depth each, in every mode on the RGBA bit depths, a fog color,
+    // the state read back; and color index fog and points
+    let mut q = XorShift32::new(0x0960_200b);
+    let z = |q: &mut XorShift32| format!("{}", (q.next() % 1999) as f64 / 1000.0 - 0.999);
+    for (k, bpp) in [32, 16, 24, 32].into_iter().enumerate() {
+        write!(s, "case fog-rects-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb60\n", ctx(bpp)).unwrap();
+        for mode in [0x2601u32, 0x800, 0x801] {
+            let (a, b) = (z(&mut q), z(&mut q));
+            let dens = (q.next() % 4000) as f64 / 1000.0;
+            writeln!(s, "gl glClear 0x4000\ngl glFogf 0xb65 {mode}\ngl glFogf 0xb63 {a}\ngl glFogf 0xb64 {b}\ngl glFogf 0xb62 {dens}").unwrap();
+            writeln!(s, "glfogv 0xb66 {} {} {} {}", (q.next() % 1001) as f64 / 1000.0, (q.next() % 1001) as f64 / 1000.0, (q.next() % 1001) as f64 / 1000.0, (q.next() % 1001) as f64 / 1000.0).unwrap();
+            for i in 0..16 {
+                let (x0, y0) = (i % 4 * 4, i / 4 * 4);
+                let zz = z(&mut q);
+                writeln!(s, "gl glColor4ub {} {} {} {}\ngl glBegin 7\ngl glVertex3f {x0} {y0} {zz}\ngl glVertex3f {} {y0} {zz}\ngl glVertex3f {} {} {zz}\ngl glVertex3f {x0} {} {zz}\ngl glEnd", q.next() & 255, q.next() & 255, q.next() & 255, q.next() & 255, x0 + 4, x0 + 4, y0 + 4, y0 + 4).unwrap();
+            }
+            read_all(s);
+        }
+        writeln!(s, "glget f 0xb66 4\nglget f 0xb62 1\nglget f 0xb63 1\nglget f 0xb64 1\nglget i 0xb65 1\nglerr").unwrap();
+        writeln!(s, "gl glFogf 0xb62 -1\nglerr\ngl glFogf 0xb65 4660\nglerr\ngl glFogf 0xb66 1\nglerr\nglfogv 0xb65 2049\nglerr\nglfogv 0x1234 1\nglerr\nglfogv 0xb66 2 -1 0.5 0.25\nglget f 0xb66 4\nglget i 0xb65 1\nglerr\nend").unwrap();
+    }
+    write!(s, "case fog-points\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb60\ngl glClear 0x4000\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\nglfogv 0xb66 0.25 0.5 0.75 1\ngl glBegin 0\n", ctx(32)).unwrap();
+    for i in 0..64 {
+        writeln!(s, "gl glColor4ub {} {} {} 255\ngl glVertex3f {}.5 {}.5 {}", q.next() & 255, q.next() & 255, q.next() & 255, i % 16, i / 16 * 4, z(&mut q)).unwrap();
+    }
+    writeln!(s, "gl glEnd").unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case fog-ci\nglctx 8 29\n{ORTHO}gl glEnable 0xb60\ngl glClear 0x4000\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glFogf 0xb61 {}\n", q.next() % 200).unwrap();
+    for i in 0..16 {
+        let (x0, y0) = (i % 4 * 4, i / 4 * 4);
+        let zz = z(&mut q);
+        writeln!(s, "gl glIndexi {}\ngl glBegin 7\ngl glVertex3f {x0} {y0} {zz}\ngl glVertex3f {} {y0} {zz}\ngl glVertex3f {} {} {zz}\ngl glVertex3f {x0} {} {zz}\ngl glEnd", q.next() % 56, x0 + 4, x0 + 4, y0 + 4, y0 + 4).unwrap();
+    }
+    writeln!(s, "glread 0 0 16 16 {} {} 256\nglerr\nend", h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    // polygon offset units on flat rectangles, on 32 and 16 depth bits, the state read back
+    for (k, c) in ["glctx 32 choose 0x38 0 32 0 0 32 8", "glctx 32 2"].into_iter().enumerate() {
+        write!(s, "case poly-offset-{k}\n{c}\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glEnable 0x8037\n").unwrap();
+        for units in ["1", "-1", "2", "-3", "0.5", "-0.5", "-1000", "100000", "-100000000", "7.25"] {
+            let zc = z(&mut q);
+            writeln!(s, "gl glClearDepth 0.5\ngl glClear 0x100\ngl glPolygonOffset {} {units}\ngl glBegin 7\ngl glVertex3f 0 0 {zc}\ngl glVertex3f 16 0 {zc}\ngl glVertex3f 16 8 {zc}\ngl glVertex3f 0 8 {zc}\ngl glEnd\ngl glRectf 0 8 16 16", (q.next() % 9) as f64 - 4.0).unwrap();
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "glget f 0x8038 1\nglget f 0x2a00 1\ngl glPushAttrib 0x8\ngl glPolygonOffset 3 4\ngl glPopAttrib\nglget f 0x8038 1\nglget f 0x2a00 1\nglerr\nend").unwrap();
+    }
 }
