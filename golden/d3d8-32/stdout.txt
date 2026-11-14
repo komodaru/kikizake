@@ -5592,4 +5592,9 @@ device8 ok
 sb create hr 8876086c
 sb 0 none
 rs 7 = 00000000
+case edge-release-while-recording
+device8 ok
+sb release hr 8876086c
+sb 1 none
+rs 7 = 00000000
 done
