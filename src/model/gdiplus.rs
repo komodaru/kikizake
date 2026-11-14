@@ -894,8 +894,7 @@ pub fn rotate(b: &Bitmap, k: u32) -> Bitmap {
     let mut o = Bitmap { f: b.f, w, h, rows: vec![vec![0; row_bytes(b.f, w)]; h as usize], pal: b.pal.clone() };
     for y in 0..h {
         for x in 0..w {
-            let x = if k >= 4 { w - 1 - x } else { x };
-            // (the source pixel of destination (x, y) after the turns)
+            // (the source pixel of destination (x, y) after the turns, the flip after them)
             let (sx, sy) = match turns {
                 0 => (x, y),
                 1 => (y, b.h - 1 - x),

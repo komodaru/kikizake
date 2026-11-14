@@ -162,3 +162,27 @@ fn dither_keeps_the_mean() {
         }
     }
 }
+
+/// the model answers every case of its suites but those of the three open clauses, and the same
+/// number of them on each executor as when it was settled (a model that gives up on more cases
+/// still matches Windows on the rest: this is what keeps it answering)
+#[test]
+fn the_model_answers_all_but_the_open_clauses() {
+    for (suite, arch, open) in [("gdiplus", 32, 43), ("gdiplus", 64, 163), ("gdiplusmat", 32, 0)] {
+        kikizake::model::set_arch(arch);
+        let cases = kikizake::case::parse_cases(&kikizake::gen::suite(suite).unwrap());
+        let mut n = 0;
+        for c in &cases {
+            match kikizake::model::run_case(c) {
+                Ok(_) => {}
+                Err(kikizake::model::Fail::Unmodeled(id)) => {
+                    assert!(["GP.FILL.GAMMA", "GP.MATRIX.X64", "GP.CLONE.PALETTE"].contains(&id), "{suite} {}: {id}", c.name);
+                    n += 1;
+                }
+                Err(kikizake::model::Fail::Bad) => panic!("{suite} {}: a bad line", c.name),
+            }
+        }
+        assert_eq!(n, open, "{suite}-{arch}");
+    }
+    kikizake::model::set_arch(32);
+}
