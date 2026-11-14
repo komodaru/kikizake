@@ -1,0 +1,231 @@
+//! Laws of the WIC bitmap source model (src/model/wicimage.rs): what the documentation states as
+//! properties, exhaustive over small domains or property-based, whatever Windows' measured
+//! details turn out to be.
+use proptest::prelude::*;
+use kikizake::model::wicimage::{self as wi, Img};
+
+const FMTS: &[&str] = &["bw", "gray2", "gray4", "gray8", "gray16", "bgr565", "bgr24", "bgra", "rgb48", "rgba64", "cmyk", "idx1", "idx4", "idx8"];
+
+fn img(f: &str, w: u32, h: u32, seed: u32) -> Img {
+    wi::bitmap(f, w, h, Some(seed))
+}
+
+/// the pixels as values, so that bits past a row's end do not count
+fn pixels(i: &Img) -> Vec<Vec<u8>> {
+    (0..i.h).flat_map(|y| (0..i.w).map(move |x| (x, y))).map(|(x, y)| i.get(x, y)).collect()
+}
+
+const OPTS: [u32; 8] = [0, 1, 2, 3, 8, 9, 10, 11];
+
+/// exhaustive over every transform, format and size up to 4x4: the documented group of the
+/// square's symmetries (rotations compose by adding, a flip twice is nothing, a rotation by 180
+/// is both flips, FlipVertical is FlipHorizontal after a rotation by 180)
+#[test]
+fn flips_are_the_square_symmetries() {
+    for f in FMTS {
+        for w in 1..=4 {
+            for h in 1..=4 {
+                let s = img(f, w, h, w * 7 + h);
+                let p = pixels(&s);
+                assert_eq!(pixels(&wi::flip(&s, 0)), p);
+                for o in OPTS {
+                    let once = wi::flip(&s, o);
+                    let (ew, eh) = if o & 1 != 0 { (h, w) } else { (w, h) };
+                    assert_eq!((once.w, once.h), (ew, eh));
+                    assert_eq!(once.fmt, s.fmt);
+                }
+                let r1 = wi::flip(&s, 1);
+                assert_eq!(pixels(&wi::flip(&wi::flip(&wi::flip(&r1, 1), 1), 1)), p, "{f} {w}x{h}: four quarter turns");
+                assert_eq!(pixels(&wi::flip(&r1, 1)), pixels(&wi::flip(&s, 2)), "{f}: two quarter turns are a half turn");
+                assert_eq!(pixels(&wi::flip(&wi::flip(&s, 8), 8)), p);
+                assert_eq!(pixels(&wi::flip(&wi::flip(&s, 16), 16)), p);
+                assert_eq!(pixels(&wi::flip(&s, 2)), pixels(&wi::flip(&s, 24)), "{f}: a half turn is both flips");
+                assert_eq!(pixels(&wi::flip(&s, 16)), pixels(&wi::flip(&wi::flip(&s, 2), 8)));
+                // a clockwise quarter turn: the top left pixel goes to the top right
+                assert_eq!(r1.get(r1.w - 1, 0), s.get(0, 0));
+                assert_eq!(wi::flip(&s, 3).get(0, s.w - 1), s.get(0, 0));
+                assert_eq!(wi::flip(&s, 8).get(s.w - 1, 0), s.get(0, 0));
+            }
+        }
+    }
+}
+
+/// nearest neighbor: the same size changes nothing, an integer upscale repeats each pixel, and
+/// every output pixel is one of the source's (exhaustive over sizes 1..=8 -> 1..=17)
+#[test]
+fn nearest_neighbor_picks_pixels() {
+    for sw in 1..=8u32 {
+        for dw in 1..=17u32 {
+            for d in 0..dw {
+                let s = wi::nearest(d, sw, dw);
+                assert!(s < sw);
+                // the source pixel whose span holds the output pixel's center
+                let c2 = (2 * d + 1) as u64 * sw as u64;
+                assert!(s as u64 * 2 * dw as u64 <= c2 && c2 < (s as u64 + 1) * 2 * dw as u64);
+            }
+            if dw % sw == 0 {
+                for d in 0..dw {
+                    assert_eq!(wi::nearest(d, sw, dw), d / (dw / sw));
+                }
+            }
+        }
+        for d in 0..sw {
+            assert_eq!(wi::nearest(d, sw, sw), d);
+        }
+    }
+    for f in FMTS {
+        let s = img(f, 5, 3, 9);
+        assert_eq!(pixels(&wi::scale(&s, 5, 3, "nn").unwrap()), pixels(&s));
+    }
+}
+
+/// predefined palettes: the documented counts, a transparent color one more entry (the last
+/// one at 256), the gray palettes gray and evenly spaced from black to white
+#[test]
+fn predefined_palettes() {
+    for (t, n) in [(2u32, 2usize), (10, 4), (11, 16), (12, 256)] {
+        let (hr, ty, c) = wi::predefined(t, false).unwrap();
+        assert_eq!((hr, ty, c.len()), (0, t, n));
+        assert_eq!(c[0], 0xff00_0000);
+        assert_eq!(*c.last().unwrap(), 0xffff_ffff);
+        assert!(c.windows(2).all(|p| p[0] < p[1]));
+        let (hr, ty, ct) = wi::predefined(t, true).unwrap();
+        assert_eq!((hr, ty), (0, 0));
+        assert_eq!(ct.len(), if n == 256 { 256 } else { n + 1 });
+        assert_eq!(*ct.last().unwrap() >> 24, 0);
+        assert_eq!(ct[..n.min(255)], c[..n.min(255)]);
+    }
+    for t in [0u32, 1, 13, 14, 0x7fff_ffff] {
+        assert_ne!(wi::predefined(t, false).unwrap().0, 0);
+    }
+}
+
+fn rows_of(i: &Img) -> Vec<Vec<u8>> {
+    let st = i.stride();
+    i.px.chunks(st).map(<[u8]>::to_vec).collect()
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(300))]
+
+    /// a clipper and CopyPixels of a rectangle show the same pixels, and the whole picture
+    /// clipped is the picture
+    #[test]
+    fn clip_and_copy_agree(fi in 0..FMTS.len(), w in 1u32..12, h in 1u32..8, seed: u32, a: u32, b: u32, c: u32, d: u32) {
+        let s = img(FMTS[fi], w, h, seed | 1);
+        let (x, y) = (a % w, b % h);
+        let (cw, ch) = (1 + c % (w - x), 1 + d % (h - y));
+        let cl = wi::clip(&s, x, y, cw, ch);
+        let (hr, rows) = wi::copy(&s, Some((x as i64, y as i64, cw as i64, ch as i64)), None);
+        prop_assert_eq!(hr, 0);
+        let (hr2, rows2) = wi::copy(&cl, None, None);
+        prop_assert_eq!(hr2, 0);
+        prop_assert_eq!(rows, rows2);
+        prop_assert_eq!(pixels(&wi::clip(&s, 0, 0, w, h)), pixels(&s));
+        // (a rectangle reaching outside is refused, whatever the format)
+        prop_assert_ne!(wi::copy(&s, Some((x as i64, y as i64, (w - x + 1) as i64, ch as i64)), None).0, 0);
+    }
+
+    /// a buffer is enough exactly when it holds stride * (height - 1) + one row
+    #[test]
+    fn copy_buffer_bounds(fi in 0..FMTS.len(), w in 1u32..9, h in 1u32..6, extra in 0i64..9, short in 0i64..2) {
+        let s = img(FMTS[fi], w, h, 5);
+        let row = wi::stride(FMTS[fi], w) as i64;
+        let st = row + extra;
+        let need = st * (h as i64 - 1) + row;
+        prop_assert_eq!(wi::copy(&s, None, Some((st, need - short))).0 == 0, short == 0);
+        prop_assert_ne!(wi::copy(&s, None, Some((row - 1, 1 << 20))).0, 0);
+    }
+
+    /// files written by the generators (from the formats' specifications) decode to what was
+    /// written: BMP (both row orders), PNG (every filter, Adam7), GIF (LZW, interlace)
+    #[test]
+    fn bmp_round_trip(w in 1i32..20, h in 1i32..9, bpp_i in 0usize..3, top: bool, seed: u32) {
+        let bpp = [8u32, 24, 32][bpp_i];
+        let st = (w as u32 * bpp).div_ceil(32) * 4;
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let px: Vec<u8> = (0..st * h as u32).map(|_| r.next() as u8).collect();
+        let pal: Vec<u32> = if bpp == 8 { (0..256).map(|i| i * 0x010101).collect() } else { vec![] };
+        let f = kikizake::gen::wicimage_bmp(40, w, h, bpp, 0, [0; 4], 0, &pal, &px, top, (0, 0));
+        let d = wi::decode(&f).unwrap().unwrap();
+        let i = d.frames[0].clone().unwrap();
+        prop_assert_eq!((i.w, i.h), (w as u32, h as u32));
+        let n = i.stride();
+        for y in 0..h as usize {
+            let sy = if top { y } else { h as usize - 1 - y };
+            prop_assert_eq!(&rows_of(&i)[y][..], &px[sy * st as usize..sy * st as usize + n]);
+        }
+    }
+
+    #[test]
+    fn png_round_trip(w in 1u32..14, h in 1u32..10, il: bool, f0 in 0u8..5, f1 in 0u8..5, seed: u32, block in 1usize..90) {
+        // 8-bit gray: a sample is a pixel
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let pix: Vec<Vec<u8>> = (0..h).map(|_| (0..w).map(|_| r.next() as u8).collect()).collect();
+        let mut filtered = Vec::new();
+        let passes: Vec<(u32, u32, u32, u32)> = if il { kikizake::gen::WICIMAGE_ADAM7.to_vec() } else { vec![(0, 0, 1, 1)] };
+        for (x0, y0, dx, dy) in passes {
+            let raw: Vec<Vec<u8>> = (y0..h).step_by(dy as usize).map(|y| (x0..w).step_by(dx as usize).map(|x| pix[y as usize][x as usize]).collect()).filter(|r: &Vec<u8>| !r.is_empty()).collect();
+            if raw.is_empty() {
+                continue;
+            }
+            filtered.extend(kikizake::gen::wicimage_png_filter(&raw, 1, &[f0, f1]));
+        }
+        let f = kikizake::gen::wicimage_png(w, h, 8, 0, il, &[], &filtered, block);
+        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap();
+        prop_assert_eq!(i.fmt, "gray8");
+        prop_assert_eq!(rows_of(&i), pix);
+    }
+
+    #[test]
+    fn gif_round_trip(w in 1u32..40, h in 1u32..20, bits in 1u32..9, il: bool, seed: u32) {
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let idx: Vec<u8> = (0..w * h).map(|_| (r.next() % (1 << bits)) as u8).collect();
+        let pal: Vec<u32> = (0..1u32 << bits).collect();
+        let fr = kikizake::gen::WicGifFrame { x: 0, y: 0, w, h, local: None, transparent: None, interlace: il, idx: idx.clone(), min: bits.max(2) };
+        let f = kikizake::gen::wicimage_gif(w, h, Some(&pal), 0, &[fr]);
+        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap();
+        prop_assert_eq!(i.px, idx);
+    }
+
+    /// a long run of one index and noise both survive LZW, past the 12-bit table and its clear
+    #[test]
+    fn lzw_round_trip(n in 1usize..9000, bits in 1u32..9, seed: u32, runs: bool) {
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let idx: Vec<u8> = (0..n).map(|i| if runs { ((i / 37) as u32 % (1 << bits)) as u8 } else { (r.next() % (1 << bits)) as u8 }).collect();
+        let pal: Vec<u32> = (0..1u32 << bits).collect();
+        let fr = kikizake::gen::WicGifFrame { x: 0, y: 0, w: n as u32, h: 1, local: None, transparent: None, interlace: false, idx: idx.clone(), min: bits.max(2) };
+        let f = kikizake::gen::wicimage_gif(n as u32, 1, Some(&pal), 0, &[fr]);
+        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap();
+        prop_assert_eq!(i.px, idx);
+    }
+
+    /// BC blocks: the endpoints decode to themselves, BC1's index 3 of a 3-color block is
+    /// transparent, BC2's alpha is a multiple of 17
+    #[test]
+    fn bc_blocks(blk in prop::collection::vec(any::<u8>(), 16)) {
+        for kind in 1..=3u8 {
+            let b = if kind == 1 { &blk[..8] } else { &blk[..] };
+            let col = if kind == 1 { b } else { &b[8..] };
+            let c0 = u16::from_le_bytes([col[0], col[1]]) as u32;
+            let c1 = u16::from_le_bytes([col[2], col[3]]) as u32;
+            let idx = u32::from_le_bytes([col[4], col[5], col[6], col[7]]);
+            let px = wi::bc_block(kind, b);
+            for (i, p) in px.iter().enumerate() {
+                let k = idx >> (2 * i) & 3;
+                let e = if k == 0 { Some(c0) } else if k == 1 { Some(c1) } else { None };
+                if let Some(c) = e {
+                    prop_assert_eq!(p[2] >> 3, (c >> 11) as u8);
+                    prop_assert_eq!(p[1] >> 2, (c >> 5 & 63) as u8);
+                    prop_assert_eq!(p[0] >> 3, (c & 31) as u8);
+                }
+                if kind == 1 && c0 <= c1 && k == 3 {
+                    prop_assert_eq!(p[3], 0);
+                }
+                if kind == 2 {
+                    prop_assert_eq!(p[3] % 17, 0);
+                }
+            }
+        }
+    }
+}

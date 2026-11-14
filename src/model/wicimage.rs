@@ -939,7 +939,7 @@ pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
             2 => ((alpha[i / 2] >> (4 * (i % 2))) & 15) as u32 * 17,
             _ => alphas[(abits >> (3 * i) & 7) as usize],
         };
-        *o = [c[2] as u8, c[1] as u8, c[0] as u8, al as u8];
+        *o = [c[0] as u8, c[1] as u8, c[2] as u8, al as u8];
     }
     out
 }
