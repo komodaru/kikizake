@@ -203,6 +203,7 @@ fn the_model_answers_all_but_the_open_clauses() {
                     n += 1;
                 }
                 Err(kikizake::model::Fail::Bad) => panic!("{suite} {}: a bad line", c.name),
+                Err(kikizake::model::Fail::Empty) => panic!("{suite} {}: no answer", c.name),
             }
         }
         assert_eq!(n, open, "{suite}-{arch}");
