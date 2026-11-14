@@ -736,6 +736,9 @@ struct Line {
     b: Sub,
     ca: [f32; 4],
     cb: [f32; 4],
+    /// 1 / w at the ends
+    iwa: f32,
+    iwb: f32,
     lead: [f32; 4],
     /// |dy| > |dx|: the y-major diamond (its right corner in)
     ymaj: bool,
@@ -793,23 +796,50 @@ impl Line {
         [t0, t1, mid].iter().any(|&(n, s)| self.in_diamond((a.0 * s + dx * n, a.1 * s + dy * n), c, s))
     }
 
-    /// the line exits the pixel's diamond going from a to b: it meets it and b is not in it
+    /// the line lights the pixel: it exits the pixel's diamond going from a to b (it meets the
+    /// diamond and b is not in it), or it ends in it as D3DRASTER.LINE.END lights
     fn lights(&self, c: (i128, i128)) -> bool {
-        self.meets(c) && !self.in_diamond((i128::from(self.b.x), i128::from(self.b.y)), c, 1)
+        self.meets(c) && (!self.in_diamond((i128::from(self.b.x), i128::from(self.b.y)), c, 1) || self.end_lights(c))
     }
 
-    /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels) the color
-    /// along the line: a plane over the major axis, g = 1 / (b - a), per channel the gradient
-    /// (cb - ca) g, C = ca - grad a, the value C + grad c at the pixel center, in f32
+    /// (MEASURED, WARP: probe-lineend-*, 128 lines, and the ends of probe-lines-*,
+    /// probe-linestrip-*, probe-wire-*) a line ending inside a pixel's diamond lights it when
+    /// the line crosses the diamond's diagonal along the major axis (y = cy for an x-major
+    /// line) inside the diamond, before the pixel center's major coordinate: there the line has
+    /// passed the center along the minor axis
+    fn end_lights(&self, c: (i128, i128)) -> bool {
+        let (a, b) = ((i128::from(self.a.x), i128::from(self.a.y)), (i128::from(self.b.x), i128::from(self.b.y)));
+        // (major and minor coordinates)
+        let (am, an, bm, bn, cm, cn) = if self.ymaj { (a.1, a.0, b.1, b.0, c.1, c.0) } else { (a.0, a.1, b.0, b.1, c.0, c.1) };
+        let (dm, dn) = (bm - am, bn - an);
+        if dn == 0 {
+            return false;
+        }
+        // (the crossing of the diagonal, (am - cm) dn + dm (cn - an) over dn, from cm)
+        let n = (am - cm) * dn + dm * (cn - an);
+        let inside = n.abs() < DIAMOND * dn.abs();
+        // (at cm the minor coordinate minus cn is -n / dm: past it the way the line goes)
+        let passed = -n * dn.signum() * dm.signum() > 0;
+        hit(clause::D3DRASTER_LINE_END);
+        inside && passed
+    }
+
+    /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels;
+    /// probe-linesw-*, 114 pixels) the color along the line, perspective-correct: a plane over
+    /// the major axis for 1/w and for each channel's c/w, g = 1 / (b - a), the gradient
+    /// (vb - va) g, C = va - gradient a, the value C + gradient c at the pixel center, in f32;
+    /// the channel's value times 1 / (the value of 1/w)
     fn color(&self, (px, py): (i64, i64)) -> [f32; 4] {
         let (a, b, c) = if self.ymaj { (self.a.y, self.b.y, py as f32 + 0.5) } else { (self.a.x, self.b.x, px as f32 + 0.5) };
         let (a, b) = (a as f32 / 256.0, b as f32 / 256.0);
         let g = 1.0 / (b - a);
-        [0, 1, 2, 3].map(|k| {
-            let grad = (self.cb[k] - self.ca[k]) * g;
-            let c0 = self.ca[k] - grad * a;
+        let plane = |va: f32, vb: f32| {
+            let grad = (vb - va) * g;
+            let c0 = va - grad * a;
             c0 + grad * c
-        })
+        };
+        let q = 1.0 / plane(self.iwa, self.iwb);
+        [0, 1, 2, 3].map(|k| plane(self.ca[k] * self.iwa, self.cb[k] * self.iwb) * q)
     }
 }
 
@@ -848,8 +878,8 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         return Ok(());
     }
     hit(clause::D3DRASTER_LINE);
-    // (MEASURED: lines with the multisample or antialiased-line state are drawn as quads,
-    // not measured; nor colors along a line with w other than 1)
+    // (lines with the multisample or antialiased-line state: drawn as quads or with alpha,
+    // not measured)
     if d.rast[8] != 0 || d.rast[9] != 0 {
         return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
     }
@@ -869,9 +899,6 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         if za != zb {
             return Err(Fail::Unmodeled(open::D3DRASTER_INTERP));
         }
-        if (s.a.pos[3] != 1.0 || s.b.pos[3] != 1.0) && s.a.color != s.b.color && ps == "ps" {
-            return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
-        }
         let Some((a, b)) = clip_line(s.a, s.b) else {
             hit(clause::D3DRASTER_CLIP);
             continue;
@@ -883,21 +910,10 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
             continue;
         }
         let ymaj = (pb.y - pa.y).abs() > (pb.x - pa.x).abs();
-        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, lead: s.lead.color, ymaj, z: tg.depth(za) });
+        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, ymaj, z: tg.depth(za) });
     }
     let center = |(px, py): (i64, i64)| (i128::from(px) * 256 + 128, i128::from(py) * 256 + 128);
-    for (i, l) in ls.iter().enumerate() {
-        // (an end inside a pixel's diamond: Windows lights that pixel for some lines and not
-        // others, the rule not yet found (probe-lineend-*); unless a later line lights it)
-        let (bx, by) = (l.b.x.div_euclid(256), l.b.y.div_euclid(256));
-        for py in by - 1..=by + 1 {
-            for px in bx - 1..=bx + 1 {
-                let c = center((px, py));
-                if l.in_diamond((i128::from(l.b.x), i128::from(l.b.y)), c, 1) && tg.drawable(d, (px, py)) && !ls[i + 1..].iter().any(|k| k.lights(c)) {
-                    return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
-                }
-            }
-        }
+    for l in &ls {
         let (x0, x1) = (l.a.x.min(l.b.x).div_euclid(256) - 1, l.a.x.max(l.b.x).div_euclid(256) + 1);
         let (y0, y1) = (l.a.y.min(l.b.y).div_euclid(256) - 1, l.a.y.max(l.b.y).div_euclid(256) + 1);
         let (x0, y0) = (x0.max(0), y0.max(0));
