@@ -14009,3 +14009,160 @@ cleardsv12 0000
 cleardsv12 0000
 cleardsv12 ffff
 cleardsv12 ffff
+case clear-unsupported
+device12 ok
+clear12 hr 80070057
+clear12 hr 80070057
+clear12 hr 80070057
+cleardsv12 hr 80070057
+case create-split
+device12 ok
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 80070057
+fp 0 3c 40 20 1 200 20 40
+fp 4000 30 20 10 1 200 10 40
+total 5e40
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 80070057
+fp 0 35 40 20 1 200 20 80
+fp 4000 21 20 10 1 200 10 80
+total 5e80
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 80070057
+fp 0 35 40 20 1 200 20 80
+fp 4000 21 20 10 1 200 10 80
+total 5e80
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 80070057
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 80070057
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case create-gpuupload
+device12 ok
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+case alloc-rt1d
+device12 ok
+alloc 30000 10000
+alloc 20000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 20000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 20000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 20000 10000
+alloc 10000 10000
+alloc 20000 10000
+alloc 10000 10000
+case alloc-other
+device12 ok
+alloc 400000 400000
+alloc 400000 400000
+alloc 400000 400000
+alloc 1800000 400000
+alloc 1000000 400000
+alloc 400000 400000
+alloc 40000 10000
+alloc 500000 10000
+alloc 10000 10000
+alloc 80000 10000
+alloc 10000 10000
+alloc 10000 10000
+alloc 80000 10000
+alloc 10000 10000
+alloc f0000 10000
+alloc 160000 10000
+alloc 40000 10000
+alloc 60000 10000
+alloc 10000 10000
+case nodev
+nodev
+nodev
+nodev
+nodev
+done
