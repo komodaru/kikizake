@@ -1,6 +1,7 @@
 //! Which resource and view descriptions Direct3D 10 and 11 accept, and what GetDesc gives back;
 //! the format support each device reports.
 
+use crate::spec::{clause, open};
 use super::d3dres::{Dev, Resource};
 use super::Res;
 use super::Fail;
@@ -41,7 +42,7 @@ pub fn support(dev: Dev, f: u32) -> Row {
         Dev::D101(l) => format!("d3d10res:fmt-{}", level_name(l)),
     };
     let t = TABLES.iter().find(|t| t.0 == key).map_or(&[][..], |t| t.1);
-    hit("D3DRES.FMT");
+    hit(clause::D3DRES_FMT);
     *t.iter().find(|r| r.0 == f).unwrap_or(&(f, E_FAIL, 0, E_FAIL, 0, [0; 4]))
 }
 
@@ -120,7 +121,7 @@ pub fn full_chain(d: &Desc) -> u32 {
 
 /// Ok(the description GetDesc gives) or Err(the HRESULT)
 pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
-    hit("D3DRES.DESC");
+    hit(clause::D3DRES_DESC);
     let bad = Err(E_INVALIDARG);
     let mut g = *d;
     // usage and CPU access
@@ -154,7 +155,7 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
         }
         // (MEASURED: usage 0xffffffff passes as staging does)
         0xffff_ffff if d.bind == 0 && d.cpu != 0 => {
-            hit("D3DRES.DESC.USAGEFF");
+            hit(clause::D3DRES_DESC_USAGEFF);
         }
         _ => return Ok(bad),
     }
@@ -177,28 +178,28 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
         return Ok(bad);
     }
     if w >= 0x8000_0000 || h >= 0x8000_0000 || d.dim == 3 && da >= 0x8000_0000 {
-        hit("D3DRES.DESC.SIZE");
+        hit(clause::D3DRES_DESC_SIZE);
         return Ok(bad);
     }
     // (MEASURED, big-*: 1D and 3D textures stop at the level's sizes; a 2D one has no size
     // limit of its own but one of bytes: 4 MiB of RGBA8 made, 1 GiB refused)
     if d.dim != 2 && (w > lim || h > lim || d.dim == 3 && da > l3) {
-        hit("D3DRES.DESC.BIG");
+        hit(clause::D3DRES_DESC_BIG);
         return Ok(bad);
     }
     if d.dim == 2 && (w > lim || h > lim) {
         let bytes = (0..d.mips.max(1).min(32)).map(|m| f.row_bytes((w >> m).max(1)) as u64 * f.rows((h >> m).max(1)) as u64).sum::<u64>() * da as u64;
-        hit("D3DRES.DESC.BIG");
+        hit(clause::D3DRES_DESC_BIG);
         if bytes >= 1 << 30 {
             return Ok(bad);
         }
         if bytes > 1 << 22 {
-            return Err(Fail::Unmodeled("D3DRES.DESC.BIGBYTES"));
+            return Err(Fail::Unmodeled(open::D3DRES_DESC_BIGBYTES));
         }
     }
     // (MEASURED: the top level of a block format is whole blocks, tex-random-169)
     if w % f.bw != 0 || h % f.bh != 0 {
-        hit("D3DRES.DESC.BLOCKSIZE");
+        hit(clause::D3DRES_DESC_BLOCKSIZE);
         return Ok(bad);
     }
     let full = full_chain(&Desc { h, ..*d });
@@ -213,7 +214,7 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     // (MEASURED: Direct3D 10 drops TEXTURECUBE from a 1D or 3D description, d3d10res
     // tex-random-16)
     if !dev.d3d11() && d.dim != 2 && d.misc & 4 != 0 {
-        hit("D3DRES.DESC.CUBE10");
+        hit(clause::D3DRES_DESC_CUBE10);
         g.misc &= !4;
     }
     let cube = g.misc & 4 != 0;
@@ -236,7 +237,7 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     }
     // flags (MEASURED: GENERATE_MIPS 1, SHARED 2, TEXTURECUBE 4, RESOURCE_CLAMP 0x80,
     // SHARED_KEYEDMUTEX 0x100, GDI_COMPATIBLE 0x200, RESTRICTED_CONTENT 0x1000 on textures)
-    hit("D3DRES.DESC.MISC");
+    hit(clause::D3DRES_DESC_MISC);
     // (MEASURED: Direct3D 10 has GENERATE_MIPS, SHARED and TEXTURECUBE only, d3d10res
     // tex2-*-misc-*)
     let known = if dev.d3d11() { 1 | 2 | 4 | 0x80 | 0x100 | 0x200 | 0x1000 } else { 1 | 2 | 4 };
@@ -310,7 +311,7 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
 /// a buffer's description (MEASURED, buf-*: one word swept at a time over a vertex, constant,
 /// dynamic constant, shader resource, staging, raw and structured buffer)
 fn check_buf(dev: Dev, d: &Desc) -> Result<Desc, u32> {
-    hit("D3DRES.DESC.BUF");
+    hit(clause::D3DRES_DESC_BUF);
     let bad = Err(E_INVALIDARG);
     let mut g = *d;
     let d11 = dev.d3d11();
@@ -363,7 +364,7 @@ pub fn create_refused(dev: Dev, d: &Desc) -> Option<u32> {
     // tex-random-118, 247)
     // (Direct3D 10 makes them, d3d10res tex-random-33)
     if dev.d3d11() && d.dim == 2 && d.usage == 0 && d.cpu & 0x20000 != 0 && d.bind & BIND_RTV != 0 && (d.mips != 1 || d.da != 1) {
-        hit("D3DRES.DESC.CPURTV");
+        hit(clause::D3DRES_DESC_CPURTV);
         return Some(E_INVALIDARG);
     }
     None
@@ -431,7 +432,7 @@ fn view_dims(dev: Dev, kind: u32, d: &Desc) -> &'static [u32] {
 /// its own format, an array dimension for an array (a 1D one too, even of one slice), a cube
 /// for a shader resource of a cube (an array of cubes from 12 slices)
 fn default_view(dev: Dev, kind: u32, d: &Desc) -> Option<Vec<u32>> {
-    hit("D3DRES.VIEW.DEFAULT");
+    hit(clause::D3DRES_VIEW_DEFAULT);
     let arr = d.dim != 3 && d.da > 1;
     let (dim, u): (u32, Vec<u32>) = match (d.dim, kind) {
         (4, _) => return None,
@@ -458,7 +459,7 @@ fn default_view(dev: Dev, kind: u32, d: &Desc) -> Option<Vec<u32>> {
 
 /// Ok(GetDesc's words) or Err(the HRESULT) for a view of `kind` (0 srv 1 rtv 2 dsv 3 uav)
 pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, check: bool) -> Res<Result<Vec<u32>, u32>> {
-    hit("D3DRES.VIEW");
+    hit(clause::D3DRES_VIEW);
     let bad = Ok(Err(E_INVALIDARG));
     let d = &r.d;
     let need = [BIND_SRV, BIND_RTV, BIND_DSV, BIND_UAV][kind as usize];
@@ -477,14 +478,14 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     let typeless = |x: u32| super::dxgifmt::format(x).is_some_and(|x| x.num == super::dxgifmt::Num::Typeless);
     let raw_buf = d.dim == 4 && d.misc & 0x20 != 0;
     if d.dim == 4 {
-        hit("D3DRES.VIEW.BUF");
+        hit(clause::D3DRES_VIEW_BUF);
     } else if f != d.fmt && !(typeless(d.fmt) && super::d3dres::group(f) == super::d3dres::group(d.fmt)) && !r32_uav(kind, f, d.fmt) {
         return bad;
     }
     let dim = w[1];
     // (MEASURED: Direct3D 10 makes BUFFEREX views of a plain buffer as 11 does, view-b-bufex)
     if dim == 11 && !dev.d3d11() && d.misc & 0x20 == 0 {
-        hit("D3DRES.VIEW.BUFEX10");
+        hit(clause::D3DRES_VIEW_BUFEX10);
     }
     // (the 11 depth stencil view's flags: READ_ONLY_DEPTH, READ_ONLY_STENCIL)
     if head == 3 && w[2] & !3 != 0 {
@@ -565,7 +566,7 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     // memory when made: 11 2DMS, view-dcube-dsv; 10 2DMSARRAY, d3d10res view-dcube-dsv (its
     // 2DMS is made, view-d2tl-dsv))
     if kind == 2 && dim == if dev.d3d11() { 5 } else { 6 } && d.count == 1 && d.da > 1 && !check {
-        hit("D3DRES.VIEW.DSVMS");
+        hit(clause::D3DRES_VIEW_DSVMS);
         return Ok(Err(0x8007_000e));
     }
     w.truncate(head + union_words(kind, dim));

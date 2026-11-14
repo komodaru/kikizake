@@ -9,6 +9,8 @@
 //! color keys on system-memory surfaces; the order of the checks; fills drop high bits;
 //! different formats are DDERR_UNSUPPORTED.
 
+use crate::spec::open;
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -156,7 +158,7 @@ pub fn pal_entries(seed: u32) -> Vec<[u8; 4]> {
 /// format) rows padded to 8 bytes on x86, to 4 on x86-64
 pub fn pitch(w: i64, bpp: u32) -> i64 {
     let a = if super::arch() == 64 { 4 } else { 8 };
-    hit("DDRAW.PITCH");
+    hit(clause::DDRAW_PITCH);
     (w * bpp as i64 / 8 + a - 1) / a * a
 }
 
@@ -177,7 +179,7 @@ fn rect(op: &Op, i: usize) -> Res<(Option<Rect>, usize)> {
 /// the rect inside the surface and not empty (MEASURED: else DDERR_INVALIDRECT)
 fn check(r: Option<Rect>, s: &Surf) -> Option<Rect> {
     let (x0, y0, x1, y1) = r.unwrap_or((0, 0, s.w, s.h));
-    hit("DDRAW.RECT");
+    hit(clause::DDRAW_RECT);
     (x0 >= 0 && y0 >= 0 && x1 <= s.w && y1 <= s.h && x0 < x1 && y0 < y1).then_some((x0, y0, x1, y1))
 }
 
@@ -185,9 +187,9 @@ fn check(r: Option<Rect>, s: &Surf) -> Option<Rect> {
 /// 8 bpp Windows' result differs from that in places (not worked out yet)
 fn overlap(s: &Surf) -> Res<()> {
     if s.bpp == 8 {
-        return Err(Fail::Unmodeled("DDRAW.OVERLAP8"));
+        return Err(Fail::Unmodeled(open::DDRAW_OVERLAP8));
     }
-    hit("DDRAW.OVERLAP");
+    hit(clause::DDRAW_OVERLAP);
     Ok(())
 }
 
@@ -256,20 +258,20 @@ impl Ddraw {
         let (sw, sh) = (sr.2 - sr.0, sr.3 - sr.1);
         let dst = self.s[d].as_mut().unwrap();
         if dst.bpp != src.bpp {
-            hit("DDRAW.FORMATS");
+            hit(clause::DDRAW_FORMATS);
             return Ok(DDERR_UNSUPPORTED);
         }
-        hit("DDRAW.COPY");
+        hit(clause::DDRAW_COPY);
         if src.bpp == 32 && (k.src.is_some_and(|v| v >> 24 != 0) || k.dest.is_some_and(|v| v >> 24 != 0)) {
-            hit("DDRAW.KEY.BITS");
+            hit(clause::DDRAW_KEY_BITS);
         }
         if k.lr || k.ud {
-            hit("DDRAW.MIRROR");
+            hit(clause::DDRAW_MIRROR);
         }
         let list = dst.clip.clone().flatten();
         let rule = Stretch::of(src.bpp, k.lr || k.ud);
         if (w, h) != (sw, sh) {
-            hit("DDRAW.STRETCH");
+            hit(clause::DDRAW_STRETCH);
         }
         for y in 0..h {
             for x in 0..w {
@@ -299,7 +301,7 @@ impl Ddraw {
         let s = self.s[i].as_ref().unwrap();
         let b = !s.locks.is_empty() || s.dc;
         if b {
-            hit("DDRAW.BUSY");
+            hit(clause::DDRAW_BUSY);
         }
         b
     }
@@ -309,7 +311,7 @@ impl Ddraw {
     fn dest_rect(&self, d: usize, r: Option<Rect>) -> Option<Rect> {
         let dst = self.s[d].as_ref().unwrap();
         if let Some(Some(_)) = &dst.clip {
-            hit("DDRAW.CLIP.BLT");
+            hit(clause::DDRAW_CLIP_BLT);
             let (x0, y0, x1, y1) = r.unwrap_or((0, 0, dst.w, dst.h));
             return (x0 < x1 && y0 < y1).then_some((x0, y0, x1, y1));
         }
@@ -355,7 +357,7 @@ impl Ddraw {
         match t[0].as_str() {
             "dd" => {
                 *self = Ddraw { dev: true, ..Default::default() };
-                hit("DDRAW.DEVICE");
+                hit(clause::DDRAW_DEVICE);
                 out.push("dd ok".into());
             }
             o if OPS.contains(&o) && !self.dev => {
@@ -402,7 +404,7 @@ impl Ddraw {
                 self.free_slot(i as usize);
                 if vid && bpp == 24 {
                     // MEASURED: the display driver of Windows' runner has no 24 bpp surfaces
-                    hit("DDRAW.VID");
+                    hit(clause::DDRAW_VID);
                     out.push(format!("ddsurf failed {DDERR_UNSUPPORTED:08x}"));
                     return Ok(true);
                 }
@@ -446,13 +448,13 @@ impl Ddraw {
                     Some("src") => surf.src_key = v,
                     Some("dest") => {
                         // MEASURED: no destination color keys on system-memory surfaces
-                        hit("DDRAW.KEY.DESTHW");
+                        hit(clause::DDRAW_KEY_DESTHW);
                         out.push(format!("ddkey hr {DDERR_NOCOLORKEYHW:08x}"));
                         return Ok(true);
                     }
                     _ => return Err(Fail::Bad),
                 }
-                hit("DDRAW.KEY.SET");
+                hit(clause::DDRAW_KEY_SET);
             }
             "ddcolor" => {
                 let d = slot!(1);
@@ -465,16 +467,16 @@ impl Ddraw {
                     ret!(DDERR_SURFACEBUSY);
                 }
                 if self.s[d].as_ref().unwrap().clip == Some(None) {
-                    hit("DDRAW.CLIP.NOLIST");
+                    hit(clause::DDRAW_CLIP_NOLIST);
                     ret!(DDERR_NOCLIPLIST);
                 }
                 let Some(r) = self.dest_rect(d, r) else { ret!(DDERR_INVALIDRECT) };
                 let surf = self.s[d].as_mut().unwrap();
                 if v & !surf.mask() != 0 {
-                    hit("DDRAW.FILL.HIGHBITS");
+                    hit(clause::DDRAW_FILL_HIGHBITS);
                 }
                 let v = v & surf.mask();
-                hit("DDRAW.FILL");
+                hit(clause::DDRAW_FILL);
                 let list = surf.clip.clone().flatten();
                 for y in r.1..r.3 {
                     for x in r.0..r.2 {
@@ -507,7 +509,7 @@ impl Ddraw {
                         "keysrcov" | "keydestov" => {
                             i += 1;
                             let v = n(op, i)? as u32;
-                            hit("DDRAW.KEY.OVERRIDE");
+                            hit(clause::DDRAW_KEY_OVERRIDE);
                             if t[i - 1] == "keysrcov" {
                                 k.src = Some(v & src.as_ref().map_or(!0, |s| s.mask()));
                             } else {
@@ -521,25 +523,25 @@ impl Ddraw {
                 }
                 // MEASURED: the order Windows checks them in
                 if destkey {
-                    hit("DDRAW.KEY.DESTHW");
+                    hit(clause::DDRAW_KEY_DESTHW);
                     ret!(DDERR_NOCOLORKEYHW);
                 }
                 if unset {
-                    hit("DDRAW.KEY.UNSET");
+                    hit(clause::DDRAW_KEY_UNSET);
                     ret!(E_INVALIDARG);
                 }
                 if k.src.is_some() {
-                    hit("DDRAW.KEY");
+                    hit(clause::DDRAW_KEY);
                 }
                 let Some(src) = src else {
-                    hit("DDRAW.NOSOURCE");
+                    hit(clause::DDRAW_NOSOURCE);
                     ret!(E_INVALIDARG);
                 };
                 if self.busy(d) || self.busy(s.unwrap()) {
                     ret!(DDERR_SURFACEBUSY);
                 }
                 if self.s[d].as_ref().unwrap().clip == Some(None) {
-                    hit("DDRAW.CLIP.NOLIST");
+                    hit(clause::DDRAW_CLIP_NOLIST);
                     ret!(DDERR_NOCLIPLIST);
                 }
                 let (Some(dr), Some(sr)) = (self.dest_rect(d, dr), check(sr, &src)) else { ret!(DDERR_INVALIDRECT) };
@@ -568,27 +570,27 @@ impl Ddraw {
                 }
                 if dst.clip.is_some() {
                     // MEASURED (ddclip golden): DDERR_BLTFASTCANTCLIP, with or without a list
-                    hit("DDRAW.CLIP.FAST");
+                    hit(clause::DDRAW_CLIP_FAST);
                     ret!(DDERR_BLTFASTCANTCLIP);
                 }
                 // MEASURED: a key flag with no key is E_INVALIDARG; with both flags only the
                 // source key counts (a system-memory surface has no destination key)
                 if srckey && destkey {
-                    hit("DDRAW.FAST.BOTHKEYS");
+                    hit(clause::DDRAW_FAST_BOTHKEYS);
                 }
                 if srckey {
                     k.src = src.src_key;
                 }
                 if k.src.is_some() {
-                    hit("DDRAW.KEY");
+                    hit(clause::DDRAW_KEY);
                 }
-                hit("DDRAW.FAST");
+                hit(clause::DDRAW_FAST);
                 let Some(sr) = check(sr, &src) else { ret!(DDERR_INVALIDRECT) };
                 let dr = (x, y, x + sr.2 - sr.0, y + sr.3 - sr.1);
                 let Some(dr) = check(Some(dr), dst) else { ret!(DDERR_INVALIDRECT) };
                 // (MEASURED: after the rectangles, unlike Blt)
                 if (srckey && k.src.is_none()) || (destkey && !srckey) {
-                    hit("DDRAW.KEY.UNSET");
+                    hit(clause::DDRAW_KEY_UNSET);
                     ret!(E_INVALIDARG);
                 }
                 if self.busy(d) || self.busy(s) {
@@ -605,11 +607,11 @@ impl Ddraw {
                 let surf = self.s[s].as_mut().unwrap();
                 match t.get(2).map(String::as_str) {
                     Some("none") => {
-                        hit("DDRAW.CLIP.SET");
+                        hit(clause::DDRAW_CLIP_SET);
                         surf.clip = None;
                     }
                     Some("empty") => {
-                        hit("DDRAW.CLIP.SET");
+                        hit(clause::DDRAW_CLIP_SET);
                         surf.clip = Some(None);
                     }
                     _ => {
@@ -620,7 +622,7 @@ impl Ddraw {
                         for k in 0..(t.len() - 2) / 4 {
                             l.push((n(op, 2 + 4 * k)?, n(op, 3 + 4 * k)?, n(op, 4 + 4 * k)?, n(op, 5 + 4 * k)?));
                         }
-                        hit("DDRAW.CLIP.SET");
+                        hit(clause::DDRAW_CLIP_SET);
                         surf.clip = Some(Some(l));
                     }
                 }
@@ -629,17 +631,17 @@ impl Ddraw {
                 let s = slot!(1);
                 match &self.s[s].as_ref().unwrap().clip {
                     None => {
-                        hit("DDRAW.CLIP.NONE");
+                        hit(clause::DDRAW_CLIP_NONE);
                         out.push(format!("cliplist clipper hr {DDERR_NOCLIPPERATTACHED:08x}"));
                     }
                     Some(None) => {
-                        hit("DDRAW.CLIP.NOLIST");
+                        hit(clause::DDRAW_CLIP_NOLIST);
                         out.push(format!("cliplist hr {DDERR_NOCLIPLIST:08x}"));
                     }
                     Some(Some(l)) => {
                         // MEASURED: the list as given (not made into bands), the bounding box the
                         // executor gave
-                        hit("DDRAW.CLIP.LIST");
+                        hit(clause::DDRAW_CLIP_LIST);
                         let b = l.iter().skip(1).fold(l[0], |b, r| (b.0.min(r.0), b.1.min(r.1), b.2.max(r.2), b.3.max(r.3)));
                         let mut line = format!("cliplist {} {} {} {} {} :", l.len(), b.0, b.1, b.2, b.3);
                         for r in l {
@@ -669,7 +671,7 @@ impl Ddraw {
                 // MEASURED (ddpal golden): exactly one size; ALLOW256 only with 8 bits,
                 // 8BITENTRIES only with fewer; PRIMARYSURFACE refused (no primary surface);
                 // INITIALIZE and ALPHA ignored
-                hit("DDRAW.PAL.CREATE");
+                hit(clause::DDRAW_PAL_CREATE);
                 let ok = sizes.len() == 1 && !f.contains("primary") && (!f.contains("allow256") || sizes[0].1 == 256) && (!f.contains("8bitentries") || sizes[0].1 < 256) && !(f.contains("allow256") && f.contains("8bitentries"));
                 if !ok {
                     out.push(format!("ddpal hr {E_INVALIDARG:08x}"));
@@ -681,12 +683,12 @@ impl Ddraw {
                 e.truncate(cnt);
                 if cnt == 256 && !allow {
                     // MEASURED: without ALLOW256 entries 0 and 255 are black and white
-                    hit("DDRAW.PAL.RESERVED");
+                    hit(clause::DDRAW_PAL_RESERVED);
                     e[0] = [0, 0, 0, 0];
                     e[255] = [255, 255, 255, 0];
                 }
                 let bytes = f.contains("8bitentries").then(|| {
-                    hit("DDRAW.PAL.8BITENTRIES");
+                    hit(clause::DDRAW_PAL_8BITENTRIES);
                     pal_entries(seed).iter().flatten().take(cnt).copied().collect()
                 });
                 self.next_pal += 1;
@@ -708,12 +710,12 @@ impl Ddraw {
                     return Ok(true);
                 };
                 if t[0] == "ddpalcaps" {
-                    hit("DDRAW.PAL.CAPS");
+                    hit(clause::DDRAW_PAL_CAPS);
                     out.push(format!("palcaps {:08x}", pal.caps));
                     return Ok(true);
                 }
                 // MEASURED: a range past the palette's entries or of none: E_INVALIDARG
-                hit("DDRAW.PAL.RANGE");
+                hit(clause::DDRAW_PAL_RANGE);
                 if cnt == 0 || st < 0 || st + cnt > pal.e.len() as i64 {
                     out.push(format!("{} hr {E_INVALIDARG:08x}", if t[0] == "ddpalget" { "palget" } else { "palset" }));
                     return Ok(true);
@@ -730,16 +732,16 @@ impl Ddraw {
                     return Ok(true);
                 }
                 if t[0] == "ddpalget" {
-                    hit("DDRAW.PAL.GET");
+                    hit(clause::DDRAW_PAL_GET);
                     out.push(format!("pal {}", pal.e[st as usize..(st + cnt) as usize].iter().flatten().map(|b| format!("{b:02x}")).collect::<String>()));
                 } else {
-                    hit("DDRAW.PAL.SET");
+                    hit(clause::DDRAW_PAL_SET);
                     let new = pal_entries(seed);
                     let reserved = pal.e.len() == 256 && pal.caps & 0x40 == 0;
                     for (k, i) in (st..st + cnt).enumerate() {
                         // MEASURED: without ALLOW256 entries 0 and 255 stay as they are
                         if reserved && (i == 0 || i == 255) {
-                            hit("DDRAW.PAL.RESERVED");
+                            hit(clause::DDRAW_PAL_RESERVED);
                             continue;
                         }
                         pal.e[i as usize] = new[k];
@@ -764,7 +766,7 @@ impl Ddraw {
                     }
                 };
                 let surf = self.s[s].as_mut().unwrap();
-                hit("DDRAW.PAL.ATTACH");
+                hit(clause::DDRAW_PAL_ATTACH);
                 // MEASURED: a palette on a surface without palette indices (or of other than 256
                 // entries on 8 bpp): DDERR_INVALIDPIXELFORMAT; detaching none:
                 // DDERR_NOPALETTEATTACHED
@@ -777,7 +779,7 @@ impl Ddraw {
             }
             "ddgetpal" => {
                 let s = slot!(1);
-                hit("DDRAW.PAL.ATTACH");
+                hit(clause::DDRAW_PAL_ATTACH);
                 match self.s[s].as_ref().unwrap().pal {
                     None => out.push(format!("getpal hr {DDERR_NOPALETTEATTACHED:08x}")),
                     Some(id) => match self.pal.iter().position(|p| p.as_ref().is_some_and(|p| p.id == id)) {
@@ -789,7 +791,7 @@ impl Ddraw {
             "ddgetdc" | "ddreldc" => {
                 let s = slot!(1);
                 let surf = self.s[s].as_mut().unwrap();
-                hit("DDRAW.DC");
+                hit(clause::DDRAW_DC);
                 if t[0] == "ddgetdc" {
                     // MEASURED: a second GetDC: DDERR_DCALREADYCREATED (also on a locked surface,
                     // whose first GetDC works)
@@ -815,7 +817,7 @@ impl Ddraw {
                 if t[0] == "dcbpp" {
                     // MEASURED: BITSPIXEL is the display's (32 on Windows' runner), the bitmap is the
                     // surface's
-                    hit("DDRAW.DC.BPP");
+                    hit(clause::DDRAW_DC_BPP);
                     out.push(format!("dcbpp 32 {} {} {}", surf.bpp, surf.w, surf.h));
                     return Ok(true);
                 }
@@ -825,9 +827,9 @@ impl Ddraw {
                     // MEASURED: a rectangle turned round is filled as its normal form
                     let (x0, x1, y0, y1) = (x0.min(x1), x0.max(x1), y0.min(y1), y0.max(y1));
                     let c = crate::case::color(t.get(6).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
-                    hit("DDRAW.DC.FILL");
+                    hit(clause::DDRAW_DC_FILL);
                     let v = if surf.bpp == 8 {
-                        hit("DDRAW.DC.NEAREST");
+                        hit(clause::DDRAW_DC_NEAREST);
                         nearest_entry(pal.as_deref().unwrap_or(&SYSTEM_PALETTE[..]), c).into()
                     } else {
                         g.from_rgb(c)
@@ -843,21 +845,21 @@ impl Ddraw {
                 let (x, y) = (n(op, 2)?, n(op, 3)?);
                 let c = if t[0] == "dcpix" { Some(crate::case::color(t.get(4).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?) } else { None };
                 if !(0..surf.w).contains(&x) || !(0..surf.h).contains(&y) {
-                    hit("DDRAW.DC.OUTSIDE");
+                    hit(clause::DDRAW_DC_OUTSIDE);
                     out.push("pixel invalid".into());
                     return Ok(true);
                 }
-                hit("DDRAW.DC.PIXEL");
+                hit(clause::DDRAW_DC_PIXEL);
                 if surf.bpp == 8 {
                     let tab: &[u32] = match &pal {
                         Some(p) => p,
                         None => {
-                            hit("DDRAW.DC.NOPAL");
+                            hit(clause::DDRAW_DC_NOPAL);
                             &SYSTEM_PALETTE
                         }
                     };
                     if let Some(c) = c {
-                        hit("DDRAW.DC.NEAREST");
+                        hit(clause::DDRAW_DC_NEAREST);
                         surf.set(x, y, nearest_entry(tab, c).into());
                     }
                     let e = usize::try_from(surf.get(x, y) & 0xff).ok().and_then(|i| tab.get(i)).copied().unwrap_or(0);
@@ -881,7 +883,7 @@ impl Ddraw {
     /// why Lock of rectangle r (None: all) fails now, if it does
     fn lock_hr(&self, s: usize, r: Option<Rect>) -> Option<u32> {
         let surf = self.s[s].as_ref().unwrap();
-        hit("DDRAW.LOCK.BUSY");
+        hit(clause::DDRAW_LOCK_BUSY);
         if surf.dc || surf.locks.iter().any(|&l| overlaps(l, r)) {
             return Some(DDERR_SURFACEBUSY);
         }
@@ -914,7 +916,7 @@ impl Ddraw {
                 let surf = self.s[s].as_ref().unwrap();
                 // MEASURED: a rectangle past the surface or turned round: E_INVALIDARG (an empty
                 // one is fine); one overlapping a lock held, or the DC out: DDERR_SURFACEBUSY
-                hit("DDRAW.LOCK.RECT");
+                hit(clause::DDRAW_LOCK_RECT);
                 if let Some((x0, y0, x1, y1)) = r {
                     if x0 < 0 || y0 < 0 || x1 > surf.w || y1 > surf.h || x0 > x1 || y0 > y1 {
                         out.push(format!("lock hr {E_INVALIDARG:08x}"));
@@ -928,7 +930,7 @@ impl Ddraw {
                 let surf = self.s[s].as_mut().unwrap();
                 let p = surf_pitch(surf)?;
                 let (x0, y0) = r.map_or((0, 0), |r| (r.0, r.1));
-                hit("DDRAW.LOCK");
+                hit(clause::DDRAW_LOCK);
                 out.push(format!("lock {p} {}", y0 * p + x0 * (surf.bpp as i64 / 8)));
                 if surf.locks.is_empty() {
                     surf.poke = Some((x0, y0));
@@ -948,14 +950,14 @@ impl Ddraw {
                     return Ok(true);
                 };
                 let b = surf.bpp as i64 / 8;
-                hit("DDRAW.LOCK.WRITE");
+                hit(clause::DDRAW_LOCK_WRITE);
                 for k in 0..hex.len() as i64 / 2 {
                     let v = u32::from_str_radix(&hex[2 * k as usize..2 * k as usize + 2], 16).map_err(|_| Fail::Bad)?;
                     let bx = x0 * b + x + k;
                     let (px, py, byte) = (bx / b, y0 + y, bx % b);
                     if px >= surf.w || py >= surf.h {
                         // (into the padding past the row, or past the surface)
-                        return Err(Fail::Unmodeled("DDRAW.LOCK.PAD"));
+                        return Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD));
                     }
                     let old = surf.get(px, py);
                     surf.set(px, py, old & !(0xff << (8 * byte)) | v << (8 * byte));
@@ -965,12 +967,12 @@ impl Ddraw {
                 let s = slot!(1);
                 let r = if t.get(2).is_some_and(|v| v == "none") { None } else { rect(op, 2)?.0 };
                 let surf = self.s[s].as_mut().unwrap();
-                hit("DDRAW.UNLOCK");
+                hit(clause::DDRAW_UNLOCK);
                 // MEASURED: Unlock(NULL) takes the first lock; a rectangle takes the lock of that
                 // rectangle (the whole surface's lock also as its own rectangle); none:
                 // DDERR_NOTLOCKED; a lock under a DC taken later: DDERR_INVALIDRECT
                 if surf.dc && !surf.locks.is_empty() {
-                    hit("DDRAW.UNLOCK.DC");
+                    hit(clause::DDRAW_UNLOCK_DC);
                     out.push(format!("unlock {DDERR_INVALIDRECT:08x}"));
                     return Ok(true);
                 }
@@ -1002,7 +1004,7 @@ impl Ddraw {
                     "a32" => (0x41, 32, [0xff0000, 0xff00, 0xff, 0xff00_0000]),
                     _ => (0x40, 32, [0xff0000, 0xff00, 0xff, 0]),
                 };
-                hit("DDRAW.DESC");
+                hit(clause::DDRAW_DESC);
                 out.push(format!("desc {:08x} {} {} {p} {:08x} {pf:08x} {bits} {:08x} {:08x} {:08x} {:08x}", surf.flags, surf.w, surf.h, surf.caps, m[0], m[1], m[2], m[3]));
             }
             "ddcoop" => {
@@ -1014,7 +1016,7 @@ impl Ddraw {
                     return Ok(true);
                 }
                 // MEASURED: both levels are granted with the executor's hidden popup window
-                hit("DDRAW.COOP");
+                hit(clause::DDRAW_COOP);
                 self.excl = t[1] == "exclusive";
                 out.push("coop 00000000".into());
             }
@@ -1028,7 +1030,7 @@ impl Ddraw {
                     }
                 }
                 let surf = self.s[s].as_ref().unwrap();
-                hit("DDRAW.FLIP");
+                hit(clause::DDRAW_FLIP);
                 // MEASURED: Flip of a surface that is no chain's front buffer, or to the front
                 // buffer itself: DDERR_NOTFLIPPABLE
                 let chain = match surf.chain {
@@ -1040,7 +1042,7 @@ impl Ddraw {
                 };
                 if self.s[s].as_ref().unwrap().caps & 0x200 != 0 {
                     // (a primary chain: its pixels are the screen's)
-                    hit("DDRAW.FLIP.PRIMARY");
+                    hit(clause::DDRAW_FLIP_PRIMARY);
                     out.push(format!("flip {:08x}", if self.excl { 0 } else { DDERR_NOEXCLUSIVEMODE }));
                     return Ok(true);
                 }
@@ -1053,7 +1055,7 @@ impl Ddraw {
                     }
                     Some(tg) => {
                         // (DDFLIP to a given back buffer: the front buffer and it exchange pixels)
-                        hit("DDRAW.FLIP.TARGET");
+                        hit(clause::DDRAW_FLIP_TARGET);
                         let a = self.s[s].as_ref().unwrap().px.clone();
                         let b = std::mem::replace(&mut self.s[tg].as_mut().unwrap().px, a);
                         self.s[s].as_mut().unwrap().px = b;
@@ -1102,7 +1104,7 @@ impl Ddraw {
         for i in (s..=(s + backs as usize).min(7)).rev() {
             self.free_slot(i);
         }
-        hit("DDRAW.CHAIN");
+        hit(clause::DDRAW_CHAIN);
         let primary = caps & 0x200 != 0;
         let hr = if primary {
             // MEASURED: one primary surface; a primary flipping chain only in exclusive mode
@@ -1129,7 +1131,7 @@ impl Ddraw {
         }
         if primary {
             if backs > 0 {
-                return Err(Fail::Unmodeled("DDRAW.FLIP.PRIMARY"));
+                return Err(Fail::Unmodeled(open::DDRAW_FLIP_PRIMARY));
             }
             self.primary = true;
             // (the screen's size and pixels: not this model's)
@@ -1170,13 +1172,13 @@ fn overlaps(a: Option<Rect>, b: Option<Rect>) -> bool {
 fn surf_pitch(s: &Surf) -> Res<i64> {
     if s.vid {
         // MEASURED (ddlock, ddflip golden): 17 pixels of 1, 2, 4 bytes: 20, 36, 72; 8 of 4: 32
-        hit("DDRAW.VID");
+        hit(clause::DDRAW_VID);
         return match (s.w, s.bpp) {
             (17, 8) => Ok(20),
             (17, 16) => Ok(36),
             (17, 32) => Ok(72),
             (8, 32) => Ok(32),
-            _ => Err(Fail::Unmodeled("DDRAW.VID.PITCH")),
+            _ => Err(Fail::Unmodeled(open::DDRAW_VID_PITCH)),
         };
     }
     Ok(pitch(s.w, s.bpp))

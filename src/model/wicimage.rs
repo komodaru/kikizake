@@ -10,6 +10,7 @@
 //! specifications (BMP: the BITMAPINFOHEADER pages; PNG: ISO/IEC 15948; GIF89a; TIFF 6.0; DDS:
 //! "Programming Guide for DDS" and the block compression page). spec/wicimage.txt has the clauses.
 
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::spec::hit;
 
@@ -108,9 +109,9 @@ pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Img {
     if crate::model::wic::indexed(f) {
         i.pal = Some(crate::model::wic::palette());
     }
-    hit("WICIMAGE.BITMAP");
+    hit(clause::WICIMAGE_BITMAP);
     if fmt == "alpha8" {
-        hit("WICIMAGE.BITMAP.ALPHA8");
+        hit(clause::WICIMAGE_BITMAP_ALPHA8);
     }
     i
 }
@@ -142,9 +143,9 @@ fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if s.fmt == to {
         return Ok(s.clone());
     }
-    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled("WICIMAGE.CONVERT.OTHER")) };
+    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER)) };
     if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {
-        return Err(Fail::Unmodeled("WICIMAGE.CONVERT.OTHER"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER));
     }
     let px = crate::model::wic::convert(fi, ti, s.w, s.h, &s.px)?;
     let pal = if crate::model::wic::indexed(ti) { Some(crate::model::wic::palette()) } else { None };
@@ -266,7 +267,7 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     match mode {
         "linear" | "cubic" => {
             if mode == "cubic" && h != s.h {
-                return Err(Fail::Unmodeled("WICIMAGE.SCALE.CUBIC.VERTICAL"));
+                return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_CUBIC_VERTICAL));
             }
             // (MEASURED: across, then down, each pass truncated to 8 bits)
             let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
@@ -319,23 +320,23 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
 
 pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     let (work, out) = scale_formats(s.fmt, mode);
-    hit("WICIMAGE.SCALE.FORMAT");
+    hit(clause::WICIMAGE_SCALE_FORMAT);
     if mode != "nn" {
         if !["gray8", "bgr24", "pbgra"].contains(&work) {
-            return Err(Fail::Unmodeled("WICIMAGE.SCALE.WIDE"));
+            return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
         }
         let s = wic_convert(s, work)?;
         let o = filter(&s, w, h, mode)?;
         hit(match mode {
-            "linear" => "WICIMAGE.SCALE.LINEAR",
-            "cubic" => "WICIMAGE.SCALE.CUBIC",
-            "fant" => "WICIMAGE.SCALE.FANT",
-            _ => "WICIMAGE.SCALE.HQCUBIC",
+            "linear" => clause::WICIMAGE_SCALE_LINEAR,
+            "cubic" => clause::WICIMAGE_SCALE_CUBIC,
+            "fant" => clause::WICIMAGE_SCALE_FANT,
+            _ => clause::WICIMAGE_SCALE_HQCUBIC,
         });
         return wic_convert(&o, out);
     }
     let s = wic_convert(s, work)?;
-    hit("WICIMAGE.SCALE.NEAREST");
+    hit(clause::WICIMAGE_SCALE_NEAREST);
     let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
     for y in 0..h {
         for x in 0..w {
@@ -399,25 +400,25 @@ pub fn clip(s: &Img, x: u32, y: u32, w: u32, h: u32) -> Img {
 pub fn copy(s: &Img, rect: Option<(i64, i64, i64, i64)>, bufs: Option<(i64, i64)>) -> (u32, Vec<Vec<u8>>) {
     let (x, y, w, h) = rect.unwrap_or((0, 0, s.w as i64, s.h as i64));
     if x < 0 || y < 0 {
-        hit("WICIMAGE.COPY.NEGATIVE");
+        hit(clause::WICIMAGE_COPY_NEGATIVE);
         return (ARITHMETIC_OVERFLOW, vec![]);
     }
     if !inside(s, x, y, w, h) {
-        hit("WICIMAGE.COPY.RECT");
+        hit(clause::WICIMAGE_COPY_RECT);
         return (E_INVALIDARG, vec![]);
     }
     let n = stride(s.fmt, w as u32) as i64;
     if let Some((st, size)) = bufs {
         if st < n {
-            hit("WICIMAGE.COPY.STRIDE");
+            hit(clause::WICIMAGE_COPY_STRIDE);
             return (E_INVALIDARG, vec![]);
         }
         if size < st * (h - 1) + n {
-            hit("WICIMAGE.COPY.BUFFER");
+            hit(clause::WICIMAGE_COPY_BUFFER);
             return (INSUFFICIENT_BUFFER, vec![]);
         }
     }
-    hit("WICIMAGE.COPY");
+    hit(clause::WICIMAGE_COPY);
     let c = clip(s, x as u32, y as u32, w as u32, h as u32);
     (0, c.px.chunks(n as usize).map(<[u8]>::to_vec).collect())
 }
@@ -467,32 +468,32 @@ pub fn predefined(t: u32, transparent: bool) -> Res<(u32, u32, Vec<u32>)> {
     let gray = |n: u32| -> Vec<u32> { (0..n).map(|i| 0xff00_0000 | (i * 255 / (n - 1)) * 0x10101).collect() };
     let mut c = match t {
         2 => {
-            hit("WICIMAGE.PALETTE.BW");
+            hit(clause::WICIMAGE_PALETTE_BW);
             vec![0xff00_0000, 0xffff_ffff]
         }
         3..=9 => {
-            hit("WICIMAGE.PALETTE.HALFTONE");
+            hit(clause::WICIMAGE_PALETTE_HALFTONE);
             halftone(t)
         }
         10 => gray(4),
         11 => gray(16),
         12 => gray(256),
         _ => {
-            hit("WICIMAGE.PALETTE.TYPE");
+            hit(clause::WICIMAGE_PALETTE_TYPE);
             return Ok((E_INVALIDARG, 0, vec![]));
         }
     };
     if t >= 10 {
-        hit("WICIMAGE.PALETTE.GRAY");
+        hit(clause::WICIMAGE_PALETTE_GRAY);
     }
     if transparent {
         // MEASURED: the black and white and gray palettes ignore it (the documentation says
         // to pass FALSE for them); the type stays what it was (not Custom as documented)
         if t == 2 || t >= 10 {
-            hit("WICIMAGE.PALETTE.TRANSPARENT.GRAY");
+            hit(clause::WICIMAGE_PALETTE_TRANSPARENT_GRAY);
             return Ok((0, t, c));
         }
-        hit("WICIMAGE.PALETTE.TRANSPARENT");
+        hit(clause::WICIMAGE_PALETTE_TRANSPARENT);
         if c.len() == 256 {
             c[255] = 0;
         } else {
@@ -542,7 +543,7 @@ pub fn decode(b: &[u8]) -> Res<Result<Decoded, u32>> {
     } else if b.starts_with(b"DDS ") {
         dds(b)
     } else {
-        hit("WICIMAGE.DECODE.UNKNOWN");
+        hit(clause::WICIMAGE_DECODE_UNKNOWN);
         return Ok(Err(COMPONENT_NOT_FOUND));
     };
     d
@@ -558,14 +559,14 @@ fn ppm_dpi(ppm: u32) -> f64 {
 
 /// BMP (BITMAPCOREHEADER, BITMAPINFOHEADER, BITMAPV4HEADER, BITMAPV5HEADER)
 fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
-    let open = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let open = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     // (MEASURED: headers cut short: WINCODEC_ERR_STREAMREAD; pixels cut short: WINCODEC_ERR_BADIMAGE)
     let (Some(off), Some(hdr)) = (rd32(b, 10), rd32(b, 14)) else {
-        hit("WICIMAGE.BMP.SHORT");
+        hit(clause::WICIMAGE_BMP_SHORT);
         return Ok(Err(STREAM_READ));
     };
     if b.len() < 14 + hdr as usize {
-        hit("WICIMAGE.BMP.SHORT");
+        hit(clause::WICIMAGE_BMP_SHORT);
         return Ok(Err(STREAM_READ));
     }
     let (w, h, bpp, comp, used, ppm) = if hdr == 12 {
@@ -579,7 +580,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         let v: Vec<u32> = v.into_iter().map(Option::unwrap).collect();
         (v[0] as i32, v[1] as i32, rd16(b, 28).unwrap(), v[3], v[6], (v[4], v[5]))
     };
-    hit("WICIMAGE.BMP.HEADER");
+    hit(clause::WICIMAGE_BMP_HEADER);
     let top = h < 0;
     let (w, h) = (w as u32, h.unsigned_abs());
     // masks: bit fields after an info header, inside a v4/v5 header
@@ -607,17 +608,17 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
     if comp == 1 || comp == 2 {
         // (the model does not hold pictures past 2^24 pixels)
         if w as u64 * h as u64 > 1 << 24 {
-            return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+            return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
         }
         let px = rle(data, w, h, comp == 2, &pal);
-        hit("WICIMAGE.BMP.RLE");
+        hit(clause::WICIMAGE_BMP_RLE);
         let mut i = Img::new(w, h, "bgr32");
         i.dpi = dpi;
         i.px = px;
         return Ok(Ok(i));
     }
     if src_stride.checked_mul(h as usize).is_none_or(|n| data.len() < n) {
-        hit("WICIMAGE.BMP.SHORT");
+        hit(clause::WICIMAGE_BMP_SHORT);
         return Ok(Err(BAD_IMAGE));
     }
     let fmt = match (bpp, masks) {
@@ -630,7 +631,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         (32, None) | (32, Some([0x00ff_0000, 0x0000_ff00, 0x0000_00ff, 0])) => "bgr32",
         (32, Some([0x00ff_0000, 0x0000_ff00, 0x0000_00ff, 0xff00_0000])) => "bgra",
         (16 | 32, Some(m)) => {
-            hit("WICIMAGE.BMP.FIELDS");
+            hit(clause::WICIMAGE_BMP_FIELDS);
             let mut i = Img::new(w, h, "bgr32");
             i.dpi = dpi;
             for y in 0..h {
@@ -646,7 +647,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         }
         _ => return open,
     };
-    hit("WICIMAGE.BMP.FORMAT");
+    hit(clause::WICIMAGE_BMP_FORMAT);
     let mut i = Img::new(w, h, fmt);
     i.dpi = dpi;
     let n = i.stride();
@@ -655,7 +656,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         i.px[y * n..y * n + n].copy_from_slice(&data[sy * src_stride..sy * src_stride + n]);
     }
     if bpp <= 8 {
-        hit("WICIMAGE.BMP.PALETTE");
+        hit(clause::WICIMAGE_BMP_PALETTE);
         i.pal = Some(pal);
     }
     Ok(Ok(i))
@@ -700,7 +701,7 @@ fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Vec<u8> {
     let mut p = 0;
     loop {
         let (Some(&n), Some(&v)) = (d.get(p), d.get(p + 1)) else {
-            hit("WICIMAGE.BMP.RLE.BROKEN");
+            hit(clause::WICIMAGE_BMP_RLE_BROKEN);
             break;
         };
         p += 2;
@@ -720,7 +721,7 @@ fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Vec<u8> {
             1 => break,
             2 => {
                 let (Some(&dx), Some(&dy)) = (d.get(p), d.get(p + 1)) else {
-            hit("WICIMAGE.BMP.RLE.BROKEN");
+            hit(clause::WICIMAGE_BMP_RLE_BROKEN);
             break;
         };
                 x += dx as u32;
@@ -730,7 +731,7 @@ fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Vec<u8> {
             n => {
                 let bytes = if four { (n as usize).div_ceil(2) } else { n as usize };
                 let Some(a) = d.get(p..p + bytes) else {
-            hit("WICIMAGE.BMP.RLE.BROKEN");
+            hit(clause::WICIMAGE_BMP_RLE_BROKEN);
             break;
         };
                 for k in 0..n as usize {
@@ -825,7 +826,7 @@ fn unfilter(data: &[u8], rows: usize, bpr: usize, bpp: usize) -> Option<Vec<Vec<
 
 /// PNG (ISO/IEC 15948)
 fn png(b: &[u8]) -> Res<Img> {
-    let open = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let open = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let mut p = 8;
     let (mut ihdr, mut plte, mut trns, mut phys, mut idat) = (None, None, None, None, Vec::new());
     // (MEASURED, golden wicdecode png-bad-crc, png-short: the CRCs are not checked; a file
@@ -855,15 +856,15 @@ fn png(b: &[u8]) -> Res<Img> {
     let (w, h, depth, ct, il) = (be(0), be(4), ih[8] as u32, ih[9], ih[12] == 1);
     // (the model does not hold pictures past 2^24 pixels)
     if w as u64 * h as u64 > 1 << 24 {
-        return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
-    hit("WICIMAGE.PNG.CHUNKS");
+    hit(clause::WICIMAGE_PNG_CHUNKS);
     // MEASURED: image data that does not inflate whole (cut, or its Adler-32 wrong): the frame
     // is there, its pixels all 0
     let raw = inflate_stored(&idat).filter(|r| !broken && idat.len() >= 4 && adler32(r) == u32::from_be_bytes(idat[idat.len() - 4..].try_into().unwrap()));
     let zero = raw.is_none();
     if zero {
-        hit("WICIMAGE.PNG.ZERO");
+        hit(clause::WICIMAGE_PNG_ZERO);
     }
     let raw = raw.unwrap_or_default();
     let ch = match ct {
@@ -896,13 +897,13 @@ fn png(b: &[u8]) -> Res<Img> {
         }
     }
     if il {
-        hit("WICIMAGE.PNG.ADAM7");
+        hit(clause::WICIMAGE_PNG_ADAM7);
     }
     let dpi = match phys {
         Some(ph) if ph.len() == 9 && ph[8] == 1 => {
             let px = u32::from_be_bytes(ph[0..4].try_into().unwrap());
             let py = u32::from_be_bytes(ph[4..8].try_into().unwrap());
-            hit("WICIMAGE.PNG.PHYS");
+            hit(clause::WICIMAGE_PNG_PHYS);
             (px as f64 * 0.0254, py as f64 * 0.0254)
         }
         _ => (96.0, 96.0),
@@ -912,12 +913,12 @@ fn png(b: &[u8]) -> Res<Img> {
     // transparent
     let key: Option<Vec<u8>> = match (&trns, ct) {
         (Some(t), 0) if depth < 8 && t.len() >= 2 => {
-            hit("WICIMAGE.PNG.TRNS");
+            hit(clause::WICIMAGE_PNG_TRNS);
             None
         }
-        (Some(_), 0) => return Err(Fail::Unmodeled("WICIMAGE.PNG.TRNS.GRAY")),
+        (Some(_), 0) => return Err(Fail::Unmodeled(open::WICIMAGE_PNG_TRNS_GRAY)),
         (Some(t), 2) if t.len() >= 6 => {
-            hit("WICIMAGE.PNG.TRNS");
+            hit(clause::WICIMAGE_PNG_TRNS);
             Some(t[..6].to_vec())
         }
         _ => None,
@@ -943,7 +944,7 @@ fn png(b: &[u8]) -> Res<Img> {
         (4, 16) | (6, 16) => "rgba64",
         _ => return open,
     };
-    hit("WICIMAGE.PNG.FORMAT");
+    hit(clause::WICIMAGE_PNG_FORMAT);
     let mut img = Img::new(w, h, fmt);
     img.dpi = dpi;
     for y in 0..h {
@@ -975,7 +976,7 @@ fn png(b: &[u8]) -> Res<Img> {
     if ct == 3 {
         let Some(pl) = plte else { return open };
         let t = trns.unwrap_or_default();
-        hit("WICIMAGE.PNG.PALETTE");
+        hit(clause::WICIMAGE_PNG_PALETTE);
         img.pal = Some(pl.chunks(3).enumerate().map(|(i, c)| (*t.get(i).unwrap_or(&255) as u32) << 24 | (c[0] as u32) << 16 | (c[1] as u32) << 8 | c[2] as u32).collect());
     }
     Ok(img)
@@ -1062,7 +1063,7 @@ fn lzw(min: u32, data: &[u8], n: usize) -> Option<Vec<u8>> {
 
 /// GIF87a/89a: each image a frame of its own size, 8bppIndexed, its table (local or global)
 fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
-    let open = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let open = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let Some(flags) = b.get(10) else { return open };
     let mut p = 13;
     let table = |p: usize, flags: u8| -> Option<Vec<u32>> {
@@ -1116,13 +1117,13 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                         break;
                     }
                 }
-                let Some(idx) = lzw(min as u32, &data, (w * h) as usize) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
+                let Some(idx) = lzw(min as u32, &data, (w * h) as usize) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
                 if idx.len() < (w * h) as usize {
-                    return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+                    return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
                 }
-                hit("WICIMAGE.GIF.LZW");
+                hit(clause::WICIMAGE_GIF_LZW);
                 let rows: Vec<u32> = if f & 0x40 != 0 {
-                    hit("WICIMAGE.GIF.INTERLACE");
+                    hit(clause::WICIMAGE_GIF_INTERLACE);
                     [(0, 8), (4, 8), (2, 4), (1, 2)].iter().flat_map(|&(s, d)| (s..h).step_by(d)).collect()
                 } else {
                     (0..h).collect()
@@ -1131,14 +1132,14 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                 for (k, &y) in rows.iter().enumerate() {
                     img.px[(y * w) as usize..((y + 1) * w) as usize].copy_from_slice(&idx[k * w as usize..(k + 1) * w as usize]);
                 }
-                let Some(mut pal) = local.or_else(|| global.clone()) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
+                let Some(mut pal) = local.or_else(|| global.clone()) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
                 if let Some(t) = transparent {
-                    hit("WICIMAGE.GIF.TRANSPARENT");
+                    hit(clause::WICIMAGE_GIF_TRANSPARENT);
                     if let Some(c) = pal.get_mut(t as usize) {
                         *c &= 0x00ff_ffff;
                     }
                 }
-                hit("WICIMAGE.GIF.FRAME");
+                hit(clause::WICIMAGE_GIF_FRAME);
                 img.pal = Some(pal);
                 frames.push(Ok(img));
                 transparent = None;
@@ -1152,7 +1153,7 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
 
 /// TIFF 6.0 baseline, uncompressed
 fn tiff(b: &[u8]) -> Res<Result<Decoded, u32>> {
-    let open = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let open = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let big = b[0] == b'M';
     let r16 = |o: usize| -> Option<u32> { let x: [u8; 2] = b.get(o..o + 2)?.try_into().ok()?; Some(if big { u16::from_be_bytes(x) } else { u16::from_le_bytes(x) } as u32) };
     let r32 = |o: usize| -> Option<u32> { let x: [u8; 4] = b.get(o..o + 4)?.try_into().ok()?; Some(if big { u32::from_be_bytes(x) } else { u32::from_le_bytes(x) }) };
@@ -1190,15 +1191,15 @@ fn tiff(b: &[u8]) -> Res<Result<Decoded, u32>> {
         // decoder takes the file
         if matches!(tags.get(&262).and_then(|v| v.first()), Some(4 | 6)) {
             if frames.is_empty() {
-                hit("WICIMAGE.TIFF.REFUSED");
+                hit(clause::WICIMAGE_TIFF_REFUSED);
                 return Ok(Err(COMPONENT_NOT_FOUND));
             }
-            frames.push(Err(Fail::Unmodeled("WICIMAGE.TIFF.OTHER")));
+            frames.push(Err(Fail::Unmodeled(open::WICIMAGE_TIFF_OTHER)));
             continue;
         }
         frames.push(tiff_image(b, &tags));
     }
-    hit("WICIMAGE.TIFF.IFD");
+    hit(clause::WICIMAGE_TIFF_IFD);
     Ok(Ok(Decoded { container: "tiff", frames }))
 }
 
@@ -1208,7 +1209,7 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     let (bits, ph, spp, planar) = (one(258, 1), one(262, 1), one(277, 1), one(284, 1));
     // (the model does not hold pictures past 2^24 pixels)
     if w as u64 * h as u64 > 1 << 24 || bits > 64 || spp > 16 {
-        return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
     let extra = t.get(&338).and_then(|v| v.first().copied());
     let sfmt = one(339, 1);
@@ -1247,22 +1248,22 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
         (1, 8, 2, Some(1)) => "pbgra",
         (5, 8, 5, Some(1)) => "cmyka40",
         (2, 4, 3, None) => "bgr24",
-        _ => return Err(Fail::Unmodeled("WICIMAGE.TIFF.OTHER")),
+        _ => return Err(Fail::Unmodeled(open::WICIMAGE_TIFF_OTHER)),
     };
-    hit("WICIMAGE.TIFF.FORMAT");
-    let (Some(offs), Some(counts)) = (t.get(&273), t.get(&279)) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
+    hit(clause::WICIMAGE_TIFF_FORMAT);
+    let (Some(offs), Some(counts)) = (t.get(&273), t.get(&279)) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
     let mut data = Vec::new();
     for (o, c) in offs.iter().zip(counts) {
-        let Some(d) = b.get(*o as usize..*o as usize + *c as usize) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
+        let Some(d) = b.get(*o as usize..*o as usize + *c as usize) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
         data.extend_from_slice(d);
     }
     // (planar 2: each sample's plane in turn; made chunky here)
     if planar == 2 {
-        hit("WICIMAGE.TIFF.PLANAR");
+        hit(clause::WICIMAGE_TIFF_PLANAR);
         let pr = (w as usize * bits as usize).div_ceil(8);
         let plane = pr * h as usize;
         if bits % 8 != 0 || data.len() < plane * spp as usize {
-            return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+            return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
         }
         let n = bits as usize / 8;
         let mut c = Vec::new();
@@ -1277,12 +1278,12 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     }
     let row = (w as usize * bits as usize * spp as usize).div_ceil(8);
     if data.len() < row * h as usize {
-        return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
     let mut img = Img::new(w, h, fmt);
     let big = b[0] == b'M';
     if ph == 0 {
-        hit("WICIMAGE.TIFF.WHITEISZERO");
+        hit(clause::WICIMAGE_TIFF_WHITEISZERO);
     }
     for y in 0..h {
         let r = &data[y as usize * row..(y as usize + 1) * row];
@@ -1331,16 +1332,16 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
             3 => 2.54,
             _ => 1.0,
         };
-        hit("WICIMAGE.TIFF.RESOLUTION");
+        hit(clause::WICIMAGE_TIFF_RESOLUTION);
         img.dpi = (*x as f64 * k, *y as f64 * k);
     }
     if ph == 3 {
-        let Some(m) = t.get(&320) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
+        let Some(m) = t.get(&320) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
         let n = 1usize << bits;
         if m.len() < 3 * n {
-            return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+            return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
         }
-        hit("WICIMAGE.TIFF.PALETTE");
+        hit(clause::WICIMAGE_TIFF_PALETTE);
         let c = |v: u32| v * 255 / 65535;
         img.pal = Some((0..n).map(|i| 0xff00_0000 | c(m[i]) << 16 | c(m[n + i]) << 8 | c(m[2 * n + i])).collect());
     }
@@ -1350,7 +1351,7 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
 /// ICO: each entry a frame of 32bppBGRA ("ICO Format Overview"): a PNG, or a BMP without its
 /// file header, its height doubled, the colors then the AND mask
 fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
-    let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let broken = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let Some(n) = rd16(b, 4) else { return broken };
     let mut entries = Vec::new();
     for k in 0..n as usize {
@@ -1367,17 +1368,17 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         // (OPEN: beside other entries, a PNG entry of 1x1, 2x2 or 1x5 comes after a 32-bit BMP
         // entry and its CopyPixels fails 0x88982f8c, one of 2x3, 3x2 or 4x4 comes before it)
         if png && n > 1 && (w as u64) * (h as u64) < 6 {
-            return Err(Fail::Unmodeled("WICIMAGE.ICO.PNG.SMALL"));
+            return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
         }
         // MEASURED (golden wicdecode ico-bmp-depth-*, ico-png-ct*): a BMP entry of 2 bits: no
         // decoder for the file (0x88982f07), of 0 bits WINCODEC_ERR_BADIMAGE; a PNG entry
         // that does not decode to 32bppBGRA (8-bit RGBA or gray+alpha): WINCODEC_ERR_BADIMAGE
         if !png && matches!(bpp, 0 | 2) {
-            hit("WICIMAGE.ICO.DEPTH.BAD");
+            hit(clause::WICIMAGE_ICO_DEPTH_BAD);
             return Ok(Err(if bpp == 0 { BAD_IMAGE } else { 0x8898_2f07 }));
         }
         if png && self::png(d)?.fmt != "bgra" {
-            hit("WICIMAGE.ICO.PNG.BAD");
+            hit(clause::WICIMAGE_ICO_PNG_BAD);
             return Ok(Err(BAD_IMAGE));
         }
         entries.push((bpp, !png, ico_entry(d)));
@@ -1388,20 +1389,20 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
     // last in the file first (not by size)
     entries.reverse();
     entries.sort_by_key(|e| (std::cmp::Reverse(e.0), e.1));
-    hit("WICIMAGE.ICO.ORDER");
+    hit(clause::WICIMAGE_ICO_ORDER);
     let frames = entries.into_iter().map(|e| e.2).collect();
-    hit("WICIMAGE.ICO");
+    hit(clause::WICIMAGE_ICO);
     Ok(Ok(Decoded { container: "ico", frames }))
 }
 
 fn ico_entry(d: &[u8]) -> Res<Img> {
     if d.starts_with(b"\x89PNG\r\n\x1a\n") {
         let p = png(d)?;
-        hit("WICIMAGE.ICO.PNG");
+        hit(clause::WICIMAGE_ICO_PNG);
         // (only 32bppBGRA entries get here: ico() refuses the others)
         return Ok(Img { pal: None, dpi: (96.0, 96.0), ..p });
     }
-    let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let broken = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
     let h = h2 / 2;
     // (the model does not hold pictures past 2^24 pixels)
@@ -1417,7 +1418,7 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
     let at = hdr as usize + 4 * colors;
     let Some(xor) = d.get(at..at + xs * h as usize) else { return broken };
     let Some(and) = d.get(at + xs * h as usize..at + xs * h as usize + ms * h as usize) else { return broken };
-    hit("WICIMAGE.ICO.BMP");
+    hit(clause::WICIMAGE_ICO_BMP);
     let mut img = Img::new(w, h, "bgra");
     let any_alpha = bpp == 32 && (0..h as usize).any(|y| (0..w as usize).any(|x| xor[y * xs + 4 * x + 3] != 0));
     for y in 0..h {
@@ -1433,7 +1434,7 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
                 }
                 16 => {
                     // (MEASURED: 555, widened by repeating bits)
-                    hit("WICIMAGE.ICO.DEPTH");
+                    hit(clause::WICIMAGE_ICO_DEPTH);
                     let v = rd16(row, 2 * x as usize).unwrap();
                     let x5 = |v: u32| ((v << 3) | (v >> 2)) as u8;
                     [x5(v & 31), x5(v >> 5 & 31), x5(v >> 10 & 31), 255]
@@ -1443,7 +1444,7 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
                     let p = &row[4 * x as usize..4 * x as usize + 4];
                     [p[0], p[1], p[2], p[3]]
                 }
-                _ => return Err(Fail::Unmodeled("WICIMAGE.ICO.DEPTH.OTHER")),
+                _ => return Err(Fail::Unmodeled(open::WICIMAGE_ICO_DEPTH_OTHER)),
             };
             // (ASSUMED: alpha from the colors when any is set, else from the mask: 1 transparent)
             if !any_alpha && m != 0 {
@@ -1509,16 +1510,16 @@ pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
 
 /// DDS: BC1, BC2, BC3 ("DDS Format Overview"), each mip level a frame (ASSUMED), 32bppBGRA
 fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
-    let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let broken = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     // MEASURED (golden wicdecode cut-dds-*): a header cut short: WINCODEC_ERR_STREAMREAD
     if b.len() < 128 {
-        hit("WICIMAGE.DDS.SHORT");
+        hit(clause::WICIMAGE_DDS_SHORT);
         return Ok(Err(STREAM_READ));
     }
     let (Some(h), Some(w), Some(mips), Some(pf)) = (rd32(b, 12), rd32(b, 16), rd32(b, 28), rd32(b, 80)) else { return broken };
     if pf & 4 == 0 {
         // (MEASURED: an uncompressed file: WINCODEC_ERR_BADHEADER from the decoder)
-        hit("WICIMAGE.DDS.OTHER");
+        hit(clause::WICIMAGE_DDS_OTHER);
         return Ok(Err(0x8898_2f61));
     }
     // MEASURED (golden wicdecode dds-dxt2, -dxt4, -ati1, ...): DXT2 and DXT4 decode as DXT3 and
@@ -1529,9 +1530,9 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
         Some(b"DXT3") => (2, false),
         Some(b"DXT4") => (3, true),
         Some(b"DXT5") => (3, false),
-        Some(b"DX10") => return Err(Fail::Unmodeled("WICIMAGE.DDS.FOURCC")),
+        Some(b"DX10") => return Err(Fail::Unmodeled(open::WICIMAGE_DDS_FOURCC)),
         _ => {
-            hit("WICIMAGE.DDS.OTHER");
+            hit(clause::WICIMAGE_DDS_OTHER);
             return Ok(Err(0x8898_2f61));
         }
     };
@@ -1562,7 +1563,7 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
         }
         frames.push(Ok(img));
     }
-    hit("WICIMAGE.DDS");
+    hit(clause::WICIMAGE_DDS);
     Ok(Ok(Decoded { container: "dds", frames }))
 }
 
@@ -1613,13 +1614,13 @@ impl WicImage {
         let n = |i: usize| t.get(i).and_then(|v| crate::case::num(v)).ok_or(Fail::Bad);
         let needs_cur = !matches!(t[0], "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
         if needs_cur && self.cur.as_ref().is_some_and(|c| c.px.is_empty()) && !matches!(t[0], "winfo" | "wscale") {
-            return Err(Fail::Unmodeled("WICIMAGE.SCALE.BIG"));
+            return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_BIG));
         }
         if needs_cur && self.cur.is_none() {
             if t[0] == "wpixels" && ![1, 5, 7].contains(&t.len()) {
                 return Err(Fail::Bad);
             }
-            hit("WICIMAGE.NOSOURCE");
+            hit(clause::WICIMAGE_NOSOURCE);
             out.push(format!("{} -", t[0]));
             return Ok(true);
         }
@@ -1653,7 +1654,7 @@ impl WicImage {
                 } else {
                     0
                 };
-                hit("WICIMAGE.SCALE.SIZE");
+                hit(clause::WICIMAGE_SCALE_SIZE);
                 out.push(format!("wscale {hr:08x}"));
                 if hr != 0 {
                     return Ok(true);
@@ -1673,10 +1674,10 @@ impl WicImage {
                 // rotation and the two flips are ignored
                 let o = n(1)? as u32;
                 if o & !0x1b != 0 {
-                    hit("WICIMAGE.FLIP.BAD");
+                    hit(clause::WICIMAGE_FLIP_BAD);
                 }
                 let o = o & 0x1b;
-                hit("WICIMAGE.FLIP");
+                hit(clause::WICIMAGE_FLIP);
                 out.push("wflip 00000000".into());
                 self.cur = Some(flip(self.cur.as_ref().unwrap(), o));
             }
@@ -1684,17 +1685,17 @@ impl WicImage {
                 let (x, y, w, h) = (n(1)?, n(2)?, n(3)?, n(4)?);
                 let c = self.cur.as_ref().unwrap();
                 if !inside(c, x, y, w, h) {
-                    hit("WICIMAGE.CLIP.RECT");
+                    hit(clause::WICIMAGE_CLIP_RECT);
                     out.push(format!("wclip {E_INVALIDARG:08x}"));
                 } else {
-                    hit("WICIMAGE.CLIP");
+                    hit(clause::WICIMAGE_CLIP);
                     out.push("wclip 00000000".into());
                     self.cur = Some(clip(c, x as u32, y as u32, w as u32, h as u32));
                 }
             }
             "wconv" => {
                 let to = fmt_static(t.get(1).ok_or(Fail::Bad)?);
-                hit("WICIMAGE.CONVERT");
+                hit(clause::WICIMAGE_CONVERT);
                 let c = wic_convert(self.cur.as_ref().unwrap(), to)?;
                 out.push("wconv 00000000".into());
                 self.cur = Some(c);
@@ -1705,7 +1706,7 @@ impl WicImage {
                 // a context of any value but 2 is sRGB
                 let srgb = |v: i64| if v == 2 { 2 } else { 1 };
                 if a != 1 && a != 2 || b != 1 && b != 2 {
-                    hit("WICIMAGE.COLOR.EXIF.BAD");
+                    hit(clause::WICIMAGE_COLOR_EXIF_BAD);
                 }
                 let (a, b) = (srgb(a), srgb(b));
                 let Some(c) = &self.cur else {
@@ -1713,26 +1714,26 @@ impl WicImage {
                     return Ok(true);
                 };
                 let hr = color_transform(c.fmt, f, a == b);
-                hit("WICIMAGE.COLOR.INIT");
+                hit(clause::WICIMAGE_COLOR_INIT);
                 out.push(format!("wcolor 00000000 00000000 {hr:08x}"));
                 if hr == 0 {
                     if !(a == b && c.fmt == f) || COLOR_RGB.contains(&c.fmt) {
-                        return Err(Fail::Unmodeled("WICIMAGE.COLOR.TRANSFORM"));
+                        return Err(Fail::Unmodeled(open::WICIMAGE_COLOR_TRANSFORM));
                     }
                     // (MEASURED: golden wiccolor xf-idx8-idx8-11, xf-cmyk-cmyk-11, xf-gray8-gray8-11:
                     // the source's pixels as they are)
-                    hit("WICIMAGE.COLOR.SAME");
+                    hit(clause::WICIMAGE_COLOR_SAME);
                 }
             }
             "wctx" => {
                 let v = n(1)?;
                 // (MEASURED, golden wiccolor ctx-*: any value taken and given back)
-                hit(if v == 1 || v == 2 { "WICIMAGE.COLOR.EXIF" } else { "WICIMAGE.COLOR.EXIF.BAD" });
+                hit(if v == 1 || v == 2 { clause::WICIMAGE_COLOR_EXIF } else { clause::WICIMAGE_COLOR_EXIF_BAD });
                 out.push(format!("wctx 00000000 type 2 exif 00000000 {}", v as u32));
             }
             "winfo" => {
                 let c = self.cur.as_ref().unwrap();
-                hit("WICIMAGE.INFO");
+                hit(clause::WICIMAGE_INFO);
                 out.push(format!("winfo 00000000 {} {} {} {:.3} {:.3}", c.w, c.h, c.fmt, c.dpi.0, c.dpi.1));
             }
             "wpixels" => {
@@ -1764,11 +1765,11 @@ impl WicImage {
                 let c = self.cur.as_ref().unwrap();
                 match &c.pal {
                     Some(p) => {
-                        hit("WICIMAGE.SRCPAL");
+                        hit(clause::WICIMAGE_SRCPAL);
                         palette_line("wsrcpal", 0, 0, p, out)
                     }
                     None => {
-                        hit("WICIMAGE.SRCPAL.NONE");
+                        hit(clause::WICIMAGE_SRCPAL_NONE);
                         out.push(format!("wsrcpal {PALETTE_UNAVAILABLE:08x} type 0 count 0 bw 0 gray 0 alpha 0"));
                     }
                 }
@@ -1788,8 +1789,8 @@ impl WicImage {
                     out.push("wframe -".into());
                     return Ok(true);
                 };
-                let f = d.frames.get(i).ok_or(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"))?.clone()?;
-                hit("WICIMAGE.FRAME");
+                let f = d.frames.get(i).ok_or(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN))?.clone()?;
+                hit(clause::WICIMAGE_FRAME);
                 out.push("wframe 00000000".into());
                 self.cur = Some(f);
             }
@@ -1806,7 +1807,7 @@ impl WicImage {
                     first = 3;
                 }
                 if t.len() > first {
-                    return Err(Fail::Unmodeled("WICIMAGE.ENCODE.OPTIONS"));
+                    return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS));
                 }
                 self.enc = None;
                 // (MEASURED: HEIF's and WebP's encoders are not there on windows-2025)
@@ -1815,21 +1816,21 @@ impl WicImage {
                     "webp" => Some(COMPONENT_NOT_FOUND),
                     _ => None,
                 } {
-                    hit("WICIMAGE.ENCODE.MISSING");
+                    hit(clause::WICIMAGE_ENCODE_MISSING);
                     out.push(format!("wencode {hr:08x} {fmt} create"));
                     return Ok(true);
                 }
                 let nf = negotiate(cont, fmt).ok_or(Fail::Bad)?;
-                hit(if nf == fmt { "WICIMAGE.ENCODE.FORMAT" } else { "WICIMAGE.ENCODE.NEGOTIATE" });
+                hit(if nf == fmt { clause::WICIMAGE_ENCODE_FORMAT } else { clause::WICIMAGE_ENCODE_NEGOTIATE });
                 let img = encode_source(&c, nf)?;
                 let enc = match cont {
                     "bmp" => Encoded::Bytes(encode_bmp(&img)?),
                     "png" | "tiff" => {
-                        hit("WICIMAGE.ENCODE.LOSSLESS");
+                        hit(clause::WICIMAGE_ENCODE_LOSSLESS);
                         Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, img)
                     }
-                    "gif" => return Err(Fail::Unmodeled("WICIMAGE.ENCODE.GIF")),
-                    _ => return Err(Fail::Unmodeled("WICIMAGE.ENCODE.LOSSY")),
+                    "gif" => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_GIF)),
+                    _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),
                 };
                 out.push(format!("wencode 00000000 {nf} ok"));
                 self.enc = Some(enc);
@@ -1861,7 +1862,7 @@ impl WicImage {
                         i.dpi = (96.0, 96.0);
                     }
                     if cont == "gif" {
-                        return Err(Fail::Unmodeled("WICIMAGE.ENCODE.GIF"));
+                        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_GIF));
                     }
                     i.pal = img.pal.clone();
                     self.dec = Some(Decoded { container: cont, frames: vec![Ok(i)] });
@@ -1963,23 +1964,23 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
         return Ok(c.clone());
     }
     if nf == "bw" && !c.fmt.starts_with("gray") {
-        return Err(Fail::Unmodeled("WICIMAGE.ENCODE.BW"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_BW));
     }
     if !nf.starts_with("idx") {
-        hit("WICIMAGE.ENCODE.CONVERT");
+        hit(clause::WICIMAGE_ENCODE_CONVERT);
         return wic_convert(c, nf);
     }
     let mut o = Img::new(c.w, c.h, nf);
     o.dpi = c.dpi;
     if c.fmt == "bw" {
         // (MEASURED: golden enc-bmp-bw: the rows as they are, even the bits past their end)
-        hit("WICIMAGE.ENCODE.BWINDEX");
+        hit(clause::WICIMAGE_ENCODE_BWINDEX);
         o.px = c.px.clone();
         o.pal = Some(vec![0xff00_0000, 0xffff_ffff]);
         return Ok(o);
     }
     if c.fmt.starts_with("idx") {
-        hit("WICIMAGE.ENCODE.WIDEN");
+        hit(clause::WICIMAGE_ENCODE_WIDEN);
         o.pal = c.pal.clone();
         for y in 0..c.h {
             for x in 0..c.w {
@@ -2001,7 +2002,7 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
                 }
             };
             if i >> bits_of(nf) != 0 {
-                return Err(Fail::Unmodeled("WICIMAGE.ENCODE.QUANTIZE"));
+                return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
             }
             o.put(x, y, &[i as u8]);
         }
@@ -2010,9 +2011,9 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     // them a pixel gets is open)
     let near = |a: u32, b: u32| (0..4).all(|k| (a >> (8 * k + 4)) & 15 == (b >> (8 * k + 4)) & 15);
     if pal.iter().enumerate().any(|(i, &a)| pal[..i].iter().any(|&b| near(a, b))) {
-        return Err(Fail::Unmodeled("WICIMAGE.ENCODE.QUANTIZE"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
     }
-    hit("WICIMAGE.ENCODE.PALETTE");
+    hit(clause::WICIMAGE_ENCODE_PALETTE);
     o.pal = Some(pal);
     Ok(o)
 }
@@ -2021,9 +2022,9 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
 /// the palette in full for indexed formats, the resolution in pixels a meter
 pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
     if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32", "bgra", "pbgra"].contains(&i.fmt) {
-        return Err(Fail::Unmodeled("WICIMAGE.CONVERT.OTHER"));
+        return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER));
     }
-    hit("WICIMAGE.ENCODE.BMP");
+    hit(clause::WICIMAGE_ENCODE_BMP);
     let bpp = bits_of(i.fmt);
     let st = (i.w as usize * bpp as usize).div_ceil(32) * 4;
     let mut px = vec![0u8; st * i.h as usize];

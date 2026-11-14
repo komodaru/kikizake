@@ -32,10 +32,13 @@ so work on different APIs does not collide.
 ## Clauses and models
 
 * Write the clauses from Microsoft Learn first (`doc`), with the page name as the source. What
-  the documentation leaves open is `open` (the model returns `Fail::Unmodeled(<id>)`) or, when
-  a guess is worth checking, `assumed`.
-* The model calls `spec::hit(<id>)` where it applies a clause; `cargo test` fails if a clause is
-  never reached or a hit names no clause.
+  the documentation leaves open is `open` (the model returns `Fail::Unmodeled(open::<ID>)`) or,
+  when a guess is worth checking, `assumed`.
+* The model calls `spec::hit(clause::<ID>)` where it applies a clause (`GDI.ROP3.TRUTH` is
+  `clause::GDI_ROP3_TRUTH`). build.rs makes the constants from spec/: a clause that does not
+  exist, or an `Unmodeled` of a clause that is not `open` or `excluded`, does not compile, and a
+  clause settled out of `open` breaks the build where a model still calls it open. Never pass
+  clause names as strings. `cargo test` fails if a clause is never reached.
 * Once Windows has answered (`golden/`), `cargo test` compares every modelled case. Settle each
   difference from the answers: correct the model, mark the clause `measured` with the golden
   named, and say how it was found (a table of every value, a fitted formula and on how many
@@ -53,13 +56,15 @@ Every clause has to show the evidence its status claims; `cargo test` (tests/spe
 * `measured`: a case that reaches it agrees with Windows' answer (a case that stops at an open
   clause compares nothing: give each description its own case).
 * `assumed`: a law or a case Windows agrees with.
-* `Fail::Unmodeled(<id>)` names an `open` or `excluded` clause only.
+* `Fail::Unmodeled(open::<ID>)` names an `open` or `excluded` clause only (the compiler checks).
 * Nothing is left unresolved: every `open`, `assumed` and `excluded` clause is listed in
   `spec/unresolved.txt`, and that list only shrinks. Settle a clause (model it from the
   documentation, fit it to Windows' answers) and take its line out; a new clause comes settled.
 * A law (tests/) that checks a clause from its text, independent of Windows' answers, is listed in
   `spec/laws.txt` with the clauses it checks and whether it is `exhaustive` (every input of its
-  domain: a proof there) or `pbt`.
+  domain: a proof there), `pbt`, `kani` (a proof in `src/proofs.rs`, `cargo kani`) or `tla` (a
+  TLA+ spec in `spec/tla`, see its README). Every Kani harness and TLA+ spec must be listed.
+  The `formal` workflow runs both; `cargo test` cannot.
 * Case names are unique in a suite (answers are matched to cases by name).
 
 ## Tests

@@ -13,6 +13,8 @@
 //! "ID2D1RenderTarget::FillRectangle", "D2D1_ANTIALIAS_MODE", "Supported Pixel Formats and Alpha
 //! Modes". Each clause the model applies is in spec/d2d.txt, measured ones with their golden.
 
+use crate::spec::open;
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -62,10 +64,10 @@ pub fn invert(m: &M) -> (bool, M) {
     let [a, b, c, d, x, y] = *m;
     let i = 1.0 / (a * d - b * c);
     if !i.is_finite() {
-        hit("D2D.INV.SINGULAR");
+        hit(clause::D2D_INV_SINGULAR);
         return (false, *m);
     }
-    hit("D2D.INV");
+    hit(clause::D2D_INV);
     (true, [d * i, -b * i, -c * i, a * i, (c * y - d * x) * i, (b * x - a * y) * i])
 }
 
@@ -95,7 +97,7 @@ const DEG: f32 = std::f32::consts::PI / 180.0;
 /// makes every element that NaN (the indefinite one for an infinity), m21 with its sign flipped.
 pub fn rotate(angle: f32, cx: f32, cy: f32) -> M {
     if !angle.is_finite() {
-        hit("D2D.ROT.NAN");
+        hit(clause::D2D_ROT_NAN);
         let n = if angle.is_nan() { angle.to_bits() } else { INDEFINITE };
         let v = f32::from_bits(n);
         return [v, v, f32::from_bits(n ^ 0x8000_0000), v, v, v];
@@ -105,10 +107,10 @@ pub fn rotate(angle: f32, cx: f32, cy: f32) -> M {
         r += 360.0;
     }
     let (s, c) = if r % 90.0 == 0.0 {
-        hit("D2D.ROT.RIGHT");
+        hit(clause::D2D_ROT_RIGHT);
         [(0.0, 1.0), (1.0, 0.0), (0.0, -1.0), (-1.0, 0.0)][(r / 90.0) as usize]
     } else {
-        hit("D2D.ROT");
+        hit(clause::D2D_ROT);
         let t = (r * DEG) as f64;
         (t.sin() as f32, t.cos() as f32)
     };
@@ -120,7 +122,7 @@ pub fn rotate(angle: f32, cx: f32, cy: f32) -> M {
 /// tan(angleX) (f64 tan of the angle times pi / 180 as f32, rounded), the diagonal 1,
 /// dx = cx - (cx + cy m21), dy = cy - (cx m12 + cy) in f32
 pub fn skew(ax: f32, ay: f32, cx: f32, cy: f32) -> M {
-    hit("D2D.SKEW");
+    hit(clause::D2D_SKEW);
     let tx = via_f64(ax * DEG, f64::tan);
     let ty = via_f64(ay * DEG, f64::tan);
     let (m11, m12, m21, m22) = (1.0f32, ty, tx, 1.0f32);
@@ -134,11 +136,11 @@ pub fn skew(ax: f32, ay: f32, cx: f32, cy: f32) -> M {
 /// themselves, the curve between is open (near the IEC 61966-2-1 formulas, off by up to 3 ulps)
 pub fn convert_space(from: i64, to: i64, c: &[f32]) -> Res<Vec<f32>> {
     if !(1..=2).contains(&from) || !(1..=2).contains(&to) {
-        hit("D2D.CS.OTHER");
+        hit(clause::D2D_CS_OTHER);
         return Ok(vec![0.0; 4]);
     }
     if from == to {
-        hit("D2D.CS.SAME");
+        hit(clause::D2D_CS_SAME);
         return Ok(c.to_vec());
     }
     let mut o = c.to_vec();
@@ -148,11 +150,11 @@ pub fn convert_space(from: i64, to: i64, c: &[f32]) -> Res<Vec<f32>> {
         } else if *v >= 1.0 {
             *v = 1.0;
         } else {
-            hit("D2D.CS.CURVE");
+            hit(clause::D2D_CS_CURVE);
             *v = if from == 1 { srgb_to_linear(*v) } else { linear_to_srgb(*v) };
         }
     }
-    hit("D2D.CS.CLAMP");
+    hit(clause::D2D_CS_CLAMP);
     Ok(o)
 }
 
@@ -244,7 +246,7 @@ pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
         Geom::Ell([cx, cy, rx, ry]) => {
             // (MEASURED, simp-ell-*: from the left end clockwise, four cubics with a line of no
             // length to the end of each of the first three; a negative radius counts as its size)
-            hit("D2D.ARCS");
+            hit(clause::D2D_ARCS);
             let (cx, cy, rx, ry) = (*cx, *cy, rx.abs(), ry.abs());
             let (l, t, r, b) = (cx - rx, cy - ry, cx + rx, cy + ry);
             let (il, it, ir, ib) = (l + rx * ARC_IN, t + ry * ARC_IN, r - rx * ARC_IN, b - ry * ARC_IN);
@@ -263,7 +265,7 @@ pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
             // (MEASURED, simp-rrect-*: the rectangle put in order, each radius taken as its size
             // and cut to half the side; from the top of the left side clockwise, a cubic for
             // every corner and a line along every side, of no length when the radius is half)
-            hit("D2D.ARCS");
+            hit(clause::D2D_ARCS);
             let (l, r, t, b) = (lo(*l, *r), hi(*l, *r), lo(*t, *b), hi(*t, *b));
             let rx = rx.abs().min((r - l) * 0.5);
             let ry = ry.abs().min((b - t) * 0.5);
@@ -302,7 +304,7 @@ pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
 /// halved again while the one at its end does, else doubled while both are within a quarter
 /// of that and the step count allows; the points come after `p0`, the last one `p3` itself
 pub fn flatten(p0: P, p1: P, p2: P, p3: P, tol: f32) -> Vec<P> {
-    hit("D2D.FLATTEN");
+    hit(clause::D2D_FLATTEN);
     type V = [f32; 2];
     let v = |p: P| [p.0, p.1];
     let sub = |a: V, b: V| [a[0] - b[0], a[1] - b[1]];
@@ -449,23 +451,23 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
     match (g, m) {
         (Geom::Rect([l, t, r, b]) | Geom::RRect([l, t, r, b, ..]), None) => {
             // (MEASURED: the rectangle put in order, a rounded one's radii not mattering)
-            hit(if matches!(g, Geom::Rect(_)) { "D2D.BOUNDS.RECT" } else { "D2D.BOUNDS.RRECT" });
+            hit(if matches!(g, Geom::Rect(_)) { clause::D2D_BOUNDS_RECT } else { clause::D2D_BOUNDS_RRECT });
             if [l, t, r, b].iter().any(|v| v.is_nan()) {
-                hit("D2D.BOUNDS.NAN");
+                hit(clause::D2D_BOUNDS_NAN);
             }
             Ok([lo(*l, *r), lo(*t, *b), hi(*l, *r), hi(*t, *b)])
         }
-        (Geom::RRect(_), Some(_)) => Err(Fail::Unmodeled("D2D.BOUNDS.RRECTXF")),
+        (Geom::RRect(_), Some(_)) => Err(Fail::Unmodeled(open::D2D_BOUNDS_RRECTXF)),
         (Geom::Rect(_) | Geom::Path { .. }, _) => {
             let (_, figs, m0) = g.lines().unwrap();
             let m = mul(&m0, m.unwrap_or(&IDENTITY));
             // (MEASURED: a path with a NaN anywhere has four NaN bounds, every bit set)
             if matches!(g, Geom::Path { .. }) && figs.iter().flat_map(|f| f.pts.iter()).any(|p| p.0.is_nan() || p.1.is_nan()) {
-                hit("D2D.BOUNDS.PATHNAN");
+                hit(clause::D2D_BOUNDS_PATHNAN);
                 return Ok(NAN_BOUNDS);
             }
             let mut b = [f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY];
-            hit(if matches!(g, Geom::Rect(_)) { "D2D.BOUNDS.RECTXF" } else { "D2D.BOUNDS.PATH" });
+            hit(if matches!(g, Geom::Rect(_)) { clause::D2D_BOUNDS_RECTXF } else { clause::D2D_BOUNDS_PATH });
             let (mut nx, mut ny) = (false, false);
             for f in &figs {
                 for &(x, y) in &f.pts {
@@ -477,11 +479,11 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
             }
             // (MEASURED: an axis with a NaN corner has both its bounds NaN, every bit set)
             if nx {
-                hit("D2D.BOUNDS.NAN");
+                hit(clause::D2D_BOUNDS_NAN);
                 (b[0], b[2]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
             }
             if ny {
-                hit("D2D.BOUNDS.NAN");
+                hit(clause::D2D_BOUNDS_NAN);
                 (b[1], b[3]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
             }
             Ok(b)
@@ -489,14 +491,14 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
         (Geom::Ell([cx, cy, rx, ry]), _) => {
             let m = m.unwrap_or(&IDENTITY);
             if [cx, cy, rx, ry].iter().any(|v| v.is_nan()) {
-                hit("D2D.BOUNDS.NAN");
+                hit(clause::D2D_BOUNDS_NAN);
                 return Ok(NAN_BOUNDS);
             }
             if m[1] != 0.0 || m[2] != 0.0 || [cx, cy, rx, ry].iter().any(|v| !v.is_finite()) {
-                return Err(Fail::Unmodeled("D2D.BOUNDS.ELLXF"));
+                return Err(Fail::Unmodeled(open::D2D_BOUNDS_ELLXF));
             }
             // (MEASURED: a negative radius counts as its size)
-            hit("D2D.BOUNDS.ELL");
+            hit(clause::D2D_BOUNDS_ELL);
             let (rx, ry) = (rx.abs(), ry.abs());
             let (x0, y0) = apply(m, cx - rx, cy - ry);
             let (x1, y1) = apply(m, cx + rx, cy + ry);
@@ -504,9 +506,9 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
         }
         (Geom::Xf(inner, m0), _) => {
             if !matches!(**inner, Geom::Rect(_) | Geom::Path { .. }) {
-                return Err(Fail::Unmodeled("D2D.BOUNDS.ELLXF"));
+                return Err(Fail::Unmodeled(open::D2D_BOUNDS_ELLXF));
             }
-            hit("D2D.XF");
+            hit(clause::D2D_XF);
             bounds(inner, Some(&mul(m0, m.unwrap_or(&IDENTITY))))
         }
     }
@@ -557,25 +559,25 @@ pub fn contains(g: &Geom, x: f32, y: f32, tol: f32) -> Res<bool> {
     let (wind, figs, m) = flat_lines(g, ftol);
     let curved = g.lines().is_none();
     if curved {
-        hit(if matches!(g, Geom::RRect(_)) { "D2D.IN.RRECT" } else { "D2D.IN.ELL" });
+        hit(if matches!(g, Geom::RRect(_)) { clause::D2D_IN_RRECT } else { clause::D2D_IN_ELL });
     }
     let ps = polys(&figs, &m);
     let d = ps.iter().flat_map(|q| segs(q)).map(|(a, b)| dist_seg(p, a, b)).fold(f64::INFINITY, f64::min);
     // (MEASURED: a tolerance of 0 is the default 0.25; inside when strictly nearer than it)
-    let tol = if tol == 0.0 { hit("D2D.IN.TOL0"); 0.25 } else { tol as f64 };
-    hit("D2D.IN.TOL");
+    let tol = if tol == 0.0 { hit(clause::D2D_IN_TOL0); 0.25 } else { tol as f64 };
+    hit(clause::D2D_IN_TOL);
     if curved && d < tol * 2.0 {
-        hit("D2D.IN.ELLNEAR");
+        hit(clause::D2D_IN_ELLNEAR);
     }
     if d < tol {
         return Ok(true);
     }
     // (MEASURED: 0.2505 from a side with the tolerance 0.25 is out)
     if d < tol + 1e-3 {
-        hit("D2D.IN.EDGE");
+        hit(clause::D2D_IN_EDGE);
     }
     let w = winding(&ps, p);
-    hit(if wind { "D2D.IN.WIND" } else { "D2D.IN.ALT" });
+    hit(if wind { clause::D2D_IN_WIND } else { clause::D2D_IN_ALT });
     Ok(if wind { w != 0 } else { w % 2 != 0 })
 }
 
@@ -642,12 +644,12 @@ pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: 
 /// ComputeArea. MEASURED (golden d2d-32/-64, 66 paths of up to three figures, self-crossing and
 /// overlapping ones too): the area the fill mode fills, open figures filled as closed
 pub fn area(g: &Geom) -> Res<f32> {
-    let Some((wind, figs, m)) = g.lines() else { return Err(Fail::Unmodeled("D2D.AREA.CURVE")) };
+    let Some((wind, figs, m)) = g.lines() else { return Err(Fail::Unmodeled(open::D2D_AREA_CURVE)) };
     if let Geom::Rect([l, t, r, b]) = g {
-        hit("D2D.AREA.RECT");
+        hit(clause::D2D_AREA_RECT);
         return Ok(((r - l) * (b - t)).abs());
     }
-    hit("D2D.AREA.POLY");
+    hit(clause::D2D_AREA_POLY);
     Ok(region_area(&polys(&figs, &m), wind) as f32)
 }
 
@@ -657,9 +659,9 @@ pub fn area(g: &Geom) -> Res<f32> {
 pub fn length(g: &Geom, tol: f32) -> Res<f32> {
     let (_, figs, m) = flat_lines(g, tol);
     if g.lines().is_none() {
-        hit("D2D.LEN.CURVE");
+        hit(clause::D2D_LEN_CURVE);
     }
-    hit("D2D.LEN");
+    hit(clause::D2D_LEN);
     let mut sum = 0f32;
     for f in &figs {
         let p: Vec<(f32, f32)> = f.pts.iter().map(|&(x, y)| apply(&m, x, y)).collect();
@@ -698,7 +700,7 @@ fn shape_relation(a: &Geom, b: &Geom) -> Res<u32> {
     // (MEASURED, cmpg-12, -19, -28: outlines that only touch, at a point or along a side, are
     // OVERLAP, as closed sets)
     let touch = pa.iter().flat_map(|p| segs(p)).any(|(p, q)| pb.iter().flat_map(|r| segs(r)).any(|(r, t)| meet(p, q, r, t)));
-    hit("D2D.CMP.SHAPE");
+    hit(clause::D2D_CMP_SHAPE);
     Ok(if both == 0.0 && !touch {
         1
     } else if both == 0.0 {
@@ -716,7 +718,7 @@ pub fn relation(a: &Geom, b: &Geom) -> Res<u32> {
     let (Geom::Rect(a), Geom::Rect(b)) = (a, b) else { return shape_relation(a, b) };
     let n = |r: &[f32; 4]| [r[0].min(r[2]), r[1].min(r[3]), r[0].max(r[2]), r[1].max(r[3])];
     let (a, b) = (n(a), n(b));
-    hit("D2D.CMP");
+    hit(clause::D2D_CMP);
     // (MEASURED: as closed sets, no tolerance: touching is OVERLAP, equal is IS_CONTAINED, a
     // gap of 1/8 is DISJOINT)
     let inside = |p: [f32; 4], q: [f32; 4]| p[0] >= q[0] && p[1] >= q[1] && p[2] <= q[2] && p[3] <= q[3];
@@ -849,7 +851,7 @@ impl D2d {
             "d2sincos" | "d2tan" => {
                 let a = f(op, 1)?;
                 want(2)?;
-                hit("D2D.TRIG");
+                hit(clause::D2D_TRIG);
                 out.push(if t[0] == "d2tan" {
                     format!("tan {}", hex(via_f64(a, f64::tan)))
                 } else {
@@ -860,7 +862,7 @@ impl D2d {
                 let (x, y, z) = (f(op, 1)?, f(op, 2)?, f(op, 3)?);
                 want(4)?;
                 // (MEASURED: in f32, so overflowing and underflowing squares stay so)
-                hit("D2D.VEC3");
+                hit(clause::D2D_VEC3);
                 out.push(format!("vec3 {}", hex((x * x + y * y + z * z).sqrt())));
             }
             "d2cs" => {
@@ -875,7 +877,7 @@ impl D2d {
                 let k = if t[0] == "d2rrect" { 6 } else { 4 };
                 want(2 + k)?;
                 let v: Vec<f32> = (0..k).map(|i| f(op, 2 + i)).collect::<Res<_>>()?;
-                hit("D2D.CREATE");
+                hit(clause::D2D_CREATE);
                 self.g[g] = Some(match t[0].as_str() {
                     "d2rect" => Geom::Rect(v.try_into().unwrap()),
                     "d2ell" => Geom::Ell(v.try_into().unwrap()),
@@ -889,7 +891,7 @@ impl D2d {
                 let m = mat(op, 3)?;
                 want(9)?;
                 let Some(src) = src else { return Ok(true) };
-                hit("D2D.XF");
+                hit(clause::D2D_XF);
                 self.g[g] = Some(Geom::Xf(Box::new(src), m));
                 out.push("xf 00000000".into());
             }
@@ -933,7 +935,7 @@ impl D2d {
                 if infig {
                     return Err(Fail::Bad);
                 }
-                hit("D2D.PATH");
+                hit(clause::D2D_PATH);
                 self.g[g] = Some(Geom::Path { wind, figs });
                 out.push("path 00000000 00000000".into());
             }
@@ -952,7 +954,7 @@ impl D2d {
                         at = 3;
                     }
                     "d2combine" => {
-                        self.geom(op, 2, out)?.ok_or(Fail::Unmodeled("D2D.SIMP"))?;
+                        self.geom(op, 2, out)?.ok_or(Fail::Unmodeled(open::D2D_SIMP))?;
                         if !matches!(t.get(3).map(String::as_str), Some("union" | "intersect" | "xor" | "exclude")) {
                             return Err(Fail::Bad);
                         }
@@ -967,8 +969,8 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 let Some(g) = g else { return Ok(true) };
-                let Some(simp) = simp else { return Err(Fail::Unmodeled("D2D.SIMP")) };
-                hit("D2D.SIMPLIFY");
+                let Some(simp) = simp else { return Err(Fail::Unmodeled(open::D2D_SIMP)) };
+                hit(clause::D2D_SIMPLIFY);
                 let tol = if len > at { f(op, at)? } else { 0.25 };
                 let (wind, round, figs) = shape(&g);
                 let figs = match simp {
@@ -1019,11 +1021,11 @@ impl D2d {
                 want(2)?;
                 let Some(g) = g else { return Ok(true) };
                 let Geom::Path { figs, .. } = g else {
-                    hit("D2D.COUNT.NOPATH");
+                    hit(clause::D2D_COUNT_NOPATH);
                     out.push("count nopath".into());
                     return Ok(true);
                 };
-                hit("D2D.COUNT");
+                hit(clause::D2D_COUNT);
                 let segs: usize = figs.iter().map(|f| f.pts.len() - 1 + f.closed as usize).sum();
                 out.push(format!("count 00000000 {} 00000000 {segs}", figs.len()));
             }
@@ -1031,7 +1033,7 @@ impl D2d {
             // (render target state, clips, layers, opacity, gradients, bitmaps, strokes: asked,
             // not modelled yet)
             "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" | "d2state" | "d2fillo" | "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
-                return Err(Fail::Unmodeled("D2D.RT"));
+                return Err(Fail::Unmodeled(open::D2D_RT));
             }
             _ => return Ok(false),
         }
@@ -1046,7 +1048,7 @@ impl D2d {
             return Err(Fail::Bad);
         }
         let (caps, join, style) = (&p[0..3], p[3], p[4]);
-        hit("D2D.STROKE.ENUM");
+        hit(clause::D2D_STROKE_ENUM);
         let ok = caps.iter().all(|c| (0..=3).contains(c)) && (0..=3).contains(&join) && (0..=5).contains(&style);
         if !ok {
             out.push(format!("stroke hr {E_INVALIDARG:08x}"));
@@ -1054,13 +1056,13 @@ impl D2d {
         }
         let custom = style == 5;
         if custom != !dashes.is_empty() {
-            hit("D2D.STROKE.DASHES");
+            hit(clause::D2D_STROKE_DASHES);
             out.push(format!("stroke hr {E_INVALIDARG:08x}"));
             return Ok(());
         }
         // (MEASURED: any miter limit, offset and dash value is kept as given, NaN, infinite and
         // negative ones included)
-        hit("D2D.STROKE.VALUES");
+        hit(clause::D2D_STROKE_VALUES);
         // (MEASURED: the predefined styles' patterns, in stroke widths, whatever the caps)
         let pattern: &[f32] = match style {
             1 => &[2.0, 2.0],
@@ -1070,9 +1072,9 @@ impl D2d {
             _ => &dashes,
         };
         if (1..=4).contains(&style) {
-            hit("D2D.STROKE.PATTERN");
+            hit(clause::D2D_STROKE_PATTERN);
         }
-        hit("D2D.STROKE.GET");
+        hit(clause::D2D_STROKE_GET);
         let mut s = format!("stroke = {} {} {} {join} {} {style} {} {}", caps[0], caps[1], caps[2], hex(miter), hex(offset), pattern.len());
         for d in pattern {
             s += " ";
@@ -1091,7 +1093,7 @@ impl D2d {
         while i < t.len() {
             match t[i].as_str() {
                 "open" => {
-                    hit("D2D.SINK.OPEN");
+                    hit(clause::D2D_SINK_OPEN);
                     if k.state == SinkState::New {
                         k.state = SinkState::Open;
                         k.sink = true;
@@ -1104,11 +1106,11 @@ impl D2d {
                     if !k.sink {
                         s += " close -";
                     } else if k.state == SinkState::Open && !k.error && !k.infig {
-                        hit("D2D.SINK.CLOSE");
+                        hit(clause::D2D_SINK_CLOSE);
                         k.state = SinkState::Closed;
                         s += " close 00000000";
                     } else {
-                        hit("D2D.SINK.ERROR");
+                        hit(clause::D2D_SINK_ERROR);
                         // (MEASURED: a second Close leaves the closed geometry as it was)
                         if k.state != SinkState::Closed {
                             k.state = SinkState::Failed;
@@ -1118,11 +1120,11 @@ impl D2d {
                 }
                 "count" => {
                     if k.state == SinkState::Closed {
-                        hit("D2D.COUNT");
+                        hit(clause::D2D_COUNT);
                         s += &format!(" count 00000000 {} 00000000 {}", k.figs, k.segs);
                     } else {
                         // (MEASURED: D2DERR_WRONG_STATE, the counts not written)
-                        hit("D2D.SINK.COUNT");
+                        hit(clause::D2D_SINK_COUNT);
                         s += &format!(" count {D2DERR_WRONG_STATE:08x} 57005 {D2DERR_WRONG_STATE:08x} 57005");
                     }
                 }
@@ -1132,7 +1134,7 @@ impl D2d {
                     if k.sink {
                         if k.state != SinkState::Open {
                             // (MEASURED: ignored once closed)
-                            hit("D2D.SINK.AFTER");
+                            hit(clause::D2D_SINK_AFTER);
                         } else if t[i] == "begin" {
                             if k.infig {
                                 k.error = true;
@@ -1150,7 +1152,7 @@ impl D2d {
                 "end" => {
                     if k.sink {
                         if k.state != SinkState::Open {
-                            hit("D2D.SINK.AFTER");
+                            hit(clause::D2D_SINK_AFTER);
                         } else if !k.infig {
                             k.error = true;
                         } else {
@@ -1166,7 +1168,7 @@ impl D2d {
                     }
                     if k.infig || k.figs > 0 {
                         // (MEASURED: accepted after a figure; the counts are not changed)
-                        hit("D2D.SINK.FILL");
+                        hit(clause::D2D_SINK_FILL);
                     }
                     i += 1;
                 }
@@ -1188,7 +1190,7 @@ impl D2d {
                 if len != 3 || !(1..=64).contains(&w) || !(1..=64).contains(&h) {
                     return Err(Fail::Bad);
                 }
-                hit("D2D.TARGET");
+                hit(clause::D2D_TARGET);
                 self.t = Some(Target { w: w as usize, h: h as usize, px: vec![[0; 4]; (w * h) as usize], aliased: false, m: IDENTITY });
                 out.push("target 00000000".into());
                 return Ok(());
@@ -1223,7 +1225,7 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 if let Some(tg) = &mut self.t {
-                    hit("D2D.CLEAR");
+                    hit(clause::D2D_CLEAR);
                     let p = premultiply(c);
                     tg.px.iter_mut().for_each(|q| *q = p);
                     return Ok(());
@@ -1262,7 +1264,7 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 if self.t.is_some() {
-                    hit("D2D.BRUSH");
+                    hit(clause::D2D_BRUSH);
                     out.push(format!("brush {} {} {} {} {}", hex(c[0]), hex(c[1]), hex(c[2]), hex(c[3]), hex(1.0)));
                     return Ok(());
                 }
@@ -1272,7 +1274,7 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 if let Some(tg) = &self.t {
-                    hit("D2D.READ");
+                    hit(clause::D2D_READ);
                     out.push("end 00000000".into());
                     out.push(format!("px 0 {} {} 32", tg.w, tg.h));
                     for y in 0..tg.h {
@@ -1293,9 +1295,9 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
     let (wind, figs, m) = match g.lines() {
         Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.m)),
         None => {
-            hit("D2D.FILL.CURVE");
+            hit(clause::D2D_FILL_CURVE);
             if !tg.aliased || tg.m != IDENTITY {
-                return Err(Fail::Unmodeled("D2D.FILL.AA"));
+                return Err(Fail::Unmodeled(open::D2D_FILL_AA));
             }
             flat_lines(&Geom::Xf(Box::new(g.clone()), tg.m), 0.25)
         }
@@ -1305,14 +1307,14 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
     if !tg.aliased {
         let grid = ps.iter().flatten().all(|p| p.0.fract() == 0.0 && p.1.fract() == 0.0);
         if axis && grid {
-            hit("D2D.FILL.AAGRID");
+            hit(clause::D2D_FILL_AAGRID);
         } else {
             return fill_aa(tg, &ps, wind, c);
         }
     }
     let src = premultiply(c);
     if src[3] != 255 {
-        hit("D2D.FILL.OVER");
+        hit(clause::D2D_FILL_OVER);
     }
     for y in 0..tg.h {
         for x in 0..tg.w {
@@ -1321,11 +1323,11 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
             // counts sides whose y range [min, max) holds the center and that pass strictly to
             // its right)
             if ps.iter().flat_map(|q| segs(q)).any(|(a, b)| cross(a, b, p) == 0.0 && dist_seg(p, a, b) == 0.0) {
-                hit("D2D.FILL.EDGE");
+                hit(clause::D2D_FILL_EDGE);
             }
             let w = winding(&ps, p);
             if if wind { w != 0 } else { w % 2 != 0 } {
-                hit(if axis { "D2D.FILL.RECT" } else { "D2D.FILL.POLY" });
+                hit(if axis { clause::D2D_FILL_RECT } else { clause::D2D_FILL_POLY });
                 let i = y * tg.w + x;
                 tg.px[i] = over(src, tg.px[i]);
             }
@@ -1340,7 +1342,7 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
 
 fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, c: [i64; 4]) -> Res<()> {
     let cov = coverage(tg, ps, wind);
-    hit("D2D.FILL.AACOVER");
+    hit(clause::D2D_FILL_AACOVER);
     let src = premultiply(c);
     for (p, n) in tg.px.iter_mut().zip(cov) {
         if n == 0 {
@@ -1349,7 +1351,7 @@ fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, c: [i64; 4]) -> 
         // (MEASURED, aac-*, aa-c*: n of 64 samples is the coverage byte (n 4 255 + 0x80) >> 8,
         // each byte of the premultiplied color times it / 255 rounded, then over the target as
         // an aliased fill)
-        hit("D2D.FILL.AABLEND");
+        hit(clause::D2D_FILL_AABLEND);
         let k = (n * 4 * 255 + 0x80) >> 8;
         let scaled = src.map(|b| ((u32::from(b) * k + 127) / 255) as u8);
         *p = over(scaled, *p);

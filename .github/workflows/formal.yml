@@ -1,0 +1,67 @@
+# The formal laws of spec/laws.txt that cargo test cannot run: the Kani proofs (src/proofs.rs and
+# the models' #[cfg(kani)] harnesses) and the TLA+ specs (spec/tla), each TLC state replayed
+# against the models (`kikizake tla`, every state's calls and the answers the spec says).
+name: formal
+
+on:
+  push:
+    branches: [main]
+    paths: [src/**, spec/**, build.rs, Cargo.toml, Cargo.lock, .github/workflows/formal.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kani:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/bin/cargo-kani
+            ~/.cargo/bin/kani
+            ~/.kani
+          key: kani-0.68.0
+      - run: command -v cargo-kani || cargo install --locked kani-verifier --version 0.68.0
+      - run: cargo kani setup
+      - name: Kani proofs
+        run: cargo kani 2>&1 | tee kani.log; s=${PIPESTATUS[0]}; grep -E "^Checking harness|VERIFICATION|Complete -" kani.log >> "$GITHUB_STEP_SUMMARY"; exit $s
+
+  tla:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: test-${{ env.RUST_KEY }}-
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/tla2tools.jar
+          key: tla2tools-1.8.0
+      - run: test -f ~/tla2tools.jar || curl -fsSL -o ~/tla2tools.jar https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar
+      - run: cargo build -q --release
+      - name: TLC and the replay
+        run: |
+          set -o pipefail
+          cd spec/tla
+          for cfg in *.cfg; do
+            m=${cfg%.cfg}
+            java -XX:+UseParallelGC -cp ~/tla2tools.jar tlc2.TLC -workers auto -metadir "$RUNNER_TEMP/$m" -dump "$RUNNER_TEMP/$m.dump" -config "$cfg" "$m.tla" | tail -4
+            r=$(../../target/release/kikizake tla "$RUNNER_TEMP/$m.dump")
+            echo "$m: $r" | tee -a "$GITHUB_STEP_SUMMARY"
+            case "$r" in *" 0 differ "*) ;; *) exit 1 ;; esac
+          done

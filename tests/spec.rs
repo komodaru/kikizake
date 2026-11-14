@@ -34,55 +34,44 @@ fn case_names_are_unique() {
     }
 }
 
-fn model_sources(dir: &std::path::Path, v: &mut Vec<(String, String)>) {
-    for e in std::fs::read_dir(dir).unwrap() {
-        let p = e.unwrap().path();
-        if p.is_dir() {
-            model_sources(&p, v);
-        } else if p.extension().is_some_and(|x| x == "rs") {
-            v.push((p.display().to_string(), std::fs::read_to_string(&p).unwrap()));
-        }
-    }
-}
-
-/// Fail::Unmodeled names the clause that leaves the case open: an `open` one (or `excluded`, not
-/// asked), never one the model claims to do
+/// the constants build.rs makes (`clause::X`, `open::X`) are the clauses, so naming a clause in
+/// a model is checked by the compiler; a clause that leaves open or excluded leaves `open::`
 #[test]
-fn unmodeled_names_an_open_clause() {
-    let st: std::collections::BTreeMap<_, _> = spec::clauses().into_iter().map(|c| (c.id, c.status)).collect();
-    let mut src = Vec::new();
-    model_sources(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/model"), &mut src);
-    let mut bad = Vec::new();
-    for (f, text) in &src {
-        for (i, l) in text.lines().enumerate() {
-            if !l.contains("Unmodeled(") {
-                continue;
-            }
-            for (k, w) in l.split('"').enumerate() {
-                if k % 2 == 1 && w.contains('.') && w.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '.' || c == '_') {
-                    match st.get(w).map(String::as_str) {
-                        Some("open") | Some("excluded") => {}
-                        s => bad.push(format!("{f}:{}: {w} is {}", i + 1, s.unwrap_or("no clause"))),
-                    }
-                }
-            }
-        }
-    }
-    assert!(bad.is_empty(), "Unmodeled names a clause that is not open:\n{}", bad.join("\n"));
+fn clause_constants_are_the_clauses() {
+    let made: Vec<String> = spec::clause::ALL.iter().map(|c| c.to_string()).collect();
+    let ids: Vec<String> = spec::clauses().into_iter().map(|c| c.id).collect();
+    assert_eq!(made, ids);
 }
 
-/// spec/laws.txt names tests that exist and clauses that exist
+/// spec/laws.txt names tests that exist and clauses that exist, and lists every Kani harness and
+/// every TLA+ spec
 #[test]
 fn laws_name_tests_and_clauses() {
     let ids: BTreeSet<_> = spec::clauses().into_iter().map(|c| c.id).collect();
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     for l in kikizake::trace::laws() {
         let t = std::fs::read_to_string(root.join(&l.file)).unwrap_or_else(|_| panic!("spec/laws.txt: no file {}", l.file));
-        assert!(t.contains(&format!("fn {}(", l.test)), "spec/laws.txt: {} has no test {}", l.file, l.test);
+        // (a test or Kani harness is a fn; a TLA+ law is the spec's definition, checked by TLC
+        // and replayed against the models: kikizake tla)
+        let def = if l.kind == "tla" { format!("\n{} ==", l.test) } else { format!("fn {}(", l.test) };
+        assert!(t.contains(&def), "spec/laws.txt: {} has no {} {}", l.file, l.kind, l.test);
         assert!(kikizake::trace::LAW_KINDS.contains(&l.kind.as_str()), "spec/laws.txt: {}::{} kind {:?}", l.file, l.test, l.kind);
         assert!(!l.clauses.is_empty(), "spec/laws.txt: {}::{} checks no clause", l.file, l.test);
         for c in &l.clauses {
             assert!(ids.contains(c), "spec/laws.txt: {}::{} names {c}, no clause", l.file, l.test);
+        }
+    }
+    let listed: BTreeSet<String> = kikizake::trace::laws().iter().map(|l| format!("{}::{}", l.file, l.test)).collect();
+    let proofs = std::fs::read_to_string(root.join("src/proofs.rs")).unwrap();
+    for h in proofs.split("#[kani::proof]\nfn ").skip(1) {
+        let h = h.split('(').next().unwrap();
+        assert!(listed.contains(&format!("src/proofs.rs::{h}")), "spec/laws.txt does not list the Kani harness {h}");
+    }
+    for e in std::fs::read_dir(root.join("spec/tla")).unwrap() {
+        let f = e.unwrap().file_name().into_string().unwrap();
+        if let Some(m) = f.strip_suffix(".tla") {
+            assert!(listed.iter().any(|l| l.starts_with(&format!("spec/tla/{f}::"))), "spec/laws.txt does not list spec/tla/{f}");
+            assert!(root.join(format!("spec/tla/{m}.cfg")).exists(), "spec/tla/{f} has no {m}.cfg");
         }
     }
 }

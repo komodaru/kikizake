@@ -1,6 +1,7 @@
 //! AnalyzeScript: script runs (Unicode Scripts.txt for the characters the suite uses; ISO 15924
 //! codes as GetScriptProperties gives them), common and inherited characters taking the script
 //! of the run they are in.
+use crate::spec::{clause, open};
 use super::super::{Fail, Res};
 use crate::spec::hit;
 
@@ -19,7 +20,7 @@ pub fn script(c: u32) -> Res<Option<(&'static str, u32, u32)>> {
         0xe01..=0xe3a => ("Thai", 352, 0),
         0x915..=0x939 => ("Deva", 315, 0),
         0x20 | 0x2e | 0x30..=0x39 | 0x3001 | 0x30fc | 0x1f600 | 0x300..=0x36f | 0x200d => return Ok(None),
-        _ => return Err(Fail::Unmodeled("DW.SCRIPT.CHAR")),
+        _ => return Err(Fail::Unmodeled(open::DW_SCRIPT_CHAR)),
     }))
 }
 
@@ -33,7 +34,7 @@ pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, (&'static str, u32, u32))>> {
         match script(c)? {
             None => match v.last_mut() {
                 Some(l) => {
-                    hit("DW.SCRIPT.COMMON");
+                    hit(clause::DW_SCRIPT_COMMON);
                     l.1 += n
                 }
                 None => pending += n,
@@ -41,7 +42,7 @@ pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, (&'static str, u32, u32))>> {
             Some(s) => match v.last_mut() {
                 Some(l) if l.2 == s => l.1 += n,
                 _ => {
-                    hit("DW.SCRIPT.RUN");
+                    hit(clause::DW_SCRIPT_RUN);
                     v.push((pos - pending, n + pending, s));
                     pending = 0;
                 }
@@ -51,7 +52,7 @@ pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, (&'static str, u32, u32))>> {
     }
     if v.is_empty() {
         // MEASURED: text of common and inherited characters only is one run of Zzzz (unknown)
-        hit("DW.SCRIPT.ALLCOMMON");
+        hit(clause::DW_SCRIPT_ALLCOMMON);
         v.push((0, pos, ("Zzzz", 999, 0)));
     }
     Ok(v)

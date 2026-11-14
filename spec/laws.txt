@@ -1,6 +1,8 @@
 # The laws (tests/*.rs) and the clauses (spec/) each one checks, independent of Windows' answers:
-#   <file>::<test> <exhaustive|pbt> <clause> ...
-# exhaustive: every input of its domain (a proof for that domain); pbt: proptest, random inputs.
+#   <file>::<test> <exhaustive|pbt|kani|tla> <clause> ...
+# exhaustive: every input of its domain (a proof for that domain); pbt: proptest, random inputs;
+# kani: a Kani proof (cargo kani) for every input the harness allows; tla: a TLA+ spec whose
+# Next TLC explores to its MaxOps, each state replayed against the models (kikizake tla).
 # tests/spec.rs checks every test named here exists and every clause is a clause.
 tests/laws.rs::rop3_is_the_truth_table exhaustive GDI.ROP3.TRUTH
 tests/laws.rs::operand_use_is_what_the_truth_table_reads exhaustive GDI.ROP3.TRUTH GDI.ROP3.NOSRC
@@ -110,3 +112,11 @@ tests/wicimage_laws.rs::filters_stay_in_range pbt WICIMAGE.SCALE.LINEAR WICIMAGE
 tests/laws_spec.rs::setrect_is_the_rectangle pbt GDI.RGN.SETRECT
 tests/laws_spec.rs::ddb_rows_are_words exhaustive GDI.DDB.BITS GDI.DDB.OBJECT GDI.DDB.MONO
 tests/laws_spec.rs::dibsection_object_is_its_header exhaustive GDI.DDB.DIBOBJECT GDI.FMT.LAYOUT
+src/proofs.rs::stretch_samples_the_source_in_order kani GDI.STRETCH.SAMPLE GDI.STRETCH.DDA GDI.STRETCH.SAME
+src/proofs.rs::constant_alpha_lies_between kani GDI.ALPHA.CONSTANT GDI.ALPHA.ROUND
+src/proofs.rs::opaque_pixels_blend_as_constant kani GDI.ALPHA.OPAQUE
+src/proofs.rs::page_transform_is_the_formula kani GDI.MAP.FORMULA GDI.MAP.ROUND
+src/proofs.rs::triangle_z_is_monotone kani D3D7.TRI D3D7.CLEAR.Z
+src/model/gdi.rs::rop3_truth_table kani GDI.ROP3.TRUTH
+spec/tla/GdiPath.tla::Next tla GDI.PATH.BEGIN GDI.PATH.BEGINAGAIN GDI.PATH.END GDI.PATH.ENDMOVE GDI.PATH.ABORT GDI.PATH.CLOSE GDI.PATH.CLOSEEMPTY GDI.PATH.GET GDI.PATH.MOVETO GDI.PATH.RECORD GDI.POS.MOVE
+spec/tla/D3D9StateBlock.tla::Next tla D3D9.SETGET D3D9.SB.TYPES D3D9.SB.RECORD D3D9.SB.CAPTURE D3D9.SB.APPLY D3D9.RS.DEFAULT

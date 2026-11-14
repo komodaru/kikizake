@@ -14,6 +14,8 @@ pub mod linebreak;
 pub mod raster;
 pub mod script;
 
+use crate::spec::open;
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::spec::hit;
 use crate::ttf::{glyph_of, parse, Parsed};
@@ -55,12 +57,12 @@ pub struct Metrics {
 
 /// the face's design metrics
 pub fn metrics(p: &Parsed) -> Metrics {
-    hit("DW.METRICS.HEAD");
+    hit(clause::DW_METRICS_HEAD);
     let (x0, y0, x1, y1) = p.head_box;
     let mut m = Metrics { upm: p.upm, bbox: [x0, y1, x1, y0], ..Default::default() };
     match &p.os2 {
         Some(o) => {
-            hit("DW.METRICS.WIN");
+            hit(clause::DW_METRICS_WIN);
             m.asc = o.win.0;
             m.desc = (o.win.1 as i16 as i32).unsigned_abs() as u16;
             if let Some((a, d, g)) = p.hhea {
@@ -73,12 +75,12 @@ pub fn metrics(p: &Parsed) -> Metrics {
             m.sub = [s[2], -s[3], s[0], s[1]];
             m.sup = [s[6], s[7], s[4], s[5]];
             if o.version >= 2 {
-                hit("DW.METRICS.OS2V2");
+                hit(clause::DW_METRICS_OS2V2);
                 m.cap = o.cap_height as u16;
                 m.x = o.x_height as u16;
             }
             if o.fs_selection & 0x80 != 0 {
-                hit("DW.METRICS.TYPO");
+                hit(clause::DW_METRICS_TYPO);
                 m.asc = o.typo.0 as u16;
                 m.desc = if o.typo.1 < 0 { (-(o.typo.1 as i32)) as u16 } else { 0 };
                 m.gap = o.typo.2;
@@ -86,7 +88,7 @@ pub fn metrics(p: &Parsed) -> Metrics {
             }
         }
         None => {
-            hit("DW.METRICS.NOOS2");
+            hit(clause::DW_METRICS_NOOS2);
             m.stpos = (p.upm / 3) as i16;
             if let Some((a, d, g)) = p.hhea {
                 m.asc = a as u16;
@@ -100,19 +102,19 @@ pub fn metrics(p: &Parsed) -> Metrics {
         m.ulthick = thick as u16;
     }
     if m.ulthick == 0 {
-        hit("DW.METRICS.DEFAULTS");
+        hit(clause::DW_METRICS_DEFAULTS);
         m.ulthick = ((p.upm as u32 + 7) / 14) as u16;
     }
     if m.stthick == 0 {
-        hit("DW.METRICS.DEFAULTS");
+        hit(clause::DW_METRICS_DEFAULTS);
         m.stthick = m.ulthick;
     }
     if m.x == 0 {
-        hit("DW.METRICS.DEFAULTS");
+        hit(clause::DW_METRICS_DEFAULTS);
         m.x = p.upm / 2;
     }
     if m.cap == 0 {
-        hit("DW.METRICS.DEFAULTS");
+        hit(clause::DW_METRICS_DEFAULTS);
         m.cap = (p.upm as u32 * 7 / 10) as u16;
     }
     m
@@ -151,10 +153,10 @@ pub fn glyph_metrics(p: &Parsed, m: &Metrics, g: u16) -> Option<GlyphMetrics> {
     let (adv, hlsb) = *p.hmtx.get(g as usize)?;
     let bbox = p.glyphs.get(g as usize)?.as_ref().map(|x| x.0);
     let (x0, y0, x1, y1) = bbox.map_or((hlsb as i32, 0, hlsb as i32, 0), |b| (b.0 as i32, b.1 as i32, b.2 as i32, b.3 as i32));
-    hit("DW.GLYPH.H");
+    hit(clause::DW_GLYPH_H);
     let (advh, voy) = match &p.vmtx {
         Some(v) => {
-            hit("DW.GLYPH.VMTX");
+            hit(clause::DW_GLYPH_VMTX);
             let (a, t) = v[g as usize];
             (a as u32, t as i32 + y1)
         }
@@ -163,11 +165,11 @@ pub fn glyph_metrics(p: &Parsed, m: &Metrics, g: u16) -> Option<GlyphMetrics> {
         // descender only where it is positive
         None => match &p.os2 {
             Some(o) => {
-                hit("DW.GLYPH.NOVMTX");
+                hit(clause::DW_GLYPH_NOVMTX);
                 ((o.typo.0 as i32 + (o.typo.1 as i32).abs()) as u32, o.typo.0 as i32)
             }
             None => {
-                hit("DW.GLYPH.NOVMTX.NOOS2");
+                hit(clause::DW_GLYPH_NOVMTX_NOOS2);
                 let d = p.hhea.map_or(0, |h| (h.1 as i32).max(0));
                 ((m.asc as i32 + d) as u32, m.asc as i32)
             }
@@ -185,18 +187,18 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
     let mut out = Vec::new();
     let name = p.family.encode_utf16().map(|u| format!(" {u}")).collect::<String>();
     if p.family.is_empty() {
-        return Err(Fail::Unmodeled("DW.LAYOUT.NAME"));
+        return Err(Fail::Unmodeled(open::DW_LAYOUT_NAME));
     }
-    hit("DW.LAYOUT.FAMILY");
+    hit(clause::DW_LAYOUT_FAMILY);
     out.push(format!("dwlayout families 1 hr 00000000 name{name}"));
     if cps.iter().any(|&c| glyph_of(p, c) == 0) {
-        return Err(Fail::Unmodeled("DW.LAYOUT.FALLBACK"));
+        return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK));
     }
     let br = linebreak::breaks(cps)?;
     let scale = em as f32 / p.upm as f32;
     let adv: Vec<f32> = cps.iter().map(|&c| p.hmtx[glyph_of(p, c) as usize].0 as f32 * scale).collect();
     let m = metrics(p);
-    hit("DW.LAYOUT.LINE");
+    hit(clause::DW_LAYOUT_LINE);
     // MEASURED: the line gap above the ascent
     let base = (m.asc as i32 + m.gap as i32) as f32 * em as f32 / p.upm as f32;
     let lh = base + m.desc as f32 * em as f32 / p.upm as f32;
@@ -228,7 +230,7 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
             e = match fit {
                 Some(f) => f,
                 None => {
-                    hit("DW.LAYOUT.EMERGENCY");
+                    hit(clause::DW_LAYOUT_EMERGENCY);
                     let mut f = s + 1;
                     while f < cps.len() && width(f + 1) <= maxw {
                         f += 1;
@@ -240,7 +242,7 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
                     f
                 }
             };
-            hit("DW.LAYOUT.WRAP");
+            hit(clause::DW_LAYOUT_WRAP);
         }
         lines.push((s, e));
         s = e;
@@ -265,7 +267,7 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
     for (&(s, e), w) in lines.iter().zip(&widths) {
         out.push(format!("line {} trail {} nl 0 height {} base {} trimmed 0", e - s, w.2, b(lh), b(base)));
     }
-    hit("DW.LAYOUT.CLUSTERS");
+    hit(clause::DW_LAYOUT_CLUSTERS);
     let cl: Vec<String> = (0..cps.len()).map(|i| format!(" {}/1/{}{}0{}0", b(adv[i]), (br[i].1 == linebreak::CAN) as u8, br[i].2, br[i].3)).collect();
     out.push(format!("clusters hr 00000000 n {}{}", cps.len(), cl.concat()));
     Ok(out)
@@ -273,7 +275,7 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
 
 impl Dwrite {
     fn face(&self) -> Res<&Parsed> {
-        self.font.as_ref().ok_or(Fail::Unmodeled("DW.NOFACE"))
+        self.font.as_ref().ok_or(Fail::Unmodeled(open::DW_NOFACE))
     }
 
     pub fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
@@ -286,15 +288,15 @@ impl Dwrite {
                 }
                 self.font = None;
                 let b = hex(&t[1]).ok_or(Fail::Bad)?;
-                let p = parse(&b).ok_or(Fail::Unmodeled("DW.FILE.OTHER"))?;
-                hit("DW.FILE.ANALYZE");
+                let p = parse(&b).ok_or(Fail::Unmodeled(open::DW_FILE_OTHER))?;
+                hit(clause::DW_FILE_ANALYZE);
                 out.push("dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1".into());
                 out.push("dwfont face hr 00000000".into());
                 self.font = Some(p);
             }
             "dwinfo" => {
                 let p = self.face()?;
-                hit("DW.INFO");
+                hit(clause::DW_INFO);
                 out.push(format!("dwinfo glyphs {} type 1 index 0 sim 0 symbol {} mono {} vert 0", p.num_glyphs, p.symbol as u8, p.post.is_some_and(|x| x.2 != 0) as u8));
             }
             "dwmetrics" => {
@@ -313,9 +315,9 @@ impl Dwrite {
                 }
                 let mut m = metrics(self.face()?);
                 if em <= 0 || ppd <= 0 {
-                    return Err(Fail::Unmodeled("DW.GDI.INVALID"));
+                    return Err(Fail::Unmodeled(open::DW_GDI_INVALID));
                 }
-                hit("DW.GDI.METRICS");
+                hit(clause::DW_GDI_METRICS);
                 let r = gdi_round(m.upm, em * ppd);
                 m.asc = r(m.asc as i32) as u16;
                 m.desc = r(m.desc as i32) as u16;
@@ -333,7 +335,7 @@ impl Dwrite {
                 if t.len() < 2 {
                     return Err(Fail::Bad);
                 }
-                hit("DW.CMAP");
+                hit(clause::DW_CMAP);
                 let mut s = String::from("dwcmap");
                 for i in 1..t.len() {
                     s += &format!(" {}", glyph_of(p, n(i)? as u32));
@@ -354,28 +356,28 @@ impl Dwrite {
                 let p = self.face()?;
                 let m = metrics(p);
                 if side != 0 {
-                    hit("DW.GLYPH.SIDEWAYS");
+                    hit(clause::DW_GLYPH_SIDEWAYS);
                 }
                 let mut v = Vec::new();
                 let mut gids = Vec::new();
                 for g in gs {
                     // (MEASURED: a glyph past the font's has glyph 0's metrics)
                     let g = if g >= p.num_glyphs {
-                        hit("DW.GLYPH.OUTSIDE");
+                        hit(clause::DW_GLYPH_OUTSIDE);
                         0
                     } else {
                         g
                     };
-                    v.push(glyph_metrics(p, &m, g).ok_or(Fail::Unmodeled("DW.FILE.OTHER"))?);
+                    v.push(glyph_metrics(p, &m, g).ok_or(Fail::Unmodeled(open::DW_FILE_OTHER))?);
                     gids.push(g);
                 }
                 if gdi {
                     let (em, ppd) = (n(1)?, n(2)?);
                     if em <= 0 || ppd <= 0 {
-                        return Err(Fail::Unmodeled("DW.GDI.INVALID"));
+                        return Err(Fail::Unmodeled(open::DW_GDI_INVALID));
                     }
                     if !GDI_GLYPH {
-                        return Err(Fail::Unmodeled("DW.GDI.GLYPH"));
+                        return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
                     }
                     let ppem = em * ppd;
                     // MEASURED: each metric is a whole number of pixels (advances as the GDI
@@ -427,7 +429,7 @@ impl Dwrite {
                 let p = self.face()?;
                 // GetGlyphs: the cmap's glyph of each character, one cluster each (the fonts have
                 // no GSUB)
-                hit("DW.SHAPE.GLYPHS");
+                hit(clause::DW_SHAPE_GLYPHS);
                 let gids: Vec<u16> = cps.iter().map(|&c| glyph_of(p, c)).collect();
                 let space = |c: u32| c == 0x20;
                 let list = |v: Vec<String>| v.join(" ");
@@ -437,21 +439,21 @@ impl Dwrite {
                 // MEASURED: canBreakShapingAfter everywhere, isShapedAlone on a space; each glyph
                 // a cluster start (and a bit Windows sets in the reserved ones), justification
                 // BLANK for a space and a no-break space (natplace cases), CHARACTER otherwise
-                hit("DW.SHAPE.PROPS");
+                hit(clause::DW_SHAPE_PROPS);
                 out.push(format!("textprops {}", list(cps.iter().map(|&c| if space(c) { "5" } else { "4" }.to_string()).collect())));
                 out.push(format!("glyphprops {}", list(cps.iter().map(|&c| if matches!(c, 0x20 | 0xa0) { "114" } else { "112" }.to_string()).collect())));
                 let upm = p.upm;
                 let adv = |g: u16| p.hmtx.get(g as usize).map_or(0, |h| h.0);
-                hit("DW.SHAPE.PLACE");
+                hit(clause::DW_SHAPE_PLACE);
                 let f = |v: f32| format!("{:08x}/00000000/00000000", v.to_bits());
                 out.push(format!("place hr 00000000 {}", list(gids.iter().map(|&g| f(adv(g) as f32 * (em as f32 / upm as f32))).collect())));
                 // MEASURED: GDI classic advances scaled by em / upm as a truncated 16.16 number,
                 // rounded to whole pixels (612 advances); GDI natural ones round up from a
                 // little below the half (between 0.4545 and 0.462 of a pixel, 612 advances)
-                hit("DW.SHAPE.GDIPLACE");
+                hit(clause::DW_SHAPE_GDIPLACE);
                 let fix = ((em << 16) / upm as i64) as i64;
                 out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(((adv(g) as i64 * fix + 0x8000) >> 16) as f32)).collect())));
-                hit("DW.SHAPE.NATPLACE");
+                hit(clause::DW_SHAPE_NATPLACE);
                 out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f((adv(g) as i64 * em * 128 + 69 * upm as i64).div_euclid(128 * upm as i64) as f32)).collect())));
             }
             "dwrun" => {
@@ -513,7 +515,7 @@ impl Dwrite {
                     if !(0..=0x10ffff).contains(&c) {
                         return Err(Fail::Bad);
                     }
-                    cs.push(bidi::class(c as u32).ok_or(Fail::Unmodeled("DW.BIDI.CLASS"))?);
+                    cs.push(bidi::class(c as u32).ok_or(Fail::Unmodeled(open::DW_BIDI_CLASS))?);
                 }
                 if cs.is_empty() {
                     return Err(Fail::Bad);

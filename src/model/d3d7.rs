@@ -7,6 +7,7 @@
 //! Windows' answers (golden d3d7-32, -64). The device list and the render state defaults are
 //! measured tables (src/model/d3d7.txt).
 
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -112,12 +113,12 @@ impl D3d7 {
                 }
                 *self = D3d7::default();
                 // MEASURED: the x86-64 DirectDraw has no Direct3D interfaces
-                hit("D3D7.X64");
+                hit(clause::D3D7_X64);
                 if super::arch() == 64 {
                     out.push(format!("d3d qi {E_NOINTERFACE:08x}"));
                     return Ok(true);
                 }
-                hit("D3D7.CREATE");
+                hit(clause::D3D7_CREATE);
                 self.ver = v;
                 out.push("d3d ok".into());
             }
@@ -131,7 +132,7 @@ impl D3d7 {
                     out.push("nodev".into());
                     return Ok(true);
                 }
-                hit("D3D7.ENUM");
+                hit(clause::D3D7_ENUM);
                 let key = format!("enum {} ", self.ver);
                 for l in TABLES.lines().filter_map(|l| l.strip_prefix(&key)) {
                     if caps || l.starts_with("dev ") {
@@ -170,7 +171,7 @@ impl D3d7 {
                 self.dev = false;
                 self.rt = None;
                 self.rs.clear();
-                hit("D3D7.DEVICE");
+                hit(clause::D3D7_DEVICE);
                 let hw = dev == "hal" || dev == "tnl";
                 // MEASURED (dev golden: 7 devices x 4 versions x 9 targets): a 24-bit z-buffer
                 // in system memory has no pixel format, none in the display's video memory takes
@@ -241,16 +242,16 @@ impl D3d7 {
                     return Ok(true);
                 }
                 if other {
-                    return Err(Fail::Unmodeled("D3D7.OTHERDEV"));
+                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
                 }
-                hit("D3D7.RS");
+                hit(clause::D3D7_RS);
                 if set {
                     // MEASURED (rsset golden): SetRenderState keeps any value of a known state
                     // for GetRenderState; an unknown state: E_INVALIDARG
                     if rs_default(ver, st).is_none() {
                         out.push(format!("rs set {st} hr {E_INVALIDARG:08x}"));
                     } else {
-                        hit("D3D7.STATES");
+                        hit(clause::D3D7_STATES);
                         self.rs.insert(st, v);
                     }
                 } else {
@@ -280,15 +281,15 @@ impl D3d7 {
                     return Ok(true);
                 }
                 if other {
-                    return Err(Fail::Unmodeled("D3D7.OTHERDEV"));
+                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
                 }
                 let rt = self.rt.as_mut().unwrap();
                 if z.is_some() && rt.zbits == 0 {
-                    return Err(Fail::Unmodeled("D3D7.CLEAR.NOZ"));
+                    return Err(Fail::Unmodeled(open::D3D7_CLEAR_NOZ));
                 }
                 // MEASURED (clearrects golden): the rectangle clipped to the target; one turned
                 // round or empty clears nothing
-                hit("D3D7.CLEAR");
+                hit(clause::D3D7_CLEAR);
                 let (x0, y0, x1, y1) = r.unwrap_or((0, 0, rt.w, rt.h));
                 let v = pixel(rt.fmt, c);
                 for y in y0.max(0)..y1.min(rt.h) {
@@ -296,7 +297,7 @@ impl D3d7 {
                         let k = (y * rt.w + x) as usize;
                         rt.px[k] = v;
                         if let Some(z) = z {
-                            hit("D3D7.CLEAR.Z");
+                            hit(clause::D3D7_CLEAR_Z);
                             rt.z[k] = clear_z(rt.zbits, z);
                         }
                     }
@@ -332,7 +333,7 @@ impl D3d7 {
                     return Ok(true);
                 }
                 if other {
-                    return Err(Fail::Unmodeled("D3D7.OTHERDEV"));
+                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
                 }
                 let c = [cs[0], *cs.get(1).unwrap_or(&cs[0]), *cs.get(2).unwrap_or(&cs[0])];
                 self.tri(v, c, z)?;
@@ -347,7 +348,7 @@ impl D3d7 {
                     return Ok(true);
                 }
                 if other {
-                    return Err(Fail::Unmodeled("D3D7.OTHERDEV"));
+                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
                 }
                 let rt = self.rt.as_mut().unwrap();
                 let z = t[0] == "d3dzdump";
@@ -355,7 +356,7 @@ impl D3d7 {
                     out.push("nodev".into());
                     return Ok(true);
                 }
-                hit("D3D7.LOCK");
+                hit(clause::D3D7_LOCK);
                 let b = if z { rt.zbits as usize / 8 } else { bytes(rt.fmt) };
                 if let Some(seed) = seed {
                     let mut g = crate::rng::XorShift32::new(seed);
@@ -386,30 +387,30 @@ impl D3d7 {
         let others = [(8, 3), (15, 0), (28, 0), (29, 0), (16, 1), (41, 0)];
         if others.iter().any(|&(k, d)| st(k) != d) {
             // (fill modes, the alpha test, fog, specular light, LASTPIXEL, stippling)
-            return Err(Fail::Unmodeled("D3D7.STATES.OTHER"));
+            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
         }
         let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
         // MEASURED (cull golden): D3DCULL_CCW (the default) drops triangles of negative area in
         // screen coordinates (x right, y down; area of v0 v1 v2), CW positive ones
-        hit("D3D7.CULL");
+        hit(clause::D3D7_CULL);
         if area == 0 || (cull == 3 && area < 0) || (cull == 2 && area > 0) {
             return Ok(());
         }
         if !(1..=3).contains(&cull) {
-            return Err(Fail::Unmodeled("D3D7.STATES.OTHER"));
+            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
         }
         let gouraud = c[0] != c[1] || c[0] != c[2];
         if gouraud && shade != 1 {
-            return Err(Fail::Unmodeled("D3D7.GOURAUD"));
+            return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
         }
         // D3DSHADE_FLAT: the first vertex's color
         let col = c[0];
         if shade == 1 && gouraud {
-            hit("D3D7.FLAT");
+            hit(clause::D3D7_FLAT);
         }
         let rt = self.rt.as_mut().unwrap();
         if dither != 0 && rt.fmt != "32" && rt.fmt != "24" {
-            return Err(Fail::Unmodeled("D3D7.DITHER"));
+            return Err(Fail::Unmodeled(open::D3D7_DITHER));
         }
         let (w, h) = (rt.w, rt.h);
         let inside = v.iter().all(|&(x, y)| (0..=w * 16).contains(&x) && (0..=h * 16).contains(&y));
@@ -427,7 +428,7 @@ impl D3d7 {
                     // (within 1/8 pixel of an edge Windows' RGB rasterizer decides by its own
                     // arithmetic: not modelled)
                     if (e as f64).abs() / len < 2.0 {
-                        return Err(Fail::Unmodeled("D3D7.TRI.EDGE"));
+                        return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
                     }
                     if e < 0 {
                         ins = false;
@@ -439,17 +440,17 @@ impl D3d7 {
         if !inside && !cover.iter().all(|&c| c) {
             // (a triangle past the target is clipped first: the edges Windows rasterizes then
             // are not modelled; one covering the whole target is)
-            return Err(Fail::Unmodeled("D3D7.TRI.CLIP"));
+            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
         }
-        hit(if inside { "D3D7.TRI" } else { "D3D7.TRI.COVERALL" });
+        hit(if inside { clause::D3D7_TRI } else { clause::D3D7_TRI_COVERALL });
         if blend != 0 && (src, dst) != (5, 6) {
-            return Err(Fail::Unmodeled("D3D7.BLEND.OTHER"));
+            return Err(Fail::Unmodeled(open::D3D7_BLEND_OTHER));
         }
         if zen != 0 && rt.zbits == 0 {
-            return Err(Fail::Unmodeled("D3D7.STATES.OTHER"));
+            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
         }
         if zen != 0 && zfunc != 4 {
-            return Err(Fail::Unmodeled("D3D7.ZFUNC.OTHER"));
+            return Err(Fail::Unmodeled(open::D3D7_ZFUNC_OTHER));
         }
         let zv = if rt.zbits > 0 { tri_z(rt.zbits, z) } else { 0 };
         let p = pixel(rt.fmt, col);
@@ -458,9 +459,9 @@ impl D3d7 {
                 continue;
             }
             if zen != 0 {
-                hit("D3D7.ZTEST");
+                hit(clause::D3D7_ZTEST);
                 // D3DCMP_LESSEQUAL (the default)
-                hit("D3D7.ZFUNC");
+                hit(clause::D3D7_ZFUNC);
                 if zv > rt.z[k] {
                     continue;
                 }
@@ -471,14 +472,14 @@ impl D3d7 {
             if blend != 0 {
                 // MEASURED (blend golden: 52 alphas x 128 pixels x 3 channels, all exact) SRCALPHA,
                 // INVSRCALPHA: (s * a + d * (255 - a)) >> 8 per 8-bit channel
-                hit("D3D7.BLEND");
-                hit("D3D7.BLEND.SRCALPHA");
+                hit(clause::D3D7_BLEND);
+                hit(clause::D3D7_BLEND_SRCALPHA);
                 let a = col >> 24;
                 let s = channels(rt.fmt, p);
                 let d = channels(rt.fmt, rt.px[k]);
                 let o: Vec<u32> = (0..3).map(|i| (s[i] * a + d[i] * (255 - a)) >> 8).collect();
                 if rt.fmt != "32" && rt.fmt != "24" {
-                    return Err(Fail::Unmodeled("D3D7.BLEND16"));
+                    return Err(Fail::Unmodeled(open::D3D7_BLEND16));
                 }
                 // (alpha 0, as Clear writes it: MEASURED blend golden)
                 rt.px[k] = o[0] << 16 | o[1] << 8 | o[2];

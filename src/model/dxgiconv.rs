@@ -2,6 +2,7 @@
 //! and each format's bits into what a shader reads (ld, sample). Microsoft Learn: "Data
 //! Conversion Rules" (FLOAT to UNORM / SNORM / SRGB, the 16, 11 and 10 bit floats, integer
 //! conversions), "DXGI_FORMAT" (R9G9B9E5, R11G11B10), "Format Conversion using Direct3D 10.1".
+use crate::spec::{clause, open};
 use super::dxgifmt::{Format, Num};
 use super::{Fail, Res};
 use crate::spec::hit;
@@ -19,7 +20,7 @@ fn rne(x: f64) -> u64 {
 }
 
 pub fn to_unorm(v: f32, n: u32) -> u32 {
-    hit("CONV.UNORM");
+    hit(clause::CONV_UNORM);
     if v.is_nan() {
         return 0;
     }
@@ -29,7 +30,7 @@ pub fn to_unorm(v: f32, n: u32) -> u32 {
 }
 
 pub fn to_snorm(v: f32, n: u32) -> u32 {
-    hit("CONV.SNORM");
+    hit(clause::CONV_SNORM);
     if v.is_nan() {
         return 0;
     }
@@ -56,7 +57,7 @@ pub fn srgb_to_linear(c: u32) -> f32 {
 /// denormals kept; infinities kept; a NaN keeps the top mantissa bits of a 16-bit float (1 when
 /// they are 0) and is all ones in an unsigned one; a negative value in an unsigned float is 0)
 pub fn to_small_float(v: f32, e: u32, m: u32, signed: bool) -> u32 {
-    hit("CONV.SMALLFLOAT");
+    hit(clause::CONV_SMALLFLOAT);
     let b = v.to_bits();
     let sign = b >> 31;
     let bias = (1i32 << (e - 1)) - 1;
@@ -104,7 +105,7 @@ pub fn from_small_float(b: u32, e: u32, m: u32, signed: bool) -> f32 {
     let v = if ex == (1 << e) - 1 {
         if man != 0 {
             // (MEASURED: a NaN keeps its mantissa bits on top, ld-10, ld-26)
-            hit("CONV.NANREAD");
+            hit(clause::CONV_NANREAD);
             let sb = if sign < 0.0 { 0x8000_0000 } else { 0 };
             return f32::from_bits(sb | 0x7f80_0000 | man << (23 - m));
         }
@@ -119,7 +120,7 @@ pub fn from_small_float(b: u32, e: u32, m: u32, signed: bool) -> f32 {
 
 /// R9G9B9E5_SHAREDEXP from three floats (the shared exponent of the largest, mantissas rounded)
 pub fn to_rgb9e5(c: [f32; 3]) -> u32 {
-    hit("CONV.RGB9E5");
+    hit(clause::CONV_RGB9E5);
     let max = 65408.0f64; // (2^9 - 1) / 2^9 * 2^16
     let c: Vec<f64> = c.iter().map(|v| if v.is_nan() { 0.0 } else { (*v as f64).clamp(0.0, max) }).collect();
     let mx = c.iter().cloned().fold(0.0, f64::max);
@@ -161,17 +162,17 @@ pub fn encode(f: &Format, c: [f32; 4]) -> Res<Vec<u8>> {
     let mut out = vec![0u8; (f.bits / 8) as usize];
     match f.id {
         26 => {
-            hit("CONV.F11");
+            hit(clause::CONV_F11);
             let v = to_small_float(c[0], 5, 6, false) as u64 | (to_small_float(c[1], 5, 6, false) as u64) << 11 | (to_small_float(c[2], 5, 5, false) as u64) << 22;
             put(&mut out, 0, 32, v);
         }
         67 => put(&mut out, 0, 32, to_rgb9e5([c[0], c[1], c[2]]) as u64),
         // (MEASURED: the X byte takes the alpha, as B8G8R8A8 does; clear-88-*, clear-93-*)
         88 | 92 | 93 => {
-            hit("CONV.X8");
+            hit(clause::CONV_X8);
             return encode(super::dxgifmt::format(f.id - 1).unwrap(), c);
         }
-        89 => return Err(Fail::Unmodeled("CONV.XRBIAS")),
+        89 => return Err(Fail::Unmodeled(open::CONV_XRBIAS)),
         _ if !f.comps.is_empty() => {
             let mut at = 0;
             for (i, &n) in f.comps.iter().enumerate() {
@@ -180,13 +181,13 @@ pub fn encode(f: &Format, c: [f32; 4]) -> Res<Vec<u8>> {
                 let bits: u64 = match f.num {
                     Num::Unorm => to_unorm(v, n) as u64,
                     Num::Srgb if ch < 3 => {
-                        hit("CONV.SRGB");
+                        hit(clause::CONV_SRGB);
                         let x = linear_to_srgb(v);
                         // (WARP's curve is not the exact one: 0.49999997 gives 187, not 188,
                         // clear-29-0; which values near a half step, open)
                         let k = (x.clamp(0.0, 1.0) as f64) * 255.0;
                         if (k - k.floor() - 0.5).abs() < 0.02 {
-                            return Err(Fail::Unmodeled("CONV.SRGB.NEAR"));
+                            return Err(Fail::Unmodeled(open::CONV_SRGB_NEAR));
                         }
                         to_unorm(x, n) as u64
                     }
@@ -194,28 +195,28 @@ pub fn encode(f: &Format, c: [f32; 4]) -> Res<Vec<u8>> {
                     Num::Snorm => to_snorm(v, n) as u64,
                     Num::Float if n == 32 => {
                         // (MEASURED: denormals flushed to a zero of their sign, clear-2-*)
-                        hit("CONV.F32");
+                        hit(clause::CONV_F32);
                         let b = v.to_bits();
                         (if b & 0x7f80_0000 == 0 { b & 0x8000_0000 } else { b }) as u64
                     }
                     Num::Float => {
-                        hit("CONV.F16");
+                        hit(clause::CONV_F16);
                         to_small_float(v, 5, 10, true) as u64
                     }
                     // (MEASURED: toward zero, clamped to the type, NaN 0; clear-3-*, 4, 30, 32)
                     Num::Uint | Num::Sint => {
-                        hit("CONV.INTCLEAR");
+                        hit(clause::CONV_INTCLEAR);
                         let t = if v.is_nan() { 0.0 } else { (v as f64).trunc() };
                         let (lo, hi) = if f.num == Num::Uint { (0.0, ((1u64 << n) - 1) as f64) } else { (-((1u64 << (n - 1)) as f64), ((1u64 << (n - 1)) - 1) as f64) };
                         (t.clamp(lo, hi) as i64 as u64) & ((1u64 << n) - 1)
                     }
-                    _ => return Err(Fail::Unmodeled("CONV.OTHER")),
+                    _ => return Err(Fail::Unmodeled(open::CONV_OTHER)),
                 };
                 put(&mut out, at, n, bits);
                 at += n;
             }
         }
-        _ => return Err(Fail::Unmodeled("CONV.OTHER")),
+        _ => return Err(Fail::Unmodeled(open::CONV_OTHER)),
     }
     Ok(out)
 }
@@ -239,37 +240,37 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
     let mut v = [0, 0, 0, if matches!(f.num, Num::Uint | Num::Sint) { 1 } else { one }];
     match f.id {
         26 => {
-            hit("CONV.F11");
+            hit(clause::CONV_F11);
             let w = get(b, 0, 32) as u32;
             v[0] = from_small_float(w & 0x7ff, 5, 6, false).to_bits();
             v[1] = from_small_float(w >> 11 & 0x7ff, 5, 6, false).to_bits();
             v[2] = from_small_float(w >> 22, 5, 5, false).to_bits();
         }
         67 => {
-            hit("CONV.RGB9E5");
+            hit(clause::CONV_RGB9E5);
             let c = from_rgb9e5(get(b, 0, 32) as u32);
             v[..3].copy_from_slice(&c.map(f32::to_bits));
         }
         41 | 21 => {
-            hit("CONV.F32");
+            hit(clause::CONV_F32);
             v[0] = get(b, 0, 32) as u32;
         }
         46 => {
             v[0] = (get(b, 0, 24) as f32 / 16_777_215.0).to_bits();
-            hit("CONV.UNORM");
+            hit(clause::CONV_UNORM);
         }
         47 => {
-            hit("CONV.STENCIL");
+            hit(clause::CONV_STENCIL);
             v = [0, get(b, 24, 8) as u32, 0, 1];
         }
         88 | 92 | 93 => {
             // (the X byte reads as an alpha of 1)
-            hit("CONV.X8");
+            hit(clause::CONV_X8);
             let mut v = decode(super::dxgifmt::format(f.id - 1).unwrap(), b)?;
             v[3] = one;
             return Ok(v);
         }
-        89 => return Err(Fail::Unmodeled("CONV.XRBIAS")),
+        89 => return Err(Fail::Unmodeled(open::CONV_XRBIAS)),
         _ if !f.comps.is_empty() => {
             let mut at = 0;
             for (i, &n) in f.comps.iter().enumerate() {
@@ -278,36 +279,36 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
                 at += n;
                 v[ch] = match f.num {
                     Num::Unorm => {
-                        hit("CONV.UNORM");
+                        hit(clause::CONV_UNORM);
                         (c as f32 / ((1u64 << n) - 1) as f32).to_bits()
                     }
                     Num::Srgb if ch < 3 => {
                         // (WARP's curve is a few ulps off the exact one, ld-29; its table, open)
-                        return Err(Fail::Unmodeled("CONV.SRGBREAD"));
+                        return Err(Fail::Unmodeled(open::CONV_SRGBREAD));
                     }
                     Num::Srgb => (c as f32 / 255.0).to_bits(),
                     Num::Snorm => {
-                        hit("CONV.SNORM");
+                        hit(clause::CONV_SNORM);
                         let s = ((c << (64 - n)) as i64) >> (64 - n);
                         let max = ((1i64 << (n - 1)) - 1) as f32;
                         // (MEASURED: times the reciprocal, in single precision; ld-31, ld-37)
                         ((s as f32 * (1.0 / max)).max(-1.0)).to_bits()
                     }
                     Num::Float if n == 32 => {
-                        hit("CONV.F32");
+                        hit(clause::CONV_F32);
                         c as u32
                     }
                     Num::Float => {
-                        hit("CONV.F16");
+                        hit(clause::CONV_F16);
                         from_small_float(c as u32, 5, 10, true).to_bits()
                     }
                     Num::Uint => c as u32,
                     Num::Sint => (((c << (64 - n)) as i64) >> (64 - n)) as u32,
-                    _ => return Err(Fail::Unmodeled("CONV.OTHER")),
+                    _ => return Err(Fail::Unmodeled(open::CONV_OTHER)),
                 };
             }
         }
-        _ => return Err(Fail::Unmodeled("CONV.OTHER")),
+        _ => return Err(Fail::Unmodeled(open::CONV_OTHER)),
     }
     Ok(v)
 }
@@ -316,7 +317,7 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
 /// the texel (x, y) of a block (block-compressed formats: Direct3D 11 functional spec, 19.5;
 /// the 2x1 pairs of R8G8_B8G8 and G8R8_G8B8)
 pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
-    hit("CONV.BLOCK");
+    hit(clause::CONV_BLOCK);
     let one = 1.0f32;
     let un = |c: u32, n: u32| c as f32 / ((1u32 << n) - 1) as f32;
     let i = (y * 4 + x) as usize;
@@ -388,18 +389,18 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
         80 => [chan(b), 0.0, 0.0, one],
         83 => [chan(b), chan(&b[8..]), 0.0, one],
         // (the signed steps: within an ulp of 16-bit steps over 32767, which ulp, open)
-        81 | 84 => return Err(Fail::Unmodeled("CONV.BC4SNORM")),
+        81 | 84 => return Err(Fail::Unmodeled(open::CONV_BC4SNORM)),
         95 | 96 => {
-            hit("CONV.BC6H");
+            hit(clause::CONV_BC6H);
             let h = super::bptc::bc6h(b, f.id == 96, x, y);
             [from_small_float(h[0] as u32, 5, 10, true), from_small_float(h[1] as u32, 5, 10, true), from_small_float(h[2] as u32, 5, 10, true), one]
         }
         98 => {
-            hit("CONV.BC7");
+            hit(clause::CONV_BC7);
             super::bptc::bc7(b, x, y).map(|c| un(c as u32, 8))
         }
-        72 | 75 | 78 | 99 => return Err(Fail::Unmodeled("CONV.SRGBREAD")),
-        _ => return Err(Fail::Unmodeled("CONV.OTHER")),
+        72 | 75 | 78 | 99 => return Err(Fail::Unmodeled(open::CONV_SRGBREAD)),
+        _ => return Err(Fail::Unmodeled(open::CONV_OTHER)),
     };
     Ok(v.map(f32::to_bits))
 }

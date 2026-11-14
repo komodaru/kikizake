@@ -15,6 +15,8 @@
 //! "IDXGIFactory2::CreateSwapChainForHwnd", "IDXGISwapChain::ResizeBuffers",
 //! "IDXGIFactory::MakeWindowAssociation".
 
+use crate::spec::open;
+use crate::spec::clause;
 use super::dxgi_format::{block, channels, dims, planar_depth, Chan, Enc, FLIP};
 use super::{Fail, Res};
 use crate::case::{num, Op};
@@ -136,14 +138,14 @@ pub fn full_chain(d: &Desc) -> u32 {
 }
 
 /// why a description is refused (the clause), or Ok
-pub fn validate(d: &Desc) -> Result<(), &'static str> {
+pub fn validate(d: &Desc) -> Result<(), crate::spec::ClauseId> {
     check(d, true)
 }
 
 /// the checks of a description; `strict`: also the size and mip level limits (GetCopyableFootprints
 /// does not check them: MEASURED, golden d3d12-32 fp-invalid)
-pub fn check(d: &Desc, strict: bool) -> Result<(), &'static str> {
-    let no = |c: bool, id: &'static str| {
+pub fn check(d: &Desc, strict: bool) -> Result<(), crate::spec::ClauseId> {
+    let no = |c: bool, id: crate::spec::ClauseId| {
         hit(id);
         if c {
             Err(id)
@@ -151,32 +153,32 @@ pub fn check(d: &Desc, strict: bool) -> Result<(), &'static str> {
             Ok(())
         }
     };
-    no(matches!(d.kind(), Dim::Unknown | Dim::Other), "D3D12.DESC.DIM")?;
+    no(matches!(d.kind(), Dim::Unknown | Dim::Other), clause::D3D12_DESC_DIM)?;
     if d.kind() == Dim::Buffer {
-        no(d.align != 0 && d.align != 65536, "D3D12.DESC.BUFFER")?;
-        no(d.h != 1 || d.d != 1 || d.mips != 1 || d.fmt != 0 || d.samples != 1 || d.quality != 0 || d.layout != 1 || d.w == 0, "D3D12.DESC.BUFFER")?;
+        no(d.align != 0 && d.align != 65536, clause::D3D12_DESC_BUFFER)?;
+        no(d.h != 1 || d.d != 1 || d.mips != 1 || d.fmt != 0 || d.samples != 1 || d.quality != 0 || d.layout != 1 || d.w == 0, clause::D3D12_DESC_BUFFER)?;
         return Ok(());
     }
-    no(d.w == 0 || d.h == 0 || d.d == 0, "D3D12.DESC.SIZE")?;
+    no(d.w == 0 || d.h == 0 || d.d == 0, clause::D3D12_DESC_SIZE)?;
     let (wmax, hmax, dmax) = match d.kind() {
         Dim::Tex1D => (16384, 1, 2048),
         Dim::Tex2D => (16384, 16384, 2048),
         Dim::Tex3D | Dim::Unknown | Dim::Buffer | Dim::Other => (2048, 2048, 2048),
     };
-    no(d.d > dmax || d.h > hmax && d.kind() == Dim::Tex1D, "D3D12.DESC.SIZE")?;
+    no(d.d > dmax || d.h > hmax && d.kind() == Dim::Tex1D, clause::D3D12_DESC_SIZE)?;
     // (MEASURED: GetCopyableFootprints checks the 3D limits, not those of 1D and 2D textures)
     if strict || d.kind() == Dim::Tex3D {
-        no(d.w > wmax || d.h > hmax, "D3D12.DESC.SIZE")?;
-        no(d.mips > full_chain(d), "D3D12.DESC.MIPS")?;
+        no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE)?;
+        no(d.mips > full_chain(d), clause::D3D12_DESC_MIPS)?;
     } else if d.w > wmax || d.h > hmax || d.mips > full_chain(d) {
-        hit("D3D12.FOOTPRINT.LIMITS");
+        hit(clause::D3D12_FOOTPRINT_LIMITS);
     }
-    no(!matches!(d.align, 0 | 4096 | 65536 | 4194304), "D3D12.DESC.ALIGN")?;
-    no(d.samples == 0, "D3D12.DESC.MSAA")?;
+    no(!matches!(d.align, 0 | 4096 | 65536 | 4194304), clause::D3D12_DESC_ALIGN)?;
+    no(d.samples == 0, clause::D3D12_DESC_MSAA)?;
     if d.samples > 1 || d.quality > 0 {
-        no(d.kind() != Dim::Tex2D || d.flags & 3 == 0 || d.mips != 1 || d.flags & 0x24 != 0 || d.layout == 3, "D3D12.DESC.MSAA")?;
+        no(d.kind() != Dim::Tex2D || d.flags & 3 == 0 || d.mips != 1 || d.flags & 0x24 != 0 || d.layout == 3, clause::D3D12_DESC_MSAA)?;
     }
-    no(d.layout > 3, "D3D12.DESC.LAYOUT")?;
+    no(d.layout > 3, clause::D3D12_DESC_LAYOUT)?;
     Ok(())
 }
 
@@ -186,7 +188,7 @@ type Fp = (u64, u32, u32, u32, u32, u64, u32, u64);
 
 /// what GetCopyableFootprints writes for an invalid description: every field all ones
 fn invalid_fps(count: u32) -> (Vec<Fp>, u64) {
-    hit("D3D12.FOOTPRINT.INVALID");
+    hit(clause::D3D12_FOOTPRINT_INVALID);
     ((0..count).map(|_| (u64::MAX, !0, !0, !0, !0, u64::MAX, !0, u64::MAX)).collect(), u64::MAX)
 }
 
@@ -196,13 +198,13 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         return Ok(invalid_fps(count));
     }
     if d.kind() == Dim::Buffer {
-        hit("D3D12.FOOTPRINT.BUFFER");
+        hit(clause::D3D12_FOOTPRINT_BUFFER);
         // (MEASURED: a row pitch past 32 bits is invalid)
         if align(d.w as u64, 256) > u32::MAX as u64 {
             return Ok(invalid_fps(count));
         }
         if first as u64 + count as u64 > 1 {
-            hit("D3D12.FOOTPRINT.RANGE");
+            hit(clause::D3D12_FOOTPRINT_RANGE);
             return Ok(invalid_fps(count));
         }
         let w = d.w as u64;
@@ -210,23 +212,23 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         return Ok((v, if count == 0 { 0 } else { w }));
     }
     let dm = dims(d.fmt).unwrap();
-    hit("D3D12.FORMAT.DIMS");
+    hit(clause::D3D12_FORMAT_DIMS);
     if dm & d.kind().tex_bit().expect("checked: a texture") == 0 {
         return Ok(invalid_fps(count));
     }
     // (MEASURED: the two-texel formats want an even width, the packed video ones no mip levels)
     if matches!(d.fmt, 89 | 101 | 107..=109) && d.mips != 1 {
-        hit("D3D12.FOOTPRINT.PAIRS");
+        hit(clause::D3D12_FOOTPRINT_PAIRS);
         return Ok(invalid_fps(count));
     }
     if matches!(d.fmt, 68 | 69 | 107..=109) && d.w % 2 != 0 {
-        hit("D3D12.FOOTPRINT.PAIRS");
+        hit(clause::D3D12_FOOTPRINT_PAIRS);
         return Ok(invalid_fps(count));
     }
     // (MEASURED, golden d3d12-64 create-split: NV12, P010, P016 in two planes, luma R8 or R16 and
     // chroma R8G8 or R16G16 at half size, rows 512 apart, one mip level and an even size)
     if matches!(d.fmt, 103..=105) {
-        hit("D3D12.FOOTPRINT.VIDEO");
+        hit(clause::D3D12_FOOTPRINT_VIDEO);
         let array = d.d;
         if d.mips != 1 || d.w % 2 != 0 || d.h % 2 != 0 || first as u64 + count as u64 > 2 * array as u64 {
             return Ok(invalid_fps(count));
@@ -244,13 +246,13 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
     }
     // (MEASURED: plane 0 of the depth stencil formats is R32_TYPELESS, its rows 512 apart)
     let (fmt, (bytes, bw, bh), pitch_align) = if planar_depth(d.fmt) {
-        hit("D3D12.FOOTPRINT.PLANAR");
+        hit(clause::D3D12_FOOTPRINT_PLANAR);
         (39, (4, 1, 1), 512)
     } else {
         (d.fmt, block(d.fmt).unwrap(), 256)
     };
     let mips = if d.mips == 0 {
-        hit("D3D12.FOOTPRINT.MIPS0");
+        hit(clause::D3D12_FOOTPRINT_MIPS0);
         full_chain(d)
     } else {
         d.mips
@@ -259,10 +261,10 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
     // (the two-plane depth formats: the stencil plane after the depth one)
     let planes = if planar_depth(d.fmt) { 2 } else { 1 };
     if first as u64 + count as u64 > (mips * array) as u64 * planes {
-        hit("D3D12.FOOTPRINT.RANGE");
+        hit(clause::D3D12_FOOTPRINT_RANGE);
         return Ok(invalid_fps(count));
     }
-    hit("D3D12.FOOTPRINT.LAYOUT");
+    hit(clause::D3D12_FOOTPRINT_LAYOUT);
     let mut v = Vec::new();
     let mut at = 0u64;
     let mut total = 0;
@@ -272,14 +274,14 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         let h = if d.kind() == Dim::Tex1D { 1 } else { (d.h >> m).max(1) };
         let depth = if d.kind() == Dim::Tex3D { (d.d >> m).max(1) } else { 1 };
         if bw > 1 || bh > 1 {
-            hit("D3D12.FOOTPRINT.BLOCK");
+            hit(clause::D3D12_FOOTPRINT_BLOCK);
         }
         let (fw, fh) = (align(w as u64, bw as u64) as u32, align(h as u64, bh as u64) as u32);
         let rows = fh / bh;
         // (the stencil plane R8_TYPELESS, a byte a texel, rows 512 apart as the depth plane's)
         let stencil = i >= mips * array;
         if stencil {
-            hit("D3D12.FOOTPRINT.STENCIL");
+            hit(clause::D3D12_FOOTPRINT_STENCIL);
         }
         let (fmt, bytes) = if stencil { (60, 1) } else { (fmt, bytes) };
         let row = (fw / bw) as u64 * bytes as u64;
@@ -386,43 +388,43 @@ fn chan_value(ch: &Chan, v: u32) -> u64 {
     let c = f32of(v);
     match ch.enc {
         Enc::Float if ch.bits == 32 => {
-            hit("D3D12.CLEAR.FLOAT32");
+            hit(clause::D3D12_CLEAR_FLOAT32);
             v as u64
         }
         Enc::Float if ch.bits == 16 => {
-            hit("D3D12.CLEAR.FLOAT16");
+            hit(clause::D3D12_CLEAR_FLOAT16);
             to_small_float(v, 5, 10, true)
         }
         Enc::Float => {
-            hit("D3D12.CLEAR.FLOAT11");
+            hit(clause::D3D12_CLEAR_FLOAT11);
             to_small_float(v, 5, ch.bits - 5, false)
         }
         Enc::Unorm => {
-            hit("D3D12.CLEAR.UNORM");
+            hit(clause::D3D12_CLEAR_UNORM);
             to_unorm(c, ch.bits)
         }
         Enc::Snorm => {
-            hit("D3D12.CLEAR.SNORM");
+            hit(clause::D3D12_CLEAR_SNORM);
             to_snorm(c, ch.bits)
         }
         Enc::Srgb => {
-            hit("D3D12.CLEAR.SRGB");
+            hit(clause::D3D12_CLEAR_SRGB);
             to_srgb(c, ch.bits)
         }
         Enc::Uint => {
-            hit("D3D12.CLEAR.INT");
+            hit(clause::D3D12_CLEAR_INT);
             to_int(c, ch.bits, false)
         }
         Enc::Sint => {
-            hit("D3D12.CLEAR.INT");
+            hit(clause::D3D12_CLEAR_INT);
             to_int(c, ch.bits, true)
         }
         Enc::Unused => {
-            hit("D3D12.CLEAR.X");
+            hit(clause::D3D12_CLEAR_X);
             0
         }
         Enc::Alpha => {
-            hit("D3D12.CLEAR.XALPHA");
+            hit(clause::D3D12_CLEAR_XALPHA);
             to_unorm(c, ch.bits)
         }
     }
@@ -431,7 +433,7 @@ fn chan_value(ch: &Chan, v: u32) -> u64 {
 /// the input a clear takes: denormals as 0 (of their sign), NaNs kept
 pub fn clear_input(v: u32) -> u32 {
     if v & 0x7f80_0000 == 0 && v & 0x7f_ffff != 0 {
-        hit("D3D12.CLEAR.DENORM");
+        hit(clause::D3D12_CLEAR_DENORM);
         return v & 0x8000_0000;
     }
     v
@@ -451,10 +453,10 @@ pub fn clear_texel(f: u32, rgba: [u32; 4]) -> Option<Vec<u8>> {
 
 /// the planes of a depth stencil texel cleared to `depth` (float bits) and `stencil`
 pub fn clear_depth(f: u32, depth: u32, stencil: u32) -> Option<Vec<Vec<u8>>> {
-    hit("D3D12.CLEARDSV");
+    hit(clause::D3D12_CLEARDSV);
     let raw = f32of(clear_input(depth));
     let d = if raw.is_nan() {
-        hit("D3D12.CLEARDSV.NAN");
+        hit(clause::D3D12_CLEARDSV_NAN);
         0.0
     } else {
         raw.clamp(0.0, 1.0)
@@ -498,7 +500,7 @@ impl D3d12 {
         let name = t[0].as_str();
         match name {
             "device12" => {
-                hit("D3D12.DEVICE");
+                hit(clause::D3D12_DEVICE);
                 self.dev = true;
                 self.chain = None;
                 out.push("device12 ok".into());
@@ -547,11 +549,11 @@ impl D3d12 {
                     Some(b) => out.push(format!("clear12 {}", hex(&b))),
                     None if w[0] == 40 => {
                         // (MEASURED: a D32_FLOAT render target removes the device)
-                        hit("D3D12.CLEAR.REMOVED");
+                        hit(clause::D3D12_CLEAR_REMOVED);
                         out.push(format!("clear12 hr {DXGI_ERROR_DEVICE_REMOVED:08x}"));
                     }
                     None => {
-                        hit("D3D12.CLEAR.FORMAT");
+                        hit(clause::D3D12_CLEAR_FORMAT);
                         out.push(format!("clear12 hr {E_INVALIDARG:08x}"));
                     }
                 }
@@ -564,7 +566,7 @@ impl D3d12 {
                 match clear_depth(w[0], w[1], w[2]) {
                     Some(p) => out.push(format!("cleardsv12 {}", p.iter().map(|b| hex(b)).collect::<Vec<_>>().join(" "))),
                     None => {
-                        hit("D3D12.CLEAR.FORMAT");
+                        hit(clause::D3D12_CLEAR_FORMAT);
                         out.push(format!("cleardsv12 hr {E_INVALIDARG:08x}"));
                     }
                 }
@@ -582,18 +584,18 @@ impl D3d12 {
                     "incr12" => {
                         // (MEASURED, golden d3d12-* incr: CBV/SRV/UAV 64, sampler 64, RTV and DSV
                         // 32 and 8 bytes in a 64-bit process, 16 and 4 in a 32-bit one)
-                        hit("D3D12.FEATURE.INCREMENT");
+                        hit(clause::D3D12_FEATURE_INCREMENT);
                         out.push(if super::arch() == 64 { "incr 40 40 20 8" } else { "incr 40 40 10 4" }.into());
                     }
                     "msq12" => {
-                        hit("D3D12.FEATURE.MSAA");
+                        hit(clause::D3D12_FEATURE_MSAA);
                         out.push(match super::dxgi_format::quality_levels(w[0], w[1]) {
                             Some(n) => format!("msq {n:x}"),
                             None => format!("msq hr {E_FAIL:08x}"),
                         });
                     }
                     _ => {
-                        hit("D3D12.FEATURE.FORMAT");
+                        hit(clause::D3D12_FEATURE_FORMAT);
                         let c = super::dxgi_format::caps(w[0]);
                         let s = match c.and_then(|c| c.0) {
                             Some((a, b)) => format!("fsup {a:x} {b:x}"),
@@ -621,11 +623,11 @@ impl D3d12 {
                     return Ok(true);
                 }
                 // (a copy to a texture and back gives every byte of every row back)
-                hit("D3D12.COPY.ROUNDTRIP");
+                hit(clause::D3D12_COPY_ROUNDTRIP);
                 let planes = super::dxgi_format::caps(w[0]).map_or(1, |c| c.1).clamp(1, 2);
                 let (fps, total) = footprints(0, planes, 0, &d)?;
                 if total == u64::MAX {
-                    hit("D3D12.COPY.NOFOOTPRINT");
+                    hit(clause::D3D12_COPY_NOFOOTPRINT);
                     out.push("copy nofootprint".into());
                     return Ok(true);
                 }
@@ -634,7 +636,7 @@ impl D3d12 {
                 // bits, the top byte of each texel comes back 0)
                 let d24 = matches!(w[0], 44..=47);
                 if d24 {
-                    hit("D3D12.COPY.D24");
+                    hit(clause::D3D12_COPY_D24);
                 }
                 let back = |at: u64| if d24 && at < fps[0].0 + fps[0].5 * fps[0].6 as u64 && (at - fps[0].0) % fps[0].5 % 4 == 3 { 0 } else { byte(at) };
                 let mut diff = 0;
@@ -667,7 +669,7 @@ impl D3d12 {
                     "dheap12" => {
                         // (MEASURED, golden d3d12-* make-*: no count checked (0 and 1000001 taken),
                         // shader visible only CBV/SRV/UAV and samplers, no other flag)
-                        hit("D3D12.MAKE.DESCHEAP");
+                        hit(clause::D3D12_MAKE_DESCHEAP);
                         if w[0] > 3 {
                             return Err(Fail::Bad);
                         }
@@ -677,7 +679,7 @@ impl D3d12 {
                         // (MEASURED: direct, compute and copy queues, not bundles nor the video
                         // ones; priorities normal and high; global realtime not available to the
                         // process; DISABLE_GPU_TIMEOUT taken)
-                        hit("D3D12.MAKE.QUEUE");
+                        hit(clause::D3D12_MAKE_QUEUE);
                         if w[1] == 10000 && w[0] == 0 && w[2] == 0 {
                             DXGI_ERROR_NOT_CURRENTLY_AVAILABLE
                         } else {
@@ -686,7 +688,7 @@ impl D3d12 {
                     }
                     "cmdlist12" => {
                         // (MEASURED: direct, bundle, compute, copy; the allocator refuses the others)
-                        hit("D3D12.MAKE.LIST");
+                        hit(clause::D3D12_MAKE_LIST);
                         if w[0] > 3 {
                             out.push(format!("cmdlist12 allocator hr {E_INVALIDARG:08x}"));
                             return Ok(true);
@@ -695,13 +697,13 @@ impl D3d12 {
                     }
                     "qheap12" => {
                         // (MEASURED: every type but video decode statistics (4), at least one query)
-                        hit("D3D12.MAKE.QUERYHEAP");
+                        hit(clause::D3D12_MAKE_QUERYHEAP);
                         ok(w[0] <= 7 && w[0] != 4 && w[1] > 0)
                     }
                     "fence12" => {
                         // (MEASURED: SHARED taken, the cross-adapter and non-monitored ones not; a new
                         // fence has completed its initial value)
-                        hit("D3D12.MAKE.FENCE");
+                        hit(clause::D3D12_MAKE_FENCE);
                         if w[1] & !1 == 0 {
                             out.push(format!("fence12 hr 00000000 value {:x}", w[0]));
                         } else {
@@ -729,7 +731,7 @@ impl D3d12 {
 /// D3D12_RESOURCE_DESC (Alignment): 4KB is allowed when the most detailed mip level is at most
 /// 16 tiles of 4KB, in the standard tile shapes of the format's element size
 pub fn small(d: &Desc) -> bool {
-    hit("D3D12.DESC.SMALL");
+    hit(clause::D3D12_DESC_SMALL);
     let Some((bytes, bw, bh)) = block(d.fmt) else { return false };
     let (w, h) = (d.w.div_ceil(bw) as u64, d.h.div_ceil(bh) as u64);
     let i = (bytes as u64).trailing_zeros() as usize;
@@ -754,14 +756,14 @@ pub fn small(d: &Desc) -> bool {
 pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     if d.kind() == Dim::Buffer {
         if validate(d).is_err() {
-            hit("D3D12.ALLOC.INVALID");
+            hit(clause::D3D12_ALLOC_INVALID);
             return Ok((u64::MAX, 65536));
         }
-        hit("D3D12.ALLOC.BUFFER");
+        hit(clause::D3D12_ALLOC_BUFFER);
         return Ok((align(d.w as u64, 65536), 65536));
     }
     if create_hr(Heap::Default, 0, d)? != S_FALSE {
-        hit("D3D12.ALLOC.INVALID");
+        hit(clause::D3D12_ALLOC_INVALID);
         return Ok((u64::MAX, 65536));
     }
     // (MEASURED, golden d3d12-64 alloc-other: both 64KB swizzles in whole 64KB tiles of the
@@ -770,7 +772,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         // (MEASURED, golden d3d12-* alloc-std-planar-*: standard swizzle of the two-plane formats, D24S8
         // as 4 bytes, D32S8 as 8, NV12 as its two planes in tiles of their own)
         if matches!(d.fmt, 103..=106) {
-            hit("D3D12.ALLOC.SWIZZLE");
+            hit(clause::D3D12_ALLOC_SWIZZLE);
             let b = if matches!(d.fmt, 104 | 105) { 2 } else { 1 };
             let tiles = |w: u32, h: u32, bytes: u32| -> u64 {
                 let (tw, th) = if bytes == 1 { (256, 256) } else if bytes == 2 { (256, 128) } else { (128, 128) };
@@ -783,7 +785,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
             44..=47 => (4, 1, 1),
             _ => block(d.fmt).expect("CreateCommittedResource refuses a swizzle of the other formats"),
         };
-        hit("D3D12.ALLOC.SWIZZLE");
+        hit(clause::D3D12_ALLOC_SWIZZLE);
         let (tw, th, td) = match (d.kind() == Dim::Tex2D, bytes) {
             (true, 1) => (256, 256, 1),
             (true, 2) => (256, 128, 1),
@@ -808,7 +810,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         19..=22 => (8, 1, 1),
         44..=47 => (4, 1, 1),
         103..=106 => {
-            hit("D3D12.ALLOC.VIDEO");
+            hit(clause::D3D12_ALLOC_VIDEO);
             let b = if d.fmt == 103 { 1 } else { 2 };
             let (w, h) = (d.w as u64, d.h as u64);
             let total = (w * h * b + (w / 2) * (h / 2) * 2 * b) * d.d as u64;
@@ -821,7 +823,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     };
     // (MEASURED, golden d3d12-32 alloc-texture-*, 165 descriptions of 9 formats: WARP packs every
     // subresource tightly, rows of whole elements, one after the other)
-    hit("D3D12.ALLOC.TEXTURE");
+    hit(clause::D3D12_ALLOC_TEXTURE);
     let mips = if d.mips == 0 { full_chain(d) } else { d.mips };
     let array = if d.kind() == Dim::Tex3D { 1 } else { d.d };
     let mut total = 0u64;
@@ -836,14 +838,14 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     if d.samples > 1 {
         // (MEASURED, golden d3d12-64 alloc-other, 7 descriptions: every sample stored, in 4MB, or
         // in 64KB when that is the alignment asked)
-        hit("D3D12.ALLOC.MSAA");
+        hit(clause::D3D12_ALLOC_MSAA);
         let al = if d.align == 65536 { 65536 } else { 4194304 };
         return Ok((align(total * d.samples as u64, al), al));
     }
     if d.kind() == Dim::Tex1D && d.flags & 1 != 0 {
         // (FITTED, golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats: a 1D render target
         // takes twice the tight size)
-        hit("D3D12.ALLOC.RT1D");
+        hit(clause::D3D12_ALLOC_RT1D);
         total *= 2;
     }
     let al = if d.align == 4096 { 4096 } else { 65536 };
@@ -852,7 +854,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
 
 /// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)
 pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
-    hit("D3D12.MAKE.HEAP");
+    hit(clause::D3D12_MAKE_HEAP);
     // (the deny flags only as a tier 2 heap takes them: none, or allowing only buffers, only
     // render target and depth stencil textures, or only the other textures)
     let deny = matches!(flags & 0xc4, 0 | 0xc0 | 0x44 | 0x84);
@@ -870,7 +872,7 @@ pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
 
 /// CreatePlacedResource's verdict, in a heap CreateHeap took (MEASURED, golden d3d12-* make-*)
 pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &Desc) -> Res<Hr> {
-    hit("D3D12.MAKE.PLACED");
+    hit(clause::D3D12_MAKE_PLACED);
     let c = create_hr(heap, state, d)?;
     if c != S_FALSE {
         return Ok(c);
@@ -890,47 +892,47 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// on a description, a heap type and an initial state
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
-    hit("D3D12.CREATE");
-    let no = |c: bool, id: &'static str| {
+    hit(clause::D3D12_CREATE);
+    let no = |c: bool, id: crate::spec::ClauseId| {
         hit(id);
         c
     };
     // (MEASURED: heap 5, D3D12_HEAP_TYPE_GPU_UPLOAD, is there on WARP)
-    if no(!heap.known(), "D3D12.HEAP.TYPE") {
+    if no(!heap.known(), clause::D3D12_HEAP_TYPE) {
         return Ok(E_INVALIDARG);
     }
     if d.kind() != Dim::Buffer && d.layout == 0xffff_ffff {
         // (MEASURED: E_NOTIMPL)
-        hit("D3D12.CREATE.LAYOUTNOTIMPL");
+        hit(clause::D3D12_CREATE_LAYOUTNOTIMPL);
         return Ok(E_NOTIMPL);
     }
     let flags = d.flags;
     // (MEASURED: these flags; 0x10 needs a shared heap, the video ones a video device)
-    if no(flags & !(1 | 2 | 4 | 8 | 0x20 | 0x100 | 0x400) != 0 || flags & 3 == 3 || flags & 6 == 6, "D3D12.DESC.FLAGS") {
+    if no(flags & !(1 | 2 | 4 | 8 | 0x20 | 0x100 | 0x400) != 0 || flags & 3 == 3 || flags & 6 == 6, clause::D3D12_DESC_FLAGS) {
         return Ok(E_INVALIDARG);
     }
     if d.kind() == Dim::Buffer {
-        if check(d, true).is_err() || no(flags & 0x22 != 0, "D3D12.CREATE.BUFFERFLAGS") {
+        if check(d, true).is_err() || no(flags & 0x22 != 0, clause::D3D12_CREATE_BUFFERFLAGS) {
             return Ok(E_INVALIDARG);
         }
         if heap.cpu() {
-            hit("D3D12.HEAP.CPU");
+            hit(clause::D3D12_HEAP_CPU);
             // (MEASURED: no render target or unordered access; upload starts in states GENERIC_READ
             // is made of (or COMMON), readback in COPY_DEST, RESOLVE_DEST (or COMMON))
             let states = if heap == Heap::Upload { 0xac3 } else { 0x1400 };
             return Ok(if flags & 7 != 0 || state & !states != 0 { E_INVALIDARG } else { S_FALSE });
         }
-        hit("D3D12.CREATE.BUFFERSTATE");
+        hit(clause::D3D12_CREATE_BUFFERSTATE);
         return Ok(S_FALSE);
     }
-    if no(heap.cpu(), "D3D12.HEAP.CPU") {
+    if no(heap.cpu(), clause::D3D12_HEAP_CPU) {
         return Ok(E_INVALIDARG);
     }
     if heap == Heap::GpuUpload {
         // (MEASURED, golden d3d12-64 create-gpuupload: textures taken as on the default heap)
-        hit("D3D12.CREATE.GPUUPLOAD");
+        hit(clause::D3D12_CREATE_GPUUPLOAD);
     }
-    if no(d.kind().tex_bit().is_none(), "D3D12.DESC.DIM") || no(d.w == 0 || d.h == 0 || d.d == 0 || d.kind() == Dim::Tex1D && d.h != 1 || d.d > 2048, "D3D12.DESC.SIZE") {
+    if no(d.kind().tex_bit().is_none(), clause::D3D12_DESC_DIM) || no(d.w == 0 || d.h == 0 || d.d == 0 || d.kind() == Dim::Tex1D && d.h != 1 || d.d > 2048, clause::D3D12_DESC_SIZE) {
         return Ok(E_INVALIDARG);
     }
     let ms = d.samples > 1;
@@ -941,25 +943,25 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         Dim::Tex2D if target && !ms => (u32::MAX, u32::MAX),
         Dim::Tex2D | Dim::Tex1D | Dim::Unknown | Dim::Buffer | Dim::Other => (16384, 16384),
     };
-    if no(d.w > wmax || d.h > hmax, "D3D12.DESC.SIZE") {
+    if no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE) {
         return Ok(E_INVALIDARG);
     }
     let fs = support(d.fmt);
     let dimbit = d.kind().tex_bit().expect("checked: a texture");
-    if no(fs & dimbit == 0 && !(target && fs & (RT | DS) != 0 && d.kind() == Dim::Tex2D), "D3D12.CREATE.FORMAT") {
+    if no(fs & dimbit == 0 && !(target && fs & (RT | DS) != 0 && d.kind() == Dim::Tex2D), clause::D3D12_CREATE_FORMAT) {
         return Ok(E_INVALIDARG);
     }
-    if no(flags & 1 != 0 && fs & RT == 0 || flags & 2 != 0 && fs & DS == 0 || flags & 8 != 0 && flags & 2 == 0, "D3D12.CREATE.TARGETS") {
+    if no(flags & 1 != 0 && fs & RT == 0 || flags & 2 != 0 && fs & DS == 0 || flags & 8 != 0 && flags & 2 == 0, clause::D3D12_CREATE_TARGETS) {
         return Ok(E_INVALIDARG);
     }
     // (MEASURED, golden d3d12-64 create-split: the video formats take arrays but one mip level, the
     // 4:2:0 ones an even size, the 4:2:2 ones an even width)
     if fs & ONE_MIP != 0 && d.mips != 1 {
-        hit("D3D12.CREATE.SINGLE");
+        hit(clause::D3D12_CREATE_SINGLE);
         return Ok(E_INVALIDARG);
     }
     if fs & SINGLE != 0 && (d.mips != 1 || d.w % 2 != 0 || matches!(d.fmt, 103..=106) && d.h % 2 != 0) {
-        hit("D3D12.CREATE.SINGLE");
+        hit(clause::D3D12_CREATE_SINGLE);
         return Ok(E_INVALIDARG);
     }
     // (MEASURED: 4KB only without render target, depth stencil or samples, and small (the
@@ -970,55 +972,55 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         4194304 => ms,
         _ => false,
     };
-    if no(!align_ok, "D3D12.DESC.ALIGN") {
+    if no(!align_ok, clause::D3D12_DESC_ALIGN) {
         return Ok(E_INVALIDARG);
     }
-    if no(d.samples == 0, "D3D12.DESC.MSAA") {
+    if no(d.samples == 0, clause::D3D12_DESC_MSAA) {
         return Ok(E_INVALIDARG);
     }
     if ms {
         // (MEASURED: 2, 4, 8, 16 samples, quality 0 or the standard pattern, one mip level)
         let ok = d.kind() == Dim::Tex2D && target && d.mips == 1 && matches!(d.samples, 2 | 4 | 8 | 16) && matches!(d.quality, 0 | 0xffff_ffff) && fs & MS != 0 && flags & 0x520 == 0 && d.layout != 3;
-        if no(!ok, "D3D12.DESC.MSAA") {
+        if no(!ok, clause::D3D12_DESC_MSAA) {
             return Ok(E_INVALIDARG);
         }
     } else if d.quality != 0 {
         // (MEASURED: a single sample's quality is not checked)
-        hit("D3D12.CREATE.QUALITY");
+        hit(clause::D3D12_CREATE_QUALITY);
     }
     match d.layout {
         0 => {}
         2 | 3 if d.kind() == Dim::Tex1D => {
-            hit("D3D12.DESC.LAYOUT");
+            hit(clause::D3D12_DESC_LAYOUT);
             return Ok(E_INVALIDARG);
         }
         2 if d.kind() == Dim::Tex2D && d.d > 1 => {
             // (MEASURED, golden d3d12-64 create-split: arrays refused, mip chains (3, or 0 for all) taken)
-            hit("D3D12.CREATE.LAYOUT64K");
+            hit(clause::D3D12_CREATE_LAYOUT64K);
             return Ok(E_INVALIDARG);
         }
         3 if flags & 2 != 0 => {
-            hit("D3D12.DESC.LAYOUT");
+            hit(clause::D3D12_DESC_LAYOUT);
             return Ok(E_INVALIDARG);
         }
         2 if block(d.fmt).is_none() => {
             // (MEASURED, golden d3d12-64 alloc-other-24..26, create-depth-layout: not the two-plane formats
             // (D24S8, D32S8, NV12); D32 taken)
-            hit("D3D12.CREATE.LAYOUT64K");
+            hit(clause::D3D12_CREATE_LAYOUT64K);
             return Ok(E_INVALIDARG);
         }
-        2 | 3 => hit("D3D12.DESC.LAYOUT"),
+        2 | 3 => hit(clause::D3D12_DESC_LAYOUT),
         _ => {
-            hit("D3D12.DESC.LAYOUT");
+            hit(clause::D3D12_DESC_LAYOUT);
             return Ok(E_INVALIDARG);
         }
     }
     // (MEASURED: mip levels are not checked)
     if d.mips > full_chain(d) {
-        hit("D3D12.CREATE.MIPS");
+        hit(clause::D3D12_CREATE_MIPS);
     }
     // (MEASURED: RENDER_TARGET needs the render target flag, DEPTH_WRITE the depth stencil one)
-    if no(state & 4 != 0 && flags & 1 == 0 || state & 0x10 != 0 && flags & 2 == 0, "D3D12.CREATE.STATE") {
+    if no(state & 4 != 0 && flags & 1 == 0 || state & 0x10 != 0 && flags & 2 == 0, clause::D3D12_CREATE_STATE) {
         return Ok(E_INVALIDARG);
     }
     Ok(S_FALSE)
@@ -1038,12 +1040,12 @@ impl D3d12 {
             self.factory = false;
             self.chain = None;
             let f = num(&t[1]).ok_or(Fail::Bad)? as u32;
-            hit("DXGI.FACTORY");
+            hit(clause::DXGI_FACTORY);
             // (MEASURED: flags other than DXGI_CREATE_FACTORY_DEBUG are ignored; DEBUG is not asked:
             // it depends on the debug layer being installed)
             if f & 1 != 0 {
                 // (MEASURED, golden dxgi-* factory-debug: taken on the windows-2025 runner)
-                hit("DXGI.FACTORY.DEBUG");
+                hit(clause::DXGI_FACTORY_DEBUG);
             }
             let _ = f;
             self.factory = true;
@@ -1056,7 +1058,7 @@ impl D3d12 {
         }
         match name {
             "dxgiwarp" => {
-                hit("DXGI.WARP");
+                hit(clause::DXGI_WARP);
                 out.push("warp vendor 1414 device 8c flags 2".into());
             }
             "dxgiassoc" => {
@@ -1065,7 +1067,7 @@ impl D3d12 {
                     return Err(Fail::Bad);
                 }
                 let f = num(&t[1]).ok_or(Fail::Bad)? as u32;
-                hit("DXGI.ASSOC");
+                hit(clause::DXGI_ASSOC);
                 // (MEASURED: a NULL window is taken with any of the three flags)
                 let _ = null;
                 let ok = f & !7 == 0;
@@ -1078,10 +1080,10 @@ impl D3d12 {
                 // (MEASURED, golden dxgi-* tearing, adapters: the windows-2025 runner allows tearing
                 // and has two adapters, the last WARP)
                 if name == "dxgitearing" {
-                    hit("DXGI.TEARING");
+                    hit(clause::DXGI_TEARING);
                     out.push("tearing 1".into());
                 } else {
-                    hit("DXGI.ADAPTERS");
+                    hit(clause::DXGI_ADAPTERS);
                     out.push("adapters 2 last 1414 8c 2".into());
                 }
             }
@@ -1116,12 +1118,12 @@ impl D3d12 {
                     87 => &[0, 2, 3, 12, 14, 17, 20, 21],
                     10 => &[1],
                     24 => &[0, 12, 14, 17],
-                    _ => return Err(Fail::Unmodeled("DXGI.COLORSPACE")),
+                    _ => return Err(Fail::Unmodeled(open::DXGI_COLORSPACE)),
                 };
                 if self.chain.unwrap().0[2] != 87 && ![0, 1, 12, 14, 17].contains(&cs) {
-                    return Err(Fail::Unmodeled("DXGI.COLORSPACE"));
+                    return Err(Fail::Unmodeled(open::DXGI_COLORSPACE));
                 }
-                hit("DXGI.COLORSPACE.FLIP");
+                hit(clause::DXGI_COLORSPACE_FLIP);
                 let ok = set.contains(&cs);
                 out.push(format!("color {} set {:08x}", ok as u32, if ok { S_OK } else { E_INVALIDARG }));
             }
@@ -1130,7 +1132,7 @@ impl D3d12 {
                 let w = words(&t[1..])?;
                 match (name, w.len()) {
                     ("scbuffer", 1) => {
-                        hit("DXGI.BUFFER");
+                        hit(clause::DXGI_BUFFER);
                         // (a buffer: a 2D render target of the chain's size and format)
                         if w[0] < d[7] {
                             out.push(format!("buffer 3 {:x} {:x} 1 1 {:x} 1 0 1", d[0], d[1], d[2]));
@@ -1139,7 +1141,7 @@ impl D3d12 {
                         }
                     }
                     ("scpresent", 2) => {
-                        hit("DXGI.PRESENT");
+                        hit(clause::DXGI_PRESENT);
                         let (sync, flags) = (w[0], w[1]);
                         // (MEASURED: sync intervals 0..4; TEST and DO_NOT_SEQUENCE present nothing;
                         // ALLOW_TEARING needs the chain's flag; unknown flags refused)
@@ -1147,7 +1149,7 @@ impl D3d12 {
                         let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0);
                         if flags & 4 != 0 {
                             // (MEASURED, golden dxgi-64 chain-present-restart: presents as without it)
-                            hit("DXGI.PRESENT.RESTART");
+                            hit(clause::DXGI_PRESENT_RESTART);
                         }
                         if bad {
                             out.push(format!("present hr {DXGI_ERROR_INVALID_CALL:08x} index {index:x}"));
@@ -1155,13 +1157,13 @@ impl D3d12 {
                             if flags & 3 == 0 {
                                 *index = (*index + 1) % d[7];
                             } else {
-                                hit("DXGI.PRESENT.TEST");
+                                hit(clause::DXGI_PRESENT_TEST);
                             }
                             out.push(format!("present hr 00000000 index {index:x}"));
                         }
                     }
                     ("scresize", 5) => {
-                        hit("DXGI.RESIZE");
+                        hit(clause::DXGI_RESIZE);
                         let (n, rw, rh, f, fl) = (w[0], w[1], w[2], w[3], w[4]);
                         // (MEASURED: 0 keeps the count and format; a 0 size is the window's; the
                         // flags not to change are FRAME_LATENCY_WAITABLE_OBJECT and ALLOW_TEARING;
@@ -1184,7 +1186,7 @@ impl D3d12 {
                         }
                     }
                     ("sclatency", 1) => {
-                        hit("DXGI.LATENCY");
+                        hit(clause::DXGI_LATENCY);
                         // (MEASURED: only with FRAME_LATENCY_WAITABLE_OBJECT; 0 and 0xffffffff
                         // refused, 17 taken; the default 1)
                         if d[11] & 0x40 == 0 {
@@ -1210,7 +1212,7 @@ impl D3d12 {
 /// GetDesc1 of the swap chain CreateSwapChainForHwnd makes from `w` (Err(hr) when it refuses it)
 pub fn chain_desc(w: &[u32; 12]) -> Result<[u32; 12], Hr> {
     let mut d = *w;
-    let no = |c: bool, id: &'static str| {
+    let no = |c: bool, id: crate::spec::ClauseId| {
         hit(id);
         if c {
             Err(DXGI_ERROR_INVALID_CALL)
@@ -1218,28 +1220,28 @@ pub fn chain_desc(w: &[u32; 12]) -> Result<[u32; 12], Hr> {
             Ok(())
         }
     };
-    no(!matches!(d[9], 3 | 4), "DXGI.CHAIN.EFFECT")?;
-    no(d[7] < 2 || d[7] > 16, "DXGI.CHAIN.BUFFERS")?;
-    no(d[4] != 1 || d[5] != 0, "DXGI.CHAIN.SAMPLES")?;
-    no(!FLIP.contains(&d[2]), "DXGI.CHAIN.FORMAT")?;
+    no(!matches!(d[9], 3 | 4), clause::DXGI_CHAIN_EFFECT)?;
+    no(d[7] < 2 || d[7] > 16, clause::DXGI_CHAIN_BUFFERS)?;
+    no(d[4] != 1 || d[5] != 0, clause::DXGI_CHAIN_SAMPLES)?;
+    no(!FLIP.contains(&d[2]), clause::DXGI_CHAIN_FORMAT)?;
     // (MEASURED, golden dxgi-32 swapchain-*: scaling STRETCH or NONE (ASPECT_RATIO_STRETCH refused
     // for a window), alpha UNSPECIFIED or IGNORE, usage bits up to 0x40, these flags; stereo is
     // taken and kept)
-    no(d[8] > 1, "DXGI.CHAIN.SCALING")?;
-    no(!matches!(d[10], 0 | 3), "DXGI.CHAIN.ALPHA")?;
-    no(d[6] & !0x70 != 0, "DXGI.CHAIN.USAGE")?;
-    no(d[11] & !CHAIN_FLAGS != 0, "DXGI.CHAIN.FLAGS")?;
+    no(d[8] > 1, clause::DXGI_CHAIN_SCALING)?;
+    no(!matches!(d[10], 0 | 3), clause::DXGI_CHAIN_ALPHA)?;
+    no(d[6] & !0x70 != 0, clause::DXGI_CHAIN_USAGE)?;
+    no(d[11] & !CHAIN_FLAGS != 0, clause::DXGI_CHAIN_FLAGS)?;
     if d[3] != 0 {
-        hit("DXGI.CHAIN.STEREO");
+        hit(clause::DXGI_CHAIN_STEREO);
     }
     if d[0] == 0 || d[1] == 0 {
         // (MEASURED: either one 0 takes both from the window)
-        hit("DXGI.CHAIN.SIZE");
+        hit(clause::DXGI_CHAIN_SIZE);
         (d[0], d[1]) = (64, 64);
     }
     // (MEASURED: x86 runs out of address space for 16385 by 16385)
     if super::arch() == 32 && d[0] as u64 * d[1] as u64 * 4 * d[7] as u64 >= 1 << 30 {
-        hit("DXGI.CHAIN.MEMORY");
+        hit(clause::DXGI_CHAIN_MEMORY);
         return Err(E_OUTOFMEMORY);
     }
     Ok(d)

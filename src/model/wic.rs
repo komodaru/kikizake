@@ -8,6 +8,7 @@
 //! bits, 16-bit channels to 8 by their high byte, premultiplied alpha undone by a 16.16 reciprocal and
 //! truncated, 16bppGray levels to 8 bits by a measured table, nearest opaque palette entries).
 
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::spec::hit;
 
@@ -105,14 +106,14 @@ fn to_bgra(f: usize, s: &[u8], v: u32, pal: &[u32]) -> Res<[u8; 4]> {
     let gray = |g: u8| [g, g, g, 255];
     let name = FORMATS[f].0;
     let id = match name {
-        "bw" | "gray2" | "gray4" | "bgr555" | "bgr565" => "WIC.TO.EXPAND",
-        "gray16" => "WIC.TO.GRAY16",
-        "rgb48" | "rgba64" => "WIC.TO.HIGHBYTE",
-        "pbgra" | "prgba" => "WIC.TO.UNPREMULTIPLY",
-        "alpha8" => "WIC.TO.ALPHA",
-        "cmyk" => return Err(Fail::Unmodeled("WIC.TO.CMYK")),
-        n if n.starts_with("idx") => "WIC.TO.INDEXED",
-        _ => "WIC.LAYOUT",
+        "bw" | "gray2" | "gray4" | "bgr555" | "bgr565" => clause::WIC_TO_EXPAND,
+        "gray16" => clause::WIC_TO_GRAY16,
+        "rgb48" | "rgba64" => clause::WIC_TO_HIGHBYTE,
+        "pbgra" | "prgba" => clause::WIC_TO_UNPREMULTIPLY,
+        "alpha8" => clause::WIC_TO_ALPHA,
+        "cmyk" => return Err(Fail::Unmodeled(open::WIC_TO_CMYK)),
+        n if n.starts_with("idx") => clause::WIC_TO_INDEXED,
+        _ => clause::WIC_LAYOUT,
     };
     hit(id);
     let x5 = |v: u32| ((v << 3) | (v >> 2)) as u8;
@@ -144,7 +145,7 @@ fn to_bgra(f: usize, s: &[u8], v: u32, pal: &[u32]) -> Res<[u8; 4]> {
         _ => {
             // (MEASURED: an index past the palette's colors is opaque black)
             let c = pal.get(v as usize).copied().unwrap_or_else(|| {
-                hit("WIC.TO.INDEX.OUTSIDE");
+                hit(clause::WIC_TO_INDEX_OUTSIDE);
                 0xff00_0000
             });
             c.to_le_bytes()
@@ -156,15 +157,15 @@ fn to_bgra(f: usize, s: &[u8], v: u32, pal: &[u32]) -> Res<[u8; 4]> {
 fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src: bool) -> Res<()> {
     let name = FORMATS[f].0;
     hit(match name {
-        "bw" | "gray2" | "gray4" | "gray8" => "WIC.FROM.GRAY",
-        "gray16" => return Err(Fail::Unmodeled("WIC.FROM.GRAY16")),
-        "bgr555" | "bgr565" => "WIC.FROM.TRUNCATE",
-        "rgb48" | "rgba64" => "WIC.FROM.WIDEN",
-        "pbgra" | "prgba" => "WIC.FROM.PREMULTIPLY",
-        "bgr32" | "rgb32" => "WIC.FROM.X",
-        "cmyk" => return Err(Fail::Unmodeled("WIC.FROM.CMYK")),
-        n if n.starts_with("idx") => return Err(Fail::Unmodeled("WIC.FROM.INDEXED")),
-        _ => "WIC.LAYOUT",
+        "bw" | "gray2" | "gray4" | "gray8" => clause::WIC_FROM_GRAY,
+        "gray16" => return Err(Fail::Unmodeled(open::WIC_FROM_GRAY16)),
+        "bgr555" | "bgr565" => clause::WIC_FROM_TRUNCATE,
+        "rgb48" | "rgba64" => clause::WIC_FROM_WIDEN,
+        "pbgra" | "prgba" => clause::WIC_FROM_PREMULTIPLY,
+        "bgr32" | "rgb32" => clause::WIC_FROM_X,
+        "cmyk" => return Err(Fail::Unmodeled(open::WIC_FROM_CMYK)),
+        n if n.starts_with("idx") => return Err(Fail::Unmodeled(open::WIC_FROM_INDEXED)),
+        _ => clause::WIC_LAYOUT,
     });
     let n = (bits(f) / 8) as usize;
     let o = x * n;
@@ -175,7 +176,7 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
         // half level (its arithmetic is not worked out yet)
         let y = luminance(b, g, r, 255.0) - 0.5;
         if (y - y.floor() - 0.5).abs() < 0.025 {
-            return Err(Fail::Unmodeled("WIC.GRAY.ROUND"));
+            return Err(Fail::Unmodeled(open::WIC_GRAY_ROUND));
         }
     }
     match name {
@@ -183,7 +184,7 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
         // MEASURED: from a source that is not 8 bits or less of gray, 2bppGray is 4bppGray's
         // level rounded to 2 bits (thresholds 48, 128, 208 of the 8-bit gray)
         "gray2" if !gray_src => {
-            hit("WIC.FROM.GRAY2");
+            hit(clause::WIC_FROM_GRAY2);
             put_bits(row, x as u32, 2, ((gray() as u32 >> 4) * 3 + 7) / 15)
         }
         "gray2" => put_bits(row, x as u32, 2, (gray() as u32 * 3 + 127) / 255),
@@ -221,7 +222,7 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
     let pal = palette();
     let (ss, ds) = (stride(from, w), stride(to, w));
     if from == to {
-        hit("WIC.SAME");
+        hit(clause::WIC_SAME);
         let mut o = data[..ss * h as usize].to_vec();
         let tail = (w * bits(to)) % 8;
         if tail != 0 {
@@ -234,9 +235,9 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
     let bgra = format("bgra").unwrap();
     if from != bgra && to != bgra {
         if wide(from) && wide(to) || FORMATS[from].0 == "cmyk" || FORMATS[to].0 == "cmyk" {
-            return Err(Fail::Unmodeled("WIC.PAIR.WIDE"));
+            return Err(Fail::Unmodeled(open::WIC_PAIR_WIDE));
         }
-        hit("WIC.PAIR");
+        hit(clause::WIC_PAIR);
     }
     let mut out = vec![0u8; ds * h as usize];
     for y in 0..h as usize {
@@ -283,7 +284,7 @@ pub fn op(op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
     let (w, h) = (w as u32, h as u32);
     let seed = if t[4] == "ramp" { None } else { Some(n(4)? as u32) };
     let o = convert(from, to, w, h, &source(from, w, h, seed))?;
-    hit("WIC.CAN");
+    hit(clause::WIC_CAN);
     out.push(format!("conv {w} {h} can 1"));
     for row in o.chunks(stride(to, w)) {
         out.push(row.iter().map(|b| format!("{b:02x}")).collect());

@@ -11,6 +11,7 @@
 //! what they read, rs 40 being a pixel state, DMAPOFFSET belonging to D3DSBT_ALL only,
 //! TEXCOORDINDEX / TEXTURETRANSFORMFLAGS in pixel blocks too, D3DTSS_CONSTANT in none.
 
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -279,7 +280,7 @@ pub struct D3d9 {
     pub(super) draw: super::d3d9draw::Draw,
 }
 
-fn hit_ret(id: &'static str) -> bool {
+fn hit_ret(id: crate::spec::ClauseId) -> bool {
     hit(id);
     true
 }
@@ -298,18 +299,25 @@ impl D3d9 {
     }
 
     /// the clause, Direct3D 8's own where it has one
-    fn c(&self, id: &'static str) -> &'static str {
+    fn c(&self, id: crate::spec::ClauseId) -> crate::spec::ClauseId {
         if !self.v8 {
             return id;
         }
         match id {
-            "D3D9.RS.DEFAULT" => "D3D8.RS.DEFAULT",
-            "D3D9.RS.UNDOC" => "D3D8.RS.UNDOC",
-            "D3D9.TSS.DEFAULT" => "D3D8.TSS.DEFAULT",
-            "D3D9.TSS.UNDOC" => "D3D8.TSS.UNDOC",
-            "D3D9.SB.GROUPS" => "D3D8.SB.GROUPS",
-            "D3D9.SET.UNDOC" => "D3D8.SET.UNDOC",
-            "D3D9.INDEX.RANGE" => "D3D8.INDEX.RANGE",
+            clause::D3D9_RS_DEFAULT => clause::D3D8_RS_DEFAULT,
+            clause::D3D9_RS_UNDOC => clause::D3D8_RS_UNDOC,
+            clause::D3D9_TSS_DEFAULT => clause::D3D8_TSS_DEFAULT,
+            clause::D3D9_TSS_UNDOC => clause::D3D8_TSS_UNDOC,
+            clause::D3D9_SB_GROUPS => clause::D3D8_SB_GROUPS,
+            _ => id,
+        }
+    }
+
+    /// the open clause, Direct3D 8's own where it has one
+    fn c_open(&self, id: crate::spec::OpenId) -> crate::spec::OpenId {
+        match (self.v8, id) {
+            (true, open::D3D9_SET_UNDOC) => open::D3D8_SET_UNDOC,
+            (true, open::D3D9_INDEX_RANGE) => open::D3D8_INDEX_RANGE,
             _ => id,
         }
     }
@@ -340,7 +348,7 @@ impl D3d9 {
                 self.reset();
                 self.draw = Default::default();
                 self.dev = true;
-                hit(if self.v8 { "D3D8.DEVICE" } else { "D3D9.DEVICE" });
+                hit(if self.v8 { clause::D3D8_DEVICE } else { clause::D3D9_DEVICE });
                 out.push(format!("{} ok", t[0]));
             }
             "ss" if self.v8 => return Err(Fail::Bad),
@@ -360,14 +368,14 @@ impl D3d9 {
                     "rs" if a < 256 => Key::Rs(a),
                     "tss" if a < 8 && b < if self.v8 { 30 } else { 34 } => Key::Tss(a, b),
                     "ss" if sampler_ok(a) && b < 14 => Key::Ss(a, b),
-                    _ => return Err(Fail::Unmodeled(self.c("D3D9.INDEX.RANGE"))),
+                    _ => return Err(Fail::Unmodeled(self.c_open(open::D3D9_INDEX_RANGE))),
                 };
                 let what = if two { format!("{} {} {}", t[0], a, t[3]) } else { format!("rs {a}") };
                 let documented = self.state.contains_key(&key);
                 if set {
-                    hit("D3D9.SETGET");
+                    hit(clause::D3D9_SETGET);
                     if !documented {
-                        return Err(Fail::Unmodeled(self.c("D3D9.SET.UNDOC")));
+                        return Err(Fail::Unmodeled(self.c_open(open::D3D9_SET_UNDOC)));
                     }
                     match &mut self.recording {
                         Some(r) => {
@@ -379,13 +387,13 @@ impl D3d9 {
                     }
                 } else {
                     hit(match (key, documented) {
-                        (Key::Rs(166), _) => "D3D9.RS.POINTSIZEMAX",
-                        (Key::Rs(155 | 153 | 164 | 10 | 30 | 40 | 47), true) if self.v8 => "D3D8.RS.OWN",
-                        (Key::Rs(_), true) => self.c("D3D9.RS.DEFAULT"),
-                        (Key::Rs(_), false) => self.c("D3D9.RS.UNDOC"),
-                        (Key::Tss(..), true) => self.c("D3D9.TSS.DEFAULT"),
-                        (Key::Tss(..), false) => self.c("D3D9.TSS.UNDOC"),
-                        (Key::Ss(..), _) => "D3D9.SS.DEFAULT",
+                        (Key::Rs(166), _) => clause::D3D9_RS_POINTSIZEMAX,
+                        (Key::Rs(155 | 153 | 164 | 10 | 30 | 40 | 47), true) if self.v8 => clause::D3D8_RS_OWN,
+                        (Key::Rs(_), true) => self.c(clause::D3D9_RS_DEFAULT),
+                        (Key::Rs(_), false) => self.c(clause::D3D9_RS_UNDOC),
+                        (Key::Tss(..), true) => self.c(clause::D3D9_TSS_DEFAULT),
+                        (Key::Tss(..), false) => self.c(clause::D3D9_TSS_UNDOC),
+                        (Key::Ss(..), _) => clause::D3D9_SS_DEFAULT,
                     });
                     match self.state.get(&key).copied().or_else(|| self.undocumented_read(key)) {
                         Some(v) => out.push(format!("{what} = {v:08x}")),
@@ -398,9 +406,9 @@ impl D3d9 {
                 let verb = t.get(1).ok_or(Fail::Bad)?.as_str();
                 if verb == "begin" {
                     if self.recording.is_some() {
-                        return Err(Fail::Unmodeled("D3D9.SB.MISUSE"));
+                        return Err(Fail::Unmodeled(open::D3D9_SB_MISUSE));
                     }
-                    hit("D3D9.SB.RECORD");
+                    hit(clause::D3D9_SB_RECORD);
                     self.recording = Some(BTreeMap::new());
                     return Ok(true);
                 }
@@ -409,11 +417,11 @@ impl D3d9 {
                     return Err(Fail::Bad);
                 }
                 if self.recording.is_some() && verb != "end" {
-                    return Err(Fail::Unmodeled("D3D9.SB.MISUSE"));
+                    return Err(Fail::Unmodeled(open::D3D9_SB_MISUSE));
                 }
                 match verb {
                     "end" => {
-                        let r = self.recording.take().ok_or(Fail::Unmodeled("D3D9.SB.MISUSE"))?;
+                        let r = self.recording.take().ok_or(Fail::Unmodeled(open::D3D9_SB_MISUSE))?;
                         self.blocks.insert(i, r);
                     }
                     "create" => {
@@ -422,10 +430,10 @@ impl D3d9 {
                             1 => |g| g != Nowhere,
                             2 => |g| matches!(g, Pixel | Both),
                             3 => |g| matches!(g, Vertex | Both),
-                            _ => return Err(Fail::Unmodeled("D3D9.SB.BADTYPE")),
+                            _ => return Err(Fail::Unmodeled(open::D3D9_SB_BADTYPE)),
                         };
-                        hit("D3D9.SB.TYPES");
-                        hit(self.c("D3D9.SB.GROUPS"));
+                        hit(clause::D3D9_SB_TYPES);
+                        hit(self.c(clause::D3D9_SB_GROUPS));
                         let b = self.states().into_iter().filter(|s| want(s.2)).map(|(k, ..)| (k, self.state[&k])).collect();
                         self.blocks.insert(i, b);
                     }
@@ -435,8 +443,8 @@ impl D3d9 {
                             return Ok(true);
                         };
                         match verb {
-                            "capture" if hit_ret("D3D9.SB.CAPTURE") => b.iter_mut().for_each(|(k, v)| *v = self.state[k]),
-                            "apply" if hit_ret("D3D9.SB.APPLY") => b.iter().for_each(|(k, v)| {
+                            "capture" if hit_ret(clause::D3D9_SB_CAPTURE) => b.iter_mut().for_each(|(k, v)| *v = self.state[k]),
+                            "apply" if hit_ret(clause::D3D9_SB_APPLY) => b.iter().for_each(|(k, v)| {
                                 self.state.insert(*k, *v);
                             }),
                             _ => {

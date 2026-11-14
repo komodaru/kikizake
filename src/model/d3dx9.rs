@@ -2,6 +2,7 @@
 //! D3DXDeclaratorFromFVF, D3DXFVFFromDeclarator, D3DXGetDeclVertexSize, D3DXGetDeclLength) and
 //! the 16-bit float conversions (D3DXFloat32To16Array, D3DXFloat16To32Array), from Microsoft
 //! Learn's pages of those names; what they leave open, from Windows' answers (spec/d3dx9.txt).
+use crate::spec::{clause, open};
 use super::d3d9draw::decl_type_size;
 use super::{Api, Fail, Res};
 use crate::case::{num, Op};
@@ -33,7 +34,7 @@ pub fn tex_floats(fvf: u32, i: u32) -> u32 {
 
 /// D3DXGetFVFVertexSize
 pub fn fvf_size(fvf: u32) -> u32 {
-    hit("D3DX9.FVFSIZE");
+    hit(clause::D3DX9_FVFSIZE);
     let mut n = 0;
     for (bit, size) in [(0x10, 12), (0x20, 4), (0x40, 4), (0x80, 4)] {
         if fvf & bit != 0 {
@@ -58,14 +59,14 @@ pub fn fvf_size(fvf: u32) -> u32 {
 
 /// D3DXDeclaratorFromFVF: the elements, or INVALIDCALL
 pub fn fvf_decl(fvf: u32) -> Result<Vec<Elem>, u32> {
-    hit("D3DX9.FVFDECL");
+    hit(clause::D3DX9_FVFDECL);
     if fvf & 0x6001 != 0 {
-        hit("D3DX9.FVFDECL.RESERVED");
+        hit(clause::D3DX9_FVFDECL_RESERVED);
         return Err(INVALIDCALL);
     }
     if fvf >> 8 & 0xf > 8 {
         // (MEASURED: d3dx9 fvf-*, every FVF of 9 to 15 texture coordinate sets)
-        hit("D3DX9.FVFDECL.TEXCOUNT");
+        hit(clause::D3DX9_FVFDECL_TEXCOUNT);
         return Err(INVALIDCALL);
     }
     let mut v = Vec::new();
@@ -80,7 +81,7 @@ pub fn fvf_decl(fvf: u32) -> Result<Vec<Elem>, u32> {
         let idx = fvf & 0x9000 != 0;
         let count = if blend { 1 + ((pos - 6) >> 1) - idx as u32 } else { 0 };
         if count > 4 {
-            hit("D3DX9.FVFDECL.POSITION");
+            hit(clause::D3DX9_FVFDECL_POSITION);
             return Err(INVALIDCALL);
         }
         if pos == 4 {
@@ -113,7 +114,7 @@ pub fn fvf_decl(fvf: u32) -> Result<Vec<Elem>, u32> {
 /// D3DXFVFFromDeclarator: the FVF of elements in the order D3DXDeclaratorFromFVF makes them,
 /// at the offsets it gives them, or INVALIDCALL
 pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
-    hit("D3DX9.DECLFVF");
+    hit(clause::D3DX9_DECLFVF);
     // (the elements, and D3DDECL_END after them: stream 0xff, type UNUSED)
     let at = |i: usize| e.get(i).copied().unwrap_or((0xff, 17));
     let is = |i: usize, ty: u32, usage: u32, index: Option<u32>| {
@@ -135,7 +136,7 @@ pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
             }
         }
         if is(i, 0, 2, Some(0)) && i == 2 {
-            hit("D3DX9.DECLFVF.INVALID");
+            hit(clause::D3DX9_DECLFVF_INVALID);
             return Err(INVALIDCALL);
         }
         for (ty, beta) in [(5, 0x1000), (4, 0x8000)] {
@@ -162,7 +163,7 @@ pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
     while at(i).0 & 0xffff != 0xff && n < 8 {
         let size = (0..4).find(|&k| is(i, k, 5, Some(n)));
         let Some(k) = size else {
-            hit("D3DX9.DECLFVF.INVALID");
+            hit(clause::D3DX9_DECLFVF_INVALID);
             return Err(INVALIDCALL);
         };
         // (D3DFVF_TEXCOORDSIZEn: 1 float is 3, 2 is 0, 3 is 1, 4 is 2)
@@ -175,7 +176,7 @@ pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
     for x in e.iter().take_while(|x| x.0 & 0xffff != 0xff) {
         // (and in stream 0: MEASURED, d3dx9 decl-6)
         if x.0 >> 16 != off || x.0 & 0xffff != 0 {
-            hit("D3DX9.DECLFVF.INVALID");
+            hit(clause::D3DX9_DECLFVF_INVALID);
             return Err(INVALIDCALL);
         }
         off += decl_type_size(x.1 & 255).unwrap_or(0);
@@ -190,7 +191,7 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     let w: Vec<u32> = (1..5).map(|i| t.get(i).and_then(|x| num(x)).map(|v| v as u32).ok_or(Fail::Bad)).collect::<Res<_>>()?;
     let (df, sf, wd, ht) = (w[0], w[1], w[2] as i32, w[3] as i32);
     let seed = if t.get(5).is_some_and(|s| s == "ramp") { -1 } else { num(&t[5]).ok_or(Fail::Bad)? };
-    hit("D3DX9.LOAD");
+    hit(clause::D3DX9_LOAD);
     if matches!(df, 20 | 27 | 29 | 33) || !supported(df, false, false) {
         // (MEASURED: CreateOffscreenPlainSurface takes none of the formats textures do not, nor
         // R8G8B8, X8B8G8R8: d3dx9load)
@@ -199,10 +200,10 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     }
     let (sm, dm) = (format(sf).ok_or(Fail::Bad)?, format(df).ok_or(Fail::Bad)?);
     if !matches!(sm.kind, Kind::Int | Kind::F16 | Kind::F32) || !matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) {
-        return Err(Fail::Unmodeled("D3DX9.LOAD.FORMAT"));
+        return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
     }
     if sm.ch.iter().chain(&dm.ch).any(|c| matches!(c.c, b'u' | b'v' | b'w' | b'q')) {
-        return Err(Fail::Unmodeled("D3DX9.LOAD.SIGNED"));
+        return Err(Fail::Unmodeled(open::D3DX9_LOAD_SIGNED));
     }
     let src = fill_bytes(&sm, wd, ht, seed);
     out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
@@ -212,11 +213,11 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     let pixels: Vec<[f32; 4]> = src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect();
     let src_e31 = sm.kind == Kind::F16 && src.chunks(2).any(|h| u16::from_le_bytes([h[0], h[1]]) & 0x7c00 == 0x7c00);
     if sf != df && (src_e31 || dm.kind == Kind::F16 && pixels.iter().flatten().any(|&v| big(v))) {
-        return Err(Fail::Unmodeled("D3DX9.LOAD.F16RANGE"));
+        return Err(Fail::Unmodeled(open::D3DX9_LOAD_F16RANGE));
     }
     if sf == df {
         // (a format into itself: the bytes as they are)
-        hit("D3DX9.LOAD.COPY");
+        hit(clause::D3DX9_LOAD_COPY);
         for row in src.chunks(wd as usize * sm.bytes) {
             out.push(row.iter().map(|x| format!("{x:02x}")).collect());
         }
@@ -257,7 +258,7 @@ fn load_decode(f: &super::d3d9draw::Fmt, code: u32, p: &[u8]) -> [f32; 4] {
 /// d3dx9load)
 fn load_encode(f: &super::d3d9draw::Fmt, c: [f32; 4]) -> Vec<u8> {
     use super::d3d9draw::{round_even, Kind};
-    hit("D3DX9.LOAD.CONVERT");
+    hit(clause::D3DX9_LOAD_CONVERT);
     let mut w: u128 = 0;
     for ch in &f.ch {
         // (into unorm channels each clamped to 0..1 first, luminance's too, a NaN to 1)
@@ -287,7 +288,7 @@ fn load_encode(f: &super::d3d9draw::Fmt, c: [f32; 4]) -> Vec<u8> {
 
 /// D3DXGetDeclVertexSize of stream 0: the end of the furthest element of the stream
 pub fn decl_size(e: &[Elem]) -> u32 {
-    hit("D3DX9.DECLSIZE");
+    hit(clause::D3DX9_DECLSIZE);
     e.iter().filter(|x| x.0 & 0xffff == 0).filter_map(|x| decl_type_size(x.1 & 255).map(|s| (x.0 >> 16) + s)).max().unwrap_or(0)
 }
 
@@ -303,11 +304,11 @@ impl Api for D3dx9 {
             "x9declsize" => {
                 let w = words(op, 1)?;
                 let e: Vec<Elem> = w.chunks(2).map(|c| (c[0], c[1])).collect();
-                hit("D3DX9.DECLLENGTH");
+                hit(clause::D3DX9_DECLLENGTH);
                 out.push(format!("declsize {} len {}", decl_size(&e), e.len()));
             }
             "x9f16" => {
-                hit("D3DX9.F16");
+                hit(clause::D3DX9_F16);
                 let w = words(op, 1)?;
                 // (MEASURED, d3dx9 f16-*, 3688 values: x86 does the array 8 at a time and then
                 // the rest one by one, x64 4 at a time and then the rest, conversions that differ)
@@ -321,7 +322,7 @@ impl Api for D3dx9 {
                 out.push(format!("f16{}", w.iter().enumerate().map(|(i, &x)| format!(" {:04x}", f(i, x))).collect::<String>()));
             }
             "x9f32" => {
-                hit("D3DX9.F32");
+                hit(clause::D3DX9_F32);
                 out.push(format!("f32{}", words(op, 1)?.iter().map(|&x| format!(" {:08x}", f16_to_f32(x as u16).to_bits())).collect::<String>()));
             }
             "x9declfvf" => {

@@ -1,6 +1,7 @@
 //! AnalyzeBidi: the Unicode Bidirectional Algorithm (UAX #9) for text without explicit
 //! formatting characters or brackets: one isolating run sequence at the paragraph level, rules
 //! W1-W7, N1-N2, I1-I2 and L1.
+use crate::spec::{clause};
 use crate::spec::hit;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -38,7 +39,7 @@ pub fn levels(text: &[Class], para: u8) -> Vec<u8> {
     for (i, c) in text.iter().enumerate() {
         if matches!(c, S | B) {
             if i > s {
-                hit("DW.BIDI.SEGMENT");
+                hit(clause::DW_BIDI_SEGMENT);
             }
             lv.extend(segment(&text[s..i], para));
             lv.push(para);
@@ -51,11 +52,11 @@ pub fn levels(text: &[Class], para: u8) -> Vec<u8> {
     for i in (0..text.len()).rev() {
         match text[i] {
             S | B => {
-                hit("DW.BIDI.L1");
+                hit(clause::DW_BIDI_L1);
                 tail = true;
             }
             WS if tail => {
-                hit("DW.BIDI.L1");
+                hit(clause::DW_BIDI_L1);
                 lv[i] = para;
             }
             _ => tail = false,
@@ -68,7 +69,7 @@ fn segment(text: &[Class], para: u8) -> Vec<u8> {
     let e = |l: u8| if l % 2 == 0 { L } else { R };
     let sos = e(para);
     let mut t: Vec<Class> = text.to_vec();
-    hit("DW.BIDI.W");
+    hit(clause::DW_BIDI_W);
     // W1
     let mut prev = sos;
     for c in t.iter_mut() {
@@ -130,7 +131,7 @@ fn segment(text: &[Class], para: u8) -> Vec<u8> {
         }
     }
     // N1, N2
-    hit("DW.BIDI.N");
+    hit(clause::DW_BIDI_N);
     let ni = |c: Class| matches!(c, WS | ON | S | B);
     let dir = |c: Class| match c {
         L => Some(L),
@@ -153,7 +154,7 @@ fn segment(text: &[Class], para: u8) -> Vec<u8> {
         }
     }
     // I1, I2
-    hit("DW.BIDI.I");
+    hit(clause::DW_BIDI_I);
     let lv: Vec<u8> = t
         .iter()
         .map(|c| match (para % 2, c) {

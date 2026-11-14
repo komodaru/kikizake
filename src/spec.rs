@@ -61,13 +61,54 @@ pub fn clauses() -> Vec<Clause> {
     v
 }
 
+/// a clause's name: only the constants of `clause` (made from spec/ by build.rs) are ones
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ClauseId(&'static str);
+
+/// an open or excluded clause's name: only the constants of `open` are ones
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OpenId(&'static str);
+
+impl ClauseId {
+    pub fn as_str(self) -> &'static str {
+        self.0
+    }
+}
+impl OpenId {
+    pub fn as_str(self) -> &'static str {
+        self.0
+    }
+}
+impl From<OpenId> for ClauseId {
+    fn from(o: OpenId) -> ClauseId {
+        ClauseId(o.0)
+    }
+}
+impl std::fmt::Display for ClauseId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.0)
+    }
+}
+impl std::fmt::Display for OpenId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.0)
+    }
+}
+
+include!(concat!(env!("OUT_DIR"), "/clauses.rs"));
+
 thread_local! {
     static HITS: RefCell<BTreeSet<&'static str>> = const { RefCell::new(BTreeSet::new()) };
 }
 
 /// the model applies clause `id`
-pub fn hit(id: &'static str) {
+pub fn hit(id: ClauseId) {
+    let id = id.0;
+    // (Kani's compiler cannot take the thread-local set; the proofs need no coverage)
+    #[cfg(not(kani))]
     HITS.with(|h| h.borrow_mut().insert(id));
+    #[cfg(kani)]
+    let _ = id;
 }
 
 /// the clauses hit since the last call

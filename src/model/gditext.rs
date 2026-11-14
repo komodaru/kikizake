@@ -6,6 +6,7 @@
 //! "TextOutA", "CreateFontA", "GetTextMetrics", "GetTextExtentPoint32", "GetCharWidth32",
 //! "GetCharABCWidths", "GetGlyphOutline", "GetTextFace".
 
+use crate::spec::{clause, open};
 use super::gdi::Gdi;
 use super::{Fail, Res};
 use crate::case::{num, Op};
@@ -25,25 +26,25 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     match t0 {
         "align" => {
             let v = n(op, 2)?;
-            hit("GDI.TEXT.ALIGN");
+            hit(clause::GDI_TEXT_ALIGN);
             out.push(format!("align {}", std::mem::replace(&mut sl.ext.align, v)));
         }
         "extra" => {
             let v = n(op, 2)?;
-            hit("GDI.TEXT.EXTRA");
+            hit(clause::GDI_TEXT_EXTRA);
             out.push(format!("extra {}", std::mem::replace(&mut sl.ext.extra, v)));
         }
         "exttext" if op.tok.len() == 9 => {
             let (o, l, t, r, b) = (n(op, 4)?, n(op, 5)? as i32, n(op, 6)? as i32, n(op, 7)? as i32, n(op, 8)? as i32);
             if sl.ext.mapped() || sl.ext.align & 1 != 0 {
-                return Err(Fail::Unmodeled("GDI.MAP.DRAW"));
+                return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
             }
-            hit("GDI.TEXT.NOTEXT");
+            hit(clause::GDI_TEXT_NOTEXT);
             if o & 2 != 0 {
-                hit("GDI.TEXT.OPAQUE");
+                hit(clause::GDI_TEXT_OPAQUE);
                 if l > r || t > b {
                     // (MEASURED: succeeds; the rectangle's corners in either order)
-                    hit("GDI.TEXT.OPAQUEORDER");
+                    hit(clause::GDI_TEXT_OPAQUEORDER);
                 }
                 let (l, r, t, b) = (l.min(r), l.max(r), t.min(b), t.max(b));
                 let v = sl.s.from_rgb(sl.bk);
@@ -57,7 +58,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             out.push("ret 1".into());
         }
-        _ => return Err(Fail::Unmodeled("GDI.TEXT.FONT")),
+        _ => return Err(Fail::Unmodeled(open::GDI_TEXT_FONT)),
     }
     Ok(true)
 }

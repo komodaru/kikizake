@@ -2,3 +2,5 @@ target/
 fuzz/target/
 fuzz/corpus/
 fuzz/artifacts/
+spec/tla/states/
+spec/tla/*_TTrace_*

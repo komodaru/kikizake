@@ -1,6 +1,7 @@
 //! AnalyzeLineBreakpoints: the Unicode Line Breaking Algorithm (UAX #14) for the characters the
 //! suite uses (their classes from LineBreak.txt), each boundary's condition given to the units
 //! on either side of it.
+use crate::spec::{clause, open};
 use super::super::{Fail, Res};
 use crate::spec::hit;
 
@@ -40,7 +41,7 @@ pub fn class(c: u32) -> Res<Lb> {
         0x24 => PR,
         0x25 => PO,
         0x2c | 0x2e | 0x3a | 0x3b => IS,
-        _ => return Err(Fail::Unmodeled("DW.BREAK.CHAR")),
+        _ => return Err(Fail::Unmodeled(open::DW_BREAK_CHAR)),
     })
 }
 
@@ -52,7 +53,7 @@ fn boundary(t: &[Lb], attached: &[bool], i: usize) -> u8 {
     }
     // LB4, LB5
     if matches!(a, BK | LF) {
-        hit("DW.BREAK.MUST");
+        hit(clause::DW_BREAK_MUST);
         return MUST;
     }
     // LB6, LB7
@@ -122,7 +123,7 @@ fn boundary(t: &[Lb], attached: &[bool], i: usize) -> u8 {
 
 /// each unit's (before, after, whitespace, soft hyphen)
 pub fn breaks(cps: &[u32]) -> Res<Vec<(u8, u8, u8, u8)>> {
-    hit("DW.BREAK.UAX14");
+    hit(clause::DW_BREAK_UAX14);
     let mut t = Vec::new();
     for &c in cps {
         if c >= 0x10000 {

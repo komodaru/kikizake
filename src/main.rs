@@ -4,6 +4,7 @@
 //!   kikizake compare <want> <got>         two outputs, case by case (exit 1 on a difference)
 //!   kikizake spec                         each clause (spec/), its status and how many cases reach it
 //!   kikizake learn pages|resolve|check    the documentation the clauses cite (src/learn.rs)
+//!   kikizake tla <TLC dump>               a TLA+ spec's every state (spec/tla/) through the model
 //!   kikizake trace [golden dir]           each clause's evidence (cases against Windows, laws) and gaps, per API
 //!   kikizake calls import <suite>-<arch> <cases> <jsonl> <stdout> <src> <shirusu rev>
 //!                                         a shirusu recording of the executor as calls/<suite>-<arch>.txt (src/calls.rs)
@@ -44,6 +45,7 @@ fn main() {
             }
         }
         ["learn", rest @ ..] => exit(kikizake::learn::main(rest)),
+        ["tla", rest @ ..] => exit(kikizake::tla::main(rest)),
         ["trace", rest @ ..] => print!("{}", kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden")))),
         ["calls", "import", name, cases, jsonl, stdout, src, rev] => {
             let mut r = kikizake::calls::from_jsonl(&read(jsonl), std::fs::read_to_string(stdout).ok().as_deref()).unwrap_or_else(|e| {
@@ -86,7 +88,7 @@ fn main() {
             exit(if r.differ.is_empty() { 0 } else { 1 })
         }
         _ => {
-            eprintln!("usage: kikizake gen <suite> | model <suite> [cases] | compare <want> <got> | spec | trace [golden] | calls import|check|usage | learn pages|resolve|check");
+            eprintln!("usage: kikizake gen <suite> | model <suite> [cases] | compare <want> <got> | spec | trace [golden] | calls import|check|usage | learn pages|resolve|check | tla <dump>");
             exit(2)
         }
     }

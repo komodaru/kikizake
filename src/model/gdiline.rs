@@ -6,6 +6,7 @@
 //! "SetPolyFillMode", "SetArcDirection". Which pixels a line lights is not documented; the rule
 //! is the one Windows' answers showed (golden lines-32/-64).
 
+use crate::spec::{clause, open};
 use super::gdi::{Brush, Gdi, Slot};
 use super::{Fail, Res};
 use crate::case::{color, num, Op};
@@ -81,7 +82,7 @@ pub fn rop2(code: i64, p: u32, d: u32) -> u32 {
 /// the pixels of a cosmetic line from a to b (the last point not drawn): Bresenham's, stepping
 /// the minor axis when the error passes half a pixel; at exactly half (`tie`), per octant
 pub fn line_pixels(a: (i32, i32), b: (i32, i32)) -> Vec<(i32, i32)> {
-    hit("GDI.LINE.PIXELS");
+    hit(clause::GDI_LINE_PIXELS);
     let (dx, dy) = (b.0 - a.0, b.1 - a.1);
     let (adx, ady) = (dx.abs(), dy.abs());
     let (sx, sy) = (dx.signum(), dy.signum());
@@ -103,7 +104,7 @@ pub fn line_pixels(a: (i32, i32), b: (i32, i32)) -> Vec<(i32, i32)> {
 /// minor coordinate (up for x-major lines, left for y-major ones) whichever way the line runs
 /// (MEASURED, golden lines: every line from the center of a 17x17 picture, both ways)
 fn tie_up(dx: i32, dy: i32) -> bool {
-    hit("GDI.LINE.TIE");
+    hit(clause::GDI_LINE_TIE);
     if dx.abs() >= dy.abs() { dy < 0 } else { dx < 0 }
 }
 
@@ -114,10 +115,10 @@ impl Slot {
             Pen::Null => Ok(None),
             Pen::Plain { style: 0, width: 0 | 1, color } => Ok(Some(self.s.from_rgb(*color))),
             Pen::Plain { style: 5, .. } => Ok(None),
-            Pen::Plain { style: 1..=4, width: 0 | 1, .. } => Err(Fail::Unmodeled("GDI.PEN.STYLE")),
+            Pen::Plain { style: 1..=4, width: 0 | 1, .. } => Err(Fail::Unmodeled(open::GDI_PEN_STYLE)),
             Pen::Plain { style: 6, width: 0 | 1, color } => Ok(Some(self.s.from_rgb(*color))),
-            Pen::Plain { .. } => Err(Fail::Unmodeled("GDI.PEN.WIDE")),
-            Pen::Ext { .. } => Err(Fail::Unmodeled("GDI.PEN.EXT")),
+            Pen::Plain { .. } => Err(Fail::Unmodeled(open::GDI_PEN_WIDE)),
+            Pen::Ext { .. } => Err(Fail::Unmodeled(open::GDI_PEN_EXT)),
         }
     }
     /// one pixel of the pen through ROP2, where visible
@@ -129,10 +130,10 @@ impl Slot {
         }
     }
     pub fn line(&mut self, a: (i32, i32), b: (i32, i32)) -> Res<()> {
-        hit("GDI.LINE.LAST");
+        hit(clause::GDI_LINE_LAST);
         if let Some(v) = self.pen_value()? {
             if self.ext.rop2 != 13 {
-                hit("GDI.ROP2.TRUTH");
+                hit(clause::GDI_ROP2_TRUTH);
             }
             for (x, y) in line_pixels(a, b) {
                 self.plot(x, y, v);
@@ -145,7 +146,7 @@ impl Slot {
         let v = match &self.brush {
             Brush::Solid(c) => self.s.from_rgb(*c),
             Brush::Null => return Ok(()),
-            _ => return Err(Fail::Unmodeled("GDI.SHAPE.BRUSH")),
+            _ => return Err(Fail::Unmodeled(open::GDI_SHAPE_BRUSH)),
         };
         for y in t.max(0)..b.min(self.s.h) {
             for x in l.max(0)..r.min(self.s.w) {
@@ -177,7 +178,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             sl.ext.pen = if op.tok.get(2).is_some_and(|t| t == "null") {
                 Pen::Null
             } else {
-                hit("GDI.PEN.CREATE");
+                hit(clause::GDI_PEN_CREATE);
                 Pen::Plain { style: n(op, 2)?, width: n(op, 3)?, color: c(op, 4)? }
             };
         }
@@ -193,17 +194,17 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 "polyfill" => (&mut sl.ext.polyfill, (1..=2).contains(&m)),
                 _ => (&mut sl.ext.arcdir, (1..=2).contains(&m)),
             };
-            hit("GDI.STATE.OLD");
+            hit(clause::GDI_STATE_OLD);
             // (out of range: 0, the mode stays)
             if t0 == "rop2" && m == 0 {
-                hit("GDI.ROP2.ZERO");
+                hit(clause::GDI_ROP2_ZERO);
             }
             let v = if ok { std::mem::replace(old, m) } else { 0 };
             out.push(format!("{t0} {v}"));
         }
         "moveto" => {
             let p = (n(op, 2)? as i32, n(op, 3)? as i32);
-            hit("GDI.POS.MOVE");
+            hit(clause::GDI_POS_MOVE);
             let old = std::mem::replace(&mut sl.ext.pos, p);
             out.push(format!("pos {} {}", old.0, old.1));
         }
@@ -217,10 +218,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         }
         "polyline" | "polylineto" => {
             let p = points(op, 2)?;
-            hit("GDI.LINE.POLY");
+            hit(clause::GDI_LINE_POLY);
             if t0 == "polyline" && p.len() < 2 {
                 // MEASURED: fails, nothing drawn, the current position kept
-                hit("GDI.LINE.POLYSHORT");
+                hit(clause::GDI_LINE_POLYSHORT);
                 out.push("ret 0".into());
                 return Ok(true);
             }
@@ -241,7 +242,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             let ((l, t), (r, b)) = (p[0], p[1]);
             if l >= r || t >= b {
-                hit("GDI.RECT.EMPTY");
+                hit(clause::GDI_RECT_EMPTY);
                 if t0 == "framerect" && (l > r || t > b) {
                     // MEASURED: FrameRect fails on corners out of order, drawing nothing
                     out.push("ret 0".into());
@@ -253,11 +254,11 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let (l, r, t, b) = if t0 == "framerect" { (l, r, t, b) } else { (l.min(r), l.max(r), t.min(b), t.max(b)) };
             match t0 {
                 "fillrect" => {
-                    hit("GDI.RECT.FILL");
+                    hit(clause::GDI_RECT_FILL);
                     sl.fill_rect(l, t, r, b)?;
                 }
                 "invertrect" => {
-                    hit("GDI.RECT.INVERT");
+                    hit(clause::GDI_RECT_INVERT);
                     let m = sl.s.mask();
                     for y in t..b {
                         for x in l..r {
@@ -269,7 +270,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     }
                 }
                 _ => {
-                    hit("GDI.RECT.FRAME");
+                    hit(clause::GDI_RECT_FRAME);
                     sl.fill_rect(l, t, r, t + 1)?;
                     sl.fill_rect(l, b - 1, r, b)?;
                     sl.fill_rect(l, t, l + 1, b)?;
@@ -285,7 +286,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             let (l, r) = (p[0].0.min(p[1].0), p[0].0.max(p[1].0));
             let (t, b) = (p[0].1.min(p[1].1), p[0].1.max(p[1].1));
-            hit("GDI.SHAPE.RECT");
+            hit(clause::GDI_SHAPE_RECT);
             match sl.pen_value()? {
                 None => {
                     // a null pen: the interior is one pixel larger each way
@@ -293,10 +294,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 }
                 Some(v) => {
                     if !matches!(sl.ext.pen, Pen::Plain { width: 0 | 1, .. }) || sl.ext.rop2 != 13 {
-                        return Err(Fail::Unmodeled("GDI.SHAPE.RECTPEN"));
+                        return Err(Fail::Unmodeled(open::GDI_SHAPE_RECTPEN));
                     }
                     if r - l < 2 || b - t < 2 {
-                        return Err(Fail::Unmodeled("GDI.SHAPE.RECTTHIN"));
+                        return Err(Fail::Unmodeled(open::GDI_SHAPE_RECTTHIN));
                     }
                     sl.fill_rect(l + 1, t + 1, r - 1, b - 1)?;
                     for x in l..r {
@@ -311,9 +312,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             out.push("ret 1".into());
         }
-        "polygon" => return Err(Fail::Unmodeled("GDI.SHAPE.POLYGON")),
-        "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" => return Err(Fail::Unmodeled("GDI.SHAPE.CURVE")),
-        _ => return Err(Fail::Unmodeled("GDI.LINE.BEZIER")),
+        "polygon" => return Err(Fail::Unmodeled(open::GDI_SHAPE_POLYGON)),
+        "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
+        _ => return Err(Fail::Unmodeled(open::GDI_LINE_BEZIER)),
     }
     Ok(true)
 }

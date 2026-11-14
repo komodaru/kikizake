@@ -45,7 +45,7 @@ pub struct Law {
     pub clauses: Vec<String>,
 }
 
-pub const LAW_KINDS: &[&str] = &["exhaustive", "pbt"];
+pub const LAW_KINDS: &[&str] = &["exhaustive", "pbt", "kani", "tla"];
 
 pub const LAWS: &str = include_str!("../spec/laws.txt");
 pub const LEARN: &str = include_str!("../spec/learn.txt");
@@ -200,7 +200,7 @@ pub fn trace(dir: &Path) -> BTreeMap<String, Evidence> {
                         2 => {
                             e.unmodeled += 1;
                             if let Err(crate::model::Fail::Unmodeled(why)) = &r {
-                                if *why != id {
+                                if why.as_str() != id {
                                     *e.blocked.entry(why.to_string()).or_default() += 1;
                                 }
                             }

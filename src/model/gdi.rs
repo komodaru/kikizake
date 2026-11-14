@@ -7,6 +7,7 @@
 //! Where the documentation says nothing, the rule chosen is marked `MEASURED` once Windows'
 //! answers confirmed it, or the case is left `unmodeled` (only checked against Windows).
 
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{color, num, Op};
 use crate::rng::XorShift32;
@@ -115,7 +116,7 @@ impl Surf {
     /// a pixel value as a color (0xRRGGBB)
     pub fn to_rgb(&self, v: u32) -> u32 {
         if self.bpp == 16 {
-            hit("GDI.FMT.EXPAND");
+            hit(clause::GDI_FMT_EXPAND);
         }
         let x5 = |c: u32| c << 3 | c >> 2;
         match self.bpp {
@@ -130,7 +131,7 @@ impl Surf {
     /// GetDIBits in tests/winref of masu)
     pub fn from_rgb(&self, c: u32) -> u32 {
         let (r, g, b) = (c >> 16 & 255, c >> 8 & 255, c & 255);
-        hit(if self.bpp <= 8 { "GDI.FMT.EXACT" } else { "GDI.FMT.NARROW" });
+        hit(if self.bpp <= 8 { clause::GDI_FMT_EXACT } else { clause::GDI_FMT_NARROW });
         match self.bpp {
             1 | 4 | 8 => {
                 // a color the table holds: its entry (the last one of that color); any other
@@ -237,7 +238,7 @@ impl Gdi {
         let r = self.op_inner(op, out)?;
         if INEXACT.with(|i| i.get()) {
             // MEASURED: not the nearest entry by RGB distance (Windows' answers differ there)
-            return Err(Fail::Unmodeled("GDI.FMT.NEAREST"));
+            return Err(Fail::Unmodeled(open::GDI_FMT_NEAREST));
         }
         Ok(r)
     }
@@ -265,7 +266,7 @@ impl Gdi {
                     i += 1;
                 }
                 if !matches!(bpp, 1 | 4 | 8 | 16 | 24 | 32) || !(1..=256).contains(&w) || !(1..=256).contains(&h) || (f565 && bpp != 16) {
-                    return Err(Fail::Unmodeled("GDI.DIB.PARAMS"));
+                    return Err(Fail::Unmodeled(open::GDI_DIB_PARAMS));
                 }
                 let mut pal = default_palette(bpp as u32);
                 for (j, t) in op.tok[i..].iter().enumerate().take(pal.len()) {
@@ -332,24 +333,24 @@ impl Gdi {
             }
             "clip" => {
                 let r = (n(op, 2)? as i32, n(op, 3)? as i32, n(op, 4)? as i32, n(op, 5)? as i32);
-                hit("GDI.CLIP.INTERSECT");
+                hit(clause::GDI_CLIP_INTERSECT);
                 if r.0 > r.2 || r.1 > r.3 {
                     // MEASURED: the corners in either order
-                    hit("GDI.CLIP.UNORDERED");
+                    hit(clause::GDI_CLIP_UNORDERED);
                 }
                 let sl = self.slot(op, 1)?;
                 if sl.ext.mapped() {
-                    return Err(Fail::Unmodeled("GDI.MAP.DRAW"));
+                    return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
                 }
                 let q = Rgn::rect(r.0, r.1, r.2, r.3);
                 // MEASURED: COMPLEXREGION (3) whatever the result, but NULLREGION (1) when a clip
                 // region was there and the result is empty because the rectangle is, or the
                 // clip region was not a single rectangle (an empty one included)
-                hit("GDI.CLIP.RESULT");
+                hit(clause::GDI_CLIP_RESULT);
                 let ret = match &sl.clip {
                     None => 3,
                     Some(c) => {
-                        hit("GDI.CLIP.AGAIN");
+                        hit(clause::GDI_CLIP_AGAIN);
                         let v = c.combine(&q, SetOp::And);
                         let r = if v.kind() == NULLREGION && (c.kind() != SIMPLEREGION || q.kind() == NULLREGION) { 1 } else { 3 };
                         sl.clip = Some(v);
@@ -371,11 +372,11 @@ impl Gdi {
                 let (x, y, w, h, sx, sy, sw, sh, rop) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8] as u32);
                 if self.slots[k].as_ref().unwrap().mode == 4 {
                     // MEASURED: HALFTONE differs from BitBlt even unscaled, between formats
-                    return Err(Fail::Unmodeled("GDI.STRETCH.HALFTONE"));
+                    return Err(Fail::Unmodeled(open::GDI_STRETCH_HALFTONE));
                 }
                 if w == sw && h == sh {
                     // (an unscaled StretchBlt is BitBlt)
-                    hit("GDI.STRETCH.SAME");
+                    hit(clause::GDI_STRETCH_SAME);
                     let r = self.blt(k, x, y, w, h, Some((ks, sx, sy)), rop, false)?;
                     out.push(format!("ret {}", r as u8));
                 } else {
@@ -388,12 +389,12 @@ impl Gdi {
                 let c = if t0 == "setpixel" { Some(c(op, 4)?) } else { None };
                 let sl = self.slot(op, 1)?;
                 let inside = sl.visible(x, y);
-                hit(if c.is_some() { "GDI.PIXEL.SET" } else { "GDI.PIXEL.GET" });
+                hit(if c.is_some() { clause::GDI_PIXEL_SET } else { clause::GDI_PIXEL_GET });
                 if !inside {
                     out.push("pixel invalid".into());
                 } else if let Some(c) = c {
                     if sl.s.bpp == 1 {
-                        return Err(Fail::Unmodeled("GDI.PIXEL.SETMONO"));
+                        return Err(Fail::Unmodeled(open::GDI_PIXEL_SETMONO));
                     }
                     let v = sl.s.from_rgb(c);
                     sl.s.set(x, y, v);
@@ -411,19 +412,19 @@ impl Gdi {
                 // MEASURED: GetDIBits to 16 bpp gives the bitmap's own 16 bpp format, else 5-5-5,
                 // whatever masks BI_BITFIELDS asks for (pixel golden)
                 let f565 = if t0 == "getdibits" && bpp == 16 && f565 {
-                    hit("GDI.DIBITS.GET16");
+                    hit(clause::GDI_DIBITS_GET16);
                     sl.s.bpp == 16 && sl.s.f565
                 } else {
                     f565
                 };
                 let mut o = Surf::new(w, h, bpp, f565, true, default_palette(bpp));
                 if bpp <= 8 && t0 == "getdibits" {
-                    return Err(Fail::Unmodeled("GDI.DIBITS.GETPAL"));
+                    return Err(Fail::Unmodeled(open::GDI_DIBITS_GETPAL));
                 }
                 if (bpp == 1) != (sl.s.bpp == 1) {
-                    return Err(Fail::Unmodeled("GDI.BLT.MONO"));
+                    return Err(Fail::Unmodeled(open::GDI_BLT_MONO));
                 }
-                hit(if t0 == "getdibits" { "GDI.DIBITS.GET" } else { "GDI.DIBITS.SET" });
+                hit(if t0 == "getdibits" { clause::GDI_DIBITS_GET } else { clause::GDI_DIBITS_SET });
                 if t0 == "getdibits" {
                     for y in 0..h {
                         for x in 0..w {
@@ -489,24 +490,24 @@ impl Gdi {
     #[allow(clippy::too_many_arguments)]
     pub fn stretch(&mut self, k: usize, x: i32, y: i32, w: i32, h: i32, ks: usize, sx: i32, sy: i32, sw: i32, sh: i32, rop: u32) -> Res<bool> {
         if w <= 0 || h <= 0 || sw <= 0 || sh <= 0 {
-            return Err(Fail::Unmodeled("GDI.STRETCH.MIRROR"));
+            return Err(Fail::Unmodeled(open::GDI_STRETCH_MIRROR));
         }
         if k == 7 || ks == 7 {
-            return Err(Fail::Unmodeled("GDI.DIB.PARAMS"));
+            return Err(Fail::Unmodeled(open::GDI_DIB_PARAMS));
         }
         let mode = self.slots[k].as_ref().unwrap().mode;
         if mode == 4 {
             // MEASURED: HALFTONE filters when enlarging too (stretch golden)
-            return Err(Fail::Unmodeled("GDI.STRETCH.HALFTONE"));
+            return Err(Fail::Unmodeled(open::GDI_STRETCH_HALFTONE));
         }
         if (sw > w || sh > h) && mode != 3 {
-            return Err(Fail::Unmodeled("GDI.STRETCH.COMBINE"));
+            return Err(Fail::Unmodeled(open::GDI_STRETCH_COMBINE));
         }
         let src = self.slots[ks].as_ref().unwrap();
         if sx < 0 || sy < 0 || sx + sw > src.s.w || sy + sh > src.s.h {
-            return Err(Fail::Unmodeled("GDI.STRETCH.SRCOUT"));
+            return Err(Fail::Unmodeled(open::GDI_STRETCH_SRCOUT));
         }
-        hit("GDI.STRETCH.SAMPLE");
+        hit(clause::GDI_STRETCH_SAMPLE);
         // the sampled source as a picture of the destination's size, then an unscaled blit
         let mut tmp = Surf::new(w, h, src.s.bpp, src.s.f565, true, src.s.pal.clone());
         for j in 0..h {
@@ -528,34 +529,34 @@ impl Gdi {
     pub fn blt(&mut self, k: usize, x: i32, y: i32, w: i32, h: i32, src: Option<(usize, i32, i32)>, rop: u32, pat: bool) -> Res<bool> {
         let idx = (rop >> 16) as u8;
         if w < 0 || h < 0 {
-            return Err(Fail::Unmodeled("GDI.BLT.NEGATIVE"));
+            return Err(Fail::Unmodeled(open::GDI_BLT_NEGATIVE));
         }
         if rop & 0xff00_0000 != 0 {
-            return Err(Fail::Unmodeled("GDI.ROP3.FLAGS"));
+            return Err(Fail::Unmodeled(open::GDI_ROP3_FLAGS));
         }
         if pat && uses_s(idx) {
             // PatBlt documents only operations without a source
-            return Err(Fail::Unmodeled("GDI.PATBLT.SRCOP"));
+            return Err(Fail::Unmodeled(open::GDI_PATBLT_SRCOP));
         }
-        hit("GDI.ROP3.TRUTH");
+        hit(clause::GDI_ROP3_TRUTH);
         if rop & 0xffff != 0 {
-            hit("GDI.ROP3.LOWWORD");
+            hit(clause::GDI_ROP3_LOWWORD);
         }
-        hit(if pat { "GDI.PATBLT.ROPS" } else if uses_s(idx) { "GDI.BLT.CONVERT" } else { "GDI.ROP3.NOSRC" });
+        hit(if pat { clause::GDI_PATBLT_ROPS } else if uses_s(idx) { clause::GDI_BLT_CONVERT } else { clause::GDI_ROP3_NOSRC });
         if src.is_some_and(|(ks, ..)| ks == k) && uses_s(idx) {
-            hit("GDI.BLT.OVERLAP");
+            hit(clause::GDI_BLT_OVERLAP);
         }
         let d = self.slots[k].as_ref().unwrap();
         let sp = if uses_s(idx) { src.map(|(ks, sx, sy)| (self.slots[ks].as_ref().unwrap().clone(), sx, sy)) } else { None };
         if uses_p(idx) {
             match &d.brush {
-                Brush::Null => return Err(Fail::Unmodeled("GDI.BRUSH.NULL")),
-                Brush::Hatch(..) => return Err(Fail::Unmodeled("GDI.BRUSH.HATCH")),
-                Brush::Pattern(p) if p.bpp == 1 => return Err(Fail::Unmodeled("GDI.BRUSH.MONOPATTERN")),
-                Brush::Solid(_) => hit(if d.s.bpp <= 8 { "GDI.BRUSH.SOLIDPAL" } else { "GDI.BRUSH.SOLID" }),
+                Brush::Null => return Err(Fail::Unmodeled(open::GDI_BRUSH_NULL)),
+                Brush::Hatch(..) => return Err(Fail::Unmodeled(open::GDI_BRUSH_HATCH)),
+                Brush::Pattern(p) if p.bpp == 1 => return Err(Fail::Unmodeled(open::GDI_BRUSH_MONOPATTERN)),
+                Brush::Solid(_) => hit(if d.s.bpp <= 8 { clause::GDI_BRUSH_SOLIDPAL } else { clause::GDI_BRUSH_SOLID }),
                 Brush::Pattern(_) => {
-                    hit("GDI.BRUSH.DIBPATTERN");
-                    hit("GDI.BRUSH.ORIGIN");
+                    hit(clause::GDI_BRUSH_DIBPATTERN);
+                    hit(clause::GDI_BRUSH_ORIGIN);
                 }
             }
         }
@@ -563,14 +564,14 @@ impl Gdi {
             if (s.s.bpp == 1) != (d.s.bpp == 1) {
                 // (documented for monochrome bitmaps; a 1 bpp DIB section's color table: open)
                 if !(if s.s.bpp == 1 { s.s.ddb } else { d.s.ddb }) {
-                    return Err(Fail::Unmodeled("GDI.BLT.MONO"));
+                    return Err(Fail::Unmodeled(open::GDI_BLT_MONO));
                 }
-                hit("GDI.DDB.MONOBLT");
+                hit(clause::GDI_DDB_MONOBLT);
             }
         }
         let d = self.slots[k].as_mut().unwrap();
-        hit("GDI.FMT.LAYOUT");
-        hit("GDI.BLT.CLIP");
+        hit(clause::GDI_FMT_LAYOUT);
+        hit(clause::GDI_BLT_CLIP);
         let (x0, y0, x1, y1) = (x.max(0), y.max(0), (x + w).min(d.s.w), (y + h).min(d.s.h));
         let mask = d.s.mask();
         let solid = match &d.brush {
@@ -588,12 +589,12 @@ impl Gdi {
                         let (qx, qy) = (sx + px - x, sy + py - y);
                         if qx < 0 || qy < 0 || qx >= s.s.w || qy >= s.s.h {
                             // source pixels outside the source bitmap draw nothing
-                            hit("GDI.BLT.SRCOUT");
+                            hit(clause::GDI_BLT_SRCOUT);
                             continue;
                         }
                         let v = s.s.get(qx, qy);
                         if s.s.same_format(&d.s) {
-                            hit("GDI.FMT.RAW");
+                            hit(clause::GDI_FMT_RAW);
                             v
                         } else if s.s.bpp == 1 && d.s.bpp != 1 {
                             // 1 bits to the background color, 0 bits to the text color
@@ -639,7 +640,7 @@ mod proofs {
 /// `i` of `n` from `sn`: the one under its center, floor((2i + 1) sn / 2n); but with the other
 /// direction unscaled (`flat`), one pixel more or fewer than the source repeats or drops the last
 pub fn sample(i: i32, sn: i32, n: i32, flat: bool) -> i32 {
-    hit("GDI.STRETCH.DDA");
+    hit(clause::GDI_STRETCH_DDA);
     if flat && n + 1 == sn {
         return i * sn / n;
     }

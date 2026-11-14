@@ -43,7 +43,7 @@ pub enum Fail {
     /// "bad line N" and goes on to the next line
     Empty,
     /// the clause (spec/*.txt, status open) that does not settle what Windows does here
-    Unmodeled(&'static str),
+    Unmodeled(crate::spec::OpenId),
 }
 
 pub type Res<T> = Result<T, Fail>;
@@ -65,7 +65,7 @@ pub fn arch() -> u32 {
 pub fn run_case(case: &Case) -> Res<Vec<String>> {
     let r = run_ops(case);
     if let Err(Fail::Unmodeled(id)) = &r {
-        crate::spec::hit(id);
+        crate::spec::hit((*id).into());
     }
     r
 }

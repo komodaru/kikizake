@@ -16,6 +16,7 @@
 //! NaN DepthBiasClamp, SlopeScaledDepthBias and MinLOD refused, dual source blending only on render
 //! target 0, the stencil depth-fail operations KEEP with depth off, the same object for descriptions equal after that.
 
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -66,7 +67,7 @@ fn f(v: u32) -> f32 {
     f32::from_bits(v)
 }
 
-fn boolean(v: &mut u32, id: &'static str) {
+fn boolean(v: &mut u32, id: crate::spec::ClauseId) {
     if *v > 1 {
         hit(id);
     }
@@ -76,14 +77,14 @@ fn boolean(v: &mut u32, id: &'static str) {
 /// Some(the description GetDesc gives) when Create... accepts `d`, None when it refuses it
 pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
     let mut d = d.to_vec();
-    let ok = |c: bool, id: &'static str| {
+    let ok = |c: bool, id: crate::spec::ClauseId| {
         hit(id);
         c.then_some(())
     };
     match k {
         Blend => {
-            boolean(&mut d[0], "D3D11.BLEND.BOOL");
-            boolean(&mut d[1], "D3D11.BLEND.BOOL");
+            boolean(&mut d[0], clause::D3D11_BLEND_BOOL);
+            boolean(&mut d[1], clause::D3D11_BLEND_BOOL);
             let blend = |v: u32| matches!(v, 1..=11 | 14..=19);
             let alpha = |v: u32| blend(v) && !matches!(v, 3 | 4 | 9 | 10 | 16 | 17);
             let op = |v: u32| (1..=5).contains(&v);
@@ -91,26 +92,26 @@ pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
             for t in 0..8 {
                 let rt = &mut d[2 + t * 8..10 + t * 8];
                 if t >= used {
-                    hit("D3D11.BLEND.SHARED");
+                    hit(clause::D3D11_BLEND_SHARED);
                     continue;
                 }
                 if rt[7] > 0xff {
-                    hit("D3D11.PAD");
+                    hit(clause::D3D11_PAD);
                 }
                 rt[7] &= 0xff;
-                ok(rt[7] <= 0xf, "D3D11.BLEND.MASK")?;
-                boolean(&mut rt[0], "D3D11.BLEND.BOOL");
+                ok(rt[7] <= 0xf, clause::D3D11_BLEND_MASK)?;
+                boolean(&mut rt[0], clause::D3D11_BLEND_BOOL);
                 if rt[0] != 0 {
-                    ok(blend(rt[1]) && blend(rt[2]) && op(rt[3]), "D3D11.BLEND.ENUM")?;
-                    ok(blend(rt[4]) && blend(rt[5]) && op(rt[6]), "D3D11.BLEND.ENUM")?;
-                    ok(alpha(rt[4]) && alpha(rt[5]), "D3D11.BLEND.ALPHA")?;
+                    ok(blend(rt[1]) && blend(rt[2]) && op(rt[3]), clause::D3D11_BLEND_ENUM)?;
+                    ok(blend(rt[4]) && blend(rt[5]) && op(rt[6]), clause::D3D11_BLEND_ENUM)?;
+                    ok(alpha(rt[4]) && alpha(rt[5]), clause::D3D11_BLEND_ALPHA)?;
                     // (MEASURED: dual source blending only on render target 0)
                     let src1 = |v: u32| (16..=19).contains(&v);
                     if t > 0 {
-                        ok(![rt[1], rt[2], rt[4], rt[5]].into_iter().any(src1), "D3D11.BLEND.SRC1")?;
+                        ok(![rt[1], rt[2], rt[4], rt[5]].into_iter().any(src1), clause::D3D11_BLEND_SRC1)?;
                     }
                 } else {
-                    hit("D3D11.BLEND.DISABLED");
+                    hit(clause::D3D11_BLEND_DISABLED);
                     rt[1..7].copy_from_slice(&[2, 1, 1, 2, 1, 1]);
                 }
             }
@@ -122,27 +123,27 @@ pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
             }
         }
         Depth => {
-            boolean(&mut d[0], "D3D11.DEPTH.BOOL");
-            ok(d[1] <= 1, "D3D11.DEPTH.ENUM")?;
+            boolean(&mut d[0], clause::D3D11_DEPTH_BOOL);
+            ok(d[1] <= 1, clause::D3D11_DEPTH_ENUM)?;
             if d[0] != 0 {
-                ok((1..=8).contains(&d[2]), "D3D11.DEPTH.ENUM")?;
+                ok((1..=8).contains(&d[2]), clause::D3D11_DEPTH_ENUM)?;
             } else {
-                hit("D3D11.DEPTH.OFF");
+                hit(clause::D3D11_DEPTH_OFF);
                 (d[1], d[2]) = (1, 2);
             }
-            boolean(&mut d[3], "D3D11.DEPTH.BOOL");
+            boolean(&mut d[3], clause::D3D11_DEPTH_BOOL);
             if d[4] > 0xffff {
-                hit("D3D11.PAD");
+                hit(clause::D3D11_PAD);
             }
             d[4] &= 0xffff;
             if d[3] != 0 {
-                ok(d[5..13].iter().all(|v| (1..=8).contains(v)), "D3D11.DEPTH.ENUM")?;
+                ok(d[5..13].iter().all(|v| (1..=8).contains(v)), clause::D3D11_DEPTH_ENUM)?;
                 // (MEASURED: checked, then KEEP for the depth-fail operations with depth off)
                 if d[0] == 0 {
                     (d[6], d[10]) = (1, 1);
                 }
             } else {
-                hit("D3D11.STENCIL.OFF");
+                hit(clause::D3D11_STENCIL_OFF);
                 d[4] = 0xffff;
                 for face in 0..2 {
                     d[5 + 4 * face..9 + 4 * face].copy_from_slice(&[1, 1, 1, 8]);
@@ -150,46 +151,46 @@ pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
             }
         }
         Raster => {
-            ok((2..=3).contains(&d[0]) && (1..=3).contains(&d[1]), "D3D11.RASTER.ENUM")?;
-            ok(!f(d[4]).is_nan(), "D3D11.RASTER.CLAMP")?;
+            ok((2..=3).contains(&d[0]) && (1..=3).contains(&d[1]), clause::D3D11_RASTER_ENUM)?;
+            ok(!f(d[4]).is_nan(), clause::D3D11_RASTER_CLAMP)?;
             if f(d[5]).is_infinite() {
-                hit("D3D11.RASTER.SLOPE");
+                hit(clause::D3D11_RASTER_SLOPE);
             }
-            ok(!f(d[5]).is_nan(), "D3D11.RASTER.SLOPENAN")?;
+            ok(!f(d[5]).is_nan(), clause::D3D11_RASTER_SLOPENAN)?;
             for i in [2, 6, 7, 8, 9] {
-                boolean(&mut d[i], "D3D11.RASTER.BOOL");
+                boolean(&mut d[i], clause::D3D11_RASTER_BOOL);
             }
         }
         Sampler => {
             let filter = d[0];
-            ok(filter & !0x1ff == 0 && matches!(filter & 0x7f, 0 | 1 | 4 | 5 | 0x10 | 0x11 | 0x14 | 0x15 | 0x55), "D3D11.SAMPLER.FILTER")?;
-            ok(d[1..4].iter().all(|v| (1..=5).contains(v)), "D3D11.SAMPLER.ADDRESS")?;
-            ok(d[5] <= 16, "D3D11.SAMPLER.ANISO")?;
+            ok(filter & !0x1ff == 0 && matches!(filter & 0x7f, 0 | 1 | 4 | 5 | 0x10 | 0x11 | 0x14 | 0x15 | 0x55), clause::D3D11_SAMPLER_FILTER)?;
+            ok(d[1..4].iter().all(|v| (1..=5).contains(v)), clause::D3D11_SAMPLER_ADDRESS)?;
+            ok(d[5] <= 16, clause::D3D11_SAMPLER_ANISO)?;
             if filter & 0x7f != 0x55 {
                 d[5] = 0;
             }
             if filter & 0x180 == 0x80 {
-                ok((1..=8).contains(&d[6]), "D3D11.SAMPLER.CMP")?;
+                ok((1..=8).contains(&d[6]), clause::D3D11_SAMPLER_CMP)?;
             } else {
-                hit("D3D11.SAMPLER.CMP");
+                hit(clause::D3D11_SAMPLER_CMP);
                 d[6] = 1;
             }
             let bias = f(d[4]);
             if bias.is_nan() {
-                hit("D3D11.SAMPLER.BIASNAN");
+                hit(clause::D3D11_SAMPLER_BIASNAN);
             } else if bias.abs() >= 15.98 && bias.abs() <= 16.01 {
-                hit("D3D11.SAMPLER.BIASEDGE");
+                hit(clause::D3D11_SAMPLER_BIASEDGE);
             }
-            ok((-16.0..=15.99).contains(&bias), "D3D11.SAMPLER.BIAS")?;
-            ok(!f(d[11]).is_nan(), "D3D11.SAMPLER.LOD")?;
+            ok((-16.0..=15.99).contains(&bias), clause::D3D11_SAMPLER_BIAS)?;
+            ok(!f(d[11]).is_nan(), clause::D3D11_SAMPLER_LOD)?;
             if f(d[12]).is_nan() {
-                hit("D3D11.SAMPLER.MAXLODNAN");
+                hit(clause::D3D11_SAMPLER_MAXLODNAN);
             }
-            ok(!f(d[12]).is_nan(), "D3D11.SAMPLER.LOD")?;
+            ok(!f(d[12]).is_nan(), clause::D3D11_SAMPLER_LOD)?;
             if d[1..4].contains(&4) {
-                hit("D3D11.SAMPLER.BORDERKEEP");
+                hit(clause::D3D11_SAMPLER_BORDERKEEP);
             } else {
-                hit("D3D11.SAMPLER.BORDER");
+                hit(clause::D3D11_SAMPLER_BORDER);
                 d[7..11].fill(0);
             }
         }
@@ -222,7 +223,7 @@ impl D3d11 {
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         if t[0] == "device11" {
-            hit("D3D11.DEVICE");
+            hit(clause::D3D11_DEVICE);
             self.dev = true;
             self.objs.clear();
             out.push("device11 ok".into());
@@ -243,7 +244,7 @@ impl D3d11 {
             if t.len() != 2 {
                 return Err(Fail::Bad);
             }
-            hit("D3D11.NODESC");
+            hit(clause::D3D11_NODESC);
             self.objs.push(None);
             out.push(format!("{} hr {E_INVALIDARG:08x}", k.name()));
             return Ok(true);
@@ -255,7 +256,7 @@ impl D3d11 {
         d.resize(k.words(), 0);
         let n = normalize(k, &d);
         if check {
-            hit("D3D11.CHECK");
+            hit(clause::D3D11_CHECK);
             self.objs.push(None);
             let hr = if n.is_some() { S_FALSE } else { E_INVALIDARG };
             out.push(format!("{} hr {hr:08x}", k.name()));
@@ -277,12 +278,12 @@ impl D3d11 {
                         same = Some(i);
                         break;
                     }
-                    (false, true) => return Err(Fail::Unmodeled("D3D11.DEDUP.FLOAT")),
+                    (false, true) => return Err(Fail::Unmodeled(open::D3D11_DEDUP_FLOAT)),
                     _ => {}
                 }
             }
         }
-        hit("D3D11.DEDUP");
+        hit(clause::D3D11_DEDUP);
         let words: Vec<String> = n.iter().map(|w| format!("{w:x}")).collect();
         let same = same.map_or("-".to_string(), |i| i.to_string());
         out.push(format!("{} = {} same {same}", k.name(), words.join(" ")));

@@ -1,6 +1,7 @@
 //! IDWriteGlyphRunAnalysis: the alpha texture of a glyph run (the fonts' glyphs are
 //! rectangles, so coverage is a matter of where their edges fall): every mode is the aliased
 //! rasterizer on a grid of samples, the samples then counted (or filtered) into pixels.
+use crate::spec::clause;
 use super::super::Res;
 use crate::spec::hit;
 use crate::ttf::Parsed;
@@ -106,9 +107,9 @@ pub fn aliased(r: &[(i64, i64, i64, i64)], dropout: Dropout) -> Res<std::collect
                     // before it on a row (left) when that pixel's center is inside the glyph's box,
                     // else the one after; on a column the one after it (below) when its center is
                     // inside the box, else the one before (above)
-                    hit("DW.RUN.DROPOUT");
+                    hit(clause::DW_RUN_DROPOUT);
                     if dropout == Dropout::Off {
-                        hit("DW.RUN.DROPOUT.SIZE");
+                        hit(clause::DW_RUN_DROPOUT_SIZE);
                     }
                     // MEASURED: none when either pixel beside the span is already lit
                     if dropout == Dropout::Off || lit.contains(&px(first - 1)) || lit.contains(&px(first)) {
@@ -182,17 +183,17 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
     // y to the pixel; GDI classic and natural: 8 x 1, origin to the pixel; ClearType: 6 x 5,
     // origin to the sample)
     let (g, clause) = match mode {
-        Mode::Aliased => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, "DW.RUN.ALIASED"),
-        Mode::Gray => (Grid { nx: 4, ny: 4, qx: 0, qy: 0 }, "DW.RUN.GRAY"),
-        Mode::Natural => (Grid { nx: 8, ny: 1, qx: 0, qy: 1 }, "DW.RUN.NATURAL"),
-        Mode::Gdi | Mode::GdiNatural => (Grid { nx: 8, ny: 1, qx: 1, qy: 1 }, "DW.RUN.GDI"),
-        Mode::ClearType => (Grid { nx: 6, ny: 5, qx: 6, qy: 5 }, "DW.RUN.CLEARTYPE"),
+        Mode::Aliased => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_ALIASED),
+        Mode::Gray => (Grid { nx: 4, ny: 4, qx: 0, qy: 0 }, clause::DW_RUN_GRAY),
+        Mode::Natural => (Grid { nx: 8, ny: 1, qx: 0, qy: 1 }, clause::DW_RUN_NATURAL),
+        Mode::Gdi | Mode::GdiNatural => (Grid { nx: 8, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_GDI),
+        Mode::ClearType => (Grid { nx: 6, ny: 5, qx: 6, qy: 5 }, clause::DW_RUN_CLEARTYPE),
     };
     hit(clause);
     // MEASURED: the pen starts at the unsnapped origin and moves by each advance; each glyph
     // is drawn at the pen snapped as the mode snaps the origin
     if run.len() > 1 {
-        hit("DW.RUN.PEN");
+        hit(clause::DW_RUN_PEN);
     }
     // MEASURED: the texture's bounds hold the pixels dropout control lights, also at the sizes
     // where the texture itself has them off
@@ -222,7 +223,7 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
         }
         _ => {
             // MEASURED: nothing lit: empty bounds at the origin rounded to the pixel
-            hit("DW.RUN.EMPTY");
+            hit(clause::DW_RUN_EMPTY);
             let snap = |v: i64| (v + 2).div_euclid(4);
             let (x, y) = (snap(x4), snap(y4));
             out.push(format!("bounds hr 00000000 {x} {y} {x} {y}"));

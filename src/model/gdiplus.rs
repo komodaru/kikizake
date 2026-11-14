@@ -7,6 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -181,7 +182,7 @@ pub struct Bitmap {
 
 /// a pixel's value (its bytes little-endian, or below 8 bits its index)
 pub fn get_px(row: &[u8], x: u32, bits: u32) -> u64 {
-    hit("GP.LAYOUT");
+    hit(clause::GP_LAYOUT);
     if bits < 8 {
         let bit = x * bits;
         return (row[(bit / 8) as usize] as u64 >> (8 - bits - bit % 8)) & ((1 << bits) - 1);
@@ -292,7 +293,7 @@ fn narrow_alpha(a: u64) -> u32 {
 /// over-0..3: every (color, alpha) of the destination for 4 sources): s + d (255 - sa) / 255
 /// rounded, alpha included
 pub fn over(s: u32, d: u32) -> u32 {
-    hit("GP.FILL.OVER");
+    hit(clause::GP_FILL_OVER);
     let sa = s >> 24;
     let mut o = 0;
     for sh in [0, 8, 16, 24] {
@@ -311,7 +312,7 @@ pub fn lanes(d: u64, f: u64) -> u64 {
 
 /// source over as drawing on 16bppRGB555/565 does it: the destination's part truncated
 pub fn over_truncated(s: u32, d: u32) -> u32 {
-    hit("GP.FILL.OVER");
+    hit(clause::GP_FILL_OVER);
     let sa = s >> 24;
     let mut o = 0;
     for sh in [0, 8, 16] {
@@ -329,7 +330,7 @@ pub const NEAREST: &[u8] = include_bytes!("data/gdiplus_nearest.bin");
 
 /// the index of a color in the default palette of an indexed format
 pub fn nearest(d: Depth, c: u32) -> u32 {
-    hit("GP.CONV.TO.INDEXED");
+    hit(clause::GP_CONV_TO_INDEXED);
     let k = ((c >> 19 & 31) << 10 | (c >> 11 & 31) << 5 | (c >> 3 & 31)) as usize;
     let (base, n) = match d {
         Depth::One => (0, 1),
@@ -344,44 +345,44 @@ pub fn to_argb(f: Pf, v: u64, pal: &[u32]) -> Res<u32> {
     let c = |r: u32, g: u32, b: u32| 0xff00_0000 | r << 16 | g << 8 | b;
     Ok(match f {
         Pf::I1 | Pf::I4 | Pf::I8 => {
-            hit("GP.CONV.INDEXED");
+            hit(clause::GP_CONV_INDEXED);
             if pal.is_empty() { default_palette(f)[v as usize] } else { pal[v as usize] }
         }
         // (no call converts a 16bppGrayScale pixel: GP.GRAY16 refuses them all first)
         Pf::Gray16 => return Err(Fail::Bad),
         Pf::Rgb555 => {
-            hit("GP.CONV.EXPAND");
+            hit(clause::GP_CONV_EXPAND);
             c(x5(v >> 10 & 31), x5(v >> 5 & 31), x5(v & 31))
         }
         Pf::Rgb565 => {
-            hit("GP.CONV.EXPAND");
+            hit(clause::GP_CONV_EXPAND);
             c(x5(v >> 11 & 31), x6(v >> 5 & 63), x5(v & 31))
         }
         Pf::Argb1555 => {
-            hit("GP.CONV.EXPAND");
+            hit(clause::GP_CONV_EXPAND);
             (if v & 0x8000 != 0 { 0xff00_0000 } else { 0 }) | (c(x5(v >> 10 & 31), x5(v >> 5 & 31), x5(v & 31)) & 0xff_ffff)
         }
         Pf::Rgb24 | Pf::Rgb32 => {
-            hit("GP.CONV.OPAQUE");
+            hit(clause::GP_CONV_OPAQUE);
             0xff00_0000 | v as u32 & 0xff_ffff
         }
         Pf::Argb32 => v as u32,
         Pf::Pargb32 => {
-            hit("GP.CONV.UNPREMULTIPLY");
+            hit(clause::GP_CONV_UNPREMULTIPLY);
             let a = (v >> 24) as u32;
             let ch = |s: u32| unpremultiply((v >> s) as u32 & 255, a) << s;
             a << 24 | ch(16) | ch(8) | ch(0)
         }
         Pf::Rgb48 => {
-            hit("GP.CONV.NARROW");
+            hit(clause::GP_CONV_NARROW);
             c(narrow(v >> 32), narrow(v >> 16), narrow(v))
         }
         Pf::Argb64 => {
-            hit("GP.CONV.NARROW");
+            hit(clause::GP_CONV_NARROW);
             narrow_alpha(v >> 48) << 24 | (c(narrow(v >> 32), narrow(v >> 16), narrow(v)) & 0xff_ffff)
         }
         Pf::Pargb64 => {
-            hit("GP.CONV.NARROW.PREMULTIPLIED");
+            hit(clause::GP_CONV_NARROW_PREMULTIPLIED);
             let a = level(v >> 48) as i32;
             // (MEASURED: c * 8192 / a in 32 bits, kept to 16 bits, then a level)
             let un = |c: u64| narrow(if a == 0 { c } else { (word(c) * 8192 / a) as u16 as u64 });
@@ -400,40 +401,40 @@ pub fn from_argb(f: Pf, c: u32) -> Res<u64> {
         // (no call converts a 16bppGrayScale pixel: GP.GRAY16 refuses them all first)
         Pf::Gray16 => return Err(Fail::Bad),
         Pf::Rgb555 => {
-            hit("GP.CONV.TRUNCATE");
+            hit(clause::GP_CONV_TRUNCATE);
             (r >> 3) << 10 | (g >> 3) << 5 | b >> 3
         }
         Pf::Rgb565 => {
-            hit("GP.CONV.TRUNCATE");
+            hit(clause::GP_CONV_TRUNCATE);
             (r >> 3) << 11 | (g >> 2) << 5 | b >> 3
         }
         Pf::Argb1555 => {
-            hit("GP.CONV.TRUNCATE");
+            hit(clause::GP_CONV_TRUNCATE);
             (a >> 7) << 15 | (r >> 3) << 10 | (g >> 3) << 5 | b >> 3
         }
         Pf::Rgb24 => {
-            hit("GP.CONV.OPAQUE");
+            hit(clause::GP_CONV_OPAQUE);
             (c & 0xff_ffff) as u64
         }
         Pf::Rgb32 => {
-            hit("GP.CONV.KEEP");
+            hit(clause::GP_CONV_KEEP);
             c as u64
         }
         Pf::Argb32 => c as u64,
         Pf::Pargb32 => {
-            hit("GP.CONV.PREMULTIPLY");
+            hit(clause::GP_CONV_PREMULTIPLY);
             a << 24 | premultiply(r, a) << 16 | premultiply(g, a) << 8 | premultiply(b, a)
         }
         Pf::Rgb48 => {
-            hit("GP.CONV.WIDEN");
+            hit(clause::GP_CONV_WIDEN);
             widen(r) << 32 | widen(g) << 16 | widen(b)
         }
         Pf::Argb64 => {
-            hit("GP.CONV.WIDEN");
+            hit(clause::GP_CONV_WIDEN);
             widen_alpha(a) << 48 | widen(r) << 32 | widen(g) << 16 | widen(b)
         }
         Pf::Pargb64 => {
-            hit("GP.CONV.WIDEN.PREMULTIPLIED");
+            hit(clause::GP_CONV_WIDEN_PREMULTIPLIED);
             let a16 = widen_alpha(a);
             let p = |c: u64| widen(c) * a16 / 8192;
             a16 << 48 | p(r) << 32 | p(g) << 16 | p(b)
@@ -444,16 +445,16 @@ pub fn from_argb(f: Pf, c: u32) -> Res<u64> {
 /// a pixel of `from` as a pixel of `to` (LockBits, CloneBitmapArea)
 pub fn convert(from: Pf, to: Pf, v: u64, pal: &[u32]) -> Res<u64> {
     if from == to {
-        hit("GP.LOCK.SAME");
+        hit(clause::GP_LOCK_SAME);
         return Ok(v);
     }
     if let (Some(a), Some(b)) = (from.wide(), to.wide()) {
-        hit("GP.CONV.WIDE");
+        hit(clause::GP_CONV_WIDE);
         return Ok(from_argb64(b, to_argb64(a, v)));
     }
     let opaque = |f: Pf| matches!(f, Pf::Rgb555 | Pf::Rgb565 | Pf::Rgb24 | Pf::Rgb32);
     if from == Pf::Pargb32 && opaque(to) {
-        hit("GP.CONV.PREMULTIPLIED.OPAQUE");
+        hit(clause::GP_CONV_PREMULTIPLIED_OPAQUE);
         return from_argb(to, v as u32);
     }
     from_argb(to, to_argb(from, v, pal)?)
@@ -494,7 +495,7 @@ fn word(v: u64) -> i32 {
 
 impl Bitmap {
     pub fn new(f: Pf, w: u32, h: u32) -> Bitmap {
-        hit("GP.CREATE.ZERO");
+        hit(clause::GP_CREATE_ZERO);
         Bitmap { f, w, h, rows: vec![vec![0; row_bytes(f, w)]; h as usize], pal: default_palette(f), flags: palette_flags(f) }
     }
     pub fn px(&self, x: u32, y: u32) -> u64 {
@@ -509,7 +510,7 @@ type Rect = (i64, i64, i64, i64);
 
 /// a locked or cloned rectangle: inside the bitmap and not empty, else InvalidParameter
 fn rect_ok(b: &Bitmap, r: Rect) -> bool {
-    hit("GP.LOCK.RECT");
+    hit(clause::GP_LOCK_RECT);
     let (x, y, w, h) = r;
     x >= 0 && y >= 0 && w > 0 && h > 0 && x + w <= b.w as i64 && y + h <= b.h as i64
 }
@@ -667,7 +668,7 @@ pub fn mul(a: &Matrix, b: &Matrix) -> Matrix {
     mul_in(Round::Nearest, a, b)
 }
 pub fn mul_in(r: Round, a: &Matrix, b: &Matrix) -> Matrix {
-    hit("GP.MATRIX.MUL");
+    hit(clause::GP_MATRIX_MUL);
     let dot = |x: f32, y: f32, z: f32, w: f32| r.add(r.mul(x, y), r.mul(z, w));
     [
         dot(a[0], b[0], a[1], b[2]),
@@ -684,7 +685,7 @@ pub fn transform(m: &Matrix, x: f32, y: f32) -> (f32, f32) {
     transform_in(Round::Nearest, m, x, y)
 }
 pub fn transform_in(r: Round, m: &Matrix, x: f32, y: f32) -> (f32, f32) {
-    hit("GP.MATRIX.POINT");
+    hit(clause::GP_MATRIX_POINT);
     (r.add(r.add(r.mul(m[0], x), r.mul(m[2], y)), m[4]), r.add(r.add(r.mul(m[1], x), r.mul(m[3], y)), m[5]))
 }
 
@@ -695,7 +696,7 @@ pub fn invert(m: &Matrix) -> Option<Matrix> {
     invert_in(Round::Nearest, m)
 }
 pub fn invert_in(r: Round, m: &Matrix) -> Option<Matrix> {
-    hit("GP.MATRIX.INVERT");
+    hit(clause::GP_MATRIX_INVERT);
     let det = r.sub(r.mul(m[0], m[3]), r.mul(m[1], m[2]));
     if det == 0.0 || !det.is_finite() {
         return None;
@@ -724,7 +725,7 @@ fn elements(m: &Matrix) -> String {
 /// 5 bits, DITHER >> 1 for 6 (golden gdiplus dither-*: every gray level at every position)
 pub const DITHER: [[u32; 4]; 4] = [[0, 4, 1, 5], [6, 2, 7, 3], [1, 5, 0, 4], [7, 3, 6, 2]];
 pub fn dither(f: Pf, p: u32, x: u32, y: u32) -> u64 {
-    hit("GP.FILL.DITHER");
+    hit(clause::GP_FILL_DITHER);
     let g6 = f == Pf::Rgb565;
     let d = DITHER[y as usize & 3][x as usize & 3];
     let ch = |c: u32, n: u32| ((c + (d >> (n - 5))) >> (8 - n)).min((1 << n) - 1) as u64;
@@ -735,10 +736,10 @@ pub fn dither(f: Pf, p: u32, x: u32, y: u32) -> u64 {
 /// matrix arithmetic: x86 rounds to nearest; x86-64 toward minus infinity (GP.MATRIX.X64)
 fn rounding() -> Round {
     if super::arch() == 32 {
-        hit("GP.MATRIX.X86");
+        hit(clause::GP_MATRIX_X86);
         Round::Nearest
     } else {
-        hit("GP.MATRIX.X64");
+        hit(clause::GP_MATRIX_X64);
         Round::Down
     }
 }
@@ -764,16 +765,16 @@ impl Gdiplus {
         if !name.starts_with("gp") {
             return Ok(false);
         }
-        hit("GP.START");
+        hit(clause::GP_START);
         let needs_bitmap = matches!(name, "gpwrite" | "gpread" | "gpset" | "gpget" | "gpinfo" | "gpfill" | "gpclear" | "gprotate");
         match name {
             "gpbitmap" => {
                 let s = Self::slot(t, 1)?;
                 let (w, h, f) = (n(t, 2)?, n(t, 3)?, fmt_at(t, 4)?);
                 self.bmp[s] = None;
-                hit("GP.CREATE");
+                hit(clause::GP_CREATE);
                 if w <= 0 || h <= 0 {
-                    hit("GP.CREATE.SIZE");
+                    hit(clause::GP_CREATE_SIZE);
                     out.push(format!("bitmap {INVALID_PARAMETER}"));
                     return Ok(true);
                 }
@@ -797,14 +798,14 @@ impl Gdiplus {
                     return Ok(true);
                 }
                 if f != b.f && gray16(f) != gray16(b.f) {
-                    hit("GP.GRAY16");
+                    hit(clause::GP_GRAY16);
                     fill_bytes(t, 3, r.2 as u32, r.3 as u32, bits(f))?;
                     out.push(format!("write 0 {INVALID_PARAMETER}"));
                     return Ok(true);
                 }
                 let data = fill_bytes(t, 3, r.2 as u32, r.3 as u32, bits(f))?;
                 out.push("write 0 0".into());
-                hit("GP.LOCK.WRITE");
+                hit(clause::GP_LOCK_WRITE);
                 for y in 0..r.3 as u32 {
                     for x in 0..r.2 as u32 {
                         let v = convert(f, b.f, get_px(&data[y as usize], x, bits(f)), &[])?;
@@ -822,11 +823,11 @@ impl Gdiplus {
                     return Ok(true);
                 }
                 if f != b.f && gray16(f) != gray16(b.f) {
-                    hit("GP.GRAY16");
+                    hit(clause::GP_GRAY16);
                     out.push(format!("read {INVALID_PARAMETER}"));
                     return Ok(true);
                 }
-                hit("GP.LOCK.READ");
+                hit(clause::GP_LOCK_READ);
                 out.push("read 0".into());
                 out.push(format!("px {} {} {}", r.2, r.3, bits(f)));
                 for y in 0..r.3 as u32 {
@@ -845,20 +846,20 @@ impl Gdiplus {
                 let b = self.bmp[s].as_mut().unwrap();
                 let w = &name[2..];
                 if gray16(b.f) {
-                    hit("GP.GRAY16");
+                    hit(clause::GP_GRAY16);
                     out.push(format!("{w} {INVALID_PARAMETER}"));
                     return Ok(true);
                 }
-                hit("GP.PIXEL.BOUNDS");
+                hit(clause::GP_PIXEL_BOUNDS);
                 if x < 0 || y < 0 || x >= b.w as i64 || y >= b.h as i64 {
                     out.push(format!("{w} {INVALID_PARAMETER}"));
                     return Ok(true);
                 }
                 if name == "gpget" {
-                    hit("GP.PIXEL.GET");
+                    hit(clause::GP_PIXEL_GET);
                     out.push(format!("get 0 {:08x}", to_argb(b.f, b.px(x as u32, y as u32), &b.pal)?));
                 } else {
-                    hit(if indexed(b.f) { "GP.PIXEL.SET.INDEXED" } else { "GP.PIXEL.SET" });
+                    hit(if indexed(b.f) { clause::GP_PIXEL_SET_INDEXED } else { clause::GP_PIXEL_SET });
                     let v = from_argb(b.f, c)?;
                     b.set_px(x as u32, y as u32, v);
                     out.push("set 0".into());
@@ -866,9 +867,9 @@ impl Gdiplus {
             }
             "gpinfo" => {
                 let b = self.bmp[Self::slot(t, 1)?].as_ref().unwrap();
-                hit("GP.INFO");
+                hit(clause::GP_INFO);
                 if b.pal.is_empty() {
-                    hit("GP.INFO.NOPALETTE");
+                    hit(clause::GP_INFO_NOPALETTE);
                 }
                 out.push(format!("info {:08x} {} {} palette 0 {} {}", b.f.code(), b.w, b.h, b.flags, b.pal.len()));
                 for ch in b.pal.chunks(16) {
@@ -892,23 +893,23 @@ impl Gdiplus {
                     Mode::SourceCopy => true,
                     Mode::SourceOver => false,
                 };
-                hit("GP.FILL");
+                hit(clause::GP_FILL);
                 if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
-                    hit("GP.FILL.NOGRAPHICS");
+                    hit(clause::GP_FILL_NOGRAPHICS);
                     out.push(format!("{w} {OUT_OF_MEMORY}"));
                     return Ok(true);
                 }
                 if indexed(b.f) {
-                    hit("GP.FILL.INDEXED");
+                    hit(clause::GP_FILL_INDEXED);
                 }
                 let Some(q) = Quality::from_value(q) else {
                     return Err(Fail::Bad);
                 };
                 if r.2 < 0 || r.3 < 0 {
-                    hit("GP.FILL.NEGATIVE");
+                    hit(clause::GP_FILL_NEGATIVE);
                 }
 
-                hit("GP.FILL.RECT");
+                hit(clause::GP_FILL_RECT);
                 let (x0, y0) = (r.0.max(0), r.1.max(0));
                 let (x1, y1) = ((r.0 + r.2).min(b.w as i64), (r.1 + r.3).min(b.h as i64));
                 let pargb = Pf::Pargb32;
@@ -918,7 +919,7 @@ impl Gdiplus {
                 let inside = |x: u32, y: u32| (x0..x1).contains(&(x as i64)) && (y0..y1).contains(&(y as i64));
                 let blend = |d: u32| {
                     if copy {
-                        hit("GP.FILL.COPY");
+                        hit(clause::GP_FILL_COPY);
                         sp
                     } else {
                         over(sp, d)
@@ -937,10 +938,10 @@ impl Gdiplus {
                 let x86 = super::arch() == 32;
                 let mix = |s: u64, d: u64| -> u64 {
                     if x86 {
-                        hit("GP.FILL.GAMMA.X86");
+                        hit(clause::GP_FILL_GAMMA_X86);
                         s + lanes(d, 8192 - sa) & 0xffff
                     } else {
-                        hit("GP.FILL.GAMMA.X64");
+                        hit(clause::GP_FILL_GAMMA_X64);
                         let (s, d) = (s as f32, d as f32);
                         rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff
                     }
@@ -960,7 +961,7 @@ impl Gdiplus {
                     // (MEASURED: a Graphics of a 16-bit channel or indexed bitmap works on a copy of
                     // all of it, 32bppARGB or 32bppPARGB, written back once it draws: the pixels it
                     // does not draw on make the trip too)
-                    hit("GP.FILL.BUFFER");
+                    hit(clause::GP_FILL_BUFFER);
                     let trip = x0 <= x1 && y0 <= y1 && x0 < b.w as i64 && y0 < b.h as i64;
                     let bf = if indexed(b.f) { pargb } else { argb };
                     for y in 0..b.h {
@@ -1037,7 +1038,7 @@ impl Gdiplus {
                 if !(0..8).contains(&k) {
                     return Err(Fail::Bad);
                 }
-                hit("GP.ROTATE");
+                hit(clause::GP_ROTATE);
                 *b = rotate(b, k as u32);
                 out.push(format!("rotate 0 {} {}", b.w, b.h));
             }
@@ -1049,26 +1050,26 @@ impl Gdiplus {
                     out.push("gpclone nobitmap".into());
                     return Ok(true);
                 };
-                hit("GP.CLONE");
+                hit(clause::GP_CLONE);
                 if !rect_ok(b, r) {
-                    hit("GP.CLONE.RECT");
+                    hit(clause::GP_CLONE_RECT);
                     out.push(format!("clone {OUT_OF_MEMORY}"));
                     return Ok(true);
                 }
                 if f != b.f && gray16(f) != gray16(b.f) {
-                    hit("GP.GRAY16");
+                    hit(clause::GP_GRAY16);
                     out.push(format!("clone {OUT_OF_MEMORY}"));
                     return Ok(true);
                 }
                 if f != b.f {
-                    hit("GP.CLONE.FORMAT");
+                    hit(clause::GP_CLONE_FORMAT);
                 }
                 let mut c = Bitmap::new(f, r.2 as u32, r.3 as u32);
                 let fixed = f.depth().filter(|_| f != b.f);
                 if f == b.f {
                     (c.pal, c.flags) = (b.pal.clone(), b.flags);
                 } else if let Some(d) = fixed {
-                    hit("GP.CLONE.PALETTE");
+                    hit(clause::GP_CLONE_PALETTE);
                     (c.pal, c.flags) = fixed_palette(d);
                 }
                 for y in 0..r.3 as u32 {
@@ -1095,7 +1096,7 @@ impl Gdiplus {
                 for (i, e) in m.iter_mut().enumerate() {
                     *e = f32::from_bits(n(t, 2 + i)? as u32);
                 }
-                hit("GP.MATRIX");
+                hit(clause::GP_MATRIX);
                 out.push("matrix 0".into());
                 out.push(elements(&m));
                 self.mat[s] = Some(m);
@@ -1115,7 +1116,7 @@ impl Gdiplus {
                     0 => mul_in(rd, &b, &a),
                     1 => mul_in(rd, &a, &b),
                     _ => {
-                        hit("GP.MATRIX.ORDER");
+                        hit(clause::GP_MATRIX_ORDER);
                         out.push(format!("matmul {INVALID_PARAMETER}"));
                         out.push(elements(&a));
                         return Ok(true);

@@ -11,6 +11,7 @@
 //! "D3D11_TEXTURE_ADDRESS_MODE", "SV_PrimitiveID", "SV_IsFrontFace", "SV_VertexID",
 //! "SV_InstanceID", "Semantics" (SV_Position in the pixel shader: the pixel center).
 
+use crate::spec::{clause, open};
 use super::d3d11::{normalize, Kind};
 use super::d3dres::{texel, D3dres, Dev, E_INVALIDARG};
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
@@ -100,7 +101,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             if t.len() != 4 || sl >= 8 || !(vs || t[2] == "ps") {
                 return Err(Fail::Bad);
             }
-            hit("D3DRASTER.SHADER");
+            hit(clause::D3DRASTER_SHADER);
             d.shaders[sl] = None;
             let b = hexbytes(&t[3]);
             match known(&b) {
@@ -114,7 +115,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 }
                 _ => {
                     // (checksum, size or kind wrong: assumed refused like any other bad bytecode)
-                    hit("D3DRASTER.SHADER.BAD");
+                    hit(clause::D3DRASTER_SHADER_BAD);
                     out.push(format!("shader hr {E_INVALIDARG:08x}"));
                     // (the blob is kept for an input layout: a program of the other kind by its
                     // name, bytes that are no program as "bad")
@@ -132,7 +133,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 out.push("layout noshader".into());
                 return Ok(());
             };
-            hit("D3DRASTER.LAYOUT");
+            hit(clause::D3DRASTER_LAYOUT);
             d.layout = None;
             let needs = match name {
                 "vs" => 2,
@@ -140,11 +141,11 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 // (MEASURED: against bytes that are no program (a broken checksum), refused,
                 // probe-layout-refused)
                 "bad" => {
-                    hit("D3DRASTER.LAYOUT.BAD");
+                    hit(clause::D3DRASTER_LAYOUT_BAD);
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
                     return Ok(());
                 }
-                _ => return Err(Fail::Unmodeled("D3DRASTER.LAYOUT.SIG")),
+                _ => return Err(Fail::Unmodeled(open::D3DRASTER_LAYOUT_SIG)),
             };
             // every input of the program from an element, no element of an unknown format
             let ok = fmts.len() >= needs && fmts.iter().all(|f| format(*f).is_some_and(|f| !f.block() && !f.video() && f.num != Num::Typeless));
@@ -176,12 +177,12 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 for x in v.iter_mut().take(4) {
                     // (MEASURED: the executor's (INT) cast, toward zero, probe-vp-frac)
                     if *x < 0.0 && x.fract() != 0.0 {
-                        hit("D3DRASTER.VP10");
+                        hit(clause::D3DRASTER_VP10);
                     }
                     *x = x.trunc();
                 }
             }
-            hit("D3DRASTER.VIEWPORT");
+            hit(clause::D3DRASTER_VIEWPORT);
             d.viewport = Some(v);
         }
         "scissor" => {
@@ -256,7 +257,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
         }
         // (MEASURED: a bound constant buffer no program reads changes nothing, probe-cbuf)
         "cbuf" => {
-            hit("D3DRASTER.CBUF");
+            hit(clause::D3DRASTER_CBUF);
             let b = n(t, 1)? as usize;
             if b >= 16 {
                 return Err(Fail::Bad);
@@ -335,7 +336,7 @@ pub fn write_depth(f: &Format, e: &mut [u8], dw: bool, depth: f32, sw: bool, st:
                 e[4] = st;
             }
         }
-        _ => return Err(Fail::Unmodeled("D3DRASTER.DEPTHFMT")),
+        _ => return Err(Fail::Unmodeled(open::D3DRASTER_DEPTHFMT)),
     }
     Ok(())
 }
@@ -380,19 +381,19 @@ fn factor(f: u32, s: [f32; 4], dst: [f32; 4], bf: [f32; 4], ch: usize) -> Res<f3
         15 => 1.0 - bf[ch],
         // (MEASURED: the second source, which no program here writes, is 0, probe-blend-src1)
         16 | 17 => {
-            hit("D3DRASTER.BLEND.FACTOR");
+            hit(clause::D3DRASTER_BLEND_FACTOR);
             0.0
         }
         18 | 19 => {
-            hit("D3DRASTER.BLEND.FACTOR");
+            hit(clause::D3DRASTER_BLEND_FACTOR);
             1.0
         }
-        _ => return Err(Fail::Unmodeled("D3DRASTER.BLEND.OP")),
+        _ => return Err(Fail::Unmodeled(open::D3DRASTER_BLEND_OP)),
     })
 }
 
 fn blend(b: &[u32; 8], bf: [f32; 4], f: &Format, s: [f32; 4], dst: [f32; 4]) -> Res<[f32; 4]> {
-    hit("D3DRASTER.BLEND");
+    hit(clause::D3DRASTER_BLEND);
     // (normalized targets: the shader's value clamped to the format's range first)
     let s = match f.num {
         Num::Unorm | Num::Srgb => s.map(|v| v.clamp(0.0, 1.0)),
@@ -409,7 +410,7 @@ fn blend(b: &[u32; 8], bf: [f32; 4], f: &Format, s: [f32; 4], dst: [f32; 4]) -> 
             3 => y - x,
             4 => s[ch].min(dst[ch]),
             5 => s[ch].max(dst[ch]),
-            _ => return Err(Fail::Unmodeled("D3DRASTER.BLEND.OP")),
+            _ => return Err(Fail::Unmodeled(open::D3DRASTER_BLEND_OP)),
         };
     }
     Ok(o)
@@ -417,7 +418,7 @@ fn blend(b: &[u32; 8], bf: [f32; 4], f: &Format, s: [f32; 4], dst: [f32; 4]) -> 
 
 /// the address modes on a texel coordinate (in texels) of a size
 fn address(mode: u32, i: i64, size: i64) -> Option<i64> {
-    hit("D3DRASTER.ADDRESS");
+    hit(clause::D3DRASTER_ADDRESS);
     Some(match mode {
         1 => i.rem_euclid(size),
         2 => {
@@ -444,36 +445,36 @@ fn address(mode: u32, i: i64, size: i64) -> Option<i64> {
 
 #[allow(clippy::too_many_arguments)]
 fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, vtx: &[u32]) -> Res<()> {
-    hit("D3DRASTER.DRAW");
+    hit(clause::D3DRASTER_DRAW);
     let d = m.draw.clone();
     // (MEASURED: without programs and layout, or without a viewport, nothing is drawn,
     // probe-incomplete, probe-noviewport; without a target nor a depth view nothing is there to
     // draw to)
     let (Some(vs), Some(ps), Some(_)) = (d.vs, d.ps, d.layout) else {
-        hit("D3DRASTER.INCOMPLETE");
+        hit(clause::D3DRASTER_INCOMPLETE);
         return Ok(());
     };
     let Some(tv) = d.target else {
         if d.depth.is_some() {
-            return Err(Fail::Unmodeled("D3DRASTER.RTKIND"));
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
         }
-        hit("D3DRASTER.INCOMPLETE");
+        hit(clause::D3DRASTER_INCOMPLETE);
         return Ok(());
     };
     let Some(vp) = d.viewport else {
-        hit("D3DRASTER.NOVIEWPORT");
+        hit(clause::D3DRASTER_NOVIEWPORT);
         return Ok(());
     };
     if !matches!(top, 4 | 5) {
-        return Err(Fail::Unmodeled("D3DRASTER.TOPOLOGY"));
+        return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
     }
     let view = m.views[tv].clone().unwrap();
-    let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled("D3DRASTER.RTFMT"))?;
+    let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_RTFMT))?;
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
     let (rw, rh, _) = {
         let r = m.res[view.res].as_ref().unwrap();
         if r.d.count > 1 || r.d.dim != 2 {
-            return Err(Fail::Unmodeled("D3DRASTER.RTKIND"));
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
         }
         r.size(r.mip_of(rt_sub))
     };
@@ -484,7 +485,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         // (MEASURED: past the buffer the vertex reads zeros, probe-vb-past)
         let w = |k: u32| -> Res<f32> {
             Ok(vtx.get((v * stride / 4 + k) as usize).map_or_else(|| {
-                hit("D3DRASTER.VBPAST");
+                hit(clause::D3DRASTER_VBPAST);
                 0.0
             }, |x| f32::from_bits(*x)))
         };
@@ -492,7 +493,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         let color = match vs {
             "vs" => [w(4)?, w(5)?, w(6)?, w(7)?],
             _ => {
-                hit("D3DRASTER.IDS");
+                hit(clause::D3DRASTER_IDS);
                 [v as f32, i as f32, 0.0, 1.0]
             }
         };
@@ -509,7 +510,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                 4 => [3 * p, 3 * p + 1, 3 * p + 2],
                 _ if p % 2 == 0 => [p, p + 1, p + 2],
                 _ => {
-                    hit("D3DRASTER.STRIP");
+                    hit(clause::D3DRASTER_STRIP);
                     [p + 1, p, p + 2]
                 }
             };
@@ -527,26 +528,26 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     // (every vertex at w <= 0: wholly outside the clip volume, or (w = 0, so x = y = 0 inside
     // it) a point: nothing drawn, probe-vb-past)
     if tri.iter().all(|v| v.pos[3] <= 0.0 && v.pos.iter().all(|x| x.is_finite()) && (v.pos[3] < 0.0 || v.pos[0] == 0.0 && v.pos[1] == 0.0)) {
-        hit("D3DRASTER.CLIP");
+        hit(clause::D3DRASTER_CLIP);
         return Ok(());
     }
     if tri.iter().any(|v| !(v.pos[3] > 0.0) || v.pos.iter().any(|x| !x.is_finite())) {
-        return Err(Fail::Unmodeled("D3DRASTER.CLIPW"));
+        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
     }
     // depth clipping: whole triangles in these cases
     let zs: Vec<f32> = tri.iter().map(|v| v.pos[2] / v.pos[3]).collect();
     let inside = |z: f32| (0.0..=1.0).contains(&z);
     if d.rast[6] != 0 && !zs.iter().all(|z| inside(*z)) {
         if zs.iter().all(|z| *z < 0.0) || zs.iter().all(|z| *z > 1.0) {
-            hit("D3DRASTER.DEPTHCLIP");
+            hit(clause::D3DRASTER_DEPTHCLIP);
             return Ok(());
         }
-        return Err(Fail::Unmodeled("D3DRASTER.CLIPZ"));
+        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPZ));
     }
     // the viewport transform, then 16.8 fixed point
     let [vx, vy, vw, vh, minz, maxz] = vp;
     let to_screen = |q: &[f32; 4]| (vx + (q[0] / q[3] + 1.0) * (vw * 0.5), vy + (1.0 - q[1] / q[3]) * (vh * 0.5));
-    hit("D3DRASTER.SNAP");
+    hit(clause::D3DRASTER_SNAP);
     let snap = |v: f32| -> i64 {
         let x = v as f64 * 256.0;
         let f = x.floor();
@@ -561,18 +562,18 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
     let area = cross(p[0], p[1], p[2]);
     if area == 0 {
-        hit("D3DRASTER.DEGENERATE");
+        hit(clause::D3DRASTER_DEGENERATE);
         return Ok(());
     }
     // (y down: a positive area is clockwise on the screen)
     let cw = area > 0;
     let front = cw != (d.rast[2] != 0);
-    hit("D3DRASTER.CULL");
+    hit(clause::D3DRASTER_CULL);
     if d.rast[1] == 2 && front || d.rast[1] == 3 && !front {
         return Ok(());
     }
     if d.rast[0] != 3 {
-        return Err(Fail::Unmodeled("D3DRASTER.WIREFRAME"));
+        return Err(Fail::Unmodeled(open::D3DRASTER_WIREFRAME));
     }
     let v = if cw { [p[0], p[1], p[2]] } else { [p[0], p[2], p[1]] };
     let order = if cw { [0, 1, 2] } else { [0, 2, 1] };
@@ -587,7 +588,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let pieces: Vec<[(i64, i64); 3]> = if poly.len() == 3 && poly.iter().zip(tri.iter()).all(|(a, b)| *a == b.pos) {
         vec![v]
     } else {
-        hit("D3DRASTER.CLIP");
+        hit(clause::D3DRASTER_CLIP);
         let q: Vec<(i64, i64)> = poly.iter().map(snap2).collect();
         (1..q.len().saturating_sub(1))
             .map(|i| [q[0], q[i], q[i + 1]])
@@ -606,13 +607,13 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         }
     };
     // the pixels: inside the target, the viewport and (when on) the scissor rectangle
-    hit("D3DRASTER.VPCLIP");
+    hit(clause::D3DRASTER_VPCLIP);
     let mut x0 = 0i64.max(vx.ceil() as i64 - 1);
     let mut y0 = 0i64.max(vy.ceil() as i64 - 1);
     let mut x1 = (rw as i64).min((vx + vw).ceil() as i64 + 1);
     let mut y1 = (rh as i64).min((vy + vh).ceil() as i64 + 1);
     if d.rast[7] != 0 {
-        hit("D3DRASTER.SCISSOR");
+        hit(clause::D3DRASTER_SCISSOR);
         x0 = x0.max(d.scissor[0]);
         y0 = y0.max(d.scissor[1]);
         x1 = x1.min(d.scissor[2]);
@@ -635,7 +636,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             if !pieces.iter().any(inside) {
                 continue;
             }
-            hit("D3DRASTER.TOPLEFT");
+            hit(clause::D3DRASTER_TOPLEFT);
             let bary = {
                 // (barycentric weights at the pixel center, in the clockwise order)
                 let a = area.unsigned_abs() as f64;
@@ -694,54 +695,54 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
         if tri.iter().all(|v| f(v) == a) {
             Ok(a)
         } else {
-            Err(Fail::Unmodeled("D3DRASTER.INTERP"))
+            Err(Fail::Unmodeled(open::D3DRASTER_INTERP))
         }
     };
     Ok(match ps {
         "ps" => same(&|v| v.color)?.map(f32::to_bits),
         "psflat" => {
-            hit("D3DRASTER.FLAT");
+            hit(clause::D3DRASTER_FLAT);
             lead.color.map(f32::to_bits)
         }
         "pspos" => {
-            hit("D3DRASTER.POS");
+            hit(clause::D3DRASTER_POS);
             // (MEASURED: w reads as the vertices' clip w, pos-3, pos-4)
             let w = same(&|v| [v.pos[3]; 4])?[0];
             if w != 1.0 {
-                hit("D3DRASTER.POSW");
+                hit(clause::D3DRASTER_POSW);
             }
-            let z = z.ok_or(Fail::Unmodeled("D3DRASTER.INTERP"))?;
+            let z = z.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
             [px as f32 + 0.5, py as f32 + 0.5, z, w].map(f32::to_bits)
         }
         "psprim" => {
-            hit("D3DRASTER.PRIM");
+            hit(clause::D3DRASTER_PRIM);
             [(prim as f32).to_bits(), if front { 1.0f32 } else { 0.0 }.to_bits(), 0, 1.0f32.to_bits()]
         }
         "psld" | "psldu" => {
-            hit("D3DRASTER.LD");
+            hit(clause::D3DRASTER_LD);
             // (an unbound shader resource reads as zeros, ld-89)
             let Some(sv) = d.srv else {
-                hit("D3DRASTER.NOSRV");
+                hit(clause::D3DRASTER_NOSRV);
                 return Ok([0; 4]);
             };
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
             let (w, h, _) = r.size(0);
             if px >= w as i64 || py >= h as i64 {
-                hit("D3DRASTER.LD.OUT");
+                hit(clause::D3DRASTER_LD_OUT);
                 [0; 4]
             } else {
                 texel(r, 0, v.format(), px as u32, py as u32)?
             }
         }
         "pssample" => {
-            hit("D3DRASTER.SAMPLE");
+            hit(clause::D3DRASTER_SAMPLE);
             // (an unbound shader resource reads as zeros, ld-89)
             let Some(sv) = d.srv else {
-                hit("D3DRASTER.NOSRV");
+                hit(clause::D3DRASTER_NOSRV);
                 return Ok([0; 4]);
             };
-            let Some(s) = d.sampler else { return Err(Fail::Unmodeled("D3DRASTER.NOSAMPLER")) };
+            let Some(s) = d.sampler else { return Err(Fail::Unmodeled(open::D3DRASTER_NOSAMPLER)) };
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
             let (w, h, _) = r.size(0);
@@ -750,23 +751,23 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
             // (only texel centers in these cases: point and linear filtering agree there)
             for c in tc {
                 if ((c - 0.5) - (c - 0.5).round()).abs() > 1e-3 {
-                    return Err(Fail::Unmodeled("D3DRASTER.FILTER"));
+                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 }
             }
             if !matches!(s[0], 0 | 0x15) {
-                return Err(Fail::Unmodeled("D3DRASTER.FILTER"));
+                return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
             }
             let i = (tc[0] - 0.5).round() as i64;
             let j = (tc[1] - 0.5).round() as i64;
             match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
                 (Some(x), Some(y)) => texel(r, 0, v.format(), x as u32, y as u32)?,
                 _ => {
-                    hit("D3DRASTER.BORDER");
+                    hit(clause::D3DRASTER_BORDER);
                     [0; 4]
                 }
             }
         }
-        _ => return Err(Fail::Unmodeled("D3DRASTER.PS")),
+        _ => return Err(Fail::Unmodeled(open::D3DRASTER_PS)),
     })
 }
 
@@ -774,16 +775,16 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
 fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'static Format, sub: u32, dsv: Option<&super::d3dres::View>, (x, y, _w): (usize, usize, usize), z: Option<f32>, out: [u32; 4]) -> Res<()> {
     // the depth test
     if let Some(dv) = dsv {
-        hit("D3DRASTER.DEPTH");
-        let df = format(dv.format()).ok_or(Fail::Unmodeled("D3DRASTER.DEPTHFMT"))?;
+        hit(clause::D3DRASTER_DEPTH);
+        let df = format(dv.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_DEPTHFMT))?;
         let dsub = super::d3dres::view_subs(dev, dv, m.res[dv.res].as_ref().unwrap())[0];
         let dres = m.res[dv.res].as_mut().unwrap();
         let (rb, _, _) = dres.layout(dsub);
         let el = (df.bits / 8) as usize;
-        let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled("D3DRES.READ.UNKNOWN"))?;
+        let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
         let e = &mut b[y * rb + x * el..][..el];
         if d.depthst[0] != 0 {
-            let z = z.ok_or(Fail::Unmodeled("D3DRASTER.INTERP"))?;
+            let z = z.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
             let (a, s) = (quantized_depth(df, z), stored_depth(df, e));
             let pass = match d.depthst[2] {
                 1 => false,
@@ -806,12 +807,12 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     let res = m.res[view.res].as_mut().unwrap();
     let (rb, _, _) = res.layout(sub);
     let el = (f.bits / 8) as usize;
-    let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled("D3DRES.READ.UNKNOWN"))?;
+    let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     let e = &mut b[y * rb + x * el..][..el];
     let new = match f.num {
         Num::Uint | Num::Sint => {
             if d.blend.0[0] != 0 {
-                hit("D3DRASTER.BLEND.INT");
+                hit(clause::D3DRASTER_BLEND_INT);
             }
             encode_bits(f, out)
         }
@@ -823,7 +824,7 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     };
     let mask = d.blend.0[7];
     if mask != 0xf {
-        hit("D3DRASTER.WRITEMASK");
+        hit(clause::D3DRASTER_WRITEMASK);
     }
     let merged = merge(f, e, &new, mask);
     e.copy_from_slice(&merged);
