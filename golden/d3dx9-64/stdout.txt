@@ -1336,6 +1336,247 @@ declfvf hr 8876086c
 declsize 8 len 1
 declfvf 00000000
 declsize 0 len 0
+case declfvf-0
+declfvf 00000002
+declfvf 00000004
+declfvf 00000006
+declfvf 00000008
+declfvf 0000000a
+declfvf 0000000c
+declfvf 00000012
+declfvf 00000042
+declfvf 00000084
+declfvf 00000082
+declfvf 000000c2
+declfvf 000000c4
+declfvf 00000102
+declfvf 00000144
+declfvf 00000152
+declfvf 000001c4
+declfvf hr 8876086c
+declfvf 00000302
+declfvf 00000402
+declfvf 00000802
+declfvf hr 8876086c
+declfvf 00020102
+declfvf 00030102
+declfvf 00030202
+declfvf 00010102
+declfvf 0000100c
+declfvf 00001006
+declfvf 00000002
+declfvf 00000002
+declfvf 00000000
+declfvf hr 8876086c
+declfvf 00000020
+declfvf 00000040
+declfvf 00000100
+declfvf 0000110e
+declfvf 00040244
+declfvf 000000c8
+declfvf a6480894
+declfvf e07d08f8
+declfvf 000301e4
+case declfvf-1
+declfvf 00300358
+declfvf 0d1b88fc
+declfvf hr 8876086c
+declfvf 2bbd17e6
+declfvf 31fd08b4
+declfvf 00000008
+declfvf 00020116
+declfvf 391707c2
+declfvf 0e0a163a
+declfvf 00030156
+declfvf 00030116
+declfvf 3cbf072c
+declfvf 03d60584
+declfvf 001d031a
+declfvf hr 8876086c
+declfvf 0030133a
+declfvf 0b7016bc
+declfvf 0007023a
+declfvf hr 8876086c
+declfvf hr 8876086c
+declfvf 003b0464
+declfvf 02db05b2
+declfvf 00000148
+declfvf hr 8876086c
+declfvf 004184f8
+declfvf 0b980642
+declfvf hr 8876086c
+declfvf 447b08ec
+declfvf 2451171c
+declfvf 000c0262
+declfvf 002604ba
+declfvf 06ca0638
+declfvf 00040294
+declfvf 000211ca
+declfvf hr 8876086c
+declfvf 00cb0434
+declfvf hr 8876086c
+declfvf 069316fe
+declfvf db95086a
+declfvf 0000113e
+case declfvf-2
+declfvf 000f12be
+declfvf 07c9166e
+declfvf 001e03e4
+declfvf 000d0252
+declfvf fd4f885c
+declfvf 00000028
+declfvf hr 8876086c
+declfvf 039b0514
+declfvf 0001011a
+declfvf 000301e6
+declfvf 09ce0616
+declfvf 607e08c8
+declfvf 0dac066a
+declfvf 000504a2
+declfvf hr 8876086c
+declfvf hr 8876086c
+declfvf hr 8876086c
+declfvf 05a5874e
+declfvf 003c03aa
+declfvf 000f8478
+declfvf 00f0048c
+declfvf 034a156e
+declfvf 00030122
+declfvf 0bfb069c
+declfvf hr 8876086c
+declfvf 00ba0424
+declfvf 000101d6
+declfvf hr 8876086c
+declfvf 00991448
+declfvf 00a514e8
+declfvf hr 8876086c
+declfvf 010415ac
+declfvf 02c98578
+declfvf 2489178c
+declfvf 0000002a
+declfvf 0008020a
+declfvf 0006138c
+declfvf 033a0624
+declfvf 0c9506fc
+declfvf fef20894
+case declfvf-3
+declfvf 00cd149e
+declfvf 0e7d0604
+declfvf hr 8876086c
+declfvf 0ae417be
+declfvf 7a73888c
+declfvf 00360374
+declfvf 026c0552
+declfvf hr 8876086c
+declfvf hr 8876086c
+declfvf 2f7307d2
+declfvf 02bb05f4
+declfvf 066307a4
+declfvf hr 8876086c
+declfvf 207a0734
+declfvf hr 8876086c
+declfvf 0ad40678
+declfvf 090a1688
+declfvf 050f0608
+declfvf 000a8346
+declfvf 01d0059c
+declfvf 00050276
+declfvf 00020124
+declfvf 3f6007a4
+declfvf 02bd05ca
+declfvf 04ea17a6
+declfvf 0000111c
+declfvf hr 8876086c
+declfvf 000001b2
+declfvf 00020116
+declfvf 286507ac
+declfvf 00008068
+declfvf 006d0408
+declfvf 09940602
+declfvf 000402fa
+declfvf 00000144
+declfvf hr 8876086c
+declfvf 00fb1448
+declfvf 0000800a
+declfvf 5e6a0874
+declfvf 000281c8
+case declfvf-4
+declfvf hr 8876086c
+declfvf 09ce86ea
+declfvf 00020194
+declfvf f28e88ee
+declfvf 002b036a
+declfvf 1c5607d6
+declfvf 023206e4
+declfvf 0b32067c
+declfvf 0000019c
+declfvf hr 8876086c
+declfvf 0385860c
+declfvf 000000f4
+declfvf 248807dc
+declfvf 33be17f6
+declfvf 00010232
+declfvf hr 8876086c
+declfvf 003e0372
+declfvf 00010182
+declfvf 06a2064c
+declfvf 000381b8
+declfvf 2bf407a4
+declfvf 000001ba
+declfvf 000301e8
+declfvf hr 8876086c
+declfvf 00018118
+declfvf 0002813a
+declfvf 004c04cc
+declfvf ea890836
+declfvf hr 8876086c
+declfvf 44e608fa
+declfvf 0110050a
+declfvf 0000101c
+declfvf hr 8876086c
+declfvf 000712cc
+declfvf 0098147e
+declfvf hr 8876086c
+declfvf 00001058
+declfvf 58271886
+declfvf 00031156
+declfvf hr 8876086c
+case declfvf-5
+declfvf 00048276
+declfvf 08e00646
+declfvf 013f153a
+declfvf hr 8876086c
+declfvf 005f043a
+declfvf 0364159c
+declfvf 01040544
+declfvf 00470484
+declfvf hr 8876086c
+declfvf 000301b4
+declfvf 00030168
+declfvf 0b5d8648
+declfvf ed20186e
+declfvf 000a1366
+declfvf 001b14c6
+declfvf 150207d2
+declfvf 023485fa
+declfvf hr 8876086c
+declfvf 003903c4
+declfvf 0700860c
+declfvf hr 8876086c
+declfvf 03a2066a
+declfvf 00070242
+declfvf 00000006
+declfvf 15d807f6
+declfvf 03a70528
+declfvf 0953174a
+declfvf 0fdd0674
+declfvf 0e3b0636
+declfvf 533f08dc
+declfvf 2ba48738
+declfvf a9a208b2
+declfvf 0001015c
+declfvf 0d78063a
+declfvf 00160324
 case f16-0
 f16 0000 8000 7fff ffff 7e00 fe00 7e00 3c00 bc00 7bff 7c00 7c00 7fff 7fff 7fff 7fff 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 8000 0000 0000 0000 0000 0000 0000 0000 0000 0000 8000 0000 0000 0000 0000 0000 0000 0000 0000 0000 8000 0000 0001 0001 0001 0001 0001 0001 0001 0001 8000 0001 0001 0001 0001 0001 0001 0001 0002 0002 8001 0002 0002
 f16 0002 0002 0002 0002 0002 0004 0004 8002 0004 0004 0004 0004 0004 0004 0004 0008 0008 8004 0008 0008 0008 0008 0008 0008 0008 0010 0010 8008 0010 0010 0010 0010 0010 0010 0010 0020 0020 8010 0020 0020 0020 0020 0020 0020 0020 0040 0040 8020 0040 0040 0040 0040 0040 0040 0040 0080 0080 8040 0080 0080 0080 0080 0080 0080 0080 0100 0100 8080 0100 0100
