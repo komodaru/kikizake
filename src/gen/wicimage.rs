@@ -857,7 +857,7 @@ pub fn wicdecode() -> String {
         px.extend(bytes(r, (mstride * h) as usize));
         bmp(40, w as i32, (2 * h) as i32, bpp, 0, [0; 4], 0, &pal, &px, false, (0, 0))[14..].to_vec()
     };
-    for bpp in [1u32, 4, 8, 24, 32] {
+    for bpp in [1u32, 4, 8, 16, 24, 32] {
         let (w, h) = (r.range(1, 8) as u32, r.range(1, 8) as u32);
         let e = icon_bmp(&mut r, w, h, bpp);
         decode_case(&mut s, &format!("ico-bmp-{bpp}"), &ico(&[(w, h, bpp, e)]), 1, false);
