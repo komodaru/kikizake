@@ -66,6 +66,16 @@ pub fn wicscale() -> String {
                 writeln!(s, "case rcol-{m}-{sh}-{dh}\nwbits gray8 1 {sh} {}\nwscale 1 {dh} {m}\nwpixels\nend", 60_000 + k * 1000 + sh * 20 + dh).unwrap();
             }
         }
+        // (64 random columns at once: each output row's weights solve from them)
+        if *m == "cubic" {
+            for sh in [2u32, 3, 4, 5, 7] {
+                for dh in [1u32, 2, 3, 5, 8, 11, 16, 17] {
+                    if sh != dh {
+                        writeln!(s, "case vcols-{m}-{sh}-{dh}\nwbits gray8 64 {sh} {}\nwscale 64 {dh} {m}\nwpixels\nend", 80_000 + sh * 20 + dh).unwrap();
+                    }
+                }
+            }
+        }
         for f in ["gray8", "bgr24", "bgra", "pbgra"] {
             for (i, (sw, sh, dw, dh)) in [(3, 4, 7, 5), (5, 3, 2, 8), (4, 4, 9, 9), (8, 6, 3, 13), (6, 2, 6, 7), (7, 7, 3, 3)].into_iter().enumerate() {
                 writeln!(s, "case rgrid-{m}-{f}-{sw}x{sh}-{dw}x{dh}\nwbits {f} {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels\nend", 70_000 + k * 100 + i).unwrap();
