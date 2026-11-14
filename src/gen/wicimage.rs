@@ -1126,6 +1126,23 @@ pub fn wicencode() -> String {
             writeln!(s, "case encbw-{ch}-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one(c))).unwrap();
         }
     }
+    // 16-bit sources into 64bppRGBAFixedPoint (what the BMP encoder takes them as): every 16th
+    // level and every level below 1024, gray, RGB and RGBA
+    let lv = |k: usize, lo: bool| if lo { k as u16 } else { (k * 16 + k % 16) as u16 };
+    for lo in [false, true] {
+        let n = if lo { 1024usize } else { 4096 };
+        let w = 64u32;
+        let h = (n / 64) as u32;
+        let mk = |ch: usize, f: &dyn Fn(usize) -> Vec<u16>| -> Vec<Vec<u8>> { (0..h as usize).map(|y| (0..64).flat_map(|x| f(y * 64 + x)).flat_map(|v| v.to_be_bytes()).collect::<Vec<u8>>()).map(|r| { assert_eq!(r.len(), 64 * 2 * ch); r }).collect() };
+        let tag = if lo { "lo" } else { "all" };
+        let g = mk(1, &|k| vec![lv(k, lo)]);
+        let c = mk(3, &|k| vec![lv(k, lo), 65535 - lv(k, lo), (k as u16).wrapping_mul(37)]);
+        let a = mk(4, &|k| vec![lv(k, lo), (k as u16).wrapping_mul(37), 65535 - lv(k, lo), (k as u16).wrapping_mul(7919)]);
+        for (name, ct, rows, bpp) in [("gray16", 0u8, g, 2usize), ("rgb48", 2, c, 6), ("rgba64", 6, a, 8)] {
+            let f = png(w, h, 16, ct, false, &[], &png_filter(&rows, bpp, &[0]), 4096);
+            writeln!(s, "case fixed-{name}-{tag}\nwdecode {}\nwframe 0\nwinfo\nwconv rgba64fixed\nwpixels\nend", hex(&f)).unwrap();
+        }
+    }
     // a gray ramp and random pictures of 2 to 300 colors into 8bppIndexed: the palette chosen
     let mut r = XorShift32::new(0x9a1e);
     let ramp: Vec<u8> = (0..=255u8).flat_map(|v| [v; 3]).collect();
