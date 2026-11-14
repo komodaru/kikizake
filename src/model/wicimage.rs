@@ -532,6 +532,16 @@ pub enum Frame {
     NoPixels(Img, u32),
 }
 
+impl Frame {
+    /// the picture, when the frame has one to copy
+    pub fn pixels(self) -> Option<Img> {
+        match self {
+            Frame::Pixels(i) => Some(i),
+            Frame::NoInfo(_) | Frame::NoPixels(..) => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 enum FrameFail {
     NoInfo(u32),
@@ -959,7 +969,7 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     // transparent
     let key: Option<Vec<u8>> = match (&trns, ct) {
         (Some(_), 0) => {
-            hit(clause::WICIMAGE_PNG_TRNS);
+            hit(clause::WICIMAGE_PNG_TRNS_GRAY);
             None
         }
         (Some(t), 2) if t.len() >= 6 => {

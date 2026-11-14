@@ -166,7 +166,7 @@ proptest! {
         let pal: Vec<u32> = if bpp == 8 { (0..256).map(|i| i * 0x010101).collect() } else { vec![] };
         let f = kikizake::gen::wicimage_bmp(40, w, h, bpp, 0, [0; 4], 0, &pal, &px, top, (0, 0));
         let d = wi::decode(&f).unwrap().unwrap();
-        let i = d.frames[0].clone().unwrap();
+        let i = d.frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!((i.w, i.h), (w as u32, h as u32));
         let n = i.stride();
         for y in 0..h as usize {
@@ -190,7 +190,7 @@ proptest! {
             filtered.extend(kikizake::gen::wicimage_png_filter(&raw, 1, &[f0, f1]));
         }
         let f = kikizake::gen::wicimage_png(w, h, 8, 0, il, &[], &filtered, block);
-        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap();
+        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!(i.fmt, "gray8");
         prop_assert_eq!(rows_of(&i), pix);
     }
@@ -202,7 +202,7 @@ proptest! {
         let pal: Vec<u32> = (0..1u32 << bits).collect();
         let fr = kikizake::gen::WicGifFrame { x: 0, y: 0, w, h, local: None, transparent: None, interlace: il, idx: idx.clone(), min: bits.max(2) };
         let f = kikizake::gen::wicimage_gif(w, h, Some(&pal), 0, &[fr]);
-        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap();
+        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!(i.px, idx);
     }
 
@@ -214,7 +214,7 @@ proptest! {
         let pal: Vec<u32> = (0..1u32 << bits).collect();
         let fr = kikizake::gen::WicGifFrame { x: 0, y: 0, w: n as u32, h: 1, local: None, transparent: None, interlace: false, idx: idx.clone(), min: bits.max(2) };
         let f = kikizake::gen::wicimage_gif(n as u32, 1, Some(&pal), 0, &[fr]);
-        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap();
+        let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!(i.px, idx);
     }
 
