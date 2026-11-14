@@ -5,6 +5,7 @@
 //!
 //! One file per API (src/gen/<api>.rs); SUITES lists every suite and the function that makes it.
 
+mod d2d;
 mod d3d11;
 mod d3d9;
 mod ddraw;
@@ -26,6 +27,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("d3d11", d3d11::d3d11),
     ("wic", wic::wic),
     ("ddraw", ddraw::ddraw),
+    ("d2d", d2d::d2d),
 ];
 
 pub const SUITES: &[&str] = &{
