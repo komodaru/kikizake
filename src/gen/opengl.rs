@@ -536,9 +536,9 @@ pub fn opengl() -> String {
     }
 
     // glReadPixels: every format and type over a random picture, then the pack parameters
-    // (the stencil buffer cleared to a value: before its first clear it holds what the memory
-    // held, 0xbe on one executor and 1 on the other in this case's first answers)
-    writeln!(s, "case read-formats\n{}gl glDisable 0xbd0\ngl glClearStencil 0xb5\ngl glClear 0x400", ctx(32)).unwrap();
+    // (the stencil and depth buffers cleared to values: before their first clear they hold what the
+    // memory held, the stencil 0xbe on one executor and 1 on the other in this case's first answers)
+    writeln!(s, "case read-formats\n{}gl glDisable 0xbd0\ngl glClearStencil 0xb5\ngl glClearDepth 0.75\ngl glClear 0x500", ctx(32)).unwrap();
     random_dst(&mut s, 700);
     for fm in READ_FORMATS {
         for ty in TYPES {
@@ -600,7 +600,9 @@ pub fn opengl() -> String {
         ("flush", "gl glClear 0x4000\ngl glFlush\ngl glFinish\nglerr"),
         ("pixels-errors", "glread 0 0 1 1 0x1234 0x1401 16\nglerr\nglread 0 0 1 1 0x1908 0x1234 16\nglerr\nglread 0 0 -1 1 0x1908 0x1401 16\nglerr\nglread 0 0 1 -1 0x1908 0x1401 16\nglerr\nglread 0 0 1 1 0x1900 0x1401 16\nglerr\ngldraw 1 1 0x1234 0x1401 1 16\nglerr\ngldraw -1 1 0x1908 0x1401 1 16\nglerr\ngldraw 1 1 0x1900 0x1401 1 16\nglerr\nglread 0 0 1 1 0x1900 0x1a00 16\nglerr"),
         ("draw-bitmap", "gldraw 8 1 0x1908 0x1a00 1 16\nglerr"),
-        ("draw-depth", "gldraw 2 1 0x1902 0x1405 1 16\nglerr\nglread 0 0 2 1 0x1902 0x1405 8"),
+        // (the depth buffer cleared first: before its first clear it holds what the memory held on
+        // the x86-64 executor)
+        ("draw-depth", "gl glClearDepth 0.25\ngl glClear 0x100\ngldraw 2 1 0x1902 0x1405 1 16\nglerr\nglread 0 0 2 1 0x1902 0x1405 8"),
         ("read-outside", "glread 14 14 4 4 0x1908 0x1401 64\nglerr"),
         ("blend-alpha-buffer", "BLEND"),
         ("depth-16", "DEPTH16"),

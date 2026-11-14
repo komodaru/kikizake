@@ -1059,6 +1059,8 @@ pub struct Frag {
     pub z: f64,
     /// from glDrawPixels, whose colors are truncated to the channels (GL.DRAW.TOFIXED)
     pub trunc: bool,
+    /// a depth already in the 32-bit buffer's fixed point (a depth image's element)
+    pub zfixed: Option<u64>,
 }
 
 impl Ctx {
@@ -1671,7 +1673,7 @@ impl Ctx {
                         for i in 0..n as i64 {
                             let (x, y) = (x0 as i64 + i, y0 as i64 + j);
                             if (0..W as i64).contains(&x) && (0..H as i64).contains(&y) {
-                                self.fragment(Frag { x, y, c, z: w[2], trunc: false })?;
+                                self.fragment(Frag { x, y, c, z: w[2], trunc: false, zfixed: None })?;
                             }
                         }
                     }
@@ -1741,7 +1743,7 @@ impl Ctx {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
                             if inside(cx, x0, x1, px) && inside(cy, y0, y1, py) {
-                                let r = self.fragment(Frag { x, y, c, z: w[0][2], trunc: false });
+                                let r = self.fragment(Frag { x, y, c, z: w[0][2], trunc: false, zfixed: None });
                                 if r.is_err() {
                                     self.never = NeverPath::Other;
                                 }
@@ -1831,7 +1833,11 @@ impl Ctx {
             }
         }
         let has_stencil = self.pf.stencil > 0 && self.cap(STENCIL_TEST);
-        let z = if self.pf.depth > 0 && self.cap(DEPTH_TEST) { Ctx::depth_fixed(f.z, self.pf.depth)? } else { 0 };
+        let z = match f.zfixed {
+            _ if !(self.pf.depth > 0 && self.cap(DEPTH_TEST)) => 0,
+            Some(z) if self.pf.depth == 32 => z,
+            _ => Ctx::depth_fixed(f.z, self.pf.depth)?,
+        };
         if has_stencil {
             hit(clause::GL_STENCIL_TEST);
             let (func, r, m) = self.stencil_func;
@@ -1862,7 +1868,7 @@ impl Ctx {
                     NeverPath::Other => return Err(Fail::Unmodeled(open::GL_DEPTH_NEVER)),
                 }
             } else {
-                compare_u(self.depth_func, z, u64::from(self.depth[i].bits()))
+                compare_u(self.depth_func, z, self.depth[i].0)
             };
             if !pass {
                 if has_stencil {
@@ -2471,8 +2477,9 @@ fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
 }
 
 /// a depth sample: the fragment's fixed-point depth, which at 1.0 is 2^32 in a 32-bit buffer;
-/// the depth test and UNSIGNED_INT reads see its low 32 bits, the other read types all of it
-/// (golden opengl-32 depth-types-0)
+/// UNSIGNED_INT reads see its low 32 bits, the depth test and the other read types all of it
+/// (golden opengl-32 depth-types-0, draw-depthstencil-0: a depth image of 1.0 then one of 0.7
+/// under LESS draws the second)
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Depth(pub u64);
 
@@ -2509,6 +2516,34 @@ pub fn index_bits(v: f64) -> u32 {
     } else {
         0x8000_0000
     }
+}
+
+/// a depth image's element: its window depth, and its bits in a 32-bit buffer (MEASURED, golden
+/// opengl-32 draw-depthstencil-0: the depth in floats, BYTE as (2b + 1) / 255, SHORT as (2s + 1)
+/// times 1/65535, INT as i times the float 1/2147482624, the unsigned bytes and shorts over
+/// 2^n - 1, then the float z 2^31 truncated and shifted left by one; UNSIGNED_INT its bits with
+/// the lowest cleared; GL.DRAW.DEPTHSTENCIL)
+pub fn depth_element(b: &[u8], t: u32) -> (f64, u64) {
+    let w = |n: usize| -> [u8; 4] {
+        let mut x = [0u8; 4];
+        x[..n].copy_from_slice(&b[..n]);
+        x
+    };
+    let z: f32 = match t {
+        BYTE => (2.0 * f32::from(b[0] as i8) + 1.0) / 255.0,
+        UNSIGNED_BYTE => f32::from(b[0]) / 255.0,
+        SHORT => (2.0 * f32::from(i16::from_le_bytes([b[0], b[1]])) + 1.0) * (1.0 / 65535.0),
+        UNSIGNED_SHORT => f32::from(u16::from_le_bytes([b[0], b[1]])) / 65535.0,
+        INT => i32::from_le_bytes(w(4)) as f32 * (1.0 / 2_147_482_624.0),
+        UNSIGNED_INT => {
+            let u = u32::from_le_bytes(w(4));
+            return (f64::from(u) / 4_294_967_295.0, u64::from(u & !1));
+        }
+        _ => f32::from_le_bytes(w(4)),
+    };
+    let z = if z.is_nan() { 0.0 } else { z.clamp(0.0, 1.0) };
+    // (z 2^31 is at most 2^31: the cast is exact for the floats it takes)
+    (f64::from(z), ((z * 2_147_483_648.0) as u64) << 1)
 }
 
 /// a color index element's value, each type as the integer or float it holds (unsigned bytes in
@@ -2780,7 +2815,7 @@ impl Ctx {
                         hit(clause::GL_DRAW_INDEX);
                         self.transfer([0.0; 4])?.map(|v| v as f32)
                     };
-                    self.fragment(Frag { x: i as i64, y: j as i64, c, z: 0.0, trunc: true })?;
+                    self.fragment(Frag { x: i as i64, y: j as i64, c, z: 0.0, trunc: true, zfixed: None })?;
                 }
             }
             return Ok(());
@@ -2801,11 +2836,12 @@ impl Ctx {
                         e.reverse();
                     }
                     if f == STENCIL_INDEX {
-                        self.draw_stencil(i, j, index_value(&e, t)?);
+                        // (MEASURED, golden opengl-32 draw-depthstencil-1: the element as a float,
+                        // so 32-bit integers lose their low bits)
+                        self.draw_stencil(i, j, f64::from(index_value(&e, t)? as f32));
                     } else {
-                        let z = to_float(&e, t);
-                        let z = if z.is_nan() { 0.0 } else { z.clamp(0.0, 1.0) };
-                        self.fragment(Frag { x: i as i64, y: j as i64, c: [1.0; 4], z: f64::from(z), trunc: true })?;
+                        let (z, zfixed) = depth_element(&e, t);
+                        self.fragment(Frag { x: i as i64, y: j as i64, c: [1.0; 4], z, trunc: true, zfixed: Some(zfixed) })?;
                     }
                 }
             }
@@ -2855,7 +2891,7 @@ impl Ctx {
                     }
                 }
                 let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
-                self.fragment(Frag { x: i as i64, y: j as i64, c: c.map(|v| v as f32), z: 0.0, trunc: true })?;
+                self.fragment(Frag { x: i as i64, y: j as i64, c: c.map(|v| v as f32), z: 0.0, trunc: true, zfixed: None })?;
             }
         }
         Ok(())
