@@ -239,6 +239,15 @@ pub fn gdipluspaint() -> String {
         let seed = r.next();
         writeln!(s, "case hatch16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 0 hatch {} {fore:#010x} {back:#010x}\ngppaint 0 0 0 0 16 8 over {} 0 0 0 0\ngpread 0 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 1 solid {fore:#010x}\ngppaint 0 1 0 0 16 8 over 0 0 0 0 0\ngpread 0 {f}\nend", r.range(0, 52), r.range(0, 4)).unwrap();
     }
+    // gamma corrected hatches over 16bppRGB555 / 565 of one color, and of two, each beside a
+    // solid fill of the same color
+    for i in 0..24 {
+        let f = *r.pick(&["16bppRGB555", "16bppRGB565"]);
+        let c = rargb(&mut r);
+        let back = if i % 2 == 0 { c } else { rargb(&mut r) };
+        let seed = r.next();
+        writeln!(s, "case hatchgamma16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 0 hatch 0 {c:#010x} {back:#010x}\ngppaint 0 0 0 0 16 8 over 2 0 0 0 0\ngpread 0 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 1 solid {back:#010x}\ngppaint 0 1 0 0 16 8 over 2 0 0 0 0\ngpread 0 {f}\nend").unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s

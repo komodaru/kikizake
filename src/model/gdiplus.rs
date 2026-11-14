@@ -325,7 +325,9 @@ pub fn over_truncated(s: u32, d: u32) -> u32 {
     let sa = s >> 24;
     let mut o = 0;
     for sh in [0, 8, 16] {
-        o |= ((s >> sh & 255) + (d >> sh & 255) * (255 - sa) / 255) << sh;
+        // (MEASURED, golden gdipluspaint hatch16-*: 4096 pixels: t / 255 as (t + (t >> 8)) >> 8)
+        let t = (d >> sh & 255) * (255 - sa);
+        o |= ((s >> sh & 255) + ((t + (t >> 8)) >> 8)) << sh;
     }
     o
 }
@@ -1012,13 +1014,9 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
         hit(clause::GP_PAINT_NEGATIVE);
         return Ok(());
     }
-    if let Brush::Hatch { style, fore, back } = brush {
-        if super::arch() == 32 && !copy && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
-            return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_X86_16));
-        }
-        let partial = HATCH[style.get() as usize * 64..][..64].iter().any(|&w| w != 0 && w != 255);
-        if partial && (fore >> 24 != 255 || back >> 24 != 255) {
-            return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_PARTIAL));
+    if let Brush::Hatch { .. } = brush {
+        if !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
+            return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_GAMMA_16));
         }
     }
     let (x, y, w, h) = (x as f64, y as f64, w as f64, h as f64);
@@ -1031,11 +1029,16 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
                 hit(clause::GP_PAINT_HATCH);
                 let (hx, hy) = ((px as i64 - ox).rem_euclid(8), (py as i64 - oy).rem_euclid(8));
                 let wt = HATCH[style.get() as usize * 64 + hy as usize * 8 + hx as usize] as u32;
+                // (premultiplied; between them (antialiased styles) f w + b (256 - w), >> 8)
                 let (fore, back) = (pre(fore), pre(back));
-                (0..4).fold(0, |o, k| {
-                    let (f, g) = (fore >> (8 * k) & 255, back >> (8 * k) & 255);
-                    o | (f * wt + g * (255 - wt) + 127) / 255 << (8 * k)
-                })
+                match wt {
+                    0 => back,
+                    255 => fore,
+                    _ => (0..4).fold(0, |o, k| {
+                        let (f, g) = (fore >> (8 * k) & 255, back >> (8 * k) & 255);
+                        o | ((f * wt + g * (256 - wt)) >> 8) << (8 * k)
+                    }),
+                }
             }
         }
     };
@@ -1058,7 +1061,7 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
                 (c > 0).then(|| {
                     // (each premultiplied channel times the share of subsamples, rounded, halves up)
                     let c0 = color(px, py);
-                    (0..4).fold(0, |o, k| o | (2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full) << (8 * k))
+                    (0..4).fold(0, |o, k| o | ((2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full)) << (8 * k))
                 })
             }, copy, q)
         }
