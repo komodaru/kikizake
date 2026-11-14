@@ -24,11 +24,11 @@ fn rows(out: &[String], header: &str) -> Vec<String> {
 
 const FMTS: [&str; 4] = ["565", "555", "24", "32"];
 
-/// every z in millis into 16, 24 and 32 bits: 0 at 0, the largest value at 1, never decreasing,
-/// and Clear's rounding at most one past the triangle's truncation
+/// every z in millis into 16 and 32 bits: 0 (0xff) at 0, the largest value at 1, never
+/// decreasing; a triangle's z below z * 2^16 (2^24) by less than one step
 #[test]
 fn z_values_are_monotone() {
-    for bits in [16, 24, 32] {
+    for bits in [16, 32] {
         let max = if bits == 32 { u32::MAX } else { (1 << bits) - 1 };
         let (mut pc, mut pt) = (0, 0);
         for m in 0..=1000 {
@@ -36,10 +36,14 @@ fn z_values_are_monotone() {
             let (c, t) = (clear_z(bits, z), tri_z(bits, z));
             assert!(c >= pc && t >= pt, "{bits} {m}");
             assert!(c <= max && t <= max);
+            let x = z as f64 * if bits == 32 { 16777216.0 } else { 65536.0 };
+            let t0 = if bits == 32 { t >> 8 } else { t } as f64;
+            assert!(m == 0 || m == 1000 || (t0 < x && x <= t0 + 1.0), "{bits} {m}");
             (pc, pt) = (c, t);
         }
         assert_eq!(clear_z(bits, 0.0), 0);
-        assert_eq!(tri_z(bits, 0.0), 0);
+        assert_eq!(tri_z(bits, 0.0), if bits == 32 { 0xff } else { 0 });
+        assert_eq!(tri_z(bits, 1.0), max);
         assert_eq!(clear_z(bits, 1.0), max);
     }
     assert_eq!(tri_z(16, 1.0), 65535);
