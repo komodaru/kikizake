@@ -16952,6 +16952,882 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
 d3ddump
 d3dzdump
 end
+case zsweep-z16
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 0
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 7
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 14
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 21
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 28
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 35
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 42
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 49
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 56
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 63
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 70
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 77
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 84
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 91
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 98
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 105
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 112
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 119
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 126
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 133
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 140
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 147
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 154
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 161
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 168
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 175
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 182
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 189
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 196
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 203
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 210
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 217
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 224
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 231
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 238
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 245
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 252
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 259
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 266
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 273
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 280
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 287
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 294
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 301
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 308
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 315
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 322
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 329
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 336
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 343
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 350
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 357
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 364
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 371
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 378
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 385
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 392
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 399
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 406
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 413
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 420
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 427
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 434
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 441
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 448
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 455
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 462
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 469
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 476
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 483
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 490
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 497
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 504
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 511
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 518
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 525
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 532
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 539
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 546
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 553
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 560
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 567
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 574
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 581
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 588
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 595
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 602
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 609
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 616
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 623
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 630
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 637
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 644
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 651
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 658
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 665
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 672
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 679
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 686
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 693
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 700
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 707
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 714
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 721
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 728
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 735
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 742
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 749
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 756
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 763
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 770
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 777
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 784
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 791
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 798
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 805
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 812
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 819
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 826
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 833
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 840
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 847
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 854
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 861
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 868
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 875
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 882
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 889
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 896
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 903
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 910
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 917
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 924
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 931
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 938
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 945
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 952
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 959
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 966
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 973
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 980
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 987
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 994
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 1000
+d3dzdump
+end
+case zsweep-z32
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 0
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 7
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 14
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 21
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 28
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 35
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 42
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 49
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 56
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 63
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 70
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 77
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 84
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 91
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 98
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 105
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 112
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 119
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 126
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 133
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 140
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 147
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 154
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 161
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 168
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 175
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 182
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 189
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 196
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 203
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 210
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 217
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 224
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 231
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 238
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 245
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 252
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 259
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 266
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 273
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 280
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 287
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 294
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 301
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 308
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 315
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 322
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 329
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 336
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 343
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 350
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 357
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 364
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 371
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 378
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 385
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 392
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 399
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 406
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 413
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 420
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 427
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 434
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 441
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 448
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 455
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 462
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 469
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 476
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 483
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 490
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 497
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 504
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 511
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 518
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 525
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 532
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 539
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 546
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 553
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 560
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 567
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 574
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 581
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 588
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 595
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 602
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 609
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 616
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 623
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 630
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 637
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 644
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 651
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 658
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 665
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 672
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 679
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 686
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 693
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 700
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 707
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 714
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 721
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 728
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 735
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 742
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 749
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 756
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 763
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 770
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 777
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 784
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 791
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 798
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 805
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 812
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 819
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 826
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 833
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 840
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 847
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 854
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 861
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 868
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 875
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 882
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 889
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 896
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 903
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 910
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 917
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 924
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 931
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 938
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 945
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 952
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 959
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 966
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 973
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 980
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 987
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 994
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 1000
+d3dzdump
+end
 case zfunc
 d3d 7
 d3ddev rgb 32 8 4 z16

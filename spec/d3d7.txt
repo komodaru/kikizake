@@ -10,7 +10,7 @@ D3D7.CLEAR measured | IDirect3DDevice7::Clear, IDirect3DViewport3::Clear2 | D3DC
 D3D7.CLEAR.Z measured | IDirect3DDevice7::Clear (D3DCLEAR_ZBUFFER) | the z value times the depth's maximum, rounded to nearest and clamped (d3d7-32 golden: 0..1000 millis for z16, z24, z32)
 D3D7.CLEAR.NOZ open | IDirect3DDevice7::Clear | D3DCLEAR_ZBUFFER with no z-buffer attached (the documented error not yet measured)
 D3D7.LOCK doc | IDirectDrawSurface7::Lock | the render target and z-buffer read back through Lock
-D3D7.TRI measured | IDirect3DDevice7::DrawPrimitive (D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX) | a pixel whose center is inside the three edges is drawn; z written is trunc(z*65536) (z16, at most 65535) or trunc(z*(2^32-1)) (z32) (d3d7-32 golden, 160 triangles away from edges)
+D3D7.TRI measured | IDirect3DDevice7::DrawPrimitive (D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX) | a pixel whose center is inside the three edges is drawn; the z written is trunc(z * the largest value) in double (d3d7-32 golden: 160 triangles away from edges; zcover and zsweep: 3 + 145 z values into 16 and 32 bits)
 D3D7.TRI.EDGE open | (none) | a pixel center within 1/8 px of an edge: the RGB rasterizer's own arithmetic decides (the top-left rule does not fit)
 D3D7.TRI.CLIP open | (none) | a triangle crossing the target's edge: the guard-band clipper moves edges by up to 0.6 px
 D3D7.TRI.COVERALL measured | (none) | a triangle crossing the target that covers every pixel of it: every pixel drawn (d3d7-32 golden)

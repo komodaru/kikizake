@@ -86,14 +86,12 @@ pub fn clear_z(bits: u32, z: f32) -> u32 {
     if v >= max as f64 { max } else { v as u32 }
 }
 
-/// a triangle's z value (constant over it): MEASURED (ztest golden, z 0.3, 0.45, 0.6) 16 bits:
-/// truncated z * 65536; 32 bits: truncated z * (2^32 - 1)
+/// a triangle's z value (constant over it): MEASURED (zcover golden: z 0.3, 0.5, 0.6 into 16 and
+/// 32 bits; zsweep golden: every 7/1000 from 0 to 1) the float z times the largest value, in
+/// double, truncated
 pub fn tri_z(bits: u32, z: f32) -> u32 {
-    if bits == 32 {
-        ((z as f64) * u32::MAX as f64) as u32
-    } else {
-        (((z as f64) * 65536.0) as u32).min(65535)
-    }
+    let max = if bits == 32 { u32::MAX } else { (1u32 << bits) - 1 };
+    ((z as f64) * max as f64) as u32
 }
 
 impl D3d7 {

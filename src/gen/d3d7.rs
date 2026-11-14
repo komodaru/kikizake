@@ -135,6 +135,14 @@ pub fn d3d7() -> String {
             }
         }
     }
+    // the z a triangle writes: every 7/1000 from 0 to 1 (and 1)
+    for z in ["z16", "z32"] {
+        writeln!(s, "case zsweep-{z}\nd3d 7\nd3ddev rgb 32 2 1 {z}\nd3drs set 22 1\nd3drs set 7 1").unwrap();
+        for m in (0..=1000).step_by(7).chain([1000]) {
+            writeln!(s, "d3dclear 0xff000000 z 1000\nd3dtri 0xffff0000 -16 -16 600 -16 -16 600 z {m}\nd3dzdump").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // a z test other than LESSEQUAL, other blend factors, blending and dithering on 16 bits
     writeln!(s, "case zfunc\nd3d 7\nd3ddev rgb 32 8 4 z16\nd3drs set 22 1\nd3drs set 7 1\nd3drs set 23 2\nd3dclear 0xff000000 z 500\nd3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500\nd3ddump\nend").unwrap();
     writeln!(s, "case blendone\nd3d 7\nd3ddev rgb 32 8 4\nd3drs set 22 1\nd3dfill 7\nd3drs set 27 1\nd3drs set 19 2\nd3drs set 20 2\nd3dtri 0x80402010 -16 -16 600 -16 -16 600\nd3ddump\nend").unwrap();
