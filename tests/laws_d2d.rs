@@ -186,7 +186,7 @@ proptest! {
 
     /// any line of d2d ops and junk: the model answers or says why not, never panics
     #[test]
-    fn never_panics(text in "(case [a-z]{1,3}\n|end\n|(d2rot|d2skew|d2inv|d2sincos|d2tan|d2vec3|d2cs|d2stroke|d2rect|d2ell|d2rrect|d2xf|d2path|d2sink|d2bounds|d2in|d2area|d2len|d2cmp|d2count|d2target|d2aa|d2xform|d2clear|d2fill|d2fillg|d2brush|d2read)( (-?[0-9]{1,3}(\\.[0-9]{1,2})?|0x[0-9a-f]{1,8}|m|z|o|alt|wind|open|close|begin|line|end|count|fill|aliased|per)){0,12}\n){0,30}") {
+    fn never_panics(text in "(case [a-z]{1,3}\n|end\n|(d2rot|d2skew|d2inv|d2sincos|d2tan|d2vec3|d2cs|d2stroke|d2rect|d2ell|d2rrect|d2xf|d2path|d2sink|d2bounds|d2in|d2area|d2len|d2cmp|d2count|d2target|d2aa|d2xform|d2clear|d2fill|d2fillg|d2brush|d2read|d2info|d2dpi|d2tags|d2flush|d2state|d2clip|d2unclip|d2fillo)( (-?[0-9]{1,3}(\\.[0-9]{1,2})?|0x[0-9a-f]{1,8}|m|z|o|alt|wind|open|close|begin|line|end|count|fill|aliased|per|save|restore)){0,12}\n){0,30}") {
         let _ = model::run("p", &parse_cases(&text));
     }
 }

@@ -571,3 +571,18 @@ WICBitmapTransformOptions | https://learn.microsoft.com/en-us/windows/win32/api/
 WidenPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-widenpath
 XFORM | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-xform
 ZWRITEENABLE | - (DirectX 7 SDK, not on Microsoft Learn)
+ID2D1RenderTarget::GetSize | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-getsize
+ID2D1RenderTarget::GetPixelSize | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-getpixelsize
+ID2D1RenderTarget::GetMaximumBitmapSize | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-getmaximumbitmapsize
+ID2D1RenderTarget::GetPixelFormat | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-getpixelformat
+ID2D1RenderTarget::SetDpi | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-setdpi
+ID2D1RenderTarget::GetDpi | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-getdpi
+ID2D1RenderTarget::SetTags | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-settags
+ID2D1RenderTarget::GetTags | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-gettags
+ID2D1RenderTarget::Flush | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-flush
+ID2D1RenderTarget::SaveDrawingState | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-savedrawingstate
+ID2D1RenderTarget::RestoreDrawingState | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-restoredrawingstate
+ID2D1RenderTarget::PushAxisAlignedClip | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-pushaxisalignedclip(constd2d1_rect_f__d2d1_antialias_mode)
+ID2D1RenderTarget::PopAxisAlignedClip | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-popaxisalignedclip
+ID2D1Brush::SetOpacity | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1brush-setopacity
+D2D1_BRUSH_PROPERTIES | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/ns-d2d1-d2d1_brush_properties

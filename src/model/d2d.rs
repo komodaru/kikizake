@@ -761,15 +761,112 @@ pub struct Target {
     pub h: usize,
     /// B G R A each
     pub px: Vec<[u8; 4]>,
-    pub aliased: bool,
+    pub st: DrawState,
+    /// dots per inch, x and y
+    pub dpi: (f32, f32),
+    /// the drawing state block, once made: what its last save held (None: never saved)
+    pub block: Option<Option<DrawState>>,
+    /// the axis-aligned clips pushed, innermost last
+    pub clips: Vec<Clip>,
+    /// the error state's error, once in it
+    pub fault: Option<u32>,
+}
+
+pub const D2DERR_POP_CALL_DID_NOT_MATCH_PUSH: u32 = 0x8899_0014;
+pub const D2DERR_PUSH_POP_UNBALANCED: u32 = 0x8899_0016;
+
+/// D2D1_ANTIALIAS_MODE
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Antialias {
+    PerPrimitive,
+    Aliased,
+}
+
+impl Antialias {
+    fn parse(t: &str) -> Option<Self> {
+        match t {
+            "per" => Some(Self::PerPrimitive),
+            "aliased" => Some(Self::Aliased),
+            _ => None,
+        }
+    }
+    /// the enum's value
+    fn code(self) -> u32 {
+        match self {
+            Self::PerPrimitive => 0,
+            Self::Aliased => 1,
+        }
+    }
+}
+
+/// what a drawing state block saves and restores
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct DrawState {
     pub m: M,
+    pub aa: Antialias,
+    pub tags: (u64, u64),
+}
+
+/// a new target's state, and a never saved block's
+pub const FRESH: DrawState = DrawState { m: IDENTITY, aa: Antialias::PerPrimitive, tags: (0, 0) };
+
+/// a pushed axis-aligned clip: the rectangle in pixels (the bounds of the given one through the
+/// transform when pushed), its antialias mode
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct Clip {
+    pub r: [f32; 4],
+    pub aa: Antialias,
+}
+
+impl Target {
+    pub fn new(w: usize, h: usize) -> Self {
+        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, clips: Vec::new(), fault: None }
+    }
+
+    /// MEASURED (D2D.CLIP.BLEND): what a drawing call did to the pixels (`before` -> now) kept
+    /// in each clip: aliased, where the pixel center is inside (the fill rule's edges); per
+    /// primitive, the coverage n of 8 x 8 samples as k = (n 4 255 + 127) >> 8 and each byte
+    /// (before (255 - k) + now k + 127) / 255
+    fn keep_clipped(&mut self, before: &[[u8; 4]]) {
+        for c in &self.clips {
+            let [l, t, r, b] = c.r.map(f64::from);
+            let inside = |x: f64, y: f64| l <= x && x < r && t <= y && y < b;
+            for y in 0..self.h {
+                for x in 0..self.w {
+                    let (fx, fy) = (x as f64, y as f64);
+                    let k: u32 = match c.aa {
+                        Antialias::Aliased => {
+                            if inside(fx + 0.5, fy + 0.5) { 255 } else { 0 }
+                        }
+                        Antialias::PerPrimitive => {
+                            let mut n = 0u32;
+                            for j in 0..8 {
+                                for i in 0..8 {
+                                    n += u32::from(inside(fx + (f64::from(i) + 0.5) / 8.0, fy + (f64::from(j) + 0.5) / 8.0));
+                                }
+                            }
+                            (n * 4 * 255 + 127) >> 8
+                        }
+                    };
+                    let i = y * self.w + x;
+                    let (d, f) = (before[i], self.px[i]);
+                    self.px[i] = std::array::from_fn(|c| ((u32::from(d[c]) * (255 - k) + u32::from(f[c]) * k + 127) / 255) as u8);
+                }
+            }
+        }
+    }
 }
 
 /// a straight color (r, g, b, a as 0..255) as the premultiplied bytes Clear and an opaque brush
 /// write, B G R A
 pub fn premultiply(c: [i64; 4]) -> [u8; 4] {
+    premultiply_o(c, 1.0)
+}
+
+/// MEASURED (D2D.OPACITY): a brush's opacity multiplies the alpha in f32 before premultiplying
+pub fn premultiply_o(c: [i64; 4], o: f32) -> [u8; 4] {
     let f = |v: i64| v as f32 / 255.0;
-    let a = f(c[3]);
+    let a = f(c[3]) * o;
     let ch = |v: i64| ((f(v) * a) * 255.0 + 0.5).floor() as u8;
     [ch(c[2]), ch(c[1]), ch(c[0]), (a * 255.0 + 0.5).floor() as u8]
 }
@@ -1029,15 +1126,105 @@ impl D2d {
                 let segs: usize = figs.iter().map(|f| f.pts.len() - 1 + f.closed as usize).sum();
                 out.push(format!("count 00000000 {} 00000000 {segs}", figs.len()));
             }
-            "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2brush" | "d2read" => self.draw(op, out)?,
-            // (render target state, clips, layers, opacity, gradients, bitmaps, strokes: asked,
-            // not modelled yet)
-            "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" | "d2state" | "d2fillo" | "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
+            "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" => self.draw(op, out)?,
+            "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" => self.state(op, out)?,
+            // (layers, gradients, bitmaps, strokes: asked, not modelled yet)
+            "d2layer" | "d2poplayer" | "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
                 return Err(Fail::Unmodeled(open::D2D_RT));
             }
             _ => return Ok(false),
         }
         Ok(true)
+    }
+
+    /// the target's state ops: d2info, d2dpi, d2tags, d2flush, d2state, d2clip, d2unclip
+    fn state(&mut self, op: &Op, out: &mut Vec<String>) -> Res<()> {
+        let t = &op.tok;
+        let len = t.len();
+        let want = |n: usize| if len == n { Ok(()) } else { Err(Fail::Bad) };
+        match t[0].as_str() {
+            "d2info" => {
+                want(1)?;
+                let Some(tg) = &self.t else { out.push("nort".into()); return Ok(()) };
+                // (MEASURED, D2D.RT.INFO: GetSize is the pixel size times 96 / dpi in f32,
+                // GetMaximumBitmapSize 8388608, the format B8G8R8A8 premultiplied)
+                hit(clause::D2D_RT_INFO);
+                let (w, h) = (tg.w as f32 * 96.0 / tg.dpi.0, tg.h as f32 * 96.0 / tg.dpi.1);
+                let m: Vec<String> = tg.st.m.iter().map(|&v| hex(v)).collect();
+                out.push(format!("info size {} {} px {} {} dpi {} {} max 8388608 fmt 87 1 aa {} xform {} tags {} {}", hex(w), hex(h), tg.w, tg.h, hex(tg.dpi.0), hex(tg.dpi.1), tg.st.aa.code(), m.join(" "), tg.st.tags.0, tg.st.tags.1));
+            }
+            "d2dpi" => {
+                let (x, y) = (f(op, 1)?, f(op, 2)?);
+                want(3)?;
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                hit(clause::D2D_RT_DPI);
+                tg.dpi = if x == 0.0 && y == 0.0 { (96.0, 96.0) } else { (x, y) };
+            }
+            "d2tags" => {
+                let (a, b) = (n(op, 1)?, n(op, 2)?);
+                want(3)?;
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                hit(clause::D2D_RT_TAGS);
+                tg.st.tags = (a.cast_unsigned(), b.cast_unsigned());
+            }
+            "d2flush" => {
+                want(1)?;
+                if self.t.is_none() {
+                    out.push("nort".into());
+                    return Ok(());
+                }
+                hit(clause::D2D_RT_FLUSH);
+                out.push("flush 00000000 0 0".into());
+            }
+            "d2state" => {
+                let save = match t.get(1).map(String::as_str) {
+                    Some("save") => true,
+                    Some("restore") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                want(2)?;
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                hit(clause::D2D_RT_STATE);
+                let block = tg.block.get_or_insert(None);
+                if save {
+                    *block = Some(tg.st);
+                } else {
+                    tg.st = block.unwrap_or(FRESH);
+                }
+            }
+            "d2clip" => {
+                let r = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
+                let aa = t.get(5).and_then(|t| Antialias::parse(t)).ok_or(Fail::Bad)?;
+                want(6)?;
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                // (MEASURED, D2D.CLIP.XF: through the transform the clip is the bounds of the
+                // rectangle's corners)
+                let m = tg.st.m;
+                let cs = [apply(&m, r[0], r[1]), apply(&m, r[2], r[1]), apply(&m, r[2], r[3]), apply(&m, r[0], r[3])];
+                let lo = |v: [f32; 4]| v.into_iter().fold(f32::INFINITY, f32::min);
+                let hi = |v: [f32; 4]| v.into_iter().fold(f32::NEG_INFINITY, f32::max);
+                let (xs, ys) = (cs.map(|p| p.0), cs.map(|p| p.1));
+                if m != IDENTITY {
+                    hit(clause::D2D_CLIP_XF);
+                }
+                hit(match aa {
+                    Antialias::Aliased => clause::D2D_CLIP_ALIASED,
+                    Antialias::PerPrimitive => clause::D2D_CLIP_BLEND,
+                });
+                tg.clips.push(Clip { r: [lo(xs), lo(ys), hi(xs), hi(ys)], aa });
+            }
+            _ => {
+                want(1)?;
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                // (DOC, D2D.RT.FAULT: a pop without its push puts the target in an error state:
+                // drawing does nothing and EndDraw gives the error)
+                if tg.clips.pop().is_none() {
+                    hit(clause::D2D_RT_FAULT);
+                    tg.fault.get_or_insert(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH);
+                }
+            }
+        }
+        Ok(())
     }
 
     fn stroke(&mut self, op: &Op, out: &mut Vec<String>) -> Res<()> {
@@ -1191,21 +1378,17 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 hit(clause::D2D_TARGET);
-                self.t = Some(Target { w: w as usize, h: h as usize, px: vec![[0; 4]; (w * h) as usize], aliased: false, m: IDENTITY });
+                self.t = Some(Target::new(w as usize, h as usize));
                 out.push("target 00000000".into());
                 return Ok(());
             }
             "d2aa" => {
-                let al = match t.get(1).map(String::as_str) {
-                    Some("aliased") => true,
-                    Some("per") => false,
-                    _ => return Err(Fail::Bad),
-                };
+                let al = t.get(1).and_then(|t| Antialias::parse(t)).ok_or(Fail::Bad)?;
                 if len != 2 {
                     return Err(Fail::Bad);
                 }
                 if let Some(tg) = &mut self.t {
-                    tg.aliased = al;
+                    tg.st.aa = al;
                     return Ok(());
                 }
             }
@@ -1215,7 +1398,7 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 if let Some(tg) = &mut self.t {
-                    tg.m = m;
+                    tg.st.m = m;
                     return Ok(());
                 }
             }
@@ -1226,27 +1409,32 @@ impl D2d {
                 }
                 if let Some(tg) = &mut self.t {
                     hit(clause::D2D_CLEAR);
+                    if tg.fault.is_some() {
+                        return Ok(());
+                    }
+                    let before = tg.px.clone();
                     let p = premultiply(c);
                     tg.px.iter_mut().for_each(|q| *q = p);
+                    tg.keep_clipped(&before);
                     return Ok(());
                 }
             }
-            "d2fill" | "d2fillg" => {
-                let geo = t[0] == "d2fillg";
-                let (g, c) = if geo {
+            "d2fill" | "d2fillg" | "d2fillo" => {
+                let (g, c, o) = if t[0] == "d2fillg" {
                     let g = Self::slot(op, 1)?;
                     let c = color(2)?;
                     if len != 6 {
                         return Err(Fail::Bad);
                     }
-                    (self.g[g].clone(), c)
+                    (self.g[g].clone(), c, 1.0)
                 } else {
                     let r = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
                     let c = color(5)?;
-                    if len != 9 {
+                    let o = if t[0] == "d2fillo" { f(op, 9)? } else { 1.0 };
+                    if len != if t[0] == "d2fillo" { 10 } else { 9 } {
                         return Err(Fail::Bad);
                     }
-                    (Some(Geom::Rect(r)), c)
+                    (Some(Geom::Rect(r)), c, o)
                 };
                 let Some(tg) = &mut self.t else {
                     out.push("nort".into());
@@ -1256,7 +1444,16 @@ impl D2d {
                     out.push("nogeom".into());
                     return Ok(());
                 };
-                return fill(tg, &g, c);
+                if o != 1.0 {
+                    hit(clause::D2D_OPACITY);
+                }
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                let before = tg.px.clone();
+                fill(tg, &g, c, o)?;
+                tg.keep_clipped(&before);
+                return Ok(());
             }
             "d2brush" => {
                 let c = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
@@ -1273,9 +1470,19 @@ impl D2d {
                 if len != 1 {
                     return Err(Fail::Bad);
                 }
-                if let Some(tg) = &self.t {
+                if let Some(tg) = &mut self.t {
                     hit(clause::D2D_READ);
-                    out.push("end 00000000".into());
+                    // (DOC, D2D.RT.FAULT; MEASURED, D2D.CLIP.UNBALANCED: EndDraw with clips
+                    // still pushed fails, and they are gone)
+                    let mut hr = tg.fault.take().unwrap_or(0);
+                    if !tg.clips.is_empty() {
+                        hit(clause::D2D_CLIP_UNBALANCED);
+                        tg.clips.clear();
+                        if hr == 0 {
+                            hr = D2DERR_PUSH_POP_UNBALANCED;
+                        }
+                    }
+                    out.push(format!("end {hr:08x}"));
                     out.push(format!("px 0 {} {} 32", tg.w, tg.h));
                     for y in 0..tg.h {
                         out.push(tg.px[y * tg.w..(y + 1) * tg.w].iter().flat_map(|p| p.iter()).map(|b| format!("{b:02x}")).collect());
@@ -1291,28 +1498,32 @@ impl D2d {
 
 /// FillRectangle / FillGeometry with a solid color brush: the pixels whose centers the shape
 /// covers (aliased, or antialiased where every edge is on the pixel grid), source over
-fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
+fn fill(tg: &mut Target, g: &Geom, c: [i64; 4], o: f32) -> Res<()> {
     let (wind, figs, m) = match g.lines() {
-        Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.m)),
+        Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.st.m)),
         None => {
             hit(clause::D2D_FILL_CURVE);
-            if !tg.aliased || tg.m != IDENTITY {
+            if tg.st.aa != Antialias::Aliased || tg.st.m != IDENTITY {
                 return Err(Fail::Unmodeled(open::D2D_FILL_AA));
             }
-            flat_lines(&Geom::Xf(Box::new(g.clone()), tg.m), 0.25)
+            flat_lines(&Geom::Xf(Box::new(g.clone()), tg.st.m), 0.25)
         }
     };
     let ps = polys(&figs, &m);
     let axis = matches!(g, Geom::Rect(_)) && m[1] == 0.0 && m[2] == 0.0;
-    if !tg.aliased {
+    if tg.st.aa == Antialias::PerPrimitive {
         let grid = ps.iter().flatten().all(|p| p.0.fract() == 0.0 && p.1.fract() == 0.0);
         if axis && grid {
             hit(clause::D2D_FILL_AAGRID);
+        } else if m[1] != 0.0 || m[2] != 0.0 {
+            // (a turned or sheared antialiased fill: samples on its edges are not in by the
+            // aliased rule, clip-xf)
+            return Err(Fail::Unmodeled(open::D2D_FILL_AA));
         } else {
-            return fill_aa(tg, &ps, wind, c);
+            return fill_aa(tg, &ps, wind, c, o);
         }
     }
-    let src = premultiply(c);
+    let src = premultiply_o(c, o);
     if src[3] != 255 {
         hit(clause::D2D_FILL_OVER);
     }
@@ -1340,10 +1551,10 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
 /// an empty target. MEASURED (golden d2d-32/-64, aa-*): each pixel the exact covered fraction
 /// of it, every byte round(coverage 255) (0.25 -> 0x40, 0.5 -> 0x80, 0.75 -> 0xbf)
 
-fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, c: [i64; 4]) -> Res<()> {
+fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, c: [i64; 4], o: f32) -> Res<()> {
     let cov = coverage(tg, ps, wind);
     hit(clause::D2D_FILL_AACOVER);
-    let src = premultiply(c);
+    let src = premultiply_o(c, o);
     for (p, n) in tg.px.iter_mut().zip(cov) {
         if n == 0 {
             continue;

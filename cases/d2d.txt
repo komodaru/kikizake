@@ -11985,3 +11985,294 @@ d2fill 0 0 16 4 72 40 76 255
 d2poplayer
 d2read
 end
+case dpi-0
+d2target 8 4
+d2dpi 120 144
+d2dpi 72 100
+d2info
+end
+case dpi-1
+d2target 8 4
+d2dpi 120 144
+d2dpi 0 96
+d2info
+end
+case dpi-2
+d2target 8 4
+d2dpi 120 144
+d2dpi 96 0
+d2info
+end
+case dpi-3
+d2target 8 4
+d2dpi 120 144
+d2dpi -96 96
+d2info
+end
+case dpi-4
+d2target 8 4
+d2dpi 120 144
+d2dpi 1 1
+d2info
+end
+case dpi-5
+d2target 8 4
+d2dpi 120 144
+d2dpi 300 7
+d2info
+end
+case dpi-6
+d2target 8 4
+d2dpi 120 144
+d2dpi 96 -1
+d2info
+end
+case dpi-7
+d2target 8 4
+d2dpi 120 144
+d2dpi -1 -1
+d2info
+end
+case state-2
+d2target 8 4
+d2tags 1 2
+d2state save
+d2tags 3 4
+d2xform 1 0 0 1 2 3
+d2state save
+d2tags 5 6
+d2aa aliased
+d2state restore
+d2info
+d2state restore
+d2info
+end
+case clipclear-0
+d2target 16 4
+d2clear 145 194 45 255
+d2clip 0 0.125 16 2 aliased
+d2clear 159 156 8 255
+d2unclip
+d2read
+end
+case clipclear-1
+d2target 16 4
+d2clear 134 69 65 255
+d2clip 4 1.5 10 2.625 per
+d2clear 16 196 51 255
+d2unclip
+d2read
+end
+case clipclear-2
+d2target 16 4
+d2clear 26 126 188 255
+d2clip 0.875 0.625 9.375 3.75 aliased
+d2clear 201 226 91 1
+d2unclip
+d2read
+end
+case clipclear-3
+d2target 16 4
+d2clear 218 64 64 255
+d2clip 6.875 1 13.75 3.125 per
+d2clear 83 248 98 128
+d2unclip
+d2read
+end
+case clipnest-0
+d2target 16 4
+d2clear 191 243 21 255
+d2clip 2.125 2 14.375 3.75 aliased
+d2clip 6 0.125 15.375 3.75 per
+d2fill 0 0 16 4 71 228 60 255
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-1
+d2target 16 4
+d2clear 146 82 51 255
+d2clip 5.375 1.75 14.25 3.625 per
+d2clip 6.75 1.125 8 3.375 per
+d2fill 0 0 16 4 129 247 61 64
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-2
+d2target 16 4
+d2clear 174 28 245 255
+d2clip 2 1.75 12.125 3 aliased
+d2clip 7.75 1.875 15.875 2.5 aliased
+d2fill 0 0 16 4 239 33 165 1
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-3
+d2target 16 4
+d2clear 231 234 182 255
+d2clip 6.125 0.25 14.25 3.375 per
+d2clip 0.875 0.5 12.75 3.5 aliased
+d2fill 0 0 16 4 118 33 194 255
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-4
+d2target 16 4
+d2clear 90 102 200 255
+d2clip 3.75 1.375 10.375 3.875 aliased
+d2clip 3.25 0.75 9.5 3.75 per
+d2fill 0 0 16 4 230 73 39 128
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-5
+d2target 16 4
+d2clear 186 81 61 255
+d2clip 7 0.125 14.125 3.375 per
+d2clip 1.875 0.125 11.25 2.25 per
+d2fill 0 0 16 4 142 180 142 1
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-6
+d2target 16 4
+d2clear 245 125 49 255
+d2clip 5.375 1.625 12.25 2.375 aliased
+d2clip 4.125 0 13.125 2.625 aliased
+d2fill 0 0 16 4 21 197 16 255
+d2unclip
+d2unclip
+d2read
+end
+case clipnest-7
+d2target 16 4
+d2clear 24 65 148 255
+d2clip 7 0.125 10 2 per
+d2clip 5.375 0 11 2 aliased
+d2fill 0 0 16 4 244 212 9 64
+d2unclip
+d2unclip
+d2read
+end
+case clipaa-0
+d2target 16 4
+d2clear 17 110 29 255
+d2clip 7.25 1.875 12.125 2.875 per
+d2fill 1.75 1 11.125 2.625 2 137 126 255
+d2unclip
+d2read
+end
+case clipaa-1
+d2target 16 4
+d2clear 157 6 179 255
+d2clip 6.5 1.875 15 2.75 per
+d2fill 7 1.125 9 2.375 226 14 211 127
+d2unclip
+d2read
+end
+case clipaa-2
+d2target 16 4
+d2clear 90 158 7 255
+d2clip 6.375 1.875 16 2.5 per
+d2fill 0.5 1 10.75 2.75 226 14 70 255
+d2unclip
+d2read
+end
+case clipaa-3
+d2target 16 4
+d2clear 37 125 30 255
+d2clip 0.375 0.375 9.875 3.25 per
+d2fill 5.5 0 11 3.5 44 107 187 64
+d2unclip
+d2read
+end
+case clipaa-4
+d2target 16 4
+d2clear 43 29 102 255
+d2clip 6.625 1.625 11.5 3.375 per
+d2fill 1.25 0.875 14.625 3.125 139 144 208 255
+d2unclip
+d2read
+end
+case clipaa-5
+d2target 16 4
+d2clear 73 170 6 255
+d2clip 4.875 2 15.375 3.625 per
+d2fill 7.625 1.875 16 3.875 239 99 218 128
+d2unclip
+d2read
+end
+case clip-unbal
+d2target 8 2
+d2clip 0 0 4 2 aliased
+d2fill 0 0 8 2 255 0 0 255
+d2read
+d2fill 0 0 8 2 0 255 0 255
+d2read
+end
+case clip-pop0
+d2target 8 2
+d2fill 0 0 8 2 255 0 0 255
+d2unclip
+d2fill 0 0 8 2 0 255 0 255
+d2read
+d2fill 0 0 4 2 0 0 255 255
+d2read
+end
+case clip-xfper
+d2target 16 8
+d2xform 0.7071 0.7071 -0.7071 0.7071 8 0
+d2clip 1.3 1 6 6 per
+d2fill 0 0 16 16 255 255 255 255
+d2unclip
+d2read
+end
+case clip-xfscale
+d2target 16 8
+d2xform 1.5 0 0 0.75 0.25 0.5
+d2clip 1 1 6 6 per
+d2fill 0 0 16 16 200 100 50 255
+d2unclip
+d2read
+end
+case fillo-x0
+d2target 16 2
+d2clear 43 208 164 255
+d2fillo 3.2864375 0.25 14.280625 1.625 199 153 157 255 1.5
+d2read
+end
+case fillo-x1
+d2target 16 2
+d2clear 58 255 106 255
+d2fillo 2.280640625 0.25 10.840828125 1.625 129 254 15 254 -0.5
+d2read
+end
+case fillo-x2
+d2target 16 2
+d2clear 20 165 0 255
+d2fillo 0.404109375 0.25 11.029265625 1.625 45 85 246 255 2
+d2read
+end
+case fillo-x3
+d2target 16 2
+d2clear 130 36 232 255
+d2fillo 0.2625625 0.25 13.52890625 1.625 60 79 207 127 0.5
+d2read
+end
+case fillo-x4
+d2target 16 2
+d2clear 100 195 81 255
+d2fillo 3.648328125 0.25 14.533203125 1.625 151 155 6 255 0.7
+d2read
+end
+case fillo-x5
+d2target 16 2
+d2clear 168 61 170 255
+d2fillo 3.7765 0.25 15.792921875 1.625 144 5 83 128 0.25
+d2read
+end

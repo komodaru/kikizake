@@ -32,6 +32,7 @@ pub fn d2d() -> String {
     curves(&mut s, &mut r);
     arith(&mut s, &mut r);
     target(&mut s, &mut r);
+    target_more(&mut s, &mut r);
     s
 }
 
@@ -553,5 +554,34 @@ fn target(s: &mut String, r: &mut XorShift32) {
     for i in 0..6 {
         let mask = if i % 2 == 1 { " 0" } else { "" };
         writeln!(s, "case layer-{i}\nd2target 16 4\nd2aa aliased\nd2path 0 alt m 0 0 12 0 4 4 z\nd2clear {}\nd2layer {} 0 {} 4 {}{mask}\nd2fill 0 0 16 4 {}\nd2poplayer\nd2read\nend", color(r, true), r.range(0, 6), r.range(8, 17), *r.pick(&["1", "0.5", "0.25"]), color(r, i % 3 == 0)).unwrap();
+    }
+}
+
+/// more of the target's state, clips and opacity: odd dpi, state blocks used twice, clips that
+/// Clear goes through, two clips at once, a turned antialiased clip, opacities past 0..1
+fn target_more(s: &mut String, r: &mut XorShift32) {
+    for (i, d) in ["72 100", "0 96", "96 0", "-96 96", "1 1", "300 7", "96 -1", "-1 -1"].iter().enumerate() {
+        writeln!(s, "case dpi-{i}\nd2target 8 4\nd2dpi 120 144\nd2dpi {d}\nd2info\nend").unwrap();
+    }
+    writeln!(s, "case state-2\nd2target 8 4\nd2tags 1 2\nd2state save\nd2tags 3 4\nd2xform 1 0 0 1 2 3\nd2state save\nd2tags 5 6\nd2aa aliased\nd2state restore\nd2info\nd2state restore\nd2info\nend").unwrap();
+    let e = |r: &mut XorShift32, lo: i64, hi: i64| fmt(r.range(lo * 8, hi * 8) as f64 / 8.0);
+    for i in 0..4 {
+        let mode = if i % 2 == 0 { "aliased" } else { "per" };
+        writeln!(s, "case clipclear-{i}\nd2target 16 4\nd2clear {}\nd2clip {} {} {} {} {mode}\nd2clear {}\nd2unclip\nd2read\nend", color(r, true), e(r, 0, 8), e(r, 0, 2), e(r, 8, 16), e(r, 2, 4), color(r, i < 2)).unwrap();
+    }
+    for i in 0..8 {
+        let m1 = if i % 2 == 0 { "aliased" } else { "per" };
+        let m2 = if i % 4 < 2 { "per" } else { "aliased" };
+        writeln!(s, "case clipnest-{i}\nd2target 16 4\nd2clear {}\nd2clip {} {} {} {} {m1}\nd2clip {} {} {} {} {m2}\nd2fill 0 0 16 4 {}\nd2unclip\nd2unclip\nd2read\nend", color(r, true), e(r, 0, 8), e(r, 0, 2), e(r, 8, 16), e(r, 2, 4), e(r, 0, 8), e(r, 0, 2), e(r, 8, 16), e(r, 2, 4), color(r, i % 3 == 0)).unwrap();
+    }
+    for i in 0..6 {
+        writeln!(s, "case clipaa-{i}\nd2target 16 4\nd2clear {}\nd2clip {} {} {} {} per\nd2fill {} {} {} {} {}\nd2unclip\nd2read\nend", color(r, true), e(r, 0, 8), e(r, 0, 2), e(r, 8, 16), e(r, 2, 4), e(r, 0, 8), e(r, 0, 2), e(r, 8, 16), e(r, 2, 4), color(r, i % 2 == 0)).unwrap();
+    }
+    writeln!(s, "case clip-unbal\nd2target 8 2\nd2clip 0 0 4 2 aliased\nd2fill 0 0 8 2 255 0 0 255\nd2read\nd2fill 0 0 8 2 0 255 0 255\nd2read\nend").unwrap();
+    writeln!(s, "case clip-pop0\nd2target 8 2\nd2fill 0 0 8 2 255 0 0 255\nd2unclip\nd2fill 0 0 8 2 0 255 0 255\nd2read\nd2fill 0 0 4 2 0 0 255 255\nd2read\nend").unwrap();
+    writeln!(s, "case clip-xfper\nd2target 16 8\nd2xform 0.7071 0.7071 -0.7071 0.7071 8 0\nd2clip 1.3 1 6 6 per\nd2fill 0 0 16 16 255 255 255 255\nd2unclip\nd2read\nend").unwrap();
+    writeln!(s, "case clip-xfscale\nd2target 16 8\nd2xform 1.5 0 0 0.75 0.25 0.5\nd2clip 1 1 6 6 per\nd2fill 0 0 16 16 200 100 50 255\nd2unclip\nd2read\nend").unwrap();
+    for (i, o) in ["1.5", "-0.5", "2", "0.5", "0.7", "0.25"].iter().enumerate() {
+        writeln!(s, "case fillo-x{i}\nd2target 16 2\nd2clear {}\nd2fillo {} 0.25 {} 1.625 {} {o}\nd2read\nend", color(r, true), frac(r, 0, 4), frac(r, 8, 16), color(r, i % 2 == 0)).unwrap();
     }
 }
