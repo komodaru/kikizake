@@ -429,7 +429,7 @@ impl Ctx {
     pub fn new(pf: Pfd, bpp: u32) -> Ctx {
         hit(clause::GL_INIT);
         let stencil_bits = pf.stencil;
-        let index_mask = if pf.ty != 0 { (1u32 << pf.color) - 1 } else { 0 };
+        let index_mask = if pf.ty != 0 { low_bits(pf.color) } else { 0 };
         let mut caps = std::collections::BTreeMap::new();
         for c in CAPS {
             caps.insert(*c, *c == DITHER);
@@ -1288,7 +1288,7 @@ impl Ctx {
             }
             "glStencilMask" => {
                 hit(clause::GL_STENCILMASK);
-                self.stencil_mask = u(a, 0) & ((1u32 << self.pf.stencil) - 1);
+                self.stencil_mask = u(a, 0) & (low_bits(self.pf.stencil));
             }
             "glDepthMask" => {
                 hit(clause::GL_DEPTHMASK);
@@ -1820,7 +1820,7 @@ impl Ctx {
         if self.pf.ty != 0 {
             // color index mode: the index in the format's bits, the logic operation, the index
             // write mask (MEASURED, golden opengl-32 ci-*)
-            let m = (1u32 << self.pf.color) - 1;
+            let m = low_bits(self.pf.color);
             let mut v = index_bits(f64::from(f.c[0])) & m;
             if self.cap(INDEX_LOGIC_OP) {
                 v = logic(self.logic_op, v, self.fb[i][0]) & m;
@@ -1869,7 +1869,7 @@ impl Ctx {
         if self.cap(COLOR_LOGIC_OP) {
             hit(clause::GL_LOGICOP_APPLY);
             for k in 0..4 {
-                let m = (1u32 << bits[k]).wrapping_sub(1);
+                let m = low_bits(bits[k]);
                 v[k] = logic(self.logic_op, v[k], self.fb[i][k]) & m;
             }
         }
@@ -1917,7 +1917,7 @@ impl Ctx {
 
     fn stencil_update(&mut self, i: usize, op: u32) {
         hit(clause::GL_STENCIL_OP);
-        let smax = (1u32 << self.pf.stencil) - 1;
+        let smax = low_bits(self.pf.stencil);
         let s = self.stencil[i];
         let r = (self.stencil_func.1.clamp(0, smax as i64)) as u32;
         let n = match op {
@@ -2205,7 +2205,7 @@ impl Ctx {
             (self.clear_color[k].clamp(0.0, 1.0) * m + dither_threshold(x, y)).floor() as u32
         };
         let z = if m & DEPTH_BUFFER_BIT != 0 { Ctx::clear_depth_fixed(self.clear_depth, self.pf.depth)? } else { 0 };
-        let smax = if self.pf.stencil == 0 { 0 } else { (1u32 << self.pf.stencil) - 1 };
+        let smax = if self.pf.stencil == 0 { 0 } else { low_bits(self.pf.stencil) };
         for y in 0..H as i64 {
             for x in 0..W as i64 {
                 if self.cap(SCISSOR_TEST) {
@@ -2216,7 +2216,7 @@ impl Ctx {
                 }
                 let i = y as usize * W + x as usize;
                 if m & COLOR_BUFFER_BIT != 0 && self.pf.ty != 0 {
-                    let v = index_bits(f64::from(self.clear_index)) & ((1u32 << self.pf.color) - 1);
+                    let v = index_bits(f64::from(self.clear_index)) & (low_bits(self.pf.color));
                     self.fb[i][0] = (self.fb[i][0] & !self.index_mask) | (v & self.index_mask);
                 } else if m & COLOR_BUFFER_BIT != 0 {
                     for k in 0..4 {
@@ -2406,6 +2406,11 @@ impl Depth {
     pub fn bits(self) -> u32 {
         (self.0 & 0xffff_ffff) as u32
     }
+}
+
+/// the mask of a value's low `n` bits (all 32 from 32 up: a format's channel may have 32)
+pub fn low_bits(n: u32) -> u32 {
+    u32::try_from((1u64 << n.min(32)) - 1).unwrap_or(u32::MAX)
 }
 
 pub fn index_bits(v: f64) -> u32 {
