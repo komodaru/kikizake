@@ -10247,6 +10247,11 @@ case probe-layout-refused
 device11 ok
 shader hr 80070057
 layout hr 80070057
+case probe-layout-otherkind
+device11 ok
+shader hr 80070057
+layout hr 80070057
+layout hr 80070057
 case probe-ld-out
 device11 ok
 tex = 8 8 1 1 2 1 0 0 20 0 0
