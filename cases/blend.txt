@@ -5223,6 +5223,32 @@ dump 0
 gradrect 0 0 2 1 0 0 0 0 2 3 65535 65535 65535 0
 dump 0
 end
+case alpha-palette
+dib 0 4 2 32
+fill 0 1
+dib 1 4 2 8
+fill 1 2
+alphablend 0 0 0 4 2 1 0 0 4 2 128 0
+dump 0
+end
+case transparent-outside
+dib 0 4 2 32
+fill 0 1
+dib 1 4 2 32
+fill 1 2
+transparent 0 0 0 4 2 1 1 0 4 2 #000000
+dump 0
+end
+case maskblt-formats
+dib 0 4 2 32
+fill 0 1
+dib 1 4 2 24
+fill 1 2
+dib 2 4 2 1
+fill 2 3
+maskblt 0 0 0 4 2 1 0 0 2 0 0 0xaacc0020
+dump 0
+end
 case maskblt-0
 dib 0 6 1 24
 fill 0 3131796858

@@ -83,6 +83,10 @@ pub fn blend() -> String {
         writeln!(s, "gradtri 0 {} {} {}\ndump 0\nend", v(&mut r), v(&mut r), v(&mut r)).unwrap();
     }
     writeln!(s, "case gradrect-edges\ndib 0 6 4 32\ngradrect 0 0 4 0 65535 0 0 0 1 4 0 65535 0 0\ndump 0\ngradrect 0 1 -2 -2 0 0 65535 0 9 9 65535 65535 0 0\ndump 0\ngradrect 0 0 2 1 0 0 0 0 2 3 65535 65535 65535 0\ndump 0\nend").unwrap();
+    // the edges: palette sources, a source rectangle outside the source, formats apart
+    writeln!(s, "case alpha-palette\ndib 0 4 2 32\nfill 0 1\ndib 1 4 2 8\nfill 1 2\nalphablend 0 0 0 4 2 1 0 0 4 2 128 0\ndump 0\nend").unwrap();
+    writeln!(s, "case transparent-outside\ndib 0 4 2 32\nfill 0 1\ndib 1 4 2 32\nfill 1 2\ntransparent 0 0 0 4 2 1 1 0 4 2 #000000\ndump 0\nend").unwrap();
+    writeln!(s, "case maskblt-formats\ndib 0 4 2 32\nfill 0 1\ndib 1 4 2 24\nfill 1 2\ndib 2 4 2 1\nfill 2 3\nmaskblt 0 0 0 4 2 1 0 0 2 0 0 0xaacc0020\ndump 0\nend").unwrap();
     // MaskBlt: random quaternary operations, monochrome masks
     for i in 0..80 {
         writeln!(s, "case maskblt-{i}").unwrap();

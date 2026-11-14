@@ -1558,29 +1558,84 @@ endpath 0
 widen 0
 getpath 0
 end
-case order
+case order-0
 dib 0 8 8 8
+pen 0 0 1 #ffffff
 getpath 0
 endpath 0
 flatten 0
 strokepath 0
+fillpath 0
+pathrgn 0 1
+selclippath 0 5
+abortpath 0
+closefig 0
+dump 0
+end
+case order-1
+dib 0 8 8 8
+pen 0 0 1 #ffffff
 beginpath 0
 getpath 0
 moveto 0 1 1
 lineto 0 4 4
 getpath 0
+fillpath 0
+abortpath 0
+getpath 0
+endpath 0
+dump 0
+end
+case order-2
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+beginpath 0
+moveto 0 1 1
+lineto 0 4 4
 beginpath 0
 lineto 0 2 5
 endpath 0
 getpath 0
-abortpath 0
-getpath 0
+dump 0
+end
+case order-3
+dib 0 8 8 8
+pen 0 0 1 #ffffff
 beginpath 0
 endpath 0
 getpath 0
 pathrgn 0 1
 fillpath 0
 getpath 0
+dump 0
+end
+case order-4
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+beginpath 0
+closefig 0
+moveto 0 3 3
+closefig 0
+lineto 0 5 3
+closefig 0
+closefig 0
+endpath 0
+getpath 0
+dump 0
+end
+case order-5
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+beginpath 0
+moveto 0 1 1
+moveto 0 2 2
+lineto 0 5 2
+moveto 0 6 6
+endpath 0
+getpath 0
+strokepath 0
+getpath 0
+dump 0
 end
 case miter
 dib 0 8 8 8

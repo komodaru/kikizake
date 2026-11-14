@@ -48,7 +48,14 @@ pub fn path() -> String {
         }
     }
     // the path's state machine: calls out of order
-    writeln!(s, "case order\ndib 0 8 8 8\ngetpath 0\nendpath 0\nflatten 0\nstrokepath 0\nbeginpath 0\ngetpath 0\nmoveto 0 1 1\nlineto 0 4 4\ngetpath 0\nbeginpath 0\nlineto 0 2 5\nendpath 0\ngetpath 0\nabortpath 0\ngetpath 0\nbeginpath 0\nendpath 0\ngetpath 0\npathrgn 0 1\nfillpath 0\ngetpath 0\nend").unwrap();
+    for (i, c) in ["getpath 0\nendpath 0\nflatten 0\nstrokepath 0\nfillpath 0\npathrgn 0 1\nselclippath 0 5\nabortpath 0\nclosefig 0",
+        "beginpath 0\ngetpath 0\nmoveto 0 1 1\nlineto 0 4 4\ngetpath 0\nfillpath 0\nabortpath 0\ngetpath 0\nendpath 0",
+        "beginpath 0\nmoveto 0 1 1\nlineto 0 4 4\nbeginpath 0\nlineto 0 2 5\nendpath 0\ngetpath 0",
+        "beginpath 0\nendpath 0\ngetpath 0\npathrgn 0 1\nfillpath 0\ngetpath 0",
+        "beginpath 0\nclosefig 0\nmoveto 0 3 3\nclosefig 0\nlineto 0 5 3\nclosefig 0\nclosefig 0\nendpath 0\ngetpath 0",
+        "beginpath 0\nmoveto 0 1 1\nmoveto 0 2 2\nlineto 0 5 2\nmoveto 0 6 6\nendpath 0\ngetpath 0\nstrokepath 0\ngetpath 0"].iter().enumerate() {
+        writeln!(s, "case order-{i}\ndib 0 8 8 8\npen 0 0 1 #ffffff\n{c}\ndump 0\nend").unwrap();
+    }
     writeln!(s, "case miter\ndib 0 8 8 8\nmiter 0 3\nmiter 0 0.5\nmiter 0 20\nend").unwrap();
     // random polygons and polylines, through a region and drawn
     for i in 0..60 {

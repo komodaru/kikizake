@@ -1,2 +1,7 @@
 # gditext clauses (spec/README.md): <id> <status> | <source> | <what it says>
-GDI.TEXT.OPEN open | (none) | not modelled yet: checked against Windows only
+GDI.TEXT.ALIGN doc | SetTextAlign | returns the previous alignment (a new DC: TA_LEFT | TA_TOP | TA_NOUPDATECP, 0)
+GDI.TEXT.EXTRA doc | SetTextCharacterExtra | returns the previous extra spacing (a new DC: 0)
+GDI.TEXT.NOTEXT doc | ExtTextOutA | with no characters only the rectangle is drawn (ETO_OPAQUE), and the call succeeds
+GDI.TEXT.OPAQUE doc | ExtTextOutA (ETO_OPAQUE) | "The current background color should be used to fill the rectangle"
+GDI.TEXT.OPAQUEORDER open | ExtTextOutA | an opaque rectangle with right < left or bottom < top
+GDI.TEXT.FONT open | CreateFontA, GetTextMetrics, GetTextExtentPoint32, GetCharWidth32, GetCharABCWidths, GetGlyphOutline, TextOut | what fonts measure and draw: the fonts' own data (compared with Windows only)

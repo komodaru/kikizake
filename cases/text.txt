@@ -1,4 +1,13 @@
 # kikizake suite text: GDI fonts and text (SPEC.md). Made by `kikizake gen text`.
+case state
+dib 0 8 8 32
+align 0 24
+align 0 0
+align 0 1
+extra 0 3
+extra 0 -2
+extra 0 0
+end
 case defaults
 dib 0 8 8 32
 face 0

@@ -7,6 +7,7 @@ pub fn text() -> String {
     let mut s = String::from("# kikizake suite text: GDI fonts and text (SPEC.md). Made by `kikizake gen text`.\n");
     let mut r = XorShift32::new(0x7e47_0000);
     // the DC's defaults (the System font), text alignment and character extra
+    writeln!(s, "case state\ndib 0 8 8 32\nalign 0 24\nalign 0 0\nalign 0 1\nextra 0 3\nextra 0 -2\nextra 0 0\nend").unwrap();
     writeln!(s, "case defaults\ndib 0 8 8 32\nface 0\nmetrics 0\nalign 0 24\nalign 0 0\nextra 0 3\nextra 0 0\nobjtype 0 font\nend").unwrap();
     // each face at several heights: metrics, face, widths, ABC widths, extents
     for (fi, f) in FACES.iter().enumerate() {

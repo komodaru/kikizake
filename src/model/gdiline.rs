@@ -29,12 +29,16 @@ pub struct Draw {
     pub polyfill: i64,
     pub arcdir: i64,
     pub map: super::gdixform::Map,
+    pub path: super::gdipath::Path,
+    /// SetTextAlign, SetTextCharacterExtra
+    pub align: i64,
+    pub extra: i64,
 }
 
 impl Default for Draw {
     /// a new DC: the black pen, R2_COPYPEN, (0, 0), ALTERNATE, AD_COUNTERCLOCKWISE
     fn default() -> Draw {
-        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default() }
+        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0 }
     }
 }
 
@@ -122,7 +126,7 @@ impl Slot {
             self.s.set(x, y, rop2(self.ext.rop2, v, d) & m);
         }
     }
-    fn draw_line(&mut self, a: (i32, i32), b: (i32, i32)) -> Res<()> {
+    pub fn line(&mut self, a: (i32, i32), b: (i32, i32)) -> Res<()> {
         hit("GDI.LINE.LAST");
         if let Some(v) = self.pen_value()? {
             if self.ext.rop2 != 13 {
@@ -162,6 +166,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     if sl.ext.mapped() && !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir") {
         return super::gdixform::mapped_line_op(sl, op, out);
     }
+    if !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir" | "getpos" | "fillrect" | "framerect" | "invertrect") && super::gdipath::record(sl, op, out)? {
+        return Ok(true);
+    }
     match t0 {
         "pen" => {
             sl.ext.pen = if op.tok.get(2).is_some_and(|t| t == "null") {
@@ -196,7 +203,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "lineto" => {
             let p = (n(op, 2)? as i32, n(op, 3)? as i32);
             let a = sl.ext.pos;
-            sl.draw_line(a, p)?;
+            sl.line(a, p)?;
             sl.ext.pos = p;
             out.push("ret 1".into());
         }
@@ -208,7 +215,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             let mut a = if t0 == "polyline" { p[0] } else { sl.ext.pos };
             for &b in &p[if t0 == "polyline" { 1 } else { 0 }..] {
-                sl.draw_line(a, b)?;
+                sl.line(a, b)?;
                 a = b;
             }
             if t0 == "polylineto" {

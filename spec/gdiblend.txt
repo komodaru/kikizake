@@ -1,2 +1,20 @@
 # gdiblend clauses (spec/README.md): <id> <status> | <source> | <what it says>
-GDI.BLEND.OPEN open | (none) | not modelled yet: checked against Windows only
+GDI.ALPHA.CONSTANT doc | BLENDFUNCTION | AC_SRC_ALPHA not set: each channel Dst = Src * SCA / 255 + Dst * (1 - SCA / 255), alpha too
+GDI.ALPHA.PERPIXEL doc | BLENDFUNCTION | AC_SRC_ALPHA (premultiplied source): Src scaled by SCA / 255, then Dst = Src + (1 - Src.alpha / 255) * Dst
+GDI.ALPHA.ROUND assumed | (none) | the divisions by 255 rounded to the nearest
+GDI.ALPHA.SRCRECT doc | AlphaBlend | "The source rectangle must lie completely within the source surface, otherwise an error occurs and the function returns FALSE"
+GDI.ALPHA.EXTENTS open | AlphaBlend | a width or height of 0 or less
+GDI.ALPHA.STRETCH open | AlphaBlend | "If the source rectangle and destination rectangle are not the same size, the source bitmap is stretched": which source pixels
+GDI.ALPHA.PPFORMAT open | AlphaBlend | AC_SRC_ALPHA with a source that is not 32 bpp
+GDI.ALPHA.FORMATS open | AlphaBlend | sources with a color table (<= 8 bpp)
+GDI.TRANS.KEY assumed | TransparentBlt | source pixels whose color is the key are left out; the others are copied (converted to the destination's format)
+GDI.TRANS.SRCOUT open | TransparentBlt | a source rectangle outside the source bitmap
+GDI.TRANS.STRETCH open | TransparentBlt | stretched: which source pixels
+GDI.TRANS.FORMATS open | TransparentBlt | sources with a color table (<= 8 bpp), monochrome
+GDI.GRAD.RECT open | GradientFill (GRADIENT_FILL_RECT_H, GRADIENT_FILL_RECT_V) | the colors along a rectangle: the interpolation and its rounding
+GDI.GRAD.TRIANGLE open | GradientFill (GRADIENT_FILL_TRIANGLE) | which pixels a triangle fills and their colors
+GDI.MASK.ROP4 doc | MaskBlt, MAKEROP4 | where the mask has a 1 the foreground operation (bits 16..23) applies, where it has a 0 the background operation (bits 24..31)
+GDI.MASK.NONE doc | MaskBlt | with no mask: BitBlt with the foreground operation
+GDI.MASK.OUTSIDE open | MaskBlt | a mask or source rectangle outside its bitmap, an empty rectangle
+GDI.MASK.FORMATS open | MaskBlt | a source of another format than the destination
+GDI.PLG.MAP open | PlgBlt | which source pixel lands on each destination pixel of the parallelogram
