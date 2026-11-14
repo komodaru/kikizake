@@ -1099,4 +1099,17 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // color index elements of every type, drawn and read back, at 8 and 4 bits
+    for (k, (bpp, pf)) in [(8u32, 29u32), (4, 35)].iter().enumerate() {
+        write!(s, "case ci-types-{k}\nglctx {bpp} {pf}\n{ORTHO}").unwrap();
+        for t in [BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, INT, UNSIGNED_INT, FLOAT] {
+            let n = 32 * [1, 1, 2, 2, 4, 4, 4][(t - BYTE) as usize];
+            writeln!(s, "gl glClear 0x4000\ngldraw 16 2 {} {} {} {n}\ngldib", h(COLOR_INDEX), h(t), 100 + t).unwrap();
+            for rt in [BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, INT, UNSIGNED_INT, FLOAT] {
+                let m = 32 * [1, 1, 2, 2, 4, 4, 4][(rt - BYTE) as usize];
+                writeln!(s, "glread 0 0 16 2 {} {} {m}", h(COLOR_INDEX), h(rt)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

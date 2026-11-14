@@ -98,6 +98,7 @@ pub mod e {
     pub const DITHER: u32 = 0xbd0;
     pub const BLEND: u32 = 0xbe2;
     pub const COLOR_LOGIC_OP: u32 = 0xbf2;
+    pub const INDEX_LOGIC_OP: u32 = 0xbf1;
     pub const SCISSOR_TEST: u32 = 0xc11;
     pub const PERSPECTIVE_CORRECTION_HINT: u32 = 0xc50;
     pub const UNPACK_SWAP_BYTES: u32 = 0xcf0;
@@ -381,6 +382,10 @@ pub struct Ctx {
     /// the attribute stack (glPushAttrib): each entry the mask and the state when pushed
     pub attrib: Vec<(u32, Ctx)>,
     pub clear_accum: [f32; 4],
+    /// color index mode (GL.COLORINDEX): the current index, the clear index, the index write mask
+    pub index: f32,
+    pub clear_index: f32,
+    pub index_mask: u32,
     /// the accumulation buffer, signed channels at the format's accumulation bits; None while its
     /// content is still undefined (nothing loaded or cleared into it yet)
     pub acc: Option<Vec<[i64; 4]>>,
@@ -417,6 +422,7 @@ impl Ctx {
     pub fn new(pf: Pfd, bpp: u32) -> Ctx {
         hit(clause::GL_INIT);
         let stencil_bits = pf.stencil;
+        let index_mask = if pf.ty != 0 { (1u32 << pf.color) - 1 } else { 0 };
         let mut caps = std::collections::BTreeMap::new();
         for c in CAPS {
             caps.insert(*c, *c == DITHER);
@@ -445,6 +451,9 @@ impl Ctx {
             buffers: [FRONT; 2],
             attrib: Vec::new(),
             clear_accum: [0.0; 4],
+            index: 1.0,
+            clear_index: 0.0,
+            index_mask,
             acc: None,
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
@@ -527,7 +536,7 @@ impl Ctx {
         hit(clause::GL_GET_STATE);
         Ok(Some(match p {
             0xb00 => c4(self.color),
-            0xb01 => vec![F(1.0)],
+            0xb01 => vec![F(self.index)],
             0xb02 => vec![C(0.0), C(0.0), C(1.0)],
             0xb03 | 0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
             0xb04 => c4([1.0; 4]),
@@ -587,9 +596,10 @@ impl Ctx {
             0xc00 => i(0),
             0xc01 | 0xc02 => i(self.buffers[(p - 0xc01) as usize] as i64),
             0xc10 => self.scissor.iter().map(|v| I(*v)).collect(),
-            0xc20 => vec![F(0.0)],
-            // (MEASURED, golden opengl-32 defaults-*: no index bits in RGBA mode, so no mask)
-            0xc21 => i(0),
+            0xc20 => vec![F(self.clear_index)],
+            // (MEASURED, golden opengl-32 defaults-*: no index bits in RGBA mode, so no mask;
+            // ci-*: all the index bits in color index mode)
+            0xc21 => i(self.index_mask as i64),
             0xc22 => c4(self.clear_color),
             0xc23 => self.color_mask_raw.iter().map(|b| I(*b as i64)).collect(),
             0xc30 => vec![B(false)],
@@ -619,8 +629,9 @@ impl Ctx {
             }
             0xd1e => vec![F(1.0)],
             0xd1f => vec![F(0.0)],
-            // (MEASURED, golden opengl-32 defaults-*: 8 in RGBA mode at every depth)
-            0xd51 => i(8),
+            // (MEASURED, golden opengl-32 defaults-*: 8 in RGBA mode at every depth; ci-*: the
+            // color bits in color index mode)
+            0xd51 => i(if pf.ty != 0 { pf.color as i64 } else { 8 }),
             0xd52..=0xd55 => i(pf.rgba[(p - 0xd52) as usize].0 as i64),
             0xd56 => i(pf.depth as i64),
             0xd57 => i(pf.stencil as i64),
@@ -829,7 +840,7 @@ impl Gl {
                 } else {
                     hit(clause::WGL_CONTEXT);
                     if p.ty != 0 {
-                        return Err(Fail::Unmodeled(open::GL_COLORINDEX));
+                        hit(clause::GL_COLORINDEX);
                     }
                     self.ctx = Some(Ctx::new(p.clone(), bpp));
                     out.push(format!("glctx ok {pf}"));
@@ -1193,6 +1204,18 @@ impl Ctx {
                 };
                 self.color = [c(0), c(1), c(2), if a.len() == 4 { c(3) } else { 1.0 }];
             }
+            "glIndexi" => {
+                hit(clause::GL_COLORINDEX);
+                self.index = int(a, 0) as f32;
+            }
+            "glClearIndex" => {
+                hit(clause::GL_COLORINDEX);
+                self.clear_index = fl(a, 0) as f32;
+            }
+            "glIndexMask" => {
+                hit(clause::GL_COLORINDEX);
+                self.index_mask = u(a, 0);
+            }
             "glColor4f" | "glColor3f" => {
                 hit(clause::GL_COLOR_F);
                 self.color = [fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32, if a.len() == 4 { fl(a, 3) as f32 } else { 1.0 }];
@@ -1393,7 +1416,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((v, self.color));
+                    self.verts.push((v, self.current()));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -1413,7 +1436,7 @@ impl Ctx {
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
-                    self.verts.push(([x, y, 0.0], self.color));
+                    self.verts.push(([x, y, 0.0], self.current()));
                 }
                 self.end(QUADS)?;
             }
@@ -1461,8 +1484,12 @@ impl Ctx {
                         hit(clause::GL_ACCUM_ENUM);
                         self.error(INVALID_ENUM);
                     }
-                    // (only the color index formats have none: case accum-none)
-                    Ok(_) if self.pf.accum == 0 => return Err(Fail::Unmodeled(open::GL_COLORINDEX)),
+                    // (only the color index formats have none; GL 1.1 4.2.4: INVALID_OPERATION in
+                    // color index mode; case accum-none)
+                    Ok(_) if self.pf.accum == 0 => {
+                        hit(clause::GL_COLORINDEX);
+                        self.error(INVALID_OPERATION);
+                    }
                     Ok(op) => self.accum(op, fl(a, 1) as f32)?,
                 }
             }
@@ -1667,6 +1694,11 @@ impl Ctx {
     }
 
     fn dst_color(&self, i: usize) -> [f32; 4] {
+        if self.pf.ty != 0 {
+            // an index as a color: through GL_PIXEL_MAP_I_TO_R .. A, one zero each at first
+            // (MEASURED, golden opengl-32 ci-*: RGBA reads are all zero)
+            return [0.0; 4];
+        }
         let p = self.fb[i];
         [self.to_float(p[0], 0), self.to_float(p[1], 1), self.to_float(p[2], 2), self.to_float(p[3], 3)]
     }
@@ -1731,6 +1763,17 @@ impl Ctx {
         }
         if has_stencil {
             self.stencil_update(i, self.stencil_op[2]);
+        }
+        if self.pf.ty != 0 {
+            // color index mode: the index in the format's bits, the logic operation, the index
+            // write mask (MEASURED, golden opengl-32 ci-*)
+            let m = (1u32 << self.pf.color) - 1;
+            let mut v = (f.c[0] as i64 as u32) & m;
+            if self.cap(INDEX_LOGIC_OP) {
+                v = logic(self.logic_op, v, self.fb[i][0]) & m;
+            }
+            self.fb[i][0] = (self.fb[i][0] & !self.index_mask) | (v & self.index_mask);
+            return Ok(());
         }
         // (dithered glDrawPixels and masked fragments: cases dither-draw-*)
         let dither = self.cap(DITHER) && self.bits()[0] < 8;
@@ -1845,6 +1888,12 @@ impl Ctx {
         }
         let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
         Ok(blend_bytes(self.blend, s, d))
+    }
+
+    /// the color a vertex takes: the current color, in color index mode the index in the first
+    /// component
+    fn current(&self) -> [f32; 4] {
+        if self.pf.ty != 0 { [self.index, 0.0, 0.0, 0.0] } else { self.color }
     }
 
     /// the point ties lean toward (GL.RASTER.TIE.X, GL.RASTER.TIE.Y): normalized device
@@ -2087,7 +2136,10 @@ impl Ctx {
                     }
                 }
                 let i = y as usize * W + x as usize;
-                if m & COLOR_BUFFER_BIT != 0 {
+                if m & COLOR_BUFFER_BIT != 0 && self.pf.ty != 0 {
+                    let v = (self.clear_index as i64 as u32) & ((1u32 << self.pf.color) - 1);
+                    self.fb[i][0] = (self.fb[i][0] & !self.index_mask) | (v & self.index_mask);
+                } else if m & COLOR_BUFFER_BIT != 0 {
                     for k in 0..4 {
                         if self.color_mask[k] {
                             self.fb[i][k] = if dither && bits[k] > 0 { dithered(x, y, k) } else { cv[k] };
@@ -2225,6 +2277,26 @@ fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
 /// a component (0..1) to an element of a type (MEASURED, golden opengl-32 read-*: in floats,
 /// truncated but for UNSIGNED_BYTE; signed types scale by half of 2^n - 1, the 32-bit ones by the largest float below
 /// 2^31 - 1024 and twice that; GL.READ.CONVERT)
+/// a color index element's value, each type as the integer or float it holds (unsigned bytes in
+/// ci-*, the others in ci-types-*)
+pub fn index_value(b: &[u8], t: u32) -> Res<f64> {
+    let a = |n: usize| -> [u8; 4] {
+        let mut x = [0u8; 4];
+        x[..n].copy_from_slice(&b[..n]);
+        x
+    };
+    match t {
+        UNSIGNED_BYTE => Ok(f64::from(b[0])),
+        BYTE => Ok(f64::from(b[0] as i8)),
+        UNSIGNED_SHORT => Ok(f64::from(u16::from_le_bytes([b[0], b[1]]))),
+        SHORT => Ok(f64::from(i16::from_le_bytes([b[0], b[1]]))),
+        UNSIGNED_INT => Ok(f64::from(u32::from_le_bytes(a(4)))),
+        INT => Ok(f64::from(i32::from_le_bytes(a(4)))),
+        FLOAT => Ok(f64::from(f32::from_le_bytes(a(4)))),
+        _ => Err(Fail::Bad),
+    }
+}
+
 pub fn from_float(c: f32, t: u32) -> Vec<u8> {
     hit(clause::GL_READ_CONVERT);
     match t {
@@ -2291,7 +2363,7 @@ impl Ctx {
             }
             return Err(Fail::Unmodeled(open::GL_PIXELS_BITMAP_INDEX));
         }
-        if (f == COLOR_INDEX && read) || (f == DEPTH_COMPONENT && self.pf.depth == 0) || (f == STENCIL_INDEX && self.pf.stencil == 0) {
+        if (f == COLOR_INDEX && read && self.pf.ty == 0) || (f == DEPTH_COMPONENT && self.pf.depth == 0) || (f == STENCIL_INDEX && self.pf.stencil == 0) {
             hit(clause::GL_PIXELS_NOBUFFER);
             self.error(INVALID_OPERATION);
             return Ok(None);
@@ -2363,8 +2435,14 @@ impl Ctx {
                             }
                         }
                         _ => {
-                            hit(clause::GL_READ_STENCIL);
-                            let s = self.stencil[p] as u64;
+                            let s = if *which == 7 {
+                                // (MEASURED, golden opengl-32 ci-*: the index as it is)
+                                hit(clause::GL_COLORINDEX);
+                                self.fb[p][0] as u64
+                            } else {
+                                hit(clause::GL_READ_STENCIL);
+                                self.stencil[p] as u64
+                            };
                             match size {
                                 1 => vec![s as u8],
                                 2 => (s as u16).to_le_bytes().to_vec(),
@@ -2417,6 +2495,12 @@ impl Ctx {
                             c[1] = v;
                             c[2] = v;
                         }
+                        7 if self.pf.ty != 0 => {
+                            // an index in color index mode: the element's integer value as it is
+                            // (MEASURED, golden opengl-32 ci-*: unsigned bytes)
+                            hit(clause::GL_COLORINDEX);
+                            c[0] = index_value(&e, t)?;
+                        }
                         7 => {
                             // an index in RGBA mode through GL_PIXEL_MAP_I_TO_R.. A, whose
                             // initial tables hold one zero each
@@ -2426,7 +2510,7 @@ impl Ctx {
                         _ => c[*which] = v,
                     }
                 }
-                let c = self.transfer(c);
+                let c = if self.pf.ty != 0 { c } else { self.transfer(c) };
                 self.fragment(Frag { x: i as i64, y: j as i64, c: c.map(|v| v as f32), z: 0.0, trunc: true })?;
             }
         }

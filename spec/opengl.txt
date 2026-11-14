@@ -9,7 +9,7 @@ WGL.SETPIXELFORMAT.RANGE measured | SetPixelFormat | a format number past the ta
 WGL.CONTEXT doc | wglCreateContext, wglMakeCurrent | after SetPixelFormat a context made and made current on the DC
 WGL.CURRENT doc | wglGetCurrentContext, wglGetCurrentDC | the current context and DC, none before and after release
 WGL.RELEASE doc | wglMakeCurrent (NULL), wglDeleteContext | no current context, the context deleted
-GL.COLORINDEX open | (none) | a color index format: index colors and palettes not modelled
+GL.COLORINDEX measured | glIndexi, glClearIndex, glIndexMask, glLogicOp, glReadPixels, glDrawPixels (GL_COLOR_INDEX) | color index formats: INDEX_BITS the color bits, the write mask all of them; indices cleared and drawn in the format's bits, through the index logic operation and the write mask; read back as they are, RGBA reads all zero (the initial one-entry maps); glDrawPixels indices as their elements hold them; DIB pixels the indices; glAccum INVALID_OPERATION (no accumulation buffer) (opengl golden ci-*, ci-types-*, accum-none)
 GL.INIT doc | glGet (the initial values of each parameter) | a new context's state as the reference pages list it, dithering on
 GL.STRINGS measured | glGetString | "Microsoft Corporation", "GDI Generic", "1.1.0", "GL_WIN_swap_hint GL_EXT_bgra GL_EXT_paletted_texture" at every depth (opengl golden ctx-*)
 GL.STRINGS.ENUM doc | glGetString (GL_INVALID_ENUM) | another name: NULL and GL_INVALID_ENUM
