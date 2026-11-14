@@ -814,6 +814,14 @@ fn suite(v8: bool) -> String {
             writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, Some((0.0, 0.0))), v(15.5, -0.5, 0.0, !0, Some((1.3, 0.1))), v(-0.5, 15.5, 0.0, !0, Some((0.2, 1.1))), v(15.5, 15.5, 0.0, !0, Some((1.5, 1.2)))).unwrap();
         }
     }
+    // NONE, CONVOLUTIONMONO and past them as the minifying filter under a linear one
+    for f in [0u32, 6, 7, 0xffff_ffff] {
+        open(&mut s, &format!("filter-min-other-{f}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 4 4 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        writeln!(s, "{mag_s} 2\n{min} {f:#x}\n{mip} 0", mag_s = if v8 { "tss set 0 16" } else { "ss set 0 5" }).unwrap();
+        writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, Some((0.0, 0.0))), v(15.5, -0.5, 0.0, !0, Some((1.3, 0.1))), v(-0.5, 15.5, 0.0, !0, Some((0.2, 1.1))), v(15.5, 15.5, 0.0, !0, Some((1.5, 1.2)))).unwrap();
+    }
     s
 }
 

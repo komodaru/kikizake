@@ -666,13 +666,14 @@ enum Setup {
 /// a sampler's D3DTEXTUREFILTERTYPE, as WARP filters with it
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum TexFilter {
-    /// POINT, and (MEASURED filter-other-*) NONE, CONVOLUTIONMONO, values past them, and
-    /// Direct3D 8's FLATCUBIC, GAUSSIANCUBIC (4, 5)
     Point,
     Linear,
     Anisotropic,
     /// Direct3D 9's PYRAMIDALQUAD, GAUSSIANQUAD
     Quad,
+    /// NONE, CONVOLUTIONMONO, values past them, Direct3D 8's FLATCUBIC, GAUSSIANCUBIC (4, 5):
+    /// as MAGFILTER POINT (MEASURED filter-other-*)
+    Other,
 }
 
 impl TexFilter {
@@ -682,10 +683,7 @@ impl TexFilter {
             2 => TexFilter::Linear,
             3 => TexFilter::Anisotropic,
             4 | 5 if !v8 => TexFilter::Quad,
-            _ => {
-                hit(clause::D3D9_TEX_FILTEROTHER);
-                TexFilter::Point
-            }
+            _ => TexFilter::Other,
         }
     }
 }
@@ -874,9 +872,9 @@ impl D3d9 {
     fn tss(&self, s: u32, t: u32) -> u32 {
         self.state.get(&Key::Tss(s, t)).copied().unwrap_or(0)
     }
-    /// whether an enabled stage with a texture magnifies with PYRAMIDALQUAD or GAUSSIANQUAD
+    /// whether an enabled stage with a texture filters with PYRAMIDALQUAD or GAUSSIANQUAD
     fn quad_filtered(&self) -> bool {
-        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && self.filter(st, 5) == TexFilter::Quad)
+        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && (self.filter(st, 5) == TexFilter::Quad || self.filter(st, 6) == TexFilter::Quad))
     }
 
     /// a stage's MAGFILTER (t 5) or MINFILTER (t 6)
@@ -1259,11 +1257,16 @@ impl D3d9 {
         // (MEASURED aniso-*: ANISOTROPIC as either filter makes both anisotropic, Direct3D 10's
         // one ANISOTROPIC filter)
         let (mag, min) = (self.filter(st, 5), self.filter(st, 6));
-        if min == TexFilter::Quad && mag != TexFilter::Quad {
-            // (PYRAMIDALQUAD or GAUSSIANQUAD as the minifying filter alone: cases
-            // filter-min-quad-*)
-            return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
-        }
+        let mag = match min {
+            // (MEASURED d3d8draw filter-min-quad-*: Direct3D 8's FLATCUBIC, GAUSSIANCUBIC as
+            // MINFILTER make the whole of it POINT)
+            TexFilter::Other if self.v8 => TexFilter::Point,
+            // (Direct3D 9's other values as MINFILTER: cases filter-min-other-*)
+            TexFilter::Other => return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER)),
+            // (MEASURED filter-min-quad-*: PYRAMIDALQUAD, GAUSSIANQUAD as MINFILTER leave
+            // MAGFILTER's filter, with Direct3D 10's attribute setup, D3D9.TEX.QUAD)
+            _ => mag,
+        };
         let mag = if min == TexFilter::Anisotropic { min } else { mag };
         let filter = match mag {
             TexFilter::Anisotropic => {
@@ -1281,6 +1284,10 @@ impl D3d9 {
             // (MEASURED filter-other-4-*, -5-*: linear, the attributes set up as Direct3D 10's
             // rasterizer does, D3D9.TEX.QUAD)
             TexFilter::Quad => TexFilter::Linear,
+            TexFilter::Other => {
+                hit(clause::D3D9_TEX_FILTEROTHER);
+                TexFilter::Point
+            }
             f => f,
         };
         let (x, y) = (u * tx.w as f64, v * tx.h as f64);
@@ -1318,7 +1325,7 @@ impl D3d9 {
                 }
                 Ok(c)
             }
-            TexFilter::Anisotropic | TexFilter::Quad => unreachable!("taken as linear above"),
+            TexFilter::Anisotropic | TexFilter::Quad | TexFilter::Other => unreachable!("taken as linear or point above"),
         }
     }
 
@@ -1839,9 +1846,10 @@ impl D3d9 {
         let pts = [(a.x, a.y), (b.x, b.y), (c.x, c.y)];
         let within = |v: &(f32, f32), lo: f32, hi: f32| (lo..=w as f32 + hi).contains(&v.0) && (lo..=h as f32 + hi).contains(&v.1);
         let clipped = !xyz && !pts.iter().all(|v| within(v, -0.5, 0.0));
-        // (open: Direct3D 8 leaves some triangles a little past the target unclipped, as a guard
-        // band would, and not others: d3d8draw raster-3, -77, -96, shade-13, clip-decide-*)
-        if self.v8 && clipped && pts.iter().all(|v| within(v, -1.0, 3.0)) {
+        // (MEASURED d3d8draw raster-*, clip-decide-*, shade-clip-*: Direct3D 8 clips as Direct3D
+        // 9 does; open: a triangle with a vertex at the target's size itself, d3d8draw raster-3,
+        // -77, -96 drawn as if clipped at the size or not at all)
+        if self.v8 && clipped && pts.iter().any(|v| v.0 == w as f32 || v.1 == h as f32) {
             return Err(Fail::Unmodeled(open::D3D9_RASTER_CLIP8));
         }
         let flat = self.rs(9) == 1;
