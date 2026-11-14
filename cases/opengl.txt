@@ -24933,3 +24933,25 @@ case edge-pf-range
 glctx 32 99
 glcur
 end
+case edge-bitmap-read-stencil
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glClearStencil 0xa5
+gl glClear 0x400
+glread 0 0 16 2 0x1901 0x1a00 8
+glerr
+gl glPixelStorei 0xd01 1
+glread 0 0 16 2 0x1901 0x1a00 8
+glerr
+end
+case edge-bitmap-draw-stencil
+glctx 32 choose 0x38 0 32 0 0 32 8
+gldraw 16 2 0x1901 0x1a00 5 4
+glerr
+glread 0 0 16 2 0x1901 0x1401 32
+end
+case edge-bitmap-draw-index
+glctx 32 choose 0x38 0 32 0 0 32 8
+gldraw 16 2 0x1900 0x1a00 5 4
+glerr
+glread 0 0 16 2 0x1908 0x1401 128
+end

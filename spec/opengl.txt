@@ -5,7 +5,7 @@ WGL.FORMATS measured | DescribePixelFormat, PIXELFORMATDESCRIPTOR | the formats 
 WGL.CHOOSE measured | ChoosePixelFormat | the format with the least weighted mismatch, the first on a tie: 3 for less accumulation, 1 for more when some is asked, 2 for another pixel type, 1 for other color bits when some are asked, 2 for less alpha, 7 for less depth, 1 for each 16 depth bits past the request; only PFD_DRAW_TO_WINDOW filters (opengl golden choose-*: 292 requests)
 WGL.SETPIXELFORMAT.BITMAP measured | SetPixelFormat | on a DIB section's DC a format without PFD_DRAW_TO_BITMAP fails with ERROR_INVALID_PARAMETER (87) (opengl golden ctx-pf-*)
 WGL.SETPIXELFORMAT.DEPTH measured | SetPixelFormat | a format whose color bits are not the DIB's fails with ERROR_INVALID_FUNCTION (1) (opengl golden ctx-pf-*)
-WGL.SETPIXELFORMAT.RANGE open | SetPixelFormat | a format number past the table
+WGL.SETPIXELFORMAT.RANGE measured | SetPixelFormat | a format number past the table: ERROR_INVALID_PARAMETER (87), no context (opengl golden edge-pf-range)
 WGL.CONTEXT doc | wglCreateContext, wglMakeCurrent | after SetPixelFormat a context made and made current on the DC
 WGL.CURRENT doc | wglGetCurrentContext, wglGetCurrentDC | the current context and DC, none before and after release
 WGL.RELEASE doc | wglMakeCurrent (NULL), wglDeleteContext | no current context, the context deleted
@@ -20,9 +20,9 @@ GL.BEGIN.ENUM doc | glBegin (GL_INVALID_ENUM) | a mode past GL_POLYGON: GL_INVAL
 GL.BEGIN.ONLY doc | glBegin (GL_INVALID_OPERATION) | between glBegin and glEnd only vertex, color, normal and index calls; any other is GL_INVALID_OPERATION and ignored
 GL.BEGIN.GET measured | glGet (GL_INVALID_OPERATION) | glGet between glBegin and glEnd writes nothing and records GL_INVALID_OPERATION (opengl golden errors-begin)
 GL.BEGIN.GETERROR measured | glGetError (GL_INVALID_OPERATION) | glGetError between glBegin and glEnd returns GL_INVALID_OPERATION without clearing it: eight reads give it eight times (opengl golden errors-begin)
-GL.BEGIN.QUERY open | glIsEnabled, glGetString | glIsEnabled and glGetString between glBegin and glEnd
+GL.BEGIN.QUERY measured | glIsEnabled (GL_INVALID_OPERATION) | glIsEnabled between glBegin and glEnd: 0 and GL_INVALID_OPERATION (opengl golden edge-begin-query)
 GL.END.OUTSIDE doc | glEnd (GL_INVALID_OPERATION) | glEnd without glBegin: GL_INVALID_OPERATION
-GL.VERTEX.OUTSIDE open | glVertex | a vertex outside glBegin / glEnd (undefined)
+GL.VERTEX.OUTSIDE measured | glVertex | a vertex outside glBegin / glEnd: ignored, no error (opengl golden edge-vertex-outside)
 GL.CALL.OTHER open | (none) | the calls of the executor's table the model does not follow (fog, zoom, raster position, polygon offset, ...)
 GL.FLUSH doc | glFlush, glFinish | no change of state
 GL.ENABLE doc | glEnable, glDisable | the capability set or cleared
@@ -47,8 +47,8 @@ GL.MATRIX.PUSH doc | glPushMatrix | the top copied
 GL.MATRIX.POP doc | glPopMatrix | the top dropped
 GL.MATRIX.OVERFLOW doc | glPushMatrix (GL_STACK_OVERFLOW) | a full stack (depths: GL.LIMITS): GL_STACK_OVERFLOW
 GL.MATRIX.UNDERFLOW doc | glPopMatrix (GL_STACK_UNDERFLOW) | one matrix left: GL_STACK_UNDERFLOW
-GL.ATTRIB.PUSH assumed | glPushAttrib | the attribute stack one deeper (GL_ATTRIB_STACK_DEPTH)
-GL.ATTRIB.OVERFLOW assumed | glPushAttrib (GL_STACK_OVERFLOW) | sixteen deep: GL_STACK_OVERFLOW
+GL.ATTRIB.PUSH measured | glPushAttrib | the attribute stack one deeper (GL_ATTRIB_STACK_DEPTH) (opengl golden edge-attrib)
+GL.ATTRIB.OVERFLOW measured | glPushAttrib (GL_STACK_OVERFLOW) | sixteen deep: GL_STACK_OVERFLOW (opengl golden edge-attrib-overflow)
 GL.ATTRIB.UNDERFLOW measured | glPopAttrib (GL_STACK_UNDERFLOW) | an empty stack: GL_STACK_UNDERFLOW (opengl golden errors)
 GL.ATTRIB.POP open | glPopAttrib | the saved state restored: not modelled
 GL.VIEWPORT doc | glViewport | the window transform; width and height clamped to the maximum (16384)
@@ -62,13 +62,13 @@ GL.CLEARACCUM doc | glClearAccum | clamped to -1..1
 GL.CLEAR doc | glClear | the buffers of the mask set to their clear values, under the scissor box and the write masks
 GL.CLEAR.VALUE doc | glClear (GL_INVALID_VALUE) | a bit outside the four buffer bits: GL_INVALID_VALUE
 GL.CLEAR.ACCUM doc | glClear (GL_ACCUM_BUFFER_BIT) | the accumulation buffer, seen only through glAccum's GL_RETURN
-GL.ACCUM doc | glAccum | GL_ACCUM, GL_LOAD, GL_MULT, GL_ADD change only the accumulation buffer
-GL.ACCUM.ENUM doc | glAccum (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM
+GL.ACCUM measured | glAccum | GL_ACCUM, GL_LOAD, GL_MULT, GL_ADD change only the accumulation buffer, no error (opengl golden edge-accum)
+GL.ACCUM.ENUM measured | glAccum (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM (opengl golden edge-accum)
 GL.ACCUM.RETURN open | glAccum (GL_RETURN) | the accumulation buffer written back: its precision not measured
-GL.BUFFER assumed | glDrawBuffer, glReadBuffer | GL_FRONT, GL_FRONT_LEFT, GL_LEFT, for drawing also GL_FRONT_AND_BACK and GL_NONE: the buffer recorded (GL_DRAW_BUFFER, GL_READ_BUFFER)
-GL.BUFFER.MISSING measured | glDrawBuffer, glReadBuffer (GL_INVALID_OPERATION) | a right, back or auxiliary buffer a single-buffered DIB lacks: GL_INVALID_OPERATION (opengl golden errors)
-GL.BUFFER.ENUM measured | glDrawBuffer, glReadBuffer (GL_INVALID_ENUM) | a name that is no buffer: GL_INVALID_ENUM (opengl golden errors)
-GL.BUFFER.NONE open | glDrawBuffer (GL_NONE) | drawing with no color buffer
+GL.BUFFER measured | glDrawBuffer, glReadBuffer | GL_FRONT, GL_FRONT_LEFT, GL_LEFT, for drawing also GL_FRONT_AND_BACK and GL_NONE: the buffer recorded (opengl golden edge-buffer)
+GL.BUFFER.MISSING measured | glDrawBuffer, glReadBuffer (GL_INVALID_OPERATION) | a right, back or auxiliary buffer a single-buffered DIB lacks: GL_INVALID_OPERATION (opengl golden errors, edge-buffer)
+GL.BUFFER.ENUM measured | glDrawBuffer, glReadBuffer (GL_INVALID_ENUM) | a name that is no buffer, for reading also GL_FRONT_AND_BACK and GL_NONE: GL_INVALID_ENUM (opengl golden errors, edge-buffer)
+GL.BUFFER.NONE doc | glDrawBuffer (GL_NONE) | with GL_NONE no color buffer is written; depth and stencil still are
 GL.COLOR.UB measured | glColor4ub | each byte times the float reciprocal of 255, not divided (opengl golden errors-begin: the current color as integers)
 GL.COLOR.F doc | glColor4f | the current color as given, clamped when used
 GL.COLOR.NOALPHA doc | glReadPixels | a framebuffer without alpha bits reads alpha 1
@@ -130,25 +130,27 @@ GL.PIXELSTORE.SWAP doc | glPixelStore (GL_PACK_SWAP_BYTES) | the bytes of each e
 GL.PIXELTRANSFER doc | glPixelTransfer | the scale and bias of each component recorded
 GL.PIXELTRANSFER.APPLY doc | glPixelTransfer | components times the scale plus the bias, clamped, on reads and draws (opengl golden draw-unpack-8..15)
 GL.PIXELTRANSFER.OTHER open | glPixelTransfer | color maps, index shifts and depth scale
-GL.PIXELS.ENUM doc | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM
-GL.PIXELS.VALUE doc | glReadPixels, glDrawPixels (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE
-GL.PIXELS.NOBUFFER doc | glReadPixels, glDrawPixels (GL_INVALID_OPERATION) | GL_COLOR_INDEX in RGBA mode, or depth or stencil without such a buffer: GL_INVALID_OPERATION
+GL.PIXELS.ENUM measured | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM, nothing written (opengl golden edge-pixels-errors)
+GL.PIXELS.VALUE measured | glReadPixels, glDrawPixels (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE (opengl golden edge-pixels-errors)
+GL.PIXELS.NOBUFFER measured | glReadPixels (GL_INVALID_OPERATION) | reading GL_COLOR_INDEX in RGBA mode (before the type is looked at), or depth or stencil without such a buffer: GL_INVALID_OPERATION (opengl golden edge-pixels-errors)
 GL.PIXELS.BITMAP.INDEX open | glReadPixels, glDrawPixels | GL_BITMAP with GL_COLOR_INDEX or GL_STENCIL_INDEX
 GL.READ doc | glReadPixels | the rectangle's pixels from the bottom row up, converted to the format and type
 GL.READ.CONVERT measured | glReadPixels | components (read as channel times the float reciprocal of its maximum) in floats: GL_UNSIGNED_BYTE times 255 rounded, GL_UNSIGNED_SHORT times 65535, GL_BYTE times 127.5, GL_SHORT times 32767.5 truncated, GL_UNSIGNED_INT times 4294964992 and GL_INT times 2147482496 truncated, GL_FLOAT as is (opengl golden read-*: 2343 elements)
 GL.READ.LUMINANCE doc | glReadPixels | luminance: red + green + blue, clamped to 1
 GL.READ.BITMAP measured | glReadPixels | GL_BITMAP with a color format: GL_INVALID_OPERATION, not GL_INVALID_ENUM (opengl golden read-formats, read-pack-*)
-GL.READ.DEPTH measured | glReadPixels (GL_DEPTH_COMPONENT) | GL_UNSIGNED_INT from a 32-bit depth buffer: the stored bits as they are (opengl golden depth-*); other types open
+GL.READ.DEPTH measured | glReadPixels (GL_DEPTH_COMPONENT) | GL_UNSIGNED_INT from a 32-bit depth buffer: the stored bits as they are (opengl golden depth-*)
+GL.READ.DEPTH.TYPE open | glReadPixels (GL_DEPTH_COMPONENT) | other types or a 16-bit depth buffer
 GL.READ.STENCIL doc | glReadPixels (GL_STENCIL_INDEX) | the stencil values as integers of the type
-GL.READ.OUTSIDE open | glReadPixels | pixels outside the window (undefined)
+GL.READ.OUTSIDE measured | glReadPixels | the elements of pixels outside the window are left as they are (opengl golden edge-read-outside)
 GL.READ.BUFFER open | glReadPixels | a layout past the executor's buffer (Windows writes past it)
 GL.DRAW doc | glDrawPixels | the image as fragments from the bottom left at the raster position
 GL.DRAW.CONVERT doc | glDrawPixels | each element to a component: unsigned ones over their maximum, signed (2v + 1) / (2^n - 1), floats as they are
 GL.DRAW.TOFIXED measured | glDrawPixels | a drawn component to an 8-bit channel truncated, to a 5-bit one rounded (opengl golden draw-*, scissor-mask-*)
 GL.DRAW.LUMINANCE doc | glDrawPixels | luminance to red, green and blue
+GL.DRAW.INDEX assumed | glPixelMap, glDrawPixels | GL_COLOR_INDEX in RGBA mode: through the index-to-RGBA maps, initially one zero each: black, alpha 0; no error (opengl golden edge-pixels-errors)
 GL.DRAW.NAN open | glDrawPixels | a NaN or infinite float component
-GL.DRAW.BITMAP open | glDrawPixels | GL_BITMAP with a color format
+GL.DRAW.BITMAP measured | glDrawPixels (GL_INVALID_ENUM) | GL_BITMAP with a color format: GL_INVALID_ENUM (opengl golden edge-draw-bitmap)
 GL.DRAW.DEPTHSTENCIL open | glDrawPixels | depth or stencil images
 GL.DRAW.BUFFER excluded | glDrawPixels | a layout past the executor's data: Windows would read past its array
 GL.DIB measured | (none) | the DIB section's bits are the color buffer, bottom row first, channels at the format's shifts (opengl golden gldib lines)
-GL.DIB.INDEX open | (none) | an 8 or 4-bit DIB: 3-3-2 pixels through the DIB's color table
+GL.DIB.INDEX measured | (none) | on 8 and 4-bit DIBs the pixel value itself is the DIB's index, 4-bit pixels left one in the high nibble (opengl golden edge-dib-8)

@@ -612,6 +612,9 @@ pub fn opengl() -> String {
         ("vertex-outside", "ORTHOgl glVertex2f 1 1\nglerr\nglread 0 0 4 4 0x1908 0x1401 64"),
         ("other-call", "gl glPixelZoom 2 2\nglerr"),
         ("pf-range", "PFRANGE"),
+        ("bitmap-read-stencil", "gl glClearStencil 0xa5\ngl glClear 0x400\nglread 0 0 16 2 0x1901 0x1a00 8\nglerr\ngl glPixelStorei 0xd01 1\nglread 0 0 16 2 0x1901 0x1a00 8\nglerr"),
+        ("bitmap-draw-stencil", "gldraw 16 2 0x1901 0x1a00 5 4\nglerr\nglread 0 0 16 2 0x1901 0x1401 32"),
+        ("bitmap-draw-index", "gldraw 16 2 0x1900 0x1a00 5 4\nglerr\nglread 0 0 16 2 0x1908 0x1401 128"),
     ];
     for (name, body) in edges {
         let body = match *body {

@@ -808,7 +808,12 @@ impl Gl {
                     num(&t[2]).ok_or(Fail::Bad)? as usize
                 };
                 let f = formats();
-                let Some(p) = pf.checked_sub(1).and_then(|i| f.get(i)) else { return Err(Fail::Unmodeled("WGL.SETPIXELFORMAT.RANGE")) };
+                let Some(p) = pf.checked_sub(1).and_then(|i| f.get(i)) else {
+                    // (MEASURED, golden opengl-32 edge-pf-range: ERROR_INVALID_PARAMETER, no context)
+                    hit("WGL.SETPIXELFORMAT.RANGE");
+                    out.push("glctx set failed 87".into());
+                    return Ok(true);
+                };
                 if p.flags & PFD_DRAW_TO_BITMAP == 0 {
                     hit("WGL.SETPIXELFORMAT.BITMAP");
                     out.push("glctx set failed 87".into());
@@ -916,7 +921,11 @@ impl Gl {
                 let Some(c) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
                 let c = c as u32;
                 if ctx.in_begin.is_some() {
-                    return Err(Fail::Unmodeled("GL.BEGIN.QUERY"));
+                    // (MEASURED, golden opengl-32 edge-begin-query: 0, INVALID_OPERATION)
+                    hit("GL.BEGIN.QUERY");
+                    ctx.error(INVALID_OPERATION);
+                    out.push(format!("isen {c:x} = 0"));
+                    return Ok(true);
                 }
                 let v = match ctx.caps.get(&c) {
                     Some(v) => {
@@ -1374,7 +1383,8 @@ impl Ctx {
                 if self.in_begin.is_some() {
                     self.verts.push((v, self.color));
                 } else {
-                    return Err(Fail::Unmodeled("GL.VERTEX.OUTSIDE"));
+                    // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
+                    hit("GL.VERTEX.OUTSIDE");
                 }
             }
             "glClear" => {
@@ -1403,7 +1413,7 @@ impl Ctx {
                 if [FRONT, FRONT_LEFT, LEFT].contains(&b) || (draw && (b == FRONT_AND_BACK || b == 0)) {
                     hit("GL.BUFFER");
                     self.buffers[!draw as usize] = b;
-                } else if (0x400..=0x40c).contains(&b) {
+                } else if (0x400..=0x40c).contains(&b) && (draw || b != FRONT_AND_BACK) {
                     hit("GL.BUFFER.MISSING");
                     self.error(INVALID_OPERATION);
                 } else {
@@ -1568,7 +1578,8 @@ impl Ctx {
     /// dithering, logic operation, masks
     pub fn fragment(&mut self, f: Frag) -> Res<()> {
         if self.buffers[0] == 0 {
-            return Err(Fail::Unmodeled("GL.BUFFER.NONE"));
+            hit("GL.BUFFER.NONE");
+            return Ok(());
         }
         if f.x < 0 || f.y < 0 || f.x >= W as i64 || f.y >= H as i64 {
             return Ok(());
@@ -1718,9 +1729,12 @@ impl Ctx {
 
     fn clear(&mut self, m: u32) -> Res<()> {
         hit("GL.CLEAR");
-        if self.buffers[0] == 0 && m & COLOR_BUFFER_BIT != 0 {
-            return Err(Fail::Unmodeled("GL.BUFFER.NONE"));
-        }
+        let m = if self.buffers[0] == 0 && m & COLOR_BUFFER_BIT != 0 {
+            hit("GL.BUFFER.NONE");
+            m & !COLOR_BUFFER_BIT
+        } else {
+            m
+        };
         if m & ACCUM_BUFFER_BIT != 0 {
             // (seen only through glAccum's GL_RETURN, GL.ACCUM)
             hit("GL.CLEAR.ACCUM");
@@ -1924,12 +1938,20 @@ impl Ctx {
             self.error(INVALID_VALUE);
             return Ok(None);
         }
+        if read && f == COLOR_INDEX && self.pf.ty == 0 {
+            // (MEASURED, golden opengl-32 edge-pixels-errors: before the type is looked at)
+            hit("GL.PIXELS.NOBUFFER");
+            self.error(INVALID_OPERATION);
+            return Ok(None);
+        }
         if t == BITMAP {
             if f != COLOR_INDEX && f != STENCIL_INDEX {
-                // (MEASURED, golden opengl-32 read-formats, read-pack-*: INVALID_OPERATION where
-                // the reference pages say INVALID_ENUM)
+                // (MEASURED, golden opengl-32 read-formats, read-pack-*, edge-draw-bitmap:
+                // glReadPixels INVALID_OPERATION, glDrawPixels INVALID_ENUM)
                 if !read {
-                    return Err(Fail::Unmodeled("GL.DRAW.BITMAP"));
+                    hit("GL.DRAW.BITMAP");
+                    self.error(INVALID_ENUM);
+                    return Ok(None);
                 }
                 hit("GL.READ.BITMAP");
                 self.error(INVALID_OPERATION);
@@ -1937,7 +1959,7 @@ impl Ctx {
             }
             return Err(Fail::Unmodeled("GL.PIXELS.BITMAP.INDEX"));
         }
-        if f == COLOR_INDEX || (f == DEPTH_COMPONENT && self.pf.depth == 0) || (f == STENCIL_INDEX && self.pf.stencil == 0) {
+        if (f == COLOR_INDEX && read) || (f == DEPTH_COMPONENT && self.pf.depth == 0) || (f == STENCIL_INDEX && self.pf.stencil == 0) {
             hit("GL.PIXELS.NOBUFFER");
             self.error(INVALID_OPERATION);
             return Ok(None);
@@ -1959,9 +1981,6 @@ impl Ctx {
 
     pub fn read_pixels(&mut self, x: i64, y: i64, w: i64, h: i64, f: u32, t: u32, buf: &mut [u8]) -> Res<()> {
         let Some((comps, size)) = self.pixel_args(w, h, f, t, true)? else { return Ok(()) };
-        if x < 0 || y < 0 || x + w > W as i64 || y + h > H as i64 {
-            return Err(Fail::Unmodeled("GL.READ.OUTSIDE"));
-        }
         if self.pack[0] != 0 && size > 1 {
             hit("GL.PIXELSTORE.SWAP");
         }
@@ -1969,7 +1988,14 @@ impl Ctx {
         let (start, k) = layout(&self.pack, comps.len(), size, w);
         for j in 0..h as usize {
             for i in 0..w as usize {
-                let p = (y as usize + j) * W + x as usize + i;
+                let (px, py) = (x + i as i64, y + j as i64);
+                if px < 0 || py < 0 || px >= W as i64 || py >= H as i64 {
+                    // (MEASURED, golden opengl-32 edge-read-outside: the elements of pixels
+                    // outside the window are left as they are)
+                    hit("GL.READ.OUTSIDE");
+                    continue;
+                }
+                let p = py as usize * W + px as usize;
                 let c = self.dst_color(p).map(|v| v as f64);
                 let c = self.transfer(c).map(|v| v as f32);
                 for (n, which) in comps.iter().enumerate() {
@@ -1982,7 +2008,7 @@ impl Ctx {
                         5 => {
                             // (MEASURED, golden opengl-32 depth-*: UNSIGNED_INT gives the 32 bits as they are)
                             if t != UNSIGNED_INT || self.pf.depth != 32 {
-                                return Err(Fail::Unmodeled("GL.READ.DEPTH"));
+                                return Err(Fail::Unmodeled("GL.READ.DEPTH.TYPE"));
                             }
                             hit("GL.READ.DEPTH");
                             self.depth[p].to_le_bytes().to_vec()
@@ -2042,6 +2068,12 @@ impl Ctx {
                             c[1] = v;
                             c[2] = v;
                         }
+                        7 => {
+                            // an index in RGBA mode through GL_PIXEL_MAP_I_TO_R.. A, whose
+                            // initial tables hold one zero each
+                            hit("GL.DRAW.INDEX");
+                            c = [0.0; 4];
+                        }
                         _ => c[*which] = v,
                     }
                 }
@@ -2054,20 +2086,31 @@ impl Ctx {
 
     /// the DIB's rows, bottom first, as the framebuffer's pixels in the format's channels
     pub fn dib(&self) -> Res<Vec<String>> {
-        if self.bpp < 16 {
-            return Err(Fail::Unmodeled("GL.DIB.INDEX"));
-        }
         hit("GL.DIB");
+        if self.bpp < 16 {
+            // (MEASURED, golden opengl-32 edge-dib-8: the pixel value itself is the DIB's index)
+            hit("GL.DIB.INDEX");
+        }
         let mut rows = Vec::new();
         for y in 0..H {
             let mut b = Vec::new();
+            let mut acc = 0u32;
             for x in 0..W {
                 let p = self.fb[y * W + x];
                 let mut v = 0u32;
                 for k in 0..4 {
                     v |= p[k] << self.pf.rgba[k].1;
                 }
-                b.extend_from_slice(&v.to_le_bytes()[..self.bpp as usize / 8]);
+                if self.bpp >= 8 {
+                    b.extend_from_slice(&v.to_le_bytes()[..self.bpp as usize / 8]);
+                } else {
+                    // (4 bits a pixel, the left one in the high nibble)
+                    acc = acc << 4 | (v & 15);
+                    if x % 2 == 1 {
+                        b.push(acc as u8);
+                        acc = 0;
+                    }
+                }
             }
             rows.push(hex(&b));
         }
