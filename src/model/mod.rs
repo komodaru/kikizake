@@ -21,6 +21,7 @@ pub mod gdiblend;
 pub mod gdiddb;
 pub mod wic;
 pub mod dwrite;
+pub mod wicimage;
 
 use crate::case::Case;
 
@@ -79,6 +80,11 @@ impl Api for d3d12::D3d12 {
         d3d12::D3d12::op(self, op, out)
     }
 }
+impl Api for wicimage::WicImage {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        wicimage::WicImage::op(self, op, out)
+    }
+}
 impl Api for ddraw::Ddraw {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         ddraw::Ddraw::op(self, op, out)
@@ -116,6 +122,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(dwrite::Dwrite::default()),
         Box::new(d3d12::D3d12::default()),
         Box::new(d2d::D2d::default()),
+        Box::new(wicimage::WicImage::default()),
     ]
 }
 

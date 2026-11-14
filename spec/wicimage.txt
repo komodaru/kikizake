@@ -1,0 +1,2 @@
+# WIC bitmap source clauses (spec/README.md): <id> <status> | <source> | <what it says>
+WICIMAGE.OPEN open | (none) | not modelled yet

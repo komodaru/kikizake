@@ -1,0 +1,2329 @@
+# kikizake suite wictransform: WIC flip/rotators, clippers, CopyPixels. Made by `kikizake gen`; runner/wicimage.c says what each line does.
+case flip-bw-0
+wbits bw 5 3 300
+wflip 0
+winfo
+wpixels
+end
+case flip-bw-1
+wbits bw 5 3 301
+wflip 1
+winfo
+wpixels
+end
+case flip-bw-2
+wbits bw 5 3 302
+wflip 2
+winfo
+wpixels
+end
+case flip-bw-3
+wbits bw 5 3 303
+wflip 3
+winfo
+wpixels
+end
+case flip-bw-8
+wbits bw 5 3 308
+wflip 8
+winfo
+wpixels
+end
+case flip-bw-9
+wbits bw 5 3 309
+wflip 9
+winfo
+wpixels
+end
+case flip-bw-10
+wbits bw 5 3 310
+wflip 10
+winfo
+wpixels
+end
+case flip-bw-11
+wbits bw 5 3 311
+wflip 11
+winfo
+wpixels
+end
+case flip-bw-16
+wbits bw 5 3 316
+wflip 16
+winfo
+wpixels
+end
+case flip-bw-17
+wbits bw 5 3 317
+wflip 17
+winfo
+wpixels
+end
+case flip-bw-18
+wbits bw 5 3 318
+wflip 18
+winfo
+wpixels
+end
+case flip-bw-19
+wbits bw 5 3 319
+wflip 19
+winfo
+wpixels
+end
+case flip-bw-24
+wbits bw 5 3 324
+wflip 24
+winfo
+wpixels
+end
+case flip-bw-25
+wbits bw 5 3 325
+wflip 25
+winfo
+wpixels
+end
+case flip-bw-26
+wbits bw 5 3 326
+wflip 26
+winfo
+wpixels
+end
+case flip-bw-27
+wbits bw 5 3 327
+wflip 27
+winfo
+wpixels
+end
+case flip-gray4-0
+wbits gray4 5 3 332
+wflip 0
+winfo
+wpixels
+end
+case flip-gray4-1
+wbits gray4 5 3 333
+wflip 1
+winfo
+wpixels
+end
+case flip-gray4-2
+wbits gray4 5 3 334
+wflip 2
+winfo
+wpixels
+end
+case flip-gray4-3
+wbits gray4 5 3 335
+wflip 3
+winfo
+wpixels
+end
+case flip-gray4-8
+wbits gray4 5 3 340
+wflip 8
+winfo
+wpixels
+end
+case flip-gray4-9
+wbits gray4 5 3 341
+wflip 9
+winfo
+wpixels
+end
+case flip-gray4-10
+wbits gray4 5 3 342
+wflip 10
+winfo
+wpixels
+end
+case flip-gray4-11
+wbits gray4 5 3 343
+wflip 11
+winfo
+wpixels
+end
+case flip-gray4-16
+wbits gray4 5 3 348
+wflip 16
+winfo
+wpixels
+end
+case flip-gray4-17
+wbits gray4 5 3 349
+wflip 17
+winfo
+wpixels
+end
+case flip-gray4-18
+wbits gray4 5 3 350
+wflip 18
+winfo
+wpixels
+end
+case flip-gray4-19
+wbits gray4 5 3 351
+wflip 19
+winfo
+wpixels
+end
+case flip-gray4-24
+wbits gray4 5 3 356
+wflip 24
+winfo
+wpixels
+end
+case flip-gray4-25
+wbits gray4 5 3 357
+wflip 25
+winfo
+wpixels
+end
+case flip-gray4-26
+wbits gray4 5 3 358
+wflip 26
+winfo
+wpixels
+end
+case flip-gray4-27
+wbits gray4 5 3 359
+wflip 27
+winfo
+wpixels
+end
+case flip-gray8-0
+wbits gray8 5 3 364
+wflip 0
+winfo
+wpixels
+end
+case flip-gray8-1
+wbits gray8 5 3 365
+wflip 1
+winfo
+wpixels
+end
+case flip-gray8-2
+wbits gray8 5 3 366
+wflip 2
+winfo
+wpixels
+end
+case flip-gray8-3
+wbits gray8 5 3 367
+wflip 3
+winfo
+wpixels
+end
+case flip-gray8-8
+wbits gray8 5 3 372
+wflip 8
+winfo
+wpixels
+end
+case flip-gray8-9
+wbits gray8 5 3 373
+wflip 9
+winfo
+wpixels
+end
+case flip-gray8-10
+wbits gray8 5 3 374
+wflip 10
+winfo
+wpixels
+end
+case flip-gray8-11
+wbits gray8 5 3 375
+wflip 11
+winfo
+wpixels
+end
+case flip-gray8-16
+wbits gray8 5 3 380
+wflip 16
+winfo
+wpixels
+end
+case flip-gray8-17
+wbits gray8 5 3 381
+wflip 17
+winfo
+wpixels
+end
+case flip-gray8-18
+wbits gray8 5 3 382
+wflip 18
+winfo
+wpixels
+end
+case flip-gray8-19
+wbits gray8 5 3 383
+wflip 19
+winfo
+wpixels
+end
+case flip-gray8-24
+wbits gray8 5 3 388
+wflip 24
+winfo
+wpixels
+end
+case flip-gray8-25
+wbits gray8 5 3 389
+wflip 25
+winfo
+wpixels
+end
+case flip-gray8-26
+wbits gray8 5 3 390
+wflip 26
+winfo
+wpixels
+end
+case flip-gray8-27
+wbits gray8 5 3 391
+wflip 27
+winfo
+wpixels
+end
+case flip-gray16-0
+wbits gray16 5 3 396
+wflip 0
+winfo
+wpixels
+end
+case flip-gray16-1
+wbits gray16 5 3 397
+wflip 1
+winfo
+wpixels
+end
+case flip-gray16-2
+wbits gray16 5 3 398
+wflip 2
+winfo
+wpixels
+end
+case flip-gray16-3
+wbits gray16 5 3 399
+wflip 3
+winfo
+wpixels
+end
+case flip-gray16-8
+wbits gray16 5 3 404
+wflip 8
+winfo
+wpixels
+end
+case flip-gray16-9
+wbits gray16 5 3 405
+wflip 9
+winfo
+wpixels
+end
+case flip-gray16-10
+wbits gray16 5 3 406
+wflip 10
+winfo
+wpixels
+end
+case flip-gray16-11
+wbits gray16 5 3 407
+wflip 11
+winfo
+wpixels
+end
+case flip-gray16-16
+wbits gray16 5 3 412
+wflip 16
+winfo
+wpixels
+end
+case flip-gray16-17
+wbits gray16 5 3 413
+wflip 17
+winfo
+wpixels
+end
+case flip-gray16-18
+wbits gray16 5 3 414
+wflip 18
+winfo
+wpixels
+end
+case flip-gray16-19
+wbits gray16 5 3 415
+wflip 19
+winfo
+wpixels
+end
+case flip-gray16-24
+wbits gray16 5 3 420
+wflip 24
+winfo
+wpixels
+end
+case flip-gray16-25
+wbits gray16 5 3 421
+wflip 25
+winfo
+wpixels
+end
+case flip-gray16-26
+wbits gray16 5 3 422
+wflip 26
+winfo
+wpixels
+end
+case flip-gray16-27
+wbits gray16 5 3 423
+wflip 27
+winfo
+wpixels
+end
+case flip-bgr565-0
+wbits bgr565 5 3 428
+wflip 0
+winfo
+wpixels
+end
+case flip-bgr565-1
+wbits bgr565 5 3 429
+wflip 1
+winfo
+wpixels
+end
+case flip-bgr565-2
+wbits bgr565 5 3 430
+wflip 2
+winfo
+wpixels
+end
+case flip-bgr565-3
+wbits bgr565 5 3 431
+wflip 3
+winfo
+wpixels
+end
+case flip-bgr565-8
+wbits bgr565 5 3 436
+wflip 8
+winfo
+wpixels
+end
+case flip-bgr565-9
+wbits bgr565 5 3 437
+wflip 9
+winfo
+wpixels
+end
+case flip-bgr565-10
+wbits bgr565 5 3 438
+wflip 10
+winfo
+wpixels
+end
+case flip-bgr565-11
+wbits bgr565 5 3 439
+wflip 11
+winfo
+wpixels
+end
+case flip-bgr565-16
+wbits bgr565 5 3 444
+wflip 16
+winfo
+wpixels
+end
+case flip-bgr565-17
+wbits bgr565 5 3 445
+wflip 17
+winfo
+wpixels
+end
+case flip-bgr565-18
+wbits bgr565 5 3 446
+wflip 18
+winfo
+wpixels
+end
+case flip-bgr565-19
+wbits bgr565 5 3 447
+wflip 19
+winfo
+wpixels
+end
+case flip-bgr565-24
+wbits bgr565 5 3 452
+wflip 24
+winfo
+wpixels
+end
+case flip-bgr565-25
+wbits bgr565 5 3 453
+wflip 25
+winfo
+wpixels
+end
+case flip-bgr565-26
+wbits bgr565 5 3 454
+wflip 26
+winfo
+wpixels
+end
+case flip-bgr565-27
+wbits bgr565 5 3 455
+wflip 27
+winfo
+wpixels
+end
+case flip-bgr24-0
+wbits bgr24 5 3 460
+wflip 0
+winfo
+wpixels
+end
+case flip-bgr24-1
+wbits bgr24 5 3 461
+wflip 1
+winfo
+wpixels
+end
+case flip-bgr24-2
+wbits bgr24 5 3 462
+wflip 2
+winfo
+wpixels
+end
+case flip-bgr24-3
+wbits bgr24 5 3 463
+wflip 3
+winfo
+wpixels
+end
+case flip-bgr24-8
+wbits bgr24 5 3 468
+wflip 8
+winfo
+wpixels
+end
+case flip-bgr24-9
+wbits bgr24 5 3 469
+wflip 9
+winfo
+wpixels
+end
+case flip-bgr24-10
+wbits bgr24 5 3 470
+wflip 10
+winfo
+wpixels
+end
+case flip-bgr24-11
+wbits bgr24 5 3 471
+wflip 11
+winfo
+wpixels
+end
+case flip-bgr24-16
+wbits bgr24 5 3 476
+wflip 16
+winfo
+wpixels
+end
+case flip-bgr24-17
+wbits bgr24 5 3 477
+wflip 17
+winfo
+wpixels
+end
+case flip-bgr24-18
+wbits bgr24 5 3 478
+wflip 18
+winfo
+wpixels
+end
+case flip-bgr24-19
+wbits bgr24 5 3 479
+wflip 19
+winfo
+wpixels
+end
+case flip-bgr24-24
+wbits bgr24 5 3 484
+wflip 24
+winfo
+wpixels
+end
+case flip-bgr24-25
+wbits bgr24 5 3 485
+wflip 25
+winfo
+wpixels
+end
+case flip-bgr24-26
+wbits bgr24 5 3 486
+wflip 26
+winfo
+wpixels
+end
+case flip-bgr24-27
+wbits bgr24 5 3 487
+wflip 27
+winfo
+wpixels
+end
+case flip-bgra-0
+wbits bgra 5 3 492
+wflip 0
+winfo
+wpixels
+end
+case flip-bgra-1
+wbits bgra 5 3 493
+wflip 1
+winfo
+wpixels
+end
+case flip-bgra-2
+wbits bgra 5 3 494
+wflip 2
+winfo
+wpixels
+end
+case flip-bgra-3
+wbits bgra 5 3 495
+wflip 3
+winfo
+wpixels
+end
+case flip-bgra-8
+wbits bgra 5 3 500
+wflip 8
+winfo
+wpixels
+end
+case flip-bgra-9
+wbits bgra 5 3 501
+wflip 9
+winfo
+wpixels
+end
+case flip-bgra-10
+wbits bgra 5 3 502
+wflip 10
+winfo
+wpixels
+end
+case flip-bgra-11
+wbits bgra 5 3 503
+wflip 11
+winfo
+wpixels
+end
+case flip-bgra-16
+wbits bgra 5 3 508
+wflip 16
+winfo
+wpixels
+end
+case flip-bgra-17
+wbits bgra 5 3 509
+wflip 17
+winfo
+wpixels
+end
+case flip-bgra-18
+wbits bgra 5 3 510
+wflip 18
+winfo
+wpixels
+end
+case flip-bgra-19
+wbits bgra 5 3 511
+wflip 19
+winfo
+wpixels
+end
+case flip-bgra-24
+wbits bgra 5 3 516
+wflip 24
+winfo
+wpixels
+end
+case flip-bgra-25
+wbits bgra 5 3 517
+wflip 25
+winfo
+wpixels
+end
+case flip-bgra-26
+wbits bgra 5 3 518
+wflip 26
+winfo
+wpixels
+end
+case flip-bgra-27
+wbits bgra 5 3 519
+wflip 27
+winfo
+wpixels
+end
+case flip-pbgra-0
+wbits pbgra 5 3 524
+wflip 0
+winfo
+wpixels
+end
+case flip-pbgra-1
+wbits pbgra 5 3 525
+wflip 1
+winfo
+wpixels
+end
+case flip-pbgra-2
+wbits pbgra 5 3 526
+wflip 2
+winfo
+wpixels
+end
+case flip-pbgra-3
+wbits pbgra 5 3 527
+wflip 3
+winfo
+wpixels
+end
+case flip-pbgra-8
+wbits pbgra 5 3 532
+wflip 8
+winfo
+wpixels
+end
+case flip-pbgra-9
+wbits pbgra 5 3 533
+wflip 9
+winfo
+wpixels
+end
+case flip-pbgra-10
+wbits pbgra 5 3 534
+wflip 10
+winfo
+wpixels
+end
+case flip-pbgra-11
+wbits pbgra 5 3 535
+wflip 11
+winfo
+wpixels
+end
+case flip-pbgra-16
+wbits pbgra 5 3 540
+wflip 16
+winfo
+wpixels
+end
+case flip-pbgra-17
+wbits pbgra 5 3 541
+wflip 17
+winfo
+wpixels
+end
+case flip-pbgra-18
+wbits pbgra 5 3 542
+wflip 18
+winfo
+wpixels
+end
+case flip-pbgra-19
+wbits pbgra 5 3 543
+wflip 19
+winfo
+wpixels
+end
+case flip-pbgra-24
+wbits pbgra 5 3 548
+wflip 24
+winfo
+wpixels
+end
+case flip-pbgra-25
+wbits pbgra 5 3 549
+wflip 25
+winfo
+wpixels
+end
+case flip-pbgra-26
+wbits pbgra 5 3 550
+wflip 26
+winfo
+wpixels
+end
+case flip-pbgra-27
+wbits pbgra 5 3 551
+wflip 27
+winfo
+wpixels
+end
+case flip-rgba-0
+wbits rgba 5 3 556
+wflip 0
+winfo
+wpixels
+end
+case flip-rgba-1
+wbits rgba 5 3 557
+wflip 1
+winfo
+wpixels
+end
+case flip-rgba-2
+wbits rgba 5 3 558
+wflip 2
+winfo
+wpixels
+end
+case flip-rgba-3
+wbits rgba 5 3 559
+wflip 3
+winfo
+wpixels
+end
+case flip-rgba-8
+wbits rgba 5 3 564
+wflip 8
+winfo
+wpixels
+end
+case flip-rgba-9
+wbits rgba 5 3 565
+wflip 9
+winfo
+wpixels
+end
+case flip-rgba-10
+wbits rgba 5 3 566
+wflip 10
+winfo
+wpixels
+end
+case flip-rgba-11
+wbits rgba 5 3 567
+wflip 11
+winfo
+wpixels
+end
+case flip-rgba-16
+wbits rgba 5 3 572
+wflip 16
+winfo
+wpixels
+end
+case flip-rgba-17
+wbits rgba 5 3 573
+wflip 17
+winfo
+wpixels
+end
+case flip-rgba-18
+wbits rgba 5 3 574
+wflip 18
+winfo
+wpixels
+end
+case flip-rgba-19
+wbits rgba 5 3 575
+wflip 19
+winfo
+wpixels
+end
+case flip-rgba-24
+wbits rgba 5 3 580
+wflip 24
+winfo
+wpixels
+end
+case flip-rgba-25
+wbits rgba 5 3 581
+wflip 25
+winfo
+wpixels
+end
+case flip-rgba-26
+wbits rgba 5 3 582
+wflip 26
+winfo
+wpixels
+end
+case flip-rgba-27
+wbits rgba 5 3 583
+wflip 27
+winfo
+wpixels
+end
+case flip-rgb48-0
+wbits rgb48 5 3 588
+wflip 0
+winfo
+wpixels
+end
+case flip-rgb48-1
+wbits rgb48 5 3 589
+wflip 1
+winfo
+wpixels
+end
+case flip-rgb48-2
+wbits rgb48 5 3 590
+wflip 2
+winfo
+wpixels
+end
+case flip-rgb48-3
+wbits rgb48 5 3 591
+wflip 3
+winfo
+wpixels
+end
+case flip-rgb48-8
+wbits rgb48 5 3 596
+wflip 8
+winfo
+wpixels
+end
+case flip-rgb48-9
+wbits rgb48 5 3 597
+wflip 9
+winfo
+wpixels
+end
+case flip-rgb48-10
+wbits rgb48 5 3 598
+wflip 10
+winfo
+wpixels
+end
+case flip-rgb48-11
+wbits rgb48 5 3 599
+wflip 11
+winfo
+wpixels
+end
+case flip-rgb48-16
+wbits rgb48 5 3 604
+wflip 16
+winfo
+wpixels
+end
+case flip-rgb48-17
+wbits rgb48 5 3 605
+wflip 17
+winfo
+wpixels
+end
+case flip-rgb48-18
+wbits rgb48 5 3 606
+wflip 18
+winfo
+wpixels
+end
+case flip-rgb48-19
+wbits rgb48 5 3 607
+wflip 19
+winfo
+wpixels
+end
+case flip-rgb48-24
+wbits rgb48 5 3 612
+wflip 24
+winfo
+wpixels
+end
+case flip-rgb48-25
+wbits rgb48 5 3 613
+wflip 25
+winfo
+wpixels
+end
+case flip-rgb48-26
+wbits rgb48 5 3 614
+wflip 26
+winfo
+wpixels
+end
+case flip-rgb48-27
+wbits rgb48 5 3 615
+wflip 27
+winfo
+wpixels
+end
+case flip-rgba64-0
+wbits rgba64 5 3 620
+wflip 0
+winfo
+wpixels
+end
+case flip-rgba64-1
+wbits rgba64 5 3 621
+wflip 1
+winfo
+wpixels
+end
+case flip-rgba64-2
+wbits rgba64 5 3 622
+wflip 2
+winfo
+wpixels
+end
+case flip-rgba64-3
+wbits rgba64 5 3 623
+wflip 3
+winfo
+wpixels
+end
+case flip-rgba64-8
+wbits rgba64 5 3 628
+wflip 8
+winfo
+wpixels
+end
+case flip-rgba64-9
+wbits rgba64 5 3 629
+wflip 9
+winfo
+wpixels
+end
+case flip-rgba64-10
+wbits rgba64 5 3 630
+wflip 10
+winfo
+wpixels
+end
+case flip-rgba64-11
+wbits rgba64 5 3 631
+wflip 11
+winfo
+wpixels
+end
+case flip-rgba64-16
+wbits rgba64 5 3 636
+wflip 16
+winfo
+wpixels
+end
+case flip-rgba64-17
+wbits rgba64 5 3 637
+wflip 17
+winfo
+wpixels
+end
+case flip-rgba64-18
+wbits rgba64 5 3 638
+wflip 18
+winfo
+wpixels
+end
+case flip-rgba64-19
+wbits rgba64 5 3 639
+wflip 19
+winfo
+wpixels
+end
+case flip-rgba64-24
+wbits rgba64 5 3 644
+wflip 24
+winfo
+wpixels
+end
+case flip-rgba64-25
+wbits rgba64 5 3 645
+wflip 25
+winfo
+wpixels
+end
+case flip-rgba64-26
+wbits rgba64 5 3 646
+wflip 26
+winfo
+wpixels
+end
+case flip-rgba64-27
+wbits rgba64 5 3 647
+wflip 27
+winfo
+wpixels
+end
+case flip-cmyk-0
+wbits cmyk 5 3 652
+wflip 0
+winfo
+wpixels
+end
+case flip-cmyk-1
+wbits cmyk 5 3 653
+wflip 1
+winfo
+wpixels
+end
+case flip-cmyk-2
+wbits cmyk 5 3 654
+wflip 2
+winfo
+wpixels
+end
+case flip-cmyk-3
+wbits cmyk 5 3 655
+wflip 3
+winfo
+wpixels
+end
+case flip-cmyk-8
+wbits cmyk 5 3 660
+wflip 8
+winfo
+wpixels
+end
+case flip-cmyk-9
+wbits cmyk 5 3 661
+wflip 9
+winfo
+wpixels
+end
+case flip-cmyk-10
+wbits cmyk 5 3 662
+wflip 10
+winfo
+wpixels
+end
+case flip-cmyk-11
+wbits cmyk 5 3 663
+wflip 11
+winfo
+wpixels
+end
+case flip-cmyk-16
+wbits cmyk 5 3 668
+wflip 16
+winfo
+wpixels
+end
+case flip-cmyk-17
+wbits cmyk 5 3 669
+wflip 17
+winfo
+wpixels
+end
+case flip-cmyk-18
+wbits cmyk 5 3 670
+wflip 18
+winfo
+wpixels
+end
+case flip-cmyk-19
+wbits cmyk 5 3 671
+wflip 19
+winfo
+wpixels
+end
+case flip-cmyk-24
+wbits cmyk 5 3 676
+wflip 24
+winfo
+wpixels
+end
+case flip-cmyk-25
+wbits cmyk 5 3 677
+wflip 25
+winfo
+wpixels
+end
+case flip-cmyk-26
+wbits cmyk 5 3 678
+wflip 26
+winfo
+wpixels
+end
+case flip-cmyk-27
+wbits cmyk 5 3 679
+wflip 27
+winfo
+wpixels
+end
+case flip-idx4-0
+wbits idx4 5 3 684
+wflip 0
+winfo
+wpixels
+end
+case flip-idx4-1
+wbits idx4 5 3 685
+wflip 1
+winfo
+wpixels
+end
+case flip-idx4-2
+wbits idx4 5 3 686
+wflip 2
+winfo
+wpixels
+end
+case flip-idx4-3
+wbits idx4 5 3 687
+wflip 3
+winfo
+wpixels
+end
+case flip-idx4-8
+wbits idx4 5 3 692
+wflip 8
+winfo
+wpixels
+end
+case flip-idx4-9
+wbits idx4 5 3 693
+wflip 9
+winfo
+wpixels
+end
+case flip-idx4-10
+wbits idx4 5 3 694
+wflip 10
+winfo
+wpixels
+end
+case flip-idx4-11
+wbits idx4 5 3 695
+wflip 11
+winfo
+wpixels
+end
+case flip-idx4-16
+wbits idx4 5 3 700
+wflip 16
+winfo
+wpixels
+end
+case flip-idx4-17
+wbits idx4 5 3 701
+wflip 17
+winfo
+wpixels
+end
+case flip-idx4-18
+wbits idx4 5 3 702
+wflip 18
+winfo
+wpixels
+end
+case flip-idx4-19
+wbits idx4 5 3 703
+wflip 19
+winfo
+wpixels
+end
+case flip-idx4-24
+wbits idx4 5 3 708
+wflip 24
+winfo
+wpixels
+end
+case flip-idx4-25
+wbits idx4 5 3 709
+wflip 25
+winfo
+wpixels
+end
+case flip-idx4-26
+wbits idx4 5 3 710
+wflip 26
+winfo
+wpixels
+end
+case flip-idx4-27
+wbits idx4 5 3 711
+wflip 27
+winfo
+wpixels
+end
+case flip-idx8-0
+wbits idx8 5 3 716
+wflip 0
+winfo
+wpixels
+end
+case flip-idx8-1
+wbits idx8 5 3 717
+wflip 1
+winfo
+wpixels
+end
+case flip-idx8-2
+wbits idx8 5 3 718
+wflip 2
+winfo
+wpixels
+end
+case flip-idx8-3
+wbits idx8 5 3 719
+wflip 3
+winfo
+wpixels
+end
+case flip-idx8-8
+wbits idx8 5 3 724
+wflip 8
+winfo
+wpixels
+end
+case flip-idx8-9
+wbits idx8 5 3 725
+wflip 9
+winfo
+wpixels
+end
+case flip-idx8-10
+wbits idx8 5 3 726
+wflip 10
+winfo
+wpixels
+end
+case flip-idx8-11
+wbits idx8 5 3 727
+wflip 11
+winfo
+wpixels
+end
+case flip-idx8-16
+wbits idx8 5 3 732
+wflip 16
+winfo
+wpixels
+end
+case flip-idx8-17
+wbits idx8 5 3 733
+wflip 17
+winfo
+wpixels
+end
+case flip-idx8-18
+wbits idx8 5 3 734
+wflip 18
+winfo
+wpixels
+end
+case flip-idx8-19
+wbits idx8 5 3 735
+wflip 19
+winfo
+wpixels
+end
+case flip-idx8-24
+wbits idx8 5 3 740
+wflip 24
+winfo
+wpixels
+end
+case flip-idx8-25
+wbits idx8 5 3 741
+wflip 25
+winfo
+wpixels
+end
+case flip-idx8-26
+wbits idx8 5 3 742
+wflip 26
+winfo
+wpixels
+end
+case flip-idx8-27
+wbits idx8 5 3 743
+wflip 27
+winfo
+wpixels
+end
+case flip-alpha8-0
+wbits alpha8 5 3 748
+wflip 0
+winfo
+wpixels
+end
+case flip-alpha8-1
+wbits alpha8 5 3 749
+wflip 1
+winfo
+wpixels
+end
+case flip-alpha8-2
+wbits alpha8 5 3 750
+wflip 2
+winfo
+wpixels
+end
+case flip-alpha8-3
+wbits alpha8 5 3 751
+wflip 3
+winfo
+wpixels
+end
+case flip-alpha8-8
+wbits alpha8 5 3 756
+wflip 8
+winfo
+wpixels
+end
+case flip-alpha8-9
+wbits alpha8 5 3 757
+wflip 9
+winfo
+wpixels
+end
+case flip-alpha8-10
+wbits alpha8 5 3 758
+wflip 10
+winfo
+wpixels
+end
+case flip-alpha8-11
+wbits alpha8 5 3 759
+wflip 11
+winfo
+wpixels
+end
+case flip-alpha8-16
+wbits alpha8 5 3 764
+wflip 16
+winfo
+wpixels
+end
+case flip-alpha8-17
+wbits alpha8 5 3 765
+wflip 17
+winfo
+wpixels
+end
+case flip-alpha8-18
+wbits alpha8 5 3 766
+wflip 18
+winfo
+wpixels
+end
+case flip-alpha8-19
+wbits alpha8 5 3 767
+wflip 19
+winfo
+wpixels
+end
+case flip-alpha8-24
+wbits alpha8 5 3 772
+wflip 24
+winfo
+wpixels
+end
+case flip-alpha8-25
+wbits alpha8 5 3 773
+wflip 25
+winfo
+wpixels
+end
+case flip-alpha8-26
+wbits alpha8 5 3 774
+wflip 26
+winfo
+wpixels
+end
+case flip-alpha8-27
+wbits alpha8 5 3 775
+wflip 27
+winfo
+wpixels
+end
+case flip-bad-4
+wbits gray8 3 2 ramp
+wflip 4
+winfo
+end
+case flip-bad-5
+wbits gray8 3 2 ramp
+wflip 5
+winfo
+end
+case flip-bad-7
+wbits gray8 3 2 ramp
+wflip 7
+winfo
+end
+case flip-bad-32
+wbits gray8 3 2 ramp
+wflip 32
+winfo
+end
+case flip-bad-2147483647
+wbits gray8 3 2 ramp
+wflip 2147483647
+winfo
+end
+case fliprect-0
+wbits bw 4 2 164805427
+wflip 18
+wpixels 1 1 1 1
+end
+case fliprect-1
+wbits bw 1 3 576453434
+wflip 10
+wpixels 0 2 1 1
+end
+case fliprect-2
+wbits rgba64 6 7 1215097217
+wflip 19
+wpixels 2 2 2 4
+end
+case fliprect-3
+wbits bw 8 7 784915454
+wflip 24
+wpixels 1 3 6 3
+end
+case fliprect-4
+wbits bgra 8 8 928449765
+wflip 9
+wpixels 1 6 3 2
+end
+case fliprect-5
+wbits bgr24 6 2 1961390295
+wflip 17
+wpixels 1 2 1 4
+end
+case fliprect-6
+wbits rgb48 4 1 3801999210
+wflip 16
+wpixels 3 0 1 1
+end
+case fliprect-7
+wbits bgr565 7 7 3823403393
+wflip 25
+wpixels 6 6 1 1
+end
+case fliprect-8
+wbits cmyk 4 8 1872695087
+wflip 24
+wpixels 0 5 3 3
+end
+case fliprect-9
+wbits gray4 7 2 2414638179
+wflip 27
+wpixels 1 6 1 1
+end
+case fliprect-10
+wbits rgb48 8 1 502299026
+wflip 2
+wpixels 1 0 5 1
+end
+case fliprect-11
+wbits idx4 3 6 2569734284
+wflip 2
+wpixels 2 3 1 2
+end
+case fliprect-12
+wbits cmyk 3 6 3273421283
+wflip 0
+wpixels 0 3 1 2
+end
+case fliprect-13
+wbits rgba 6 5 3075880792
+wflip 18
+wpixels 4 3 1 1
+end
+case fliprect-14
+wbits rgba 4 3 2729245635
+wflip 0
+wpixels 0 1 2 2
+end
+case fliprect-15
+wbits cmyk 9 1 1415381972
+wflip 9
+wpixels 0 0 1 2
+end
+case fliprect-16
+wbits gray8 8 7 2830984111
+wflip 1
+wpixels 5 3 2 3
+end
+case fliprect-17
+wbits gray16 5 4 1458475345
+wflip 8
+wpixels 4 1 1 2
+end
+case fliprect-18
+wbits rgb48 2 2 997636191
+wflip 18
+wpixels 0 0 2 2
+end
+case fliprect-19
+wbits gray4 2 7 2837849859
+wflip 8
+wpixels 1 0 1 1
+end
+case fliprect-20
+wbits bw 9 7 540884320
+wflip 25
+wpixels 1 5 5 2
+end
+case fliprect-21
+wbits rgb48 3 9 3768423351
+wflip 1
+wpixels 6 1 3 1
+end
+case fliprect-22
+wbits idx8 3 1 1126724300
+wflip 8
+wpixels 2 0 1 1
+end
+case fliprect-23
+wbits bgr24 9 9 111530835
+wflip 26
+wpixels 1 3 5 1
+end
+case fliprect-24
+wbits pbgra 4 7 1078007684
+wflip 26
+wpixels 2 5 1 2
+end
+case fliprect-25
+wbits alpha8 7 8 252194910
+wflip 25
+wpixels 7 6 1 1
+end
+case fliprect-26
+wbits bgr24 3 7 1438096676
+wflip 0
+wpixels 2 2 1 2
+end
+case fliprect-27
+wbits pbgra 5 2 4164531722
+wflip 26
+wpixels 3 1 1 1
+end
+case fliprect-28
+wbits bgr565 1 9 2886952263
+wflip 16
+wpixels 0 7 1 1
+end
+case fliprect-29
+wbits bgra 1 3 2124534245
+wflip 26
+wpixels 0 1 1 1
+end
+case fliprect-30
+wbits alpha8 9 6 970388706
+wflip 9
+wpixels 5 6 1 1
+end
+case fliprect-31
+wbits cmyk 9 1 2418908781
+wflip 8
+wpixels 1 0 6 1
+end
+case fliprect-32
+wbits bw 4 6 3776973409
+wflip 9
+wpixels 0 1 2 3
+end
+case fliprect-33
+wbits rgba64 4 3 506549846
+wflip 2
+wpixels 2 0 2 2
+end
+case fliprect-34
+wbits bgr565 8 6 3626893110
+wflip 27
+wpixels 5 4 1 2
+end
+case fliprect-35
+wbits bw 4 9 257334403
+wflip 16
+wpixels 0 8 1 1
+end
+case fliprect-36
+wbits gray8 2 6 4267900143
+wflip 2
+wpixels 1 1 1 1
+end
+case fliprect-37
+wbits bw 1 6 514038882
+wflip 9
+wpixels 2 0 2 1
+end
+case fliprect-38
+wbits idx8 1 3 3257582329
+wflip 9
+wpixels 0 0 1 1
+end
+case fliprect-39
+wbits cmyk 6 9 850388733
+wflip 27
+wpixels 1 4 6 2
+end
+case clip-bw
+wbits bw 9 7 900
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-gray4
+wbits gray4 9 7 901
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-gray8
+wbits gray8 9 7 902
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-gray16
+wbits gray16 9 7 903
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-bgr565
+wbits bgr565 9 7 904
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-bgr24
+wbits bgr24 9 7 905
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-bgra
+wbits bgra 9 7 906
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-pbgra
+wbits pbgra 9 7 907
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-rgba
+wbits rgba 9 7 908
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-rgb48
+wbits rgb48 9 7 909
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-rgba64
+wbits rgba64 9 7 910
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-cmyk
+wbits cmyk 9 7 911
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-idx4
+wbits idx4 9 7 912
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-idx8
+wbits idx8 9 7 913
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case clip-alpha8
+wbits alpha8 9 7 914
+wclip 1 2 5 4
+winfo
+wpixels
+wpixels 1 1 3 2
+end
+case cliprect-0
+wbits bgra 6 5 7
+wclip 0 0 6 5
+winfo
+wpixels
+end
+case cliprect-1
+wbits bgra 6 5 7
+wclip 5 4 1 1
+winfo
+wpixels
+end
+case cliprect-2
+wbits bgra 6 5 7
+wclip 0 0 0 0
+winfo
+wpixels
+end
+case cliprect-3
+wbits bgra 6 5 7
+wclip 0 0 7 5
+winfo
+wpixels
+end
+case cliprect-4
+wbits bgra 6 5 7
+wclip 0 0 6 6
+winfo
+wpixels
+end
+case cliprect-5
+wbits bgra 6 5 7
+wclip -1 0 2 2
+winfo
+wpixels
+end
+case cliprect-6
+wbits bgra 6 5 7
+wclip 0 -1 2 2
+winfo
+wpixels
+end
+case cliprect-7
+wbits bgra 6 5 7
+wclip 6 0 1 1
+winfo
+wpixels
+end
+case cliprect-8
+wbits bgra 6 5 7
+wclip 2 2 0 3
+winfo
+wpixels
+end
+case cliprect-9
+wbits bgra 6 5 7
+wclip 3 3 4 4
+winfo
+wpixels
+end
+case cliprect-10
+wbits bgra 6 5 7
+wclip 0 0 2147483647 1
+winfo
+wpixels
+end
+case copyrect-0
+wbits bgr24 6 5 8
+wpixels 0 0 6 5
+end
+case copyrect-1
+wbits bgr24 6 5 8
+wpixels 5 4 1 1
+end
+case copyrect-2
+wbits bgr24 6 5 8
+wpixels 0 0 0 0
+end
+case copyrect-3
+wbits bgr24 6 5 8
+wpixels 0 0 7 5
+end
+case copyrect-4
+wbits bgr24 6 5 8
+wpixels 0 0 6 6
+end
+case copyrect-5
+wbits bgr24 6 5 8
+wpixels -1 0 2 2
+end
+case copyrect-6
+wbits bgr24 6 5 8
+wpixels 0 -1 2 2
+end
+case copyrect-7
+wbits bgr24 6 5 8
+wpixels 6 0 1 1
+end
+case copyrect-8
+wbits bgr24 6 5 8
+wpixels 2 2 0 3
+end
+case copyrect-9
+wbits bgr24 6 5 8
+wpixels 3 3 4 4
+end
+case copyrect-10
+wbits bgr24 6 5 8
+wpixels 0 0 2147483647 1
+end
+case stride-bw-0
+wbits bw 5 3 3
+wpixels 0 0 5 3 1 3
+end
+case stride-bw-1
+wbits bw 5 3 3
+wpixels 0 0 5 3 0 3
+end
+case stride-bw-2
+wbits bw 5 3 3
+wpixels 0 0 5 3 4 12
+end
+case stride-bw-3
+wbits bw 5 3 3
+wpixels 0 0 5 3 4 9
+end
+case stride-bw-4
+wbits bw 5 3 3
+wpixels 0 0 5 3 4 8
+end
+case stride-bw-5
+wbits bw 5 3 3
+wpixels 0 0 5 3 1 2
+end
+case stride-bw-6
+wbits bw 5 3 3
+wpixels 0 0 5 3 0 1000
+end
+case stride-bw-7
+wbits bw 5 3 3
+wpixels 0 0 5 3 1 0
+end
+case stride-gray4-0
+wbits gray4 5 3 3
+wpixels 0 0 5 3 3 9
+end
+case stride-gray4-1
+wbits gray4 5 3 3
+wpixels 0 0 5 3 2 9
+end
+case stride-gray4-2
+wbits gray4 5 3 3
+wpixels 0 0 5 3 6 18
+end
+case stride-gray4-3
+wbits gray4 5 3 3
+wpixels 0 0 5 3 6 15
+end
+case stride-gray4-4
+wbits gray4 5 3 3
+wpixels 0 0 5 3 6 14
+end
+case stride-gray4-5
+wbits gray4 5 3 3
+wpixels 0 0 5 3 3 8
+end
+case stride-gray4-6
+wbits gray4 5 3 3
+wpixels 0 0 5 3 0 1000
+end
+case stride-gray4-7
+wbits gray4 5 3 3
+wpixels 0 0 5 3 3 0
+end
+case stride-bgr24-0
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 15 45
+end
+case stride-bgr24-1
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 14 45
+end
+case stride-bgr24-2
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 18 54
+end
+case stride-bgr24-3
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 18 51
+end
+case stride-bgr24-4
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 18 50
+end
+case stride-bgr24-5
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 15 44
+end
+case stride-bgr24-6
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 0 1000
+end
+case stride-bgr24-7
+wbits bgr24 5 3 3
+wpixels 0 0 5 3 15 0
+end
+case stride-rgba64-0
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 40 120
+end
+case stride-rgba64-1
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 39 120
+end
+case stride-rgba64-2
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 43 129
+end
+case stride-rgba64-3
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 43 126
+end
+case stride-rgba64-4
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 43 125
+end
+case stride-rgba64-5
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 40 119
+end
+case stride-rgba64-6
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 0 1000
+end
+case stride-rgba64-7
+wbits rgba64 5 3 3
+wpixels 0 0 5 3 40 0
+end
+case chain-0
+wbits idx8 9 2 2420038577
+wclip 3 1 6 1
+wconv bgra
+wscale 12 2 nn
+winfo
+wpixels
+end
+case chain-1
+wbits bgr24 7 8 558309993
+wflip 17
+wclip 6 2 1 5
+wclip 0 4 1 1
+winfo
+wpixels
+end
+case chain-2
+wbits bgra 7 4 3025377906
+wflip 26
+wconv bgra
+wclip 0 1 2 1
+winfo
+wpixels
+end
+case chain-3
+wbits bgra 9 5 3471375122
+wconv rgba64
+wflip 9
+wscale 7 9 nn
+winfo
+wpixels
+end
+case chain-4
+wbits bgr24 9 2 4283496383
+wflip 11
+wclip 1 2 1 1
+wconv bgr24
+winfo
+wpixels
+end
+case chain-5
+wbits rgba64 7 2 2915939956
+wclip 2 1 2 1
+wflip 0
+wflip 10
+winfo
+wpixels
+end
+case chain-6
+wbits gray8 4 3 1000756548
+wconv rgba64
+wflip 1
+wclip 2 0 1 3
+winfo
+wpixels
+end
+case chain-7
+wbits gray8 5 4 699125356
+wconv bgra
+wscale 8 8 nn
+wconv gray8
+winfo
+wpixels
+end
+case chain-8
+wbits bgra 9 8 3790925217
+wclip 1 1 1 6
+wclip 0 5 1 1
+wconv pbgra
+winfo
+wpixels
+end
+case chain-9
+wbits gray8 6 8 2271699011
+wflip 11
+wconv rgba64
+wflip 24
+winfo
+wpixels
+end
+case chain-10
+wbits gray8 4 8 2463292757
+wclip 0 6 4 2
+wconv bgra
+wscale 5 5 nn
+winfo
+wpixels
+end
+case chain-11
+wbits gray8 2 5 4137155287
+wclip 1 0 1 5
+wscale 3 12 nn
+wclip 0 5 3 2
+winfo
+wpixels
+end
+case chain-12
+wbits bgr24 8 7 3904359743
+wconv pbgra
+wconv bgr24
+wclip 6 4 1 1
+winfo
+wpixels
+end
+case chain-13
+wbits idx8 9 3 2237838148
+wclip 5 0 4 3
+wconv bgra
+wscale 5 1 nn
+winfo
+wpixels
+end
+case chain-14
+wbits bgra 6 2 1422378490
+wscale 8 6 nn
+wconv pbgra
+wconv bgra
+winfo
+wpixels
+end
+case chain-15
+wbits rgba64 4 2 2573577544
+wscale 10 2 nn
+wscale 8 11 nn
+wflip 17
+winfo
+wpixels
+end
+case chain-16
+wbits bgra 3 8 3499333283
+wflip 1
+wclip 0 1 4 2
+wflip 1
+winfo
+wpixels
+end
+case chain-17
+wbits rgba64 8 6 581244410
+wconv rgba64
+wconv bgr24
+wclip 4 3 1 1
+winfo
+wpixels
+end
+case chain-18
+wbits bgra 3 5 2521120428
+wflip 16
+wscale 1 10 nn
+wflip 11
+winfo
+wpixels
+end
+case chain-19
+wbits bgra 6 7 4204176812
+wclip 0 0 5 7
+wconv bgr24
+wflip 1
+winfo
+wpixels
+end
+case chain-20
+wbits gray8 9 8 2349436385
+wconv bgr24
+wflip 19
+wscale 5 6 nn
+winfo
+wpixels
+end
+case chain-21
+wbits idx8 3 9 514475979
+wscale 2 5 nn
+wflip 10
+wflip 24
+winfo
+wpixels
+end
+case chain-22
+wbits rgba64 5 6 941023358
+wscale 5 6 nn
+wflip 27
+wconv bgra
+winfo
+wpixels
+end
+case chain-23
+wbits rgba64 8 2 415679513
+wconv bgr24
+wconv gray8
+wclip 1 0 3 1
+winfo
+wpixels
+end
+case chain-24
+wbits bgra 3 9 3747636362
+wscale 2 6 nn
+wclip 0 4 2 1
+wconv bgr24
+winfo
+wpixels
+end
+case chain-25
+wbits gray8 7 2 3928577162
+wscale 5 7 nn
+wflip 25
+wscale 11 5 nn
+winfo
+wpixels
+end
+case chain-26
+wbits bgra 2 2 2392825761
+wflip 0
+wclip 1 0 1 2
+wflip 3
+winfo
+wpixels
+end
+case chain-27
+wbits bgra 4 6 996329750
+wscale 11 1 nn
+wconv bgr24
+wconv gray8
+winfo
+wpixels
+end
+case chain-28
+wbits bgra 6 5 3821409049
+wconv gray8
+wconv rgba64
+wclip 3 0 2 3
+winfo
+wpixels
+end
+case chain-29
+wbits rgba64 6 6 2364042908
+wclip 0 2 1 4
+wconv bgr24
+wclip 0 0 1 3
+winfo
+wpixels
+end
+case chain-30
+wbits bgra 8 5 2834581495
+wscale 8 10 nn
+wconv gray8
+wflip 10
+winfo
+wpixels
+end
+case chain-31
+wbits idx8 5 5 1899883250
+wconv bgr24
+wscale 4 11 nn
+wconv pbgra
+winfo
+wpixels
+end
+case chain-32
+wbits idx8 9 5 1628407392
+wclip 3 2 1 2
+wscale 5 4 nn
+wconv rgba64
+winfo
+wpixels
+end
+case chain-33
+wbits idx8 6 4 3540855325
+wscale 6 6 nn
+wconv bgr24
+wconv bgra
+winfo
+wpixels
+end
+case chain-34
+wbits bgr24 2 5 3869057730
+wflip 24
+wflip 19
+wclip 1 1 3 1
+winfo
+wpixels
+end
+case chain-35
+wbits bgra 8 8 3788196999
+wscale 8 12 nn
+wscale 1 8 nn
+wflip 1
+winfo
+wpixels
+end
+case chain-36
+wbits bgr24 4 6 2599051611
+wconv pbgra
+wflip 9
+wscale 12 10 nn
+winfo
+wpixels
+end
+case chain-37
+wbits rgba64 3 7 927379102
+wflip 18
+wflip 17
+wconv pbgra
+winfo
+wpixels
+end
+case chain-38
+wbits bgr24 5 9 4062692777
+wflip 17
+wclip 6 3 1 1
+wflip 26
+winfo
+wpixels
+end
+case chain-39
+wbits gray8 4 3 855971577
+wflip 11
+wflip 18
+wflip 9
+winfo
+wpixels
+end

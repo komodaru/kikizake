@@ -1,0 +1,122 @@
+# kikizake suite wicpalette: WIC predefined palettes. Made by `kikizake gen`; runner/wicimage.c says what each line does.
+case predefined-0-0
+wpalette 0 0
+end
+case predefined-0-1
+wpalette 0 1
+end
+case predefined-1-0
+wpalette 1 0
+end
+case predefined-1-1
+wpalette 1 1
+end
+case predefined-2-0
+wpalette 2 0
+end
+case predefined-2-1
+wpalette 2 1
+end
+case predefined-3-0
+wpalette 3 0
+end
+case predefined-3-1
+wpalette 3 1
+end
+case predefined-4-0
+wpalette 4 0
+end
+case predefined-4-1
+wpalette 4 1
+end
+case predefined-5-0
+wpalette 5 0
+end
+case predefined-5-1
+wpalette 5 1
+end
+case predefined-6-0
+wpalette 6 0
+end
+case predefined-6-1
+wpalette 6 1
+end
+case predefined-7-0
+wpalette 7 0
+end
+case predefined-7-1
+wpalette 7 1
+end
+case predefined-8-0
+wpalette 8 0
+end
+case predefined-8-1
+wpalette 8 1
+end
+case predefined-9-0
+wpalette 9 0
+end
+case predefined-9-1
+wpalette 9 1
+end
+case predefined-10-0
+wpalette 10 0
+end
+case predefined-10-1
+wpalette 10 1
+end
+case predefined-11-0
+wpalette 11 0
+end
+case predefined-11-1
+wpalette 11 1
+end
+case predefined-12-0
+wpalette 12 0
+end
+case predefined-12-1
+wpalette 12 1
+end
+case predefined-13-0
+wpalette 13 0
+end
+case predefined-13-1
+wpalette 13 1
+end
+case predefined-14-0
+wpalette 14 0
+end
+case predefined-14-1
+wpalette 14 1
+end
+case predefined-large
+wpalette 0x7fffffff 0
+end
+case srcpal-idx1
+wbits idx1 4 2 1
+wsrcpal
+end
+case srcpal-idx2
+wbits idx2 4 2 1
+wsrcpal
+end
+case srcpal-idx4
+wbits idx4 4 2 1
+wsrcpal
+end
+case srcpal-idx8
+wbits idx8 4 2 1
+wsrcpal
+end
+case srcpal-bgra
+wbits bgra 4 2 1
+wsrcpal
+end
+case srcpal-gray8
+wbits gray8 4 2 1
+wsrcpal
+end
+case srcpal-bw
+wbits bw 4 2 1
+wsrcpal
+end

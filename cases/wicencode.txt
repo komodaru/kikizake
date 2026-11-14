@@ -1,0 +1,2336 @@
+# kikizake suite wicencode: the WIC encoders, each file decoded again. Made by `kikizake gen`; runner/wicimage.c says what each line does.
+case enc-bmp-bw
+wbits bw 5 3 1
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-gray2
+wbits gray2 5 3 2
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-gray4
+wbits gray4 5 3 3
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-gray8
+wbits gray8 5 3 4
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-gray16
+wbits gray16 5 3 5
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-bgr555
+wbits bgr555 5 3 6
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-bgr565
+wbits bgr565 5 3 7
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-bgr24
+wbits bgr24 5 3 8
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-rgb24
+wbits rgb24 5 3 9
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-bgr32
+wbits bgr32 5 3 10
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-bgra
+wbits bgra 5 3 11
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-pbgra
+wbits pbgra 5 3 12
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-rgb32
+wbits rgb32 5 3 13
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-rgba
+wbits rgba 5 3 14
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-prgba
+wbits prgba 5 3 15
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-rgb48
+wbits rgb48 5 3 16
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-rgba64
+wbits rgba64 5 3 17
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-cmyk
+wbits cmyk 5 3 18
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-alpha8
+wbits alpha8 5 3 19
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-idx1
+wbits idx1 5 3 20
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-idx2
+wbits idx2 5 3 21
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-idx4
+wbits idx4 5 3 22
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-bmp-idx8
+wbits idx8 5 3 23
+wencode bmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-bw
+wbits bw 5 3 24
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-gray2
+wbits gray2 5 3 25
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-gray4
+wbits gray4 5 3 26
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-gray8
+wbits gray8 5 3 27
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-gray16
+wbits gray16 5 3 28
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-bgr555
+wbits bgr555 5 3 29
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-bgr565
+wbits bgr565 5 3 30
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-bgr24
+wbits bgr24 5 3 31
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-rgb24
+wbits rgb24 5 3 32
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-bgr32
+wbits bgr32 5 3 33
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-bgra
+wbits bgra 5 3 34
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-pbgra
+wbits pbgra 5 3 35
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-rgb32
+wbits rgb32 5 3 36
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-rgba
+wbits rgba 5 3 37
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-prgba
+wbits prgba 5 3 38
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-rgb48
+wbits rgb48 5 3 39
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-rgba64
+wbits rgba64 5 3 40
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-cmyk
+wbits cmyk 5 3 41
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-alpha8
+wbits alpha8 5 3 42
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-idx1
+wbits idx1 5 3 43
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-idx2
+wbits idx2 5 3 44
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-idx4
+wbits idx4 5 3 45
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-png-idx8
+wbits idx8 5 3 46
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-bw
+wbits bw 5 3 47
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-gray2
+wbits gray2 5 3 48
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-gray4
+wbits gray4 5 3 49
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-gray8
+wbits gray8 5 3 50
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-gray16
+wbits gray16 5 3 51
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-bgr555
+wbits bgr555 5 3 52
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-bgr565
+wbits bgr565 5 3 53
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-bgr24
+wbits bgr24 5 3 54
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-rgb24
+wbits rgb24 5 3 55
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-bgr32
+wbits bgr32 5 3 56
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-bgra
+wbits bgra 5 3 57
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-pbgra
+wbits pbgra 5 3 58
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-rgb32
+wbits rgb32 5 3 59
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-rgba
+wbits rgba 5 3 60
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-prgba
+wbits prgba 5 3 61
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-rgb48
+wbits rgb48 5 3 62
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-rgba64
+wbits rgba64 5 3 63
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-cmyk
+wbits cmyk 5 3 64
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-alpha8
+wbits alpha8 5 3 65
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-idx1
+wbits idx1 5 3 66
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-idx2
+wbits idx2 5 3 67
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-idx4
+wbits idx4 5 3 68
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-tiff-idx8
+wbits idx8 5 3 69
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-bw
+wbits bw 5 3 70
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-gray2
+wbits gray2 5 3 71
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-gray4
+wbits gray4 5 3 72
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-gray8
+wbits gray8 5 3 73
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-gray16
+wbits gray16 5 3 74
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-bgr555
+wbits bgr555 5 3 75
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-bgr565
+wbits bgr565 5 3 76
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-bgr24
+wbits bgr24 5 3 77
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-rgb24
+wbits rgb24 5 3 78
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-bgr32
+wbits bgr32 5 3 79
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-bgra
+wbits bgra 5 3 80
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-pbgra
+wbits pbgra 5 3 81
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-rgb32
+wbits rgb32 5 3 82
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-rgba
+wbits rgba 5 3 83
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-prgba
+wbits prgba 5 3 84
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-rgb48
+wbits rgb48 5 3 85
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-rgba64
+wbits rgba64 5 3 86
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-cmyk
+wbits cmyk 5 3 87
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-alpha8
+wbits alpha8 5 3 88
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-idx1
+wbits idx1 5 3 89
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-idx2
+wbits idx2 5 3 90
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-idx4
+wbits idx4 5 3 91
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-gif-idx8
+wbits idx8 5 3 92
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-bw
+wbits bw 5 3 93
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-gray2
+wbits gray2 5 3 94
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-gray4
+wbits gray4 5 3 95
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-gray8
+wbits gray8 5 3 96
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-gray16
+wbits gray16 5 3 97
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-bgr555
+wbits bgr555 5 3 98
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-bgr565
+wbits bgr565 5 3 99
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-bgr24
+wbits bgr24 5 3 100
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-rgb24
+wbits rgb24 5 3 101
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-bgr32
+wbits bgr32 5 3 102
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-bgra
+wbits bgra 5 3 103
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-pbgra
+wbits pbgra 5 3 104
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-rgb32
+wbits rgb32 5 3 105
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-rgba
+wbits rgba 5 3 106
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-prgba
+wbits prgba 5 3 107
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-rgb48
+wbits rgb48 5 3 108
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-rgba64
+wbits rgba64 5 3 109
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-cmyk
+wbits cmyk 5 3 110
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-alpha8
+wbits alpha8 5 3 111
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-idx1
+wbits idx1 5 3 112
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-idx2
+wbits idx2 5 3 113
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-idx4
+wbits idx4 5 3 114
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-jpeg-idx8
+wbits idx8 5 3 115
+wencode jpeg
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-bw
+wbits bw 5 3 116
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-gray2
+wbits gray2 5 3 117
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-gray4
+wbits gray4 5 3 118
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-gray8
+wbits gray8 5 3 119
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-gray16
+wbits gray16 5 3 120
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-bgr555
+wbits bgr555 5 3 121
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-bgr565
+wbits bgr565 5 3 122
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-bgr24
+wbits bgr24 5 3 123
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-rgb24
+wbits rgb24 5 3 124
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-bgr32
+wbits bgr32 5 3 125
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-bgra
+wbits bgra 5 3 126
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-pbgra
+wbits pbgra 5 3 127
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-rgb32
+wbits rgb32 5 3 128
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-rgba
+wbits rgba 5 3 129
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-prgba
+wbits prgba 5 3 130
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-rgb48
+wbits rgb48 5 3 131
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-rgba64
+wbits rgba64 5 3 132
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-cmyk
+wbits cmyk 5 3 133
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-alpha8
+wbits alpha8 5 3 134
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-idx1
+wbits idx1 5 3 135
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-idx2
+wbits idx2 5 3 136
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-idx4
+wbits idx4 5 3 137
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-wmp-idx8
+wbits idx8 5 3 138
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-bw
+wbits bw 5 3 139
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-gray2
+wbits gray2 5 3 140
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-gray4
+wbits gray4 5 3 141
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-gray8
+wbits gray8 5 3 142
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-gray16
+wbits gray16 5 3 143
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-bgr555
+wbits bgr555 5 3 144
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-bgr565
+wbits bgr565 5 3 145
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-bgr24
+wbits bgr24 5 3 146
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-rgb24
+wbits rgb24 5 3 147
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-bgr32
+wbits bgr32 5 3 148
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-bgra
+wbits bgra 5 3 149
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-pbgra
+wbits pbgra 5 3 150
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-rgb32
+wbits rgb32 5 3 151
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-rgba
+wbits rgba 5 3 152
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-prgba
+wbits prgba 5 3 153
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-rgb48
+wbits rgb48 5 3 154
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-rgba64
+wbits rgba64 5 3 155
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-cmyk
+wbits cmyk 5 3 156
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-alpha8
+wbits alpha8 5 3 157
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-idx1
+wbits idx1 5 3 158
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-idx2
+wbits idx2 5 3 159
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-idx4
+wbits idx4 5 3 160
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-dds-idx8
+wbits idx8 5 3 161
+wencode dds
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-bw
+wbits bw 5 3 162
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-gray2
+wbits gray2 5 3 163
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-gray4
+wbits gray4 5 3 164
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-gray8
+wbits gray8 5 3 165
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-gray16
+wbits gray16 5 3 166
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-bgr555
+wbits bgr555 5 3 167
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-bgr565
+wbits bgr565 5 3 168
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-bgr24
+wbits bgr24 5 3 169
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-rgb24
+wbits rgb24 5 3 170
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-bgr32
+wbits bgr32 5 3 171
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-bgra
+wbits bgra 5 3 172
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-pbgra
+wbits pbgra 5 3 173
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-rgb32
+wbits rgb32 5 3 174
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-rgba
+wbits rgba 5 3 175
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-prgba
+wbits prgba 5 3 176
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-rgb48
+wbits rgb48 5 3 177
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-rgba64
+wbits rgba64 5 3 178
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-cmyk
+wbits cmyk 5 3 179
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-alpha8
+wbits alpha8 5 3 180
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-idx1
+wbits idx1 5 3 181
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-idx2
+wbits idx2 5 3 182
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-idx4
+wbits idx4 5 3 183
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-heif-idx8
+wbits idx8 5 3 184
+wencode heif
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-bw
+wbits bw 5 3 185
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-gray2
+wbits gray2 5 3 186
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-gray4
+wbits gray4 5 3 187
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-gray8
+wbits gray8 5 3 188
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-gray16
+wbits gray16 5 3 189
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-bgr555
+wbits bgr555 5 3 190
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-bgr565
+wbits bgr565 5 3 191
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-bgr24
+wbits bgr24 5 3 192
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-rgb24
+wbits rgb24 5 3 193
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-bgr32
+wbits bgr32 5 3 194
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-bgra
+wbits bgra 5 3 195
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-pbgra
+wbits pbgra 5 3 196
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-rgb32
+wbits rgb32 5 3 197
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-rgba
+wbits rgba 5 3 198
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-prgba
+wbits prgba 5 3 199
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-rgb48
+wbits rgb48 5 3 200
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-rgba64
+wbits rgba64 5 3 201
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-cmyk
+wbits cmyk 5 3 202
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-alpha8
+wbits alpha8 5 3 203
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-idx1
+wbits idx1 5 3 204
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-idx2
+wbits idx2 5 3 205
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-idx4
+wbits idx4 5 3 206
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case enc-webp-idx8
+wbits idx8 5 3 207
+wencode webp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-bmp-bgra
+wbits bgr24 4 2 208
+wencode bmp bgra
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-bmp-gray8
+wbits bgr24 4 2 209
+wencode bmp gray8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-bmp-idx8
+wbits bgr24 4 2 210
+wencode bmp idx8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-bmp-rgba64
+wbits bgr24 4 2 211
+wencode bmp rgba64
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-bmp-bw
+wbits bgr24 4 2 212
+wencode bmp bw
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-png-bgra
+wbits bgr24 4 2 213
+wencode png bgra
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-png-gray8
+wbits bgr24 4 2 214
+wencode png gray8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-png-idx8
+wbits bgr24 4 2 215
+wencode png idx8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-png-rgba64
+wbits bgr24 4 2 216
+wencode png rgba64
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-png-bw
+wbits bgr24 4 2 217
+wencode png bw
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-tiff-bgra
+wbits bgr24 4 2 218
+wencode tiff bgra
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-tiff-gray8
+wbits bgr24 4 2 219
+wencode tiff gray8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-tiff-idx8
+wbits bgr24 4 2 220
+wencode tiff idx8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-tiff-rgba64
+wbits bgr24 4 2 221
+wencode tiff rgba64
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encas-tiff-bw
+wbits bgr24 4 2 222
+wencode tiff bw
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-0-bgra
+wbits bgra 6 4 223
+wencode bmp EnableV5Header32bppBGRA=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-0-bgr24
+wbits bgr24 6 4 224
+wencode bmp EnableV5Header32bppBGRA=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-0-gray8
+wbits gray8 6 4 225
+wencode bmp EnableV5Header32bppBGRA=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-1-bgra
+wbits bgra 6 4 226
+wencode bmp EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-1-bgr24
+wbits bgr24 6 4 227
+wencode bmp EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-1-gray8
+wbits gray8 6 4 228
+wencode bmp EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-2-bgra
+wbits bgra 6 4 229
+wencode png InterlaceOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-2-bgr24
+wbits bgr24 6 4 230
+wencode png InterlaceOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-2-gray8
+wbits gray8 6 4 231
+wencode png InterlaceOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-3-bgra
+wbits bgra 6 4 232
+wencode png FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-3-bgr24
+wbits bgr24 6 4 233
+wencode png FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-3-gray8
+wbits gray8 6 4 234
+wencode png FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-4-bgra
+wbits bgra 6 4 235
+wencode png FilterOption=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-4-bgr24
+wbits bgr24 6 4 236
+wencode png FilterOption=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-4-gray8
+wbits gray8 6 4 237
+wencode png FilterOption=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-5-bgra
+wbits bgra 6 4 238
+wencode png FilterOption=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-5-bgr24
+wbits bgr24 6 4 239
+wencode png FilterOption=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-5-gray8
+wbits gray8 6 4 240
+wencode png FilterOption=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-6-bgra
+wbits bgra 6 4 241
+wencode png FilterOption=4
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-6-bgr24
+wbits bgr24 6 4 242
+wencode png FilterOption=4
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-6-gray8
+wbits gray8 6 4 243
+wencode png FilterOption=4
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-7-bgra
+wbits bgra 6 4 244
+wencode png FilterOption=5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-7-bgr24
+wbits bgr24 6 4 245
+wencode png FilterOption=5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-7-gray8
+wbits gray8 6 4 246
+wencode png FilterOption=5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-8-bgra
+wbits bgra 6 4 247
+wencode png FilterOption=6
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-8-bgr24
+wbits bgr24 6 4 248
+wencode png FilterOption=6
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-8-gray8
+wbits gray8 6 4 249
+wencode png FilterOption=6
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-9-bgra
+wbits bgra 6 4 250
+wencode tiff TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-9-bgr24
+wbits bgr24 6 4 251
+wencode tiff TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-9-gray8
+wbits gray8 6 4 252
+wencode tiff TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-10-bgra
+wbits bgra 6 4 253
+wencode tiff TiffCompressionMethod=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-10-bgr24
+wbits bgr24 6 4 254
+wencode tiff TiffCompressionMethod=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-10-gray8
+wbits gray8 6 4 255
+wencode tiff TiffCompressionMethod=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-11-bgra
+wbits bgra 6 4 256
+wencode tiff TiffCompressionMethod=6
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-11-bgr24
+wbits bgr24 6 4 257
+wencode tiff TiffCompressionMethod=6
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-11-gray8
+wbits gray8 6 4 258
+wencode tiff TiffCompressionMethod=6
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-12-bgra
+wbits bgra 6 4 259
+wencode tiff TiffCompressionMethod=7
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-12-bgr24
+wbits bgr24 6 4 260
+wencode tiff TiffCompressionMethod=7
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-12-gray8
+wbits gray8 6 4 261
+wencode tiff TiffCompressionMethod=7
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-13-bgra
+wbits bgra 6 4 262
+wencode jpeg ImageQuality=1.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-13-bgr24
+wbits bgr24 6 4 263
+wencode jpeg ImageQuality=1.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-13-gray8
+wbits gray8 6 4 264
+wencode jpeg ImageQuality=1.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-14-bgra
+wbits bgra 6 4 265
+wencode jpeg ImageQuality=0.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-14-bgr24
+wbits bgr24 6 4 266
+wencode jpeg ImageQuality=0.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-14-gray8
+wbits gray8 6 4 267
+wencode jpeg ImageQuality=0.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-15-bgra
+wbits bgra 6 4 268
+wencode jpeg JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-15-bgr24
+wbits bgr24 6 4 269
+wencode jpeg JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-15-gray8
+wbits gray8 6 4 270
+wencode jpeg JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-16-bgra
+wbits bgra 6 4 271
+wencode jpeg BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-16-bgr24
+wbits bgr24 6 4 272
+wencode jpeg BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-16-gray8
+wbits gray8 6 4 273
+wencode jpeg BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-17-bgra
+wbits bgra 6 4 274
+wencode jpeg SuppressApp0=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-17-bgr24
+wbits bgr24 6 4 275
+wencode jpeg SuppressApp0=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-17-gray8
+wbits gray8 6 4 276
+wencode jpeg SuppressApp0=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-18-bgra
+wbits bgra 6 4 277
+wencode wmp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-18-bgr24
+wbits bgr24 6 4 278
+wencode wmp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-18-gray8
+wbits gray8 6 4 279
+wencode wmp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-19-bgra
+wbits bgra 6 4 280
+wencode wmp ImageQuality=1.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-19-bgr24
+wbits bgr24 6 4 281
+wencode wmp ImageQuality=1.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-19-gray8
+wbits gray8 6 4 282
+wencode wmp ImageQuality=1.0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-20-bgra
+wbits bgra 6 4 283
+wencode png ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-20-bgr24
+wbits bgr24 6 4 284
+wencode png ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-20-gray8
+wbits gray8 6 4 285
+wencode png ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case big-bmp
+wbits bgra 40 30 286
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case big-png
+wbits bgra 40 30 287
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case big-tiff
+wbits bgra 40 30 288
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case big-gif
+wbits idx8 40 30 289
+wencode gif
+wredecode
+wframe 0
+winfo
+wpixels
+end

@@ -22,6 +22,7 @@ mod gdipath;
 mod gditext;
 mod gdiblend;
 mod gdiddb;
+mod wicimage;
 
 pub use d3d11::{d3d11_base, d3d11_floats};
 pub(crate) use crate::rng::XorShift32;
@@ -52,6 +53,12 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("text", gditext::text),
     ("blend", gdiblend::blend),
     ("ddb", gdiddb::ddb),
+    ("wicpalette", wicimage::wicpalette),
+    ("wicscale", wicimage::wicscale),
+    ("wictransform", wicimage::wictransform),
+    ("wiccolor", wicimage::wiccolor),
+    ("wicdecode", wicimage::wicdecode),
+    ("wicencode", wicimage::wicencode),
 ];
 
 pub const SUITES: &[&str] = &{

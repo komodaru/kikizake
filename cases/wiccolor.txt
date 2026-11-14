@@ -1,0 +1,1770 @@
+# kikizake suite wiccolor: WIC color contexts and transforms. Made by `kikizake gen`; runner/wicimage.c says what each line does.
+case ctx-0
+wctx 0
+end
+case ctx-1
+wctx 1
+end
+case ctx-2
+wctx 2
+end
+case ctx-3
+wctx 3
+end
+case ctx-4
+wctx 4
+end
+case xf-bgra-bgra-11
+wbits bgra 8 2 4
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-bgra-bgra-12
+wbits bgra 8 2 5
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-bgra-bgra-21
+wbits bgra 8 2 6
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-bgra-bgr24-11
+wbits bgra 8 2 8
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-bgra-bgr24-12
+wbits bgra 8 2 9
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-bgra-bgr24-21
+wbits bgra 8 2 10
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-bgra-gray8-11
+wbits bgra 8 2 12
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-bgra-gray8-12
+wbits bgra 8 2 13
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-bgra-gray8-21
+wbits bgra 8 2 14
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-bgra-pbgra-11
+wbits bgra 8 2 16
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-bgra-pbgra-12
+wbits bgra 8 2 17
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-bgra-pbgra-21
+wbits bgra 8 2 18
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-bgra-rgba64-11
+wbits bgra 8 2 20
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-bgra-rgba64-12
+wbits bgra 8 2 21
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-bgra-rgba64-21
+wbits bgra 8 2 22
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-bgra-cmyk-11
+wbits bgra 8 2 24
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-bgra-cmyk-12
+wbits bgra 8 2 25
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-bgra-cmyk-21
+wbits bgra 8 2 26
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-bgra-rgb48-11
+wbits bgra 8 2 28
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-bgra-rgb48-12
+wbits bgra 8 2 29
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-bgra-rgb48-21
+wbits bgra 8 2 30
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-bgra-idx8-11
+wbits bgra 8 2 32
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-bgra-idx8-12
+wbits bgra 8 2 33
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-bgra-idx8-21
+wbits bgra 8 2 34
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-bgr24-bgra-11
+wbits bgr24 8 2 68
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-bgr24-bgra-12
+wbits bgr24 8 2 69
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-bgr24-bgra-21
+wbits bgr24 8 2 70
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-bgr24-bgr24-11
+wbits bgr24 8 2 72
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-bgr24-bgr24-12
+wbits bgr24 8 2 73
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-bgr24-bgr24-21
+wbits bgr24 8 2 74
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-bgr24-gray8-11
+wbits bgr24 8 2 76
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-bgr24-gray8-12
+wbits bgr24 8 2 77
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-bgr24-gray8-21
+wbits bgr24 8 2 78
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-bgr24-pbgra-11
+wbits bgr24 8 2 80
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-bgr24-pbgra-12
+wbits bgr24 8 2 81
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-bgr24-pbgra-21
+wbits bgr24 8 2 82
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-bgr24-rgba64-11
+wbits bgr24 8 2 84
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-bgr24-rgba64-12
+wbits bgr24 8 2 85
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-bgr24-rgba64-21
+wbits bgr24 8 2 86
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-bgr24-cmyk-11
+wbits bgr24 8 2 88
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-bgr24-cmyk-12
+wbits bgr24 8 2 89
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-bgr24-cmyk-21
+wbits bgr24 8 2 90
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-bgr24-rgb48-11
+wbits bgr24 8 2 92
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-bgr24-rgb48-12
+wbits bgr24 8 2 93
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-bgr24-rgb48-21
+wbits bgr24 8 2 94
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-bgr24-idx8-11
+wbits bgr24 8 2 96
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-bgr24-idx8-12
+wbits bgr24 8 2 97
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-bgr24-idx8-21
+wbits bgr24 8 2 98
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-rgb24-bgra-11
+wbits rgb24 8 2 132
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-rgb24-bgra-12
+wbits rgb24 8 2 133
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-rgb24-bgra-21
+wbits rgb24 8 2 134
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-rgb24-bgr24-11
+wbits rgb24 8 2 136
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-rgb24-bgr24-12
+wbits rgb24 8 2 137
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-rgb24-bgr24-21
+wbits rgb24 8 2 138
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-rgb24-gray8-11
+wbits rgb24 8 2 140
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-rgb24-gray8-12
+wbits rgb24 8 2 141
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-rgb24-gray8-21
+wbits rgb24 8 2 142
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-rgb24-pbgra-11
+wbits rgb24 8 2 144
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-rgb24-pbgra-12
+wbits rgb24 8 2 145
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-rgb24-pbgra-21
+wbits rgb24 8 2 146
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-rgb24-rgba64-11
+wbits rgb24 8 2 148
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-rgb24-rgba64-12
+wbits rgb24 8 2 149
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-rgb24-rgba64-21
+wbits rgb24 8 2 150
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-rgb24-cmyk-11
+wbits rgb24 8 2 152
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-rgb24-cmyk-12
+wbits rgb24 8 2 153
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-rgb24-cmyk-21
+wbits rgb24 8 2 154
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-rgb24-rgb48-11
+wbits rgb24 8 2 156
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-rgb24-rgb48-12
+wbits rgb24 8 2 157
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-rgb24-rgb48-21
+wbits rgb24 8 2 158
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-rgb24-idx8-11
+wbits rgb24 8 2 160
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-rgb24-idx8-12
+wbits rgb24 8 2 161
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-rgb24-idx8-21
+wbits rgb24 8 2 162
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-gray8-bgra-11
+wbits gray8 8 2 196
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-gray8-bgra-12
+wbits gray8 8 2 197
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-gray8-bgra-21
+wbits gray8 8 2 198
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-gray8-bgr24-11
+wbits gray8 8 2 200
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-gray8-bgr24-12
+wbits gray8 8 2 201
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-gray8-bgr24-21
+wbits gray8 8 2 202
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-gray8-gray8-11
+wbits gray8 8 2 204
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-gray8-gray8-12
+wbits gray8 8 2 205
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-gray8-gray8-21
+wbits gray8 8 2 206
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-gray8-pbgra-11
+wbits gray8 8 2 208
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-gray8-pbgra-12
+wbits gray8 8 2 209
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-gray8-pbgra-21
+wbits gray8 8 2 210
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-gray8-rgba64-11
+wbits gray8 8 2 212
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-gray8-rgba64-12
+wbits gray8 8 2 213
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-gray8-rgba64-21
+wbits gray8 8 2 214
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-gray8-cmyk-11
+wbits gray8 8 2 216
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-gray8-cmyk-12
+wbits gray8 8 2 217
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-gray8-cmyk-21
+wbits gray8 8 2 218
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-gray8-rgb48-11
+wbits gray8 8 2 220
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-gray8-rgb48-12
+wbits gray8 8 2 221
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-gray8-rgb48-21
+wbits gray8 8 2 222
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-gray8-idx8-11
+wbits gray8 8 2 224
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-gray8-idx8-12
+wbits gray8 8 2 225
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-gray8-idx8-21
+wbits gray8 8 2 226
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-gray16-bgra-11
+wbits gray16 8 2 260
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-gray16-bgra-12
+wbits gray16 8 2 261
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-gray16-bgra-21
+wbits gray16 8 2 262
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-gray16-bgr24-11
+wbits gray16 8 2 264
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-gray16-bgr24-12
+wbits gray16 8 2 265
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-gray16-bgr24-21
+wbits gray16 8 2 266
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-gray16-gray8-11
+wbits gray16 8 2 268
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-gray16-gray8-12
+wbits gray16 8 2 269
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-gray16-gray8-21
+wbits gray16 8 2 270
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-gray16-pbgra-11
+wbits gray16 8 2 272
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-gray16-pbgra-12
+wbits gray16 8 2 273
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-gray16-pbgra-21
+wbits gray16 8 2 274
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-gray16-rgba64-11
+wbits gray16 8 2 276
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-gray16-rgba64-12
+wbits gray16 8 2 277
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-gray16-rgba64-21
+wbits gray16 8 2 278
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-gray16-cmyk-11
+wbits gray16 8 2 280
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-gray16-cmyk-12
+wbits gray16 8 2 281
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-gray16-cmyk-21
+wbits gray16 8 2 282
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-gray16-rgb48-11
+wbits gray16 8 2 284
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-gray16-rgb48-12
+wbits gray16 8 2 285
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-gray16-rgb48-21
+wbits gray16 8 2 286
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-gray16-idx8-11
+wbits gray16 8 2 288
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-gray16-idx8-12
+wbits gray16 8 2 289
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-gray16-idx8-21
+wbits gray16 8 2 290
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-pbgra-bgra-11
+wbits pbgra 8 2 324
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-pbgra-bgra-12
+wbits pbgra 8 2 325
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-pbgra-bgra-21
+wbits pbgra 8 2 326
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-pbgra-bgr24-11
+wbits pbgra 8 2 328
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-pbgra-bgr24-12
+wbits pbgra 8 2 329
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-pbgra-bgr24-21
+wbits pbgra 8 2 330
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-pbgra-gray8-11
+wbits pbgra 8 2 332
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-pbgra-gray8-12
+wbits pbgra 8 2 333
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-pbgra-gray8-21
+wbits pbgra 8 2 334
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-pbgra-pbgra-11
+wbits pbgra 8 2 336
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-pbgra-pbgra-12
+wbits pbgra 8 2 337
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-pbgra-pbgra-21
+wbits pbgra 8 2 338
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-pbgra-rgba64-11
+wbits pbgra 8 2 340
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-pbgra-rgba64-12
+wbits pbgra 8 2 341
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-pbgra-rgba64-21
+wbits pbgra 8 2 342
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-pbgra-cmyk-11
+wbits pbgra 8 2 344
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-pbgra-cmyk-12
+wbits pbgra 8 2 345
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-pbgra-cmyk-21
+wbits pbgra 8 2 346
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-pbgra-rgb48-11
+wbits pbgra 8 2 348
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-pbgra-rgb48-12
+wbits pbgra 8 2 349
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-pbgra-rgb48-21
+wbits pbgra 8 2 350
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-pbgra-idx8-11
+wbits pbgra 8 2 352
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-pbgra-idx8-12
+wbits pbgra 8 2 353
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-pbgra-idx8-21
+wbits pbgra 8 2 354
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-rgba-bgra-11
+wbits rgba 8 2 388
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-rgba-bgra-12
+wbits rgba 8 2 389
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-rgba-bgra-21
+wbits rgba 8 2 390
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-rgba-bgr24-11
+wbits rgba 8 2 392
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-rgba-bgr24-12
+wbits rgba 8 2 393
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-rgba-bgr24-21
+wbits rgba 8 2 394
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-rgba-gray8-11
+wbits rgba 8 2 396
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-rgba-gray8-12
+wbits rgba 8 2 397
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-rgba-gray8-21
+wbits rgba 8 2 398
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-rgba-pbgra-11
+wbits rgba 8 2 400
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-rgba-pbgra-12
+wbits rgba 8 2 401
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-rgba-pbgra-21
+wbits rgba 8 2 402
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-rgba-rgba64-11
+wbits rgba 8 2 404
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-rgba-rgba64-12
+wbits rgba 8 2 405
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-rgba-rgba64-21
+wbits rgba 8 2 406
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-rgba-cmyk-11
+wbits rgba 8 2 408
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-rgba-cmyk-12
+wbits rgba 8 2 409
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-rgba-cmyk-21
+wbits rgba 8 2 410
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-rgba-rgb48-11
+wbits rgba 8 2 412
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-rgba-rgb48-12
+wbits rgba 8 2 413
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-rgba-rgb48-21
+wbits rgba 8 2 414
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-rgba-idx8-11
+wbits rgba 8 2 416
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-rgba-idx8-12
+wbits rgba 8 2 417
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-rgba-idx8-21
+wbits rgba 8 2 418
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-bgr565-bgra-11
+wbits bgr565 8 2 452
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-bgr565-bgra-12
+wbits bgr565 8 2 453
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-bgr565-bgra-21
+wbits bgr565 8 2 454
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-bgr565-bgr24-11
+wbits bgr565 8 2 456
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-bgr565-bgr24-12
+wbits bgr565 8 2 457
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-bgr565-bgr24-21
+wbits bgr565 8 2 458
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-bgr565-gray8-11
+wbits bgr565 8 2 460
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-bgr565-gray8-12
+wbits bgr565 8 2 461
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-bgr565-gray8-21
+wbits bgr565 8 2 462
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-bgr565-pbgra-11
+wbits bgr565 8 2 464
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-bgr565-pbgra-12
+wbits bgr565 8 2 465
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-bgr565-pbgra-21
+wbits bgr565 8 2 466
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-bgr565-rgba64-11
+wbits bgr565 8 2 468
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-bgr565-rgba64-12
+wbits bgr565 8 2 469
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-bgr565-rgba64-21
+wbits bgr565 8 2 470
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-bgr565-cmyk-11
+wbits bgr565 8 2 472
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-bgr565-cmyk-12
+wbits bgr565 8 2 473
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-bgr565-cmyk-21
+wbits bgr565 8 2 474
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-bgr565-rgb48-11
+wbits bgr565 8 2 476
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-bgr565-rgb48-12
+wbits bgr565 8 2 477
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-bgr565-rgb48-21
+wbits bgr565 8 2 478
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-bgr565-idx8-11
+wbits bgr565 8 2 480
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-bgr565-idx8-12
+wbits bgr565 8 2 481
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-bgr565-idx8-21
+wbits bgr565 8 2 482
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-rgba64-bgra-11
+wbits rgba64 8 2 516
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-rgba64-bgra-12
+wbits rgba64 8 2 517
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-rgba64-bgra-21
+wbits rgba64 8 2 518
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-rgba64-bgr24-11
+wbits rgba64 8 2 520
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-rgba64-bgr24-12
+wbits rgba64 8 2 521
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-rgba64-bgr24-21
+wbits rgba64 8 2 522
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-rgba64-gray8-11
+wbits rgba64 8 2 524
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-rgba64-gray8-12
+wbits rgba64 8 2 525
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-rgba64-gray8-21
+wbits rgba64 8 2 526
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-rgba64-pbgra-11
+wbits rgba64 8 2 528
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-rgba64-pbgra-12
+wbits rgba64 8 2 529
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-rgba64-pbgra-21
+wbits rgba64 8 2 530
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-rgba64-rgba64-11
+wbits rgba64 8 2 532
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-rgba64-rgba64-12
+wbits rgba64 8 2 533
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-rgba64-rgba64-21
+wbits rgba64 8 2 534
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-rgba64-cmyk-11
+wbits rgba64 8 2 536
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-rgba64-cmyk-12
+wbits rgba64 8 2 537
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-rgba64-cmyk-21
+wbits rgba64 8 2 538
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-rgba64-rgb48-11
+wbits rgba64 8 2 540
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-rgba64-rgb48-12
+wbits rgba64 8 2 541
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-rgba64-rgb48-21
+wbits rgba64 8 2 542
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-rgba64-idx8-11
+wbits rgba64 8 2 544
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-rgba64-idx8-12
+wbits rgba64 8 2 545
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-rgba64-idx8-21
+wbits rgba64 8 2 546
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-cmyk-bgra-11
+wbits cmyk 8 2 580
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-cmyk-bgra-12
+wbits cmyk 8 2 581
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-cmyk-bgra-21
+wbits cmyk 8 2 582
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-cmyk-bgr24-11
+wbits cmyk 8 2 584
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-cmyk-bgr24-12
+wbits cmyk 8 2 585
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-cmyk-bgr24-21
+wbits cmyk 8 2 586
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-cmyk-gray8-11
+wbits cmyk 8 2 588
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-cmyk-gray8-12
+wbits cmyk 8 2 589
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-cmyk-gray8-21
+wbits cmyk 8 2 590
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-cmyk-pbgra-11
+wbits cmyk 8 2 592
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-cmyk-pbgra-12
+wbits cmyk 8 2 593
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-cmyk-pbgra-21
+wbits cmyk 8 2 594
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-cmyk-rgba64-11
+wbits cmyk 8 2 596
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-cmyk-rgba64-12
+wbits cmyk 8 2 597
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-cmyk-rgba64-21
+wbits cmyk 8 2 598
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-cmyk-cmyk-11
+wbits cmyk 8 2 600
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-cmyk-cmyk-12
+wbits cmyk 8 2 601
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-cmyk-cmyk-21
+wbits cmyk 8 2 602
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-cmyk-rgb48-11
+wbits cmyk 8 2 604
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-cmyk-rgb48-12
+wbits cmyk 8 2 605
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-cmyk-rgb48-21
+wbits cmyk 8 2 606
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-cmyk-idx8-11
+wbits cmyk 8 2 608
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-cmyk-idx8-12
+wbits cmyk 8 2 609
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-cmyk-idx8-21
+wbits cmyk 8 2 610
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-idx8-bgra-11
+wbits idx8 8 2 644
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-idx8-bgra-12
+wbits idx8 8 2 645
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-idx8-bgra-21
+wbits idx8 8 2 646
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-idx8-bgr24-11
+wbits idx8 8 2 648
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-idx8-bgr24-12
+wbits idx8 8 2 649
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-idx8-bgr24-21
+wbits idx8 8 2 650
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-idx8-gray8-11
+wbits idx8 8 2 652
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-idx8-gray8-12
+wbits idx8 8 2 653
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-idx8-gray8-21
+wbits idx8 8 2 654
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-idx8-pbgra-11
+wbits idx8 8 2 656
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-idx8-pbgra-12
+wbits idx8 8 2 657
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-idx8-pbgra-21
+wbits idx8 8 2 658
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-idx8-rgba64-11
+wbits idx8 8 2 660
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-idx8-rgba64-12
+wbits idx8 8 2 661
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-idx8-rgba64-21
+wbits idx8 8 2 662
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-idx8-cmyk-11
+wbits idx8 8 2 664
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-idx8-cmyk-12
+wbits idx8 8 2 665
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-idx8-cmyk-21
+wbits idx8 8 2 666
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-idx8-rgb48-11
+wbits idx8 8 2 668
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-idx8-rgb48-12
+wbits idx8 8 2 669
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-idx8-rgb48-21
+wbits idx8 8 2 670
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-idx8-idx8-11
+wbits idx8 8 2 672
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-idx8-idx8-12
+wbits idx8 8 2 673
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-idx8-idx8-21
+wbits idx8 8 2 674
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-bw-bgra-11
+wbits bw 8 2 708
+wcolor 1 1 bgra
+winfo
+wpixels
+end
+case xf-bw-bgra-12
+wbits bw 8 2 709
+wcolor 1 2 bgra
+winfo
+wpixels
+end
+case xf-bw-bgra-21
+wbits bw 8 2 710
+wcolor 2 1 bgra
+winfo
+wpixels
+end
+case xf-bw-bgr24-11
+wbits bw 8 2 712
+wcolor 1 1 bgr24
+winfo
+wpixels
+end
+case xf-bw-bgr24-12
+wbits bw 8 2 713
+wcolor 1 2 bgr24
+winfo
+wpixels
+end
+case xf-bw-bgr24-21
+wbits bw 8 2 714
+wcolor 2 1 bgr24
+winfo
+wpixels
+end
+case xf-bw-gray8-11
+wbits bw 8 2 716
+wcolor 1 1 gray8
+winfo
+wpixels
+end
+case xf-bw-gray8-12
+wbits bw 8 2 717
+wcolor 1 2 gray8
+winfo
+wpixels
+end
+case xf-bw-gray8-21
+wbits bw 8 2 718
+wcolor 2 1 gray8
+winfo
+wpixels
+end
+case xf-bw-pbgra-11
+wbits bw 8 2 720
+wcolor 1 1 pbgra
+winfo
+wpixels
+end
+case xf-bw-pbgra-12
+wbits bw 8 2 721
+wcolor 1 2 pbgra
+winfo
+wpixels
+end
+case xf-bw-pbgra-21
+wbits bw 8 2 722
+wcolor 2 1 pbgra
+winfo
+wpixels
+end
+case xf-bw-rgba64-11
+wbits bw 8 2 724
+wcolor 1 1 rgba64
+winfo
+wpixels
+end
+case xf-bw-rgba64-12
+wbits bw 8 2 725
+wcolor 1 2 rgba64
+winfo
+wpixels
+end
+case xf-bw-rgba64-21
+wbits bw 8 2 726
+wcolor 2 1 rgba64
+winfo
+wpixels
+end
+case xf-bw-cmyk-11
+wbits bw 8 2 728
+wcolor 1 1 cmyk
+winfo
+wpixels
+end
+case xf-bw-cmyk-12
+wbits bw 8 2 729
+wcolor 1 2 cmyk
+winfo
+wpixels
+end
+case xf-bw-cmyk-21
+wbits bw 8 2 730
+wcolor 2 1 cmyk
+winfo
+wpixels
+end
+case xf-bw-rgb48-11
+wbits bw 8 2 732
+wcolor 1 1 rgb48
+winfo
+wpixels
+end
+case xf-bw-rgb48-12
+wbits bw 8 2 733
+wcolor 1 2 rgb48
+winfo
+wpixels
+end
+case xf-bw-rgb48-21
+wbits bw 8 2 734
+wcolor 2 1 rgb48
+winfo
+wpixels
+end
+case xf-bw-idx8-11
+wbits bw 8 2 736
+wcolor 1 1 idx8
+winfo
+wpixels
+end
+case xf-bw-idx8-12
+wbits bw 8 2 737
+wcolor 1 2 idx8
+winfo
+wpixels
+end
+case xf-bw-idx8-21
+wbits bw 8 2 738
+wcolor 2 1 idx8
+winfo
+wpixels
+end
+case xf-bad-01
+wbits bgra 2 2 1
+wcolor 0 1 bgra
+end
+case xf-bad-10
+wbits bgra 2 2 1
+wcolor 1 0 bgra
+end
+case xf-bad-31
+wbits bgra 2 2 1
+wcolor 3 1 bgra
+end
+case xf-bad-13
+wbits bgra 2 2 1
+wcolor 1 3 bgra
+end
+case levels-12
+wbits bgr24 256 1 ramp
+wcolor 1 2 bgr24
+wpixels
+end
+case levels-21
+wbits bgr24 256 1 ramp
+wcolor 2 1 bgr24
+wpixels
+end
