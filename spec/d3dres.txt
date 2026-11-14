@@ -1,3 +1,100 @@
-# Direct3D 10, 10.1 and 11 resource clauses (spec/README.md): <id> <status> | <source> | <what it says>
-D3DRES.NODEV doc | (the executor) | without a device the resource lines print nodev
-D3DRES.TODO open | (none) | not modelled yet
+# Direct3D 10, 10.1 and 11 resources and drawing (spec/README.md): <id> <status> | <source> | <what it says>
+D3DRES.NODEV doc | (the executor) | without a device the resource and drawing lines print nodev
+D3DRES.FMT open | CheckFormatSupport, D3D11_FORMAT_SUPPORT, CheckMultisampleQualityLevels | what each device reports for each format
+D3DRES.DESC measured | D3D11_TEXTURE1D_DESC, D3D11_TEXTURE2D_DESC, D3D11_TEXTURE3D_DESC, D3D11_USAGE, D3D11_BIND_FLAG, D3D11_CPU_ACCESS_FLAG; tex-format-*, tex2-*, tex-random-* (1100 descriptions per suite, 0 differ) | which texture descriptions CreateTexture* accept: usage and CPU access, the format's support bits (dimension, MIP, TEXTURECUBE, CPU_LOCKABLE, binds; a typeless format by its group's), sizes, mips, binds, flags, samples
+D3DRES.DESC.USAGEFF measured | tex2-f*-usage-u* | usage 0xffffffff passes as staging does
+D3DRES.DESC.SIZE measured | tex2-f*-w-*, tex2-f*-h-* | a size of 0x80000000 or more is refused
+D3DRES.DESC.BIG open | tex2-f28-w-u0 (16385 accepted at 11_0) | where above the documented maximum sizes are refused
+D3DRES.DESC.BUF measured | D3D11_BUFFER_DESC, D3D10_BUFFER_DESC; buf-* | which buffer descriptions CreateBuffer accepts: a size, bind flags (a constant buffer alone, 16-byte multiples), CPU access, raw (SRV or UAV) and structured (a stride of 4n dividing the size, at most 2048) buffers; the stride reads back 0 unless structured
+D3DRES.DESC.MISC measured | D3D11_RESOURCE_MISC_FLAG, D3D10_RESOURCE_MISC_FLAG; tex2-f*-misc-* | the flags a texture takes: 11: GENERATE_MIPS (with SRV and RTV), SHARED, TEXTURECUBE (2D, square, 6n slices), RESOURCE_CLAMP, SHARED_KEYEDMUTEX, GDI_COMPATIBLE (B8G8R8A8 formats), RESTRICTED_CONTENT (2D, not immutable or staging); 10: GENERATE_MIPS, SHARED, TEXTURECUBE
+D3DRES.DESC.CUBE10 measured | d3d10res tex-random-16 | Direct3D 10 drops TEXTURECUBE from a 1D or 3D description and makes it
+D3DRES.DESC.BLOCKSIZE measured | tex-random-169, data-71 | the top level of a block format (BC, R8G8_B8G8) is whole blocks; so is the staging copy of a mip smaller than a block refused
+D3DRES.DESC.CPURTV measured | tex-random-115, 121, 230 (WARP) | Direct3D 11 refuses at creation (the check alone passes it) a 2D default texture the CPU reads and renders to of more than one subresource
+D3DRES.VIEW open | D3D11_SHADER_RESOURCE_VIEW_DESC, D3D11_RENDER_TARGET_VIEW_DESC, D3D11_DEPTH_STENCIL_VIEW_DESC, D3D11_UNORDERED_ACCESS_VIEW_DESC | which view descriptions Create*View accept and what GetDesc gives
+D3DRES.CHECK doc | ID3D11Device::CreateTexture2D (ppTexture2D NULL: S_FALSE) and the others | a NULL out pointer validates only: S_FALSE for an accepted description
+D3DRES.ZERO assumed | (none) | a resource made without initial data reads back as zeros
+D3DRES.INIT.PAST excluded | (none) | initial data read past the executor's 4 MiB
+D3DRES.CLEAR.RTV doc | ID3D11DeviceContext::ClearRenderTargetView, Data Conversion Rules | every element of the view's subresources takes the color converted to the view's format
+D3DRES.CLEAR.FORMAT open | (none) | a view of unknown format
+D3DRES.CLEAR.DSV doc | ID3D11DeviceContext::ClearDepthStencilView | the depth (D3D11_CLEAR_DEPTH) clamped to 0..1 and converted, the stencil (D3D11_CLEAR_STENCIL)
+D3DRES.CLEAR.DEPTHNAN open | ClearDepthStencilView | a NaN depth
+D3DRES.CLEAR.UAV doc | ClearUnorderedAccessViewUint, ClearUnorderedAccessViewFloat | Uint: each channel the low bits of its value, no conversion; Float: converted as a render target write
+D3DRES.CLEAR.UAVRAW doc | ClearUnorderedAccessViewUint (raw and structured buffers: only the first value) | the view's 32-bit words take the first value
+D3DRES.CLEAR.UAVRAWF open | ClearUnorderedAccessViewFloat | a float clear of a raw buffer view
+D3DRES.CLEAR.UAVFINT doc | ClearUnorderedAccessViewFloat (other formats: the call does not reach the driver) | a float clear of an integer view changes nothing
+D3DRES.CLEAR.UAVBITS open | (none) | a uint clear of a format without plain components
+D3DRES.UPDATE doc | ID3D11DeviceContext::UpdateSubresource | the rows of the box (or the subresource) from the source, row pitch and depth pitch apart
+D3DRES.UPDATE.BOX doc | D3D11_BOX (block formats: in pixels, block aligned) | the box's left, top, front inclusive, right, bottom, back exclusive
+D3DRES.UPDATE.EMPTY doc | UpdateSubresource (an empty box: no update) | an empty box changes nothing
+D3DRES.UPDATE.BAD open | (none) | an update the documentation calls invalid
+D3DRES.COPY doc | ID3D11DeviceContext::CopyResource | every subresource copied
+D3DRES.COPY.FORMAT doc | CopyResource, Format Conversion using Direct3D 10.1 | compatible: one typeless group, or (10.1 and later) a block compressed format and an uncompressed format of the block's bits with equal integer or float components
+D3DRES.COPY.IGNORED assumed | CopyResource (invalid parameters: the call is not run) | an incompatible copy changes nothing
+D3DRES.COPYSUB doc | ID3D11DeviceContext::CopySubresourceRegion | the box's elements to (x, y, z)
+D3DRES.COPYSUB.BAD open | (none) | a region outside either subresource
+D3DRES.RESOLVE doc | ID3D11DeviceContext::ResolveSubresource | samples averaged: one value in every sample gives that value
+D3DRES.RESOLVE.BAD open | (none) | a resolve the documentation calls invalid
+D3DRES.READ doc | (the executor) | the staging copy of the subresource, row by row
+D3DRES.READ.BAD open | (none) | reading a multisampled resource or a missing subresource
+D3DRES.READ.PAST excluded | (none) | rows or bytes past the subresource
+D3DRES.READ.UNKNOWN open | (none) | contents the model does not know
+CONV.UNORM assumed | Data Conversion Rules (FLOAT to UNORM: NaN 0, clamped, times 2^n - 1, rounded; UNORM to FLOAT: c / (2^n - 1)) | rounding half to even
+CONV.SNORM assumed | Data Conversion Rules (FLOAT to SNORM: NaN 0, clamped to -1..1, times 2^(n-1) - 1, rounded; SNORM to FLOAT: -2^(n-1) is -1.0) | rounding half to even, away from zero symmetric
+CONV.SRGB assumed | Data Conversion Rules (the sRGB curve, with tolerance) | the exact curve, then UNORM
+CONV.F16 assumed | Data Conversion Rules (FLOAT to 16-bit float: round to nearest even, denormals kept) | NaN keeps a NaN, infinities kept
+CONV.F11 assumed | Data Conversion Rules (11 and 10 bit floats: no sign; negatives 0) | round to nearest even, NaN kept
+CONV.RGB9E5 assumed | DXGI_FORMAT (R9G9B9E5_SHAREDEXP) | the shared exponent of the largest component, mantissas rounded half to even
+CONV.F32 doc | Data Conversion Rules | a 32-bit float stored as it is
+CONV.STENCIL doc | DXGI_FORMAT (X24_TYPELESS_G8_UINT: the stencil in green) | the stencil read as green
+CONV.INTCLEAR open | ClearRenderTargetView | a float clear of an integer format
+CONV.X8 open | (none) | the X channel of B8G8R8X8 formats
+CONV.XRBIAS open | DXGI_FORMAT (R10G10B10_XR_BIAS_A2_UNORM) | the extended range bias format
+CONV.OTHER open | (none) | the other formats (video, packed 4:2:2, R1)
+CONV.BLOCK open | (none) | block compressed formats as a shader reads them
+D3DRASTER.SHADER doc | ID3D11Device::CreateVertexShader, CreatePixelShader | the generator's programs are accepted
+D3DRASTER.SHADER.BAD assumed | CreatePixelShader | bytes that are not a program of that kind (wrong checksum, truncated, the other kind): E_INVALIDARG
+D3DRASTER.LAYOUT assumed | ID3D11Device::CreateInputLayout | every input of the program needs an element; an element of an unknown, typeless, block or video format is refused
+D3DRASTER.LAYOUT.SIG open | (none) | an input layout against a refused program
+D3DRASTER.VIEWPORT doc | D3D11_VIEWPORT, D3D10_VIEWPORT (integers) | the viewport transform
+D3DRASTER.VP10 open | (none) | a negative fractional viewport on Direct3D 10
+D3DRASTER.DRAW doc | ID3D11DeviceContext::Draw, DrawInstanced | the vertices through the pipeline
+D3DRASTER.INCOMPLETE open | (none) | a draw with no shader, layout or target
+D3DRASTER.NOVIEWPORT open | (none) | a draw with no viewport
+D3DRASTER.TOPOLOGY open | (none) | points and lines
+D3DRASTER.RTFMT open | (none) | a target of unknown format
+D3DRASTER.RTKIND open | (none) | multisampled or array targets
+D3DRASTER.VBPAST open | (none) | vertices past the buffer
+D3DRASTER.IDS doc | SV_VertexID, SV_InstanceID | the vertex's index in the draw and the instance's
+D3DRASTER.STRIP doc | Primitive Topologies (triangle strips) | every other triangle of a strip has its first two vertices swapped
+D3DRASTER.CLIPW open | (none) | w not positive
+D3DRASTER.DEPTHCLIP doc | D3D11_RASTERIZER_DESC (DepthClipEnable) | a triangle wholly in front of 0 or past 1 is clipped away; without depth clipping its depth is clamped to the viewport's range
+D3DRASTER.CLIPZ open | (none) | a triangle that crosses the depth range
+D3DRASTER.SNAP assumed | Rasterization Rules | vertices snapped to 1/256 of a pixel, rounding half to even
+D3DRASTER.DEGENERATE doc | Rasterization Rules | a triangle of zero area draws nothing
+D3DRASTER.CULL doc | D3D11_CULL_MODE, D3D11_RASTERIZER_DESC (FrontCounterClockwise) | clockwise triangles face front unless FrontCounterClockwise
+D3DRASTER.WIREFRAME open | D3D11_FILL_MODE | wireframe fill
+D3DRASTER.VPCLIP assumed | D3D11_VIEWPORT | a pixel is drawn only if its center is in the viewport (x <= c < x + width)
+D3DRASTER.SCISSOR doc | ID3D11DeviceContext::RSSetScissorRects | with ScissorEnable, pixels outside left..right, top..bottom are not drawn
+D3DRASTER.TOPLEFT doc | Rasterization Rules (top-left rule) | a pixel center on an edge is inside only on a top or left edge
+D3DRASTER.INTERP open | (none) | attributes that vary over a triangle
+D3DRASTER.FLAT doc | Primitive Topologies (the leading vertex), dcl_input_ps constant | a constant input takes the leading vertex's value
+D3DRASTER.POS doc | Semantics (SV_Position) | the pixel center, the depth
+D3DRASTER.POSW open | Semantics (SV_Position) | SV_Position.w when w is not 1
+D3DRASTER.PRIM doc | SV_PrimitiveID, SV_IsFrontFace | the primitive's index in its instance, whether it faces front
+D3DRASTER.LD doc | ld (sm4 - asm) | the texel, converted from the view's format
+D3DRASTER.LD.OUT doc | ld (sm4 - asm) (out of range: 0) | an address outside the texture reads 0
+D3DRASTER.NOSRV open | (none) | no shader resource
+D3DRASTER.NOSAMPLER open | (none) | no sampler
+D3DRASTER.SAMPLE doc | sample (sm4 - asm) | point sampling at texel centers (linear filtering agrees there)
+D3DRASTER.FILTER open | (none) | samples between texel centers
+D3DRASTER.ADDRESS doc | D3D11_TEXTURE_ADDRESS_MODE | wrap, mirror, clamp, border, mirror once
+D3DRASTER.BORDER doc | D3D11_TEXTURE_ADDRESS_MODE (BORDER) | outside the texture: the border color (0 here)
+D3DRASTER.PS open | (none) | a program the model does not know
+D3DRASTER.DEPTH doc | D3D11_COMPARISON_FUNC, D3D11_DEPTH_WRITE_MASK | the pixel's depth (in the format's precision) against the stored one, written when it passes and the mask is ALL
+D3DRASTER.DEPTHFMT open | (none) | depth formats past D16, D24S8, D32, D32S8X24
+D3DRASTER.BLEND assumed | D3D11_BLEND, D3D11_BLEND_OP | float arithmetic: source and destination times their factors, the operation; the source clamped to a normalized target's range first
+D3DRASTER.BLEND.FACTOR open | (none) | dual source factors
+D3DRASTER.BLEND.OP open | (none) | an unknown operation
+D3DRASTER.BLEND.INT doc | D3D11_RENDER_TARGET_BLEND_DESC (integer targets do not blend) | integer targets take the shader's value
+D3DRASTER.WRITEMASK doc | D3D11_COLOR_WRITE_ENABLE | only the channels the mask names are written
+D3DRASTER.CBUF open | (none) | constant buffers

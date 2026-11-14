@@ -1,35 +1,676 @@
-//! Direct3D 10, 10.1 and 11 resources (SPEC.md "Direct3D 10 and 11 resources").
+//! Direct3D 10, 10.1 and 11 resources and drawing (SPEC.md "Direct3D 10 and 11 resources"): an
+//! executable specification of which resource and view descriptions the devices accept and
+//! what GetDesc gives back (src/model/d3dres_check.rs), of what clears, updates, copies and
+//! resolves leave in the subresources, and of drawing (src/model/d3draster.rs).
+//!
+//! Sources (Microsoft Learn): "D3D11_TEXTURE2D_DESC" and the 1D / 3D / buffer ones,
+//! "ID3D11DeviceContext::UpdateSubresource" (the box, the pitches), "CopyResource" and
+//! "CopySubresourceRegion" (compatible formats: one typeless group, or a block compressed format
+//! and the uncompressed format of its block's size), "ClearRenderTargetView",
+//! "ClearDepthStencilView" (the depth clamped to 0..1), "ClearUnorderedAccessViewUint" (the low
+//! bits of each value, no conversion; raw and structured buffers: the first value),
+//! "ClearUnorderedAccessViewFloat" (float, unorm and snorm views only; others: not run),
+//! "ResolveSubresource", "Data Conversion Rules" (src/model/dxgiconv.rs).
+
+use super::dxgiconv::{decode, encode, encode_bits};
+use super::dxgifmt::{format, Format, Num};
 use super::{Fail, Res};
-use crate::case::Op;
+use crate::case::{num, Op};
 use crate::spec::hit;
+
+pub use super::d3dres_check::*;
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Dev {
+    /// device11 at a feature level
+    D11(u32),
+    /// device10 (d3d10.dll)
+    D10,
+    /// device10_1 at a feature level
+    D101(u32),
+}
+
+impl Dev {
+    pub fn d3d11(self) -> bool {
+        matches!(self, Dev::D11(_))
+    }
+    pub fn level(self) -> u32 {
+        match self {
+            Dev::D11(l) | Dev::D101(l) => l,
+            Dev::D10 => 0xa000,
+        }
+    }
+}
+
+/// a resource: its description (as GetDesc gives it) and each subresource's bytes, rows of
+/// elements packed (None: not known)
+#[derive(Clone, Debug)]
+pub struct Resource {
+    pub d: Desc,
+    pub subs: Vec<Option<Vec<u8>>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct View {
+    pub kind: u32,
+    pub res: usize,
+    /// Format, ViewDimension, [Flags], the union words (as GetDesc gives them)
+    pub words: Vec<u32>,
+}
+
+impl View {
+    pub fn format(&self) -> u32 {
+        self.words[0]
+    }
+    pub fn dim(&self) -> u32 {
+        self.words[1]
+    }
+    /// the union words (after Format, ViewDimension and the 11 dsv's Flags)
+    pub fn u(&self, i: usize, d3d11: bool) -> u32 {
+        let head = if self.kind == 2 && d3d11 { 3 } else { 2 };
+        self.words.get(head + i).copied().unwrap_or(0)
+    }
+}
+
+/// the bytes `fill` and initial data give: xorshift32 from the seed
+pub fn xorbytes(seed: u32, n: usize) -> Vec<u8> {
+    let mut r = crate::rng::XorShift32::new(seed);
+    (0..n).map(|_| r.next() as u8).collect()
+}
+
+/// the initial data the executor passes: 4 MiB from xorshift32
+pub const INIT: usize = 4 << 20;
+
+impl Resource {
+    pub fn fmt(&self) -> Option<&'static Format> {
+        format(self.d.fmt)
+    }
+    /// (width, height, depth) of mip m
+    pub fn size(&self, m: u32) -> (u32, u32, u32) {
+        let d = &self.d;
+        match d.dim {
+            4 => (d.w, 1, 1),
+            1 => ((d.w >> m).max(1), 1, 1),
+            2 => ((d.w >> m).max(1), (d.h >> m).max(1), 1),
+            _ => ((d.w >> m).max(1), (d.h >> m).max(1), (d.da >> m).max(1)),
+        }
+    }
+    pub fn mip_of(&self, sub: u32) -> u32 {
+        sub % self.d.mips.max(1)
+    }
+    pub fn nsubs(&self) -> u32 {
+        if self.d.dim == 4 {
+            1
+        } else {
+            self.d.mips * if self.d.dim == 3 { 1 } else { self.d.da }
+        }
+    }
+    /// (row bytes, rows, slices) of a subresource
+    pub fn layout(&self, sub: u32) -> (usize, usize, usize) {
+        if self.d.dim == 4 {
+            return (self.d.w as usize, 1, 1);
+        }
+        let f = self.fmt().unwrap();
+        let (w, h, d) = self.size(self.mip_of(sub));
+        (f.row_bytes(w) as usize, f.rows(h) as usize, d as usize)
+    }
+    pub fn zeroed(d: Desc) -> Resource {
+        let mut r = Resource { d, subs: Vec::new() };
+        r.subs = (0..r.nsubs())
+            .map(|s| {
+                let (rb, rows, sl) = r.layout(s);
+                Some(vec![0; rb * rows * sl])
+            })
+            .collect();
+        r
+    }
+}
 
 #[derive(Default)]
 pub struct D3dres {
-    dev: bool,
+    pub dev: Option<Dev>,
+    pub res: [Option<Resource>; 16],
+    pub views: [Option<View>; 16],
+    pub draw: super::d3draster::Draw,
 }
 
-const OPS: &[&str] = &["fmt", "tex", "buf", "srv", "rtv", "dsv", "uav", "clear", "cleards", "clearuav", "update", "copy", "copysub", "resolve", "read", "shader", "layout", "vtx", "draw", "target", "viewport", "scissor", "rast", "blend1", "depthst", "tsrv", "samp", "cbuf"];
+pub const OPS: &[&str] = &["fmt", "tex", "buf", "srv", "rtv", "dsv", "uav", "clear", "cleards", "clearuav", "update", "copy", "copysub", "resolve", "read"];
+
+fn n(t: &[String], i: usize) -> Res<u32> {
+    t.get(i).and_then(|s| num(s)).map(|v| v as u32).ok_or(Fail::Bad)
+}
+
+fn slot(t: &[String], i: usize) -> Res<usize> {
+    let v = t.get(i).and_then(|s| num(s)).ok_or(Fail::Bad)?;
+    if !(0..16).contains(&v) {
+        return Err(Fail::Bad);
+    }
+    Ok(v as usize)
+}
+
+/// whether CopyResource may copy between the formats: the same typeless group, or (10.1 and
+/// later) a block compressed format and the uncompressed one of its block's bits
+pub fn copy_compatible(a: u32, b: u32, dev: Dev) -> bool {
+    hit("D3DRES.COPY.FORMAT");
+    if group(a) == group(b) {
+        return true;
+    }
+    let (Some(fa), Some(fb)) = (format(a), format(b)) else { return false };
+    if dev == Dev::D10 {
+        return false;
+    }
+    // (MEASURED: R9G9B9E5_SHAREDEXP copies to and from R32_UINT, copyfmt-67-42; not
+    // R11G11B10_FLOAT, copyfmt-26-42)
+    if matches!((a, b), (67, 41..=43) | (41..=43, 67)) {
+        return true;
+    }
+    let pair = |c: &Format, u: &Format| c.block() && !u.block() && c.bits == u.bits && matches!(u.num, Num::Uint | Num::Sint | Num::Float | Num::Typeless) && u.comps.len() >= 2 && u.comps.iter().all(|&x| x == u.comps[0]);
+    pair(fa, fb) || pair(fb, fa)
+}
+
+/// the typeless group of a format (its first member)
+pub fn group(f: u32) -> u32 {
+    const STARTS: &[u32] = &[1, 5, 9, 15, 19, 23, 26, 27, 33, 39, 44, 48, 53, 60, 65, 66, 67, 68, 69, 70, 73, 76, 79, 82, 85, 86, 87, 88, 89, 90, 92, 94, 97, 100];
+    let mut g = 0;
+    for &s in STARTS {
+        if f >= s {
+            g = s;
+        }
+    }
+    // (one group each from here on; R10G10B10_XR_BIAS_A2 is its own)
+    if f >= 100 {
+        return f;
+    }
+    match f {
+        87 => 90,
+        91 => 90,
+        88 | 93 => 92,
+        _ => g,
+    }
+}
 
 impl D3dres {
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
-        if t[0] == "device11" {
-            self.dev = true;
+        let name = t[0].as_str();
+        match name {
+            "device11" => {
+                *self = D3dres::default();
+                let fl = if t.len() > 1 { n(t, 1)? } else { 0xb000 };
+                self.dev = Some(Dev::D11(fl));
+                return Ok(false);
+            }
+            "device10" | "device10_1" => {
+                *self = D3dres::default();
+                self.dev = Some(if name == "device10" { Dev::D10 } else { Dev::D101(n(t, 1)?) });
+                out.push(format!("{name} ok"));
+                return Ok(true);
+            }
+            _ => {}
+        }
+        let drawing = super::d3draster::OPS.contains(&name);
+        if !OPS.contains(&name) && !drawing {
             return Ok(false);
         }
-        if t[0] == "device10" || t[0] == "device10_1" {
-            self.dev = true;
-            out.push(format!("{} ok", t[0]));
-            return Ok(true);
-        }
-        if !OPS.contains(&t[0].as_str()) {
-            return Ok(false);
-        }
-        if !self.dev {
+        let Some(dev) = self.dev else {
+            if name == "vtx" {
+                return super::d3draster::op(self, Dev::D10, op, out).map(|_| true);
+            }
             hit("D3DRES.NODEV");
             out.push("nodev".into());
             return Ok(true);
+        };
+        if drawing {
+            super::d3draster::op(self, dev, op, out)?;
+            return Ok(true);
         }
-        Err(Fail::Unmodeled("D3DRES.TODO"))
+        match name {
+            "fmt" => {
+                let f = n(t, 1)?;
+                out.push(fmt_line(dev, f)?);
+            }
+            "tex" | "buf" => self.create(dev, t, out)?,
+            "srv" | "rtv" | "dsv" | "uav" => self.view(dev, t, out)?,
+            "clear" | "cleards" | "clearuav" => self.clear(dev, t, out)?,
+            "update" => {
+                let r = slot(t, 1)?;
+                let (sub, seed, rp, dp) = (n(t, 2)?, n(t, 3)?, n(t, 4)? as usize, n(t, 5)? as usize);
+                let bx = if t.len() == 12 { Some((6..12).map(|i| n(t, i)).collect::<Res<Vec<u32>>>()?) } else if t.len() == 6 { None } else { return Err(Fail::Bad) };
+                let Some(res) = self.res[r].as_mut() else {
+                    out.push("update nores".into());
+                    return Ok(true);
+                };
+                update(res, sub, &xorbytes(seed, INIT), rp, dp, bx.as_deref())?;
+            }
+            "copy" => {
+                if t.len() != 3 {
+                    return Err(Fail::Bad);
+                }
+                let (d, s) = (slot(t, 1)?, slot(t, 2)?);
+                let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
+                    out.push("copy nores".into());
+                    return Ok(true);
+                };
+                let dst = self.res[d].as_mut().unwrap();
+                copy_resource(dev, dst, &src)?;
+            }
+            "copysub" => {
+                let (d, ds, x, y, z, s, ss) = (slot(t, 1)?, n(t, 2)?, n(t, 3)?, n(t, 4)?, n(t, 5)?, slot(t, 6)?, n(t, 7)?);
+                let bx = if t.len() == 14 { Some((8..14).map(|i| n(t, i)).collect::<Res<Vec<u32>>>()?) } else if t.len() == 8 { None } else { return Err(Fail::Bad) };
+                let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
+                    out.push("copysub nores".into());
+                    return Ok(true);
+                };
+                let dst = self.res[d].as_mut().unwrap();
+                copy_region(dev, dst, ds, (x, y, z), &src, ss, bx.as_deref())?;
+            }
+            "resolve" => {
+                if t.len() != 6 {
+                    return Err(Fail::Bad);
+                }
+                let (d, ds, s, ss, f) = (slot(t, 1)?, n(t, 2)?, slot(t, 3)?, n(t, 4)?, n(t, 5)?);
+                let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
+                    out.push("resolve nores".into());
+                    return Ok(true);
+                };
+                hit("D3DRES.RESOLVE");
+                let dst = self.res[d].as_mut().unwrap();
+                // (every sample holds the same value in these cases: the resolve is a copy)
+                if src.d.count < 2 || dst.d.count != 1 || group(f) != group(src.d.fmt) || group(f) != group(dst.d.fmt) || src.size(src.mip_of(ss)) != dst.size(dst.mip_of(ds)) {
+                    return Err(Fail::Unmodeled("D3DRES.RESOLVE.BAD"));
+                }
+                let v = src.subs.get(ss as usize).cloned().flatten();
+                if let Some(slot) = dst.subs.get_mut(ds as usize) {
+                    *slot = v;
+                }
+            }
+            "read" => {
+                if t.len() != 6 {
+                    return Err(Fail::Bad);
+                }
+                let r = slot(t, 1)?;
+                let (sub, rb, rows, slices) = (n(t, 2)?, n(t, 3)? as usize, n(t, 4)? as usize, n(t, 5)? as usize);
+                let Some(res) = &self.res[r] else {
+                    out.push("read nores".into());
+                    return Ok(true);
+                };
+                read(dev, res, sub, rb, rows, slices, out)?;
+            }
+            _ => unreachable!(),
+        }
+        Ok(true)
     }
+
+    fn create(&mut self, dev: Dev, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        let check = t.get(1).is_some_and(|s| s == "check");
+        let s = if check { 0 } else { slot(t, 1)? };
+        let buf = t[0] == "buf";
+        let (d, init) = if buf {
+            let v: Vec<u32> = (2..8).map(|i| n(t, i)).collect::<Res<_>>()?;
+            let init = match t.len() {
+                8 => None,
+                10 if t[8] == "init" => Some((n(t, 9)?, 0, 0)),
+                _ => return Err(Fail::Bad),
+            };
+            (Desc { dim: 4, w: v[0], h: 1, da: 1, mips: 1, fmt: 0, usage: v[1], bind: v[2], cpu: v[3], misc: v[4], count: 1, q: v[5] }, init)
+        } else {
+            let v: Vec<u32> = (2..14).map(|i| n(t, i)).collect::<Res<_>>()?;
+            if !(1..=3).contains(&v[0]) {
+                return Err(Fail::Bad);
+            }
+            let init = match t.len() {
+                14 => None,
+                18 if t[14] == "init" => Some((n(t, 15)?, n(t, 16)?, n(t, 17)?)),
+                _ => return Err(Fail::Bad),
+            };
+            (Desc { dim: v[0], w: v[1], h: v[2], da: v[3], mips: v[4], fmt: v[5], usage: v[6], bind: v[7], cpu: v[8], misc: v[9], count: v[10], q: v[11] }, init)
+        };
+        if !check {
+            self.res[s] = None;
+        }
+        let kind = if buf { "buf" } else { "tex" };
+        let got = check_desc(dev, &d, init.is_some())?;
+        let g = match got {
+            Err(hr) => {
+                out.push(format!("{kind} hr {hr:08x}"));
+                return Ok(());
+            }
+            Ok(g) => g,
+        };
+        if check {
+            hit("D3DRES.CHECK");
+            out.push(format!("{kind} hr {S_FALSE:08x}"));
+            return Ok(());
+        }
+        if let Some(hr) = create_refused(dev, &g) {
+            out.push(format!("{kind} hr {hr:08x}"));
+            return Ok(());
+        }
+        let words = desc_words(dev, &g);
+        out.push(format!("{kind} = {}", words.iter().map(|w| format!("{w:x}")).collect::<Vec<_>>().join(" ")));
+        let mut r = Resource::zeroed(g);
+        hit("D3DRES.ZERO");
+        if let Some((seed, rp, sp)) = init {
+            let data = xorbytes(seed, INIT);
+            for sub in 0..r.nsubs() {
+                let (rb, rows, sl) = r.layout(sub);
+                let (rp, sp) = if buf { (rb, rb) } else { (rp as usize, sp as usize) };
+                let v = r.subs[sub as usize].as_mut().unwrap();
+                for z in 0..sl {
+                    for y in 0..rows {
+                        let at = z * sp + y * rp;
+                        if at + rb > INIT {
+                            return Err(Fail::Unmodeled("D3DRES.INIT.PAST"));
+                        }
+                        v[(z * rows + y) * rb..][..rb].copy_from_slice(&data[at..at + rb]);
+                    }
+                }
+            }
+        }
+        self.res[s] = Some(r);
+        Ok(())
+    }
+
+    fn view(&mut self, dev: Dev, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        let kind = ["srv", "rtv", "dsv", "uav"].iter().position(|k| *k == t[0]).unwrap() as u32;
+        let (v, r) = (slot(t, 1)?, slot(t, 2)?);
+        let check = t.get(3).is_some_and(|s| s == "check");
+        let at = 3 + check as usize;
+        let nodesc = t.get(at).is_some_and(|s| s == "nodesc");
+        let words = if nodesc {
+            if t.len() != at + 1 {
+                return Err(Fail::Bad);
+            }
+            None
+        } else {
+            if t.len() - at > 8 {
+                return Err(Fail::Bad);
+            }
+            let mut w: Vec<u32> = (at..t.len()).map(|i| n(t, i)).collect::<Res<_>>()?;
+            w.resize(8, 0);
+            Some(w)
+        };
+        let Some(res) = &self.res[r] else {
+            out.push(format!("{} nores", t[0]));
+            return Ok(());
+        };
+        if kind == 3 && !dev.d3d11() {
+            out.push("uav none".into());
+            return Ok(());
+        }
+        if !check {
+            self.views[v] = None;
+        }
+        match check_view(dev, kind, res, words.as_deref())? {
+            Err(hr) => out.push(format!("{} hr {hr:08x}", t[0])),
+            Ok(_) if check => {
+                hit("D3DRES.CHECK");
+                out.push(format!("{} hr {S_FALSE:08x}", t[0]));
+            }
+            Ok(w) => {
+                out.push(format!("{} = {}", t[0], w.iter().map(|x| format!("{x:x}")).collect::<Vec<_>>().join(" ")));
+                self.views[v] = Some(View { kind, res: r, words: w });
+            }
+        }
+        Ok(())
+    }
+
+    fn clear(&mut self, dev: Dev, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        let v = slot(t, 1)?;
+        let name = t[0].as_str();
+        let want = match name {
+            "clear" => 1,
+            "cleards" => 2,
+            _ => 3,
+        };
+        let len = [6, 5, 7][want as usize - 1];
+        if t.len() != len {
+            return Err(Fail::Bad);
+        }
+        if want == 3 && !(t[2] == "f" || t[2] == "u") {
+            return Err(Fail::Bad);
+        }
+        let w: Vec<u32> = (if want == 3 { 3 } else { 2 }..len).map(|i| n(t, i)).collect::<Res<_>>()?;
+        if want == 3 && !dev.d3d11() {
+            out.push("clearuav none".into());
+            return Ok(());
+        }
+        let Some(view) = self.views[v].clone().filter(|x| x.kind == want) else {
+            out.push(format!("{name} noview"));
+            return Ok(());
+        };
+        let res = self.res[view.res].as_mut().unwrap();
+        let vf = format(view.format()).or_else(|| res.fmt());
+        let subs = view_subs(dev, &view, res);
+        match want {
+            1 => {
+                hit("D3DRES.CLEAR.RTV");
+                let c = [0, 1, 2, 3].map(|i| f32::from_bits(w[i]));
+                let f = vf.ok_or(Fail::Unmodeled("D3DRES.CLEAR.FORMAT"))?;
+                let el = encode(f, c)?;
+                fill_subs(res, &subs, &el)?;
+            }
+            2 => {
+                hit("D3DRES.CLEAR.DSV");
+                let (flags, depth, st) = (w[0], f32::from_bits(w[1]), w[2] as u8);
+                if depth.is_nan() {
+                    return Err(Fail::Unmodeled("D3DRES.CLEAR.DEPTHNAN"));
+                }
+                let depth = depth.clamp(0.0, 1.0);
+                let f = vf.ok_or(Fail::Unmodeled("D3DRES.CLEAR.FORMAT"))?;
+                for &s in &subs {
+                    let Some(Some(b)) = res.subs.get_mut(s as usize) else { continue };
+                    let el = (f.bits / 8) as usize;
+                    for e in b.chunks_mut(el) {
+                        super::d3draster::write_depth(f, e, flags & 1 != 0, depth, flags & 2 != 0, st)?;
+                    }
+                }
+            }
+            _ => {
+                hit("D3DRES.CLEAR.UAV");
+                let float = t[2] == "f";
+                if res.d.dim == 4 && view.u(2, true) & 1 != 0 || res.d.misc & 0x40 != 0 {
+                    // a raw or structured buffer: 32-bit words, the first value
+                    hit("D3DRES.CLEAR.UAVRAW");
+                    if float {
+                        return Err(Fail::Unmodeled("D3DRES.CLEAR.UAVRAWF"));
+                    }
+                    let (first, count) = (view.u(0, true) as usize * 4, view.u(1, true) as usize * 4);
+                    let b = res.subs[0].as_mut().unwrap();
+                    for i in (first..first + count).step_by(4) {
+                        b[i..i + 4].copy_from_slice(&w[0].to_le_bytes());
+                    }
+                    return Ok(());
+                }
+                let f = vf.ok_or(Fail::Unmodeled("D3DRES.CLEAR.FORMAT"))?;
+                let el = if float {
+                    if !matches!(f.num, Num::Float | Num::Unorm | Num::Snorm) && f.id != 26 {
+                        hit("D3DRES.CLEAR.UAVFINT");
+                        return Ok(());
+                    }
+                    encode(f, [0, 1, 2, 3].map(|i| f32::from_bits(w[i])))?
+                } else {
+                    if f.comps.is_empty() {
+                        return Err(Fail::Unmodeled("D3DRES.CLEAR.UAVBITS"));
+                    }
+                    encode_bits(f, [w[0], w[1], w[2], w[3]])
+                };
+                fill_subs(res, &subs, &el)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+/// the subresources a view covers
+pub fn view_subs(dev: Dev, v: &View, r: &Resource) -> Vec<u32> {
+    let d3d11 = dev.d3d11();
+    let mips = r.d.mips;
+    let u = |i| v.u(i, d3d11);
+    let (mip, first, n) = match (v.kind, v.dim()) {
+        (_, _) if r.d.dim == 4 => return vec![0],
+        // rtv: 2 1D(mip) 3 1DA(mip first n) 4 2D(mip) 5 2DA 6 MS 7 MSA(first n) 8 3D(mip first n: w slices)
+        (1, 2 | 4) | (2, 1 | 3) | (3, 2 | 4) => (u(0), 0, 1),
+        (1, 3 | 5) | (2, 2 | 4) | (3, 3 | 5) => (u(0), u(1), u(2)),
+        (1, 6) | (2, 5) => (0, 0, 1),
+        (1, 7) | (2, 6) => (0, u(0), u(1)),
+        (1, 8) | (3, 8) => (u(0), 0, 1),
+        _ => (0, 0, 1),
+    };
+    (first..first.saturating_add(n).min(r.d.da.max(1))).map(|a| mip + a * mips).collect()
+}
+
+fn fill_subs(res: &mut Resource, subs: &[u32], el: &[u8]) -> Res<()> {
+    for &s in subs {
+        if let Some(Some(b)) = res.subs.get_mut(s as usize) {
+            for e in b.chunks_mut(el.len()) {
+                e.copy_from_slice(el);
+            }
+        }
+    }
+    Ok(())
+}
+
+fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: Option<&[u32]>) -> Res<()> {
+    hit("D3DRES.UPDATE");
+    if res.d.usage != 0 || res.d.count > 1 || sub >= res.nsubs() {
+        return Err(Fail::Unmodeled("D3DRES.UPDATE.BAD"));
+    }
+    let (rb, rows, sl) = res.layout(sub);
+    let (bw, bh, el) = match res.fmt() {
+        Some(f) => (f.bw as usize, f.bh as usize, (f.bits / 8) as usize),
+        None => (1, 1, 1),
+    };
+    // the box in elements (bytes for a buffer)
+    let (l, tp, fr, r, b, bk) = match bx {
+        None => (0, 0, 0, rb / el, rows, sl),
+        Some(x) => {
+            hit("D3DRES.UPDATE.BOX");
+            let x: Vec<usize> = x.iter().map(|v| *v as usize).collect();
+            if res.d.dim == 4 {
+                (x[0], 0, 0, x[3], 1, 1)
+            } else {
+                (x[0] / bw, x[1] / bh, x[2], x[3].div_ceil(bw), x[4].div_ceil(bh), x[5])
+            }
+        }
+    };
+    if l >= r || tp >= b || fr >= bk {
+        hit("D3DRES.UPDATE.EMPTY");
+        return Ok(());
+    }
+    if r * el > rb || b > rows || bk > sl {
+        return Err(Fail::Unmodeled("D3DRES.UPDATE.BAD"));
+    }
+    let v = res.subs[sub as usize].as_mut().unwrap();
+    let w = (r - l) * el;
+    for z in fr..bk {
+        for y in tp..b {
+            let at = (z - fr) * dp + (y - tp) * rp;
+            v[(z * rows + y) * rb + l * el..][..w].copy_from_slice(&data[at..at + w]);
+        }
+    }
+    Ok(())
+}
+
+fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
+    hit("D3DRES.COPY");
+    let (a, b) = (&dst.d, &src.d);
+    let same_shape = a.dim == b.dim && a.mips == b.mips && a.da == b.da && a.count == b.count;
+    let blocks = |r: &Resource| {
+        let f = r.fmt();
+        (f.map_or(r.d.w, |f| r.d.w.div_ceil(f.bw)), f.map_or(r.d.h, |f| r.d.h.div_ceil(f.bh)))
+    };
+    let ok = same_shape && dst.d.usage != 1 && (a.dim == 4 && a.w == b.w || a.dim != 4 && copy_compatible(a.fmt, b.fmt, dev) && (if group(a.fmt) == group(b.fmt) { (a.w, a.h) == (b.w, b.h) } else { blocks(dst) == blocks(src) }));
+    if !ok {
+        hit("D3DRES.COPY.IGNORED");
+        return Ok(());
+    }
+    dst.subs = src.subs.clone();
+    Ok(())
+}
+
+fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: &Resource, ss: u32, bx: Option<&[u32]>) -> Res<()> {
+    hit("D3DRES.COPYSUB");
+    if ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.usage == 1 || dst.d.count != src.d.count || dst.d.dim != src.d.dim {
+        return Err(Fail::Unmodeled("D3DRES.COPYSUB.BAD"));
+    }
+    if dst.d.dim == 4 {
+        let (l, r) = bx.map_or((0, src.d.w as usize), |x| (x[0] as usize, x[3] as usize));
+        let x = at.0 as usize;
+        if r <= l || x + (r - l) > dst.d.w as usize || r > src.d.w as usize {
+            return Err(Fail::Unmodeled("D3DRES.COPYSUB.BAD"));
+        }
+        let s = src.subs[0].as_ref().unwrap()[l..r].to_vec();
+        dst.subs[0].as_mut().unwrap()[x..x + (r - l)].copy_from_slice(&s);
+        return Ok(());
+    }
+    if !copy_compatible(dst.d.fmt, src.d.fmt, dev) {
+        hit("D3DRES.COPY.IGNORED");
+        return Ok(());
+    }
+    let (sf, df) = (src.fmt().unwrap(), dst.fmt().unwrap());
+    let (srb, srows, ssl) = src.layout(ss);
+    let (drb, drows, dsl) = dst.layout(ds);
+    let (sel, del) = ((sf.bits / 8) as usize, (df.bits / 8) as usize);
+    if sel != del {
+        return Err(Fail::Unmodeled("D3DRES.COPYSUB.BAD"));
+    }
+    let (l, t, f, r, b, k) = match bx {
+        None => (0, 0, 0, srb / sel, srows, ssl),
+        Some(x) => {
+            let x: Vec<usize> = x.iter().map(|v| *v as usize).collect();
+            (x[0] / sf.bw as usize, x[1] / sf.bh as usize, x[2], x[3].div_ceil(sf.bw as usize), x[4].div_ceil(sf.bh as usize), x[5])
+        }
+    };
+    let (dx, dy, dz) = (at.0 as usize / df.bw as usize, at.1 as usize / df.bh as usize, at.2 as usize);
+    if r <= l || b <= t || k <= f || r * sel > srb || b > srows || k > ssl || dx + (r - l) > drb / del || dy + (b - t) > drows || dz + (k - f) > dsl {
+        return Err(Fail::Unmodeled("D3DRES.COPYSUB.BAD"));
+    }
+    let s = src.subs[ss as usize].clone().unwrap();
+    let d = dst.subs[ds as usize].as_mut().unwrap();
+    for z in f..k {
+        for y in t..b {
+            let from = (z * srows + y) * srb + l * sel;
+            let to = ((dz + z - f) * drows + dy + y - t) * drb + dx * del;
+            d[to..to + (r - l) * sel].copy_from_slice(&s[from..from + (r - l) * sel]);
+        }
+    }
+    Ok(())
+}
+
+fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usize, out: &mut Vec<String>) -> Res<()> {
+    hit("D3DRES.READ");
+    if let Some(hr) = staging_refused(dev, res, sub)? {
+        out.push(format!("read hr {hr:08x}"));
+        return Ok(());
+    }
+    if res.d.count > 1 || sub >= res.nsubs() {
+        return Err(Fail::Unmodeled("D3DRES.READ.BAD"));
+    }
+    let (srb, srows, ssl) = res.layout(sub);
+    if rb > srb || rows > srows || slices > ssl {
+        return Err(Fail::Unmodeled("D3DRES.READ.PAST"));
+    }
+    let Some(b) = &res.subs[sub as usize] else { return Err(Fail::Unmodeled("D3DRES.READ.UNKNOWN")) };
+    out.push(format!("read {rows} {slices}"));
+    for z in 0..slices {
+        for y in 0..rows {
+            let at = (z * srows + y) * srb;
+            out.push(b[at..at + rb].iter().map(|x| format!("{x:02x}")).collect());
+        }
+    }
+    Ok(())
+}
+
+/// what a shader reads from texel (x, y) of a subresource, through a view's format
+pub fn texel(res: &Resource, sub: u32, fmt: u32, x: u32, y: u32) -> Res<[u32; 4]> {
+    let f = format(fmt).ok_or(Fail::Unmodeled("CONV.OTHER"))?;
+    if f.bw != 1 || f.bh != 1 {
+        return Err(Fail::Unmodeled("CONV.BLOCK"));
+    }
+    let (rb, _, _) = res.layout(sub);
+    let el = (f.bits / 8) as usize;
+    let b = res.subs[sub as usize].as_ref().ok_or(Fail::Unmodeled("D3DRES.READ.UNKNOWN"))?;
+    let at = y as usize * rb + x as usize * el;
+    decode(f, &b[at..at + el])
 }
