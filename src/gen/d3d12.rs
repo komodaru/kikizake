@@ -626,6 +626,15 @@ pub fn d3d12() -> String {
         edge.push((format!("create-edge2-{n}"), format!("create12 1 0 {}", desc_str(&d))));
         edge.push((format!("alloc-edge2-{n}"), format!("alloc12 {}", desc_str(&d))));
     }
+    // (added after: how large a single 2D texture of one level may be)
+    let one = Desc::tex(3, 1, 1, 1, 1, 28);
+    for (n, d) in [
+        ("w20", Desc { w: 1 << 20, ..one }), ("w24", Desc { w: 1 << 24, ..one }), ("w28", Desc { w: 1 << 28, ..one }), ("w30", Desc { w: 1 << 30, ..one }), ("w30m1", Desc { w: (1 << 30) - 1, ..one }), ("w31", Desc { w: 1 << 31, ..one }),
+        ("h24", Desc { h: 1 << 24, ..one }), ("h30", Desc { h: 1 << 30, ..one }), ("r8-w31", Desc { w: 1 << 31, fmt: 61, ..one }), ("r8-wmax", Desc { w: 0xffff_ffff, fmt: 61, ..one }), ("r8-w16-h16", Desc { w: 1 << 16, h: 1 << 16, fmt: 61, ..one }),
+        ("r8-w16-h17", Desc { w: 1 << 16, h: 1 << 17, fmt: 61, ..one }), ("rgba32-w28", Desc { w: 1 << 28, fmt: 2, ..one }), ("rt-w30", Desc { w: 1 << 30, flags: 1, ..one }), ("rt-w31", Desc { w: 1 << 31, flags: 1, ..one }),
+    ] {
+        edge.push((format!("create-edge3-{n}"), format!("create12 1 0 {}", desc_str(&d))));
+    }
     for w in [0xffff_ff02u32, 0xffff_ff80, 0xffff_fff0, 0xffff_fffe] {
         edge.push((format!("fp-edge-buffer-{w:x}"), format!("footprint12 0 1 0 {}", desc_str(&Desc::buffer(w)))));
     }

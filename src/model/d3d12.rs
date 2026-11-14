@@ -999,13 +999,16 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     }
     let ms = d.samples > 1;
     let target = flags & 3 != 0;
-    // (MEASURED: a single-sampled 2D render target or depth stencil has no size limit checked)
+    // (MEASURED, golden d3d12-* create-edge-*, create-edge2-*: a single-sampled 2D texture of one
+    // slice and MipLevels 1, or 0 (the full chain: the check comes before it is counted), has no
+    // size limit checked, render target or not; its level 0 under 4GB, fitted by create-edge3-*)
+    let level0 = || {
+        let (bytes, bw, bh) = super::dxgi_format::block(d.fmt).unwrap_or((1, 1, 1));
+        (d.w as u64).div_ceil(bw as u64) * (d.h as u64).div_ceil(bh as u64) * bytes as u64
+    };
     let (wmax, hmax) = match d.kind() {
         Dim::Tex3D => (2048, 2048),
-        Dim::Tex2D if target && !ms => (u32::MAX, u32::MAX),
-        // (MEASURED, golden d3d12-* create-edge-2d-w16385, -h16385: nor a single 2D texture of
-        // one mip level; fitted by create-edge2-*)
-        Dim::Tex2D if !ms && d.mips == 1 && d.d == 1 => (u32::MAX, u32::MAX),
+        Dim::Tex2D if !ms && d.mips <= 1 && d.d == 1 && level0() <= u32::MAX as u64 => (u32::MAX, u32::MAX),
         Dim::Tex2D | Dim::Tex1D | Dim::Unknown | Dim::Buffer | Dim::Other => (16384, 16384),
     };
     if no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE) {

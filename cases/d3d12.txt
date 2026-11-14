@@ -16680,6 +16680,66 @@ case alloc-edge2-w16385-l2
 device12
 alloc12 3 0 0x4001 0x20 1 1 0x1c 1 0 2 0
 end
+case create-edge3-w20
+device12
+create12 1 0 3 0 0x100000 1 1 1 0x1c 1 0 0 0
+end
+case create-edge3-w24
+device12
+create12 1 0 3 0 0x1000000 1 1 1 0x1c 1 0 0 0
+end
+case create-edge3-w28
+device12
+create12 1 0 3 0 0x10000000 1 1 1 0x1c 1 0 0 0
+end
+case create-edge3-w30
+device12
+create12 1 0 3 0 0x40000000 1 1 1 0x1c 1 0 0 0
+end
+case create-edge3-w30m1
+device12
+create12 1 0 3 0 0x3fffffff 1 1 1 0x1c 1 0 0 0
+end
+case create-edge3-w31
+device12
+create12 1 0 3 0 0x80000000 1 1 1 0x1c 1 0 0 0
+end
+case create-edge3-h24
+device12
+create12 1 0 3 0 1 0x1000000 1 1 0x1c 1 0 0 0
+end
+case create-edge3-h30
+device12
+create12 1 0 3 0 1 0x40000000 1 1 0x1c 1 0 0 0
+end
+case create-edge3-r8-w31
+device12
+create12 1 0 3 0 0x80000000 1 1 1 0x3d 1 0 0 0
+end
+case create-edge3-r8-wmax
+device12
+create12 1 0 3 0 0xffffffff 1 1 1 0x3d 1 0 0 0
+end
+case create-edge3-r8-w16-h16
+device12
+create12 1 0 3 0 0x10000 0x10000 1 1 0x3d 1 0 0 0
+end
+case create-edge3-r8-w16-h17
+device12
+create12 1 0 3 0 0x10000 0x20000 1 1 0x3d 1 0 0 0
+end
+case create-edge3-rgba32-w28
+device12
+create12 1 0 3 0 0x10000000 1 1 1 2 1 0 0 0
+end
+case create-edge3-rt-w30
+device12
+create12 1 0 3 0 0x40000000 1 1 1 0x1c 1 0 0 1
+end
+case create-edge3-rt-w31
+device12
+create12 1 0 3 0 0x80000000 1 1 1 0x1c 1 0 0 1
+end
 case fp-edge-buffer-ffffff02
 device12
 footprint12 0 1 0 1 0 0xffffff02 1 1 1 0 1 0 1 0
