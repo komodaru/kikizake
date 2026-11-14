@@ -23,7 +23,7 @@ D3D9.DRAW.STRIDE open | (cases stride-*) | a stride other than the FVF's size
 D3D9.DRAW.POINTSLINES open | Rasterization Rules (Direct3D 9) | points and lines
 D3D9.DRAW.ASSEMBLY doc | Primitive Types (Direct3D 9) | lists take three vertices per triangle; strips each next vertex with the two before (every other triangle in reverse order, so all keep one winding); fans each next pair with the first
 D3D9.CULL doc | D3DCULL, D3DRS_CULLMODE | NONE draws both windings, CW culls clockwise triangles (on screen, y down), CCW (the default) counterclockwise ones
-D3D9.CULL.BAD measured | D3DCULL; golden d3d9draw cull-0, cull-4 | a cull mode outside the enumeration culls as CW
+D3D9.CULL.BAD measured | D3DCULL; golden d3d9draw cull-0, cull-4 | a cull mode outside the enumeration culls as CW on x64, as CCW on x86 (d3d9draw-32, d3d8draw-32)
 D3D9.RASTER.TOPLEFT doc | Rasterization Rules (Direct3D 9) | a pixel is drawn when its center (integer screen coordinates) is inside the triangle; on an edge only when the edge is a top or a left one
 D3D9.RASTER.CLIP measured | golden d3d9draw raster-*, raster-edges-* (144 triangles), shade-clip-* | a triangle with a vertex past -0.5 or past the size (a vertex at the size itself is not: raster-17) is turned to start at its vertex of least x (then least y: clip-decide-*), clipped to -0.5 .. size - 0.5 in f32, side by side (left, right, top, bottom; p + t (q - p), t = dp / (dp - dq), the attributes alike), the polygon's vertices snapped to 1/256 pixel (to nearest even) and cut into the strip v1 v2 v0 v3 v(n-1) v4 ..., each piece shaded over its own snapped vertices (D3D9.SHADE.GOURAUD)
 D3D9.RASTER.CLIP8 open | golden d3d8draw raster-3, -77, -96, shade-13; cases clip-decide-* | which triangles Direct3D 8 clips: some a little past the target are drawn whole, as with a guard band, others not
@@ -34,7 +34,8 @@ D3D9.SCISSOR doc | IDirect3DDevice9::SetScissorRect, D3DRS_SCISSORTESTENABLE | (
 D3D9.TEX.CREATE doc | IDirect3DDevice9::CreateTexture | a texture of one level in the managed pool; its level locks as rows of its format
 D3D9.TEX.DECODE measured | D3DFORMAT | each texel's channels as numbers: unsigned normalized v / (2^n - 1), signed (bump) v / (2^(n-1) - 1), floats as they are
 D3D9.TEX.MISSING measured | D3DFORMAT | channels a format lacks: alpha 1, color 1 (A8: color 0); luminance in red, green and blue
-D3D9.TEX.FORMAT open | D3DFORMAT | palette, compressed (DXT) and YUV formats as sampled
+D3D9.TEX.FORMAT open | D3DFORMAT | palette and YUV formats as sampled
+D3D9.TEX.DXT measured | Block Compression (Direct3D 9), D3DFORMAT DXT1..DXT5; golden d3d9draw tex-float-DXT*, tex-random-DXT*, tex-ramp-DXT* | DXT texels: the 565 endpoints widened by repeating their top bits; a third as 171/256 and 85/256 of the endpoints, taken down; DXT1's half (3-color blocks) taken down; DXT2/3 alpha 4 bits times 17; DXT4/5 alpha sevenths and fifths rounded to nearest
 D3D9.TEX.POINT measured | D3DTEXTUREFILTERTYPE, Directly Mapping Texels to Pixels (Direct3D 9); golden d3d9draw, d3d8draw filter-*, filter2-* | point filtering: the texel holding (u * width, v * height), each rounded to the nearest 64th first; texel centers at half-integer coordinates
 D3D9.TEX.LINEAR measured | D3DTEXTUREFILTERTYPE; golden d3d9draw, d3d8draw filter-*, filter2-*, filter-uv-* | linear filtering: the four nearest texels weighted in 32nds of a texel (taken down), 8-bit texels' weighted sum truncated
 D3D9.TEX.FILTER open | (cases filter2-*) | other filters, different magnification and minification filters

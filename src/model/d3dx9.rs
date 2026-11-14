@@ -383,14 +383,15 @@ pub fn f16_one(x: u32) -> u16 {
 /// even, 0x7fff past 131008 and for infinities, a NaN's mantissa rounded with the quiet bit set;
 /// denormals rounded 4 at a time, the rest of the array's truncated (MEASURED: d3dx9 f16-*)
 /// whether x64's D3DXFloat32To16Array goes as x86's on the executor's processor (OPEN, guessed:
-/// where the processor has AVX; D3DX9.F16.CPU)
+/// where the processor lacks AVX, since an AMD one with AVX and F16C went 4 at a time;
+/// D3DX9.F16.CPU)
 fn cpu_as_x86() -> Res<bool> {
     if crate::model::arch() != 64 {
         return Ok(false);
     }
     let c = crate::model::cpu().ok_or(Fail::Unmodeled(open::D3DX9_F16_CPU))?;
     let ecx = c.split(' ').nth(2).and_then(|v| u32::from_str_radix(v, 16).ok()).ok_or(Fail::Bad)?;
-    Ok(ecx & 1 << 28 != 0)
+    Ok(ecx & 1 << 28 == 0)
 }
 
 pub fn f16_x64(x: u32, four: bool) -> u16 {

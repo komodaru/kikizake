@@ -323,6 +323,58 @@ pub fn round_even(x: f64) -> f64 {
     }
 }
 
+/// one texel of a DXT1..DXT5 texture as rgba
+fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> [f64; 4] {
+    hit(clause::D3D9_TEX_DXT);
+    let bsz = if n == 1 { 8 } else { 16 };
+    let bi = ((y / 4) * ((w + 3) / 4) + x / 4) as usize * bsz;
+    let b = &bytes[bi..bi + bsz];
+    let t = ((y % 4) * 4 + x % 4) as u32;
+    let cb = if n == 1 { &b[0..8] } else { &b[8..16] };
+    let (c0, c1) = (u16::from_le_bytes([cb[0], cb[1]]) as u32, u16::from_le_bytes([cb[2], cb[3]]) as u32);
+    let idx = u32::from_le_bytes([cb[4], cb[5], cb[6], cb[7]]) >> (2 * t) & 3;
+    // (the 565 endpoints widened to 8 bits by repeating their top bits)
+    let ex = |c: u32| [(c >> 11 & 31) << 3 | (c >> 13 & 7), (c >> 5 & 63) << 2 | (c >> 9 & 3), (c & 31) << 3 | (c >> 2 & 7)];
+    let (e0, e1) = (ex(c0), ex(c1));
+    let four = n != 1 || c0 > c1;
+    let mut c = [0.0, 0.0, 0.0, 1.0];
+    for k in 0..3 {
+        let (a, b) = (e0[k], e1[k]);
+        // (MEASURED: thirds as 171/256 and 85/256, taken down; the half taken down)
+        let v = match (idx, four) {
+            (0, _) => a,
+            (1, _) => b,
+            (2, true) => (171 * a + 85 * b) >> 8,
+            (3, true) => (85 * a + 171 * b) >> 8,
+            (2, false) => (a + b) >> 1,
+            _ => 0,
+        };
+        c[k] = v as f64 / 255.0;
+    }
+    if n == 1 && !four && idx == 3 {
+        c[3] = 0.0;
+    }
+    if n == 2 || n == 3 {
+        let a = u64::from_le_bytes(b[0..8].try_into().unwrap()) >> (4 * t) & 15;
+        c[3] = (a * 17) as f64 / 255.0;
+    } else if n >= 4 {
+        let (a0, a1) = (b[0] as u32, b[1] as u32);
+        let ai = (u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]) >> (3 * t) & 7) as u32;
+        // (MEASURED: sevenths and fifths rounded to nearest)
+        let mix = |wa: u32, wb: u32| (wa * a0 + wb * a1 + (wa + wb) / 2) / (wa + wb);
+        let v = match ai {
+            0 => a0,
+            1 => a1,
+            i if a0 > a1 => mix(8 - i, i - 1),
+            6 => 0,
+            7 => 255,
+            i => mix(6 - i, i - 1),
+        };
+        c[3] = v as f64 / 255.0;
+    }
+    c
+}
+
 /// float -> n-bit unsigned normalized: clamped, scaled, rounded to nearest (D3D9.RT.UNORM)
 pub fn unorm(v: f64, bits: u32) -> u64 {
     hit(clause::D3D9_RT_UNORM);
@@ -896,6 +948,7 @@ impl D3d9 {
         let fm = format(tx.fmt).unwrap();
         match fm.kind {
             Kind::Int | Kind::F16 | Kind::F32 if !fm.ch.iter().any(|c| c.c == b'p') => {}
+            Kind::Dxt(n) => return Ok(dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32)),
             _ => return Err(Fail::Unmodeled(open::D3D9_TEX_FORMAT)),
         }
         hit(clause::D3D9_TEX_DECODE);
@@ -1161,11 +1214,20 @@ impl D3d9 {
         // the winding (culling) of the vertices as given
         let area = cross([(a.x as f64, a.y as f64), (b.x as f64, b.y as f64), (c.x as f64, c.y as f64)]);
         hit(clause::D3D9_CULL);
-        match self.rs(22) {
+        // (MEASURED, cull-0, cull-4: a mode outside the enumeration culls as CW does on x64,
+        // as CCW does on x86)
+        let mode = match self.rs(22) {
+            m @ (1..=3) => m,
+            _ if crate::model::arch() == 32 => {
+                hit(clause::D3D9_CULL_BAD);
+                3
+            }
+            m => m,
+        };
+        match mode {
             1 => {}
             3 if area < 0.0 => return Ok(()),
             3 => {}
-            // (MEASURED, cull-0, cull-4: a mode outside the enumeration culls as CW does)
             m if area > 0.0 => {
                 if m != 2 {
                     hit(clause::D3D9_CULL_BAD);
