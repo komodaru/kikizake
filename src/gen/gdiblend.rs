@@ -65,16 +65,53 @@ pub fn blend() -> String {
         writeln!(s, "transparent 0 {} {} {dw} {dh} 1 0 0 {sw} {sh} #{key:06x}\ndump 0\nend", r.range(-2, w), r.range(-2, h)).unwrap();
     }
     // GradientFill: rectangles (both directions) of every width and height up to 12, triangles
+    // (the color-table rectangles in cases of their own, after: gradrect8-*)
+    let mut s8 = String::new();
     for mode in 0..2 {
         for n in 1..=12 {
             writeln!(s, "case gradrect-{mode}-{n}").unwrap();
+            writeln!(s8, "case gradrect8-{mode}-{n}").unwrap();
             for f in [(32, ""), (24, ""), (16, ""), (16, " 565"), (8, "")] {
+                let o = if f.0 == 8 { &mut s8 } else { &mut s };
                 let (w, h) = if mode == 0 { (n, 2) } else { (2, n) };
-                writeln!(s, "dib 0 {w} {h} {}{}", f.0, f.1).unwrap();
+                writeln!(o, "dib 0 {w} {h} {}{}", f.0, f.1).unwrap();
                 let c = |r: &mut XorShift32| format!("{} {} {} {}", r.next() & 0xffff, r.next() & 0xffff, r.next() & 0xffff, r.next() & 0xffff);
-                writeln!(s, "gradrect 0 {mode} 0 0 {} {w} {h} {}\ndump 0", c(&mut r), c(&mut r)).unwrap();
+                writeln!(o, "gradrect 0 {mode} 0 0 {} {w} {h} {}\ndump 0", c(&mut r), c(&mut r)).unwrap();
             }
             writeln!(s, "end").unwrap();
+            writeln!(s8, "end").unwrap();
+        }
+    }
+    s.push_str(&s8);
+    // (a random stream of their own: the cases after keep theirs)
+    let mut q = XorShift32::new(0x6ead_0001);
+    let c16 = |q: &mut XorShift32, lo: u32| format!("{} {} {} {}", lo + q.next() % (0x1_0000 - lo), lo + q.next() % (0x1_0000 - lo), lo + q.next() % (0x1_0000 - lo), lo + q.next() % (0x1_0000 - lo));
+    // triangles in every format
+    for i in 0..36 {
+        let f = [(16, ""), (16, " 565"), (24, ""), (8, ""), (4, ""), (1, "")][i % 6];
+        writeln!(s, "case gradtri-fmt-{i}\ndib 0 16 16 {}{}", f.0, f.1).unwrap();
+        let v = |q: &mut XorShift32| format!("{} {} {}", q.range(-4, 20), q.range(-4, 20), c16(q, 0));
+        writeln!(s, "gradtri 0 {} {} {}\ndump 0\nend", v(&mut q), v(&mut q), v(&mut q)).unwrap();
+    }
+    // channels near the top (0xff00 and above): triangles and rectangles
+    for i in 0..24 {
+        let v = |q: &mut XorShift32| format!("{} {} {}", q.range(-4, 20), q.range(-4, 20), c16(q, 0xfe00));
+        writeln!(s, "case gradtri-hi-{i}\ndib 0 16 16 32\ngradtri 0 {} {} {}\ndump 0\nend", v(&mut q), v(&mut q), v(&mut q)).unwrap();
+        writeln!(s, "case gradrect-hi-{i}\ndib 0 16 4 32\ngradrect 0 {} 0 0 {} 16 4 {}\ndump 0\nend", i % 2, c16(&mut q, 0xfe00), c16(&mut q, 0xfe00)).unwrap();
+    }
+    // the color tables' dither: 16 by 16 ramps of one channel at a time, and random ones
+    for (i, f) in [8, 4, 1].iter().enumerate() {
+        for ch in 0..3 {
+            let mut c0 = [0u32; 4];
+            let mut c1 = [0u32; 4];
+            c1[ch] = 0xffff;
+            let cs = |c: [u32; 4]| format!("{} {} {} {}", c[0], c[1], c[2], c[3]);
+            writeln!(s, "case gradrect-dither-{f}-{ch}\ndib 0 16 16 {f}\ngradrect 0 0 0 0 {} 16 16 {}\ndump 0\ngradrect 0 1 0 0 {} 16 16 {}\ndump 0\nend", cs(c0), cs(c1), cs(c0), cs(c1)).unwrap();
+            c0[ch] = 0x8000;
+            writeln!(s, "case gradrect-flat-{f}-{ch}\ndib 0 16 16 {f}\ngradrect 0 0 0 0 {} 16 16 {}\ndump 0\nend", cs(c0), cs(c0)).unwrap();
+        }
+        for j in 0..4 {
+            writeln!(s, "case gradrect-dither-{f}-r{j}\ndib 0 16 16 {f}\ngradrect 0 {} 0 0 {} 16 16 {}\ndump 0\nend", (i + j) % 2, c16(&mut q, 0), c16(&mut q, 0)).unwrap();
         }
     }
     for i in 0..60 {
@@ -85,6 +122,21 @@ pub fn blend() -> String {
     writeln!(s, "case gradrect-edges\ndib 0 6 4 32\ngradrect 0 0 4 0 65535 0 0 0 1 4 0 65535 0 0\ndump 0\ngradrect 0 1 -2 -2 0 0 65535 0 9 9 65535 65535 0 0\ndump 0\ngradrect 0 0 2 1 0 0 0 0 2 3 65535 65535 65535 0\ndump 0\nend").unwrap();
     // the edges: palette sources, a source rectangle outside the source, formats apart
     writeln!(s, "case alpha-palette\ndib 0 4 2 32\nfill 0 1\ndib 1 4 2 8\nfill 1 2\nalphablend 0 0 0 4 2 1 0 0 4 2 128 0\ndump 0\nend").unwrap();
+    // palette sources of each depth onto 32 bpp, at several constant alphas (their alpha;
+    // fixed fills: the random stream of the cases after stays as it was)
+    for bpp in [1, 4, 8] {
+        for sca in [0, 1, 127, 254, 255] {
+            writeln!(s, "case alpha-palette-{bpp}-{sca}\ndib 0 4 2 32\nfill 0 {}\ndib 1 4 2 {bpp}\nfill 1 {}\nalphablend 0 0 0 4 2 1 0 0 4 2 {sca} 0\ndump 0\nend", 0x8040_2010u32 + sca, 0x0123_4567u32 * bpp).unwrap();
+        }
+    }
+    // AlphaBlend stretched onto 32 bpp (a random stream of its own)
+    let mut q = XorShift32::new(0xa1fa_0001);
+    for i in 0..24 {
+        let sf = [32, 24, 16, 8][i % 4];
+        let (sw, sh) = (q.range(1, 7), q.range(1, 6));
+        writeln!(s, "case alpha-stretch-{i}\ndib 0 10 8 32\nfill 0 {}\ndib 1 6 5 {sf}\nfill 1 {}", q.next(), q.next()).unwrap();
+        writeln!(s, "alphablend 0 {} {} {} {} 1 {} {} {sw} {sh} {} {}\ndump 0\nend", q.range(-1, 4), q.range(-1, 4), q.range(1, 11), q.range(1, 9), q.range(0, 6 - sw + 1), q.range(0, 5 - sh + 1), q.range(0, 256), (sf == 32 && q.chance(2)) as u8).unwrap();
+    }
     writeln!(s, "case transparent-outside\ndib 0 4 2 32\nfill 0 1\ndib 1 4 2 32\nfill 1 2\ntransparent 0 0 0 4 2 1 1 0 4 2 #000000\ndump 0\nend").unwrap();
     writeln!(s, "case maskblt-formats\ndib 0 4 2 32\nfill 0 1\ndib 1 4 2 24\nfill 1 2\ndib 2 4 2 1\nfill 2 3\nmaskblt 0 0 0 4 2 1 0 0 2 0 0 0xaacc0020\ndump 0\nend").unwrap();
     // MaskBlt: random quaternary operations, monochrome masks
@@ -119,6 +171,20 @@ pub fn blend() -> String {
         };
         writeln!(s, "plgblt 0 {x0} {y0} {} {} {} {} 1 0 0 6 5", x0 + ax, y0 + ay, x0 + bx, y0 + by).unwrap();
         writeln!(s, "dump 0\nend").unwrap();
+    }
+    // PlgBlt: more shears and turns, scaled (a random stream of their own); a source of 8 by 8
+    // distinct pixels
+    let mut q = XorShift32::new(0x9161_0001);
+    for i in 0..80 {
+        writeln!(s, "case plgblt-more-{i}\ndib 0 24 24 32\nfill 0 {}\ndib 1 8 8 32\nfill 1 {}", q.next(), q.next()).unwrap();
+        let (x0, y0) = (q.range(2, 22), q.range(2, 22));
+        let (sw, sh) = (q.range(1, 9), q.range(1, 9));
+        let (ax, ay, bx, by) = match i % 4 {
+            0 => (0, q.range(-12, 13), q.range(-12, 13), 0),
+            1 => (q.range(-12, 13), 0, 0, q.range(-12, 13)),
+            _ => (q.range(-12, 13), q.range(-12, 13), q.range(-12, 13), q.range(-12, 13)),
+        };
+        writeln!(s, "plgblt 0 {x0} {y0} {} {} {} {} 1 {} {} {sw} {sh}\ndump 0\nend", x0 + ax, y0 + ay, x0 + bx, y0 + by, q.range(0, 9 - sw), q.range(0, 9 - sh)).unwrap();
     }
     // MaskBlt's rectangles: negative and 0 extents, the destination's edges, the mask's and the
     // source's bounds

@@ -4519,9 +4519,6 @@ dump 0
 dib 0 1 2 16 565
 gradrect 0 0 0 0 12140 14787 32376 64625 1 2 2364 39727 51010 63369
 dump 0
-dib 0 1 2 8
-gradrect 0 0 0 0 64608 50528 11064 21225 1 2 10628 9569 24602 58704
-dump 0
 end
 case gradrect-0-2
 dib 0 2 2 32
@@ -4535,9 +4532,6 @@ gradrect 0 0 0 0 38855 54885 14945 18420 2 2 63272 6061 51887 64269
 dump 0
 dib 0 2 2 16 565
 gradrect 0 0 0 0 19789 25580 59897 61432 2 2 44825 35427 18163 15441
-dump 0
-dib 0 2 2 8
-gradrect 0 0 0 0 865 48241 5281 20851 2 2 55093 32422 6652 62836
 dump 0
 end
 case gradrect-0-3
@@ -4553,9 +4547,6 @@ dump 0
 dib 0 3 2 16 565
 gradrect 0 0 0 0 28722 5666 47013 23229 3 2 25481 3822 39025 48180
 dump 0
-dib 0 3 2 8
-gradrect 0 0 0 0 60428 35409 16393 35743 3 2 27008 37538 51070 14744
-dump 0
 end
 case gradrect-0-4
 dib 0 4 2 32
@@ -4569,9 +4560,6 @@ gradrect 0 0 0 0 8168 18077 25719 40273 4 2 60141 823 15053 2230
 dump 0
 dib 0 4 2 16 565
 gradrect 0 0 0 0 36026 13026 17306 2398 4 2 35082 60102 47484 19319
-dump 0
-dib 0 4 2 8
-gradrect 0 0 0 0 47580 36517 24290 45707 4 2 47710 25238 17281 55493
 dump 0
 end
 case gradrect-0-5
@@ -4587,9 +4575,6 @@ dump 0
 dib 0 5 2 16 565
 gradrect 0 0 0 0 3437 7801 30481 45965 5 2 49102 4358 26252 17254
 dump 0
-dib 0 5 2 8
-gradrect 0 0 0 0 42753 3210 51634 56082 5 2 56268 34823 16765 12481
-dump 0
 end
 case gradrect-0-6
 dib 0 6 2 32
@@ -4603,9 +4588,6 @@ gradrect 0 0 0 0 45607 64978 55370 63801 6 2 31954 12830 20931 48988
 dump 0
 dib 0 6 2 16 565
 gradrect 0 0 0 0 31428 56595 15454 31738 6 2 26063 40672 32381 30331
-dump 0
-dib 0 6 2 8
-gradrect 0 0 0 0 49239 42223 19913 42774 6 2 36777 22537 61382 48501
 dump 0
 end
 case gradrect-0-7
@@ -4621,9 +4603,6 @@ dump 0
 dib 0 7 2 16 565
 gradrect 0 0 0 0 10125 27137 631 51943 7 2 22033 19731 24242 11020
 dump 0
-dib 0 7 2 8
-gradrect 0 0 0 0 41205 4925 21414 42556 7 2 44172 2020 20964 16597
-dump 0
 end
 case gradrect-0-8
 dib 0 8 2 32
@@ -4637,9 +4616,6 @@ gradrect 0 0 0 0 28549 55347 62815 8860 8 2 20054 26980 58285 29012
 dump 0
 dib 0 8 2 16 565
 gradrect 0 0 0 0 45064 60285 48032 29443 8 2 31145 56095 26300 32384
-dump 0
-dib 0 8 2 8
-gradrect 0 0 0 0 48414 56743 4963 1718 8 2 616 6542 8897 6093
 dump 0
 end
 case gradrect-0-9
@@ -4655,9 +4631,6 @@ dump 0
 dib 0 9 2 16 565
 gradrect 0 0 0 0 54222 2915 16238 10899 9 2 12684 59112 24859 49539
 dump 0
-dib 0 9 2 8
-gradrect 0 0 0 0 24820 23334 53340 11737 9 2 3030 3718 56738 62402
-dump 0
 end
 case gradrect-0-10
 dib 0 10 2 32
@@ -4671,9 +4644,6 @@ gradrect 0 0 0 0 42460 18646 53489 16161 10 2 55534 58776 55268 22093
 dump 0
 dib 0 10 2 16 565
 gradrect 0 0 0 0 11346 64502 11432 55885 10 2 59358 61270 27966 35718
-dump 0
-dib 0 10 2 8
-gradrect 0 0 0 0 22872 38530 36276 52967 10 2 56474 13404 20211 27902
 dump 0
 end
 case gradrect-0-11
@@ -4689,9 +4659,6 @@ dump 0
 dib 0 11 2 16 565
 gradrect 0 0 0 0 12965 40102 42262 26210 11 2 30706 34425 60215 39687
 dump 0
-dib 0 11 2 8
-gradrect 0 0 0 0 51265 7047 39702 31068 11 2 30305 33153 39194 40861
-dump 0
 end
 case gradrect-0-12
 dib 0 12 2 32
@@ -4705,9 +4672,6 @@ gradrect 0 0 0 0 48389 10894 32297 51733 12 2 57373 61461 43374 7728
 dump 0
 dib 0 12 2 16 565
 gradrect 0 0 0 0 36572 2879 23102 34610 12 2 26487 9736 29851 27249
-dump 0
-dib 0 12 2 8
-gradrect 0 0 0 0 6154 60802 17783 35422 12 2 29721 48414 45886 63503
 dump 0
 end
 case gradrect-1-1
@@ -4723,9 +4687,6 @@ dump 0
 dib 0 2 1 16 565
 gradrect 0 1 0 0 23878 41717 51667 39339 2 1 44049 13956 30086 59745
 dump 0
-dib 0 2 1 8
-gradrect 0 1 0 0 45148 38728 55053 5424 2 1 47817 47496 46875 36274
-dump 0
 end
 case gradrect-1-2
 dib 0 2 2 32
@@ -4739,9 +4700,6 @@ gradrect 0 1 0 0 30455 58755 19474 29802 2 2 19249 35951 61268 49311
 dump 0
 dib 0 2 2 16 565
 gradrect 0 1 0 0 25151 20089 18422 29488 2 2 52504 42961 19452 61698
-dump 0
-dib 0 2 2 8
-gradrect 0 1 0 0 62801 11742 11250 41912 2 2 20170 14767 25699 2791
 dump 0
 end
 case gradrect-1-3
@@ -4757,9 +4715,6 @@ dump 0
 dib 0 2 3 16 565
 gradrect 0 1 0 0 28472 51820 63293 18857 2 3 42050 28463 38299 62154
 dump 0
-dib 0 2 3 8
-gradrect 0 1 0 0 32815 9187 55668 20694 2 3 36344 47684 16642 61058
-dump 0
 end
 case gradrect-1-4
 dib 0 2 4 32
@@ -4773,9 +4728,6 @@ gradrect 0 1 0 0 52337 28508 12747 44186 2 4 61063 17448 11347 28299
 dump 0
 dib 0 2 4 16 565
 gradrect 0 1 0 0 2442 61746 28360 17271 2 4 48872 31429 3503 62551
-dump 0
-dib 0 2 4 8
-gradrect 0 1 0 0 34064 30960 24613 35909 2 4 55128 39205 53200 65183
 dump 0
 end
 case gradrect-1-5
@@ -4791,9 +4743,6 @@ dump 0
 dib 0 2 5 16 565
 gradrect 0 1 0 0 40190 30405 27745 32013 2 5 17783 42705 45009 1205
 dump 0
-dib 0 2 5 8
-gradrect 0 1 0 0 29030 9983 13809 9164 2 5 63131 29209 18983 9946
-dump 0
 end
 case gradrect-1-6
 dib 0 2 6 32
@@ -4807,9 +4756,6 @@ gradrect 0 1 0 0 15633 5614 25022 14815 2 6 6252 46547 23309 51579
 dump 0
 dib 0 2 6 16 565
 gradrect 0 1 0 0 29282 13798 8397 60786 2 6 17378 51175 2078 43937
-dump 0
-dib 0 2 6 8
-gradrect 0 1 0 0 36441 31406 43914 32505 2 6 59929 20732 23453 41928
 dump 0
 end
 case gradrect-1-7
@@ -4825,9 +4771,6 @@ dump 0
 dib 0 2 7 16 565
 gradrect 0 1 0 0 9219 42254 35360 888 2 7 40447 57826 3204 24866
 dump 0
-dib 0 2 7 8
-gradrect 0 1 0 0 23370 27191 16750 37196 2 7 53730 23876 46440 20393
-dump 0
 end
 case gradrect-1-8
 dib 0 2 8 32
@@ -4841,9 +4784,6 @@ gradrect 0 1 0 0 50556 18607 29280 26146 2 8 31248 60740 56561 56187
 dump 0
 dib 0 2 8 16 565
 gradrect 0 1 0 0 27 62596 63652 30905 2 8 3663 28730 25605 46749
-dump 0
-dib 0 2 8 8
-gradrect 0 1 0 0 46949 42431 12952 16310 2 8 39986 58792 25303 18411
 dump 0
 end
 case gradrect-1-9
@@ -4859,9 +4799,6 @@ dump 0
 dib 0 2 9 16 565
 gradrect 0 1 0 0 48905 37256 12313 24852 2 9 12297 29501 10124 2955
 dump 0
-dib 0 2 9 8
-gradrect 0 1 0 0 45961 35701 31397 53228 2 9 31891 54103 18896 59929
-dump 0
 end
 case gradrect-1-10
 dib 0 2 10 32
@@ -4875,9 +4812,6 @@ gradrect 0 1 0 0 53906 59242 7022 64384 2 10 55502 46691 59279 43601
 dump 0
 dib 0 2 10 16 565
 gradrect 0 1 0 0 17864 53280 59439 12111 2 10 27308 50109 17003 30489
-dump 0
-dib 0 2 10 8
-gradrect 0 1 0 0 30157 36642 5809 10785 2 10 21653 45177 18639 33451
 dump 0
 end
 case gradrect-1-11
@@ -4893,9 +4827,6 @@ dump 0
 dib 0 2 11 16 565
 gradrect 0 1 0 0 65236 20460 46570 52264 2 11 22694 31055 58492 45761
 dump 0
-dib 0 2 11 8
-gradrect 0 1 0 0 43542 6971 30708 44801 2 11 61592 50208 1798 43439
-dump 0
 end
 case gradrect-1-12
 dib 0 2 12 32
@@ -4910,8 +4841,713 @@ dump 0
 dib 0 2 12 16 565
 gradrect 0 1 0 0 1235 9601 41386 6328 2 12 59535 10164 35716 11218
 dump 0
+end
+case gradrect8-0-1
+dib 0 1 2 8
+gradrect 0 0 0 0 64608 50528 11064 21225 1 2 10628 9569 24602 58704
+dump 0
+end
+case gradrect8-0-2
+dib 0 2 2 8
+gradrect 0 0 0 0 865 48241 5281 20851 2 2 55093 32422 6652 62836
+dump 0
+end
+case gradrect8-0-3
+dib 0 3 2 8
+gradrect 0 0 0 0 60428 35409 16393 35743 3 2 27008 37538 51070 14744
+dump 0
+end
+case gradrect8-0-4
+dib 0 4 2 8
+gradrect 0 0 0 0 47580 36517 24290 45707 4 2 47710 25238 17281 55493
+dump 0
+end
+case gradrect8-0-5
+dib 0 5 2 8
+gradrect 0 0 0 0 42753 3210 51634 56082 5 2 56268 34823 16765 12481
+dump 0
+end
+case gradrect8-0-6
+dib 0 6 2 8
+gradrect 0 0 0 0 49239 42223 19913 42774 6 2 36777 22537 61382 48501
+dump 0
+end
+case gradrect8-0-7
+dib 0 7 2 8
+gradrect 0 0 0 0 41205 4925 21414 42556 7 2 44172 2020 20964 16597
+dump 0
+end
+case gradrect8-0-8
+dib 0 8 2 8
+gradrect 0 0 0 0 48414 56743 4963 1718 8 2 616 6542 8897 6093
+dump 0
+end
+case gradrect8-0-9
+dib 0 9 2 8
+gradrect 0 0 0 0 24820 23334 53340 11737 9 2 3030 3718 56738 62402
+dump 0
+end
+case gradrect8-0-10
+dib 0 10 2 8
+gradrect 0 0 0 0 22872 38530 36276 52967 10 2 56474 13404 20211 27902
+dump 0
+end
+case gradrect8-0-11
+dib 0 11 2 8
+gradrect 0 0 0 0 51265 7047 39702 31068 11 2 30305 33153 39194 40861
+dump 0
+end
+case gradrect8-0-12
+dib 0 12 2 8
+gradrect 0 0 0 0 6154 60802 17783 35422 12 2 29721 48414 45886 63503
+dump 0
+end
+case gradrect8-1-1
+dib 0 2 1 8
+gradrect 0 1 0 0 45148 38728 55053 5424 2 1 47817 47496 46875 36274
+dump 0
+end
+case gradrect8-1-2
+dib 0 2 2 8
+gradrect 0 1 0 0 62801 11742 11250 41912 2 2 20170 14767 25699 2791
+dump 0
+end
+case gradrect8-1-3
+dib 0 2 3 8
+gradrect 0 1 0 0 32815 9187 55668 20694 2 3 36344 47684 16642 61058
+dump 0
+end
+case gradrect8-1-4
+dib 0 2 4 8
+gradrect 0 1 0 0 34064 30960 24613 35909 2 4 55128 39205 53200 65183
+dump 0
+end
+case gradrect8-1-5
+dib 0 2 5 8
+gradrect 0 1 0 0 29030 9983 13809 9164 2 5 63131 29209 18983 9946
+dump 0
+end
+case gradrect8-1-6
+dib 0 2 6 8
+gradrect 0 1 0 0 36441 31406 43914 32505 2 6 59929 20732 23453 41928
+dump 0
+end
+case gradrect8-1-7
+dib 0 2 7 8
+gradrect 0 1 0 0 23370 27191 16750 37196 2 7 53730 23876 46440 20393
+dump 0
+end
+case gradrect8-1-8
+dib 0 2 8 8
+gradrect 0 1 0 0 46949 42431 12952 16310 2 8 39986 58792 25303 18411
+dump 0
+end
+case gradrect8-1-9
+dib 0 2 9 8
+gradrect 0 1 0 0 45961 35701 31397 53228 2 9 31891 54103 18896 59929
+dump 0
+end
+case gradrect8-1-10
+dib 0 2 10 8
+gradrect 0 1 0 0 30157 36642 5809 10785 2 10 21653 45177 18639 33451
+dump 0
+end
+case gradrect8-1-11
+dib 0 2 11 8
+gradrect 0 1 0 0 43542 6971 30708 44801 2 11 61592 50208 1798 43439
+dump 0
+end
+case gradrect8-1-12
 dib 0 2 12 8
 gradrect 0 1 0 0 32440 39885 4657 10927 2 12 351 10151 41449 37122
+dump 0
+end
+case gradtri-fmt-0
+dib 0 16 16 16
+gradtri 0 4 1 22964 10926 24530 27437 1 -3 19806 58408 62160 28027 -2 7 61916 37600 44966 50902
+dump 0
+end
+case gradtri-fmt-1
+dib 0 16 16 16 565
+gradtri 0 13 1 50353 2519 49730 20075 2 19 63638 63070 53703 16421 3 17 63586 62170 35187 53603
+dump 0
+end
+case gradtri-fmt-2
+dib 0 16 16 24
+gradtri 0 3 8 52601 32732 8923 59768 6 4 15515 50096 43319 59646 5 2 25664 30192 6399 59240
+dump 0
+end
+case gradtri-fmt-3
+dib 0 16 16 8
+gradtri 0 5 -2 8977 21948 26891 41714 1 6 29025 60705 41831 1146 -3 11 31191 45086 24442 50092
+dump 0
+end
+case gradtri-fmt-4
+dib 0 16 16 4
+gradtri 0 5 5 53164 40109 16197 54621 14 10 45832 7597 39099 53384 11 8 26606 35503 4570 38038
+dump 0
+end
+case gradtri-fmt-5
+dib 0 16 16 1
+gradtri 0 2 11 5020 41758 19702 17441 9 19 33017 28659 3147 31205 6 9 45920 53479 11283 50384
+dump 0
+end
+case gradtri-fmt-6
+dib 0 16 16 16
+gradtri 0 3 5 17752 39881 2544 19801 14 6 40201 43451 4877 25351 17 1 13728 32992 40543 58607
+dump 0
+end
+case gradtri-fmt-7
+dib 0 16 16 16 565
+gradtri 0 11 17 44690 14597 1546 25275 11 19 20157 21799 22129 53517 16 1 26675 64675 32879 2846
+dump 0
+end
+case gradtri-fmt-8
+dib 0 16 16 24
+gradtri 0 11 0 62801 51077 29539 4690 0 15 39348 28161 20742 40407 14 12 15690 45377 19711 27444
+dump 0
+end
+case gradtri-fmt-9
+dib 0 16 16 8
+gradtri 0 13 13 57675 20352 42968 26670 13 6 56636 16433 43359 44259 16 2 52670 51884 60934 23103
+dump 0
+end
+case gradtri-fmt-10
+dib 0 16 16 4
+gradtri 0 13 -3 25799 28091 22023 14555 17 4 62532 26931 8871 8335 19 0 5348 42100 14252 60089
+dump 0
+end
+case gradtri-fmt-11
+dib 0 16 16 1
+gradtri 0 -4 3 37742 9592 41231 28443 17 0 28062 41085 64708 20678 18 20 58473 34614 14097 86
+dump 0
+end
+case gradtri-fmt-12
+dib 0 16 16 16
+gradtri 0 14 10 62541 2496 41250 50050 8 17 41382 62192 37311 43302 8 13 2210 64017 35780 29427
+dump 0
+end
+case gradtri-fmt-13
+dib 0 16 16 16 565
+gradtri 0 -1 7 22337 2107 33636 34874 1 20 44353 40968 25161 49588 13 -4 42459 43047 57442 43063
+dump 0
+end
+case gradtri-fmt-14
+dib 0 16 16 24
+gradtri 0 19 -1 3120 34006 24393 21907 12 18 12542 22688 28088 26472 3 -2 58422 58564 47404 56660
+dump 0
+end
+case gradtri-fmt-15
+dib 0 16 16 8
+gradtri 0 11 16 2477 34810 2315 31842 7 6 13788 9115 61870 54054 -3 7 59254 5668 37584 48033
+dump 0
+end
+case gradtri-fmt-16
+dib 0 16 16 4
+gradtri 0 1 10 42219 21561 54963 182 -2 15 30478 45184 25676 20457 13 15 7547 55714 3943 15995
+dump 0
+end
+case gradtri-fmt-17
+dib 0 16 16 1
+gradtri 0 20 7 54100 23281 45983 33419 9 16 23244 62506 11891 16759 18 18 25494 4732 53019 61729
+dump 0
+end
+case gradtri-fmt-18
+dib 0 16 16 16
+gradtri 0 17 19 34880 14123 5277 54181 2 12 62622 44963 31105 50871 17 18 63824 65006 48289 59174
+dump 0
+end
+case gradtri-fmt-19
+dib 0 16 16 16 565
+gradtri 0 20 18 65359 2034 48803 60302 15 15 16608 19098 12686 41201 2 4 61080 34666 2466 20427
+dump 0
+end
+case gradtri-fmt-20
+dib 0 16 16 24
+gradtri 0 11 8 21389 62133 60457 57523 -3 11 48295 21585 44915 21574 10 4 42283 29753 50977 16473
+dump 0
+end
+case gradtri-fmt-21
+dib 0 16 16 8
+gradtri 0 17 13 13641 26325 35394 11629 10 6 6948 54216 45200 55343 3 14 11260 28949 49093 28868
+dump 0
+end
+case gradtri-fmt-22
+dib 0 16 16 4
+gradtri 0 12 6 26109 60368 26957 7723 17 4 52870 177 63304 54566 9 -2 38562 1837 41773 7856
+dump 0
+end
+case gradtri-fmt-23
+dib 0 16 16 1
+gradtri 0 15 19 32462 58010 44666 57221 20 18 61283 51004 49373 63683 13 12 4893 55651 10660 1953
+dump 0
+end
+case gradtri-fmt-24
+dib 0 16 16 16
+gradtri 0 -3 15 46276 1662 23088 65040 -4 5 48439 7784 12006 45440 3 14 438 9701 288 24813
+dump 0
+end
+case gradtri-fmt-25
+dib 0 16 16 16 565
+gradtri 0 20 8 58145 2666 41609 19943 2 0 50978 62160 26225 43417 -4 13 43136 38677 23691 11531
+dump 0
+end
+case gradtri-fmt-26
+dib 0 16 16 24
+gradtri 0 -3 8 10682 1454 18608 35708 11 2 23745 53167 19323 58220 6 6 26570 65104 52856 64905
+dump 0
+end
+case gradtri-fmt-27
+dib 0 16 16 8
+gradtri 0 -2 7 14788 29823 21883 34529 -1 13 55849 25843 17149 27626 10 -4 52708 9330 17813 12633
+dump 0
+end
+case gradtri-fmt-28
+dib 0 16 16 4
+gradtri 0 0 9 14562 48881 5311 45349 6 4 57859 18345 50192 30168 -1 17 29963 33700 38583 34702
+dump 0
+end
+case gradtri-fmt-29
+dib 0 16 16 1
+gradtri 0 5 16 7512 33175 46263 20315 19 1 30383 28669 16494 32468 16 16 17273 64321 65132 36207
+dump 0
+end
+case gradtri-fmt-30
+dib 0 16 16 16
+gradtri 0 -3 20 40632 26107 53868 57935 16 19 59915 30946 62363 51261 20 -1 34997 50108 17786 15627
+dump 0
+end
+case gradtri-fmt-31
+dib 0 16 16 16 565
+gradtri 0 20 14 16821 10190 2967 18717 5 18 44665 52102 37003 43980 8 3 50199 4855 3817 40998
+dump 0
+end
+case gradtri-fmt-32
+dib 0 16 16 24
+gradtri 0 -1 5 23121 10832 2070 55892 12 7 36881 47721 39114 30511 15 17 20903 39876 37492 13827
+dump 0
+end
+case gradtri-fmt-33
+dib 0 16 16 8
+gradtri 0 6 -4 65486 45905 2154 13917 7 19 65038 32830 48778 3666 0 15 58492 52279 45806 19564
+dump 0
+end
+case gradtri-fmt-34
+dib 0 16 16 4
+gradtri 0 19 10 63866 49408 56996 49283 0 13 10327 2610 29580 53369 7 10 9780 19462 19289 18335
+dump 0
+end
+case gradtri-fmt-35
+dib 0 16 16 1
+gradtri 0 8 10 26674 37 81 34060 2 14 50064 29354 58082 58167 10 7 55686 18529 51028 11331
+dump 0
+end
+case gradtri-hi-0
+dib 0 16 16 32
+gradtri 0 12 1 65090 65303 65026 65151 1 15 65105 65354 65321 65418 2 3 65132 65491 65387 65514
+dump 0
+end
+case gradrect-hi-0
+dib 0 16 4 32
+gradrect 0 0 0 0 65101 65043 65389 65336 16 4 65473 65189 65393 65303
+dump 0
+end
+case gradtri-hi-1
+dib 0 16 16 32
+gradtri 0 5 16 65123 65396 65253 65526 14 6 65082 65297 65290 65388 17 14 65190 65255 65199 65153
+dump 0
+end
+case gradrect-hi-1
+dib 0 16 4 32
+gradrect 0 1 0 0 65137 65436 65459 65527 16 4 65064 65216 65335 65131
+dump 0
+end
+case gradtri-hi-2
+dib 0 16 16 32
+gradtri 0 -1 7 65483 65310 65350 65435 -4 -2 65067 65189 65495 65292 15 18 65385 65217 65252 65137
+dump 0
+end
+case gradrect-hi-2
+dib 0 16 4 32
+gradrect 0 0 0 0 65471 65509 65382 65109 16 4 65520 65123 65274 65289
+dump 0
+end
+case gradtri-hi-3
+dib 0 16 16 32
+gradtri 0 6 9 65286 65303 65235 65411 12 11 65340 65423 65126 65033 12 1 65170 65194 65114 65310
+dump 0
+end
+case gradrect-hi-3
+dib 0 16 4 32
+gradrect 0 1 0 0 65032 65270 65122 65104 16 4 65255 65039 65065 65216
+dump 0
+end
+case gradtri-hi-4
+dib 0 16 16 32
+gradtri 0 13 16 65524 65119 65490 65390 16 5 65371 65394 65416 65527 9 10 65511 65446 65434 65520
+dump 0
+end
+case gradrect-hi-4
+dib 0 16 4 32
+gradrect 0 0 0 0 65213 65507 65230 65058 16 4 65378 65415 65123 65480
+dump 0
+end
+case gradtri-hi-5
+dib 0 16 16 32
+gradtri 0 13 14 65513 65253 65440 65320 2 20 65240 65270 65448 65529 5 7 65208 65268 65263 65090
+dump 0
+end
+case gradrect-hi-5
+dib 0 16 4 32
+gradrect 0 1 0 0 65479 65493 65208 65336 16 4 65528 65152 65355 65491
+dump 0
+end
+case gradtri-hi-6
+dib 0 16 16 32
+gradtri 0 15 11 65131 65273 65448 65535 3 5 65352 65346 65466 65455 5 5 65025 65326 65438 65267
+dump 0
+end
+case gradrect-hi-6
+dib 0 16 4 32
+gradrect 0 0 0 0 65110 65034 65181 65308 16 4 65115 65526 65091 65109
+dump 0
+end
+case gradtri-hi-7
+dib 0 16 16 32
+gradtri 0 -3 15 65466 65117 65432 65352 -3 15 65479 65347 65384 65358 20 -1 65453 65528 65332 65333
+dump 0
+end
+case gradrect-hi-7
+dib 0 16 4 32
+gradrect 0 1 0 0 65362 65513 65518 65271 16 4 65256 65441 65303 65104
+dump 0
+end
+case gradtri-hi-8
+dib 0 16 16 32
+gradtri 0 -3 8 65264 65182 65376 65032 20 7 65163 65254 65177 65085 18 15 65201 65224 65266 65355
+dump 0
+end
+case gradrect-hi-8
+dib 0 16 4 32
+gradrect 0 0 0 0 65498 65271 65057 65242 16 4 65522 65086 65038 65231
+dump 0
+end
+case gradtri-hi-9
+dib 0 16 16 32
+gradtri 0 11 14 65104 65260 65331 65523 5 0 65087 65075 65063 65374 14 17 65133 65256 65155 65135
+dump 0
+end
+case gradrect-hi-9
+dib 0 16 4 32
+gradrect 0 1 0 0 65464 65528 65081 65084 16 4 65060 65507 65376 65429
+dump 0
+end
+case gradtri-hi-10
+dib 0 16 16 32
+gradtri 0 7 10 65106 65100 65455 65256 20 0 65511 65073 65353 65440 15 10 65075 65043 65313 65344
+dump 0
+end
+case gradrect-hi-10
+dib 0 16 4 32
+gradrect 0 0 0 0 65168 65066 65361 65294 16 4 65435 65399 65164 65352
+dump 0
+end
+case gradtri-hi-11
+dib 0 16 16 32
+gradtri 0 8 17 65285 65121 65101 65040 17 -3 65261 65082 65353 65027 8 19 65503 65515 65055 65499
+dump 0
+end
+case gradrect-hi-11
+dib 0 16 4 32
+gradrect 0 1 0 0 65204 65186 65155 65302 16 4 65079 65130 65070 65229
+dump 0
+end
+case gradtri-hi-12
+dib 0 16 16 32
+gradtri 0 13 6 65320 65194 65066 65063 14 11 65349 65305 65446 65407 1 3 65467 65225 65268 65144
+dump 0
+end
+case gradrect-hi-12
+dib 0 16 4 32
+gradrect 0 0 0 0 65391 65124 65326 65096 16 4 65473 65342 65335 65324
+dump 0
+end
+case gradtri-hi-13
+dib 0 16 16 32
+gradtri 0 1 15 65459 65327 65286 65297 -1 7 65123 65094 65415 65273 -3 -1 65524 65297 65071 65061
+dump 0
+end
+case gradrect-hi-13
+dib 0 16 4 32
+gradrect 0 1 0 0 65414 65455 65515 65493 16 4 65186 65041 65375 65467
+dump 0
+end
+case gradtri-hi-14
+dib 0 16 16 32
+gradtri 0 19 15 65050 65320 65194 65162 -1 -1 65025 65454 65474 65501 1 4 65480 65095 65123 65398
+dump 0
+end
+case gradrect-hi-14
+dib 0 16 4 32
+gradrect 0 0 0 0 65253 65284 65361 65340 16 4 65236 65237 65144 65120
+dump 0
+end
+case gradtri-hi-15
+dib 0 16 16 32
+gradtri 0 11 7 65102 65170 65278 65444 12 10 65467 65074 65365 65525 20 10 65411 65026 65436 65289
+dump 0
+end
+case gradrect-hi-15
+dib 0 16 4 32
+gradrect 0 1 0 0 65486 65100 65488 65246 16 4 65530 65364 65149 65364
+dump 0
+end
+case gradtri-hi-16
+dib 0 16 16 32
+gradtri 0 -3 13 65117 65076 65397 65516 19 20 65401 65237 65447 65385 17 15 65445 65228 65275 65291
+dump 0
+end
+case gradrect-hi-16
+dib 0 16 4 32
+gradrect 0 0 0 0 65202 65052 65097 65164 16 4 65165 65146 65280 65403
+dump 0
+end
+case gradtri-hi-17
+dib 0 16 16 32
+gradtri 0 20 -2 65374 65067 65206 65073 14 20 65427 65344 65342 65401 6 16 65322 65046 65101 65405
+dump 0
+end
+case gradrect-hi-17
+dib 0 16 4 32
+gradrect 0 1 0 0 65142 65239 65483 65530 16 4 65419 65038 65315 65162
+dump 0
+end
+case gradtri-hi-18
+dib 0 16 16 32
+gradtri 0 11 3 65396 65032 65148 65396 6 1 65511 65266 65058 65534 15 16 65138 65224 65296 65491
+dump 0
+end
+case gradrect-hi-18
+dib 0 16 4 32
+gradrect 0 0 0 0 65389 65362 65491 65453 16 4 65250 65331 65344 65404
+dump 0
+end
+case gradtri-hi-19
+dib 0 16 16 32
+gradtri 0 5 12 65346 65469 65399 65064 1 6 65363 65460 65357 65241 17 5 65215 65031 65050 65367
+dump 0
+end
+case gradrect-hi-19
+dib 0 16 4 32
+gradrect 0 1 0 0 65265 65299 65477 65058 16 4 65277 65421 65094 65409
+dump 0
+end
+case gradtri-hi-20
+dib 0 16 16 32
+gradtri 0 20 18 65376 65064 65034 65371 5 17 65025 65341 65476 65344 11 13 65472 65289 65079 65175
+dump 0
+end
+case gradrect-hi-20
+dib 0 16 4 32
+gradrect 0 0 0 0 65297 65216 65506 65155 16 4 65438 65390 65276 65219
+dump 0
+end
+case gradtri-hi-21
+dib 0 16 16 32
+gradtri 0 13 0 65117 65445 65088 65534 12 5 65488 65517 65061 65124 4 8 65320 65210 65197 65141
+dump 0
+end
+case gradrect-hi-21
+dib 0 16 4 32
+gradrect 0 1 0 0 65232 65027 65416 65140 16 4 65216 65034 65399 65185
+dump 0
+end
+case gradtri-hi-22
+dib 0 16 16 32
+gradtri 0 -3 -2 65452 65302 65099 65244 10 8 65028 65048 65348 65493 15 14 65105 65030 65165 65285
+dump 0
+end
+case gradrect-hi-22
+dib 0 16 4 32
+gradrect 0 0 0 0 65070 65321 65378 65038 16 4 65156 65162 65353 65456
+dump 0
+end
+case gradtri-hi-23
+dib 0 16 16 32
+gradtri 0 5 6 65122 65132 65487 65369 19 4 65470 65210 65133 65340 3 0 65108 65158 65261 65395
+dump 0
+end
+case gradrect-hi-23
+dib 0 16 4 32
+gradrect 0 1 0 0 65380 65449 65108 65077 16 4 65525 65427 65345 65232
+dump 0
+end
+case gradrect-dither-8-0
+dib 0 16 16 8
+gradrect 0 0 0 0 0 0 0 0 16 16 65535 0 0 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 65535 0 0 0
+dump 0
+end
+case gradrect-flat-8-0
+dib 0 16 16 8
+gradrect 0 0 0 0 32768 0 0 0 16 16 32768 0 0 0
+dump 0
+end
+case gradrect-dither-8-1
+dib 0 16 16 8
+gradrect 0 0 0 0 0 0 0 0 16 16 0 65535 0 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 0 65535 0 0
+dump 0
+end
+case gradrect-flat-8-1
+dib 0 16 16 8
+gradrect 0 0 0 0 0 32768 0 0 16 16 0 32768 0 0
+dump 0
+end
+case gradrect-dither-8-2
+dib 0 16 16 8
+gradrect 0 0 0 0 0 0 0 0 16 16 0 0 65535 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 0 0 65535 0
+dump 0
+end
+case gradrect-flat-8-2
+dib 0 16 16 8
+gradrect 0 0 0 0 0 0 32768 0 16 16 0 0 32768 0
+dump 0
+end
+case gradrect-dither-8-r0
+dib 0 16 16 8
+gradrect 0 0 0 0 11555 26970 46916 26170 16 16 32195 58082 51294 5564
+dump 0
+end
+case gradrect-dither-8-r1
+dib 0 16 16 8
+gradrect 0 1 0 0 43216 57214 51787 28440 16 16 61268 32744 1832 17230
+dump 0
+end
+case gradrect-dither-8-r2
+dib 0 16 16 8
+gradrect 0 0 0 0 1469 58345 18728 16567 16 16 64579 34828 39336 37590
+dump 0
+end
+case gradrect-dither-8-r3
+dib 0 16 16 8
+gradrect 0 1 0 0 46092 10646 18209 43262 16 16 6874 42657 50951 50090
+dump 0
+end
+case gradrect-dither-4-0
+dib 0 16 16 4
+gradrect 0 0 0 0 0 0 0 0 16 16 65535 0 0 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 65535 0 0 0
+dump 0
+end
+case gradrect-flat-4-0
+dib 0 16 16 4
+gradrect 0 0 0 0 32768 0 0 0 16 16 32768 0 0 0
+dump 0
+end
+case gradrect-dither-4-1
+dib 0 16 16 4
+gradrect 0 0 0 0 0 0 0 0 16 16 0 65535 0 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 0 65535 0 0
+dump 0
+end
+case gradrect-flat-4-1
+dib 0 16 16 4
+gradrect 0 0 0 0 0 32768 0 0 16 16 0 32768 0 0
+dump 0
+end
+case gradrect-dither-4-2
+dib 0 16 16 4
+gradrect 0 0 0 0 0 0 0 0 16 16 0 0 65535 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 0 0 65535 0
+dump 0
+end
+case gradrect-flat-4-2
+dib 0 16 16 4
+gradrect 0 0 0 0 0 0 32768 0 16 16 0 0 32768 0
+dump 0
+end
+case gradrect-dither-4-r0
+dib 0 16 16 4
+gradrect 0 1 0 0 57436 5158 43358 14316 16 16 57111 59363 61592 5842
+dump 0
+end
+case gradrect-dither-4-r1
+dib 0 16 16 4
+gradrect 0 0 0 0 15709 26465 755 18063 16 16 38873 19802 31908 43831
+dump 0
+end
+case gradrect-dither-4-r2
+dib 0 16 16 4
+gradrect 0 1 0 0 846 17206 18674 11616 16 16 55524 45451 28862 19145
+dump 0
+end
+case gradrect-dither-4-r3
+dib 0 16 16 4
+gradrect 0 0 0 0 30969 35510 33074 2051 16 16 51882 28570 23196 54756
+dump 0
+end
+case gradrect-dither-1-0
+dib 0 16 16 1
+gradrect 0 0 0 0 0 0 0 0 16 16 65535 0 0 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 65535 0 0 0
+dump 0
+end
+case gradrect-flat-1-0
+dib 0 16 16 1
+gradrect 0 0 0 0 32768 0 0 0 16 16 32768 0 0 0
+dump 0
+end
+case gradrect-dither-1-1
+dib 0 16 16 1
+gradrect 0 0 0 0 0 0 0 0 16 16 0 65535 0 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 0 65535 0 0
+dump 0
+end
+case gradrect-flat-1-1
+dib 0 16 16 1
+gradrect 0 0 0 0 0 32768 0 0 16 16 0 32768 0 0
+dump 0
+end
+case gradrect-dither-1-2
+dib 0 16 16 1
+gradrect 0 0 0 0 0 0 0 0 16 16 0 0 65535 0
+dump 0
+gradrect 0 1 0 0 0 0 0 0 16 16 0 0 65535 0
+dump 0
+end
+case gradrect-flat-1-2
+dib 0 16 16 1
+gradrect 0 0 0 0 0 0 32768 0 16 16 0 0 32768 0
+dump 0
+end
+case gradrect-dither-1-r0
+dib 0 16 16 1
+gradrect 0 0 0 0 61437 54333 60556 59249 16 16 35999 24902 38062 10279
+dump 0
+end
+case gradrect-dither-1-r1
+dib 0 16 16 1
+gradrect 0 1 0 0 40463 49161 64729 4972 16 16 15539 35353 44640 60385
+dump 0
+end
+case gradrect-dither-1-r2
+dib 0 16 16 1
+gradrect 0 0 0 0 17447 49246 46569 39570 16 16 48760 38572 7101 45638
+dump 0
+end
+case gradrect-dither-1-r3
+dib 0 16 16 1
+gradrect 0 1 0 0 54215 62089 14335 56189 16 16 58164 18315 2157 7086
 dump 0
 end
 case gradtri-0
@@ -5229,6 +5865,318 @@ fill 0 1
 dib 1 4 2 8
 fill 1 2
 alphablend 0 0 0 4 2 1 0 0 4 2 128 0
+dump 0
+end
+case alpha-palette-1-0
+dib 0 4 2 32
+fill 0 2151686160
+dib 1 4 2 1
+fill 1 19088743
+alphablend 0 0 0 4 2 1 0 0 4 2 0 0
+dump 0
+end
+case alpha-palette-1-1
+dib 0 4 2 32
+fill 0 2151686161
+dib 1 4 2 1
+fill 1 19088743
+alphablend 0 0 0 4 2 1 0 0 4 2 1 0
+dump 0
+end
+case alpha-palette-1-127
+dib 0 4 2 32
+fill 0 2151686287
+dib 1 4 2 1
+fill 1 19088743
+alphablend 0 0 0 4 2 1 0 0 4 2 127 0
+dump 0
+end
+case alpha-palette-1-254
+dib 0 4 2 32
+fill 0 2151686414
+dib 1 4 2 1
+fill 1 19088743
+alphablend 0 0 0 4 2 1 0 0 4 2 254 0
+dump 0
+end
+case alpha-palette-1-255
+dib 0 4 2 32
+fill 0 2151686415
+dib 1 4 2 1
+fill 1 19088743
+alphablend 0 0 0 4 2 1 0 0 4 2 255 0
+dump 0
+end
+case alpha-palette-4-0
+dib 0 4 2 32
+fill 0 2151686160
+dib 1 4 2 4
+fill 1 76354972
+alphablend 0 0 0 4 2 1 0 0 4 2 0 0
+dump 0
+end
+case alpha-palette-4-1
+dib 0 4 2 32
+fill 0 2151686161
+dib 1 4 2 4
+fill 1 76354972
+alphablend 0 0 0 4 2 1 0 0 4 2 1 0
+dump 0
+end
+case alpha-palette-4-127
+dib 0 4 2 32
+fill 0 2151686287
+dib 1 4 2 4
+fill 1 76354972
+alphablend 0 0 0 4 2 1 0 0 4 2 127 0
+dump 0
+end
+case alpha-palette-4-254
+dib 0 4 2 32
+fill 0 2151686414
+dib 1 4 2 4
+fill 1 76354972
+alphablend 0 0 0 4 2 1 0 0 4 2 254 0
+dump 0
+end
+case alpha-palette-4-255
+dib 0 4 2 32
+fill 0 2151686415
+dib 1 4 2 4
+fill 1 76354972
+alphablend 0 0 0 4 2 1 0 0 4 2 255 0
+dump 0
+end
+case alpha-palette-8-0
+dib 0 4 2 32
+fill 0 2151686160
+dib 1 4 2 8
+fill 1 152709944
+alphablend 0 0 0 4 2 1 0 0 4 2 0 0
+dump 0
+end
+case alpha-palette-8-1
+dib 0 4 2 32
+fill 0 2151686161
+dib 1 4 2 8
+fill 1 152709944
+alphablend 0 0 0 4 2 1 0 0 4 2 1 0
+dump 0
+end
+case alpha-palette-8-127
+dib 0 4 2 32
+fill 0 2151686287
+dib 1 4 2 8
+fill 1 152709944
+alphablend 0 0 0 4 2 1 0 0 4 2 127 0
+dump 0
+end
+case alpha-palette-8-254
+dib 0 4 2 32
+fill 0 2151686414
+dib 1 4 2 8
+fill 1 152709944
+alphablend 0 0 0 4 2 1 0 0 4 2 254 0
+dump 0
+end
+case alpha-palette-8-255
+dib 0 4 2 32
+fill 0 2151686415
+dib 1 4 2 8
+fill 1 152709944
+alphablend 0 0 0 4 2 1 0 0 4 2 255 0
+dump 0
+end
+case alpha-stretch-0
+dib 0 10 8 32
+fill 0 886248109
+dib 1 6 5 32
+fill 1 2253759534
+alphablend 0 1 2 3 9 1 0 4 7 2 53 0
+dump 0
+end
+case alpha-stretch-1
+dib 0 10 8 32
+fill 0 44235937
+dib 1 6 5 24
+fill 1 4226332026
+alphablend 0 4 0 1 2 1 5 0 1 5 84 0
+dump 0
+end
+case alpha-stretch-2
+dib 0 10 8 32
+fill 0 1795660319
+dib 1 6 5 16
+fill 1 2428694941
+alphablend 0 2 3 8 7 1 1 1 5 5 17 0
+dump 0
+end
+case alpha-stretch-3
+dib 0 10 8 32
+fill 0 2760068669
+dib 1 6 5 8
+fill 1 1708497791
+alphablend 0 3 3 11 1 1 0 0 7 6 242 0
+dump 0
+end
+case alpha-stretch-4
+dib 0 10 8 32
+fill 0 798768086
+dib 1 6 5 32
+fill 1 3023264517
+alphablend 0 1 3 2 9 1 1 0 5 4 59 1
+dump 0
+end
+case alpha-stretch-5
+dib 0 10 8 32
+fill 0 1221033742
+dib 1 6 5 24
+fill 1 1140555581
+alphablend 0 2 3 2 7 1 0 2 7 4 80 0
+dump 0
+end
+case alpha-stretch-6
+dib 0 10 8 32
+fill 0 475312998
+dib 1 6 5 16
+fill 1 3443456314
+alphablend 0 3 3 8 8 1 0 0 6 5 251 0
+dump 0
+end
+case alpha-stretch-7
+dib 0 10 8 32
+fill 0 1100528198
+dib 1 6 5 8
+fill 1 2363127022
+alphablend 0 0 2 4 9 1 3 0 1 3 168 0
+dump 0
+end
+case alpha-stretch-8
+dib 0 10 8 32
+fill 0 2337878025
+dib 1 6 5 32
+fill 1 105943557
+alphablend 0 0 -1 8 5 1 1 1 6 5 111 0
+dump 0
+end
+case alpha-stretch-9
+dib 0 10 8 32
+fill 0 1183058102
+dib 1 6 5 24
+fill 1 902284447
+alphablend 0 4 3 7 2 1 1 0 6 5 174 0
+dump 0
+end
+case alpha-stretch-10
+dib 0 10 8 32
+fill 0 3592574112
+dib 1 6 5 16
+fill 1 175457691
+alphablend 0 -1 4 7 2 1 0 1 7 4 61 0
+dump 0
+end
+case alpha-stretch-11
+dib 0 10 8 32
+fill 0 175842605
+dib 1 6 5 8
+fill 1 3037264386
+alphablend 0 3 3 10 6 1 3 4 1 2 38 0
+dump 0
+end
+case alpha-stretch-12
+dib 0 10 8 32
+fill 0 1338050774
+dib 1 6 5 32
+fill 1 3047426267
+alphablend 0 -1 -1 9 4 1 0 2 4 3 143 1
+dump 0
+end
+case alpha-stretch-13
+dib 0 10 8 32
+fill 0 3856521005
+dib 1 6 5 24
+fill 1 3090370193
+alphablend 0 0 0 5 2 1 3 4 3 2 82 0
+dump 0
+end
+case alpha-stretch-14
+dib 0 10 8 32
+fill 0 478117945
+dib 1 6 5 16
+fill 1 1667372709
+alphablend 0 1 1 4 9 1 1 3 4 3 60 0
+dump 0
+end
+case alpha-stretch-15
+dib 0 10 8 32
+fill 0 2086692331
+dib 1 6 5 8
+fill 1 1803193637
+alphablend 0 1 -1 9 9 1 2 1 4 5 161 0
+dump 0
+end
+case alpha-stretch-16
+dib 0 10 8 32
+fill 0 1013620682
+dib 1 6 5 32
+fill 1 2649679971
+alphablend 0 1 -1 10 5 1 0 2 2 2 104 1
+dump 0
+end
+case alpha-stretch-17
+dib 0 10 8 32
+fill 0 724705886
+dib 1 6 5 24
+fill 1 2151901602
+alphablend 0 2 1 2 8 1 0 0 2 3 18 0
+dump 0
+end
+case alpha-stretch-18
+dib 0 10 8 32
+fill 0 3803712000
+dib 1 6 5 16
+fill 1 2633434236
+alphablend 0 -1 2 8 6 1 1 3 1 3 42 0
+dump 0
+end
+case alpha-stretch-19
+dib 0 10 8 32
+fill 0 2261317521
+dib 1 6 5 8
+fill 1 2674518540
+alphablend 0 -1 -1 3 3 1 0 0 5 6 91 0
+dump 0
+end
+case alpha-stretch-20
+dib 0 10 8 32
+fill 0 1246490043
+dib 1 6 5 32
+fill 1 3362676453
+alphablend 0 1 2 1 9 1 0 3 7 2 224 0
+dump 0
+end
+case alpha-stretch-21
+dib 0 10 8 32
+fill 0 1803552272
+dib 1 6 5 24
+fill 1 50611601
+alphablend 0 3 4 3 4 1 4 2 2 1 47 0
+dump 0
+end
+case alpha-stretch-22
+dib 0 10 8 32
+fill 0 4225849098
+dib 1 6 5 16
+fill 1 4044328650
+alphablend 0 0 -1 10 8 1 1 0 4 4 96 0
+dump 0
+end
+case alpha-stretch-23
+dib 0 10 8 32
+fill 0 3490104886
+dib 1 6 5 8
+fill 1 281036950
+alphablend 0 4 0 11 5 1 2 0 4 3 123 0
 dump 0
 end
 case transparent-outside
@@ -6587,6 +7535,646 @@ fill 0 3541362957
 dib 1 6 5 32
 fill 1 2291707127
 plgblt 0 4 8 4 8 0 14 1 0 0 6 5
+dump 0
+end
+case plgblt-more-0
+dib 0 24 24 32
+fill 0 2639163025
+dib 1 8 8 32
+fill 1 1125170495
+plgblt 0 11 16 11 21 13 16 1 0 0 7 9
+dump 0
+end
+case plgblt-more-1
+dib 0 24 24 32
+fill 0 1804165049
+dib 1 8 8 32
+fill 1 1337306950
+plgblt 0 18 5 10 5 18 1 1 0 4 3 1
+dump 0
+end
+case plgblt-more-2
+dib 0 24 24 32
+fill 0 81885219
+dib 1 8 8 32
+fill 1 1464121329
+plgblt 0 3 13 7 19 1 17 1 0 2 8 6
+dump 0
+end
+case plgblt-more-3
+dib 0 24 24 32
+fill 0 3678293463
+dib 1 8 8 32
+fill 1 1108358709
+plgblt 0 4 8 -7 2 6 9 1 1 3 1 3
+dump 0
+end
+case plgblt-more-4
+dib 0 24 24 32
+fill 0 2673172082
+dib 1 8 8 32
+fill 1 2818278367
+plgblt 0 10 9 10 9 3 9 1 2 2 7 4
+dump 0
+end
+case plgblt-more-5
+dib 0 24 24 32
+fill 0 1187536599
+dib 1 8 8 32
+fill 1 4014052254
+plgblt 0 21 20 28 20 21 26 1 2 1 5 7
+dump 0
+end
+case plgblt-more-6
+dib 0 24 24 32
+fill 0 2506715453
+dib 1 8 8 32
+fill 1 3533643738
+plgblt 0 13 18 14 31 23 29 1 0 2 3 7
+dump 0
+end
+case plgblt-more-7
+dib 0 24 24 32
+fill 0 950197148
+dib 1 8 8 32
+fill 1 435954932
+plgblt 0 4 17 12 29 0 30 1 4 5 1 1
+dump 0
+end
+case plgblt-more-8
+dib 0 24 24 32
+fill 0 1219376938
+dib 1 8 8 32
+fill 1 1194144239
+plgblt 0 15 9 15 17 4 9 1 0 4 4 4
+dump 0
+end
+case plgblt-more-9
+dib 0 24 24 32
+fill 0 1379996661
+dib 1 8 8 32
+fill 1 2010052266
+plgblt 0 5 9 -6 9 5 9 1 4 0 5 3
+dump 0
+end
+case plgblt-more-10
+dib 0 24 24 32
+fill 0 150034709
+dib 1 8 8 32
+fill 1 1504638844
+plgblt 0 12 7 21 16 11 19 1 0 0 4 8
+dump 0
+end
+case plgblt-more-11
+dib 0 24 24 32
+fill 0 3962622492
+dib 1 8 8 32
+fill 1 940969349
+plgblt 0 6 22 17 30 0 29 1 0 0 6 7
+dump 0
+end
+case plgblt-more-12
+dib 0 24 24 32
+fill 0 1275499919
+dib 1 8 8 32
+fill 1 1213227092
+plgblt 0 12 10 12 6 12 10 1 1 1 2 7
+dump 0
+end
+case plgblt-more-13
+dib 0 24 24 32
+fill 0 2974510881
+dib 1 8 8 32
+fill 1 1229655990
+plgblt 0 7 12 1 12 7 22 1 0 0 8 1
+dump 0
+end
+case plgblt-more-14
+dib 0 24 24 32
+fill 0 3839518276
+dib 1 8 8 32
+fill 1 2856647661
+plgblt 0 21 16 32 19 17 10 1 1 1 8 7
+dump 0
+end
+case plgblt-more-15
+dib 0 24 24 32
+fill 0 802765260
+dib 1 8 8 32
+fill 1 351734332
+plgblt 0 12 19 16 8 23 31 1 3 2 5 7
+dump 0
+end
+case plgblt-more-16
+dib 0 24 24 32
+fill 0 2011582687
+dib 1 8 8 32
+fill 1 37759489
+plgblt 0 8 3 8 7 7 3 1 2 0 6 3
+dump 0
+end
+case plgblt-more-17
+dib 0 24 24 32
+fill 0 4283879912
+dib 1 8 8 32
+fill 1 2282989821
+plgblt 0 22 16 23 16 22 18 1 0 2 5 2
+dump 0
+end
+case plgblt-more-18
+dib 0 24 24 32
+fill 0 3067590912
+dib 1 8 8 32
+fill 1 2131011227
+plgblt 0 12 7 23 3 4 10 1 1 1 5 5
+dump 0
+end
+case plgblt-more-19
+dib 0 24 24 32
+fill 0 4075866810
+dib 1 8 8 32
+fill 1 2673349193
+plgblt 0 10 2 10 -4 -1 0 1 4 4 2 4
+dump 0
+end
+case plgblt-more-20
+dib 0 24 24 32
+fill 0 3166396858
+dib 1 8 8 32
+fill 1 3238360700
+plgblt 0 8 6 8 5 -4 6 1 0 1 6 8
+dump 0
+end
+case plgblt-more-21
+dib 0 24 24 32
+fill 0 3966875619
+dib 1 8 8 32
+fill 1 2335895045
+plgblt 0 6 20 17 20 6 32 1 1 0 8 8
+dump 0
+end
+case plgblt-more-22
+dib 0 24 24 32
+fill 0 2060004337
+dib 1 8 8 32
+fill 1 2840830314
+plgblt 0 15 7 27 12 26 15 1 5 4 3 2
+dump 0
+end
+case plgblt-more-23
+dib 0 24 24 32
+fill 0 4212578053
+dib 1 8 8 32
+fill 1 523933758
+plgblt 0 20 7 31 15 27 12 1 0 1 8 6
+dump 0
+end
+case plgblt-more-24
+dib 0 24 24 32
+fill 0 3013007591
+dib 1 8 8 32
+fill 1 2043386082
+plgblt 0 22 10 22 18 18 10 1 0 2 9 7
+dump 0
+end
+case plgblt-more-25
+dib 0 24 24 32
+fill 0 3747069477
+dib 1 8 8 32
+fill 1 988956652
+plgblt 0 14 12 25 12 14 14 1 0 1 5 3
+dump 0
+end
+case plgblt-more-26
+dib 0 24 24 32
+fill 0 632966345
+dib 1 8 8 32
+fill 1 3897033176
+plgblt 0 13 7 14 -3 6 -2 1 1 1 8 7
+dump 0
+end
+case plgblt-more-27
+dib 0 24 24 32
+fill 0 610455412
+dib 1 8 8 32
+fill 1 3422701554
+plgblt 0 17 19 7 26 18 13 1 0 2 9 7
+dump 0
+end
+case plgblt-more-28
+dib 0 24 24 32
+fill 0 1592541097
+dib 1 8 8 32
+fill 1 4197914501
+plgblt 0 8 7 8 -2 3 7 1 0 5 8 3
+dump 0
+end
+case plgblt-more-29
+dib 0 24 24 32
+fill 0 945893002
+dib 1 8 8 32
+fill 1 2881251858
+plgblt 0 20 11 19 11 20 12 1 1 0 8 9
+dump 0
+end
+case plgblt-more-30
+dib 0 24 24 32
+fill 0 1268910430
+dib 1 8 8 32
+fill 1 1538281306
+plgblt 0 14 9 25 22 2 5 1 3 0 3 5
+dump 0
+end
+case plgblt-more-31
+dib 0 24 24 32
+fill 0 2850494184
+dib 1 8 8 32
+fill 1 746347989
+plgblt 0 13 15 24 27 11 24 1 3 3 6 3
+dump 0
+end
+case plgblt-more-32
+dib 0 24 24 32
+fill 0 496530554
+dib 1 8 8 32
+fill 1 1911587793
+plgblt 0 9 10 9 11 4 10 1 6 2 3 3
+dump 0
+end
+case plgblt-more-33
+dib 0 24 24 32
+fill 0 3882511762
+dib 1 8 8 32
+fill 1 4057425726
+plgblt 0 20 4 26 4 20 3 1 2 3 3 3
+dump 0
+end
+case plgblt-more-34
+dib 0 24 24 32
+fill 0 3984752361
+dib 1 8 8 32
+fill 1 3921606406
+plgblt 0 9 17 17 27 6 8 1 0 4 4 5
+dump 0
+end
+case plgblt-more-35
+dib 0 24 24 32
+fill 0 861576442
+dib 1 8 8 32
+fill 1 2021162904
+plgblt 0 19 9 26 12 30 -3 1 3 4 6 5
+dump 0
+end
+case plgblt-more-36
+dib 0 24 24 32
+fill 0 303230081
+dib 1 8 8 32
+fill 1 3219096384
+plgblt 0 8 15 8 15 3 15 1 2 4 6 4
+dump 0
+end
+case plgblt-more-37
+dib 0 24 24 32
+fill 0 3432609833
+dib 1 8 8 32
+fill 1 2417562887
+plgblt 0 19 16 31 16 19 4 1 4 6 2 1
+dump 0
+end
+case plgblt-more-38
+dib 0 24 24 32
+fill 0 2335810273
+dib 1 8 8 32
+fill 1 1407088435
+plgblt 0 22 5 10 7 18 -3 1 0 7 9 2
+dump 0
+end
+case plgblt-more-39
+dib 0 24 24 32
+fill 0 479057286
+dib 1 8 8 32
+fill 1 1637193112
+plgblt 0 9 18 14 24 17 7 1 1 3 1 5
+dump 0
+end
+case plgblt-more-40
+dib 0 24 24 32
+fill 0 983514107
+dib 1 8 8 32
+fill 1 1642501227
+plgblt 0 3 7 3 6 9 7 1 1 0 1 7
+dump 0
+end
+case plgblt-more-41
+dib 0 24 24 32
+fill 0 1313968679
+dib 1 8 8 32
+fill 1 4273785229
+plgblt 0 18 9 25 9 18 18 1 0 1 2 2
+dump 0
+end
+case plgblt-more-42
+dib 0 24 24 32
+fill 0 2030754817
+dib 1 8 8 32
+fill 1 1943487940
+plgblt 0 13 6 20 13 2 -2 1 1 0 8 1
+dump 0
+end
+case plgblt-more-43
+dib 0 24 24 32
+fill 0 178401528
+dib 1 8 8 32
+fill 1 3676291686
+plgblt 0 7 5 4 7 9 16 1 4 3 3 5
+dump 0
+end
+case plgblt-more-44
+dib 0 24 24 32
+fill 0 509324637
+dib 1 8 8 32
+fill 1 368520197
+plgblt 0 12 11 12 2 11 11 1 2 2 5 7
+dump 0
+end
+case plgblt-more-45
+dib 0 24 24 32
+fill 0 797944612
+dib 1 8 8 32
+fill 1 2273545329
+plgblt 0 4 3 8 3 4 -2 1 0 1 5 6
+dump 0
+end
+case plgblt-more-46
+dib 0 24 24 32
+fill 0 4292104667
+dib 1 8 8 32
+fill 1 3356389036
+plgblt 0 6 10 4 18 5 8 1 1 0 8 7
+dump 0
+end
+case plgblt-more-47
+dib 0 24 24 32
+fill 0 2510860725
+dib 1 8 8 32
+fill 1 4032061242
+plgblt 0 16 10 11 23 28 -2 1 0 3 7 1
+dump 0
+end
+case plgblt-more-48
+dib 0 24 24 32
+fill 0 1480549789
+dib 1 8 8 32
+fill 1 622814395
+plgblt 0 4 18 4 11 10 18 1 1 0 7 8
+dump 0
+end
+case plgblt-more-49
+dib 0 24 24 32
+fill 0 2711506252
+dib 1 8 8 32
+fill 1 1858655159
+plgblt 0 13 5 14 5 13 14 1 1 1 8 7
+dump 0
+end
+case plgblt-more-50
+dib 0 24 24 32
+fill 0 2316744609
+dib 1 8 8 32
+fill 1 3233121232
+plgblt 0 20 10 10 14 12 13 1 0 3 8 1
+dump 0
+end
+case plgblt-more-51
+dib 0 24 24 32
+fill 0 2246315147
+dib 1 8 8 32
+fill 1 2329458833
+plgblt 0 15 16 9 25 25 17 1 0 5 8 1
+dump 0
+end
+case plgblt-more-52
+dib 0 24 24 32
+fill 0 308100010
+dib 1 8 8 32
+fill 1 271320830
+plgblt 0 15 18 15 13 7 18 1 1 3 7 5
+dump 0
+end
+case plgblt-more-53
+dib 0 24 24 32
+fill 0 498048770
+dib 1 8 8 32
+fill 1 666545285
+plgblt 0 12 2 1 2 12 -2 1 3 6 2 3
+dump 0
+end
+case plgblt-more-54
+dib 0 24 24 32
+fill 0 3382878339
+dib 1 8 8 32
+fill 1 736314650
+plgblt 0 20 8 33 21 18 21 1 2 1 2 5
+dump 0
+end
+case plgblt-more-55
+dib 0 24 24 32
+fill 0 1213692630
+dib 1 8 8 32
+fill 1 1185989456
+plgblt 0 3 3 2 -1 14 -4 1 4 4 2 2
+dump 0
+end
+case plgblt-more-56
+dib 0 24 24 32
+fill 0 3926031922
+dib 1 8 8 32
+fill 1 491386576
+plgblt 0 11 6 11 19 6 6 1 5 5 2 1
+dump 0
+end
+case plgblt-more-57
+dib 0 24 24 32
+fill 0 3599145545
+dib 1 8 8 32
+fill 1 3157831022
+plgblt 0 16 19 6 19 16 25 1 0 2 7 7
+dump 0
+end
+case plgblt-more-58
+dib 0 24 24 32
+fill 0 4292255098
+dib 1 8 8 32
+fill 1 2738922374
+plgblt 0 14 19 17 30 2 21 1 0 5 3 2
+dump 0
+end
+case plgblt-more-59
+dib 0 24 24 32
+fill 0 2004409025
+dib 1 8 8 32
+fill 1 3896071921
+plgblt 0 14 11 12 24 9 13 1 3 4 6 3
+dump 0
+end
+case plgblt-more-60
+dib 0 24 24 32
+fill 0 998622619
+dib 1 8 8 32
+fill 1 3857343488
+plgblt 0 3 9 3 -3 6 9 1 1 5 5 4
+dump 0
+end
+case plgblt-more-61
+dib 0 24 24 32
+fill 0 380481062
+dib 1 8 8 32
+fill 1 3461270994
+plgblt 0 22 3 30 3 22 1 1 6 3 1 3
+dump 0
+end
+case plgblt-more-62
+dib 0 24 24 32
+fill 0 3299079438
+dib 1 8 8 32
+fill 1 4199508463
+plgblt 0 2 12 8 10 -6 7 1 0 1 8 5
+dump 0
+end
+case plgblt-more-63
+dib 0 24 24 32
+fill 0 2242062961
+dib 1 8 8 32
+fill 1 4248976103
+plgblt 0 4 12 -4 11 13 23 1 1 0 6 8
+dump 0
+end
+case plgblt-more-64
+dib 0 24 24 32
+fill 0 1473634648
+dib 1 8 8 32
+fill 1 2485911623
+plgblt 0 22 22 22 33 18 22 1 1 0 6 2
+dump 0
+end
+case plgblt-more-65
+dib 0 24 24 32
+fill 0 1068834164
+dib 1 8 8 32
+fill 1 526498905
+plgblt 0 3 7 -2 7 3 9 1 1 1 6 5
+dump 0
+end
+case plgblt-more-66
+dib 0 24 24 32
+fill 0 1494644381
+dib 1 8 8 32
+fill 1 1870017183
+plgblt 0 2 21 -8 26 2 27 1 5 0 3 5
+dump 0
+end
+case plgblt-more-67
+dib 0 24 24 32
+fill 0 3445652804
+dib 1 8 8 32
+fill 1 2614827040
+plgblt 0 5 6 10 16 17 -1 1 2 6 4 2
+dump 0
+end
+case plgblt-more-68
+dib 0 24 24 32
+fill 0 1927141193
+dib 1 8 8 32
+fill 1 3467049267
+plgblt 0 5 12 5 15 -7 12 1 0 0 7 7
+dump 0
+end
+case plgblt-more-69
+dib 0 24 24 32
+fill 0 87262849
+dib 1 8 8 32
+fill 1 3381662320
+plgblt 0 18 21 28 21 18 24 1 0 1 5 8
+dump 0
+end
+case plgblt-more-70
+dib 0 24 24 32
+fill 0 457819304
+dib 1 8 8 32
+fill 1 1481014662
+plgblt 0 20 2 33 12 23 -6 1 4 2 3 4
+dump 0
+end
+case plgblt-more-71
+dib 0 24 24 32
+fill 0 3460723282
+dib 1 8 8 32
+fill 1 25852116
+plgblt 0 3 10 -3 17 10 16 1 2 1 6 7
+dump 0
+end
+case plgblt-more-72
+dib 0 24 24 32
+fill 0 1754084622
+dib 1 8 8 32
+fill 1 197054744
+plgblt 0 18 3 18 15 22 3 1 3 1 4 8
+dump 0
+end
+case plgblt-more-73
+dib 0 24 24 32
+fill 0 998541398
+dib 1 8 8 32
+fill 1 4216176433
+plgblt 0 6 17 19 17 6 17 1 2 1 7 3
+dump 0
+end
+case plgblt-more-74
+dib 0 24 24 32
+fill 0 3186464146
+dib 1 8 8 32
+fill 1 3836056989
+plgblt 0 8 4 15 -1 15 10 1 5 2 2 6
+dump 0
+end
+case plgblt-more-75
+dib 0 24 24 32
+fill 0 2860384400
+dib 1 8 8 32
+fill 1 669679974
+plgblt 0 11 22 21 29 0 24 1 0 5 1 3
+dump 0
+end
+case plgblt-more-76
+dib 0 24 24 32
+fill 0 4201066934
+dib 1 8 8 32
+fill 1 2523794526
+plgblt 0 12 9 12 19 11 9 1 4 5 5 1
+dump 0
+end
+case plgblt-more-77
+dib 0 24 24 32
+fill 0 638759976
+dib 1 8 8 32
+fill 1 1650851843
+plgblt 0 21 5 30 5 21 18 1 1 6 7 1
+dump 0
+end
+case plgblt-more-78
+dib 0 24 24 32
+fill 0 3229940826
+dib 1 8 8 32
+fill 1 3204311165
+plgblt 0 16 2 9 -3 15 13 1 3 5 5 4
+dump 0
+end
+case plgblt-more-79
+dib 0 24 24 32
+fill 0 3500122587
+dib 1 8 8 32
+fill 1 2956894889
+plgblt 0 14 14 6 25 14 12 1 0 2 7 7
 dump 0
 end
 case maskblt-bounds-0

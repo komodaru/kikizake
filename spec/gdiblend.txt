@@ -4,20 +4,26 @@ GDI.ALPHA.PERPIXEL doc | BLENDFUNCTION | AC_SRC_ALPHA (premultiplied source): Sr
 GDI.ALPHA.ROUND measured | golden blend constant-0..255 (65536 channel samples) | SCA blending per channel: (S * SCA + D * (255 - SCA) + 127) / 255
 GDI.ALPHA.SRCRECT doc | AlphaBlend | "The source rectangle must lie completely within the source surface, otherwise an error occurs and the function returns FALSE"
 GDI.ALPHA.EXTENTS measured | golden blend alpha-* (59 cases) | a negative source width or height fails (0); otherwise a width or height of 0 (source or destination) succeeds (1) drawing nothing; otherwise a negative destination width or height fails
-GDI.ALPHA.STRETCH open | AlphaBlend | "If the source rectangle and destination rectangle are not the same size, the source bitmap is stretched": which source pixels
-GDI.ALPHA.PPFORMAT open | AlphaBlend | AC_SRC_ALPHA with a source that is not 32 bpp
-GDI.ALPHA.FORMATS open | AlphaBlend | sources with a color table (<= 8 bpp)
+GDI.ALPHA.STRETCH measured | golden blend alpha-* (4 stretched cases) | "If the source rectangle and destination rectangle are not the same size, the source bitmap is stretched": each destination pixel blends the source pixel StretchBlt's COLORONCOLOR takes (GDI.STRETCH.DDA)
+GDI.ALPHA.PPFORMAT measured | golden blend alpha-* (7 cases) | AlphaBlend with AC_SRC_ALPHA from a source that is not 32 bpp fails (0) and draws nothing
+GDI.ALPHA.FORMATS measured | golden blend alpha-palette, alpha-palette-* | AlphaBlend from a source with a color table (<= 8 bpp): its color-table color with alpha 255 (the color table's reserved byte is 0)
 GDI.TRANS.KEY assumed | TransparentBlt | source pixels whose color is the key are left out; the others are copied (converted to the destination's format)
-GDI.TRANS.SRCOUT open | TransparentBlt | a source rectangle outside the source bitmap
-GDI.TRANS.STRETCH open | TransparentBlt | stretched: which source pixels
-GDI.TRANS.FORMATS open | TransparentBlt | sources with a color table (<= 8 bpp), monochrome
-GDI.GRAD.RECT open | GradientFill (GRADIENT_FILL_RECT_H, GRADIENT_FILL_RECT_V) | the colors along a rectangle: the interpolation and its rounding
-GDI.GRAD.TRIANGLE open | GradientFill (GRADIENT_FILL_TRIANGLE) | which pixels a triangle fills and their colors
+GDI.TRANS.SRCOUT measured | golden blend transparent-outside, transparent-ext-* (13 cases) | TransparentBlt: a source rectangle not wholly inside the source bitmap fails (0) and draws nothing
+GDI.TRANS.STRETCH measured | golden blend transparent-* (17 stretched cases) | TransparentBlt stretched: each destination pixel takes the source pixel StretchBlt's COLORONCOLOR takes (GDI.STRETCH.DDA)
+GDI.TRANS.FORMATS measured | golden blend transparent-* (29 cases) | TransparentBlt from a source with a color table (<= 8 bpp, monochrome too) or between monochrome and color: the source pixel's color-table color is compared with the key and written as a color, as for other formats
+GDI.GRAD.RECT open | GradientFill (GRADIENT_FILL_RECT_H, GRADIENT_FILL_RECT_V) | the colors along a rectangle in a color-table format (<= 8 bpp): not 3 levels a channel through the 16x16 ordered dither (Wine), Windows' answers show
+GDI.GRAD.TRIANGLE open | GradientFill (GRADIENT_FILL_TRIANGLE) | a triangle's colors in 16 bpp and color-table formats (gradtri-fmt-* await Windows' answers)
+GDI.GRAD.RECTH measured | golden blend gradrect-0-* | GRADIENT_FILL_RECT_H: the vertices sorted by x carry their colors; pixel x of [x0, x1) takes channel (c0 (x1 - x0 - p) + c1 p) / (x1 - x0) with p = x - x0, truncated to 16 bits, its high byte (32 and 24 bpp; alpha in 32 bpp)
+GDI.GRAD.RECTV measured | golden blend gradrect-1-* | GRADIENT_FILL_RECT_V: as GDI.GRAD.RECTH along y
+GDI.GRAD.DITHER16 measured | golden blend gradrect-* (16 bpp, 5-6-5) | 16 bpp gradients dither with the 4x4 ordered matrix 0 8 2 10 / 12 4 14 6 / 3 11 1 9 / 15 7 13 5 at (x mod 4, y mod 4): a 5 bit channel is (v / 128 + m) / 16, 5-6-5's green (v / 64 + m) / 16, clamped (v the 16 bit value, truncated divisions)
+GDI.GRAD.TRIROUND measured | golden blend gradtri-* (60 cases, 7268 channels) | GRADIENT_FILL_TRIANGLE, 32 and 24 bpp: red, green and blue vertex values above 0xff00 count as 0xff00 (alpha not); a pixel's channel is the barycentric mix of the vertices' at the pixel, rounded to 16 bits halves up, its high byte; rows run from the edges as Wine's dibdrv draws them (edges followed from their right end, truncated)
 GDI.MASK.ROP4 doc | MaskBlt, MAKEROP4 | where the mask has a 1 the foreground operation (bits 16..23) applies, where it has a 0 the background operation (bits 24..31)
 GDI.MASK.NONE doc | MaskBlt | with no mask: BitBlt with the foreground operation
 GDI.MASK.OUTSIDE measured | golden blend maskblt-* (49 cases), maskblt-bounds-* (80) | the call succeeds (1) when nothing of the rectangle lies where the destination and the source bitmaps overlap; otherwise it fails (0) unless the mask holds the whole rectangle at its origin; pixels outside the source are left as they are
 GDI.MASK.FORMATS open | MaskBlt | a source of another format than the destination
-GDI.PLG.MAP open | PlgBlt | which source pixel lands on each destination pixel of the parallelogram
+GDI.PLG.MAP open | PlgBlt | which source pixel lands on each destination pixel of a parallelogram that is neither a rectangle nor a quarter turn of the source's size (plgblt-more-* await Windows' answers), a mask, other formats, a source rectangle outside the source
+GDI.PLG.RECT measured | golden blend plgblt-* (i mod 4 = 0, 2) | a parallelogram that is a rectangle (P1 level with P0, P2 under it) draws as StretchBlt: a negative side runs from P0's pixel back (that pixel included)
+GDI.PLG.TURN measured | golden blend plgblt-* (i mod 4 = 1) | a quarter turn of the source's size: each destination pixel takes the source pixel under its center
 GDI.ALPHA.OPAQUE measured | golden blend perpixel-* | AC_SRC_ALPHA with a source pixel of alpha 255 blends as the constant alpha alone
 GDI.ALPHA.CARRY measured | golden blend perpixel-*, premul-* | AC_SRC_ALPHA otherwise: sa = (A * SCA + 127) / 255; each channel (C * SCA + 127) / 255 + (D * (255 - sa) + 127) / 255, the four added as one 32 bit word (a channel over 255 carries into the next)
 GDI.TRANS.COPY measured | golden blend transparent-* | the copied pixels go through their color, also between equal formats (32 bpp: the fourth byte becomes 0)
