@@ -533,7 +533,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     let (bytes, bw, bh) = match d.fmt {
         19..=22 => (8, 1, 1),
         44..=47 => (4, 1, 1),
-        103..=105 => {
+        103..=106 => {
             hit("D3D12.ALLOC.VIDEO");
             let b = if d.fmt == 103 { 1 } else { 2 };
             let (w, h) = (d.w as u64, d.h as u64);
