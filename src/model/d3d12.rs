@@ -777,8 +777,9 @@ pub fn small(d: &Desc) -> bool {
     hit(clause::D3D12_DESC_SMALL);
     let Some((bytes, bw, bh)) = block(d.fmt) else { return false };
     let (w, h) = (d.w.div_ceil(bw) as u64, d.h.div_ceil(bh) as u64);
-    let i = (bytes as u64).trailing_zeros() as usize;
-    if bytes.count_ones() != 1 || i > 4 {
+    // (MEASURED, golden d3d12-* alloc-edge-small-*-rgb32-*: 12-byte elements as 16-byte ones)
+    let i = bytes.next_power_of_two().trailing_zeros() as usize;
+    if i > 4 {
         return false;
     }
     let tiles = match d.kind() {
@@ -943,6 +944,13 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// on a description, a heap type and an initial state
 /// the size limit of a single 2D texture of one level
 const SINGLE2D_MAX: u32 = 1 << 23;
+
+/// the largest frame latency SetMaximumFrameLatency takes (17 taken, 0x7fffffff not; fitted by
+/// chain-edge2-latency-*)
+const LATENCY_MAX: u32 = 0xffff;
+
+/// the bytes of buffers a 32-bit process makes a swap chain of no more
+const CHAIN32_OOM: u64 = 3 << 29;
 
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
@@ -1199,7 +1207,9 @@ impl D3d12 {
                         // (MEASURED: sync intervals 0..4; TEST and DO_NOT_SEQUENCE present nothing;
                         // ALLOW_TEARING needs the chain's flag; unknown flags refused)
                         let known = 1 | 2 | 4 | 0x100 | 0x200;
-                        let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0);
+                        // (TEST with any other flag refused: golden dxgi-* chain-edge-present-0-3,
+                        // chain-edge-tear-0-201)
+                        let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0) || flags & 1 != 0 && flags != 1;
                         if flags & 4 != 0 {
                             // (MEASURED, golden dxgi-64 chain-present-restart: presents as without it)
                             hit(clause::DXGI_PRESENT_RESTART);
@@ -1245,7 +1255,7 @@ impl D3d12 {
                         if d[11] & 0x40 == 0 {
                             out.push(format!("latency hr {0:08x} get {0:08x} cccccccc", DXGI_ERROR_INVALID_CALL));
                         } else {
-                            let hr = if w[0] != 0 && w[0] < 0x8000_0000 {
+                            let hr = if w[0] != 0 && w[0] <= LATENCY_MAX {
                                 self.latency = w[0];
                                 S_OK
                             } else {
@@ -1293,7 +1303,9 @@ pub fn chain_desc(w: &[u32; 12]) -> Result<[u32; 12], Hr> {
         (d[0], d[1]) = (64, 64);
     }
     // (MEASURED: x86 runs out of address space for 16385 by 16385)
-    if super::arch() == 32 && d[0] as u64 * d[1] as u64 * 4 * d[7] as u64 >= 1 << 30 {
+    // (MEASURED, golden dxgi-32 chain-edge-size-*: 1.07GB of buffers taken, 2GB not; between
+    // fitted by chain-edge2-size-*)
+    if super::arch() == 32 && d[0] as u64 * d[1] as u64 * 4 * d[7] as u64 >= CHAIN32_OOM {
         hit(clause::DXGI_CHAIN_MEMORY);
         return Err(E_OUTOFMEMORY);
     }
