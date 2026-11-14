@@ -1,0 +1,3 @@
+# (tools/lint-ratchet.py: tests may unwrap; the code they test may not)
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

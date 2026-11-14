@@ -33,6 +33,12 @@ jobs:
           restore-keys: test-${{ env.RUST_KEY }}-
       - name: Laws, case files, clauses, models against Windows
         run: cargo test -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
+      # (clippy's type-safety and robustness lints and the masu-* checks, per file: they only go
+      # down; tools/lint-ratchet.py, a copy of masu's)
+      - name: Lint ratchet
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        run: python3 tools/lint-ratchet.py
       - name: Summary
         if: always()
         run: |
