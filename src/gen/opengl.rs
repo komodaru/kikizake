@@ -1317,6 +1317,19 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // what the model does not follow yet: fog on images, zoomed depth images, antialiasing
+    // with alpha to show the coverage in, a light on, lighting in color index mode
+    write!(s, "case other-calls-5\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glRasterPos2f 2.5 2.5\ngldraw 4 4 {} {} 90 64\n", ctx(32), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case other-calls-6\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glClear 0x4100\ngl glPixelZoom 2 3\ngl glRasterPos2f 1.5 1.5\ngldraw 4 4 {} {} 91 64\nglread 0 0 16 16 {} {} 1024\nglerr\nend\n", ctx(32), h(DEPTH_COMPONENT), h(FLOAT), h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+    write!(s, "case other-calls-7\nglctx 32 5\n{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb41\ngl glEnable 0xb10\ngl glPointSize 3.3\ngl glColor4ub 200 100 50 255\ngl glRectf 1.25 1.5 7.75 6.25\ngl glBegin 0\ngl glVertex2f 11.3 11.6\ngl glEnd\n").unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case other-calls-8\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glNormal3f 0 0 1\ngl glColor4ub 200 100 50 255\ngl glRectf 1 1 7 7\n", ctx(32)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case other-calls-9\nglctx 8 29\n{ORTHO}gl glClear 0x4000\ngl glEnable 0xb50\ngl glIndexi 9\ngl glRectf 1 1 7 7\nglread 0 0 16 16 {} {} 256\nglerr\nend\n", h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
     write!(s, "case lighting-material\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb50\ngl glEnable 0xb57\n", ctx(32)).unwrap();
     for i in 0..16 {
         let (x0, y0) = (i % 4 * 4, i / 4 * 4);
