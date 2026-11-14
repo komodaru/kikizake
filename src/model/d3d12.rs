@@ -693,6 +693,12 @@ pub fn create_hr(heap: u32, state: u32, d: &Desc) -> Res<u32> {
             hit("D3D12.DESC.LAYOUT");
             return Ok(E_INVALIDARG);
         }
+        2 if block(d.fmt).is_none() => {
+            // (MEASURED, golden d3d12-64 alloc-other-24..26, create-depth-layout: not the two-plane formats
+            // (D24S8, D32S8, NV12); D32 taken)
+            hit("D3D12.CREATE.LAYOUT64K");
+            return Ok(E_INVALIDARG);
+        }
         2 | 3 => hit("D3D12.DESC.LAYOUT"),
         _ => {
             hit("D3D12.DESC.LAYOUT");
@@ -797,7 +803,8 @@ impl D3d12 {
                         let known = 1 | 2 | 4 | 0x100 | 0x200;
                         let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0);
                         if flags & 4 != 0 {
-                            return Err(Fail::Unmodeled("DXGI.PRESENT.RESTART"));
+                            // (MEASURED, golden dxgi-64 chain-present-restart: presents as without it)
+                            hit("DXGI.PRESENT.RESTART");
                         }
                         if bad {
                             out.push(format!("present hr {DXGI_ERROR_INVALID_CALL:08x} index {index:x}"));

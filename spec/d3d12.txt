@@ -26,7 +26,7 @@ D3D12.ALLOC.VIDEO measured | (none) | NV12, 420_OPAQUE, P010, P016 in their two 
 D3D12.ALLOC.MSAA measured | (none) | a multisampled texture: the tight size times the samples, rounded and aligned to 4MB (64KB when that alignment is asked); D32_FLOAT_S8X24 counts 8 bytes, D24_UNORM_S8 4 (golden d3d12-64 alloc-other, 6 descriptions)
 D3D12.ALLOC.SWIZZLE measured | D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE, _64KB_STANDARD_SWIZZLE | whole 64KB tiles of the standard shapes (2D elements: 256x256 of 1 byte, 256x128 of 2, 128x128 of 4, 128x64 of 8, 64x64 of 16; 3D: 64x32x32, 32x32x32, 32x32x16, 32x16x16, 16x16x16), each mip level in its own, times the array (golden d3d12-64 alloc-other: both layouts, 2D and 3D, 3 and all mip levels, an array of 2, BC1)
 D3D12.ALLOC.RT1D measured | (none) | a 1D render target takes twice the tight size of D3D12.ALLOC.TEXTURE (fitted: golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats, with arrays and mips)
-D3D12.ALLOC.OTHER open | (none) | swizzled depth stencil and video textures (asked in alloc-other)
+D3D12.ALLOC.OTHER excluded | (none) | a guard: every description left (swizzled depth stencil, video, unknown layout) is refused before, D3D12.ALLOC.INVALID (golden d3d12-64 alloc-other-24..26)
 D3D12.ALLOC.INVALID measured | ID3D12Device::GetResourceAllocationInfo (an error: SizeInBytes UINT64_MAX) | a description CreateCommittedResource refuses gives UINT64_MAX, alignment 64KB (alloc-buffer, alloc-texture-*)
 D3D12.CREATE doc | ID3D12Device::CreateCommittedResource (ppvResource NULL: S_FALSE for a valid description) | S_FALSE when the resource could be made, E_INVALIDARG (measured) when not
 D3D12.HEAP.TYPE measured | D3D12_HEAP_TYPE | DEFAULT, UPLOAD, READBACK and GPU_UPLOAD (5) are taken; CUSTOM (with no page properties) and others refused (create-heap-*)
@@ -38,7 +38,7 @@ D3D12.CREATE.FORMAT measured | D3D12_FORMAT_SUPPORT1 | the format takes the text
 D3D12.CREATE.TARGETS measured | D3D12_FORMAT_SUPPORT1_RENDER_TARGET, _DEPTH_STENCIL | RENDER_TARGET needs a format that renders (color formats, D32_FLOAT and D16_UNORM too; not the planar depth families, block compressed, R1, Y410, Y416 and most video formats), DEPTH_STENCIL a format whose family has a depth format, DENY_SHADER_RESOURCE needs DEPTH_STENCIL (create-tex2drt-format, create-depth-format, create-*-flags)
 D3D12.CREATE.SINGLE measured | (none) | the video formats (NV12, P010, P016, 420_OPAQUE, YUY2, Y210, Y216) take arrays but one mip level; the 4:2:0 ones an even width and height, the 4:2:2 ones an even width (golden d3d12-64 create-split)
 D3D12.CREATE.QUALITY measured | (none) | with one sample the quality is not checked (create-tex*-quality)
-D3D12.CREATE.LAYOUT64K measured | D3D12_TEXTURE_LAYOUT | 64KB_UNDEFINED_SWIZZLE refuses a 2D array, takes mip levels (golden d3d12-64 create-split)
+D3D12.CREATE.LAYOUT64K measured | D3D12_TEXTURE_LAYOUT | 64KB_UNDEFINED_SWIZZLE refuses a 2D array and the two-plane formats, takes mip levels and single-plane depth (golden d3d12-64 create-split, alloc-other-24..26: D24S8, D32S8, NV12 refused; create-depth-layout: D32 taken)
 D3D12.CREATE.LAYOUTNOTIMPL measured | (none) | a layout of 0xffffffff gives E_NOTIMPL (create-*-layout)
 D3D12.CREATE.MIPS measured | (none) | CreateCommittedResource does not check MipLevels against the size (create-*-mips: up to 0xffff taken)
 D3D12.CREATE.STATE measured | D3D12_RESOURCE_STATES | a texture starting in RENDER_TARGET needs the render target flag, in DEPTH_WRITE the depth stencil flag (create-*-heaps)
