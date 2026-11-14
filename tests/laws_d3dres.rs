@@ -193,3 +193,16 @@ fn mutated_cases_never_panic() {
         }
     }
 }
+
+/// the Direct3D 10/11 models against Windows' 64-bit answers, the cases Windows has answered
+/// (a case newer than the answers is left to tests/windows.rs): for mutation testing
+#[test]
+fn d3d_models_match_the_answered_cases() {
+    for s in ["d3d10res", "d3d11res", "d3d10draw", "d3d11draw"] {
+        let Ok(g) = std::fs::read_to_string(format!("{}/golden/{s}-64/stdout.txt", env!("CARGO_MANIFEST_DIR"))) else { continue };
+        let want = kikizake::model::run(s, &parse_cases(&kikizake::gen::suite(s).unwrap()));
+        let r = kikizake::compare::compare_text(&want, &g);
+        let bad: Vec<_> = r.differ.iter().filter(|d| !d.contains(": missing (")).collect();
+        assert!(bad.is_empty(), "{s}: {bad:?}");
+    }
+}
