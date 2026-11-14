@@ -1,3 +1,12 @@
 # DXGI clauses (spec/README.md): <id> <status> | <source> | <what it says>
-DXGI.FACTORY open | CreateDXGIFactory2 | (being written)
-DXGI.SWAPCHAIN open | IDXGIFactory2::CreateSwapChainForHwnd | (being written)
+DXGI.FACTORY doc | CreateDXGIFactory2 | flags 0 make an IDXGIFactory4
+DXGI.FACTORY.FLAGS open | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | other flags
+DXGI.WARP assumed | IDXGIFactory4::EnumWarpAdapter, DXGI_ADAPTER_DESC1 | the WARP adapter: vendor 0x1414, device 0x8c, flags DXGI_ADAPTER_FLAG_SOFTWARE
+DXGI.ASSOC doc | IDXGIFactory::MakeWindowAssociation | flags are DXGI_MWA_NO_WINDOW_CHANGES, NO_ALT_ENTER, NO_PRINT_SCREEN; a NULL window only with flags 0; else DXGI_ERROR_INVALID_CALL (assumed for unknown flags)
+DXGI.CHAIN.EFFECT doc | DXGI_SWAP_EFFECT (Direct3D 12: flip model only) | DISCARD and SEQUENTIAL (and unknown effects) are refused with DXGI_ERROR_INVALID_CALL
+DXGI.CHAIN.BUFFERS doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | BufferCount 2 to 16
+DXGI.CHAIN.SAMPLES doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | SampleDesc 1 0
+DXGI.CHAIN.FORMAT doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | Format R16G16B16A16_FLOAT, B8G8R8A8_UNORM, R8G8B8A8_UNORM or R10G10B10A2_UNORM
+DXGI.CHAIN.SIZE doc | DXGI_SWAP_CHAIN_DESC1 (Width, Height 0: the window's) | a zero width or height is the window's client area (64)
+DXGI.CHAIN.OTHER open | DXGI_SWAP_CHAIN_DESC1 | stereo, scaling, alpha mode, usage, flags, large sizes
+DXGI.CHAIN.OPS open | IDXGISwapChain::ResizeBuffers, GetBuffer, Present, IDXGISwapChain2::SetMaximumFrameLatency | (being written)

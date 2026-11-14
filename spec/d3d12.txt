@@ -1,6 +1,38 @@
 # Direct3D 12 clauses (spec/README.md): <id> <status> | <source> | <what it says>
-D3D12.DEVICE doc | D3D12CreateDevice | a feature level 11_0 device on the default adapter (WARP where there is no GPU)
-D3D12.FOOTPRINT open | ID3D12Device::GetCopyableFootprints | (being written)
-D3D12.ALLOC open | ID3D12Device::GetResourceAllocationInfo | (being written)
-D3D12.CREATE open | ID3D12Device::CreateCommittedResource | (being written)
-D3D12.CLEAR open | ID3D12GraphicsCommandList::ClearRenderTargetView | (being written)
+D3D12.DEVICE doc | D3D12CreateDevice | a feature level 11_0 device on the default adapter (WARP where there is no GPU), with a direct queue
+D3D12.DESC.DIM doc | D3D12_RESOURCE_DIMENSION | the dimension is BUFFER (1), TEXTURE1D (2), TEXTURE2D (3) or TEXTURE3D (4)
+D3D12.DESC.BUFFER doc | D3D12_RESOURCE_DESC (Buffers) | a buffer: Alignment 0 or 64KB, Height, DepthOrArraySize and MipLevels 1, Format UNKNOWN, SampleDesc 1 0, Layout ROW_MAJOR, Width at least 1
+D3D12.DESC.SIZE doc | D3D12_RESOURCE_DESC (Textures) | Width, Height, DepthOrArraySize from 1 to the feature level's limits: 1D 16384 wide, 2D 16384 by 16384, arrays of 2048, 3D 2048 cubed; 1D textures 1 high
+D3D12.DESC.MIPS doc | D3D12_RESOURCE_DESC (MipLevels) | MipLevels 0 (the full chain) up to the full chain of the largest dimension (Width, Height, and for 3D the depth)
+D3D12.DESC.ALIGN doc | D3D12_RESOURCE_DESC (Alignment) | a texture's Alignment is 0, 4KB, 64KB or 4MB
+D3D12.DESC.MSAA doc | D3D12_RESOURCE_DESC (SampleDesc) | SampleDesc.Count is at least 1; more than 1 (or a quality) only for a 2D render target or depth stencil with one mip level, no unordered access, no simultaneous access, no standard swizzle
+D3D12.DESC.LAYOUT doc | D3D12_TEXTURE_LAYOUT | the layout is UNKNOWN, ROW_MAJOR, 64KB_UNDEFINED_SWIZZLE or 64KB_STANDARD_SWIZZLE (0..3)
+D3D12.DESC.FLAGS doc | D3D12_RESOURCE_FLAGS | flags are D3D12_RESOURCE_FLAGS bits; a buffer is no render target or depth stencil
+D3D12.FOOTPRINT.LAYOUT doc | ID3D12Device::GetCopyableFootprints, D3D12_SUBRESOURCE_FOOTPRINT, D3D12_PLACED_SUBRESOURCE_FOOTPRINT | subresource i is mip i mod MipLevels of array slice i / MipLevels; its footprint has the texture's format, the mip's size (1D 1 high, 2D depth 1), RowPitch the row size rounded up to 256, rows its height; each subresource starts at the next multiple of 512 after the one before (assumed: counted from BaseOffset, which is added to each), the total ends at the last row of the last one (assumed)
+D3D12.FOOTPRINT.BLOCK doc | ID3D12Device::GetCopyableFootprints (sizes of compressed formats are logical) | a block format's footprint is its mip's size rounded up to whole blocks, a row one row of blocks
+D3D12.FOOTPRINT.MIPS0 assumed | D3D12_RESOURCE_DESC (MipLevels 0: the API computes the full chain) | MipLevels 0 lays out the full chain
+D3D12.FOOTPRINT.BUFFER doc | ID3D12Device::GetCopyableFootprints | a buffer is one subresource: format UNKNOWN, Width bytes, 1 high and deep, RowPitch Width rounded up to 256, one row of Width bytes; the total is Width
+D3D12.FOOTPRINT.INVALID open | ID3D12Device::GetCopyableFootprints (an invalid description: TotalBytes UINT64_MAX) | what the layouts, rows and row sizes become for an invalid description
+D3D12.FOOTPRINT.RANGE open | ID3D12Device::GetCopyableFootprints | subresources past the last
+D3D12.FOOTPRINT.PLANAR open | ID3D12Device::GetCopyableFootprints | the planes of the depth stencil formats
+D3D12.FOOTPRINT.FORMAT open | ID3D12Device::GetCopyableFootprints | UNKNOWN, video, opaque and unassigned formats
+D3D12.ALLOC.BUFFER doc | ID3D12Device::GetResourceAllocationInfo | a buffer: the smallest multiple of 64KB at least Width, aligned to 64KB
+D3D12.ALLOC.TEXTURE open | ID3D12Device::GetResourceAllocationInfo (textures: adapter and driver specific) | what WARP gives a texture
+D3D12.ALLOC.INVALID open | ID3D12Device::GetResourceAllocationInfo (an error: SizeInBytes UINT64_MAX) | the alignment given with it
+D3D12.CREATE doc | ID3D12Device::CreateCommittedResource (ppvResource NULL: S_FALSE for a valid description) | S_FALSE when the resource could be made, E_INVALIDARG (assumed) when not
+D3D12.HEAP.TYPE doc | D3D12_HEAP_TYPE | the heap type is DEFAULT, UPLOAD or READBACK (CUSTOM needs page properties)
+D3D12.HEAP.CPU doc | D3D12_HEAP_TYPE (UPLOAD: GENERIC_READ, READBACK: COPY_DEST) | an upload or readback heap takes buffers only, without render target, depth stencil or unordered access, created in GENERIC_READ (upload) or COPY_DEST (readback)
+D3D12.CREATE.FORMAT open | D3D12_FORMAT_SUPPORT1 | which formats a texture of each dimension, layout, alignment and flags takes
+D3D12.CREATE.STATE open | D3D12_RESOURCE_STATES | which initial states a default heap resource takes
+D3D12.CLEAR.DENORM doc | ID3D12GraphicsCommandList::ClearRenderTargetView (denormals set to 0, NaNs kept) | a denormal input is 0 (of its sign, assumed)
+D3D12.CLEAR.FLOAT32 doc | Data Conversion Rules | a 32-bit float channel holds the input as it is
+D3D12.CLEAR.FLOAT16 doc | Data Conversion Rules (narrower floats round to zero; too large: the largest; INF and NaN kept) | a 16-bit float channel: round to zero, too large to 65504 with the sign, infinities kept, a NaN a NaN (its bits: assumed the top mantissa bits, quiet)
+D3D12.CLEAR.FLOAT11 doc | Data Conversion Rules | 11 and 10 bit floats (no sign): as 16-bit ones; negative values 0 (assumed)
+D3D12.CLEAR.UNORM doc | Data Conversion Rules (FLOAT to UNORM) | NaN 0, clamped to 0..1, times 2^n-1, plus 0.5, truncated
+D3D12.CLEAR.SNORM doc | Data Conversion Rules (FLOAT to SNORM) | NaN 0, clamped to -1..1, times 2^(n-1)-1, plus or minus 0.5, truncated
+D3D12.CLEAR.SRGB doc | Data Conversion Rules (FLOAT to SRGB) | NaN 0, clamped, 12.92c up to 0.0031308, else 1.055c^(1/2.4)-0.055, then as UNORM; alpha as UNORM
+D3D12.CLEAR.INT assumed | Data Conversion Rules (integer targets: round to nearest even) | UINT and SINT channels: the float rounded to nearest even and clamped to the channel, NaN 0
+D3D12.CLEAR.X assumed | (none) | an unused (X) channel is 0
+D3D12.CLEAR.FORMAT doc | D3D12_FORMAT_SUPPORT1_RENDER_TARGET | a format that is no render target (UNKNOWN, depth, block compressed) is refused: the texture is not made
+D3D12.CLEARDSV doc | ID3D12GraphicsCommandList::ClearDepthStencilView (Depth clamped to 0..1) | the depth as D32_FLOAT or UNORM 16 / 24 (24 in the low bits of plane 0, assumed), the stencil plane the stencil's low byte
+D3D12.CLEARDSV.NAN assumed | (none) | a NaN depth clears to 0
