@@ -76,7 +76,7 @@ pub fn wicscale() -> String {
                 }
             }
         }
-        for f in ["gray8", "bgr24", "bgra", "pbgra"] {
+        for f in ["gray8", "bgr24", "bgra", "pbgra", "gray16", "rgb48", "rgba64", "rgba", "alpha8"] {
             for (i, (sw, sh, dw, dh)) in [(3, 4, 7, 5), (5, 3, 2, 8), (4, 4, 9, 9), (8, 6, 3, 13), (6, 2, 6, 7), (7, 7, 3, 3)].into_iter().enumerate() {
                 writeln!(s, "case rgrid-{m}-{f}-{sw}x{sh}-{dw}x{dh}\nwbits {f} {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels\nend", 70_000 + k * 100 + i).unwrap();
             }
