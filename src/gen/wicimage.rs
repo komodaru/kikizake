@@ -1023,6 +1023,63 @@ pub fn wicdecode() -> String {
             decode_case(s, &format!("cut-{name}-{k}"), &f[..k], frames, false);
         }
     };
+    // (a TIFF whose IFD comes first and its strips last, a GIF whose data spans many
+    // sub-blocks, an interlaced PNG: cut every few bytes)
+    let mut rc = XorShift32::new(0xc07);
+    {
+        let (w, h, rps) = (5u32, 3u32, 2u32);
+        let px = bytes(&mut rc, (w * h * 3) as usize);
+        let mut v = b"II\x2a\0".to_vec();
+        v.extend_from_slice(&8u32.to_le_bytes());
+        let n = 10u16;
+        let after = 8 + 2 + 12 * n as u32 + 4;
+        let (bits_at, offs_at, counts_at) = (after, after + 6, after + 14);
+        let strips = after + 22;
+        let row = w * 3;
+        let tags: [(u16, u16, u32, u32); 10] = [(256, 4, 1, w), (257, 4, 1, h), (258, 3, 3, bits_at), (259, 3, 1, 1), (262, 3, 1, 2), (273, 4, 2, offs_at), (277, 3, 1, 3), (278, 4, 1, rps), (279, 4, 2, counts_at), (284, 3, 1, 1)];
+        v.extend_from_slice(&n.to_le_bytes());
+        for (t, ty, c, val) in tags {
+            v.extend_from_slice(&t.to_le_bytes());
+            v.extend_from_slice(&ty.to_le_bytes());
+            v.extend_from_slice(&c.to_le_bytes());
+            v.extend_from_slice(&if ty == 3 && c == 1 { (val as u16 as u32).to_le_bytes() } else { val.to_le_bytes() });
+        }
+        v.extend_from_slice(&0u32.to_le_bytes());
+        for b in [8u16, 8, 8] {
+            v.extend_from_slice(&b.to_le_bytes());
+        }
+        for o in [strips, strips + rps * row] {
+            v.extend_from_slice(&o.to_le_bytes());
+        }
+        for c in [rps * row, (h - rps) * row] {
+            v.extend_from_slice(&c.to_le_bytes());
+        }
+        assert_eq!(v.len() as u32, strips);
+        v.extend_from_slice(&px);
+        for k in 1..v.len() {
+            decode_case(&mut s, &format!("cuta-tiff-{k}"), &v[..k], 1, false);
+        }
+        decode_case(&mut s, "cuta-tiff-whole", &v, 1, false);
+    }
+    {
+        let idx: Vec<u8> = (0..32 * 16).map(|_| rc.next() as u8).collect();
+        let g = gif(32, 16, Some(&rand_pal(&mut rc, 256)), 0, &[GifFrame { x: 0, y: 0, w: 32, h: 16, local: None, transparent: None, interlace: false, idx, min: 8 }]);
+        for k in (790..g.len()).step_by(3) {
+            decode_case(&mut s, &format!("cuta-gif-{k}"), &g[..k], 1, false);
+        }
+    }
+    {
+        let mut filtered = Vec::new();
+        for &(x0, y0, dx, dy) in &ADAM7 {
+            let (pw, ph) = ((9 + dx - 1 - x0) / dx, (9 + dy - 1 - y0) / dy);
+            let raw: Vec<Vec<u8>> = (0..ph).map(|_| bytes(&mut rc, pw as usize * 3)).collect();
+            filtered.extend(png_filter(&raw, 3, &[0]));
+        }
+        let p = png(9, 9, 8, 2, true, &[], &filtered, 60);
+        for k in 41..p.len() {
+            decode_case(&mut s, &format!("cuta-png-adam7-{k}"), &p[..k], 1, false);
+        }
+    }
     let gf = gif(6, 4, Some(&rand_pal(&mut r, 16)), 0, &[GifFrame { x: 0, y: 0, w: 6, h: 4, local: None, transparent: None, interlace: false, idx: bytes(&mut r, 24).iter().map(|v| v & 15).collect(), min: 4 }]);
     cuts(&mut s, "gif", &gf, 1);
     let tf = tiff(false, &[TiffImage { w: 5, h: 3, photometric: 2, bits: 8, samples: 3, extra: None, planar: 1, rps: 2, px: bytes(&mut r, 45), map: vec![], res: None, format: 1 }]);
