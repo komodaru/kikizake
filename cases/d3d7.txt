@@ -16715,6 +16715,297 @@ d3dtri 0xff0000ff 0 0 256 0 256 128 z 450
 d3ddump
 d3dzdump
 end
+case cullin-2-0
+d3d 2
+d3ddev rgb 32 8 8
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-2-15
+d3d 2
+d3ddev rgb 32 8 8
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-2-15
+d3d 2
+d3ddev rgb 32 8 8
+d3drs set 22 2
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-2-15
+d3d 2
+d3ddev rgb 32 8 8
+d3drs set 22 3
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-3-0
+d3d 3
+d3ddev rgb 32 8 8
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-3-15
+d3d 3
+d3ddev rgb 32 8 8
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-3-15
+d3d 3
+d3ddev rgb 32 8 8
+d3drs set 22 2
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-3-15
+d3d 3
+d3ddev rgb 32 8 8
+d3drs set 22 3
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-7-0
+d3d 7
+d3ddev rgb 32 8 8
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-7-15
+d3d 7
+d3ddev rgb 32 8 8
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-7-15
+d3d 7
+d3ddev rgb 32 8 8
+d3drs set 22 2
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case cullin-7-15
+d3d 7
+d3ddev rgb 32 8 8
+d3drs set 22 3
+d3dclear 0xff000000
+d3dtri 0xffff0000 4 4 116 4 4 116
+d3dtri 0xff00ff00 116 116 116 4 4 116
+d3ddump
+end
+case zcover-3-z16-0
+d3d 3
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 600
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+end
+case zcover-3-z16-1
+d3d 3
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 300
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 600
+d3ddump
+d3dzdump
+end
+case zcover-3-z16-2
+d3d 3
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+end
+case zcover-3-z32-0
+d3d 3
+d3ddev rgb 32 8 4 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 600
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+end
+case zcover-3-z32-1
+d3d 3
+d3ddev rgb 32 8 4 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 300
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 600
+d3ddump
+d3dzdump
+end
+case zcover-3-z32-2
+d3d 3
+d3ddev rgb 32 8 4 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+end
+case zcover-7-z16-0
+d3d 7
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 600
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+end
+case zcover-7-z16-1
+d3d 7
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 300
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 600
+d3ddump
+d3dzdump
+end
+case zcover-7-z16-2
+d3d 7
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+end
+case zcover-7-z32-0
+d3d 7
+d3ddev rgb 32 8 4 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 600
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+end
+case zcover-7-z32-1
+d3d 7
+d3ddev rgb 32 8 4 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 300
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 600
+d3ddump
+d3dzdump
+end
+case zcover-7-z32-2
+d3d 7
+d3ddev rgb 32 8 4 z32
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0xff000000 z 1000
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+end
+case zfunc
+d3d 7
+d3ddev rgb 32 8 4 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 500
+d3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500
+d3ddump
+end
+case blendone
+d3d 7
+d3ddev rgb 32 8 4
+d3drs set 22 1
+d3dfill 7
+d3drs set 27 1
+d3drs set 19 2
+d3drs set 20 2
+d3dtri 0x80402010 -16 -16 600 -16 -16 600
+d3ddump
+end
+case blend565
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3dfill 9
+d3drs set 27 1
+d3drs set 19 5
+d3drs set 20 6
+d3dtri 0x80c08040 -16 -16 600 -16 -16 600
+d3ddump
+end
+case dither565
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3drs set 26 1
+d3dtri 0xff837261 -16 -16 600 -16 -16 600
+d3ddump
+end
+case clearnoz
+d3d 7
+d3ddev rgb 32 8 4
+d3dclear 0xff102030 z 500
+d3ddump
+end
+case haldraw
+d3d 7
+d3ddev hal 32 8 4
+d3dclear 0xff102030
+d3dtri 0xffff0000 4 4 132 4 4 132
+d3ddump
+end
 case nodev
 d3denum
 d3ddev rgb 32 8 4

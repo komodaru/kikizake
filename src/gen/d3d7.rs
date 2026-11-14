@@ -121,6 +121,29 @@ pub fn d3d7() -> String {
             writeln!(s, "case ztest-{v}-{z}\nd3d {v}\nd3ddev rgb 32 16 8 {z}\nd3drs set 22 1\nd3drs set 7 1\nd3dclear 0xff000000 z 1000\nd3dtri 0xffff0000 0 0 256 0 0 128 z 600\nd3dtri 0xff00ff00 0 0 256 128 0 128 z 300\nd3dtri 0xff0000ff 0 0 256 0 256 128 z 450\nd3ddump\nd3dzdump\nend").unwrap();
         }
     }
+    // the same windings with no pixel center near an edge (1/4 px off the grid)
+    for v in [2, 3, 7] {
+        for cull in ["", "\nd3drs set 22 1", "\nd3drs set 22 2", "\nd3drs set 22 3"] {
+            writeln!(s, "case cullin-{v}-{}\nd3d {v}\nd3ddev rgb 32 8 8{cull}\nd3dclear 0xff000000\nd3dtri 0xffff0000 4 4 116 4 4 116\nd3dtri 0xff00ff00 116 116 116 4 4 116\nd3ddump\nend", cull.len()).unwrap();
+        }
+    }
+    // the z test with triangles covering the whole target, each order of z
+    for v in [3, 7] {
+        for z in ["z16", "z32"] {
+            for (i, (a, b)) in [(600, 300), (300, 600), (500, 500)].iter().enumerate() {
+                writeln!(s, "case zcover-{v}-{z}-{i}\nd3d {v}\nd3ddev rgb 32 8 4 {z}\nd3drs set 22 1\nd3drs set 7 1\nd3dclear 0xff000000 z 1000\nd3dtri 0xffff0000 -16 -16 600 -16 -16 600 z {a}\nd3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z {b}\nd3ddump\nd3dzdump\nend").unwrap();
+            }
+        }
+    }
+    // a z test other than LESSEQUAL, other blend factors, blending and dithering on 16 bits
+    writeln!(s, "case zfunc\nd3d 7\nd3ddev rgb 32 8 4 z16\nd3drs set 22 1\nd3drs set 7 1\nd3drs set 23 2\nd3dclear 0xff000000 z 500\nd3dtri 0xffff0000 -16 -16 600 -16 -16 600 z 500\nd3ddump\nend").unwrap();
+    writeln!(s, "case blendone\nd3d 7\nd3ddev rgb 32 8 4\nd3drs set 22 1\nd3dfill 7\nd3drs set 27 1\nd3drs set 19 2\nd3drs set 20 2\nd3dtri 0x80402010 -16 -16 600 -16 -16 600\nd3ddump\nend").unwrap();
+    writeln!(s, "case blend565\nd3d 7\nd3ddev rgb 565 8 4\nd3drs set 22 1\nd3dfill 9\nd3drs set 27 1\nd3drs set 19 5\nd3drs set 20 6\nd3dtri 0x80c08040 -16 -16 600 -16 -16 600\nd3ddump\nend").unwrap();
+    writeln!(s, "case dither565\nd3d 7\nd3ddev rgb 565 8 4\nd3drs set 22 1\nd3drs set 9 1\nd3drs set 26 1\nd3dtri 0xff837261 -16 -16 600 -16 -16 600\nd3ddump\nend").unwrap();
+    // Clear of the z-buffer without one
+    writeln!(s, "case clearnoz\nd3d 7\nd3ddev rgb 32 8 4\nd3dclear 0xff102030 z 500\nd3ddump\nend").unwrap();
+    // drawing on the HAL
+    writeln!(s, "case haldraw\nd3d 7\nd3ddev hal 32 8 4\nd3dclear 0xff102030\nd3dtri 0xffff0000 4 4 132 4 4 132\nd3ddump\nend").unwrap();
     // without a device
     writeln!(s, "case nodev\nd3denum\nd3ddev rgb 32 8 4\nd3drs get 7\nd3dclear 0\nd3dtri 0 0 0 1 1 2 2\nd3ddump\nend").unwrap();
     writeln!(s, "case nodevice\nd3d 7\nd3drs get 7\nd3dclear 0\nd3dtri 0 0 0 1 1 2 2\nd3ddump\nend").unwrap();

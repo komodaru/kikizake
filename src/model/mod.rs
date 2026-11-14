@@ -9,6 +9,7 @@ pub mod dxgi_format;
 pub mod d3dres;
 pub mod dxgifmt;
 pub mod ddraw;
+pub mod d3d7;
 pub mod d3d9;
 pub mod d3d9draw;
 pub mod d3dx9;
@@ -108,6 +109,12 @@ impl Api for ddraw::Ddraw {
     }
 }
 
+impl Api for d3d7::D3d7 {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        d3d7::D3d7::op(self, op, out)
+    }
+}
+
 impl Api for gdiplus::Gdiplus {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         gdiplus::Gdiplus::op(self, op, out)
@@ -135,6 +142,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(d3d11::D3d11::default()),
         Box::new(Wic),
         Box::new(ddraw::Ddraw::default()),
+        Box::new(d3d7::D3d7::default()),
         Box::new(gdiplus::Gdiplus::default()),
         Box::new(dwrite::Dwrite::default()),
         Box::new(d3d12::D3d12::default()),

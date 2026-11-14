@@ -10,7 +10,7 @@ mod d3d11;
 pub mod d3d12;
 mod d3ddraw;
 mod d3dres;
-mod d3d7;
+pub mod d3d7;
 pub mod dxbc;
 mod d3d9;
 mod d3d9draw;

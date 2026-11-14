@@ -1,0 +1,25 @@
+# Direct3D 1/2/3/7 clauses (spec/README.md): <id> <status> | <source> | <what it says>
+D3D7.X64 measured | (none) | in a 64-bit process IDirectDraw7 gives no IDirect3D, IDirect3D2, IDirect3D3 or IDirect3D7: E_NOINTERFACE (d3d7-64 golden)
+D3D7.CREATE doc | IDirectDraw7::QueryInterface (IID_IDirect3D, IID_IDirect3D2, IID_IDirect3D3, IID_IDirect3D7) | an IDirect3D of the version asked for, from the DirectDraw object
+D3D7.ENUM measured | IDirect3D7::EnumDevices, IDirect3D3::EnumDevices | the devices and caps each version lists, as Windows lists them (d3d7-32 golden, src/model/d3d7.txt)
+D3D7.DEVICE measured | IDirect3D7::CreateDevice, IDirect3D3::CreateDevice | which device types each version creates and on which target formats and z-buffers; the rest with the measured error (d3d7-32 golden: every type, format and z-buffer)
+D3D7.OTHERDEV open | (none) | drawing on HAL, TnL HAL and MMX devices (the RGB device is modelled)
+D3D7.RS measured | IDirect3DDevice7::GetRenderState | the default render states of a new device for states 0..255, values or the error, per version (d3d7-32 golden, src/model/d3d7.txt); with a z-buffer D3DRENDERSTATE_ZENABLE is 1
+D3D7.STATES doc | IDirect3DDevice7::SetRenderState | a state set reads back as set
+D3D7.CLEAR measured | IDirect3DDevice7::Clear, IDirect3DViewport3::Clear2 | D3DCLEAR_TARGET writes the color with each channel cut to the target's bits (truncated), alpha 0 on X8R8G8B8; rectangles are clipped to the target and a rectangle turned round clears nothing (d3d7-32 golden: every channel value per format)
+D3D7.CLEAR.Z measured | IDirect3DDevice7::Clear (D3DCLEAR_ZBUFFER) | the z value times the depth's maximum, rounded to nearest and clamped (d3d7-32 golden: 0..1000 millis for z16, z24, z32)
+D3D7.CLEAR.NOZ open | IDirect3DDevice7::Clear | D3DCLEAR_ZBUFFER with no z-buffer attached (the documented error not yet measured)
+D3D7.LOCK doc | IDirectDrawSurface7::Lock | the render target and z-buffer read back through Lock
+D3D7.TRI measured | IDirect3DDevice7::DrawPrimitive (D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX) | a pixel whose center is inside the three edges is drawn; z written is trunc(z*65536) (z16, at most 65535) or trunc(z*(2^32-1)) (z32) (d3d7-32 golden, 160 triangles away from edges)
+D3D7.TRI.EDGE open | (none) | a pixel center within 1/8 px of an edge: the RGB rasterizer's own arithmetic decides (the top-left rule does not fit)
+D3D7.TRI.CLIP open | (none) | a triangle crossing the target's edge: the guard-band clipper moves edges by up to 0.6 px
+D3D7.TRI.COVERALL measured | (none) | a triangle crossing the target that covers every pixel of it: every pixel drawn (d3d7-32 golden)
+D3D7.CULL doc | D3DRENDERSTATE_CULLMODE | D3DCULL_CCW drops triangles wound counterclockwise on screen, D3DCULL_CW clockwise, D3DCULL_NONE none
+D3D7.GOURAUD open | D3DSHADE_GOURAUD | the colors between the vertices with Gouraud shading
+D3D7.FLAT doc | D3DRENDERSTATE_SHADEMODE (D3DSHADE_FLAT) | the color of the first vertex of the triangle
+D3D7.DITHER open | D3DRENDERSTATE_DITHERENABLE | dithering on a 16-bit target
+D3D7.BLEND doc | D3DRENDERSTATE_ALPHABLENDENABLE, SRCBLEND, DESTBLEND | the source and destination mixed by the blend factors
+D3D7.BLEND.SRCALPHA measured | D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA | (s*a + d*(255-a)) >> 8 per channel on 24 and 32-bit targets (d3d7-32 golden: 19968 samples exact)
+D3D7.BLEND16 open | (none) | alpha blending on a 16-bit target
+D3D7.ZFUNC doc | D3DRENDERSTATE_ZFUNC (D3DCMP_LESSEQUAL default) | a pixel is drawn when its z is at most the z-buffer's
+D3D7.ZTEST measured | D3DRENDERSTATE_ZENABLE, ZWRITEENABLE | LESSEQUAL against the z-buffer and the z written when drawn (d3d7-32 golden)
