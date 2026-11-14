@@ -458,16 +458,17 @@ proptest! {
         }
         let px: Vec<usize> = (0..w * h).map(|_| r.next() as usize % n).collect();
         let at = |x: usize, y: usize| pal[px[y * w + x]];
-        let ix = wi::dither(w, h, &at, &pal, &|_, _| false, wi::Clear::Skip);
+        let ix = wi::dither(w, h, &at, &pal, &|_, _| false);
         prop_assert_eq!(ix, px.iter().map(|&i| Some(i)).collect::<Vec<_>>());
         let any = |x: usize, y: usize| { let c = extra.get((x + y * w) % extra.len().max(1)).copied().unwrap_or([7, 77, 177]); c.map(i32::from) };
         let clear = |x: usize, y: usize| (x * 3 + y) % 5 == 0;
-        for how in [wi::Clear::Skip, wi::Clear::Diffuse] {
-            let ix = wi::dither(w, h, &any, &pal, &clear, how);
-            for (k, i) in ix.iter().enumerate() {
-                prop_assert_eq!(i.is_none(), clear(k % w, k / w));
-                prop_assert!(i.is_none_or(|i| i < n));
-            }
+        let ix = wi::dither(w, h, &any, &pal, &clear);
+        let opaque = wi::dither(w, h, &any, &pal, &|_, _| false);
+        for (k, i) in ix.iter().enumerate() {
+            prop_assert_eq!(i.is_none(), clear(k % w, k / w));
+            prop_assert!(i.is_none_or(|i| i < n));
+            // (a transparent pixel spends its error as an opaque one would)
+            prop_assert!(i.is_none() || *i == opaque[k]);
         }
     }
 }
@@ -484,4 +485,30 @@ fn encoder_options_are_typed() {
         assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
+}
+
+/// the measured linear table rises with the level, from 0 to 1, and the float formats agree
+/// with each other: gray is the channels' weighted sum, premultiplied is the straight times alpha
+#[test]
+fn linear16_is_a_curve_and_the_floats_agree() {
+    assert_eq!(wi::linear16(0), 0.0);
+    assert_eq!(wi::linear16(65535), 1.0);
+    for v in 1..=65535u16 {
+        assert!(wi::linear16(v) > wi::linear16(v - 1), "{v}");
+    }
+    let mut src = Img::new(64, 4, "rgba64");
+    let mut r = kikizake::rng::XorShift32::new(7);
+    for b in src.px.iter_mut() {
+        *b = r.next() as u8;
+    }
+    let f = |to| wi::wic_convert(&src, to).unwrap();
+    let (s, p, g) = (f("rgbafloat"), f("prgbafloat"), f("grayfloat"));
+    let at = |i: &Img, k: usize| f32::from_le_bytes(i.px[k * 4..k * 4 + 4].try_into().unwrap());
+    for x in 0..64 * 4 {
+        let a = at(&s, x * 4 + 3);
+        for c in 0..3 {
+            assert_eq!(at(&p, x * 4 + c), at(&s, x * 4 + c) * a);
+        }
+        assert_eq!(at(&g, x), (at(&s, x * 4) * 0.2126 + at(&s, x * 4 + 1) * 0.7152) + at(&s, x * 4 + 2) * 0.0722);
+    }
 }

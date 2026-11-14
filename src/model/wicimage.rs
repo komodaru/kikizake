@@ -140,9 +140,79 @@ pub fn scale_formats(f: &str, mode: &str) -> (&'static str, &'static str) {
     }
 }
 
-fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
+/// MEASURED (golden wicencode float-gray16-every-rgbfloat: every 16-bit level): the linear value
+/// Windows gives each 16-bit sRGB level, as little-endian f32 (neither sRGB's curve in f32,
+/// 0.4% of the levels, nor the 8-bit table interpolated at v / 257, 43%, makes it)
+static LINEAR16: &[u8; 65536 * 4] = include_bytes!("data/wic_linear16.bin");
+
+pub fn linear16(v: u16) -> f32 {
+    let k = usize::from(v) * 4;
+    f32::from_le_bytes([LINEAR16[k], LINEAR16[k + 1], LINEAR16[k + 2], LINEAR16[k + 3]])
+}
+
+/// MEASURED (golden wicencode float-*, fixed-*: 4096 and 1024 levels of 16bppGray, 48bppRGB and
+/// 64bppRGBA, every value as this): 16 bits a channel into the float formats: each color channel
+/// its LINEAR16 value, alpha v / 65535 in f32; 128bppPRGBAFloat multiplies in f32; 32bppGrayFloat
+/// is (r * 0.2126 + g * 0.7152) + b * 0.0722 in f32; 64bppRGBAFixedPoint rounds the value times
+/// 8192 (16bppGray's own path there is a level off for 140 of 4096 levels: open)
+fn wide_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    let n: usize = match s.fmt {
+        "gray16" => 1,
+        "rgb48" => 3,
+        "rgba64" => 4,
+        _ => return None,
+    };
+    let out: usize = match to {
+        "grayfloat" => 4,
+        "rgbafloat" | "prgbafloat" | "rgbfloat" => 16,
+        "rgba64fixed" if n > 1 => 8,
+        "rgba64fixed" => return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))),
+        _ => return None,
+    };
+    hit(clause::WICIMAGE_CONVERT_WIDE_FLOAT);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (w, st, ost) = (s.w as usize, s.stride(), o.stride());
+    for y in 0..s.h as usize {
+        for x in 0..w {
+            let at = |k: usize| {
+                let i = y * st + (x * n + k) * 2;
+                u16::from_le_bytes([s.px[i], s.px[i + 1]])
+            };
+            let c: [u16; 3] = if n == 1 { [at(0); 3] } else { [at(0), at(1), at(2)] };
+            let [r, g, b] = c.map(linear16);
+            let a16 = if n == 4 { Some(at(3)) } else { None };
+            let a = a16.map_or(1.0, |a| f32::from(a) / 65535.0);
+            let d = &mut o.px[y * ost + x * out..y * ost + (x + 1) * out];
+            let put = |d: &mut [u8], v: &[f32]| {
+                for (k, f) in v.iter().enumerate() {
+                    d[k * 4..k * 4 + 4].copy_from_slice(&f.to_le_bytes());
+                }
+            };
+            match to {
+                "grayfloat" => put(d, &[(r * 0.2126 + g * 0.7152) + b * 0.0722]),
+                // (128bppRGBFloat's fourth float keeps the alpha)
+                "rgbafloat" | "rgbfloat" => put(d, &[r, g, b, a]),
+                "prgbafloat" => put(d, &[r * a, g * a, b * a, a]),
+                _ => {
+                    let fix = |v: f64| ((v * 8192.0 + 0.5).floor() as i16).to_le_bytes();
+                    let fa = a16.map_or(1.0, |a| f64::from(a) / 65535.0);
+                    for (k, v) in [f64::from(r), f64::from(g), f64::from(b), fa].into_iter().enumerate() {
+                        d[k * 2..k * 2 + 2].copy_from_slice(&fix(v));
+                    }
+                }
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
+pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if s.fmt == to {
         return Ok(s.clone());
+    }
+    if let Some(r) = wide_to_float(s, to) {
+        return r;
     }
     let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER)) };
     if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {
@@ -2256,7 +2326,7 @@ pub fn dither_bw(g: &Img) -> Img {
     o.dpi = g.dpi;
     let gray = |x: usize, y: usize| [i32::from(g.px[y * g.stride() + x]); 3];
     // (black and white: the nearest to a cell's center is white from cell 8, so white from 128)
-    let ix = dither(g.w as usize, g.h as usize, &gray, &[[0; 3], [255; 3]], &|_, _| false, Clear::Skip);
+    let ix = dither(g.w as usize, g.h as usize, &gray, &[[0; 3], [255; 3]], &|_, _| false);
     let ost = o.stride();
     for (k, i) in ix.into_iter().enumerate() {
         let (x, y) = (k % g.w as usize, k / g.w as usize);
@@ -2267,22 +2337,13 @@ pub fn dither_bw(g: &Img) -> Img {
     o
 }
 
-/// what a pixel left transparent does with its value and the error it was handed
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Clear {
-    /// nothing: the error it was handed goes no further
-    Skip,
-    /// spends it as if it took its color's nearest entry
-    Diffuse,
-}
-
 /// MEASURED (golden wicencode encq-*, enc-gif-*, encbw-*: every pixel as Windows): pixels into a
 /// palette by Floyd and Steinberg's error diffusion (7, 3, 5, 1 sixteenths), serpentine with the
 /// first row right to left, errors kept in sixteenths and read back floored, each channel
 /// clamped to 0..=255; a pixel takes the entry nearest (squared distance, the first on a tie) to
 /// the center 17*(v>>4) of its 4-bit cell, and its error is against that entry. `clear` pixels
-/// get None.
-pub fn dither(w: usize, h: usize, px: &dyn Fn(usize, usize) -> [i32; 3], pal: &[[i32; 3]], clear: &dyn Fn(usize, usize) -> bool, how: Clear) -> Vec<Option<usize>> {
+/// get None, their error spent all the same (golden gifalpha-full16: 6 pixels otherwise).
+pub fn dither(w: usize, h: usize, px: &dyn Fn(usize, usize) -> [i32; 3], pal: &[[i32; 3]], clear: &dyn Fn(usize, usize) -> bool) -> Vec<Option<usize>> {
     let mut cells: std::collections::HashMap<[i32; 3], usize> = std::collections::HashMap::new();
     let mut near = |v: [i32; 3]| -> usize {
         let cell = v.map(|c| c >> 4);
@@ -2301,12 +2362,8 @@ pub fn dither(w: usize, h: usize, px: &dyn Fn(usize, usize) -> [i32; 3], pal: &[
             let x = if rtl { w - 1 - i } else { i };
             let s = px(x, y);
             let v: [i32; 3] = std::array::from_fn(|k| (s[k] + (cur[x + 1][k] >> 4)).clamp(0, 255));
-            let transparent = clear(x, y);
-            if transparent && how == Clear::Skip {
-                continue;
-            }
             let n = near(v);
-            if !transparent {
+            if !clear(x, y) {
                 out[y * w + x] = Some(n);
             }
             let (ahead, behind) = if rtl { (x, x + 2) } else { (x + 2, x) };
@@ -2372,15 +2429,11 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
         return Ok(o);
     }
     let b = wic_convert(c, "bgra")?;
-    // MEASURED (golden wicencode enc-gif-bgra, -pbgra, -rgba, -prgba, -rgba64, -alpha8: alphas up to 0x7d went
-    // transparent, 0x85 and up stayed): the palette is the colors with their alpha dropped, in the
-    // order they first come, and one transparent entry after them takes every pixel of alpha
-    // below a half; alphas between the measured ones are left open
+    // MEASURED (golden wicencode gifalpha-alpha: every alpha, 0..=0x7f transparent; enc-gif-bgra,
+    // -pbgra, -rgba, -prgba, -rgba64, -alpha8): the palette is the colors with their alpha dropped,
+    // in the order they first come, and one transparent entry after them takes every pixel of
+    // alpha below 0x80
     let alpha = |x: u32, y: u32| b.get(x, y)[3];
-    let alphas = (0..c.h).flat_map(|y| (0..c.w).map(move |x| (x, y)));
-    if alphas.clone().any(|(x, y)| (0x7e..=0x84).contains(&alpha(x, y))) {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
-    }
     let clear = |x: usize, y: usize| alpha(x as u32, y as u32) < 0x80;
     let mut pal: Vec<u32> = vec![];
     for y in 0..c.h {
@@ -2402,12 +2455,8 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
         [i32::from(p[2]), i32::from(p[1]), i32::from(p[0])]
     };
     let (w, h) = (c.w as usize, c.h as usize);
-    let ix = dither(w, h, &src, &rgb, &clear, Clear::Skip);
+    let ix = dither(w, h, &src, &rgb, &clear);
     let any_clear = (0..h).any(|y| (0..w).any(|x| clear(x, y)));
-    // (whether a transparent pixel passes its error on is not measured apart)
-    if any_clear && dither(w, h, &src, &rgb, &clear, Clear::Diffuse) != ix {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
-    }
     let t = pal.len();
     if any_clear {
         if t >> bits_of(nf) != 0 {
