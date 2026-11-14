@@ -979,6 +979,18 @@ pub fn wicdecode() -> String {
                 }
             }
         }
+        // (the order of a PNG and a BMP entry of every small size: PNG 1..5 x 1..5, BMP 1..4 x
+        // 1..4 of 32 bits, both file orders)
+        let mut r3 = XorShift32::new(0x1c0f);
+        for (pw, ph) in (1..=5u32).flat_map(|w| (1..=5u32).map(move |h| (w, h))) {
+            let raw: Vec<Vec<u8>> = (0..ph).map(|_| bytes(&mut r3, pw as usize * 4)).collect();
+            let p = png(pw, ph, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 100);
+            for (bw, bh) in (1..=4u32).flat_map(|w| (1..=4u32).map(move |h| (w, h))) {
+                let b = icon_bmp(&mut r3, bw, bh, 32);
+                decode_case(&mut s, &format!("icopair-p{pw}x{ph}-b{bw}x{bh}"), &ico(&[(pw, ph, 32, p.clone()), (bw, bh, 32, b.clone())]), 2, false);
+                decode_case(&mut s, &format!("icopair-b{bw}x{bh}-p{pw}x{ph}"), &ico(&[(bw, bh, 32, b), (pw, ph, 32, p.clone())]), 2, false);
+            }
+        }
         // (a directory that says 0 bits)
         let a = icon_bmp(&mut r, 3, 3, 8);
         let b = icon_bmp(&mut r, 2, 2, 4);
