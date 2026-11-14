@@ -1,8 +1,8 @@
 //! AnalyzeScript: script runs (Unicode 16.0 Scripts.txt, with Windows' own changes; ISO 15924
 //! codes as GetScriptProperties gives them), common and inherited characters taking the script
 //! of the run they are in.
-use crate::spec::{clause, open};
-use super::super::{Fail, Res};
+use crate::spec::clause;
+use super::super::Res;
 use crate::spec::hit;
 
 /// a script as AnalyzeScript names it: ISO 15924 code and number, and its shapes
@@ -99,13 +99,14 @@ fn iso(long: &str) -> Res<Script> {
         return Ok(Script { code, num, shapes: Shapes::Default });
     }
     // (every script of Scripts.txt is in iso15924.txt)
-    let (code, num) = crate::ucd::iso15924(long).ok_or(Fail::Unmodeled(open::DW_SCRIPT_CHAR))?;
+    let (code, num) = crate::ucd::iso15924(long).unwrap_or_else(|| panic!("spec/ucd: no ISO 15924 code for {long}"));
     Ok(Script { code, num, shapes: Shapes::Default })
 }
 
 /// the runs (UTF-16 position, length, script) of a text of code points. MEASURED (golden
 /// dwrite, scriptctx): an unassigned character is of a script of its own, Zzzz; a no-visual
-/// character too, Zyyy, but common characters before it do not join it (they are a Zzzz run)
+/// character too, Zyyy, but common characters next to it do not join it: before it they are a
+/// Zzzz run, after it they join the script after them (a Zzzz run at the end)
 pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, Script)>> {
     let mut v: Vec<(usize, usize, Script)> = Vec::new();
     let mut pending = 0; // (leading common characters' UTF-16 units)
@@ -115,8 +116,8 @@ pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, Script)>> {
         let s = match kind(c)? {
             Kind::Common => {
                 match v.last_mut() {
-                    // (after a no-visual character: not measured)
-                    Some(l) if l.2 == ZYYY => return Err(Fail::Unmodeled(open::DW_SCRIPT_CHAR)),
+                    // (after a no-visual character: as at the start)
+                    Some(l) if l.2 == ZYYY => pending += n,
                     Some(l) => {
                         hit(clause::DW_SCRIPT_COMMON);
                         l.1 += n
@@ -154,6 +155,9 @@ pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, Script)>> {
         // MEASURED: text of common and inherited characters only is one run of Zzzz (unknown)
         hit(clause::DW_SCRIPT_ALLCOMMON);
         v.push((0, pos, ZZZZ));
+    } else if pending > 0 {
+        // (common characters after a no-visual one at the end: a Zzzz run)
+        v.push((pos - pending, pending, ZZZZ));
     }
     Ok(v)
 }
