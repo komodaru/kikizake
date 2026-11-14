@@ -1269,6 +1269,27 @@ fn measure(s: &mut String) {
         writeln!(s, "gl glPixelTransferi 0xd11 {m}\ngl glPixelTransferi 0xd12 {sh}\ngl glPixelTransferi 0xd13 {sh}\nglread 0 0 16 4 {} {} 64\nglread 0 0 16 4 {} {} 256\nglread 0 0 16 4 {} {} 8", h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(FLOAT), h(STENCIL_INDEX), h(BITMAP)).unwrap();
     }
     writeln!(s, "glerr\nend").unwrap();
+    // glNormal3f, glVertex4f and glPixelStoref, and the capabilities that change what is
+    // drawn: lighting with the initial lights, face culling, point and polygon antialiasing
+    write!(s, "case other-calls-3\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\n", ctx(32)).unwrap();
+    writeln!(s, "gl glNormal3f 0.25 -0.5 2\nglget f 0xb02 3\nglget i 0xb02 3\ngl glPushAttrib 0x1\ngl glNormal3f 1 0 0\ngl glPopAttrib\nglget f 0xb02 3").unwrap();
+    writeln!(s, "gl glColor4ub 200 100 50 255\ngl glBegin 7\ngl glVertex4f 1 1 0 1\ngl glVertex4f 7 1 0 1\ngl glVertex4f 7 7 0 1\ngl glVertex4f 1 7 0 1\ngl glEnd\ngl glBegin 0\ngl glVertex4f 12 4 0 1\ngl glEnd").unwrap();
+    read_all(s);
+    for (p, v) in [(0xcf2, "3.4"), (0xcf3, "2.5"), (0xcf4, "1.6"), (0xcf5, "3.9"), (0xcf0, "0.25"), (0xcf1, "-0.5"), (0xd02, "-0.25"), (0xd05, "1.49"), (0xd05, "2.5")] {
+        writeln!(s, "gl glPixelStoref {} {v}\nglerr\nglget i {} 1", h(p), h(p)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case other-calls-4\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glPointSize 2\ngl glBegin 0\ngl glVertex4f 20 20 0 2\ngl glVertex4f 6 6 0.5 0.5\ngl glVertex4f -10 6 0 -2\ngl glEnd\n", ctx(32)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    for (k, cap) in [0xb50u32, 0xb44, 0xb10, 0xb41].into_iter().enumerate() {
+        write!(s, "case render-caps-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable {}\ngl glPointSize 3\n", ctx(32), h(cap)).unwrap();
+        writeln!(s, "gl glColor4ub 200 100 50 255\ngl glRectf 1 1 7 7\ngl glColor4ub 50 200 100 128\ngl glRectf 15 1 9 7\ngl glRectf 9.25 9.25 14.5 14.75\ngl glColor4ub 10 20 250 255\ngl glBegin 0\ngl glVertex2f 3.5 12.5\ngl glVertex2f 5.3 9.7\ngl glEnd").unwrap();
+        read_all(s);
+        writeln!(s, "gl glCullFace 0x404\ngl glFrontFace 0x900\ngl glColor4ub 250 250 0 255\ngl glRectf 2 10 6 14\ngl glRectf 1.5 14.5 0.5 9.5").unwrap();
+        read_all(s);
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // fog over flat quads, one depth each, in every mode on the RGBA bit depths, a fog color,
     // the state read back; and color index fog and points
     let mut q = XorShift32::new(0x0960_200b);

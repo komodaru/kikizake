@@ -69,6 +69,9 @@ pub mod e {
     pub const FOG_MODE: u32 = 0xb65;
     pub const FOG_COLOR: u32 = 0xb66;
     pub const POLYGON_OFFSET_FILL: u32 = 0x8037;
+    pub const LIGHTING: u32 = 0xb50;
+    pub const POINT_SMOOTH: u32 = 0xb10;
+    pub const POLYGON_SMOOTH: u32 = 0xb41;
     pub const MAP_COLOR: u32 = 0xd10;
     pub const INDEX_SHIFT: u32 = 0xd12;
     pub const INDEX_OFFSET: u32 = 0xd13;
@@ -430,6 +433,8 @@ pub struct Ctx {
     pub raster_color: [f32; 4],
     /// glFog
     pub fog: Fog,
+    /// the current normal (glNormal3f)
+    pub normal: [f32; 3],
     /// glPolygonOffset: (factor, units)
     pub offset: (f32, f32),
     pub line_width: f32,
@@ -509,6 +514,7 @@ impl Ctx {
             raster_color: [1.0; 4],
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
+            normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             point_size: 1.0,
             cull_mode: BACK,
@@ -585,7 +591,7 @@ impl Ctx {
         Ok(Some(match p {
             0xb00 => c4(self.color),
             0xb01 => vec![F(self.index)],
-            0xb02 => vec![C(0.0), C(0.0), C(1.0)],
+            0xb02 => self.normal.iter().map(|x| C(*x)).collect(),
             0xb03 | 0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
             0xb04 => c4([1.0; 4]),
             0xb05 => vec![F(1.0)],
@@ -1407,8 +1413,17 @@ impl Ctx {
                     self.error(INVALID_ENUM);
                 }
             }
-            "glPixelStorei" => {
-                let (p, v) = (u(a, 0), int(a, 1));
+            "glPixelStorei" | "glPixelStoref" => {
+                let p = u(a, 0);
+                // (glPixelStoref: GL 1.1 3.6.1, an integer parameter the value rounded to the
+                // nearest integer, a boolean one false for 0 only: GL.PIXELSTORE.FLOAT)
+                let v = if name == "glPixelStoref" {
+                    hit(clause::GL_PIXELSTORE_FLOAT);
+                    let f = fl(a, 1);
+                    if (0xd00..=0xd01).contains(&p) || (0xcf0..=0xcf1).contains(&p) { i64::from(f != 0.0) } else { f.round() as i64 }
+                } else {
+                    int(a, 1)
+                };
                 let (arr, k) = match p {
                     0xd00..=0xd05 => (&mut self.pack, (p - 0xd00) as usize),
                     0xcf0..=0xcf5 => (&mut self.unpack, (p - 0xcf0) as usize),
@@ -1532,7 +1547,12 @@ impl Ctx {
                 }
                 Some(m) => self.end(m)?,
             },
-            "glVertex2f" | "glVertex3f" | "glVertex2i" | "glVertex3i" => {
+            "glNormal3f" => {
+                hit(clause::GL_NORMAL);
+                self.normal = [fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32];
+            }
+            "glVertex4f" if fl(a, 3) != 1.0 => return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE)),
+            "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
                     self.verts.push((v, self.current()));
@@ -1820,6 +1840,10 @@ impl Ctx {
 
     fn end(&mut self, mode: u32) -> Res<()> {
         let verts = std::mem::take(&mut self.verts);
+        // (lighting, face culling and antialiasing are not measured)
+        if [LIGHTING, CULL_FACE, POINT_SMOOTH, POLYGON_SMOOTH].iter().any(|c| self.cap(*c)) {
+            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+        }
         match mode {
             POINTS => {
                 hit(clause::GL_POINT);
@@ -2355,6 +2379,7 @@ impl Ctx {
         caps(attrib::EVAL, &[0xd80, 0xd90, 0xd91, 0xd92, 0xd93, 0xd94, 0xd95, 0xd96, 0xd97, 0xd98, 0xdb0, 0xdb1, 0xdb2, 0xdb3, 0xdb4, 0xdb5, 0xdb6, 0xdb7, 0xdb8]);
         if mask & attrib::CURRENT != 0 {
             self.color = s.color;
+            self.normal = s.normal;
         }
         if mask & attrib::POINT != 0 {
             self.point_size = s.point_size;
