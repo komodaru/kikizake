@@ -12,7 +12,9 @@
 pub mod case;
 pub mod compare;
 pub mod gen;
+pub mod learn;
 pub mod model;
 pub mod rng;
 pub mod spec;
+pub mod trace;
 pub mod ttf;

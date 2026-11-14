@@ -3,6 +3,8 @@
 //!   kikizake model <suite> [cases file]   what Windows prints for them, by the model
 //!   kikizake compare <want> <got>         two outputs, case by case (exit 1 on a difference)
 //!   kikizake spec                         each clause (spec/), its status and how many cases reach it
+//!   kikizake learn pages|resolve|check    the documentation the clauses cite (src/learn.rs)
+//!   kikizake trace [golden dir]           each clause's evidence (cases against Windows, laws) and gaps, per API
 use std::process::exit;
 use kikizake::{case, compare, gen, model};
 
@@ -37,6 +39,8 @@ fn main() {
                 println!("{:24} {:9} {:5}  {}", c.id, c.status, cov.get(&c.id).map_or(0, |v| v.len()), c.text);
             }
         }
+        ["learn", rest @ ..] => exit(kikizake::learn::main(rest)),
+        ["trace", rest @ ..] => print!("{}", kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden")))),
         ["compare", want, got] => {
             let r = compare::compare_text(&read(want), &read(got));
             for d in &r.differ {
@@ -46,7 +50,7 @@ fn main() {
             exit(if r.differ.is_empty() { 0 } else { 1 })
         }
         _ => {
-            eprintln!("usage: kikizake gen <suite> | model <suite> [cases] | compare <want> <got> | spec");
+            eprintln!("usage: kikizake gen <suite> | model <suite> [cases] | compare <want> <got> | spec | trace [golden] | learn pages|resolve|check");
             exit(2)
         }
     }

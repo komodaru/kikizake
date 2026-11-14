@@ -17,3 +17,9 @@ The models name a clause each time they apply it (`spec::hit`), and `cargo test`
 every clause here is reached by some case of the suites, that the code names no clause missing
 here, and prints the coverage (`cargo run -- spec`: each clause, its status, the cases that
 reach it).
+
+`spec/laws.txt` lists the laws (tests/) and the clauses each checks, `spec/learn.txt` where the cited
+pages are, `spec/unresolved.txt` the clauses not settled yet (only shrinks). `cargo run -- trace`
+prints, for every clause, the cases that reach it against Windows' answers (same, differ,
+unmodeled, unanswered), its laws and what it lacks; `cargo run -- learn check` checks the clauses'
+quotes against the pages (CONTRIBUTING.md, Evidence).

@@ -250,6 +250,7 @@ impl D3d7 {
                     if rs_default(ver, st).is_none() {
                         out.push(format!("rs set {st} hr {E_INVALIDARG:08x}"));
                     } else {
+                        hit("D3D7.STATES");
                         self.rs.insert(st, v);
                     }
                 } else {
@@ -385,7 +386,7 @@ impl D3d7 {
         let others = [(8, 3), (15, 0), (28, 0), (29, 0), (16, 1), (41, 0)];
         if others.iter().any(|&(k, d)| st(k) != d) {
             // (fill modes, the alpha test, fog, specular light, LASTPIXEL, stippling)
-            return Err(Fail::Unmodeled("D3D7.STATES"));
+            return Err(Fail::Unmodeled("D3D7.STATES.OTHER"));
         }
         let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
         // MEASURED (cull golden): D3DCULL_CCW (the default) drops triangles of negative area in
@@ -395,7 +396,7 @@ impl D3d7 {
             return Ok(());
         }
         if !(1..=3).contains(&cull) {
-            return Err(Fail::Unmodeled("D3D7.STATES"));
+            return Err(Fail::Unmodeled("D3D7.STATES.OTHER"));
         }
         let gouraud = c[0] != c[1] || c[0] != c[2];
         if gouraud && shade != 1 {
@@ -442,13 +443,13 @@ impl D3d7 {
         }
         hit(if inside { "D3D7.TRI" } else { "D3D7.TRI.COVERALL" });
         if blend != 0 && (src, dst) != (5, 6) {
-            return Err(Fail::Unmodeled("D3D7.BLEND"));
+            return Err(Fail::Unmodeled("D3D7.BLEND.OTHER"));
         }
         if zen != 0 && rt.zbits == 0 {
-            return Err(Fail::Unmodeled("D3D7.STATES"));
+            return Err(Fail::Unmodeled("D3D7.STATES.OTHER"));
         }
         if zen != 0 && zfunc != 4 {
-            return Err(Fail::Unmodeled("D3D7.ZFUNC"));
+            return Err(Fail::Unmodeled("D3D7.ZFUNC.OTHER"));
         }
         let zv = if rt.zbits > 0 { tri_z(rt.zbits, z) } else { 0 };
         let p = pixel(rt.fmt, col);
@@ -459,6 +460,7 @@ impl D3d7 {
             if zen != 0 {
                 hit("D3D7.ZTEST");
                 // D3DCMP_LESSEQUAL (the default)
+                hit("D3D7.ZFUNC");
                 if zv > rt.z[k] {
                     continue;
                 }
@@ -469,6 +471,7 @@ impl D3d7 {
             if blend != 0 {
                 // MEASURED (blend golden: 52 alphas x 128 pixels x 3 channels, all exact) SRCALPHA,
                 // INVSRCALPHA: (s * a + d * (255 - a)) >> 8 per 8-bit channel
+                hit("D3D7.BLEND");
                 hit("D3D7.BLEND.SRCALPHA");
                 let a = col >> 24;
                 let s = channels(rt.fmt, p);

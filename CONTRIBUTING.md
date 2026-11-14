@@ -41,6 +41,27 @@ so work on different APIs does not collide.
   named, and say how it was found (a table of every value, a fitted formula and on how many
   samples). Never widen `unmodeled` to hide a difference you can explain.
 
+## Evidence (spec/laws.txt, spec/learn.txt, spec/unresolved.txt)
+
+Every clause has to show the evidence its status claims; `cargo test` (tests/spec.rs) checks it and
+`cargo run -- trace` prints each clause's evidence and the gaps per API:
+
+* `doc`: its source names pages that `spec/learn.txt` knows (`cargo run -- learn resolve` finds
+  missing ones on Microsoft Learn; check the line by eye), and a law (below) or a case Windows
+  agrees with checks it. What it quotes must be the page's words (`cargo run -- learn check`,
+  also the weekly `learn` workflow).
+* `measured`: a case that reaches it agrees with Windows' answer (a case that stops at an open
+  clause compares nothing: give each description its own case).
+* `assumed`: a law or a case Windows agrees with.
+* `Fail::Unmodeled(<id>)` names an `open` or `excluded` clause only.
+* Nothing is left unresolved: every `open`, `assumed` and `excluded` clause is listed in
+  `spec/unresolved.txt`, and that list only shrinks. Settle a clause (model it from the
+  documentation, fit it to Windows' answers) and take its line out; a new clause comes settled.
+* A law (tests/) that checks a clause from its text, independent of Windows' answers, is listed in
+  `spec/laws.txt` with the clauses it checks and whether it is `exhaustive` (every input of its
+  domain: a proof there) or `pbt`.
+* Case names are unique in a suite (answers are matched to cases by name).
+
 ## Tests
 
 `cargo test` (case files current, laws, clauses reached, models against Windows). Add laws

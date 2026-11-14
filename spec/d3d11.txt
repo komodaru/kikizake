@@ -30,5 +30,5 @@ D3D11.SAMPLER.BORDER measured | D3D11_SAMPLER_DESC (BorderColor used with ADDRES
 D3D11.SAMPLER.BORDERKEEP assumed | D3D11_SAMPLER_DESC | some address mode BORDER: the border color as given, any float
 D3D11.DEDUP doc | ID3D11Device::CreateBlendState and the others (the same state gives the same interface) | the same object for descriptions equal as GetDesc gives them (measured: after the normalization above, d3d11desc golden)
 D3D11.DEDUP.FLOAT open | (none) | descriptions differing only in floats that compare equal (0.0 and -0.0): the same object or not
-D3D11.CHECK doc | ID3D11Device::CreateBlendState and the others (ppState NULL: S_FALSE if the description passes) | ppState NULL gives S_FALSE for an accepted description, E_INVALIDARG (assumed) for a refused one
+D3D11.CHECK measured | ID3D11Device::CreateBlendState and the others | ppState NULL gives S_FALSE for an accepted description, E_INVALIDARG (assumed) for a refused one (d3d11 golden; the pages do not say it)
 D3D11.NODESC measured | (none) | pDesc NULL gives E_INVALIDARG (d3d11desc golden)

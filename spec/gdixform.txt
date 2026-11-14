@@ -17,7 +17,7 @@ GDI.XFORM.SINGULAR measured | golden xform draw-46, draw-49 | SetWorldTransform 
 GDI.XFORM.GET doc | GetWorldTransform | the world transform (the identity on a new DC)
 GDI.XFORM.MODIFY doc | ModifyWorldTransform | MWT_IDENTITY resets; MWT_LEFTMULTIPLY: the matrix times the transform; MWT_RIGHTMULTIPLY: the transform times the matrix; fails in GM_COMPATIBLE
 GDI.XFORM.COMBINE doc | CombineTransform, XFORM | the product of two transforms (the first applied first), as the XFORM page's formulas multiply it
-GDI.XFORM.WORLDPOINT doc | Transformation of Coordinate Spaces (world space to page space) | x' = x * eM11 + y * eM21 + eDx, y' = x * eM12 + y * eM22 + eDy
+GDI.XFORM.WORLDPOINT open | Transformation of Coordinate Spaces (world space to page space) | x' = x * eM11 + y * eM21 + eDx, y' = x * eM12 + y * eM22 + eDy (the model stores and combines world transforms but maps no point through one: GDI.XFORM.ROUNDWORLD; by the xform golden LPtoDP alone fits floor(v + 0.5) on 2048 of 2048 points, DPtoLP is not fitted)
 GDI.XFORM.ROUNDWORLD open | (none) | the rounding of points through a world transform
 GDI.MAP.ISOTROPIC measured | golden xform iso-*, mapmode-7 (187 GetViewportExtEx answers) | MM_ISOTROPIC: the viewport extents in effect are those set with one of them scaled down, floor(v * |r| + 0.5), r the ratio of the smaller to the larger of |vx / wx| and |vy / wy| (x scaled when |vx / wx| is larger), recomputed from the extents as set each time (SetViewportExtEx returns those as set)
 GDI.MAP.FIXEDEXT measured | golden xform mapmode-* | the fixed modes (MM_TEXT and the metric ones) ignore SetWindowExtEx and SetViewportExtEx, which succeed returning the extents

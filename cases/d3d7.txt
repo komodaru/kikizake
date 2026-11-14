@@ -15998,7 +15998,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-2-15
+case cull-2-1
 d3d 2
 d3ddev rgb 32 8 8
 d3drs set 22 1
@@ -16007,7 +16007,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-2-15
+case cull-2-2
 d3d 2
 d3ddev rgb 32 8 8
 d3drs set 22 2
@@ -16016,7 +16016,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-2-15
+case cull-2-3
 d3d 2
 d3ddev rgb 32 8 8
 d3drs set 22 3
@@ -16033,7 +16033,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-3-15
+case cull-3-1
 d3d 3
 d3ddev rgb 32 8 8
 d3drs set 22 1
@@ -16042,7 +16042,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-3-15
+case cull-3-2
 d3d 3
 d3ddev rgb 32 8 8
 d3drs set 22 2
@@ -16051,7 +16051,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-3-15
+case cull-3-3
 d3d 3
 d3ddev rgb 32 8 8
 d3drs set 22 3
@@ -16068,7 +16068,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-7-15
+case cull-7-1
 d3d 7
 d3ddev rgb 32 8 8
 d3drs set 22 1
@@ -16077,7 +16077,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-7-15
+case cull-7-2
 d3d 7
 d3ddev rgb 32 8 8
 d3drs set 22 2
@@ -16086,7 +16086,7 @@ d3dtri 0xffff0000 0 0 128 0 0 128
 d3dtri 0xff00ff00 128 128 128 0 0 128
 d3ddump
 end
-case cull-7-15
+case cull-7-3
 d3d 7
 d3ddev rgb 32 8 8
 d3drs set 22 3
@@ -16723,7 +16723,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-2-15
+case cullin-2-1
 d3d 2
 d3ddev rgb 32 8 8
 d3drs set 22 1
@@ -16732,7 +16732,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-2-15
+case cullin-2-2
 d3d 2
 d3ddev rgb 32 8 8
 d3drs set 22 2
@@ -16741,7 +16741,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-2-15
+case cullin-2-3
 d3d 2
 d3ddev rgb 32 8 8
 d3drs set 22 3
@@ -16758,7 +16758,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-3-15
+case cullin-3-1
 d3d 3
 d3ddev rgb 32 8 8
 d3drs set 22 1
@@ -16767,7 +16767,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-3-15
+case cullin-3-2
 d3d 3
 d3ddev rgb 32 8 8
 d3drs set 22 2
@@ -16776,7 +16776,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-3-15
+case cullin-3-3
 d3d 3
 d3ddev rgb 32 8 8
 d3drs set 22 3
@@ -16793,7 +16793,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-7-15
+case cullin-7-1
 d3d 7
 d3ddev rgb 32 8 8
 d3drs set 22 1
@@ -16802,7 +16802,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-7-15
+case cullin-7-2
 d3d 7
 d3ddev rgb 32 8 8
 d3drs set 22 2
@@ -16811,7 +16811,7 @@ d3dtri 0xffff0000 4 4 116 4 4 116
 d3dtri 0xff00ff00 116 116 116 4 4 116
 d3ddump
 end
-case cullin-7-15
+case cullin-7-3
 d3d 7
 d3ddev rgb 32 8 8
 d3drs set 22 3

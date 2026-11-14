@@ -106,8 +106,8 @@ pub fn d3d7() -> String {
     }
     // culling: each mode and winding
     for v in [2, 3, 7] {
-        for cull in ["", "\nd3drs set 22 1", "\nd3drs set 22 2", "\nd3drs set 22 3"] {
-            writeln!(s, "case cull-{v}-{}\nd3d {v}\nd3ddev rgb 32 8 8{cull}\nd3dclear 0xff000000\nd3dtri 0xffff0000 0 0 128 0 0 128\nd3dtri 0xff00ff00 128 128 128 0 0 128\nd3ddump\nend", cull.len()).unwrap();
+        for (m, cull) in ["", "\nd3drs set 22 1", "\nd3drs set 22 2", "\nd3drs set 22 3"].iter().enumerate() {
+            writeln!(s, "case cull-{v}-{}\nd3d {v}\nd3ddev rgb 32 8 8{cull}\nd3dclear 0xff000000\nd3dtri 0xffff0000 0 0 128 0 0 128\nd3dtri 0xff00ff00 128 128 128 0 0 128\nd3ddump\nend", m).unwrap();
         }
     }
     // alpha blending (SRCALPHA, INVSRCALPHA) of a flat color over known pixels, each alpha
@@ -123,8 +123,8 @@ pub fn d3d7() -> String {
     }
     // the same windings with no pixel center near an edge (1/4 px off the grid)
     for v in [2, 3, 7] {
-        for cull in ["", "\nd3drs set 22 1", "\nd3drs set 22 2", "\nd3drs set 22 3"] {
-            writeln!(s, "case cullin-{v}-{}\nd3d {v}\nd3ddev rgb 32 8 8{cull}\nd3dclear 0xff000000\nd3dtri 0xffff0000 4 4 116 4 4 116\nd3dtri 0xff00ff00 116 116 116 4 4 116\nd3ddump\nend", cull.len()).unwrap();
+        for (m, cull) in ["", "\nd3drs set 22 1", "\nd3drs set 22 2", "\nd3drs set 22 3"].iter().enumerate() {
+            writeln!(s, "case cullin-{v}-{}\nd3d {v}\nd3ddev rgb 32 8 8{cull}\nd3dclear 0xff000000\nd3dtri 0xffff0000 4 4 116 4 4 116\nd3dtri 0xff00ff00 116 116 116 4 4 116\nd3ddump\nend", m).unwrap();
         }
     }
     // the z test with triangles covering the whole target, each order of z

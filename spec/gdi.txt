@@ -37,7 +37,7 @@ GDI.STRETCH.SAMPLE doc | StretchBlt, SetStretchBltMode (COLORONCOLOR) | stretchi
 GDI.STRETCH.DDA measured | (none) | which one: the one under the destination pixel's center, floor((2i + 1) sn / 2n) for pixel i of n from sn; but with the other direction unscaled, floor(i sn / n) for n = sn - 1 and floor((i sn + sn - 1) / n) for n = sn + 1 (golden stretch-32/-64: every 1..12 -> 1..12 scale of a row and a column, random cases)
 GDI.STRETCH.COMBINE open | SetStretchBltMode (BLACKONWHITE, WHITEONBLACK, HALFTONE) | shrinking ANDs / ORs / averages the eliminated pixels (the exact rule is not said)
 GDI.STRETCH.HALFTONE open | SetStretchBltMode (HALFTONE) | HALFTONE averages source pixels also when enlarging (MEASURED, stretch golden); the filter is not said
-GDI.STRETCH.MIRROR open | StretchBlt | "StretchBlt creates a mirror image of a bitmap if the signs of the nSrcWidth and nWidthDest parameters or ... differ"
+GDI.STRETCH.MIRROR open | StretchBlt | "StretchBlt creates a mirror image of a bitmap if the signs of the nWidthSrc and nWidthDest parameters or if the nHeightSrc and nHeightDest parameters differ"
 GDI.STRETCH.SRCOUT open | (none) | scaled from outside the source bitmap
 GDI.PIXEL.GET doc | GetPixel | the RGB value of the pixel; CLR_INVALID outside the clipping region
 GDI.PIXEL.SET doc | SetPixel | sets the pixel to the closest approximation of the color, returns the color it set; -1 when it fails

@@ -25,6 +25,7 @@ GP.CONV.WIDEN.PREMULTIPLIED measured | (none) | to 64bppPARGB from 8 bits: the 1
 GP.CONV.NARROW measured | (none) | 16-bit channels to 8 bits: each word signed, clamped to 0..8192, the inverse sRGB curve times 255, rounded; alpha clamped the same, a 255 / 8192 truncated (golden gdiplus levels-*: all 8193 levels; read-*/write-* with random words)
 GP.CONV.NARROW.PREMULTIPLIED measured | (none) | 64bppPARGB to straight: alpha clamped to 0..8192; when not 0 each signed color word c 8192 / a in 32 bits truncated toward 0, kept to 16 bits, then as GP.CONV.NARROW; between the 16-bit formats (c a) >> 13 in 32 bits, kept to 16 bits (golden gdiplus read-64bppPARGB-*, read-64bppARGB-64bppPARGB, random words)
 GP.GRAY16 measured | (none) | 16bppGrayScale: its own format locks; any other read is InvalidParameter, a write locks but UnlockBits is InvalidParameter and nothing changes; GetPixel and SetPixel are InvalidParameter; a clone into or out of it OutOfMemory (golden gdiplus read-*/write-*/pixel-*, all 13 other formats)
+GP.GRAY16.VALUE excluded | (none) | never asked: a 16bppGrayScale pixel as a color and a color as one (the calls refuse them, GP.GRAY16; the conversion itself is not modelled)
 GP.PIXEL.BOUNDS measured | (none) | GetPixel and SetPixel outside the bitmap: InvalidParameter (golden gdiplus pixel-*)
 GP.PIXEL.GET doc | Bitmap::GetPixel | the pixel as straight ARGB
 GP.PIXEL.SET doc | Bitmap::SetPixel | the color stored in the bitmap's format ("might not return the same value": 16 bpp loses bits, PARGB rounds)
@@ -49,5 +50,5 @@ GP.MATRIX.MUL measured | Matrix::Multiply (MatrixOrderPrepend: the passed matrix
 GP.MATRIX.ORDER measured | (none) | an order other than prepend (0) or append (1): InvalidParameter, the matrix unchanged (golden gdiplus matrix-order)
 GP.MATRIX.POINT measured | Matrix::Matrix (dx, dy the third row) | (x, y) to (m11 x + m21 y + dx, m12 x + m22 y + dy), in float left to right (golden gdiplus-32, 120 cases x 3 points)
 GP.MATRIX.INVERT measured | Matrix::Invert (not invertible: InvalidParameter) | x86: det = m11 m22 - m12 m21, r = 1 / det, elements m22 r, -m12 r, -m21 r, m11 r, (m21 dy - m22 dx) r, (m12 dx - m11 dy) r, all in float (golden gdiplus-32, 99 of 99 cases, every element); a zero determinant is not invertible
-GP.MATRIX.X86 doc | (none) | the arithmetic below is x86's: float, rounded to nearest (suites gdiplus, gdiplusmat)
+GP.MATRIX.X86 measured | (none) | the arithmetic below is x86's: float, rounded to nearest (suites gdiplus, gdiplusmat; golden gdiplus-32, gdiplusmat-32)
 GP.MATRIX.X64 measured | (none) | x86-64's GDI+ does the matrix arithmetic of GP.MATRIX.X86 in float rounded toward minus infinity (an exact zero sum -0): products, points, the determinant, its reciprocal and the inverse (golden gdiplus-64 matrix-*, gdiplusmat-64; first all 3390 numbers of 120 cases, round to nearest 564 of the 720 first points)

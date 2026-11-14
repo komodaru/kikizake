@@ -6,6 +6,7 @@ D3D7.DEVICE measured | IDirect3D7::CreateDevice, IDirect3D3::CreateDevice | whic
 D3D7.OTHERDEV open | (none) | drawing on HAL, TnL HAL and MMX devices (the RGB device is modelled)
 D3D7.RS measured | IDirect3DDevice7::GetRenderState | the default render states of a new device for states 0..255, values or the error, per version (d3d7-32 golden, src/model/d3d7.txt); with a z-buffer D3DRENDERSTATE_ZENABLE is 1
 D3D7.STATES doc | IDirect3DDevice7::SetRenderState | a state set reads back as set
+D3D7.STATES.OTHER open | IDirect3DDevice7::SetRenderState | drawing with states the model does not draw: fill modes, the alpha test, fog, specular light, LASTPIXEL, stippling, cull values past 3, ZENABLE without a z-buffer
 D3D7.CLEAR measured | IDirect3DDevice7::Clear, IDirect3DViewport3::Clear2 | D3DCLEAR_TARGET writes the color with each channel cut to the target's bits (truncated), alpha 0 on X8R8G8B8; rectangles are clipped to the target and a rectangle turned round clears nothing (d3d7-32 golden: every channel value per format)
 D3D7.CLEAR.Z measured | IDirect3DDevice7::Clear (D3DCLEAR_ZBUFFER) | the z value times the depth's maximum, rounded to nearest and clamped (d3d7-32 golden: 0..1000 millis for z16, z24, z32)
 D3D7.CLEAR.NOZ open | IDirect3DDevice7::Clear | D3DCLEAR_ZBUFFER with no z-buffer attached (the documented error not yet measured)
@@ -19,7 +20,9 @@ D3D7.GOURAUD open | D3DSHADE_GOURAUD | the colors between the vertices with Gour
 D3D7.FLAT doc | D3DRENDERSTATE_SHADEMODE (D3DSHADE_FLAT) | the color of the first vertex of the triangle
 D3D7.DITHER open | D3DRENDERSTATE_DITHERENABLE | dithering on a 16-bit target
 D3D7.BLEND doc | D3DRENDERSTATE_ALPHABLENDENABLE, SRCBLEND, DESTBLEND | the source and destination mixed by the blend factors
+D3D7.BLEND.OTHER open | D3DRENDERSTATE_SRCBLEND, DESTBLEND | blend factors other than SRCALPHA and INVSRCALPHA
 D3D7.BLEND.SRCALPHA measured | D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA | (s*a + d*(255-a)) >> 8 per channel on 24 and 32-bit targets (d3d7-32 golden: 19968 samples exact)
 D3D7.BLEND16 open | (none) | alpha blending on a 16-bit target
 D3D7.ZFUNC doc | D3DRENDERSTATE_ZFUNC (D3DCMP_LESSEQUAL default) | a pixel is drawn when its z is at most the z-buffer's
+D3D7.ZFUNC.OTHER open | D3DRENDERSTATE_ZFUNC | z functions other than D3DCMP_LESSEQUAL
 D3D7.ZTEST measured | D3DRENDERSTATE_ZENABLE, ZWRITEENABLE | LESSEQUAL against the z-buffer and the z written when drawn (d3d7-32 golden)

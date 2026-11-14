@@ -1,0 +1,112 @@
+# The laws (tests/*.rs) and the clauses (spec/) each one checks, independent of Windows' answers:
+#   <file>::<test> <exhaustive|pbt> <clause> ...
+# exhaustive: every input of its domain (a proof for that domain); pbt: proptest, random inputs.
+# tests/spec.rs checks every test named here exists and every clause is a clause.
+tests/laws.rs::rop3_is_the_truth_table exhaustive GDI.ROP3.TRUTH
+tests/laws.rs::operand_use_is_what_the_truth_table_reads exhaustive GDI.ROP3.TRUTH GDI.ROP3.NOSRC
+tests/laws.rs::rop3_is_bitwise pbt GDI.ROP3.TRUTH
+tests/laws.rs::colors_round_trip pbt GDI.FMT.LAYOUT GDI.FMT.EXPAND GDI.FMT.NARROW GDI.FMT.EXACT
+tests/laws.rs::bitblt_without_source_is_patblt pbt GDI.ROP3.NOSRC GDI.PATBLT.ROPS
+tests/laws.rs::clipping_is_masking pbt GDI.BLT.CLIP GDI.CLIP.INTERSECT
+tests/laws.rs::blits_split pbt GDI.BLT.CLIP GDI.FMT.RAW
+tests/laws.rs::involution_and_copy pbt GDI.PATBLT.ROPS GDI.FMT.RAW
+tests/laws.rs::brush_origin_is_modular pbt GDI.BRUSH.ORIGIN GDI.BRUSH.DIBPATTERN
+tests/laws.rs::state_block_groups_partition exhaustive D3D9.SB.TYPES D3D9.SB.GROUPS
+tests/laws.rs::state_blocks_restore exhaustive D3D9.SB.CAPTURE D3D9.SB.APPLY D3D9.SETGET
+tests/laws_gdidraw.rs::rop2_is_the_truth_table exhaustive GDI.ROP2.TRUTH
+tests/laws_gdidraw.rs::lines_are_connected_and_reversible exhaustive GDI.LINE.PIXELS GDI.LINE.LAST GDI.LINE.TIE
+tests/laws_gdidraw.rs::combine_is_the_set_operation pbt GDI.RGN.COMBINE GDI.RGN.COPY GDI.RGN.RECT GDI.RGN.KIND GDI.RGN.DATA
+tests/laws_gdidraw.rs::offset_and_box pbt GDI.RGN.OFFSET GDI.RGN.BOX
+tests/laws_gdidraw.rs::alpha_bounds pbt GDI.ALPHA.CONSTANT GDI.ALPHA.PERPIXEL GDI.ALPHA.OPAQUE
+tests/laws_gdidraw.rs::identity_combines pbt GDI.XFORM.COMBINE
+tests/laws_gdidraw.rs::page_rounding pbt GDI.MAP.FORMULA GDI.MAP.ROUND
+tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
+tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
+tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
+tests/d3d9draw_laws.rs::halves_round_trip exhaustive D3D9.RT.F16
+tests/d3d9draw_laws.rs::f32_to_f16_is_nearest pbt D3D9.RT.F16
+tests/d3d9draw_laws.rs::channels_round_trip exhaustive D3D9.RT.UNORM D3D9.TEX.DECODE D3D9.RT.READ
+tests/d3d9draw_laws.rs::stencil_ops pbt D3D9.STENCIL
+tests/d3d9draw_laws.rs::comparisons pbt D3D9.ALPHATEST D3D9.DEPTH D3D9.STENCIL
+tests/d3d9draw_laws.rs::addressing pbt D3D9.TEX.ADDRESS D3D9.TEX.BORDER
+tests/d3d9draw_laws.rs::shared_edges_draw_once pbt D3D9.RASTER.TOPLEFT D3D9.CULL D3D9.DRAW.ASSEMBLY
+tests/d3d9draw_laws.rs::fvf_size_is_the_declarations exhaustive D3DX9.FVFSIZE D3DX9.FVFDECL D3DX9.DECLSIZE
+tests/d3d9draw_laws.rs::fvf_decl_round_trips exhaustive D3DX9.FVFDECL D3DX9.DECLFVF D3DX9.DECLLENGTH
+tests/d3d9draw_laws.rs::d3dx_halves pbt D3DX9.F16
+tests/laws_dd.rs::z_values_are_monotone exhaustive D3D7.CLEAR.Z D3D7.TRI
+tests/laws_dd.rs::pixels_keep_the_top_bits exhaustive D3D7.CLEAR
+tests/laws_dd.rs::render_state_defaults_read_back exhaustive D3D7.RS
+tests/laws_dd.rs::pitches_hold_a_row exhaustive DDRAW.PITCH DDRAW.LOCK
+tests/laws_dd.rs::clear_fills_the_target pbt D3D7.CLEAR D3D7.LOCK
+tests/laws_dd.rs::vertex_order_and_redraw pbt D3D7.TRI D3D7.CULL D3D7.FLAT
+tests/laws_dd.rs::blend_ends pbt D3D7.BLEND D3D7.BLEND.SRCALPHA
+tests/laws_dd.rs::poke_reads_back pbt DDRAW.LOCK DDRAW.LOCK.WRITE
+tests/laws_dd.rs::flips_rotate pbt DDRAW.FLIP DDRAW.CHAIN
+tests/laws_dd.rs::clip_lists_round_trip pbt DDRAW.CLIP.SET DDRAW.CLIP.LIST
+tests/laws_dd.rs::palette_entries_round_trip pbt DDRAW.PAL.GET DDRAW.PAL.SET
+tests/laws_gdiplus.rs::pixels_are_independent exhaustive GP.LAYOUT GP.LOCK.SAME GP.LOCK.WRITE
+tests/laws_gdiplus.rs::rotations_are_the_dihedral_group exhaustive GP.ROTATE
+tests/laws_gdiplus.rs::low_bit_values_survive_argb exhaustive GP.CONV.EXPAND GP.CONV.TRUNCATE GP.CONV.INDEXED GP.CONV.TO.INDEXED
+tests/laws_gdiplus.rs::identity pbt GP.MATRIX GP.MATRIX.MUL
+tests/laws_gdiplus.rs::product_composes pbt GP.MATRIX.MUL GP.MATRIX.POINT
+tests/laws_gdiplus.rs::inverse_undoes pbt GP.MATRIX.INVERT
+tests/laws_gdiplus.rs::same_format_round_trip pbt GP.LOCK.SAME GP.LOCK.READ GP.LOCK.WRITE
+tests/laws_gdiplus.rs::dither_keeps_the_mean exhaustive GP.FILL.DITHER
+tests/laws_d2d.rs::exact_inverses_are_involutions exhaustive D2D.INV
+tests/laws_d2d.rs::singular_matrices_are_left_alone exhaustive D2D.INV.SINGULAR
+tests/laws_d2d.rs::right_angles_are_exact exhaustive D2D.ROT D2D.ROT.RIGHT
+tests/laws_d2d.rs::rotations_are_periodic pbt D2D.ROT
+tests/laws_d2d.rs::skews_fix_the_center pbt D2D.SKEW
+tests/laws_d2d.rs::rectangle_areas_agree pbt D2D.AREA.RECT D2D.AREA.POLY
+tests/laws_d2d.rs::winding_fills_at_least_alternate pbt D2D.AREA.POLY D2D.IN.ALT D2D.IN.WIND
+tests/laws_d2d.rs::containment pbt D2D.IN.ALT D2D.IN.WIND D2D.IN.TOL
+tests/laws_d2d.rs::relations_are_converse pbt D2D.CMP
+tests/laws_d2d.rs::aliased_fills_tile pbt D2D.FILL.RECT D2D.FILL.EDGE
+tests/laws_d2d.rs::source_over pbt D2D.FILL.OVER
+tests/laws_d2d.rs::premultiply_exhaustive exhaustive D2D.FILL.OVER D2D.CLEAR
+tests/laws_d2d.rs::stroke_enums_exhaustive exhaustive D2D.STROKE.ENUM D2D.STROKE.GET
+tests/laws_d2d.rs::sink_states_exhaustive exhaustive D2D.SINK.OPEN D2D.SINK.CLOSE D2D.SINK.COUNT D2D.SINK.AFTER
+tests/laws_d3d12.rs::unorm_reaches_every_value_in_order exhaustive D3D12.CLEAR.UNORM
+tests/laws_d3d12.rs::snorm_reaches_every_value_symmetrically exhaustive D3D12.CLEAR.SNORM
+tests/laws_d3d12.rs::float16_round_trips_and_rounds_to_zero exhaustive D3D12.CLEAR.FLOAT16
+tests/laws_d3d12.rs::float16_is_round_to_zero pbt D3D12.CLEAR.FLOAT16
+tests/laws_d3d12.rs::unsigned_small_floats_never_negative pbt D3D12.CLEAR.FLOAT11
+tests/laws_d3d12.rs::srgb_is_monotonic pbt D3D12.CLEAR.SRGB
+tests/laws_d3d12.rs::ints_are_clamped pbt D3D12.CLEAR.INT
+tests/laws_d3d12.rs::clears_fill_one_texel pbt D3D12.CLEAR.FORMAT
+tests/laws_d3d12.rs::footprints_are_aligned_and_disjoint pbt D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.MIPS0
+tests/laws_d3d12.rs::accepted_chains_are_flip_model exhaustive DXGI.CHAIN.EFFECT DXGI.CHAIN.BUFFERS DXGI.CHAIN.SAMPLES
+tests/laws_d3d12.rs::buffer_rules_are_the_documented_ones exhaustive D3D12.DESC.BUFFER
+tests/laws_d3dres.rs::unorm_codes_round_trip exhaustive CONV.UNORM
+tests/laws_d3dres.rs::snorm_codes_round_trip exhaustive CONV.SNORM
+tests/laws_d3dres.rs::small_floats_round_trip exhaustive CONV.SMALLFLOAT CONV.F16 CONV.F11
+tests/laws_d3dres.rs::unorm_is_monotone pbt CONV.UNORM
+tests/laws_d3dres.rs::small_float_truncates pbt CONV.SMALLFLOAT
+tests/laws_d3dres.rs::small_float_is_monotone pbt CONV.SMALLFLOAT
+tests/laws_d3dres.rs::rgb9e5_reads_back_within_its_precision pbt CONV.RGB9E5
+tests/laws_d3dres.rs::a_shared_edge_is_drawn_once pbt D3DRASTER.TOPLEFT
+tests/laws_d3dres.rs::winding_does_not_change_coverage pbt D3DRASTER.CULL D3DRASTER.TOPLEFT
+tests/laws_d3dres.rs::a_covering_triangle_draws_every_pixel exhaustive D3DRASTER.DRAW
+tests/laws_dwrite.rs::aliased_translates pbt DW.RUN.ALIASED
+tests/laws_dwrite.rs::aliased_is_centers pbt DW.RUN.ALIASED
+tests/laws_dwrite.rs::gdi_round_grid pbt DW.GDI.METRICS DW.SHAPE.GDIPLACE
+tests/laws_dwrite.rs::bidi_levels_exhaustive exhaustive DW.BIDI.W DW.BIDI.N DW.BIDI.I DW.BIDI.L1
+tests/laws_dwrite.rs::breaks_exhaustive exhaustive DW.BREAK.UAX14 DW.BREAK.MUST
+tests/laws_dwrite.rs::script_runs_exhaustive exhaustive DW.SCRIPT.RUN DW.SCRIPT.COMMON
+tests/laws_dwrite.rs::fonts_map_chars exhaustive DW.CMAP
+tests/wicimage_laws.rs::flips_are_the_square_symmetries exhaustive WICIMAGE.FLIP
+tests/wicimage_laws.rs::nearest_neighbor_picks_pixels exhaustive WICIMAGE.SCALE.NEAREST
+tests/wicimage_laws.rs::predefined_palettes exhaustive WICIMAGE.PALETTE.BW WICIMAGE.PALETTE.GRAY WICIMAGE.PALETTE.HALFTONE WICIMAGE.PALETTE.TRANSPARENT
+tests/wicimage_laws.rs::clip_and_copy_agree pbt WICIMAGE.CLIP WICIMAGE.CLIP.RECT WICIMAGE.COPY.RECT
+tests/wicimage_laws.rs::copy_buffer_bounds pbt WICIMAGE.COPY.BUFFER WICIMAGE.COPY.STRIDE
+tests/wicimage_laws.rs::bmp_round_trip pbt WICIMAGE.BMP.HEADER WICIMAGE.BMP.FORMAT
+tests/wicimage_laws.rs::png_round_trip pbt WICIMAGE.PNG.CHUNKS WICIMAGE.PNG.FORMAT
+tests/wicimage_laws.rs::gif_round_trip pbt WICIMAGE.GIF.FRAME
+tests/wicimage_laws.rs::lzw_round_trip pbt WICIMAGE.GIF.LZW
+tests/wicimage_laws.rs::bc_blocks pbt WICIMAGE.DDS
+tests/wicimage_laws.rs::filter_weights_are_partitions_of_one exhaustive WICIMAGE.SCALE.LINEAR WICIMAGE.SCALE.CUBIC WICIMAGE.SCALE.FANT
+tests/wicimage_laws.rs::fant_spends_every_source_span exhaustive WICIMAGE.SCALE.FANT
+tests/wicimage_laws.rs::filters_stay_in_range pbt WICIMAGE.SCALE.LINEAR WICIMAGE.SCALE.FANT
+tests/laws_spec.rs::setrect_is_the_rectangle pbt GDI.RGN.SETRECT
+tests/laws_spec.rs::ddb_rows_are_words exhaustive GDI.DDB.BITS GDI.DDB.OBJECT GDI.DDB.MONO
+tests/laws_spec.rs::dibsection_object_is_its_header exhaustive GDI.DDB.DIBOBJECT GDI.FMT.LAYOUT

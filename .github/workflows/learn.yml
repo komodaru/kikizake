@@ -1,0 +1,39 @@
+# The documentation the clauses cite, as it is now: every page in spec/learn.txt loads, and the
+# words doc clauses quote and the constants their sources name are on their pages
+# (`kikizake learn check`). Weekly, as Microsoft Learn changes, and when the clauses change.
+name: learn
+
+on:
+  push:
+    branches: [main]
+    paths: [spec/**, src/learn.rs, src/trace.rs]
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: learn-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  learn:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: test-${{ env.RUST_KEY }}-
+      - name: Pages the clauses cite
+        run: cargo run -q -- learn pages | grep -v '^ok' | tee -a "$GITHUB_STEP_SUMMARY" || true
+      - name: Quoted words and constants on their pages
+        run: cargo run -q -- learn check 2>&1 | tee learn.log; s=${PIPESTATUS[0]}; tail -1 learn.log >> "$GITHUB_STEP_SUMMARY"; exit $s

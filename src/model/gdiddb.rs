@@ -30,7 +30,18 @@ fn devcap(i: i64) -> Res<i64> {
         104 => 0,                 // SIZEPALETTE
         106 => 20,                // NUMRESERVED
         108 => 24,                // COLORRES
-        _ => return Err(Fail::Unmodeled("GDI.DDB.CAPS")),
+        // MEASURED (ddb golden, every case of both executors): RASTERCAPS RC_BITBLT | RC_BITMAP64 |
+        // RC_GDI20_OUTPUT | RC_DI_BITMAP | RC_DIBTODEV | RC_BIGFONT | RC_OP_DX_OUTPUT |
+        // RC_STRETCHBLT | RC_FLOODFILL | RC_STRETCHDIB (0x7e99), SHADEBLENDCAPS none
+        38 => {
+            hit("GDI.DDB.CAPS.RASTER");
+            0x7e99
+        }
+        120 => {
+            hit("GDI.DDB.CAPS.RASTER");
+            0
+        }
+        _ => return Err(Fail::Unmodeled("GDI.DDB.CAPS.OTHER")),
     })
 }
 

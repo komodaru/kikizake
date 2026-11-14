@@ -186,7 +186,13 @@ pub fn ddpal() -> String {
     }
     // entries: ranges at and past each size's end
     for (size, n) in [("1bit", 2), ("2bit", 4), ("4bit", 16), ("8bit", 256)] {
+        let mut seen = Vec::new();
         for (st, cnt) in [(0, n), (0, 1), (n - 1, 1), (n - 1, 2), (n, 1), (0, (n + 1).min(256)), (1, n - 1), (0, 0), (n / 2, n / 2)] {
+            // (the ranges coincide for the small sizes; one case each)
+            if seen.contains(&(st, cnt)) {
+                continue;
+            }
+            seen.push((st, cnt));
             writeln!(s, "case entries-{size}-{st}-{cnt}\ndd\nddpal 0 7 {size}\nddpalset 0 {st} {cnt} 9\nddpalget 0 {st} {cnt}\nddpalget 0 0 {n}\nend").unwrap();
         }
         writeln!(s, "case entries8-{size}\ndd\nddpal 0 7 {size} 8bitentries\nddpalget 0 0 {n}\nddpalset 0 0 {n} 3\nddpalget 0 0 {n}\nend").unwrap();

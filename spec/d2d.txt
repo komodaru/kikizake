@@ -13,7 +13,7 @@ D2D.CS.SAME measured | D2D1ConvertColorSpace | the same space on both sides give
 D2D.CS.CLAMP measured | D2D1ConvertColorSpace | between sRGB and scRGB the color channels are clamped to 0..1 (NaN to 0), 0 and 1 map to themselves, the alpha is kept as given (golden d2d-32/-64)
 D2D.CS.CURVE open | D2D1ConvertColorSpace | the transfer curve between 0 and 1: within 3 ulps of the IEC 61966-2-1 formulas in f64, not bit for bit by f64, f32 or exp/log evaluations of them (golden d2d-32/-64: 150 values)
 D2D.STROKE.ENUM doc | ID2D1Factory::CreateStrokeStyle, D2D1_CAP_STYLE, D2D1_LINE_JOIN, D2D1_DASH_STYLE | caps 0..3, line join 0..3, dash style 0..5; anything else is E_INVALIDARG
-D2D.STROKE.DASHES doc | ID2D1Factory::CreateStrokeStyle (dashes: used only with D2D1_DASH_STYLE_CUSTOM) | dashes given without the custom style, or the custom style without dashes, is E_INVALIDARG
+D2D.STROKE.DASHES doc | ID2D1Factory::CreateStrokeStyle, D2D1_DASH_STYLE (dashes: used only with D2D1_DASH_STYLE_CUSTOM) | dashes given without the custom style, or the custom style without dashes, is E_INVALIDARG
 D2D.STROKE.VALUES measured | D2D1_STROKE_STYLE_PROPERTIES | any miter limit, dash offset and dash is accepted and kept as given: under 1, negative, NaN, infinite (golden d2d-32/-64: stroke-4-*, stroke-6-*, dash-5-6, dash-5-7)
 D2D.STROKE.PATTERN measured | ID2D1StrokeStyle::GetDashes | the predefined styles give their pattern in stroke widths: DASH 2 2, DOT 0 2, DASH_DOT 2 2 0 2, DASH_DOT_DOT 2 2 0 2 0 2, whatever the caps (golden d2d-32/-64: dash-1-0 .. dash-4-0, stroke-r*)
 D2D.STROKE.GET doc | ID2D1StrokeStyle::GetStartCap and the other getters, GetDashes | the getters give the properties as created, GetDashesCount the number of dashes, GetDashes them

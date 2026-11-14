@@ -222,7 +222,7 @@ pub fn to_argb(f: usize, v: u64, pal: &[u32]) -> Res<u32> {
             hit("GP.CONV.INDEXED");
             if pal.is_empty() { default_palette(f)[v as usize] } else { pal[v as usize] }
         }
-        "16bppGrayScale" => return Err(Fail::Unmodeled("GP.GRAY16")),
+        "16bppGrayScale" => return Err(Fail::Unmodeled("GP.GRAY16.VALUE")),
         "16bppRGB555" => {
             hit("GP.CONV.EXPAND");
             c(x5(v >> 10 & 31), x5(v >> 5 & 31), x5(v & 31))
@@ -272,7 +272,7 @@ pub fn from_argb(f: usize, c: u32) -> Res<u64> {
             hit("GP.CONV.TO.INDEXED");
             nearest(f, c) as u64
         }
-        "16bppGrayScale" => return Err(Fail::Unmodeled("GP.GRAY16")),
+        "16bppGrayScale" => return Err(Fail::Unmodeled("GP.GRAY16.VALUE")),
         "16bppRGB555" => {
             hit("GP.CONV.TRUNCATE");
             (r >> 3) << 10 | (g >> 3) << 5 | b >> 3

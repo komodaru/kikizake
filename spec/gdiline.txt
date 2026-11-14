@@ -7,13 +7,13 @@ GDI.ROP2.TRUTH doc | Binary Raster Operations, SetROP2 | R2_BLACK (1) .. R2_WHIT
 GDI.ROP2.ZERO measured | golden lines rop2-* (6 formats), rop2-zero | SetROP2(0) is taken: it returns the old mode, later calls return 0 as the mode, and lines draw as R2_WHITE (0 - 1 has every truth table bit set); 17 and above return 0
 GDI.STATE.OLD doc | SetROP2, SetPolyFillMode, SetArcDirection | each returns the previous mode; 0 for a mode out of range, which leaves the mode as it was
 GDI.POS.MOVE doc | MoveToEx | the current position becomes the point; the previous one is returned (a new DC: 0, 0)
-GDI.LINE.LAST doc | LineTo | "The line is drawn from the current position up to, but not including, the specified point"; the current position becomes the point
+GDI.LINE.LAST doc | LineTo | "draws a line from the current position up to, but not including, the specified point"; the current position becomes the point
 GDI.LINE.PIXELS assumed | (none) | a one-pixel line lights one pixel per step of its major axis (the longer of |dx|, |dy|; x when equal), the minor coordinate rounded from start + i * minor / major
 GDI.LINE.TIE measured | (none) | a minor coordinate exactly halfway between two pixels goes to the smaller one (up for x-major lines, left for y-major), whichever way the line runs (golden lines-32/-64: every line from the center of a 17x17 picture to every point of it and back, 578 lines)
 GDI.LINE.POLY doc | Polyline, PolylineTo | lines between consecutive points; Polyline neither uses nor changes the current position, PolylineTo starts at it and leaves it at the last point
 GDI.LINE.POLYSHORT measured | golden lines poly-28 | Polyline with fewer than two points fails (0): nothing drawn, the current position kept
 GDI.LINE.BEZIER open | PolyBezier, PolyBezierTo | the pixels of a Bézier curve
-GDI.RECT.FILL doc | FillRect | fills the rectangle "including the left and top borders, but excluding the right and bottom borders" with the brush
+GDI.RECT.FILL doc | FillRect | fills the rectangle with the brush: "GDI fills a rectangle up to, but not including, the right column and bottom row"
 GDI.RECT.FRAME doc | FrameRect | a border one logical unit wide around the rectangle, drawn with the brush
 GDI.RECT.INVERT doc | InvertRect | inverts the rectangle's pixels (a logical NOT of each value)
 GDI.RECT.EMPTY measured | golden lines fillrect-*, framerect-*, invertrect-* (31 cases) | FillRect and InvertRect take the corners in either order and draw nothing for an empty rectangle, returning 1; FrameRect fails (0) when right < left or bottom < top, and with right == left or bottom == top still draws its edges (top row t, bottom row b - 1, ...)
