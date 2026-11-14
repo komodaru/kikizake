@@ -292,14 +292,31 @@ static void op_d3dtri(void) {
     if (*e || (nc != 1 && nc != 3)) bad = 1;
     if (nc == 1) c[1] = c[2] = c[0];
     float z = 0.5f;
-    if (ntok == 10 && is(8, "z")) z = num(9) / 1000.0f;
-    else if (ntok != 8) bad = 1;
+    DWORD sp[3] = { 0, 0, 0 };
+    for (int k = 8; k < ntok; k += 2) {
+        if (k + 1 >= ntok) bad = 1;
+        else if (is(k, "z")) z = num(k + 1) / 1000.0f;
+        else if (is(k, "spec")) {
+            /* the specular colors (alpha: the vertex fog factor), one or one a vertex */
+            int ns = 0;
+            p = tok[k + 1];
+            while (ns < 3) {
+                sp[ns++] = (DWORD)strtoul(p, &e, 0);
+                if (e == p) bad = 1;
+                if (*e != '/') break;
+                p = e + 1;
+            }
+            if (*e || (ns != 1 && ns != 3)) bad = 1;
+            if (ns == 1) sp[1] = sp[2] = sp[0];
+        } else bad = 1;
+    }
     for (int k = 0; k < 3; k++) {
         v[k].sx = num(2 + 2 * k) / 16.0f;
         v[k].sy = num(3 + 2 * k) / 16.0f;
         v[k].sz = z;
         v[k].rhw = 1.0f;
         v[k].color = c[k];
+        v[k].specular = sp[k];
     }
     if (bad) return;
     if (!dev2 && !dev3 && !dev7) { out("nodev\n"); return; }

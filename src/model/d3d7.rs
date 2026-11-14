@@ -310,11 +310,22 @@ impl D3d7 {
                 for (k, p) in v.iter_mut().enumerate() {
                     *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
                 }
-                let z = match t.len() {
-                    8 => 0.5f32,
-                    10 if t[8] == "z" => n(op, 9)? as f32 / 1000.0,
-                    _ => return Err(Fail::Bad),
-                };
+                let mut z = 0.5f32;
+                // (the specular colors only count with fog or specular on: D3D7.STATES)
+                let mut k = 8;
+                while k < t.len() {
+                    match (t[k].as_str(), t.get(k + 1)) {
+                        ("z", Some(_)) => z = n(op, k + 1)? as f32 / 1000.0,
+                        ("spec", Some(sp)) => {
+                            let ns = sp.split('/').map(|c| num(c).ok_or(Fail::Bad)).collect::<Res<Vec<_>>>()?.len();
+                            if ns != 1 && ns != 3 {
+                                return Err(Fail::Bad);
+                            }
+                        }
+                        _ => return Err(Fail::Bad),
+                    }
+                    k += 2;
+                }
                 if !self.dev || ver == 1 {
                     out.push("nodev".into());
                     return Ok(true);

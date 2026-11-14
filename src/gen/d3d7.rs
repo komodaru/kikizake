@@ -167,3 +167,188 @@ pub fn d3d7() -> String {
     }
     s
 }
+
+/// the devices that draw: (version, device) pairs, the RGB device first
+const DRAWERS: &[(u32, &str)] = &[(7, "rgb"), (7, "hal"), (7, "tnl"), (7, "mmx"), (3, "rgb"), (2, "rgb"), (2, "ramp"), (3, "mmx")];
+
+/// which pixels triangles cover: each of a few triangles in every vertex order and moved by every
+/// 16th of a pixel, inside the target and across its edges
+pub fn d3d7rast() -> String {
+    let mut s = String::from("# kikizake suite d3d7rast: Direct3D 2, 3 and 7 triangle coverage (SPEC.md). Made by `kikizake gen d3d7rast`.\n# x86 only\n");
+    let mut r = XorShift32::new(0x00d3_d7a5);
+    // (inside a 12 x 12 target, room for a pixel's shift)
+    let inside: &[[(i64, i64); 3]] = &[
+        [(24, 20), (150, 52), (60, 160)],
+        [(20, 20), (160, 20), (20, 160)],
+        [(90, 16), (170, 170), (16, 120)],
+        [(40, 30), (44, 170), (170, 100)],
+        [(16, 80), (170, 72), (88, 84)],
+        [(100, 17), (101, 171), (17, 93)],
+    ];
+    let perms: [[usize; 3]; 6] = [[0, 1, 2], [1, 2, 0], [2, 0, 1], [0, 2, 1], [2, 1, 0], [1, 0, 2]];
+    let line = |v: &[(i64, i64); 3], p: [usize; 3], dx: i64, dy: i64, c: u32| format!("d3dclear 0xff000000\nd3dtri {c:#x} {} {} {} {} {} {}\nd3ddump", v[p[0]].0 + dx, v[p[0]].1 + dy, v[p[1]].0 + dx, v[p[1]].1 + dy, v[p[2]].0 + dx, v[p[2]].1 + dy);
+    for (t, v) in inside.iter().enumerate() {
+        // every shift in one vertex order; every order at 16 shifts
+        writeln!(s, "case in-{t}\nd3d 7\nd3ddev rgb 565 12 12\nd3drs set 22 1").unwrap();
+        for dy in 0..16 {
+            for dx in 0..16 {
+                writeln!(s, "{}", line(v, perms[0], dx, dy, 0xffffffff)).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+        writeln!(s, "case in-{t}-orders\nd3d 7\nd3ddev rgb 565 12 12\nd3drs set 22 1").unwrap();
+        for p in &perms[1..] {
+            for k in 0..16 {
+                writeln!(s, "{}", line(v, *p, k, (k * 7) % 16, 0xffffffff)).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // across the target's edges by a pixel, ten and a hundred pixels, and far past it
+    let mut across = vec![];
+    for far in [16i64, 160, 1600, 16000] {
+        across.push([(-far, 20), (100, 40), (40, 120)]);
+        across.push([(30, -far), (120, 60), (20, 110)]);
+        across.push([(20, 30), (128 + far, 60), (60, 110)]);
+        across.push([(30, 20), (110, 50), (50, 128 + far)]);
+        across.push([(-far, -far), (100, 30), (30, 110)]);
+        across.push([(-far, 60), (128 + far, 20), (60, 128 + far)]);
+    }
+    for (t, v) in across.iter().enumerate() {
+        writeln!(s, "case across-{t}\nd3d 7\nd3ddev rgb 565 8 8\nd3drs set 22 1").unwrap();
+        for k in 0..32 {
+            writeln!(s, "{}", line(v, perms[k % 6], k as i64 % 16, (k as i64 * 5) % 16, 0xffffffff)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // random triangles, some across the edges, one a line
+    for i in 0..64 {
+        writeln!(s, "case rand-{i}\nd3d 7\nd3ddev rgb 565 12 10\nd3drs set 22 1").unwrap();
+        for _ in 0..8 {
+            writeln!(s, "d3dclear 0xff000000\n{}\nd3ddump", tri(&mut r, 12, 10, false)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // the other devices: a few shifts of each triangle
+    for &(v, d) in &DRAWERS[1..] {
+        writeln!(s, "case dev-{v}-{d}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1").unwrap();
+        for (t, tv) in inside.iter().enumerate().take(4) {
+            for k in 0..8 {
+                writeln!(s, "{}", line(tv, perms[(t + k as usize) % 6], k * 2, (k * 5) % 16, 0xffffffff)).unwrap();
+            }
+        }
+        for tv in across.iter().take(12) {
+            writeln!(s, "{}", line(tv, perms[0], 3, 7, 0xffffffff)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    s
+}
+
+/// colors: Gouraud shading, dithering, blending (every factor), the z functions, the alpha
+/// test, fog, fill modes, on every device that draws
+pub fn d3d7shade() -> String {
+    let mut s = String::from("# kikizake suite d3d7shade: Direct3D 2, 3 and 7 shading, dithering, blending and per-pixel tests (SPEC.md). Made by `kikizake gen d3d7shade`.\n# x86 only\n");
+    let mut r = XorShift32::new(0x00d3_d75e);
+    let cover = "-16 -16 600 -16 -16 600";
+    for &(v, d) in DRAWERS {
+        let dv = format!("d3d {v}\nd3ddev {d}");
+        // Gouraud: one channel 0 to 255 along x, along y, and random colors, inside the target
+        writeln!(s, "case gouraud-{v}-{d}\n{dv} 32 16 16\nd3drs set 22 1").unwrap();
+        for (c0, c1, c2) in [(0xff000000u32, 0xffff0000u32, 0xff000000u32), (0xff000000, 0xff000000, 0xff00ff00), (0xff0000ff, 0xff000000, 0xff000000), (0xff102030, 0xffe0c0a0, 0xff7f8081)] {
+            writeln!(s, "d3dclear 0\nd3dtri {c0:#x}/{c1:#x}/{c2:#x} 0 0 256 0 0 256\nd3ddump").unwrap();
+            writeln!(s, "d3dclear 0\nd3dtri {c0:#x}/{c1:#x}/{c2:#x} 8 8 248 8 8 248\nd3ddump").unwrap();
+        }
+        for _ in 0..if d == "rgb" && v == 7 { 24 } else { 4 } {
+            let c: Vec<u32> = (0..3).map(|_| r.next()).collect();
+            let p: Vec<i64> = (0..6).map(|_| r.range(0, 255)).collect();
+            writeln!(s, "d3dclear 0\nd3dtri {:#x}/{:#x}/{:#x} {} {} {} {} {} {}\nd3ddump", c[0], c[1], c[2], p[0], p[1], p[2], p[3], p[4], p[5]).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        // the same on 16 bits, dithered and not
+        for f in ["565", "555"] {
+            for dither in [0, 1] {
+                writeln!(s, "case gouraud16-{v}-{d}-{f}-{dither}\n{dv} {f} 16 16\nd3drs set 22 1\nd3drs set 26 {dither}").unwrap();
+                for _ in 0..4 {
+                    let c: Vec<u32> = (0..3).map(|_| r.next()).collect();
+                    writeln!(s, "d3dclear 0\nd3dtri {:#x}/{:#x}/{:#x} 0 0 256 0 0 256\nd3ddump", c[0], c[1], c[2]).unwrap();
+                }
+                writeln!(s, "end").unwrap();
+            }
+        }
+        // dithering flat colors: gray 0..255, then random
+        for f in ["565", "555"] {
+            writeln!(s, "case dither-{v}-{d}-{f}\n{dv} {f} 8 8\nd3drs set 22 1\nd3drs set 9 1\nd3drs set 26 1").unwrap();
+            let n = if d == "rgb" && v == 7 { 256 } else { 32 };
+            for k in 0..n {
+                let g = if n == 256 { k } else { k * 8 + 3 };
+                let c = if k % 2 == 0 && n == 256 { g * 0x10101 } else { r.next() & 0xffffff };
+                writeln!(s, "d3dtri {:#x} {cover}\nd3ddump", 0xff00_0000 | c).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+        // blending, every source and destination factor, on 32 and 16 bits
+        for f in ["32", "565", "555"] {
+            writeln!(s, "case blend-{v}-{d}-{f}\n{dv} {f} 4 2\nd3drs set 22 1\nd3drs set 27 1").unwrap();
+            let all = d == "rgb" && v == 7 || f == "32";
+            for sf in 1..=13 {
+                for df in 1..=13 {
+                    if !all && (sf + df) % 5 != 0 {
+                        continue;
+                    }
+                    writeln!(s, "d3dfill {}\nd3drs set 19 {sf}\nd3drs set 20 {df}\nd3dtri {:#x} {cover}\nd3ddump", r.range(1, 99999), r.next()).unwrap();
+                }
+            }
+            writeln!(s, "end").unwrap();
+            // SRCALPHA, INVSRCALPHA: each alpha
+            writeln!(s, "case blendalpha-{v}-{d}-{f}\n{dv} {f} 8 2\nd3drs set 22 1\nd3drs set 27 1\nd3drs set 19 5\nd3drs set 20 6").unwrap();
+            for a in (0..=255u32).step_by(if all { 3 } else { 17 }) {
+                writeln!(s, "d3dfill {}\nd3dtri {:#x} {cover}\nd3ddump", a + 1, a << 24 | (r.next() & 0xffffff)).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+        // the z functions: nearer, equal, farther, with z writes on and off
+        for z in ["z16", "z32"] {
+            writeln!(s, "case zfunc-{v}-{d}-{z}\n{dv} 32 2 1 {z}\nd3drs set 22 1\nd3drs set 7 1").unwrap();
+            for func in 1..=8 {
+                for write in [1, 0] {
+                    for (a, b) in [(500, 300), (500, 500), (500, 700), (0, 0), (1000, 1000)] {
+                        writeln!(s, "d3drs set 23 4\nd3drs set 14 1\nd3dclear 0xff000000 z 1000\nd3dtri 0xff0000ff {cover} z {a}\nd3drs set 23 {func}\nd3drs set 14 {write}\nd3dtri 0xff00ff00 {cover} z {b}\nd3ddump\nd3dzdump").unwrap();
+                    }
+                }
+            }
+            writeln!(s, "end").unwrap();
+        }
+        // the alpha test: each function and reference against each alpha step
+        writeln!(s, "case alphatest-{v}-{d}\n{dv} 32 2 1\nd3drs set 22 1\nd3drs set 15 1").unwrap();
+        for func in 1..=8 {
+            for aref in [0, 1, 127, 128, 255] {
+                writeln!(s, "d3drs set 25 {func}\nd3drs set 24 {aref}").unwrap();
+                for a in [0u32, 1, 126, 127, 128, 129, 254, 255] {
+                    writeln!(s, "d3dclear 0xff000000\nd3dtri {:#x} {cover}\nd3ddump", a << 24 | 0xffffff).unwrap();
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+        // fog: vertex fog from the specular alpha, with the fog color, and table fog off
+        writeln!(s, "case fog-{v}-{d}\n{dv} 32 4 1\nd3drs set 22 1\nd3drs set 28 1\nd3drs set 34 0xff4080c0").unwrap();
+        for f in (0..=255u32).step_by(5) {
+            writeln!(s, "d3dclear 0\nd3dtri 0xff102030 {cover} spec {:#x}\nd3ddump", f << 24).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        // specular added, and the fill modes (points, wireframe) of a triangle inside
+        writeln!(s, "case specular-{v}-{d}\n{dv} 32 4 1\nd3drs set 22 1\nd3drs set 29 1").unwrap();
+        for _ in 0..16 {
+            writeln!(s, "d3dclear 0\nd3dtri {:#x} {cover} spec {:#x}\nd3ddump", r.next(), r.next()).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        writeln!(s, "case fill-{v}-{d}\n{dv} 565 12 12\nd3drs set 22 1").unwrap();
+        for mode in [1, 2, 3] {
+            for lp in [1, 0] {
+                writeln!(s, "d3drs set 8 {mode}\nd3drs set 16 {lp}\nd3dclear 0\nd3dtri 0xffffffff 24 20 150 52 60 160\nd3ddump\nd3dclear 0\nd3dtri 0xffffffff 20 20 160 20 20 160\nd3ddump").unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
+    s
+}

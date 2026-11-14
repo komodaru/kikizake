@@ -145,7 +145,7 @@ Eight surface slots, separate from the GDI ones.
 | `d3ddev <rgb\|hal\|tnl\|ref\|mmx\|ramp\|null> <565\|555\|32\|24\|8> <w> <h> [z16\|z24\|z32]` | the render target (OFFSCREENPLAIN \| 3DDEVICE, system memory; video memory for hal and tnl), a z-buffer attached, the device (version 1: the surface's QueryInterface; 2, 3: a viewport of the whole target made current) | `d3ddev ok`, `d3ddev surface\|z\|attach\|viewport hr <hr>`, `d3ddev hr <hr>` |
 | `d3drs get <state>`, `d3drs set <state> <v>` | GetRenderState, SetRenderState (versions 2, 3, 7) | `rs <state> = <v>`, `rs <state> hr <hr>`, `rs set <state> hr <hr>` |
 | `d3dclear <argb> [z <millis>] [<x0> <y0> <x1> <y1>]` | Clear (7), Clear2 (3), the viewport's background material and Clear (2), of the target and with z the z-buffer to millis / 1000 | `clear hr <hr>` on failure |
-| `d3dtri <c>[/<c1>/<c2>] <x0> <y0> <x1> <y1> <x2> <y2> [z <millis>]` | BeginScene, DrawPrimitive of one D3DTLVERTEX triangle (x, y in 16ths of a pixel, z 0.5 or millis / 1000, rhw 1, the diffuse colors, specular 0), EndScene | `tri begin\|draw\|end hr <hr>` on failure |
+| `d3dtri <c>[/<c1>/<c2>] <x0> <y0> <x1> <y1> <x2> <y2> [z <millis>] [spec <s>[/<s1>/<s2>]]` | BeginScene, DrawPrimitive of one D3DTLVERTEX triangle (x, y in 16ths of a pixel, z 0.5 or millis / 1000, rhw 1, the diffuse colors, the specular colors or 0; a specular alpha is the vertex's fog factor), EndScene | `tri begin\|draw\|end hr <hr>` on failure |
 | `d3dfill <seed>`, `d3ddump`, `d3dzdump` | the target's (z-buffer's) bytes through Lock as `ddfill` / `dddump` | `dd rt\|z <w> <h> <bits>` and the rows |
 
 Without `d3d` (or a device, for the lines that need one) the lines print `nodev`.
