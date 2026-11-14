@@ -1756,8 +1756,13 @@ impl Ctx {
     /// depth-*: z times 2^32, compared in full, stored in 32 bits: 1.0 fails LEQUAL against a
     /// cleared 1.0 yet stores 0)
     pub fn depth_fixed(z: f64, bits: u32) -> Res<u64> {
+        if bits == 16 {
+            hit("GL.DEPTH.BITS");
+            return Ok(Ctx::clear_depth_fixed(z, 16)? as u64);
+        }
         if bits != 32 {
-            return Err(Fail::Unmodeled("GL.DEPTH.BITS"));
+            // (the formats have 32 or 16 depth bits only: WGL.FORMATS)
+            return Err(Fail::Bad);
         }
         hit("GL.DEPTH.FIXED");
         Ok((z.clamp(0.0, 1.0) * 4_294_967_296.0) as u64)
@@ -1766,8 +1771,14 @@ impl Ctx {
     /// the clear depth in a 32-bit depth buffer (MEASURED, golden opengl-32 depth-*: z times
     /// 0x7fffffff truncated, shifted left by one: 1.0 gives 0xfffffffe)
     pub fn clear_depth_fixed(z: f64, bits: u32) -> Res<u32> {
+        if bits == 16 {
+            // (MEASURED, golden opengl-32 edge-depth-16, depth16-*: the same at 15 bits)
+            hit("GL.DEPTH.BITS");
+            return Ok(((z.clamp(0.0, 1.0) * 32767.0) as u32) << 1);
+        }
         if bits != 32 {
-            return Err(Fail::Unmodeled("GL.DEPTH.BITS"));
+            // (the formats have 32 or 16 depth bits only: WGL.FORMATS)
+            return Err(Fail::Bad);
         }
         hit("GL.DEPTH.CLEAR");
         Ok(((z.clamp(0.0, 1.0) * 2_147_483_647.0) as u32) << 1)
@@ -2277,12 +2288,29 @@ impl Ctx {
                             from_float((c[0] + c[1] + c[2]).min(1.0), t)
                         }
                         5 => {
-                            // (MEASURED, golden opengl-32 depth-*: UNSIGNED_INT gives the 32 bits as they are)
-                            if t != UNSIGNED_INT || self.pf.depth != 32 {
-                                return Err(Fail::Unmodeled("GL.READ.DEPTH.TYPE"));
+                            // (MEASURED, golden opengl-32 depth-*: UNSIGNED_INT gives the 32 bits as they are;
+                            // depth16-*: 16 bits as they are in UNSIGNED_INT's top half and in
+                            // UNSIGNED_SHORT, the other types from the value over 0xfffe)
+                            let d = self.depth[p];
+                            match (self.pf.depth, t) {
+                                (32, UNSIGNED_INT) => {
+                                    hit("GL.READ.DEPTH");
+                                    d.to_le_bytes().to_vec()
+                                }
+                                (16, UNSIGNED_INT) => {
+                                    hit("GL.READ.DEPTH");
+                                    (d << 16).to_le_bytes().to_vec()
+                                }
+                                (16, UNSIGNED_SHORT) => {
+                                    hit("GL.READ.DEPTH.16");
+                                    u16::try_from(d).map_err(|_| Fail::Unmodeled("GL.READ.DEPTH.TYPE"))?.to_le_bytes().to_vec()
+                                }
+                                (16, UNSIGNED_BYTE | INT | FLOAT) => {
+                                    hit("GL.READ.DEPTH.16");
+                                    from_float(d as f32 / 65534.0, t)
+                                }
+                                _ => return Err(Fail::Unmodeled("GL.READ.DEPTH.TYPE")),
                             }
-                            hit("GL.READ.DEPTH");
-                            self.depth[p].to_le_bytes().to_vec()
                         }
                         _ => {
                             hit("GL.READ.STENCIL");

@@ -26669,6 +26669,850 @@ glerr
 gl glClear 0x200
 glerr
 end
+case depth-types-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gl glClearDepth 1
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 -1
+gl glVertex3f 8 -4 -1
+gl glVertex3f 8 4 -1
+gl glVertex3f 0 4 -1
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 1
+gl glVertex3f 16 -4 1
+gl glVertex3f 16 4 1
+gl glVertex3f 8 4 1
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0
+gl glVertex3f 8 4 0
+gl glVertex3f 8 12 0
+gl glVertex3f 0 12 0
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 0.3
+gl glVertex3f 16 4 0.3
+gl glVertex3f 16 12 0.3
+gl glVertex3f 8 12 0.3
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 1
+gl glVertex3f 8 -4 1
+gl glVertex3f 8 4 1
+gl glVertex3f 0 4 1
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 0
+gl glVertex3f 16 -4 0
+gl glVertex3f 16 4 0
+gl glVertex3f 8 4 0
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0.3
+gl glVertex3f 8 4 0.3
+gl glVertex3f 8 12 0.3
+gl glVertex3f 0 12 0.3
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 -0.7
+gl glVertex3f 16 4 -0.7
+gl glVertex3f 16 12 -0.7
+gl glVertex3f 8 12 -0.7
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.5
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 0
+gl glVertex3f 8 -4 0
+gl glVertex3f 8 4 0
+gl glVertex3f 0 4 0
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 0.3
+gl glVertex3f 16 -4 0.3
+gl glVertex3f 16 4 0.3
+gl glVertex3f 8 4 0.3
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 -0.7
+gl glVertex3f 8 4 -0.7
+gl glVertex3f 8 12 -0.7
+gl glVertex3f 0 12 -0.7
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 0.9999
+gl glVertex3f 16 4 0.9999
+gl glVertex3f 16 12 0.9999
+gl glVertex3f 8 12 0.9999
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.25
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 0.3
+gl glVertex3f 8 -4 0.3
+gl glVertex3f 8 4 0.3
+gl glVertex3f 0 4 0.3
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 -0.7
+gl glVertex3f 16 -4 -0.7
+gl glVertex3f 16 4 -0.7
+gl glVertex3f 8 4 -0.7
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0.9999
+gl glVertex3f 8 4 0.9999
+gl glVertex3f 8 12 0.9999
+gl glVertex3f 0 12 0.9999
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 -0.0001
+gl glVertex3f 16 4 -0.0001
+gl glVertex3f 16 12 -0.0001
+gl glVertex3f 8 12 -0.0001
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.123456
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 -0.7
+gl glVertex3f 8 -4 -0.7
+gl glVertex3f 8 4 -0.7
+gl glVertex3f 0 4 -0.7
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 0.9999
+gl glVertex3f 16 -4 0.9999
+gl glVertex3f 16 4 0.9999
+gl glVertex3f 8 4 0.9999
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 -0.0001
+gl glVertex3f 8 4 -0.0001
+gl glVertex3f 8 12 -0.0001
+gl glVertex3f 0 12 -0.0001
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 0.5
+gl glVertex3f 16 4 0.5
+gl glVertex3f 16 12 0.5
+gl glVertex3f 8 12 0.5
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.999
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 0.9999
+gl glVertex3f 8 -4 0.9999
+gl glVertex3f 8 4 0.9999
+gl glVertex3f 0 4 0.9999
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 -0.0001
+gl glVertex3f 16 -4 -0.0001
+gl glVertex3f 16 4 -0.0001
+gl glVertex3f 8 4 -0.0001
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0.5
+gl glVertex3f 8 4 0.5
+gl glVertex3f 8 12 0.5
+gl glVertex3f 0 12 0.5
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 -1
+gl glVertex3f 16 4 -1
+gl glVertex3f 16 12 -1
+gl glVertex3f 8 12 -1
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+glerr
+end
+case depth-types-1
+glctx 32 2
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gl glClearDepth 1
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 -1
+gl glVertex3f 8 -4 -1
+gl glVertex3f 8 4 -1
+gl glVertex3f 0 4 -1
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 1
+gl glVertex3f 16 -4 1
+gl glVertex3f 16 4 1
+gl glVertex3f 8 4 1
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0
+gl glVertex3f 8 4 0
+gl glVertex3f 8 12 0
+gl glVertex3f 0 12 0
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 0.3
+gl glVertex3f 16 4 0.3
+gl glVertex3f 16 12 0.3
+gl glVertex3f 8 12 0.3
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 1
+gl glVertex3f 8 -4 1
+gl glVertex3f 8 4 1
+gl glVertex3f 0 4 1
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 0
+gl glVertex3f 16 -4 0
+gl glVertex3f 16 4 0
+gl glVertex3f 8 4 0
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0.3
+gl glVertex3f 8 4 0.3
+gl glVertex3f 8 12 0.3
+gl glVertex3f 0 12 0.3
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 -0.7
+gl glVertex3f 16 4 -0.7
+gl glVertex3f 16 12 -0.7
+gl glVertex3f 8 12 -0.7
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.5
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 0
+gl glVertex3f 8 -4 0
+gl glVertex3f 8 4 0
+gl glVertex3f 0 4 0
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 0.3
+gl glVertex3f 16 -4 0.3
+gl glVertex3f 16 4 0.3
+gl glVertex3f 8 4 0.3
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 -0.7
+gl glVertex3f 8 4 -0.7
+gl glVertex3f 8 12 -0.7
+gl glVertex3f 0 12 -0.7
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 0.9999
+gl glVertex3f 16 4 0.9999
+gl glVertex3f 16 12 0.9999
+gl glVertex3f 8 12 0.9999
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.25
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 0.3
+gl glVertex3f 8 -4 0.3
+gl glVertex3f 8 4 0.3
+gl glVertex3f 0 4 0.3
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 -0.7
+gl glVertex3f 16 -4 -0.7
+gl glVertex3f 16 4 -0.7
+gl glVertex3f 8 4 -0.7
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0.9999
+gl glVertex3f 8 4 0.9999
+gl glVertex3f 8 12 0.9999
+gl glVertex3f 0 12 0.9999
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 -0.0001
+gl glVertex3f 16 4 -0.0001
+gl glVertex3f 16 12 -0.0001
+gl glVertex3f 8 12 -0.0001
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.123456
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 -0.7
+gl glVertex3f 8 -4 -0.7
+gl glVertex3f 8 4 -0.7
+gl glVertex3f 0 4 -0.7
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 0.9999
+gl glVertex3f 16 -4 0.9999
+gl glVertex3f 16 4 0.9999
+gl glVertex3f 8 4 0.9999
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 -0.0001
+gl glVertex3f 8 4 -0.0001
+gl glVertex3f 8 12 -0.0001
+gl glVertex3f 0 12 -0.0001
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 0.5
+gl glVertex3f 16 4 0.5
+gl glVertex3f 16 12 0.5
+gl glVertex3f 8 12 0.5
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+gl glClearDepth 0.999
+gl glClear 0x100
+gl glBegin 7
+gl glVertex3f 0 -4 0.9999
+gl glVertex3f 8 -4 0.9999
+gl glVertex3f 8 4 0.9999
+gl glVertex3f 0 4 0.9999
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 -4 -0.0001
+gl glVertex3f 16 -4 -0.0001
+gl glVertex3f 16 4 -0.0001
+gl glVertex3f 8 4 -0.0001
+gl glEnd
+gl glBegin 7
+gl glVertex3f 0 4 0.5
+gl glVertex3f 8 4 0.5
+gl glVertex3f 8 12 0.5
+gl glVertex3f 0 12 0.5
+gl glEnd
+gl glBegin 7
+gl glVertex3f 8 4 -1
+gl glVertex3f 16 4 -1
+gl glVertex3f 16 12 -1
+gl glVertex3f 8 12 -1
+gl glEnd
+glread 0 0 16 16 0x1902 0x1400 256
+glread 0 0 16 16 0x1902 0x1401 256
+glread 0 0 16 16 0x1902 0x1402 512
+glread 0 0 16 16 0x1902 0x1403 512
+glread 0 0 16 16 0x1902 0x1404 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glread 0 0 16 16 0x1902 0x1406 1024
+glerr
+end
+case never-more-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x200
+gl glClear 0x4100
+gl glColor4ub 0xf2 0x2b 0x5e 0xff
+gl glRectf -0.75 -0.375 13.625 11.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x88 0x57 0x73 0xff
+gl glRectf 5 -1.875 13.375 10.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xe3 0x3b 0xcf 0xff
+gl glRectf -2 0.125 13.125 9.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x48 5 0xd6 0xff
+gl glRectf 2.5 -1 13.625 17.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x36 0x2f 0x54 0xff
+gl glRectf 2.5 6.5 17.25 9.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x18 0xdb 3 0xff
+gl glRectf 6.875 1.875 13 8
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x63 0x37 0xf 0xff
+gl glRectf 6 5.75 13 14.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 7 0x7e 0x54 0xff
+gl glRectf 7.125 7.125 9 9.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xf2 0xe3 0xe4 0xff
+gl glRectf 2.375 0 9.125 13
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xab 0xb2 0x53 0xff
+gl glRectf 3.125 0.25 11.25 15
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x97 0x33 0x86 0xff
+gl glRectf 5.25 -0.625 12.375 12
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x25 0xe9 0xe3 0xff
+gl glRectf 3.625 3.25 16.875 16
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb3 0xab 0xa6 0xff
+gl glRectf 4.75 2.875 12.25 15.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb4 0xe7 0xe6 0xff
+gl glRectf 6.625 3.875 8.75 11
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x9e 0xb0 0xa9 0xff
+gl glRectf 6.25 -1.75 13.5 10.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xc7 0x2d 0x72 0xff
+gl glRectf 5.125 0.375 10.875 16.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x14 0x78 0x7b 0xff
+gl glRectf 4.125 -2 14.875 15.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x73 0xb8 0x94 0xff
+gl glRectf -0.875 -0.625 13.875 10.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xae 0x3f 0x73 0xff
+gl glRectf 7.25 3.25 8.875 11.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xd8 0xdb 0x58 0xff
+gl glRectf 0.625 2.375 11.875 12
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x6b 0xe3 0x97 0xff
+gl glRectf 5.875 7.125 16 13.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x11 0xd7 0x8f 0xff
+gl glRectf -1.375 -2 12.875 16.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xd5 0xdc 0xf3 0xff
+gl glRectf 1 3.375 14.875 16.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x21 0x64 0 0xff
+gl glRectf 0.375 -1 12.25 13.875
+glread 0 0 16 16 0x1908 0x1401 1024
+end
+case never-more-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x200
+gl glDepthMask 0
+gl glClear 0x4100
+gl glColor4ub 9 0x59 0xcd 0xff
+gl glRectf 1.375 4 16.5 17.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x4f 0x58 0x34 0xff
+gl glRectf 5.5 7.375 17.125 10
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x7d 0x2b 0x52 0xff
+gl glRectf 7.375 2.875 10.25 13.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x56 0x4c 0x9d 0xff
+gl glRectf 5.25 4.375 11 16.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x39 0xb2 5 0xff
+gl glRectf 4.75 -0.25 13.25 8.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xcf 0xec 0x3b 0xff
+gl glRectf 3.75 -1.5 12.125 15.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xce 0x2f 0xc0 0xff
+gl glRectf 3.25 -0.5 15 16.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x92 0xf5 0x67 0xff
+gl glRectf 7.125 2 15 10.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x75 0x97 0xca 0xff
+gl glRectf -1.5 5.5 10.625 16.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x6f 0x74 0xf3 0xff
+gl glRectf 3.375 4.625 14.875 17
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x10 0xe3 0xef 0xff
+gl glRectf -1.625 7.375 8.375 12.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x46 0x35 0x44 0xff
+gl glRectf -0.75 -1 13.875 13.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xe5 0x2e 0xc6 0xff
+gl glRectf 1.125 2.875 12.875 17.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb1 0xb3 0x2a 0xff
+gl glRectf 5.125 0.625 13.5 10.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x3e 0xdc 0xbb 0xff
+gl glRectf 4.5 0.25 10.625 12.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x69 0x5e 0xae 0xff
+gl glRectf 7.625 7.375 17.125 15
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x28 0xec 0x10 0xff
+gl glRectf 6.75 4.625 11.125 10.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x13 0x93 0x66 0xff
+gl glRectf -1.25 3.75 8.5 9
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x7c 0xc9 0x76 0xff
+gl glRectf 0.375 4.625 12.375 16
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x52 0xda 0x74 0xff
+gl glRectf -0.875 -0.25 8 15
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xa3 0xaa 0xe5 0xff
+gl glRectf -1 0 14.875 16.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 8 0xcb 0xd 0xff
+gl glRectf 1.625 -1.375 15.375 8.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x8a 0xd7 0xc5 0xff
+gl glRectf 1.25 3.375 11 16.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x34 0x10 2 0xff
+gl glRectf -0.875 2.25 12.75 16.625
+glread 0 0 16 16 0x1908 0x1401 1024
+end
+case never-more-2
+glctx 32 2
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x200
+gl glClear 0x4100
+gl glColor4ub 0xc2 0xe2 0x6f 0xff
+gl glRectf -0.5 6 12.125 10.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xba 9 0x16 0xff
+gl glRectf 4.5 2.75 9.5 11
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xd 0x6e 0xb5 0xff
+gl glRectf 3.25 2.875 10.875 14.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x1f 0x79 0xb0 0xff
+gl glRectf 8 1.625 12.125 15
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xa1 0xa5 7 0xff
+gl glRectf 5.875 2.25 12.375 15.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x7f 0x9c 0x25 0xff
+gl glRectf 0.625 7 8.75 8.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x45 0xfe 0xe9 0xff
+gl glRectf -2 6.125 9.875 9.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x6a 0xd8 0x43 0xff
+gl glRectf 3.625 -2 13.5 15.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x2d 0xcc 0x30 0xff
+gl glRectf 3 2.375 17 15.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x4f 0x18 0xb6 0xff
+gl glRectf 2.375 -1 10.625 10.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x98 0x70 0x20 0xff
+gl glRectf 3.375 0.625 14.125 15.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x48 0xf3 0xaa 0xff
+gl glRectf 0.25 -1.125 12.375 8.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xa4 0xab 0xc9 0xff
+gl glRectf 2.125 7.125 12.875 11.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xc0 0x86 0x3f 0xff
+gl glRectf 4.375 4.5 8.875 17.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xfb 0x2e 0xa9 0xff
+gl glRectf 7 1 15 18
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb6 0xf7 0xad 0xff
+gl glRectf 7.875 6.625 9.375 11.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xc5 0x53 0xf2 0xff
+gl glRectf 5.875 4.125 15.25 12.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb1 0x1a 0xec 0xff
+gl glRectf 2 4.625 17.75 12.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x57 0x3f 0xab 0xff
+gl glRectf 4.75 -1 16.75 15.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xea 0x8d 0x12 0xff
+gl glRectf 7.625 -0.75 8.375 9.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x9f 0xf5 0xa0 0xff
+gl glRectf 4.875 4.125 16.125 9
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x60 0xee 0x20 0xff
+gl glRectf 7.125 -0.875 14.875 17.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb0 0x37 0x55 0xff
+gl glRectf 2.5 4.875 12.375 14.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x3e 0xf7 0x8e 0xff
+gl glRectf 7.625 -0.5 11.875 15
+glread 0 0 16 16 0x1908 0x1401 1024
+end
+case never-more-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x200
+gl glDepthFunc 0x201
+gl glClear 0x4100
+gl glColor4ub 0xb6 0xdd 0x4c 0xff
+gl glRectf 5.625 4.75 13.375 17.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xa9 0xcb 0x14 0xff
+gl glRectf -1.875 6 8.875 13.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x41 0x30 0xc6 0xff
+gl glRectf -0.75 -2 9.75 12.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xac 0x38 0x5c 0xff
+gl glRectf 0.5 5.625 17.625 11.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x57 0x1a 0xac 0xff
+gl glRectf 5.25 7.25 14 8.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x97 0x64 0xc5 0xff
+gl glRectf 3.375 7.625 8.375 11.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x2e 0xeb 0x68 0xff
+gl glRectf 3.375 -0.75 17.75 14.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x4d 0xcb 0x15 0xff
+gl glRectf -0.625 1.625 11.625 17.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x7d 0x47 0xc 0xff
+gl glRectf 2.125 4 11.625 8.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xc 9 0x98 0xff
+gl glRectf -0.125 6.5 8.625 13.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xb3 0xad 0x15 0xff
+gl glRectf 5 1.625 13.125 11.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x69 0xaa 0x2a 0xff
+gl glRectf 0.25 0.5 16.375 15.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x45 0x40 9 0xff
+gl glRectf 1.25 6.375 14 14.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xf4 0xcf 0x69 0xff
+gl glRectf -1 2.5 13.625 16.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x35 0x8b 0x3d 0xff
+gl glRectf 3.75 -1.625 10.5 10.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x23 0x1c 0xbd 0xff
+gl glRectf 0.625 4.25 11.75 8.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xdf 0x4e 0x29 0xff
+gl glRectf -2 2.375 14.125 8.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x85 0x81 0x55 0xff
+gl glRectf 1.375 3.125 14.125 16.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x1e 0xbd 0x1e 0xff
+gl glRectf 1.875 6 14.125 11
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xc2 0x7f 0x86 0xff
+gl glRectf -2 -1.875 9.875 17.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x30 0x75 0x56 0xff
+gl glRectf 2.5 2 11.5 15.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x65 0x57 0x36 0xff
+gl glRectf 1.5 0.25 13 11
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0x51 0x61 0x48 0xff
+gl glRectf -1.25 5.875 11.25 14.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glColor4ub 0xc7 0x6d 0x8b 0xff
+gl glRectf 8 6 11.25 10.375
+glread 0 0 16 16 0x1908 0x1401 1024
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

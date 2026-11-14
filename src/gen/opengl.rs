@@ -1015,4 +1015,38 @@ fn measure(s: &mut String) {
     // glGetString between glBegin and glEnd; glAccum without an accumulation buffer (color index)
     writeln!(s, "case begin-string\n{}gl glBegin 7\nglstr 0x1f00\nglstr 0x1f03\ngl glEnd\nglerr\nend", ctx(32)).unwrap();
     writeln!(s, "case accum-none\nglctx 32 9\ngl glAccum 0x101 1\nglerr\ngl glAccum 0x102 1\nglerr\ngl glClear 0x200\nglerr\nend").unwrap();
+    // depth reads in every type, 32 and 16 depth bits: clears and rectangles at several depths
+    for (k, pf) in [(0, "glctx 32 choose 0x38 0 32 0 0 32 8"), (1, "glctx 32 2")] {
+        writeln!(s, "case depth-types-{k}\n{pf}\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207").unwrap();
+        for (j, cz) in [1.0, 0.0, 0.5, 0.25, 0.123456, 0.999].iter().enumerate() {
+            glf(s, "glClearDepth", &[*cz]);
+            writeln!(s, "gl glClear 0x100").unwrap();
+            for i in 0..4 {
+                let z = [-1.0, 1.0, 0.0, 0.3, -0.7, 0.9999, -0.0001, 0.5][(i + j) % 8];
+                writeln!(s, "gl glBegin 7").unwrap();
+                for (x, y) in [(0.0, 0.0), (8.0, 0.0), (8.0, 8.0), (0.0, 8.0)] {
+                    glf(s, "glVertex3f", &[x + (i % 2) as f64 * 8.0, y + (i / 2) as f64 * 8.0 - 4.0, z]);
+                }
+                writeln!(s, "gl glEnd").unwrap();
+            }
+            for t in [BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, INT, UNSIGNED_INT, FLOAT] {
+                let n = 256 * [1, 1, 2, 2, 4, 4, 4][(t - BYTE) as usize];
+                writeln!(s, "glread 0 0 16 16 {} {} {n}", h(DEPTH_COMPONENT), h(t)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // GL_NEVER again: which rectangles are drawn all the same (some clipped ones are), on 32
+    // and 16 depth bits, with the depth mask off
+    let mut q = XorShift32::new(0x0960_2002);
+    for (k, (pf, extra)) in [("glctx 32 choose 0x38 0 32 0 0 32 8", ""), ("glctx 32 choose 0x38 0 32 0 0 32 8", "gl glDepthMask 0\n"), ("glctx 32 2", ""), ("glctx 32 choose 0x38 0 32 0 0 32 8", "gl glDepthFunc 0x201\n")].iter().enumerate() {
+        write!(s, "case never-more-{k}\n{pf}\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x200\n{extra}").unwrap();
+        for _ in 0..24 {
+            writeln!(s, "gl glClear 0x4100").unwrap();
+            color(s, &mut q);
+            glf(s, "glRectf", &[v8(&mut q, -2, 8), v8(&mut q, -2, 8), v8(&mut q, 8, 18), v8(&mut q, 8, 18)]);
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
 }

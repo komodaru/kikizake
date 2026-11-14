@@ -91,7 +91,7 @@ GL.STENCILMASK doc | glStencilMask | the write mask
 GL.DEPTH.TEST doc | glDepthFunc | with GL_DEPTH_TEST the fragment's depth compared with the buffer's; written under the depth mask
 GL.DEPTH.FIXED measured | (none) | a window depth for a 32-bit buffer: z times 2^32 compared in full, stored in 32 bits, so 1.0 fails GL_LEQUAL against a cleared 1.0 yet stores 0 (opengl golden depth-*)
 GL.DEPTH.CLEAR measured | glClearDepth | in a 32-bit buffer: z times 0x7fffffff truncated, shifted left one: 1.0 gives 0xfffffffe (opengl golden depth-*)
-GL.DEPTH.BITS open | (none) | a 16-bit depth buffer
+GL.DEPTH.BITS measured | glClear, glClearDepth, depth test | a 16-bit depth buffer stores z times 0x7fff truncated, shifted left by one, for clears and fragments alike, and compares those (opengl golden edge-depth-16, depth16-*: 1.0 gives 0xfffe, 0.5 0x7ffe)
 GL.DEPTH.NEVER open | glDepthFunc (GL_NEVER) | under GL_NEVER Windows writes scattered pixels of the primitives along diagonals; no rule found (opengl golden depth-0)
 GL.DEPTHMASK doc | glDepthMask | the depth write mask
 GL.DEPTHRANGE doc | glDepthRange | the near and far window depths, clamped to 0..1
@@ -140,8 +140,9 @@ GL.READ doc | glReadPixels | the rectangle's pixels from the bottom row up, conv
 GL.READ.CONVERT measured | glReadPixels | components (read as channel times the float reciprocal of its maximum) in floats: GL_UNSIGNED_BYTE times 255 rounded, GL_UNSIGNED_SHORT times 65535, GL_BYTE times 127.5, GL_SHORT times 32767.5 truncated, GL_UNSIGNED_INT times 4294964992 and GL_INT times 2147482496 truncated, GL_FLOAT as is (opengl golden read-*: 2343 elements)
 GL.READ.LUMINANCE doc | glReadPixels | luminance: red + green + blue, clamped to 1
 GL.READ.BITMAP measured | glReadPixels | GL_BITMAP with a color format: GL_INVALID_OPERATION, not GL_INVALID_ENUM (opengl golden read-formats, read-pack-*)
-GL.READ.DEPTH measured | glReadPixels (GL_DEPTH_COMPONENT) | GL_UNSIGNED_INT from a 32-bit depth buffer: the stored bits as they are (opengl golden depth-*)
-GL.READ.DEPTH.TYPE open | glReadPixels (GL_DEPTH_COMPONENT) | other types or a 16-bit depth buffer
+GL.READ.DEPTH measured | glReadPixels (GL_DEPTH_COMPONENT) | GL_UNSIGNED_INT: the stored bits as they are, a 16-bit buffer's in the top half (opengl golden depth-*, edge-depth-16)
+GL.READ.DEPTH.16 measured | glReadPixels (GL_DEPTH_COMPONENT) | from a 16-bit depth buffer GL_UNSIGNED_SHORT gives the stored bits, GL_UNSIGNED_BYTE, GL_INT and GL_FLOAT the stored value over 0xfffe converted as colors are (opengl golden depth16-*: 19 values in each type)
+GL.READ.DEPTH.TYPE open | glReadPixels (GL_DEPTH_COMPONENT) | the other types from a 32-bit buffer, GL_BYTE and GL_SHORT from a 16-bit one (depth-types-* read every type)
 GL.READ.STENCIL doc | glReadPixels (GL_STENCIL_INDEX) | the stencil values as integers of the type
 GL.READ.OUTSIDE measured | glReadPixels | the elements of pixels outside the window are left as they are (opengl golden edge-read-outside)
 GL.READ.BUFFER open | glReadPixels | a layout past the executor's buffer (Windows writes past it)
