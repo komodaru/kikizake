@@ -137,7 +137,6 @@ WIC.CAN assumed
 WIC.FROM.CMYK open
 WIC.FROM.GRAY16 open
 WIC.FROM.INDEXED open
-WIC.GRAY.ROUND open
 WIC.PAIR assumed
 WIC.PAIR.WIDE open
 WIC.SAME assumed

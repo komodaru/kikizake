@@ -2337,12 +2337,6 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
         return Ok(dither_bw(c));
     }
     if nf == "bw" && !c.fmt.starts_with("gray") {
-        // MEASURED (golden wicencode encbw-b-95, -110, -155, -170, -g-35, -r-65, -130): the
-        // encoder's gray rounds otherwise than this model's within 0.12 of a half level
-        let px = wic_convert(c, "bgra")?;
-        if px.px.chunks(4).any(|p| (crate::model::wic::gray_unrounded(p[0], p[1], p[2]).clamp(0.0, 255.0) % 1.0 - 0.5).abs() < 0.12) {
-            return Err(Fail::Unmodeled(open::WIC_GRAY_ROUND));
-        }
         hit(clause::WICIMAGE_ENCODE_BW);
         return Ok(dither_bw(&wic_convert(c, "gray8")?));
     }

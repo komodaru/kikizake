@@ -14,7 +14,7 @@ WIC.TO.INDEX.OUTSIDE measured | (none) | an index past the palette's colors is o
 WIC.TO.CMYK open | (none) | 32bppCMYK to RGB (through Windows' CMYK profile: no formula)
 WIC.FROM.GRAY measured | (none) | to 8, 4, 2, 1 bit gray: Rec. 709 luminance of the linear light back to sRGB, rounded to 8 bits, then (g * 3 + 127) / 255 for 2 bits from 8 bits of gray or less, g >> 4 for 4, g >= 128 for 1 (wicconv golden, golden wic)
 WIC.FROM.GRAY2 measured | (none) | to 2bppGray from any other format: the 4-bit level rounded to 2 bits, ((g >> 4) * 3 + 7) / 15 (thresholds 48, 128, 208; golden wic)
-WIC.GRAY.ROUND open | (none) | luminance within 0.025 of a half level: Windows rounds some of them the other way (its arithmetic not worked out)
+WIC.GRAY.ROUND measured | (none) | a color's 8-bit gray: its luminance (Rec. 709 of the linear light, back to sRGB) rounded down to 16 bits, then 16bppGray's 8-bit levels (WIC.TO.GRAY16); rounding the luminance to 8 bits directly is a level off within about 0.1 of a half (golden wicencode encbw-*: 378 single colors; wic)
 WIC.FROM.GRAY16 open | (none) | to 16bppGray (the 8-bit rule scaled to 16 bits is off by one in half the levels)
 WIC.FROM.TRUNCATE measured | (none) | to 5 and 6 bit channels: the high bits (wicconv golden)
 WIC.FROM.WIDEN measured | (none) | to 16-bit channels: c * 257 (wicconv golden)

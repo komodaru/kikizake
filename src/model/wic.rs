@@ -67,10 +67,13 @@ fn linear_to_srgb(l: f64) -> f64 {
     if l <= 0.003_130_8 { 12.92 * l } else { 1.055 * l.powf(1.0 / 2.4) - 0.055 }
 }
 
-/// the 8-bit gray of a color before its rounding: Rec. 709 luminance of the linear light, back
-/// to sRGB, in levels of 255
-pub fn gray_unrounded(b: u8, g: u8, r: u8) -> f64 {
-    luminance(b, g, r, 255.0) - 0.5
+/// MEASURED (golden wicencode encbw-*: 378 single colors, every one as this, 15 of them a level
+/// off from rounding the luminance to 8 bits directly): the 8-bit gray of a color is its Rec. 709
+/// luminance of the linear light back to sRGB rounded to 16 bits, then 16bppGray's measured
+/// 8-bit levels
+pub fn gray8(b: u8, g: u8, r: u8) -> u8 {
+    let v16 = luminance(b, g, r, 65535.0).floor();
+    u8::try_from(GRAY16_TO_8.partition_point(|&t| f64::from(t) <= v16)).unwrap_or(u8::MAX)
 }
 
 /// Rec. 709 luminance of the linear light, back to sRGB, at `max` levels (ASSUMED)
@@ -176,14 +179,9 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
     let n = (bits(f) / 8) as usize;
     let o = x * n;
     let w16 = |row: &mut [u8], o: usize, v: u16| row[o..o + 2].copy_from_slice(&v.to_le_bytes());
-    let gray = || luminance(b, g, r, 255.0) as u8;
+    let gray = || gray8(b, g, r);
     if matches!(name, "bw" | "gray2" | "gray4" | "gray8") && !gray_src {
-        // MEASURED: Windows rounds differently from this model within a few hundredths of a
-        // half level (its arithmetic is not worked out yet)
-        let y = luminance(b, g, r, 255.0) - 0.5;
-        if (y - y.floor() - 0.5).abs() < 0.025 {
-            return Err(Fail::Unmodeled(open::WIC_GRAY_ROUND));
-        }
+        hit(clause::WIC_GRAY_ROUND);
     }
     match name {
         "bw" => put_bits(row, x as u32, 1, (gray() >= 128) as u32),
