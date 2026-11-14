@@ -945,13 +945,13 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// the size limit of a single 2D texture of one level
 const SINGLE2D_MAX: u32 = 1 << 23;
 
-/// the largest frame latency SetMaximumFrameLatency takes (18 taken, 64 not; fitted by
-/// chain-edge3-latency-*)
-const LATENCY_MAX: u32 = 63;
+/// the largest frame latency SetMaximumFrameLatency takes (33 taken, 48 not; fitted by
+/// chain-edge4-latency-*)
+const LATENCY_MAX: u32 = 47;
 
-/// the bytes of buffers a 32-bit process runs out of memory making a swap chain of (1.84GB taken,
-/// 1.97GB not: the first measured that failed; fitted by chain-edge3-size-*)
-const CHAIN32_OOM: u64 = 16384 * 15000 * 8;
+/// the bytes of buffers a 32-bit process runs out of memory making a swap chain of (16384 x 14000
+/// x 2 taken, 16384 x 14250 x 2 not: the first measured that failed, golden dxgi-32 chain-edge*-size-*)
+const CHAIN32_OOM: u64 = 16384 * 14250 * 8;
 
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
