@@ -1400,8 +1400,10 @@ impl D3d9 {
                     }
                     let mut t = self.sample(st, self.draw.texs[i].as_ref().unwrap(), u, v)?;
                     if let Some(l) = lum {
+                        // (MEASURED bump-2, bump-chain-3: in f32, rounded to the nearest of 255,
+                        // halves to even)
                         for k in 0..3 {
-                            t[k] *= l;
+                            t[k] = (((t[k] as f32) * (l as f32) * 255.0).round_ties_even() / 255.0) as f64;
                         }
                     }
                     Some(t)
@@ -1415,6 +1417,13 @@ impl D3d9 {
                 // the texture the stage before it sampled, 0 where none did; with no texture of
                 // its own, (du, dv) and L are 0, bump-2, bump-3 on both)
                 hit(clause::D3D9_STAGE_BUMP);
+                // (what the stages after it read as CURRENT, and their textures where a stage
+                // before has none, are not WARP's plain rules: bump-chain-2, -4, -5, -6, -8 .. -11
+                // show the CURRENT before with its channels reversed and the like, open)
+                let next = st + 1;
+                if next < 8 && self.tss(next, 1) != 1 && ((0..st).any(|s| self.draw.stage_tex[s as usize].is_none()) || self.reads_current_any(next)) {
+                    return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
+                }
                 bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
                 let out = before.unwrap_or([0.0; 4]);
                 match self.tss(st, 28) {
@@ -1447,6 +1456,20 @@ impl D3d9 {
             } else {
                 self.stage(st, cop, aop, &r, tex)?
             };
+            // (MEASURED premod-chain-*: PREMODULATE gives its first argument times the next
+            // stage's texture, in f32, where the next stage is enabled and has one)
+            let mut out = out;
+            if (cop == 17 || aop == 17) && st < 7 && self.tss(st + 1, 1) != 1 {
+                if let Some(i) = self.draw.stage_tex[st as usize + 1] {
+                    hit(clause::D3D9_STAGE_BUMP);
+                    let nt = self.sample(st + 1, self.draw.texs[i].as_ref().unwrap(), uv[0], uv[1])?;
+                    for k in 0..4 {
+                        if (k < 3 && cop == 17) || (k == 3 && aop == 17) {
+                            out[k] = ((out[k] as f32) * (nt[k] as f32)) as f64;
+                        }
+                    }
+                }
+            }
             match self.tss(st, 28) {
                 1 => r.current = out,
                 5 if !self.v8 => {
@@ -1458,6 +1481,15 @@ impl D3d9 {
             }
         }
         Ok(r.current)
+    }
+
+    /// whether a stage's color or alpha operation reads CURRENT (or the diffuse color, which
+    /// CURRENT is on stage 0)
+    fn reads_current_any(&self, st: u32) -> bool {
+        let sel = |a: u32| matches!(self.tss(st, a) & 0xf, 0 | 1);
+        let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
+        let reads = |op: u32, a1: u32, a2: u32, a0: u32| (op != 3 && sel(a1)) || (op != 2 && sel(a2)) || (matches!(op, 25 | 26) && sel(a0)) || matches!(op, 12 | 16);
+        reads(cop, 2, 3, 26) || aop != 1 && reads(aop, 5, 6, 27)
     }
 
     /// whether a stage's color operation reads the diffuse color or CURRENT: through an argument
