@@ -299,7 +299,7 @@ proptest! {
     /// a filter of only nonnegative weights (Linear, Fant) keeps every channel between the
     /// source's least and greatest; every filter keeps a flat picture flat, but Cubic down,
     /// whose four floored products may lose up to a level (MEASURED: Windows' flat columns come
-    /// out one lower), never more and never higher
+    /// out one lower on x86), never more and never higher
     #[test]
     fn filters_stay_in_range(w in 1u32..7, h in 1u32..7, dw in 1u32..12, dh in 1u32..12, seed in 0u32..1000, flat in 0u8..=255) {
         for m in ["linear", "fant", "cubic", "hqcubic"] {

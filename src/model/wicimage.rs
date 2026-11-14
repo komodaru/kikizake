@@ -283,14 +283,19 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
                     for k in 0..c {
                         let m = |j: usize| mid[(j * ow + x) * c + k];
                         let v: i64 = match mode {
-                            // MEASURED (golden wicscale vcols-cubic-*, 19520 samples as Windows): down,
-                            // Cubic's weights halved to 15 bits, each product floored to 1/4, the sum
-                            // floored
-                            "cubic" => {
+                            // MEASURED (golden wicscale vcols-cubic-*, 19520 samples as Windows): down
+                            // on x86, Cubic's weights halved to 15 bits, each product floored to 1/4,
+                            // the sum floored; on x64 as across (the sum of 16-bit products floored)
+                            "cubic" if crate::model::arch() == 32 => {
                                 hit(clause::WICIMAGE_SCALE_CUBIC_VERTICAL);
                                 t.iter().map(|&(j, wt)| ((wt >> 1) * m(j)) >> 13).sum::<i64>() >> 2
                             }
-                            _ => t.iter().map(|&(j, wt)| wt * m(j)).sum::<i64>().div_euclid(ty.den),
+                            _ => {
+                                if mode == "cubic" {
+                                    hit(clause::WICIMAGE_SCALE_CUBIC_VERTICAL);
+                                }
+                                t.iter().map(|&(j, wt)| wt * m(j)).sum::<i64>().div_euclid(ty.den)
+                            }
                         };
                         o.px[y * ost + x * c + k] = v.clamp(0, 255) as u8;
                     }
