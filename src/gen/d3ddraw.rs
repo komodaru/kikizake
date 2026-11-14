@@ -414,6 +414,23 @@ fn suite(d3d11: bool) -> String {
         writeln!(s, "read 0 0 {} {ht} 1", 16 * w).unwrap();
         writeln!(s, "end").unwrap();
     }
+    // tables: 32x32 textures (every byte value many times over) of the formats whose decoding
+    // is fitted to Windows' answers (sRGB, signed and HDR / mode-based blocks)
+    for id in [29u32, 91, 81, 84, 95, 96, 98, 99] {
+        if !d3d11 && (94..=99).contains(&id) {
+            continue;
+        }
+        let f = format(id).unwrap();
+        writeln!(s, "case ld-table-{id}\n{dev}").unwrap();
+        writeln!(s, "tex 0 2 32 32 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        writeln!(s, "tex 1 2 32 32 1 1 {id} 0 8 0 0 1 0 init {} {} 0\nsrv 1 1 nodesc\ntsrv 1", id * 5 + 3, f.row_bytes(32)).unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("psld"))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(32.0), fb(32.0), fb(1.0)).unwrap();
+        for p in [(-1.0f32, 1.0f32), (3.0, 1.0), (-1.0, -3.0)] {
+            writeln!(s, "vtx {} {} {} {} 0 0 0 0", fb(p.0), fb(p.1), fb(0.5), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 4 3 32\nread 0 0 512 32 1\nend").unwrap();
+    }
     // depth formats read through their shader resource formats
     for (tl, view) in [(40u32, 41u32), (55, 56), (45, 46), (20, 21), (45, 47)] {
         let rt = if view == 47 { 3 } else { 2 };
@@ -533,6 +550,49 @@ fn probes(s: &mut String, dev: &str) {
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nviewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", hex(&shader("vs")), hex(&shader(ps)), fb(8.0), fb(8.0), fb(1.0)).unwrap();
         quad(s, uv);
         writeln!(s, "read 0 0 128 8 1\nend").unwrap();
+    }
+    // many of each, to fit: perspective interpolation into a float target, points, lines,
+    // wireframe, filtering between texel centers
+    let mut r = XorShift32::new(0x9e0b_e5);
+    let px = |r: &mut XorShift32, lo: i64, hi: i64| r.range(lo * 256, hi * 256) as f32 / 256.0;
+    let unit = |r: &mut XorShift32| r.range(0, 1 << 16) as f32 / 65536.0;
+    for i in 0..24 {
+        begin(s, dev, &format!("probe-interp-{i}"), 16, 16, 2, "ps");
+        for _ in 0..3 {
+            let (x, y, z, w) = (px(&mut r, -4, 20), px(&mut r, -4, 20), unit(&mut r), 0.25 + 3.75 * unit(&mut r));
+            let (nx, ny) = (x / 16.0 * 2.0 - 1.0, 1.0 - y / 16.0 * 2.0);
+            let c = [unit(&mut r), unit(&mut r), unit(&mut r), unit(&mut r)];
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(nx * w), fb(ny * w), fb(z * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+        }
+        writeln!(s, "draw 4 3 32").unwrap();
+        read_rt(s, 0, 2, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    for (name, top, n, fill) in [("points", 1u32, 24u32, 3u32), ("lines", 2, 16, 3), ("linestrip", 3, 9, 3), ("wire", 4, 6, 2)] {
+        for i in 0..8 {
+            begin(s, dev, &format!("probe-{name}-{i}"), 16, 16, 28, "ps");
+            if fill != 3 {
+                writeln!(s, "rast {fill} 1 0 0 0 0 1 0 0 0").unwrap();
+            }
+            for k in 0..n {
+                vertex(s, px(&mut r, -2, 18), px(&mut r, -2, 18), 0.5, color(i * 31 + k), 16.0, 16.0);
+            }
+            writeln!(s, "draw {top} {n} 32").unwrap();
+            read_rt(s, 0, 28, 16, 16);
+            writeln!(s, "end").unwrap();
+        }
+    }
+    for i in 0..12u32 {
+        let (filter, addr) = (*r.pick(&[0x15u32, 0x14, 0x11, 0x10, 0x5, 0x1, 0x4]), r.range(1, 5));
+        let (u0, u1, v0, v1) = (px(&mut r, -2, 3) / 4.0, px(&mut r, -2, 3) / 4.0, px(&mut r, -2, 3) / 4.0, px(&mut r, -2, 3) / 4.0);
+        writeln!(s, "case probe-filter-{i}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        writeln!(s, "tex 1 2 4 4 1 1 28 0 8 0 0 1 0 init {} 16 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} {addr} {addr} {addr}", 300 + i).unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("pssample"))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (x, y, u, v) in [(-1.0f32, 1.0f32, u0, v0), (1.0, 1.0, u1, v0), (-1.0, -1.0, u0, v1), (1.0, -1.0, u1, v1)] {
+            writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }
     // a constant buffer bound (no program reads it)
     begin(s, dev, "probe-cbuf", 16, 16, 28, "ps");
