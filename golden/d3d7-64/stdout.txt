@@ -16249,6 +16249,267 @@ nodev
 nodev
 nodev
 nodev
+case cullin-2-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-2-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-2-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-2-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-3-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-3-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-3-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-3-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-7-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-7-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-7-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case cullin-7-15
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-3-z16-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-3-z16-1
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-3-z16-2
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-3-z32-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-3-z32-1
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-3-z32-2
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-7-z16-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-7-z16-1
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-7-z16-2
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-7-z32-0
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-7-z32-1
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zcover-7-z32-2
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zfunc
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case blendone
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case blend565
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case dither565
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case clearnoz
+d3d qi 80004002
+nodev
+nodev
+nodev
+case haldraw
+d3d qi 80004002
+nodev
+nodev
+nodev
+nodev
 case nodev
 nodev
 nodev
