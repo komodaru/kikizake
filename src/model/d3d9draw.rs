@@ -360,6 +360,8 @@ pub struct Draw {
     /// the vertex declaration GetVertexDeclaration answers (None: no declaration)
     pub decl: Option<Vec<(u32, u32)>>,
     pub scissor: Option<(i32, i32, i32, i32)>,
+    /// the triangle being drawn is counterclockwise on screen (two-sided stencil)
+    pub ccw: bool,
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -423,11 +425,18 @@ pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
     if fvf == 0 {
         return Ok(None);
     }
-    if fvf >> 8 & 0xf > 8 {
-        return Err(Fail::Unmodeled(open::D3D9_FVF_TEXCOUNT));
-    }
+    let sets = fvf >> 8 & 0xf;
     let xyzw = fvf & 0x400e == 0x4002;
-    let mut e = fvf_decl(fvf & !0x6001 & !if xyzw { 0x400e } else { 0 } | if xyzw { 0x002 } else { 0 }).map_err(|_| Fail::Unmodeled(open::D3D9_FVF_TEXCOUNT))?;
+    let base = fvf & !0x6001 & !if xyzw { 0x400e } else { 0 } | if xyzw { 0x002 } else { 0 };
+    // (MEASURED, fvf-texcount: past 8 texture coordinate sets, FLOAT2 ones of the next indices)
+    let mut e = fvf_decl(if sets > 8 { base & !0xf00 | 8 << 8 } else { base }).map_err(|_| Fail::Unmodeled(open::D3D9_FVF_BLEND5))?;
+    if sets > 8 {
+        hit(clause::D3D9_FVF_TEXCOUNT);
+        for k in 8..sets {
+            let l = *e.last().unwrap();
+            e.push(elem((l.0 >> 16) + decl_type_size(l.1 & 255).unwrap(), 1, 5, k));
+        }
+    }
     if xyzw {
         // (a FLOAT4 in place of the FLOAT3: what follows moves 4 on)
         e[0].1 = e[0].1 & !255 | 3;
@@ -447,35 +456,12 @@ pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
     Ok(Some(e))
 }
 
-/// Sutherland-Hodgman against x0 <= x <= x1, y0 <= y <= y1, in f32: a new vertex is
-/// p + t (q - p), t = dp / (dp - dq) (MEASURED: D3D9.RASTER.CLIP)
-pub fn clip(pts: &[(f32, f32)], x0: f32, x1: f32, y0: f32, y1: f32) -> Vec<(f32, f32)> {
-    let mut poly = pts.to_vec();
-    for plane in 0..4 {
-        let d = |v: &(f32, f32)| match plane {
-            0 => v.0 - x0,
-            1 => x1 - v.0,
-            2 => v.1 - y0,
-            _ => y1 - v.1,
-        };
-        let mut out = Vec::new();
-        for i in 0..poly.len() {
-            let (p, q) = (poly[i], poly[(i + 1) % poly.len()]);
-            let (dp, dq) = (d(&p), d(&q));
-            if dp >= 0.0 {
-                out.push(p);
-            }
-            if (dp >= 0.0) != (dq >= 0.0) {
-                let t = dp / (dp - dq);
-                out.push((p.0 + t * (q.0 - p.0), p.1 + t * (q.1 - p.1)));
-            }
-        }
-        poly = out;
-        if poly.is_empty() {
-            break;
-        }
-    }
-    poly
+/// the texture stages' registers: the iterated colors, CURRENT and (9) TEMP
+struct Regs {
+    diffuse: [f64; 4],
+    specular: [f64; 4],
+    current: [f64; 4],
+    temp: [f64; 4],
 }
 
 /// the attributes a vertex carries through clipping: z, diffuse (r, g, b, a), specular, u, v
@@ -710,12 +696,40 @@ impl D3d9 {
                 // (MEASURED, check: what CreateTexture / CreateRenderTarget take, Direct3D 8's
                 // CheckDeviceFormat too, though its CreateTexture refuses three more)
                 hit(clause::D3D9_FORMATS_CHECK);
-                let ok = match (u, rtype) {
-                    (0, 3) => supported(f as u32, false, false),
-                    (1, 1) | (1, 3) => supported(f as u32, true, false),
-                    _ => return Err(Fail::Unmodeled(open::D3D9_FORMATS_USAGE)),
+                let f = f as u32;
+                let tex = supported(f, false, false);
+                const NOTAVAILABLE: u32 = 0x8876_086a;
+                let ok = |b: bool| if b { 0 } else { NOTAVAILABLE };
+                let hr = match (u, rtype) {
+                    (0, 3) => ok(tex),
+                    (1, 1) | (1, 3) => ok(supported(f, true, false)),
+                    // (DYNAMIC; volume and cube textures: as textures)
+                    (0x200, 3) | (0, 4) | (0, 5) => ok(tex),
+                    // (a plain surface: not A8P8 nor the DXT ones, but YUY2)
+                    (0, 1) => ok(tex && f != 40 && !format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_))) || f == fourcc(b"YUY2")),
+                    // (a render target volume: INVALIDCALL)
+                    (1, 4) => INVALIDCALL,
+                    // (a depth stencil surface: D16, D24S8, D24X8, D32F_LOCKABLE; other depth
+                    // formats NOTAVAILABLE, the rest INVALIDCALL)
+                    (2, 1) => match f {
+                        75 | 77 | 80 | 82 => 0,
+                        70 | 71 | 73 | 79 | 83 | 84 => NOTAVAILABLE,
+                        _ => INVALIDCALL,
+                    },
+                    // (AUTOGENMIPMAP: D3DOK_NOAUTOGEN for X8R8G8B8, R5G6B5, the palette, signed
+                    // and DXT formats)
+                    (0x400, 3) if tex => {
+                        let dxt = format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
+                        if dxt || matches!(f, 22 | 23 | 40 | 41 | 60 | 63 | 64 | 110) { 0x0876_086f } else { 0 }
+                    }
+                    (0x400, 3) => NOTAVAILABLE,
+                    // (the generators ask no other pair)
+                    _ => return Err(Fail::Bad),
                 };
-                out.push(format!("check {f} {u:x} {rtype} hr {:08x}", if ok { 0 } else { 0x8876_086a_u32 }));
+                if !matches!((u, rtype), (0, 3) | (1, 1) | (1, 3)) {
+                    hit(clause::D3D9_FORMATS_USAGE);
+                }
+                out.push(format!("check {f} {u:x} {rtype} hr {hr:08x}"));
             }
             "d9tex" => {
                 let (i, w, h, f) = (n(op, 1)? as usize, n(op, 2)? as i32, n(op, 3)? as i32, n(op, 4)? as u32);
@@ -752,18 +766,58 @@ impl D3d9 {
                 if nv == 0 || words.len() % nv != 0 {
                     return Err(Fail::Bad);
                 }
-                self.draw_prims(ty, nv, &words)?;
+                let op = self.rs(171);
+                if crate::model::arch() == 32 && !(1..=5).contains(&op) {
+                    // (the executor does not draw: the x86 runtime dies on it, MEASURED)
+                    hit(clause::D3D9_BLEND_OPX86);
+                    out.push(format!("draw x86 blendop {op}"));
+                } else {
+                    self.draw_prims(ty, nv, &words)?;
+                }
             }
             "d9decl" => {
-                // (SetVertexDeclaration: GetFVF answers 0 after it, MEASURED: decl-*)
-                self.draw.fvf = 0;
-                return Err(Fail::Unmodeled(open::D3D9_DECL_CREATE));
+                let w: Vec<u32> = (1..t.len()).map(|i| n(op, i).map(|v| v as u32)).collect::<Res<_>>()?;
+                if w.len() % 2 != 0 {
+                    return Err(Fail::Bad);
+                }
+                let e: Vec<(u32, u32)> = w.chunks(2).map(|p| (p[0], p[1])).collect();
+                hit(clause::D3D9_DECL_CREATE);
+                if decl_ok(&e)? {
+                    // (SetVertexDeclaration: GetFVF answers 0 after it, MEASURED: decl-*)
+                    self.draw.fvf = 0;
+                    self.draw.decl = Some(e);
+                } else {
+                    // (the declaration set before stays)
+                    out.push("decl hr 80004005".into());
+                }
             }
             "d9viewport" | "d9xform" => return Err(Fail::Unmodeled(open::D3D9_DRAW_XYZ)),
             _ => return Err(Fail::Bad),
         }
         Ok(true)
     }
+}
+
+/// CreateVertexDeclaration's checks of elements (Stream | Offset << 16, Type | Method << 8 | Usage
+/// << 16 | UsageIndex << 24): MEASURED (decl-one-*, decl-pair-*): an element of a type up to
+/// FLOAT16_4 (16), method DEFAULT, usage up to DEPTH (12) and usage index under 16; TESSFACTOR only
+/// a FLOAT1 of index 0; offsets multiples of 4
+pub fn decl_ok(e: &[(u32, u32)]) -> Res<bool> {
+    for &(a, b) in e {
+        let (ty, method, usage, index) = (b & 255, b >> 8 & 255, b >> 16 & 255, b >> 24);
+        if (a >> 16) % 4 != 0 || ty > 16 || method != 0 || usage > 12 || index >= 16 || usage == 8 && (ty != 0 || index != 0) {
+            return Ok(false);
+        }
+    }
+    // no usage and index twice; each stream's elements together; a POSITIONT of index 0 neither
+    // with a POSITION of index 0 nor with more than one stream
+    let keys: Vec<(u32, u32)> = e.iter().map(|&(_, b)| (b >> 16 & 255, b >> 24)).collect();
+    let streams: Vec<u32> = e.iter().map(|&(a, _)| a & 0xffff).collect();
+    let twice = keys.iter().enumerate().any(|(i, k)| keys[..i].contains(k));
+    let apart = (1..streams.len()).any(|i| streams[i] != streams[i - 1] && streams[..i].contains(&streams[i]));
+    let one_stream = streams.iter().all(|&s| s == streams[0]);
+    let transformed = keys.contains(&(9, 0)) && (keys.contains(&(0, 0)) || !one_stream);
+    Ok(!twice && !apart && !transformed)
 }
 
 /// D3DCMPFUNC
@@ -811,10 +865,10 @@ pub fn address(mode: u32, i: i64, n: i64) -> Res<Option<i64>> {
 }
 
 impl D3d9 {
-    fn texel(&self, tx: &Surface, x: i64, y: i64, mu: u32, mv: u32) -> Res<[f64; 4]> {
+    fn texel(&self, st: u32, tx: &Surface, x: i64, y: i64, mu: u32, mv: u32) -> Res<[f64; 4]> {
         let (Some(x), Some(y)) = (address(mu, x, tx.w as i64)?, address(mv, y, tx.h as i64)?) else {
             hit(clause::D3D9_TEX_BORDER);
-            return Ok(argb(self.samp(0, 4)));
+            return Ok(argb(self.samp(st, 4)));
         };
         let fm = format(tx.fmt).unwrap();
         match fm.kind {
@@ -825,10 +879,10 @@ impl D3d9 {
         Ok(to_rgba(tx.fmt, &decode(&fm, tx.px(x as i32, y as i32))))
     }
 
-    /// stage 0's texture at (u, v)
-    fn sample(&self, tx: &Surface, u: f64, v: f64) -> Res<[f64; 4]> {
-        let (mu, mv) = (self.samp(0, 1), self.samp(0, 2));
-        let (mag, min) = (self.samp(0, 5), self.samp(0, 6));
+    /// a stage's texture at (u, v)
+    fn sample(&self, st: u32, tx: &Surface, u: f64, v: f64) -> Res<[f64; 4]> {
+        let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
+        let (mag, min) = (self.samp(st, 5), self.samp(st, 6));
         if mag != min {
             return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
         }
@@ -836,7 +890,7 @@ impl D3d9 {
         match mag {
             1 => {
                 hit(clause::D3D9_TEX_POINT);
-                self.texel(tx, x.floor() as i64, y.floor() as i64, mu, mv)
+                self.texel(st, tx, x.floor() as i64, y.floor() as i64, mu, mv)
             }
             2 => {
                 hit(clause::D3D9_TEX_LINEAR);
@@ -844,19 +898,21 @@ impl D3d9 {
                 // 8-bit texels truncated; the 16ths taken down (ASSUMED))
                 let (x, y) = (x - 0.5, y - 0.5);
                 let (x0, y0) = (x.floor(), y.floor());
-                let (fx, fy) = (((x - x0) * 16.0).floor() as i64, ((y - y0) * 16.0).floor() as i64);
+                // (MEASURED, filter2-4-*: with a mip filter, even on one level, weights in 32nds)
+                let q: i64 = if self.samp(st, 7) != 0 { 32 } else { 16 };
+                let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
                 let (x0, y0) = (x0 as i64, y0 as i64);
-                let t = [self.texel(tx, x0, y0, mu, mv)?, self.texel(tx, x0 + 1, y0, mu, mv)?, self.texel(tx, x0, y0 + 1, mu, mv)?, self.texel(tx, x0 + 1, y0 + 1, mu, mv)?];
-                let w = [(16 - fx) * (16 - fy), fx * (16 - fy), (16 - fx) * fy, fx * fy];
+                let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
+                let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
                 let fm = format(tx.fmt).unwrap();
                 let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
                 let mut c = [0.0; 4];
                 for k in 0..4 {
                     c[k] = if bytes {
                         let v: i64 = (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum();
-                        ((v >> 8) as f32 / 255.0) as f64
+                        ((v / (q * q)) as f32 / 255.0) as f64
                     } else {
-                        (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / 256.0
+                        (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64
                     };
                 }
                 Ok(c)
@@ -866,17 +922,28 @@ impl D3d9 {
     }
 
     /// a stage argument (D3DTA) as rgba
-    fn arg(&self, a: u32, diffuse: [f64; 4], specular: [f64; 4], tex: Option<[f64; 4]>) -> Res<[f64; 4]> {
+    fn arg(&self, st: u32, a: u32, r: &Regs, tex: Option<[f64; 4]>) -> Res<[f64; 4]> {
         let mut v = match a & 0xf {
-            0 | 1 => diffuse, // (stage 0: CURRENT is the diffuse color)
+            0 => r.diffuse,
+            // (stage 0: CURRENT is the diffuse color)
+            1 => r.current,
             // (MEASURED: with no texture, color 1 and the current alpha)
             2 => tex.unwrap_or_else(|| {
                 hit(clause::D3D9_STAGE_NOTEX);
-                [1.0, 1.0, 1.0, diffuse[3]]
+                [1.0, 1.0, 1.0, r.current[3]]
             }),
             3 => argb(self.rs(60)),
-            4 => specular,
-            _ => return Err(Fail::Unmodeled(open::D3D9_STAGE_ARG)),
+            4 => r.specular,
+            5 if !self.v8 => {
+                hit(clause::D3D9_STAGE_ARG);
+                r.temp
+            }
+            6 if !self.v8 => {
+                hit(clause::D3D9_STAGE_ARG);
+                argb(self.tss(st, 32))
+            }
+            // (D3DTA has no other selector, and Direct3D 8 no TEMP or CONSTANT: the generators write none)
+            _ => return Err(Fail::Bad),
         };
         if a & 0x20 != 0 {
             v = [v[3]; 4];
@@ -885,32 +952,59 @@ impl D3d9 {
             v = v.map(|x| 1.0 - x);
         }
         if a & !0x3f != 0 {
-            return Err(Fail::Unmodeled(open::D3D9_STAGE_ARG));
+            // (no D3DTA modifier beyond COMPLEMENT and ALPHAREPLICATE: the generators write none)
+            return Err(Fail::Bad);
         }
         Ok(v)
     }
 
-    /// stage 0's color and alpha operations (D3DTEXTUREOP), stage 1 disabled
-    fn stages(&self, diffuse: [f64; 4], specular: [f64; 4], tex: Option<[f64; 4]>) -> Res<[f64; 4]> {
-        let (cop, aop) = (self.tss(0, 1), self.tss(0, 4));
-        if cop == 1 {
-            hit(clause::D3D9_STAGE_DISABLE);
-            return Ok(diffuse);
+    /// the texture stages (D3DTEXTUREOP) in turn, to the first whose COLOROP is DISABLE
+    fn stages(&self, diffuse: [f64; 4], specular: [f64; 4], uv: [f64; 2]) -> Res<[f64; 4]> {
+        let mut r = Regs { diffuse, specular, current: diffuse, temp: [0.0; 4] };
+        for st in 0..8u32 {
+            let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
+            if cop == 1 {
+                if st == 0 {
+                    hit(clause::D3D9_STAGE_DISABLE);
+                }
+                break;
+            }
+            if st > 0 {
+                hit(clause::D3D9_STAGE_MULTI);
+            }
+            if aop == 1 {
+                return Err(Fail::Unmodeled(open::D3D9_STAGE_ALPHADISABLE));
+            }
+            let tex = match self.draw.stage_tex[st as usize] {
+                Some(i) => {
+                    if self.tss(st, 11) != 0 {
+                        // (TEXCOORDINDEX: another set of coordinates, or a generated one)
+                        return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
+                    }
+                    Some(self.sample(st, self.draw.texs[i].as_ref().unwrap(), uv[0], uv[1])?)
+                }
+                None => None,
+            };
+            let out = self.stage(st, cop, aop, &r, tex)?;
+            match self.tss(st, 28) {
+                1 => r.current = out,
+                5 if !self.v8 => {
+                    hit(clause::D3D9_STAGE_ARG);
+                    r.temp = out;
+                }
+                // (RESULTARG is CURRENT or TEMP, Direct3D 9 only: the generators write no other)
+                _ => return Err(Fail::Bad),
+            }
         }
-        if self.tss(0, 28) != 1 {
-            // (RESULTARG TEMP)
-            return Err(Fail::Unmodeled(open::D3D9_STAGE_ARG));
-        }
-        if self.tss(1, 1) != 1 {
-            return Err(Fail::Unmodeled(open::D3D9_STAGE_MULTI));
-        }
-        if aop == 1 {
-            return Err(Fail::Unmodeled(open::D3D9_STAGE_ALPHADISABLE));
-        }
+        Ok(r.current)
+    }
+
+    /// one stage's color and alpha operations
+    fn stage(&self, st: u32, cop: u32, aop: u32, r: &Regs, tex: Option<[f64; 4]>) -> Res<[f64; 4]> {
         let mut out = [0.0; 4];
         for (k, (op, a0, a1, a2)) in [(cop, 26, 2, 3), (aop, 27, 5, 6)].into_iter().enumerate() {
             // (only the arguments the operation reads: SELECTARG1 reads no second one)
-            let get = |used: bool, a: u32| if used { self.arg(self.tss(0, a), diffuse, specular, tex) } else { Ok([0.0; 4]) };
+            let get = |used: bool, a: u32| if used { self.arg(st, self.tss(st, a), r, tex) } else { Ok([0.0; 4]) };
             let a0 = get(matches!(op, 25 | 26), a0)?;
             let a1 = get(op != 3, a1)?;
             let a2 = get(op != 2, a2)?;
@@ -923,10 +1017,11 @@ impl D3d9 {
             }
             // (MEASURED: in f32)
             let (a0, a1, a2) = (a0.map(|x| x as f32), a1.map(|x| x as f32), a2.map(|x| x as f32));
-            let da = diffuse[3] as f32;
+            let da = r.diffuse[3] as f32;
+            let ca = r.current[3] as f32;
             for &i in chans {
                 let alpha = k == 1;
-                let r: f32 = match op {
+                let v: f32 = match op {
                     2 => a1[i],
                     3 => a2[i],
                     4 => a1[i] * a2[i],
@@ -947,17 +1042,20 @@ impl D3d9 {
                         a1[i] * fa + a2[i] * (1.0 - fa)
                     }
                     15 => a1[i] + a2[i] * (1.0 - tex.unwrap_or([1.0; 4])[3] as f32),
-                    16 => a1[i] * da + a2[i] * (1.0 - da),
-                    18 if !alpha => a1[i] + a1[3] * a2[i],
-                    19 if !alpha => a1[i] * a2[i] + a1[3],
-                    20 if !alpha => (1.0 - a1[3]) * a2[i] + a1[i],
-                    21 if !alpha => (1.0 - a1[i]) * a2[i] + a1[3],
+                    16 => a1[i] * ca + a2[i] * (1.0 - ca),
+                    // (MEASURED, top-alpha-*, stage1-*: the color-only operations as alpha
+                    // operations give 1)
+                    18..=21 if alpha => if st == 0 { 1.0 } else { ca },
+                    18 => a1[i] + a1[3] * a2[i],
+                    19 => a1[i] * a2[i] + a1[3],
+                    20 => (1.0 - a1[3]) * a2[i] + a1[i],
+                    21 => (1.0 - a1[i]) * a2[i] + a1[3],
                     25 => a0[i] + a1[i] * a2[i],
                     26 => a0[i] * a1[i] + (1.0 - a0[i]) * a2[i],
                     _ => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
                 };
                 hit(clause::D3D9_STAGE_OP);
-                out[i] = r.clamp(0.0, 1.0) as f64;
+                out[i] = v.clamp(0.0, 1.0) as f64;
             }
         }
         Ok(out)
@@ -1018,14 +1116,25 @@ impl D3d9 {
         hit(clause::D3D9_CULL);
         match self.rs(22) {
             1 => {}
-            2 if area > 0.0 => return Ok(()),
             3 if area < 0.0 => return Ok(()),
-            2 | 3 => {}
-            _ => return Err(Fail::Unmodeled(open::D3D9_CULL_BAD)),
+            3 => {}
+            // (MEASURED, cull-0, cull-4: a mode outside the enumeration culls as CW does)
+            m if area > 0.0 => {
+                if m != 2 {
+                    hit(clause::D3D9_CULL_BAD);
+                }
+                return Ok(());
+            }
+            m => {
+                if m != 2 {
+                    hit(clause::D3D9_CULL_BAD);
+                }
+            }
         }
         if area == 0.0 {
             return Ok(());
         }
+        self.draw.ccw = area < 0.0;
         // which triangles are clipped: MEASURED (d3d9draw raster-17: a vertex at y = 16 is not;
         // raster-*, shade-clip-*: one past -0.5 or past the size is)
         let pts = [(a.x, a.y), (b.x, b.y), (c.x, c.y)];
@@ -1100,11 +1209,7 @@ impl D3d9 {
     }
 
     fn pixel(&mut self, x: i32, y: i32, z: f64, diffuse: [f64; 4], specular: [f64; 4], uv: [f64; 2]) -> Res<()> {
-        let tex = match self.draw.stage_tex[0] {
-            Some(i) if self.tss(0, 1) != 1 => Some(self.sample(self.draw.texs[i].as_ref().unwrap(), uv[0], uv[1])?),
-            _ => None,
-        };
-        let mut c = self.stages(diffuse, specular, tex)?;
+        let mut c = self.stages(diffuse, specular, uv)?;
         if self.rs(29) != 0 {
             hit(clause::D3D9_SPECULAR);
             for k in 0..3 {
@@ -1126,15 +1231,19 @@ impl D3d9 {
         let zq = unorm(z, 24);
         let ztest = self.rs(7) != 0;
         let zpass = !ztest || cmp(self.rs(23), zq, self.draw.depth[k] as u64);
-        if self.rs(185) != 0 {
-            return Err(Fail::Unmodeled(open::D3D9_STENCIL_TWOSIDED));
-        }
         if self.rs(52) != 0 {
             hit(clause::D3D9_STENCIL);
+            // (two-sided: a counterclockwise triangle takes the CCW states)
+            let (fail, zfail, pass, func) = if !self.v8 && self.rs(185) != 0 && self.draw.ccw {
+                hit(clause::D3D9_STENCIL_TWOSIDED);
+                (186, 187, 188, 189)
+            } else {
+                (53, 54, 55, 56)
+            };
             let s = self.draw.stencil[k];
             let (refv, mask, wmask) = (self.rs(57) as u8, self.rs(58) as u8, self.rs(59) as u8);
-            let spass = cmp(self.rs(56), (refv & mask) as u64, (s & mask) as u64);
-            let op = if !spass { self.rs(53) } else if !zpass { self.rs(54) } else { self.rs(55) };
+            let spass = cmp(self.rs(func), (refv & mask) as u64, (s & mask) as u64);
+            let op = if !spass { self.rs(fail) } else if !zpass { self.rs(zfail) } else { self.rs(pass) };
             let ns = stencil_op(op, s, refv);
             self.draw.stencil[k] = (s & !wmask) | (ns & wmask);
             if !spass {

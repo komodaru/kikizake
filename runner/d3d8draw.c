@@ -84,6 +84,11 @@ void d8_draw(void) {
     DWORD w[MAXTOK];
     int n = kz_words(3, w, MAXTOK);
     if (bad || nv <= 0 || n % nv) { bad = 1; return; }
+#ifndef _WIN64
+    DWORD op = 0; /* (as d3d9draw.c's op_draw) */
+    IDirect3DDevice8_GetRenderState(DEV, D3DRS_BLENDOP, &op);
+    if (op < 1 || op > 5) { out("draw x86 blendop %lu\n", op); return; }
+#endif
     IDirect3DDevice8_BeginScene(DEV);
     HRESULT hr = IDirect3DDevice8_DrawPrimitiveUP(DEV, type, kz_prims(type, nv), w, n / nv * 4);
     IDirect3DDevice8_EndScene(DEV);

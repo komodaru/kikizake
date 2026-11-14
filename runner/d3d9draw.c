@@ -201,6 +201,13 @@ static void op_draw(void) {
     DWORD w[MAXTOK];
     int n = kz_words(3, w, MAXTOK);
     if (bad || nv <= 0 || n % nv) { bad = 1; return; }
+#ifndef _WIN64
+    /* (the x86 runtime dies drawing with a BLENDOP outside ADD..MAX: the golden runs of c453900
+     * and 76630c7 stopped there with exit 127; x64 draws) */
+    DWORD op = 0;
+    IDirect3DDevice9_GetRenderState(DEV, D3DRS_BLENDOP, &op);
+    if (op < 1 || op > 5) { out("draw x86 blendop %lu\n", op); return; }
+#endif
     IDirect3DDevice9_BeginScene(DEV);
     HRESULT hr = IDirect3DDevice9_DrawPrimitiveUP(DEV, type, kz_prims(type, nv), w, n / nv * 4);
     IDirect3DDevice9_EndScene(DEV);

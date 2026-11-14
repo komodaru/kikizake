@@ -390,6 +390,12 @@ fn suite(v8: bool) -> String {
             writeln!(s, "d9fvf {f:#x}\nd9getfvf\nd9getdecl").unwrap();
         }
         writeln!(s, "end").unwrap();
+        // (five blend weights and no indices, which D3DXDeclaratorFromFVF refuses)
+        writeln!(s, "case fvf-blend5\ndevice swvp").unwrap();
+        for f in [0x00eu32, 0x04e, 0x14e, 0x200e, 0x10e, 0x2014e] {
+            writeln!(s, "d9fvf {f:#x}\nd9getfvf\nd9getdecl").unwrap();
+        }
+        writeln!(s, "end").unwrap();
         // (more than 8 texture coordinate sets)
         writeln!(s, "case fvf-texcount\ndevice swvp").unwrap();
         for n in 8..=15u32 {
@@ -438,27 +444,29 @@ fn suite(v8: bool) -> String {
     let mat = |m: [f32; 16]| m.iter().map(|&x| format!(" {}", fb(x))).collect::<String>();
     for i in 0..16 {
         open(&mut s, &format!("xyz-{i}"), 21, 16, 16);
-        s.push_str("d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\n");
+        s.push_str("d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\nrs set 7 0\n");
         let sc = 0.5 + r.range(0, 8) as f32 / 8.0;
         let (tx, ty) = (r.range(-4, 4) as f32 / 8.0, r.range(-4, 4) as f32 / 8.0);
         writeln!(s, "d9xform 256{}", mat([sc, 0.0, 0.0, 0.0, 0.0, sc, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, tx, ty, 0.0, 1.0])).unwrap();
         if i % 2 == 1 {
             // (a perspective projection: w = z)
-            writeln!(s, "d9xform 3{}", mat([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -0.5, 0.0])).unwrap();
+            writeln!(s, "d9xform 3{}", mat([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0])).unwrap();
         }
         if i >= 8 {
             writeln!(s, "d9viewport {} {} {} {} {} {}", r.range(0, 4), r.range(0, 4), r.range(8, 12), r.range(8, 12), fb(0.0), fb(1.0)).unwrap();
         }
         let mut l = "d9fvf 0x42\nd9draw 4 3".to_string();
         for _ in 0..3 {
-            let (x, y, z) = (r.range(-12, 12) as f32 / 10.0, r.range(-12, 12) as f32 / 10.0, 1.0 + r.range(0, 30) as f32 / 10.0);
+            let (x, y) = (r.range(-12, 12) as f32 / 10.0, r.range(-12, 12) as f32 / 10.0);
+            // (inside 0 ..= 1 in depth: z itself, or z / w = 0.5 under the perspective)
+            let z = if i % 2 == 1 { 1.0 + r.range(0, 30) as f32 / 10.0 } else { r.range(1, 9) as f32 / 10.0 };
             write!(l, " {} {} {} {:#x}", fb(x), fb(y), fb(z), r.next() | 0xff00_0000).unwrap();
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
     for i in 0..8 {
         open(&mut s, &format!("rhw-{i}"), 21, 16, 16);
-        s.push_str("d9clear 1 0 0 0\nrs set 22 1\n");
+        s.push_str("d9clear 1 0 0 0\nrs set 22 1\nrs set 7 0\n");
         let mut l = format!("d9fvf {FVF_TL:#x}\nd9draw 4 3");
         for _ in 0..3 {
             let rhw = 1.0 / (1.0 + r.range(0, 40) as f32 / 10.0);
@@ -470,7 +478,7 @@ fn suite(v8: bool) -> String {
     // fog: vertex fog from the specular alpha (table mode NONE), table fog EXP, EXP2, LINEAR on z
     for i in 0..8 {
         open(&mut s, &format!("fog-{i}"), 21, 16, 16);
-        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 28 1\nrs set 34 {:#x}\nrs set 35 {}\nrs set 140 0", r.next(), i % 4).unwrap();
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 7 0\nrs set 28 1\nrs set 34 {:#x}\nrs set 35 {}\nrs set 140 0", r.next(), i % 4).unwrap();
         writeln!(s, "rs set 36 {}\nrs set 37 {}\nrs set 38 {}\nd9fvf 0xc4", fb(r.range(0, 4) as f32 / 10.0), fb(0.5 + r.range(0, 5) as f32 / 10.0), fb(0.5 + r.range(0, 30) as f32 / 10.0)).unwrap();
         let mut l = "d9draw 4 3".to_string();
         for (x, y) in [(-0.5f32, -0.5f32), (15.5, -0.5), (-0.5, 15.5)] {
@@ -541,8 +549,8 @@ fn suite(v8: bool) -> String {
         }
     }
     // blend operations past MAX, Direct3D 8's BLENDFACTOR state, a stride past the FVF's size
-    // (not 0: the x86 runtime dies on it, the golden run of c453900 stopped there)
-    for op in [6u32, 7] {
+    // (the x86 executor does not draw them: D3D9.BLEND.OPX86)
+    for op in [0u32, 6, 7, 0xffff_ffff] {
         blend_sized(&mut s, dev, &mut r, &format!("blend-badop-{op}"), &[(19, 5), (20, 6), (171, op)], 16);
     }
     if v8 {
@@ -599,6 +607,15 @@ fn suite(v8: bool) -> String {
         open(&mut s, &format!("alphadisable-{i}"), 21, 16, 16);
         writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next(), r.next()).unwrap();
         writeln!(s, "tss set 0 1 {}\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 1\nrs set 27 {}\nrs set 19 5\nrs set 20 6", r.pick(&[2u32, 4, 7]), i % 2).unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // ALPHAOP DISABLE under every color operation, its arguments the texture, the diffuse color,
+    // the texture factor
+    for (i, &(op, _)) in TOPS.iter().enumerate() {
+        open(&mut s, &format!("alphadisable-op-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nrs set 60 {:#x}", r.next(), r.next(), r.next()).unwrap();
+        writeln!(s, "tss set 0 1 {op}\ntss set 0 2 {}\ntss set 0 3 {}\ntss set 0 26 {}\ntss set 0 4 1", r.pick(&[2u32, 0, 3]), r.pick(&[0u32, 2, 3]), r.pick(&[0u32, 2, 3])).unwrap();
         quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
         writeln!(s, "d9rt\nend").unwrap();
     }
