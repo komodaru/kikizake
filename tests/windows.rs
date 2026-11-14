@@ -253,3 +253,31 @@ fn wic_matches_the_wicconv_probe() {
     assert!(bad.is_empty(), "{} of {n} differ:\n{}", bad.len(), bad.join("\n"));
     assert!(n > 50, "{n} {open}");
 }
+
+/// the generators write no line a model refuses ("unmodeled bad line" would pass over a case
+/// unchecked: a model broken on its own cases must not look unmodeled)
+#[test]
+fn no_generated_line_is_bad() {
+    let only = std::env::var("KIKIZAKE_SUITES").ok();
+    let mut bad = Vec::new();
+    for s in gen::SUITES {
+        if only.as_ref().is_some_and(|o| !o.split(',').any(|x| x == *s)) {
+            continue;
+        }
+        let cases = case::parse_cases(&gen::suite(s).unwrap());
+        for arch in [32, 64] {
+            model::set_arch(arch);
+            let out = model::run(s, &cases);
+            let mut name = "";
+            for l in out.lines() {
+                if let Some(n) = l.strip_prefix("case ") {
+                    name = n;
+                } else if l == "unmodeled bad line" {
+                    bad.push(format!("{s}-{arch} {name}"));
+                }
+            }
+        }
+    }
+    model::set_arch(32);
+    assert!(bad.is_empty(), "cases a model calls bad lines:\n{}", bad.join("\n"));
+}

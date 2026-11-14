@@ -80,7 +80,7 @@ pub fn metrics(p: &Parsed) -> Metrics {
             if o.fs_selection & 0x80 != 0 {
                 hit(clause::DW_METRICS_TYPO);
                 m.asc = o.typo.0 as u16;
-                m.desc = if o.typo.1 < 0 { (-(o.typo.1 as i32)) as u16 } else { 0 };
+                m.desc = (-(o.typo.1 as i32)).max(0) as u16;
                 m.gap = o.typo.2;
                 m.typo = true;
             }

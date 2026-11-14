@@ -285,3 +285,21 @@ fn breaks_every_class_pair() {
         }
     }
 }
+
+/// a layout of characters the font maps all needs no fallback: it is modeled, in both the
+/// system fallback and the no fallback variants
+#[test]
+fn layout_of_mapped_chars_is_modeled() {
+    for seed in 0..16 {
+        let f = font(seed);
+        let hex: String = f.bytes().iter().map(|x| format!("{x:02x}")).collect();
+        let p = parse(&f.bytes()).unwrap();
+        let cs: Vec<String> = CHARS.iter().filter(|&&c| c < 0x10000 && glyph_of(&p, c) != 0).take(6).map(|c| c.to_string()).collect();
+        assert!(!cs.is_empty());
+        for op in ["dwlayout", "dwlayoutnf"] {
+            let text = format!("case x\ndwfont {hex}\n{op} 20 4000 1 {}\nend\n", cs.join(" "));
+            let out = kikizake::model::run("dwrite", &kikizake::case::parse_cases(&text));
+            assert!(!out.contains("unmodeled"), "{op} seed {seed}: {out}");
+        }
+    }
+}
