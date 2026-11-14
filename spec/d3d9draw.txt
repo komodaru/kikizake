@@ -24,9 +24,8 @@ D3D9.DRAW.ASSEMBLY doc | Primitive Types (Direct3D 9) | lists take three vertice
 D3D9.CULL doc | D3DCULL, D3DRS_CULLMODE | NONE draws both windings, CW culls clockwise triangles (on screen, y down), CCW (the default) counterclockwise ones
 D3D9.CULL.BAD open | D3DCULL; cases cull-0, cull-4 | a cull mode outside the enumeration
 D3D9.RASTER.TOPLEFT doc | Rasterization Rules (Direct3D 9) | a pixel is drawn when its center (integer screen coordinates) is inside the triangle; on an edge only when the edge is a top or a left one
-D3D9.RASTER.CLIP measured | golden d3d9draw raster-*, raster-edges-* (144 triangles) | a triangle not inside the target is clipped to -0.5 .. size - 0.5 in f32 (p + t (q - p), t = dp / (dp - dq)), the polygon's vertices snapped to 1/256 pixel (to nearest even), and drawn as a fan
-D3D9.RASTER.CLIPTIE open | golden d3d9draw raster-3, -17, -77, -96 | a pixel that the rounding of the clipped polygon's new vertices decides
-D3D9.RASTER.CLIP8 open | golden d3d8draw prims-3, shade-9 | Direct3D 8's shading of a clipped triangle differs by one in places from shading over the whole triangle (or over the clipped pieces)
+D3D9.RASTER.CLIP measured | golden d3d9draw raster-*, raster-edges-* (144 triangles), shade-clip-* | a triangle with a vertex past -0.5 or past the size (a vertex at the size itself is not: raster-17) is clipped to -0.5 .. size - 0.5 in f32, side by side (left, right, top, bottom; p + t (q - p), t = dp / (dp - dq), the attributes alike), the polygon's vertices snapped to 1/256 pixel (to nearest even) and cut into the strip v1 v2 v0 v3 v(n-1) v4 ..., each piece shaded over its own snapped vertices (D3D9.SHADE.GOURAUD)
+D3D9.RASTER.CLIP8 open | golden d3d8draw raster-3, -77, -96, shade-13; cases clip-decide-* | which triangles Direct3D 8 clips: some a little past the target are drawn whole, as with a guard band, others not
 D3D9.DRAW.RHW open | (cases rhw-*) | pretransformed vertices of RHW other than 1 (perspective-correct interpolation)
 D3D9.SHADE.FLAT doc | D3DSHADEMODE | flat shading: the color of the triangle's first vertex
 D3D9.SHADE.GOURAUD measured | D3DSHADEMODE; golden d3d9draw shade-* (15 triangles, 6072 channel values) | Gouraud shading: the colors interpolated linearly at the pixel center, in f32 as v0 + w2 (v2 - v0) + w1 (v1 - v0), each weight an edge function (positions plus half a pixel) over the area
@@ -59,5 +58,5 @@ D3D9.BLEND.TIE open | golden d3d9draw blend-dest-11, blend-random-8, -10, -16, -
 D3D9.BLEND.BOTHALPHA open | golden d3d9draw blend-random-31 | BOTHSRCALPHA / BOTHINVSRCALPHA as the separate alpha's factor
 D3D9.BLEND.FORMAT open | (cases blend-fmt-*) | blending on targets other than 8-bit unsigned ones 
 D3D9.BLEND.FACTOR open | (cases blend-factor8) | Direct3D 8's BLENDFACTOR, which it does not have
-D3D9.BLEND.OP open | (cases blend-badop-*) | blend operations past MAX
+D3D9.BLEND.OP open | (cases blend-badop-*) | blend operations past MAX (not 0: the x86 runtime dies on it, the golden run of c453900 stopped at blend-badop-0)
 D3D9.COLORWRITE doc | D3DRS_COLORWRITEENABLE | only the channels of the mask are written

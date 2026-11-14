@@ -541,7 +541,8 @@ fn suite(v8: bool) -> String {
         }
     }
     // blend operations past MAX, Direct3D 8's BLENDFACTOR state, a stride past the FVF's size
-    for op in [0u32, 6, 7] {
+    // (not 0: the x86 runtime dies on it, the golden run of c453900 stopped there)
+    for op in [6u32, 7] {
         blend_sized(&mut s, dev, &mut r, &format!("blend-badop-{op}"), &[(19, 5), (20, 6), (171, op)], 16);
     }
     if v8 {
@@ -600,6 +601,29 @@ fn suite(v8: bool) -> String {
         writeln!(s, "tss set 0 1 {}\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 1\nrs set 27 {}\nrs set 19 5\nrs set 20 6", r.pick(&[2u32, 4, 7]), i % 2).unwrap();
         quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
         writeln!(s, "d9rt\nend").unwrap();
+    }
+    // which triangles are clipped: one vertex k/8 pixel past -0.5 or size - 0.5 on one side,
+    // the others inside, Gouraud shaded over a 32 x 32 target (a clipped triangle's pieces shade a
+    // few pixels one off from the whole triangle's)
+    let mut r = XorShift32(0xc11d_ec1d);
+    for (side, name) in ["left", "right", "top", "bottom"].iter().enumerate() {
+        for k in 0..=32 {
+            open(&mut s, &format!("clip-decide-{name}-{k}"), 21, 32, 32);
+            s.push_str("d9clear 1 0 0 0\nrs set 22 1\n");
+            let d = k as f32 / 8.0;
+            let along = r.range(0, 31 * 16) as f32 / 16.0;
+            let out = match side {
+                0 => (-0.5 - d, along),
+                1 => (31.5 + d, along),
+                2 => (along, -0.5 - d),
+                _ => (along, 31.5 + d),
+            };
+            let mut inner = || (r.range(0, 31 * 16) as f32 / 16.0, r.range(0, 31 * 16) as f32 / 16.0);
+            let p = [out, inner(), inner()];
+            let c = [r.next(), r.next(), r.next()];
+            tri(&mut s, p, c, 0.0);
+            writeln!(s, "d9rt\nend").unwrap();
+        }
     }
     // linear filtering at texture coordinates that are not a whole number of 16ths of a texel
     let mut r = XorShift32(0x51f1_7e2d);

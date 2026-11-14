@@ -477,6 +477,79 @@ pub fn clip(pts: &[(f32, f32)], x0: f32, x1: f32, y0: f32, y1: f32) -> Vec<(f32,
     poly
 }
 
+/// the attributes a vertex carries through clipping: z, diffuse (r, g, b, a), specular, u, v
+const ATTRS: usize = 11;
+
+/// a vertex of a clipped polygon: its position and attributes, in f32
+#[derive(Clone, Copy)]
+struct PolyVtx {
+    x: f32,
+    y: f32,
+    at: [f32; ATTRS],
+}
+
+impl Vtx {
+    fn attrs(&self) -> [f32; ATTRS] {
+        let d = self.diffuse.map(|c| c as f32);
+        let s = self.specular.map(|c| c as f32);
+        [self.z as f32, d[0], d[1], d[2], d[3], s[0], s[1], s[2], s[3], self.uv[0] as f32, self.uv[1] as f32]
+    }
+}
+
+/// the sides a triangle is clipped against, in the order it is
+#[derive(Clone, Copy)]
+enum Side {
+    Left,
+    Right,
+    Top,
+    Bottom,
+}
+
+/// a polygon clipped to -0.5 ..= x1 and -0.5 ..= y1, a side at a time (Sutherland-Hodgman, each
+/// edge from its first vertex: p + t (q - p), t = dp / (dp - dq), in f32, the attributes alike)
+fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32) -> Vec<PolyVtx> {
+    let mut poly = poly.to_vec();
+    for side in [Side::Left, Side::Right, Side::Top, Side::Bottom] {
+        let d = |v: &PolyVtx| match side {
+            Side::Left => v.x + 0.5,
+            Side::Right => x1 - v.x,
+            Side::Top => v.y + 0.5,
+            Side::Bottom => y1 - v.y,
+        };
+        let mut out = Vec::new();
+        for (i, p) in poly.iter().enumerate() {
+            let q = &poly[(i + 1) % poly.len()];
+            let (dp, dq) = (d(p), d(q));
+            if dp >= 0.0 {
+                out.push(*p);
+            }
+            if (dp >= 0.0) != (dq >= 0.0) {
+                let t = dp / (dp - dq);
+                out.push(PolyVtx { x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y), at: std::array::from_fn(|k| p.at[k] + t * (q.at[k] - p.at[k])) });
+            }
+        }
+        poly = out;
+    }
+    poly
+}
+
+/// a convex polygon of n vertices cut into the strip v1 v2 v0 v3 v(n-1) v4 v(n-2) ... (MEASURED:
+/// d3d9draw shade-clip-*, no other order fits all 16)
+fn strip(n: usize) -> Vec<[usize; 3]> {
+    let mut order = vec![0];
+    let (mut lo, mut hi) = (1, n.saturating_sub(1));
+    while lo <= hi {
+        order.push(lo);
+        if lo != hi {
+            order.push(hi);
+        }
+        lo += 1;
+        hi -= 1;
+    }
+    let order: Vec<usize> = order.iter().map(|&k| (k + 1) % n.max(1)).collect();
+    order.windows(3).map(|t| [t[0], t[1], t[2]]).collect()
+}
+
 /// the top-left fill convention on a triangle in 1/256 pixel units: pixel centers (integer
 /// coordinates) inside, or on a top or a left edge
 fn cover(t: [(i64, i64); 3], w: i32, h: i32, covered: &mut [bool]) {
@@ -492,30 +565,6 @@ fn cover(t: [(i64, i64); 3], w: i32, h: i32, covered: &mut [bool]) {
                 let (p, q) = (t[k], t[(k + 1) % 3]);
                 let e = (q.0 - p.0) * (sy - p.1) - (q.1 - p.1) * (sx - p.0);
                 e > 0 || (e == 0 && (q.1 - p.1 < 0 || (q.1 == p.1 && q.0 - p.0 > 0)))
-            });
-            if ok {
-                covered[(py * w + px) as usize] = true;
-            }
-        }
-    }
-}
-
-/// the fill convention on a triangle of f32 vertices, unsnapped (f64 edge functions: exact for
-/// these magnitudes)
-fn cover_f(t: &[(f32, f32); 3], w: i32, h: i32, covered: &mut [bool]) {
-    let t: Vec<(f64, f64)> = t.iter().map(|p| (p.0 as f64, p.1 as f64)).collect();
-    let area = cross([t[0], t[1], t[2]]);
-    if area == 0.0 {
-        return;
-    }
-    let t = if area < 0.0 { [t[0], t[2], t[1]] } else { [t[0], t[1], t[2]] };
-    for py in 0..h {
-        for px in 0..w {
-            let (sx, sy) = (px as f64, py as f64);
-            let ok = (0..3).all(|k| {
-                let (p, q) = (t[k], t[(k + 1) % 3]);
-                let e = (q.0 - p.0) * (sy - p.1) - (q.1 - p.1) * (sx - p.0);
-                e > 0.0 || (e == 0.0 && (q.1 - p.1 < 0.0 || (q.1 == p.1 && q.0 - p.0 > 0.0)))
             });
             if ok {
                 covered[(py * w + px) as usize] = true;
@@ -976,39 +1025,17 @@ impl D3d9 {
         if area == 0.0 {
             return Ok(());
         }
-        // coverage: the triangle clipped to the target, the vertices snapped to 1/256 pixel
-        let inside = |v: &(f32, f32)| (-0.5..=w as f32 - 0.5).contains(&v.0) && (-0.5..=h as f32 - 0.5).contains(&v.1);
+        // which triangles are clipped: MEASURED (d3d9draw raster-17: a vertex at y = 16 is not;
+        // raster-*, shade-clip-*: one past -0.5 or past the size is)
         let pts = [(a.x, a.y), (b.x, b.y), (c.x, c.y)];
-        let poly = if pts.iter().all(inside) {
-            pts.to_vec()
-        } else {
-            hit("D3D9.RASTER.CLIP");
-            clip(&pts, -0.5, w as f32 - 0.5, -0.5, h as f32 - 0.5)
-        };
-        let snapped: Vec<(i64, i64)> = poly.iter().map(|p| (round_even(p.0 as f64 * 256.0) as i64, round_even(p.1 as f64 * 256.0) as i64)).collect();
-        let mut covered = vec![false; (w * h) as usize];
-        for i in 1..snapped.len().saturating_sub(1) {
-            cover([snapped[0], snapped[i], snapped[i + 1]], w, h, &mut covered);
-        }
-        if !pts.iter().all(inside) {
-            // (open: a pixel that the rounding of the new vertices decides: covered once snapped
-            // and not by the clipped polygon itself, or the other way round)
-            let mut exact = vec![false; (w * h) as usize];
-            for i in 1..poly.len().saturating_sub(1) {
-                cover_f(&[poly[0], poly[i], poly[i + 1]], w, h, &mut exact);
-            }
-            if exact != covered {
-                return Err(Fail::Unmodeled("D3D9.RASTER.CLIPTIE"));
-            }
-        }
-        hit("D3D9.RASTER.TOPLEFT");
-        let flat = self.rs(9) == 1;
-        // (open: Direct3D 8 shades a clipped triangle a little differently, d3d8draw prims-3 and
-        // shade-9)
-        let varies = !flat && vs.iter().any(|v| v.diffuse != a.diffuse || v.specular != a.specular);
-        if self.v8 && varies && !pts.iter().all(inside) {
+        let within = |v: &(f32, f32), lo: f32, hi: f32| (lo..=w as f32 + hi).contains(&v.0) && (lo..=h as f32 + hi).contains(&v.1);
+        let clipped = !pts.iter().all(|v| within(v, -0.5, 0.0));
+        // (open: Direct3D 8 leaves some triangles a little past the target unclipped, as a guard
+        // band would, and not others: d3d8draw raster-3, -77, -96, shade-13, clip-decide-*)
+        if self.v8 && clipped && pts.iter().all(|v| within(v, -1.0, 3.0)) {
             return Err(Fail::Unmodeled("D3D9.RASTER.CLIP8"));
         }
+        let flat = self.rs(9) == 1;
         let mut clipr = (0, 0, w, h);
         if !self.v8 && self.rs(174) != 0 {
             hit("D3D9.SCISSOR");
@@ -1016,35 +1043,56 @@ impl D3d9 {
                 clipr = (x0.max(0), y0.max(0), x1.min(w), y1.min(h));
             }
         }
-        // the attributes: MEASURED (Gouraud shading on 15 triangles, 6072 channel values, every
-        // one): in f32, positions with the half pixel added (D3D10's pixel centers), the
-        // barycentric weights each an edge function over the area, v0 + w2 (v2 - v0) + w1 (v1 - v0)
-        // (of the whole triangle, clipped or not: interpolating over the clipped polygon's pieces
-        // changes none of the pixels that differ, d3d8draw prims-3 and shade-9)
-        let p32: Vec<(f32, f32)> = vs.iter().map(|v| (v.x + 0.5, v.y + 0.5)).collect();
-        let area32 = (p32[1].0 - p32[0].0) * (p32[2].1 - p32[0].1) - (p32[1].1 - p32[0].1) * (p32[2].0 - p32[0].0);
-        let e32 = |i: usize, j: usize, sx: f32, sy: f32| (p32[j].0 - p32[i].0) * (sy - p32[i].1) - (p32[j].1 - p32[i].1) * (sx - p32[i].0);
-        for py in clipr.1..clipr.3 {
-            for px in clipr.0..clipr.2 {
-                if !covered[(py * w + px) as usize] {
-                    continue;
+        let corners = vs.map(|v| PolyVtx { x: v.x, y: v.y, at: v.attrs() });
+        let snap = |v: &PolyVtx| (round_even(v.x as f64 * 256.0) as i64, round_even(v.y as f64 * 256.0) as i64);
+        // the pieces drawn: the triangle itself, or the clipped polygon's vertices snapped to
+        // 1/256 pixel and cut into a strip (MEASURED: d3d9draw shade-clip-*, d3d8draw prims-3,
+        // shade-9: the polygon as clipped to x = -0.5, size - 0.5, y = -0.5, size - 0.5 in turn,
+        // its vertices v1 v2 v0 v3 v(n-1) v4 ..., each piece interpolated over its own snapped
+        // vertices)
+        let pieces: Vec<[PolyVtx; 3]> = if clipped {
+            hit("D3D9.RASTER.CLIP");
+            let poly: Vec<PolyVtx> = clip_polygon(&corners, w as f32 - 0.5, h as f32 - 0.5)
+                .iter()
+                .map(|v| {
+                    let (x, y) = snap(v);
+                    PolyVtx { x: x as f32 / 256.0, y: y as f32 / 256.0, at: v.at }
+                })
+                .collect();
+            strip(poly.len()).into_iter().map(|t| t.map(|k| poly[k])).collect()
+        } else {
+            vec![corners]
+        };
+        hit("D3D9.RASTER.TOPLEFT");
+        for piece in pieces {
+            let mut covered = vec![false; (w * h) as usize];
+            cover(piece.map(|v| snap(&v)), w, h, &mut covered);
+            // the attributes: MEASURED (Gouraud shading on 15 triangles, 6072 channel values,
+            // every one): in f32, positions with the half pixel added (D3D10's pixel centers), the
+            // barycentric weights each an edge function over the area, v0 + w2 (v2 - v0) + w1 (v1 - v0)
+            let p32 = piece.map(|v| (v.x + 0.5, v.y + 0.5));
+            let area32 = (p32[1].0 - p32[0].0) * (p32[2].1 - p32[0].1) - (p32[1].1 - p32[0].1) * (p32[2].0 - p32[0].0);
+            let e32 = |i: usize, j: usize, sx: f32, sy: f32| (p32[j].0 - p32[i].0) * (sy - p32[i].1) - (p32[j].1 - p32[i].1) * (sx - p32[i].0);
+            for py in clipr.1..clipr.3 {
+                for px in clipr.0..clipr.2 {
+                    if !covered[(py * w + px) as usize] {
+                        continue;
+                    }
+                    let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
+                    let (w1, w2) = (e32(2, 0, sx, sy) / area32, e32(0, 1, sx, sy) / area32);
+                    let at: [f64; ATTRS] = std::array::from_fn(|k| {
+                        let (a0, a1, a2) = (piece[0].at[k], piece[1].at[k], piece[2].at[k]);
+                        ((a0 + w2 * (a2 - a0)) + w1 * (a1 - a0)) as f64
+                    });
+                    let (diffuse, specular) = if flat {
+                        hit("D3D9.SHADE.FLAT");
+                        (a.diffuse, a.specular)
+                    } else {
+                        hit("D3D9.SHADE.GOURAUD");
+                        (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k]))
+                    };
+                    self.pixel(px, py, at[0], diffuse, specular, [at[9], at[10]])?;
                 }
-                let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
-                let (w1, w2) = (e32(2, 0, sx, sy) / area32, e32(0, 1, sx, sy) / area32);
-                let lerp = |f: &dyn Fn(&Vtx) -> f32| {
-                    let (a0, a1, a2) = (f(&vs[0]), f(&vs[1]), f(&vs[2]));
-                    ((a0 + w2 * (a2 - a0)) + w1 * (a1 - a0)) as f64
-                };
-                let z = lerp(&|v| v.z as f32);
-                let (diffuse, specular) = if flat {
-                    hit("D3D9.SHADE.FLAT");
-                    (a.diffuse, a.specular)
-                } else {
-                    hit("D3D9.SHADE.GOURAUD");
-                    (std::array::from_fn(|k| lerp(&|v| v.diffuse[k] as f32)), std::array::from_fn(|k| lerp(&|v| v.specular[k] as f32)))
-                };
-                let uv = [lerp(&|v| v.uv[0] as f32), lerp(&|v| v.uv[1] as f32)];
-                self.pixel(px, py, z, diffuse, specular, uv)?;
             }
         }
         Ok(())
