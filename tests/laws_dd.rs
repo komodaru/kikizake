@@ -222,3 +222,19 @@ proptest! {
         }
     }
 }
+
+/// the models answer every case of these suites but the few the open clauses leave (as the
+/// Windows comparison skips unmodeled cases, a lost answer would hide there)
+#[test]
+fn suites_stay_modeled() {
+    use kikizake::gen;
+    for (s, n32, n64) in [("ddraw", 3, 3), ("ddclip", 4, 4), ("ddpal", 6, 6), ("dddc", 7, 7), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 210, 0)] {
+        let cases = parse_cases(&gen::suite(s).unwrap());
+        for (arch, n) in [(32, n32), (64, n64)] {
+            model::set_arch(arch);
+            let un = cases.iter().filter(|c| matches!(run_case(c), Err(Fail::Unmodeled(_)))).count();
+            assert_eq!(un, n, "{s}-{arch}");
+        }
+    }
+    model::set_arch(32);
+}
