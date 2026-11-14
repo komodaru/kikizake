@@ -21539,6 +21539,51 @@ create hr 00000001
 case alloc-edge2-w16385-l2
 device12 ok
 alloc 810000 10000
+case create-edge3-w20
+device12 ok
+create hr 00000001
+case create-edge3-w24
+device12 ok
+create hr 80070057
+case create-edge3-w28
+device12 ok
+create hr 80070057
+case create-edge3-w30
+device12 ok
+create hr 80070057
+case create-edge3-w30m1
+device12 ok
+create hr 80070057
+case create-edge3-w31
+device12 ok
+create hr 80070057
+case create-edge3-h24
+device12 ok
+create hr 80070057
+case create-edge3-h30
+device12 ok
+create hr 80070057
+case create-edge3-r8-w31
+device12 ok
+create hr 80070057
+case create-edge3-r8-wmax
+device12 ok
+create hr 80070057
+case create-edge3-r8-w16-h16
+device12 ok
+create hr 00000001
+case create-edge3-r8-w16-h17
+device12 ok
+create hr 00000001
+case create-edge3-rgba32-w28
+device12 ok
+create hr 80070057
+case create-edge3-rt-w30
+device12 ok
+create hr 80070057
+case create-edge3-rt-w31
+device12 ok
+create hr 80070057
 case fp-edge-buffer-ffffff02
 device12 ok
 fp 0 0 ffffff02 1 1 0 1 ffffff02
