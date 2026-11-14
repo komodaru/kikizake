@@ -1070,7 +1070,7 @@ impl Target {
     /// MEASURED (D2D.CLIP.BLEND): what a drawing call did to the pixels (`before` -> now) kept
     /// in each clip: aliased, where the pixel center is inside (the fill rule's edges); per
     /// primitive, the coverage n of 8 x 8 samples as k = (n 4 255 + 127) >> 8 and each byte
-    /// (before (255 - k) + now k + 127) / 255
+    /// (before (255 - k) + now k + 126) / 255 (clipfit-0: an exact half rounds down)
     fn keep_clipped(&mut self, before: &[[u8; 4]]) {
         // (MEASURED, layer-clip: drawing into a layer goes through the clips pushed after it;
         // the clips under it come at its pop)
@@ -1096,12 +1096,12 @@ impl Target {
                                     n += u32::from(inside(fx + (f64::from(i) + 0.5) / 8.0, fy + (f64::from(j) + 0.5) / 8.0));
                                 }
                             }
-                            (n * 4).min(255)
+                            Samples::Mask.byte(n)
                         }
                     };
                     let i = y * self.w + x;
                     let (d, f) = (before[i], self.px[i]);
-                    self.px[i] = std::array::from_fn(|c| ((u32::from(d[c]) * (255 - k) + u32::from(f[c]) * k + 127) / 255) as u8);
+                    self.px[i] = std::array::from_fn(|c| ((u32::from(d[c]) * (255 - k) + u32::from(f[c]) * k + 126) / 255) as u8);
                 }
             }
         }
