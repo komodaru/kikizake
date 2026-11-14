@@ -21,6 +21,7 @@ GL.BEGIN.ONLY doc | glBegin (GL_INVALID_OPERATION) | between glBegin and glEnd o
 GL.BEGIN.GET measured | glGet (GL_INVALID_OPERATION) | glGet between glBegin and glEnd writes nothing and records GL_INVALID_OPERATION (opengl golden errors-begin)
 GL.BEGIN.GETERROR measured | glGetError (GL_INVALID_OPERATION) | glGetError between glBegin and glEnd returns GL_INVALID_OPERATION without clearing it: eight reads give it eight times (opengl golden errors-begin)
 GL.BEGIN.QUERY measured | glIsEnabled (GL_INVALID_OPERATION) | glIsEnabled between glBegin and glEnd: 0 and GL_INVALID_OPERATION (opengl golden edge-begin-query)
+GL.BEGIN.STRING measured | glGetString | between glBegin and glEnd: the string as outside, no error (opengl golden begin-string)
 GL.END.OUTSIDE doc | glEnd (GL_INVALID_OPERATION) | glEnd without glBegin: GL_INVALID_OPERATION
 GL.VERTEX.OUTSIDE measured | glVertex | a vertex outside glBegin / glEnd: ignored, no error (opengl golden edge-vertex-outside)
 GL.CALL.OTHER open | (none) | the calls of the executor's table the model does not follow (fog, zoom, raster position, polygon offset, ...)
@@ -64,7 +65,7 @@ GL.CLEAR.VALUE doc | glClear (GL_INVALID_VALUE) | a bit outside the four buffer 
 GL.CLEAR.ACCUM doc | glClear (GL_ACCUM_BUFFER_BIT) | every accumulation channel in the scissor box set to the clear value (its conversion: GL.ACCUM.STEPS)
 GL.ACCUM measured | glAccum | GL_ACCUM, GL_LOAD, GL_MULT, GL_ADD change only the accumulation buffer, no error; accumulating into content never loaded or cleared keeps it undefined (opengl golden edge-accum)
 GL.ACCUM.ENUM measured | glAccum (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM (opengl golden edge-accum)
-GL.ACCUM.STEPS measured | glAccum | signed channels of the format's accumulation bits, largest value K = 2^(bits-1) - 1, wrapping past their range: LOAD and ACCUM add value times (color channel times K over the channel's largest value) truncated, in floats; MULT truncates channel times value; ADD adds value times K plus one half, truncated toward zero; RETURN writes channel times (value / K) times the color channel's largest value, rounded on 16, 8 and 4-bit DIBs, truncated on 32 and 24-bit ones, clamped; glClear sets clear value times (K - 1) truncated (opengl golden accum-*: every step alone at every depth and with alpha)
+GL.ACCUM.STEPS measured | glAccum | signed channels of the format's accumulation bits, largest value K = 2^(bits-1) - 1, wrapping past their range: LOAD and ACCUM add value times (color channel times K over the channel's largest value) truncated, in floats; MULT truncates channel times value; ADD adds value times K plus one half, truncated toward zero; RETURN writes channel times (value / K) times the color channel's largest value, rounded on 16, 8 and 4-bit DIBs, truncated on 32 and 24-bit ones, clamped; glClear sets clear value times K truncated, at most K - 1 (opengl golden accum-*: every step alone at every depth and with alpha)
 GL.ACCUM.RETURN open | glAccum (GL_RETURN) | GL_RETURN of content never loaded or cleared (undefined at creation, GL 1.1 4.2.3; accum-undefined-* measure it)
 GL.BUFFER measured | glDrawBuffer, glReadBuffer | GL_FRONT, GL_FRONT_LEFT, GL_LEFT, for drawing also GL_FRONT_AND_BACK and GL_NONE: the buffer recorded (opengl golden edge-buffer)
 GL.BUFFER.MISSING measured | glDrawBuffer, glReadBuffer (GL_INVALID_OPERATION) | a right, back or auxiliary buffer a single-buffered DIB lacks: GL_INVALID_OPERATION (opengl golden errors, edge-buffer)
@@ -100,7 +101,8 @@ GL.BLENDFUNC.ENUM doc | glBlendFunc (GL_INVALID_ENUM) | GL_SRC_COLOR / GL_ONE_MI
 GL.BLEND.APPLY doc | glBlendFunc | with GL_BLEND the source and destination weighted and summed, clamped
 GL.BLEND.ALPHA measured | glBlendFunc | GL_SRC_ALPHA / GL_ONE_MINUS_SRC_ALPHA on 8-bit channels in integers: ((max(s - 1, 0) (a - 1)) >> 8) + ((d (256 - a)) >> 8) (opengl golden blend-alpha-*: 196608 channels)
 GL.BLEND.FLOAT measured | glBlendFunc | every other pair on 8-bit channels in floats on 0..255: a color factor x gives v x * (1/255), one minus it v (1 - x (1/255)), a missing destination alpha makes GL_DST_ALPHA one and GL_ONE_MINUS_DST_ALPHA zero; the destination term first, truncated and clamped (opengl golden blend-*: 72 pairs, 110592 channels)
-GL.BLEND.FORMAT open | glBlendFunc | blending on 16 or 24-bit DIBs or with destination alpha
+GL.BLEND.SMALL measured | glBlendFunc | to channels under 8 bits (undithered): each factor in floats on the source byte over 255 and the channel over its largest value, the sum rounded to the channel; 24-bit DIBs as 32-bit ones (opengl golden blend-fmt-0, 1, 3, 4: 18432 channels at 16 bits)
+GL.BLEND.FORMAT open | glBlendFunc | blending with destination alpha (blend-fmt-2, 5: the float sums fit all but 13 of 24576 channels, which are one above sums just under a whole number; blend-dstalpha-* every pair) and with dithering under 8 bits
 GL.LOGICOP doc | glLogicOp | the operation recorded
 GL.LOGICOP.ENUM doc | glLogicOp (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM
 GL.LOGICOP.APPLY doc | glLogicOp | with GL_COLOR_LOGIC_OP the sixteen operations on the channel values (opengl golden logicop)

@@ -960,8 +960,8 @@ impl Gl {
             "glstr" => {
                 let Some(n) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
                 if ctx.in_begin.is_some() {
-                    // (measured by case begin-string; the answer not modelled yet)
-                    return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+                    // (MEASURED, golden opengl-32 begin-string: answered as outside, no error)
+                    hit(clause::GL_BEGIN_STRING);
                 }
                 // (MEASURED, golden opengl-32/64 ctx-*: the same four strings at every depth)
                 let s = match n {
@@ -1693,6 +1693,12 @@ impl Ctx {
         v as f32 * (1.0 / ((1u64 << b) - 1) as f32)
     }
 
+    /// a pixel's channels over their largest values, a missing alpha 1, in f64
+    fn dst_color_raw(&self, p: [u32; 4]) -> [f64; 4] {
+        let b = self.bits();
+        [0, 1, 2, 3].map(|k| if b[k] == 0 { 1.0 } else { f64::from(p[k]) / ((1u64 << b[k]) - 1) as f64 })
+    }
+
     fn dst_color(&self, i: usize) -> [f32; 4] {
         if self.pf.ty != 0 {
             // an index as a color: through GL_PIXEL_MAP_I_TO_R .. A, one zero each at first
@@ -1768,7 +1774,7 @@ impl Ctx {
             // color index mode: the index in the format's bits, the logic operation, the index
             // write mask (MEASURED, golden opengl-32 ci-*)
             let m = (1u32 << self.pf.color) - 1;
-            let mut v = (f.c[0] as i64 as u32) & m;
+            let mut v = index_bits(f64::from(f.c[0])) & m;
             if self.cap(INDEX_LOGIC_OP) {
                 v = logic(self.logic_op, v, self.fb[i][0]) & m;
             }
@@ -1883,11 +1889,34 @@ impl Ctx {
     /// zero; the result truncated and clamped
     pub fn blend(&self, c: [f32; 4], d: [u32; 4]) -> Res<[u32; 4]> {
         hit(clause::GL_BLEND_APPLY);
-        if self.bpp != 32 || self.bits()[3] != 0 {
+        let bits = self.bits();
+        if bits[0] < 8 {
+            if self.cap(DITHER) {
+                return Err(Fail::Unmodeled(open::GL_BLEND_FORMAT));
+            }
+            // (MEASURED, golden opengl-32 blend-fmt-0, 3: 18432 channels of a 16-bit DIB: the
+            // factors in floats on the source over 255 and the channel over its largest value,
+            // the sum rounded to the channel)
+            hit(clause::GL_BLEND_SMALL);
+            let dc = self.dst_color_raw(d);
+            let mut r = [0u32; 4];
+            for k in 0..3 {
+                let m = ((1u64 << bits[k]) - 1) as f64;
+                let sv = ((c[k] * 255.0 + 0.5).floor() as f64) / 255.0;
+                let sa = ((c[3] * 255.0 + 0.5).floor() as f64) / 255.0;
+                let x = sv * blend_factor(self.blend.0, sv, sa, dc[k], dc[3]) + dc[k] * blend_factor(self.blend.1, sv, sa, dc[k], dc[3]);
+                r[k] = (x.clamp(0.0, 1.0) * m + 0.5).floor() as u32;
+            }
+            return Ok(r);
+        }
+        if bits[3] != 0 {
+            // (golden opengl-32 blend-fmt-2, 5: 13 of 24576 channels one above the float sum,
+            // all sums just under a whole number; blend-alpha-* measure every pair)
             return Err(Fail::Unmodeled(open::GL_BLEND_FORMAT));
         }
+        // (24-bit DIBs as 32-bit ones: golden opengl-32 blend-fmt-1, 4)
         let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
-        Ok(blend_bytes(self.blend, s, d))
+        Ok(blend_bytes(self.blend, s, d, if bits[3] != 0 { Some(d[3]) } else { None }))
     }
 
     /// the color a vertex takes: the current color, in color index mode the index in the first
@@ -1942,11 +1971,12 @@ impl Ctx {
         v * (self.fb[i][k] as f32 * (self.acc_max(k) / cm))
     }
 
-    /// a clear value (-1..1) to an accumulation channel: times one less than the largest value,
-    /// truncated (golden opengl-32 accum-5: 1.0 returns 254, not 255; accum-clear-*;
-    /// accum-clear-fine-* tell it from a clamp of 1.0 alone)
+    /// a clear value (-1..1) to an accumulation channel: times the largest value, truncated, at
+    /// most one less than the largest value (MEASURED, golden opengl-32 accum-5: 1.0 returns 254,
+    /// not 255; accum-clear-fine-*: 144 values at 32, 24 and 16 bits, where times one less fails)
     fn acc_fixed(&self, c: f32, k: usize) -> i64 {
-        self.acc_wrap((c * (self.acc_max(k) - 1.0)).trunc() as i64, k)
+        let m = self.acc_max(k);
+        self.acc_wrap((c * m).trunc().min(m - 1.0) as i64, k)
     }
 
     /// glAccum (MEASURED, golden opengl-32 accum-*, every channel of 24 reads on 32, 24 and 16
@@ -2137,7 +2167,7 @@ impl Ctx {
                 }
                 let i = y as usize * W + x as usize;
                 if m & COLOR_BUFFER_BIT != 0 && self.pf.ty != 0 {
-                    let v = (self.clear_index as i64 as u32) & ((1u32 << self.pf.color) - 1);
+                    let v = index_bits(f64::from(self.clear_index)) & ((1u32 << self.pf.color) - 1);
                     self.fb[i][0] = (self.fb[i][0] & !self.index_mask) | (v & self.index_mask);
                 } else if m & COLOR_BUFFER_BIT != 0 {
                     for k in 0..4 {
@@ -2160,12 +2190,30 @@ impl Ctx {
 }
 
 /// blending of 8-bit channels, `s` the fragment, `d` the framebuffer without alpha (Ctx::blend)
-pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4]) -> [u32; 4] {
+/// a blend factor in floats: source component, source alpha, destination component and alpha
+fn blend_factor(f: u32, s: f64, sa: f64, d: f64, da: f64) -> f64 {
+    match f {
+        ZERO => 0.0,
+        ONE => 1.0,
+        SRC_COLOR => s,
+        ONE_MINUS_SRC_COLOR => 1.0 - s,
+        SRC_ALPHA => sa,
+        ONE_MINUS_SRC_ALPHA => 1.0 - sa,
+        DST_ALPHA => da,
+        ONE_MINUS_DST_ALPHA => 1.0 - da,
+        DST_COLOR => d,
+        ONE_MINUS_DST_COLOR => 1.0 - d,
+        _ => sa.min(1.0 - da),
+    }
+}
+
+pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4], dst_alpha: Option<u32>) -> [u32; 4] {
     let mut r = [0u32; 4];
+    let n = if dst_alpha.is_some() { 4 } else { 3 };
     if f == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) {
         hit(clause::GL_BLEND_ALPHA);
         let a = s[3] as i64;
-        for k in 0..3 {
+        for k in 0..n {
             let v = (((s[k] as i64 - 1).max(0) * (a - 1)) >> 8) + ((d[k] as i64 * (256 - a)) >> 8);
             r[k] = v.clamp(0, 255) as u32;
         }
@@ -2173,24 +2221,30 @@ pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4]) -> [u32; 4] {
     }
     hit(clause::GL_BLEND_FLOAT);
     let inv = 1f32 / 255f32;
-    let da = 255u32;
+    let da = dst_alpha.unwrap_or(255);
     let term = |v: u32, f: u32, k: usize| -> f32 {
         let v = v as f32;
         let x = match f {
-            ZERO | ONE_MINUS_DST_ALPHA => return 0.0,
-            ONE | DST_ALPHA => return v,
+            ZERO => return 0.0,
+            ONE => return v,
+            ONE_MINUS_DST_ALPHA if dst_alpha.is_none() => return 0.0,
+            DST_ALPHA if dst_alpha.is_none() => return v,
+            DST_ALPHA | ONE_MINUS_DST_ALPHA => da,
+            // (GL 1.1 4.1.6: the saturate factor is 1 for alpha)
+            SRC_ALPHA_SATURATE if k == 3 => return v,
             SRC_COLOR | ONE_MINUS_SRC_COLOR => s[k],
             SRC_ALPHA | ONE_MINUS_SRC_ALPHA => s[3],
             DST_COLOR | ONE_MINUS_DST_COLOR => d[k],
-            _ => s[3].min(255 - da),
+            // (MEASURED, golden opengl-32 blend-fmt-5: min(As, 1 - Ad) in floats)
+            _ => return v * (s[3] as f32 * inv).min(1.0 - da as f32 * inv),
         };
-        if matches!(f, ONE_MINUS_SRC_COLOR | ONE_MINUS_SRC_ALPHA | ONE_MINUS_DST_COLOR) {
+        if matches!(f, ONE_MINUS_SRC_COLOR | ONE_MINUS_SRC_ALPHA | ONE_MINUS_DST_COLOR | ONE_MINUS_DST_ALPHA) {
             v * (1.0 - x as f32 * inv)
         } else {
             (v * x as f32) * inv
         }
     };
-    for k in 0..3 {
+    for k in 0..n {
         let v = term(d[k], f.1, k) + term(s[k], f.0, k);
         r[k] = (v.floor().clamp(0.0, 255.0)) as u32;
     }
@@ -2279,6 +2333,18 @@ fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
 /// 2^31 - 1024 and twice that; GL.READ.CONVERT)
 /// a color index element's value, each type as the integer or float it holds (unsigned bytes in
 /// ci-*, the others in ci-types-*)
+/// an index's bits: truncated to a 32-bit integer, an index out of its range giving 0x80000000
+/// (MEASURED, golden opengl-32 ci-types-*: indices drawn as floats past 2^31 store 0)
+pub fn index_bits(v: f64) -> u32 {
+    let t = v.trunc();
+    if t >= -2147483648.0 && t < 2147483648.0 {
+        // (in range, so the cast is exact)
+        (t as i32) as u32
+    } else {
+        0x8000_0000
+    }
+}
+
 pub fn index_value(b: &[u8], t: u32) -> Res<f64> {
     let a = |n: usize| -> [u8; 4] {
         let mut x = [0u8; 4];
@@ -2442,6 +2508,14 @@ impl Ctx {
                             } else {
                                 hit(clause::GL_READ_STENCIL);
                                 self.stencil[p] as u64
+                            };
+                            // (MEASURED, golden opengl-32 ci-types-*: the signed types keep the
+                            // index's low 7, 15 or 31 bits)
+                            let s = match t {
+                                BYTE => s & 0x7f,
+                                SHORT => s & 0x7fff,
+                                INT => s & 0x7fff_ffff,
+                                _ => s,
                             };
                             match size {
                                 1 => vec![s as u8],

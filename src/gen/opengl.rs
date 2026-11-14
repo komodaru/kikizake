@@ -1112,4 +1112,23 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // blending with destination alpha: every source and destination factor pair, two random
+    // pictures each under one random color
+    let mut q = XorShift32::new(0x0960_2006);
+    for (i, sf) in BLEND_SRC.iter().enumerate() {
+        writeln!(s, "case blend-dstalpha-{i}\nglctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0").unwrap();
+        for df in BLEND_DST {
+            for _ in 0..2 {
+                writeln!(s, "gl glDisable 0xbe2").unwrap();
+                random_dst(s, q.next() & 0xffff);
+                gl(s, "glBlendFunc", &[*sf, *df]);
+                writeln!(s, "gl glEnable 0xbe2").unwrap();
+                let c: Vec<u32> = (0..4).map(|_| q.next() & 255).collect();
+                gl(s, "glColor4ub", &c);
+                writeln!(s, "gl glRectf 0 0 16 16").unwrap();
+                read_all(s);
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
 }
