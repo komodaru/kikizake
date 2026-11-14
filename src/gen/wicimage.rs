@@ -527,6 +527,7 @@ pub fn gif(w: u32, h: u32, global: Option<&[u32]>, bg: u8, frames: &[GifFrame]) 
 /// a baseline TIFF (TIFF 6.0): one IFD per image, uncompressed strips of `rps` rows.
 /// Each image: (w, h, photometric, bits per sample, samples, extra samples, planar, pixel bytes
 /// as stored (planar 2: each plane in turn), palette (16-bit RGB) for photometric 3)
+#[derive(Clone)]
 pub struct TiffImage {
     pub w: u32,
     pub h: u32,
@@ -1020,9 +1021,20 @@ pub fn wicdecode() -> String {
         let im = TiffImage { w, h, photometric: ph, bits, samples: spp, extra, planar: 1, rps: h, px: bytes(&mut r, total), map, res: None, format: 1 };
         decode_case(&mut s, &format!("tiff-other-{k}"), &tiff(false, &[im]), 1, ph == 3);
     }
+    // CMYK with an associated alpha: alphas of 0, 1, 2, 128, 255 against every level
+    let px: Vec<u8> = [0u8, 1, 2, 128, 255].iter().flat_map(|&a| [0u8, 1, 2, 127, 128, 254, 255, 77].chunks(4).flat_map(move |c| [c[0], c[1], c[2], c[3], a]).collect::<Vec<u8>>()).collect();
+    let im = TiffImage { w: 2, h: 5, photometric: 5, bits: 8, samples: 5, extra: Some(1), planar: 1, rps: 5, px, map: vec![], res: None, format: 1 };
+    decode_case(&mut s, "tiff-cmyka-assoc", &tiff(false, &[im]), 1, false);
+    // a TIFF whose second page is YCbCr, and one whose first page is
+    for first in [false, true] {
+        let rgb = TiffImage { w: 2, h: 2, photometric: 2, bits: 8, samples: 3, extra: None, planar: 1, rps: 2, px: bytes(&mut r, 12), map: vec![], res: None, format: 1 };
+        let ycc = TiffImage { photometric: 6, px: bytes(&mut r, 12), ..rgb.clone() };
+        let pages = if first { [ycc, rgb] } else { [rgb, ycc] };
+        decode_case(&mut s, &format!("tiff-ycbcr-page-{}", if first { 0 } else { 1 }), &tiff(false, &pages), 2, false);
+    }
     // icon BMP entries of 2 bits and of 0 (a directory and header that agree), PNG entries of
     // gray, palette, 16 bits
-    for bpp in [2u32, 0] {
+    for bpp in [2u32, 0, 3, 5, 48, 64] {
         let e = icon_bmp(&mut r, 4, 4, bpp.max(1));
         let mut e2 = e.clone();
         e2[14..16].copy_from_slice(&(bpp as u16).to_le_bytes());
@@ -1038,6 +1050,16 @@ pub fn wicdecode() -> String {
     // DDS of other FourCCs and of a DX10 header
     for fc in [b"DXT2", b"DXT4", b"ATI1", b"ATI2", b"BC4U", b"BC5U", b"DX10"] {
         decode_case(&mut s, &format!("dds-{}", std::str::from_utf8(fc).unwrap().to_lowercase()), &dds(4, 4, 1, Some(fc), &bytes(&mut r, 32)), 1, false);
+    }
+    // DX10 headers: the BC formats (typeless, unorm, sRGB), BC4-BC7, 8-bit RGBA and BGRA, and an
+    // array of two
+    for (fmt, array) in [(70u32, 1u32), (71, 1), (72, 1), (73, 1), (74, 1), (75, 1), (76, 1), (77, 1), (78, 1), (80, 1), (83, 1), (95, 1), (98, 1), (28, 1), (29, 1), (87, 1), (91, 1), (71, 2)] {
+        let mut f = dds(4, 4, 1, Some(b"DX10"), &[]);
+        for v in [fmt, 3, 0, array, 0] {
+            le32(&mut f, v);
+        }
+        f.extend_from_slice(&bytes(&mut r, 64 * array as usize));
+        decode_case(&mut s, &format!("dds-dx10-{fmt}-{array}"), &f, array, false);
     }
     s
 }

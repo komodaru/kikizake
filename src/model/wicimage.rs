@@ -609,7 +609,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         if w as u64 * h as u64 > 1 << 24 {
             return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
         }
-        let Some(px) = rle(data, w, h, comp == 2, &pal) else { return Err(Fail::Unmodeled("WICIMAGE.BMP.RLE.BROKEN")) };
+        let px = rle(data, w, h, comp == 2, &pal);
         hit("WICIMAGE.BMP.RLE");
         let mut i = Img::new(w, h, "bgr32");
         i.dpi = dpi;
@@ -684,7 +684,10 @@ pub fn field(v: u32, m: u32) -> u8 {
 /// RLE8 / RLE4 (BITMAPINFOHEADER's compression): runs, absolute runs padded to a word, end of
 /// line, end of bitmap, deltas; bottom-up. MEASURED (golden wicdecode bmprle*): 32bppBGR, the
 /// palette's colors with the fourth byte 0, pixels no run reaches 0
-fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Option<Vec<u8>> {
+fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Vec<u8> {
+    // MEASURED (golden wicdecode bmprlebad*): data that ends (inside a pair, a delta, an
+    // absolute run) ends the picture there, an absolute run cut short written not at all; runs
+    // past the row are cut off at its end
     let mut px = vec![0u8; 4 * (w * h) as usize];
     let (mut x, mut y) = (0u32, 0u32);
     let mut put = |x: u32, y: u32, v: u8| {
@@ -696,7 +699,10 @@ fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Option<Vec<u8>> {
     };
     let mut p = 0;
     loop {
-        let (n, v) = (*d.get(p)?, *d.get(p + 1)?);
+        let (Some(&n), Some(&v)) = (d.get(p), d.get(p + 1)) else {
+            hit("WICIMAGE.BMP.RLE.BROKEN");
+            break;
+        };
         p += 2;
         if n > 0 {
             for k in 0..n as u32 {
@@ -713,13 +719,20 @@ fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Option<Vec<u8>> {
             }
             1 => break,
             2 => {
-                x += *d.get(p)? as u32;
-                y += *d.get(p + 1)? as u32;
+                let (Some(&dx), Some(&dy)) = (d.get(p), d.get(p + 1)) else {
+            hit("WICIMAGE.BMP.RLE.BROKEN");
+            break;
+        };
+                x += dx as u32;
+                y += dy as u32;
                 p += 2;
             }
             n => {
                 let bytes = if four { (n as usize).div_ceil(2) } else { n as usize };
-                let a = d.get(p..p + bytes)?;
+                let Some(a) = d.get(p..p + bytes) else {
+            hit("WICIMAGE.BMP.RLE.BROKEN");
+            break;
+        };
                 for k in 0..n as usize {
                     let i = if four { if k % 2 == 0 { a[k / 2] >> 4 } else { a[k / 2] & 15 } } else { a[k] };
                     put(x, y, i);
@@ -732,7 +745,7 @@ fn rle(d: &[u8], w: u32, h: u32, four: bool, pal: &[u32]) -> Option<Vec<u8>> {
             break;
         }
     }
-    Some(px)
+    px
 }
 
 /// zlib (RFC 1950), stored blocks only: anything else is left to Windows
@@ -1173,6 +1186,16 @@ fn tiff(b: &[u8]) -> Res<Result<Decoded, u32>> {
         }
         let Some(next) = r32(ifd as usize + 2 + 12 * n as usize) else { return open };
         ifd = next;
+        // MEASURED (golden wicdecode tiff-other-5, -6): a first page of YCbCr or a mask: no
+        // decoder takes the file
+        if matches!(tags.get(&262).and_then(|v| v.first()), Some(4 | 6)) {
+            if frames.is_empty() {
+                hit("WICIMAGE.TIFF.REFUSED");
+                return Ok(Err(COMPONENT_NOT_FOUND));
+            }
+            frames.push(Err(Fail::Unmodeled("WICIMAGE.TIFF.OTHER")));
+            continue;
+        }
         frames.push(tiff_image(b, &tags));
     }
     hit("WICIMAGE.TIFF.IFD");
@@ -1210,6 +1233,20 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
         (5, 8, 4, None) => "cmyk",
         (5, 16, 4, None) => "cmyk64",
         (5, 8, 5, Some(2)) => "cmyka40",
+        // MEASURED (golden wicdecode tiff-other-*): 2-bit gray widened to 4 bits, 2-bit indices
+        // to 4, gray with an alpha of 16 bits to RGBA, an unspecified extra kept as alpha at 16
+        // bits and dropped at 8, a fifth sample past RGBA dropped, 32-bit RGB as float, 4-bit RGB
+        // widened to 8 bits; YCbCr and masks no decoder takes
+        (0 | 1, 2, 1, None) => "gray4",
+        (3, 2, 1, None) => "idx4",
+        (1, 16, 2, Some(2)) => "rgba64",
+        (2, 16, 4, Some(0)) => "rgba64",
+        (2, 8, 5, Some(_)) => "bgra",
+        (2, 32, 3, None) => "rgb96float",
+        (1, 8, 2, Some(0)) => "gray8",
+        (1, 8, 2, Some(1)) => "pbgra",
+        (5, 8, 5, Some(1)) => "cmyka40",
+        (2, 4, 3, None) => "bgr24",
         _ => return Err(Fail::Unmodeled("WICIMAGE.TIFF.OTHER")),
     };
     hit("WICIMAGE.TIFF.FORMAT");
@@ -1250,7 +1287,11 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     for y in 0..h {
         let r = &data[y as usize * row..(y as usize + 1) * row];
         for x in 0..w {
-            let mut s = get_sample_bits(r, x, bits * spp);
+            let mut s = if bits < 8 {
+                (0..spp).map(|k| get_sample_bits(r, x * spp + k, bits)[0]).collect()
+            } else {
+                get_sample_bits(r, x, bits * spp)
+            };
             if ph == 0 {
                 // (WhiteIsZero: the levels inverted)
                 for v in s.iter_mut() {
@@ -1260,8 +1301,19 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
             let w16 = |k: usize| if big { [s[2 * k + 1], s[2 * k]] } else { [s[2 * k], s[2 * k + 1]] };
             let w32 = |k: usize| if big { [s[4 * k + 3], s[4 * k + 2], s[4 * k + 1], s[4 * k]] } else { [s[4 * k], s[4 * k + 1], s[4 * k + 2], s[4 * k + 3]] };
             let v: Vec<u8> = match (fmt, spp) {
-                ("bgra", 2) => vec![s[0], s[0], s[0], s[1]],
+                ("gray4", _) if bits == 2 => vec![s[0] * 5],
+                ("bgra" | "pbgra", 2) => vec![s[0], s[0], s[0], s[1]],
+                ("gray8", 2) => vec![s[0]],
+                ("rgba64", 2) => [w16(0), w16(0), w16(0), w16(1)].concat(),
+                ("bgr24", _) if bits == 4 => vec![s[2] * 17, s[1] * 17, s[0] * 17],
                 ("bgr24", _) => vec![s[2], s[1], s[0]],
+                ("rgb96float", _) => [w32(0), w32(1), w32(2)].concat(),
+                // (MEASURED, golden wicdecode tiff-other-10, tiff-cmyka-assoc: CMYK with an
+                // associated alpha divided by it, truncated, at most 255)
+                ("cmyka40", _) if extra == Some(1) => {
+                    let a = s[4] as u32;
+                    (0..4).map(|k| if a == 0 { s[k] } else { (s[k] as u32 * 255 / a).min(255) as u8 }).chain([s[4]]).collect()
+                }
                 ("bgra" | "pbgra", _) => vec![s[2], s[1], s[0], s[3]],
                 ("gray16", _) => w16(0).to_vec(),
                 ("grayfloat", _) => w32(0).to_vec(),
@@ -1317,6 +1369,17 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         if png && n > 1 && (w as u64) * (h as u64) < 6 {
             return Err(Fail::Unmodeled("WICIMAGE.ICO.PNG.SMALL"));
         }
+        // MEASURED (golden wicdecode ico-bmp-depth-*, ico-png-ct*): a BMP entry of 2 bits: no
+        // decoder for the file (0x88982f07), of 0 bits WINCODEC_ERR_BADIMAGE; a PNG entry
+        // that does not decode to 32bppBGRA (8-bit RGBA or gray+alpha): WINCODEC_ERR_BADIMAGE
+        if !png && matches!(bpp, 0 | 2) {
+            hit("WICIMAGE.ICO.DEPTH.BAD");
+            return Ok(Err(if bpp == 0 { BAD_IMAGE } else { 0x8898_2f07 }));
+        }
+        if png && self::png(d)?.fmt != "bgra" {
+            hit("WICIMAGE.ICO.PNG.BAD");
+            return Ok(Err(BAD_IMAGE));
+        }
         entries.push((bpp, !png, ico_entry(d)));
     }
     // MEASURED (golden wicdecode ico-three, ico-order-*, ico-png-*-bmp: the same sizes in every
@@ -1332,13 +1395,11 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
 }
 
 fn ico_entry(d: &[u8]) -> Res<Img> {
-    let bgra = crate::model::wic::format("bgra").unwrap();
     if d.starts_with(b"\x89PNG\r\n\x1a\n") {
         let p = png(d)?;
         hit("WICIMAGE.ICO.PNG");
-        let from = crate::model::wic::format(p.fmt).ok_or(Fail::Unmodeled("WICIMAGE.ICO.PNG.FORMAT"))?;
-        let px = crate::model::wic::convert(from, bgra, p.w, p.h, &p.px)?;
-        return Ok(Img { px, fmt: "bgra", pal: None, dpi: (96.0, 96.0), ..p });
+        // (only 32bppBGRA entries get here: ico() refuses the others)
+        return Ok(Img { pal: None, dpi: (96.0, 96.0), ..p });
     }
     let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
     let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
@@ -1449,17 +1510,30 @@ pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
 /// DDS: BC1, BC2, BC3 ("DDS Format Overview"), each mip level a frame (ASSUMED), 32bppBGRA
 fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
     let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    // MEASURED (golden wicdecode cut-dds-*): a header cut short: WINCODEC_ERR_STREAMREAD
+    if b.len() < 128 {
+        hit("WICIMAGE.DDS.SHORT");
+        return Ok(Err(STREAM_READ));
+    }
     let (Some(h), Some(w), Some(mips), Some(pf)) = (rd32(b, 12), rd32(b, 16), rd32(b, 28), rd32(b, 80)) else { return broken };
     if pf & 4 == 0 {
         // (MEASURED: an uncompressed file: WINCODEC_ERR_BADHEADER from the decoder)
         hit("WICIMAGE.DDS.OTHER");
         return Ok(Err(0x8898_2f61));
     }
-    let kind = match b.get(84..88) {
-        Some(b"DXT1") => 1u8,
-        Some(b"DXT3") => 2,
-        Some(b"DXT5") => 3,
-        _ => return Err(Fail::Unmodeled("WICIMAGE.DDS.FOURCC")),
+    // MEASURED (golden wicdecode dds-dxt2, -dxt4, -ati1, ...): DXT2 and DXT4 decode as DXT3 and
+    // DXT5 into 32bppPBGRA (the colors as stored); BC4/BC5 FourCCs WINCODEC_ERR_BADHEADER
+    let (kind, pre) = match b.get(84..88) {
+        Some(b"DXT1") => (1u8, true),
+        Some(b"DXT2") => (2, true),
+        Some(b"DXT3") => (2, false),
+        Some(b"DXT4") => (3, true),
+        Some(b"DXT5") => (3, false),
+        Some(b"DX10") => return Err(Fail::Unmodeled("WICIMAGE.DDS.FOURCC")),
+        _ => {
+            hit("WICIMAGE.DDS.OTHER");
+            return Ok(Err(0x8898_2f61));
+        }
     };
     // (the model does not hold pictures past 2^24 pixels, nor mips past 32)
     if w as u64 * h as u64 > 1 << 24 || mips > 32 {
@@ -1472,7 +1546,7 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
         let (mw, mh) = ((w >> m).max(1), (h >> m).max(1));
         let (bw, bh) = (mw.div_ceil(4), mh.div_ceil(4));
         // (ASSUMED: BC1 as premultiplied, its alpha all 0 or 255; BC2 and BC3 straight)
-        let mut img = Img::new(mw, mh, if kind == 1 { "pbgra" } else { "bgra" });
+        let mut img = Img::new(mw, mh, if pre { "pbgra" } else { "bgra" });
         for by in 0..bh {
             for bx in 0..bw {
                 let Some(blk) = b.get(at..at + bs) else { return broken };
