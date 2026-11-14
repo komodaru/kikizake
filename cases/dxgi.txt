@@ -466,11 +466,16 @@ scpresent 4 0
 scpresent 5 0
 scpresent 0 1
 scpresent 0 2
-scpresent 0 4
 scpresent 0 0x200
 scpresent 0 0x80000000
 scpresent 1 0x200
 scpresent 0 0x100
+end
+case chain-present-restart
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 4
 end
 case chain-resize
 device12

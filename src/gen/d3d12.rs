@@ -318,32 +318,36 @@ pub fn d3d12() -> String {
         writeln!(s, "alloc12 {}", desc_str(&Desc::tex(2, w, 1, a, m, f))).unwrap();
     }
     // multisampled, 64KB-swizzled and planar textures (sizes of the driver's own layout)
-    writeln!(s, "end\ncase alloc-other\ndevice12").unwrap();
+    // (one description a case, so that one the model lacks leaves the others compared)
+    writeln!(s, "end").unwrap();
+    let mut o = String::new();
     for (w, h, n, f) in [(64u32, 64u32, 2u32, 28u32), (64, 64, 4, 28), (256, 100, 8, 28), (1000, 700, 4, 10), (300, 200, 16, 2), (128, 128, 4, 45)] {
-        writeln!(s, "alloc12 {}", desc_str(&Desc { samples: n, flags: if f == 45 { 2 } else { 1 }, ..Desc::tex(3, w, h, 1, 1, f) })).unwrap();
+        writeln!(o, "alloc12 {}", desc_str(&Desc { samples: n, flags: if f == 45 { 2 } else { 1 }, ..Desc::tex(3, w, h, 1, 1, f) })).unwrap();
     }
     for (w, h, m, f) in [(256u32, 256u32, 1u32, 28u32), (1000, 300, 1, 2), (64, 64, 1, 71)] {
-        writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
+        writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
     }
     for (w, h, m, f) in [(256u32, 256u32, 1u32, 20u32), (100, 60, 3, 20), (64, 64, 1, 103), (640, 480, 1, 103), (128, 64, 1, 44)] {
-        writeln!(s, "alloc12 {}", desc_str(&Desc { flags: if f == 103 { 0 } else { 2 }, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
+        writeln!(o, "alloc12 {}", desc_str(&Desc { flags: if f == 103 { 0 } else { 2 }, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
     }
     // (P010, an NV12 array, standard swizzle, 64KB swizzle with mips, samples at 64KB)
-    writeln!(s, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 1, 1, 104))).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 3, 1, 103))).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, 28) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 3, 28) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { samples: 4, align: 65536, flags: 1, ..Desc::tex(3, 64, 64, 1, 1, 28) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 1, 1, 104))).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 3, 1, 103))).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, 28) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 3, 28) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { samples: 4, align: 65536, flags: 1, ..Desc::tex(3, 64, 64, 1, 1, 28) })).unwrap();
     // (420_OPAQUE, standard swizzle with an array and BC1)
-    writeln!(s, "alloc12 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, 106))).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 300, 200, 2, 2, 28) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 512, 256, 1, 0, 71) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(4, 64, 64, 64, 1, 28) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(4, 100, 50, 20, 2, 10) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 45) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 20) })).unwrap();
-    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 1, 103) })).unwrap();
-    writeln!(s, "end").unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, 106))).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 300, 200, 2, 2, 28) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 512, 256, 1, 0, 71) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(4, 64, 64, 64, 1, 28) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(4, 100, 50, 20, 2, 10) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 45) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 20) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 1, 103) })).unwrap();
+    for (i, l) in o.lines().enumerate() {
+        writeln!(s, "case alloc-other-{i}\ndevice12\n{l}\nend").unwrap();
+    }
     writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
     s
 }
@@ -424,10 +428,13 @@ pub fn dxgi() -> String {
     }
     writeln!(s, "case chain-present\ndevice12\ndxgifactory 0").unwrap();
     chain_line(&mut s, "swapchain", &CHAIN);
-    for (sync, flags) in [(0, 0), (1, 0), (4, 0), (5, 0), (0, 1), (0, 2), (0, 4), (0, 0x200), (0, 0x8000_0000), (1, 0x200), (0, 0x100)] {
+    for (sync, flags) in [(0, 0), (1, 0), (4, 0), (5, 0), (0, 1), (0, 2), (0, 0x200), (0, 0x8000_0000), (1, 0x200), (0, 0x100)] {
         writeln!(s, "scpresent {sync} {}", hexw(flags)).unwrap();
     }
-    writeln!(s, "end").unwrap();
+    // (DXGI_PRESENT_RESTART apart: the model lacks it)
+    writeln!(s, "end\ncase chain-present-restart\ndevice12\ndxgifactory 0").unwrap();
+    chain_line(&mut s, "swapchain", &CHAIN);
+    writeln!(s, "scpresent 0 4\nend").unwrap();
     writeln!(s, "case chain-resize\ndevice12\ndxgifactory 0").unwrap();
     chain_line(&mut s, "swapchain", &CHAIN);
     for (n, w, h, f, fl) in [(0u32, 0u32, 0u32, 0u32, 0u32), (3, 0, 0, 0, 0), (0, 100, 50, 0, 0), (0, 0, 0, 28, 0), (0, 0, 0, 10, 0), (0, 0, 0, 24, 0), (0, 0, 0, 29, 0), (0, 0, 0, 2, 0), (1, 0, 0, 0, 0), (16, 0, 0, 0, 0), (17, 0, 0, 0, 0), (2, 0, 0, 0, 0), (0, 16385, 1, 0, 0), (0, 0, 0, 0, 0x40), (0, 0, 0, 0, 0x800), (0, 0, 0, 0, 2), (0, 0, 0, 0, 0x8000_0000), (0, 0, 0, 0xffff_ffff, 0)] {

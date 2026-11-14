@@ -9284,34 +9284,112 @@ alloc12 2 0 0xfa0 1 1 1 2 1 0 0 0
 alloc12 2 0 0x7d0 1 4 2 0x57 1 0 0 1
 alloc12 2 0 0x7d0 1 4 2 0x57 1 0 0 0
 end
-case alloc-other
+case alloc-other-0
 device12
 alloc12 3 0 0x40 0x40 1 1 0x1c 2 0 0 1
+end
+case alloc-other-1
+device12
 alloc12 3 0 0x40 0x40 1 1 0x1c 4 0 0 1
+end
+case alloc-other-2
+device12
 alloc12 3 0 0x100 0x64 1 1 0x1c 8 0 0 1
+end
+case alloc-other-3
+device12
 alloc12 3 0 0x3e8 0x2bc 1 1 0xa 4 0 0 1
+end
+case alloc-other-4
+device12
 alloc12 3 0 0x12c 0xc8 1 1 2 0x10 0 0 1
+end
+case alloc-other-5
+device12
 alloc12 3 0 0x80 0x80 1 1 0x2d 4 0 0 2
+end
+case alloc-other-6
+device12
 alloc12 3 0 0x100 0x100 1 1 0x1c 1 0 2 0
+end
+case alloc-other-7
+device12
 alloc12 3 0 0x3e8 0x12c 1 1 2 1 0 2 0
+end
+case alloc-other-8
+device12
 alloc12 3 0 0x40 0x40 1 1 0x47 1 0 2 0
+end
+case alloc-other-9
+device12
 alloc12 3 0 0x100 0x100 1 1 0x14 1 0 0 2
+end
+case alloc-other-10
+device12
 alloc12 3 0 0x64 0x3c 1 3 0x14 1 0 0 2
+end
+case alloc-other-11
+device12
 alloc12 3 0 0x40 0x40 1 1 0x67 1 0 0 0
+end
+case alloc-other-12
+device12
 alloc12 3 0 0x280 0x1e0 1 1 0x67 1 0 0 0
+end
+case alloc-other-13
+device12
 alloc12 3 0 0x80 0x40 1 1 0x2c 1 0 0 2
+end
+case alloc-other-14
+device12
 alloc12 3 0 0x280 0x1e0 1 1 0x68 1 0 0 0
+end
+case alloc-other-15
+device12
 alloc12 3 0 0x280 0x1e0 3 1 0x67 1 0 0 0
+end
+case alloc-other-16
+device12
 alloc12 3 0 0x100 0x100 1 1 0x1c 1 0 3 0
+end
+case alloc-other-17
+device12
 alloc12 3 0 0x100 0x100 1 3 0x1c 1 0 2 0
+end
+case alloc-other-18
+device12
 alloc12 3 0x10000 0x40 0x40 1 1 0x1c 4 0 0 1
+end
+case alloc-other-19
+device12
 alloc12 3 0 0x40 0x20 1 1 0x6a 1 0 0 0
+end
+case alloc-other-20
+device12
 alloc12 3 0 0x12c 0xc8 2 2 0x1c 1 0 3 0
+end
+case alloc-other-21
+device12
 alloc12 3 0 0x200 0x100 1 0 0x47 1 0 3 0
+end
+case alloc-other-22
+device12
 alloc12 4 0 0x40 0x40 0x40 1 0x1c 1 0 2 0
+end
+case alloc-other-23
+device12
 alloc12 4 0 0x64 0x32 0x14 2 0xa 1 0 3 0
+end
+case alloc-other-24
+device12
 alloc12 3 0 0x100 0x100 1 1 0x2d 1 0 2 2
+end
+case alloc-other-25
+device12
 alloc12 3 0 0x100 0x100 1 1 0x14 1 0 2 2
+end
+case alloc-other-26
+device12
 alloc12 3 0 0x100 0x100 1 1 0x67 1 0 2 0
 end
 case nodev
