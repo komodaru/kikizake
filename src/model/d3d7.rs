@@ -912,15 +912,24 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>
             Ok(cover)
         }
         Family::Soft { .. } | Family::Ramp => {
-            if !inside {
-                if cover.iter().all(|&c| c) {
-                    hit(clause::D3D7_TRI_COVERALL);
-                    return Ok(cover);
-                }
-                return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+            if !inside && cover.iter().all(|&c| c) {
+                hit(clause::D3D7_TRI_COVERALL);
+                return Ok(cover);
             }
-            hit(clause::D3D7_TRI);
-            walk(v, w, h)
+            match (inside, family) {
+                (true, _) => {
+                    hit(clause::D3D7_TRI);
+                    walk(v, w, h, Spans::Spill)
+                }
+                // (the ramp device drew one more pixel by a clipped edge, d3d7rast dev-2-ramp)
+                (false, Family::Ramp) => Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)),
+                (false, Family::Soft { .. }) => {
+                    hit(clause::D3D7_TRI_GUARD);
+                    walk(v, w, h, Spans::Clamp)
+                }
+                // (the HAL's coverage is the arm above)
+                (false, Family::Hw { .. }) => Err(Fail::Bad),
+            }
         }
     }
 }
@@ -973,6 +982,15 @@ impl EdgeWalk {
     }
 }
 
+/// how a walked row meets the target's sides
+#[derive(Clone, Copy)]
+enum Spans {
+    /// a triangle inside the target: past the right side into the next row, as in memory
+    Spill,
+    /// a triangle crossing the target (its guard band): cut at the sides
+    Clamp,
+}
+
 /// the pixels the RGB, MMX and ramp rasterizers draw of a triangle inside the target: MEASURED
 /// (d3d7rast, d3d7edge, d3d7, d3d7shade: 2400 of 2400 dumps with no exact tie on a later row)
 /// each edge walked down from its first row (the f32 ceiling of its top: rows below the top,
@@ -982,7 +1000,7 @@ impl EdgeWalk {
 /// left edge's x to the right edge's x less 1 (nothing when they cross); pixels past the row's
 /// end go on into the next row, as in memory. An x exactly on a pixel past an edge's first row
 /// goes either way (D3D7.TRI.EDGE)
-fn walk(v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
+fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
     let mut s = v;
     s.sort_by_key(|p| p.1);
     let [t, m, b] = s;
@@ -1000,7 +1018,11 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
         if tl || tr {
             return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
         }
-        for x in xl..xr {
+        let (x0, x1) = match spans {
+            Spans::Spill => (xl, xr),
+            Spans::Clamp => (xl.max(0), xr.min(w)),
+        };
+        for x in x0..x1 {
             if let Some(c) = usize::try_from(y * w + x).ok().and_then(|k| cover.get_mut(k)) {
                 *c = true;
             }
