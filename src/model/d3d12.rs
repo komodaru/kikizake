@@ -953,7 +953,7 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// CreateCommittedResource's verdict (ppvResource NULL: S_FALSE when it would make the resource)
 /// on a description, a heap type and an initial state
 /// the size limit of a single 2D texture of one level (the largest measured taken)
-const SINGLE2D_MAX: u32 = 1 << 20;
+const SINGLE2D_MAX: u32 = 1 << 23;
 
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
@@ -1005,7 +1005,7 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     // (MEASURED, golden d3d12-* create-edge-*, create-edge2-*, create-edge3-*: a single-sampled
     // 2D texture of one slice and MipLevels 1, or 0 (the full chain: the check comes before it is
     // counted), render target or not, has a limit of its own, not of bytes (65536 x 131072 R8
-    // taken): 2^20 taken, 2^24 not, fitted by create-edge4-*)
+    // taken): 2^23 taken, 2^24 - 1 not (create-edge4-*), between by create-edge5-*)
     let (wmax, hmax) = match d.kind() {
         Dim::Tex3D => (2048, 2048),
         Dim::Tex2D if !ms && d.mips <= 1 && d.d == 1 => (SINGLE2D_MAX, SINGLE2D_MAX),

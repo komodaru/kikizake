@@ -639,6 +639,9 @@ pub fn d3d12() -> String {
         edge.push((format!("create-edge4-w{n}"), format!("create12 1 0 {}", desc_str(&Desc { w: v, ..one }))));
         edge.push((format!("create-edge4-h{n}"), format!("create12 1 0 {}", desc_str(&Desc { h: v, ..one }))));
     }
+    for (n, v) in [("23p1", (1u32 << 23) + 1), ("23p22", 3 << 22), ("23p23", 7 << 21), ("24m2", (1 << 24) - 2)] {
+        edge.push((format!("create-edge5-w{n}"), format!("create12 1 0 {}", desc_str(&Desc { w: v, ..one }))));
+    }
     for w in [0xffff_ff02u32, 0xffff_ff80, 0xffff_fff0, 0xffff_fffe] {
         edge.push((format!("fp-edge-buffer-{w:x}"), format!("footprint12 0 1 0 {}", desc_str(&Desc::buffer(w)))));
     }
