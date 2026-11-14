@@ -818,6 +818,13 @@ impl Extend {
     }
 }
 
+/// which axis a linear sample lerps along first (D2D.BITMAP.LINEAR)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Lerp {
+    ColumnsFirst,
+    RowsFirst,
+}
+
 /// D2D1_BITMAP_INTERPOLATION_MODE
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Interp {
@@ -881,12 +888,19 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
                 ((m[3] * px - m[2] * py) / det, (-m[1] * px + m[0] * py) / det)
             }
         };
+        // (MEASURED, bbrush-7 against bbrushx-7: an axis aligned mapping lerps down the
+        // columns first, a mapping that mixes x into v or y into u lerps along the rows first)
+        let order = match place {
+            Place::Rect { .. } => Lerp::ColumnsFirst,
+            Place::Brush(m) if m[1] == 0.0 && m[2] == 0.0 => Lerp::ColumnsFirst,
+            Place::Brush(_) => Lerp::RowsFirst,
+        };
         let texel = |i: i64, j: i64| bmp.px[ext.1.index(j, bmp.h) * bmp.w + ext.0.index(i, bmp.w)];
         let c = match interp {
             Interp::Nearest => texel(u.floor() as i64, v.floor() as i64),
             Interp::Linear => {
-                // (the texel centers at +0.5, the fractions in 1/256 rounded, a lerp down each
-                // of the two columns and then across, each rounded)
+                // (the texel centers at +0.5, the fractions in 1/256 rounded, a lerp along one
+                // axis and then the other, each rounded))
                 let (u, v) = (u - 0.5, v - 0.5);
                 let (mut i, mut j) = (u.floor() as i64, v.floor() as i64);
                 let (mut fu, mut fv) = (((u - u.floor()) * 256.0 + 0.5).floor() as u32, ((v - v.floor()) * 256.0 + 0.5).floor() as u32);
@@ -901,9 +915,11 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
                 let lerp = |a: u32, b: u32, f: u32| (a * (256 - f) + b * f + 128) / 256;
                 let (a, b, c, d) = (texel(i, j), texel(i + 1, j), texel(i, j + 1), texel(i + 1, j + 1));
                 std::array::from_fn(|k| {
-                    let l = lerp(u32::from(a[k]), u32::from(c[k]), fv);
-                    let r = lerp(u32::from(b[k]), u32::from(d[k]), fv);
-                    lerp(l, r, fu) as u8
+                    let (a, b, c, d) = (u32::from(a[k]), u32::from(b[k]), u32::from(c[k]), u32::from(d[k]));
+                    match order {
+                        Lerp::ColumnsFirst => lerp(lerp(a, c, fv), lerp(b, d, fv), fu) as u8,
+                        Lerp::RowsFirst => lerp(lerp(a, b, fu), lerp(c, d, fu), fv) as u8,
+                    }
                 })
             }
         };
@@ -1090,9 +1106,10 @@ pub fn premultiply(c: [i64; 4]) -> [u8; 4] {
 /// MEASURED (D2D.OPACITY): a brush's opacity multiplies the alpha in f32 before premultiplying
 pub fn premultiply_o(c: [i64; 4], o: f32) -> [u8; 4] {
     let f = |v: i64| v as f32 / 255.0;
-    let a = f(c[3]) * o;
-    let ch = |v: i64| ((f(v) * a) * 255.0 + 0.5).floor() as u8;
-    [ch(c[2]), ch(c[1]), ch(c[0]), (a * 255.0 + 0.5).floor() as u8]
+    // brush opacity is clamped to 0..1 before it scales the alpha (D2D.OPACITY)
+    let a = f(c[3]) * o.clamp(0.0, 1.0);
+    let ch = |v: i64| ((f(v) * a) * 255.0).round_ties_even() as u8;
+    [ch(c[2]), ch(c[1]), ch(c[0]), (a * 255.0).round_ties_even() as u8]
 }
 
 
@@ -1486,7 +1503,7 @@ impl D2d {
                     tg.fail(D2DERR_LAYER_ALREADY_IN_USE, Drawn::Dropped);
                     return Ok(());
                 }
-                let opacity = (o * 255.0 + 0.5).floor().clamp(0.0, 255.0) as u32;
+                let opacity = (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32;
                 let below = std::mem::replace(&mut tg.px, vec![[0; 4]; tg.w * tg.h]);
                 tg.stack.push(Pushed::Layer(Layer { below, opacity, cover }));
                 tg.depth += 1;
@@ -1822,12 +1839,17 @@ impl D2d {
                         Interp::Nearest => clause::D2D_BITMAP_NEAREST,
                         Interp::Linear => clause::D2D_BITMAP_LINEAR,
                     });
-                    let src = extra.as_deref().map_or(full, |e| [e[0], e[1], e[2], e[3]]);
+                    // (MEASURED, bmpx-0: a source rectangle past the bitmap is cut to the bitmap,
+                    // the destination rectangle stays, so what is left stretches over all of it)
+                    let src = extra.as_deref().map_or(full, |e| [e[0].max(0.0), e[1].max(0.0), e[2].min(full[2]), e[3].min(full[3])]);
+                    if !(src[0] < src[2] && src[1] < src[3]) {
+                        return Err(Fail::Unmodeled(open::D2D_RT));
+                    }
                     if tg.st.m != IDENTITY {
                         return Err(Fail::Unmodeled(open::D2D_RT));
                     }
                     // (MEASURED, D2D.BITMAP.OPACITY: the texel scaled by the opacity byte)
-                    (Place::Rect { dst: r, src }, (o * 255.0 + 0.5).floor().clamp(0.0, 255.0) as u32)
+                    (Place::Rect { dst: r, src }, (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32)
                 } else {
                     hit(clause::D2D_BBRUSH);
                     let m = extra.as_deref().map_or(IDENTITY, |e| [e[0], e[1], e[2], e[3], e[4], e[5]]);

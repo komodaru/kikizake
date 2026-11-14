@@ -36,6 +36,7 @@ pub fn d2d() -> String {
     gradfit(&mut s);
     bitmaps_more(&mut s, &mut r);
     layerfit(&mut s);
+    bitmapfit(&mut s, &mut r);
     s
 }
 
@@ -488,7 +489,7 @@ fn bitmap(r: &mut XorShift32, w: i64, h: i64) -> String {
         let any = r.range(1, 255);
         let a = *r.pick(&[0, 255, 255, 128, any]);
         for _ in 0..3 {
-            write!(o, "{:02x}", r.range(0, a + 1)).unwrap();
+            write!(o, "{:02x}", r.range(0, a + 1).min(255)).unwrap();
         }
         write!(o, "{a:02x}").unwrap();
     }
@@ -667,5 +668,23 @@ fn layerfit(s: &mut String) {
     for o in ["0.3", "0.7"] {
         writeln!(s, "case layerfit-{i}\nd2target 64 2\nd2clear 30 120 200 255\nd2layer 0.25 0.125 63.875 1.875 {o}\nd2fill 0 0 64 2 60 220 140 128\nd2poplayer\nd2read\nend").unwrap();
         i += 1;
+    }
+}
+
+/// DrawBitmap source rectangles past or outside the bitmap, and bitmap brush mappings that
+/// tell which axis a linear sample lerps along first
+fn bitmapfit(s: &mut String, r: &mut XorShift32) {
+    let srcs = ["-1.5 0.5 2.5 2.5", "0.5 -1.25 2.5 2.75", "0.25 0.5 4.5 2.5", "0.5 0.25 2.5 5.25", "-1 -1 4 4", "-0.75 0.5 2.25 2.5", "5 5 7 7", "2.5 0.5 1 2.5", "0 0 3 -1"];
+    for (i, src) in srcs.iter().enumerate() {
+        let mode = if i % 2 == 0 { "nearest" } else { "linear" };
+        writeln!(s, "case bmpsrc-{i}\nd2target 16 8\nd2aa aliased\nd2clear {}\nd2bmp 0 3 3 {}\nd2drawbmp 0 0.5 0.75 13.25 7.5 1 {mode} {src}\nd2read\nend", color(r, true), bitmap(r, 3, 3)).unwrap();
+    }
+    let ms = ["0 1 -1 0 8 0", "0 -1 1 0 0 8", "1 0.3 0 1 0 0", "1 0 0.3 1 0 0", "1.3 0 0 0.7 0.1 0.2", "-1.3 0 0 0.7 9 0.2", "1.3 0.001 0 0.7 0.1 0.2", "0.6 0.8 -0.8 0.6 4 1", "1.25 0 0 -1.5 0 7", "0 1.3 0.7 0 0.25 0.5"];
+    for (i, m) in ms.iter().enumerate() {
+        let ex = ["wrap", "mirror", "clamp"][i % 3];
+        writeln!(s, "case bbrushfit-{i}\nd2target 16 8\nd2aa aliased\nd2bmp 0 3 3 {}\nd2bbrush 0 0 0 16 8 {ex} {ex} linear {m}\nd2read\nend", bitmap(r, 3, 3)).unwrap();
+    }
+    for (i, xf) in ["0 1 -1 0 16 0", "1 0.25 0 1 0 0", "1.5 0 0 1.25 0 0"].iter().enumerate() {
+        writeln!(s, "case bbrushfit-xf{i}\nd2target 16 8\nd2aa aliased\nd2xform {xf}\nd2bmp 0 3 3 {}\nd2bbrush 0 -8 -8 24 24 wrap wrap linear 1.3 0 0 0.7 0.1 0.2\nd2read\nend", bitmap(r, 3, 3)).unwrap();
     }
 }

@@ -13346,3 +13346,169 @@ d2fill 0 0 64 2 60 220 140 128
 d2poplayer
 d2read
 end
+case bmpsrc-0
+d2target 16 8
+d2aa aliased
+d2clear 222 24 110 255
+d2bmp 0 3 3 00000000cee201ff7bb582c0c8c155ff00010000120f2b390000010001000000bd86a0ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -1.5 0.5 2.5 2.5
+d2read
+end
+case bmpsrc-1
+d2target 16 8
+d2aa aliased
+d2clear 208 157 137 255
+d2bmp 0 3 3 3c7d29805a0f158066682bff4a6e6e8b01000000fffa6dff6c0b0f80000000003f297880
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0.5 -1.25 2.5 2.75
+d2read
+end
+case bmpsrc-2
+d2target 16 8
+d2aa aliased
+d2clear 27 159 228 255
+d2bmp 0 3 3 0108d4ffc3b8ceff000101000e66618009261d2c01000100557b1c800001000061460bff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0.25 0.5 4.5 2.5
+d2read
+end
+case bmpsrc-3
+d2target 16 8
+d2aa aliased
+d2clear 134 191 59 255
+d2bmp 0 3 3 010100007a1c4f8000010100b9bf33ff6b466ea5849d72ff0101000036b759ff44367f80
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0.5 0.25 2.5 5.25
+d2read
+end
+case bmpsrc-4
+d2target 16 8
+d2aa aliased
+d2clear 47 38 3 255
+d2bmp 0 3 3 d2fec8ff1f300e8003403c41452122ff00000100eab656ff769cd3ff5c6e208102010507
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -1 -1 4 4
+d2read
+end
+case bmpsrc-5
+d2target 16 8
+d2aa aliased
+d2clear 232 78 20 255
+d2bmp 0 3 3 bc89c2ff68467980200477ff209b72f400000100319df9ff0000010078ed2cff4ee4f1ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -0.75 0.5 2.25 2.5
+d2read
+end
+case bmpsrc-6
+d2target 16 8
+d2aa aliased
+d2clear 213 5 253 255
+d2bmp 0 3 3 010000000101010050781680000101002a4ef0ff171963807321aaffd417cbefd65337ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 5 5 7 7
+d2read
+end
+case bmpsrc-7
+d2target 16 8
+d2aa aliased
+d2clear 229 98 26 255
+d2bmp 0 3 3 7313a7c50000000001010000ed1d51ff64ffbcff090c474dc5c663ff015d408001010000
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 2.5 0.5 1 2.5
+d2read
+end
+case bmpsrc-8
+d2target 16 8
+d2aa aliased
+d2clear 77 192 194 255
+d2bmp 0 3 3 2c792eff1f54b0ff5d755a8053abddfff9f8c5ff0a2c1f44379367ff0e33254151496480
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 0 3 -1
+d2read
+end
+case bbrushfit-0
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 00694c80010000002f576780316f21ff211f61fff83878ff08aaaeff0100010000010000
+d2bbrush 0 0 0 16 8 wrap wrap linear 0 1 -1 0 8 0
+d2read
+end
+case bbrushfit-1
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 020202021c141b801c20066b160f0417671307863dd910ff0000010030035c80099da5c5
+d2bbrush 0 0 0 16 8 mirror mirror linear 0 -1 1 0 0 8
+d2read
+end
+case bbrushfit-2
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 3771158039123b3f7e02b4ff508c2bba756b6880b41547ff00010100216272ff36bb68ee
+d2bbrush 0 0 0 16 8 clamp clamp linear 1 0.3 0 1 0 0
+d2read
+end
+case bbrushfit-3
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 2febb4ff01000100095b3580930951e7889372ff00402a80400f72800698d9ff22fab4ff
+d2bbrush 0 0 0 16 8 wrap wrap linear 1 0 0.3 1 0 0
+d2read
+end
+case bbrushfit-4
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 0d16294101000000010001006868e9ff793e4480b495e3ff93922bff9fdb57ffe1dffdff
+d2bbrush 0 0 0 16 8 mirror mirror linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushfit-5
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 b7690bc7753bc3ff111f012071aa6eb976e616ff66532180514162ffcca01effc5650cff
+d2bbrush 0 0 0 16 8 clamp clamp linear -1.3 0 0 0.7 9 0.2
+d2read
+end
+case bbrushfit-6
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 000100005025a2d90101000051c590ff00000000102753ef01000000010101009fe790ff
+d2bbrush 0 0 0 16 8 wrap wrap linear 1.3 0.001 0 0.7 0.1 0.2
+d2read
+end
+case bbrushfit-7
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 050f1b800100010005716670010000000a31faff01760380371503809324e5ff01000100
+d2bbrush 0 0 0 16 8 mirror mirror linear 0.6 0.8 -0.8 0.6 4 1
+d2read
+end
+case bbrushfit-8
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 ae2202f0284231452e49f4ff014777ff1632233945411580771b508005103457156522ff
+d2bbrush 0 0 0 16 8 clamp clamp linear 1.25 0 0 -1.5 0 7
+d2read
+end
+case bbrushfit-9
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 736cb6bef34fd7ff04403f9d00010000bd9a1aff651059899c2533ff6b196780640a89ff
+d2bbrush 0 0 0 16 8 wrap wrap linear 0 1.3 0.7 0 0.25 0.5
+d2read
+end
+case bbrushfit-xf0
+d2target 16 8
+d2aa aliased
+d2xform 0 1 -1 0 16 0
+d2bmp 0 3 3 9af5fdff10fb75ffbf21fefff88d48ff615d0561722d2f806cb831c6000001006db989ff
+d2bbrush 0 -8 -8 24 24 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushfit-xf1
+d2target 16 8
+d2aa aliased
+d2xform 1 0.25 0 1 0 0
+d2bmp 0 3 3 28a2baffb320a2ff01010000010000003decf3ff3c132f4500010000d188b8ff779af8ff
+d2bbrush 0 -8 -8 24 24 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushfit-xf2
+d2target 16 8
+d2aa aliased
+d2xform 1.5 0 0 1.25 0 0
+d2bmp 0 3 3 9a8f9bff31a412ff010001001809012001000000000001000c5e4b803c032f802b300780
+d2bbrush 0 -8 -8 24 24 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
