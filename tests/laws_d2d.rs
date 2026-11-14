@@ -1,0 +1,258 @@
+//! Properties of the Direct2D model (src/model/d2d.rs) that hold whatever the measured details:
+//! exhaustive over small domains, property-based elsewhere. With Windows' answers they are what
+//! cargo-mutants counts on to catch every mutant of the model.
+use proptest::prelude::*;
+use kikizake::case::parse_cases;
+use kikizake::model::d2d::*;
+use kikizake::model::{self, run_case};
+
+fn run(text: &str) -> Vec<String> {
+    run_case(&parse_cases(&format!("case p\n{text}end\n"))[0]).unwrap()
+}
+
+fn rect(l: f32, t: f32, r: f32, b: f32) -> Geom {
+    Geom::Rect([l, t, r, b])
+}
+
+fn path(wind: bool, figs: &[&[(f32, f32)]]) -> Geom {
+    Geom::Path { wind, figs: figs.iter().map(|p| Figure { pts: p.to_vec(), closed: true }).collect() }
+}
+
+/// unimodular integer matrices and power-of-two scales: their inverses are exact, and inverting
+/// twice gives the matrix back
+#[test]
+fn exact_inverses_are_involutions() {
+    let mut n = 0;
+    for a in -2i32..=2 {
+        for b in -2i32..=2 {
+            for c in -2i32..=2 {
+                for d in -2i32..=2 {
+                    if a * d - b * c != 1 && a * d - b * c != -1 {
+                        continue;
+                    }
+                    let m = [a as f32, b as f32, c as f32, d as f32, 3.0, -5.0];
+                    let (ok, i) = invert(&m);
+                    assert!(ok);
+                    let p = mul(&m, &i);
+                    assert_eq!(p.map(|v| v + 0.0), IDENTITY, "{m:?} times its inverse");
+                    assert_eq!(invert(&i).1.map(|v| v + 0.0), m, "{m:?}");
+                    n += 1;
+                }
+            }
+        }
+    }
+    assert!(n > 50);
+    for k in -8..8 {
+        let s = (k as f32).exp2();
+        assert_eq!(invert(&[s, 0.0, 0.0, s, 1.0, 1.0]).1, [1.0 / s, -0.0, -0.0, 1.0 / s, -1.0 / s, -1.0 / s]);
+    }
+}
+
+/// singular matrices are reported and left alone; the executor's answer prints the same matrix
+#[test]
+fn singular_matrices_are_left_alone() {
+    for m in [[1.0, 2.0, 2.0, 4.0, 5.0, 6.0], [0.0; 6], [1e-30, 0.0, 0.0, 1e-30, 0.0, 0.0]] {
+        assert_eq!(invert(&m), (false, m));
+    }
+    let out = run("d2inv 1 2 2 4 5 6\n");
+    assert_eq!(out, vec![format!("inv 0 0 {}", [1.0f32, 2.0, 2.0, 4.0, 5.0, 6.0].map(hex).join(" "))]);
+}
+
+/// every right angle in -3600..=3600 is an exact permutation matrix, and the center stays put
+#[test]
+fn right_angles_are_exact() {
+    for k in -40i32..=40 {
+        let m = rotate(k as f32 * 90.0, 3.0, -2.0);
+        let (c, s) = [(1.0, 0.0), (0.0, 1.0), (-1.0, 0.0), (0.0, -1.0)][k.rem_euclid(4) as usize];
+        assert_eq!([m[0], m[1], m[2], m[3]].map(|v| v + 0.0), [c, s, -s + 0.0, c], "{k} right angles");
+        assert_eq!(apply(&m, 3.0, -2.0), (3.0, -2.0));
+    }
+}
+
+proptest! {
+    /// a rotation is a rotation: m11 = m22, m12 = -m21, and turning by a further 360 degrees (an
+    /// exact f32 sum) changes nothing
+    #[test]
+    fn rotations_are_periodic(q in -4000i32..4000, cx in -16i32..16, cy in -16i32..16) {
+        let a = q as f32 / 4.0;
+        let m = rotate(a, cx as f32, cy as f32);
+        prop_assert_eq!(m[0], m[3]);
+        prop_assert_eq!(m[1], -m[2]);
+        prop_assert_eq!(m, rotate(a + 360.0, cx as f32, cy as f32));
+        prop_assert!((m[0] * m[0] + m[1] * m[1] - 1.0).abs() < 1e-6);
+    }
+
+    /// a skew keeps the diagonal and moves the center nowhere (up to rounding)
+    #[test]
+    fn skews_fix_the_center(ax in -80i32..80, ay in -80i32..80, cx in -8i32..8, cy in -8i32..8) {
+        let m = skew(ax as f32, ay as f32, cx as f32, cy as f32);
+        prop_assert_eq!((m[0], m[3]), (1.0, 1.0));
+        let (x, y) = apply(&m, cx as f32, cy as f32);
+        prop_assert!((x - cx as f32).abs() < 1e-4 && (y - cy as f32).abs() < 1e-4);
+        prop_assert_eq!(m[1] >= 0.0, ay >= 0);
+    }
+
+    /// a rectangle's area does not depend on how it is given: as a rectangle, as either winding
+    /// of a path, under either fill mode, moved by whole units
+    #[test]
+    fn rectangle_areas_agree(l in -8i32..8, t in -8i32..8, w in 0i32..9, h in 0i32..9, dx in -5i32..5) {
+        let (l, t, r, b) = (l as f32, t as f32, (l + w) as f32, (t + h) as f32);
+        let want = (w * h) as f32;
+        prop_assert_eq!(area(&rect(l, t, r, b)).unwrap(), want);
+        prop_assert_eq!(area(&rect(r, b, l, t)).unwrap(), want);
+        for wind in [false, true] {
+            let cw: &[(f32, f32)] = &[(l, t), (r, t), (r, b), (l, b)];
+            let ccw: &[(f32, f32)] = &[(l, t), (l, b), (r, b), (r, t)];
+            prop_assert_eq!(area(&path(wind, &[cw])).unwrap(), want);
+            prop_assert_eq!(area(&path(wind, &[ccw])).unwrap(), want);
+            let d = dx as f32;
+            let moved: Vec<(f32, f32)> = cw.iter().map(|p| (p.0 + d, p.1)).collect();
+            prop_assert_eq!(area(&path(wind, &[&moved])).unwrap(), want);
+        }
+    }
+
+    /// the winding fill holds everything the alternate fill holds: its area is at least as
+    /// large, and equal for one convex figure; the area is never more than the bounds'
+    #[test]
+    fn winding_fills_at_least_alternate(pts in proptest::collection::vec((0i32..10, 0i32..10), 3..7), pts2 in proptest::collection::vec((0i32..10, 0i32..10), 3..6)) {
+        let p: Vec<(f32, f32)> = pts.iter().map(|&(x, y)| (x as f32, y as f32)).collect();
+        let q: Vec<(f32, f32)> = pts2.iter().map(|&(x, y)| (x as f32, y as f32)).collect();
+        let alt = area(&path(false, &[&p, &q])).unwrap();
+        let wind = area(&path(true, &[&p, &q])).unwrap();
+        prop_assert!(wind >= alt - 1e-4, "winding {} alternate {}", wind, alt);
+        let b = bounds(&path(true, &[&p, &q]), None).unwrap();
+        prop_assert!(wind <= (b[2] - b[0]) * (b[3] - b[1]) + 1e-4);
+        prop_assert!(alt >= 0.0);
+    }
+
+    /// FillContainsPoint: the winding fill holds every point the alternate one does; a point
+    /// far from a rectangle is in exactly when it is inside
+    #[test]
+    fn containment(pts in proptest::collection::vec((0i32..10, 0i32..10), 3..7), x in -8i32..88, y in -8i32..88) {
+        let p: Vec<(f32, f32)> = pts.iter().map(|&(x, y)| (x as f32, y as f32)).collect();
+        let (px, py) = (x as f32 / 8.0, y as f32 / 8.0);
+        if let (Ok(a), Ok(w)) = (contains(&path(false, &[&p]), px, py, 0.25), contains(&path(true, &[&p]), px, py, 0.25)) {
+            prop_assert!(!a || w);
+        }
+        let r = rect(2.0, 2.0, 8.0, 6.0);
+        let d = (2.0 - px).max(px - 8.0).max(2.0 - py).max(py - 6.0);
+        if d.abs() > 0.3 {
+            prop_assert_eq!(contains(&r, px, py, 0.25).unwrap(), d < 0.0);
+        }
+    }
+
+    /// CompareWithGeometry both ways: disjoint and overlap are symmetric, contains is the other
+    /// side of is contained, and a rectangle is contained in itself
+    #[test]
+    fn relations_are_converse(a in (0i32..8, 0i32..8, 1i32..8, 1i32..8), b in (0i32..8, 0i32..8, 1i32..8, 1i32..8)) {
+        let g = |r: (i32, i32, i32, i32)| rect(r.0 as f32, r.1 as f32, (r.0 + r.2) as f32, (r.1 + r.3) as f32);
+        let (ab, ba) = (relation(&g(a), &g(b)).unwrap(), relation(&g(b), &g(a)).unwrap());
+        let conv = [0, 1, 3, 2, 4];
+        if a == b {
+            prop_assert_eq!((ab, ba), (2, 2));
+        } else {
+            prop_assert_eq!(ab, conv[ba as usize]);
+        }
+        prop_assert_eq!(relation(&g(a), &g(a)).unwrap(), 2);
+    }
+
+    /// aliased fills tile: two rectangles that share an edge cover each pixel once, as the one
+    /// they make together (the top-left rule), whatever the quarter-pixel edges
+    #[test]
+    fn aliased_fills_tile(l in -8i32..72, m in -8i32..72, r in -8i32..72, t in -8i32..72, b in -8i32..72) {
+        let e = |v: i32| format!("{}", v as f32 / 4.0);
+        let base = "d2target 16 16\nd2aa aliased\nd2clear 0 0 0 0\n";
+        let two = run(&format!("{base}d2fill {} {} {} {} 0 0 255 128\nd2fill {} {} {} {} 0 0 255 128\nd2read\n", e(l), e(t), e(m), e(b), e(m), e(t), e(r), e(b)));
+        let one = run(&format!("{base}d2fill {} {} {} {} 0 0 255 128\nd2read\n", e(l), e(t), e(r), e(b)));
+        if (l <= m) == (m <= r) {
+            prop_assert_eq!(two, one);
+        }
+    }
+
+    /// source over: an opaque source replaces, a transparent one leaves the target, and the
+    /// result is a premultiplied color (no channel above its alpha)
+    #[test]
+    fn source_over(c in proptest::array::uniform4(0i64..256), d in proptest::array::uniform4(0i64..256)) {
+        let (s, t) = (premultiply(c), premultiply(d));
+        let o = over(s, t);
+        prop_assert!(o[0] <= o[3] && o[1] <= o[3] && o[2] <= o[3], "{:?} over {:?} is {:?}", s, t, o);
+        if c[3] == 255 {
+            prop_assert_eq!(o, s);
+        }
+        if c[3] == 0 {
+            prop_assert_eq!(o, t);
+        }
+    }
+
+    /// any line of d2d ops and junk: the model answers or says why not, never panics
+    #[test]
+    fn never_panics(text in "(case [a-z]{1,3}\n|end\n|(d2rot|d2skew|d2inv|d2sincos|d2tan|d2vec3|d2cs|d2stroke|d2rect|d2ell|d2rrect|d2xf|d2path|d2sink|d2bounds|d2in|d2area|d2len|d2cmp|d2count|d2target|d2aa|d2xform|d2clear|d2fill|d2fillg|d2brush|d2read)( (-?[0-9]{1,3}(\\.[0-9]{1,2})?|0x[0-9a-f]{1,8}|m|z|o|alt|wind|open|close|begin|line|end|count|fill|aliased|per)){0,12}\n){0,30}") {
+        let _ = model::run("p", &parse_cases(&text));
+    }
+}
+
+/// premultiplying every (channel, alpha) pair: never past the alpha, exact at alpha 0 and 255,
+/// and monotonic in both
+#[test]
+fn premultiply_exhaustive() {
+    for a in 0..256i64 {
+        let mut last = 0;
+        for c in 0..256i64 {
+            let p = premultiply([c, 0, 0, a]);
+            assert_eq!(p[3] as i64, a);
+            assert!(p[2] <= p[3], "{c} {a}");
+            assert!(p[2] >= last);
+            last = p[2];
+            if a == 255 {
+                assert_eq!(p[2] as i64, c);
+            }
+            if a == 0 {
+                assert_eq!(p[2], 0);
+            }
+            if a > 0 {
+                assert!(premultiply([c, 0, 0, a - 1])[2] <= p[2]);
+            }
+        }
+    }
+}
+
+/// every valid stroke style is accepted and reads back; one past any enumeration is refused
+#[test]
+fn stroke_enums_exhaustive() {
+    for start in 0..5 {
+        for end in 0..5 {
+            for dash in 0..5 {
+                for join in 0..5 {
+                    for style in 0..7 {
+                        let dashes = if style == 5 { " 1 2" } else { "" };
+                        let out = run(&format!("d2stroke {start} {end} {dash} {join} 10 {style} 0{dashes}\n"));
+                        let ok = start < 4 && end < 4 && dash < 4 && join < 4 && style < 6;
+                        assert_eq!(out[0].starts_with(&format!("stroke = {start} {end} {dash} {join} ")), ok, "{out:?}");
+                        assert_eq!(out[0] == "stroke hr 80070057", !ok);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// the sink: whatever the order of the calls, a geometry opens once, and counts are given
+/// exactly when the sink closed without an error
+#[test]
+fn sink_states_exhaustive() {
+    let steps = ["open", "close", "begin 0 0", "line 1 1", "end", "count"];
+    let mut n = 0;
+    for len in 1..=5u32 {
+        for code in 0..6usize.pow(len) {
+            let seq: Vec<&str> = (0..len).map(|i| steps[code / 6usize.pow(i) % 6]).collect();
+            let out = run(&format!("d2sink {}\n", seq.join(" ")));
+            let opens: Vec<&str> = out[0].match_indices(" open ").map(|(i, _)| &out[0][i + 6..i + 14]).collect();
+            assert!(opens.iter().skip(1).all(|h| *h == "88990001") && opens.first().is_none_or(|h| *h == "00000000"), "{seq:?}: {}", out[0]);
+            if !seq.contains(&"close") {
+                assert!(!out[0].contains(" count 00000000"), "{seq:?}: {}", out[0]);
+            }
+            n += 1;
+        }
+    }
+    assert!(n > 9000);
+}
