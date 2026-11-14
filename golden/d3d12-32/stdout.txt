@@ -16749,652 +16749,318 @@ msq hr 80004005
 case incr
 device12 ok
 incr 40 40 10 4
-case make-0
+case copy-1
 device12 ok
-heap12 hr 80070057
-case make-1
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-2
 device12 ok
-heap12 hr 00000000
-case make-2
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-3
 device12 ok
-heap12 hr 00000000
-case make-3
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-4
 device12 ok
-heap12 hr 00000000
-case make-4
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-5
 device12 ok
-heap12 hr 80070057
-case make-5
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-6
 device12 ok
-heap12 hr 00000000
-case make-6
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-7
 device12 ok
-heap12 hr 80070057
-case make-7
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-8
 device12 ok
-heap12 hr 80070057
-case make-8
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-9
 device12 ok
-heap12 hr 00000000
-case make-9
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-10
 device12 ok
-heap12 hr 00000000
-case make-10
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-11
 device12 ok
-heap12 hr 00000000
-case make-11
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-12
 device12 ok
-heap12 hr 00000000
-case make-12
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-13
 device12 ok
-heap12 hr 00000000
-case make-13
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-14
 device12 ok
-heap12 hr 80070057
-case make-14
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-15
 device12 ok
-heap12 hr 80070057
-case make-15
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-16
 device12 ok
-heap12 hr 80070057
-case make-16
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-17
 device12 ok
-heap12 hr 00000000
-case make-17
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-18
 device12 ok
-heap12 hr 00000000
-case make-18
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-19
 device12 ok
-heap12 hr 80070057
-case make-19
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-20
 device12 ok
-heap12 hr 80070057
-case make-20
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-21
 device12 ok
-heap12 hr 00000000
-case make-21
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-22
 device12 ok
-heap12 hr 80070057
-case make-22
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-23
 device12 ok
-heap12 hr 80070057
-case make-23
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-24
 device12 ok
-heap12 hr 80070057
-case make-24
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-25
 device12 ok
-heap12 hr 80070057
-case make-25
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-26
 device12 ok
-heap12 hr 80070057
-case make-26
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-27
 device12 ok
-heap12 hr 80070057
-case make-27
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-28
 device12 ok
-heap12 hr 80070057
-case make-28
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-29
 device12 ok
-heap12 hr 80070057
-case make-29
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-30
 device12 ok
-heap12 hr 80070057
-case make-30
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-31
 device12 ok
-heap12 hr 80070057
-case make-31
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-32
 device12 ok
-heap12 hr 80070057
-case make-32
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-33
 device12 ok
-heap12 hr 80070057
-case make-33
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-34
 device12 ok
-heap12 hr 80070057
-case make-34
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-35
 device12 ok
-heap12 hr 80070057
-case make-35
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-36
 device12 ok
-heap12 hr 80070057
-case make-36
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-37
 device12 ok
-heap12 hr 00000000
-case make-37
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-38
 device12 ok
-heap12 hr 00000000
-case make-38
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-39
 device12 ok
-heap12 hr 80070057
-case make-39
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-40
 device12 ok
-heap12 hr 80070057
-case make-40
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-41
 device12 ok
-heap12 hr 00000000
-case make-41
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-42
 device12 ok
-heap12 hr 00000000
-case make-42
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-43
 device12 ok
-heap12 hr 80070057
-case make-43
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-44
 device12 ok
-heap12 hr 00000000
-case make-44
+copy 20 first 030a11001f262d003b424900575e6500
+case copy-45
 device12 ok
-heap12 hr 00000000
-case make-45
+copy 20 first 030a11001f262d003b424900575e6500
+case copy-46
 device12 ok
-heap12 hr 80070057
-case make-46
+copy 20 first 030a11001f262d003b424900575e6500
+case copy-47
 device12 ok
-heap12 hr 00000000
-case make-47
+copy 20 first 030a11001f262d003b424900575e6500
+case copy-48
 device12 ok
-heap12 hr 00000000
-case make-48
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-49
 device12 ok
-heap12 hr 00000000
-case make-49
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-50
 device12 ok
-heap12 hr 00000000
-case make-50
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-51
 device12 ok
-heap12 hr 80070057
-case make-51
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-52
 device12 ok
-heap12 hr 80070057
-case make-52
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-53
 device12 ok
-heap12 hr 80070057
-case make-53
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-54
 device12 ok
-heap12 hr 80070057
-case make-54
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-55
 device12 ok
-dheap12 hr 00000000
-case make-55
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-56
 device12 ok
-dheap12 hr 00000000
-case make-56
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-57
 device12 ok
-dheap12 hr 00000000
-case make-57
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-58
 device12 ok
-dheap12 hr 00000000
-case make-58
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-59
 device12 ok
-dheap12 hr 00000000
-case make-59
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-60
 device12 ok
-dheap12 hr 00000000
-case make-60
+copy 0 first 030a11181f262d34
+case copy-61
 device12 ok
-dheap12 hr 00000000
-case make-61
+copy 0 first 030a11181f262d34
+case copy-62
 device12 ok
-dheap12 hr 00000000
-case make-62
+copy 0 first 030a11181f262d34
+case copy-63
 device12 ok
-dheap12 hr 00000000
-case make-63
+copy 0 first 030a11181f262d34
+case copy-64
 device12 ok
-dheap12 hr 00000000
-case make-64
+copy 0 first 030a11181f262d34
+case copy-65
 device12 ok
-dheap12 hr 80070057
-case make-65
+copy 0 first 030a11181f262d34
+case copy-66
 device12 ok
-dheap12 hr 80070057
-case make-66
+copy hr 80070057
+case copy-67
 device12 ok
-dheap12 hr 00000000
-case make-67
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-68
 device12 ok
-dheap12 hr 00000000
-case make-68
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-69
 device12 ok
-dheap12 hr 00000000
-case make-69
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-70
 device12 ok
-dheap12 hr 00000000
-case make-70
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-71
 device12 ok
-dheap12 hr 00000000
-case make-71
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-72
 device12 ok
-dheap12 hr 00000000
-case make-72
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-73
 device12 ok
-dheap12 hr 00000000
-case make-73
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-74
 device12 ok
-dheap12 hr 00000000
-case make-74
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-75
 device12 ok
-dheap12 hr 00000000
-case make-75
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-76
 device12 ok
-dheap12 hr 00000000
-case make-76
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-77
 device12 ok
-dheap12 hr 80070057
-case make-77
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-78
 device12 ok
-dheap12 hr 80070057
-case make-78
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-79
 device12 ok
-dheap12 hr 00000000
-case make-79
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-80
 device12 ok
-dheap12 hr 00000000
-case make-80
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-81
 device12 ok
-dheap12 hr 80070057
-case make-81
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-82
 device12 ok
-dheap12 hr 00000000
-case make-82
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-83
 device12 ok
-dheap12 hr 00000000
-case make-83
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-84
 device12 ok
-dheap12 hr 80070057
-case make-84
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-85
 device12 ok
-dheap12 hr 80070057
-case make-85
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-86
 device12 ok
-dheap12 hr 80070057
-case make-86
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-87
 device12 ok
-dheap12 hr 80070057
-case make-87
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-88
 device12 ok
-dheap12 hr 00000000
-case make-88
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-89
 device12 ok
-dheap12 hr 80070057
-case make-89
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-90
 device12 ok
-dheap12 hr 80070057
-case make-90
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-91
 device12 ok
-dheap12 hr 00000000
-case make-91
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-92
 device12 ok
-dheap12 hr 00000000
-case make-92
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-93
 device12 ok
-dheap12 hr 80070057
-case make-93
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-94
 device12 ok
-dheap12 hr 00000000
-case make-94
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-95
 device12 ok
-dheap12 hr 00000000
-case make-95
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-96
 device12 ok
-dheap12 hr 80070057
-case make-96
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-97
 device12 ok
-dheap12 hr 80070057
-case make-97
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-98
 device12 ok
-dheap12 hr 80070057
-case make-98
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-99
 device12 ok
-dheap12 hr 80070057
-case make-99
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-100
 device12 ok
-dheap12 hr 00000000
-case make-100
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-101
 device12 ok
-dheap12 hr 80070057
-case make-101
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-102
 device12 ok
-dheap12 hr 80070057
-case make-126
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-103
 device12 ok
-queue12 hr 00000000
-case make-127
+copy 0 first 030a11181f262d34
+case copy-104
 device12 ok
-cmdlist12 hr 00000000
-case make-128
+copy 0 first 030a11181f262d343b424950575e656c
+case copy-105
 device12 ok
-qheap12 hr 00000000
-case make-129
-device12 ok
-queue12 hr 80070057
-case make-130
-device12 ok
-cmdlist12 hr 00000000
-case make-131
-device12 ok
-qheap12 hr 00000000
-case make-132
-device12 ok
-queue12 hr 00000000
-case make-133
-device12 ok
-cmdlist12 hr 00000000
-case make-134
-device12 ok
-qheap12 hr 00000000
-case make-135
-device12 ok
-queue12 hr 00000000
-case make-136
-device12 ok
-cmdlist12 hr 00000000
-case make-137
-device12 ok
-qheap12 hr 00000000
-case make-138
-device12 ok
-queue12 hr 80070057
-case make-139
-device12 ok
-cmdlist12 allocator hr 80070057
-case make-140
-device12 ok
-qheap12 hr 80070057
-case make-141
-device12 ok
-queue12 hr 80070057
-case make-142
-device12 ok
-cmdlist12 allocator hr 80070057
-case make-143
-device12 ok
-qheap12 hr 00000000
-case make-144
-device12 ok
-queue12 hr 80070057
-case make-145
-device12 ok
-cmdlist12 allocator hr 80070057
-case make-146
-device12 ok
-qheap12 hr 00000000
-case make-147
-device12 ok
-queue12 hr 80070057
-case make-148
-device12 ok
-cmdlist12 allocator hr 80070057
-case make-149
-device12 ok
-qheap12 hr 00000000
-case make-150
-device12 ok
-queue12 hr 80070057
-case make-151
-device12 ok
-cmdlist12 allocator hr 80070057
-case make-152
-device12 ok
-qheap12 hr 80070057
-case make-153
-device12 ok
-queue12 hr 00000000
-case make-154
-device12 ok
-queue12 hr 887a002b
-case make-155
-device12 ok
-queue12 hr 80070057
-case make-156
-device12 ok
-queue12 hr 80070057
-case make-157
-device12 ok
-queue12 hr 80070057
-case make-158
-device12 ok
-queue12 hr 00000000
-case make-159
-device12 ok
-queue12 hr 80070057
-case make-160
-device12 ok
-queue12 hr 80070057
-case make-161
-device12 ok
-qheap12 hr 80070057
-case make-162
-device12 ok
-qheap12 hr 80070057
-case make-163
-device12 ok
-qheap12 hr 00000000
-case make-164
-device12 ok
-qheap12 hr 00000000
-case make-165
-device12 ok
-qheap12 hr 00000000
-case make-166
-device12 ok
-qheap12 hr 00000000
-case make-167
-device12 ok
-qheap12 hr 8007000e
-case make-168
-device12 ok
-qheap12 hr 8007000e
-case make-169
-device12 ok
-fence12 hr 00000000 value 0
-case make-170
-device12 ok
-fence12 hr 00000000 value 5
-case make-171
-device12 ok
-fence12 hr 00000000 value ffffffff
-case make-172
-device12 ok
-fence12 hr 00000000 value 0
-case make-173
-device12 ok
-fence12 hr 80070057
-case make-174
-device12 ok
-fence12 hr 80070057
-case make-175
-device12 ok
-fence12 hr 80070057
-case make-176
-device12 ok
-fence12 hr 80070057
-case make-177
-device12 ok
-placed12 hr 00000000
-case make-178
-device12 ok
-placed12 hr 00000000
-case make-179
-device12 ok
-placed12 hr 80070057
-case make-180
-device12 ok
-placed12 hr 80070057
-case make-181
-device12 ok
-placed12 hr 80070057
-case make-182
-device12 ok
-placed12 heap hr 80070057
-case make-183
-device12 ok
-placed12 heap hr 80070057
-case make-184
-device12 ok
-placed12 heap hr 80070057
-case make-185
-device12 ok
-placed12 hr 00000000
-case make-186
-device12 ok
-placed12 hr 00000000
-case make-187
-device12 ok
-placed12 heap hr 80070057
-case make-188
-device12 ok
-placed12 heap hr 80070057
-case make-189
-device12 ok
-placed12 heap hr 80070057
-case make-190
-device12 ok
-placed12 hr 80070057
-case make-191
-device12 ok
-placed12 hr 00000000
-case make-192
-device12 ok
-placed12 heap hr 80070057
-case make-193
-device12 ok
-placed12 heap hr 80070057
-case make-194
-device12 ok
-placed12 hr 80070057
-case make-195
-device12 ok
-placed12 hr 00000000
-case make-196
-device12 ok
-placed12 hr 80070057
-case make-197
-device12 ok
-placed12 hr 80070057
-case make-198
-device12 ok
-placed12 hr 80070057
-case make-199
-device12 ok
-placed12 hr 00000000
-case make-200
-device12 ok
-placed12 hr 00000000
-case make-201
-device12 ok
-placed12 hr 80070057
-case make-202
-device12 ok
-placed12 hr 00000000
-case make-203
-device12 ok
-placed12 hr 00000000
-case make-204
-device12 ok
-heap12 hr 80070057
-case make-205
-device12 ok
-heap12 hr 80070057
-case make-206
-device12 ok
-heap12 hr 80070057
-case make-207
-device12 ok
-heap12 hr 80070057
-case make-208
-device12 ok
-heap12 hr 00000000
-case make-209
-device12 ok
-heap12 hr 00000000
-case make-210
-device12 ok
-heap12 hr 00000000
-case make-211
-device12 ok
-heap12 hr 00000000
-case make-212
-device12 ok
-heap12 hr 00000000
-case make-213
-device12 ok
-heap12 hr 80070057
-case make-214
-device12 ok
-heap12 hr 00000000
-case make-215
-device12 ok
-heap12 hr 00000000
-case make-216
-device12 ok
-heap12 hr 80070057
-case make-217
-device12 ok
-heap12 hr 80070057
-case make-218
-device12 ok
-heap12 hr 80070057
-case make-219
-device12 ok
-heap12 hr 80070057
-case make-220
-device12 ok
-heap12 hr 00000000
-case make-221
-device12 ok
-heap12 hr 00000000
-case make-222
-device12 ok
-heap12 hr 00000000
-case make-223
-device12 ok
-heap12 hr 00000000
-case make-224
-device12 ok
-heap12 hr 00000000
-case make-225
-device12 ok
-heap12 hr 80070057
-case make-226
-device12 ok
-heap12 hr 00000000
-case make-227
-device12 ok
-heap12 hr 00000000
-case make-228
-device12 ok
-heap12 hr 00000000
-case make-229
-device12 ok
-heap12 hr 00000000
-case make-230
-device12 ok
-heap12 hr 00000000
-case make-231
-device12 ok
-heap12 hr 00000000
-case make-232
-device12 ok
-heap12 hr 00000000
-case make-233
-device12 ok
-heap12 hr 80070057
-case make-234
-device12 ok
-heap12 hr 00000000
-case make-235
-device12 ok
-heap12 hr 80070057
-case make-236
-device12 ok
-heap12 hr 80070057
-case make-237
-device12 ok
-heap12 hr 00000000
-case make-238
-device12 ok
-fence12 hr 00000000 value 0
-case make-239
-device12 ok
-fence12 hr 80070057
-done
+copy 0 first 030a11181f262d343b424950575e656c
