@@ -448,6 +448,23 @@ pub fn dd8() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // Blt to the right within one row band (the overlap-8 sequence's blits from column 4 wrote
+    // left of the destination, overlap8-*'s from column 6 did not): every source column 0..7,
+    // several widths, moves 1..5 right and 0 or 1 up (1 down once)
+    // (its own generator, so that the cases after keep theirs)
+    let mut ra = XorShift32::new(0x0dd8_a119);
+    for sx in 0..8i64 {
+        writeln!(s, "case overlap8align-{sx}\ndd\nddsurf 0 32 6 8").unwrap();
+        for w in [1i64, 2, 3, 4, 5, 7, 8, 9, 13] {
+            for dx in 1i64..=5 {
+                for dy in if dx == 1 { &[0i64, -1, 1][..] } else { &[0i64, -1][..] } {
+                    let (x, y) = (sx + dx, 2 + dy);
+                    writeln!(s, "ddfill 0 {}\nddblt 0 {x} {y} {} {} 0 {sx} 2 {} 4\ndddump 0", ra.range(1, 9999), x + w, y + 2, sx + w).unwrap();
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     // stretching: each column count to each, each row count to each, then random rectangles,
     // mirrored too, of every format
     for f in ["8", "565", "24", "32"] {

@@ -10189,6 +10189,2414 @@ dddump 0
 ddfast 0 7 3 0 5 5 11 9
 dddump 0
 end
+case overlap8align-0
+dd
+ddsurf 0 32 6 8
+ddfill 0 5486
+ddblt 0 1 2 2 4 0 0 2 1 4
+dddump 0
+ddfill 0 8684
+ddblt 0 1 1 2 3 0 0 2 1 4
+dddump 0
+ddfill 0 622
+ddblt 0 1 3 2 5 0 0 2 1 4
+dddump 0
+ddfill 0 9589
+ddblt 0 2 2 3 4 0 0 2 1 4
+dddump 0
+ddfill 0 186
+ddblt 0 2 1 3 3 0 0 2 1 4
+dddump 0
+ddfill 0 857
+ddblt 0 3 2 4 4 0 0 2 1 4
+dddump 0
+ddfill 0 4534
+ddblt 0 3 1 4 3 0 0 2 1 4
+dddump 0
+ddfill 0 6460
+ddblt 0 4 2 5 4 0 0 2 1 4
+dddump 0
+ddfill 0 3358
+ddblt 0 4 1 5 3 0 0 2 1 4
+dddump 0
+ddfill 0 2227
+ddblt 0 5 2 6 4 0 0 2 1 4
+dddump 0
+ddfill 0 1122
+ddblt 0 5 1 6 3 0 0 2 1 4
+dddump 0
+ddfill 0 7239
+ddblt 0 1 2 3 4 0 0 2 2 4
+dddump 0
+ddfill 0 940
+ddblt 0 1 1 3 3 0 0 2 2 4
+dddump 0
+ddfill 0 4058
+ddblt 0 1 3 3 5 0 0 2 2 4
+dddump 0
+ddfill 0 1935
+ddblt 0 2 2 4 4 0 0 2 2 4
+dddump 0
+ddfill 0 8277
+ddblt 0 2 1 4 3 0 0 2 2 4
+dddump 0
+ddfill 0 5105
+ddblt 0 3 2 5 4 0 0 2 2 4
+dddump 0
+ddfill 0 9030
+ddblt 0 3 1 5 3 0 0 2 2 4
+dddump 0
+ddfill 0 4806
+ddblt 0 4 2 6 4 0 0 2 2 4
+dddump 0
+ddfill 0 1764
+ddblt 0 4 1 6 3 0 0 2 2 4
+dddump 0
+ddfill 0 5949
+ddblt 0 5 2 7 4 0 0 2 2 4
+dddump 0
+ddfill 0 1967
+ddblt 0 5 1 7 3 0 0 2 2 4
+dddump 0
+ddfill 0 8460
+ddblt 0 1 2 4 4 0 0 2 3 4
+dddump 0
+ddfill 0 8883
+ddblt 0 1 1 4 3 0 0 2 3 4
+dddump 0
+ddfill 0 9796
+ddblt 0 1 3 4 5 0 0 2 3 4
+dddump 0
+ddfill 0 6474
+ddblt 0 2 2 5 4 0 0 2 3 4
+dddump 0
+ddfill 0 8021
+ddblt 0 2 1 5 3 0 0 2 3 4
+dddump 0
+ddfill 0 8716
+ddblt 0 3 2 6 4 0 0 2 3 4
+dddump 0
+ddfill 0 8112
+ddblt 0 3 1 6 3 0 0 2 3 4
+dddump 0
+ddfill 0 5387
+ddblt 0 4 2 7 4 0 0 2 3 4
+dddump 0
+ddfill 0 3189
+ddblt 0 4 1 7 3 0 0 2 3 4
+dddump 0
+ddfill 0 2313
+ddblt 0 5 2 8 4 0 0 2 3 4
+dddump 0
+ddfill 0 2236
+ddblt 0 5 1 8 3 0 0 2 3 4
+dddump 0
+ddfill 0 9807
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 6648
+ddblt 0 1 1 5 3 0 0 2 4 4
+dddump 0
+ddfill 0 5556
+ddblt 0 1 3 5 5 0 0 2 4 4
+dddump 0
+ddfill 0 4478
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 3371
+ddblt 0 2 1 6 3 0 0 2 4 4
+dddump 0
+ddfill 0 4614
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 4236
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+ddfill 0 4164
+ddblt 0 4 2 8 4 0 0 2 4 4
+dddump 0
+ddfill 0 245
+ddblt 0 4 1 8 3 0 0 2 4 4
+dddump 0
+ddfill 0 9221
+ddblt 0 5 2 9 4 0 0 2 4 4
+dddump 0
+ddfill 0 9744
+ddblt 0 5 1 9 3 0 0 2 4 4
+dddump 0
+ddfill 0 4412
+ddblt 0 1 2 6 4 0 0 2 5 4
+dddump 0
+ddfill 0 82
+ddblt 0 1 1 6 3 0 0 2 5 4
+dddump 0
+ddfill 0 8099
+ddblt 0 1 3 6 5 0 0 2 5 4
+dddump 0
+ddfill 0 1662
+ddblt 0 2 2 7 4 0 0 2 5 4
+dddump 0
+ddfill 0 7501
+ddblt 0 2 1 7 3 0 0 2 5 4
+dddump 0
+ddfill 0 2164
+ddblt 0 3 2 8 4 0 0 2 5 4
+dddump 0
+ddfill 0 9928
+ddblt 0 3 1 8 3 0 0 2 5 4
+dddump 0
+ddfill 0 9226
+ddblt 0 4 2 9 4 0 0 2 5 4
+dddump 0
+ddfill 0 3776
+ddblt 0 4 1 9 3 0 0 2 5 4
+dddump 0
+ddfill 0 2517
+ddblt 0 5 2 10 4 0 0 2 5 4
+dddump 0
+ddfill 0 2302
+ddblt 0 5 1 10 3 0 0 2 5 4
+dddump 0
+ddfill 0 7619
+ddblt 0 1 2 8 4 0 0 2 7 4
+dddump 0
+ddfill 0 7621
+ddblt 0 1 1 8 3 0 0 2 7 4
+dddump 0
+ddfill 0 533
+ddblt 0 1 3 8 5 0 0 2 7 4
+dddump 0
+ddfill 0 9312
+ddblt 0 2 2 9 4 0 0 2 7 4
+dddump 0
+ddfill 0 9895
+ddblt 0 2 1 9 3 0 0 2 7 4
+dddump 0
+ddfill 0 5556
+ddblt 0 3 2 10 4 0 0 2 7 4
+dddump 0
+ddfill 0 1861
+ddblt 0 3 1 10 3 0 0 2 7 4
+dddump 0
+ddfill 0 677
+ddblt 0 4 2 11 4 0 0 2 7 4
+dddump 0
+ddfill 0 1782
+ddblt 0 4 1 11 3 0 0 2 7 4
+dddump 0
+ddfill 0 802
+ddblt 0 5 2 12 4 0 0 2 7 4
+dddump 0
+ddfill 0 6538
+ddblt 0 5 1 12 3 0 0 2 7 4
+dddump 0
+ddfill 0 7949
+ddblt 0 1 2 9 4 0 0 2 8 4
+dddump 0
+ddfill 0 6114
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 9197
+ddblt 0 1 3 9 5 0 0 2 8 4
+dddump 0
+ddfill 0 7651
+ddblt 0 2 2 10 4 0 0 2 8 4
+dddump 0
+ddfill 0 1697
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 7669
+ddblt 0 3 2 11 4 0 0 2 8 4
+dddump 0
+ddfill 0 628
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 4339
+ddblt 0 4 2 12 4 0 0 2 8 4
+dddump 0
+ddfill 0 7171
+ddblt 0 4 1 12 3 0 0 2 8 4
+dddump 0
+ddfill 0 6454
+ddblt 0 5 2 13 4 0 0 2 8 4
+dddump 0
+ddfill 0 4805
+ddblt 0 5 1 13 3 0 0 2 8 4
+dddump 0
+ddfill 0 4930
+ddblt 0 1 2 10 4 0 0 2 9 4
+dddump 0
+ddfill 0 4198
+ddblt 0 1 1 10 3 0 0 2 9 4
+dddump 0
+ddfill 0 5849
+ddblt 0 1 3 10 5 0 0 2 9 4
+dddump 0
+ddfill 0 8637
+ddblt 0 2 2 11 4 0 0 2 9 4
+dddump 0
+ddfill 0 4910
+ddblt 0 2 1 11 3 0 0 2 9 4
+dddump 0
+ddfill 0 8498
+ddblt 0 3 2 12 4 0 0 2 9 4
+dddump 0
+ddfill 0 7176
+ddblt 0 3 1 12 3 0 0 2 9 4
+dddump 0
+ddfill 0 1319
+ddblt 0 4 2 13 4 0 0 2 9 4
+dddump 0
+ddfill 0 566
+ddblt 0 4 1 13 3 0 0 2 9 4
+dddump 0
+ddfill 0 6486
+ddblt 0 5 2 14 4 0 0 2 9 4
+dddump 0
+ddfill 0 3591
+ddblt 0 5 1 14 3 0 0 2 9 4
+dddump 0
+ddfill 0 918
+ddblt 0 1 2 14 4 0 0 2 13 4
+dddump 0
+ddfill 0 1555
+ddblt 0 1 1 14 3 0 0 2 13 4
+dddump 0
+ddfill 0 8894
+ddblt 0 1 3 14 5 0 0 2 13 4
+dddump 0
+ddfill 0 3716
+ddblt 0 2 2 15 4 0 0 2 13 4
+dddump 0
+ddfill 0 7809
+ddblt 0 2 1 15 3 0 0 2 13 4
+dddump 0
+ddfill 0 6902
+ddblt 0 3 2 16 4 0 0 2 13 4
+dddump 0
+ddfill 0 1843
+ddblt 0 3 1 16 3 0 0 2 13 4
+dddump 0
+ddfill 0 168
+ddblt 0 4 2 17 4 0 0 2 13 4
+dddump 0
+ddfill 0 7111
+ddblt 0 4 1 17 3 0 0 2 13 4
+dddump 0
+ddfill 0 8801
+ddblt 0 5 2 18 4 0 0 2 13 4
+dddump 0
+ddfill 0 1116
+ddblt 0 5 1 18 3 0 0 2 13 4
+dddump 0
+end
+case overlap8align-1
+dd
+ddsurf 0 32 6 8
+ddfill 0 7846
+ddblt 0 2 2 3 4 0 1 2 2 4
+dddump 0
+ddfill 0 5647
+ddblt 0 2 1 3 3 0 1 2 2 4
+dddump 0
+ddfill 0 9200
+ddblt 0 2 3 3 5 0 1 2 2 4
+dddump 0
+ddfill 0 8429
+ddblt 0 3 2 4 4 0 1 2 2 4
+dddump 0
+ddfill 0 6280
+ddblt 0 3 1 4 3 0 1 2 2 4
+dddump 0
+ddfill 0 9183
+ddblt 0 4 2 5 4 0 1 2 2 4
+dddump 0
+ddfill 0 1932
+ddblt 0 4 1 5 3 0 1 2 2 4
+dddump 0
+ddfill 0 8130
+ddblt 0 5 2 6 4 0 1 2 2 4
+dddump 0
+ddfill 0 6545
+ddblt 0 5 1 6 3 0 1 2 2 4
+dddump 0
+ddfill 0 2240
+ddblt 0 6 2 7 4 0 1 2 2 4
+dddump 0
+ddfill 0 4376
+ddblt 0 6 1 7 3 0 1 2 2 4
+dddump 0
+ddfill 0 746
+ddblt 0 2 2 4 4 0 1 2 3 4
+dddump 0
+ddfill 0 8099
+ddblt 0 2 1 4 3 0 1 2 3 4
+dddump 0
+ddfill 0 8477
+ddblt 0 2 3 4 5 0 1 2 3 4
+dddump 0
+ddfill 0 8123
+ddblt 0 3 2 5 4 0 1 2 3 4
+dddump 0
+ddfill 0 9147
+ddblt 0 3 1 5 3 0 1 2 3 4
+dddump 0
+ddfill 0 9106
+ddblt 0 4 2 6 4 0 1 2 3 4
+dddump 0
+ddfill 0 3926
+ddblt 0 4 1 6 3 0 1 2 3 4
+dddump 0
+ddfill 0 5783
+ddblt 0 5 2 7 4 0 1 2 3 4
+dddump 0
+ddfill 0 7378
+ddblt 0 5 1 7 3 0 1 2 3 4
+dddump 0
+ddfill 0 9449
+ddblt 0 6 2 8 4 0 1 2 3 4
+dddump 0
+ddfill 0 7719
+ddblt 0 6 1 8 3 0 1 2 3 4
+dddump 0
+ddfill 0 1989
+ddblt 0 2 2 5 4 0 1 2 4 4
+dddump 0
+ddfill 0 7769
+ddblt 0 2 1 5 3 0 1 2 4 4
+dddump 0
+ddfill 0 4233
+ddblt 0 2 3 5 5 0 1 2 4 4
+dddump 0
+ddfill 0 8623
+ddblt 0 3 2 6 4 0 1 2 4 4
+dddump 0
+ddfill 0 1795
+ddblt 0 3 1 6 3 0 1 2 4 4
+dddump 0
+ddfill 0 370
+ddblt 0 4 2 7 4 0 1 2 4 4
+dddump 0
+ddfill 0 3464
+ddblt 0 4 1 7 3 0 1 2 4 4
+dddump 0
+ddfill 0 994
+ddblt 0 5 2 8 4 0 1 2 4 4
+dddump 0
+ddfill 0 6199
+ddblt 0 5 1 8 3 0 1 2 4 4
+dddump 0
+ddfill 0 4627
+ddblt 0 6 2 9 4 0 1 2 4 4
+dddump 0
+ddfill 0 6468
+ddblt 0 6 1 9 3 0 1 2 4 4
+dddump 0
+ddfill 0 7138
+ddblt 0 2 2 6 4 0 1 2 5 4
+dddump 0
+ddfill 0 2007
+ddblt 0 2 1 6 3 0 1 2 5 4
+dddump 0
+ddfill 0 1475
+ddblt 0 2 3 6 5 0 1 2 5 4
+dddump 0
+ddfill 0 9145
+ddblt 0 3 2 7 4 0 1 2 5 4
+dddump 0
+ddfill 0 2983
+ddblt 0 3 1 7 3 0 1 2 5 4
+dddump 0
+ddfill 0 7355
+ddblt 0 4 2 8 4 0 1 2 5 4
+dddump 0
+ddfill 0 5454
+ddblt 0 4 1 8 3 0 1 2 5 4
+dddump 0
+ddfill 0 4909
+ddblt 0 5 2 9 4 0 1 2 5 4
+dddump 0
+ddfill 0 6655
+ddblt 0 5 1 9 3 0 1 2 5 4
+dddump 0
+ddfill 0 9764
+ddblt 0 6 2 10 4 0 1 2 5 4
+dddump 0
+ddfill 0 3986
+ddblt 0 6 1 10 3 0 1 2 5 4
+dddump 0
+ddfill 0 3617
+ddblt 0 2 2 7 4 0 1 2 6 4
+dddump 0
+ddfill 0 3616
+ddblt 0 2 1 7 3 0 1 2 6 4
+dddump 0
+ddfill 0 3128
+ddblt 0 2 3 7 5 0 1 2 6 4
+dddump 0
+ddfill 0 9144
+ddblt 0 3 2 8 4 0 1 2 6 4
+dddump 0
+ddfill 0 8844
+ddblt 0 3 1 8 3 0 1 2 6 4
+dddump 0
+ddfill 0 9255
+ddblt 0 4 2 9 4 0 1 2 6 4
+dddump 0
+ddfill 0 8643
+ddblt 0 4 1 9 3 0 1 2 6 4
+dddump 0
+ddfill 0 5592
+ddblt 0 5 2 10 4 0 1 2 6 4
+dddump 0
+ddfill 0 3896
+ddblt 0 5 1 10 3 0 1 2 6 4
+dddump 0
+ddfill 0 7616
+ddblt 0 6 2 11 4 0 1 2 6 4
+dddump 0
+ddfill 0 6147
+ddblt 0 6 1 11 3 0 1 2 6 4
+dddump 0
+ddfill 0 4851
+ddblt 0 2 2 9 4 0 1 2 8 4
+dddump 0
+ddfill 0 7614
+ddblt 0 2 1 9 3 0 1 2 8 4
+dddump 0
+ddfill 0 3225
+ddblt 0 2 3 9 5 0 1 2 8 4
+dddump 0
+ddfill 0 1707
+ddblt 0 3 2 10 4 0 1 2 8 4
+dddump 0
+ddfill 0 1391
+ddblt 0 3 1 10 3 0 1 2 8 4
+dddump 0
+ddfill 0 2275
+ddblt 0 4 2 11 4 0 1 2 8 4
+dddump 0
+ddfill 0 7828
+ddblt 0 4 1 11 3 0 1 2 8 4
+dddump 0
+ddfill 0 1148
+ddblt 0 5 2 12 4 0 1 2 8 4
+dddump 0
+ddfill 0 731
+ddblt 0 5 1 12 3 0 1 2 8 4
+dddump 0
+ddfill 0 1179
+ddblt 0 6 2 13 4 0 1 2 8 4
+dddump 0
+ddfill 0 6901
+ddblt 0 6 1 13 3 0 1 2 8 4
+dddump 0
+ddfill 0 4066
+ddblt 0 2 2 10 4 0 1 2 9 4
+dddump 0
+ddfill 0 5242
+ddblt 0 2 1 10 3 0 1 2 9 4
+dddump 0
+ddfill 0 8098
+ddblt 0 2 3 10 5 0 1 2 9 4
+dddump 0
+ddfill 0 320
+ddblt 0 3 2 11 4 0 1 2 9 4
+dddump 0
+ddfill 0 4239
+ddblt 0 3 1 11 3 0 1 2 9 4
+dddump 0
+ddfill 0 6813
+ddblt 0 4 2 12 4 0 1 2 9 4
+dddump 0
+ddfill 0 8865
+ddblt 0 4 1 12 3 0 1 2 9 4
+dddump 0
+ddfill 0 3411
+ddblt 0 5 2 13 4 0 1 2 9 4
+dddump 0
+ddfill 0 8753
+ddblt 0 5 1 13 3 0 1 2 9 4
+dddump 0
+ddfill 0 8178
+ddblt 0 6 2 14 4 0 1 2 9 4
+dddump 0
+ddfill 0 3772
+ddblt 0 6 1 14 3 0 1 2 9 4
+dddump 0
+ddfill 0 4618
+ddblt 0 2 2 11 4 0 1 2 10 4
+dddump 0
+ddfill 0 3925
+ddblt 0 2 1 11 3 0 1 2 10 4
+dddump 0
+ddfill 0 3535
+ddblt 0 2 3 11 5 0 1 2 10 4
+dddump 0
+ddfill 0 1891
+ddblt 0 3 2 12 4 0 1 2 10 4
+dddump 0
+ddfill 0 9849
+ddblt 0 3 1 12 3 0 1 2 10 4
+dddump 0
+ddfill 0 2853
+ddblt 0 4 2 13 4 0 1 2 10 4
+dddump 0
+ddfill 0 4022
+ddblt 0 4 1 13 3 0 1 2 10 4
+dddump 0
+ddfill 0 5006
+ddblt 0 5 2 14 4 0 1 2 10 4
+dddump 0
+ddfill 0 3920
+ddblt 0 5 1 14 3 0 1 2 10 4
+dddump 0
+ddfill 0 3272
+ddblt 0 6 2 15 4 0 1 2 10 4
+dddump 0
+ddfill 0 4744
+ddblt 0 6 1 15 3 0 1 2 10 4
+dddump 0
+ddfill 0 3364
+ddblt 0 2 2 15 4 0 1 2 14 4
+dddump 0
+ddfill 0 5840
+ddblt 0 2 1 15 3 0 1 2 14 4
+dddump 0
+ddfill 0 457
+ddblt 0 2 3 15 5 0 1 2 14 4
+dddump 0
+ddfill 0 5742
+ddblt 0 3 2 16 4 0 1 2 14 4
+dddump 0
+ddfill 0 2209
+ddblt 0 3 1 16 3 0 1 2 14 4
+dddump 0
+ddfill 0 1188
+ddblt 0 4 2 17 4 0 1 2 14 4
+dddump 0
+ddfill 0 1804
+ddblt 0 4 1 17 3 0 1 2 14 4
+dddump 0
+ddfill 0 8453
+ddblt 0 5 2 18 4 0 1 2 14 4
+dddump 0
+ddfill 0 3584
+ddblt 0 5 1 18 3 0 1 2 14 4
+dddump 0
+ddfill 0 8622
+ddblt 0 6 2 19 4 0 1 2 14 4
+dddump 0
+ddfill 0 1323
+ddblt 0 6 1 19 3 0 1 2 14 4
+dddump 0
+end
+case overlap8align-2
+dd
+ddsurf 0 32 6 8
+ddfill 0 964
+ddblt 0 3 2 4 4 0 2 2 3 4
+dddump 0
+ddfill 0 3353
+ddblt 0 3 1 4 3 0 2 2 3 4
+dddump 0
+ddfill 0 5429
+ddblt 0 3 3 4 5 0 2 2 3 4
+dddump 0
+ddfill 0 960
+ddblt 0 4 2 5 4 0 2 2 3 4
+dddump 0
+ddfill 0 7747
+ddblt 0 4 1 5 3 0 2 2 3 4
+dddump 0
+ddfill 0 9817
+ddblt 0 5 2 6 4 0 2 2 3 4
+dddump 0
+ddfill 0 4645
+ddblt 0 5 1 6 3 0 2 2 3 4
+dddump 0
+ddfill 0 8155
+ddblt 0 6 2 7 4 0 2 2 3 4
+dddump 0
+ddfill 0 1008
+ddblt 0 6 1 7 3 0 2 2 3 4
+dddump 0
+ddfill 0 9369
+ddblt 0 7 2 8 4 0 2 2 3 4
+dddump 0
+ddfill 0 8090
+ddblt 0 7 1 8 3 0 2 2 3 4
+dddump 0
+ddfill 0 5285
+ddblt 0 3 2 5 4 0 2 2 4 4
+dddump 0
+ddfill 0 2869
+ddblt 0 3 1 5 3 0 2 2 4 4
+dddump 0
+ddfill 0 552
+ddblt 0 3 3 5 5 0 2 2 4 4
+dddump 0
+ddfill 0 2263
+ddblt 0 4 2 6 4 0 2 2 4 4
+dddump 0
+ddfill 0 2463
+ddblt 0 4 1 6 3 0 2 2 4 4
+dddump 0
+ddfill 0 2064
+ddblt 0 5 2 7 4 0 2 2 4 4
+dddump 0
+ddfill 0 151
+ddblt 0 5 1 7 3 0 2 2 4 4
+dddump 0
+ddfill 0 423
+ddblt 0 6 2 8 4 0 2 2 4 4
+dddump 0
+ddfill 0 4910
+ddblt 0 6 1 8 3 0 2 2 4 4
+dddump 0
+ddfill 0 3764
+ddblt 0 7 2 9 4 0 2 2 4 4
+dddump 0
+ddfill 0 7628
+ddblt 0 7 1 9 3 0 2 2 4 4
+dddump 0
+ddfill 0 9061
+ddblt 0 3 2 6 4 0 2 2 5 4
+dddump 0
+ddfill 0 4033
+ddblt 0 3 1 6 3 0 2 2 5 4
+dddump 0
+ddfill 0 2768
+ddblt 0 3 3 6 5 0 2 2 5 4
+dddump 0
+ddfill 0 3618
+ddblt 0 4 2 7 4 0 2 2 5 4
+dddump 0
+ddfill 0 8247
+ddblt 0 4 1 7 3 0 2 2 5 4
+dddump 0
+ddfill 0 1365
+ddblt 0 5 2 8 4 0 2 2 5 4
+dddump 0
+ddfill 0 8300
+ddblt 0 5 1 8 3 0 2 2 5 4
+dddump 0
+ddfill 0 3864
+ddblt 0 6 2 9 4 0 2 2 5 4
+dddump 0
+ddfill 0 1827
+ddblt 0 6 1 9 3 0 2 2 5 4
+dddump 0
+ddfill 0 552
+ddblt 0 7 2 10 4 0 2 2 5 4
+dddump 0
+ddfill 0 4491
+ddblt 0 7 1 10 3 0 2 2 5 4
+dddump 0
+ddfill 0 182
+ddblt 0 3 2 7 4 0 2 2 6 4
+dddump 0
+ddfill 0 7742
+ddblt 0 3 1 7 3 0 2 2 6 4
+dddump 0
+ddfill 0 8729
+ddblt 0 3 3 7 5 0 2 2 6 4
+dddump 0
+ddfill 0 7270
+ddblt 0 4 2 8 4 0 2 2 6 4
+dddump 0
+ddfill 0 2952
+ddblt 0 4 1 8 3 0 2 2 6 4
+dddump 0
+ddfill 0 4318
+ddblt 0 5 2 9 4 0 2 2 6 4
+dddump 0
+ddfill 0 8125
+ddblt 0 5 1 9 3 0 2 2 6 4
+dddump 0
+ddfill 0 3561
+ddblt 0 6 2 10 4 0 2 2 6 4
+dddump 0
+ddfill 0 4548
+ddblt 0 6 1 10 3 0 2 2 6 4
+dddump 0
+ddfill 0 6622
+ddblt 0 7 2 11 4 0 2 2 6 4
+dddump 0
+ddfill 0 7356
+ddblt 0 7 1 11 3 0 2 2 6 4
+dddump 0
+ddfill 0 5849
+ddblt 0 3 2 8 4 0 2 2 7 4
+dddump 0
+ddfill 0 9605
+ddblt 0 3 1 8 3 0 2 2 7 4
+dddump 0
+ddfill 0 1302
+ddblt 0 3 3 8 5 0 2 2 7 4
+dddump 0
+ddfill 0 9719
+ddblt 0 4 2 9 4 0 2 2 7 4
+dddump 0
+ddfill 0 7914
+ddblt 0 4 1 9 3 0 2 2 7 4
+dddump 0
+ddfill 0 2581
+ddblt 0 5 2 10 4 0 2 2 7 4
+dddump 0
+ddfill 0 2571
+ddblt 0 5 1 10 3 0 2 2 7 4
+dddump 0
+ddfill 0 5112
+ddblt 0 6 2 11 4 0 2 2 7 4
+dddump 0
+ddfill 0 966
+ddblt 0 6 1 11 3 0 2 2 7 4
+dddump 0
+ddfill 0 5930
+ddblt 0 7 2 12 4 0 2 2 7 4
+dddump 0
+ddfill 0 7109
+ddblt 0 7 1 12 3 0 2 2 7 4
+dddump 0
+ddfill 0 8013
+ddblt 0 3 2 10 4 0 2 2 9 4
+dddump 0
+ddfill 0 746
+ddblt 0 3 1 10 3 0 2 2 9 4
+dddump 0
+ddfill 0 2023
+ddblt 0 3 3 10 5 0 2 2 9 4
+dddump 0
+ddfill 0 8619
+ddblt 0 4 2 11 4 0 2 2 9 4
+dddump 0
+ddfill 0 8749
+ddblt 0 4 1 11 3 0 2 2 9 4
+dddump 0
+ddfill 0 4288
+ddblt 0 5 2 12 4 0 2 2 9 4
+dddump 0
+ddfill 0 2357
+ddblt 0 5 1 12 3 0 2 2 9 4
+dddump 0
+ddfill 0 8419
+ddblt 0 6 2 13 4 0 2 2 9 4
+dddump 0
+ddfill 0 8662
+ddblt 0 6 1 13 3 0 2 2 9 4
+dddump 0
+ddfill 0 6188
+ddblt 0 7 2 14 4 0 2 2 9 4
+dddump 0
+ddfill 0 3324
+ddblt 0 7 1 14 3 0 2 2 9 4
+dddump 0
+ddfill 0 7195
+ddblt 0 3 2 11 4 0 2 2 10 4
+dddump 0
+ddfill 0 8645
+ddblt 0 3 1 11 3 0 2 2 10 4
+dddump 0
+ddfill 0 4479
+ddblt 0 3 3 11 5 0 2 2 10 4
+dddump 0
+ddfill 0 6744
+ddblt 0 4 2 12 4 0 2 2 10 4
+dddump 0
+ddfill 0 3151
+ddblt 0 4 1 12 3 0 2 2 10 4
+dddump 0
+ddfill 0 1637
+ddblt 0 5 2 13 4 0 2 2 10 4
+dddump 0
+ddfill 0 6254
+ddblt 0 5 1 13 3 0 2 2 10 4
+dddump 0
+ddfill 0 20
+ddblt 0 6 2 14 4 0 2 2 10 4
+dddump 0
+ddfill 0 158
+ddblt 0 6 1 14 3 0 2 2 10 4
+dddump 0
+ddfill 0 2828
+ddblt 0 7 2 15 4 0 2 2 10 4
+dddump 0
+ddfill 0 3820
+ddblt 0 7 1 15 3 0 2 2 10 4
+dddump 0
+ddfill 0 1081
+ddblt 0 3 2 12 4 0 2 2 11 4
+dddump 0
+ddfill 0 6481
+ddblt 0 3 1 12 3 0 2 2 11 4
+dddump 0
+ddfill 0 4039
+ddblt 0 3 3 12 5 0 2 2 11 4
+dddump 0
+ddfill 0 7307
+ddblt 0 4 2 13 4 0 2 2 11 4
+dddump 0
+ddfill 0 9787
+ddblt 0 4 1 13 3 0 2 2 11 4
+dddump 0
+ddfill 0 1765
+ddblt 0 5 2 14 4 0 2 2 11 4
+dddump 0
+ddfill 0 9009
+ddblt 0 5 1 14 3 0 2 2 11 4
+dddump 0
+ddfill 0 5215
+ddblt 0 6 2 15 4 0 2 2 11 4
+dddump 0
+ddfill 0 3990
+ddblt 0 6 1 15 3 0 2 2 11 4
+dddump 0
+ddfill 0 5452
+ddblt 0 7 2 16 4 0 2 2 11 4
+dddump 0
+ddfill 0 7252
+ddblt 0 7 1 16 3 0 2 2 11 4
+dddump 0
+ddfill 0 731
+ddblt 0 3 2 16 4 0 2 2 15 4
+dddump 0
+ddfill 0 624
+ddblt 0 3 1 16 3 0 2 2 15 4
+dddump 0
+ddfill 0 74
+ddblt 0 3 3 16 5 0 2 2 15 4
+dddump 0
+ddfill 0 1815
+ddblt 0 4 2 17 4 0 2 2 15 4
+dddump 0
+ddfill 0 5849
+ddblt 0 4 1 17 3 0 2 2 15 4
+dddump 0
+ddfill 0 7079
+ddblt 0 5 2 18 4 0 2 2 15 4
+dddump 0
+ddfill 0 6076
+ddblt 0 5 1 18 3 0 2 2 15 4
+dddump 0
+ddfill 0 306
+ddblt 0 6 2 19 4 0 2 2 15 4
+dddump 0
+ddfill 0 2624
+ddblt 0 6 1 19 3 0 2 2 15 4
+dddump 0
+ddfill 0 6480
+ddblt 0 7 2 20 4 0 2 2 15 4
+dddump 0
+ddfill 0 3478
+ddblt 0 7 1 20 3 0 2 2 15 4
+dddump 0
+end
+case overlap8align-3
+dd
+ddsurf 0 32 6 8
+ddfill 0 2105
+ddblt 0 4 2 5 4 0 3 2 4 4
+dddump 0
+ddfill 0 7665
+ddblt 0 4 1 5 3 0 3 2 4 4
+dddump 0
+ddfill 0 6338
+ddblt 0 4 3 5 5 0 3 2 4 4
+dddump 0
+ddfill 0 1680
+ddblt 0 5 2 6 4 0 3 2 4 4
+dddump 0
+ddfill 0 2051
+ddblt 0 5 1 6 3 0 3 2 4 4
+dddump 0
+ddfill 0 1880
+ddblt 0 6 2 7 4 0 3 2 4 4
+dddump 0
+ddfill 0 1411
+ddblt 0 6 1 7 3 0 3 2 4 4
+dddump 0
+ddfill 0 5559
+ddblt 0 7 2 8 4 0 3 2 4 4
+dddump 0
+ddfill 0 685
+ddblt 0 7 1 8 3 0 3 2 4 4
+dddump 0
+ddfill 0 4449
+ddblt 0 8 2 9 4 0 3 2 4 4
+dddump 0
+ddfill 0 3260
+ddblt 0 8 1 9 3 0 3 2 4 4
+dddump 0
+ddfill 0 5153
+ddblt 0 4 2 6 4 0 3 2 5 4
+dddump 0
+ddfill 0 4185
+ddblt 0 4 1 6 3 0 3 2 5 4
+dddump 0
+ddfill 0 3300
+ddblt 0 4 3 6 5 0 3 2 5 4
+dddump 0
+ddfill 0 8647
+ddblt 0 5 2 7 4 0 3 2 5 4
+dddump 0
+ddfill 0 8557
+ddblt 0 5 1 7 3 0 3 2 5 4
+dddump 0
+ddfill 0 4162
+ddblt 0 6 2 8 4 0 3 2 5 4
+dddump 0
+ddfill 0 8187
+ddblt 0 6 1 8 3 0 3 2 5 4
+dddump 0
+ddfill 0 3216
+ddblt 0 7 2 9 4 0 3 2 5 4
+dddump 0
+ddfill 0 8273
+ddblt 0 7 1 9 3 0 3 2 5 4
+dddump 0
+ddfill 0 4669
+ddblt 0 8 2 10 4 0 3 2 5 4
+dddump 0
+ddfill 0 4246
+ddblt 0 8 1 10 3 0 3 2 5 4
+dddump 0
+ddfill 0 7493
+ddblt 0 4 2 7 4 0 3 2 6 4
+dddump 0
+ddfill 0 4805
+ddblt 0 4 1 7 3 0 3 2 6 4
+dddump 0
+ddfill 0 2862
+ddblt 0 4 3 7 5 0 3 2 6 4
+dddump 0
+ddfill 0 152
+ddblt 0 5 2 8 4 0 3 2 6 4
+dddump 0
+ddfill 0 2344
+ddblt 0 5 1 8 3 0 3 2 6 4
+dddump 0
+ddfill 0 2319
+ddblt 0 6 2 9 4 0 3 2 6 4
+dddump 0
+ddfill 0 4534
+ddblt 0 6 1 9 3 0 3 2 6 4
+dddump 0
+ddfill 0 871
+ddblt 0 7 2 10 4 0 3 2 6 4
+dddump 0
+ddfill 0 9329
+ddblt 0 7 1 10 3 0 3 2 6 4
+dddump 0
+ddfill 0 7691
+ddblt 0 8 2 11 4 0 3 2 6 4
+dddump 0
+ddfill 0 6328
+ddblt 0 8 1 11 3 0 3 2 6 4
+dddump 0
+ddfill 0 7648
+ddblt 0 4 2 8 4 0 3 2 7 4
+dddump 0
+ddfill 0 3885
+ddblt 0 4 1 8 3 0 3 2 7 4
+dddump 0
+ddfill 0 2429
+ddblt 0 4 3 8 5 0 3 2 7 4
+dddump 0
+ddfill 0 9146
+ddblt 0 5 2 9 4 0 3 2 7 4
+dddump 0
+ddfill 0 3981
+ddblt 0 5 1 9 3 0 3 2 7 4
+dddump 0
+ddfill 0 1969
+ddblt 0 6 2 10 4 0 3 2 7 4
+dddump 0
+ddfill 0 4103
+ddblt 0 6 1 10 3 0 3 2 7 4
+dddump 0
+ddfill 0 8696
+ddblt 0 7 2 11 4 0 3 2 7 4
+dddump 0
+ddfill 0 2828
+ddblt 0 7 1 11 3 0 3 2 7 4
+dddump 0
+ddfill 0 9197
+ddblt 0 8 2 12 4 0 3 2 7 4
+dddump 0
+ddfill 0 8903
+ddblt 0 8 1 12 3 0 3 2 7 4
+dddump 0
+ddfill 0 7624
+ddblt 0 4 2 9 4 0 3 2 8 4
+dddump 0
+ddfill 0 7091
+ddblt 0 4 1 9 3 0 3 2 8 4
+dddump 0
+ddfill 0 1578
+ddblt 0 4 3 9 5 0 3 2 8 4
+dddump 0
+ddfill 0 1591
+ddblt 0 5 2 10 4 0 3 2 8 4
+dddump 0
+ddfill 0 2601
+ddblt 0 5 1 10 3 0 3 2 8 4
+dddump 0
+ddfill 0 7070
+ddblt 0 6 2 11 4 0 3 2 8 4
+dddump 0
+ddfill 0 7628
+ddblt 0 6 1 11 3 0 3 2 8 4
+dddump 0
+ddfill 0 588
+ddblt 0 7 2 12 4 0 3 2 8 4
+dddump 0
+ddfill 0 1295
+ddblt 0 7 1 12 3 0 3 2 8 4
+dddump 0
+ddfill 0 9162
+ddblt 0 8 2 13 4 0 3 2 8 4
+dddump 0
+ddfill 0 4899
+ddblt 0 8 1 13 3 0 3 2 8 4
+dddump 0
+ddfill 0 6572
+ddblt 0 4 2 11 4 0 3 2 10 4
+dddump 0
+ddfill 0 1716
+ddblt 0 4 1 11 3 0 3 2 10 4
+dddump 0
+ddfill 0 4301
+ddblt 0 4 3 11 5 0 3 2 10 4
+dddump 0
+ddfill 0 8167
+ddblt 0 5 2 12 4 0 3 2 10 4
+dddump 0
+ddfill 0 7657
+ddblt 0 5 1 12 3 0 3 2 10 4
+dddump 0
+ddfill 0 4640
+ddblt 0 6 2 13 4 0 3 2 10 4
+dddump 0
+ddfill 0 6561
+ddblt 0 6 1 13 3 0 3 2 10 4
+dddump 0
+ddfill 0 2318
+ddblt 0 7 2 14 4 0 3 2 10 4
+dddump 0
+ddfill 0 6484
+ddblt 0 7 1 14 3 0 3 2 10 4
+dddump 0
+ddfill 0 6397
+ddblt 0 8 2 15 4 0 3 2 10 4
+dddump 0
+ddfill 0 7110
+ddblt 0 8 1 15 3 0 3 2 10 4
+dddump 0
+ddfill 0 7779
+ddblt 0 4 2 12 4 0 3 2 11 4
+dddump 0
+ddfill 0 5215
+ddblt 0 4 1 12 3 0 3 2 11 4
+dddump 0
+ddfill 0 138
+ddblt 0 4 3 12 5 0 3 2 11 4
+dddump 0
+ddfill 0 4406
+ddblt 0 5 2 13 4 0 3 2 11 4
+dddump 0
+ddfill 0 766
+ddblt 0 5 1 13 3 0 3 2 11 4
+dddump 0
+ddfill 0 3524
+ddblt 0 6 2 14 4 0 3 2 11 4
+dddump 0
+ddfill 0 1368
+ddblt 0 6 1 14 3 0 3 2 11 4
+dddump 0
+ddfill 0 1270
+ddblt 0 7 2 15 4 0 3 2 11 4
+dddump 0
+ddfill 0 5771
+ddblt 0 7 1 15 3 0 3 2 11 4
+dddump 0
+ddfill 0 4313
+ddblt 0 8 2 16 4 0 3 2 11 4
+dddump 0
+ddfill 0 9498
+ddblt 0 8 1 16 3 0 3 2 11 4
+dddump 0
+ddfill 0 8631
+ddblt 0 4 2 13 4 0 3 2 12 4
+dddump 0
+ddfill 0 8158
+ddblt 0 4 1 13 3 0 3 2 12 4
+dddump 0
+ddfill 0 3163
+ddblt 0 4 3 13 5 0 3 2 12 4
+dddump 0
+ddfill 0 9459
+ddblt 0 5 2 14 4 0 3 2 12 4
+dddump 0
+ddfill 0 1534
+ddblt 0 5 1 14 3 0 3 2 12 4
+dddump 0
+ddfill 0 6989
+ddblt 0 6 2 15 4 0 3 2 12 4
+dddump 0
+ddfill 0 3945
+ddblt 0 6 1 15 3 0 3 2 12 4
+dddump 0
+ddfill 0 4691
+ddblt 0 7 2 16 4 0 3 2 12 4
+dddump 0
+ddfill 0 5687
+ddblt 0 7 1 16 3 0 3 2 12 4
+dddump 0
+ddfill 0 8195
+ddblt 0 8 2 17 4 0 3 2 12 4
+dddump 0
+ddfill 0 2494
+ddblt 0 8 1 17 3 0 3 2 12 4
+dddump 0
+ddfill 0 2532
+ddblt 0 4 2 17 4 0 3 2 16 4
+dddump 0
+ddfill 0 6909
+ddblt 0 4 1 17 3 0 3 2 16 4
+dddump 0
+ddfill 0 5065
+ddblt 0 4 3 17 5 0 3 2 16 4
+dddump 0
+ddfill 0 9498
+ddblt 0 5 2 18 4 0 3 2 16 4
+dddump 0
+ddfill 0 6882
+ddblt 0 5 1 18 3 0 3 2 16 4
+dddump 0
+ddfill 0 8911
+ddblt 0 6 2 19 4 0 3 2 16 4
+dddump 0
+ddfill 0 4543
+ddblt 0 6 1 19 3 0 3 2 16 4
+dddump 0
+ddfill 0 1138
+ddblt 0 7 2 20 4 0 3 2 16 4
+dddump 0
+ddfill 0 4189
+ddblt 0 7 1 20 3 0 3 2 16 4
+dddump 0
+ddfill 0 8694
+ddblt 0 8 2 21 4 0 3 2 16 4
+dddump 0
+ddfill 0 1562
+ddblt 0 8 1 21 3 0 3 2 16 4
+dddump 0
+end
+case overlap8align-4
+dd
+ddsurf 0 32 6 8
+ddfill 0 7991
+ddblt 0 5 2 6 4 0 4 2 5 4
+dddump 0
+ddfill 0 4446
+ddblt 0 5 1 6 3 0 4 2 5 4
+dddump 0
+ddfill 0 5142
+ddblt 0 5 3 6 5 0 4 2 5 4
+dddump 0
+ddfill 0 9118
+ddblt 0 6 2 7 4 0 4 2 5 4
+dddump 0
+ddfill 0 6024
+ddblt 0 6 1 7 3 0 4 2 5 4
+dddump 0
+ddfill 0 6934
+ddblt 0 7 2 8 4 0 4 2 5 4
+dddump 0
+ddfill 0 8995
+ddblt 0 7 1 8 3 0 4 2 5 4
+dddump 0
+ddfill 0 479
+ddblt 0 8 2 9 4 0 4 2 5 4
+dddump 0
+ddfill 0 1991
+ddblt 0 8 1 9 3 0 4 2 5 4
+dddump 0
+ddfill 0 6372
+ddblt 0 9 2 10 4 0 4 2 5 4
+dddump 0
+ddfill 0 6926
+ddblt 0 9 1 10 3 0 4 2 5 4
+dddump 0
+ddfill 0 2544
+ddblt 0 5 2 7 4 0 4 2 6 4
+dddump 0
+ddfill 0 2697
+ddblt 0 5 1 7 3 0 4 2 6 4
+dddump 0
+ddfill 0 5207
+ddblt 0 5 3 7 5 0 4 2 6 4
+dddump 0
+ddfill 0 4933
+ddblt 0 6 2 8 4 0 4 2 6 4
+dddump 0
+ddfill 0 6968
+ddblt 0 6 1 8 3 0 4 2 6 4
+dddump 0
+ddfill 0 6574
+ddblt 0 7 2 9 4 0 4 2 6 4
+dddump 0
+ddfill 0 2733
+ddblt 0 7 1 9 3 0 4 2 6 4
+dddump 0
+ddfill 0 4745
+ddblt 0 8 2 10 4 0 4 2 6 4
+dddump 0
+ddfill 0 1808
+ddblt 0 8 1 10 3 0 4 2 6 4
+dddump 0
+ddfill 0 4897
+ddblt 0 9 2 11 4 0 4 2 6 4
+dddump 0
+ddfill 0 8885
+ddblt 0 9 1 11 3 0 4 2 6 4
+dddump 0
+ddfill 0 2953
+ddblt 0 5 2 8 4 0 4 2 7 4
+dddump 0
+ddfill 0 5060
+ddblt 0 5 1 8 3 0 4 2 7 4
+dddump 0
+ddfill 0 6224
+ddblt 0 5 3 8 5 0 4 2 7 4
+dddump 0
+ddfill 0 8791
+ddblt 0 6 2 9 4 0 4 2 7 4
+dddump 0
+ddfill 0 8473
+ddblt 0 6 1 9 3 0 4 2 7 4
+dddump 0
+ddfill 0 5418
+ddblt 0 7 2 10 4 0 4 2 7 4
+dddump 0
+ddfill 0 3635
+ddblt 0 7 1 10 3 0 4 2 7 4
+dddump 0
+ddfill 0 4312
+ddblt 0 8 2 11 4 0 4 2 7 4
+dddump 0
+ddfill 0 6669
+ddblt 0 8 1 11 3 0 4 2 7 4
+dddump 0
+ddfill 0 6730
+ddblt 0 9 2 12 4 0 4 2 7 4
+dddump 0
+ddfill 0 1457
+ddblt 0 9 1 12 3 0 4 2 7 4
+dddump 0
+ddfill 0 7998
+ddblt 0 5 2 9 4 0 4 2 8 4
+dddump 0
+ddfill 0 378
+ddblt 0 5 1 9 3 0 4 2 8 4
+dddump 0
+ddfill 0 3401
+ddblt 0 5 3 9 5 0 4 2 8 4
+dddump 0
+ddfill 0 1948
+ddblt 0 6 2 10 4 0 4 2 8 4
+dddump 0
+ddfill 0 764
+ddblt 0 6 1 10 3 0 4 2 8 4
+dddump 0
+ddfill 0 3904
+ddblt 0 7 2 11 4 0 4 2 8 4
+dddump 0
+ddfill 0 4152
+ddblt 0 7 1 11 3 0 4 2 8 4
+dddump 0
+ddfill 0 2967
+ddblt 0 8 2 12 4 0 4 2 8 4
+dddump 0
+ddfill 0 1281
+ddblt 0 8 1 12 3 0 4 2 8 4
+dddump 0
+ddfill 0 394
+ddblt 0 9 2 13 4 0 4 2 8 4
+dddump 0
+ddfill 0 8824
+ddblt 0 9 1 13 3 0 4 2 8 4
+dddump 0
+ddfill 0 99
+ddblt 0 5 2 10 4 0 4 2 9 4
+dddump 0
+ddfill 0 6869
+ddblt 0 5 1 10 3 0 4 2 9 4
+dddump 0
+ddfill 0 8832
+ddblt 0 5 3 10 5 0 4 2 9 4
+dddump 0
+ddfill 0 2881
+ddblt 0 6 2 11 4 0 4 2 9 4
+dddump 0
+ddfill 0 5146
+ddblt 0 6 1 11 3 0 4 2 9 4
+dddump 0
+ddfill 0 407
+ddblt 0 7 2 12 4 0 4 2 9 4
+dddump 0
+ddfill 0 5454
+ddblt 0 7 1 12 3 0 4 2 9 4
+dddump 0
+ddfill 0 2773
+ddblt 0 8 2 13 4 0 4 2 9 4
+dddump 0
+ddfill 0 8733
+ddblt 0 8 1 13 3 0 4 2 9 4
+dddump 0
+ddfill 0 651
+ddblt 0 9 2 14 4 0 4 2 9 4
+dddump 0
+ddfill 0 5570
+ddblt 0 9 1 14 3 0 4 2 9 4
+dddump 0
+ddfill 0 4050
+ddblt 0 5 2 12 4 0 4 2 11 4
+dddump 0
+ddfill 0 1702
+ddblt 0 5 1 12 3 0 4 2 11 4
+dddump 0
+ddfill 0 6909
+ddblt 0 5 3 12 5 0 4 2 11 4
+dddump 0
+ddfill 0 7340
+ddblt 0 6 2 13 4 0 4 2 11 4
+dddump 0
+ddfill 0 261
+ddblt 0 6 1 13 3 0 4 2 11 4
+dddump 0
+ddfill 0 7661
+ddblt 0 7 2 14 4 0 4 2 11 4
+dddump 0
+ddfill 0 6800
+ddblt 0 7 1 14 3 0 4 2 11 4
+dddump 0
+ddfill 0 7813
+ddblt 0 8 2 15 4 0 4 2 11 4
+dddump 0
+ddfill 0 9308
+ddblt 0 8 1 15 3 0 4 2 11 4
+dddump 0
+ddfill 0 2130
+ddblt 0 9 2 16 4 0 4 2 11 4
+dddump 0
+ddfill 0 6169
+ddblt 0 9 1 16 3 0 4 2 11 4
+dddump 0
+ddfill 0 5730
+ddblt 0 5 2 13 4 0 4 2 12 4
+dddump 0
+ddfill 0 4793
+ddblt 0 5 1 13 3 0 4 2 12 4
+dddump 0
+ddfill 0 6118
+ddblt 0 5 3 13 5 0 4 2 12 4
+dddump 0
+ddfill 0 1871
+ddblt 0 6 2 14 4 0 4 2 12 4
+dddump 0
+ddfill 0 4233
+ddblt 0 6 1 14 3 0 4 2 12 4
+dddump 0
+ddfill 0 2335
+ddblt 0 7 2 15 4 0 4 2 12 4
+dddump 0
+ddfill 0 4778
+ddblt 0 7 1 15 3 0 4 2 12 4
+dddump 0
+ddfill 0 405
+ddblt 0 8 2 16 4 0 4 2 12 4
+dddump 0
+ddfill 0 7895
+ddblt 0 8 1 16 3 0 4 2 12 4
+dddump 0
+ddfill 0 6532
+ddblt 0 9 2 17 4 0 4 2 12 4
+dddump 0
+ddfill 0 1195
+ddblt 0 9 1 17 3 0 4 2 12 4
+dddump 0
+ddfill 0 4437
+ddblt 0 5 2 14 4 0 4 2 13 4
+dddump 0
+ddfill 0 3639
+ddblt 0 5 1 14 3 0 4 2 13 4
+dddump 0
+ddfill 0 5073
+ddblt 0 5 3 14 5 0 4 2 13 4
+dddump 0
+ddfill 0 427
+ddblt 0 6 2 15 4 0 4 2 13 4
+dddump 0
+ddfill 0 8500
+ddblt 0 6 1 15 3 0 4 2 13 4
+dddump 0
+ddfill 0 9086
+ddblt 0 7 2 16 4 0 4 2 13 4
+dddump 0
+ddfill 0 6444
+ddblt 0 7 1 16 3 0 4 2 13 4
+dddump 0
+ddfill 0 6375
+ddblt 0 8 2 17 4 0 4 2 13 4
+dddump 0
+ddfill 0 9229
+ddblt 0 8 1 17 3 0 4 2 13 4
+dddump 0
+ddfill 0 3005
+ddblt 0 9 2 18 4 0 4 2 13 4
+dddump 0
+ddfill 0 6899
+ddblt 0 9 1 18 3 0 4 2 13 4
+dddump 0
+ddfill 0 1630
+ddblt 0 5 2 18 4 0 4 2 17 4
+dddump 0
+ddfill 0 9948
+ddblt 0 5 1 18 3 0 4 2 17 4
+dddump 0
+ddfill 0 7846
+ddblt 0 5 3 18 5 0 4 2 17 4
+dddump 0
+ddfill 0 531
+ddblt 0 6 2 19 4 0 4 2 17 4
+dddump 0
+ddfill 0 344
+ddblt 0 6 1 19 3 0 4 2 17 4
+dddump 0
+ddfill 0 6514
+ddblt 0 7 2 20 4 0 4 2 17 4
+dddump 0
+ddfill 0 590
+ddblt 0 7 1 20 3 0 4 2 17 4
+dddump 0
+ddfill 0 8970
+ddblt 0 8 2 21 4 0 4 2 17 4
+dddump 0
+ddfill 0 4461
+ddblt 0 8 1 21 3 0 4 2 17 4
+dddump 0
+ddfill 0 6553
+ddblt 0 9 2 22 4 0 4 2 17 4
+dddump 0
+ddfill 0 7944
+ddblt 0 9 1 22 3 0 4 2 17 4
+dddump 0
+end
+case overlap8align-5
+dd
+ddsurf 0 32 6 8
+ddfill 0 5818
+ddblt 0 6 2 7 4 0 5 2 6 4
+dddump 0
+ddfill 0 137
+ddblt 0 6 1 7 3 0 5 2 6 4
+dddump 0
+ddfill 0 6591
+ddblt 0 6 3 7 5 0 5 2 6 4
+dddump 0
+ddfill 0 7393
+ddblt 0 7 2 8 4 0 5 2 6 4
+dddump 0
+ddfill 0 378
+ddblt 0 7 1 8 3 0 5 2 6 4
+dddump 0
+ddfill 0 155
+ddblt 0 8 2 9 4 0 5 2 6 4
+dddump 0
+ddfill 0 5097
+ddblt 0 8 1 9 3 0 5 2 6 4
+dddump 0
+ddfill 0 8639
+ddblt 0 9 2 10 4 0 5 2 6 4
+dddump 0
+ddfill 0 3705
+ddblt 0 9 1 10 3 0 5 2 6 4
+dddump 0
+ddfill 0 4237
+ddblt 0 10 2 11 4 0 5 2 6 4
+dddump 0
+ddfill 0 4463
+ddblt 0 10 1 11 3 0 5 2 6 4
+dddump 0
+ddfill 0 3908
+ddblt 0 6 2 8 4 0 5 2 7 4
+dddump 0
+ddfill 0 3330
+ddblt 0 6 1 8 3 0 5 2 7 4
+dddump 0
+ddfill 0 3390
+ddblt 0 6 3 8 5 0 5 2 7 4
+dddump 0
+ddfill 0 3807
+ddblt 0 7 2 9 4 0 5 2 7 4
+dddump 0
+ddfill 0 7959
+ddblt 0 7 1 9 3 0 5 2 7 4
+dddump 0
+ddfill 0 3135
+ddblt 0 8 2 10 4 0 5 2 7 4
+dddump 0
+ddfill 0 1312
+ddblt 0 8 1 10 3 0 5 2 7 4
+dddump 0
+ddfill 0 8352
+ddblt 0 9 2 11 4 0 5 2 7 4
+dddump 0
+ddfill 0 1738
+ddblt 0 9 1 11 3 0 5 2 7 4
+dddump 0
+ddfill 0 7821
+ddblt 0 10 2 12 4 0 5 2 7 4
+dddump 0
+ddfill 0 9309
+ddblt 0 10 1 12 3 0 5 2 7 4
+dddump 0
+ddfill 0 6358
+ddblt 0 6 2 9 4 0 5 2 8 4
+dddump 0
+ddfill 0 286
+ddblt 0 6 1 9 3 0 5 2 8 4
+dddump 0
+ddfill 0 2732
+ddblt 0 6 3 9 5 0 5 2 8 4
+dddump 0
+ddfill 0 1100
+ddblt 0 7 2 10 4 0 5 2 8 4
+dddump 0
+ddfill 0 7773
+ddblt 0 7 1 10 3 0 5 2 8 4
+dddump 0
+ddfill 0 7048
+ddblt 0 8 2 11 4 0 5 2 8 4
+dddump 0
+ddfill 0 7095
+ddblt 0 8 1 11 3 0 5 2 8 4
+dddump 0
+ddfill 0 4643
+ddblt 0 9 2 12 4 0 5 2 8 4
+dddump 0
+ddfill 0 9185
+ddblt 0 9 1 12 3 0 5 2 8 4
+dddump 0
+ddfill 0 9858
+ddblt 0 10 2 13 4 0 5 2 8 4
+dddump 0
+ddfill 0 7675
+ddblt 0 10 1 13 3 0 5 2 8 4
+dddump 0
+ddfill 0 1185
+ddblt 0 6 2 10 4 0 5 2 9 4
+dddump 0
+ddfill 0 65
+ddblt 0 6 1 10 3 0 5 2 9 4
+dddump 0
+ddfill 0 7196
+ddblt 0 6 3 10 5 0 5 2 9 4
+dddump 0
+ddfill 0 3912
+ddblt 0 7 2 11 4 0 5 2 9 4
+dddump 0
+ddfill 0 140
+ddblt 0 7 1 11 3 0 5 2 9 4
+dddump 0
+ddfill 0 1469
+ddblt 0 8 2 12 4 0 5 2 9 4
+dddump 0
+ddfill 0 905
+ddblt 0 8 1 12 3 0 5 2 9 4
+dddump 0
+ddfill 0 4217
+ddblt 0 9 2 13 4 0 5 2 9 4
+dddump 0
+ddfill 0 8372
+ddblt 0 9 1 13 3 0 5 2 9 4
+dddump 0
+ddfill 0 3305
+ddblt 0 10 2 14 4 0 5 2 9 4
+dddump 0
+ddfill 0 2065
+ddblt 0 10 1 14 3 0 5 2 9 4
+dddump 0
+ddfill 0 3146
+ddblt 0 6 2 11 4 0 5 2 10 4
+dddump 0
+ddfill 0 4513
+ddblt 0 6 1 11 3 0 5 2 10 4
+dddump 0
+ddfill 0 9845
+ddblt 0 6 3 11 5 0 5 2 10 4
+dddump 0
+ddfill 0 1975
+ddblt 0 7 2 12 4 0 5 2 10 4
+dddump 0
+ddfill 0 4668
+ddblt 0 7 1 12 3 0 5 2 10 4
+dddump 0
+ddfill 0 8139
+ddblt 0 8 2 13 4 0 5 2 10 4
+dddump 0
+ddfill 0 2838
+ddblt 0 8 1 13 3 0 5 2 10 4
+dddump 0
+ddfill 0 7654
+ddblt 0 9 2 14 4 0 5 2 10 4
+dddump 0
+ddfill 0 4808
+ddblt 0 9 1 14 3 0 5 2 10 4
+dddump 0
+ddfill 0 6442
+ddblt 0 10 2 15 4 0 5 2 10 4
+dddump 0
+ddfill 0 9943
+ddblt 0 10 1 15 3 0 5 2 10 4
+dddump 0
+ddfill 0 9012
+ddblt 0 6 2 13 4 0 5 2 12 4
+dddump 0
+ddfill 0 5150
+ddblt 0 6 1 13 3 0 5 2 12 4
+dddump 0
+ddfill 0 8257
+ddblt 0 6 3 13 5 0 5 2 12 4
+dddump 0
+ddfill 0 5579
+ddblt 0 7 2 14 4 0 5 2 12 4
+dddump 0
+ddfill 0 5231
+ddblt 0 7 1 14 3 0 5 2 12 4
+dddump 0
+ddfill 0 3524
+ddblt 0 8 2 15 4 0 5 2 12 4
+dddump 0
+ddfill 0 199
+ddblt 0 8 1 15 3 0 5 2 12 4
+dddump 0
+ddfill 0 5898
+ddblt 0 9 2 16 4 0 5 2 12 4
+dddump 0
+ddfill 0 290
+ddblt 0 9 1 16 3 0 5 2 12 4
+dddump 0
+ddfill 0 8443
+ddblt 0 10 2 17 4 0 5 2 12 4
+dddump 0
+ddfill 0 3223
+ddblt 0 10 1 17 3 0 5 2 12 4
+dddump 0
+ddfill 0 6323
+ddblt 0 6 2 14 4 0 5 2 13 4
+dddump 0
+ddfill 0 1895
+ddblt 0 6 1 14 3 0 5 2 13 4
+dddump 0
+ddfill 0 3510
+ddblt 0 6 3 14 5 0 5 2 13 4
+dddump 0
+ddfill 0 8016
+ddblt 0 7 2 15 4 0 5 2 13 4
+dddump 0
+ddfill 0 8572
+ddblt 0 7 1 15 3 0 5 2 13 4
+dddump 0
+ddfill 0 5076
+ddblt 0 8 2 16 4 0 5 2 13 4
+dddump 0
+ddfill 0 4646
+ddblt 0 8 1 16 3 0 5 2 13 4
+dddump 0
+ddfill 0 9201
+ddblt 0 9 2 17 4 0 5 2 13 4
+dddump 0
+ddfill 0 9754
+ddblt 0 9 1 17 3 0 5 2 13 4
+dddump 0
+ddfill 0 881
+ddblt 0 10 2 18 4 0 5 2 13 4
+dddump 0
+ddfill 0 2911
+ddblt 0 10 1 18 3 0 5 2 13 4
+dddump 0
+ddfill 0 3341
+ddblt 0 6 2 15 4 0 5 2 14 4
+dddump 0
+ddfill 0 3420
+ddblt 0 6 1 15 3 0 5 2 14 4
+dddump 0
+ddfill 0 7780
+ddblt 0 6 3 15 5 0 5 2 14 4
+dddump 0
+ddfill 0 8132
+ddblt 0 7 2 16 4 0 5 2 14 4
+dddump 0
+ddfill 0 396
+ddblt 0 7 1 16 3 0 5 2 14 4
+dddump 0
+ddfill 0 4338
+ddblt 0 8 2 17 4 0 5 2 14 4
+dddump 0
+ddfill 0 4594
+ddblt 0 8 1 17 3 0 5 2 14 4
+dddump 0
+ddfill 0 8287
+ddblt 0 9 2 18 4 0 5 2 14 4
+dddump 0
+ddfill 0 3478
+ddblt 0 9 1 18 3 0 5 2 14 4
+dddump 0
+ddfill 0 5755
+ddblt 0 10 2 19 4 0 5 2 14 4
+dddump 0
+ddfill 0 2396
+ddblt 0 10 1 19 3 0 5 2 14 4
+dddump 0
+ddfill 0 7157
+ddblt 0 6 2 19 4 0 5 2 18 4
+dddump 0
+ddfill 0 3523
+ddblt 0 6 1 19 3 0 5 2 18 4
+dddump 0
+ddfill 0 1591
+ddblt 0 6 3 19 5 0 5 2 18 4
+dddump 0
+ddfill 0 3347
+ddblt 0 7 2 20 4 0 5 2 18 4
+dddump 0
+ddfill 0 9256
+ddblt 0 7 1 20 3 0 5 2 18 4
+dddump 0
+ddfill 0 4365
+ddblt 0 8 2 21 4 0 5 2 18 4
+dddump 0
+ddfill 0 9472
+ddblt 0 8 1 21 3 0 5 2 18 4
+dddump 0
+ddfill 0 749
+ddblt 0 9 2 22 4 0 5 2 18 4
+dddump 0
+ddfill 0 5703
+ddblt 0 9 1 22 3 0 5 2 18 4
+dddump 0
+ddfill 0 8435
+ddblt 0 10 2 23 4 0 5 2 18 4
+dddump 0
+ddfill 0 3581
+ddblt 0 10 1 23 3 0 5 2 18 4
+dddump 0
+end
+case overlap8align-6
+dd
+ddsurf 0 32 6 8
+ddfill 0 6548
+ddblt 0 7 2 8 4 0 6 2 7 4
+dddump 0
+ddfill 0 259
+ddblt 0 7 1 8 3 0 6 2 7 4
+dddump 0
+ddfill 0 6953
+ddblt 0 7 3 8 5 0 6 2 7 4
+dddump 0
+ddfill 0 3726
+ddblt 0 8 2 9 4 0 6 2 7 4
+dddump 0
+ddfill 0 7193
+ddblt 0 8 1 9 3 0 6 2 7 4
+dddump 0
+ddfill 0 6411
+ddblt 0 9 2 10 4 0 6 2 7 4
+dddump 0
+ddfill 0 1617
+ddblt 0 9 1 10 3 0 6 2 7 4
+dddump 0
+ddfill 0 9194
+ddblt 0 10 2 11 4 0 6 2 7 4
+dddump 0
+ddfill 0 7573
+ddblt 0 10 1 11 3 0 6 2 7 4
+dddump 0
+ddfill 0 8813
+ddblt 0 11 2 12 4 0 6 2 7 4
+dddump 0
+ddfill 0 679
+ddblt 0 11 1 12 3 0 6 2 7 4
+dddump 0
+ddfill 0 8304
+ddblt 0 7 2 9 4 0 6 2 8 4
+dddump 0
+ddfill 0 3570
+ddblt 0 7 1 9 3 0 6 2 8 4
+dddump 0
+ddfill 0 8603
+ddblt 0 7 3 9 5 0 6 2 8 4
+dddump 0
+ddfill 0 4029
+ddblt 0 8 2 10 4 0 6 2 8 4
+dddump 0
+ddfill 0 9028
+ddblt 0 8 1 10 3 0 6 2 8 4
+dddump 0
+ddfill 0 9335
+ddblt 0 9 2 11 4 0 6 2 8 4
+dddump 0
+ddfill 0 7725
+ddblt 0 9 1 11 3 0 6 2 8 4
+dddump 0
+ddfill 0 8214
+ddblt 0 10 2 12 4 0 6 2 8 4
+dddump 0
+ddfill 0 6952
+ddblt 0 10 1 12 3 0 6 2 8 4
+dddump 0
+ddfill 0 5191
+ddblt 0 11 2 13 4 0 6 2 8 4
+dddump 0
+ddfill 0 4602
+ddblt 0 11 1 13 3 0 6 2 8 4
+dddump 0
+ddfill 0 9411
+ddblt 0 7 2 10 4 0 6 2 9 4
+dddump 0
+ddfill 0 484
+ddblt 0 7 1 10 3 0 6 2 9 4
+dddump 0
+ddfill 0 4413
+ddblt 0 7 3 10 5 0 6 2 9 4
+dddump 0
+ddfill 0 4656
+ddblt 0 8 2 11 4 0 6 2 9 4
+dddump 0
+ddfill 0 5527
+ddblt 0 8 1 11 3 0 6 2 9 4
+dddump 0
+ddfill 0 1959
+ddblt 0 9 2 12 4 0 6 2 9 4
+dddump 0
+ddfill 0 2858
+ddblt 0 9 1 12 3 0 6 2 9 4
+dddump 0
+ddfill 0 4560
+ddblt 0 10 2 13 4 0 6 2 9 4
+dddump 0
+ddfill 0 8958
+ddblt 0 10 1 13 3 0 6 2 9 4
+dddump 0
+ddfill 0 6812
+ddblt 0 11 2 14 4 0 6 2 9 4
+dddump 0
+ddfill 0 8098
+ddblt 0 11 1 14 3 0 6 2 9 4
+dddump 0
+ddfill 0 2660
+ddblt 0 7 2 11 4 0 6 2 10 4
+dddump 0
+ddfill 0 3078
+ddblt 0 7 1 11 3 0 6 2 10 4
+dddump 0
+ddfill 0 5091
+ddblt 0 7 3 11 5 0 6 2 10 4
+dddump 0
+ddfill 0 184
+ddblt 0 8 2 12 4 0 6 2 10 4
+dddump 0
+ddfill 0 4681
+ddblt 0 8 1 12 3 0 6 2 10 4
+dddump 0
+ddfill 0 6089
+ddblt 0 9 2 13 4 0 6 2 10 4
+dddump 0
+ddfill 0 2671
+ddblt 0 9 1 13 3 0 6 2 10 4
+dddump 0
+ddfill 0 9216
+ddblt 0 10 2 14 4 0 6 2 10 4
+dddump 0
+ddfill 0 555
+ddblt 0 10 1 14 3 0 6 2 10 4
+dddump 0
+ddfill 0 865
+ddblt 0 11 2 15 4 0 6 2 10 4
+dddump 0
+ddfill 0 3126
+ddblt 0 11 1 15 3 0 6 2 10 4
+dddump 0
+ddfill 0 3804
+ddblt 0 7 2 12 4 0 6 2 11 4
+dddump 0
+ddfill 0 5218
+ddblt 0 7 1 12 3 0 6 2 11 4
+dddump 0
+ddfill 0 2494
+ddblt 0 7 3 12 5 0 6 2 11 4
+dddump 0
+ddfill 0 8987
+ddblt 0 8 2 13 4 0 6 2 11 4
+dddump 0
+ddfill 0 4114
+ddblt 0 8 1 13 3 0 6 2 11 4
+dddump 0
+ddfill 0 7484
+ddblt 0 9 2 14 4 0 6 2 11 4
+dddump 0
+ddfill 0 701
+ddblt 0 9 1 14 3 0 6 2 11 4
+dddump 0
+ddfill 0 4570
+ddblt 0 10 2 15 4 0 6 2 11 4
+dddump 0
+ddfill 0 2974
+ddblt 0 10 1 15 3 0 6 2 11 4
+dddump 0
+ddfill 0 9896
+ddblt 0 11 2 16 4 0 6 2 11 4
+dddump 0
+ddfill 0 7388
+ddblt 0 11 1 16 3 0 6 2 11 4
+dddump 0
+ddfill 0 58
+ddblt 0 7 2 14 4 0 6 2 13 4
+dddump 0
+ddfill 0 2008
+ddblt 0 7 1 14 3 0 6 2 13 4
+dddump 0
+ddfill 0 1731
+ddblt 0 7 3 14 5 0 6 2 13 4
+dddump 0
+ddfill 0 5032
+ddblt 0 8 2 15 4 0 6 2 13 4
+dddump 0
+ddfill 0 2599
+ddblt 0 8 1 15 3 0 6 2 13 4
+dddump 0
+ddfill 0 5771
+ddblt 0 9 2 16 4 0 6 2 13 4
+dddump 0
+ddfill 0 3379
+ddblt 0 9 1 16 3 0 6 2 13 4
+dddump 0
+ddfill 0 5634
+ddblt 0 10 2 17 4 0 6 2 13 4
+dddump 0
+ddfill 0 799
+ddblt 0 10 1 17 3 0 6 2 13 4
+dddump 0
+ddfill 0 468
+ddblt 0 11 2 18 4 0 6 2 13 4
+dddump 0
+ddfill 0 9214
+ddblt 0 11 1 18 3 0 6 2 13 4
+dddump 0
+ddfill 0 8735
+ddblt 0 7 2 15 4 0 6 2 14 4
+dddump 0
+ddfill 0 8725
+ddblt 0 7 1 15 3 0 6 2 14 4
+dddump 0
+ddfill 0 9349
+ddblt 0 7 3 15 5 0 6 2 14 4
+dddump 0
+ddfill 0 2630
+ddblt 0 8 2 16 4 0 6 2 14 4
+dddump 0
+ddfill 0 6208
+ddblt 0 8 1 16 3 0 6 2 14 4
+dddump 0
+ddfill 0 6168
+ddblt 0 9 2 17 4 0 6 2 14 4
+dddump 0
+ddfill 0 196
+ddblt 0 9 1 17 3 0 6 2 14 4
+dddump 0
+ddfill 0 8762
+ddblt 0 10 2 18 4 0 6 2 14 4
+dddump 0
+ddfill 0 3969
+ddblt 0 10 1 18 3 0 6 2 14 4
+dddump 0
+ddfill 0 2290
+ddblt 0 11 2 19 4 0 6 2 14 4
+dddump 0
+ddfill 0 8582
+ddblt 0 11 1 19 3 0 6 2 14 4
+dddump 0
+ddfill 0 9169
+ddblt 0 7 2 16 4 0 6 2 15 4
+dddump 0
+ddfill 0 2417
+ddblt 0 7 1 16 3 0 6 2 15 4
+dddump 0
+ddfill 0 5384
+ddblt 0 7 3 16 5 0 6 2 15 4
+dddump 0
+ddfill 0 5126
+ddblt 0 8 2 17 4 0 6 2 15 4
+dddump 0
+ddfill 0 7758
+ddblt 0 8 1 17 3 0 6 2 15 4
+dddump 0
+ddfill 0 2215
+ddblt 0 9 2 18 4 0 6 2 15 4
+dddump 0
+ddfill 0 8967
+ddblt 0 9 1 18 3 0 6 2 15 4
+dddump 0
+ddfill 0 3795
+ddblt 0 10 2 19 4 0 6 2 15 4
+dddump 0
+ddfill 0 4033
+ddblt 0 10 1 19 3 0 6 2 15 4
+dddump 0
+ddfill 0 9149
+ddblt 0 11 2 20 4 0 6 2 15 4
+dddump 0
+ddfill 0 760
+ddblt 0 11 1 20 3 0 6 2 15 4
+dddump 0
+ddfill 0 947
+ddblt 0 7 2 20 4 0 6 2 19 4
+dddump 0
+ddfill 0 9821
+ddblt 0 7 1 20 3 0 6 2 19 4
+dddump 0
+ddfill 0 743
+ddblt 0 7 3 20 5 0 6 2 19 4
+dddump 0
+ddfill 0 2862
+ddblt 0 8 2 21 4 0 6 2 19 4
+dddump 0
+ddfill 0 9324
+ddblt 0 8 1 21 3 0 6 2 19 4
+dddump 0
+ddfill 0 5810
+ddblt 0 9 2 22 4 0 6 2 19 4
+dddump 0
+ddfill 0 1572
+ddblt 0 9 1 22 3 0 6 2 19 4
+dddump 0
+ddfill 0 9234
+ddblt 0 10 2 23 4 0 6 2 19 4
+dddump 0
+ddfill 0 5842
+ddblt 0 10 1 23 3 0 6 2 19 4
+dddump 0
+ddfill 0 8054
+ddblt 0 11 2 24 4 0 6 2 19 4
+dddump 0
+ddfill 0 3859
+ddblt 0 11 1 24 3 0 6 2 19 4
+dddump 0
+end
+case overlap8align-7
+dd
+ddsurf 0 32 6 8
+ddfill 0 5300
+ddblt 0 8 2 9 4 0 7 2 8 4
+dddump 0
+ddfill 0 7833
+ddblt 0 8 1 9 3 0 7 2 8 4
+dddump 0
+ddfill 0 3703
+ddblt 0 8 3 9 5 0 7 2 8 4
+dddump 0
+ddfill 0 4559
+ddblt 0 9 2 10 4 0 7 2 8 4
+dddump 0
+ddfill 0 6777
+ddblt 0 9 1 10 3 0 7 2 8 4
+dddump 0
+ddfill 0 9163
+ddblt 0 10 2 11 4 0 7 2 8 4
+dddump 0
+ddfill 0 9374
+ddblt 0 10 1 11 3 0 7 2 8 4
+dddump 0
+ddfill 0 1151
+ddblt 0 11 2 12 4 0 7 2 8 4
+dddump 0
+ddfill 0 9406
+ddblt 0 11 1 12 3 0 7 2 8 4
+dddump 0
+ddfill 0 2339
+ddblt 0 12 2 13 4 0 7 2 8 4
+dddump 0
+ddfill 0 5115
+ddblt 0 12 1 13 3 0 7 2 8 4
+dddump 0
+ddfill 0 3462
+ddblt 0 8 2 10 4 0 7 2 9 4
+dddump 0
+ddfill 0 6744
+ddblt 0 8 1 10 3 0 7 2 9 4
+dddump 0
+ddfill 0 3783
+ddblt 0 8 3 10 5 0 7 2 9 4
+dddump 0
+ddfill 0 2521
+ddblt 0 9 2 11 4 0 7 2 9 4
+dddump 0
+ddfill 0 3016
+ddblt 0 9 1 11 3 0 7 2 9 4
+dddump 0
+ddfill 0 2126
+ddblt 0 10 2 12 4 0 7 2 9 4
+dddump 0
+ddfill 0 6457
+ddblt 0 10 1 12 3 0 7 2 9 4
+dddump 0
+ddfill 0 4032
+ddblt 0 11 2 13 4 0 7 2 9 4
+dddump 0
+ddfill 0 6269
+ddblt 0 11 1 13 3 0 7 2 9 4
+dddump 0
+ddfill 0 1068
+ddblt 0 12 2 14 4 0 7 2 9 4
+dddump 0
+ddfill 0 9696
+ddblt 0 12 1 14 3 0 7 2 9 4
+dddump 0
+ddfill 0 3190
+ddblt 0 8 2 11 4 0 7 2 10 4
+dddump 0
+ddfill 0 9640
+ddblt 0 8 1 11 3 0 7 2 10 4
+dddump 0
+ddfill 0 4391
+ddblt 0 8 3 11 5 0 7 2 10 4
+dddump 0
+ddfill 0 8133
+ddblt 0 9 2 12 4 0 7 2 10 4
+dddump 0
+ddfill 0 2371
+ddblt 0 9 1 12 3 0 7 2 10 4
+dddump 0
+ddfill 0 7750
+ddblt 0 10 2 13 4 0 7 2 10 4
+dddump 0
+ddfill 0 4175
+ddblt 0 10 1 13 3 0 7 2 10 4
+dddump 0
+ddfill 0 6782
+ddblt 0 11 2 14 4 0 7 2 10 4
+dddump 0
+ddfill 0 9015
+ddblt 0 11 1 14 3 0 7 2 10 4
+dddump 0
+ddfill 0 3725
+ddblt 0 12 2 15 4 0 7 2 10 4
+dddump 0
+ddfill 0 5942
+ddblt 0 12 1 15 3 0 7 2 10 4
+dddump 0
+ddfill 0 1594
+ddblt 0 8 2 12 4 0 7 2 11 4
+dddump 0
+ddfill 0 8788
+ddblt 0 8 1 12 3 0 7 2 11 4
+dddump 0
+ddfill 0 3807
+ddblt 0 8 3 12 5 0 7 2 11 4
+dddump 0
+ddfill 0 667
+ddblt 0 9 2 13 4 0 7 2 11 4
+dddump 0
+ddfill 0 1888
+ddblt 0 9 1 13 3 0 7 2 11 4
+dddump 0
+ddfill 0 8744
+ddblt 0 10 2 14 4 0 7 2 11 4
+dddump 0
+ddfill 0 5311
+ddblt 0 10 1 14 3 0 7 2 11 4
+dddump 0
+ddfill 0 7392
+ddblt 0 11 2 15 4 0 7 2 11 4
+dddump 0
+ddfill 0 5106
+ddblt 0 11 1 15 3 0 7 2 11 4
+dddump 0
+ddfill 0 9499
+ddblt 0 12 2 16 4 0 7 2 11 4
+dddump 0
+ddfill 0 8385
+ddblt 0 12 1 16 3 0 7 2 11 4
+dddump 0
+ddfill 0 7388
+ddblt 0 8 2 13 4 0 7 2 12 4
+dddump 0
+ddfill 0 9655
+ddblt 0 8 1 13 3 0 7 2 12 4
+dddump 0
+ddfill 0 2304
+ddblt 0 8 3 13 5 0 7 2 12 4
+dddump 0
+ddfill 0 6408
+ddblt 0 9 2 14 4 0 7 2 12 4
+dddump 0
+ddfill 0 3828
+ddblt 0 9 1 14 3 0 7 2 12 4
+dddump 0
+ddfill 0 8162
+ddblt 0 10 2 15 4 0 7 2 12 4
+dddump 0
+ddfill 0 260
+ddblt 0 10 1 15 3 0 7 2 12 4
+dddump 0
+ddfill 0 3465
+ddblt 0 11 2 16 4 0 7 2 12 4
+dddump 0
+ddfill 0 5280
+ddblt 0 11 1 16 3 0 7 2 12 4
+dddump 0
+ddfill 0 9877
+ddblt 0 12 2 17 4 0 7 2 12 4
+dddump 0
+ddfill 0 4725
+ddblt 0 12 1 17 3 0 7 2 12 4
+dddump 0
+ddfill 0 9155
+ddblt 0 8 2 15 4 0 7 2 14 4
+dddump 0
+ddfill 0 9851
+ddblt 0 8 1 15 3 0 7 2 14 4
+dddump 0
+ddfill 0 2847
+ddblt 0 8 3 15 5 0 7 2 14 4
+dddump 0
+ddfill 0 3440
+ddblt 0 9 2 16 4 0 7 2 14 4
+dddump 0
+ddfill 0 5718
+ddblt 0 9 1 16 3 0 7 2 14 4
+dddump 0
+ddfill 0 5342
+ddblt 0 10 2 17 4 0 7 2 14 4
+dddump 0
+ddfill 0 457
+ddblt 0 10 1 17 3 0 7 2 14 4
+dddump 0
+ddfill 0 7597
+ddblt 0 11 2 18 4 0 7 2 14 4
+dddump 0
+ddfill 0 7091
+ddblt 0 11 1 18 3 0 7 2 14 4
+dddump 0
+ddfill 0 945
+ddblt 0 12 2 19 4 0 7 2 14 4
+dddump 0
+ddfill 0 3092
+ddblt 0 12 1 19 3 0 7 2 14 4
+dddump 0
+ddfill 0 9765
+ddblt 0 8 2 16 4 0 7 2 15 4
+dddump 0
+ddfill 0 4264
+ddblt 0 8 1 16 3 0 7 2 15 4
+dddump 0
+ddfill 0 7927
+ddblt 0 8 3 16 5 0 7 2 15 4
+dddump 0
+ddfill 0 8935
+ddblt 0 9 2 17 4 0 7 2 15 4
+dddump 0
+ddfill 0 2758
+ddblt 0 9 1 17 3 0 7 2 15 4
+dddump 0
+ddfill 0 3650
+ddblt 0 10 2 18 4 0 7 2 15 4
+dddump 0
+ddfill 0 9527
+ddblt 0 10 1 18 3 0 7 2 15 4
+dddump 0
+ddfill 0 4011
+ddblt 0 11 2 19 4 0 7 2 15 4
+dddump 0
+ddfill 0 5003
+ddblt 0 11 1 19 3 0 7 2 15 4
+dddump 0
+ddfill 0 4209
+ddblt 0 12 2 20 4 0 7 2 15 4
+dddump 0
+ddfill 0 5017
+ddblt 0 12 1 20 3 0 7 2 15 4
+dddump 0
+ddfill 0 630
+ddblt 0 8 2 17 4 0 7 2 16 4
+dddump 0
+ddfill 0 4718
+ddblt 0 8 1 17 3 0 7 2 16 4
+dddump 0
+ddfill 0 1571
+ddblt 0 8 3 17 5 0 7 2 16 4
+dddump 0
+ddfill 0 5847
+ddblt 0 9 2 18 4 0 7 2 16 4
+dddump 0
+ddfill 0 240
+ddblt 0 9 1 18 3 0 7 2 16 4
+dddump 0
+ddfill 0 9144
+ddblt 0 10 2 19 4 0 7 2 16 4
+dddump 0
+ddfill 0 2625
+ddblt 0 10 1 19 3 0 7 2 16 4
+dddump 0
+ddfill 0 2378
+ddblt 0 11 2 20 4 0 7 2 16 4
+dddump 0
+ddfill 0 8542
+ddblt 0 11 1 20 3 0 7 2 16 4
+dddump 0
+ddfill 0 803
+ddblt 0 12 2 21 4 0 7 2 16 4
+dddump 0
+ddfill 0 565
+ddblt 0 12 1 21 3 0 7 2 16 4
+dddump 0
+ddfill 0 1289
+ddblt 0 8 2 21 4 0 7 2 20 4
+dddump 0
+ddfill 0 718
+ddblt 0 8 1 21 3 0 7 2 20 4
+dddump 0
+ddfill 0 6864
+ddblt 0 8 3 21 5 0 7 2 20 4
+dddump 0
+ddfill 0 4568
+ddblt 0 9 2 22 4 0 7 2 20 4
+dddump 0
+ddfill 0 8646
+ddblt 0 9 1 22 3 0 7 2 20 4
+dddump 0
+ddfill 0 3130
+ddblt 0 10 2 23 4 0 7 2 20 4
+dddump 0
+ddfill 0 3617
+ddblt 0 10 1 23 3 0 7 2 20 4
+dddump 0
+ddfill 0 4424
+ddblt 0 11 2 24 4 0 7 2 20 4
+dddump 0
+ddfill 0 8421
+ddblt 0 11 1 24 3 0 7 2 20 4
+dddump 0
+ddfill 0 8369
+ddblt 0 12 2 25 4 0 7 2 20 4
+dddump 0
+ddfill 0 7991
+ddblt 0 12 1 25 3 0 7 2 20 4
+dddump 0
+end
 case stretchx-8
 dd
 ddsurf 0 20 1 8
