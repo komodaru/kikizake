@@ -945,9 +945,9 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// the size limit of a single 2D texture of one level
 const SINGLE2D_MAX: u32 = 1 << 23;
 
-/// the largest frame latency SetMaximumFrameLatency takes (40 taken, 44 not; fitted by
-/// chain-edge5-latency-*)
-const LATENCY_MAX: u32 = 43;
+/// the largest frame latency SetMaximumFrameLatency takes (MEASURED, golden dxgi-*
+/// chain-edge*-latency-*: 40 taken, 41 not)
+const LATENCY_MAX: u32 = 40;
 
 /// the bytes of buffers a 32-bit process runs out of memory making a swap chain of (16384 x 14000
 /// x 2 taken, 16384 x 14250 x 2 not: the first measured that failed, golden dxgi-32 chain-edge*-size-*)
