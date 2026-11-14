@@ -297,7 +297,9 @@ fn fant_spends_every_source_span() {
 
 proptest! {
     /// a filter of only nonnegative weights (Linear, Fant) keeps every channel between the
-    /// source's least and greatest; every filter keeps a flat picture flat
+    /// source's least and greatest; every filter keeps a flat picture flat, but Cubic down,
+    /// whose four floored products may lose up to a level (MEASURED: Windows' flat columns come
+    /// out one lower), never more and never higher
     #[test]
     fn filters_stay_in_range(w in 1u32..7, h in 1u32..7, dw in 1u32..12, dh in 1u32..12, seed in 0u32..1000, flat in 0u8..=255) {
         for m in ["linear", "fant", "cubic", "hqcubic"] {
@@ -312,7 +314,8 @@ proptest! {
             let mut f = s.clone();
             f.px.fill(flat);
             if let Ok(o) = wi::scale(&f, dw, dh, m) {
-                prop_assert!(o.px.iter().all(|&v| v == flat), "{} flat {} {:?}", m, flat, o.px);
+                let low = if m == "cubic" && dh != h { flat.saturating_sub(1) } else { flat };
+                prop_assert!(o.px.iter().all(|&v| low <= v && v <= flat), "{} flat {} {:?}", m, flat, o.px);
             }
         }
     }

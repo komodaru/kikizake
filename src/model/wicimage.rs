@@ -267,9 +267,6 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     let ost = o.stride();
     match mode {
         "linear" | "cubic" => {
-            if mode == "cubic" && h != s.h {
-                return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_CUBIC_VERTICAL));
-            }
             // (MEASURED: across, then down, each pass truncated to 8 bits)
             let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
             let mut mid = vec![0i64; ow * s.h as usize * c];
@@ -284,8 +281,18 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
             for (y, t) in ty.taps.iter().enumerate() {
                 for x in 0..ow {
                     for k in 0..c {
-                        let v: i64 = t.iter().map(|&(j, wt)| wt * mid[(j * ow + x) * c + k]).sum();
-                        o.px[y * ost + x * c + k] = v.div_euclid(ty.den).clamp(0, 255) as u8;
+                        let m = |j: usize| mid[(j * ow + x) * c + k];
+                        let v: i64 = match mode {
+                            // MEASURED (golden wicscale vcols-cubic-*, 19520 samples as Windows): down,
+                            // Cubic's weights halved to 15 bits, each product floored to 1/4, the sum
+                            // floored
+                            "cubic" => {
+                                hit(clause::WICIMAGE_SCALE_CUBIC_VERTICAL);
+                                t.iter().map(|&(j, wt)| ((wt >> 1) * m(j)) >> 13).sum::<i64>() >> 2
+                            }
+                            _ => t.iter().map(|&(j, wt)| wt * m(j)).sum::<i64>().div_euclid(ty.den),
+                        };
+                        o.px[y * ost + x * c + k] = v.clamp(0, 255) as u8;
                     }
                 }
             }
