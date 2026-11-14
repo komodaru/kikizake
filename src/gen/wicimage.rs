@@ -1256,6 +1256,10 @@ pub fn wicencode() -> String {
         for (name, ct, rows, bpp) in [("gray16", 0u8, g, 2usize), ("rgb48", 2, c, 6), ("rgba64", 6, a, 8)] {
             let f = png(w, h, 16, ct, false, &[], &png_filter(&rows, bpp, &[0]), 4096);
             writeln!(s, "case fixed-{name}-{tag}\nwdecode {}\nwframe 0\nwinfo\nwconv rgba64fixed\nwpixels\nend", hex(&f)).unwrap();
+            // (and into the float formats the Fant scaler works in)
+            for to in ["grayfloat", "rgbafloat", "prgbafloat", "rgbfloat"] {
+                writeln!(s, "case float-{name}-{tag}-{to}\nwdecode {}\nwframe 0\nwconv {to}\nwpixels\nend", hex(&f)).unwrap();
+            }
         }
     }
     // a gray ramp and random pictures of 2 to 300 colors into 8bppIndexed: the palette chosen
