@@ -352,3 +352,66 @@ pub fn d3d7shade() -> String {
     }
     s
 }
+
+/// a vertex on the 16th grid: x, y in 16ths of a pixel
+#[derive(Clone, Copy)]
+struct V16 {
+    x: i64,
+    y: i64,
+}
+
+/// the edge from `t` (above) to `b`: its x at the first row at or below t, in 16ths, when that
+/// is a whole pixel
+fn x_at_first_row(t: V16, b: V16) -> Option<i64> {
+    let row = (t.y + 15).div_euclid(16) * 16;
+    let num = (t.x * (b.y - t.y) + (b.x - t.x) * (row - t.y)) * 16;
+    let den = (b.y - t.y) * 16;
+    (num % (den * 16) == 0).then(|| num / den)
+}
+
+/// the edges the d3d7rast scans found shifted: vertices on pixel centers at each row, edges whose
+/// x is a whole pixel on their first row (short and long), on the RGB and MMX devices
+pub fn d3d7edge() -> String {
+    let mut s = String::from("# kikizake suite d3d7edge: Direct3D 7 software rasterizer edges (SPEC.md). Made by `kikizake gen d3d7edge`.\n# x86 only\n");
+    let mut r = XorShift32::new(0x00d3_d7ed);
+    let tri = |a: V16, b: V16, c: V16| format!("d3dclear 0xff000000\nd3dtri 0xffffffff {} {} {} {} {} {}\nd3ddump", a.x, a.y, b.x, b.y, c.x, c.y);
+    for dev in ["rgb", "mmx"] {
+        // a vertex on a pixel center at each row as the top, middle and bottom vertex
+        for role in ["top", "mid", "bot"] {
+            writeln!(s, "case center-{dev}-{role}\nd3d 7\nd3ddev {dev} 565 12 12\nd3drs set 22 1").unwrap();
+            for row in 0..10 {
+                for _ in 0..6 {
+                    let c = V16 { x: r.range(2, 9) * 16, y: row * 16 };
+                    let (a, b) = match role {
+                        "top" => (V16 { x: r.range(0, 191), y: r.range(row * 16 + 8, 191) }, V16 { x: r.range(0, 191), y: r.range(row * 16 + 8, 191) }),
+                        "mid" => (V16 { x: r.range(0, 191), y: r.range(0, (row * 16 - 4).max(0)) }, V16 { x: r.range(0, 191), y: r.range(row * 16 + 8, 191) }),
+                        _ => (V16 { x: r.range(0, 191), y: r.range(0, (row * 16 - 8).max(0)) }, V16 { x: r.range(0, 191), y: r.range(0, (row * 16 - 8).max(0)) }),
+                    };
+                    writeln!(s, "{}", tri(c, a, b)).unwrap();
+                }
+            }
+            writeln!(s, "end").unwrap();
+        }
+        // an edge whose x is a whole pixel on its first row, its top off the rows: as the
+        // short edge (third vertex below its top, above its bottom) and as the long edge
+        for kind in ["short", "long"] {
+            writeln!(s, "case whole-{dev}-{kind}\nd3d 7\nd3ddev {dev} 565 12 12\nd3drs set 22 1").unwrap();
+            let mut n = 0;
+            while n < 96 {
+                let t = V16 { x: r.range(0, 191), y: r.range(0, 120) };
+                let b = V16 { x: r.range(0, 191), y: r.range(t.y + 24, 191) };
+                if t.y % 16 == 0 || x_at_first_row(t, b).is_none() {
+                    continue;
+                }
+                let third = if kind == "short" { V16 { x: r.range(0, 191), y: r.range(b.y + 1, 192) } } else { V16 { x: r.range(0, 191), y: r.range(t.y + 1, b.y - 1) } };
+                if third.y > 191 || third.y == b.y {
+                    continue;
+                }
+                writeln!(s, "{}", tri(t, b, third)).unwrap();
+                n += 1;
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
+    s
+}
