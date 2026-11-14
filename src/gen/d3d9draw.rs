@@ -705,6 +705,28 @@ fn suite(v8: bool) -> String {
         let (a, b) = ((q(), q()), (q(), q()));
         line(&mut s, &format!("line-random-{i}"), a, b);
     }
+    // (D3D9.DRAW.POINTSLINES) lines from past the target's edge to a point inside; 45-degree lines
+    // along diamond edges of each length from 1 to 12, both ways, on both diagonals
+    let mut r = XorShift32(0x11e5_c11b);
+    for i in 0..48 {
+        let mut q = |lo: i64, hi: i64| r.range(lo, hi) as f32 / 4.0;
+        let a = match i % 4 {
+            0 => (q(-12, -3), q(-4, 68)),
+            1 => (q(63, 76), q(-4, 68)),
+            2 => (q(-4, 68), q(-12, -3)),
+            _ => (q(-4, 68), q(63, 76)),
+        };
+        let b = (q(0, 61), q(0, 61));
+        line(&mut s, &format!("line-clip-{i}"), a, b);
+    }
+    for len in 1..=12 {
+        let x = (len % 3) as f32 + 1.0;
+        let y = x + 0.5;
+        line(&mut s, &format!("line-edge-{len}"), (x, y), (x + len as f32, y + len as f32));
+        line(&mut s, &format!("line-edge-back-{len}"), (x + len as f32, y + len as f32), (x, y));
+        line(&mut s, &format!("line-edge-anti-{len}"), (14.0 - x, y), (14.0 - x - len as f32, y + len as f32));
+        line(&mut s, &format!("line-edge-anti-back-{len}"), (14.0 - x - len as f32, y + len as f32), (14.0 - x, y));
+    }
     s
 }
 
