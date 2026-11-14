@@ -3424,6 +3424,16 @@ px 0 8 8 8
 0000000000000000
 0000000000000000
 0000000000000000
+case polyshort
+beginpath 1
+ret 0
+ret 0
+pos 0 0
+ret 1
+endpath 1
+path 2
+pt 1 1 6
+pt 5 2 2
 case miter
 miter 1 10000
 miter 0 -1000

@@ -8498,6 +8498,24 @@ case selclip-none-5
 clip 3
 selclip 2
 clipbox 2 0 0 6 4
+case selclip-mode-0
+selclip 0
+clipbox 2 0 0 6 4
+clip 3
+selclip 0
+clipbox 2 1 1 4 3
+case selclip-mode-6
+selclip 0
+clipbox 2 0 0 6 4
+clip 3
+selclip 0
+clipbox 2 1 1 4 3
+case selclip-mode--1
+selclip 0
+clipbox 2 0 0 6 4
+clip 3
+selclip 0
+clipbox 2 1 1 4 3
 case selclip-null
 selclip 1
 clipbox 1 0 0 0 0
