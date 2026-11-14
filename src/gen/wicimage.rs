@@ -913,6 +913,16 @@ pub fn wicdecode() -> String {
         let c = icon_bmp(&mut r, 3, 3, 32);
         let d = icon_bmp(&mut r, 6, 2, 1);
         decode_case(&mut s, "ico-order-mixed", &ico(&[(5, 5, 24, a), (2, 2, 32, p), (3, 3, 32, c), (6, 2, 1, d)]), 4, false);
+        // (PNG entries of small sizes alone, with filters none and up, and beside a BMP entry)
+        for (w, h) in [(1, 1), (2, 2), (2, 3), (3, 2), (4, 4), (1, 5)] {
+            for f in [0u8, 2] {
+                let raw: Vec<Vec<u8>> = (0..h).map(|_| bytes(&mut r, w as usize * 4)).collect();
+                let p = png(w, h, 8, 6, false, &[], &png_filter(&raw, 4, &[f]), 100);
+                decode_case(&mut s, &format!("ico-png-{w}x{h}-{f}"), &ico(&[(w, h, 32, p.clone())]), 1, false);
+                let b = icon_bmp(&mut r, 3, 3, 32);
+                decode_case(&mut s, &format!("ico-png-{w}x{h}-{f}-bmp"), &ico(&[(w, h, 32, p), (3, 3, 32, b)]), 2, false);
+            }
+        }
         // (a directory that says 0 bits)
         let a = icon_bmp(&mut r, 3, 3, 8);
         let b = icon_bmp(&mut r, 2, 2, 4);

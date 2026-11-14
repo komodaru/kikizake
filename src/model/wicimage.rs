@@ -1295,8 +1295,11 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         };
         entries.push((bpp, w * h, ico_entry(d)));
     }
-    // ASSUMED (golden wicdecode ico-three, one file): the frames deepest first, then smallest
-    entries.sort_by_key(|e| (std::cmp::Reverse(e.0), e.1));
+    // MEASURED (golden wicdecode ico-three, ico-order-*: the same sizes in every depth, the same
+    // depth in every size, PNG and BMP entries, directories that say 0 bits): the frames by the
+    // entries' own depth, deepest first, and of one depth the last in the file first (not by size)
+    entries.reverse();
+    entries.sort_by_key(|e| std::cmp::Reverse(e.0));
     hit("WICIMAGE.ICO.ORDER");
     let frames = entries.into_iter().map(|e| e.2).collect();
     hit("WICIMAGE.ICO");

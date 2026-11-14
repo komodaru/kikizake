@@ -69,7 +69,7 @@ WICIMAGE.TIFF.RESOLUTION measured | TIFF 6.0 | the rationals' integer quotients:
 WICIMAGE.ICO doc | ICO Format Overview (decoder: 32bppBGRA) | each directory entry a frame of 32bppBGRA
 WICIMAGE.ICO.PNG doc | ICO Format Overview | a PNG entry: the PNG converted to 32bppBGRA
 WICIMAGE.ICO.BMP assumed | ICO Format Overview | a BMP entry (height doubled, colors then the AND mask, bottom-up): the colors with alpha from 32-bit colors when any is set, else from the mask: where it is 1, transparent black
-WICIMAGE.ICO.ORDER assumed | (none) | the frames deepest first, then smallest (golden wicdecode ico-three)
+WICIMAGE.ICO.ORDER measured | (none) | the frames by each entry's own depth (a BMP header's, a PNG's IHDR, not the directory's), deepest first, and of one depth the last in the file first, whatever their sizes (golden wicdecode ico-three, ico-order-size/depth/mixed/zero: 15 frames, all as Windows)
 WICIMAGE.ICO.DEPTH measured | (none) | a 16-bit BMP entry: 555 widened by repeating bits (golden wicdecode ico-bmp-16)
 WICIMAGE.DDS measured | DDS Format Overview (BC1-3 as 32bppBGRA or 32bppPBGRA); Texture Block Compression in Direct3D 11 | each mip level a frame, BC1 of 32bppPBGRA, BC2 and BC3 of 32bppBGRA; colors interpolated in their 5 and 6-bit values then scaled to 8 bits and rounded, round((p c0 + q c1) / d * 255 / max); BC1 3-color blocks' fourth entry transparent black; BC2 alpha times 17; BC3 alphas (p a0 + q a1 + d / 2) / d (golden wicdecode dds-*: 522 color samples)
 WICIMAGE.DDS.OTHER measured | DDS Format Overview (only BC1, BC2, BC3) | an uncompressed file: WINCODEC_ERR_BADHEADER from the decoder (golden wicdecode dds-argb)
