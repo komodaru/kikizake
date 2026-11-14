@@ -962,6 +962,23 @@ pub fn wicdecode() -> String {
                 decode_case(&mut s, &format!("ico-png-{w}x{h}-{f}-bmp"), &ico(&[(w, h, 32, p), (3, 3, 32, b)]), 2, false);
             }
         }
+        // (small PNG entries: every size from 1 to 8 pixels and two larger, beside BMP entries
+        // of 1x1, 3x3 and 8x8 (32 bits) and 3x3 (8 bits), before and after them, the PNG
+        // padded with an ancillary chunk or not)
+        let mut r2 = XorShift32::new(0x1c0e);
+        for (w, h) in [(1u32, 1u32), (2, 1), (1, 2), (3, 1), (1, 3), (2, 2), (4, 1), (1, 4), (5, 1), (1, 5), (6, 1), (1, 6), (2, 3), (3, 2), (7, 1), (8, 1), (2, 4), (3, 3), (4, 4)] {
+            for (bw, bb) in [(1u32, 32u32), (3, 32), (8, 32), (3, 8)] {
+                for pad in [false, true] {
+                    let raw: Vec<Vec<u8>> = (0..h).map(|_| bytes(&mut r2, w as usize * 4)).collect();
+                    let extra: Vec<(&[u8; 4], Vec<u8>)> = if pad { vec![(b"tEXt", vec![b'k', 0].into_iter().chain((0..200).map(|i| b'a' + (i % 26) as u8)).collect())] } else { vec![] };
+                    let p = png(w, h, 8, 6, false, &extra, &png_filter(&raw, 4, &[0]), 100);
+                    let b = icon_bmp(&mut r2, bw, bw, bb);
+                    let pd = if pad { "-pad" } else { "" };
+                    decode_case(&mut s, &format!("icosmall-{w}x{h}-b{bw}x{bb}{pd}"), &ico(&[(w, h, 32, p.clone()), (bw, bw, bb, b.clone())]), 2, false);
+                    decode_case(&mut s, &format!("icosmall-b{bw}x{bb}-{w}x{h}{pd}"), &ico(&[(bw, bw, bb, b), (w, h, 32, p)]), 2, false);
+                }
+            }
+        }
         // (a directory that says 0 bits)
         let a = icon_bmp(&mut r, 3, 3, 8);
         let b = icon_bmp(&mut r, 2, 2, 4);
