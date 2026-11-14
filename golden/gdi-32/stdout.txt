@@ -7589,7 +7589,7 @@ a505c143e5b7e3e1853137d9a1da7bcb522509b0b898d941
 cc55e32f00ff000000ff000000ff000000ff00006e868d6f
 c2f25d06a2bd5c1232fa30640e14ee7bbe9c3e8efabf3398
 case edge-dib-2bpp
-dib failed 126
+dib failed 0
 case edge-negative-0
 ret 1
 px 0 8 4 32
