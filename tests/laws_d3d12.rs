@@ -185,3 +185,24 @@ fn buffer_rules_are_the_documented_ones() {
         }
     }
 }
+
+/// the suites stay answered: no case the model leaves unmodeled but the open clauses' (the
+/// comparison passes over an unmodeled case, so a model arm deleted would go unseen otherwise)
+#[test]
+fn suites_stay_modeled() {
+    use kikizake::case::parse_cases;
+    use kikizake::gen;
+    use kikizake::model::{self, run_case, Fail};
+    for s in ["d3d12", "dxgi", "d3d12rm"] {
+        let cases = parse_cases(&gen::suite(s).unwrap());
+        for arch in [32, 64] {
+            model::set_arch(arch);
+            let un: Vec<_> = cases.iter().filter_map(|c| match run_case(c) {
+                Err(Fail::Unmodeled(id)) => Some(id),
+                _ => None,
+            }).collect();
+            assert!(un.iter().all(|id| *id == "DXGI.COLORSPACE"), "{s}-{arch}: {un:?}");
+        }
+    }
+    model::set_arch(32);
+}
