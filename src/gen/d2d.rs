@@ -40,6 +40,7 @@ pub fn d2d() -> String {
     clipfit(&mut s);
     huge(&mut s);
     brushworld(&mut s, &mut r);
+    strokefit(&mut s, &mut r);
     s
 }
 
@@ -731,6 +732,19 @@ fn brushworld(s: &mut String, r: &mut XorShift32) {
     for w in worlds {
         for b in brushes {
             writeln!(s, "case bbrushwx-{i}\nd2target 16 8\nd2aa aliased\nd2xform {w}\nd2bmp 0 3 3 {}\nd2bbrush 0 -16 -16 32 32 wrap wrap linear {b}\nd2read\nend", bitmap(r, 3, 3)).unwrap();
+            i += 1;
+        }
+    }
+}
+
+/// DrawGeometry on straight closed figures (miter joins, sharp corners past the miter limit),
+/// open figures, aliased and antialiased, through transforms
+fn strokefit(s: &mut String, r: &mut XorShift32) {
+    let paths = ["m 2.3 1.7 13.6 2.2 7.9 10.4 z", "m 1.5 1.5 14.5 1.5 14.5 10.5 1.5 10.5 z", "m 2 6 14 5 2 7 z", "m 3.25 2.5 12.75 9.5 12.75 2.5 3.25 9.5 z", "m 2.1 2.2 13.7 3.1 9.2 9.8 5.4 6.1 z m 6 4 9 4 8 7 z", "m 2.5 9 8 2 13.5 9 o", "m 2 2 14 2 2 10 14 10 o"];
+    let mut i = 0;
+    for p in paths {
+        for (w, aa, xf) in [("1", "", ""), ("2.5", "d2aa aliased\n", ""), ("0.75", "", "d2xform 0.9 0.3 -0.3 0.9 2 -1\n"), ("4", "", "")] {
+            writeln!(s, "case strokefit-{i}\nd2target 16 12\n{aa}{xf}d2clear {}\nd2path 0 alt {p}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), color(r, false)).unwrap();
             i += 1;
         }
     }
