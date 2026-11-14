@@ -1944,6 +1944,12 @@ impl D3d9 {
         // D3D9.RASTER.CLIP8SIDE)
         let at_w = self.v8 && pts.iter().any(|v| v.0 == w as f32);
         let at_h = self.v8 && pts.iter().any(|v| v.1 == h as f32);
+        // (MEASURED clip8-*, golden of 06020c5: on both runtimes, a vertex at the size on one axis and left of
+        // (above) the -0.5 side on the other draws as neither rule says for some offsets
+        // (d3d9draw clip8-0, -1, -9; d3d8draw raster-3, clip8-9): open)
+        if clipped && pts.iter().any(|v| (v.1 == h as f32 && v.0 < -0.5 && v.0 >= -1.0) || (v.0 == w as f32 && v.1 < -0.5 && v.1 >= -1.0)) {
+            return Err(Fail::Unmodeled(open::D3D9_RASTER_CLIP8));
+        }
         if clipped && (at_w || at_h) {
             hit(clause::D3D9_RASTER_CLIP8SIDE);
             if pts.iter().any(|v| v.1 == h as f32 && v.0 < -0.5) {
