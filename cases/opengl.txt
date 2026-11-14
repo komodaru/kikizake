@@ -22501,6 +22501,7 @@ gl glLoadIdentity
 gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
+gl glClear 0x200
 gldraw 16 16 0x1908 0x1401 51230 1024
 gl glAccum 0x100 1.375
 gldraw 16 16 0x1908 0x1401 41693 1024
@@ -22541,6 +22542,7 @@ gl glLoadIdentity
 gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
+gl glClear 0x200
 gldraw 16 16 0x1908 0x1401 20070 1024
 gl glAccum 0x101 1.5
 gldraw 16 16 0x1908 0x1401 52262 1024
@@ -22581,6 +22583,7 @@ gl glLoadIdentity
 gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
+gl glClear 0x200
 gldraw 16 16 0x1908 0x1401 28428 1024
 gl glAccum 0x100 1.125
 gldraw 16 16 0x1908 0x1401 28681 1024
@@ -22621,6 +22624,7 @@ gl glLoadIdentity
 gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
+gl glClear 0x200
 gldraw 16 16 0x1908 0x1401 6558 1024
 gl glAccum 0x101 0.5
 gldraw 16 16 0x1908 0x1401 31719 1024
@@ -22661,6 +22665,7 @@ gl glLoadIdentity
 gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
+gl glClear 0x200
 gldraw 16 16 0x1908 0x1401 65199 1024
 gl glAccum 0x101 1.375
 gldraw 16 16 0x1908 0x1401 31096 1024
@@ -22701,6 +22706,7 @@ gl glLoadIdentity
 gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
+gl glClear 0x200
 gldraw 16 16 0x1908 0x1401 8577 1024
 gl glAccum 0x100 2
 gldraw 16 16 0x1908 0x1401 39923 1024
@@ -24663,6 +24669,2005 @@ gl glColor4ub 0x49 9 0x93 0xff
 gl glVertex2f 9.5 2.5
 gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
+end
+case accum-load-32
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 48286 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 290 1024
+gl glAccum 0x101 -0.625
+gl glAccum 0x102 0
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 5684 1024
+gl glAccum 0x101 1.125
+gl glAccum 0x102 2.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31696 1024
+gl glAccum 0x101 -0.875
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 19760 1024
+gl glAccum 0x101 -1
+gl glAccum 0x102 1.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31661 1024
+gl glAccum 0x101 1.375
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-accum-32
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 63331 1024
+gl glAccum 0x101 0.375
+gldraw 16 16 0x1908 0x1401 15764 1024
+gl glAccum 0x100 1.625
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 65004 1024
+gl glAccum 0x101 1.125
+gldraw 16 16 0x1908 0x1401 21112 1024
+gl glAccum 0x100 0.625
+gl glAccum 0x102 1.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 52678 1024
+gl glAccum 0x101 -0.375
+gldraw 16 16 0x1908 0x1401 21436 1024
+gl glAccum 0x100 2.125
+gl glAccum 0x102 2.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 26813 1024
+gl glAccum 0x101 1.125
+gldraw 16 16 0x1908 0x1401 35307 1024
+gl glAccum 0x100 1.25
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 45605 1024
+gl glAccum 0x101 -0.75
+gldraw 16 16 0x1908 0x1401 2399 1024
+gl glAccum 0x100 0
+gl glAccum 0x102 0.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 56696 1024
+gl glAccum 0x101 1.875
+gldraw 16 16 0x1908 0x1401 19153 1024
+gl glAccum 0x100 0.125
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-mult-32
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 19097 1024
+gl glAccum 0x101 0.125
+gl glAccum 0x103 1.5
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 22418 1024
+gl glAccum 0x101 1.25
+gl glAccum 0x103 -0.5625
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 44360 1024
+gl glAccum 0x101 1.875
+gl glAccum 0x103 -0.3125
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 15869 1024
+gl glAccum 0x101 0.5
+gl glAccum 0x103 0.125
+gl glAccum 0x102 2.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 4073 1024
+gl glAccum 0x101 -0.75
+gl glAccum 0x103 0.6875
+gl glAccum 0x102 0.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 49346 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x103 0.5
+gl glAccum 0x102 0
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-add-32
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 14424 1024
+gl glAccum 0x101 -0.25
+gl glAccum 0x104 0.5029296875
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 63521 1024
+gl glAccum 0x101 -0.625
+gl glAccum 0x104 0.3779296875
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 56826 1024
+gl glAccum 0x101 -0.5
+gl glAccum 0x104 0.31640625
+gl glAccum 0x102 0.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 36794 1024
+gl glAccum 0x101 0.125
+gl glAccum 0x104 0.0673828125
+gl glAccum 0x102 4
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 17989 1024
+gl glAccum 0x101 2.125
+gl glAccum 0x104 0.75390625
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 37189 1024
+gl glAccum 0x101 -0.375
+gl glAccum 0x104 0.5
+gl glAccum 0x102 1.5
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-clear-32
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearAccum 0.9345703125 0.6982421875 0.0615234375 0.328125
+gl glClear 0x200
+gl glAccum 0x102 1.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.908203125 0.072265625 0.6787109375 0.580078125
+gl glClear 0x200
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.666015625 0.7841796875 0.646484375 0.078125
+gl glClear 0x200
+gl glAccum 0x102 0.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.5625 0.8662109375 0.0595703125 0.783203125
+gl glClear 0x200
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.8134765625 0.1142578125 0.076171875 0.8046875
+gl glClear 0x200
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.4853515625 0.5068359375 0.029296875 0.841796875
+gl glClear 0x200
+gl glAccum 0x102 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-load-24
+glctx 24 choose 0x38 0 24 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 3240 1024
+gl glAccum 0x101 0.625
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 41412 1024
+gl glAccum 0x101 0.125
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31135 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x102 3.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 53498 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x102 0.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 18619 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 41012 1024
+gl glAccum 0x101 0.75
+gl glAccum 0x102 0.25
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-accum-24
+glctx 24 choose 0x38 0 24 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 58451 1024
+gl glAccum 0x101 -0.625
+gldraw 16 16 0x1908 0x1401 45012 1024
+gl glAccum 0x100 1.25
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 5548 1024
+gl glAccum 0x101 1.5
+gldraw 16 16 0x1908 0x1401 25322 1024
+gl glAccum 0x100 1.125
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 24571 1024
+gl glAccum 0x101 -0.25
+gldraw 16 16 0x1908 0x1401 17340 1024
+gl glAccum 0x100 1.875
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 29385 1024
+gl glAccum 0x101 0.625
+gldraw 16 16 0x1908 0x1401 48999 1024
+gl glAccum 0x100 -1.375
+gl glAccum 0x102 2.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 33618 1024
+gl glAccum 0x101 -0.25
+gldraw 16 16 0x1908 0x1401 59447 1024
+gl glAccum 0x100 0.5
+gl glAccum 0x102 3.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 13819 1024
+gl glAccum 0x101 1.875
+gldraw 16 16 0x1908 0x1401 33245 1024
+gl glAccum 0x100 0.5
+gl glAccum 0x102 3.625
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-mult-24
+glctx 24 choose 0x38 0 24 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 50139 1024
+gl glAccum 0x101 0.625
+gl glAccum 0x103 -1.3125
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 19933 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x103 0.0625
+gl glAccum 0x102 3.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 51468 1024
+gl glAccum 0x101 2
+gl glAccum 0x103 0.375
+gl glAccum 0x102 0.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 29066 1024
+gl glAccum 0x101 0.875
+gl glAccum 0x103 0.875
+gl glAccum 0x102 2.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 60146 1024
+gl glAccum 0x101 -0.125
+gl glAccum 0x103 -1.4375
+gl glAccum 0x102 3.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 61266 1024
+gl glAccum 0x101 -0.5
+gl glAccum 0x103 0.0625
+gl glAccum 0x102 2.75
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-add-24
+glctx 24 choose 0x38 0 24 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 50920 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x104 0.81640625
+gl glAccum 0x102 4
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 51825 1024
+gl glAccum 0x101 1.125
+gl glAccum 0x104 0.443359375
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 7443 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x104 -0.8701171875
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 14522 1024
+gl glAccum 0x101 0
+gl glAccum 0x104 -0.12109375
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 45480 1024
+gl glAccum 0x101 0.875
+gl glAccum 0x104 0.6875
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 45392 1024
+gl glAccum 0x101 -1
+gl glAccum 0x104 -0.3095703125
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-clear-24
+glctx 24 choose 0x38 0 24 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearAccum 0.25390625 0.462890625 0.3984375 0.4375
+gl glClear 0x200
+gl glAccum 0x102 1.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.1318359375 0.7392578125 0.6015625 0.9443359375
+gl glClear 0x200
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.4697265625 0.9990234375 0.5556640625 0.5625
+gl glClear 0x200
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.1279296875 0.130859375 0.515625 0.1962890625
+gl glClear 0x200
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.115234375 0.1611328125 0.0634765625 0.177734375
+gl glClear 0x200
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.115234375 0.9521484375 0.0859375 0.9560546875
+gl glClear 0x200
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-load-16
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 45439 1024
+gl glAccum 0x101 1.75
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 50770 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 50833 1024
+gl glAccum 0x101 1.75
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 968 1024
+gl glAccum 0x101 -0.5
+gl glAccum 0x102 0.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 8825 1024
+gl glAccum 0x101 0.375
+gl glAccum 0x102 3.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 59313 1024
+gl glAccum 0x101 0
+gl glAccum 0x102 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-accum-16
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 63996 1024
+gl glAccum 0x101 2
+gldraw 16 16 0x1908 0x1401 59405 1024
+gl glAccum 0x100 1.625
+gl glAccum 0x102 1.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 40945 1024
+gl glAccum 0x101 -0.875
+gldraw 16 16 0x1908 0x1401 41320 1024
+gl glAccum 0x100 1.625
+gl glAccum 0x102 1.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 17045 1024
+gl glAccum 0x101 1.875
+gldraw 16 16 0x1908 0x1401 17415 1024
+gl glAccum 0x100 -1.5
+gl glAccum 0x102 3.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 7709 1024
+gl glAccum 0x101 -0.25
+gldraw 16 16 0x1908 0x1401 64903 1024
+gl glAccum 0x100 -0.875
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 65058 1024
+gl glAccum 0x101 0.125
+gldraw 16 16 0x1908 0x1401 25163 1024
+gl glAccum 0x100 -1.875
+gl glAccum 0x102 1.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 36710 1024
+gl glAccum 0x101 -0.375
+gldraw 16 16 0x1908 0x1401 36849 1024
+gl glAccum 0x100 0.875
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-mult-16
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 65294 1024
+gl glAccum 0x101 0.125
+gl glAccum 0x103 0.125
+gl glAccum 0x102 2.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 44505 1024
+gl glAccum 0x101 1.125
+gl glAccum 0x103 -1.4375
+gl glAccum 0x102 2.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 11711 1024
+gl glAccum 0x101 -0.625
+gl glAccum 0x103 -1.1875
+gl glAccum 0x102 2.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 40689 1024
+gl glAccum 0x101 -0.75
+gl glAccum 0x103 0.5
+gl glAccum 0x102 2.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 19894 1024
+gl glAccum 0x101 0.625
+gl glAccum 0x103 -0.625
+gl glAccum 0x102 0.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 65385 1024
+gl glAccum 0x101 0.125
+gl glAccum 0x103 0
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-add-16
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 59094 1024
+gl glAccum 0x101 -0.25
+gl glAccum 0x104 -0.306640625
+gl glAccum 0x102 0.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 24934 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x104 -0.18359375
+gl glAccum 0x102 3.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31986 1024
+gl glAccum 0x101 -0.375
+gl glAccum 0x104 -0.123046875
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 62884 1024
+gl glAccum 0x101 0.25
+gl glAccum 0x104 -0.4365234375
+gl glAccum 0x102 3.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 46440 1024
+gl glAccum 0x101 0
+gl glAccum 0x104 0.7568359375
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 58978 1024
+gl glAccum 0x101 1.875
+gl glAccum 0x104 0.5625
+gl glAccum 0x102 2.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-clear-16
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearAccum 0.2060546875 0.1484375 0.7783203125 0.810546875
+gl glClear 0x200
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.0625 0.3779296875 0.185546875 -0.001953125
+gl glClear 0x200
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.2001953125 0.291015625 0.4931640625 0.921875
+gl glClear 0x200
+gl glAccum 0x102 1.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.4912109375 0.642578125 0.7216796875 0.3984375
+gl glClear 0x200
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.8486328125 0.1875 0.70703125 0.1328125
+gl glClear 0x200
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.23046875 0.171875 0.7939453125 0.8359375
+gl glClear 0x200
+gl glAccum 0x102 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-load-8
+glctx 8 choose 0x38 0 8 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 25708 1024
+gl glAccum 0x101 -0.125
+gl glAccum 0x102 2.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 9514 1024
+gl glAccum 0x101 0.25
+gl glAccum 0x102 4
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 39928 1024
+gl glAccum 0x101 0.125
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 42497 1024
+gl glAccum 0x101 0.625
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31638 1024
+gl glAccum 0x101 -0.625
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 38425 1024
+gl glAccum 0x101 0.875
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-accum-8
+glctx 8 choose 0x38 0 8 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 57466 1024
+gl glAccum 0x101 -0.5
+gldraw 16 16 0x1908 0x1401 22624 1024
+gl glAccum 0x100 -0.125
+gl glAccum 0x102 2.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 11217 1024
+gl glAccum 0x101 1.5
+gldraw 16 16 0x1908 0x1401 59802 1024
+gl glAccum 0x100 0.5
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 3511 1024
+gl glAccum 0x101 1
+gldraw 16 16 0x1908 0x1401 27293 1024
+gl glAccum 0x100 -1.375
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 48156 1024
+gl glAccum 0x101 0
+gldraw 16 16 0x1908 0x1401 60254 1024
+gl glAccum 0x100 1.25
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 33326 1024
+gl glAccum 0x101 1.5
+gldraw 16 16 0x1908 0x1401 5346 1024
+gl glAccum 0x100 -0.5
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 8936 1024
+gl glAccum 0x101 2.125
+gldraw 16 16 0x1908 0x1401 54544 1024
+gl glAccum 0x100 -1.875
+gl glAccum 0x102 3.25
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-mult-8
+glctx 8 choose 0x38 0 8 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 10954 1024
+gl glAccum 0x101 1.875
+gl glAccum 0x103 -1.1875
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 43589 1024
+gl glAccum 0x101 1.375
+gl glAccum 0x103 -1.4375
+gl glAccum 0x102 3.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 22102 1024
+gl glAccum 0x101 1.125
+gl glAccum 0x103 -0.5625
+gl glAccum 0x102 3.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 44078 1024
+gl glAccum 0x101 -1
+gl glAccum 0x103 -1.125
+gl glAccum 0x102 3.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 56890 1024
+gl glAccum 0x101 -0.75
+gl glAccum 0x103 -0.875
+gl glAccum 0x102 0
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 51602 1024
+gl glAccum 0x101 0
+gl glAccum 0x103 -1
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-add-8
+glctx 8 choose 0x38 0 8 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 61360 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x104 0
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 42540 1024
+gl glAccum 0x101 -0.25
+gl glAccum 0x104 0.3203125
+gl glAccum 0x102 3.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31933 1024
+gl glAccum 0x101 -0.5
+gl glAccum 0x104 0.505859375
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 34614 1024
+gl glAccum 0x101 -0.125
+gl glAccum 0x104 -0.056640625
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 16121 1024
+gl glAccum 0x101 2.125
+gl glAccum 0x104 0.251953125
+gl glAccum 0x102 4.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 22984 1024
+gl glAccum 0x101 0.625
+gl glAccum 0x104 -0.30859375
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-clear-8
+glctx 8 choose 0x38 0 8 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearAccum 0.001953125 0.2685546875 0.943359375 0.84765625
+gl glClear 0x200
+gl glAccum 0x102 2.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.7783203125 0.5166015625 0.0498046875 0.369140625
+gl glClear 0x200
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.380859375 0.0712890625 0.00390625 0.1669921875
+gl glClear 0x200
+gl glAccum 0x102 2.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.3935546875 0.0615234375 0.3203125 0.060546875
+gl glClear 0x200
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.4208984375 0.1962890625 0.2509765625 0.3935546875
+gl glClear 0x200
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.18359375 0.6689453125 0.330078125 0.3017578125
+gl glClear 0x200
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-load-4
+glctx 4 choose 0x38 0 4 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 6807 1024
+gl glAccum 0x101 -0.25
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 20293 1024
+gl glAccum 0x101 1.75
+gl glAccum 0x102 1.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 15484 1024
+gl glAccum 0x101 0.75
+gl glAccum 0x102 2.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 46556 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 19234 1024
+gl glAccum 0x101 -1
+gl glAccum 0x102 1.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 55274 1024
+gl glAccum 0x101 -0.625
+gl glAccum 0x102 1.625
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-accum-4
+glctx 4 choose 0x38 0 4 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 46867 1024
+gl glAccum 0x101 -0.125
+gldraw 16 16 0x1908 0x1401 55831 1024
+gl glAccum 0x100 -1.75
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 7697 1024
+gl glAccum 0x101 -0.875
+gldraw 16 16 0x1908 0x1401 2071 1024
+gl glAccum 0x100 -0.125
+gl glAccum 0x102 0.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 63569 1024
+gl glAccum 0x101 1.625
+gldraw 16 16 0x1908 0x1401 49497 1024
+gl glAccum 0x100 -0.25
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 37178 1024
+gl glAccum 0x101 -0.25
+gldraw 16 16 0x1908 0x1401 13347 1024
+gl glAccum 0x100 1.375
+gl glAccum 0x102 3.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 54284 1024
+gl glAccum 0x101 1.875
+gldraw 16 16 0x1908 0x1401 47310 1024
+gl glAccum 0x100 1.75
+gl glAccum 0x102 3.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 30491 1024
+gl glAccum 0x101 -0.375
+gldraw 16 16 0x1908 0x1401 47169 1024
+gl glAccum 0x100 0.5
+gl glAccum 0x102 0.375
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-mult-4
+glctx 4 choose 0x38 0 4 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 53999 1024
+gl glAccum 0x101 0
+gl glAccum 0x103 0.8125
+gl glAccum 0x102 0.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 13382 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x103 -1.3125
+gl glAccum 0x102 2.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 36303 1024
+gl glAccum 0x101 1
+gl glAccum 0x103 1.125
+gl glAccum 0x102 0.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 43647 1024
+gl glAccum 0x101 -0.375
+gl glAccum 0x103 -1.375
+gl glAccum 0x102 3.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 65368 1024
+gl glAccum 0x101 0.5
+gl glAccum 0x103 -0.0625
+gl glAccum 0x102 3.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 49420 1024
+gl glAccum 0x101 2
+gl glAccum 0x103 -0.5
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-add-4
+glctx 4 choose 0x38 0 4 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 31684 1024
+gl glAccum 0x101 -0.5
+gl glAccum 0x104 0.5
+gl glAccum 0x102 2
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 32707 1024
+gl glAccum 0x101 -0.25
+gl glAccum 0x104 -0.18359375
+gl glAccum 0x102 2.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 64127 1024
+gl glAccum 0x101 1.625
+gl glAccum 0x104 0.7529296875
+gl glAccum 0x102 1.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 31596 1024
+gl glAccum 0x101 1.5
+gl glAccum 0x104 -0.9970703125
+gl glAccum 0x102 3.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 57831 1024
+gl glAccum 0x101 -0.875
+gl glAccum 0x104 0.1884765625
+gl glAccum 0x102 1.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 36807 1024
+gl glAccum 0x101 1.25
+gl glAccum 0x104 0.5654296875
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-clear-4
+glctx 4 choose 0x38 0 4 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearAccum 0.0693359375 0.7451171875 0.5009765625 0.9296875
+gl glClear 0x200
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.8955078125 0.2958984375 0.4697265625 0.7548828125
+gl glClear 0x200
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.689453125 0.2490234375 0.775390625 0.373046875
+gl glClear 0x200
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.1826171875 0.8623046875 0.2607421875 0.8251953125
+gl glClear 0x200
+gl glAccum 0x102 2.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.333984375 0.7587890625 0.3505859375 0.5634765625
+gl glClear 0x200
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.658203125 0.7138671875 0.9736328125 0.7685546875
+gl glClear 0x200
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-load-alpha
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 14914 1024
+gl glAccum 0x101 1.875
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 45314 1024
+gl glAccum 0x101 0.875
+gl glAccum 0x102 2.5
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 12806 1024
+gl glAccum 0x101 0.25
+gl glAccum 0x102 3.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 44246 1024
+gl glAccum 0x101 0.25
+gl glAccum 0x102 2.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 7156 1024
+gl glAccum 0x101 1.125
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 42306 1024
+gl glAccum 0x101 0.375
+gl glAccum 0x102 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-accum-alpha
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 51208 1024
+gl glAccum 0x101 2
+gldraw 16 16 0x1908 0x1401 47818 1024
+gl glAccum 0x100 -0.25
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 61728 1024
+gl glAccum 0x101 -0.375
+gldraw 16 16 0x1908 0x1401 505 1024
+gl glAccum 0x100 1.125
+gl glAccum 0x102 1.125
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 59227 1024
+gl glAccum 0x101 -0.75
+gldraw 16 16 0x1908 0x1401 23988 1024
+gl glAccum 0x100 -1.25
+gl glAccum 0x102 3.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 61100 1024
+gl glAccum 0x101 1.625
+gldraw 16 16 0x1908 0x1401 35019 1024
+gl glAccum 0x100 -1
+gl glAccum 0x102 1.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 27590 1024
+gl glAccum 0x101 2.125
+gldraw 16 16 0x1908 0x1401 38942 1024
+gl glAccum 0x100 0.5
+gl glAccum 0x102 3.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 47961 1024
+gl glAccum 0x101 -0.625
+gldraw 16 16 0x1908 0x1401 24185 1024
+gl glAccum 0x100 0.625
+gl glAccum 0x102 3.5
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-mult-alpha
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 35347 1024
+gl glAccum 0x101 -0.875
+gl glAccum 0x103 0.875
+gl glAccum 0x102 0.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 1195 1024
+gl glAccum 0x101 1.25
+gl glAccum 0x103 -0.8125
+gl glAccum 0x102 0.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 65458 1024
+gl glAccum 0x101 0.25
+gl glAccum 0x103 -0.4375
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 37189 1024
+gl glAccum 0x101 1.25
+gl glAccum 0x103 -0.125
+gl glAccum 0x102 0.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 59213 1024
+gl glAccum 0x101 0.25
+gl glAccum 0x103 -0.75
+gl glAccum 0x102 1.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 48355 1024
+gl glAccum 0x101 -1
+gl glAccum 0x103 0.5
+gl glAccum 0x102 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-add-alpha
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gldraw 16 16 0x1908 0x1401 12320 1024
+gl glAccum 0x101 0.875
+gl glAccum 0x104 0.6875
+gl glAccum 0x102 1
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 11410 1024
+gl glAccum 0x101 0
+gl glAccum 0x104 0.6279296875
+gl glAccum 0x102 0.25
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 23706 1024
+gl glAccum 0x101 -0.625
+gl glAccum 0x104 0.9404296875
+gl glAccum 0x102 2.375
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 13219 1024
+gl glAccum 0x101 1.375
+gl glAccum 0x104 -0.560546875
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 485 1024
+gl glAccum 0x101 -0.375
+gl glAccum 0x104 0.25
+gl glAccum 0x102 1.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gldraw 16 16 0x1908 0x1401 24493 1024
+gl glAccum 0x101 0
+gl glAccum 0x104 0.50390625
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case accum-clear-alpha
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearAccum 0.734375 0.115234375 0.4296875 0.896484375
+gl glClear 0x200
+gl glAccum 0x102 0.75
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.5771484375 0.80078125 0.9990234375 0.5556640625
+gl glClear 0x200
+gl glAccum 0x102 0.625
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.3369140625 0.5546875 0.6904296875 0.7412109375
+gl glClear 0x200
+gl glAccum 0x102 1.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.3671875 0.4736328125 0.8447265625 0.041015625
+gl glClear 0x200
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.1689453125 0.7109375 0.3486328125 0.986328125
+gl glClear 0x200
+gl glAccum 0x102 0.875
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClearAccum 0.822265625 0.08984375 0.1279296875 0.443359375
+gl glClear 0x200
+gl glAccum 0x102 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case tie-vp-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport 0 0 16 16
+gl glClear 0x4000
+gl glRectf 0.5 -1 1.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 0.5 17 1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 1.5 -1 2.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 1.5 17 2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 2.5 -1 3.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 2.5 17 3.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3.5 -1 4.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 3.5 17 4.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 4.5 -1 5.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 4.5 17 5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5.5 -1 6.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 5.5 17 6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 6.5 -1 7.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 6.5 17 7.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7.5 -1 8.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 7.5 17 8.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 8.5 -1 9.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 8.5 17 9.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 9.5 -1 10.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 9.5 17 10.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 10.5 -1 11.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 10.5 17 11.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 11.5 -1 12.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 11.5 17 12.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 12.5 -1 13.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 12.5 17 13.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 13.5 -1 14.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 13.5 17 14.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 14.5 -1 15.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 14.5 17 15.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 15.5 -1 16.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 15.5 17 16.5
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -8 8 -8 8 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport 0 0 16 16
+gl glClear 0x4000
+gl glRectf -7.5 -9 -6.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -7.5 9 -6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -6.5 -9 -5.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -6.5 9 -5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5.5 -9 -4.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -5.5 9 -4.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -4.5 -9 -3.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -4.5 9 -3.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -3.5 -9 -2.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -3.5 9 -2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2.5 -9 -1.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -2.5 9 -1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1.5 -9 -0.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -1.5 9 -0.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5 -9 0.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 -0.5 9 0.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.5 -9 1.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 0.5 9 1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 1.5 -9 2.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 1.5 9 2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 2.5 -9 3.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 2.5 9 3.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3.5 -9 4.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 3.5 9 4.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 4.5 -9 5.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 4.5 9 5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5.5 -9 6.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 5.5 9 6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 6.5 -9 7.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 6.5 9 7.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7.5 -9 8.5 9
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -9 7.5 9 8.5
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 32 0 32 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport 0 0 16 16
+gl glClear 0x4000
+gl glRectf 1 -2 3 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 1 34 3
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 -2 5 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 3 34 5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5 -2 7 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 5 34 7
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7 -2 9 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 7 34 9
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 9 -2 11 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 9 34 11
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 11 -2 13 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 11 34 13
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 13 -2 15 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 13 34 15
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 15 -2 17 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 15 34 17
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 17 -2 19 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 17 34 19
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 19 -2 21 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 19 34 21
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 21 -2 23 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 21 34 23
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 23 -2 25 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 23 34 25
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 25 -2 27 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 25 34 27
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 27 -2 29 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 27 34 29
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 29 -2 31 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 29 34 31
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 31 -2 33 34
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2 31 34 33
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport 4 4 16 16
+gl glClear 0x4000
+gl glRectf -3.5 -5 -2.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 -3.5 13 -2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -2.5 -5 -1.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 -2.5 13 -1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1.5 -5 -0.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 -1.5 13 -0.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5 -5 0.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 -0.5 13 0.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.5 -5 1.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 0.5 13 1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 1.5 -5 2.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 1.5 13 2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 2.5 -5 3.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 2.5 13 3.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3.5 -5 4.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 3.5 13 4.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 4.5 -5 5.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 4.5 13 5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5.5 -5 6.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 5.5 13 6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 6.5 -5 7.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 6.5 13 7.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7.5 -5 8.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 7.5 13 8.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 8.5 -5 9.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 8.5 13 9.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 9.5 -5 10.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 9.5 13 10.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 10.5 -5 11.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 10.5 13 11.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 11.5 -5 12.5 13
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -5 11.5 13 12.5
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport -4 -4 16 16
+gl glClear 0x4000
+gl glRectf 4.5 3 5.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 4.5 21 5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5.5 3 6.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 5.5 21 6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 6.5 3 7.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 6.5 21 7.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7.5 3 8.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 7.5 21 8.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 8.5 3 9.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 8.5 21 9.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 9.5 3 10.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 9.5 21 10.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 10.5 3 11.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 10.5 21 11.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 11.5 3 12.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 11.5 21 12.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 12.5 3 13.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 12.5 21 13.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 13.5 3 14.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 13.5 21 14.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 14.5 3 15.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 14.5 21 15.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 15.5 3 16.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 15.5 21 16.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 16.5 3 17.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 16.5 21 17.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 17.5 3 18.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 17.5 21 18.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 18.5 3 19.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 18.5 21 19.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 19.5 3 20.5 21
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3 19.5 21 20.5
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 32 0 32 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport 0 0 32 32
+gl glClear 0x4000
+gl glRectf 0.5 -1 1.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 0.5 17 1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 1.5 -1 2.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 1.5 17 2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 2.5 -1 3.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 2.5 17 3.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3.5 -1 4.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 3.5 17 4.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 4.5 -1 5.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 4.5 17 5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5.5 -1 6.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 5.5 17 6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 6.5 -1 7.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 6.5 17 7.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7.5 -1 8.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 7.5 17 8.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 8.5 -1 9.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 8.5 17 9.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 9.5 -1 10.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 9.5 17 10.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 10.5 -1 11.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 10.5 17 11.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 11.5 -1 12.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 11.5 17 12.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 12.5 -1 13.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 12.5 17 13.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 13.5 -1 14.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 13.5 17 14.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 14.5 -1 15.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 14.5 17 15.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 15.5 -1 16.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 15.5 17 16.5
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-6
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 8 0 8 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport 0 0 8 8
+gl glClear 0x4000
+gl glRectf 0.5 -1 1.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 0.5 17 1.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 1.5 -1 2.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 1.5 17 2.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 2.5 -1 3.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 2.5 17 3.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 3.5 -1 4.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 3.5 17 4.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 4.5 -1 5.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 4.5 17 5.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 5.5 -1 6.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 5.5 17 6.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 6.5 -1 7.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 6.5 17 7.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 7.5 -1 8.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 7.5 17 8.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 8.5 -1 9.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 8.5 17 9.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 9.5 -1 10.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 9.5 17 10.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 10.5 -1 11.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 10.5 17 11.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 11.5 -1 12.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 11.5 17 12.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 12.5 -1 13.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 12.5 17 13.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 13.5 -1 14.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 13.5 17 14.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 14.5 -1 15.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 14.5 17 15.5
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 15.5 -1 16.5 17
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -1 15.5 17 16.5
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case tie-vp-7
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -1 1 -1 1 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glViewport -8 -8 32 32
+gl glClear 0x4000
+gl glRectf -0.46875 -0.5625 -0.40625 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.46875 0.5625 -0.40625
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.40625 -0.5625 -0.34375 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.40625 0.5625 -0.34375
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.34375 -0.5625 -0.28125 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.34375 0.5625 -0.28125
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.28125 -0.5625 -0.21875 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.28125 0.5625 -0.21875
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.21875 -0.5625 -0.15625 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.21875 0.5625 -0.15625
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.15625 -0.5625 -0.09375 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.15625 0.5625 -0.09375
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.09375 -0.5625 -0.03125 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.09375 0.5625 -0.03125
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.03125 -0.5625 0.03125 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 -0.03125 0.5625 0.03125
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.03125 -0.5625 0.09375 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.03125 0.5625 0.09375
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.09375 -0.5625 0.15625 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.09375 0.5625 0.15625
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.15625 -0.5625 0.21875 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.15625 0.5625 0.21875
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.21875 -0.5625 0.28125 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.21875 0.5625 0.28125
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.28125 -0.5625 0.34375 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.28125 0.5625 0.34375
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.34375 -0.5625 0.40625 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.34375 0.5625 0.40625
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.40625 -0.5625 0.46875 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.40625 0.5625 0.46875
+glread 8 0 1 16 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf 0.46875 -0.5625 0.53125 0.5625
+glread 0 8 16 1 0x1908 0x1401 64
+gl glClear 0x4000
+gl glRectf -0.5625 0.46875 0.5625 0.53125
+glread 8 0 1 16 0x1908 0x1401 64
+glerr
+end
+case begin-string
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glBegin 7
+glstr 0x1f00
+glstr 0x1f03
+gl glEnd
+glerr
+end
+case accum-none
+glctx 32 9
+gl glAccum 0x101 1
+glerr
+gl glAccum 0x102 1
+glerr
+gl glClear 0x200
+glerr
 end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8

@@ -868,6 +868,7 @@ fn measure(s: &mut String) {
     // the accumulation buffer: load, accumulate, multiply, add, return
     for k in 0..6 {
         start(s, format!("accum-{k}"), [32, 32, 32, 16, 24, 32][k]);
+        writeln!(s, "gl glClear 0x200").unwrap();
         for _ in 0..4 {
             random_dst(s, q.next() & 0xffff);
             let op = *q.pick(&[0x100u32, 0x101]);
@@ -963,4 +964,55 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "end").unwrap();
     }
+    // each accumulation operation alone, between a load and a return, on every depth and with
+    // alpha; then clears to values returned
+    for fmt in ["32", "24", "16", "8", "4", "alpha"].iter() {
+        let head = if *fmt == "alpha" { "glctx 32 choose 0x38 0 32 8 0 32 8\n".to_string() } else { ctx(fmt.parse().unwrap()) };
+        for (ok, op) in ["load", "accum", "mult", "add"].iter().enumerate() {
+            writeln!(s, "case accum-{op}-{fmt}\n{head}{ORTHO}gl glDisable 0xbd0").unwrap();
+            for _ in 0..6 {
+                random_dst(s, q.next() & 0xffff);
+                writeln!(s, "gl glAccum 0x101 {}", f(q.range(-8, 17) as f64 / 8.0)).unwrap();
+                match ok {
+                    1 => {
+                        random_dst(s, q.next() & 0xffff);
+                        writeln!(s, "gl glAccum 0x100 {}", f(q.range(-16, 17) as f64 / 8.0)).unwrap();
+                    }
+                    2 => writeln!(s, "gl glAccum 0x103 {}", f(q.range(-24, 25) as f64 / 16.0)).unwrap(),
+                    3 => writeln!(s, "gl glAccum 0x104 {}", f(q.range(-16, 17) as f64 / 16.0 + q.range(0, 8) as f64 / 1024.0)).unwrap(),
+                    _ => {}
+                }
+                writeln!(s, "gl glAccum 0x102 {}", f(q.range(0, 33) as f64 / 8.0)).unwrap();
+                read_all(s);
+            }
+            writeln!(s, "glerr\nend").unwrap();
+        }
+        writeln!(s, "case accum-clear-{fmt}\n{head}{ORTHO}gl glDisable 0xbd0").unwrap();
+        for _ in 0..6 {
+            let c: Vec<String> = (0..4).map(|_| f(q.range(-4, 1025) as f64 / 1024.0)).collect();
+            writeln!(s, "gl glClearAccum {}\ngl glClear 0x200\ngl glAccum 0x102 {}", c.join(" "), f(q.range(4, 17) as f64 / 8.0)).unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // the tie rule under other viewports and object coordinates: a column (row) one pixel wide
+    // whose edges both pass through pixel centers, at every column (row), read across
+    for (k, (vp, o)) in [([0, 0, 16, 16], [0.0, 16.0]), ([0, 0, 16, 16], [-8.0, 8.0]), ([0, 0, 16, 16], [0.0, 32.0]), ([4, 4, 16, 16], [0.0, 16.0]), ([-4, -4, 16, 16], [0.0, 16.0]), ([0, 0, 32, 32], [0.0, 32.0]), ([0, 0, 8, 8], [0.0, 8.0]), ([-8, -8, 32, 32], [-1.0, 1.0])].iter().enumerate() {
+        writeln!(s, "case tie-vp-{k}\n{}gl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho {} {} {} {} -1 1\ngl glMatrixMode 0x1700\ngl glDisable 0xbd0\ngl glViewport {} {} {} {}", ctx(32), f(o[0]), f(o[1]), f(o[0]), f(o[1]), vp[0], vp[1], vp[2], vp[3]).unwrap();
+        // window coordinate to object coordinate on axis `a`
+        let obj = |w: f64, a: usize| o[0] + (w - vp[a] as f64) / vp[a + 2] as f64 * (o[1] - o[0]);
+        for c in 0..16 {
+            let (w0, w1) = (c as f64 + 0.5, c as f64 + 1.5);
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            glf(s, "glRectf", &[obj(w0, 0), obj(-1.0, 1), obj(w1, 0), obj(17.0, 1)]);
+            writeln!(s, "glread 0 8 16 1 {} {} 64", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            glf(s, "glRectf", &[obj(-1.0, 0), obj(w0, 1), obj(17.0, 0), obj(w1, 1)]);
+            writeln!(s, "glread 8 0 1 16 {} {} 64", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // glGetString between glBegin and glEnd; glAccum without an accumulation buffer (color index)
+    writeln!(s, "case begin-string\n{}gl glBegin 7\nglstr 0x1f00\nglstr 0x1f03\ngl glEnd\nglerr\nend", ctx(32)).unwrap();
+    writeln!(s, "case accum-none\nglctx 32 9\ngl glAccum 0x101 1\nglerr\ngl glAccum 0x102 1\nglerr\ngl glClear 0x200\nglerr\nend").unwrap();
 }

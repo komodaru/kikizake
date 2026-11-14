@@ -379,6 +379,9 @@ pub struct Ctx {
     /// the depth of the attribute stack (glPushAttrib)
     pub attrib: usize,
     pub clear_accum: [f32; 4],
+    /// the accumulation buffer, signed channels at the format's accumulation bits; None while its
+    /// content is still undefined (nothing loaded or cleared into it yet)
+    pub acc: Option<Vec<[i64; 4]>>,
     pub color_mask: [bool; 4],
     /// the GLboolean bytes glColorMask was given (glGet gives them back as they are: GL.COLORMASK)
     pub color_mask_raw: [u32; 4],
@@ -440,6 +443,7 @@ impl Ctx {
             buffers: [FRONT; 2],
             attrib: 0,
             clear_accum: [0.0; 4],
+            acc: None,
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
             viewport: [0, 0, W as i64, H as i64],
@@ -943,7 +947,8 @@ impl Gl {
             "glstr" => {
                 let Some(n) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
                 if ctx.in_begin.is_some() {
-                    return Err(Fail::Unmodeled("GL.BEGIN.QUERY"));
+                    // (measured by case begin-string; the answer not modelled yet)
+                    return Err(Fail::Unmodeled("GL.CALL.OTHER"));
                 }
                 // (MEASURED, golden opengl-32/64 ctx-*: the same four strings at every depth)
                 let s = match n {
@@ -1439,21 +1444,43 @@ impl Ctx {
                 }
             }
             "glAccum" => {
-                let op = u(a, 0);
-                if !(0x100..=0x104).contains(&op) {
-                    hit("GL.ACCUM.ENUM");
-                    self.error(INVALID_ENUM);
-                } else if op == 0x102 {
-                    // GL_RETURN writes the accumulation buffer back: its precision unmeasured
-                    return Err(Fail::Unmodeled("GL.ACCUM.RETURN"));
-                } else {
-                    // the accumulation buffer itself is seen only through GL_RETURN
-                    hit("GL.ACCUM");
+                match AccumOp::try_from(u(a, 0)) {
+                    Err(()) => {
+                        hit("GL.ACCUM.ENUM");
+                        self.error(INVALID_ENUM);
+                    }
+                    // (only the color index formats have none: case accum-none)
+                    Ok(_) if self.pf.accum == 0 => return Err(Fail::Unmodeled("GL.COLORINDEX")),
+                    Ok(op) => self.accum(op, fl(a, 1) as f32)?,
                 }
             }
             _ => return Err(Fail::Unmodeled("GL.CALL.OTHER")),
         }
         Ok(())
+    }
+}
+
+/// glAccum's operations (GL_ACCUM 0x100 .. GL_ADD 0x104)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AccumOp {
+    Accum,
+    Load,
+    Return,
+    Mult,
+    Add,
+}
+
+impl TryFrom<u32> for AccumOp {
+    type Error = ();
+    fn try_from(op: u32) -> Result<AccumOp, ()> {
+        match op {
+            0x100 => Ok(AccumOp::Accum),
+            0x101 => Ok(AccumOp::Load),
+            0x102 => Ok(AccumOp::Return),
+            0x103 => Ok(AccumOp::Mult),
+            0x104 => Ok(AccumOp::Add),
+            _ => Err(()),
+        }
     }
 }
 
@@ -1513,22 +1540,39 @@ impl Ctx {
                     }
                     let (x0, x1) = (xs[0].min(xs[1]), xs[0].max(xs[1]));
                     let (y0, y1) = (ys[0].min(ys[2]), ys[0].max(ys[2]));
-                    // a pixel whose center is on an edge: (MEASURED, golden opengl-32 rect-*: 15
-                    // vertical edges) on the left edge out, on the right one in (GL.RASTER.TIE.X);
-                    // on a horizontal edge it depends on where (GL.RASTER.TIE)
+                    // a pixel whose center is on an edge (MEASURED, golden opengl-32 rect-*, tie-x-*,
+                    // tie-y-*: every vertical and horizontal edge through pixel centers of a 16 by
+                    // 16 window): as if the vertices were moved a little toward window point
+                    // (12, 4), the pixel in when that moves the edge past its center
+                    // (GL.RASTER.TIE.X, GL.RASTER.TIE)
                     let on = |a: f64| (a - 0.5).fract() == 0.0;
-                    if on(y0) || on(y1) {
-                        return Err(Fail::Unmodeled("GL.RASTER.TIE"));
-                    }
                     if on(x0) || on(x1) {
                         hit("GL.RASTER.TIE.X");
+                    }
+                    if on(y0) || on(y1) {
+                        hit("GL.RASTER.TIE.Y");
+                    }
+                    let inside = |c: f64, lo: f64, hi: f64, p: f64| (c > lo || (c == lo && lo > p)) && (c < hi || (c == hi && hi < p));
+                    // a corner on a pixel center that one edge's rule takes in and the other's
+                    // leaves out: the diagonal the rectangle is split along decides (golden
+                    // opengl-32 tie-x-2, rect-16: in, where tie-x-* and tie-y-* have it out)
+                    for cx in [x0, x1] {
+                        for cy in [y0, y1] {
+                            if on(cx) && on(cy) && (0.0..W as f64).contains(&cx) && (0.0..H as f64).contains(&cy) {
+                                let ix = (cx == x0 && x0 > 12.0) || (cx == x1 && x1 < 12.0);
+                                let iy = (cy == y0 && y0 > 4.0) || (cy == y1 && y1 < 4.0);
+                                if ix != iy {
+                                    return Err(Fail::Unmodeled("GL.RASTER.TIE"));
+                                }
+                            }
+                        }
                     }
                     hit("GL.RASTER.RECT");
                     let c = q[3].1;
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
-                            if cx > x0 && cx <= x1 && cy >= y0 && cy < y1 {
+                            if inside(cx, x0, x1, 12.0) && inside(cy, y0, y1, 4.0) {
                                 self.fragment(Frag { x, y, c, z: w[0][2], trunc: false })?;
                             }
                         }
@@ -1727,6 +1771,115 @@ impl Ctx {
         Ok(blend_bytes(self.blend, s, d))
     }
 
+    /// the pixels inside the scissor box when the test is on
+    fn scissored(&self) -> Vec<usize> {
+        let [sx, sy, sw, sh] = self.scissor;
+        let on = self.cap(SCISSOR_TEST);
+        (0..W * H).filter(|i| !on || {
+            let (x, y) = ((i % W) as i64, (i / W) as i64);
+            x >= sx && y >= sy && x < sx + sw && y < sy + sh
+        }).collect()
+    }
+
+    /// the largest value of an accumulation channel, 2^(bits-1) - 1, as a float
+    fn acc_max(&self, k: usize) -> f32 {
+        ((1i64 << (self.pf.accum_rgba[k].max(1) - 1)) - 1) as f32
+    }
+
+    /// an accumulation channel wrapped to its bits (MEASURED, golden opengl-32 accum-*: values
+    /// past the range wrap around, they are not clamped)
+    fn acc_wrap(&self, v: i64, k: usize) -> i64 {
+        let b = self.pf.accum_rgba[k];
+        if b == 0 {
+            return 0;
+        }
+        let m = 1i64 << b;
+        (v + m / 2).rem_euclid(m) - m / 2
+    }
+
+    /// a component (-1..1) to an accumulation channel: times the largest value, truncated
+    fn acc_fixed(&self, c: f32, k: usize) -> i64 {
+        self.acc_wrap((c * self.acc_max(k)).trunc() as i64, k)
+    }
+
+    /// glAccum (MEASURED, golden opengl-32 accum-*, every channel of 24 reads on 32, 24 and 16
+    /// bits): LOAD and ACCUM take value times the color component times the largest value,
+    /// truncated in floats; MULT truncates the channel times value; ADD adds value times the
+    /// largest value rounded up; RETURN writes the channel times value over the largest value
+    /// times the color channel's largest value, rounded on 16 bits, truncated on the others; then
+    /// clamped. All wrap at the channel's bits.
+    fn accum(&mut self, op: AccumOp, v: f32) -> Res<()> {
+        hit("GL.ACCUM");
+        let idx = self.scissored();
+        let acc = match (op, self.acc.take()) {
+            (AccumOp::Load, a) => {
+                let mut a = a.unwrap_or_else(|| vec![[0; 4]; W * H]);
+                for &i in &idx {
+                    let c = self.dst_color(i);
+                    for k in 0..4 {
+                        a[i][k] = self.acc_wrap(((v * c[k]) * self.acc_max(k)).trunc() as i64, k);
+                    }
+                }
+                a
+            }
+            // accumulating into undefined content keeps it undefined
+            (AccumOp::Accum | AccumOp::Mult | AccumOp::Add, None) => return Ok(()),
+            // the content was never defined (GL 1.1 4.2.3: undefined at creation)
+            (AccumOp::Return, None) => return Err(Fail::Unmodeled("GL.ACCUM.RETURN")),
+            (AccumOp::Accum, Some(mut a)) => {
+                for &i in &idx {
+                    let c = self.dst_color(i);
+                    for k in 0..4 {
+                        a[i][k] = self.acc_wrap(a[i][k] + ((v * c[k]) * self.acc_max(k)).trunc() as i64, k);
+                    }
+                }
+                a
+            }
+            (AccumOp::Mult, Some(mut a)) => {
+                for &i in &idx {
+                    for k in 0..4 {
+                        a[i][k] = self.acc_wrap((a[i][k] as f32 * v).trunc() as i64, k);
+                    }
+                }
+                a
+            }
+            (AccumOp::Add, Some(mut a)) => {
+                for &i in &idx {
+                    for k in 0..4 {
+                        a[i][k] = self.acc_wrap(a[i][k] + (v * self.acc_max(k)).ceil() as i64, k);
+                    }
+                }
+                a
+            }
+            (AccumOp::Return, Some(a)) => {
+                if self.bpp == 24 {
+                    // (golden opengl-32 accum-4: ADD rounds there, and one channel of 3072 is
+                    // still one off whatever the rounding; accum-*-24 measure each step alone)
+                    self.acc = Some(a);
+                    return Err(Fail::Unmodeled("GL.ACCUM.RETURN"));
+                }
+                hit("GL.ACCUM.STEPS");
+                let bits = self.bits();
+                if self.buffers[0] != 0 {
+                    for &i in &idx {
+                        for k in 0..4 {
+                            if bits[k] == 0 || !self.color_mask[k] {
+                                continue;
+                            }
+                            let cm = ((1u64 << bits[k]) - 1) as f32;
+                            let x = a[i][k] as f32 * (v / self.acc_max(k)) * cm;
+                            let m = if self.bpp == 16 { (x + 0.5).floor() } else { x.trunc() };
+                            self.fb[i][k] = m.clamp(0.0, cm) as u32;
+                        }
+                    }
+                }
+                a
+            }
+        };
+        self.acc = Some(acc);
+        Ok(())
+    }
+
     fn clear(&mut self, m: u32) -> Res<()> {
         hit("GL.CLEAR");
         let m = if self.buffers[0] == 0 && m & COLOR_BUFFER_BIT != 0 {
@@ -1735,9 +1888,14 @@ impl Ctx {
         } else {
             m
         };
-        if m & ACCUM_BUFFER_BIT != 0 {
-            // (seen only through glAccum's GL_RETURN, GL.ACCUM)
+        if m & ACCUM_BUFFER_BIT != 0 && self.pf.accum > 0 {
             hit("GL.CLEAR.ACCUM");
+            let cv: Vec<i64> = (0..4).map(|k| self.acc_fixed(self.clear_accum[k], k)).collect();
+            let mut acc = self.acc.take().unwrap_or_else(|| vec![[0; 4]; W * H]);
+            for i in self.scissored() {
+                acc[i] = [cv[0], cv[1], cv[2], cv[3]];
+            }
+            self.acc = Some(acc);
         }
         if self.cap(DITHER) && self.bits()[0] < 8 && m & COLOR_BUFFER_BIT != 0 {
             return Err(Fail::Unmodeled("GL.DITHER"));
