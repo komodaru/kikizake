@@ -21642,4 +21642,157 @@ case fp-edge-buffer-fffffffe
 device12 ok
 fp 0 0 fffffffe 1 1 0 1 fffffffe
 total fffffffe
+case fp-edge-nv12-mips2
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-edge-nv12-w63
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-edge-nv12-h31
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case alloc-edge-small-1d-r8-65536
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-1d-r8-65537
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-1d-rgba-16384
+device12 ok
+alloc 10000 1000
+case alloc-edge-small-1d-rgba-16385
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-1d-rgb32-1024
+device12 ok
+alloc 3000 1000
+case alloc-edge-small-2d-rgb32-64
+device12 ok
+alloc c000 1000
+case alloc-edge-small-3d-r8-64x64x16
+device12 ok
+alloc 10000 1000
+case alloc-edge-small-3d-r8-64x64x17
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-3d-r8-65x64x16
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-3d-rgba-32x32x16
+device12 ok
+alloc 10000 1000
+case alloc-edge-small-3d-rgba-33x32x16
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-3d-rgba32f-16x16x16
+device12 ok
+alloc 10000 1000
+case alloc-edge-small-3d-rgba32f-16x16x17
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-2d-r8-256x256
+device12 ok
+alloc 10000 1000
+case alloc-edge-small-2d-r8-257x256
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-small-2d-r16-256x128
+device12 ok
+alloc 10000 1000
+case alloc-edge-small-2d-r16-256x129
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-swizzle2-2d-r8
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle2-2d-r16
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle2-2d-rgba
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle2-2d-rgba16
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle2-2d-rgba32
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle2-3d-r8
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle2-3d-r16
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle2-3d-rgba
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle2-3d-rgba16
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle2-3d-rgba32
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle2-nv12-600x300
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-swizzle2-p010-600x300
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-swizzle2-nv12-600x300x2
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-edge-swizzle3-2d-r8
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle3-2d-r16
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle3-2d-rgba
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle3-2d-rgba16
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle3-2d-rgba32
+device12 ok
+alloc 40000 10000
+case alloc-edge-swizzle3-3d-r8
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle3-3d-r16
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle3-3d-rgba
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle3-3d-rgba16
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle3-3d-rgba32
+device12 ok
+alloc 80000 10000
+case alloc-edge-swizzle3-nv12-600x300
+device12 ok
+alloc a0000 10000
+case alloc-edge-swizzle3-p010-600x300
+device12 ok
+alloc f0000 10000
+case alloc-edge-swizzle3-nv12-600x300x2
+device12 ok
+alloc 140000 10000
+case placed-edge-131072-65536
+device12 ok
+placed12 hr 00000000
+case placed-edge-131072-65537
+device12 ok
+placed12 hr 80070057
+case placed-edge-131071-65536
+device12 ok
+placed12 hr 80070057
+case placed-edge-65536-0
+device12 ok
+placed12 hr 00000000
 done

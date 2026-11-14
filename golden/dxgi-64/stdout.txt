@@ -1888,4 +1888,139 @@ nochain
 case nodev
 factory ok
 nodev
+case chain-edge-tear-0-200
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+present hr 00000000 index 1
+case chain-edge-tear-1-200
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+present hr 887a0001 index 0
+case chain-edge-tear-0-201
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+present hr 887a0001 index 0
+case chain-edge-tear-0-204
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+present hr 00000000 index 1
+case chain-edge-present-3-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-present-0-3
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 887a0001 index 0
+case chain-edge-present-0-104
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-resize-wait-100-0-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+resize hr 80070057
+case chain-edge-resize-wait-0-50-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+resize hr 80070057
+case chain-edge-resize-wait-0-0-40
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+resize = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+case chain-edge-resize-wait-0-0-800
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+resize hr 80070057
+case chain-edge-resize-wait-0-0-840
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+resize hr 80070057
+case chain-edge-resize-tear-800
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+resize = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+case chain-edge-resize-tear-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+resize hr 80070057
+case chain-edge-resize-tear-840
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+resize hr 80070057
+case chain-edge-latency-7fffffff
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge-latency-80000000
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge-latency-4
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 4
+case chain-edge-latency-f
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 f
+case chain-edge-size-8192x8192x4
+device12 ok
+factory ok
+swapchain = 2000 2000 57 0 1 0 20 4 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-8192x8192x3
+device12 ok
+factory ok
+swapchain = 2000 2000 57 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-16384x8192x2
+device12 ok
+factory ok
+swapchain = 4000 2000 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-16383x8192x2
+device12 ok
+factory ok
+swapchain = 3fff 2000 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-11586x11586x2
+device12 ok
+factory ok
+swapchain = 2d42 2d42 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-11585x11585x2
+device12 ok
+factory ok
+swapchain = 2d41 2d41 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-16384x16384x2
+device12 ok
+factory ok
+swapchain = 4000 4000 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge-size-4096x4096x16
+device12 ok
+factory ok
+swapchain = 1000 1000 57 0 1 0 20 10 0 4 0 0 index 0
+present hr 00000000 index 1
 done
