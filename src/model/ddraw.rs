@@ -183,14 +183,35 @@ fn check(r: Option<Rect>, s: &Surf) -> Option<Rect> {
     (x0 >= 0 && y0 >= 0 && x1 <= s.w && y1 <= s.h && x0 < x1 && y0 < y1).then_some((x0, y0, x1, y1))
 }
 
-/// a blit within one surface: MEASURED as if from a copy of the source at 16 and 32 bpp; at
-/// 8 bpp Windows' result differs from that in places (not worked out yet)
-fn overlap(s: &Surf) -> Res<()> {
-    if s.bpp == 8 {
+/// the call a blit within one surface came through
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum BltCall {
+    Blt,
+    Fast,
+}
+
+/// a blit within one surface: MEASURED as if from a copy of the source (16, 24 and 32 bpp:
+/// ddraw, ddclip overlap-*; 8 bpp: dd8 overlap8-*, overlap8align-*, overlap8seq-*) but for 8 bpp
+/// Blt's backward copy: moving right and not down, its rectangles overlapping and at least 4
+/// wide, with the source's right side on a dword, Windows writes dx mod 4 more pixels left of
+/// the destination, each from dx left and dy down of it in memory (`extra`)
+fn overlap(s: &Surf, call: BltCall, sr: Rect, dr: Rect, k: &Keys) -> Res<i64> {
+    if s.bpp != 8 {
+        hit(clause::DDRAW_OVERLAP);
+        return Ok(0);
+    }
+    let (dx, dy) = (dr.0 - sr.0, dr.1 - sr.1);
+    let w = sr.2 - sr.0;
+    let overlapping = dr.0 < sr.2 && sr.0 < dr.2 && dr.1 < sr.3 && sr.1 < dr.3;
+    let plain = k.src.is_none() && k.dest.is_none() && !k.lr && !k.ud && (dr.2 - dr.0, dr.3 - dr.1) == (w, sr.3 - sr.1) && s.clip.is_none();
+    // (the backward copy on a dword is measured for Blt without keys, mirrors, stretches or
+    // clip lists; BltFast's and those are not; moving down, dx 1 and 2: none)
+    let aligned = sr.2 % 4 == 0 && w >= 4 && overlapping && dx > 0 && dy <= 0;
+    if aligned && (!plain || call == BltCall::Fast) {
         return Err(Fail::Unmodeled(open::DDRAW_OVERLAP8));
     }
-    hit(clause::DDRAW_OVERLAP);
-    Ok(())
+    hit(clause::DDRAW_OVERLAP8);
+    Ok(if aligned { dx % 4 } else { 0 })
 }
 
 /// which source column (row) a destination one takes when a blit stretches: MEASURED (dd8
@@ -294,6 +315,26 @@ impl Ddraw {
             }
         }
         Ok(0)
+    }
+
+    /// the pixels an 8 bpp backward Blt writes left of its destination (DDRAW.OVERLAP8): each
+    /// row's `n` pixels before dr, each from the byte dx left and dy down of it in memory (rows
+    /// a pitch apart; a byte in a row's padding or before the surface is not modeled)
+    fn extra(&mut self, d: usize, dr: Rect, src: &Surf, sr: Rect, n: i64) -> Res<()> {
+        let (dx, dy) = (dr.0 - sr.0, dr.1 - sr.1);
+        let p = pitch(src.w, src.bpp);
+        let dst = self.s[d].as_mut().ok_or(Fail::Bad)?;
+        for y in dr.1..dr.3 {
+            for x in dr.0 - n..dr.0 {
+                let a = (y - dy) * p + x - dx;
+                let (ry, rx) = (a.div_euclid(p), a.rem_euclid(p));
+                if a < 0 || rx >= src.w {
+                    return Err(Fail::Unmodeled(open::DDRAW_OVERLAP8));
+                }
+                dst.set(x, y, src.get(rx, ry));
+            }
+        }
+        Ok(())
     }
 
     /// whether a surface is busy for a blit: locked or its DC out (MEASURED: DDERR_SURFACEBUSY)
@@ -545,10 +586,11 @@ impl Ddraw {
                     ret!(DDERR_NOCLIPLIST);
                 }
                 let (Some(dr), Some(sr)) = (self.dest_rect(d, dr), check(sr, &src)) else { ret!(DDERR_INVALIDRECT) };
-                if s == Some(d) {
-                    overlap(&src)?;
-                }
+                let extra = if s == Some(d) { overlap(&src, BltCall::Blt, sr, dr, &k)? } else { 0 };
                 let hr = self.copy(d, dr, &src, sr, &k)?;
+                if extra > 0 {
+                    self.extra(d, dr, &src, sr, extra)?;
+                }
                 ret!(hr);
             }
             "ddfast" => {
@@ -596,8 +638,8 @@ impl Ddraw {
                 if self.busy(d) || self.busy(s) {
                     ret!(DDERR_SURFACEBUSY);
                 }
-                if s == d {
-                    overlap(&src)?;
+                if s == d && overlap(&src, BltCall::Fast, sr, dr, &k)? != 0 {
+                    return Err(Fail::Bad);
                 }
                 let hr = self.copy(d, dr, &src, sr, &k)?;
                 ret!(hr);

@@ -3,7 +3,7 @@ DDRAW.DEVICE doc | DirectDrawCreateEx, IDirectDraw7::SetCooperativeLevel | an ID
 DDRAW.RECT measured | IDirectDrawSurface7::Blt (NULL: the whole surface) | a rectangle past the surface or empty gives DDERR_INVALIDRECT and changes nothing, without a clipper (ddraw golden)
 DDRAW.COPY doc | IDirectDrawSurface7::Blt | equal rectangles of surfaces of one format: the pixels copied
 DDRAW.OVERLAP measured | IDirectDrawSurface7::Blt, BltFast | within one surface of 16 or 32 bpp the source is read as it was before the blit (golden ddraw)
-DDRAW.OVERLAP8 open | (none) | within one 8 bpp surface: Windows' result differs from a copy of the source in places
+DDRAW.OVERLAP8 open | IDirectDrawSurface7::Blt, BltFast (one 8 bpp surface) | a copy of the source, but Blt's backward copy (moving right and not down, overlapping, at least 4 wide, the source's right side on a dword) writes dx mod 4 more pixels left of the destination, each from dx left and dy down of it in memory (MEASURED dd8 overlap8-*, overlap8align-*, overlap8seq-*, ddraw/ddclip overlap-8: all exact). Open: that backward copy through BltFast, with a source key, a clip list, a mirror or a stretch (overlap8alignfast, -key, -clip measure it)
 DDRAW.MIRROR doc | DDBLTFX (DDBLTFX_MIRRORLEFTRIGHT, MIRRORUPDOWN) | the source read right to left, bottom to top
 DDRAW.FILL doc | DDBLTFX (dwFillColor in the surface's pixel format) | DDBLT_COLORFILL writes the value to every pixel of the rectangle
 DDRAW.FILL.HIGHBITS measured | (none) | a fill value with bits past the surface's pixel: S_OK, the bits past it dropped (golden ddraw)
