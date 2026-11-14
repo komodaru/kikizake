@@ -142,6 +142,15 @@ pub fn gdiplus() -> String {
         let f = *r.pick(&names);
         writeln!(s, "case gammablend-{i}\ngpbitmap 0 16 4 {f}\ngpwrite 0 {f} seed {}\ngpfill 0 0 0 16 4 {:#010x} over {}\ngpread 0 {f}\nend", r.next(), rargb(&mut r), r.range(2, 4)).unwrap();
     }
+    // the gamma-corrected blend for every (brush alpha, destination alpha): column x drawn with
+    // brush alpha x over the destination's alpha y, for a few brush colors
+    for (i, c) in [0x00_0000u32, 0xff_ffff, 0x80_8080, 0x10_80f0].iter().enumerate() {
+        writeln!(s, "case gammaalpha-{i}\ngpbitmap 0 256 256 32bppARGB\ngpwrite 0 32bppARGB pairs").unwrap();
+        for x in 0..256u32 {
+            writeln!(s, "gpfill 0 {x} 0 1 256 {:#010x} over 2", x << 24 | c).unwrap();
+        }
+        writeln!(s, "gpread 0 32bppARGB\nend").unwrap();
+    }
     // matrices: made, multiplied both ways, inverted, points through them (more in gdiplusmat)
     for i in 0..120 {
         let m: Vec<String> = (0..12).map(|k| {

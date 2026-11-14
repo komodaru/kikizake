@@ -191,7 +191,7 @@ fn dither_keeps_the_mean() {
 /// still matches Windows on the rest: this is what keeps it answering)
 #[test]
 fn the_model_answers_all_but_the_open_clauses() {
-    for (suite, arch, open) in [("gdiplus", 32, 92), ("gdiplus", 64, 0), ("gdiplusmat", 32, 0), ("gdiplusmat", 64, 0)] {
+    for (suite, arch, open) in [("gdiplus", 32, 96), ("gdiplus", 64, 0), ("gdiplusmat", 32, 0), ("gdiplusmat", 64, 0)] {
         kikizake::model::set_arch(arch);
         let cases = kikizake::case::parse_cases(&kikizake::gen::suite(suite).unwrap());
         let mut n = 0;
