@@ -50,23 +50,6 @@ fn opaque_pixels_blend_as_constant() {
     assert!(alpha(s, d, sca, true) == alpha(s, d, sca, false));
 }
 
-/// GDI.MAP.FORMULA / ROUND: equal extents are a translation; otherwise the device coordinate is
-/// within 9/16 of a pixel of Dx = (Lx - xWO) * xVE / xWE + xVO (each of the two terms off by at
-/// most 1/32, the sum rounded to a pixel)
-#[kani::proof]
-fn page_transform_is_the_formula() {
-    let (a, w, v, wo, vo): (i32, i32, i32, i32, i32) = (kani::any(), kani::any(), kani::any(), kani::any(), kani::any());
-    kani::assume(a.abs() < 4096 && wo.abs() < 4096 && vo.abs() < 4096 && w != 0 && w.abs() <= 256 && v != 0 && v.abs() <= 256);
-    let p = page(a, w, v, wo, vo) as i64;
-    let (a, w, v, wo, vo) = (a as i64, w as i64, v as i64, wo as i64, vo as i64);
-    if w == v {
-        assert!(p == a - wo + vo);
-    }
-    // 16 w p against 16 ((a - wo) v + vo w), sign of w taken out
-    let e = 16 * w * p - 16 * ((a - wo) * v + vo * w);
-    assert!(e.abs() <= 9 * w.abs());
-}
-
 /// D3D7.TRI / CLEAR.Z: a triangle's z value grows with z, 0 at 0 and the largest value at 1
 #[kani::proof]
 fn triangle_z_is_monotone() {

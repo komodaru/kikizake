@@ -56,3 +56,29 @@ fn dibsection_object_is_its_header() {
         }
     }
 }
+
+/// GDI.MAP.FORMULA / ROUND: equal extents are a translation; otherwise the device coordinate is
+/// within 9/16 of a pixel of Dx = (Lx - xWO) * xVE / xWE + xVO (each of the two terms off by at
+/// most 1/32, the sum rounded to a pixel). Every extent of magnitude up to 16, points and
+/// origins in [-32, 32) and [-8, 8) (as a Kani proof the division did not finish in 25 minutes)
+#[test]
+fn page_transform_is_the_formula() {
+    use kikizake::model::gdixform::page;
+    for w in (-16..=16).filter(|&w| w != 0) {
+        for v in (-16..=16).filter(|&v| v != 0) {
+            for a in -32..32 {
+                for wo in -8..8 {
+                    for vo in -8..8 {
+                        let p = page(a, w, v, wo, vo) as i64;
+                        let (a, w, v, wo, vo) = (a as i64, w as i64, v as i64, wo as i64, vo as i64);
+                        if w == v {
+                            assert_eq!(p, a - wo + vo);
+                        }
+                        let e = 16 * w * p - 16 * ((a - wo) * v + vo * w);
+                        assert!(e.abs() <= 9 * w.abs(), "{a} {w} {v} {wo} {vo}: {p}");
+                    }
+                }
+            }
+        }
+    }
+}

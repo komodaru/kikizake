@@ -63,7 +63,7 @@ kikizake calls usage game.jsonl            # graphics calls and argument values 
 | differential against real Windows (x86, x86-64) | recorded answers, `kikizake compare` |
 | executable specification from the documentation, checked against Windows | `src/model`, `tests/windows.rs` |
 | exhaustive proofs over finite domains (truth table of all 256 ROPs, operand use) | `tests/laws.rs` |
-| bounded proofs of the models' arithmetic (ROP3, StretchBlt sampling, constant and per-pixel alpha, the page transform, D3D7 z) | Kani, `src/proofs.rs` and `src/model/gdi.rs` (`cargo kani`) |
+| bounded proofs of the models' arithmetic (ROP3, StretchBlt sampling, constant and per-pixel alpha, D3D7 z) | Kani, `src/proofs.rs` and `src/model/gdi.rs` (`cargo kani`) |
 | model checking of call sequences (GDI path bracket, D3D9 state blocks), every reachable state replayed against the models | TLA+, `spec/tla` (TLC, `kikizake tla`) |
 | clause names checked at compile time (`clause::X`, `open::X` from spec/) | `build.rs` |
 | property-based (metamorphic: clipping = masking, blit = two half blits, BitBlt without source = PatBlt, DSTINVERT twice = identity, brush origin modulo the pattern, color round trips, state blocks restore) | `tests/laws.rs` (proptest) |
