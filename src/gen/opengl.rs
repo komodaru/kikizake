@@ -1311,6 +1311,24 @@ fn measure(s: &mut String) {
     }
     read_all(s);
     writeln!(s, "glerr\nend").unwrap();
+    // 1-pixel lines at thousandths of a pixel (no diamond touched exactly), strips and loops,
+    // some ends past the window, one in a smaller viewport
+    let cr = |q: &mut XorShift32| (q.next() % 20000) as f64 / 1000.0 - 2.0;
+    for k in 0..6 {
+        write!(s, "case lines-{k}\n{}{ORTHO}gl glDisable 0xbd0\n", ctx(32)).unwrap();
+        if k == 5 {
+            writeln!(s, "gl glViewport 2 3 11 9").unwrap();
+        }
+        for mode in [1, 3, 2] {
+            writeln!(s, "gl glClear 0x4000\ngl glColor4ub {} {} {} 255\ngl glBegin {mode}", q.next() & 255, q.next() & 255, q.next() & 255).unwrap();
+            for _ in 0..6 {
+                writeln!(s, "gl glVertex2f {} {}", cr(&mut q), cr(&mut q)).unwrap();
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // fog over flat quads, one depth each, in every mode on the RGBA bit depths, a fog color,
     // the state read back; and color index fog and points
     let mut q = XorShift32::new(0x0960_200b);

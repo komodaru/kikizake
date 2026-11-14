@@ -18,6 +18,11 @@ pub mod e {
 
     pub const POINTS: u32 = 0;
     pub const QUADS: u32 = 7;
+    pub const LINES: u32 = 1;
+    pub const LINE_LOOP: u32 = 2;
+    pub const LINE_STRIP: u32 = 3;
+    pub const LINE_SMOOTH: u32 = 0xb20;
+    pub const LINE_STIPPLE: u32 = 0xb24;
 
     pub const NEVER: u32 = 0x200;
     pub const LESS: u32 = 0x201;
@@ -2099,9 +2104,71 @@ impl Ctx {
                     self.never = NeverPath::Other;
                 }
             }
+            LINES | LINE_LOOP | LINE_STRIP => {
+                // (wide, stippled and antialiased lines are not measured)
+                if self.line_width != 1.0 || self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                }
+                let n = verts.len();
+                let pairs: Vec<(usize, usize)> = match mode {
+                    LINES => (0..n / 2).map(|k| (2 * k, 2 * k + 1)).collect(),
+                    LINE_STRIP => (1..n).map(|k| (k - 1, k)).collect(),
+                    _ if n < 2 => Vec::new(),
+                    _ => (0..n).map(|k| (k, (k + 1) % n)).collect(),
+                };
+                for (i, j) in pairs {
+                    let (a, b) = (&verts[i], &verts[j]);
+                    let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
+                    if a.1 != b.1 || wa[2] != wb[2] {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                    }
+                    let c = self.fogged(a.1, a.0);
+                    if self.fogged(b.1, b.0) != c {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                    }
+                    for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]])? {
+                        self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                    }
+                }
+            }
             _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
         }
         Ok(())
+    }
+
+    /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden opengl-32
+    /// prim-3..8, 14, 15: the diamond-exit rule, GL 1.1 3.4.1: a pixel whose diamond
+    /// |x - xc| + |y - yc| < 1/2 the segment meets, unless b is inside it, inside the viewport:
+    /// GL.RASTER.LINE); a segment touching a diamond's border or ending on one is GL.RASTER.TIE
+    fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
+        hit(clause::GL_RASTER_LINE);
+        let l1 = |p: [f64; 2], xc: f64, yc: f64| (p[0] - xc).abs() + (p[1] - yc).abs();
+        let [vx, vy, vw, vh] = self.viewport;
+        let mut out = Vec::new();
+        if a == b {
+            return Ok(out);
+        }
+        for y in vy.max(0)..(vy + vh).min(H as i64) {
+            for x in vx.max(0)..(vx + vw).min(W as i64) {
+                let (xc, yc) = (x as f64 + 0.5, y as f64 + 0.5);
+                // the least |x - xc| + |y - yc| on the segment: at an end or where it crosses
+                // the center's row or column
+                let mut d = l1(a, xc, yc).min(l1(b, xc, yc));
+                for t in [(xc - a[0]) / (b[0] - a[0]), (yc - a[1]) / (b[1] - a[1])] {
+                    if (0.0..=1.0).contains(&t) {
+                        d = d.min(l1([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])], xc, yc));
+                    }
+                }
+                let e = l1(b, xc, yc);
+                if d == 0.5 || e == 0.5 {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
+                }
+                if d < 0.5 && e > 0.5 {
+                    out.push((x, y));
+                }
+            }
+        }
+        Ok(out)
     }
 
     fn bits(&self) -> [u32; 4] {
