@@ -974,15 +974,12 @@ pub fn wicdecode() -> String {
     decode_case(&mut s, "dds-argb", &dds(3, 2, 1, None, &bytes(&mut r, 24)), 1, false);
     // not an image
     decode_case(&mut s, "garbage", &bytes(&mut r, 40), 1, false);
-    // files cut at many lengths (the header, the tables, the pixels), and broken in other ways
+    // files cut at every length (the header, the tables, the pixels), and broken in other ways
     let mut r = XorShift32::new(0xb20e);
     let cuts = |s: &mut String, name: &str, f: &[u8], frames: u32| {
         let n = f.len();
-        let mut at: Vec<usize> = vec![0, 1, 4, 8, 12, 16, 20, 26, 30, 40, 54, 60, 100, n / 4, n / 2, 3 * n / 4, n - 8, n - 4, n - 1];
-        at.retain(|&k| k > 0 && k < n);
-        at.sort();
-        at.dedup();
-        for k in at {
+        // (every length: where each decoder stops reading is measured, not guessed)
+        for k in 1..n {
             decode_case(s, &format!("cut-{name}-{k}"), &f[..k], frames, false);
         }
     };
