@@ -585,5 +585,55 @@ pub fn opengl() -> String {
         read_all(&mut s);
         writeln!(s, "end").unwrap();
     }
+
+    // edges: each case ends at one answer the model leaves open, or checks an error path
+    let edges: &[(&str, &str)] = &[
+        ("attrib", "gl glPushAttrib 0x4000\nglerr\nglget i 0xbb0 1\ngl glPopAttrib\nglerr\nglget i 0xbb0 1\nglerr"),
+        ("attrib-overflow", "PUSH17glerr\nglget i 0xbb0 1\nglerr"),
+        ("accum", "gl glAccum 0x100 0.5\nglerr\ngl glAccum 0x101 1\nglerr\ngl glAccum 0x103 0.5\nglerr\ngl glAccum 0x104 0.25\nglerr\ngl glAccum 0x105 1\nglerr\ngl glAccum 0xff 1\nglerr\ngl glClearAccum 0.5 0.25 0 1\ngl glClear 0x200\nglerr\ngl glAccum 0x102 1\nglerr\nglread 0 0 16 16 0x1908 0x1401 1024"),
+        ("buffer", "gl glDrawBuffer 0x404\nglerr\ngl glReadBuffer 0x406\nglerr\nglget i 0xc01 1\nglget i 0xc02 1\ngl glDrawBuffer 0x400\ngl glReadBuffer 0x400\nglerr\nglget i 0xc01 1\nglget i 0xc02 1\ngl glDrawBuffer 0x408\nglerr\nglget i 0xc01 1\ngl glReadBuffer 0x408\nglerr\ngl glReadBuffer 0\nglerr\ngl glDrawBuffer 0x405\ngl glReadBuffer 0x405\nglerr\ngl glDrawBuffer 0\nglerr\nglget i 0xc01 1\ngl glClear 0x4000\nglread 0 0 4 1 0x1908 0x1401 16"),
+        ("begin-query", "gl glBegin 7\nglisen 0xbe2\ngl glEnd\nglerr"),
+        ("flush", "gl glClear 0x4000\ngl glFlush\ngl glFinish\nglerr"),
+        ("pixels-errors", "glread 0 0 1 1 0x1234 0x1401 16\nglerr\nglread 0 0 1 1 0x1908 0x1234 16\nglerr\nglread 0 0 -1 1 0x1908 0x1401 16\nglerr\nglread 0 0 1 -1 0x1908 0x1401 16\nglerr\nglread 0 0 1 1 0x1900 0x1401 16\nglerr\ngldraw 1 1 0x1234 0x1401 1 16\nglerr\ngldraw -1 1 0x1908 0x1401 1 16\nglerr\ngldraw 1 1 0x1900 0x1401 1 16\nglerr\nglread 0 0 1 1 0x1900 0x1a00 16\nglerr"),
+        ("draw-bitmap", "gldraw 8 1 0x1908 0x1a00 1 16\nglerr"),
+        ("draw-depth", "gldraw 2 1 0x1902 0x1405 1 16\nglerr\nglread 0 0 2 1 0x1902 0x1405 8"),
+        ("read-outside", "glread 14 14 4 4 0x1908 0x1401 64\nglerr"),
+        ("blend-alpha-buffer", "BLEND"),
+        ("depth-16", "DEPTH16"),
+        ("dib-8", "DIB8"),
+        ("transfer-map", "gl glPixelTransferf 0xd10 1\nglerr"),
+        ("raster-clip", "ORTHOgl glBegin 7\ngl glVertex3f 1 1 2\ngl glVertex3f 5 1 2\ngl glVertex3f 5 5 2\ngl glVertex3f 1 5 2\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024"),
+        ("raster-perspective", "gl glMatrixMode 0x1701\ngl glFrustum -1 1 -1 1 1 3\ngl glMatrixMode 0x1700\ngl glBegin 7\ngl glVertex3f -0.5 -0.5 -2\ngl glVertex3f 0.5 -0.5 -2\ngl glVertex3f 0.5 0.5 -2\ngl glVertex3f -0.5 0.5 -2\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024"),
+        ("raster-interpolate", "ORTHOgl glBegin 7\ngl glColor4ub 255 0 0 255\ngl glVertex2f 1 1\ngl glColor4ub 0 255 0 255\ngl glVertex2f 9 1\ngl glVertex2f 9 9\ngl glVertex2f 1 9\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024"),
+        ("raster-polygon", "ORTHOgl glBegin 7\ngl glVertex2f 1 1\ngl glVertex2f 9 2\ngl glVertex2f 8 9\ngl glVertex2f 2 8\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024"),
+        ("raster-triangles", "ORTHOgl glBegin 4\ngl glVertex2f 1 1\ngl glVertex2f 9 1\ngl glVertex2f 1 9\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024"),
+        ("vertex-outside", "ORTHOgl glVertex2f 1 1\nglerr\nglread 0 0 4 4 0x1908 0x1401 64"),
+        ("other-call", "gl glPixelZoom 2 2\nglerr"),
+        ("pf-range", "PFRANGE"),
+    ];
+    for (name, body) in edges {
+        let body = match *body {
+            "PUSH17" => "gl glPushAttrib 0x4000\n".repeat(17),
+            b if b.starts_with("ORTHO") => format!("{ORTHO}gl glDisable 0xbd0\n{}", &b[5..]),
+            b => b.to_string(),
+        };
+        let body = body.replace("PUSH17", &"gl glPushAttrib 0x4000\n".repeat(17));
+        let pre = match *name {
+            // a format with alpha bits: blending reads the destination alpha
+            "blend-alpha-buffer" => format!("glctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xbe2\ngl glBlendFunc 0x304 0x305\ngl glColor4ub 200 100 50 128\ngl glRectf 0 0 8 8\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr"),
+            // the second format: a 16-bit depth buffer
+            "depth-16" => format!("glctx 32 2\nglget i 0xd56 1\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glClear 0x4100\ngl glRectf 0 0 8 8\nglread 0 0 16 16 0x1902 0x1405 1024\nglerr"),
+            // an 8-bit DIB in RGB 3-3-2 (the format of index 25)
+            // a pixel format past the table
+            "pf-range" => "glctx 32 99\nglcur".to_string(),
+            "dib-8" => "glctx 8 25\ngl glDisable 0xbd0\ngl glClearColor 1 0.5 0.25 1\ngl glClear 0x4000\ngldib\nglerr".to_string(),
+            _ => String::new(),
+        };
+        if pre.is_empty() {
+            writeln!(s, "case edge-{name}\n{}{body}\nend", ctx(32)).unwrap();
+        } else {
+            writeln!(s, "case edge-{name}\n{pre}\nend").unwrap();
+        }
+    }
     s
 }

@@ -24,6 +24,7 @@ pub const FILES: &[(&str, &str)] = &[
     ("d3d11", include_str!("../spec/d3d11.txt")),
     ("wic", include_str!("../spec/wic.txt")),
     ("ddraw", include_str!("../spec/ddraw.txt")),
+    ("opengl", include_str!("../spec/opengl.txt")),
     ("d3d7", include_str!("../spec/d3d7.txt")),
     ("gdiplus", include_str!("../spec/gdiplus.txt")),
     ("dwrite", include_str!("../spec/dwrite.txt")),

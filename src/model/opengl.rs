@@ -35,7 +35,9 @@ pub mod e {
     pub const ONE_MINUS_DST_COLOR: u32 = 0x307;
     pub const SRC_ALPHA_SATURATE: u32 = 0x308;
 
+    pub const FRONT_LEFT: u32 = 0x400;
     pub const FRONT: u32 = 0x404;
+    pub const LEFT: u32 = 0x406;
     pub const BACK: u32 = 0x405;
     pub const FRONT_AND_BACK: u32 = 0x408;
     pub const CW: u32 = 0x900;
@@ -223,4 +225,1852 @@ pub const CAPS: &[u32] = &[
 
 pub fn pname(name: &str) -> u32 {
     PNAMES.iter().find(|p| p.0 == name).map(|p| p.1).unwrap_or_else(|| panic!("{name}"))
+}
+
+use super::{Fail, Res};
+use crate::case::{num, Op};
+use crate::spec::hit;
+use e::*;
+
+/// a pixel format: what DescribePixelFormat gives (the fields `glpf` prints)
+#[derive(Clone, Debug, PartialEq)]
+pub struct Pfd {
+    pub flags: u32,
+    pub ty: u32,
+    pub color: u32,
+    /// (bits, shift) of red, green, blue, alpha
+    pub rgba: [(u32, u32); 4],
+    pub accum: u32,
+    pub accum_rgba: [u32; 4],
+    pub depth: u32,
+    pub stencil: u32,
+}
+
+impl Pfd {
+    /// the fields `glpf` prints after the index
+    pub fn describe(&self) -> String {
+        let [r, g, b, a] = self.rgba;
+        let [ar, ag, ab, aa] = self.accum_rgba;
+        format!("{:x} {} {} {},{} {},{} {},{} {},{} accum {} {ar},{ag},{ab},{aa} depth {} stencil {} aux 0 0 0 0 0 0", self.flags, self.ty, self.color, r.0, r.1, g.0, g.1, b.0, b.1, a.0, a.1, self.accum, self.depth, self.stencil)
+    }
+}
+
+/// the generic implementation's pixel formats (MEASURED, golden opengl-32 pf-*: the same 36 on
+/// DIBs of every depth): the display's (32 bits, on bitmaps and windows, single or double
+/// buffered), then 24, 16, 8 and 4 bits (bitmaps only); each RGBA without alpha, RGBA with 8
+/// bits of alpha, color index; each with depth 32 then 16, stencil 8
+pub fn formats() -> Vec<Pfd> {
+    let mut v = Vec::new();
+    for (color, rgb, accum, acc_rgb, acc_a) in [
+        (32, [(8, 16), (8, 8), (8, 0)], 64, [16, 16, 16], 16),
+        (24, [(8, 16), (8, 8), (8, 0)], 64, [16, 16, 16], 16),
+        (16, [(5, 10), (5, 5), (5, 0)], 32, [11, 11, 10], 8),
+        (8, [(3, 0), (3, 3), (2, 6)], 32, [11, 11, 10], 8),
+        (4, [(1, 0), (1, 1), (1, 2)], 16, [5, 6, 5], 4),
+    ] {
+        for kind in 0..3 {
+            for double in [false, true] {
+                if double && color != 32 {
+                    continue;
+                }
+                for depth in [32, 16] {
+                    let alpha = kind == 1;
+                    let ty = (kind == 2) as u32;
+                    let (accum, accum_rgba) = match kind {
+                        0 => (accum, [acc_rgb[0], acc_rgb[1], acc_rgb[2], 0]),
+                        1 => (accum, [acc_a; 4]),
+                        _ => (0, [0; 4]),
+                    };
+                    let flags = match (color, double) {
+                        (32, false) => 0x807c,
+                        (32, true) => 0x8465,
+                        _ => 0x78,
+                    };
+                    v.push(Pfd { flags, ty, color, rgba: [rgb[0], rgb[1], rgb[2], if alpha { (8, 0) } else { (0, 0) }], accum, accum_rgba, depth, stencil: 8 });
+                }
+            }
+        }
+    }
+    v
+}
+
+/// ChoosePixelFormat (MEASURED, golden opengl-32 choose-*, a weighted mismatch fitted on all 292
+/// requests): of the formats that draw to a window if that is asked (the other flags,
+/// double buffering included, are not looked at), the one with the least penalty, the first on a
+/// tie: 3 for less accumulation than asked, 1 for more, 2 for another pixel type, 1 for other
+/// color bits than asked, 2 for less alpha, 7 for less depth, and a deeper depth buffer 1 for each
+/// 16 bits past the request. `req`: flags, type, color, alpha, accum, depth, stencil.
+pub fn choose(req: &[i64]) -> usize {
+    hit("WGL.CHOOSE");
+    let (flags, ty, color, alpha, accum, depth) = (req[0] as u32, req[1] as u32, req[2] as u32, req[3] as u32, req[4] as u32, req[5] as u32);
+    let mut best = (u32::MAX, 0);
+    for (i, f) in formats().iter().enumerate() {
+        if flags & PFD_DRAW_TO_WINDOW != 0 && f.flags & PFD_DRAW_TO_WINDOW == 0 {
+            continue;
+        }
+        let mut p = 0;
+        if accum > 0 && f.accum < accum {
+            p += 3;
+        }
+        if accum > 0 && f.accum > accum {
+            p += 1;
+        }
+        if f.ty != ty {
+            p += 2;
+        }
+        if color > 0 && f.color != color {
+            p += 1;
+        }
+        if f.rgba[3].0 < alpha {
+            p += 2;
+        }
+        if f.depth < depth {
+            p += 7;
+        } else {
+            p += (f.depth - depth) / 16;
+        }
+        if p < best.0 {
+            best = (p, i + 1);
+        }
+    }
+    best.1
+}
+
+/// a value of the state as glGet sees it
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum V {
+    /// an integer (or enum)
+    I(i64),
+    /// a float state value
+    F(f32),
+    /// a color component, normal or depth: glGetIntegerv maps it linearly (1.0 to the largest integer)
+    C(f32),
+    B(bool),
+}
+
+const W: usize = 16;
+const H: usize = 16;
+
+/// the state of a context (glGet's table of initial values)
+#[derive(Clone, Debug)]
+pub struct Ctx {
+    pub pf: Pfd,
+    pub err: u32,
+    pub in_begin: Option<u32>,
+    pub caps: std::collections::BTreeMap<u32, bool>,
+    pub mode: u32,
+    /// the matrix stacks, column-major, the top last: modelview, projection, texture
+    pub stacks: [Vec<[f32; 16]>; 3],
+    pub clear_color: [f32; 4],
+    pub clear_depth: f32,
+    pub clear_stencil: i64,
+    pub color: [f32; 4],
+    pub blend: (u32, u32),
+    pub logic_op: u32,
+    pub depth_func: u32,
+    pub depth_mask: bool,
+    pub depth_range: [f32; 2],
+    pub alpha: (u32, f32),
+    pub stencil_func: (u32, i64, u32),
+    pub stencil_op: [u32; 3],
+    pub stencil_mask: u32,
+    /// glDrawBuffer, glReadBuffer
+    pub buffers: [u32; 2],
+    /// the depth of the attribute stack (glPushAttrib)
+    pub attrib: usize,
+    pub clear_accum: [f32; 4],
+    pub color_mask: [bool; 4],
+    /// the GLboolean bytes glColorMask was given (glGet gives them back as they are: GL.COLORMASK)
+    pub color_mask_raw: [u32; 4],
+    pub viewport: [i64; 4],
+    pub scissor: [i64; 4],
+    pub shade: u32,
+    pub hints: [u32; 5],
+    /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
+    pub pack: [i64; 6],
+    pub unpack: [i64; 6],
+    /// RED_SCALE, RED_BIAS, GREEN_*, BLUE_*, ALPHA_* (scale, bias)
+    pub transfer: [(f32, f32); 4],
+    pub line_width: f32,
+    pub point_size: f32,
+    pub cull_mode: u32,
+    pub front_face: u32,
+    pub poly_mode: [u32; 2],
+    /// the framebuffer, row 0 at the bottom: color channels at the format's bits, depth, stencil
+    pub fb: Vec<[u32; 4]>,
+    pub depth: Vec<u32>,
+    pub stencil: Vec<u32>,
+    /// the DIB's bits a pixel
+    pub bpp: u32,
+    /// the vertices since glBegin: object position, color
+    pub verts: Vec<([f64; 3], [f32; 4])>,
+}
+
+pub const IDENTITY: [f32; 16] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0];
+
+impl Ctx {
+    pub fn new(pf: Pfd, bpp: u32) -> Ctx {
+        hit("GL.INIT");
+        let stencil_bits = pf.stencil;
+        let mut caps = std::collections::BTreeMap::new();
+        for c in CAPS {
+            caps.insert(*c, *c == DITHER);
+        }
+        Ctx {
+            pf,
+            err: NO_ERROR,
+            in_begin: None,
+            caps,
+            mode: MODELVIEW,
+            stacks: [vec![IDENTITY], vec![IDENTITY], vec![IDENTITY]],
+            clear_color: [0.0; 4],
+            clear_depth: 1.0,
+            clear_stencil: 0,
+            color: [1.0; 4],
+            blend: (ONE, ZERO),
+            logic_op: COPY,
+            depth_func: LESS,
+            depth_mask: true,
+            depth_range: [0.0, 1.0],
+            alpha: (ALWAYS, 0.0),
+            // (MEASURED, golden opengl-32 defaults-*: the value mask starts as the stencil bits)
+            stencil_func: (ALWAYS, 0, ((1u64 << stencil_bits) - 1) as u32),
+            stencil_op: [KEEP; 3],
+            stencil_mask: ((1u64 << stencil_bits) - 1) as u32,
+            buffers: [FRONT; 2],
+            attrib: 0,
+            clear_accum: [0.0; 4],
+            color_mask: [true; 4],
+            color_mask_raw: [1; 4],
+            viewport: [0, 0, W as i64, H as i64],
+            scissor: [0, 0, W as i64, H as i64],
+            shade: SMOOTH,
+            hints: [DONT_CARE; 5],
+            pack: [0, 0, 0, 0, 0, 4],
+            unpack: [0, 0, 0, 0, 0, 4],
+            transfer: [(1.0, 0.0); 4],
+            line_width: 1.0,
+            point_size: 1.0,
+            cull_mode: BACK,
+            front_face: CCW,
+            poly_mode: [0x1b02, 0x1b02],
+            fb: vec![[0; 4]; W * H],
+            depth: vec![0; W * H],
+            stencil: vec![0; W * H],
+            bpp,
+            verts: Vec::new(),
+        }
+    }
+
+    /// record an error: only the first since the last glGetError is kept (GL.ERROR.ONE)
+    pub fn error(&mut self, e: u32) {
+        if self.err == NO_ERROR {
+            self.err = e;
+        } else {
+            hit("GL.ERROR.ONE");
+        }
+    }
+}
+
+/// the depths of the modelview, projection and texture matrix stacks (GL.LIMITS)
+pub const STACK_DEPTH: [usize; 3] = [32, 10, 10];
+
+/// the implementation's limits and constant answers (MEASURED, golden opengl-32: see the
+/// clauses GL.LIMITS)
+pub fn limits(p: u32) -> Option<Vec<V>> {
+    use V::*;
+    let i = |v: i64| vec![I(v)];
+    Some(match p {
+        0xb12 | 0xb22 => vec![F(0.5), F(10.0)],
+        0xb13 | 0xb23 => vec![F(0.125)],
+        0xb31 => i(64),
+        0xd30 => i(30),
+        0xd31 => i(8),
+        0xd32 => i(6),
+        0xd33 => i(1024),
+        0xd34 => i(65536),
+        0xd35 | 0xd3b => i(16),
+        0xd36 => i(STACK_DEPTH[0] as i64),
+        0xd37 => i(128),
+        0xd38 => i(STACK_DEPTH[1] as i64),
+        0xd39 => i(STACK_DEPTH[2] as i64),
+        0xd3a => vec![I(16384), I(16384)],
+        0xd50 => i(3),
+        _ => return None,
+    })
+}
+
+impl Ctx {
+    fn cap(&self, c: u32) -> bool {
+        self.caps.get(&c).copied().unwrap_or(false)
+    }
+    fn top(&self, m: usize) -> &[f32; 16] {
+        self.stacks[m].last().unwrap()
+    }
+
+    /// the values glGet gives for `p`, None for a name it does not know (INVALID_ENUM)
+    pub fn get(&self, p: u32) -> Res<Option<Vec<V>>> {
+        use V::*;
+        if self.caps.contains_key(&p) && !(0x3000..=0x4007).contains(&p) || [0x3000, 0x3005, 0x4000, 0x4007].contains(&p) {
+            hit("GL.GET.CAP");
+            return Ok(Some(vec![B(self.cap(p))]));
+        }
+        let c4 = |v: [f32; 4]| v.iter().map(|x| C(*x)).collect::<Vec<_>>();
+        let i = |v: i64| vec![I(v)];
+        let pf = &self.pf;
+        hit("GL.GET.STATE");
+        Ok(Some(match p {
+            0xb00 => c4(self.color),
+            0xb01 => vec![F(1.0)],
+            0xb02 => vec![C(0.0), C(0.0), C(1.0)],
+            0xb03 | 0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
+            0xb04 => c4([1.0; 4]),
+            0xb05 => vec![F(1.0)],
+            0xb07 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
+            0xb08 => vec![B(true)],
+            0xb09 => vec![F(0.0)],
+            0xb11 => vec![F(self.point_size)],
+            0xb21 => vec![F(self.line_width)],
+            0xb25 => i(0xffff),
+            0xb26 => i(1),
+            0xb30 | 0xb32 | 0xb33 => i(0),
+            0xb40 => self.poly_mode.iter().map(|m| I(*m as i64)).collect(),
+            0xb43 => vec![B(true)],
+            0xb45 => i(self.cull_mode as i64),
+            0xb46 => i(self.front_face as i64),
+            0xb51 | 0xb52 => vec![B(false)],
+            0xb53 => {
+                // (MEASURED, golden opengl-32 defaults-*: the ambient 0.2 is the float 0x3e4ccccf,
+                // two ulps above, with 8-bit channels, 0.2 itself with 5-bit ones)
+                let a = f32::from_bits(if pf.rgba[0].0 == 8 { 0x3e4c_cccf } else { 0x3e4c_cccd });
+                c4([a, a, a, 1.0])
+            }
+            0xb54 => i(self.shade as i64),
+            0xb55 => i(FRONT_AND_BACK as i64),
+            0xb56 => i(0x1602),
+            0xb61 => vec![F(0.0)],
+            0xb62 => vec![F(1.0)],
+            0xb63 => vec![F(0.0)],
+            0xb64 => vec![F(1.0)],
+            0xb65 => i(0x800),
+            0xb66 => c4([0.0; 4]),
+            0xb70 => vec![C(self.depth_range[0]), C(self.depth_range[1])],
+            0xb72 => vec![B(self.depth_mask)],
+            0xb73 => vec![C(self.clear_depth)],
+            0xb74 => i(self.depth_func as i64),
+            0xb80 => c4(self.clear_accum),
+            0xb91 => i(self.clear_stencil),
+            0xb92 => i(self.stencil_func.0 as i64),
+            0xb93 => i(self.stencil_func.2 as i32 as i64),
+            0xb94 => i(self.stencil_op[0] as i64),
+            0xb95 => i(self.stencil_op[1] as i64),
+            0xb96 => i(self.stencil_op[2] as i64),
+            0xb97 => i(self.stencil_func.1),
+            0xb98 => i(self.stencil_mask as i32 as i64),
+            0xba0 => i(self.mode as i64),
+            0xba2 => self.viewport.iter().map(|v| I(*v)).collect(),
+            0xba3..=0xba5 => i(self.stacks[(p - 0xba3) as usize].len() as i64),
+            0xba6..=0xba8 => self.top((p - 0xba6) as usize).iter().map(|v| F(*v)).collect(),
+            0xbb0 => i(self.attrib as i64),
+            0xbb1 => i(0),
+            0xbc1 => i(self.alpha.0 as i64),
+            0xbc2 => vec![F(self.alpha.1)],
+            0xbe0 => i(self.blend.1 as i64),
+            0xbe1 => i(self.blend.0 as i64),
+            0xbf0 => i(self.logic_op as i64),
+            0xc00 => i(0),
+            0xc01 | 0xc02 => i(self.buffers[(p - 0xc01) as usize] as i64),
+            0xc10 => self.scissor.iter().map(|v| I(*v)).collect(),
+            0xc20 => vec![F(0.0)],
+            // (MEASURED, golden opengl-32 defaults-*: no index bits in RGBA mode, so no mask)
+            0xc21 => i(0),
+            0xc22 => c4(self.clear_color),
+            0xc23 => self.color_mask_raw.iter().map(|b| I(*b as i64)).collect(),
+            0xc30 => vec![B(false)],
+            0xc31 => vec![B(true)],
+            0xc32 => vec![B(pf.flags & PFD_DOUBLEBUFFER != 0)],
+            0xc33 => vec![B(false)],
+            0xc40 => i(0x1c00),
+            0xc50..=0xc54 => i(self.hints[(p - 0xc50) as usize] as i64),
+            0xcb0..=0xcb9 => i(1),
+            0xcf0..=0xcf5 => {
+                let v = self.unpack[(p - 0xcf0) as usize];
+                if p <= 0xcf1 { vec![B(v != 0)] } else { i(v) }
+            }
+            0xd00..=0xd05 => {
+                let v = self.pack[(p - 0xd00) as usize];
+                if p <= 0xd01 { vec![B(v != 0)] } else { i(v) }
+            }
+            0xd10 | 0xd11 => vec![B(false)],
+            0xd12 | 0xd13 => i(0),
+            0xd14..=0xd1d => {
+                let k = [0xd14, 0xd18, 0xd1a, 0xd1c].iter().position(|x| *x == p & !1).unwrap_or(9);
+                match p {
+                    0xd16 | 0xd17 => vec![F(1.0)],
+                    _ if k < 4 => vec![F(if p & 1 == 0 { self.transfer[k].0 } else { self.transfer[k].1 })],
+                    _ => vec![F(if p == 0xd14 { self.transfer[0].0 } else { self.transfer[0].1 })],
+                }
+            }
+            0xd1e => vec![F(1.0)],
+            0xd1f => vec![F(0.0)],
+            // (MEASURED, golden opengl-32 defaults-*: 8 in RGBA mode at every depth)
+            0xd51 => i(8),
+            0xd52..=0xd55 => i(pf.rgba[(p - 0xd52) as usize].0 as i64),
+            0xd56 => i(pf.depth as i64),
+            0xd57 => i(pf.stencil as i64),
+            0xd58..=0xd5b => i(pf.accum_rgba[(p - 0xd58) as usize] as i64),
+            0xd70 => i(0),
+            0xdd0 => vec![F(0.0), F(1.0)],
+            0xdd1 => i(1),
+            0xdd2 => vec![F(0.0), F(1.0), F(0.0), F(1.0)],
+            0xdd3 => vec![I(1), I(1)],
+            // (MEASURED, golden opengl-32 defaults-*: the feedback type reads 0, not GL_2D)
+            0xdf1 | 0xdf2 | 0xdf4 => i(0),
+            0x2a00 | 0x8038 => vec![F(0.0)],
+            0x8068 | 0x8069 => i(0),
+            0x807a | 0x8088 => i(4),
+            0x8081 => i(4),
+            0x807b | 0x807e | 0x8082 | 0x8089 => i(FLOAT as i64),
+            0x8085 => i(FLOAT as i64),
+            0x807c | 0x807f | 0x8083 | 0x8086 | 0x808a | 0x808c => i(0),
+            _ => match limits(p) {
+                Some(v) => {
+                    hit("GL.LIMITS");
+                    v
+                }
+                None => {
+                    hit("GL.GET.ENUM");
+                    return Ok(None);
+                }
+            },
+        }))
+    }
+}
+
+/// glGetIntegerv of a color-like value (GL.GET.MAP)
+/// (MEASURED, golden opengl-32 set-values-*: the component times the float 2147482496 in single
+/// precision, truncated; out of range the conversion's "integer indefinite" 0x80000000)
+pub fn color_to_int(c: f32) -> i64 {
+    hit("GL.GET.MAP");
+    float_to_int(c * 2_147_482_496.0f32)
+}
+
+/// a float to an integer as the x86 conversion instructions do: truncated, 0x80000000 when out of range or NaN
+pub fn float_to_int(v: f32) -> i64 {
+    if v >= -2_147_483_648.0 && v < 2_147_483_648.0 {
+        v.trunc() as i64
+    } else {
+        i32::MIN as i64
+    }
+}
+
+/// one value as `glget <kind>` prints it
+pub fn print_value(kind: &str, v: V) -> String {
+    use V::*;
+    let as_f = |v: V| -> f32 {
+        match v {
+            I(i) => i as f32,
+            F(x) | C(x) => x,
+            B(b) => b as i32 as f32,
+        }
+    };
+    match kind {
+        "i" => match v {
+            I(i) => (i as i32).to_string(),
+            F(x) => {
+                hit("GL.GET.ROUND");
+                (x as f64).round().clamp(i32::MIN as f64, i32::MAX as f64).to_string()
+            }
+            C(x) => color_to_int(x).to_string(),
+            B(b) => (b as i32).to_string(),
+        },
+        "f" => format!("{:08x}", as_f(v).to_bits()),
+        "d" => format!("{:016x}", (as_f(v) as f64).to_bits()),
+        _ => {
+            let b = match v {
+                I(i) => i != 0,
+                F(x) | C(x) => x != 0.0,
+                B(b) => b,
+            };
+            (b as i32).to_string()
+        }
+    }
+}
+
+/// the calls `gl` may name and their argument types (runner/opengl.c's table)
+pub const CALLS: &[(&str, &str)] = &[
+    ("glLoadIdentity", ""), ("glPushMatrix", ""), ("glPopMatrix", ""), ("glEnd", ""), ("glFlush", ""), ("glFinish", ""), ("glPopAttrib", ""),
+    ("glEnable", "i"), ("glDisable", "i"), ("glMatrixMode", "i"), ("glBegin", "i"), ("glClear", "i"), ("glLogicOp", "i"), ("glDepthFunc", "i"),
+    ("glShadeModel", "i"), ("glCullFace", "i"), ("glFrontFace", "i"), ("glStencilMask", "i"), ("glDepthMask", "i"), ("glPushAttrib", "i"),
+    ("glDrawBuffer", "i"), ("glReadBuffer", "i"), ("glClearStencil", "i"), ("glIndexMask", "i"), ("glIndexi", "i"),
+    ("glBlendFunc", "ii"), ("glPixelStorei", "ii"), ("glHint", "ii"), ("glPolygonMode", "ii"), ("glVertex2i", "ii"), ("glPixelTransferi", "ii"),
+    ("glStencilOp", "iii"), ("glStencilFunc", "iii"), ("glColor3ub", "iii"), ("glVertex3i", "iii"),
+    ("glViewport", "iiii"), ("glScissor", "iiii"), ("glColorMask", "iiii"), ("glColor4ub", "iiii"), ("glRecti", "iiii"),
+    ("glLineWidth", "f"), ("glPointSize", "f"), ("glClearIndex", "f"),
+    ("glVertex2f", "ff"), ("glPolygonOffset", "ff"),
+    ("glTranslatef", "fff"), ("glScalef", "fff"), ("glColor3f", "fff"), ("glVertex3f", "fff"), ("glNormal3f", "fff"),
+    ("glClearColor", "ffff"), ("glColor4f", "ffff"), ("glRotatef", "ffff"), ("glRectf", "ffff"), ("glClearAccum", "ffff"), ("glVertex4f", "ffff"),
+    ("glClearDepth", "d"), ("glDepthRange", "dd"), ("glOrtho", "dddddd"), ("glFrustum", "dddddd"),
+    ("glAlphaFunc", "if"), ("glPixelStoref", "if"), ("glPixelTransferf", "if"), ("glAccum", "if"), ("glFogf", "if"),
+    ("glPixelZoom", "ff"), ("glRasterPos2i", "ii"), ("glRasterPos2f", "ff"),
+];
+
+/// an argument: an integer as the executor passes it (a C long, 32 bits), or a float
+#[derive(Clone, Copy, Debug)]
+enum A {
+    I(i64),
+    F(f64),
+}
+
+fn int(a: &[A], i: usize) -> i64 {
+    match a[i] {
+        A::I(v) => v as u32 as i32 as i64,
+        A::F(v) => v as i64,
+    }
+}
+fn u(a: &[A], i: usize) -> u32 {
+    int(a, i) as u32
+}
+fn fl(a: &[A], i: usize) -> f64 {
+    match a[i] {
+        A::F(v) => v,
+        A::I(v) => v as f64,
+    }
+}
+
+fn parse_float(t: &str) -> Res<f64> {
+    t.parse::<f64>().map_err(|_| Fail::Bad)
+}
+
+/// the opengl model of one case: the context the case made
+#[derive(Default)]
+pub struct Gl {
+    pub ctx: Option<Ctx>,
+}
+
+fn clamp01(v: f64) -> f32 {
+    v.clamp(0.0, 1.0) as f32
+}
+
+fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
+    let mut r = [0f32; 16];
+    for c in 0..4 {
+        for row in 0..4 {
+            // (the four products summed from the first: no +0.0 to start from, so zeros keep their sign)
+            let p = |k: usize| a[k * 4 + row] * b[c * 4 + k];
+            let s = p(0) + p(1) + p(2) + p(3);
+            r[c * 4 + row] = s;
+        }
+    }
+    r
+}
+
+const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glEnd"];
+
+impl Gl {
+    pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
+        let t = op.tok.as_slice();
+        let name = t[0].as_str();
+        match name {
+            "glpf" => {
+                let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)?;
+                let f = formats();
+                hit("WGL.FORMATS");
+                out.push(format!("glpf {bpp} n {}", f.len()));
+                for (i, p) in f.iter().enumerate() {
+                    out.push(format!("pf {} {}", i + 1, p.describe()));
+                }
+                return Ok(true);
+            }
+            "glchoose" => {
+                let v: Option<Vec<i64>> = t[1..].iter().map(|x| num(x)).collect();
+                let v = v.ok_or(Fail::Bad)?;
+                if v.len() != 8 {
+                    return Err(Fail::Bad);
+                }
+                out.push(format!("glchoose {}", choose(&v[1..])));
+                return Ok(true);
+            }
+            "glctx" => {
+                self.ctx = None;
+                let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)? as u32;
+                let pf = if t.get(2).is_some_and(|v| v == "choose") {
+                    let v: Option<Vec<i64>> = t[3..].iter().map(|x| num(x)).collect();
+                    let v = v.ok_or(Fail::Bad)?;
+                    if v.len() != 7 {
+                        return Err(Fail::Bad);
+                    }
+                    choose(&v)
+                } else {
+                    if t.len() != 3 {
+                        return Err(Fail::Bad);
+                    }
+                    num(&t[2]).ok_or(Fail::Bad)? as usize
+                };
+                let f = formats();
+                let Some(p) = pf.checked_sub(1).and_then(|i| f.get(i)) else { return Err(Fail::Unmodeled("WGL.SETPIXELFORMAT.RANGE")) };
+                if p.flags & PFD_DRAW_TO_BITMAP == 0 {
+                    hit("WGL.SETPIXELFORMAT.BITMAP");
+                    out.push("glctx set failed 87".into());
+                } else if p.color != bpp {
+                    hit("WGL.SETPIXELFORMAT.DEPTH");
+                    out.push("glctx set failed 1".into());
+                } else {
+                    hit("WGL.CONTEXT");
+                    if p.ty != 0 {
+                        return Err(Fail::Unmodeled("GL.COLORINDEX"));
+                    }
+                    self.ctx = Some(Ctx::new(p.clone(), bpp));
+                    out.push(format!("glctx ok {pf}"));
+                }
+                return Ok(true);
+            }
+            "glcur" => {
+                hit("WGL.CURRENT");
+                let c = self.ctx.is_some() as u32;
+                out.push(format!("glcur {c} {c}"));
+                return Ok(true);
+            }
+            "gl" | "glmat" | "glerr" | "glget" | "glisen" | "glstr" | "glread" | "gldraw" | "gldib" | "glrelease" => {}
+            _ => return Ok(false),
+        }
+        let Some(ctx) = self.ctx.as_mut() else {
+            out.push("noctx".into());
+            return Ok(true);
+        };
+        match name {
+            "gl" => {
+                let Some(call) = t.get(1).and_then(|n| CALLS.iter().find(|c| c.0 == n)) else { return Err(Fail::Bad) };
+                if t.len() != 2 + call.1.len() {
+                    return Err(Fail::Bad);
+                }
+                let mut a = Vec::new();
+                for (k, ty) in call.1.chars().enumerate() {
+                    let tok = &t[2 + k];
+                    a.push(if ty == 'i' { A::I(num(tok).ok_or(Fail::Bad)?) } else { A::F(parse_float(tok)?) });
+                }
+                ctx.call(call.0, &a)?;
+            }
+            "glmat" => {
+                if t.len() != 18 || !(t[1] == "load" || t[1] == "mult") {
+                    return Err(Fail::Bad);
+                }
+                let mut m = [0f32; 16];
+                for k in 0..16 {
+                    m[k] = parse_float(&t[2 + k])? as f32;
+                }
+                if ctx.in_begin.is_some() {
+                    ctx.error(INVALID_OPERATION);
+                } else {
+                    hit("GL.MATRIX.LOAD");
+                    let i = ctx.mi();
+                    let top = ctx.stacks[i].last_mut().unwrap();
+                    *top = if t[1] == "load" { m } else { mat_mul(top, &m) };
+                }
+            }
+            "glerr" => {
+                // (MEASURED, golden opengl-32 errors-begin: inside glBegin / glEnd glGetError is
+                // itself INVALID_OPERATION and returns the error without clearing it, so the
+                // executor's loop of eight reads it eight times)
+                if ctx.in_begin.is_some() {
+                    hit("GL.BEGIN.GETERROR");
+                    ctx.error(INVALID_OPERATION);
+                    out.push(format!("glerr{}", format!(" {:x}", ctx.err).repeat(8)));
+                    return Ok(true);
+                }
+                hit("GL.ERROR");
+                let e = std::mem::replace(&mut ctx.err, NO_ERROR);
+                out.push(if e == NO_ERROR { "glerr 0".into() } else { format!("glerr {e:x}") });
+            }
+            "glget" => {
+                let (Some(p), Some(n)) = (t.get(2).and_then(|v| num(v)), t.get(3).and_then(|v| num(v))) else { return Err(Fail::Bad) };
+                let kind = t[1].as_str();
+                if !(1..=16).contains(&n) || !["i", "f", "b", "d"].contains(&kind) || t.len() != 4 {
+                    return Err(Fail::Bad);
+                }
+                if ctx.in_begin.is_some() {
+                    // (MEASURED, golden opengl-32 errors-begin: nothing written, INVALID_OPERATION)
+                    hit("GL.BEGIN.GET");
+                    ctx.error(INVALID_OPERATION);
+                    out.push(format!("get {:x} ={}", p as u32, " -".repeat(n as usize)));
+                    return Ok(true);
+                }
+                let vals = match ctx.get(p as u32)? {
+                    Some(v) => v,
+                    None => {
+                        ctx.error(INVALID_ENUM);
+                        vec![]
+                    }
+                };
+                let mut s = format!("get {:x} =", p as u32);
+                for k in 0..n as usize {
+                    s.push(' ');
+                    match vals.get(k) {
+                        Some(v) => s.push_str(&print_value(kind, *v)),
+                        None => s.push('-'),
+                    }
+                }
+                out.push(s);
+            }
+            "glisen" => {
+                let Some(c) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
+                let c = c as u32;
+                if ctx.in_begin.is_some() {
+                    return Err(Fail::Unmodeled("GL.BEGIN.QUERY"));
+                }
+                let v = match ctx.caps.get(&c) {
+                    Some(v) => {
+                        hit("GL.ISENABLED");
+                        *v as u32
+                    }
+                    None => {
+                        hit("GL.ISENABLED.ENUM");
+                        ctx.error(INVALID_ENUM);
+                        0
+                    }
+                };
+                out.push(format!("isen {c:x} = {v}"));
+            }
+            "glstr" => {
+                let Some(n) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
+                if ctx.in_begin.is_some() {
+                    return Err(Fail::Unmodeled("GL.BEGIN.QUERY"));
+                }
+                // (MEASURED, golden opengl-32/64 ctx-*: the same four strings at every depth)
+                let s = match n {
+                    0x1f00 => "Microsoft Corporation",
+                    0x1f01 => "GDI Generic",
+                    0x1f02 => "1.1.0",
+                    0x1f03 => "GL_WIN_swap_hint GL_EXT_bgra GL_EXT_paletted_texture",
+                    _ => {
+                        hit("GL.STRINGS.ENUM");
+                        ctx.error(INVALID_ENUM);
+                        "(null)"
+                    }
+                };
+                hit("GL.STRINGS");
+                out.push(format!("str {:x} = {s}", n as u32));
+            }
+            "glrelease" => {
+                hit("WGL.RELEASE");
+                self.ctx = None;
+                out.push("glrelease 1 1".into());
+            }
+            "glread" => {
+                let v: Option<Vec<i64>> = t[1..].iter().map(|x| num(x)).collect();
+                let v = v.ok_or(Fail::Bad)?;
+                if v.len() != 7 || !(1..=65536).contains(&v[6]) {
+                    return Err(Fail::Bad);
+                }
+                let mut buf = vec![0xccu8; v[6] as usize + 64];
+                ctx.read_pixels(v[0], v[1], v[2], v[3], v[4] as u32, v[5] as u32, &mut buf)?;
+                let n = v[6] as usize;
+                out.push(format!("read {}", hex(&buf[..n])));
+                if buf[n..].iter().any(|b| *b != 0xcc) {
+                    out.push("over".into());
+                }
+            }
+            "gldraw" => {
+                let v: Option<Vec<i64>> = t[1..].iter().map(|x| num(x)).collect();
+                let v = v.ok_or(Fail::Bad)?;
+                if v.len() != 6 || !(1..=65536).contains(&v[5]) {
+                    return Err(Fail::Bad);
+                }
+                let mut r = crate::rng::XorShift32::new(v[4] as u32);
+                let data: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
+                ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &data)?;
+            }
+            "gldib" => {
+                let rows = ctx.dib()?;
+                out.push(format!("px gl 16 16 {}", ctx.bpp));
+                out.extend(rows);
+            }
+            _ => unreachable!(),
+        }
+        Ok(true)
+    }
+}
+
+pub fn hex(b: &[u8]) -> String {
+    b.iter().map(|x| format!("{x:02x}")).collect()
+}
+
+fn is_func(f: u32) -> bool {
+    (NEVER..=ALWAYS).contains(&f)
+}
+
+/// a fragment: window position, color, depth in 0..1
+#[derive(Clone, Copy, Debug)]
+pub struct Frag {
+    pub x: i64,
+    pub y: i64,
+    pub c: [f32; 4],
+    pub z: f64,
+    /// from glDrawPixels, whose colors are truncated to the channels (GL.DRAW.TOFIXED)
+    pub trunc: bool,
+}
+
+impl Ctx {
+    fn mi(&self) -> usize {
+        (self.mode - MODELVIEW) as usize
+    }
+
+    /// what a call does; errors as each function's page lists them
+    fn call(&mut self, name: &str, a: &[A]) -> Res<()> {
+        if self.in_begin.is_some() && !BEGIN_OK.contains(&name) {
+            hit("GL.BEGIN.ONLY");
+            self.error(INVALID_OPERATION);
+            return Ok(());
+        }
+        match name {
+            "glFlush" | "glFinish" => hit("GL.FLUSH"),
+            "glEnable" | "glDisable" => {
+                let c = u(a, 0);
+                if self.caps.contains_key(&c) {
+                    hit("GL.ENABLE");
+                    self.caps.insert(c, name == "glEnable");
+                } else {
+                    hit("GL.ENABLE.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glMatrixMode" => {
+                let m = u(a, 0);
+                if (MODELVIEW..=TEXTURE).contains(&m) {
+                    hit("GL.MATRIX.MODE");
+                    self.mode = m;
+                } else {
+                    hit("GL.MATRIX.MODE.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glLoadIdentity" => {
+                hit("GL.MATRIX.LOAD");
+                let i = self.mi();
+                *self.stacks[i].last_mut().unwrap() = IDENTITY;
+            }
+            "glPushMatrix" => {
+                let i = self.mi();
+                if self.stacks[i].len() == STACK_DEPTH[i] {
+                    hit("GL.MATRIX.OVERFLOW");
+                    self.error(STACK_OVERFLOW);
+                } else {
+                    hit("GL.MATRIX.PUSH");
+                    let top = *self.top(i);
+                    self.stacks[i].push(top);
+                }
+            }
+            "glPopMatrix" => {
+                let i = self.mi();
+                if self.stacks[i].len() == 1 {
+                    hit("GL.MATRIX.UNDERFLOW");
+                    self.error(STACK_UNDERFLOW);
+                } else {
+                    hit("GL.MATRIX.POP");
+                    self.stacks[i].pop();
+                }
+            }
+            "glTranslatef" | "glScalef" | "glRotatef" | "glOrtho" | "glFrustum" => {
+                let m = match name {
+                    "glTranslatef" => {
+                        hit("GL.MATRIX.TRANSLATE");
+                        let mut m = IDENTITY;
+                        m[12..15].copy_from_slice(&[fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32]);
+                        m
+                    }
+                    "glScalef" => {
+                        // (MEASURED, golden opengl-32 matrix-*: the first three columns multiplied
+                        // in place, so a negative factor gives their zeros a sign)
+                        hit("GL.MATRIX.SCALE");
+                        let i = self.mi();
+                        let top = self.stacks[i].last_mut().unwrap();
+                        for c in 0..3 {
+                            for r in 0..4 {
+                                top[c * 4 + r] *= fl(a, c) as f32;
+                            }
+                        }
+                        return Ok(());
+                    }
+                    "glRotatef" => {
+                        hit("GL.MATRIX.ROTATE");
+                        let (ang, x, y, z) = (fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32, fl(a, 3) as f32);
+                        let len = (x * x + y * y + z * z).sqrt();
+                        let mut m = IDENTITY;
+                        if len > 0.0 {
+                            let (x, y, z) = (x / len, y / len, z / len);
+                            let (s, c) = (ang * (std::f32::consts::PI / 180.0)).sin_cos();
+                            let k = 1.0 - c;
+                            // (MEASURED, golden opengl-32 matrix-*: in floats, the diagonal as xx + (1 - xx) c)
+                            let (xx, yy, zz, xy, yz, zx) = (x * x, y * y, z * z, x * y, y * z, z * x);
+                            let v = [xx + (1.0 - xx) * c, xy * k + z * s, zx * k - y * s, 0.0, xy * k - z * s, yy + (1.0 - yy) * c, yz * k + x * s, 0.0, zx * k + y * s, yz * k - x * s, zz + (1.0 - zz) * c, 0.0];
+                            m[..12].copy_from_slice(&v);
+                        }
+                        m
+                    }
+                    _ => {
+                        let (l, r, b, t, n, f) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3), fl(a, 4), fl(a, 5));
+                        if name == "glOrtho" {
+                            hit("GL.MATRIX.ORTHO");
+                            if l == r || b == t || n == f {
+                                self.error(INVALID_VALUE);
+                                return Ok(());
+                            }
+                            let mut m = IDENTITY;
+                            m[0] = (2.0 / (r - l)) as f32;
+                            m[5] = (2.0 / (t - b)) as f32;
+                            m[10] = (-2.0 / (f - n)) as f32;
+                            m[12] = (-(r + l) / (r - l)) as f32;
+                            m[13] = (-(t + b) / (t - b)) as f32;
+                            m[14] = (-(f + n) / (f - n)) as f32;
+                            m
+                        } else {
+                            hit("GL.MATRIX.FRUSTUM");
+                            if n <= 0.0 || f <= 0.0 || l == r || b == t || n == f {
+                                self.error(INVALID_VALUE);
+                                return Ok(());
+                            }
+                            let mut m = [0f32; 16];
+                            m[0] = (2.0 * n / (r - l)) as f32;
+                            m[5] = (2.0 * n / (t - b)) as f32;
+                            m[8] = ((r + l) / (r - l)) as f32;
+                            m[9] = ((t + b) / (t - b)) as f32;
+                            m[10] = (-(f + n) / (f - n)) as f32;
+                            m[11] = -1.0;
+                            m[14] = (-2.0 * f * n / (f - n)) as f32;
+                            m
+                        }
+                    }
+                };
+                let i = self.mi();
+                let top = self.stacks[i].last_mut().unwrap();
+                *top = mat_mul(top, &m);
+            }
+            "glClearAccum" => {
+                // (doc: clamped to -1..1)
+                hit("GL.CLEARACCUM");
+                self.clear_accum = [0, 1, 2, 3].map(|k| (fl(a, k) as f32).clamp(-1.0, 1.0));
+            }
+            "glClearColor" => {
+                hit("GL.CLEARCOLOR");
+                self.clear_color = [clamp01(fl(a, 0)), clamp01(fl(a, 1)), clamp01(fl(a, 2)), clamp01(fl(a, 3))];
+            }
+            "glClearDepth" => {
+                hit("GL.CLEARDEPTH");
+                self.clear_depth = clamp01(fl(a, 0));
+            }
+            "glDepthRange" => {
+                hit("GL.DEPTHRANGE");
+                self.depth_range = [clamp01(fl(a, 0)), clamp01(fl(a, 1))];
+            }
+            "glClearStencil" => {
+                hit("GL.CLEARSTENCIL");
+                self.clear_stencil = int(a, 0) & ((1i64 << self.pf.stencil) - 1);
+            }
+            "glColor4ub" | "glColor3ub" => {
+                hit("GL.COLOR.UB");
+                // (MEASURED, golden opengl-32 errors-begin: times the float reciprocal of 255)
+                let c = |i: usize| (u(a, i) & 255) as f32 * (1.0 / 255.0);
+                self.color = [c(0), c(1), c(2), if a.len() == 4 { c(3) } else { 1.0 }];
+            }
+            "glColor4f" | "glColor3f" => {
+                hit("GL.COLOR.F");
+                self.color = [fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32, if a.len() == 4 { fl(a, 3) as f32 } else { 1.0 }];
+            }
+            "glBlendFunc" => {
+                let (s, d) = (u(a, 0), u(a, 1));
+                let ok_s = [ZERO, ONE, DST_COLOR, ONE_MINUS_DST_COLOR, SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_ALPHA, ONE_MINUS_DST_ALPHA, SRC_ALPHA_SATURATE].contains(&s);
+                let ok_d = [ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_ALPHA, ONE_MINUS_DST_ALPHA].contains(&d);
+                hit("GL.BLENDFUNC");
+                if ok_s && ok_d {
+                    self.blend = (s, d);
+                } else {
+                    hit("GL.BLENDFUNC.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glLogicOp" => {
+                let o = u(a, 0);
+                if (CLEAR..=SET).contains(&o) {
+                    hit("GL.LOGICOP");
+                    self.logic_op = o;
+                } else {
+                    hit("GL.LOGICOP.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glDepthFunc" | "glAlphaFunc" | "glStencilFunc" => {
+                let f = u(a, 0);
+                if !is_func(f) {
+                    hit("GL.FUNC.ENUM");
+                    self.error(INVALID_ENUM);
+                    return Ok(());
+                }
+                hit("GL.FUNC");
+                match name {
+                    "glDepthFunc" => self.depth_func = f,
+                    "glAlphaFunc" => self.alpha = (f, clamp01(fl(a, 1))),
+                    _ => {
+                        hit("GL.STENCIL.STORE");
+                        let smax = (1i64 << self.pf.stencil) - 1;
+                        self.stencil_func = (f, int(a, 1).clamp(0, smax), u(a, 2) & smax as u32)
+                    }
+                }
+            }
+            "glStencilOp" => {
+                let o = [u(a, 0), u(a, 1), u(a, 2)];
+                if o.iter().all(|x| [KEEP, ZERO, REPLACE, INCR, DECR, INVERT].contains(x)) {
+                    hit("GL.STENCILOP");
+                    self.stencil_op = o;
+                } else {
+                    hit("GL.STENCILOP.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glStencilMask" => {
+                hit("GL.STENCILMASK");
+                self.stencil_mask = u(a, 0) & ((1u32 << self.pf.stencil) - 1);
+            }
+            "glDepthMask" => {
+                hit("GL.DEPTHMASK");
+                self.depth_mask = u(a, 0) & 255 != 0;
+            }
+            "glColorMask" => {
+                hit("GL.COLORMASK");
+                self.color_mask_raw = [u(a, 0) & 255, u(a, 1) & 255, u(a, 2) & 255, u(a, 3) & 255];
+                self.color_mask = self.color_mask_raw.map(|v| v != 0);
+            }
+            "glShadeModel" => {
+                let m = u(a, 0);
+                if m == FLAT || m == SMOOTH {
+                    hit("GL.SHADEMODEL");
+                    self.shade = m;
+                } else {
+                    hit("GL.SHADEMODEL.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glCullFace" => {
+                let m = u(a, 0);
+                if [FRONT, BACK, FRONT_AND_BACK].contains(&m) {
+                    self.cull_mode = m;
+                } else {
+                    hit("GL.FACE.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glFrontFace" => {
+                let m = u(a, 0);
+                if m == CW || m == CCW {
+                    self.front_face = m;
+                } else {
+                    hit("GL.FACE.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glHint" => {
+                let (t, m) = (u(a, 0), u(a, 1));
+                if (0xc50..=0xc54).contains(&t) && (DONT_CARE..=NICEST).contains(&m) {
+                    hit("GL.HINT");
+                    self.hints[(t - 0xc50) as usize] = m;
+                } else {
+                    hit("GL.HINT.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glPolygonMode" => {
+                let (f, m) = (u(a, 0), u(a, 1));
+                if [FRONT, BACK, FRONT_AND_BACK].contains(&f) && (0x1b00..=0x1b02).contains(&m) {
+                    if f != BACK {
+                        self.poly_mode[0] = m;
+                    }
+                    if f != FRONT {
+                        self.poly_mode[1] = m;
+                    }
+                } else {
+                    hit("GL.FACE.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glPixelStorei" => {
+                let (p, v) = (u(a, 0), int(a, 1));
+                let (arr, k) = match p {
+                    0xd00..=0xd05 => (&mut self.pack, (p - 0xd00) as usize),
+                    0xcf0..=0xcf5 => (&mut self.unpack, (p - 0xcf0) as usize),
+                    _ => {
+                        hit("GL.PIXELSTORE.ENUM");
+                        self.error(INVALID_ENUM);
+                        return Ok(());
+                    }
+                };
+                if (k == 5 && ![1, 2, 4, 8].contains(&v)) || (k >= 2 && k <= 4 && v < 0) {
+                    hit("GL.PIXELSTORE.VALUE");
+                    self.error(INVALID_VALUE);
+                    return Ok(());
+                }
+                hit("GL.PIXELSTORE");
+                arr[k] = if k < 2 { (v != 0) as i64 } else { v };
+            }
+            "glPixelTransferf" | "glPixelTransferi" => {
+                let p = u(a, 0);
+                let k = [RED_SCALE, GREEN_SCALE, BLUE_SCALE, ALPHA_SCALE].iter().position(|x| *x == p & !1);
+                match k {
+                    Some(k) if p != 0xd17 && p != 0xd16 => {
+                        hit("GL.PIXELTRANSFER");
+                        if p & 1 == 0 {
+                            self.transfer[k].0 = fl(a, 1) as f32;
+                        } else {
+                            self.transfer[k].1 = fl(a, 1) as f32;
+                        }
+                    }
+                    _ => return Err(Fail::Unmodeled("GL.PIXELTRANSFER.OTHER")),
+                }
+            }
+            "glViewport" | "glScissor" => {
+                let v = [int(a, 0), int(a, 1), int(a, 2), int(a, 3)];
+                if v[2] < 0 || v[3] < 0 {
+                    hit("GL.VIEWPORT.VALUE");
+                    self.error(INVALID_VALUE);
+                } else if name == "glScissor" {
+                    hit("GL.SCISSOR");
+                    self.scissor = v;
+                } else {
+                    hit("GL.VIEWPORT");
+                    self.viewport = [v[0], v[1], v[2].min(16384), v[3].min(16384)];
+                }
+            }
+            "glLineWidth" | "glPointSize" => {
+                let v = fl(a, 0) as f32;
+                if v <= 0.0 {
+                    hit("GL.WIDTH.VALUE");
+                    self.error(INVALID_VALUE);
+                } else if name == "glLineWidth" {
+                    hit("GL.WIDTH");
+                    self.line_width = v;
+                } else {
+                    hit("GL.WIDTH");
+                    self.point_size = v;
+                }
+            }
+            "glBegin" => {
+                let m = u(a, 0);
+                if m > 9 {
+                    hit("GL.BEGIN.ENUM");
+                    self.error(INVALID_ENUM);
+                } else {
+                    hit("GL.BEGIN");
+                    self.in_begin = Some(m);
+                    self.verts.clear();
+                }
+            }
+            "glEnd" => match self.in_begin.take() {
+                None => {
+                    hit("GL.END.OUTSIDE");
+                    self.error(INVALID_OPERATION);
+                }
+                Some(m) => self.end(m)?,
+            },
+            "glVertex2f" | "glVertex3f" | "glVertex2i" | "glVertex3i" => {
+                let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
+                if self.in_begin.is_some() {
+                    self.verts.push((v, self.color));
+                } else {
+                    return Err(Fail::Unmodeled("GL.VERTEX.OUTSIDE"));
+                }
+            }
+            "glClear" => {
+                let m = u(a, 0);
+                if m & !(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT | STENCIL_BUFFER_BIT | ACCUM_BUFFER_BIT) != 0 {
+                    hit("GL.CLEAR.VALUE");
+                    self.error(INVALID_VALUE);
+                } else {
+                    self.clear(m)?;
+                }
+            }
+            "glRectf" | "glRecti" => {
+                hit("GL.RECT");
+                let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
+                self.verts.clear();
+                for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
+                    self.verts.push(([x, y, 0.0], self.color));
+                }
+                self.end(QUADS)?;
+            }
+            "glDrawBuffer" | "glReadBuffer" => {
+                // a single-buffered DIB has the front left buffer only (MEASURED, golden opengl-32
+                // errors: right, back and auxiliary buffers INVALID_OPERATION, other names INVALID_ENUM)
+                let b = u(a, 0);
+                let draw = name == "glDrawBuffer";
+                if [FRONT, FRONT_LEFT, LEFT].contains(&b) || (draw && (b == FRONT_AND_BACK || b == 0)) {
+                    hit("GL.BUFFER");
+                    self.buffers[!draw as usize] = b;
+                } else if (0x400..=0x40c).contains(&b) {
+                    hit("GL.BUFFER.MISSING");
+                    self.error(INVALID_OPERATION);
+                } else {
+                    hit("GL.BUFFER.ENUM");
+                    self.error(INVALID_ENUM);
+                }
+            }
+            "glPushAttrib" => {
+                if self.attrib == 16 {
+                    hit("GL.ATTRIB.OVERFLOW");
+                    self.error(STACK_OVERFLOW);
+                } else {
+                    hit("GL.ATTRIB.PUSH");
+                    self.attrib += 1;
+                }
+            }
+            "glPopAttrib" => {
+                if self.attrib == 0 {
+                    hit("GL.ATTRIB.UNDERFLOW");
+                    self.error(STACK_UNDERFLOW);
+                } else {
+                    return Err(Fail::Unmodeled("GL.ATTRIB.POP"));
+                }
+            }
+            "glAccum" => {
+                let op = u(a, 0);
+                if !(0x100..=0x104).contains(&op) {
+                    hit("GL.ACCUM.ENUM");
+                    self.error(INVALID_ENUM);
+                } else if op == 0x102 {
+                    // GL_RETURN writes the accumulation buffer back: its precision unmeasured
+                    return Err(Fail::Unmodeled("GL.ACCUM.RETURN"));
+                } else {
+                    // the accumulation buffer itself is seen only through GL_RETURN
+                    hit("GL.ACCUM");
+                }
+            }
+            _ => return Err(Fail::Unmodeled("GL.CALL.OTHER")),
+        }
+        Ok(())
+    }
+}
+
+/// the transform of a vertex to window coordinates (x, y, z in 0..1)
+fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
+    let mut r = [0f64; 4];
+    for row in 0..4 {
+        r[row] = (0..4).map(|k| m[k * 4 + row] as f64 * v[k]).sum();
+    }
+    r
+}
+
+impl Ctx {
+    fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
+        let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
+        let c = xform(self.top(1), e);
+        if c[3] != 1.0 {
+            return Err(Fail::Unmodeled("GL.RASTER.PERSPECTIVE"));
+        }
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
+        if c[2] < -1.0 || c[2] > 1.0 {
+            return Err(Fail::Unmodeled("GL.RASTER.CLIP"));
+        }
+        hit("GL.RASTER.WINDOW");
+        Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
+    }
+
+    fn end(&mut self, mode: u32) -> Res<()> {
+        let verts = std::mem::take(&mut self.verts);
+        match mode {
+            POINTS => {
+                hit("GL.POINT");
+                for (v, c) in verts {
+                    let w = self.window(v)?;
+                    // (MEASURED, golden opengl-32 points-*: a coordinate on a pixel boundary belongs
+                    // to the pixel right of it in x and below it in y: the rows counted from the top)
+                    // (a coordinate on a pixel boundary: GL.POINT.EDGE)
+                    if w[0].fract() == 0.0 || w[1].fract() == 0.0 {
+                        return Err(Fail::Unmodeled("GL.POINT.EDGE"));
+                    }
+                    let (x, y) = (w[0].floor() as i64, w[1].floor() as i64);
+                    self.fragment(Frag { x, y, c, z: w[2], trunc: false })?;
+                }
+            }
+            QUADS => {
+                for q in verts.chunks(4).filter(|q| q.len() == 4) {
+                    let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
+                    if q.iter().any(|v| v.1 != q[3].1) || w.iter().any(|p| p[2] != w[0][2]) {
+                        return Err(Fail::Unmodeled("GL.RASTER.INTERPOLATE"));
+                    }
+                    // (axis-aligned rectangles only: the cases draw no other quads)
+                    let xs = [w[0][0], w[1][0], w[2][0], w[3][0]];
+                    let ys = [w[0][1], w[1][1], w[2][1], w[3][1]];
+                    if !(xs[0] == xs[3] && xs[1] == xs[2] && ys[0] == ys[1] && ys[2] == ys[3]) {
+                        return Err(Fail::Unmodeled("GL.RASTER.POLYGON"));
+                    }
+                    let (x0, x1) = (xs[0].min(xs[1]), xs[0].max(xs[1]));
+                    let (y0, y1) = (ys[0].min(ys[2]), ys[0].max(ys[2]));
+                    // a pixel whose center is on an edge: (MEASURED, golden opengl-32 rect-*: 15
+                    // vertical edges) on the left edge out, on the right one in (GL.RASTER.TIE.X);
+                    // on a horizontal edge it depends on where (GL.RASTER.TIE)
+                    let on = |a: f64| (a - 0.5).fract() == 0.0;
+                    if on(y0) || on(y1) {
+                        return Err(Fail::Unmodeled("GL.RASTER.TIE"));
+                    }
+                    if on(x0) || on(x1) {
+                        hit("GL.RASTER.TIE.X");
+                    }
+                    hit("GL.RASTER.RECT");
+                    let c = q[3].1;
+                    for y in 0..H as i64 {
+                        for x in 0..W as i64 {
+                            let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+                            if cx > x0 && cx <= x1 && cy >= y0 && cy < y1 {
+                                self.fragment(Frag { x, y, c, z: w[0][2], trunc: false })?;
+                            }
+                        }
+                    }
+                }
+            }
+            _ => return Err(Fail::Unmodeled("GL.RASTER.MODE")),
+        }
+        Ok(())
+    }
+
+    fn bits(&self) -> [u32; 4] {
+        [self.pf.rgba[0].0, self.pf.rgba[1].0, self.pf.rgba[2].0, self.pf.rgba[3].0]
+    }
+
+    /// a color component (0..1) to a channel of `bits` (MEASURED, golden opengl-32 clear-*: on a
+    /// 24-bit DIB truncated, on the others rounded to nearest)
+    pub fn to_fixed(&self, c: f32, bits: u32) -> u32 {
+        let m = ((1u64 << bits) - 1) as f32;
+        let v = c.clamp(0.0, 1.0) * m;
+        if self.bpp == 24 {
+            hit("GL.COLOR.TOFIXED24");
+            v.floor() as u32
+        } else {
+            hit("GL.COLOR.TOFIXED");
+            (v + 0.5).floor() as u32
+        }
+    }
+
+    /// a channel back to a component; a missing alpha channel reads 1 (GL.COLOR.NOALPHA)
+    pub fn to_float(&self, v: u32, k: usize) -> f32 {
+        let b = self.bits()[k];
+        if b == 0 {
+            hit("GL.COLOR.NOALPHA");
+            return 1.0;
+        }
+        // (MEASURED, golden opengl-32 read-*: times the reciprocal, not divided)
+        v as f32 * (1.0 / ((1u64 << b) - 1) as f32)
+    }
+
+    fn dst_color(&self, i: usize) -> [f32; 4] {
+        let p = self.fb[i];
+        [self.to_float(p[0], 0), self.to_float(p[1], 1), self.to_float(p[2], 2), self.to_float(p[3], 3)]
+    }
+
+    /// the per-fragment operations in their order: scissor, alpha, stencil, depth, blending,
+    /// dithering, logic operation, masks
+    pub fn fragment(&mut self, f: Frag) -> Res<()> {
+        if self.buffers[0] == 0 {
+            return Err(Fail::Unmodeled("GL.BUFFER.NONE"));
+        }
+        if f.x < 0 || f.y < 0 || f.x >= W as i64 || f.y >= H as i64 {
+            return Ok(());
+        }
+        let i = f.y as usize * W + f.x as usize;
+        if self.cap(SCISSOR_TEST) {
+            hit("GL.SCISSOR.TEST");
+            let [sx, sy, sw, sh] = self.scissor;
+            if f.x < sx || f.y < sy || f.x >= sx + sw || f.y >= sy + sh {
+                return Ok(());
+            }
+        }
+        let c = f.c.map(|v| v.clamp(0.0, 1.0));
+        if self.cap(ALPHA_TEST) {
+            hit("GL.ALPHA.TEST");
+            // (MEASURED, golden opengl-32 alphatest-*: in 8-bit fixed point, the reference truncated)
+            let a = (c[3] * 255.0 + 0.5).floor() as u64;
+            let r = (self.alpha.1 * 255.0).floor() as u64;
+            if !compare_u(self.alpha.0, a, r) {
+                return Ok(());
+            }
+        }
+        let has_stencil = self.pf.stencil > 0 && self.cap(STENCIL_TEST);
+        let z = if self.pf.depth > 0 && self.cap(DEPTH_TEST) { Ctx::depth_fixed(f.z, self.pf.depth)? } else { 0 };
+        if has_stencil {
+            hit("GL.STENCIL.TEST");
+            let (func, r, m) = self.stencil_func;
+            let smax = (1i64 << self.pf.stencil) - 1;
+            let r = (r.clamp(0, smax) as u32) & m;
+            let s = self.stencil[i] & m;
+            if !compare_u(func, r as u64, s as u64) {
+                self.stencil_update(i, self.stencil_op[0]);
+                return Ok(());
+            }
+        }
+        if self.pf.depth > 0 && self.cap(DEPTH_TEST) {
+            hit("GL.DEPTH.TEST");
+            // (golden opengl-32 depth-0: under NEVER Windows writes scattered pixels of the
+            // primitives along diagonals, no pattern found yet)
+            if self.depth_func == NEVER {
+                return Err(Fail::Unmodeled("GL.DEPTH.NEVER"));
+            }
+            if !compare_u(self.depth_func, z, self.depth[i] as u64) {
+                if has_stencil {
+                    self.stencil_update(i, self.stencil_op[1]);
+                }
+                return Ok(());
+            }
+            if self.depth_mask {
+                self.depth[i] = (z & 0xffff_ffff) as u32;
+            }
+        }
+        if has_stencil {
+            self.stencil_update(i, self.stencil_op[2]);
+        }
+        if self.cap(DITHER) && self.bits()[0] < 8 {
+            return Err(Fail::Unmodeled("GL.DITHER"));
+        }
+        hit("GL.DITHER.NONE");
+        let bits = self.bits();
+        let mut v = [0u32; 4];
+        if self.cap(BLEND) {
+            v = self.blend(c, self.fb[i])?;
+        } else {
+            for k in 0..4 {
+                v[k] = if bits[k] == 0 {
+                    0
+                } else if f.trunc && bits[k] == 8 {
+                    // (MEASURED, golden opengl-32 draw-*: every type truncated to 8-bit channels; scissor-mask-*: rounded to 5-bit ones)
+                    hit("GL.DRAW.TOFIXED");
+                    (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
+                } else if !f.trunc && bits[k] < 8 && self.color_mask == [true; 4] {
+                    // (MEASURED, golden opengl-32 dither-1: with every channel writable, 768 channels of a 16-bit DIB fit
+                    // floor(c * 31 + b) for b in [0.0275, 0.0314), one 32nd taken; scissor-mask-*: under a color mask rounded)
+                    hit("GL.COLOR.TOFIXED16");
+                    (c[k] * ((1u64 << bits[k]) - 1) as f32 + 1.0 / 32.0).floor() as u32
+                } else {
+                    self.to_fixed(c[k], bits[k])
+                };
+            }
+        }
+        if self.cap(COLOR_LOGIC_OP) {
+            hit("GL.LOGICOP.APPLY");
+            for k in 0..4 {
+                let m = (1u32 << bits[k]).wrapping_sub(1);
+                v[k] = logic(self.logic_op, v[k], self.fb[i][k]) & m;
+            }
+        }
+        for k in 0..4 {
+            if self.color_mask[k] {
+                self.fb[i][k] = v[k];
+            }
+        }
+        Ok(())
+    }
+
+    /// a fragment's window depth (0..1) for a 32-bit depth buffer (MEASURED, golden opengl-32
+    /// depth-*: z times 2^32, compared in full, stored in 32 bits: 1.0 fails LEQUAL against a
+    /// cleared 1.0 yet stores 0)
+    pub fn depth_fixed(z: f64, bits: u32) -> Res<u64> {
+        if bits != 32 {
+            return Err(Fail::Unmodeled("GL.DEPTH.BITS"));
+        }
+        hit("GL.DEPTH.FIXED");
+        Ok((z.clamp(0.0, 1.0) * 4_294_967_296.0) as u64)
+    }
+
+    /// the clear depth in a 32-bit depth buffer (MEASURED, golden opengl-32 depth-*: z times
+    /// 0x7fffffff truncated, shifted left by one: 1.0 gives 0xfffffffe)
+    pub fn clear_depth_fixed(z: f64, bits: u32) -> Res<u32> {
+        if bits != 32 {
+            return Err(Fail::Unmodeled("GL.DEPTH.BITS"));
+        }
+        hit("GL.DEPTH.CLEAR");
+        Ok(((z.clamp(0.0, 1.0) * 2_147_483_647.0) as u32) << 1)
+    }
+
+    fn stencil_update(&mut self, i: usize, op: u32) {
+        hit("GL.STENCIL.OP");
+        let smax = (1u32 << self.pf.stencil) - 1;
+        let s = self.stencil[i];
+        let r = (self.stencil_func.1.clamp(0, smax as i64)) as u32;
+        let n = match op {
+            KEEP => s,
+            ZERO => 0,
+            REPLACE => r,
+            INCR => (s + 1).min(smax),
+            DECR => s.saturating_sub(1),
+            _ => !s & smax,
+        };
+        let m = self.stencil_mask & smax;
+        self.stencil[i] = (s & !m) | (n & m);
+    }
+
+    /// blending on a 32-bit DIB in the 0..255 domain (MEASURED, golden opengl-32 blend-*):
+    /// SRC_ALPHA / ONE_MINUS_SRC_ALPHA in integers (GL.BLEND.ALPHA), every other pair in floats
+    /// (GL.BLEND.FLOAT); a missing destination alpha makes DST_ALPHA one and ONE_MINUS_DST_ALPHA
+    /// zero; the result truncated and clamped
+    pub fn blend(&self, c: [f32; 4], d: [u32; 4]) -> Res<[u32; 4]> {
+        hit("GL.BLEND.APPLY");
+        if self.bpp != 32 || self.bits()[3] != 0 {
+            return Err(Fail::Unmodeled("GL.BLEND.FORMAT"));
+        }
+        let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
+        Ok(blend_bytes(self.blend, s, d))
+    }
+
+    fn clear(&mut self, m: u32) -> Res<()> {
+        hit("GL.CLEAR");
+        if self.buffers[0] == 0 && m & COLOR_BUFFER_BIT != 0 {
+            return Err(Fail::Unmodeled("GL.BUFFER.NONE"));
+        }
+        if m & ACCUM_BUFFER_BIT != 0 {
+            // (seen only through glAccum's GL_RETURN, GL.ACCUM)
+            hit("GL.CLEAR.ACCUM");
+        }
+        if self.cap(DITHER) && self.bits()[0] < 8 && m & COLOR_BUFFER_BIT != 0 {
+            return Err(Fail::Unmodeled("GL.DITHER"));
+        }
+        let bits = self.bits();
+        let cv: Vec<u32> = (0..4).map(|k| if bits[k] == 0 { 0 } else { self.to_fixed(self.clear_color[k], bits[k]) }).collect();
+        let z = if m & DEPTH_BUFFER_BIT != 0 { Ctx::clear_depth_fixed(self.clear_depth as f64, self.pf.depth)? } else { 0 };
+        let smax = if self.pf.stencil == 0 { 0 } else { (1u32 << self.pf.stencil) - 1 };
+        for y in 0..H as i64 {
+            for x in 0..W as i64 {
+                if self.cap(SCISSOR_TEST) {
+                    let [sx, sy, sw, sh] = self.scissor;
+                    if x < sx || y < sy || x >= sx + sw || y >= sy + sh {
+                        continue;
+                    }
+                }
+                let i = y as usize * W + x as usize;
+                if m & COLOR_BUFFER_BIT != 0 {
+                    for k in 0..4 {
+                        if self.color_mask[k] {
+                            self.fb[i][k] = cv[k];
+                        }
+                    }
+                }
+                if m & DEPTH_BUFFER_BIT != 0 && self.depth_mask {
+                    self.depth[i] = z;
+                }
+                if m & STENCIL_BUFFER_BIT != 0 {
+                    let mk = self.stencil_mask & smax;
+                    self.stencil[i] = (self.stencil[i] & !mk) | (self.clear_stencil as u32 & mk);
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// blending of 8-bit channels, `s` the fragment, `d` the framebuffer without alpha (Ctx::blend)
+pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4]) -> [u32; 4] {
+    let mut r = [0u32; 4];
+    if f == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) {
+        hit("GL.BLEND.ALPHA");
+        let a = s[3] as i64;
+        for k in 0..3 {
+            let v = (((s[k] as i64 - 1).max(0) * (a - 1)) >> 8) + ((d[k] as i64 * (256 - a)) >> 8);
+            r[k] = v.clamp(0, 255) as u32;
+        }
+        return r;
+    }
+    hit("GL.BLEND.FLOAT");
+    let inv = 1f32 / 255f32;
+    let da = 255u32;
+    let term = |v: u32, f: u32, k: usize| -> f32 {
+        let v = v as f32;
+        let x = match f {
+            ZERO | ONE_MINUS_DST_ALPHA => return 0.0,
+            ONE | DST_ALPHA => return v,
+            SRC_COLOR | ONE_MINUS_SRC_COLOR => s[k],
+            SRC_ALPHA | ONE_MINUS_SRC_ALPHA => s[3],
+            DST_COLOR | ONE_MINUS_DST_COLOR => d[k],
+            _ => s[3].min(255 - da),
+        };
+        if matches!(f, ONE_MINUS_SRC_COLOR | ONE_MINUS_SRC_ALPHA | ONE_MINUS_DST_COLOR) {
+            v * (1.0 - x as f32 * inv)
+        } else {
+            (v * x as f32) * inv
+        }
+    };
+    for k in 0..3 {
+        let v = term(d[k], f.1, k) + term(s[k], f.0, k);
+        r[k] = (v.floor().clamp(0.0, 255.0)) as u32;
+    }
+    r
+}
+
+fn compare_u(f: u32, a: u64, b: u64) -> bool {
+    match f {
+        0x200 => false,
+        0x201 => a < b,
+        0x202 => a == b,
+        0x203 => a <= b,
+        0x204 => a > b,
+        0x205 => a != b,
+        0x206 => a >= b,
+        _ => true,
+    }
+}
+
+
+/// the sixteen logic operations, s the fragment, d the framebuffer (glLogicOp's table)
+pub fn logic(op: u32, s: u32, d: u32) -> u32 {
+    match op {
+        0x1500 => 0,
+        0x1501 => s & d,
+        0x1502 => s & !d,
+        0x1503 => s,
+        0x1504 => !s & d,
+        0x1505 => d,
+        0x1506 => s ^ d,
+        0x1507 => s | d,
+        0x1508 => !(s | d),
+        0x1509 => !(s ^ d),
+        0x150a => !d,
+        0x150b => s | !d,
+        0x150c => !s,
+        0x150d => !s | d,
+        0x150e => !(s & d),
+        _ => !0,
+    }
+}
+
+/// (components, which: indices into r g b a, or 4 luminance, 5 depth, 6 stencil, 7 index) of a pixel format
+fn components(f: u32) -> Option<Vec<usize>> {
+    Some(match f {
+        RED => vec![0],
+        GREEN => vec![1],
+        BLUE => vec![2],
+        ALPHA => vec![3],
+        RGB => vec![0, 1, 2],
+        RGBA => vec![0, 1, 2, 3],
+        LUMINANCE => vec![4],
+        LUMINANCE_ALPHA => vec![4, 3],
+        BGR_EXT => vec![2, 1, 0],
+        BGRA_EXT => vec![2, 1, 0, 3],
+        DEPTH_COMPONENT => vec![5],
+        STENCIL_INDEX => vec![6],
+        COLOR_INDEX => vec![7],
+        _ => return None,
+    })
+}
+
+/// bytes of one element of a pixel type
+fn type_size(t: u32) -> Option<usize> {
+    Some(match t {
+        UNSIGNED_BYTE | BYTE => 1,
+        UNSIGNED_SHORT | SHORT => 2,
+        UNSIGNED_INT | INT | FLOAT => 4,
+        BITMAP => 0,
+        _ => return None,
+    })
+}
+
+/// the element offsets of a w x h image under the pack / unpack parameters (glPixelStore):
+/// (start of row j, elements a row), in elements of `size` bytes
+fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
+    hit("GL.PIXELSTORE.LAYOUT");
+    let l = if store[2] > 0 { store[2] as usize } else { w as usize };
+    let a = store[5] as usize;
+    let k = if size >= a { n * l } else { a / size * (size * n * l).div_ceil(a) };
+    (store[4] as usize * n + store[3] as usize * k, k)
+}
+
+/// a component (0..1) to an element of a type (MEASURED, golden opengl-32 read-*: in floats,
+/// truncated but for UNSIGNED_BYTE; signed types scale by half of 2^n - 1, the 32-bit ones by the largest float below
+/// 2^31 - 1024 and twice that; GL.READ.CONVERT)
+pub fn from_float(c: f32, t: u32) -> Vec<u8> {
+    hit("GL.READ.CONVERT");
+    match t {
+        // rounded (scissor-mask-*: 5-bit channels of a 16-bit DIB read to the nearest byte)
+        UNSIGNED_BYTE => vec![(c * 255.0 + 0.5).floor() as u8],
+        BYTE => vec![(c * 127.5).floor() as i8 as u8],
+        UNSIGNED_SHORT => ((c * 65535.0).floor() as u16).to_le_bytes().to_vec(),
+        SHORT => ((c * 32767.5).floor() as i16).to_le_bytes().to_vec(),
+        UNSIGNED_INT => ((c * 4_294_964_992.0) as u32).to_le_bytes().to_vec(),
+        INT => ((c * 2_147_482_496.0) as i32).to_le_bytes().to_vec(),
+        _ => c.to_le_bytes().to_vec(),
+    }
+}
+
+/// an element of a type to a component (glDrawPixels' table; GL.DRAW.CONVERT)
+pub fn to_float(b: &[u8], t: u32) -> f64 {
+    hit("GL.DRAW.CONVERT");
+    match t {
+        UNSIGNED_BYTE => b[0] as f64 / 255.0,
+        BYTE => (2.0 * b[0] as i8 as f64 + 1.0) / 255.0,
+        UNSIGNED_SHORT => u16::from_le_bytes([b[0], b[1]]) as f64 / 65535.0,
+        SHORT => (2.0 * i16::from_le_bytes([b[0], b[1]]) as f64 + 1.0) / 65535.0,
+        UNSIGNED_INT => u32::from_le_bytes([b[0], b[1], b[2], b[3]]) as f64 / 4_294_967_295.0,
+        INT => (2.0 * i32::from_le_bytes([b[0], b[1], b[2], b[3]]) as f64 + 1.0) / 4_294_967_295.0,
+        _ => f32::from_le_bytes([b[0], b[1], b[2], b[3]]) as f64,
+    }
+}
+
+impl Ctx {
+    /// the common errors of glReadPixels / glDrawPixels; Ok(None) when the call is refused
+    fn pixel_args(&mut self, w: i64, h: i64, f: u32, t: u32, read: bool) -> Res<Option<(Vec<usize>, usize)>> {
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+            return Ok(None);
+        }
+        let (Some(comps), Some(size)) = (components(f), type_size(t)) else {
+            hit("GL.PIXELS.ENUM");
+            self.error(INVALID_ENUM);
+            return Ok(None);
+        };
+        if w < 0 || h < 0 {
+            hit("GL.PIXELS.VALUE");
+            self.error(INVALID_VALUE);
+            return Ok(None);
+        }
+        if t == BITMAP {
+            if f != COLOR_INDEX && f != STENCIL_INDEX {
+                // (MEASURED, golden opengl-32 read-formats, read-pack-*: INVALID_OPERATION where
+                // the reference pages say INVALID_ENUM)
+                if !read {
+                    return Err(Fail::Unmodeled("GL.DRAW.BITMAP"));
+                }
+                hit("GL.READ.BITMAP");
+                self.error(INVALID_OPERATION);
+                return Ok(None);
+            }
+            return Err(Fail::Unmodeled("GL.PIXELS.BITMAP.INDEX"));
+        }
+        if f == COLOR_INDEX || (f == DEPTH_COMPONENT && self.pf.depth == 0) || (f == STENCIL_INDEX && self.pf.stencil == 0) {
+            hit("GL.PIXELS.NOBUFFER");
+            self.error(INVALID_OPERATION);
+            return Ok(None);
+        }
+        Ok(Some((comps, size)))
+    }
+
+    fn transfer(&self, c: [f64; 4]) -> [f64; 4] {
+        let mut r = c;
+        for k in 0..4 {
+            let (s, b) = self.transfer[k];
+            if (s, b) != (1.0, 0.0) {
+                hit("GL.PIXELTRANSFER.APPLY");
+            }
+            r[k] = (c[k] * s as f64 + b as f64).clamp(0.0, 1.0);
+        }
+        r
+    }
+
+    pub fn read_pixels(&mut self, x: i64, y: i64, w: i64, h: i64, f: u32, t: u32, buf: &mut [u8]) -> Res<()> {
+        let Some((comps, size)) = self.pixel_args(w, h, f, t, true)? else { return Ok(()) };
+        if x < 0 || y < 0 || x + w > W as i64 || y + h > H as i64 {
+            return Err(Fail::Unmodeled("GL.READ.OUTSIDE"));
+        }
+        if self.pack[0] != 0 && size > 1 {
+            hit("GL.PIXELSTORE.SWAP");
+        }
+        hit("GL.READ");
+        let (start, k) = layout(&self.pack, comps.len(), size, w);
+        for j in 0..h as usize {
+            for i in 0..w as usize {
+                let p = (y as usize + j) * W + x as usize + i;
+                let c = self.dst_color(p).map(|v| v as f64);
+                let c = self.transfer(c).map(|v| v as f32);
+                for (n, which) in comps.iter().enumerate() {
+                    let mut e = match which {
+                        0..=3 => from_float(c[*which], t),
+                        4 => {
+                            hit("GL.READ.LUMINANCE");
+                            from_float((c[0] + c[1] + c[2]).min(1.0), t)
+                        }
+                        5 => {
+                            // (MEASURED, golden opengl-32 depth-*: UNSIGNED_INT gives the 32 bits as they are)
+                            if t != UNSIGNED_INT || self.pf.depth != 32 {
+                                return Err(Fail::Unmodeled("GL.READ.DEPTH"));
+                            }
+                            hit("GL.READ.DEPTH");
+                            self.depth[p].to_le_bytes().to_vec()
+                        }
+                        _ => {
+                            hit("GL.READ.STENCIL");
+                            let s = self.stencil[p] as u64;
+                            match size {
+                                1 => vec![s as u8],
+                                2 => (s as u16).to_le_bytes().to_vec(),
+                                _ if t == FLOAT => (s as f32).to_le_bytes().to_vec(),
+                                _ => (s as u32).to_le_bytes().to_vec(),
+                            }
+                        }
+                    };
+                    if self.pack[0] != 0 {
+                        e.reverse();
+                    }
+                    let at = (start + j * k + i * comps.len() + n) * size;
+                    if at + size > buf.len() {
+                        return Err(Fail::Unmodeled("GL.READ.BUFFER"));
+                    }
+                    buf[at..at + size].copy_from_slice(&e);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn draw_pixels(&mut self, w: i64, h: i64, f: u32, t: u32, data: &[u8]) -> Res<()> {
+        let Some((comps, size)) = self.pixel_args(w, h, f, t, false)? else { return Ok(()) };
+        if f == DEPTH_COMPONENT || f == STENCIL_INDEX {
+            return Err(Fail::Unmodeled("GL.DRAW.DEPTHSTENCIL"));
+        }
+        hit("GL.DRAW");
+        let (start, k) = layout(&self.unpack, comps.len(), size, w);
+        for j in 0..h as usize {
+            for i in 0..w as usize {
+                let mut c = [0.0, 0.0, 0.0, 1.0];
+                for (n, which) in comps.iter().enumerate() {
+                    let at = (start + j * k + i * comps.len() + n) * size;
+                    if at + size > data.len() {
+                        return Err(Fail::Unmodeled("GL.DRAW.BUFFER"));
+                    }
+                    let mut e = data[at..at + size].to_vec();
+                    if self.unpack[0] != 0 {
+                        e.reverse();
+                    }
+                    let v = to_float(&e, t);
+                    if !v.is_finite() {
+                        return Err(Fail::Unmodeled("GL.DRAW.NAN"));
+                    }
+                    match which {
+                        4 => {
+                            hit("GL.DRAW.LUMINANCE");
+                            c[0] = v;
+                            c[1] = v;
+                            c[2] = v;
+                        }
+                        _ => c[*which] = v,
+                    }
+                }
+                let c = self.transfer(c);
+                self.fragment(Frag { x: i as i64, y: j as i64, c: c.map(|v| v as f32), z: 0.0, trunc: true })?;
+            }
+        }
+        Ok(())
+    }
+
+    /// the DIB's rows, bottom first, as the framebuffer's pixels in the format's channels
+    pub fn dib(&self) -> Res<Vec<String>> {
+        if self.bpp < 16 {
+            return Err(Fail::Unmodeled("GL.DIB.INDEX"));
+        }
+        hit("GL.DIB");
+        let mut rows = Vec::new();
+        for y in 0..H {
+            let mut b = Vec::new();
+            for x in 0..W {
+                let p = self.fb[y * W + x];
+                let mut v = 0u32;
+                for k in 0..4 {
+                    v |= p[k] << self.pf.rgba[k].1;
+                }
+                b.extend_from_slice(&v.to_le_bytes()[..self.bpp as usize / 8]);
+            }
+            rows.push(hex(&b));
+        }
+        Ok(rows)
+    }
 }

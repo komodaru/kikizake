@@ -1,0 +1,154 @@
+# OpenGL clauses (spec/README.md): <id> <status> | <source> | <what it says>
+# WGL and Microsoft's generic OpenGL 1.1 ("GDI Generic") on a 16 x 16 DIB section. Goldens:
+# opengl-32 and opengl-64 (the same answers unless a clause says otherwise).
+WGL.FORMATS measured | DescribePixelFormat, PIXELFORMATDESCRIPTOR | the formats of a DIB's DC: for 32, 24, 16, 8 and 4 color bits RGBA with accumulation, RGBA with 8 alpha bits, color index; double buffering only at 32 bits; depth 32 then 16, stencil 8 each; flags 0x807c / 0x8465 at 32 bits, 0x78 otherwise (opengl golden pf-*: every bpp)
+WGL.CHOOSE measured | ChoosePixelFormat | the format with the least weighted mismatch, the first on a tie: 3 for less accumulation, 1 for more when some is asked, 2 for another pixel type, 1 for other color bits when some are asked, 2 for less alpha, 7 for less depth, 1 for each 16 depth bits past the request; only PFD_DRAW_TO_WINDOW filters (opengl golden choose-*: 292 requests)
+WGL.SETPIXELFORMAT.BITMAP measured | SetPixelFormat | on a DIB section's DC a format without PFD_DRAW_TO_BITMAP fails with ERROR_INVALID_PARAMETER (87) (opengl golden ctx-pf-*)
+WGL.SETPIXELFORMAT.DEPTH measured | SetPixelFormat | a format whose color bits are not the DIB's fails with ERROR_INVALID_FUNCTION (1) (opengl golden ctx-pf-*)
+WGL.SETPIXELFORMAT.RANGE open | SetPixelFormat | a format number past the table
+WGL.CONTEXT doc | wglCreateContext, wglMakeCurrent | after SetPixelFormat a context made and made current on the DC
+WGL.CURRENT doc | wglGetCurrentContext, wglGetCurrentDC | the current context and DC, none before and after release
+WGL.RELEASE doc | wglMakeCurrent (NULL), wglDeleteContext | no current context, the context deleted
+GL.COLORINDEX open | (none) | a color index format: index colors and palettes not modelled
+GL.INIT doc | glGet (the initial values of each parameter) | a new context's state as the reference pages list it, dithering on
+GL.STRINGS measured | glGetString | "Microsoft Corporation", "GDI Generic", "1.1.0", "GL_WIN_swap_hint GL_EXT_bgra GL_EXT_paletted_texture" at every depth (opengl golden ctx-*)
+GL.STRINGS.ENUM doc | glGetString (GL_INVALID_ENUM) | another name: NULL and GL_INVALID_ENUM
+GL.ERROR doc | glGetError | the recorded error, cleared; GL_NO_ERROR when none
+GL.ERROR.ONE doc | glGetError | a single error flag: later errors are dropped until it is read (errors-queue)
+GL.BEGIN doc | glBegin | the vertices up to glEnd make primitives of the mode
+GL.BEGIN.ENUM doc | glBegin (GL_INVALID_ENUM) | a mode past GL_POLYGON: GL_INVALID_ENUM
+GL.BEGIN.ONLY doc | glBegin (GL_INVALID_OPERATION) | between glBegin and glEnd only vertex, color, normal and index calls; any other is GL_INVALID_OPERATION and ignored
+GL.BEGIN.GET measured | glGet (GL_INVALID_OPERATION) | glGet between glBegin and glEnd writes nothing and records GL_INVALID_OPERATION (opengl golden errors-begin)
+GL.BEGIN.GETERROR measured | glGetError (GL_INVALID_OPERATION) | glGetError between glBegin and glEnd returns GL_INVALID_OPERATION without clearing it: eight reads give it eight times (opengl golden errors-begin)
+GL.BEGIN.QUERY open | glIsEnabled, glGetString | glIsEnabled and glGetString between glBegin and glEnd
+GL.END.OUTSIDE doc | glEnd (GL_INVALID_OPERATION) | glEnd without glBegin: GL_INVALID_OPERATION
+GL.VERTEX.OUTSIDE open | glVertex | a vertex outside glBegin / glEnd (undefined)
+GL.CALL.OTHER open | (none) | the calls of the executor's table the model does not follow (fog, zoom, raster position, polygon offset, ...)
+GL.FLUSH doc | glFlush, glFinish | no change of state
+GL.ENABLE doc | glEnable, glDisable | the capability set or cleared
+GL.ENABLE.ENUM doc | glEnable (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM
+GL.ISENABLED doc | glIsEnabled | the capability's state
+GL.ISENABLED.ENUM doc | glIsEnabled (GL_INVALID_ENUM) | another name: 0 and GL_INVALID_ENUM
+GL.GET.STATE doc | glGet | each parameter's current value in the requested type
+GL.GET.CAP doc | glGet | a capability name gives its state
+GL.GET.ENUM doc | glGet (GL_INVALID_ENUM) | another name: nothing written, GL_INVALID_ENUM (defaults-unknown)
+GL.GET.MAP measured | glGet (glGetIntegerv of color values) | a color-like value as an integer: the component times the float 2147482496, truncated, 0x80000000 out of range (opengl golden set-values-*)
+GL.GET.ROUND doc | glGet | other float values as integers: rounded to the nearest
+GL.LIMITS measured | glGet | point and line widths 0.5..10 by 0.125, list nesting 64, eval order 30, 8 lights, 6 clip planes, texture 1024, pixel maps 65536, attribute stacks 16, modelview 32, projection and texture 10, name stack 128, viewport 16384 x 16384, 3 subpixel bits; index bits 8, feedback type 0, the value and write masks of stencil the stencil bits, no index write mask, the light model ambient 0.2 two ulps high (0x3e4ccccf) with 8-bit channels (opengl golden defaults-*)
+GL.MATRIX.MODE doc | glMatrixMode | the matrix that later calls change
+GL.MATRIX.MODE.ENUM doc | glMatrixMode (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM
+GL.MATRIX.LOAD doc | glLoadIdentity, glLoadMatrixf, glMultMatrixf | the matrix replaced or multiplied on the right, products of four summed in order in floats (opengl golden matrix-*)
+GL.MATRIX.TRANSLATE doc | glTranslatef | multiplied by a translation
+GL.MATRIX.SCALE measured | glScalef | the first three columns multiplied in place, so a negative factor gives their zeros a sign (opengl golden matrix-*)
+GL.MATRIX.ROTATE measured | glRotatef | in floats: the axis normalized, the angle times pi/180 in floats, the diagonal as xx + (1 - xx) c, the rest xy (1 - c) +- z s (opengl golden matrix-*: 10 cases, 32 and 64 bit)
+GL.MATRIX.ORTHO doc | glOrtho | multiplied by the orthographic matrix; l = r, b = t or n = f: GL_INVALID_VALUE
+GL.MATRIX.FRUSTUM doc | glFrustum | multiplied by the perspective matrix; n or f not positive, l = r, b = t or n = f: GL_INVALID_VALUE (opengl golden matrix-*: 11 cases)
+GL.MATRIX.PUSH doc | glPushMatrix | the top copied
+GL.MATRIX.POP doc | glPopMatrix | the top dropped
+GL.MATRIX.OVERFLOW doc | glPushMatrix (GL_STACK_OVERFLOW) | a full stack (depths: GL.LIMITS): GL_STACK_OVERFLOW
+GL.MATRIX.UNDERFLOW doc | glPopMatrix (GL_STACK_UNDERFLOW) | one matrix left: GL_STACK_UNDERFLOW
+GL.ATTRIB.PUSH assumed | glPushAttrib | the attribute stack one deeper (GL_ATTRIB_STACK_DEPTH)
+GL.ATTRIB.OVERFLOW assumed | glPushAttrib (GL_STACK_OVERFLOW) | sixteen deep: GL_STACK_OVERFLOW
+GL.ATTRIB.UNDERFLOW measured | glPopAttrib (GL_STACK_UNDERFLOW) | an empty stack: GL_STACK_UNDERFLOW (opengl golden errors)
+GL.ATTRIB.POP open | glPopAttrib | the saved state restored: not modelled
+GL.VIEWPORT doc | glViewport | the window transform; width and height clamped to the maximum (16384)
+GL.VIEWPORT.VALUE doc | glViewport, glScissor (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE
+GL.SCISSOR doc | glScissor | the scissor box
+GL.SCISSOR.TEST doc | glScissor | with GL_SCISSOR_TEST only fragments in the box, clears too
+GL.CLEARCOLOR doc | glClearColor | clamped to 0..1
+GL.CLEARDEPTH doc | glClearDepth | clamped to 0..1
+GL.CLEARSTENCIL doc | glClearStencil | masked with the stencil bits
+GL.CLEARACCUM doc | glClearAccum | clamped to -1..1
+GL.CLEAR doc | glClear | the buffers of the mask set to their clear values, under the scissor box and the write masks
+GL.CLEAR.VALUE doc | glClear (GL_INVALID_VALUE) | a bit outside the four buffer bits: GL_INVALID_VALUE
+GL.CLEAR.ACCUM doc | glClear (GL_ACCUM_BUFFER_BIT) | the accumulation buffer, seen only through glAccum's GL_RETURN
+GL.ACCUM doc | glAccum | GL_ACCUM, GL_LOAD, GL_MULT, GL_ADD change only the accumulation buffer
+GL.ACCUM.ENUM doc | glAccum (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM
+GL.ACCUM.RETURN open | glAccum (GL_RETURN) | the accumulation buffer written back: its precision not measured
+GL.BUFFER assumed | glDrawBuffer, glReadBuffer | GL_FRONT, GL_FRONT_LEFT, GL_LEFT, for drawing also GL_FRONT_AND_BACK and GL_NONE: the buffer recorded (GL_DRAW_BUFFER, GL_READ_BUFFER)
+GL.BUFFER.MISSING measured | glDrawBuffer, glReadBuffer (GL_INVALID_OPERATION) | a right, back or auxiliary buffer a single-buffered DIB lacks: GL_INVALID_OPERATION (opengl golden errors)
+GL.BUFFER.ENUM measured | glDrawBuffer, glReadBuffer (GL_INVALID_ENUM) | a name that is no buffer: GL_INVALID_ENUM (opengl golden errors)
+GL.BUFFER.NONE open | glDrawBuffer (GL_NONE) | drawing with no color buffer
+GL.COLOR.UB measured | glColor4ub | each byte times the float reciprocal of 255, not divided (opengl golden errors-begin: the current color as integers)
+GL.COLOR.F doc | glColor4f | the current color as given, clamped when used
+GL.COLOR.NOALPHA doc | glReadPixels | a framebuffer without alpha bits reads alpha 1
+GL.COLOR.TOFIXED measured | (none) | a fragment or clear color to an 8-bit channel: rounded to nearest (opengl golden clear-*, rect-*)
+GL.COLOR.TOFIXED24 measured | (none) | on a 24-bit DIB truncated (opengl golden clear-24-*)
+GL.COLOR.TOFIXED16 measured | (none) | a fragment to a 5-bit channel with every channel writable: floor(c * 31 + b), b fitted in [0.0275, 0.0314), one 32nd taken; under a color mask rounded like clears (opengl golden dither-1: 768 channels, scissor-mask-*)
+GL.COLORMASK doc | glColorMask | only the writable channels change; GL_COLOR_WRITEMASK as given
+GL.DITHER open | glEnable (GL_DITHER) | dithering to channels of fewer than 8 bits
+GL.DITHER.NONE doc | glEnable (GL_DITHER) | with 8-bit channels dithering changes nothing
+GL.ALPHA.TEST measured | glAlphaFunc | in 8-bit fixed point: the fragment's alpha rounded, the reference truncated (opengl golden alphatest-*)
+GL.FUNC doc | glAlphaFunc, glDepthFunc, glStencilFunc | the comparison recorded
+GL.FUNC.ENUM doc | glAlphaFunc, glDepthFunc, glStencilFunc (GL_INVALID_ENUM) | another comparison: GL_INVALID_ENUM
+GL.STENCIL.TEST doc | glStencilFunc | with GL_STENCIL_TEST: (ref & mask) compared with (stencil & mask), the reference clamped to the stencil bits (opengl golden stencil-*)
+GL.STENCIL.OP doc | glStencilOp | fail, depth fail and pass operations, written under the stencil write mask
+GL.STENCIL.STORE measured | glStencilFunc, glStencilMask | the reference clamped and the masks cut to the stencil bits when stored (opengl golden set-values-*, stencil-*)
+GL.STENCILOP doc | glStencilOp | the three operations recorded
+GL.STENCILOP.ENUM doc | glStencilOp (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM
+GL.STENCILMASK doc | glStencilMask | the write mask
+GL.DEPTH.TEST doc | glDepthFunc | with GL_DEPTH_TEST the fragment's depth compared with the buffer's; written under the depth mask
+GL.DEPTH.FIXED measured | (none) | a window depth for a 32-bit buffer: z times 2^32 compared in full, stored in 32 bits, so 1.0 fails GL_LEQUAL against a cleared 1.0 yet stores 0 (opengl golden depth-*)
+GL.DEPTH.CLEAR measured | glClearDepth | in a 32-bit buffer: z times 0x7fffffff truncated, shifted left one: 1.0 gives 0xfffffffe (opengl golden depth-*)
+GL.DEPTH.BITS open | (none) | a 16-bit depth buffer
+GL.DEPTH.NEVER open | glDepthFunc (GL_NEVER) | under GL_NEVER Windows writes scattered pixels of the primitives along diagonals; no rule found (opengl golden depth-0)
+GL.DEPTHMASK doc | glDepthMask | the depth write mask
+GL.DEPTHRANGE doc | glDepthRange | the near and far window depths, clamped to 0..1
+GL.BLENDFUNC doc | glBlendFunc | the source and destination factors recorded
+GL.BLENDFUNC.ENUM doc | glBlendFunc (GL_INVALID_ENUM) | GL_SRC_COLOR / GL_ONE_MINUS_SRC_COLOR as source, GL_DST_COLOR / GL_ONE_MINUS_DST_COLOR / GL_SRC_ALPHA_SATURATE as destination or other names: GL_INVALID_ENUM
+GL.BLEND.APPLY doc | glBlendFunc | with GL_BLEND the source and destination weighted and summed, clamped
+GL.BLEND.ALPHA measured | glBlendFunc | GL_SRC_ALPHA / GL_ONE_MINUS_SRC_ALPHA on 8-bit channels in integers: ((max(s - 1, 0) (a - 1)) >> 8) + ((d (256 - a)) >> 8) (opengl golden blend-alpha-*: 196608 channels)
+GL.BLEND.FLOAT measured | glBlendFunc | every other pair on 8-bit channels in floats on 0..255: a color factor x gives v x * (1/255), one minus it v (1 - x (1/255)), a missing destination alpha makes GL_DST_ALPHA one and GL_ONE_MINUS_DST_ALPHA zero; the destination term first, truncated and clamped (opengl golden blend-*: 72 pairs, 110592 channels)
+GL.BLEND.FORMAT open | glBlendFunc | blending on 16 or 24-bit DIBs or with destination alpha
+GL.LOGICOP doc | glLogicOp | the operation recorded
+GL.LOGICOP.ENUM doc | glLogicOp (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM
+GL.LOGICOP.APPLY doc | glLogicOp | with GL_COLOR_LOGIC_OP the sixteen operations on the channel values (opengl golden logicop)
+GL.SHADEMODEL doc | glShadeModel | the model recorded
+GL.SHADEMODEL.ENUM doc | glShadeModel (GL_INVALID_ENUM) | another model: GL_INVALID_ENUM
+GL.FACE.ENUM doc | glCullFace, glFrontFace, glPolygonMode (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM; valid ones recorded
+GL.HINT doc | glHint | the hint recorded
+GL.HINT.ENUM doc | glHint (GL_INVALID_ENUM) | another target or mode: GL_INVALID_ENUM
+GL.WIDTH doc | glLineWidth, glPointSize | the width recorded
+GL.WIDTH.VALUE doc | glLineWidth, glPointSize (GL_INVALID_VALUE) | zero or less: GL_INVALID_VALUE
+GL.RECT doc | glRect | a polygon of the four corners, in order
+GL.RASTER.WINDOW doc | Coordinate Transformations | object to clip by the modelview and projection matrices, to window by the viewport and depth range
+GL.RASTER.RECT measured | (none) | an axis-aligned quad of one color: the pixels whose centers are inside (opengl golden rect-*)
+GL.RASTER.TIE.X measured | (none) | a pixel center on a vertical edge: out on the left edge, in on the right one (opengl golden rect-*: 15 edges)
+GL.RASTER.TIE open | (none) | a pixel center on a horizontal edge: in or out by where it lies (bottom edges in above y = 4, top edges in below it, rect-*: 22 edges); no rule found
+GL.RASTER.INTERPOLATE open | glShadeModel | colors or depths that differ across a primitive
+GL.RASTER.POLYGON open | (none) | quads that are not axis-aligned rectangles
+GL.RASTER.MODE open | glBegin | points and quads only: lines, triangles, strips and polygons not modelled
+GL.RASTER.PERSPECTIVE open | (none) | a clip w other than 1
+GL.RASTER.CLIP open | (none) | a vertex outside the near and far planes
+GL.POINT measured | glPointSize | a 1-pixel point fills the pixel the window position lies in (opengl golden points-*)
+GL.POINT.EDGE open | (none) | a point on a pixel boundary
+GL.PIXELSTORE doc | glPixelStore | the pack / unpack parameter recorded, booleans as 0 / 1
+GL.PIXELSTORE.ENUM doc | glPixelStore (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM
+GL.PIXELSTORE.VALUE doc | glPixelStore (GL_INVALID_VALUE) | an alignment other than 1, 2, 4, 8 or a negative length or skip: GL_INVALID_VALUE
+GL.PIXELSTORE.LAYOUT doc | glPixelStore | rows of GL_*_ROW_LENGTH pixels (or the width), padded to the alignment unless the element is as large, skipped rows and pixels first (opengl golden read-pack-*, draw-unpack-*)
+GL.PIXELSTORE.SWAP doc | glPixelStore (GL_PACK_SWAP_BYTES) | the bytes of each element of 2 or 4 bytes reversed
+GL.PIXELTRANSFER doc | glPixelTransfer | the scale and bias of each component recorded
+GL.PIXELTRANSFER.APPLY doc | glPixelTransfer | components times the scale plus the bias, clamped, on reads and draws (opengl golden draw-unpack-8..15)
+GL.PIXELTRANSFER.OTHER open | glPixelTransfer | color maps, index shifts and depth scale
+GL.PIXELS.ENUM doc | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM
+GL.PIXELS.VALUE doc | glReadPixels, glDrawPixels (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE
+GL.PIXELS.NOBUFFER doc | glReadPixels, glDrawPixels (GL_INVALID_OPERATION) | GL_COLOR_INDEX in RGBA mode, or depth or stencil without such a buffer: GL_INVALID_OPERATION
+GL.PIXELS.BITMAP.INDEX open | glReadPixels, glDrawPixels | GL_BITMAP with GL_COLOR_INDEX or GL_STENCIL_INDEX
+GL.READ doc | glReadPixels | the rectangle's pixels from the bottom row up, converted to the format and type
+GL.READ.CONVERT measured | glReadPixels | components (read as channel times the float reciprocal of its maximum) in floats: GL_UNSIGNED_BYTE times 255 rounded, GL_UNSIGNED_SHORT times 65535, GL_BYTE times 127.5, GL_SHORT times 32767.5 truncated, GL_UNSIGNED_INT times 4294964992 and GL_INT times 2147482496 truncated, GL_FLOAT as is (opengl golden read-*: 2343 elements)
+GL.READ.LUMINANCE doc | glReadPixels | luminance: red + green + blue, clamped to 1
+GL.READ.BITMAP measured | glReadPixels | GL_BITMAP with a color format: GL_INVALID_OPERATION, not GL_INVALID_ENUM (opengl golden read-formats, read-pack-*)
+GL.READ.DEPTH measured | glReadPixels (GL_DEPTH_COMPONENT) | GL_UNSIGNED_INT from a 32-bit depth buffer: the stored bits as they are (opengl golden depth-*); other types open
+GL.READ.STENCIL doc | glReadPixels (GL_STENCIL_INDEX) | the stencil values as integers of the type
+GL.READ.OUTSIDE open | glReadPixels | pixels outside the window (undefined)
+GL.READ.BUFFER open | glReadPixels | a layout past the executor's buffer (Windows writes past it)
+GL.DRAW doc | glDrawPixels | the image as fragments from the bottom left at the raster position
+GL.DRAW.CONVERT doc | glDrawPixels | each element to a component: unsigned ones over their maximum, signed (2v + 1) / (2^n - 1), floats as they are
+GL.DRAW.TOFIXED measured | glDrawPixels | a drawn component to an 8-bit channel truncated, to a 5-bit one rounded (opengl golden draw-*, scissor-mask-*)
+GL.DRAW.LUMINANCE doc | glDrawPixels | luminance to red, green and blue
+GL.DRAW.NAN open | glDrawPixels | a NaN or infinite float component
+GL.DRAW.BITMAP open | glDrawPixels | GL_BITMAP with a color format
+GL.DRAW.DEPTHSTENCIL open | glDrawPixels | depth or stencil images
+GL.DRAW.BUFFER excluded | glDrawPixels | a layout past the executor's data: Windows would read past its array
+GL.DIB measured | (none) | the DIB section's bits are the color buffer, bottom row first, channels at the format's shifts (opengl golden gldib lines)
+GL.DIB.INDEX open | (none) | an 8 or 4-bit DIB: 3-3-2 pixels through the DIB's color table

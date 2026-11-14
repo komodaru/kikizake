@@ -107,6 +107,11 @@ impl Api for wicimage::WicImage {
         wicimage::WicImage::op(self, op, out)
     }
 }
+impl Api for opengl::Gl {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        opengl::Gl::op(self, op, out)
+    }
+}
 impl Api for ddraw::Ddraw {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         ddraw::Ddraw::op(self, op, out)
@@ -153,6 +158,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(d2d::D2d::default()),
         Box::new(wicimage::WicImage::default()),
         Box::new(d3dx9::D3dx9),
+        Box::new(opengl::Gl::default()),
     ]
 }
 
