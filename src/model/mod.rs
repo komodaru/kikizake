@@ -5,6 +5,8 @@
 pub mod d3d11;
 pub mod d3d12;
 pub mod dxgi_format;
+pub mod d3dres;
+pub mod dxgifmt;
 pub mod ddraw;
 pub mod d3d9;
 pub mod gdi;
@@ -53,6 +55,11 @@ impl Api for d3d11::D3d11 {
         d3d11::D3d11::op(self, op, out)
     }
 }
+impl Api for d3dres::D3dres {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        d3dres::D3dres::op(self, op, out)
+    }
+}
 struct Wic;
 impl Api for Wic {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
@@ -86,6 +93,8 @@ fn apis() -> Vec<Box<dyn Api>> {
     vec![
         Box::new(gdi::Gdi::new()),
         Box::new(d3d9::D3d9::default()),
+        // (before d3d11: it sees device11 and leaves it to d3d11)
+        Box::new(d3dres::D3dres::default()),
         Box::new(d3d11::D3d11::default()),
         Box::new(Wic),
         Box::new(ddraw::Ddraw::default()),

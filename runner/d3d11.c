@@ -2,7 +2,7 @@
 #include <d3d11.h>
 /* Direct3D 11 state objects (d3d11.dll loaded only when a case asks for a device) */
 
-static ID3D11Device *dev11;
+ID3D11Device *dev11; /* (runner/d3dres.c uses it too) */
 #define OBJS 64
 static IUnknown *objs[OBJS];
 static int nobjs;
@@ -14,7 +14,8 @@ static void d3d11_reset(void) {
     if (dev11) { ID3D11Device_Release(dev11); dev11 = NULL; }
 }
 
-/* device11: D3D11CreateDevice, hardware (WARP if refused), feature level 11_0 asked */
+/* device11 [<feature level>]: D3D11CreateDevice, hardware (WARP if refused), feature level 11_0
+ * or the one given asked */
 static void op_device11(void) {
     d3d11_reset();
     static HRESULT (WINAPI *create)(void *, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL *, UINT, UINT, ID3D11Device **, D3D_FEATURE_LEVEL *, void **);
@@ -23,7 +24,8 @@ static void op_device11(void) {
         if (m) create = (void *)GetProcAddress(m, "D3D11CreateDevice");
     }
     if (!create) { out("device11 none\n"); return; }
-    D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_11_0;
+    D3D_FEATURE_LEVEL fl = ntok > 1 ? (D3D_FEATURE_LEVEL)num(1) : D3D_FEATURE_LEVEL_11_0;
+    if (bad || ntok > 2) { bad = 1; return; }
     HRESULT hr = create(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &fl, 1, D3D11_SDK_VERSION, &dev11, NULL, NULL);
     if (FAILED(hr)) hr = create(NULL, D3D_DRIVER_TYPE_WARP, NULL, 0, &fl, 1, D3D11_SDK_VERSION, &dev11, NULL, NULL);
     if (FAILED(hr)) { out("device11 failed %08lx\n", hr); dev11 = NULL; return; }

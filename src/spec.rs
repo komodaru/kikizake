@@ -26,6 +26,7 @@ pub const FILES: &[(&str, &str)] = &[
     ("dwrite", include_str!("../spec/dwrite.txt")),
     ("d3d12", include_str!("../spec/d3d12.txt")),
     ("dxgi", include_str!("../spec/dxgi.txt")),
+    ("d3dres", include_str!("../spec/d3dres.txt")),
 ];
 
 /// (excluded: deliberately not asked, e.g. calls that read past Windows' own arrays)

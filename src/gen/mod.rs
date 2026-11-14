@@ -8,6 +8,7 @@
 mod d2d;
 mod d3d11;
 pub mod d3d12;
+mod d3dres;
 mod d3d9;
 mod ddraw;
 mod gdi;
@@ -35,6 +36,8 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("dwrite", dwrite::dwrite),
     ("d3d12", d3d12::d3d12),
     ("dxgi", d3d12::dxgi),
+    ("d3d10res", d3dres::d3d10res),
+    ("d3d11res", d3dres::d3d11res),
 ];
 
 pub const SUITES: &[&str] = &{

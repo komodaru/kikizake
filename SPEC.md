@@ -63,6 +63,26 @@ samplers past 15 other than 256..260, sampler state types past 13: Windows reads
 
 Without a device these lines print `nodev`. A case holds at most 64 state lines.
 
+## Direct3D 10 and 11 resources
+
+The lines act on the case's device: `device11 [<feature level>]` (above; feature level as a
+D3D_FEATURE_LEVEL number, 11_0 by default), `device10` (D3D10CreateDevice, d3d10.dll) or
+`device10_1 <feature level>` (D3D10CreateDevice1, d3d10_1.dll); hardware, WARP if refused
+(`device10 ok` / `none` / `failed <hr>`). Sixteen resource slots and sixteen view slots.
+
+| line | calls | prints |
+|---|---|---|
+| `fmt <format>` | CheckFormatSupport, CheckFeatureSupport FORMAT_SUPPORT2 (11), CheckMultisampleQualityLevels of 2, 4, 8, 16 samples | `fmt <format> <hr> <support> <hr2> <support2> ms <q2> <q4> <q8> <q16>` (hex; 10: `- -` for the second pair; a failed quality query `x<hr>`) |
+| `tex <slot\|check> <dim 1\|2\|3> <w> <h> <depth or array> <mips> <format> <usage> <bind> <cpu> <misc> <samples> <quality> [init <seed> <row pitch> <slice pitch>]` | CreateTexture1D / 2D / 3D (h unused for 1D, samples for 1D and 3D; `check`: ppTexture NULL), every subresource's initial data the same 4 MiB of xorshift32 bytes from the seed with the pitches given, then GetDesc | `tex hr <hr>`, else `tex = <the description's words>` (hex: 1D 8 words, 2D 11, 3D 9) |
+| `buf <slot\|check> <bytes> <usage> <bind> <cpu> <misc> <stride> [init <seed>]` | CreateBuffer (10: no stride), GetDesc | `buf hr <hr>` / `buf = <6 words (10: 5)>` |
+| `srv\|rtv\|dsv\|uav <view> <res> [check] nodesc\|<words>` | Create...View of the resource with no description or the one given as words (Format, ViewDimension, [Flags: dsv on 11], the union), GetDesc (10.1 devices: CreateShaderResourceView1); no uav on 10 | `<kind> hr <hr>`, `<kind> = <Format ViewDimension [Flags] and the union words the dimension uses>`, `<kind> nores`, `uav none` |
+| `clear <rtv> <r> <g> <b> <a>`, `cleards <dsv> <flags> <depth> <stencil>`, `clearuav <uav> f\|u <4 words>` | ClearRenderTargetView, ClearDepthStencilView, ClearUnorderedAccessViewFloat / Uint (11); floats as their bits | `<op> noview` when the slot holds no view of that kind |
+| `update <res> <sub> <seed> <row pitch> <depth pitch> [<left top front right bottom back>]` | UpdateSubresource from xorshift32 bytes | |
+| `copy <dst> <src>`, `copysub <dst> <dsub> <x> <y> <z> <src> <ssub> [<box>]`, `resolve <dst> <dsub> <src> <ssub> <format>` | CopyResource, CopySubresourceRegion, ResolveSubresource | `<op> nores` |
+| `read <res> <sub> <row bytes> <rows> <slices>` | the subresource copied into a staging resource of its size (CopySubresourceRegion), mapped | `read <rows> <slices>` and each row's first bytes as hex, `read hr <hr>` |
+
+Without a device these lines print `nodev`.
+
 ## WIC
 
 | line | calls | prints |
