@@ -423,6 +423,8 @@ pub struct Draw {
     pub scissor: Option<(i32, i32, i32, i32)>,
     /// the triangle being drawn is counterclockwise on screen (two-sided stencil)
     pub ccw: bool,
+    /// the current texture palette's entries (r, g, b, flags), None before d9palette
+    pub palette: Option<Box<[[u8; 4]; 256]>>,
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -818,7 +820,14 @@ impl D3d9 {
                 };
                 tx.bytes = fill_bytes(&format(tx.fmt).unwrap(), tx.w, tx.h, seed);
             }
-            "d9palette" => return Err(Fail::Unmodeled(open::D3D9_TEX_FORMAT)),
+            "d9palette" => {
+                let b = fill_bytes(&format(50).unwrap(), 1024, 1, n(op, 1)?);
+                let mut e = Box::new([[0u8; 4]; 256]);
+                for (i, c) in b.chunks(4).enumerate() {
+                    e[i].copy_from_slice(c);
+                }
+                self.draw.palette = Some(e);
+            }
             "d9settex" => {
                 let s = n(op, 1)? as usize;
                 let i = if t.get(2).is_some_and(|s| s == "none") { None } else { Some(n(op, 2)? as usize) };
@@ -842,6 +851,10 @@ impl D3d9 {
                     // (nor with a texture's address mode outside WRAP..MIRRORONCE, MEASURED)
                     hit(clause::D3D9_TEX_ADDRESSX86);
                     out.push(format!("draw x86 address {a}"));
+                } else if self.draw.palette.is_none() && self.draw.stage_tex.iter().flatten().any(|&i| self.draw.texs[i].as_ref().is_some_and(|t| matches!(t.fmt, 40 | 41))) {
+                    // (MEASURED tex-*-P8, tex-*-A8P8: no palette, no drawing)
+                    hit(clause::D3D9_TEX_PALETTE_NONE);
+                    out.push(format!("draw hr {INVALIDCALL:08x}"));
                 } else {
                     self.draw_prims(ty, nv, &words)?;
                 }
@@ -949,6 +962,14 @@ impl D3d9 {
         match fm.kind {
             Kind::Int | Kind::F16 | Kind::F32 if !fm.ch.iter().any(|c| c.c == b'p') => {}
             Kind::Dxt(n) => return Ok(dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32)),
+            Kind::Int if matches!(tx.fmt, 40 | 41) => {
+                // (MEASURED palette-*: the entry's color; P8's alpha the entry's flags, A8P8's its own)
+                hit(clause::D3D9_TEX_PALETTE);
+                let p = tx.px(x as i32, y as i32);
+                let e = self.draw.palette.as_ref().ok_or(Fail::Bad)?[p[0] as usize];
+                let a = if tx.fmt == 40 { p[1] } else { e[3] };
+                return Ok([e[0] as f64 / 255.0, e[1] as f64 / 255.0, e[2] as f64 / 255.0, a as f64 / 255.0]);
+            }
             _ => return Err(Fail::Unmodeled(open::D3D9_TEX_FORMAT)),
         }
         hit(clause::D3D9_TEX_DECODE);
