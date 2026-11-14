@@ -61,11 +61,11 @@ GL.CLEARSTENCIL doc | glClearStencil | masked with the stencil bits
 GL.CLEARACCUM doc | glClearAccum | clamped to -1..1
 GL.CLEAR doc | glClear | the buffers of the mask set to their clear values, under the scissor box and the write masks
 GL.CLEAR.VALUE doc | glClear (GL_INVALID_VALUE) | a bit outside the four buffer bits: GL_INVALID_VALUE
-GL.CLEAR.ACCUM doc | glClear (GL_ACCUM_BUFFER_BIT) | every accumulation channel in the scissor box set to the clear value times its largest value, truncated
+GL.CLEAR.ACCUM doc | glClear (GL_ACCUM_BUFFER_BIT) | every accumulation channel in the scissor box set to the clear value (its conversion: GL.ACCUM.STEPS)
 GL.ACCUM measured | glAccum | GL_ACCUM, GL_LOAD, GL_MULT, GL_ADD change only the accumulation buffer, no error; accumulating into content never loaded or cleared keeps it undefined (opengl golden edge-accum)
 GL.ACCUM.ENUM measured | glAccum (GL_INVALID_ENUM) | another operation: GL_INVALID_ENUM (opengl golden edge-accum)
-GL.ACCUM.STEPS measured | glAccum | signed channels of the format's accumulation bits, largest value K = 2^(bits-1) - 1, wrapping past their range: LOAD and ACCUM add value times color component times K truncated (in floats), MULT truncates channel times value, ADD adds value times K rounded up; RETURN writes channel times (value / K) times the color channel's largest value, rounded on 16-bit DIBs, truncated on 32-bit ones, clamped (opengl golden accum-1, accum-3)
-GL.ACCUM.RETURN open | glAccum (GL_RETURN) | GL_RETURN on a 24-bit DIB (accum-4: ADD rounds there and one channel of 3072 stays one off; accum-*-24 measure each step alone), on 8 and 4 bits, with alpha, and of content never defined
+GL.ACCUM.STEPS measured | glAccum | signed channels of the format's accumulation bits, largest value K = 2^(bits-1) - 1, wrapping past their range: LOAD and ACCUM add value times (color channel times K over the channel's largest value) truncated, in floats; MULT truncates channel times value; ADD adds value times K plus one half, truncated toward zero; RETURN writes channel times (value / K) times the color channel's largest value, rounded on 16, 8 and 4-bit DIBs, truncated on 32 and 24-bit ones, clamped; glClear sets clear value times (K - 1) truncated (opengl golden accum-*: every step alone at every depth and with alpha)
+GL.ACCUM.RETURN open | glAccum (GL_RETURN) | GL_RETURN of content never loaded or cleared (undefined at creation, GL 1.1 4.2.3; accum-undefined-* measure it)
 GL.BUFFER measured | glDrawBuffer, glReadBuffer | GL_FRONT, GL_FRONT_LEFT, GL_LEFT, for drawing also GL_FRONT_AND_BACK and GL_NONE: the buffer recorded (opengl golden edge-buffer)
 GL.BUFFER.MISSING measured | glDrawBuffer, glReadBuffer (GL_INVALID_OPERATION) | a right, back or auxiliary buffer a single-buffered DIB lacks: GL_INVALID_OPERATION (opengl golden errors, edge-buffer)
 GL.BUFFER.ENUM measured | glDrawBuffer, glReadBuffer (GL_INVALID_ENUM) | a name that is no buffer, for reading also GL_FRONT_AND_BACK and GL_NONE: GL_INVALID_ENUM (opengl golden errors, edge-buffer)
@@ -114,13 +114,14 @@ GL.WIDTH.VALUE doc | glLineWidth, glPointSize (GL_INVALID_VALUE) | zero or less:
 GL.RECT doc | glRect | a polygon of the four corners, in order
 GL.RASTER.WINDOW doc | Coordinate Transformations | object to clip by the modelview and projection matrices, to window by the viewport and depth range
 GL.RASTER.RECT measured | (none) | an axis-aligned quad of one color: the pixels whose centers are inside (opengl golden rect-*)
-GL.RASTER.TIE.X measured | (none) | a pixel center on a vertical edge of a rectangle: as if the edge were moved a little toward window x = 12, in when that moves it past the center (left edges in right of 12, right edges in left of it) (opengl golden rect-*, tie-x-*)
-GL.RASTER.TIE.Y measured | (none) | a pixel center on a horizontal edge of a rectangle: as if the edge were moved a little toward window y = 4 (bottom edges in above 4, top edges in below it) (opengl golden rect-*, tie-y-*: every row both ways)
-GL.RASTER.TIE open | (none) | a rectangle corner on a pixel center (tie-x-2: in, against the edge rule); why the pivot is (12, 4) (tie-vp-* move the viewport and object coordinates)
+GL.RASTER.TIE.X measured | (none) | a pixel center on a vertical edge of a rectangle: as if the edge were moved a little toward the window x of normalized device x 0.5 (12 in a 16-wide viewport at 0), in when that moves it past the center (opengl golden rect-*, tie-x-*, tie-vp-*: eight viewports and object spaces)
+GL.RASTER.TIE.Y measured | (none) | a pixel center on a horizontal edge of a rectangle: as if the edge were moved a little toward the window y of normalized device y -0.5 (4 in a 16-high viewport at 0) (opengl golden rect-*, tie-y-*: every row both ways, tie-vp-*)
+GL.RASTER.TIE open | (none) | a rectangle corner on a pixel center (tie-x-2: in, against the edge rule); the rule for triangles and other primitives
 GL.RASTER.INTERPOLATE open | glShadeModel | colors or depths that differ across a primitive
 GL.RASTER.POLYGON open | (none) | quads that are not axis-aligned rectangles
 GL.RASTER.MODE open | glBegin | points and quads only: lines, triangles, strips and polygons not modelled
 GL.RASTER.PERSPECTIVE open | (none) | a clip w other than 1
+GL.RASTER.CLIP.XY measured | (none) | a rectangle past the view volume's sides drawn as its part inside the viewport (opengl golden tie-vp-*: viewports at (4, 4) and (-4, -4))
 GL.RASTER.CLIP open | (none) | a vertex outside the near and far planes
 GL.POINT measured | glPointSize | a 1-pixel point fills the pixel the window position lies in (opengl golden points-*)
 GL.POINT.EDGE open | (none) | a point on a pixel boundary

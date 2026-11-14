@@ -1049,4 +1049,25 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "end").unwrap();
     }
+    // clears of the accumulation buffer one pixel at a time: values everywhere in -1..1 and at
+    // the ends, returned at several scales
+    let mut q = XorShift32::new(0x0960_2003);
+    for fmt in ["32", "24", "16"] {
+        writeln!(s, "case accum-clear-fine-{fmt}\n{}{ORTHO}gl glDisable 0xbd0", ctx(fmt.parse().unwrap())).unwrap();
+        for i in 0..48 {
+            let c: Vec<String> = (0..4).map(|k| match (i, k) {
+                (0, _) => f(1.0),
+                (1, _) => f(-1.0),
+                (2, _) => f(0.5),
+                _ => f((q.next() % 4097) as f64 / 4096.0),
+            }).collect();
+            let v = [1.0, 1.0, 1.0, 0.5, 2.0, 1.5][i % 6];
+            writeln!(s, "gl glClearAccum {}\ngl glClear 0x200\ngl glAccum 0x102 {}\nglread 0 0 1 1 {} {} 4", c.join(" "), f(v), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // GL_RETURN of an accumulation buffer never loaded or cleared, twice, on each depth
+    for bpp in [32, 24, 16, 8, 4] {
+        writeln!(s, "case accum-undefined-{bpp}\n{}{ORTHO}gl glDisable 0xbd0\ngl glAccum 0x102 1\nglread 0 0 16 16 {} {} 1024\ngl glAccum 0x103 2\ngl glAccum 0x102 1\nglread 0 0 16 16 {} {} 1024\nglerr\nend", ctx(bpp), h(RGBA), h(UNSIGNED_BYTE), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
 }

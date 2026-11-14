@@ -1572,13 +1572,21 @@ impl Ctx {
                     if !(xs[0] == xs[3] && xs[1] == xs[2] && ys[0] == ys[1] && ys[2] == ys[3]) {
                         return Err(Fail::Unmodeled(open::GL_RASTER_POLYGON));
                     }
-                    let (x0, x1) = (xs[0].min(xs[1]), xs[0].max(xs[1]));
-                    let (y0, y1) = (ys[0].min(ys[2]), ys[0].max(ys[2]));
+                    // clipped to the view volume: the viewport's rectangle (GL.RASTER.CLIP.XY)
+                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                    let (x0, x1) = (xs[0].min(xs[1]).max(vx), xs[0].max(xs[1]).min(vx + vw));
+                    let (y0, y1) = (ys[0].min(ys[2]).max(vy), ys[0].max(ys[2]).min(vy + vh));
+                    if x0 != xs[0].min(xs[1]) || x1 != xs[0].max(xs[1]) || y0 != ys[0].min(ys[2]) || y1 != ys[0].max(ys[2]) {
+                        hit(clause::GL_RASTER_CLIP_XY);
+                    }
+                    if x0 >= x1 || y0 >= y1 {
+                        continue;
+                    }
                     // a pixel whose center is on an edge (MEASURED, golden opengl-32 rect-*, tie-x-*,
-                    // tie-y-*: every vertical and horizontal edge through pixel centers of a 16 by
-                    // 16 window): as if the vertices were moved a little toward window point
-                    // (12, 4), the pixel in when that moves the edge past its center
-                    // (GL.RASTER.TIE.X, GL.RASTER.TIE)
+                    // tie-y-*, tie-vp-*: every vertical and horizontal edge through pixel centers):
+                    // as if the vertices were moved a little toward the window point of normalized
+                    // device coordinates (0.5, -0.5), the pixel in when that moves the edge past
+                    // its center (GL.RASTER.TIE.X, GL.RASTER.TIE.Y)
                     let on = |a: f64| (a - 0.5).fract() == 0.0;
                     if on(x0) || on(x1) {
                         hit(clause::GL_RASTER_TIE_X);
@@ -1586,6 +1594,7 @@ impl Ctx {
                     if on(y0) || on(y1) {
                         hit(clause::GL_RASTER_TIE_Y);
                     }
+                    let (px, py) = self.tie_pivot();
                     let inside = |c: f64, lo: f64, hi: f64, p: f64| (c > lo || (c == lo && lo > p)) && (c < hi || (c == hi && hi < p));
                     // a corner on a pixel center that one edge's rule takes in and the other's
                     // leaves out: the diagonal the rectangle is split along decides (golden
@@ -1593,8 +1602,8 @@ impl Ctx {
                     for cx in [x0, x1] {
                         for cy in [y0, y1] {
                             if on(cx) && on(cy) && (0.0..W as f64).contains(&cx) && (0.0..H as f64).contains(&cy) {
-                                let ix = (cx == x0 && x0 > 12.0) || (cx == x1 && x1 < 12.0);
-                                let iy = (cy == y0 && y0 > 4.0) || (cy == y1 && y1 < 4.0);
+                                let ix = (cx == x0 && x0 > px) || (cx == x1 && x1 < px);
+                                let iy = (cy == y0 && y0 > py) || (cy == y1 && y1 < py);
                                 if ix != iy {
                                     return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
                                 }
@@ -1606,7 +1615,7 @@ impl Ctx {
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
-                            if inside(cx, x0, x1, 12.0) && inside(cy, y0, y1, 4.0) {
+                            if inside(cx, x0, x1, px) && inside(cy, y0, y1, py) {
                                 self.fragment(Frag { x, y, c, z: w[0][2], trunc: false })?;
                             }
                         }
@@ -1816,6 +1825,14 @@ impl Ctx {
         Ok(blend_bytes(self.blend, s, d))
     }
 
+    /// the point ties lean toward (GL.RASTER.TIE.X, GL.RASTER.TIE.Y): normalized device
+    /// coordinates (0.5, -0.5) in window coordinates (golden opengl-32 tie-vp-*: it moves with the
+    /// viewport, not with the object coordinates)
+    fn tie_pivot(&self) -> (f64, f64) {
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        (vx + 0.75 * vw, vy + 0.25 * vh)
+    }
+
     /// the pixels inside the scissor box when the test is on
     fn scissored(&self) -> Vec<usize> {
         let [sx, sy, sw, sh] = self.scissor;
@@ -1842,9 +1859,23 @@ impl Ctx {
         (v + m / 2).rem_euclid(m) - m / 2
     }
 
-    /// a component (-1..1) to an accumulation channel: times the largest value, truncated
+    /// value times a color channel in accumulation units, for LOAD and ACCUM (MEASURED, golden
+    /// opengl-32 accum-accum-16: the channel times the ratio of the largest values, then times
+    /// value, in floats: 17 of 31 at 2.0 gives 1122 exactly, not 1121); a missing alpha is 1
+    fn acc_scaled(&self, v: f32, i: usize, k: usize) -> f32 {
+        let b = self.bits()[k];
+        if b == 0 {
+            return v * self.acc_max(k);
+        }
+        let cm = ((1u64 << b) - 1) as f32;
+        v * (self.fb[i][k] as f32 * (self.acc_max(k) / cm))
+    }
+
+    /// a clear value (-1..1) to an accumulation channel: times one less than the largest value,
+    /// truncated (golden opengl-32 accum-5: 1.0 returns 254, not 255; accum-clear-*;
+    /// accum-clear-fine-* tell it from a clamp of 1.0 alone)
     fn acc_fixed(&self, c: f32, k: usize) -> i64 {
-        self.acc_wrap((c * self.acc_max(k)).trunc() as i64, k)
+        self.acc_wrap((c * (self.acc_max(k) - 1.0)).trunc() as i64, k)
     }
 
     /// glAccum (MEASURED, golden opengl-32 accum-*, every channel of 24 reads on 32, 24 and 16
@@ -1941,9 +1972,8 @@ impl Ctx {
             (AccumOp::Load, a) => {
                 let mut a = a.unwrap_or_else(|| vec![[0; 4]; W * H]);
                 for &i in &idx {
-                    let c = self.dst_color(i);
                     for k in 0..4 {
-                        a[i][k] = self.acc_wrap(((v * c[k]) * self.acc_max(k)).trunc() as i64, k);
+                        a[i][k] = self.acc_wrap(self.acc_scaled(v, i, k).trunc() as i64, k);
                     }
                 }
                 a
@@ -1954,9 +1984,8 @@ impl Ctx {
             (AccumOp::Return, None) => return Err(Fail::Unmodeled(open::GL_ACCUM_RETURN)),
             (AccumOp::Accum, Some(mut a)) => {
                 for &i in &idx {
-                    let c = self.dst_color(i);
                     for k in 0..4 {
-                        a[i][k] = self.acc_wrap(a[i][k] + ((v * c[k]) * self.acc_max(k)).trunc() as i64, k);
+                        a[i][k] = self.acc_wrap(a[i][k] + self.acc_scaled(v, i, k).trunc() as i64, k);
                     }
                 }
                 a
@@ -1972,18 +2001,12 @@ impl Ctx {
             (AccumOp::Add, Some(mut a)) => {
                 for &i in &idx {
                     for k in 0..4 {
-                        a[i][k] = self.acc_wrap(a[i][k] + (v * self.acc_max(k)).ceil() as i64, k);
+                        a[i][k] = self.acc_wrap(a[i][k] + (v * self.acc_max(k) + 0.5).trunc() as i64, k);
                     }
                 }
                 a
             }
             (AccumOp::Return, Some(a)) => {
-                if self.bpp == 24 {
-                    // (golden opengl-32 accum-4: ADD rounds there, and one channel of 3072 is
-                    // still one off whatever the rounding; accum-*-24 measure each step alone)
-                    self.acc = Some(a);
-                    return Err(Fail::Unmodeled(open::GL_ACCUM_RETURN));
-                }
                 hit(clause::GL_ACCUM_STEPS);
                 let bits = self.bits();
                 if self.buffers[0] != 0 {
@@ -1994,7 +2017,7 @@ impl Ctx {
                             }
                             let cm = ((1u64 << bits[k]) - 1) as f32;
                             let x = a[i][k] as f32 * (v / self.acc_max(k)) * cm;
-                            let m = if self.bpp == 16 { (x + 0.5).floor() } else { x.trunc() };
+                            let m = if self.bpp <= 16 { (x + 0.5).floor() } else { x.trunc() };
                             self.fb[i][k] = m.clamp(0.0, cm) as u32;
                         }
                     }
