@@ -1181,7 +1181,7 @@ impl Gdiplus {
             "gpbrush" => {
                 let s = Self::slot(t, 1)?;
                 self.brush[s] = None;
-                hit("GP.BRUSH");
+                hit(clause::GP_BRUSH);
                 let b = match t.get(2).map(String::as_str) {
                     Some("solid") => Some(Brush::Solid(n(t, 3)? as u32)),
                     Some("hatch") => {
@@ -1196,7 +1196,7 @@ impl Gdiplus {
                         self.brush[s] = Some(b);
                     }
                     None => {
-                        hit("GP.BRUSH.HATCH.RANGE");
+                        hit(clause::GP_BRUSH_HATCH_RANGE);
                         out.push(format!("brush {INVALID_PARAMETER}"));
                     }
                 }
@@ -1207,10 +1207,10 @@ impl Gdiplus {
                 if self.bmp[s].is_none() {
                     out.push("gppaint nobitmap".into());
                 } else if self.brush[k].is_none() {
-                    hit("GP.PAINT.NOBRUSH");
+                    hit(clause::GP_PAINT_NOBRUSH);
                     out.push("paint nobrush".into());
                 } else {
-                    return Err(Fail::Unmodeled("GP.PAINT"));
+                    return Err(Fail::Unmodeled(crate::spec::open::GP_PAINT));
                 }
             }
             _ => return Ok(false),
