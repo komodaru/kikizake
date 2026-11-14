@@ -108,6 +108,7 @@ fn predefined_palettes() {
         assert_eq!(ct.len(), if n == 256 { 256 } else { n + 1 });
         assert_eq!(*ct.last().unwrap(), 0);
         assert_eq!(ct[..n.min(255)], c[..n.min(255)]);
+    }
     for t in [0u32, 1, 13, 14, 0x7fff_ffff] {
         assert_ne!(wi::predefined(t, false).unwrap().0, 0);
     }
