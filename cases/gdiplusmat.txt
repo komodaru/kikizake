@@ -2999,6 +2999,11 @@ gpmatinv 0
 gpmatpts 0 0x0 0xc038e200 0x3f800000 0xc0585c00 0x3f400000 0xbe170000
 gpmatinv 0
 end
+case matrix-none
+gpmatpts 1 0 0
+gpmatinv 1
+gpmatmul 1 0 0
+end
 case matrix-order
 gpmatrix 0 0x3f800000 0 0 0x3f800000 0 0
 gpmatrix 1 0x40000000 0 0 0x40000000 0 0

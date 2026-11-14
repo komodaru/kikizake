@@ -173,6 +173,7 @@ pub fn gdiplusmat() -> String {
         let (a, b, p) = (m[..6].join(" "), m[6..].join(" "), pts.join(" "));
         writeln!(s, "case matrix-{i}\ngpmatrix 0 {a}\ngpmatrix 1 {b}\ngpmatpts 0 {p}\ngpmatmul 0 1 {}\ngpmatpts 0 {p}\ngpmatinv 0\ngpmatpts 0 {p}\ngpmatinv 0\nend", i % 2).unwrap();
     }
+    writeln!(s, "case matrix-none\ngpmatpts 1 0 0\ngpmatinv 1\ngpmatmul 1 0 0\nend").unwrap();
     writeln!(s, "case matrix-order\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngpmatrix 1 0x40000000 0 0 0x40000000 0 0\ngpmatmul 0 1 2\ngpmatmul 0 1 -1\nend").unwrap();
     s
 }
