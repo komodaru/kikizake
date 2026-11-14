@@ -31,6 +31,7 @@ pub fn d2d() -> String {
     draw(&mut s, &mut r);
     curves(&mut s, &mut r);
     arith(&mut s, &mut r);
+    target(&mut s, &mut r);
     s
 }
 
@@ -473,5 +474,84 @@ fn arith(s: &mut String, r: &mut XorShift32) {
     // curves filled through a transform (aliased)
     for (i, m) in ["0.7071 0.7071 -0.7071 0.7071 8 0", "1.5 0 0 0.5 1 2", "1 0.5 0 1 0 -2"].iter().enumerate() {
         writeln!(s, "case fillell-xf-{i}\nd2target 16 16\nd2aa aliased\nd2xform {m}\nd2ell 0 6 6 5 3\nd2fillg 0 255 255 255 255\nd2rrect 1 1 1 12 9 3 2\nd2fillg 1 0 0 255 128\nd2read\nend").unwrap();
+    }
+}
+
+/// a premultiplied B G R A bitmap of w x h as hex
+fn bitmap(r: &mut XorShift32, w: i64, h: i64) -> String {
+    let mut o = String::new();
+    for _ in 0..w * h {
+        let any = r.range(1, 255);
+        let a = *r.pick(&[0, 255, 255, 128, any]);
+        for _ in 0..3 {
+            write!(o, "{:02x}", r.range(0, a + 1)).unwrap();
+        }
+        write!(o, "{a:02x}").unwrap();
+    }
+    o
+}
+
+fn target(s: &mut String, r: &mut XorShift32) {
+    // the target's state: size, dpi, format, mode, transform, tags; a state block; flush
+    writeln!(s, "case info-0\nd2target 8 4\nd2info\nd2dpi 192 48\nd2info\nd2dpi 0 0\nd2info\nend").unwrap();
+    writeln!(s, "case info-1\nd2target 8 4\nd2aa aliased\nd2xform 1 2 3 4 5 6\nd2tags 5 6\nd2info\nd2flush\nd2info\nend").unwrap();
+    writeln!(s, "case state-0\nd2target 8 4\nd2xform 2 0 0 2 1 1\nd2aa aliased\nd2tags 3 4\nd2state save\nd2xform 1 0 0 1 0 0\nd2aa per\nd2tags 0 0\nd2info\nd2state restore\nd2info\nend").unwrap();
+    writeln!(s, "case state-1\nd2target 8 4\nd2state restore\nd2info\nend").unwrap();
+    // axis-aligned clips on fractions, both modes
+    for i in 0..12 {
+        let e = |r: &mut XorShift32, lo: i64, hi: i64| fmt(r.range(lo * 8, hi * 8) as f64 / 8.0);
+        let mode = if i % 2 == 0 { "aliased" } else { "per" };
+        writeln!(s, "case clip-{i}\nd2target 16 4\nd2clear {}\nd2clip {} {} {} {} {mode}\nd2fill 0 0 16 4 {}\nd2unclip\nd2read\nend", color(r, true), e(r, 0, 8), e(r, 0, 2), e(r, 8, 16), e(r, 2, 4), color(r, i % 3 == 0)).unwrap();
+    }
+    writeln!(s, "case clip-xf\nd2target 16 8\nd2xform 0.7071 0.7071 -0.7071 0.7071 8 0\nd2clip 1 1 6 6 aliased\nd2fill 0 0 16 16 255 255 255 255\nd2unclip\nd2read\nend").unwrap();
+    // brush opacity
+    for i in 0..12 {
+        let o = *r.pick(&["0.5", "0.25", "0.7", "0.3333", "0", "1", "0.01", "0.99"]);
+        let aa = if i % 2 == 0 { "d2aa aliased\n" } else { "" };
+        writeln!(s, "case fillo-{i}\nd2target 16 2\n{aa}d2clear {}\nd2fillo {} 0 {} 2 {} {o}\nd2read\nend", color(r, i % 4 != 3), fmt(r.range(0, 32) as f64 / 4.0), fmt(8.0 + r.range(0, 32) as f64 / 4.0), color(r, i % 3 == 0)).unwrap();
+    }
+    // gradients: linear and radial, either gamma, every extend mode, 1 to 4 stops in any order
+    for i in 0..24 {
+        let lin = i < 14;
+        let gamma = if i % 2 == 0 { "22" } else { "10" };
+        let ext = ["clamp", "wrap", "mirror"][i % 3];
+        let n = r.range(1, 5);
+        let stops: Vec<String> = (0..n).map(|_| format!("{} {}", fmt(r.range(-2, 10) as f64 / 8.0), { let o = r.chance(2); color(r, o) })).collect();
+        let g = if lin {
+            format!("lin {gamma} {ext} {} {} {} {}", q(r, 16), q(r, 4), q(r, 16), q(r, 4))
+        } else {
+            format!("rad {gamma} {ext} {} {} {} {} {} {}", q(r, 16), q(r, 4), fmt(r.range(-8, 8) as f64 / 4.0), fmt(r.range(-4, 4) as f64 / 4.0), fmt(r.range(1, 40) as f64 / 4.0), fmt(r.range(1, 16) as f64 / 4.0))
+        };
+        writeln!(s, "case grad-{i}\nd2target 16 4\nd2aa aliased\nd2grad 0 0 16 4 {g} {n} {}\nd2read\nend", stops.join(" ")).unwrap();
+    }
+    // bitmaps drawn and as brushes
+    for i in 0..12 {
+        let (w, h) = (r.range(1, 5), r.range(1, 5));
+        let mode = if i % 2 == 0 { "nearest" } else { "linear" };
+        let o = *r.pick(&["1", "0.5", "0.25"]);
+        let src = if i % 3 == 0 { format!(" 0.5 0 {} {}", w, fmt(h as f64 - 0.5)) } else { String::new() };
+        writeln!(s, "case bmp-{i}\nd2target 16 8\nd2clear {}\nd2bmp 0 {w} {h} {}\nd2drawbmp 0 {} {} {} {} {o} {mode}{src}\nd2read\nend", color(r, true), bitmap(r, w, h), q(r, 4), q(r, 2), fmt(4.0 + r.range(0, 48) as f64 / 4.0), fmt(2.0 + r.range(0, 24) as f64 / 4.0)).unwrap();
+    }
+    for i in 0..9 {
+        let (w, h) = (r.range(1, 4), r.range(1, 4));
+        let ex = ["clamp", "wrap", "mirror"];
+        let m = if i % 2 == 1 { " 1.5 0 0 1.5 0.5 0" } else { "" };
+        writeln!(s, "case bbrush-{i}\nd2target 16 8\nd2aa aliased\nd2bmp 0 {w} {h} {}\nd2bbrush 0 0 0 16 8 {} {} {}{m}\nd2read\nend", bitmap(r, w, h), ex[i % 3], ex[(i / 3) % 3], if i % 4 < 2 { "nearest" } else { "linear" }).unwrap();
+    }
+    // strokes: lines, rectangles and geometries, aliased and antialiased
+    for i in 0..16 {
+        let aa = if i % 2 == 0 { "d2aa aliased\n" } else { "" };
+        let w = *r.pick(&["1", "2", "0.5", "3", "1.5"]);
+        let op = match i % 4 {
+            0 | 1 => format!("d2line {} {} {} {} {w} 255 255 255 255", q(r, 16), q(r, 12), q(r, 16), q(r, 12)),
+            2 => format!("d2drawrect {} {} {} {} {w} 255 255 255 255", q(r, 6), q(r, 4), fmt(8.0 + r.range(0, 32) as f64 / 4.0), fmt(6.0 + r.range(0, 20) as f64 / 4.0)),
+            _ => format!("d2ell 0 8 6 {} {}\nd2drawg 0 {w} 255 255 255 255", fmt(2.0 + r.range(0, 20) as f64 / 4.0), fmt(2.0 + r.range(0, 12) as f64 / 4.0)),
+        };
+        writeln!(s, "case stroke-{i}\nd2target 16 12\n{aa}{op}\nd2read\nend").unwrap();
+    }
+    // layers: opacity, content bounds, geometric masks
+    for i in 0..6 {
+        let mask = if i % 2 == 1 { " 0" } else { "" };
+        writeln!(s, "case layer-{i}\nd2target 16 4\nd2aa aliased\nd2path 0 alt m 0 0 12 0 4 4 z\nd2clear {}\nd2layer {} 0 {} 4 {}{mask}\nd2fill 0 0 16 4 {}\nd2poplayer\nd2read\nend", color(r, true), r.range(0, 6), r.range(8, 17), *r.pick(&["1", "0.5", "0.25"]), color(r, i % 3 == 0)).unwrap();
     }
 }

@@ -11325,3 +11325,663 @@ d2rrect 1 1 1 12 9 3 2
 d2fillg 1 0 0 255 128
 d2read
 end
+case info-0
+d2target 8 4
+d2info
+d2dpi 192 48
+d2info
+d2dpi 0 0
+d2info
+end
+case info-1
+d2target 8 4
+d2aa aliased
+d2xform 1 2 3 4 5 6
+d2tags 5 6
+d2info
+d2flush
+d2info
+end
+case state-0
+d2target 8 4
+d2xform 2 0 0 2 1 1
+d2aa aliased
+d2tags 3 4
+d2state save
+d2xform 1 0 0 1 0 0
+d2aa per
+d2tags 0 0
+d2info
+d2state restore
+d2info
+end
+case state-1
+d2target 8 4
+d2state restore
+d2info
+end
+case clip-0
+d2target 16 4
+d2clear 118 246 144 255
+d2clip 6 0.5 15.5 2.625 aliased
+d2fill 0 0 16 4 218 229 22 255
+d2unclip
+d2read
+end
+case clip-1
+d2target 16 4
+d2clear 71 70 188 255
+d2clip 4.375 0 11 2.125 per
+d2fill 0 0 16 4 219 0 203 127
+d2unclip
+d2read
+end
+case clip-2
+d2target 16 4
+d2clear 13 1 162 255
+d2clip 4.125 1.5 8.625 4 aliased
+d2fill 0 0 16 4 138 27 31 255
+d2unclip
+d2read
+end
+case clip-3
+d2target 16 4
+d2clear 180 98 223 255
+d2clip 6.625 1.5 9.25 2 per
+d2fill 0 0 16 4 249 52 106 255
+d2unclip
+d2read
+end
+case clip-4
+d2target 16 4
+d2clear 109 118 219 255
+d2clip 7.5 0 10.25 3.5 aliased
+d2fill 0 0 16 4 160 92 62 200
+d2unclip
+d2read
+end
+case clip-5
+d2target 16 4
+d2clear 66 13 254 255
+d2clip 0.75 2 13.5 3.125 per
+d2fill 0 0 16 4 204 220 103 127
+d2unclip
+d2read
+end
+case clip-6
+d2target 16 4
+d2clear 223 57 191 255
+d2clip 2.875 1.875 10.5 2 aliased
+d2fill 0 0 16 4 213 132 121 255
+d2unclip
+d2read
+end
+case clip-7
+d2target 16 4
+d2clear 126 225 205 255
+d2clip 2 1 15.875 2.75 per
+d2fill 0 0 16 4 221 81 173 64
+d2unclip
+d2read
+end
+case clip-8
+d2target 16 4
+d2clear 136 67 104 255
+d2clip 3.5 1 12 3.125 aliased
+d2fill 0 0 16 4 100 104 65 254
+d2unclip
+d2read
+end
+case clip-9
+d2target 16 4
+d2clear 226 194 19 255
+d2clip 5.25 0 8.125 3.5 per
+d2fill 0 0 16 4 137 189 179 255
+d2unclip
+d2read
+end
+case clip-10
+d2target 16 4
+d2clear 87 227 151 255
+d2clip 2.75 2 9.875 3.625 aliased
+d2fill 0 0 16 4 99 174 105 254
+d2unclip
+d2read
+end
+case clip-11
+d2target 16 4
+d2clear 6 135 47 255
+d2clip 4.125 0.25 12.5 2.125 per
+d2fill 0 0 16 4 67 84 106 255
+d2unclip
+d2read
+end
+case clip-xf
+d2target 16 8
+d2xform 0.7071 0.7071 -0.7071 0.7071 8 0
+d2clip 1 1 6 6 aliased
+d2fill 0 0 16 16 255 255 255 255
+d2unclip
+d2read
+end
+case fillo-0
+d2target 16 2
+d2aa aliased
+d2clear 14 33 34 255
+d2fillo 7 0 12.75 2 241 60 208 255 0
+d2read
+end
+case fillo-1
+d2target 16 2
+d2clear 77 83 137 255
+d2fillo 1.75 0 10.5 2 41 250 229 128 0.99
+d2read
+end
+case fillo-2
+d2target 16 2
+d2aa aliased
+d2clear 4 240 3 255
+d2fillo 0.25 0 12.5 2 158 165 89 0 1
+d2read
+end
+case fillo-3
+d2target 16 2
+d2clear 139 192 197 128
+d2fillo 1 0 11 2 28 3 115 255 0.5
+d2read
+end
+case fillo-4
+d2target 16 2
+d2aa aliased
+d2clear 174 160 31 255
+d2fillo 7.75 0 8.75 2 124 46 101 128 0.3333
+d2read
+end
+case fillo-5
+d2target 16 2
+d2clear 227 246 157 255
+d2fillo 3.25 0 15.5 2 127 167 234 128 0
+d2read
+end
+case fillo-6
+d2target 16 2
+d2aa aliased
+d2clear 185 111 8 255
+d2fillo 5 0 10.5 2 43 154 217 255 1
+d2read
+end
+case fillo-7
+d2target 16 2
+d2clear 110 69 173 254
+d2fillo 3.5 0 8.25 2 207 52 73 200 0.99
+d2read
+end
+case fillo-8
+d2target 16 2
+d2aa aliased
+d2clear 237 228 156 255
+d2fillo 7 0 11 2 76 206 222 64 0
+d2read
+end
+case fillo-9
+d2target 16 2
+d2clear 55 181 152 255
+d2fillo 5.5 0 10.5 2 174 89 239 255 1
+d2read
+end
+case fillo-10
+d2target 16 2
+d2aa aliased
+d2clear 51 186 110 255
+d2fillo 4.75 0 15.5 2 145 135 228 255 0.25
+d2read
+end
+case fillo-11
+d2target 16 2
+d2clear 179 202 117 128
+d2fillo 2.25 0 13.25 2 164 30 200 1 0.99
+d2read
+end
+case grad-0
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 clamp -13 0.25 9 -4 4 0.5 73 228 147 200 0.375 150 25 234 255 0.75 70 120 239 255 -0.125 28 82 190 64
+d2read
+end
+case grad-1
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 wrap -13.5 2 4 2.75 2 0.75 67 75 171 255 0 12 117 32 255
+d2read
+end
+case grad-2
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 mirror -1.5 -2.75 -11.25 0.5 4 0.25 36 151 52 0 0.5 121 175 51 254 0.375 26 170 100 255 1.125 30 93 38 255
+d2read
+end
+case grad-3
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 clamp 3.5 -3.5 -2.75 1 5 0.75 83 213 143 255 0.625 163 16 87 255 0.875 90 253 24 255 0 54 181 80 1 -0.125 29 244 4 127
+d2read
+end
+case grad-4
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 wrap 11.75 2.5 4 1 3 0.125 139 243 0 200 1.25 63 45 208 200 0.125 94 88 249 1
+d2read
+end
+case grad-5
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 mirror 14.75 1.25 -6.75 1 5 1.125 8 144 4 254 0.375 97 76 140 254 0.5 76 12 123 200 0.75 195 144 68 64 0.5 81 23 189 255
+d2read
+end
+case grad-6
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 clamp 10 -2.5 14 -2.25 2 1 198 171 117 255 0.5 148 25 19 128
+d2read
+end
+case grad-7
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 wrap 1.25 -3.25 -6.5 -2.75 1 1.125 3 218 32 255
+d2read
+end
+case grad-8
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 mirror 14.5 0 -14 1.75 5 0.25 53 33 105 255 1.125 156 176 23 255 1 89 126 65 255 1.25 6 131 62 64 0.75 181 192 79 64
+d2read
+end
+case grad-9
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 clamp 2.75 2 -5.25 -0.75 2 0.625 142 171 149 255 -0.125 176 112 163 255
+d2read
+end
+case grad-10
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 wrap -4 1.75 8.75 -1.25 2 -0.25 147 182 169 200 0.5 231 93 248 255
+d2read
+end
+case grad-11
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 mirror 3 2 16 -2 3 1.25 167 55 223 255 0.875 37 147 80 255 1 2 150 5 0
+d2read
+end
+case grad-12
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 22 clamp -1.25 1.25 -9 1.75 5 -0.25 104 239 91 255 0.375 191 140 40 255 0.25 133 7 209 255 0.5 222 182 97 255 1.125 51 206 140 255
+d2read
+end
+case grad-13
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 lin 10 wrap -10.5 -2.5 -1.5 1.5 4 1.125 42 7 8 0 1.25 59 254 19 255 1.125 168 254 195 255 0.625 35 191 53 255
+d2read
+end
+case grad-14
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 22 mirror -11.5 3.75 0.25 0.5 8 3 1 1.125 1 33 240 64
+d2read
+end
+case grad-15
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 10 clamp -15.5 -1.25 1.75 -1 2.25 2.25 3 0.375 49 183 166 255 0.625 210 76 239 255 0.625 227 158 5 255
+d2read
+end
+case grad-16
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 22 wrap 13 -2.25 0.25 -0.5 2.75 0.25 5 1.125 223 22 242 0 0.25 116 197 69 200 -0.125 136 130 135 127 0.375 62 156 3 255 0.375 116 91 17 200
+d2read
+end
+case grad-17
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 10 mirror 9.5 4 0.5 1 6.25 2.75 2 -0.25 47 132 195 0 0.5 236 190 131 254
+d2read
+end
+case grad-18
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 22 clamp 3.5 1.25 -0.5 -1 1.75 3.75 3 -0.25 68 178 152 255 1.125 24 91 82 255 0.875 51 69 157 1
+d2read
+end
+case grad-19
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 10 wrap -10.25 -2.5 -1.75 -0.5 8.25 4 4 0.125 150 153 76 255 1.25 12 160 172 1 1.125 242 199 14 255 0.625 208 222 104 255
+d2read
+end
+case grad-20
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 22 mirror -6.5 4 0.75 0 4.25 3 3 0.25 171 103 192 200 1.125 152 38 76 128 0 65 86 35 255
+d2read
+end
+case grad-21
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 10 clamp 13.75 -1 -2 0.75 0.25 3.5 2 0 26 64 97 255 0.25 57 226 150 255
+d2read
+end
+case grad-22
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 22 wrap -7.25 -3 1.25 0.5 0.5 2 4 0.875 107 124 72 255 0.625 114 6 248 255 0 41 9 188 255 0.5 148 212 244 255
+d2read
+end
+case grad-23
+d2target 16 4
+d2aa aliased
+d2grad 0 0 16 4 rad 10 mirror 9.25 -2.25 2 -1 9.75 3.25 4 0.875 49 89 240 127 0.875 59 82 160 255 -0.125 202 88 176 64 -0.25 83 243 78 1
+d2read
+end
+case bmp-0
+d2target 16 8
+d2clear 48 239 124 255
+d2bmp 0 3 5 f98625ff581730800100000001000000032f183f58611a8006000d0f258b50ff7590eeff843c61b18b3e20ff763525cc3f3f6575627700809f9d57ff
+d2drawbmp 0 1.75 1.75 7 7.5 1 nearest 0.5 0 3 4.5
+d2read
+end
+case bmp-1
+d2target 16 8
+d2clear 9 237 16 255
+d2bmp 0 2 4 2d1391fb4a600d804f2b7c80ce378dff010000000001010001010100820fd3ea
+d2drawbmp 0 1.75 0.25 9 3 1 linear
+d2read
+end
+case bmp-2
+d2target 16 8
+d2clear 91 172 186 255
+d2bmp 0 4 1 d01205ff65de39ff192224a3504c5f80
+d2drawbmp 0 3 0.25 5.5 6.5 0.5 nearest
+d2read
+end
+case bmp-3
+d2target 16 8
+d2clear 39 215 6 255
+d2bmp 0 2 4 af0a13ff000001005a0d2180010101004c7f06ff010000009da08aff0a301780
+d2drawbmp 0 -2.75 0.25 9 4.25 1 linear 0.5 0 2 3.5
+d2read
+end
+case bmp-4
+d2target 16 8
+d2clear 74 203 97 255
+d2bmp 0 4 3 00010100c83e21d236e6ecff184a1e80714798ff7e7a23ff2e0e7f803c0b478b0c135a630c18252c2a353d4102dabbff
+d2drawbmp 0 -3.25 -1.25 16 6.5 1 nearest
+d2read
+end
+case bmp-5
+d2target 16 8
+d2clear 122 154 142 255
+d2bmp 0 1 5 486e6d8070c6caff29776880795dedff00000100
+d2drawbmp 0 -2.75 -0.5 14.25 2.25 1 linear
+d2read
+end
+case bmp-6
+d2target 16 8
+d2clear 140 51 177 255
+d2bmp 0 2 3 00000000ed4166ffab4932ff0118408093c7f7fff1513bff
+d2drawbmp 0 1.75 -1 8.5 7.75 0.5 nearest 0.5 0 2 2.5
+d2read
+end
+case bmp-7
+d2target 16 8
+d2clear 30 204 41 255
+d2bmp 0 1 3 766b8eff2b6b4d8000010000
+d2drawbmp 0 2.5 -2 12.75 3.25 1 linear
+d2read
+end
+case bmp-8
+d2target 16 8
+d2clear 15 48 196 255
+d2bmp 0 2 3 000101009c438aff00010000371e6781939338ff1f2cc6ff
+d2drawbmp 0 4 -0.75 4.5 7.75 1 nearest
+d2read
+end
+case bmp-9
+d2target 16 8
+d2clear 217 253 96 255
+d2bmp 0 3 5 b96640ff5436a1bb51141a80f67a54ff1fdcbcff139460ff85d93cff128182ff3b1c3ae00101010001000000d02504ff81707c80000000003b6b43c5
+d2drawbmp 0 -3.25 -1.5 4.75 3.5 0.25 linear 0.5 0 3 4.5
+d2read
+end
+case bmp-10
+d2target 16 8
+d2clear 61 77 217 255
+d2bmp 0 5 4 522f55ff010101001f0e1f2c25156d80625923ff7189f6ff00010000edc645ffae4c8cff2407232fe33bc8ff00010000000001005e7698a400000100252b0880a1ffabff4d3401542ed080eb0d06070e
+d2drawbmp 0 -2 -1.5 12.5 4.75 0.5 nearest
+d2read
+end
+case bmp-11
+d2target 16 8
+d2clear 172 98 67 255
+d2bmp 0 3 2 81cff4ff4a5c6680000100001c4654809b1754ff1d001522
+d2drawbmp 0 2 -1.25 11.25 5.75 0.5 linear
+d2read
+end
+case bbrush-0
+d2target 16 8
+d2aa aliased
+d2bmp 0 1 4 00000100997c179900000100f2ee2eff
+d2bbrush 0 0 0 16 8 clamp clamp nearest
+d2read
+end
+case bbrush-1
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 3 b53d55ff81362f8097da79ff350e1aff4438696e00000000ec2dfdffa27b38ffca1028ff
+d2bbrush 0 0 0 16 8 wrap clamp nearest 1.5 0 0 1.5 0.5 0
+d2read
+end
+case bbrush-2
+d2target 16 8
+d2aa aliased
+d2bmp 0 2 3 7f157a80010101009deb2eff63362b800605050905010307
+d2bbrush 0 0 0 16 8 mirror clamp linear
+d2read
+end
+case bbrush-3
+d2target 16 8
+d2aa aliased
+d2bmp 0 4 1 44e040ffec5cdcebc08933ff01000000
+d2bbrush 0 0 0 16 8 clamp wrap linear 1.5 0 0 1.5 0.5 0
+d2read
+end
+case bbrush-4
+d2target 16 8
+d2aa aliased
+d2bmp 0 2 2 812d4f80726746800100010053656fff
+d2bbrush 0 0 0 16 8 wrap wrap nearest
+d2read
+end
+case bbrush-5
+d2target 16 8
+d2aa aliased
+d2bmp 0 1 3 010001005e0770803ee9cdff
+d2bbrush 0 0 0 16 8 mirror wrap nearest 1.5 0 0 1.5 0.5 0
+d2read
+end
+case bbrush-6
+d2target 16 8
+d2aa aliased
+d2bmp 0 1 3 dcab8bff6acaf9ffdf5e93ff
+d2bbrush 0 0 0 16 8 clamp mirror linear
+d2read
+end
+case bbrush-7
+d2target 16 8
+d2aa aliased
+d2bmp 0 3 2 01000000050b16162a089fff0000010001010100393035ff
+d2bbrush 0 0 0 16 8 wrap mirror linear 1.5 0 0 1.5 0.5 0
+d2read
+end
+case bbrush-8
+d2target 16 8
+d2aa aliased
+d2bmp 0 1 1 3c575c80
+d2bbrush 0 0 0 16 8 mirror mirror nearest
+d2read
+end
+case stroke-0
+d2target 16 12
+d2aa aliased
+d2line 9.25 -8.75 11.25 2.75 0.5 255 255 255 255
+d2read
+end
+case stroke-1
+d2target 16 12
+d2line -8.75 -8.25 14 0 1.5 255 255 255 255
+d2read
+end
+case stroke-2
+d2target 16 12
+d2aa aliased
+d2drawrect -3.5 -1.5 8.5 7.5 3 255 255 255 255
+d2read
+end
+case stroke-3
+d2target 16 12
+d2ell 0 8 6 4.25 3.25
+d2drawg 0 3 255 255 255 255
+d2read
+end
+case stroke-4
+d2target 16 12
+d2aa aliased
+d2line 2.25 1 7.75 1.75 1 255 255 255 255
+d2read
+end
+case stroke-5
+d2target 16 12
+d2line -10 10.5 -6 -2.5 3 255 255 255 255
+d2read
+end
+case stroke-6
+d2target 16 12
+d2aa aliased
+d2drawrect 3.25 0 11.75 11 2 255 255 255 255
+d2read
+end
+case stroke-7
+d2target 16 12
+d2ell 0 8 6 4 2.5
+d2drawg 0 3 255 255 255 255
+d2read
+end
+case stroke-8
+d2target 16 12
+d2aa aliased
+d2line 5.25 -0.25 11.25 8.75 1.5 255 255 255 255
+d2read
+end
+case stroke-9
+d2target 16 12
+d2line 8.5 3.25 -14.75 7 1.5 255 255 255 255
+d2read
+end
+case stroke-10
+d2target 16 12
+d2aa aliased
+d2drawrect -3.25 3.75 8.75 8.25 0.5 255 255 255 255
+d2read
+end
+case stroke-11
+d2target 16 12
+d2ell 0 8 6 5 3.5
+d2drawg 0 2 255 255 255 255
+d2read
+end
+case stroke-12
+d2target 16 12
+d2aa aliased
+d2line -15.75 -11.75 10.5 -2.5 3 255 255 255 255
+d2read
+end
+case stroke-13
+d2target 16 12
+d2line 2.25 1.75 -2.5 -2.5 1 255 255 255 255
+d2read
+end
+case stroke-14
+d2target 16 12
+d2aa aliased
+d2drawrect -1.5 -3.5 8 9.75 2 255 255 255 255
+d2read
+end
+case stroke-15
+d2target 16 12
+d2ell 0 8 6 5.5 2
+d2drawg 0 0.5 255 255 255 255
+d2read
+end
+case layer-0
+d2target 16 4
+d2aa aliased
+d2path 0 alt m 0 0 12 0 4 4 z
+d2clear 185 39 218 255
+d2layer 4 0 9 4 1
+d2fill 0 0 16 4 241 121 73 255
+d2poplayer
+d2read
+end
+case layer-1
+d2target 16 4
+d2aa aliased
+d2path 0 alt m 0 0 12 0 4 4 z
+d2clear 17 240 121 255
+d2layer 1 0 16 4 0.5 0
+d2fill 0 0 16 4 77 73 210 127
+d2poplayer
+d2read
+end
+case layer-2
+d2target 16 4
+d2aa aliased
+d2path 0 alt m 0 0 12 0 4 4 z
+d2clear 142 183 41 255
+d2layer 3 0 14 4 0.5
+d2fill 0 0 16 4 172 199 5 254
+d2poplayer
+d2read
+end
+case layer-3
+d2target 16 4
+d2aa aliased
+d2path 0 alt m 0 0 12 0 4 4 z
+d2clear 244 81 180 255
+d2layer 3 0 15 4 1 0
+d2fill 0 0 16 4 64 16 76 255
+d2poplayer
+d2read
+end
+case layer-4
+d2target 16 4
+d2aa aliased
+d2path 0 alt m 0 0 12 0 4 4 z
+d2clear 159 171 24 255
+d2layer 0 0 9 4 0.5
+d2fill 0 0 16 4 238 191 70 127
+d2poplayer
+d2read
+end
+case layer-5
+d2target 16 4
+d2aa aliased
+d2path 0 alt m 0 0 12 0 4 4 z
+d2clear 245 57 169 255
+d2layer 6 0 16 4 0.25 0
+d2fill 0 0 16 4 72 40 76 255
+d2poplayer
+d2read
+end

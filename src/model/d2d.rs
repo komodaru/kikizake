@@ -1028,6 +1028,11 @@ impl D2d {
                 out.push(format!("count 00000000 {} 00000000 {segs}", figs.len()));
             }
             "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2brush" | "d2read" => self.draw(op, out)?,
+            // (render target state, clips, layers, opacity, gradients, bitmaps, strokes: asked,
+            // not modelled yet)
+            "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" | "d2state" | "d2fillo" | "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
+                return Err(Fail::Unmodeled("D2D.RT"));
+            }
             _ => return Ok(false),
         }
         Ok(true)

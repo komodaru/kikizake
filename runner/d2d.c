@@ -21,6 +21,16 @@ static ID2D1RenderTarget *rt;
 static IWICBitmap *bmp;
 static IWICImagingFactory *wicf;
 static int tw, th;
+#define BMPS 4
+static ID2D1Bitmap *bm[BMPS];
+static ID2D1DrawingStateBlock *state;
+static ID2D1Layer *layer;
+static void drop_target_things(void) {
+    for (int i = 0; i < BMPS; i++)
+        if (bm[i]) { ID2D1Bitmap_Release(bm[i]); bm[i] = NULL; }
+    if (state) { ID2D1DrawingStateBlock_Release(state); state = NULL; }
+    if (layer) { ID2D1Layer_Release(layer); layer = NULL; }
+}
 
 static void *d2fn(const char *n) {
     if (!tried) {
@@ -37,6 +47,7 @@ static ID2D1Factory *factory(void) {
 }
 
 static void d2d_reset(void) {
+    drop_target_things();
     if (rt) { ID2D1RenderTarget_EndDraw(rt, NULL, NULL); ID2D1RenderTarget_Release(rt); rt = NULL; }
     if (bmp) { IWICBitmap_Release(bmp); bmp = NULL; }
     if (sink) { ID2D1GeometrySink_Release(sink); sink = NULL; }
@@ -442,6 +453,7 @@ static void op_simp(void) {
 static void op_target(void) {
     long w = num(1), h = num(2);
     if (bad || ntok != 3 || w < 1 || h < 1 || w > 64 || h > 64) { bad = 1; return; }
+    drop_target_things();
     if (rt) { ID2D1RenderTarget_EndDraw(rt, NULL, NULL); ID2D1RenderTarget_Release(rt); rt = NULL; }
     if (bmp) { IWICBitmap_Release(bmp); bmp = NULL; }
     if (!wicf) {
@@ -529,6 +541,228 @@ static void op_read(void) {
     ID2D1RenderTarget_BeginDraw(rt);
 }
 
+/* d2info: the target's GetSize, GetPixelSize, GetDpi, GetMaximumBitmapSize, GetPixelFormat,
+ * GetAntialiasMode, GetTransform, GetTags -> "info size w h px pw ph dpi x y max m fmt f a aa
+ * <mode> xform m6 tags t1 t2" (floats as bits) */
+static void op_info(void) {
+    if (ntok != 1) { bad = 1; return; }
+    if (!have_rt()) return;
+    /* (struct returns: the hidden pointer of the Microsoft ABI, explicitly) */
+    D2D1_SIZE_F sz; D2D1_SIZE_U pz; D2D1_PIXEL_FORMAT pf; D2D1_MATRIX_3X2_F m; FLOAT dx, dy; D2D1_TAG t1 = 7, t2 = 7;
+    ((D2D1_SIZE_F *(WINAPI *)(ID2D1RenderTarget *, D2D1_SIZE_F *))rt->lpVtbl->GetSize)(rt, &sz);
+    ((D2D1_SIZE_U *(WINAPI *)(ID2D1RenderTarget *, D2D1_SIZE_U *))rt->lpVtbl->GetPixelSize)(rt, &pz);
+    ((D2D1_PIXEL_FORMAT *(WINAPI *)(ID2D1RenderTarget *, D2D1_PIXEL_FORMAT *))rt->lpVtbl->GetPixelFormat)(rt, &pf);
+    ID2D1RenderTarget_GetDpi(rt, &dx, &dy);
+    ID2D1RenderTarget_GetTransform(rt, &m);
+    ID2D1RenderTarget_GetTags(rt, &t1, &t2);
+    out("info size"); outf(sz.width); outf(sz.height);
+    out(" px %u %u dpi", pz.width, pz.height); outf(dx); outf(dy);
+    out(" max %u fmt %d %d aa %d xform", ID2D1RenderTarget_GetMaximumBitmapSize(rt), pf.format, pf.alphaMode, ID2D1RenderTarget_GetAntialiasMode(rt));
+    outm(&m);
+    out(" tags %llu %llu\n", (unsigned long long)t1, (unsigned long long)t2);
+}
+/* d2dpi x y: SetDpi */
+static void op_dpi(void) {
+    float x = fl(1), y = fl(2);
+    if (bad || ntok != 3) { bad = 1; return; }
+    if (have_rt()) ID2D1RenderTarget_SetDpi(rt, x, y);
+}
+/* d2tags a b: SetTags; d2flush: Flush -> "flush <hr> t1 t2" */
+static void op_tags(void) {
+    long a = num(1), b = num(2);
+    if (bad || ntok != 3) { bad = 1; return; }
+    if (have_rt()) ID2D1RenderTarget_SetTags(rt, (D2D1_TAG)a, (D2D1_TAG)b);
+}
+static void op_flush(void) {
+    if (ntok != 1) { bad = 1; return; }
+    if (!have_rt()) return;
+    D2D1_TAG t1 = 7, t2 = 7;
+    HRESULT hr = ID2D1RenderTarget_Flush(rt, &t1, &t2);
+    out("flush %08lx %llu %llu\n", hr, (unsigned long long)t1, (unsigned long long)t2);
+}
+/* d2clip l t r b aliased|per: PushAxisAlignedClip; d2unclip: PopAxisAlignedClip */
+static void op_clip(void) {
+    if (is(0, "d2unclip")) {
+        if (ntok != 1) { bad = 1; return; }
+        if (have_rt()) ID2D1RenderTarget_PopAxisAlignedClip(rt);
+        return;
+    }
+    D2D1_RECT_F r = { fl(1), fl(2), fl(3), fl(4) };
+    int al = is(5, "aliased");
+    if (bad || ntok != 6 || (!al && !is(5, "per"))) { bad = 1; return; }
+    if (have_rt()) ID2D1RenderTarget_PushAxisAlignedClip(rt, &r, al ? D2D1_ANTIALIAS_MODE_ALIASED : D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+}
+/* d2layer l t r b <opacity> [<g>]: CreateLayer (once) and PushLayer with those content bounds,
+ * that geometric mask (antialiased per primitive, no transform), that opacity; d2poplayer */
+static void op_layer(void) {
+    if (is(0, "d2poplayer")) {
+        if (ntok != 1) { bad = 1; return; }
+        if (have_rt()) ID2D1RenderTarget_PopLayer(rt);
+        return;
+    }
+    D2D1_LAYER_PARAMETERS p;
+    memset(&p, 0, sizeof p);
+    p.contentBounds.left = fl(1); p.contentBounds.top = fl(2); p.contentBounds.right = fl(3); p.contentBounds.bottom = fl(4);
+    p.opacity = fl(5);
+    p.maskAntialiasMode = D2D1_ANTIALIAS_MODE_PER_PRIMITIVE;
+    p.maskTransform._11 = 1; p.maskTransform._22 = 1;
+    p.layerOptions = D2D1_LAYER_OPTIONS_NONE;
+    if (ntok == 7) p.geometricMask = get(6);
+    if (bad || (ntok != 6 && ntok != 7) || (ntok == 7 && !p.geometricMask)) { bad = 1; return; }
+    if (!have_rt()) return;
+    if (!layer) {
+        HRESULT hr = ID2D1RenderTarget_CreateLayer(rt, NULL, &layer);
+        if (FAILED(hr)) { layer = NULL; out("layer %08lx\n", hr); return; }
+    }
+    ID2D1RenderTarget_PushLayer(rt, &p, layer);
+}
+/* d2state save|restore: a drawing state block (created once) */
+static void op_state(void) {
+    int sv = is(1, "save");
+    if (ntok != 2 || (!sv && !is(1, "restore"))) { bad = 1; return; }
+    if (!have_rt()) return;
+    if (!state) {
+        HRESULT hr = ID2D1Factory_CreateDrawingStateBlock(fac, NULL, NULL, &state);
+        if (FAILED(hr)) { state = NULL; out("state %08lx\n", hr); return; }
+    }
+    if (sv) ID2D1RenderTarget_SaveDrawingState(rt, state);
+    else ID2D1RenderTarget_RestoreDrawingState(rt, state);
+}
+static ID2D1SolidColorBrush *solid(D2D1_COLOR_F c, float opacity) {
+    D2D1_BRUSH_PROPERTIES bp;
+    memset(&bp, 0, sizeof bp);
+    bp.opacity = opacity; bp.transform._11 = 1; bp.transform._22 = 1;
+    ID2D1SolidColorBrush *b = NULL;
+    HRESULT hr = ID2D1RenderTarget_CreateSolidColorBrush(rt, &c, &bp, &b);
+    if (FAILED(hr)) { out("brush %08lx\n", hr); return NULL; }
+    return b;
+}
+/* d2fillo l t r b <color> <opacity>: FillRectangle with a solid brush of that opacity */
+static void op_fillo(void) {
+    D2D1_RECT_F r = { fl(1), fl(2), fl(3), fl(4) };
+    D2D1_COLOR_F c = color4(5);
+    float o = fl(9);
+    if (bad || ntok != 10) { bad = 1; return; }
+    if (!have_rt()) return;
+    ID2D1SolidColorBrush *b = solid(c, o);
+    if (!b) return;
+    ID2D1RenderTarget_FillRectangle(rt, &r, (ID2D1Brush *)b);
+    ID2D1SolidColorBrush_Release(b);
+}
+static int extend(int i) {
+    if (is(i, "clamp")) return D2D1_EXTEND_MODE_CLAMP;
+    if (is(i, "wrap")) return D2D1_EXTEND_MODE_WRAP;
+    if (is(i, "mirror")) return D2D1_EXTEND_MODE_MIRROR;
+    bad = 1;
+    return 0;
+}
+/* d2grad l t r b lin|rad 22|10 clamp|wrap|mirror <x0 y0 x1 y1 | cx cy ox oy rx ry> <n> {<pos>
+ * <color>}*n: a gradient stop collection (gamma 2.2 or 1.0, that extend mode), a linear or
+ * radial brush with those properties, FillRectangle -> "grad <hr>" when a create fails */
+static void op_grad(void) {
+    D2D1_RECT_F r = { fl(1), fl(2), fl(3), fl(4) };
+    int lin = is(5, "lin");
+    if (!lin && !is(5, "rad")) bad = 1;
+    int gamma = is(6, "22") ? D2D1_GAMMA_2_2 : is(6, "10") ? D2D1_GAMMA_1_0 : (bad = 1, 0);
+    int ext = extend(7);
+    int at = lin ? 12 : 14;
+    float g[6];
+    for (int i = 0; i < (lin ? 4 : 6); i++) g[i] = fl(8 + i);
+    long n = num(at);
+    if (bad || n < 0 || n > 12 || ntok != at + 1 + 5 * n) { bad = 1; return; }
+    D2D1_GRADIENT_STOP st[12];
+    for (int i = 0; i < n; i++) { st[i].position = fl(at + 1 + 5 * i); st[i].color = color4(at + 2 + 5 * i); }
+    if (bad) return;
+    if (!have_rt()) return;
+    ID2D1GradientStopCollection *c = NULL;
+    HRESULT hr = rt->lpVtbl->CreateGradientStopCollection(rt, st, n, gamma, ext, &c);
+    if (FAILED(hr)) { out("grad %08lx\n", hr); return; }
+    ID2D1Brush *b = NULL;
+    if (lin) {
+        D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES lp = { { g[0], g[1] }, { g[2], g[3] } };
+        hr = ID2D1RenderTarget_CreateLinearGradientBrush(rt, &lp, NULL, c, (ID2D1LinearGradientBrush **)&b);
+    } else {
+        D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES rp = { { g[0], g[1] }, { g[2], g[3] }, g[4], g[5] };
+        hr = ID2D1RenderTarget_CreateRadialGradientBrush(rt, &rp, NULL, c, (ID2D1RadialGradientBrush **)&b);
+    }
+    ID2D1GradientStopCollection_Release(c);
+    if (FAILED(hr)) { out("grad %08lx\n", hr); return; }
+    ID2D1RenderTarget_FillRectangle(rt, &r, b);
+    ID2D1Brush_Release(b);
+}
+static int hexval(char c) { return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? c - 'a' + 10 : -1; }
+/* d2bmp <slot> <w> <h> <hex>: CreateBitmap B8G8R8A8 premultiplied, 96 dpi, from those bytes
+ * (B G R A, rows of w 4 bytes) -> "bmp <hr>" */
+static void op_bmp(void) {
+    long i = num(1), w = num(2), h = num(3);
+    if (bad || ntok != 5 || i < 0 || i >= BMPS || w < 1 || h < 1 || w > 16 || h > 16 || (long)strlen(tok[4]) != w * h * 8) { bad = 1; return; }
+    unsigned char px[16 * 16 * 4];
+    for (long k = 0; k < w * h * 4; k++) {
+        int a = hexval(tok[4][2 * k]), b = hexval(tok[4][2 * k + 1]);
+        if (a < 0 || b < 0) { bad = 1; return; }
+        px[k] = (unsigned char)(a * 16 + b);
+    }
+    if (!have_rt()) return;
+    if (bm[i]) { ID2D1Bitmap_Release(bm[i]); bm[i] = NULL; }
+    D2D1_SIZE_U sz = { (UINT32)w, (UINT32)h };
+    D2D1_BITMAP_PROPERTIES bp = { { DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED }, 96, 96 };
+    HRESULT hr = ID2D1RenderTarget_CreateBitmap(rt, sz, px, w * 4, &bp, &bm[i]);
+    if (FAILED(hr)) bm[i] = NULL;
+    out("bmp %08lx\n", hr);
+}
+static int interp(int i) {
+    if (is(i, "nearest")) return D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR;
+    if (is(i, "linear")) return D2D1_BITMAP_INTERPOLATION_MODE_LINEAR;
+    bad = 1;
+    return 0;
+}
+/* d2drawbmp <slot> l t r b <opacity> nearest|linear [sl st sr sb]: DrawBitmap */
+static void op_drawbmp(void) {
+    long i = num(1);
+    D2D1_RECT_F d = { fl(2), fl(3), fl(4), fl(5) }, sr = { 0, 0, 0, 0 };
+    float o = fl(6);
+    int m = interp(7);
+    if (ntok == 12) { sr.left = fl(8); sr.top = fl(9); sr.right = fl(10); sr.bottom = fl(11); }
+    if (bad || (ntok != 8 && ntok != 12) || i < 0 || i >= BMPS) { bad = 1; return; }
+    if (!have_rt() || !bm[i]) return;
+    ID2D1RenderTarget_DrawBitmap(rt, bm[i], &d, o, m, ntok == 12 ? &sr : NULL);
+}
+/* d2bbrush <slot> l t r b clamp|wrap|mirror clamp|wrap|mirror nearest|linear [<matrix>]: a bitmap
+ * brush (that brush transform) filling the rectangle */
+static void op_bbrush(void) {
+    long i = num(1);
+    D2D1_RECT_F r = { fl(2), fl(3), fl(4), fl(5) };
+    D2D1_BITMAP_BRUSH_PROPERTIES p = { extend(6), extend(7), interp(8) };
+    D2D1_BRUSH_PROPERTIES b;
+    memset(&b, 0, sizeof b);
+    b.opacity = 1; b.transform._11 = 1; b.transform._22 = 1;
+    if (ntok == 15) matrix(9, &b.transform);
+    if (bad || (ntok != 9 && ntok != 15) || i < 0 || i >= BMPS) { bad = 1; return; }
+    if (!have_rt() || !bm[i]) return;
+    ID2D1BitmapBrush *br = NULL;
+    HRESULT hr = rt->lpVtbl->CreateBitmapBrush(rt, bm[i], &p, &b, &br);
+    if (FAILED(hr)) { out("bbrush %08lx\n", hr); return; }
+    ID2D1RenderTarget_FillRectangle(rt, &r, (ID2D1Brush *)br);
+    ID2D1BitmapBrush_Release(br);
+}
+/* d2line x0 y0 x1 y1 <width> <color>: DrawLine; d2drawrect l t r b <width> <color>:
+ * DrawRectangle; d2drawg <g> <width> <color>: DrawGeometry (no stroke style) */
+static void op_draw(void) {
+    int line = is(0, "d2line"), g = is(0, "d2drawg");
+    ID2D1Geometry *ge = NULL;
+    D2D1_COLOR_F c;
+    float v[5];
+    if (g) { ge = get(1); v[4] = fl(2); c = color4(3); if (ntok != 7) bad = 1; }
+    else { for (int k = 0; k < 5; k++) v[k] = fl(1 + k); c = color4(6); if (ntok != 10) bad = 1; }
+    if (bad || !have_rt() || (g && !ge)) return;
+    ID2D1SolidColorBrush *b = solid(c, 1);
+    if (!b) return;
+    if (line) { D2D1_POINT_2F p0 = { v[0], v[1] }, p1 = { v[2], v[3] }; ID2D1RenderTarget_DrawLine(rt, p0, p1, (ID2D1Brush *)b, v[4], NULL); }
+    else if (g) ID2D1RenderTarget_DrawGeometry(rt, ge, (ID2D1Brush *)b, v[4], NULL);
+    else { D2D1_RECT_F r = { v[0], v[1], v[2], v[3] }; ID2D1RenderTarget_DrawRectangle(rt, &r, (ID2D1Brush *)b, v[4], NULL); }
+    ID2D1SolidColorBrush_Release(b);
+}
+
 static const struct kz_op d2d_ops[] = {
     { "d2rot", op_rot }, { "d2skew", op_skew }, { "d2inv", op_inv },
     { "d2sincos", op_sincos }, { "d2tan", op_tan }, { "d2vec3", op_vec3 }, { "d2cs", op_cs },
@@ -539,6 +773,11 @@ static const struct kz_op d2d_ops[] = {
     { "d2simp", op_simp }, { "d2outline", op_simp }, { "d2widen", op_simp }, { "d2combine", op_simp }, { "d2tess", op_simp },
     { "d2target", op_target }, { "d2aa", op_aa }, { "d2xform", op_xform }, { "d2clear", op_clear },
     { "d2fill", op_fill }, { "d2fillg", op_fill }, { "d2brush", op_brush }, { "d2read", op_read },
+    { "d2info", op_info }, { "d2dpi", op_dpi }, { "d2tags", op_tags }, { "d2flush", op_flush },
+    { "d2clip", op_clip }, { "d2unclip", op_clip }, { "d2layer", op_layer }, { "d2poplayer", op_layer },
+    { "d2state", op_state }, { "d2fillo", op_fillo }, { "d2grad", op_grad }, { "d2bmp", op_bmp },
+    { "d2drawbmp", op_drawbmp }, { "d2bbrush", op_bbrush }, { "d2line", op_draw }, { "d2drawrect", op_draw },
+    { "d2drawg", op_draw },
     { 0 },
 };
 const struct kz_api d2d_api = { "d2d", d2d_ops, d2d_reset };
