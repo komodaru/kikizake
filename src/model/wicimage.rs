@@ -602,6 +602,10 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
     let src_stride = (w as usize * bpp as usize).div_ceil(32) * 4;
     let data = &b[(off as usize).min(b.len())..];
     if comp == 1 || comp == 2 {
+        // (the model does not hold pictures past 2^24 pixels)
+        if w as u64 * h as u64 > 1 << 24 {
+            return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+        }
         let Some(px) = rle(data, w, h, comp == 2, &pal) else { return Err(Fail::Unmodeled("WICIMAGE.BMP.RLE.BROKEN")) };
         hit("WICIMAGE.BMP.RLE");
         let mut i = Img::new(w, h, "bgr32");
@@ -609,7 +613,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
         i.px = px;
         return Ok(Ok(i));
     }
-    if data.len() < src_stride * h as usize {
+    if src_stride.checked_mul(h as usize).is_none_or(|n| data.len() < n) {
         hit("WICIMAGE.BMP.SHORT");
         return Ok(Err(BAD_IMAGE));
     }
@@ -1176,6 +1180,10 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     let one = |k: u32, d: u32| t.get(&k).and_then(|v| v.first().copied()).unwrap_or(d);
     let (w, h) = (one(256, 0), one(257, 0));
     let (bits, ph, spp, planar) = (one(258, 1), one(262, 1), one(277, 1), one(284, 1));
+    // (the model does not hold pictures past 2^24 pixels)
+    if w as u64 * h as u64 > 1 << 24 || bits > 64 || spp > 16 {
+        return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    }
     let extra = t.get(&338).and_then(|v| v.first().copied());
     let sfmt = one(339, 1);
     // MEASURED (golden wicdecode tiff-*: every photometric, depth, sample count and extra
@@ -1205,7 +1213,7 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     let (Some(offs), Some(counts)) = (t.get(&273), t.get(&279)) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
     let mut data = Vec::new();
     for (o, c) in offs.iter().zip(counts) {
-        let Some(d) = b.get(*o as usize..(*o + *c) as usize) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
+        let Some(d) = b.get(*o as usize..*o as usize + *c as usize) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
         data.extend_from_slice(d);
     }
     // (planar 2: each sample's plane in turn; made chunky here)
@@ -1289,7 +1297,7 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
     let mut entries = Vec::new();
     for k in 0..n as usize {
         let (Some(size), Some(off)) = (rd32(b, 6 + 16 * k + 8), rd32(b, 6 + 16 * k + 12)) else { return broken };
-        let Some(d) = b.get(off as usize..(off + size) as usize) else { return broken };
+        let Some(d) = b.get(off as usize..off as usize + size as usize) else { return broken };
         // (the entry's own depth and size: a PNG's IHDR, a BMP's header)
         let (w, h, bpp) = if d.starts_with(b"\x89PNG") {
             let be = |o: usize| d.get(o..o + 4).map_or(0, |x| u32::from_be_bytes(x.try_into().unwrap()));
@@ -1300,7 +1308,7 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         let png = d.starts_with(b"\x89PNG");
         // (OPEN: beside other entries, a PNG entry of 1x1, 2x2 or 1x5 comes after a 32-bit BMP
         // entry and its CopyPixels fails 0x88982f8c, one of 2x3, 3x2 or 4x4 comes before it)
-        if png && n > 1 && w * h < 6 {
+        if png && n > 1 && (w as u64) * (h as u64) < 6 {
             return Err(Fail::Unmodeled("WICIMAGE.ICO.PNG.SMALL"));
         }
         entries.push((bpp, !png, ico_entry(d)));
@@ -1329,6 +1337,10 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
     let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
     let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
     let h = h2 / 2;
+    // (the model does not hold pictures past 2^24 pixels)
+    if w as u64 * h as u64 > 1 << 24 || bpp > 32 {
+        return broken;
+    }
     let colors = if bpp <= 8 { 1usize << bpp } else { 0 };
     let used = rd32(d, 32).unwrap_or(0) as usize;
     let colors = if used > 0 && used < colors { used } else { colors };
