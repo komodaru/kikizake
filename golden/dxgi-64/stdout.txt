@@ -12,6 +12,165 @@ factory ok
 warp vendor 1414 device 8c flags 2
 factory ok
 warp vendor 1414 device 8c flags 2
+case tearing
+factory ok
+tearing 1
+case adapters
+factory ok
+adapters 2 last 1414 8c 2
+case color-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-1
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-2
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-3
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-4
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-5
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-6
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-7
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-8
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-9
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-10
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-11
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-12
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-13
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-14
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-15
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-16
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-17
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-18
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-19
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-20
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-21
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-22
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-23
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-24
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-25
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-4294967295
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-fmt10
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+color 1 set 00000000
+color 0 set 80070057
+color 0 set 80070057
+color 0 set 80070057
+case color-fmt24
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+color 0 set 80070057
+color 1 set 00000000
+color 1 set 00000000
+color 1 set 00000000
 case factory-debug
 factory ok
 warp vendor 1414 device 8c flags 2
