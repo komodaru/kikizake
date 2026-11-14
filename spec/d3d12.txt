@@ -65,3 +65,4 @@ D3D12.MAKE.LIST measured | ID3D12Device::CreateCommandAllocator, CreateCommandLi
 D3D12.MAKE.QUERYHEAP measured | ID3D12Device::CreateQueryHeap, D3D12_QUERY_HEAP_DESC | every type 0..7 but VIDEO_DECODE_STATISTICS, with at least one query (16777216 taken) (golden d3d12-* make-*)
 D3D12.MAKE.FENCE measured | ID3D12Device::CreateFence | flags NONE or SHARED; a new fence's completed value is its initial one (golden d3d12-* make-*)
 D3D12.MAKE.PLACED measured | ID3D12Device::CreatePlacedResource | what CreateCommittedResource takes on that heap type, not of a kind the heap denies, at a multiple of its alignment (GetResourceAllocationInfo) and inside the heap; multisampled textures not in a heap of the default alignment (golden d3d12-* make-*)
+D3D12.COPY.ROUNDTRIP doc | ID3D12GraphicsCommandList::CopyTextureRegion | a copy from a buffer footprint to a texture subresource and back gives every byte of each row back, every plane, for any format a texture takes (copy-*)

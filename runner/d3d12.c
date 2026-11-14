@@ -340,7 +340,80 @@ static void op_clear(void) {
     REL(heap); REL(buf); REL(tex);
 }
 
+/* copy12 <format> <width> <height> <depth stencil 0|1>: a 2D texture of that format (all its
+ * planes) filled from an upload buffer with byte k of the footprint layout (k * 7 + 3) & 255, then
+ * copied back to a readback buffer: "copy <bytes that came back different> first <the first 16
+ * bytes back>" or "copy hr <hr>" (only the bytes inside each row's size are compared) */
+static void op_copy(void) {
+    if (!on12) { out("nodev\n"); return; }
+    if (ntok != 5) bad = 1;
+    DXGI_FORMAT f = num(1);
+    UINT w = num(2), h = num(3), ds = num(4);
+    if (bad || w > 4096 || h > 4096) { bad = 1; return; }
+    D3D12_RESOURCE_DESC d = { D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, w, h, 1, 1, f, { 1, 0 }, D3D12_TEXTURE_LAYOUT_UNKNOWN,
+                              ds ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_NONE };
+    HRESULT hr;
+    ID3D12Resource *tex = committed(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST, &d, &hr);
+    if (!tex) { out("copy hr %08lx\n", hr); return; }
+    D3D12_FEATURE_DATA_FORMAT_INFO fi = { f, 1 };
+    if (FAILED(ID3D12Device_CheckFeatureSupport(dev12, D3D12_FEATURE_FORMAT_INFO, &fi, sizeof fi)) || fi.PlaneCount < 1 || fi.PlaneCount > 2) fi.PlaneCount = 1;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT fp[2];
+    UINT rows[2];
+    UINT64 rowsize[2], total = 0;
+    ID3D12Device_GetCopyableFootprints(dev12, &d, 0, fi.PlaneCount, 0, fp, rows, rowsize, &total);
+    D3D12_RESOURCE_DESC bd = { D3D12_RESOURCE_DIMENSION_BUFFER, 0, total, 1, 1, 1, DXGI_FORMAT_UNKNOWN, { 1, 0 }, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, 0 };
+    ID3D12Resource *up = committed(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, &bd, &hr);
+    ID3D12Resource *back = up ? committed(D3D12_HEAP_TYPE_READBACK, D3D12_RESOURCE_STATE_COPY_DEST, &bd, &hr) : NULL;
+    unsigned char *m = NULL;
+    if (back && SUCCEEDED(hr = ID3D12Resource_Map(up, 0, NULL, (void **)&m))) {
+        for (UINT64 k = 0; k < total; k++) m[k] = (unsigned char)(k * 7 + 3);
+        ID3D12Resource_Unmap(up, 0, NULL);
+    }
+    if (!back || FAILED(hr)) { out("copy hr %08lx\n", hr); REL(back); REL(up); REL(tex); return; }
+    ID3D12CommandAllocator_Reset(alloc12);
+    ID3D12GraphicsCommandList_Reset(list12, alloc12, NULL);
+    for (int way = 0; way < 2; way++) {
+        for (UINT p = 0; p < fi.PlaneCount; p++) {
+            D3D12_TEXTURE_COPY_LOCATION b = { way ? back : up, D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT }, t = { tex, D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX };
+            b.PlacedFootprint = fp[p];
+            t.SubresourceIndex = p;
+            if (way) ID3D12GraphicsCommandList_CopyTextureRegion(list12, &b, 0, 0, 0, &t, NULL);
+            else ID3D12GraphicsCommandList_CopyTextureRegion(list12, &t, 0, 0, 0, &b, NULL);
+        }
+        if (!way) {
+            D3D12_RESOURCE_BARRIER br = { D3D12_RESOURCE_BARRIER_TYPE_TRANSITION, 0 };
+            br.Transition.pResource = tex;
+            br.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+            br.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+            br.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+            ID3D12GraphicsCommandList_ResourceBarrier(list12, 1, &br);
+        }
+    }
+    hr = ID3D12GraphicsCommandList_Close(list12);
+    if (SUCCEEDED(hr)) {
+        ID3D12CommandQueue_ExecuteCommandLists(queue12, 1, (ID3D12CommandList **)&list12);
+        kz_d3d12_wait();
+        hr = ID3D12Resource_Map(back, 0, NULL, (void **)&m);
+    }
+    if (FAILED(hr)) out("copy hr %08lx\n", hr);
+    else {
+        UINT64 diff = 0;
+        for (UINT p = 0; p < fi.PlaneCount; p++)
+            for (UINT r = 0; r < rows[p]; r++)
+                for (UINT64 k = 0; k < rowsize[p]; k++) {
+                    UINT64 at = fp[p].Offset + (UINT64)r * fp[p].Footprint.RowPitch + k;
+                    diff += m[at] != (unsigned char)(at * 7 + 3);
+                }
+        out("copy %lx first ", (unsigned long)diff);
+        for (UINT64 k = 0; k < 16 && k < rowsize[0]; k++) out("%02x", m[fp[0].Offset + k]);
+        out("\n");
+        ID3D12Resource_Unmap(back, 0, NULL);
+    }
+    REL(back); REL(up); REL(tex);
+}
+
 static const struct kz_op d3d12_ops[] = {
+    { "copy12", op_copy },
     { "device12", op_device12 },
     { "footprint12", op_footprint },
     { "alloc12", op_alloc },

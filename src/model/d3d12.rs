@@ -400,7 +400,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -501,6 +501,27 @@ impl D3d12 {
                         });
                     }
                 }
+            }
+            "copy12" => {
+                if t.len() != 5 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..])?;
+                if w[1] > 4096 || w[2] > 4096 {
+                    return Err(Fail::Bad);
+                }
+                let d = Desc { flags: if w[3] != 0 { 2 } else { 0 }, ..Desc::tex(3, w[1], w[2], 1, 1, w[0]) };
+                let c = create_hr(1, 0x400, &d)?;
+                if c != S_FALSE {
+                    out.push(format!("copy hr {c:08x}"));
+                    return Ok(true);
+                }
+                // (a copy to a texture and back gives every byte of every row back)
+                hit("D3D12.COPY.ROUNDTRIP");
+                let planes = super::dxgi_format::caps(w[0]).map_or(1, |c| c.1).clamp(1, 2);
+                let (fps, _) = footprints(0, planes, 0, &d)?;
+                let first: String = (0..fps[0].7.min(16)).map(|k| format!("{:02x}", (k * 7 + 3) as u8)).collect();
+                out.push(format!("copy 0 first {first}"));
             }
             "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" => {
                 let n = match name {

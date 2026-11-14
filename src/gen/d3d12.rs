@@ -362,6 +362,16 @@ pub fn d3d12() -> String {
         writeln!(s, "end").unwrap();
     }
     writeln!(s, "case incr\ndevice12\nincr12\nend").unwrap();
+    // copies to a texture of each format and back (8x4: whole blocks)
+    for f in (1u32..=132).chain([189, 190, 191]) {
+        writeln!(s, "case copy-{f}\ndevice12\ncopy12 {f} 8 4 0\nend").unwrap();
+    }
+    for f in [20u32, 40, 45, 55] {
+        writeln!(s, "case copy-ds-{f}\ndevice12\ncopy12 {f} 8 4 1\nend").unwrap();
+    }
+    for (w, h) in [(1u32, 1u32), (300, 7), (64, 64), (4096, 2)] {
+        writeln!(s, "case copy-size-{w}x{h}\ndevice12\ncopy12 28 {w} {h} 0\ncopy12 2 {w} {h} 0\nend").unwrap();
+    }
     // object creation: one line a case, each field swept around a valid description
     let mut mk: Vec<String> = Vec::new();
     for t in 0..=6u32 {
