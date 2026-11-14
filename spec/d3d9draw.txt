@@ -39,7 +39,8 @@ D3D9.TEX.POINT measured | D3DTEXTUREFILTERTYPE, Directly Mapping Texels to Pixel
 D3D9.TEX.LINEAR measured | D3DTEXTUREFILTERTYPE; golden d3d9draw, d3d8draw filter-*, filter2-*, filter-uv-* | linear filtering: the four nearest texels weighted in 32nds of a texel (taken down), 8-bit texels' weighted sum truncated
 D3D9.TEX.FILTER open | (cases filter2-*) | other filters, different magnification and minification filters
 D3D9.TEX.ADDRESS doc | D3DTEXTUREADDRESS | WRAP repeats, MIRROR reflects every other repeat, CLAMP takes the edge texel, BORDER the border color, MIRRORONCE reflects once then clamps
-D3D9.TEX.ADDRESS.BAD open | D3DTEXTUREADDRESS; cases address-0, address-6 | an address mode outside the enumeration
+D3D9.TEX.ADDRESSX86 measured | golden d3d9draw-32, d3d8draw-32 of 78e3d86 (exit 127 at address-0) | the x86 runtimes die drawing with a texture whose address mode is outside WRAP..MIRRORONCE, so the x86 executor reads the modes back and does not draw; x64 draws
+D3D9.TEX.ADDRESS.BAD measured | D3DTEXTUREADDRESS; golden d3d9draw-64 address-0, address-6 | an address mode outside the enumeration (0, 6) addresses as MIRRORONCE on x64 (x86: D3D9.TEX.ADDRESSX86)
 D3D9.TEX.BORDER doc | D3DTEXTUREADDRESS, D3DSAMP_BORDERCOLOR | a texel past the edge with BORDER is the border color
 D3D9.STAGE.DISABLE doc | D3DTEXTUREOP | COLOROP DISABLE on stage 0: the diffuse color goes through untouched
 D3D9.STAGE.OP doc | D3DTEXTUREOP, D3DTA | each operation's formula on its arguments (D3DTA: diffuse, current = diffuse on stage 0, texture, texture factor, specular; COMPLEMENT, ALPHAREPLICATE), saturated

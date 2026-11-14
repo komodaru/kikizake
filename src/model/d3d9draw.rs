@@ -786,6 +786,10 @@ impl D3d9 {
                     // (the executor does not draw: the x86 runtime dies on it, MEASURED)
                     hit(clause::D3D9_BLEND_OPX86);
                     out.push(format!("draw x86 blendop {op}"));
+                } else if let Some(a) = (0..8u32).filter(|&st| crate::model::arch() == 32 && self.draw.stage_tex[st as usize].is_some()).flat_map(|st| [self.samp(st, 1), self.samp(st, 2)]).find(|a| !(1..=5).contains(a)) {
+                    // (nor with a texture's address mode outside WRAP..MIRRORONCE, MEASURED)
+                    hit(clause::D3D9_TEX_ADDRESSX86);
+                    out.push(format!("draw x86 address {a}"));
                 } else {
                     self.draw_prims(ty, nv, &words)?;
                 }
@@ -875,7 +879,11 @@ pub fn address(mode: u32, i: i64, n: i64) -> Res<Option<i64>> {
         3 => Some(i.clamp(0, n - 1)),
         4 => (0..n).contains(&i).then_some(i),
         5 => Some(if i < 0 { -i - 1 } else { i }.clamp(0, n - 1)),
-        _ => return Err(Fail::Unmodeled(open::D3D9_TEX_ADDRESS_BAD)),
+        // (MEASURED x64, address-0, address-6: a mode outside the enumeration as MIRRORONCE)
+        _ => {
+            hit(clause::D3D9_TEX_ADDRESS_BAD);
+            Some(if i < 0 { -i - 1 } else { i }.clamp(0, n - 1))
+        }
     })
 }
 

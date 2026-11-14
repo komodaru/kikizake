@@ -88,6 +88,17 @@ void d8_draw(void) {
     DWORD op = 0; /* (as d3d9draw.c's op_draw) */
     IDirect3DDevice8_GetRenderState(DEV, D3DRS_BLENDOP, &op);
     if (op < 1 || op > 5) { out("draw x86 blendop %lu\n", op); return; }
+    for (DWORD st = 0; st < 8; st++) {
+        IDirect3DBaseTexture8 *t = NULL;
+        IDirect3DDevice8_GetTexture(DEV, st, &t);
+        if (!t) continue;
+        IDirect3DBaseTexture8_Release(t);
+        for (DWORD k = D3DTSS_ADDRESSU; k <= D3DTSS_ADDRESSV; k++) {
+            DWORD a = 0;
+            IDirect3DDevice8_GetTextureStageState(DEV, st, k, &a);
+            if (a < 1 || a > 5) { out("draw x86 address %lu\n", a); return; }
+        }
+    }
 #endif
     IDirect3DDevice8_BeginScene(DEV);
     HRESULT hr = IDirect3DDevice8_DrawPrimitiveUP(DEV, type, kz_prims(type, nv), w, n / nv * 4);

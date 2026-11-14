@@ -207,6 +207,19 @@ static void op_draw(void) {
     DWORD op = 0;
     IDirect3DDevice9_GetRenderState(DEV, D3DRS_BLENDOP, &op);
     if (op < 1 || op > 5) { out("draw x86 blendop %lu\n", op); return; }
+    /* (and with a texture's address mode outside WRAP..MIRRORONCE: address-0 stopped the golden
+     * run of 78e3d86 with exit 127) */
+    for (DWORD st = 0; st < 8; st++) {
+        IDirect3DBaseTexture9 *t = NULL;
+        IDirect3DDevice9_GetTexture(DEV, st, &t);
+        if (!t) continue;
+        IDirect3DBaseTexture9_Release(t);
+        for (DWORD k = D3DSAMP_ADDRESSU; k <= D3DSAMP_ADDRESSV; k++) {
+            DWORD a = 0;
+            IDirect3DDevice9_GetSamplerState(DEV, st, k, &a);
+            if (a < 1 || a > 5) { out("draw x86 address %lu\n", a); return; }
+        }
+    }
 #endif
     IDirect3DDevice9_BeginScene(DEV);
     HRESULT hr = IDirect3DDevice9_DrawPrimitiveUP(DEV, type, kz_prims(type, nv), w, n / nv * 4);
