@@ -174,7 +174,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 328), ("region", 506), ("xform", 98), ("path", 116), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 328), ("region", 506), ("xform", 98), ("path", 133), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
@@ -188,4 +188,33 @@ fn models_keep_answering() {
         }
     }
     model::set_arch(32);
+}
+
+proptest! {
+    /// GDI's flattener (HFD) ends exactly at the Bézier's end point and stays inside its
+    /// control points' box (a Bézier lies in its control points' convex hull), each line
+    /// shorter than the box is wide
+    #[test]
+    fn flatten_ends_at_the_end(p in prop::array::uniform4((-40000i32..40000, -40000i32..40000))) {
+        let v = kikizake::model::bezier::flatten(p).expect("in the flattener's space");
+        prop_assert_eq!(v.last().copied(), Some(p[3]));
+        let (l, r) = (p.iter().map(|q| q.0).min().unwrap(), p.iter().map(|q| q.0).max().unwrap());
+        let (t, b) = (p.iter().map(|q| q.1).min().unwrap(), p.iter().map(|q| q.1).max().unwrap());
+        for q in &v {
+            prop_assert!(l - 1 <= q.0 && q.0 <= r + 1 && t - 1 <= q.1 && q.1 <= b + 1, "{q:?} outside {p:?}");
+        }
+    }
+
+    /// a fixed point polygon fill: an axis-aligned rectangle of whole pixels is that rectangle,
+    /// in either fill mode, and moving a polygon by whole pixels moves its pixels
+    #[test]
+    fn fix_fill_rectangles_and_moves(l in -20i32..20, t in -20i32..20, w in 1i32..20, h in 1i32..20, dx in -5i32..5, dy in -5i32..5, pts in prop::collection::vec((-400i32..400, -400i32..400), 3..7), winding: bool) {
+        let s = 16;
+        let rect = vec![(l * s, t * s), ((l + w) * s, t * s), ((l + w) * s, (t + h) * s), (l * s, (t + h) * s)];
+        prop_assert_eq!(kikizake::model::rgn::fix_polygon_pixels(&[rect], winding), Rgn::rect(l, t, l + w, t + h));
+        let moved: Vec<(i32, i32)> = pts.iter().map(|q| (q.0 + dx * s, q.1 + dy * s)).collect();
+        let mut a = kikizake::model::rgn::fix_polygon_pixels(&[pts], winding);
+        a.offset(dx, dy);
+        prop_assert_eq!(a, kikizake::model::rgn::fix_polygon_pixels(&[moved], winding));
+    }
 }

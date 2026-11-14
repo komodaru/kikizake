@@ -125,3 +125,5 @@ tests/laws_dd.rs::dither_stays_within_a_step exhaustive D3D7.DITHER
 tests/laws_dd.rs::blend_factors_bound pbt D3D7.BLEND.OTHER
 tests/laws_dd.rs::stretch_indices_are_monotone_and_cover pbt DDRAW.STRETCH
 tests/laws_dd.rs::nearest_entry_is_nearest pbt DDRAW.DC.NEAREST DDRAW.DC.NOPAL
+tests/laws_gdidraw.rs::flatten_ends_at_the_end pbt GDI.PATH.FLATTENHFD
+tests/laws_gdidraw.rs::fix_fill_rectangles_and_moves pbt GDI.PATH.FILLFIX

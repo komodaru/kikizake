@@ -8,7 +8,7 @@ GDI.PATH.CLOSEEMPTY measured | golden path order-4 | CloseFigure with no figure 
 GDI.PATH.RECORD doc | Paths (the functions that define a path) | in a bracket, LineTo, MoveToEx, Polyline, PolylineTo, Polygon, Rectangle, ... add their points instead of drawing; a line starts a figure (PT_MOVETO) at the current position
 GDI.PATH.MOVETO assumed | GetPath | MoveToEx starts a new figure (a PT_MOVETO); one that no line follows is replaced by the next
 GDI.PATH.RECT assumed | Rectangle | a rectangle in a path: four points from the corner (right, top) counterclockwise, or (right, bottom) clockwise (SetArcDirection), the right and bottom edges excluded (r - 1, b - 1), the figure closed
-GDI.PATH.CURVE open | Ellipse, Arc, PolyBezier, FlattenPath, ... | the Bézier points of curves in a path, and the lines FlattenPath makes of them
+GDI.PATH.CURVE open | RoundRect, Arc, ArcTo, Pie, Chord, StrokePath | the Bézier points of round rectangles and arcs in a path, ellipses 2 pixels or less across, and the pixels of a stroked curve (lines between fractional 28.4 points)
 GDI.PATH.GET doc | GetPath | the closed path's points and their types (PT_MOVETO 6, PT_LINETO 2, PT_BEZIERTO 4, | PT_CLOSEFIGURE 1); -1 when the DC has no closed path
 GDI.PATH.FLATTEN doc | FlattenPath | curves become lines; a path of lines stays as it is
 GDI.PATH.STROKE doc | StrokePath | draws the path's lines with the pen (as LineTo, the last point of an open figure not drawn; a closed figure's closing line) and discards the path
@@ -19,3 +19,7 @@ GDI.PATH.WIDEN open | WidenPath | the outline a geometric pen makes of the path
 GDI.PATH.MITER measured | golden path miter | SetMiterLimit: a limit below 1 fails without writing the old value; otherwise returns the old limit (10 at first) and keeps the new one
 GDI.PATH.ENDMOVE measured | golden path order-5 | EndPath drops a PT_MOVETO that ends the path (a MoveToEx after the last figure)
 GDI.PATH.POLYSHORT assumed | Polyline, Polygon | in a path, fewer than two points fail as outside one, recording nothing
+GDI.PATH.BEZIER measured | golden path shape-13-* shape-14-* curve-* | PolyBezier in a path begins a figure at its first point (replacing a lone MoveToEx), PolyBezierTo continues from the current position; the points are kept as given, each PT_BEZIERTO
+GDI.PATH.ELLIPSE measured | golden path shape-4-* shape-5-* curve-* | Ellipse in a path: four Béziers in 28.4 fixed point around (l, t) - (r - 1, b - 1), from the right end of the middle row, counterclockwise (upwards) or clockwise with AD_CLOCKWISE, the control points the radius times 4/3 (sqrt 2 - 1) from the ends, the figure closed; GetPath rounds each point to the nearest integer, halves up
+GDI.PATH.FLATTENHFD measured | golden path shape-* curve-* | FlattenPath (and the fills): each Bézier becomes the lines of GDI's hybrid forward differencing flattener (28.4 points, an error of 2/3 pixel; the HFD32 flattener dotnet/wpf documents as GDI's, BEZIER_FLATTEN_GDI_COMPATIBLE, stepped in a finer exact fixed point, which HFD32's exact shifts make the same), a closed Bézier's last line keeping PT_CLOSEFIGURE
+GDI.PATH.FILLFIX measured | golden path shape-* curve-* | a path whose flattened points are not whole pixels fills, on each row y, the pixels whose left edge lies in [left, right) of the crossings at the row's top edge (16y in 28.4), in the DC's fill mode

@@ -26,6 +26,7 @@ pub mod rgn;
 pub mod gdirgn;
 pub mod gdixform;
 pub mod gdipath;
+pub mod bezier;
 pub mod gditext;
 pub mod gdiblend;
 pub mod gdiddb;

@@ -1,5 +1,5 @@
 //! The model of runner/gdipath.c's ops (spec/gdipath.txt): the path bracket, GetPath, paths of
-//! lines and rectangles, StrokePath, AbortPath, FlattenPath of straight paths.
+//! lines, rectangles, ellipses and Béziers, FlattenPath, StrokePath, FillPath & co.
 //!
 //! Sources (Microsoft Learn): "BeginPath", "EndPath", "AbortPath", "CloseFigure", "GetPath",
 //! "FlattenPath", "WidenPath", "StrokePath", "FillPath", "StrokeAndFillPath", "PathToRegion",
@@ -11,18 +11,69 @@ use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
-pub const PT_CLOSEFIGURE: u8 = 1;
-pub const PT_LINETO: u8 = 2;
-pub const PT_BEZIERTO: u8 = 4;
-pub const PT_MOVETO: u8 = 6;
+/// a coordinate in 28.4 fixed point, as GDI keeps a path's points
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Fix(pub i32);
+
+impl Fix {
+    pub fn int(v: i32) -> Fix {
+        Fix(v.saturating_mul(16))
+    }
+    /// GetPath's integer: the nearest, halves up (MEASURED, GDI.PATH.CURVEPOINTS)
+    pub fn round(self) -> i32 {
+        self.0.saturating_add(8) >> 4
+    }
+    /// the integer it is, when it is one
+    pub fn exact(self) -> Option<i32> {
+        (self.0 & 15 == 0).then_some(self.0 >> 4)
+    }
+}
+
+/// what a path point is (GetPath's PT_MOVETO 6, PT_LINETO 2, PT_BEZIERTO 4)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Kind {
+    Move,
+    Line,
+    Bezier,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Pt {
+    pub x: Fix,
+    pub y: Fix,
+    pub kind: Kind,
+    /// PT_CLOSEFIGURE
+    pub close: bool,
+}
+
+impl Pt {
+    fn int(at: (i32, i32), kind: Kind) -> Pt {
+        Pt { x: Fix::int(at.0), y: Fix::int(at.1), kind, close: false }
+    }
+    fn fix(at: (i32, i32), kind: Kind) -> Pt {
+        Pt { x: Fix(at.0), y: Fix(at.1), kind, close: false }
+    }
+    /// GetPath's type byte
+    fn ty(&self) -> u8 {
+        let t = match self.kind {
+            Kind::Move => 6,
+            Kind::Line => 2,
+            Kind::Bezier => 4,
+        };
+        t | u8::from(self.close)
+    }
+    fn at(&self) -> (i32, i32) {
+        (self.x.0, self.y.0)
+    }
+}
 
 /// a DC's path: none, open (being recorded) or closed (EndPath done)
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum Path {
     #[default]
     None,
-    Open(Vec<(i32, i32, u8)>),
-    Closed(Vec<(i32, i32, u8)>),
+    Open(Vec<Pt>),
+    Closed(Vec<Pt>),
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -36,9 +87,14 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let pts: Vec<(i32, i32)> = op.tok[2.min(op.tok.len())..].chunks(2).map(|c| Ok((num(&c[0]).ok_or(Fail::Bad)? as i32, num(c.get(1).ok_or(Fail::Bad)?).ok_or(Fail::Bad)? as i32))).collect::<Res<_>>()?;
     hit(clause::GDI_PATH_RECORD);
     // (a figure starts at the current position when the path has no open figure there)
-    let start = |p: &mut Vec<(i32, i32, u8)>, pos: (i32, i32)| {
-        if p.last().is_none_or(|l| l.2 & PT_CLOSEFIGURE != 0) {
-            p.push((pos.0, pos.1, PT_MOVETO));
+    let start = |p: &mut Vec<Pt>, pos: (i32, i32)| {
+        if p.last().is_none_or(|l| l.close) {
+            p.push(Pt::int(pos, Kind::Move));
+        }
+    };
+    let close = |p: &mut Vec<Pt>| {
+        if let Some(l) = p.last_mut() {
+            l.close = true;
         }
     };
     match t0 {
@@ -51,7 +107,7 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "lineto" | "polylineto" => {
             start(p, sl.ext.pos);
             for &q in &pts {
-                p.push((q.0, q.1, PT_LINETO));
+                p.push(Pt::int(q, Kind::Line));
             }
             sl.ext.pos = *pts.last().ok_or(Fail::Bad)?;
             out.push("ret 1".into());
@@ -63,12 +119,35 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push("ret 0".into());
                 return Ok(true);
             }
-            p.push((pts[0].0, pts[0].1, PT_MOVETO));
+            p.push(Pt::int(pts[0], Kind::Move));
             for &q in &pts[1..] {
-                p.push((q.0, q.1, PT_LINETO));
+                p.push(Pt::int(q, Kind::Line));
             }
             if t0 == "polygon" {
-                p.last_mut().unwrap().2 |= PT_CLOSEFIGURE;
+                close(p);
+            }
+            out.push("ret 1".into());
+        }
+        "polybezier" | "polybezierto" => {
+            let to = t0 == "polybezierto";
+            let n = if to { pts.len() } else { pts.len().saturating_sub(1) };
+            if pts.is_empty() || n % 3 != 0 {
+                return Err(Fail::Bad);
+            }
+            // MEASURED: PolyBezier begins a figure at its first point (replacing a lone
+            // MoveToEx), PolyBezierTo continues from the current position; the points are kept
+            // as given, PT_BEZIERTO each
+            hit(clause::GDI_PATH_BEZIER);
+            if to {
+                start(p, sl.ext.pos);
+            } else {
+                record_move(p, pts[0])?;
+            }
+            for &q in &pts[pts.len() - n..] {
+                p.push(Pt::int(q, Kind::Bezier));
+            }
+            if to {
+                sl.ext.pos = *pts.last().ok_or(Fail::Bad)?;
             }
             out.push("ret 1".into());
         }
@@ -80,9 +159,43 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let (r, b) = (r - 1, b - 1);
             let c = if sl.ext.arcdir == 2 { [(r, b), (l, b), (l, t), (r, t)] } else { [(r, t), (l, t), (l, b), (r, b)] };
             for (i, q) in c.iter().enumerate() {
-                p.push((q.0, q.1, if i == 0 { PT_MOVETO } else { PT_LINETO }));
+                p.push(Pt::int(*q, if i == 0 { Kind::Move } else { Kind::Line }));
             }
-            p.last_mut().unwrap().2 |= PT_CLOSEFIGURE;
+            close(p);
+            out.push("ret 1".into());
+        }
+        "ellipse" => {
+            let [a, b] = pts[..] else { return Err(Fail::Bad) };
+            let (l, r) = (a.0.min(b.0), a.0.max(b.0));
+            let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
+            if r - l < 3 || bt - t < 3 {
+                // (an ellipse of 2 pixels or less across: not measured yet)
+                return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+            }
+            // MEASURED: four Béziers in 28.4 around (l, t) - (r - 1, b - 1), from the right
+            // end of the middle row, counterclockwise (upwards) or, with AD_CLOCKWISE,
+            // clockwise, control points the radius times 4/3 (sqrt 2 - 1) from the ends
+            hit(clause::GDI_PATH_ELLIPSE);
+            let (fl, fr, ft, fb) = (l * 16, (r - 1) * 16, t * 16, (bt - 1) * 16);
+            let (cx, cy) = ((fl + fr) / 2, (ft + fb) / 2);
+            // (the control points' x rounded down, their y up, as in a y-up frame)
+            let kf = |rad2: i32| f64::from(rad2) * 0.5 * 0.552_284_749_8;
+            let (kx, ky) = (kf(fr - fl), kf(fb - ft));
+            let fx = |v: f64| v.floor() as i32;
+            let fy = |v: f64| v.ceil() as i32;
+            let (cxf, cyf) = (f64::from(cx), f64::from(cy));
+            let (xp, xm, yp, ym) = (fx(cxf + kx), fx(cxf - kx), fy(cyf + ky), fy(cyf - ky));
+            let mut c = [(fr, cy), (fr, ym), (xp, ft), (cx, ft), (xm, ft), (fl, ym), (fl, cy), (fl, yp), (xm, fb), (cx, fb), (xp, fb), (fr, yp), (fr, cy)];
+            if sl.ext.arcdir == 2 {
+                for q in c.iter_mut() {
+                    q.1 = ft + fb - q.1;
+                }
+            }
+            p.push(Pt::fix(c[0], Kind::Move));
+            for q in &c[1..] {
+                p.push(Pt::fix(*q, Kind::Bezier));
+            }
+            close(p);
             out.push("ret 1".into());
         }
         _ => return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
@@ -91,25 +204,63 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
 }
 
 /// MoveToEx in a path: a new figure at the point (a lone PT_MOVETO is replaced by the next)
-fn record_move(p: &mut Vec<(i32, i32, u8)>, at: (i32, i32)) -> Res<bool> {
+fn record_move(p: &mut Vec<Pt>, at: (i32, i32)) -> Res<bool> {
     hit(clause::GDI_PATH_MOVETO);
-    if p.last().is_some_and(|l| l.2 == PT_MOVETO) {
+    if p.last().is_some_and(|l| l.kind == Kind::Move) {
         p.pop();
     }
-    p.push((at.0, at.1, PT_MOVETO));
+    p.push(Pt::int(at, Kind::Move));
     Ok(true)
 }
 
-/// the figures of a closed path of lines (each from its PT_MOVETO)
-fn figures(p: &[(i32, i32, u8)]) -> Res<Vec<Vec<(i32, i32)>>> {
-    let mut figs: Vec<Vec<(i32, i32)>> = Vec::new();
-    for q in p {
-        if q.2 == PT_MOVETO {
-            figs.push(vec![(q.0, q.1)]);
-        } else if q.2 & PT_BEZIERTO != 0 {
+/// FlattenPath: each Bézier's points replaced by its lines (GDI.PATH.FLATTENHFD), a closed
+/// Bézier's last line keeping PT_CLOSEFIGURE
+fn flatten(p: &[Pt]) -> Res<Vec<Pt>> {
+    let mut o: Vec<Pt> = Vec::with_capacity(p.len());
+    let mut i = 0;
+    while i < p.len() {
+        let q = p[i];
+        if q.kind != Kind::Bezier {
+            o.push(q);
+            i += 1;
+            continue;
+        }
+        // (from the Bézier's own start point, not the flattened one before)
+        let (Some(from), Some(c)) = (i.checked_sub(1).and_then(|j| p.get(j)), p.get(i..i + 3)) else { return Err(Fail::Bad) };
+        if c.iter().any(|q| q.kind != Kind::Bezier) {
+            return Err(Fail::Bad);
+        }
+        hit(clause::GDI_PATH_FLATTENHFD);
+        let Some(line) = super::bezier::flatten([from.at(), c[0].at(), c[1].at(), c[2].at()]) else {
+            // (a curve too large for the 32 bit flattener: GDI's 64 bit one, open)
             return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
-        } else {
-            figs.last_mut().ok_or(Fail::Bad)?.push((q.0, q.1));
+        };
+        let n = line.len();
+        for (j, at) in line.into_iter().enumerate() {
+            let mut q = Pt::fix(at, Kind::Line);
+            q.close = j + 1 == n && c[2].close;
+            o.push(q);
+        }
+        i += 3;
+    }
+    Ok(o)
+}
+
+/// a 28.4 point that is a whole pixel; a fractional one (a flattened curve) stroked is open
+fn whole(at: (i32, i32)) -> Res<(i32, i32)> {
+    match (Fix(at.0).exact(), Fix(at.1).exact()) {
+        (Some(x), Some(y)) => Ok((x, y)),
+        _ => Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
+    }
+}
+
+/// the figures of a closed path (each from its PT_MOVETO), curves flattened, in 28.4
+fn figures(p: &[Pt]) -> Res<Vec<Vec<(i32, i32)>>> {
+    let mut figs: Vec<Vec<(i32, i32)>> = Vec::new();
+    for q in flatten(p)? {
+        match q.kind {
+            Kind::Move => figs.push(vec![q.at()]),
+            Kind::Line | Kind::Bezier => figs.last_mut().ok_or(Fail::Bad)?.push(q.at()),
         }
     }
     Ok(figs)
@@ -153,7 +304,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             match std::mem::take(path) {
                 Path::Open(mut p) => {
                     // MEASURED: a MoveToEx last in the path starts no figure and is dropped
-                    if p.last().is_some_and(|l| l.2 == PT_MOVETO) {
+                    if p.last().is_some_and(|l| l.kind == Kind::Move) {
                         hit(clause::GDI_PATH_ENDMOVE);
                         p.pop();
                     }
@@ -174,8 +325,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "closefig" => {
             hit(clause::GDI_PATH_CLOSE);
             match path {
-                Path::Open(p) if p.last().is_some_and(|l| l.2 != PT_MOVETO) => {
-                    p.last_mut().unwrap().2 |= PT_CLOSEFIGURE;
+                Path::Open(p) if p.last().is_some_and(|l| l.kind != Kind::Move) => {
+                    if let Some(l) = p.last_mut() {
+                        l.close = true;
+                    }
                     true
                 }
                 Path::Open(_) => {
@@ -192,7 +345,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 Path::Closed(p) => {
                     out.push(format!("path {}", p.len()));
                     for q in p.iter() {
-                        out.push(format!("pt {} {} {}", q.0, q.1, q.2));
+                        out.push(format!("pt {} {} {}", q.x.round(), q.y.round(), q.ty()));
                     }
                 }
                 _ => out.push("path -1".into()),
@@ -202,8 +355,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "flatten" => {
             hit(clause::GDI_PATH_FLATTEN);
             match path {
-                Path::Closed(p) if p.iter().all(|q| q.2 & PT_BEZIERTO == 0 || q.2 == PT_MOVETO) => true,
-                Path::Closed(_) => return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
+                Path::Closed(p) => {
+                    *p = flatten(p)?;
+                    true
+                }
                 _ => false,
             }
         }
@@ -216,15 +371,15 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let mut fig_start = (0, 0);
             let mut prev = (0, 0);
             for q in &p {
-                let at = (q.0, q.1);
-                if q.2 == PT_MOVETO {
-                    fig_start = at;
-                } else if q.2 & PT_BEZIERTO != 0 {
-                    return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
-                } else {
-                    sl.line(prev, at)?;
-                    if q.2 & PT_CLOSEFIGURE != 0 {
-                        sl.line(at, fig_start)?;
+                let at = whole(q.at())?;
+                match q.kind {
+                    Kind::Move => fig_start = at,
+                    Kind::Bezier => return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
+                    Kind::Line => {
+                        sl.line(prev, at)?;
+                        if q.close {
+                            sl.line(at, fig_start)?;
+                        }
                     }
                 }
                 prev = at;
@@ -249,7 +404,14 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             // MEASURED: the interior is CreatePolygonRgn's region of the figures (each closed) in
             // the DC's fill mode (GDI.RGN.POLYSCAN); the call discards the path
             hit(clause::GDI_PATH_FILL);
-            let r = super::rgn::polygon_pixels(&figs, sl.ext.polyfill == 2);
+            let ints: Option<Vec<Vec<(i32, i32)>>> = figs.iter().map(|f| f.iter().map(|&q| whole(q).ok()).collect()).collect();
+            let r = match &ints {
+                Some(f) => super::rgn::polygon_pixels(f, sl.ext.polyfill == 2),
+                None => {
+                    hit(clause::GDI_PATH_FILLFIX);
+                    super::rgn::fix_polygon_pixels(&figs, sl.ext.polyfill == 2)
+                }
+            };
             match t0 {
                 "pathrgn" => {
                     let i = n(op, 2)?;
@@ -270,6 +432,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             if t0 == "strokefill" {
                 // (StrokeAndFillPath: the outline of every figure, closed)
+                let Some(figs) = ints else { return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)) };
                 for f in &figs {
                     for i in 0..f.len() {
                         sl.line(f[i], f[(i + 1) % f.len()])?;

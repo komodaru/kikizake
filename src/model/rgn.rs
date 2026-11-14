@@ -304,3 +304,71 @@ fn normalize(mut s: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
     }
     out
 }
+
+/// the pixels of a polygon of 28.4 fixed point vertices (a path holding curves): on each
+/// scanline y, at the pixels' top edge (16y), the spans between the edges' x, the pixels whose
+/// left edge lies in [left, right); ALTERNATE pairs the edges in x order, WINDING keeps the
+/// spans of nonzero winding (MEASURED, GDI.PATH.FILLFIX)
+pub fn fix_polygon_pixels(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
+    let edges: Vec<((i64, i64), (i64, i64))> = polys
+        .iter()
+        .filter(|p| p.len() >= 2)
+        .flat_map(|p| (0..p.len()).map(move |i| (p[i], p[(i + 1) % p.len()])))
+        .filter(|(a, b)| a.1 != b.1)
+        .map(|(a, b)| ((i64::from(a.0), i64::from(a.1)), (i64::from(b.0), i64::from(b.1))))
+        .collect();
+    let Some(lo) = edges.iter().map(|e| e.0 .1.min(e.1 .1)).min() else { return Rgn::empty() };
+    let hi = edges.iter().map(|e| e.0 .1.max(e.1 .1)).max().unwrap_or(lo);
+    // ceil(n / d) for d > 0
+    let ceil = |n: i64, d: i64| n.div_euclid(d) + i64::from(n.rem_euclid(d) != 0);
+    let mut rows = Vec::new();
+    for y in lo.div_euclid(16)..=hi.div_euclid(16) + 1 {
+        let yc = y * 16;
+        // (the first pixel whose left edge is at or right of the crossing, the edge's direction)
+        let mut xs: Vec<(i64, i32)> = Vec::new();
+        for &((x0, y0), (x1, y1)) in &edges {
+            if (y0 <= yc && yc < y1) || (y1 <= yc && yc < y0) {
+                // x = x0 + (x1 - x0) (yc - y0) / (y1 - y0), as a fraction over 16
+                let (n, d) = (x0 * (y1 - y0) + (x1 - x0) * (yc - y0), y1 - y0);
+                let (n, d) = if d < 0 { (-n, -d) } else { (n, d) };
+                xs.push((ceil(n, d * 16), if y1 > y0 { 1 } else { -1 }));
+            }
+        }
+        xs.sort();
+        let mut spans: Vec<(i32, i32)> = Vec::new();
+        let mut push = |a: i64, b: i64| {
+            if b > a {
+                let (a, b) = (i32::try_from(a).unwrap_or(i32::MIN), i32::try_from(b).unwrap_or(i32::MAX));
+                match spans.last_mut() {
+                    Some(l) if l.1 >= a => l.1 = l.1.max(b),
+                    _ => spans.push((a, b)),
+                }
+            }
+        };
+        if winding {
+            let mut w = 0;
+            let mut from = 0;
+            for &(x, d) in &xs {
+                if w == 0 {
+                    from = x;
+                }
+                w += d;
+                if w == 0 {
+                    push(from, x);
+                }
+            }
+        } else {
+            for p in xs.chunks_exact(2) {
+                push(p[0].0, p[1].0);
+            }
+        }
+        if !spans.is_empty() {
+            rows.push((i32::try_from(y).unwrap_or(i32::MAX), spans));
+        }
+    }
+    let mut g = Rgn::empty();
+    for (y, s) in rows {
+        g.push_band(y, y + 1, s);
+    }
+    g
+}
