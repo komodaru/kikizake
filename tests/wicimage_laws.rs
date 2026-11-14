@@ -247,3 +247,73 @@ proptest! {
         }
     }
 }
+
+/// exhaustive over every size 1..=24 -> 1..=40: each filter's weights cover each output pixel
+/// once (a flat picture stays flat), only source pixels, and the same size is the identity for
+/// Linear, Fant and HighQualityCubic (whose centers fall on the source's)
+#[test]
+fn filter_weights_are_partitions_of_one() {
+    for n in 1..=24u32 {
+        for d in 1..=40u32 {
+            for m in ["linear", "cubic", "fant"] {
+                let t = wi::taps(m, n, d);
+                assert_eq!(t.taps.len(), d as usize);
+                for (i, ws) in t.taps.iter().enumerate() {
+                    assert_eq!(ws.iter().map(|w| w.1).sum::<i64>(), t.den, "{m} {n}->{d} at {i}");
+                    assert!(ws.iter().all(|w| w.0 < n as usize));
+                    // (Linear and Fant only blend: no weight below 0)
+                    if m != "cubic" {
+                        assert!(ws.iter().all(|w| w.1 >= 0));
+                    }
+                }
+                if n == d && m != "cubic" {
+                    for (i, ws) in t.taps.iter().enumerate() {
+                        assert!(ws.iter().all(|w| w.1 == 0 || w.0 == i), "{m} {n} at {i}: {ws:?}");
+                    }
+                }
+            }
+            let h = wi::hq_taps(n, d);
+            for ws in &h {
+                assert!((ws.iter().map(|w| w.1).sum::<f64>() - 1.0).abs() < 1e-9);
+                assert!(ws.iter().all(|w| w.0 < n as usize));
+            }
+        }
+    }
+}
+
+/// Fant's averages over the output pixels' spans together cover the whole row once: the weights
+/// of all output pixels sum to d whole pixels, exactly
+#[test]
+fn fant_spends_every_source_span() {
+    for n in 1..=24u32 {
+        for d in 1..=40u32 {
+            let t = wi::taps("fant", n, d);
+            // (all output pixels together are the whole row: the weights sum to d whole pixels)
+            let all: i64 = t.taps.iter().flatten().map(|w| w.1).sum();
+            assert_eq!(all, d as i64 * t.den);
+        }
+    }
+}
+
+proptest! {
+    /// a filter of only nonnegative weights (Linear, Fant) keeps every channel between the
+    /// source's least and greatest; every filter keeps a flat picture flat
+    #[test]
+    fn filters_stay_in_range(w in 1u32..7, h in 1u32..7, dw in 1u32..12, dh in 1u32..12, seed in 0u32..1000, flat in 0u8..=255) {
+        for m in ["linear", "fant", "cubic", "hqcubic"] {
+            let s = img("gray8", w, h, seed);
+            let o = wi::scale(&s, dw, dh, m);
+            let Ok(o) = o else { continue };
+            let lo = *s.px.iter().min().unwrap();
+            let hi = *s.px.iter().max().unwrap();
+            if m == "linear" || m == "fant" {
+                prop_assert!(o.px.iter().all(|&v| lo <= v && v <= hi), "{} {:?}", m, o.px);
+            }
+            let mut f = s.clone();
+            f.px.fill(flat);
+            if let Ok(o) = wi::scale(&f, dw, dh, m) {
+                prop_assert!(o.px.iter().all(|&v| v == flat), "{} flat {} {:?}", m, flat, o.px);
+            }
+        }
+    }
+}

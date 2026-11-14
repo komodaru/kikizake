@@ -148,12 +148,189 @@ fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     Ok(Img { px, fmt: to, pal, ..s.clone() })
 }
 
+/// Catmull-Rom's cubic (a = -1/2)
+pub fn catmull_rom(x: f64) -> f64 {
+    let x = x.abs();
+    if x < 1.0 {
+        1.5 * x * x * x - 2.5 * x * x + 1.0
+    } else if x < 2.0 {
+        -0.5 * x * x * x + 2.5 * x * x - 4.0 * x + 2.0
+    } else {
+        0.0
+    }
+}
+
+/// output pixel i's center in source pixels, 16.16 fixed point: the step truncated, the
+/// centers aligned (the Linear and Cubic scalers)
+fn fixed_center(i: u32, n: u32, d: u32) -> i64 {
+    let step = ((n as i64) << 16) / d as i64;
+    (2 * i as i64 + 1) * step / 2 - 32768
+}
+
+/// one axis of a scaler: each output pixel's source pixels and integer weights over `den`
+pub struct Taps {
+    pub den: i64,
+    pub taps: Vec<Vec<(usize, i64)>>,
+}
+
+/// MEASURED (golden wicscale row-*/rrow-*/fine-*/col-*: gray rows and columns of every width
+/// 1..=8 to every width 1..=17 and 2..5 <-> 241..255, 303 cases each, all as Windows):
+/// - Linear: the center in 16.16 (step truncated), not before the first pixel, weights of 8 bits
+///   (the fraction's high byte) between it and the next pixel, the last pixel alone
+/// - Cubic: Catmull-Rom at the center's fraction cut to 6 bits, weights of 16 bits rounded, the
+///   third tap taking what the four miss of 1, the taps outside the picture its edge pixels
+/// - Fant: Fant's resampling (each output pixel the average over its span of the source
+///   interpolated linearly from each pixel's start), exact, so weights over n * d
+pub fn taps(mode: &str, n: u32, d: u32) -> Taps {
+    let last = n as i64 - 1;
+    let at = |k: i64| k.clamp(0, last) as usize;
+    match mode {
+        "linear" => Taps {
+            den: 256,
+            taps: (0..d)
+                .map(|i| {
+                    let p = fixed_center(i, n, d).max(0);
+                    let (k, f) = (p >> 16, (p & 0xffff) >> 8);
+                    if k >= last { vec![(last as usize, 256)] } else { vec![(at(k), 256 - f), (at(k + 1), f)] }
+                })
+                .collect(),
+        },
+        "cubic" => Taps {
+            den: 1 << 16,
+            taps: (0..d)
+                .map(|i| {
+                    let p = fixed_center(i, n, d);
+                    let (k, t) = (p >> 16, ((p & 0xffff) >> 10) as f64 / 64.0);
+                    let mut w: Vec<i64> = (-1..3).map(|j| (catmull_rom(t - j as f64) * 65536.0 + 0.5).floor() as i64).collect();
+                    w[2] += 65536 - w.iter().sum::<i64>();
+                    (-1..3).zip(w).map(|(j, w)| (at(k + j), w)).collect()
+                })
+                .collect(),
+        },
+        _ => {
+            // (in units of 1/d of a source pixel: a source pixel is d, an output pixel n)
+            let (n6, d6) = (n as i64, d as i64);
+            let mut taps = vec![];
+            let mut cur: Vec<(usize, i64)> = vec![];
+            let (mut u, mut inseg, mut outseg) = (0i64, d6, n6);
+            while taps.len() < d as usize {
+                let seg = inseg.min(outseg);
+                // (the source at the segment's start: inseg of pixel u, the rest of the next)
+                for (k, w) in [(at(u), inseg * seg), (at(u + 1), (d6 - inseg) * seg)] {
+                    match cur.iter_mut().find(|t| t.0 == k) {
+                        Some(t) => t.1 += w,
+                        None => cur.push((k, w)),
+                    }
+                }
+                if inseg < outseg {
+                    outseg -= inseg;
+                    inseg = d6;
+                    u += 1;
+                } else {
+                    inseg -= outseg;
+                    outseg = n6;
+                    taps.push(std::mem::take(&mut cur));
+                }
+            }
+            Taps { den: d6 * n6, taps }
+        }
+    }
+}
+
+/// MEASURED (golden wicscale, as `taps`): HighQualityCubic: Catmull-Rom about the exact
+/// center, widened by the ratio when shrinking, the weights normalized, the taps outside the
+/// picture its edge pixels
+pub fn hq_taps(n: u32, d: u32) -> Vec<Vec<(usize, f64)>> {
+    let r = (n as f64 / d as f64).max(1.0);
+    (0..d)
+        .map(|i| {
+            let p = (i as f64 + 0.5) * n as f64 / d as f64 - 0.5;
+            let (lo, hi) = ((p - 2.0 * r).floor() as i64, (p + 2.0 * r).ceil() as i64);
+            let w: Vec<(usize, f64)> = (lo..=hi).map(|j| (j.clamp(0, n as i64 - 1) as usize, catmull_rom((j as f64 - p) / r))).collect();
+            let sum: f64 = w.iter().map(|t| t.1).sum();
+            w.into_iter().map(|(k, x)| (k, x / sum)).collect()
+        })
+        .collect()
+}
+
+/// a filter over a picture of 8-bit channels (8bppGray, 24bppBGR, 32bppPBGRA)
+fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
+    let c = (bits_of(s.fmt) / 8) as usize;
+    let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
+    let src = |x: usize, y: usize, k: usize| s.px[y * s.stride() + x * c + k] as i64;
+    let ow = w as usize;
+    let ost = o.stride();
+    match mode {
+        "linear" | "cubic" => {
+            if mode == "cubic" && h != s.h {
+                return Err(Fail::Unmodeled("WICIMAGE.SCALE.CUBIC.VERTICAL"));
+            }
+            // (MEASURED: across, then down, each pass truncated to 8 bits)
+            let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
+            let mut mid = vec![0i64; ow * s.h as usize * c];
+            for y in 0..s.h as usize {
+                for (x, t) in tx.taps.iter().enumerate() {
+                    for k in 0..c {
+                        let v: i64 = t.iter().map(|&(j, wt)| wt * src(j, y, k)).sum();
+                        mid[(y * ow + x) * c + k] = v.div_euclid(tx.den).clamp(0, 255);
+                    }
+                }
+            }
+            for (y, t) in ty.taps.iter().enumerate() {
+                for x in 0..ow {
+                    for k in 0..c {
+                        let v: i64 = t.iter().map(|&(j, wt)| wt * mid[(j * ow + x) * c + k]).sum();
+                        o.px[y * ost + x * c + k] = v.div_euclid(ty.den).clamp(0, 255) as u8;
+                    }
+                }
+            }
+        }
+        "fant" => {
+            // (MEASURED: exact in both directions, rounded once, halves up)
+            let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
+            let den = (tx.den * ty.den) as i128;
+            for (y, a) in ty.taps.iter().enumerate() {
+                for (x, b) in tx.taps.iter().enumerate() {
+                    for k in 0..c {
+                        let v: i128 = a.iter().map(|&(jy, wy)| b.iter().map(|&(jx, wx)| (wy * wx * src(jx, jy, k)) as i128).sum::<i128>()).sum();
+                        o.px[y * ost + x * c + k] = ((2 * v + den).div_euclid(2 * den)).clamp(0, 255) as u8;
+                    }
+                }
+            }
+        }
+        _ => {
+            // (MEASURED: without rounding between the passes, rounded once)
+            let (tx, ty) = (hq_taps(s.w, w), hq_taps(s.h, h));
+            for (y, a) in ty.iter().enumerate() {
+                for (x, b) in tx.iter().enumerate() {
+                    for k in 0..c {
+                        let v: f64 = a.iter().map(|&(jy, wy)| wy * b.iter().map(|&(jx, wx)| wx * src(jx, jy, k) as f64).sum::<f64>()).sum();
+                        o.px[y * ost + x * c + k] = (v + 0.5).floor().clamp(0.0, 255.0) as u8;
+                    }
+                }
+            }
+        }
+    }
+    Ok(o)
+}
+
 pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     let (work, out) = scale_formats(s.fmt, mode);
-    if mode != "nn" {
-        return Err(Fail::Unmodeled("WICIMAGE.SCALE.FILTER"));
-    }
     hit("WICIMAGE.SCALE.FORMAT");
+    if mode != "nn" {
+        if !["gray8", "bgr24", "pbgra"].contains(&work) {
+            return Err(Fail::Unmodeled("WICIMAGE.SCALE.WIDE"));
+        }
+        let s = wic_convert(s, work)?;
+        let o = filter(&s, w, h, mode)?;
+        hit(match mode {
+            "linear" => "WICIMAGE.SCALE.LINEAR",
+            "cubic" => "WICIMAGE.SCALE.CUBIC",
+            "fant" => "WICIMAGE.SCALE.FANT",
+            _ => "WICIMAGE.SCALE.HQCUBIC",
+        });
+        return wic_convert(&o, out);
+    }
     let s = wic_convert(s, work)?;
     hit("WICIMAGE.SCALE.NEAREST");
     let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
