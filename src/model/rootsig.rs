@@ -219,6 +219,8 @@ pub fn valid(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> bool {
                                 // (DESCRIPTORS_STATIC_KEEPING_BUFFER_BOUNDS_CHECKS not with
                                 // DESCRIPTORS_VOLATILE: golden rootsig-232)
                                 r.flags & !(1 | 0xe | 0x10000) == 0 && data_ok(r.flags) && r.flags & 0x10001 != 0x10001
+                                    // (nor DATA_STATIC: golden rootsig-522)
+                                    && r.flags & 9 != 9
                             })
                 })
         }
@@ -231,9 +233,9 @@ pub fn valid(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> bool {
     let apart = bs.iter().enumerate().all(|(i, a)| {
         bs[i + 1..].iter().all(|b| !(a.0 == b.0 && a.1 == b.1 && (a.2 == b.2 || a.2 == 0 || b.2 == 0) && a.3 <= b.4 && b.3 <= a.4))
     });
-    // (the defined flags, and 0x80000000; LOCAL_ROOT_SIGNATURE (0x80) with no other defined one:
-    // golden d3d12-* rootsig-366..410)
-    let flags_ok = flags & !(0xfff | 0x8000_0000) == 0 && (flags & 0x80 == 0 || flags & 0xfff == 0x80);
+    // (the defined flags, and 0x80000000; LOCAL_ROOT_SIGNATURE (0x80) alone: golden d3d12-*
+    // rootsig-366..410, 534)
+    let flags_ok = flags & !(0xfff | 0x8000_0000) == 0 && (flags & 0x80 == 0 || flags == 0x80);
     params && samplers && apart && flags_ok
 }
 

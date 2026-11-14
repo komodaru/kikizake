@@ -738,9 +738,9 @@ impl D3d12 {
                         // (MEASURED: every type but video decode statistics (4), at least one query)
                         hit(clause::D3D12_MAKE_QUERYHEAP);
                         let valid = w[0] <= 7 && w[0] != 4 && w[1] > 0;
-                        // (MEASURED, golden d3d12-32 make-167/168, 240..282: 8M - 1 queries of any
-                        // type are more than a 32-bit process has room for, 7M are not; make-283..
-                        // narrow it)
+                        // (MEASURED, golden d3d12-32 make-167/168, 240..298: 7.75M queries of any
+                        // type are more than a 32-bit process has room for, 7.5M are not: WARP
+                        // keeps some 280 bytes a query whatever its type, in 2GB)
                         if valid && super::arch() == 32 && w[1] >= QHEAP32_OOM {
                             E_OUTOFMEMORY
                         } else {
@@ -901,8 +901,9 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
 }
 
 /// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)
-/// the fewest queries a 32-bit process's CreateQueryHeap runs out of memory for
-const QHEAP32_OOM: u32 = 7 << 20 | 1;
+/// the fewest queries a 32-bit process's CreateQueryHeap runs out of memory for (the first of
+/// the measured counts that did)
+const QHEAP32_OOM: u32 = 31 << 18;
 
 pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
     hit(clause::D3D12_MAKE_HEAP);
