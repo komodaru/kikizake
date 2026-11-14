@@ -27,7 +27,12 @@ fn case_files_are_what_the_generators_make() {
 #[test]
 fn models_match_windows() {
     let mut bad = Vec::new();
+    // (KIKIZAKE_SUITES=a,b: only those, as cargo mutants of one model wants)
+    let only = std::env::var("KIKIZAKE_SUITES").ok();
     for s in gen::SUITES {
+        if only.as_ref().is_some_and(|o| !o.split(',').any(|x| x == *s)) {
+            continue;
+        }
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
