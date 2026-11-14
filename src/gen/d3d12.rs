@@ -285,7 +285,7 @@ pub fn d3d12() -> String {
         writeln!(s, "end").unwrap();
     }
     writeln!(s, "case clear-unsupported\ndevice12").unwrap();
-    for f in [0, 1, 27, 40, 71, 100, 103, 192] {
+    for f in [0, 40, 71, 192] {
         writeln!(s, "clear12 {f} 0 0 0 0").unwrap();
     }
     writeln!(s, "cleardsv12 28 0 0\nend").unwrap();

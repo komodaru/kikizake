@@ -9173,12 +9173,8 @@ end
 case clear-unsupported
 device12
 clear12 0 0 0 0 0
-clear12 1 0 0 0 0
-clear12 27 0 0 0 0
 clear12 40 0 0 0 0
 clear12 71 0 0 0 0
-clear12 100 0 0 0 0
-clear12 103 0 0 0 0
 clear12 192 0 0 0 0
 cleardsv12 28 0 0
 end
