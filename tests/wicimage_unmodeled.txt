@@ -2428,9 +2428,6 @@ wicencode enc-wmp-rgb48
 wicencode enc-wmp-rgba
 wicencode enc-wmp-rgba64
 wicencode encas-bmp-rgba64
-wicencode encpal-idx8-3
-wicencode encq-257
-wicencode encq-300
 wicencode fixed-gray16-all
 wicencode fixed-gray16-lo
 wicencode gifalpha-full256
