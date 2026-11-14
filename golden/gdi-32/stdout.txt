@@ -3911,7 +3911,7 @@ case convert-8-from-16
 ret 1
 px 0 7 5 8
 ba292b778705dd
-920eee1f6ad3da
+9200ee1f6ad3da
 1088316e729bea
 f9c6af752a2a1d
 9876b53f7f4dad
@@ -3935,7 +3935,7 @@ case convert-8-from-32
 ret 1
 px 0 7 5 8
 f65552674f6dd0
-00f532b413c306
+00f532b413c300
 6db74fbbdb4d05
 6b4d3d79e68229
 1b5893d8b09107
