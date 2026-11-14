@@ -17,15 +17,14 @@ static HANDLE event12;
 
 #define REL(p) do { if (p) { IUnknown_Release((IUnknown *)(p)); (p) = NULL; } } while (0)
 
-static void d3d12_reset(void) {
-    REL(list12);
-    REL(alloc12);
-    REL(fence12);
-    REL(queue12);
-    REL(dev12);
-}
+/* the device of this case (device12 asked for), or NULL: the device itself is made once and kept
+ * for every case after (a 32-bit executor that made and released one per case crashed after some
+ * 600 of them, golden d3d12-32 c4c7692) */
+static int on12;
 
-void *kz_d3d12_queue(void) { return queue12; }
+static void d3d12_reset(void) { on12 = 0; }
+
+void *kz_d3d12_queue(void) { return on12 ? queue12 : NULL; }
 
 /* the queue's work done */
 void kz_d3d12_wait(void) {
@@ -45,7 +44,8 @@ static void hex64(UINT64 v) {
 /* device12: D3D12CreateDevice on the default adapter, feature level 11_0 (on a system with no
  * GPU the default adapter is the Basic Render Driver, WARP); a direct queue, allocator, list */
 static void op_device12(void) {
-    d3d12_reset();
+    on12 = 0;
+    if (dev12) { on12 = 1; out("device12 ok\n"); return; }
     static HRESULT (WINAPI *create)(IUnknown *, D3D_FEATURE_LEVEL, REFIID, void **);
     if (!create) {
         HMODULE m = LoadLibraryA("d3d12.dll");
@@ -60,11 +60,12 @@ static void op_device12(void) {
         || FAILED(hr = ID3D12Device_CreateCommandList(dev12, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, alloc12, NULL, &IID_ID3D12GraphicsCommandList, (void **)&list12))
         || FAILED(hr = ID3D12Device_CreateFence(dev12, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void **)&fence12))) {
         out("device12 failed %08lx\n", hr);
-        d3d12_reset();
+        REL(list12); REL(alloc12); REL(fence12); REL(queue12); REL(dev12);
         return;
     }
     ID3D12GraphicsCommandList_Close(list12);
     if (!event12) event12 = CreateEventA(NULL, FALSE, FALSE, NULL);
+    on12 = 1;
     out("device12 ok\n");
 }
 
@@ -92,7 +93,7 @@ static D3D12_RESOURCE_DESC rdesc(int i) {
  * "total <bytes>" (the outputs start as 0xcc bytes) */
 #define FPS 16
 static void op_footprint(void) {
-    if (!dev12) { out("nodev\n"); return; }
+    if (!on12) { out("nodev\n"); return; }
     UINT first = num(1), count = num(2);
     UINT64 base = (UINT)num(3);
     D3D12_RESOURCE_DESC d = rdesc(4);
@@ -120,7 +121,7 @@ static void op_footprint(void) {
 
 /* alloc12 <desc>: GetResourceAllocationInfo(0, 1, desc): "alloc <size> <alignment>" */
 static void op_alloc(void) {
-    if (!dev12) { out("nodev\n"); return; }
+    if (!on12) { out("nodev\n"); return; }
     D3D12_RESOURCE_DESC d = rdesc(1);
     if (bad) return;
     D3D12_RESOURCE_ALLOCATION_INFO a = ID3D12Device_GetResourceAllocationInfo(dev12, 0, 1, &d);
@@ -133,7 +134,7 @@ static void op_alloc(void) {
 /* create12 <heap type> <initial state> <desc>: CreateCommittedResource with no heap flags, no
  * clear12 value and ppvResource NULL (validation only): "create hr <hr>" */
 static void op_create(void) {
-    if (!dev12) { out("nodev\n"); return; }
+    if (!on12) { out("nodev\n"); return; }
     D3D12_HEAP_PROPERTIES hp = { num(1), D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 };
     D3D12_RESOURCE_STATES st = num(2);
     D3D12_RESOURCE_DESC d = rdesc(3);
@@ -153,7 +154,7 @@ static ID3D12Resource *committed(D3D12_HEAP_TYPE heap, D3D12_RESOURCE_STATES st,
  * 1x1 texture of that format cleared, each plane copied to a readback buffer:
  * "clear <plane 0's texel bytes> [<plane 1's>]" or "clear hr <hr>" */
 static void op_clear(void) {
-    if (!dev12) { out("nodev\n"); return; }
+    if (!on12) { out("nodev\n"); return; }
     int dsv = is(0, "cleardsv12");
     if (ntok != (dsv ? 4 : 6)) { bad = 1; return; }
     DXGI_FORMAT f = num(1);

@@ -127,6 +127,25 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         hit("D3D12.FOOTPRINT.PAIRS");
         return Ok(invalid_fps(count));
     }
+    // (MEASURED, golden d3d12-64 create-split: NV12, P010, P016 in two planes, luma R8 or R16 and
+    // chroma R8G8 or R16G16 at half size, rows 512 apart, one mip level and an even size)
+    if matches!(d.fmt, 103..=105) {
+        hit("D3D12.FOOTPRINT.VIDEO");
+        let array = d.d;
+        if d.mips != 1 || d.w % 2 != 0 || d.h % 2 != 0 || first as u64 + count as u64 > 2 * array as u64 {
+            return Ok(invalid_fps(count));
+        }
+        let b = if d.fmt == 103 { 1 } else { 2 };
+        let (mut v, mut at, mut total) = (Vec::new(), 0u64, 0);
+        for i in first..first + count {
+            let (fmt, w, h, row) = if i < array { ([60, 53][b as usize - 1], d.w, d.h, d.w as u64 * b) } else { ([48, 33][b as usize - 1], d.w / 2, d.h / 2, d.w as u64 * b) };
+            let pitch = align(row, 512);
+            v.push((base + at, fmt, w, h, 1, pitch, h, row));
+            total = at + pitch * (h as u64 - 1) + row;
+            at = align(at + pitch * h as u64, 512);
+        }
+        return Ok((v, total));
+    }
     // (MEASURED: plane 0 of the depth stencil formats is R32_TYPELESS, its rows 512 apart)
     let (fmt, (bytes, bw, bh), pitch_align) = if planar_depth(d.fmt) {
         hit("D3D12.FOOTPRINT.PLANAR");
@@ -490,16 +509,44 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         hit("D3D12.ALLOC.INVALID");
         return Ok((u64::MAX, 65536));
     }
-    if d.dim == 2 && d.flags & 1 != 0 {
-        return Err(Fail::Unmodeled("D3D12.ALLOC.RT1D"));
+    // (MEASURED, golden d3d12-64 alloc-other: 64KB-swizzled textures in whole 64KB tiles of the
+    // standard shapes, one mip level asked)
+    if d.layout == 2 {
+        let Some((bytes, bw, bh)) = block(d.fmt).filter(|_| d.mips == 1) else { return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")) };
+        hit("D3D12.ALLOC.SWIZZLE");
+        let (tw, th) = match bytes {
+            1 => (256, 256),
+            2 => (256, 128),
+            4 => (128, 128),
+            8 => (128, 64),
+            _ => (64, 64),
+        };
+        let (w, h) = (d.w.div_ceil(bw) as u64, d.h.div_ceil(bh) as u64);
+        return Ok((w.div_ceil(tw) * h.div_ceil(th) * 65536, 65536));
     }
-    if d.samples > 1 || d.layout != 0 || planar_depth(d.fmt) && d.fmt != 45 || block(d.fmt).is_none() && d.fmt != 45 {
+    if d.layout != 0 || d.samples > 1 && d.align != 0 && d.align != 4194304 {
         return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER"));
     }
+    // (MEASURED, golden d3d12-64 alloc-other: NV12 in its two planes, 1.5 bytes a texel; the
+    // two-plane depth stencil formats, D32_FLOAT_S8X24 as 8 bytes, D24_UNORM_S8 as 4)
+    let (bytes, bw, bh) = match d.fmt {
+        19..=22 => (8, 1, 1),
+        44..=47 => (4, 1, 1),
+        103..=105 => {
+            hit("D3D12.ALLOC.VIDEO");
+            let b = if d.fmt == 103 { 1 } else { 2 };
+            let (w, h) = (d.w as u64, d.h as u64);
+            let total = (w * h * b + (w / 2) * (h / 2) * 2 * b) * d.d as u64;
+            return Ok((align(total, 65536), 65536));
+        }
+        _ => match block(d.fmt) {
+            Some(b) => b,
+            None => return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")),
+        },
+    };
     // (MEASURED, golden d3d12-32 alloc-texture-*, 165 descriptions of 9 formats: WARP packs every
-    // subresource tightly, rows of whole elements, one after the other; D24S8 as 4 bytes)
+    // subresource tightly, rows of whole elements, one after the other)
     hit("D3D12.ALLOC.TEXTURE");
-    let (bytes, bw, bh) = if d.fmt == 45 { (4, 1, 1) } else { block(d.fmt).unwrap() };
     let mips = if d.mips == 0 { full_chain(d) } else { d.mips };
     let array = if d.dim == 4 { 1 } else { d.d };
     let mut total = 0u64;
@@ -510,6 +557,17 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
             let depth = if d.dim == 4 { (d.d >> m).max(1) as u64 } else { 1 };
             total += w * bytes as u64 * h * depth;
         }
+    }
+    if d.samples > 1 {
+        // (MEASURED, golden d3d12-64 alloc-other, 6 descriptions: every sample stored, in 4MB)
+        hit("D3D12.ALLOC.MSAA");
+        return Ok((align(total * d.samples as u64, 4194304), 4194304));
+    }
+    if d.dim == 2 && d.flags & 1 != 0 {
+        // (FITTED, golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats: a 1D render target
+        // takes twice the tight size)
+        hit("D3D12.ALLOC.RT1D");
+        total *= 2;
     }
     let al = if d.align == 4096 { 4096 } else { 65536 };
     Ok((align(total, al), al))
@@ -552,11 +610,12 @@ pub fn create_hr(heap: u32, state: u32, d: &Desc) -> Res<u32> {
         hit("D3D12.CREATE.BUFFERSTATE");
         return Ok(S_FALSE);
     }
-    if heap != 1 {
-        if no(heap == 2 || heap == 3, "D3D12.HEAP.CPU") {
-            return Ok(E_INVALIDARG);
-        }
-        return Err(Fail::Unmodeled("D3D12.CREATE.GPUUPLOAD"));
+    if no(heap == 2 || heap == 3, "D3D12.HEAP.CPU") {
+        return Ok(E_INVALIDARG);
+    }
+    if heap == 5 {
+        // (MEASURED, golden d3d12-64 create-gpuupload: textures taken as on the default heap)
+        hit("D3D12.CREATE.GPUUPLOAD");
     }
     if no(!(2..=4).contains(&d.dim), "D3D12.DESC.DIM") || no(d.w == 0 || d.h == 0 || d.d == 0 || d.dim == 2 && d.h != 1 || d.d > 2048, "D3D12.DESC.SIZE") {
         return Ok(E_INVALIDARG);
@@ -580,7 +639,9 @@ pub fn create_hr(heap: u32, state: u32, d: &Desc) -> Res<u32> {
     if no(flags & 1 != 0 && fs & RT == 0 || flags & 2 != 0 && fs & DS == 0 || flags & 8 != 0 && flags & 2 == 0, "D3D12.CREATE.TARGETS") {
         return Ok(E_INVALIDARG);
     }
-    if fs & SINGLE != 0 && (d.mips != 1 || d.d != 1) {
+    // (MEASURED, golden d3d12-64 create-split: the video formats take arrays but one mip level, the
+    // 4:2:0 ones an even size, the 4:2:2 ones an even width)
+    if fs & SINGLE != 0 && (d.mips != 1 || d.w % 2 != 0 || matches!(d.fmt, 103..=106) && d.h % 2 != 0) {
         hit("D3D12.CREATE.SINGLE");
         return Ok(E_INVALIDARG);
     }
@@ -614,8 +675,8 @@ pub fn create_hr(heap: u32, state: u32, d: &Desc) -> Res<u32> {
             hit("D3D12.DESC.LAYOUT");
             return Ok(E_INVALIDARG);
         }
-        2 if d.dim == 3 && (d.d > 1 || d.mips != 1) => {
-            // (MEASURED on a 2D array of 2 with 3 mip levels; which of the two refuses it: assumed both)
+        2 if d.dim == 3 && d.d > 1 => {
+            // (MEASURED, golden d3d12-64 create-split: arrays refused, mip chains (3, or 0 for all) taken)
             hit("D3D12.CREATE.LAYOUT64K");
             return Ok(E_INVALIDARG);
         }

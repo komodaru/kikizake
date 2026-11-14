@@ -327,6 +327,12 @@ pub fn d3d12() -> String {
     for (w, h, m, f) in [(256u32, 256u32, 1u32, 20u32), (100, 60, 3, 20), (64, 64, 1, 103), (640, 480, 1, 103), (128, 64, 1, 44)] {
         writeln!(s, "alloc12 {}", desc_str(&Desc { flags: if f == 103 { 0 } else { 2 }, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
     }
+    // (P010, an NV12 array, standard swizzle, 64KB swizzle with mips, samples at 64KB)
+    writeln!(s, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 1, 1, 104))).unwrap();
+    writeln!(s, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 3, 1, 103))).unwrap();
+    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, 28) })).unwrap();
+    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 3, 28) })).unwrap();
+    writeln!(s, "alloc12 {}", desc_str(&Desc { samples: 4, align: 65536, flags: 1, ..Desc::tex(3, 64, 64, 1, 1, 28) })).unwrap();
     writeln!(s, "end").unwrap();
     writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
     s

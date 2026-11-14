@@ -123,13 +123,14 @@ pub const FLIP: &[u32] = &[10, 24, 28, 87];
 
 /// the texture dimensions a format takes, bit 0 1D, bit 1 2D, bit 2 3D (D3D12_FORMAT_SUPPORT1_TEXTURE1D
 /// and the others; MEASURED on WARP by GetCopyableFootprints, golden d3d12-32 fp-format-*, fp-blocks-*,
-/// fp-random-*: of the video and palette formats only AYUV, Y416, YUY2, Y210, Y216, in 2D)
+/// fp-random-*, and d3d12-64 create-split: of the video and palette formats only AYUV, Y416, NV12, P010,
+/// P016, YUY2, Y210, Y216, in 2D)
 pub fn dims(f: u32) -> Option<u32> {
     Some(match f {
         19..=22 | 40 | 44..=47 | 55 => 0b011,
         1..=65 | 67..=69 | 85..=88 | 90..=93 | 115 | 191 => 0b111,
         70..=84 | 94..=99 => 0b110,
-        100 | 102 | 107..=109 => 0b010,
+        100 | 102..=105 | 107..=109 => 0b010,
         _ => 0,
     })
 }
@@ -143,10 +144,11 @@ pub const RT: u32 = 8;
 pub const DS: u32 = 16;
 /// multisampled render target
 pub const MS: u32 = 32;
-/// no mip levels or arrays (the planar video formats)
+/// one mip level only, arrays taken (the video formats)
 pub const SINGLE: u32 = 64;
 
-/// what CreateCommittedResource takes a format for on WARP (MEASURED, golden d3d12-32
+/// what CreateCommittedResource takes a format for on WARP (MEASURED, golden d3d12-64 create-split
+/// for the video formats at 64x32, and golden d3d12-32
 /// create-tex1d-format, create-tex2d-format, create-tex3d-format, create-tex2drt-format,
 /// create-depth-format, create-msaa-format: every value 0..132, 189..192 and 0xffffffff for each)
 pub fn support(f: u32) -> u32 {
@@ -155,13 +157,16 @@ pub fn support(f: u32) -> u32 {
         1..=18 | 23..=38 | 48..=52 | 60..=65 | 67 | 85..=88 | 90..=93 | 115 | 191 => color,
         39 | 41..=43 | 53 | 54 | 56..=59 => color | DS,
         40 | 55 => T1 | T2 | RT | MS | DS,
-        19..=22 | 44..=47 => T1 | T2 | DS,
+        // (multisampled depth: MEASURED for D24_UNORM_S8_UINT, golden d3d12-64 alloc-other; assumed
+        // for the others of the two families)
+        19..=22 | 44..=47 => T1 | T2 | DS | MS,
         68 | 69 => T1 | T2 | T3,
         70..=84 | 94..=99 => T2 | T3,
         89 => RT,
         100 => T2 | RT,
         102 => T2,
         103..=105 => T2 | RT | SINGLE,
+        106..=109 => T2 | SINGLE,
         _ => 0,
     }
 }
