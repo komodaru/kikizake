@@ -39,7 +39,7 @@ pub struct Font {
     pub vertical: bool,
     pub family: String,
     pub glyphs: Vec<Glyph>,
-    /// code point -> glyph, sorted by code point
+    /// code point -> glyph
     pub cmap: Vec<(u32, u16)>,
 }
 
@@ -101,7 +101,10 @@ impl Font {
     }
 
     fn cmap_table(&self) -> Vec<u8> {
-        let bmp: Vec<(u32, u16)> = self.cmap.iter().copied().filter(|c| c.0 < 0xffff).collect();
+        // (segments and groups in code point order: readers search them)
+        let mut all = self.cmap.clone();
+        all.sort();
+        let bmp: Vec<(u32, u16)> = all.iter().copied().filter(|c| c.0 < 0xffff).collect();
         let wide = self.cmap.iter().any(|c| c.0 > 0xffff);
         // format 4: a segment for each code point, then the final 0xFFFF one
         let mut f4 = Vec::new();
@@ -139,10 +142,10 @@ impl Font {
         if wide {
             be16(&mut f12, 12);
             be16(&mut f12, 0);
-            be32(&mut f12, 16 + 12 * self.cmap.len() as u32);
+            be32(&mut f12, 16 + 12 * all.len() as u32);
             be32(&mut f12, 0);
-            be32(&mut f12, self.cmap.len() as u32);
-            for c in &self.cmap {
+            be32(&mut f12, all.len() as u32);
+            for c in &all {
                 be32(&mut f12, c.0);
                 be32(&mut f12, c.0);
                 be32(&mut f12, c.1 as u32);
@@ -266,8 +269,8 @@ impl Font {
             be32(&mut t, 0);
             t.extend(b"KZKE");
             be16(&mut t, self.fs_selection);
-            let first = self.cmap.first().map_or(0, |c| c.0.min(0xffff)) as u16;
-            let last = self.cmap.last().map_or(0, |c| c.0.min(0xffff)) as u16;
+            let first = self.cmap.iter().map(|c| c.0).min().map_or(0, |c| c.min(0xffff)) as u16;
+            let last = self.cmap.iter().map(|c| c.0).max().map_or(0, |c| c.min(0xffff)) as u16;
             be16(&mut t, first);
             be16(&mut t, last);
             for v in [self.typo.0, self.typo.1, self.typo.2] {

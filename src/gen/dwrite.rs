@@ -83,7 +83,7 @@ pub const BREAK_CHARS: &[u32] = &[0x61, 0x20, 0x2d, 0x31, 0x28, 0x29, 0x22, 0x4e
 pub fn dwrite() -> String {
     let mut s = String::from("# kikizake suite dwrite: DirectWrite font faces, shaping, rasterization, text analysis and layout (SPEC.md). Made by `kikizake gen dwrite`.\n");
     let mut r = XorShift32::new(0xd_717e);
-    let gids = (0..=CHARS.len() + 1).map(|g| g.to_string()).collect::<Vec<_>>().join(" ");
+    let gids = (0..=CHARS.len()).map(|g| g.to_string()).collect::<Vec<_>>().join(" ");
     // a face's metrics: each font, its info, design and GDI compatible metrics
     for i in 0..120u32 {
         let f = font(0x0f00_0000 + i);
@@ -92,7 +92,7 @@ pub fn dwrite() -> String {
             writeln!(s, "dwgdimetrics {} {}", r.range(1, 80), *r.pick(&[1, 1, 2, 3])).unwrap();
         }
         let cps: Vec<String> = CHARS.iter().chain(&[0x46, 0x5d1, 0x1f601, 0x10ffff, 0]).map(|c| format!("{c:#x}")).collect();
-        writeln!(s, "dwcmap {}\ndwglyph 0 {gids}\ndwglyph 1 {gids}", cps.join(" ")).unwrap();
+        writeln!(s, "dwcmap {}\ndwglyph 0 {gids}\ndwglyph 1 {gids}\ndwglyph 0 {}", cps.join(" "), CHARS.len() + 1).unwrap();
         for _ in 0..3 {
             writeln!(s, "dwgdiglyph {} {} {} {} {gids}", r.range(1, 80), *r.pick(&[1, 1, 2]), r.range(0, 1), r.range(0, 1)).unwrap();
         }
