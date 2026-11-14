@@ -1251,6 +1251,32 @@ impl D3d9 {
         Ok(to_rgba(tx.fmt, &decode(&fm, tx.px(x as i32, y as i32))))
     }
 
+    /// the bilinear filter at texel coordinates (x, y)
+    fn bilinear(&self, st: u32, tx: &Surface, x: f64, y: f64, mu: u32, mv: u32) -> Res<[f64; 4]> {
+        // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
+        // down, the weighted sum of 8-bit texels truncated)
+        let (x, y) = (x - 0.5, y - 0.5);
+        let (x0, y0) = (x.floor(), y.floor());
+        const Q: i64 = 32;
+        let q = Q;
+        let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
+        let (x0, y0) = (x0 as i64, y0 as i64);
+        let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
+        let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
+        let fm = format(tx.fmt).unwrap();
+        let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
+        let mut c = [0.0; 4];
+        for k in 0..4 {
+            c[k] = if bytes {
+                let v: i64 = (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum();
+                ((v / (q * q)) as f32 / 255.0) as f64
+            } else {
+                (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64
+            };
+        }
+        Ok(c)
+    }
+
     /// a stage's texture at (u, v)
     fn sample(&self, st: u32, tx: &Surface, u: f64, v: f64) -> Res<[f64; 4]> {
         let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
@@ -1310,28 +1336,7 @@ impl D3d9 {
             }
             TexFilter::Linear => {
                 hit(clause::D3D9_TEX_LINEAR);
-                // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
-                // down, the weighted sum of 8-bit texels truncated)
-                let (x, y) = (x - 0.5, y - 0.5);
-                let (x0, y0) = (x.floor(), y.floor());
-                const Q: i64 = 32;
-                let q = Q;
-                let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
-                let (x0, y0) = (x0 as i64, y0 as i64);
-                let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
-                let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
-                let fm = format(tx.fmt).unwrap();
-                let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
-                let mut c = [0.0; 4];
-                for k in 0..4 {
-                    c[k] = if bytes {
-                        let v: i64 = (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum();
-                        ((v / (q * q)) as f32 / 255.0) as f64
-                    } else {
-                        (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64
-                    };
-                }
-                Ok(c)
+                self.bilinear(st, tx, x, y, mu, mv)
             }
             TexFilter::Anisotropic | TexFilter::Quad | TexFilter::None | TexFilter::Other => unreachable!("taken as linear or point above"),
         }

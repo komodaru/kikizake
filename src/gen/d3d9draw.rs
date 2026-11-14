@@ -876,6 +876,22 @@ fn suite(v8: bool) -> String {
         tri(&mut s, if i / 8 == 0 { p } else { p.map(|(x, y)| (y, x)) }, [c; 3], 0.0);
         writeln!(s, "d9rt\nend").unwrap();
     }
+    // ANISOTROPIC minifying with footprints along an axis (x, or y for odd i), so the kernel
+    // of texels each pixel weighs comes out exactly: a grid of major and minor axis lengths
+    // (texels a pixel) and anisotropy limits
+    let mut k = 0;
+    for &maj in &[1.5f32, 2.5, 3.0, 3.5, 4.5, 5.0, 6.0, 7.0, 9.0, 12.0] {
+        for &(mnr, lim) in &[(0.75f32, 16u32), (1.5, 16), (1.0, 2), (1.0, 4), (1.0, 8)] {
+            open(&mut s, &format!("aniso-axis-{k}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 0 0 0\nd9tex 0 32 32 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+            texture_stage(&mut s);
+            writeln!(s, "{mag} 2\n{min} 3\n{mip} 0\n{aniso} {lim}").unwrap();
+            let (dx, dy) = if k % 2 == 0 { ((maj, 0.0f32), (0.0f32, mnr)) } else { ((mnr, 0.0), (0.0, maj)) };
+            let uv = |a: f32, b: f32| Some((0.3 + (dx.0 * a + dy.0 * b) / 2.0, 0.2 + (dx.1 * a + dy.1 * b) / 2.0));
+            writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, uv(0.0, 0.0)), v(15.5, -0.5, 0.0, !0, uv(1.0, 0.0)), v(-0.5, 15.5, 0.0, !0, uv(0.0, 1.0)), v(15.5, 15.5, 0.0, !0, uv(1.0, 1.0))).unwrap();
+            k += 1;
+        }
+    }
     s
 }
 
