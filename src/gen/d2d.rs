@@ -48,6 +48,7 @@ pub fn d2d() -> String {
     bmpsrcmore(&mut s, &mut r);
     strokewide(&mut s, &mut r);
     gradscan(&mut s);
+    strokelobe(&mut s, &mut r);
     s
 }
 
@@ -899,5 +900,26 @@ fn gradscan(s: &mut String) {
                 }
             }
         }
+    }
+}
+
+/// a figure with one side short against the width, turning through angles from sharp to
+/// shallow at its ends: whether a join's inner lobe takes away where it passes the quads
+fn strokelobe(s: &mut String, r: &mut XorShift32) {
+    for i in 0..48 {
+        let (x, y) = (7.0 + (r.range(0, 15) as f64) / 16.0, 5.0 + (r.range(0, 15) as f64) / 16.0);
+        let short = (r.range(2, 8) as f64) / 8.0;
+        let ang = |r: &mut XorShift32| (r.range(10, 170) as f64).to_radians();
+        let (a1, a2) = (ang(r), ang(r));
+        let (l1, l2) = ((r.range(20, 40) as f64) / 8.0, (r.range(20, 40) as f64) / 8.0);
+        let p0 = (x - l1 * a1.cos(), y - l1 * a1.sin());
+        let p1 = (x, y);
+        let p2 = (x + short, y);
+        let p3 = (x + short + l2 * a2.cos(), y - l2 * a2.sin());
+        let pts = [p0, p1, p2, p3].iter().map(|p| format!("{} {}", fmt((p.0 * 64.0).round() / 64.0), fmt((p.1 * 64.0).round() / 64.0))).collect::<Vec<_>>().join(" ");
+        let end = if i % 3 == 2 { "z" } else { "o" };
+        let w = fmt((r.range(8, 24) as f64) / 4.0);
+        let aa = if i % 2 == 1 { "d2aa aliased\n" } else { "" };
+        writeln!(s, "case strokelobe-{i}\nd2target 16 12\n{aa}d2clear {}\nd2path 0 alt m {pts} {end}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), color(r, false)).unwrap();
     }
 }

@@ -18741,3 +18741,363 @@ d2aa aliased
 d2grad 0 0 64 1 lin 10 clamp -0.96875 0 63.03125 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
+case strokelobe-0
+d2target 16 12
+d2clear 115 158 68 255
+d2path 0 alt m 8.5 1.546875 7.375 5 7.875 5 8.953125 2.328125 o
+d2drawg 0 5.25 16 86 87 1
+d2read
+end
+case strokelobe-1
+d2target 16 12
+d2aa aliased
+d2clear 251 247 222 255
+d2path 0 alt m 3.28125 3.4375 7.75 5.0625 8.25 5.0625 7.46875 1.390625 o
+d2drawg 0 2.75 237 172 130 128
+d2read
+end
+case strokelobe-2
+d2target 16 12
+d2clear 157 181 175 255
+d2path 0 alt m 9.6875 4.078125 7.125 5.875 8.125 5.875 11.953125 3.75 z
+d2drawg 0 3.75 185 90 52 64
+d2read
+end
+case strokelobe-3
+d2target 16 12
+d2aa aliased
+d2clear 248 171 45 255
+d2path 0 alt m 3.0625 4.28125 7.3125 5.75 7.8125 5.75 5.53125 4.734375 o
+d2drawg 0 2.75 238 24 155 0
+d2read
+end
+case strokelobe-4
+d2target 16 12
+d2clear 214 89 36 255
+d2path 0 alt m 2.859375 4.828125 7.75 5.875 8 5.875 11.375 4.234375 o
+d2drawg 0 5.5 41 208 234 200
+d2read
+end
+case strokelobe-5
+d2target 16 12
+d2aa aliased
+d2clear 117 77 14 255
+d2path 0 alt m 3.65625 2.4375 7.4375 5.5 7.9375 5.5 6.390625 0.75 z
+d2drawg 0 4 0 250 164 128
+d2read
+end
+case strokelobe-6
+d2target 16 12
+d2clear 200 97 3 255
+d2path 0 alt m 4.40625 4.421875 7 5.3125 7.75 5.3125 3.234375 3.84375 o
+d2drawg 0 2.5 177 92 43 64
+d2read
+end
+case strokelobe-7
+d2target 16 12
+d2aa aliased
+d2clear 45 99 184 255
+d2path 0 alt m 7.0625 1.1875 7.0625 5.4375 7.8125 5.4375 7.671875 1.1875 o
+d2drawg 0 3 54 27 115 128
+d2read
+end
+case strokelobe-8
+d2target 16 12
+d2clear 242 190 181 255
+d2path 0 alt m 10.515625 3.90625 7.8125 5.9375 8.4375 5.9375 9.25 2.140625 z
+d2drawg 0 4.25 217 244 222 254
+d2read
+end
+case strokelobe-9
+d2target 16 12
+d2aa aliased
+d2clear 131 97 27 255
+d2path 0 alt m 7.25 0.5625 7.5 5.3125 8 5.3125 8.34375 2.453125 o
+d2drawg 0 3.75 184 7 69 200
+d2read
+end
+case strokelobe-10
+d2target 16 12
+d2clear 150 147 169 255
+d2path 0 alt m 7.0625 3.15625 7.4375 5.875 7.8125 5.875 4.46875 3.0625 o
+d2drawg 0 5.5 71 99 53 1
+d2read
+end
+case strokelobe-11
+d2target 16 12
+d2aa aliased
+d2clear 21 217 108 255
+d2path 0 alt m 10.203125 5.078125 7.4375 5.875 8.3125 5.875 7.96875 3.40625 z
+d2drawg 0 2.25 88 237 57 255
+d2read
+end
+case strokelobe-12
+d2target 16 12
+d2clear 244 49 68 255
+d2path 0 alt m 11.28125 4 7.0625 5.875 7.6875 5.875 10.59375 5.15625 o
+d2drawg 0 5 75 96 125 254
+d2read
+end
+case strokelobe-13
+d2target 16 12
+d2aa aliased
+d2clear 158 195 153 255
+d2path 0 alt m 6.3125 0.765625 7.4375 5.25 7.9375 5.25 10.9375 3.71875 o
+d2drawg 0 3.5 225 144 79 127
+d2read
+end
+case strokelobe-14
+d2target 16 12
+d2clear 142 12 245 255
+d2path 0 alt m 8.875 2.3125 7.9375 5.8125 8.5625 5.8125 8 2.609375 z
+d2drawg 0 2.75 246 39 250 64
+d2read
+end
+case strokelobe-15
+d2target 16 12
+d2aa aliased
+d2clear 18 67 123 255
+d2path 0 alt m 9.125 1.109375 7.625 5.75 7.875 5.75 6.53125 1.84375 o
+d2drawg 0 4 43 170 51 128
+d2read
+end
+case strokelobe-16
+d2target 16 12
+d2clear 244 8 111 255
+d2path 0 alt m 3.765625 3.5625 7.1875 5.625 7.5625 5.625 9.21875 3.578125 o
+d2drawg 0 2.75 73 92 235 255
+d2read
+end
+case strokelobe-17
+d2target 16 12
+d2aa aliased
+d2clear 188 22 55 255
+d2path 0 alt m 5.203125 0.953125 7 5.625 7.75 5.625 5.625 2.09375 z
+d2drawg 0 4 165 240 197 64
+d2read
+end
+case strokelobe-18
+d2target 16 12
+d2clear 47 75 254 255
+d2path 0 alt m 10.546875 4.1875 7.125 5.375 8.125 5.375 5.515625 2.03125 o
+d2drawg 0 5.75 216 235 69 254
+d2read
+end
+case strokelobe-19
+d2target 16 12
+d2aa aliased
+d2clear 184 255 194 255
+d2path 0 alt m 11.140625 4.1875 7.875 5.0625 8.5 5.0625 6.140625 3.90625 o
+d2drawg 0 5 102 141 62 254
+d2read
+end
+case strokelobe-20
+d2target 16 12
+d2clear 91 51 255 255
+d2path 0 alt m 8.609375 2.21875 7.1875 5 7.6875 5 8.234375 0.53125 z
+d2drawg 0 2 127 122 54 254
+d2read
+end
+case strokelobe-21
+d2target 16 12
+d2aa aliased
+d2clear 76 125 23 255
+d2path 0 alt m 11.28125 4.09375 7 5 7.5 5 3.890625 3 o
+d2drawg 0 5 104 150 101 200
+d2read
+end
+case strokelobe-22
+d2target 16 12
+d2clear 91 60 252 255
+d2path 0 alt m 12.015625 4 7.9375 5.5625 8.3125 5.5625 5.796875 2.453125 o
+d2drawg 0 2.75 65 64 79 64
+d2read
+end
+case strokelobe-23
+d2target 16 12
+d2aa aliased
+d2clear 183 205 138 255
+d2path 0 alt m 2.765625 3.734375 7.375 5.6875 7.875 5.6875 12.515625 3.8125 z
+d2drawg 0 5.75 165 99 201 255
+d2read
+end
+case strokelobe-24
+d2target 16 12
+d2clear 90 104 210 255
+d2path 0 alt m 6.703125 2.203125 7.8125 5.25 8.5625 5.25 8.46875 2.625 o
+d2drawg 0 5 83 91 12 0
+d2read
+end
+case strokelobe-25
+d2target 16 12
+d2aa aliased
+d2clear 15 34 124 255
+d2path 0 alt m 11.09375 4.875 7.8125 5.6875 8.3125 5.6875 9.890625 3.75 o
+d2drawg 0 2.75 16 156 102 128
+d2read
+end
+case strokelobe-26
+d2target 16 12
+d2clear 47 118 215 255
+d2path 0 alt m 7.984375 2.40625 7.5625 5.875 8.4375 5.875 11.578125 2.828125 z
+d2drawg 0 2.5 176 168 95 127
+d2read
+end
+case strokelobe-27
+d2target 16 12
+d2aa aliased
+d2clear 84 168 101 255
+d2path 0 alt m 9.640625 1.671875 7.125 5.25 7.75 5.25 6.453125 1.859375 o
+d2drawg 0 2.25 37 161 247 1
+d2read
+end
+case strokelobe-28
+d2target 16 12
+d2clear 19 129 176 255
+d2path 0 alt m 11.65625 4.25 7.25 5.1875 7.625 5.1875 8.53125 0.53125 o
+d2drawg 0 4.5 25 185 188 254
+d2read
+end
+case strokelobe-29
+d2target 16 12
+d2aa aliased
+d2clear 165 165 67 255
+d2path 0 alt m 8.375 3.03125 7.9375 5.5 8.6875 5.5 10.296875 1.296875 z
+d2drawg 0 4.5 62 14 222 0
+d2read
+end
+case strokelobe-30
+d2target 16 12
+d2clear 65 162 79 255
+d2path 0 alt m 8.640625 1.96875 7 5.0625 7.5 5.0625 10.640625 1.328125 o
+d2drawg 0 5.5 64 124 107 200
+d2read
+end
+case strokelobe-31
+d2target 16 12
+d2aa aliased
+d2clear 38 102 213 255
+d2path 0 alt m 5.9375 0.875 7.9375 5.1875 8.4375 5.1875 8.5625 1.8125 o
+d2drawg 0 3.5 39 129 25 254
+d2read
+end
+case strokelobe-32
+d2target 16 12
+d2clear 175 230 222 255
+d2path 0 alt m 9.3125 2.515625 7 5.9375 8 5.9375 9.09375 2.34375 z
+d2drawg 0 6 241 105 73 254
+d2read
+end
+case strokelobe-33
+d2target 16 12
+d2aa aliased
+d2clear 157 249 63 255
+d2path 0 alt m 4.078125 2.4375 7.3125 5.5625 7.9375 5.5625 7.34375 2.5 o
+d2drawg 0 3.75 43 110 41 255
+d2read
+end
+case strokelobe-34
+d2target 16 12
+d2clear 180 225 73 255
+d2path 0 alt m 3.984375 3.4375 7.3125 5.4375 8.1875 5.4375 5.796875 3.046875 o
+d2drawg 0 5.5 135 17 42 255
+d2read
+end
+case strokelobe-35
+d2target 16 12
+d2aa aliased
+d2clear 172 140 213 255
+d2path 0 alt m 4.671875 1.296875 7.25 5.4375 8.125 5.4375 7.0625 1.71875 z
+d2drawg 0 5.5 15 217 32 1
+d2read
+end
+case strokelobe-36
+d2target 16 12
+d2clear 199 226 251 255
+d2path 0 alt m 4.21875 1.71875 7.8125 5.1875 8.5625 5.1875 7.296875 0.484375 o
+d2drawg 0 3.25 1 135 207 1
+d2read
+end
+case strokelobe-37
+d2target 16 12
+d2aa aliased
+d2clear 226 56 230 255
+d2path 0 alt m 6.59375 2.890625 7.5 5.875 7.875 5.875 10 3.75 o
+d2drawg 0 2.5 168 250 181 200
+d2read
+end
+case strokelobe-38
+d2target 16 12
+d2clear 61 178 127 255
+d2path 0 alt m 8.078125 1.59375 7.625 5.9375 8.25 5.9375 10.828125 4.671875 z
+d2drawg 0 2.5 2 108 82 128
+d2read
+end
+case strokelobe-39
+d2target 16 12
+d2aa aliased
+d2clear 100 254 89 255
+d2path 0 alt m 6.71875 0.84375 7.25 5.1875 7.5 5.1875 11.8125 3.53125 o
+d2drawg 0 4.75 46 80 215 128
+d2read
+end
+case strokelobe-40
+d2target 16 12
+d2clear 213 49 199 255
+d2path 0 alt m 8.25 1.75 7.5625 5.6875 8.1875 5.6875 12.828125 4.1875 o
+d2drawg 0 3.75 237 225 86 1
+d2read
+end
+case strokelobe-41
+d2target 16 12
+d2aa aliased
+d2clear 209 151 103 255
+d2path 0 alt m 3.625 2.734375 7.625 5.75 8.125 5.75 5.46875 1.8125 z
+d2drawg 0 3.25 42 206 59 255
+d2read
+end
+case strokelobe-42
+d2target 16 12
+d2clear 21 99 107 255
+d2path 0 alt m 7.765625 3.4375 7.9375 5.9375 8.5625 5.9375 7 3.234375 o
+d2drawg 0 3.5 147 6 20 200
+d2read
+end
+case strokelobe-43
+d2target 16 12
+d2aa aliased
+d2clear 158 62 53 255
+d2path 0 alt m 8.859375 2.578125 7.375 5.75 8.375 5.75 11.28125 2.640625 o
+d2drawg 0 3.5 108 26 95 127
+d2read
+end
+case strokelobe-44
+d2target 16 12
+d2clear 112 230 5 255
+d2path 0 alt m 4.53125 1.84375 7.4375 5.4375 8.0625 5.4375 9.671875 3.21875 z
+d2drawg 0 3.5 182 128 91 254
+d2read
+end
+case strokelobe-45
+d2target 16 12
+d2aa aliased
+d2clear 64 12 186 255
+d2path 0 alt m 8.25 2.765625 7.9375 5.75 8.5625 5.75 6.984375 1.40625 o
+d2drawg 0 4.25 201 40 9 0
+d2read
+end
+case strokelobe-46
+d2target 16 12
+d2clear 232 100 201 255
+d2path 0 alt m 10.8125 3.21875 7.625 5.625 8.625 5.625 8.953125 0.890625 o
+d2drawg 0 3.75 255 226 251 128
+d2read
+end
+case strokelobe-47
+d2target 16 12
+d2aa aliased
+d2clear 108 21 131 255
+d2path 0 alt m 12.859375 5 7.9375 5.875 8.5625 5.875 12.09375 3.75 z
+d2drawg 0 4 78 14 59 200
+d2read
+end

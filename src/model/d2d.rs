@@ -2133,7 +2133,6 @@ impl D2d {
                     return Ok(());
                 }
                 let h = v[4] * 0.5;
-                let quad = |pts: Vec<(f32, f32)>| Figure { pts, closed: true };
                 let figs = if t[0] == "d2line" {
                     // (MEASURED, D2D.STROKE.LINE: a line with flat caps is the rectangle of its
                     // length and the width about it)
@@ -2144,19 +2143,14 @@ impl D2d {
                         vec![]
                     } else {
                         let (nx, ny) = (-dy / l * h, dx / l * h);
-                        vec![quad(vec![(v[0] + nx, v[1] + ny), (v[2] + nx, v[3] + ny), (v[2] - nx, v[3] - ny), (v[0] - nx, v[1] - ny)])]
+                        vec![Figure { pts: vec![(v[0] + nx, v[1] + ny), (v[2] + nx, v[3] + ny), (v[2] - nx, v[3] - ny), (v[0] - nx, v[1] - ny)], closed: true }]
                     }
                 } else {
                     // (MEASURED, D2D.STROKE.RECT: a rectangle's stroke with miter joins is the
                     // rectangle grown by half the width less the one shrunk by it, when that is
                     // not empty)
                     hit(clause::D2D_STROKE_RECT);
-                    let (l, tp, r, b) = (v[0].min(v[2]), v[1].min(v[3]), v[0].max(v[2]), v[1].max(v[3]));
-                    let mut figs = vec![quad(vec![(l - h, tp - h), (r + h, tp - h), (r + h, b + h), (l - h, b + h)])];
-                    if l + h < r - h && tp + h < b - h {
-                        figs.push(quad(vec![(l + h, tp + h), (l + h, b - h), (r - h, b - h), (r - h, tp + h)]));
-                    }
-                    figs
+                    rect_stroke([v[0].min(v[2]), v[1].min(v[3]), v[0].max(v[2]), v[1].max(v[3])], h)
                 };
                 let before = tg.px.clone();
                 fill(tg, &Geom::Path { wind: true, figs }, &Paint::Solid(premultiply(c)))?;
@@ -2242,6 +2236,16 @@ enum Turn {
     Straight,
 }
 
+/// MEASURED (D2D.STROKE.RECT): a rectangle (in order) stroked with miter joins: grown by half
+/// the width h, less the one shrunk by h when that is not empty
+fn rect_stroke([l, t, r, b]: [f32; 4], h: f32) -> Vec<Figure> {
+    let mut figs = vec![Figure { pts: vec![(l - h, t - h), (r + h, t - h), (r + h, b + h), (l - h, b + h)], closed: true }];
+    if l + h < r - h && t + h < b - h {
+        figs.push(Figure { pts: vec![(l + h, t + h), (l + h, b - h), (r - h, b - h), (r - h, t + h)], closed: true });
+    }
+    figs
+}
+
 /// FITTED (D2D.RT, strokefit-*, strokemore-*; three pixels of 76 cases one unit off): a figure
 /// of straight segments stroked with flat caps and miter joins (limit 10) as pieces that fill
 /// it with nonzero winding, in f32: each segment the quad of its ends moved half the width h
@@ -2306,6 +2310,15 @@ fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
         let d = mx * u1.0 + my * u1.1;
         let m = (b.0 + s * h * mx / d, b.1 + s * h * my / d);
         let (p1, p2) = (at(b, n1, s), at(b, n2, s));
+        // (the wedge crosses itself at the vertex: its inner lobe takes away where it passes
+        // the quads, strokemore-10; at a right angle, strokewide-* rectangles, it does not:
+        // the lobe twice more there; strokelobe-* asks which corners do)
+        let square = (b.0 - a.0) * (c.0 - b.0) + (b.1 - a.1) * (c.1 - b.1) == 0.0;
+        if square {
+            let lobe = positive(vec![b, at(b, n2, -s), at(b, n1, -s)]);
+            out.push(lobe.clone());
+            out.push(lobe);
+        }
         let mut wedge = vec![at(b, n2, -s), at(b, n1, -s), p1];
         let (vx, vy) = (m.0 - b.0, m.1 - b.1);
         let ml = (vx * vx + vy * vy).sqrt();
