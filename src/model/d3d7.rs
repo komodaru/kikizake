@@ -870,7 +870,7 @@ impl States {
 }
 
 /// which pixels a triangle covers
-fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
+fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64, fmt: Fmt) -> Res<Vec<bool>> {
     let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
     let (a, b, c) = if area > 0 { (v[0], v[1], v[2]) } else { (v[0], v[2], v[1]) };
     let edges = [(a, b), (b, c), (c, a)];
@@ -919,7 +919,7 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>
             match (inside, family) {
                 (true, _) => {
                     hit(clause::D3D7_TRI);
-                    walk(v, w, h, Spans::Spill)
+                    walk(v, w, h, Spans::Spill(fmt))
                 }
                 // (the ramp device drew one more pixel by a clipped edge, d3d7rast dev-2-ramp)
                 (false, Family::Ramp) => Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)),
@@ -985,8 +985,9 @@ impl EdgeWalk {
 /// how a walked row meets the target's sides
 #[derive(Clone, Copy)]
 enum Spans {
-    /// a triangle inside the target: past the right side into the next row, as in memory
-    Spill,
+    /// a triangle inside the target: past the right side on in memory, into the row's padding
+    /// (a system-memory surface's pitch, DDRAW.PITCH) and then the next row
+    Spill(Fmt),
     /// a triangle crossing the target (its guard band): cut at the sides
     Clamp,
 }
@@ -1018,18 +1019,32 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
         if tl || tr {
             return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
         }
-        let (x0, x1) = match spans {
-            Spans::Spill => (xl, xr),
-            Spans::Clamp => (xl.max(0), xr.min(w)),
-        };
-        // (a row spilling past the surface's last pixel writes the memory after it: d3d7edge-32
-        // died after whole-rgb-short, whose triangle 36 did, in the next case)
-        if x0 < x1 && (y * w + x1 > w * h || y * w + x0 < 0) {
-            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-        }
-        for x in x0..x1 {
-            if let Some(c) = usize::try_from(y * w + x).ok().and_then(|k| cover.get_mut(k)) {
-                *c = true;
+        match spans {
+            Spans::Spill(fmt) => {
+                let b = i64::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?;
+                let p = crate::model::ddraw::pitch(w, 8 * u32::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?);
+                for x in xl..xr {
+                    let a = y * p + x * b;
+                    // (a pixel past the surface's last byte writes the memory after it:
+                    // d3d7edge-32 died in the case after whole-rgb-short, whose triangle 36 did;
+                    // one across a row's end is not measured)
+                    if a < 0 || a + b > h * p || (a % p) % b != 0 || (a % p < w * b && a % p + b > w * b) {
+                        return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+                    }
+                    let (row, col) = (a / p, a % p / b);
+                    if col < w {
+                        if let Some(c) = usize::try_from(row * w + col).ok().and_then(|k| cover.get_mut(k)) {
+                            *c = true;
+                        }
+                    }
+                }
+            }
+            Spans::Clamp => {
+                for x in xl.max(0)..xr.min(w) {
+                    if let Some(c) = usize::try_from(y * w + x).ok().and_then(|k| cover.get_mut(k)) {
+                        *c = true;
+                    }
+                }
             }
         }
     }
@@ -1203,7 +1218,7 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     let (w, h) = (rt.w, rt.h);
     let cover = match st.fill {
         Fill::Point => points(family, v, w, h)?,
-        Fill::Solid | Fill::Wireframe => coverage(family, v, w, h)?,
+        Fill::Solid | Fill::Wireframe => coverage(family, v, w, h, rt.fmt)?,
     };
     let zv = match (st.zenable, rt.depth, family) {
         (false, _, _) => None,
