@@ -560,10 +560,19 @@ pub fn contains(g: &Geom, x: f32, y: f32, tol: f32) -> Res<bool> {
 /// the area the fill mode fills: the figures (open ones as closed) cut into slabs at every
 /// vertex and crossing, in each slab the inside spans by the winding at its middle, trapezoids
 pub fn region_area(ps: &[Vec<(f64, f64)>], wind: bool) -> f64 {
-    let edges: Vec<((f64, f64), (f64, f64))> = ps.iter().flat_map(|p| segs(p)).filter(|(a, b)| a.1 != b.1).collect();
-    let mut ys: Vec<f64> = ps.iter().flatten().map(|p| p.1).collect();
-    for &(a, b) in &edges {
-        for &(c, d) in &edges {
+    region_area2(ps, wind, &[], false, |a, _| a)
+}
+
+type Edge = ((f64, f64), (f64, f64));
+
+/// the area where `keep(in a, in b)` holds, a and b each by its own fill mode (as region_area)
+pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: bool, keep: impl Fn(bool, bool) -> bool) -> f64 {
+    let tagged = |ps: &[Vec<(f64, f64)>], tag: bool| -> Vec<(Edge, bool)> { ps.iter().flat_map(|p| segs(p)).filter(|(p, q)| p.1 != q.1).map(|e| (e, tag)).collect() };
+    let mut edges = tagged(a, false);
+    edges.extend(tagged(b, true));
+    let mut ys: Vec<f64> = a.iter().chain(b.iter()).flatten().map(|p| p.1).collect();
+    for &((a, b), _) in &edges {
+        for &((c, d), _) in &edges {
             let den = (b.0 - a.0) * (d.1 - c.1) - (b.1 - a.1) * (d.0 - c.0);
             if den == 0.0 {
                 continue;
@@ -577,22 +586,28 @@ pub fn region_area(ps: &[Vec<(f64, f64)>], wind: bool) -> f64 {
     }
     ys.sort_by(f64::total_cmp);
     ys.dedup();
+    let inside = |n: i32, wind: bool| if wind { n != 0 } else { n % 2 != 0 };
     let mut area = 0.0;
     for w in ys.windows(2) {
         let (y0, y1) = (w[0], w[1]);
         let ym = (y0 + y1) / 2.0;
-        let x = |e: &((f64, f64), (f64, f64)), y: f64| e.0 .0 + (y - e.0 .1) * (e.1 .0 - e.0 .0) / (e.1 .1 - e.0 .1);
-        let mut act: Vec<&((f64, f64), (f64, f64))> = edges.iter().filter(|e| e.0 .1.min(e.1 .1) <= y0 && e.0 .1.max(e.1 .1) >= y1).collect();
-        act.sort_by(|a, b| x(a, ym).total_cmp(&x(b, ym)));
-        let (mut n, mut w0, mut w1, mut from) = (0i32, 0.0, 0.0, None);
-        for e in act {
-            let was = if wind { n != 0 } else { n % 2 != 0 };
-            n += (e.1 .1 - e.0 .1).signum() as i32;
-            let now = if wind { n != 0 } else { n % 2 != 0 };
+        let x = |e: &Edge, y: f64| e.0 .0 + (y - e.0 .1) * (e.1 .0 - e.0 .0) / (e.1 .1 - e.0 .1);
+        let mut act: Vec<&(Edge, bool)> = edges.iter().filter(|(e, _)| e.0 .1.min(e.1 .1) <= y0 && e.0 .1.max(e.1 .1) >= y1).collect();
+        act.sort_by(|p, q| x(&p.0, ym).total_cmp(&x(&q.0, ym)));
+        let (mut na, mut nb, mut w0, mut w1, mut from): (i32, i32, f64, f64, Option<&Edge>) = (0, 0, 0.0, 0.0, None);
+        for (e, tag) in act {
+            let was = keep(inside(na, wa), inside(nb, wb));
+            let dir = (e.1 .1 - e.0 .1).signum() as i32;
+            if *tag {
+                nb += dir;
+            } else {
+                na += dir;
+            }
+            let now = keep(inside(na, wa), inside(nb, wb));
             if !was && now {
                 from = Some(e);
             } else if was && !now {
-                let f = from.unwrap();
+                let f = from.unwrap_or(e);
                 w0 += x(e, y0) - x(f, y0);
                 w1 += x(e, y1) - x(f, y1);
             }
@@ -638,8 +653,45 @@ pub fn length(g: &Geom, tol: f32) -> Res<f32> {
 
 /// CompareWithGeometry of two rectangles (D2D1_GEOMETRY_RELATION: 1 disjoint, 2 is contained, 3
 /// contains, 4 overlap)
+/// whether two closed segments have a point in common
+fn meet(p: (f64, f64), q: (f64, f64), r: (f64, f64), t: (f64, f64)) -> bool {
+    let (d1, d2, d3, d4) = (cross(r, t, p), cross(r, t, q), cross(p, q, r), cross(p, q, t));
+    if ((d1 > 0.0 && d2 < 0.0) || (d1 < 0.0 && d2 > 0.0)) && ((d3 > 0.0 && d4 < 0.0) || (d3 < 0.0 && d4 > 0.0)) {
+        return true;
+    }
+    let on = |a: (f64, f64), b: (f64, f64), c: (f64, f64)| cross(a, b, c) == 0.0 && dist_seg(c, a, b) == 0.0;
+    on(r, t, p) || on(r, t, q) || on(p, q, r) || on(p, q, t)
+}
+
+/// CompareWithGeometry of any two geometries: by the areas of their flattenings (0.25) and of
+/// what both fill
+fn shape_relation(a: &Geom, b: &Geom) -> Res<u32> {
+    let poly = |g: &Geom| {
+        let (w, f, m) = flat_lines(g, 0.25);
+        (polys(&f, &m), w)
+    };
+    let ((pa, wa), (pb, wb)) = (poly(a), poly(b));
+    let both = region_area2(&pa, wa, &pb, wb, |x, y| x && y);
+    let (aa, ab) = (region_area(&pa, wa), region_area(&pb, wb));
+    // (MEASURED, cmpg-12, -19, -28: outlines that only touch, at a point or along a side, are
+    // OVERLAP, as closed sets)
+    let touch = pa.iter().flat_map(|p| segs(p)).any(|(p, q)| pb.iter().flat_map(|r| segs(r)).any(|(r, t)| meet(p, q, r, t)));
+    hit("D2D.CMP.SHAPE");
+    Ok(if both == 0.0 && !touch {
+        1
+    } else if both == 0.0 {
+        4
+    } else if both == aa {
+        2
+    } else if both == ab {
+        3
+    } else {
+        4
+    })
+}
+
 pub fn relation(a: &Geom, b: &Geom) -> Res<u32> {
-    let (Geom::Rect(a), Geom::Rect(b)) = (a, b) else { return Err(Fail::Unmodeled("D2D.CMP.SHAPE")) };
+    let (Geom::Rect(a), Geom::Rect(b)) = (a, b) else { return shape_relation(a, b) };
     let n = |r: &[f32; 4]| [r[0].min(r[2]), r[1].min(r[3]), r[0].max(r[2]), r[1].max(r[3])];
     let (a, b) = (n(a), n(b));
     hit("D2D.CMP");
@@ -697,6 +749,7 @@ pub fn premultiply(c: [i64; 4]) -> [u8; 4] {
     let ch = |v: i64| ((f(v) * a) * 255.0 + 0.5).floor() as u8;
     [ch(c[2]), ch(c[1]), ch(c[0]), (a * 255.0 + 0.5).floor() as u8]
 }
+
 
 /// source over: a premultiplied source over a premultiplied destination
 pub fn over(s: [u8; 4], d: [u8; 4]) -> [u8; 4] {
@@ -1214,6 +1267,9 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
         Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.m)),
         None => {
             hit("D2D.FILL.CURVE");
+            if !tg.aliased || tg.m != IDENTITY {
+                return Err(Fail::Unmodeled("D2D.FILL.AA"));
+            }
             flat_lines(&Geom::Xf(Box::new(g.clone()), tg.m), 0.25)
         }
     };
@@ -1224,7 +1280,7 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
         if axis && grid {
             hit("D2D.FILL.AAGRID");
         } else {
-            return fill_aa(tg, &ps, axis, c);
+            return fill_aa(tg, &ps, wind, c);
         }
     }
     let src = premultiply(c);
@@ -1254,23 +1310,42 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
 /// antialiased: an axis-aligned rectangle with edges on quarter pixels, a white opaque color on
 /// an empty target. MEASURED (golden d2d-32/-64, aa-*): each pixel the exact covered fraction
 /// of it, every byte round(coverage 255) (0.25 -> 0x40, 0.5 -> 0x80, 0.75 -> 0xbf)
-fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], axis: bool, c: [i64; 4]) -> Res<()> {
-    let quarter = ps.iter().flatten().all(|p| (p.0 * 4.0).fract() == 0.0 && (p.1 * 4.0).fract() == 0.0);
-    if !axis || !quarter || c != [255; 4] || tg.px.iter().any(|p| *p != [0; 4]) {
-        return Err(Fail::Unmodeled("D2D.FILL.AA"));
-    }
+
+fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, c: [i64; 4]) -> Res<()> {
+    let cov = coverage(tg, ps, wind);
     hit("D2D.FILL.AACOVER");
-    let xs: Vec<f64> = ps[0].iter().map(|p| p.0).collect();
-    let ys: Vec<f64> = ps[0].iter().map(|p| p.1).collect();
-    let (l, r) = (xs.iter().cloned().fold(f64::INFINITY, f64::min), xs.iter().cloned().fold(f64::NEG_INFINITY, f64::max));
-    let (t, b) = (ys.iter().cloned().fold(f64::INFINITY, f64::min), ys.iter().cloned().fold(f64::NEG_INFINITY, f64::max));
-    for y in 0..tg.h {
-        for x in 0..tg.w {
-            let cx = (r.min(x as f64 + 1.0) - l.max(x as f64)).max(0.0);
-            let cy = (b.min(y as f64 + 1.0) - t.max(y as f64)).max(0.0);
-            let v = (cx * cy * 255.0 + 0.5).floor() as u8;
-            tg.px[y * tg.w + x] = [v; 4];
+    let src = premultiply(c);
+    for (p, n) in tg.px.iter_mut().zip(cov) {
+        if n == 0 {
+            continue;
         }
+        // (MEASURED, aac-*, aa-c*: n of 64 samples is the coverage byte (n 4 255 + 0x80) >> 8,
+        // each byte of the premultiplied color times it / 255 rounded, then over the target as
+        // an aliased fill)
+        hit("D2D.FILL.AABLEND");
+        let k = (n * 4 * 255 + 0x80) >> 8;
+        let scaled = src.map(|b| ((u32::from(b) * k + 127) / 255) as u8);
+        *p = over(scaled, *p);
     }
     Ok(())
+}
+
+/// MEASURED (D2D.FILL.AACOVER): antialiased coverage is counted on an 8 x 8 grid of samples in
+/// each pixel, at (i + 0.5) / 8, each sample in or out by the aliased rule (D2D.FILL.EDGE)
+fn coverage(tg: &Target, ps: &[Vec<(f64, f64)>], wind: bool) -> Vec<u32> {
+    let mut out = vec![0u32; tg.w * tg.h];
+    for y in 0..tg.h {
+        for x in 0..tg.w {
+            let mut n = 0;
+            for j in 0..8 {
+                for i in 0..8 {
+                    let p = (x as f64 + (f64::from(i) + 0.5) / 8.0, y as f64 + (f64::from(j) + 0.5) / 8.0);
+                    let w = winding(ps, p);
+                    n += u32::from(if wind { w != 0 } else { w % 2 != 0 });
+                }
+            }
+            out[y * tg.w + x] = n;
+        }
+    }
+    out
 }
