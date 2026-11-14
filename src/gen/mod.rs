@@ -13,6 +13,7 @@ mod d3d9;
 mod ddraw;
 mod gdi;
 mod gdiplus;
+mod opengl;
 mod wic;
 mod dwrite;
 mod gdiline;
@@ -59,6 +60,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("wiccolor", wicimage::wiccolor),
     ("wicdecode", wicimage::wicdecode),
     ("wicencode", wicimage::wicencode),
+    ("opengl", opengl::opengl),
 ];
 
 pub const SUITES: &[&str] = &{

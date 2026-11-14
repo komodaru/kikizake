@@ -109,6 +109,31 @@ Eight surface slots, separate from the GDI ones.
 
 A rect is `all` (NULL) or `x0 y0 x1 y1`. Without `dd` the lines print `nodev`.
 
+## OpenGL
+
+opengl32.dll is loaded when a case first asks for it and every gl / wgl function is looked up by
+name. Every DIB here is 16x16, bottom-up (row 0 is GL's y 0), in a memory DC of its own; 16 bpp
+is 5-5-5, 8 bpp has the `dib` default color table. On a system with no GPU driver (Windows'
+runner) this is Microsoft's GDI generic OpenGL 1.1.
+
+| line | calls | prints |
+|---|---|---|
+| `glpf <bpp>` | DescribePixelFormat of every format on a DIB of bpp | `glpf <bpp> n <count>`, then per format `pf <i> <flags> <type> <color> <r>,<rshift> <g>,<gs> <b>,<bs> <a>,<as> accum <bits> <r>,<g>,<b>,<a> depth <d> stencil <s> aux <n> <layer type> <reserved> <layer mask> <visible mask> <damage mask>` (masks, flags hex) |
+| `glchoose <bpp> <flags> <type> <color> <alpha> <accum> <depth> <stencil>` | ChoosePixelFormat of that PIXELFORMATDESCRIPTOR (the rest 0) on a DIB of bpp | `glchoose <index>` |
+| `glctx <bpp> <index>` / `glctx <bpp> choose <flags> ... <stencil>` | the case's DIB, that format (or ChoosePixelFormat's), SetPixelFormat, wglCreateContext, wglMakeCurrent | `glctx ok <GetPixelFormat>`, `glctx none` (no opengl32), `glctx set\|create\|current failed <GetLastError>` |
+| `gl <function> <args>` | that function (runner/opengl.c lists the ones allowed and their argument types); numbers as above, floats as decimals | `gl <function> none` if opengl32 lacks it |
+| `glmat load\|mult <16 floats>` | glLoadMatrixf / glMultMatrixf (column-major) | |
+| `glerr` | glGetError until GL_NO_ERROR, at most 8 | `glerr <codes>` (hex) or `glerr 0` |
+| `glget i\|f\|b\|d <pname> <n>` | glGet{Integer,Float,Boolean,Double}v into n values (1..16) filled with 0xcc bytes | `get <pname> = <n values>`: i decimal, f / d the bits in hex, b the byte; a value left untouched is `-` |
+| `glisen <cap>`, `glstr <name>` | glIsEnabled, glGetString | `isen <cap> = <0\|1>`, `str <name> = <string\|(null)>` |
+| `glread <x> <y> <w> <h> <format> <type> <bytes>` | glReadPixels into bytes (1..65536) filled with 0xcc, 64 more after them | `read <hex>`, then `over` if any of the 64 changed |
+| `gldraw <w> <h> <format> <type> <seed> <bytes>` | glDrawPixels of that many bytes from xorshift32 | |
+| `gldib` | glFinish, GdiFlush, the DIB | `px gl 16 16 <bpp>` and its rows, bottom row first |
+| `glcur` | wglGetCurrentContext, wglGetCurrentDC | `glcur <c> <d>`: 0 none, 1 the case's, 2 another |
+| `glrelease` | wglMakeCurrent(NULL, NULL), wglDeleteContext | `glrelease <ret> <ret>` |
+
+Without a context the gl lines print `noctx`. A case's context and DIB are released at `end`.
+
 ## Models
 
 `kikizake model <suite>` prints what Windows prints, case by case. A case whose behavior the

@@ -20,6 +20,7 @@ pub mod gdipath;
 pub mod gditext;
 pub mod gdiblend;
 pub mod gdiddb;
+pub mod opengl;
 pub mod wic;
 pub mod dwrite;
 pub mod wicimage;
