@@ -47,6 +47,7 @@ pub fn d2d() -> String {
     strokemore(&mut s, &mut r);
     bmpsrcmore(&mut s, &mut r);
     strokewide(&mut s, &mut r);
+    gradscan(&mut s);
     s
 }
 
@@ -879,5 +880,24 @@ fn strokewide(s: &mut String, r: &mut XorShift32) {
         let w = fmt(r.range(4, 24) as f64 / 4.0);
         let aa = if i % 2 == 1 { "d2aa aliased\n" } else { "" };
         writeln!(s, "case strokewide-{i}\nd2target 16 12\n{aa}d2clear {}\nd2path 0 alt m {pts} {end}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), color(r, false)).unwrap();
+    }
+}
+
+/// linear gradients moved by 1/32 of a pixel at a time: over 256 pixels every texel's
+/// fraction in steps of 1/32, over 64 pixels the ties at texel halves one by one; red to blue
+/// and black to white, both gammas, to map the sampled value against the position exactly
+fn gradscan(s: &mut String) {
+    let pairs = ["0 255 0 0 255 1 0 0 255 255", "0 0 0 0 255 1 255 255 255 255"];
+    let mut i = 0;
+    for gamma in ["22", "10"] {
+        for pair in pairs {
+            for span in [256.0, 64.0] {
+                for m in 0..32 {
+                    let d = f64::from(m) / 32.0;
+                    writeln!(s, "case gradscan-{i}\nd2target 64 1\nd2aa aliased\nd2grad 0 0 64 1 lin {gamma} clamp {} 0 {} 0 2 {pair}\nd2read\nend", fmt(-d), fmt(span - d)).unwrap();
+                    i += 1;
+                }
+            }
+        }
     }
 }

@@ -17205,3 +17205,1539 @@ d2path 0 alt m 5.189 7.92134375 3.151890625 2.667671875 5.423328125 4.625359375 
 d2drawg 0 4.25 204 176 121 127
 d2read
 end
+case gradscan-0
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0x80000000 0 256 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-1
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.03125 0 255.96875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-2
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.0625 0 255.9375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-3
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.09375 0 255.90625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-4
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.125 0 255.875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-5
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.15625 0 255.84375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-6
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.1875 0 255.8125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-7
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.21875 0 255.78125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-8
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.25 0 255.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-9
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.28125 0 255.71875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-10
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.3125 0 255.6875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-11
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.34375 0 255.65625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-12
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.375 0 255.625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-13
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.40625 0 255.59375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-14
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.4375 0 255.5625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-15
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.46875 0 255.53125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-16
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5 0 255.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-17
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.53125 0 255.46875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-18
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5625 0 255.4375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-19
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.59375 0 255.40625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-20
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.625 0 255.375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-21
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.65625 0 255.34375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-22
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.6875 0 255.3125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-23
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.71875 0 255.28125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-24
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.75 0 255.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-25
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.78125 0 255.21875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-26
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.8125 0 255.1875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-27
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.84375 0 255.15625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-28
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.875 0 255.125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-29
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.90625 0 255.09375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-30
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.9375 0 255.0625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-31
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.96875 0 255.03125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-32
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0x80000000 0 64 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-33
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.03125 0 63.96875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-34
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.0625 0 63.9375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-35
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.09375 0 63.90625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-36
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.125 0 63.875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-37
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.15625 0 63.84375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-38
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.1875 0 63.8125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-39
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.21875 0 63.78125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-40
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.25 0 63.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-41
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.28125 0 63.71875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-42
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.3125 0 63.6875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-43
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.34375 0 63.65625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-44
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.375 0 63.625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-45
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.40625 0 63.59375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-46
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.4375 0 63.5625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-47
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.46875 0 63.53125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-48
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5 0 63.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-49
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.53125 0 63.46875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-50
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5625 0 63.4375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-51
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.59375 0 63.40625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-52
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.625 0 63.375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-53
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.65625 0 63.34375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-54
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.6875 0 63.3125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-55
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.71875 0 63.28125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-56
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.75 0 63.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-57
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.78125 0 63.21875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-58
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.8125 0 63.1875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-59
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.84375 0 63.15625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-60
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.875 0 63.125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-61
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.90625 0 63.09375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-62
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.9375 0 63.0625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-63
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.96875 0 63.03125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-64
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0x80000000 0 256 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-65
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.03125 0 255.96875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-66
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.0625 0 255.9375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-67
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.09375 0 255.90625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-68
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.125 0 255.875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-69
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.15625 0 255.84375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-70
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.1875 0 255.8125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-71
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.21875 0 255.78125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-72
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.25 0 255.75 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-73
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.28125 0 255.71875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-74
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.3125 0 255.6875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-75
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.34375 0 255.65625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-76
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.375 0 255.625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-77
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.40625 0 255.59375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-78
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.4375 0 255.5625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-79
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.46875 0 255.53125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-80
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5 0 255.5 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-81
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.53125 0 255.46875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-82
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5625 0 255.4375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-83
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.59375 0 255.40625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-84
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.625 0 255.375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-85
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.65625 0 255.34375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-86
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.6875 0 255.3125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-87
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.71875 0 255.28125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-88
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.75 0 255.25 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-89
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.78125 0 255.21875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-90
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.8125 0 255.1875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-91
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.84375 0 255.15625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-92
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.875 0 255.125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-93
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.90625 0 255.09375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-94
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.9375 0 255.0625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-95
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.96875 0 255.03125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-96
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0x80000000 0 64 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-97
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.03125 0 63.96875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-98
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.0625 0 63.9375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-99
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.09375 0 63.90625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-100
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.125 0 63.875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-101
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.15625 0 63.84375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-102
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.1875 0 63.8125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-103
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.21875 0 63.78125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-104
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.25 0 63.75 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-105
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.28125 0 63.71875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-106
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.3125 0 63.6875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-107
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.34375 0 63.65625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-108
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.375 0 63.625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-109
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.40625 0 63.59375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-110
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.4375 0 63.5625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-111
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.46875 0 63.53125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-112
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5 0 63.5 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-113
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.53125 0 63.46875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-114
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.5625 0 63.4375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-115
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.59375 0 63.40625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-116
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.625 0 63.375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-117
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.65625 0 63.34375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-118
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.6875 0 63.3125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-119
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.71875 0 63.28125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-120
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.75 0 63.25 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-121
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.78125 0 63.21875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-122
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.8125 0 63.1875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-123
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.84375 0 63.15625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-124
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.875 0 63.125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-125
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.90625 0 63.09375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-126
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.9375 0 63.0625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-127
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -0.96875 0 63.03125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-128
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0x80000000 0 256 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-129
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.03125 0 255.96875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-130
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.0625 0 255.9375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-131
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.09375 0 255.90625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-132
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.125 0 255.875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-133
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.15625 0 255.84375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-134
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.1875 0 255.8125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-135
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.21875 0 255.78125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-136
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.25 0 255.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-137
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.28125 0 255.71875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-138
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.3125 0 255.6875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-139
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.34375 0 255.65625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-140
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.375 0 255.625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-141
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.40625 0 255.59375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-142
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.4375 0 255.5625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-143
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.46875 0 255.53125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-144
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5 0 255.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-145
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.53125 0 255.46875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-146
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5625 0 255.4375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-147
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.59375 0 255.40625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-148
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.625 0 255.375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-149
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.65625 0 255.34375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-150
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.6875 0 255.3125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-151
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.71875 0 255.28125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-152
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.75 0 255.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-153
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.78125 0 255.21875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-154
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.8125 0 255.1875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-155
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.84375 0 255.15625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-156
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.875 0 255.125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-157
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.90625 0 255.09375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-158
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.9375 0 255.0625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-159
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.96875 0 255.03125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-160
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0x80000000 0 64 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-161
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.03125 0 63.96875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-162
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.0625 0 63.9375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-163
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.09375 0 63.90625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-164
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.125 0 63.875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-165
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.15625 0 63.84375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-166
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.1875 0 63.8125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-167
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.21875 0 63.78125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-168
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.25 0 63.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-169
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.28125 0 63.71875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-170
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.3125 0 63.6875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-171
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.34375 0 63.65625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-172
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.375 0 63.625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-173
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.40625 0 63.59375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-174
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.4375 0 63.5625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-175
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.46875 0 63.53125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-176
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5 0 63.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-177
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.53125 0 63.46875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-178
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5625 0 63.4375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-179
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.59375 0 63.40625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-180
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.625 0 63.375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-181
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.65625 0 63.34375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-182
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.6875 0 63.3125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-183
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.71875 0 63.28125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-184
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.75 0 63.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-185
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.78125 0 63.21875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-186
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.8125 0 63.1875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-187
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.84375 0 63.15625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-188
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.875 0 63.125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-189
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.90625 0 63.09375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-190
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.9375 0 63.0625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-191
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.96875 0 63.03125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradscan-192
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0x80000000 0 256 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-193
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.03125 0 255.96875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-194
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.0625 0 255.9375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-195
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.09375 0 255.90625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-196
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.125 0 255.875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-197
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.15625 0 255.84375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-198
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.1875 0 255.8125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-199
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.21875 0 255.78125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-200
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.25 0 255.75 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-201
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.28125 0 255.71875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-202
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.3125 0 255.6875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-203
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.34375 0 255.65625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-204
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.375 0 255.625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-205
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.40625 0 255.59375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-206
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.4375 0 255.5625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-207
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.46875 0 255.53125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-208
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5 0 255.5 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-209
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.53125 0 255.46875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-210
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5625 0 255.4375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-211
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.59375 0 255.40625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-212
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.625 0 255.375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-213
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.65625 0 255.34375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-214
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.6875 0 255.3125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-215
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.71875 0 255.28125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-216
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.75 0 255.25 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-217
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.78125 0 255.21875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-218
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.8125 0 255.1875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-219
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.84375 0 255.15625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-220
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.875 0 255.125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-221
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.90625 0 255.09375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-222
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.9375 0 255.0625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-223
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.96875 0 255.03125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-224
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0x80000000 0 64 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-225
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.03125 0 63.96875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-226
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.0625 0 63.9375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-227
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.09375 0 63.90625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-228
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.125 0 63.875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-229
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.15625 0 63.84375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-230
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.1875 0 63.8125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-231
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.21875 0 63.78125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-232
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.25 0 63.75 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-233
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.28125 0 63.71875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-234
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.3125 0 63.6875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-235
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.34375 0 63.65625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-236
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.375 0 63.625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-237
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.40625 0 63.59375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-238
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.4375 0 63.5625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-239
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.46875 0 63.53125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-240
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5 0 63.5 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-241
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.53125 0 63.46875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-242
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.5625 0 63.4375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-243
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.59375 0 63.40625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-244
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.625 0 63.375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-245
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.65625 0 63.34375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-246
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.6875 0 63.3125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-247
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.71875 0 63.28125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-248
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.75 0 63.25 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-249
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.78125 0 63.21875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-250
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.8125 0 63.1875 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-251
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.84375 0 63.15625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-252
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.875 0 63.125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-253
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.90625 0 63.09375 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-254
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.9375 0 63.0625 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradscan-255
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -0.96875 0 63.03125 0 2 0 0 0 0 255 1 255 255 255 255
+d2read
+end
