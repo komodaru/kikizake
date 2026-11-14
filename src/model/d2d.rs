@@ -1537,7 +1537,7 @@ impl D2d {
                         let quad = [apply(&m, r[0], r[1]), apply(&m, r[2], r[1]), apply(&m, r[2], r[3]), apply(&m, r[0], r[3])].map(|(x, y)| (f64::from(x), f64::from(y)));
                         let cut: Vec<Vec<(i64, i64)>> = polys(&figs, &mul(&m0, &m)).iter().map(|p| clip_convex(p, &quad)).filter(|p| p.len() >= 3).map(|p| p.into_iter().map(|(x, y)| (Frame::Antialiased.snap(x), Frame::Antialiased.snap(y))).collect()).collect();
                         if cut.iter().flatten().any(|p| !(p.0.abs() <= 16 * 8388608 && p.1.abs() <= 16 * 8388608)) {
-                            return Err(Fail::Unmodeled(open::D2D_FILL_HUGE));
+                            return Err(Fail::Unmodeled(open::D2D_RT));
                         }
                         samples16(tg, &cut, wind)
                     }
@@ -2061,9 +2061,18 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
     hit(clause::D2D_FILL_FIXED);
     let sn = |v: f64| frame.snap(v);
     if let Some((wind, figs, m0)) = g.lines() {
-        let ps = polys(&figs, &mul(&m0, &tg.st.m));
+        let mut ps = polys(&figs, &mul(&m0, &tg.st.m));
+        if ps.iter().flatten().any(|p| !(p.0.is_finite() && p.1.is_finite())) {
+            return Err(Fail::Unmodeled(open::D2D_RT));
+        }
         if ps.iter().flatten().any(|p| !(p.0.abs() <= 8388608.0 && p.1.abs() <= 8388608.0)) {
-            return Err(Fail::Unmodeled(open::D2D_FILL_HUGE));
+            // (MEASURED, D2D.FILL.HUGE, fillhuge-*: a vertex past 2^23 pixels still fills,
+            // the figure cut far outside the target first; where it is cut does not reach a
+            // pixel)
+            hit(clause::D2D_FILL_HUGE);
+            let g = 65536.0;
+            let quad = [(-g, -g), (g, -g), (g, g), (-g, g)];
+            ps = ps.iter().map(|p| clip_convex(p, &quad)).filter(|p| p.len() >= 3).collect();
         }
         return Ok((wind, ps.iter().map(|p| p.iter().map(|&(x, y)| (sn(x), sn(y))).collect()).collect()));
     }
@@ -2075,7 +2084,7 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
         Seg::L(p) => vec![p],
         Seg::C(a, b, c) => vec![a, b, c],
     })).any(|p| !(p.0.abs() <= 8388608.0 && p.1.abs() <= 8388608.0))) {
-        return Err(Fail::Unmodeled(open::D2D_FILL_HUGE));
+        return Err(Fail::Unmodeled(open::D2D_RT));
     }
     // (the target in 28.4: in the antialiased frame WPF's 28.4 point plus 8)
     let clip = match frame {
