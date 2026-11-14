@@ -1,7 +1,7 @@
 //! kikizake: conformance tests for the Windows graphics APIs (README.md, SPEC.md).
 //!
 //! A case file (cases/<suite>.txt) is a list of cases, each a short program of API calls in a
-//! line language. The executor (runner/kikizake.c) runs it on a real system and prints what the
+//! line language. The executor (runner/) runs it on a real system and prints what the
 //! calls did; Windows' output is the reference (golden). The models here are executable
 //! specifications of the same calls, written from Microsoft's documentation and corrected only
 //! by Windows' recorded answers: they print what Windows should print. So

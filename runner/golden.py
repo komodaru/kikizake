@@ -5,8 +5,9 @@
     runner/golden.py import <run dir>   <run dir>/<name>/{stdout.txt,exit} -> golden/<name>/
     runner/golden.py src <name>         the sha256 of an executor's sources
 
-src is the sha256 of what the executor is built from (its case file, the executor, build.sh),
-so a changed suite shows up as stale. (masu's tests/winref/golden.py hashes the same way.)
+src is the sha256 of what the executor is built from (its case file and runner/'s .c, .h and
+.sh files), so a changed suite shows up as stale. (masu's tests/winref/golden.py asks this
+script.)
 """
 import hashlib
 import os
@@ -20,7 +21,8 @@ GOLDEN = os.path.join(ROOT, "golden")
 
 def sources(name):
     suite = re.sub(r"^kikizake_|-(32|64)$", "", name)
-    return [os.path.join(ROOT, "cases", suite + ".txt"), os.path.join(ROOT, "runner", "kikizake.c"), os.path.join(ROOT, "runner", "build.sh")]
+    r = os.path.join(ROOT, "runner")
+    return [os.path.join(ROOT, "cases", suite + ".txt")] + [os.path.join(r, f) for f in sorted(os.listdir(r)) if re.search(r"\.(c|h|sh)$", f)]
 
 
 def src_hash(name):

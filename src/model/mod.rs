@@ -29,27 +29,57 @@ pub fn run_case(case: &Case) -> Res<Vec<String>> {
     r
 }
 
+/// a model of one API: Ok(true) when it ran the line, Ok(false) when the line is not its own
+pub trait Api {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool>;
+}
+
+impl Api for gdi::Gdi {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        gdi::Gdi::op(self, op, out)
+    }
+}
+impl Api for d3d9::D3d9 {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        d3d9::D3d9::op(self, op, out)
+    }
+}
+impl Api for d3d11::D3d11 {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        d3d11::D3d11::op(self, op, out)
+    }
+}
+struct Wic;
+impl Api for Wic {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        wic::op(op, out)
+    }
+}
+impl Api for ddraw::Ddraw {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        ddraw::Ddraw::op(self, op, out)
+    }
+}
+
+/// every API's model, fresh for a case, in the order a line is offered to them (one line each)
+fn apis() -> Vec<Box<dyn Api>> {
+    vec![
+        Box::new(gdi::Gdi::new()),
+        Box::new(d3d9::D3d9::default()),
+        Box::new(d3d11::D3d11::default()),
+        Box::new(Wic),
+        Box::new(ddraw::Ddraw::default()),
+    ]
+}
+
 fn run_ops(case: &Case) -> Res<Vec<String>> {
     let mut out = Vec::new();
-    let mut g = gdi::Gdi::new();
-    let mut d = d3d9::D3d9::default();
-    let mut d11 = d3d11::D3d11::default();
-    let mut dd = ddraw::Ddraw::default();
-    for op in &case.ops {
-        if g.op(op, &mut out)? {
-            continue;
-        }
-        if d.op(op, &mut out)? {
-            continue;
-        }
-        if d11.op(op, &mut out)? {
-            continue;
-        }
-        if wic::op(op, &mut out)? {
-            continue;
-        }
-        if dd.op(op, &mut out)? {
-            continue;
+    let mut apis = apis();
+    'line: for op in &case.ops {
+        for a in apis.iter_mut() {
+            if a.op(op, &mut out)? {
+                continue 'line;
+            }
         }
         return Err(Fail::Bad);
     }

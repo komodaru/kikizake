@@ -10,10 +10,10 @@ The name is 利き酒, sake tasting: telling by taste whether it is right.
 ## How it works
 
 ```
-cases/<suite>.txt ──► runner/kikizake.c (executor, a Win32 console program) ──► output
+cases/<suite>.txt ──► runner/ (executor, a Win32 console program) ──► output
         ▲                    │ on Windows: the reference, recorded once
         │                    │ on Wine / sake / ...: the implementation under test
-   src/gen.rs                ▼
+   src/gen/                  ▼
  (generators)          src/model/ (executable specification) ──► the output Windows should give
 ```
 
@@ -47,7 +47,7 @@ cases/<suite>.txt ──► runner/kikizake.c (executor, a Win32 console program
 | property-based (metamorphic: clipping = masking, blit = two half blits, BitBlt without source = PatBlt, DSTINVERT twice = identity, brush origin modulo the pattern, color round trips, state blocks restore) | `tests/laws.rs` (proptest) |
 | coverage-guided fuzzing of the parser, models and comparison | `fuzz/` (`cargo +nightly fuzz run cases`) |
 | mutation testing of the models | `.cargo/mutants.toml` (`cargo mutants`) |
-| generated cases, deterministic seeds | `src/gen.rs`, `cases/` (a test keeps them current) |
+| generated cases, deterministic seeds | `src/gen/`, `cases/` (a test keeps them current) |
 
 ## Use
 
@@ -87,6 +87,8 @@ executors and compares sake with `golden/`.
   each description through its values of interest (every filter value below 0x400), with the
   parts that switch others off on and off; which descriptions are refused, what GetDesc gives
   back, when the runtime hands back the same object; ppState / pDesc NULL.
+
+Adding an API or a suite: CONTRIBUTING.md.
 
 Each suite's behavior is written down as numbered clauses in `spec/<api>.txt` (documented,
 measured on Windows, assumed, open), and `cargo test` checks every clause is reached.
