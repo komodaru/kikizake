@@ -332,24 +332,23 @@ fn repeated_case_names_compare_with_themselves() {
     assert_eq!((r.same, r.unmodeled), (1, 2));
 }
 
-/// Every case Windows answered that the model leaves unmodeled is listed in
-/// tests/wicimage_unmodeled.txt, and nothing else: a change that stops answering a case (a
-/// mutant that falls back to Unmodeled) fails here. KIKIZAKE_BLESS=1 rewrites the list.
+/// Every generated case the model leaves unmodeled is listed in tests/wicimage_unmodeled.txt,
+/// and nothing else: a change that stops answering a case (a mutant that falls back to
+/// Unmodeled) fails here. (Over the cases, not Windows' answers, so goldens arriving do not
+/// change it.) KIKIZAKE_BLESS=1 rewrites the list.
 #[test]
 fn unmodeled_cases_are_the_listed_ones() {
     use kikizake::{case, gen, model};
     let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let mut now = Vec::new();
     for s in ["wicpalette", "wicscale", "wictransform", "wiccolor", "wicdecode", "wicencode"] {
-        let Ok(g) = std::fs::read_to_string(root.join(format!("golden/{s}-32/stdout.txt"))) else { continue };
-        let answered: std::collections::HashSet<&str> = g.lines().filter_map(|l| l.strip_prefix("case ")).collect();
         model::set_arch(32);
         let out = model::run(s, &case::parse_cases(&gen::suite(s).unwrap()));
         let mut name = "";
         for l in out.lines() {
             if let Some(n) = l.strip_prefix("case ") {
                 name = n;
-            } else if l.starts_with("unmodeled") && answered.contains(name) {
+            } else if l.starts_with("unmodeled") {
                 now.push(format!("{s} {name}"));
             }
         }
