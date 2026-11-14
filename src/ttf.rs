@@ -397,6 +397,8 @@ pub struct Parsed {
     /// code point -> glyph from the (3, 10) or (3, 1) subtable, or (3, 0)
     pub cmap: Vec<(u32, u16)>,
     pub symbol: bool,
+    /// name ID 1 (Windows, English): the family
+    pub family: String,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -547,6 +549,17 @@ pub fn parse(f: &[u8]) -> Option<Parsed> {
             s = e + 1;
         }
         p.glyphs.push(Some((bbox, contours)));
+    }
+    if let Some(name) = get(b"name") {
+        let (n, so) = (name.u16(2)? as usize, name.u16(4)? as usize);
+        for i in 0..n {
+            let r = 6 + 12 * i;
+            if (name.u16(r)?, name.u16(r + 2)?, name.u16(r + 4)?, name.u16(r + 6)?) == (3, 1, 0x409, 1) {
+                let (l, o) = (name.u16(r + 8)? as usize, name.u16(r + 10)? as usize);
+                let units: Option<Vec<u16>> = (0..l / 2).map(|k| name.u16(so + o + 2 * k)).collect();
+                p.family = String::from_utf16_lossy(&units?);
+            }
+        }
     }
     let cmap = get(b"cmap")?;
     let nsub = cmap.u16(2)? as usize;

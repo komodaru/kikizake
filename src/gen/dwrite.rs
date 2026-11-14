@@ -93,6 +93,10 @@ pub fn dwrite() -> String {
         }
         let cps: Vec<String> = CHARS.iter().chain(&[0x46, 0x5d1, 0x1f601, 0x10ffff, 0]).map(|c| format!("{c:#x}")).collect();
         writeln!(s, "dwcmap {}\ndwglyph 0 {gids}\ndwglyph 1 {gids}\ndwglyph 0 {}", cps.join(" "), CHARS.len() + 1).unwrap();
+        writeln!(s, "end").unwrap();
+        // (GDI compatible glyph metrics in a case of their own: what is open there leaves the
+        // rest of the face's lines compared)
+        writeln!(s, "case gdiglyph-{i}\n{}", font_line(&f)).unwrap();
         for _ in 0..3 {
             writeln!(s, "dwgdiglyph {} {} {} {} {gids}", r.range(1, 80), *r.pick(&[1, 1, 2]), r.range(0, 1), r.range(0, 1)).unwrap();
         }
@@ -110,16 +114,18 @@ pub fn dwrite() -> String {
         writeln!(s, "end").unwrap();
     }
     // rasterization: single glyphs at many sizes and subpixel origins, in every mode, then runs
+    // (each line a case of its own: one mode left open leaves the others compared)
     for i in 0..60u32 {
         let f = font(0x0f20_0000 + i);
-        writeln!(s, "case run-{i}\n{}", font_line(&f)).unwrap();
         for mode in ["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"] {
             let g = r.range(0, 8);
-            writeln!(s, "dwrun {mode} {} {} {} {g} 0", r.range(4, 40), r.range(-8, 40), r.range(16, 96)).unwrap();
+            writeln!(s, "case run-{i}-{mode}\n{}", font_line(&f)).unwrap();
+            writeln!(s, "dwrun {mode} {} {} {} {g} 0\nend", r.range(4, 40), r.range(-8, 40), r.range(16, 96)).unwrap();
         }
         let mode = *r.pick(&["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"]);
         let n = r.range(2, 5);
         let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(0, 8), r.range(0, 60))).collect();
+        writeln!(s, "case run-{i}-multi\n{}", font_line(&f)).unwrap();
         writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" ")).unwrap();
     }
     // layout: a line of the font's characters, with and without wrapping
@@ -191,5 +197,66 @@ pub fn dwrite() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    targeted(&mut s, &mut r);
     s
+}
+
+/// a font of the seed with the glyphs' advances and rectangles given (glyph i + 1 for entry i)
+fn font_with(seed: u32, upm: u16, glyphs: &[(u16, Vec<(i16, i16, i16, i16)>)]) -> Font {
+    let mut f = font(seed);
+    f.upm = upm;
+    f.vertical = false;
+    for (i, (adv, rects)) in glyphs.iter().enumerate() {
+        f.glyphs[i + 1].adv = *adv;
+        f.glyphs[i + 1].rects = rects.clone();
+    }
+    f
+}
+
+/// cases aimed at what the random ones left open: the GDI natural rounding threshold, thin
+/// stems (dropout), the pen positions of aliased runs
+fn targeted(s: &mut String, r: &mut XorShift32) {
+    // natural placements: advances whose em / upm multiple falls in 0.44..0.48 of a pixel
+    let chars: Vec<String> = CHARS[..13].iter().map(|c| format!("{c:#x}")).collect();
+    for em in 1..=4u32 {
+        let lo = (0.44 * 2048.0 / em as f64).ceil() as u32;
+        let hi = (0.48 * 2048.0 / em as f64).floor() as u32;
+        let advs: Vec<u32> = (lo..=hi).flat_map(|a| [a, a + 2048 / em * (1 + a % 3)]).collect();
+        for (k, ch) in advs.chunks(13).enumerate() {
+            let gs: Vec<_> = ch.iter().map(|&a| (a as u16, vec![(0, 0, 100, 100)])).collect();
+            let f = font_with(0x0f40_0000 + em * 64 + k as u32, 2048, &gs);
+            writeln!(s, "case natplace-{em}-{k}\n{}\ndwshape {em} {}\nend", font_line(&f), chars[..ch.len()].join(" ")).unwrap();
+        }
+    }
+    // thin stems: vertical and horizontal bars under a pixel wide at subpixel offsets
+    for i in 0..40u32 {
+        let upm = *r.pick(&[1000u16, 2048, 256]);
+        let u = upm as i64;
+        let em = r.range(6, 32);
+        let px = u / em;
+        let mut gs = Vec::new();
+        for _ in 0..8 {
+            let w = r.range(1, px.max(2)) as i16;
+            let x = r.range(0, u / 2) as i16;
+            let y = r.range(0, u / 4) as i16;
+            let l = r.range(px * 2, u / 2) as i16;
+            gs.push((r.range(u / 4, u) as u16, vec![if r.chance(2) { (x, y, x + w, y + l) } else { (x, y, x + l, y + w) }]));
+        }
+        let f = font_with(0x0f50_0000 + i, upm, &gs);
+        writeln!(s, "case drop-{i}\n{}", font_line(&f)).unwrap();
+        for _ in 0..8 {
+            writeln!(s, "dwrun aliased {em} {} {} {} 0", r.range(0, 40), r.range(16, 96), r.range(1, 8)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // aliased runs of wide glyphs (no stem thinner than a pixel): where each glyph goes
+    for i in 0..40u32 {
+        let u = 1000i64;
+        let gs: Vec<_> = (0..8).map(|_| (r.range(200, 1000) as u16, vec![(r.range(0, 100) as i16, 0, r.range(300, 600) as i16, r.range(300, 700) as i16)])).collect();
+        let f = font_with(0x0f60_0000 + i, u as u16, &gs);
+        writeln!(s, "case multi-{i}\n{}", font_line(&f)).unwrap();
+        let n = r.range(2, 4);
+        let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(1, 8), r.range(0, 200))).collect();
+        writeln!(s, "dwrun aliased {} {} {} {}\nend", r.range(8, 40), r.range(0, 40), r.range(40, 96), run.join(" ")).unwrap();
+    }
 }

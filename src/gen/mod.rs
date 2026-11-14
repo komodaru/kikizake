@@ -20,7 +20,7 @@ mod gdi;
 mod gdiplus;
 mod opengl;
 mod wic;
-mod dwrite;
+pub mod dwrite;
 mod gdiline;
 mod gdirgn;
 mod gdixform;

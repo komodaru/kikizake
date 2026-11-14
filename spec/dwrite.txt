@@ -1,8 +1,53 @@
 # DirectWrite clauses (spec/README.md): <id> <status> | <source> | <what it says>
-DW.FACE open | IDWriteFontFile::Analyze, IDWriteFontFace | a font file's face and its metrics
-DW.SHAPE open | IDWriteTextAnalyzer::GetGlyphs, GetGlyphPlacements | shaping
-DW.RUN open | IDWriteGlyphRunAnalysis | rasterization
-DW.LAYOUT open | IDWriteTextLayout | layout
-DW.SCRIPT open | IDWriteTextAnalyzer::AnalyzeScript | script runs
-DW.BIDI open | IDWriteTextAnalyzer::AnalyzeBidi | bidi levels
-DW.BREAK open | IDWriteTextAnalyzer::AnalyzeLineBreakpoints | line breaks
+# The cases (src/gen/dwrite.rs) load fonts written by src/ttf.rs (rectangle glyphs, no hinting,
+# no GSUB/GPOS) from memory into an isolated factory; "golden dwrite" is windows-2025.
+DW.FILE.ANALYZE doc | IDWriteFontFile::Analyze, IDWriteFactory5::CreateInMemoryFontFileLoader | a single TrueType font: supported, file type TRUETYPE (2), face type TRUETYPE (1), one face
+DW.FILE.OTHER excluded | IDWriteFontFile::Analyze | collections, CFF and files the writer cannot make
+DW.NOFACE excluded | IDWriteFontFace | a call before a font is loaded (the cases always load one first)
+DW.INFO doc | IDWriteFontFace::GetGlyphCount, GetType, GetIndex, GetSimulations, IsSymbolFont, IDWriteFontFace1::IsMonospacedFont, IDWriteFontFace1::HasVerticalGlyphVariants | glyph count = maxp numGlyphs, type TRUETYPE, index 0, no simulations, symbol = a (3,0) cmap, monospaced = post isFixedPitch, no vertical variants (no GSUB vert)
+DW.METRICS.HEAD doc | DWRITE_FONT_METRICS1, IDWriteFontFace1::GetMetrics | designUnitsPerEm and the glyph box from head (xMin, yMax, xMax, yMin)
+DW.METRICS.WIN measured | DWRITE_FONT_METRICS | with an OS/2 table: ascent/descent = usWinAscent/usWinDescent; lineGap = hhea ascender + |descender| + max(0, lineGap) - ascent - descent, at least 0; strikethrough, sub/superscript from OS/2 (golden dwrite, 120 faces)
+DW.METRICS.OS2V2 doc | DWRITE_FONT_METRICS, OS/2 sxHeight / sCapHeight | capHeight and xHeight from OS/2 version 2 and later
+DW.METRICS.TYPO measured | OS/2 fsSelection USE_TYPO_METRICS | bit 7 set: ascent/descent/lineGap = sTypoAscender / -sTypoDescender (0 if positive) / sTypoLineGap, and typo flag 1 (golden dwrite)
+DW.METRICS.NOOS2 measured | DWRITE_FONT_METRICS | without OS/2: hhea ascender, |descender|, max(0, lineGap); strikethroughPosition = upm/3 (golden dwrite)
+DW.METRICS.DEFAULTS measured | DWRITE_FONT_METRICS | a zero underline thickness becomes (upm + 7) / 14, strikethrough thickness the underline's, xHeight upm/2, capHeight upm*7/10 (golden dwrite)
+DW.GDI.METRICS measured | IDWriteFontFace::GetGdiCompatibleMetrics | each value v: s = f32(upm) / f32(em*ppd), round(round(v / s) * s) (golden dwrite: all 3240 values)
+DW.GDI.INVALID excluded | IDWriteFontFace::GetGdiCompatibleMetrics | em size or pixels per dip <= 0
+DW.CMAP doc | IDWriteFontFace::GetGlyphIndices | the cmap's glyph for each code point, 0 when unmapped
+DW.GLYPH.H doc | DWRITE_GLYPH_METRICS, IDWriteFontFace::GetDesignGlyphMetrics | advance and side bearings from hmtx and the glyph box
+DW.GLYPH.VMTX doc | DWRITE_GLYPH_METRICS | with vhea/vmtx: advanceHeight and topSideBearing from vmtx, verticalOriginY = tsb + yMax (measured, golden dwrite)
+DW.GLYPH.NOVMTX measured | DWRITE_GLYPH_METRICS | without vmtx: advanceHeight = sTypoAscender + |sTypoDescender|, verticalOriginY = sTypoAscender, whatever USE_TYPO_METRICS says (golden dwrite)
+DW.GLYPH.NOVMTX.NOOS2 measured | DWRITE_GLYPH_METRICS | without vmtx and OS/2: advanceHeight = ascent + max(0, hhea descender), verticalOriginY = ascent (golden dwrite)
+DW.GLYPH.SIDEWAYS measured | IDWriteFontFace::GetDesignGlyphMetrics (isSideways) | isSideways does not change the design metrics of these fonts (golden dwrite)
+DW.GLYPH.OUTSIDE measured | IDWriteFontFace::GetDesignGlyphMetrics | a glyph index past the font's glyphs: glyph 0's metrics, S_OK (golden dwrite)
+DW.GDI.GLYPH open | IDWriteFontFace::GetGdiCompatibleGlyphMetrics | advances and verticalOriginY follow DW.GDI.METRICS (2925 of 2940); the side bearings are neither that nor whole pixels (golden dwrite)
+DW.SHAPE.GLYPHS doc | IDWriteTextAnalyzer::GetGlyphs | without GSUB: the cmap's glyph for each character, one cluster per character
+DW.SHAPE.PROPS measured | DWRITE_SHAPING_TEXT_PROPERTIES, DWRITE_SHAPING_GLYPH_PROPERTIES | text properties 4 (5 for a space), glyph properties 112 (114 for a space: justification BLANK) (golden dwrite, 40 runs)
+DW.SHAPE.PLACE measured | IDWriteTextAnalyzer::GetGlyphPlacements | advance = hmtx advance * (em / upm) in f32, offsets 0 (golden dwrite, 40 runs)
+DW.SHAPE.GDIPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements (useGdiNatural 0) | round(adv * floor(em * 65536 / upm) / 65536): a 16.16 truncated scale (golden dwrite, 40 runs)
+DW.SHAPE.NATPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements (useGdiNatural 1) | floor(adv * em / upm + 0.5 + 1/24); the true threshold lies in (0.4545, 0.462] (golden dwrite, 40 runs)
+DW.SCRIPT.RUN doc | IDWriteTextAnalyzer::AnalyzeScript, DWRITE_SCRIPT_ANALYSIS | one run per maximal stretch of a script, with the script's ISO 15924 code; shapes 0 (DEFAULT) (measured: 720 of 720, golden dwrite)
+DW.SCRIPT.COMMON measured | UAX #24 | common and inherited characters join the run before them, or the one after when they lead (golden dwrite)
+DW.SCRIPT.ALLCOMMON measured | AnalyzeScript | text only of common characters: one run "Zzzz" 999 (golden dwrite)
+DW.SCRIPT.CHAR excluded | AnalyzeScript | characters outside the generators' set (the model knows their scripts only)
+DW.BIDI.W doc | IDWriteTextAnalyzer::AnalyzeBidi, UAX #9 W1-W7 | weak types
+DW.BIDI.N doc | UAX #9 N1-N2 | neutrals
+DW.BIDI.I doc | UAX #9 I1-I2 | implicit levels
+DW.BIDI.L1 doc | UAX #9 L1 | segment / paragraph separators and trailing whitespace to the paragraph level
+DW.BIDI.SEGMENT measured | AnalyzeBidi | a segment separator (S, B) splits the text into runs resolved apart, each with sos/eos at the paragraph direction (golden dwrite: 4248 lines, exhaustive up to 3 characters)
+DW.BIDI.CLASS excluded | UAX #9 | characters outside the generators' set
+DW.BREAK.UAX14 doc | IDWriteTextAnalyzer::AnalyzeLineBreakpoints, UAX #14 | break opportunities by UAX #14, except AL / PR / PO: AL before PR or PO may break; PR, PO before AL may not (measured, golden dwrite)
+DW.BREAK.MUST measured | DWRITE_LINE_BREAKPOINT | first unit before = 2 (MAY_NOT), last unit after = 1 (CAN), 3 (MUST) after LF / BK; a combining mark on a base: MAY_NOT before it; isWhitespace by White_Space (0x9-0xd, 0x20, 0x85, 0xa0, 0x2028, 0x2029) (golden dwrite: 804 of 804)
+DW.BREAK.CHAR excluded | UAX #14 | characters outside the generators' set
+DW.RUN.ALIASED measured | IDWriteGlyphRunAnalysis (DWRITE_TEXTURE_ALIASED_1x1), CreateAlphaTexture | origin snapped to (v + 2) div 4 pixels from quarter pixels; points to 26.6, a pixel is lit when its center lies in the closed outline span; each glyph alone, ORed (golden dwrite: 51 runs)
+DW.RUN.EMPTY measured | IDWriteGlyphRunAnalysis::GetAlphaTextureBounds | nothing lit: bounds empty at the snapped origin (golden dwrite)
+DW.RUN.DROPOUT open | IDWriteGlyphRunAnalysis | thin stems that light no pixel center: which pixel Windows lights follows neither the simple nor the smart dropout rule
+DW.RUN.MULTI open | IDWriteGlyphRunAnalysis | the pen position of the second and later glyphs of a run
+DW.RUN.AA open | DWRITE_RENDERING_MODE (NATURAL, GDI_CLASSIC, GDI_NATURAL), DWRITE_TEXTURE_CLEARTYPE_3x1 | antialiased modes (gray coverage looks like round(k * 255 / 8) in 1/8 pixel steps) and ClearType filtering
+DW.LAYOUT.FAMILY doc | IDWriteTextLayout, IDWriteFontSetBuilder | one family, named by the name table's family (name 1, Windows English)
+DW.LAYOUT.NAME excluded | IDWriteFontCollection | a font without a family name
+DW.LAYOUT.FALLBACK excluded | IDWriteFontFallback | characters the font does not map (system fallback fonts)
+DW.LAYOUT.LINE measured | DWRITE_LINE_METRICS, DWRITE_TEXT_METRICS | baseline = (ascent + lineGap) * em / upm, height = baseline + descent * em / upm (f32); text height the sum of lines, left -0 (golden dwrite: 90 of 90)
+DW.LAYOUT.WRAP doc | DWRITE_WORD_WRAPPING_WRAP | greedy on CAN break opportunities, trailing whitespace hangs
+DW.LAYOUT.EMERGENCY measured | DWRITE_WORD_WRAPPING_WRAP | a word wider than the line: as many clusters as fit (at least one), any whitespace after them stays on the line (golden dwrite)
+DW.LAYOUT.CLUSTERS doc | DWRITE_CLUSTER_METRICS | width, length 1, canWrapLineAfter = breakpoint after is CAN, isWhitespace, isNewline 0, isSoftHyphen, isRightToLeft 0
