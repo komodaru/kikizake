@@ -1639,7 +1639,10 @@ impl WicImage {
                 self.cur = Some(f);
             }
             "wencode" => {
-                let c = self.cur.as_ref().unwrap().clone();
+                let Some(c) = self.cur.clone() else {
+                    out.push("wencode -".into());
+                    return Ok(true);
+                };
                 let cont = *t.get(1).ok_or(Fail::Bad)?;
                 let mut first = 2;
                 let mut fmt = c.fmt;
@@ -1650,22 +1653,31 @@ impl WicImage {
                 if t.len() > first {
                     return Err(Fail::Unmodeled("WICIMAGE.ENCODE.OPTIONS"));
                 }
-                if !encoder_formats(cont).contains(&fmt) {
-                    return Err(Fail::Unmodeled("WICIMAGE.ENCODE.NEGOTIATE"));
+                self.enc = None;
+                // (MEASURED: HEIF's and WebP's encoders are not there on windows-2025)
+                if let Some(hr) = match cont {
+                    "heif" => Some(0x88982f8bu32),
+                    "webp" => Some(COMPONENT_NOT_FOUND),
+                    _ => None,
+                } {
+                    hit("WICIMAGE.ENCODE.MISSING");
+                    out.push(format!("wencode {hr:08x} {fmt} create"));
+                    return Ok(true);
                 }
-                if fmt != c.fmt {
-                    return Err(Fail::Unmodeled("WICIMAGE.ENCODE.CONVERT"));
-                }
-                hit("WICIMAGE.ENCODE.FORMAT");
-                out.push(format!("wencode 00000000 {fmt} ok"));
-                self.enc = Some(match cont {
-                    "bmp" => Encoded::Bytes(encode_bmp(&c)?),
-                    "png" | "tiff" | "gif" => {
+                let nf = negotiate(cont, fmt).ok_or(Fail::Bad)?;
+                hit(if nf == fmt { "WICIMAGE.ENCODE.FORMAT" } else { "WICIMAGE.ENCODE.NEGOTIATE" });
+                let img = encode_source(&c, nf)?;
+                let enc = match cont {
+                    "bmp" => Encoded::Bytes(encode_bmp(&img)?),
+                    "png" | "tiff" => {
                         hit("WICIMAGE.ENCODE.LOSSLESS");
-                        Encoded::Decodes(if cont == "png" { "png" } else if cont == "tiff" { "tiff" } else { "gif" }, c)
+                        Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, img)
                     }
+                    "gif" => return Err(Fail::Unmodeled("WICIMAGE.ENCODE.GIF")),
                     _ => return Err(Fail::Unmodeled("WICIMAGE.ENCODE.LOSSY")),
-                });
+                };
+                out.push(format!("wencode 00000000 {nf} ok"));
+                self.enc = Some(enc);
             }
             "wbytes" => match &self.enc {
                 Some(Encoded::Bytes(b)) => {
@@ -1721,11 +1733,119 @@ impl WicImage {
     }
 }
 
+/// MEASURED (golden wicencode enc-*: 23 source formats into each encoder): the format
+/// SetPixelFormat answers for one the encoder does not take
+pub fn negotiate(cont: &str, f: &'static str) -> Option<&'static str> {
+    let gray = ["bw", "gray2", "gray4", "gray8", "gray16"].contains(&f);
+    let wide = ["gray16", "rgb48", "rgba64"].contains(&f);
+    let straight = ["rgba", "prgba", "alpha8"].contains(&f);
+    Some(match cont {
+        "bmp" => match f {
+            "bw" | "idx1" => "idx1",
+            "gray2" | "gray4" | "idx2" | "idx4" => "idx4",
+            "gray8" | "idx8" => "idx8",
+            _ if wide => "rgba64fixed",
+            "bgr555" | "bgr565" | "bgr24" | "bgr32" | "bgra" | "pbgra" => f,
+            _ if straight => "bgra",
+            _ => "bgr24",
+        },
+        "png" | "tiff" => match f {
+            "gray2" if cont == "tiff" => "gray4",
+            "idx2" if cont == "tiff" => "idx4",
+            "cmyk" if cont == "tiff" => "cmyk",
+            _ if gray || wide => f,
+            "bgr24" | "bgra" | "idx1" | "idx2" | "idx4" | "idx8" => f,
+            "pbgra" => "bgra",
+            _ if straight => "bgra",
+            _ => "bgr24",
+        },
+        "gif" => "idx8",
+        "jpeg" => match f {
+            _ if gray || f == "alpha8" => "gray8",
+            "cmyk" => "cmyk",
+            _ => "bgr24",
+        },
+        "wmp" => match f {
+            "gray2" | "gray4" | "alpha8" => "gray8",
+            "rgb32" => "rgb24",
+            "rgba" => "bgra",
+            "prgba" => "pbgra",
+            _ if f.starts_with("idx") => "rgb24",
+            _ => f,
+        },
+        "dds" => "bgra",
+        _ => return None,
+    })
+}
+
+/// what WriteSource gives the encoder: an indexed source keeps its indices and palette in a
+/// wider index format; any other source written as indices has the palette of its colors in
+/// the order they first appear (MEASURED: golden wicencode enc-bmp-bw/gray*, encas-*-idx8: the
+/// sources' colors, all fewer than the palette holds); else the source converted
+fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
+    if c.fmt == nf {
+        return Ok(c.clone());
+    }
+    if nf == "bw" && !c.fmt.starts_with("gray") {
+        return Err(Fail::Unmodeled("WICIMAGE.ENCODE.BW"));
+    }
+    if !nf.starts_with("idx") {
+        hit("WICIMAGE.ENCODE.CONVERT");
+        return wic_convert(c, nf);
+    }
+    let mut o = Img::new(c.w, c.h, nf);
+    o.dpi = c.dpi;
+    if c.fmt == "bw" {
+        // (MEASURED: golden enc-bmp-bw: the rows as they are, even the bits past their end)
+        hit("WICIMAGE.ENCODE.BWINDEX");
+        o.px = c.px.clone();
+        o.pal = Some(vec![0xff00_0000, 0xffff_ffff]);
+        return Ok(o);
+    }
+    if c.fmt.starts_with("idx") {
+        hit("WICIMAGE.ENCODE.WIDEN");
+        o.pal = c.pal.clone();
+        for y in 0..c.h {
+            for x in 0..c.w {
+                o.put(x, y, &c.get(x, y));
+            }
+        }
+        return Ok(o);
+    }
+    let b = wic_convert(c, "bgra")?;
+    let mut pal: Vec<u32> = vec![];
+    for y in 0..c.h {
+        for x in 0..c.w {
+            let v = u32::from_le_bytes(b.get(x, y).try_into().unwrap());
+            let i = match pal.iter().position(|&p| p == v) {
+                Some(i) => i,
+                None => {
+                    pal.push(v);
+                    pal.len() - 1
+                }
+            };
+            if i >> bits_of(nf) != 0 {
+                return Err(Fail::Unmodeled("WICIMAGE.ENCODE.QUANTIZE"));
+            }
+            o.put(x, y, &[i as u8]);
+        }
+    }
+    // (MEASURED: golden enc-bmp-gray8: colors this close are not always told apart; which of
+    // them a pixel gets is open)
+    let near = |a: u32, b: u32| (0..4).all(|k| (a >> (8 * k + 4)) & 15 == (b >> (8 * k + 4)) & 15);
+    if pal.iter().enumerate().any(|(i, &a)| pal[..i].iter().any(|&b| near(a, b))) {
+        return Err(Fail::Unmodeled("WICIMAGE.ENCODE.QUANTIZE"));
+    }
+    hit("WICIMAGE.ENCODE.PALETTE");
+    o.pal = Some(pal);
+    Ok(o)
+}
+
 /// ASSUMED: the BMP encoder writes a BITMAPINFOHEADER file, bottom-up, rows padded to 4 bytes,
 /// the palette in full for indexed formats, the resolution in pixels a meter
 pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
-    if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32"].contains(&i.fmt) {
-        return Err(Fail::Unmodeled("WICIMAGE.ENCODE.BMP"));
+    if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32", "bgra", "pbgra"].contains(&i.fmt) {
+        return Err(Fail::Unmodeled("WICIMAGE.CONVERT.OTHER"));
     }
     hit("WICIMAGE.ENCODE.BMP");
     let bpp = bits_of(i.fmt);

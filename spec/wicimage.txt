@@ -26,6 +26,7 @@ WICIMAGE.FLIP.BAD open | IWICBitmapFlipRotator::Initialize | options outside 0x1
 WICIMAGE.CLIP doc | IWICBitmapClipper::Initialize | the rectangle of the source, in its format
 WICIMAGE.CLIP.RECT measured | IWICBitmapClipper::Initialize | a rectangle not inside the source, or empty: E_INVALIDARG (golden wictransform)
 WICIMAGE.CONVERT doc | IWICFormatConverter (spec/wic.txt) | a converter on the current source converts as the wic suite's convert does
+WICIMAGE.CONVERT.OTHER open | (none) | a conversion model::wic has no pair for (into 64bppRGBAFixedPoint: enc-bmp-gray16 writes 05a5 as 0e00), or of a palette other than the executor's
 # palettes
 WICIMAGE.PALETTE.BW doc | WICBitmapPaletteType (FixedBW) | black, white
 WICIMAGE.PALETTE.GRAY measured | WICBitmapPaletteType (FixedGray4, 16, 256) | n grays evenly from black to white, i * 255 / (n - 1) (golden wicpalette: every entry)
@@ -74,10 +75,16 @@ WICIMAGE.DDS measured | DDS Format Overview (BC1-3 as 32bppBGRA or 32bppPBGRA); 
 WICIMAGE.DDS.OTHER measured | DDS Format Overview (only BC1, BC2, BC3) | an uncompressed file: WINCODEC_ERR_BADHEADER from the decoder (golden wicdecode dds-argb)
 # encoders
 WICIMAGE.ENCODE.FORMAT doc | Native Pixel Formats Overview (encoder pixel formats) | a format the encoder takes: SetPixelFormat leaves it
-WICIMAGE.ENCODE.NEGOTIATE open | IWICBitmapFrameEncode::SetPixelFormat | a format it does not take: the one it answers
-WICIMAGE.ENCODE.CONVERT open | IWICBitmapFrameEncode::WriteSource | a source of a format other than the frame's
-WICIMAGE.ENCODE.BMP assumed | BMP Format Overview | BITMAPINFOHEADER, bottom-up, rows padded to 4 bytes, the palette in full, resolution in pixels a meter
-WICIMAGE.ENCODE.LOSSLESS assumed | Native Pixel Formats Overview | PNG and TIFF decode to the format and the pixels written
+WICIMAGE.ENCODE.NEGOTIATE measured | IWICBitmapFrameEncode::SetPixelFormat (the closest format it supports) | BMP: BlackWhite 1bppIndexed, 2/4bppGray and 2bppIndexed 4bppIndexed, 8bppGray 8bppIndexed, 16bppGray 48bppRGB 64bppRGBA 64bppRGBAFixedPoint, 32bppRGBA 32bppPRGBA 8bppAlpha 32bppBGRA, the rest 24bppBGR; PNG: every gray, 24bppBGR, 32bppBGRA, 48bppRGB, 64bppRGBA and the indexed as they are, 32bppPBGRA and the straight RGBA ones 32bppBGRA, the rest 24bppBGR; TIFF as PNG but 2bppGray 4bppGray, 2bppIndexed 4bppIndexed and 32bppCMYK kept; GIF: 8bppIndexed; JPEG: gray and 8bppAlpha 8bppGray, 32bppCMYK, the rest 24bppBGR; JPEG XR: 2/4bppGray and 8bppAlpha 8bppGray, 32bppRGB 24bppRGB, 32bppRGBA 32bppBGRA, 32bppPRGBA 32bppPBGRA, the indexed 24bppRGB, the rest as they are; DDS: 32bppBGRA (golden wicencode enc-*: 23 formats into each of 7 encoders, all as Windows)
+WICIMAGE.ENCODE.CONVERT measured | IWICBitmapFrameEncode::WriteSource (converts the source to the frame's format) | as IWICFormatConverter (WIC.*) would (golden wicencode enc-*/encas-*, as Windows where the converter is modeled)
+WICIMAGE.ENCODE.WIDEN measured | (none) | an indexed source into a wider indexed format: its indices and palette (golden enc-bmp-idx2, enc-tiff-idx2)
+WICIMAGE.ENCODE.BWINDEX measured | (none) | BlackWhite into 1bppIndexed: the rows as they are, the bits past their end too, with the palette black, white (golden enc-bmp-bw)
+WICIMAGE.ENCODE.PALETTE measured | (none) | any other source into an indexed format: the palette of its colors in the order they first appear (rows top down), each pixel its color's index (golden enc-bmp-gray2/gray4, encas-*-idx8)
+WICIMAGE.ENCODE.QUANTIZE open | (none) | colors that agree in the high 4 bits of every channel: Windows gives such pixels the index of another of them (enc-bmp-gray8: f9 the index of fc, 8e that of 84), and more colors than the palette holds
+WICIMAGE.ENCODE.BW open | (none) | a color source into BlackWhite: not 8bppGray against 128 (encas-png-bw, encas-tiff-bw: 9c 6a 82 8e gives 0 1 0 1)
+WICIMAGE.ENCODE.MISSING measured | IWICImagingFactory::CreateEncoder | the HEIF encoder 0x88982f8b (WINCODEC_ERR_UNSUPPORTEDOPERATION), the WebP encoder 0x88982f50 (WINCODEC_ERR_COMPONENTNOTFOUND): not on windows-2025 (golden enc-heif-*, enc-webp-*)
+WICIMAGE.ENCODE.BMP measured | BMP Format Overview | BITMAPINFOHEADER, bottom-up, rows padded to 4 bytes, the palette's entries (biClrUsed and biClrImportant their number, alpha bytes kept), biSizeImage 0, resolution in pixels a meter; 32bppBGRA and 32bppPBGRA as 32-bit BI_RGB (decoded as 32bppBGR) (golden wicencode enc-bmp-*: every byte, all as Windows)
+WICIMAGE.ENCODE.LOSSLESS measured | Native Pixel Formats Overview | PNG and TIFF decode to the format and the pixels written (golden wicencode enc-png-*/enc-tiff-*/encas-*, all as Windows that are modeled)
 WICIMAGE.ENCODE.GIF open | (none) | GIF: the palette written
 WICIMAGE.ENCODE.LOSSY open | (none) | JPEG, JPEG XR, DDS: what decodes from them
 WICIMAGE.ENCODE.OPTIONS open | (none) | encoder options
