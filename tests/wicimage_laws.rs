@@ -471,3 +471,17 @@ proptest! {
         }
     }
 }
+
+/// an option the encoder takes for lossless changes nothing the decoder gives back; every option
+/// line parses into a measured effect or an open clause, never a bad line
+#[test]
+fn encoder_options_are_typed() {
+    use wi::EncodeOption as O;
+    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless)] {
+        assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
+    }
+    for (c, o) in [("jpeg", "ImageQuality=1.0"), ("tiff", "TiffCompressionMethod=3"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
+        assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
+    }
+    assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
+}

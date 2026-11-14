@@ -1771,6 +1771,45 @@ pub fn encoder_formats(c: &str) -> &'static [&'static str] {
     }
 }
 
+/// what an encoder option does, as far as measured
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum EncodeOption {
+    /// changes the file, not the pixels it decodes to
+    Lossless,
+    /// BMP's EnableV5Header32bppBGRA
+    V5Header(bool),
+    /// TIFF's CCITT compression: the frame takes BlackWhite
+    BlackWhite,
+    /// an option of another encoder: IPropertyBag2::Write fails (E_FAIL)
+    Rejected,
+    /// WMP's Lossless
+    WmpLossless,
+}
+
+#[derive(Default, Clone, Copy)]
+struct EncodeOptions {
+    v5: bool,
+    bw: bool,
+    wmp_lossless: bool,
+}
+
+/// MEASURED (golden wicencode opt-*: every option the cases set, on BGRA, BGR and gray sources):
+/// PNG's InterlaceOption and FilterOption (1 to 6), TIFF's TiffCompressionMethod 1 (none), 6
+/// (ZIP) and 7 (LZW with differencing) change only the file; TiffCompressionMethod 2 (CCITT3)
+/// makes the frame BlackWhite; WMP's Lossless keeps every pixel; PNG takes no ImageQuality. Other names and values are not measured.
+pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
+    let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
+    Ok(match (cont, name, val) {
+        ("png", "InterlaceOption", "0" | "1") | ("png", "FilterOption", "1" | "2" | "3" | "4" | "5" | "6") | ("tiff", "TiffCompressionMethod", "1" | "6" | "7") => EncodeOption::Lossless,
+        ("bmp", "EnableV5Header32bppBGRA", "0") => EncodeOption::V5Header(false),
+        ("bmp", "EnableV5Header32bppBGRA", "1") => EncodeOption::V5Header(true),
+        ("tiff", "TiffCompressionMethod", "2") => EncodeOption::BlackWhite,
+        ("png", "ImageQuality", _) => EncodeOption::Rejected,
+        ("wmp", "Lossless", "1") => EncodeOption::WmpLossless,
+        _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
+    })
+}
+
 pub enum Encoded {
     Bytes(Vec<u8>),
     /// a lossless file the model has no bytes of: what decodes from it
@@ -2036,9 +2075,6 @@ impl WicImage {
                     fmt = fmt_static(t[2]);
                     first = 3;
                 }
-                if t.len() > first {
-                    return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS));
-                }
                 self.enc = None;
                 // (MEASURED: HEIF's and WebP's encoders are not there on windows-2025)
                 if let Some(hr) = match cont {
@@ -2050,16 +2086,43 @@ impl WicImage {
                     out.push(format!("wencode {hr:08x} {fmt} create"));
                     return Ok(true);
                 }
-                let nf = negotiate(cont, fmt).ok_or(Fail::Bad)?;
+                let mut opts = EncodeOptions::default();
+                for o in &t[first..] {
+                    match option(cont, o)? {
+                        EncodeOption::Lossless => hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS),
+                        EncodeOption::V5Header(v5) => {
+                            hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS);
+                            opts.v5 = v5;
+                        }
+                        EncodeOption::BlackWhite => {
+                            hit(clause::WICIMAGE_ENCODE_OPTION_CCITT);
+                            opts.bw = true;
+                        }
+                        EncodeOption::WmpLossless => {
+                            hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS);
+                            opts.wmp_lossless = true;
+                        }
+                        EncodeOption::Rejected => {
+                            hit(clause::WICIMAGE_ENCODE_OPTION_FOREIGN);
+                            out.push(format!("wencode 80004005 {fmt} option"));
+                            return Ok(true);
+                        }
+                    }
+                }
+                let nf = if opts.bw { "bw" } else { negotiate(cont, fmt).ok_or(Fail::Bad)? };
                 hit(if nf == fmt { clause::WICIMAGE_ENCODE_FORMAT } else { clause::WICIMAGE_ENCODE_NEGOTIATE });
                 let img = encode_source(&c, nf)?;
                 let enc = match cont {
+                    // (MEASURED: golden opt-0-bgra: a v5 header keeps 32bppBGRA's alpha, it decodes as
+                    // 32bppBGRA; without, as 32bppBGR)
+                    "bmp" if opts.v5 && img.fmt == "bgra" => Encoded::Decodes("bmp", img),
                     "bmp" => Encoded::Bytes(encode_bmp(&img)?),
                     "png" | "tiff" => {
                         hit(clause::WICIMAGE_ENCODE_LOSSLESS);
                         Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, img)
                     }
                     "gif" => Encoded::Bytes(encode_gif(&img)?),
+                    "wmp" if opts.wmp_lossless => Encoded::Decodes("wmp", img),
                     _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),
                 };
                 out.push(format!("wencode 00000000 {nf} ok"));
@@ -2087,8 +2150,9 @@ impl WicImage {
                 Some(Encoded::Decodes(cont, img)) => {
                     out.push(format!("wredecode 00000000 {cont} frames 1"));
                     let mut i = img.clone();
-                    // (MEASURED: written at 96 dpi when the source has none)
-                    if i.dpi == (0.0, 0.0) {
+                    // (MEASURED: written at 96 dpi when the source has none, but by WMP's
+                    // encoder (golden opt-18-*: 0 dpi))
+                    if i.dpi == (0.0, 0.0) && cont != "wmp" {
                         i.dpi = (96.0, 96.0);
                     }
                     i.pal = img.pal.clone();
@@ -2266,6 +2330,11 @@ pub fn dither(w: usize, h: usize, px: &dyn Fn(usize, usize) -> [i32; 3], pal: &[
 fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     if c.fmt == nf {
         return Ok(c.clone());
+    }
+    // (MEASURED: golden opt-10-gray8: an 8bppGray source dithers as a color one's gray)
+    if nf == "bw" && c.fmt == "gray8" {
+        hit(clause::WICIMAGE_ENCODE_BW);
+        return Ok(dither_bw(c));
     }
     if nf == "bw" && !c.fmt.starts_with("gray") {
         // MEASURED (golden wicencode encbw-b-95, -110, -155, -170, -g-35, -r-65, -130): the
