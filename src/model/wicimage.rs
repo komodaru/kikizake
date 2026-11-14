@@ -89,7 +89,8 @@ impl Img {
             let shift = 8 - b - bit % 8;
             let m = ((((1u16 << b) - 1) as u8) as u32) << shift;
             let byte = &mut row[(bit / 8) as usize];
-            *byte = (*byte & !(m as u8)) | ((v[0] as u32) << shift & m) as u8;
+            // (the field cleared, then the value added in: no carry can leave it)
+            *byte = (*byte & !(m as u8)) + ((v[0] as u32) << shift & m) as u8;
         } else {
             let n = (b / 8) as usize;
             row[x as usize * n..x as usize * n + n].copy_from_slice(v);

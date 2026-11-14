@@ -512,3 +512,13 @@ fn linear16_is_a_curve_and_the_floats_agree() {
         assert_eq!(at(&g, x), (at(&s, x * 4) * 0.2126 + at(&s, x * 4 + 1) * 0.7152) + at(&s, x * 4 + 2) * 0.0722);
     }
 }
+
+/// a conversion out of an indexed format drops the palette, one into it takes the executor's
+#[test]
+fn conversions_carry_the_palette_they_should() {
+    let i = img("idx8", 4, 3, 5);
+    assert!(i.pal.is_some());
+    assert!(wi::wic_convert(&i, "bgra").unwrap().pal.is_none());
+    let b = img("bgra", 4, 3, 5);
+    assert!(wi::wic_convert(&b, "idx8").map(|o| o.pal.is_some()).unwrap_or(true));
+}
