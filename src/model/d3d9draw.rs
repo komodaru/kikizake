@@ -886,8 +886,10 @@ impl D3d9 {
     /// a sampler state (Direct3D 8: the stage state of the same meaning)
     fn samp(&self, s: u32, t: u32) -> u32 {
         if self.v8 {
-            // ADDRESSU V W, BORDERCOLOR, MAG MIN MIP filters: stage states 13 14 25 15 16 17 18
-            let t8 = [0, 13, 14, 25, 15, 16, 17, 18][t as usize];
+            // ADDRESSU V W, BORDERCOLOR, MAG MIN MIP filters, MIPMAPLODBIAS, MAXMIPLEVEL,
+            // MAXANISOTROPY: stage states 13 14 25 15 16 17 18 19 20 21
+            const T8: [u32; 11] = [0, 13, 14, 25, 15, 16, 17, 18, 19, 20, 21];
+            let t8 = T8[t as usize];
             self.tss(s, t8)
         } else {
             self.state.get(&Key::Ss(s, t)).copied().unwrap_or(0)
