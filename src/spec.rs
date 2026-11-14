@@ -23,6 +23,7 @@ pub const FILES: &[(&str, &str)] = &[
     ("wic", include_str!("../spec/wic.txt")),
     ("ddraw", include_str!("../spec/ddraw.txt")),
     ("gdiplus", include_str!("../spec/gdiplus.txt")),
+    ("dwrite", include_str!("../spec/dwrite.txt")),
 ];
 
 /// (excluded: deliberately not asked, e.g. calls that read past Windows' own arrays)

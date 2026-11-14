@@ -8,6 +8,7 @@ pub mod d3d9;
 pub mod gdi;
 pub mod gdiplus;
 pub mod wic;
+pub mod dwrite;
 
 use crate::case::Case;
 
@@ -65,6 +66,9 @@ impl Api for ddraw::Ddraw {
 impl Api for gdiplus::Gdiplus {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         gdiplus::Gdiplus::op(self, op, out)
+impl Api for dwrite::Dwrite {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        dwrite::Dwrite::op(self, op, out)
     }
 }
 
@@ -77,6 +81,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(Wic),
         Box::new(ddraw::Ddraw::default()),
         Box::new(gdiplus::Gdiplus::default()),
+        Box::new(dwrite::Dwrite::default()),
     ]
 }
 

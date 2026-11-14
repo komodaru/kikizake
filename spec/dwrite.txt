@@ -1,0 +1,8 @@
+# DirectWrite clauses (spec/README.md): <id> <status> | <source> | <what it says>
+DW.FACE open | IDWriteFontFile::Analyze, IDWriteFontFace | a font file's face and its metrics
+DW.SHAPE open | IDWriteTextAnalyzer::GetGlyphs, GetGlyphPlacements | shaping
+DW.RUN open | IDWriteGlyphRunAnalysis | rasterization
+DW.LAYOUT open | IDWriteTextLayout | layout
+DW.SCRIPT open | IDWriteTextAnalyzer::AnalyzeScript | script runs
+DW.BIDI open | IDWriteTextAnalyzer::AnalyzeBidi | bidi levels
+DW.BREAK open | IDWriteTextAnalyzer::AnalyzeLineBreakpoints | line breaks

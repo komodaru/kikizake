@@ -15,3 +15,4 @@ pub mod gen;
 pub mod model;
 pub mod rng;
 pub mod spec;
+pub mod ttf;

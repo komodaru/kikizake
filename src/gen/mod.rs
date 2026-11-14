@@ -12,6 +12,7 @@ mod ddraw;
 mod gdi;
 mod gdiplus;
 mod wic;
+mod dwrite;
 
 pub use d3d11::{d3d11_base, d3d11_floats};
 pub(crate) use crate::rng::XorShift32;
@@ -30,6 +31,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("ddraw", ddraw::ddraw),
     ("d2d", d2d::d2d),
     ("gdiplus", gdiplus::gdiplus),
+    ("dwrite", dwrite::dwrite),
 ];
 
 pub const SUITES: &[&str] = &{
