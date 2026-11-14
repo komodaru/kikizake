@@ -570,6 +570,42 @@ fn probes(s: &mut String, dev: &str) {
         read_rt(s, 0, 2, 16, 16);
         writeln!(s, "end").unwrap();
     }
+    // to separate the interpolation's parts: w = 1 inside the target (the plane equations'
+    // arithmetic), inside with w (the perspective division), one vertex past one edge (the
+    // clipping and its triangles), with w = 1 and with w
+    let mut r2 = XorShift32::new(0x1e7e_4b);
+    let tri_case = |s: &mut String, r: &mut XorShift32, name: String, past: Option<u32>, persp: bool| {
+        begin(s, dev, &name, 24, 24, 2, "ps");
+        for k in 0..3u32 {
+            let (mut x, mut y) = (px(r, 1, 23), px(r, 1, 23));
+            if k == 0 {
+                match past {
+                    Some(0) => x = -px(r, 1, 12),
+                    Some(1) => x = 24.0 + px(r, 1, 12),
+                    Some(2) => y = 24.0 + px(r, 1, 12),
+                    Some(_) => y = -px(r, 1, 12),
+                    None => {}
+                }
+            }
+            let (z, w) = (unit(r), if persp { 0.25 + 3.75 * unit(r) } else { 1.0 });
+            let (nx, ny) = (x / 24.0 * 2.0 - 1.0, 1.0 - y / 24.0 * 2.0);
+            let c = [unit(r), unit(r), unit(r), unit(r)];
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(nx * w), fb(ny * w), fb(z * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+        }
+        writeln!(s, "draw 4 3 32").unwrap();
+        read_rt(s, 0, 2, 24, 24);
+        writeln!(s, "end").unwrap();
+    };
+    for i in 0..12 {
+        tri_case(s, &mut r2, format!("probe-interp-affine-{i}"), None, false);
+        tri_case(s, &mut r2, format!("probe-interp-persp-{i}"), None, true);
+    }
+    for plane in 0..4u32 {
+        for i in 0..3 {
+            tri_case(s, &mut r2, format!("probe-interp-clip{plane}-{i}"), Some(plane), false);
+            tri_case(s, &mut r2, format!("probe-interp-clip{plane}w-{i}"), Some(plane), true);
+        }
+    }
     for (name, top, n, fill) in [("points", 1u32, 24u32, 3u32), ("lines", 2, 16, 3), ("linestrip", 3, 9, 3), ("wire", 4, 6, 2)] {
         for i in 0..8 {
             begin(s, dev, &format!("probe-{name}-{i}"), 16, 16, 28, "ps");
