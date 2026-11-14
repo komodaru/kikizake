@@ -34,7 +34,7 @@ D3D9.SCISSOR doc | IDirect3DDevice9::SetScissorRect, D3DRS_SCISSORTESTENABLE | (
 D3D9.TEX.CREATE doc | IDirect3DDevice9::CreateTexture | a texture of one level in the managed pool; its level locks as rows of its format
 D3D9.TEX.DECODE measured | D3DFORMAT | each texel's channels as numbers: unsigned normalized v / (2^n - 1), signed (bump) v / (2^(n-1) - 1), floats as they are
 D3D9.TEX.MISSING measured | D3DFORMAT | channels a format lacks: alpha 1, color 1 (A8: color 0); luminance in red, green and blue
-D3D9.TEX.FORMAT open | D3DFORMAT | YUV formats as sampled
+D3D9.TEX.FORMAT measured | D3DFORMAT; golden d3d9draw, d3d8draw tex-*, check-*; law every_taken_format_is_decoded | every format WARP takes as a texture is sampled by its channels, DXT (D3D9.TEX.DXT) or palette (D3D9.TEX.PALETTE); the YUV formats are not taken (D3D9.FORMATS), so none is sampled
 D3D9.TEX.PALETTE measured | SetPaletteEntries, SetCurrentTexturePalette, D3DFMT_P8, D3DFMT_A8P8; golden d3d9draw, d3d8draw palette-* | a P8 texel is its palette entry's color with the entry's flags as alpha; an A8P8 texel the entry's color with its own alpha
 D3D9.TEX.PALETTE.NONE measured | golden d3d9draw, d3d8draw tex-*-P8, tex-*-A8P8 | drawing with a palette texture before any palette is set fails with D3DERR_INVALIDCALL and draws nothing
 D3D9.TEX.DXT measured | Block Compression (Direct3D 9), D3DFORMAT DXT1..DXT5; golden d3d9draw tex-float-DXT*, tex-random-DXT*, tex-ramp-DXT* | DXT texels: the 565 endpoints widened by repeating their top bits; a third as 171/256 and 85/256 of the endpoints, taken down; DXT1's half (3-color blocks) taken down; DXT2/3 alpha 4 bits times 17; DXT4/5 alpha sevenths and fifths rounded to nearest

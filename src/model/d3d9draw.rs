@@ -665,7 +665,7 @@ impl D3d9 {
                     out.push(format!("target failed {INVALIDCALL:08x}"));
                     return Ok(true);
                 }
-                let fm = format(f).ok_or(Fail::Unmodeled(open::D3D9_TEX_FORMAT))?;
+                let fm = format(f).ok_or(Fail::Bad)?;
                 self.draw.rt = Some(Surface { w, h, fmt: f, bytes: vec![0; (w * h) as usize * fm.bytes] });
                 self.draw.depth = vec![0; (w * h) as usize];
                 self.draw.stencil = vec![0; (w * h) as usize];
@@ -808,7 +808,7 @@ impl D3d9 {
                     out.push(format!("tex failed {INVALIDCALL:08x}"));
                     return Ok(true);
                 }
-                let fm = format(f).ok_or(Fail::Unmodeled(open::D3D9_TEX_FORMAT))?;
+                let fm = format(f).ok_or(Fail::Bad)?;
                 self.draw.texs[i] = Some(Surface { w, h, fmt: f, bytes: fill_bytes(&fm, w, h, 0).iter().map(|_| 0).collect() });
             }
             "d9texfill" => {
@@ -959,6 +959,7 @@ impl D3d9 {
             return Ok(argb(self.samp(st, 4)));
         };
         let fm = format(tx.fmt).unwrap();
+        hit(clause::D3D9_TEX_FORMAT);
         match fm.kind {
             Kind::Int | Kind::F16 | Kind::F32 if !fm.ch.iter().any(|c| c.c == b'p') => {}
             Kind::Dxt(n) => return Ok(dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32)),
@@ -970,7 +971,8 @@ impl D3d9 {
                 let a = if tx.fmt == 40 { p[1] } else { e[3] };
                 return Ok([e[0] as f64 / 255.0, e[1] as f64 / 255.0, e[2] as f64 / 255.0, a as f64 / 255.0]);
             }
-            _ => return Err(Fail::Unmodeled(open::D3D9_TEX_FORMAT)),
+            // (none taken: every format WARP takes is decoded above, law every_taken_format_is_decoded)
+            _ => return Err(Fail::Bad),
         }
         hit(clause::D3D9_TEX_DECODE);
         Ok(to_rgba(tx.fmt, &decode(&fm, tx.px(x as i32, y as i32))))

@@ -221,3 +221,22 @@ proptest! {
         prop_assert_eq!(f16_block(bits), if tie && ieee & 1 == 0 { ieee - 1 } else { ieee });
     }
 }
+
+/// every format WARP takes as a texture or a target (either API) has a decoding the model samples
+/// with: none of the formats it takes falls to the model's "bad line" (D3D9.TEX.FORMAT)
+#[test]
+fn every_taken_format_is_decoded() {
+    for &(f, name) in TEXTURE_FORMATS {
+        for v8 in [false, true] {
+            for rt in [false, true] {
+                if !supported(f, rt, v8) {
+                    continue;
+                }
+                let m = format(f).unwrap_or_else(|| panic!("{name} taken but not decoded"));
+                assert!(!matches!(m.kind, Kind::Yuv), "{name}");
+                let p = m.ch.iter().any(|c| c.c == b'p');
+                assert!(!p || matches!(f, 40 | 41), "{name}");
+            }
+        }
+    }
+}
