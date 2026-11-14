@@ -25,14 +25,16 @@ pub fn compare(want: &Output, got: &Output) -> Report {
     let mut gi = 0;
     for (name, wl) in &want.cases {
         r.cases += 1;
+        // (cases in the same order; a missing one does not shift the rest)
+        let found = got.cases[gi.min(got.cases.len())..].iter().position(|(n, _)| n == name);
         if wl.first().is_some_and(|l| l.starts_with("unmodeled")) {
             r.unmodeled += 1;
-            if got.cases.iter().any(|(n, _)| n == name) {
+            // (an unmodeled case passes over its answer, so that a later case of the same name
+            // is compared with its own; found only earlier, it is not missing either)
+            if found.is_none() && got.cases.iter().any(|(n, _)| n == name) {
                 continue;
             }
         }
-        // (cases in the same order; a missing one does not shift the rest)
-        let found = got.cases[gi.min(got.cases.len())..].iter().position(|(n, _)| n == name);
         let Some(k) = found else {
             r.differ.push(format!("{name}: missing (the program stopped or skipped it)"));
             continue;
