@@ -616,6 +616,19 @@ pub fn d3d12() -> String {
     for (w, h) in [(4096u32, 4u32), (4, 4096)] {
         edge.push((format!("copy-edge-{w}x{h}"), format!("copy12 28 {w} {h} 0")));
     }
+    // (added after: what of a 2D texture lifts the size limit)
+    for (n, d) in [
+        ("w16385-a2", Desc { w: 16385, d: 2, ..t2 }), ("w16385-m2", Desc { w: 16385, mips: 2, ..t2 }), ("w16385-m3", Desc { w: 16385, mips: 3, ..t2 }), ("w16385-m0", Desc { w: 16385, mips: 0, ..t2 }),
+        ("h16385-a2", Desc { h: 16385, d: 2, ..t2 }), ("h16385-m2", Desc { h: 16385, mips: 2, ..t2 }), ("w65536", Desc { w: 65536, ..t2 }), ("w65537", Desc { w: 65537, ..t2 }), ("wmax", Desc { w: 0xffff_ffff, h: 1, ..t2 }),
+        ("rt-w16385-m3", Desc { w: 16385, mips: 3, ..rt }), ("rt-w16385-a2", Desc { w: 16385, d: 2, ..rt }), ("ds-w16385-a2", Desc { w: 16385, d: 2, flags: 2, fmt: 40, ..t2 }),
+        ("w16385-bc1", Desc { w: 16388, fmt: 71, ..t2 }), ("w16385-uav", Desc { w: 16385, flags: 4, ..t2 }), ("w16385-l2", Desc { w: 16385, layout: 2, ..t2 }),
+    ] {
+        edge.push((format!("create-edge2-{n}"), format!("create12 1 0 {}", desc_str(&d))));
+        edge.push((format!("alloc-edge2-{n}"), format!("alloc12 {}", desc_str(&d))));
+    }
+    for w in [0xffff_ff02u32, 0xffff_ff80, 0xffff_fff0, 0xffff_fffe] {
+        edge.push((format!("fp-edge-buffer-{w:x}"), format!("footprint12 0 1 0 {}", desc_str(&Desc::buffer(w)))));
+    }
     for (n, l) in edge {
         writeln!(s, "case {n}\ndevice12\n{l}\nend").unwrap();
     }

@@ -165,17 +165,22 @@ pub fn check(d: &Desc, strict: bool) -> Result<(), crate::spec::ClauseId> {
         Dim::Tex3D | Dim::Unknown | Dim::Buffer | Dim::Other => (2048, 2048, 2048),
     };
     no(d.d > dmax || d.h > hmax && d.kind() == Dim::Tex1D, clause::D3D12_DESC_SIZE)?;
-    // (MEASURED: GetCopyableFootprints checks the 3D limits, not those of 1D and 2D textures)
-    if strict || d.kind() == Dim::Tex3D {
+    // (MEASURED: GetCopyableFootprints checks the 1D and 3D size limits, not those of 2D
+    // textures (golden d3d12-* fp-edge-*), nor the mip count)
+    if strict || d.kind() != Dim::Tex2D {
         no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE)?;
+    } else if d.w > wmax || d.h > hmax {
+        hit(clause::D3D12_FOOTPRINT_LIMITS);
+    }
+    if strict {
         no(d.mips > full_chain(d), clause::D3D12_DESC_MIPS)?;
-    } else if d.w > wmax || d.h > hmax || d.mips > full_chain(d) {
+    } else if d.mips > full_chain(d) {
         hit(clause::D3D12_FOOTPRINT_LIMITS);
     }
     no(!matches!(d.align, 0 | 4096 | 65536 | 4194304), clause::D3D12_DESC_ALIGN)?;
     no(d.samples == 0, clause::D3D12_DESC_MSAA)?;
     if d.samples > 1 || d.quality > 0 {
-        no(d.kind() != Dim::Tex2D || d.flags & 3 == 0 || d.mips != 1 || d.flags & 0x24 != 0 || d.layout == 3, clause::D3D12_DESC_MSAA)?;
+        no(d.kind() != Dim::Tex2D || d.flags & 3 == 0 || d.mips != 1 || d.flags & 0x20 != 0 || d.layout == 3, clause::D3D12_DESC_MSAA)?;
     }
     no(d.layout > 3, clause::D3D12_DESC_LAYOUT)?;
     Ok(())
@@ -198,8 +203,9 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
     }
     if d.kind() == Dim::Buffer {
         hit(clause::D3D12_FOOTPRINT_BUFFER);
-        // (MEASURED: a row pitch past 32 bits is invalid)
-        if align(d.w as u64, 256) > u32::MAX as u64 {
+        // (MEASURED: Width 0xffffffff is invalid; 0xffffff01 not, its row pitch wrapping to 0,
+        // golden d3d12-* fp-buffer, fp-edge-buffer-*)
+        if d.w == u32::MAX {
             return Ok(invalid_fps(count));
         }
         if first as u64 + count as u64 > 1 {
@@ -997,6 +1003,9 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     let (wmax, hmax) = match d.kind() {
         Dim::Tex3D => (2048, 2048),
         Dim::Tex2D if target && !ms => (u32::MAX, u32::MAX),
+        // (MEASURED, golden d3d12-* create-edge-2d-w16385, -h16385: nor a single 2D texture of
+        // one mip level; fitted by create-edge2-*)
+        Dim::Tex2D if !ms && d.mips == 1 && d.d == 1 => (u32::MAX, u32::MAX),
         Dim::Tex2D | Dim::Tex1D | Dim::Unknown | Dim::Buffer | Dim::Other => (16384, 16384),
     };
     if no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE) {
