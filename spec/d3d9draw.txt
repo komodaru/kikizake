@@ -47,7 +47,8 @@ D3D9.STAGE.OPEN open | D3DTEXTUREOP | PREMODULATE, the bump mapping operations, 
 D3D9.STAGE.NOTEX measured | golden d3d9draw top-*, d3d8draw tex-* of formats it does not take | the texture argument where the stage has no texture: color 1, the current alpha
 D3D9.STAGE.ARG measured | D3DTA, D3DTSS_RESULTARG, D3DTSS_CONSTANT; golden d3d9draw stage-temp-const-* | (9) RESULTARG TEMP writes the TEMP register (0 to begin with) in place of CURRENT; D3DTA_TEMP reads it, D3DTA_CONSTANT the stage's CONSTANT
 D3D9.STAGE.MULTI measured | D3DTEXTUREOP, D3DTSS_COLOROP; golden d3d9draw, d3d8draw stage1-* | the stages in turn to the first whose COLOROP is DISABLE, CURRENT the stage before's result, each its own texture and sampler states
-D3D9.STAGE.ALPHADISABLE open | (cases alphadisable-*) | ALPHAOP DISABLE with COLOROP enabled
+D3D9.STAGE.ALPHADISABLE.FIRST measured | golden d3d9draw, d3d8draw alphadisable-* (30 cases) | ALPHAOP DISABLE with COLOROP enabled on stage 0: the alpha the stage is given (the diffuse one) where the color operation reads DIFFUSE or CURRENT (an argument it uses, BLENDDIFFUSEALPHA, BLENDCURRENTALPHA), else 1; DOTPRODUCT3 writes its own
+D3D9.STAGE.ALPHADISABLE open | (cases alphadisable-stage1-*) | ALPHAOP DISABLE with COLOROP enabled on a later stage
 D3D9.SPECULAR doc | D3DRS_SPECULARENABLE | the specular color added to the color
 D3D9.FOG open | (cases fog-*) | fog
 D3D9.ALPHATEST doc | D3DRS_ALPHATESTENABLE, D3DRS_ALPHAREF, D3DRS_ALPHAFUNC | a pixel is drawn when its alpha (8 bits) compares true against ALPHAREF's low 8 bits
@@ -58,7 +59,7 @@ D3D9.BLEND measured | D3DBLEND, D3DBLENDOP, D3DRS_SEPARATEALPHABLENDENABLE; gold
 D3D9.BLEND.TIE measured | golden d3d9draw blend-dest-11, blend-random-8, -10, -16, -18, -19, -21, blend-fmt-X8R8G8B8-4, blend-op-*, blend-src-*; d3d8draw blend-src-11, blend-random-1, -2, -5, -17, -23, -38 (all 154391 channel values of the 16 x 16 cases, and the 256 x 256 ones) | two roundings: with SRCALPHASAT among the factors (color or separate alpha), SEPARATEALPHABLENDENABLE on, or a target with X bits, each channel is the exact sum rounded to nearest; otherwise the 8.8 rule
 D3D9.BLEND.BOTHALPHA open | golden d3d9draw blend-random-31 | BOTHSRCALPHA / BOTHINVSRCALPHA as the separate alpha's factor
 D3D9.DRAW.XZERO measured | golden d3d9draw blend-fmt-X8R8G8B8-* | a draw writes 0 in a target's unused X bits (Clear writes the alpha there)
-D3D9.BLEND.FORMAT open | (cases blend-fmt-*) | blending on targets other than 8-bit unsigned ones 
+D3D9.BLEND.FORMAT measured | golden d3d9draw blend-fmt-* (95 cases, x64) | blending on targets other than 8-bit unsigned ones: in f32, the source clamped to 0..1, the destination as read, the result written as the format writes
 D3D9.BLEND.FACTOR open | (cases blend-factor8) | Direct3D 8's BLENDFACTOR, which it does not have
 D3D9.BLEND.OPX86 measured | golden d3d9draw-32, d3d8draw-32 of c453900 and 76630c7 (exit 127 at blend-badop-0, blend-badop-6) | the x86 runtimes die drawing with a BLENDOP outside ADD..MAX (0, 6, 7 asked), so the x86 executor reads BLENDOP back and does not draw; x64 draws
 D3D9.BLEND.OP open | (cases blend-badop-*) | blend operations outside ADD..MAX on x64 (0, 6, 7, 0xffffffff asked)

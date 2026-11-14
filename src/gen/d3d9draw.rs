@@ -619,6 +619,16 @@ fn suite(v8: bool) -> String {
         quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
         writeln!(s, "d9rt\nend").unwrap();
     }
+    // ALPHAOP DISABLE on stage 1 under stage 0's MODULATE (whose alpha the texture's times the
+    // diffuse one), stage 1 reading CURRENT, the texture, the texture factor
+    for (i, &(op, _)) in TOPS.iter().enumerate().filter(|(_, t)| !matches!(t.0, 1 | 17 | 22 | 23)) {
+        open(&mut s, &format!("alphadisable-stage1-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nd9settex 1 0\nrs set 60 {:#x}", r.next(), r.next(), r.next()).unwrap();
+        writeln!(s, "tss set 0 1 4\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 4\ntss set 0 5 2\ntss set 0 6 0").unwrap();
+        writeln!(s, "tss set 1 1 {op}\ntss set 1 2 {}\ntss set 1 3 {}\ntss set 1 26 {}\ntss set 1 4 1\ntss set 1 11 0", r.pick(&[1u32, 2, 3]), r.pick(&[1u32, 2, 3]), r.pick(&[1u32, 2, 3])).unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
     // which triangles are clipped: one vertex k/8 pixel past -0.5 or size - 0.5 on one side,
     // the others inside, Gouraud shaded over a 32 x 32 target (a clipped triangle's pieces shade a
     // few pixels one off from the whole triangle's)

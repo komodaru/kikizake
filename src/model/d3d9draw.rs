@@ -991,7 +991,7 @@ impl D3d9 {
             if st > 0 {
                 hit(clause::D3D9_STAGE_MULTI);
             }
-            if aop == 1 {
+            if aop == 1 && st > 0 {
                 return Err(Fail::Unmodeled(open::D3D9_STAGE_ALPHADISABLE));
             }
             let tex = match self.draw.stage_tex[st as usize] {
@@ -1004,7 +1004,19 @@ impl D3d9 {
                 }
                 None => None,
             };
-            let out = self.stage(st, cop, aop, &r, tex)?;
+            let out = if aop == 1 {
+                // ALPHAOP DISABLE under an enabled COLOROP (MEASURED, alphadisable-*, stage 0):
+                // the alpha the stage is given where its color operation reads the diffuse color
+                // or CURRENT, else 1 (DOTPRODUCT3 writes its own)
+                hit(clause::D3D9_STAGE_ALPHADISABLE_FIRST);
+                let mut out = self.stage(st, cop, 2, &r, tex)?;
+                if cop != 24 {
+                    out[3] = if self.reads_current(st, cop) { r.current[3] } else { 1.0 };
+                }
+                out
+            } else {
+                self.stage(st, cop, aop, &r, tex)?
+            };
             match self.tss(st, 28) {
                 1 => r.current = out,
                 5 if !self.v8 => {
@@ -1016,6 +1028,14 @@ impl D3d9 {
             }
         }
         Ok(r.current)
+    }
+
+    /// whether a stage's color operation reads the diffuse color or CURRENT: through an argument
+    /// it uses, or BLENDDIFFUSEALPHA, BLENDCURRENTALPHA
+    fn reads_current(&self, st: u32, cop: u32) -> bool {
+        let sel = |a: u32| matches!(self.tss(st, a) & 0xf, 0 | 1);
+        let (a1, a2, a0) = (cop != 3 && sel(2), cop != 2 && sel(3), matches!(cop, 25 | 26) && sel(26));
+        a1 || a2 || a0 || matches!(cop, 12 | 16)
     }
 
     /// one stage's color and alpha operations
@@ -1315,10 +1335,58 @@ impl D3d9 {
     /// blending on a target of 8-bit unorm channels (MEASURED, d3d9draw blend-*: each product
     /// x * f of two 8-bit numbers as x * f * 257 >> 8, a number in 1/256ths that is a little
     /// under x * f / 255 (but x * ONE as x exactly); the two added or subtracted, then rounded to 8 bits half up)
+    /// blending on a target of any other format (MEASURED, d3d9draw blend-fmt-*: 95 cases, every
+    /// format the target takes): in f32, the source clamped to 0..1, the destination as read
+    fn blend_float(&self, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
+        let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
+        let d = d.map(|x| x as f32);
+        let c = self.rs(193);
+        let bf = argb(c).map(|v| v as f32);
+        let factor = |f: u32, k: usize| -> Res<f32> {
+            Ok(match f {
+                1 => 0.0,
+                2 => 1.0,
+                3 => s[k],
+                4 => 1.0 - s[k],
+                5 => s[3],
+                6 => 1.0 - s[3],
+                7 => d[3],
+                8 => 1.0 - d[3],
+                9 => d[k],
+                10 => 1.0 - d[k],
+                11 if k < 3 => s[3].min(1.0 - d[3]),
+                11 => 1.0,
+                14 if !self.v8 => bf[k],
+                15 if !self.v8 => 1.0 - bf[k],
+                _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_FACTOR)),
+            })
+        };
+        let separate = !self.v8 && self.rs(206) != 0;
+        let mut out = [0.0; 4];
+        for k in 0..4 {
+            let alpha = separate && k == 3;
+            let (mut sf, mut df, op) = if alpha { (self.rs(207), self.rs(208), self.rs(209)) } else { (self.rs(19), self.rs(20), self.rs(171)) };
+            if [sf, df].iter().any(|f| matches!(f, 12 | 13)) {
+                (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
+            }
+            let (a, b) = (s[k] * factor(sf, k)?, d[k] * factor(df, k)?);
+            out[k] = match op {
+                1 => a + b,
+                2 => a - b,
+                3 => b - a,
+                4 => s[k].min(d[k]),
+                5 => s[k].max(d[k]),
+                _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_OP)),
+            } as f64;
+        }
+        Ok(out)
+    }
+
     fn blend(&self, fmt: u32, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
         let fm = format(fmt).unwrap();
         if fm.kind != Kind::Int || fm.ch.iter().any(|c| c.c != b'x' && (c.bits != 8 || !matches!(c.c, b'r' | b'g' | b'b' | b'a'))) {
-            return Err(Fail::Unmodeled(open::D3D9_BLEND_FORMAT));
+            hit(clause::D3D9_BLEND_FORMAT);
+            return self.blend_float(s, d);
         }
         let (s, d) = (s.map(|x| unorm(x, 8) as i64), d.map(|x| unorm(x, 8) as i64));
         let c = self.rs(193);
