@@ -671,7 +671,10 @@ enum TexFilter {
     Anisotropic,
     /// Direct3D 9's PYRAMIDALQUAD, GAUSSIANQUAD
     Quad,
-    /// NONE, CONVOLUTIONMONO, values past them, Direct3D 8's FLATCUBIC, GAUSSIANCUBIC (4, 5):
+    /// NONE: as MAGFILTER POINT (MEASURED filter-other-0-*); as Direct3D 9's MINFILTER it
+    /// leaves MAGFILTER's filter, with Direct3D 10's attribute setup (filter-min-other-0)
+    None,
+    /// CONVOLUTIONMONO, values past them, Direct3D 8's FLATCUBIC, GAUSSIANCUBIC (4, 5):
     /// as MAGFILTER POINT (MEASURED filter-other-*)
     Other,
 }
@@ -679,6 +682,7 @@ enum TexFilter {
 impl TexFilter {
     fn of(v: u32, v8: bool) -> TexFilter {
         match v {
+            0 => TexFilter::None,
             1 => TexFilter::Point,
             2 => TexFilter::Linear,
             3 => TexFilter::Anisotropic,
@@ -874,7 +878,7 @@ impl D3d9 {
     }
     /// whether an enabled stage with a texture filters with PYRAMIDALQUAD or GAUSSIANQUAD
     fn quad_filtered(&self) -> bool {
-        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && (self.filter(st, 5) == TexFilter::Quad || self.filter(st, 6) == TexFilter::Quad))
+        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && (self.filter(st, 5) == TexFilter::Quad || (!self.v8 && matches!(self.filter(st, 6), TexFilter::Quad | TexFilter::None))))
     }
 
     /// a stage's MAGFILTER (t 5) or MINFILTER (t 6)
@@ -1260,12 +1264,16 @@ impl D3d9 {
         let mag = match min {
             // (MEASURED d3d8draw filter-min-quad-*: Direct3D 8's FLATCUBIC, GAUSSIANCUBIC as
             // MINFILTER make the whole of it POINT)
-            TexFilter::Other if self.v8 => TexFilter::Point,
-            // (Direct3D 9's other values as MINFILTER: cases filter-min-other-*)
-            TexFilter::Other => return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER)),
+            TexFilter::Other | TexFilter::None if self.v8 => TexFilter::Point,
+            // (MEASURED filter-min-other-6, -7, -ffffffff: Direct3D 9's CONVOLUTIONMONO and
+            // values past it as MINFILTER make the whole of it POINT too, D3D9.TEX.FILTEROTHER)
+            TexFilter::Other => TexFilter::Point,
+            // (MEASURED filter-min-other-0: NONE leaves MAGFILTER's filter, Direct3D 10's
+            // attribute setup)
+            TexFilter::None => mag,
             // (MEASURED filter-min-quad-*: PYRAMIDALQUAD, GAUSSIANQUAD as MINFILTER leave
             // MAGFILTER's filter, with Direct3D 10's attribute setup, D3D9.TEX.QUAD)
-            _ => mag,
+            TexFilter::Quad | TexFilter::Point | TexFilter::Linear | TexFilter::Anisotropic => mag,
         };
         let mag = if min == TexFilter::Anisotropic { min } else { mag };
         let filter = match mag {
@@ -1284,7 +1292,7 @@ impl D3d9 {
             // (MEASURED filter-other-4-*, -5-*: linear, the attributes set up as Direct3D 10's
             // rasterizer does, D3D9.TEX.QUAD)
             TexFilter::Quad => TexFilter::Linear,
-            TexFilter::Other => {
+            TexFilter::None | TexFilter::Other => {
                 hit(clause::D3D9_TEX_FILTEROTHER);
                 TexFilter::Point
             }
@@ -1325,7 +1333,7 @@ impl D3d9 {
                 }
                 Ok(c)
             }
-            TexFilter::Anisotropic | TexFilter::Quad | TexFilter::Other => unreachable!("taken as linear or point above"),
+            TexFilter::Anisotropic | TexFilter::Quad | TexFilter::None | TexFilter::Other => unreachable!("taken as linear or point above"),
         }
     }
 
