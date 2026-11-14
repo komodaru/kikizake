@@ -81,7 +81,7 @@ D3DRASTER.VP10 measured | D3D10_VIEWPORT (INT TopLeftX, TopLeftY); probe-vp-frac
 D3DRASTER.DRAW doc | ID3D11DeviceContext::Draw, DrawInstanced | the vertices through the pipeline
 D3DRASTER.INCOMPLETE measured | Draw; probe-incomplete | a draw without programs and an input layout draws nothing; nothing is drawn without a target or depth view to draw to
 D3DRASTER.NOVIEWPORT measured | RSSetViewports; probe-noviewport | a draw without a viewport draws nothing
-D3DRASTER.TOPOLOGY open | (none) | lines with the antialiased-line state and not the multisample state (alpha antialiased lines)
+D3DRASTER.TOPOLOGY open | (none) | lines with the antialiased-line state and not the multisample state (alpha antialiased lines): probe-linesaa-* show the rectangle 4 pixels wide (corners a +- 2n snapped, two triangles as D3DRASTER.LINE.QUAD) with the color planes exact (1638 values) and alpha the alpha plane times 0.45 (1.5 - |s|) clamped (s the distance from the line), but s's own rounding fits 512 of 546 alphas only
 D3DRASTER.ADJ measured | Primitive Topologies (adjacency); probe-topology-10 to -13 (WARP) | the lists and strips with adjacency drawn with no geometry program skip the adjacent vertices: lines 4p + 1 to 4p + 2, strips' lines p + 1 to p + 2, triangles 6p, 6p + 2, 6p + 4, strips' triangles of the even vertices as a triangle strip
 D3DRASTER.PATCH measured | IASetPrimitiveTopology (patch lists); probe-topology-33 (WARP, x86 and x86-64, Direct3D 10 and 11) | a draw of a patch list without hull and domain programs ends the executor; the output since the executor's last flush (before the case's last tex line) is lost
 D3DRASTER.POINT measured | Point Rasterization Rules; probe-points-* (WARP, every pixel) | a point inside the clip volume lights the one pixel (ceil(x) - 1, ceil(y) - 1) of its snapped position, in its vertex's values
@@ -96,8 +96,9 @@ D3DRASTER.VBPAST measured | Draw (out of bounds vertex buffer reads); probe-vb-p
 D3DRASTER.IDS doc | SV_VertexID, SV_InstanceID | the vertex's index in the draw and the instance's
 D3DRASTER.STRIP doc | Primitive Topologies (triangle strips) | every other triangle of a strip has its first two vertices swapped
 D3DRASTER.CLIP measured | Rasterization Rules, the clip volume; draw-clip-* (WARP) | a triangle is clipped against the viewport planes in homogeneous f32 (Sutherland-Hodgman) before snapping; the pieces are fanned, attributes from the original triangle
-D3DRASTER.CLIPW open | (none) | a vertex at w not positive (or a coordinate not finite) whose triangle keeps an area after clipping
+D3DRASTER.CLIPW open | (none) | a vertex at w not positive whose triangle keeps an area after clipping, where its pixels differ (attributes, culling or facing, depth, samples, wireframe); a coordinate not finite
 D3DRASTER.CLIPW.AWAY measured | Rasterization Rules, the clip volume; probe-clip-w (WARP) | a triangle with a vertex at w <= 0 is clipped to the viewport planes in homogeneous coordinates; when what is left has no area once snapped, nothing is drawn
+D3DRASTER.CLIPW.AREA measured | Clipping; probe-clip-w2 (WARP) | a triangle with a vertex at w <= 0 keeping an area: the pieces of the homogeneous clipping (then 0 <= z <= w with depth clipping on) snapped and fanned from the first, each by the top-left rule
 D3DRASTER.DEPTHCLIP doc | D3D11_RASTERIZER_DESC (DepthClipEnable) | a triangle wholly in front of 0 or past 1 is clipped away; without depth clipping its depth is clamped to the viewport's range
 D3DRASTER.CLIPZ open | (none) | the depth of a triangle that crosses the depth range (its pixels' depth, tested or read as SV_Position)
 D3DRASTER.CLIPZ.PIECES measured | Rasterization Rules, the clip volume; probe-clip-z (WARP) | with depth clipping a triangle that crosses the depth range is clipped after the viewport planes to 0 <= z then z <= w, in f32, the pieces fanned as D3DRASTER.CLIP

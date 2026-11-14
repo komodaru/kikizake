@@ -1086,6 +1086,33 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 return Ok(());
             }
         }
+        // (MEASURED, WARP: probe-clip-w2) what is left with an area: the pieces of the
+        // homogeneous clipping (then 0 <= z <= w with depth clipping on), snapped and fanned
+        // as any clipped triangle; drawn here where nothing tells the pixels apart (one color,
+        // no culling, no depth, one sample)
+        let poly = if d.rast[6] != 0 { clip_z(poly) } else { poly };
+        let flat = tri.iter().all(|v| v.color == tri[0].color) && matches!(ps, "ps" | "psflat");
+        if poly.iter().all(|q| q[3] > 0.0) && flat && d.rast[1] == 1 && d.rast[0] != 2 && dsv.is_none() && samples.is_none() {
+            hit(clause::D3DRASTER_CLIPW_AREA);
+            let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
+            let q: Vec<(i64, i64)> = q.iter().map(|s| (s.x, s.y)).collect();
+            let out = tri[0].color.map(f32::to_bits);
+            let [vx, vy, vw, vh, _, _] = vp;
+            for py in 0..i64::from(rh) {
+                for px in 0..i64::from(rw) {
+                    let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
+                    if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
+                        continue;
+                    }
+                    let c = (px * 256 + 128, py * 256 + 128);
+                    let lit = (1..q.len().saturating_sub(1)).any(|i| tri_covers([q[0], q[i], q[i + 1]], c));
+                    if lit {
+                        output(m, dev, d, view, rt_fmt, rt_sub, None, (px as usize, py as usize, rw as usize), None, out)?;
+                    }
+                }
+            }
+            return Ok(());
+        }
         return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
     }
     // depth clipping: whole triangles in these cases
