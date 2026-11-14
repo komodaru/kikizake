@@ -110,8 +110,10 @@ D3DRASTER.LD doc | ld (sm4 - asm) | the texel, converted from the view's format
 D3DRASTER.LD.OUT doc | ld (sm4 - asm) (out of range: 0) | an address outside the texture reads 0
 D3DRASTER.NOSRV measured | (WARP) | no shader resource bound: the read gives zeros
 D3DRASTER.NOSAMPLER open | (none) | no sampler
-D3DRASTER.SAMPLE doc | sample (sm4 - asm) | point sampling at texel centers (linear filtering agrees there)
-D3DRASTER.FILTER open | (none) | samples between texel centers
+D3DRASTER.SAMPLE doc | sample (sm4 - asm) | the texture coordinates interpolated as any attribute (D3DRASTER.INTERP.PLANE), filtered by the sampler
+D3DRASTER.FILTER open | (none) | minification (a pixel spanning a texel or more, where the minifying filter differs from the magnifying one), anisotropic and comparison filters, linear filtering of formats other than the 8-bit UNORM ones
+D3DRASTER.FILTER.POINT measured | D3D11_FILTER (point); probe-filter-* (WARP, every pixel) | point sampling: the texel floor(u width), floor(v height), the products in f32, through the address modes
+D3DRASTER.FILTER.LINEAR measured | D3D11_FILTER (linear); probe-filter-* (WARP, every pixel of wrap, mirror, clamp and mirror-once) | bilinear filtering of 8-bit UNORM texels: s = u width - 0.5 in f32, the texel floor(s) and the weight floor(frac(s) 256), likewise t; down the columns first, l = (a (256 - wv) + c wv) >> 1, then across (l (256 - wu) + r wu) >> 8, n in 1/128 of a byte; the float nearest n ceil(2^46 / 32640) / 2^46
 D3DRASTER.ADDRESS doc | D3D11_TEXTURE_ADDRESS_MODE | wrap, mirror, clamp, border, mirror once
 D3DRASTER.BORDER doc | D3D11_TEXTURE_ADDRESS_MODE (BORDER) | outside the texture: the border color (0 here)
 D3DRASTER.PS excluded | (the model) | a program the model does not know: the suites draw only the generator's programs

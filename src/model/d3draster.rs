@@ -941,7 +941,6 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         return Ok(());
     }
     let v = if cw { [p[0], p[1], p[2]] } else { [p[0], p[2], p[1]] };
-    let order = if cw { [0, 1, 2] } else { [0, 2, 1] };
     let top_left = |a: (i64, i64), b: (i64, i64)| {
         let (dx, dy) = (b.0 - a.0, b.1 - a.1);
         dy < 0 || dy == 0 && dx > 0
@@ -1009,19 +1008,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 continue;
             }
             hit(clause::D3DRASTER_TOPLEFT);
-            let bary = {
-                // (barycentric weights at the pixel center, in the clockwise order)
-                let a = area.unsigned_abs() as f64;
-                let w0 = cross(v[1], v[2], c) as f64 / a;
-                let w1 = cross(v[2], v[0], c) as f64 / a;
-                let w2 = 1.0 - w0 - w1;
-                let mut w = [0f64; 3];
-                w[order[0]] = w0;
-                w[order[1]] = w1;
-                w[order[2]] = w2;
-                w
-            };
-            let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, bary, d)?;
+            let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, d)?;
             output(m, dev, d, view, rt_fmt, rt_sub, dsv, (px as usize, py as usize, rw as usize), z, out)?;
         }
     }
@@ -1070,6 +1057,34 @@ impl Planes {
     }
 }
 
+/// the filters of D3D11_FILTER the model samples with: point or linear for minifying and for
+/// magnifying (the mip filter does not matter with one level)
+struct Filter {
+    min: bool,
+    mag: bool,
+}
+
+impl Filter {
+    fn of(f: u32) -> Option<Filter> {
+        match f {
+            0x00 | 0x01 => Some(Filter { min: false, mag: false }),
+            0x04 | 0x05 => Some(Filter { min: false, mag: true }),
+            0x10 | 0x11 => Some(Filter { min: true, mag: false }),
+            0x14 | 0x15 => Some(Filter { min: true, mag: true }),
+            _ => None,
+        }
+    }
+}
+
+/// (MEASURED, WARP: probe-filter-*, 2425 values) a bilinear result n in 1/128 of a byte (n of
+/// 32640 for 1.0) as a float: the f32 nearest n ceil(2^46 / 32640) / 2^46, a hair above
+/// n / 32640 (seven values at 0.498 ulp past an f32 round up)
+fn linear_float(n: i64) -> f32 {
+    const M: i64 = (1 << 46) / 32640 + 1;
+    const _: () = assert!(M * 32640 > 1 << 46 && (M - 1) * 32640 < 1 << 46);
+    ((n * M) as f64 / (1u64 << 46) as f64) as f32
+}
+
 /// a triangle clipped to -w <= x <= w and -w <= y <= w (Sutherland-Hodgman, in single
 /// precision: a new vertex a + (b - a) t, t the distance to the plane at a over the difference)
 fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
@@ -1103,7 +1118,7 @@ fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
 
 /// the pixel shader: what it writes to SV_Target, as bits (floats or uints)
 #[allow(clippy::too_many_arguments)]
-fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: Vert, prim: u32, front: bool, (px, py): (i64, i64), z: Option<f32>, bary: [f64; 3], d: &Draw) -> Res<[u32; 4]> {
+fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: Vert, prim: u32, front: bool, (px, py): (i64, i64), z: Option<f32>, d: &Draw) -> Res<[u32; 4]> {
     let same = |f: &dyn Fn(&Vert) -> [f32; 4]| -> Res<[f32; 4]> {
         let a = f(&tri[0]);
         if tri.iter().all(|v| f(v) == a) {
@@ -1166,26 +1181,64 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
             let (w, h, _) = r.size(0);
-            let uv: Vec<f64> = (0..2).map(|k| (0..3).map(|i| bary[i] * tri[i].color[k] as f64).sum()).collect();
-            let tc = [uv[0] * w as f64, uv[1] * h as f64];
-            // (only texel centers in these cases: point and linear filtering agree there)
-            for c in tc {
-                if ((c - 0.5) - (c - 0.5).round()).abs() > 1e-3 {
+            let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
+                match planes {
+                    Some(p) => {
+                        let c = p.at(x as f32 + 0.5, y as f32 + 0.5);
+                        Ok([c[0], c[1]])
+                    }
+                    None => same(&|v| v.color).map(|c| [c[0], c[1]]),
+                }
+            };
+            let uv = uv_at(px, py)?;
+            let filter = Filter::of(s[0]).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
+            // (the minifying and magnifying filters differ: which applies is by the texels a
+            // pixel spans, as the 2 x 2 quad's differences give them)
+            let linear = if filter.min == filter.mag {
+                filter.mag
+            } else {
+                let (qx, qy) = (px & !1, py & !1);
+                let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
+                let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * w as f64).powi(2) + (f64::from(b[1] - a[1]) * h as f64).powi(2)).sqrt();
+                let rho = span(q[0], q[1]).max(span(q[0], q[2]));
+                if rho < 0.99 {
+                    filter.mag
+                } else {
                     return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 }
+            };
+            let at = |i: i64, j: i64| -> Res<[u32; 4]> {
+                match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
+                    (Some(x), Some(y)) => texel(r, 0, v.format(), x as u32, y as u32),
+                    _ => {
+                        hit(clause::D3DRASTER_BORDER);
+                        Ok([0; 4])
+                    }
+                }
+            };
+            // (MEASURED, WARP: probe-filter-*, every pixel) point: the texel floor(u w),
+            // floor(v h), the products in f32
+            if !linear {
+                hit(clause::D3DRASTER_FILTER_POINT);
+                return at((uv[0] * w as f32).floor() as i64, (uv[1] * h as f32).floor() as i64);
             }
-            if !matches!(s[0], 0 | 0x15) {
+            hit(clause::D3DRASTER_FILTER_LINEAR);
+            if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
                 return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
             }
-            let i = (tc[0] - 0.5).round() as i64;
-            let j = (tc[1] - 0.5).round() as i64;
-            match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
-                (Some(x), Some(y)) => texel(r, 0, v.format(), x as u32, y as u32)?,
-                _ => {
-                    hit(clause::D3DRASTER_BORDER);
-                    [0; 4]
-                }
-            }
+            let split = |c: f32, n: u32| {
+                let s = c * n as f32 - 0.5;
+                let i = s.floor();
+                (i as i64, ((s - i) * 256.0).floor() as i64)
+            };
+            let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
+            let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
+            let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
+            [0, 1, 2, 3].map(|k| {
+                let l = (a[k] * (256 - wv) + c[k] * wv) >> 1;
+                let r = (b[k] * (256 - wv) + e[k] * wv) >> 1;
+                linear_float((l * (256 - wu) + r * wu) >> 8).to_bits()
+            })
         }
         _ => return Err(Fail::Unmodeled(open::D3DRASTER_PS)),
     })
