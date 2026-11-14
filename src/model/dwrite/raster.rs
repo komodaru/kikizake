@@ -2,7 +2,8 @@
 //! rectangles, so coverage is a matter of where their edges fall): every mode is the aliased
 //! rasterizer on a grid of samples, the samples then counted (or filtered) into pixels.
 use crate::spec::clause;
-use super::super::Res;
+use super::super::{Fail, Res};
+use crate::spec::open;
 use crate::spec::hit;
 use crate::ttf::Parsed;
 
@@ -20,7 +21,8 @@ struct Grid {
 /// rounded to 1/64 pixel, at the pen position snapped to the grid, the pen moved by each advance
 /// (adv4 / 4 pixels) from the unsnapped origin
 fn rects(p: &Parsed, em: i64, g: Grid, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
-    let sc = |v: i16| (v as i64 * em * 64 * 2 + p.upm as i64).div_euclid(2 * p.upm as i64);
+    let upm = p.upm as i64;
+    let sc = |v: i16| (v as i64 * em * 64 * 2 + upm).div_euclid(2 * upm);
     // (a position in 1/64 sample snapped to 1/q pixel, a step of 64 n / q of them)
     let snap = |v: i64, n: i64, q: i64| if q == 0 { v } else { (v + 32 * n / q).div_euclid(64 * n / q) * (64 * n / q) };
     let mut pen = x4 * 16 * g.nx;
@@ -90,19 +92,24 @@ pub fn aliased(r: &[(i64, i64, i64, i64)], dropout: Dropout) -> Res<std::collect
     }
     let bx0 = r.iter().map(|q| q.0).min().unwrap_or(0);
     let by1 = r.iter().map(|q| q.3).max().unwrap_or(0);
+    // (the pixels whose centers are inside, on every row, before any dropout)
+    {
+        for a in y0..=y1 {
+            for (lo, hi) in spans(r, a * 64 + 32, true) {
+                let (first, last) = ((lo - 32 + 63).div_euclid(64), (hi - 32).div_euclid(64));
+                (first..=last).for_each(|b| {
+                    lit.insert((b, a));
+                });
+            }
+        }
+    }
     for (horizontal, a0, a1) in [(true, y0, y1), (false, x0, x1)] {
         for a in a0..=a1 {
             for (lo, hi) in spans(r, a * 64 + 32, horizontal) {
                 // (the pixels whose centers are in [lo, hi]: a contour on a center sets it)
                 let (first, last) = ((lo - 32 + 63).div_euclid(64), (hi - 32).div_euclid(64));
                 let px = |b: i64| if horizontal { (b, a) } else { (a, b) };
-                if first <= last {
-                    if horizontal {
-                        (first..=last).for_each(|b| {
-                            lit.insert(px(b));
-                        });
-                    }
-                } else {
+                if first > last {
                     // MEASURED (dropout control): a span between two centers lights the pixel
                     // before it on a row (left) when that pixel's center is inside the glyph's box,
                     // else the one after; on a column the one after it (below) when its center is
@@ -111,7 +118,8 @@ pub fn aliased(r: &[(i64, i64, i64, i64)], dropout: Dropout) -> Res<std::collect
                     if dropout == Dropout::Off {
                         hit(clause::DW_RUN_DROPOUT_SIZE);
                     }
-                    // MEASURED: none when either pixel beside the span is already lit
+                    // MEASURED: none when either pixel beside the span is lit (by a center, or an earlier
+                    // dropout)
                     if dropout == Dropout::Off || lit.contains(&px(first - 1)) || lit.contains(&px(first)) {
                         continue;
                     }
@@ -198,13 +206,14 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
     // MEASURED: the texture's bounds hold the pixels dropout control lights, also at the sizes
     // where the texture itself has them off
     let (mut lit, mut on) = (std::collections::BTreeSet::new(), std::collections::BTreeSet::new());
+    match (mode, fit) {
+        (Mode::Gdi | Mode::GdiNatural, Fit::Disabled) => return Err(Fail::Unmodeled(open::DW_RUN_FIT_GDI)),
+        // MEASURED: grid fit enabled or disabled draws as the default, but for GDI disabled
+        (_, Fit::Default) => {}
+        (Mode::Gdi | Mode::GdiNatural, Fit::Enabled) | (Mode::Aliased | Mode::Gray | Mode::ClearType | Mode::Natural, Fit::Enabled | Fit::Disabled) => hit(clause::DW_RUN_FIT),
+    }
     for r in rects(p, em, g, x4, y4, run) {
-        // (grid fit disabled: no dropout control at any size)
-        let d = match fit {
-            Fit::Default | Fit::Enabled => Dropout::at(em),
-            Fit::Disabled => Dropout::Off,
-        };
-        lit.extend(aliased(&r, d)?);
+        lit.extend(aliased(&r, Dropout::at(em))?);
         on.extend(aliased(&r, Dropout::On)?);
     }
     let cleartype = mode == Mode::ClearType;

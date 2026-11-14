@@ -91,6 +91,7 @@ DW.BREAK.CHAR excluded
 DW.FILE.OTHER excluded
 DW.GDI.GLYPH open
 DW.GDI.INVALID excluded
+DW.RUN.FIT.GDI open
 DW.LAYOUT.FALLBACK excluded
 DW.LAYOUT.NAME excluded
 DW.NOFACE excluded

@@ -389,8 +389,14 @@ impl Dwrite {
                     let nat = n(3)? != 0;
                     let upm = m.upm as i64;
                     let fix = (ppem << 16) / upm;
-                    let pxv = |v: i32| (v as i64 * fix + 0x8000) >> 16;
-                    let px = |v: i32| if nat { (128 * v as i64 * ppem + 69 * upm).div_euclid(128 * upm) } else { (v as i64 * fix + 0x8000) >> 16 };
+                    // (the vertical advance: rounded half down, and down up to 65/128)
+                    let pxa = |v: i32| -((-128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm));
+                    let pxv = |v: i32| (128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm);
+                    let px = |v: i32| match (nat, side != 0) {
+                        (true, false) => (128 * v as i64 * ppem + 69 * upm).div_euclid(128 * upm),
+                        (_, true) => (128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm),
+                        (false, false) => (v as i64 * fix + 0x8000) >> 16,
+                    };
                     // (a length of k / n pixels in design units, rounded)
                     let du = |k: i64, n: i64| (2 * k * upm + n * ppem).div_euclid(2 * n * ppem) as i32;
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
@@ -402,7 +408,7 @@ impl Dwrite {
                         // (sideways: the glyph's y is drawn across, so the 6 samples are its y)
                         let (nx, ny) = if side != 0 { (1, 6) } else { (6, 1) };
                         let bb = raster::black_box(p, ppem, *gid, nx, ny)?.unwrap_or((0, 0, 0, 0));
-                        let (advp, voyp, advhp) = (px(g.adv as i32), pxv(vorg.unwrap_or(g.voy)), pxv(vadv.unwrap_or(g.advh as i32)));
+                        let (advp, voyp, advhp) = (px(g.adv as i32), pxv(vorg.unwrap_or(g.voy)), pxa(vadv.unwrap_or(g.advh as i32)));
                         *g = GlyphMetrics {
                             adv: du(advp, 1) as u32,
                             lsb: du(bb.0, nx),

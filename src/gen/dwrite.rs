@@ -317,4 +317,29 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "end").unwrap();
         }
     }
+    // GDI modes with grid fit disabled: single boxes at sizes 6..96, edges anywhere in a pixel
+    for mode in ["gdi", "gdinatural"] {
+        for i in 0..6u32 {
+            let gs: Vec<_> = (0..8).map(|_| (r.range(300, 1000) as u16, vec![(r.range(0, 400) as i16, r.range(-200, 200) as i16, r.range(450, 990) as i16, r.range(300, 900) as i16)])).collect();
+            let f = font_with(0x0fb0_0000 + i * 2 + (mode == "gdi") as u32, 1000, &gs);
+            writeln!(s, "case fitgdi-{mode}-{i}\n{}", font_line(&f)).unwrap();
+            for g in 1..=8 {
+                writeln!(s, "dwrun {mode}.nofit {} {} {} {g} 0", r.range(6, 96), r.range(0, 40), r.range(160, 200)).unwrap();
+                writeln!(s, "dwrun {mode}.fit {} {} {} {g} 0", r.range(6, 96), r.range(0, 40), r.range(160, 200)).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
+    // GDI compatible metrics turned back into design units: advances whose whole pixel count k
+    // makes k upm / ppem fall within a fifth of a pixel of a half design unit, every upm and size
+    for upm in [256u16, 1000, 1024, 2000, 2048, 4096] {
+        for pp in (8..=104i64).step_by(4) {
+            let u = upm as i64;
+            let ks: Vec<i64> = (1..pp * 3).filter(|k| (2 * k * u).rem_euclid(2 * pp) * 10 >= 8 * pp && (2 * k * u).rem_euclid(2 * pp) * 10 <= 12 * pp).take(14).collect();
+            let gs: Vec<_> = ks.iter().map(|k| (((2 * k * u + pp) / (2 * pp)) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 2) as i16)])).collect();
+            let f = font_with(0x0fa0_0000 + u as u32 * 256 + pp as u32, upm, &gs);
+            let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
+            writeln!(s, "case gdiback-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 0 {}\ndwgdiglyph {} 2 0 0 {}\nend", font_line(&f), gids.join(" "), pp / 2, gids.join(" ")).unwrap();
+        }
+    }
 }
