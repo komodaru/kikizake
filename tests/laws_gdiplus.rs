@@ -186,29 +186,45 @@ fn dither_keeps_the_mean() {
     }
 }
 
-/// the model answers every case of its suites but those of the open clauses, and the same
-/// number of them on each executor as when it was settled (a model that gives up on more cases
-/// still matches Windows on the rest: this is what keeps it answering)
+/// the model answers every case of its suites on both executors: no clause of GDI+ is open
 #[test]
-fn the_model_answers_all_but_the_open_clauses() {
-    for (suite, arch, open) in [("gdiplus", 32, 96), ("gdiplus", 64, 0), ("gdiplusmat", 32, 0), ("gdiplusmat", 64, 0)] {
+fn the_model_answers_every_case() {
+    for (suite, arch) in [("gdiplus", 32), ("gdiplus", 64), ("gdiplusmat", 32), ("gdiplusmat", 64)] {
         kikizake::model::set_arch(arch);
         let cases = kikizake::case::parse_cases(&kikizake::gen::suite(suite).unwrap());
-        let mut n = 0;
         for c in &cases {
             match kikizake::model::run_case(c) {
                 Ok(_) => {}
-                Err(kikizake::model::Fail::Unmodeled(id)) => {
-                    assert!(["GP.FILL.GAMMA"].contains(&id), "{suite} {}: {id}", c.name);
-                    n += 1;
-                }
-                Err(kikizake::model::Fail::Bad) => panic!("{suite} {}: a bad line", c.name),
-                Err(kikizake::model::Fail::Empty) => panic!("{suite} {}: no answer", c.name),
+                Err(kikizake::model::Fail::Unmodeled(id)) => panic!("{suite}-{arch} {}: {id}", c.name),
+                Err(kikizake::model::Fail::Bad) => panic!("{suite}-{arch} {}: a bad line", c.name),
+                Err(kikizake::model::Fail::Empty) => panic!("{suite}-{arch} {}: no answer", c.name),
             }
         }
-        assert_eq!(n, open, "{suite}-{arch}");
     }
     kikizake::model::set_arch(32);
+}
+
+/// x86's 16-bit lane product is the rounded d f / 8192, or 8 below it exactly where the low word
+/// of d f carries out when 4096 is added (exhaustive over the 13-bit words)
+#[test]
+fn lanes_lose_only_the_carry() {
+    for d in 0..=8192u64 {
+        for f in (0..=8192u64).step_by(7) {
+            let r = (d * f + 4096) >> 13;
+            let carry = (d * f & 0xffff) >= 0x1_0000 - 4096;
+            assert_eq!(kikizake::model::gdiplus::lanes(d, f), if carry { r - 8 } else { r }, "{d} {f}");
+        }
+    }
+}
+
+proptest! {
+    /// the lanes never go above the rounded quotient and never more than 8 below it
+    #[test]
+    fn lanes_stay_within_8(d in 0..=8192u64, f in 0..=8192u64) {
+        let l = kikizake::model::gdiplus::lanes(d, f);
+        let r = (d * f + 4096) >> 13;
+        prop_assert!(l <= r && r - l <= 8);
+    }
 }
 
 /// a clone into an indexed format finds each pixel's color in its fixed palette: every entry the

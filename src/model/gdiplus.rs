@@ -301,6 +301,14 @@ pub fn over(s: u32, d: u32) -> u32 {
     o
 }
 
+/// MEASURED (golden gdiplus-32 gamma-*, gammaalpha-*: every (brush alpha, destination alpha)):
+/// x86's d f / 8192 rounded, as 16-bit lanes make it: the product's high word times 8, plus its
+/// low word with 4096 added and the carry out of the 16 bits lost, shifted down 13
+pub fn lanes(d: u64, f: u64) -> u64 {
+    let p = d * f;
+    ((p >> 16) << 3) + ((((p & 0xffff) + 4096) & 0xffff) >> 13)
+}
+
 /// source over as drawing on 16bppRGB555/565 does it: the destination's part truncated
 pub fn over_truncated(s: u32, d: u32) -> u32 {
     hit("GP.FILL.OVER");
@@ -917,25 +925,33 @@ impl Gdiplus {
                     }
                 };
                 // (gamma corrected, MEASURED: SourceOver of a pixel of a 32-bit format (ARGB, PARGB, RGB)
-                // in 64bppPARGB words, in float as the executor rounds (GP.FILL.GAMMA))
+                // in 64bppPARGB words: x86-64 in float as the executor rounds (GP.FILL.GAMMA.X64),
+                // x86 in 16-bit lanes (GP.FILL.GAMMA.X86))
                 let gamma = !copy && q.gamma();
-                if gamma && super::arch() == 32 {
-                    return Err(Fail::Unmodeled("GP.FILL.GAMMA"));
-                }
                 let p64 = Pf::Pargb64;
                 let rd = rounding();
                 let s64 = convert(pargb, p64, sp as u64, &[])?;
-                let word = |v: u64, k: u32| (v >> (16 * k) & 0xffff) as f32;
-                let rest = rd.sub(1.0, rd.div(word(s64, 3), 8192.0));
-                let mix = |s: f32, d: f32| rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff;
+                let word = |v: u64, k: u32| v >> (16 * k) & 0xffff;
+                let sa = word(s64, 3);
+                let rest = rd.sub(1.0, rd.div(sa as f32, 8192.0));
+                let x86 = super::arch() == 32;
+                let mix = |s: u64, d: u64| -> u64 {
+                    if x86 {
+                        hit("GP.FILL.GAMMA.X86");
+                        s + lanes(d, 8192 - sa) & 0xffff
+                    } else {
+                        hit("GP.FILL.GAMMA.X64");
+                        let (s, d) = (s as f32, d as f32);
+                        rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff
+                    }
+                };
                 let gam = |f: Pf, v: u64| -> Res<u64> {
-                    hit("GP.FILL.GAMMA.X64");
                     let d = convert(f, p64, v, &[])?;
                     let o = (0..4).fold(0, |o, k| o | mix(word(s64, k), word(d, k)) << (16 * k));
                     let mut r = convert(p64, f, o, &[])?;
                     if f == Pf::Rgb32 {
                         // (32bppRGB: the colors as opaque, its alpha byte blended as an alpha)
-                        let a = mix(word(s64, 3), widen_alpha(v >> 24) as f32);
+                        let a = mix(sa, widen_alpha(v >> 24));
                         r = r & 0xff_ffff | (narrow_alpha(a) as u64) << 24;
                     }
                     Ok(r)
@@ -954,7 +970,6 @@ impl Gdiplus {
                             }
                             let mut q = convert(b.f, bf, b.px(x, y), &[])?;
                             if inside(x, y) && gamma && indexed(b.f) {
-                                hit("GP.FILL.GAMMA.X64");
                                 // (gamma corrected into an indexed bitmap: the premultiplied linear
                                 // words narrowed as they are, as over black)
                                 let d = convert(bf, p64, q, &[])?;
