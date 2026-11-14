@@ -16236,3 +16236,327 @@ case rootsig-541
 device12
 rootsig12 2 0 srv 0 0 0 0 t 0 1 0 0xffffffff 1 0 0 0
 end
+case create-edge-2d-w16384
+device12
+create12 1 0 3 0 0x4000 0x20 1 1 0x1c 1 0 0 0
+end
+case fp-edge-2d-w16384
+device12
+footprint12 0 1 0 3 0 0x4000 0x20 1 1 0x1c 1 0 0 0
+end
+case create-edge-2d-w16385
+device12
+create12 1 0 3 0 0x4001 0x20 1 1 0x1c 1 0 0 0
+end
+case fp-edge-2d-w16385
+device12
+footprint12 0 1 0 3 0 0x4001 0x20 1 1 0x1c 1 0 0 0
+end
+case create-edge-2d-h16384
+device12
+create12 1 0 3 0 0x40 0x4000 1 1 0x1c 1 0 0 0
+end
+case fp-edge-2d-h16384
+device12
+footprint12 0 1 0 3 0 0x40 0x4000 1 1 0x1c 1 0 0 0
+end
+case create-edge-2d-h16385
+device12
+create12 1 0 3 0 0x40 0x4001 1 1 0x1c 1 0 0 0
+end
+case fp-edge-2d-h16385
+device12
+footprint12 0 1 0 3 0 0x40 0x4001 1 1 0x1c 1 0 0 0
+end
+case create-edge-2d-a2048
+device12
+create12 1 0 3 0 0x40 0x20 0x800 1 0x1c 1 0 0 0
+end
+case fp-edge-2d-a2048
+device12
+footprint12 0 1 0 3 0 0x40 0x20 0x800 1 0x1c 1 0 0 0
+end
+case create-edge-2d-a2049
+device12
+create12 1 0 3 0 0x40 0x20 0x801 1 0x1c 1 0 0 0
+end
+case fp-edge-2d-a2049
+device12
+footprint12 0 1 0 3 0 0x40 0x20 0x801 1 0x1c 1 0 0 0
+end
+case create-edge-1d-w16384
+device12
+create12 1 0 2 0 0x4000 1 1 1 0x1c 1 0 0 0
+end
+case fp-edge-1d-w16384
+device12
+footprint12 0 1 0 2 0 0x4000 1 1 1 0x1c 1 0 0 0
+end
+case create-edge-1d-w16385
+device12
+create12 1 0 2 0 0x4001 1 1 1 0x1c 1 0 0 0
+end
+case fp-edge-1d-w16385
+device12
+footprint12 0 1 0 2 0 0x4001 1 1 1 0x1c 1 0 0 0
+end
+case create-edge-1d-a2048
+device12
+create12 1 0 2 0 0x40 1 0x800 1 0x1c 1 0 0 0
+end
+case fp-edge-1d-a2048
+device12
+footprint12 0 1 0 2 0 0x40 1 0x800 1 0x1c 1 0 0 0
+end
+case create-edge-1d-a2049
+device12
+create12 1 0 2 0 0x40 1 0x801 1 0x1c 1 0 0 0
+end
+case fp-edge-1d-a2049
+device12
+footprint12 0 1 0 2 0 0x40 1 0x801 1 0x1c 1 0 0 0
+end
+case create-edge-1d-h2
+device12
+create12 1 0 2 0 0x40 2 1 1 0x1c 1 0 0 0
+end
+case fp-edge-1d-h2
+device12
+footprint12 0 1 0 2 0 0x40 2 1 1 0x1c 1 0 0 0
+end
+case create-edge-3d-w2048
+device12
+create12 1 0 4 0 0x800 8 4 1 0x1c 1 0 0 0
+end
+case fp-edge-3d-w2048
+device12
+footprint12 0 1 0 4 0 0x800 8 4 1 0x1c 1 0 0 0
+end
+case create-edge-3d-w2049
+device12
+create12 1 0 4 0 0x801 8 4 1 0x1c 1 0 0 0
+end
+case fp-edge-3d-w2049
+device12
+footprint12 0 1 0 4 0 0x801 8 4 1 0x1c 1 0 0 0
+end
+case create-edge-3d-h2048
+device12
+create12 1 0 4 0 0x10 0x800 4 1 0x1c 1 0 0 0
+end
+case fp-edge-3d-h2048
+device12
+footprint12 0 1 0 4 0 0x10 0x800 4 1 0x1c 1 0 0 0
+end
+case create-edge-3d-h2049
+device12
+create12 1 0 4 0 0x10 0x801 4 1 0x1c 1 0 0 0
+end
+case fp-edge-3d-h2049
+device12
+footprint12 0 1 0 4 0 0x10 0x801 4 1 0x1c 1 0 0 0
+end
+case create-edge-3d-d2048
+device12
+create12 1 0 4 0 0x10 8 0x800 1 0x1c 1 0 0 0
+end
+case fp-edge-3d-d2048
+device12
+footprint12 0 1 0 4 0 0x10 8 0x800 1 0x1c 1 0 0 0
+end
+case create-edge-3d-d2049
+device12
+create12 1 0 4 0 0x10 8 0x801 1 0x1c 1 0 0 0
+end
+case fp-edge-3d-d2049
+device12
+footprint12 0 1 0 4 0 0x10 8 0x801 1 0x1c 1 0 0 0
+end
+case create-edge-2d-mips7
+device12
+create12 1 0 3 0 0x40 0x20 1 7 0x1c 1 0 0 0
+end
+case fp-edge-2d-mips7
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 7 0x1c 1 0 0 0
+end
+case create-edge-2d-mips8
+device12
+create12 1 0 3 0 0x40 0x20 1 8 0x1c 1 0 0 0
+end
+case fp-edge-2d-mips8
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 8 0x1c 1 0 0 0
+end
+case create-edge-3d-mips5
+device12
+create12 1 0 4 0 0x10 8 4 5 0x1c 1 0 0 0
+end
+case fp-edge-3d-mips5
+device12
+footprint12 0 1 0 4 0 0x10 8 4 5 0x1c 1 0 0 0
+end
+case create-edge-3d-mips6
+device12
+create12 1 0 4 0 0x10 8 4 6 0x1c 1 0 0 0
+end
+case fp-edge-3d-mips6
+device12
+footprint12 0 1 0 4 0 0x10 8 4 6 0x1c 1 0 0 0
+end
+case create-edge-1d-mips7
+device12
+create12 1 0 2 0 0x40 1 1 7 0x1c 1 0 0 0
+end
+case fp-edge-1d-mips7
+device12
+footprint12 0 1 0 2 0 0x40 1 1 7 0x1c 1 0 0 0
+end
+case create-edge-1d-mips8
+device12
+create12 1 0 2 0 0x40 1 1 8 0x1c 1 0 0 0
+end
+case fp-edge-1d-mips8
+device12
+footprint12 0 1 0 2 0 0x40 1 1 8 0x1c 1 0 0 0
+end
+case create-edge-q1
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 1 1 0 1
+end
+case fp-edge-q1
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 1 1 0 1
+end
+case create-edge-s1-q0
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 1 0 0 1
+end
+case fp-edge-s1-q0
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 1 0 0 1
+end
+case create-edge-s4-uav
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 0 5
+end
+case fp-edge-s4-uav
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 0 5
+end
+case create-edge-s4-simul
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 0 0x21
+end
+case fp-edge-s4-simul
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 0 0x21
+end
+case create-edge-s4-mips2
+device12
+create12 1 0 3 0 0x40 0x20 1 2 0x1c 4 0 0 1
+end
+case fp-edge-s4-mips2
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 2 0x1c 4 0 0 1
+end
+case create-edge-s4-1d
+device12
+create12 1 0 2 0 0x40 1 1 1 0x1c 4 0 0 1
+end
+case fp-edge-s4-1d
+device12
+footprint12 0 1 0 2 0 0x40 1 1 1 0x1c 4 0 0 1
+end
+case create-edge-s4-3d
+device12
+create12 1 0 4 0 0x10 8 4 1 0x1c 4 0 0 1
+end
+case fp-edge-s4-3d
+device12
+footprint12 0 1 0 4 0 0x10 8 4 1 0x1c 4 0 0 1
+end
+case create-edge-s4-nort
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 0 0
+end
+case fp-edge-s4-nort
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 0 0
+end
+case create-edge-s4-l3
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 3 1
+end
+case fp-edge-s4-l3
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 3 1
+end
+case create-edge-s4-l2
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 2 1
+end
+case fp-edge-s4-l2
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 4 0 2 1
+end
+case create-edge-l3
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 1 0 3 0
+end
+case fp-edge-l3
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 1 0 3 0
+end
+case create-edge-l4
+device12
+create12 1 0 3 0 0x40 0x20 1 1 0x1c 1 0 4 0
+end
+case fp-edge-l4
+device12
+footprint12 0 1 0 3 0 0x40 0x20 1 1 0x1c 1 0 4 0
+end
+case fp-edge-buffer-ffffff00
+device12
+footprint12 0 1 0 1 0 0xffffff00 1 1 1 0 1 0 1 0
+end
+case fp-edge-buffer-ffffff01
+device12
+footprint12 0 1 0 1 0 0xffffff01 1 1 1 0 1 0 1 0
+end
+case fp-edge-buffer-range-0-2
+device12
+footprint12 0 2 0 1 0 0x400 1 1 1 0 1 0 1 0
+end
+case fp-edge-buffer-range-1-1
+device12
+footprint12 1 1 0 1 0 0x400 1 1 1 0 1 0 1 0
+end
+case fp-edge-buffer-range-1-0
+device12
+footprint12 1 0 0 1 0 0x400 1 1 1 0 1 0 1 0
+end
+case fp-edge-nv12-0-4
+device12
+footprint12 0 4 0 3 0 0x40 0x20 2 1 0x67 1 0 0 0
+end
+case fp-edge-nv12-0-5
+device12
+footprint12 0 5 0 3 0 0x40 0x20 2 1 0x67 1 0 0 0
+end
+case fp-edge-nv12-3-1
+device12
+footprint12 3 1 0 3 0 0x40 0x20 2 1 0x67 1 0 0 0
+end
+case fp-edge-nv12-4-1
+device12
+footprint12 4 1 0 3 0 0x40 0x20 2 1 0x67 1 0 0 0
+end
+case copy-edge-4096x4
+device12
+copy12 28 4096 4 0
+end
+case copy-edge-4x4096
+device12
+copy12 28 4 4096 0
+end

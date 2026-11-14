@@ -583,6 +583,43 @@ pub fn d3d12() -> String {
         writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
     }
 
+    // edges: each limit and one past it, one description a case (cargo-mutants: the comparisons
+    // at the limits)
+    let mut edge: Vec<(String, String)> = Vec::new();
+    let t2 = Desc::tex(3, 64, 32, 1, 1, 28);
+    let t1 = Desc::tex(2, 64, 1, 1, 1, 28);
+    let t3 = Desc::tex(4, 16, 8, 4, 1, 28);
+    let rt = Desc { flags: 1, ..t2 };
+    for (n, d) in [
+        ("2d-w16384", Desc { w: 16384, ..t2 }), ("2d-w16385", Desc { w: 16385, ..t2 }), ("2d-h16384", Desc { h: 16384, ..t2 }), ("2d-h16385", Desc { h: 16385, ..t2 }),
+        ("2d-a2048", Desc { d: 2048, ..t2 }), ("2d-a2049", Desc { d: 2049, ..t2 }),
+        ("1d-w16384", Desc { w: 16384, ..t1 }), ("1d-w16385", Desc { w: 16385, ..t1 }), ("1d-a2048", Desc { d: 2048, ..t1 }), ("1d-a2049", Desc { d: 2049, ..t1 }), ("1d-h2", Desc { h: 2, ..t1 }),
+        ("3d-w2048", Desc { w: 2048, ..t3 }), ("3d-w2049", Desc { w: 2049, ..t3 }), ("3d-h2048", Desc { h: 2048, ..t3 }), ("3d-h2049", Desc { h: 2049, ..t3 }), ("3d-d2048", Desc { d: 2048, ..t3 }), ("3d-d2049", Desc { d: 2049, ..t3 }),
+        ("2d-mips7", Desc { mips: 7, ..t2 }), ("2d-mips8", Desc { mips: 8, ..t2 }), ("3d-mips5", Desc { mips: 5, ..t3 }), ("3d-mips6", Desc { mips: 6, ..t3 }), ("1d-mips7", Desc { mips: 7, ..t1 }), ("1d-mips8", Desc { mips: 8, ..t1 }),
+        ("q1", Desc { quality: 1, ..rt }), ("s1-q0", rt), ("s4-uav", Desc { samples: 4, flags: 5, ..rt }), ("s4-simul", Desc { samples: 4, flags: 0x21, ..rt }), ("s4-mips2", Desc { samples: 4, mips: 2, ..rt }),
+        ("s4-1d", Desc { samples: 4, flags: 1, ..t1 }), ("s4-3d", Desc { samples: 4, flags: 1, ..t3 }), ("s4-nort", Desc { samples: 4, ..t2 }), ("s4-l3", Desc { samples: 4, layout: 3, ..rt }), ("s4-l2", Desc { samples: 4, layout: 2, ..rt }),
+        ("l3", Desc { layout: 3, ..t2 }), ("l4", Desc { layout: 4, ..t2 }),
+    ] {
+        edge.push((format!("create-edge-{n}"), format!("create12 1 0 {}", desc_str(&d))));
+        edge.push((format!("fp-edge-{n}"), format!("footprint12 0 1 0 {}", desc_str(&d))));
+    }
+    for w in [0xffff_ff00u32, 0xffff_ff01] {
+        edge.push((format!("fp-edge-buffer-{w:x}"), format!("footprint12 0 1 0 {}", desc_str(&Desc::buffer(w)))));
+    }
+    for (first, count) in [(0u32, 2u32), (1, 1), (1, 0)] {
+        edge.push((format!("fp-edge-buffer-range-{first}-{count}"), format!("footprint12 {first} {count} 0 {}", desc_str(&Desc::buffer(1024)))));
+    }
+    let nv12 = Desc::tex(3, 64, 32, 2, 1, 103);
+    for (first, count) in [(0u32, 4u32), (0, 5), (3, 1), (4, 1)] {
+        edge.push((format!("fp-edge-nv12-{first}-{count}"), format!("footprint12 {first} {count} 0 {}", desc_str(&nv12))));
+    }
+    for (w, h) in [(4096u32, 4u32), (4, 4096)] {
+        edge.push((format!("copy-edge-{w}x{h}"), format!("copy12 28 {w} {h} 0")));
+    }
+    for (n, l) in edge {
+        writeln!(s, "case {n}\ndevice12\n{l}\nend").unwrap();
+    }
+
     s
 }
 
