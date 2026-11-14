@@ -21614,6 +21614,18 @@ create hr 80070057
 case create-edge4-h24m1
 device12 ok
 create hr 80070057
+case create-edge5-w23p1
+device12 ok
+create hr 80070057
+case create-edge5-w23p22
+device12 ok
+create hr 80070057
+case create-edge5-w23p23
+device12 ok
+create hr 80070057
+case create-edge5-w24m2
+device12 ok
+create hr 80070057
 case fp-edge-buffer-ffffff02
 device12 ok
 fp 0 0 ffffff02 1 1 0 1 ffffff02
