@@ -1334,5 +1334,78 @@ pub fn wicencode() -> String {
     for (n, f) in cases {
         writeln!(s, "case gifalpha-{n}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&f)).unwrap();
     }
+    gridtie(&mut s);
     s
+}
+
+/// the order of the encoder's grid cells of equal pixel count (WICIMAGE.ENCODE.QUANTIZE): one-row
+/// pictures with chosen counts per cell, every pixel its own color so that the grid is taken;
+/// a cell's pixels differ in the 3 bits below the 5 the grid looks at
+fn gridtie(s: &mut String) {
+    // (bits, the halvings per axis as the grid makes them: red, green, blue in turn)
+    let grids = [("bw", [1u32, 0, 0]), ("idx4", [2, 1, 1]), ("idx8", [3, 3, 2])];
+    // a cell's j-th color, BGR
+    let color = |sp: [u32; 3], cell: usize, j: usize| -> [u8; 3] {
+        let mut v = [0u8; 3];
+        let mut c = cell;
+        for k in (0..3).rev() {
+            let at = c & ((1 << sp[k]) - 1);
+            c >>= sp[k];
+            let low = (j >> (3 * (2 - k))) & 7;
+            v[k] = ((at << (8 - sp[k])) | low) as u8;
+        }
+        [v[2], v[1], v[0]]
+    };
+    let file = |px: &[[u8; 3]]| {
+        let mut row = px.concat();
+        row.resize(row.len().div_ceil(4) * 4, 0);
+        bmp(40, px.len() as i32, 1, 24, 0, [0; 4], 0, &[], &row, false, (0, 0))
+    };
+    let case = |s: &mut String, name: &str, f: &str, px: &[[u8; 3]]| {
+        writeln!(s, "case gridtie-{name}\nwdecode {}\nwframe 0\nwencode bmp {f}\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&file(px))).unwrap();
+    };
+    let mut r = crate::rng::XorShift32::new(0x6e1d_7e00);
+    for (f, sp) in grids {
+        let n = 1usize << (sp[0] + sp[1] + sp[2]);
+        // every cell the same count, the cells in an order: as numbered, backwards, shuffled
+        let per = if n == 256 { 1 } else { 2 };
+        let extra = usize::from(n == 256);
+        for k in 0..6 {
+            let mut order: Vec<usize> = (0..n).collect();
+            match k {
+                0 => {}
+                1 => order.reverse(),
+                _ => {
+                    for i in (1..n).rev() {
+                        order.swap(i, r.next() as usize % (i + 1));
+                    }
+                }
+            }
+            // (256 cells of one pixel each are 256 colors: one more pixel, in a cell of its own count 2)
+            let mut px: Vec<[u8; 3]> = (0..per).flat_map(|j| order.iter().map(move |&c| (c, j))).map(|(c, j)| color(sp, c, j)).collect();
+            if extra == 1 {
+                px.push(color(sp, order[0], 1));
+            }
+            case(s, &format!("{f}-even-{k}"), f, &px);
+        }
+        // three cells of counts 3 c, 2 c, c and the rest empty: the order of the empty cells
+        let c = if n == 256 { 50 } else if n == 16 { 3 } else { 1 };
+        for k in 0..4 {
+            let cells: Vec<usize> = if n == 2 { vec![k % 2, 1 - k % 2] } else {
+                let mut v = vec![];
+                while v.len() < 3 {
+                    let x = r.next() as usize % n;
+                    if !v.contains(&x) { v.push(x); }
+                }
+                v
+            };
+            let mut px = vec![];
+            for (m, &cl) in cells.iter().enumerate() {
+                for j in 0..c * (3 - m) {
+                    px.push(color(sp, cl, j));
+                }
+            }
+            case(s, &format!("{f}-few-{k}"), f, &px);
+        }
+    }
 }

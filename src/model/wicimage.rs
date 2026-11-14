@@ -2622,7 +2622,7 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     // MEASURED (golden encq-257, -300): past the palette's size the palette is otherwise (the
     // 8x8x4 grid of 0x08 + 0x21 k reds and greens, 0x19 + 0x42 k blues, in an order not found)
     if pal.len() > 1usize << bits_of(nf) {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+        pal = grid_palette(&b, bits_of(nf))?;
     }
     let rgb: Vec<[i32; 3]> = pal.iter().map(|&p| [16, 8, 0].map(|s| ((p >> s) & 0xff) as i32)).collect();
     let src = |x: usize, y: usize| {
@@ -2647,6 +2647,42 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     hit(clause::WICIMAGE_ENCODE_PALETTE);
     o.pal = Some(pal);
     Ok(o)
+}
+
+/// MEASURED (golden wicencode encpal-*, encq-*): more colors than the palette holds take a fixed
+/// grid: the 5-bit RGB cube halved `bits` times, red, green, blue in turn (2 entries: two reds;
+/// 16: 4x2x2; 256: 8x8x4), each cell's color its middle 5-bit level (low + high) / 2 widened by
+/// 255 / 31 rounded, the cells ordered by how many pixels fall in them, most first; cells of
+/// equal count come in an order not found (open)
+fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
+    let split = |k: u32| (bits + 2 - k) / 3;
+    let sp = [split(0), split(1), split(2)];
+    let cell = |v: [u8; 3]| -> usize {
+        (0..3).fold(0, |a, k| (a << sp[k]) | usize::from(v[k] >> 3) >> (5 - sp[k]))
+    };
+    let mut count = vec![0u32; 1 << bits];
+    for y in 0..b.h {
+        for x in 0..b.w {
+            let p = b.get(x, y);
+            if p[3] < 0x80 {
+                return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+            }
+            count[cell([p[2], p[1], p[0]])] += 1;
+        }
+    }
+    let mut order: Vec<usize> = (0..count.len()).collect();
+    order.sort_by_key(|&c| std::cmp::Reverse(count[c]));
+    if order.windows(2).any(|w| count[w[0]] == count[w[1]]) {
+        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+    }
+    let level = |c: usize, k: usize| -> Res<u32> {
+        let shift = 5 - sp[k];
+        let at = (c >> sp[(k + 1)..].iter().sum::<u32>()) & ((1 << sp[k]) - 1);
+        let mid = ((at << shift) + (((at + 1) << shift) - 1)) / 2;
+        u32::try_from((mid * 255 * 2 + 31) / 62).map_err(|_| Fail::Bad)
+    };
+    hit(clause::WICIMAGE_ENCODE_GRID);
+    order.iter().map(|&c| Ok(0xff00_0000 | level(c, 0)? << 16 | level(c, 1)? << 8 | level(c, 2)?)).collect()
 }
 
 /// ASSUMED: the BMP encoder writes a BITMAPINFOHEADER file, bottom-up, rows padded to 4 bytes,
