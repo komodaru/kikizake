@@ -41,7 +41,7 @@ tests/laws_dd.rs::render_state_defaults_read_back exhaustive D3D7.RS
 tests/laws_dd.rs::pitches_hold_a_row exhaustive DDRAW.PITCH DDRAW.LOCK
 tests/laws_dd.rs::clear_fills_the_target pbt D3D7.CLEAR D3D7.LOCK
 tests/laws_dd.rs::vertex_order_and_redraw pbt D3D7.TRI D3D7.CULL D3D7.FLAT
-tests/laws_dd.rs::blend_ends pbt D3D7.BLEND D3D7.BLEND.SRCALPHA
+tests/laws_dd.rs::blend_ends pbt D3D7.BLEND D3D7.BLEND.OTHER
 tests/laws_dd.rs::poke_reads_back pbt DDRAW.LOCK DDRAW.LOCK.WRITE
 tests/laws_dd.rs::flips_rotate pbt DDRAW.FLIP DDRAW.CHAIN
 tests/laws_dd.rs::clip_lists_round_trip pbt DDRAW.CLIP.SET DDRAW.CLIP.LIST
@@ -120,3 +120,8 @@ src/proofs.rs::triangle_z_is_monotone kani D3D7.TRI D3D7.CLEAR.Z
 src/model/gdi.rs::rop3_truth_table kani GDI.ROP3.TRUTH
 spec/tla/GdiPath.tla::Next tla GDI.PATH.BEGIN GDI.PATH.BEGINAGAIN GDI.PATH.END GDI.PATH.ENDMOVE GDI.PATH.ABORT GDI.PATH.CLOSE GDI.PATH.CLOSEEMPTY GDI.PATH.GET GDI.PATH.MOVETO GDI.PATH.RECORD GDI.POS.MOVE
 spec/tla/D3D9StateBlock.tla::Next tla D3D9.SETGET D3D9.SB.TYPES D3D9.SB.RECORD D3D9.SB.CAPTURE D3D9.SB.APPLY D3D9.RS.DEFAULT
+tests/laws_dd.rs::compares_are_consistent exhaustive D3D7.ZFUNC.ALL D3D7.ALPHATEST
+tests/laws_dd.rs::dither_stays_within_a_step exhaustive D3D7.DITHER
+tests/laws_dd.rs::blend_factors_bound pbt D3D7.BLEND.OTHER
+tests/laws_dd.rs::stretch_indices_are_monotone_and_cover pbt DDRAW.STRETCH
+tests/laws_dd.rs::nearest_entry_is_nearest pbt DDRAW.DC.NEAREST DDRAW.DC.NOPAL

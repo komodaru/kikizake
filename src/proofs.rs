@@ -3,7 +3,7 @@
 //! models' own functions are called, so a proof fails when the model breaks the clause.
 #![cfg(kani)]
 
-use crate::model::{d3d7::tri_z, gdi::sample, gdiblend::alpha, gdixform::page};
+use crate::model::{d3d7::{tri_z, Depth}, gdi::sample, gdiblend::alpha, gdixform::page};
 
 fn ch(v: u32, i: u32) -> u32 {
     v >> (8 * i) & 255
@@ -72,7 +72,7 @@ fn page_transform_is_the_formula() {
 fn triangle_z_is_monotone() {
     let (z1, z2, wide): (f32, f32, bool) = (kani::any(), kani::any(), kani::any());
     kani::assume(z1 >= 0.0 && z1 <= z2 && z2 <= 1.0);
-    let bits = if wide { 32 } else { 16 };
+    let bits = if wide { Depth::Z32 } else { Depth::Z16 };
     assert!(tri_z(bits, z1) <= tri_z(bits, z2));
     if z2 == 1.0 {
         assert!(tri_z(bits, z2) == if wide { 0xffff_ffff } else { 0xffff });

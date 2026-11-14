@@ -3,7 +3,7 @@
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
-use kikizake::model::d3d7::{clear_z, pixel, rs_default, tri_z};
+use kikizake::model::d3d7::{clear_z, pixel, rs_default, tri_z, Depth, Fmt, Ver};
 use kikizake::model::ddraw::{pal_entries, pitch};
 use kikizake::model::{self, run_case, Fail};
 
@@ -28,12 +28,12 @@ const FMTS: [&str; 4] = ["565", "555", "24", "32"];
 /// decreasing; a triangle's z below z * 2^16 (2^24) by less than one step
 #[test]
 fn z_values_are_monotone() {
-    for bits in [16, 32] {
-        let max = if bits == 32 { u32::MAX } else { (1 << bits) - 1 };
+    for (bits, dp) in [(16, Depth::Z16), (32, Depth::Z32)] {
+        let max = dp.max();
         let (mut pc, mut pt) = (0, 0);
         for m in 0..=1000 {
             let z = m as f32 / 1000.0;
-            let (c, t) = (clear_z(bits, z), tri_z(bits, z));
+            let (c, t) = (clear_z(dp, z), tri_z(dp, z));
             assert!(c >= pc && t >= pt, "{bits} {m}");
             assert!(c <= max && t <= max);
             let x = z as f64 * if bits == 32 { 16777216.0 } else { 65536.0 };
@@ -41,12 +41,12 @@ fn z_values_are_monotone() {
             assert!(m == 0 || m == 1000 || (t0 < x && x <= t0 + 1.0), "{bits} {m}");
             (pc, pt) = (c, t);
         }
-        assert_eq!(clear_z(bits, 0.0), 0);
-        assert_eq!(tri_z(bits, 0.0), if bits == 32 { 0xff } else { 0 });
-        assert_eq!(tri_z(bits, 1.0), max);
-        assert_eq!(clear_z(bits, 1.0), max);
+        assert_eq!(clear_z(dp, 0.0), 0);
+        assert_eq!(tri_z(dp, 0.0), if bits == 32 { 0xff } else { 0 });
+        assert_eq!(tri_z(dp, 1.0), max);
+        assert_eq!(clear_z(dp, 1.0), max);
     }
-    assert_eq!(tri_z(16, 1.0), 65535);
+    assert_eq!(tri_z(Depth::Z16, 1.0), 65535);
 }
 
 /// every value of each channel: the target pixel keeps the channel's top bits, monotone, alpha gone
@@ -56,19 +56,20 @@ fn pixels_keep_the_top_bits() {
         for sh in [0, 8, 16, 24] {
             let mut prev = 0;
             for v in 0..=255u32 {
-                let p = pixel(f, v << sh);
+                let fm = Fmt::parse(f).unwrap();
+                let p = pixel(fm, v << sh);
                 if sh == 24 {
                     assert_eq!(p, 0, "{f} alpha");
                     continue;
                 }
                 assert!(p >= prev, "{f} {sh} {v}");
                 prev = p;
-                assert_eq!(pixel(f, v << sh | 0xff00_0000), p);
+                assert_eq!(pixel(fm, v << sh | 0xff00_0000), p);
             }
         }
     }
-    assert_eq!(pixel("565", 0xffffff), 0xffff);
-    assert_eq!(pixel("555", 0xffffff), 0x7fff);
+    assert_eq!(pixel(Fmt::R565, 0xffffff), 0xffff);
+    assert_eq!(pixel(Fmt::R555, 0xffffff), 0x7fff);
 }
 
 /// a new RGB device answers every state 0..160 with the table's default
@@ -79,7 +80,7 @@ fn render_state_defaults_read_back() {
         let mut want = vec![];
         for st in 0..=160 {
             text += &format!("d3drs get {st}\n");
-            if let Some(d) = rs_default(v, st) {
+            if let Some(d) = rs_default(Ver::parse(v).unwrap(), st) {
                 want.push((st, d));
             }
         }
@@ -116,7 +117,7 @@ proptest! {
     fn clear_fills_the_target(v in prop::sample::select(vec![2u32, 3, 7]), f in prop::sample::select(FMTS.to_vec()), w in 1u32..12, h in 1u32..9, c: u32) {
         let out = run(&format!("d3d {v}\nd3ddev rgb {f} {w} {h}\nd3dclear {c:#x}\nd3ddump\n"));
         let b = if f == "24" { 3 } else if f == "32" { 4 } else { 2 };
-        let px: String = pixel(f, c).to_le_bytes()[..b].iter().map(|x| format!("{x:02x}")).collect();
+        let px: String = pixel(Fmt::parse(f).unwrap(), c).to_le_bytes()[..b].iter().map(|x| format!("{x:02x}")).collect();
         for r in rows(&out, "dd rt") {
             prop_assert_eq!(r, px.repeat(w as usize));
         }
@@ -228,7 +229,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::gen;
-    for (s, n32, n64) in [("ddraw", 2, 2), ("ddclip", 1, 1), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 11, 11), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 210, 0)] {
+    for (s, n32, n64) in [("ddraw", 2, 2), ("ddclip", 1, 1), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 11, 11), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 200, 0)] {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -273,5 +274,67 @@ proptest! {
         let first = tab.iter().position(|&e| e == tab[i]).unwrap();
         prop_assert_eq!(usize::from(nearest_entry(&tab, tab[i])), first);
         prop_assert_eq!(usize::from(nearest_entry(&SYSTEM_PALETTE, SYSTEM_PALETTE[i])), i);
+    }
+}
+
+/// the eight compares: each the negation of its opposite, Never and Always constant, every pair
+/// of 0..=40 values
+#[test]
+fn compares_are_consistent() {
+    use kikizake::model::d3d7::Cmp;
+    for a in 0..=40u32 {
+        for b in 0..=40u32 {
+            let p = |c: Cmp| c.passes(a, b);
+            assert!(!p(Cmp::Never) && p(Cmp::Always));
+            assert_eq!(p(Cmp::Less), !p(Cmp::GreaterEqual));
+            assert_eq!(p(Cmp::Greater), !p(Cmp::LessEqual));
+            assert_eq!(p(Cmp::Equal), !p(Cmp::NotEqual));
+            assert_eq!(p(Cmp::LessEqual), p(Cmp::Less) || p(Cmp::Equal));
+        }
+    }
+    for v in 0..=9u32 {
+        assert_eq!(Cmp::parse(v).is_some(), (1..=8).contains(&v));
+    }
+}
+
+/// dithering: never below the truncated value nor more than one step above it, never past the
+/// largest value, monotone in the value at each position, and 0 and 255 kept, for every value,
+/// position and width
+#[test]
+fn dither_stays_within_a_step() {
+    use kikizake::model::d3d7::dither;
+    for bits in [5u32, 6] {
+        for y in 0..4 {
+            for x in 0..4 {
+                let mut prev = 0;
+                for v in 0..=255u32 {
+                    let q = dither(v, bits, x, y);
+                    let t = v >> (8 - bits);
+                    assert!(q >= t && q <= t + 1 && q < 1 << bits, "{bits} {x} {y} {v}");
+                    assert!(q >= prev);
+                    prev = q;
+                }
+                assert_eq!(dither(0, bits, x, y), 0);
+                assert_eq!(dither(255, bits, x, y), (1 << bits) - 1);
+            }
+        }
+    }
+}
+
+proptest! {
+    /// blend factors: ZERO/ONE pick a side exactly (software ONE is 256ths, the HAL's 1), the BOTH
+    /// factors as the source sum to one whole, and every software factor stays in 0..=256
+    #[test]
+    fn blend_factors_bound(sf in 1u32..=13, df in 1u32..=13, s in 0u32..256, d in 0u32..256, a in 0u32..256) {
+        use kikizake::model::d3d7::{factors_hw, factors_soft, Factor};
+        let f = (Factor::parse(sf).unwrap(), Factor::parse(df).unwrap());
+        let (fs, fd) = factors_soft(f, s, d, a);
+        prop_assert!(fs <= 256 && fd <= 256);
+        if matches!(f.0, Factor::BothSrcAlpha | Factor::BothInvSrcAlpha) {
+            prop_assert_eq!(fs + fd, 255);
+        }
+        prop_assert_eq!(factors_soft((Factor::One, Factor::Zero), s, d, a), (256, 0));
+        let (hs, hd) = factors_hw(f, f64::from(s) / 255.0, f64::from(d) / 255.0, f64::from(a) / 255.0);
+        prop_assert!((0.0..=1.0).contains(&hs) && (0.0..=1.0).contains(&hd));
     }
 }

@@ -442,6 +442,8 @@ pub fn d3d7dev() -> String {
             }
             writeln!(s, "end").unwrap();
         }
+        // 8 bpp targets (the HAL's are not measured yet)
+        writeln!(s, "case dev8-{v}-{d}\n{dv} 8 4 2\nd3dclear 0xff102030\nd3ddump\nend").unwrap();
         // D3DCLEAR_ZBUFFER without a z-buffer, whole and in a rectangle
         writeln!(s, "case clearnoz-{v}-{d}\n{dv} 32 4 2\nd3dclear 0xff102030\nd3dclear 0xff405060 z 500\nd3ddump\nd3dclear 0xff708090 z 0 1 0 3 2\nd3ddump\nend").unwrap();
         // the z a triangle writes after each z function was set first (zrange's ALWAYS from the

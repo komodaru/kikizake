@@ -1,16 +1,20 @@
-//! Direct3D 1, 2, 3 and 7 (immediate mode through DirectDraw) on system-memory render
-//! targets: the device list, which devices a version makes, render states, Clear, and
-//! pretransformed triangles drawn by the RGB rasterizer.
+//! Direct3D 1, 2, 3 and 7 (immediate mode through DirectDraw): the device list, which devices a
+//! version makes, render states, Clear, and pretransformed triangles drawn by each device: the
+//! software rasterizers (RGB, MMX), the HAL and T&L HAL (WARP behind them on Windows' runner)
+//! and the ramp device.
 //!
 //! Direct3D 7 and older are no longer documented on Microsoft Learn (only DirectDraw is): the
 //! clauses come from the DirectX 7 SDK's rules as they still hold (spec/d3d7.txt) and from
-//! Windows' answers (golden d3d7-32, -64). The device list and the render state defaults are
-//! measured tables (src/model/d3d7.txt).
+//! Windows' answers (golden d3d7, d3d7rast, d3d7shade, d3d7edge, d3d7dev). The device list and
+//! the render state defaults are measured tables (src/model/d3d7.txt).
+//!
+//! Everything a case names is parsed into the types below first (versions, devices, formats,
+//! depths, render states, compare functions, blend factors), so that each rule is a match over
+//! all of a type's values.
 
-use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
-use crate::spec::hit;
+use crate::spec::{clause, hit, open};
 
 const TABLES: &str = include_str!("d3d7.txt");
 
@@ -19,23 +23,329 @@ pub const E_INVALIDARG: u32 = 0x8007_0057;
 pub const DDERR_UNSUPPORTED: u32 = 0x8000_4001;
 pub const DDERR_INVALIDPIXELFORMAT: u32 = 0x8876_0091;
 pub const DDERR_NOPALETTEATTACHED: u32 = 0x8876_023c;
+pub const D3DERR_ZBUFFER_NOTPRESENT: u32 = 0x8876_0816;
 
-/// the render target: pixels (bytes per pixel 2, 3 or 4) and the z-buffer's values
-#[derive(Clone, Default)]
+/// the interface version a case asks for
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Ver {
+    V1,
+    V2,
+    V3,
+    V7,
+}
+
+impl Ver {
+    pub const ALL: [Ver; 4] = [Ver::V1, Ver::V2, Ver::V3, Ver::V7];
+    pub fn parse(v: i64) -> Option<Ver> {
+        match v {
+            1 => Some(Ver::V1),
+            2 => Some(Ver::V2),
+            3 => Some(Ver::V3),
+            7 => Some(Ver::V7),
+            _ => None,
+        }
+    }
+    pub fn number(self) -> u32 {
+        match self {
+            Ver::V1 => 1,
+            Ver::V2 => 2,
+            Ver::V3 => 3,
+            Ver::V7 => 7,
+        }
+    }
+}
+
+/// the device GUIDs the executor knows
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Dev {
+    Rgb,
+    Hal,
+    Tnl,
+    Ref,
+    Mmx,
+    Ramp,
+    Null,
+}
+
+impl Dev {
+    pub fn parse(s: &str) -> Option<Dev> {
+        match s {
+            "rgb" => Some(Dev::Rgb),
+            "hal" => Some(Dev::Hal),
+            "tnl" => Some(Dev::Tnl),
+            "ref" => Some(Dev::Ref),
+            "mmx" => Some(Dev::Mmx),
+            "ramp" => Some(Dev::Ramp),
+            "null" => Some(Dev::Null),
+            _ => None,
+        }
+    }
+}
+
+/// how a device that exists draws
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Family {
+    /// the RGB and MMX rasterizers: fixed point, truncation, dithering
+    Soft { mmx: bool },
+    /// the HAL and the T&L HAL: floats, rounding, no dithering
+    Hw { tnl: bool },
+    /// the ramp (palette) device
+    Ramp,
+}
+
+/// the render target's pixel format
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Fmt {
+    P8,
+    R565,
+    R555,
+    R24,
+    X32,
+}
+
+impl Fmt {
+    pub const ALL: [Fmt; 5] = [Fmt::P8, Fmt::R565, Fmt::R555, Fmt::R24, Fmt::X32];
+    pub fn parse(s: &str) -> Option<Fmt> {
+        match s {
+            "8" => Some(Fmt::P8),
+            "565" => Some(Fmt::R565),
+            "555" => Some(Fmt::R555),
+            "24" => Some(Fmt::R24),
+            "32" => Some(Fmt::X32),
+            _ => None,
+        }
+    }
+    pub fn bytes(self) -> usize {
+        match self {
+            Fmt::P8 => 1,
+            Fmt::R565 | Fmt::R555 => 2,
+            Fmt::R24 => 3,
+            Fmt::X32 => 4,
+        }
+    }
+    /// the bits of r, g and b
+    pub fn bits(self) -> [u32; 3] {
+        match self {
+            Fmt::R565 => [5, 6, 5],
+            Fmt::R555 => [5, 5, 5],
+            Fmt::P8 | Fmt::R24 | Fmt::X32 => [8, 8, 8],
+        }
+    }
+    /// where r, g and b sit
+    fn shifts(self) -> [u32; 3] {
+        match self {
+            Fmt::R565 => [11, 5, 0],
+            Fmt::R555 => [10, 5, 0],
+            Fmt::P8 | Fmt::R24 | Fmt::X32 => [16, 8, 0],
+        }
+    }
+    fn pack(self, q: [u32; 3]) -> u32 {
+        let s = self.shifts();
+        q[0] << s[0] | q[1] << s[1] | q[2] << s[2]
+    }
+    /// a pixel's channels as 8 bits each (r, g, b), the low bits 0
+    pub fn channels(self, p: u32) -> [u32; 3] {
+        let (s, b) = (self.shifts(), self.bits());
+        [0, 1, 2].map(|i| (p >> s[i] & ((1 << b[i]) - 1)) << (8 - b[i]))
+    }
+}
+
+/// the z-buffer's depth
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Depth {
+    Z16,
+    Z24,
+    Z32,
+}
+
+impl Depth {
+    pub fn parse(s: &str) -> Option<Depth> {
+        match s {
+            "z16" => Some(Depth::Z16),
+            "z24" => Some(Depth::Z24),
+            "z32" => Some(Depth::Z32),
+            _ => None,
+        }
+    }
+    pub fn bytes(self) -> usize {
+        match self {
+            Depth::Z16 => 2,
+            Depth::Z24 => 3,
+            Depth::Z32 => 4,
+        }
+    }
+    pub fn max(self) -> u32 {
+        match self {
+            Depth::Z16 => 0xffff,
+            Depth::Z24 => 0xff_ffff,
+            Depth::Z32 => u32::MAX,
+        }
+    }
+}
+
+/// the render states the drawing reads (D3DRENDERSTATETYPE)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Rs {
+    ZEnable,
+    FillMode,
+    ShadeMode,
+    ZWriteEnable,
+    AlphaTestEnable,
+    SrcBlend,
+    DestBlend,
+    CullMode,
+    ZFunc,
+    AlphaRef,
+    AlphaFunc,
+    DitherEnable,
+    AlphaBlendEnable,
+    FogEnable,
+    SpecularEnable,
+    FogColor,
+}
+
+impl Rs {
+    pub const fn id(self) -> i64 {
+        match self {
+            Rs::ZEnable => 7,
+            Rs::FillMode => 8,
+            Rs::ShadeMode => 9,
+            Rs::ZWriteEnable => 14,
+            Rs::AlphaTestEnable => 15,
+            Rs::SrcBlend => 19,
+            Rs::DestBlend => 20,
+            Rs::CullMode => 22,
+            Rs::ZFunc => 23,
+            Rs::AlphaRef => 24,
+            Rs::AlphaFunc => 25,
+            Rs::DitherEnable => 26,
+            Rs::AlphaBlendEnable => 27,
+            Rs::FogEnable => 28,
+            Rs::SpecularEnable => 29,
+            Rs::FogColor => 34,
+        }
+    }
+}
+
+/// D3DCMPFUNC
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Cmp {
+    Never,
+    Less,
+    Equal,
+    LessEqual,
+    Greater,
+    NotEqual,
+    GreaterEqual,
+    Always,
+}
+
+impl Cmp {
+    pub const ALL: [Cmp; 8] = [Cmp::Never, Cmp::Less, Cmp::Equal, Cmp::LessEqual, Cmp::Greater, Cmp::NotEqual, Cmp::GreaterEqual, Cmp::Always];
+    pub fn parse(v: u32) -> Option<Cmp> {
+        match v {
+            1 => Some(Cmp::Never),
+            2 => Some(Cmp::Less),
+            3 => Some(Cmp::Equal),
+            4 => Some(Cmp::LessEqual),
+            5 => Some(Cmp::Greater),
+            6 => Some(Cmp::NotEqual),
+            7 => Some(Cmp::GreaterEqual),
+            8 => Some(Cmp::Always),
+            _ => None,
+        }
+    }
+    /// whether `new` passes against `old`
+    pub fn passes(self, new: u32, old: u32) -> bool {
+        match self {
+            Cmp::Never => false,
+            Cmp::Less => new < old,
+            Cmp::Equal => new == old,
+            Cmp::LessEqual => new <= old,
+            Cmp::Greater => new > old,
+            Cmp::NotEqual => new != old,
+            Cmp::GreaterEqual => new >= old,
+            Cmp::Always => true,
+        }
+    }
+}
+
+/// D3DBLEND
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Factor {
+    Zero,
+    One,
+    SrcColor,
+    InvSrcColor,
+    SrcAlpha,
+    InvSrcAlpha,
+    DestAlpha,
+    InvDestAlpha,
+    DestColor,
+    InvDestColor,
+    SrcAlphaSat,
+    BothSrcAlpha,
+    BothInvSrcAlpha,
+}
+
+impl Factor {
+    pub fn parse(v: u32) -> Option<Factor> {
+        match v {
+            1 => Some(Factor::Zero),
+            2 => Some(Factor::One),
+            3 => Some(Factor::SrcColor),
+            4 => Some(Factor::InvSrcColor),
+            5 => Some(Factor::SrcAlpha),
+            6 => Some(Factor::InvSrcAlpha),
+            7 => Some(Factor::DestAlpha),
+            8 => Some(Factor::InvDestAlpha),
+            9 => Some(Factor::DestColor),
+            10 => Some(Factor::InvDestColor),
+            11 => Some(Factor::SrcAlphaSat),
+            12 => Some(Factor::BothSrcAlpha),
+            13 => Some(Factor::BothInvSrcAlpha),
+            _ => None,
+        }
+    }
+}
+
+/// D3DCULL
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Cull {
+    None,
+    Cw,
+    Ccw,
+}
+
+/// D3DFILLMODE
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Fill {
+    Point,
+    Wireframe,
+    Solid,
+}
+
+/// the render target: pixels and the z-buffer's values
+#[derive(Clone)]
 struct Target {
     w: i64,
     h: i64,
-    fmt: &'static str,
+    fmt: Fmt,
     px: Vec<u32>,
-    zbits: u32,
+    depth: Option<Depth>,
     z: Vec<u32>,
+}
+
+/// a device that was made
+struct Device {
+    family: Family,
+    rt: Target,
 }
 
 #[derive(Default)]
 pub struct D3d7 {
-    ver: u32,
-    dev: bool,
-    rt: Option<Target>,
+    ver: Option<Ver>,
+    dev: Option<Device>,
     rs: std::collections::BTreeMap<i64, u32>,
 }
 
@@ -43,74 +353,106 @@ fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
 }
 
+/// a 32-bit value of a case token (colors, states; negative numbers as their two's complement)
+fn n32(op: &Op, i: usize) -> Res<u32> {
+    let v = n(op, i)?;
+    u32::try_from(v).or_else(|_| i32::try_from(v).map(i32::cast_unsigned)).map_err(|_| Fail::Bad)
+}
+
+/// a color list "c" or "c0/c1/c2"
+fn colors(s: &str) -> Res<[u32; 3]> {
+    let cs: Vec<u32> = s.split('/').map(|c| num(c).and_then(|v| u32::try_from(v).ok()).ok_or(Fail::Bad)).collect::<Res<_>>()?;
+    match cs.as_slice() {
+        &[c] => Ok([c; 3]),
+        &[a, b, c] => Ok([a, b, c]),
+        _ => Err(Fail::Bad),
+    }
+}
+
 /// a render state's default (None: GetRenderState fails with E_INVALIDARG)
-pub fn rs_default(ver: u32, st: i64) -> Option<u32> {
-    let key = format!("rs {ver} {st} ");
+pub fn rs_default(ver: Ver, st: i64) -> Option<u32> {
+    let key = format!("rs {} {st} ", ver.number());
     let l = TABLES.lines().find(|l| l.starts_with(&key))?;
     let v = &l[key.len()..];
-    v.strip_prefix("= ").map(|h| u32::from_str_radix(h, 16).unwrap())
+    v.strip_prefix("= ").and_then(|h| u32::from_str_radix(h, 16).ok())
 }
 
-fn bytes(fmt: &str) -> usize {
-    match fmt {
-        "565" | "555" => 2,
-        "24" => 3,
-        _ => 4,
-    }
+/// ARGB to a software target's pixel: MEASURED (clear golden, d3d7dev color-*: every value of
+/// each channel, versions 2, 3, 7, RGB and MMX, Clear and flat triangles) each channel's top bits,
+/// 0 elsewhere (no alpha in the target)
+pub fn pixel(fmt: Fmt, c: u32) -> u32 {
+    let b = fmt.bits();
+    fmt.pack([(c >> 16 & 255) >> (8 - b[0]), (c >> 8 & 255) >> (8 - b[1]), (c & 255) >> (8 - b[2])])
 }
 
-/// ARGB to the target's pixel: MEASURED (clear golden, every value of each channel, versions
-/// 2, 3, 7) each channel's top bits, 0 elsewhere (no alpha in the target)
-pub fn pixel(fmt: &str, c: u32) -> u32 {
-    let (r, g, b) = (c >> 16 & 255, c >> 8 & 255, c & 255);
-    match fmt {
-        "565" => (r >> 3) << 11 | (g >> 2) << 5 | b >> 3,
-        "555" => (r >> 3) << 10 | (g >> 3) << 5 | b >> 3,
-        _ => c & 0xff_ffff,
-    }
+/// an 8-bit channel to `bits` by rounding: round(v · max / 255)
+fn round_to(v: u32, bits: u32) -> u32 {
+    (v * ((1 << bits) - 1) + 127) / 255
 }
 
-/// a pixel's channels as 8 bits each (r, g, b), the low bits 0
-fn channels(fmt: &str, p: u32) -> [u32; 3] {
-    match fmt {
-        "565" => [(p >> 11 & 31) << 3, (p >> 5 & 63) << 2, (p & 31) << 3],
-        "555" => [(p >> 10 & 31) << 3, (p >> 5 & 31) << 3, (p & 31) << 3],
-        _ => [p >> 16 & 255, p >> 8 & 255, p & 255],
-    }
+/// ARGB to a HAL target's pixel: MEASURED (d3d7dev color-*: every value of each channel, HAL and
+/// T&L HAL, Clear and flat triangles) round(v · max / 255) per channel
+pub fn pixel_hw(fmt: Fmt, c: u32) -> u32 {
+    let b = fmt.bits();
+    fmt.pack([round_to(c >> 16 & 255, b[0]), round_to(c >> 8 & 255, b[1]), round_to(c & 255, b[2])])
 }
 
-/// Clear's z value: MEASURED (clearz golden, z = 0, 1/1000, ..., 1 into 16 and 32 bits) the
-/// float z times the largest value, in float, rounded to nearest, at most the largest value
-pub fn clear_z(bits: u32, z: f32) -> u32 {
-    let max = if bits == 32 { u32::MAX } else { (1u32 << bits) - 1 };
-    let v = (z * max as f32) as f64 + 0.5;
-    if v >= max as f64 { max } else { v as u32 }
-}
-
-/// a triangle's z value (constant over it): MEASURED (zsweep golden: 144 z values, every 7/1000
-/// from 0 to 1, into 16 and 32 bits, all exact; zcover: 0.3, 0.5, 0.6) the largest integer below
-/// z * 2^16 (16 bits) or z * 2^24 (32 bits: shifted up 8, the low byte 0xff), at least 0 and at
+/// Clear's z value: MEASURED (clearz golden, z = 0, 1/1000, ..., 1 into 16 and 32 bits; d3d7dev
+/// zrange: every device) the float z times the largest value, in float, rounded to nearest, at
 /// most the largest value
-pub fn tri_z(bits: u32, z: f32) -> u32 {
-    let k = if bits == 32 { 24 } else { 16 };
-    let x = z as f64 * (1u64 << k) as f64;
+pub fn clear_z(depth: Depth, z: f32) -> u32 {
+    let max = depth.max();
+    let v = f64::from(z * max as f32) + 0.5;
+    if v >= f64::from(max) { max } else { v as u32 }
+}
+
+/// a software triangle's z value (constant over it): MEASURED (zsweep golden: 144 z values, every
+/// 7/1000 from 0 to 1, into 16 and 32 bits, all exact; zcover: 0.3, 0.5, 0.6; d3d7shade zfunc-*)
+/// the largest integer below z · 2^16 (16 bits) or z · 2^24 (32 bits: shifted up 8, the low byte
+/// 0xff), at least 0 and at most the largest value
+pub fn tri_z(depth: Depth, z: f32) -> u32 {
+    let k = match depth {
+        Depth::Z16 => 16,
+        Depth::Z24 | Depth::Z32 => 24,
+    };
+    let x = f64::from(z) * (1u64 << k) as f64;
     let v = (x.ceil() - 1.0).clamp(0.0, ((1u64 << k) - 1) as f64) as u32;
-    if bits == 32 { v << 8 | 0xff } else { v }
+    match depth {
+        Depth::Z16 => v,
+        Depth::Z24 | Depth::Z32 => v << 8 | 0xff,
+    }
+}
+
+/// a HAL triangle's z value: MEASURED (d3d7dev zrange, d3d7shade zfunc-*: z16) z · 65535 in
+/// float, rounded to nearest even
+pub fn tri_z_hw(z: f32) -> u32 {
+    (z * 65535.0f32).round_ties_even().clamp(0.0, 65535.0) as u32
+}
+
+/// the ordered dither matrix of the software rasterizers: MEASURED (d3d7shade dither-*: 256
+/// grays and random colors at every position, 565 and 555, RGB and MMX)
+const DITHER: [[u32; 4]; 4] = [[7, 1, 6, 0], [3, 5, 2, 4], [6, 0, 7, 1], [2, 4, 3, 5]];
+
+/// an 8-bit channel dithered down to `bits` at (x, y)
+pub fn dither(v: u32, bits: u32, x: i64, y: i64) -> u32 {
+    let (xi, yi) = (usize::try_from(x.rem_euclid(4)).unwrap_or(0), usize::try_from(y.rem_euclid(4)).unwrap_or(0));
+    (((v << bits) + DITHER[yi][xi] * 32 + 16) >> 8).min((1 << bits) - 1)
 }
 
 impl D3d7 {
     fn state(&self, st: i64) -> Option<u32> {
-        self.rs.get(&st).copied().or_else(|| rs_default(self.ver, st))
+        let v = self.ver?;
+        self.rs.get(&st).copied().or_else(|| rs_default(v, st))
+    }
+    fn rs(&self, st: Rs) -> u32 {
+        self.state(st.id()).unwrap_or(0)
     }
 
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         match t[0].as_str() {
             "d3d" => {
-                let v = n(op, 1)? as u32;
-                if ![1, 2, 3, 7].contains(&v) {
-                    return Err(Fail::Bad);
-                }
+                let v = Ver::parse(n(op, 1)?).ok_or(Fail::Bad)?;
                 *self = D3d7::default();
                 // MEASURED: the x86-64 DirectDraw has no Direct3D interfaces
                 hit(clause::D3D7_X64);
@@ -119,7 +461,7 @@ impl D3d7 {
                     return Ok(true);
                 }
                 hit(clause::D3D7_CREATE);
-                self.ver = v;
+                self.ver = Some(v);
                 out.push("d3d ok".into());
             }
             "d3denum" => {
@@ -128,103 +470,109 @@ impl D3d7 {
                     Some("caps") if t.len() == 2 => true,
                     _ => return Err(Fail::Bad),
                 };
-                if self.ver == 0 {
+                let Some(v) = self.ver else {
                     out.push("nodev".into());
                     return Ok(true);
-                }
+                };
                 hit(clause::D3D7_ENUM);
-                let key = format!("enum {} ", self.ver);
+                let key = format!("enum {} ", v.number());
                 for l in TABLES.lines().filter_map(|l| l.strip_prefix(&key)) {
                     if caps || l.starts_with("dev ") {
                         out.push(l.to_string());
                     }
                 }
             }
-            "d3ddev" => {
-                let dev = t.get(1).map(String::as_str).unwrap_or("");
-                if !crate::gen::d3d7::DEVS.contains(&dev) {
-                    return Err(Fail::Bad);
-                }
-                let fmt: &'static str = match t.get(2).map(String::as_str) {
-                    Some("565") => "565",
-                    Some("555") => "555",
-                    Some("32") => "32",
-                    Some("24") => "24",
-                    Some("8") => "8",
-                    _ => return Err(Fail::Bad),
-                };
-                let (w, h) = (n(op, 3)?, n(op, 4)?);
-                let zbits = match t.get(5).map(String::as_str) {
-                    None => 0,
-                    Some("z16") => 16,
-                    Some("z24") => 24,
-                    Some("z32") => 32,
-                    _ => return Err(Fail::Bad),
-                };
-                if !(1..=256).contains(&w) || !(1..=256).contains(&h) || t.len() > 6 {
-                    return Err(Fail::Bad);
-                }
-                if self.ver == 0 {
-                    out.push("nodev".into());
-                    return Ok(true);
-                }
-                self.dev = false;
-                self.rt = None;
-                self.rs.clear();
-                hit(clause::D3D7_DEVICE);
-                let hw = dev == "hal" || dev == "tnl";
-                // MEASURED (dev golden: 7 devices x 4 versions x 9 targets): a 24-bit z-buffer
-                // in system memory has no pixel format, none in the display's video memory takes
-                // 24 or 32 bits
-                if zbits == 24 && !hw {
-                    out.push(format!("d3ddev z hr {DDERR_INVALIDPIXELFORMAT:08x}"));
-                    return Ok(true);
-                }
-                if zbits >= 24 && hw {
-                    out.push(format!("d3ddev z hr {DDERR_UNSUPPORTED:08x}"));
-                    return Ok(true);
-                }
-                // MEASURED: which device each version makes: RGB, MMX and the HAL everywhere,
-                // T&L HAL only 7, ramp only 1 and 2 (3: E_INVALIDARG, 7: unknown); no
-                // reference or null device; 8 bpp targets want a palette
-                let hr = match (dev, self.ver) {
-                    ("ref" | "null", _) => Some(E_NOINTERFACE),
-                    ("ramp", 7) => Some(E_NOINTERFACE),
-                    ("ramp", 3) | ("tnl", 1..=3) => Some(E_INVALIDARG),
-                    _ if fmt == "8" => Some(DDERR_NOPALETTEATTACHED),
-                    _ => None,
-                };
-                if let Some(hr) = hr {
-                    out.push(format!("d3ddev hr {hr:08x}"));
-                    return Ok(true);
-                }
-                if hw || dev == "ramp" || dev == "mmx" {
-                    // (only the RGB rasterizer's pixels are modelled; the others are made)
-                    self.rt = None;
-                    self.dev = true;
-                    self.ver += 100;
-                } else {
-                    self.dev = true;
-                    // MEASURED (v1 golden): a new target holds zeros
-                    self.rt = Some(Target { w, h, fmt, px: vec![0; (w * h) as usize], zbits, z: vec![0; if zbits > 0 { (w * h) as usize } else { 0 }] });
-                }
-                if zbits > 0 {
-                    // MEASURED: ZENABLE is on when the target had a z-buffer
-                    self.rs.insert(7, 1);
-                }
-                out.push("d3ddev ok".into());
-            }
+            "d3ddev" => return self.make_device(op, out),
             "d3drs" | "d3dclear" | "d3dtri" | "d3dfill" | "d3ddump" | "d3dzdump" => return self.draw(op, out),
             _ => return Ok(false),
         }
         Ok(true)
     }
 
+    fn make_device(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
+        let t = op.tok.as_slice();
+        let dev = t.get(1).and_then(|d| Dev::parse(d)).ok_or(Fail::Bad)?;
+        let fmt = t.get(2).and_then(|f| Fmt::parse(f)).ok_or(Fail::Bad)?;
+        let (w, h) = (n(op, 3)?, n(op, 4)?);
+        let depth = match t.get(5) {
+            None => None,
+            Some(z) => Some(Depth::parse(z).ok_or(Fail::Bad)?),
+        };
+        if !(1..=256).contains(&w) || !(1..=256).contains(&h) || t.len() > 6 {
+            return Err(Fail::Bad);
+        }
+        let Some(ver) = self.ver else {
+            out.push("nodev".into());
+            return Ok(true);
+        };
+        self.dev = None;
+        self.rs.clear();
+        hit(clause::D3D7_DEVICE);
+        let hw = match dev {
+            Dev::Hal | Dev::Tnl => true,
+            Dev::Rgb | Dev::Ref | Dev::Mmx | Dev::Ramp | Dev::Null => false,
+        };
+        // MEASURED (d3d7dev color-*): the display's video memory has no 24-bit render targets
+        if hw && fmt == Fmt::R24 {
+            hit(clause::D3D7_DEVICE_HW24);
+            out.push(format!("d3ddev surface hr {DDERR_UNSUPPORTED:08x}"));
+            return Ok(true);
+        }
+        if hw && fmt == Fmt::P8 {
+            return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
+        }
+        // MEASURED (dev golden: 7 devices x 4 versions x 9 targets): a 24-bit z-buffer in system
+        // memory has no pixel format, none in the display's video memory takes 24 or 32 bits
+        match (depth, hw) {
+            (Some(Depth::Z24), false) => {
+                out.push(format!("d3ddev z hr {DDERR_INVALIDPIXELFORMAT:08x}"));
+                return Ok(true);
+            }
+            (Some(Depth::Z24 | Depth::Z32), true) => {
+                out.push(format!("d3ddev z hr {DDERR_UNSUPPORTED:08x}"));
+                return Ok(true);
+            }
+            (None | Some(Depth::Z16), true) | (None | Some(Depth::Z16 | Depth::Z32), false) => {}
+        }
+        // MEASURED: which device each version makes: RGB, MMX and the HAL everywhere, T&L HAL
+        // only 7, ramp only 1 and 2 (3: E_INVALIDARG, 7: unknown); no reference or null device;
+        // 8 bpp targets want a palette
+        let made = match (dev, ver) {
+            (Dev::Ref | Dev::Null, _) | (Dev::Ramp, Ver::V7) => Err(E_NOINTERFACE),
+            (Dev::Ramp, Ver::V3) | (Dev::Tnl, Ver::V1 | Ver::V2 | Ver::V3) => Err(E_INVALIDARG),
+            (Dev::Rgb | Dev::Hal | Dev::Tnl | Dev::Mmx | Dev::Ramp, _) if fmt == Fmt::P8 => Err(DDERR_NOPALETTEATTACHED),
+            (Dev::Rgb, _) => Ok(Family::Soft { mmx: false }),
+            (Dev::Mmx, _) => Ok(Family::Soft { mmx: true }),
+            (Dev::Hal, _) => Ok(Family::Hw { tnl: false }),
+            (Dev::Tnl, Ver::V7) => Ok(Family::Hw { tnl: true }),
+            (Dev::Ramp, Ver::V1 | Ver::V2) => Ok(Family::Ramp),
+        };
+        let family = match made {
+            Ok(f) => f,
+            Err(hr) => {
+                out.push(format!("d3ddev hr {hr:08x}"));
+                return Ok(true);
+            }
+        };
+        let k = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
+        // MEASURED (v1 golden): a new target holds zeros
+        let rt = Target { w, h, fmt, px: vec![0; k], depth, z: vec![0; if depth.is_some() { k } else { 0 }] };
+        self.dev = Some(Device { family, rt });
+        if depth.is_some() {
+            // MEASURED: ZENABLE is on when the target had a z-buffer
+            self.rs.insert(Rs::ZEnable.id(), 1);
+        }
+        out.push("d3ddev ok".into());
+        Ok(true)
+    }
+
     fn draw(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
-        let ver = self.ver % 100;
-        // (a device whose pixels the model does not draw: the HAL, MMX, ramp)
-        let other = self.ver > 100;
+        // (version 1 devices have no render states, Clear or DrawPrimitive here)
+        let ver = match (self.ver, &self.dev) {
+            (Some(Ver::V1), _) | (None, _) | (_, None) => None,
+            (Some(v @ (Ver::V2 | Ver::V3 | Ver::V7)), Some(_)) => Some(v),
+        };
         match t[0].as_str() {
             "d3drs" => {
                 let set = match t.get(1).map(String::as_str) {
@@ -233,17 +581,14 @@ impl D3d7 {
                     _ => return Err(Fail::Bad),
                 };
                 let st = n(op, 2)?;
-                let v = if set { n(op, 3)? as u32 } else { 0 };
+                let v = if set { n32(op, 3)? } else { 0 };
                 if t.len() != if set { 4 } else { 3 } {
                     return Err(Fail::Bad);
                 }
-                if !self.dev || ver == 1 {
+                let Some(ver) = ver else {
                     out.push("nodev".into());
                     return Ok(true);
-                }
-                if other {
-                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
-                }
+                };
                 hit(clause::D3D7_RS);
                 if set {
                     // MEASURED (rsset golden): SetRenderState keeps any value of a known state
@@ -262,7 +607,7 @@ impl D3d7 {
                 }
             }
             "d3dclear" => {
-                let c = n(op, 1)? as u32;
+                let c = n32(op, 1)?;
                 let mut i = 2;
                 let mut z = None;
                 if t.get(i).is_some_and(|v| v == "z") {
@@ -276,88 +621,57 @@ impl D3d7 {
                 } else {
                     return Err(Fail::Bad);
                 };
-                if !self.dev || ver == 1 {
+                let (Some(ver), Some(d)) = (ver, self.dev.as_mut()) else {
                     out.push("nodev".into());
                     return Ok(true);
-                }
-                if other {
-                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
-                }
-                let rt = self.rt.as_mut().unwrap();
-                if z.is_some() && rt.zbits == 0 {
-                    return Err(Fail::Unmodeled(open::D3D7_CLEAR_NOZ));
-                }
-                // MEASURED (clearrects golden): the rectangle clipped to the target; one turned
-                // round or empty clears nothing
-                hit(clause::D3D7_CLEAR);
-                let (x0, y0, x1, y1) = r.unwrap_or((0, 0, rt.w, rt.h));
-                let v = pixel(rt.fmt, c);
-                for y in y0.max(0)..y1.min(rt.h) {
-                    for x in x0.max(0)..x1.min(rt.w) {
-                        let k = (y * rt.w + x) as usize;
-                        rt.px[k] = v;
-                        if let Some(z) = z {
-                            hit(clause::D3D7_CLEAR_Z);
-                            rt.z[k] = clear_z(rt.zbits, z);
-                        }
-                    }
-                }
+                };
+                clear(ver, d, c, z, r, out)?;
             }
             "d3dtri" => {
-                let cs: Vec<u32> = t.get(1).ok_or(Fail::Bad)?.split('/').map(|c| num(c).map(|v| v as u32).ok_or(Fail::Bad)).collect::<Res<_>>()?;
-                if cs.len() != 1 && cs.len() != 3 {
-                    return Err(Fail::Bad);
-                }
+                let c = colors(t.get(1).ok_or(Fail::Bad)?)?;
                 let mut v = [(0i64, 0i64); 3];
                 for (k, p) in v.iter_mut().enumerate() {
                     *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
                 }
                 let mut z = 0.5f32;
-                // (the specular colors only count with fog or specular on: D3D7.STATES)
+                let mut spec = [0u32; 3];
                 let mut k = 8;
                 while k < t.len() {
                     match (t[k].as_str(), t.get(k + 1)) {
                         ("z", Some(_)) => z = n(op, k + 1)? as f32 / 1000.0,
-                        ("spec", Some(sp)) => {
-                            let ns = sp.split('/').map(|c| num(c).ok_or(Fail::Bad)).collect::<Res<Vec<_>>>()?.len();
-                            if ns != 1 && ns != 3 {
-                                return Err(Fail::Bad);
-                            }
-                        }
+                        ("spec", Some(sp)) => spec = colors(sp)?,
                         _ => return Err(Fail::Bad),
                     }
                     k += 2;
                 }
-                if !self.dev || ver == 1 {
+                if ver.is_none() {
                     out.push("nodev".into());
                     return Ok(true);
                 }
-                if other {
-                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
-                }
-                let c = [cs[0], *cs.get(1).unwrap_or(&cs[0]), *cs.get(2).unwrap_or(&cs[0])];
-                self.tri(v, c, z)?;
+                let st = States::read(self)?;
+                let d = self.dev.as_mut().ok_or(Fail::Bad)?;
+                draw_tri(d, &st, &Tri { v, c, spec, z })?;
             }
             "d3dfill" | "d3ddump" | "d3dzdump" => {
-                let seed = if t[0] == "d3dfill" { Some(n(op, 1)? as u32) } else { None };
+                let seed = if t[0] == "d3dfill" { Some(n32(op, 1)?) } else { None };
                 if t.len() != if seed.is_some() { 2 } else { 1 } {
                     return Err(Fail::Bad);
                 }
-                if !self.dev {
+                let Some(d) = self.dev.as_mut() else {
                     out.push("nodev".into());
                     return Ok(true);
-                }
-                if other {
-                    return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
-                }
-                let rt = self.rt.as_mut().unwrap();
-                let z = t[0] == "d3dzdump";
-                if z && rt.zbits == 0 {
-                    out.push("nodev".into());
-                    return Ok(true);
-                }
+                };
+                let rt = &mut d.rt;
+                let zdump = t[0] == "d3dzdump";
+                let b = match (zdump, rt.depth) {
+                    (true, None) => {
+                        out.push("nodev".into());
+                        return Ok(true);
+                    }
+                    (true, Some(dp)) => dp.bytes(),
+                    (false, _) => rt.fmt.bytes(),
+                };
                 hit(clause::D3D7_LOCK);
-                let b = if z { rt.zbits as usize / 8 } else { bytes(rt.fmt) };
                 if let Some(seed) = seed {
                     let mut g = crate::rng::XorShift32::new(seed);
                     for p in rt.px.iter_mut() {
@@ -369,9 +683,9 @@ impl D3d7 {
                     }
                     return Ok(true);
                 }
-                let (bits, data) = if z { (rt.zbits, &rt.z) } else { (b as u32 * 8, &rt.px) };
-                out.push(format!("dd {} {} {} {bits}", if z { "z" } else { "rt" }, rt.w, rt.h));
-                for row in data.chunks(rt.w as usize) {
+                let data = if zdump { &rt.z } else { &rt.px };
+                out.push(format!("dd {} {} {} {}", if zdump { "z" } else { "rt" }, rt.w, rt.h, b * 8));
+                for row in data.chunks(usize::try_from(rt.w).map_err(|_| Fail::Bad)?) {
                     out.push(row.iter().map(|v| v.to_le_bytes()[..b].iter().map(|x| format!("{x:02x}")).collect::<String>()).collect());
                 }
             }
@@ -379,114 +693,465 @@ impl D3d7 {
         }
         Ok(true)
     }
+}
 
-    /// one D3DTLVERTEX triangle (x, y in 16ths of a pixel), the render states applied
-    fn tri(&mut self, v: [(i64, i64); 3], c: [u32; 3], z: f32) -> Res<()> {
-        let st = |k: i64| self.state(k).unwrap_or(0);
-        let (cull, shade, dither, zen, zwrite, zfunc, blend, src, dst) = (st(22), st(9), st(26), st(7), st(14), st(23), st(27), st(19), st(20));
-        let others = [(8, 3), (15, 0), (28, 0), (29, 0), (16, 1), (41, 0)];
-        if others.iter().any(|&(k, d)| st(k) != d) {
-            // (fill modes, the alpha test, fog, specular light, LASTPIXEL, stippling)
-            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
-        }
-        let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
-        // MEASURED (cull golden): D3DCULL_CCW (the default) drops triangles of negative area in
-        // screen coordinates (x right, y down; area of v0 v1 v2), CW positive ones
-        hit(clause::D3D7_CULL);
-        if area == 0 || (cull == 3 && area < 0) || (cull == 2 && area > 0) {
-            return Ok(());
-        }
-        if !(1..=3).contains(&cull) {
-            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
-        }
-        let gouraud = c[0] != c[1] || c[0] != c[2];
-        if gouraud && shade != 1 {
-            return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
-        }
-        // D3DSHADE_FLAT: the first vertex's color
-        let col = c[0];
-        if shade == 1 && gouraud {
-            hit(clause::D3D7_FLAT);
-        }
-        let rt = self.rt.as_mut().unwrap();
-        if dither != 0 && rt.fmt != "32" && rt.fmt != "24" {
-            return Err(Fail::Unmodeled(open::D3D7_DITHER));
-        }
-        let (w, h) = (rt.w, rt.h);
-        let inside = v.iter().all(|&(x, y)| (0..=w * 16).contains(&x) && (0..=h * 16).contains(&y));
-        // the pixel (px, py) is covered when its sample point (px, py) is inside all three edges
-        let (a, b, cc) = if area > 0 { (v[0], v[1], v[2]) } else { (v[0], v[2], v[1]) };
-        let edges = [(a, b), (b, cc), (cc, a)];
-        let mut cover = vec![false; (w * h) as usize];
-        for py in 0..h {
-            for px in 0..w {
-                let (sx, sy) = (px * 16, py * 16);
-                let mut ins = true;
-                for &((ax, ay), (bx, by)) in &edges {
-                    let e = (bx - ax) * (sy - ay) - (by - ay) * (sx - ax);
-                    let len = (((bx - ax).pow(2) + (by - ay).pow(2)) as f64).sqrt();
-                    // (within 1/8 pixel of an edge Windows' RGB rasterizer decides by its own
-                    // arithmetic: not modelled)
-                    if (e as f64).abs() / len < 2.0 {
-                        return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
-                    }
-                    if e < 0 {
-                        ins = false;
-                    }
+/// Clear of the target (and z-buffer) in rectangle r (None: all)
+fn clear(ver: Ver, d: &mut Device, c: u32, z: Option<f32>, r: Option<(i64, i64, i64, i64)>, out: &mut Vec<String>) -> Res<()> {
+    let rt = &mut d.rt;
+    let zv = match (z, rt.depth) {
+        (Some(_), None) => {
+            // MEASURED (clearnoz golden, version 7): D3DCLEAR_ZBUFFER without a z-buffer fails
+            // and clears nothing
+            return match ver {
+                Ver::V7 => {
+                    hit(clause::D3D7_CLEAR_NOZ);
+                    out.push(format!("clear hr {D3DERR_ZBUFFER_NOTPRESENT:08x}"));
+                    Ok(())
                 }
-                cover[(py * w + px) as usize] = ins;
+                Ver::V1 | Ver::V2 | Ver::V3 => Err(Fail::Unmodeled(open::D3D7_CLEAR_NOZ)),
+            };
+        }
+        (None, _) => None,
+        // MEASURED (d3d7dev zrange): IDirect3DViewport2::Clear takes no z, it clears to the
+        // largest value
+        (Some(_), Some(dp)) if ver == Ver::V2 => {
+            hit(clause::D3D7_CLEAR_Z2);
+            Some(dp.max())
+        }
+        (Some(z), Some(dp)) => {
+            hit(clause::D3D7_CLEAR_Z);
+            Some(clear_z(dp, z))
+        }
+    };
+    // MEASURED (clearrects golden): the rectangle clipped to the target; one turned round or
+    // empty clears nothing
+    hit(clause::D3D7_CLEAR);
+    // MEASURED (d3d7dev color-*): software targets truncate and drop alpha; the HAL rounds, and
+    // keeps the alpha bits Clear's color has (32 bits: 8, 555: the top one); ramp clears to 0
+    let v = match d.family {
+        Family::Soft { .. } => pixel(rt.fmt, c),
+        Family::Hw { .. } => {
+            hit(clause::D3D7_HW_COLOR);
+            pixel_hw(rt.fmt, c)
+                | match rt.fmt {
+                    Fmt::X32 => c & 0xff00_0000,
+                    Fmt::R555 => (c >> 31) << 15,
+                    Fmt::P8 | Fmt::R565 | Fmt::R24 => 0,
+                }
+        }
+        Family::Ramp => {
+            hit(clause::D3D7_RAMP);
+            0
+        }
+    };
+    let (x0, y0, x1, y1) = r.unwrap_or((0, 0, rt.w, rt.h));
+    for y in y0.max(0)..y1.min(rt.h) {
+        for x in x0.max(0)..x1.min(rt.w) {
+            let k = usize::try_from(y * rt.w + x).map_err(|_| Fail::Bad)?;
+            rt.px[k] = v;
+            if let Some(zv) = zv {
+                rt.z[k] = zv;
             }
         }
-        if !inside && !cover.iter().all(|&c| c) {
-            // (a triangle past the target is clipped first: the edges Windows rasterizes then
-            // are not modelled; one covering the whole target is)
-            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    }
+    Ok(())
+}
+
+/// one D3DTLVERTEX triangle: x, y in 16ths of a pixel, diffuse and specular ARGB, z
+struct Tri {
+    v: [(i64, i64); 3],
+    c: [u32; 3],
+    spec: [u32; 3],
+    z: f32,
+}
+
+/// the render states a triangle is drawn with, parsed
+struct States {
+    cull: Cull,
+    fill: Fill,
+    flat: bool,
+    dither: bool,
+    zenable: bool,
+    zwrite: bool,
+    zfunc: Cmp,
+    alphatest: Option<(Cmp, u32)>,
+    blend: Option<(Factor, Factor)>,
+    fog: Option<u32>,
+    specular: bool,
+}
+
+impl States {
+    fn read(d: &D3d7) -> Res<States> {
+        let st = |s: Rs| d.rs(s);
+        let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
+        let cull = match st(Rs::CullMode) {
+            1 => Cull::None,
+            2 => Cull::Cw,
+            3 => Cull::Ccw,
+            _ => return Err(other),
+        };
+        let fill = match st(Rs::FillMode) {
+            1 => Fill::Point,
+            2 => Fill::Wireframe,
+            3 => Fill::Solid,
+            _ => return Err(other),
+        };
+        let flat = match st(Rs::ShadeMode) {
+            1 => true,
+            2 => false,
+            _ => return Err(other),
+        };
+        let zfunc = Cmp::parse(st(Rs::ZFunc)).ok_or(other.clone())?;
+        let alphatest = match st(Rs::AlphaTestEnable) {
+            0 => None,
+            _ => Some((Cmp::parse(st(Rs::AlphaFunc)).ok_or(other.clone())?, st(Rs::AlphaRef) & 255)),
+        };
+        let blend = match st(Rs::AlphaBlendEnable) {
+            0 => None,
+            _ => {
+                let f = |s| Factor::parse(st(s)).ok_or(Fail::Unmodeled(open::D3D7_STATES_OTHER));
+                Some((f(Rs::SrcBlend)?, f(Rs::DestBlend)?))
+            }
+        };
+        Ok(States {
+            cull,
+            fill,
+            flat,
+            dither: st(Rs::DitherEnable) != 0,
+            zenable: st(Rs::ZEnable) != 0,
+            zwrite: st(Rs::ZWriteEnable) != 0,
+            zfunc,
+            alphatest,
+            blend,
+            fog: (st(Rs::FogEnable) != 0).then(|| st(Rs::FogColor)),
+            specular: st(Rs::SpecularEnable) != 0,
+        })
+    }
+}
+
+/// which pixels a triangle covers
+fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
+    let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
+    let (a, b, c) = if area > 0 { (v[0], v[1], v[2]) } else { (v[0], v[2], v[1]) };
+    let edges = [(a, b), (b, c), (c, a)];
+    let inside = v.iter().all(|&(x, y)| (0..=w * 16).contains(&x) && (0..=h * 16).contains(&y));
+    let mut cover = Vec::with_capacity(usize::try_from(w * h).map_err(|_| Fail::Bad)?);
+    let mut near = false;
+    for py in 0..h {
+        for px in 0..w {
+            let (sx, sy) = (px * 16, py * 16);
+            let mut ins = true;
+            for &((ax, ay), (bx, by)) in &edges {
+                let (dx, dy) = (bx - ax, by - ay);
+                let e = dx * (sy - ay) - dy * (sx - ax);
+                match family {
+                    // MEASURED (d3d7rast dev-*: 44 of 44 dumps, clipped ones too): the top-left
+                    // rule at integer sample points (y down, the edges clockwise on screen; a
+                    // pixel on an edge is drawn when the edge runs up the screen or is flat with
+                    // the inside below)
+                    Family::Hw { .. } => {
+                        let topleft = dy < 0 || (dy == 0 && dx > 0);
+                        if e < 0 || (e == 0 && !topleft) {
+                            ins = false;
+                        }
+                    }
+                    Family::Soft { .. } | Family::Ramp => {
+                        let len = ((dx * dx + dy * dy) as f64).sqrt();
+                        // (within 1/8 pixel of an edge the software rasterizer decides by its own
+                        // fixed-point arithmetic: D3D7.TRI.EDGE)
+                        if (e as f64).abs() / len < 2.0 {
+                            near = true;
+                        }
+                        if e < 0 {
+                            ins = false;
+                        }
+                    }
+                }
+            }
+            cover.push(ins);
         }
-        hit(if inside { clause::D3D7_TRI } else { clause::D3D7_TRI_COVERALL });
-        if blend != 0 && (src, dst) != (5, 6) {
-            return Err(Fail::Unmodeled(open::D3D7_BLEND_OTHER));
+    }
+    match family {
+        Family::Hw { .. } => {
+            hit(clause::D3D7_TRI_HW);
+            Ok(cover)
         }
-        if zen != 0 && rt.zbits == 0 {
-            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
+        Family::Soft { .. } | Family::Ramp => {
+            if !inside && cover.iter().all(|&c| c) {
+                hit(clause::D3D7_TRI_COVERALL);
+                return Ok(cover);
+            }
+            if near {
+                return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
+            }
+            if !inside {
+                return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+            }
+            hit(clause::D3D7_TRI);
+            Ok(cover)
         }
-        if zen != 0 && zfunc != 4 {
+    }
+}
+
+/// one channel (at bit `sh` of ARGB) of the color at pixel (px, py): flat, or Gouraud
+fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Res<u32> {
+    let ch = |c: u32| c >> sh & 255;
+    let c = tri.c;
+    if flat || (ch(c[0]) == ch(c[1]) && ch(c[0]) == ch(c[2])) {
+        // D3DSHADE_FLAT: the first vertex's color
+        if flat {
+            hit(clause::D3D7_FLAT);
+        }
+        return Ok(ch(c[0]));
+    }
+    let p = |i: usize| (tri.v[i].0 as f64 / 16.0, tri.v[i].1 as f64 / 16.0);
+    let (a, b, cc) = (p(0), p(1), p(2));
+    let (x, y) = (px as f64, py as f64);
+    let den = (b.0 - a.0) * (cc.1 - a.1) - (cc.0 - a.0) * (b.1 - a.1);
+    let l1 = ((x - a.0) * (cc.1 - a.1) - (cc.0 - a.0) * (y - a.1)) / den;
+    let l2 = ((b.0 - a.0) * (y - a.1) - (x - a.0) * (b.1 - a.1)) / den;
+    let f = |c: u32| f64::from(ch(c));
+    let val = f(c[0]) + l1 * (f(c[1]) - f(c[0])) + l2 * (f(c[2]) - f(c[0]));
+    let fr = val - val.floor();
+    match family {
+        // MEASURED (d3d7shade gouraud-*): the software rasterizers take the floor of the exact
+        // value; near a whole number their fixed point decides (D3D7.GOURAUD)
+        Family::Soft { .. } | Family::Ramp => {
+            if !(1.0 / 32.0..=31.0 / 32.0).contains(&fr) {
+                return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
+            }
+            hit(clause::D3D7_GOURAUD);
+            Ok(val.floor().clamp(0.0, 255.0) as u32)
+        }
+        // MEASURED: the HAL rounds; near a half its float arithmetic decides
+        Family::Hw { .. } => {
+            if (fr - 0.5).abs() < 1.0 / 32.0 {
+                return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
+            }
+            hit(clause::D3D7_GOURAUD);
+            Ok(val.round().clamp(0.0, 255.0) as u32)
+        }
+    }
+}
+
+/// the software blend factors (source, destination) of one channel in 256ths (ONE = 256): s, d,
+/// a the 8-bit source, destination and source alpha
+pub fn factors_soft(f: (Factor, Factor), s: u32, d: u32, a: u32) -> (u32, u32) {
+    let one = |x: Factor| -> u32 {
+        match x {
+            Factor::Zero => 0,
+            Factor::One => 256,
+            Factor::SrcColor => s,
+            Factor::InvSrcColor => 255 - s,
+            Factor::SrcAlpha => a,
+            Factor::InvSrcAlpha => 255 - a,
+            // (the target has no alpha: it reads as 255)
+            Factor::DestAlpha => 255,
+            Factor::InvDestAlpha => 0,
+            Factor::DestColor => d,
+            Factor::InvDestColor => 255 - d,
+            // min(a, 1 - dest alpha) = 0
+            Factor::SrcAlphaSat => 0,
+            // (as the destination factor: 0; as the source one they set both, below)
+            Factor::BothSrcAlpha | Factor::BothInvSrcAlpha => 0,
+        }
+    };
+    match f.0 {
+        Factor::BothSrcAlpha => (a, 255 - a),
+        Factor::BothInvSrcAlpha => (255 - a, a),
+        Factor::Zero
+        | Factor::One
+        | Factor::SrcColor
+        | Factor::InvSrcColor
+        | Factor::SrcAlpha
+        | Factor::InvSrcAlpha
+        | Factor::DestAlpha
+        | Factor::InvDestAlpha
+        | Factor::DestColor
+        | Factor::InvDestColor
+        | Factor::SrcAlphaSat => (one(f.0), one(f.1)),
+    }
+}
+
+/// the HAL's blend factors in [0, 1] (the destination's alpha reads as 1)
+pub fn factors_hw(f: (Factor, Factor), s: f64, d: f64, a: f64) -> (f64, f64) {
+    let one = |x: Factor| -> f64 {
+        match x {
+            Factor::Zero => 0.0,
+            Factor::One => 1.0,
+            Factor::SrcColor => s,
+            Factor::InvSrcColor => 1.0 - s,
+            Factor::SrcAlpha => a,
+            Factor::InvSrcAlpha => 1.0 - a,
+            Factor::DestAlpha => 1.0,
+            Factor::InvDestAlpha => 0.0,
+            Factor::DestColor => d,
+            Factor::InvDestColor => 1.0 - d,
+            Factor::SrcAlphaSat => 0.0,
+            Factor::BothSrcAlpha => a,
+            Factor::BothInvSrcAlpha => 1.0 - a,
+        }
+    };
+    // either factor BOTHSRCALPHA: (a, 1 - a); else either BOTHINVSRCALPHA: (1 - a, a)
+    if f.0 == Factor::BothSrcAlpha || f.1 == Factor::BothSrcAlpha {
+        (a, 1.0 - a)
+    } else if f.0 == Factor::BothInvSrcAlpha || f.1 == Factor::BothInvSrcAlpha {
+        (1.0 - a, a)
+    } else {
+        (one(f.0), one(f.1))
+    }
+}
+
+fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
+    let family = dev.family;
+    let rt = &mut dev.rt;
+    let v = tri.v;
+    let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
+    // MEASURED (cull golden): D3DCULL_CCW (the default) drops triangles of negative area in
+    // screen coordinates (x right, y down; area of v0 v1 v2), CW positive ones
+    hit(clause::D3D7_CULL);
+    let culled = match st.cull {
+        Cull::None => false,
+        Cull::Ccw => area < 0,
+        Cull::Cw => area > 0,
+    };
+    if area == 0 || culled {
+        return Ok(());
+    }
+    match st.fill {
+        Fill::Solid => {}
+        Fill::Point | Fill::Wireframe => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+    }
+    // MEASURED (d3d7dev zrange: z from -1 to 2 on every device): a triangle with z below 0 or
+    // above 1 is not drawn, nor one at 1 except by the T&L HAL
+    let z = tri.z;
+    hit(clause::D3D7_ZRANGE);
+    if !(0.0..=1.0).contains(&z) || (z == 1.0 && family != (Family::Hw { tnl: true })) {
+        return Ok(());
+    }
+    let (w, h) = (rt.w, rt.h);
+    let cover = coverage(family, v, w, h)?;
+    let zv = match (st.zenable, rt.depth, family) {
+        (false, _, _) => None,
+        (true, None, _) => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+        (true, Some(Depth::Z32), Family::Soft { .. } | Family::Ramp) if st.zfunc == Cmp::Always => {
+            // (d3d7dev zrange: ALWAYS from a device's start wrote other 32-bit z than ALWAYS
+            // after LESSEQUAL; zhist measures it)
             return Err(Fail::Unmodeled(open::D3D7_ZFUNC_OTHER));
         }
-        let zv = if rt.zbits > 0 { tri_z(rt.zbits, z) } else { 0 };
-        let p = pixel(rt.fmt, col);
-        for k in 0..(w * h) as usize {
+        (true, Some(dp), Family::Soft { .. } | Family::Ramp) => Some(tri_z(dp, z)),
+        (true, Some(Depth::Z16), Family::Hw { .. }) => Some(tri_z_hw(z)),
+        (true, Some(Depth::Z24 | Depth::Z32), Family::Hw { .. }) => return Err(Fail::Bad),
+    };
+    let fmt = rt.fmt;
+    let bits = fmt.bits();
+    let a = match family {
+        Family::Ramp => 0,
+        Family::Soft { .. } | Family::Hw { .. } => tri.c[0] >> 24,
+    };
+    for py in 0..h {
+        for px in 0..w {
+            let k = usize::try_from(py * w + px).map_err(|_| Fail::Bad)?;
             if !cover[k] {
                 continue;
             }
-            if zen != 0 {
-                hit(clause::D3D7_ZTEST);
-                // D3DCMP_LESSEQUAL (the default)
-                hit(clause::D3D7_ZFUNC);
-                if zv > rt.z[k] {
+            // MEASURED (d3d7shade alphatest-*: each function and reference against 8 alphas,
+            // every device): the documented compare of the vertex alpha (ramp: 0) with ALPHAREF
+            if let Some((f, aref)) = st.alphatest {
+                hit(clause::D3D7_ALPHATEST);
+                if !f.passes(a, aref) {
                     continue;
                 }
-                if zwrite != 0 {
+            }
+            if let Some(zv) = zv {
+                // MEASURED (d3d7shade zfunc-*: every function, z writes on and off, every
+                // device): the documented compares
+                hit(clause::D3D7_ZTEST);
+                hit(if st.zfunc == Cmp::LessEqual { clause::D3D7_ZFUNC } else { clause::D3D7_ZFUNC_ALL });
+                if !st.zfunc.passes(zv, rt.z[k]) {
+                    continue;
+                }
+                if st.zwrite {
                     rt.z[k] = zv;
                 }
             }
-            if blend != 0 {
-                // MEASURED (blend golden: 52 alphas x 128 pixels x 3 channels, all exact) SRCALPHA,
-                // INVSRCALPHA: (s * a + d * (255 - a)) >> 8 per 8-bit channel
-                hit(clause::D3D7_BLEND);
-                hit(clause::D3D7_BLEND_SRCALPHA);
-                let a = col >> 24;
-                let s = channels(rt.fmt, p);
-                let d = channels(rt.fmt, rt.px[k]);
-                let o: Vec<u32> = (0..3).map(|i| (s[i] * a + d[i] * (255 - a)) >> 8).collect();
-                if rt.fmt != "32" && rt.fmt != "24" {
-                    return Err(Fail::Unmodeled(open::D3D7_BLEND16));
+            let src = match family {
+                // MEASURED (d3d7dev color-*, d3d7shade *-2-ramp): the ramp device draws one
+                // color, 0x800080 with alpha 0, whatever the vertices say; no specular; fog acts as if every vertex's fog were 0 (the fog color, in 256ths)
+                Family::Ramp => {
+                    hit(clause::D3D7_RAMP);
+                    match st.fog {
+                        None => [0x80, 0, 0x80],
+                        Some(fc) => [16u32, 8, 0].map(|sh| ((fc >> sh & 255) * 255) >> 8),
+                    }
                 }
-                // (alpha 0, as Clear writes it: MEASURED blend golden)
-                rt.px[k] = o[0] << 16 | o[1] << 8 | o[2];
-            } else {
-                rt.px[k] = p;
+                Family::Soft { .. } | Family::Hw { .. } => {
+                    let mut src = [0u32; 3];
+                    for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
+                        let mut c = shade(family, st.flat, tri, sh, px, py)?;
+                        // MEASURED (d3d7shade specular-*): the specular color added, saturating
+                        if st.specular {
+                            hit(clause::D3D7_SPECULAR);
+                            c = (c + (tri.spec[0] >> sh & 255)).min(255);
+                        }
+                        // MEASURED (d3d7shade fog-*: f every 5 of 0..255): vertex fog by the
+                        // specular alpha f toward FOGCOLOR, software in 256ths, the HAL in
+                        // floats rounded
+                        if let Some(fc) = st.fog {
+                            hit(clause::D3D7_FOG);
+                            let (f, fv) = (tri.spec[0] >> 24, fc >> sh & 255);
+                            c = match family {
+                                Family::Soft { .. } | Family::Ramp => (c * f + fv * (255 - f)) >> 8,
+                                Family::Hw { .. } => ((f64::from(c) * f64::from(f) + f64::from(fv) * f64::from(255 - f)) / 255.0).round() as u32,
+                            };
+                        }
+                        src[i] = c;
+                    }
+                    src
+                }
+            };
+            let dst = fmt.channels(rt.px[k]);
+            if st.blend.is_some() {
+                hit(clause::D3D7_BLEND);
+                hit(clause::D3D7_BLEND_OTHER);
+                if bits != [8, 8, 8] {
+                    hit(clause::D3D7_BLEND16);
+                }
             }
+            let q: [u32; 3] = match (family, st.blend) {
+                // MEASURED (d3d7shade blend-*: 169 factor pairs x 8 pixels x 3 channels,
+                // versions 2, 3, 7, RGB, MMX and ramp; blendalpha-*: every 3rd alpha):
+                // min(255, (s·Fs + d·Fd) >> 8), on 16 bits with the destination widened by a
+                // shift and the result truncated
+                (Family::Soft { .. } | Family::Ramp, Some(f)) => [0, 1, 2].map(|i| {
+                    let (fs, fd) = factors_soft(f, src[i], dst[i], a);
+                    ((src[i] * fs + dst[i] * fd) >> 8).min(255) >> (8 - bits[i])
+                }),
+                // MEASURED: software truncates, or dithers (d3d7shade dither-*, gouraud16-*)
+                (Family::Soft { .. } | Family::Ramp, None) => {
+                    let dith = st.dither && bits != [8, 8, 8] && family != Family::Ramp;
+                    if dith {
+                        hit(clause::D3D7_DITHER);
+                    }
+                    [0, 1, 2].map(|i| if dith { dither(src[i], bits[i], px, py) } else { src[i] >> (8 - bits[i]) })
+                }
+                // MEASURED (all 169 pairs on 32 bits; 565 and 555): floor(max · clamp(s·Fs +
+                // d·Fd) + 0.5) in floats, the destination its exact fraction q / max
+                (Family::Hw { .. }, Some(f)) => [0, 1, 2].map(|i| {
+                    let max = f64::from((1u32 << bits[i]) - 1);
+                    let dq = rt.px[k] >> fmt.shifts()[i] & ((1 << bits[i]) - 1);
+                    let (s, d, al) = (f64::from(src[i]) / 255.0, f64::from(dq) / max, f64::from(a) / 255.0);
+                    let (fs, fd) = factors_hw(f, s, d, al);
+                    (max * (s * fs + d * fd).clamp(0.0, 1.0) + 0.5).floor() as u32
+                }),
+                // MEASURED (d3d7dev color-*): the HAL rounds
+                (Family::Hw { .. }, None) => {
+                    hit(clause::D3D7_HW_COLOR);
+                    [0, 1, 2].map(|i| round_to(src[i], bits[i]))
+                }
+            };
+            rt.px[k] = fmt.pack(q);
         }
-        Ok(())
     }
+    Ok(())
 }

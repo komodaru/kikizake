@@ -12426,6 +12426,12 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case dev8-7-rgb
+d3d 7
+d3ddev rgb 8 4 2
+d3dclear 0xff102030
+d3ddump
+end
 case clearnoz-7-rgb
 d3d 7
 d3ddev rgb 32 4 2
@@ -26713,6 +26719,12 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case dev8-7-hal
+d3d 7
+d3ddev hal 8 4 2
+d3dclear 0xff102030
+d3ddump
+end
 case clearnoz-7-hal
 d3d 7
 d3ddev hal 32 4 2
@@ -40135,6 +40147,12 @@ d3dclear 0xff000000 z 500
 d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
+end
+case dev8-7-tnl
+d3d 7
+d3ddev tnl 8 4 2
+d3dclear 0xff102030
+d3ddump
 end
 case clearnoz-7-tnl
 d3d 7
@@ -53559,6 +53577,12 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case dev8-7-mmx
+d3d 7
+d3ddev mmx 8 4 2
+d3dclear 0xff102030
+d3ddump
+end
 case clearnoz-7-mmx
 d3d 7
 d3ddev mmx 32 4 2
@@ -66981,6 +67005,12 @@ d3dclear 0xff000000 z 500
 d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
+end
+case dev8-3-rgb
+d3d 3
+d3ddev rgb 8 4 2
+d3dclear 0xff102030
+d3ddump
 end
 case clearnoz-3-rgb
 d3d 3
@@ -80405,6 +80435,12 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case dev8-2-rgb
+d3d 2
+d3ddev rgb 8 4 2
+d3dclear 0xff102030
+d3ddump
+end
 case clearnoz-2-rgb
 d3d 2
 d3ddev rgb 32 4 2
@@ -93828,6 +93864,12 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case dev8-2-ramp
+d3d 2
+d3ddev ramp 8 4 2
+d3dclear 0xff102030
+d3ddump
+end
 case clearnoz-2-ramp
 d3d 2
 d3ddev ramp 32 4 2
@@ -107250,6 +107292,12 @@ d3dclear 0xff000000 z 500
 d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
+end
+case dev8-3-mmx
+d3d 3
+d3ddev mmx 8 4 2
+d3dclear 0xff102030
+d3ddump
 end
 case clearnoz-3-mmx
 d3d 3
