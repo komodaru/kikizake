@@ -158,7 +158,7 @@ GL.DRAW.LUMINANCE doc | glDrawPixels | luminance to red, green and blue
 GL.DRAW.INDEX assumed | glPixelMap, glDrawPixels | GL_COLOR_INDEX in RGBA mode: through the index-to-RGBA maps, initially one zero each: black, alpha 0; no error (opengl golden edge-pixels-errors)
 GL.DRAW.NAN measured | glDrawPixels | a NaN float component draws as 0, an infinite one is clamped as any other value (opengl golden draw-6, draw-unpack-11)
 GL.DRAW.BITMAP measured | glDrawPixels (GL_INVALID_ENUM) | GL_BITMAP with a color format: GL_INVALID_ENUM (opengl golden edge-draw-bitmap)
-GL.DRAW.DEPTHSTENCIL open | glDrawPixels | depth or stencil images
+GL.DRAW.DEPTHSTENCIL measured | glDrawPixels | depth images: fragments of the raster color at the elements' depths through the tests, the depth written only with the depth test on; stencil images: the elements' integer values written to the stencil buffer under the stencil write mask and the scissor (opengl golden edge-draw-depth, draw-depthstencil-*)
 GL.DRAW.BUFFER excluded | glDrawPixels | a layout past the executor's data: Windows would read past its array
 GL.DIB measured | (none) | the DIB section's bits are the color buffer, bottom row first, channels at the format's shifts (opengl golden gldib lines)
 GL.DIB.INDEX measured | (none) | on 8 and 4-bit DIBs the pixel value itself is the DIB's index, 4-bit pixels left one in the high nibble (opengl golden edge-dib-8)

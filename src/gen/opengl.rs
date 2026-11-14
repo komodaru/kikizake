@@ -1180,4 +1180,29 @@ fn measure(s: &mut String) {
         writeln!(s, "gl glClearStencil {}\ngl glClear 0x400\nglread 0 0 13 3 {} {} 64\ngl glPixelStorei 0xd01 1\nglread 2 1 13 3 {} {} 64\ngl glPixelStorei 0xd01 0", h(v), h(STENCIL_INDEX), h(BITMAP), h(STENCIL_INDEX), h(BITMAP)).unwrap();
     }
     writeln!(s, "glerr\nend").unwrap();
+    // depth and stencil images: every type, drawn through the depth test (ALWAYS, then LESS
+    // over a depth already there) and under the stencil write mask, read back
+    let mut q = XorShift32::new(0x0960_2009);
+    write!(s, "case draw-depthstencil-0\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\n").unwrap();
+    for t in [BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, INT, UNSIGNED_INT, FLOAT] {
+        let n = 128 * [1, 1, 2, 2, 4, 4, 4][(t - BYTE) as usize];
+        for func in [0x207u32, 0x201] {
+            writeln!(s, "gl glDepthFunc {}", h(func)).unwrap();
+            if func == 0x207 {
+                writeln!(s, "gl glClearDepth 0.5\ngl glClear 0x4100").unwrap();
+            }
+            writeln!(s, "gl glColor4ub {} {} {} 255\ngldraw 16 8 {} {} {} {n}", q.next() & 255, q.next() & 255, q.next() & 255, h(DEPTH_COMPONENT), h(t), q.next() & 0xffff).unwrap();
+            writeln!(s, "glread 0 0 16 8 {} {} 512\nglread 0 0 16 8 {} {} 512", h(DEPTH_COMPONENT), h(UNSIGNED_INT), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case draw-depthstencil-1\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\n").unwrap();
+    for (t, mask) in [(BYTE, 0xffu32), (UNSIGNED_BYTE, 0xf0), (SHORT, 0xff), (UNSIGNED_SHORT, 0x3c), (INT, 0xff), (UNSIGNED_INT, 0x81), (FLOAT, 0xff)] {
+        let n = 128 * [1, 1, 2, 2, 4, 4, 4][(t - BYTE) as usize];
+        writeln!(s, "gl glStencilMask 0xff\ngl glClearStencil {}\ngl glClear 0x4400\ngl glStencilMask {}", h(q.next() & 255), h(mask)).unwrap();
+        writeln!(s, "gldraw 16 8 {} {} {} {n}\nglread 0 0 16 8 {} {} 128\nglread 0 0 16 8 {} {} 512", h(STENCIL_INDEX), h(t), q.next() & 0xffff, h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "gl glStencilMask 0xff\ngl glClear 0x400\ngl glEnable 0xc11\ngl glScissor 3 2 7 4\ngldraw 16 8 {} {} {} 128\nglread 0 0 16 8 {} {} 128", h(STENCIL_INDEX), h(UNSIGNED_BYTE), q.next() & 0xffff, h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    writeln!(s, "gl glDisable 0xc11\ngl glClear 0x400\ngl glPixelStorei 0xcf5 1\ngldraw 13 3 {} {} {} 64\nglread 0 0 16 4 {} {} 64", h(STENCIL_INDEX), h(BITMAP), q.next() & 0xffff, h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    writeln!(s, "glerr\nend").unwrap();
 }

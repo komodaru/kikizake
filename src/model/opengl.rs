@@ -1976,6 +1976,23 @@ impl Ctx {
         Ok(((z.clamp(0.0, 1.0) * 2_147_483_647.0) as u32) << 1)
     }
 
+    /// a stencil image's element at (i, j) written to the stencil buffer
+    fn draw_stencil(&mut self, i: usize, j: usize, v: f64) {
+        let (x, y) = (i as i64, j as i64);
+        if self.buffers[0] == 0 || x >= W as i64 || y >= H as i64 {
+            return;
+        }
+        if self.cap(SCISSOR_TEST) {
+            let [sx, sy, sw, sh] = self.scissor;
+            if x < sx || y < sy || x >= sx + sw || y >= sy + sh {
+                return;
+            }
+        }
+        let p = j * W + i;
+        let m = self.stencil_mask & low_bits(self.pf.stencil);
+        self.stencil[p] = (self.stencil[p] & !m) | (index_bits(v) & m);
+    }
+
     fn stencil_update(&mut self, i: usize, op: u32) {
         hit(clause::GL_STENCIL_OP);
         let smax = low_bits(self.pf.stencil);
@@ -2743,9 +2760,6 @@ impl Ctx {
         if self.zoom != (1.0, 1.0) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
-        if f == DEPTH_COMPONENT || f == STENCIL_INDEX {
-            return Err(Fail::Unmodeled(open::GL_DRAW_DEPTHSTENCIL));
-        }
         hit(clause::GL_DRAW);
         if size == 0 {
             // a GL_BITMAP image of color indices: each bit the index 0 or 1 (MEASURED, golden
@@ -2754,7 +2768,11 @@ impl Ctx {
                 for i in 0..w as usize {
                     let (at, m) = bitmap_bit(&self.unpack, w, i, j);
                     let Some(b) = data.get(at) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
-                    let v = if b & m != 0 { 1.0 } else { 0.0 };
+                    let v: f32 = if b & m != 0 { 1.0 } else { 0.0 };
+                    if f == STENCIL_INDEX {
+                        self.draw_stencil(i, j, f64::from(v));
+                        continue;
+                    }
                     let c = if self.pf.ty != 0 {
                         hit(clause::GL_COLORINDEX);
                         [v, 0.0, 0.0, 0.0]
@@ -2768,6 +2786,31 @@ impl Ctx {
             return Ok(());
         }
         let (start, k) = layout(&self.unpack, comps.len(), size, w);
+        if f == DEPTH_COMPONENT || f == STENCIL_INDEX {
+            // depth images: fragments of the raster color (initially white, the model follows no
+            // glRasterPos: GL.CALL.OTHER) at the element's depth, through the tests; stencil
+            // images: each element's integer value written to the stencil buffer under the
+            // stencil write mask and the scissor (GL 1.1 3.6.4; GL.DRAW.DEPTHSTENCIL)
+            hit(clause::GL_DRAW_DEPTHSTENCIL);
+            for j in 0..h as usize {
+                for i in 0..w as usize {
+                    let at = (start + j * k + i) * size;
+                    let Some(e) = data.get(at..at + size) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
+                    let mut e = e.to_vec();
+                    if self.unpack[0] != 0 {
+                        e.reverse();
+                    }
+                    if f == STENCIL_INDEX {
+                        self.draw_stencil(i, j, index_value(&e, t)?);
+                    } else {
+                        let z = to_float(&e, t);
+                        let z = if z.is_nan() { 0.0 } else { z.clamp(0.0, 1.0) };
+                        self.fragment(Frag { x: i as i64, y: j as i64, c: [1.0; 4], z: f64::from(z), trunc: true })?;
+                    }
+                }
+            }
+            return Ok(());
+        }
         for j in 0..h as usize {
             for i in 0..w as usize {
                 let mut c = [0.0, 0.0, 0.0, 1.0];

@@ -32556,6 +32556,169 @@ glread 2 1 13 3 0x1901 0x1a00 64
 gl glPixelStorei 0xd01 0
 glerr
 end
+case draw-depthstencil-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 153 32 48 255
+gldraw 16 8 0x1902 0x1400 59138 128
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 80 90 246 255
+gldraw 16 8 0x1902 0x1400 56667 128
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 170 217 216 255
+gldraw 16 8 0x1902 0x1401 18048 128
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 137 121 237 255
+gldraw 16 8 0x1902 0x1401 50635 128
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 140 191 89 255
+gldraw 16 8 0x1902 0x1402 36384 256
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 119 26 249 255
+gldraw 16 8 0x1902 0x1402 48931 256
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 254 135 252 255
+gldraw 16 8 0x1902 0x1403 13513 256
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 48 125 235 255
+gldraw 16 8 0x1902 0x1403 40016 256
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 59 9 190 255
+gldraw 16 8 0x1902 0x1404 42749 512
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 49 63 182 255
+gldraw 16 8 0x1902 0x1404 57649 512
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 221 5 50 255
+gldraw 16 8 0x1902 0x1405 41470 512
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 11 110 213 255
+gldraw 16 8 0x1902 0x1405 44537 512
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x207
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glColor4ub 13 240 40 255
+gldraw 16 8 0x1902 0x1406 62580 512
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+gl glDepthFunc 0x201
+gl glColor4ub 213 153 178 255
+gldraw 16 8 0x1902 0x1406 45811 512
+glread 0 0 16 8 0x1902 0x1405 512
+glread 0 0 16 8 0x1908 0x1401 512
+glerr
+end
+case draw-depthstencil-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glStencilMask 0xff
+gl glClearStencil 0x37
+gl glClear 0x4400
+gl glStencilMask 0xff
+gldraw 16 8 0x1901 0x1400 50169 128
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClearStencil 0x55
+gl glClear 0x4400
+gl glStencilMask 0xf0
+gldraw 16 8 0x1901 0x1401 1922 128
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClearStencil 0xc2
+gl glClear 0x4400
+gl glStencilMask 0xff
+gldraw 16 8 0x1901 0x1402 47418 256
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClearStencil 0xd6
+gl glClear 0x4400
+gl glStencilMask 0x3c
+gldraw 16 8 0x1901 0x1403 36221 256
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClearStencil 0x44
+gl glClear 0x4400
+gl glStencilMask 0xff
+gldraw 16 8 0x1901 0x1404 8028 512
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClearStencil 0x19
+gl glClear 0x4400
+gl glStencilMask 0x81
+gldraw 16 8 0x1901 0x1405 65041 512
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClearStencil 0x27
+gl glClear 0x4400
+gl glStencilMask 0xff
+gldraw 16 8 0x1901 0x1406 50799 512
+glread 0 0 16 8 0x1901 0x1401 128
+glread 0 0 16 8 0x1908 0x1401 512
+gl glStencilMask 0xff
+gl glClear 0x400
+gl glEnable 0xc11
+gl glScissor 3 2 7 4
+gldraw 16 8 0x1901 0x1401 18402 128
+glread 0 0 16 8 0x1901 0x1401 128
+gl glDisable 0xc11
+gl glClear 0x400
+gl glPixelStorei 0xcf5 1
+gldraw 13 3 0x1901 0x1a00 33698 64
+glread 0 0 16 4 0x1901 0x1401 64
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000
