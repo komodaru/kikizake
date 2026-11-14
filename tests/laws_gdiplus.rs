@@ -198,6 +198,7 @@ fn the_model_answers_every_case() {
                 Err(kikizake::model::Fail::Unmodeled(id)) => panic!("{suite}-{arch} {}: {id}", c.name),
                 Err(kikizake::model::Fail::Bad) => panic!("{suite}-{arch} {}: a bad line", c.name),
                 Err(kikizake::model::Fail::Empty) => panic!("{suite}-{arch} {}: no answer", c.name),
+                Err(kikizake::model::Fail::Crash) => panic!("{suite}-{arch} {}: the executor dies", c.name),
             }
         }
     }
