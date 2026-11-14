@@ -991,6 +991,26 @@ pub fn wicdecode() -> String {
                 decode_case(&mut s, &format!("icopair-b{bw}x{bh}-p{pw}x{ph}"), &ico(&[(bw, bh, 32, b), (pw, ph, 32, p.clone())]), 2, false);
             }
         }
+        // (does the order hang on the BMP's pixels? the same sizes, other pixels, alpha all 0
+        // or all 255, the mask all 0 or all 1)
+        let mut r4 = XorShift32::new(0x1c0e);
+        for (pw, ph, bw, bh) in [(2u32, 3u32, 1u32, 3u32), (2, 3, 1, 1), (3, 3, 2, 3), (4, 4, 4, 1), (4, 4, 3, 3)] {
+            let raw: Vec<Vec<u8>> = (0..ph).map(|_| bytes(&mut r4, pw as usize * 4)).collect();
+            let p = png(pw, ph, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 100);
+            for k in 0..12 {
+                let mut b = icon_bmp(&mut r4, bw, bh, 32);
+                let px = 40..40 + (4 * bw * bh) as usize;
+                let mask = 40 + (4 * bw * bh) as usize..b.len();
+                match k {
+                    8 => px.step_by(4).for_each(|i| b[i + 3] = 0),
+                    9 => px.step_by(4).for_each(|i| b[i + 3] = 255),
+                    10 => mask.for_each(|i| b[i] = 0),
+                    11 => mask.for_each(|i| b[i] = 255),
+                    _ => {}
+                }
+                decode_case(&mut s, &format!("icoseed-p{pw}x{ph}-b{bw}x{bh}-{k}"), &ico(&[(pw, ph, 32, p.clone()), (bw, bh, 32, b)]), 2, false);
+            }
+        }
         // (a directory that says 0 bits)
         let a = icon_bmp(&mut r, 3, 3, 8);
         let b = icon_bmp(&mut r, 2, 2, 4);

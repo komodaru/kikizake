@@ -1207,9 +1207,14 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                 p += 1;
                 let mut data = Vec::new();
                 let mut cut = false;
+                // (the bytes of a sub-block the file ends inside, after whole ones)
+                let mut inside: Option<usize> = None;
                 while let Some(&n) = b.get(p) {
                     let Some(d) = b.get(p + 1..p + 1 + n as usize) else {
                         cut = true;
+                        if !data.is_empty() {
+                            inside = Some(b.len() - p - 1);
+                        }
                         p = b.len();
                         break;
                     };
@@ -1229,6 +1234,19 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                     }
                     hit(clause::WICIMAGE_GIF_SHORT);
                     idx.resize((w * h) as usize, 0);
+                }
+                // MEASURED (golden wicdecode cuta-gif-*: a 32 x 16 picture in sub-blocks of 255,
+                // 255, 98, cut at every third byte): a file that ends inside a sub-block after
+                // whole ones: the picture one row down (the first row 0, the last lost); past 32
+                // bytes of the second sub-block Windows writes pixels of no rule (cases
+                // cuta-gif-1084..1303)
+                if let Some(m) = inside {
+                    if m > 32 || f & 0x40 != 0 {
+                        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
+                    }
+                    let n = idx.len();
+                    idx.splice(0..0, std::iter::repeat_n(0, (w as usize).min(n)));
+                    idx.truncate(n);
                 }
                 hit(clause::WICIMAGE_GIF_LZW);
                 let rows: Vec<u32> = if f & 0x40 != 0 {
@@ -1500,9 +1518,10 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
             (rd32(d, 4).unwrap_or(0), rd32(d, 8).unwrap_or(0) / 2, rd16(d, 14).unwrap_or(0))
         };
         let png = d.starts_with(b"\x89PNG");
-        // (OPEN: beside other entries, a PNG entry of 1x1, 2x2 or 1x5 comes after a 32-bit BMP
-        // entry and its CopyPixels fails 0x88982f8c, one of 2x3, 3x2 or 4x4 comes before it)
-        if png && n > 1 && (w as u64) * (h as u64) < 6 {
+        // (OPEN: beside other entries, a PNG entry under 6 pixels a side: where it comes and
+        // whether its CopyPixels fails 0x88982f8c hang on more than the sizes; cases icopair-*,
+        // icoseed-*)
+        if png && n > 1 && w.min(h) < 6 {
             return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
         }
         // MEASURED (golden wicdecode ico-bmp-depth-*, ico-png-ct*): a BMP entry of a depth but 1, 4,
