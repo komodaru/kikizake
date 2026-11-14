@@ -225,12 +225,14 @@ pub struct Call {
 pub struct Case {
     pub name: String,
     pub bad: Vec<Line>,
+    /// what the case printed under shirusu against the run without it
+    pub out: Stdout,
     pub calls: Vec<Call>,
 }
 
 impl Case {
     fn new(name: &str) -> Case {
-        Case { name: name.to_string(), bad: Vec::new(), calls: Vec::new() }
+        Case { name: name.to_string(), bad: Vec::new(), out: Stdout::Unknown, calls: Vec::new() }
     }
 }
 
@@ -393,6 +395,15 @@ fn own(api: &Api) -> Option<Own> {
     }
 }
 
+/// The modules whose calls a recording keeps: the graphics APIs and the window manager. Calls into
+/// kernel32 and the like come from the C runtime (heaps, locks, TLS; 32-bit mingw's runtime sets
+/// the last error on every TLS read) and differ between x86 and x86-64 for that reason alone.
+fn kept(module: &str) -> bool {
+    let m = module.to_ascii_lowercase();
+    let m = m.strip_suffix(".dll").unwrap_or(&m);
+    GRAPHICS.contains(&m) || ["ole32", "oleaut32", "d2d1", "dwrite", "d3dx9_43", "glu32", "", "?"].contains(&m)
+}
+
 /// A recording from shirusu's JSONL export, its header's name, src and shirusu empty.
 /// `stdout`: the executor's output from a run without shirusu, compared with what the recorded
 /// WriteFile calls wrote.
@@ -413,24 +424,30 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
     let mut pending = 0;
     let mut open: HashMap<u64, usize> = HashMap::new();
     let mut written: Vec<u8> = Vec::new();
-    let mut truncated = false;
+    // (the cases whose output shirusu kept only the start of)
+    let mut truncated: Vec<usize> = Vec::new();
     let mut other = 0;
     for (_, line, e) in &ev {
         let at = |m: String| format!("line {line}: {m}");
         let phase = e.get("phase").and_then(Json::str).ok_or_else(|| at("no phase".into()))?;
         let phase = Phase::from_name(phase).ok_or_else(|| at(format!("unknown phase {phase}")))?;
-        let api = e.get("api").and_then(Json::str).unwrap_or("?");
-        let api = Api(api.rsplit('!').next().unwrap_or(api).to_string());
+        let full = e.get("api").and_then(Json::str).unwrap_or("?");
+        let (module, name) = full.split_once('!').unwrap_or(("", full));
+        let api = Api(name.to_string());
         let id = e.get("call_id").and_then(Json::u64).unwrap_or(0);
         let fields: &[(String, Json)] = match e.get("fields") {
             Some(Json::Obj(p)) => p,
             None | Some(Json::Null | Json::Bool(_) | Json::Num(_) | Json::Str(_) | Json::Arr(_)) => &[],
         };
+        // (the runtime's own calls, heaps, locks, TLS: what the C runtime does, not the case)
+        if own(&api).is_none() && phase == Phase::Enter && !kept(module) {
+            continue;
+        }
         match (phase, own(&api)) {
             (Phase::Enter, Some(Own::Write)) => {
                 let d = fields.iter().find(|(n, _)| n == "data").map(|(_, f)| f).ok_or_else(|| at("WriteFile without data".into()))?;
                 let bytes = d.get("value").and_then(Json::str).map(unhex).unwrap_or_default();
-                truncated |= capture_of(d).map_err(at)? != Capture::Captured;
+                let cut = capture_of(d).map_err(at)? != Capture::Captured;
                 written.extend_from_slice(&bytes);
                 let text = String::from_utf8_lossy(&bytes);
                 if let Some(n) = text.lines().find_map(|l| l.trim_end_matches('\r').strip_prefix("case ")) {
@@ -439,6 +456,9 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
                     cases.push(Case::new("-"));
                 }
                 let c = cases.len() - 1;
+                if cut {
+                    truncated.push(c);
+                }
                 for (_, o) in &mut all[pending..] {
                     *o = Some(c);
                 }
@@ -473,23 +493,37 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
     for (c, o) in all {
         cases[o.unwrap_or(last)].calls.push(c);
     }
+    let mut stdout_all = Stdout::Unknown;
     if let Some(out) = stdout {
         let mut by = HashMap::new();
         for (i, c) in cases.iter().enumerate() {
             by.entry(c.name.clone()).or_insert(i);
         }
+        let traced: HashMap<String, Vec<String>> = crate::case::parse_output(&String::from_utf8_lossy(&written)).cases.into_iter().collect();
         for (n, lines) in &crate::case::parse_output(out).cases {
             if let Some(&i) = by.get(n) {
                 cases[i].bad = lines.iter().filter_map(|l| l.strip_prefix("bad line ")?.parse().ok().map(Line)).collect();
+                cases[i].out = if truncated.contains(&i) {
+                    Stdout::Truncated
+                } else if traced.get(n) == Some(lines) {
+                    Stdout::Same
+                } else {
+                    Stdout::Differ
+                };
             }
         }
+        stdout_all = if out.as_bytes() == written.as_slice() {
+            Stdout::Same
+        } else if cases.iter().any(|c| c.out == Stdout::Differ) {
+            Stdout::Differ
+        } else if truncated.is_empty() {
+            // (the same cases, something else around them: the header or "done")
+            Stdout::Differ
+        } else {
+            Stdout::Truncated
+        };
     }
-    let stdout = match stdout {
-        None => Stdout::Unknown,
-        Some(_) if truncated => Stdout::Truncated,
-        Some(s) if s.as_bytes() == written.as_slice() => Stdout::Same,
-        Some(_) => Stdout::Differ,
-    };
+    let stdout = stdout_all;
     let header = Header { name: String::new(), cases: CasesHash(0), src: String::new(), shirusu: String::new(), stdout, events: ev.len(), other };
     Ok(Recording { header, cases })
 }
@@ -522,6 +556,10 @@ pub fn format(r: &Recording) -> String {
         s += &format!("case {}\n", c.name);
         for b in &c.bad {
             s += &format!("bad {}\n", b.0);
+        }
+        match c.out {
+            Stdout::Differ | Stdout::Truncated => s += &format!("out {}\n", c.out.name()),
+            Stdout::Same | Stdout::Unknown => {}
         }
         let mut ids = Ids::default();
         for k in &c.calls {
@@ -606,6 +644,9 @@ pub fn parse(text: &str) -> Result<Recording, String> {
         let e = |m: &str| format!("line {}: {m}", i + 1);
         if let Some(n) = l.strip_prefix("case ") {
             cases.push(Case::new(n));
+        } else if let Some(o) = l.strip_prefix("out ") {
+            let c = cases.last_mut().ok_or_else(|| e("outside a case"))?;
+            c.out = Stdout::ALL.into_iter().find(|s| s.name() == o).ok_or_else(|| e("bad out"))?;
         } else if let Some(b) = l.strip_prefix("bad ") {
             let c = cases.last_mut().ok_or_else(|| e("outside a case"))?;
             c.bad.push(Line(b.parse().map_err(|_| e("bad line number"))?));
@@ -776,7 +817,7 @@ pub fn differ(a: &Recording, b: &Recording) -> Vec<String> {
         let Some(d) = by.get(c.name.as_str()) else { continue };
         let n = c.calls.len().max(d.calls.len());
         if let Some(i) = (0..n).find(|&i| c.calls.get(i) != d.calls.get(i)) {
-            let s = |x: Option<&Call>| x.map_or("-".to_string(), |k| format!("{}({:?}) = {:?}", k.api.0, k.args, k.ret));
+            let s = |x: Option<&Call>| x.map_or("-".to_string(), |k| format!("{}({:?}) = {:?}{}", k.api.0, k.args, k.ret, k.err.map_or(String::new(), |e| format!(" ! {}", e.0))));
             v.push(format!("{}: call {}: {} / {}", c.name, i + 1, s(c.calls.get(i)), s(d.calls.get(i))));
         }
     }
@@ -830,6 +871,10 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
             return ch;
         }
     };
+    // (cases whose answer Windows itself gives differently from run to run)
+    let unstable: Vec<String> = std::fs::read_to_string(root.join("spec/unstable.txt"))
+        .map(|t| t.lines().filter_map(|l| crate::case::tokens(l).first().cloned()).collect())
+        .unwrap_or_default();
     let mut names: Vec<String> = std::fs::read_dir(dir)
         .map(|d| d.filter_map(|e| e.ok()?.file_name().to_str()?.strip_suffix(".txt").map(str::to_string)).collect())
         .unwrap_or_default();
@@ -858,9 +903,14 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
         ch.info.push((n.clone(), format!("{} cases, {calls} calls, {} failed, {} case lines not as recorded, stdout {}", rec.cases.len(), f.len(), bad.len(), rec.header.stdout.name())));
         ch.ops.extend(bad.into_iter().map(|b| format!("{n} {b}")));
         ch.failures.extend(f.into_iter().map(|b| format!("{n} {b}")));
-        match rec.header.stdout {
-            Stdout::Differ => ch.stdout.push(format!("{n}: the executor printed something else under shirusu")),
-            Stdout::Same | Stdout::Truncated | Stdout::Unknown => {}
+        let differ: Vec<&Case> = rec.cases.iter().filter(|c| c.out == Stdout::Differ).collect();
+        for c in &differ {
+            if !unstable.iter().any(|u| *u == c.name) {
+                ch.stdout.push(format!("{n} {}: printed something else under shirusu (and Windows is not known to answer it differently from run to run: spec/unstable.txt)", c.name));
+            }
+        }
+        if rec.header.stdout == Stdout::Differ && differ.is_empty() {
+            ch.stdout.push(format!("{n}: the output around the cases differs under shirusu"));
         }
         current.insert(n.clone(), rec);
     }

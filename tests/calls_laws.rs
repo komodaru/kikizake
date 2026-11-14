@@ -70,8 +70,8 @@ fn jsonl(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize]) -> (St
     let mut stdout = String::new();
     let mut emit = |ev: &mut Vec<String>, api: &str, enter: String, leave: String| {
         id += 1;
-        ev.push(format!("{{\"phase\":\"enter\",\"api\":\"x!{api}\",\"call_id\":{id},\"fields\":{{{enter}}}}}"));
-        ev.push(format!("{{\"phase\":\"leave\",\"api\":\"x!{api}\",\"call_id\":{id},\"fields\":{{{leave}}}}}"));
+        ev.push(format!("{{\"phase\":\"enter\",\"api\":\"gdi32!{api}\",\"call_id\":{id},\"fields\":{{{enter}}}}}"));
+        ev.push(format!("{{\"phase\":\"leave\",\"api\":\"gdi32!{api}\",\"call_id\":{id},\"fields\":{{{leave}}}}}"));
     };
     for (k, (name, chunks, outs)) in cases.iter().enumerate() {
         for (j, (calls, out)) in chunks.iter().zip(outs).enumerate() {
@@ -269,7 +269,7 @@ fn rules() -> Vec<calls::Rule> {
 fn setup(ops: &[Vec<String>], noise: &[usize]) -> (Vec<kikizake::case::Case>, calls::Recording) {
     let rs = rules();
     let case = kikizake::case::Case { name: "x".into(), ops: ops.iter().enumerate().map(|(i, t)| kikizake::case::Op { line: i + 2, tok: t.clone() }).collect() };
-    let rec = calls::Recording { header: header(), cases: vec![calls::Case { name: "x".into(), bad: vec![], calls: faithful(ops, &rs, noise) }] };
+    let rec = calls::Recording { header: header(), cases: vec![calls::Case { name: "x".into(), bad: vec![], out: calls::Stdout::Unknown, calls: faithful(ops, &rs, noise) }] };
     (vec![case], rec)
 }
 
@@ -315,7 +315,7 @@ proptest! {
 
 #[test]
 fn x86_and_x86_64_differences_are_found() {
-    let c = |r: i64| calls::Case { name: "a".into(), bad: vec![], calls: vec![Call { api: Api("BitBlt".into()), args: vec![Val::Handle(Handle(1)), Val::Dec(3)], ret: Ret::Value(Val::Dec(r)), err: None }] };
+    let c = |r: i64| calls::Case { name: "a".into(), bad: vec![], out: calls::Stdout::Unknown, calls: vec![Call { api: Api("BitBlt".into()), args: vec![Val::Handle(Handle(1)), Val::Dec(3)], ret: Ret::Value(Val::Dec(r)), err: None }] };
     let a = calls::Recording { header: header(), cases: vec![c(1)] };
     let b = calls::Recording { header: header(), cases: vec![c(0)] };
     assert!(calls::differ(&a, &a).is_empty());
@@ -328,7 +328,7 @@ proptest! {
     #[test]
     fn usage_reports_what_no_case_does(modes in prop::collection::vec(0i32..20, 1..6), extra in 20i32..40) {
         let call = |m: i32| Call { api: Api("SetStretchBltMode".into()), args: vec![Val::Handle(Handle(5)), Val::Dec(m.into())], ret: Ret::Value(Val::Dec(1)), err: None };
-        let rec = calls::Recording { header: header(), cases: vec![calls::Case { name: "a".into(), bad: vec![], calls: modes.iter().map(|m| call(*m)).collect() }] };
+        let rec = calls::Recording { header: header(), cases: vec![calls::Case { name: "a".into(), bad: vec![], out: calls::Stdout::Unknown, calls: modes.iter().map(|m| call(*m)).collect() }] };
         let ev = |api: &str, m: i32| format!("{{\"phase\":\"enter\",\"api\":\"{api}\",\"call_id\":1,\"fields\":{{\"hdc\":{{\"ty\":\"U64\",\"capture\":\"captured\",\"value\":\"0x99\",\"kind\":\"handle\"}},\"mode\":{{\"ty\":\"I32\",\"capture\":\"captured\",\"value\":{m}}}}}}}");
         let same: Vec<String> = modes.iter().map(|m| ev("gdi32!SetStretchBltMode", *m)).chain([ev("kernel32!Sleep", 3)]).collect();
         prop_assert_eq!(calls::usage(&same.join("\n"), std::slice::from_ref(&rec)).unwrap(), Vec::<String>::new());

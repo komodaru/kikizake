@@ -100,6 +100,9 @@ static void op_dib(void) {
         bi.u.masks[0] = 0xf800; bi.u.masks[1] = 0x07e0; bi.u.masks[2] = 0x001f;
     }
     s->dc = CreateCompatibleDC(NULL);
+    /* (cleared: what CreateDIBSection leaves, not what the C runtime left before; x86 mingw's
+     * runtime leaves 126, so "dib failed" printed 126 on x86 and 0 on x86-64, shirusu calls/) */
+    SetLastError(0);
     s->bmp = CreateDIBSection(s->dc, (BITMAPINFO *)&bi, DIB_RGB_COLORS, (void **)&s->bits, NULL, 0);
     if (!s->bmp) { out("dib failed %lu\n", GetLastError()); DeleteDC(s->dc); s->dc = NULL; return; }
     s->oldbmp = SelectObject(s->dc, s->bmp);

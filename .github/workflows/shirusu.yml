@@ -175,6 +175,13 @@ jobs:
             done
             git -C "$M" add calls
             if git -C "$M" diff --cached --quiet; then echo "no change"; exit 0; fi
+            # (recordings that cargo test would fail on stay out of main: main's tests stay green
+            # for everyone, and this run fails with the problems)
+            if ! (cd "$M" && cargo run -q --release -- calls check calls > "$RUNNER_TEMP/check.txt"); then
+              grep -v '^failed call' "$RUNNER_TEMP/check.txt" | head -200
+              exit 1
+            fi
+            tail -1 "$RUNNER_TEMP/check.txt"
             git -C "$M" commit -qm "calls: shirusu's recordings of${took} on Windows (${GITHUB_SHA::7})"
             git -C "$M" push -q origin HEAD:main && exit 0
             sleep $((i * 5))

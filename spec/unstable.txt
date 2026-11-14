@@ -1,0 +1,11 @@
+# Cases whose answer Windows gives differently from one run to the next: the same executor on
+# the same windows-2025 image. Their recorded answer (golden/) is one of several; a model can
+# reproduce it only by chance. One case name per line, then the evidence.
+#
+# GDI.FMT.NEAREST: a BitBlt into an 8 bpp DIB section with the default color table; one pixel
+# per case comes out as a different index in different runs (gdi-64 convert-8-from-16, row 1
+# x 1, source 0xec5f 5-5-5: golden 0x73, a later run 0x00, under shirusu 0x56; none is the
+# nearest entry 0xc3). The other pixels are stable. Seen by the shirusu workflow, 2026-11-14.
+convert-8-from-16    golden 9273ee.., runs 9200ee.. and 9256ee.. (x86-64); golden 9200ee.., under shirusu other (x86)
+convert-8-from-24    golden ..c34351, run ..c30051 (x86-64)
+convert-8-from-32    under shirusu 00 -> 06 twice (x86-64)

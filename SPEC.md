@@ -19,7 +19,7 @@ white stock brush, brush origin 0,0, no clip region).
 
 | line | calls | prints |
 |---|---|---|
-| `dib <s> <w> <h> <bpp> [td\|bu] [565] [#c0 #c1 ...]` | CreateDIBSection (bpp 1, 4, 8, 16, 24, 32; top-down by default; `565` = BI_BITFIELDS 5-6-5 for 16 bpp, else 5-5-5) with the color table given or the default one, and the pixels zeroed | `dib failed <error>` on failure |
+| `dib <s> <w> <h> <bpp> [td\|bu] [565] [#c0 #c1 ...]` | CreateDIBSection (bpp 1, 4, 8, 16, 24, 32; top-down by default; `565` = BI_BITFIELDS 5-6-5 for 16 bpp, else 5-5-5) with the color table given or the default one, and the pixels zeroed | `dib failed <error>` on failure (GetLastError, cleared before the call) |
 | `fill <s> <seed>` | every byte of the pixel memory, in memory order, from xorshift32 (below) | |
 | `poke <s> <x> <y> <hex>` | raw bytes of one pixel (bpp >= 8) | |
 | `dump <s>` | GdiFlush, then the picture | `px <s> <w> <h> <bpp>`, then each row top to bottom as hex bytes, only the bytes that hold the row's w pixels |
