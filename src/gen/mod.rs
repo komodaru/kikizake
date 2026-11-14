@@ -77,6 +77,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("dddc", ddraw::dddc),
     ("ddlock", ddraw::ddlock),
     ("ddflip", ddraw::ddflip),
+    ("dd8", ddraw::dd8),
     ("d3d7", d3d7::d3d7),
     ("d3d7rast", d3d7::d3d7rast),
     ("d3d7shade", d3d7::d3d7shade),

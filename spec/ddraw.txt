@@ -28,7 +28,7 @@ DDRAW.CLIP.FAST doc | IDirectDrawSurface7::BltFast (DDERR_BLTFASTCANTCLIP) | Blt
 DDRAW.PAL.CREATE measured | IDirectDraw7::CreatePalette | exactly one of DDPCAPS_1BIT, 2BIT, 4BIT, 8BIT; ALLOW256 only with 8BIT, 8BITENTRIES only with fewer bits, not both; PRIMARYSURFACE refused without a primary surface; INITIALIZE and ALPHA accepted and dropped; else E_INVALIDARG (ddpal golden: 49 flag sets)
 DDRAW.PAL.CAPS doc | IDirectDrawPalette::GetCaps | the size flag, 8BITENTRIES and ALLOW256 the palette was made with
 DDRAW.PAL.RESERVED measured | IDirectDraw7::CreatePalette (DDPCAPS_ALLOW256) | a 256-entry palette without ALLOW256 holds black in entry 0 and white in entry 255, whatever CreatePalette and SetEntries give them (ddpal golden)
-DDRAW.PAL.8BITENTRIES open | IDirectDraw7::CreatePalette (DDPCAPS_8BITENTRIES) | entries that are indices into the destination's palette: what GetEntries returns
+DDRAW.PAL.8BITENTRIES measured | IDirectDraw7::CreatePalette (DDPCAPS_8BITENTRIES) | a byte an entry: CreatePalette, SetEntries and GetEntries move as many bytes of the PALETTEENTRY array given (r g b flags r ...) as entries (ddpal golden: entries8 for every size)
 DDRAW.PAL.RANGE measured | IDirectDrawPalette::GetEntries, SetEntries | a range of no entries or past the palette's: E_INVALIDARG (ddpal golden)
 DDRAW.PAL.GET doc | IDirectDrawPalette::GetEntries | the entries asked, PALETTEENTRY each
 DDRAW.PAL.SET doc | IDirectDrawPalette::SetEntries | the entries given replace those of the range

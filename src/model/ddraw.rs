@@ -77,6 +77,9 @@ pub struct Pal {
     pub caps: u32,
     /// r g b flags of each entry (2, 4, 16 or 256)
     pub e: Vec<[u8; 4]>,
+    /// DDPCAPS_8BITENTRIES: a byte an entry (MEASURED, ddpal golden: CreatePalette, SetEntries
+    /// and GetEntries move that many bytes of the PALETTEENTRY arrays given, r g b flags r ...)
+    pub bytes: Option<Vec<u8>>,
 }
 
 #[derive(Default)]
@@ -590,12 +593,13 @@ impl Ddraw {
                     e[0] = [0, 0, 0, 0];
                     e[255] = [255, 255, 255, 0];
                 }
-                if f.contains("8bitentries") {
-                    return Err(Fail::Unmodeled("DDRAW.PAL.8BITENTRIES"));
-                }
+                let bytes = f.contains("8bitentries").then(|| {
+                    hit("DDRAW.PAL.8BITENTRIES");
+                    pal_entries(seed).iter().flatten().take(cnt).copied().collect()
+                });
                 self.next_pal += 1;
                 let caps = sz | if f.contains("8bitentries") { 2 } else { 0 } | if allow { 0x40 } else { 0 };
-                self.pal[p as usize] = Some(Pal { id: self.next_pal, caps, e });
+                self.pal[p as usize] = Some(Pal { id: self.next_pal, caps, e, bytes });
             }
             "ddpalget" | "ddpalset" | "ddpalcaps" => {
                 let p = n(op, 1)?;
@@ -620,6 +624,17 @@ impl Ddraw {
                 hit("DDRAW.PAL.RANGE");
                 if cnt == 0 || st < 0 || st + cnt > pal.e.len() as i64 {
                     out.push(format!("{} hr {E_INVALIDARG:08x}", if t[0] == "ddpalget" { "palget" } else { "palset" }));
+                    return Ok(true);
+                }
+                if let Some(b) = pal.bytes.as_mut() {
+                    let (st, cnt) = (st as usize, cnt as usize);
+                    if t[0] == "ddpalget" {
+                        // (the rest of the executor's 4 bytes an entry as it filled them, 0xcc)
+                        out.push(format!("pal {}{}", b[st..st + cnt].iter().map(|v| format!("{v:02x}")).collect::<String>(), "cc".repeat(3 * cnt)));
+                    } else {
+                        let new: Vec<u8> = pal_entries(seed).iter().flatten().copied().collect();
+                        b[st..st + cnt].copy_from_slice(&new[..cnt]);
+                    }
                     return Ok(true);
                 }
                 if t[0] == "ddpalget" {

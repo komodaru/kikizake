@@ -373,3 +373,94 @@ pub fn ddflip() -> String {
     }
     s
 }
+
+/// 8 bpp in detail and stretching: the colors of a DC without a palette, which entry a color
+/// becomes, blits within one 8 bpp surface step by step, and stretched blits of each format
+pub fn dd8() -> String {
+    let mut s = String::from("# kikizake suite dd8: DirectDraw 8 bpp DCs, overlapping 8 bpp blits and stretching (SPEC.md). Made by `kikizake gen dd8`.\n");
+    let mut r = XorShift32::new(0x00dd_0008);
+    let idx_rows = |s: &mut String| {
+        writeln!(s, "ddlock 0 all").unwrap();
+        for y in 0..16 {
+            writeln!(s, "ddpoke 0 0 {y} {}", (0..16).map(|x| format!("{:02x}", y * 16 + x)).collect::<String>()).unwrap();
+        }
+        writeln!(s, "ddunlock 0 none").unwrap();
+    };
+    // every index's color through a DC, without a palette and with one
+    for pal in ["", "ddpal 0 3 8bit allow256\nddsetpal 0 0\n", "ddpal 0 5 8bit\nddsetpal 0 0\n"] {
+        writeln!(s, "case table-{}\ndd\nddsurf 0 16 16 8\n{pal}", pal.len()).unwrap();
+        idx_rows(&mut s);
+        writeln!(s, "ddgetdc 0").unwrap();
+        for i in 0..256 {
+            writeln!(s, "dcget 0 {} {}", i % 16, i / 16).unwrap();
+        }
+        writeln!(s, "ddreldc 0\nend").unwrap();
+    }
+    // which entry SetPixel and FillRect pick for a color, without a palette and with one
+    for (k, pal) in ["", "ddpal 0 3 8bit allow256\nddsetpal 0 0\n", "ddpal 0 9 8bit\nddsetpal 0 0\n"].iter().enumerate() {
+        for part in 0..4 {
+            writeln!(s, "case nearest-{k}-{part}\ndd\nddsurf 0 16 16 8\n{pal}ddgetdc 0").unwrap();
+            for i in 0..256 {
+                let c = match part {
+                    0 => (i as u32) * 0x10101,
+                    1 => ((i as u32 & 7) * 0x24 + 2) << 16 | ((i as u32 >> 3 & 7) * 0x24 + 2) << 8 | (i as u32 >> 6) * 0x55,
+                    _ => r.next() & 0xffffff,
+                };
+                writeln!(s, "dcpix 0 {} {} #{c:06x}\ndcget 0 {} {}", i % 16, i / 16, i % 16, i / 16).unwrap();
+            }
+            writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+        }
+        writeln!(s, "case nearestrect-{k}\ndd\nddsurf 0 16 16 8\n{pal}ddgetdc 0").unwrap();
+        for i in 0..16 {
+            writeln!(s, "dcrect 0 {} {} {} {} #{:06x}", (i % 4) * 4, (i / 4) * 4, (i % 4) * 4 + 4, (i / 4) * 4 + 4, r.next() & 0xffffff).unwrap();
+        }
+        writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+    }
+    // one blit within one 8 bpp surface at a time: every offset of a few sizes, Blt and BltFast
+    for (w, h) in [(1, 1), (2, 1), (3, 2), (4, 3), (5, 2), (7, 3), (8, 4), (9, 2), (13, 5)] {
+        writeln!(s, "case overlap8-{w}x{h}\ndd\nddsurf 0 24 12 8").unwrap();
+        for dy in -2i64..=2 {
+            for dx in -5i64..=5 {
+                if (dx, dy) == (0, 0) {
+                    continue;
+                }
+                let (sx, sy) = (6, 4);
+                let (x, y) = (sx + dx, sy + dy);
+                writeln!(s, "ddfill 0 {}\nddblt 0 {x} {y} {} {} 0 {sx} {sy} {} {}\ndddump 0", r.range(1, 9999), x + w, y + h, sx + w, sy + h).unwrap();
+                writeln!(s, "ddfill 0 {}\nddfast 0 {x} {y} 0 {sx} {sy} {} {}\ndddump 0", r.range(1, 9999), sx + w, sy + h).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // stretching: each column count to each, each row count to each, then random rectangles,
+    // mirrored too, of every format
+    for f in ["8", "565", "24", "32"] {
+        writeln!(s, "case stretchx-{f}\ndd\nddsurf 0 20 1 {f}\nddsurf 1 20 1 {f}\nddfill 1 7").unwrap();
+        for sw in 1..=9 {
+            for dw in 1..=20 {
+                if sw != dw {
+                    writeln!(s, "ddfill 0 3\nddblt 0 0 0 {dw} 1 1 0 0 {sw} 1\ndddump 0").unwrap();
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+        writeln!(s, "case stretchy-{f}\ndd\nddsurf 0 1 20 {f}\nddsurf 1 1 20 {f}\nddfill 1 7").unwrap();
+        for sh in 1..=9 {
+            for dh in [1, 2, 3, 5, 8, 13, 20] {
+                if sh != dh {
+                    writeln!(s, "ddfill 0 3\nddblt 0 0 0 1 {dh} 1 0 0 1 {sh}\ndddump 0").unwrap();
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+        writeln!(s, "case stretch-{f}\ndd\nddsurf 0 16 12 {f}\nddsurf 1 16 12 {f}\nddfill 1 9").unwrap();
+        for k in 0..40 {
+            let (sx, sy, sw, sh) = (r.range(0, 8), r.range(0, 6), r.range(1, 8), r.range(1, 6));
+            let (dx, dy, dw, dh) = (r.range(0, 8), r.range(0, 6), r.range(1, 8), r.range(1, 6));
+            let extra = match k % 4 { 1 => " mirrorlr", 2 => " mirrorud", 3 => " keysrcov 0", _ => "" };
+            writeln!(s, "ddfill 0 {k}\nddblt 0 {dx} {dy} {} {} 1 {sx} {sy} {} {}{extra}\ndddump 0", dx + dw, dy + dh, sx + sw, sy + sh).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    s
+}
