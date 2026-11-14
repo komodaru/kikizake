@@ -2525,6 +2525,7 @@ wicencode float-gray16-all-grayfloat
 wicencode float-gray16-all-prgbafloat
 wicencode float-gray16-all-rgbafloat
 wicencode float-gray16-all-rgbfloat
+wicencode float-gray16-every-rgbfloat
 wicencode float-gray16-lo-grayfloat
 wicencode float-gray16-lo-prgbafloat
 wicencode float-gray16-lo-rgbafloat
