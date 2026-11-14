@@ -26,19 +26,21 @@ impl Lb {
         })
     }
 
-    /// MEASURED (golden dwrite, breakall): the class Windows breaks a character of this class
-    /// by: ambiguous, the Brahmic aksara classes, complex context, surrogates and unknown as
-    /// alphabetic (LB1, and no LB28a), conditional Japanese starters as nonstarters, Hangul
-    /// syllables and jamo and emoji bases as ideographs (no LB26, LB27), emoji modifiers as
-    /// combining marks, Hebrew letters as alphabetic
+    /// MEASURED (golden dwrite, breakall, breakpair): the class Windows breaks a character of
+    /// this class by: ambiguous, the Brahmic aksara classes, complex context, surrogates and
+    /// unknown as alphabetic (LB1, and no LB28a), conditional Japanese starters as nonstarters,
+    /// Hangul syllables and jamo and emoji bases as ideographs (no LB26, LB27 but for jamo L V
+    /// and V T), emoji modifiers and the viramas as combining marks, the zero width joiner as
+    /// glue, Hebrew letters as alphabetic
     fn resolved(self) -> Lb {
         match self {
-            AI | AK | AP | AS | VF | VI | SA | SG | XX | HL => AL,
+            AI | AK | AP | AS | SA | SG | XX | HL => AL,
             CJ => NS,
             H2 | H3 | JL | JT | JV | EB => ID,
-            EM => CM,
-            BK | CR | LF | CM | NL | WJ | ZW | GL | SP | ZWJ | B2 | BA | BB | HY | CB | CL | CP | EX | IN | NS | OP | QU
-            | IS | NU | PO | PR | SY | AL | ID | RI => self,
+            EM | VF | VI => CM,
+            ZWJ => GL,
+            BK | CR | LF | CM | NL | WJ | ZW | GL | SP | B2 | BA | BB | HY | CB | CL | CP | EX | IN | NS | OP | QU | IS
+            | NU | PO | PR | SY | AL | ID | RI => self,
         }
     }
 }
@@ -61,7 +63,8 @@ fn hard(c: Lb) -> bool {
 }
 
 /// the condition at the boundary before character i (0 < i < n) of the resolved classes `t`
-fn boundary(t: &[Lb], attached: &[bool], i: usize) -> u8 {
+/// (of the classes `orig`)
+fn boundary(t: &[Lb], orig: &[Lb], attached: &[bool], i: usize) -> u8 {
     let (a, b) = (t[i - 1], t[i]);
     // LB5: CR × LF
     if a == CR && b == LF {
@@ -87,10 +90,6 @@ fn boundary(t: &[Lb], attached: &[bool], i: usize) -> u8 {
     let before_sp = if j > 0 { Some(t[j - 1]) } else { None };
     if before_sp == Some(ZW) {
         return CAN;
-    }
-    // LB8a (LB9: a mark on a base is attached above; one after a space is alphabetic, LB10)
-    if a == ZWJ {
-        return MAY_NOT;
     }
     // LB11
     if a == WJ || b == WJ {
@@ -136,8 +135,12 @@ fn boundary(t: &[Lb], attached: &[bool], i: usize) -> u8 {
     if matches!(b, BA | HY | NS) || a == BB {
         return MAY_NOT;
     }
-    // LB22
-    if b == IN {
+    // LB22 (as UAX #14 of Unicode 6)
+    if b == IN && matches!(a, AL | ID | IN | NU) {
+        return MAY_NOT;
+    }
+    // LB26: only jamo L before V and V before T
+    if matches!((orig[i - 1], orig[i]), (JL, JV) | (JV, JT)) {
         return MAY_NOT;
     }
     // LB23, LB23a, LB24, LB25
@@ -171,16 +174,15 @@ fn white(c: u32) -> bool {
 /// each UTF-16 unit's (before, after, whitespace, soft hyphen)
 pub fn breaks(cps: &[u32]) -> Vec<(u8, u8, u8, u8)> {
     hit(clause::DW_BREAK_UAX14);
-    let mut t: Vec<Lb> = cps.iter().map(|&c| class(c).resolved()).collect();
+    let orig: Vec<Lb> = cps.iter().map(|&c| class(c)).collect();
+    let mut t: Vec<Lb> = orig.iter().map(|c| c.resolved()).collect();
     // LB9, LB10: a combining mark takes its base's class, or is AL with no base
     let mut attached = vec![false; t.len()];
     for i in 0..t.len() {
-        if matches!(t[i], CM | ZWJ) {
+        if t[i] == CM {
             let base = if i > 0 && !matches!(t[i - 1], BK | CR | LF | NL | SP | ZW) { Some(t[i - 1]) } else { None };
             attached[i] = base.is_some();
-            if t[i] == CM || base.is_some() {
-                t[i] = base.unwrap_or(AL);
-            }
+            t[i] = base.unwrap_or(AL);
         }
     }
     let n = t.len();
@@ -188,7 +190,7 @@ pub fn breaks(cps: &[u32]) -> Vec<(u8, u8, u8, u8)> {
     v[0].0 = MAY_NOT;
     v[n - 1].1 = if hard(t[n - 1]) { MUST } else { CAN };
     for i in 1..n {
-        let b = boundary(&t, &attached, i);
+        let b = boundary(&t, &orig, &attached, i);
         v[i - 1].1 = b;
         v[i].0 = b;
     }

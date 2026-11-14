@@ -103,39 +103,50 @@ fn iso(long: &str) -> Res<Script> {
     Ok(Script { code, num, shapes: Shapes::Default })
 }
 
-/// the runs (UTF-16 position, length, script) of a text of code points
+/// the runs (UTF-16 position, length, script) of a text of code points. MEASURED (golden
+/// dwrite, scriptctx): an unassigned character is of a script of its own, Zzzz; a no-visual
+/// character too, Zyyy, but common characters before it do not join it (they are a Zzzz run)
 pub fn runs(cps: &[u32]) -> Res<Vec<(usize, usize, Script)>> {
-    if let [c] = cps {
-        let n = if *c >= 0x10000 { 2 } else { 1 };
-        match kind(*c)? {
-            Kind::NoVisual => return Ok(vec![(0, n, ZYYY)]),
-            Kind::Unknown => return Ok(vec![(0, n, ZZZZ)]),
-            Kind::Script(_) | Kind::Common => {}
-        }
-    }
     let mut v: Vec<(usize, usize, Script)> = Vec::new();
     let mut pending = 0; // (leading common characters' UTF-16 units)
     let mut pos = 0;
     for &c in cps {
         let n = if c >= 0x10000 { 2 } else { 1 };
-        match kind(c)? {
-            // (in a text of more than one character: not measured)
-            Kind::NoVisual | Kind::Unknown => return Err(Fail::Unmodeled(open::DW_SCRIPT_CHAR)),
-            Kind::Common => match v.last_mut() {
-                Some(l) => {
-                    hit(clause::DW_SCRIPT_COMMON);
-                    l.1 += n
+        let s = match kind(c)? {
+            Kind::Common => {
+                match v.last_mut() {
+                    // (after a no-visual character: not measured)
+                    Some(l) if l.2 == ZYYY => return Err(Fail::Unmodeled(open::DW_SCRIPT_CHAR)),
+                    Some(l) => {
+                        hit(clause::DW_SCRIPT_COMMON);
+                        l.1 += n
+                    }
+                    None => pending += n,
                 }
-                None => pending += n,
-            },
-            Kind::Script(s) => match v.last_mut() {
-                Some(l) if l.2 == s => l.1 += n,
-                _ => {
-                    hit(clause::DW_SCRIPT_RUN);
-                    v.push((pos - pending, n + pending, s));
+                pos += n;
+                continue;
+            }
+            Kind::NoVisual => {
+                hit(clause::DW_SCRIPT_NOVISUAL);
+                if pending > 0 {
+                    v.push((pos - pending, pending, ZZZZ));
                     pending = 0;
                 }
-            },
+                ZYYY
+            }
+            Kind::Unknown => {
+                hit(clause::DW_SCRIPT_NOVISUAL);
+                ZZZZ
+            }
+            Kind::Script(s) => s,
+        };
+        match v.last_mut() {
+            Some(l) if l.2 == s => l.1 += n,
+            _ => {
+                hit(clause::DW_SCRIPT_RUN);
+                v.push((pos - pending, n + pending, s));
+                pending = 0;
+            }
         }
         pos += n;
     }

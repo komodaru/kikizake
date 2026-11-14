@@ -454,7 +454,8 @@ impl Dwrite {
                         return Ok(true);
                     }
                     if side != 0 {
-                        // (sideways: 5 of 6300 bottom side bearings a design unit under the model)
+                        // (sideways: 5 of 6300 bottom side bearings in gdiglyph a design unit under the
+                        // model; the 30 gdiside cases match it)
                         return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
                     }
                     hit(clause::DW_GDI_GLYPH_H);

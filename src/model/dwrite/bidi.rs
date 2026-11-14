@@ -42,33 +42,33 @@ impl Class {
     }
 }
 
-/// a character's class (DerivedBidiClass.txt, its @missing defaults where unlisted)
+/// a character's class (DerivedBidiClass.txt). MEASURED (golden dwrite, bidiall): a character
+/// it does not list is L, not its @missing default (R, AL or ET in their blocks)
 pub fn class(c: u32) -> Class {
     hit(clause::DW_BIDI_UCD);
-    let v = crate::ucd::bidi_class().get(c).unwrap_or("L");
+    let v = crate::ucd::bidi_class().listed(c).unwrap_or("L");
     Class::parse(v).unwrap_or_else(|| panic!("DerivedBidiClass.txt: no class {v}"))
 }
 
-/// X9: the characters the explicit rules remove (they take the level of the one before)
+/// X9: the characters the explicit rules remove (they take the level of the one before).
+/// MEASURED (golden dwrite, bidipair): the isolates too, as boundary neutrals
 fn removed(c: Class) -> bool {
-    matches!(c, BN | LRE | LRO | RLE | RLO | PDF)
+    matches!(c, BN | LRE | LRO | RLE | RLO | PDF | LRI | RLI | FSI | PDI)
 }
 
 /// UAX #9 6.2's deepest embedding level
 const MAX_DEPTH: u8 = 61;
 
 /// each character's explicit (embedding) level and resolved level at paragraph level `para`
-/// (0 or 1). MEASURED (golden dwrite): a segment separator ends the text as a paragraph separator
-/// would; the text between separators is resolved by itself, embeddings and all
+/// (0 or 1). MEASURED (golden dwrite): a paragraph separator ends the paragraph, the text after
+/// it resolved by itself, embeddings and all; a segment separator ends the level run (the text
+/// between separators resolved apart) but not the embeddings
 pub fn analyze(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
     let (mut ex, mut lv) = (Vec::new(), Vec::new());
     let mut s = 0;
     for (i, c) in text.iter().enumerate() {
-        if matches!(c, S | B) {
-            if i > s {
-                hit(clause::DW_BIDI_SEGMENT);
-            }
-            let (e, l) = segment(&text[s..i], para);
+        if *c == B {
+            let (e, l) = paragraph(&text[s..i], para);
             ex.extend(e);
             lv.extend(l);
             ex.push(para);
@@ -76,30 +76,14 @@ pub fn analyze(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
             s = i + 1;
         }
     }
-    let (e, l) = segment(&text[s..], para);
+    let (e, l) = paragraph(&text[s..], para);
     ex.extend(e);
     lv.extend(l);
-    // L1: separators, and whitespace (and removed characters) before them or at the end, to
-    // the paragraph level
-    let mut tail = true;
-    for i in (0..text.len()).rev() {
-        match text[i] {
-            S | B => {
-                hit(clause::DW_BIDI_L1);
-                tail = true;
-            }
-            c if tail && (c == WS || removed(c)) => {
-                hit(clause::DW_BIDI_L1);
-                lv[i] = para;
-            }
-            _ => tail = false,
-        }
-    }
     (ex, lv)
 }
 
-/// the levels of a text without separators
-fn segment(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
+/// the levels of a text without paragraph separators
+fn paragraph(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
     // X1-X8: the embedding level of each character, and its class under an override
     let mut stack: Vec<(u8, Option<Class>)> = vec![(para, None)];
     let mut over_count = 0u32;
@@ -139,6 +123,12 @@ fn segment(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
                 }
                 t.push(c);
             }
+            // (L1: a segment separator at the paragraph level, its explicit level too)
+            S => {
+                hit(clause::DW_BIDI_L1);
+                ex.push(para);
+                t.push(S);
+            }
             _ => {
                 ex.push(level);
                 t.push(match (dir, removed(c)) {
@@ -154,9 +144,16 @@ fn segment(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
     let mut k = 0;
     while k < kept.len() {
         let level = ex[kept[k]];
+        if t[kept[k]] == S {
+            k += 1;
+            continue;
+        }
         let mut j = k;
-        while j < kept.len() && ex[kept[j]] == level {
+        while j < kept.len() && ex[kept[j]] == level && t[kept[j]] != S {
             j += 1;
+        }
+        if k > 0 && t[kept[k - 1]] == S || j < kept.len() && t[kept[j]] == S {
+            hit(clause::DW_BIDI_SEGMENT);
         }
         let before = if k == 0 { para } else { ex[kept[k - 1]] };
         let after = if j == kept.len() { para } else { ex[kept[j]] };
@@ -244,9 +241,9 @@ fn resolve(run: &[Class], level: u8, sos: Class, eos: Class) -> Vec<u8> {
             _ => {}
         }
     }
-    // N1, N2 (isolates are neutrals here)
+    // N1, N2
     hit(clause::DW_BIDI_N);
-    let ni = |c: Class| matches!(c, WS | ON | S | B | LRI | RLI | FSI | PDI);
+    let ni = |c: Class| matches!(c, WS | ON | S | B);
     let dir = |c: Class| match c {
         L => Some(L),
         R | EN | AN => Some(R),

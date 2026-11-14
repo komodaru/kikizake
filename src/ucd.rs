@@ -42,6 +42,12 @@ impl Table {
         listed.or_else(|| self.missing.iter().rev().find(|r| r.0 <= c && c <= r.1).map(|r| r.2))
     }
 
+    /// the value of code point `c` its lines give, None where they do not list it
+    pub fn listed(&self, c: u32) -> Option<&'static str> {
+        let i = self.ranges.partition_point(|r| r.1 < c);
+        self.ranges.get(i).filter(|r| r.0 <= c).map(|r| r.2)
+    }
+
     /// every range the file lists
     pub fn ranges(&self) -> &[(u32, u32, &'static str)] {
         &self.ranges

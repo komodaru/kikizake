@@ -397,6 +397,12 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
         writeln!(s, "end").unwrap();
     }
+    // a common character after a no-visual one
+    writeln!(s, "case scriptctx-after").unwrap();
+    for c in [0x1, 0xad, 0x200b, 0x2028, 0xfeff, 0xe0001, 0xfffe, 0x1bca0, 0x1d173] {
+        writeln!(s, "dwscript {c:#x} 0x20\ndwscript {c:#x} 0x20 0x41\ndwscript 0x41 {c:#x} 0x20\ndwscript 0x5d0 {c:#x} 0x20 0x41\ndwscript {c:#x} 0x300\ndwscript {c:#x} 0x2e 0x5d0\ndwscript 0x378 0x20 {c:#x}").unwrap();
+    }
+    writeln!(s, "end").unwrap();
     // every pair of classes: a character of each line break class (the first the file lists)
     // before one of each, next to each other and with a space between; of each bidi class, in
     // both directions, alone and between strong characters, and after each explicit formatting
