@@ -44,6 +44,7 @@ pub fn d2d() -> String {
     xfbounds(&mut s, &mut r);
     bmpsrcfit(&mut s, &mut r);
     xfbounds_more(&mut s);
+    strokemore(&mut s, &mut r);
     s
 }
 
@@ -825,5 +826,20 @@ fn xfbounds_more(s: &mut String) {
             o += &format!("d2bounds 0 {m}\n");
         }
         writeln!(s, "{o}end").unwrap();
+    }
+}
+
+/// DrawGeometry of random straight paths: three to five corners, closed or open, sharp turns
+/// and thin figures among them, widths from a quarter pixel to five, either antialiasing,
+/// sometimes through a world transform
+fn strokemore(s: &mut String, r: &mut XorShift32) {
+    for i in 0..48 {
+        let n = r.range(3, 6);
+        let pts: Vec<String> = (0..n).map(|_| format!("{} {}", frac(r, 1, 15), frac(r, 1, 11))).collect();
+        let end = if i % 3 == 2 { "o" } else { "z" };
+        let w = fmt(r.range(1, 21) as f64 / 4.0);
+        let aa = if i % 2 == 1 { "d2aa aliased\n" } else { "" };
+        let xf = if i % 5 == 4 { "d2xform 0.8 0.6 -0.6 0.8 4 -2\n" } else { "" };
+        writeln!(s, "case strokemore-{i}\nd2target 16 12\n{aa}{xf}d2clear {}\nd2path 0 alt m {} {end}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), pts.join(" "), color(r, false)).unwrap();
     }
 }
