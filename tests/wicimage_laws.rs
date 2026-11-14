@@ -440,3 +440,34 @@ proptest! {
         prop_assert_eq!(&pal[..colors], &i.pal.unwrap()[..]);
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(300))]
+
+    /// colors at their cells' centers that are all in the palette spend no error and keep their
+    /// own entries; any color's pixels stay inside the palette, and transparent ones get none
+    #[test]
+    fn dither_keeps_cell_centers(w in 1usize..20, h in 1usize..20, n in 1usize..40, seed: u32, extra in proptest::collection::vec(any::<[u8; 3]>(), 0..20)) {
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let mut pal: Vec<[i32; 3]> = vec![];
+        while pal.len() < n {
+            let c = [0; 3].map(|_: i32| 17 * (r.next() % 16) as i32);
+            if !pal.contains(&c) {
+                pal.push(c);
+            }
+        }
+        let px: Vec<usize> = (0..w * h).map(|_| r.next() as usize % n).collect();
+        let at = |x: usize, y: usize| pal[px[y * w + x]];
+        let ix = wi::dither(w, h, &at, &pal, &|_, _| false, wi::Clear::Skip);
+        prop_assert_eq!(ix, px.iter().map(|&i| Some(i)).collect::<Vec<_>>());
+        let any = |x: usize, y: usize| { let c = extra.get((x + y * w) % extra.len().max(1)).copied().unwrap_or([7, 77, 177]); c.map(i32::from) };
+        let clear = |x: usize, y: usize| (x * 3 + y) % 5 == 0;
+        for how in [wi::Clear::Skip, wi::Clear::Diffuse] {
+            let ix = wi::dither(w, h, &any, &pal, &clear, how);
+            for (k, i) in ix.iter().enumerate() {
+                prop_assert_eq!(i.is_none(), clear(k % w, k / w));
+                prop_assert!(i.is_none_or(|i| i < n));
+            }
+        }
+    }
+}

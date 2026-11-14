@@ -2387,7 +2387,6 @@ wicdecode png-ihdr-method-12-2
 wicdecode png-ihdr-method-12-255
 wicencode enc-bmp-cmyk
 wicencode enc-bmp-gray16
-wicencode enc-bmp-gray8
 wicencode enc-bmp-rgb48
 wicencode enc-bmp-rgba64
 wicencode enc-dds-alpha8
@@ -2414,8 +2413,6 @@ wicencode enc-dds-rgb48
 wicencode enc-dds-rgba
 wicencode enc-dds-rgba64
 wicencode enc-gif-cmyk
-wicencode enc-gif-gray16
-wicencode enc-gif-gray8
 wicencode enc-jpeg-alpha8
 wicencode enc-jpeg-bgr24
 wicencode enc-jpeg-bgr32
@@ -2508,12 +2505,16 @@ wicencode encbw-r-250
 wicencode encbw-r-50
 wicencode encbw-r-65
 wicencode encbw-r-90
-wicencode encq-100
-wicencode encq-255
-wicencode encq-256
+wicencode encpal-bw-0
+wicencode encpal-bw-1
+wicencode encpal-bw-2
+wicencode encpal-bw-3
+wicencode encpal-idx4-1
+wicencode encpal-idx4-2
+wicencode encpal-idx4-3
+wicencode encpal-idx8-3
 wicencode encq-257
 wicencode encq-300
-wicencode encq-ramp
 wicencode fixed-gray16-all
 wicencode fixed-gray16-lo
 wicencode fixed-rgb48-all
@@ -2545,7 +2546,7 @@ wicencode float-rgba64-lo-prgbafloat
 wicencode float-rgba64-lo-rgbafloat
 wicencode float-rgba64-lo-rgbfloat
 wicencode gifalpha-alpha
-wicencode gifalpha-full255
+wicencode gifalpha-full16
 wicencode gifalpha-full256
 wicencode opt-0-bgr24
 wicencode opt-0-bgra

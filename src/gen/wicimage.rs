@@ -1320,6 +1320,12 @@ pub fn wicencode() -> String {
         ("full255", rgba(16, &|i| [(i % 255) as u8, (i % 255 * 7) as u8, 3, if i == 255 { 0 } else { 255 }])),
         ("full256", rgba(16, &|i| [i as u8, (i * 7) as u8, 3, if i == 17 { 0 } else { 255 }])),
     ];
+    // more colors than an indexed format holds: the palette the encoder makes, and the pixels
+    for f in ["bw", "idx4", "idx8"] {
+        for (k, (w, h, seed)) in [(4u32, 2u32, 212u32), (16, 16, 0x51), (16, 16, 0x52), (32, 32, 0x53)].iter().enumerate() {
+            writeln!(s, "case encpal-{f}-{k}\nwbits bgr24 {w} {h} {seed}\nwencode bmp {f}\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend").unwrap();
+        }
+    }
     for (n, f) in cases {
         writeln!(s, "case gifalpha-{n}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&f)).unwrap();
     }

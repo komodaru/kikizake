@@ -72,7 +72,7 @@ impl Img {
     pub fn get(&self, x: u32, y: u32) -> Vec<u8> {
         let b = self.bits();
         let row = &self.px[y as usize * self.stride()..];
-        if b < 8 {
+        if b % 8 != 0 {
             let bit = x * b;
             vec![(row[(bit / 8) as usize] >> (8 - b - bit % 8)) & ((1u16 << b) - 1) as u8]
         } else {
@@ -84,7 +84,7 @@ impl Img {
         let b = self.bits();
         let st = self.stride();
         let row = &mut self.px[y as usize * st..];
-        if b < 8 {
+        if b % 8 != 0 {
             let bit = x * b;
             let shift = 8 - b - bit % 8;
             let m = ((((1u16 << b) - 1) as u8) as u32) << shift;
@@ -2188,32 +2188,75 @@ pub fn negotiate(cont: &str, f: &'static str) -> Option<&'static str> {
 /// row right to left, the errors kept in sixteenths and read back floored, each value clamped
 /// to 0..=255, white from 128
 pub fn dither_bw(g: &Img) -> Img {
-    let (w, h) = (g.w as usize, g.h as usize);
     let mut o = Img::new(g.w, g.h, "bw");
     o.dpi = g.dpi;
+    let gray = |x: usize, y: usize| [i32::from(g.px[y * g.stride() + x]); 3];
+    // (black and white: the nearest to a cell's center is white from cell 8, so white from 128)
+    let ix = dither(g.w as usize, g.h as usize, &gray, &[[0; 3], [255; 3]], &|_, _| false, Clear::Skip);
     let ost = o.stride();
-    // (two rows of errors with a pixel of margin each side)
-    let mut cur = vec![0i32; w + 2];
-    let mut next = vec![0i32; w + 2];
+    for (k, i) in ix.into_iter().enumerate() {
+        let (x, y) = (k % g.w as usize, k / g.w as usize);
+        if i == Some(1) {
+            o.px[y * ost + x / 8] |= 0x80 >> (x % 8);
+        }
+    }
+    o
+}
+
+/// what a pixel left transparent does with its value and the error it was handed
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Clear {
+    /// nothing: the error it was handed goes no further
+    Skip,
+    /// spends it as if it took its color's nearest entry
+    Diffuse,
+}
+
+/// MEASURED (golden wicencode encq-*, enc-gif-*, encbw-*: every pixel as Windows): pixels into a
+/// palette by Floyd and Steinberg's error diffusion (7, 3, 5, 1 sixteenths), serpentine with the
+/// first row right to left, errors kept in sixteenths and read back floored, each channel
+/// clamped to 0..=255; a pixel takes the entry nearest (squared distance, the first on a tie) to
+/// the center 17*(v>>4) of its 4-bit cell, and its error is against that entry. `clear` pixels
+/// get None.
+pub fn dither(w: usize, h: usize, px: &dyn Fn(usize, usize) -> [i32; 3], pal: &[[i32; 3]], clear: &dyn Fn(usize, usize) -> bool, how: Clear) -> Vec<Option<usize>> {
+    let mut cells: std::collections::HashMap<[i32; 3], usize> = std::collections::HashMap::new();
+    let mut near = |v: [i32; 3]| -> usize {
+        let cell = v.map(|c| c >> 4);
+        *cells.entry(cell).or_insert_with(|| {
+            let ctr = cell.map(|c| 17 * c);
+            let d = |p: &[i32; 3]| (0..3).map(|k| (p[k] - ctr[k]).pow(2)).sum::<i32>();
+            (0..pal.len()).min_by_key(|&i| (d(&pal[i]), i)).unwrap_or(0)
+        })
+    };
+    let mut out = vec![None; w * h];
+    let mut cur = vec![[0i32; 3]; w + 2];
+    let mut next = vec![[0i32; 3]; w + 2];
     for y in 0..h {
         let rtl = y % 2 == 0;
         for i in 0..w {
             let x = if rtl { w - 1 - i } else { i };
-            let v = (g.px[y * g.stride() + x] as i32 + (cur[x + 1] >> 4)).clamp(0, 255);
-            let white = v >= 128;
-            if white {
-                o.px[y * ost + x / 8] |= 0x80 >> (x % 8);
+            let s = px(x, y);
+            let v: [i32; 3] = std::array::from_fn(|k| (s[k] + (cur[x + 1][k] >> 4)).clamp(0, 255));
+            let transparent = clear(x, y);
+            if transparent && how == Clear::Skip {
+                continue;
             }
-            let e = v - if white { 255 } else { 0 };
+            let n = near(v);
+            if !transparent {
+                out[y * w + x] = Some(n);
+            }
             let (ahead, behind) = if rtl { (x, x + 2) } else { (x + 2, x) };
-            cur[ahead] += 7 * e;
-            next[behind] += 3 * e;
-            next[x + 1] += 5 * e;
-            next[ahead] += e;
+            for k in 0..3 {
+                let e = v[k] - pal.get(n).map_or(0, |p| p[k]);
+                cur[ahead][k] += 7 * e;
+                next[behind][k] += 3 * e;
+                next[x + 1][k] += 5 * e;
+                next[ahead][k] += e;
+            }
         }
-        cur = std::mem::replace(&mut next, vec![0; w + 2]);
+        cur = std::mem::replace(&mut next, vec![[0; 3]; w + 2]);
     }
-    o
+    out
 }
 
 /// what WriteSource gives the encoder: an indexed source keeps its indices and palette in a
@@ -2275,40 +2318,44 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     if alphas.clone().any(|(x, y)| (0x7e..=0x84).contains(&alpha(x, y))) {
         return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
     }
-    let clear: Vec<(u32, u32)> = alphas.filter(|&(x, y)| alpha(x, y) < 0x80).collect();
+    let clear = |x: usize, y: usize| alpha(x as u32, y as u32) < 0x80;
     let mut pal: Vec<u32> = vec![];
     for y in 0..c.h {
         for x in 0..c.w {
             let v = u32::from_le_bytes(b.get(x, y).try_into().map_err(|_| Fail::Bad)?) | 0xff00_0000;
-            let i = match pal.iter().position(|&p| p == v) {
-                Some(i) => i,
-                None => {
-                    pal.push(v);
-                    pal.len() - 1
-                }
-            };
-            if i >> bits_of(nf) != 0 {
-                return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+            if !pal.contains(&v) {
+                pal.push(v);
             }
-            o.put(x, y, &[i as u8]);
         }
     }
-    // (MEASURED: golden enc-bmp-gray8: colors this close are not always told apart; which of
-    // them a pixel gets is open)
-    let near = |a: u32, b: u32| (0..4).all(|k| (a >> (8 * k + 4)) & 15 == (b >> (8 * k + 4)) & 15);
-    if pal.iter().enumerate().any(|(i, &a)| pal[..i].iter().any(|&b| near(a, b))) {
+    // MEASURED (golden encq-257, -300): past the palette's size the palette is otherwise (the
+    // 8x8x4 grid of 0x08 + 0x21 k reds and greens, 0x19 + 0x42 k blues, in an order not found)
+    if pal.len() > 1usize << bits_of(nf) {
         return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
     }
-    if !clear.is_empty() {
-        let t = pal.len();
+    let rgb: Vec<[i32; 3]> = pal.iter().map(|&p| [16, 8, 0].map(|s| ((p >> s) & 0xff) as i32)).collect();
+    let src = |x: usize, y: usize| {
+        let p = b.get(x as u32, y as u32);
+        [i32::from(p[2]), i32::from(p[1]), i32::from(p[0])]
+    };
+    let (w, h) = (c.w as usize, c.h as usize);
+    let ix = dither(w, h, &src, &rgb, &clear, Clear::Skip);
+    let any_clear = (0..h).any(|y| (0..w).any(|x| clear(x, y)));
+    // (whether a transparent pixel passes its error on is not measured apart)
+    if any_clear && dither(w, h, &src, &rgb, &clear, Clear::Diffuse) != ix {
+        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+    }
+    let t = pal.len();
+    if any_clear {
         if t >> bits_of(nf) != 0 {
             return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
         }
         hit(clause::WICIMAGE_ENCODE_TRANSPARENT);
         pal.push(0);
-        for &(x, y) in &clear {
-            o.put(x, y, &[u8::try_from(t).map_err(|_| Fail::Bad)?]);
-        }
+    }
+    for (k, i) in ix.into_iter().enumerate() {
+        let v = u8::try_from(i.unwrap_or(t)).map_err(|_| Fail::Bad)?;
+        o.put((k % w) as u32, (k / w) as u32, &[v]);
     }
     hit(clause::WICIMAGE_ENCODE_PALETTE);
     o.pal = Some(pal);
