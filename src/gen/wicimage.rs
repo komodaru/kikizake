@@ -58,6 +58,20 @@ pub fn wicscale() -> String {
             }
         }
     }
+    // random levels along columns (the vertical pass), and random pictures scaled both ways at
+    // once (its order and rounding between the passes, and the channels of color formats)
+    for (k, m) in MODES.iter().enumerate() {
+        for sh in 1..=8 {
+            for dh in 1..=17 {
+                writeln!(s, "case rcol-{m}-{sh}-{dh}\nwbits gray8 1 {sh} {}\nwscale 1 {dh} {m}\nwpixels\nend", 60_000 + k * 1000 + sh * 20 + dh).unwrap();
+            }
+        }
+        for f in ["gray8", "bgr24", "bgra", "pbgra"] {
+            for (i, (sw, sh, dw, dh)) in [(3, 4, 7, 5), (5, 3, 2, 8), (4, 4, 9, 9), (8, 6, 3, 13), (6, 2, 6, 7), (7, 7, 3, 3)].into_iter().enumerate() {
+                writeln!(s, "case rgrid-{m}-{f}-{sw}x{sh}-{dw}x{dh}\nwbits {f} {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels\nend", 70_000 + k * 100 + i).unwrap();
+            }
+        }
+    }
     // the same along columns, and in both directions at once
     for m in MODES {
         for (sh, dh) in [(3, 7), (7, 3), (5, 2), (2, 5), (4, 9)] {
