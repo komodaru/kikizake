@@ -1,0 +1,138 @@
+# Windows' answers (golden/): the executors are built with mingw-w64, the ones whose sources
+# changed since their answer (runner/golden.py stale) run on a Windows runner, and their output
+# is committed to main as golden/<suite>-<arch>/. Nothing here is cancelled by a newer push: one
+# run goes on and the newest commit waits (a newer push replacing a running one would starve it).
+name: windows
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cases/**'
+      - 'runner/**'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+    inputs:
+      all:
+        description: 'run every suite, not only the stale ones'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      stale: ${{ steps.stale.outputs.list }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      # (mingw-w64's packages, downloaded once and kept)
+      - id: debs
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: ~/debs
+          key: debs-ubuntu-24.04-mingw-1
+      - name: mingw-w64
+        run: |
+          if [ "${{ steps.debs.outputs.cache-hit }}" = true ]; then
+            sudo dpkg -i ~/debs/*.deb >/dev/null
+          else
+            mkdir -p ~/debs/partial
+            sudo apt-get update -q
+            sudo apt-get install -y -q --no-install-recommends -o Dir::Cache::archives="$HOME/debs" gcc-mingw-w64-i686 gcc-mingw-w64-x86-64 binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev
+            sudo rm -rf ~/debs/partial ~/debs/lock
+            sudo chown -R "$USER" ~/debs
+          fi
+      - if: steps.debs.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: ~/debs
+          key: debs-ubuntu-24.04-mingw-1
+      - name: Build the executors
+        run: runner/build.sh exe
+      - id: stale
+        name: Which ones Windows has not answered
+        run: |
+          if [ "${{ inputs.all }}" = true ]; then l=$(ls exe | sed -n 's/\.exe$//p' | tr '\n' ' ')
+          else l=$(python3 runner/golden.py stale exe | tr '\n' ' '); fi
+          echo "stale: $l"
+          echo "list=$l" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: exe
+          path: exe
+          retention-days: 7
+
+  windows:
+    needs: build
+    if: needs.build.outputs.stale != ''
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: exe
+          path: exe
+      - name: Run on Windows
+        shell: bash
+        run: |
+          for n in ${{ needs.build.outputs.stale }}; do
+            mkdir -p "ref/$n"
+            s=$SECONDS
+            timeout 600 "./exe/$n.exe" > "ref/$n/stdout.txt" 2> "ref/$n/stderr.txt"
+            echo $? > "ref/$n/exit"
+            echo "$n: exit $(cat "ref/$n/exit"), $(wc -l < "ref/$n/stdout.txt") lines, $((SECONDS - s)) s"
+          done
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: windows
+          path: ref
+          retention-days: 30
+
+  # The answers are imported at this run's commit, then each one is copied onto the newest main
+  # only if its sources there are still the same (one that changed since waits for a later run).
+  golden:
+    needs: windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: windows
+          path: ref
+      - name: Commit the answers
+        run: |
+          python3 runner/golden.py import ref > "$RUNNER_TEMP/imported"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          M=$RUNNER_TEMP/main
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main
+            git worktree remove --force "$M" 2>/dev/null || true
+            git worktree add -q --detach "$M" FETCH_HEAD
+            took=
+            while read -r n; do
+              if [ "$(cat "golden/$n/src")" = "$(python3 "$M/runner/golden.py" src "$n")" ]; then
+                rm -rf "$M/golden/$n" && cp -r "golden/$n" "$M/golden/$n"
+                took="$took $n"
+              else
+                echo "$n: its sources changed on main since ${GITHUB_SHA::7}, left for a later run"
+              fi
+            done < "$RUNNER_TEMP/imported"
+            git -C "$M" add golden
+            if git -C "$M" diff --cached --quiet; then echo "no change"; exit 0; fi
+            git -C "$M" commit -qm "golden: Windows' answers for${took} (${GITHUB_SHA::7})"
+            git -C "$M" push -q origin HEAD:main && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

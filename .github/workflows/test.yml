@@ -1,0 +1,51 @@
+# The suites' own tests: the case files current, the laws (exhaustive and property-based), every
+# clause reached, and the models against Windows' recorded answers (golden/).
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
+      - id: cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: test-${{ env.RUST_KEY }}-
+      - name: Laws, case files, clauses, models against Windows
+        run: cargo test -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
+      - name: Summary
+        if: always()
+        run: |
+          grep -E '^kikizake_|test result' test.log >> "$GITHUB_STEP_SUMMARY" || true
+          cargo run -q -- spec | tail -1 >> "$GITHUB_STEP_SUMMARY" || true
+      # (only the registry crates' builds are worth keeping)
+      - if: ${{ !cancelled() && steps.cache.outputs.cache-hit != 'true' }}
+        run: rm -rf target/debug/incremental target/debug/deps/*kikizake* target/debug/.fingerprint/kikizake-*
+      - if: ${{ !cancelled() && steps.cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ steps.cache.outputs.cache-primary-key }}

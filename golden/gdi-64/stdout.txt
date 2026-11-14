@@ -1,0 +1,7632 @@
+kikizake gdi
+case rop3-1-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 1
+051b
+5565
+532f
+321f
+2911
+7391
+140f
+131f
+0317
+2757
+043f
+2119
+411d
+093d
+649f
+05b7
+case rop3-1-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 1
+051f
+0515
+1e63
+865b
+06bf
+b9a9
+305b
+fda7
+506f
+8257
+84ae
+3bf7
+285e
+bb6f
+5517
+bfbf
+case rop3-4-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 4
+000000aa828282aa
+4a53422832ba9cfe
+000222aa4c2a4b3e
+445f9b9f531bcb9e
+10c31280aeeb828f
+58180cf335b6663e
+060d096e6ea3cbae
+5551515b585e7e7e
+44cc2c0a2022828a
+10487cdb5c0e9adb
+541356ee45463e6b
+5451154f1f4fda9f
+4a62132af5ba7b7a
+5d1dd98e599fdffa
+5137175a527eeeff
+5557577f575f577f
+case rop3-4-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 4
+000600848882118c
+214208d82812bd7a
+083d28ce2eb16af7
+006a8b6e99ce2aef
+0f8258074821470a
+5dadaa4132ca2afb
+0d811f8ad3598abf
+4bc83a3f1dac3c79
+460601a98a961b8e
+038e84cc1793dc7f
+14581eff04158587
+0467455e1d4fadde
+579e2ca11277f32f
+582f1c8f5532a7ff
+954b87bb194bbfff
+5bdb3b775bdf3fff
+case rop3-8-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 8
+0080020a008a084a80c88888824a8aca
+20a93144005026a86066c8ca12d87aea
+1548a282866801de8a6d58ea03e80aca
+25738cc240bb78c19a5d588fbd7264fa
+3040022b1ac422df200a89804adeebce
+1129347434f9cdec25943eccc60d2aee
+1199555505643aed1e3c0d9aae6d1cee
+15b574a721f2faf8118dff3bfb3dffff
+3030396f69925e52120a8288ca4bceca
+0429801115b0ca9a444662fa51beabef
+306e35a835bf1cff1078c31ed748d8ce
+341f25173735fdffedd9ecbd5ff7f6cf
+04a127bb37a8266b150dc71a5e8acfeb
+15263db521fc91e537847def99eedfff
+356a15d5957ef6f63c787ad6f47ee7ff
+353575fdb57db5f73d3ffdbdbf7f7fff
+case rop3-8-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 8
+000000000840004600020110a84000c6
+0000c4a4845206510046a55347110551
+0011c00500128c710b7226896a06287b
+b4018068217daab8c0681fa0d56ff2ca
+08400c889023885540b366e58a28e55e
+b022c4f775aa554360ca13f7b24f5dab
+84e00707420fffbbe0259a065267e9be
+bc357ffada99edbdecb7677f5e7f75ff
+480d00dc24cc804440220880591d95c6
+a626520ba23c37532fa674cf795d0559
+20490d550436cdf11a79fd5075745677
+b4b9c69e29fa4cef98eadbff85ff3fbe
+0830b1754cb1a1fe02fd517a972ce37d
+b098fff159a38b117abd9ffd3aedf2ff
+90b69e7932ff1ffb90e6af9b15709ebe
+be776f3cfebfafdfbe77677fdeffffff
+case rop3-16-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 16
+00004c400c801400000018c000801cc0180014c05c805c4040405cc050805cc0
+8010012151135b4a408c0dea5cd0b0a33c20ac8096011dc83a2675792de4decd
+00208318210028468ca0417a04c3f0c48a6d0448062112cc49a85e705cc15ce6
+20386b0f638b1594211edff872ed2e73a8020e8c72e877a4737c5ee8de53dcf6
+a0070000320056a01c42a4402c83fcd4a38c4482454a2cc215485eb01c40dcc1
+a21d288e9038440729558afe2d6d5b8142455ceb5979de6f2ad57dc97fd3fed6
+a10c4a2bab38df683466077820e2f0fd92bad0e4cdd75def3f7557b9bee0dcd1
+81373359813eafede9b7d3efa36beb7b47de9ecf979fc979257fffb6fd7bffef
+000001772400dec0400044926234cc40c4c4cc04140858864eca0eeafeca5ec2
+0114373ea0090d9526588589f3515ec0210171b3c8ca35ef2db2dd6d5cff7df7
+2027a730f00df488292b7666d8165db043c3a3375120f6cb32d1fae1d0c2fcde
+22396b51a33d92ef4b3bf85fb5bf9eadf372d777da3fccffea7f3cfbd763fef9
+a31ca1230270d903a21985487e5cfde0a2cabab7557efed06c105fc111abdfe5
+82212b3fbabf93ffe33cf31a33f4bf7e2b359337d36b7e9fabf41ff6f7dfffff
+233eb72f276ba33fb71fcb13c2f27faf8237f38fcd0d99fdb55df57f5f7ffef3
+a33fab3fab3ff37fe33fe3bfa73ff7ffab3fafbfe77fe3ffb7ffbf7fff7fffff
+case rop3-16-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 16
+000040001001891c0860858c115000b801802684301080dcc540c58903fa00fd
+c1004180b0208e8f0908b9898888acd75405906217c3708303b50cbdc1baecff
+120414820820f5c106a741204c807a90212e623b8530d1a2ef2045c2ff8310b2
+082c94048e4b94c30d751811e725f7d603038255188f36f9fa9c878ca7faafbf
+0000480804085ce902c512743a932c850a422cf2c40485e1c22cd7b9320cbcd5
+26124060bf6161b1a35ab4b82a8f53aa364ea1d47fe10ad8be65bb8c77f7bbaf
+200d08443139d9616a67167fa58da959310ce9f36c81723e729f4f965aa7fbfb
+3b03262faf2a7eb3ed58971dffced4489f2b963efb57e7e3dafb24ee5fb7ffff
+1014005000100a560741960e0a324ec6b0b01d1498b395dc40c2c5acb6b291fd
+3030c8159821e8968a5de71053372f76801089dbae6630be8f74d9af279aefdf
+0a008294167819ed36c0b9dd6e0b7cac7230247dec01cff98f4420632e8297df
+8860765cb903ad50cd076601fffff7bb48e9be7e853b75fe936db9777afbffff
+145005001a3b6cdb25926d48afd52dcc0131d0391b3797f195f6259bf3e13ed5
+364a12a4086b3ab7e211fd2beceddfab3d7656646d76adbdba7df29fffefffaf
+2c0fca323d932ef4b93bde61f1b52eff7acae3ef7635e7db5b3cff59b6feebfb
+7b43362fbf8ffdfadd68f5bf7f77ffff7b4b7f3fef8bffffedf8ffbfffe5ffff
+case rop3-16565-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 16
+00000c000c80b4000000b8802080bc80980034809c809c0080009c809080bc80
+001001211153db4a008c0daabc90b0a31c60ac807641bd88da66f579cda4be8d
+40202358210028460ca0213a24c3b0840a2d64080621b28ca9e8be309cc1bca6
+40786b0f638b1594815edfb8d2adae7348026e8cb2a877a4933cbea8fe13fcb6
+0007e0009240b6e01c42a4402c83bc94038c24c2250acc821548beb0bc40bcc1
+021d488e7078044729558afe0d2ddb8122059cabb939fe6fead5bd89bf93fe96
+010c2a6bab38df283466677820e2b0bd32fa30a42d97bdef3f75b7f9bee0fcd1
+41775359417e2fed49f753ef036beb7ba79e7ecf77dfa979c57f9ff6fd3bffef
+0000013784403e80800004d282342c00c4c4ec04140838864eca2eaafe8abe82
+0154573e40094dd58618c5891311be80414171b3e88a35efadf2dd6dbcffbdf7
+00270770f00d3488496b9626d816bdf043c3e3375120f6cb92917ae1d0c2fcde
+42796b51437d12efab7b581f75ff7eed53725777da3fccff2a7fdcfbb763fef9
+031c4123e23039436259a548be5cbda062ca9af7f57efe906c10bf8111abbfa5
+42216b3f5afff3bfc33c731af3f45f3e6b751377732bfedf0bf41ff6b7dfffff
+437e576f476bc37f575feb53c2f2dfefc23713cfcd0d79fd955df57f5f7fbeb3
+437f4b7f4b7fd37f437f63ff477ff7ff6b7fcfff477fe3ff57ffff7f7f7fffff
+case rop3-16565-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 16
+000040001020093808408548115020ba01802604300400b98540850b03f420fa
+c141418030088ecfc998b999a805ccff54049060978a701303614c37a1756caf
+122034920820f5d1262441256c807a20210002078520d1820fa1c587ff833022
+4899d4248e4794c36d381818e7e5f755a3b6e271d8e3b6f59a510785e77aef2d
+2082081804005cea02c512761a916c260ac06ce4c402a5f2c22c97eb520cfc6a
+261040409fc241f1a35ab4b82acf530a3600e1b65f426ab89e65db8c37fd7b6f
+401c28e55128d9a82a6716a7a58de915511d49526cb1f2dbf2df4f5e5aa7fbbf
+9b86267ecf267eb1add8971dbfcad4483feed64f9b5fe7ec9acaa4fedffffffd
+1014805040040a33074a96c80a3c6ec1b0b01d34983215f840c8c5aab6b4b1fa
+307088151858e8860a09678233f8cf0e801189db2e2e30564f60d9af47554faf
+0a2ac2a816d819e1560239986e0f5c1c722a246dec01cff96fc7a0262e07b7ef
+48d1565a3957ed20adcae608bf37f7b348e9de7e453375fef3a9397e7af3fffd
+34d205121ab54cc825926d9aef536df32133903f1b3db7f395f6254bf3e17e7b
+76a412e428c85affe213fd6bac239fcb7db456446df5cdfd9a7ff29fffefff4f
+0c0e6a933db3ae5bb93b9ef9f1b56eff7ada434e763467fd5b7cff91b6feebf7
+db86765e7f97fdfd9dd1f5bfbf5affffdb8e7f5e4f9ffffdedf9dfbbbfefffff
+case rop3-24-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 24
+000000860040320008445049420010254958d30008a74941501011f05859111919f75819354949b75849671919f75959
+000084cccc0c984434b6e3909003a4fc984f2d7069f55d5c98000072511985580294c9f9015041fd88f9c70909ff5d59
+00000020081ae50028d05a1498e8073e4dc1f1d840c3685e001200de9d7a04ec10a75b59b43588d5d90097114bff595b
+00a4265abc986e8580744d606004b1e89d79d09a4577175986328088d349a78a01b76b59fdf5f7e63fdf3bdc78f7dd5d
+0000a618008080c32c511849810c8275d1315317c05a5042b14102181214670491a5d97032894ef11fd8f341dff75959
+08a42020238748a6a294dcec28de004206322a05e2dbdbfb9420048a56cc8fd5f4a37908cb2cfc27db9ff36df5ff595d
+000022298dec24a62a49c0e14020673e80847de5aeaf851ac36785e43df9d68581fe6d511475e6b56b7dfad8d9f7dd79
+00a0a40c061e0c266f3823cac88aa4754513f6fd2dba9ecc18a6e200d6ee0f7148bfeff3ba85a3fa6d74cb3713fffdff
+000000cd02020a100a46b1600220f104df85c33606f37d1b43170425c40812005943511af4addc31585d555d3df75b5b
+00a4a6044066b48a40114d6c00652a3e5516582b633610748c24521c9677d07864b7db2c1a5190e574f9cdaa9af7df79
+08a0a401a4a449162ac572576c24e1985bec538842d5fbdd012626c7a0b629fb0f7fadd97637cfbedff97b7317f7dd5f
+0824861034b60a8ca6ad37c309c2360bfeedc0b37f7effd7888726d5facd3ff631d7ee7bcc8effaaf3ff7d75ebfffffb
+0884228804a65007640498338881f2046f5c43b09b770dd1802687374aa0a1a286d7397270d819e65b99995dfbff597f
+0884a20ca4b24806be48a637118a27ba76ac2a6ffc8edef398b6b46fcffbdade7dfdb8cfacf3748bfdbff7c7affffb7f
+0880a298b6b60da2aae3d4953a26af3ceca7be72e27fca2a2ba6b4baefafbe7eefa7fef359e0e1be536fffff87ffffff
+08a6a68ca6a6a9b6a65bf6af0ce6be69a7febdbea76defbe6da6a648f6eff8b6f7affeaf6af7af5cefff8af6f6ffffff
+case rop3-24-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 24
+00000080000000094041100640004110a2c348c0089190230004000040096048404d9236c020012422c15b2c1a91913f
+0000800202288604454f0e1e03270488a80d5a1603361aa8018053ad8898865d30be77e6588310ad5e11472c3f2cdaa8
+40840106305a208034401d8540482844c41860184b6a9c8bd420225e9132648c8db4ed29a450c508d2440c8df26f8883
+08080828a85692630451742c24b8115577421f1c597671f20cc050fe78da1e63937d8fd452a6bdcdf74b98deb97776ff
+8023840020000295274d600600a204da324b5157ac7449368005238e8050a350a2746b4a244bd0365269f1702ad0d53f
+34a0a0c0ca6e0a4281a261323a216ab44ee27395d12c36ffa820a49f935ad7bf24715ef634644ddaf4a937e378f7bfdf
+0131045010c6057858ac130b7d686e546d8b858dd5b29263ae880cfd085740fe1187d4bb9b149f77764f9ed97dfdbffd
+4977085bbb37ddb124bbdab66f5fa6e4e959d9fb507efdb9a9f3874ffdf747a8f1b6dffaeb9b7d97ff777fffe6ffbede
+400002200803809820250092858a4a5f95c6408901f40c3d020031180c0250990f4fd3a518308034a2c36b6c4a91913f
+0201c2513b00918b4080b4c68f56906610a70db73cdcfed94341032ab520829de29fabfb28ed8fbfbe590f8f6774dfa9
+a08542c6911deb19d3508e7b9480058f17e0ea6d2adf2a07d68d01d8760de4fa75b875df2a5d5a92e54c04dbaebf5ffb
+19683035807faed572c73ff5a5114aaa4aec2a9df8f77bff4b62e999bfff1ef1faefd867c2576eeffc9fdef7bebf76fb
+210042c54a3120e3004fa4950c3040be0ff2feae493bd5efe16426f5f68a008a7afffeff080a7956a7db13f6fcdae7bf
+9820a52bf6acba8c0bbe99ebaa6679f3a65e77f3adf2fa379e60e437ce6ab83935bef77baade73eeff8d9faa9bed779f
+33ba02d660df97d80aa234ce39ba33e2c97f3ddeacfcfb66c3f14effc775599af6e7b4ffea7c7e6556d4aeeeeedfffff
+6df7895bd1f54db760acbddb5f9f25eaeffddd9fdd5b5bfb6dff9d7bf7bf5fb564fcffcfff3fefffffffdfffffffffff
+case rop3-32-solid
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 32
+000000000000004182110004801012b0800011820410037c8211005a8401026682000020020110d8000801c7821912ed8010111b861912bb841913bf861913ff
+594228000901200008202c113008013808080182401111066030335ec75943eb04eba008c212163b0495628c867be39f842112dd860110ff8658e1c7ae3fb7ff
+000044000113260026004b1404a34c5c046401103210e3f0835380d4ee1913de01c020042251197971040279922d13fb001912f422499b9f87f913fdb759b7ff
+39022400e94c1c05a247a8526ed5342b518401109357a7a609345846c7db3fff5dc05f107e585d8ae5b86698865b5db2359156c027c117beaf1cb7ef975fbbff
+5080400008004ba410e1083292b908b2b20500c21089328e328345a08f15739f80501411e49d101622430797e69d11fe3413c0659a017ab78e2d0bdfa61d1bff
+7980000031228c9011e42d802d15028303e40c803dd9fa2ec38f6b858fceba7aa41ad4112e7febfe612e8366c8395ebfab153f01fe1a9faed3fd42ffeedf1bff
+69a06c00a0fc0e0062c530049baa98fe4b338008b7235d2d3bb98e4e7d1ac6ef59a0e4419852d6a8a71708b5be9f39bfa4fc7cfc9b3edbff4779bfdbdfbbdbff
+5944cc006ec6d406416c7ea07cccef6371e6aa9942a6ef6d0d62603bbefefa4bcf746e615c5efe71fed57e846fffeb7f7feedcfbbcfff87bf3effef1bfbd3fff
+20200000c11009409c12680451d8d39dc44a49028c312815adb0d0a5e6f1bad22d0c08a8a60812bd222ac3c28a3d342fe6b40362869a33fd2618dadb8e9b13ff
+58606800d8e081090bf46403a02cec80514e14e844bb69678d984ab2bb3963ef1be244018a4b06b30b57c60affb9da9fcfc68a6d8ae97bf796f9dbefe6d9f3ff
+30044c00418c8008f14e40859c63df176ec77420e456e5388a5450e4e63b93ff1049ce2062d9074d181c61629a2c13eed180018d8fdf1e5f5f1573fcdef993ff
+6824ec006ece6c6568e3fc007996e999e8c665425df7e6c62b6fbc34dff2feef31e2fc1057bbfeb27df2f51d9779ff0d70bdc831f78dfd1f17fbf7ffffff3fff
+48e4a400e8c543ab7052ec41b01ad8b921120940cc977c81af150a44fe63bbdf408294043a5e228f33f7baab939570f30425d10eb3bb45ffc6a3d7f787fd1bff
+70c6ec007ce5b80420e6e9187d24dddcd866cc10fbcb66f9fa967153df2be77ffbf6e581cbbde6ffd9f3effdffddffcdc9ae4ca3fdd26ff3dbbdefafdeff7fff
+51e6ec009980dc3059f6ea80c50a5e3b79e46624fba3f08e7ff4bdd5dff7ed7ba1a7a40459e77cc87fe4cc5ecec3dbf54bca8e45d73fef5afafeb7ffffb97bff
+79e6ec0079fffd1979eefc4879ffefefffffec00fbe7ef94fff6edecfbeffede79f6ec847be6ecca7bf6fcdbffeffefd7beeed977dffedf7fbffffddffffffff
+case rop3-32-pattern
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+ret 1
+px 0 16 16 32
+000000002028000008825000020045034002800000982a11d3468902455713300006000038cd50088cd251c40a450623000200901a8ba801c54ce80255f71b30
+04000000e4c4d41405179103e1d6499892412100830260e10f814351191905c43200821c259373e5041ea002cfd71ae8e144863857733e02ada503587dff4fdf
+10000201004118a05802450aa251944000a8094065a1c518f813b40180b4c34f204100b0a5c03e05f303003f408f985b8338290500798da8134c505829a6dacf
+ce71104853631848b541e61ca7739aa9010501c89b2e06da1e8f2108409ffbd4a3d21248700c04e20bf4b75f732ef6ab10c91eadff1bbd7e73d54def66becf9d
+0409022408840c00e8408182e2e901088558010a817802401a890204f47778c082068081502183d030280a30716d503ad10468a14d987ccb6ffd4ec1b4f75cb4
+0c19a4c6ffc1c1ed04280393003526a6a215525180f8c7dc09d58928f7dedfef2558a7c0b82e108be9a3248bd7b31f8f13fe02c4b756add32fd75d69be5e7fff
+8480042899d13747ce00837cf7220a47310917707b43bc54c3a6577b9ff875268aa9aca0492448efc316b2ccff7fadd9d0bb32f967d7fbfcd973680aff72ffee
+21c0b09d64be587c195d6aded5db51c5ce9b8bb5ffbfef70c7c73f7b5f7f7b7ba3c4b18f7cbffdf7c9dc4f2ed3f7dafdedfe3be1dde2eebb3ce6ddfffbcffd7f
+84000a0308029b8129821484484705d106a12004be0df2c30fdf6ac2d5f919a20204840e22831c28189901d30f054f22e38804447c936a39bdfbef0655f71b71
+0600404d5b21994858046b535e52f78c880512c5b6c38b825a4ad96a991496851886c58226e1b4a308a01308cbeeff75f871777edff9be166eb4c274f8fb7fdf
+42c400016d03e31bc02a1085dc6334e0044556dcbd226cc8e3a096fd47b2c6ef92a02920a6234187c86e0204e97fce5cb5fd5f5357f87b7afff6971b75b6eeff
+c2530288bc3832693649e83d70ffdbf1850fa52e55cbc15ea9f45a9def5d7daf58db5a4ccf2a39dfa75b6d9334ef79ff0dc7adf88f6bcb337e9dcf7ff7deefff
+1300a637c6836e970e82b74c6daa236a67501308e4df8d7352f2515ab57bff3e0a83a2374ca5ff3a3e0cd98477bfcd198fbb8216f90d57fcd7df4b66ff777ddd
+04f821d66e8debc82438e086ff5bea4adcb10c5ea2fc4bf4fca4de2bbdfffbfb09a184967af1b2bfdb8e8eecd5f2fffba87f7db3dfeadffe7feffe74efff7fff
+060204ac9be5b5482c1de07889e3f84c30bf6413b57a3fb3f79ff5dfa2dfffebc78794a8e8f7eb8eb7efec4ffffc66e9c1d7769ebf6dfffafbfff7b7fffefed6
+21c4b09f66ff9df5bbcb7aeed7fffccdeeba37f3ffbd37e5cdd73fdf47b7ffbf21f4b09ffcfffbf7bb4f7bbffbfffe7fffbaa5b7cefdbff6d7d77dfbffffffff
+case convert-1-from-1
+ret 1
+px 0 7 5 1
+88
+a7
+a0
+92
+bf
+case convert-4-from-4
+ret 1
+px 0 7 5 4
+d65168f1
+bf3e0c25
+929dc99d
+a015c66e
+a711f8f1
+case convert-4-from-8
+ret 1
+px 0 7 5 4
+16d88785
+fe24783d
+1773c83e
+37567761
+b27aa95b
+case convert-4-from-16
+ret 1
+px 0 7 5 4
+647889b9
+3a62864b
+50708d71
+8777212e
+87db758d
+case convert-4-from-16565
+ret 1
+px 0 7 5 4
+e459371a
+8a866cd9
+b087575b
+88330661
+5375734e
+case convert-4-from-24
+ret 1
+px 0 7 5 4
+77c84d62
+d2543b7a
+36932529
+8b0785cb
+87e68b91
+case convert-4-from-32
+ret 1
+px 0 7 5 4
+788ed8e4
+38b33c52
+2a3d563a
+787784b9
+b636dc7b
+case convert-8-from-4
+ret 1
+px 0 7 5 8
+02b682e01c0300
+1c03e01c121000
+1f1fe31010e000
+ff828002fc1f80
+82e303001c8200
+case convert-8-from-8
+ret 1
+px 0 7 5 8
+ac9a620eeed229
+f514be195dc0a5
+cdef04080eca5f
+b879988717b9fc
+1373d363248282
+case convert-8-from-16
+ret 1
+px 0 7 5 8
+ba292b778705dd
+9200ee1f6ad3da
+1088316e729bea
+f9c6af752a2a1d
+9876b53f7f4dad
+case convert-8-from-16565
+ret 1
+px 0 7 5 8
+370ba7050000c9
+6b9eca776e6e88
+28193ab36b6cde
+d7ad26061d3958
+5d2ebfba2db5e9
+case convert-8-from-24
+ret 1
+px 0 7 5 8
+7dd804ce93a62f
+911ac9ad4dc631
+e61566296dbcb7
+bbd546ae05e736
+32a5bb42c30051
+case convert-8-from-32
+ret 1
+px 0 7 5 8
+f65552674f6dd0
+00f532b413c300
+6db74fbbdb4d05
+6b4d3d79e68229
+1b5893d8b09107
+case convert-16-from-4
+ret 1
+px 0 7 5 16
+0002100010420002104200021040
+00400042186300421f7c00421002
+00401863e07f007cff7f1f001002
+e07f10421863007c007c10421042
+0000ff031f00e0031040ff7fff03
+case convert-16-from-8
+ret 1
+px 0 7 5 16
+605b6a37604b9f48df026a5be07f
+5f025f365f6e1f34801015481548
+806c2a013501ea13a06daa11e027
+df026a3700247537b501bf7daa11
+d512ea6f9534755baa596003557e
+case convert-16-from-16
+ret 1
+px 0 7 5 16
+17b9fc651373d3632482825cc409
+cc2d5cc31779407a0eef2d7036dd
+ad18f208a507821560472b3e0857
+ffb7aaa5aa5949b5eae1ac63abe1
+41774ebf781413c236f998ae28c0
+case convert-16-from-16565
+ret 1
+px 0 7 5 16
+380a1361967c58570860f511b63f
+ca2ca95aea70cc31cb70750fa13b
+c503c20aa0230b1f882bb90dff5b
+973c203d8e770d38966e265d4d0c
+9339f3310441422ee4048a1eec16
+case convert-16-from-24
+ret 1
+px 0 7 5 16
+0527e74a09696259d725aa34ac09
+ee096b54155f2d201b70ea178b3d
+9d57ac727a202e5d4f08d87cb316
+757881025030a81c413de35b9556
+04420b07e1646561e2212f74c519
+case convert-16-from-32
+ret 1
+px 0 7 5 16
+0276be76ec6f537b04537c5d2c3d
+bf2cef7a052757265a2cd725a531
+4f08e64f057bee09a356b7051b70
+0c15413ddf5675259d57956bc825
+3804b92ce221a117663375781440
+case convert-16565-from-4
+ret 1
+px 0 7 5 16
+1f001f0000041ff810801f001f00
+008018c618c600f81000000018c6
+0000ff07ff07ffff00041ff818c6
+008410041ff81ff810041004e0ff
+e0071ff800801084ffff00040000
+case convert-16565-from-8
+ret 1
+px 0 7 5 16
+bf05ca6e0048d56e75037ffb6a23
+b525eadf3569d5b66ab3c00695fc
+2ab13f011590aa0500683f495f22
+4002bf4dca6edf06ffffbfb555b2
+55b2ca4e4a4aaab555fa0af860b3
+case convert-16565-from-16
+ret 1
+px 0 7 5 16
+7edd0d8ab807e7adfa57b8c4fc76
+56f2385d4880f547f6fe17ba3c5c
+cac36cc74bc3b53da1eeae7ed828
+e08e6b7c28aef936ff6f4a4b4ab3
+2ede4de056bae6744d31d211650f
+case convert-16565-from-16565
+ret 1
+px 0 7 5 16
+36dd66baad18f208a50782156047
+0857791bffb7aaa5aa5949b5eae1
+abe1d51e41774ebf781413c236f9
+28c0f523767f175d1caeabc3be6e
+d803e756fa2b58627cbbf13129c4
+case convert-16565-from-24
+ret 1
+px 0 7 5 16
+d5f02105b0604839a17ae3b735ad
+1daf4ce5fa406ebaaf10b8f9732d
+ee13eba815be6d401be0ca2f0b7b
+254ec79509d2c2b2974b6a694c13
+7eed35fb9b98ba9f04a6215f3762
+case convert-16565-from-32
+ret 1
+px 0 7 5 16
+34802c2aa17abfadd54a1daf15d7
+a84baf10c69f05f6ee1363ad770b
+1be05f59cff5254e974c9a58974b
+656322ec7eedccdf93f604a6dcba
+4c7a7fa537377b407903cceb3eb3
+case convert-24-from-4
+ret 1
+px 0 7 5 24
+808000000000800000c0c0c000800000ffff008080
+000000808080800080c0c0c0c0c0c00000ff000080
+ffffffffffff00ffffc0c0c000ff0000ff0000ff00
+00ff0000ff008000800000ff8000000000ff00ffff
+ffff0000ff00ffff0000008000ff00ff0000808000
+case convert-24-from-8
+ret 1
+px 0 7 5 24
+004800ffb64855da6dffda00ffffffffb6b6aa48b6
+aa48b655da4855484855b6b6aa48ff5500ff006db6
+ff48b65500ff55b6daaaff00550048ffb66daa6d48
+00da6d00b600ff9100aa00daaab62455daff00da91
+0048240000da55b6ffff0024aab66dffff6dffb600
+case convert-24-from-16
+ret 1
+px 0 7 5 24
+ffff6b526b4a526bb54a526b527bc663efc65a6bc6
+08d6ef73d67bc618299c8484b54af7c6a55a420884
+b5deffbd42bde7845a5aef84f7adde6b428cc6f700
+d6ff52c694c6e7de738c7b634a088c63947bd6ef21
+a57321c6946bf7efe76352ad6bcede18ded69c4208
+case convert-24-from-16565
+ret 1
+px 0 7 5 24
+52345a4aaab5523ce76375635a34e7addb1808eb73
+c68e109c41c6b524ffc6d3ad4204c6ad7d21b5ef7b
+e7c3ad5a75c6f7d76b6ba242c6790039df52d67d29
+e76dbd8c3c314a86c663cb39d67594630842a53810
+f7757363aa526be76b186d6b9ca28442df8c8cbead
+case convert-24-from-24
+ret 1
+px 0 7 5 24
+fdaca02ebee536addc0e4216ce6d0767617beab7f6
+f1ade8ac65f9d9109cd2f79c26c3a70ee459bb4662
+29c44c3eba934c40d41158b6be734c552d6f636b13
+767f175d1caeabc3be6e0d45d803e756fa2b58627c
+eae1ac63abe1d51e41774ebf781413c236f998ae28
+case convert-24-from-32
+ret 1
+px 0 7 5 24
+abe1d541774e78141336f99828c0f5767f171caeab
+be6e0dd803e7fa2b587cbbf129c44cba934cd41158
+be734c2d6f631385e8f1ade865f9d99cd2f726c3a7
+e459bb624978fdaca0bee536dc0e42ce6d07617bea
+f666b7527a6f6419e8133fc11464d3e4b073aa568b
+case convert-32-from-4
+ret 1
+px 0 7 5 32
+8000000000008000c0c0c000c0c0c00080000000ffff000000ffff00
+c0c0c0008080800000008000800000000000800000808000ff000000
+0080800080800000ffffff000000ff000000ff008080800000ff0000
+0080000080808000ff00000000000000ffffff008000800000800000
+c0c0c00080800000c0c0c000ffffff0000008000c0c0c00080008000
+case convert-32-from-8
+ret 1
+px 0 7 5 32
+00ff6d00ffdab6005591ff0055912400554824000024da00006d4800
+00dada00ff000000ff24ff00aab64800aadaff00ff48240000da4800
+00ff0000aa6db600ff48b600ff00da00aaffb600aa6d6d00556d0000
+004824000000da0055b6ff00ff002400aab66d00ffff6d00ffb60000
+00da6d0000b60000ff910000aa00da00aab6240055daff0000da9100
+case convert-32-from-16
+ret 1
+px 0 7 5 32
+b54af700c6a55a0042088400adff4200b5deff00bd42bd00e7845a00
+f7adde006b428c00c6f7000039bdad00d6ff5200c694c600e7de7300
+4a088c0063947b00d6ef210063108400a5732100c6946b00f7efe700
+6bcede0018ded6009c42080042bd18008c7b5a0042395a00295af700
+e7a5a500bd39390031ce840039ad1800217bb500dead8c00105a9400
+case convert-32-from-16565
+ret 1
+px 0 7 5 32
+3165c60039d70800213c5a00ded74200102c4a00c64d0000ef9ead00
+9ca2840042df8c008cbead00429ead00292cff00ce181000e751d600
+d675940063084200a5381000c6cbb500f775730063aa52006be76b00
+c679000039df5200d67d2900c6496300e76dbd008c3c31004a86c600
+4204c600ad7d2100b5ef7b00bda25a00e7c3ad005a75c600f7d76b00
+case convert-32-from-24
+ret 1
+px 0 7 5 32
+767f17005d1cae00abc3be006e0d4500d803e70056fa2b0058627c00
+29c44c003eba93004c40d4001158b600be734c00552d6f00636b1300
+f1ade800ac65f900d9109c00d2f79c0026c3a7000ee45900bb466200
+fdaca0002ebee50036addc000e421600ce6d070067617b00eab7f600
+527a6f00ba641900e8e013003fc12b001464d300e9e4b00073e8aa00
+case convert-32-from-32
+ret 1
+px 0 7 5 32
+1caeabc3be6e0d45d803e756fa2b58627cbbf13129c44c3eba934c40
+d41158b6be734c552d6f636b1385e88ef1ade8ac65f9d9109cd2f79c
+26c3a70ee459bb4662497802fdaca02ebee536addc0e4216ce6d0767
+617beab7f666b721527a6fba6419e8e0133fc12b1464d3e9e4b073e8
+aa568b70018f4ff9601665f968baec547999a1e5c4715073df3cecde
+case mono-to-4
+ret 1
+px 0 9 4 1
+86c3
+01c5
+94d6
+d4e2
+case mono-from-4
+ret 1
+px 0 9 4 4
+ff0f0f0001
+f0fff0f0fc
+00f0f00ffc
+0fffff00f8
+case mono-to-8
+ret 1
+px 0 9 4 1
+cc91
+0573
+026f
+8e05
+case mono-from-8
+ret 1
+px 0 9 4 8
+ff20ff2020ffffff20
+ff20ffffff20ffff20
+20ffffffff20202020
+ff20ff202020202020
+case mono-to-16
+ret 1
+px 0 9 4 1
+3cac
+e865
+648e
+57ed
+case mono-from-16
+ret 1
+px 0 9 4 16
+00000000000000000000ff7fff7fff7f0000
+ff7fff7fff7f0000ff7f0000ff7f0000ff7f
+ff7f0000ff7fff7f0000ff7fff7fff7f0000
+0000ff7fff7f0000ff7fff7fff7fff7fff7f
+case mono-to-16565
+ret 1
+px 0 9 4 1
+bce9
+262b
+fb60
+faba
+case mono-from-16565
+ret 1
+px 0 9 4 16
+0000ffffffff000000000000000000000000
+0000000000000000000000000000ffffffff
+ffff0000ffff0000ffff0000ffff00000000
+ffffffffffff00000000ffff00000000ffff
+case mono-to-24
+ret 1
+px 0 9 4 1
+7f79
+23f9
+e9d4
+6de5
+case mono-from-24
+ret 1
+px 0 9 4 24
+000000000000ffffff000000000000000000ffffffffffff000000
+ffffff000000000000ffffffffffffffffffffffff000000ffffff
+ffffffffffff000000ffffffffffffffffffffffffffffff000000
+ffffffffffff000000000000000000ffffff000000000000000000
+case mono-to-32
+ret 1
+px 0 9 4 1
+95c6
+b617
+cd2d
+27b3
+case mono-from-32
+ret 1
+px 0 9 4 32
+ffffff00ffffff00000000000000000000000000ffffff0000000000ffffff00ffffff00
+00000000ffffff00ffffff0000000000ffffff00000000000000000000000000ffffff00
+0000000000000000ffffff00ffffff0000000000ffffff00ffffff000000000000000000
+ffffff00000000000000000000000000ffffff0000000000000000000000000000000000
+case random-0
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 12 4 1
+8c3d
+d59b
+aff1
+47f8
+case random-1
+ret 1
+ret 1
+px 0 13 4 8
+c89843e21c1f841fa378febf89
+96b9b190bc13114d64d269058f
+9009c100c80c2d003ef9179897
+fbb19b991ba6f0b39862d89d12
+case random-2
+ret 1
+px 0 1 5 8
+21
+8d
+e4
+82
+e2
+case random-3
+ret 1
+ret 1
+px 0 11 1 32
+378cc66be54cccd340bd7212eccefe0cc1fc23e131f4ce3bd75b547be89a1ad14f297802165d71adb1391c26
+case random-4
+clip 3
+ret 1
+ret 1
+px 0 2 6 4
+a5
+25
+53
+8c
+ce
+23
+case random-5
+ret 1
+ret 1
+ret 1
+px 0 3 4 24
+f98e3cd5cf3382de66
+b29e391e7a61e83162
+00ffff3f3f3fff0000
+ff7f7fffff7f7f7fff
+case random-6
+ret 1
+ret 1
+px 0 4 7 1
+f5
+fb
+bb
+ef
+2d
+ee
+50
+case random-7
+ret 1
+ret 1
+ret 1
+px 0 7 3 8
+f795f8f3f661e6
+850295ecbdd07a
+e82045200181f4
+case random-8
+ret 1
+px 0 13 4 1
+520c
+493b
+3e3e
+9ee4
+case random-9
+ret 1
+px 0 7 7 4
+3b43f644
+83dbf93c
+82caa581
+8607b8be
+68eb24c4
+8a1dd3c3
+a7969065
+case random-10
+ret 1
+ret 1
+ret 1
+px 0 8 4 1
+a8
+1d
+95
+a8
+case random-11
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 3 5 16
+de68b8783b0f
+294d3053585c
+e497b5bf74a3
+6d118c8e06ef
+03454f6314c8
+case random-12
+ret 1
+px 0 3 5 16
+6ccdc14352b2
+123296b0301f
+453fa33c913f
+45cfc5cf969d
+17b5d568aff6
+case random-13
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 5 6 4
+b5d568
+f6e721
+364ee7
+4a0942
+2a7c6f
+a11e71
+case random-14
+ret 1
+ret 1
+ret 1
+px 0 6 3 32
+1802b566086ac57efa2095cce6154cb1482950c6d04c1eea
+17248f22fa4fada723044ca695b47a155789b5023574a950
+b779aa49fff41e14aed26e80f639114bb8b59f6635b19258
+case random-15
+clip 3
+ret 1
+ret 1
+px 0 5 4 16
+b5c9a63f28a3640cc0b8
+1fa177ad59cfed785385
+b192587ef92215eb9d32
+d26e80f639114bb8b59f
+case random-16
+clip 3
+ret 1
+px 0 2 6 32
+c1ce3ee462395d9f
+883349ad585e08ac
+64a61bf02e26ead3
+ae4251a80fe3696d
+4ed918ad6dc66773
+48857190ec6856e1
+case random-17
+ret 1
+px 0 3 2 24
+7348857190ec6856e1
+8b368f7c1fea3fdcd4
+case random-18
+ret 1
+px 0 1 6 16
+23d3
+6794
+5ae3
+112f
+7071
+82ab
+case random-19
+ret 1
+ret 1
+ret 1
+px 0 11 1 24
+3c35ddbd3337e0040e84e85d8cabe44caa02e2bb572cf98b97acb112584a2ca7ee
+case random-20
+ret 1
+ret 1
+px 0 9 5 24
+a8c7ffe276efb31da905b9bfb9b5bdfff5bfed49fba1ce33e6161f
+274ebbd58d8c084c724d4e129b321a0600008cebf0ff89045667db
+6514d054b7b30b85d5f855bea8ce58c2f9e0414b1d14c33fc4f4d7
+93ec5ea0ef3f1c94fe18bf1ec279590ee7e8fd066196898aac6ce4
+2531ed7b24ab43378738198440408cb9f5192694f40b5bc5654ad9
+case random-21
+ret 1
+px 0 5 3 1
+67
+14
+b3
+case random-22
+ret 1
+ret 1
+px 0 13 6 1
+1984
+4337
+ed7b
+e490
+898a
+fd06
+case random-23
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 3 7 16
+ab08b4e03162
+5853687af91d
+27381e1cc1f7
+616a4fb5c850
+313c0c94152e
+c715552f974c
+e390ddc70f5f
+case random-24
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 8 6 1
+c8
+a7
+68
+59
+e2
+38
+case random-25
+ret 1
+ret 1
+ret 1
+px 0 13 2 24
+fd29fb4a90eff2f1a96e257657221e594dc5b8fea6b94131610411871c527dbfbaf13d007ddb21
+de7af8361bb20ea5a05a1bfa0fcaa75258b83b2bd7149e123406e5480938f8d11483269b70481d
+case random-26
+ret 1
+ret 1
+ret 1
+px 0 3 7 4
+3b2b
+9e12
+6448
+f8d1
+269b
+1d2b
+0a7a
+case random-27
+ret 1
+ret 1
+px 0 6 5 4
+915fe8
+c5ded4
+0c1d7f
+d026ff
+0f8eff
+case random-28
+clip 3
+ret 1
+ret 1
+px 0 3 2 24
+0be0b9b4c0f478a194
+fc894a41bb3edd62d3
+case random-29
+ret 1
+px 0 12 1 1
+2743
+case random-30
+ret 1
+px 0 11 7 4
+795d52d9cd14
+71e198f777b9
+059e64229da6
+d2e3fb3f3089
+662d060c6d1c
+fbdd8bb030d4
+bdfb87c06593
+case random-31
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 6 5 32
+2d060c6d1ca01afbdd8bb030d49ef8bdf905ea659337a03b
+ba8516e782bc9c9dd78247582e2c2247f10ecbdd102db974
+425ddd31906b13a7e47b4b3c00044fb77c3c0a6d6489f2b8
+a9d8e7a06d811af364028f720acdc7ffae668e3aca56179d
+8709e8043dcad71e3835ea2e36d7738ea2a550393008b0cc
+case random-32
+ret 1
+ret 1
+px 0 13 2 32
+4b3c00044fb77c3c0a6d6489f2b8a9d8e7a06d811af364022d4e8a22aa24d166e3e1b5567a46f80985dfbd35453ab8ca780ab628
+8c715d5aafc6cff74f33969ccd6f0137ca6a93cf7b2017da5e5e1aef10cb8748462608f83c2af724e6ba689befefa3c457ca123a
+case random-33
+ret 1
+px 0 9 7 16
+e1c7ca15d1c9288c715d5aafc6cff74f3396
+6f0137ca6a93cf7b2017da338565ef7d10f8
+fd77f851f188248b61179b8234dcc43a116d
+cfc07cc1f369a170278390655e33e3645db1
+69c007e704bae1ada9f265144b8e0d4ff7af
+38d962873b1fa54705d571c3d39664e9527d
+c365118875bf69930c7a316ff70a18f303ed
+case random-34
+ret 1
+px 0 5 7 4
+10f848
+fd77f8
+f18824
+61179b
+34dcc4
+116d3a
+f0707c
+case random-35
+ret 1
+ret 1
+ret 1
+px 0 9 6 32
+372932391a618be9eb407c8d9376cc155e2a37532e675d4d7ad4f312d89ef4ec22872ad4
+5ff45bae81e6acfb37a48eab900f9c5f259201be0a12f4c5c269d6f182dee77fa1a8e7e2
+2f87461cf81a8359e4589bcbde89d32e6b3366984eebc9900cf580642ae743d76192553f
+f303ed81cbb639fe74d00f20a7ad80091f130c52bc68c0cea8d60fba33416e190aae3d9b
+8238d962873b1fa54705d571c3d39664e9527d45acc365118875bf69930c7a316ff70a18
+c1f369a170278390655e33e3645db1af9669c007e704bae1ada9f265144b8e0d4ff7af27
+case random-36
+ret 1
+ret 1
+px 0 11 1 8
+8875bf69930c7a316ff70a
+case random-37
+ret 1
+px 0 3 6 32
+01be0a12f4c5c269d6f182de
+acfb37a48eab900f9c5f2592
+43d76192553f5ff45bae81e6
+66984eebc9900cf580642ae7
+8359e4589bcbde89d32e6b33
+6e190aae3d9b2f87461cf81a
+case random-38
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 6 4 1
+61
+5f
+81
+37
+case random-39
+ret 1
+px 0 5 6 8
+5e2a37532e
+7ad4f312d8
+22872ad4ad
+6e0693d201
+0b5fb90bef
+402b514818
+case random-40
+ret 1
+px 0 2 3 16
+5fb90bef
+29918f40
+2b514818
+case random-41
+ret 1
+ret 1
+ret 1
+px 0 2 6 16
+c4824f79
+1415ec09
+cc9d5664
+3d4c2b7f
+7606474a
+739d6863
+case random-42
+ret 1
+ret 1
+ret 1
+px 0 13 4 16
+b2a549ec4c61e859121a264c301f38d34d4e165b8e0053969835
+291daf0b47415d0e46a0d0d687dce1e7317cd1abaf37963fe954
+33988ff0bbff3acbc6f4d52648dbe06bea57a28fd141333bcd38
+4b75280f78133c86aa0535d5e1f935bb5f4840da97cba05fc1ac
+case random-43
+ret 1
+px 0 1 5 4
+47
+46
+87
+31
+af
+case random-44
+ret 1
+px 0 12 3 1
+121a
+301f
+4d4e
+case random-45
+ret 1
+ret 1
+px 0 6 7 16
+958231af426b1fecfca93433
+f574346e63bff54d70982fd9
+d59aa131ab48752396287172
+9b496a386838d1e4a815e038
+79c95dcdd1e628e96af09477
+db297306720f76ea729e5d38
+61bc0f6dd122cd7dabed5e77
+case random-46
+ret 1
+ret 1
+ret 1
+px 0 6 2 4
+9e5d38
+0f76ea
+case random-47
+ret 1
+ret 1
+px 0 11 2 24
+afe952e444d522adc3fdf5ad9625ccad9f100d2c20c7da9e4d950234a1b74c26c7
+5a42090560d5a84297bb0643eeb508a4405ebb67a87a452653ea629f28d908dcb5
+case random-48
+clip 3
+ret 1
+ret 1
+px 0 1 2 16
+22ad
+f5ad
+case random-49
+ret 1
+ret 1
+ret 1
+px 0 13 3 16
+bbc277bed30b22fea90bbd3d824ff9cc90141c839140fed3ca7d
+51d803a2fd179d70ffffffffffffffffffffffffffffffffffff
+dcc96f673517c74bffffffffffffffffffffffffffffffffffff
+case random-50
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 5 4 16
+53280399b12d8923efa9
+7a7d34ea75c3b91af460
+bdd002897f3df47f3f8c
+dcc96f673517c74b5c61
+case random-51
+ret 1
+ret 1
+px 0 11 1 32
+0ed4df467d744f78c1dcead6d704bc1b469a9068f83ce019a2bf55ee802195499cc741d8b33ff8c0bb634abf
+case random-52
+clip 3
+ret 1
+ret 1
+px 0 6 1 4
+4017ee
+case random-53
+ret 1
+px 0 11 5 4
+1b48dfcc7aee
+9fd9c653d56d
+f9682155de02
+306af28e937a
+f40a25639ebb
+case random-54
+ret 1
+ret 1
+px 0 1 1 4
+9c
+case random-55
+ret 1
+ret 1
+px 0 8 5 24
+33b87a28b39d568bbaa68b71082d3a79d8d60b07ab9e0539
+a9eafd2bf3b406246f25b1fbf8f8be8311d35911972ecb04
+7aad05a6af16dbb995d7cc70c46ab4f37a401b591ac7d320
+d0585e9b2f81f83bee1dad10f7b45cdfa15c91af6cc95524
+d14973ffb2ac9808717e26b92894451444ac4ae510ba924b
+case random-56
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 4 3 16
+2ecb047aad05a6af
+16dbb995d7cc70c4
+6ab4f37a401b591a
+case random-57
+ret 1
+ret 1
+ret 1
+px 0 12 5 32
+987bcea1cea4559887caa2e826ee313a9f2a44cb8965c998c535b7041678bb96454e625bc9297e10258f41cfeabaeaa2
+2b43a23f7054732671b858e5e25c5c2112cf95f26b4ef7f1aa63331d5ee9407310bb3ab6928883681e8ee88566b825d9
+7f1b0a5c6a4c9034ece8bc0e0343d9aed5804635ed937816d5afbe7e0f8fcdddfd9d98b461e9effc344ec81fffffffff
+cf0ea9c90b92f0492b2ca22d962aad28e44a48f2bd0295b74682e00816b980f7d9b96eaadd5b6a2a2b7aa0b9ffffffff
+b92894451444ac4ae510ba924b7014e4a501cc007fcfa0c54ca8fc60d4d997f48845924a5cc00e5cacb7f55effffffff
+case random-58
+ret 1
+ret 1
+ret 1
+px 0 10 1 32
+a22d962aad28e44a48f2bd0295b74682e00816b980f7d9b96eaadd5b6a2a2b7aa0b99a2a5b2c7f1b
+case random-59
+clip 3
+ret 1
+px 0 4 7 16
+804635ed937816d5
+afbe7e0f8fcdddfd
+9d98b461e9effc34
+4ec81fe99733872b
+43a23f7054732671
+b858e5e25c5c2112
+cf95f26b4ef7f1aa
+case random-60
+ret 1
+ret 1
+px 0 5 6 16
+58e5e25c5c2112cf95f2
+f7f1aa63331d5ee94073
+3ab6928883681e8ee885
+25d9987bcea1cea45598
+a2e826ee313a9f2a44cb
+c998c535b7041678bb96
+case random-61
+ret 1
+px 0 5 5 16
+0fc0d48c89c30cc4e692
+eabaeaa2d9715b6f92cd
+454e625bc9297e10258f
+fdfffd9fc5bfffbfdfff
+87caa2e826ee313a9f2a
+case random-62
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 12 2 16
+c4e692b1e5a54bc23dcd5b365c5b40ea2a64c358d9f352ff
+10258f41cfeabaeaa2d9715b6f92cd9d3c0fc0d48c89c30c
+case random-63
+ret 1
+px 0 11 2 32
+942474c8ecc1018636cc074a192957806172e1869f30ddb6a56658d756af11dd345159ef3d35cd3968d9c198
+41038945f906e52aaea08f7cd32124d4538222942b5b81ba9185b9bd14d55379b066554c9577388673eb0ab2
+case random-64
+ret 1
+ret 1
+ret 1
+px 0 6 3 1
+51
+35
+d9
+case random-65
+ret 1
+px 0 5 6 4
+8734c2
+e08bc8
+0f40a8
+fa95dc
+d1378b
+76fe36
+case random-66
+ret 1
+ret 1
+ret 1
+px 0 2 7 16
+c8058244
+d629058f
+e239ddf5
+9e34b30f
+5be9acf8
+bfaa54f3
+704ad6a8
+case random-67
+ret 1
+px 0 4 6 32
+6a23ec2205684c608e470036dba3653a
+3605f605b870d5f13467fa587f688190
+664d1d932f0e5e9d51553e7acfe02c15
+7c2a90ae748d90a44d8a6771c2ecc97b
+43dceabf407f1906f1a7c633b1e90c7a
+542d0f18bfe66deb413ad0de6b78c50c
+case random-68
+ret 1
+ret 1
+ret 1
+px 0 4 2 24
+33b1e90c7a7c2a90ae8b726f
+a44d8a6771c2ecc97b99b2e2
+case random-69
+ret 1
+px 0 5 2 16
+2205684c608e470036db
+3a151bb01d696bc8f3b3
+case random-70
+ret 1
+px 0 3 5 32
+3673504641dc243095c2d0bb
+d386459b1063074c344eee21
+da1b12c146abf9195cc7f45c
+1c462552596281b4992c9772
+30c2f6562ffbb72271eacd99
+case random-71
+ret 1
+ret 1
+ret 1
+px 0 11 3 1
+001c
+001c
+0019
+case random-72
+ret 1
+px 0 12 6 24
+7e369b1758c0b68a7e41e040b1d61b11243f04242029610854da00b6ddd8650900ecb340
+f7345b8802e54c9d4ca551489bb98db4966390b1f46f526f15a4a046d2a76efdfe32bdf6
+2849c00aa80667c37a2c19a8eb45524b959a1ccf77ad2231b165050bda16ef36e9661b33
+4d86f69c06d689d9143449448e64bbaa7004192af4ebfbdcc442a140c5c5c39dc91bc0c7
+52f7097f2fbd8bc0d47cdb042e865b8a8492a02334778a66b2333b1fe3a298d226a84302
+eba3af79a77fe987bb545551d69d1f2141fe3ce3aaa8abf77663c1e3ee02698e4b674711
+case random-73
+ret 1
+px 0 12 5 4
+f62849c00aa8
+46d2a76efdfe
+b1f46f526f15
+489bb98db496
+8802e54c9d4c
+case random-74
+ret 1
+ret 1
+ret 1
+px 0 4 1 16
+c00aa80667c37a2c
+case random-75
+clip 3
+ret 1
+px 0 2 4 32
+c0d47cdb042e865b
+c752f7097f2fbd8b
+40c5c5c39dc91bc0
+2af4ebfbdcc442a1
+case random-76
+ret 1
+px 0 12 7 24
+dc39e6d36cc7960a31075920de0accdb1b19508cddbeb766b17279e925d55cdefca2cb40
+6f0022d1addc5986008445a873d701ec9295e4d14fd23e140d23d6515523a33a622bebed
+6591be17ea91fbbdd218de7a9c0869416d8a0718bbfbffa448a4969aed820de67b7ef24d
+2654dc081d742a1cc3b9cd8fb272845afc46ecd404b0efd2a7d57119c0abe8f6a1407787
+caa056ddd45224edb9bdb4cfe219a3325d546f309b6e001d6013af1c0fe1b4c63c3cf131
+a8abf77663c1e3ee02698e4b67471151f0dc81ab6f0ae7a9545abffe26681956f1c2125a
+778a66b2333b1fe3a298d226a84302eba3af79a77fe987bb545551d69d1f2141fe3ce3aa
+case random-77
+ret 1
+ret 1
+px 0 9 6 1
+c1e3
+698e
+4711
+dc01
+0ae7
+5abf
+case random-78
+ret 1
+px 0 7 7 4
+2a1cc3b9
+dc081d74
+f1312654
+b4c63c3c
+af1c0fe1
+001d6013
+6f309b6e
+case random-79
+clip 3
+ret 1
+ret 1
+px 0 7 1 16
+f6a14077876591be17ea91fbbdd2
+case random-80
+ret 1
+px 0 9 2 8
+5523a33a622bebeddc
+39c7960a31075920de
+case random-81
+ret 1
+px 0 2 5 16
+d55cdefc
+a2cb404f
+11c56427
+679661a9
+ea8cc72b
+case random-82
+ret 1
+ret 1
+ret 1
+px 0 10 4 24
+1cecd6b6256f18db87c553a6154cba6e37c49007cf42af23f748a9ef546b
+cb8802c4dc2134e044beac1809be64c1c30226fcc41f20d13e01567819c8
+e7e74943c5fde7aa2d30942e47db429ea65f5612fd5ce404fb438118e976
+56e0e087caa7baa795a857cf5cc214fda3ddf45dead783c00162d51963bb
+case random-83
+clip 3
+ret 1
+px 0 11 1 16
+20d13e01567819c879e8e7e74943c5fde7aa2d30942e
+case random-84
+ret 1
+ret 1
+px 0 13 5 24
+5cc214fda3ddf45dead783c00162d51963bb7038e459e725013e495e6904433bfd74a19eaea05c
+02a3ac00cadaf41e877cc949688615e7d64d71f60fd43ba4fa990d88b76d9d7e69224b962a8ee2
+86763bcf8d978c85cc686881dea4a245cfb8de12bc9e95fe0f91ba3f5bdc6eaad36a5a59e655d0
+2e6e573eba60773ad5e5c800b9125be7a32ed9c820643587a64f6d143a4d80e57bb831c5088070
+53744c45965659915b7fccc63c1a1f962928b9895d01c14eee7d6a12cc32fc14b83b8aaa104400
+case random-85
+ret 1
+ret 1
+ret 1
+px 0 2 4 1
+36
+27
+49
+1e
+case random-86
+clip 3
+ret 1
+ret 1
+px 0 5 4 32
+ba3f5bdc6eaad36a5a59e655d0a52e6e573eba60
+773ad5e5c800b9125be7a32ed9c820643587a64f
+6d143a4d80e57bb831c54ee57a7053744c459656
+59915b7fccc63c1a1f962928b9895d01c14eee7d
+case random-87
+ret 1
+ret 1
+px 0 11 6 1
+c04e
+7053
+4596
+915b
+c63c
+9629
+case random-88
+ret 1
+ret 1
+px 0 13 6 1
+e883
+278e
+d5c2
+d50e
+26ca
+a565
+case random-89
+ret 1
+ret 1
+ret 1
+px 0 3 2 8
+ea76ff
+4f30c4
+case random-90
+ret 1
+ret 1
+px 0 12 4 32
+09e4c5541b27f3b158591bc719b29507664e488029b994001254718f9298de5d21e517efce9210666ec9812dfbd7061c
+6426e2c47b9d621a169003be340b226f04d84c91ddfb3025249b6b95a3263662f89f34e3ff8c7b3c19ff6d62689b8def
+c0d34d2f6a88578dc9996536fe8898fa4d364b1b69c9904521a4f07e6f79cdfcaaeca7614ef4bd758e19efb0fcc2de68
+d81441678de504ebb0bb947adbd24afde28cb5e644004fb0f7c69f5abd6c71dc4b2cb872562622dd5bd187dc0dee1eec
+case random-91
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 8 7 8
+8defc0d34d2f6a88
+7b3c19ff6d62689b
+3662f89f34e3ff8c
+3025249b6b95a326
+226f04d84c91ddfb
+621a169003be340b
+061c6426e2c47b9d
+case random-92
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 5 6 4
+fe8898
+4d364b
+69c990
+21a4f0
+6f79cd
+aaeca7
+case random-93
+ret 1
+ret 1
+ret 1
+px 0 12 7 24
+44004fb0f7c69f5abd6c71dc4b2cb872562622dd5bd187dc0dee1eec50ac82dd2efd524f
+3c82e137986156dc6a14d0723e55373c59b5f02431ea86f8d74ae53abec7792fcf62942a
+c03735407a2825b9c71cbb6ce83418debd416efbd637e77196b554322b9b3c560ac5ee7a
+e29096fe579d0aa6f50a6e2da6483523f3595039c999f4c87ef00afeb65611659445b149
+33cd6dbc41ca404768d99899c00167e5fa16e94e87f7ab72d4faf5115d67d841e9719727
+7fffad77e475b04d5c3ec12e73a4c9b1119d2c9e4de16a24ce0d331b8e3366100aa72fa7
+5fff1116deba5d017e3128b18fa954ec595a7ab5a1c12d5d8c114fef2a13f6f37ee17814
+case random-94
+ret 1
+px 0 8 4 4
+2431ea86
+f8d74ae5
+3abec779
+2fcf6294
+case random-95
+ret 1
+ret 1
+ret 1
+px 0 8 1 8
+e29096fe579d0aa6
+case random-96
+ret 1
+ret 1
+ret 1
+px 0 2 7 32
+72d4faf5115d67d8
+41e97197277fffad
+77e475b04d5c3ec1
+2e73a4c9b1119d2c
+9e4de16a24ce0d33
+1b8e3366100aa72f
+a75fff1116deba5d
+case random-97
+ret 1
+px 0 2 4 4
+ec
+b1
+01
+16
+case random-98
+ret 1
+ret 1
+px 0 10 4 24
+df87fbc317d1f577f7f5aff3e96ff5c73f1dc127b1d94f9fe18ff7916137
+c50f7de3efb7f7a775fd6ff9e51fd7e3ff5fc707d7f73fd5c7d7132c1843
+fbffb1d36fdbfd17b1f55f57ebe7f5c72f91f1af91db6f3dc3ffbfef7d86
+ef8fb3db573fcbc7d1f1d7dbebbf11f72f1bc73751e38731f57f79f17a5a
+case random-99
+ret 1
+ret 1
+ret 1
+px 0 6 1 32
+16dbe3285d00a1b9f829c9c22bb82efc2c1843755e85025e
+case random-100
+ret 1
+ret 1
+px 0 4 3 4
+8f2f
+44ef
+e538
+case random-101
+ret 1
+ret 1
+ret 1
+px 0 12 1 16
+f729d64033a97dc843f01c6d5ed35b73925dbb3c8e0574ad
+case random-102
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 3 1 1
+c6
+case random-103
+ret 1
+ret 1
+ret 1
+px 0 10 1 32
+3d06c5b7e52a4fa4a2715c697300002e502043d3980086258953e7974e0c20bbbc531eb5b100d37d
+case random-104
+ret 1
+ret 1
+px 0 3 4 8
+a1edca
+442f95
+84ccf7
+c8af95
+case random-105
+clip 3
+ret 1
+px 0 11 2 32
+f98ec64296c2dc0fcb1a0cad7129a02a388d80078f2bcbed1504567ad4e320051b7790b32826f317df734af4
+5c92bfb088f6da0577e8118ea59667553fa0c0072243c0156bd40fca325ff9fe5a8a6a42e15f2467195236e7
+case random-106
+ret 1
+ret 1
+ret 1
+px 0 6 1 16
+26f317df734af45c92bfb088
+case random-107
+ret 1
+ret 1
+px 0 5 3 16
+4b1c8fb504c721bd835f
+9aa7ab3d73a7deb5ed72
+e76b143bc230ac0ee50d
+case random-108
+ret 1
+ret 1
+ret 1
+px 0 13 5 16
+2759af95c16afa9d949404b3fcf5efd444b09c5f93a2ed25c19f
+31fa6fb151484ca6e17fee2fbfc7144d48efb89d3666a899da44
+795eba9df23f3cdf3de1bbd9b0c38f7855aeeb3ee39af35df872
+955949705ac31aeb5a4c16804645d1569b6a74fcd2868a7c19d5
+0c123c57a194262a1731106fd5269bdaaf0e15064f52907456f0
+case random-109
+ret 1
+ret 1
+ret 1
+px 0 3 2 8
+4ca6e1
+772fbf
+case random-110
+ret 1
+ret 1
+px 0 4 5 1
+d3
+1a
+5e
+85
+2f
+case random-111
+ret 1
+px 0 4 3 16
+52cc2a88e037e006
+616c6f6e7bcb121d
+8326901788a1c2c8
+case random-112
+ret 1
+ret 1
+ret 1
+px 0 9 4 8
+1f9f546be5f62073ff
+b0dddf576126db6c02
+04ecc18458ef0b4dbc
+a742a49ed92493fde5
+case random-113
+ret 1
+ret 1
+ret 1
+px 0 2 5 24
+31eb31d01854
+7d841d895cd4
+79e2cb83adc6
+7128ff09cdec
+1497033d47c8
+case random-114
+clip 3
+ret 1
+ret 1
+px 0 13 5 4
+86e1cd8cebfd57
+88410fd6dfa549
+ec4eb57cee0f97
+b726d46a815050
+b667091ab3107d
+case random-115
+ret 1
+ret 1
+ret 1
+px 0 4 1 8
+17feef3f
+case random-116
+ret 1
+px 0 5 1 1
+ff
+case random-117
+ret 1
+ret 1
+px 0 9 1 16
+de9643b82498faf38c93d866ffe5ffffffff
+case random-118
+ret 1
+px 0 8 2 1
+1b
+fc
+case random-119
+clip 3
+ret 1
+px 0 7 5 16
+2938692a9784b6ce88674cb45a57
+9d8eae2ea00497da6ae616fb7ab2
+4d1181b4c9f3768c12c109a6bafb
+bb2717f0ebba7666b6562ae03116
+9a0e18089684301b8e8c28e6126d
+case random-120
+ret 1
+px 0 5 6 16
+b4c9f3768c12c109a6ba
+e1bb2717f0ebba7666b6
+e0311686cb9a0e180896
+1b8e8c28e6126df56fda
+366a4349802854b9e346
+334f3a74b2f7c7c2c684
+case random-121
+clip 3
+ret 1
+px 0 3 6 4
+9684
+8e8c
+126d
+da08
+6a43
+2854
+case random-122
+ret 1
+ret 1
+ret 1
+px 0 8 1 16
+2d2379dcdafae3ed5ff4d9f848cef801
+case random-123
+ret 1
+px 0 8 1 24
+057a35b2d196684c38389b015414aa3dc4c367d8a7547df2
+case random-124
+ret 1
+ret 1
+ret 1
+px 0 8 4 32
+91dcac290fb763a3dfd903aaf1c7f38a41fdb0399d0fabb8c6667c03f4897613
+c22d65ac571f795dbe61ea231af9988795bc6797a3bbbc4ecf3d270444ed53e7
+b2c9d78bd3c5c6a5b558f59e5dd5aa020e24bd619729dab66954499c3850e45d
+65af454afae3f98f7be996b9763d368e7337ab4042e1ca3d96e9230516e1ee33
+case random-125
+ret 1
+px 0 8 4 4
+9c3850e4
+5dc22d65
+ac571f79
+504081ea
+case random-126
+ret 1
+ret 1
+px 0 7 4 1
+27
+53
+ac
+63
+case random-127
+ret 1
+ret 1
+px 0 3 4 32
+a6e9c07c6ea9dd2743def1eb
+33476e706202cdaddeeb45f0
+fa091babb44fa0b7ec3d2524
+1502185bd8828a252c53dc4b
+case random-128
+clip 3
+ret 1
+px 0 6 7 16
+2c53dc4b12bc3d849042ff90
+76144471567ecd6536214fc0
+3aa66aa6dec28fefa7ff096e
+6342bd26535b8acfac777e7b
+6667dd02281c34bb14d5ba53
+a3abb401c8912d8c132dcd94
+f107c19ac3701c873cfd285e
+case random-129
+ret 1
+px 0 3 7 24
+6342bd26535b8acfac
+6667dd02281c34bb14
+a3abb401c8912d8c13
+f107c19ac3701c873c
+1a0a91568768ba03d2
+02880ecdf67d99c715
+bf4616c4a9de3ea2f7
+case random-130
+ret 1
+ret 1
+px 0 9 5 8
+2d8c132dcd94f107c1
+1c873cfd285e1a0a91
+ba03d2c1b01c02880e
+99c71563f012bf4616
+3ea2f75a875a99a53a
+case random-131
+ret 1
+px 0 9 3 32
+16c4a9de3ea2f75a875a99a53a6ca0a35738c564ac1867f77f3ff058c70de0cd9581a418
+a24fc531d236558c7b6d5423f2f3f772b25f8ca3132e748beea6c25f8ad04b8052311151
+c327b6c84d7ac3c8b54896c93ed695782f226e1166d29c884868711ef74376c94c79761a
+case random-132
+ret 1
+ret 1
+px 0 3 7 8
+a3132e
+72b25f
+23f2f3
+8c7b6d
+31d236
+18a24f
+cd9581
+case random-133
+clip 3
+ret 1
+ret 1
+px 0 4 5 16
+68711ef74376c94c
+79761a9414f6c7a5
+339dd3244e5f1af1
+44a6958b0e3d9961
+ce4d83650ed3643e
+case random-134
+ret 1
+ret 1
+px 0 2 1 1
+4f
+case random-135
+ret 1
+ret 1
+px 0 4 3 16
+37a7c3737a0858f2
+99d645d37ef0eb49
+3e0c61ada8269888
+case random-136
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 9 3 1
+0aeb
+85c1
+2be1
+case random-137
+ret 1
+ret 1
+px 0 13 2 16
+eac85249802d66f766e27df4f469b429c5ec496c57ef36d1dc73
+c89d444d8205da7916e976eef495db154a530ef1d02ff09b8e1a
+case random-138
+ret 1
+ret 1
+ret 1
+px 0 4 7 16
+0ef1d02fffffffff
+0db44727ffffffff
+c0174ee3ffffffff
+847519f5ebcfee3c
+b4ab392ff935f19e
+57c5966c2da8a57b
+200dac1b7ab5db5a
+case random-139
+clip 3
+ret 1
+ret 1
+px 0 9 5 16
+63278f460fedb32b5b7a3c334cede1fc5042
+f5493da43c0890f83a3def9797c36d48e44a
+06fd62f41fee51ce55bad64a0fa8d7714946
+157fc31833523b8ef52d1a0f3221b8abf19c
+20b9c68fc0d50dfb92af7d332ed53602d626
+case random-140
+ret 1
+px 0 12 1 32
+bad64a0fa8d77149462e7b157fc31833523b8ef52d1a0f3221b8abf19c89b220b9c68fc0d50dfb92af7d332ed53602d6
+case random-141
+ret 1
+px 0 5 1 32
+332ed53602d626575086f6c436eebfd619bd90bc
+case random-142
+clip 3
+ret 1
+px 0 12 6 16
+c425e531a0553ba47e4180b8a228c3b0210583b6d5328d70
+d10362b18b81c4b01acfab9f2000bf989fce0a6de0233dd7
+0016aec2748438829786f2b3987e123f0000c7d44abfaacf
+2f17a1bbfd3d24d45b1eeb8a0947873d88009e0a7218a79b
+7767683c29e407ec314f4f73f10ca5427ecfe880aa250d02
+a62ac220981f0494f0129b83a45957401b200a19b3d0e484
+case random-143
+clip 3
+ret 1
+px 0 7 2 24
+bf989fce0a6de0233dd70016aec2748438829786f2
+123f0b2ec7d44abfaacf2f17a1bbfd3d24d45b1eeb
+case random-144
+ret 1
+px 0 9 6 16
+3d24d45b1eeb8a0947873d03609e0a7218a7
+67683c29e407ec314f4f73f10ca5427ecfe8
+250d02a62ac220981f0494f0129b83a45957
+200a19b3d0e4843ed9e54a1a009478f7ea90
+034fb08bc3c22d20950e282c8d00c9f3e48c
+5e65007444cff00ece7dea2833f50837ef50
+case random-145
+ret 1
+ret 1
+px 0 9 5 1
+83a4
+94f0
+2498
+02a6
+80aa
+case random-146
+ret 1
+ret 1
+px 0 5 7 16
+950e282c8d00c9f3e48c
+5e65007444cff00ece7d
+33f50837ef50691a26d2
+d7ea81539cfacf303bc0
+5af26cab550ce897a410
+1b0ac4bca6df975ed852
+9c6bd2dff63ff5b34670
+case random-147
+ret 1
+ret 1
+px 0 5 5 16
+550ce897a41097311b0a
+604b975ed852db249c6b
+0090f5b34670ab015ba5
+efb2c8469c7dde7f7493
+c2120dac6193ceba4d01
+case random-148
+ret 1
+px 0 8 2 16
+c43814bbce0263a8fd020988d8660002
+d8be32db4c63ae1f3693578dcdfa0002
+case random-149
+ret 1
+px 0 10 5 16
+e4c5a03af99c269493cf721d7e817b5175284c19
+0aef5ff2c9e37146876407c2a0b9b251c79bbe86
+a00a9476e69b10de5410f40b489e05ecec2fd1f2
+007a4cb5b53bf2e59479f890d1add79dc3bae57c
+864842453f649569b6c8312b43fbee65d5c0a59e
+case random-150
+ret 1
+px 0 10 7 32
+9e05ecec2fd1f20aef5ff2c9e37146876407c2a0b9b251c79bbe86e4c5a03af99c269493cf721d7e
+817b5175284c1946d4844a3673f87062df753dc844368500d61c9f48eedec575fcc826eb16566721
+af2f5ff8f5b18876b3897a7d58df58c151aa4aef4ce1fdd043ab288d422bfcb69546050ad1da21eb
+0ba182aee49ec7b90f549c8ffaa96ff7c469b7320af34d8c7fb6bf884244f09e1586a599aff141d6
+4f2643983044decfb5f28363c200abef1765a714dfe195dfb3e0d06f7e875292cf8a87adf88efe3e
+97c2851f3992afff749525a6b999fe1158c203d5ce66a26d95e787718057453dfe8d7f0088eb46fe
+411b049b766bbb74f4b14fda683c47da7c236a4d6a398aff1c71f3268cd1b20881781e31033a1db3
+case random-151
+clip 3
+ret 1
+ret 1
+px 0 13 3 4
+48eedec575fcc8
+c844368500d61c
+3673f87062df75
+case random-152
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 9 7 1
+4aef
+fdd0
+288d
+fcb6
+050a
+21eb
+82ae
+case random-153
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 9 1 24
+1586a599aff141d64f2643983044decfb5f28363c200abef1765a7
+case random-154
+ret 1
+ret 1
+px 0 5 6 32
+04d0e50e0dd7e160f1f3490116d2409efffe9fde
+5d3727e595754c986ce71f97e8b3a4b622e1a760
+0881781e31033a1db31cd8d2777c0c514953ad0f
+da683c47da7c236a4d6a398aff1c71f3268cd1b2
+3dfe8d7f0088eb46fe411b049b766bbb74f4b14f
+a6b999fe1158c203d5ce66a26d95e78771805745
+case random-155
+ret 1
+ret 1
+ret 1
+px 0 13 5 4
+268cd1b2088178
+31033a1db31cd8
+777c0c514953ad
+5d3727e595754c
+6ce71f97e8b3a4
+case random-156
+ret 1
+ret 1
+px 0 6 3 32
+f1f3490116d2409e1ff29396963fad18616bb7d4b9b978aa
+967972f7139eb1effe9cccfd5dcb0e787ad8ed62bf878f16
+050ba9747b66479da26010a78b8e69fe7a9d695d94215225
+case random-157
+ret 1
+ret 1
+ret 1
+px 0 3 6 16
+4172a9d1d45f
+5225f6836b8a
+69fe7a9d695d
+479da26010a7
+8f16050ba974
+0e787ad8ed62
+case random-158
+ret 1
+px 0 8 2 4
+384f4962
+bb42b43b
+case random-159
+clip 3
+ret 1
+ret 1
+px 0 9 3 16
+a88c10204ab400f4634b15f7d1155181a689
+b11d785f41803ccbac0776b86f56de404464
+d21355d6e2e16097c4c19cea13dc5a3abdcd
+case random-160
+ret 1
+ret 1
+ret 1
+px 0 6 1 16
+10204ab400f4634b15f7d115
+case random-161
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 7 3 16
+bdc91ff08cd6fdffcaf6ecca9139
+249f62621a0c776b84d279dd60fd
+c57331dfa4efd56f15a2bdc5d3fe
+case random-162
+ret 1
+ret 1
+ret 1
+px 0 11 5 32
+e4dcb04a795edcfea7e606ca9dd8627fc3af81a390813cac3e5f481af601bff15f9793a0f57cb09d0090a404
+48bea370c3ef69aa2b681f46fd5506aaf8cbbe54c3820b19b5ad896bdf13168985f9fa76ebbb9cab77e893bc
+d3a76983e4170d35c65916cbde30c7780f826a86ab17b5cb8d69c9f9d62bb550ea16ada3a36508aa59759ab0
+a198f82de8fa25bfac4f59c0ea8cf0a76b732028c1c393388b31969601381c4be52b0df9e7a4e8b38c5e585e
+a8344116022c12aab686fdd52393cd95e3b45436a0a1430a2df25bf555f7e00fb3350b36396fde1c788c4f96
+case random-163
+ret 1
+px 0 13 5 32
+5506aaf8cbbe54c3820b19b5ad896bdf13168985f9fa76ebbb9cab77e893bcd3a76983e4170d35c65916cbde30c7780f826a86ab
+17b5cb8d69c9f9d62bb550ea16ada3a36508aa59759ab0a198f82de8fa25bfac4f59c0ea8cf0a76b732028c1c393388b31969601
+381c4be52b0df9e7a4e8b38c5e585ea8344116022c12aab686fdd52393cd95e3b45436a0a1430a2df25bf555f7e00fb3350b3639
+6fde1c788c4f96e624718ce3eca84368c27e34adf883e63e356fc1b1364955643f1a693930f97df5a17c46ba7619eb87f93eed67
+8c7da99b1d4ea35be887350f1705113ef9814d829f3285a7b15da191760430fd64333bf91e225cba45908c36c644330221bc193e
+case random-164
+ret 1
+ret 1
+ret 1
+px 0 4 2 4
+6983
+93bc
+case random-165
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 1 4 4
+93
+20
+00
+09
+case random-166
+ret 1
+ret 1
+px 0 9 3 16
+4f96e624718ce3eca84368c27e349fa583e6
+6fc1b1364955643f1a693930f97db7357c46
+19eb87f93eed678c7da99b1d4ea3b7878735
+case random-167
+ret 1
+px 0 3 2 4
+f93e
+8c7d
+case random-168
+ret 1
+ret 1
+px 0 13 7 32
+ad1a82735f537e8f31be4b2eb7374d267851f3458b9b4b70fc8b91e33b7dab1af16dda0f42238a2ea97815e8fd16a39cd065ba2e
+8e967eab2cc42841021975136f5bf11e8173f3fa59be93535128a535bd4f94eacd40402b0c9904e20a00cef50e0905c0fa584216
+526b2ecfe6dcbfd320a61b5a35cd6c91275fd4b2aff5e60989354607f34c32fcd5cf2bebf0e2b52437af447dcd9253b9275e2824
+31b3b5f285db3952e7d74a20aade7d1afead31d3d09638928b4e5941a516f986b1d3e1740ab37fa478482fc8e12dfd1508028f10
+caf9ddc1f4b77170740e099138261f8fab3af1a23bfba08dbace475fd3a52fd08c97196b2abe1819dcf9a2e3945566074b52f178
+cc1df35519693ef3010c222e812d3ff518988522a95f55ed92e40ed58a25430cfd25cf19203303eb8ecb5b17cd5dd670064cf8d3
+1e225cba45908c36c644330221bc193ee9cbe710fc6f6c323de4aebe20c4c1235ef89803d54e04895a58abd8c6822d817b2ed7f8
+case random-169
+ret 1
+ret 1
+ret 1
+px 0 6 7 1
+3f
+22
+3e
+f3
+28
+d2
+54
+case random-170
+ret 1
+ret 1
+px 0 6 5 8
+2970064c07d3
+ddc1f4b77170
+099138261f8f
+f1a23bfba08d
+475fd3a5d0d0
+case random-171
+ret 1
+ret 1
+ret 1
+px 0 13 6 4
+4e5941a5160686
+ad31d180963892
+d74a22cade7d1a
+b3b50000000052
+55990000000078
+bee700000000e3
+case random-172
+ret 1
+ret 1
+ret 1
+px 0 6 1 16
+48d0c8e12d02150802701052
+case random-173
+ret 1
+px 0 5 3 16
+fa59be93535128a535bd
+41021975136f5bf11e81
+b9275e28248e967eab2c
+case random-174
+ret 1
+px 0 9 3 4
+4f94eacd40
+9904e20a00
+0905c0fa58
+case random-175
+ret 1
+ret 1
+ret 1
+px 0 5 6 4
+8f31be
+d14837
+d98751
+ba749b
+8f038b
+1cc47d
+case random-176
+ret 1
+ret 1
+px 0 9 6 16
+2f24db12c2e2c84a789bb21ee22155fed3f6
+b60d4290663c3994edc45d15c0525a638e05
+b1bb65faad31e42905309cad98a349a134c8
+e49c8fe884b55a3e5c0113d2c495ec3aa1ff
+6fecf936caf04d8dd2fc08dfa9ecb74ca7f8
+9e3958af9eb2faf137bdd5c0a6a1ccbe1010
+case random-177
+clip 3
+ret 1
+px 0 4 5 4
+ad31
+0530
+98a3
+34c8
+e49c
+case random-178
+ret 1
+ret 1
+px 0 13 6 4
+4d8dd2fc08dfa9
+b74ca7f8eb379e
+58af9eb2faff37
+d5c0a6a1ccff10
+87b7593edaffdf
+b9e68b3e0dffec
+case random-179
+ret 1
+px 0 2 1 24
+4917a568e83d
+case random-180
+ret 1
+ret 1
+ret 1
+px 0 10 3 32
+0253ef968d29a61581c6296f158ad4f487b2016e6f34be3536559a60007bd44ac4968a109de1b00b
+b865265c6d7c770c82c5d258934d2411c13aa5c051049246fb459a25ce6a805335c946eff961e7d9
+16573faec89d91a83d56ce7416f79e871fcac32cb7988cefb17f190fda33db9dc2e5c31a2b581856
+case random-181
+ret 1
+ret 1
+px 0 3 1 1
+fb
+case random-182
+ret 1
+ret 1
+px 0 7 2 24
+e5c31a2b5818568a68930209204c93e5d17d18b042
+09d7291bac4dc22b5c2c8d1ec8b2b1fd5dfa7163ff
+case random-183
+ret 1
+px 0 9 4 16
+0e6a41f888b3d935d935d935d935d4e95ee0
+7efdbf7e31e9d935d935d935d935dc549555
+6f71dbbf390ad935d935d935d93588ec9592
+8ef8c350eb90a667ba1d22121e3d712ad865
+case random-184
+ret 1
+ret 1
+px 0 10 5 4
+1dcc7db091
+5529f96f81
+0a1bc76fdc
+b688ec9562
+f8c350eb90
+case random-185
+ret 1
+px 0 2 3 1
+8b
+65
+3d
+case random-186
+ret 1
+ret 1
+ret 1
+px 0 9 4 1
+bb7a
+9f79
+bb07
+080e
+case random-187
+ret 1
+ret 1
+px 0 10 4 1
+1688
+c75a
+a164
+7ba0
+case random-188
+ret 1
+ret 1
+px 0 12 4 16
+e1b3d919b94036d1fc975c7fb4d96b123598c4d01fa02cde
+b91210da8a59091c0a9e6a92d1d2905af6360e36c29e09e6
+7b2b688376341bf5b6a5cd652b788362c1e5d53f6328b800
+648332708b58753260a953aa5ee3bcf27a9230a642d9316d
+case random-189
+ret 1
+ret 1
+px 0 6 7 8
+9e09e67b2b68
+341bf5b6a5cd
+788362c1e5d5
+28b800648332
+58753260a953
+e3bcf27a9230
+d9316d507d51
+case random-190
+ret 1
+px 0 1 4 24
+42d931
+507d51
+b54f30
+695671
+case random-191
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 5 5 24
+078484b1ff1a1b03c9954ff7a66cd9
+4a773445dfa31c3c226d109e3b4f07
+f1489ebf61d1e760d0990042ac5234
+073eb922be2a1e13cf29740882a6b1
+61d58e5b69a4bd19a6fec7f279f645
+case random-192
+ret 1
+ret 1
+ret 1
+px 0 11 4 4
+82a6b19961d5
+69a4bd19a6fe
+79f64511d504
+e108888b007e
+case random-193
+ret 1
+ret 1
+px 0 12 3 24
+326a626c5113132a07338b85cde05757dac5745e834a7262e5bd24f3b65e368534d7781f
+1270ad11079eff352aa15f06749a4023cb5861ac674871f16204354a34dad94895611130
+a1c06f7027386be29d4da57e0e6ef3b569218a1aa4f666dc9ab28008798ed97422ff36ea
+case random-194
+clip 3
+ret 1
+ret 1
+px 0 2 4 32
+ff352aa15f06749a
+4023cb5861ac6748
+71f16204354a34da
+d94895611130a1c0
+case random-195
+ret 1
+ret 1
+px 0 12 3 24
+0cdba900ec7667423ea09340fbcad812e74bd76892e5bc2ffd60f2d2e519689b828bf7de
+244051ec5ccaf7eedbc132b50b5bedfe20b07ea85a78c211591d2cf0b7cfdbca4574f640
+1aa4f666dc9ab28008798ed97422ff36ea1819feac3892acb10425099732087c73978171
+case random-196
+ret 1
+px 0 10 3 24
+6e82035c860a2422ba63c4231f3cb8fe66ec361f323b3ce8500e2657c05f
+423ea09340fbcad812e74bd76892e5bc2ffd60f2d2e519689b828bf7dee1
+b50b5bedfe20b07ea85a78c211591d2cf0b7cfdbca4574f6400cdba900ec
+case random-197
+clip 3
+ret 1
+ret 1
+px 0 5 3 8
+ecf9860a24
+c4231f3cb8
+361f323b3c
+case random-198
+ret 1
+ret 1
+ret 1
+px 0 5 5 32
+d0e645fe21effcc44980f0de67704d0e810eb6b3
+fa88f2778f365983184ffe9768c743b9ebe311b5
+2ee2e86e821f076eb8e7988fbc0be4ccd1b24608
+3942b003d973c5b21b5cf9ad074456d2b8184408
+fdce3684b1c4bc0325509b1e7270102f4feb8e37
+case random-199
+ret 1
+ret 1
+ret 1
+px 0 4 7 16
+67b9c031b0e13756
+4d371ece2edbd322
+4ce2810eb6b31d39
+01de4980f0de6770
+11b5d0e645fe21ef
+fe9768c743b9ebe3
+f2778f365983184f
+case random-200
+clip 3
+ret 1
+ret 1
+px 0 9 4 24
+5e9f85a6c9075d74eb71871ec717621421ee80b9703fa467ce1845
+b364b68aaf22b3ecc813c956625f524f2776d4f88c119fdef15fcc
+6a09fde3cda15cbee998d1e44affc7fb449e4cd0b28d582e460ac9
+a3b7ba72e6c210198ffbddfd16e0ca691ddc036878e95cf0c3dfcd
+case random-201
+ret 1
+ret 1
+ret 1
+px 0 1 7 24
+f88c11
+4f2776
+56625f
+ecc813
+8aaf22
+b0b364
+2e460a
+case random-202
+ret 1
+ret 1
+px 0 11 3 8
+ffffffffffff4ef3096ca5
+ffffffffffff7d34f4205e
+ffffffffffff1feb7f6f12
+case random-203
+clip 3
+ret 1
+px 0 6 5 16
+b48267eee79f54b93c72067e
+f1d533c8018ff2b8b0247bdb
+8fef7fe24112c1b9385127ab
+9a65df8e011316c2b98357cf
+cf06f3cf77633434b3479e41
+case random-204
+ret 1
+ret 1
+px 0 11 1 24
+8e011316c2b98357cfcf06f3cf77633434b3479e4105bfd58b42d5f653a422a2bb
+case random-205
+clip 3
+ret 1
+ret 1
+px 0 7 1 1
+14
+case random-206
+ret 1
+ret 1
+ret 1
+px 0 13 4 32
+77da806aeb3700e64046a2e4a341cfe21640b2bdfc9a266986a48bce5ccdc4e13525e6d2f0bb2936f0e951f6369b0e23eb206c22
+f3bcec3cc1283240da2b69172619447601f88591c3cac3b80aeb5720994bc4583d3c3b34f5e4455e530b76e3c854bbc2972990bd
+35bcc95c642c8d54aa291500dede1205e9bf7d420b404080f4ddc690ad4e87bc159dfa9330683130f12fcdc24f417313f13ae1d9
+f71942b71ed392528a3414f244dbf80a7209a3710bfd36541b538ea308406fd18e35a4e2d4071b5d2fd80a557296c3ea0902d701
+case random-207
+ret 1
+ret 1
+ret 1
+px 0 9 6 24
+9bd372abbf94cabbc6e8371afff5c766a51a44a0f4ddc690ad4e87
+ea62056ccf97cecf0ed0323d4f417313f13ae1d9f3bcec3cc12832
+25d496e8d9e6bb89fe077a6ec3cac3b80aeb5720994bc4583d3c3b
+f5e4455e530b76e3c854bbc2b6f67ca31b8e97b53e677f3a4046a2
+a341cfe21640b2bdfc9a2669d7f9bfb9735a171f0c9bfdacf0bb29
+f0e951f6369b0e23eb206c22841bc4b56e3c1eb5c7177556604a0c
+case random-208
+ret 1
+ret 1
+px 0 7 5 24
+3240da2b69172619447601f88591c3cac3b80aeb57
+c4583d3c3b34f5e4455e530b76e3c854bbc2972990
+806aeb3700e64046a2e4a341cfe21640b2bdfc9a26
+8bce5ccdc4e13525e6d2f0bb2936f0e951f6369b0e
+6c2233e5588b9b6103c8db7c0989604a0cdfb87850
+case random-209
+ret 1
+ret 1
+ret 1
+px 0 9 4 4
+eb3700e640
+a341cfe216
+fc9a266986
+5ccdc4e135
+case random-210
+clip 3
+ret 1
+ret 1
+px 0 11 6 24
+c0a25461690b024b5f755c4583f12f5191b7db22acd4cc75f931ba2ffe260d74ff
+982480900233a98b81fbd540d987a5f07d25799ab7d1d3234301340a53ec175f3f
+d07db95c71848d2f755461f9c568dd452cba79161784530ef8dc767ffc3b5a91d7
+eaaebd6d5d0a0c25e33cf3d39a3e707130f8696c7b031403b88c7438b77d1b295e
+b5e9e4f376025b0efdb32edc5d8b217c332004f1fd536165fff6ffffffff72c37b
+498b5ee4716d4ad198fcc5febbe1bba4635e8ce73c03e4a5ffff24ffffff858cea
+case random-211
+ret 1
+px 0 12 6 8
+25ffffffffffffffffffffff
+91ffffffffffffffffffffff
+16ffffffffffffffffffffff
+2fffffffffffffffffffffff
+5f3fa1153bd07db95c71848d
+9ab7d1d3234301340a53ec17
+case random-212
+clip 3
+ret 1
+ret 1
+px 0 13 7 1
+456c
+1657
+0ef8
+7ffc
+91d7
+38ea
+6d5d
+case random-213
+ret 1
+ret 1
+px 0 12 7 16
+468db5e9e4f376025b0efdb32edc5d8b217c332004f1fd53
+6165dae244938f3372c37bbc8d49498b5ee4716d4ad198fc
+c5febbe1bba4635e8ce73c03e4a58fb70026b0f9858ceae8
+9c80448ad11ae4141f81e0e3f90e039ea27568406263a03d
+ef76b1019cdab97d38c1b39c706d96ce74ea1889a5fdb1d7
+4318a6e98de99d8eec7a3c3f13679cb111358bf6b6889b82
+c312421287272ec6ffd280daeb8002edbedf505ba2dab96f
+case random-214
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 9 5 8
+716d4ad198fcc5febb
+635e8ce73c03e4a58f
+b0f9858ceae89c8044
+e4141f81e0e3f90e03
+68406263a03def76b1
+case random-215
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 6 2 32
+019cdab97d38c1b39c706d96ce74ea1889a5fdb1d74318a6
+e98de99d8eec7a3c3f13679cb111358bf6b6889b82c31242
+case random-216
+ret 1
+ret 1
+px 0 13 4 4
+52f55bf8f78f8a
+107ccdf399ec95
+7d77d7790b875b
+edbedf505ba2da
+case random-217
+ret 1
+ret 1
+px 0 6 2 1
+b7
+a8
+case random-218
+clip 3
+ret 1
+ret 1
+px 0 7 4 8
+952e01dc85e54f
+04aeb4ebef948b
+27f384084a029b
+d4c48c59f7e5c7
+case random-219
+clip 3
+ret 1
+px 0 5 3 16
+84fd07e3fe748f76ef76
+b3bc8c3cdd3e8d181c7c
+bde3a589a37fa9ba06af
+case random-220
+ret 1
+px 0 9 2 16
+7572d02227ab3e1d057b037753f00a83d66f
+148c7126f6f2db14bb28dbd187190b4ac295
+case random-221
+ret 1
+ret 1
+px 0 8 7 8
+bb28dbd187190b4a
+c2959bb699b9833b
+ba6ea51750495a67
+3e4562a5ccce6bc3
+5889480c184f6b2a
+92fc425d05ace064
+9788f5dbd8fe59a1
+case random-222
+clip 3
+ret 1
+px 0 9 5 16
+1468bbbf6bc4d92378f78270123962056363
+440235382d58a8427a73473be2757c286e1a
+c5dddebb92f9532ecdd541a782da54953c3b
+8129d662ba46daabac1ff6caca50f03ca7e1
+649788f5dbd8fe59a1d7202830e39fa5bbcb
+case random-223
+ret 1
+px 0 13 5 16
+f03ca7e12cdfc5dddebb92f9532ecdd541a782da54953c3b9984
+35382d58a8427a73473be2757c286e1aa51a1468bbbf6bc4d923
+8270123962056363f4a7a9ddc247fb346471bd8d9fffff7fefff
+2701ed0f5f5467b1ca5b88b92ea85074728cd52dfffbfffbffff
+1f370eddb089d2036c3b85e3761f040e3a01d6c6fffbffffe7fd
+case random-224
+ret 1
+px 0 1 6 16
+a842
+473b
+7c28
+a51a
+bbbf
+d923
+case random-225
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 13 3 24
+6471bd8d9007194ae5c714f62701ed0f5f5467b1ca5b88b92ea85074728cd52d4bb0b4d0bf80bb
+1f370eddb089d2036c3b85e3761f040e3a01d6c69a8976ae22cda1b070fd4458fef0b7ae84a4e9
+e0b7b77bd7caf28f54787a429209b2ac4eb6bdf0343d11a206dac7072ea633f386f51326bb567b
+case random-226
+clip 3
+ret 1
+px 0 1 6 32
+3a01d6c6
+9a8976ae
+22cda1b0
+70fd4458
+fef0b7ae
+84a4e957
+case random-227
+ret 1
+px 0 12 4 4
+2ea633f386f5
+bb567bd671b6
+c76119ff6805
+5ca974eb3966
+case random-228
+ret 1
+ret 1
+px 0 4 4 8
+2718a5a8
+9ee071eb
+2f990cc7
+71eeb3de
+case random-229
+ret 1
+ret 1
+px 0 12 3 16
+9c4126ca8ee3ed65c7732140ba3c88ce9f2852f364e4e437
+fb65d74fbee4cf584d91b6d19b26287e132e513e3b2762da
+c22f00f77d1493f9aef7ec5c334df64f42ab82463d2fb0c6
+case random-230
+ret 1
+ret 1
+ret 1
+px 0 6 3 16
+3e3bd89d253dd0ff0882eb6c
+f9ae0813a3ccb209b0bd547d
+463dd04f39f264590d7d0105
+case random-231
+ret 1
+ret 1
+ret 1
+px 0 10 2 16
+c3c71785b9856987881a8a6ab84347b5ab8aeb33
+bcac2fbee79d816f23debfbc00336620ef4d5e5b
+case random-232
+ret 1
+ret 1
+px 0 3 5 16
+e03a7ff30ec7
+699a59d69831
+7a1bca4ca7fc
+b60cb869a710
+000000000000
+case random-233
+ret 1
+ret 1
+ret 1
+px 0 9 5 24
+522dd96ce55dc66b3d8043f6d6958c588de66c2284f6808530ac4e
+dcae8360fe76b839c69cae64d37ed0885550741795e3ac2f958553
+32831705ac5a49d16c5364e0c57c88f212a59606918c92191e10d4
+b1f58781fa590d451478a7231d72229f50b3c464e620e45c3c474a
+debee5ee9bbffead7addded7b69b6cbe7fdded7d903bfdbb973fae
+case random-234
+ret 1
+ret 1
+px 0 2 4 8
+5c3c
+4032
+05ac
+d100
+case random-235
+ret 1
+px 0 13 6 16
+201d076402823d2852e9c30b42d31c39eec109c2f0165000860c
+019caa52a29518be50e0f4fd1c5c5034d75010118f41781a6a10
+29a369a63696bc3cd3bfd72665398da6dc69457610e96dd3a945
+6f2220458bce07f622a99d3fdecbff31e06cf13644d65bf2a81e
+3e8edce3621a6c2cf712565367dcc09dbf175c101ed39993ecb3
+ba522dd96ce55dc66b3d8043f6d6958c588de66c2284f6808530
+case random-236
+ret 1
+ret 1
+px 0 9 4 16
+ffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffff
+case random-237
+ret 1
+ret 1
+px 0 8 6 16
+3fdecbffeffffb7f3644d65bf2a81edc
+3529a369d9df7f673cd3bfd72665398d
+a6dc69459bffd6d6d3a945e9a4019caa
+52a29518ebef7ffffd1c5c5034d75010
+118f41781a6a10570a201d076402823d
+2852e9c30b42d31c39eec109c2f016ab
+case random-238
+clip 3
+ret 1
+px 0 6 2 16
+6dd3a945e9a4019caa52a295
+18be50e0f4fd1c5c5034d750
+case random-239
+ret 1
+ret 1
+px 0 11 2 4
+0b1b3d2852e9
+42d31c89eec1
+case random-240
+ret 1
+px 0 6 5 4
+701ddb
+a86511
+8e24b7
+11cd16
+25bf0a
+case random-241
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 8 1 4
+a2ed2542
+case random-242
+clip 3
+ret 1
+px 0 5 7 16
+005e918fa2166d965a6a
+14bc556a51656a6f4004
+f2e37379f1ddb1721ca7
+61ea369ddd75a4d0d51b
+5fb540170d30416e80db
+0ede1e6e20cad2fdcd97
+d0294870fd5498580a74
+case random-243
+ret 1
+ret 1
+ret 1
+px 0 3 1 24
+80205fb540170d3041
+case random-244
+ret 1
+px 0 9 5 8
+80701997def61ad380
+8b0b54addc0a51c07d
+3119ba3aa55f2d11ce
+beaa669ca75e85e194
+111dc6833bf0b15eae
+case random-245
+ret 1
+px 0 1 7 1
+e6
+aa
+5e
+00
+1d
+f0
+79
+case random-246
+ret 1
+px 0 13 5 8
+d9afb3cfab33027bc2d90a8d88
+7c46f57f2bbd76fc3514592ca9
+d7eaa5049bb596972288c1bfe4
+5ed2fa8084be4d71810f2bfe1b
+9cd132c7bb6e5cedc52e5c6210
+case random-247
+ret 1
+ret 1
+ret 1
+px 0 11 4 32
+d036e02fcbbe600623edd4f38ebe270e2fdfb60527202a7213358e3b3a5b78b61f5b9a69e497f93e5ed2fa80
+73b02928e274d28cd2d026c41a0bb7c2e95ff913d5c97eba81d84aeae94bd4d1adb9421dc52e5c6210d9ea5e
+1c6bd65f57cf2b557c846ffceff9e6f3b047371926f3665364342674485860a71a8f58c079a9b3c39e553542
+b596972288c1bfe497f93e5ed2fa8084be4d71810f2bfe1b316d749cd132c7bb6e5cedc52e5c6210d9ea5ef4
+case random-248
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 12 2 16
+fceff9e6f3b047371926f3665364342674485860a71a8f58
+c079a9b3c39e55354273b02928e274d28cd2d026c41a0bb7
+case random-249
+clip 3
+ret 1
+ret 1
+px 0 12 2 16
+eae94bd4d1adb9421d711655c92406c8d6d036e02fcbbe60
+0623edd4f38ebe270e2fdfb60527202a7213358e3b3a5b78
+case random-250
+clip 3
+ret 1
+px 0 5 6 32
+5b9a694cb8063462984c007c8012e5a28b756f71
+c2d0422aed09510ae32abc541d9f780de8f19135
+fb6835af24da6716dbbaba3a0a81d05066e8f274
+3a97680824897c2c08f5705765b1e3ecc3cf65fb
+a7e9f3a239a9937e12c85092a3c7df145333642b
+eb80bebe6aac015837007d9c201a539fa7e36e7c
+case random-251
+ret 1
+ret 1
+px 0 3 7 16
+1d9f780de8f1
+fb6835af24da
+dbbaba3a0a81
+66e8f2743a97
+24897c2c08f5
+ffffffffffff
+ffffffffffff
+case random-252
+clip 3
+ret 1
+px 0 5 2 1
+93
+f3
+case random-253
+clip 3
+ret 1
+px 0 2 4 16
+7f6011c5
+b5d7d232
+d6a59394
+ac1fe461
+case random-254
+ret 1
+px 0 6 6 4
+1810aa
+bd78ae
+ba94c1
+0d295f
+ddadd5
+b9ff74
+case random-255
+ret 1
+ret 1
+px 0 3 5 24
+4e928de7b78b4d7044
+7346f25275be3731aa
+dda19f62c4392de953
+f6ca49e6477926650d
+34d4e2c8b5bebc419c
+case random-256
+ret 1
+ret 1
+ret 1
+px 0 13 6 16
+bc419cf2eb293e5304cab963784eef43647ada2b3e07d43756b0
+717797e35690146ceff853837a1d91fede95bda38b8912d333c6
+b827bbde7b66d0b9bb4405c8c2ce4a00a0d7fc179faa739b9ad0
+d00388316f96753453cbdbb9e0cfba500488e803f51579ee5e9a
+5eaef8b4479bd8407915a159dd99d13c82521c813a599a9e1c61
+e86781c0e42a21503040dd9a0e60780fa9e9ecc758f970ad4ce2
+case random-257
+clip 3
+ret 1
+ret 1
+px 0 3 2 8
+b827bb
+7b66d0
+case random-258
+ret 1
+ret 1
+ret 1
+px 0 7 5 16
+e445686ed4f8b4fa08305216480a
+0fa9e9ecc758f970ad4ce2905fa7
+6be86781c0e42a968e8e2fdd9a0e
+59dd99d13c7128a1703a599a9e1c
+ee5e9a76d85eaef8b4479bd84079
+case random-259
+clip 3
+ret 1
+px 0 12 5 16
+e9ecc758f970ad4ce2905fa7786fe445686ed4f8b4fa0830
+5216480ae721c22e79b80a2e634be858c225ab7018556d88
+2ea5fbe1e5838def2b5320d9461aadeb881cd6621e6870ea
+9e9adfd151a2f0a968bb134c9dcab63e6717b55cde118f5e
+8856d9b90ed5781b6cd0c9c37f0c7c2af525f7de53b840c3
+case random-260
+ret 1
+px 0 6 2 8
+4be858c225ab
+556d882ea5fb
+case random-261
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 3 1 16
+9e9adfd151a2
+case random-262
+ret 1
+ret 1
+px 0 3 7 1
+10
+80
+f1
+1e
+f0
+f4
+20
+case random-263
+clip 3
+ret 1
+px 0 1 7 8
+c1
+5b
+a0
+a8
+20
+cd
+0c
+case random-264
+ret 1
+ret 1
+px 0 2 5 16
+f5f01579
+b18702b4
+554824e4
+dcfdbded
+f70249f0
+case random-265
+ret 1
+px 0 4 7 24
+18d5365b96782edbf9e2f7ed
+0832663322e99f27cb9fdc10
+088e34417e63d49c84d85657
+3e61a2055cea60a40ab46170
+be2925fded12164c33065a3c
+bf9b6ed6d342612d4f8138e7
+0aecb673e994ef36d680877c
+case random-266
+clip 3
+ret 1
+px 0 10 1 4
+5cea60a40a
+case random-267
+clip 3
+ret 1
+px 0 9 7 8
+36d680877cd8ad7577
+19811c2053d00845cc
+ef7d8f748bf8ebdfc4
+c882615209c6bcf809
+350073075ca176ab4f
+7706256dd2cb6ac394
+f475d0b55eb2c14b37
+case random-268
+ret 1
+px 0 4 5 8
+09be9aa2
+35007307
+5ca176ab
+4f19e331
+7706256d
+case random-269
+clip 3
+ret 1
+ret 1
+px 0 5 5 8
+9aa5ff3643
+e990e52f64
+ed51864ac7
+916d7f9f1e
+2db3642fcd
+case random-270
+clip 3
+ret 1
+ret 1
+px 0 5 5 16
+3a7a1b27e0599da8d116
+eea00940a9a86a8dde79
+af29c4498b42a83610dc
+29f5494ddea90eab60fd
+888a4ea05d1aeb8a4e50
+case random-271
+ret 1
+ret 1
+ret 1
+px 0 12 6 4
+c5dd8e8258ce
+71ac2eb877af
+f81d8d69f81e
+5185ad40b2f8
+daf1a7e0784f
+5d1aeb8a4e50
+case random-272
+ret 1
+ret 1
+px 0 1 5 8
+8f
+1a
+66
+6d
+00
+case random-273
+ret 1
+ret 1
+px 0 13 1 1
+a3f7
+case random-274
+clip 3
+ret 1
+ret 1
+px 0 13 7 16
+ffc504748ffc014571aa56e10a8f9da5fdd3b06fbd21d53b8ad9
+55cbabab3473030d73f4db7d57cdec7c81a55d74e4d504c1412b
+6a8eb2723122bd7bc9cd6d32de4d7344c9062b3c9a9279c8f8ae
+74e73eee78053bd3e66f218532e1f91edd5e59835f2d5cce2f3b
+107d4fcbc94aee6c4872a8be843500687672204ab5314c0470d1
+0ea67ce81813b54cc8eab1e78e2ebf107c41b3ac761f0b4e3eb4
+0ef36dee2452181e7fd69db9b1c4610942987874f4d000949568
+case random-275
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 12 5 1
+3eb4
+107d
+c94a
+4872
+8435
+case random-276
+ret 1
+ret 1
+ret 1
+px 0 13 2 1
+8eb2
+22bd
+case random-277
+ret 1
+ret 1
+px 0 3 6 16
+04748ffc0145
+56e10a8f9da5
+b06fbd21d53b
+083797136c40
+a74f15e76538
+080a7ffad368
+case random-278
+ret 1
+ret 1
+px 0 12 4 24
+7ffad368df2309829e1fa041fde1e50a6802dbd4d235005e8e3a4139c65a26046c520b64
+4e2a8b34f9dc2f382ddda0d229f5ed5316b5a0d67ebfd67d83e31cdea10f902600966b3c
+ae9c4bb1512cc6fedbc1a79f66dc9ff02122973b71cb81482d40df79efe32156f28344fd
+e91d696d4548d2da79b234f55935bfe6e05ca451008d0ddaa1c6ae5dc2d1180ff4805285
+case random-279
+ret 1
+ret 1
+px 0 1 1 32
+dda0d229
+case random-280
+ret 1
+ret 1
+ret 1
+px 0 1 7 16
+48d2
+1d69
+ffff
+e321
+40df
+cb81
+2297
+case random-281
+ret 1
+px 0 9 4 24
+858c4daed96b73bb3131c7da2caa6b1f5a8a154abf418ff633a7d2
+3a6ef4f9989bbb9847101ddf7c65f7f5b6ecf57fefa60eccc383a7
+4c4398dc396e171901ef7f5fd6593e7c587db3fe2ccb4717134d10
+f930990b4a44e0e72363c5f9b67cdef41b432d847c0f3c679edbec
+case random-282
+ret 1
+px 0 13 7 16
+101dea9b9f095bd9f3af9090a60eccc383a7824c4398dc396e17
+5de45fd659dddfe7cbdfbd2ccb4717134d1065f930990b4a44e0
+63c5f9b67cdef41b432d847c0f3c679edbec30fcb6722dc91bb7
+692fd6a8a73a2d7332c1892b908c7c08cc0135ffa808dff4be6c
+6005c11c9aa476f8999fc2a79ce37d90baf4e9538e6583defa62
+fe772574c1c7544ea1f659af28e07536bed0cce0801be4d5bbfa
+2324a32f78bb0fa73f77cd05404e3f8c1c7563457705614dc72b
+case random-283
+ret 1
+ret 1
+ret 1
+px 0 1 1 16
+cbdf
+case random-284
+clip 3
+ret 1
+px 0 7 1 8
+c1892b908c7c08
+case random-285
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 5 1 32
+59af28e07536bed0cce0801be4d5bbfa7af22324
+case random-286
+ret 1
+ret 1
+px 0 8 5 32
+bfd072a823a6f80fd44b5da9c68f012377605d6d16c8157e584db524406881a7
+cfc03d884c6a647d7c1c319629daf44804e05c81c24b440d6932ffddda3fe06a
+3d50cfa88ffbce8244ad735259c4608d733a78900da3d94aab070137a86853a9
+ba72baf3733de90c91697d2a0739c8ff2991f962b288240a49cc5f35ddd9ef1e
+186b9a0821296473ff99bd46e5436251c48ec5b38e1aa054ac98cd00bb9872d2
+case random-287
+ret 1
+ret 1
+ret 1
+px 0 6 5 8
+697d2a0739c8
+91f962b28824
+cc5f35dd2610
+50cfa88f0431
+ad735259c460
+case random-288
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 11 4 1
+6a64
+1c31
+daf4
+e05c
+case random-289
+clip 3
+ret 1
+px 0 3 2 24
+95d86947b9964125c0
+f577be39ee2a2b7889
+case random-290
+ret 1
+px 0 12 1 16
+81c34d863f0341b206d7896719393b80a858ab6fbf5fa2df
+case random-291
+ret 1
+ret 1
+ret 1
+px 0 12 2 32
+7f498d2684dc9bba6a98ba0ece28ebd1d587f9e79cf8586bef57d8ae44a4aac066b24020a6cc0efb294314e07ec8884c
+e6f751f24aea51e3b0962ec903bc8478b081258f092222e5be6e7f78768425cf008c31079a9478d8340ba1de3c03eff3
+case random-292
+ret 1
+ret 1
+px 0 3 7 32
+3f99dbf40ecebea0d1d511b2
+1f8137776befc193ae4432e1
+ff0cc9d220a65a45fb294314
+485e17c14cd5ddd32698670e
+c26e379cdce5d6bb967356dd
+b7a1e83e1c62f0a2f7e50c3a
+3d91c863535104ef9116a162
+case random-293
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 5 2 4
+56ddb7
+e83e1c
+case random-294
+ret 1
+ret 1
+px 0 8 4 8
+b631295f22031251
+2a48088a20005d80
+f29605965e9ed2ab
+b2716f471d40b2fc
+case random-295
+ret 1
+px 0 1 3 8
+69
+b2
+ff
+case random-296
+clip 3
+ret 1
+ret 1
+px 0 1 6 16
+928e
+2a23
+8559
+e389
+87a5
+5193
+case random-297
+ret 1
+px 0 13 4 16
+a81311a607b638ad6a7d000000000000ad7804ba72dd655ab6a5
+7a6eb2d53bf37e02b4250000000000001ca9bce914c9e667dd90
+6bbad4e427eb669e05f80000000000004091243ab48fb49f8178
+cd4e21969ef95e3a31780000000000001ed965d4ef5fcae54fd3
+case random-298
+ret 1
+ret 1
+px 0 12 7 16
+8babb0beac40c9518ea2a458506626931109ddab86407f67
+ea0dbd54a99182698b3fe86c0a5b7700214693fe60e5e705
+2983f03d201d39643db7ec02c437c4b5d55bf0ca4f73520d
+e54fd3edd37797aaa3a556bab79a4cfcaa3ca3fb625c3441
+cacd4e21969ef95e3a3178972635cef6898022120310a034
+e427eb669e05f88b7402de5887409124c14a1041201a8014
+02b4258460faea56711ca9bce914c9e610026d212210052a
+case random-299
+ret 1
+px 0 8 7 32
+6bfdc4a59a4cfcaa3ca3fbe75c34412dc9424fbae6fe087e98f205ec6941521b
+0a9c75759ef95ebe3178972e35cef6e582ca305a6f86cf2a2d4394495246d234
+ead163ec130bdb1d07cadf08b6d155563ec647c5b006d3414044c010556428e5
+e5e7058babb0beac40c9518ea2a458506626931109ddab86407f679dc0516da7
+37c4b5d55bf0ca4f73520dea0dbd54a99182698b3fe86c0a5b7700214693fe60
+7797aaa3a556bab79a4cfcaa3ca3fb625c34412983f03d201d39643db7ec02c4
+8178e3cacd4e21969ef95e3a3178972635cef6601ed965d4ef5fcae54fd3edd3
+case random-300
+ret 1
+px 0 6 2 4
+97aaa3
+d3edd3
+case random-301
+ret 1
+px 0 10 7 8
+c437c4efdbdb6eeefe73
+ea0dbd5bff7eee7b5f3f
+0a5b77df5a5afa7e5ee5
+8babb0ffeecaffdefba2
+506626931109ddab8640
+9dc0516da7ead163ec13
+1d07cadf08b6d155563e
+case random-302
+ret 1
+ret 1
+ret 1
+px 0 10 7 24
+a00883400a804fb700093414bfe14a002410010102020110000a60005010
+84264408201adeafed2b590bf71b85220000000a810d1000200880000420
+008a40040490106393c5552fdabb6d000000480301881800404280001440
+6bfdc4a508b5b520e0fac1e745967400804045122404084008a204200040
+0a9c75750f7518a6a313cc0c18ace6008000100826848008204204004000
+ead163ec130bdb1d07cadf08b6d155020e00044100061040404480005040
+e5e7058babb0beac40c9518ea2a458000000000000000000000000000000
+case random-303
+ret 1
+ret 1
+px 0 13 6 4
+a6a313cc0c18ac
+c582ca305a6f86
+2a2d4394495246
+346bfdc4a508b5
+20e0fac1e74596
+05c9424fbae6fe
+case random-304
+ret 1
+ret 1
+px 0 2 2 1
+98
+e6
+case random-305
+ret 1
+px 0 9 5 4
+9e37681b2d
+21cee5deaf
+0bf71b85bf
+0ad91dc9f8
+86cda50a4c
+case random-306
+clip 3
+ret 1
+px 0 13 5 16
+14bfe14a82a7d7411b6f12593cb67a79fcfb962345211b1fa081
+086a8bb385a3e7b4970a7fafca61cc74480584fb33ae9369c044
+ccc111e2baec625534f776b7b2106818dbdc189f74379b4dd00b
+9bae548a317e9f2661ce9cf3e98a98d5231b1892fdbbfbc7ba2a
+6a6908d850d5166eba2ec7408200e344034784f21b87d7803f0c
+case random-307
+ret 1
+ret 1
+ret 1
+px 0 6 3 16
+5534f776b7b2106818dbdc18
+69c04481deccc111e2baec62
+afca61cc74480584fb33ae93
+case random-308
+ret 1
+ret 1
+px 0 3 5 4
+4784
+0ff3
+2ff7
+dff6
+6ff8
+case random-309
+clip 3
+ret 1
+px 0 3 1 8
+63f6f5
+case random-310
+ret 1
+ret 1
+ret 1
+px 0 9 5 4
+2323fdcdaf
+8f9bb0f5b4
+86f5898be9
+6d7256585c
+727f44c8e8
+case random-311
+clip 3
+ret 1
+ret 1
+px 0 1 3 4
+d4
+ff
+d9
+case random-312
+ret 1
+px 0 10 2 4
+5d1c1e26f7
+c92450ed3e
+case random-313
+ret 1
+px 0 9 4 4
+26ddbe5352
+f6c26a7323
+1aa59f5c75
+dc0c9a0844
+case random-314
+ret 1
+ret 1
+ret 1
+px 0 9 4 16
+d35fa0752737f899834a24d438487e1b6fd6
+2578847eae60322035d687e1dcb863dd02af
+1154203e727ac4e255e521cd43877bc6ebff
+e8aded26f9ca3cdf37210637a215191185f9
+case random-315
+clip 3
+ret 1
+ret 1
+px 0 4 1 8
+afbedad3
+case random-316
+ret 1
+px 0 11 4 16
+363ff6d14c067142deefda104ec35d7d5b5feee1af3e
+2e91fe45d890e304490f7446e37cff28866a3569147a
+9f96cd1db433cbd64d9f716c94fb160b769815b480e0
+02d17ba1ffb2abd58f71446b3e4753b117d1f2628929
+case random-317
+ret 1
+ret 1
+ret 1
+px 0 12 1 32
+46e37cff28866a3569147ae2899f96cd1db433cbd64d9f716c94fb160b769815b480e0fc6e02d17ba1ffb2abd58f7144
+case random-318
+ret 1
+px 0 11 7 16
+93e80ab258b5cae74ceeb13ca99c398ce1b713a1dbe2
+0721f872fb6f38f3a7d1866909ba5fbd2a571eb6f14e
+71413522aec697a164bebc3b86a12f17eda93144051e
+c8a4fbf9a89fe3438fb148ed4799343f58b5556d522a
+04033361205dc43cea74fa9896bf5246f7a2025a10c5
+79c8ab8db17e9e53b5f7ee03ab1bab1b915ca59e5a77
+b11f02d2b82305694898db6735c13ba7d05386907e3e
+case random-319
+ret 1
+ret 1
+px 0 12 6 16
+53b5f7ee03ab1bab1b915ca59e5a779d0404033361205dc4
+3cea74fa9896bf5246f7a2025a10c5489bc8a4fbf9a89fe3
+438fb148ed4799343f58b5556d522a36eb71413522aec697
+a164bebc3b86a12f17eda93144051e19ee0721f872fb6f38
+f3a7d1866909ba5fbd2a571eb6f14e3ac993e80ab258b5ca
+e74ceeb13ca99c398ce1b713a1dbe2429983be2138bc53d8
+case random-320
+ret 1
+ret 1
+ret 1
+px 0 11 2 16
+c697a164bebc3b86a12f17eda93144051e19ee0721f8
+9fe3438fb148ed4799343f58b5556d522a36eb714135
+case random-321
+ret 1
+px 0 10 6 1
+f3a7
+6909
+bd2a
+b6f1
+c993
+b258
+case random-322
+ret 1
+ret 1
+px 0 1 6 4
+1a
+53
+be
+e2
+b7
+9c
+case random-323
+ret 1
+ret 1
+px 0 11 7 1
+4e4e
+0785
+b29a
+f826
+290a
+df1c
+83b0
+case random-324
+ret 1
+ret 1
+ret 1
+px 0 12 3 1
+400f
+9ae9
+c900
+case random-325
+ret 1
+px 0 1 1 8
+fc
+case random-326
+clip 3
+ret 1
+px 0 5 6 32
+6c1387c9b985ef3630ba3da762ba2a8de4a03c15
+9b209b2717627e2addb4aa53ac78469dfe31bd2f
+59ac03bcb3a8a35588af1590dca7bf4a5f06eb66
+6c5f974e1ac89ae9db25beaf18d0ced2d81ce91f
+ad69f85fe7731898195430f4e1c85b02d830df7d
+105bfc1da100f590ee20f7bc610e2a0ea6046905
+case random-327
+ret 1
+px 0 4 1 1
+2f
+case random-328
+ret 1
+px 0 6 6 4
+bc610e
+90ee20
+1da100
+7d105b
+02d830
+f4e1c8
+case random-329
+ret 1
+ret 1
+px 0 1 4 8
+07
+03
+20
+52
+case random-330
+ret 1
+px 0 7 5 1
+d2
+37
+8e
+f1
+b1
+case random-331
+ret 1
+ret 1
+px 0 2 3 16
+4dffe09d
+dd14eebd
+1541f40c
+case random-332
+ret 1
+ret 1
+px 0 5 7 8
+89f93304f5
+bfc4538356
+000266582b
+5003d988fd
+087cb8deea
+82aa104cd7
+088744b51c
+case random-333
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 1 2 8
+55
+4c
+case random-334
+ret 1
+ret 1
+ret 1
+px 0 5 4 1
+15
+31
+27
+90
+case random-335
+clip 3
+ret 1
+px 0 3 2 32
+c6773902e1cc0cdeddfd7dff
+248c95c16240cac2162e6ebd
+case random-336
+ret 1
+ret 1
+ret 1
+px 0 2 4 4
+d3
+e5
+73
+b7
+case random-337
+ret 1
+px 0 12 2 16
+a89eddd98f6267698cfe5a946b02e7e742d67e3e4efd3a34
+b08893a5204cfa4414c1d2e95cc462c0614369d1f93a5bae
+case random-338
+clip 3
+ret 1
+ret 1
+px 0 6 5 1
+d2
+62
+69
+5b
+6d
+case random-339
+ret 1
+ret 1
+ret 1
+px 0 11 5 1
+7e83
+5a9f
+921a
+5613
+8b86
+case random-340
+ret 1
+ret 1
+px 0 7 3 32
+e0f6a4bd9af66318f93018050e9b2d510d194c1e4c618ad947ff424d
+de4e7415a95f2cefc1257f0cfe580fb5f52708b96166c82573acb58d
+00888340021907826b03a224ebf9e826125deab7ab477ce757f0f1e2
+case random-341
+ret 1
+ret 1
+px 0 8 2 8
+6166c82573acb58d
+2f547486fce03878
+case random-342
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 10 1 32
+f31b85a91a61a8d4a7ce0cc8b195763dd80843ad0202249b64b5693e2ba93d4d38ec284601773912
+case random-343
+ret 1
+ret 1
+px 0 8 4 1
+39
+6c
+f4
+a3
+case random-344
+ret 1
+px 0 9 1 8
+0547d9b86e821563d8
+case random-345
+ret 1
+px 0 2 7 16
+7721655e
+03201064
+ed9c0347
+50d6ca3c
+4e4a6674
+c6de4d78
+d6fc087a
+case random-346
+ret 1
+ret 1
+px 0 10 7 1
+4505
+d3cc
+b88a
+e486
+e876
+25ae
+1d64
+case random-347
+ret 1
+ret 1
+px 0 12 1 16
+1582a3cee4b03ee8626ee59b31f0f4171a4d03638fb1fa3b
+case random-348
+ret 1
+ret 1
+ret 1
+px 0 8 6 32
+c0641380cd79461a3b9fb4287636f5c53cdd3beffb3a795a949299eff699f6e1
+0990afea7a4126190260b509215547b0c1f7a88b278ba6007e272521e7eb91ae
+485215b08cd30059c5872fd21704d085a6b2d942368cb6f75ad12e5c216623cd
+7ee33bd08d988b85c92247eedc6892a461f96849d0a1e64fd7d000ca5f8befb6
+4095cee098ca0b38a118ba14311af44cc937578c4b32d3984b5c292293244e74
+bc4da49a20a71eb065ffcc2e4543a3a5a2ec0897690154c4dce5b7d765fbac9f
+case random-349
+ret 1
+ret 1
+px 0 6 7 16
+cd0990afea7a4126190260b5
+42368cb6f75ad12e5c216623
+59c5872fd21704d085a6b2d9
+ca5f8befb6485215b08cd300
+a461f96849d0a1e64fd7d000
+d08d988b85c92247eedc6892
+984b5c292293244e747ee33b
+case random-350
+ret 1
+ret 1
+px 0 7 4 1
+15
+00
+2f
+d0
+case random-351
+ret 1
+ret 1
+px 0 13 3 32
+d6b6445347a30670dcedfa6d097764ed1d1eddf4f3612dbc09e7b101fc942ce9115a017efd6392f4089c516a1fdc9ef4a9981844
+1ed5bb40f69c31fc712b029d44c0d298a2901127711745525a12b639ec3896868e0433854a6c1ee76d6732926fde9f0d71f2a25c
+a88b278ba6007e272521e7eb91aec0641380cd79461a3b9fb4287636f5c53cdd3beffb3a795a949299eff699f6e1e15fecf9840c
+case random-352
+ret 1
+ret 1
+ret 1
+px 0 8 1 1
+f6
+case random-353
+ret 1
+px 0 2 1 4
+f2
+case random-354
+clip 3
+ret 1
+px 0 5 5 16
+e7b101fc942ce9115a01
+6392f4089c516a1fdc9e
+981844386cfd787d9589
+4e7f95e557c7d12d0f5f
+84b9b59fb3835d487228
+case random-355
+clip 3
+ret 1
+ret 1
+px 0 9 5 1
+5d48
+b59f
+3890
+d12d
+95e5
+case random-356
+ret 1
+px 0 2 5 24
+95c7dcb4b66c
+56b8592d703a
+943a3075777b
+4f7ccd1fc06e
+cb50591cf116
+case random-357
+ret 1
+ret 1
+ret 1
+px 0 6 3 4
+6ea651
+50591c
+36dc0a
+case random-358
+ret 1
+ret 1
+ret 1
+px 0 5 6 16
+bd8007cab434e1c636a7
+e62d5fbed8024902906e
+e62be62be62b61fbad3b
+e1c636a7e62b8e9dca54
+4902906ee62b6a81965f
+61fbad3be62b8cbe5898
+case random-359
+ret 1
+ret 1
+ret 1
+px 0 12 3 8
+6a81965f59e44fe0e1bcb8a8
+8cbe58982ee0d454e6e8c50c
+14d032c59559a1e83730d573
+case random-360
+ret 1
+px 0 2 1 24
+389c4fa82412
+case random-361
+ret 1
+px 0 13 1 16
+28279afcb0f9f949034d2b822f1fbd1e4d7d2a923796c00d9c73
+case random-362
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 6 1 24
+de07a91d2688284054b4fdfa5e5086fa2c68
+case random-363
+ret 1
+px 0 3 3 32
+34709bb14c5a9e9018420964
+bed1fef4ccbf68aa8cdfdff9
+464d3bdc80b5507ecc9f4ba9
+case random-364
+ret 1
+ret 1
+px 0 9 4 24
+52af148bd19d11d84b1a374e568b1997ada53f16888a532e8aa56f
+f50e860ea6eca369cb877b9981580bee8e1d8cfc7a748dbd887228
+0c6d26b15e8d12831b6a656b4eeafccbbd23e32d1a944b1f1105ea
+a4f092e1e0e3a3f626ce719d59eb2f74608dc292a4b5affafe2f89
+case random-365
+ret 1
+px 0 2 3 24
+000000000000
+000000000000
+000000000000
+case random-366
+ret 1
+ret 1
+ret 1
+px 0 6 6 8
+4b1a374e568b
+c6523f16888a
+8aa56f0c9ea2
+d91eec5f9c69
+879fc380de4c
+53d18df4de66
+case random-367
+ret 1
+ret 1
+ret 1
+px 0 11 6 4
+151a163f4647
+e7f49ecb3b9e
+0abf65d688b1
+f775d6c4d229
+70d4598909c7
+c170f7bd3cc1
+case random-368
+ret 1
+ret 1
+ret 1
+px 0 2 5 4
+1b
+8a
+15
+ae
+89
+case random-369
+ret 1
+px 0 10 1 32
+fa1816de76018dcac5de77b61382e2de2add564127b52ce11b7669c3a3a4f5d7cdf88cdc81faf49f
+case random-370
+ret 1
+px 0 10 5 16
+c3a3a4f5d7cdf88cdc81faf49fecf497bbe91491
+c58190771c333a885b581e72f1a8eca90d6b5e0c
+a4c6184fd5e72b5dff5a442db99be60b5b4b0b48
+bfa2bc040eb34030fd6dac852d6d3747ee9e4db3
+b91c63be64fc78b810eabc6b27af7f8b68366984
+case random-371
+ret 1
+ret 1
+ret 1
+px 0 6 5 32
+eca90d6b1e3c59abb4caf88a1c1a11c4099e0087e60b5b4b
+0b48bfa2006f291c3fbb955bc5016256cb6be7ab4db3b91c
+63be64fc1e395df8acec4f774827d6e57b8f9a57fc2c0935
+dd7da3d765934fd0a2975ce1ae566d0a22f695b8120bd56c
+ba4a97bbdf1c0f2b44e03f4ec41611f3bed105d2155a2b6b
+case random-372
+ret 1
+px 0 13 3 1
+bc6b
+7f8b
+6984
+case random-373
+ret 1
+ret 1
+ret 1
+px 0 12 7 1
+d56c
+97bb
+0f2b
+3f4e
+11f3
+05d2
+4b6b
+case random-374
+ret 1
+ret 1
+px 0 8 6 4
+4cab68a5
+c5c148c9
+b1b76742
+623496d1
+d0f5e3df
+3034159f
+case random-375
+ret 1
+ret 1
+ret 1
+px 0 9 3 1
+c34c
+e7fe
+cde7
+case random-376
+ret 1
+ret 1
+px 0 4 4 16
+15a9403a89e806eb
+1c016d31c2f80683
+ad7d414022750c18
+92614d5a1f28dba5
+case random-377
+ret 1
+ret 1
+px 0 13 3 16
+e355d7ef32a1aa5f457021c6e2bb398b10b4dda662ca2778d2a0
+5c1d300dec44a1313491386e2fa4e606242d57b2db061a6385bb
+bdf39a7a991475e8d434b197ca4b51c259c67a280cb71ed9f039
+case random-378
+ret 1
+px 0 8 1 24
+bbd66fbdf39a7a991475e8d434b197ca4b51c259c67a280c
+case random-379
+ret 1
+ret 1
+px 0 8 5 1
+9b
+34
+8f
+b4
+74
+case random-380
+ret 1
+ret 1
+ret 1
+px 0 7 7 24
+83295fddcdf10341fb877cd046dc58de4f57254cd8
+352148a564ec3bcb6cb8d5ae3d9710c396b6b6224d
+70d8b68b6343f55f2d598a52554b9fd667f0c89c0c
+b68e3c7af548fad0f90bfa31faea1b17c72ba4728f
+38fedbcdb9cb332e68607d2b6d4bccd99a022bb7c7
+28df41810f4f7032bf6e1e688a1c5a1c0fff24cdc2
+0000008000008080001cc51a4382cbcbe425265e19
+case random-381
+ret 1
+ret 1
+px 0 8 7 8
+9a022bb7c79843b5
+68607d2b6d4bccd9
+38fedbcdb9cb332e
+c72ba4728f511cd5
+f90bfa31faea1b17
+b68e3c7af548fad0
+67f0c89c0cc42bdb
+case random-382
+ret 1
+px 0 6 4 32
+32bf6e1e688a1c5a1c0fff24cdc2bc6b7bcac1ebc81519ed
+d8181cc51a4382cbcbe425265e1993ec06927af9e5ac2715
+93eced1666bb741d99f1e77f444ae8bd32a6077dc95153a8
+c390b30ca03301b2072881a24883512b900dd71402d5a459
+case random-383
+ret 1
+ret 1
+ret 1
+px 0 2 5 16
+265e1993
+ec06927a
+f9e5ac27
+1593eced
+1666bb74
+case random-384
+ret 1
+ret 1
+px 0 12 3 24
+9dc8c3444ee2349960a04f6024f7f4a34b1b1e3c9a3226d604bf17177b4643a3cf5af799
+108c5cdf6abeb2be8bb4f00bb4553475342e2c5400841494133db33dab47eab1856b96ca
+1402d5a45982b1f4c50e86ff1289a8b51e7aeceedcae49960431811af5fde80bbce2c887
+case random-385
+clip 3
+ret 1
+px 0 10 7 4
+8bb4f00bb4
+342e2c5400
+133db33dab
+856b96ca9d
+4ee2349960
+24f7f4a34b
+9a3226d604
+case random-386
+clip 3
+ret 1
+px 0 4 5 16
+a04f6024f7f4a34b
+1b1e3c9a3226d604
+bf17177b4643a3cf
+5af799ad8c76f1fd
+b1495b3b03ddc627
+case random-387
+ret 1
+ret 1
+ret 1
+px 0 3 4 1
+5b
+c6
+0e
+c0
+case random-388
+ret 1
+ret 1
+px 0 2 2 16
+ffffffff
+ffff0080
+case random-389
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 8 4 1
+4d
+a7
+5d
+28
+case random-390
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 6 4 24
+6c6b96eda08dd6ee6862981e45811861c1cd
+a4f188ae73afdf5dc0755226244609a6d378
+5580c2fdd0ea38da7fc4cdf3f2e58255792f
+7b9e2778aa929f50a599592c9065ffbdb272
+case random-391
+clip 3
+ret 1
+ret 1
+px 0 7 4 16
+6c6b96eda08dd6ee6862981e4581
+c1cda248750e6fa06dad21ebbacf
+fd43107c5298237f60e436db2b20
+9f7a70fab712476b472eaae244ab
+case random-392
+ret 1
+ret 1
+px 0 13 5 32
+7a70fab712476b472eaae244ab046a31873d7799c59df09b61592272de81e5096b2580aed4445a1f44fc051f32e3021d5902512a
+f1880affd3428eeda74dc239d273266ca56801727ad71be39ff534871e1e1c5eceab7ec354f3a73057f3ba668eda39aab8928f2b
+2d52b491c4033c4e2ca408ba405c143d2074d82d20719a9c2b9d82859c6085cd4c370ca5a4923df42c888209bdcd4bf4c74957c4
+949f268d23340914752a4c7c97ccc30d5b35f838f38bed1129e6e4e0897e98d7f4c4fd50db9731a76a8cb8f4e1f29c0f3a338bde
+23b0f27630c2d271c71ba43b2fdaa3a202a66bbbfc959c9808a1dac6ea4de92af4e07ceaa66a1bffdc10168a577ac8bf467b7398
+case random-393
+ret 1
+ret 1
+px 0 6 6 16
+051f32e3021d59027ffbf188
+0affd3428eeda74dfe3bd273
+266ca56801727ad7ffef9ff5
+34871e1e1c5eceab7feb54f3
+a73057f3ba668edaffefb892
+8f2b2d52b491c4033c4e2ca4
+case random-394
+clip 3
+ret 1
+ret 1
+ret 1
+px 0 8 5 4
+8f2b2d52
+39aab892
+ba668eda
+a73057f3
+7ec354f3
+case random-395
+ret 1
+ret 1
+ret 1
+px 0 4 6 8
+c614752a
+b37c97cc
+3c0d5b35
+f838f38b
+e41129e6
+e4e0897e
+case random-396
+ret 1
+ret 1
+ret 1
+px 0 5 5 16
+d271c71ba43b2fdaa3a2
+6bbbfc959c9808a1dac6
+e92af4e07ceaa66a1bff
+168a577ac8bf467b7398
+3f5744add89a5058f447
+case random-397
+ret 1
+px 0 7 3 24
+06bb3ecfb903c74b2c8aaf77beb43e8e736d33abbf
+e6cf2116a749bbf6de5d79a63e5c14e41986fc1714
+d89a5058f4476f5390fe685678cfe07100ef79083d
+case random-398
+ret 1
+ret 1
+px 0 1 1 1
+14
+case random-399
+ret 1
+ret 1
+px 0 3 6 1
+b5
+99
+dc
+dd
+7e
+79
+case edge-patblt-0
+ret 0
+px 0 6 3 32
+6941b0f08f7f122f3e7cdd260ac4368e85dcc5b9fffde84f
+420800ce788f53241d2eed78fac45f874250e590378af3b1
+975ee4aeebcd6a167f3f18c72560a1b3626c02802ec67687
+case edge-patblt-1
+ret 0
+px 0 6 3 32
+0a42f7b9448c512b3133dc2c894efdc1322b613b44ac8999
+5745a11f8368c747cd7d30e62281c45de7cfb301a260ead1
+7628456d6bb22941cb125ab385c9ddb624ec549cda871f65
+case edge-patblt-2
+ret 1
+px 0 6 3 32
+2b4332f634ab120034ab120034ab120034ab1200771562d6
+a56c04fb34ab120034ab120034ab120034ab12001589af85
+dbad7ede34ab120034ab120034ab120034ab1200374b91f4
+case edge-patblt-3
+ret 1
+px 0 6 3 32
+f51f8c1334ab120034ab120034ab120034ab12003d229712
+fd87c7d334ab120034ab120034ab120034ab1200e6586140
+4c894eb734ab120034ab120034ab120034ab1200efc1b61a
+case edge-patblt-4
+ret 1
+px 0 6 3 32
+d41e495c66bb83186853e036b8ea1d63871e83e60e9b7c5d
+0fae623776416a2cb21165b7b98850bba076df3b51b12414
+e10c7504e138aabecb43e321b8763447261d63fd020d388b
+case edge-clip-twice
+clip 3
+clip 3
+clip 3
+clip 1
+ret 1
+px 0 6 4 32
+a505c143e5b7e3e1853137d9a1da7bcb522509b0b898d941
+7b219062da78f6e07b0ae23ceb4f405a326f593add8e6fe2
+cc55e32f86c523aec2146ea78e14a3af038b92346e868d6f
+c2f25d06a2bd5c1232fa30640e14ee7bbe9c3e8efabf3398
+case edge-clip-unordered
+clip 3
+ret 1
+px 0 6 4 32
+a505c143e5b7e3e1853137d9a1da7bcb522509b0b898d941
+7b21906200ff000000ff000000ff000000ff0000dd8e6fe2
+cc55e32f00ff000000ff000000ff000000ff00006e868d6f
+c2f25d06a2bd5c1232fa30640e14ee7bbe9c3e8efabf3398
+case edge-dib-2bpp
+dib failed 0
+case edge-negative-0
+ret 1
+px 0 8 4 32
+bf15276f15ef2ecba15253b3cb990193f0673caf22c980a83cf62dcb44b8c7aa
+4e16ce52671f198303b49cf255c219ba19fb232419414cd43af240bf7836eb91
+e4b93991415fc075f86bbf747bcea2d43a09cbb5eabd7a789cbe76fa7081ff58
+28eea2da24631d389421aa1f5ed7da62cedd29a35ebb23a7148b6aa1ad573d41
+ret 1
+px 0 8 4 32
+bf15276f15ef2ecba15253b3cb990193f0673caf22c980a83cf62dcb44b8c7aa
+4e16ce52671f198303b49cf255c219ba19fb232419414cd43af240bf7836eb91
+e4b93991bea03f8a0794408b84315d2b3a09cbb5eabd7a789cbe76fa7081ff58
+28eea2dadb9ce2c76bde55e0a128259dcedd29a35ebb23a7148b6aa1ad573d41
+case edge-negative-1
+ret 1
+px 0 8 4 32
+9e14e220c43f3479842698844137f422b8921ac0a68e5ffdb6f270569f8690be
+4f3e2ea69dfd6784f2aedfd5e22b5ceedcdf79e411daf544546f8bb71510eb56
+8409eddbc215c38b2af93e77efbe6116bf1d0d75eef17d37a5c54ea7cf483f82
+b30f322de1fc9b40b7210986b3ed1e77b7cc583346e17401be4df7e17181a76c
+ret 1
+px 0 8 4 32
+9e14e220c43f3479842698844137f422476de53f5971a002490d8fa99f8690be
+4f3e2ea69dfd6784f2aedfd5e22b5cee2320861bee250abbab9074481510eb56
+8409eddbc215c38b2af93e77efbe6116bf1d0d75eef17d37a5c54ea7cf483f82
+b30f322de1fc9b40b7210986b3ed1e77b7cc583346e17401be4df7e17181a76c
+case edge-negative-2
+ret 1
+px 0 8 4 32
+7913a165658d6a64273531c64c742fd315b5919d2100383f529a1c786527a529
+e54ff1f0dc641dff3126d22ec3658a6434d861c81ffb2c2d4ccb6c6c568b343b
+a1b2fdb9b51ea9973495564a1099ecd281457ebb3d66c01df4d7289eca454c58
+787e7a7527e8b876aea54a2ee9de12673c28660d726984f6fe6c4256834832df
+ret 1
+px 0 8 4 32
+7913a1659a72959bd8cace39b38bd02c15b5919d2100383f529a1c786527a529
+e54ff1f0239be200ced92dd13c9a759b34d861c81ffb2c2d4ccb6c6c568b343b
+a1b2fdb9b51ea9973495564a1099ecd281457ebb3d66c01df4d7289eca454c58
+787e7a7527e8b876aea54a2ee9de12673c28660d726984f6fe6c4256834832df
+done
