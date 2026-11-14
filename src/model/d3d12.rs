@@ -512,18 +512,24 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     // (MEASURED, golden d3d12-64 alloc-other: both 64KB swizzles in whole 64KB tiles of the
     // standard shapes, each mip level its own tiles)
     if d.layout == 2 || d.layout == 3 {
-        let Some((bytes, bw, bh)) = block(d.fmt).filter(|_| d.dim == 3) else { return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")) };
+        let Some((bytes, bw, bh)) = block(d.fmt) else { return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")) };
         hit("D3D12.ALLOC.SWIZZLE");
-        let (tw, th) = match bytes {
-            1 => (256, 256),
-            2 => (256, 128),
-            4 => (128, 128),
-            8 => (128, 64),
-            _ => (64, 64),
+        let (tw, th, td) = match (d.dim, bytes) {
+            (3, 1) => (256, 256, 1),
+            (3, 2) => (256, 128, 1),
+            (3, 4) => (128, 128, 1),
+            (3, 8) => (128, 64, 1),
+            (3, _) => (64, 64, 1),
+            (_, 1) => (64, 32, 32),
+            (_, 2) => (32, 32, 32),
+            (_, 4) => (32, 32, 16),
+            (_, 8) => (32, 16, 16),
+            _ => (16, 16, 16),
         };
         let mips = if d.mips == 0 { full_chain(d) } else { d.mips };
-        let tiles: u64 = (0..mips).map(|m| ((d.w >> m).max(1).div_ceil(bw) as u64).div_ceil(tw) * ((d.h >> m).max(1).div_ceil(bh) as u64).div_ceil(th)).sum();
-        return Ok((tiles * d.d as u64 * 65536, 65536));
+        let (array, depth) = if d.dim == 4 { (1, d.d) } else { (d.d, 1) };
+        let tiles: u64 = (0..mips).map(|m| ((d.w >> m).max(1).div_ceil(bw) as u64).div_ceil(tw) * ((d.h >> m).max(1).div_ceil(bh) as u64).div_ceil(th) * ((depth >> m).max(1) as u64).div_ceil(td)).sum();
+        return Ok((tiles * array as u64 * 65536, 65536));
     }
     if d.layout != 0 {
         return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER"));
