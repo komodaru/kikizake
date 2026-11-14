@@ -401,9 +401,113 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     Ok(o)
 }
 
+/// HighQualityCubic in a format of its own (16 bits a channel, 32bppRGBA, 8bppAlpha): as over 8
+/// bits, every channel alike
+fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
+    // (MEASURED: golden wicscale rgrid-hqcubic-rgba-*, fmt-rgba-hqcubic: straight alpha filtered
+    // premultiplied, as 32bppPRGBA, and back)
+    if s.fmt == "rgba" {
+        let p = hq_plain(&wic_convert(s, "prgba")?, w, h)?;
+        return wic_convert(&p, "rgba");
+    }
+    // (64bppRGBA: premultiplied too, but its 16-bit premultiplying and back are not worked out,
+    // golden rgrid-hqcubic-rgba64-*: colors 1 or 2 below the exact)
+    if s.fmt == "rgba64" {
+        return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
+    }
+    hq_plain(s, w, h)
+}
+
+fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
+    let wide = matches!(s.fmt, "gray16" | "rgb48");
+    let size = if wide { 2 } else { 1 };
+    let c = bits_of(s.fmt) as usize / (8 * size);
+    let max = if wide { 65535.0 } else { 255.0 };
+    let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
+    let src = |x: usize, y: usize, k: usize| {
+        let i = y * s.stride() + (x * c + k) * size;
+        if wide { f64::from(u16::from_le_bytes([s.px[i], s.px[i + 1]])) } else { f64::from(s.px[i]) }
+    };
+    let ost = o.stride();
+    let (tx, ty) = (hq_taps(s.w, w), hq_taps(s.h, h));
+    for (y, a) in ty.iter().enumerate() {
+        for (x, b) in tx.iter().enumerate() {
+            let sum = |f: &dyn Fn(usize, usize) -> f64| -> f64 { a.iter().map(|&(jy, wy)| wy * b.iter().map(|&(jx, wx)| wx * f(jx, jy)).sum::<f64>()).sum() };
+            for k in 0..c {
+                let v = sum(&|x, y| src(x, y, k));
+                // (MEASURED: golden rgrid-hqcubic-gray16-7x7-3x3, -rgb48-4x4-9x9, -8x6-3x13: 16-bit
+                // sums within 0.015 of a half round either way, its f32 order not found)
+                if wide && (v - v.floor() - 0.5).abs() < 0.02 {
+                    return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
+                }
+                let v = (v + 0.5).floor().clamp(0.0, max) as u16;
+                let i = y * ost + (x * c + k) * size;
+                if wide {
+                    o.px[i..i + 2].copy_from_slice(&v.to_le_bytes());
+                } else {
+                    o.px[i] = v as u8;
+                }
+            }
+        }
+    }
+    Ok(o)
+}
+
+/// a filter over a picture of f32 channels (32bppGrayFloat, 128bppPRGBAFloat)
+fn filter_float(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
+    let c = (bits_of(s.fmt) / 32) as usize;
+    let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
+    let src = |x: usize, y: usize, k: usize| {
+        let i = y * s.stride() + (x * c + k) * 4;
+        f64::from(f32::from_le_bytes([s.px[i], s.px[i + 1], s.px[i + 2], s.px[i + 3]]))
+    };
+    let ost = o.stride();
+    let mut put = |x: usize, y: usize, k: usize, v: f64| {
+        let i = y * ost + (x * c + k) * 4;
+        o.px[i..i + 4].copy_from_slice(&(v as f32).to_le_bytes());
+    };
+    match mode {
+        "fant" => {
+            // MEASURED (golden wicscale rgrid-fant-gray16-*, -rgba64-*, fmt-*-fant: 1275 floats,
+            // every one as this): across, then down, in f32: each tap's weight its integer
+            // weight times the f32 reciprocal of the pass's denominator, each product rounded, then
+            // added in the order of the taps
+            let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
+            let (rx, ry) = (1.0 / tx.den as f32, 1.0 / ty.den as f32);
+            let ow = w as usize;
+            let mut mid = vec![0f32; ow * s.h as usize * c];
+            for y in 0..s.h as usize {
+                for (x, t) in tx.taps.iter().enumerate() {
+                    for k in 0..c {
+                        mid[(y * ow + x) * c + k] = t.iter().fold(0.0f32, |acc, &(j, wt)| acc + (wt as f32 * rx) * src(j, y, k) as f32);
+                    }
+                }
+            }
+            for (y, t) in ty.taps.iter().enumerate() {
+                for x in 0..ow {
+                    for k in 0..c {
+                        put(x, y, k, f64::from(t.iter().fold(0.0f32, |acc, &(j, wt)| acc + (wt as f32 * ry) * mid[(j * ow + x) * c + k])));
+                    }
+                }
+            }
+        }
+        _ => return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE)),
+    }
+    Ok(o)
+}
+
 pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     let (work, out) = scale_formats(s.fmt, mode);
     hit(clause::WICIMAGE_SCALE_FORMAT);
+    if mode == "hqcubic" && ["gray16", "rgb48", "rgba64", "rgba", "alpha8"].contains(&work) {
+        hit(clause::WICIMAGE_SCALE_HQCUBIC);
+        return hq_wide(&wic_convert(s, work)?, w, h);
+    }
+    if mode == "fant" && ["grayfloat", "prgbafloat"].contains(&work) {
+        hit(clause::WICIMAGE_SCALE_FANT);
+        let o = filter_float(&wic_convert(s, work)?, w, h, mode)?;
+        return wic_convert(&o, out);
+    }
     if mode != "nn" {
         if !["gray8", "bgr24", "pbgra"].contains(&work) {
             return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
