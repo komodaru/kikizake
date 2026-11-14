@@ -477,6 +477,17 @@ pub fn dd8() -> String {
             writeln!(s, "ddfill 0 {k}\nddblt 0 {dx} {dy} {} {} 1 {sx} {sy} {} {}{extra}\ndddump 0", dx + dw, dy + dh, sx + sw, sy + sh).unwrap();
         }
         writeln!(s, "end").unwrap();
+        // mirrored: each column count to each, mirrored left-right and up-down at once (both
+        // axes in one blit, each its own count)
+        writeln!(s, "case stretchmirror-{f}\ndd\nddsurf 0 20 20 {f}\nddsurf 1 20 20 {f}\nddfill 1 7").unwrap();
+        for sw in 1..=9 {
+            for dw in 1..=20 {
+                let (sh, dh) = (10 - sw, [1, 2, 3, 4, 5, 7, 8, 11, 13, 20][dw as usize % 10]);
+                let m = match dw % 3 { 0 => " mirrorlr", 1 => " mirrorud", _ => " mirrorlr mirrorud" };
+                writeln!(s, "ddfill 0 3\nddblt 0 0 0 {dw} {dh} 1 0 0 {sw} {sh}{m}\ndddump 0 0 0 20 {dh}").unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
     }
     s
 }

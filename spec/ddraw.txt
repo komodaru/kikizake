@@ -14,7 +14,7 @@ DDRAW.KEY.UNSET measured | (none) | DDBLT_KEYSRC / KEYDEST or BltFast's key flag
 DDRAW.KEY.DESTHW measured | (none) | a system-memory surface takes no destination color key: SetColorKey(DDCKEY_DESTBLT) and Blt with DDBLT_KEYDESTOVERRIDE give DDERR_NOCOLORKEYHW, Blt before checking the rectangles (golden ddraw)
 DDRAW.FAST doc | IDirectDrawSurface7::BltFast | the source rectangle to (x, y), the same size
 DDRAW.FAST.BOTHKEYS measured | IDirectDrawSurface7::BltFast | DDBLTFAST_SRCCOLORKEY and DESTCOLORKEY together on a system-memory surface: the source key only (golden ddraw)
-DDRAW.STRETCH open | IDirectDrawSurface7::Blt | rectangles of different sizes: which source pixels (not documented)
+DDRAW.STRETCH measured | IDirectDrawSurface7::Blt | rectangles of different sizes: destination index x of d takes source index floor((e + x·s) / d) of s (integer divisions). On 24 bpp and in any mirrored blit e = 0, a mirrored axis taking index d − 1 − x. Otherwise (8, 16, 32 bpp) e = (s / d / 2)·d + d / 2 when it shrinks, and when it grows (s − 1) / 2 for columns, s / 2 for rows (dd8 stretchx-*, stretchy-*: every 1..9 to every 1..20, 916 blits; stretch-*: 160 rectangles; ddraw and ddclip random blits; 0 wrong)
 DDRAW.FORMATS measured | (none) | a blit between surfaces of different pixel formats: DDERR_UNSUPPORTED, nothing changed (golden ddraw)
 DDRAW.NOSOURCE measured | (none) | Blt without a source and without DDBLT_COLORFILL: E_INVALIDARG (golden ddraw)
 DDRAW.KEY.BITS measured | (none) | on 32 bpp surfaces (masks 0xffffff) a key compares all 32 bits of the pixel (golden ddraw; Wine compares otherwise)

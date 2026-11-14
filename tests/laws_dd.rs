@@ -228,7 +228,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::gen;
-    for (s, n32, n64) in [("ddraw", 3, 3), ("ddclip", 4, 4), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 23, 23), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 210, 0)] {
+    for (s, n32, n64) in [("ddraw", 2, 2), ("ddclip", 1, 1), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 11, 11), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 210, 0)] {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -237,4 +237,41 @@ fn suites_stay_modeled() {
         }
     }
     model::set_arch(32);
+}
+
+proptest! {
+    /// a stretch's source index stays in the source, never goes back, takes every source index
+    /// when it grows, and is the identity at equal counts, on every format and mirroring
+    #[test]
+    fn stretch_indices_are_monotone_and_cover(bpp in prop::sample::select(vec![8u32, 16, 24, 32]), mirrored: bool, rows: bool, s in 1i64..40, d in 1i64..60) {
+        use kikizake::model::ddraw::{Axis, Stretch};
+        let rule = Stretch::of(bpp, mirrored);
+        let axis = if rows { Axis::Y } else { Axis::X };
+        let ix: Vec<i64> = (0..d).map(|x| rule.source(axis, x, s, d)).collect();
+        prop_assert!(ix.iter().all(|&i| (0..s).contains(&i)));
+        prop_assert!(ix.windows(2).all(|w| w[0] <= w[1] && w[1] - w[0] <= (s + d - 1) / d));
+        if d >= s {
+            prop_assert_eq!(ix.iter().copied().collect::<std::collections::BTreeSet<_>>().len() as i64, s);
+        }
+        if d == s {
+            prop_assert!(ix.iter().enumerate().all(|(x, &i)| i == x as i64));
+        }
+    }
+}
+
+proptest! {
+    /// the entry a color goes to on an 8 bpp DC is no farther than any other, a color the table
+    /// holds goes to the first entry of it, and the system palette maps each of its own colors
+    /// back to itself
+    #[test]
+    fn nearest_entry_is_nearest(seed: u32, c in 0u32..0x100_0000, i in 0usize..256) {
+        use kikizake::model::ddraw::{nearest_entry, SYSTEM_PALETTE};
+        let tab: Vec<u32> = pal_entries(seed).iter().map(|e| u32::from(e[0]) << 16 | u32::from(e[1]) << 8 | u32::from(e[2])).collect();
+        let d = |e: u32| -> u32 { [16u32, 8, 0].iter().map(|&s| (e >> s & 255).abs_diff(c >> s & 255).pow(2)).sum() };
+        let n = usize::from(nearest_entry(&tab, c));
+        prop_assert!(tab.iter().all(|&e| d(tab[n]) <= d(e)));
+        let first = tab.iter().position(|&e| e == tab[i]).unwrap();
+        prop_assert_eq!(usize::from(nearest_entry(&tab, tab[i])), first);
+        prop_assert_eq!(usize::from(nearest_entry(&SYSTEM_PALETTE, SYSTEM_PALETTE[i])), i);
+    }
 }

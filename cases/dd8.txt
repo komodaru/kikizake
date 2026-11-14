@@ -11014,6 +11014,552 @@ ddfill 0 39
 ddblt 0 3 3 5 9 1 1 2 4 4 keysrcov 0
 dddump 0
 end
+case stretchmirror-8
+dd
+ddsurf 0 20 20 8
+ddsurf 1 20 20 8
+ddfill 1 7
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 1
+end
 case stretchx-565
 dd
 ddsurf 0 20 1 565
@@ -11838,6 +12384,552 @@ dddump 0
 ddfill 0 39
 ddblt 0 8 1 13 5 1 1 6 8 12 keysrcov 0
 dddump 0
+end
+case stretchmirror-565
+dd
+ddsurf 0 20 20 565
+ddsurf 1 20 20 565
+ddfill 1 7
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 1
 end
 case stretchx-24
 dd
@@ -12664,6 +13756,552 @@ ddfill 0 39
 ddblt 0 1 2 8 8 1 2 0 9 4 keysrcov 0
 dddump 0
 end
+case stretchmirror-24
+dd
+ddsurf 0 20 20 24
+ddsurf 1 20 20 24
+ddfill 1 7
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 1
+end
 case stretchx-32
 dd
 ddsurf 0 20 1 32
@@ -13488,4 +15126,550 @@ dddump 0
 ddfill 0 39
 ddblt 0 7 2 10 7 1 0 0 5 1 keysrcov 0
 dddump 0
+end
+case stretchmirror-32
+dd
+ddsurf 0 20 20 32
+ddsurf 1 20 20 32
+ddfill 1 7
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 1 9 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 1 9 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 1 9 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 2 8 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 2 8 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 2 8 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 3 7 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 3 7 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 3 7 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 4 6 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 4 6 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 4 6 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 5 5 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 5 5 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 5 5 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 6 4 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 6 4 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 6 4 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 7 3 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 7 3 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 7 3 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 8 2 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 8 2 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 8 2 mirrorlr mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 1 2 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 2 3 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 3 4 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 4 5 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 5 7 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 6 8 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 7 11 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 8 13 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 9 20 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 10 1 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 1
+ddfill 0 3
+ddblt 0 0 0 11 2 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 2
+ddfill 0 3
+ddblt 0 0 0 12 3 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 3
+ddfill 0 3
+ddblt 0 0 0 13 4 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 4
+ddfill 0 3
+ddblt 0 0 0 14 5 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 5
+ddfill 0 3
+ddblt 0 0 0 15 7 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 7
+ddfill 0 3
+ddblt 0 0 0 16 8 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 8
+ddfill 0 3
+ddblt 0 0 0 17 11 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 11
+ddfill 0 3
+ddblt 0 0 0 18 13 1 0 0 9 1 mirrorlr
+dddump 0 0 0 20 13
+ddfill 0 3
+ddblt 0 0 0 19 20 1 0 0 9 1 mirrorud
+dddump 0 0 0 20 20
+ddfill 0 3
+ddblt 0 0 0 20 1 1 0 0 9 1 mirrorlr mirrorud
+dddump 0 0 0 20 1
 end

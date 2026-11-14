@@ -191,6 +191,47 @@ fn overlap(s: &Surf) -> Res<()> {
     Ok(())
 }
 
+/// which source column (row) a destination one takes when a blit stretches: MEASURED (dd8
+/// stretchx-*, stretchy-*: every count 1..9 to every other 1..20 of each format, 0 wrong;
+/// stretch-*: 160 rectangles, mirrored ones too)
+#[derive(Clone, Copy)]
+pub enum Stretch {
+    /// 24 bpp, and any mirrored blit: floor(x·s / d), a mirrored axis taking destination index
+    /// d − 1 − x
+    Floor,
+    /// 8, 16 and 32 bpp: a DDA, floor((e + x·s) / d) (integer divisions), whose start e when it
+    /// shrinks is (s / d / 2)·d + d / 2 and when it grows depends on the axis
+    Dda,
+}
+
+/// the axis a stretch runs along
+#[derive(Clone, Copy)]
+pub enum Axis {
+    /// growing columns start at e = (s − 1) / 2
+    X,
+    /// growing rows start at e = s / 2
+    Y,
+}
+
+impl Stretch {
+    pub fn of(bpp: u32, mirrored: bool) -> Stretch {
+        if bpp == 24 || mirrored { Stretch::Floor } else { Stretch::Dda }
+    }
+    /// the source index (0..s) of destination index x (0..d)
+    pub fn source(self, axis: Axis, x: i64, s: i64, d: i64) -> i64 {
+        if s == d {
+            return x;
+        }
+        let e = match (self, axis) {
+            (Stretch::Floor, Axis::X | Axis::Y) => 0,
+            (Stretch::Dda, Axis::X) if s < d => (s - 1) / 2,
+            (Stretch::Dda, Axis::Y) if s < d => s / 2,
+            (Stretch::Dda, Axis::X | Axis::Y) => s / d / 2 * d + d / 2,
+        };
+        ((e + x * s) / d).min(s - 1)
+    }
+}
+
 struct Keys {
     src: Option<u32>,
     dest: Option<u32>,
@@ -212,9 +253,7 @@ impl Ddraw {
     /// destination's clip list (if any) and the surface hold the pixel; its HRESULT
     fn copy(&mut self, d: usize, dr: Rect, src: &Surf, sr: Rect, k: &Keys) -> Res<u32> {
         let (w, h) = (dr.2 - dr.0, dr.3 - dr.1);
-        if (w, h) != (sr.2 - sr.0, sr.3 - sr.1) {
-            return Err(Fail::Unmodeled("DDRAW.STRETCH"));
-        }
+        let (sw, sh) = (sr.2 - sr.0, sr.3 - sr.1);
         let dst = self.s[d].as_mut().unwrap();
         if dst.bpp != src.bpp {
             hit("DDRAW.FORMATS");
@@ -228,14 +267,18 @@ impl Ddraw {
             hit("DDRAW.MIRROR");
         }
         let list = dst.clip.clone().flatten();
+        let rule = Stretch::of(src.bpp, k.lr || k.ud);
+        if (w, h) != (sw, sh) {
+            hit("DDRAW.STRETCH");
+        }
         for y in 0..h {
             for x in 0..w {
                 let (tx, ty) = (dr.0 + x, dr.1 + y);
                 if !visible(dst, &list, tx, ty) {
                     continue;
                 }
-                let sx = if k.lr { sr.2 - 1 - x } else { sr.0 + x };
-                let sy = if k.ud { sr.3 - 1 - y } else { sr.1 + y };
+                let sx = sr.0 + rule.source(Axis::X, if k.lr { w - 1 - x } else { x }, sw, w);
+                let sy = sr.1 + rule.source(Axis::Y, if k.ud { h - 1 - y } else { y }, sh, h);
                 let v = src.get(sx, sy);
                 if k.src == Some(v) {
                     continue;
