@@ -874,7 +874,8 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64, fmt: Fmt) -> Res
     let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
     let (a, b, c) = if area > 0 { (v[0], v[1], v[2]) } else { (v[0], v[2], v[1]) };
     let edges = [(a, b), (b, c), (c, a)];
-    let inside = v.iter().all(|&(x, y)| (0..=w * 16).contains(&x) && (0..=h * 16).contains(&y));
+    // (a vertex on the right side itself crosses the target: d3d7rast rand-17)
+    let inside = v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..=h * 16).contains(&y));
     let mut cover = Vec::with_capacity(usize::try_from(w * h).map_err(|_| Fail::Bad)?);
     for py in 0..h {
         for px in 0..w {
@@ -942,16 +943,75 @@ fn ceil_f32(num: i64, den: i64) -> i64 {
     (x + (1.0 - f32::EPSILON)).floor() as i64
 }
 
+/// how an edge settles an x exactly on a pixel on a row past its first (D3D7.TRI.TIE)
+#[derive(Clone, Copy)]
+enum Tie {
+    /// a short edge: by where its x lies in single precision, the first row's x (top x + (row −
+    /// top y) · slope, the slope (bottom x − top x) / (bottom y − top y), each step rounded to
+    /// f32) and the f32 slope times the rows after it taken exactly: a pixel more when that is
+    /// past the pixel
+    F32,
+    /// the long edge on the right: never a pixel more
+    Exact,
+    /// the long edge on the left: not worked out (D3D7.TRI.EDGE)
+    Open,
+}
+
+/// a finite f32 times 2^64, when that is a whole number that fits
+fn f32_scaled(v: f32) -> Option<i128> {
+    let bits = v.to_bits();
+    let exp = i32::try_from(bits >> 23 & 0xff).ok()?;
+    let man = i128::from(bits & 0x7f_ffff);
+    if exp == 0 && man == 0 {
+        return Some(0);
+    }
+    if exp == 0 || exp == 255 {
+        return None;
+    }
+    let m = (man | 1 << 23) * if bits >> 31 == 1 { -1 } else { 1 };
+    // (v = m · 2^(exp − 150))
+    let sh = exp - 150 + 64;
+    match u32::try_from(sh) {
+        Ok(up) if up <= 96 => Some(m << up),
+        Ok(_) => None,
+        Err(_) => {
+            let down = u32::try_from(-sh).ok().filter(|d| *d < 120)?;
+            (m & ((1i128 << down) - 1) == 0).then(|| m >> down)
+        }
+    }
+}
+
+/// a 16ths coordinate in f32 pixels (exact)
+fn px_f32(c: i64) -> Option<f32> {
+    i16::try_from(c).ok().map(|c| f32::from(c) / 16.0)
+}
+
+/// whether the f32 walk of edge t..b lies past the pixel on the k-th row after its first row
+/// `first`, where the exact x is a whole pixel (Tie::F32); None where the arithmetic leaves i128
+pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64) -> Option<bool> {
+    let (tx, ty, bx, by) = (px_f32(t.0)?, px_f32(t.1)?, px_f32(b.0)?, px_f32(b.1)?);
+    let slope = (bx - tx) / (by - ty);
+    let x0 = tx + (f32::from(i16::try_from(first).ok()?) - ty) * slope;
+    let (dxn, dyn_) = (i128::from(b.0 - t.0), i128::from(b.1 - t.1));
+    let den = 16 * dyn_;
+    let num = i128::from(t.0) * dyn_ + i128::from(first * 16 - t.1) * dxn;
+    let one = 1i128 << 64;
+    // ((x0 − num / den) + k (slope − 16 dxn / den)) · den · 2^64
+    let e0 = f32_scaled(x0)?.checked_mul(den)?.checked_sub(num.checked_mul(one)?)?;
+    let ed = f32_scaled(slope)?.checked_mul(den)?.checked_sub((16 * dxn).checked_mul(one)?)?;
+    Some(e0.checked_add(ed.checked_mul(i128::from(k))?)? > 0)
+}
+
 /// one edge's walk, from top t to bottom b (in 16ths, t above b): the rows it spans, each with
 /// its x as the next pixel at or right of the edge, and whether that row's x lies exactly on a
-/// pixel past the first row
+/// pixel past the first row where the edge's Tie leaves it open
 struct EdgeWalk {
     first: i64,
     xs: Vec<(i64, bool)>,
 }
 
 impl EdgeWalk {
-    fn new(t: (i64, i64), b: (i64, i64)) -> EdgeWalk {
+    fn new(t: (i64, i64), b: (i64, i64), tie: Tie) -> EdgeWalk {
         let (dxn, dyn_) = (b.0 - t.0, b.1 - t.1);
         let first = ceil_f32(t.1, 16);
         let last = b.1.div_euclid(16);
@@ -965,6 +1025,7 @@ impl EdgeWalk {
         let (fl, fr) = ((16 * dxn).div_euclid(den), (16 * dxn).rem_euclid(den));
         let mut xs = Vec::new();
         for y in first..=last {
+            let mut open = false;
             if y > first {
                 xi += fl;
                 err -= fr;
@@ -972,8 +1033,24 @@ impl EdgeWalk {
                     xi += 1;
                     err += den;
                 }
+                if err == 0 {
+                    // (past the pixel: the pixel after it, its error a whole den)
+                    match tie {
+                        Tie::F32 => match f32_past(t, b, first, y - first) {
+                            Some(true) => {
+                                hit(clause::D3D7_TRI_TIE);
+                                xi += 1;
+                                err += den;
+                            }
+                            Some(false) => hit(clause::D3D7_TRI_TIE),
+                            None => open = true,
+                        },
+                        Tie::Exact => hit(clause::D3D7_TRI_TIE),
+                        Tie::Open => open = true,
+                    }
+                }
             }
-            xs.push((xi, y > first && err == 0));
+            xs.push((xi, open));
         }
         EdgeWalk { first, xs }
     }
@@ -1000,16 +1077,16 @@ enum Spans {
 /// error; the long edge (top to bottom vertex) against the two short ones, a row drawn from the
 /// left edge's x to the right edge's x less 1 (nothing when they cross); pixels past the row's
 /// end go on into the next row, as in memory. An x exactly on a pixel past an edge's first row
-/// goes either way (D3D7.TRI.EDGE)
+/// goes by the edge's Tie (D3D7.TRI.TIE; the long edge on the left: D3D7.TRI.EDGE)
 fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
     let mut s = v;
     s.sort_by_key(|p| p.1);
     let [t, m, b] = s;
     hit(clause::D3D7_TRI_WALK);
-    let long = EdgeWalk::new(t, b);
-    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m));
-    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b));
     let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
+    let long = EdgeWalk::new(t, b, if long_left { Tie::Open } else { Tie::Exact });
+    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Tie::F32));
+    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Tie::F32));
     let n = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
     let mut cover = vec![false; n];
     for y in 0..h {

@@ -3,7 +3,7 @@
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
-use kikizake::model::d3d7::{clear_z, pixel, rs_default, tri_z, tri_z_write, Depth, Fmt, Ver};
+use kikizake::model::d3d7::{clear_z, f32_past, pixel, rs_default, tri_z, tri_z_write, Depth, Fmt, Ver};
 use kikizake::model::ddraw::{pal_entries, pitch};
 use kikizake::model::{self, run_case, Fail};
 
@@ -276,7 +276,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::gen;
-    for (s, n32, n64) in [("ddraw", 3, 3), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 87, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
+    for (s, n32, n64) in [("ddraw", 3, 3), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -387,4 +387,35 @@ proptest! {
         let (hs, hd) = factors_hw(f, f64::from(s) / 255.0, f64::from(d) / 255.0, f64::from(a) / 255.0);
         prop_assert!((0.0..=1.0).contains(&hs) && (0.0..=1.0).contains(&hd));
     }
+}
+
+/// a short edge's tie (D3D7.TRI.TIE) by where its f32 walk lies: f32 rounds to nearest, so the
+/// edge mirrored about x = 0 lies on the other side by as much, and the two never both move a
+/// pixel; a slope and first-row x exact in f32 (a rise of a power of two pixels and a top on
+/// whole sixteenths) leave the edge on the pixel; for every edge of a small domain, rows 1 to 3
+/// after its first
+#[test]
+fn ties_round_symmetrically() {
+    let mut moved = 0;
+    for tx in (-24..=24).step_by(5) {
+        for ty in 0..20 {
+            let first = (ty + 15) / 16;
+            for dy in 1..48 {
+                for dx in -48..=48 {
+                    let (t, b) = ((tx, ty), (tx + dx, ty + dy));
+                    let (tm, bm) = ((-tx, ty), (-tx - dx, ty + dy));
+                    for k in 1..4 {
+                        let (Some(p), Some(q)) = (f32_past(t, b, first, k), f32_past(tm, bm, first, k)) else { continue };
+                        assert!(!(p && q), "{t:?} {b:?} row {k}");
+                        if [16, 32].contains(&dy) {
+                            assert!(!p && !q, "{t:?} {b:?} row {k}: exact in f32");
+                        }
+                        moved += usize::from(p || q);
+                    }
+                }
+            }
+        }
+    }
+    // (most slopes are not exact in f32: some edges move)
+    assert!(moved > 1000, "{moved}");
 }
