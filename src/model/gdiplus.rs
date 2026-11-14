@@ -59,6 +59,8 @@ pub struct Bitmap {
     pub h: u32,
     pub rows: Vec<Vec<u8>>,
     pub pal: Vec<u32>,
+    /// PaletteFlags; the palette type in bits 8.. (GP.CLONE.PALETTE)
+    pub flags: u32,
 }
 
 /// a pixel's value (its bytes little-endian, or below 8 bits its index)
@@ -218,9 +220,7 @@ pub fn to_argb(f: usize, v: u64, pal: &[u32]) -> Res<u32> {
     Ok(match name(f) {
         n if n.ends_with("Indexed") => {
             hit("GP.CONV.INDEXED");
-            // (the bitmaps here keep their default palette, which has an entry for every index)
-            let _ = pal;
-            default_palette(f)[v as usize]
+            if pal.is_empty() { default_palette(f)[v as usize] } else { pal[v as usize] }
         }
         "16bppGrayScale" => return Err(Fail::Unmodeled("GP.GRAY16")),
         "16bppRGB555" => {
@@ -370,7 +370,7 @@ fn word(v: u64) -> i32 {
 impl Bitmap {
     pub fn new(f: usize, w: u32, h: u32) -> Bitmap {
         hit("GP.CREATE.ZERO");
-        Bitmap { f, w, h, rows: vec![vec![0; row_bytes(f, w)]; h as usize], pal: default_palette(f) }
+        Bitmap { f, w, h, rows: vec![vec![0; row_bytes(f, w)]; h as usize], pal: default_palette(f), flags: palette_flags(f) }
     }
     pub fn px(&self, x: u32, y: u32) -> u64 {
         get_px(&self.rows[y as usize], x, bits(self.f))
@@ -467,6 +467,19 @@ fn hex_row(row: &[u8], w: u32, bits: u32) -> String {
 pub type Matrix = [f32; 6];
 
 /// the product a × b of two affine matrices (points as row vectors: p' = p × M)
+/// MEASURED (golden gdiplus cloneidx-*, clonegrid-*, clone-68): the palette a clone into another
+/// indexed format gets, its type (PaletteType) in the flags' bits 8..: 1 bpp FixedBW, 4 bpp
+/// FixedHalftone8 (the 8 corners of the cube and 8 more), 8 bpp FixedHalftone216 (the 6x6x6 cube
+/// and the same 8 more)
+pub fn fixed_palette(f: usize) -> (Vec<u32>, u32) {
+    let more = [0xffc0_c0c0, 0xff80_8080, 0xff80_0000, 0xff00_8000, 0xff00_0080, 0xff80_8000, 0xff80_0080, 0xff00_8080];
+    match bits(f) {
+        1 => (vec![0xff00_0000, 0xffff_ffff], 2 << 8),
+        4 => ((0..8u32).map(|k| 0xff00_0000 | (k >> 2) * 0xff_0000 | (k >> 1 & 1) * 0xff00 | (k & 1) * 0xff).chain(more).collect(), 3 << 8),
+        _ => ((0..216u32).map(|k| 0xff00_0000 | (k / 36) * 0x33_0000 | (k / 6 % 6) * 0x3300 | (k % 6) * 0x33).chain(more).collect(), 7 << 8),
+    }
+}
+
 /// how float arithmetic rounds: to nearest (x86), or toward minus infinity (MEASURED: x86-64's
 /// GDI+ matrices, golden gdiplus-64 matrix-*: all 3390 numbers of 120 cases)
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -669,7 +682,7 @@ impl Gdiplus {
                 hit("GP.LOCK.WRITE");
                 for y in 0..r.3 as u32 {
                     for x in 0..r.2 as u32 {
-                        let v = convert(f, b.f, get_px(&data[y as usize], x, bits(f)), &b.pal)?;
+                        let v = convert(f, b.f, get_px(&data[y as usize], x, bits(f)), &[])?;
                         b.set_px(r.0 as u32 + x, r.1 as u32 + y, v);
                     }
                 }
@@ -732,7 +745,7 @@ impl Gdiplus {
                 if b.pal.is_empty() {
                     hit("GP.INFO.NOPALETTE");
                 }
-                out.push(format!("info {:08x} {} {} palette 0 {} {}", FORMATS[b.f].1, b.w, b.h, palette_flags(b.f), b.pal.len()));
+                out.push(format!("info {:08x} {} {} palette 0 {} {}", FORMATS[b.f].1, b.w, b.h, b.flags, b.pal.len()));
                 for ch in b.pal.chunks(16) {
                     out.push(ch.iter().map(|c| format!("{c:08x}")).collect::<Vec<_>>().join(" "));
                 }
@@ -875,13 +888,25 @@ impl Gdiplus {
                 if f != b.f {
                     hit("GP.CLONE.FORMAT");
                 }
-                if indexed(f) && !indexed(b.f) {
-                    return Err(Fail::Unmodeled("GP.CLONE.PALETTE"));
-                }
                 let mut c = Bitmap::new(f, r.2 as u32, r.3 as u32);
+                let fixed = indexed(f) && f != b.f;
+                if f == b.f {
+                    (c.pal, c.flags) = (b.pal.clone(), b.flags);
+                } else if fixed {
+                    hit("GP.CLONE.PALETTE");
+                    (c.pal, c.flags) = fixed_palette(f);
+                }
                 for y in 0..r.3 as u32 {
                     for x in 0..r.2 as u32 {
-                        c.set_px(x, y, convert(b.f, f, b.px(r.0 as u32 + x, r.1 as u32 + y), &[])?);
+                        let v = b.px(r.0 as u32 + x, r.1 as u32 + y);
+                        let v = if fixed {
+                            // (the entry of the color LockBits' default palette gives, GP.CONV.TO.INDEXED)
+                            let q = default_palette(f)[nearest(f, to_argb(b.f, v, &b.pal)?) as usize];
+                            c.pal.iter().position(|&e| e == q).unwrap() as u64
+                        } else {
+                            convert(b.f, f, v, &b.pal)?
+                        };
+                        c.set_px(x, y, v);
                     }
                 }
                 out.push("clone 0".into());
@@ -965,7 +990,7 @@ impl Gdiplus {
 pub fn rotate(b: &Bitmap, k: u32) -> Bitmap {
     let turns = k & 3;
     let (w, h) = if turns % 2 == 1 { (b.h, b.w) } else { (b.w, b.h) };
-    let mut o = Bitmap { f: b.f, w, h, rows: vec![vec![0; row_bytes(b.f, w)]; h as usize], pal: b.pal.clone() };
+    let mut o = Bitmap { f: b.f, w, h, rows: vec![vec![0; row_bytes(b.f, w)]; h as usize], pal: b.pal.clone(), flags: b.flags };
     for y in 0..h {
         for x in 0..w {
             // (the source pixel of destination (x, y) after the turns, the flip after them)

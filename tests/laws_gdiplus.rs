@@ -191,7 +191,7 @@ fn dither_keeps_the_mean() {
 /// still matches Windows on the rest: this is what keeps it answering)
 #[test]
 fn the_model_answers_all_but_the_open_clauses() {
-    for (suite, arch, open) in [("gdiplus", 32, 129), ("gdiplus", 64, 129), ("gdiplusmat", 32, 0), ("gdiplusmat", 64, 0)] {
+    for (suite, arch, open) in [("gdiplus", 32, 92), ("gdiplus", 64, 92), ("gdiplusmat", 32, 0), ("gdiplusmat", 64, 0)] {
         kikizake::model::set_arch(arch);
         let cases = kikizake::case::parse_cases(&kikizake::gen::suite(suite).unwrap());
         let mut n = 0;
@@ -199,7 +199,7 @@ fn the_model_answers_all_but_the_open_clauses() {
             match kikizake::model::run_case(c) {
                 Ok(_) => {}
                 Err(kikizake::model::Fail::Unmodeled(id)) => {
-                    assert!(["GP.FILL.GAMMA", "GP.CLONE.PALETTE"].contains(&id), "{suite} {}: {id}", c.name);
+                    assert!(["GP.FILL.GAMMA"].contains(&id), "{suite} {}: {id}", c.name);
                     n += 1;
                 }
                 Err(kikizake::model::Fail::Bad) => panic!("{suite} {}: a bad line", c.name),
