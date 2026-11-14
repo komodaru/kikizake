@@ -1959,10 +1959,51 @@ pub enum EncodeOption {
     Rejected,
     /// WMP's Lossless
     WmpLossless,
+    /// JPEG's ImageQuality, as IJG's quality 0..=100
+    JpegQuality(i64),
+    /// JPEG's SuppressApp0
+    JpegNoApp0(bool),
+    /// JPEG's JpegYCrCbSubsampling 4:4:4
+    Jpeg444,
+    /// JPEG's BitmapTransform (a WICBitmapTransformOptions)
+    JpegTransform(u32),
+}
+
+/// MEASURED (golden wicencode enc-jpeg-*: every byte and pixel, see model::jpeg): WIC's JPEG
+/// encoder is IJG libjpeg 6b's at quality 90 (ImageQuality 0.9); the file decodes at 0 dpi
+/// (JFIF's density 0), a CMYK one (Adobe, no JFIF) at 96
+fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
+    use crate::model::jpeg::{self, Kind};
+
+    let kind = match i.fmt {
+        "gray8" => Kind::Gray,
+        "bgr24" => Kind::Color,
+        "cmyk" => Kind::Cmyk,
+        _ => return Err(Fail::Bad),
+    };
+    let q = jpeg::Quality::new(opts.jpeg_quality.unwrap_or(90));
+    let turned;
+    let i = if opts.jpeg_transform == 0 { i } else { turned = flip(i, opts.jpeg_transform); &turned };
+    let (w, h) = (i.w as usize, i.h as usize);
+    let n = (bits_of(i.fmt) / 8) as usize;
+    let px: Vec<u8> = (0..h).flat_map(|y| i.px[y * i.stride()..y * i.stride() + w * n].to_vec()).collect();
+    let j = jpeg::encode(kind, w, h, &px, q, !opts.jpeg_no_app0, opts.jpeg_444);
+    hit(clause::WICIMAGE_ENCODE_JPEG);
+    let mut o = Img::new(w as u32, h as u32, i.fmt);
+    o.dpi = if kind == Kind::Cmyk || opts.jpeg_no_app0 { (96.0, 96.0) } else { (0.0, 0.0) };
+    let st = o.stride();
+    for y in 0..h {
+        o.px[y * st..y * st + w * n].copy_from_slice(&j.px[y * w * n..(y + 1) * w * n]);
+    }
+    Ok(Encoded::Lossy(j.bytes, "jpeg", o))
 }
 
 #[derive(Default, Clone, Copy)]
 struct EncodeOptions {
+    jpeg_quality: Option<i64>,
+    jpeg_no_app0: bool,
+    jpeg_444: bool,
+    jpeg_transform: u32,
     v5: bool,
     bw: bool,
     wmp_lossless: bool,
@@ -1981,6 +2022,10 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         ("tiff", "TiffCompressionMethod", "2") => EncodeOption::BlackWhite,
         ("png", "ImageQuality", _) => EncodeOption::Rejected,
         ("wmp", "Lossless", "1") => EncodeOption::WmpLossless,
+        ("jpeg", "ImageQuality", v) => EncodeOption::JpegQuality((v.parse::<f64>().map_err(|_| Fail::Bad)? * 100.0).round() as i64),
+        ("jpeg", "SuppressApp0", v) => EncodeOption::JpegNoApp0(v != "0"),
+        ("jpeg", "JpegYCrCbSubsampling", "3") => EncodeOption::Jpeg444,
+        ("jpeg", "BitmapTransform", "1") => EncodeOption::JpegTransform(1),
         _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
     })
 }
@@ -1989,6 +2034,9 @@ pub enum Encoded {
     Bytes(Vec<u8>),
     /// a lossless file the model has no bytes of: what decodes from it
     Decodes(&'static str, Img),
+    /// a file the model has the bytes of and, since its decoder is not modelled apart, what
+    /// Windows' decoder gives from it
+    Lossy(Vec<u8>, &'static str, Img),
 }
 
 /* ---------------------------------------------------------------------------------------- */
@@ -2277,6 +2325,22 @@ impl WicImage {
                             hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS);
                             opts.wmp_lossless = true;
                         }
+                        EncodeOption::JpegQuality(q) => {
+                            hit(clause::WICIMAGE_ENCODE_JPEG);
+                            opts.jpeg_quality = Some(q);
+                        }
+                        EncodeOption::JpegNoApp0(n) => {
+                            hit(clause::WICIMAGE_ENCODE_JPEG);
+                            opts.jpeg_no_app0 = n;
+                        }
+                        EncodeOption::JpegTransform(t) => {
+                            hit(clause::WICIMAGE_ENCODE_JPEG);
+                            opts.jpeg_transform = t;
+                        }
+                        EncodeOption::Jpeg444 => {
+                            hit(clause::WICIMAGE_ENCODE_JPEG);
+                            opts.jpeg_444 = true;
+                        }
                         EncodeOption::Rejected => {
                             hit(clause::WICIMAGE_ENCODE_OPTION_FOREIGN);
                             out.push(format!("wencode 80004005 {fmt} option"));
@@ -2298,13 +2362,14 @@ impl WicImage {
                     }
                     "gif" => Encoded::Bytes(encode_gif(&img)?),
                     "wmp" if opts.wmp_lossless => Encoded::Decodes("wmp", img),
+                    "jpeg" => encode_jpeg(&img, opts)?,
                     _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),
                 };
                 out.push(format!("wencode 00000000 {nf} ok"));
                 self.enc = Some(enc);
             }
             "wbytes" => match &self.enc {
-                Some(Encoded::Bytes(b)) => {
+                Some(Encoded::Bytes(b) | Encoded::Lossy(b, _, _)) => {
                     let (from, len) = if t.len() == 3 { (n(1)? as usize, n(2)? as usize) } else { (0, b.len()) };
                     let from = from.min(b.len());
                     out.push(format!("wbytes {}", b.len()));
@@ -2333,6 +2398,11 @@ impl WicImage {
                     i.pal = img.pal.clone();
                     self.dec = Some(Decoded { container: cont, frames: vec![Ok(Frame::Pixels(i))] });
                     self.enc = Some(Encoded::Decodes(cont, img));
+                }
+                Some(Encoded::Lossy(b, cont, img)) => {
+                    out.push(format!("wredecode 00000000 {cont} frames 1"));
+                    self.dec = Some(Decoded { container: cont, frames: vec![Ok(Frame::Pixels(img.clone()))] });
+                    self.enc = Some(Encoded::Lossy(b, cont, img));
                 }
             },
             _ => unreachable!(),

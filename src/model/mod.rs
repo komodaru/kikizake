@@ -34,6 +34,7 @@ pub mod opengl;
 pub mod wic;
 pub mod dwrite;
 pub mod wicimage;
+pub mod jpeg;
 
 use crate::case::Case;
 

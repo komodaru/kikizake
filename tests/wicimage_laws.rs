@@ -478,10 +478,10 @@ proptest! {
 #[test]
 fn encoder_options_are_typed() {
     use wi::EncodeOption as O;
-    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless)] {
+    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::Jpeg444), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
         assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
     }
-    for (c, o) in [("jpeg", "ImageQuality=1.0"), ("tiff", "TiffCompressionMethod=3"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
+    for (c, o) in [("wmp", "ImageQuality=1.0"), ("tiff", "TiffCompressionMethod=3"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
         assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
@@ -521,4 +521,30 @@ fn conversions_carry_the_palette_they_should() {
     assert!(wi::wic_convert(&i, "bgra").unwrap().pal.is_none());
     let b = img("bgra", 4, 3, 5);
     assert!(wi::wic_convert(&b, "idx8").map(|o| o.pal.is_some()).unwrap_or(true));
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(64))]
+
+    /// at quality 100 every quantizer is 1, so (ITU T.81 A.3.3's DCT being near-orthonormal) a
+    /// decoded sample lands within a couple of steps of its source, whatever the size, the
+    /// padding blocks and (at 4:4:4) the color; the stream is one SOI ... EOI and decodes to w x h
+    #[test]
+    fn jpeg_at_quality_100_is_nearly_lossless(w in 1usize..40, h in 1usize..40, seed: u32, color: bool) {
+        use kikizake::model::jpeg::{self, Kind, Quality};
+        let mut s = seed | 1;
+        let mut px = Vec::new();
+        let n = if color { 3 } else { 1 };
+        for _ in 0..w * h * n {
+            s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+            px.push((s >> 24) as u8);
+        }
+        let kind = if color { Kind::Color } else { Kind::Gray };
+        let j = jpeg::encode(kind, w, h, &px, Quality::new(100), true, true);
+        prop_assert_eq!(&j.bytes[..2], &[0xff, 0xd8]);
+        prop_assert_eq!(&j.bytes[j.bytes.len() - 2..], &[0xff, 0xd9]);
+        prop_assert_eq!(j.px.len(), px.len());
+        let worst = px.iter().zip(&j.px).map(|(a, b)| a.abs_diff(*b)).max().unwrap_or(0);
+        prop_assert!(worst <= if color { 4 } else { 2 }, "worst {}", worst);
+    }
 }
