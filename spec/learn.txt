@@ -287,6 +287,9 @@ GetWorldTransform | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/n
 GradientFill | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-gradientfill
 Graphics::Clear | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-clear
 Graphics::FillRectangle | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-fillrectangle(constbrush_int_int_int_int)
+Graphics::SetRenderingOrigin | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-setrenderingorigin
+HatchBrush::HatchBrush | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusbrush/nf-gdiplusbrush-hatchbrush-hatchbrush(consthatchbrush_)
+HatchStyle | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-hatchstyle
 ICO Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/ico-format-overview
 ID2D1Brush::GetOpacity | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1brush-getopacity
 ID2D1Factory::CreateEllipseGeometry | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1factory-createellipsegeometry(constd2d1_ellipse_id2d1ellipsegeometry)
@@ -488,6 +491,7 @@ PatBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-pa
 PathToRegion | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-pathtoregion
 Paths | https://learn.microsoft.com/en-us/windows/win32/gdi/paths
 Pie | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-pie
+PixelOffsetMode | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-pixeloffsetmode
 PlgBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-plgblt
 PolyBezier | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-polybezier
 PolyBezierTo | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-polybezierto
@@ -538,6 +542,8 @@ SetViewportOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf
 SetWindowExtEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setwindowextex
 SetWindowOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setwindoworgex
 SetWorldTransform | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setworldtransform
+SmoothingMode | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-smoothingmode
+SolidBrush::SolidBrush | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusbrush/nf-gdiplusbrush-solidbrush-solidbrush(constsolidbrush_)
 State Blocks Save and Restore State | https://learn.microsoft.com/en-us/windows/win32/direct3d9/state-blocks-save-and-restore-state
 Stencil Buffer Techniques | https://learn.microsoft.com/en-us/windows/win32/direct3d9/stencil-buffer-techniques
 StretchBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-stretchblt

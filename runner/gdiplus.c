@@ -2,7 +2,8 @@
 /* GDI+ (gdiplus.dll, loaded and started by the first case that asks for it; its flat API through
  * GetProcAddress, declared here: the C headers of GDI+ are C++). Bitmaps in two slots, their
  * pixels through LockBits in any format, GetPixel / SetPixel, palettes, fills and clears through a
- * Graphics of the bitmap, RotateFlip, CloneBitmapArea, and matrices.
+ * Graphics of the bitmap, RotateFlip, CloneBitmapArea, matrices, and solid and hatch brushes
+ * painting rectangles in float coordinates.
  *
  * Every op prints the Status it got (decimal, the Status enum of gdiplustypes.h) and, when that
  * is Ok, what it read. */
@@ -42,7 +43,12 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipMultiplyMatrix, (void *, void *, INT)) \
     X(GdipInvertMatrix, (void *)) \
     X(GdipIsMatrixInvertible, (void *, BOOL *)) \
-    X(GdipTransformMatrixPoints, (void *, GpPointF *, INT))
+    X(GdipTransformMatrixPoints, (void *, GpPointF *, INT)) \
+    X(GdipCreateHatchBrush, (INT, DWORD, DWORD, void **)) \
+    X(GdipFillRectangle, (void *, void *, float, float, float, float)) \
+    X(GdipSetSmoothingMode, (void *, INT)) \
+    X(GdipSetPixelOffsetMode, (void *, INT)) \
+    X(GdipSetRenderingOrigin, (void *, INT, INT))
 
 #define X(n, a) static GpStatus (WINAPI *n) a;
 GP_FUNCS(X)
@@ -87,11 +93,13 @@ static int fmtbits(INT f) { return f >> 8 & 255; }
 #define SLOTS 2
 static void *bmp[SLOTS];
 static void *mat[SLOTS];
+static void *brush[SLOTS];
 
 static void gdiplus_reset(void) {
     for (int i = 0; i < SLOTS; i++) {
         if (bmp[i]) { GdipDisposeImage(bmp[i]); bmp[i] = NULL; }
         if (mat[i]) { GdipDeleteMatrix(mat[i]); mat[i] = NULL; }
+        if (brush[i]) { GdipDeleteBrush(brush[i]); brush[i] = NULL; }
     }
 }
 
@@ -391,11 +399,60 @@ static void op_matpts(void) {
     out("\n");
 }
 
+/* brushes in slots of their own:
+ * gpbrush <b> solid <argb>: CreateSolidFill; gpbrush <b> hatch <HatchStyle> <fore> <back>:
+ * CreateHatchBrush: "brush <st>"
+ * gppaint <slot> <brush> <x> <y> <w> <h> <over|copy> <CompositingQuality> <SmoothingMode>
+ * <PixelOffsetMode> <origin x> <origin y>: a Graphics of the bitmap in those modes, its rendering
+ * origin, FillRectangle (floats, written as decimals): "paint 0 <st>" */
+static float fdec(int i) {
+    if (i >= ntok) { bad = 1; return 0; }
+    char *e;
+    float v = strtof(tok[i], &e);
+    if (*e) bad = 1;
+    return v;
+}
+static void op_brush(void) {
+    int b = slot(1);
+    int solid = is(2, "solid"), hatch = is(2, "hatch");
+    if (!solid && !hatch) bad = 1;
+    DWORD c = (DWORD)num(3);
+    DWORD back = hatch ? (DWORD)num(5) : 0;
+    long style = hatch ? num(3) : 0;
+    if (hatch) c = (DWORD)num(4);
+    if (bad || !gp()) return;
+    if (brush[b]) { GdipDeleteBrush(brush[b]); brush[b] = NULL; }
+    void *br = NULL;
+    GpStatus st = solid ? GdipCreateSolidFill(c, &br) : GdipCreateHatchBrush(style, c, back, &br);
+    out("brush %d\n", st);
+    if (!st) brush[b] = br;
+}
+static void op_paint(void) {
+    int s = slot(1), b = slot(2);
+    float x = fdec(3), y = fdec(4), w = fdec(5), h = fdec(6);
+    int copy = is(7, "copy");
+    if (!copy && !is(7, "over")) bad = 1;
+    long q = num(8), sm = num(9), po = num(10), ox = num(11), oy = num(12);
+    if (bad || !gp() || !the(s)) return;
+    if (!brush[b]) { out("paint nobrush\n"); return; }
+    void *g = graphics(s, "paint");
+    if (!g) return;
+    GdipSetCompositingMode(g, copy);
+    GpStatus st = GdipSetCompositingQuality(g, q);
+    if (!st) st = GdipSetSmoothingMode(g, sm);
+    if (!st) st = GdipSetPixelOffsetMode(g, po);
+    if (!st) st = GdipSetRenderingOrigin(g, ox, oy);
+    if (!st) st = GdipFillRectangle(g, brush[b], x, y, w, h);
+    GdipDeleteGraphics(g);
+    out("paint 0 %d\n", st);
+}
+
 static const struct kz_op gdiplus_ops[] = {
     { "gpbitmap", op_bitmap }, { "gpwrite", op_write }, { "gpread", op_read }, { "gpset", op_set },
     { "gpget", op_get }, { "gpinfo", op_info }, { "gpfill", op_fill }, { "gpclear", op_clear },
     { "gprotate", op_rotate }, { "gpclone", op_clone }, { "gpmatrix", op_matrix },
     { "gpmatmul", op_matmul }, { "gpmatinv", op_matinv }, { "gpmatpts", op_matpts },
+    { "gpbrush", op_brush }, { "gppaint", op_paint },
     { 0 },
 };
 const struct kz_api gdiplus_api = { "gdiplus", gdiplus_ops, gdiplus_reset };

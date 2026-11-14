@@ -176,3 +176,55 @@ pub fn gdiplusmat() -> String {
     writeln!(s, "case matrix-order\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngpmatrix 1 0x40000000 0 0 0x40000000 0 0\ngpmatmul 0 1 2\ngpmatmul 0 1 -1\nend").unwrap();
     s
 }
+
+/// a coordinate on a 1/16 grid (exact in float and in decimal) around a 12-pixel bitmap
+fn rcoord(r: &mut XorShift32) -> String {
+    let v = r.range(-40, 12 * 16 + 40) as f32 / 16.0;
+    format!("{v}")
+}
+
+/// a size on the same grid, now and then 0 or negative
+fn rsize(r: &mut XorShift32) -> String {
+    let v = r.range(-24, 10 * 16) as f32 / 16.0;
+    format!("{v}")
+}
+
+pub fn gdipluspaint() -> String {
+    let mut s = String::from("# kikizake suite gdipluspaint: GDI+ brushes and filled shapes: hatch brushes, rectangles in float coordinates under the smoothing and pixel offset modes (SPEC.md). Made by `kikizake gen gdipluspaint`.\n");
+    let mut r = XorShift32::new(0x9a17_0001);
+    let names: Vec<&str> = Pf::ALL.iter().map(|f| f.name()).collect();
+    // every HatchStyle (and past both ends): black on white over 16 x 16
+    for style in -1..=53 {
+        writeln!(s, "case hatch-{style}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 hatch {style} 0xff000000 0xffffffff\ngppaint 0 0 0 0 16 16 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    // the pattern's anchor: the rendering origin, the rectangle's corner
+    for i in 0..24 {
+        let style = r.range(0, 53);
+        let (ox, oy) = (r.range(-20, 20), r.range(-20, 20));
+        let (x, y) = (r.range(0, 8), r.range(0, 8));
+        writeln!(s, "case hatchorigin-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 hatch {style} 0xff000000 0xffffffff\ngppaint 0 0 {x} {y} {} {} copy 0 0 0 {ox} {oy}\ngpread 0 32bppARGB\nend", 16 - x, 16 - y).unwrap();
+    }
+    // colors with alpha over every format, both compositing modes, every quality
+    for i in 0..60 {
+        let f = *r.pick(&names);
+        let style = r.range(0, 53);
+        let mode = *r.pick(&["over", "copy"]);
+        writeln!(s, "case hatchblend-{i}\ngpbitmap 0 16 4 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch {style} {:#010x} {:#010x}\ngppaint 0 0 0 0 16 4 {mode} {} 0 0 0 0\ngpread 0 {f}\nend", r.next(), rargb(&mut r), rargb(&mut r), r.range(0, 5)).unwrap();
+    }
+    // rectangles in float coordinates: which pixels each smoothing and pixel offset mode fills
+    for i in 0..240 {
+        let (x, y, w, h) = (rcoord(&mut r), rcoord(&mut r), rsize(&mut r), rsize(&mut r));
+        let sm = r.range(0, 7);
+        let po = r.range(0, 5);
+        writeln!(s, "case rectf-{i}\ngpbitmap 0 12 12 32bppARGB\ngpbrush 0 solid 0xff0000ff\ngppaint 0 0 {x} {y} {w} {h} copy 0 {sm} {po} 0 0\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    // a solid brush with alpha, antialiased, over a destination (coverage times alpha)
+    for i in 0..40 {
+        let (x, y, w, h) = (rcoord(&mut r), rcoord(&mut r), rsize(&mut r), rsize(&mut r));
+        let mode = *r.pick(&["over", "copy"]);
+        writeln!(s, "case rectfblend-{i}\ngpbitmap 0 12 12 32bppARGB\ngpwrite 0 32bppARGB seed {}\ngpbrush 0 solid {:#010x}\ngppaint 0 0 {x} {y} {w} {h} {mode} {} {} {} 0 0\ngpread 0 32bppARGB\nend", r.next(), rargb(&mut r), r.range(0, 5), r.range(0, 7), r.range(0, 5)).unwrap();
+    }
+    writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
+    writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
+    s
+}

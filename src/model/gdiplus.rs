@@ -744,10 +744,30 @@ fn rounding() -> Round {
     }
 }
 
+/// a HatchStyle GDI+ makes a brush of (0 ..= 52, HatchStyleMin ..= HatchStyleMax)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct HatchStyle(u8);
+impl HatchStyle {
+    pub const MAX: u8 = 52;
+    pub fn new(v: i64) -> Option<HatchStyle> {
+        u8::try_from(v).ok().filter(|&v| v <= Self::MAX).map(HatchStyle)
+    }
+    pub fn get(self) -> u8 {
+        self.0
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Brush {
+    Solid(u32),
+    Hatch { style: HatchStyle, fore: u32, back: u32 },
+}
+
 #[derive(Default)]
 pub struct Gdiplus {
     pub bmp: [Option<Bitmap>; 2],
     pub mat: [Option<Matrix>; 2],
+    pub brush: [Option<Brush>; 2],
 }
 
 impl Gdiplus {
@@ -1157,6 +1177,41 @@ impl Gdiplus {
                     l += &format!(" {:08x} {:08x}", a.to_bits(), b.to_bits());
                 }
                 out.push(l);
+            }
+            "gpbrush" => {
+                let s = Self::slot(t, 1)?;
+                self.brush[s] = None;
+                hit("GP.BRUSH");
+                let b = match t.get(2).map(String::as_str) {
+                    Some("solid") => Some(Brush::Solid(n(t, 3)? as u32)),
+                    Some("hatch") => {
+                        let (fore, back) = (n(t, 4)? as u32, n(t, 5)? as u32);
+                        HatchStyle::new(n(t, 3)?).map(|style| Brush::Hatch { style, fore, back })
+                    }
+                    _ => return Err(Fail::Bad),
+                };
+                match b {
+                    Some(b) => {
+                        out.push("brush 0".into());
+                        self.brush[s] = Some(b);
+                    }
+                    None => {
+                        hit("GP.BRUSH.HATCH.RANGE");
+                        out.push(format!("brush {INVALID_PARAMETER}"));
+                    }
+                }
+            }
+            "gppaint" => {
+                let s = Self::slot(t, 1)?;
+                let k = Self::slot(t, 2)?;
+                if self.bmp[s].is_none() {
+                    out.push("gppaint nobitmap".into());
+                } else if self.brush[k].is_none() {
+                    hit("GP.PAINT.NOBRUSH");
+                    out.push("paint nobrush".into());
+                } else {
+                    return Err(Fail::Unmodeled("GP.PAINT"));
+                }
             }
             _ => return Ok(false),
         }
