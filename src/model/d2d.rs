@@ -2030,7 +2030,7 @@ impl D2d {
                 let figs: Vec<Figure> = figs.iter().map(|f| Figure { pts: f.pts.iter().map(|&(x, y)| apply(&m0, x, y)).collect(), closed: f.closed }).collect();
                 let pieces: Vec<Figure> = figs.iter().flat_map(|f| stroke_pieces(f, w * 0.5)).collect();
                 let before = tg.px.clone();
-                fill(tg, &Geom::Path { wind: true, figs: pieces }, &Paint::Solid(premultiply(c)))?;
+                fill_union(tg, pieces, &Paint::Solid(premultiply(c)))?;
                 tg.keep_clipped(&before);
                 return Ok(());
             }
@@ -2245,14 +2245,15 @@ fn rect_stroke([l, t, r, b]: [f32; 4], h: f32) -> Vec<Figure> {
     figs
 }
 
-/// FITTED (D2D.RT, strokefit-*, strokemore-*; three pixels of 76 cases one unit off): a figure
-/// of straight segments stroked with flat caps and miter joins (limit 10) as pieces that fill
-/// it with nonzero winding, in f32: each segment the quad of its ends moved half the width h
-/// along its normal both ways; each join the wedge on its outer side from the two inner
-/// offset points over the segments' outer offset points and the miter between them, the
-/// miter cut square at 10 h from the vertex when longer; an open figure no join at its ends.
-/// The pieces turn positive. (Windows' own widener unions them: the quads and wedges give its
-/// fixed point edges exactly, WPF's rails and a union outline did not.)
+/// FITTED (D2D.RT, strokefit-*, strokemore-*, strokewide-*, strokelobe-*: all but six pixels
+/// of 168 cases, five of them one unit of the blend off): a figure of straight segments
+/// stroked with flat caps and miter joins (limit 10), in f32, as pieces fill_union paints:
+/// each segment the quad of its ends moved half the width h along its normal both ways; each
+/// join the wedge on its outer side from the two inner offset points over the segments' outer
+/// offset points and the miter (where the outer offset lines meet) between them, the miter cut
+/// square at 10 h from the vertex when longer; an open figure no join at its ends. (WPF's
+/// rails, one outline, a union of the pieces as one nonzero fill and a wedge split at the
+/// vertex all matched worse)
 fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
     let mut p = fg.pts.clone();
     p.dedup();
@@ -2269,22 +2270,13 @@ fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
         (-dy / l * h, dx / l * h)
     };
     let at = |q: (f32, f32), d: (f32, f32), s: f32| (q.0 + s * d.0, q.1 + s * d.1);
-    let positive = |mut q: Vec<(f32, f32)>| {
-        let a: f32 = (0..q.len()).map(|i| {
-            let (p0, p1) = (q[i], q[(i + 1) % q.len()]);
-            p0.0 * p1.1 - p1.0 * p0.1
-        }).sum();
-        if a < 0.0 {
-            q.reverse();
-        }
-        Figure { pts: q, closed: true }
-    };
+    let piece = |pts: Vec<(f32, f32)>| Figure { pts, closed: true };
     let segs = if fg.closed { n } else { n - 1 };
     let mut out = Vec::new();
     for k in 0..segs {
         let (a, b) = (p[k], p[(k + 1) % n]);
         let n1 = nrm(a, b);
-        out.push(positive(vec![at(a, n1, 1.0), at(b, n1, 1.0), at(b, n1, -1.0), at(a, n1, -1.0)]));
+        out.push(piece(vec![at(a, n1, 1.0), at(b, n1, 1.0), at(b, n1, -1.0), at(a, n1, -1.0)]));
         if !fg.closed && k + 2 >= n {
             continue;
         }
@@ -2303,21 +2295,14 @@ fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
             Turn::Straight => continue,
         };
         let s = side.sign();
-        // the miter: the vertex moved along the normals' sum to meet both offset lines
-        let (u1, u2) = ((n1.0 / h, n1.1 / h), (n2.0 / h, n2.1 / h));
-        let (mx, my) = (u1.0 + u2.0, u1.1 + u2.1);
-        let d = mx * u1.0 + my * u1.1;
-        let m = (b.0 + s * h * mx / d, b.1 + s * h * my / d);
         let (p1, p2) = (at(b, n1, s), at(b, n2, s));
-        // (the wedge crosses itself at the vertex: its inner lobe takes away where it passes
-        // the quads, strokemore-10; at a right angle, strokewide-* rectangles, it does not:
-        // the lobe twice more there; strokelobe-* asks which corners do)
-        let square = (b.0 - a.0) * (c.0 - b.0) + (b.1 - a.1) * (c.1 - b.1) == 0.0;
-        if square {
-            let lobe = positive(vec![b, at(b, n2, -s), at(b, n1, -s)]);
-            out.push(lobe.clone());
-            out.push(lobe);
-        }
+        let (d1, d2) = ((b.0 - a.0, b.1 - a.1), (c.0 - b.0, c.1 - b.1));
+        let crs = |u: (f32, f32), v: (f32, f32)| u.0 * v.1 - u.1 * v.0;
+        // the miter: where the two outer offset lines meet, from the first one's point
+        let t = crs((p2.0 - p1.0, p2.1 - p1.1), d2) / crs(d1, d2);
+        let m = (p1.0 + d1.0 * t, p1.1 + d1.1 * t);
+        // (the wedge crosses itself at the vertex: its inner lobe winds -1, which covers as
+        // the pieces are filled each by itself, fill_union)
         let mut wedge = vec![at(b, n2, -s), at(b, n1, -s), p1];
         let (vx, vy) = (m.0 - b.0, m.1 - b.1);
         let ml = (vx * vx + vy * vy).sqrt();
@@ -2334,9 +2319,49 @@ fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
             wedge.push(m);
         }
         wedge.push(p2);
-        out.push(positive(wedge));
+        out.push(piece(wedge));
     }
     out
+}
+
+/// pieces filled each by itself with nonzero winding, the samples any of them covers painted
+/// once (a stroke's quads and wedges: a wedge's inner lobe winds -1 and still covers)
+fn fill_union(tg: &mut Target, pieces: Vec<Figure>, paint: &Paint) -> Res<()> {
+    let frame = match tg.st.aa {
+        Antialias::Aliased => Frame::Aliased,
+        Antialias::PerPrimitive => Frame::Antialiased,
+    };
+    let mut polys = Vec::new();
+    for f in pieces {
+        let (_, ps) = fixed_polys(tg, &Geom::Path { wind: true, figs: vec![f] }, frame)?;
+        polys.push(ps);
+    }
+    match frame {
+        Frame::Antialiased => {
+            let mut m = vec![0u64; tg.w * tg.h];
+            for ps in &polys {
+                for (o, v) in m.iter_mut().zip(samples16(tg, ps, true)) {
+                    *o |= v;
+                }
+            }
+            put_coverage(tg, m.into_iter().map(u64::count_ones).collect(), paint);
+        }
+        Frame::Aliased => {
+            let mut m = vec![false; tg.w * tg.h];
+            for ps in &polys {
+                for (o, v) in m.iter_mut().zip(cover_aliased(tg, ps, true)) {
+                    *o |= v;
+                }
+            }
+            for (i, inside) in m.into_iter().enumerate() {
+                if inside {
+                    hit(clause::D2D_FILL_POLY);
+                    tg.px[i] = over(paint.at(i % tg.w, i / tg.w), tg.px[i]);
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 fn fill(tg: &mut Target, g: &Geom, paint: &Paint) -> Res<()> {

@@ -353,12 +353,11 @@ proptest! {
 
 proptest! {
     /// DrawGeometry of a rectangle's figure (its four corners in either turn, from any corner)
-    /// paints what DrawRectangle does, aliased or antialiased, under a transform too, while
-    /// each side is at least half the width (shorter sides: strokewide-* asks)
+    /// paints what DrawRectangle does, aliased or antialiased, under a transform too, whatever
+    /// its sides against the width (strokewide-*)
     #[test]
     fn stroked_rectangles_are_drawrectangle(l in -8i32..40, t in -8i32..40, w in 1i32..40, h in 1i32..40, sw in 1i32..12, start in 0usize..4, back in proptest::bool::ANY, aa in proptest::bool::ANY, k in 0usize..3) {
         let q = |v: i32| v as f32 / 4.0;
-        prop_assume!(sw <= 2 * w.min(h));
         let (l, t, r, b, sw) = (q(l), q(t), q(l + w), q(t + h), q(sw));
         let mut c = vec![(l, t), (r, t), (r, b), (l, b)];
         if back {
