@@ -435,6 +435,12 @@ pub struct Draw {
     pub ccw: bool,
     /// the current texture palette's entries (r, g, b, flags), None before d9palette
     pub palette: Option<Box<[[u8; 4]; 256]>>,
+    /// SetTransform's matrices by D3DTRANSFORMSTATETYPE (none: the identity)
+    pub xform: std::collections::BTreeMap<u32, [f32; 16]>,
+    /// SetViewport's (x, y, width, height, MinZ, MaxZ); None: the whole target, depth 0..1
+    pub viewport: Option<(i32, i32, i32, i32, f32, f32)>,
+    /// drawing a piece of an untransformed triangle clipped in clip space
+    pub in_piece: bool,
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -479,6 +485,8 @@ struct Vtx {
     diffuse: [f64; 4],
     specular: [f64; 4],
     uv: [f64; 2],
+    /// an untransformed vertex's clip position (D3D9.DRAW.XYZ); None: pretransformed
+    clip: Option<[f32; 4]>,
 }
 
 /// a D3DCOLOR's channels (r, g, b, a) as f32 c / 255 (MEASURED: so the pipeline reads them)
@@ -565,6 +573,57 @@ impl Vtx {
         let d = self.diffuse.map(|c| c as f32);
         let s = self.specular.map(|c| c as f32);
         [self.z as f32, d[0], d[1], d[2], d[3], s[0], s[1], s[2], s[3], self.uv[0] as f32, self.uv[1] as f32, self.rhw as f32]
+    }
+}
+
+/// (MEASURED, as WARP's Direct3D 10 rasterizer: d3draster's Planes; D3D9.DRAW.XYZ, xyz-*) an
+/// untransformed triangle's attributes: the vertices turned so the least clip x comes first, at
+/// their snapped screen positions (D3D10 pixel centers); a plane per attribute,
+/// A = (x1 - x0)(y2 - y0) - (y1 - y0)(x2 - x0), gx = (d1 (y2 - y0) - d2 (y1 - y0)) (1 / A),
+/// gy = (d2 (x1 - x0) - d1 (x2 - x0)) (1 / A), C = (a0 - gx x0) - gy y0, the value at a pixel
+/// center (C + gy cy) + gx cx, in f32; the attributes perspective-correct (planes of 1/w and a/w),
+/// z on its own plane
+struct Planes {
+    xs: [f32; 3],
+    ys: [f32; 3],
+    iw: [f32; 3],
+    at: [[f32; ATTRS]; 3],
+}
+
+impl Planes {
+    fn new(vs: &[Vtx; 3], snap: &dyn Fn(&PolyVtx) -> (i64, i64)) -> Planes {
+        let cx = |v: &Vtx| v.clip.map_or(0.0, |c| c[0]);
+        let k0 = (0..3).fold(0, |k, i| if cx(&vs[i]) < cx(&vs[k]) { i } else { k });
+        let t: [&Vtx; 3] = [0, 1, 2].map(|i| &vs[(k0 + i) % 3]);
+        let s = t.map(|v| snap(&PolyVtx { x: v.x, y: v.y, at: [0.0; ATTRS] }));
+        let iw = t.map(|v| v.rhw as f32);
+        let at = [0, 1, 2].map(|i| {
+            let mut a = t[i].attrs();
+            for k in PERSP {
+                a[k] *= iw[i];
+            }
+            a
+        });
+        Planes { xs: s.map(|p| p.0 as f32 / 256.0 + 0.5), ys: s.map(|p| p.1 as f32 / 256.0 + 0.5), iw, at }
+    }
+
+    fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
+        let ([x0, x1, x2], [y0, y1, y2]) = (self.xs, self.ys);
+        let area = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
+        let r = 1.0 / area;
+        let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+        let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
+        let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
+        let c = (a[0] - gx * x0) - gy * y0;
+        (c + gy * cy) + gx * cx
+    }
+
+    fn at(&self, cx: f32, cy: f32) -> [f64; ATTRS] {
+        let q = 1.0 / self.plane(self.iw, cx, cy);
+        std::array::from_fn(|k| {
+            let v = self.plane(self.at.map(|a| a[k]), cx, cy);
+            (if PERSP.contains(&k) { v * q } else { v }) as f64
+        })
     }
 }
 
@@ -693,6 +752,7 @@ impl D3d9 {
                 self.draw.stencil = vec![0; (w * h) as usize];
                 // (Direct3D 9: SetRenderTarget resets the viewport and the scissor rectangle to the target)
                 self.draw.scissor = None;
+                self.draw.viewport = None;
                 // (what a new target holds is not defined: every case clears it before drawing)
             }
             "d9clear" => {
@@ -897,7 +957,26 @@ impl D3d9 {
                     out.push("decl hr 80004005".into());
                 }
             }
-            "d9viewport" | "d9xform" => return Err(Fail::Unmodeled(open::D3D9_DRAW_XYZ)),
+            "d9xform" => {
+                let ty = n(op, 1)? as u32;
+                let m: Vec<f32> = (2..18).map(|i| n(op, i).map(|v| f32::from_bits(v as u32))).collect::<Res<_>>()?;
+                if !matches!(ty, 2 | 3 | 256) {
+                    // (the generators set only VIEW, PROJECTION, WORLD)
+                    return Err(Fail::Bad);
+                }
+                hit(clause::D3D9_DRAW_XYZ);
+                self.draw.xform.insert(ty, m.try_into().unwrap());
+            }
+            "d9viewport" => {
+                let v: Vec<i64> = (1..5).map(|i| n(op, i)).collect::<Res<_>>()?;
+                let (z0, z1) = (f32::from_bits(n(op, 5)? as u32), f32::from_bits(n(op, 6)? as u32));
+                let Some(rt) = &self.draw.rt else { return Err(Fail::Bad) };
+                if v[0] < 0 || v[1] < 0 || v[0] + v[2] > rt.w as i64 || v[1] + v[3] > rt.h as i64 {
+                    // (the generators set no viewport past the target)
+                    return Err(Fail::Bad);
+                }
+                self.draw.viewport = Some((v[0] as i32, v[1] as i32, v[2] as i32, v[3] as i32, z0, z1));
+            }
             _ => return Err(Fail::Bad),
         }
         Ok(true)
@@ -1215,12 +1294,15 @@ impl D3d9 {
 
     fn draw_prims(&mut self, ty: u32, nv: usize, words: &[u32]) -> Res<()> {
         let fvf = self.draw.fvf;
-        if fvf & 0x400e != 4 {
-            return Err(Fail::Unmodeled(open::D3D9_DRAW_XYZ));
-        }
+        // XYZRHW (pretransformed) or XYZ (transformed by the device)
+        let pos = match fvf & 0x400e {
+            4 => 4,
+            2 => 3,
+            _ => return Err(Fail::Unmodeled(open::D3D9_DRAW_XYZ)),
+        };
         let ntex = (fvf >> 8 & 0xf) as usize;
         let tsize = |i: usize| [2, 3, 4, 1][(fvf >> (16 + 2 * i) & 3) as usize];
-        let size = 4 + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize + (fvf >> 6 & 1) as usize + (fvf >> 7 & 1) as usize + (0..ntex).map(tsize).sum::<usize>();
+        let size = pos + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize + (fvf >> 6 & 1) as usize + (fvf >> 7 & 1) as usize + (0..ntex).map(tsize).sum::<usize>();
         let stride = words.len() / nv;
         if stride < size {
             // (the generators write no stride short of the FVF's size)
@@ -1233,7 +1315,7 @@ impl D3d9 {
         let vs: Vec<Vtx> = words
             .chunks(stride)
             .map(|w| {
-                let mut i = 4 + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize;
+                let mut i = pos + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize;
                 let mut take = |on: bool| {
                     let v = if on { Some(w[i]) } else { None };
                     i += on as usize;
@@ -1242,7 +1324,11 @@ impl D3d9 {
                 let diffuse = argb(take(fvf & 0x40 != 0).unwrap_or(0xffff_ffff));
                 let specular = argb(take(fvf & 0x80 != 0).unwrap_or(0));
                 let uv = if ntex > 0 && tsize(0) >= 2 { [fl(w[i]), fl(w[i + 1])] } else { [0.0; 2] };
-                Vtx { x: f32::from_bits(w[0]), y: f32::from_bits(w[1]), z: fl(w[2]), rhw: fl(w[3]), diffuse, specular, uv }
+                if pos == 3 {
+                    let (x, y, z, rhw, clip) = self.transform([w[0], w[1], w[2]].map(f32::from_bits));
+                    return Vtx { x, y, z: z as f64, rhw: rhw as f64, diffuse, specular, uv, clip: Some(clip) };
+                }
+                Vtx { x: f32::from_bits(w[0]), y: f32::from_bits(w[1]), z: fl(w[2]), rhw: fl(w[3]), diffuse, specular, uv, clip: None }
             })
             .collect();
         if ty == 1 {
@@ -1261,6 +1347,27 @@ impl D3d9 {
             self.triangle(vs[t[0]], vs[t[1]], vs[t[2]])?;
         }
         Ok(())
+    }
+
+    /// an untransformed position through WORLD, VIEW, PROJECTION and the viewport: screen x, y,
+    /// z and rhw (D3D9.DRAW.XYZ)
+    /// the viewport: SetViewport's, or the whole target
+    fn viewport(&self) -> (i32, i32, i32, i32, f32, f32) {
+        let (rw, rh) = self.draw.rt.as_ref().map_or((0, 0), |r| (r.w, r.h));
+        self.draw.viewport.unwrap_or((0, 0, rw, rh, 0.0, 1.0))
+    }
+
+    fn transform(&self, p: [f32; 3]) -> (f32, f32, f32, f32, [f32; 4]) {
+        let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
+        let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
+        let mul = |a: [f32; 16], b: [f32; 16]| -> [f32; 16] { std::array::from_fn(|i| (0..4).fold(0.0f32, |s, k| s + a[i / 4 * 4 + k] * b[k * 4 + i % 4])) };
+        let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
+        let c = xv([p[0], p[1], p[2], 1.0], mul(mul(m(256), m(2)), m(3)));
+        let (vx, vy, vw, vh, z0, z1) = self.viewport();
+        let rhw = 1.0 / c[3];
+        let (x, y, z) = (c[0] * rhw, c[1] * rhw, c[2] * rhw);
+        let (hw, hh) = (vw as f32 / 2.0, vh as f32 / 2.0);
+        (vx as f32 + (1.0 + x) * hw, vy as f32 + (1.0 - y) * hh, z0 + z * (z1 - z0), rhw, c)
     }
 
     /// a point list: each point the one pixel whose area holds it, (x, y) taken to the pixel
@@ -1324,11 +1431,73 @@ impl D3d9 {
             return Ok(());
         }
         self.draw.ccw = area < 0.0;
+        let xyz = vs.iter().all(|v| v.clip.is_some());
+        if xyz && !self.draw.in_piece {
+            // (untransformed vertices: clipped in clip space to the viewport's pixels, the planes
+            // half a pixel in, x = vx - 0.5 .. vx + w - 0.5 (as pretransformed vertices are,
+            // D3D9.RASTER.CLIP), each new vertex a + (b - a) t; the polygon cut into a fan)
+            let (vx, vy, vw, vh, ..) = self.viewport();
+            let sh = |v: &Vtx| {
+                let c = v.clip.unwrap();
+                [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]]
+            };
+            let dist = |q: &[f32; 4], plane: usize| match plane {
+                0 => q[3] + q[0],
+                1 => q[3] - q[0],
+                2 => q[3] + q[1],
+                _ => q[3] - q[1],
+            };
+            let mut poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().map(|v| (sh(v), v.attrs())).collect();
+            if poly.iter().any(|(q, _)| (0..4).any(|p| dist(q, p) < 0.0)) {
+                hit(clause::D3D9_DRAW_XYZ_CLIP);
+                for plane in 0..4 {
+                    let mut out = Vec::new();
+                    for i in 0..poly.len() {
+                        let (p, q) = (poly[i], poly[(i + 1) % poly.len()]);
+                        let (dp, dq) = (dist(&p.0, plane), dist(&q.0, plane));
+                        if dp >= 0.0 {
+                            out.push(p);
+                        }
+                        if (dp >= 0.0) != (dq >= 0.0) {
+                            let t = dp / (dp - dq);
+                            out.push((std::array::from_fn(|k| p.0[k] + (q.0[k] - p.0[k]) * t), std::array::from_fn(|k| p.1[k] + (q.1[k] - p.1[k]) * t)));
+                        }
+                    }
+                    poly = out;
+                }
+                let vtx = |(q, at): ([f32; 4], [f32; ATTRS])| {
+                    let rhw = 1.0 / q[3];
+                    Vtx {
+                        x: vx as f32 - 0.5 + (1.0 + q[0] * rhw) * (vw as f32 / 2.0),
+                        y: vy as f32 - 0.5 + (1.0 - q[1] * rhw) * (vh as f32 / 2.0),
+                        z: at[0] as f64,
+                        rhw: rhw as f64,
+                        diffuse: std::array::from_fn(|k| at[1 + k] as f64),
+                        specular: std::array::from_fn(|k| at[5 + k] as f64),
+                        uv: [at[9] as f64, at[10] as f64],
+                        clip: Some([q[0] - q[3] / vw as f32, q[1] + q[3] / vh as f32, q[2], q[3]]),
+                    }
+                };
+                let flat = (a.diffuse, a.specular);
+                self.draw.in_piece = true;
+                let mut r = Ok(());
+                for i in 1..poly.len().saturating_sub(1) {
+                    let (mut p0, p1, p2) = (vtx(poly[0]), vtx(poly[i]), vtx(poly[i + 1]));
+                    if self.rs(9) == 1 {
+                        // (flat shading: the first vertex's colors still)
+                        (p0.diffuse, p0.specular) = flat;
+                    }
+                    r = r.and(self.triangle(p0, p1, p2));
+                }
+                self.draw.in_piece = false;
+                return r;
+            }
+        }
         // which triangles are clipped: MEASURED (d3d9draw raster-17: a vertex at y = 16 is not;
         // raster-*, shade-clip-*: one past -0.5 or past the size is)
         let pts = [(a.x, a.y), (b.x, b.y), (c.x, c.y)];
         let within = |v: &(f32, f32), lo: f32, hi: f32| (lo..=w as f32 + hi).contains(&v.0) && (lo..=h as f32 + hi).contains(&v.1);
-        let clipped = !pts.iter().all(|v| within(v, -0.5, 0.0));
+        let clipped = !xyz && !pts.iter().all(|v| within(v, -0.5, 0.0));
         // (open: Direct3D 8 leaves some triangles a little past the target unclipped, as a guard
         // band would, and not others: d3d8draw raster-3, -77, -96, shade-13, clip-decide-*)
         if self.v8 && clipped && pts.iter().all(|v| within(v, -1.0, 3.0)) {
@@ -1379,6 +1548,12 @@ impl D3d9 {
         } else {
             vec![corners]
         };
+        // (untransformed vertices: the attributes as WARP's Direct3D 10 rasterizer sets them up,
+        // D3DRASTER.INTERP)
+        let planes = match vs.map(|v| v.clip) {
+            [Some(_), Some(_), Some(_)] => Some(Planes::new(&vs, &snap)),
+            _ => None,
+        };
         hit(clause::D3D9_RASTER_TOPLEFT);
         for piece in pieces {
             let mut covered = vec![false; (w * h) as usize];
@@ -1398,12 +1573,22 @@ impl D3d9 {
                     if !covered[(py * w + px) as usize] {
                         continue;
                     }
+                    if xyz {
+                        // (untransformed: only the viewport's pixels, D3D9.DRAW.XYZ)
+                        let (vx, vy, vw, vh, ..) = self.viewport();
+                        if px < vx || px >= vx + vw || py < vy || py >= vy + vh {
+                            continue;
+                        }
+                    }
                     let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
                     let at32: [f32; ATTRS] = std::array::from_fn(|k| {
                         let (dx, dy) = grads[k];
                         piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])
                     });
-                    let at: [f64; ATTRS] = std::array::from_fn(|k| if persp && PERSP.contains(&k) { (at32[k] / at32[11]) as f64 } else { at32[k] as f64 });
+                    let at: [f64; ATTRS] = match &planes {
+                        Some(p) => p.at(sx, sy),
+                        None => std::array::from_fn(|k| if persp && PERSP.contains(&k) { (at32[k] / at32[11]) as f64 } else { at32[k] as f64 }),
+                    };
                     let (diffuse, specular) = if flat {
                         hit(clause::D3D9_SHADE_FLAT);
                         (a.diffuse, a.specular)
