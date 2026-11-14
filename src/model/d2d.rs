@@ -1892,11 +1892,15 @@ impl D2d {
                     if !(src[0] < src[2] && src[1] < src[3]) {
                         return Err(Fail::Unmodeled(open::D2D_RT));
                     }
-                    if tg.st.m != IDENTITY {
-                        return Err(Fail::Unmodeled(open::D2D_RT));
-                    }
                     // (MEASURED, D2D.BITMAP.OPACITY: the texel scaled by the opacity byte)
-                    (Place::Rect { dst: r, src }, (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32)
+                    let opacity = (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32;
+                    if tg.st.m == IDENTITY {
+                        (Place::Rect { dst: r, src }, opacity)
+                    } else {
+                        let (sx, sy) = ((r[2] - r[0]) / (src[2] - src[0]), (r[3] - r[1]) / (src[3] - src[1]));
+                        let bm = [sx, 0.0, 0.0, sy, r[0] - src[0] * sx, r[1] - src[1] * sy];
+                        (Place::Brush { m: mul(&bm, &tg.st.m), world: tg.st.m }, opacity)
+                    }
                 } else {
                     hit(clause::D2D_BBRUSH);
                     let m = extra.as_deref().map_or(IDENTITY, |e| [e[0], e[1], e[2], e[3], e[4], e[5]]);
