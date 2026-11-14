@@ -120,6 +120,29 @@ proptest! {
         }
     }
 
+    /// rounding down: the result is at most the exact value and the next float above is more
+    /// (products of two floats and their sums with small ones are exact in f64)
+    #[test]
+    fn rounding_down_is_the_float_below(a in -1e6f32..1e6, b in -1e6f32..1e6, k in -64i32..64) {
+        let d = gp::Round::Down;
+        let p = a as f64 * b as f64;
+        let m = d.mul(a, b);
+        prop_assert!(m as f64 <= p && (p == 0.0 || m.next_up() as f64 > p), "{a} * {b} = {m}");
+        let c = k as f32 / 8.0;
+        let s = a as f64 + c as f64;
+        let t = d.add(a, c);
+        prop_assert!(t as f64 <= s && (t.next_up() as f64 > s || s == 0.0), "{a} + {c} = {t}");
+        if b != 0.0 {
+            let q = d.div(a, b);
+            // (q <= a / b exactly: q b against a, the sign of b turning it)
+            let r = q as f64 * b as f64 - a as f64;
+            prop_assert!(if b > 0.0 { r <= 0.0 } else { r >= 0.0 }, "{a} / {b} = {q}");
+            let r = q.next_up() as f64 * b as f64 - a as f64;
+            prop_assert!(if b > 0.0 { r > 0.0 } else { r < 0.0 }, "{a} / {b} = {q} next");
+        }
+        prop_assert_eq!(gp::Round::Nearest.mul(a, b), a * b);
+    }
+
     /// a bitmap read in its own format is what was written, for any rectangle inside it
     #[test]
     fn same_format_round_trip(f in 0..FORMATS.len(), seed: u32, x in 0i64..5, y in 0i64..3, w in 1i64..5, h in 1i64..3) {
@@ -163,12 +186,12 @@ fn dither_keeps_the_mean() {
     }
 }
 
-/// the model answers every case of its suites but those of the three open clauses, and the same
+/// the model answers every case of its suites but those of the open clauses, and the same
 /// number of them on each executor as when it was settled (a model that gives up on more cases
 /// still matches Windows on the rest: this is what keeps it answering)
 #[test]
 fn the_model_answers_all_but_the_open_clauses() {
-    for (suite, arch, open) in [("gdiplus", 32, 43), ("gdiplus", 64, 163), ("gdiplusmat", 32, 0)] {
+    for (suite, arch, open) in [("gdiplus", 32, 129), ("gdiplus", 64, 129), ("gdiplusmat", 32, 0), ("gdiplusmat", 64, 0)] {
         kikizake::model::set_arch(arch);
         let cases = kikizake::case::parse_cases(&kikizake::gen::suite(suite).unwrap());
         let mut n = 0;
@@ -176,7 +199,7 @@ fn the_model_answers_all_but_the_open_clauses() {
             match kikizake::model::run_case(c) {
                 Ok(_) => {}
                 Err(kikizake::model::Fail::Unmodeled(id)) => {
-                    assert!(["GP.FILL.GAMMA", "GP.MATRIX.X64", "GP.CLONE.PALETTE"].contains(&id), "{suite} {}: {id}", c.name);
+                    assert!(["GP.FILL.GAMMA", "GP.CLONE.PALETTE"].contains(&id), "{suite} {}: {id}", c.name);
                     n += 1;
                 }
                 Err(kikizake::model::Fail::Bad) => panic!("{suite} {}: a bad line", c.name),

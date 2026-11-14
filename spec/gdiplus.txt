@@ -49,5 +49,5 @@ GP.MATRIX.MUL measured | Matrix::Multiply (MatrixOrderPrepend: the passed matrix
 GP.MATRIX.ORDER measured | (none) | an order other than prepend (0) or append (1): InvalidParameter, the matrix unchanged (golden gdiplus matrix-order)
 GP.MATRIX.POINT measured | Matrix::Matrix (dx, dy the third row) | (x, y) to (m11 x + m21 y + dx, m12 x + m22 y + dy), in float left to right (golden gdiplus-32, 120 cases x 3 points)
 GP.MATRIX.INVERT measured | Matrix::Invert (not invertible: InvalidParameter) | x86: det = m11 m22 - m12 m21, r = 1 / det, elements m22 r, -m12 r, -m21 r, m11 r, (m21 dy - m22 dx) r, (m12 dx - m11 dy) r, all in float (golden gdiplus-32, 99 of 99 cases, every element); a zero determinant is not invertible
-GP.MATRIX.X86 doc | (none) | the arithmetic below is x86's (suite gdiplusmat, x86 only)
-GP.MATRIX.X64 open | (none) | x86-64 rounds products, points and inverses otherwise: 133 of 360 points and most inverses 1 to 5 ulps away, biased low, signs of zero differ; no float, double or fused order tried fits (golden gdiplus-64)
+GP.MATRIX.X86 doc | (none) | the arithmetic below is x86's: float, rounded to nearest (suites gdiplus, gdiplusmat)
+GP.MATRIX.X64 measured | (none) | x86-64's GDI+ does the matrix arithmetic of GP.MATRIX.X86 in float rounded toward minus infinity (an exact zero sum -0): products, points, the determinant, its reciprocal and the inverse (golden gdiplus-64 matrix-*, gdiplusmat-64; first all 3390 numbers of 120 cases, round to nearest 564 of the 720 first points)

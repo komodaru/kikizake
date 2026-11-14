@@ -329,8 +329,7 @@ static void op_clone(void) {
  * gpmatrix <slot> <m11> <m12> <m21> <m22> <dx> <dy>: CreateMatrix2 "matrix <st>"
  * gpmatmul <slot> <other slot> <0 prepend|1 append>: MultiplyMatrix, then the elements
  * gpmatinv <slot>: IsMatrixInvertible, InvertMatrix, then the elements
- * gpmatpts <slot> <x> <y>...: TransformMatrixPoints: "pts <st> <x> <y>..."
- * (a last word "x86" is ignored: the model's mark for x86's rounding, suite gdiplusmat) */
+ * gpmatpts <slot> <x> <y>...: TransformMatrixPoints: "pts <st> <x> <y>..." */
 static float fbits(int i) {
     union { DWORD u; float f; } v;
     v.u = (DWORD)num(i);
@@ -381,7 +380,7 @@ static void op_matinv(void) {
 static void op_matpts(void) {
     int s = slot(1);
     GpPointF p[16];
-    int nt = ntok - is(ntok - 1, "x86"); /* (a last "x86" marks the cases of an x86-only suite) */
+    int nt = ntok;
     int n = (nt - 2) / 2;
     if ((nt - 2) % 2 || n < 1 || n > 16) bad = 1;
     for (int i = 0; i < n && !bad; i++) { p[i].X = fbits(2 + 2 * i); p[i].Y = fbits(3 + 2 * i); }

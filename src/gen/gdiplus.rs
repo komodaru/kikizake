@@ -121,8 +121,28 @@ pub fn gdiplus() -> String {
         let (x, y, w, h) = (r.range(-1, 6), r.range(-1, 4), r.range(-1, 7), r.range(-1, 5));
         writeln!(s, "case clone-{i}\ngpbitmap 0 7 4 {f}\ngpwrite 0 {f} seed {}\ngpclone 1 0 {x} {y} {w} {h} {g}\ngpinfo 1\ngpread 1 {g}\nend", r.next()).unwrap();
     }
-    // matrices: made, multiplied both ways, inverted, points through them (x86-64's rounding is
-    // not worked out: its answers are recorded here; x86's are modelled in gdiplusmat)
+    // clones into the indexed formats: of every other format, whole, and of every 5-bit color
+    for f in &names {
+        for g in ["1bppIndexed", "4bppIndexed", "8bppIndexed"] {
+            if *f == "16bppGrayScale" {
+                continue;
+            }
+            writeln!(s, "case cloneidx-{f}-{g}\ngpbitmap 0 16 16 {f}\ngpwrite 0 {f} seed {}\ngpclone 1 0 0 0 16 16 {g}\ngpinfo 1\ngpread 1 {g}\nend", r.next()).unwrap();
+        }
+    }
+    for g in ["1bppIndexed", "4bppIndexed", "8bppIndexed"] {
+        writeln!(s, "case clonegrid-{g}\ngpbitmap 0 256 128 24bppRGB\ngpwrite 0 24bppRGB grid\ngpclone 1 0 0 0 256 128 {g}\ngpinfo 1\ngpread 1 {g}\nend").unwrap();
+        writeln!(s, "case clonealpha-{g}\ngpbitmap 0 256 256 32bppARGB\ngpwrite 0 32bppARGB pairs\ngpclone 1 0 0 0 256 256 {g}\ngpread 1 {g}\nend").unwrap();
+    }
+    // the gamma-corrected blend over every (color, alpha) of the destination, for a few brushes
+    for (i, (f, c, q)) in [("32bppARGB", 0xfe00_0000u32, 2), ("32bppARGB", 0x80ff_ffff, 3), ("32bppARGB", 0x8000_0000, 3), ("32bppARGB", 0x40ff_8000, 3), ("32bppARGB", 0xc010_80f0, 2), ("32bppARGB", 0x01ff_ffff, 3), ("32bppPARGB", 0x80ff_ffff, 3), ("32bppPARGB", 0xc010_80f0, 3)].iter().enumerate() {
+        writeln!(s, "case gamma-{i}\ngpbitmap 0 256 256 {f}\ngpwrite 0 {f} pairs\ngpfill 0 0 0 256 256 {c:#010x} over {q}\ngpread 0 {f}\nend").unwrap();
+    }
+    for i in 0..60 {
+        let f = *r.pick(&names);
+        writeln!(s, "case gammablend-{i}\ngpbitmap 0 16 4 {f}\ngpwrite 0 {f} seed {}\ngpfill 0 0 0 16 4 {:#010x} over {}\ngpread 0 {f}\nend", r.next(), rargb(&mut r), r.range(2, 4)).unwrap();
+    }
+    // matrices: made, multiplied both ways, inverted, points through them (more in gdiplusmat)
     for i in 0..120 {
         let m: Vec<String> = (0..12).map(|k| {
             // (some singular ones: a row that is a multiple of the other)
@@ -134,16 +154,16 @@ pub fn gdiplus() -> String {
     s
 }
 
-/// matrix arithmetic, as x86 rounds it: products both ways, inverses, points
+/// matrix arithmetic: products both ways, inverses, points (x86 rounds to nearest, x86-64 down)
 pub fn gdiplusmat() -> String {
-    let mut s = String::from("# kikizake suite gdiplusmat: GDI+ matrix arithmetic, as x86 rounds it (SPEC.md). Made by `kikizake gen gdiplusmat`.\n# x86 only\n");
+    let mut s = String::from("# kikizake suite gdiplusmat: GDI+ matrix arithmetic (SPEC.md). Made by `kikizake gen gdiplusmat`.\n");
     let mut r = XorShift32::new(0x1e7e_0001);
     for i in 0..300 {
         let m: Vec<String> = (0..12).map(|k| if i % 8 == 7 && (2..4).contains(&k) { "0".into() } else { format!("{:#x}", rfloat(&mut r)) }).collect();
         let pts: Vec<String> = (0..6).map(|_| format!("{:#x}", rfloat(&mut r))).collect();
         let (a, b, p) = (m[..6].join(" "), m[6..].join(" "), pts.join(" "));
-        writeln!(s, "case matrix-{i}\ngpmatrix 0 {a}\ngpmatrix 1 {b}\ngpmatpts 0 {p} x86\ngpmatmul 0 1 {} x86\ngpmatpts 0 {p} x86\ngpmatinv 0 x86\ngpmatpts 0 {p} x86\ngpmatinv 0 x86\nend", i % 2).unwrap();
+        writeln!(s, "case matrix-{i}\ngpmatrix 0 {a}\ngpmatrix 1 {b}\ngpmatpts 0 {p}\ngpmatmul 0 1 {}\ngpmatpts 0 {p}\ngpmatinv 0\ngpmatpts 0 {p}\ngpmatinv 0\nend", i % 2).unwrap();
     }
-    writeln!(s, "case matrix-order\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngpmatrix 1 0x40000000 0 0 0x40000000 0 0\ngpmatmul 0 1 2 x86\ngpmatmul 0 1 -1 x86\nend").unwrap();
+    writeln!(s, "case matrix-order\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngpmatrix 1 0x40000000 0 0 0x40000000 0 0\ngpmatmul 0 1 2\ngpmatmul 0 1 -1\nend").unwrap();
     s
 }

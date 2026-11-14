@@ -467,35 +467,110 @@ fn hex_row(row: &[u8], w: u32, bits: u32) -> String {
 pub type Matrix = [f32; 6];
 
 /// the product a × b of two affine matrices (points as row vectors: p' = p × M)
+/// how float arithmetic rounds: to nearest (x86), or toward minus infinity (MEASURED: x86-64's
+/// GDI+ matrices, golden gdiplus-64 matrix-*: all 3390 numbers of 120 cases)
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Round {
+    Nearest,
+    Down,
+}
+
+/// the f32 nearest x from below: the largest f32 at most the exact value c + e (e an f64 rest)
+fn down(c: f64, e: f64) -> f32 {
+    let f = c as f32;
+    if (f as f64) > c || (f as f64) == c && e < 0.0 {
+        f.next_down()
+    } else {
+        f
+    }
+}
+
+impl Round {
+    pub fn mul(self, a: f32, b: f32) -> f32 {
+        let p = a as f64 * b as f64;
+        if self == Round::Nearest || p == 0.0 || !p.is_finite() {
+            return a * b;
+        }
+        down(p, 0.0)
+    }
+    pub fn add(self, a: f32, b: f32) -> f32 {
+        let s = a as f64 + b as f64;
+        if self == Round::Nearest || !s.is_finite() {
+            return a + b;
+        }
+        // (two-sum: the rest of the f64 sum)
+        let bb = s - a as f64;
+        let e = (a as f64 - (s - bb)) + (b as f64 - bb);
+        if s == 0.0 && e == 0.0 {
+            // (an exact zero sum is -0 rounding down, but +0 + +0)
+            return if a.is_sign_positive() && b.is_sign_positive() { 0.0 } else { -0.0 };
+        }
+        down(s, e)
+    }
+    pub fn sub(self, a: f32, b: f32) -> f32 {
+        self.add(a, -b)
+    }
+    pub fn div(self, a: f32, b: f32) -> f32 {
+        let q = a / b;
+        if self == Round::Nearest || !q.is_finite() || q == 0.0 {
+            return q;
+        }
+        // (q b against a, exactly in f64: above the true quotient, one step down)
+        let r = q as f64 * b as f64 - a as f64;
+        if r != 0.0 && (r > 0.0) == (b > 0.0) {
+            q.next_down()
+        } else {
+            q
+        }
+    }
+}
+
 pub fn mul(a: &Matrix, b: &Matrix) -> Matrix {
+    mul_in(Round::Nearest, a, b)
+}
+pub fn mul_in(r: Round, a: &Matrix, b: &Matrix) -> Matrix {
     hit("GP.MATRIX.MUL");
+    let dot = |x: f32, y: f32, z: f32, w: f32| r.add(r.mul(x, y), r.mul(z, w));
     [
-        a[0] * b[0] + a[1] * b[2],
-        a[0] * b[1] + a[1] * b[3],
-        a[2] * b[0] + a[3] * b[2],
-        a[2] * b[1] + a[3] * b[3],
-        a[4] * b[0] + a[5] * b[2] + b[4],
-        a[4] * b[1] + a[5] * b[3] + b[5],
+        dot(a[0], b[0], a[1], b[2]),
+        dot(a[0], b[1], a[1], b[3]),
+        dot(a[2], b[0], a[3], b[2]),
+        dot(a[2], b[1], a[3], b[3]),
+        r.add(dot(a[4], b[0], a[5], b[2]), b[4]),
+        r.add(dot(a[4], b[1], a[5], b[3]), b[5]),
     ]
 }
 
 /// a point through a matrix
 pub fn transform(m: &Matrix, x: f32, y: f32) -> (f32, f32) {
+    transform_in(Round::Nearest, m, x, y)
+}
+pub fn transform_in(r: Round, m: &Matrix, x: f32, y: f32) -> (f32, f32) {
     hit("GP.MATRIX.POINT");
-    (m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5])
+    (r.add(r.add(r.mul(m[0], x), r.mul(m[2], y)), m[4]), r.add(r.add(r.mul(m[1], x), r.mul(m[3], y)), m[5]))
 }
 
 /// the inverse (MEASURED, golden gdiplus-32, all 99 invertible cases, every element: the
 /// determinant, its reciprocal and every product in float, the translation (m21 dy - m22 dx) r
 /// and (m12 dx - m11 dy) r), or None when the determinant is 0
 pub fn invert(m: &Matrix) -> Option<Matrix> {
+    invert_in(Round::Nearest, m)
+}
+pub fn invert_in(r: Round, m: &Matrix) -> Option<Matrix> {
     hit("GP.MATRIX.INVERT");
-    let det = m[0] * m[3] - m[1] * m[2];
+    let det = r.sub(r.mul(m[0], m[3]), r.mul(m[1], m[2]));
     if det == 0.0 || !det.is_finite() {
         return None;
     }
-    let r = 1.0 / det;
-    Some([m[3] * r, -m[1] * r, -m[2] * r, m[0] * r, (m[2] * m[5] - m[3] * m[4]) * r, (m[1] * m[4] - m[0] * m[5]) * r])
+    let q = r.div(1.0, det);
+    Some([
+        r.mul(m[3], q),
+        r.mul(-m[1], q),
+        r.mul(-m[2], q),
+        r.mul(m[0], q),
+        r.mul(r.sub(r.mul(m[2], m[5]), r.mul(m[3], m[4])), q),
+        r.mul(r.sub(r.mul(m[1], m[4]), r.mul(m[0], m[5])), q),
+    ])
 }
 
 fn elements(m: &Matrix) -> String {
@@ -519,14 +594,14 @@ pub fn dither(f: usize, p: u32, x: u32, y: u32) -> u64 {
     if g6 { ch(r, 5) << 11 | ch(g, 6) << 5 | ch(b, 5) } else { ch(r, 5) << 10 | ch(g, 5) << 5 | ch(b, 5) }
 }
 
-/// matrix arithmetic: modelled as x86 rounds it (the x86 executor, or a line ending in "x86", a
-/// word the executor ignores, in the x86-only suite); x86-64 rounds otherwise (GP.MATRIX.X64)
-fn x86(t: &[String], i: usize) -> Res<()> {
-    if super::arch() == 32 || t.get(i).is_some_and(|v| v == "x86") {
+/// matrix arithmetic: x86 rounds to nearest; x86-64 toward minus infinity (GP.MATRIX.X64)
+fn rounding() -> Round {
+    if super::arch() == 32 {
         hit("GP.MATRIX.X86");
-        Ok(())
+        Round::Nearest
     } else {
-        Err(Fail::Unmodeled("GP.MATRIX.X64"))
+        hit("GP.MATRIX.X64");
+        Round::Down
     }
 }
 
@@ -827,7 +902,7 @@ impl Gdiplus {
             "gpmatmul" => {
                 let (s, o) = (Self::slot(t, 1)?, Self::slot(t, 2)?);
                 let order = n(t, 3)?;
-                x86(t, 4)?;
+                let rd = rounding();
                 let Some(b) = self.mat[o] else {
                     out.push(format!("{name} nomatrix"));
                     return Ok(true);
@@ -835,8 +910,8 @@ impl Gdiplus {
                 let a = self.mat[s].unwrap();
                 // (MatrixOrderPrepend 0: the passed matrix on the left)
                 let m = match order {
-                    0 => mul(&b, &a),
-                    1 => mul(&a, &b),
+                    0 => mul_in(rd, &b, &a),
+                    1 => mul_in(rd, &a, &b),
                     _ => {
                         hit("GP.MATRIX.ORDER");
                         out.push(format!("matmul {INVALID_PARAMETER}"));
@@ -851,8 +926,8 @@ impl Gdiplus {
             "gpmatinv" => {
                 let s = Self::slot(t, 1)?;
                 let m = self.mat[s].unwrap();
-                x86(t, 2)?;
-                match invert(&m) {
+                let rd = rounding();
+                match invert_in(rd, &m) {
                     Some(i) => {
                         out.push("matinv 0 1 0".into());
                         out.push(elements(&i));
@@ -867,16 +942,15 @@ impl Gdiplus {
             "gpmatpts" => {
                 let s = Self::slot(t, 1)?;
                 let m = self.mat[s].unwrap();
-                let x = t.last().is_some_and(|v| v == "x86") as usize;
-                x86(t, t.len() - x)?;
-                let k = t.len() - 2 - x;
+                let rd = rounding();
+                let k = t.len() - 2;
                 if k % 2 != 0 || k < 2 || k > 32 {
                     return Err(Fail::Bad);
                 }
                 let mut l = "pts 0".to_string();
                 for i in 0..k / 2 {
                     let (x, y) = (f32::from_bits(n(t, 2 + 2 * i)? as u32), f32::from_bits(n(t, 3 + 2 * i)? as u32));
-                    let (a, b) = transform(&m, x, y);
+                    let (a, b) = transform_in(rd, &m, x, y);
                     l += &format!(" {:08x} {:08x}", a.to_bits(), b.to_bits());
                 }
                 out.push(l);
