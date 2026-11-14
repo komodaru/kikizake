@@ -553,7 +553,8 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let to_screen = |q: &[f32; 4]| (vx + (q[0] / q[3] + 1.0) * (vw * 0.5), vy + (1.0 - q[1] / q[3]) * (vh * 0.5));
     hit(clause::D3DRASTER_SNAP);
     let snap = |v: f32| -> i64 {
-        let x = v as f64 * 256.0;
+        // (2^31 pixels: past any guard band; the products below stay within i128)
+        let x = f64::from(v).clamp(-2147483648.0, 2147483648.0) * 256.0;
         let f = x.floor();
         let r = x - f;
         (if r > 0.5 || r == 0.5 && (f as i64) % 2 != 0 { f + 1.0 } else { f }) as i64
@@ -563,7 +564,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         (snap(x), snap(y))
     };
     let p: Vec<(i64, i64)> = tri.iter().map(|v| snap2(&v.pos)).collect();
-    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
+    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
+        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
+        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
+    };
     let area = cross(p[0], p[1], p[2]);
     if area == 0 {
         hit(clause::D3DRASTER_DEGENERATE);
@@ -612,10 +616,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     };
     // the pixels: inside the target, the viewport and (when on) the scissor rectangle
     hit(clause::D3DRASTER_VPCLIP);
-    let mut x0 = 0i64.max(vx.ceil() as i64 - 1);
-    let mut y0 = 0i64.max(vy.ceil() as i64 - 1);
-    let mut x1 = (rw as i64).min((vx + vw).ceil() as i64 + 1);
-    let mut y1 = (rh as i64).min((vy + vh).ceil() as i64 + 1);
+    // (the float casts saturate; the sums are kept from overflowing)
+    let edge = |v: f32| v.ceil() as i64;
+    let mut x0 = 0i64.max(edge(vx).saturating_sub(1));
+    let mut y0 = 0i64.max(edge(vy).saturating_sub(1));
+    let mut x1 = i64::from(rw).min(edge(vx + vw).saturating_add(1));
+    let mut y1 = i64::from(rh).min(edge(vy + vh).saturating_add(1));
     if d.rast[7] != 0 {
         hit(clause::D3DRASTER_SCISSOR);
         x0 = x0.max(d.scissor[0]);
