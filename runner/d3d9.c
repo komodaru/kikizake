@@ -191,6 +191,12 @@ static void op_sb8(void) {
     if (hr) out("sb %s hr %08lx\n", tok[1], hr);
 }
 
+/* the current devices, for the modules that draw with them (runner/d3d9draw.c, d3d8draw.c) */
+void *kz_d3d9(void) { return d3d; }
+void *kz_d3d9_device(void) { return dev; }
+void *kz_d3d8(void) { return d3d8; }
+void *kz_d3d8_device(void) { return dev8; }
+
 static void d3d9_reset_all(void) {
     d3d9_reset();
     d3d8_reset();

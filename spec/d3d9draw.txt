@@ -1,0 +1,2 @@
+# Direct3D 9 and 8 drawing clauses (spec/README.md): <id> <status> | <source> | <what it says>
+D3D9.DRAW.PENDING open | (none) | drawing: the model is written once Windows' first answers are in

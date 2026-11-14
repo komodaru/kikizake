@@ -444,6 +444,7 @@ impl D3d9 {
                     _ => return Err(Fail::Bad),
                 }
             }
+            d if d.starts_with("d9") => return Err(Fail::Unmodeled("D3D9.DRAW.PENDING")),
             _ => return Ok(false),
         }
         Ok(true)

@@ -13,6 +13,8 @@ mod d3dres;
 mod d3d7;
 pub mod dxbc;
 mod d3d9;
+mod d3d9draw;
+mod d3dx9;
 mod ddraw;
 mod gdi;
 mod gdiplus;
@@ -41,6 +43,10 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("pixel", gdi::pixel),
     ("d3d8", d3d9::d3d8),
     ("d3d9", d3d9::d3d9),
+    ("d3d9draw", d3d9draw::d3d9draw),
+    ("d3d8draw", d3d9draw::d3d8draw),
+    ("d3dx9", d3dx9::d3dx9),
+    ("d3dx9load", d3dx9::d3dx9load),
     ("d3d11", d3d11::d3d11),
     ("wic", wic::wic),
     ("ddraw", ddraw::ddraw),

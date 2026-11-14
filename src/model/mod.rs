@@ -10,6 +10,8 @@ pub mod d3dres;
 pub mod dxgifmt;
 pub mod ddraw;
 pub mod d3d9;
+pub mod d3d9draw;
+pub mod d3dx9;
 pub mod gdi;
 pub mod gdiplus;
 pub mod gdiline;
@@ -125,6 +127,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(d3d12::D3d12::default()),
         Box::new(d2d::D2d::default()),
         Box::new(wicimage::WicImage::default()),
+        Box::new(d3dx9::D3dx9),
     ]
 }
 

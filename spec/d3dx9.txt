@@ -1,0 +1,2 @@
+# D3DX 9 clauses (spec/README.md): <id> <status> | <source> | <what it says>
+D3DX9.PENDING open | (none) | D3DX 9: the model is written once Windows' first answers are in
