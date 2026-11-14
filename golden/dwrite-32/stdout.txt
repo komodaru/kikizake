@@ -212117,4 +212117,388 @@ glyph adv 1040 lsb 0 rsb 520 tsb 195 advh 2048 bsb 829 voy 1463
 glyph adv 1040 lsb 0 rsb 520 tsb 119 advh 2048 bsb 905 voy 1463
 glyph adv 1040 lsb 0 rsb 520 tsb 38 advh 2048 bsb 981 voy 1463
 glyph adv 1040 lsb 0 rsb 520 tsb -33 advh 2048 bsb 1057 voy 1463
+case gdisidebot-0
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+dwglyph hr 00000000
+glyph adv 1000 lsb 0 rsb 500 tsb 1332 advh 1629 bsb -203 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1331 advh 1629 bsb -202 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1330 advh 1629 bsb -201 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1329 advh 1629 bsb -200 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1328 advh 1629 bsb -199 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1327 advh 1629 bsb -198 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1326 advh 1629 bsb -197 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1325 advh 1629 bsb -196 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1324 advh 1629 bsb -195 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1323 advh 1629 bsb -194 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1322 advh 1629 bsb -193 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1321 advh 1629 bsb -192 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1320 advh 1629 bsb -191 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1319 advh 1629 bsb -190 voy 1486
+case gdisidebot-1
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -154 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -154 voy 1538
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -154 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1359 advh 1692 bsb -154 voy 1538
+dwglyph hr 00000000
+glyph adv 1000 lsb 0 rsb 500 tsb 1318 advh 1629 bsb -189 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1317 advh 1629 bsb -188 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1316 advh 1629 bsb -187 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1315 advh 1629 bsb -186 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1314 advh 1629 bsb -185 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1313 advh 1629 bsb -184 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1312 advh 1629 bsb -183 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1311 advh 1629 bsb -182 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1310 advh 1629 bsb -181 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1309 advh 1629 bsb -180 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1308 advh 1629 bsb -179 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1307 advh 1629 bsb -178 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1306 advh 1629 bsb -177 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 1305 advh 1629 bsb -176 voy 1486
+case gdisidebot-2
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 154 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 154 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 154 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 154 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1026 advh 1692 bsb 179 voy 1538
+dwglyph hr 00000000
+glyph adv 1000 lsb 0 rsb 500 tsb 974 advh 1629 bsb 155 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 973 advh 1629 bsb 156 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 972 advh 1629 bsb 157 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 971 advh 1629 bsb 158 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 970 advh 1629 bsb 159 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 969 advh 1629 bsb 160 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 968 advh 1629 bsb 161 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 967 advh 1629 bsb 162 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 966 advh 1629 bsb 163 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 965 advh 1629 bsb 164 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 964 advh 1629 bsb 165 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 963 advh 1629 bsb 166 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 962 advh 1629 bsb 167 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 961 advh 1629 bsb 168 voy 1486
+case gdisidebot-3
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1000 advh 1692 bsb 179 voy 1538
+dwglyph hr 00000000
+glyph adv 1000 lsb 0 rsb 500 tsb 960 advh 1629 bsb 169 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 959 advh 1629 bsb 170 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 958 advh 1629 bsb 171 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 957 advh 1629 bsb 172 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 956 advh 1629 bsb 173 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 955 advh 1629 bsb 174 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 954 advh 1629 bsb 175 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 953 advh 1629 bsb 176 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 952 advh 1629 bsb 177 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 951 advh 1629 bsb 178 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 950 advh 1629 bsb 179 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 949 advh 1629 bsb 180 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 948 advh 1629 bsb 181 voy 1486
+glyph adv 1000 lsb 0 rsb 500 tsb 947 advh 1629 bsb 182 voy 1486
+case gdisidebot-4
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -51 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -51 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -51 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -51 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+glyph adv 1077 lsb 0 rsb 615 tsb 1231 advh 1692 bsb -26 voy 1385
+dwglyph hr 00000000
+glyph adv 1000 lsb 0 rsb 500 tsb 1306 advh 1629 bsb -177 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1305 advh 1629 bsb -176 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1304 advh 1629 bsb -175 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1303 advh 1629 bsb -174 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1302 advh 1629 bsb -173 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1301 advh 1629 bsb -172 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1300 advh 1629 bsb -171 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1299 advh 1629 bsb -170 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1298 advh 1629 bsb -169 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1297 advh 1629 bsb -168 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1296 advh 1629 bsb -167 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1295 advh 1629 bsb -166 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1294 advh 1629 bsb -165 voy 1460
+glyph adv 1000 lsb 0 rsb 500 tsb 1293 advh 1629 bsb -164 voy 1460
+case gdisidebot-5
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+dwgdiglyph hr 00000000
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -205 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+glyph adv 1077 lsb 0 rsb 615 tsb 1385 advh 1692 bsb -180 voy 1538
+dwglyph hr 00000000
+glyph adv 1000 lsb 0 rsb 500 tsb 1356 advh 1629 bsb -227 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1355 advh 1629 bsb -226 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1354 advh 1629 bsb -225 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1353 advh 1629 bsb -224 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1352 advh 1629 bsb -223 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1351 advh 1629 bsb -222 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1350 advh 1629 bsb -221 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1349 advh 1629 bsb -220 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1348 advh 1629 bsb -219 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1347 advh 1629 bsb -218 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1346 advh 1629 bsb -217 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1345 advh 1629 bsb -216 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1344 advh 1629 bsb -215 voy 1510
+glyph adv 1000 lsb 0 rsb 500 tsb 1343 advh 1629 bsb -214 voy 1510
+case gdisidebot-6
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb 0 rsb 531 tsb 417 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 417 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 417 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb 0 rsb 531 tsb 417 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 417 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 417 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1277 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+dwglyph hr 00000000
+glyph adv 1024 lsb 0 rsb 512 tsb 446 advh 2211 bsb 1253 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 445 advh 2211 bsb 1254 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 444 advh 2211 bsb 1255 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 443 advh 2211 bsb 1256 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 442 advh 2211 bsb 1257 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 441 advh 2211 bsb 1258 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 440 advh 2211 bsb 1259 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 439 advh 2211 bsb 1260 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 438 advh 2211 bsb 1261 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 437 advh 2211 bsb 1262 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 436 advh 2211 bsb 1263 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 435 advh 2211 bsb 1264 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 434 advh 2211 bsb 1265 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 433 advh 2211 bsb 1266 voy 1398
+case gdisidebot-7
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb 0 rsb 531 tsb 405 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1289 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+glyph adv 1062 lsb 0 rsb 531 tsb 392 advh 2200 bsb 1302 voy 1365
+dwglyph hr 00000000
+glyph adv 1024 lsb 0 rsb 512 tsb 432 advh 2211 bsb 1267 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 431 advh 2211 bsb 1268 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 430 advh 2211 bsb 1269 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 429 advh 2211 bsb 1270 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 428 advh 2211 bsb 1271 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 427 advh 2211 bsb 1272 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 426 advh 2211 bsb 1273 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 425 advh 2211 bsb 1274 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 424 advh 2211 bsb 1275 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 423 advh 2211 bsb 1276 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 422 advh 2211 bsb 1277 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 421 advh 2211 bsb 1278 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 420 advh 2211 bsb 1279 voy 1398
+glyph adv 1024 lsb 0 rsb 512 tsb 419 advh 2211 bsb 1280 voy 1398
 done

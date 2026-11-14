@@ -21449,4 +21449,110 @@ copy 0 first 030a11181f262d343b424950575e656c
 case copy-edge-4x4096
 device12 ok
 copy 0 first 030a11181f262d343b424950575e656c
+case create-edge2-w16385-a2
+device12 ok
+create hr 80070057
+case alloc-edge2-w16385-a2
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-w16385-m2
+device12 ok
+create hr 80070057
+case alloc-edge2-w16385-m2
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-w16385-m3
+device12 ok
+create hr 80070057
+case alloc-edge2-w16385-m3
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-w16385-m0
+device12 ok
+create hr 00000001
+case alloc-edge2-w16385-m0
+device12 ok
+alloc 2b0000 10000
+case create-edge2-h16385-a2
+device12 ok
+create hr 80070057
+case alloc-edge2-h16385-a2
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-h16385-m2
+device12 ok
+create hr 80070057
+case alloc-edge2-h16385-m2
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-w65536
+device12 ok
+create hr 00000001
+case alloc-edge2-w65536
+device12 ok
+alloc 800000 10000
+case create-edge2-w65537
+device12 ok
+create hr 00000001
+case alloc-edge2-w65537
+device12 ok
+alloc 810000 10000
+case create-edge2-wmax
+device12 ok
+create hr 80070057
+case alloc-edge2-wmax
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-rt-w16385-m3
+device12 ok
+create hr 80070057
+case alloc-edge2-rt-w16385-m3
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-rt-w16385-a2
+device12 ok
+create hr 80070057
+case alloc-edge2-rt-w16385-a2
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-ds-w16385-a2
+device12 ok
+create hr 80070057
+case alloc-edge2-ds-w16385-a2
+device12 ok
+alloc ffffffffffffffff 10000
+case create-edge2-w16385-bc1
+device12 ok
+create hr 00000001
+case alloc-edge2-w16385-bc1
+device12 ok
+alloc 50000 10000
+case create-edge2-w16385-uav
+device12 ok
+create hr 00000001
+case alloc-edge2-w16385-uav
+device12 ok
+alloc 210000 10000
+case create-edge2-w16385-l2
+device12 ok
+create hr 00000001
+case alloc-edge2-w16385-l2
+device12 ok
+alloc 810000 10000
+case fp-edge-buffer-ffffff02
+device12 ok
+fp 0 0 ffffff02 1 1 0 1 ffffff02
+total ffffff02
+case fp-edge-buffer-ffffff80
+device12 ok
+fp 0 0 ffffff80 1 1 0 1 ffffff80
+total ffffff80
+case fp-edge-buffer-fffffff0
+device12 ok
+fp 0 0 fffffff0 1 1 0 1 fffffff0
+total fffffff0
+case fp-edge-buffer-fffffffe
+device12 ok
+fp 0 0 fffffffe 1 1 0 1 fffffffe
+total fffffffe
 done
