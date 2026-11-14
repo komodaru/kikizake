@@ -183,6 +183,492 @@ dxgifactory 0
 swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
 sccolor 0xffffffff
 end
+case color-f10-0
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0
+end
+case color-f10-1
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 1
+end
+case color-f10-2
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 2
+end
+case color-f10-3
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 3
+end
+case color-f10-4
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 4
+end
+case color-f10-5
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 5
+end
+case color-f10-6
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 6
+end
+case color-f10-7
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 7
+end
+case color-f10-8
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 8
+end
+case color-f10-9
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 9
+end
+case color-f10-10
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xa
+end
+case color-f10-11
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xb
+end
+case color-f10-12
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xc
+end
+case color-f10-13
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xd
+end
+case color-f10-14
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xe
+end
+case color-f10-15
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xf
+end
+case color-f10-16
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x10
+end
+case color-f10-17
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x11
+end
+case color-f10-18
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x12
+end
+case color-f10-19
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x13
+end
+case color-f10-20
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x14
+end
+case color-f10-21
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x15
+end
+case color-f10-22
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x16
+end
+case color-f10-23
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x17
+end
+case color-f10-24
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x18
+end
+case color-f10-25
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0x19
+end
+case color-f10-4294967295
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+sccolor 0xffffffff
+end
+case color-f24-0
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0
+end
+case color-f24-1
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 1
+end
+case color-f24-2
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 2
+end
+case color-f24-3
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 3
+end
+case color-f24-4
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 4
+end
+case color-f24-5
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 5
+end
+case color-f24-6
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 6
+end
+case color-f24-7
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 7
+end
+case color-f24-8
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 8
+end
+case color-f24-9
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 9
+end
+case color-f24-10
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xa
+end
+case color-f24-11
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xb
+end
+case color-f24-12
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xc
+end
+case color-f24-13
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xd
+end
+case color-f24-14
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xe
+end
+case color-f24-15
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xf
+end
+case color-f24-16
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x10
+end
+case color-f24-17
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x11
+end
+case color-f24-18
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x12
+end
+case color-f24-19
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x13
+end
+case color-f24-20
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x14
+end
+case color-f24-21
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x15
+end
+case color-f24-22
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x16
+end
+case color-f24-23
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x17
+end
+case color-f24-24
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x18
+end
+case color-f24-25
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0x19
+end
+case color-f24-4294967295
+device12
+dxgifactory 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+sccolor 0xffffffff
+end
+case color-f28-0
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0
+end
+case color-f28-1
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 1
+end
+case color-f28-2
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 2
+end
+case color-f28-3
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 3
+end
+case color-f28-4
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 4
+end
+case color-f28-5
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 5
+end
+case color-f28-6
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 6
+end
+case color-f28-7
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 7
+end
+case color-f28-8
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 8
+end
+case color-f28-9
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 9
+end
+case color-f28-10
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xa
+end
+case color-f28-11
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xb
+end
+case color-f28-12
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xc
+end
+case color-f28-13
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xd
+end
+case color-f28-14
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xe
+end
+case color-f28-15
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xf
+end
+case color-f28-16
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x10
+end
+case color-f28-17
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x11
+end
+case color-f28-18
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x12
+end
+case color-f28-19
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x13
+end
+case color-f28-20
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x14
+end
+case color-f28-21
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x15
+end
+case color-f28-22
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x16
+end
+case color-f28-23
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x17
+end
+case color-f28-24
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x18
+end
+case color-f28-25
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0x19
+end
+case color-f28-4294967295
+device12
+dxgifactory 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+sccolor 0xffffffff
+end
 case color-fmt10
 device12
 dxgifactory 0

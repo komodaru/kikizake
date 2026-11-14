@@ -12720,102 +12720,6 @@ case make-101
 device12
 dheap12 3 1 0x80000000
 end
-case make-102
-device12
-dheap12 4 1 0
-end
-case make-103
-device12
-dheap12 4 0 0
-end
-case make-104
-device12
-dheap12 4 1 1
-end
-case make-105
-device12
-dheap12 4 2048 0
-end
-case make-106
-device12
-dheap12 4 2049 0
-end
-case make-107
-device12
-dheap12 4 2048 1
-end
-case make-108
-device12
-dheap12 4 2049 1
-end
-case make-109
-device12
-dheap12 4 1000000 1
-end
-case make-110
-device12
-dheap12 4 1000001 1
-end
-case make-111
-device12
-dheap12 4 1000000 0
-end
-case make-112
-device12
-dheap12 4 1 2
-end
-case make-113
-device12
-dheap12 4 1 0x80000000
-end
-case make-114
-device12
-dheap12 5 1 0
-end
-case make-115
-device12
-dheap12 5 0 0
-end
-case make-116
-device12
-dheap12 5 1 1
-end
-case make-117
-device12
-dheap12 5 2048 0
-end
-case make-118
-device12
-dheap12 5 2049 0
-end
-case make-119
-device12
-dheap12 5 2048 1
-end
-case make-120
-device12
-dheap12 5 2049 1
-end
-case make-121
-device12
-dheap12 5 1000000 1
-end
-case make-122
-device12
-dheap12 5 1000001 1
-end
-case make-123
-device12
-dheap12 5 1000000 0
-end
-case make-124
-device12
-dheap12 5 1 2
-end
-case make-125
-device12
-dheap12 5 1 0x80000000
-end
 case make-126
 device12
 queue12 0 0 0
@@ -13128,7 +13032,147 @@ case make-203
 device12
 placed12 3 0 1048576 0 0 1 0 0x10000 1 1 1 0 1 0 1 0
 end
-case clear-removed
+case make-204
 device12
-clear12 40 0 0 0 0
+heap12 3 65536 0 1
+end
+case make-205
+device12
+heap12 3 65536 0 4
+end
+case make-206
+device12
+heap12 3 65536 0 0x40
+end
+case make-207
+device12
+heap12 3 65536 0 0x80
+end
+case make-208
+device12
+heap12 3 65536 0 0xc0
+end
+case make-209
+device12
+heap12 3 65536 0 0x44
+end
+case make-210
+device12
+heap12 3 65536 0 0x84
+end
+case make-211
+device12
+heap12 3 65536 0 0x100
+end
+case make-212
+device12
+heap12 3 65536 0 0x200
+end
+case make-213
+device12
+heap12 3 65536 0 0x400
+end
+case make-214
+device12
+heap12 3 65536 0 0x800
+end
+case make-215
+device12
+heap12 3 65536 0 0x1000
+end
+case make-216
+device12
+heap12 5 65536 0 1
+end
+case make-217
+device12
+heap12 5 65536 0 4
+end
+case make-218
+device12
+heap12 5 65536 0 0x40
+end
+case make-219
+device12
+heap12 5 65536 0 0x80
+end
+case make-220
+device12
+heap12 5 65536 0 0xc0
+end
+case make-221
+device12
+heap12 5 65536 0 0x44
+end
+case make-222
+device12
+heap12 5 65536 0 0x84
+end
+case make-223
+device12
+heap12 5 65536 0 0x100
+end
+case make-224
+device12
+heap12 5 65536 0 0x200
+end
+case make-225
+device12
+heap12 5 65536 0 0x400
+end
+case make-226
+device12
+heap12 5 65536 0 0x800
+end
+case make-227
+device12
+heap12 5 65536 0 0x1000
+end
+case make-228
+device12
+heap12 1 65536 0 0x44
+end
+case make-229
+device12
+heap12 2 65536 0 0x44
+end
+case make-230
+device12
+heap12 1 65536 0 0x84
+end
+case make-231
+device12
+heap12 2 65536 0 0x84
+end
+case make-232
+device12
+heap12 1 65536 0 0x1801
+end
+case make-233
+device12
+heap12 2 65536 0 0x1801
+end
+case make-234
+device12
+heap12 1 65536 0 0x4c0
+end
+case make-235
+device12
+heap12 2 65536 0 0x4c0
+end
+case make-236
+device12
+heap12 1 65536 0 0x244
+end
+case make-237
+device12
+heap12 2 65536 0 0x244
+end
+case make-238
+device12
+fence12 0 3
+end
+case make-239
+device12
+fence12 0 5
 end

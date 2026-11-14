@@ -1,0 +1,4 @@
+case clear-removed
+device12
+clear12 40 0 0 0 0
+end

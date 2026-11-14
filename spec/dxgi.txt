@@ -1,6 +1,6 @@
 # DXGI clauses (spec/README.md): <id> <status> | <source> | <what it says>
 DXGI.FACTORY measured | CreateDXGIFactory2 | an IDXGIFactory4; flags other than DXGI_CREATE_FACTORY_DEBUG are ignored (golden dxgi-32 factory: 2, 4, 0x10, 0x80000000)
-DXGI.FACTORY.DEBUG open | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | the answer where the Graphics Tools are not installed (asked: factory-debug)
+DXGI.FACTORY.DEBUG measured | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | taken on the windows-2025 runner, the factory as without it (golden dxgi-* factory-debug)
 DXGI.WARP measured | IDXGIFactory4::EnumWarpAdapter, DXGI_ADAPTER_DESC1 | the WARP adapter: vendor 0x1414, device 0x8c, flags DXGI_ADAPTER_FLAG_SOFTWARE (factory)
 DXGI.ASSOC measured | IDXGIFactory::MakeWindowAssociation (NULL only with flags 0) | flags are DXGI_MWA_NO_WINDOW_CHANGES, NO_ALT_ENTER, NO_PRINT_SCREEN, else DXGI_ERROR_INVALID_CALL; a NULL window is taken with any of them (assoc)
 DXGI.CHAIN.EFFECT doc | DXGI_SWAP_EFFECT (Direct3D 12: flip model only) | DISCARD and SEQUENTIAL (and unknown effects) are refused with DXGI_ERROR_INVALID_CALL (swapchain-effect-0)
@@ -20,6 +20,7 @@ DXGI.PRESENT.TEST measured | DXGI_PRESENT (TEST) | TEST and DO_NOT_SEQUENCE pres
 DXGI.PRESENT.RESTART measured | DXGI_PRESENT (RESTART) | a present with RESTART (and nothing queued) presents as without it: S_OK, the next buffer (golden dxgi-32, -64 chain-present-restart)
 DXGI.RESIZE measured | IDXGISwapChain::ResizeBuffers | 0 keeps the count and the format, a 0 width or height is the window's, the index starts at 0 again; a count of 1 or past 16, a format no flip-model chain takes, or changing FRAME_LATENCY_WAITABLE_OBJECT or ALLOW_TEARING gives E_INVALIDARG, unknown flags DXGI_ERROR_INVALID_CALL (chain-resize)
 DXGI.LATENCY measured | IDXGISwapChain2::SetMaximumFrameLatency | only a chain with FRAME_LATENCY_WAITABLE_OBJECT (else both calls DXGI_ERROR_INVALID_CALL); 0 and 0xffffffff refused, 1..17 taken; the default 1 (chain-latency-*)
-DXGI.TEARING open | IDXGIFactory5::CheckFeatureSupport (DXGI_FEATURE_PRESENT_ALLOW_TEARING) | whether tearing is supported (asked: tearing)
-DXGI.ADAPTERS open | IDXGIFactory1::EnumAdapters1 | the adapters there are and the last one's description (asked: adapters)
-DXGI.COLORSPACE open | IDXGISwapChain3::CheckColorSpaceSupport, SetColorSpace1 | which color spaces a flip chain presents in, per format (asked: color-*)
+DXGI.TEARING measured | IDXGIFactory5::CheckFeatureSupport (DXGI_FEATURE_PRESENT_ALLOW_TEARING) | TRUE on the windows-2025 runner (golden dxgi-* tearing)
+DXGI.ADAPTERS measured | IDXGIFactory1::EnumAdapters1 | the windows-2025 runner has two adapters, the last the Microsoft Basic Render Driver (vendor 1414, device 8c, DXGI_ADAPTER_FLAG_SOFTWARE) (golden dxgi-* adapters)
+DXGI.COLORSPACE open | IDXGISwapChain3::CheckColorSpaceSupport, SetColorSpace1 | the color spaces of R16G16B16A16_FLOAT, R10G10B10A2_UNORM and R8G8B8A8_UNORM chains past those measured (asked: color-f*)
+DXGI.COLORSPACE.FLIP measured | IDXGISwapChain3::CheckColorSpaceSupport, SetColorSpace1 | a flip chain presents in (DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT) and SetColorSpace1 takes exactly: B8G8R8A8_UNORM 0, 2, 3, 12, 14, 17, 20, 21 of 0..25; R16G16B16A16_FLOAT 1 (G10 P709) of 0, 1, 12, 14, 17; R10G10B10A2 0, 12, 14, 17 of those; SetColorSpace1 E_INVALIDARG for the others (golden dxgi-* color-*)

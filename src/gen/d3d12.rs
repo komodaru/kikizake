@@ -413,11 +413,28 @@ pub fn d3d12() -> String {
     ] {
         mk.push(format!("placed12 {ht} {} {size} {off} {} {}", hexw(hf), hexw(st), desc_str(&d)));
     }
+    // (added after: new lines only at the end, so that the cases keep their numbers)
+    for t in [3u32, 5] {
+        for f in [1u32, 4, 0x40, 0x80, 0xc0, 0x44, 0x84, 0x100, 0x200, 0x400, 0x800, 0x1000] {
+            mk.push(format!("heap12 {t} 65536 0 {}", hexw(f)));
+        }
+    }
+    for f in [0x44u32, 0x84, 0x1801, 0x4c0, 0x244] {
+        mk.push(format!("heap12 1 65536 0 {}", hexw(f)));
+        mk.push(format!("heap12 2 65536 0 {}", hexw(f)));
+    }
+    for (v, f) in [(0u32, 3u32), (0, 5)] {
+        mk.push(format!("fence12 {} {}", hexw(v), hexw(f)));
+    }
     for (i, l) in mk.iter().enumerate() {
+        // (descriptor heap types past the last, 4 and 5: a 32-bit process crashed making one,
+        // golden e91efb1; their numbers left unused)
+        if l.starts_with("dheap12 4 ") || l.starts_with("dheap12 5 ") {
+            continue;
+        }
         writeln!(s, "case make-{i}\ndevice12\n{l}\nend").unwrap();
     }
-    // (last: a D32_FLOAT render target removes the device, D3D12.CLEAR.REMOVED)
-    writeln!(s, "case clear-removed\ndevice12\nclear12 40 0 0 0 0\nend").unwrap();
+
     s
 }
 
@@ -427,6 +444,12 @@ pub const CHAIN: [u32; 12] = [0, 0, 87, 0, 1, 0, 0x20, 2, 0, 4, 0, 0];
 
 fn chain_line(s: &mut String, op: &str, w: &[u32]) {
     writeln!(s, "{op} {}", w.iter().map(|v| hexw(*v)).collect::<Vec<_>>().join(" ")).unwrap();
+}
+
+/// a D32_FLOAT render target removes the device (D3D12.CLEAR.REMOVED): alone in a suite, a
+/// process of its own (in the d3d12 suite the executor crashed after it, golden e91efb1)
+pub fn d3d12rm() -> String {
+    "case clear-removed\ndevice12\nclear12 40 0 0 0 0\nend\n".into()
 }
 
 pub fn dxgi() -> String {
@@ -440,6 +463,15 @@ pub fn dxgi() -> String {
         writeln!(s, "case color-{cs}\ndevice12\ndxgifactory 0").unwrap();
         chain_line(&mut s, "swapchain", &CHAIN);
         writeln!(s, "sccolor {}\nend", hexw(cs)).unwrap();
+    }
+    for f in [10u32, 24, 28] {
+        for cs in (0u32..=25).chain([0xffff_ffff]) {
+            writeln!(s, "case color-f{f}-{cs}\ndevice12\ndxgifactory 0").unwrap();
+            let mut c = CHAIN;
+            c[2] = f;
+            chain_line(&mut s, "swapchain", &c);
+            writeln!(s, "sccolor {}\nend", hexw(cs)).unwrap();
+        }
     }
     for f in [10u32, 24] {
         writeln!(s, "case color-fmt{f}\ndevice12\ndxgifactory 0").unwrap();

@@ -473,12 +473,34 @@ impl D3d12 {
                 } {
                     return Err(Fail::Bad);
                 }
-                words(&t[1..])?;
-                return Err(Fail::Unmodeled(match name {
-                    "incr12" => "D3D12.FEATURE.INCREMENT",
-                    "msq12" => "D3D12.FEATURE.MSAA",
-                    _ => "D3D12.FEATURE.FORMAT",
-                }));
+                let w = words(&t[1..])?;
+                match name {
+                    "incr12" => {
+                        // (MEASURED, golden d3d12-* incr: CBV/SRV/UAV 64, sampler 64, RTV and DSV
+                        // 32 and 8 bytes in a 64-bit process, 16 and 4 in a 32-bit one)
+                        hit("D3D12.FEATURE.INCREMENT");
+                        out.push(if super::arch() == 64 { "incr 40 40 20 8" } else { "incr 40 40 10 4" }.into());
+                    }
+                    "msq12" => {
+                        hit("D3D12.FEATURE.MSAA");
+                        out.push(match super::dxgi_format::quality_levels(w[0], w[1]) {
+                            Some(n) => format!("msq {n:x}"),
+                            None => "msq hr 80004005".into(),
+                        });
+                    }
+                    _ => {
+                        hit("D3D12.FEATURE.FORMAT");
+                        let c = super::dxgi_format::caps(w[0]);
+                        let s = match c.and_then(|c| c.0) {
+                            Some((a, b)) => format!("fsup {a:x} {b:x}"),
+                            None => "fsup hr 80004005".into(),
+                        };
+                        out.push(match c {
+                            Some((_, p)) => format!("{s} planes {p:x}"),
+                            None => format!("{s} planes hr {E_INVALIDARG:08x}"),
+                        });
+                    }
+                }
             }
             "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" => {
                 let n = match name {
@@ -491,16 +513,65 @@ impl D3d12 {
                 if t.len() != n {
                     return Err(Fail::Bad);
                 }
-                words(&t[1..])?;
-                return Err(Fail::Unmodeled(match name {
-                    "heap12" => "D3D12.MAKE.HEAP",
-                    "dheap12" => "D3D12.MAKE.DESCHEAP",
-                    "queue12" => "D3D12.MAKE.QUEUE",
-                    "cmdlist12" => "D3D12.MAKE.LIST",
-                    "qheap12" => "D3D12.MAKE.QUERYHEAP",
-                    "fence12" => "D3D12.MAKE.FENCE",
-                    _ => "D3D12.MAKE.PLACED",
-                }));
+                let w = words(&t[1..])?;
+                let ok = |b: bool| if b { 0 } else { E_INVALIDARG };
+                let hr = match name {
+                    "heap12" => heap_hr(w[0], w[1] as u64, w[2] as u64, w[3]),
+                    "dheap12" => {
+                        // (MEASURED, golden d3d12-* make-*: no count checked (0 and 1000001 taken),
+                        // shader visible only CBV/SRV/UAV and samplers, no other flag)
+                        hit("D3D12.MAKE.DESCHEAP");
+                        if w[0] > 3 {
+                            return Err(Fail::Bad);
+                        }
+                        ok(w[2] & !1 == 0 && (w[2] == 0 || w[0] <= 1))
+                    }
+                    "queue12" => {
+                        // (MEASURED: direct, compute and copy queues, not bundles nor the video
+                        // ones; priorities normal and high; global realtime not available to the
+                        // process; DISABLE_GPU_TIMEOUT taken)
+                        hit("D3D12.MAKE.QUEUE");
+                        if w[1] == 10000 && w[0] == 0 && w[2] == 0 {
+                            0x887a_002b
+                        } else {
+                            ok(matches!(w[0], 0 | 2 | 3) && matches!(w[1], 0 | 100) && w[2] & !1 == 0)
+                        }
+                    }
+                    "cmdlist12" => {
+                        // (MEASURED: direct, bundle, compute, copy; the allocator refuses the others)
+                        hit("D3D12.MAKE.LIST");
+                        if w[0] > 3 {
+                            out.push(format!("cmdlist12 allocator hr {E_INVALIDARG:08x}"));
+                            return Ok(true);
+                        }
+                        0
+                    }
+                    "qheap12" => {
+                        // (MEASURED: every type but video decode statistics (4), at least one query)
+                        hit("D3D12.MAKE.QUERYHEAP");
+                        ok(w[0] <= 7 && w[0] != 4 && w[1] > 0)
+                    }
+                    "fence12" => {
+                        // (MEASURED: SHARED taken, the cross-adapter and non-monitored ones not; a new
+                        // fence has completed its initial value)
+                        hit("D3D12.MAKE.FENCE");
+                        if w[1] & !1 == 0 {
+                            out.push(format!("fence12 hr 00000000 value {:x}", w[0]));
+                        } else {
+                            out.push(format!("fence12 hr {E_INVALIDARG:08x}"));
+                        }
+                        return Ok(true);
+                    }
+                    _ => {
+                        let h = heap_hr(w[0], w[2] as u64, 0, w[1]);
+                        if h != 0 {
+                            out.push(format!("placed12 heap hr {h:08x}"));
+                            return Ok(true);
+                        }
+                        placed_hr(w[0], w[1], w[2] as u64, w[3] as u64, w[4], &Desc::from_words(&w[5..]))?
+                    }
+                };
+                out.push(format!("{name} hr {hr:08x}"));
             }
             _ => return self.dxgi(op, out),
         }
@@ -549,7 +620,22 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     // (MEASURED, golden d3d12-64 alloc-other: both 64KB swizzles in whole 64KB tiles of the
     // standard shapes, each mip level its own tiles)
     if d.layout == 2 || d.layout == 3 {
-        let Some((bytes, bw, bh)) = block(d.fmt) else { return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")) };
+        // (MEASURED, golden d3d12-* alloc-std-planar-*: standard swizzle of the two-plane formats, D24S8
+        // as 4 bytes, D32S8 as 8, NV12 as its two planes in tiles of their own)
+        if matches!(d.fmt, 103..=106) {
+            hit("D3D12.ALLOC.SWIZZLE");
+            let b = if matches!(d.fmt, 104 | 105) { 2 } else { 1 };
+            let tiles = |w: u32, h: u32, bytes: u32| -> u64 {
+                let (tw, th) = if bytes == 1 { (256, 256) } else if bytes == 2 { (256, 128) } else { (128, 128) };
+                (w as u64).div_ceil(tw) * (h as u64).div_ceil(th)
+            };
+            return Ok(((tiles(d.w, d.h, b) + tiles(d.w / 2, d.h / 2, 2 * b)) * d.d as u64 * 65536, 65536));
+        }
+        let (bytes, bw, bh) = match d.fmt {
+            19..=22 => (8, 1, 1),
+            44..=47 => (4, 1, 1),
+            _ => block(d.fmt).expect("CreateCommittedResource refuses a swizzle of the other formats"),
+        };
         hit("D3D12.ALLOC.SWIZZLE");
         let (tw, th, td) = match (d.dim, bytes) {
             (3, 1) => (256, 256, 1),
@@ -568,9 +654,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         let tiles: u64 = (0..mips).map(|m| ((d.w >> m).max(1).div_ceil(bw) as u64).div_ceil(tw) * ((d.h >> m).max(1).div_ceil(bh) as u64).div_ceil(th) * ((depth >> m).max(1) as u64).div_ceil(td)).sum();
         return Ok((tiles * array as u64 * 65536, 65536));
     }
-    if d.layout != 0 {
-        return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER"));
-    }
+    assert_eq!(d.layout, 0, "CreateCommittedResource refuses the other layouts");
     // (MEASURED, golden d3d12-64 alloc-other: NV12 in its two planes, 1.5 bytes a texel; the
     // two-plane depth stencil formats, D32_FLOAT_S8X24 as 8 bytes, D24_UNORM_S8 as 4)
     let (bytes, bw, bh) = match d.fmt {
@@ -585,7 +669,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         }
         _ => match block(d.fmt) {
             Some(b) => b,
-            None => return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")),
+            None => unreachable!("CreateCommittedResource refuses textures of the other formats"),
         },
     };
     // (MEASURED, golden d3d12-32 alloc-texture-*, 165 descriptions of 9 formats: WARP packs every
@@ -617,6 +701,42 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     }
     let al = if d.align == 4096 { 4096 } else { 65536 };
     Ok((align(total, al), al))
+}
+
+/// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)
+pub fn heap_hr(heap: u32, size: u64, al: u64, flags: u32) -> u32 {
+    hit("D3D12.MAKE.HEAP");
+    // (the deny flags only as a tier 2 heap takes them: none, or allowing only buffers, only
+    // render target and depth stencil textures, or only the other textures)
+    let deny = matches!(flags & 0xc4, 0 | 0xc0 | 0x44 | 0x84);
+    // (SHARED on the default heap, write watch on CPU heaps, atomics on the default one; hardware
+    // protected, not resident, not zeroed everywhere)
+    let gpu = heap == 1 || heap == 5;
+    let other = flags & !0xc4 & !(0x100 | 0x800 | 0x1000 | if gpu { 0x401 } else { 0x200 }) == 0;
+    let ok = matches!(heap, 1..=3 | 5) && size > 0 && size < 0xffff_ffff && matches!(al, 0 | 65536 | 4194304) && deny && other;
+    if ok {
+        0
+    } else {
+        E_INVALIDARG
+    }
+}
+
+/// CreatePlacedResource's verdict, in a heap CreateHeap took (MEASURED, golden d3d12-* make-*)
+pub fn placed_hr(heap: u32, hflags: u32, hsize: u64, off: u64, state: u32, d: &Desc) -> Res<u32> {
+    hit("D3D12.MAKE.PLACED");
+    let c = create_hr(heap, state, d)?;
+    if c != S_FALSE {
+        return Ok(c);
+    }
+    // (what the heap denies: buffers, render target and depth stencil textures, the others)
+    let kind = if d.dim == 1 { 4 } else if d.flags & 3 != 0 { 0x40 } else { 0x80 };
+    if hflags & kind != 0 {
+        return Ok(E_INVALIDARG);
+    }
+    // (the resource at a multiple of its alignment, inside the heap; a multisampled one wants a
+    // heap aligned to 4MB)
+    let (size, al) = alloc(d)?;
+    Ok(if size == u64::MAX || d.samples > 1 || off % al != 0 || off + size > hsize { E_INVALIDARG } else { 0 })
 }
 
 /// CreateCommittedResource's verdict (ppvResource NULL: S_FALSE when it would make the resource)
@@ -771,7 +891,8 @@ impl D3d12 {
             // (MEASURED: flags other than DXGI_CREATE_FACTORY_DEBUG are ignored; DEBUG is not asked:
             // it depends on the debug layer being installed)
             if f & 1 != 0 {
-                return Err(Fail::Unmodeled("DXGI.FACTORY.DEBUG"));
+                // (MEASURED, golden dxgi-* factory-debug: taken on the windows-2025 runner)
+                hit("DXGI.FACTORY.DEBUG");
             }
             let _ = f;
             self.factory = true;
@@ -803,7 +924,15 @@ impl D3d12 {
                 if t.len() != 1 {
                     return Err(Fail::Bad);
                 }
-                return Err(Fail::Unmodeled(if name == "dxgitearing" { "DXGI.TEARING" } else { "DXGI.ADAPTERS" }));
+                // (MEASURED, golden dxgi-* tearing, adapters: the windows-2025 runner allows tearing
+                // and has two adapters, the last WARP)
+                if name == "dxgitearing" {
+                    hit("DXGI.TEARING");
+                    out.push("tearing 1".into());
+                } else {
+                    hit("DXGI.ADAPTERS");
+                    out.push("adapters 2 last 1414 8c 2".into());
+                }
             }
             "swapchain" => {
                 if !self.dev {
@@ -829,8 +958,21 @@ impl D3d12 {
                 if t.len() != 2 {
                     return Err(Fail::Bad);
                 }
-                words(&t[1..])?;
-                return Err(Fail::Unmodeled("DXGI.COLORSPACE"));
+                let cs = words(&t[1..])?[0];
+                // (MEASURED, golden dxgi-* color-*: the color spaces a flip chain presents in, by
+                // format; SetColorSpace1 takes exactly those)
+                let set: &[u32] = match self.chain.unwrap().0[2] {
+                    87 => &[0, 2, 3, 12, 14, 17, 20, 21],
+                    10 => &[1],
+                    24 => &[0, 12, 14, 17],
+                    _ => return Err(Fail::Unmodeled("DXGI.COLORSPACE")),
+                };
+                if self.chain.unwrap().0[2] != 87 && ![0, 1, 12, 14, 17].contains(&cs) {
+                    return Err(Fail::Unmodeled("DXGI.COLORSPACE"));
+                }
+                hit("DXGI.COLORSPACE.FLIP");
+                let ok = set.contains(&cs);
+                out.push(format!("color {} set {:08x}", ok as u32, if ok { 0 } else { E_INVALIDARG }));
             }
             _ => {
                 let Some((d, index)) = self.chain.as_mut() else { unreachable!() };
