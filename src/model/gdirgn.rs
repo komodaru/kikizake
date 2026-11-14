@@ -202,6 +202,52 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     Ok(true)
 }
 
+/// SelectClipRgn / ExtSelectClipRgn of r (None: NULL) in mode m: the type of the clip region as
+/// it now limits the bitmap, or None (ERROR, the clip region as it was)
+pub fn select_clip(sl: &mut super::gdi::Slot, arg: Option<Rgn>, m: i64) -> Option<i32> {
+    let dev = Rgn::rect(0, 0, sl.s.w, sl.s.h);
+    let new = match (arg, m) {
+        (None, 5) => {
+            hit(clause::GDI_CLIP_SELNONE);
+            None
+        }
+        (None, _) => {
+            // MEASURED: ERROR, the clip region as it was
+            hit(clause::GDI_CLIP_SELNULLMODE);
+            return None;
+        }
+        (Some(r), 5) => {
+            hit(clause::GDI_CLIP_SELCOPY);
+            Some(r)
+        }
+        (Some(r), m) => {
+            let Some(o) = SetOp::from_mode(m) else {
+                // (as CombineRgn: ERROR, the clip region as it was)
+                hit(clause::GDI_CLIP_SELBADMODE);
+                return None;
+            };
+            hit(clause::GDI_CLIP_SELMODE);
+            match &sl.clip {
+                Some(c) => Some(c.combine(&r, o)),
+                // MEASURED: RGN_AND without a clip region keeps the region whole
+                // (GetClipRgn returns it unclipped by the bitmap)
+                None if o == SetOp::And => {
+                    hit(clause::GDI_CLIP_SELNOCLIPAND);
+                    Some(r)
+                }
+                None => {
+                    // MEASURED: no clip region combines as the bitmap's rectangle
+                    hit(clause::GDI_CLIP_SELNOCLIP);
+                    Some(dev.combine(&r, o))
+                }
+            }
+        }
+    };
+    let kind = new.as_ref().map_or(dev.kind(), |c| c.combine(&dev, SetOp::And).kind());
+    sl.clip = new;
+    Some(kind)
+}
+
 fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let t0 = op.tok[0].as_str();
     let arg = if t0 == "selclip" && op.tok.get(2).is_some_and(|t| t != "none") { Some(g.rgn(op, 2)?) } else { None };
@@ -217,49 +263,10 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     match t0 {
         "selclip" => {
             let m = if op.tok.len() > 3 { n(op, 3)? } else { 5 };
-            let new = match (arg, m) {
-                (None, 5) => {
-                    hit(clause::GDI_CLIP_SELNONE);
-                    None
-                }
-                (None, _) => {
-                    // MEASURED: ERROR, the clip region as it was
-                    hit(clause::GDI_CLIP_SELNULLMODE);
-                    out.push("selclip 0".into());
-                    return Ok(true);
-                }
-                (Some(r), 5) => {
-                    hit(clause::GDI_CLIP_SELCOPY);
-                    Some(r)
-                }
-                (Some(r), m) => {
-                    let Some(o) = SetOp::from_mode(m) else {
-                        // (as CombineRgn: ERROR, the clip region as it was)
-                        hit(clause::GDI_CLIP_SELBADMODE);
-                        out.push("selclip 0".into());
-                        return Ok(true);
-                    };
-                    hit(clause::GDI_CLIP_SELMODE);
-                    match &sl.clip {
-                        Some(c) => Some(c.combine(&r, o)),
-                        // MEASURED: RGN_AND without a clip region keeps the region whole
-                        // (GetClipRgn returns it unclipped by the bitmap)
-                        None if o == SetOp::And => {
-                            hit(clause::GDI_CLIP_SELNOCLIPAND);
-                            Some(r)
-                        }
-                        None => {
-                            // MEASURED: no clip region combines as the bitmap's rectangle
-                            hit(clause::GDI_CLIP_SELNOCLIP);
-                            Some(dev.combine(&r, o))
-                        }
-                    }
-                }
-            };
-            // the type of the clip region as it now limits the bitmap
-            let kind = new.as_ref().map_or(dev.kind(), |c| c.combine(&dev, SetOp::And).kind());
-            sl.clip = new;
-            out.push(format!("selclip {kind}"));
+            match select_clip(sl, arg, m) {
+                Some(kind) => out.push(format!("selclip {kind}")),
+                None => out.push("selclip 0".into()),
+            }
         }
         "clipbox" => {
             hit(clause::GDI_CLIP_BOX);

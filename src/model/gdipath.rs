@@ -100,6 +100,21 @@ fn record_move(p: &mut Vec<(i32, i32, u8)>, at: (i32, i32)) -> Res<bool> {
     Ok(true)
 }
 
+/// the figures of a closed path of lines (each from its PT_MOVETO)
+fn figures(p: &[(i32, i32, u8)]) -> Res<Vec<Vec<(i32, i32)>>> {
+    let mut figs: Vec<Vec<(i32, i32)>> = Vec::new();
+    for q in p {
+        if q.2 == PT_MOVETO {
+            figs.push(vec![(q.0, q.1)]);
+        } else if q.2 & PT_BEZIERTO != 0 {
+            return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+        } else {
+            figs.last_mut().ok_or(Fail::Bad)?.push((q.0, q.1));
+        }
+    }
+    Ok(figs)
+}
+
 pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let t0 = op.tok[0].as_str();
     if !matches!(t0, "beginpath" | "endpath" | "abortpath" | "closefig" | "flatten" | "widen" | "strokepath" | "fillpath" | "strokefill" | "selclippath" | "getpath" | "pathrgn" | "miter") {
@@ -223,7 +238,45 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push(if t0 == "pathrgn" { "pathrgn 0".into() } else { format!("{t0} 0") });
                 return Ok(true);
             }
-            return Err(Fail::Unmodeled(open::GDI_PATH_FILL));
+            let Path::Closed(p) = std::mem::take(path) else { unreachable!() };
+            let figs = figures(&p)?;
+            if figs.is_empty() {
+                // MEASURED: an empty path fails too, and is discarded
+                hit(clause::GDI_PATH_EMPTYFILL);
+                out.push(format!("{t0} 0"));
+                return Ok(true);
+            }
+            // MEASURED: the interior is CreatePolygonRgn's region of the figures (each closed) in
+            // the DC's fill mode (GDI.RGN.POLYSCAN); the call discards the path
+            hit(clause::GDI_PATH_FILL);
+            let r = super::rgn::polygon_pixels(&figs, sl.ext.polyfill == 2);
+            match t0 {
+                "pathrgn" => {
+                    let i = n(op, 2)?;
+                    *g.rgns.get_mut(i as usize).ok_or(Fail::Bad)? = Some(r);
+                    out.push("pathrgn 1".into());
+                    return Ok(true);
+                }
+                "selclippath" => {
+                    let m = n(op, 2)?;
+                    let ok = super::gdirgn::select_clip(sl, Some(r), m).is_some();
+                    out.push(format!("selclippath {}", ok as u8));
+                    return Ok(true);
+                }
+                _ => {}
+            }
+            for q in r.rects() {
+                sl.fill_shape(q.0, q.1, q.2, q.3)?;
+            }
+            if t0 == "strokefill" {
+                // (StrokeAndFillPath: the outline of every figure, closed)
+                for f in &figs {
+                    for i in 0..f.len() {
+                        sl.line(f[i], f[(i + 1) % f.len()])?;
+                    }
+                }
+            }
+            true
         }
         "widen" => return Err(Fail::Unmodeled(open::GDI_PATH_WIDEN)),
         _ => unreachable!(),

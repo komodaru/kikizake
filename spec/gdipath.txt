@@ -13,7 +13,8 @@ GDI.PATH.GET doc | GetPath | the closed path's points and their types (PT_MOVETO
 GDI.PATH.FLATTEN doc | FlattenPath | curves become lines; a path of lines stays as it is
 GDI.PATH.STROKE doc | StrokePath | draws the path's lines with the pen (as LineTo, the last point of an open figure not drawn; a closed figure's closing line) and discards the path
 GDI.PATH.NOPATH doc | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion | fail (0, no region) when the DC has no closed path
-GDI.PATH.FILL open | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion | which pixels a path's interior holds
+GDI.PATH.FILL measured | golden path clip-* fill-* | FillPath, StrokeAndFillPath, PathToRegion, SelectClipPath: the interior is CreatePolygonRgn's region of the figures, each closed, in the DC's fill mode (GDI.RGN.POLYSCAN); StrokeAndFillPath then draws every figure's closed outline; the path is discarded
+GDI.PATH.EMPTYFILL measured | golden path order-3 | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion of an empty closed path fail (0, no region) and discard the path
 GDI.PATH.WIDEN open | WidenPath | the outline a geometric pen makes of the path
 GDI.PATH.MITER measured | golden path miter | SetMiterLimit: a limit below 1 fails without writing the old value; otherwise returns the old limit (10 at first) and keeps the new one
 GDI.PATH.ENDMOVE measured | golden path order-5 | EndPath drops a PT_MOVETO that ends the path (a MoveToEx after the last figure)
