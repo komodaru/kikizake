@@ -148,6 +148,7 @@ fn state_suite(v8: bool) -> String {
     probe("calls-while-recording", "sb create 1 1\nsb begin\nrs set 7 0\nsb apply 1\nsb capture 1\nsb create 2 2\nsb end 0\nrs get 7");
     probe("type-0", "sb create 0 0\nrs set 7 0\nsb apply 0\nrs get 7");
     probe("type-4", "sb create 0 4\nrs set 7 0\nsb apply 0\nrs get 7");
+    probe("release-while-recording", "sb create 1 1\nrs set 7 0\nsb begin\nsb release 1\nsb end 0\nsb apply 1\nrs get 7");
     let _ = RENDER_STATES;
     s
 }

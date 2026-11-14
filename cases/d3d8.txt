@@ -8915,3 +8915,13 @@ rs set 7 0
 sb apply 0
 rs get 7
 end
+case edge-release-while-recording
+device8 swvp
+sb create 1 1
+rs set 7 0
+sb begin
+sb release 1
+sb end 0
+sb apply 1
+rs get 7
+end

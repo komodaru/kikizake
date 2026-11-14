@@ -7,12 +7,12 @@ D3D9.TSS.DEFAULT doc | D3DTEXTURESTAGESTATETYPE | the defaults; COLOROP MODULATE
 D3D9.TSS.UNDOC measured | (none) | undocumented stage state types read 0xbaadcafe, 33 reads 0 (d3d9state golden)
 D3D9.SS.DEFAULT doc | D3DSAMPLERSTATETYPE | the defaults; type 0 reads 0xbaadcafe (measured)
 D3D9.SETGET doc | SetRenderState, GetRenderState (and stage, sampler) | Get returns what Set stored; no value is validated
-D3D9.SET.UNDOC open | (none) | Set of an undocumented state and what Get reads after it
+D3D9.SET.UNDOC measured | golden d3d9 edge-set-legacy-* | Set of an undocumented state succeeds; a Get that reads a value of it (D3D9.RS.UNDOC, D3D9.TSS.UNDOC) reads what was set after it, one that fails still fails
 D3D9.INDEX.RANGE excluded | (none) | stages past 7, samplers past 15 other than 256..260, sampler types past 13 (Windows reads past its arrays)
 D3D9.SB.TYPES doc | State Blocks Save and Restore State, D3DSTATEBLOCKTYPE | D3DSBT_ALL / PIXELSTATE / VERTEXSTATE capture the listed states
 D3D9.SB.GROUPS measured | (none) | the lists' exceptions: rs 40 pixel; TEXCOORDINDEX / TEXTURETRANSFORMFLAGS also pixel; CONSTANT in none; DMAPOFFSET in ALL only (d3d9sb golden)
 D3D9.SB.RECORD assumed | BeginStateBlock, EndStateBlock | calls between Begin and End are recorded into the block and not applied to the device
 D3D9.SB.CAPTURE doc | IDirect3DStateBlock9::Capture | the block's states take the device's current values
 D3D9.SB.APPLY doc | IDirect3DStateBlock9::Apply | the device's states take the block's values
-D3D9.SB.MISUSE open | BeginStateBlock, EndStateBlock | Begin while recording, End without Begin, other calls while recording
-D3D9.SB.BADTYPE open | CreateStateBlock | a type other than 1..3
+D3D9.SB.MISUSE measured | BeginStateBlock, EndStateBlock; golden d3d9, d3d8 edge-end-without-begin, edge-begin-twice, edge-calls-while-recording | Begin while recording, End without Begin, and Apply, Capture, CreateStateBlock while recording fail with INVALIDCALL and change nothing (the recording goes on); Release, the block's IUnknown method, releases while recording too (edge-release-while-recording)
+D3D9.SB.BADTYPE measured | CreateStateBlock; golden d3d9, d3d8 edge-type-0, edge-type-4 | type 0 makes a block of no state; a type past 3 fails with INVALIDCALL

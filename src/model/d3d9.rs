@@ -276,6 +276,8 @@ pub struct D3d9 {
     pub(super) state: BTreeMap<Key, u32>,
     recording: Option<BTreeMap<Key, u32>>,
     blocks: BTreeMap<i64, BTreeMap<Key, u32>>,
+    /// what was set to the undocumented states (D3D9.SET.UNDOC)
+    undoc: BTreeMap<Key, u32>,
     /// what the drawing lines made (src/model/d3d9draw.rs)
     pub(super) draw: super::d3d9draw::Draw,
 }
@@ -309,6 +311,7 @@ impl D3d9 {
             clause::D3D9_TSS_DEFAULT => clause::D3D8_TSS_DEFAULT,
             clause::D3D9_TSS_UNDOC => clause::D3D8_TSS_UNDOC,
             clause::D3D9_SB_GROUPS => clause::D3D8_SB_GROUPS,
+            clause::D3D9_SET_UNDOC => clause::D3D8_SET_UNDOC,
             _ => id,
         }
     }
@@ -316,7 +319,6 @@ impl D3d9 {
     /// the open clause, Direct3D 8's own where it has one
     fn c_open(&self, id: crate::spec::OpenId) -> crate::spec::OpenId {
         match (self.v8, id) {
-            (true, open::D3D9_SET_UNDOC) => open::D3D8_SET_UNDOC,
             (true, open::D3D9_INDEX_RANGE) => open::D3D8_INDEX_RANGE,
             _ => id,
         }
@@ -337,6 +339,7 @@ impl D3d9 {
         self.state = self.states().into_iter().map(|(k, d, _)| (k, d)).collect();
         self.recording = None;
         self.blocks.clear();
+        self.undoc.clear();
     }
 
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
@@ -375,7 +378,15 @@ impl D3d9 {
                 if set {
                     hit(clause::D3D9_SETGET);
                     if !documented {
-                        return Err(Fail::Unmodeled(self.c_open(open::D3D9_SET_UNDOC)));
+                        // (MEASURED edge-set-legacy-*, d3d8draw blend-dest-*: the Set succeeds, and a
+                        // Get that reads the state reads what was set; one that fails still fails)
+                        if self.recording.is_some() {
+                            // (the generators record no undocumented state)
+                            return Err(Fail::Bad);
+                        }
+                        hit(self.c(clause::D3D9_SET_UNDOC));
+                        self.undoc.insert(key, v);
+                        return Ok(true);
                     }
                     match &mut self.recording {
                         Some(r) => {
@@ -395,7 +406,7 @@ impl D3d9 {
                         (Key::Tss(..), false) => self.c(clause::D3D9_TSS_UNDOC),
                         (Key::Ss(..), _) => clause::D3D9_SS_DEFAULT,
                     });
-                    match self.state.get(&key).copied().or_else(|| self.undocumented_read(key)) {
+                    match self.state.get(&key).copied().or_else(|| self.undocumented_read(key).map(|v| self.undoc.get(&key).copied().unwrap_or(v))) {
                         Some(v) => out.push(format!("{what} = {v:08x}")),
                         None => out.push(format!("{what} hr {INVALIDCALL:08x}")),
                     }
@@ -404,9 +415,16 @@ impl D3d9 {
             "sb" if !self.dev => out.push("nodev".into()),
             "sb" => {
                 let verb = t.get(1).ok_or(Fail::Bad)?.as_str();
+                // (MEASURED edge-*: Begin while recording, End without Begin, and Apply, Capture,
+                // Create while recording fail with INVALIDCALL and change nothing)
+                let misuse = |out: &mut Vec<String>| {
+                    hit(clause::D3D9_SB_MISUSE);
+                    out.push(format!("sb {verb} hr {INVALIDCALL:08x}"));
+                    Ok(true)
+                };
                 if verb == "begin" {
                     if self.recording.is_some() {
-                        return Err(Fail::Unmodeled(open::D3D9_SB_MISUSE));
+                        return misuse(out);
                     }
                     hit(clause::D3D9_SB_RECORD);
                     self.recording = Some(BTreeMap::new());
@@ -416,12 +434,16 @@ impl D3d9 {
                 if !(0..8).contains(&i) {
                     return Err(Fail::Bad);
                 }
-                if self.recording.is_some() && verb != "end" {
-                    return Err(Fail::Unmodeled(open::D3D9_SB_MISUSE));
+                // (Release is the block's own IUnknown::Release, not a device call: it releases
+                // while recording too)
+                if self.recording.is_some() && !matches!(verb, "end" | "release") {
+                    return misuse(out);
                 }
                 match verb {
                     "end" => {
-                        let r = self.recording.take().ok_or(Fail::Unmodeled(open::D3D9_SB_MISUSE))?;
+                        let Some(r) = self.recording.take() else {
+                            return misuse(out);
+                        };
                         self.blocks.insert(i, r);
                     }
                     "create" => {
@@ -430,7 +452,17 @@ impl D3d9 {
                             1 => |g| g != Nowhere,
                             2 => |g| matches!(g, Pixel | Both),
                             3 => |g| matches!(g, Vertex | Both),
-                            _ => return Err(Fail::Unmodeled(open::D3D9_SB_BADTYPE)),
+                            // (MEASURED edge-type-0: type 0 makes a block of no state; edge-type-4:
+                            // a type past VERTEXSTATE fails)
+                            0 => {
+                                hit(clause::D3D9_SB_BADTYPE);
+                                |_| false
+                            }
+                            _ => {
+                                hit(clause::D3D9_SB_BADTYPE);
+                                out.push(format!("sb create hr {INVALIDCALL:08x}"));
+                                return Ok(true);
+                            }
                         };
                         hit(clause::D3D9_SB_TYPES);
                         hit(self.c(clause::D3D9_SB_GROUPS));

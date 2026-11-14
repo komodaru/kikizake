@@ -8,5 +8,5 @@ D3D8.RS.UNDOC measured | (none) | Get of an undocumented render state: 0xbaadcaf
 D3D8.TSS.DEFAULT doc | D3DTEXTURESTAGESTATETYPE (DirectX 8 SDK) | the defaults, the sampler states among them: addresses WRAP, MAG / MIN filters POINT, MIP filter NONE, MAXANISOTROPY 1
 D3D8.TSS.UNDOC measured | (none) | stage state types 0, 12, 29 read 0xbaadcafe (d3d8state golden)
 D3D8.SB.GROUPS measured | D3DSTATEBLOCKTYPE (DirectX 8 SDK) | the pixel and vertex lists as Direct3D 9 measures them; the sampler stage states pixel; LINEPATTERN, EDGEANTIALIAS, ZBIAS pixel, PATCHSEGMENTS and SOFTWAREVERTEXPROCESSING vertex, ZVISIBLE in no state block (golden d3d8-32)
-D3D8.SET.UNDOC open | (none) | Set of an undocumented state and what Get reads after it
+D3D8.SET.UNDOC measured | golden d3d8 edge-set-legacy-*, d3d8draw blend-dest-* | Set of an undocumented state succeeds; a Get that reads 0xbaadcafe of it (D3D8.RS.UNDOC, D3D8.TSS.UNDOC) reads what was set after it, one that fails still fails
 D3D8.INDEX.RANGE excluded | (none) | stages past 7, stage state types past 29
