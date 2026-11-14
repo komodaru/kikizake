@@ -782,7 +782,7 @@ fn probes(s: &mut String, dev: &str) {
     writeln!(s, "draw 4 3 32").unwrap();
     read_rt(s, 0, 2, 16, 16);
     writeln!(s, "end").unwrap();
-    for (name, filter, fmt, uv) in [("min", 0x10u32, 28u32, (-2.0f32, 3.0f32)), ("min-point", 0x04, 28, (-1.5, 2.5)), ("unorm16", 0x15, 11, (-0.2, 0.9)), ("float", 0x15, 2, (-0.2, 0.9))] {
+    for (name, filter, fmt, uv) in [("min", 0x10u32, 28u32, (-2.0f32, 3.0f32)), ("min-point", 0x04, 28, (-1.5, 2.5)), ("unorm16", 0x15, 11, (-0.2, 0.9)), ("float", 0x15, 2, (-0.2, 0.9)), ("rho-1024", 0x10, 28, (-1.5, 2.5 + 4.0 / 1024.0)), ("rho-64", 0x10, 28, (-1.5, 2.5 + 4.0 / 64.0)), ("rho-10", 0x10, 28, (-1.5, 2.9)), ("rho-under", 0x10, 28, (-1.5, 2.5 - 4.0 / 1024.0))] {
         writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
         let pitch = format(fmt).unwrap().row_bytes(4);
         writeln!(s, "tex 1 2 4 4 1 1 {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3").unwrap();

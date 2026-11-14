@@ -950,8 +950,8 @@ impl Line {
     /// is the rectangle 1.4 pixels wide along it, ending at its ends: its corners a +- n,
     /// b +- n (n the normal of length 0.7, in f32) snapped, as two triangles a + n, b + n,
     /// b - n and a + n, b - n, a - n by the top-left rule; the values are the covering
-    /// triangle's planes (D3DRASTER.INTERP.PLANE) over the snapped corners, a's values at
-    /// a +- n and b's at b +- n (84 UNORM pixels)
+    /// triangle's planes (D3DRASTER.INTERP.PLANE, not turned) over the snapped corners, a's
+    /// values at a +- n and b's at b +- n (84 UNORM pixels; probe-linesms-*, 220 float values)
     fn quad(&self, (px, py): (i64, i64)) -> Option<Planes> {
         let (ax, ay, bx, by) = (self.a.x as f32 / 256.0, self.a.y as f32 / 256.0, self.b.x as f32 / 256.0, self.b.y as f32 / 256.0);
         let (dx, dy) = (bx - ax, by - ay);
@@ -961,9 +961,8 @@ impl Line {
         let corner = [(q(ax + nx, ay + ny), false), (q(bx + nx, by + ny), true), (q(bx - nx, by - ny), true), (q(ax - nx, ay - ny), false)];
         let c = (px * 256 + 128, py * 256 + 128);
         let t = [[0, 1, 2], [0, 2, 3]].into_iter().map(|t| t.map(|i| corner[i])).find(|t| tri_covers(t.map(|v| v.0), c))?;
-        // (the first of the least x, as Planes::new)
-        let k0 = (0..3).fold(0, |k, i| if t[i].0 .0 < t[k].0 .0 { i } else { k });
-        let t: [((i64, i64), bool); 3] = [0, 1, 2].map(|i| t[(k0 + i) % 3]);
+        // (MEASURED, WARP: probe-linesms-*, 220 float values) the planes start at a + n, as
+        // the triangles are given, not turned
         let iw = t.map(|v| if v.1 { self.iwb } else { self.iwa });
         let aw = [0, 1, 2].map(|i| (if t[i].1 { self.cb } else { self.ca }).map(|a| a * iw[i]));
         Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw })
@@ -1489,8 +1488,16 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
                 let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * w as f64).powi(2) + (f64::from(b[1] - a[1]) * h as f64).powi(2)).sqrt();
                 let rho = span(q[0], q[1]).max(span(q[0], q[2]));
-                if rho < 0.99 {
+                // (MEASURED, WARP: probe-filter-min, -min-point) a span of one texel magnifies, of
+                // 1.25 minifies; with more than one mip level the level is not measured
+                if rho <= 1.0 {
+                    hit(clause::D3DRASTER_FILTER_MINMAG);
                     filter.mag
+                } else if rho < 1.25 {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                } else if r.d.mips == 1 {
+                    hit(clause::D3DRASTER_FILTER_MINMAG);
+                    filter.min
                 } else {
                     return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 }
