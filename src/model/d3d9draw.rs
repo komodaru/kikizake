@@ -1298,7 +1298,8 @@ impl D3d9 {
         let pos = match fvf & 0x400e {
             4 => 4,
             2 => 3,
-            _ => return Err(Fail::Unmodeled(open::D3D9_DRAW_XYZ)),
+            // (the generators draw with XYZ and XYZRHW positions only)
+            _ => return Err(Fail::Bad),
         };
         let ntex = (fvf >> 8 & 0xf) as usize;
         let tsize = |i: usize| [2, 3, 4, 1][(fvf >> (16 + 2 * i) & 3) as usize];
