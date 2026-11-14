@@ -126,46 +126,126 @@ pub fn parse(words: &[String]) -> Option<(Vec<Param>, Vec<Sampler>)> {
     Some((ps, ss))
 }
 
+/// the executor's tokens a line at most (runner/core.h MAXTOK: the rest are dropped)
+pub const MAXTOK: usize = 80;
+
+/// a register class: b (constant buffers and root constants), t, u, s
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Class {
+    B,
+    T,
+    U,
+    S,
+}
+
+impl DescKind {
+    fn class(self) -> Class {
+        match self {
+            DescKind::Cbv => Class::B,
+            DescKind::Srv => Class::T,
+            DescKind::Uav => Class::U,
+        }
+    }
+}
+
+/// D3D12_DESCRIPTOR_RANGE_TYPE: SRV, UAV, CBV, SAMPLER; None past them
+fn range_class(ty: u32) -> Option<Class> {
+    match ty {
+        0 => Some(Class::T),
+        1 => Some(Class::U),
+        2 => Some(Class::B),
+        3 => Some(Class::S),
+        _ => None,
+    }
+}
+
+/// registers a parameter or sampler binds: class, space, visibility, first and last register
+type Binding = (Class, u32, u32, u32, u32);
+
+fn bindings(ps: &[Param], ss: &[Sampler]) -> Vec<Binding> {
+    let mut v = Vec::new();
+    for p in ps {
+        match p {
+            Param::Table { vis, ranges } => {
+                for r in ranges {
+                    if let Some(c) = range_class(r.ty) {
+                        // (UINT_MAX descriptors: unbounded, to the last register)
+                        let hi = if r.n == u32::MAX { u32::MAX } else { r.base.saturating_add(r.n.saturating_sub(1)) };
+                        v.push((c, r.space, *vis, r.base, hi));
+                    }
+                }
+            }
+            Param::Constants { reg, space, vis, .. } => v.push((Class::B, *space, *vis, *reg, *reg)),
+            Param::Desc { kind, reg, space, vis, .. } => v.push((kind.class(), *space, *vis, *reg, *reg)),
+        }
+    }
+    for s in ss {
+        v.push((Class::S, s.space, s.vis, s.reg, s.reg));
+    }
+    v
+}
+
+/// a static sampler's D3D12_FILTER: the point/linear bits of min (0x10), mag (4) and mip (1), or
+/// anisotropic (0x40) with linear min and mag, and a reduction (0x80: comparison, 0x100 minimum,
+/// 0x180 maximum)
+fn filter_ok(f: u32) -> bool {
+    f & !0x1d5 == 0 || (f & !0x1d5 == 0x40 && f & 0x14 == 0x14)
+}
+
 /// D3D12SerializeVersionedRootSignature's verdict on a description: whether it serializes
-/// (Microsoft Learn "Root Signature Limits", "Using Descriptor Tables", "D3D12_ROOT_DESCRIPTOR_FLAGS",
-/// "D3D12_DESCRIPTOR_RANGE_FLAGS", "D3D12_ROOT_SIGNATURE_FLAGS")
+/// (MEASURED, golden d3d12-* rootsig-*; Microsoft Learn "Root Signature Limits", "Using Descriptor
+/// Tables", "D3D12_ROOT_DESCRIPTOR_FLAGS", "D3D12_DESCRIPTOR_RANGE_FLAGS", "D3D12_ROOT_SIGNATURE_FLAGS"):
+/// the size limit is not the serializer's (cost, CreateRootSignature's), empty tables are taken
 pub fn valid(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> bool {
     let v11 = ver == Version::V1_1;
     // (visibility ALL..MESH)
     let vis_ok = |v: u32| v <= 7;
-    // (the root signature's cost: 64 DWORDs, a table 1, a constant 1, a root descriptor 2)
-    let cost: u64 = ps
-        .iter()
-        .map(|p| match p {
-            Param::Table { .. } => 1,
-            Param::Constants { n, .. } => *n as u64,
-            Param::Desc { .. } => 2,
-        })
-        .sum();
     // (DATA_VOLATILE, DATA_STATIC_WHILE_SET_AT_EXECUTE, DATA_STATIC: at most one)
     let data_ok = |f: u32| (f & 0xe).count_ones() <= 1;
     let params = ps.iter().all(|p| match p {
         Param::Table { vis, ranges } => {
             let sampler = ranges.iter().filter(|r| r.ty == 3).count();
             vis_ok(*vis)
-                && !ranges.is_empty()
                 && (sampler == 0 || sampler == ranges.len())
                 && ranges.iter().all(|r| {
-                    r.ty <= 3
+                    range_class(r.ty).is_some()
                         && r.n != 0
                         && (!v11
                             || if r.ty == 3 {
                                 r.flags & !1 == 0
                             } else {
-                                r.flags & !(1 | 0xe | 0x10000) == 0 && data_ok(r.flags)
+                                // (DESCRIPTORS_STATIC_KEEPING_BUFFER_BOUNDS_CHECKS not with
+                                // DESCRIPTORS_VOLATILE: golden rootsig-232)
+                                r.flags & !(1 | 0xe | 0x10000) == 0 && data_ok(r.flags) && r.flags & 0x10001 != 0x10001
                             })
                 })
         }
         Param::Constants { vis, .. } => vis_ok(*vis),
         Param::Desc { vis, flags, .. } => vis_ok(*vis) && (!v11 || (*flags & !0xe == 0 && data_ok(*flags))),
     });
-    let samplers = ss.iter().all(|s| vis_ok(s.vis));
-    cost <= 64 && params && samplers && flags & !0xfff == 0
+    let samplers = ss.iter().all(|s| vis_ok(s.vis) && filter_ok(s.filter));
+    // (no register bound twice where the visibilities meet: golden rootsig-133..137, 157)
+    let bs = bindings(ps, ss);
+    let apart = bs.iter().enumerate().all(|(i, a)| {
+        bs[i + 1..].iter().all(|b| !(a.0 == b.0 && a.1 == b.1 && (a.2 == b.2 || a.2 == 0 || b.2 == 0) && a.3 <= b.4 && b.3 <= a.4))
+    });
+    // (the defined flags, and 0x80000000; LOCAL_ROOT_SIGNATURE (0x80) not with the input
+    // assembler's layout: golden rootsig-4, 6 and the rootsig-flag cases)
+    let flags_ok = flags & !(0xfff | 0x8000_0000) == 0 && flags & 0x81 != 0x81;
+    params && samplers && apart && flags_ok
+}
+
+/// the root signature's cost in DWORDs (a table 1, a constant 1, a root descriptor 2):
+/// CreateRootSignature takes at most 64 (MEASURED, golden d3d12-* rootsig-12: 65 constants
+/// serialize, the blob is refused)
+pub fn cost(ps: &[Param]) -> u64 {
+    ps.iter()
+        .map(|p| match p {
+            Param::Table { .. } => 1,
+            Param::Constants { n, .. } => *n as u64,
+            Param::Desc { .. } => 2,
+        })
+        .sum()
 }
 
 fn put(v: &mut Vec<u8>, w: u32) {

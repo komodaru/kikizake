@@ -510,12 +510,14 @@ impl D3d12 {
                 return Ok(true);
             }
             "rootsig12" => {
-                use super::rootsig::{checksum, dxbc, parse, rts0, valid, Version};
+                use super::rootsig::{checksum, cost, dxbc, parse, rts0, valid, Version, MAXTOK};
+                // (the executor reads the first MAXTOK tokens of a line)
+                let t = &t[..t.len().min(MAXTOK)];
                 if t.len() < 3 {
                     return Err(Fail::Bad);
                 }
                 let w = words(&t[1..3])?;
-                let (ps, ss) = parse(&t[3..]).ok_or(Fail::Bad)?;
+                let (ps, ss) = parse(&t[3..]).ok_or(Fail::Empty)?;
                 hit(clause::D3D12_ROOTSIG_VALID);
                 let ver = match Version::of(w[0]) {
                     Some(v) if valid(v, w[1], &ps, &ss) => v,
@@ -534,7 +536,7 @@ impl D3d12 {
                 }
                 out.push(format!("rs sum {}", b[4..20].iter().map(|x| format!("{x:02x}")).collect::<String>()));
                 hit(clause::D3D12_ROOTSIG_MAKE);
-                out.push(format!("rsmake hr {S_OK:08x}"));
+                out.push(format!("rsmake hr {:08x}", if cost(&ps) <= 64 { S_OK } else { E_INVALIDARG }));
             }
             "footprint12" => {
                 if t.len() != 15 {
@@ -725,9 +727,9 @@ impl D3d12 {
                         // (MEASURED: every type but video decode statistics (4), at least one query)
                         hit(clause::D3D12_MAKE_QUERYHEAP);
                         let valid = w[0] <= 7 && w[0] != 4 && w[1] > 0;
-                        // (MEASURED, golden d3d12-32 make-167/168: 16M queries are more than a
-                        // 32-bit process has room for, 65537 are not; the bound between is fitted
-                        // by make-240..)
+                        // (MEASURED, golden d3d12-32 make-167/168, 240..274: 8M queries of any
+                        // type are more than a 32-bit process has room for, 4M are not; make-275..
+                        // narrow it)
                         if valid && super::arch() == 32 && w[1] >= QHEAP32_OOM {
                             E_OUTOFMEMORY
                         } else {
@@ -889,7 +891,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
 
 /// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)
 /// the fewest queries a 32-bit process's CreateQueryHeap runs out of memory for
-const QHEAP32_OOM: u32 = 1 << 24;
+const QHEAP32_OOM: u32 = 1 << 23;
 
 pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
     hit(clause::D3D12_MAKE_HEAP);

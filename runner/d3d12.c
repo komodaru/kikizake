@@ -25,7 +25,12 @@ static int on12;
 static void d3d12_reset(void) {
     on12 = 0;
     /* (a removed device is not kept, nor released: left as it is) */
-    if (dev12 && ID3D12Device_GetDeviceRemovedReason(dev12) != S_OK) list12 = NULL, alloc12 = NULL, fence12 = NULL, queue12 = NULL, dev12 = NULL;
+    if (dev12 && ID3D12Device_GetDeviceRemovedReason(dev12) != S_OK) {
+        /* (WARP x64 crashed some runs after a removal, the output still buffered lost: golden
+         * 465fd71 empty, 317e806 whole; written out at once) */
+        oflush();
+        list12 = NULL, alloc12 = NULL, fence12 = NULL, queue12 = NULL, dev12 = NULL;
+    }
 }
 
 void *kz_d3d12_queue(void) { return on12 ? queue12 : NULL; }

@@ -197,9 +197,11 @@ fn suites_stay_modeled() {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
+            // (a malformed case is unmodeled too: the generators write none)
             let un: Vec<_> = cases.iter().filter_map(|c| match run_case(c) {
-                Err(Fail::Unmodeled(id)) => Some(id),
-                _ => None,
+                Err(Fail::Unmodeled(id)) => Some(format!("{}: {id}", c.name)),
+                Err(Fail::Bad) => Some(format!("{}: bad", c.name)),
+                Ok(_) | Err(Fail::Empty | Fail::Crash) => None,
             }).collect();
             assert!(un.is_empty(), "{s}-{arch}: {un:?}");
         }

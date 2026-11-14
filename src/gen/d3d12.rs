@@ -452,6 +452,11 @@ pub fn d3d12() -> String {
             mk.push(format!("qheap12 {t} {n}"));
         }
     }
+    for t in [0u32, 3] {
+        for n in [5u32 << 20, 6 << 20, 7 << 20, (1 << 23) - 1] {
+            mk.push(format!("qheap12 {t} {n}"));
+        }
+    }
     for (i, l) in mk.iter().enumerate() {
         // (descriptor heap types past the last, 4 and 5: a 32-bit process crashed making one,
         // golden e91efb1; their numbers left unused)
@@ -530,6 +535,38 @@ pub fn d3d12() -> String {
             }
         }
         rs.push(l);
+    }
+    // (added after: the flags bit by bit, LOCAL_ROOT_SIGNATURE with each, filters, bindings that
+    // meet or not, sixteen parameters within the executor's tokens)
+    for v in [1u32, 2] {
+        for b in 0..32 {
+            rs.push(format!("{v} {}", hexw(1 << b)));
+        }
+        for b in (0..12).filter(|b| *b != 7) {
+            rs.push(format!("{v} {}", hexw(0x80 | 1 << b)));
+        }
+        rs.push(format!("{v} 0xf7f"));
+        rs.push(format!("{v} 0x8000007f"));
+        for f in [0x2u32, 0x4, 0x5, 0x10, 0x11, 0x40, 0x41, 0x44, 0x50, 0x54, 0xd4, 0x154, 0x1d4, 0x200, 0x1d5] {
+            rs.push(format!("{v} 0 s {} 0 0 0", hexw(f)));
+        }
+        for (a, b) in [("c 0 0 1 1", "cbv 0 0 2 0"), ("c 0 0 1 0", "cbv 0 1 0 0"), ("c 0 0 1 1", "cbv 0 0 0 0"), ("srv 0 0 0 0", "uav 0 0 0 0"), ("srv 5 0 0 0", "t 0 1 0 0xffffffff 0 0 0 0"), ("srv 5 0 0 0", "t 0 1 0 5 0 0 0 0"), ("srv 5 0 0 0", "t 0 1 0 5 1 0 0 0"), ("s 0x15 3 0 1", "t 2 1 3 1 3 0 0 0"), ("s 0x15 3 0 1", "t 1 1 3 1 3 0 0 0")] {
+            rs.push(format!("{v} 0 {a} {b}"));
+        }
+        rs.push(format!("{v} 0 t 0 2 0 2 0 0 0 0 0 2 2 0 0 0"));
+        rs.push(format!("{v} 0 t 0 2 0 2 0 0 0 0 0 2 1 0 0 0"));
+        rs.push(format!("{v} 0 t 0 1 0 4 0xfffffffe 0 0 0"));
+        for f in [9u32, 5, 0x10002, 0x10004] {
+            rs.push(format!("{v} 0 t 0 1 0 4 0 0 0 {}", hexw(f)));
+        }
+        rs.push(format!("{v} 0 {}", (0..16).map(|_| "t 0 0".to_string()).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {}", (0..15).map(|k| format!("s 0x15 {k} 0 0")).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {} c 0 1 1 0", (0..15).map(|_| "t 0 0".to_string()).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {} c 0 1 1 0", (0..16).map(|_| "t 0 0".to_string()).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 c 0 0 64 0"));
+        rs.push(format!("{v} 0 c 0 0 62 0 cbv 1 0 0 0"));
+        rs.push(format!("{v} 0 c 0 0 63 0 cbv 1 0 0 0"));
+        rs.push(format!("{v} 0 c 0 0 0xffffffff 0"));
     }
     for (i, l) in rs.iter().enumerate() {
         writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
