@@ -381,3 +381,40 @@ proptest! {
         }
     }
 }
+
+proptest! {
+    /// BlackWhite's error diffusion: a gray of only black and white has no error to spread and
+    /// comes out as it is; any gray comes out with as many white pixels as its levels make,
+    /// within what the edges lose (the errors carried off the right, left and bottom edges)
+    #[test]
+    fn bw_dither_keeps_black_white_and_the_mean(w in 1u32..24, h in 1u32..24, seed in any::<u32>(), bw in any::<bool>()) {
+        let mut g = Img::new(w, h, "gray8");
+        let mut x = seed | 1;
+        for y in 0..h as usize {
+            for i in 0..w as usize {
+                x ^= x << 13; x ^= x >> 17; x ^= x << 5;
+                let v = if bw { if x & 1 == 0 { 0 } else { 255 } } else { (x >> 8) as u8 };
+                let st = g.stride();
+                g.px[y * st + i] = v;
+            }
+        }
+        let o = wi::dither_bw(&g);
+        let bit = |y: usize, i: usize| o.px[y * o.stride() + i / 8] >> (7 - i % 8) & 1;
+        let mut whites = 0i64;
+        let mut sum = 0i64;
+        for y in 0..h as usize {
+            for i in 0..w as usize {
+                let v = g.px[y * g.stride() + i];
+                if bw {
+                    prop_assert_eq!(bit(y, i), (v == 255) as u8);
+                }
+                whites += bit(y, i) as i64;
+                sum += v as i64;
+            }
+        }
+        // (each pixel's error is below 256; what leaves the picture is at most its edge pixels'
+        // errors, so the levels written and asked differ by less than 256 per edge pixel)
+        let edge = 2 * (w as i64 + h as i64);
+        prop_assert!((whites * 255 - sum).abs() <= 256 * edge, "{whites} {sum}");
+    }
+}

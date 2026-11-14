@@ -67,6 +67,12 @@ fn linear_to_srgb(l: f64) -> f64 {
     if l <= 0.003_130_8 { 12.92 * l } else { 1.055 * l.powf(1.0 / 2.4) - 0.055 }
 }
 
+/// the 8-bit gray of a color before its rounding: Rec. 709 luminance of the linear light, back
+/// to sRGB, in levels of 255
+pub fn gray_unrounded(b: u8, g: u8, r: u8) -> f64 {
+    luminance(b, g, r, 255.0) - 0.5
+}
+
 /// Rec. 709 luminance of the linear light, back to sRGB, at `max` levels (ASSUMED)
 fn luminance(b: u8, g: u8, r: u8, max: f64) -> f64 {
     let y = 0.2126 * srgb_to_linear(r) + 0.7152 * srgb_to_linear(g) + 0.0722 * srgb_to_linear(b);

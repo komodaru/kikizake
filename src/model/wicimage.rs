@@ -2185,6 +2185,40 @@ pub fn negotiate(cont: &str, f: &'static str) -> Option<&'static str> {
     })
 }
 
+/// MEASURED (golden wicencode encbw-*: 16 x 16 of every gray level and of the primaries every 5
+/// levels, all as Windows): a color source written as BlackWhite: its gray (as 8bppGray) dithered
+/// by Floyd and Steinberg's error diffusion (7, 3, 5, 1 sixteenths), serpentine with the first
+/// row right to left, the errors kept in sixteenths and read back floored, each value clamped
+/// to 0..=255, white from 128
+pub fn dither_bw(g: &Img) -> Img {
+    let (w, h) = (g.w as usize, g.h as usize);
+    let mut o = Img::new(g.w, g.h, "bw");
+    o.dpi = g.dpi;
+    let ost = o.stride();
+    // (two rows of errors with a pixel of margin each side)
+    let mut cur = vec![0i32; w + 2];
+    let mut next = vec![0i32; w + 2];
+    for y in 0..h {
+        let rtl = y % 2 == 0;
+        for i in 0..w {
+            let x = if rtl { w - 1 - i } else { i };
+            let v = (g.px[y * g.stride() + x] as i32 + (cur[x + 1] >> 4)).clamp(0, 255);
+            let white = v >= 128;
+            if white {
+                o.px[y * ost + x / 8] |= 0x80 >> (x % 8);
+            }
+            let e = v - if white { 255 } else { 0 };
+            let (ahead, behind) = if rtl { (x, x + 2) } else { (x + 2, x) };
+            cur[ahead] += 7 * e;
+            next[behind] += 3 * e;
+            next[x + 1] += 5 * e;
+            next[ahead] += e;
+        }
+        cur = std::mem::replace(&mut next, vec![0; w + 2]);
+    }
+    o
+}
+
 /// what WriteSource gives the encoder: an indexed source keeps its indices and palette in a
 /// wider index format; any other source written as indices has the palette of its colors in
 /// the order they first appear (MEASURED: golden wicencode enc-bmp-bw/gray*, encas-*-idx8: the
@@ -2194,7 +2228,14 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
         return Ok(c.clone());
     }
     if nf == "bw" && !c.fmt.starts_with("gray") {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_BW));
+        // MEASURED (golden wicencode encbw-b-95, -110, -155, -170, -g-35, -r-65, -130): the
+        // encoder's gray rounds otherwise than this model's within 0.12 of a half level
+        let px = wic_convert(c, "bgra")?;
+        if px.px.chunks(4).any(|p| (crate::model::wic::gray_unrounded(p[0], p[1], p[2]).clamp(0.0, 255.0) % 1.0 - 0.5).abs() < 0.12) {
+            return Err(Fail::Unmodeled(open::WIC_GRAY_ROUND));
+        }
+        hit(clause::WICIMAGE_ENCODE_BW);
+        return Ok(dither_bw(&wic_convert(c, "gray8")?));
     }
     if !nf.starts_with("idx") {
         hit(clause::WICIMAGE_ENCODE_CONVERT);
