@@ -12312,6 +12312,60 @@ case incr
 device12
 incr12
 end
+case fp-stencil-19
+device12
+footprint12 0 2 0 3 0 0x64 0x1e 1 1 0x13 1 0 0 0
+footprint12 0 6 0 3 0 0x40 0x40 3 1 0x13 1 0 0 0
+footprint12 1 2 64 2 0 0x12c 1 2 2 0x13 1 0 0 0
+end
+case fp-stencil-20
+device12
+footprint12 0 2 0 3 0 0x64 0x1e 1 1 0x14 1 0 0 0
+footprint12 0 6 0 3 0 0x40 0x40 3 1 0x14 1 0 0 0
+footprint12 1 2 64 2 0 0x12c 1 2 2 0x14 1 0 0 0
+end
+case fp-stencil-44
+device12
+footprint12 0 2 0 3 0 0x64 0x1e 1 1 0x2c 1 0 0 0
+footprint12 0 6 0 3 0 0x40 0x40 3 1 0x2c 1 0 0 0
+footprint12 1 2 64 2 0 0x12c 1 2 2 0x2c 1 0 0 0
+end
+case fp-stencil-45
+device12
+footprint12 0 2 0 3 0 0x64 0x1e 1 1 0x2d 1 0 0 0
+footprint12 0 6 0 3 0 0x40 0x40 3 1 0x2d 1 0 0 0
+footprint12 1 2 64 2 0 0x12c 1 2 2 0x2d 1 0 0 0
+end
+case fp-onemip-89-2
+device12
+footprint12 0 1 0 2 0 0x40 1 1 1 0x59 1 0 0 0
+create12 1 0 2 0 0x40 1 1 1 0x59 1 0 0 0
+end
+case fp-onemip-89-3
+device12
+footprint12 0 1 0 3 0 7 3 2 1 0x59 1 0 0 0
+create12 1 0 3 0 7 3 2 1 0x59 1 0 0 0
+end
+case fp-onemip-89-4
+device12
+footprint12 0 1 0 4 0 0x10 8 4 1 0x59 1 0 0 0
+create12 1 0 4 0 0x10 8 4 1 0x59 1 0 0 0
+end
+case fp-onemip-101-2
+device12
+footprint12 0 1 0 2 0 0x40 1 1 1 0x65 1 0 0 0
+create12 1 0 2 0 0x40 1 1 1 0x65 1 0 0 0
+end
+case fp-onemip-101-3
+device12
+footprint12 0 1 0 3 0 7 3 2 1 0x65 1 0 0 0
+create12 1 0 3 0 7 3 2 1 0x65 1 0 0 0
+end
+case fp-onemip-101-4
+device12
+footprint12 0 1 0 4 0 0x10 8 4 1 0x65 1 0 0 0
+create12 1 0 4 0 0x10 8 4 1 0x65 1 0 0 0
+end
 case copy-1
 device12
 copy12 1 8 4 0

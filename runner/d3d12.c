@@ -361,6 +361,8 @@ static void op_copy(void) {
     UINT rows[2];
     UINT64 rowsize[2], total = 0;
     ID3D12Device_GetCopyableFootprints(dev12, &d, 0, fi.PlaneCount, 0, fp, rows, rowsize, &total);
+    /* (no layout to copy through: 420_OPAQUE, golden e.g. d3d12-64 copy-106 stopped the executor) */
+    if (total == 0 || total == ~(UINT64)0) { out("copy nofootprint\n"); REL(tex); return; }
     D3D12_RESOURCE_DESC bd = { D3D12_RESOURCE_DIMENSION_BUFFER, 0, total, 1, 1, 1, DXGI_FORMAT_UNKNOWN, { 1, 0 }, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, 0 };
     ID3D12Resource *up = committed(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, &bd, &hr);
     ID3D12Resource *back = up ? committed(D3D12_HEAP_TYPE_READBACK, D3D12_RESOURCE_STATE_COPY_DEST, &bd, &hr) : NULL;

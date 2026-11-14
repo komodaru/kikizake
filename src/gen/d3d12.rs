@@ -362,6 +362,15 @@ pub fn d3d12() -> String {
         writeln!(s, "end").unwrap();
     }
     writeln!(s, "case incr\ndevice12\nincr12\nend").unwrap();
+    // the stencil planes' footprints, and one mip level of R10G10B10_XR_BIAS_A2 and Y410
+    for f in [19u32, 20, 44, 45] {
+        writeln!(s, "case fp-stencil-{f}\ndevice12\nfootprint12 0 2 0 {}\nfootprint12 0 6 0 {}\nfootprint12 1 2 64 {}\nend", desc_str(&Desc::tex(3, 100, 30, 1, 1, f)), desc_str(&Desc::tex(3, 64, 64, 3, 1, f)), desc_str(&Desc::tex(2, 300, 1, 2, 2, f))).unwrap();
+    }
+    for f in [89u32, 101] {
+        for (dim, w, h, d) in [(2u32, 64u32, 1u32, 1u32), (3, 7, 3, 2), (4, 16, 8, 4)] {
+            writeln!(s, "case fp-onemip-{f}-{dim}\ndevice12\nfootprint12 0 1 0 {}\ncreate12 1 0 {}\nend", desc_str(&Desc::tex(dim, w, h, d, 1, f)), desc_str(&Desc::tex(dim, w, h, d, 1, f))).unwrap();
+        }
+    }
     // copies to a texture of each format and back (8x4: whole blocks)
     for f in (1u32..=132).chain([189, 190, 191]) {
         writeln!(s, "case copy-{f}\ndevice12\ncopy12 {f} 8 4 0\nend").unwrap();

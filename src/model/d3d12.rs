@@ -215,7 +215,7 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         return Ok(invalid_fps(count));
     }
     // (MEASURED: the two-texel formats want an even width, the packed video ones no mip levels)
-    if matches!(d.fmt, 107..=109) && d.mips != 1 {
+    if matches!(d.fmt, 89 | 101 | 107..=109) && d.mips != 1 {
         hit("D3D12.FOOTPRINT.PAIRS");
         return Ok(invalid_fps(count));
     }
@@ -256,7 +256,9 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         d.mips
     };
     let array = if d.kind() == Dim::Tex3D { 1 } else { d.d };
-    if first as u64 + count as u64 > (mips * array) as u64 {
+    // (the two-plane depth formats: the stencil plane after the depth one)
+    let planes = if planar_depth(d.fmt) { 2 } else { 1 };
+    if first as u64 + count as u64 > (mips * array) as u64 * planes {
         hit("D3D12.FOOTPRINT.RANGE");
         return Ok(invalid_fps(count));
     }
@@ -274,6 +276,12 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         }
         let (fw, fh) = (align(w as u64, bw as u64) as u32, align(h as u64, bh as u64) as u32);
         let rows = fh / bh;
+        // (the stencil plane R8_TYPELESS, a byte a texel, rows 512 apart as the depth plane's)
+        let stencil = i >= mips * array;
+        if stencil {
+            hit("D3D12.FOOTPRINT.STENCIL");
+        }
+        let (fmt, bytes) = if stencil { (60, 1) } else { (fmt, bytes) };
         let row = (fw / bw) as u64 * bytes as u64;
         let pitch = align(row, pitch_align);
         v.push((base + at, fmt, fw, fh, depth, pitch, rows, row));
@@ -615,9 +623,31 @@ impl D3d12 {
                 // (a copy to a texture and back gives every byte of every row back)
                 hit("D3D12.COPY.ROUNDTRIP");
                 let planes = super::dxgi_format::caps(w[0]).map_or(1, |c| c.1).clamp(1, 2);
-                let (fps, _) = footprints(0, planes, 0, &d)?;
-                let first: String = (0..fps[0].7.min(16)).map(|k| format!("{:02x}", (k * 7 + 3) as u8)).collect();
-                out.push(format!("copy 0 first {first}"));
+                let (fps, total) = footprints(0, planes, 0, &d)?;
+                if total == u64::MAX {
+                    hit("D3D12.COPY.NOFOOTPRINT");
+                    out.push("copy nofootprint".into());
+                    return Ok(true);
+                }
+                let byte = |at: u64| (at * 7 + 3) as u8;
+                // (MEASURED, golden d3d12-* copy-44..47: the depth plane of the D24S8 family keeps 24
+                // bits, the top byte of each texel comes back 0)
+                let d24 = matches!(w[0], 44..=47);
+                if d24 {
+                    hit("D3D12.COPY.D24");
+                }
+                let back = |at: u64| if d24 && at < fps[0].0 + fps[0].5 * fps[0].6 as u64 && (at - fps[0].0) % fps[0].5 % 4 == 3 { 0 } else { byte(at) };
+                let mut diff = 0;
+                for fp in &fps {
+                    for r in 0..fp.6 as u64 {
+                        for k in 0..fp.7 {
+                            let at = fp.0 + r * fp.5 + k;
+                            diff += (back(at) != byte(at)) as u32;
+                        }
+                    }
+                }
+                let first: String = (0..fps[0].7.min(16)).map(|k| format!("{:02x}", back(k))).collect();
+                out.push(format!("copy {diff:x} first {first}"));
             }
             "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" => {
                 let n = match name {
@@ -859,7 +889,7 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// CreateCommittedResource's verdict (ppvResource NULL: S_FALSE when it would make the resource)
 /// on a description, a heap type and an initial state
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
-    use super::dxgi_format::{support, DS, MS, RT, SINGLE};
+    use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
     hit("D3D12.CREATE");
     let no = |c: bool, id: &'static str| {
         hit(id);
@@ -924,6 +954,10 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     }
     // (MEASURED, golden d3d12-64 create-split: the video formats take arrays but one mip level, the
     // 4:2:0 ones an even size, the 4:2:2 ones an even width)
+    if fs & ONE_MIP != 0 && d.mips != 1 {
+        hit("D3D12.CREATE.SINGLE");
+        return Ok(E_INVALIDARG);
+    }
     if fs & SINGLE != 0 && (d.mips != 1 || d.w % 2 != 0 || matches!(d.fmt, 103..=106) && d.h % 2 != 0) {
         hit("D3D12.CREATE.SINGLE");
         return Ok(E_INVALIDARG);

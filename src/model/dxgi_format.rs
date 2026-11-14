@@ -130,7 +130,7 @@ pub fn dims(f: u32) -> Option<u32> {
         19..=22 | 40 | 44..=47 | 55 => 0b011,
         1..=65 | 67..=69 | 85..=88 | 90..=93 | 115 | 191 => 0b111,
         70..=84 | 94..=99 => 0b110,
-        100 | 102..=105 | 107..=109 => 0b010,
+        89 | 100..=105 | 107..=109 => 0b010,
         _ => 0,
     })
 }
@@ -146,6 +146,8 @@ pub const DS: u32 = 16;
 pub const MS: u32 = 32;
 /// one mip level only, arrays taken (the video formats)
 pub const SINGLE: u32 = 64;
+/// one mip level only (R10G10B10_XR_BIAS_A2_UNORM, Y410: golden d3d12-* copy-89, copy-101)
+pub const ONE_MIP: u32 = 128;
 
 /// what CreateCommittedResource takes a format for on WARP (MEASURED, golden d3d12-64 create-split
 /// for the video formats at 64x32, and golden d3d12-32
@@ -162,8 +164,9 @@ pub fn support(f: u32) -> u32 {
         19..=22 | 44..=47 => T1 | T2 | DS | MS,
         68 | 69 => T1 | T2 | T3,
         70..=84 | 94..=99 => T2 | T3,
-        89 => RT,
+        89 => T2 | RT | ONE_MIP,
         100 => T2 | RT,
+        101 => T2 | ONE_MIP,
         102 => T2,
         103..=105 => T2 | RT | SINGLE,
         106..=109 => T2 | SINGLE,
