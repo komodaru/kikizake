@@ -137,7 +137,8 @@ GL.PIXELSTORE.LAYOUT doc | glPixelStore | rows of GL_*_ROW_LENGTH pixels (or the
 GL.PIXELSTORE.SWAP doc | glPixelStore (GL_PACK_SWAP_BYTES) | the bytes of each element of 2 or 4 bytes reversed
 GL.PIXELTRANSFER doc | glPixelTransfer | the scale and bias of each component recorded
 GL.PIXELTRANSFER.APPLY doc | glPixelTransfer | components times the scale plus the bias, clamped, on reads and draws (opengl golden draw-unpack-8..15)
-GL.PIXELTRANSFER.OTHER open | glPixelTransfer | index shifts and offsets, depth scale and bias
+GL.PIXELTRANSFER.OTHER open | glPixelTransfer | color index maps, stencil maps
+GL.PIXELTRANSFER.SHIFT measured | glPixelTransfer (GL_INDEX_SHIFT, GL_INDEX_OFFSET, GL_DEPTH_SCALE, GL_DEPTH_BIAS) | indices drawn and read are shifted (left, right when negative) and offset, the fraction truncated with the index; depths drawn and read are scaled, biased and clamped, every read type then converted from the value as colors are (opengl golden transfer-other, transfer-other-ci)
 GL.PIXELTRANSFER.MAP measured | glPixelTransfer (GL_MAP_COLOR) | with GL_MAP_COLOR on, colors drawn and read go through the RGBA maps, which (no call sets them) hold one entry of 0: every component 0 (opengl golden transfer-map-color)
 GL.PIXELS.ENUM measured | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM, nothing written (opengl golden edge-pixels-errors)
 GL.PIXELS.VALUE measured | glReadPixels, glDrawPixels (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE (opengl golden edge-pixels-errors)

@@ -62,6 +62,10 @@ pub mod e {
 
     pub const COLOR_INDEX: u32 = 0x1900;
     pub const MAP_COLOR: u32 = 0xd10;
+    pub const INDEX_SHIFT: u32 = 0xd12;
+    pub const INDEX_OFFSET: u32 = 0xd13;
+    pub const DEPTH_SCALE: u32 = 0xd1e;
+    pub const DEPTH_BIAS: u32 = 0xd1f;
     pub const MAP_STENCIL: u32 = 0xd11;
     pub const STENCIL_INDEX: u32 = 0x1901;
     pub const DEPTH_COMPONENT: u32 = 0x1902;
@@ -406,6 +410,10 @@ pub struct Ctx {
     pub transfer: [(f32, f32); 4],
     /// GL_MAP_COLOR, GL_MAP_STENCIL (glPixelTransfer): the pixel maps the model does not follow
     pub map: [bool; 2],
+    /// GL_INDEX_SHIFT, GL_INDEX_OFFSET
+    pub index_shift: (i64, i64),
+    /// GL_DEPTH_SCALE, GL_DEPTH_BIAS
+    pub depth_transfer: (f32, f32),
     /// glPixelZoom
     pub zoom: (f32, f32),
     pub line_width: f32,
@@ -478,6 +486,8 @@ impl Ctx {
             unpack: [0, 0, 0, 0, 0, 4],
             transfer: [(1.0, 0.0); 4],
             map: [false; 2],
+            index_shift: (0, 0),
+            depth_transfer: (1.0, 0.0),
             zoom: (1.0, 1.0),
             line_width: 1.0,
             point_size: 1.0,
@@ -1398,6 +1408,15 @@ impl Ctx {
                         hit(clause::GL_PIXELTRANSFER);
                         self.map[usize::from(p == MAP_STENCIL)] = fl(a, 1) != 0.0;
                     }
+                    // (MEASURED, golden opengl-32 transfer-other, transfer-other-ci: GL.PIXELTRANSFER.SHIFT)
+                    _ if p == INDEX_SHIFT || p == INDEX_OFFSET => {
+                        hit(clause::GL_PIXELTRANSFER_SHIFT);
+                        if p == INDEX_SHIFT { self.index_shift.0 = int(a, 1) } else { self.index_shift.1 = int(a, 1) }
+                    }
+                    _ if p == DEPTH_SCALE || p == DEPTH_BIAS => {
+                        hit(clause::GL_PIXELTRANSFER_SHIFT);
+                        if p == DEPTH_SCALE { self.depth_transfer.0 = fl(a, 1) as f32 } else { self.depth_transfer.1 = fl(a, 1) as f32 }
+                    }
                     _ => return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER)),
                 }
             }
@@ -2157,6 +2176,8 @@ impl Ctx {
         if mask & attrib::PIXEL_MODE != 0 {
             self.transfer = s.transfer;
             self.map = s.map;
+            self.index_shift = s.index_shift;
+            self.depth_transfer = s.depth_transfer;
             self.zoom = s.zoom;
             self.buffers[1] = s.buffers[1];
         }
@@ -2523,7 +2544,7 @@ pub fn index_bits(v: f64) -> u32 {
 /// times 1/65535, INT as i times the float 1/2147482624, the unsigned bytes and shorts over
 /// 2^n - 1, then the float z 2^31 truncated and shifted left by one; UNSIGNED_INT its bits with
 /// the lowest cleared; GL.DRAW.DEPTHSTENCIL)
-pub fn depth_element(b: &[u8], t: u32) -> (f64, u64) {
+pub fn depth_element(b: &[u8], t: u32, (scale, bias): (f32, f32)) -> (f64, u64) {
     let w = |n: usize| -> [u8; 4] {
         let mut x = [0u8; 4];
         x[..n].copy_from_slice(&b[..n]);
@@ -2535,12 +2556,15 @@ pub fn depth_element(b: &[u8], t: u32) -> (f64, u64) {
         SHORT => (2.0 * f32::from(i16::from_le_bytes([b[0], b[1]])) + 1.0) * (1.0 / 65535.0),
         UNSIGNED_SHORT => f32::from(u16::from_le_bytes([b[0], b[1]])) / 65535.0,
         INT => i32::from_le_bytes(w(4)) as f32 * (1.0 / 2_147_482_624.0),
-        UNSIGNED_INT => {
+        UNSIGNED_INT if (scale, bias) == (1.0, 0.0) => {
             let u = u32::from_le_bytes(w(4));
             return (f64::from(u) / 4_294_967_295.0, u64::from(u & !1));
         }
+        UNSIGNED_INT => (f64::from(u32::from_le_bytes(w(4))) / 4_294_967_295.0) as f32,
         _ => f32::from_le_bytes(w(4)),
     };
+    // (GL_DEPTH_SCALE and GL_DEPTH_BIAS, then clamped: golden opengl-32 transfer-other)
+    let z = z * scale + bias;
     let z = if z.is_nan() { 0.0 } else { z.clamp(0.0, 1.0) };
     // (z 2^31 is at most 2^31: the cast is exact for the floats it takes)
     (f64::from(z), ((z * 2_147_483_648.0) as u64) << 1)
@@ -2643,6 +2667,18 @@ impl Ctx {
         Ok(Some((comps, size)))
     }
 
+    /// an index through GL_INDEX_SHIFT (left, or right when negative) and GL_INDEX_OFFSET
+    /// (MEASURED, golden opengl-32 transfer-other-ci: the fraction a right shift leaves truncated
+    /// with the index)
+    fn shifted(&self, v: f64) -> f64 {
+        let (sh, off) = self.index_shift;
+        if (sh, off) == (0, 0) {
+            return v;
+        }
+        hit(clause::GL_PIXELTRANSFER_SHIFT);
+        v * 2f64.powi(sh.clamp(-64, 64) as i32) + off as f64
+    }
+
     fn transfer(&self, c: [f64; 4]) -> Res<[f64; 4]> {
         if self.map[0] {
             // (MEASURED, golden opengl-32 transfer-map-color: through the initial maps, each
@@ -2716,7 +2752,16 @@ impl Ctx {
                             // UNSIGNED_SHORT, the other types from the value over 0xfffe)
                             let dv = self.depth[p];
                             let d = dv.bits();
+                            let (ds, db) = self.depth_transfer;
                             match (self.pf.depth, t) {
+                                // (MEASURED, golden opengl-32 transfer-other: under a depth scale
+                                // or bias every type from the scaled value converted as colors
+                                // are: GL.PIXELTRANSFER.SHIFT)
+                                (depth, _) if (ds, db) != (1.0, 0.0) => {
+                                    hit(clause::GL_PIXELTRANSFER_SHIFT);
+                                    let z = if depth == 16 { d as f32 / 65534.0 } else { (dv.0 as f64 / 4_294_967_296.0) as f32 };
+                                    from_float((z * ds + db).clamp(0.0, 1.0), t)
+                                }
                                 (32, UNSIGNED_INT) => {
                                     hit(clause::GL_READ_DEPTH);
                                     d.to_le_bytes().to_vec()
@@ -2754,11 +2799,13 @@ impl Ctx {
                             let s = if *which == 7 {
                                 // (MEASURED, golden opengl-32 ci-*: the index as it is)
                                 hit(clause::GL_COLORINDEX);
-                                self.fb[p][0] as u64
+                                self.fb[p][0]
                             } else {
                                 hit(clause::GL_READ_STENCIL);
-                                self.stencil[p] as u64
+                                self.stencil[p]
                             };
+                            // (the index shift and offset, the value's low 32 bits)
+                            let s = u64::from(index_bits(self.shifted(f64::from(s))));
                             // (MEASURED, golden opengl-32 ci-types-*: the signed types keep the
                             // index's low 7, 15 or 31 bits)
                             let s = match t {
@@ -2840,12 +2887,15 @@ impl Ctx {
                     if self.unpack[0] != 0 {
                         e.reverse();
                     }
+                    if f == STENCIL_INDEX && self.map[1] {
+                        return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER));
+                    }
                     if f == STENCIL_INDEX {
                         // (MEASURED, golden opengl-32 draw-depthstencil-1: the element as a float,
                         // so 32-bit integers lose their low bits)
-                        self.draw_stencil(i, j, f64::from(index_value(&e, t)? as f32));
+                        self.draw_stencil(i, j, self.shifted(f64::from(index_value(&e, t)? as f32)));
                     } else {
-                        let (z, zfixed) = depth_element(&e, t);
+                        let (z, zfixed) = depth_element(&e, t, self.depth_transfer);
                         self.fragment(Frag { x: i as i64, y: j as i64, c: [1.0; 4], z, trunc: true, zfixed: Some(zfixed) })?;
                     }
                 }
@@ -2884,7 +2934,10 @@ impl Ctx {
                             // an index in color index mode: the element's integer value as it is
                             // (MEASURED, golden opengl-32 ci-*: unsigned bytes)
                             hit(clause::GL_COLORINDEX);
-                            c[0] = index_value(&e, t)?;
+                            if self.map[0] {
+                                return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER));
+                            }
+                            c[0] = self.shifted(index_value(&e, t)?);
                         }
                         7 => {
                             // an index in RGBA mode through GL_PIXEL_MAP_I_TO_R.. A, whose

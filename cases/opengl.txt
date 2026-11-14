@@ -33009,6 +33009,39 @@ gl glPixelTransferi 0xd13 0
 glread 0 0 16 4 0x1900 0x1401 64
 glerr
 end
+case transfer-maps-ci
+glctx 8 29
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glPixelTransferi 0xd10 1
+gldraw 16 4 0x1900 0x1401 77 64
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd10 0
+glread 0 0 16 4 0x1900 0x1401 64
+glerr
+end
+case transfer-maps-stencil
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClearStencil 0x5a
+gl glClear 0x400
+gl glPixelTransferi 0xd11 1
+gldraw 16 4 0x1901 0x1401 78 64
+glread 0 0 16 4 0x1901 0x1401 64
+gl glPixelTransferi 0xd11 0
+glread 0 0 16 4 0x1901 0x1401 64
+glerr
+gl glPixelTransferi 0xd16 1
+glerr
+gl glPixelTransferf 0xd00 1
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

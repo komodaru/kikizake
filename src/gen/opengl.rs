@@ -1248,4 +1248,12 @@ fn measure(s: &mut String) {
         writeln!(s, "gl glPixelTransferi 0xd12 0\ngl glPixelTransferi 0xd13 0\nglread 0 0 16 4 {} {} 64", h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
     }
     writeln!(s, "glerr\nend").unwrap();
+    // the maps on indices and stencil values (GL_MAP_COLOR in color index mode, GL_MAP_STENCIL),
+    // and a name glPixelTransfer does not take
+    write!(s, "case transfer-maps-ci\nglctx 8 29\n{ORTHO}").unwrap();
+    writeln!(s, "gl glClear 0x4000\ngl glPixelTransferi 0xd10 1\ngldraw 16 4 {} {} 77 64\nglread 0 0 16 4 {} {} 64\ngl glPixelTransferi 0xd10 0\nglread 0 0 16 4 {} {} 64", h(COLOR_INDEX), h(UNSIGNED_BYTE), h(COLOR_INDEX), h(UNSIGNED_BYTE), h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case transfer-maps-stencil\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}").unwrap();
+    writeln!(s, "gl glClearStencil 0x5a\ngl glClear 0x400\ngl glPixelTransferi 0xd11 1\ngldraw 16 4 {} {} 78 64\nglread 0 0 16 4 {} {} 64\ngl glPixelTransferi 0xd11 0\nglread 0 0 16 4 {} {} 64", h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    writeln!(s, "glerr\ngl glPixelTransferi 0xd16 1\nglerr\ngl glPixelTransferf 0xd00 1\nglerr\nend").unwrap();
 }
