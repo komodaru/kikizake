@@ -1,4 +1,4 @@
-//! Any bytes as shirusu's JSONL, as a calls file and as spec/calls.txt: reading never panics, a
+//! Any bytes as shirusu's JSONL, as a calls file, as spec/calls.txt and spec/arch.txt: reading never panics, a
 //! recording read from JSONL writes a calls file that reads back to the same text, and checking
 //! it against any cases never panics.
 #![no_main]
@@ -17,7 +17,8 @@ fuzz_target!(|data: &[u8]| {
         assert_eq!(calls::format(&back), f);
         let rules = calls::rules(&text).unwrap_or_default();
         let _ = calls::check_ops(&case::parse_cases(&text), &back, &rules);
-        let _ = calls::differ(&back, &r);
+        let arch = calls::arch_rules(&text).unwrap_or_default();
+        let _ = calls::differ(&back, &r, &arch);
     }
     let _ = calls::parse(&text);
 });

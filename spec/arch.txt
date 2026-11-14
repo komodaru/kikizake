@@ -1,0 +1,9 @@
+# Values a call takes differently on x86 and x86-64 by Windows' own types: <API> <argument
+# (from 1) | ret> <x86>=<x86-64>... `kikizake calls check` allows exactly these pairs there.
+#
+# GetObject's buffer size and its answer are sizeof the object's struct, whose pointer member
+# grows: DIBSECTION 84 / 104 (BITMAP's bmBits and dshSection), BITMAP 24 / 32 (bmBits).
+GetObjectA 2   84=104 24=32
+GetObjectA ret 84=104 24=32
+GetObjectW 2   84=104 24=32
+GetObjectW ret 84=104 24=32

@@ -54,6 +54,7 @@ fn field(name: &str, v: &Val) -> String {
     let (ty, kind, value) = match v {
         Val::Handle(Handle(h)) => ("U64", ",\"kind\":\"handle\"", format!("\"{h:#x}\"")),
         Val::Null => ("U64", "", "\"0x0\"".into()),
+        Val::Ptr => ("U64", ",\"kind\":\"pointer\"", "\"0x5ffe10\"".into()),
         Val::Dec(x) => ("I32", "", x.to_string()),
         Val::Hex(x) => ("U32", "", x.to_string()),
         Val::Bool(b) => ("Bool", "", b.to_string()),
@@ -65,6 +66,12 @@ fn field(name: &str, v: &Val) -> String {
 /// shirusu's JSONL for an executor that made `cases` (name, calls, output chunks: the calls of
 /// chunk i come before its WriteFile), the events listed in `perm` order with their global order
 fn jsonl(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize]) -> (String, String) {
+    jsonl_cut(cases, perm, None)
+}
+
+/// as `jsonl`, shirusu keeping only the first `keep.1` bytes of write `keep.0`
+fn jsonl_cut(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize], keep: Option<(usize, usize)>) -> (String, String) {
+    let mut writes = 0;
     let mut ev = Vec::new();
     let mut id = 0;
     let mut stdout = String::new();
@@ -93,7 +100,13 @@ fn jsonl(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize]) -> (St
             }
             text += out;
             stdout += &text;
-            emit(&mut ev, "WriteFile", format!("\"hFile\":{{\"ty\":\"U64\",\"capture\":\"captured\",\"value\":\"0x8\"}},\"data\":{{\"ty\":\"Bytes\",\"capture\":\"captured\",\"value\":\"{}\"}}", hex(text.as_bytes())), String::new());
+            let b = text.as_bytes();
+            let (kept, capture) = match keep {
+                Some((w, n)) if w == writes && n < b.len() => (&b[..n], "truncated"),
+                Some(_) | None => (b, "captured"),
+            };
+            writes += 1;
+            emit(&mut ev, "WriteFile", format!("\"hFile\":{{\"ty\":\"U64\",\"capture\":\"captured\",\"value\":\"0x8\"}},\"data\":{{\"ty\":\"Bytes\",\"capture\":\"{capture}\",\"value\":\"{}\"}},\"nNumberOfBytesToWrite\":{{\"ty\":\"U32\",\"capture\":\"captured\",\"value\":{}}}", hex(kept), b.len()), String::new());
         }
     }
     stdout += "done\n";
@@ -121,6 +134,7 @@ fn value() -> impl Strategy<Value = Val> {
         any::<i32>().prop_map(|n| Val::Dec(n.into())),
         (0x10000u32..).prop_map(Val::Hex),
         any::<bool>().prop_map(Val::Bool),
+        Just(Val::Ptr),
     ]
 }
 
@@ -208,6 +222,30 @@ proptest! {
         }
         prop_assert_eq!(&back.header, &header);
         prop_assert_eq!(calls::format(&back), calls::format(&r));
+    }
+
+    /// shirusu keeps the start of a long write: the rest comes from the plain run, so the cases
+    /// are cut as before and the next case's line stays a line; only the cut case is unchecked
+    #[test]
+    fn a_truncated_write_cuts_the_same_cases(cs in cases(), w in 0usize..16, n in 0usize..24) {
+        let (text, stdout) = jsonl_cut(&cs, &[], Some((w, n)));
+        let (whole, _) = jsonl(&cs, &[]);
+        let got = calls::from_jsonl(&text, Some(&stdout)).unwrap();
+        let want = calls::from_jsonl(&whole, Some(&stdout)).unwrap();
+        prop_assert_eq!(got.cases.len(), want.cases.len());
+        let mut cut = 0;
+        for (g, x) in got.cases.iter().zip(&want.cases) {
+            prop_assert_eq!(&g.name, &x.name);
+            prop_assert_eq!(&g.calls, &x.calls);
+            match g.out {
+                calls::Stdout::Truncated => cut += 1,
+                calls::Stdout::Same => {}
+                calls::Stdout::Differ | calls::Stdout::Unknown => prop_assert!(false, "{} is {:?}", g.name, g.out),
+            }
+        }
+        let truncated = text.contains("\"capture\":\"truncated\"");
+        prop_assert_eq!(cut, usize::from(truncated));
+        prop_assert_eq!(got.header.stdout, if truncated { calls::Stdout::Truncated } else { calls::Stdout::Same });
     }
 
     #[test]
@@ -313,13 +351,31 @@ proptest! {
     }
 }
 
+proptest! {
+    /// x86 and x86-64 calls must be the same but for what spec/arch.txt allows: exactly its pairs,
+    /// at exactly its place, of exactly its API
+    #[test]
+    fn x86_and_x86_64_differences_are_found(x in 0i64..200, y in 0i64..200, at_ret in any::<bool>(), other_api in any::<bool>()) {
+        let arch = calls::arch_rules("GetObjectA 2 84=104 24=32\nGetObjectA ret 84=104\n").unwrap();
+        let api = if other_api { "GetObjectW" } else { "GetObjectA" };
+        let c = |size: i64, ret: i64| calls::Case { name: "a".into(), bad: vec![], out: calls::Stdout::Unknown, calls: vec![Call { api: Api(api.into()), args: vec![Val::Handle(Handle(1)), Val::Dec(size), Val::Ptr], ret: Ret::Value(Val::Dec(ret)), err: None }] };
+        let (a, b) = if at_ret { (c(84, x), c(104, y)) } else { (c(x, 24), c(y, 24)) };
+        let a = calls::Recording { header: header(), cases: vec![a] };
+        let b = calls::Recording { header: header(), cases: vec![b] };
+        prop_assert!(calls::differ(&a, &a, &arch).is_empty());
+        let rule = !other_api;
+        let same = if at_ret { rule && (x == y || (x, y) == (84, 104)) } else { x == y || rule && [(84, 104), (24, 32)].contains(&(x, y)) };
+        prop_assert_eq!(calls::differ(&a, &b, &arch).is_empty(), same);
+    }
+}
+
 #[test]
-fn x86_and_x86_64_differences_are_found() {
-    let c = |r: i64| calls::Case { name: "a".into(), bad: vec![], out: calls::Stdout::Unknown, calls: vec![Call { api: Api("BitBlt".into()), args: vec![Val::Handle(Handle(1)), Val::Dec(3)], ret: Ret::Value(Val::Dec(r)), err: None }] };
-    let a = calls::Recording { header: header(), cases: vec![c(1)] };
-    let b = calls::Recording { header: header(), cases: vec![c(0)] };
-    assert!(calls::differ(&a, &a).is_empty());
-    assert_eq!(calls::differ(&a, &b).len(), 1);
+fn spec_arch_txt_reads() {
+    let t = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/spec/arch.txt")).unwrap();
+    assert!(!calls::arch_rules(&t).unwrap().is_empty());
+    for bad in ["GetObjectA", "GetObjectA 0 1=2", "GetObjectA ret", "GetObjectA ret 1-2", "GetObjectA x 1=2"] {
+        assert!(calls::arch_rules(bad).is_err(), "{bad}");
+    }
 }
 
 proptest! {

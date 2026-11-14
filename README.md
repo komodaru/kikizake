@@ -45,7 +45,9 @@ call they make through their import tables with its arguments, result and last e
 recording, cut into cases by the executor's own output, is kept as `calls/<suite>-<arch>.txt`
 (format in `src/calls.rs`). `cargo test` (tests/calls.rs) checks that every case line
 `spec/calls.txt` names made the call SPEC.md says with the case's arguments, that x86 and x86-64
-made the same calls, and that recording did not change the output. That checks kikizake's
+made the same calls (but for the struct sizes `spec/arch.txt` lists), and that recording did not
+change the output (but for the cases `spec/unstable.txt` shows Windows answering differently from
+run to run). That checks kikizake's
 executor (an answer is only as good as the call it answers) and shirusu (argument decoding, the
 32/64-bit ABI relay, transparency) against each other.
 

@@ -77,8 +77,8 @@ enum Ty {
     I64,
     U32,
     U64,
-    F32Bits,
-    F64Bits,
+    F32,
+    F64,
     Bool,
     Str,
     Str16,
@@ -89,15 +89,15 @@ enum Ty {
 }
 
 impl Ty {
-    const ALL: [Ty; 13] = [Ty::I32, Ty::I64, Ty::U32, Ty::U64, Ty::F32Bits, Ty::F64Bits, Ty::Bool, Ty::Str, Ty::Str16, Ty::Bytes, Ty::BlobRef, Ty::Ptr32, Ty::Ptr64];
+    const ALL: [Ty; 13] = [Ty::I32, Ty::I64, Ty::U32, Ty::U64, Ty::F32, Ty::F64, Ty::Bool, Ty::Str, Ty::Str16, Ty::Bytes, Ty::BlobRef, Ty::Ptr32, Ty::Ptr64];
     fn name(self) -> &'static str {
         match self {
             Ty::I32 => "I32",
             Ty::I64 => "I64",
             Ty::U32 => "U32",
             Ty::U64 => "U64",
-            Ty::F32Bits => "F32Bits",
-            Ty::F64Bits => "F64Bits",
+            Ty::F32 => "F32",
+            Ty::F64 => "F64",
             Ty::Bool => "Bool",
             Ty::Str => "Str",
             Ty::Str16 => "Str16",
@@ -164,6 +164,9 @@ pub enum Val {
     Handle(Handle),
     /// a handle or pointer that is 0
     Null,
+    /// a pointer that is not 0 (where the executor's memory is: the stack, the heap; differs
+    /// between runs and architectures, so its identity is not kept)
+    Ptr,
     Dec(i64),
     /// an unsigned 32-bit value of 0x10000 or more (a ROP, a color)
     Hex(u32),
@@ -184,7 +187,7 @@ impl Val {
             // (the ABI passes the low 32 bits: -1 and 0xffffffff are the same argument)
             Val::Dec(v) => Some(low32(*v)),
             Val::Hex(v) => Some(*v),
-            Val::Null | Val::Handle(_) | Val::Bool(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) | Val::Missing(_) => None,
+            Val::Null | Val::Handle(_) | Val::Ptr | Val::Bool(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) | Val::Missing(_) => None,
         }
     }
     fn from_u64(x: u64) -> Val {
@@ -349,14 +352,19 @@ fn val(f: &Json) -> Result<Val, String> {
     let v = f.get("value").ok_or("a captured field without value")?;
     let bad = || format!("{tyname} value {v:?}");
     let opaque = |s: &str| hexnum(s).map(|x| if x == 0 { Val::Null } else { Val::Handle(Handle(x)) }).ok_or_else(bad);
+    let pointer = |s: &str| hexnum(s).map(|x| if x == 0 { Val::Null } else { Val::Ptr }).ok_or_else(bad);
     match ty {
-        Ty::Ptr32 | Ty::Ptr64 => opaque(v.str().ok_or_else(bad)?),
+        Ty::Ptr32 | Ty::Ptr64 => match kind {
+            Kind::Pointer => pointer(v.str().ok_or_else(bad)?),
+            Kind::Unspecified | Kind::Scalar | Kind::Handle | Kind::CreatedObject => opaque(v.str().ok_or_else(bad)?),
+        },
         Ty::U64 => {
             let s = v.str().ok_or_else(bad)?;
             match kind {
                 // (no kind: shirusu before 8525a38; a U64 is then a handle or pointer far more often
                 // than a count in these APIs)
-                Kind::Unspecified | Kind::Pointer | Kind::Handle | Kind::CreatedObject => opaque(s),
+                Kind::Unspecified | Kind::Handle | Kind::CreatedObject => opaque(s),
+                Kind::Pointer => pointer(s),
                 Kind::Scalar => hexnum(s).map(Val::from_u64).ok_or_else(bad),
             }
         }
@@ -376,7 +384,7 @@ fn val(f: &Json) -> Result<Val, String> {
             Json::Null | Json::Bool(_) | Json::Num(_) | Json::Arr(_) => Err(bad()),
         },
         Ty::Bytes => v.str().map(|s| Val::Bytes(s.len() / 2)).ok_or_else(bad),
-        Ty::F32Bits | Ty::F64Bits | Ty::BlobRef => v.str().map(|s| Val::Text(s.to_string())).ok_or_else(bad),
+        Ty::F32 | Ty::F64 | Ty::BlobRef => v.str().map(|s| Val::Text(s.to_string())).ok_or_else(bad),
     }
 }
 
@@ -446,8 +454,17 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
         match (phase, own(&api)) {
             (Phase::Enter, Some(Own::Write)) => {
                 let d = fields.iter().find(|(n, _)| n == "data").map(|(_, f)| f).ok_or_else(|| at("WriteFile without data".into()))?;
-                let bytes = d.get("value").and_then(Json::str).map(unhex).unwrap_or_default();
+                let kept_bytes = d.get("value").and_then(Json::str).map(unhex).unwrap_or_default();
                 let cut = capture_of(d).map_err(at)? != Capture::Captured;
+                // (shirusu keeps the start of a long write: the rest is what the plain run printed
+                // there when it starts the same, so that the next write's case line stays a line;
+                // the case is then Truncated, its tail not checked)
+                let n = fields.iter().find(|(n, _)| n == "nNumberOfBytesToWrite").and_then(|(_, f)| f.get("value")).and_then(Json::u64).and_then(|n| usize::try_from(n).ok());
+                let rest = n.and_then(|n| written.len().checked_add(n)).and_then(|end| stdout?.as_bytes().get(written.len()..end));
+                let bytes = match rest {
+                    Some(full) if cut && full.starts_with(&kept_bytes) => full.to_vec(),
+                    Some(_) | None => kept_bytes,
+                };
                 written.extend_from_slice(&bytes);
                 let text = String::from_utf8_lossy(&bytes);
                 if let Some(n) = text.lines().find_map(|l| l.trim_end_matches('\r').strip_prefix("case ")) {
@@ -512,13 +529,11 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
                 };
             }
         }
-        stdout_all = if out.as_bytes() == written.as_slice() {
-            Stdout::Same
-        } else if cases.iter().any(|c| c.out == Stdout::Differ) {
+        stdout_all = if cases.iter().any(|c| c.out == Stdout::Differ) || out.as_bytes() != written.as_slice() {
+            // (or the same cases and something else around them: the header or "done")
             Stdout::Differ
         } else if truncated.is_empty() {
-            // (the same cases, something else around them: the header or "done")
-            Stdout::Differ
+            Stdout::Same
         } else {
             Stdout::Truncated
         };
@@ -540,6 +555,7 @@ impl Ids {
                 format!("h{}", self.0.entry(*h).or_insert(n))
             }
             Val::Null => "h0".into(),
+            Val::Ptr => "p".into(),
             Val::Dec(x) => x.to_string(),
             Val::Hex(x) => format!("{x:#x}"),
             Val::Bool(b) => b.to_string(),
@@ -619,6 +635,7 @@ fn read_val(t: &str) -> Val {
         return Val::Bytes(n);
     }
     match t {
+        "p" => return Val::Ptr,
         "true" => return Val::Bool(true),
         "false" => return Val::Bool(false),
         _ => {}
@@ -740,6 +757,76 @@ pub fn rules(text: &str) -> Result<Vec<Rule>, String> {
     Ok(v)
 }
 
+/// Where in a call spec/arch.txt allows a value to differ between the architectures.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Pos {
+    /// the argument at this place, from 1
+    Arg(usize),
+    Ret,
+}
+
+/// spec/arch.txt: a value that differs between x86 and x86-64 by Windows' own types (a struct's
+/// size), with every pair (x86 value, x86-64 value) it may take.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ArchRule {
+    pub api: Api,
+    pub at: Pos,
+    pub pairs: Vec<(i64, i64)>,
+}
+
+pub fn arch_rules(text: &str) -> Result<Vec<ArchRule>, String> {
+    let mut v = Vec::new();
+    for (i, l) in text.lines().enumerate() {
+        let t = crate::case::tokens(l);
+        let bad = |what: &str| format!("spec/arch.txt:{}: {what}", i + 1);
+        let [api, at, pairs @ ..] = t.as_slice() else {
+            if t.is_empty() {
+                continue;
+            }
+            return Err(bad("want <API> <argument|ret> <x86>=<x86-64>..."));
+        };
+        let at = match at.as_str() {
+            "ret" => Pos::Ret,
+            n => Pos::Arg(n.parse().ok().filter(|n| *n >= 1).ok_or_else(|| bad("bad place"))?),
+        };
+        let pairs = pairs
+            .iter()
+            .map(|p| {
+                let (a, b) = p.split_once('=').ok_or_else(|| bad("bad pair"))?;
+                Ok((a.parse().map_err(|_| bad("bad pair"))?, b.parse().map_err(|_| bad("bad pair"))?))
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        if pairs.is_empty() {
+            return Err(bad("no pairs"));
+        }
+        v.push(ArchRule { api: Api(api.clone()), at, pairs });
+    }
+    Ok(v)
+}
+
+/// the same call on x86 (`a`) and x86-64 (`b`), with the values spec/arch.txt allows to differ
+fn same_call(a: &Call, b: &Call, arch: &[ArchRule]) -> bool {
+    if a.api != b.api || a.args.len() != b.args.len() || a.err != b.err {
+        return false;
+    }
+    let allowed = |at: Pos, x: &Val, y: &Val| {
+        arch.iter().any(|r| {
+            r.api == a.api
+                && r.at == at
+                && match (x, y) {
+                    (Val::Dec(x), Val::Dec(y)) => r.pairs.contains(&(*x, *y)),
+                    (_, _) => false,
+                }
+        })
+    };
+    let args = a.args.iter().zip(&b.args).enumerate().all(|(i, (x, y))| x == y || allowed(Pos::Arg(i + 1), x, y));
+    let ret = match (&a.ret, &b.ret) {
+        (Ret::Value(x), Ret::Value(y)) => x == y || allowed(Pos::Ret, x, y),
+        (x, y) => x == y,
+    };
+    args && ret
+}
+
 /// #RRGGBB (0x00RRGGBB) as the COLORREF the executor passes (0x00BBGGRR)
 pub fn colorref(rgb: u32) -> u32 {
     (rgb & 0xff) << 16 | (rgb & 0xff00) | (rgb >> 16 & 0xff)
@@ -791,7 +878,7 @@ pub fn check_ops(cases: &[crate::case::Case], rec: &Recording, rules: &[Rule]) -
                         Arg::Color(t) => crate::case::color(tok(*t)).is_some_and(|c| v.int32() == Some(colorref(c)) || (c == 0 && *v == Val::Null)),
                         Arg::Slot(t) => match v {
                             Val::Handle(h) => *slot.entry(tok(*t)).or_insert(*h) == *h,
-                            Val::Null | Val::Dec(_) | Val::Hex(_) | Val::Bool(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) | Val::Missing(_) => false,
+                            Val::Null | Val::Ptr | Val::Dec(_) | Val::Hex(_) | Val::Bool(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) | Val::Missing(_) => false,
                         },
                     };
                     if !ok {
@@ -810,13 +897,17 @@ pub fn check_ops(cases: &[crate::case::Case], rec: &Recording, rules: &[Rule]) -
 
 /// The cases whose calls (API, arguments, return) differ between two recordings of the same cases
 /// (x86 and x86-64), with the first differing call of each.
-pub fn differ(a: &Recording, b: &Recording) -> Vec<String> {
+pub fn differ(a: &Recording, b: &Recording, arch: &[ArchRule]) -> Vec<String> {
     let by: HashMap<&str, &Case> = b.cases.iter().map(|c| (c.name.as_str(), c)).collect();
     let mut v = Vec::new();
     for c in &a.cases {
         let Some(d) = by.get(c.name.as_str()) else { continue };
         let n = c.calls.len().max(d.calls.len());
-        if let Some(i) = (0..n).find(|&i| c.calls.get(i) != d.calls.get(i)) {
+        let same = |i: usize| match (c.calls.get(i), d.calls.get(i)) {
+            (Some(x), Some(y)) => same_call(x, y, arch),
+            (x, y) => x == y,
+        };
+        if let Some(i) = (0..n).find(|&i| !same(i)) {
             let s = |x: Option<&Call>| x.map_or("-".to_string(), |k| format!("{}({:?}) = {:?}{}", k.api.0, k.args, k.ret, k.err.map_or(String::new(), |e| format!(" ! {}", e.0))));
             v.push(format!("{}: call {}: {} / {}", c.name, i + 1, s(c.calls.get(i)), s(d.calls.get(i))));
         }
@@ -871,6 +962,13 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
             return ch;
         }
     };
+    let arch = match std::fs::read_to_string(root.join("spec/arch.txt")).map_err(|e| e.to_string()).and_then(|t| arch_rules(&t)) {
+        Ok(r) => r,
+        Err(e) => {
+            ch.arch.push(format!("spec/arch.txt: {e}"));
+            return ch;
+        }
+    };
     // (cases whose answer Windows itself gives differently from run to run)
     let unstable: Vec<String> = std::fs::read_to_string(root.join("spec/unstable.txt"))
         .map(|t| t.lines().filter_map(|l| crate::case::tokens(l).first().cloned()).collect())
@@ -917,7 +1015,7 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
     for (n, a) in &current {
         if let Some(s) = n.strip_suffix("-32") {
             if let Some(b) = current.get(&format!("{s}-64")) {
-                ch.arch.extend(differ(a, b).into_iter().map(|d| format!("{s} {d}")));
+                ch.arch.extend(differ(a, b, &arch).into_iter().map(|d| format!("{s} {d}")));
             }
         }
     }
@@ -986,7 +1084,7 @@ pub fn usage(app_jsonl: &str, recordings: &[Recording]) -> Result<Vec<String>, S
             let v = val(f).map_err(|m| format!("line {}: {m}", i + 1))?;
             // (handles and pointers say nothing about coverage)
             match v {
-                Val::Handle(_) | Val::Null | Val::Missing(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) => continue,
+                Val::Handle(_) | Val::Null | Val::Ptr | Val::Missing(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) => continue,
                 Val::Dec(_) | Val::Hex(_) | Val::Bool(_) => {}
             }
             let s = Ids::default().show(&v);

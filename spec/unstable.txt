@@ -9,3 +9,4 @@
 convert-8-from-16    golden 9273ee.., runs 9200ee.. and 9256ee.. (x86-64); golden 9200ee.., under shirusu other (x86)
 convert-8-from-24    golden ..c34351, run ..c30051 (x86-64)
 convert-8-from-32    under shirusu 00 -> 06 twice (x86-64)
+convert-8-from-16565 golden 370ba7050000c9, run 370ba705c000c9, under shirusu 370ba705ae00c9 (x86, row 0 x 4)
