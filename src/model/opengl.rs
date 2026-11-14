@@ -1608,12 +1608,54 @@ impl Ctx {
                     let w = self.window(v)?;
                     // (MEASURED, golden opengl-32 points-*: a coordinate on a pixel boundary belongs
                     // to the pixel right of it in x and below it in y: the rows counted from the top)
-                    // (a coordinate on a pixel boundary: GL.POINT.EDGE)
-                    if w[0].fract() == 0.0 || w[1].fract() == 0.0 {
-                        return Err(Fail::Unmodeled(open::GL_POINT_EDGE));
+                    // (MEASURED, golden opengl-32 point-edge-*: a coordinate on a pixel boundary
+                    // goes to the pixel toward the tie pivot, the pivot's own column to the right
+                    // and its own row below: GL.POINT.TIE)
+                    let (px, py) = self.tie_pivot();
+                    let x = if w[0].fract() == 0.0 {
+                        hit(clause::GL_POINT_TIE);
+                        if w[0] <= px { w[0] } else { w[0] - 1.0 }
+                    } else {
+                        w[0].floor()
+                    };
+                    let y = if w[1].fract() == 0.0 {
+                        hit(clause::GL_POINT_TIE);
+                        if w[1] < py { w[1] } else { w[1] - 1.0 }
+                    } else {
+                        w[1].floor()
+                    };
+                    let _ = (x, y);
+                    // (MEASURED, golden opengl-32 prim-*: a wide point whose position is outside
+                    // the viewport is clipped whole, one on its border kept: GL.RASTER.CLIP.XY)
+                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                    if w[0] < vx || w[0] > vx + vw || w[1] < vy || w[1] > vy + vh {
+                        hit(clause::GL_RASTER_CLIP_XY);
+                        continue;
                     }
-                    let (x, y) = (w[0].floor() as i64, w[1].floor() as i64);
-                    self.fragment(Frag { x, y, c, z: w[2], trunc: false })?;
+                    // (MEASURED, golden opengl-32 prim-*: a point of width n, its size rounded and
+                    // held to the size range, covers n x n pixels: for odd n centered on the pixel
+                    // the position is in, for even n with its corner at the pixel boundary nearest
+                    // the position, ties toward the pivot as for 1-pixel points: GL.POINT.WIDE)
+                    let n = f64::from(self.point_size.clamp(1.0, 10.0)).round();
+                    if n > 1.0 {
+                        hit(clause::GL_POINT_WIDE);
+                    }
+                    let half = (n / 2.0).floor();
+                    let (x0, y0) = if n % 2.0 == 1.0 {
+                        (x - half, y - half)
+                    } else {
+                        // (the boundary nearest the position; one halfway between two, toward the pivot)
+                        let near = |v: f64, p: f64| if (v + 0.5).fract() != 0.0 { (v + 0.5).floor() } else if v < p { v + 0.5 } else { v - 0.5 };
+                        (near(w[0], px) - half, near(w[1], py) - half)
+                    };
+                    for j in 0..n as i64 {
+                        for i in 0..n as i64 {
+                            let (x, y) = (x0 as i64 + i, y0 as i64 + j);
+                            if (0..W as i64).contains(&x) && (0..H as i64).contains(&y) {
+                                self.fragment(Frag { x, y, c, z: w[2], trunc: false })?;
+                            }
+                        }
+                    }
                 }
             }
             QUADS => {

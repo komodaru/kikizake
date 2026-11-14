@@ -127,7 +127,8 @@ GL.RASTER.PERSPECTIVE open | (none) | a clip w other than 1
 GL.RASTER.CLIP.XY measured | (none) | a rectangle past the view volume's sides drawn as its part inside the viewport (opengl golden tie-vp-*: viewports at (4, 4) and (-4, -4))
 GL.RASTER.CLIP open | (none) | a vertex outside the near and far planes
 GL.POINT measured | glPointSize | a 1-pixel point fills the pixel the window position lies in (opengl golden points-*)
-GL.POINT.EDGE open | (none) | a point on a pixel boundary
+GL.POINT.TIE measured | glBegin (GL_POINTS) | a point's coordinate on a pixel boundary goes to the pixel on the side of the tie pivot (normalized device coordinates (0.5, -0.5)), a column through the pivot to the pixel right of it and a row through it to the pixel below (opengl golden point-edge-*: 64 points)
+GL.POINT.WIDE measured | glPointSize | a point of width n (the size rounded, held to 1..10) covers n x n pixels: odd n centered on the pixel the position is in, even n with its corner on the pixel boundary nearest the position, ties as GL.POINT.TIE (opengl golden prim-*)
 GL.PIXELSTORE doc | glPixelStore | the pack / unpack parameter recorded, booleans as 0 / 1
 GL.PIXELSTORE.ENUM doc | glPixelStore (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM
 GL.PIXELSTORE.VALUE doc | glPixelStore (GL_INVALID_VALUE) | an alignment other than 1, 2, 4, 8 or a negative length or skip: GL_INVALID_VALUE
