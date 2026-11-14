@@ -5111,7 +5111,7 @@ tex hr 80070057
 case tex2-f71-usage-u0
 device11 ok
 tex = 8 8 1 1 47 1 0 0 8 0 0
-tex hr 80070057
+tex = 8 8 1 1 47 1 0 1 8 0 0
 tex hr 80070057
 tex hr 80070057
 tex hr 80070057
@@ -30158,4 +30158,1396 @@ srv = 1c 4 0 1
 clear noview
 cleards noview
 clear noview
+case big-0
+device11 ok
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+case big-1
+device11 ok
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 00000001
+tex hr 00000001
+tex hr 00000001
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+case view-b-bufex
+device11 ok
+buf = 100 0 a8 0 0 0
+srv = 1c b 0 8 0
+srv hr 80070057
+srv = 1c b 0 8 6
+srv = 1c 1 0 8
+rtv = 1c 1 0 8
+srv = 1c b 2 3e 0
+srv hr 80070057
+srv = 1c b 2 3e 6
+srv = 1c 1 2 3e
+rtv = 1c 1 2 3e
+srv = 1c b 0 40 0
+srv hr 80070057
+srv = 1c b 0 40 6
+srv = 1c 1 0 40
+rtv = 1c 1 0 40
+srv = 1c b 2 8 0
+srv hr 80070057
+srv = 1c b 2 8 6
+srv = 1c 1 2 8
+rtv = 1c 1 2 8
+srv = 1c b 0 3f 0
+srv hr 80070057
+srv = 1c b 0 3f 6
+srv = 1c 1 0 3f
+rtv = 1c 1 0 3f
+srv = 1c b 3f 1 0
+srv hr 80070057
+srv = 1c b 3f 1 6
+srv = 1c 1 3f 1
+rtv = 1c 1 3f 1
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv = 2a b 0 8 0
+srv hr 80070057
+srv = 2a b 0 8 6
+srv = 2a 1 0 8
+rtv = 2a 1 0 8
+srv = 2a b 2 3e 0
+srv hr 80070057
+srv = 2a b 2 3e 6
+srv = 2a 1 2 3e
+rtv = 2a 1 2 3e
+srv = 2a b 0 40 0
+srv hr 80070057
+srv = 2a b 0 40 6
+srv = 2a 1 0 40
+rtv = 2a 1 0 40
+srv = 2a b 2 8 0
+srv hr 80070057
+srv = 2a b 2 8 6
+srv = 2a 1 2 8
+rtv = 2a 1 2 8
+srv = 2a b 0 3f 0
+srv hr 80070057
+srv = 2a b 0 3f 6
+srv = 2a 1 0 3f
+rtv = 2a 1 0 3f
+srv = 2a b 3f 1 0
+srv hr 80070057
+srv = 2a b 3f 1 6
+srv = 2a 1 3f 1
+rtv = 2a 1 3f 1
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv = 29 b 0 8 0
+srv hr 80070057
+srv = 29 b 0 8 6
+srv = 29 1 0 8
+rtv = 29 1 0 8
+srv = 29 b 2 3e 0
+srv hr 80070057
+srv = 29 b 2 3e 6
+srv = 29 1 2 3e
+rtv = 29 1 2 3e
+srv = 29 b 0 40 0
+srv hr 80070057
+srv = 29 b 0 40 6
+srv = 29 1 0 40
+rtv = 29 1 0 40
+srv = 29 b 2 8 0
+srv hr 80070057
+srv = 29 b 2 8 6
+srv = 29 1 2 8
+rtv = 29 1 2 8
+srv = 29 b 0 3f 0
+srv hr 80070057
+srv = 29 b 0 3f 6
+srv = 29 1 0 3f
+rtv = 29 1 0 3f
+srv = 29 b 3f 1 0
+srv hr 80070057
+srv = 29 b 3f 1 6
+srv = 29 1 3f 1
+rtv = 29 1 3f 1
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+srv hr 80070057
+rtv hr 80070057
+case clear-srgb-curve
+device11 ok
+tex = 1 1 1 1 1d 1 0 0 20 0 0
+rtv = 1d 4 0
+read 1 1
+01010100
+read 1 1
+01010100
+read 1 1
+02020200
+read 1 1
+02020200
+read 1 1
+02020200
+read 1 1
+02020200
+read 1 1
+03030300
+read 1 1
+03030300
+read 1 1
+05050500
+read 1 1
+05050500
+read 1 1
+06060600
+read 1 1
+06060600
+read 1 1
+06060600
+read 1 1
+06060600
+read 1 1
+07070700
+read 1 1
+07070700
+read 1 1
+09090900
+read 1 1
+09090900
+read 1 1
+0a0a0a00
+read 1 1
+0a0a0a00
+read 1 1
+0a0a0a00
+read 1 1
+0a0a0a00
+read 1 1
+0b0b0b00
+read 1 1
+0b0b0b00
+read 1 1
+0d0d0d00
+read 1 1
+0d0d0d00
+read 1 1
+0d0d0d00
+read 1 1
+0d0d0d00
+read 1 1
+0f0f0f00
+read 1 1
+0f0f0f00
+read 1 1
+0f0f0f00
+read 1 1
+0f0f0f00
+read 1 1
+10101000
+read 1 1
+10101000
+read 1 1
+12121200
+read 1 1
+12121200
+read 1 1
+13131300
+read 1 1
+13131300
+read 1 1
+14141400
+read 1 1
+14141400
+read 1 1
+15151500
+read 1 1
+15151500
+read 1 1
+16161600
+read 1 1
+16161600
+read 1 1
+17171700
+read 1 1
+17171700
+read 1 1
+17171700
+read 1 1
+17171700
+read 1 1
+19191900
+read 1 1
+19191900
+read 1 1
+19191900
+read 1 1
+19191900
+read 1 1
+1b1b1b00
+read 1 1
+1b1b1b00
+read 1 1
+1b1b1b00
+read 1 1
+1b1b1b00
+read 1 1
+1d1d1d00
+read 1 1
+1d1d1d00
+read 1 1
+1e1e1e00
+read 1 1
+1e1e1e00
+read 1 1
+1f1f1f00
+read 1 1
+1f1f1f00
+read 1 1
+20202000
+read 1 1
+20202000
+read 1 1
+21212100
+read 1 1
+21212100
+read 1 1
+22222200
+read 1 1
+22222200
+read 1 1
+22222200
+read 1 1
+22222200
+read 1 1
+23242400
+read 1 1
+24242400
+read 1 1
+25252500
+read 1 1
+25252500
+read 1 1
+26262600
+read 1 1
+26262600
+read 1 1
+26262600
+read 1 1
+26262600
+read 1 1
+28282800
+read 1 1
+28282800
+read 1 1
+29292900
+read 1 1
+29292900
+read 1 1
+2a2a2a00
+read 1 1
+2a2a2a00
+read 1 1
+2b2b2b00
+read 1 1
+2b2b2b00
+read 1 1
+2b2b2b00
+read 1 1
+2b2b2b00
+read 1 1
+2c2c2c00
+read 1 1
+2c2c2c00
+read 1 1
+2e2e2e00
+read 1 1
+2e2e2e00
+read 1 1
+2e2e2e00
+read 1 1
+2e2e2e00
+read 1 1
+30303000
+read 1 1
+30303000
+read 1 1
+30303000
+read 1 1
+30303000
+read 1 1
+31313100
+read 1 1
+31313100
+read 1 1
+32323200
+read 1 1
+32323200
+read 1 1
+33333300
+read 1 1
+33333300
+read 1 1
+34343400
+read 1 1
+34343400
+read 1 1
+35353500
+read 1 1
+35353500
+read 1 1
+37373700
+read 1 1
+37373700
+read 1 1
+37373700
+read 1 1
+37373700
+read 1 1
+39393900
+read 1 1
+39393900
+read 1 1
+39393900
+read 1 1
+39393900
+read 1 1
+3a3a3a00
+read 1 1
+3a3a3a00
+read 1 1
+3b3b3b00
+read 1 1
+3b3b3b00
+read 1 1
+3c3c3c00
+read 1 1
+3c3c3c00
+read 1 1
+3d3d3d00
+read 1 1
+3d3d3d00
+read 1 1
+3e3e3e00
+read 1 1
+3e3e3e00
+read 1 1
+40404000
+read 1 1
+40404000
+read 1 1
+40404000
+read 1 1
+40404000
+read 1 1
+42424200
+read 1 1
+42424200
+read 1 1
+42424200
+read 1 1
+42424300
+read 1 1
+43434300
+read 1 1
+43434300
+read 1 1
+44444400
+read 1 1
+44444400
+read 1 1
+45454500
+read 1 1
+45454500
+read 1 1
+46464600
+read 1 1
+46464600
+read 1 1
+48484800
+read 1 1
+48484800
+read 1 1
+48484800
+read 1 1
+48484800
+read 1 1
+494a4a00
+read 1 1
+4a4a4a00
+read 1 1
+4a4a4a00
+read 1 1
+4a4a4a00
+read 1 1
+4b4b4b00
+read 1 1
+4b4b4b00
+read 1 1
+4d4d4d00
+read 1 1
+4d4d4d00
+read 1 1
+4e4e4e00
+read 1 1
+4e4e4e00
+read 1 1
+4e4e4e00
+read 1 1
+4e4e4e00
+read 1 1
+4f4f4f00
+read 1 1
+4f4f4f00
+read 1 1
+51515100
+read 1 1
+51515100
+read 1 1
+51515100
+read 1 1
+51515100
+read 1 1
+53535300
+read 1 1
+53535300
+read 1 1
+53545400
+read 1 1
+54545400
+read 1 1
+54545400
+read 1 1
+55555500
+read 1 1
+55555500
+read 1 1
+56565600
+read 1 1
+57575700
+read 1 1
+57575700
+read 1 1
+58585800
+read 1 1
+58585800
+read 1 1
+58585800
+read 1 1
+58585800
+read 1 1
+5a5a5a00
+read 1 1
+5a5a5a00
+read 1 1
+5a5a5a00
+read 1 1
+5b5b5b00
+read 1 1
+5b5b5b00
+read 1 1
+5b5b5b00
+read 1 1
+5c5c5c00
+read 1 1
+5c5c5c00
+read 1 1
+5d5d5d00
+read 1 1
+5d5d5d00
+read 1 1
+5e5e5e00
+read 1 1
+5e5f5f00
+read 1 1
+60606000
+read 1 1
+60606000
+read 1 1
+60606000
+read 1 1
+60606000
+read 1 1
+62626200
+read 1 1
+62626200
+read 1 1
+62626200
+read 1 1
+63636300
+read 1 1
+63636300
+read 1 1
+63636300
+read 1 1
+64646400
+read 1 1
+64646400
+read 1 1
+65656500
+read 1 1
+65666600
+read 1 1
+67676700
+read 1 1
+67676700
+read 1 1
+67676700
+read 1 1
+67676700
+read 1 1
+68696900
+read 1 1
+69696900
+read 1 1
+69696900
+read 1 1
+69696900
+read 1 1
+6a6a6a00
+read 1 1
+6a6a6a00
+read 1 1
+6b6b6b00
+read 1 1
+6b6b6b00
+read 1 1
+6c6c6c00
+read 1 1
+6c6c6c00
+read 1 1
+6d6d6d00
+read 1 1
+6d6d6d00
+read 1 1
+6e6f6f00
+read 1 1
+6f6f6f00
+read 1 1
+6f6f6f00
+read 1 1
+6f6f6f00
+read 1 1
+71717100
+read 1 1
+71717100
+read 1 1
+71717200
+read 1 1
+72727200
+read 1 1
+72727200
+read 1 1
+73737300
+read 1 1
+73737400
+read 1 1
+74747400
+read 1 1
+75757500
+read 1 1
+75757500
+read 1 1
+75757500
+read 1 1
+75757500
+read 1 1
+76767700
+read 1 1
+77777700
+read 1 1
+77777700
+read 1 1
+77777700
+read 1 1
+78787800
+read 1 1
+78787800
+read 1 1
+7a7a7a00
+read 1 1
+7a7a7a00
+read 1 1
+7a7a7a00
+read 1 1
+7a7a7a00
+read 1 1
+7b7b7b00
+read 1 1
+7b7b7b00
+read 1 1
+7c7c7c00
+read 1 1
+7d7d7d00
+read 1 1
+7d7d7d00
+read 1 1
+7d7d7d00
+read 1 1
+7e7f7f00
+read 1 1
+7f7f7f00
+read 1 1
+7f7f7f00
+read 1 1
+7f808000
+read 1 1
+80808000
+read 1 1
+80818100
+read 1 1
+81818100
+read 1 1
+82828200
+read 1 1
+82838300
+read 1 1
+83838300
+read 1 1
+83838300
+read 1 1
+83838300
+read 1 1
+84848500
+read 1 1
+85858500
+read 1 1
+85858500
+read 1 1
+85858600
+read 1 1
+86868600
+read 1 1
+86868600
+read 1 1
+87878700
+read 1 1
+87878700
+read 1 1
+88888800
+read 1 1
+88888800
+read 1 1
+89898900
+read 1 1
+8a8a8a00
+read 1 1
+8b8b8b00
+read 1 1
+8b8b8b00
+read 1 1
+8b8b8b00
+read 1 1
+8c8c8c00
+read 1 1
+8c8c8c00
+read 1 1
+8c8c8d00
+read 1 1
+8d8d8d00
+read 1 1
+8d8d8d00
+read 1 1
+8e8e8e00
+read 1 1
+8e8e8e00
+read 1 1
+8f8f8f00
+read 1 1
+8f909000
+read 1 1
+90919100
+read 1 1
+91919100
+read 1 1
+91919100
+read 1 1
+91919100
+read 1 1
+92939300
+read 1 1
+93939300
+read 1 1
+93939400
+read 1 1
+94949400
+read 1 1
+94949500
+read 1 1
+95959500
+read 1 1
+95969600
+read 1 1
+96969600
+read 1 1
+96969600
+read 1 1
+96969600
+read 1 1
+97979700
+read 1 1
+98989800
+read 1 1
+98989800
+read 1 1
+98989800
+read 1 1
+999a9a00
+read 1 1
+9a9a9a00
+read 1 1
+9a9a9b00
+read 1 1
+9b9b9b00
+read 1 1
+9b9c9c00
+read 1 1
+9c9c9c00
+read 1 1
+9c9c9c00
+read 1 1
+9c9c9c00
+read 1 1
+9d9d9d00
+read 1 1
+9d9e9e00
+read 1 1
+9e9f9f00
+read 1 1
+9f9f9f00
+read 1 1
+9f9f9f00
+read 1 1
+a0a0a000
+read 1 1
+a0a0a000
+read 1 1
+a0a1a100
+read 1 1
+a1a1a100
+read 1 1
+a1a2a200
+read 1 1
+a2a2a300
+read 1 1
+a3a3a300
+read 1 1
+a3a4a400
+read 1 1
+a4a4a400
+read 1 1
+a4a4a400
+read 1 1
+a4a5a500
+read 1 1
+a5a5a500
+read 1 1
+a5a5a500
+read 1 1
+a6a7a700
+read 1 1
+a7a7a700
+read 1 1
+a7a8a800
+read 1 1
+a8a8a800
+read 1 1
+a8a8a800
+read 1 1
+a8a8a800
+read 1 1
+a9a9a900
+read 1 1
+a9aaaa00
+read 1 1
+aaabab00
+read 1 1
+ababab00
+read 1 1
+ababab00
+read 1 1
+abacac00
+read 1 1
+acacac00
+read 1 1
+acacad00
+read 1 1
+adadad00
+read 1 1
+adadae00
+read 1 1
+aeaeae00
+read 1 1
+aeafaf00
+read 1 1
+afafaf00
+read 1 1
+b0b0b000
+read 1 1
+b0b0b000
+read 1 1
+b0b0b000
+read 1 1
+b1b1b200
+read 1 1
+b2b2b200
+read 1 1
+b2b2b200
+read 1 1
+b3b3b300
+read 1 1
+b3b3b300
+read 1 1
+b3b4b400
+read 1 1
+b4b4b400
+read 1 1
+b5b5b500
+read 1 1
+b5b5b600
+read 1 1
+b6b6b600
+read 1 1
+b6b6b600
+read 1 1
+b6b7b700
+read 1 1
+b7b8b800
+read 1 1
+b8b8b800
+read 1 1
+b8b8b900
+read 1 1
+b9b9b900
+read 1 1
+b9b9b900
+read 1 1
+bababa00
+read 1 1
+bababb00
+read 1 1
+bbbbbb00
+read 1 1
+bbbbbb00
+read 1 1
+bbbbbc00
+read 1 1
+bcbcbc00
+read 1 1
+bdbdbd00
+read 1 1
+bdbdbd00
+read 1 1
+bdbdbe00
+read 1 1
+bebebe00
+read 1 1
+bebebe00
+read 1 1
+bfc0c000
+read 1 1
+c0c0c000
+read 1 1
+c0c0c000
+read 1 1
+c0c0c100
+read 1 1
+c1c1c100
+read 1 1
+c1c2c200
+read 1 1
+c2c2c300
+read 1 1
+c3c3c300
+read 1 1
+c3c3c300
+read 1 1
+c4c4c400
+read 1 1
+c4c4c400
+read 1 1
+c4c5c500
+read 1 1
+c5c5c500
+read 1 1
+c5c6c600
+read 1 1
+c6c6c600
+read 1 1
+c7c7c700
+read 1 1
+c7c7c800
+read 1 1
+c8c8c800
+read 1 1
+c8c8c800
+read 1 1
+c8c9c900
+read 1 1
+c9c9c900
+read 1 1
+c9c9ca00
+read 1 1
+cacaca00
+read 1 1
+cacacb00
+read 1 1
+cbcbcb00
+read 1 1
+cbcbcc00
+read 1 1
+cccccc00
+read 1 1
+cccdcd00
+read 1 1
+cdcdcd00
+read 1 1
+cecece00
+read 1 1
+cecece00
+read 1 1
+cecfcf00
+read 1 1
+cfcfcf00
+read 1 1
+cfcfd000
+read 1 1
+d0d0d100
+read 1 1
+d1d1d100
+read 1 1
+d1d1d100
+read 1 1
+d1d1d200
+read 1 1
+d2d2d200
+read 1 1
+d2d3d300
+read 1 1
+d3d3d300
+read 1 1
+d4d4d400
+read 1 1
+d4d4d400
+read 1 1
+d4d5d500
+read 1 1
+d5d5d500
+read 1 1
+d5d5d600
+read 1 1
+d6d6d600
+read 1 1
+d6d6d700
+read 1 1
+d7d7d700
+read 1 1
+d7d8d800
+read 1 1
+d8d8d800
+read 1 1
+d9d9d900
+read 1 1
+d9d9d900
+read 1 1
+d9d9da00
+read 1 1
+dadadb00
+read 1 1
+dbdbdb00
+read 1 1
+dbdbdb00
+read 1 1
+dcdcdc00
+read 1 1
+dcdcdd00
+read 1 1
+dddddd00
+read 1 1
+dddddd00
+read 1 1
+ddddde00
+read 1 1
+dedede00
+read 1 1
+dedfdf00
+read 1 1
+dfdfdf00
+read 1 1
+dfdfe000
+read 1 1
+e0e0e100
+read 1 1
+e1e1e100
+read 1 1
+e1e1e100
+read 1 1
+e2e2e200
+read 1 1
+e2e2e300
+read 1 1
+e3e3e300
+read 1 1
+e3e3e300
+read 1 1
+e3e4e400
+read 1 1
+e4e4e400
+read 1 1
+e5e5e500
+read 1 1
+e5e5e500
+read 1 1
+e5e6e600
+read 1 1
+e6e6e600
+read 1 1
+e6e7e700
+read 1 1
+e7e7e700
+read 1 1
+e7e8e800
+read 1 1
+e8e8e800
+read 1 1
+e9e9e900
+read 1 1
+e9e9e900
+read 1 1
+e9e9ea00
+read 1 1
+eaeaea00
+read 1 1
+ebebeb00
+read 1 1
+ebebeb00
+read 1 1
+ebecec00
+read 1 1
+ececec00
+read 1 1
+eceded00
+read 1 1
+ededed00
+read 1 1
+eeeeee00
+read 1 1
+eeeeef00
+read 1 1
+efefef00
+read 1 1
+efefef00
+read 1 1
+eff0f000
+read 1 1
+f0f0f000
+read 1 1
+f0f0f100
+read 1 1
+f1f1f100
+read 1 1
+f1f1f200
+read 1 1
+f2f2f200
+read 1 1
+f2f2f300
+read 1 1
+f3f3f300
+read 1 1
+f3f4f400
+read 1 1
+f4f4f400
+read 1 1
+f5f5f500
+read 1 1
+f5f5f500
+read 1 1
+f5f6f600
+read 1 1
+f6f6f600
+read 1 1
+f6f7f700
+read 1 1
+f7f7f700
+read 1 1
+f7f8f800
+read 1 1
+f8f8f800
+read 1 1
+f9f9f900
+read 1 1
+f9f9fa00
+read 1 1
+fafafa00
+read 1 1
+fafafa00
+read 1 1
+fbfbfb00
+read 1 1
+fbfbfb00
+read 1 1
+fbfcfc00
+read 1 1
+fcfcfc00
+read 1 1
+fcfdfd00
+read 1 1
+fdfdfd00
+read 1 1
+fdfefe00
+read 1 1
+fefefe00
+read 1 1
+ffffff00
+case probe-size
+device11 ok
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+case probe-xrbias
+device11 ok
+tex = 4 1 1 1 59 1 0 0 20 0 0
+rtv hr 80070057
+clear noview
+read 1 1
+00000000000000000000000000000000
+clear noview
+read 1 1
+00000000000000000000000000000000
+case probe-update-empty
+device11 ok
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+read 4 1
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+case probe-update-past
+device11 ok
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+read hr 887a0005
+case probe-update-sub
+device11 ok
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+read 4 1
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+case probe-copysub-past
+device11 ok
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+read hr 887a0005
+case probe-resolve-single
+device11 ok
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+tex = 4 4 1 1 1c 1 0 0 8 0 0
+read 4 1
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+case probe-read-ms
+device11 ok
+tex = 4 4 1 1 1c 4 0 0 20 0 0
+rtv = 1c 6
+read 4 1
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
 done
