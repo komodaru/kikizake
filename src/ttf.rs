@@ -171,7 +171,9 @@ impl Font {
     fn name_table(&self) -> Vec<u8> {
         let full = format!("{} Regular", self.family);
         let ps: String = self.family.chars().filter(|c| c.is_ascii_alphanumeric()).collect::<String>() + "-Regular";
-        let recs: [(u16, &str); 5] = [(1, &self.family), (2, "Regular"), (3, &full), (4, &full), (6, &ps)];
+        // (an empty family: no name ID 1 record at all)
+        let all: [(u16, &str); 5] = [(1, &self.family), (2, "Regular"), (3, &full), (4, &full), (6, &ps)];
+        let recs: Vec<(u16, &str)> = all.into_iter().filter(|r| r.0 != 1 || !r.1.is_empty()).collect();
         let mut strings = Vec::new();
         let mut t = Vec::new();
         be16(&mut t, 0);

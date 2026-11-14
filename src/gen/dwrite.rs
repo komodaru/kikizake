@@ -317,6 +317,61 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "end").unwrap();
         }
     }
+    // every face op before a font is loaded
+    writeln!(s, "case noface\ndwinfo\ndwmetrics\ndwgdimetrics 12 1\ndwcmap 0x41 0x42\ndwglyph 0 1 2\ndwgdiglyph 12 1 0 0 1\ndwshape 12 0x41 0x42\ndwrun aliased 12 0 0 1 0\ndwlayout 12 400 1 0x41 0x42\nend").unwrap();
+    // a layout of a font without a family name (no name ID 1)
+    let mut f = font(0x0fc1_0000);
+    f.family = String::new();
+    writeln!(s, "case noname\n{}\ndwinfo\ndwlayout 12 400 1 0x41 0x42\ndwlayout 20 30 1 0x41 0x20 0x42\nend", font_line(&f)).unwrap();
+    // GDI compatible metrics at em sizes and pixels per dip of zero and below
+    let f = font(0x0fc0_0000);
+    writeln!(s, "case gdiinvalid\n{}", font_line(&f)).unwrap();
+    for (em, ppd) in [(0, 1), (-1, 1), (-12, 1), (12, 0), (12, -1), (12, -2), (0, 0), (-12, -1)] {
+        writeln!(s, "dwgdimetrics {em} {ppd}\ndwgdiglyph {em} {ppd} 0 0 1 2\ndwgdiglyph {em} {ppd} 1 1 1 2").unwrap();
+    }
+    writeln!(s, "end").unwrap();
+    // every script: the first, middle and last character of each Scripts.txt range, and of each
+    // gap between them (unassigned), alone
+    let mut cps = Vec::new();
+    let mut next = 0u32;
+    for &(lo, hi, _) in crate::ucd::scripts().ranges() {
+        if lo > next {
+            cps.extend([next, (next + lo - 1) / 2, lo - 1]);
+        }
+        cps.extend([lo, (lo + hi) / 2, hi]);
+        next = hi + 1;
+    }
+    cps.extend([next, 0x10ffff]);
+    cps.retain(|c| !(0xd800..=0xdfff).contains(c) && *c != 0);
+    cps.dedup();
+    for (i, ch) in cps.chunks(400).enumerate() {
+        writeln!(s, "case scriptall-{i}").unwrap();
+        for c in ch {
+            writeln!(s, "dwscript {c:#x}").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // every line break class and bidi class: the first, middle and last character of each range
+    // of LineBreak.txt and DerivedBidiClass.txt, between letters and alone
+    let samples = |t: &crate::ucd::Table| {
+        let mut v: Vec<u32> = t.ranges().iter().flat_map(|&(lo, hi, _)| [lo, (lo + hi) / 2, hi]).filter(|c| !(0xd800..=0xdfff).contains(c) && *c != 0).collect();
+        v.dedup();
+        v
+    };
+    for (i, ch) in samples(crate::ucd::line_break()).chunks(300).enumerate() {
+        writeln!(s, "case breakall-{i}").unwrap();
+        for c in ch {
+            writeln!(s, "dwbreak 0x61 {c:#x} 0x61\ndwbreak {c:#x} {c:#x}").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    for (i, ch) in samples(crate::ucd::bidi_class()).chunks(300).enumerate() {
+        writeln!(s, "case bidiall-{i}").unwrap();
+        for c in ch {
+            writeln!(s, "dwbidi ltr 0x5d0 {c:#x} 0x5d0\ndwbidi rtl 0x61 {c:#x} 0x61\ndwbidi ltr {c:#x} 0x31").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // GDI modes with grid fit disabled: single boxes at sizes 6..96, edges anywhere in a pixel
     for mode in ["gdi", "gdinatural"] {
         for i in 0..6u32 {

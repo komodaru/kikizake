@@ -274,13 +274,23 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
 }
 
 impl Dwrite {
-    fn face(&self) -> Res<&Parsed> {
-        self.font.as_ref().ok_or(Fail::Unmodeled(open::DW_NOFACE))
-    }
 
     pub fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         let n = |i: usize| t.get(i).and_then(|v| crate::case::num(v)).ok_or(Fail::Bad);
+        // MEASURED: an op on the face before one is loaded prints "<op> noface"
+        macro_rules! face {
+            () => {
+                match self.font.as_ref() {
+                    Some(p) => p,
+                    None => {
+                        hit(clause::DW_NOFACE);
+                        out.push(format!("{} noface", t[0]));
+                        return Ok(true);
+                    }
+                }
+            };
+        }
         match t[0].as_str() {
             "dwfont" => {
                 if t.len() != 2 {
@@ -295,12 +305,12 @@ impl Dwrite {
                 self.font = Some(p);
             }
             "dwinfo" => {
-                let p = self.face()?;
+                let p = face!();
                 hit(clause::DW_INFO);
                 out.push(format!("dwinfo glyphs {} type 1 index 0 sim 0 symbol {} mono {} vert 0", p.num_glyphs, p.symbol as u8, p.post.is_some_and(|x| x.2 != 0) as u8));
             }
             "dwmetrics" => {
-                let m = metrics(self.face()?);
+                let m = metrics(face!());
                 out.push(metrics_line("dwmetrics", &m));
                 let b = m.bbox;
                 out.push(format!(
@@ -313,7 +323,7 @@ impl Dwrite {
                 if t.len() != 3 {
                     return Err(Fail::Bad);
                 }
-                let mut m = metrics(self.face()?);
+                let mut m = metrics(face!());
                 if em <= 0 || ppd <= 0 {
                     return Err(Fail::Unmodeled(open::DW_GDI_INVALID));
                 }
@@ -331,7 +341,7 @@ impl Dwrite {
                 out.push(metrics_line("dwgdimetrics", &m));
             }
             "dwcmap" => {
-                let p = self.face()?;
+                let p = face!();
                 if t.len() < 2 {
                     return Err(Fail::Bad);
                 }
@@ -353,7 +363,7 @@ impl Dwrite {
                 if gs.is_empty() {
                     return Err(Fail::Bad);
                 }
-                let p = self.face()?;
+                let p = face!();
                 let m = metrics(p);
                 if side != 0 {
                     hit(clause::DW_GLYPH_SIDEWAYS);
@@ -432,7 +442,7 @@ impl Dwrite {
                 if cps.is_empty() || cps.iter().any(|&c| c >= 0x10000) {
                     return Err(Fail::Bad);
                 }
-                let p = self.face()?;
+                let p = face!();
                 // GetGlyphs: the cmap's glyph of each character, one cluster each (the fonts have
                 // no GSUB)
                 hit(clause::DW_SHAPE_GLYPHS);
@@ -472,7 +482,7 @@ impl Dwrite {
                 for i in (5..t.len()).step_by(2) {
                     run.push((n(i)? as u16, n(i + 1)?));
                 }
-                let p = self.face()?;
+                let p = face!();
                 out.push("dwrun hr 00000000".into());
                 out.extend(raster::run(p, mode, fit, em, x4, y4, &run)?);
             }
@@ -489,7 +499,7 @@ impl Dwrite {
                 if cps.is_empty() {
                     return Err(Fail::Bad);
                 }
-                let p = self.face()?;
+                let p = face!();
                 out.extend(layout(p, em, mw4, wrap != 0, &cps)?);
             }
             "dwscript" => {

@@ -1,27 +1,21 @@
-//! AnalyzeScript: script runs (Unicode Scripts.txt for the characters the suite uses; ISO 15924
-//! codes as GetScriptProperties gives them), common and inherited characters taking the script
+//! AnalyzeScript: script runs (Unicode Scripts.txt; ISO 15924 codes as GetScriptProperties gives
+//! them), common and inherited characters taking the script
 //! of the run they are in.
 use crate::spec::{clause, open};
 use super::super::{Fail, Res};
 use crate::spec::hit;
 
-/// (ISO 15924 code, number, shapes): None for Common and Inherited
+/// (ISO 15924 code, number, shapes): None for Common and Inherited (Scripts.txt)
 pub fn script(c: u32) -> Res<Option<(&'static str, u32, u32)>> {
-    Ok(Some(match c {
-        0x41..=0x5a | 0x61..=0x7a => ("Latn", 215, 0),
-        0x5d0..=0x5ea => ("Hebr", 125, 0),
-        0x620..=0x64a => ("Arab", 160, 0),
-        0x391..=0x3c9 => ("Grek", 200, 0),
-        0x410..=0x44f => ("Cyrl", 220, 0),
-        0x4e00..=0x9fff => ("Hani", 500, 0),
-        0x3041..=0x3096 => ("Hira", 410, 0),
-        0x30a1..=0x30fa => ("Kana", 411, 0),
-        0xac00..=0xd7a3 => ("Hang", 286, 0),
-        0xe01..=0xe3a => ("Thai", 352, 0),
-        0x915..=0x939 => ("Deva", 315, 0),
-        0x20 | 0x2e | 0x30..=0x39 | 0x3001 | 0x30fc | 0x1f600 | 0x300..=0x36f | 0x200d => return Ok(None),
-        _ => return Err(Fail::Unmodeled(open::DW_SCRIPT_CHAR)),
-    }))
+    match crate::ucd::scripts().get(c) {
+        Some("Common" | "Inherited") => Ok(None),
+        Some(long) => {
+            hit(clause::DW_SCRIPT_UCD);
+            let (code, num) = crate::ucd::iso15924(long).ok_or(Fail::Unmodeled(open::DW_SCRIPT_CHAR))?;
+            Ok(Some((code, num, 0)))
+        }
+        None => Err(Fail::Unmodeled(open::DW_SCRIPT_CHAR)),
+    }
 }
 
 /// the runs (UTF-16 position, length, script) of a text of code points

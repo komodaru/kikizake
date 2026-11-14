@@ -3,7 +3,7 @@
 # no GSUB/GPOS) from memory into an isolated factory; "golden dwrite" is windows-2025.
 DW.FILE.ANALYZE doc | IDWriteFontFile::Analyze, IDWriteFactory5::CreateInMemoryFontFileLoader | a single TrueType font: supported, file type TRUETYPE (2), face type TRUETYPE (1), one face
 DW.FILE.OTHER excluded | IDWriteFontFile::Analyze | collections, CFF and files the writer cannot make
-DW.NOFACE excluded | IDWriteFontFace | a call before a font is loaded (the cases always load one first)
+DW.NOFACE excluded | IDWriteFontFace | an op on the face before a font is loaded: modelled as "<op> noface" (the noface case), settled when Windows answers it
 DW.INFO doc | IDWriteFontFace::GetGlyphCount, GetType, GetIndex, GetSimulations, IsSymbolFont, IDWriteFontFace1::IsMonospacedFont, IDWriteFontFace1::HasVerticalGlyphVariants | glyph count = maxp numGlyphs, type TRUETYPE, index 0, no simulations, symbol = a (3,0) cmap, monospaced = post isFixedPitch, no vertical variants (no GSUB vert)
 DW.METRICS.HEAD doc | DWRITE_FONT_METRICS1, IDWriteFontFace1::GetMetrics | designUnitsPerEm and the glyph box from head (xMin, yMax, xMax, yMin)
 DW.METRICS.WIN measured | DWRITE_FONT_METRICS | with an OS/2 table: ascent/descent = usWinAscent/usWinDescent; lineGap = hhea ascender + |descender| + max(0, lineGap) - ascent - descent, at least 0; strikethrough, sub/superscript from OS/2 (golden dwrite, 120 faces)
@@ -28,8 +28,9 @@ DW.SHAPE.GDIPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacement
 DW.SHAPE.NATPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements (useGdiNatural 1) | floor(adv * em / upm + 69/128): a fraction rounds up from 59/128 (golden dwrite: 340 advances densely over fractions 0.44..0.48 at em 1-4, upm 2048, the threshold between 943/2048 and 944/2048, and the 40 shape cases)
 DW.SCRIPT.RUN doc | IDWriteTextAnalyzer::AnalyzeScript, DWRITE_SCRIPT_ANALYSIS | one run per maximal stretch of a script, with the script's ISO 15924 code; shapes 0 (DEFAULT) (measured: 720 of 720, golden dwrite)
 DW.SCRIPT.COMMON measured | UAX #24 | common and inherited characters join the run before them, or the one after when they lead (golden dwrite)
+DW.SCRIPT.UCD measured | AnalyzeScript, Scripts.txt (spec/ucd, Unicode 15.1) | each character's script is its Scripts.txt value, given as that script's ISO 15924 code and number (iso15924.txt) (golden dwrite)
 DW.SCRIPT.ALLCOMMON measured | AnalyzeScript | text only of common characters: one run "Zzzz" 999 (golden dwrite)
-DW.SCRIPT.CHAR excluded | AnalyzeScript | characters outside the generators' set (the model knows their scripts only)
+DW.SCRIPT.CHAR excluded | AnalyzeScript | characters Scripts.txt does not list (Unknown) and scripts without an ISO 15924 entry; the scriptall cases ask every range
 DW.BIDI.W doc | IDWriteTextAnalyzer::AnalyzeBidi, UAX #9 W1-W7 | weak types
 DW.BIDI.N doc | UAX #9 N1-N2 | neutrals
 DW.BIDI.I doc | UAX #9 I1-I2 | implicit levels
