@@ -65,7 +65,21 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     Rgn::rect(r.0, r.1, r.2, r.3)
                 }
                 "ellipse" | "round" => return Err(Fail::Unmodeled(open::GDI_RGN_ELLIPSE)),
-                "poly" => return Err(Fail::Unmodeled(open::GDI_RGN_POLYGON)),
+                "poly" => {
+                    let mode = n(op, 3)?;
+                    let t = &op.tok[4..];
+                    if t.len() % 2 != 0 {
+                        return Err(Fail::Bad);
+                    }
+                    let pts: Vec<(i32, i32)> = t.chunks(2).take(64).map(|p| Ok((num(&p[0]).ok_or(Fail::Bad)? as i32, num(&p[1]).ok_or(Fail::Bad)? as i32))).collect::<Res<_>>()?;
+                    let winding = match mode {
+                        1 => false,
+                        2 => true,
+                        _ => return Err(Fail::Unmodeled(open::GDI_RGN_POLYGON)),
+                    };
+                    hit(clause::GDI_RGN_POLYSCAN);
+                    super::rgn::polygon(&[pts], winding)?
+                }
                 _ => return Err(Fail::Bad),
             };
             *g.rslot(op, 1)? = Some(r);

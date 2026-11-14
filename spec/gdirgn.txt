@@ -2,7 +2,8 @@
 GDI.RGN.RECT doc | CreateRectRgn | the rectangle's region: right and bottom edges excluded; corners in either order (assumed: normalized), an empty rectangle is no region (NULLREGION)
 GDI.RGN.SETRECT doc | SetRectRgn | the region becomes the rectangle's
 GDI.RGN.ELLIPSE open | CreateEllipticRgn, CreateRoundRectRgn | which pixels an elliptic or round rectangle region holds
-GDI.RGN.POLYGON open | CreatePolygonRgn | which pixels a polygon region holds (ALTERNATE / WINDING)
+GDI.RGN.POLYGON open | CreatePolygonRgn | the bounding rectangle of a polygon region whose rows above its lowest vertex are empty: in some Windows reaches down to that vertex, in others not
+GDI.RGN.POLYSCAN measured | golden region poly-* (93 cases) | CreatePolygonRgn: each scanline y takes the spans between its edges' x (left included, right not), each edge stepped from its upper end by X11's integer polygon rule; ALTERNATE pairs the edges in x order, WINDING keeps nonzero winding; a closed axis-aligned rectangle is that rectangle
 GDI.RGN.COMBINE doc | CombineRgn | RGN_AND intersection, RGN_OR union, RGN_XOR union minus intersection, RGN_DIFF the first minus the second
 GDI.RGN.COPY doc | CombineRgn | RGN_COPY copies the first region
 GDI.RGN.BADMODE measured | golden region combine-mode-{-1,0,6} | CombineRgn with a mode out of 1..5 returns ERROR (0) and leaves the destination as it was
