@@ -769,7 +769,11 @@ pub struct Target {
     /// the clips and layers pushed, innermost last
     pub stack: Vec<Pushed>,
     /// the error state's error, once in it
-    pub fault: Option<u32>,
+    pub fault: Option<Fault>,
+    /// the pixels and the stack at BeginDraw (an error state throws the frame's drawing away)
+    pub begin: (Vec<[u8; 4]>, Vec<Pushed>),
+    /// pushes less pops in this frame
+    pub depth: i64,
     /// the bitmaps made on this target, by slot
     pub bitmaps: [Option<Bitmap>; 4],
 }
@@ -909,6 +913,7 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
 
 pub const D2DERR_POP_CALL_DID_NOT_MATCH_PUSH: u32 = 0x8899_0014;
 pub const D2DERR_PUSH_POP_UNBALANCED: u32 = 0x8899_0016;
+pub const D2DERR_LAYER_ALREADY_IN_USE: u32 = 0x8899_0013;
 
 /// D2D1_ANTIALIAS_MODE
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -953,6 +958,20 @@ pub struct Clip {
     pub aa: Antialias,
 }
 
+/// the error state: its error, and whether EndDraw throws the frame's drawing away
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Fault {
+    pub hr: u32,
+    pub drawn: Drawn,
+}
+
+/// what an error state does to what the frame drew before it
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Drawn {
+    Kept,
+    Dropped,
+}
+
 /// a pushed layer: the pixels under it (drawing goes into a new transparent surface), its
 /// content bounds in pixels, its opacity byte, its mask's coverage per pixel
 #[derive(Clone, PartialEq, Debug)]
@@ -986,9 +1005,48 @@ fn center_in(r: [f32; 4], x: usize, y: usize) -> bool {
     l <= cx && cx < rr && t <= cy && cy < b
 }
 
+impl Layer {
+    /// MEASURED (D2D.LAYER): the layer's surface `top` put over what was under it
+    fn composite(&self, top: &[[u8; 4]], w: usize, h: usize) -> Vec<[u8; 4]> {
+        let mut px = self.below.clone();
+        for y in 0..h {
+            for x in 0..w {
+                let i = y * w + x;
+                if !center_in(self.bounds, x, y) {
+                    continue;
+                }
+                let s = scale_by(top[i], self.opacity);
+                let s = match &self.mask {
+                    Some(k) => scale_by(s, k[i]),
+                    None => s,
+                };
+                px[i] = over(s, self.below[i]);
+            }
+        }
+        px
+    }
+}
+
 impl Target {
+    /// what EndDraw leaves in the bitmap: the layers still pushed put down as if popped
+    fn view(&self) -> Vec<[u8; 4]> {
+        let mut px = self.px.clone();
+        for p in self.stack.iter().rev() {
+            if let Pushed::Layer(l) = p {
+                px = l.composite(&px, self.w, self.h);
+            }
+        }
+        px
+    }
+
+    /// MEASURED (D2D.RT.FAULT): the error state; the first error stays
+    fn fail(&mut self, hr: u32, drawn: Drawn) {
+        hit(clause::D2D_RT_FAULT);
+        self.fault.get_or_insert(Fault { hr, drawn });
+    }
+
     pub fn new(w: usize, h: usize) -> Self {
-        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, stack: Vec::new(), fault: None, bitmaps: [None, None, None, None] }
+        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, stack: Vec::new(), fault: None, begin: (vec![[0; 4]; w * h], Vec::new()), depth: 0, bitmaps: [None, None, None, None] }
     }
 
     /// MEASURED (D2D.CLIP.BLEND): what a drawing call did to the pixels (`before` -> now) kept
@@ -1330,7 +1388,13 @@ impl D2d {
                 want(3)?;
                 let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
                 hit(clause::D2D_RT_DPI);
-                tg.dpi = if x == 0.0 && y == 0.0 { (96.0, 96.0) } else { (x, y) };
+                // (MEASURED: (0, 0) is 96 96, a pair of positives is kept, anything else leaves the
+                // dpi as it was)
+                if x == 0.0 && y == 0.0 {
+                    tg.dpi = (96.0, 96.0);
+                } else if x > 0.0 && y > 0.0 {
+                    tg.dpi = (x, y);
+                }
             }
             "d2tags" => {
                 let (a, b) = (n(op, 1)?, n(op, 2)?);
@@ -1379,7 +1443,11 @@ impl D2d {
                     Antialias::Aliased => clause::D2D_CLIP_ALIASED,
                     Antialias::PerPrimitive => clause::D2D_CLIP_BLEND,
                 });
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
                 tg.stack.push(Pushed::Clip(Clip { r: corner_bounds(&m, r), aa }));
+                tg.depth += 1;
             }
             "d2layer" => {
                 let r = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
@@ -1407,21 +1475,23 @@ impl D2d {
                 let mask = match mask {
                     Some(g) => {
                         hit(clause::D2D_LAYER_MASK);
-                        let Some((wind, figs, m0)) = g.lines() else {
-                            return Err(Fail::Unmodeled(open::D2D_FILL_AA));
-                        };
-                        let m = mul(&m0, &tg.st.m);
-                        if m[1] != 0.0 || m[2] != 0.0 {
-                            return Err(Fail::Unmodeled(open::D2D_FILL_AA));
-                        }
-                        Some(coverage(tg, &polys(&figs, &m), wind).into_iter().map(|n| (n * 4 * 255 + 0x80) >> 8).collect())
+                        let (wind, ps) = fixed_polys(tg, &g, Frame::Antialiased)?;
+                        Some(coverage16(tg, &ps, wind).into_iter().map(|n| (n * 4 * 255 + 0x80) >> 8).collect())
                     }
                     None => None,
                 };
+                // (MEASURED, D2D.LAYER.INUSE: the one ID2D1Layer pushed again while pushed is
+                // D2DERR_LAYER_ALREADY_IN_USE)
+                if tg.stack.iter().any(|p| matches!(p, Pushed::Layer(_))) {
+                    hit(clause::D2D_LAYER_INUSE);
+                    tg.fail(D2DERR_LAYER_ALREADY_IN_USE, Drawn::Dropped);
+                    return Ok(());
+                }
                 let opacity = (o * 255.0 + 0.5).floor().clamp(0.0, 255.0) as u32;
                 let below = std::mem::replace(&mut tg.px, vec![[0; 4]; tg.w * tg.h]);
                 let bounds = corner_bounds(&tg.st.m, r);
                 tg.stack.push(Pushed::Layer(Layer { below, bounds, opacity, mask }));
+                tg.depth += 1;
             }
             "d2poplayer" => {
                 want(1)?;
@@ -1429,46 +1499,47 @@ impl D2d {
                 if tg.fault.is_some() {
                     return Ok(());
                 }
-                let Some(Pushed::Layer(l)) = tg.stack.last() else {
-                    hit(clause::D2D_RT_FAULT);
-                    tg.fault = Some(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH);
-                    return Ok(());
-                };
-                let l = l.clone();
-                tg.stack.pop();
-                let scale = |p: [u8; 4], k: u32| p.map(|b| ((u32::from(b) * k + 127) / 255) as u8);
-                let mut px = l.below.clone();
-                for y in 0..tg.h {
-                    for x in 0..tg.w {
-                        let i = y * tg.w + x;
-                        if !center_in(l.bounds, x, y) {
-                            continue;
-                        }
-                        let s = scale(tg.px[i], l.opacity);
-                        let s = match &l.mask {
-                            Some(k) => scale(s, k[i]),
-                            None => s,
-                        };
-                        px[i] = over(s, l.below[i]);
+                // (MEASURED, D2D.RT.FAULT: PopLayer on a clip is the error state with
+                // D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, on nothing with D2DERR_PUSH_POP_UNBALANCED)
+                let l = match tg.stack.last() {
+                    Some(Pushed::Layer(l)) => l.clone(),
+                    Some(Pushed::Clip(_)) => {
+                        tg.fail(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, Drawn::Dropped);
+                        return Ok(());
                     }
-                }
-                tg.px = px;
+                    None => {
+                        tg.fail(D2DERR_PUSH_POP_UNBALANCED, Drawn::Dropped);
+                        return Ok(());
+                    }
+                };
+                tg.stack.pop();
+                tg.depth -= 1;
+                tg.px = l.composite(&tg.px, tg.w, tg.h);
                 tg.keep_clipped(&l.below);
             }
             _ => {
                 want(1)?;
                 let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
-                // (MEASURED, D2D.RT.FAULT: a pop without its push puts the target in an error state:
-                // drawing does nothing and EndDraw gives the error)
+                // (MEASURED, D2D.RT.FAULT, D2D.CLIP.UNBALANCED: PopAxisAlignedClip on a layer is
+                // the error state; on nothing it only counts against EndDraw)
                 if tg.fault.is_some() {
                     return Ok(());
                 }
-                if let Some(Pushed::Clip(_)) = tg.stack.last() {
-                    tg.stack.pop();
-                } else {
-                    hit(clause::D2D_RT_FAULT);
-                    tg.fault = Some(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH);
+                match tg.stack.last() {
+                    Some(Pushed::Clip(_)) => {
+                        tg.stack.pop();
+                    }
+                    Some(Pushed::Layer(_)) => {
+                        tg.fail(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, Drawn::Dropped);
+                        return Ok(());
+                    }
+                    None => {
+                        hit(clause::D2D_CLIP_UNBALANCED);
+                        tg.fail(D2DERR_PUSH_POP_UNBALANCED, Drawn::Kept);
+                        return Ok(());
+                    }
                 }
+                tg.depth -= 1;
             }
         }
         Ok(())
@@ -1831,25 +1902,31 @@ impl D2d {
                 }
                 if let Some(tg) = &mut self.t {
                     hit(clause::D2D_READ);
-                    // (DOC, D2D.RT.FAULT; MEASURED, D2D.CLIP.UNBALANCED: EndDraw with clips
-                    // still pushed fails, and they are gone)
-                    let mut hr = tg.fault.take().unwrap_or(0);
-                    if !tg.stack.is_empty() {
-                        hit(clause::D2D_CLIP_UNBALANCED);
-                        // (a layer still pushed: its content as drawn so far is lost? measured
-                        // by layer-unbal)
-                        if let Some(Pushed::Layer(l)) = tg.stack.iter().find(|p| matches!(p, Pushed::Layer(_))) {
-                            tg.px = l.below.clone();
+                    // (MEASURED, D2D.RT.FAULT: after an error the frame's drawing is thrown away
+                    // and EndDraw gives the error; D2D.CLIP.UNBALANCED: pushes and pops of the
+                    // frame that do not balance give D2DERR_PUSH_POP_UNBALANCED, what is pushed
+                    // stays pushed into the next frame, and the bitmap holds the layers put down)
+                    let hr = match tg.fault.take() {
+                        Some(f) => {
+                            match f.drawn {
+                                Drawn::Dropped => (tg.px, tg.stack) = tg.begin.clone(),
+                                Drawn::Kept => {}
+                            }
+                            f.hr
                         }
-                        tg.stack.clear();
-                        if hr == 0 {
-                            hr = D2DERR_PUSH_POP_UNBALANCED;
+                        None if tg.depth != 0 => {
+                            hit(clause::D2D_CLIP_UNBALANCED);
+                            D2DERR_PUSH_POP_UNBALANCED
                         }
-                    }
+                        None => 0,
+                    };
+                    tg.depth = 0;
+                    tg.begin = (tg.px.clone(), tg.stack.clone());
+                    let view = tg.view();
                     out.push(format!("end {hr:08x}"));
                     out.push(format!("px 0 {} {} 32", tg.w, tg.h));
                     for y in 0..tg.h {
-                        out.push(tg.px[y * tg.w..(y + 1) * tg.w].iter().flat_map(|p| p.iter()).map(|b| format!("{b:02x}")).collect());
+                        out.push(view[y * tg.w..(y + 1) * tg.w].iter().flat_map(|p| p.iter()).map(|b| format!("{b:02x}")).collect());
                     }
                     return Ok(());
                 }
@@ -1863,59 +1940,160 @@ impl D2d {
 /// FillRectangle / FillGeometry with a solid color brush: the pixels whose centers the shape
 /// covers (aliased, or antialiased where every edge is on the pixel grid), source over
 fn fill(tg: &mut Target, g: &Geom, paint: &Paint) -> Res<()> {
-    let (wind, figs, m) = match g.lines() {
-        Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.st.m)),
-        None => {
-            hit(clause::D2D_FILL_CURVE);
-            if tg.st.aa != Antialias::Aliased || tg.st.m != IDENTITY {
-                return Err(Fail::Unmodeled(open::D2D_FILL_AA));
-            }
-            flat_lines(&Geom::Xf(Box::new(g.clone()), tg.st.m), 0.25)
-        }
+    let frame = match tg.st.aa {
+        Antialias::Aliased => Frame::Aliased,
+        Antialias::PerPrimitive => Frame::Antialiased,
     };
-    let ps = polys(&figs, &m);
-    let axis = matches!(g, Geom::Rect(_)) && m[1] == 0.0 && m[2] == 0.0;
-    if tg.st.aa == Antialias::PerPrimitive {
-        let grid = ps.iter().flatten().all(|p| p.0.fract() == 0.0 && p.1.fract() == 0.0);
-        if axis && grid {
-            hit(clause::D2D_FILL_AAGRID);
-        } else if !ps.iter().flatten().all(|p| (p.0 * 16.0).fract() == 0.0 && (p.1 * 16.0).fract() == 0.0) {
-            // (vertices off the sixteenths: the rasterizer's 28.4 fixed point decides, clip-xf,
-            // antialiased lines)
-            return Err(Fail::Unmodeled(open::D2D_FILL_AA));
-        } else {
-            return fill_aa(tg, &ps, wind, paint);
+    let (wind, ps) = fixed_polys(tg, g, frame)?;
+    match frame {
+        Frame::Antialiased => {
+            put_coverage(tg, coverage16(tg, &ps, wind), paint);
         }
-    }
-    if matches!(paint, Paint::Solid(src) if src[3] != 255) {
-        hit(clause::D2D_FILL_OVER);
-    }
-    for y in 0..tg.h {
-        for x in 0..tg.w {
-            let p = (x as f64 + 0.5, y as f64 + 0.5);
-            // (MEASURED: a center on an edge is inside only on a left or top edge: the winding
-            // counts sides whose y range [min, max) holds the center and that pass strictly to
-            // its right)
-            if ps.iter().flat_map(|q| segs(q)).any(|(a, b)| cross(a, b, p) == 0.0 && dist_seg(p, a, b) == 0.0) {
-                hit(clause::D2D_FILL_EDGE);
+        Frame::Aliased => {
+            if matches!(paint, Paint::Solid(src) if src[3] != 255) {
+                hit(clause::D2D_FILL_OVER);
             }
-            let w = winding(&ps, p);
-            if if wind { w != 0 } else { w % 2 != 0 } {
-                hit(if axis { clause::D2D_FILL_RECT } else { clause::D2D_FILL_POLY });
-                let i = y * tg.w + x;
-                tg.px[i] = over(paint.at(x, y), tg.px[i]);
+            let axis = matches!(g, Geom::Rect(_)) && tg.st.m[1] == 0.0 && tg.st.m[2] == 0.0;
+            for (i, inside) in cover_aliased(tg, &ps, wind).into_iter().enumerate() {
+                if inside {
+                    hit(if axis { clause::D2D_FILL_RECT } else { clause::D2D_FILL_POLY });
+                    tg.px[i] = over(paint.at(i % tg.w, i / tg.w), tg.px[i]);
+                }
             }
         }
     }
     Ok(())
 }
 
-/// antialiased: an axis-aligned rectangle with edges on quarter pixels, a white opaque color on
-/// an empty target. MEASURED (golden d2d-32/-64, aa-*): each pixel the exact covered fraction
-/// of it, every byte round(coverage 255) (0.25 -> 0x40, 0.5 -> 0x80, 0.75 -> 0xbf)
+/// the two rasterizers' fixed point frames
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Frame {
+    /// pixel centers at the 28.4 grid's integers: round-half-even(16 v - 7.5)
+    Aliased,
+    /// eighths of a pixel: ceil(16 v) - 1 (then times 8, D2D.FILL.AA28)
+    Antialiased,
+}
 
-fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, paint: &Paint) -> Res<()> {
-    let cov = coverage(tg, ps, wind);
+impl Frame {
+    fn snap(self, v: f64) -> i64 {
+        match self {
+            Frame::Aliased => (16.0 * v - 7.5).round_ties_even() as i64,
+            Frame::Antialiased => snap16(v),
+        }
+    }
+}
+
+/// MEASURED (D2D.FILL.FIXED, D2D.FILL.AACURVE): a geometry through the transform as closed
+/// polygons in 1/16 pixel of the frame: straight figures' points snapped, a curve's four points
+/// snapped and flattened in that fixed point by WPF's Bezier32
+fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, i64)>>)> {
+    let sn = |v: f64| frame.snap(v);
+    if let Some((wind, figs, m0)) = g.lines() {
+        let ps = polys(&figs, &mul(&m0, &tg.st.m));
+        if ps.iter().flatten().any(|p| !(p.0.abs() <= 8388608.0 && p.1.abs() <= 8388608.0)) {
+            return Err(Fail::Unmodeled(open::D2D_FILL_HUGE));
+        }
+        return Ok((wind, ps.iter().map(|p| p.iter().map(|&(x, y)| (sn(x), sn(y))).collect()).collect()));
+    }
+    hit(clause::D2D_FILL_CURVE);
+    hit(clause::D2D_FILL_AACURVE);
+    let (wind, _, figs) = shape(&Geom::Xf(Box::new(g.clone()), tg.st.m));
+    let s = |p: P| (sn(f64::from(p.0)), sn(f64::from(p.1)));
+    if figs.iter().any(|f| std::iter::once(f.start).chain(f.segs.iter().flat_map(|s| match *s {
+        Seg::L(p) => vec![p],
+        Seg::C(a, b, c) => vec![a, b, c],
+    })).any(|p| !(p.0.abs() <= 8388608.0 && p.1.abs() <= 8388608.0))) {
+        return Err(Fail::Unmodeled(open::D2D_FILL_HUGE));
+    }
+    // (the target in 28.4: in the antialiased frame WPF's 28.4 point plus 8)
+    let clip = match frame {
+        Frame::Aliased => [0, 0, 16 * tg.w as i64, 16 * tg.h as i64],
+        Frame::Antialiased => [8, 8, 16 * tg.w as i64 + 8, 16 * tg.h as i64 + 8],
+    };
+    let mut ps = Vec::new();
+    for f in &figs {
+        let mut poly = vec![s(f.start)];
+        for seg in &f.segs {
+            match *seg {
+                Seg::L(p) => poly.push(s(p)),
+                Seg::C(a, b, c) => {
+                    let p0 = *poly.last().ok_or(Fail::Bad)?;
+                    let q = [p0, s(a), s(b), s(c)];
+                    poly.extend(hfd32(q, clip).unwrap_or_else(|| hfd64(q, clip)));
+                }
+            }
+        }
+        ps.push(poly);
+    }
+    Ok((wind, ps))
+}
+
+/// the edges of closed polygons in fixed point: (top point, bottom point, first row, row past
+/// the last, winding direction); a row r is at r 16 (rows of 1/16 units: rows where y0 <= 16 r
+/// < y1, ceiled)
+fn fixed_edges(ps: &[Vec<(i64, i64)>], scale: i64) -> Vec<((i64, i64), (i64, i64), i64, i64, i32)> {
+    let mut edges = Vec::new();
+    for poly in ps {
+        for k in 0..poly.len() {
+            let (a, b) = (poly[k], poly[(k + 1) % poly.len()]);
+            let (mut p0, mut p1) = ((a.0 * scale, a.1 * scale), (b.0 * scale, b.1 * scale));
+            let mut d = 1;
+            if p1.1 < p0.1 {
+                std::mem::swap(&mut p0, &mut p1);
+                d = -1;
+            }
+            let (ys, ye) = (ceil_div(p0.1, 16), ceil_div(p1.1, 16));
+            if ye > ys {
+                edges.push((p0, p1, ys, ye, d));
+            }
+        }
+    }
+    edges
+}
+
+/// on row j, the spans [X_left, X_right) inside by the fill mode, x ceiled on the row
+fn spans(edges: &[((i64, i64), (i64, i64), i64, i64, i32)], j: i64, wind: bool, act: &mut Vec<(i64, i32)>) -> Vec<(i64, i64)> {
+    act.clear();
+    for &(p0, p1, ys, ye, d) in edges {
+        if ys <= j && j < ye {
+            let dy = p1.1 - p0.1;
+            let num = p0.0 * dy + (16 * j - p0.1) * (p1.0 - p0.0);
+            if num.rem_euclid(16 * dy) == 0 || (16 * j - p0.1) == 0 {
+                // (a sample exactly on an edge, or an edge starting on the row: the ceiling
+                // and [ceil(y0), ceil(y1)) put it on the left and top side)
+                hit(clause::D2D_FILL_EDGE);
+            }
+            act.push((ceil_div(num, 16 * dy), d));
+        }
+    }
+    act.sort();
+    let mut out = Vec::new();
+    let mut w = 0;
+    for k in 0..act.len().saturating_sub(1) {
+        w += act[k].1;
+        if if wind { w != 0 } else { w % 2 != 0 } {
+            out.push((act[k].0, act[k + 1].0));
+        }
+    }
+    out
+}
+
+/// MEASURED (D2D.FILL.FIXED): aliased, the pixels of the spans on each pixel row
+fn cover_aliased(tg: &Target, ps: &[Vec<(i64, i64)>], wind: bool) -> Vec<bool> {
+    let edges = fixed_edges(ps, 1);
+    let mut out = vec![false; tg.w * tg.h];
+    let mut act = Vec::new();
+    for j in 0..tg.h as i64 {
+        for (a, b) in spans(&edges, j, wind, &mut act) {
+            for c in a.max(0)..b.min(tg.w as i64) {
+                out[j as usize * tg.w + c as usize] = true;
+            }
+        }
+    }
+    out
+}
+
+fn put_coverage(tg: &mut Target, cov: Vec<u32>, paint: &Paint) {
     hit(clause::D2D_FILL_AACOVER);
     for (i, n) in cov.into_iter().enumerate() {
         if n == 0 {
@@ -1930,25 +2108,267 @@ fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, paint: &Paint) -
         let k = (n * 4 * 255 + 0x80) >> 8;
         *p = over(scale_by(src, k), *p);
     }
-    Ok(())
 }
 
-/// MEASURED (D2D.FILL.AACOVER): antialiased coverage is counted on an 8 x 8 grid of samples in
-/// each pixel, at (i + 0.5) / 8, each sample in or out by the aliased rule (D2D.FILL.EDGE)
-fn coverage(tg: &Target, ps: &[Vec<(f64, f64)>], wind: bool) -> Vec<u32> {
+/// MEASURED (D2D.FILL.AA28): a coordinate in 1/16 pixel, ceil(16 v) - 1
+fn snap16(v: f64) -> i64 {
+    (16.0 * v).ceil() as i64 - 1
+}
+
+/// the coverage of closed polygons in 1/16 pixel (D2D.FILL.AA28): samples in eighths
+fn coverage16(tg: &Target, ps: &[Vec<(i64, i64)>], wind: bool) -> Vec<u32> {
+    let edges = fixed_edges(ps, 8);
     let mut out = vec![0u32; tg.w * tg.h];
-    for y in 0..tg.h {
-        for x in 0..tg.w {
-            let mut n = 0;
-            for j in 0..8 {
-                for i in 0..8 {
-                    let p = (x as f64 + (f64::from(i) + 0.5) / 8.0, y as f64 + (f64::from(j) + 0.5) / 8.0);
-                    let w = winding(ps, p);
-                    n += u32::from(if wind { w != 0 } else { w % 2 != 0 });
-                }
+    let cols = 8 * tg.w as i64;
+    let mut act = Vec::new();
+    for j in 0..8 * tg.h as i64 {
+        for (a, b) in spans(&edges, j, wind, &mut act) {
+            for c in a.max(0)..b.min(cols) {
+                out[(j >> 3) as usize * tg.w + (c >> 3) as usize] += 1;
             }
-            out[y * tg.w + x] = n;
         }
     }
     out
+}
+
+/// the ceiling of a / b, b > 0
+fn ceil_div(a: i64, b: i64) -> i64 {
+    -(-a).div_euclid(b)
+}
+
+/// WPF's Bezier32 (bezier.cpp, HfdBasis32): a cubic in 28.4 fixed point flattened by forward
+/// differences; the points after the start, the last the end. None when it does not fit
+/// (Bezier64's case)
+pub fn hfd32(p: [(i64, i64); 4], clip: [i64; 4]) -> Option<Vec<(i64, i64)>> {
+    const INITIAL: i64 = 10;
+    const ADDITIONAL: i64 = 3;
+    const SHIFT: i64 = INITIAL + ADDITIONAL;
+    const MAX_ERROR: i64 = 24 << ((2 * INITIAL) / 3);
+    const INITIAL_TEST: i64 = 24 << INITIAL;
+    const TEST: i64 = INITIAL_TEST << ADDITIONAL;
+    #[derive(Clone, Copy)]
+    struct Hfd {
+        e: [i64; 4],
+    }
+    impl Hfd {
+        fn init(p1: i64, p2: i64, p3: i64, p4: i64) -> Option<Hfd> {
+            let mut h = Hfd { e: [p1 << INITIAL, (p4 - p1) << INITIAL, 6 * (p2 - p3 - p3 + p4), 6 * (p1 - p2 - p2 + p3)] };
+            if h.error() >= MAX_ERROR {
+                return None;
+            }
+            h.e[2] <<= INITIAL;
+            h.e[3] <<= INITIAL;
+            Some(h)
+        }
+        fn error(&self) -> i64 {
+            self.e[2].abs().max(self.e[3].abs())
+        }
+        fn parent_error4(&self) -> i64 {
+            self.e[3].abs().max((self.e[2] + self.e[2] - self.e[3]).abs())
+        }
+        fn value(&self) -> i64 {
+            (self.e[0] + (1 << (SHIFT - 1))) >> SHIFT
+        }
+        fn lazy_halve(&mut self, shift: i64) {
+            self.e[2] = (self.e[2] + self.e[3]) >> 1;
+            self.e[1] = (self.e[1] - (self.e[2] >> shift)) >> 1;
+        }
+        fn steady(&mut self, shift: i64) {
+            self.e[0] <<= ADDITIONAL;
+            self.e[1] <<= ADDITIONAL;
+            let l = shift - ADDITIONAL;
+            if l < 0 {
+                self.e[2] <<= -l;
+                self.e[3] <<= -l;
+            } else {
+                self.e[2] >>= l;
+                self.e[3] >>= l;
+            }
+        }
+        fn halve(&mut self) {
+            self.e[2] = (self.e[2] + self.e[3]) >> 3;
+            self.e[1] = (self.e[1] - self.e[2]) >> 1;
+            self.e[3] >>= 2;
+        }
+        fn double(&mut self) {
+            self.e[1] += self.e[1] + self.e[2];
+            self.e[3] <<= 2;
+            self.e[2] = (self.e[2] << 3) - self.e[3];
+        }
+        fn step(&mut self) {
+            self.e[0] += self.e[1];
+            let t = self.e[2];
+            self.e[1] += t;
+            self.e[2] += t - self.e[3];
+            self.e[3] = t;
+        }
+    }
+    let xs = p.map(|q| q.0);
+    let ys = p.map(|q| q.1);
+    let bound = [xs.into_iter().min()? - 16, ys.into_iter().min()? - 16, xs.into_iter().max()? + 16, ys.into_iter().max()? + 16];
+    let rel = p.map(|q| (q.0 - bound[0], q.1 - bound[1]));
+    if rel.iter().any(|q| (q.0 | q.1) & 0xffff_c000 != 0) {
+        return None;
+    }
+    let mut x = Hfd::init(rel[0].0, rel[1].0, rel[2].0, rel[3].0)?;
+    let mut y = Hfd::init(rel[0].1, rel[1].1, rel[2].1, rel[3].1)?;
+    let mut steps: i64 = 1;
+    let mut shift = 0;
+    let meets = bound[0] < clip[2] && bound[1] < clip[3] && bound[2] > clip[0] && bound[3] > clip[1];
+    if meets {
+        loop {
+            let test = INITIAL_TEST << shift;
+            if x.error() <= test && y.error() <= test {
+                break;
+            }
+            shift += 2;
+            x.lazy_halve(shift);
+            y.lazy_halve(shift);
+            steps <<= 1;
+        }
+    }
+    x.steady(shift);
+    y.steady(shift);
+    x.step();
+    y.step();
+    steps -= 1;
+    let mut out = Vec::new();
+    loop {
+        out.push((x.value() + bound[0], y.value() + bound[1]));
+        if steps == 0 {
+            return Some(out);
+        }
+        if x.error().max(y.error()) > TEST {
+            x.halve();
+            y.halve();
+            steps <<= 1;
+        }
+        while steps & 1 == 0 && x.parent_error4() <= TEST >> 2 && y.parent_error4() <= TEST >> 2 {
+            x.double();
+            y.double();
+            steps >>= 1;
+        }
+        steps -= 1;
+        x.step();
+        y.step();
+    }
+}
+
+/// WPF's Bezier64 (bezier.cpp, HfdBasis64), for a cubic Bezier32 cannot take: 28 fraction
+/// bits, a coarse subdivision whose pieces are flattened again to 3 << 31
+pub fn hfd64(p: [(i64, i64); 4], clip: [i64; 4]) -> Vec<(i64, i64)> {
+    const FRACTION: i64 = 28;
+    const ERROR_HIGH: i128 = ((6 * (1i128 << 15)) >> (32 - FRACTION)) << 32;
+    const ERROR_LOW: i128 = 3i128 << 31;
+    #[derive(Clone, Copy)]
+    struct Hfd {
+        e: [i128; 4],
+    }
+    impl Hfd {
+        fn init(p1: i64, p2: i64, p3: i64, p4: i64) -> Hfd {
+            let (p1, p2, p3, p4) = (i128::from(p1), i128::from(p2), i128::from(p3), i128::from(p4));
+            let e2 = p2 - p3 - p3 + p4;
+            let e3 = p1 - p2 - p2 + p3;
+            Hfd { e: [p1 << FRACTION, (p4 - p1) << FRACTION, (3 * e2) << (FRACTION + 1), (3 * e3) << (FRACTION + 1)] }
+        }
+        fn error(&self) -> i128 {
+            self.e[2].abs().max(self.e[3].abs())
+        }
+        fn parent_error(&self) -> i128 {
+            (self.e[3] << 2).abs().max(((self.e[2] << 3) - (self.e[3] << 2)).abs())
+        }
+        fn value(&self) -> i64 {
+            ((self.e[0] + (1 << (FRACTION - 1))) >> FRACTION) as i64
+        }
+        fn untransform(&self) -> [i64; 4] {
+            let e = self.e;
+            let p2 = e[1] * 3;
+            let mut p1 = p2 * 2 - e[2];
+            let mut p2 = p1 * 2 - e[3];
+            p1 -= e[3] * 2;
+            p1 /= 18;
+            p2 /= 18;
+            p1 += e[0];
+            p2 += e[0];
+            let p3 = e[0] + e[1];
+            let r = |v: i128| ((v + (1 << (FRACTION - 1))) >> FRACTION) as i64;
+            [r(e[0]), r(p1), r(p2), r(p3)]
+        }
+        fn halve(&mut self) {
+            self.e[2] = (self.e[2] + self.e[3]) >> 3;
+            self.e[1] = (self.e[1] - self.e[2]) >> 1;
+            self.e[3] >>= 2;
+        }
+        fn double(&mut self) {
+            self.e[1] = (self.e[1] << 1) + self.e[2];
+            self.e[3] <<= 2;
+            self.e[2] = (self.e[2] << 3) - self.e[3];
+        }
+        fn step(&mut self) {
+            self.e[0] += self.e[1];
+            let t = self.e[2];
+            self.e[1] += t;
+            self.e[2] += t - self.e[3];
+            self.e[3] = t;
+        }
+    }
+    let mut xh = Hfd::init(p[0].0, p[1].0, p[2].0, p[3].0);
+    let mut yh = Hfd::init(p[0].1, p[1].1, p[2].1, p[3].1);
+    let mut high: i64 = 1;
+    while xh.error() > ERROR_HIGH || yh.error() > ERROR_HIGH {
+        high <<= 1;
+        xh.halve();
+        yh.halve();
+    }
+    let (mut xl, mut yl) = (xh, yh);
+    let mut low: i64 = 0;
+    let mut out = Vec::new();
+    loop {
+        if low == 0 {
+            let (ax, ay) = (xh.untransform(), yh.untransform());
+            xl = Hfd::init(ax[0], ax[1], ax[2], ax[3]);
+            yl = Hfd::init(ay[0], ay[1], ay[2], ay[3]);
+            low = 1;
+            let bound = [ax.into_iter().min().unwrap_or(0) - 16, ay.into_iter().min().unwrap_or(0) - 16, ax.into_iter().max().unwrap_or(0) + 16, ay.into_iter().max().unwrap_or(0) + 16];
+            if bound[0] < clip[2] && bound[1] < clip[3] && bound[2] > clip[0] && bound[3] > clip[1] {
+                while xl.error() > ERROR_LOW || yl.error() > ERROR_LOW {
+                    low <<= 1;
+                    xl.halve();
+                    yl.halve();
+                }
+            }
+            high -= 1;
+            if high != 0 {
+                xh.step();
+                yh.step();
+                if xh.error() > ERROR_HIGH || yh.error() > ERROR_HIGH {
+                    high <<= 1;
+                    xh.halve();
+                    yh.halve();
+                }
+                while high & 1 == 0 && xh.parent_error() <= ERROR_HIGH && yh.parent_error() <= ERROR_HIGH {
+                    xh.double();
+                    yh.double();
+                    high >>= 1;
+                }
+            }
+        }
+        xl.step();
+        yl.step();
+        out.push((xl.value(), yl.value()));
+        low -= 1;
+        if low == 0 && high == 0 {
+            return out;
+        }
+        if xl.error() > ERROR_LOW || yl.error() > ERROR_LOW {
+            low <<= 1;
+            xl.halve();
+            yl.halve();
+        }
+        while low & 1 == 0 && xl.parent_error() <= ERROR_LOW && yl.parent_error() <= ERROR_LOW {
+            xl.double();
+            yl.double();
+            low >>= 1;
+        }
+    }
 }

@@ -601,6 +601,10 @@ fn target_more(s: &mut String, r: &mut XorShift32) {
     writeln!(s, "case layer-pop0\nd2target 8 2\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
     writeln!(s, "case layer-pop1\nd2target 8 2\nd2clip 0 0 4 2 aliased\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
     writeln!(s, "case layer-pop2\nd2target 8 2\nd2layer 0 0 4 2 1\nd2unclip\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-pop3\nd2target 8 2\nd2fill 0 0 8 2 0 255 0 255\nd2clip 0 0 4 2 aliased\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nd2fill 0 0 2 2 0 0 255 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-pop4\nd2target 8 2\nd2fill 0 0 8 2 0 255 0 255\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-pop5\nd2target 8 2\nd2fill 0 0 8 2 0 255 0 255\nd2layer 0 0 4 2 1\nd2unclip\nd2read\nd2fill 0 0 2 2 0 0 255 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-nest2\nd2target 8 2\nd2fill 0 0 8 2 0 255 0 255\nd2layer 0 0 4 2 1\nd2fill 0 0 8 2 255 0 0 255\nd2poplayer\nd2layer 4 0 8 2 0.5\nd2fill 0 0 8 2 0 0 255 255\nd2poplayer\nd2read\nend").unwrap();
 }
 
 /// gradients made to read the interpolation off: one row of 64 pixels, two stops at 0 and 1,

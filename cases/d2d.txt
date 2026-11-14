@@ -12436,6 +12436,43 @@ d2unclip
 d2fill 0 0 8 2 255 0 0 255
 d2read
 end
+case layer-pop3
+d2target 8 2
+d2fill 0 0 8 2 0 255 0 255
+d2clip 0 0 4 2 aliased
+d2poplayer
+d2fill 0 0 8 2 255 0 0 255
+d2read
+d2fill 0 0 2 2 0 0 255 255
+d2read
+end
+case layer-pop4
+d2target 8 2
+d2fill 0 0 8 2 0 255 0 255
+d2poplayer
+d2fill 0 0 8 2 255 0 0 255
+d2read
+end
+case layer-pop5
+d2target 8 2
+d2fill 0 0 8 2 0 255 0 255
+d2layer 0 0 4 2 1
+d2unclip
+d2read
+d2fill 0 0 2 2 0 0 255 255
+d2read
+end
+case layer-nest2
+d2target 8 2
+d2fill 0 0 8 2 0 255 0 255
+d2layer 0 0 4 2 1
+d2fill 0 0 8 2 255 0 0 255
+d2poplayer
+d2layer 4 0 8 2 0.5
+d2fill 0 0 8 2 0 0 255 255
+d2poplayer
+d2read
+end
 case gradfit-0
 d2target 64 1
 d2aa aliased
