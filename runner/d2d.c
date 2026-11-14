@@ -341,14 +341,15 @@ static void op_in(void) {
     HRESULT hr = g->lpVtbl->FillContainsPoint(g, q, NULL, tol, &c);
     out("in %08lx %d\n", hr, c);
 }
-/* d2area <g>, d2len <g>: ComputeArea / ComputeLength (no transform, tolerance 0.25) ->
- * "area <hr> <v>" */
+/* d2area <g> [tolerance], d2len <g> [tolerance]: ComputeArea / ComputeLength (no transform,
+ * tolerance 0.25 when not given) -> "area <hr> <v>" */
 static void op_area(void) {
     ID2D1Geometry *g = get(1);
-    if (bad || ntok != 2) { bad = 1; return; }
+    float tol = ntok > 2 ? fl(2) : D2D1_DEFAULT_FLATTENING_TOLERANCE;
+    if (bad || ntok > 3) { bad = 1; return; }
     if (!g) return;
     float v = -1;
-    HRESULT hr = is(0, "d2area") ? g->lpVtbl->ComputeArea(g, NULL, D2D1_DEFAULT_FLATTENING_TOLERANCE, &v) : g->lpVtbl->ComputeLength(g, NULL, D2D1_DEFAULT_FLATTENING_TOLERANCE, &v);
+    HRESULT hr = is(0, "d2area") ? g->lpVtbl->ComputeArea(g, NULL, tol, &v) : g->lpVtbl->ComputeLength(g, NULL, tol, &v);
     out("%s %08lx", is(0, "d2area") ? "area" : "len", hr); outf(v); out("\n");
 }
 /* d2cmp <a> <b>: a's CompareWithGeometry(b) (no transform, tolerance 0.25) -> "cmp <hr> <relation>" */

@@ -285,8 +285,8 @@ proptest! {
         let det = (m[0] * m[3] - m[1] * m[2]).abs();
         prop_assert_eq!(area(&x).unwrap(), (w * h) as f32 * det);
         if m[1] == 0.0 && m[2] == 0.0 {
-            prop_assert_eq!(length(&x).unwrap(), 2.0 * (w as f32 * m[0].abs() + h as f32 * m[3].abs()));
+            prop_assert_eq!(length(&x, 0.25).unwrap(), 2.0 * (w as f32 * m[0].abs() + h as f32 * m[3].abs()));
         }
-        prop_assert_eq!(length(&r).unwrap(), (2 * (w + h)) as f32);
+        prop_assert_eq!(length(&r, 0.25).unwrap(), (2 * (w + h)) as f32);
     }
 }

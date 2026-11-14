@@ -30,6 +30,7 @@ pub fn d2d() -> String {
     sink(&mut s);
     draw(&mut s, &mut r);
     curves(&mut s, &mut r);
+    arith(&mut s, &mut r);
     s
 }
 
@@ -435,4 +436,42 @@ fn curves(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "case fillell-{i}\nd2target 16 16\nd2aa aliased\nd2ell 0 {e}\nd2fillg 0 255 255 255 255\nd2read\nend\ncase fillell-aa-{i}\nd2target 16 16\nd2ell 0 {e}\nd2fillg 0 255 255 255 255\nd2read\nend").unwrap();
     }
     writeln!(s, "case fillrrect\nd2target 16 16\nd2aa aliased\nd2rrect 0 1 1 15 11 4 3\nd2fillg 0 255 255 255 255\nd2read\nend").unwrap();
+}
+
+/// a float with a fractional part: a quarter step plus random low bits
+fn frac(r: &mut XorShift32, lo: i64, hi: i64) -> String {
+    fmt(r.range(lo * 64, hi * 64) as f64 / 64.0 + (r.next() % 1000) as f64 / 64000.0)
+}
+
+fn arith(s: &mut String, r: &mut XorShift32) {
+    // the arithmetic of areas: polygons with fractional corners, one figure, either fill mode
+    for i in 0..40 {
+        let n = r.range(3, 7);
+        let pts: Vec<String> = (0..n).map(|_| format!("{} {}", frac(r, -8, 8), frac(r, -8, 8))).collect();
+        let mode = if i % 2 == 0 { "alt" } else { "wind" };
+        writeln!(s, "case parea-{i}\nd2path 0 {mode} m {} z\nd2area 0\nd2tess 0\nend", pts.join(" ")).unwrap();
+    }
+    // curved areas at several tolerances, and their tessellation; lengths at other tolerances
+    for i in 0..30 {
+        let g = if i % 2 == 0 {
+            format!("d2ell 0 {} {} {} {}", frac(r, -10, 10), frac(r, -10, 10), frac(r, 0, 8), frac(r, 0, 8))
+        } else {
+            format!("d2rrect 0 {} {} {} {} {} {}", frac(r, -10, 0), frac(r, -10, 0), frac(r, 1, 10), frac(r, 1, 10), frac(r, 0, 4), frac(r, 0, 4))
+        };
+        writeln!(s, "case carea-{i}\n{g}\nd2area 0\nd2area 0 1\nd2area 0 0.05\nd2tess 0\nd2len 0 1\nd2len 0 0\nend").unwrap();
+    }
+    // bounds of curves through a transform
+    for i in 0..30 {
+        let g = if i % 2 == 0 {
+            format!("d2ell 0 {} {} {} {}", frac(r, -10, 10), frac(r, -10, 10), frac(r, 0, 8), frac(r, 0, 8))
+        } else {
+            format!("d2rrect 0 {} {} {} {} {} {}", frac(r, -10, 0), frac(r, -10, 0), frac(r, 1, 10), frac(r, 1, 10), frac(r, 0, 4), frac(r, 0, 4))
+        };
+        let m: Vec<String> = (0..6).map(|_| frac(r, -3, 3)).collect();
+        writeln!(s, "case cbounds-{i}\n{g}\nd2bounds 0 {}\nd2bounds 0 1 0 0 1 {} {}\nd2bounds 0 {} 0 0 {} 0 0\nend", m.join(" "), m[4], m[5], m[0], m[3]).unwrap();
+    }
+    // curves filled through a transform (aliased)
+    for (i, m) in ["0.7071 0.7071 -0.7071 0.7071 8 0", "1.5 0 0 0.5 1 2", "1 0.5 0 1 0 -2"].iter().enumerate() {
+        writeln!(s, "case fillell-xf-{i}\nd2target 16 16\nd2aa aliased\nd2xform {m}\nd2ell 0 6 6 5 3\nd2fillg 0 255 255 255 255\nd2rrect 1 1 1 12 9 3 2\nd2fillg 1 0 0 255 128\nd2read\nend").unwrap();
+    }
 }

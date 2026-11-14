@@ -182,6 +182,233 @@ impl Geom {
     }
 }
 
+pub type P = (f32, f32);
+
+/// a segment as a sink is given it: a line to a point, or a cubic Bezier through two control
+/// points to a point
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Seg {
+    L(P),
+    C(P, P, P),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Fig {
+    pub start: P,
+    pub segs: Vec<Seg>,
+    pub closed: bool,
+}
+
+/// MEASURED (D2D.ARCS): a quarter of an ellipse is a cubic whose control points lie this
+/// fraction of the radius in from the box's edges, each computed from the edge it sits on
+/// (one minus d2d1's kappa, 0x3ee53aef; ellipse and rounded rectangle alike)
+pub const ARC_IN: f32 = f32::from_bits(0x3ee53aef);
+
+/// a geometry as Simplify hands it on with D2D1_GEOMETRY_SIMPLIFICATION_OPTION_CUBICS_AND_LINES:
+/// the fill mode, whether the segments are flagged FORCE_ROUND_LINE_JOIN, and the figures
+pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
+    match g {
+        Geom::Rect([l, t, r, b]) => {
+            // (MEASURED, simp-rect: the rectangle put in order, three lines from the top left
+            // corner clockwise, the fourth side is the close)
+            let (l, r, t, b) = (&lo(*l, *r), &hi(*l, *r), &lo(*t, *b), &hi(*t, *b));
+            (false, false, vec![Fig { start: (*l, *t), segs: vec![Seg::L((*r, *t)), Seg::L((*r, *b)), Seg::L((*l, *b))], closed: true }])
+        }
+        Geom::Path { wind, figs } => (
+            *wind,
+            false,
+            figs.iter().map(|f| Fig { start: f.pts[0], segs: f.pts[1..].iter().map(|&p| Seg::L(p)).collect(), closed: f.closed }).collect(),
+        ),
+        Geom::Ell([cx, cy, rx, ry]) => {
+            // (MEASURED, simp-ell-*: from the left end clockwise, four cubics with a line of no
+            // length to the end of each of the first three; a negative radius counts as its size)
+            hit("D2D.ARCS");
+            let (cx, cy, rx, ry) = (*cx, *cy, rx.abs(), ry.abs());
+            let (l, t, r, b) = (cx - rx, cy - ry, cx + rx, cy + ry);
+            let (il, it, ir, ib) = (l + rx * ARC_IN, t + ry * ARC_IN, r - rx * ARC_IN, b - ry * ARC_IN);
+            let segs = vec![
+                Seg::C((l, it), (il, t), (cx, t)),
+                Seg::L((cx, t)),
+                Seg::C((ir, t), (r, it), (r, cy)),
+                Seg::L((r, cy)),
+                Seg::C((r, ib), (ir, b), (cx, b)),
+                Seg::L((cx, b)),
+                Seg::C((il, b), (l, ib), (l, cy)),
+            ];
+            (false, true, vec![Fig { start: (l, cy), segs, closed: true }])
+        }
+        Geom::RRect([l, t, r, b, rx, ry]) => {
+            // (MEASURED, simp-rrect-*: the rectangle put in order, each radius taken as its size
+            // and cut to half the side; from the top of the left side clockwise, a cubic for
+            // every corner and a line along every side, of no length when the radius is half)
+            hit("D2D.ARCS");
+            let (l, r, t, b) = (lo(*l, *r), hi(*l, *r), lo(*t, *b), hi(*t, *b));
+            let rx = rx.abs().min((r - l) * 0.5);
+            let ry = ry.abs().min((b - t) * 0.5);
+            let (il, it, ir, ib) = (l + rx * ARC_IN, t + ry * ARC_IN, r - rx * ARC_IN, b - ry * ARC_IN);
+            let segs = vec![
+                Seg::C((l, it), (il, t), (l + rx, t)),
+                Seg::L((r - rx, t)),
+                Seg::C((ir, t), (r, it), (r, t + ry)),
+                Seg::L((r, b - ry)),
+                Seg::C((r, ib), (ir, b), (r - rx, b)),
+                Seg::L((l + rx, b)),
+                Seg::C((il, b), (l, ib), (l, b - ry)),
+            ];
+            (false, true, vec![Fig { start: (l, t + ry), segs, closed: true }])
+        }
+        Geom::Xf(g, m) => {
+            let (wind, round, figs) = shape(g);
+            let a = |p: P| apply(m, p.0, p.1);
+            let figs = figs
+                .into_iter()
+                .map(|f| Fig {
+                    start: a(f.start),
+                    segs: f.segs.iter().map(|s| match *s { Seg::L(p) => Seg::L(a(p)), Seg::C(p, q, r) => Seg::C(a(p), a(q), a(r)) }).collect(),
+                    closed: f.closed,
+                })
+                .collect();
+            (wind, round, figs)
+        }
+    }
+}
+
+/// MEASURED (D2D.FLATTEN, flat-*): a cubic is flattened by forward differencing in f32 on
+/// halved and doubled steps (milcore's CBezierFlattener): the step is halved while the second
+/// derivative at either end of it (six times the control points' second differences, largest
+/// coordinate) exceeds six times the tolerance and the step is above 1/1024, after each step
+/// halved again while the one at its end does, else doubled while both are within a quarter
+/// of that and the step count allows; the points come after `p0`, the last one `p3` itself
+pub fn flatten(p0: P, p1: P, p2: P, p3: P, tol: f32) -> Vec<P> {
+    hit("D2D.FLATTEN");
+    type V = [f32; 2];
+    let v = |p: P| [p.0, p.1];
+    let sub = |a: V, b: V| [a[0] - b[0], a[1] - b[1]];
+    let add = |a: V, b: V| [a[0] + b[0], a[1] + b[1]];
+    let sc = |a: V, k: f32| [a[0] * k, a[1] * k];
+    let norm = |a: V| a[0].abs().max(a[1].abs());
+    let tol = if tol >= 0.0 { tol } else { 0.0 } * 6.0;
+    let quarter = tol * 0.25;
+    let (b0, b1, b2, b3) = (v(p0), v(p1), v(p2), v(p3));
+    let mut e0 = b0;
+    let mut e1 = sub(b3, b0);
+    let mut e2 = sc(add(sub(b1, sc(b2, 2.0)), b3), 6.0);
+    let mut e3 = sc(add(sub(b0, sc(b1, 2.0)), b2), 6.0);
+    let mut steps: u32 = 1;
+    let mut size: f64 = 1.0;
+    const MIN: f64 = 1.0 / 1024.0;
+    let halve = |e1: &mut V, e2: &mut V, e3: &mut V, steps: &mut u32, size: &mut f64| {
+        *e2 = sc(add(*e2, *e3), 0.125);
+        *e1 = sc(sub(*e1, *e2), 0.5);
+        *e3 = sc(*e3, 0.25);
+        *steps *= 2;
+        *size *= 0.5;
+    };
+    // (a NaN compares false: no halving)
+    while (norm(e2) > tol || norm(e3) > tol) && size > MIN {
+        halve(&mut e1, &mut e2, &mut e3, &mut steps, &mut size);
+    }
+    let mut out = Vec::new();
+    while steps > 1 {
+        e0 = add(e0, e1);
+        let pt = e2;
+        e1 = add(e1, pt);
+        e2 = sub(add(e2, pt), e3);
+        e3 = pt;
+        out.push((e0[0], e0[1]));
+        steps -= 1;
+        if norm(e2) > tol && size > MIN {
+            halve(&mut e1, &mut e2, &mut e3, &mut steps, &mut size);
+        } else {
+            while steps % 2 == 0 {
+                let tmp = sub(sc(e2, 2.0), e3);
+                if !(norm(e3) <= quarter && norm(tmp) <= quarter) {
+                    break;
+                }
+                e1 = add(sc(e1, 2.0), e2);
+                e3 = sc(e3, 4.0);
+                e2 = sc(tmp, 4.0);
+                steps /= 2;
+                size *= 2.0;
+            }
+        }
+    }
+    out.push(p3);
+    out
+}
+
+/// the figures with every cubic flattened (Simplify's LINES option)
+pub fn flat_figs(figs: &[Fig], tol: f32) -> Vec<Fig> {
+    figs.iter()
+        .map(|f| {
+            let mut cur = f.start;
+            let mut segs = Vec::new();
+            for s in &f.segs {
+                match *s {
+                    Seg::L(p) => {
+                        segs.push(Seg::L(p));
+                        cur = p;
+                    }
+                    Seg::C(a, b, c) => {
+                        segs.extend(flatten(cur, a, b, c, tol).into_iter().map(Seg::L));
+                        cur = c;
+                    }
+                }
+            }
+            Fig { start: f.start, segs, closed: f.closed }
+        })
+        .collect()
+}
+
+/// the geometry as straight-line figures and a transform: curves flattened with `tol`
+pub fn flat_lines(g: &Geom, tol: f32) -> (bool, Vec<Figure>, M) {
+    if let Some(l) = g.lines() {
+        return l;
+    }
+    let (wind, _, figs) = shape(g);
+    let figs = flat_figs(&figs, tol)
+        .into_iter()
+        .map(|f| Figure { pts: std::iter::once(f.start).chain(f.segs.iter().map(|s| match *s { Seg::L(p) | Seg::C(_, _, p) => p })).collect(), closed: f.closed })
+        .collect();
+    (wind, figs, IDENTITY)
+}
+
+/// D2D1_GEOMETRY_SIMPLIFICATION_OPTION, as the executor names it
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Simplification {
+    CubicsAndLines,
+    Lines,
+}
+
+impl Simplification {
+    fn parse(t: Option<&str>) -> Res<Simplification> {
+        match t {
+            Some("cubics") => Ok(Simplification::CubicsAndLines),
+            Some("lines") => Ok(Simplification::Lines),
+            _ => Err(Fail::Bad),
+        }
+    }
+}
+
+/// what a sink is told for a shape, as the executor prints it
+pub fn sink_text(wind: bool, round: bool, figs: &[Fig]) -> String {
+    let mut o = format!(" F {}", wind as u32);
+    if round {
+        o += " S 2";
+    }
+    for f in figs {
+        o += &format!(" B {} {} 0", hex(f.start.0), hex(f.start.1));
+        for s in &f.segs {
+            match *s {
+                Seg::L(p) => o += &format!(" L {} {}", hex(p.0), hex(p.1)),
+                Seg::C(a, b, c) => o += &format!(" C {} {} {} {} {} {}", hex(a.0), hex(a.1), hex(b.0), hex(b.1), hex(c.0), hex(c.1)),
+            }
+        }
+        o += &format!(" E {}", f.closed as u32);
+    }
+    o
+}
+
 /// the smaller and larger of two floats as SSE's minss / maxss pick them (a NaN in the second
 /// place comes back)
 fn lo(a: f32, b: f32) -> f32 {
@@ -304,22 +531,20 @@ fn dist_seg(p: (f64, f64), a: (f64, f64), b: (f64, f64)) -> f64 {
 /// FillContainsPoint
 pub fn contains(g: &Geom, x: f32, y: f32, tol: f32) -> Res<bool> {
     let p = (x as f64, y as f64);
-    if let Geom::Ell([cx, cy, rx, ry]) = g {
-        let v = ((p.0 - *cx as f64) / *rx as f64).powi(2) + ((p.1 - *cy as f64) / *ry as f64).powi(2);
-        // (the distance to the curve, near enough for a band around the tolerance)
-        let d = (v.sqrt() - 1.0).abs() * (*rx).min(*ry) as f64;
-        if d < tol as f64 * 2.0 + 0.0625 {
-            return Err(Fail::Unmodeled("D2D.IN.ELLNEAR"));
-        }
-        hit("D2D.IN.ELL");
-        return Ok(v < 1.0);
+    let ftol = if tol == 0.0 { 0.25 } else { tol };
+    let (wind, figs, m) = flat_lines(g, ftol);
+    let curved = g.lines().is_none();
+    if curved {
+        hit(if matches!(g, Geom::RRect(_)) { "D2D.IN.RRECT" } else { "D2D.IN.ELL" });
     }
-    let Some((wind, figs, m)) = g.lines() else { return Err(Fail::Unmodeled("D2D.IN.RRECT")) };
     let ps = polys(&figs, &m);
     let d = ps.iter().flat_map(|q| segs(q)).map(|(a, b)| dist_seg(p, a, b)).fold(f64::INFINITY, f64::min);
     // (MEASURED: a tolerance of 0 is the default 0.25; inside when strictly nearer than it)
     let tol = if tol == 0.0 { hit("D2D.IN.TOL0"); 0.25 } else { tol as f64 };
     hit("D2D.IN.TOL");
+    if curved && d < tol * 2.0 {
+        hit("D2D.IN.ELLNEAR");
+    }
     if d < tol {
         return Ok(true);
     }
@@ -392,8 +617,11 @@ pub fn area(g: &Geom) -> Res<f32> {
 /// ComputeLength. MEASURED (golden d2d-32/-64, 66 paths bit for bit): each side's length as
 /// sqrt(dx dx + dy dy) in f32, summed in f32 in order over every figure, the closing side of a
 /// closed figure included
-pub fn length(g: &Geom) -> Res<f32> {
-    let Some((_, figs, m)) = g.lines() else { return Err(Fail::Unmodeled("D2D.LEN.CURVE")) };
+pub fn length(g: &Geom, tol: f32) -> Res<f32> {
+    let (_, figs, m) = flat_lines(g, tol);
+    if g.lines().is_none() {
+        hit("D2D.LEN.CURVE");
+    }
     hit("D2D.LEN");
     let mut sum = 0f32;
     for f in &figs {
@@ -638,11 +866,10 @@ impl D2d {
             "d2simp" | "d2outline" | "d2widen" | "d2combine" | "d2tess" => {
                 let g = self.geom(op, 1, out)?;
                 let mut at = 2;
+                let mut simp = None;
                 match t[0].as_str() {
                     "d2simp" => {
-                        if !matches!(t.get(2).map(String::as_str), Some("lines" | "cubics")) {
-                            return Err(Fail::Bad);
-                        }
+                        simp = Some(Simplification::parse(t.get(2).map(String::as_str))?);
                         at = 3;
                     }
                     "d2widen" => {
@@ -664,10 +891,16 @@ impl D2d {
                 if len > at + 1 {
                     return Err(Fail::Bad);
                 }
-                if g.is_none() {
-                    return Ok(true);
-                }
-                return Err(Fail::Unmodeled("D2D.SIMP"));
+                let Some(g) = g else { return Ok(true) };
+                let Some(simp) = simp else { return Err(Fail::Unmodeled("D2D.SIMP")) };
+                hit("D2D.SIMPLIFY");
+                let tol = if len > at { f(op, at)? } else { 0.25 };
+                let (wind, round, figs) = shape(&g);
+                let figs = match simp {
+                    Simplification::CubicsAndLines => figs,
+                    Simplification::Lines => flat_figs(&figs, tol),
+                };
+                out.push(format!("simp{} hr 00000000", sink_text(wind, round, &figs)));
             }
             "d2bounds" => {
                 let g = self.geom(op, 1, out)?;
@@ -691,9 +924,12 @@ impl D2d {
             }
             "d2area" | "d2len" => {
                 let g = self.geom(op, 1, out)?;
-                want(2)?;
+                let tol = if len > 2 { f(op, 2)? } else { 0.25 };
+                if len > 3 {
+                    return Err(Fail::Bad);
+                }
                 let Some(g) = g else { return Ok(true) };
-                let v = if t[0] == "d2area" { area(&g)? } else { length(&g)? };
+                let v = if t[0] == "d2area" { area(&g)? } else { length(&g, tol)? };
                 out.push(format!("{} 00000000 {}", &t[0][2..], hex(v)));
             }
             "d2cmp" => {
@@ -974,8 +1210,13 @@ impl D2d {
 /// FillRectangle / FillGeometry with a solid color brush: the pixels whose centers the shape
 /// covers (aliased, or antialiased where every edge is on the pixel grid), source over
 fn fill(tg: &mut Target, g: &Geom, c: [i64; 4]) -> Res<()> {
-    let Some((wind, figs, m0)) = g.lines() else { return Err(Fail::Unmodeled("D2D.FILL.CURVE")) };
-    let m = mul(&m0, &tg.m);
+    let (wind, figs, m) = match g.lines() {
+        Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.m)),
+        None => {
+            hit("D2D.FILL.CURVE");
+            flat_lines(&Geom::Xf(Box::new(g.clone()), tg.m), 0.25)
+        }
+    };
     let ps = polys(&figs, &m);
     let axis = matches!(g, Geom::Rect(_)) && m[1] == 0.0 && m[2] == 0.0;
     if !tg.aliased {
