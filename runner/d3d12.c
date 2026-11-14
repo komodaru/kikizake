@@ -521,7 +521,23 @@ static void op_rootsig(void) {
     ID3D10Blob_Release(blob);
 }
 
+/* remove12: ID3D12Device5::RemoveDevice (vtable slot 58: IUnknown 3, ID3D12Object 4, ID3D12Device 37,
+ * Device1 3, Device2 1, Device3 3, Device4 6, Device5's CreateLifetimeTracker; mingw's d3d12.h
+ * stops at Device1): "remove12 ok", or "remove12 none" without ID3D12Device5 */
+static const GUID IID_ID3D12Device5_ = { 0x8b4f173b, 0x2fea, 0x4b80, { 0x8f, 0x58, 0x43, 0x07, 0x19, 0x1a, 0xb9, 0x5d } };
+static void op_remove(void) {
+    if (!on12) { out("nodev\n"); return; }
+    IUnknown *d5 = NULL;
+    if (FAILED(ID3D12Device_QueryInterface(dev12, &IID_ID3D12Device5_, (void **)&d5)) || !d5) { out("remove12 none\n"); return; }
+    void (STDMETHODCALLTYPE *remove)(IUnknown *) = (void *)(*(void ***)d5)[58];
+    remove(d5);
+    IUnknown_Release(d5);
+    out("remove12 ok\n");
+    oflush();
+}
+
 static const struct kz_op d3d12_ops[] = {
+    { "remove12", op_remove },
     { "rootsig12", op_rootsig },
     { "copy12", op_copy },
     { "device12", op_device12 },

@@ -14004,6 +14004,70 @@ case make-282
 device12
 qheap12 3 8388607
 end
+case make-283
+device12
+qheap12 0 7340033
+end
+case make-284
+device12
+qheap12 0 7864320
+end
+case make-285
+device12
+qheap12 0 8126464
+end
+case make-286
+device12
+qheap12 0 8257536
+end
+case make-287
+device12
+qheap12 0 8323072
+end
+case make-288
+device12
+qheap12 0 8384512
+end
+case make-289
+device12
+qheap12 0 8388352
+end
+case make-290
+device12
+qheap12 0 8388606
+end
+case make-291
+device12
+qheap12 3 7340033
+end
+case make-292
+device12
+qheap12 3 7864320
+end
+case make-293
+device12
+qheap12 3 8126464
+end
+case make-294
+device12
+qheap12 3 8257536
+end
+case make-295
+device12
+qheap12 3 8323072
+end
+case make-296
+device12
+qheap12 3 8384512
+end
+case make-297
+device12
+qheap12 3 8388352
+end
+case make-298
+device12
+qheap12 3 8388606
+end
 case rootsig-0
 device12
 rootsig12 1 0
@@ -16139,4 +16203,36 @@ end
 case rootsig-533
 device12
 rootsig12 2 0 c 0 0 0xffffffff 0
+end
+case rootsig-534
+device12
+rootsig12 1 0x80000080
+end
+case rootsig-535
+device12
+rootsig12 1 0 t 0 1 0 2 0xfffffffe 0 0 0
+end
+case rootsig-536
+device12
+rootsig12 1 0 t 0 1 0 0xffffffff 0xfffffffe 0 0 0
+end
+case rootsig-537
+device12
+rootsig12 1 0 srv 0 0 0 0 t 0 1 0 0xffffffff 1 0 0 0
+end
+case rootsig-538
+device12
+rootsig12 2 0x80000080
+end
+case rootsig-539
+device12
+rootsig12 2 0 t 0 1 0 2 0xfffffffe 0 0 0
+end
+case rootsig-540
+device12
+rootsig12 2 0 t 0 1 0 0xffffffff 0xfffffffe 0 0 0
+end
+case rootsig-541
+device12
+rootsig12 2 0 srv 0 0 0 0 t 0 1 0 0xffffffff 1 0 0 0
 end

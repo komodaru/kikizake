@@ -185,11 +185,11 @@ fn bindings(ps: &[Param], ss: &[Sampler]) -> Vec<Binding> {
     v
 }
 
-/// a static sampler's D3D12_FILTER: the point/linear bits of min (0x10), mag (4) and mip (1), or
-/// anisotropic (0x40) with linear min and mag, and a reduction (0x80: comparison, 0x100 minimum,
-/// 0x180 maximum)
+/// a static sampler's D3D12_FILTER: point or linear min (0x10), mag (4) and mip (1), or
+/// ANISOTROPIC (0x55, all linear), with a reduction (0x80 comparison, 0x100 minimum, 0x180 maximum)
+/// (MEASURED, golden d3d12-* rootsig-*: MIN_MAG_ANISOTROPIC_MIP_POINT, 0x54, refused)
 fn filter_ok(f: u32) -> bool {
-    f & !0x1d5 == 0 || (f & !0x1d5 == 0x40 && f & 0x14 == 0x14)
+    f & !0x1d5 == 0 && (f & 0x40 == 0 || f & 0x55 == 0x55)
 }
 
 /// D3D12SerializeVersionedRootSignature's verdict on a description: whether it serializes
@@ -210,6 +210,8 @@ pub fn valid(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> bool {
                 && ranges.iter().all(|r| {
                     range_class(r.ty).is_some()
                         && r.n != 0
+                        // (a bounded range ends by the last register: golden rootsig-437)
+                        && (r.n == u32::MAX || r.base.checked_add(r.n - 1).is_some())
                         && (!v11
                             || if r.ty == 3 {
                                 r.flags & !1 == 0
@@ -229,9 +231,9 @@ pub fn valid(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> bool {
     let apart = bs.iter().enumerate().all(|(i, a)| {
         bs[i + 1..].iter().all(|b| !(a.0 == b.0 && a.1 == b.1 && (a.2 == b.2 || a.2 == 0 || b.2 == 0) && a.3 <= b.4 && b.3 <= a.4))
     });
-    // (the defined flags, and 0x80000000; LOCAL_ROOT_SIGNATURE (0x80) not with the input
-    // assembler's layout: golden rootsig-4, 6 and the rootsig-flag cases)
-    let flags_ok = flags & !(0xfff | 0x8000_0000) == 0 && flags & 0x81 != 0x81;
+    // (the defined flags, and 0x80000000; LOCAL_ROOT_SIGNATURE (0x80) with no other defined one:
+    // golden d3d12-* rootsig-366..410)
+    let flags_ok = flags & !(0xfff | 0x8000_0000) == 0 && (flags & 0x80 == 0 || flags & 0xfff == 0x80);
     params && samplers && apart && flags_ok
 }
 

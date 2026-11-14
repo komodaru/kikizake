@@ -482,6 +482,8 @@ fn hex64(v: u64) -> String {
 #[derive(Default)]
 pub struct D3d12 {
     dev: bool,
+    /// RemoveDevice called (remove12)
+    removed: bool,
     factory: bool,
     /// the swap chain: its description (GetDesc1's 12 fields) and back buffer index
     chain: Option<([u32; 12], u32)>,
@@ -505,9 +507,17 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
+            }
+            "remove12" => {
+                if t.len() != 1 {
+                    return Err(Fail::Bad);
+                }
+                hit(clause::D3D12_CLEAR_REMOVED);
+                self.removed = true;
+                out.push("remove12 ok".into());
             }
             "rootsig12" => {
                 use super::rootsig::{checksum, cost, dxbc, parse, rts0, valid, Version, MAXTOK};
@@ -573,13 +583,14 @@ impl D3d12 {
                     return Err(Fail::Bad);
                 }
                 let w = words(&t[1..])?;
+                if self.removed {
+                    // (MEASURED: a removed device makes no resource, golden d3d12rm-*)
+                    hit(clause::D3D12_CLEAR_REMOVED);
+                    out.push(format!("clear12 hr {DXGI_ERROR_DEVICE_REMOVED:08x}"));
+                    return Ok(true);
+                }
                 match clear_texel(w[0], [w[1], w[2], w[3], w[4]]) {
                     Some(b) => out.push(format!("clear12 {}", hex(&b))),
-                    None if w[0] == 40 => {
-                        // (MEASURED: a D32_FLOAT render target removes the device)
-                        hit(clause::D3D12_CLEAR_REMOVED);
-                        out.push(format!("clear12 hr {DXGI_ERROR_DEVICE_REMOVED:08x}"));
-                    }
                     None => {
                         hit(clause::D3D12_CLEAR_FORMAT);
                         out.push(format!("clear12 hr {E_INVALIDARG:08x}"));
@@ -727,8 +738,8 @@ impl D3d12 {
                         // (MEASURED: every type but video decode statistics (4), at least one query)
                         hit(clause::D3D12_MAKE_QUERYHEAP);
                         let valid = w[0] <= 7 && w[0] != 4 && w[1] > 0;
-                        // (MEASURED, golden d3d12-32 make-167/168, 240..274: 8M queries of any
-                        // type are more than a 32-bit process has room for, 4M are not; make-275..
+                        // (MEASURED, golden d3d12-32 make-167/168, 240..282: 8M - 1 queries of any
+                        // type are more than a 32-bit process has room for, 7M are not; make-283..
                         // narrow it)
                         if valid && super::arch() == 32 && w[1] >= QHEAP32_OOM {
                             E_OUTOFMEMORY
@@ -891,7 +902,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
 
 /// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)
 /// the fewest queries a 32-bit process's CreateQueryHeap runs out of memory for
-const QHEAP32_OOM: u32 = 1 << 23;
+const QHEAP32_OOM: u32 = 7 << 20 | 1;
 
 pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
     hit(clause::D3D12_MAKE_HEAP);

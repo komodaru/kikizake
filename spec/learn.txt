@@ -603,3 +603,4 @@ D3D12_ROOT_DESCRIPTOR_FLAGS | https://learn.microsoft.com/en-us/windows/win32/ap
 D3D12_DESCRIPTOR_RANGE_FLAGS | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_descriptor_range_flags
 D3D12_ROOT_SIGNATURE_FLAGS | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_root_signature_flags
 ID3D12Device::CreateRootSignature | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-createrootsignature
+ID3D12Device5::RemoveDevice | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device5-removedevice

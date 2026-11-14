@@ -52,7 +52,7 @@ D3D12.CLEAR.INT measured | Data Conversion Rules (integer targets: round to near
 D3D12.CLEAR.X measured | (none) | the X of B8G8R8X8_UNORM_SRGB is 0 (clear-93-*)
 D3D12.CLEAR.XALPHA measured | (none) | the X of B8G8R8X8_UNORM holds the alpha as UNORM (clear-88-*)
 D3D12.CLEAR.FORMAT measured | D3D12_FORMAT_SUPPORT1_RENDER_TARGET | UNKNOWN, block compressed and unassigned formats: the render target is not made, E_INVALIDARG (clear-unsupported)
-D3D12.CLEAR.REMOVED measured | (none) | making a D32_FLOAT render target removes the device: DXGI_ERROR_DEVICE_REMOVED (golden d3d12-32 f297a92 clear-unsupported, d3d12rm-64; asked in a 64-bit process alone, suite d3d12rm: a 32-bit one crashed making it, golden c4c7692, 936cec8)
+D3D12.CLEAR.REMOVED doc | ID3D12Device5::RemoveDevice | after RemoveDevice the device makes nothing: CreateCommittedResource gives DXGI_ERROR_DEVICE_REMOVED (d3d12rm clear-removed)
 D3D12.CLEARDSV doc | ID3D12GraphicsCommandList::ClearDepthStencilView (Depth clamped to 0..1) | UNORM depths clamped and converted as UNORM (24 bits in the low bits of plane 0), float depths kept as given, not clamped (measured), the stencil plane the stencil's low byte (cleardsv-*)
 D3D12.CLEARDSV.NAN measured | (none) | a NaN depth clears a UNORM depth to 0 (cleardsv-45, cleardsv-55)
 D3D12.FEATURE.FORMAT measured | D3D12_FEATURE_DATA_FORMAT_SUPPORT, D3D12_FEATURE_DATA_FORMAT_INFO | WARP's Support1, Support2 and plane count of each format, the table dxgi_format::CAPS; unknown formats E_FAIL (support) and E_INVALIDARG (planes), NV11, AI44, IA44 with planes but no support (golden d3d12-32, -64 fsup-*, alike)

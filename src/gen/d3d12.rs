@@ -284,7 +284,7 @@ pub fn d3d12() -> String {
         }
         writeln!(s, "end").unwrap();
     }
-    // (not D32_FLOAT, which removes the device, D3D12.CLEAR.REMOVED: the executor crashed after it)
+    // (not D32_FLOAT, which removes the device: the executor crashed after it, golden 936cec8)
     writeln!(s, "case clear-unsupported\ndevice12").unwrap();
     for f in [0, 71, 192] {
         writeln!(s, "clear12 {f} 0 0 0 0").unwrap();
@@ -457,6 +457,11 @@ pub fn d3d12() -> String {
             mk.push(format!("qheap12 {t} {n}"));
         }
     }
+    for t in [0u32, 3] {
+        for n in [7u32 << 20 | 1, 15 << 19, 31 << 18, 63 << 17, 127 << 16, (1 << 23) - 4096, (1 << 23) - 256, (1 << 23) - 2] {
+            mk.push(format!("qheap12 {t} {n}"));
+        }
+    }
     for (i, l) in mk.iter().enumerate() {
         // (descriptor heap types past the last, 4 and 5: a 32-bit process crashed making one,
         // golden e91efb1; their numbers left unused)
@@ -568,6 +573,12 @@ pub fn d3d12() -> String {
         rs.push(format!("{v} 0 c 0 0 63 0 cbv 1 0 0 0"));
         rs.push(format!("{v} 0 c 0 0 0xffffffff 0"));
     }
+    for v in [1u32, 2] {
+        rs.push(format!("{v} 0x80000080"));
+        rs.push(format!("{v} 0 t 0 1 0 2 0xfffffffe 0 0 0"));
+        rs.push(format!("{v} 0 t 0 1 0 0xffffffff 0xfffffffe 0 0 0"));
+        rs.push(format!("{v} 0 srv 0 0 0 0 t 0 1 0 0xffffffff 1 0 0 0"));
+    }
     for (i, l) in rs.iter().enumerate() {
         writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
     }
@@ -586,8 +597,9 @@ fn chain_line(s: &mut String, op: &str, w: &[u32]) {
 /// a D32_FLOAT render target removes the device (D3D12.CLEAR.REMOVED): alone in a suite, a
 /// process of its own (in the d3d12 suite the executor crashed after it, golden e91efb1)
 pub fn d3d12rm() -> String {
-    // (x64 only: a 32-bit executor crashed making it, golden 936cec8 d3d12rm-32, and in c4c7692)
-    "# kikizake suite d3d12rm: a removed Direct3D 12 device. Made by `kikizake gen d3d12rm`.\n# x64 only\ncase clear-removed\ndevice12\nclear12 40 0 0 0 0\nend\n".into()
+    // (removed by RemoveDevice: a D32_FLOAT render target removed it too, but WARP crashed some
+    // runs after it, golden 936cec8, 465fd71, 5366b0e)
+    "# kikizake suite d3d12rm: a removed Direct3D 12 device. Made by `kikizake gen d3d12rm`.\ncase clear-removed\ndevice12\nremove12\nclear12 28 0 0 0 0\nend\n".into()
 }
 
 pub fn dxgi() -> String {
