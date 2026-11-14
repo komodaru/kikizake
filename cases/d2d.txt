@@ -12970,3 +12970,379 @@ d2bmp 0 2 5 3a072c393e357f8001000100662fa4ff01010100065a96ff25313874010101000101
 d2bbrush 0 0 0 16 8 wrap wrap linear 1 0.5 0 1 -2 1
 d2read
 end
+case layerfit-0
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.1 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-1
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.1 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-2
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.1 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-3
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.2 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-4
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.2 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-5
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.2 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-6
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.3 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-7
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.3 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-8
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.3 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-9
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.4 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-10
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.4 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-11
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.4 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-12
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.5 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-13
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.5 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-14
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.5 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-15
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.6 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-16
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.6 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-17
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.6 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-18
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.7 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-19
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.7 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-20
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.7 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-21
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.8 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-22
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.8 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-23
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.8 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-24
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.9 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-25
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.9 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-26
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.9 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-27
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 1 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-28
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 1 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-29
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 1 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-30
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.3333 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-31
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.3333 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-32
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.3333 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-33
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.05 1
+d2fill 0 0 64 2 200 10 30 255
+d2poplayer
+d2read
+end
+case layerfit-34
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.05 1
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-35
+d2target 64 2
+d2path 0 alt m 0 0 64 0 64 2 0 2 z
+d2path 1 alt m 0 0 64 2 0 2 z
+d2clear 30 120 200 255
+d2layer 0 0 64 2 0.05 1
+d2fill 0 0 64 2 255 255 255 64
+d2poplayer
+d2read
+end
+case layerfit-36
+d2target 64 2
+d2clear 30 120 200 255
+d2layer 0.25 0.125 63.875 1.875 0.3
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end
+case layerfit-37
+d2target 64 2
+d2clear 30 120 200 255
+d2layer 0.25 0.125 63.875 1.875 0.7
+d2fill 0 0 64 2 60 220 140 128
+d2poplayer
+d2read
+end

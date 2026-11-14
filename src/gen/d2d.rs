@@ -35,6 +35,7 @@ pub fn d2d() -> String {
     target_more(&mut s, &mut r);
     gradfit(&mut s);
     bitmaps_more(&mut s, &mut r);
+    layerfit(&mut s);
     s
 }
 
@@ -650,5 +651,21 @@ fn bitmaps_more(s: &mut String, r: &mut XorShift32) {
         let xf = ["", "d2xform 1 0 0 1 0.5 0.25\n", "d2xform 0.8 0.6 -0.6 0.8 6 0\n", "d2xform 2 0 0 2 0 0\n"][i % 4];
         let m = ["0.7 0.2 -0.3 1.1 0.25 0.5", "-1 0 0 1 3 0", "2.5 0 0 0.5 0 0", "1 0.5 0 1 -2 1"][(i / 2) % 4];
         writeln!(s, "case bbrushx-{i}\nd2target 16 8\nd2aa aliased\n{xf}d2bmp 0 {w} {h} {}\nd2bbrush 0 0 0 16 8 {ex} {ex} {mode} {m}\nd2read\nend", bitmap(r, w, h)).unwrap();
+    }
+}
+
+/// layers made to read the composition off: one row of 64 pixels, a mask whose coverage runs
+/// 0 to 64 samples along the row, opaque and translucent content, opacities across 0..1
+fn layerfit(s: &mut String) {
+    let mut i = 0;
+    for o in ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1", "0.3333", "0.05"] {
+        for c in ["200 10 30 255", "60 220 140 128", "255 255 255 64"] {
+            writeln!(s, "case layerfit-{i}\nd2target 64 2\nd2path 0 alt m 0 0 64 0 64 2 0 2 z\nd2path 1 alt m 0 0 64 2 0 2 z\nd2clear 30 120 200 255\nd2layer 0 0 64 2 {o} 1\nd2fill 0 0 64 2 {c}\nd2poplayer\nd2read\nend").unwrap();
+            i += 1;
+        }
+    }
+    for o in ["0.3", "0.7"] {
+        writeln!(s, "case layerfit-{i}\nd2target 64 2\nd2clear 30 120 200 255\nd2layer 0.25 0.125 63.875 1.875 {o}\nd2fill 0 0 64 2 60 220 140 128\nd2poplayer\nd2read\nend").unwrap();
+        i += 1;
     }
 }

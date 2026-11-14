@@ -977,9 +977,9 @@ pub enum Drawn {
 #[derive(Clone, PartialEq, Debug)]
 pub struct Layer {
     pub below: Vec<[u8; 4]>,
-    pub bounds: [f32; 4],
     pub opacity: u32,
-    pub mask: Option<Vec<u32>>,
+    /// the coverage byte of the content bounds and the mask together, per pixel
+    pub cover: Vec<u32>,
 }
 
 /// what PushAxisAlignedClip and PushLayer push; each pop takes its own kind off the top
@@ -1009,18 +1009,9 @@ impl Layer {
     /// MEASURED (D2D.LAYER): the layer's surface `top` put over what was under it
     fn composite(&self, top: &[[u8; 4]], w: usize, h: usize) -> Vec<[u8; 4]> {
         let mut px = self.below.clone();
-        for y in 0..h {
-            for x in 0..w {
-                let i = y * w + x;
-                if !center_in(self.bounds, x, y) {
-                    continue;
-                }
-                let s = scale_by(top[i], self.opacity);
-                let s = match &self.mask {
-                    Some(k) => scale_by(s, k[i]),
-                    None => s,
-                };
-                px[i] = over(s, self.below[i]);
+        for i in 0..w * h {
+            if self.cover[i] != 0 {
+                px[i] = over(scale_by(scale_by(top[i], self.opacity), self.cover[i]), self.below[i]);
             }
         }
         px
@@ -1054,7 +1045,10 @@ impl Target {
     /// primitive, the coverage n of 8 x 8 samples as k = (n 4 255 + 127) >> 8 and each byte
     /// (before (255 - k) + now k + 127) / 255
     fn keep_clipped(&mut self, before: &[[u8; 4]]) {
-        let clips: Vec<Clip> = self.stack.iter().filter_map(|p| match p {
+        // (MEASURED, layer-clip: drawing into a layer goes through the clips pushed after it;
+        // the clips under it come at its pop)
+        let top = self.stack.iter().rposition(|p| matches!(p, Pushed::Layer(_))).map_or(0, |i| i + 1);
+        let clips: Vec<Clip> = self.stack[top..].iter().filter_map(|p| match p {
             Pushed::Clip(c) => Some(*c),
             Pushed::Layer(_) => None,
         }).collect();
@@ -1472,14 +1466,19 @@ impl D2d {
                 // floor(o 255 + 0.5), then by the mask's coverage byte (D2D.FILL.AACOVER), and
                 // put over what was under it)
                 hit(clause::D2D_LAYER);
-                let mask = match mask {
-                    Some(g) => {
-                        hit(clause::D2D_LAYER_MASK);
-                        let (wind, ps) = fixed_polys(tg, &g, Frame::Antialiased)?;
-                        Some(coverage16(tg, &ps, wind).into_iter().map(|n| (n * 4 * 255 + 0x80) >> 8).collect())
+                // (MEASURED, D2D.LAYER.BOUNDS: the content bounds are rasterized antialiased
+                // like a fill, and a pixel's coverage is that of the samples inside both them and
+                // the mask)
+                let (_, b) = fixed_polys(tg, &Geom::Rect(r), Frame::Antialiased)?;
+                let mut inside = samples16(tg, &b, false);
+                if let Some(g) = mask {
+                    hit(clause::D2D_LAYER_MASK);
+                    let (wind, ps) = fixed_polys(tg, &g, Frame::Antialiased)?;
+                    for (a, m) in inside.iter_mut().zip(samples16(tg, &ps, wind)) {
+                        *a &= m;
                     }
-                    None => None,
-                };
+                }
+                let cover = inside.into_iter().map(|s| (s.count_ones() * 4 * 255 + 0x80) >> 8).collect();
                 // (MEASURED, D2D.LAYER.INUSE: the one ID2D1Layer pushed again while pushed is
                 // D2DERR_LAYER_ALREADY_IN_USE)
                 if tg.stack.iter().any(|p| matches!(p, Pushed::Layer(_))) {
@@ -1489,8 +1488,7 @@ impl D2d {
                 }
                 let opacity = (o * 255.0 + 0.5).floor().clamp(0.0, 255.0) as u32;
                 let below = std::mem::replace(&mut tg.px, vec![[0; 4]; tg.w * tg.h]);
-                let bounds = corner_bounds(&tg.st.m, r);
-                tg.stack.push(Pushed::Layer(Layer { below, bounds, opacity, mask }));
+                tg.stack.push(Pushed::Layer(Layer { below, opacity, cover }));
                 tg.depth += 1;
             }
             "d2poplayer" => {
@@ -2117,14 +2115,19 @@ fn snap16(v: f64) -> i64 {
 
 /// the coverage of closed polygons in 1/16 pixel (D2D.FILL.AA28): samples in eighths
 fn coverage16(tg: &Target, ps: &[Vec<(i64, i64)>], wind: bool) -> Vec<u32> {
+    samples16(tg, ps, wind).into_iter().map(u64::count_ones).collect()
+}
+
+/// which of each pixel's 64 samples (bit 8 row + column) closed polygons in 1/16 pixel cover
+fn samples16(tg: &Target, ps: &[Vec<(i64, i64)>], wind: bool) -> Vec<u64> {
     let edges = fixed_edges(ps, 8);
-    let mut out = vec![0u32; tg.w * tg.h];
+    let mut out = vec![0u64; tg.w * tg.h];
     let cols = 8 * tg.w as i64;
     let mut act = Vec::new();
     for j in 0..8 * tg.h as i64 {
         for (a, b) in spans(&edges, j, wind, &mut act) {
             for c in a.max(0)..b.min(cols) {
-                out[(j >> 3) as usize * tg.w + (c >> 3) as usize] += 1;
+                out[(j >> 3) as usize * tg.w + (c >> 3) as usize] |= 1 << ((j & 7) * 8 + (c & 7));
             }
         }
     }
