@@ -6,13 +6,13 @@ use crate::ttf::Parsed;
 
 /// each glyph's rectangles in 26.6 pixels (x0, y0, x1, y1), y down: its points scaled and
 /// rounded to 1/64 pixel, at the pen position, the pen moved by each advance (adv4 / 4 pixels)
-fn rects(p: &Parsed, em: i64, (ox, oy): (i64, i64), run: &[(u16, i64)], snap_pen: bool) -> Vec<Vec<(i64, i64, i64, i64)>> {
+fn rects(p: &Parsed, em: i64, (ox, oy): (i64, i64), run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
     let sc = |v: i16| (v as i64 * em * 64 * 2 + p.upm as i64).div_euclid(2 * p.upm as i64);
     let mut pen = ox;
     let mut v = Vec::new();
     for &(g, adv) in run {
         let g = if g >= p.num_glyphs { 0 } else { g };
-        let at = if snap_pen { (pen + 32) & !63 } else { pen };
+        let at = (pen + 32) & !63;
         let mut gv = Vec::new();
         if let Some(Some((_, contours))) = p.glyphs.get(g as usize) {
             for c in contours {
@@ -52,7 +52,7 @@ fn spans(r: &[(i64, i64, i64, i64)], c: i64, horizontal: bool) -> Vec<(i64, i64)
 
 /// the pixels the aliased rasterizer sets: those whose centers are inside, and (MEASURED:
 /// dropout control) on a scan line whose span between two crossings holds no center, the pixel
-/// before the span (left on a row, above on a column)
+/// after the span on a row and the one before it (above) on a column
 pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i64, i64)>> {
     let mut lit = std::collections::BTreeSet::new();
     let (mut y0, mut y1, mut x0, mut x1) = (i64::MAX, i64::MIN, i64::MAX, i64::MIN);
@@ -75,14 +75,13 @@ pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i6
                         });
                     }
                 } else {
-                    // (smart dropout control: the pixel whose center is closer to the span's
-                    // middle, the earlier one on a tie)
+                    // MEASURED (dropout control): a span between two centers lights the pixel
+                    // after it on a row and the one before it (above) on a column
                     hit("DW.RUN.DROPOUT");
-                    if std::env::var_os("KZ_DROP").is_none() {
-                        return Err(Fail::Unmodeled("DW.RUN.DROPOUT"));
+                    if r.len() > 1 {
+                        return Err(Fail::Unmodeled("DW.RUN.DROPOUT.CONTOURS"));
                     }
-                    let c = if (lo + hi) - 2 * ((first - 1) * 64 + 32) <= 2 * (first * 64 + 32) - (lo + hi) { first - 1 } else { first };
-                    lit.insert(px(c));
+                    lit.insert(px(if horizontal { first } else { first - 1 }));
                 }
             }
         }
@@ -93,11 +92,12 @@ pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i6
 pub fn run(p: &Parsed, mode: &str, em: i64, x4: i64, y4: i64, run: &[(u16, i64)]) -> Res<Vec<String>> {
     // MEASURED: aliased, the baseline origin snapped to the nearest pixel corner
     let snap = |v: i64| (v + 2).div_euclid(4);
+    // MEASURED: the pen starts at the unsnapped origin and moves by each advance; each glyph
+    // is drawn at the pen snapped to the nearest pixel
     if run.len() > 1 {
-        // (a run of several glyphs: where Windows puts each glyph in aliased mode is open)
-        return Err(Fail::Unmodeled("DW.RUN.MULTI"));
+        hit("DW.RUN.PEN");
     }
-    let r = rects(p, em, (snap(x4) * 64, snap(y4) * 64), run, false);
+    let r = rects(p, em, (x4 * 16, snap(y4) * 64), run);
     let mut out = Vec::new();
     match mode {
         "aliased" => {

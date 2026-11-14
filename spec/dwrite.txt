@@ -22,10 +22,10 @@ DW.GLYPH.SIDEWAYS measured | IDWriteFontFace::GetDesignGlyphMetrics (isSideways)
 DW.GLYPH.OUTSIDE measured | IDWriteFontFace::GetDesignGlyphMetrics | a glyph index past the font's glyphs: glyph 0's metrics, S_OK (golden dwrite)
 DW.GDI.GLYPH open | IDWriteFontFace::GetGdiCompatibleGlyphMetrics | advances and verticalOriginY follow DW.GDI.METRICS (2925 of 2940); the side bearings are neither that nor whole pixels (golden dwrite)
 DW.SHAPE.GLYPHS doc | IDWriteTextAnalyzer::GetGlyphs | without GSUB: the cmap's glyph for each character, one cluster per character
-DW.SHAPE.PROPS measured | DWRITE_SHAPING_TEXT_PROPERTIES, DWRITE_SHAPING_GLYPH_PROPERTIES | text properties 4 (5 for a space), glyph properties 112 (114 for a space: justification BLANK) (golden dwrite, 40 runs)
+DW.SHAPE.PROPS measured | DWRITE_SHAPING_TEXT_PROPERTIES, DWRITE_SHAPING_GLYPH_PROPERTIES | text properties 4 (5 for a space: isShapedAlone), glyph properties 112 (114 for a space and a no-break space: justification BLANK) (golden dwrite: shape and natplace cases)
 DW.SHAPE.PLACE measured | IDWriteTextAnalyzer::GetGlyphPlacements | advance = hmtx advance * (em / upm) in f32, offsets 0 (golden dwrite, 40 runs)
 DW.SHAPE.GDIPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements (useGdiNatural 0) | round(adv * floor(em * 65536 / upm) / 65536): a 16.16 truncated scale (golden dwrite, 40 runs)
-DW.SHAPE.NATPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements (useGdiNatural 1) | floor(adv * em / upm + 0.5 + 1/24); the true threshold lies in (0.4545, 0.462] (golden dwrite, 40 runs)
+DW.SHAPE.NATPLACE measured | IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements (useGdiNatural 1) | floor(adv * em / upm + 69/128): a fraction rounds up from 59/128 (golden dwrite: 340 advances densely over fractions 0.44..0.48 at em 1-4, upm 2048, the threshold between 943/2048 and 944/2048, and the 40 shape cases)
 DW.SCRIPT.RUN doc | IDWriteTextAnalyzer::AnalyzeScript, DWRITE_SCRIPT_ANALYSIS | one run per maximal stretch of a script, with the script's ISO 15924 code; shapes 0 (DEFAULT) (measured: 720 of 720, golden dwrite)
 DW.SCRIPT.COMMON measured | UAX #24 | common and inherited characters join the run before them, or the one after when they lead (golden dwrite)
 DW.SCRIPT.ALLCOMMON measured | AnalyzeScript | text only of common characters: one run "Zzzz" 999 (golden dwrite)
@@ -39,10 +39,11 @@ DW.BIDI.CLASS excluded | UAX #9 | characters outside the generators' set
 DW.BREAK.UAX14 doc | IDWriteTextAnalyzer::AnalyzeLineBreakpoints, UAX #14 | break opportunities by UAX #14, except AL / PR / PO: AL before PR or PO may break; PR, PO before AL may not (measured, golden dwrite)
 DW.BREAK.MUST measured | DWRITE_LINE_BREAKPOINT | first unit before = 2 (MAY_NOT), last unit after = 1 (CAN), 3 (MUST) after LF / BK; a combining mark on a base: MAY_NOT before it; isWhitespace by White_Space (0x9-0xd, 0x20, 0x85, 0xa0, 0x2028, 0x2029) (golden dwrite: 804 of 804)
 DW.BREAK.CHAR excluded | UAX #14 | characters outside the generators' set
-DW.RUN.ALIASED measured | IDWriteGlyphRunAnalysis (DWRITE_TEXTURE_ALIASED_1x1), CreateAlphaTexture | origin snapped to (v + 2) div 4 pixels from quarter pixels; points to 26.6, a pixel is lit when its center lies in the closed outline span; each glyph alone, ORed (golden dwrite: 51 runs)
+DW.RUN.ALIASED measured | IDWriteGlyphRunAnalysis (DWRITE_TEXTURE_ALIASED_1x1), CreateAlphaTexture | the baseline y snapped to (y4 + 2) div 4 pixels; points to 26.6; a pixel is lit when its center lies in the closed outline span; each glyph alone, ORed (golden dwrite: run and drop cases)
 DW.RUN.EMPTY measured | IDWriteGlyphRunAnalysis::GetAlphaTextureBounds | nothing lit: bounds empty at the snapped origin (golden dwrite)
-DW.RUN.DROPOUT open | IDWriteGlyphRunAnalysis | thin stems that light no pixel center: which pixel Windows lights follows neither the simple nor the smart dropout rule
-DW.RUN.MULTI open | IDWriteGlyphRunAnalysis | the pen position of the second and later glyphs of a run
+DW.RUN.DROPOUT measured | IDWriteGlyphRunAnalysis | a scan line span holding no pixel center (a stem under a pixel thin) lights the pixel whose center follows it on a row, and the one whose center precedes it (above) on a column (golden dwrite: all 144 such spans of single-contour glyphs in the 320 drop runs)
+DW.RUN.DROPOUT.CONTOURS open | IDWriteGlyphRunAnalysis | dropout in a glyph of several (overlapping) contours: Windows sometimes lights the other side (9 of 13 cases)
+DW.RUN.PEN measured | IDWriteGlyphRunAnalysis, DWRITE_GLYPH_RUN glyphAdvances | the pen starts at the unsnapped origin x and moves by each advance; each glyph is drawn at the pen rounded to the nearest pixel ((pen + 32) & ~63 in 26.6) (golden dwrite: 40 multi cases and the aliased run-multi ones)
 DW.RUN.AA open | DWRITE_RENDERING_MODE (NATURAL, GDI_CLASSIC, GDI_NATURAL), DWRITE_TEXTURE_CLEARTYPE_3x1 | antialiased modes (gray coverage looks like round(k * 255 / 8) in 1/8 pixel steps) and ClearType filtering
 DW.LAYOUT.FAMILY doc | IDWriteTextLayout, IDWriteFontSetBuilder | one family, named by the name table's family (name 1, Windows English)
 DW.LAYOUT.NAME excluded | IDWriteFontCollection | a font without a family name

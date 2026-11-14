@@ -392,10 +392,10 @@ impl Dwrite {
                 out.push(format!("clusters {}", list((0..cps.len()).map(|i| i.to_string()).collect())));
                 // MEASURED: canBreakShapingAfter everywhere, isShapedAlone on a space; each glyph
                 // a cluster start (and a bit Windows sets in the reserved ones), justification
-                // BLANK for a space, CHARACTER otherwise
+                // BLANK for a space and a no-break space (natplace cases), CHARACTER otherwise
                 hit("DW.SHAPE.PROPS");
                 out.push(format!("textprops {}", list(cps.iter().map(|&c| if space(c) { "5" } else { "4" }.to_string()).collect())));
-                out.push(format!("glyphprops {}", list(cps.iter().map(|&c| if space(c) { "114" } else { "112" }.to_string()).collect())));
+                out.push(format!("glyphprops {}", list(cps.iter().map(|&c| if matches!(c, 0x20 | 0xa0) { "114" } else { "112" }.to_string()).collect())));
                 let upm = p.upm;
                 let adv = |g: u16| p.hmtx.get(g as usize).map_or(0, |h| h.0);
                 hit("DW.SHAPE.PLACE");
@@ -408,7 +408,7 @@ impl Dwrite {
                 let fix = ((em << 16) / upm as i64) as i64;
                 out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(((adv(g) as i64 * fix + 0x8000) >> 16) as f32)).collect())));
                 hit("DW.SHAPE.NATPLACE");
-                out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f((adv(g) as f64 * em as f64 / upm as f64 + 0.5 + 1.0 / 24.0).floor() as f32)).collect())));
+                out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f((adv(g) as i64 * em * 128 + 69 * upm as i64).div_euclid(128 * upm as i64) as f32)).collect())));
             }
             "dwrun" => {
                 let mode = t.get(1).ok_or(Fail::Bad)?.as_str();
