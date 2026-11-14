@@ -12409,6 +12409,513 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case clearnoz-7-rgb
+d3d ok
+d3ddev ok
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+case zhist-7-rgb-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-rgb-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-rgb-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-rgb-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-rgb-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-rgb-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-rgb-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-rgb-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-rgb-z32-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-rgb-z32-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-7-rgb-z32-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-rgb-z32-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-7-rgb-z32-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-rgb-z32-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-7-rgb-z32-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-rgb-z32-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
 case fillmode-7-rgb-1-1
 d3d ok
 d3ddev ok
@@ -29827,6 +30334,593 @@ nodev
 nodev
 nodev
 nodev
+case clearnoz-7-hal
+d3d ok
+d3ddev ok
+clear hr 88760816
+dd rt 4 2 32
+302010ff302010ff302010ff302010ff
+302010ff302010ff302010ff302010ff
+clear hr 88760816
+dd rt 4 2 32
+302010ff302010ff302010ff302010ff
+302010ff302010ff302010ff302010ff
+case zhist-7-hal-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-hal-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-hal-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-hal-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-hal-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-hal-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-hal-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-hal-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-hal-z32-1
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-2
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-3
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-4
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-5
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-6
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-7
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-hal-z32-8
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
 case fillmode-7-hal-1-1
 d3d ok
 d3ddev ok
@@ -43463,6 +44557,593 @@ nodev
 nodev
 nodev
 nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case clearnoz-7-tnl
+d3d ok
+d3ddev ok
+clear hr 88760816
+dd rt 4 2 32
+302010ff302010ff302010ff302010ff
+302010ff302010ff302010ff302010ff
+clear hr 88760816
+dd rt 4 2 32
+302010ff302010ff302010ff302010ff
+302010ff302010ff302010ff302010ff
+case zhist-7-tnl-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-tnl-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-tnl-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-tnl-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-tnl-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-tnl-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-tnl-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+000000ff000000ff
+dd z 2 1 16
+ffffffff
+case zhist-7-tnl-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+42004200
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00800080
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+bdffbdff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+32b332b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+00400040
+case zhist-7-tnl-z32-1
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-2
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-3
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-4
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-5
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-6
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-7
+d3d ok
+d3ddev z hr 80004001
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+nodev
+case zhist-7-tnl-z32-8
+d3d ok
+d3ddev z hr 80004001
 nodev
 nodev
 nodev
@@ -57171,6 +58852,513 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case clearnoz-7-mmx
+d3d ok
+d3ddev ok
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+case zhist-7-mmx-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-mmx-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-mmx-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-mmx-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-mmx-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-mmx-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-mmx-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-7-mmx-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-7-mmx-z32-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-mmx-z32-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-7-mmx-z32-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-mmx-z32-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-7-mmx-z32-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-mmx-z32-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-7-mmx-z32-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-7-mmx-z32-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
 case fillmode-7-mmx-1-1
 d3d ok
 d3ddev ok
@@ -70841,6 +73029,513 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case clearnoz-3-rgb
+d3d ok
+d3ddev ok
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+case zhist-3-rgb-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-rgb-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-rgb-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-rgb-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-rgb-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-rgb-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-rgb-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-rgb-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-rgb-z32-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-rgb-z32-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-3-rgb-z32-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-rgb-z32-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-3-rgb-z32-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-rgb-z32-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-3-rgb-z32-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-rgb-z32-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
 case fillmode-3-rgb-1-1
 d3d ok
 d3ddev ok
@@ -84511,6 +87206,511 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 ffffffffffffffff
+case clearnoz-2-rgb
+d3d ok
+d3ddev ok
+dd rt 4 2 32
+60504000605040006050400060504000
+60504000605040006050400060504000
+dd rt 4 2 32
+60504000908070009080700060504000
+60504000908070009080700060504000
+case zhist-2-rgb-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-rgb-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-rgb-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-rgb-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-rgb-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-rgb-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-rgb-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-rgb-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-rgb-z32-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-rgb-z32-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-2-rgb-z32-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-rgb-z32-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-2-rgb-z32-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-rgb-z32-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-2-rgb-z32-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-rgb-z32-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
 case fillmode-2-rgb-1-1
 d3d ok
 d3ddev ok
@@ -98181,6 +101381,511 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 ffffffffffffffff
+case clearnoz-2-ramp
+d3d ok
+d3ddev ok
+dd rt 4 2 32
+00000000000000000000000000000000
+00000000000000000000000000000000
+dd rt 4 2 32
+00000000000000000000000000000000
+00000000000000000000000000000000
+case zhist-2-ramp-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-ramp-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-ramp-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-ramp-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-ramp-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-ramp-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-ramp-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-2-ramp-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 16
+ff3fff3f
+case zhist-2-ramp-z32-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-ramp-z32-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-2-ramp-z32-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-ramp-z32-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-2-ramp-z32-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-ramp-z32-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-2-ramp-z32-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-2-ramp-z32-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+8000800080008000
+dd z 2 1 32
+ffffff3fffffff3f
 case fillmode-2-ramp-1-1
 d3d ok
 d3ddev ok
@@ -111851,6 +115556,513 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case clearnoz-3-mmx
+d3d ok
+d3ddev ok
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+clear hr 88760816
+dd rt 4 2 32
+30201000302010003020100030201000
+30201000302010003020100030201000
+case zhist-3-mmx-z16-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-mmx-z16-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-mmx-z16-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-mmx-z16-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-mmx-z16-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-mmx-z16-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-mmx-z16-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 16
+ffffffff
+case zhist-3-mmx-z16-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+41004100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff7fff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+beffbeff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+cc4ccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+33b333b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 16
+ff3fff3f
+case zhist-3-mmx-z32-1
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-mmx-z32-2
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-3-mmx-z32-3
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-mmx-z32-4
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-3-mmx-z32-5
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-mmx-z32-6
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
+case zhist-3-mmx-z32-7
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+0000000000000000
+dd z 2 1 32
+ffffffffffffffff
+case zhist-3-mmx-z32-8
+d3d ok
+d3ddev ok
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff894100ff894100
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff7fffffff7f
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff76beffff76beff
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffcccc4cffcccc4c
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ff3233b3ff3233b3
+dd rt 2 1 32
+00ff000000ff0000
+dd z 2 1 32
+ffffff3fffffff3f
 case fillmode-3-mmx-1-1
 d3d ok
 d3ddev ok
