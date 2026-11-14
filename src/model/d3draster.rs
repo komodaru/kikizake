@@ -492,15 +492,22 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         }
         r.size(r.mip_of(rt_sub))
     };
-    // (a multisampled target: D3DRASTER.MS.WHOLE, triangles only, the viewport on whole pixels)
-    let samples = m.res[view.res].as_ref().unwrap().d.count;
-    if samples > 1 {
-        let [vx, vy, vw, vh, _, _] = vp;
-        let whole = [vx, vy, vx + vw, vy + vh].iter().all(|v| v.fract() == 0.0);
-        if !whole || !matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) || d.rast[0] == 2 {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+    // (a multisampled target: D3DRASTER.MS.SAMPLES, triangles only, the viewport on whole
+    // pixels, quality 0)
+    let samples = {
+        let r = m.res[view.res].as_ref().unwrap();
+        match r.d.count {
+            0 | 1 => None,
+            n => {
+                let [vx, vy, vw, vh, _, _] = vp;
+                let whole = [vx, vy, vx + vw, vy + vh].iter().all(|v| v.fract() == 0.0);
+                if !whole || !matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) || d.rast[0] == 2 || r.d.q != 0 {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+                }
+                Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
+            }
         }
-    }
+    };
     let dsv = d.depth.map(|v| m.views[v].clone().unwrap());
     let instances = inst.max(1);
     // the vertices through the vertex shader
@@ -803,48 +810,16 @@ impl LineMode {
     }
 }
 
-/// how a triangle covers a pixel's closed square, and so every sample of it wherever the
-/// samples are
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Cover {
-    None,
-    Part,
-    Full,
-}
-
-/// (MEASURED, WARP: probe-rt-ms) a pixel of a multisampled target whose sample square (the
-/// sample positions are -8/16 to 7/16 from the center: x to x + 15/16) is wholly inside a
-/// triangle (or the convex outline of its clipped pieces) has every sample covered; one
-/// wholly outside, none (the separating axes of a convex polygon, clockwise, and a square; in
-/// 1/256 pixel, y down); a pixel between is Part
-fn square_cover(t: &[(i64, i64)], (px, py): (i64, i64)) -> Cover {
-    hit(clause::D3DRASTER_MS_WHOLE);
-    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
-        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
-        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
-    };
-    let (x0, y0) = (px * 256, py * 256);
-    const SPAN: i64 = 256 * 15 / 16;
-    let corners = [(x0, y0), (x0 + SPAN, y0), (x0, y0 + SPAN), (x0 + SPAN, y0 + SPAN)];
-    let n = t.len();
-    // (a corner on an edge is in by the top-left rule: a top edge runs right, a left edge up)
-    let inside = |e: usize| {
-        let (a, b) = (t[e], t[(e + 1) % n]);
-        let top_left = b.1 < a.1 || b.1 == a.1 && b.0 > a.0;
-        corners.map(|c| {
-            let w = cross(a, b, c);
-            w > 0 || w == 0 && top_left
-        })
-    };
-    if (0..n).all(|e| inside(e).iter().all(|i| *i)) {
-        return Cover::Full;
+/// (MEASURED, WARP: probe-rt-ms2-edges, -ms4-, -ms8-, every pixel) the samples of a
+/// multisampled target (quality 0) are at D3D11_STANDARD_MULTISAMPLE_PATTERN's positions, in
+/// 1/16 pixel from the pixel center
+fn sample_pattern(n: u32) -> Option<&'static [(i64, i64)]> {
+    match n {
+        2 => Some(&[(4, 4), (-4, -4)]),
+        4 => Some(&[(-2, -6), (6, -2), (-6, 2), (2, 6)]),
+        8 => Some(&[(1, -3), (-1, 3), (5, 1), (-3, -5), (-5, 5), (-7, -1), (3, 7), (7, -7)]),
+        _ => None,
     }
-    let apart = (0..n).any(|e| inside(e).iter().all(|i| !*i))
-        || t.iter().all(|v| v.0 < x0)
-        || t.iter().all(|v| v.0 > x0 + SPAN)
-        || t.iter().all(|v| v.1 < y0)
-        || t.iter().all(|v| v.1 > y0 + SPAN);
-    if apart { Cover::None } else { Cover::Part }
 }
 
 /// half the width of a multisample line, in pixels
@@ -1088,7 +1063,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), samples: u32, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, wire: &mut Vec<Seg>) -> Res<()> {
+fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), samples: Option<&[(i64, i64)]>, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, wire: &mut Vec<Seg>) -> Res<()> {
     // (every vertex at w <= 0: wholly outside the clip volume, or (w = 0, so x = y = 0 inside
     // it) a point: nothing drawn, probe-vb-past)
     if tri.iter().all(|v| v.pos[3] <= 0.0 && v.pos.iter().all(|x| x.is_finite()) && (v.pos[3] < 0.0 || v.pos[0] == 0.0 && v.pos[1] == 0.0)) {
@@ -1202,23 +1177,6 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             .map(|t| if cross(t[0], t[1], t[2]) > 0 { t } else { [t[0], t[2], t[1]] })
             .collect()
     };
-    // (the snapped outline, clockwise, where it is convex: what a multisampled pixel's
-    // samples are tested against as a whole)
-    let outline: Option<Vec<(i64, i64)>> = (samples > 1).then(|| {
-        let mut q: Vec<(i64, i64)> = if unclipped { v.to_vec() } else { poly.iter().map(snap2).collect() };
-        q.dedup();
-        if q.len() > 1 && q[0] == q[q.len() - 1] {
-            q.pop();
-        }
-        let turns: Vec<i128> = (0..q.len()).map(|i| cross(q[i], q[(i + 1) % q.len()], q[(i + 2) % q.len()])).collect();
-        if turns.iter().all(|t| *t <= 0) {
-            q.reverse();
-        }
-        q
-    }).filter(|q| q.len() >= 3 && (0..q.len()).all(|i| cross(q[i], q[(i + 1) % q.len()], q[(i + 2) % q.len()]) >= 0));
-    if samples > 1 && outline.is_none() && !pieces.is_empty() {
-        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-    }
     // depth: one value per triangle in these cases
     let z = {
         let zz: Vec<f32> = zs.iter().map(|z| minz + z * (maxz - minz)).collect();
@@ -1250,23 +1208,67 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh {
                 continue;
             }
-            let c = (px * 256 + 128, py * 256 + 128);
-            let inside = |t: &[(i64, i64); 3]| {
-                (0..3).all(|e| {
-                    let (a, b) = (t[e], t[(e + 1) % 3]);
-                    let w = cross(a, b, c);
-                    w > 0 || w == 0 && top_left(a, b)
+            let inside = |c: (i64, i64)| {
+                pieces.iter().any(|t| {
+                    (0..3).all(|e| {
+                        let (a, b) = (t[e], t[(e + 1) % 3]);
+                        let w = cross(a, b, c);
+                        w > 0 || w == 0 && top_left(a, b)
+                    })
                 })
             };
-            if outline.as_ref().is_some_and(|q| square_cover(q, (px, py)) == Cover::Part) {
-                return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-            }
-            if !pieces.iter().any(inside) {
+            let at = (px as usize, py as usize, rw as usize);
+            let Some(pattern) = samples else {
+                if !inside((px * 256 + 128, py * 256 + 128)) {
+                    continue;
+                }
+                hit(clause::D3DRASTER_TOPLEFT);
+                let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, d)?;
+                output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
+                continue;
+            };
+            // (MEASURED, WARP: probe-rt-ms*-edges) a pixel is shaded once, at its center,
+            // when a sample is covered; the covered samples take the value
+            hit(clause::D3DRASTER_MS_SAMPLES);
+            let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| inside((px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16))).collect();
+            if !mask.contains(&true) {
                 continue;
             }
-            hit(clause::D3DRASTER_TOPLEFT);
             let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, d)?;
-            output(m, dev, d, view, rt_fmt, rt_sub, dsv, (px as usize, py as usize, rw as usize), z, out)?;
+            let r = m.res[view.res].as_ref().unwrap();
+            if mask.iter().all(|&k| k) && r.samples.get(rt_sub as usize).is_none_or(Option::is_none) {
+                output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
+                continue;
+            }
+            // (samples that differ: depth per sample is not measured)
+            if dsv.is_some() {
+                return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            }
+            let (rb, _, _) = r.layout(rt_sub);
+            let el = (rt_fmt.bits / 8) as usize;
+            let off = py as usize * rb + px as usize * el;
+            let r = m.res[view.res].as_mut().unwrap();
+            let base = r.subs[rt_sub as usize].clone().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
+            let n = mask.len();
+            if r.samples.len() <= rt_sub as usize {
+                r.samples.resize(rt_sub as usize + 1, None);
+            }
+            let planes_n = r.samples[rt_sub as usize].get_or_insert_with(|| base.repeat(n)).len() / n;
+            // (each covered sample through the pixel's own output: its value put in the
+            // subresource's place for the blend, then taken back)
+            for (k, _) in mask.iter().enumerate().filter(|(_, c)| **c) {
+                let r = m.res[view.res].as_mut().unwrap();
+                let sv = r.samples[rt_sub as usize].as_ref().unwrap()[k * planes_n + off..][..el].to_vec();
+                r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&sv);
+                output(m, dev, d, view, rt_fmt, rt_sub, None, at, z, out)?;
+                let r = m.res[view.res].as_mut().unwrap();
+                let nv = r.subs[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
+                r.samples[rt_sub as usize].as_mut().unwrap()[k * planes_n + off..][..el].copy_from_slice(&nv);
+            }
+            // (the subresource's own place keeps sample 0)
+            let r = m.res[view.res].as_mut().unwrap();
+            let s0 = r.samples[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
+            r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&s0);
         }
     }
     Ok(())

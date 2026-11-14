@@ -550,6 +550,18 @@ fn probes(s: &mut String, dev: &str) {
         }
         writeln!(s, "draw 4 12 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
     }
+    // the resolve's mean of samples of other values, overlapping colored triangles, in a
+    // UNORM and a float target
+    for (fmt, pitch) in [(28u32, 64u32), (2, 256)] {
+        writeln!(s, "case probe-rt-ms4-colors-{fmt}\n{dev}\ntex 0 2 16 16 1 1 {fmt} 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 {fmt} 0 0x20 0 0 1 0").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (k, t) in [[(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], [(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], [(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)]].iter().enumerate() {
+            for (i, &(x, y)) in t.iter().enumerate() {
+                vertex(s, x, y, 0.5, color(k as u32 * 3 + i as u32), 16.0, 16.0);
+            }
+        }
+        writeln!(s, "draw 4 9 32\nresolve 1 0 0 0 {fmt}\nread 1 0 {pitch} 16 1\nend").unwrap();
+    }
     // an input layout against a refused program
     let mut broken = shader("vs");
     broken[5] ^= 1;

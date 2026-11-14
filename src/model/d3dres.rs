@@ -49,6 +49,10 @@ impl Dev {
 pub struct Resource {
     pub d: Desc,
     pub subs: Vec<Option<Vec<u8>>>,
+    /// a multisampled subresource's samples, once a draw covers part of a pixel: d.count
+    /// planes laid out as the subresource's bytes, plane k sample k (none: every sample is
+    /// the subresource's value)
+    pub samples: Vec<Option<Vec<u8>>>,
 }
 
 #[derive(Clone, Debug)]
@@ -117,7 +121,7 @@ impl Resource {
     }
     /// the bytes of every subresource of a description
     pub fn zeroed_bytes(d: &Desc) -> u64 {
-        let r = Resource { d: *d, subs: Vec::new() };
+        let r = Resource { d: *d, subs: Vec::new(), samples: Vec::new() };
         (0..r.nsubs()).map(|s| {
             let (rb, rows, sl) = r.layout(s);
             [rb, rows, sl].iter().map(|&x| u64::try_from(x).unwrap_or(u64::MAX)).fold(1u64, u64::saturating_mul)
@@ -125,7 +129,7 @@ impl Resource {
     }
 
     pub fn zeroed(d: Desc) -> Resource {
-        let mut r = Resource { d, subs: Vec::new() };
+        let mut r = Resource { d, subs: Vec::new(), samples: Vec::new() };
         r.subs = (0..r.nsubs())
             .map(|s| {
                 let (rb, rows, sl) = r.layout(s);
@@ -271,6 +275,17 @@ impl D3dres {
             super::d3draster::op(self, dev, op, out)?;
             return Ok(true);
         }
+        // (samples that differ in a pixel, D3DRASTER.MS.SAMPLES: only clears, draws and
+        // resolves are modeled on them)
+        let at: &[usize] = match name {
+            "update" | "read" => &[1],
+            "copy" => &[1, 2],
+            "copysub" => &[1, 6],
+            _ => &[],
+        };
+        if at.iter().any(|&i| slot(t, i).ok().and_then(|k| self.res[k].as_ref()).is_some_and(|r| r.samples.iter().any(Option::is_some))) {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
         match name {
             "fmt" => {
                 let f = n(t, 1)?;
@@ -350,6 +365,29 @@ impl D3dres {
                     return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
                 };
                 let w = srb.min(drb);
+                // (MEASURED, WARP: probe-rt-ms*-edges, of samples 0 and 1) samples that differ:
+                // their mean in f32 of the values as floats, encoded in the resolve's format
+                if let Some(Some(samp)) = src.samples.get(ss as usize) {
+                    hit(clause::D3DRES_RESOLVE_MEAN);
+                    let f = format(f).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
+                    let el = (f.bits / 8) as usize;
+                    let (n, plane) = (src.d.count as usize, sv.len());
+                    for y in 0..srows.min(drows) {
+                        for x in 0..w / el {
+                            let mut sum = [0f32; 4];
+                            for k in 0..n {
+                                let at = k * plane + y * srb + x * el;
+                                let c = super::dxgiconv::decode(f, &samp[at..at + el])?;
+                                for i in 0..4 {
+                                    sum[i] += f32::from_bits(c[i]);
+                                }
+                            }
+                            let e = super::dxgiconv::encode(f, sum.map(|v| v / n as f32))?;
+                            dv[y * drb + x * el..][..el].copy_from_slice(&e);
+                        }
+                    }
+                    return Ok(true);
+                }
                 for y in 0..srows.min(drows) {
                     dv[y * drb..][..w].copy_from_slice(&sv[y * srb..][..w]);
                 }
@@ -608,6 +646,9 @@ pub fn view_subs(dev: Dev, v: &View, r: &Resource) -> Vec<u32> {
 
 fn fill_subs(res: &mut Resource, subs: &[u32], el: &[u8]) -> Res<()> {
     for &s in subs {
+        if let Some(v) = res.samples.get_mut(s as usize) {
+            *v = None;
+        }
         if let Some(Some(b)) = res.subs.get_mut(s as usize) {
             for e in b.chunks_mut(el.len()) {
                 e.copy_from_slice(el);
