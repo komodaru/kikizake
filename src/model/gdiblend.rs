@@ -78,7 +78,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let (sca, pp, key) = if t0 == "alphablend" { (n(op, 11)? as u32, n(op, 12)? != 0, 0) } else { (0, false, color(op.tok.get(11).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?) };
             if w <= 0 || h <= 0 || sw <= 0 || sh <= 0 {
                 if t0 == "transparent" {
-                    return Err(Fail::Unmodeled("GDI.TRANS.EXTENTS"));
+                    // MEASURED: any extent of 0 or less fails, drawing nothing
+                    hit("GDI.TRANS.EXTENTS");
+                    out.push("ret 0".into());
+                    return Ok(true);
                 }
                 // MEASURED: a negative source extent fails; then any extent of 0 succeeds
                 // drawing nothing; then a negative destination extent fails
@@ -150,8 +153,17 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push(format!("ret {}", r as u8));
                 return Ok(true);
             };
+            let (mut x, mut y, mut w, mut h, mut sx, mut sy, mut mx, mut my) = (x, y, w, h, sx, sy, mx, my);
             if w < 0 || h < 0 {
-                return Err(Fail::Unmodeled("GDI.MASK.NEGATIVE"));
+                // MEASURED: a negative width or height moves the destination, source and mask
+                // origins back by it and draws unmirrored
+                hit("GDI.MASK.NEGATIVE");
+                if w < 0 {
+                    (x, sx, mx, w) = (x + w, sx + w, mx + w, -w);
+                }
+                if h < 0 {
+                    (y, sy, my, h) = (y + h, sy + h, my + h, -h);
+                }
             }
             if w == 0 || h == 0 {
                 // MEASURED: nothing to draw, and the call succeeds

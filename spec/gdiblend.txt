@@ -21,6 +21,6 @@ GDI.PLG.MAP open | PlgBlt | which source pixel lands on each destination pixel o
 GDI.ALPHA.OPAQUE measured | golden blend perpixel-* | AC_SRC_ALPHA with a source pixel of alpha 255 blends as the constant alpha alone
 GDI.ALPHA.CARRY measured | golden blend perpixel-*, premul-* | AC_SRC_ALPHA otherwise: sa = (A * SCA + 127) / 255; each channel (C * SCA + 127) / 255 + (D * (255 - sa) + 127) / 255, the four added as one 32 bit word (a channel over 255 carries into the next)
 GDI.TRANS.COPY measured | golden blend transparent-* | the copied pixels go through their color, also between equal formats (32 bpp: the fourth byte becomes 0)
-GDI.TRANS.EXTENTS open | TransparentBlt | a width or height of 0 or less (destination or source)
+GDI.TRANS.EXTENTS measured | golden blend transparent-ext-* (43 cases) | TransparentBlt: a width or height of 0 or less (destination or source) fails (0) and draws nothing
 GDI.MASK.EMPTY measured | golden blend maskblt-* | a width or height of 0: nothing drawn, the call succeeds
-GDI.MASK.NEGATIVE open | MaskBlt | a negative width or height
+GDI.MASK.NEGATIVE measured | golden blend maskblt-bounds-* (31 cases) | MaskBlt with a mask: a negative width or height moves the destination, source and mask origins back by it and draws unmirrored with its magnitude
