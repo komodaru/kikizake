@@ -1444,12 +1444,12 @@ impl Ctx {
             }
             "glPixelStorei" | "glPixelStoref" => {
                 let p = u(a, 0);
-                // (glPixelStoref: GL 1.1 3.6.1, an integer parameter the value rounded to the
-                // nearest integer, a boolean one false for 0 only: GL.PIXELSTORE.FLOAT)
+                // (MEASURED, golden opengl-32 other-calls-3: glPixelStoref's value rounded, halves
+                // up, a boolean then false for 0: 2.5 gives 3, -0.5 and 0.25 false:
+                // GL.PIXELSTORE.FLOAT)
                 let v = if name == "glPixelStoref" {
                     hit(clause::GL_PIXELSTORE_FLOAT);
-                    let f = fl(a, 1);
-                    if (0xd00..=0xd01).contains(&p) || (0xcf0..=0xcf1).contains(&p) { i64::from(f != 0.0) } else { f.round() as i64 }
+                    (fl(a, 1) + 0.5).floor() as i64
                 } else {
                     int(a, 1)
                 };
