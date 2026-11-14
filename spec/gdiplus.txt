@@ -2,7 +2,7 @@
 GP.START doc | GdiplusStartup | GDI+ 1.0 started once (gdiplus.dll loaded when a case first asks)
 GP.CREATE doc | Bitmap::Bitmap(INT, INT, INT, PixelFormat, BYTE*) | a bitmap of the size and format asked, GDI+ allocating the pixels (no scan0)
 GP.CREATE.SIZE measured | (none) | a width or height of 0 or less: InvalidParameter (golden gdiplus-32/-64, the 4 size cases)
-GP.CREATE.ZERO assumed | (none) | a new bitmap's pixels are all 0
+GP.CREATE.ZERO measured | (none) | a new bitmap's pixels are all 0 (golden gdiplus-32/-64 create-*: every byte of all 14 formats)
 GP.INFO doc | Image::GetPalette, Image::GetPixelFormat | the format and size as made; an indexed bitmap's palette
 GP.INFO.NOPALETTE measured | (none) | a bitmap that is not indexed has an empty palette: Ok, flags 0, count 0 (golden gdiplus, all 11 formats)
 GP.LAYOUT doc | Image Pixel Format Constants | each format's channels and sizes (16-bit fields little-endian, sub-byte pixels from the high bits)
@@ -24,8 +24,7 @@ GP.CONV.WIDEN measured | (none) | 8 bits to 16-bit channels: linear light 0..819
 GP.CONV.WIDEN.PREMULTIPLIED measured | (none) | to 64bppPARGB from 8 bits: the 16-bit color times the 16-bit alpha / 8192, truncated (golden gdiplus pairs-32bppARGB-64bppPARGB, pairs-32bppPARGB-64bppPARGB: all pairs)
 GP.CONV.NARROW measured | (none) | 16-bit channels to 8 bits: each word signed, clamped to 0..8192, the inverse sRGB curve times 255, rounded; alpha clamped the same, a 255 / 8192 truncated (golden gdiplus levels-*: all 8193 levels; read-*/write-* with random words)
 GP.CONV.NARROW.PREMULTIPLIED measured | (none) | 64bppPARGB to straight: alpha clamped to 0..8192; when not 0 each signed color word c 8192 / a in 32 bits truncated toward 0, kept to 16 bits, then as GP.CONV.NARROW; between the 16-bit formats (c a) >> 13 in 32 bits, kept to 16 bits (golden gdiplus read-64bppPARGB-*, read-64bppARGB-64bppPARGB, random words)
-GP.GRAY16 measured | (none) | 16bppGrayScale: its own format locks; any other read is InvalidParameter, a write locks but UnlockBits is InvalidParameter and nothing changes; GetPixel and SetPixel are InvalidParameter; a clone into or out of it OutOfMemory (golden gdiplus read-*/write-*/pixel-*, all 13 other formats)
-GP.GRAY16.VALUE excluded | (none) | never asked: a 16bppGrayScale pixel as a color and a color as one (the calls refuse them, GP.GRAY16; the conversion itself is not modelled)
+GP.GRAY16 measured | (none) | 16bppGrayScale: its own format locks; any other read is InvalidParameter, a write locks but UnlockBits is InvalidParameter and nothing changes; GetPixel and SetPixel are InvalidParameter; a clone into or out of it OutOfMemory, and no Graphics of it (GP.FILL.NOGRAPHICS): no call of these converts a gray pixel (golden gdiplus read-*/write-*/pixel-*, all 13 other formats)
 GP.PIXEL.BOUNDS measured | (none) | GetPixel and SetPixel outside the bitmap: InvalidParameter (golden gdiplus pixel-*)
 GP.PIXEL.GET doc | Bitmap::GetPixel | the pixel as straight ARGB
 GP.PIXEL.SET doc | Bitmap::SetPixel | the color stored in the bitmap's format ("might not return the same value": 16 bpp loses bits, PARGB rounds)
