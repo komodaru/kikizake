@@ -1860,13 +1860,13 @@ impl Ctx {
 
     /// how a primitive's fragments become channel values: fogged ones another way (GL.FOG.TOFIXED)
     fn span(&self) -> ToFixed {
-        if self.cap(FOG) { ToFixed::Span } else { ToFixed::Nearest }
+        if self.cap(FOG) || self.cap(LIGHTING) { ToFixed::Span } else { ToFixed::Nearest }
     }
 
     /// how a point's fragments become channel values (MEASURED, golden opengl-32 fog-points: 192
     /// fogged channels truncated, without the 32nd polygons add: GL.FOG.TOFIXED)
     fn point_fixed(&self) -> ToFixed {
-        if self.cap(FOG) {
+        if self.cap(FOG) || self.cap(LIGHTING) {
             hit(clause::GL_FOG_TOFIXED);
             ToFixed::Trunc
         } else {
@@ -1876,7 +1876,9 @@ impl Ctx {
 
     /// a vertex's color under GL_LIGHTING with every light off and the initial material
     /// (MEASURED, golden opengl-32 render-caps-0: the scene's ambient times the material's
-    /// ambient 0.2, the material's diffuse alpha 1, whatever the current color: GL.LIGHTING)
+    /// ambient 0.2, the material's diffuse alpha 1, whatever the current color; lighting-material:
+    /// under GL_COLOR_MATERIAL (ambient and diffuse) the scene's ambient times the current color,
+    /// its alpha: GL.LIGHTING)
     fn lit(&self, c: [f32; 4]) -> [f32; 4] {
         if !self.cap(LIGHTING) {
             return c;
@@ -1889,6 +1891,9 @@ impl Ctx {
             },
             _ => 0.2,
         };
+        if self.cap(COLOR_MATERIAL) {
+            return [a * c[0], a * c[1], a * c[2], c[3]];
+        }
         let l = a * 0.2;
         [l, l, l, 1.0]
     }
@@ -1916,7 +1921,7 @@ impl Ctx {
         if (mode == POINTS && self.cap(POINT_SMOOTH)) || (mode != POINTS && self.cap(POLYGON_SMOOTH) && alpha_used) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
-        if self.cap(LIGHTING) && (self.pf.ty != 0 || self.cap(COLOR_MATERIAL) || (0x4000..=0x4007).any(|l| self.cap(l))) {
+        if self.cap(LIGHTING) && (self.pf.ty != 0 || (0x4000..=0x4007).any(|l| self.cap(l))) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
         let verts: Vec<_> = verts.into_iter().map(|(v, c)| (v, self.lit(c))).collect();

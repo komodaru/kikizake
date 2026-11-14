@@ -1304,6 +1304,19 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // more antialiased points, four of a size apart in each image, at thousandths of a pixel
+    for k in 4..12 {
+        write!(s, "case smooth-points-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb10\n", ctx(32)).unwrap();
+        for _ in 0..6 {
+            writeln!(s, "gl glClear 0x4000\ngl glPointSize {}\ngl glColor4ub 255 255 255 255\ngl glBegin 0", (q.next() % 3500) as f64 / 1000.0 + 0.25).unwrap();
+            for (cx, cy) in [(4, 4), (12, 4), (4, 12), (12, 12)] {
+                writeln!(s, "gl glVertex2f {} {}", cx as f64 + (q.next() % 2000) as f64 / 1000.0 - 1.0, cy as f64 + (q.next() % 2000) as f64 / 1000.0 - 1.0).unwrap();
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     write!(s, "case lighting-material\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb50\ngl glEnable 0xb57\n", ctx(32)).unwrap();
     for i in 0..16 {
         let (x0, y0) = (i % 4 * 4, i / 4 * 4);
