@@ -923,7 +923,12 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
                 })
             }
         };
-        if opacity == 255 { c } else { scale_by(c, opacity) }
+        if opacity == 255 {
+            c
+        } else {
+            hit(clause::D2D_BITMAP_OPACITY);
+            scale_by(c, opacity)
+        }
     }
 }
 
@@ -1035,12 +1040,18 @@ impl Layer {
 }
 
 impl Target {
-    /// what EndDraw leaves in the bitmap: the layers still pushed put down as if popped
+    /// MEASURED (D2D.RT.FAULT, layer-pop5): what EndDraw leaves in the bitmap with layers still
+    /// pushed: inside a layer's bounds what was drawn into it, as it is (transparent where
+    /// nothing was), outside them what was under it
     fn view(&self) -> Vec<[u8; 4]> {
         let mut px = self.px.clone();
         for p in self.stack.iter().rev() {
             if let Pushed::Layer(l) = p {
-                px = l.composite(&px, self.w, self.h);
+                for i in 0..self.w * self.h {
+                    if l.cover[i] == 0 {
+                        px[i] = l.below[i];
+                    }
+                }
             }
         }
         px
@@ -1085,7 +1096,7 @@ impl Target {
                                     n += u32::from(inside(fx + (f64::from(i) + 0.5) / 8.0, fy + (f64::from(j) + 0.5) / 8.0));
                                 }
                             }
-                            (n * 4 * 255 + 127) >> 8
+                            (n * 4).min(255)
                         }
                     };
                     let i = y * self.w + x;
@@ -1483,19 +1494,27 @@ impl D2d {
                 // floor(o 255 + 0.5), then by the mask's coverage byte (D2D.FILL.AACOVER), and
                 // put over what was under it)
                 hit(clause::D2D_LAYER);
-                // (MEASURED, D2D.LAYER.BOUNDS: the content bounds are rasterized antialiased
-                // like a fill, and a pixel's coverage is that of the samples inside both them and
-                // the mask)
-                let (_, b) = fixed_polys(tg, &Geom::Rect(r), Frame::Antialiased)?;
-                let mut inside = samples16(tg, &b, false);
-                if let Some(g) = mask {
-                    hit(clause::D2D_LAYER_MASK);
-                    let (wind, ps) = fixed_polys(tg, &g, Frame::Antialiased)?;
-                    for (a, m) in inside.iter_mut().zip(samples16(tg, &ps, wind)) {
-                        *a &= m;
+                // (MEASURED, D2D.LAYER.BOUNDS, layerx-*: without a mask the content bounds are
+                // rasterized antialiased like a fill; a mask made of lines is first cut to the
+                // bounds as geometry, in f64, and the piece is rasterized, so the cut adds
+                // vertices that snap like any other)
+                let inside = match mask {
+                    None => samples16(tg, &fixed_polys(tg, &Geom::Rect(r), Frame::Antialiased)?.1, false),
+                    Some(g) => {
+                        hit(clause::D2D_LAYER_MASK);
+                        let Some((wind, figs, m0)) = g.lines() else {
+                            return Err(Fail::Unmodeled(open::D2D_RT));
+                        };
+                        let m = tg.st.m;
+                        let quad = [apply(&m, r[0], r[1]), apply(&m, r[2], r[1]), apply(&m, r[2], r[3]), apply(&m, r[0], r[3])].map(|(x, y)| (f64::from(x), f64::from(y)));
+                        let cut: Vec<Vec<(i64, i64)>> = polys(&figs, &mul(&m0, &m)).iter().map(|p| clip_convex(p, &quad)).filter(|p| p.len() >= 3).map(|p| p.into_iter().map(|(x, y)| (Frame::Antialiased.snap(x), Frame::Antialiased.snap(y))).collect()).collect();
+                        if cut.iter().flatten().any(|p| !(p.0.abs() <= 16 * 8388608 && p.1.abs() <= 16 * 8388608)) {
+                            return Err(Fail::Unmodeled(open::D2D_FILL_HUGE));
+                        }
+                        samples16(tg, &cut, wind)
                     }
-                }
-                let cover = inside.into_iter().map(|s| (s.count_ones() * 4 * 255 + 0x80) >> 8).collect();
+                };
+                let cover = inside.into_iter().map(|s| Samples::Mask.byte(s.count_ones())).collect();
                 // (MEASURED, D2D.LAYER.INUSE: the one ID2D1Layer pushed again while pushed is
                 // D2DERR_LAYER_ALREADY_IN_USE)
                 if tg.stack.iter().any(|p| matches!(p, Pushed::Layer(_))) {
@@ -1519,11 +1538,11 @@ impl D2d {
                 let l = match tg.stack.last() {
                     Some(Pushed::Layer(l)) => l.clone(),
                     Some(Pushed::Clip(_)) => {
-                        tg.fail(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, Drawn::Dropped);
+                        tg.fail(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, Drawn::Kept);
                         return Ok(());
                     }
                     None => {
-                        tg.fail(D2DERR_PUSH_POP_UNBALANCED, Drawn::Dropped);
+                        tg.fail(D2DERR_PUSH_POP_UNBALANCED, Drawn::Kept);
                         return Ok(());
                     }
                 };
@@ -1545,7 +1564,7 @@ impl D2d {
                         tg.stack.pop();
                     }
                     Some(Pushed::Layer(_)) => {
-                        tg.fail(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, Drawn::Dropped);
+                        tg.fail(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH, Drawn::Kept);
                         return Ok(());
                     }
                     None => {
@@ -2007,6 +2026,7 @@ impl Frame {
 /// polygons in 1/16 pixel of the frame: straight figures' points snapped, a curve's four points
 /// snapped and flattened in that fixed point by WPF's Bezier32
 fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, i64)>>)> {
+    hit(clause::D2D_FILL_FIXED);
     let sn = |v: f64| frame.snap(v);
     if let Some((wind, figs, m0)) = g.lines() {
         let ps = polys(&figs, &mul(&m0, &tg.st.m));
@@ -2125,13 +2145,68 @@ fn put_coverage(tg: &mut Target, cov: Vec<u32>, paint: &Paint) {
         // each byte of the premultiplied color times it / 255 rounded, then over the target as
         // an aliased fill)
         hit(clause::D2D_FILL_AABLEND);
-        let k = (n * 4 * 255 + 0x80) >> 8;
+        let k = Samples::Fill.byte(n);
         *p = over(scale_by(src, k), *p);
+    }
+}
+
+/// Sutherland-Hodgman: a polygon cut to a convex quadrilateral (corners in either order)
+fn clip_convex(p: &[(f64, f64)], q: &[(f64, f64); 4]) -> Vec<(f64, f64)> {
+    let area: f64 = (0..4).map(|k| cross0(q[k], q[(k + 1) % 4])).sum();
+    let mut out = p.to_vec();
+    for k in 0..4 {
+        let (a, b) = (q[k], q[(k + 1) % 4]);
+        let side = |p: (f64, f64)| ((b.0 - a.0) * (p.1 - a.1) - (b.1 - a.1) * (p.0 - a.0)) * area.signum();
+        let input = std::mem::take(&mut out);
+        for i in 0..input.len() {
+            let (c, d) = (input[(i + input.len() - 1) % input.len()], input[i]);
+            let (sc, sd) = (side(c), side(d));
+            if sd >= 0.0 {
+                if sc < 0.0 {
+                    let t = sc / (sc - sd);
+                    out.push((c.0 + t * (d.0 - c.0), c.1 + t * (d.1 - c.1)));
+                }
+                out.push(d);
+            } else if sc >= 0.0 {
+                let t = sc / (sc - sd);
+                out.push((c.0 + t * (d.0 - c.0), c.1 + t * (d.1 - c.1)));
+            }
+        }
+        if out.is_empty() {
+            break;
+        }
+    }
+    out
+}
+
+fn cross0(a: (f64, f64), b: (f64, f64)) -> f64 {
+    a.0 * b.1 - a.1 * b.0
+}
+
+/// what a count of 8 x 8 samples is the coverage of
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Samples {
+    /// a filled primitive's edge (D2D.FILL.AABLEND)
+    Fill,
+    /// an antialiased clip or a layer's bounds and mask (D2D.CLIP.BLEND, D2D.LAYER.MASK)
+    Mask,
+}
+
+impl Samples {
+    /// MEASURED: the byte of n samples of 64; the two differ only at n = 32 (128 against 127,
+    /// layerfit-*: the half covered column of the mask sweep)
+    fn byte(self, n: u32) -> u32 {
+        debug_assert!(n <= 64);
+        match self {
+            Self::Fill => (n * 4 * 255 + 0x80) >> 8,
+            Self::Mask => (n * 4 * 255 + 0x7f) >> 8,
+        }
     }
 }
 
 /// MEASURED (D2D.FILL.AA28): a coordinate in 1/16 pixel, ceil(16 v) - 1
 fn snap16(v: f64) -> i64 {
+    hit(clause::D2D_FILL_AA28);
     (16.0 * v).ceil() as i64 - 1
 }
 

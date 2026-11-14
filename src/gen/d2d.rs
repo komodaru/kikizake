@@ -37,6 +37,8 @@ pub fn d2d() -> String {
     bitmaps_more(&mut s, &mut r);
     layerfit(&mut s);
     bitmapfit(&mut s, &mut r);
+    clipfit(&mut s);
+    huge(&mut s);
     s
 }
 
@@ -686,5 +688,35 @@ fn bitmapfit(s: &mut String, r: &mut XorShift32) {
     }
     for (i, xf) in ["0 1 -1 0 16 0", "1 0.25 0 1 0 0", "1.5 0 0 1.25 0 0"].iter().enumerate() {
         writeln!(s, "case bbrushfit-xf{i}\nd2target 16 8\nd2aa aliased\nd2xform {xf}\nd2bmp 0 3 3 {}\nd2bbrush 0 -8 -8 24 24 wrap wrap linear 1.3 0 0 0.7 0.1 0.2\nd2read\nend", bitmap(r, 3, 3)).unwrap();
+    }
+}
+
+/// antialiased clips made to read the blend off: pixel (2a + 1, 2b + 1) under a clip whose
+/// right and bottom edges cut a/8 and b/8 into it (a b of 64 samples), translucent and opaque
+/// fills; rotated clips (their bounding box) with the box's edges sweeping across a pixel
+fn clipfit(s: &mut String) {
+    for (i, c) in ["44 107 187 64", "200 30 90 128", "20 240 120 200", "250 250 250 255", "90 60 30 10"].iter().enumerate() {
+        writeln!(s, "case clipfit-{i}\nd2target 18 18\nd2clear 37 125 30 255").unwrap();
+        for a in 0..9 {
+            for b in 0..9 {
+                let (x, y) = (2 * a, 2 * b);
+                writeln!(s, "d2clip {x}.5 {y}.5 {} {} per\nd2fill 0 0 18 18 {c}\nd2unclip", fmt(x as f64 + 1.0 + a as f64 / 8.0), fmt(y as f64 + 1.0 + b as f64 / 8.0)).unwrap();
+            }
+        }
+        writeln!(s, "d2read\nend").unwrap();
+    }
+    for i in 0..32 {
+        let tx = fmt(8.0 + i as f64 / 32.0);
+        let (m, name) = if i % 2 == 0 { ("0.7071 0.7071 -0.7071 0.7071", "45") } else { ("0.866 0.5 -0.5 0.866", "30") };
+        writeln!(s, "case clipxf-{i}\nd2target 16 8\nd2xform {m} {tx} 0\nd2clip 1.3 1 6 6 per\nd2xform 1 0 0 1 0 0\nd2fill 0 0 16 8 255 255 255 255\nd2unclip\nd2read\nend").unwrap();
+        let _ = name;
+    }
+}
+
+/// fills with a vertex past 2^23 pixels, where the 28.4 rasterizer has no room (D2D.FILL.HUGE)
+fn huge(s: &mut String) {
+    for (i, v) in ["9000000", "-9000000", "16777216", "1e9"].iter().enumerate() {
+        let aa = if i % 2 == 0 { "" } else { "d2aa aliased\n" };
+        writeln!(s, "case fillhuge-{i}\nd2target 8 4\n{aa}d2clear 10 20 30 255\nd2path 0 alt m 1 1 {v} 2 1 3 z\nd2fillg 0 200 100 50 255\nd2fill 0 0 {v} 2 50 60 70 255\nd2read\nend").unwrap();
     }
 }
