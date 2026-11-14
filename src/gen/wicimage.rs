@@ -44,6 +44,20 @@ pub fn wicscale() -> String {
             }
         }
     }
+    // the same of random levels (the weights and their rounding), and two levels spread over
+    // many output pixels (the positions' precision)
+    for (k, m) in MODES.iter().enumerate() {
+        for sw in 1..=8 {
+            for dw in 1..=17 {
+                writeln!(s, "case rrow-{m}-{sw}-{dw}\nwbits gray8 {sw} 1 {}\nwscale {dw} 1 {m}\nwpixels\nend", 1 + k * 1000 + sw * 20 + dw).unwrap();
+            }
+        }
+        for (i, (sw, dw)) in [(2, 251), (3, 250), (2, 255), (5, 241), (251, 2), (250, 3), (64, 17), (17, 64)].into_iter().enumerate() {
+            for v in 0..3 {
+                writeln!(s, "case fine-{m}-{sw}-{dw}-{v}\nwbits gray8 {sw} 1 {}\nwscale {dw} 1 {m}\nwpixels\nend", 50_000 + k * 100 + i * 10 + v).unwrap();
+            }
+        }
+    }
     // the same along columns, and in both directions at once
     for m in MODES {
         for (sh, dh) in [(3, 7), (7, 3), (5, 2), (2, 5), (4, 9)] {

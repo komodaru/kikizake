@@ -4079,6 +4079,4006 @@ wscale 17 1 hqcubic
 winfo
 wpixels
 end
+case rrow-nn-1-1
+wbits gray8 1 1 22
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-1-2
+wbits gray8 1 1 23
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-1-3
+wbits gray8 1 1 24
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-1-4
+wbits gray8 1 1 25
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-1-5
+wbits gray8 1 1 26
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-1-6
+wbits gray8 1 1 27
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-1-7
+wbits gray8 1 1 28
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-1-8
+wbits gray8 1 1 29
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-1-9
+wbits gray8 1 1 30
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-1-10
+wbits gray8 1 1 31
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-1-11
+wbits gray8 1 1 32
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-1-12
+wbits gray8 1 1 33
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-1-13
+wbits gray8 1 1 34
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-1-14
+wbits gray8 1 1 35
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-1-15
+wbits gray8 1 1 36
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-1-16
+wbits gray8 1 1 37
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-1-17
+wbits gray8 1 1 38
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-2-1
+wbits gray8 2 1 42
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-2-2
+wbits gray8 2 1 43
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-2-3
+wbits gray8 2 1 44
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-2-4
+wbits gray8 2 1 45
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-2-5
+wbits gray8 2 1 46
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-2-6
+wbits gray8 2 1 47
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-2-7
+wbits gray8 2 1 48
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-2-8
+wbits gray8 2 1 49
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-2-9
+wbits gray8 2 1 50
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-2-10
+wbits gray8 2 1 51
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-2-11
+wbits gray8 2 1 52
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-2-12
+wbits gray8 2 1 53
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-2-13
+wbits gray8 2 1 54
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-2-14
+wbits gray8 2 1 55
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-2-15
+wbits gray8 2 1 56
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-2-16
+wbits gray8 2 1 57
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-2-17
+wbits gray8 2 1 58
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-3-1
+wbits gray8 3 1 62
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-3-2
+wbits gray8 3 1 63
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-3-3
+wbits gray8 3 1 64
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-3-4
+wbits gray8 3 1 65
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-3-5
+wbits gray8 3 1 66
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-3-6
+wbits gray8 3 1 67
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-3-7
+wbits gray8 3 1 68
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-3-8
+wbits gray8 3 1 69
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-3-9
+wbits gray8 3 1 70
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-3-10
+wbits gray8 3 1 71
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-3-11
+wbits gray8 3 1 72
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-3-12
+wbits gray8 3 1 73
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-3-13
+wbits gray8 3 1 74
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-3-14
+wbits gray8 3 1 75
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-3-15
+wbits gray8 3 1 76
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-3-16
+wbits gray8 3 1 77
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-3-17
+wbits gray8 3 1 78
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-4-1
+wbits gray8 4 1 82
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-4-2
+wbits gray8 4 1 83
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-4-3
+wbits gray8 4 1 84
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-4-4
+wbits gray8 4 1 85
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-4-5
+wbits gray8 4 1 86
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-4-6
+wbits gray8 4 1 87
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-4-7
+wbits gray8 4 1 88
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-4-8
+wbits gray8 4 1 89
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-4-9
+wbits gray8 4 1 90
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-4-10
+wbits gray8 4 1 91
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-4-11
+wbits gray8 4 1 92
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-4-12
+wbits gray8 4 1 93
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-4-13
+wbits gray8 4 1 94
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-4-14
+wbits gray8 4 1 95
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-4-15
+wbits gray8 4 1 96
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-4-16
+wbits gray8 4 1 97
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-4-17
+wbits gray8 4 1 98
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-5-1
+wbits gray8 5 1 102
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-5-2
+wbits gray8 5 1 103
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-5-3
+wbits gray8 5 1 104
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-5-4
+wbits gray8 5 1 105
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-5-5
+wbits gray8 5 1 106
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-5-6
+wbits gray8 5 1 107
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-5-7
+wbits gray8 5 1 108
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-5-8
+wbits gray8 5 1 109
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-5-9
+wbits gray8 5 1 110
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-5-10
+wbits gray8 5 1 111
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-5-11
+wbits gray8 5 1 112
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-5-12
+wbits gray8 5 1 113
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-5-13
+wbits gray8 5 1 114
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-5-14
+wbits gray8 5 1 115
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-5-15
+wbits gray8 5 1 116
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-5-16
+wbits gray8 5 1 117
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-5-17
+wbits gray8 5 1 118
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-6-1
+wbits gray8 6 1 122
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-6-2
+wbits gray8 6 1 123
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-6-3
+wbits gray8 6 1 124
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-6-4
+wbits gray8 6 1 125
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-6-5
+wbits gray8 6 1 126
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-6-6
+wbits gray8 6 1 127
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-6-7
+wbits gray8 6 1 128
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-6-8
+wbits gray8 6 1 129
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-6-9
+wbits gray8 6 1 130
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-6-10
+wbits gray8 6 1 131
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-6-11
+wbits gray8 6 1 132
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-6-12
+wbits gray8 6 1 133
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-6-13
+wbits gray8 6 1 134
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-6-14
+wbits gray8 6 1 135
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-6-15
+wbits gray8 6 1 136
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-6-16
+wbits gray8 6 1 137
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-6-17
+wbits gray8 6 1 138
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-7-1
+wbits gray8 7 1 142
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-7-2
+wbits gray8 7 1 143
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-7-3
+wbits gray8 7 1 144
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-7-4
+wbits gray8 7 1 145
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-7-5
+wbits gray8 7 1 146
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-7-6
+wbits gray8 7 1 147
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-7-7
+wbits gray8 7 1 148
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-7-8
+wbits gray8 7 1 149
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-7-9
+wbits gray8 7 1 150
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-7-10
+wbits gray8 7 1 151
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-7-11
+wbits gray8 7 1 152
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-7-12
+wbits gray8 7 1 153
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-7-13
+wbits gray8 7 1 154
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-7-14
+wbits gray8 7 1 155
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-7-15
+wbits gray8 7 1 156
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-7-16
+wbits gray8 7 1 157
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-7-17
+wbits gray8 7 1 158
+wscale 17 1 nn
+wpixels
+end
+case rrow-nn-8-1
+wbits gray8 8 1 162
+wscale 1 1 nn
+wpixels
+end
+case rrow-nn-8-2
+wbits gray8 8 1 163
+wscale 2 1 nn
+wpixels
+end
+case rrow-nn-8-3
+wbits gray8 8 1 164
+wscale 3 1 nn
+wpixels
+end
+case rrow-nn-8-4
+wbits gray8 8 1 165
+wscale 4 1 nn
+wpixels
+end
+case rrow-nn-8-5
+wbits gray8 8 1 166
+wscale 5 1 nn
+wpixels
+end
+case rrow-nn-8-6
+wbits gray8 8 1 167
+wscale 6 1 nn
+wpixels
+end
+case rrow-nn-8-7
+wbits gray8 8 1 168
+wscale 7 1 nn
+wpixels
+end
+case rrow-nn-8-8
+wbits gray8 8 1 169
+wscale 8 1 nn
+wpixels
+end
+case rrow-nn-8-9
+wbits gray8 8 1 170
+wscale 9 1 nn
+wpixels
+end
+case rrow-nn-8-10
+wbits gray8 8 1 171
+wscale 10 1 nn
+wpixels
+end
+case rrow-nn-8-11
+wbits gray8 8 1 172
+wscale 11 1 nn
+wpixels
+end
+case rrow-nn-8-12
+wbits gray8 8 1 173
+wscale 12 1 nn
+wpixels
+end
+case rrow-nn-8-13
+wbits gray8 8 1 174
+wscale 13 1 nn
+wpixels
+end
+case rrow-nn-8-14
+wbits gray8 8 1 175
+wscale 14 1 nn
+wpixels
+end
+case rrow-nn-8-15
+wbits gray8 8 1 176
+wscale 15 1 nn
+wpixels
+end
+case rrow-nn-8-16
+wbits gray8 8 1 177
+wscale 16 1 nn
+wpixels
+end
+case rrow-nn-8-17
+wbits gray8 8 1 178
+wscale 17 1 nn
+wpixels
+end
+case fine-nn-2-251-0
+wbits gray8 2 1 50000
+wscale 251 1 nn
+wpixels
+end
+case fine-nn-2-251-1
+wbits gray8 2 1 50001
+wscale 251 1 nn
+wpixels
+end
+case fine-nn-2-251-2
+wbits gray8 2 1 50002
+wscale 251 1 nn
+wpixels
+end
+case fine-nn-3-250-0
+wbits gray8 3 1 50010
+wscale 250 1 nn
+wpixels
+end
+case fine-nn-3-250-1
+wbits gray8 3 1 50011
+wscale 250 1 nn
+wpixels
+end
+case fine-nn-3-250-2
+wbits gray8 3 1 50012
+wscale 250 1 nn
+wpixels
+end
+case fine-nn-2-255-0
+wbits gray8 2 1 50020
+wscale 255 1 nn
+wpixels
+end
+case fine-nn-2-255-1
+wbits gray8 2 1 50021
+wscale 255 1 nn
+wpixels
+end
+case fine-nn-2-255-2
+wbits gray8 2 1 50022
+wscale 255 1 nn
+wpixels
+end
+case fine-nn-5-241-0
+wbits gray8 5 1 50030
+wscale 241 1 nn
+wpixels
+end
+case fine-nn-5-241-1
+wbits gray8 5 1 50031
+wscale 241 1 nn
+wpixels
+end
+case fine-nn-5-241-2
+wbits gray8 5 1 50032
+wscale 241 1 nn
+wpixels
+end
+case fine-nn-251-2-0
+wbits gray8 251 1 50040
+wscale 2 1 nn
+wpixels
+end
+case fine-nn-251-2-1
+wbits gray8 251 1 50041
+wscale 2 1 nn
+wpixels
+end
+case fine-nn-251-2-2
+wbits gray8 251 1 50042
+wscale 2 1 nn
+wpixels
+end
+case fine-nn-250-3-0
+wbits gray8 250 1 50050
+wscale 3 1 nn
+wpixels
+end
+case fine-nn-250-3-1
+wbits gray8 250 1 50051
+wscale 3 1 nn
+wpixels
+end
+case fine-nn-250-3-2
+wbits gray8 250 1 50052
+wscale 3 1 nn
+wpixels
+end
+case fine-nn-64-17-0
+wbits gray8 64 1 50060
+wscale 17 1 nn
+wpixels
+end
+case fine-nn-64-17-1
+wbits gray8 64 1 50061
+wscale 17 1 nn
+wpixels
+end
+case fine-nn-64-17-2
+wbits gray8 64 1 50062
+wscale 17 1 nn
+wpixels
+end
+case fine-nn-17-64-0
+wbits gray8 17 1 50070
+wscale 64 1 nn
+wpixels
+end
+case fine-nn-17-64-1
+wbits gray8 17 1 50071
+wscale 64 1 nn
+wpixels
+end
+case fine-nn-17-64-2
+wbits gray8 17 1 50072
+wscale 64 1 nn
+wpixels
+end
+case rrow-linear-1-1
+wbits gray8 1 1 1022
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-1-2
+wbits gray8 1 1 1023
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-1-3
+wbits gray8 1 1 1024
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-1-4
+wbits gray8 1 1 1025
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-1-5
+wbits gray8 1 1 1026
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-1-6
+wbits gray8 1 1 1027
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-1-7
+wbits gray8 1 1 1028
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-1-8
+wbits gray8 1 1 1029
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-1-9
+wbits gray8 1 1 1030
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-1-10
+wbits gray8 1 1 1031
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-1-11
+wbits gray8 1 1 1032
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-1-12
+wbits gray8 1 1 1033
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-1-13
+wbits gray8 1 1 1034
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-1-14
+wbits gray8 1 1 1035
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-1-15
+wbits gray8 1 1 1036
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-1-16
+wbits gray8 1 1 1037
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-1-17
+wbits gray8 1 1 1038
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-2-1
+wbits gray8 2 1 1042
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-2-2
+wbits gray8 2 1 1043
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-2-3
+wbits gray8 2 1 1044
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-2-4
+wbits gray8 2 1 1045
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-2-5
+wbits gray8 2 1 1046
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-2-6
+wbits gray8 2 1 1047
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-2-7
+wbits gray8 2 1 1048
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-2-8
+wbits gray8 2 1 1049
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-2-9
+wbits gray8 2 1 1050
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-2-10
+wbits gray8 2 1 1051
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-2-11
+wbits gray8 2 1 1052
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-2-12
+wbits gray8 2 1 1053
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-2-13
+wbits gray8 2 1 1054
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-2-14
+wbits gray8 2 1 1055
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-2-15
+wbits gray8 2 1 1056
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-2-16
+wbits gray8 2 1 1057
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-2-17
+wbits gray8 2 1 1058
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-3-1
+wbits gray8 3 1 1062
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-3-2
+wbits gray8 3 1 1063
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-3-3
+wbits gray8 3 1 1064
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-3-4
+wbits gray8 3 1 1065
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-3-5
+wbits gray8 3 1 1066
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-3-6
+wbits gray8 3 1 1067
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-3-7
+wbits gray8 3 1 1068
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-3-8
+wbits gray8 3 1 1069
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-3-9
+wbits gray8 3 1 1070
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-3-10
+wbits gray8 3 1 1071
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-3-11
+wbits gray8 3 1 1072
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-3-12
+wbits gray8 3 1 1073
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-3-13
+wbits gray8 3 1 1074
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-3-14
+wbits gray8 3 1 1075
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-3-15
+wbits gray8 3 1 1076
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-3-16
+wbits gray8 3 1 1077
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-3-17
+wbits gray8 3 1 1078
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-4-1
+wbits gray8 4 1 1082
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-4-2
+wbits gray8 4 1 1083
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-4-3
+wbits gray8 4 1 1084
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-4-4
+wbits gray8 4 1 1085
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-4-5
+wbits gray8 4 1 1086
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-4-6
+wbits gray8 4 1 1087
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-4-7
+wbits gray8 4 1 1088
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-4-8
+wbits gray8 4 1 1089
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-4-9
+wbits gray8 4 1 1090
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-4-10
+wbits gray8 4 1 1091
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-4-11
+wbits gray8 4 1 1092
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-4-12
+wbits gray8 4 1 1093
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-4-13
+wbits gray8 4 1 1094
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-4-14
+wbits gray8 4 1 1095
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-4-15
+wbits gray8 4 1 1096
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-4-16
+wbits gray8 4 1 1097
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-4-17
+wbits gray8 4 1 1098
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-5-1
+wbits gray8 5 1 1102
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-5-2
+wbits gray8 5 1 1103
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-5-3
+wbits gray8 5 1 1104
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-5-4
+wbits gray8 5 1 1105
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-5-5
+wbits gray8 5 1 1106
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-5-6
+wbits gray8 5 1 1107
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-5-7
+wbits gray8 5 1 1108
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-5-8
+wbits gray8 5 1 1109
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-5-9
+wbits gray8 5 1 1110
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-5-10
+wbits gray8 5 1 1111
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-5-11
+wbits gray8 5 1 1112
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-5-12
+wbits gray8 5 1 1113
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-5-13
+wbits gray8 5 1 1114
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-5-14
+wbits gray8 5 1 1115
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-5-15
+wbits gray8 5 1 1116
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-5-16
+wbits gray8 5 1 1117
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-5-17
+wbits gray8 5 1 1118
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-6-1
+wbits gray8 6 1 1122
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-6-2
+wbits gray8 6 1 1123
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-6-3
+wbits gray8 6 1 1124
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-6-4
+wbits gray8 6 1 1125
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-6-5
+wbits gray8 6 1 1126
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-6-6
+wbits gray8 6 1 1127
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-6-7
+wbits gray8 6 1 1128
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-6-8
+wbits gray8 6 1 1129
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-6-9
+wbits gray8 6 1 1130
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-6-10
+wbits gray8 6 1 1131
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-6-11
+wbits gray8 6 1 1132
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-6-12
+wbits gray8 6 1 1133
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-6-13
+wbits gray8 6 1 1134
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-6-14
+wbits gray8 6 1 1135
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-6-15
+wbits gray8 6 1 1136
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-6-16
+wbits gray8 6 1 1137
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-6-17
+wbits gray8 6 1 1138
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-7-1
+wbits gray8 7 1 1142
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-7-2
+wbits gray8 7 1 1143
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-7-3
+wbits gray8 7 1 1144
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-7-4
+wbits gray8 7 1 1145
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-7-5
+wbits gray8 7 1 1146
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-7-6
+wbits gray8 7 1 1147
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-7-7
+wbits gray8 7 1 1148
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-7-8
+wbits gray8 7 1 1149
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-7-9
+wbits gray8 7 1 1150
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-7-10
+wbits gray8 7 1 1151
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-7-11
+wbits gray8 7 1 1152
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-7-12
+wbits gray8 7 1 1153
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-7-13
+wbits gray8 7 1 1154
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-7-14
+wbits gray8 7 1 1155
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-7-15
+wbits gray8 7 1 1156
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-7-16
+wbits gray8 7 1 1157
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-7-17
+wbits gray8 7 1 1158
+wscale 17 1 linear
+wpixels
+end
+case rrow-linear-8-1
+wbits gray8 8 1 1162
+wscale 1 1 linear
+wpixels
+end
+case rrow-linear-8-2
+wbits gray8 8 1 1163
+wscale 2 1 linear
+wpixels
+end
+case rrow-linear-8-3
+wbits gray8 8 1 1164
+wscale 3 1 linear
+wpixels
+end
+case rrow-linear-8-4
+wbits gray8 8 1 1165
+wscale 4 1 linear
+wpixels
+end
+case rrow-linear-8-5
+wbits gray8 8 1 1166
+wscale 5 1 linear
+wpixels
+end
+case rrow-linear-8-6
+wbits gray8 8 1 1167
+wscale 6 1 linear
+wpixels
+end
+case rrow-linear-8-7
+wbits gray8 8 1 1168
+wscale 7 1 linear
+wpixels
+end
+case rrow-linear-8-8
+wbits gray8 8 1 1169
+wscale 8 1 linear
+wpixels
+end
+case rrow-linear-8-9
+wbits gray8 8 1 1170
+wscale 9 1 linear
+wpixels
+end
+case rrow-linear-8-10
+wbits gray8 8 1 1171
+wscale 10 1 linear
+wpixels
+end
+case rrow-linear-8-11
+wbits gray8 8 1 1172
+wscale 11 1 linear
+wpixels
+end
+case rrow-linear-8-12
+wbits gray8 8 1 1173
+wscale 12 1 linear
+wpixels
+end
+case rrow-linear-8-13
+wbits gray8 8 1 1174
+wscale 13 1 linear
+wpixels
+end
+case rrow-linear-8-14
+wbits gray8 8 1 1175
+wscale 14 1 linear
+wpixels
+end
+case rrow-linear-8-15
+wbits gray8 8 1 1176
+wscale 15 1 linear
+wpixels
+end
+case rrow-linear-8-16
+wbits gray8 8 1 1177
+wscale 16 1 linear
+wpixels
+end
+case rrow-linear-8-17
+wbits gray8 8 1 1178
+wscale 17 1 linear
+wpixels
+end
+case fine-linear-2-251-0
+wbits gray8 2 1 50100
+wscale 251 1 linear
+wpixels
+end
+case fine-linear-2-251-1
+wbits gray8 2 1 50101
+wscale 251 1 linear
+wpixels
+end
+case fine-linear-2-251-2
+wbits gray8 2 1 50102
+wscale 251 1 linear
+wpixels
+end
+case fine-linear-3-250-0
+wbits gray8 3 1 50110
+wscale 250 1 linear
+wpixels
+end
+case fine-linear-3-250-1
+wbits gray8 3 1 50111
+wscale 250 1 linear
+wpixels
+end
+case fine-linear-3-250-2
+wbits gray8 3 1 50112
+wscale 250 1 linear
+wpixels
+end
+case fine-linear-2-255-0
+wbits gray8 2 1 50120
+wscale 255 1 linear
+wpixels
+end
+case fine-linear-2-255-1
+wbits gray8 2 1 50121
+wscale 255 1 linear
+wpixels
+end
+case fine-linear-2-255-2
+wbits gray8 2 1 50122
+wscale 255 1 linear
+wpixels
+end
+case fine-linear-5-241-0
+wbits gray8 5 1 50130
+wscale 241 1 linear
+wpixels
+end
+case fine-linear-5-241-1
+wbits gray8 5 1 50131
+wscale 241 1 linear
+wpixels
+end
+case fine-linear-5-241-2
+wbits gray8 5 1 50132
+wscale 241 1 linear
+wpixels
+end
+case fine-linear-251-2-0
+wbits gray8 251 1 50140
+wscale 2 1 linear
+wpixels
+end
+case fine-linear-251-2-1
+wbits gray8 251 1 50141
+wscale 2 1 linear
+wpixels
+end
+case fine-linear-251-2-2
+wbits gray8 251 1 50142
+wscale 2 1 linear
+wpixels
+end
+case fine-linear-250-3-0
+wbits gray8 250 1 50150
+wscale 3 1 linear
+wpixels
+end
+case fine-linear-250-3-1
+wbits gray8 250 1 50151
+wscale 3 1 linear
+wpixels
+end
+case fine-linear-250-3-2
+wbits gray8 250 1 50152
+wscale 3 1 linear
+wpixels
+end
+case fine-linear-64-17-0
+wbits gray8 64 1 50160
+wscale 17 1 linear
+wpixels
+end
+case fine-linear-64-17-1
+wbits gray8 64 1 50161
+wscale 17 1 linear
+wpixels
+end
+case fine-linear-64-17-2
+wbits gray8 64 1 50162
+wscale 17 1 linear
+wpixels
+end
+case fine-linear-17-64-0
+wbits gray8 17 1 50170
+wscale 64 1 linear
+wpixels
+end
+case fine-linear-17-64-1
+wbits gray8 17 1 50171
+wscale 64 1 linear
+wpixels
+end
+case fine-linear-17-64-2
+wbits gray8 17 1 50172
+wscale 64 1 linear
+wpixels
+end
+case rrow-cubic-1-1
+wbits gray8 1 1 2022
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-1-2
+wbits gray8 1 1 2023
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-1-3
+wbits gray8 1 1 2024
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-1-4
+wbits gray8 1 1 2025
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-1-5
+wbits gray8 1 1 2026
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-1-6
+wbits gray8 1 1 2027
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-1-7
+wbits gray8 1 1 2028
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-1-8
+wbits gray8 1 1 2029
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-1-9
+wbits gray8 1 1 2030
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-1-10
+wbits gray8 1 1 2031
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-1-11
+wbits gray8 1 1 2032
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-1-12
+wbits gray8 1 1 2033
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-1-13
+wbits gray8 1 1 2034
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-1-14
+wbits gray8 1 1 2035
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-1-15
+wbits gray8 1 1 2036
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-1-16
+wbits gray8 1 1 2037
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-1-17
+wbits gray8 1 1 2038
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-2-1
+wbits gray8 2 1 2042
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-2-2
+wbits gray8 2 1 2043
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-2-3
+wbits gray8 2 1 2044
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-2-4
+wbits gray8 2 1 2045
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-2-5
+wbits gray8 2 1 2046
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-2-6
+wbits gray8 2 1 2047
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-2-7
+wbits gray8 2 1 2048
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-2-8
+wbits gray8 2 1 2049
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-2-9
+wbits gray8 2 1 2050
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-2-10
+wbits gray8 2 1 2051
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-2-11
+wbits gray8 2 1 2052
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-2-12
+wbits gray8 2 1 2053
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-2-13
+wbits gray8 2 1 2054
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-2-14
+wbits gray8 2 1 2055
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-2-15
+wbits gray8 2 1 2056
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-2-16
+wbits gray8 2 1 2057
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-2-17
+wbits gray8 2 1 2058
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-3-1
+wbits gray8 3 1 2062
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-3-2
+wbits gray8 3 1 2063
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-3-3
+wbits gray8 3 1 2064
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-3-4
+wbits gray8 3 1 2065
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-3-5
+wbits gray8 3 1 2066
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-3-6
+wbits gray8 3 1 2067
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-3-7
+wbits gray8 3 1 2068
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-3-8
+wbits gray8 3 1 2069
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-3-9
+wbits gray8 3 1 2070
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-3-10
+wbits gray8 3 1 2071
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-3-11
+wbits gray8 3 1 2072
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-3-12
+wbits gray8 3 1 2073
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-3-13
+wbits gray8 3 1 2074
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-3-14
+wbits gray8 3 1 2075
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-3-15
+wbits gray8 3 1 2076
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-3-16
+wbits gray8 3 1 2077
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-3-17
+wbits gray8 3 1 2078
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-4-1
+wbits gray8 4 1 2082
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-4-2
+wbits gray8 4 1 2083
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-4-3
+wbits gray8 4 1 2084
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-4-4
+wbits gray8 4 1 2085
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-4-5
+wbits gray8 4 1 2086
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-4-6
+wbits gray8 4 1 2087
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-4-7
+wbits gray8 4 1 2088
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-4-8
+wbits gray8 4 1 2089
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-4-9
+wbits gray8 4 1 2090
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-4-10
+wbits gray8 4 1 2091
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-4-11
+wbits gray8 4 1 2092
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-4-12
+wbits gray8 4 1 2093
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-4-13
+wbits gray8 4 1 2094
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-4-14
+wbits gray8 4 1 2095
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-4-15
+wbits gray8 4 1 2096
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-4-16
+wbits gray8 4 1 2097
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-4-17
+wbits gray8 4 1 2098
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-5-1
+wbits gray8 5 1 2102
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-5-2
+wbits gray8 5 1 2103
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-5-3
+wbits gray8 5 1 2104
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-5-4
+wbits gray8 5 1 2105
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-5-5
+wbits gray8 5 1 2106
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-5-6
+wbits gray8 5 1 2107
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-5-7
+wbits gray8 5 1 2108
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-5-8
+wbits gray8 5 1 2109
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-5-9
+wbits gray8 5 1 2110
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-5-10
+wbits gray8 5 1 2111
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-5-11
+wbits gray8 5 1 2112
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-5-12
+wbits gray8 5 1 2113
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-5-13
+wbits gray8 5 1 2114
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-5-14
+wbits gray8 5 1 2115
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-5-15
+wbits gray8 5 1 2116
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-5-16
+wbits gray8 5 1 2117
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-5-17
+wbits gray8 5 1 2118
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-6-1
+wbits gray8 6 1 2122
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-6-2
+wbits gray8 6 1 2123
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-6-3
+wbits gray8 6 1 2124
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-6-4
+wbits gray8 6 1 2125
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-6-5
+wbits gray8 6 1 2126
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-6-6
+wbits gray8 6 1 2127
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-6-7
+wbits gray8 6 1 2128
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-6-8
+wbits gray8 6 1 2129
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-6-9
+wbits gray8 6 1 2130
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-6-10
+wbits gray8 6 1 2131
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-6-11
+wbits gray8 6 1 2132
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-6-12
+wbits gray8 6 1 2133
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-6-13
+wbits gray8 6 1 2134
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-6-14
+wbits gray8 6 1 2135
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-6-15
+wbits gray8 6 1 2136
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-6-16
+wbits gray8 6 1 2137
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-6-17
+wbits gray8 6 1 2138
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-7-1
+wbits gray8 7 1 2142
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-7-2
+wbits gray8 7 1 2143
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-7-3
+wbits gray8 7 1 2144
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-7-4
+wbits gray8 7 1 2145
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-7-5
+wbits gray8 7 1 2146
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-7-6
+wbits gray8 7 1 2147
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-7-7
+wbits gray8 7 1 2148
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-7-8
+wbits gray8 7 1 2149
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-7-9
+wbits gray8 7 1 2150
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-7-10
+wbits gray8 7 1 2151
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-7-11
+wbits gray8 7 1 2152
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-7-12
+wbits gray8 7 1 2153
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-7-13
+wbits gray8 7 1 2154
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-7-14
+wbits gray8 7 1 2155
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-7-15
+wbits gray8 7 1 2156
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-7-16
+wbits gray8 7 1 2157
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-7-17
+wbits gray8 7 1 2158
+wscale 17 1 cubic
+wpixels
+end
+case rrow-cubic-8-1
+wbits gray8 8 1 2162
+wscale 1 1 cubic
+wpixels
+end
+case rrow-cubic-8-2
+wbits gray8 8 1 2163
+wscale 2 1 cubic
+wpixels
+end
+case rrow-cubic-8-3
+wbits gray8 8 1 2164
+wscale 3 1 cubic
+wpixels
+end
+case rrow-cubic-8-4
+wbits gray8 8 1 2165
+wscale 4 1 cubic
+wpixels
+end
+case rrow-cubic-8-5
+wbits gray8 8 1 2166
+wscale 5 1 cubic
+wpixels
+end
+case rrow-cubic-8-6
+wbits gray8 8 1 2167
+wscale 6 1 cubic
+wpixels
+end
+case rrow-cubic-8-7
+wbits gray8 8 1 2168
+wscale 7 1 cubic
+wpixels
+end
+case rrow-cubic-8-8
+wbits gray8 8 1 2169
+wscale 8 1 cubic
+wpixels
+end
+case rrow-cubic-8-9
+wbits gray8 8 1 2170
+wscale 9 1 cubic
+wpixels
+end
+case rrow-cubic-8-10
+wbits gray8 8 1 2171
+wscale 10 1 cubic
+wpixels
+end
+case rrow-cubic-8-11
+wbits gray8 8 1 2172
+wscale 11 1 cubic
+wpixels
+end
+case rrow-cubic-8-12
+wbits gray8 8 1 2173
+wscale 12 1 cubic
+wpixels
+end
+case rrow-cubic-8-13
+wbits gray8 8 1 2174
+wscale 13 1 cubic
+wpixels
+end
+case rrow-cubic-8-14
+wbits gray8 8 1 2175
+wscale 14 1 cubic
+wpixels
+end
+case rrow-cubic-8-15
+wbits gray8 8 1 2176
+wscale 15 1 cubic
+wpixels
+end
+case rrow-cubic-8-16
+wbits gray8 8 1 2177
+wscale 16 1 cubic
+wpixels
+end
+case rrow-cubic-8-17
+wbits gray8 8 1 2178
+wscale 17 1 cubic
+wpixels
+end
+case fine-cubic-2-251-0
+wbits gray8 2 1 50200
+wscale 251 1 cubic
+wpixels
+end
+case fine-cubic-2-251-1
+wbits gray8 2 1 50201
+wscale 251 1 cubic
+wpixels
+end
+case fine-cubic-2-251-2
+wbits gray8 2 1 50202
+wscale 251 1 cubic
+wpixels
+end
+case fine-cubic-3-250-0
+wbits gray8 3 1 50210
+wscale 250 1 cubic
+wpixels
+end
+case fine-cubic-3-250-1
+wbits gray8 3 1 50211
+wscale 250 1 cubic
+wpixels
+end
+case fine-cubic-3-250-2
+wbits gray8 3 1 50212
+wscale 250 1 cubic
+wpixels
+end
+case fine-cubic-2-255-0
+wbits gray8 2 1 50220
+wscale 255 1 cubic
+wpixels
+end
+case fine-cubic-2-255-1
+wbits gray8 2 1 50221
+wscale 255 1 cubic
+wpixels
+end
+case fine-cubic-2-255-2
+wbits gray8 2 1 50222
+wscale 255 1 cubic
+wpixels
+end
+case fine-cubic-5-241-0
+wbits gray8 5 1 50230
+wscale 241 1 cubic
+wpixels
+end
+case fine-cubic-5-241-1
+wbits gray8 5 1 50231
+wscale 241 1 cubic
+wpixels
+end
+case fine-cubic-5-241-2
+wbits gray8 5 1 50232
+wscale 241 1 cubic
+wpixels
+end
+case fine-cubic-251-2-0
+wbits gray8 251 1 50240
+wscale 2 1 cubic
+wpixels
+end
+case fine-cubic-251-2-1
+wbits gray8 251 1 50241
+wscale 2 1 cubic
+wpixels
+end
+case fine-cubic-251-2-2
+wbits gray8 251 1 50242
+wscale 2 1 cubic
+wpixels
+end
+case fine-cubic-250-3-0
+wbits gray8 250 1 50250
+wscale 3 1 cubic
+wpixels
+end
+case fine-cubic-250-3-1
+wbits gray8 250 1 50251
+wscale 3 1 cubic
+wpixels
+end
+case fine-cubic-250-3-2
+wbits gray8 250 1 50252
+wscale 3 1 cubic
+wpixels
+end
+case fine-cubic-64-17-0
+wbits gray8 64 1 50260
+wscale 17 1 cubic
+wpixels
+end
+case fine-cubic-64-17-1
+wbits gray8 64 1 50261
+wscale 17 1 cubic
+wpixels
+end
+case fine-cubic-64-17-2
+wbits gray8 64 1 50262
+wscale 17 1 cubic
+wpixels
+end
+case fine-cubic-17-64-0
+wbits gray8 17 1 50270
+wscale 64 1 cubic
+wpixels
+end
+case fine-cubic-17-64-1
+wbits gray8 17 1 50271
+wscale 64 1 cubic
+wpixels
+end
+case fine-cubic-17-64-2
+wbits gray8 17 1 50272
+wscale 64 1 cubic
+wpixels
+end
+case rrow-fant-1-1
+wbits gray8 1 1 3022
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-1-2
+wbits gray8 1 1 3023
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-1-3
+wbits gray8 1 1 3024
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-1-4
+wbits gray8 1 1 3025
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-1-5
+wbits gray8 1 1 3026
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-1-6
+wbits gray8 1 1 3027
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-1-7
+wbits gray8 1 1 3028
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-1-8
+wbits gray8 1 1 3029
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-1-9
+wbits gray8 1 1 3030
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-1-10
+wbits gray8 1 1 3031
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-1-11
+wbits gray8 1 1 3032
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-1-12
+wbits gray8 1 1 3033
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-1-13
+wbits gray8 1 1 3034
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-1-14
+wbits gray8 1 1 3035
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-1-15
+wbits gray8 1 1 3036
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-1-16
+wbits gray8 1 1 3037
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-1-17
+wbits gray8 1 1 3038
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-2-1
+wbits gray8 2 1 3042
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-2-2
+wbits gray8 2 1 3043
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-2-3
+wbits gray8 2 1 3044
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-2-4
+wbits gray8 2 1 3045
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-2-5
+wbits gray8 2 1 3046
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-2-6
+wbits gray8 2 1 3047
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-2-7
+wbits gray8 2 1 3048
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-2-8
+wbits gray8 2 1 3049
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-2-9
+wbits gray8 2 1 3050
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-2-10
+wbits gray8 2 1 3051
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-2-11
+wbits gray8 2 1 3052
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-2-12
+wbits gray8 2 1 3053
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-2-13
+wbits gray8 2 1 3054
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-2-14
+wbits gray8 2 1 3055
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-2-15
+wbits gray8 2 1 3056
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-2-16
+wbits gray8 2 1 3057
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-2-17
+wbits gray8 2 1 3058
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-3-1
+wbits gray8 3 1 3062
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-3-2
+wbits gray8 3 1 3063
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-3-3
+wbits gray8 3 1 3064
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-3-4
+wbits gray8 3 1 3065
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-3-5
+wbits gray8 3 1 3066
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-3-6
+wbits gray8 3 1 3067
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-3-7
+wbits gray8 3 1 3068
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-3-8
+wbits gray8 3 1 3069
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-3-9
+wbits gray8 3 1 3070
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-3-10
+wbits gray8 3 1 3071
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-3-11
+wbits gray8 3 1 3072
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-3-12
+wbits gray8 3 1 3073
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-3-13
+wbits gray8 3 1 3074
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-3-14
+wbits gray8 3 1 3075
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-3-15
+wbits gray8 3 1 3076
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-3-16
+wbits gray8 3 1 3077
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-3-17
+wbits gray8 3 1 3078
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-4-1
+wbits gray8 4 1 3082
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-4-2
+wbits gray8 4 1 3083
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-4-3
+wbits gray8 4 1 3084
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-4-4
+wbits gray8 4 1 3085
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-4-5
+wbits gray8 4 1 3086
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-4-6
+wbits gray8 4 1 3087
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-4-7
+wbits gray8 4 1 3088
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-4-8
+wbits gray8 4 1 3089
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-4-9
+wbits gray8 4 1 3090
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-4-10
+wbits gray8 4 1 3091
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-4-11
+wbits gray8 4 1 3092
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-4-12
+wbits gray8 4 1 3093
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-4-13
+wbits gray8 4 1 3094
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-4-14
+wbits gray8 4 1 3095
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-4-15
+wbits gray8 4 1 3096
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-4-16
+wbits gray8 4 1 3097
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-4-17
+wbits gray8 4 1 3098
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-5-1
+wbits gray8 5 1 3102
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-5-2
+wbits gray8 5 1 3103
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-5-3
+wbits gray8 5 1 3104
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-5-4
+wbits gray8 5 1 3105
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-5-5
+wbits gray8 5 1 3106
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-5-6
+wbits gray8 5 1 3107
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-5-7
+wbits gray8 5 1 3108
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-5-8
+wbits gray8 5 1 3109
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-5-9
+wbits gray8 5 1 3110
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-5-10
+wbits gray8 5 1 3111
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-5-11
+wbits gray8 5 1 3112
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-5-12
+wbits gray8 5 1 3113
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-5-13
+wbits gray8 5 1 3114
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-5-14
+wbits gray8 5 1 3115
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-5-15
+wbits gray8 5 1 3116
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-5-16
+wbits gray8 5 1 3117
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-5-17
+wbits gray8 5 1 3118
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-6-1
+wbits gray8 6 1 3122
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-6-2
+wbits gray8 6 1 3123
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-6-3
+wbits gray8 6 1 3124
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-6-4
+wbits gray8 6 1 3125
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-6-5
+wbits gray8 6 1 3126
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-6-6
+wbits gray8 6 1 3127
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-6-7
+wbits gray8 6 1 3128
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-6-8
+wbits gray8 6 1 3129
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-6-9
+wbits gray8 6 1 3130
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-6-10
+wbits gray8 6 1 3131
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-6-11
+wbits gray8 6 1 3132
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-6-12
+wbits gray8 6 1 3133
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-6-13
+wbits gray8 6 1 3134
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-6-14
+wbits gray8 6 1 3135
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-6-15
+wbits gray8 6 1 3136
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-6-16
+wbits gray8 6 1 3137
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-6-17
+wbits gray8 6 1 3138
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-7-1
+wbits gray8 7 1 3142
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-7-2
+wbits gray8 7 1 3143
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-7-3
+wbits gray8 7 1 3144
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-7-4
+wbits gray8 7 1 3145
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-7-5
+wbits gray8 7 1 3146
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-7-6
+wbits gray8 7 1 3147
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-7-7
+wbits gray8 7 1 3148
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-7-8
+wbits gray8 7 1 3149
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-7-9
+wbits gray8 7 1 3150
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-7-10
+wbits gray8 7 1 3151
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-7-11
+wbits gray8 7 1 3152
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-7-12
+wbits gray8 7 1 3153
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-7-13
+wbits gray8 7 1 3154
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-7-14
+wbits gray8 7 1 3155
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-7-15
+wbits gray8 7 1 3156
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-7-16
+wbits gray8 7 1 3157
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-7-17
+wbits gray8 7 1 3158
+wscale 17 1 fant
+wpixels
+end
+case rrow-fant-8-1
+wbits gray8 8 1 3162
+wscale 1 1 fant
+wpixels
+end
+case rrow-fant-8-2
+wbits gray8 8 1 3163
+wscale 2 1 fant
+wpixels
+end
+case rrow-fant-8-3
+wbits gray8 8 1 3164
+wscale 3 1 fant
+wpixels
+end
+case rrow-fant-8-4
+wbits gray8 8 1 3165
+wscale 4 1 fant
+wpixels
+end
+case rrow-fant-8-5
+wbits gray8 8 1 3166
+wscale 5 1 fant
+wpixels
+end
+case rrow-fant-8-6
+wbits gray8 8 1 3167
+wscale 6 1 fant
+wpixels
+end
+case rrow-fant-8-7
+wbits gray8 8 1 3168
+wscale 7 1 fant
+wpixels
+end
+case rrow-fant-8-8
+wbits gray8 8 1 3169
+wscale 8 1 fant
+wpixels
+end
+case rrow-fant-8-9
+wbits gray8 8 1 3170
+wscale 9 1 fant
+wpixels
+end
+case rrow-fant-8-10
+wbits gray8 8 1 3171
+wscale 10 1 fant
+wpixels
+end
+case rrow-fant-8-11
+wbits gray8 8 1 3172
+wscale 11 1 fant
+wpixels
+end
+case rrow-fant-8-12
+wbits gray8 8 1 3173
+wscale 12 1 fant
+wpixels
+end
+case rrow-fant-8-13
+wbits gray8 8 1 3174
+wscale 13 1 fant
+wpixels
+end
+case rrow-fant-8-14
+wbits gray8 8 1 3175
+wscale 14 1 fant
+wpixels
+end
+case rrow-fant-8-15
+wbits gray8 8 1 3176
+wscale 15 1 fant
+wpixels
+end
+case rrow-fant-8-16
+wbits gray8 8 1 3177
+wscale 16 1 fant
+wpixels
+end
+case rrow-fant-8-17
+wbits gray8 8 1 3178
+wscale 17 1 fant
+wpixels
+end
+case fine-fant-2-251-0
+wbits gray8 2 1 50300
+wscale 251 1 fant
+wpixels
+end
+case fine-fant-2-251-1
+wbits gray8 2 1 50301
+wscale 251 1 fant
+wpixels
+end
+case fine-fant-2-251-2
+wbits gray8 2 1 50302
+wscale 251 1 fant
+wpixels
+end
+case fine-fant-3-250-0
+wbits gray8 3 1 50310
+wscale 250 1 fant
+wpixels
+end
+case fine-fant-3-250-1
+wbits gray8 3 1 50311
+wscale 250 1 fant
+wpixels
+end
+case fine-fant-3-250-2
+wbits gray8 3 1 50312
+wscale 250 1 fant
+wpixels
+end
+case fine-fant-2-255-0
+wbits gray8 2 1 50320
+wscale 255 1 fant
+wpixels
+end
+case fine-fant-2-255-1
+wbits gray8 2 1 50321
+wscale 255 1 fant
+wpixels
+end
+case fine-fant-2-255-2
+wbits gray8 2 1 50322
+wscale 255 1 fant
+wpixels
+end
+case fine-fant-5-241-0
+wbits gray8 5 1 50330
+wscale 241 1 fant
+wpixels
+end
+case fine-fant-5-241-1
+wbits gray8 5 1 50331
+wscale 241 1 fant
+wpixels
+end
+case fine-fant-5-241-2
+wbits gray8 5 1 50332
+wscale 241 1 fant
+wpixels
+end
+case fine-fant-251-2-0
+wbits gray8 251 1 50340
+wscale 2 1 fant
+wpixels
+end
+case fine-fant-251-2-1
+wbits gray8 251 1 50341
+wscale 2 1 fant
+wpixels
+end
+case fine-fant-251-2-2
+wbits gray8 251 1 50342
+wscale 2 1 fant
+wpixels
+end
+case fine-fant-250-3-0
+wbits gray8 250 1 50350
+wscale 3 1 fant
+wpixels
+end
+case fine-fant-250-3-1
+wbits gray8 250 1 50351
+wscale 3 1 fant
+wpixels
+end
+case fine-fant-250-3-2
+wbits gray8 250 1 50352
+wscale 3 1 fant
+wpixels
+end
+case fine-fant-64-17-0
+wbits gray8 64 1 50360
+wscale 17 1 fant
+wpixels
+end
+case fine-fant-64-17-1
+wbits gray8 64 1 50361
+wscale 17 1 fant
+wpixels
+end
+case fine-fant-64-17-2
+wbits gray8 64 1 50362
+wscale 17 1 fant
+wpixels
+end
+case fine-fant-17-64-0
+wbits gray8 17 1 50370
+wscale 64 1 fant
+wpixels
+end
+case fine-fant-17-64-1
+wbits gray8 17 1 50371
+wscale 64 1 fant
+wpixels
+end
+case fine-fant-17-64-2
+wbits gray8 17 1 50372
+wscale 64 1 fant
+wpixels
+end
+case rrow-hqcubic-1-1
+wbits gray8 1 1 4022
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-2
+wbits gray8 1 1 4023
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-3
+wbits gray8 1 1 4024
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-4
+wbits gray8 1 1 4025
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-5
+wbits gray8 1 1 4026
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-6
+wbits gray8 1 1 4027
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-7
+wbits gray8 1 1 4028
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-8
+wbits gray8 1 1 4029
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-9
+wbits gray8 1 1 4030
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-10
+wbits gray8 1 1 4031
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-11
+wbits gray8 1 1 4032
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-12
+wbits gray8 1 1 4033
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-13
+wbits gray8 1 1 4034
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-14
+wbits gray8 1 1 4035
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-15
+wbits gray8 1 1 4036
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-16
+wbits gray8 1 1 4037
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-1-17
+wbits gray8 1 1 4038
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-1
+wbits gray8 2 1 4042
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-2
+wbits gray8 2 1 4043
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-3
+wbits gray8 2 1 4044
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-4
+wbits gray8 2 1 4045
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-5
+wbits gray8 2 1 4046
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-6
+wbits gray8 2 1 4047
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-7
+wbits gray8 2 1 4048
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-8
+wbits gray8 2 1 4049
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-9
+wbits gray8 2 1 4050
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-10
+wbits gray8 2 1 4051
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-11
+wbits gray8 2 1 4052
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-12
+wbits gray8 2 1 4053
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-13
+wbits gray8 2 1 4054
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-14
+wbits gray8 2 1 4055
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-15
+wbits gray8 2 1 4056
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-16
+wbits gray8 2 1 4057
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-2-17
+wbits gray8 2 1 4058
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-1
+wbits gray8 3 1 4062
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-2
+wbits gray8 3 1 4063
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-3
+wbits gray8 3 1 4064
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-4
+wbits gray8 3 1 4065
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-5
+wbits gray8 3 1 4066
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-6
+wbits gray8 3 1 4067
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-7
+wbits gray8 3 1 4068
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-8
+wbits gray8 3 1 4069
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-9
+wbits gray8 3 1 4070
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-10
+wbits gray8 3 1 4071
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-11
+wbits gray8 3 1 4072
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-12
+wbits gray8 3 1 4073
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-13
+wbits gray8 3 1 4074
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-14
+wbits gray8 3 1 4075
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-15
+wbits gray8 3 1 4076
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-16
+wbits gray8 3 1 4077
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-3-17
+wbits gray8 3 1 4078
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-1
+wbits gray8 4 1 4082
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-2
+wbits gray8 4 1 4083
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-3
+wbits gray8 4 1 4084
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-4
+wbits gray8 4 1 4085
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-5
+wbits gray8 4 1 4086
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-6
+wbits gray8 4 1 4087
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-7
+wbits gray8 4 1 4088
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-8
+wbits gray8 4 1 4089
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-9
+wbits gray8 4 1 4090
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-10
+wbits gray8 4 1 4091
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-11
+wbits gray8 4 1 4092
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-12
+wbits gray8 4 1 4093
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-13
+wbits gray8 4 1 4094
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-14
+wbits gray8 4 1 4095
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-15
+wbits gray8 4 1 4096
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-16
+wbits gray8 4 1 4097
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-4-17
+wbits gray8 4 1 4098
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-1
+wbits gray8 5 1 4102
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-2
+wbits gray8 5 1 4103
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-3
+wbits gray8 5 1 4104
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-4
+wbits gray8 5 1 4105
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-5
+wbits gray8 5 1 4106
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-6
+wbits gray8 5 1 4107
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-7
+wbits gray8 5 1 4108
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-8
+wbits gray8 5 1 4109
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-9
+wbits gray8 5 1 4110
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-10
+wbits gray8 5 1 4111
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-11
+wbits gray8 5 1 4112
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-12
+wbits gray8 5 1 4113
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-13
+wbits gray8 5 1 4114
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-14
+wbits gray8 5 1 4115
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-15
+wbits gray8 5 1 4116
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-16
+wbits gray8 5 1 4117
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-5-17
+wbits gray8 5 1 4118
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-1
+wbits gray8 6 1 4122
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-2
+wbits gray8 6 1 4123
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-3
+wbits gray8 6 1 4124
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-4
+wbits gray8 6 1 4125
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-5
+wbits gray8 6 1 4126
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-6
+wbits gray8 6 1 4127
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-7
+wbits gray8 6 1 4128
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-8
+wbits gray8 6 1 4129
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-9
+wbits gray8 6 1 4130
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-10
+wbits gray8 6 1 4131
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-11
+wbits gray8 6 1 4132
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-12
+wbits gray8 6 1 4133
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-13
+wbits gray8 6 1 4134
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-14
+wbits gray8 6 1 4135
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-15
+wbits gray8 6 1 4136
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-16
+wbits gray8 6 1 4137
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-6-17
+wbits gray8 6 1 4138
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-1
+wbits gray8 7 1 4142
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-2
+wbits gray8 7 1 4143
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-3
+wbits gray8 7 1 4144
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-4
+wbits gray8 7 1 4145
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-5
+wbits gray8 7 1 4146
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-6
+wbits gray8 7 1 4147
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-7
+wbits gray8 7 1 4148
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-8
+wbits gray8 7 1 4149
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-9
+wbits gray8 7 1 4150
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-10
+wbits gray8 7 1 4151
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-11
+wbits gray8 7 1 4152
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-12
+wbits gray8 7 1 4153
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-13
+wbits gray8 7 1 4154
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-14
+wbits gray8 7 1 4155
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-15
+wbits gray8 7 1 4156
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-16
+wbits gray8 7 1 4157
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-7-17
+wbits gray8 7 1 4158
+wscale 17 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-1
+wbits gray8 8 1 4162
+wscale 1 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-2
+wbits gray8 8 1 4163
+wscale 2 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-3
+wbits gray8 8 1 4164
+wscale 3 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-4
+wbits gray8 8 1 4165
+wscale 4 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-5
+wbits gray8 8 1 4166
+wscale 5 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-6
+wbits gray8 8 1 4167
+wscale 6 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-7
+wbits gray8 8 1 4168
+wscale 7 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-8
+wbits gray8 8 1 4169
+wscale 8 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-9
+wbits gray8 8 1 4170
+wscale 9 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-10
+wbits gray8 8 1 4171
+wscale 10 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-11
+wbits gray8 8 1 4172
+wscale 11 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-12
+wbits gray8 8 1 4173
+wscale 12 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-13
+wbits gray8 8 1 4174
+wscale 13 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-14
+wbits gray8 8 1 4175
+wscale 14 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-15
+wbits gray8 8 1 4176
+wscale 15 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-16
+wbits gray8 8 1 4177
+wscale 16 1 hqcubic
+wpixels
+end
+case rrow-hqcubic-8-17
+wbits gray8 8 1 4178
+wscale 17 1 hqcubic
+wpixels
+end
+case fine-hqcubic-2-251-0
+wbits gray8 2 1 50400
+wscale 251 1 hqcubic
+wpixels
+end
+case fine-hqcubic-2-251-1
+wbits gray8 2 1 50401
+wscale 251 1 hqcubic
+wpixels
+end
+case fine-hqcubic-2-251-2
+wbits gray8 2 1 50402
+wscale 251 1 hqcubic
+wpixels
+end
+case fine-hqcubic-3-250-0
+wbits gray8 3 1 50410
+wscale 250 1 hqcubic
+wpixels
+end
+case fine-hqcubic-3-250-1
+wbits gray8 3 1 50411
+wscale 250 1 hqcubic
+wpixels
+end
+case fine-hqcubic-3-250-2
+wbits gray8 3 1 50412
+wscale 250 1 hqcubic
+wpixels
+end
+case fine-hqcubic-2-255-0
+wbits gray8 2 1 50420
+wscale 255 1 hqcubic
+wpixels
+end
+case fine-hqcubic-2-255-1
+wbits gray8 2 1 50421
+wscale 255 1 hqcubic
+wpixels
+end
+case fine-hqcubic-2-255-2
+wbits gray8 2 1 50422
+wscale 255 1 hqcubic
+wpixels
+end
+case fine-hqcubic-5-241-0
+wbits gray8 5 1 50430
+wscale 241 1 hqcubic
+wpixels
+end
+case fine-hqcubic-5-241-1
+wbits gray8 5 1 50431
+wscale 241 1 hqcubic
+wpixels
+end
+case fine-hqcubic-5-241-2
+wbits gray8 5 1 50432
+wscale 241 1 hqcubic
+wpixels
+end
+case fine-hqcubic-251-2-0
+wbits gray8 251 1 50440
+wscale 2 1 hqcubic
+wpixels
+end
+case fine-hqcubic-251-2-1
+wbits gray8 251 1 50441
+wscale 2 1 hqcubic
+wpixels
+end
+case fine-hqcubic-251-2-2
+wbits gray8 251 1 50442
+wscale 2 1 hqcubic
+wpixels
+end
+case fine-hqcubic-250-3-0
+wbits gray8 250 1 50450
+wscale 3 1 hqcubic
+wpixels
+end
+case fine-hqcubic-250-3-1
+wbits gray8 250 1 50451
+wscale 3 1 hqcubic
+wpixels
+end
+case fine-hqcubic-250-3-2
+wbits gray8 250 1 50452
+wscale 3 1 hqcubic
+wpixels
+end
+case fine-hqcubic-64-17-0
+wbits gray8 64 1 50460
+wscale 17 1 hqcubic
+wpixels
+end
+case fine-hqcubic-64-17-1
+wbits gray8 64 1 50461
+wscale 17 1 hqcubic
+wpixels
+end
+case fine-hqcubic-64-17-2
+wbits gray8 64 1 50462
+wscale 17 1 hqcubic
+wpixels
+end
+case fine-hqcubic-17-64-0
+wbits gray8 17 1 50470
+wscale 64 1 hqcubic
+wpixels
+end
+case fine-hqcubic-17-64-1
+wbits gray8 17 1 50471
+wscale 64 1 hqcubic
+wpixels
+end
+case fine-hqcubic-17-64-2
+wbits gray8 17 1 50472
+wscale 64 1 hqcubic
+wpixels
+end
 case col-nn-3-7
 wbits gray8 1 3 ramp
 wscale 1 7 nn
