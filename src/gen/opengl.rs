@@ -1326,6 +1326,9 @@ fn measure(s: &mut String) {
     write!(s, "case other-calls-7\nglctx 32 5\n{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb41\ngl glEnable 0xb10\ngl glPointSize 3.3\ngl glColor4ub 200 100 50 255\ngl glRectf 1.25 1.5 7.75 6.25\ngl glBegin 0\ngl glVertex2f 11.3 11.6\ngl glEnd\n").unwrap();
     read_all(s);
     writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case other-calls-10\nglctx 32 5\n{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb41\ngl glEnable 0xb10\ngl glPointSize 3.3\ngl glColor4ub 200 100 50 255\ngl glRectf 1.25 1.5 7.75 6.25\ngl glBegin 0\ngl glVertex2f 11.2 11.45\ngl glEnd\n").unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
     write!(s, "case other-calls-8\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glNormal3f 0 0 1\ngl glColor4ub 200 100 50 255\ngl glRectf 1 1 7 7\n", ctx(32)).unwrap();
     read_all(s);
     writeln!(s, "glerr\nend").unwrap();

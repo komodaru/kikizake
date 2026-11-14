@@ -437,6 +437,8 @@ pub struct Ctx {
     /// origin at depth 0), and its color
     pub raster: Option<[f64; 3]>,
     pub raster_color: [f32; 4],
+    /// the raster position's eye z, for fog on images
+    pub raster_eye: f64,
     /// glFog
     pub fog: Fog,
     /// the current normal (glNormal3f)
@@ -518,6 +520,7 @@ impl Ctx {
             zoom: (1.0, 1.0),
             raster: Some([0.0; 3]),
             raster_color: [1.0; 4],
+            raster_eye: 0.0,
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
             normal: [0.0, 0.0, 1.0],
@@ -1527,6 +1530,7 @@ impl Ctx {
                 let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
                 self.raster = inside.then(|| [(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0]);
                 self.raster_color = self.current();
+                self.raster_eye = e[2];
             }
             "glFogf" => self.fog_param(u(a, 0), &[fl(a, 1) as f32], false),
             "glPolygonOffset" => {
@@ -1534,7 +1538,7 @@ impl Ctx {
                 self.offset = (fl(a, 0) as f32, fl(a, 1) as f32);
             }
             "glPixelZoom" => {
-                // (golden opengl-32 edge-other-call: no error; images drawn zoomed are GL.CALL.OTHER)
+                // (golden opengl-32 edge-other-call: no error; images drawn zoomed: GL.DRAW.ZOOM)
                 hit(clause::GL_PIXELTRANSFER);
                 self.zoom = (fl(a, 0) as f32, fl(a, 1) as f32);
             }
@@ -1590,7 +1594,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((v, self.current()));
+                    self.verts.push((v, self.lit(self.current())));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -1610,7 +1614,7 @@ impl Ctx {
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
-                    self.verts.push(([x, y, 0.0], self.current()));
+                    self.verts.push(([x, y, 0.0], self.lit(self.current())));
                 }
                 self.rect_call = true;
                 let r = self.end(QUADS);
@@ -1670,7 +1674,8 @@ impl Ctx {
                     Ok(op) => self.accum(op, fl(a, 1) as f32)?,
                 }
             }
-            _ => return Err(Fail::Unmodeled(open::GL_CALL_OTHER)),
+            // (every call of the executor's table is followed above: a name here is the model's bug)
+            _ => return Err(Fail::Bad),
         }
         Ok(())
     }
@@ -1850,7 +1855,12 @@ impl Ctx {
             return c;
         }
         hit(clause::GL_FOG_APPLY);
-        let f = self.fog.factor(xform(self.top(0), [v[0], v[1], v[2], 1.0])[2]);
+        self.fog_at(c, xform(self.top(0), [v[0], v[1], v[2], 1.0])[2])
+    }
+
+    /// a color fogged at eye z (GL.FOG.APPLY), whatever GL_FOG
+    fn fog_at(&self, c: [f32; 4], z: f64) -> [f32; 4] {
+        let f = self.fog.factor(z);
         if self.pf.ty != 0 {
             return [c[0] + (1.0 - f) * self.fog.index, 0.0, 0.0, 0.0];
         }
@@ -1861,6 +1871,12 @@ impl Ctx {
     /// how a primitive's fragments become channel values: fogged ones another way (GL.FOG.TOFIXED)
     fn span(&self) -> ToFixed {
         if self.cap(FOG) || self.cap(LIGHTING) { ToFixed::Span } else { ToFixed::Nearest }
+    }
+
+    /// how an antialiased primitive's fragments become channel values (MEASURED, golden
+    /// opengl-32 other-calls-7: alpha 255 k / 16 truncated for k of 16 samples covered: 47 for 3)
+    fn smooth_fixed(&self) -> ToFixed {
+        ToFixed::Trunc
     }
 
     /// how a point's fragments become channel values (MEASURED, golden opengl-32 fog-points: 192
@@ -1891,11 +1907,49 @@ impl Ctx {
             },
             _ => 0.2,
         };
-        if self.cap(COLOR_MATERIAL) {
-            return [a * c[0], a * c[1], a * c[2], c[3]];
+        // n . L for GL_LIGHT0, the only light whose initial diffuse is not 0: its direction
+        // (0, 0, 1) in eye coordinates, the normal through the modelview's inverse transpose
+        // (MEASURED, golden opengl-32 other-calls-8: 0.04 plus 0.8 for the normal (0, 0, 1))
+        let d = if self.cap(0x4000) {
+            let n = self.eye_normal();
+            f32::max(n[2], 0.0)
+        } else {
+            0.0
+        };
+        if self.pf.ty != 0 {
+            // color index lighting (GL 1.1 2.13.5) with the initial material indices (0, 1, 1):
+            // the ambient index 0 alone with no light on (MEASURED, golden opengl-32
+            // other-calls-9); with GL_LIGHT0 the specular index 1 where n . L > 0, the
+            // shininess being 0
+            return [if d > 0.0 { 1.0 } else { 0.0 }, 0.0, 0.0, 0.0];
         }
-        let l = a * 0.2;
+        if self.cap(COLOR_MATERIAL) {
+            return [a * c[0] + d * c[0], a * c[1] + d * c[1], a * c[2] + d * c[2], c[3]];
+        }
+        let l = a * 0.2 + d * 0.8;
         [l, l, l, 1.0]
+    }
+
+    /// the current normal in eye coordinates: times the inverse of the modelview's upper 3 by 3
+    fn eye_normal(&self) -> [f32; 3] {
+        let m = self.top(0);
+        let a = |r: usize, c: usize| f64::from(m[c * 4 + r]);
+        let det = a(0, 0) * (a(1, 1) * a(2, 2) - a(1, 2) * a(2, 1)) - a(0, 1) * (a(1, 0) * a(2, 2) - a(1, 2) * a(2, 0)) + a(0, 2) * (a(1, 0) * a(2, 1) - a(1, 1) * a(2, 0));
+        let n = self.normal.map(f64::from);
+        if det == 0.0 {
+            return [0.0; 3];
+        }
+        // n' = n M^-1 (a row vector): component k is n . column k of the inverse
+        let inv = |r: usize, c: usize| {
+            let (r1, r2) = ((c + 1) % 3, (c + 2) % 3);
+            let (c1, c2) = ((r + 1) % 3, (r + 2) % 3);
+            (a(r1, c1) * a(r2, c2) - a(r1, c2) * a(r2, c1)) / det
+        };
+        let mut out = [0f32; 3];
+        for k in 0..3 {
+            out[k] = (0..3).map(|i| n[i] * inv(i, k)).sum::<f64>() as f32;
+        }
+        out
     }
 
     fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
@@ -1918,13 +1972,7 @@ impl Ctx {
         // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
         // color materials and color index lighting are not measured)
         let alpha_used = self.pf.rgba[3].0 > 0 || self.cap(BLEND) || self.cap(ALPHA_TEST);
-        if (mode == POINTS && self.cap(POINT_SMOOTH) && alpha_used) || (mode != POINTS && self.cap(POLYGON_SMOOTH) && alpha_used) {
-            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
-        }
-        if self.cap(LIGHTING) && (self.pf.ty != 0 || (0x4000..=0x4007).any(|l| self.cap(l))) {
-            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
-        }
-        let verts: Vec<_> = verts.into_iter().map(|(v, c)| (v, self.lit(c))).collect();
+        let alpha_used = alpha_used;
         match mode {
             POINTS => {
                 hit(clause::GL_POINT);
@@ -1961,8 +2009,10 @@ impl Ctx {
                     // the position is in, for even n with its corner at the pixel boundary nearest
                     // the position, ties toward the pivot as for 1-pixel points: GL.POINT.WIDE)
                     if self.cap(POINT_SMOOTH) {
-                        for (x, y) in self.smooth_point(w[0], w[1])? {
-                            self.fragment(Frag { x, y, c: self.fogged(c, v), z: w[2], fixed: self.point_fixed(), zfixed: None })?;
+                        for (x, y, k) in self.smooth_point(w[0], w[1])? {
+                            let mut c = self.fogged(c, v);
+                            c[3] *= k as f32 / 16.0;
+                            self.fragment(Frag { x, y, c, z: w[2], fixed: self.smooth_fixed(), zfixed: None })?;
                         }
                         continue;
                     }
@@ -2095,14 +2145,59 @@ impl Ctx {
                             (f64::from(w[0][2] as f32 + self.offset.1 * 2f32.powi(-23)), None)
                         }
                     };
+                    if smooth && !alpha_used {
+                        for y in 0..H as i64 {
+                            for x in 0..W as i64 {
+                                if (x as f64 + 1.0) > x0 && (x as f64) < x1 && (y as f64 + 1.0) > y0 && (y as f64) < y1 {
+                                    self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed })?;
+                                }
+                            }
+                        }
+                        self.never = NeverPath::Other;
+                        continue;
+                    }
+                    if smooth {
+                        // (MEASURED, golden opengl-32 other-calls-7: the quad's two triangles
+                        // (v0 v1 v2, then v0 v2 v3) each drawn on its own, a pixel with k of 4 by
+                        // 4 samples inside one taking alpha times k / 16, the second's
+                        // fragments over the first's along the diagonal: GL.POLYGON.SMOOTH)
+                        // (a sample on the diagonal counted in neither: golden other-calls-7 the
+                        // same either way)
+                        for (n, t) in [[0, 1, 2], [0, 2, 3]].into_iter().enumerate() {
+                            let p = t.map(|k| (xs[k], ys[k]));
+                            let edge = |a: (f64, f64), b: (f64, f64), x: f64, y: f64| (b.0 - a.0) * (y - a.1) - (b.1 - a.1) * (x - a.0);
+                            for y in 0..H as i64 {
+                                for x in 0..W as i64 {
+                                    let mut k = 0u32;
+                                    for i in 0..4 {
+                                        for j in 0..4 {
+                                            let (sx, sy) = (x as f64 + (i as f64 + 0.5) / 4.0, y as f64 + (j as f64 + 0.5) / 4.0);
+                                            if sx < x0 || sx > x1 || sy < y0 || sy > y1 {
+                                                continue;
+                                            }
+                                            let e = [edge(p[0], p[1], sx, sy), edge(p[1], p[2], sx, sy), edge(p[2], p[0], sx, sy)];
+                                            let outer = if n == 0 { [0, 1] } else { [1, 2] };
+                                            if outer.iter().any(|k| e[*k] == 0.0) || sx == x0 || sx == x1 || sy == y0 || sy == y1 {
+                                                return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
+                                            }
+                                            k += u32::from(e.iter().all(|v| *v > 0.0) || e.iter().all(|v| *v < 0.0));
+                                        }
+                                    }
+                                    if k > 0 {
+                                        let mut c = c;
+                                        c[3] *= k as f32 / 16.0;
+                                        self.fragment(Frag { x, y, c, z, fixed: self.smooth_fixed(), zfixed })?;
+                                    }
+                                }
+                            }
+                        }
+                        self.never = NeverPath::Other;
+                        continue;
+                    }
                     for y in 0..H as i64 {
                         for x in 0..W as i64 {
                             let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
-                            let covered = if smooth {
-                                (x as f64 + 1.0) > x0 && (x as f64) < x1 && (y as f64 + 1.0) > y0 && (y as f64) < y1
-                            } else {
-                                inside(cx, x0, x1, px) && inside(cy, y0, y1, py)
-                            };
+                            let covered = inside(cx, x0, x1, px) && inside(cy, y0, y1, py);
                             if covered {
                                 let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                                 if r.is_err() {
@@ -2152,25 +2247,33 @@ impl Ctx {
     /// rounded to the granularity 1/8, the pixels with any of 4 by 4 samples at ((i + 1/2) / 4,
     /// (j + 1/2) / 4) strictly inside the circle of that diameter: GL.POINT.SMOOTH); a sample
     /// within 0.004 of the circle is GL.RASTER.TIE (13 images on both sides of it)
-    fn smooth_point(&self, x: f64, y: f64) -> Res<Vec<(i64, i64)>> {
+    fn smooth_point(&self, x: f64, y: f64) -> Res<Vec<(i64, i64, u32)>> {
+        // (where alpha shows the coverage, every sample near the circle undecided)
+        let alpha_used = self.pf.rgba[3].0 > 0 || self.cap(BLEND) || self.cap(ALPHA_TEST);
         hit(clause::GL_POINT_SMOOTH);
         let size = (f64::from(self.point_size.clamp(0.5, 10.0)) * 8.0 + 0.5).floor() / 8.0;
         let r = size / 2.0;
         let mut out = Vec::new();
         for py in 0..H as i64 {
             for px in 0..W as i64 {
-                let mut d = f64::INFINITY;
+                let mut k = 0;
+                let mut dmin = f64::INFINITY;
                 for i in 0..4 {
                     for j in 0..4 {
                         let (sx, sy) = (px as f64 + (i as f64 + 0.5) / 4.0, py as f64 + (j as f64 + 0.5) / 4.0);
-                        d = d.min(((sx - x).powi(2) + (sy - y).powi(2)).sqrt());
+                        let d = ((sx - x).powi(2) + (sy - y).powi(2)).sqrt();
+                        if alpha_used && (d - r).abs() < 0.004 {
+                            return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
+                        }
+                        dmin = dmin.min(d);
+                        k += u32::from(d < r);
                     }
                 }
-                if (d - r).abs() < 0.004 {
+                if (dmin - r).abs() < 0.004 {
                     return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
                 }
-                if d < r {
-                    out.push((px, py));
+                if k > 0 {
+                    out.push((px, py, k));
                 }
             }
         }
@@ -3319,15 +3422,10 @@ impl Ctx {
         // (MEASURED, golden opengl-32 other-calls-0: unzoomed, the image's first pixel at the
         // raster position rounded, halves up: GL.RASTER.POS)
         let (ox, oy) = ((rx + 0.5).floor() as i64, (ry + 0.5).floor() as i64);
-        // (zoomed depth, stencil and bitmap images are not measured)
         let zoomed = self.zoom != (1.0, 1.0);
-        if zoomed && (size == 0 || f == DEPTH_COMPONENT || f == STENCIL_INDEX) {
-            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
-        }
-        // (fog on the fragments of images is not measured)
-        if self.cap(FOG) {
-            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
-        }
+        // (fog on images at the raster position's eye distance, GL 1.1 3.9: golden opengl-32
+        // other-calls-5 at a factor of 1)
+        let fog = |me: &Self, c: [f32; 4]| if me.cap(FOG) { hit(clause::GL_FOG_APPLY); me.fog_at(c, me.raster_eye) } else { c };
         hit(clause::GL_DRAW);
         if size == 0 {
             // a GL_BITMAP image of color indices: each bit the index 0 or 1 (MEASURED, golden
@@ -3338,7 +3436,9 @@ impl Ctx {
                     let Some(b) = data.get(at) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
                     let v: f32 = if b & m != 0 { 1.0 } else { 0.0 };
                     if f == STENCIL_INDEX {
-                        self.draw_stencil(ox + i as i64, oy + j as i64, f64::from(v));
+                        for (x, y) in self.image_pixels(rx, ry, i, j) {
+                            self.draw_stencil(x, y, f64::from(v));
+                        }
                         continue;
                     }
                     let c = if self.pf.ty != 0 {
@@ -3348,7 +3448,10 @@ impl Ctx {
                         hit(clause::GL_DRAW_INDEX);
                         self.transfer([0.0; 4])?.map(|v| v as f32)
                     };
-                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;
+                    let c = fog(self, c);
+                    for (x, y) in self.image_pixels(rx, ry, i, j) {
+                        self.fragment(Frag { x, y, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;
+                    }
                 }
             }
             return Ok(());
@@ -3356,7 +3459,7 @@ impl Ctx {
         let (start, k) = layout(&self.unpack, comps.len(), size, w);
         if f == DEPTH_COMPONENT || f == STENCIL_INDEX {
             // depth images: fragments of the raster color (initially white, the model follows no
-            // glRasterPos: GL.CALL.OTHER) at the element's depth, through the tests; stencil
+            // the raster position's, GL.RASTER.POS) at the element's depth, through the tests; stencil
             // images: each element's integer value written to the stencil buffer under the
             // stencil write mask and the scissor (GL 1.1 3.6.4; GL.DRAW.DEPTHSTENCIL)
             hit(clause::GL_DRAW_DEPTHSTENCIL);
@@ -3371,10 +3474,16 @@ impl Ctx {
                     if f == STENCIL_INDEX {
                         // (MEASURED, golden opengl-32 draw-depthstencil-1: the element as a float,
                         // so 32-bit integers lose their low bits)
-                        self.draw_stencil(ox + i as i64, oy + j as i64, self.index_map(true, self.shifted(f64::from(index_value(&e, t)? as f32))));
+                        let v = self.index_map(true, self.shifted(f64::from(index_value(&e, t)? as f32)));
+                        for (x, y) in self.image_pixels(rx, ry, i, j) {
+                            self.draw_stencil(x, y, v);
+                        }
                     } else {
                         let (z, zfixed) = depth_element(&e, t, self.depth_transfer);
-                        self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c: self.raster_color, z, fixed: ToFixed::Trunc, zfixed: Some(FixedZ { bits: 32, value: zfixed }) })?;
+                        let c = fog(self, self.raster_color);
+                        for (x, y) in self.image_pixels_of(rx, ry, i, j, true) {
+                            self.fragment(Frag { x, y, c, z, fixed: ToFixed::Trunc, zfixed: Some(FixedZ { bits: 32, value: zfixed }) })?;
+                        }
                     }
                 }
             }
@@ -3424,7 +3533,7 @@ impl Ctx {
                     }
                 }
                 let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
-                let c = c.map(|v| v as f32);
+                let c = fog(self, c.map(|v| v as f32));
                 if !zoomed {
                     self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;
                     continue;
@@ -3451,6 +3560,38 @@ impl Ctx {
             }
         }
         Ok(())
+    }
+
+    /// the window pixels image pixel (i, j) covers from the raster position (rx, ry): unzoomed
+    /// the one at the position rounded plus (i, j), zoomed those GL.DRAW.ZOOM gives (MEASURED,
+    /// golden opengl-32 pixel-zoom for colors; other-calls-6: depth images the same)
+    fn image_pixels(&self, rx: f64, ry: f64, i: usize, j: usize) -> Vec<(i64, i64)> {
+        self.image_pixels_of(rx, ry, i, j, false)
+    }
+
+    /// image_pixels for a depth image, whose zoomed columns take centers in (zx i, zx (i + 1)]
+    /// (MEASURED, golden opengl-32 other-calls-6: zoomed 2 by 3 from 1.5, columns 2..9)
+    fn image_pixels_of(&self, rx: f64, ry: f64, i: usize, j: usize, depth: bool) -> Vec<(i64, i64)> {
+        if self.zoom == (1.0, 1.0) {
+            return vec![((rx + 0.5).floor() as i64 + i as i64, (ry + 0.5).floor() as i64 + j as i64)];
+        }
+        hit(clause::GL_DRAW_ZOOM);
+        let (zx, zy) = (f64::from(self.zoom.0), f64::from(self.zoom.1));
+        let (xa, xb) = (rx + zx * i as f64, rx + zx * (i + 1) as f64);
+        let (ya, yb) = (ry + zy * j as f64, ry + zy * (j + 1) as f64);
+        let (x0, x1) = (xa.min(xb), xa.max(xb));
+        let (y0, y1) = (ya.min(yb), ya.max(yb));
+        let mut out = Vec::new();
+        for y in (y0.floor() as i64).max(0)..=(y1.ceil() as i64).min(H as i64 - 1) {
+            for x in (x0.floor() as i64).max(0)..=(x1.ceil() as i64).min(W as i64 - 1) {
+                let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+                let in_x = if depth { cx > x0 && cx <= x1 } else { cx >= x0 && cx < x1 };
+                if in_x && cy > y0 && cy <= y1 {
+                    out.push((x, y));
+                }
+            }
+        }
+        out
     }
 
     /// the DIB's rows, bottom first, as the framebuffer's pixels in the format's channels

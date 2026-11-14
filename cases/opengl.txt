@@ -34082,6 +34082,25 @@ gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case other-calls-10
+glctx 32 5
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glEnable 0xb41
+gl glEnable 0xb10
+gl glPointSize 3.3
+gl glColor4ub 200 100 50 255
+gl glRectf 1.25 1.5 7.75 6.25
+gl glBegin 0
+gl glVertex2f 11.2 11.45
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
 case other-calls-8
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glMatrixMode 0x1701
