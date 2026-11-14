@@ -34243,17 +34243,6 @@ read 1 1
 ffffff00
 read 1 1
 ffffff00
-case x86-usageff-0
-device10 ok
-tex hr 80070057
-tex hr 80070057
-tex = 8 8 1 1 1c 1 0 ffffffff 0 20000 0
-tex hr 80070057
-tex hr 80070057
-tex = 8 8 1 1 2c 1 0 ffffffff 0 20000 0
-tex hr 80070057
-tex hr 80070057
-tex = 8 8 1 1 47 1 0 ffffffff 0 20000 0
 case x86-immutable-bound-0
 device10 ok
 tex hr 80070057
@@ -34571,6 +34560,17 @@ tex hr 80070057
 tex hr 80070057
 tex hr 80070057
 tex hr 80070057
+case x86-usageff-0
+device10 ok
+tex hr 80070057
+tex hr 80070057
+tex = 8 8 1 1 1c 1 0 ffffffff 0 20000 0
+tex hr 80070057
+tex hr 80070057
+tex = 8 8 1 1 2c 1 0 ffffffff 0 20000 0
+tex hr 80070057
+tex hr 80070057
+tex = 8 8 1 1 47 1 0 ffffffff 0 20000 0
 case x86-usage-cpu-0
 device10 ok
 tex hr 80070057

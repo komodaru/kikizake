@@ -12409,6 +12409,11 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case dev8-7-rgb
+d3d ok
+d3ddev hr 8876023c
+nodev
+nodev
 case clearnoz-7-rgb
 d3d ok
 d3ddev ok
@@ -30334,6 +30339,11 @@ nodev
 nodev
 nodev
 nodev
+case dev8-7-hal
+d3d ok
+d3ddev surface hr 80004001
+nodev
+nodev
 case clearnoz-7-hal
 d3d ok
 d3ddev ok
@@ -44595,6 +44605,11 @@ nodev
 nodev
 nodev
 nodev
+case dev8-7-tnl
+d3d ok
+d3ddev surface hr 80004001
+nodev
+nodev
 case clearnoz-7-tnl
 d3d ok
 d3ddev ok
@@ -58852,6 +58867,11 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case dev8-7-mmx
+d3d ok
+d3ddev hr 8876023c
+nodev
+nodev
 case clearnoz-7-mmx
 d3d ok
 d3ddev ok
@@ -73029,6 +73049,11 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case dev8-3-rgb
+d3d ok
+d3ddev hr 8876023c
+nodev
+nodev
 case clearnoz-3-rgb
 d3d ok
 d3ddev ok
@@ -87206,6 +87231,11 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 ffffffffffffffff
+case dev8-2-rgb
+d3d ok
+d3ddev hr 8876023c
+nodev
+nodev
 case clearnoz-2-rgb
 d3d ok
 d3ddev ok
@@ -101381,6 +101411,11 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 ffffffffffffffff
+case dev8-2-ramp
+d3d ok
+d3ddev hr 8876023c
+nodev
+nodev
 case clearnoz-2-ramp
 d3d ok
 d3ddev ok
@@ -115556,6 +115591,11 @@ dd rt 2 1 32
 0000000000000000
 dd z 2 1 32
 0000008000000080
+case dev8-3-mmx
+d3d ok
+d3ddev hr 8876023c
+nodev
+nodev
 case clearnoz-3-mmx
 d3d ok
 d3ddev ok
