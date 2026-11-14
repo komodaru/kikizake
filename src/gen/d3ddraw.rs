@@ -449,6 +449,7 @@ fn suite(d3d11: bool) -> String {
             writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
         }
     }
+    probes(&mut s, dev);
     // shaders the runtime refuses: a broken checksum, a truncated container, nothing
     let mut broken = shader("ps");
     broken[5] ^= 1;
@@ -457,4 +458,87 @@ fn suite(d3d11: bool) -> String {
     // an input layout that the program's input signature does not match
     writeln!(s, "case layout-bad\n{dev}\nshader 0 vs {}\nlayout 0 2\nlayout 0 2 2 2\nlayout 0 0x1c 2\nlayout 0 0x29 2\nlayout 0 0 2\nlayout 1 2 2\nend", hex(&shader("vs"))).unwrap();
     s
+}
+
+/// one case per draw the other cases do not make: what Windows does there is to be measured
+fn probes(s: &mut String, dev: &str) {
+    // (one color, unless `vary`)
+    let tri3 = |s: &mut String, z: [f32; 3], w: [f32; 3], vary: bool| {
+        for (i, p) in [(-1.0f32, 1.0f32), (3.0, 1.0), (-1.0, -3.0)].iter().enumerate() {
+            let c = color(if vary { i as u32 } else { 0 });
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(p.0 * w[i]), fb(p.1 * w[i]), fb(z[i] * w[i]), fb(w[i]), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+        }
+    };
+    let tri = |s: &mut String, z: [f32; 3], w: [f32; 3]| tri3(s, z, w, false);
+    let one = [1.0f32; 3];
+    let half = [0.5f32; 3];
+    // (the name, lines after begin, the triangle's z and w, the draw)
+    let cases: [(&str, &str, [f32; 3], [f32; 3], &str); 9] = [
+        ("vp-frac", &format!("viewport {} {} {} {} 0 {}", fb(-0.5), fb(-0.5), fb(16.0), fb(16.0), fb(1.0)), half, one, "draw 4 3 32"),
+        ("topology-points", "", half, one, "draw 1 3 32"),
+        ("topology-lines", "", half, one, "draw 2 3 32"),
+        ("vb-past", "", half, one, "draw 4 6 32"),
+        ("clip-w", "", half, [1.0, -1.0, 1.0], "draw 4 3 32"),
+        ("clip-z", "", [-0.5, 0.5, 1.5], one, "draw 4 3 32"),
+        ("wireframe", "rast 2 1 0 0 0 0 1 0 0 0", half, one, "draw 4 3 32"),
+        ("blend-src1", "blend1 1 16 2 1 2 2 1 0xf", half, one, "draw 4 3 32"),
+        ("blend-badop", "blend1 1 2 2 6 2 2 1 0xf", half, one, "draw 4 3 32"),
+    ];
+    for (name, extra, z, w, draw) in cases {
+        begin(s, dev, &format!("probe-{name}"), 16, 16, 28, "ps");
+        if !extra.is_empty() {
+            writeln!(s, "{extra}").unwrap();
+        }
+        tri(s, z, w);
+        writeln!(s, "{draw}").unwrap();
+        read_rt(s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    // colors that vary over the triangle (the interpolation)
+    begin(s, dev, "probe-interp", 16, 16, 2, "ps");
+    tri3(s, [0.1, 0.5, 0.9], [1.0, 2.0, 0.5], true);
+    writeln!(s, "draw 4 3 32").unwrap();
+    read_rt(s, 0, 2, 16, 16);
+    writeln!(s, "end").unwrap();
+    // no shaders and layout; no viewport; a multisampled target
+    writeln!(s, "case probe-incomplete\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0\nviewport 0 0 {} {} 0 {}", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    tri(s, half, one);
+    writeln!(s, "draw 4 3 32\nread 0 0 64 16 1\nend").unwrap();
+    writeln!(s, "case probe-noviewport\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0", hex(&shader("vs")), hex(&shader("ps"))).unwrap();
+    tri(s, half, one);
+    writeln!(s, "draw 4 3 32\nread 0 0 64 16 1\nend").unwrap();
+    writeln!(s, "case probe-rt-ms\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    tri(s, half, one);
+    writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    // an input layout against a refused program
+    let mut broken = shader("vs");
+    broken[5] ^= 1;
+    writeln!(s, "case probe-layout-refused\n{dev}\nshader 0 vs {}\nlayout 0 2 2\nend", hex(&broken)).unwrap();
+    // ld past the texture, no sampler, samples between texel centers, blending an integer target
+    let ldtex = "tex 1 2 4 4 1 1 28 0 8 0 0 1 0 init 91 16 0\nsrv 1 1 nodesc\ntsrv 1";
+    let quad = |s: &mut String, uv: (f32, f32)| {
+        for (x, y, u, v) in [(-1.0f32, 1.0f32, -uv.0, -uv.0), (1.0, 1.0, uv.1, -uv.0), (-1.0, -1.0, -uv.0, uv.1), (1.0, -1.0, uv.1, uv.1)] {
+            writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32").unwrap();
+    };
+    for (name, ps, rt, extra, uv) in [("ld-out", "psld", 2u32, "", (0.0f32, 1.0f32)), ("sample-nosampler", "pssample", 2, "", (0.0, 1.0)), ("sample-between", "pssample", 2, "samp 0x15 3 3 3", (0.1, 1.3)), ("blend-uint", "psldu", 3, "blend1 1 2 2 1 2 2 1 0xf", (0.0, 1.0))] {
+        let tex = if rt == 3 { ldtex.replace(" 28 0 8", " 30 0 8") } else { ldtex.to_string() };
+        writeln!(s, "case probe-{name}\n{dev}\ntex 0 2 8 8 1 1 {rt} 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0\n{tex}").unwrap();
+        if !extra.is_empty() {
+            writeln!(s, "{extra}").unwrap();
+        }
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nviewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", hex(&shader("vs")), hex(&shader(ps)), fb(8.0), fb(8.0), fb(1.0)).unwrap();
+        quad(s, uv);
+        writeln!(s, "read 0 0 128 8 1\nend").unwrap();
+    }
+    // a constant buffer bound (no program reads it)
+    begin(s, dev, "probe-cbuf", 16, 16, 28, "ps");
+    writeln!(s, "buf 2 16 0 4 0 0 0\ncbuf 2").unwrap();
+    tri(s, half, one);
+    writeln!(s, "draw 4 3 32").unwrap();
+    read_rt(s, 0, 28, 16, 16);
+    writeln!(s, "end").unwrap();
 }

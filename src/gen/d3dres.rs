@@ -407,5 +407,67 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "case nodev\nfmt 0x1c\n{}\nbuf 0 16 0 1 0 0 0\nend", tex2("0", 4, 4, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
     writeln!(s, "case nores\n{dev}\nsrv 0 3 nodesc\nread 5 0 4 1 1\ncopy 0 1\nupdate 2 0 1 4 0\nend").unwrap();
     writeln!(s, "case wrongview\n{dev}\n{}\nsrv 0 0 nodesc\nclear 0 0 0 0 0\ncleards 0 1 0 0\nclear 1 0 0 0 0\nend", tex2("0", 4, 4, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0))).unwrap();
-    s
+    // where the sizes stop: checks only (nothing allocated), at 11_0, 10_0 and Direct3D 10
+    let devs: &[&str] = if d3d11 { &["device11", "device11 0xa000"] } else { &["device10"] };
+    for (i, line) in devs.iter().enumerate() {
+        writeln!(s, "case big-{i}\n{line}").unwrap();
+        for v in [8192u32, 8193, 16384, 16385, 16386, 20000, 32767, 32768, 32769, 65536, 0x10_0000, 0x1000_0000, 0x7fff_ffff] {
+            writeln!(s, "{}\n{}", tex2("check", v, 1, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("check", 1, v, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+            writeln!(s, "tex check 1 {} 1 1 1 0x1c 0 8 0 0 1 0", h(v)).unwrap();
+        }
+        for v in [2048u32, 2049, 4096, 8192, 16384, 16385, 0x10_0000] {
+            writeln!(s, "tex check 3 {} 1 1 1 0x1c 0 8 0 0 1 0\ntex check 3 1 {} 1 1 0x1c 0 8 0 0 1 0\ntex check 3 1 1 {} 1 0x1c 0 8 0 0 1 0", h(v), h(v), h(v)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // BUFFEREX and buffer render target views of a plain buffer: formats, ranges, flags
+    writeln!(s, "case view-b-bufex\n{dev}\nbuf 0 256 0 {} 0 0 0", h(if d3d11 { SRV | RTV | UAV } else { SRV | RTV })).unwrap();
+    for f in [0x1cu32, 0x2a, 0x29, 0x1d] {
+        for (a, n) in [(0u32, 8u32), (2, 62), (0, 64), (2, 8), (0, 63), (63, 1), (64, 1), (0, 65), (0, 0xffff_ffff)] {
+            for fl in [0u32, 1, 6] {
+                writeln!(s, "srv 0 0 {} 0xb {} {} {fl}", h(f), h(a), h(n)).unwrap();
+            }
+            writeln!(s, "srv 0 0 {} 1 {} {}\nrtv 0 0 {} 1 {} {}", h(f), h(a), h(n), h(f), h(a), h(n)).unwrap();
+        }
+    }
+    writeln!(s, "end").unwrap();
+    // the sRGB curve near each half step: probes a little to each side of the exact point
+    writeln!(s, "case clear-srgb-curve\n{dev}\n{}\nrtv 0 0 nodesc", tex2("0", 1, 1, 1, 1, 29, 0, RTV, 0, 0, (1, 0))).unwrap();
+    for k in 0..255u32 {
+        let c = (k as f64 + 0.5) / 255.0;
+        let x = if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) };
+        let p: Vec<String> = [-4e-4, -2e-4, -1e-4, 0.0, 1e-4, 2e-4].iter().map(|d| h(((x * (1.0 + d)) as f32).to_bits())).collect();
+        writeln!(s, "clear 0 {} {} {} 0\nread 0 0 4 1 1\nclear 0 {} {} {} 0\nread 0 0 4 1 1", p[0], p[1], p[2], p[3], p[4], p[5]).unwrap();
+    }
+    writeln!(s, "end").unwrap();
+    // sizes past 2^31; an XR_BIAS target cleared; updates, copies, resolves and reads the
+    // documentation calls invalid (each its own case: the model stops at the first)
+    writeln!(s, "case probe-size\n{dev}\n{}\n{}\n{}\nend", tex2("check", 0x8000_0000, 8, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("check", 8, 0xffff_ffff, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("check", 0xffff_ffff, 8, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+    writeln!(s, "case probe-xrbias\n{dev}\n{}\nrtv 0 0 nodesc\nclear 0 0x3f800000 0 0x3f000000 0x3f800000\nread 0 0 16 1 1\nclear 0 0x3f400000 0x3e800000 0x3d000000 0\nread 0 0 16 1 1\nend", tex2("0", 4, 1, 1, 1, 89, 0, RTV, 0, 0, (1, 0))).unwrap();
+    let t44 = |slot: u32, bind: u32, count: u32| tex2(&slot.to_string(), 4, 4, 1, 1, 28, 0, bind, 0, 0, (count, 0));
+    for (name, body) in [
+        ("update-empty", "update 0 0 5 16 0 1 0 0 1 4 1\nupdate 0 0 5 16 0 0 2 0 4 2 1\nread 0 0 16 4 1"),
+        ("update-past", "update 0 0 5 16 0 0 0 0 8 4 1\nread 0 0 16 4 1"),
+        ("update-sub", "update 0 1 5 16 0\nread 0 0 16 4 1"),
+        ("copysub-past", "copysub 1 0 3 3 0 0 0 0 0 0 4 4 1\nread 1 0 16 4 1"),
+        ("resolve-single", "resolve 1 0 0 0 28\nread 1 0 16 4 1"),
+    ] {
+        writeln!(s, "case probe-{name}\n{dev}\n{}\n{}\n{body}\nend", t44(0, SRV, 1), t44(1, SRV, 1)).unwrap();
+    }
+    writeln!(s, "case probe-read-ms\n{dev}\n{}\nrtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\nread 0 0 16 4 1\nend", t44(0, RTV, 4)).unwrap();
+    // (an immutable texture made without initial data crashes the x86 WARP: give it some)
+    s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n"
+}
+
+/// a texture line of usage IMMUTABLE without initial data, with some (pitches of its width)
+fn immutable_init(l: &str) -> String {
+    let t: Vec<&str> = l.split(' ').collect();
+    if t.len() != 14 || t[0] != "tex" || t[8] != "1" {
+        return l.to_string();
+    }
+    let num = |s: &str| if let Some(x) = s.strip_prefix("0x") { u32::from_str_radix(x, 16).ok() } else { s.parse().ok() };
+    let (Some(w), Some(ht), Some(f)) = (num(t[3]), num(t[4]), num(t[7])) else { return l.to_string() };
+    let rb = format(f).map_or(16, |f| f.row_bytes(w.min(1 << 16)) as u64);
+    let rows = format(f).map_or(1, |f| f.rows(ht.min(1 << 16)) as u64);
+    format!("{l} init 1 {rb} {}", rb * rows)
 }
