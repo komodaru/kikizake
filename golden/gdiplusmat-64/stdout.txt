@@ -4199,6 +4199,10 @@ elements 0 3b42dea2 3d4f6e1d 3d8adc57 bd87a89e beada565 be1f4803
 pts 0 bf08f72e 3d12a794 bf10bdbd 3df3c31e beb19f97 bddcc59f
 matinv 0 1 0
 elements 0 4191f4ce 415f2d01 419566c1 bf51a972 41117b28 40934e01
+case matrix-none
+gpmatpts nomatrix
+gpmatinv nomatrix
+gpmatmul nomatrix
 case matrix-order
 matrix 0
 elements 0 3f800000 00000000 00000000 3f800000 00000000 00000000
