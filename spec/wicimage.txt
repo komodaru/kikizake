@@ -39,7 +39,7 @@ WICIMAGE.SRCPAL measured | IWICBitmapSource::CopyPalette | an indexed source's p
 WICIMAGE.SRCPAL.NONE measured | IWICBitmapSource::CopyPalette | a source with no palette: WINCODEC_ERR_PALETTEUNAVAILABLE (golden wicpalette)
 # color
 WICIMAGE.COLOR.EXIF doc | IWICColorContext::InitializeFromExifColorSpace | 1 sRGB, 2 Adobe RGB: a context of type ExifColorSpace
-WICIMAGE.COLOR.EXIF.BAD open | IWICColorContext::InitializeFromExifColorSpace | other values
+WICIMAGE.COLOR.EXIF.BAD measured | IWICColorContext::InitializeFromExifColorSpace | values other than 1 and 2 are taken (S_OK), GetExifColorSpace gives them back, and the context transforms as sRGB (golden wiccolor ctx-0, -3 .. -2147483647, cm-*-01, -10, -32, -655351-*: every pixel as from 1)
 WICIMAGE.COLOR.INIT measured | IWICColorTransform::Initialize | a source in the same context and format: S_OK; else an RGB source (24bppBGR/RGB, 16bppBGR565, 32bppBGRA/PBGRA/RGBA, 64bppRGBA) into 24bppBGR, 32bppBGRA, 32bppPBGRA, 64bppRGBA: S_OK; BlackWhite and indexed sources, and the 8bppIndexed and 48bppRGB targets: 0x88982f80; gray and CMYK sources and targets: 0x800707db; a failure keeps the source (golden wiccolor xf-*: 288 cases, all as Windows)
 WICIMAGE.COLOR.SAME measured | (none) | a gray, CMYK or indexed source in the same context and format: its pixels as they are (golden xf-idx8-idx8-11, xf-cmyk-cmyk-11, xf-gray8-gray8-11)
 WICIMAGE.COLOR.TRANSFORM open | IWICColorTransform::Initialize | the pixels of an RGB transform (Windows' color management): even sRGB to sRGB in the same format is not the identity (channels off by up to 3, xf-bgr24-bgra-11)

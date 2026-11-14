@@ -1701,9 +1701,13 @@ impl WicImage {
             }
             "wcolor" => {
                 let (a, b, f) = (n(1)?, n(2)?, fmt_static(t.get(3).ok_or(Fail::Bad)?));
-                if !(1..=2).contains(&a) || !(1..=2).contains(&b) {
-                    return Err(Fail::Unmodeled("WICIMAGE.COLOR.EXIF.BAD"));
+                // MEASURED (golden wiccolor cm-*-01, -10, -32, -655351-*: every pixel as from 1):
+                // a context of any value but 2 is sRGB
+                let srgb = |v: i64| if v == 2 { 2 } else { 1 };
+                if a != 1 && a != 2 || b != 1 && b != 2 {
+                    hit("WICIMAGE.COLOR.EXIF.BAD");
                 }
+                let (a, b) = (srgb(a), srgb(b));
                 let Some(c) = &self.cur else {
                     out.push("wcolor -".into());
                     return Ok(true);
@@ -1722,12 +1726,9 @@ impl WicImage {
             }
             "wctx" => {
                 let v = n(1)?;
-                if v == 1 || v == 2 {
-                    hit("WICIMAGE.COLOR.EXIF");
-                    out.push(format!("wctx 00000000 type 2 exif 00000000 {v}"));
-                } else {
-                    return Err(Fail::Unmodeled("WICIMAGE.COLOR.EXIF.BAD"));
-                }
+                // (MEASURED, golden wiccolor ctx-*: any value taken and given back)
+                hit(if v == 1 || v == 2 { "WICIMAGE.COLOR.EXIF" } else { "WICIMAGE.COLOR.EXIF.BAD" });
+                out.push(format!("wctx 00000000 type 2 exif 00000000 {}", v as u32));
             }
             "winfo" => {
                 let c = self.cur.as_ref().unwrap();

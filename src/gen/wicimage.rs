@@ -193,7 +193,7 @@ pub fn wictransform() -> String {
 
 pub fn wiccolor() -> String {
     let mut s = format!("# kikizake suite wiccolor: WIC color contexts and transforms. {HEAD}\n");
-    for n in 0..=4 {
+    for n in [0u32, 1, 2, 3, 4, 5, 100, 65535, 2147483647] {
         writeln!(s, "case ctx-{n}\nwctx {n}\nend").unwrap();
     }
     let srcs = ["bgra", "bgr24", "rgb24", "gray8", "gray16", "pbgra", "rgba", "bgr565", "rgba64", "cmyk", "idx8", "bw"];
