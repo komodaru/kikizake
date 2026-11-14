@@ -1218,11 +1218,17 @@ impl D3d9 {
         let ntex = (fvf >> 8 & 0xf) as usize;
         let tsize = |i: usize| [2, 3, 4, 1][(fvf >> (16 + 2 * i) & 3) as usize];
         let size = 4 + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize + (fvf >> 6 & 1) as usize + (fvf >> 7 & 1) as usize + (0..ntex).map(tsize).sum::<usize>();
-        if words.len() / nv != size {
-            return Err(Fail::Unmodeled(open::D3D9_DRAW_STRIDE));
+        let stride = words.len() / nv;
+        if stride < size {
+            // (the generators write no stride short of the FVF's size)
+            return Err(Fail::Bad);
+        }
+        if stride > size {
+            // (MEASURED stride-*: the vertices that far apart, the words past the FVF's unread)
+            hit(clause::D3D9_DRAW_STRIDE);
         }
         let vs: Vec<Vtx> = words
-            .chunks(size)
+            .chunks(stride)
             .map(|w| {
                 let mut i = 4 + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize;
                 let mut take = |on: bool| {
