@@ -444,10 +444,14 @@ present hr 00000000 index 1
 present hr 887a0001 index 1
 present hr 00000000 index 1
 present hr 00000000 index 1
+present hr 887a0001 index 1
+present hr 887a0001 index 1
+present hr 887a0001 index 1
 present hr 00000000 index 0
-present hr 887a0001 index 0
-present hr 887a0001 index 0
-present hr 887a0001 index 0
+case chain-present-restart
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
 present hr 00000000 index 1
 case chain-resize
 device12 ok

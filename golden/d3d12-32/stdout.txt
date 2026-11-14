@@ -14139,32 +14139,87 @@ alloc 20000 10000
 alloc 10000 10000
 alloc 20000 10000
 alloc 10000 10000
-case alloc-other
+case alloc-other-0
 device12 ok
 alloc 400000 400000
+case alloc-other-1
+device12 ok
 alloc 400000 400000
+case alloc-other-2
+device12 ok
 alloc 400000 400000
+case alloc-other-3
+device12 ok
 alloc 1800000 400000
+case alloc-other-4
+device12 ok
 alloc 1000000 400000
+case alloc-other-5
+device12 ok
 alloc 400000 400000
+case alloc-other-6
+device12 ok
 alloc 40000 10000
+case alloc-other-7
+device12 ok
 alloc 500000 10000
+case alloc-other-8
+device12 ok
 alloc 10000 10000
+case alloc-other-9
+device12 ok
 alloc 80000 10000
+case alloc-other-10
+device12 ok
 alloc 10000 10000
+case alloc-other-11
+device12 ok
 alloc 10000 10000
+case alloc-other-12
+device12 ok
 alloc 80000 10000
+case alloc-other-13
+device12 ok
 alloc 10000 10000
+case alloc-other-14
+device12 ok
 alloc f0000 10000
+case alloc-other-15
+device12 ok
 alloc 160000 10000
+case alloc-other-16
+device12 ok
 alloc 40000 10000
+case alloc-other-17
+device12 ok
 alloc 60000 10000
+case alloc-other-18
+device12 ok
 alloc 10000 10000
+case alloc-other-19
+device12 ok
 alloc 10000 10000
+case alloc-other-20
+device12 ok
 alloc 100000 10000
+case alloc-other-21
+device12 ok
 alloc a0000 10000
+case alloc-other-22
+device12 ok
 alloc 100000 10000
+case alloc-other-23
+device12 ok
 alloc 240000 10000
+case alloc-other-24
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-other-25
+device12 ok
+alloc ffffffffffffffff 10000
+case alloc-other-26
+device12 ok
+alloc ffffffffffffffff 10000
 case nodev
 nodev
 nodev
