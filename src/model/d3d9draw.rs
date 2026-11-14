@@ -547,7 +547,10 @@ struct Regs {
 }
 
 /// the attributes a vertex carries through clipping: z, diffuse (r, g, b, a), specular, u, v
-const ATTRS: usize = 11;
+/// z, diffuse, specular, (u, v), rhw
+const ATTRS: usize = 12;
+/// the attributes perspective divides (all but z and rhw)
+const PERSP: std::ops::Range<usize> = 1..11;
 
 /// a vertex of a clipped polygon: its position and attributes, in f32
 #[derive(Clone, Copy)]
@@ -561,7 +564,7 @@ impl Vtx {
     fn attrs(&self) -> [f32; ATTRS] {
         let d = self.diffuse.map(|c| c as f32);
         let s = self.specular.map(|c| c as f32);
-        [self.z as f32, d[0], d[1], d[2], d[3], s[0], s[1], s[2], s[3], self.uv[0] as f32, self.uv[1] as f32]
+        [self.z as f32, d[0], d[1], d[2], d[3], s[0], s[1], s[2], s[3], self.uv[0] as f32, self.uv[1] as f32, self.rhw as f32]
     }
 }
 
@@ -1270,9 +1273,7 @@ impl D3d9 {
         let (w, h) = (rt.w, rt.h);
         hit(clause::D3D9_DRAW_POINTS);
         for v in vs {
-            if v.rhw != 1.0 {
-                return Err(Fail::Unmodeled(open::D3D9_DRAW_RHW));
-            }
+            // (a point's attributes are its vertex's: nothing to divide by rhw)
             let (x, y) = ((v.x - 0.5).ceil() as i64, (v.y - 0.5).ceil() as i64);
             if (0..w as i64).contains(&x) && (0..h as i64).contains(&y) {
                 self.pixel(x as i32, y as i32, v.z, v.diffuse, v.specular, v.uv)?;
@@ -1287,9 +1288,8 @@ impl D3d9 {
             return Ok(());
         };
         let (w, h) = (rt.w, rt.h);
-        if [a, b, c].iter().any(|v| v.rhw != 1.0) {
-            return Err(Fail::Unmodeled(open::D3D9_DRAW_RHW));
-        }
+        // (MEASURED rhw-*: perspective-correct attributes where an rhw is not 1)
+        let persp = [a, b, c].iter().any(|v| v.rhw != 1.0);
         let vs = [a, b, c];
         // the winding (culling) of the vertices as given
         let area = cross([(a.x as f64, a.y as f64), (b.x as f64, b.y as f64), (c.x as f64, c.y as f64)]);
@@ -1342,7 +1342,18 @@ impl D3d9 {
                 clipr = (x0.max(0), y0.max(0), x1.min(w), y1.min(h));
             }
         }
-        let corners = vs.map(|v| PolyVtx { x: v.x, y: v.y, at: v.attrs() });
+        let corners = vs.map(|v| {
+            let mut at = v.attrs();
+            if persp {
+                // (the attributes times rhw, interpolated in screen space, then divided by the
+                // interpolated rhw)
+                hit(clause::D3D9_DRAW_RHW);
+                for k in PERSP {
+                    at[k] *= at[11];
+                }
+            }
+            PolyVtx { x: v.x, y: v.y, at }
+        });
         let snap = |v: &PolyVtx| (round_even(v.x as f64 * 256.0) as i64, round_even(v.y as f64 * 256.0) as i64);
         // the pieces drawn: the triangle itself, or the clipped polygon's vertices snapped to
         // 1/256 pixel and cut into a strip (MEASURED: d3d9draw shade-clip-*, d3d8draw prims-3,
@@ -1355,7 +1366,9 @@ impl D3d9 {
             // clip-decide-*, which diagonal cuts a quadrilateral)
             let first = (0..3).min_by(|&i, &j| (corners[i].x, corners[i].y).partial_cmp(&(corners[j].x, corners[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0);
             let turned: [PolyVtx; 3] = std::array::from_fn(|k| corners[(first + k) % 3]);
-            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - 0.5, h as f32 - 0.5)
+            // (MEASURED rhw-6: with perspective, the right and bottom sides at the size itself)
+            let edge = if persp { 0.0 } else { 0.5 };
+            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - edge, h as f32 - edge)
                 .iter()
                 .map(|v| {
                     let (x, y) = snap(v);
@@ -1386,10 +1399,11 @@ impl D3d9 {
                         continue;
                     }
                     let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
-                    let at: [f64; ATTRS] = std::array::from_fn(|k| {
+                    let at32: [f32; ATTRS] = std::array::from_fn(|k| {
                         let (dx, dy) = grads[k];
-                        (piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])) as f64
+                        piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])
                     });
+                    let at: [f64; ATTRS] = std::array::from_fn(|k| if persp && PERSP.contains(&k) { (at32[k] / at32[11]) as f64 } else { at32[k] as f64 });
                     let (diffuse, specular) = if flat {
                         hit(clause::D3D9_SHADE_FLAT);
                         (a.diffuse, a.specular)
