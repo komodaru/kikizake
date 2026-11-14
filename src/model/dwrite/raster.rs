@@ -2,8 +2,7 @@
 //! rectangles, so coverage is a matter of where their edges fall): every mode is the aliased
 //! rasterizer on a grid of samples, the samples then counted (or filtered) into pixels.
 use crate::spec::clause;
-use super::super::{Fail, Res};
-use crate::spec::open;
+use super::super::Res;
 use crate::spec::hit;
 use crate::ttf::Parsed;
 
@@ -20,9 +19,23 @@ struct Grid {
 /// each glyph's rectangles (x0, y0, x1, y1), y down, in 1/64 of a sample: its points scaled and
 /// rounded to 1/64 pixel, at the pen position snapped to the grid, the pen moved by each advance
 /// (adv4 / 4 pixels) from the unsnapped origin
-fn rects(p: &Parsed, em: i64, g: Grid, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
+/// how design units become 26.6 pixels
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Scale {
+    /// v em / upm rounded
+    Direct,
+    /// MEASURED (golden dwrite, fitgdi and fit cases, GDI with grid fit disabled): through a
+    /// scale of em / upm rounded to 16.16, v times it rounded to 26.6
+    Fixed16,
+}
+
+fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
     let upm = p.upm as i64;
-    let sc = |v: i16| (v as i64 * em * 64 * 2 + upm).div_euclid(2 * upm);
+    let s16 = ((em << 17) / upm + 1) >> 1;
+    let sc = |v: i16| match scale {
+        Scale::Direct => (v as i64 * em * 64 * 2 + upm).div_euclid(2 * upm),
+        Scale::Fixed16 => (v as i64 * s16 + 0x200) >> 10,
+    };
     // (a position in 1/64 sample snapped to 1/q pixel, a step of 64 n / q of them)
     let snap = |v: i64, n: i64, q: i64| if q == 0 { v } else { (v + 32 * n / q).div_euclid(64 * n / q) * (64 * n / q) };
     let mut pen = x4 * 16 * g.nx;
@@ -206,13 +219,19 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
     // MEASURED: the texture's bounds hold the pixels dropout control lights, also at the sizes
     // where the texture itself has them off
     let (mut lit, mut on) = (std::collections::BTreeSet::new(), std::collections::BTreeSet::new());
-    match (mode, fit) {
-        (Mode::Gdi | Mode::GdiNatural, Fit::Disabled) => return Err(Fail::Unmodeled(open::DW_RUN_FIT_GDI)),
+    let scale = match (mode, fit) {
+        (Mode::Gdi | Mode::GdiNatural, Fit::Disabled) => {
+            hit(clause::DW_RUN_FIT_GDI);
+            Scale::Fixed16
+        }
         // MEASURED: grid fit enabled or disabled draws as the default, but for GDI disabled
-        (_, Fit::Default) => {}
-        (Mode::Gdi | Mode::GdiNatural, Fit::Enabled) | (Mode::Aliased | Mode::Gray | Mode::ClearType | Mode::Natural, Fit::Enabled | Fit::Disabled) => hit(clause::DW_RUN_FIT),
-    }
-    for r in rects(p, em, g, x4, y4, run) {
+        (_, Fit::Default) => Scale::Direct,
+        (Mode::Gdi | Mode::GdiNatural, Fit::Enabled) | (Mode::Aliased | Mode::Gray | Mode::ClearType | Mode::Natural, Fit::Enabled | Fit::Disabled) => {
+            hit(clause::DW_RUN_FIT);
+            Scale::Direct
+        }
+    };
+    for r in rects(p, em, g, scale, x4, y4, run) {
         lit.extend(aliased(&r, Dropout::at(em))?);
         on.extend(aliased(&r, Dropout::On)?);
     }
@@ -278,7 +297,7 @@ fn values(lit: &std::collections::BTreeSet<(i64, i64)>, g: Grid, cleartype: bool
 pub fn black_box(p: &Parsed, ppem: i64, gid: u16, nx: i64, ny: i64) -> Res<Option<(i64, i64, i64, i64)>> {
     let g = Grid { nx, ny, qx: 0, qy: 0 };
     let mut lit = std::collections::BTreeSet::new();
-    for r in rects(p, ppem, g, 0, 0, &[(gid, 0)]) {
+    for r in rects(p, ppem, g, Scale::Direct, 0, 0, &[(gid, 0)]) {
         lit.extend(aliased(&r, Dropout::On)?);
     }
     let xs = lit.iter().map(|q| q.0);
