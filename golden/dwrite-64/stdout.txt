@@ -183626,6 +183626,214 @@ run 0 4 Zzzz 999 shapes 0
 dwscript hr 00000000
 run 0 3 Zzzz 999 shapes 0
 dwscript hr 00000000
+case scriptctx-after
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 1 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 1 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 1 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 1 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 1 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 2 Zyyy 998 shapes 1
+run 3 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 2 Zyyy 998 shapes 1
+run 3 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 2 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 1 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Zyyy 998 shapes 1
+run 1 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 1 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 2 Zyyy 998 shapes 1
+run 3 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 2 Zyyy 998 shapes 1
+run 3 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 2 Zyyy 998 shapes 1
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 1 Latn 215 shapes 0
+run 1 2 Zyyy 998 shapes 1
+run 3 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 1 Hebr 125 shapes 0
+run 1 2 Zyyy 998 shapes 1
+run 3 2 Latn 215 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 1 Zzzz 999 shapes 0
+dwscript hr 00000000
+run 0 2 Zyyy 998 shapes 1
+run 2 2 Hebr 125 shapes 0
+dwscript hr 00000000
+run 0 2 Zzzz 999 shapes 0
+run 2 2 Zyyy 998 shapes 1
+dwscript hr 00000000
 case breakpair-0
 dwbreak hr 00000000
 breaks 2200 2100
