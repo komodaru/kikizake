@@ -654,23 +654,38 @@ impl Bump {
     }
 }
 
-/// a sampler's D3DTEXTUREFILTERTYPE
+/// how a triangle's attributes are set up for its pixels
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Setup {
+    /// v0 + d/dy (y - y0) + d/dx (x - x0) (D3D9.SHADE.GOURAUD)
+    Warp9,
+    /// (C + gy y) + gx x, as for untransformed vertices (D3D9.TEX.QUAD)
+    D3d10,
+}
+
+/// a sampler's D3DTEXTUREFILTERTYPE, as WARP filters with it
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum TexFilter {
+    /// POINT, and (MEASURED filter-other-*) NONE, CONVOLUTIONMONO, values past them, and
+    /// Direct3D 8's FLATCUBIC, GAUSSIANCUBIC (4, 5)
     Point,
     Linear,
     Anisotropic,
-    /// NONE, PYRAMIDALQUAD, GAUSSIANQUAD, CONVOLUTIONMONO, or past them (cases filter-other-*)
-    Other(u32),
+    /// Direct3D 9's PYRAMIDALQUAD, GAUSSIANQUAD
+    Quad,
 }
 
 impl TexFilter {
-    fn of(v: u32) -> TexFilter {
+    fn of(v: u32, v8: bool) -> TexFilter {
         match v {
             1 => TexFilter::Point,
             2 => TexFilter::Linear,
             3 => TexFilter::Anisotropic,
-            v => TexFilter::Other(v),
+            4 | 5 if !v8 => TexFilter::Quad,
+            _ => {
+                hit(clause::D3D9_TEX_FILTEROTHER);
+                TexFilter::Point
+            }
         }
     }
 }
@@ -858,6 +873,15 @@ impl D3d9 {
     }
     fn tss(&self, s: u32, t: u32) -> u32 {
         self.state.get(&Key::Tss(s, t)).copied().unwrap_or(0)
+    }
+    /// whether an enabled stage with a texture magnifies with PYRAMIDALQUAD or GAUSSIANQUAD
+    fn quad_filtered(&self) -> bool {
+        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && self.filter(st, 5) == TexFilter::Quad)
+    }
+
+    /// a stage's MAGFILTER (t 5) or MINFILTER (t 6)
+    fn filter(&self, s: u32, t: u32) -> TexFilter {
+        TexFilter::of(self.samp(s, t), self.v8)
     }
     /// a sampler state (Direct3D 8: the stage state of the same meaning)
     fn samp(&self, s: u32, t: u32) -> u32 {
@@ -1230,18 +1254,31 @@ impl D3d9 {
         // minified or not: the level of detail is clamped to the texture's levels, 0, before it
         // picks the filter, so MINFILTER takes no part)
         hit(clause::D3D9_TEX_MAGONLY);
-        let filter = match TexFilter::of(self.samp(st, 5)) {
+        // (MEASURED aniso-*: ANISOTROPIC as either filter makes both anisotropic, Direct3D 10's
+        // one ANISOTROPIC filter)
+        let (mag, min) = (self.filter(st, 5), self.filter(st, 6));
+        if min == TexFilter::Quad && mag != TexFilter::Quad {
+            // (PYRAMIDALQUAD or GAUSSIANQUAD as the minifying filter alone: cases
+            // filter-min-quad-*)
+            return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+        }
+        let mag = if min == TexFilter::Anisotropic { min } else { mag };
+        let filter = match mag {
             TexFilter::Anisotropic => {
                 // (MEASURED filter2-5-4, d3d8draw filter2-2-4: linear while no axis of the
-                // footprint is longer than a texel; past that, its own taps: open)
+                // footprint is longer than a texel, aniso-3, -11, -18, -21, -23, -31: and with
+                // MAXANISOTROPY 1; past that, its own taps: open)
                 let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv;
                 let (w, h) = (tx.w as f64, tx.h as f64);
                 let major = ((dudx * w).hypot(dvdx * h)).max((dudy * w).hypot(dvdy * h));
-                if major > 1.0 {
+                if major > 1.0 && self.samp(st, 10) > 1 {
                     return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
                 }
                 TexFilter::Linear
             }
+            // (MEASURED filter-other-4-*, -5-*: linear, the attributes set up as Direct3D 10's
+            // rasterizer does, D3D9.TEX.QUAD)
+            TexFilter::Quad => TexFilter::Linear,
             f => f,
         };
         let (x, y) = (u * tx.w as f64, v * tx.h as f64);
@@ -1279,7 +1316,7 @@ impl D3d9 {
                 }
                 Ok(c)
             }
-            TexFilter::Anisotropic | TexFilter::Other(_) => Err(Fail::Unmodeled(open::D3D9_TEX_FILTER)),
+            TexFilter::Anisotropic | TexFilter::Quad => unreachable!("taken as linear above"),
         }
     }
 
@@ -1842,6 +1879,15 @@ impl D3d9 {
                 ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area32, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area32)
             });
             self.draw.duv = ((grads[9].0 as f64, grads[9].1 as f64), (grads[10].0 as f64, grads[10].1 as f64));
+            // (MEASURED filter-other-4-*, -5-*: a draw that filters with PYRAMIDALQUAD or
+            // GAUSSIANQUAD has its attributes set up as Direct3D 10's rasterizer does, the planes
+            // C + gy y + gx x with the area's reciprocal; four pixels a 32nd's edge apart tell)
+            let setup = if self.quad_filtered() {
+                hit(clause::D3D9_TEX_QUAD);
+                Setup::D3d10
+            } else {
+                Setup::Warp9
+            };
             for py in clipr.1..clipr.3 {
                 for px in clipr.0..clipr.2 {
                     if !covered[(py * w + px) as usize] {
@@ -1855,9 +1901,19 @@ impl D3d9 {
                         }
                     }
                     let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
-                    let at32: [f32; ATTRS] = std::array::from_fn(|k| {
-                        let (dx, dy) = grads[k];
-                        piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])
+                    let at32: [f32; ATTRS] = std::array::from_fn(|k| match setup {
+                        Setup::Warp9 => {
+                            let (dx, dy) = grads[k];
+                            piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])
+                        }
+                        Setup::D3d10 => {
+                            let r = 1.0 / area32;
+                            let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
+                            let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
+                            let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
+                            let c = (piece[0].at[k] - gx * x[0]) - gy * y[0];
+                            (c + gy * sy) + gx * sx
+                        }
                     });
                     let at: [f64; ATTRS] = match &planes {
                         Some(p) => p.at(sx, sy),
