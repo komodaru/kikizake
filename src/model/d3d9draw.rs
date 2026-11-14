@@ -1885,10 +1885,18 @@ impl D3d9 {
         let within = |v: &(f32, f32), lo: f32, hi: f32| (lo..=w as f32 + hi).contains(&v.0) && (lo..=h as f32 + hi).contains(&v.1);
         let clipped = !xyz && !pts.iter().all(|v| within(v, -0.5, 0.0));
         // (MEASURED d3d8draw raster-*, clip-decide-*, shade-clip-*: Direct3D 8 clips as Direct3D
-        // 9 does; open: a triangle with a vertex at the target's size itself, d3d8draw raster-3,
-        // -77, -96 drawn as if clipped at the size or not at all)
-        if self.v8 && clipped && pts.iter().any(|v| v.0 == w as f32 || v.1 == h as f32) {
-            return Err(Fail::Unmodeled(open::D3D9_RASTER_CLIP8));
+        // 9 does, but with a vertex at the target's width (height) itself it clips the right
+        // (bottom) side at the size, not half a pixel in: raster-77, -96 and 17 more,
+        // D3D9.RASTER.CLIP8SIDE)
+        let at_w = self.v8 && pts.iter().any(|v| v.0 == w as f32);
+        let at_h = self.v8 && pts.iter().any(|v| v.1 == h as f32);
+        if clipped && (at_w || at_h) {
+            hit(clause::D3D9_RASTER_CLIP8SIDE);
+            if pts.iter().any(|v| v.1 == h as f32 && v.0 < -0.5) {
+                // (a vertex at the height itself left of the left side: raster-3 draws as if the piece
+                // between the two new vertices on its sides were left out, open)
+                return Err(Fail::Unmodeled(open::D3D9_RASTER_CLIP8));
+            }
         }
         let flat = self.rs(9) == 1;
         let mut clipr = (0, 0, w, h);
@@ -1924,7 +1932,9 @@ impl D3d9 {
             let turned: [PolyVtx; 3] = std::array::from_fn(|k| corners[(first + k) % 3]);
             // (MEASURED rhw-6: with perspective, the right and bottom sides at the size itself)
             let edge = if persp { 0.0 } else { 0.5 };
-            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - edge, h as f32 - edge)
+            let ex = if at_w { 0.0 } else { edge };
+            let ey = if at_h { 0.0 } else { edge };
+            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - ex, h as f32 - ey)
                 .iter()
                 .map(|v| {
                     let (x, y) = snap(v);

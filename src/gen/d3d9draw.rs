@@ -863,6 +863,19 @@ fn suite(v8: bool) -> String {
         quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
         writeln!(s, "d9rt\nend").unwrap();
     }
+    // a clipped triangle with a vertex at the target's size itself on one axis and outside the
+    // low side (or the high one) on the other, as Direct3D 8 clips it
+    for i in 0..16u32 {
+        open(&mut s, &format!("clip8-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1").unwrap();
+        let off = [-0.75f32, -1.0, -2.5, -6.0][(i % 4) as usize];
+        let out = if i / 4 % 2 == 0 { off } else { 16.0 - off };
+        let a = (out, 16.0);
+        let p = [a, (r.range(2, 13) as f32 + 0.25, r.range(1, 6) as f32 + 0.5), (r.range(4, 14) as f32 + 0.75, r.range(9, 14) as f32 + 0.25)];
+        let c = 0xff00_0000 | r.next() & 0x3f3f3f | 0x40;
+        tri(&mut s, if i / 8 == 0 { p } else { p.map(|(x, y)| (y, x)) }, [c; 3], 0.0);
+        writeln!(s, "d9rt\nend").unwrap();
+    }
     s
 }
 
