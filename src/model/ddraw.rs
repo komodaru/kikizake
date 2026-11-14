@@ -4,14 +4,19 @@
 //!
 //! Sources (Microsoft Learn): "IDirectDrawSurface7::Blt", "IDirectDrawSurface7::BltFast",
 //! "DDBLTFX", "DDCOLORKEY", "Color Keying" (a source key's pixels are not copied; a destination
-//! key's pixels are the only ones written). MEASURED (masu's tests/winref/golden/ddraw-32): a
-//! rectangle past the surface or empty is DDERR_INVALIDRECT, without a clipper.
+//! key's pixels are the only ones written). MEASURED (golden ddraw-32/-64): a
+//! rectangle past the surface or empty is DDERR_INVALIDRECT, without a clipper; no destination
+//! color keys on system-memory surfaces; the order of the checks; fills drop high bits;
+//! different formats are DDERR_UNSUPPORTED.
 
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
 pub const DDERR_INVALIDRECT: u32 = 0x8876_0096;
+pub const DDERR_NOCOLORKEYHW: u32 = 0x8876_00dc;
+pub const DDERR_UNSUPPORTED: u32 = 0x8000_4001;
+pub const E_INVALIDARG: u32 = 0x8007_0057;
 
 #[derive(Clone)]
 pub struct Surf {
@@ -62,6 +67,16 @@ fn check(r: Option<Rect>, s: &Surf) -> Option<Rect> {
     (x0 >= 0 && y0 >= 0 && x1 <= s.w && y1 <= s.h && x0 < x1 && y0 < y1).then_some((x0, y0, x1, y1))
 }
 
+/// a blit within one surface: MEASURED as if from a copy of the source at 16 and 32 bpp; at
+/// 8 bpp Windows' result differs from that in places (not worked out yet)
+fn overlap(s: &Surf) -> Res<()> {
+    if s.bpp == 8 {
+        return Err(Fail::Unmodeled("DDRAW.OVERLAP8"));
+    }
+    hit("DDRAW.OVERLAP");
+    Ok(())
+}
+
 struct Keys {
     src: Option<u32>,
     dest: Option<u32>,
@@ -78,15 +93,16 @@ impl Ddraw {
         Ok(s as usize)
     }
 
-    /// a copy of src's rect sr to d's rect dr (equal sizes), as the keys say
-    fn copy(&mut self, d: usize, dr: Rect, src: &Surf, sr: Rect, k: &Keys) -> Res<()> {
+    /// a copy of src's rect sr to d's rect dr (equal sizes), as the keys say; its HRESULT
+    fn copy(&mut self, d: usize, dr: Rect, src: &Surf, sr: Rect, k: &Keys) -> Res<u32> {
         let (w, h) = (dr.2 - dr.0, dr.3 - dr.1);
         if (w, h) != (sr.2 - sr.0, sr.3 - sr.1) {
             return Err(Fail::Unmodeled("DDRAW.STRETCH"));
         }
         let dst = self.s[d].as_mut().unwrap();
         if dst.bpp != src.bpp {
-            return Err(Fail::Unmodeled("DDRAW.FORMATS"));
+            hit("DDRAW.FORMATS");
+            return Ok(DDERR_UNSUPPORTED);
         }
         hit("DDRAW.COPY");
         if src.bpp == 32 && (k.src.is_some_and(|v| v >> 24 != 0) || k.dest.is_some_and(|v| v >> 24 != 0)) {
@@ -111,7 +127,7 @@ impl Ddraw {
                 dst.set(dr.0 + x, dr.1 + y, v);
             }
         }
-        Ok(())
+        Ok(0)
     }
 
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
@@ -165,7 +181,12 @@ impl Ddraw {
                 let v = v.map(|v| v & surf.mask());
                 match t.get(2).map(String::as_str) {
                     Some("src") => surf.src_key = v,
-                    Some("dest") => surf.dest_key = v,
+                    Some("dest") => {
+                        // MEASURED: no destination color keys on system-memory surfaces
+                        hit("DDRAW.KEY.DESTHW");
+                        out.push(format!("ddkey hr {DDERR_NOCOLORKEYHW:08x}"));
+                        return Ok(true);
+                    }
                     _ => return Err(Fail::Bad),
                 }
                 hit("DDRAW.KEY.SET");
@@ -183,8 +204,9 @@ impl Ddraw {
                     return Ok(true);
                 };
                 if v & !surf.mask() != 0 {
-                    return Err(Fail::Unmodeled("DDRAW.FILL.HIGHBITS"));
+                    hit("DDRAW.FILL.HIGHBITS");
                 }
+                let v = v & surf.mask();
                 hit("DDRAW.FILL");
                 for y in r.1..r.3 {
                     for x in r.0..r.2 {
@@ -201,10 +223,15 @@ impl Ddraw {
                 let mut k = Keys { src: None, dest: None, lr: false, ud: false };
                 let src = s.map(|s| self.s[s].clone().unwrap());
                 let dst = self.s[d].as_ref().unwrap();
+                let (mut unset, mut destkey) = (false, false);
                 while i < t.len() {
                     match t[i].as_str() {
-                        "keysrc" => k.src = Some(src.as_ref().and_then(|s| s.src_key).ok_or(Fail::Unmodeled("DDRAW.KEY.UNSET"))?),
-                        "keydest" => k.dest = Some(dst.dest_key.ok_or(Fail::Unmodeled("DDRAW.KEY.UNSET"))?),
+                        "keysrc" => match src.as_ref().and_then(|s| s.src_key) {
+                            Some(v) => k.src = Some(v),
+                            None => unset = true,
+                        },
+                        // (a system-memory surface never has a destination key: like an unset key)
+                        "keydest" => unset = true,
                         "mirrorlr" => k.lr = true,
                         "mirrorud" => k.ud = true,
                         "keysrcov" | "keydestov" => {
@@ -215,25 +242,41 @@ impl Ddraw {
                                 k.src = Some(v & src.as_ref().map_or(!0, |s| s.mask()));
                             } else {
                                 k.dest = Some(v & dst.mask());
+                                destkey = true;
                             }
                         }
                         _ => return Err(Fail::Bad),
                     }
                     i += 1;
                 }
-                if k.src.is_some() || k.dest.is_some() {
+                // MEASURED: the order Windows checks them in
+                if destkey {
+                    hit("DDRAW.KEY.DESTHW");
+                    out.push(format!("ret {DDERR_NOCOLORKEYHW:08x}"));
+                    return Ok(true);
+                }
+                if unset {
+                    hit("DDRAW.KEY.UNSET");
+                    out.push(format!("ret {E_INVALIDARG:08x}"));
+                    return Ok(true);
+                }
+                if k.src.is_some() {
                     hit("DDRAW.KEY");
                 }
-                let Some(src) = src else { return Err(Fail::Unmodeled("DDRAW.NOSOURCE")) };
+                let Some(src) = src else {
+                    hit("DDRAW.NOSOURCE");
+                    out.push(format!("ret {E_INVALIDARG:08x}"));
+                    return Ok(true);
+                };
                 let (Some(dr), Some(sr)) = (check(dr, dst), check(sr, &src)) else {
                     out.push(format!("ret {DDERR_INVALIDRECT:08x}"));
                     return Ok(true);
                 };
                 if s == Some(d) {
-                    hit("DDRAW.OVERLAP");
+                    overlap(&src)?;
                 }
-                self.copy(d, dr, &src, sr, &k)?;
-                out.push("ret 00000000".into());
+                let hr = self.copy(d, dr, &src, sr, &k)?;
+                out.push(format!("ret {hr:08x}"));
             }
             "ddfast" => {
                 let d = self.slot(op, 1)?;
@@ -243,18 +286,25 @@ impl Ddraw {
                 let src = self.s[s].clone().unwrap();
                 let dst = self.s[d].as_ref().unwrap();
                 let mut k = Keys { src: None, dest: None, lr: false, ud: false };
+                let (mut srckey, mut destkey) = (false, false);
                 while i < t.len() {
                     match t[i].as_str() {
-                        "srckey" => k.src = Some(src.src_key.ok_or(Fail::Unmodeled("DDRAW.KEY.UNSET"))?),
-                        "destkey" => k.dest = Some(dst.dest_key.ok_or(Fail::Unmodeled("DDRAW.KEY.UNSET"))?),
+                        "srckey" => srckey = true,
+                        "destkey" => destkey = true,
                         _ => return Err(Fail::Bad),
                     }
                     i += 1;
                 }
-                if k.src.is_some() && k.dest.is_some() {
-                    return Err(Fail::Unmodeled("DDRAW.FAST.BOTHKEYS"));
+                // MEASURED: a key flag with no key is E_INVALIDARG; with both flags only the
+                // source key counts (a system-memory surface has no destination key)
+                if srckey && destkey {
+                    hit("DDRAW.FAST.BOTHKEYS");
                 }
-                if k.src.is_some() || k.dest.is_some() {
+                if srckey {
+                    k.src = src.src_key;
+                }
+                let _ = dst;
+                if k.src.is_some() {
                     hit("DDRAW.KEY");
                 }
                 hit("DDRAW.FAST");
@@ -267,11 +317,17 @@ impl Ddraw {
                     out.push(format!("ret {DDERR_INVALIDRECT:08x}"));
                     return Ok(true);
                 };
-                if s == d {
-                    hit("DDRAW.OVERLAP");
+                // (MEASURED: after the rectangles, unlike Blt)
+                if (srckey && k.src.is_none()) || (destkey && !srckey) {
+                    hit("DDRAW.KEY.UNSET");
+                    out.push(format!("ret {E_INVALIDARG:08x}"));
+                    return Ok(true);
                 }
-                self.copy(d, dr, &src, sr, &k)?;
-                out.push("ret 00000000".into());
+                if s == d {
+                    overlap(&src)?;
+                }
+                let hr = self.copy(d, dr, &src, sr, &k)?;
+                out.push(format!("ret {hr:08x}"));
             }
             _ => return Ok(false),
         }

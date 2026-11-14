@@ -2,17 +2,19 @@
 DDRAW.DEVICE doc | DirectDrawCreateEx, IDirectDraw7::SetCooperativeLevel | an IDirectDraw7, DDSCL_NORMAL
 DDRAW.RECT measured | IDirectDrawSurface7::Blt (NULL: the whole surface) | a rectangle past the surface or empty gives DDERR_INVALIDRECT and changes nothing, without a clipper (ddraw golden)
 DDRAW.COPY doc | IDirectDrawSurface7::Blt | equal rectangles of surfaces of one format: the pixels copied
-DDRAW.OVERLAP assumed | IDirectDrawSurface7::Blt, BltFast | within one surface the source is read as it was before the blit
+DDRAW.OVERLAP measured | IDirectDrawSurface7::Blt, BltFast | within one surface of 16 or 32 bpp the source is read as it was before the blit (golden ddraw)
+DDRAW.OVERLAP8 open | (none) | within one 8 bpp surface: Windows' result differs from a copy of the source in places
 DDRAW.MIRROR doc | DDBLTFX (DDBLTFX_MIRRORLEFTRIGHT, MIRRORUPDOWN) | the source read right to left, bottom to top
 DDRAW.FILL doc | DDBLTFX (dwFillColor in the surface's pixel format) | DDBLT_COLORFILL writes the value to every pixel of the rectangle
-DDRAW.FILL.HIGHBITS open | (none) | a fill value with bits past the surface's pixel
+DDRAW.FILL.HIGHBITS measured | (none) | a fill value with bits past the surface's pixel: S_OK, the bits past it dropped (golden ddraw)
 DDRAW.KEY.SET doc | IDirectDrawSurface7::SetColorKey | DDCKEY_SRCBLT / DESTBLT keys of the surface, low = high value (NULL: none)
 DDRAW.KEY doc | Color Keying | a source key: its pixels are not copied; a destination key: only pixels of the destination that have it are written; both may apply
 DDRAW.KEY.OVERRIDE doc | DDBLTFX (ddckSrcColorkey, ddckDestColorkey) | DDBLT_KEYSRCOVERRIDE / KEYDESTOVERRIDE take the key from the DDBLTFX
-DDRAW.KEY.UNSET open | (none) | DDBLT_KEYSRC / KEYDEST or BltFast's key flags with no key set on the surface
+DDRAW.KEY.UNSET measured | (none) | DDBLT_KEYSRC / KEYDEST or BltFast's key flags with no such key on the surface: E_INVALIDARG; Blt checks this before the rectangles, BltFast after them (golden ddraw)
+DDRAW.KEY.DESTHW measured | (none) | a system-memory surface takes no destination color key: SetColorKey(DDCKEY_DESTBLT) and Blt with DDBLT_KEYDESTOVERRIDE give DDERR_NOCOLORKEYHW, Blt before checking the rectangles (golden ddraw)
 DDRAW.FAST doc | IDirectDrawSurface7::BltFast | the source rectangle to (x, y), the same size
-DDRAW.FAST.BOTHKEYS open | IDirectDrawSurface7::BltFast | DDBLTFAST_SRCCOLORKEY and DESTCOLORKEY together
+DDRAW.FAST.BOTHKEYS measured | IDirectDrawSurface7::BltFast | DDBLTFAST_SRCCOLORKEY and DESTCOLORKEY together on a system-memory surface: the source key only (golden ddraw)
 DDRAW.STRETCH open | IDirectDrawSurface7::Blt | rectangles of different sizes: which source pixels (not documented)
-DDRAW.FORMATS open | (none) | a blit between surfaces of different pixel formats
-DDRAW.NOSOURCE open | (none) | Blt without a source and without DDBLT_COLORFILL
-DDRAW.KEY.BITS assumed | (none) | on 32 bpp surfaces (masks 0xffffff) a key compares all 32 bits of the pixel (Wine compares otherwise)
+DDRAW.FORMATS measured | (none) | a blit between surfaces of different pixel formats: DDERR_UNSUPPORTED, nothing changed (golden ddraw)
+DDRAW.NOSOURCE measured | (none) | Blt without a source and without DDBLT_COLORFILL: E_INVALIDARG (golden ddraw)
+DDRAW.KEY.BITS measured | (none) | on 32 bpp surfaces (masks 0xffffff) a key compares all 32 bits of the pixel (golden ddraw; Wine compares otherwise)

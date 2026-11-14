@@ -145,11 +145,11 @@ pub fn render_states8(swvp: bool) -> Vec<(u32, u32, Group)> {
     let mut v: Vec<(u32, u32, Group)> = RENDER_STATES.iter().filter(|r| r.0 <= 173 && !matches!(r.0, 40 | 155 | 169)).map(|r| (r.0, r.2, r.3)).collect();
     v.extend([
         (10, 0, Pixel),  // LINEPATTERN
-        (30, 0, Pixel),  // ZVISIBLE
+        (30, 0, Nowhere), // ZVISIBLE: in no state block (MEASURED)
         (40, 0, Pixel),  // EDGEANTIALIAS
         (47, 0, Pixel),  // ZBIAS
         (155, 0, Vertex), // POINTSIZE_MIN: 0.0 in Direct3D 8
-        (153, swvp as u32, All), // SOFTWAREVERTEXPROCESSING: TRUE on a software vertex processing device
+        (153, swvp as u32, Vertex), // SOFTWAREVERTEXPROCESSING: TRUE on a software vertex processing device; vertex (MEASURED)
         (164, 0x3f80_0000, Vertex), // PATCHSEGMENTS 1.0
     ]);
     v.sort_by_key(|r| r.0);

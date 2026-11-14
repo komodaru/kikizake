@@ -448,7 +448,7 @@ impl Gdi {
         let mut tmp = Surf::new(w, h, src.s.bpp, src.s.f565, true, src.s.pal.clone());
         for j in 0..h {
             for i in 0..w {
-                let (qx, qy) = (sx + ((2 * i + 1) * sw) / (2 * w), sy + ((2 * j + 1) * sh) / (2 * h));
+                let (qx, qy) = (sx + sample(i, sw, w, sh == h), sy + sample(j, sh, h, sw == w));
                 tmp.set(i, j, src.s.get(qx, qy));
             }
         }
@@ -563,4 +563,18 @@ mod proofs {
         let k = (p >> bit & 1) << 2 | (s >> bit & 1) << 1 | (d >> bit & 1);
         assert_eq!(rop3(idx, p, s, d) >> bit & 1, (idx as u32) >> k & 1);
     }
+}
+
+/// MEASURED (golden stretch-32/-64): the source pixel StretchBlt takes for destination pixel
+/// `i` of `n` from `sn`: the one under its center, floor((2i + 1) sn / 2n); but with the other
+/// direction unscaled (`flat`), one pixel more or fewer than the source repeats or drops the last
+pub fn sample(i: i32, sn: i32, n: i32, flat: bool) -> i32 {
+    hit("GDI.STRETCH.DDA");
+    if flat && n + 1 == sn {
+        return i * sn / n;
+    }
+    if flat && n == sn + 1 {
+        return (i * sn + sn - 1) / n;
+    }
+    (2 * i + 1) * sn / (2 * n)
 }

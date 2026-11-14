@@ -1,6 +1,7 @@
 # Direct3D 11 state object clauses (spec/README.md): <id> <status> | <source> | <what it says>
 D3D11.DEVICE doc | D3D11CreateDevice | a feature level 11_0 device (hardware, else WARP)
 D3D11.BLEND.ENUM doc | D3D11_RENDER_TARGET_BLEND_DESC, D3D11_BLEND, D3D11_BLEND_OP | an enabled target's blends are D3D11_BLEND values (1..11, 14..19) and its ops D3D11_BLEND_OP values (1..5); anything else is E_INVALIDARG
+D3D11.BLEND.SRC1 measured | (none) | with IndependentBlendEnable, an enabled render target past 0 using SRC1_COLOR, INV_SRC1_COLOR, SRC1_ALPHA or INV_SRC1_ALPHA in any of its four blend factors is refused (golden d3d11-32)
 D3D11.BLEND.ALPHA doc | D3D11_BLEND ("blend options that end in _COLOR are not allowed" for alpha) | SrcBlendAlpha / DestBlendAlpha refuse SRC_COLOR, INV_SRC_COLOR, DEST_COLOR, INV_DEST_COLOR, SRC1_COLOR, INV_SRC1_COLOR
 D3D11.BLEND.MASK measured | D3D11_COLOR_WRITE_ENABLE | a used target's write mask over 0xf is refused, even with blending disabled (d3d11desc golden)
 D3D11.BLEND.BOOL measured | (none) | AlphaToCoverageEnable, IndependentBlendEnable, BlendEnable: any nonzero value is TRUE and GetDesc gives 1 (d3d11desc golden)
@@ -8,14 +9,14 @@ D3D11.BLEND.DISABLED measured | (none) | a target with blending disabled: its bl
 D3D11.BLEND.SHARED doc | D3D11_BLEND_DESC (IndependentBlendEnable FALSE: only RenderTarget[0] is used) | the other targets are not checked; GetDesc gives RenderTarget[0] in all eight (measured, d3d11desc golden)
 D3D11.DEPTH.ENUM doc | D3D11_DEPTH_STENCIL_DESC, D3D11_DEPTH_WRITE_MASK, D3D11_COMPARISON_FUNC, D3D11_STENCIL_OP | write mask 0..1, comparison funcs 1..8, stencil ops 1..8
 D3D11.DEPTH.BOOL measured | (none) | DepthEnable, StencilEnable: nonzero is TRUE, GetDesc gives 1 (d3d11desc golden)
-D3D11.DEPTH.OFF measured | (none) | depth disabled: the write mask is still checked, DepthFunc is not; GetDesc gives write mask ALL, func LESS (d3d11desc golden)
+D3D11.DEPTH.OFF measured | (none) | depth disabled: the write mask is still checked, DepthFunc is not; GetDesc gives write mask ALL, func LESS (d3d11desc golden), and both faces' StencilDepthFailOp KEEP (golden d3d11-32)
 D3D11.STENCIL.OFF measured | (none) | stencil disabled: nothing of it is checked; GetDesc gives masks 0xff 0xff and both faces KEEP KEEP KEEP ALWAYS (d3d11desc golden)
 D3D11.PAD assumed | D3D11_RENDER_TARGET_BLEND_DESC, D3D11_DEPTH_STENCIL_DESC (UINT8 fields) | the padding bytes after the UINT8 write mask and stencil masks are not read
 D3D11.RASTER.ENUM doc | D3D11_FILL_MODE, D3D11_CULL_MODE | fill 2..3, cull 1..3
 D3D11.RASTER.BOOL measured | (none) | FrontCounterClockwise, DepthClipEnable, ScissorEnable, MultisampleEnable, AntialiasedLineEnable: nonzero is 1 (d3d11desc golden)
 D3D11.RASTER.CLAMP measured | (none) | a NaN DepthBiasClamp is refused (d3d11desc golden)
 D3D11.RASTER.SLOPE measured | (none) | an infinite SlopeScaledDepthBias is accepted as given (d3d11desc golden)
-D3D11.RASTER.SLOPENAN assumed | (none) | a NaN SlopeScaledDepthBias is accepted as given
+D3D11.RASTER.SLOPENAN measured | (none) | a NaN SlopeScaledDepthBias (quiet or signaling, either sign) is refused (golden d3d11-32)
 D3D11.SAMPLER.FILTER doc | D3D11_FILTER | the filter is one of the enumeration's values (the minimum / maximum reductions included: measured accepted at feature level 11_0)
 D3D11.SAMPLER.ADDRESS doc | D3D11_TEXTURE_ADDRESS_MODE | each address mode 1..5
 D3D11.SAMPLER.ANISO measured | D3D11_SAMPLER_DESC (says 1..16) | MaxAnisotropy over 16 is refused whatever the filter, 0 is accepted; GetDesc gives 0 unless the filter is anisotropic (d3d11desc golden)

@@ -1,5 +1,6 @@
 # gpu
 # kikizake suite d3d8: Direct3D 8 device state and state blocks (SPEC.md). Made by `kikizake gen d3d8`.
+# x86 only: Direct3D 8 has no x86-64 runtime
 case defaults
 device8 swvp
 rs get 0

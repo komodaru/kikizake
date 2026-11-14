@@ -5,7 +5,7 @@
 //! order and size, little-endian 16-bit channels, sub-byte pixels from the high bits),
 //! "IWICFormatConverter::Initialize". The arithmetic is not documented: MEASURED from Windows'
 //! answers (masu's tests/winref/golden/wicconv-32: low-bit channels widened by repeating their
-//! bits, 16-bit channels to 8 by their high byte, premultiplied alpha undone in floats and
+//! bits, 16-bit channels to 8 by their high byte, premultiplied alpha undone by a 16.16 reciprocal and
 //! truncated, 16bppGray levels to 8 bits by a measured table, nearest opaque palette entries).
 
 use super::{Fail, Res};
@@ -85,11 +85,13 @@ const GRAY16_TO_8: [u16; 255] = [
     58977, 59243, 59497, 59751, 60012, 60262, 60520, 60777, 61042, 61297, 61549, 61810, 62069, 62327, 62583, 62838, 63092, 63353, 63604, 63862, 64119, 64375, 64638, 64891, 65152, 65411,
 ];
 
+/// MEASURED (golden wic, 62296 of the 65280 pairs with alpha > 0, every one as this): a 16.16
+/// reciprocal of the alpha, truncated, then the product truncated
 fn unpremultiply(c: u8, a: u8) -> u8 {
     if a == 0 {
         0
     } else {
-        ((c as f32 / 255.0) / (a as f32 / 255.0) * 255.0).min(255.0) as u8
+        ((c as u32 * ((255 << 16) / a as u32)) >> 16).min(255) as u8
     }
 }
 
@@ -151,7 +153,7 @@ fn to_bgra(f: usize, s: &[u8], v: u32, pal: &[u32]) -> Res<[u8; 4]> {
 }
 
 /// one straight BGRA pixel written as `f` at pixel x of `row`
-fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize) -> Res<()> {
+fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src: bool) -> Res<()> {
     let name = FORMATS[f].0;
     hit(match name {
         "bw" | "gray2" | "gray4" | "gray8" => "WIC.FROM.GRAY",
@@ -168,8 +170,22 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize) -> Res<(
     let o = x * n;
     let w16 = |row: &mut [u8], o: usize, v: u16| row[o..o + 2].copy_from_slice(&v.to_le_bytes());
     let gray = || luminance(b, g, r, 255.0) as u8;
+    if matches!(name, "bw" | "gray2" | "gray4" | "gray8") && !gray_src {
+        // MEASURED: Windows rounds differently from this model within a few hundredths of a
+        // half level (its arithmetic is not worked out yet)
+        let y = luminance(b, g, r, 255.0) - 0.5;
+        if (y - y.floor() - 0.5).abs() < 0.025 {
+            return Err(Fail::Unmodeled("WIC.GRAY.ROUND"));
+        }
+    }
     match name {
         "bw" => put_bits(row, x as u32, 1, (gray() >= 128) as u32),
+        // MEASURED: from a source that is not 8 bits or less of gray, 2bppGray is 4bppGray's
+        // level rounded to 2 bits (thresholds 48, 128, 208 of the 8-bit gray)
+        "gray2" if !gray_src => {
+            hit("WIC.FROM.GRAY2");
+            put_bits(row, x as u32, 2, ((gray() as u32 >> 4) * 3 + 7) / 15)
+        }
         "gray2" => put_bits(row, x as u32, 2, (gray() as u32 * 3 + 127) / 255),
         "gray4" => put_bits(row, x as u32, 4, gray() as u32 >> 4),
         "gray8" => row[o] = gray(),
@@ -230,7 +246,7 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
             let b = bits(from);
             let (s, v) = if b < 8 { (&src[..0], get_bits(src, x as u32, b)) } else if b == 8 { (&src[x..x + 1], src[x] as u32) } else { let n = (b / 8) as usize; (&src[x * n..x * n + n], 0) };
             let p = to_bgra(from, s, v, &pal)?;
-            from_bgra(to, p, dst, x)?;
+            from_bgra(to, p, dst, x, matches!(FORMATS[from].0, "bw" | "gray2" | "gray4" | "gray8"))?;
         }
     }
     Ok(out)

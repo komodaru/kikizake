@@ -31,6 +31,9 @@ fn models_match_windows() {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         let want = model::run(s, &cases);
         for arch in [32, 64] {
+            if arch == 64 && gen::suite(s).unwrap().contains("\n# x86 only") {
+                continue;
+            }
             let Some(g) = golden(s, arch) else {
                 eprintln!("kikizake_{s}-{arch}: no answer from Windows yet");
                 continue;

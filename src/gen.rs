@@ -294,6 +294,10 @@ pub fn d3d8() -> String {
 fn state_suite(v8: bool) -> String {
     let (suite, api, dev, stage_types) = if v8 { ("d3d8", "Direct3D 8", "device8", 30) } else { ("d3d9", "Direct3D 9", "device", 34) };
     let mut s = format!("# gpu\n# kikizake suite {suite}: {api} device state and state blocks (SPEC.md). Made by `kikizake gen {suite}`.\n");
+    if v8 {
+        // (MEASURED: x86-64 Windows has no d3d8.dll, every case printed "device8 none")
+        s += "# x86 only: Direct3D 8 has no x86-64 runtime\n";
+    }
     // every state a new device reports, on each kind of device
     for (name, mode) in [("defaults", "swvp"), ("defaults-hwvp", "hwvp"), ("defaults-mixed", "mixed")] {
         if name != "defaults" && !v8 {

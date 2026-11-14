@@ -13,7 +13,8 @@
 //! S_FALSE; the same description gives the same object).
 //! MEASURED (masu's tests/winref/golden/d3d11desc-32): what a disabled part of a description
 //! becomes, BOOLs stored as 1, write masks over 0xf refused, MaxAnisotropy 0 accepted,
-//! NaN DepthBiasClamp and MinLOD refused, the same object for descriptions equal after that.
+//! NaN DepthBiasClamp, SlopeScaledDepthBias and MinLOD refused, dual source blending only on render
+//! target 0, the stencil depth-fail operations KEEP with depth off, the same object for descriptions equal after that.
 
 use super::{Fail, Res};
 use crate::case::{num, Op};
@@ -103,6 +104,11 @@ pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
                     ok(blend(rt[1]) && blend(rt[2]) && op(rt[3]), "D3D11.BLEND.ENUM")?;
                     ok(blend(rt[4]) && blend(rt[5]) && op(rt[6]), "D3D11.BLEND.ENUM")?;
                     ok(alpha(rt[4]) && alpha(rt[5]), "D3D11.BLEND.ALPHA")?;
+                    // (MEASURED: dual source blending only on render target 0)
+                    let src1 = |v: u32| (16..=19).contains(&v);
+                    if t > 0 {
+                        ok(![rt[1], rt[2], rt[4], rt[5]].into_iter().any(src1), "D3D11.BLEND.SRC1")?;
+                    }
                 } else {
                     hit("D3D11.BLEND.DISABLED");
                     rt[1..7].copy_from_slice(&[2, 1, 1, 2, 1, 1]);
@@ -131,6 +137,10 @@ pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
             d[4] &= 0xffff;
             if d[3] != 0 {
                 ok(d[5..13].iter().all(|v| (1..=8).contains(v)), "D3D11.DEPTH.ENUM")?;
+                // (MEASURED: checked, then KEEP for the depth-fail operations with depth off)
+                if d[0] == 0 {
+                    (d[6], d[10]) = (1, 1);
+                }
             } else {
                 hit("D3D11.STENCIL.OFF");
                 d[4] = 0xffff;
@@ -142,9 +152,10 @@ pub fn normalize(k: Kind, d: &[u32]) -> Option<Vec<u32>> {
         Raster => {
             ok((2..=3).contains(&d[0]) && (1..=3).contains(&d[1]), "D3D11.RASTER.ENUM")?;
             ok(!f(d[4]).is_nan(), "D3D11.RASTER.CLAMP")?;
-            if !f(d[5]).is_finite() {
-                hit(if f(d[5]).is_nan() { "D3D11.RASTER.SLOPENAN" } else { "D3D11.RASTER.SLOPE" });
+            if f(d[5]).is_infinite() {
+                hit("D3D11.RASTER.SLOPE");
             }
+            ok(!f(d[5]).is_nan(), "D3D11.RASTER.SLOPENAN")?;
             for i in [2, 6, 7, 8, 9] {
                 boolean(&mut d[i], "D3D11.RASTER.BOOL");
             }

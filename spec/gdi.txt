@@ -33,7 +33,8 @@ GDI.CLIP.AGAIN open | IntersectClipRect | what it returns on a DC that has a cli
 GDI.CLIP.UNORDERED open | IntersectClipRect | a rectangle with left > right or top > bottom
 GDI.DIB.PARAMS open | CreateDIBSection | other bit counts and sizes
 GDI.STRETCH.SAME doc | StretchBlt | equal extents: BitBlt
-GDI.STRETCH.SAMPLE assumed | StretchBlt, SetStretchBltMode (COLORONCOLOR) | stretching / COLORONCOLOR deleting: the source pixel under each destination pixel's center
+GDI.STRETCH.SAMPLE doc | StretchBlt, SetStretchBltMode (COLORONCOLOR) | stretching / COLORONCOLOR deleting: one source pixel for each destination pixel
+GDI.STRETCH.DDA measured | (none) | which one: the one under the destination pixel's center, floor((2i + 1) sn / 2n) for pixel i of n from sn; but with the other direction unscaled, floor(i sn / n) for n = sn - 1 and floor((i sn + sn - 1) / n) for n = sn + 1 (golden stretch-32/-64: every 1..12 -> 1..12 scale of a row and a column, random cases)
 GDI.STRETCH.COMBINE open | SetStretchBltMode (BLACKONWHITE, WHITEONBLACK, HALFTONE) | shrinking ANDs / ORs / averages the eliminated pixels (the exact rule is not said)
 GDI.STRETCH.HALFTONE open | SetStretchBltMode (HALFTONE) | HALFTONE averages source pixels also when enlarging (MEASURED, stretch golden); the filter is not said
 GDI.STRETCH.MIRROR open | StretchBlt | "StretchBlt creates a mirror image of a bitmap if the signs of the nSrcWidth and nWidthDest parameters or ... differ"
