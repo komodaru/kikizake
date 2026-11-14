@@ -33307,48 +33307,600 @@ wpixels 00000000 1
 b0
 wsrcpal 00000000 type 0 count 2 bw 0 gray 0 alpha 1
 ff00000000000000
+case png-ihdr-0-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-0-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-8
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-16
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-1-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-2-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-16
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-3-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-4-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-8
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-16
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-5-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-6-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-8
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-16
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-7-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-7
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-8
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-9
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-16
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-32
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-8-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-method-10-1
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+440d367d
+7785da5b
+4223e146
+case png-ihdr-method-11-1
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+440d367d
+7785da5b
+4223e146
+case png-ihdr-method-12-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-method-12-255
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case png-ihdr-method-10-255
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+440d367d
+7785da5b
+4223e146
+case png-ihdr-method-11-255
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+440d367d
+7785da5b
+4223e146
 case tiff-other-0
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 gray4 96.000 96.000
 wpixels 00000000 4
-505000
-0f5a50
-a0ff50
+0aa0f0
+5ffa00
+5aa0f0
 case tiff-other-1
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 idx4 96.000 96.000
 wpixels 00000000 4
-212020
-231020
-310130
+311030
+112030
+300210
 wsrcpal 00000000 type 0 count 4 bw 0 gray 0 alpha 0
-ffa6b309ffa8b4b6ff08d341ff7f0d9b
+ff6c9531ff3eb0a9ff5e638cff42c337
 case tiff-other-2
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 rgba64 96.000 96.000
 wpixels 00000000 64
-778577857785da5b3c133c133c13cf27121a121a121acce8e6e2e6e2e6e256e7163f163f163f8838
-1ebe1ebe1ebeb0df422342234223e146232b232b232bb0cd3c3f3c3f3c3ffe9d1264126412647738
-98f798f798f7b042228f228f228f32f2d292d292d2922b58f357f357f3578d642add2add2add0093
+cef4cef4cef49bdde9ebe9ebe9ebf6bde50ee50ee50eb8db3e463e463e4623772379237923799762
+c8dac8dac8da15e5697469746974db5703a403a403a4367afc57fc57fc577f88d58fd58fd58fd985
+107f107f107f58d2bcfdbcfdbcfd8fdff4b5f4b5f4b58c2bfc8dfc8dfc8d56b2e0a0e0a0e0a00317
 case tiff-other-3
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 rgba64 96.000 96.000
 wpixels 00000000 64
-440af64c39cd719617a1039fd14baa3389b2b477a4d1da86b91faf7f64b8fef409491baa997e164d
-40ebf2e696ac5175592624a28c615f7690825ff1e20b9c429deea4811b83d2d8db87dd3bdb4b565e
-09bf25c1281d05d01947bccfd623c37dae68d3beff309f792670cfb2cb3d8dee3f3da2e45a2f3312
+95061e8d69214207fea22d96e9e7d051749bd259a9d4d373ab180ba9edac5632992c1df9ef8fe56f
+ee4c3f0b30e5286a732976994d2a958af67f55fdb6e5dc66d378435466bb73d1740b487f30f06655
+91fafd608cac010c0c6e21c2d1280845df996e498000bb4d91b1ad2da1e73b348d514acf74d4f841
 case tiff-other-4
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 bgra 96.000 96.000
 wpixels 00000000 32
-ddb0af4dc519b82c5a61f552a43bfc361bb99122
-27a4d5c8495a5ba645c76810a5433ae210495642
-af6e94c58bd0b8eecf9c4c1c25bbf4be0b0f8a4c
+f3641c0325eecfae5a47d89f4812889bc37878ab
+7dab75ddcd7f6465a21162a98d7d9d88eec0671d
+96925b26252c54d3ba63ac31293b558e3846d44d
 case tiff-other-5
 wdecode 88982f50 - frames 0
 wframe -
@@ -33364,41 +33916,41 @@ wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 rgb96float 96.000 96.000
 wpixels 00000000 96
-224dbba8e2a0848e7d0d5f7635af83295bee581dda1fa9d05246bae315191bf16fc7a4c82545c0947ab00837700bb08795d6bd63ce9c4ca62e09ac60
-b49fcb26728971f5a90e2885182e7f3e1497aab79783f734ec8f8b0e2dabbd18149604364a7891700efcc5b6386ef2bd5fb52f5aee9a01dbff3af4ad
-e908f38382c1a239116327af11013930efe07dea3c55fd01724dafe342def7e13fca3d8ba5ed984ea97a742448693ad87df60c25131edb5e923d2f3c
+da699892d2ac61bee17bc5129bc1a0699cbf51ae22d78216118254d492ac24dbbc6f87ecf9c1633756de71241d00c9665faac76cac9f1964983e1a00
+db87cf779c912294672df389300a007e6d3991f5ad30f63aeae332889c6966616afcd179f4b7781a3e3b1854d35d3d6168a93db88e2c1b6ceb88a219
+764f2342fbcb173b0c5edcb6d741eafa67d7b8da2f7cfc75ed374dbb88a4dc88c9f829932b7c30395582788524189fb3ed7312bfde05b85a83a4556f
 case tiff-other-8
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 gray8 96.000 96.000
 wpixels 00000000 8
-c247ed96a5
-e7c8b9cabe
-9bdf09a3ba
+8a7252e126
+3b4957cd28
+df07bf30c6
 case tiff-other-9
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 pbgra 96.000 96.000
 wpixels 00000000 32
-6d6d6d17121212e8e2e2e2295b5b5b7547474731
-9a9a9a1dabababe55e5e5e2e7b7b7bdebcbcbcf1
-dfdfdf56ffffffc6a4a4a472d9d9d9c52f2f2f8f
+0f0f0ff9484848237171719fe5e5e58d868686ef
+0d0d0d3e42424271a9a9a9f1bababafab4b4b424
+939393a6222222fcbfbfbf62afafaf96bdbdbde7
 case tiff-other-10
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 cmyka40 96.000 96.000
 wpixels 00000000 40
-f49da1deac06a0ae8aa735ef77c8e6ffffff9b2effffffa237
-da155b80ffffffffff32ffffffff3cffffffff8751d2ffff9c
-ff41ff706dffffffda5cffe4ff25bd56efffff85ffff09b16d
+50ec04ff7ff35c1fca9b18ffffff67ffffa7ff66a8ff9a2eb1
+ff98ad5bec2fffa58c8635ffffff94809e50d5fd51ffbbb16d
+fff0ff7b6943aaffff8509a867ff82ffffffff0c25093c44df
 case tiff-other-11
 wdecode 00000000 tiff frames 1
 wframe 00000000
 winfo 00000000 5 3 bgr24 96.000 96.000
 wpixels 00000000 24
-dd66ee3399ccddaacc77dd66991111
-ee6666aa779977bb9933449999ee88
-ff33225533aa116677eeee3344aa22
+bb992211aa3300aa6633ddeebb33ff
+ee1155aaccee9999cc003366557766
+ddccee33224400cc6633ccffdd55aa
 case tiff-cmyka-assoc
 wdecode 00000000 tiff frames 1
 wframe 00000000
@@ -33414,8 +33966,8 @@ wdecode 00000000 tiff frames 2
 wframe 00000000
 winfo 00000000 2 2 bgr24 96.000 96.000
 wpixels 00000000 24
-9da4b6cbbee3
-409830ba581b
+aed1bdd940c3
+52720be9dc5b
 wframe 00000000
 winfo 88982f80 0 0 {00000000-0000-0000-0000-000000000000} 0.000 0.000
 wpixels unknown
@@ -33477,10 +34029,10 @@ wdecode 00000000 ico frames 1
 wframe 00000000
 winfo 00000000 4 4 bgra 96.000 96.000
 wpixels 00000000 32
-dbdbdbf17d7d7d006c6c6c341b1b1b35
-111111a99c9c9c76222222260000000d
-b6b6b6089f9f9f98eeeeee307f7f7f0e
-8282826bd0d0d053111111c2555555a2
+92929254f2f2f2eeaeaeaed80202024d
+63636305d1d1d1e34a4a4adb8b8b8bac
+353535c38f8f8f6e2c2c2ca1cacaca02
+08080842f7f7f7d110101035bfbfbf97
 case ico-png-ct0-1
 wdecode 88982f60 - frames 0
 wframe -
@@ -33521,19 +34073,19 @@ wdecode 00000000 dds frames 1
 wframe 00000000
 winfo 00000000 4 4 pbgra 96.000 96.000
 wpixels 00000000 32
-4286655521860833318637aa42866511
-428665aa318637444286650021860866
-31863700428665cc2186081131863799
-428665ee5286942252869499318637dd
+a233ec77d067f144a233ec00ff9af7dd
+a233ecddff9af755ff9af7ccd067f1dd
+ff9af799ff9af7ffff9af777d067f1bb
+d067f144d067f177a233eceea233ecdd
 case dds-dxt4
 wdecode 00000000 dds frames 1
 wframe 00000000
 winfo 00000000 4 4 pbgra 96.000 96.000
 wpixels 00000000 32
-efca52a6bdb77e4cd6c1686aa5ae94a6
-efca52ffefca526aa5ae94a6a5ae9488
-d6c168e2efca5288bdb77ec4a5ae946a
-a5ae94e2efca52e2bdb77ea6bdb77eff
+6e3d5ac173515aff63145abb73515a00
+68285ab96e3d5abb68285ac368285a00
+6e3d5abb73515ac16e3d5ab968285ab9
+63145abb63145ab963145aff6e3d5abf
 case dds-ati1
 wdecode 88982f61 - frames 0
 wframe -
@@ -33569,10 +34121,10 @@ wdecode 00000000 dds frames 1
 wframe 00000000
 winfo 00000000 4 4 bgra 96.000 96.000
 wpixels 00000000 32
-7ba82dff00000000949e08ff63b252ff
-949e08ff63b252ff63b252ff7ba82dff
-0000000063b252ff7ba82dff00000000
-949e08ff63b252ff63b252ff7ba82dff
+1ea5f7ff1ea5f7ff0892f7ff139bf7ff
+0892f7ff1ea5f7ff139bf7ff1ea5f7ff
+29aef7ff1ea5f7ff139bf7ff139bf7ff
+139bf7ff29aef7ff29aef7ff0892f7ff
 case dds-dx10-72-1
 wdecode 88982f61 - frames 0
 wframe -
@@ -33588,10 +34140,10 @@ wdecode 00000000 dds frames 1
 wframe 00000000
 winfo 00000000 4 4 bgra 96.000 96.000
 wpixels 00000000 32
-42dfef9960c2dbee42dfefff9c8ab5dd
-7ea6c8cc60c2db669c8ab5559c8ab5cc
-7ea6c8669c8ab5bb9c8ab5dd9c8ab566
-60c2db1142dfef6660c2db6642dfef00
+429e7377e6ff6beeafdf6e88afdf6eff
+79be7011e6ff6b99429e7300afdf6e44
+e6ff6b9979be70ffafdf6eaa429e7300
+429e73eee6ff6b55429e7333429e7333
 case dds-dx10-75-1
 wdecode 88982f61 - frames 0
 wframe -
@@ -33607,10 +34159,10 @@ wdecode 00000000 dds frames 1
 wframe 00000000
 winfo 00000000 4 4 bgra 96.000 96.000
 wpixels 00000000 32
-7beb73b57beb73c279a19cff730cefa9
-7beb73ff7656c5c27656c5b57beb73e6
-730cefa9730cefda7beb73b579a19cda
-79a19cb579a19cff7656c5ce7beb73ce
+8c5d9c846b4ab2167b54a7655a41bd84
+7b54a7846b4ab2166b4ab2456b4ab245
+8c5d9c656b4ab2845a41bd656b4ab274
+5a41bd166b4ab2555a41bd165a41bd84
 case dds-dx10-78-1
 wdecode 88982f61 - frames 0
 wframe -
@@ -33661,15 +34213,15 @@ wdecode 00000000 dds frames 2
 wframe 00000000
 winfo 00000000 4 4 bgra 96.000 96.000
 wpixels 00000000 32
-0000000063ae21ff8cc6deff63ae21ff
-63ae21ff8cc6deff0000000000000000
-0000000063ae21ff8cc6deff77ba7fff
-8cc6deff8cc6deff000000008cc6deff
+ce8a6effde6563ffadd284ffde6563ff
+bdae79ffadd284ffbdae79ffde6563ff
+add284ffadd284ffbdae79ffde6563ff
+bdae79ffadd284ffbdae79ffadd284ff
 wframe 00000000
 winfo 00000000 4 4 bgra 96.000 96.000
 wpixels 00000000 32
-8c1042ff5518c0ff701481ff701481ff
-5518c0ff5518c0ff3a1cffff3a1cffff
-5518c0ff701481ff8c1042ff8c1042ff
-701481ff3a1cffff701481ff3a1cffff
+000000006388bdff6388bdff31a27bff
+31a27bff31a27bff31a27bff946dffff
+31a27bff000000000000000000000000
+000000006388bdff31a27bff31a27bff
 done
