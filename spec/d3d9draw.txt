@@ -64,7 +64,7 @@ D3D9.BLEND.TIE measured | golden d3d9draw blend-dest-11, blend-random-8, -10, -1
 D3D9.BLEND.BOTHALPHA measured | golden d3d9draw blend-bothalpha-*, blend-random-5, blend-random-31 | BOTHSRCALPHA / BOTHINVSRCALPHA as a separate alpha factor (SRCBLENDALPHA, DESTBLENDALPHA) is ZERO
 D3D9.DRAW.XZERO measured | golden d3d9draw blend-fmt-X8R8G8B8-* | a draw writes 0 in a target's unused X bits (Clear writes the alpha there)
 D3D9.BLEND.FORMAT measured | golden d3d9draw blend-fmt-* (95 cases, x64) | blending on targets other than 8-bit unsigned ones: in f32, the source clamped to 0..1, the destination as read, the result written as the format writes
-D3D9.BLEND.FACTOR open | (cases blend-factor8) | Direct3D 8's BLENDFACTOR, which it does not have
+D3D9.BLEND.FACTOR measured | golden d3d8draw blend-factor8 | Direct3D 8, which has no BLENDFACTOR state, blends with BLENDFACTOR and INVBLENDFACTOR as with a factor of white (the Direct3D 9 default)
 D3D9.BLEND.OPX86 measured | golden d3d9draw-32, d3d8draw-32 of c453900 and 76630c7 (exit 127 at blend-badop-0, blend-badop-6) | the x86 runtimes die drawing with a BLENDOP outside ADD..MAX (0, 6, 7 asked), so the x86 executor reads BLENDOP back and does not draw; x64 draws
 D3D9.BLEND.OP measured | D3DBLENDOP; golden d3d9draw-64 blend-badop-* | a blend operation outside ADD..MAX (0, 6, 7, 0xffffffff asked) blends as MAX on x64 (x86: D3D9.BLEND.OPX86)
 D3D9.COLORWRITE doc | D3DRS_COLORWRITEENABLE | only the channels of the mask are written

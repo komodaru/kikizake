@@ -1466,7 +1466,12 @@ impl D3d9 {
     fn blend_float(&self, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
         let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
         let d = d.map(|x| x as f32);
-        let c = self.rs(193);
+        // (Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and INVBLENDFACTOR blend with
+        // white there: MEASURED d3d8draw blend-factor8)
+        let c = if self.v8 { 0xffff_ffff } else { self.rs(193) };
+        if self.v8 && [19, 20].iter().any(|&i| matches!(self.rs(i), 14 | 15)) {
+            hit(clause::D3D9_BLEND_FACTOR);
+        }
         let bf = argb(c).map(|v| v as f32);
         let factor = |f: u32, k: usize| -> Res<f32> {
             Ok(match f {
@@ -1482,9 +1487,9 @@ impl D3d9 {
                 10 => 1.0 - d[k],
                 11 if k < 3 => s[3].min(1.0 - d[3]),
                 11 => 1.0,
-                14 if !self.v8 => bf[k],
-                15 if !self.v8 => 1.0 - bf[k],
-                _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_FACTOR)),
+                14 => bf[k],
+                15 => 1.0 - bf[k],
+                _ => return Err(Fail::Bad),
             })
         };
         let separate = !self.v8 && self.rs(206) != 0;
@@ -1520,7 +1525,12 @@ impl D3d9 {
             return self.blend_float(s, d);
         }
         let (s, d) = (s.map(|x| unorm(x, 8) as i64), d.map(|x| unorm(x, 8) as i64));
-        let c = self.rs(193);
+        // (Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and INVBLENDFACTOR blend with
+        // white there: MEASURED d3d8draw blend-factor8)
+        let c = if self.v8 { 0xffff_ffff } else { self.rs(193) };
+        if self.v8 && [19, 20].iter().any(|&i| matches!(self.rs(i), 14 | 15)) {
+            hit(clause::D3D9_BLEND_FACTOR);
+        }
         let bf = [c >> 16 & 255, c >> 8 & 255, c & 255, c >> 24].map(|v| v as i64);
         let factor = |f: u32, k: usize| -> Res<i64> {
             Ok(match f {
@@ -1536,9 +1546,9 @@ impl D3d9 {
                 10 => 255 - d[k],
                 11 if k < 3 => s[3].min(255 - d[3]),
                 11 => 255,
-                14 if !self.v8 => bf[k],
-                15 if !self.v8 => 255 - bf[k],
-                _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_FACTOR)),
+                14 => bf[k],
+                15 => 255 - bf[k],
+                _ => return Err(Fail::Bad),
             })
         };
         let separate = !self.v8 && self.rs(206) != 0;
