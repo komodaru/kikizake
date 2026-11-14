@@ -8079,6 +8079,10226 @@ wbits 00000000
 wscale 00000000
 wpixels 00000000 8
 3135486c94b4c5ced1cfc1ab9996a8c0d0cbb191766b6766635b514a484e5760676a6d737e8e9fadb4b8bbc2cedbe4e2d3bfb3bcd8f3f9d79a5c3a3a4c616a6b
+case rcol-nn-1-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+92
+case rcol-nn-1-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f1
+f1
+case rcol-nn-1-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d0
+d0
+d0
+case rcol-nn-1-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3f
+3f
+3f
+3f
+case rcol-nn-1-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1e
+1e
+1e
+1e
+1e
+case rcol-nn-1-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7d
+7d
+7d
+7d
+7d
+7d
+case rcol-nn-1-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5c
+5c
+5c
+5c
+5c
+5c
+5c
+case rcol-nn-1-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bb
+bb
+bb
+bb
+bb
+bb
+bb
+bb
+case rcol-nn-1-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+9a
+9a
+9a
+9a
+9a
+9a
+9a
+9a
+case rcol-nn-1-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f9
+f9
+f9
+f9
+f9
+f9
+f9
+f9
+f9
+f9
+case rcol-nn-1-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d8
+d8
+d8
+d8
+d8
+d8
+d8
+d8
+d8
+d8
+d8
+case rcol-nn-1-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+28
+28
+28
+28
+28
+28
+28
+28
+28
+28
+28
+28
+case rcol-nn-1-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+09
+09
+09
+09
+09
+09
+09
+09
+09
+09
+09
+09
+09
+case rcol-nn-1-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+6a
+case rcol-nn-1-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+4b
+case rcol-nn-1-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+ac
+case rcol-nn-1-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+8d
+case rcol-nn-2-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+15
+case rcol-nn-2-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+62
+16
+case rcol-nn-2-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+43
+17
+17
+case rcol-nn-2-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a4
+a4
+10
+10
+case rcol-nn-2-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+85
+85
+11
+11
+11
+case rcol-nn-2-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e6
+e6
+e6
+12
+12
+12
+case rcol-nn-2-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c7
+c7
+c7
+13
+13
+13
+13
+case rcol-nn-2-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+19
+19
+19
+19
+4f
+4f
+4f
+4f
+case rcol-nn-2-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+38
+38
+38
+38
+4e
+4e
+4e
+4e
+4e
+case rcol-nn-2-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5b
+5b
+5b
+5b
+5b
+4d
+4d
+4d
+4d
+4d
+case rcol-nn-2-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7a
+7a
+7a
+7a
+7a
+4c
+4c
+4c
+4c
+4c
+4c
+case rcol-nn-2-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9d
+9d
+9d
+9d
+9d
+9d
+4b
+4b
+4b
+4b
+4b
+4b
+case rcol-nn-2-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bc
+bc
+bc
+bc
+bc
+bc
+4a
+4a
+4a
+4a
+4a
+4a
+4a
+case rcol-nn-2-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+df
+df
+df
+df
+df
+df
+df
+49
+49
+49
+49
+49
+49
+49
+case rcol-nn-2-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fe
+fe
+fe
+fe
+fe
+fe
+fe
+48
+48
+48
+48
+48
+48
+48
+48
+case rcol-nn-2-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+11
+11
+11
+11
+11
+11
+11
+11
+47
+47
+47
+47
+47
+47
+47
+47
+case rcol-nn-2-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+30
+30
+30
+30
+30
+30
+30
+30
+46
+46
+46
+46
+46
+46
+46
+46
+46
+case rcol-nn-3-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+32
+case rcol-nn-3-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+75
+case rcol-nn-3-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f6
+40
+b0
+case rcol-nn-3-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4a
+ba
+a6
+a6
+case rcol-nn-3-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6b
+bb
+bb
+63
+63
+case rcol-nn-3-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+08
+08
+b8
+b8
+24
+24
+case rcol-nn-3-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+29
+29
+b9
+b9
+e1
+e1
+e1
+case rcol-nn-3-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ce
+ce
+be
+be
+be
+a2
+a2
+a2
+case rcol-nn-3-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ef
+ef
+ef
+bf
+bf
+bf
+67
+67
+67
+case rcol-nn-3-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8c
+8c
+8c
+bc
+bc
+bc
+20
+20
+20
+20
+case rcol-nn-3-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ad
+ad
+ad
+bd
+bd
+bd
+bd
+e5
+e5
+e5
+e5
+case rcol-nn-3-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+42
+42
+42
+42
+b2
+b2
+b2
+b2
+8f
+8f
+8f
+8f
+case rcol-nn-3-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+63
+63
+63
+63
+b3
+b3
+b3
+b3
+4a
+4a
+4a
+4a
+4a
+case rcol-nn-3-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+00
+00
+00
+b0
+b0
+b0
+b0
+b0
+0d
+0d
+0d
+0d
+0d
+case rcol-nn-3-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+21
+21
+21
+21
+21
+b1
+b1
+b1
+b1
+b1
+c8
+c8
+c8
+c8
+c8
+case rcol-nn-3-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c6
+c6
+c6
+c6
+c6
+b6
+b6
+b6
+b6
+b6
+8b
+8b
+8b
+8b
+8b
+8b
+case rcol-nn-3-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e7
+e7
+e7
+e7
+e7
+b7
+b7
+b7
+b7
+b7
+b7
+4e
+4e
+4e
+4e
+4e
+4e
+case rcol-nn-4-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+57
+case rcol-nn-4-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+eb
+1e
+case rcol-nn-4-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ea
+35
+51
+case rcol-nn-4-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+ed
+76
+14
+case rcol-nn-4-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+de
+ec
+b3
+5b
+5b
+case rcol-nn-4-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bd
+ef
+ef
+f4
+12
+12
+case rcol-nn-4-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9c
+ee
+ee
+31
+31
+5d
+5d
+case rcol-nn-4-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+73
+73
+e1
+e1
+5b
+5b
+62
+62
+case rcol-nn-4-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+52
+52
+e0
+e0
+9e
+9e
+2d
+2d
+2d
+case rcol-nn-4-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+31
+31
+e3
+e3
+e3
+d9
+d9
+64
+64
+64
+case rcol-nn-4-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+10
+10
+e2
+e2
+e2
+1c
+1c
+1c
+2b
+2b
+2b
+case rcol-nn-4-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f7
+f7
+f7
+e5
+e5
+e5
+5f
+5f
+5f
+6e
+6e
+6e
+case rcol-nn-4-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d6
+d6
+d6
+e4
+e4
+e4
+9a
+9a
+9a
+21
+21
+21
+21
+case rcol-nn-4-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b5
+b5
+b5
+e7
+e7
+e7
+e7
+dd
+dd
+dd
+68
+68
+68
+68
+case rcol-nn-4-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+94
+94
+94
+e6
+e6
+e6
+e6
+18
+18
+18
+18
+27
+27
+27
+27
+case rcol-nn-4-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ec
+ec
+ec
+ec
+50
+50
+50
+50
+56
+56
+56
+56
+b7
+b7
+b7
+b7
+case rcol-nn-4-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cd
+cd
+cd
+cd
+51
+51
+51
+51
+93
+93
+93
+93
+f8
+f8
+f8
+f8
+f8
+case rcol-nn-5-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b6
+case rcol-nn-5-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d0
+7d
+case rcol-nn-5-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+57
+f2
+ac
+case rcol-nn-5-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+58
+7f
+cd
+df
+case rcol-nn-5-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c5
+59
+ba
+82
+0e
+case rcol-nn-5-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a6
+5a
+fd
+cb
+c5
+c5
+case rcol-nn-5-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+87
+5b
+38
+38
+84
+14
+14
+case rcol-nn-5-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+60
+5c
+5c
+7b
+c1
+c1
+eb
+eb
+case rcol-nn-5-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+5d
+5d
+be
+be
+8e
+8e
+3a
+3a
+case rcol-nn-5-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+22
+22
+5e
+5e
+f9
+f9
+c7
+c7
+f1
+f1
+case rcol-nn-5-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+03
+03
+5f
+5f
+3c
+3c
+88
+88
+20
+20
+20
+case rcol-nn-5-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+dd
+dd
+03
+03
+82
+82
+82
+6d
+6d
+36
+36
+36
+case rcol-nn-5-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fc
+fc
+02
+02
+02
+47
+47
+22
+22
+22
+e7
+e7
+e7
+case rcol-nn-5-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+9f
+01
+01
+01
+00
+00
+00
+6b
+6b
+6b
+2c
+2c
+2c
+case rcol-nn-5-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+be
+be
+be
+00
+00
+00
+c5
+c5
+c5
+24
+24
+24
+fd
+fd
+fd
+case rcol-nn-5-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+59
+59
+59
+07
+07
+07
+86
+86
+86
+61
+61
+61
+02
+02
+02
+02
+case rcol-nn-5-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+78
+78
+78
+06
+06
+06
+43
+43
+43
+43
+2e
+2e
+2e
+d3
+d3
+d3
+d3
+case rcol-nn-6-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+88
+case rcol-nn-6-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+29
+7b
+case rcol-nn-6-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+08
+5e
+ab
+case rcol-nn-6-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0f
+af
+8e
+3f
+case rcol-nn-6-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0e
+6a
+54
+5f
+ef
+case rcol-nn-6-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+13
+0d
+2d
+1d
+94
+1c
+case rcol-nn-6-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+32
+0c
+e8
+52
+45
+cc
+cc
+case rcol-nn-6-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8e
+f6
+fe
+fe
+0b
+01
+c9
+c9
+case rcol-nn-6-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+af
+f7
+f7
+3b
+44
+44
+d0
+19
+19
+case rcol-nn-6-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cc
+f4
+f4
+7c
+7c
+0d
+1b
+1b
+ea
+ea
+case rcol-nn-6-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ed
+f5
+f5
+b9
+b9
+42
+42
+ca
+ca
+3a
+3a
+case rcol-nn-6-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0a
+0a
+f2
+f2
+fa
+fa
+07
+07
+35
+35
+ae
+ae
+case rcol-nn-6-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2b
+2b
+f3
+f3
+3f
+3f
+48
+48
+e4
+e4
+7e
+7e
+7e
+case rcol-nn-6-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+48
+48
+f0
+f0
+78
+78
+78
+01
+01
+2f
+2f
+8d
+8d
+8d
+case rcol-nn-6-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+69
+69
+f1
+f1
+f1
+bd
+bd
+4e
+4e
+4e
+fe
+fe
+5d
+5d
+5d
+case rcol-nn-6-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+86
+86
+fe
+fe
+fe
+d7
+d7
+d7
+71
+71
+8d
+8d
+8d
+c5
+c5
+c5
+case rcol-nn-6-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a7
+a7
+ff
+ff
+ff
+12
+12
+12
+3e
+3e
+3e
+5c
+5c
+5c
+15
+15
+15
+case rcol-nn-7-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fa
+case rcol-nn-7-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7b
+b9
+case rcol-nn-7-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+94
+72
+a3
+case rcol-nn-7-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a5
+d1
+cd
+63
+case rcol-nn-7-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a4
+ef
+b5
+1d
+79
+case rcol-nn-7-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a7
+a8
+d7
+7e
+ee
+3a
+case rcol-nn-7-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+dc
+a6
+6d
+98
+af
+3e
+20
+case rcol-nn-7-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3b
+a1
+2e
+dd
+50
+aa
+9a
+9a
+case rcol-nn-7-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1a
+a0
+eb
+92
+92
+81
+7a
+80
+80
+case rcol-nn-7-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+79
+a3
+ac
+ac
+db
+4a
+4a
+89
+c3
+c3
+case rcol-nn-7-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+58
+a2
+a2
+69
+94
+94
+9b
+59
+59
+d9
+d9
+case rcol-nn-7-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b7
+ad
+ad
+03
+03
+ab
+e8
+e8
+c1
+c1
+9f
+9f
+case rcol-nn-7-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+96
+ac
+ac
+c6
+c6
+e4
+e4
+39
+39
+11
+11
+85
+85
+case rcol-nn-7-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f5
+f5
+af
+af
+81
+81
+ad
+ad
+f2
+f2
+e2
+e2
+c6
+c6
+case rcol-nn-7-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d4
+d4
+ae
+ae
+44
+44
+e2
+e2
+23
+23
+32
+32
+dc
+dc
+dc
+case rcol-nn-7-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+33
+33
+a9
+a9
+07
+07
+a7
+a7
+a7
+dc
+dc
+a6
+a6
+66
+66
+66
+case rcol-nn-7-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+12
+12
+a8
+a8
+c2
+c2
+c2
+e8
+e8
+0d
+0d
+0d
+76
+76
+7c
+7c
+7c
+case rcol-nn-8-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+case rcol-nn-8-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+69
+45
+case rcol-nn-8-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+da
+7f
+f7
+case rcol-nn-8-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+91
+63
+eb
+a0
+case rcol-nn-8-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+90
+2c
+69
+74
+12
+case rcol-nn-8-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+93
+1b
+65
+c8
+37
+16
+case rcol-nn-8-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+92
+de
+2a
+73
+18
+2d
+a4
+case rcol-nn-8-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b8
+9d
+b4
+15
+00
+80
+6b
+24
+case rcol-nn-8-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+99
+9c
+71
+5a
+d1
+50
+71
+96
+96
+case rcol-nn-8-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fa
+9f
+36
+13
+13
+1a
+a3
+32
+92
+92
+case rcol-nn-8-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+db
+9e
+f3
+f3
+5c
+cb
+73
+73
+28
+20
+20
+case rcol-nn-8-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3c
+99
+99
+b0
+19
+19
+34
+e7
+e7
+92
+77
+77
+case rcol-nn-8-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1d
+98
+98
+75
+56
+56
+e5
+e5
+37
+88
+88
+c5
+c5
+case rcol-nn-8-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7e
+9b
+9b
+32
+32
+1f
+1f
+2e
+c4
+c4
+cb
+cb
+c1
+c1
+case rcol-nn-8-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5f
+9a
+9a
+f7
+f7
+50
+50
+ff
+ff
+14
+14
+d1
+d1
+73
+73
+case rcol-nn-8-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+81
+81
+c6
+c6
+49
+49
+b5
+b5
+e9
+e9
+88
+88
+11
+11
+40
+40
+case rcol-nn-8-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a0
+a0
+c7
+c7
+8c
+8c
+fa
+fa
+38
+38
+58
+58
+0b
+0b
+f2
+f2
+f2
+case rgrid-nn-gray8-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8787a8a8373737
+4e4e79797c7c7c
+e4e40c0ca4a4a4
+e0e02525838383
+e0e02525838383
+case rgrid-nn-gray8-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f2a8
+f2a8
+be94
+be94
+be94
+aa34
+aa34
+aa34
+case rgrid-nn-gray8-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c5c5aaaab5b5484848
+c5c5aaaab5b5484848
+63635f5fbdbdbababa
+63635f5fbdbdbababa
+8e8edbdbefefbebebe
+8e8edbdbefefbebebe
+2929a7a7fffff9f9f9
+2929a7a7fffff9f9f9
+2929a7a7fffff9f9f9
+case rgrid-nn-gray8-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+708f08
+708f08
+240948
+240948
+f3d21f
+f3d21f
+89b440
+89b440
+087465
+087465
+2ad538
+2ad538
+2ad538
+case rgrid-nn-gray8-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+03ac33424d1b
+03ac33424d1b
+03ac33424d1b
+1d5f04a5d96d
+1d5f04a5d96d
+1d5f04a5d96d
+1d5f04a5d96d
+case rgrid-nn-gray8-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+935ed8
+11b537
+6ec994
+case rgrid-nn-bgr24-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+87a83787a8374e797c4e797ce40ca4e40ca4e40ca4
+e02583e025832083c12083c107c17b07c17b07c17b
+5744605744608311c98311c99a41289a41289a4128
+900053900053e723cee723cea6d503a6d503a6d503
+900053900053e723cee723cea6d503a6d503a6d503
+case rgrid-nn-bgr24-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+febe81aa2d34
+febe81aa2d34
+3afa8674db6d
+3afa8674db6d
+3afa8674db6d
+b6d3f43f8f04
+b6d3f43f8f04
+b6d3f43f8f04
+case rgrid-nn-bgr24-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+c5aab5c5aab548635f48635fbdba8ebdba8edbefbedbefbedbefbe
+c5aab5c5aab548635f48635fbdba8ebdba8edbefbedbefbedbefbe
+29a7ff29a7fff97e84f97e8462dfe862dfe86b9b506b9b506b9b50
+29a7ff29a7fff97e84f97e8462dfe862dfe86b9b506b9b506b9b50
+7d252c7d252ca5208aa5208a24541f24541fdde869dde869dde869
+7d252c7d252ca5208aa5208a24541f24541fdde869dde869dde869
+6e966f6e966f62386a62386a691e91691e913cfa6c3cfa6c3cfa6c
+6e966f6e966f62386a62386a691e91691e913cfa6c3cfa6c3cfa6c
+6e966f6e966f62386a62386a691e91691e913cfa6c3cfa6c3cfa6c
+case rgrid-nn-bgr24-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+a708ab48768cd2701f
+a708ab48768cd2701f
+73401e65c970d5bf38
+73401e65c970d5bf38
+e45ced8a5255b584af
+e45ced8a5255b584af
+3444fe54fe389c7baa
+3444fe54fe389c7baa
+0c6603125a32484e5e
+0c6603125a32484e5e
+886f1c465454031071
+886f1c465454031071
+886f1c465454031071
+case rgrid-nn-bgr24-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+03ac33424d1b1d5f04a5d96d0bf74f7d9b56
+03ac33424d1b1d5f04a5d96d0bf74f7d9b56
+03ac33424d1b1d5f04a5d96d0bf74f7d9b56
+cfedeba223c713491d16011546d7b484d7cb
+cfedeba223c713491d16011546d7b484d7cb
+cfedeba223c713491d16011546d7b484d7cb
+cfedeba223c713491d16011546d7b484d7cb
+case rgrid-nn-bgr24-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+94039d84a59b715b41
+3f57295cdf84675aa1
+db928e4ebcb3e980a5
+case rgrid-nn-bgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+86a6374e86a6374e7f7fe90c7f7fe90ca3df2483a3df2483a3df2483
+2491b6072491b607bf7b5644bf7b5644608210c9608210c9608210c9
+9a4128909a4128900050e9230050e923aaaaff03aaaaff03aaaaff03
+4c3189bf4c3189bf6bee7ca86bee7ca8b33fa558b33fa558b33fa558
+4c3189bf4c3189bf6bee7ca86bee7ca8b33fa558b33fa558b33fa558
+case rgrid-nn-bgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+8093edb4c873c55d
+8093edb4c873c55d
+d96fb037b5d2f3b8
+d96fb037b5d2f3b8
+d96fb037b5d2f3b8
+f4d245e18ccd6f4e
+f4d245e18ccd6f4e
+f4d245e18ccd6f4e
+case rgrid-nn-bgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+c6a9b448c6a9b448625ebdba625ebdba8edaeebe8edaeebe28a6fef928a6fef928a6fef9
+c6a9b448c6a9b448625ebdba625ebdba8edaeebe8edaeebe28a6fef928a6fef928a6fef9
+7d8362df7d8362dfe86c9c50e86c9c507d252ba57d252ba5218824542188245421882454
+7d8362df7d8362dfe86c9c50e86c9c507d252ba57d252ba5218824542188245421882454
+1fdce9691fdce9696d966f626d966f623b66661e3b66661e903bfa6c903bfa6c903bfa6c
+1fdce9691fdce9696d966f626d966f623b66661e3b66661e903bfa6c903bfa6c903bfa6c
+16a5e12216a5e12205db508805db508839e42b3a39e42b3a31c09e4d31c09e4d31c09e4d
+16a5e12216a5e12205db508805db508839e42b3a39e42b3a31c09e4d31c09e4d31c09e4d
+16a5e12216a5e12205db508805db508839e42b3a39e42b3a31c09e4d31c09e4d31c09e4d
+case rgrid-nn-bgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+abae2389ded5731ffbb37340
+abae2389ded5731ffbb37340
+c96f2839ca0de35c5ee59e8a
+c96f2839ca0de35c5ee59e8a
+a949416582c22454939c7baa
+a949416582c22454939c7baa
+03f0c8e1c0494e5e7c1d876f
+03f0c8e1c0494e5e7c1d876f
+5353e1f100000000eeb2e2be
+5353e1f100000000eeb2e2be
+86dc73cf3f8128bd2b00a752
+86dc73cf3f8128bd2b00a752
+86dc73cf3f8128bd2b00a752
+case rgrid-nn-bgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+03ad32424d1a1d5f04a6d96d0af64f7d9a56ceedeaa122c7
+03ad32424d1a1d5f04a6d96d0af64f7d9a56ceedeaa122c7
+03ad32424d1a1d5f04a6d96d0af64f7d9a56ceedeaa122c7
+17452216011545d7b383d6cb5c9bb4e2ae9965b5d9578cee
+17452216011545d7b383d6cb5c9bb4e2ae9965b5d9578cee
+17452216011545d7b383d6cb5c9bb4e2ae9965b5d9578cee
+17452216011545d7b383d6cb5c9bb4e2ae9965b5d9578cee
+case rgrid-nn-bgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+175e488da744f65d46c5c550
+f5c87c50efafff10950a4ebc
+31625562f27b7ea59a6a987a
+case rgrid-nn-pbgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+87a8374e87a8374e797ce40c797ce40ca4e02583a4e02583a4e02583
+2083c1072083c107c17b5744c17b5744608311c9608311c9608311c9
+9a4128909a4128900053e7230053e723cea6d503cea6d503cea6d503
+4c318abf4c318abf6cef7ca86cef7ca8b33fa658b33fa658b33fa658
+4c318abf4c318abf6cef7ca86cef7ca8b33fa658b33fa658b33fa658
+case rgrid-nn-pbgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+8194eeb4c973c65d
+8194eeb4c973c65d
+db6db037b6d3f4b8
+db6db037b6d3f4b8
+db6db037b6d3f4b8
+f5d345e18dce6f4e
+f5d345e18dce6f4e
+f5d345e18dce6f4e
+case rgrid-nn-pbgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+c5aab548c5aab548635fbdba635fbdba8edbefbe8edbefbe29a7fff929a7fff929a7fff9
+c5aab548c5aab548635fbdba635fbdba8edbefbe8edbefbe29a7fff929a7fff929a7fff9
+7e8462df7e8462dfe86b9b50e86b9b507d252ca57d252ca5208a2454208a2454208a2454
+7e8462df7e8462dfe86b9b50e86b9b507d252ca57d252ca5208a2454208a2454208a2454
+1fdde8691fdde8696e966f626e966f62386a691e386a691e913cfa6c913cfa6c913cfa6c
+1fdde8691fdde8696e966f626e966f62386a691e386a691e913cfa6c913cfa6c913cfa6c
+14a5e42214a5e42206db508806db508839e32d3a39e32d3a32c09e4d32c09e4d32c09e4d
+14a5e42214a5e42206db508806db508839e32d3a39e32d3a32c09e4d32c09e4d32c09e4d
+14a5e42214a5e42206db508806db508839e32d3a39e32d3a32c09e4d32c09e4d32c09e4d
+case rgrid-nn-pbgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+abaf2489dbd2701ffbb47340
+abaf2489dbd2701ffbb47340
+c9702a39ca0ee45c5fe69e8a
+c9702a39ca0ee45c5fe69e8a
+a948426584c32454939c7baa
+a948426584c32454939c7baa
+03f0c9e1c1484e5e7d1f886f
+03f0c9e1c1484e5e7d1f886f
+5454e1f1c01ef600efb3e3be
+5454e1f1c01ef600efb3e3be
+86dc74cf408229bd2a00a952
+86dc74cf408229bd2a00a952
+86dc74cf408229bd2a00a952
+case rgrid-nn-pbgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+03ac33424d1b1d5f04a5d96d0bf74f7d9b56cfedeba223c7
+03ac33424d1b1d5f04a5d96d0bf74f7d9b56cfedeba223c7
+03ac33424d1b1d5f04a5d96d0bf74f7d9b56cfedeba223c7
+13491d16011546d7b484d7cb5d9cb4e2af9a66b5d9588cee
+13491d16011546d7b484d7cb5d9cb4e2af9a66b5d9588cee
+13491d16011546d7b484d7cb5d9cb4e2af9a66b5d9588cee
+13491d16011546d7b484d7cb5d9cb4e2af9a66b5d9588cee
+case rgrid-nn-pbgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+175e488da744f65d45c7c550
+f5c97c50eeb2fc10950b4ebc
+31635662f27c7fa59b6b997a
+case rcol-linear-1-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b8
+case rcol-linear-1-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+db
+db
+case rcol-linear-1-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fa
+fa
+fa
+case rcol-linear-1-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+46
+46
+46
+46
+case rcol-linear-1-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+67
+67
+67
+67
+67
+case rcol-linear-1-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+04
+04
+04
+04
+04
+04
+case rcol-linear-1-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+25
+25
+25
+25
+25
+25
+25
+case rcol-linear-1-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+case rcol-linear-1-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+case rcol-linear-1-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+case rcol-linear-1-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+case rcol-linear-1-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4e
+4e
+4e
+4e
+4e
+4e
+4e
+4e
+4e
+4e
+4e
+4e
+case rcol-linear-1-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+6f
+case rcol-linear-1-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+0c
+case rcol-linear-1-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+2d
+case rcol-linear-1-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+ca
+case rcol-linear-1-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+eb
+case rcol-linear-2-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+67
+case rcol-linear-2-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+35
+7b
+case rcol-linear-2-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+14
+46
+7a
+case rcol-linear-2-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f3
+d5
+9a
+7d
+case rcol-linear-2-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d2
+c9
+a7
+84
+7c
+case rcol-linear-2-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b1
+b1
+a0
+8f
+7f
+7f
+case rcol-linear-2-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+90
+90
+8c
+87
+81
+7e
+7e
+case rcol-linear-2-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7f
+7f
+7d
+79
+76
+72
+71
+71
+case rcol-linear-2-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5e
+5e
+5e
+62
+66
+6a
+6e
+70
+70
+case rcol-linear-2-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3d
+3d
+3d
+47
+52
+5d
+68
+72
+73
+73
+case rcol-linear-2-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1c
+1c
+1c
+27
+37
+46
+56
+66
+72
+72
+72
+case rcol-linear-2-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fb
+fb
+fb
+f0
+da
+c3
+ad
+97
+80
+75
+75
+75
+case rcol-linear-2-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+da
+da
+da
+d6
+c6
+b6
+a7
+97
+87
+77
+74
+74
+74
+case rcol-linear-2-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b9
+b9
+b9
+b9
+af
+a6
+9c
+93
+8a
+80
+77
+77
+77
+77
+case rcol-linear-2-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+98
+98
+98
+98
+94
+90
+8b
+87
+82
+7d
+79
+76
+76
+76
+76
+case rcol-linear-2-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+68
+68
+68
+68
+67
+65
+63
+61
+5f
+5d
+5b
+59
+58
+58
+58
+58
+case rcol-linear-2-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+49
+49
+49
+49
+49
+4b
+4d
+4f
+50
+52
+54
+56
+58
+59
+59
+59
+59
+case rcol-linear-3-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5d
+case rcol-linear-3-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+1a
+case rcol-linear-3-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8f
+5f
+c1
+case rcol-linear-3-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+60
+56
+72
+ab
+case rcol-linear-3-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+47
+50
+62
+6e
+case rcol-linear-3-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+22
+2e
+46
+47
+33
+29
+case rcol-linear-3-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+03
+0e
+30
+52
+94
+d5
+ec
+case rcol-linear-3-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e4
+db
+a5
+6f
+65
+87
+a9
+af
+case rcol-linear-3-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c5
+c5
+9f
+7a
+55
+5b
+62
+69
+6a
+case rcol-linear-3-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a6
+a6
+92
+7a
+62
+4f
+43
+37
+2d
+2d
+case rcol-linear-3-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+87
+87
+7e
+71
+64
+57
+7e
+a5
+cd
+e8
+e8
+case rcol-linear-3-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+59
+59
+4f
+3b
+28
+14
+14
+27
+39
+4c
+56
+56
+case rcol-linear-3-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+78
+78
+6f
+56
+3d
+23
+0a
+29
+49
+68
+88
+93
+93
+case rcol-linear-3-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1b
+1b
+1a
+16
+12
+0e
+0a
+1e
+4a
+75
+a0
+cc
+d4
+d4
+case rcol-linear-3-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3a
+3a
+3a
+30
+26
+1c
+12
+08
+09
+0b
+0d
+0f
+10
+11
+11
+case rcol-linear-3-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+dd
+dd
+dd
+bc
+96
+6f
+48
+22
+15
+21
+2e
+3a
+47
+52
+52
+52
+case rcol-linear-3-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fc
+fc
+fc
+e0
+b6
+8c
+62
+38
+0e
+26
+3e
+56
+6e
+86
+97
+97
+97
+case rcol-linear-4-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5e
+case rcol-linear-4-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0a
+f5
+case rcol-linear-4-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+29
+1b
+90
+case rcol-linear-4-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d5
+07
+7b
+e7
+case rcol-linear-4-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f4
+4d
+61
+b7
+a8
+case rcol-linear-4-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+97
+4e
+2d
+d0
+ed
+e1
+case rcol-linear-4-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b6
+76
+11
+1f
+44
+85
+ae
+case rcol-linear-4-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0a
+47
+c1
+c9
+5f
+5d
+c3
+f7
+case rcol-linear-4-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2b
+4d
+ac
+fe
+f7
+ef
+d9
+c1
+b8
+case rcol-linear-4-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+48
+59
+a1
+e9
+e3
+c1
+af
+cc
+e9
+f1
+case rcol-linear-4-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+69
+6f
+a5
+da
+e9
+b5
+80
+7f
+9c
+ba
+be
+case rcol-linear-4-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8e
+8e
+b1
+d5
+f9
+b6
+72
+2e
+72
+b6
+fa
+fb
+case rcol-linear-4-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+af
+af
+c3
+da
+f2
+f7
+f3
+ee
+e4
+d3
+c2
+b4
+b4
+case rcol-linear-4-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cc
+cc
+d5
+e1
+ee
+f2
+dc
+c7
+b1
+bd
+d4
+eb
+fd
+fd
+case rcol-linear-4-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ed
+ed
+ee
+f2
+f5
+f8
+d7
+b1
+8a
+6b
+7e
+92
+a5
+b2
+b2
+case rcol-linear-4-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+02
+02
+20
+5d
+9a
+d7
+d7
+9a
+5e
+21
+14
+36
+59
+7b
+8d
+8d
+case rcol-linear-4-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+23
+23
+35
+66
+99
+cb
+f5
+ea
+de
+d3
+c7
+c5
+c4
+c3
+c2
+c2
+c2
+case rcol-linear-5-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c2
+case rcol-linear-5-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e5
+71
+case rcol-linear-5-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e8
+40
+d8
+case rcol-linear-5-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+49
+cb
+7b
+dd
+case rcol-linear-5-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1a
+ac
+3b
+62
+26
+case rcol-linear-5-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+79
+a1
+91
+5a
+5a
+ed
+case rcol-linear-5-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+58
+89
+b1
+b8
+7c
+52
+3c
+case rcol-linear-5-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bf
+b5
+ae
+e0
+b6
+2e
+7c
+c3
+case rcol-linear-5-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9e
+a1
+a6
+79
+3f
+59
+63
+30
+12
+case rcol-linear-5-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fd
+e8
+bf
+9e
+84
+63
+3b
+53
+ac
+d9
+case rcol-linear-5-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+dc
+d3
+bc
+ab
+b4
+bc
+96
+6f
+45
+19
+08
+case rcol-linear-5-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+33
+40
+70
+a0
+b7
+cc
+bc
+87
+58
+67
+76
+7b
+case rcol-linear-5-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+12
+1c
+55
+8d
+82
+4a
+12
+14
+16
+2e
+66
+9e
+aa
+case rcol-linear-5-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+71
+72
+86
+99
+9e
+81
+63
+54
+52
+51
+54
+5a
+60
+61
+case rcol-linear-5-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+50
+50
+6c
+89
+a5
+9e
+97
+90
+6a
+44
+1e
+4e
+7e
+af
+b0
+case rcol-linear-5-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b7
+b7
+b0
+a9
+a3
+ab
+bb
+cb
+c0
+9a
+75
+59
+56
+52
+4f
+4f
+case rcol-linear-5-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+96
+96
+98
+9b
+9e
+8f
+67
+3e
+16
+15
+14
+14
+2c
+54
+7d
+9e
+9e
+case rcol-linear-6-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+76
+case rcol-linear-6-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+16
+3c
+case rcol-linear-6-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+73
+b4
+8d
+case rcol-linear-6-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+22
+aa
+6f
+90
+case rcol-linear-6-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+09
+13
+6d
+c2
+73
+case rcol-linear-6-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6a
+12
+5c
+88
+08
+99
+case rcol-linear-6-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4b
+1f
+68
+af
+cd
+ba
+49
+case rcol-linear-6-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a4
+4f
+6c
+f3
+f7
+c7
+b8
+d1
+case rcol-linear-6-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+85
+51
+21
+31
+75
+ad
+85
+3e
+01
+case rcol-linear-6-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e6
+96
+1e
+4f
+8d
+e1
+de
+b0
+d7
+f2
+case rcol-linear-6-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c7
+91
+35
+5b
+ad
+b2
+ad
+81
+58
+36
+22
+case rcol-linear-6-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+20
+1e
+1a
+4f
+bf
+f6
+f4
+de
+b3
+a4
+b0
+b6
+case rcol-linear-6-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+01
+05
+10
+1b
+27
+36
+75
+b5
+8d
+5b
+56
+61
+66
+case rcol-linear-6-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+62
+57
+38
+1a
+40
+67
+98
+cd
+e2
+b3
+84
+8b
+92
+95
+case rcol-linear-6-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+43
+3f
+2f
+1f
+47
+83
+b1
+b6
+bb
+9e
+74
+53
+4d
+46
+45
+case rcol-linear-6-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9d
+97
+77
+57
+3c
+26
+11
+25
+40
+56
+4e
+46
+5f
+97
+cf
+d9
+case rcol-linear-6-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bc
+b8
+8f
+65
+51
+80
+af
+b0
+71
+31
+2f
+5b
+86
+6e
+3d
+0d
+09
+case rcol-linear-7-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1b
+case rcol-linear-7-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+52
+91
+case rcol-linear-7-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+53
+1d
+76
+case rcol-linear-7-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7a
+26
+b9
+a9
+case rcol-linear-7-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+a6
+6d
+14
+77
+case rcol-linear-7-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cb
+62
+6f
+8b
+ed
+d8
+case rcol-linear-7-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f6
+4c
+60
+6b
+04
+26
+cc
+case rcol-linear-7-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+11
+40
+2f
+29
+87
+e4
+a6
+76
+case rcol-linear-7-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+30
+41
+8e
+c8
+61
+36
+49
+65
+6c
+case rcol-linear-7-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+53
+4d
+5e
+9c
+52
+68
+dd
+a5
+64
+2f
+case rcol-linear-7-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+72
+5e
+4a
+5c
+65
+66
+44
+34
+3f
+3a
+35
+case rcol-linear-7-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ce
+c3
+b3
+8f
+6b
+4d
+4d
+6d
+5e
+46
+6e
+88
+case rcol-linear-7-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ef
+dc
+bc
+b4
+b6
+96
+71
+8c
+a3
+9a
+93
+92
+92
+case rcol-linear-7-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8c
+95
+a7
+c0
+e0
+c2
+66
+45
+60
+6c
+68
+81
+b6
+d1
+case rcol-linear-7-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ad
+ad
+af
+a0
+66
+39
+58
+76
+98
+b9
+bb
+b8
+bd
+c6
+cb
+case rcol-linear-7-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4a
+5a
+8a
+b4
+98
+7c
+5e
+40
+35
+3b
+3d
+30
+23
+42
+64
+71
+case rcol-linear-7-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6b
+73
+93
+b2
+b5
+b3
+a9
+93
+7d
+85
+8d
+a7
+d0
+eb
+b3
+7b
+6b
+case rcol-linear-8-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1a
+case rcol-linear-8-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c8
+4c
+case rcol-linear-8-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b5
+1f
+2e
+case rcol-linear-8-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+80
+53
+7d
+6f
+case rcol-linear-8-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7e
+9d
+11
+f4
+cc
+case rcol-linear-8-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1e
+cc
+66
+b4
+6f
+e3
+case rcol-linear-8-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2b
+9a
+0f
+03
+8f
+d1
+5d
+case rcol-linear-8-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+e1
+a6
+e4
+11
+40
+0e
+66
+case rcol-linear-8-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+de
+df
+86
+8e
+b5
+ad
+6d
+33
+d4
+case rcol-linear-8-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bd
+d7
+84
+5c
+cd
+20
+48
+5d
+7a
+d0
+case rcol-linear-8-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9c
+c5
+e1
+de
+b8
+c3
+d1
+b4
+6d
+55
+62
+case rcol-linear-8-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7b
+af
+da
+ad
+c4
+c8
+45
+25
+49
+d4
+96
+35
+case rcol-linear-8-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5a
+94
+df
+92
+78
+9f
+cd
+f4
+f6
+f3
+ed
+b2
+87
+case rcol-linear-8-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+39
+76
+da
+84
+2e
+a3
+c9
+64
+2a
+08
+58
+aa
+92
+83
+case rcol-linear-8-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+18
+55
+c3
+e5
+e5
+c7
+a3
+c7
+ed
+df
+d0
+bf
+9e
+58
+31
+case rcol-linear-8-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f7
+f3
+ec
+d2
+a5
+92
+9a
+9d
+9d
+88
+60
+75
+c8
+e1
+c1
+b1
+case rcol-linear-8-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d6
+d9
+e2
+d1
+86
+55
+95
+cd
+8f
+50
+6f
+94
+b8
+dc
+9e
+32
+03
+case rgrid-linear-gray8-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e9dcb79266392b
+9197abbe7d3b25
+797e8d9c642a18
+61605e5c4b3a35
+060f2a45688a96
+case rgrid-linear-gray8-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a01a
+a01c
+a428
+a834
+a736
+a22f
+9c29
+9c28
+case rgrid-linear-gray8-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+aba69a919ca790746a
+afa68d7b93ab9a837a
+bda76b3f7bb8b7aca8
+c0a14c0d66c0cccdcd
+7869412565a5b3babd
+3031353d648a9aa7ad
+7974686075898e9294
+d8c9a585888b857d7b
+fceabc93908d827672
+case rgrid-linear-gray8-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8f1eb9
+7f32ae
+596396
+438791
+5b82c6
+757af5
+a55de2
+d53fcf
+8585db
+29d5e9
+2d9fcb
+533b9e
+63118c
+case rgrid-linear-gray8-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+659e061a6b48
+659e061a6b48
+6dac1837596c
+78bf325f429e
+84d34b872bd1
+8de25fa61af7
+8de25fa61af7
+case rgrid-linear-gray8-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+72a77e
+d9eacf
+bbee62
+case rgrid-linear-bgr24-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+e9922bd79b29a1b7266cd22377a41983751088660d
+4a5c755b697893917fcbb986afc27893cb6a8acf65
+554f9c5f5a977d7f879ca3769cb8849dcc919ed496
+bf71b4ad78a877908742a86662b07284b67f90b984
+fbaadbe0afd890c1d241d2cc41d69042da5443dc40
+case rgrid-linear-bgr24-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+4c26f175718a
+4a2aeb717185
+4345c75b7667
+3b5fa3457a4a
+3d6a993a8d51
+4864a83caf7c
+535eb73dd1a7
+555eba3ed7af
+case rgrid-linear-bgr24-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+ab90a9a0998d83b2426fc9029dcc13cacf2497b55a5597943d8cab
+b890a4ab958c88a44b6fb41398bf1cc0cb2597ab596285934f77a9
+dc9297ca8d89988165717b448c9e37a7c22b9a92598657908041a5
+f2978ede8988a66579774c6984824b90b82e988055a03888a41d9b
+a9b198a7a488a3825f9d6939948b2f8bae25809b3d75815a717866
+5fcba370bf899fa044c38709a5941286a31c68b72549cc2d3ed431
+3599994d9184907e4dc96f20bc7238af7551999a5f82c46c79d471
+105b8c2d597f80545bc94f41d44868df4190d674a7c9afbbc5c6c3
+02448822447d7a4461c9434edd397bf22ea8ed66c2e5a8dae2c1e3
+case rgrid-linear-bgr24-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+352cbf5f408a04df40
+3637a365439c20ba3d
+3a5462764bc7656136
+496c3c7d56da9f2644
+76766c666aa1b84a8d
+9d7d93537c6bcc6ecb
+6d615b6c725a9a9185
+3d442384684969b43e
+4b84708f585b94a228
+60cdc8974771c78b15
+6bc7caae687abd9d3d
+72a6aecb997f9ebd79
+7699a3d7af8191cb93
+case rgrid-linear-bgr24-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+659e061a6b488de25fa61af71a96f8495384
+659e061a6b488de25fa61af71a96f8495384
+5b892b28603d75d8649326cb3f9fe85a689b
+4e6c5e3d512f55cc6c7b379071abd37386bb
+40509151422035bf74624954a4b8bd8ba3db
+373bb86137161eb67a505628cbc2ae9ebaf3
+373bb86137161eb67a505628cbc2ae9ebaf3
+case rgrid-linear-bgr24-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+b2b1adadd3b3dc79aa
+3f509a847bbb4f527d
+7ebf437dabda49605a
+case rgrid-linear-bgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+e9922a6ce483366bdc535d68d22384666a12647a20084a8f0d064596
+f3a88f82f2a2927cf088946cee699b5cae4a8959692b725753236a56
+c9aca6c3c8ae9ebcc6b782a8c3c15f95bea5726fbc659d49b742b73d
+aaab9db8a4b194b994c47dbd84d666c28ec77d9d9faca378a5a0b56c
+1de16b1a11d6a22c0fced3630ecbdf9a4dd7bdb47edea3ce8be19cd7
+case rgrid-linear-bgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+0cee97a79a36423d
+0ced959f9e394142
+1ee68674bc553d60
+45d56549ca613a7e
+6e937245cc5c3984
+6e64a968cb453f71
+6e4bc28bc622455f
+6e49c691c71e485c
+case rgrid-linear-bgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+aa90a86ab368b37ac022c5a8c202cdcd801ab2bd323890ad65568d94cb7e8c7bfc938c72
+8e88a178986ca884a935b0a8ad19b4c67634a4bc385392b16560909aba6b8b82e372897a
+5d79989f60748fa2696678ab6f6168b45a7d81b9469898bf667895ac96438998ad2e8490
+407193b93c7781b5328f4cab2ba620a540ba65b351ca9dc2678b9bb880338cac8c1086a7
+3a679f76326a8e7f1f6e699b177555b02d8e78984bafa881779cac989587a7b79e82a6c3
+2342d1321444ac4a07458d8b044783bc104f947d395ecd3e8fb6c777a6d2bfc2acd8bddf
+174fb7200a4b9d2f05448c59044386791545a0544a4ad93094b0c554add6b883b1e0b795
+0b9651160a7f55180f5c73210c4a88293c4eb02a6754da2a9a8fb930bac89638c6d88e3b
+0ec60e120fbf0f10279c3a0d3f6a7f0c6b58c41a7959d828a074ae23daad5b1cf5c4311a
+case rgrid-linear-bgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+1dcdc4575f5b3ace7d99613f
+59b3c36c5d5340c78e734254
+ac96c69e5a3b50b79f471f88
+ce8ac4bd5528609ea74b19b2
+cf91baa150247269a89732c0
+d29ea789411e9e3aa7d245c9
+debd75a7811fa05191b6559e
+e8d451c5a41fa4686a826e73
+d6dc5285a662877c546f8657
+8eee5b3da6986f903356b53b
+76cd3758a994577a45576c49
+82bc2795b1732c565a5c2a66
+86b924afb75d0e4762601a72
+case rgrid-linear-bgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+629c091a6b488de25ea619f71896f8495285383bb95c3916
+629c091a6b488de25ea619f71896f8495285383bb95c3916
+3ea53725664198db6ea33bf60d71d25c996a995d882f7636
+2cb05d346139a8d285a268f50854b176c259d28b7e248861
+21b470445a2fbbc89da097f305419c91d752efba78208f8e
+1cb579505527cac2ae9eb9f3033792a5df4ffcde771e93af
+1cb579505527cac2ae9eb9f3033792a5df4ffcde771e93af
+case rgrid-linear-bgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+8e489b4d3a4b83f7a3db987a
+26b1a948ae1d20be3dbec167
+c45544b373ae3f988bbbc379
+case rgrid-linear-pbgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+e9922b6ce582386bdc526068d32387667e166b7a290a4f8f0d064696
+f1a68a82f09d8c7cf085946cef6c9c5cbc5290598738835776307f56
+d3adaac3d3ada2bcd3b08aa8d3b27395c782916fbb52af49b743b93d
+85bb91b884be8cb980ca7ebd7cd56fc295ab959db07fbb78b971c96c
+20e36d1a1ddf7d2c17d5ae6311ccdf9a45d4c3b47adda6ce8ce19dd7
+case rgrid-linear-pbgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+33dba9a79c37423d
+35d7a09f9f384042
+43c16c74b2413a60
+51ab3849c64b347e
+5a8d3f45ce473584
+5e677f68ca353d71
+6341bf8bc723455f
+643bca91c720475c
+case rgrid-linear-pbgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+ab90a96aaf78af7abd38c1a8c003cdcd781eaebd303990ad795e8c94d8858c7bfc948d72
+998ba5789c78a684a647aca8a81eafc66e37a0bc355191b176638d9ac9758b82e97c8b7a
+6b7e9b9f6a7a90a2697074ab67695fb4557e7ab9459297bf6f7292aca2498898b63b8690
+3f6f97b93b7881b5319049ab2ba620a53eb55fb352c4a0c26a7f9ab8822c8aac8b0e85a7
+2f55b9762b5aa77f206a769b197853b031818b984a8ac4816b81bb988e75a7b79b71a1c3
+1f3bdc321a3ccd4a0e44a48b074a86bc244cb87d424fe93e6c83db779abec5c2abd4bddf
+166f8f20166b8b2f196182591f5781793b54b3545750e4308484c554b5c19983c8d78a95
+0eaf301615a53a18298855213e6e74295764a62a705ada2aa085a630d3b96338e7cc4a3b
+0cc80d1215bb1c102f97450d4a776f0c626ba21a7a5ed628ab869b23dfb64f1cf3c8331a
+case rgrid-linear-pbgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+2bc5bb57605a3dce96ca223f
+4bbabe6c5f5143c799ac1f54
+989fc69e5d3b51b7a1641888
+d28cc8bd582c619ea74019b2
+cf90bca14c337269a68d2fc0
+cd96ae894438833aa2d245c9
+d8b189a77829835188ab5a9e
+e4cd64c5ab1a83686e856f73
+c4e16185b259817c477d9657
+a1f4623db4a07f902079be3b
+94e45558b793597a2e748949
+8dc94495bb6b26564e6f3466
+8bbe3dafbd5a11475c6e1072
+case rgrid-linear-pbgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+659e061a6b488de25fa61af71a96f8495384373bb8613716
+659e061a6b488de25fa61af71a96f8495384373bb8613716
+56a31e2566419adb6fa43bf61581e25c7078605daa534a36
+41a93f346038abd286a269f50e66c5769869998b97406461
+2db061445a2ebdc89d9f97f3074ba891c15ad2ba842d7f8e
+1eb67a505628cbc2ae9ebaf3033793a5e04ffdde771f93af
+1eb67a505628cbc2ae9ebaf3033793a5e04ffdde771f93af
+case rgrid-linear-pbgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+9d88814d3b4b82f7a5d4857a
+5fa3d948ad1e21be51bd9367
+b94c47b377ae3c986eb0aa79
+case rcol-cubic-1-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+case rcol-cubic-1-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+22
+22
+case rcol-cubic-1-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+03
+03
+03
+case rcol-cubic-1-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ec
+ec
+ec
+ec
+case rcol-cubic-1-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cd
+cd
+cd
+cd
+cd
+case rcol-cubic-1-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ae
+ae
+ae
+ae
+ae
+ae
+case rcol-cubic-1-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8f
+8f
+8f
+8f
+8f
+8f
+8f
+case rcol-cubic-1-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+68
+68
+68
+68
+68
+68
+68
+68
+case rcol-cubic-1-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+49
+49
+49
+49
+49
+49
+49
+49
+49
+case rcol-cubic-1-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2a
+2a
+2a
+2a
+2a
+2a
+2a
+2a
+2a
+2a
+case rcol-cubic-1-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0b
+0b
+0b
+0b
+0b
+0b
+0b
+0b
+0b
+0b
+0b
+case rcol-cubic-1-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d5
+d5
+d5
+d5
+d5
+d5
+d5
+d5
+d5
+d5
+d5
+d5
+case rcol-cubic-1-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+f4
+case rcol-cubic-1-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+97
+97
+97
+97
+97
+97
+97
+97
+97
+97
+97
+97
+97
+97
+case rcol-cubic-1-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+b6
+case rcol-cubic-1-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+case rcol-cubic-1-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+70
+case rcol-cubic-2-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+93
+case rcol-cubic-2-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+28
+case rcol-cubic-2-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c6
+76
+20
+case rcol-cubic-2-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5c
+50
+36
+2a
+case rcol-cubic-2-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7d
+73
+54
+34
+29
+case rcol-cubic-2-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+19
+1a
+1f
+26
+2b
+2d
+case rcol-cubic-2-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3a
+3a
+37
+33
+2f
+2c
+2c
+case rcol-cubic-2-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+80
+82
+8c
+a2
+ba
+d0
+da
+dc
+case rcol-cubic-2-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a3
+a4
+a8
+b1
+bd
+ca
+d4
+d8
+d9
+case rcol-cubic-2-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c2
+c2
+c3
+c6
+ca
+ce
+d2
+d4
+d6
+d6
+case rcol-cubic-2-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e6
+e6
+e5
+e3
+e0
+dc
+d8
+d5
+d3
+d2
+d2
+case rcol-cubic-2-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+00
+00
+0b
+29
+52
+7e
+a5
+c6
+d9
+e1
+e1
+case rcol-cubic-2-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+16
+16
+1a
+25
+3b
+58
+77
+98
+b6
+cd
+d9
+de
+de
+case rcol-cubic-2-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+35
+35
+37
+3e
+4e
+62
+7a
+93
+ac
+c0
+cf
+d8
+db
+db
+case rcol-cubic-2-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+59
+58
+5a
+5e
+67
+73
+85
+96
+a9
+bb
+c8
+d1
+d6
+d8
+d7
+case rcol-cubic-2-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+88
+88
+88
+8b
+90
+99
+a4
+b0
+bc
+c8
+d3
+dc
+e1
+e4
+e4
+e4
+case rcol-cubic-2-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ab
+ab
+ab
+ad
+af
+b3
+b8
+bf
+c5
+cc
+d3
+d8
+dd
+df
+e1
+e1
+e1
+case rcol-cubic-3-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+da
+case rcol-cubic-3-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+65
+ce
+case rcol-cubic-3-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+69
+d8
+0d
+case rcol-cubic-3-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b9
+92
+90
+b5
+case rcol-cubic-3-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+97
+90
+85
+7a
+75
+case rcol-cubic-3-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fc
+e0
+a2
+6c
+3f
+2b
+case rcol-cubic-3-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d9
+cb
+9f
+86
+ad
+e7
+fb
+case rcol-cubic-3-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2d
+35
+50
+71
+8c
+a3
+b5
+bb
+case rcol-cubic-3-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+09
+11
+32
+5f
+80
+84
+7a
+72
+70
+case rcol-cubic-3-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6f
+70
+75
+7f
+84
+7b
+62
+46
+33
+2f
+case rcol-cubic-3-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4c
+4e
+55
+60
+6e
+81
+9e
+c0
+e1
+f3
+f8
+case rcol-cubic-3-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c2
+c1
+ba
+ac
+9c
+8f
+8a
+8d
+92
+98
+9a
+9b
+case rcol-cubic-3-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+9e
+9d
+9b
+97
+93
+8d
+84
+77
+6a
+61
+5c
+5b
+case rcol-cubic-3-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+ff
+fb
+ea
+d2
+b6
+9b
+82
+65
+47
+2f
+1b
+11
+0f
+case rcol-cubic-3-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e1
+e0
+dc
+d0
+bc
+a6
+95
+8f
+95
+a5
+bb
+cf
+dc
+e1
+e2
+case rcol-cubic-3-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+35
+35
+39
+43
+51
+63
+74
+82
+8c
+92
+97
+9a
+9c
+9e
+9f
+9f
+case rcol-cubic-3-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+12
+12
+16
+22
+35
+4f
+68
+7c
+88
+89
+83
+77
+6a
+5f
+5a
+57
+57
+case rcol-cubic-4-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c9
+case rcol-cubic-4-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c8
+b5
+case rcol-cubic-4-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c7
+7f
+83
+case rcol-cubic-4-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2c
+a1
+23
+cc
+case rcol-cubic-4-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+06
+72
+d1
+d1
+7f
+case rcol-cubic-4-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6a
+87
+a5
+9f
+b4
+cc
+case rcol-cubic-4-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+49
+6b
+a0
+87
+63
+77
+87
+case rcol-cubic-4-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+a6
+b5
+89
+22
+25
+93
+c6
+case rcol-cubic-4-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7d
+85
+9a
+ad
+bb
+c8
+db
+f0
+f8
+case rcol-cubic-4-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e5
+df
+cb
+b4
+a0
+90
+8d
+a0
+b8
+bf
+case rcol-cubic-4-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c4
+c2
+bf
+b8
+a3
+71
+49
+5f
+a9
+ee
+ff
+case rcol-cubic-4-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1a
+22
+50
+8b
+a9
+7e
+33
+0a
+30
+7a
+b4
+c2
+case rcol-cubic-4-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+01
+27
+60
+98
+b6
+c2
+c8
+d3
+e2
+f0
+f9
+fc
+case rcol-cubic-4-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+60
+63
+71
+89
+a1
+ab
+a3
+93
+88
+8b
+98
+a8
+b1
+b2
+case rcol-cubic-4-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3f
+42
+52
+73
+95
+a9
+9d
+78
+54
+4e
+73
+ae
+e7
+ff
+ff
+case rcol-cubic-4-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+92
+94
+a0
+b9
+d6
+ee
+fb
+ff
+ff
+fe
+e0
+a7
+64
+2c
+0f
+0a
+case rcol-cubic-4-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b3
+b4
+bb
+cf
+e8
+f9
+f5
+d3
+9c
+5f
+38
+2e
+35
+45
+52
+56
+57
+case rcol-cubic-5-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+32
+case rcol-cubic-5-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+db
+33
+case rcol-cubic-5-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a1
+b1
+3d
+case rcol-cubic-5-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+fe
+8a
+41
+case rcol-cubic-5-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b0
+ff
+1f
+2f
+91
+case rcol-cubic-5-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d1
+fe
+9b
+52
+64
+59
+case rcol-cubic-5-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f1
+ff
+ea
+9e
+3c
+48
+90
+case rcol-cubic-5-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+06
+77
+ff
+f5
+bc
+6f
+6a
+74
+case rcol-cubic-5-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+26
+75
+f5
+a9
+1c
+0a
+2c
+7d
+ad
+case rcol-cubic-5-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4b
+7b
+e2
+e3
+7e
+53
+63
+6b
+6d
+6e
+case rcol-cubic-5-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6c
+87
+d2
+f9
+d4
+9a
+56
+25
+4e
+a7
+ca
+case rcol-cubic-5-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d8
+bb
+55
+05
+22
+74
+92
+80
+7d
+b2
+ee
+ff
+case rcol-cubic-5-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fc
+e2
+80
+17
+00
+26
+49
+47
+39
+30
+2c
+2a
+29
+case rcol-cubic-5-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+91
+85
+56
+1d
+00
+00
+02
+1a
+41
+6d
+94
+be
+de
+e8
+case rcol-cubic-5-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b5
+aa
+70
+25
+00
+32
+8e
+c7
+ac
+6a
+36
+28
+2b
+30
+2f
+case rcol-cubic-5-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+53
+4f
+39
+18
+06
+19
+4b
+7d
+8e
+81
+70
+74
+92
+b7
+d0
+d6
+case rcol-cubic-5-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+76
+71
+59
+33
+10
+06
+1a
+39
+4d
+50
+4b
+42
+39
+2e
+24
+1d
+1b
+case rcol-cubic-6-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+55
+case rcol-cubic-6-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+09
+6d
+case rcol-cubic-6-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+46
+9e
+c0
+case rcol-cubic-6-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+37
+8d
+0b
+2a
+case rcol-cubic-6-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+61
+1f
+57
+74
+ec
+case rcol-cubic-6-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+04
+0d
+20
+0c
+59
+00
+case rcol-cubic-6-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+25
+01
+a8
+a0
+49
+97
+d1
+case rcol-cubic-6-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+8a
+43
+61
+a0
+aa
+81
+48
+case rcol-cubic-6-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e2
+93
+51
+8e
+d0
+db
+5e
+6a
+a0
+case rcol-cubic-6-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bf
+8d
+51
+a4
+d9
+ac
+92
+84
+75
+6d
+case rcol-cubic-6-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9c
+87
+5c
+2e
+18
+87
+ef
+96
+56
+9a
+c6
+case rcol-cubic-6-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+82
+76
+5b
+51
+56
+6f
+9b
+b2
+b4
+90
+44
+22
+case rcol-cubic-6-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5e
+5b
+52
+59
+77
+9c
+c8
+e5
+b9
+7e
+9a
+e5
+ff
+case rcol-cubic-6-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3b
+3e
+42
+54
+90
+d1
+db
+bc
+ab
+b7
+b1
+6c
+1a
+00
+case rcol-cubic-6-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+17
+1f
+3c
+55
+45
+1c
+22
+7d
+d9
+cd
+82
+63
+91
+ce
+e0
+case rcol-cubic-6-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fe
+ed
+b0
+6c
+50
+57
+6d
+97
+ce
+d7
+8b
+2c
+0b
+21
+3d
+43
+case rcol-cubic-6-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+da
+d0
+a4
+6c
+59
+7a
+a7
+b7
+a8
+95
+98
+af
+c1
+bc
+a4
+90
+8c
+case rcol-cubic-7-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+case rcol-cubic-7-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+80
+00
+case rcol-cubic-7-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4b
+97
+db
+case rcol-cubic-7-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9b
+6f
+4b
+31
+case rcol-cubic-7-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+63
+db
+46
+b7
+6e
+case rcol-cubic-7-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+36
+ff
+9f
+2e
+40
+1e
+case rcol-cubic-7-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0f
+ea
+38
+40
+84
+e6
+07
+case rcol-cubic-7-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e7
+f3
+a2
+28
+2f
+7e
+7b
+bf
+case rcol-cubic-7-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c7
+e4
+e1
+a5
+4a
+96
+aa
+a2
+a7
+case rcol-cubic-7-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a6
+cf
+fa
+ff
+4c
+0e
+62
+4c
+8d
+eb
+case rcol-cubic-7-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+84
+c0
+e8
+67
+2f
+4b
+91
+a9
+7f
+c1
+ff
+case rcol-cubic-7-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5b
+92
+e0
+9b
+51
+61
+8c
+c4
+74
+19
+76
+c2
+case rcol-cubic-7-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3a
+6e
+d3
+d4
+9a
+69
+3d
+14
+17
+87
+ce
+b2
+9f
+case rcol-cubic-7-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+18
+4c
+bd
+ef
+e2
+bd
+80
+86
+cd
+bb
+50
+50
+bb
+ec
+case rcol-cubic-7-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+28
+ad
+da
+68
+0c
+1e
+3a
+1a
+02
+55
+d2
+ff
+fc
+fc
+case rcol-cubic-7-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+df
+e2
+ed
+e2
+9e
+58
+50
+6c
+98
+dc
+f4
+c0
+81
+5d
+46
+3c
+case rcol-cubic-7-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+be
+c3
+d8
+e4
+d2
+ae
+85
+56
+30
+1e
+1d
+40
+87
+ae
+90
+62
+54
+case rcol-cubic-8-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d2
+case rcol-cubic-8-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6f
+6c
+case rcol-cubic-8-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a6
+b6
+87
+case rcol-cubic-8-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cc
+d2
+41
+6d
+case rcol-cubic-8-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ec
+6e
+b3
+9c
+13
+case rcol-cubic-8-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a0
+6f
+ce
+01
+65
+1b
+case rcol-cubic-8-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ba
+c5
+cf
+b3
+a2
+75
+a0
+case rcol-cubic-8-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+55
+b2
+82
+a9
+a6
+1d
+3e
+23
+case rcol-cubic-8-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+72
+b1
+56
+af
+b5
+94
+ab
+26
+93
+case rcol-cubic-8-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+10
+93
+5a
+1f
+b7
+c1
+5d
+46
+75
+96
+case rcol-cubic-8-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2f
+7e
+be
+c5
+e3
+a2
+7d
+ec
+a8
+53
+22
+case rcol-cubic-8-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d2
+c6
+ae
+89
+92
+a4
+96
+80
+82
+c2
+a2
+6b
+case rcol-cubic-8-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f3
+df
+b4
+5a
+63
+e3
+9e
+42
+89
+c2
+dc
+d0
+c0
+case rcol-cubic-8-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+90
+a4
+b8
+57
+05
+69
+a9
+92
+74
+58
+74
+a1
+bb
+c8
+case rcol-cubic-8-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b1
+b2
+b3
+b7
+be
+da
+ed
+a5
+57
+6d
+8a
+89
+81
+78
+72
+case rcol-cubic-8-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+09
+18
+38
+6f
+bf
+dd
+c9
+91
+33
+2a
+77
+81
+46
+43
+76
+8d
+case rcol-cubic-8-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2c
+34
+49
+47
+18
+1b
+93
+fb
+f9
+ce
+9c
+64
+3f
+26
+25
+35
+3b
+case rgrid-cubic-gray8-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7386c2e099340f
+6576a8c8a87462
+9893817a95b9c7
+c4ad683a62a5bc
+a1926a45332c28
+case rgrid-cubic-gray8-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c52b
+c041
+b294
+9dea
+7bee
+46a0
+1b52
+0e3f
+case rgrid-cubic-gray8-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2343a4e1cd9f857168
+3a55a5d9ccab998983
+7a85a6c1cdd2d5d6d7
+b3b1aaaec7e3edeff2
+e7dbb9a5b7c9b38c7f
+f9ebc2a2a199662106
+a9aab1a9885f45322a
+294393b66f1d367b92
+001d88bb65042e94b7
+case rgrid-cubic-gray8-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c855ef
+cf5af0
+e368f5
+cb72e3
+5c76a5
+106d76
+463e83
+9e22a1
+d477ae
+eee5b7
+b3dfbe
+479ac1
+1a7ec2
+case rgrid-cubic-gray8-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ffe920757ceb
+ffe124787feb
+e2bb338a89e9
+a6794ea89be5
+66326bc8afe1
+410a7cdabade
+390080debdde
+case rgrid-cubic-gray8-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8d5682
+b10684
+bb296a
+case rgrid-cubic-bgr24-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+79e91a78e12b70d25c72b78d9281b4b948d1c731dd
+946325836e294d8c2b27a8433fb6936cbdee7bc0ff
+cb6150be5c509a484c78494f6a8e6964e38761ff8c
+f6b581eaa17cc8616ea73c5a966f3a8dbe1a89da0e
+f8d195d0d47d56dd3702de0238c3129ba23abe9549
+case rgrid-cubic-bgr24-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+366f6ce3710e
+40736bd87621
+617d67b28365
+878a668595b0
+968f706aa9cb
+908e865cc1ba
+878d9b55d4a3
+868ca051da9f
+case rgrid-cubic-bgr24-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+36e2a93fd9ac55beb076b6bdb2e0e3e4fff2dce19eb79d1aab8400
+2edd8e39d38f58b2927ea29db6bcd0e3d8f3d1c2afa099408f8a1b
+10d24025c13d5c8d38916440c4509bdf4df5af65e45a8eb23c9da0
+0ec00927af056c7f00a74f07cf1b7ada00f39c30fe3c8aec18aae5
+54a60067a6029ea90dc79d28d66a8fd141f1ac5ae17795a963aa93
+948414a1961dc5d032ddee55d7cba1c99ddbc597aac4a047c3a323
+6c59587b6d52a6aa3fc7d03ecdbe6acb9f8dd2996ad99a24dd9b0b
+142bb5293a996663469c820cbc8314d27d25da8323d88d19d99016
+0019d80d26b3504a498c6600b66f00d47200de7c07da8812da8c17
+case rgrid-cubic-bgr24-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+279376ba20955119d6
+287f75c633a45c24d0
+264a73e961cc773bc2
+46336ced7ed38c64af
+a7555dba769c94ad95
+ea7755816a6a95e180
+c4745d5d6b6787d07f
+8870724572717ea784
+8892a33f8279a68288
+92b6ce48927cd25d89
+6aa69b5d8d64bb3a7e
+2c79367b7b3c7e1b6d
+11660c88732b650e65
+case rgrid-cubic-bgr24-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+ffe7177387f23a007fdfb7e02cfac01cb8d6
+ffe01f7883ee41087cdbb8df31f2be21b7d3
+e9c0488d73da61316ec7bcdc47ccb235b2c6
+bc8a8eb255b79a7955a5c4d66d8b9d59aaaf
+8c4fd9d93691d7c53b80ccd09645877fa096
+712efff0247cf9f12c6bd0ccae1d7b949b89
+6a26fff52077fffb2966d1cbb314789a9a85
+case rgrid-cubic-bgr24-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+27b45ff14294929e78
+69d2eb12d8645a2586
+7c5b828cc47df2ceb3
+case rgrid-cubic-bgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+7be41a7480dd286b90b46655ae81b23fc975a634de92562fe796392c
+149a175641ac4c5daee1ca6fe8faff7cd3edbd7496cd34667cc10060
+52cf18a66eca26abbac64bbae6bf64bec9bf609969c04a6a41bf3c59
+71e21ecb7cd220cd9aa321dcac8126d696803e97339e8d4a00bce82e
+167248431f7676583079b299337ec8c0338bcf8b2ebbd03c27ffcf20
+case rgrid-cubic-bgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+6263a6eca347c2ed
+6262a8d4994bbde5
+6264b07c6a5fa1cd
+6e6eee1e2b7f7eae
+ff3aff0d1b9c7d96
+b43fa64854b5b581
+a8439a84a3cdfc72
+a8439893bbd7ff6d
+case rgrid-cubic-bgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+23e696734fd3b18d91c0dadbaab8edf1c2b6ff7b0000000000d9002203c6008807c200ac
+20e4965f56ccb179a0aad5d0b99edff1c698d891bf8c5f283ba7134031ae1e8f2eaf22aa
+0ee294247d9db23fde5dc0afea57b5f4d2697bd3a38b1c9a978a3497a47779a6a97290aa
+00000000ff00aa18ff13ac91f8239ae9ca4f5ef49b8121e0a97d42c7e459ada3fe49e096
+ffff3f04ec3fa31cb014ae7ea518a2c492327dcd855354b79a5b6591e658bf5cff57fb49
+ffff951d9691a6312838b86c1822bd943911c2936806c97c7012c8544b78ac2244ff770f
+95bea93f699cab460057b5570035c1684c37d57c9a3ddf898a48c97b3f5c926020677656
+549eb4674e9ab35e1b89ac412d7daf3db492c471d392c5b1a377aecb595491d4404788d9
+4797b776459bb46724a8a8385cb9a22cddb8bc6ce1a8bebfa781a9e75b5391fe46478fff
+case rgrid-cubic-bgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+5971ff3f000000004895be3f
+9497e14fad12b61c30a5b23f
+e5cdb177e01ca96b00d38e3b
+e3c4af9edd1fab901fd2824a
+9e88d5c4a91fbd629e9a9182
+6f5fecc52924df31cc829a9e
+674aff60382ab824b66aaa5b
+486d6d0789527c250900f51a
+3ae4265744bf9834aa71a858
+40c74adb0dfec14bcc8698b6
+319066ff02ffe864c27599b2
+16338cf602f8ff7d9b3fa279
+0b0c9ef300f5ff887c17a962
+case rgrid-cubic-bgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+fed8247d6dfe240e79dbb9e535f1bb269ac24326fff0127d
+fed9257c77ee330f7ad9b9e137f1ba25afcb602dffee1c7e
+fedd28799bf054127ad1b7d136e0b121d3e19e4ddbe34b83
+fae02975b7d684197bbeafb632b7a319ebedc3849dd4968b
+f8e52b70cdcd9c1f7ba3a3992d697811f4f2d2bf5fc3dc95
+f5e92e6dd3cba7237b90998827134e0df8f4d8e040bbff9a
+f5ec2f6cd4c6a9247d8998842a003f0cf9f5d9e839b9ff9b
+case rgrid-cubic-bgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+6c92897125ce8de77f6eb32c
+b0e7d8b9c0ce44257d6875b7
+70cb7d9fb583d08857cc5dd4
+case rgrid-cubic-pbgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+7ae8167483d8326b98ab8255b187ba3fc6879734d997552fe09c3e2c
+22a0215641ac445d99cdae6fdee5f07ccfdaa774a1c5316692be0760
+3dbb1da65bbf2cabb3c756baebcd77beaec86d994cc0556a2ebd4d59
+68d528cb73c726cd9a9d1edca87f27d66b9060971ab0a54a02bcbe2e
+227c5443257c65582e789a99347ec8c032a4d48b2dd1d23c2be1d320
+case rgrid-cubic-pbgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+5366afeca44bc0ed
+586fb3d49752b7e5
+6a93c27c666493cd
+7fb7d11e357e70ae
+8eaccc0d3a997c96
+9a74b24876b8b981
+a23e9b84afd2f272
+a4309493bedaff6d
+case rgrid-cubic-pbgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+2ef0967342e6a58d79ccd4dbadb6ebf1e3abd17bf9a79d00a8af5b2224bf108800c500ac
+30c4a25f47bdae7988abd0d0bd9eddf1e19eba91e9a28528aaa7584047ad2c8f24af1aaa
+3142c8245244c73fb44ac5aff358b2f4e47a74d3bf993b9ab4904b97b2747ca6b06b8daa
+4900db006805d218c30ebc91f72399e9ce5353f4987f1fe0ae7851c7e359b4a3f54fd796
+9b5cc104984fbe1c9029b77e8813a8c47f1e89cd793870b77f5d85918b89ae5c8f9abd49
+e2cfa11dbdb2a631515fb36c0f1dbf943600cb936b00d17c544bbb5420bc97220ee68a0f
+bbd0a33f9cbba6463f7daf570c4cb9684932cf7c8e2ddc896e5ac17b23a1926009ba8156
+62a3b4675aa0b15e3e96ab413d8fa93d868eb871ca8bc3b1a579b1cb546392d4365a86d9
+4394b9764297b5673ca1a9384da8a42c9cafb06cdfacbcbfb984ace7634d91fe453888ff
+case rgrid-cubic-pbgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+627ff83f6a00ac0062a4c03f
+8091ea4f8104ae1c4dacb03f
+cec0c477be17b56b15c1893b
+edcbb59ece2ab29014c4744a
+ab8adcc4863b9c6280a88082
+735ee9c54a488431c97c9a9e
+918d9e6063446d247735c75b
+b4cd4807854c63251b00ea1a
+90dd365765937e345b31cf58
+55cf44db34e3aa4bc47da2b6
+2e8f63ff28e5d164ca769db2
+15318ff632baf47d9b41ae79
+090aa1f335a9ff88892bb462
+case rgrid-cubic-pbgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+ffd9267d7bed3f0e79ddbbe534fac226b2ce6d26fff0177d
+ffda267c7eeb430f79dab9e134f2be25b4cf712dffee1f7e
+fddd28798de656127acdb4d135ceae21c1d6844de1e54783
+fae22a75a6dc77197bb6abb6368f9119d6e2a484a5d58c8b
+f6e82d70c2d2991f7c9da099384c7311eceec7bf65c5d695
+f4eb2f6dd2ccad237d909b883926610df9f5dae040bbff9a
+f4ec2f6cd5cab2247d8c9984391d5d0cfcf7dfe838b9ff9b
+case rgrid-cubic-pbgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+61a9a5712fc08ae7ae6bbb2c
+b3e5dbb9c4c74625775374b7
+69d2669f9d7ed28859b561d4
+case rcol-fant-1-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+af
+case rcol-fant-1-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cc
+cc
+case rcol-fant-1-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ed
+ed
+ed
+case rcol-fant-1-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+33
+33
+33
+33
+case rcol-fant-1-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+12
+12
+12
+12
+12
+case rcol-fant-1-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+71
+71
+71
+71
+71
+71
+case rcol-fant-1-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+50
+50
+50
+50
+50
+50
+50
+case rcol-fant-1-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b7
+b7
+b7
+b7
+b7
+b7
+b7
+b7
+case rcol-fant-1-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+96
+96
+96
+96
+96
+96
+96
+96
+96
+case rcol-fant-1-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f5
+f5
+f5
+f5
+f5
+f5
+f5
+f5
+f5
+f5
+case rcol-fant-1-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d4
+d4
+d4
+d4
+d4
+d4
+d4
+d4
+d4
+d4
+d4
+case rcol-fant-1-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+case rcol-fant-1-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+1a
+case rcol-fant-1-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+79
+79
+79
+79
+79
+79
+79
+79
+79
+79
+79
+79
+79
+79
+case rcol-fant-1-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+58
+58
+58
+58
+58
+58
+58
+58
+58
+58
+58
+58
+58
+58
+58
+case rcol-fant-1-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+bf
+case rcol-fant-1-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+9e
+case rcol-fant-2-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5d
+case rcol-fant-2-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e6
+37
+case rcol-fant-2-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c7
+4e
+36
+case rcol-fant-2-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+20
+29
+31
+31
+case rcol-fant-2-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+01
+14
+2b
+30
+30
+case rcol-fant-2-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+62
+52
+43
+33
+33
+33
+case rcol-fant-2-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+43
+3e
+39
+33
+32
+32
+32
+case rcol-fant-2-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ac
+90
+75
+59
+3d
+3d
+3d
+3d
+case rcol-fant-2-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8d
+7b
+69
+57
+41
+3c
+3c
+3c
+3c
+case rcol-fant-2-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ee
+cb
+a8
+85
+62
+3f
+3f
+3f
+3f
+3f
+case rcol-fant-2-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cf
+b5
+9a
+80
+66
+45
+3e
+3e
+3e
+3e
+3e
+case rcol-fant-2-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+28
+2b
+2e
+31
+33
+36
+39
+39
+39
+39
+39
+39
+case rcol-fant-2-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+09
+10
+17
+1f
+26
+2d
+36
+38
+38
+38
+38
+38
+38
+case rcol-fant-2-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6a
+63
+5d
+56
+4f
+48
+42
+3b
+3b
+3b
+3b
+3b
+3b
+3b
+case rcol-fant-2-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4b
+49
+46
+44
+42
+40
+3d
+3b
+3a
+3a
+3a
+3a
+3a
+3a
+3a
+case rcol-fant-2-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+95
+8f
+89
+83
+7e
+78
+72
+6c
+66
+66
+66
+66
+66
+66
+66
+66
+case rcol-fant-2-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b4
+ab
+a2
+99
+90
+87
+7e
+75
+69
+67
+67
+67
+67
+67
+67
+67
+67
+case rcol-fant-3-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4e
+case rcol-fant-3-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+57
+1e
+case rcol-fant-3-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+72
+61
+d4
+case rcol-fant-3-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9d
+72
+a3
+be
+case rcol-fant-3-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bc
+84
+71
+7a
+7b
+case rcol-fant-3-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+df
+a6
+6c
+54
+3c
+3c
+case rcol-fant-3-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fe
+c0
+74
+95
+de
+f9
+f9
+case rcol-fant-3-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+19
+37
+5d
+74
+92
+b7
+ba
+ba
+case rcol-fant-3-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+38
+49
+5a
+6b
+72
+78
+7f
+7f
+7f
+case rcol-fant-3-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5b
+5f
+63
+68
+5e
+50
+3e
+38
+38
+38
+case rcol-fant-3-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7a
+75
+71
+6b
+76
+9f
+c7
+f9
+fd
+fd
+fd
+case rcol-fant-3-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c6
+b9
+ad
+a0
+93
+a9
+bf
+d5
+eb
+eb
+eb
+eb
+case rcol-fant-3-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e7
+d3
+c0
+ac
+94
+83
+6c
+54
+38
+2e
+2e
+2e
+2e
+case rcol-fant-3-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+84
+87
+8a
+8c
+90
+8e
+86
+7d
+74
+6a
+69
+69
+69
+69
+case rcol-fant-3-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a5
+a1
+9d
+98
+94
+90
+96
+9b
+a1
+a6
+ac
+ac
+ac
+ac
+ac
+case rcol-fant-3-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+42
+52
+62
+72
+82
+95
+a2
+b3
+c3
+d4
+e8
+ef
+ef
+ef
+ef
+ef
+case rcol-fant-3-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+63
+6c
+75
+7e
+87
+92
+90
+7d
+6a
+56
+43
+2c
+2a
+2a
+2a
+2a
+2a
+case rcol-fant-4-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6e
+case rcol-fant-4-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+93
+57
+case rcol-fant-4-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a8
+8b
+29
+case rcol-fant-4-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4a
+9f
+c6
+64
+case rcol-fant-4-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6b
+9b
+22
+19
+2b
+case rcol-fant-4-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+08
+84
+7f
+44
+5d
+62
+case rcol-fant-4-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+29
+77
+98
+85
+69
+30
+2d
+case rcol-fant-4-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f7
+dc
+c0
+80
+3f
+84
+c8
+c8
+case rcol-fant-4-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d6
+cd
+c2
+d4
+f4
+e0
+a4
+87
+87
+case rcol-fant-4-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b5
+ba
+c1
+c1
+bf
+bd
+c4
+cc
+ce
+ce
+case rcol-fant-4-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+94
+a5
+b9
+bc
+a1
+7f
+7a
+7d
+81
+81
+81
+case rcol-fant-4-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+73
+8e
+a9
+c4
+96
+69
+3b
+69
+96
+c4
+c4
+c4
+case rcol-fant-4-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+52
+75
+99
+c3
+d2
+e4
+fa
+ec
+c9
+9f
+8b
+8b
+8b
+case rcol-fant-4-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+31
+5c
+86
+bb
+c4
+c0
+bd
+b9
+bc
+be
+c1
+c2
+c2
+c2
+case rcol-fant-4-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+10
+41
+72
+ac
+c2
+ae
+9a
+81
+7e
+83
+87
+8d
+8d
+8d
+8d
+case rcol-fant-4-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+f1
+e4
+d6
+c8
+9c
+6f
+43
+16
+3d
+64
+8b
+b2
+b2
+b2
+b2
+case rcol-fant-4-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+de
+d9
+d4
+cf
+c9
+cb
+cd
+cf
+d2
+d8
+e2
+ec
+f7
+fd
+fd
+fd
+fd
+case rcol-fant-5-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b8
+case rcol-fant-5-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+86
+92
+case rcol-fant-5-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+61
+7e
+c4
+case rcol-fant-5-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e7
+c3
+e6
+dd
+case rcol-fant-5-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c9
+e0
+6e
+ba
+0d
+case rcol-fant-5-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+aa
+e1
+42
+b6
+de
+c6
+case rcol-fant-5-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8b
+d8
+e7
+e5
+bd
+41
+17
+case rcol-fant-5-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6c
+ca
+d8
+b0
+db
+f7
+ea
+e8
+case rcol-fant-5-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4d
+ae
+d6
+82
+7b
+af
+8c
+3c
+39
+case rcol-fant-5-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2e
+8b
+e7
+8a
+2d
+96
+ff
+f9
+f2
+f2
+case rcol-fant-5-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0f
+71
+e2
+e7
+e8
+d9
+b9
+96
+4c
+23
+23
+case rcol-fant-5-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e0
+e4
+e8
+cf
+9d
+83
+89
+8f
+7a
+59
+50
+50
+case rcol-fant-5-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c1
+d0
+e3
+cf
+91
+49
+6c
+a2
+bb
+a3
+85
+81
+81
+case rcol-fant-5-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a2
+bc
+da
+da
+86
+1e
+14
+45
+81
+7c
+65
+4b
+4a
+4a
+case rcol-fant-5-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+83
+a5
+c8
+ea
+de
+d1
+c5
+c5
+c6
+c6
+b8
+a9
+9b
+9b
+9b
+case rcol-fant-5-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+64
+8f
+ba
+eb
+d3
+b3
+8b
+85
+85
+83
+7f
+75
+6a
+64
+64
+64
+case rcol-fant-5-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+45
+76
+a7
+e4
+ce
+9c
+63
+4b
+73
+9c
+ca
+c7
+c0
+b7
+b5
+b5
+b5
+case rcol-fant-6-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9e
+case rcol-fant-6-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c3
+6d
+case rcol-fant-6-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b6
+4f
+8f
+case rcol-fant-6-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7b
+85
+46
+4c
+case rcol-fant-6-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+86
+ba
+85
+5e
+ea
+case rcol-fant-6-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1f
+b4
+f9
+25
+97
+1c
+case rcol-fant-6-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3e
+b2
+48
+60
+54
+7c
+cc
+case rcol-fant-6-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d1
+bc
+77
+56
+55
+38
+4a
+54
+case rcol-fant-6-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f0
+c4
+ae
+93
+2e
+5d
+e4
+94
+84
+case rcol-fant-6-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+93
+ae
+be
+d2
+a0
+53
+39
+3d
+72
+77
+case rcol-fant-6-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b2
+b6
+aa
+3a
+13
+1b
+5a
+f0
+de
+a8
+a7
+case rcol-fant-6-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+55
+8a
+be
+88
+52
+56
+59
+2d
+01
+1a
+33
+33
+case rcol-fant-6-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+74
+97
+be
+b0
+99
+6f
+25
+41
+aa
+d3
+dd
+e3
+e3
+case rcol-fant-6-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+17
+5e
+b4
+c2
+cc
+c0
+8f
+5f
+42
+1e
+18
+12
+10
+10
+case rcol-fant-6-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+36
+6c
+b0
+9b
+58
+15
+13
+11
+35
+80
+ca
+c6
+c1
+c0
+c0
+case rcol-fant-6-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8a
+71
+52
+3f
+25
+06
+15
+2f
+49
+63
+83
+95
+aa
+c3
+c5
+c5
+case rcol-fant-6-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ab
+87
+5f
+4e
+7b
+b2
+af
+6c
+17
+16
+35
+5c
+4e
+33
+16
+15
+15
+case rcol-fant-7-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+67
+case rcol-fant-7-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+58
+aa
+case rcol-fant-7-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+53
+33
+91
+case rcol-fant-7-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6c
+2e
+25
+b1
+case rcol-fant-7-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8b
+c6
+8c
+6e
+ac
+case rcol-fant-7-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b0
+72
+61
+1e
+d6
+fc
+case rcol-fant-7-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e1
+4c
+6d
+7a
+c9
+3a
+e6
+case rcol-fant-7-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+06
+4a
+30
+3c
+39
+78
+91
+5c
+case rcol-fant-7-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+27
+48
+c2
+b6
+7d
+e5
+8d
+5c
+46
+case rcol-fant-7-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+44
+48
+79
+a1
+40
+31
+3f
+8c
+24
+05
+case rcol-fant-7-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+65
+4e
+51
+69
+72
+8f
+f6
+a8
+57
+26
+1f
+case rcol-fant-7-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bb
+46
+35
+c2
+c0
+94
+c5
+e8
+c9
+c9
+de
+df
+case rcol-fant-7-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+4a
+15
+13
+31
+b8
+b7
+4a
+2d
+13
+56
+c3
+c5
+case rcol-fant-7-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f9
+88
+16
+36
+55
+75
+95
+c3
+f1
+ea
+e2
+b4
+86
+86
+case rcol-fant-7-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d8
+7e
+19
+47
+8b
+a9
+d4
+a8
+3c
+24
+2e
+40
+78
+9c
+9c
+case rcol-fant-7-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3f
+2a
+12
+4d
+b7
+c9
+b0
+a3
+bf
+de
+ca
+ab
+86
+43
+26
+26
+case rcol-fant-7-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1e
+19
+12
+12
+14
+21
+6e
+ca
+97
+37
+1a
+45
+75
+62
+44
+3c
+3c
+case rcol-fant-8-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+57
+case rcol-fant-8-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9f
+80
+case rcol-fant-8-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+88
+99
+76
+case rcol-fant-8-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+28
+f0
+7f
+ec
+case rcol-fant-8-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+17
+49
+92
+8c
+66
+case rcol-fant-8-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5e
+59
+da
+59
+85
+4d
+case rcol-fant-8-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4d
+55
+b4
+9e
+63
+94
+f8
+case rcol-fant-8-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2c
+ad
+f3
+3c
+3a
+98
+29
+1f
+case rcol-fant-8-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0d
+aa
+3d
+6b
+d0
+81
+3e
+5a
+ad
+case rcol-fant-8-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6e
+ac
+7d
+53
+35
+20
+b3
+7f
+8f
+a9
+case rcol-fant-8-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4f
+a4
+b2
+a9
+76
+da
+b6
+6b
+6a
+31
+1b
+case rcol-fant-8-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a8
+a9
+c3
+f7
+51
+25
+0e
+d7
+ef
+d0
+62
+4c
+case rcol-fant-8-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+89
+a1
+8d
+37
+5b
+86
+d0
+a9
+31
+94
+d2
+fa
+fe
+case rcol-fant-8-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ea
+bf
+a3
+7d
+63
+38
+27
+14
+9c
+d0
+95
+a9
+f6
+fa
+case rcol-fant-8-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+cb
+b7
+aa
+ae
+a9
+84
+88
+bb
+94
+1a
+39
+8f
+75
+49
+48
+case rcol-fant-8-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+24
+65
+a5
+c0
+da
+90
+46
+7e
+b6
+a5
+94
+b5
+d5
+cf
+c8
+c8
+case rcol-fant-8-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+05
+50
+a3
+6d
+23
+17
+0a
+25
+5c
+5f
+4a
+5d
+aa
+c5
+99
+7a
+7a
+case rgrid-fant-gray8-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+156edbb65f3f3f
+4f3f2b57adcccc
+b87a2e42748686
+a26e2d31414848
+7b572a25242424
+case rgrid-fant-gray8-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a27a
+8f64
+794a
+7143
+7249
+7351
+7351
+7351
+case rgrid-fant-gray8-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5797e3d9c2a66e5454
+3385e6d4ae9c827575
+076fe9cf9790999d9d
+2163b1b2ac9f817272
+50515383d1b8562828
+7063527dc5ab4a1d1d
+a8947c859680432626
+c2ab9089806b3f2a2a
+c2ab9089806b3f2a2a
+case rgrid-fant-gray8-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a16559
+794f6b
+4d367f
+732b8d
+ad1ba1
+8f358d
+4c6a62
+47794d
+5d8530
+668742
+6b81a4
+6e7ee0
+6e7ee0
+case rgrid-fant-gray8-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ca1c6e429025
+9d5068359c4e
+70836329a777
+37c45b19b6ab
+2cd15a16b9b5
+2cd15a16b9b5
+2cd15a16b9b5
+case rgrid-fant-gray8-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7b5071
+3b5171
+6d66bd
+case rgrid-fant-bgr24-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+15e53f2f907e4f28cc7722b8ba2785d22973d22973
+763025986134c19e46c9ae38d1c21bd4c910d4c910
+2f7495308687329d77448076644677703178703178
+5580515b7149635d3f605a3f595841565742565742
+837b03955704aa2b05934704668201559700559700
+case rgrid-fant-bgr24-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+48cd7636885b
+5fc16d577753
+7bb3627f634b
+8ca5648f6955
+a18b74928f7d
+ba6a8897bead
+bc678a97c2b2
+bc678a97c2b2
+case rgrid-fant-bgr24-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+57e7bd5683d4540bef6638be858e6a7ab04b53d92940ec1940ec19
+87c0a16882c54338f04b44ba5c5f5d696e407f8326898d19898d19
+bf91807d80b32f6cf12b52b62c284f541f33b31d22df1c1adf1c1a
+bc84869077b35b68e95154c143347b5733608e4143a74735a74735
+b27194ad68b5a75edb9157d46e4cc65f5cad4b867a429a61429a61
+a08b899c6e9b974db1874cb16c4db05863a236958325ad7425ad74
+79d26866855f4f2954503055534359455f6522987f11b38c11b38c
+66f4584c90422d182736232a473e303c5d48189a7e07b69707b697
+66f4584c90422d182736232a473e303c5d48189a7e07b69707b697
+case rgrid-fant-bgr24-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+5bb1584c2d6e91724e
+518978493a6b7c8e6d
+465c9d45496765ae90
+756f98655b5d729096
+bc8e9094744f86649e
+b389989986598a708c
+967ba899a46d8d8e6a
+797ba291ab84999860
+40838c7cafb3b5a157
+3d82917ca3b9ac9b58
+7778bb947891687d65
+9a72d4a25d793e6a6d
+9a72d4a25d793e6a6d
+case rgrid-fant-bgr24-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+ca1c6e4290252cd15a16b9b5e4b82ba17c2c
+bb525e54af2d53b18941c48cd0a151a45a53
+ad894e67cd357991b86cd064bb8a76a7387b
+9bcc3a7df33fa969f3a2de31a26da6aa0eac
+97da3682fb41b361ffade1279d67afab05b6
+97da3682fb41b361ffade1279d67afab05b6
+97da3682fb41b361ffade1279d67afab05b6
+case rgrid-fant-bgr24-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+5c378a7b73844e9359
+7e737e7f7f62d0cf87
+88899d7888b99a82b9
+case rgrid-fant-bgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+15e63e5217e367401dd5c32b33b8a52860894b257178232471782324
+c7ac3fcec97835adcd1a2286c50d4181b60e827fb00e997eb00e997e
+79377b93832c776da00c6a3ea6057231af078720b0099c1ab0099c1a
+4a3cb0c24b5b95b04a8a6a9941748085232dc4651305eb5a1305eb5a
+4452bcf6447594f4459f61f23b827bdb1f2dc5b21204eaa31204eaa3
+case rgrid-fant-bgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+b224d34d9304a074
+a1539e6274509c9c
+9275777c5e849ace
+958c708f5a879adc
+a2ac79ae61659ad2
+adc780d4693899c6
+adc880d86b3598c5
+adc880d86b3598c5
+case rgrid-fant-bgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+58e6bc5425ed9f7506f08b9d0be49372338cbf287b57ca1dae869326c2917f2ac2917f2a
+5ae99f3b2eee8b4d0cec7e633bc3896293769e5f9e729b578e9d874485be743b85be743b
+66ee3b1e55ee331e33e5221e918a7a4fae7094a1a678939c81a97f685dd8704f5dd8704f
+ae717f369096682c4fe73720818c6e459464898489648b87606d8f724773906847739068
+d234a861b46391486ae1582b509759363c435d4c382a785f3319a3803313b28f3313b28f
+b9569b67876b905a378d7f4a3e636952512c51614f1f61704817868c4715949947159499
+77bf72603e7f8876104c998f3e3b7d9a832554ab8a254cab7e3046a37834449f7834449f
+54f65d5d24868483083f9db03e3380bd8e2355ce992745c792392eae8d4321a28d4321a2
+54f65d5d24868483083f9db03e3380bd8e2355ce992745c792392eae8d4321a28d4321a2
+case rgrid-fant-bgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+9c5b6827422d99554c7d594d
+c229444396859d8875805757
+ce163564c1b0a0c299845862
+8e497d76b3b3a58b7f7f8f62
+4d7fc8906dbfc3385476dd63
+4d96a88b4eacd2445d77db6d
+53c1597d4198da696f75cf80
+5dbc5473468cc5788a6bb485
+738e765f52799b8bbf547988
+738e935f537d8692d14c6982
+52c0b07b50a26a92ce4c896a
+45d8be8b4eb95992cc4ea25b
+45d8be8b4eb95992cc4ea25b
+case rgrid-fant-bgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+c81b6c428f242bd15a16b8b5e4b72aa17b2c96da3681fb41
+bd3fb5619c253eb3724085b5deb82a77635489ca5855a15f
+b652de7fb12557948a6b51b6d3b8284c478378ba6b40717e
+b35ffba5d5278c6fa99f12b68abf1f181bca60a678304fa3
+b261feade1279b67afaa05b63ac4130d11da5ba27a2e4aab
+b261feade1279b67afaa05b63ac4130d11da5ba27a2e4aab
+b261feade1279b67afaa05b63ac4130d11da5ba27a2e4aab
+case rgrid-fant-bgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+66829c50a98a287265708a74
+6f6f86c289a77cbd4d87c566
+9360a28abc7c5a7f60562e84
+case rgrid-fant-pbgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+15e53f5219dd7e401fd4cb2b37baa128638c4725737b2624737b2624
+c2ae40cec56c34adc81c2686c1144581b312817fae12967eae12967e
+6e2982937b1a886d8b068f3e6f1792313b3a96202746981a2746981a
+4d32aac2544399b05d598399474d94851c32b8650d28c55a0d28c55a
+4453bdf6457594f4469f63f2377686db1d22cfb21304eaa31304eaa3
+case rgrid-fant-pbgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+785fe34d8005ab74
+8460bb627338a89c
+9161897c6475a4ce
+996e798f5f80a0dc
+a3927eae625f97d2
+aebf84d466368dc6
+afc385d866338cc5
+afc385d866338cc5
+case rgrid-fant-pbgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+57e7bd5433eba77507f08c9d21b5ab725054e1287052d41da87b9a26c28f7e2ac28f7e2a
+61ed7b3b43ec6b4d1eeb58633db87c627565ba5f8469b5578f998b4494b0773b94b0773b
+6df42d1e55ed241e39e51a1e5fbc444fa0798ba19c84909c72bd7a685ed86f4f5ed86f4f
+90b2543670cb422c4ae82d2059b847457666758471638087598484724d9487684d948768
+c9449c619b917a4864ed532b4db152362a44534c282a685f31229780361eae8f361eae8f
+b85b99678a8d835a54c8694a46945e5234374f6135215c704018838c4514959945149599
+76c571604f9d7e76216d8c8f3d53789a702a54ab79264cab773048a37634469f7634469f
+56f75e5d33a47b8309429db0393484bd8c2457ce992944c7913b2cae8d4321a28d4321a2
+56f75e5d33a47b8309429db0393484bd8c2457ce992944c7913b2cae8d4321a28d4321a2
+case rgrid-fant-pbgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+9b6f6d274e7ba6555084564d
+ad484f438297a18871835957
+c31b2d64bdb79bc296825b62
+8f4569769cbcad8b837e8b62
+4386c2906ac2c8386579d263
+409f9e8b5bc1d2446a7fd16d
+48c34c7d46bee0697a8cc480
+5bc4457347adce789282b385
+87b35e5f54869c8bc6648d88
+8bab715f56818192d9588482
+63a4927b4ca16592dc56936a
+4ba0a68b46b55492dd559d5b
+4ba0a68b46b55492dd559d5b
+case rgrid-fant-pbgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+ca1c6e4290252cd15a16b9b5e4b82ba17c2c97da3682fb41
+c3309761a7264cb3724186b5b2ba27775e5e86ca496ac85f
+bd43c17fbe266d948b6b52b681bd224c3f9075ba5d52967e
+b55cf5a5db27956fa9a012b642bf1d181acf60a6753457a3
+b361ffade1279d67afab05b636c01c0d12db5ca27a2e4aab
+b361ffade1279d67afab05b636c01c0d12db5ca27a2e4aab
+b361ffade1279d67afab05b636c01c0d12db5ca27a2e4aab
+case rgrid-fant-pbgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+85709e50a16b567253636574
+74798bc2919f82bd5a82be66
+9979ab8a9b80877f75795684
+case rcol-hqcubic-1-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+34
+case rcol-hqcubic-1-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+57
+57
+case rcol-hqcubic-1-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+76
+76
+76
+case rcol-hqcubic-1-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+99
+99
+99
+99
+case rcol-hqcubic-1-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b8
+b8
+b8
+b8
+b8
+case rcol-hqcubic-1-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+db
+db
+db
+db
+db
+db
+case rcol-hqcubic-1-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fa
+fa
+fa
+fa
+fa
+fa
+fa
+case rcol-hqcubic-1-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1d
+1d
+1d
+1d
+1d
+1d
+1d
+1d
+case rcol-hqcubic-1-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3c
+3c
+3c
+3c
+3c
+3c
+3c
+3c
+3c
+case rcol-hqcubic-1-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5f
+5f
+5f
+5f
+5f
+5f
+5f
+5f
+5f
+5f
+case rcol-hqcubic-1-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7e
+7e
+7e
+7e
+7e
+7e
+7e
+7e
+7e
+7e
+7e
+case rcol-hqcubic-1-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+c2
+case rcol-hqcubic-1-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+e3
+case rcol-hqcubic-1-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+case rcol-hqcubic-1-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+a1
+case rcol-hqcubic-1-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+46
+case rcol-hqcubic-1-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+67
+case rcol-hqcubic-2-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+83
+case rcol-hqcubic-2-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+88
+19
+case rcol-hqcubic-2-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b1
+61
+10
+case rcol-hqcubic-2-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+51
+44
+29
+1c
+case rcol-hqcubic-2-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+75
+6a
+47
+23
+18
+case rcol-hqcubic-2-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0b
+0c
+11
+18
+1d
+1e
+case rcol-hqcubic-2-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2e
+2e
+2a
+25
+1f
+1b
+1b
+case rcol-hqcubic-2-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+fc
+e4
+b5
+7e
+4f
+37
+33
+case rcol-hqcubic-2-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+dd
+da
+cd
+b0
+8a
+63
+46
+39
+36
+case rcol-hqcubic-2-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b9
+b8
+b1
+a0
+87
+6c
+53
+42
+3b
+3a
+case rcol-hqcubic-2-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+95
+95
+92
+89
+7b
+6a
+58
+4a
+41
+3e
+3e
+case rcol-hqcubic-2-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7b
+7b
+79
+74
+6d
+63
+58
+4e
+47
+42
+40
+40
+case rcol-hqcubic-2-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+57
+57
+57
+56
+54
+51
+4e
+4a
+47
+45
+44
+44
+44
+case rcol-hqcubic-2-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+34
+34
+34
+35
+37
+39
+3c
+3f
+42
+44
+46
+47
+47
+47
+case rcol-hqcubic-2-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+10
+10
+11
+13
+17
+1d
+25
+2e
+36
+3e
+44
+48
+4a
+4b
+4b
+case rcol-hqcubic-2-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+ff
+ff
+ff
+f4
+e2
+ca
+af
+94
+79
+61
+4f
+43
+3d
+3b
+3c
+case rcol-hqcubic-2-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e4
+e5
+e3
+df
+d8
+cb
+ba
+a7
+92
+7c
+69
+58
+4b
+44
+40
+3e
+3f
+case rcol-hqcubic-3-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4c
+case rcol-hqcubic-3-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+40
+6e
+case rcol-hqcubic-3-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1c
+4f
+b8
+case rcol-hqcubic-3-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+5d
+c6
+ff
+f6
+case rcol-hqcubic-3-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3a
+92
+f8
+86
+26
+case rcol-hqcubic-3-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+17
+54
+d9
+ef
+94
+6b
+case rcol-hqcubic-3-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+20
+9b
+fa
+ed
+ba
+ac
+case rcol-hqcubic-3-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+de
+e1
+ed
+fa
+fd
+f8
+f2
+f1
+case rcol-hqcubic-3-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bd
+c1
+da
+f9
+fc
+c6
+74
+37
+28
+case rcol-hqcubic-3-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9b
+a0
+b8
+e0
+fd
+f5
+c7
+8f
+6d
+65
+case rcol-hqcubic-3-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7a
+7e
+95
+be
+e7
+fe
+f6
+dc
+c0
+b2
+b0
+case rcol-hqcubic-3-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+62
+66
+77
+9b
+c4
+e7
+f6
+f5
+eb
+e1
+de
+de
+case rcol-hqcubic-3-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+44
+55
+7f
+b5
+e1
+f0
+d4
+9a
+58
+24
+0e
+0a
+case rcol-hqcubic-3-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+20
+22
+32
+5a
+90
+c6
+ec
+f1
+d7
+ad
+80
+60
+54
+52
+case rcol-hqcubic-3-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+00
+0f
+33
+69
+a3
+d5
+f2
+f3
+e1
+c5
+a9
+98
+92
+92
+case rcol-hqcubic-3-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e7
+e7
+e8
+ea
+ed
+f1
+f4
+f5
+f4
+f0
+ea
+e4
+de
+db
+d9
+d9
+case rcol-hqcubic-3-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c6
+c6
+c8
+ce
+da
+e9
+f6
+fb
+f4
+db
+b3
+84
+55
+2f
+18
+0f
+0f
+case rcol-hqcubic-4-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+89
+case rcol-hqcubic-4-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+61
+8e
+case rcol-hqcubic-4-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+55
+8e
+2d
+case rcol-hqcubic-4-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d1
+ae
+26
+64
+case rcol-hqcubic-4-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f3
+bc
+d0
+b7
+24
+case rcol-hqcubic-4-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+92
+a0
+ad
+a9
+83
+5e
+case rcol-hqcubic-4-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b2
+b3
+b0
+8a
+5c
+3b
+2a
+case rcol-hqcubic-4-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+58
+6f
+9f
+88
+2b
+02
+0d
+12
+case rcol-hqcubic-4-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+79
+80
+92
+a6
+c2
+cf
+a8
+6b
+55
+case rcol-hqcubic-4-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+16
+27
+61
+99
+a7
+9c
+81
+4d
+1b
+0b
+case rcol-hqcubic-4-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+37
+41
+69
+95
+9e
+7c
+54
+49
+51
+5b
+5c
+case rcol-hqcubic-4-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+dd
+d9
+cf
+c0
+a6
+75
+39
+0f
+08
+14
+1e
+1f
+case rcol-hqcubic-4-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fe
+f9
+e5
+c5
+ac
+a9
+bb
+cb
+c2
+9c
+6d
+4f
+48
+case rcol-hqcubic-4-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+9b
+9d
+a1
+a4
+a4
+a2
+9d
+92
+78
+51
+2b
+14
+0f
+case rcol-hqcubic-4-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bc
+bb
+b9
+b6
+b1
+a7
+92
+74
+58
+47
+45
+4c
+54
+58
+58
+case rcol-hqcubic-4-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+02
+0d
+25
+40
+58
+64
+69
+68
+63
+57
+42
+2a
+15
+0a
+08
+case rcol-hqcubic-4-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+23
+24
+2a
+35
+42
+51
+60
+72
+86
+96
+9b
+91
+79
+5d
+46
+3c
+3a
+case rcol-hqcubic-5-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+75
+case rcol-hqcubic-5-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+67
+case rcol-hqcubic-5-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ac
+2c
+45
+case rcol-hqcubic-5-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1a
+66
+79
+3d
+case rcol-hqcubic-5-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2f
+56
+b2
+3b
+e0
+case rcol-hqcubic-5-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4c
+48
+bf
+d0
+5a
+29
+case rcol-hqcubic-5-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6e
+61
+49
+30
+2b
+8c
+ff
+case rcol-hqcubic-5-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+8d
+71
+53
+68
+7b
+7b
+36
+00
+case rcol-hqcubic-5-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b1
+8d
+54
+7e
+b6
+68
+3d
+a1
+df
+case rcol-hqcubic-5-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+d0
+ac
+5e
+6c
+d6
+e7
+a0
+63
+30
+18
+case rcol-hqcubic-5-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f4
+d5
+85
+49
+38
+34
+28
+2b
+65
+b9
+d9
+case rcol-hqcubic-5-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3a
+33
+17
+0b
+31
+70
+9e
+c0
+d6
+db
+d8
+d8
+case rcol-hqcubic-5-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+17
+15
+0e
+0a
+17
+31
+4f
+76
+98
+8f
+4f
+10
+00
+case rcol-hqcubic-5-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7d
+73
+4f
+23
+08
+00
+00
+22
+77
+c5
+dd
+d1
+c2
+c1
+case rcol-hqcubic-5-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+59
+54
+39
+15
+0f
+44
+96
+cd
+d2
+bc
+9d
+71
+3a
+13
+09
+case rcol-hqcubic-5-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+c0
+b6
+87
+40
+0d
+12
+41
+79
+9d
+b8
+cd
+dc
+e5
+e9
+ec
+ed
+case rcol-hqcubic-5-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9c
+96
+77
+44
+17
+07
+15
+31
+4b
+66
+83
+96
+90
+72
+4f
+3b
+36
+case rcol-hqcubic-6-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7a
+case rcol-hqcubic-6-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+46
+4b
+case rcol-hqcubic-6-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+41
+cc
+b9
+case rcol-hqcubic-6-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+76
+6a
+94
+57
+case rcol-hqcubic-6-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7f
+12
+b1
+cd
+8b
+case rcol-hqcubic-6-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+f9
+02
+25
+a4
+7a
+74
+case rcol-hqcubic-6-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+df
+18
+8f
+f7
+d7
+a6
+a4
+case rcol-hqcubic-6-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+28
+2c
+1f
+2f
+da
+da
+c2
+c4
+case rcol-hqcubic-6-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+07
+10
+44
+c9
+d5
+91
+25
+0b
+14
+case rcol-hqcubic-6-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6e
+4f
+2f
+6a
+b0
+e5
+ef
+df
+e3
+e8
+case rcol-hqcubic-6-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4d
+41
+2f
+39
+56
+88
+9e
+47
+0a
+27
+3a
+case rcol-hqcubic-6-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b5
+92
+45
+18
+0c
+42
+bb
+f8
+f9
+e2
+b3
+9e
+case rcol-hqcubic-6-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+94
+7c
+3a
+32
+94
+e1
+d9
+ae
+6a
+26
+30
+65
+79
+case rcol-hqcubic-6-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+fc
+da
+74
+2b
+46
+88
+b2
+d3
+e9
+f3
+eb
+c0
+8b
+78
+case rcol-hqcubic-6-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+db
+c4
+79
+32
+29
+45
+65
+8f
+ac
+94
+58
+37
+3e
+4e
+52
+case rcol-hqcubic-6-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+20
+20
+21
+23
+27
+29
+34
+54
+80
+93
+73
+4d
+56
+8e
+c3
+d1
+case rcol-hqcubic-6-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+01
+04
+0e
+31
+80
+d4
+fb
+f8
+e4
+d2
+bd
+a0
+77
+42
+1a
+0f
+case rcol-hqcubic-7-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9a
+case rcol-hqcubic-7-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+90
+98
+case rcol-hqcubic-7-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+74
+a4
+9c
+case rcol-hqcubic-7-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+48
+93
+8b
+5b
+case rcol-hqcubic-7-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+52
+40
+6a
+4a
+0b
+case rcol-hqcubic-7-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+61
+70
+35
+7f
+e4
+66
+case rcol-hqcubic-7-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+7a
+7d
+8d
+7a
+6b
+33
+49
+case rcol-hqcubic-7-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+9e
+7a
+c1
+7a
+58
+9d
+b3
+f5
+case rcol-hqcubic-7-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+bf
+97
+41
+16
+70
+4b
+57
+9c
+ee
+case rcol-hqcubic-7-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+e5
+a8
+68
+4e
+37
+53
+90
+85
+94
+ac
+case rcol-hqcubic-7-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ff
+c2
+75
+83
+85
+76
+67
+58
+51
+87
+b6
+case rcol-hqcubic-7-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+0a
+2f
+72
+c2
+db
+75
+32
+26
+6f
+d0
+ef
+f9
+case rcol-hqcubic-7-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2b
+46
+74
+61
+2b
+04
+06
+9b
+fa
+68
+26
+ad
+fa
+case rcol-hqcubic-7-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+51
+5a
+6f
+73
+67
+5d
+54
+44
+2e
+5b
+cd
+ef
+c0
+ab
+case rcol-hqcubic-7-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+72
+72
+71
+7b
+9e
+9e
+3f
+00
+69
+e2
+b3
+4a
+56
+a0
+bd
+case rcol-hqcubic-7-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+98
+90
+77
+74
+af
+e6
+bf
+66
+30
+15
+20
+6f
+ab
+7a
+22
+04
+case rcol-hqcubic-7-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b9
+af
+96
+77
+55
+31
+18
+02
+0a
+57
+b5
+ca
+a3
+75
+47
+1c
+0e
+case rcol-hqcubic-8-1
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6b
+case rcol-hqcubic-8-2
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+4b
+7a
+case rcol-hqcubic-8-3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+78
+6d
+c7
+case rcol-hqcubic-8-4
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b4
+8b
+5b
+55
+case rcol-hqcubic-8-5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ce
+66
+49
+a8
+0c
+case rcol-hqcubic-8-6
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+91
+5c
+57
+8e
+31
+26
+case rcol-hqcubic-8-7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a6
+ad
+a4
+27
+b3
+69
+9a
+case rcol-hqcubic-8-8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+42
+83
+9f
+2f
+1b
+51
+0d
+27
+case rcol-hqcubic-8-9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+62
+81
+64
+54
+9a
+bc
+5f
+20
+98
+case rcol-hqcubic-8-10
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+00
+67
+56
+1a
+26
+00
+56
+66
+62
+93
+case rcol-hqcubic-8-11
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+1c
+55
+a3
+d7
+75
+97
+d1
+a5
+67
+37
+21
+case rcol-hqcubic-8-12
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ca
+a5
+87
+9f
+60
+1d
+2c
+27
+4f
+e5
+c0
+6d
+case rcol-hqcubic-8-13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+ed
+c2
+83
+66
+5a
+64
+b7
+ff
+ef
+e8
+ef
+d7
+c3
+case rcol-hqcubic-8-14
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+84
+89
+88
+4e
+16
+1b
+29
+35
+26
+12
+5e
+b3
+c1
+c3
+case rcol-hqcubic-8-15
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+a7
+9a
+83
+a4
+db
+ac
+6a
+a2
+e5
+d9
+c3
+c0
+ae
+82
+6b
+case rcol-hqcubic-8-16
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+74
+91
+cd
+c6
+79
+61
+7c
+aa
+ea
+d9
+78
+56
+71
+6f
+4e
+3f
+case rcol-hqcubic-8-17
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+51
+6f
+b9
+da
+bd
+a7
+bd
+be
+6d
+24
+45
+84
+81
+6a
+91
+dc
+fa
+case rgrid-hqcubic-gray8-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+2828272b3b4e55
+c9cacfccb4968c
+a0add5eed8b2a5
+646a7c8a8a8685
+debe62191d3d46
+case rgrid-hqcubic-gray8-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+3c6e
+3e72
+3d7f
+418d
+588d
+867e
+ad70
+b86c
+case rgrid-hqcubic-gray8-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6f60342f83dffbfafb
+85764a3c76b7cbcbcd
+c3b1835d4c46464b4c
+e9dab5874810000000
+d9d7d5c5996a4d3931
+b5c1e2f5ebd3ad8373
+8d9eccebead6a8705b
+6375a5c6c6b07c3b23
+536597babaa56e2910
+case rgrid-hqcubic-gray8-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+38525b
+42575d
+5a6460
+746c65
+93696e
+a76a6f
+a37759
+948149
+7a7b65
+5f6b8d
+585594
+5d3b8a
+5e3087
+case rgrid-hqcubic-gray8-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+b52a53eacec5
+b43252e6cec4
+b2544ed4d2bf
+af8e47b6d9b6
+acc83f98e0ac
+aaea3b86e4a7
+a9f23a82e4a6
+case rgrid-hqcubic-gray8-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 8
+6a7872
+748b77
+427788
+case rgrid-hqcubic-bgr24-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+1b25503f495dadb084f4ffa4bef0a860c1a041b39e
+a50947a125579378858db8a59fb196b79276c0896c
+ea8a24d1842c867443576854876b52d47348ed7645
+aaff189fea1f7e86356739457343418a6c35927831
+26f64037d6586e7ba28b37ce594496116d41007a25
+case rgrid-hqcubic-bgr24-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+4e1f94b9697f
+532e8cb6687f
+64666bb16382
+77a24aa65f83
+7dae4f896276
+778c79566d5a
+7068a22b7642
+6e5fad1f793b
+case rgrid-hqcubic-bgr24-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+6a19e18640d0dab0a0f2e085706c9d0000b84438a4dab97fffe671
+6939d77e59c9bab5a1ceda8a76729e290fb46547a6d6ba8afee381
+6b92c16a9eba66c3a56dca988a84a0ab47acc071aecec3add4e0ac
+62b99f53bc9f22c5a220bfa2899199f36c93ee85a1bbb8b6abcabe
+3a5b592d6f6702a89000c4a0569575af604ab061588e787d83808a
+26032b1f294108908103c99c25915c4e4718623b246d465072495f
+6d4463675d6e59a28e49c19c317f7b27375a5042688d6d88a47c93
+d6c0c6d1c1bec9c6a7abb49e5567b2162bcd555cdcc9b9e7f2dbec
+fdece9f8e4daf3d3b0cfb09e615ec60d26f65564ffded4fffffdff
+case rgrid-hqcubic-bgr24-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+5a4d46a153665967c7
+6a4a5090546d5a62bb
+94416862567e5f579e
+ae32844a688c535381
+ab11ac579495255c5f
+a90ebc65b89d12624e
+bd579268c2a8475965
+c99f6561bcb189567e
+ac986e429db6ab766a
+80718a2079b3bb9c52
+665197227996aa9377
+56329c398f6a8372bc
+4f259f4197597465d7
+case rgrid-hqcubic-bgr24-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+bb354cebd6ceb1ed4086e3b444ef08ad2166
+b7364fe6d2c8ade83e88e3ad43ed0fa8256c
+a43c5dd2bfaa9ad43290e48c3ee5308f3487
+854876b0a0777ab11f9fe65535d869664fb5
+65538e8e8043598d0caee71d2ccaa13d6ae2
+52599c7a6d25467900b6e80027c2c22479fd
+4e5a9f75691f427400b8e80026c0c91f7dff
+case rgrid-hqcubic-bgr24-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 24
+a25e578f5d6a596676
+8e7d8a8e899081914a
+6957985f865a9d728d
+case rgrid-hqcubic-bgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+222853f43e3852eba16e50d4ffa74cb4ffbe4283b7c728528dd6183f
+548086ef5f7b8ef17d71a6fd946bb6ef906dab9f5d81653f08a1001e
+7ea087898094968b8273bc968357d6917b3dc8636100732a39000016
+ec6d001cf0520722ff280f33ff252944eb57604fd0889658c99aa85b
+bfff9f08d83d1721e5000064e41701a2d77b56c0c9e6afcec5ffcad5
+case rgrid-hqcubic-bgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+4252a850a360719f
+415ba656a45d7398
+3576a269a94b7b80
+2f87a180ae328a65
+3a7c9a95a0389a5e
+4e6093aa8160a36a
+5b4a8eba6b80a977
+60458cbf6487ab7a
+case rgrid-hqcubic-bgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+722fdaff6e2ad5d26000d64500000000d5ffda31b7f9d581acf2d36979d6bf2c22adad16
+7736d9e87838dac1753dd5579ddac215bdffd33ab7f5d66baaedca5885c5a22c5ba3761c
+9e60ee9c9c6ce896938fd6898eb2c57493c9c951aae4d430a7c99326968f342793780d26
+c7a4f960b8a9eb74a3b1d1af9ab5c7be92aec265381c5409cc66000fcca7573dccab5d4c
+668f955788a6ab6eb3c3cab4c3ced1cbc1c5be6b8f4f0010f0d39035f0e4c48ff3e7caae
+006036554d8b716cc2c7bfaeebdcd8c6ead1b671b59a0d26dee1ad67ecf2dedef7ffefff
+005b24384e846f55c4a8b9a5e5b1c8cae6a9ae7ec09c4c39b2d4a178b5e3c8eac5f9dfff
+008585157a7aa338bf72b299cb74b1cdd278a18ec098774d78c18c7d62c89ed75dcaa1f8
+00ffff089371c62dbd5daf94c35da9cfcd699e94c099845565bb858040be8ed238bf8ff0
+case rgrid-hqcubic-bgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+53480893d0454190a73b57b4
+44482b94c73c588b9d5062a5
+20457e97ae1e9c7c7f9d8980
+1d49a0959d1dc9805fedae65
+5958618b9d45b1ac60e79462
+9662287f9d5ea6c65fd18260
+a959446f946dbaa33fe6a654
+a24583638d7ed2791ff0d848
+7837b466b275ab713892a844
+4e35c272d865707672236447
+65558f80b1625c81ab478959
+918145906e675b91d093c472
+9f902c96596a5b97daa5d27d
+case rgrid-hqcubic-bgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+ba3255e6cdceb2e82d93f0a23bed14ab27725a5594786324
+b63552e4cec7aee6378de7a63eec13a7266f5457967c6827
+a54045dbd3a698df5a73cab54eea12952270485f9a847a38
+84562eccda696ed4894fa2d171e30e77226f326e9d8b8b54
+5e6e11bde12640c9ad3283ecadd90858206c227ca090936f
+457e00b4e80023c2c02574fbeccf03461e6e1c84a1919580
+3f8200b2e9001dc0c42371fffecc00421e6c1a86a1919583
+case rgrid-hqcubic-bgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+454d7d76889d8d63585c967f
+7d7a744fa0a7c28c4368789c
+8f7cd5626eb2947161894286
+case rgrid-hqcubic-pbgra-3x4-7x5
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+1e2653f4433a52ebb07353d4ffa74eb4e8c03a83adcd22529bd41a3f
+4f828def5b7f94f18276adfd9671b3ef6d76819f337d423f1f802c1e
+969067899a86758ba86ca296ac51bb918f3798636b22632a5e195216
+c7782e1cce6e3622e2514b33ef396244e738764fd8408858d3428f5b
+cd854208d1713521dc300b64e31600a2d96f4bc0cbe8aecec6ffd0d5
+case rgrid-hqcubic-pbgra-5x3-2x8
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+43658250b6627b9f
+416a8656af617c98
+3880986997607f80
+2f94ab80795f8265
+358caf956364865e
+4a65a4aa526f8b6a
+5e4199ba46798f77
+633797bf417c907a
+case rgrid-hqcubic-pbgra-4x4-9x9
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+6322e4ff7b32b8d2bd593a45e88a0000e1d06431c4ffda8198f7de6964c9b42c51b9a716
+773aebe88948c4c1bb6b5957d8902115c6ba683aa6d8bd6b8bd3be5872bc9e2c68b5941c
+b27aff9cb282eb96b599ae89aa9f7e74797b7351515a7130676f692696996127a6a85e26
+c1a2f660bba7f074afbce7af95b1c7be545b7965281132095c372d0fb88d473dd9ab4f4c
+688a96577999a56ea9c3d5b4bfced9cb9088746b664914108f6d3235d9b9838ff4d49fae
+0b6b405534805e6ca3bab4aeeddcd6c6d7bb7071b3981126c3b44c67e5e7c4def1f9efff
+0c716038337d75559e9db1a5e8b3c7cae0ae7c7ec3a83739b9bf6478b3e0bdeab1edddff
+3285b1154e81b2389976b799cf75b0cdd1888f8ebca1714d96b47d7d68c59ad756cca4f8
+3e8ccd085682c72d9767b894c65ea8cfcc7b9594bb9f87558ab287804cbc8ed235c090f0
+case rgrid-hqcubic-pbgra-8x6-3x13
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+5e4e0c93d657479087524ab4
+50502994c450588b786d57a5
+2b537597963f827c51b27780
+275490957d3ca0803edc8765
+5c50508b8c51a6ac53d67762
+8d501f7f9664aac65fc57160
+a15c356f7d6cbaa33fbb9454
+a0655d63696bc27922a4b748
+755380668d5bae713062b644
+42409a72bb478f765320a747
+4c5d8880a74a7a817b3ba659
+78955c90705a6a91a88aa972
+88ab4b965a5f6397baa8ab7d
+case rgrid-hqcubic-pbgra-6x2-6x7
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+bc3257e6cdd1b4e83290eba236ee15ab28705955997c6d24
+b73553e4cec9aee6388ce6a63ded15a7277057579a7c6f27
+a24244dbd3a394df5179d1b55ce7119526704c5f9b807638
+7f5a2accdc6269d47d59add191de0c77246f3a6e9e878354
+5b710fbde4213ec9a83889ecc5d50658216d277ca18d8f6f
+467e00b4e90024c2c12574fbe4cf0246206d1c84a2919680
+418100b2ea001ec0c7216fffebce02421f6d1a86a3919883
+case rgrid-hqcubic-pbgra-7x7-3x3
+wbits 00000000
+wscale 00000000
+wpixels 00000000 32
+514885767a7ca4637262a57f
+6174624fb794a88c4d5b7b9c
+8c77aa6266b37e7166a25486
 case col-nn-3-7
 wbits 00000000
 wscale 00000000
