@@ -191,7 +191,16 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             };
             hit("GDI.STATE.OLD");
             // (out of range: 0, the mode stays)
-            out.push(format!("{t0} {}", if ok { std::mem::replace(old, m) } else { 0 }));
+            let v = if ok {
+                std::mem::replace(old, m)
+            } else if t0 == "rop2" && m == 0 {
+                // MEASURED: SetROP2(0) returns the mode (assumed: and keeps it)
+                hit("GDI.ROP2.ZERO");
+                *old
+            } else {
+                0
+            };
+            out.push(format!("{t0} {v}"));
         }
         "moveto" => {
             let p = (n(op, 2)? as i32, n(op, 3)? as i32);

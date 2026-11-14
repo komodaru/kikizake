@@ -16,3 +16,4 @@ GDI.PATH.NOPATH doc | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion 
 GDI.PATH.FILL open | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion | which pixels a path's interior holds
 GDI.PATH.WIDEN open | WidenPath | the outline a geometric pen makes of the path
 GDI.PATH.MITER open | SetMiterLimit | the limits taken, and the old value
+GDI.PATH.ENDMOVE measured | golden path order-5 | EndPath drops a PT_MOVETO that ends the path (a MoveToEx after the last figure)

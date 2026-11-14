@@ -119,7 +119,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "endpath" => {
             hit("GDI.PATH.END");
             match std::mem::take(path) {
-                Path::Open(p) => {
+                Path::Open(mut p) => {
+                    // MEASURED: a MoveToEx last in the path starts no figure and is dropped
+                    if p.last().is_some_and(|l| l.2 == PT_MOVETO) {
+                        hit("GDI.PATH.ENDMOVE");
+                        p.pop();
+                    }
                     *path = Path::Closed(p);
                     true
                 }

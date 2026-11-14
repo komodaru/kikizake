@@ -36,37 +36,42 @@ impl Map {
     pub fn identity(&self) -> bool {
         self.wext == self.vext && self.worg == self.vorg && self.world == IDENTITY
     }
-    /// LPtoDP of one point: world (f32), then page: (p - worg) * vext / wext + vorg, rounded
+    /// LPtoDP of one point: world (f32), then page: p * vext / wext + (vorg - worg * vext / wext)
     pub fn lp_to_dp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
-        let (x, y) = (p.0 as f64, p.1 as f64);
-        let w = self.world;
-        let (x, y) = if w == IDENTITY { (x, y) } else {
+        if self.world != IDENTITY {
             hit("GDI.XFORM.WORLDPOINT");
             return Err(Fail::Unmodeled("GDI.XFORM.ROUNDWORLD"));
-        };
+        }
         hit("GDI.MAP.FORMULA");
-        let fx = (x - self.worg.0 as f64) * self.vext.0 as f64 / self.wext.0 as f64 + self.vorg.0 as f64;
-        let fy = (y - self.worg.1 as f64) * self.vext.1 as f64 / self.wext.1 as f64 + self.vorg.1 as f64;
-        Ok((round(fx)?, round(fy)?))
+        Ok((page(p.0, self.wext.0, self.vext.0, self.worg.0, self.vorg.0), page(p.1, self.wext.1, self.vext.1, self.worg.1, self.vorg.1)))
     }
+    /// DPtoLP: exact when each window extent is a multiple of the viewport extent
     pub fn dp_to_lp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
         if self.world != IDENTITY {
             return Err(Fail::Unmodeled("GDI.XFORM.ROUNDWORLD"));
         }
         hit("GDI.MAP.INVERSE");
-        let fx = (p.0 as f64 - self.vorg.0 as f64) * self.wext.0 as f64 / self.vext.0 as f64 + self.worg.0 as f64;
-        let fy = (p.1 as f64 - self.vorg.1 as f64) * self.wext.1 as f64 / self.vext.1 as f64 + self.worg.1 as f64;
-        Ok((round(fx)?, round(fy)?))
+        if self.wext.0 % self.vext.0 != 0 || self.wext.1 % self.vext.1 != 0 {
+            return Err(Fail::Unmodeled("GDI.MAP.DPROUND"));
+        }
+        let (kx, ky) = (self.wext.0 / self.vext.0, self.wext.1 / self.vext.1);
+        Ok(((p.0 - self.vorg.0) * kx + self.worg.0, (p.1 - self.vorg.1) * ky + self.worg.1))
     }
 }
 
-/// the rounding of a mapped coordinate (to the nearest, halves away from zero; MEASURED)
-fn round(v: f64) -> Res<i32> {
+/// n / d to the nearest 1/16 (28.4 fixed point, halves up), in 1/16 units
+fn fix(n: i64, d: i64) -> i64 {
+    let (n, d) = if d < 0 { (-n, -d) } else { (n, d) };
+    (32 * n + d).div_euclid(2 * d)
+}
+
+/// one axis of the page transform as Windows rounds it (MEASURED): the scaled point and the
+/// offset each to 28.4 fixed point, their sum to the nearest pixel, halves up
+pub fn page(a: i32, w: i32, v: i32, worg: i32, vorg: i32) -> i32 {
     hit("GDI.MAP.ROUND");
-    if v.fract().abs() == 0.5 {
-        return Err(Fail::Unmodeled("GDI.MAP.HALF"));
-    }
-    Ok(v.round() as i32)
+    let (a, w, v, wo, vo) = (a as i64, w as i64, v as i64, worg as i64, vorg as i64);
+    let s = fix(a * v, w) + fix(vo * w - wo * v, w);
+    (s + 8).div_euclid(16) as i32
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {

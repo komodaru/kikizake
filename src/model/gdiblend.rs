@@ -33,8 +33,8 @@ fn ch(v: u32, i: u32) -> u32 {
 
 /// AlphaBlend of one pixel: source and destination as 32 bpp values (BGRA)
 pub fn alpha(s: u32, d: u32, sca: u32, per_pixel: bool) -> u32 {
-    let mut r = 0;
     if !per_pixel {
+        let mut r = 0;
         hit("GDI.ALPHA.CONSTANT");
         for i in 0..4 {
             r |= mix(ch(s, i), ch(d, i), sca) << (8 * i);
@@ -42,11 +42,20 @@ pub fn alpha(s: u32, d: u32, sca: u32, per_pixel: bool) -> u32 {
         return r;
     }
     hit("GDI.ALPHA.PERPIXEL");
-    // the source scaled by the constant alpha, then source over destination
-    let sa = (ch(s, 3) * sca + 127) / 255;
+    let sa = ch(s, 3);
+    if sa == 255 {
+        // MEASURED: an opaque source pixel blends as with the constant alpha alone
+        hit("GDI.ALPHA.OPAQUE");
+        return alpha(s, d, sca, false);
+    }
+    // the source scaled by the constant alpha, then source over destination; the channels are
+    // added as one 32 bit word (MEASURED: a channel over 255 carries into the next one)
+    hit("GDI.ALPHA.CARRY");
+    let sa = (sa * sca + 127) / 255;
+    let mut r = 0u32;
     for i in 0..4 {
         let sc = (ch(s, i) * sca + 127) / 255;
-        r |= (sc + (ch(d, i) * (255 - sa) + 127) / 255).min(255) << (8 * i);
+        r = r.wrapping_add((sc + (ch(d, i) * (255 - sa) + 127) / 255) << (8 * i));
     }
     r
 }
@@ -102,7 +111,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                         if s.s.to_rgb(sv) == key {
                             continue;
                         }
-                        if s.s.same_format(&dsl.s) { sv } else { dsl.s.from_rgb(s.s.to_rgb(sv)) }
+                        // MEASURED: through the color, even between equal formats (32 bpp: x = 0)
+                        hit("GDI.TRANS.COPY");
+                        dsl.s.from_rgb(s.s.to_rgb(sv))
                     } else {
                         // (other formats: as 32 bpp colors, alpha 0)
                         let s32 = if s.s.bpp == 32 { sv } else { s.s.to_rgb(sv) };

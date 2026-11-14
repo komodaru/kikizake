@@ -21,12 +21,15 @@ GDI.CLIP.SELNONE doc | ExtSelectClipRgn | a NULL region with RGN_COPY removes th
 GDI.CLIP.SELNULLMODE open | ExtSelectClipRgn | a NULL region with another mode ("an error")
 GDI.CLIP.SELCOPY doc | SelectClipRgn, ExtSelectClipRgn | RGN_COPY: the clip region becomes a copy of the region (later changes to the region do not move it); returns its type
 GDI.CLIP.SELMODE doc | ExtSelectClipRgn | the other modes combine the clip region with the region as CombineRgn does
-GDI.CLIP.SELNOCLIP open | ExtSelectClipRgn | a mode other than RGN_COPY on a DC without a clip region
+GDI.CLIP.SELNOCLIP measured | golden region | RGN_OR, RGN_XOR, RGN_DIFF on a DC without a clip region combine with the bitmap's rectangle
+GDI.CLIP.SELNOCLIPAND measured | golden region clip-27 | RGN_AND on a DC without a clip region: the clip region is the region itself, not clipped by the bitmap
 GDI.CLIP.BOX doc | GetClipBox | the type and bounding rectangle of the visible area (the clip region within the bitmap)
 GDI.CLIP.GETRGN doc | GetClipRgn | 0 when the DC has no clip region, 1 and a copy of it when it has
 GDI.CLIP.EXCLUDE doc | ExcludeClipRect | the clip region minus the rectangle (no clip region: the bitmap's area minus it); returns the new type
 GDI.CLIP.EXUNORDERED open | ExcludeClipRect | a rectangle with left > right or top > bottom
 GDI.CLIP.OFFSET doc | OffsetClipRgn | moves the clip region; returns its type
-GDI.CLIP.OFFSETNONE open | OffsetClipRgn | on a DC without a clip region
+GDI.CLIP.OFFSETNONE measured | golden region clip-* | on a DC without a clip region: returns SIMPLEREGION (2) and the DC keeps no clip region
 GDI.CLIP.PTVISIBLE doc | PtVisible | whether the point is in the clip region (and the bitmap)
 GDI.CLIP.RECTVISIBLE doc | RectVisible | whether any part of the rectangle is in the clip region
+GDI.RGN.OVERLAP measured | golden region query-*, clip-* | RectInRegion and RectVisible: the rectangle normalized, true when some rectangle of the region has left < R, right > L, top < B and bottom > T (so a rectangle of zero width or height strictly inside counts)
+GDI.CLIP.EXRESULT measured | golden region clip-* | ExcludeClipRect on a DC without a clip region returns COMPLEXREGION (3), whatever the result's shape

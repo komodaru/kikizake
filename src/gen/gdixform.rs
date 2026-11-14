@@ -8,21 +8,22 @@ fn fl(r: &mut XorShift32, lo: i64, hi: i64) -> String {
     format!("{v}")
 }
 
-fn grid() -> String {
+/// 64 points as two calls of 32 (a case line holds at most 80 tokens, the runner 32 points)
+fn grid(op: &str) -> String {
     let mut p = Vec::new();
     for y in [-7, -1, 0, 1, 2, 3, 5, 13] {
         for x in [-9, -2, -1, 0, 1, 4, 7, 100] {
             p.push(format!("{x} {y}"));
         }
     }
-    p.join(" ")
+    format!("{op} 0 {}\n{op} 0 {}", p[..32].join(" "), p[32..].join(" "))
 }
 
 pub fn xform() -> String {
     let mut s = String::from("# kikizake suite xform: GDI mapping modes and world transforms (SPEC.md). Made by `kikizake gen xform`.\n");
     let mut r = XorShift32::new(0x7f0e_0000);
     // the defaults, and each mapping mode's extents
-    writeln!(s, "case defaults\ndib 0 8 8 32\ngetmap 0\ngetxform 0\nlptodp 0 {}\nend", grid()).unwrap();
+    writeln!(s, "case defaults\ndib 0 8 8 32\ngetmap 0\ngetxform 0\n{}\nend", grid("lptodp")).unwrap();
     for m in 0..=9 {
         writeln!(s, "case mapmode-{m}\ndib 0 8 8 32\nmapmode 0 {m}\ngetmap 0\nwinext 0 10 20\nvpext 0 30 -40\ngetmap 0\nmapmode 0 1\ngetmap 0\nend").unwrap();
     }
@@ -34,7 +35,7 @@ pub fn xform() -> String {
         if r.chance(2) {
             writeln!(s, "winorg 0 {} {}\nvporg 0 {} {}", r.range(-9, 9), r.range(-9, 9), r.range(-9, 9), r.range(-9, 9)).unwrap();
         }
-        writeln!(s, "getmap 0\nlptodp 0 {}\ndptolp 0 {}\nend", grid(), grid()).unwrap();
+        writeln!(s, "getmap 0\n{}\n{}\nend", grid("lptodp"), grid("dptolp")).unwrap();
     }
     // MM_ISOTROPIC: the viewport adjusted to keep the aspect
     for i in 0..60 {
@@ -46,13 +47,13 @@ pub fn xform() -> String {
         } else {
             writeln!(s, "vpext 0 {c} {d}\nwinext 0 {a} {b}").unwrap();
         }
-        writeln!(s, "getmap 0\nlptodp 0 {}\nend", grid()).unwrap();
+        writeln!(s, "getmap 0\n{}\nend", grid("lptodp")).unwrap();
     }
     // offsets and scales
     for i in 0..40 {
         writeln!(s, "case scale-{i}\ndib 0 8 8 32\nmapmode 0 8\nwinext 0 {} {}\nvpext 0 {} {}", r.range(1, 50), r.range(1, 50), r.range(1, 50), r.range(1, 50)).unwrap();
         writeln!(s, "scalewin 0 {} {} {} {}\nscalevp 0 {} {} {} {}", r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5)).unwrap();
-        writeln!(s, "offsetwin 0 {} {}\noffsetvp 0 {} {}\ngetmap 0\nlptodp 0 {}\nend", r.range(-5, 5), r.range(-5, 5), r.range(-5, 5), r.range(-5, 5), grid()).unwrap();
+        writeln!(s, "offsetwin 0 {} {}\noffsetvp 0 {} {}\ngetmap 0\n{}\nend", r.range(-5, 5), r.range(-5, 5), r.range(-5, 5), r.range(-5, 5), grid("lptodp")).unwrap();
     }
     // world transforms: GM_ADVANCED, set / modify / get, CombineTransform
     for i in 0..80 {
@@ -68,7 +69,7 @@ pub fn xform() -> String {
         if r.chance(3) {
             writeln!(s, "mapmode 0 8\nwinext 0 {} {}\nvpext 0 {} {}", r.range(1, 9), r.range(1, 9), r.range(1, 9), r.range(1, 9)).unwrap();
         }
-        writeln!(s, "lptodp 0 {}\ndptolp 0 {}\ngmode 0 1\ngetxform 0\nend", grid(), grid()).unwrap();
+        writeln!(s, "{}\n{}\ngmode 0 1\ngetxform 0\nend", grid("lptodp"), grid("dptolp")).unwrap();
     }
     for i in 0..60 {
         let x = |r: &mut XorShift32| format!("{} {} {} {} {} {}", fl(r, -4, 4), fl(r, -4, 4), fl(r, -4, 4), fl(r, -4, 4), fl(r, -99, 99), fl(r, -99, 99));

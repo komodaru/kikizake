@@ -5,7 +5,7 @@ use proptest::prelude::*;
 use kikizake::case::parse_cases;
 use kikizake::model::gdiblend::{alpha, mix};
 use kikizake::model::gdiline::{line_pixels, rop2};
-use kikizake::model::gdixform::{multiply, IDENTITY};
+use kikizake::model::gdixform::{multiply, page, IDENTITY};
 use kikizake::model::rgn::{Rgn, SetOp, COMPLEXREGION, NULLREGION, SIMPLEREGION};
 use kikizake::model::{self, run_case};
 
@@ -143,6 +143,19 @@ proptest! {
         let x = x.map(|v| v as f32 / 8.0);
         prop_assert_eq!(multiply(&IDENTITY, &x), x);
         prop_assert_eq!(multiply(&x, &IDENTITY), x);
+    }
+
+    /// LPtoDP's page transform: equal extents are a translation; otherwise each coordinate is
+    /// within half a pixel and a sixteenth of the exact value, and monotone in the point
+    #[test]
+    fn page_rounding(a in -2000i32..2000, w in -300i32..300, v in -300i32..300, wo in -50i32..50, vo in -50i32..50) {
+        prop_assume!(w != 0 && v != 0);
+        prop_assert_eq!(page(a, w, w, wo, vo), a - wo + vo);
+        let exact = (a - wo) as f64 * v as f64 / w as f64 + vo as f64;
+        prop_assert!((page(a, w, v, wo, vo) as f64 - exact).abs() <= 0.5 + 1.0 / 16.0);
+        let (p0, p1) = (page(a, w, v, wo, vo), page(a + 1, w, v, wo, vo));
+        let up = (v > 0) == (w > 0);
+        prop_assert!(if up { p1 >= p0 } else { p1 <= p0 }, "monotone");
     }
 
     /// whatever text comes in, the drawing models never panic

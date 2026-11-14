@@ -8,8 +8,8 @@ GDI.MAP.SCALE open | ScaleWindowExtEx, ScaleViewportExtEx | the scaled extents (
 GDI.MAP.GET doc | GetMapMode, GetWindowExtEx, GetViewportExtEx, GetWindowOrgEx, GetViewportOrgEx, GetGraphicsMode | the state as set
 GDI.MAP.FORMULA doc | Transformation of Coordinate Spaces (page space to device space) | Dx = (Lx - xWO) * xVE / xWE + xVO, and likewise for y
 GDI.MAP.INVERSE doc | DPtoLP | the inverse: Lx = (Dx - xVO) * xWE / xVE + xWO
-GDI.MAP.ROUND assumed | (none) | the result rounded to the nearest integer
-GDI.MAP.HALF open | (none) | a result exactly halfway between two integers
+GDI.MAP.ROUND measured | golden xform (11520 LPtoDP coordinates per arch) | Lx * xVE / xWE and the offset xVO - xWO * xVE / xWE each rounded to 1/16 (28.4 fixed point, halves up), their sum rounded to an integer (halves up)
+GDI.MAP.DPROUND open | golden xform | DPtoLP's rounding when an extent ratio is not an integer (not the inverse of LPtoDP's: 7612 of 7680 coordinates fit each term rounded halves away from zero, ties differ)
 GDI.MAP.DRAW open | (none) | drawing (PatBlt, BitBlt, lines, regions, ...) through a mapping or a world transform
 GDI.XFORM.GMODE doc | SetGraphicsMode | returns the previous mode; GM_COMPATIBLE cannot be set again until the world transform is the identity (0)
 GDI.XFORM.SET doc | SetWorldTransform | fails (0) unless the graphics mode is GM_ADVANCED; else the world transform becomes the matrix

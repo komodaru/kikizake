@@ -46,6 +46,8 @@ pub fn lines() -> String {
         }
         writeln!(s, "rop2 0 0\nrop2 0 17\ndump 0\nend").unwrap();
     }
+    // what SetROP2(0) leaves: a line drawn after it, then the mode it reports
+    writeln!(s, "case rop2-zero\ndib 0 8 4 32\nfill 0 0x00808080\npen 0 0 0 #ff0000\nrop2 0 7\nrop2 0 0\nmoveto 0 0 1\nlineto 0 8 1\nrop2 0 13\nrop2 0 0\nrop2 0 13\ndump 0\nend").unwrap();
     // pen styles, cosmetic: dashes and dots in both background modes, along each direction
     for st in 0..=8 {
         for bk in [1, 2] {

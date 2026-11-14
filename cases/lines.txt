@@ -4363,6 +4363,19 @@ rop2 0 0
 rop2 0 17
 dump 0
 end
+case rop2-zero
+dib 0 8 4 32
+fill 0 0x00808080
+pen 0 0 0 #ff0000
+rop2 0 7
+rop2 0 0
+moveto 0 0 1
+lineto 0 8 1
+rop2 0 13
+rop2 0 0
+rop2 0 13
+dump 0
+end
 case style-0-1
 dib 0 40 12 32
 bk 0 #0000ff

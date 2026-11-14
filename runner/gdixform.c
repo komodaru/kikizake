@@ -65,13 +65,13 @@ static void op_getmap(void) {
     out("map %d %d wext %ld %ld vext %ld %ld worg %ld %ld vorg %ld %ld\n", GetMapMode(dc), GetGraphicsMode(dc), we.cx, we.cy, ve.cx, ve.cy, wo.x, wo.y, vo.x, vo.y);
 }
 
-/* lptodp / dptolp <s> x y ...: "pts <ret> x y ..." */
+/* lptodp / dptolp <s> x y ... (at most 32 points): "pts <ret> x y ..." */
 static void op_conv(void) {
     HDC dc = gdi_dc(1);
     POINT p[32];
     int n = 0;
     for (int i = 2; i + 1 < ntok && n < 32; i += 2, n++) { p[n].x = num(i); p[n].y = num(i + 1); }
-    if (bad || ntok % 2) { bad = 1; return; }
+    if (bad || ntok % 2 || 2 + 2 * n < ntok) { bad = 1; return; }
     BOOL r = is(0, "lptodp") ? LPtoDP(dc, p, n) : DPtoLP(dc, p, n);
     out("pts %d", r ? 1 : 0);
     for (int i = 0; i < n; i++) out(" %ld %ld", p[i].x, p[i].y);

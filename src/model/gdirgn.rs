@@ -7,7 +7,7 @@
 //! "GetClipBox", "GetClipRgn", "ExcludeClipRect", "OffsetClipRgn", "PtVisible", "RectVisible".
 
 use super::gdi::{Brush, Gdi};
-use super::rgn::{Rgn, SetOp, NULLREGION};
+use super::rgn::{Rgn, SetOp};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -20,6 +20,15 @@ fn n32(op: &Op, i: usize) -> Res<i32> {
 }
 fn rect(op: &Op, from: usize) -> Res<(i32, i32, i32, i32)> {
     Ok((n32(op, from)?, n32(op, from + 1)?, n32(op, from + 2)?, n32(op, from + 3)?))
+}
+
+/// RectInRegion / RectVisible: the rectangle (corners in either order, even of no area)
+/// overlaps one of the region's: l < right, r > left, t < bottom, b > top (MEASURED)
+fn overlaps(g: &Rgn, q: (i32, i32, i32, i32)) -> bool {
+    let (l, r) = (q.0.min(q.2), q.0.max(q.2));
+    let (t, b) = (q.1.min(q.3), q.1.max(q.3));
+    hit("GDI.RGN.OVERLAP");
+    g.rects().iter().any(|x| l < x.2 && r > x.0 && t < x.3 && b > x.1)
 }
 
 fn data(g: &Rgn) -> Vec<String> {
@@ -106,8 +115,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 "rectin" => {
                     let q = rect(op, 2)?;
                     hit("GDI.RGN.RECTIN");
-                    let any = r.combine(&Rgn::rect(q.0, q.1, q.2, q.3), SetOp::And).kind() != NULLREGION;
-                    out.push(format!("rectin {}", any as u8));
+                    out.push(format!("rectin {}", overlaps(&r, q) as u8));
                 }
                 "equal" => {
                     let o = g.rgn(op, 2)?;
@@ -204,7 +212,17 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     hit("GDI.CLIP.SELMODE");
                     match &sl.clip {
                         Some(c) => Some(c.combine(&r, o)),
-                        None => return Err(Fail::Unmodeled("GDI.CLIP.SELNOCLIP")),
+                        // MEASURED: RGN_AND without a clip region keeps the region whole
+                        // (GetClipRgn returns it unclipped by the bitmap)
+                        None if o == SetOp::And => {
+                            hit("GDI.CLIP.SELNOCLIPAND");
+                            Some(r)
+                        }
+                        None => {
+                            // MEASURED: no clip region combines as the bitmap's rectangle
+                            hit("GDI.CLIP.SELNOCLIP");
+                            Some(dev.combine(&r, o))
+                        }
                     }
                 }
             };
@@ -239,9 +257,13 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             if q.0 > q.2 || q.1 > q.3 {
                 return Err(Fail::Unmodeled("GDI.CLIP.EXUNORDERED"));
             }
-            let base = sl.clip.clone().unwrap_or_else(|| dev.clone());
-            let c = base.combine(&Rgn::rect(q.0, q.1, q.2, q.3), SetOp::Diff);
-            out.push(format!("exclude {}", c.combine(&dev, SetOp::And).kind()));
+            if sl.clip.is_some() {
+                return Err(Fail::Unmodeled("GDI.CLIP.AGAIN"));
+            }
+            let c = dev.combine(&Rgn::rect(q.0, q.1, q.2, q.3), SetOp::Diff);
+            // MEASURED: COMPLEXREGION on a DC without a clip region, as IntersectClipRect
+            hit("GDI.CLIP.EXRESULT");
+            out.push("exclude 3".into());
             sl.clip = Some(c);
         }
         "offsetclip" => {
@@ -249,11 +271,15 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             hit("GDI.CLIP.OFFSET");
             match &mut sl.clip {
                 Some(c) => {
+                    // MEASURED: the type of the clip region itself, not of its visible part
                     c.offset(dx, dy);
-                    let kind = c.combine(&dev, SetOp::And).kind();
-                    out.push(format!("offsetclip {kind}"));
+                    out.push(format!("offsetclip {}", c.kind()));
                 }
-                None => return Err(Fail::Unmodeled("GDI.CLIP.OFFSETNONE")),
+                None => {
+                    // MEASURED: SIMPLEREGION, and the DC keeps no clip region
+                    hit("GDI.CLIP.OFFSETNONE");
+                    out.push("offsetclip 2".into());
+                }
             }
         }
         "ptvisible" => {
@@ -265,8 +291,7 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let q = rect(op, 2)?;
             hit("GDI.CLIP.RECTVISIBLE");
             let v = sl.clip.as_ref().map_or(dev.clone(), |c| c.combine(&dev, SetOp::And));
-            let any = v.combine(&Rgn::rect(q.0, q.1, q.2, q.3), SetOp::And).kind() != NULLREGION;
-            out.push(format!("rectvisible {}", any as u8));
+            out.push(format!("rectvisible {}", overlaps(&v, q) as u8));
         }
     }
     Ok(true)
