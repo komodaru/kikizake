@@ -1,0 +1,388 @@
+kikizake ddb
+case kind-0
+bm bitmap 9 5 2 1 1 0
+bmsize bitmap
+objtype 7
+objtype 1
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case kind-1
+bm bitmap 9 5 2 1 1 0
+bmsize bitmap
+objtype 7
+objtype 1
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case kind-2
+select failed
+bad line 18
+bad line 19
+bad line 20
+bad line 21
+case kind-3
+select failed
+bad line 25
+bad line 26
+bad line 27
+bad line 28
+case kind-4
+select failed
+bad line 32
+bad line 33
+bad line 34
+bad line 35
+case kind-5
+select failed
+bad line 39
+bad line 40
+bad line 41
+bad line 42
+case kind-6
+bm bitmap 9 5 36 1 32 0
+bmsize bitmap
+objtype 7
+objtype 1
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case kind-7
+select failed
+bad line 53
+bad line 54
+bad line 55
+bad line 56
+case kind-8
+select failed
+bad line 60
+bad line 61
+bad line 62
+bad line 63
+case kind-9
+bm bitmap 9 5 36 1 32 0
+bmsize bitmap
+objtype 7
+objtype 1
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case kind-10
+bm bitmap 1 1 2 1 1 0
+bmsize bitmap
+objtype 7
+objtype 1
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case kind-11
+bm bitmap 1 1 2 1 1 0
+bmsize bitmap
+objtype 7
+objtype 1
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case kind-12
+select failed
+bad line 88
+bad line 89
+bad line 90
+bad line 91
+case compat-1
+bm dibsection 4 4 4 1 1 1
+dib 1 4 0 2
+bmsize bitmap
+bm dibsection 7 3 4 1 1 1
+dib 1 3 0 2
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-1
+bmbits 8
+e707ff94af0aa8fe
+case compat-4
+bm dibsection 4 4 4 1 4 1
+dib 4 4 0 16
+bmsize bitmap
+bm dibsection 7 3 4 1 4 1
+dib 4 3 0 16
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-4
+bmbits 8
+e707ff94af0aa8fe
+case compat-8
+bm dibsection 4 4 4 1 8 1
+dib 8 4 0 256
+bmsize bitmap
+bm dibsection 7 3 8 1 8 1
+dib 8 3 0 256
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-8
+bmbits 16
+e7074345ff94ba57af0afde4a8fe4535
+case compat-16
+bm dibsection 4 4 8 1 16 1
+dib 16 4 3 0
+bmsize bitmap
+bm dibsection 7 3 16 1 16 1
+dib 16 3 3 0
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-16
+bmbits 32
+e7074345ff94ba57af0afde4a8fe4535edda3c2b307053d89c459457faa13597
+case compat-16565
+bm dibsection 4 4 8 1 16 1
+dib 16 4 3 0
+bmsize bitmap
+bm dibsection 7 3 16 1 16 1
+dib 16 3 3 0
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-16565
+bmbits 32
+e7074345ff94ba57af0afde4a8fe4535edda3c2b307053d89c459457faa13597
+case compat-24
+bm dibsection 4 4 12 1 24 1
+dib 24 4 0 0
+bmsize bitmap
+bm dibsection 7 3 24 1 24 1
+dib 24 3 0 0
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-24
+bmbits 48
+e7074345ff94ba57af0afde4a8fe4535edda3c2b307053d89c459457faa13597aa71df56c9e8a58766ea4c8cff8d33d6
+case compat-32
+bm dibsection 4 4 16 1 32 1
+dib 32 4 0 0
+bmsize bitmap
+bm dibsection 7 3 28 1 32 1
+dib 32 3 0 0
+bmsize bitmap
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+caps 1 32 1 -1 -1 -1 32409 0 20 24 0
+case dibbits-32
+bmbits 64
+e7074345ff94ba57af0afde4a8fe4535edda3c2b307053d89c459457faa13597aa71df56c9e8a58766ea4c8cff8d33d680a6795fca6fd42da26dff5e439bdf6d
+case compat-ddb
+bm bitmap 5 3 2 1 1 0
+bmsize bitmap
+bm bitmap 5 3 20 1 32 0
+bmsize bitmap
+case bits-mono-13-3
+px 0 13 3 1
+3b16
+8183
+3dcc
+bmbits 6
+3b1681833dcc
+dibits 3
+0000000000000000ffffff00ffffff00ffffff0000000000ffffff00ffffff00000000000000000000000000ffffff0000000000
+ffffff00000000000000000000000000000000000000000000000000ffffff00ffffff0000000000000000000000000000000000
+0000000000000000ffffff00ffffff00ffffff00ffffff0000000000ffffff00ffffff00ffffff000000000000000000ffffff00
+dibits 3
+000000000000ffffffffffffffffff000000ffffffffffff000000000000000000ffffff000000
+ffffff000000000000000000000000000000000000ffffffffffff000000000000000000000000
+000000000000ffffffffffffffffffffffff000000ffffffffffffffffff000000000000ffffff
+dibits 3
+pal 000000 ffffff
+3b10
+8180
+3dc8
+case bits-screen-5-3
+px 0 5 3 32
+1681833dcc55ba9e5cbaad4b921dec5ff04ccb9e
+c29e7551d182b963fa9ab3e8e061ce3bc060f3eb
+e0a7c8255d7b838d680a7b112b22864f77e728ed
+bmbits 60
+1681833dcc55ba9e5cbaad4b921dec5ff04ccb9ec29e7551d182b963fa9ab3e8e061ce3bc060f3ebe0a7c8255d7b838d680a7b112b22864f77e728ed
+dibits 3
+1681833dcc55ba9e5cbaad4b921dec5ff04ccb9e
+c29e7551d182b963fa9ab3e8e061ce3bc060f3eb
+e0a7c8255d7b838d680a7b112b22864f77e728ed
+dibits 3
+168183cc55ba5cbaad921decf04ccb
+c29e75d182b9fa9ab3e061cec060f3
+e0a7c85d7b83680a7b2b228677e728
+dibits 3
+pal 000000 ffffff
+78
+f8
+88
+case bits-bitmap-7-2-1-8
+select failed
+bad line 212
+bad line 213
+bad line 214
+bad line 215
+bad line 216
+bad line 217
+case bits-bitmap-5-2-1-16
+select failed
+bad line 221
+bad line 222
+bad line 223
+bad line 224
+bad line 225
+bad line 226
+case bits-bitmap-5-2-1-24
+select failed
+bad line 230
+bad line 231
+bad line 232
+bad line 233
+bad line 234
+bad line 235
+case mono-to-4
+ret 1
+px 1 9 4 4
+808880808a
+080888008c
+8080880802
+8008008001
+case mono-from-4
+ret 1
+px 0 9 4 1
+044b
+0042
+2075
+0051
+case mono-to-8
+ret 1
+px 1 9 4 8
+e8e8e8e8e892e892e8
+e892e8e89292e8e8e8
+e8e8e8929292929292
+e8e89292e8e8e89292
+case mono-from-8
+pixel ff91ff
+ret 1
+px 0 9 4 1
+00e0
+0048
+005d
+0003
+case mono-to-16
+ret 1
+px 1 9 4 16
+421944754475447544754219447544754219
+421942194475421944754219447544754219
+447542194219421942194475447542194219
+421944754475447542194475447544754475
+case mono-from-16
+pixel f7f7ef
+ret 1
+px 0 9 4 1
+003b
+0053
+0038
+0062
+case mono-to-16565
+ret 1
+px 1 9 4 16
+806380638063204b806380638063204b8063
+204b204b8063204b8063204b204b204b8063
+204b204b204b80638063204b8063204b8063
+204b204b204b8063204b80638063204b204b
+case mono-from-16565
+pixel d6b631
+ret 1
+px 0 9 4 1
+000e
+0012
+0022
+007a
+case mono-to-24
+ret 1
+px 1 9 4 24
+afa9557ca8c8afa955afa955afa955afa9557ca8c8afa9557ca8c8
+7ca8c8afa955afa955afa955afa955afa955afa955afa955afa955
+afa955afa955afa955afa955afa955afa955afa955afa9557ca8c8
+afa9557ca8c8afa955afa955afa955afa955afa955afa9557ca8c8
+case mono-from-24
+pixel df7bf6
+ret 1
+px 0 9 4 1
+005f
+003e
+0068
+0039
+case mono-to-32
+ret 1
+px 1 9 4 32
+678119006781190067811900d217be00d217be0067811900678119006781190067811900
+d217be00678119006781190067811900d217be00d217be00d217be00d217be00d217be00
+6781190067811900d217be00678119006781190067811900d217be0067811900d217be00
+d217be00d217be00d217be00d217be0067811900d217be006781190067811900d217be00
+case mono-from-32
+pixel 550974
+ret 1
+px 0 9 4 1
+0055
+0049
+0060
+001b
+case screen-4
+ret 1
+px 0 7 3 32
+00800000008000008000800000ffff00ed9a1fd0898a3afef23e0fa8
+000080000080000000ff000080800000d35fb83969d1b47e6fd0296e
+00008000ffff0000ffff0000ff00ff00a155700ec08b705c0eff1372
+ret 1
+px 1 7 3 4
+225be6cd
+12a67767
+1eed88ae
+case screen-8
+ret 1
+px 0 7 3 32
+556d4800aa910000aa24b60055b6da00d0898a3afef23e0fa8c9715b
+aa6dda00ff000000ff00b600002424003969d1b47e6fd0296e690219
+ffff00000091da0055489100aa4891000ec08b705c0eff1372015071
+ret 1
+px 1 7 3 8
+4d12a6d5925f7b
+ce03a324cdcd0d
+1fd0898a95e241
+case screen-16
+ret 1
+px 0 7 3 32
+adf7ce00f742de00de849c0018c642003afef23e0fa8c9715bc92584
+52a57300f7bde700f7ce1800426b9400b47e6fd0296e690219aab1db
+731084002931ad00f7527b0073cea500705c0eff1372015071bee12b
+ret 1
+px 1 7 3 16
+d5e71eed1bce0323e77ba1662b13
+8a3afef23e0fa849f635a535a35a
+4ec0c5545ebd2e536e05c201ee72
+case screen-16565
+ret 1
+px 0 7 3 32
+6b7d18007379000018962100315910003e0fa8c9715bc92584c31a01
+94df39007b00ad004a387300de28ce00d0296e690219aab1db58299e
+a5cb5a00efd729009cfb5a00c6343900ff1372015071bee12b79c3e2
+ret 1
+px 1 7 3 16
+ed1bce03a324c61267a8ceca101e
+f23e0fa8c9715bc95a69c0a8db2a
+545ebd2ed35fb8399f708abbc5c3
+case screen-24
+ret 1
+px 0 7 3 32
+aab1db0058299e00f0876300d5fc2300c9715bc92584c31a014ec0c5
+1a014e00c0c554005ebd2e00d35fb800690219aab1db58299ef08763
+03a32400c612ed009a1fd000898a3a00015071bee12b79c3e29b691e
+ret 1
+px 1 7 3 24
+aab1db58299ef08763d5fc23c9715b2584c3014ec0
+1a014ec0c5545ebd2ed35fb8690219b1db589ef087
+03a324c612ed9a1fd0898a3a015071e12b79e29b69
+case screen-32
+ret 1
+px 0 7 3 32
+2363a155700ec08b705c0eff13720150c92584c31a014ec0c5545ebd
+bd2ed35fb83969d1b47e6fd0296e6902aab1db58299ef08763d5fc23
+c612ed9a1fd0898a3afef23e0fa8c971bee12b79c3e29b691e0bf035
+ret 1
+px 1 7 3 32
+2363a155700ec08b705c0eff13720150c92584c31a014ec0c5545ebd
+bd2ed35fb83969d1b47e6fd0296e6902aab1db58299ef08763d5fc23
+c612ed9a1fd0898a3afef23e0fa8c971bee12b79c3e29b691e0bf035
+done

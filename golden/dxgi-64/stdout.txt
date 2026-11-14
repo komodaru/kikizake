@@ -1,0 +1,1320 @@
+kikizake dxgi
+case factory
+factory ok
+warp vendor 1414 device 8c flags 2
+factory ok
+warp vendor 1414 device 8c flags 2
+factory ok
+warp vendor 1414 device 8c flags 2
+factory ok
+warp vendor 1414 device 8c flags 2
+factory ok
+warp vendor 1414 device 8c flags 2
+factory ok
+warp vendor 1414 device 8c flags 2
+case assoc
+factory ok
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 00000000
+assoc hr 887a0001
+assoc hr 887a0001
+assoc hr 887a0001
+assoc hr 887a0001
+assoc hr 887a0001
+assoc hr 887a0001
+assoc hr 887a0001
+assoc hr 887a0001
+case swapchain-width-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-height-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-format-0
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-format-1
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-format-2
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-stereo-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+case swapchain-samples-0
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-quality-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-usage-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 0 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 10 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 30 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 40 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 60 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-buffers-0
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 3 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 4 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 5 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 6 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 7 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 8 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 9 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 a 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 b 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 c 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 d 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 e 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 f 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 10 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-scaling-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-effect-0
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-alpha-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 3 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-flags-0
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 2 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 20 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 1000 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 2000 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 840 index 0
+swapchain hr 887a0001
+case swapchain-pairs
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 3 0 0 index 0
+swapchain = 40 40 18 0 1 0 20 2 0 3 0 0 index 0
+swapchain = 40 40 1c 0 1 0 20 2 0 3 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 a 0 1 0 20 2 1 3 0 0 index 0
+swapchain = 40 40 18 0 1 0 20 2 1 3 0 0 index 0
+swapchain = 40 40 1c 0 1 0 20 2 1 3 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 1 3 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 a 0 1 0 20 2 1 4 0 0 index 0
+swapchain = 40 40 18 0 1 0 20 2 1 4 0 0 index 0
+swapchain = 40 40 1c 0 1 0 20 2 1 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case chain-buffers-2
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer hr 887a0001
+buffer hr 887a0001
+present hr 00000000 index 1
+present hr 00000000 index 0
+present hr 00000000 index 1
+present hr 00000000 index 0
+case chain-buffers-3
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 3 0 4 0 0 index 0
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer hr 887a0001
+buffer hr 887a0001
+present hr 00000000 index 1
+present hr 00000000 index 2
+present hr 00000000 index 0
+present hr 00000000 index 1
+present hr 00000000 index 2
+case chain-buffers-5
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 5 0 4 0 0 index 0
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer hr 887a0001
+buffer hr 887a0001
+present hr 00000000 index 1
+present hr 00000000 index 2
+present hr 00000000 index 3
+present hr 00000000 index 4
+present hr 00000000 index 0
+present hr 00000000 index 1
+present hr 00000000 index 2
+case chain-buffers-16
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 10 0 4 0 0 index 0
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+buffer hr 887a0001
+buffer hr 887a0001
+present hr 00000000 index 1
+present hr 00000000 index 2
+present hr 00000000 index 3
+present hr 00000000 index 4
+present hr 00000000 index 5
+present hr 00000000 index 6
+present hr 00000000 index 7
+present hr 00000000 index 8
+present hr 00000000 index 9
+present hr 00000000 index a
+present hr 00000000 index b
+present hr 00000000 index c
+present hr 00000000 index d
+present hr 00000000 index e
+present hr 00000000 index f
+present hr 00000000 index 0
+present hr 00000000 index 1
+present hr 00000000 index 2
+case chain-present
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+present hr 00000000 index 0
+present hr 00000000 index 1
+present hr 887a0001 index 1
+present hr 00000000 index 1
+present hr 00000000 index 1
+present hr 887a000a index 1
+present hr 887a0001 index 1
+present hr 887a0001 index 1
+present hr 887a0001 index 1
+present hr 00000000 index 0
+case chain-resize
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+resize = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+resize = 40 40 57 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+resize = 64 32 57 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+resize = 40 40 1c 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+resize = 40 40 a 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+resize = 40 40 18 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+resize hr 80070057
+present hr 00000000 index 2
+resize hr 80070057
+present hr 00000000 index 0
+resize hr 80070057
+present hr 00000000 index 1
+resize = 40 40 18 0 1 0 20 10 0 4 0 0 index 0
+present hr 00000000 index 1
+resize hr 80070057
+present hr 00000000 index 2
+resize = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+resize = 4001 1 18 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+resize hr 80070057
+present hr 00000000 index 0
+resize hr 80070057
+present hr 00000000 index 1
+resize = 40 40 18 0 1 0 20 2 0 4 0 2 index 0
+present hr 00000000 index 1
+resize hr 887a0001
+present hr 00000000 index 0
+resize hr 80070057
+present hr 00000000 index 1
+case chain-latency-0
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+latency hr 887a0001 get 887a0001 cccccccc
+latency hr 887a0001 get 887a0001 cccccccc
+latency hr 887a0001 get 887a0001 cccccccc
+latency hr 887a0001 get 887a0001 cccccccc
+latency hr 887a0001 get 887a0001 cccccccc
+latency hr 887a0001 get 887a0001 cccccccc
+latency hr 887a0001 get 887a0001 cccccccc
+case chain-latency-40
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+latency hr 00000000 get 00000000 1
+latency hr 00000000 get 00000000 2
+latency hr 00000000 get 00000000 3
+latency hr 00000000 get 00000000 10
+latency hr 00000000 get 00000000 11
+latency hr 887a0001 get 00000000 11
+case swapchain-random-0
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-1
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+case swapchain-random-2
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-3
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 a 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-4
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-5
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 20 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-6
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+case swapchain-random-7
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-8
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-random-9
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-10
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 e 0 4 0 20 index 0
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+nochain
+case swapchain-random-11
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 0 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 4001 4001 57 0 1 0 20 2 0 4 3 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-12
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 4 0 4 0 1000 index 0
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+case swapchain-random-13
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 e 0 4 0 1000 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+case swapchain-random-14
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 3 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain = 4001 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-15
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 3f 2 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-16
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+swapchain = 4001 4000 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-17
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 0 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 d 0 4 3 1000 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+case swapchain-random-18
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 e 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 3 0 index 0
+present hr 00000000 index 1
+case swapchain-random-19
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain = 3f 1 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-20
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-random-21
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-22
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-23
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-24
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 f 0 3 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-25
+device12 ok
+factory ok
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-26
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+case swapchain-random-27
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 c 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 800 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 c 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-28
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-29
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-30
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 60 2 0 4 0 0 index 0
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case swapchain-random-31
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 f 0 4 3 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-32
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-33
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+case swapchain-random-34
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-35
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-36
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 6 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 2 1 0 20 10 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-37
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 10 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-38
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-39
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 1 1 0 20 5 0 4 0 0 index 0
+present hr 00000000 index 1
+case swapchain-random-40
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 30 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 1000 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-random-41
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-42
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 f 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 2000 index 0
+swapchain = 40 40 57 0 1 0 30 2 0 4 0 0 index 0
+case swapchain-random-43
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 20 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-44
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 2 1 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 2 1 0 30 2 0 4 0 0 index 0
+case swapchain-random-45
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 5 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case swapchain-random-46
+device12 ok
+factory ok
+swapchain = 64 3f 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 1 1 0 60 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 3 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 10 2 0 3 0 0 index 0
+case swapchain-random-47
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 20 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-48
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain = 40 40 57 1 1 0 20 2 1 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 1 1 0 20 2 0 4 0 40 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 c 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+case swapchain-random-49
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain = 3f 4001 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-50
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 60 2 0 3 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+nochain
+case swapchain-random-51
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 2 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-52
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+case swapchain-random-53
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-54
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-55
+device12 ok
+factory ok
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 6 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case swapchain-random-56
+device12 ok
+factory ok
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 20 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 d 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+case swapchain-random-57
+device12 ok
+factory ok
+swapchain = 40 40 57 2 1 0 20 4 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain = 40 40 57 0 1 0 20 e 0 4 0 0 index 0
+swapchain = 1 4001 57 0 1 0 20 2 0 3 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 2 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 20 9 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-random-58
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+swapchain hr 887a0001
+swapchain = 40 40 57 0 1 0 30 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 840 index 0
+present hr 00000000 index 1
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 1000 index 0
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+case swapchain-random-59
+device12 ok
+factory ok
+swapchain = 40 40 57 1 1 0 0 2 0 4 0 0 index 0
+present hr 00000000 index 1
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+swapchain hr 887a0001
+swapchain hr 887a0001
+swapchain hr 887a0001
+nochain
+case nofactory
+nofactory
+nofactory
+nofactory
+case nochain
+factory ok
+nochain
+nochain
+nochain
+nochain
+case nodev
+factory ok
+nodev
+done
