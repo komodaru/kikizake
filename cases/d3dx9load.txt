@@ -23,7 +23,6 @@ x9load 35 20 8 2 0xa8568f24 1
 x9load 36 20 8 2 0x4ff44c5d 1
 x9load 50 20 8 2 0x98e6322 1
 x9load 51 20 8 2 0x78a27b37 1
-x9load 60 20 8 2 0xcf549a75 1
 x9load 81 20 8 2 0xdf589b78 1
 x9load 111 20 8 2 0x4ac85103 1
 x9load 112 20 8 2 0x5dea3f97 1
@@ -31,6 +30,11 @@ x9load 113 20 8 2 0x590281fb 1
 x9load 114 20 8 2 0x2e8149c5 1
 x9load 115 20 8 2 0xf084a939 1
 x9load 116 20 8 2 0xd1d4c6e8 1
+end
+case load-R8G8B8-signed
+device swvp
+x9load 60 20 8 2 0xcf549a75 1
+x9load 60 20 64 1 ramp 1
 end
 case load-A8R8G8B8
 device swvp
@@ -55,7 +59,6 @@ x9load 35 21 8 2 0x6cb9a0cc 1
 x9load 36 21 8 2 0x4ca19f1c 1
 x9load 50 21 8 2 0x9706371d 1
 x9load 51 21 8 2 0x6d52420f 1
-x9load 60 21 8 2 0x8765a046 1
 x9load 81 21 8 2 0x5ec247f0 1
 x9load 111 21 8 2 0xd1b5d12e 1
 x9load 112 21 8 2 0x1994b826 1
@@ -63,6 +66,11 @@ x9load 113 21 8 2 0x5c97d2ae 1
 x9load 114 21 8 2 0x7e8a782f 1
 x9load 115 21 8 2 0x7f9de8 1
 x9load 116 21 8 2 0x8b9e6529 1
+end
+case load-A8R8G8B8-signed
+device swvp
+x9load 60 21 8 2 0x8765a046 1
+x9load 60 21 64 1 ramp 1
 end
 case load-X8R8G8B8
 device swvp
@@ -87,7 +95,6 @@ x9load 35 22 8 2 0xabce732b 1
 x9load 36 22 8 2 0xd0cf1e3e 1
 x9load 50 22 8 2 0x521030fa 1
 x9load 51 22 8 2 0xd5e4055d 1
-x9load 60 22 8 2 0xfcbe70ba 1
 x9load 81 22 8 2 0x678c142e 1
 x9load 111 22 8 2 0x443d73ea 1
 x9load 112 22 8 2 0xa2489f8a 1
@@ -95,6 +102,11 @@ x9load 113 22 8 2 0x86896d96 1
 x9load 114 22 8 2 0xcc44f96b 1
 x9load 115 22 8 2 0x3e5fab3f 1
 x9load 116 22 8 2 0xac3dfac3 1
+end
+case load-X8R8G8B8-signed
+device swvp
+x9load 60 22 8 2 0xfcbe70ba 1
+x9load 60 22 64 1 ramp 1
 end
 case load-R5G6B5
 device swvp
@@ -119,7 +131,6 @@ x9load 35 23 8 2 0x5f6673f0 1
 x9load 36 23 8 2 0xb21f54fc 1
 x9load 50 23 8 2 0x489fef3c 1
 x9load 51 23 8 2 0x1a7e8580 1
-x9load 60 23 8 2 0x9312fc07 1
 x9load 81 23 8 2 0x5edd338e 1
 x9load 111 23 8 2 0xed3d74d8 1
 x9load 112 23 8 2 0x376cf46b 1
@@ -127,6 +138,11 @@ x9load 113 23 8 2 0x95d9d3fb 1
 x9load 114 23 8 2 0x5b7a6128 1
 x9load 115 23 8 2 0xfcb23a67 1
 x9load 116 23 8 2 0xc42e7498 1
+end
+case load-R5G6B5-signed
+device swvp
+x9load 60 23 8 2 0x9312fc07 1
+x9load 60 23 64 1 ramp 1
 end
 case load-X1R5G5B5
 device swvp
@@ -151,7 +167,6 @@ x9load 35 24 8 2 0x6e9f8a85 1
 x9load 36 24 8 2 0x6623c922 1
 x9load 50 24 8 2 0xfff75281 1
 x9load 51 24 8 2 0xa1487212 1
-x9load 60 24 8 2 0x4e46d777 1
 x9load 81 24 8 2 0x1a7d943 1
 x9load 111 24 8 2 0xab774484 1
 x9load 112 24 8 2 0x3f1b4b97 1
@@ -159,6 +174,11 @@ x9load 113 24 8 2 0x9b5994c3 1
 x9load 114 24 8 2 0x91f5a443 1
 x9load 115 24 8 2 0x8ac7095d 1
 x9load 116 24 8 2 0x167f09cb 1
+end
+case load-X1R5G5B5-signed
+device swvp
+x9load 60 24 8 2 0x4e46d777 1
+x9load 60 24 64 1 ramp 1
 end
 case load-A1R5G5B5
 device swvp
@@ -183,7 +203,6 @@ x9load 35 25 8 2 0x543bfde1 1
 x9load 36 25 8 2 0x5b7ecc62 1
 x9load 50 25 8 2 0xdcab6e7b 1
 x9load 51 25 8 2 0x9dee8fe9 1
-x9load 60 25 8 2 0xce62b5e0 1
 x9load 81 25 8 2 0x8301c86f 1
 x9load 111 25 8 2 0xfb82d849 1
 x9load 112 25 8 2 0xb1fea98c 1
@@ -191,6 +210,11 @@ x9load 113 25 8 2 0xfd2c668b 1
 x9load 114 25 8 2 0x4e5af0d5 1
 x9load 115 25 8 2 0x184b4655 1
 x9load 116 25 8 2 0x60ba1cb5 1
+end
+case load-A1R5G5B5-signed
+device swvp
+x9load 60 25 8 2 0xce62b5e0 1
+x9load 60 25 64 1 ramp 1
 end
 case load-A4R4G4B4
 device swvp
@@ -215,7 +239,6 @@ x9load 35 26 8 2 0x162852d 1
 x9load 36 26 8 2 0x6926b40e 1
 x9load 50 26 8 2 0x4b42507d 1
 x9load 51 26 8 2 0x28f3ebbb 1
-x9load 60 26 8 2 0xe5108e59 1
 x9load 81 26 8 2 0x6fa152b4 1
 x9load 111 26 8 2 0xfb09f9af 1
 x9load 112 26 8 2 0x43b30d91 1
@@ -223,6 +246,11 @@ x9load 113 26 8 2 0x6226aeb1 1
 x9load 114 26 8 2 0x49ea7c69 1
 x9load 115 26 8 2 0xca8cb41a 1
 x9load 116 26 8 2 0xddf499bd 1
+end
+case load-A4R4G4B4-signed
+device swvp
+x9load 60 26 8 2 0xe5108e59 1
+x9load 60 26 64 1 ramp 1
 end
 case load-R3G3B2
 device swvp
@@ -247,7 +275,6 @@ x9load 35 27 8 2 0x4c38cbf7 1
 x9load 36 27 8 2 0xfd862bd4 1
 x9load 50 27 8 2 0x276a42ea 1
 x9load 51 27 8 2 0x89d19b51 1
-x9load 60 27 8 2 0xedc7278c 1
 x9load 81 27 8 2 0x2fe2c1f7 1
 x9load 111 27 8 2 0x8c5f5939 1
 x9load 112 27 8 2 0x88711a25 1
@@ -255,6 +282,11 @@ x9load 113 27 8 2 0xcd88185f 1
 x9load 114 27 8 2 0x1ef07cde 1
 x9load 115 27 8 2 0x3c1d390b 1
 x9load 116 27 8 2 0xfcbe8635 1
+end
+case load-R3G3B2-signed
+device swvp
+x9load 60 27 8 2 0xedc7278c 1
+x9load 60 27 64 1 ramp 1
 end
 case load-A8
 device swvp
@@ -279,7 +311,6 @@ x9load 35 28 8 2 0x3553bab3 1
 x9load 36 28 8 2 0x2ba8d91 1
 x9load 50 28 8 2 0x321806b5 1
 x9load 51 28 8 2 0x6b194592 1
-x9load 60 28 8 2 0x36cfaca7 1
 x9load 81 28 8 2 0xa83e8c4a 1
 x9load 111 28 8 2 0x4f49e2b1 1
 x9load 112 28 8 2 0x10e09cfe 1
@@ -287,6 +318,11 @@ x9load 113 28 8 2 0x6c94f561 1
 x9load 114 28 8 2 0xb52d23dd 1
 x9load 115 28 8 2 0x3b87e5b6 1
 x9load 116 28 8 2 0x211983ee 1
+end
+case load-A8-signed
+device swvp
+x9load 60 28 8 2 0x36cfaca7 1
+x9load 60 28 64 1 ramp 1
 end
 case load-A8R3G3B2
 device swvp
@@ -311,7 +347,6 @@ x9load 35 29 8 2 0xff502245 1
 x9load 36 29 8 2 0x980706e9 1
 x9load 50 29 8 2 0x63994a04 1
 x9load 51 29 8 2 0x11e40268 1
-x9load 60 29 8 2 0xa4801d3c 1
 x9load 81 29 8 2 0x43de1b4f 1
 x9load 111 29 8 2 0x9640d994 1
 x9load 112 29 8 2 0x2331fa8d 1
@@ -319,6 +354,11 @@ x9load 113 29 8 2 0x906ac31d 1
 x9load 114 29 8 2 0xc929e439 1
 x9load 115 29 8 2 0x4079632e 1
 x9load 116 29 8 2 0xef8e3120 1
+end
+case load-A8R3G3B2-signed
+device swvp
+x9load 60 29 8 2 0xa4801d3c 1
+x9load 60 29 64 1 ramp 1
 end
 case load-X4R4G4B4
 device swvp
@@ -343,7 +383,6 @@ x9load 35 30 8 2 0xb1cd40dc 1
 x9load 36 30 8 2 0x230f4ad7 1
 x9load 50 30 8 2 0x80ec305d 1
 x9load 51 30 8 2 0xda15f6ee 1
-x9load 60 30 8 2 0xfdc895ca 1
 x9load 81 30 8 2 0x145ec32 1
 x9load 111 30 8 2 0x24bdb833 1
 x9load 112 30 8 2 0xe4c9ac2e 1
@@ -351,6 +390,11 @@ x9load 113 30 8 2 0xf8cc9588 1
 x9load 114 30 8 2 0x25c9b676 1
 x9load 115 30 8 2 0x73e88155 1
 x9load 116 30 8 2 0x1b800634 1
+end
+case load-X4R4G4B4-signed
+device swvp
+x9load 60 30 8 2 0xfdc895ca 1
+x9load 60 30 64 1 ramp 1
 end
 case load-A2B10G10R10
 device swvp
@@ -375,7 +419,6 @@ x9load 35 31 8 2 0xf56bf26e 1
 x9load 36 31 8 2 0xefe8885d 1
 x9load 50 31 8 2 0x2289b2ac 1
 x9load 51 31 8 2 0x8f5b2082 1
-x9load 60 31 8 2 0x8229b1c7 1
 x9load 81 31 8 2 0x3630722f 1
 x9load 111 31 8 2 0x36c44cb5 1
 x9load 112 31 8 2 0x5504d09c 1
@@ -383,6 +426,11 @@ x9load 113 31 8 2 0x2df1d5f7 1
 x9load 114 31 8 2 0xfea8f450 1
 x9load 115 31 8 2 0xe4720c61 1
 x9load 116 31 8 2 0x1a31ad5e 1
+end
+case load-A2B10G10R10-signed
+device swvp
+x9load 60 31 8 2 0x8229b1c7 1
+x9load 60 31 64 1 ramp 1
 end
 case load-A8B8G8R8
 device swvp
@@ -407,7 +455,6 @@ x9load 35 32 8 2 0x9920ea0c 1
 x9load 36 32 8 2 0x8442fbc 1
 x9load 50 32 8 2 0x3bcec5c5 1
 x9load 51 32 8 2 0x8db49bbe 1
-x9load 60 32 8 2 0xc6a9cf3f 1
 x9load 81 32 8 2 0x16844398 1
 x9load 111 32 8 2 0x40169083 1
 x9load 112 32 8 2 0xd2d18980 1
@@ -415,6 +462,11 @@ x9load 113 32 8 2 0x9fdef670 1
 x9load 114 32 8 2 0x630a09f8 1
 x9load 115 32 8 2 0x649604a2 1
 x9load 116 32 8 2 0x2440c2c3 1
+end
+case load-A8B8G8R8-signed
+device swvp
+x9load 60 32 8 2 0xc6a9cf3f 1
+x9load 60 32 64 1 ramp 1
 end
 case load-X8B8G8R8
 device swvp
@@ -439,7 +491,6 @@ x9load 35 33 8 2 0x23678aa5 1
 x9load 36 33 8 2 0x945b343c 1
 x9load 50 33 8 2 0xa9456712 1
 x9load 51 33 8 2 0xb1439de1 1
-x9load 60 33 8 2 0x9d044f5e 1
 x9load 81 33 8 2 0x891f2009 1
 x9load 111 33 8 2 0xced8e646 1
 x9load 112 33 8 2 0x9019a68e 1
@@ -447,6 +498,11 @@ x9load 113 33 8 2 0x3dcea9aa 1
 x9load 114 33 8 2 0xf7882737 1
 x9load 115 33 8 2 0x9eb96e80 1
 x9load 116 33 8 2 0xde4fd1b4 1
+end
+case load-X8B8G8R8-signed
+device swvp
+x9load 60 33 8 2 0x9d044f5e 1
+x9load 60 33 64 1 ramp 1
 end
 case load-G16R16
 device swvp
@@ -471,7 +527,6 @@ x9load 35 34 8 2 0x652d45de 1
 x9load 36 34 8 2 0x7f4a81b5 1
 x9load 50 34 8 2 0xc0faf76b 1
 x9load 51 34 8 2 0x5cecd460 1
-x9load 60 34 8 2 0xa765d50 1
 x9load 81 34 8 2 0xfa5b8a7e 1
 x9load 111 34 8 2 0xe995f174 1
 x9load 112 34 8 2 0xa0d00f89 1
@@ -479,6 +534,11 @@ x9load 113 34 8 2 0x850e9c39 1
 x9load 114 34 8 2 0x87bb78dd 1
 x9load 115 34 8 2 0xfcb53d2d 1
 x9load 116 34 8 2 0x3906a405 1
+end
+case load-G16R16-signed
+device swvp
+x9load 60 34 8 2 0xa765d50 1
+x9load 60 34 64 1 ramp 1
 end
 case load-A2R10G10B10
 device swvp
@@ -503,7 +563,6 @@ x9load 35 35 8 2 0xaa31b36 1
 x9load 36 35 8 2 0x51781554 1
 x9load 50 35 8 2 0x29852b1d 1
 x9load 51 35 8 2 0x103f60ae 1
-x9load 60 35 8 2 0x797109db 1
 x9load 81 35 8 2 0x5102fa3e 1
 x9load 111 35 8 2 0xc6e29e9c 1
 x9load 112 35 8 2 0x331bd484 1
@@ -511,6 +570,11 @@ x9load 113 35 8 2 0x78e57861 1
 x9load 114 35 8 2 0x2acf4135 1
 x9load 115 35 8 2 0x9fd98861 1
 x9load 116 35 8 2 0x746a1e6b 1
+end
+case load-A2R10G10B10-signed
+device swvp
+x9load 60 35 8 2 0x797109db 1
+x9load 60 35 64 1 ramp 1
 end
 case load-A16B16G16R16
 device swvp
@@ -535,7 +599,6 @@ x9load 35 36 8 2 0xe6442fc2 1
 x9load 36 36 8 2 0x14379d9c 1
 x9load 50 36 8 2 0x1709a59e 1
 x9load 51 36 8 2 0x54f4fc23 1
-x9load 60 36 8 2 0xa56fcafb 1
 x9load 81 36 8 2 0xda201883 1
 x9load 111 36 8 2 0xff32977b 1
 x9load 112 36 8 2 0x16699335 1
@@ -543,6 +606,11 @@ x9load 113 36 8 2 0xa5eb0772 1
 x9load 114 36 8 2 0x65a19bf0 1
 x9load 115 36 8 2 0x8d29a37f 1
 x9load 116 36 8 2 0x9185e45c 1
+end
+case load-A16B16G16R16-signed
+device swvp
+x9load 60 36 8 2 0xa56fcafb 1
+x9load 60 36 64 1 ramp 1
 end
 case load-L8
 device swvp
@@ -567,7 +635,6 @@ x9load 35 50 8 2 0x7b5d6485 1
 x9load 36 50 8 2 0x2e784303 1
 x9load 50 50 8 2 0xe51e31ef 1
 x9load 51 50 8 2 0x475bcfbe 1
-x9load 60 50 8 2 0xeb2e0de8 1
 x9load 81 50 8 2 0x78f00c81 1
 x9load 111 50 8 2 0x55621611 1
 x9load 112 50 8 2 0xe3a785e1 1
@@ -575,6 +642,11 @@ x9load 113 50 8 2 0x706e21ec 1
 x9load 114 50 8 2 0x3e2c8365 1
 x9load 115 50 8 2 0x664efce5 1
 x9load 116 50 8 2 0x8392018c 1
+end
+case load-L8-signed
+device swvp
+x9load 60 50 8 2 0xeb2e0de8 1
+x9load 60 50 64 1 ramp 1
 end
 case load-A8L8
 device swvp
@@ -599,7 +671,6 @@ x9load 35 51 8 2 0x94ea0e44 1
 x9load 36 51 8 2 0x717e7e75 1
 x9load 50 51 8 2 0x68a0a48d 1
 x9load 51 51 8 2 0xfa166835 1
-x9load 60 51 8 2 0xd50aa41d 1
 x9load 81 51 8 2 0xb0a1dff9 1
 x9load 111 51 8 2 0xe089f096 1
 x9load 112 51 8 2 0xdf0a4bb 1
@@ -607,6 +678,11 @@ x9load 113 51 8 2 0x359ec908 1
 x9load 114 51 8 2 0x7b4855b7 1
 x9load 115 51 8 2 0x4e2f2448 1
 x9load 116 51 8 2 0xfe68527b 1
+end
+case load-A8L8-signed
+device swvp
+x9load 60 51 8 2 0xd50aa41d 1
+x9load 60 51 64 1 ramp 1
 end
 case load-A4L4
 device swvp
@@ -631,7 +707,6 @@ x9load 35 52 8 2 0x3e8f9ef4 1
 x9load 36 52 8 2 0x677e73dc 1
 x9load 50 52 8 2 0x89b14c9e 1
 x9load 51 52 8 2 0xa4794d6f 1
-x9load 60 52 8 2 0x37499b25 1
 x9load 81 52 8 2 0x818a1f53 1
 x9load 111 52 8 2 0x8e63d203 1
 x9load 112 52 8 2 0x705aca52 1
@@ -639,6 +714,11 @@ x9load 113 52 8 2 0xb03459a 1
 x9load 114 52 8 2 0x15b6bc02 1
 x9load 115 52 8 2 0x84e53e39 1
 x9load 116 52 8 2 0x4763faa8 1
+end
+case load-A4L4-signed
+device swvp
+x9load 60 52 8 2 0x37499b25 1
+x9load 60 52 64 1 ramp 1
 end
 case load-V8U8
 device swvp
@@ -663,7 +743,6 @@ x9load 35 60 8 2 0xf172c65e 1
 x9load 36 60 8 2 0x9e9302c2 1
 x9load 50 60 8 2 0x27ac8947 1
 x9load 51 60 8 2 0x660272a5 1
-x9load 60 60 8 2 0x228e174e 1
 x9load 81 60 8 2 0xec9348dd 1
 x9load 111 60 8 2 0x349de939 1
 x9load 112 60 8 2 0xbeeb3164 1
@@ -671,6 +750,11 @@ x9load 113 60 8 2 0xc03c7de7 1
 x9load 114 60 8 2 0xbf97fec7 1
 x9load 115 60 8 2 0x49a8e2e0 1
 x9load 116 60 8 2 0xeb6dcb5a 1
+end
+case load-V8U8-signed
+device swvp
+x9load 60 60 8 2 0x228e174e 1
+x9load 60 60 64 1 ramp 1
 end
 case load-L6V5U5
 device swvp
@@ -695,7 +779,6 @@ x9load 35 61 8 2 0xa56e9b0 1
 x9load 36 61 8 2 0x3b70c200 1
 x9load 50 61 8 2 0x452aa098 1
 x9load 51 61 8 2 0x360ca884 1
-x9load 60 61 8 2 0xc093584a 1
 x9load 81 61 8 2 0xd8d3fd67 1
 x9load 111 61 8 2 0x489695d8 1
 x9load 112 61 8 2 0xdf96c10e 1
@@ -703,6 +786,11 @@ x9load 113 61 8 2 0xf1575875 1
 x9load 114 61 8 2 0x51675e79 1
 x9load 115 61 8 2 0xefac468d 1
 x9load 116 61 8 2 0x88c77353 1
+end
+case load-L6V5U5-signed
+device swvp
+x9load 60 61 8 2 0xc093584a 1
+x9load 60 61 64 1 ramp 1
 end
 case load-X8L8V8U8
 device swvp
@@ -727,7 +815,6 @@ x9load 35 62 8 2 0x2f0ff55e 1
 x9load 36 62 8 2 0xe52fec0c 1
 x9load 50 62 8 2 0xd626b3b 1
 x9load 51 62 8 2 0x40a04c19 1
-x9load 60 62 8 2 0x6d4a5988 1
 x9load 81 62 8 2 0xe9121c15 1
 x9load 111 62 8 2 0xf88dc2fd 1
 x9load 112 62 8 2 0x5a9a1014 1
@@ -735,6 +822,11 @@ x9load 113 62 8 2 0xb8b1758 1
 x9load 114 62 8 2 0x45645ee8 1
 x9load 115 62 8 2 0x199e0f34 1
 x9load 116 62 8 2 0xd7648208 1
+end
+case load-X8L8V8U8-signed
+device swvp
+x9load 60 62 8 2 0x6d4a5988 1
+x9load 60 62 64 1 ramp 1
 end
 case load-Q8W8V8U8
 device swvp
@@ -759,7 +851,6 @@ x9load 35 63 8 2 0x2c11da68 1
 x9load 36 63 8 2 0xfcc6e906 1
 x9load 50 63 8 2 0x1d210755 1
 x9load 51 63 8 2 0x84bc8fb0 1
-x9load 60 63 8 2 0xbc1a27b5 1
 x9load 81 63 8 2 0xe57383a3 1
 x9load 111 63 8 2 0x35f28d20 1
 x9load 112 63 8 2 0xee815e6b 1
@@ -767,6 +858,11 @@ x9load 113 63 8 2 0x6cc7c56d 1
 x9load 114 63 8 2 0x192fc458 1
 x9load 115 63 8 2 0xd53225ca 1
 x9load 116 63 8 2 0xa0ee8cef 1
+end
+case load-Q8W8V8U8-signed
+device swvp
+x9load 60 63 8 2 0xbc1a27b5 1
+x9load 60 63 64 1 ramp 1
 end
 case load-V16U16
 device swvp
@@ -791,7 +887,6 @@ x9load 35 64 8 2 0x1c1361d4 1
 x9load 36 64 8 2 0x7512e1c0 1
 x9load 50 64 8 2 0xc745ff5 1
 x9load 51 64 8 2 0x76dd3a30 1
-x9load 60 64 8 2 0xe2f10d5d 1
 x9load 81 64 8 2 0xa80352f0 1
 x9load 111 64 8 2 0x89fb481e 1
 x9load 112 64 8 2 0xffe7f422 1
@@ -799,6 +894,11 @@ x9load 113 64 8 2 0x2d1526f3 1
 x9load 114 64 8 2 0xb0ab40d6 1
 x9load 115 64 8 2 0xce8c7d4e 1
 x9load 116 64 8 2 0x6596265c 1
+end
+case load-V16U16-signed
+device swvp
+x9load 60 64 8 2 0xe2f10d5d 1
+x9load 60 64 64 1 ramp 1
 end
 case load-A2W10V10U10
 device swvp
@@ -823,7 +923,6 @@ x9load 35 67 8 2 0x104d5a40 1
 x9load 36 67 8 2 0xdba5ff82 1
 x9load 50 67 8 2 0xeee438a8 1
 x9load 51 67 8 2 0x57d08650 1
-x9load 60 67 8 2 0xa44e1e7d 1
 x9load 81 67 8 2 0x97b03a1d 1
 x9load 111 67 8 2 0x8e899ee4 1
 x9load 112 67 8 2 0x17fd498e 1
@@ -831,6 +930,11 @@ x9load 113 67 8 2 0x67560be8 1
 x9load 114 67 8 2 0x6340475d 1
 x9load 115 67 8 2 0x1ed18388 1
 x9load 116 67 8 2 0xfab20fd8 1
+end
+case load-A2W10V10U10-signed
+device swvp
+x9load 60 67 8 2 0xa44e1e7d 1
+x9load 60 67 64 1 ramp 1
 end
 case load-L16
 device swvp
@@ -855,7 +959,6 @@ x9load 35 81 8 2 0x44f4be80 1
 x9load 36 81 8 2 0xb7be3552 1
 x9load 50 81 8 2 0x539df6d8 1
 x9load 51 81 8 2 0x45968f1b 1
-x9load 60 81 8 2 0x1ac10101 1
 x9load 81 81 8 2 0x66c6b251 1
 x9load 111 81 8 2 0xa11588f7 1
 x9load 112 81 8 2 0x11677eb2 1
@@ -863,6 +966,11 @@ x9load 113 81 8 2 0x28997caa 1
 x9load 114 81 8 2 0xe68bdaac 1
 x9load 115 81 8 2 0x261c9c23 1
 x9load 116 81 8 2 0x68c7b0f 1
+end
+case load-L16-signed
+device swvp
+x9load 60 81 8 2 0x1ac10101 1
+x9load 60 81 64 1 ramp 1
 end
 case load-Q16W16V16U16
 device swvp
@@ -887,7 +995,6 @@ x9load 35 110 8 2 0xb10092a4 1
 x9load 36 110 8 2 0xc9dc22ce 1
 x9load 50 110 8 2 0xfd3d458c 1
 x9load 51 110 8 2 0xe411060a 1
-x9load 60 110 8 2 0x5ed4a822 1
 x9load 81 110 8 2 0xb1c1348a 1
 x9load 111 110 8 2 0x7d57db62 1
 x9load 112 110 8 2 0x4140d79f 1
@@ -895,6 +1002,11 @@ x9load 113 110 8 2 0x2dd05286 1
 x9load 114 110 8 2 0xd790a986 1
 x9load 115 110 8 2 0x96a11216 1
 x9load 116 110 8 2 0x28928487 1
+end
+case load-Q16W16V16U16-signed
+device swvp
+x9load 60 110 8 2 0x5ed4a822 1
+x9load 60 110 64 1 ramp 1
 end
 case load-R16F
 device swvp
@@ -919,7 +1031,6 @@ x9load 35 111 8 2 0xd44e629f 1
 x9load 36 111 8 2 0x1bac5cb1 1
 x9load 50 111 8 2 0x977ca12c 1
 x9load 51 111 8 2 0x687d3080 1
-x9load 60 111 8 2 0x3c7a176 1
 x9load 81 111 8 2 0xaca4ac2 1
 x9load 111 111 8 2 0x31d74a6b 1
 x9load 112 111 8 2 0xcbd282e6 1
@@ -927,6 +1038,11 @@ x9load 113 111 8 2 0xea4feb01 1
 x9load 114 111 8 2 0xf2d7d256 1
 x9load 115 111 8 2 0x1b3fd518 1
 x9load 116 111 8 2 0xd2081f16 1
+end
+case load-R16F-signed
+device swvp
+x9load 60 111 8 2 0x3c7a176 1
+x9load 60 111 64 1 ramp 1
 end
 case load-G16R16F
 device swvp
@@ -951,7 +1067,6 @@ x9load 35 112 8 2 0x24e195c3 1
 x9load 36 112 8 2 0xdd66230f 1
 x9load 50 112 8 2 0x39fe3e0c 1
 x9load 51 112 8 2 0x39c7e373 1
-x9load 60 112 8 2 0x7095d547 1
 x9load 81 112 8 2 0x8d975b79 1
 x9load 111 112 8 2 0xb9f148a5 1
 x9load 112 112 8 2 0x8c51ba37 1
@@ -959,6 +1074,11 @@ x9load 113 112 8 2 0xd9f7f03c 1
 x9load 114 112 8 2 0xd9fc1b44 1
 x9load 115 112 8 2 0x80277ce 1
 x9load 116 112 8 2 0x998902d3 1
+end
+case load-G16R16F-signed
+device swvp
+x9load 60 112 8 2 0x7095d547 1
+x9load 60 112 64 1 ramp 1
 end
 case load-A16B16G16R16F
 device swvp
@@ -983,7 +1103,6 @@ x9load 35 113 8 2 0x5923a7b2 1
 x9load 36 113 8 2 0x976bda58 1
 x9load 50 113 8 2 0x68352548 1
 x9load 51 113 8 2 0x5f1423c6 1
-x9load 60 113 8 2 0xb6fd4070 1
 x9load 81 113 8 2 0xc09aae29 1
 x9load 111 113 8 2 0x3ea75446 1
 x9load 112 113 8 2 0x51d03471 1
@@ -991,6 +1110,11 @@ x9load 113 113 8 2 0xbc99c41e 1
 x9load 114 113 8 2 0x7528473 1
 x9load 115 113 8 2 0xac453c3d 1
 x9load 116 113 8 2 0x7391a25c 1
+end
+case load-A16B16G16R16F-signed
+device swvp
+x9load 60 113 8 2 0xb6fd4070 1
+x9load 60 113 64 1 ramp 1
 end
 case load-R32F
 device swvp
@@ -1015,7 +1139,6 @@ x9load 35 114 8 2 0x593a09c5 1
 x9load 36 114 8 2 0x18561d44 1
 x9load 50 114 8 2 0xa420e7db 1
 x9load 51 114 8 2 0xa3a0ad76 1
-x9load 60 114 8 2 0x77c8f851 1
 x9load 81 114 8 2 0x709f6a30 1
 x9load 111 114 8 2 0x26fdbf5c 1
 x9load 112 114 8 2 0xb3d88d37 1
@@ -1023,6 +1146,11 @@ x9load 113 114 8 2 0xedb9bd08 1
 x9load 114 114 8 2 0x9902d084 1
 x9load 115 114 8 2 0xa15410ad 1
 x9load 116 114 8 2 0x4b7580ad 1
+end
+case load-R32F-signed
+device swvp
+x9load 60 114 8 2 0x77c8f851 1
+x9load 60 114 64 1 ramp 1
 end
 case load-G32R32F
 device swvp
@@ -1047,7 +1175,6 @@ x9load 35 115 8 2 0xfec56fd2 1
 x9load 36 115 8 2 0x34dfcfed 1
 x9load 50 115 8 2 0x696326fc 1
 x9load 51 115 8 2 0xba28a462 1
-x9load 60 115 8 2 0x7a32d530 1
 x9load 81 115 8 2 0x320c6a3a 1
 x9load 111 115 8 2 0x5625c67f 1
 x9load 112 115 8 2 0x33a0704a 1
@@ -1055,6 +1182,11 @@ x9load 113 115 8 2 0x888cfd5e 1
 x9load 114 115 8 2 0xf3c1ef6d 1
 x9load 115 115 8 2 0xba9271b 1
 x9load 116 115 8 2 0xc600477e 1
+end
+case load-G32R32F-signed
+device swvp
+x9load 60 115 8 2 0x7a32d530 1
+x9load 60 115 64 1 ramp 1
 end
 case load-A32B32G32R32F
 device swvp
@@ -1079,7 +1211,6 @@ x9load 35 116 8 2 0xb7094e65 1
 x9load 36 116 8 2 0x467181e7 1
 x9load 50 116 8 2 0xbfe602e1 1
 x9load 51 116 8 2 0x88f9babc 1
-x9load 60 116 8 2 0x4a62c80b 1
 x9load 81 116 8 2 0x7f1796fa 1
 x9load 111 116 8 2 0x34da93de 1
 x9load 112 116 8 2 0xb28d714e 1
@@ -1087,6 +1218,11 @@ x9load 113 116 8 2 0x88335c9c 1
 x9load 114 116 8 2 0x97b504cc 1
 x9load 115 116 8 2 0xd2bf741a 1
 x9load 116 116 8 2 0xbbb96a84 1
+end
+case load-A32B32G32R32F-signed
+device swvp
+x9load 60 116 8 2 0x4a62c80b 1
+x9load 60 116 64 1 ramp 1
 end
 case load-CxV8U8
 device swvp
@@ -1111,7 +1247,6 @@ x9load 35 117 8 2 0x2df060a0 1
 x9load 36 117 8 2 0x1d6a7a12 1
 x9load 50 117 8 2 0x172a73c6 1
 x9load 51 117 8 2 0x7301728f 1
-x9load 60 117 8 2 0xf74738c7 1
 x9load 81 117 8 2 0x1ba5cde8 1
 x9load 111 117 8 2 0xe10b0064 1
 x9load 112 117 8 2 0xa1ffdc07 1
@@ -1119,6 +1254,11 @@ x9load 113 117 8 2 0x159d3638 1
 x9load 114 117 8 2 0xd8179d35 1
 x9load 115 117 8 2 0x5d94354d 1
 x9load 116 117 8 2 0xbc82e2b3 1
+end
+case load-CxV8U8-signed
+device swvp
+x9load 60 117 8 2 0xf74738c7 1
+x9load 60 117 64 1 ramp 1
 end
 case load-DXT1
 device swvp
@@ -1143,7 +1283,6 @@ x9load 35 827611204 8 2 0x551e89a7 1
 x9load 36 827611204 8 2 0x16f5df2 1
 x9load 50 827611204 8 2 0xb0fc7bda 1
 x9load 51 827611204 8 2 0xcf63a739 1
-x9load 60 827611204 8 2 0xcb1f859b 1
 x9load 81 827611204 8 2 0x4e33f1ed 1
 x9load 111 827611204 8 2 0x31c774aa 1
 x9load 112 827611204 8 2 0x35193b63 1
@@ -1151,6 +1290,11 @@ x9load 113 827611204 8 2 0x5cdf1979 1
 x9load 114 827611204 8 2 0x41fcb6a1 1
 x9load 115 827611204 8 2 0x32375b95 1
 x9load 116 827611204 8 2 0xf1f771d7 1
+end
+case load-DXT1-signed
+device swvp
+x9load 60 827611204 8 2 0xcb1f859b 1
+x9load 60 827611204 64 1 ramp 1
 end
 case load-DXT2
 device swvp
@@ -1175,7 +1319,6 @@ x9load 35 844388420 8 2 0xdaf92d1d 1
 x9load 36 844388420 8 2 0x1404a4b0 1
 x9load 50 844388420 8 2 0x92ce7bd9 1
 x9load 51 844388420 8 2 0xeb1bd563 1
-x9load 60 844388420 8 2 0xa7484ab8 1
 x9load 81 844388420 8 2 0x6dfcab57 1
 x9load 111 844388420 8 2 0xea50d49c 1
 x9load 112 844388420 8 2 0xe8a6b35d 1
@@ -1183,6 +1326,11 @@ x9load 113 844388420 8 2 0xe76c8b5b 1
 x9load 114 844388420 8 2 0xb6fddb58 1
 x9load 115 844388420 8 2 0xbf4d6ff3 1
 x9load 116 844388420 8 2 0x44d3d3ea 1
+end
+case load-DXT2-signed
+device swvp
+x9load 60 844388420 8 2 0xa7484ab8 1
+x9load 60 844388420 64 1 ramp 1
 end
 case load-DXT3
 device swvp
@@ -1207,7 +1355,6 @@ x9load 35 861165636 8 2 0x3fd73aa7 1
 x9load 36 861165636 8 2 0xc8f56a26 1
 x9load 50 861165636 8 2 0xd382873e 1
 x9load 51 861165636 8 2 0xefc5d70c 1
-x9load 60 861165636 8 2 0xf1abce5e 1
 x9load 81 861165636 8 2 0x846907ae 1
 x9load 111 861165636 8 2 0x370e29e0 1
 x9load 112 861165636 8 2 0xb4784fd9 1
@@ -1215,6 +1362,11 @@ x9load 113 861165636 8 2 0xde51218 1
 x9load 114 861165636 8 2 0x5b6efcab 1
 x9load 115 861165636 8 2 0x1b800416 1
 x9load 116 861165636 8 2 0x7b5bfb77 1
+end
+case load-DXT3-signed
+device swvp
+x9load 60 861165636 8 2 0xf1abce5e 1
+x9load 60 861165636 64 1 ramp 1
 end
 case load-DXT4
 device swvp
@@ -1239,7 +1391,6 @@ x9load 35 877942852 8 2 0x3c0692e5 1
 x9load 36 877942852 8 2 0x2512fcc8 1
 x9load 50 877942852 8 2 0x2bf3f02d 1
 x9load 51 877942852 8 2 0xeb392016 1
-x9load 60 877942852 8 2 0x284b76eb 1
 x9load 81 877942852 8 2 0x945081a0 1
 x9load 111 877942852 8 2 0x8fcb1d2 1
 x9load 112 877942852 8 2 0x46116891 1
@@ -1247,6 +1398,11 @@ x9load 113 877942852 8 2 0xb6cdf10 1
 x9load 114 877942852 8 2 0x815c7db7 1
 x9load 115 877942852 8 2 0xd3b9c282 1
 x9load 116 877942852 8 2 0x96d719b6 1
+end
+case load-DXT4-signed
+device swvp
+x9load 60 877942852 8 2 0x284b76eb 1
+x9load 60 877942852 64 1 ramp 1
 end
 case load-DXT5
 device swvp
@@ -1271,7 +1427,6 @@ x9load 35 894720068 8 2 0xa71b220 1
 x9load 36 894720068 8 2 0xba802b7a 1
 x9load 50 894720068 8 2 0x4209a52d 1
 x9load 51 894720068 8 2 0xa32bf11b 1
-x9load 60 894720068 8 2 0x7c170c7f 1
 x9load 81 894720068 8 2 0x2e8cf4d3 1
 x9load 111 894720068 8 2 0xb2cf57d8 1
 x9load 112 894720068 8 2 0x5ebb0382 1
@@ -1279,6 +1434,11 @@ x9load 113 894720068 8 2 0xe7a0c007 1
 x9load 114 894720068 8 2 0xbaba537 1
 x9load 115 894720068 8 2 0x9ea22c91 1
 x9load 116 894720068 8 2 0xbd3c4029 1
+end
+case load-DXT5-signed
+device swvp
+x9load 60 894720068 8 2 0x7c170c7f 1
+x9load 60 894720068 64 1 ramp 1
 end
 case load-UYVY
 device swvp
@@ -1303,7 +1463,6 @@ x9load 35 1498831189 8 2 0xce2bb8fd 1
 x9load 36 1498831189 8 2 0x9fbcc887 1
 x9load 50 1498831189 8 2 0xd32951f1 1
 x9load 51 1498831189 8 2 0xdbf6a23a 1
-x9load 60 1498831189 8 2 0xf98d59a2 1
 x9load 81 1498831189 8 2 0x59f2f3e 1
 x9load 111 1498831189 8 2 0xef6b7f42 1
 x9load 112 1498831189 8 2 0x90ec9f63 1
@@ -1311,6 +1470,11 @@ x9load 113 1498831189 8 2 0x631f2283 1
 x9load 114 1498831189 8 2 0x6eaf25a4 1
 x9load 115 1498831189 8 2 0xc967f589 1
 x9load 116 1498831189 8 2 0xcd0f0222 1
+end
+case load-UYVY-signed
+device swvp
+x9load 60 1498831189 8 2 0xf98d59a2 1
+x9load 60 1498831189 64 1 ramp 1
 end
 case load-YUY2
 device swvp
@@ -1335,7 +1499,6 @@ x9load 35 844715353 8 2 0x29e596b 1
 x9load 36 844715353 8 2 0xffd8ebf2 1
 x9load 50 844715353 8 2 0xb67d8e81 1
 x9load 51 844715353 8 2 0xf21807b7 1
-x9load 60 844715353 8 2 0xaf3d46c0 1
 x9load 81 844715353 8 2 0xfb4de372 1
 x9load 111 844715353 8 2 0xa3539c83 1
 x9load 112 844715353 8 2 0xc8b108a2 1
@@ -1343,4 +1506,9 @@ x9load 113 844715353 8 2 0xdd02b270 1
 x9load 114 844715353 8 2 0xe2d20d16 1
 x9load 115 844715353 8 2 0xcd63096e 1
 x9load 116 844715353 8 2 0x259d7669 1
+end
+case load-YUY2-signed
+device swvp
+x9load 60 844715353 8 2 0xaf3d46c0 1
+x9load 60 844715353 64 1 ramp 1
 end

@@ -59,6 +59,21 @@ pub fn d3dx9() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // declarations made from FVFs, asked back for their FVF (and with one element changed)
+    let decls: Vec<Vec<(u32, u32)>> = fvfs.iter().filter_map(|&f| crate::model::d3dx9::fvf_decl(f).ok()).collect();
+    let mut q = XorShift32::new(0xdec1_f0f0);
+    for (i, chunk) in decls.chunks(40).enumerate() {
+        writeln!(s, "case declfvf-{i}").unwrap();
+        for d in chunk {
+            let mut d = d.clone();
+            if q.chance(4) && !d.is_empty() {
+                let k = q.range(0, d.len() as i64 - 1) as usize;
+                d[k].1 ^= *q.pick(&[1u32, 1 << 16, 1 << 24, 1 << 8]);
+            }
+            writeln!(s, "x9declfvf{}", d.iter().map(|(a, b)| format!(" {a:#x} {b:#x}")).collect::<String>()).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // 32 -> 16 bits: special values, powers of two around the half range, every exponent's
     // rounding midpoints and their neighbors, random values
     let mut v: Vec<u32> = vec![0, 0x8000_0000, 0x7f80_0000, 0xff80_0000, 0x7fc0_0000, 0xffc0_0000, 0x7f80_0001, 0x3f80_0000, 0xbf80_0000, 0x477f_e000, 0x477f_f000, 0x4780_0000, 0x47ff_e000, 0x47ff_f000, 0x4800_0000, 0x7f7f_ffff, 1, 0x0080_0000];
@@ -119,10 +134,13 @@ pub fn d3dx9load() -> String {
     for src in TEXTURE_FORMATS.iter().filter(|f| !matches!(f.0, 40 | 41)) {
         writeln!(s, "case load-{}\ndevice swvp", src.1).unwrap();
         writeln!(s, "x9load 21 {} 16 1 ramp 1\nx9load 116 {} 16 1 ramp 1", src.0, src.0).unwrap();
+        // (into the signed formats: a case of their own)
+        let mut signed = String::new();
         for dst in TARGET_FORMATS {
-            writeln!(s, "x9load {} {} 8 2 {:#x} 1", dst.0, src.0, r.next()).unwrap();
+            let l = format!("x9load {} {} 8 2 {:#x} 1\n", dst.0, src.0, r.next());
+            if dst.0 == 60 { signed += &l } else { s += &l }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end\ncase load-{}-signed\ndevice swvp\n{signed}x9load 60 {} 64 1 ramp 1\nend", src.1, src.0).unwrap();
     }
     s
 }

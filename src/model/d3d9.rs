@@ -268,13 +268,15 @@ fn undocumented_read(k: Key) -> Option<u32> {
 
 #[derive(Default)]
 pub struct D3d9 {
-    dev: bool,
+    pub(super) dev: bool,
     /// a Direct3D 8 device (`device8`), and whether it does software vertex processing
-    v8: bool,
+    pub(super) v8: bool,
     swvp: bool,
-    state: BTreeMap<Key, u32>,
+    pub(super) state: BTreeMap<Key, u32>,
     recording: Option<BTreeMap<Key, u32>>,
     blocks: BTreeMap<i64, BTreeMap<Key, u32>>,
+    /// what the drawing lines made (src/model/d3d9draw.rs)
+    pub(super) draw: super::d3d9draw::Draw,
 }
 
 fn hit_ret(id: &'static str) -> bool {
@@ -336,6 +338,7 @@ impl D3d9 {
                 self.v8 = t[0] == "device8";
                 self.swvp = t.get(1).is_some_and(|m| m == "swvp");
                 self.reset();
+                self.draw = Default::default();
                 self.dev = true;
                 hit(if self.v8 { "D3D8.DEVICE" } else { "D3D9.DEVICE" });
                 out.push(format!("{} ok", t[0]));
@@ -444,7 +447,7 @@ impl D3d9 {
                     _ => return Err(Fail::Bad),
                 }
             }
-            d if d.starts_with("d9") => return Err(Fail::Unmodeled("D3D9.DRAW.PENDING")),
+            d if d.starts_with("d9") => return self.draw_op(op, out),
             _ => return Ok(false),
         }
         Ok(true)

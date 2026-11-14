@@ -1,2 +1,55 @@
 # Direct3D 9 and 8 drawing clauses (spec/README.md): <id> <status> | <source> | <what it says>
-D3D9.DRAW.PENDING open | (none) | drawing: the model is written once Windows' first answers are in
+# (Direct3D 8: the DirectX 8 SDK pages of the same names say the same; where 8 differs the clause says so)
+D3D9.DRAW.PENDING open | (none) | vertex declarations, GetFVF / GetVertexDeclaration, format support: modelled from Windows' answers
+D3D9.TARGET doc | IDirect3DDevice9::CreateRenderTarget, SetRenderTarget, SetDepthStencilSurface | a lockable render target and a depth stencil surface of its size; setting the target resets the viewport to the whole target and (9) the scissor rectangle
+D3D9.FORMATS measured | IDirect3D9::CheckDeviceFormat, D3DFORMAT; golden d3d9draw, d3d8draw tex-*, clear-* (x86 and x64) | WARP takes as textures every format but R8G8B8, R3G3B2, A8R3G3B2, X8B8G8R8, A4L4, L6V5U5, X8L8V8U8, A2W10V10U10, CxV8U8, UYVY, YUY2 (Direct3D 8 also not A2R10G10B10, A16B16G16R16, L16, which it takes as targets), and as targets those but the palette and DXT ones
+D3D9.CLEAR doc | IDirect3DDevice9::Clear | Count 0 and NULL clear the whole viewport; else each rectangle, clipped to the viewport; the flags say which of target, depth, stencil
+D3D9.CLEAR.FLAGS doc | IDirect3DDevice9::Clear | flags with none of TARGET, ZBUFFER, STENCIL: D3DERR_INVALIDCALL
+D3D9.CLEAR.BACKBUFFER doc | IDirect3DDevice9::SetRenderTarget | where making the target failed, clears and draws go to the device's own back buffer, which is not read
+D3D9.CLEAR.COLOR measured | IDirect3DDevice9::Clear, D3DCOLOR | the color (8 bits per channel, ARGB) as numbers 0..1 written in the target's format (D3D9.RT.UNORM)
+D3D9.RT.READ doc | IDirect3DSurface9::LockRect | a lockable render target's pixels in its format, row by row
+D3D9.RT.UNORM measured | D3DFORMAT; golden d3d9draw clear-* | a number 0..1 into an n-bit unsigned normalized channel: v * (2^n - 1) in f32 rounded to nearest even; unused (X) bits take the alpha; luminance from red
+D3D9.RT.F16 measured | D3DFORMAT; golden d3d9draw clear-* (R16F, G16R16F, A16B16G16R16F) | a number into a half float channel: rounded toward zero
+D3D9.FVF.SET doc | IDirect3DDevice9::SetFVF, D3DFVF | the vertex layout: position, then the optional normal, point size, diffuse, specular, texture coordinate sets in that order
+D3D9.DRAW.XYZ excluded | (none) | untransformed vertices (the generators draw pretransformed XYZRHW vertices only)
+D3D9.DRAW.STRIDE excluded | (none) | a stride other than the FVF's size
+D3D9.DRAW.POINTSLINES open | Rasterization Rules (Direct3D 9) | points and lines
+D3D9.DRAW.ASSEMBLY doc | Primitive Types (Direct3D 9) | lists take three vertices per triangle; strips each next vertex with the two before (every other triangle in reverse order, so all keep one winding); fans each next pair with the first
+D3D9.CULL doc | D3DCULL, D3DRS_CULLMODE | NONE draws both windings, CW culls clockwise triangles (on screen, y down), CCW (the default) counterclockwise ones
+D3D9.RASTER.TOPLEFT doc | Rasterization Rules (Direct3D 9) | a pixel is drawn when its center (integer screen coordinates) is inside the triangle; on an edge only when the edge is a top or a left one
+D3D9.RASTER.CLIP measured | golden d3d9draw raster-*, raster-edges-* (144 triangles) | a triangle not inside the target is clipped to -0.5 .. size - 0.5 in f32 (p + t (q - p), t = dp / (dp - dq)), the polygon's vertices snapped to 1/256 pixel (to nearest even), and drawn as a fan
+D3D9.RASTER.CLIPTIE open | golden d3d9draw raster-3, -17, -77, -96 | a pixel that the rounding of the clipped polygon's new vertices decides
+D3D9.RASTER.CLIP8 open | golden d3d8draw prims-3, shade-9 | Direct3D 8's shading of a clipped triangle differs by one in places from shading over the whole triangle (or over the clipped pieces)
+D3D9.DRAW.RHW excluded | (none) | pretransformed vertices of RHW other than 1 (perspective-correct interpolation): the generators draw RHW 1 only
+D3D9.SHADE.FLAT doc | D3DSHADEMODE | flat shading: the color of the triangle's first vertex
+D3D9.SHADE.GOURAUD measured | D3DSHADEMODE; golden d3d9draw shade-* (15 triangles, 6072 channel values) | Gouraud shading: the colors interpolated linearly at the pixel center, in f32 as v0 + w2 (v2 - v0) + w1 (v1 - v0), each weight an edge function (positions plus half a pixel) over the area
+D3D9.SCISSOR doc | IDirect3DDevice9::SetScissorRect, D3DRS_SCISSORTESTENABLE | (9 only) pixels outside the rectangle are not drawn; Clear is not affected
+D3D9.TEX.CREATE doc | IDirect3DDevice9::CreateTexture | a texture of one level in the managed pool; its level locks as rows of its format
+D3D9.TEX.DECODE measured | D3DFORMAT | each texel's channels as numbers: unsigned normalized v / (2^n - 1), signed (bump) v / (2^(n-1) - 1), floats as they are
+D3D9.TEX.MISSING measured | D3DFORMAT | channels a format lacks: alpha 1, color 1 (A8: color 0); luminance in red, green and blue
+D3D9.TEX.FORMAT open | D3DFORMAT | palette, compressed (DXT) and YUV formats as sampled
+D3D9.TEX.POINT doc | D3DTEXTUREFILTERTYPE, Directly Mapping Texels to Pixels (Direct3D 9) | point filtering: the texel holding (u * width, v * height); texel centers at half-integer coordinates
+D3D9.TEX.LINEAR measured | D3DTEXTUREFILTERTYPE; golden d3d9draw, d3d8draw filter-1, filter-3 | linear filtering: the four nearest texels weighted in 16ths of a texel (taken down), 8-bit texels' weighted sum truncated
+D3D9.TEX.FILTER excluded | (none) | other filters, different magnification and minification filters
+D3D9.TEX.ADDRESS doc | D3DTEXTUREADDRESS | WRAP repeats, MIRROR reflects every other repeat, CLAMP takes the edge texel, BORDER the border color, MIRRORONCE reflects once then clamps
+D3D9.TEX.BORDER doc | D3DTEXTUREADDRESS, D3DSAMP_BORDERCOLOR | a texel past the edge with BORDER is the border color
+D3D9.STAGE.DISABLE doc | D3DTEXTUREOP | COLOROP DISABLE on stage 0: the diffuse color goes through untouched
+D3D9.STAGE.OP doc | D3DTEXTUREOP, D3DTA | each operation's formula on its arguments (D3DTA: diffuse, current = diffuse on stage 0, texture, texture factor, specular; COMPLEMENT, ALPHAREPLICATE), saturated
+D3D9.STAGE.OPEN open | D3DTEXTUREOP | PREMODULATE, the bump mapping operations, and color-only operations as alpha operations
+D3D9.STAGE.NOTEX measured | golden d3d9draw top-*, d3d8draw tex-* of formats it does not take | the texture argument where the stage has no texture: color 1, the current alpha
+D3D9.STAGE.ARG excluded | (none) | TEMP and CONSTANT arguments
+D3D9.STAGE.MULTI excluded | (none) | stage 1 or later enabled, results other than CURRENT
+D3D9.STAGE.ALPHADISABLE excluded | (none) | ALPHAOP DISABLE with COLOROP enabled
+D3D9.SPECULAR doc | D3DRS_SPECULARENABLE | the specular color added to the color
+D3D9.FOG excluded | (none) | fog
+D3D9.ALPHATEST doc | D3DRS_ALPHATESTENABLE, D3DRS_ALPHAREF, D3DRS_ALPHAFUNC | a pixel is drawn when its alpha (8 bits) compares true against ALPHAREF's low 8 bits
+D3D9.STENCIL doc | D3DRS_STENCILENABLE, D3DSTENCILOP, Stencil Buffer Techniques (Direct3D 9) | (ref & mask) FUNC (stencil & mask); FAIL, ZFAIL or PASS's operation stored through the write mask; INCRSAT / DECRSAT clamp, INCR / DECR wrap
+D3D9.STENCIL.TWOSIDED excluded | (none) | two-sided stencil
+D3D9.DEPTH doc | D3DRS_ZENABLE, D3DRS_ZFUNC, D3DRS_ZWRITEENABLE | the pixel's depth compared with the stored one (24 bits); written when it passes and writes are on
+D3D9.BLEND measured | D3DBLEND, D3DBLENDOP, D3DRS_SEPARATEALPHABLENDENABLE; golden d3d9draw, d3d8draw blend-* (43624 distinct channel values but D3D9.BLEND.TIE's 23) | source * source factor OP destination * destination factor; BOTHSRCALPHA / BOTHINVSRCALPHA as either factor set both; MIN / MAX ignore the factors; (9) a separate alpha equation; on 8-bit targets each product x * f * 257 >> 8 (1/256ths; x * ONE exactly x), the sum rounded half up
+D3D9.BLEND.TIE open | golden d3d9draw blend-dest-11, blend-random-8, -10, -16, -18, -19, -21; d3d8draw blend-src-11, blend-random-1, -23 | where the 8.8 rule and the exact sum round apart (a result a hair from a half, x.502 or x.498: 23 of 43624 values), Windows takes either
+D3D9.BLEND.BOTHALPHA open | golden d3d9draw blend-random-31 | BOTHSRCALPHA / BOTHINVSRCALPHA as the separate alpha's factor
+D3D9.BLEND.FORMAT excluded | (none) | blending on targets other than 8-bit unsigned ones (the generators blend on A8R8G8B8 only)
+D3D9.BLEND.FACTOR excluded | (none) | Direct3D 8's BLENDFACTOR, which it does not have
+D3D9.BLEND.OP excluded | (none) | blend operations past MAX
+D3D9.COLORWRITE doc | D3DRS_COLORWRITEENABLE | only the channels of the mask are written

@@ -1,2 +1,18 @@
 # D3DX 9 clauses (spec/README.md): <id> <status> | <source> | <what it says>
-D3DX9.PENDING open | (none) | D3DX 9: the model is written once Windows' first answers are in
+D3DX9.FVFSIZE measured | D3DXGetFVFVertexSize, D3DFVF, D3DFVF_TEXCOORDSIZEN; golden d3dx9 fvf-* (340 FVFs, x86 and x64) | the bytes of a vertex: the position (XYZ 12, XYZRHW 16, XYZB1..5 12 + 4 per weight, XYZW nothing), normal 12, point size, diffuse, specular 4 each, and each texture coordinate set's floats (TEXCOORDSIZE: 2 by default; sets 9 to 15 read bits past 31, 0: 2 floats)
+D3DX9.FVFDECL doc | D3DXDeclaratorFromFVF, D3DDECLUSAGE, D3DDECLTYPE | the elements in FVF order on stream 0, packed: POSITION FLOAT3 (POSITIONT FLOAT4 for XYZRHW), BLENDWEIGHT FLOAT1..4, BLENDINDICES (UBYTE4 or D3DCOLOR for LASTBETA_*), NORMAL FLOAT3, PSIZE FLOAT1, COLOR 0 and 1 D3DCOLOR, TEXCOORD i FLOAT1..4
+D3DX9.FVFDECL.RESERVED measured | D3DXDeclaratorFromFVF; golden d3dx9 fvf-* | reserved bits (0x1, 0x2000, 0x4000 but XYZW's) set: D3DERR_INVALIDCALL
+D3DX9.FVFDECL.POSITION measured | D3DXDeclaratorFromFVF; golden d3dx9 fvf-* | more than four blend weights left after a LASTBETA index: D3DERR_INVALIDCALL
+D3DX9.FVFDECL.TEXCOUNT measured | D3DXDeclaratorFromFVF; golden d3dx9 fvf-* (every one of 30 FVFs) | more than 8 texture coordinate sets: D3DERR_INVALIDCALL
+D3DX9.DECLFVF measured | D3DXFVFFromDeclarator; golden d3dx9 decl-*, declfvf-* | the FVF of elements as D3DXDeclaratorFromFVF makes them (the blend weights' count from their type, the indices' type the LASTBETA flag)
+D3DX9.DECLFVF.INVALID measured | D3DXFVFFromDeclarator; golden d3dx9 decl-* (320 declarations) | an element out of that order, a texture coordinate set out of turn, an offset not packed or a stream other than 0: D3DERR_INVALIDCALL
+D3DX9.DECLSIZE doc | D3DXGetDeclVertexSize | the vertex size of one stream: the end of the furthest of its elements
+D3DX9.DECLLENGTH doc | D3DXGetDeclLength | the number of elements before D3DDECL_END
+D3DX9.F16 measured | D3DXFloat32To16Array, D3DXFLOAT16; golden d3dx9 f16-* (3688 values, x86 and x64) | x86: 8 at a time IEEE with ties toward zero, infinity past 65504 and for infinities and NaNs; the rest one by one with exponent 31 a number, ties to even, 0x7fff past 131008. x64: 4 at a time and the rest, both exponent 31 a number, ties to even, 0x7fff past 131008 and for infinities, NaNs quiet with the mantissa rounded; the rest's denormals truncated
+D3DX9.F32 measured | D3DXFloat16To32Array, D3DXFLOAT16; golden d3dx9 f32-* (every half) | exponent 31 is a number like the others: no infinities or NaNs
+D3DX9.LOAD doc | D3DXLoadSurfaceFromMemory, IDirect3DDevice9::CreateOffscreenPlainSurface | the source picture converted into the surface's format; a system memory surface of a format the device does not take (and R8G8B8, X8B8G8R8): D3DERR_INVALIDCALL
+D3DX9.LOAD.COPY assumed | D3DXLoadSurfaceFromMemory | a format into itself: the bytes as they are
+D3DX9.LOAD.CONVERT measured | D3DXLoadSurfaceFromMemory; golden d3dx9load (unsigned and float formats into each other, 23 x 26 pairs) | an n-bit unsigned channel read as v times the f32 nearest 1 / (2^n - 1), floats as they are (halves of exponent 31 numbers), missing channels as D3D9.TEX.MISSING; into unsigned channels clamped to 0..1 (NaN 1) and rounded to nearest, X bits 0, luminance 0.2125 r + 0.7154 g + 0.0721 b (Rec. 709)
+D3DX9.LOAD.F16RANGE open | D3DXLoadSurfaceFromMemory | halves of exponent 31 read, numbers past 65504 or NaNs written as halves: which conversion D3DX takes differs between pairs of formats
+D3DX9.LOAD.SIGNED open | D3DXLoadSurfaceFromMemory | the signed (bump) formats: into unsigned (s + 1) / 2 and into floats as they are, from unsigned 2 x - 1 but its rounding of negatives is not that
+D3DX9.LOAD.FORMAT open | D3DXLoadSurfaceFromMemory | DXT and YUV formats

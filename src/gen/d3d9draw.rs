@@ -207,19 +207,7 @@ fn suite(v8: bool) -> String {
         }
     }
 
-    // blending: the target holds a random texture (drawn first), a second one is blended over it
-    let blend_case = |s: &mut String, r: &mut XorShift32, name: &str, states: &[(u32, u32)]| {
-        open(s, name, 21, 16, 16);
-        writeln!(s, "d9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9tex 1 16 16 21\nd9texfill 1 {:#x}\nd9settex 0 0", r.next(), r.next()).unwrap();
-        texture_stage(s);
-        quad(s, 0.0, 0.0, 16.0, 16.0, 0.0, 0xffff_ffff);
-        writeln!(s, "d9settex 0 1\nrs set 27 1").unwrap();
-        for (k, v) in states {
-            writeln!(s, "rs set {k} {v:#x}").unwrap();
-        }
-        quad(s, 0.0, 0.0, 16.0, 16.0, 0.0, 0xffff_ffff);
-        writeln!(s, "d9rt\nend").unwrap();
-    };
+    let blend_case = |s: &mut String, r: &mut XorShift32, name: &str, states: &[(u32, u32)]| blend_sized(s, dev, r, name, states, 16);
     let factors: Vec<u32> = (1..=if v8 { 13 } else { 15 }).collect();
     for &f in &factors {
         blend_case(&mut s, &mut r, &format!("blend-src-{f}"), &[(19, f), (20, 1)]);
@@ -333,7 +321,7 @@ fn suite(v8: bool) -> String {
             let (x0, y0) = (r.range(-2, 12), r.range(-2, 12));
             writeln!(s, "d9clear 1 0 0 0\nrs set 174 1\nd9scissor {x0} {y0} {} {}", x0 + r.range(0, 10), y0 + r.range(0, 10)).unwrap();
             quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, 0xff40_80c0);
-            // (Clear ignores the scissor rectangle)
+            // (a clear with the scissor test on)
             writeln!(s, "d9clear 1 0xffffffff 0 0 0 0 2 2\nd9rt\nend").unwrap();
         }
         // vertex formats and declarations: what GetFVF / GetVertexDeclaration answer after each
@@ -356,7 +344,75 @@ fn suite(v8: bool) -> String {
             writeln!(s, "{l}\nd9getfvf\nd9getdecl\nend").unwrap();
         }
     }
+    // Gouraud shading of triangles the target clips: one vertex past one edge, then any
+    let mut r = XorShift32(0x3c1a_9e55);
+    for i in 0..16 {
+        open(&mut s, &format!("shade-clip-{i}"), 21, 16, 16);
+        s.push_str("d9clear 1 0 0 0\nrs set 22 1\n");
+        let mut p = [(r.range(0, 16) as f32, r.range(0, 16) as f32), (r.range(0, 16) as f32 + 0.25, r.range(0, 16) as f32), (r.range(0, 16) as f32, r.range(0, 16) as f32 + 0.5)];
+        if i < 8 {
+            p[0] = [(-3.0 - i as f32, 7.0), (22.0, 3.0 + i as f32), (5.0, -2.5 - i as f32), (9.0 + i as f32, 20.0)][i % 4];
+        } else {
+            p[0] = (r.range(-12, 28) as f32, r.range(-12, 28) as f32);
+            p[1] = (r.range(-12, 28) as f32 + 0.5, r.range(-12, 28) as f32);
+        }
+        let c = [r.next(), r.next(), r.next()];
+        tri(&mut s, p, c, 0.0);
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // the specular color added (SPECULARENABLE), on and off, over Gouraud shading
+    let mut r = XorShift32(0x5bec_0001);
+    for i in 0..4 {
+        open(&mut s, &format!("specular-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 29 {}\nd9fvf 0xc4", (i < 3) as u32).unwrap();
+        let mut l = "d9draw 4 3".to_string();
+        for (x, y) in [(-0.5f32, -0.5f32), (15.5, -0.5), (-0.5, 15.5)] {
+            write!(l, " {} {} {} {} {:#x} {:#x}", fb(x), fb(y), fb(0.0), fb(1.0), r.next(), r.next()).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    // linear filtering at texture coordinates that are not a whole number of 16ths of a texel
+    let mut r = XorShift32(0x51f1_7e2d);
+    for i in 0..8 {
+        open(&mut s, &format!("filter-uv-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 8 8 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        if v8 {
+            s.push_str("tss set 0 16 2\ntss set 0 17 2\n");
+        } else {
+            s.push_str("ss set 0 5 2\nss set 0 6 2\n");
+        }
+        let mut c = || r.range(-300, 1300) as f32 / 997.0;
+        let (u0, v0, u1, v1) = (c(), c(), c(), c());
+        writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, 0xffff_ffff, Some((u0, v0))), v(15.5, -0.5, 0.0, 0xffff_ffff, Some((u1, v0))), v(-0.5, 15.5, 0.0, 0xffff_ffff, Some((u0, v1))), v(15.5, 15.5, 0.0, 0xffff_ffff, Some((u1, v1)))).unwrap();
+    }
+    // blending's rounding over (nearly) every pair of 8-bit values: 256 x 256 random texels
+    let mut r = XorShift32(0x6b1e_7d03);
+    for (name, st) in [("src", [(19, 5), (20, 1), (171, 1)]), ("dest", [(19, 1), (20, 5), (171, 1)]), ("lerp", [(19, 5), (20, 6), (171, 1)]), ("sum", [(19, 3), (20, 9), (171, 1)]), ("sub", [(19, 5), (20, 7), (171, 2)])] {
+        blend_sized(&mut s, dev, &mut r, &format!("blend-all-{name}"), &st, 256);
+    }
+    if !v8 {
+        // BOTHSRCALPHA / BOTHINVSRCALPHA as the separate alpha's source factor
+        for f in [12, 13] {
+            blend_sized(&mut s, dev, &mut r, &format!("blend-bothalpha-{f}"), &[(206, 1), (207, f), (208, 2), (209, 1)], 16);
+        }
+    }
     s
+}
+
+/// blending: the target holds a random texture (drawn first), a second one is blended over it
+fn blend_sized(s: &mut String, dev: &str, r: &mut XorShift32, name: &str, states: &[(u32, u32)], n: u32) {
+    writeln!(s, "case {name}\n{dev} swvp\nd9target {n} {n} 21").unwrap();
+    writeln!(s, "d9tex 0 {n} {n} 21\nd9texfill 0 {:#x}\nd9tex 1 {n} {n} 21\nd9texfill 1 {:#x}\nd9settex 0 0", r.next(), r.next()).unwrap();
+    texture_stage(s);
+    let f = n as f32;
+    quad(s, 0.0, 0.0, f, f, 0.0, 0xffff_ffff);
+    writeln!(s, "d9settex 0 1\nrs set 27 1").unwrap();
+    for (k, v) in states {
+        writeln!(s, "rs set {k} {v:#x}").unwrap();
+    }
+    quad(s, 0.0, 0.0, f, f, 0.0, 0xffff_ffff);
+    writeln!(s, "d9rt\nend").unwrap();
 }
 
 /// FVF codes asked of GetFVF / GetVertexDeclaration and D3DX: the common ones, every position
