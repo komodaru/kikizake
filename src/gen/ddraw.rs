@@ -468,7 +468,7 @@ pub fn dd8() -> String {
     // the backward copy on a dword (overlap8align: Blt writes dx mod 4 more pixels left) through
     // BltFast, with a source key, with a clip list on the surface, moving down by 2 and 3
     let mut rb = XorShift32::new(0x0dd8_b119);
-    for kind in ["fast", "key", "clip", "down"] {
+    for kind in ["fast", "key", "clip", "down", "mirrorlr", "mirrorud", "stretch"] {
         writeln!(s, "case overlap8align{kind}\ndd\nddsurf 0 32 6 8").unwrap();
         if kind == "key" {
             writeln!(s, "ddkey 0 src 0x{:02x}", rb.range(0, 255)).unwrap();
@@ -487,6 +487,9 @@ pub fn dd8() -> String {
                     match kind {
                         "fast" => writeln!(s, "ddfill 0 {fill}\nddfast 0 {x} {y} 0 {sx} {top} {} {}\ndddump 0", sx + w, top + hgt).unwrap(),
                         "key" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {} keysrc\ndddump 0", x + w, y + hgt, sx + w, top + hgt).unwrap(),
+                        "mirrorlr" | "mirrorud" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {} {kind}\ndddump 0", x + w, y + hgt, sx + w, top + hgt).unwrap(),
+                        // (one column and one row more)
+                        "stretch" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {}\ndddump 0", x + w + 1, y + hgt + 1, sx + w, top + hgt).unwrap(),
                         _ => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {}\ndddump 0", x + w, y + hgt, sx + w, top + hgt).unwrap(),
                     }
                 }
