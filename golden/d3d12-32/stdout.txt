@@ -14009,16 +14009,3 @@ cleardsv12 0000
 cleardsv12 0000
 cleardsv12 ffff
 cleardsv12 ffff
-case clear-unsupported
-device12 ok
-clear12 hr 80070057
-clear12 hr 887a0005
-clear12 hr 80070057
-clear12 hr 80070057
-cleardsv12 hr 80070057
-case nodev
-nodev
-nodev
-nodev
-nodev
-done

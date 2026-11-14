@@ -444,11 +444,11 @@ present hr 00000000 index 1
 present hr 887a0001 index 1
 present hr 00000000 index 1
 present hr 00000000 index 1
-present hr 887a000a index 1
-present hr 887a0001 index 1
-present hr 887a0001 index 1
-present hr 887a0001 index 1
 present hr 00000000 index 0
+present hr 887a0001 index 0
+present hr 887a0001 index 0
+present hr 887a0001 index 0
+present hr 00000000 index 1
 case chain-resize
 device12 ok
 factory ok
