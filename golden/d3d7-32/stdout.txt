@@ -6655,6 +6655,588 @@ ffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7f
 ffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7f
 ffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7f
 ffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7f
+case zsweep-z16
+d3d ok
+d3ddev ok
+dd z 2 1 16
+00000000
+dd z 2 1 16
+ca01ca01
+dd z 2 1 16
+95039503
+dd z 2 1 16
+60056005
+dd z 2 1 16
+2b072b07
+dd z 2 1 16
+f508f508
+dd z 2 1 16
+c00ac00a
+dd z 2 1 16
+8b0c8b0c
+dd z 2 1 16
+560e560e
+dd z 2 1 16
+20102010
+dd z 2 1 16
+eb11eb11
+dd z 2 1 16
+b613b613
+dd z 2 1 16
+81158115
+dd z 2 1 16
+4b174b17
+dd z 2 1 16
+16191619
+dd z 2 1 16
+e11ae11a
+dd z 2 1 16
+ac1cac1c
+dd z 2 1 16
+761e761e
+dd z 2 1 16
+41204120
+dd z 2 1 16
+0c220c22
+dd z 2 1 16
+d723d723
+dd z 2 1 16
+a125a125
+dd z 2 1 16
+6c276c27
+dd z 2 1 16
+37293729
+dd z 2 1 16
+022b022b
+dd z 2 1 16
+cc2ccc2c
+dd z 2 1 16
+972e972e
+dd z 2 1 16
+62306230
+dd z 2 1 16
+2d322d32
+dd z 2 1 16
+f733f733
+dd z 2 1 16
+c235c235
+dd z 2 1 16
+8d378d37
+dd z 2 1 16
+58395839
+dd z 2 1 16
+223b223b
+dd z 2 1 16
+ed3ced3c
+dd z 2 1 16
+b83eb83e
+dd z 2 1 16
+83408340
+dd z 2 1 16
+4d424d42
+dd z 2 1 16
+18441844
+dd z 2 1 16
+e345e345
+dd z 2 1 16
+ae47ae47
+dd z 2 1 16
+78497849
+dd z 2 1 16
+434b434b
+dd z 2 1 16
+0e4d0e4d
+dd z 2 1 16
+d94ed94e
+dd z 2 1 16
+a350a350
+dd z 2 1 16
+6e526e52
+dd z 2 1 16
+39543954
+dd z 2 1 16
+04560456
+dd z 2 1 16
+ce57ce57
+dd z 2 1 16
+99599959
+dd z 2 1 16
+645b645b
+dd z 2 1 16
+2f5d2f5d
+dd z 2 1 16
+f95ef95e
+dd z 2 1 16
+c460c460
+dd z 2 1 16
+8f628f62
+dd z 2 1 16
+5a645a64
+dd z 2 1 16
+24662466
+dd z 2 1 16
+ef67ef67
+dd z 2 1 16
+ba69ba69
+dd z 2 1 16
+856b856b
+dd z 2 1 16
+4f6d4f6d
+dd z 2 1 16
+1a6f1a6f
+dd z 2 1 16
+e570e570
+dd z 2 1 16
+b072b072
+dd z 2 1 16
+7a747a74
+dd z 2 1 16
+45764576
+dd z 2 1 16
+10781078
+dd z 2 1 16
+db79db79
+dd z 2 1 16
+a57ba57b
+dd z 2 1 16
+707d707d
+dd z 2 1 16
+3b7f3b7f
+dd z 2 1 16
+06810681
+dd z 2 1 16
+d082d082
+dd z 2 1 16
+9b849b84
+dd z 2 1 16
+66866686
+dd z 2 1 16
+31883188
+dd z 2 1 16
+fb89fb89
+dd z 2 1 16
+c68bc68b
+dd z 2 1 16
+918d918d
+dd z 2 1 16
+5c8f5c8f
+dd z 2 1 16
+26912691
+dd z 2 1 16
+f192f192
+dd z 2 1 16
+bc94bc94
+dd z 2 1 16
+87968796
+dd z 2 1 16
+51985198
+dd z 2 1 16
+1c9a1c9a
+dd z 2 1 16
+e79be79b
+dd z 2 1 16
+b29db29d
+dd z 2 1 16
+7c9f7c9f
+dd z 2 1 16
+47a147a1
+dd z 2 1 16
+12a312a3
+dd z 2 1 16
+dda4dda4
+dd z 2 1 16
+a7a6a7a6
+dd z 2 1 16
+72a872a8
+dd z 2 1 16
+3daa3daa
+dd z 2 1 16
+08ac08ac
+dd z 2 1 16
+d2add2ad
+dd z 2 1 16
+9daf9daf
+dd z 2 1 16
+68b168b1
+dd z 2 1 16
+33b333b3
+dd z 2 1 16
+fdb4fdb4
+dd z 2 1 16
+c8b6c8b6
+dd z 2 1 16
+93b893b8
+dd z 2 1 16
+5eba5eba
+dd z 2 1 16
+28bc28bc
+dd z 2 1 16
+f3bdf3bd
+dd z 2 1 16
+bebfbebf
+dd z 2 1 16
+89c189c1
+dd z 2 1 16
+53c353c3
+dd z 2 1 16
+1ec51ec5
+dd z 2 1 16
+e9c6e9c6
+dd z 2 1 16
+b4c8b4c8
+dd z 2 1 16
+7eca7eca
+dd z 2 1 16
+49cc49cc
+dd z 2 1 16
+14ce14ce
+dd z 2 1 16
+dfcfdfcf
+dd z 2 1 16
+a9d1a9d1
+dd z 2 1 16
+74d374d3
+dd z 2 1 16
+3fd53fd5
+dd z 2 1 16
+0ad70ad7
+dd z 2 1 16
+d4d8d4d8
+dd z 2 1 16
+9fda9fda
+dd z 2 1 16
+6adc6adc
+dd z 2 1 16
+35de35de
+dd z 2 1 16
+ffdfffdf
+dd z 2 1 16
+cae1cae1
+dd z 2 1 16
+95e395e3
+dd z 2 1 16
+60e560e5
+dd z 2 1 16
+2be72be7
+dd z 2 1 16
+f5e8f5e8
+dd z 2 1 16
+c0eac0ea
+dd z 2 1 16
+8bec8bec
+dd z 2 1 16
+56ee56ee
+dd z 2 1 16
+20f020f0
+dd z 2 1 16
+ebf1ebf1
+dd z 2 1 16
+b6f3b6f3
+dd z 2 1 16
+81f581f5
+dd z 2 1 16
+4bf74bf7
+dd z 2 1 16
+16f916f9
+dd z 2 1 16
+e1fae1fa
+dd z 2 1 16
+acfcacfc
+dd z 2 1 16
+76fe76fe
+dd z 2 1 16
+ffffffff
+case zsweep-z32
+d3d ok
+d3ddev ok
+dd z 2 1 32
+ff000000ff000000
+dd z 2 1 32
+ffc0ca01ffc0ca01
+dd z 2 1 32
+ff819503ff819503
+dd z 2 1 32
+ff416005ff416005
+dd z 2 1 32
+ff022b07ff022b07
+dd z 2 1 32
+ffc2f508ffc2f508
+dd z 2 1 32
+ff83c00aff83c00a
+dd z 2 1 32
+ff438b0cff438b0c
+dd z 2 1 32
+ff04560eff04560e
+dd z 2 1 32
+ffc42010ffc42010
+dd z 2 1 32
+ff85eb11ff85eb11
+dd z 2 1 32
+ff45b613ff45b613
+dd z 2 1 32
+ff068115ff068115
+dd z 2 1 32
+ffc64b17ffc64b17
+dd z 2 1 32
+ff871619ff871619
+dd z 2 1 32
+ff47e11aff47e11a
+dd z 2 1 32
+ff08ac1cff08ac1c
+dd z 2 1 32
+ffc8761effc8761e
+dd z 2 1 32
+ff894120ff894120
+dd z 2 1 32
+ff490c22ff490c22
+dd z 2 1 32
+ff0ad723ff0ad723
+dd z 2 1 32
+ffcaa125ffcaa125
+dd z 2 1 32
+ff8b6c27ff8b6c27
+dd z 2 1 32
+ff4b3729ff4b3729
+dd z 2 1 32
+ff0c022bff0c022b
+dd z 2 1 32
+ffcccc2cffcccc2c
+dd z 2 1 32
+ff8d972eff8d972e
+dd z 2 1 32
+ff4d6230ff4d6230
+dd z 2 1 32
+ff0e2d32ff0e2d32
+dd z 2 1 32
+ffcef733ffcef733
+dd z 2 1 32
+ff8fc235ff8fc235
+dd z 2 1 32
+ff4f8d37ff4f8d37
+dd z 2 1 32
+ff105839ff105839
+dd z 2 1 32
+ffd0223bffd0223b
+dd z 2 1 32
+ff91ed3cff91ed3c
+dd z 2 1 32
+ff51b83eff51b83e
+dd z 2 1 32
+ff128340ff128340
+dd z 2 1 32
+ffd24d42ffd24d42
+dd z 2 1 32
+ff931844ff931844
+dd z 2 1 32
+ff53e345ff53e345
+dd z 2 1 32
+ff14ae47ff14ae47
+dd z 2 1 32
+ffd47849ffd47849
+dd z 2 1 32
+ff95434bff95434b
+dd z 2 1 32
+ff550e4dff550e4d
+dd z 2 1 32
+ff16d94eff16d94e
+dd z 2 1 32
+ffd6a350ffd6a350
+dd z 2 1 32
+ff976e52ff976e52
+dd z 2 1 32
+ff573954ff573954
+dd z 2 1 32
+ff180456ff180456
+dd z 2 1 32
+ffd8ce57ffd8ce57
+dd z 2 1 32
+ff999959ff999959
+dd z 2 1 32
+ff59645bff59645b
+dd z 2 1 32
+ff1a2f5dff1a2f5d
+dd z 2 1 32
+ffdaf95effdaf95e
+dd z 2 1 32
+ff9bc460ff9bc460
+dd z 2 1 32
+ff5b8f62ff5b8f62
+dd z 2 1 32
+ff1c5a64ff1c5a64
+dd z 2 1 32
+ffdc2466ffdc2466
+dd z 2 1 32
+ff9def67ff9def67
+dd z 2 1 32
+ff5dba69ff5dba69
+dd z 2 1 32
+ff1e856bff1e856b
+dd z 2 1 32
+ffde4f6dffde4f6d
+dd z 2 1 32
+ff9f1a6fff9f1a6f
+dd z 2 1 32
+ff60e570ff60e570
+dd z 2 1 32
+ff20b072ff20b072
+dd z 2 1 32
+ffe17a74ffe17a74
+dd z 2 1 32
+ffa14576ffa14576
+dd z 2 1 32
+ff621078ff621078
+dd z 2 1 32
+ff22db79ff22db79
+dd z 2 1 32
+ffe3a57bffe3a57b
+dd z 2 1 32
+ffa3707dffa3707d
+dd z 2 1 32
+ff643b7fff643b7f
+dd z 2 1 32
+ff240681ff240681
+dd z 2 1 32
+ffe4d082ffe4d082
+dd z 2 1 32
+ffa59b84ffa59b84
+dd z 2 1 32
+ff656686ff656686
+dd z 2 1 32
+ff263188ff263188
+dd z 2 1 32
+ffe6fb89ffe6fb89
+dd z 2 1 32
+ffa7c68bffa7c68b
+dd z 2 1 32
+ff67918dff67918d
+dd z 2 1 32
+ff285c8fff285c8f
+dd z 2 1 32
+ffe82691ffe82691
+dd z 2 1 32
+ffa9f192ffa9f192
+dd z 2 1 32
+ff69bc94ff69bc94
+dd z 2 1 32
+ff2a8796ff2a8796
+dd z 2 1 32
+ffeb5198ffeb5198
+dd z 2 1 32
+ffab1c9affab1c9a
+dd z 2 1 32
+ff6ce79bff6ce79b
+dd z 2 1 32
+ff2cb29dff2cb29d
+dd z 2 1 32
+ffed7c9fffed7c9f
+dd z 2 1 32
+ffad47a1ffad47a1
+dd z 2 1 32
+ff6e12a3ff6e12a3
+dd z 2 1 32
+ff2edda4ff2edda4
+dd z 2 1 32
+ffefa7a6ffefa7a6
+dd z 2 1 32
+ffaf72a8ffaf72a8
+dd z 2 1 32
+ff703daaff703daa
+dd z 2 1 32
+ff3008acff3008ac
+dd z 2 1 32
+fff1d2adfff1d2ad
+dd z 2 1 32
+ffb19dafffb19daf
+dd z 2 1 32
+ff7268b1ff7268b1
+dd z 2 1 32
+ff3233b3ff3233b3
+dd z 2 1 32
+fff3fdb4fff3fdb4
+dd z 2 1 32
+ffb3c8b6ffb3c8b6
+dd z 2 1 32
+ff7493b8ff7493b8
+dd z 2 1 32
+ff345ebaff345eba
+dd z 2 1 32
+fff528bcfff528bc
+dd z 2 1 32
+ffb5f3bdffb5f3bd
+dd z 2 1 32
+ff76bebfff76bebf
+dd z 2 1 32
+ff3689c1ff3689c1
+dd z 2 1 32
+fff753c3fff753c3
+dd z 2 1 32
+ffb71ec5ffb71ec5
+dd z 2 1 32
+ff78e9c6ff78e9c6
+dd z 2 1 32
+ff38b4c8ff38b4c8
+dd z 2 1 32
+fff97ecafff97eca
+dd z 2 1 32
+ffb949ccffb949cc
+dd z 2 1 32
+ff7a14ceff7a14ce
+dd z 2 1 32
+ff3adfcfff3adfcf
+dd z 2 1 32
+fffba9d1fffba9d1
+dd z 2 1 32
+ffbb74d3ffbb74d3
+dd z 2 1 32
+ff7c3fd5ff7c3fd5
+dd z 2 1 32
+ff3c0ad7ff3c0ad7
+dd z 2 1 32
+fffdd4d8fffdd4d8
+dd z 2 1 32
+ffbd9fdaffbd9fda
+dd z 2 1 32
+ff7e6adcff7e6adc
+dd z 2 1 32
+ff3e35deff3e35de
+dd z 2 1 32
+ffffffdfffffffdf
+dd z 2 1 32
+ffc0cae1ffc0cae1
+dd z 2 1 32
+ff8095e3ff8095e3
+dd z 2 1 32
+ff4160e5ff4160e5
+dd z 2 1 32
+ff012be7ff012be7
+dd z 2 1 32
+ffc2f5e8ffc2f5e8
+dd z 2 1 32
+ff82c0eaff82c0ea
+dd z 2 1 32
+ff438becff438bec
+dd z 2 1 32
+ff0356eeff0356ee
+dd z 2 1 32
+ffc420f0ffc420f0
+dd z 2 1 32
+ff84ebf1ff84ebf1
+dd z 2 1 32
+ff45b6f3ff45b6f3
+dd z 2 1 32
+ff0581f5ff0581f5
+dd z 2 1 32
+ffc64bf7ffc64bf7
+dd z 2 1 32
+ff8616f9ff8616f9
+dd z 2 1 32
+ff47e1faff47e1fa
+dd z 2 1 32
+ff07acfcff07acfc
+dd z 2 1 32
+ffc876feffc876fe
+dd z 2 1 32
+ffffffffffffffff
 case zfunc
 d3d ok
 d3ddev ok
