@@ -678,6 +678,33 @@ fn suite(v8: bool) -> String {
             blend_sized(&mut s, dev, &mut r, &format!("blend-bothalpha-{f}"), &[(206, 1), (207, f), (208, 2), (209, 1)], 16);
         }
     }
+    // lines, one segment a case (D3D9.DRAW.POINTSLINES): 45-degree ones along the pixels' diamond
+    // edges and through their corners, both ways, at each quarter offset; horizontal and vertical
+    // ones on pixel edges and between them; lines between random quarter-pixel points
+    let line = |s: &mut String, name: &str, a: (f32, f32), b: (f32, f32)| {
+        open(s, name, 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9fvf {FVF_TL:#x}\nd9draw 2 2 {} {}\nd9rt\nend", v(a.0, a.1, 0.0, 0xffff_ffff, None), v(b.0, b.1, 0.0, 0xffff_ffff, None)).unwrap();
+    };
+    for k in 0..8 {
+        let o = k as f32 / 4.0;
+        line(&mut s, &format!("line-diag-{k}"), (1.0 + o, 1.5), (13.0 + o, 13.5));
+        line(&mut s, &format!("line-diag-back-{k}"), (13.0 + o, 13.5), (1.0 + o, 1.5));
+        line(&mut s, &format!("line-anti-{k}"), (14.0 - o, 1.5), (2.0 - o, 13.5));
+        line(&mut s, &format!("line-anti-back-{k}"), (2.0 - o, 13.5), (14.0 - o, 1.5));
+    }
+    for k in 0..4 {
+        let o = k as f32 / 4.0;
+        line(&mut s, &format!("line-h-{k}"), (1.25, 7.0 + o), (14.75, 7.0 + o));
+        line(&mut s, &format!("line-h-back-{k}"), (14.75, 7.0 + o), (1.25, 7.0 + o));
+        line(&mut s, &format!("line-v-{k}"), (7.0 + o, 1.25), (7.0 + o, 14.75));
+        line(&mut s, &format!("line-v-back-{k}"), (7.0 + o, 14.75), (7.0 + o, 1.25));
+    }
+    let mut r = XorShift32(0x11e5_d1a6);
+    for i in 0..48 {
+        let mut q = || r.range(-8, 72) as f32 / 4.0;
+        let (a, b) = ((q(), q()), (q(), q()));
+        line(&mut s, &format!("line-random-{i}"), a, b);
+    }
     s
 }
 
