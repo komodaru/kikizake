@@ -147,7 +147,7 @@ const _: () = {
     let mut i = 0;
     while i < Pf::ALL.len() {
         let b = Pf::ALL[i].bits();
-        assert!(b == 1 || b == 4 || b % 8 == 0 && b <= 64);
+        assert!(b == 1 || b == 4 || b.is_multiple_of(8) && b <= 64);
         i += 1;
     }
 };
@@ -223,7 +223,7 @@ pub fn default_palette(f: Pf) -> Vec<u32> {
             for r in 0..6 {
                 for g in 0..6 {
                     for b in 0..6 {
-                        p.push(0xff00_0000 | (r * 0x33) << 16 | (g * 0x33) << 8 | b * 0x33);
+                        p.push(0xff00_0000 | (r * 0x33) << 16 | (g * 0x33) << 8 | (b * 0x33));
                     }
                 }
             }
@@ -258,10 +258,9 @@ fn premultiply(c: u64, a: u64) -> u64 {
 /// MEASURED (golden gdiplus pairs-32bppPARGB-32bppARGB: every pair): a 16.16 reciprocal of the
 /// alpha, truncated, the product truncated, at most 255; alpha 0 keeps the color
 fn unpremultiply(c: u32, a: u32) -> u32 {
-    if a == 0 {
-        c
-    } else {
-        ((c * ((255 << 16) / a)) >> 16).min(255)
+    match (255u32 << 16).checked_div(a) {
+        None => c,
+        Some(r) => ((c * r) >> 16).min(255),
     }
 }
 
@@ -601,8 +600,8 @@ pub fn fixed_palette(d: Depth) -> (Vec<u32>, u32) {
     let more = [0xffc0_c0c0, 0xff80_8080, 0xff80_0000, 0xff00_8000, 0xff00_0080, 0xff80_8000, 0xff80_0080, 0xff00_8080];
     match d {
         Depth::One => (vec![0xff00_0000, 0xffff_ffff], 2 << 8),
-        Depth::Four => ((0..8u32).map(|k| 0xff00_0000 | (k >> 2) * 0xff_0000 | (k >> 1 & 1) * 0xff00 | (k & 1) * 0xff).chain(more).collect(), 3 << 8),
-        Depth::Eight => ((0..216u32).map(|k| 0xff00_0000 | (k / 36) * 0x33_0000 | (k / 6 % 6) * 0x3300 | (k % 6) * 0x33).chain(more).collect(), 7 << 8),
+        Depth::Four => ((0..8u32).map(|k| 0xff00_0000 | ((k >> 2) * 0xff_0000) | ((k >> 1 & 1) * 0xff00) | ((k & 1) * 0xff)).chain(more).collect(), 3 << 8),
+        Depth::Eight => ((0..216u32).map(|k| 0xff00_0000 | ((k / 36) * 0x33_0000) | ((k / 6 % 6) * 0x3300) | ((k % 6) * 0x33)).chain(more).collect(), 7 << 8),
     }
 }
 
@@ -959,7 +958,7 @@ impl Gdiplus {
                 let mix = |s: u64, d: u64| -> u64 {
                     if x86 {
                         hit(clause::GP_FILL_GAMMA_X86);
-                        s + lanes(d, 8192 - sa) & 0xffff
+                        (s + lanes(d, 8192 - sa)) & 0xffff
                     } else {
                         hit(clause::GP_FILL_GAMMA_X64);
                         let (s, d) = (s as f32, d as f32);
@@ -1167,7 +1166,7 @@ impl Gdiplus {
                 let m = self.mat[s].unwrap();
                 let rd = rounding();
                 let k = t.len() - 2;
-                if k % 2 != 0 || k < 2 || k > 32 {
+                if !k.is_multiple_of(2) || !(2..=32).contains(&k) {
                     return Err(Fail::Bad);
                 }
                 let mut l = "pts 0".to_string();

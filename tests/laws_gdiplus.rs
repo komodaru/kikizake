@@ -212,7 +212,7 @@ fn lanes_lose_only_the_carry() {
     for d in 0..=8192u64 {
         for f in (0..=8192u64).step_by(7) {
             let r = (d * f + 4096) >> 13;
-            let carry = (d * f & 0xffff) >= 0x1_0000 - 4096;
+            let carry = ((d * f) & 0xffff) >= 0x1_0000 - 4096;
             assert_eq!(kikizake::model::gdiplus::lanes(d, f), if carry { r - 8 } else { r }, "{d} {f}");
         }
     }

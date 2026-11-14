@@ -95,7 +95,7 @@ pub fn gdiplus() -> String {
     for (f, o) in [("16bppRGB555", 0), ("16bppRGB565", 0), ("16bppRGB565", 3)] {
         write!(s, "case dither-{f}-{o}\ngpbitmap 0 {} {} {f}\n", 128 + o, 128 + o).unwrap();
         for v in 0..256 {
-            writeln!(s, "gpfill 0 {} {} 8 8 {:#010x} copy 0", o + v % 16 * 8, o + v / 16 * 8, 0xff00_0000u32 | v * 0x01_0101).unwrap();
+            writeln!(s, "gpfill 0 {} {} 8 8 {:#010x} copy 0", o + v % 16 * 8, o + v / 16 * 8, 0xff00_0000u32 | (v * 0x01_0101)).unwrap();
         }
         writeln!(s, "gpread 0 {f}\nend").unwrap();
     }
@@ -155,7 +155,7 @@ pub fn gdiplus() -> String {
     for i in 0..120 {
         let m: Vec<String> = (0..12).map(|k| {
             // (some singular ones: a row that is a multiple of the other)
-            if i % 6 == 5 && k == 2 { "0".into() } else if i % 6 == 5 && k == 3 { "0".into() } else { format!("{:#x}", rfloat(&mut r)) }
+            if i % 6 == 5 && (k == 2 || k == 3) { "0".into() } else { format!("{:#x}", rfloat(&mut r)) }
         }).collect();
         let pts: Vec<String> = (0..6).map(|_| format!("{:#x}", rfloat(&mut r))).collect();
         writeln!(s, "case matrix-{i}\ngpmatrix 0 {}\ngpmatrix 1 {}\ngpmatpts 0 {}\ngpmatmul 0 1 {}\ngpmatpts 0 {}\ngpmatinv 0\ngpmatpts 0 {}\nend", m[..6].join(" "), m[6..].join(" "), pts.join(" "), i % 2, pts.join(" "), pts.join(" ")).unwrap();
