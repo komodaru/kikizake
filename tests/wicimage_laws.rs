@@ -366,3 +366,18 @@ fn unmodeled_cases_are_the_listed_ones() {
     let gone: Vec<&String> = listed.iter().filter(|n| !now.contains(n)).collect();
     assert!(new.is_empty() && gone.is_empty(), "unmodeled cases changed (KIKIZAKE_BLESS=1 after settling some):\nnewly unmodeled: {new:?}\nnow modeled: {gone:?}");
 }
+
+proptest! {
+    /// (found by fuzzing: a depth of 0 read samples of no bytes) any IHDR, any image data: the
+    /// PNG decoder answers or says it has no model, it does not panic, and an IHDR the format
+    /// does not allow is never decoded as if it were
+    #[test]
+    fn png_any_ihdr_never_panics(w in 1u32..6, h in 1u32..4, depth in any::<u8>(), ct in 0u8..9, il in any::<bool>(), data in proptest::collection::vec(any::<u8>(), 0..200)) {
+        let f = kikizake::gen::wicimage_png(w, h, depth, ct, il, &[(b"PLTE", vec![7; 768])], &data, 50);
+        let r = wi::decode(&f);
+        let allowed = matches!((ct, depth), (0, 1 | 2 | 4 | 8 | 16) | (3, 1 | 2 | 4 | 8) | (2 | 4 | 6, 8 | 16));
+        if !allowed {
+            prop_assert!(r.is_err(), "{ct} {depth}");
+        }
+    }
+}

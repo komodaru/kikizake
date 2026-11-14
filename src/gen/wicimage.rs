@@ -1108,6 +1108,28 @@ pub fn wicdecode() -> String {
         // (the palette too: a gray picture with a key comes out indexed)
         decode_case(&mut s, &format!("png-trns-gray{d}-{}", key.len()), &png(4, 3, d, 0, false, &[(b"tRNS", key)], &png_filter(&raw, n, &[0]), 100), 1, d < 16);
     }
+    // IHDRs the format does not allow: every color type with depths it does not take, color
+    // types past 6, compression, filter and interlace methods other than 0 (and Adam7's 1)
+    let valid = |ct: u8, d: u8| matches!((ct, d), (0, 1 | 2 | 4 | 8 | 16) | (3, 1 | 2 | 4 | 8) | (2 | 4 | 6, 8 | 16));
+    let rows: Vec<u8> = (0..3).flat_map(|_| { let mut v = vec![0u8]; v.extend(bytes(&mut r, 24)); v }).collect();
+    let plte: Vec<u8> = bytes(&mut r, 3 * 256);
+    for ct in 0u8..=8 {
+        for d in [0u8, 1, 2, 3, 4, 5, 7, 8, 9, 12, 16, 32, 255] {
+            if valid(ct, d) {
+                continue;
+            }
+            decode_case(&mut s, &format!("png-ihdr-{ct}-{d}"), &png(4, 3, d, ct, false, &[(b"PLTE", plte.clone())], &rows, 100), 1, false);
+        }
+    }
+    for (k, at) in [(1u8, 10usize), (1, 11), (2, 12), (255, 12), (255, 10), (255, 11)] {
+        let rows8: Vec<u8> = rows.chunks(25).flat_map(|c| c[..5].to_vec()).collect();
+        let mut f = png(4, 3, 8, 0, false, &[], &rows8, 100);
+        // (IHDR's data starts at 16; its CRC written again)
+        f[16 + at] = k;
+        let crc = crc32(&f[12..29]);
+        f[29..33].copy_from_slice(&crc.to_be_bytes());
+        decode_case(&mut s, &format!("png-ihdr-method-{at}-{k}"), &f, 1, false);
+    }
     // TIFF layouts beyond the usual: 2-bit gray and palette, 16-bit gray+alpha, 16-bit RGB with
     // no alpha flag, 8-bit RGB+alpha unspecified premultiplied, YCbCr, a mask, 32-bit RGB, 4 extra
     for (k, (ph, bits, spp, extra)) in [(1u16, 2u16, 1u16, None), (3, 2, 1, None), (1, 16, 2, Some(2)), (2, 16, 4, Some(0)), (2, 8, 5, Some(2)), (6, 8, 3, None), (4, 1, 1, None), (2, 32, 3, None), (1, 8, 2, Some(0)), (1, 8, 2, Some(1)), (5, 8, 5, Some(1)), (2, 4, 3, None)].into_iter().enumerate() {

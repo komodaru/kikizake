@@ -909,6 +909,12 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     let Some(ih) = ihdr.filter(|h| h.len() == 13) else { return open };
     let be = |o: usize| u32::from_be_bytes(ih[o..o + 4].try_into().unwrap());
     let (w, h, depth, ct, il) = (be(0), be(4), ih[8] as u32, ih[9], ih[12] == 1);
+    // (an IHDR the format does not allow: cases png-ihdr-* to measure; found by fuzzing, a
+    // depth of 0 read no samples)
+    let allowed = matches!((ct, depth), (0, 1 | 2 | 4 | 8 | 16) | (3, 1 | 2 | 4 | 8) | (2 | 4 | 6, 8 | 16));
+    if !allowed || ih[10] != 0 || ih[11] != 0 || ih[12] > 1 {
+        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
+    }
     // (the model does not hold pictures past 2^24 pixels)
     if w as u64 * h as u64 > 1 << 24 {
         return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
