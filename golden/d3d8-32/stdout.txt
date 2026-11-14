@@ -1,0 +1,5595 @@
+kikizake d3d8
+case defaults
+device8 ok
+rs 0 = baadcafe
+rs 1 hr 8876086c
+rs 2 hr 8876086c
+rs 3 hr 8876086c
+rs 4 hr 8876086c
+rs 5 hr 8876086c
+rs 6 hr 8876086c
+rs 7 = 00000001
+rs 8 = 00000003
+rs 9 = 00000002
+rs 10 = 00000000
+rs 11 hr 8876086c
+rs 12 hr 8876086c
+rs 13 hr 8876086c
+rs 14 = 00000001
+rs 15 = 00000000
+rs 16 = 00000001
+rs 17 hr 8876086c
+rs 18 hr 8876086c
+rs 19 = 00000002
+rs 20 = 00000001
+rs 21 hr 8876086c
+rs 22 = 00000003
+rs 23 = 00000004
+rs 24 = 00000000
+rs 25 = 00000008
+rs 26 = 00000000
+rs 27 = 00000000
+rs 28 = 00000000
+rs 29 = 00000000
+rs 30 = 00000000
+rs 31 hr 8876086c
+rs 32 hr 8876086c
+rs 33 hr 8876086c
+rs 34 = 00000000
+rs 35 = 00000000
+rs 36 = 00000000
+rs 37 = 3f800000
+rs 38 = 3f800000
+rs 39 hr 8876086c
+rs 40 = 00000000
+rs 41 hr 8876086c
+rs 42 = baadcafe
+rs 43 hr 8876086c
+rs 44 hr 8876086c
+rs 45 hr 8876086c
+rs 46 hr 8876086c
+rs 47 = 00000000
+rs 48 = 00000000
+rs 49 hr 8876086c
+rs 50 = baadcafe
+rs 51 hr 8876086c
+rs 52 = 00000000
+rs 53 = 00000001
+rs 54 = 00000001
+rs 55 = 00000001
+rs 56 = 00000008
+rs 57 = 00000000
+rs 58 = ffffffff
+rs 59 = ffffffff
+rs 60 = ffffffff
+rs 61 = baadcafe
+rs 62 = baadcafe
+rs 63 = baadcafe
+rs 64 hr 8876086c
+rs 65 hr 8876086c
+rs 66 hr 8876086c
+rs 67 hr 8876086c
+rs 68 hr 8876086c
+rs 69 hr 8876086c
+rs 70 hr 8876086c
+rs 71 hr 8876086c
+rs 72 hr 8876086c
+rs 73 hr 8876086c
+rs 74 hr 8876086c
+rs 75 hr 8876086c
+rs 76 hr 8876086c
+rs 77 hr 8876086c
+rs 78 hr 8876086c
+rs 79 hr 8876086c
+rs 80 hr 8876086c
+rs 81 hr 8876086c
+rs 82 hr 8876086c
+rs 83 hr 8876086c
+rs 84 hr 8876086c
+rs 85 hr 8876086c
+rs 86 hr 8876086c
+rs 87 hr 8876086c
+rs 88 hr 8876086c
+rs 89 hr 8876086c
+rs 90 hr 8876086c
+rs 91 hr 8876086c
+rs 92 hr 8876086c
+rs 93 hr 8876086c
+rs 94 hr 8876086c
+rs 95 hr 8876086c
+rs 96 = baadcafe
+rs 97 = baadcafe
+rs 98 = baadcafe
+rs 99 = baadcafe
+rs 100 = baadcafe
+rs 101 = baadcafe
+rs 102 = baadcafe
+rs 103 = baadcafe
+rs 104 = baadcafe
+rs 105 = baadcafe
+rs 106 = baadcafe
+rs 107 = baadcafe
+rs 108 = baadcafe
+rs 109 = baadcafe
+rs 110 = baadcafe
+rs 111 = baadcafe
+rs 112 = baadcafe
+rs 113 = baadcafe
+rs 114 = baadcafe
+rs 115 = baadcafe
+rs 116 = baadcafe
+rs 117 = baadcafe
+rs 118 = baadcafe
+rs 119 = baadcafe
+rs 120 = baadcafe
+rs 121 = baadcafe
+rs 122 = baadcafe
+rs 123 = baadcafe
+rs 124 = baadcafe
+rs 125 = baadcafe
+rs 126 = baadcafe
+rs 127 = baadcafe
+rs 128 = 00000000
+rs 129 = 00000000
+rs 130 = 00000000
+rs 131 = 00000000
+rs 132 = 00000000
+rs 133 = 00000000
+rs 134 = 00000000
+rs 135 = 00000000
+rs 136 = 00000001
+rs 137 = 00000001
+rs 138 = baadcafe
+rs 139 = 00000000
+rs 140 = 00000000
+rs 141 = 00000001
+rs 142 = 00000001
+rs 143 = 00000000
+rs 144 hr 8876086c
+rs 145 = 00000001
+rs 146 = 00000002
+rs 147 = 00000000
+rs 148 = 00000000
+rs 149 = baadcafe
+rs 150 = baadcafe
+rs 151 = 00000000
+rs 152 = 00000000
+rs 153 = 00000001
+rs 154 = 3f800000
+rs 155 = 00000000
+rs 156 = 00000000
+rs 157 = 00000000
+rs 158 = 3f800000
+rs 159 = 00000000
+rs 160 = 00000000
+rs 161 = 00000001
+rs 162 = ffffffff
+rs 163 = 00000000
+rs 164 = 3f800000
+rs 165 = baadcafe
+rs 166 = 46000000
+rs 167 = 00000000
+rs 168 = 0000000f
+rs 169 = baadcafe
+rs 170 = 00000000
+rs 171 = 00000001
+rs 172 = 00000003
+rs 173 = 00000001
+rs 174 = baadcafe
+rs 175 = baadcafe
+rs 176 = baadcafe
+rs 177 = baadcafe
+rs 178 = baadcafe
+rs 179 = baadcafe
+rs 180 = baadcafe
+rs 181 = baadcafe
+rs 182 = baadcafe
+rs 183 = baadcafe
+rs 184 = baadcafe
+rs 185 = baadcafe
+rs 186 = baadcafe
+rs 187 = baadcafe
+rs 188 = baadcafe
+rs 189 = baadcafe
+rs 190 = baadcafe
+rs 191 = baadcafe
+rs 192 = baadcafe
+rs 193 = baadcafe
+rs 194 = baadcafe
+rs 195 = baadcafe
+rs 196 = baadcafe
+rs 197 = baadcafe
+rs 198 = baadcafe
+rs 199 = baadcafe
+rs 200 = baadcafe
+rs 201 = baadcafe
+rs 202 = baadcafe
+rs 203 = baadcafe
+rs 204 = baadcafe
+rs 205 = baadcafe
+rs 206 = baadcafe
+rs 207 = baadcafe
+rs 208 = baadcafe
+rs 209 = baadcafe
+rs 210 = baadcafe
+rs 211 = baadcafe
+rs 212 = baadcafe
+rs 213 = baadcafe
+rs 214 = baadcafe
+rs 215 = baadcafe
+rs 216 = baadcafe
+rs 217 = baadcafe
+rs 218 = baadcafe
+rs 219 = baadcafe
+rs 220 = baadcafe
+rs 221 = baadcafe
+rs 222 = baadcafe
+rs 223 = baadcafe
+rs 224 = baadcafe
+rs 225 = baadcafe
+rs 226 = baadcafe
+rs 227 = baadcafe
+rs 228 = baadcafe
+rs 229 = baadcafe
+rs 230 = baadcafe
+rs 231 = baadcafe
+rs 232 = baadcafe
+rs 233 = baadcafe
+rs 234 = baadcafe
+rs 235 = baadcafe
+rs 236 = baadcafe
+rs 237 = baadcafe
+rs 238 = baadcafe
+rs 239 = baadcafe
+rs 240 = baadcafe
+rs 241 = baadcafe
+rs 242 = baadcafe
+rs 243 = baadcafe
+rs 244 = baadcafe
+rs 245 = baadcafe
+rs 246 = baadcafe
+rs 247 = baadcafe
+rs 248 = baadcafe
+rs 249 = baadcafe
+rs 250 = baadcafe
+rs 251 = baadcafe
+rs 252 = baadcafe
+rs 253 = baadcafe
+rs 254 = baadcafe
+rs 255 = baadcafe
+tss 0 0 = baadcafe
+tss 0 1 = 00000004
+tss 0 2 = 00000002
+tss 0 3 = 00000001
+tss 0 4 = 00000002
+tss 0 5 = 00000002
+tss 0 6 = 00000001
+tss 0 7 = 00000000
+tss 0 8 = 00000000
+tss 0 9 = 00000000
+tss 0 10 = 00000000
+tss 0 11 = 00000000
+tss 0 12 = baadcafe
+tss 0 13 = 00000001
+tss 0 14 = 00000001
+tss 0 15 = 00000000
+tss 0 16 = 00000001
+tss 0 17 = 00000001
+tss 0 18 = 00000000
+tss 0 19 = 00000000
+tss 0 20 = 00000000
+tss 0 21 = 00000001
+tss 0 22 = 00000000
+tss 0 23 = 00000000
+tss 0 24 = 00000000
+tss 0 25 = 00000001
+tss 0 26 = 00000001
+tss 0 27 = 00000001
+tss 0 28 = 00000001
+tss 0 29 = baadcafe
+tss 1 0 = baadcafe
+tss 1 1 = 00000001
+tss 1 2 = 00000002
+tss 1 3 = 00000001
+tss 1 4 = 00000001
+tss 1 5 = 00000002
+tss 1 6 = 00000001
+tss 1 7 = 00000000
+tss 1 8 = 00000000
+tss 1 9 = 00000000
+tss 1 10 = 00000000
+tss 1 11 = 00000001
+tss 1 12 = baadcafe
+tss 1 13 = 00000001
+tss 1 14 = 00000001
+tss 1 15 = 00000000
+tss 1 16 = 00000001
+tss 1 17 = 00000001
+tss 1 18 = 00000000
+tss 1 19 = 00000000
+tss 1 20 = 00000000
+tss 1 21 = 00000001
+tss 1 22 = 00000000
+tss 1 23 = 00000000
+tss 1 24 = 00000000
+tss 1 25 = 00000001
+tss 1 26 = 00000001
+tss 1 27 = 00000001
+tss 1 28 = 00000001
+tss 1 29 = baadcafe
+tss 2 0 = baadcafe
+tss 2 1 = 00000001
+tss 2 2 = 00000002
+tss 2 3 = 00000001
+tss 2 4 = 00000001
+tss 2 5 = 00000002
+tss 2 6 = 00000001
+tss 2 7 = 00000000
+tss 2 8 = 00000000
+tss 2 9 = 00000000
+tss 2 10 = 00000000
+tss 2 11 = 00000002
+tss 2 12 = baadcafe
+tss 2 13 = 00000001
+tss 2 14 = 00000001
+tss 2 15 = 00000000
+tss 2 16 = 00000001
+tss 2 17 = 00000001
+tss 2 18 = 00000000
+tss 2 19 = 00000000
+tss 2 20 = 00000000
+tss 2 21 = 00000001
+tss 2 22 = 00000000
+tss 2 23 = 00000000
+tss 2 24 = 00000000
+tss 2 25 = 00000001
+tss 2 26 = 00000001
+tss 2 27 = 00000001
+tss 2 28 = 00000001
+tss 2 29 = baadcafe
+tss 3 0 = baadcafe
+tss 3 1 = 00000001
+tss 3 2 = 00000002
+tss 3 3 = 00000001
+tss 3 4 = 00000001
+tss 3 5 = 00000002
+tss 3 6 = 00000001
+tss 3 7 = 00000000
+tss 3 8 = 00000000
+tss 3 9 = 00000000
+tss 3 10 = 00000000
+tss 3 11 = 00000003
+tss 3 12 = baadcafe
+tss 3 13 = 00000001
+tss 3 14 = 00000001
+tss 3 15 = 00000000
+tss 3 16 = 00000001
+tss 3 17 = 00000001
+tss 3 18 = 00000000
+tss 3 19 = 00000000
+tss 3 20 = 00000000
+tss 3 21 = 00000001
+tss 3 22 = 00000000
+tss 3 23 = 00000000
+tss 3 24 = 00000000
+tss 3 25 = 00000001
+tss 3 26 = 00000001
+tss 3 27 = 00000001
+tss 3 28 = 00000001
+tss 3 29 = baadcafe
+tss 4 0 = baadcafe
+tss 4 1 = 00000001
+tss 4 2 = 00000002
+tss 4 3 = 00000001
+tss 4 4 = 00000001
+tss 4 5 = 00000002
+tss 4 6 = 00000001
+tss 4 7 = 00000000
+tss 4 8 = 00000000
+tss 4 9 = 00000000
+tss 4 10 = 00000000
+tss 4 11 = 00000004
+tss 4 12 = baadcafe
+tss 4 13 = 00000001
+tss 4 14 = 00000001
+tss 4 15 = 00000000
+tss 4 16 = 00000001
+tss 4 17 = 00000001
+tss 4 18 = 00000000
+tss 4 19 = 00000000
+tss 4 20 = 00000000
+tss 4 21 = 00000001
+tss 4 22 = 00000000
+tss 4 23 = 00000000
+tss 4 24 = 00000000
+tss 4 25 = 00000001
+tss 4 26 = 00000001
+tss 4 27 = 00000001
+tss 4 28 = 00000001
+tss 4 29 = baadcafe
+tss 5 0 = baadcafe
+tss 5 1 = 00000001
+tss 5 2 = 00000002
+tss 5 3 = 00000001
+tss 5 4 = 00000001
+tss 5 5 = 00000002
+tss 5 6 = 00000001
+tss 5 7 = 00000000
+tss 5 8 = 00000000
+tss 5 9 = 00000000
+tss 5 10 = 00000000
+tss 5 11 = 00000005
+tss 5 12 = baadcafe
+tss 5 13 = 00000001
+tss 5 14 = 00000001
+tss 5 15 = 00000000
+tss 5 16 = 00000001
+tss 5 17 = 00000001
+tss 5 18 = 00000000
+tss 5 19 = 00000000
+tss 5 20 = 00000000
+tss 5 21 = 00000001
+tss 5 22 = 00000000
+tss 5 23 = 00000000
+tss 5 24 = 00000000
+tss 5 25 = 00000001
+tss 5 26 = 00000001
+tss 5 27 = 00000001
+tss 5 28 = 00000001
+tss 5 29 = baadcafe
+tss 6 0 = baadcafe
+tss 6 1 = 00000001
+tss 6 2 = 00000002
+tss 6 3 = 00000001
+tss 6 4 = 00000001
+tss 6 5 = 00000002
+tss 6 6 = 00000001
+tss 6 7 = 00000000
+tss 6 8 = 00000000
+tss 6 9 = 00000000
+tss 6 10 = 00000000
+tss 6 11 = 00000006
+tss 6 12 = baadcafe
+tss 6 13 = 00000001
+tss 6 14 = 00000001
+tss 6 15 = 00000000
+tss 6 16 = 00000001
+tss 6 17 = 00000001
+tss 6 18 = 00000000
+tss 6 19 = 00000000
+tss 6 20 = 00000000
+tss 6 21 = 00000001
+tss 6 22 = 00000000
+tss 6 23 = 00000000
+tss 6 24 = 00000000
+tss 6 25 = 00000001
+tss 6 26 = 00000001
+tss 6 27 = 00000001
+tss 6 28 = 00000001
+tss 6 29 = baadcafe
+tss 7 0 = baadcafe
+tss 7 1 = 00000001
+tss 7 2 = 00000002
+tss 7 3 = 00000001
+tss 7 4 = 00000001
+tss 7 5 = 00000002
+tss 7 6 = 00000001
+tss 7 7 = 00000000
+tss 7 8 = 00000000
+tss 7 9 = 00000000
+tss 7 10 = 00000000
+tss 7 11 = 00000007
+tss 7 12 = baadcafe
+tss 7 13 = 00000001
+tss 7 14 = 00000001
+tss 7 15 = 00000000
+tss 7 16 = 00000001
+tss 7 17 = 00000001
+tss 7 18 = 00000000
+tss 7 19 = 00000000
+tss 7 20 = 00000000
+tss 7 21 = 00000001
+tss 7 22 = 00000000
+tss 7 23 = 00000000
+tss 7 24 = 00000000
+tss 7 25 = 00000001
+tss 7 26 = 00000001
+tss 7 27 = 00000001
+tss 7 28 = 00000001
+tss 7 29 = baadcafe
+case defaults-hwvp
+device8 ok
+rs 0 = baadcafe
+rs 1 hr 8876086c
+rs 2 hr 8876086c
+rs 3 hr 8876086c
+rs 4 hr 8876086c
+rs 5 hr 8876086c
+rs 6 hr 8876086c
+rs 7 = 00000001
+rs 8 = 00000003
+rs 9 = 00000002
+rs 10 = 00000000
+rs 11 hr 8876086c
+rs 12 hr 8876086c
+rs 13 hr 8876086c
+rs 14 = 00000001
+rs 15 = 00000000
+rs 16 = 00000001
+rs 17 hr 8876086c
+rs 18 hr 8876086c
+rs 19 = 00000002
+rs 20 = 00000001
+rs 21 hr 8876086c
+rs 22 = 00000003
+rs 23 = 00000004
+rs 24 = 00000000
+rs 25 = 00000008
+rs 26 = 00000000
+rs 27 = 00000000
+rs 28 = 00000000
+rs 29 = 00000000
+rs 30 = 00000000
+rs 31 hr 8876086c
+rs 32 hr 8876086c
+rs 33 hr 8876086c
+rs 34 = 00000000
+rs 35 = 00000000
+rs 36 = 00000000
+rs 37 = 3f800000
+rs 38 = 3f800000
+rs 39 hr 8876086c
+rs 40 = 00000000
+rs 41 hr 8876086c
+rs 42 = baadcafe
+rs 43 hr 8876086c
+rs 44 hr 8876086c
+rs 45 hr 8876086c
+rs 46 hr 8876086c
+rs 47 = 00000000
+rs 48 = 00000000
+rs 49 hr 8876086c
+rs 50 = baadcafe
+rs 51 hr 8876086c
+rs 52 = 00000000
+rs 53 = 00000001
+rs 54 = 00000001
+rs 55 = 00000001
+rs 56 = 00000008
+rs 57 = 00000000
+rs 58 = ffffffff
+rs 59 = ffffffff
+rs 60 = ffffffff
+rs 61 = baadcafe
+rs 62 = baadcafe
+rs 63 = baadcafe
+rs 64 hr 8876086c
+rs 65 hr 8876086c
+rs 66 hr 8876086c
+rs 67 hr 8876086c
+rs 68 hr 8876086c
+rs 69 hr 8876086c
+rs 70 hr 8876086c
+rs 71 hr 8876086c
+rs 72 hr 8876086c
+rs 73 hr 8876086c
+rs 74 hr 8876086c
+rs 75 hr 8876086c
+rs 76 hr 8876086c
+rs 77 hr 8876086c
+rs 78 hr 8876086c
+rs 79 hr 8876086c
+rs 80 hr 8876086c
+rs 81 hr 8876086c
+rs 82 hr 8876086c
+rs 83 hr 8876086c
+rs 84 hr 8876086c
+rs 85 hr 8876086c
+rs 86 hr 8876086c
+rs 87 hr 8876086c
+rs 88 hr 8876086c
+rs 89 hr 8876086c
+rs 90 hr 8876086c
+rs 91 hr 8876086c
+rs 92 hr 8876086c
+rs 93 hr 8876086c
+rs 94 hr 8876086c
+rs 95 hr 8876086c
+rs 96 = baadcafe
+rs 97 = baadcafe
+rs 98 = baadcafe
+rs 99 = baadcafe
+rs 100 = baadcafe
+rs 101 = baadcafe
+rs 102 = baadcafe
+rs 103 = baadcafe
+rs 104 = baadcafe
+rs 105 = baadcafe
+rs 106 = baadcafe
+rs 107 = baadcafe
+rs 108 = baadcafe
+rs 109 = baadcafe
+rs 110 = baadcafe
+rs 111 = baadcafe
+rs 112 = baadcafe
+rs 113 = baadcafe
+rs 114 = baadcafe
+rs 115 = baadcafe
+rs 116 = baadcafe
+rs 117 = baadcafe
+rs 118 = baadcafe
+rs 119 = baadcafe
+rs 120 = baadcafe
+rs 121 = baadcafe
+rs 122 = baadcafe
+rs 123 = baadcafe
+rs 124 = baadcafe
+rs 125 = baadcafe
+rs 126 = baadcafe
+rs 127 = baadcafe
+rs 128 = 00000000
+rs 129 = 00000000
+rs 130 = 00000000
+rs 131 = 00000000
+rs 132 = 00000000
+rs 133 = 00000000
+rs 134 = 00000000
+rs 135 = 00000000
+rs 136 = 00000001
+rs 137 = 00000001
+rs 138 = baadcafe
+rs 139 = 00000000
+rs 140 = 00000000
+rs 141 = 00000001
+rs 142 = 00000001
+rs 143 = 00000000
+rs 144 hr 8876086c
+rs 145 = 00000001
+rs 146 = 00000002
+rs 147 = 00000000
+rs 148 = 00000000
+rs 149 = baadcafe
+rs 150 = baadcafe
+rs 151 = 00000000
+rs 152 = 00000000
+rs 153 = 00000000
+rs 154 = 3f800000
+rs 155 = 00000000
+rs 156 = 00000000
+rs 157 = 00000000
+rs 158 = 3f800000
+rs 159 = 00000000
+rs 160 = 00000000
+rs 161 = 00000001
+rs 162 = ffffffff
+rs 163 = 00000000
+rs 164 = 3f800000
+rs 165 = baadcafe
+rs 166 = 46000000
+rs 167 = 00000000
+rs 168 = 0000000f
+rs 169 = baadcafe
+rs 170 = 00000000
+rs 171 = 00000001
+rs 172 = 00000003
+rs 173 = 00000001
+rs 174 = baadcafe
+rs 175 = baadcafe
+rs 176 = baadcafe
+rs 177 = baadcafe
+rs 178 = baadcafe
+rs 179 = baadcafe
+rs 180 = baadcafe
+rs 181 = baadcafe
+rs 182 = baadcafe
+rs 183 = baadcafe
+rs 184 = baadcafe
+rs 185 = baadcafe
+rs 186 = baadcafe
+rs 187 = baadcafe
+rs 188 = baadcafe
+rs 189 = baadcafe
+rs 190 = baadcafe
+rs 191 = baadcafe
+rs 192 = baadcafe
+rs 193 = baadcafe
+rs 194 = baadcafe
+rs 195 = baadcafe
+rs 196 = baadcafe
+rs 197 = baadcafe
+rs 198 = baadcafe
+rs 199 = baadcafe
+rs 200 = baadcafe
+rs 201 = baadcafe
+rs 202 = baadcafe
+rs 203 = baadcafe
+rs 204 = baadcafe
+rs 205 = baadcafe
+rs 206 = baadcafe
+rs 207 = baadcafe
+rs 208 = baadcafe
+rs 209 = baadcafe
+rs 210 = baadcafe
+rs 211 = baadcafe
+rs 212 = baadcafe
+rs 213 = baadcafe
+rs 214 = baadcafe
+rs 215 = baadcafe
+rs 216 = baadcafe
+rs 217 = baadcafe
+rs 218 = baadcafe
+rs 219 = baadcafe
+rs 220 = baadcafe
+rs 221 = baadcafe
+rs 222 = baadcafe
+rs 223 = baadcafe
+rs 224 = baadcafe
+rs 225 = baadcafe
+rs 226 = baadcafe
+rs 227 = baadcafe
+rs 228 = baadcafe
+rs 229 = baadcafe
+rs 230 = baadcafe
+rs 231 = baadcafe
+rs 232 = baadcafe
+rs 233 = baadcafe
+rs 234 = baadcafe
+rs 235 = baadcafe
+rs 236 = baadcafe
+rs 237 = baadcafe
+rs 238 = baadcafe
+rs 239 = baadcafe
+rs 240 = baadcafe
+rs 241 = baadcafe
+rs 242 = baadcafe
+rs 243 = baadcafe
+rs 244 = baadcafe
+rs 245 = baadcafe
+rs 246 = baadcafe
+rs 247 = baadcafe
+rs 248 = baadcafe
+rs 249 = baadcafe
+rs 250 = baadcafe
+rs 251 = baadcafe
+rs 252 = baadcafe
+rs 253 = baadcafe
+rs 254 = baadcafe
+rs 255 = baadcafe
+tss 0 0 = baadcafe
+tss 0 1 = 00000004
+tss 0 2 = 00000002
+tss 0 3 = 00000001
+tss 0 4 = 00000002
+tss 0 5 = 00000002
+tss 0 6 = 00000001
+tss 0 7 = 00000000
+tss 0 8 = 00000000
+tss 0 9 = 00000000
+tss 0 10 = 00000000
+tss 0 11 = 00000000
+tss 0 12 = baadcafe
+tss 0 13 = 00000001
+tss 0 14 = 00000001
+tss 0 15 = 00000000
+tss 0 16 = 00000001
+tss 0 17 = 00000001
+tss 0 18 = 00000000
+tss 0 19 = 00000000
+tss 0 20 = 00000000
+tss 0 21 = 00000001
+tss 0 22 = 00000000
+tss 0 23 = 00000000
+tss 0 24 = 00000000
+tss 0 25 = 00000001
+tss 0 26 = 00000001
+tss 0 27 = 00000001
+tss 0 28 = 00000001
+tss 0 29 = baadcafe
+tss 1 0 = baadcafe
+tss 1 1 = 00000001
+tss 1 2 = 00000002
+tss 1 3 = 00000001
+tss 1 4 = 00000001
+tss 1 5 = 00000002
+tss 1 6 = 00000001
+tss 1 7 = 00000000
+tss 1 8 = 00000000
+tss 1 9 = 00000000
+tss 1 10 = 00000000
+tss 1 11 = 00000001
+tss 1 12 = baadcafe
+tss 1 13 = 00000001
+tss 1 14 = 00000001
+tss 1 15 = 00000000
+tss 1 16 = 00000001
+tss 1 17 = 00000001
+tss 1 18 = 00000000
+tss 1 19 = 00000000
+tss 1 20 = 00000000
+tss 1 21 = 00000001
+tss 1 22 = 00000000
+tss 1 23 = 00000000
+tss 1 24 = 00000000
+tss 1 25 = 00000001
+tss 1 26 = 00000001
+tss 1 27 = 00000001
+tss 1 28 = 00000001
+tss 1 29 = baadcafe
+tss 2 0 = baadcafe
+tss 2 1 = 00000001
+tss 2 2 = 00000002
+tss 2 3 = 00000001
+tss 2 4 = 00000001
+tss 2 5 = 00000002
+tss 2 6 = 00000001
+tss 2 7 = 00000000
+tss 2 8 = 00000000
+tss 2 9 = 00000000
+tss 2 10 = 00000000
+tss 2 11 = 00000002
+tss 2 12 = baadcafe
+tss 2 13 = 00000001
+tss 2 14 = 00000001
+tss 2 15 = 00000000
+tss 2 16 = 00000001
+tss 2 17 = 00000001
+tss 2 18 = 00000000
+tss 2 19 = 00000000
+tss 2 20 = 00000000
+tss 2 21 = 00000001
+tss 2 22 = 00000000
+tss 2 23 = 00000000
+tss 2 24 = 00000000
+tss 2 25 = 00000001
+tss 2 26 = 00000001
+tss 2 27 = 00000001
+tss 2 28 = 00000001
+tss 2 29 = baadcafe
+tss 3 0 = baadcafe
+tss 3 1 = 00000001
+tss 3 2 = 00000002
+tss 3 3 = 00000001
+tss 3 4 = 00000001
+tss 3 5 = 00000002
+tss 3 6 = 00000001
+tss 3 7 = 00000000
+tss 3 8 = 00000000
+tss 3 9 = 00000000
+tss 3 10 = 00000000
+tss 3 11 = 00000003
+tss 3 12 = baadcafe
+tss 3 13 = 00000001
+tss 3 14 = 00000001
+tss 3 15 = 00000000
+tss 3 16 = 00000001
+tss 3 17 = 00000001
+tss 3 18 = 00000000
+tss 3 19 = 00000000
+tss 3 20 = 00000000
+tss 3 21 = 00000001
+tss 3 22 = 00000000
+tss 3 23 = 00000000
+tss 3 24 = 00000000
+tss 3 25 = 00000001
+tss 3 26 = 00000001
+tss 3 27 = 00000001
+tss 3 28 = 00000001
+tss 3 29 = baadcafe
+tss 4 0 = baadcafe
+tss 4 1 = 00000001
+tss 4 2 = 00000002
+tss 4 3 = 00000001
+tss 4 4 = 00000001
+tss 4 5 = 00000002
+tss 4 6 = 00000001
+tss 4 7 = 00000000
+tss 4 8 = 00000000
+tss 4 9 = 00000000
+tss 4 10 = 00000000
+tss 4 11 = 00000004
+tss 4 12 = baadcafe
+tss 4 13 = 00000001
+tss 4 14 = 00000001
+tss 4 15 = 00000000
+tss 4 16 = 00000001
+tss 4 17 = 00000001
+tss 4 18 = 00000000
+tss 4 19 = 00000000
+tss 4 20 = 00000000
+tss 4 21 = 00000001
+tss 4 22 = 00000000
+tss 4 23 = 00000000
+tss 4 24 = 00000000
+tss 4 25 = 00000001
+tss 4 26 = 00000001
+tss 4 27 = 00000001
+tss 4 28 = 00000001
+tss 4 29 = baadcafe
+tss 5 0 = baadcafe
+tss 5 1 = 00000001
+tss 5 2 = 00000002
+tss 5 3 = 00000001
+tss 5 4 = 00000001
+tss 5 5 = 00000002
+tss 5 6 = 00000001
+tss 5 7 = 00000000
+tss 5 8 = 00000000
+tss 5 9 = 00000000
+tss 5 10 = 00000000
+tss 5 11 = 00000005
+tss 5 12 = baadcafe
+tss 5 13 = 00000001
+tss 5 14 = 00000001
+tss 5 15 = 00000000
+tss 5 16 = 00000001
+tss 5 17 = 00000001
+tss 5 18 = 00000000
+tss 5 19 = 00000000
+tss 5 20 = 00000000
+tss 5 21 = 00000001
+tss 5 22 = 00000000
+tss 5 23 = 00000000
+tss 5 24 = 00000000
+tss 5 25 = 00000001
+tss 5 26 = 00000001
+tss 5 27 = 00000001
+tss 5 28 = 00000001
+tss 5 29 = baadcafe
+tss 6 0 = baadcafe
+tss 6 1 = 00000001
+tss 6 2 = 00000002
+tss 6 3 = 00000001
+tss 6 4 = 00000001
+tss 6 5 = 00000002
+tss 6 6 = 00000001
+tss 6 7 = 00000000
+tss 6 8 = 00000000
+tss 6 9 = 00000000
+tss 6 10 = 00000000
+tss 6 11 = 00000006
+tss 6 12 = baadcafe
+tss 6 13 = 00000001
+tss 6 14 = 00000001
+tss 6 15 = 00000000
+tss 6 16 = 00000001
+tss 6 17 = 00000001
+tss 6 18 = 00000000
+tss 6 19 = 00000000
+tss 6 20 = 00000000
+tss 6 21 = 00000001
+tss 6 22 = 00000000
+tss 6 23 = 00000000
+tss 6 24 = 00000000
+tss 6 25 = 00000001
+tss 6 26 = 00000001
+tss 6 27 = 00000001
+tss 6 28 = 00000001
+tss 6 29 = baadcafe
+tss 7 0 = baadcafe
+tss 7 1 = 00000001
+tss 7 2 = 00000002
+tss 7 3 = 00000001
+tss 7 4 = 00000001
+tss 7 5 = 00000002
+tss 7 6 = 00000001
+tss 7 7 = 00000000
+tss 7 8 = 00000000
+tss 7 9 = 00000000
+tss 7 10 = 00000000
+tss 7 11 = 00000007
+tss 7 12 = baadcafe
+tss 7 13 = 00000001
+tss 7 14 = 00000001
+tss 7 15 = 00000000
+tss 7 16 = 00000001
+tss 7 17 = 00000001
+tss 7 18 = 00000000
+tss 7 19 = 00000000
+tss 7 20 = 00000000
+tss 7 21 = 00000001
+tss 7 22 = 00000000
+tss 7 23 = 00000000
+tss 7 24 = 00000000
+tss 7 25 = 00000001
+tss 7 26 = 00000001
+tss 7 27 = 00000001
+tss 7 28 = 00000001
+tss 7 29 = baadcafe
+case defaults-mixed
+device8 ok
+rs 0 = baadcafe
+rs 1 hr 8876086c
+rs 2 hr 8876086c
+rs 3 hr 8876086c
+rs 4 hr 8876086c
+rs 5 hr 8876086c
+rs 6 hr 8876086c
+rs 7 = 00000001
+rs 8 = 00000003
+rs 9 = 00000002
+rs 10 = 00000000
+rs 11 hr 8876086c
+rs 12 hr 8876086c
+rs 13 hr 8876086c
+rs 14 = 00000001
+rs 15 = 00000000
+rs 16 = 00000001
+rs 17 hr 8876086c
+rs 18 hr 8876086c
+rs 19 = 00000002
+rs 20 = 00000001
+rs 21 hr 8876086c
+rs 22 = 00000003
+rs 23 = 00000004
+rs 24 = 00000000
+rs 25 = 00000008
+rs 26 = 00000000
+rs 27 = 00000000
+rs 28 = 00000000
+rs 29 = 00000000
+rs 30 = 00000000
+rs 31 hr 8876086c
+rs 32 hr 8876086c
+rs 33 hr 8876086c
+rs 34 = 00000000
+rs 35 = 00000000
+rs 36 = 00000000
+rs 37 = 3f800000
+rs 38 = 3f800000
+rs 39 hr 8876086c
+rs 40 = 00000000
+rs 41 hr 8876086c
+rs 42 = baadcafe
+rs 43 hr 8876086c
+rs 44 hr 8876086c
+rs 45 hr 8876086c
+rs 46 hr 8876086c
+rs 47 = 00000000
+rs 48 = 00000000
+rs 49 hr 8876086c
+rs 50 = baadcafe
+rs 51 hr 8876086c
+rs 52 = 00000000
+rs 53 = 00000001
+rs 54 = 00000001
+rs 55 = 00000001
+rs 56 = 00000008
+rs 57 = 00000000
+rs 58 = ffffffff
+rs 59 = ffffffff
+rs 60 = ffffffff
+rs 61 = baadcafe
+rs 62 = baadcafe
+rs 63 = baadcafe
+rs 64 hr 8876086c
+rs 65 hr 8876086c
+rs 66 hr 8876086c
+rs 67 hr 8876086c
+rs 68 hr 8876086c
+rs 69 hr 8876086c
+rs 70 hr 8876086c
+rs 71 hr 8876086c
+rs 72 hr 8876086c
+rs 73 hr 8876086c
+rs 74 hr 8876086c
+rs 75 hr 8876086c
+rs 76 hr 8876086c
+rs 77 hr 8876086c
+rs 78 hr 8876086c
+rs 79 hr 8876086c
+rs 80 hr 8876086c
+rs 81 hr 8876086c
+rs 82 hr 8876086c
+rs 83 hr 8876086c
+rs 84 hr 8876086c
+rs 85 hr 8876086c
+rs 86 hr 8876086c
+rs 87 hr 8876086c
+rs 88 hr 8876086c
+rs 89 hr 8876086c
+rs 90 hr 8876086c
+rs 91 hr 8876086c
+rs 92 hr 8876086c
+rs 93 hr 8876086c
+rs 94 hr 8876086c
+rs 95 hr 8876086c
+rs 96 = baadcafe
+rs 97 = baadcafe
+rs 98 = baadcafe
+rs 99 = baadcafe
+rs 100 = baadcafe
+rs 101 = baadcafe
+rs 102 = baadcafe
+rs 103 = baadcafe
+rs 104 = baadcafe
+rs 105 = baadcafe
+rs 106 = baadcafe
+rs 107 = baadcafe
+rs 108 = baadcafe
+rs 109 = baadcafe
+rs 110 = baadcafe
+rs 111 = baadcafe
+rs 112 = baadcafe
+rs 113 = baadcafe
+rs 114 = baadcafe
+rs 115 = baadcafe
+rs 116 = baadcafe
+rs 117 = baadcafe
+rs 118 = baadcafe
+rs 119 = baadcafe
+rs 120 = baadcafe
+rs 121 = baadcafe
+rs 122 = baadcafe
+rs 123 = baadcafe
+rs 124 = baadcafe
+rs 125 = baadcafe
+rs 126 = baadcafe
+rs 127 = baadcafe
+rs 128 = 00000000
+rs 129 = 00000000
+rs 130 = 00000000
+rs 131 = 00000000
+rs 132 = 00000000
+rs 133 = 00000000
+rs 134 = 00000000
+rs 135 = 00000000
+rs 136 = 00000001
+rs 137 = 00000001
+rs 138 = baadcafe
+rs 139 = 00000000
+rs 140 = 00000000
+rs 141 = 00000001
+rs 142 = 00000001
+rs 143 = 00000000
+rs 144 hr 8876086c
+rs 145 = 00000001
+rs 146 = 00000002
+rs 147 = 00000000
+rs 148 = 00000000
+rs 149 = baadcafe
+rs 150 = baadcafe
+rs 151 = 00000000
+rs 152 = 00000000
+rs 153 = 00000000
+rs 154 = 3f800000
+rs 155 = 00000000
+rs 156 = 00000000
+rs 157 = 00000000
+rs 158 = 3f800000
+rs 159 = 00000000
+rs 160 = 00000000
+rs 161 = 00000001
+rs 162 = ffffffff
+rs 163 = 00000000
+rs 164 = 3f800000
+rs 165 = baadcafe
+rs 166 = 46000000
+rs 167 = 00000000
+rs 168 = 0000000f
+rs 169 = baadcafe
+rs 170 = 00000000
+rs 171 = 00000001
+rs 172 = 00000003
+rs 173 = 00000001
+rs 174 = baadcafe
+rs 175 = baadcafe
+rs 176 = baadcafe
+rs 177 = baadcafe
+rs 178 = baadcafe
+rs 179 = baadcafe
+rs 180 = baadcafe
+rs 181 = baadcafe
+rs 182 = baadcafe
+rs 183 = baadcafe
+rs 184 = baadcafe
+rs 185 = baadcafe
+rs 186 = baadcafe
+rs 187 = baadcafe
+rs 188 = baadcafe
+rs 189 = baadcafe
+rs 190 = baadcafe
+rs 191 = baadcafe
+rs 192 = baadcafe
+rs 193 = baadcafe
+rs 194 = baadcafe
+rs 195 = baadcafe
+rs 196 = baadcafe
+rs 197 = baadcafe
+rs 198 = baadcafe
+rs 199 = baadcafe
+rs 200 = baadcafe
+rs 201 = baadcafe
+rs 202 = baadcafe
+rs 203 = baadcafe
+rs 204 = baadcafe
+rs 205 = baadcafe
+rs 206 = baadcafe
+rs 207 = baadcafe
+rs 208 = baadcafe
+rs 209 = baadcafe
+rs 210 = baadcafe
+rs 211 = baadcafe
+rs 212 = baadcafe
+rs 213 = baadcafe
+rs 214 = baadcafe
+rs 215 = baadcafe
+rs 216 = baadcafe
+rs 217 = baadcafe
+rs 218 = baadcafe
+rs 219 = baadcafe
+rs 220 = baadcafe
+rs 221 = baadcafe
+rs 222 = baadcafe
+rs 223 = baadcafe
+rs 224 = baadcafe
+rs 225 = baadcafe
+rs 226 = baadcafe
+rs 227 = baadcafe
+rs 228 = baadcafe
+rs 229 = baadcafe
+rs 230 = baadcafe
+rs 231 = baadcafe
+rs 232 = baadcafe
+rs 233 = baadcafe
+rs 234 = baadcafe
+rs 235 = baadcafe
+rs 236 = baadcafe
+rs 237 = baadcafe
+rs 238 = baadcafe
+rs 239 = baadcafe
+rs 240 = baadcafe
+rs 241 = baadcafe
+rs 242 = baadcafe
+rs 243 = baadcafe
+rs 244 = baadcafe
+rs 245 = baadcafe
+rs 246 = baadcafe
+rs 247 = baadcafe
+rs 248 = baadcafe
+rs 249 = baadcafe
+rs 250 = baadcafe
+rs 251 = baadcafe
+rs 252 = baadcafe
+rs 253 = baadcafe
+rs 254 = baadcafe
+rs 255 = baadcafe
+tss 0 0 = baadcafe
+tss 0 1 = 00000004
+tss 0 2 = 00000002
+tss 0 3 = 00000001
+tss 0 4 = 00000002
+tss 0 5 = 00000002
+tss 0 6 = 00000001
+tss 0 7 = 00000000
+tss 0 8 = 00000000
+tss 0 9 = 00000000
+tss 0 10 = 00000000
+tss 0 11 = 00000000
+tss 0 12 = baadcafe
+tss 0 13 = 00000001
+tss 0 14 = 00000001
+tss 0 15 = 00000000
+tss 0 16 = 00000001
+tss 0 17 = 00000001
+tss 0 18 = 00000000
+tss 0 19 = 00000000
+tss 0 20 = 00000000
+tss 0 21 = 00000001
+tss 0 22 = 00000000
+tss 0 23 = 00000000
+tss 0 24 = 00000000
+tss 0 25 = 00000001
+tss 0 26 = 00000001
+tss 0 27 = 00000001
+tss 0 28 = 00000001
+tss 0 29 = baadcafe
+tss 1 0 = baadcafe
+tss 1 1 = 00000001
+tss 1 2 = 00000002
+tss 1 3 = 00000001
+tss 1 4 = 00000001
+tss 1 5 = 00000002
+tss 1 6 = 00000001
+tss 1 7 = 00000000
+tss 1 8 = 00000000
+tss 1 9 = 00000000
+tss 1 10 = 00000000
+tss 1 11 = 00000001
+tss 1 12 = baadcafe
+tss 1 13 = 00000001
+tss 1 14 = 00000001
+tss 1 15 = 00000000
+tss 1 16 = 00000001
+tss 1 17 = 00000001
+tss 1 18 = 00000000
+tss 1 19 = 00000000
+tss 1 20 = 00000000
+tss 1 21 = 00000001
+tss 1 22 = 00000000
+tss 1 23 = 00000000
+tss 1 24 = 00000000
+tss 1 25 = 00000001
+tss 1 26 = 00000001
+tss 1 27 = 00000001
+tss 1 28 = 00000001
+tss 1 29 = baadcafe
+tss 2 0 = baadcafe
+tss 2 1 = 00000001
+tss 2 2 = 00000002
+tss 2 3 = 00000001
+tss 2 4 = 00000001
+tss 2 5 = 00000002
+tss 2 6 = 00000001
+tss 2 7 = 00000000
+tss 2 8 = 00000000
+tss 2 9 = 00000000
+tss 2 10 = 00000000
+tss 2 11 = 00000002
+tss 2 12 = baadcafe
+tss 2 13 = 00000001
+tss 2 14 = 00000001
+tss 2 15 = 00000000
+tss 2 16 = 00000001
+tss 2 17 = 00000001
+tss 2 18 = 00000000
+tss 2 19 = 00000000
+tss 2 20 = 00000000
+tss 2 21 = 00000001
+tss 2 22 = 00000000
+tss 2 23 = 00000000
+tss 2 24 = 00000000
+tss 2 25 = 00000001
+tss 2 26 = 00000001
+tss 2 27 = 00000001
+tss 2 28 = 00000001
+tss 2 29 = baadcafe
+tss 3 0 = baadcafe
+tss 3 1 = 00000001
+tss 3 2 = 00000002
+tss 3 3 = 00000001
+tss 3 4 = 00000001
+tss 3 5 = 00000002
+tss 3 6 = 00000001
+tss 3 7 = 00000000
+tss 3 8 = 00000000
+tss 3 9 = 00000000
+tss 3 10 = 00000000
+tss 3 11 = 00000003
+tss 3 12 = baadcafe
+tss 3 13 = 00000001
+tss 3 14 = 00000001
+tss 3 15 = 00000000
+tss 3 16 = 00000001
+tss 3 17 = 00000001
+tss 3 18 = 00000000
+tss 3 19 = 00000000
+tss 3 20 = 00000000
+tss 3 21 = 00000001
+tss 3 22 = 00000000
+tss 3 23 = 00000000
+tss 3 24 = 00000000
+tss 3 25 = 00000001
+tss 3 26 = 00000001
+tss 3 27 = 00000001
+tss 3 28 = 00000001
+tss 3 29 = baadcafe
+tss 4 0 = baadcafe
+tss 4 1 = 00000001
+tss 4 2 = 00000002
+tss 4 3 = 00000001
+tss 4 4 = 00000001
+tss 4 5 = 00000002
+tss 4 6 = 00000001
+tss 4 7 = 00000000
+tss 4 8 = 00000000
+tss 4 9 = 00000000
+tss 4 10 = 00000000
+tss 4 11 = 00000004
+tss 4 12 = baadcafe
+tss 4 13 = 00000001
+tss 4 14 = 00000001
+tss 4 15 = 00000000
+tss 4 16 = 00000001
+tss 4 17 = 00000001
+tss 4 18 = 00000000
+tss 4 19 = 00000000
+tss 4 20 = 00000000
+tss 4 21 = 00000001
+tss 4 22 = 00000000
+tss 4 23 = 00000000
+tss 4 24 = 00000000
+tss 4 25 = 00000001
+tss 4 26 = 00000001
+tss 4 27 = 00000001
+tss 4 28 = 00000001
+tss 4 29 = baadcafe
+tss 5 0 = baadcafe
+tss 5 1 = 00000001
+tss 5 2 = 00000002
+tss 5 3 = 00000001
+tss 5 4 = 00000001
+tss 5 5 = 00000002
+tss 5 6 = 00000001
+tss 5 7 = 00000000
+tss 5 8 = 00000000
+tss 5 9 = 00000000
+tss 5 10 = 00000000
+tss 5 11 = 00000005
+tss 5 12 = baadcafe
+tss 5 13 = 00000001
+tss 5 14 = 00000001
+tss 5 15 = 00000000
+tss 5 16 = 00000001
+tss 5 17 = 00000001
+tss 5 18 = 00000000
+tss 5 19 = 00000000
+tss 5 20 = 00000000
+tss 5 21 = 00000001
+tss 5 22 = 00000000
+tss 5 23 = 00000000
+tss 5 24 = 00000000
+tss 5 25 = 00000001
+tss 5 26 = 00000001
+tss 5 27 = 00000001
+tss 5 28 = 00000001
+tss 5 29 = baadcafe
+tss 6 0 = baadcafe
+tss 6 1 = 00000001
+tss 6 2 = 00000002
+tss 6 3 = 00000001
+tss 6 4 = 00000001
+tss 6 5 = 00000002
+tss 6 6 = 00000001
+tss 6 7 = 00000000
+tss 6 8 = 00000000
+tss 6 9 = 00000000
+tss 6 10 = 00000000
+tss 6 11 = 00000006
+tss 6 12 = baadcafe
+tss 6 13 = 00000001
+tss 6 14 = 00000001
+tss 6 15 = 00000000
+tss 6 16 = 00000001
+tss 6 17 = 00000001
+tss 6 18 = 00000000
+tss 6 19 = 00000000
+tss 6 20 = 00000000
+tss 6 21 = 00000001
+tss 6 22 = 00000000
+tss 6 23 = 00000000
+tss 6 24 = 00000000
+tss 6 25 = 00000001
+tss 6 26 = 00000001
+tss 6 27 = 00000001
+tss 6 28 = 00000001
+tss 6 29 = baadcafe
+tss 7 0 = baadcafe
+tss 7 1 = 00000001
+tss 7 2 = 00000002
+tss 7 3 = 00000001
+tss 7 4 = 00000001
+tss 7 5 = 00000002
+tss 7 6 = 00000001
+tss 7 7 = 00000000
+tss 7 8 = 00000000
+tss 7 9 = 00000000
+tss 7 10 = 00000000
+tss 7 11 = 00000007
+tss 7 12 = baadcafe
+tss 7 13 = 00000001
+tss 7 14 = 00000001
+tss 7 15 = 00000000
+tss 7 16 = 00000001
+tss 7 17 = 00000001
+tss 7 18 = 00000000
+tss 7 19 = 00000000
+tss 7 20 = 00000000
+tss 7 21 = 00000001
+tss 7 22 = 00000000
+tss 7 23 = 00000000
+tss 7 24 = 00000000
+tss 7 25 = 00000001
+tss 7 26 = 00000001
+tss 7 27 = 00000001
+tss 7 28 = 00000001
+tss 7 29 = baadcafe
+case set-each
+device8 ok
+rs 7 = 00001000
+rs 8 = 00001001
+rs 9 = 00001002
+rs 10 = 00001003
+rs 14 = 00001004
+rs 15 = 00001005
+rs 16 = 00001006
+rs 19 = 00001007
+rs 20 = 00001008
+rs 22 = 00001009
+rs 23 = 0000100a
+rs 24 = 0000100b
+rs 25 = 0000100c
+rs 26 = 0000100d
+rs 27 = 0000100e
+rs 28 = 0000100f
+rs 29 = 00001010
+rs 30 = 00001011
+rs 34 = 00001012
+rs 35 = 00001013
+rs 36 = 00001014
+rs 37 = 00001015
+rs 38 = 00001016
+rs 40 = 00001017
+rs 47 = 00001018
+rs 48 = 00001019
+rs 52 = 0000101a
+rs 53 = 0000101b
+rs 54 = 0000101c
+rs 55 = 0000101d
+rs 56 = 0000101e
+rs 57 = 0000101f
+rs 58 = 00001020
+rs 59 = 00001021
+rs 60 = 00001022
+rs 128 = 00001023
+rs 129 = 00001024
+rs 130 = 00001025
+rs 131 = 00001026
+rs 132 = 00001027
+rs 133 = 00001028
+rs 134 = 00001029
+rs 135 = 0000102a
+rs 136 = 0000102b
+rs 137 = 0000102c
+rs 139 = 0000102d
+rs 140 = 0000102e
+rs 141 = 0000102f
+rs 142 = 00001030
+rs 143 = 00001031
+rs 145 = 00001032
+rs 146 = 00001033
+rs 147 = 00001034
+rs 148 = 00001035
+rs 151 = 00001036
+rs 152 = 00001037
+rs 153 = 00001038
+rs 154 = 00001039
+rs 155 = 0000103a
+rs 156 = 0000103b
+rs 157 = 0000103c
+rs 158 = 0000103d
+rs 159 = 0000103e
+rs 160 = 0000103f
+rs 161 = 00001040
+rs 162 = 00001041
+rs 163 = 00001042
+rs 164 = 00001043
+rs 166 = 00001044
+rs 167 = 00001045
+rs 168 = 00001046
+rs 170 = 00001047
+rs 171 = 00001048
+rs 172 = 00001049
+rs 173 = 0000104a
+tss 0 1 = 0000104b
+tss 0 2 = 0000104c
+tss 0 3 = 0000104d
+tss 0 4 = 0000104e
+tss 0 5 = 0000104f
+tss 0 6 = 00001050
+tss 0 7 = 00001051
+tss 0 8 = 00001052
+tss 0 9 = 00001053
+tss 0 10 = 00001054
+tss 0 11 = 00001055
+tss 0 13 = 00001056
+tss 0 14 = 00001057
+tss 0 15 = 00001058
+tss 0 16 = 00001059
+tss 0 17 = 0000105a
+tss 0 18 = 0000105b
+tss 0 19 = 0000105c
+tss 0 20 = 0000105d
+tss 0 21 = 0000105e
+tss 0 22 = 0000105f
+tss 0 23 = 00001060
+tss 0 24 = 00001061
+tss 0 25 = 00001062
+tss 0 26 = 00001063
+tss 0 27 = 00001064
+tss 0 28 = 00001065
+tss 1 1 = 00001066
+tss 1 2 = 00001067
+tss 1 3 = 00001068
+tss 1 4 = 00001069
+tss 1 5 = 0000106a
+tss 1 6 = 0000106b
+tss 1 7 = 0000106c
+tss 1 8 = 0000106d
+tss 1 9 = 0000106e
+tss 1 10 = 0000106f
+tss 1 11 = 00001070
+tss 1 13 = 00001071
+tss 1 14 = 00001072
+tss 1 15 = 00001073
+tss 1 16 = 00001074
+tss 1 17 = 00001075
+tss 1 18 = 00001076
+tss 1 19 = 00001077
+tss 1 20 = 00001078
+tss 1 21 = 00001079
+tss 1 22 = 0000107a
+tss 1 23 = 0000107b
+tss 1 24 = 0000107c
+tss 1 25 = 0000107d
+tss 1 26 = 0000107e
+tss 1 27 = 0000107f
+tss 1 28 = 00001080
+tss 2 1 = 00001081
+tss 2 2 = 00001082
+tss 2 3 = 00001083
+tss 2 4 = 00001084
+tss 2 5 = 00001085
+tss 2 6 = 00001086
+tss 2 7 = 00001087
+tss 2 8 = 00001088
+tss 2 9 = 00001089
+tss 2 10 = 0000108a
+tss 2 11 = 0000108b
+tss 2 13 = 0000108c
+tss 2 14 = 0000108d
+tss 2 15 = 0000108e
+tss 2 16 = 0000108f
+tss 2 17 = 00001090
+tss 2 18 = 00001091
+tss 2 19 = 00001092
+tss 2 20 = 00001093
+tss 2 21 = 00001094
+tss 2 22 = 00001095
+tss 2 23 = 00001096
+tss 2 24 = 00001097
+tss 2 25 = 00001098
+tss 2 26 = 00001099
+tss 2 27 = 0000109a
+tss 2 28 = 0000109b
+tss 3 1 = 0000109c
+tss 3 2 = 0000109d
+tss 3 3 = 0000109e
+tss 3 4 = 0000109f
+tss 3 5 = 000010a0
+tss 3 6 = 000010a1
+tss 3 7 = 000010a2
+tss 3 8 = 000010a3
+tss 3 9 = 000010a4
+tss 3 10 = 000010a5
+tss 3 11 = 000010a6
+tss 3 13 = 000010a7
+tss 3 14 = 000010a8
+tss 3 15 = 000010a9
+tss 3 16 = 000010aa
+tss 3 17 = 000010ab
+tss 3 18 = 000010ac
+tss 3 19 = 000010ad
+tss 3 20 = 000010ae
+tss 3 21 = 000010af
+tss 3 22 = 000010b0
+tss 3 23 = 000010b1
+tss 3 24 = 000010b2
+tss 3 25 = 000010b3
+tss 3 26 = 000010b4
+tss 3 27 = 000010b5
+tss 3 28 = 000010b6
+tss 4 1 = 000010b7
+tss 4 2 = 000010b8
+tss 4 3 = 000010b9
+tss 4 4 = 000010ba
+tss 4 5 = 000010bb
+tss 4 6 = 000010bc
+tss 4 7 = 000010bd
+tss 4 8 = 000010be
+tss 4 9 = 000010bf
+tss 4 10 = 000010c0
+tss 4 11 = 000010c1
+tss 4 13 = 000010c2
+tss 4 14 = 000010c3
+tss 4 15 = 000010c4
+tss 4 16 = 000010c5
+tss 4 17 = 000010c6
+tss 4 18 = 000010c7
+tss 4 19 = 000010c8
+tss 4 20 = 000010c9
+tss 4 21 = 000010ca
+tss 4 22 = 000010cb
+tss 4 23 = 000010cc
+tss 4 24 = 000010cd
+tss 4 25 = 000010ce
+tss 4 26 = 000010cf
+tss 4 27 = 000010d0
+tss 4 28 = 000010d1
+tss 5 1 = 000010d2
+tss 5 2 = 000010d3
+tss 5 3 = 000010d4
+tss 5 4 = 000010d5
+tss 5 5 = 000010d6
+tss 5 6 = 000010d7
+tss 5 7 = 000010d8
+tss 5 8 = 000010d9
+tss 5 9 = 000010da
+tss 5 10 = 000010db
+tss 5 11 = 000010dc
+tss 5 13 = 000010dd
+tss 5 14 = 000010de
+tss 5 15 = 000010df
+tss 5 16 = 000010e0
+tss 5 17 = 000010e1
+tss 5 18 = 000010e2
+tss 5 19 = 000010e3
+tss 5 20 = 000010e4
+tss 5 21 = 000010e5
+tss 5 22 = 000010e6
+tss 5 23 = 000010e7
+tss 5 24 = 000010e8
+tss 5 25 = 000010e9
+tss 5 26 = 000010ea
+tss 5 27 = 000010eb
+tss 5 28 = 000010ec
+tss 6 1 = 000010ed
+tss 6 2 = 000010ee
+tss 6 3 = 000010ef
+tss 6 4 = 000010f0
+tss 6 5 = 000010f1
+tss 6 6 = 000010f2
+tss 6 7 = 000010f3
+tss 6 8 = 000010f4
+tss 6 9 = 000010f5
+tss 6 10 = 000010f6
+tss 6 11 = 000010f7
+tss 6 13 = 000010f8
+tss 6 14 = 000010f9
+tss 6 15 = 000010fa
+tss 6 16 = 000010fb
+tss 6 17 = 000010fc
+tss 6 18 = 000010fd
+tss 6 19 = 000010fe
+tss 6 20 = 000010ff
+tss 6 21 = 00001100
+tss 6 22 = 00001101
+tss 6 23 = 00001102
+tss 6 24 = 00001103
+tss 6 25 = 00001104
+tss 6 26 = 00001105
+tss 6 27 = 00001106
+tss 6 28 = 00001107
+tss 7 1 = 00001108
+tss 7 2 = 00001109
+tss 7 3 = 0000110a
+tss 7 4 = 0000110b
+tss 7 5 = 0000110c
+tss 7 6 = 0000110d
+tss 7 7 = 0000110e
+tss 7 8 = 0000110f
+tss 7 9 = 00001110
+tss 7 10 = 00001111
+tss 7 11 = 00001112
+tss 7 13 = 00001113
+tss 7 14 = 00001114
+tss 7 15 = 00001115
+tss 7 16 = 00001116
+tss 7 17 = 00001117
+tss 7 18 = 00001118
+tss 7 19 = 00001119
+tss 7 20 = 0000111a
+tss 7 21 = 0000111b
+tss 7 22 = 0000111c
+tss 7 23 = 0000111d
+tss 7 24 = 0000111e
+tss 7 25 = 0000111f
+tss 7 26 = 00001120
+tss 7 27 = 00001121
+tss 7 28 = 00001122
+case create-1
+device8 ok
+rs 7 = 00000001
+rs 8 = 00000003
+rs 9 = 00000002
+rs 10 = 00000000
+rs 14 = 00000001
+rs 15 = 00000000
+rs 16 = 00000001
+rs 19 = 00000002
+rs 20 = 00000001
+rs 22 = 00000003
+rs 23 = 00000004
+rs 24 = 00000000
+rs 25 = 00000008
+rs 26 = 00000000
+rs 27 = 00000000
+rs 28 = 00000000
+rs 29 = 00000000
+rs 30 = 00002011
+rs 34 = 00000000
+rs 35 = 00000000
+rs 36 = 00000000
+rs 37 = 3f800000
+rs 38 = 3f800000
+rs 40 = 00000000
+rs 47 = 00000000
+rs 48 = 00000000
+rs 52 = 00000000
+rs 53 = 00000001
+rs 54 = 00000001
+rs 55 = 00000001
+rs 56 = 00000008
+rs 57 = 00000000
+rs 58 = ffffffff
+rs 59 = ffffffff
+rs 60 = ffffffff
+rs 128 = 00000000
+rs 129 = 00000000
+rs 130 = 00000000
+rs 131 = 00000000
+rs 132 = 00000000
+rs 133 = 00000000
+rs 134 = 00000000
+rs 135 = 00000000
+rs 136 = 00000001
+rs 137 = 00000001
+rs 139 = 00000000
+rs 140 = 00000000
+rs 141 = 00000001
+rs 142 = 00000001
+rs 143 = 00000000
+rs 145 = 00000001
+rs 146 = 00000002
+rs 147 = 00000000
+rs 148 = 00000000
+rs 151 = 00000000
+rs 152 = 00000000
+rs 153 = 00000001
+rs 154 = 3f800000
+rs 155 = 00000000
+rs 156 = 00000000
+rs 157 = 00000000
+rs 158 = 3f800000
+rs 159 = 00000000
+rs 160 = 00000000
+rs 161 = 00000001
+rs 162 = ffffffff
+rs 163 = 00000000
+rs 164 = 3f800000
+rs 166 = 46000000
+rs 167 = 00000000
+rs 168 = 0000000f
+rs 170 = 00000000
+rs 171 = 00000001
+rs 172 = 00000003
+rs 173 = 00000001
+tss 0 1 = 00000004
+tss 0 2 = 00000002
+tss 0 3 = 00000001
+tss 0 4 = 00000002
+tss 0 5 = 00000002
+tss 0 6 = 00000001
+tss 0 7 = 00000000
+tss 0 8 = 00000000
+tss 0 9 = 00000000
+tss 0 10 = 00000000
+tss 0 11 = 00000000
+tss 0 13 = 00000001
+tss 0 14 = 00000001
+tss 0 15 = 00000000
+tss 0 16 = 00000001
+tss 0 17 = 00000001
+tss 0 18 = 00000000
+tss 0 19 = 00000000
+tss 0 20 = 00000000
+tss 0 21 = 00000001
+tss 0 22 = 00000000
+tss 0 23 = 00000000
+tss 0 24 = 00000000
+tss 0 25 = 00000001
+tss 0 26 = 00000001
+tss 0 27 = 00000001
+tss 0 28 = 00000001
+tss 1 1 = 00000001
+tss 1 2 = 00000002
+tss 1 3 = 00000001
+tss 1 4 = 00000001
+tss 1 5 = 00000002
+tss 1 6 = 00000001
+tss 1 7 = 00000000
+tss 1 8 = 00000000
+tss 1 9 = 00000000
+tss 1 10 = 00000000
+tss 1 11 = 00000001
+tss 1 13 = 00000001
+tss 1 14 = 00000001
+tss 1 15 = 00000000
+tss 1 16 = 00000001
+tss 1 17 = 00000001
+tss 1 18 = 00000000
+tss 1 19 = 00000000
+tss 1 20 = 00000000
+tss 1 21 = 00000001
+tss 1 22 = 00000000
+tss 1 23 = 00000000
+tss 1 24 = 00000000
+tss 1 25 = 00000001
+tss 1 26 = 00000001
+tss 1 27 = 00000001
+tss 1 28 = 00000001
+tss 2 1 = 00000001
+tss 2 2 = 00000002
+tss 2 3 = 00000001
+tss 2 4 = 00000001
+tss 2 5 = 00000002
+tss 2 6 = 00000001
+tss 2 7 = 00000000
+tss 2 8 = 00000000
+tss 2 9 = 00000000
+tss 2 10 = 00000000
+tss 2 11 = 00000002
+tss 2 13 = 00000001
+tss 2 14 = 00000001
+tss 2 15 = 00000000
+tss 2 16 = 00000001
+tss 2 17 = 00000001
+tss 2 18 = 00000000
+tss 2 19 = 00000000
+tss 2 20 = 00000000
+tss 2 21 = 00000001
+tss 2 22 = 00000000
+tss 2 23 = 00000000
+tss 2 24 = 00000000
+tss 2 25 = 00000001
+tss 2 26 = 00000001
+tss 2 27 = 00000001
+tss 2 28 = 00000001
+tss 3 1 = 00000001
+tss 3 2 = 00000002
+tss 3 3 = 00000001
+tss 3 4 = 00000001
+tss 3 5 = 00000002
+tss 3 6 = 00000001
+tss 3 7 = 00000000
+tss 3 8 = 00000000
+tss 3 9 = 00000000
+tss 3 10 = 00000000
+tss 3 11 = 00000003
+tss 3 13 = 00000001
+tss 3 14 = 00000001
+tss 3 15 = 00000000
+tss 3 16 = 00000001
+tss 3 17 = 00000001
+tss 3 18 = 00000000
+tss 3 19 = 00000000
+tss 3 20 = 00000000
+tss 3 21 = 00000001
+tss 3 22 = 00000000
+tss 3 23 = 00000000
+tss 3 24 = 00000000
+tss 3 25 = 00000001
+tss 3 26 = 00000001
+tss 3 27 = 00000001
+tss 3 28 = 00000001
+tss 4 1 = 00000001
+tss 4 2 = 00000002
+tss 4 3 = 00000001
+tss 4 4 = 00000001
+tss 4 5 = 00000002
+tss 4 6 = 00000001
+tss 4 7 = 00000000
+tss 4 8 = 00000000
+tss 4 9 = 00000000
+tss 4 10 = 00000000
+tss 4 11 = 00000004
+tss 4 13 = 00000001
+tss 4 14 = 00000001
+tss 4 15 = 00000000
+tss 4 16 = 00000001
+tss 4 17 = 00000001
+tss 4 18 = 00000000
+tss 4 19 = 00000000
+tss 4 20 = 00000000
+tss 4 21 = 00000001
+tss 4 22 = 00000000
+tss 4 23 = 00000000
+tss 4 24 = 00000000
+tss 4 25 = 00000001
+tss 4 26 = 00000001
+tss 4 27 = 00000001
+tss 4 28 = 00000001
+tss 5 1 = 00000001
+tss 5 2 = 00000002
+tss 5 3 = 00000001
+tss 5 4 = 00000001
+tss 5 5 = 00000002
+tss 5 6 = 00000001
+tss 5 7 = 00000000
+tss 5 8 = 00000000
+tss 5 9 = 00000000
+tss 5 10 = 00000000
+tss 5 11 = 00000005
+tss 5 13 = 00000001
+tss 5 14 = 00000001
+tss 5 15 = 00000000
+tss 5 16 = 00000001
+tss 5 17 = 00000001
+tss 5 18 = 00000000
+tss 5 19 = 00000000
+tss 5 20 = 00000000
+tss 5 21 = 00000001
+tss 5 22 = 00000000
+tss 5 23 = 00000000
+tss 5 24 = 00000000
+tss 5 25 = 00000001
+tss 5 26 = 00000001
+tss 5 27 = 00000001
+tss 5 28 = 00000001
+tss 6 1 = 00000001
+tss 6 2 = 00000002
+tss 6 3 = 00000001
+tss 6 4 = 00000001
+tss 6 5 = 00000002
+tss 6 6 = 00000001
+tss 6 7 = 00000000
+tss 6 8 = 00000000
+tss 6 9 = 00000000
+tss 6 10 = 00000000
+tss 6 11 = 00000006
+tss 6 13 = 00000001
+tss 6 14 = 00000001
+tss 6 15 = 00000000
+tss 6 16 = 00000001
+tss 6 17 = 00000001
+tss 6 18 = 00000000
+tss 6 19 = 00000000
+tss 6 20 = 00000000
+tss 6 21 = 00000001
+tss 6 22 = 00000000
+tss 6 23 = 00000000
+tss 6 24 = 00000000
+tss 6 25 = 00000001
+tss 6 26 = 00000001
+tss 6 27 = 00000001
+tss 6 28 = 00000001
+tss 7 1 = 00000001
+tss 7 2 = 00000002
+tss 7 3 = 00000001
+tss 7 4 = 00000001
+tss 7 5 = 00000002
+tss 7 6 = 00000001
+tss 7 7 = 00000000
+tss 7 8 = 00000000
+tss 7 9 = 00000000
+tss 7 10 = 00000000
+tss 7 11 = 00000007
+tss 7 13 = 00000001
+tss 7 14 = 00000001
+tss 7 15 = 00000000
+tss 7 16 = 00000001
+tss 7 17 = 00000001
+tss 7 18 = 00000000
+tss 7 19 = 00000000
+tss 7 20 = 00000000
+tss 7 21 = 00000001
+tss 7 22 = 00000000
+tss 7 23 = 00000000
+tss 7 24 = 00000000
+tss 7 25 = 00000001
+tss 7 26 = 00000001
+tss 7 27 = 00000001
+tss 7 28 = 00000001
+case create-2
+device8 ok
+rs 7 = 00000001
+rs 8 = 00000003
+rs 9 = 00000002
+rs 10 = 00000000
+rs 14 = 00000001
+rs 15 = 00000000
+rs 16 = 00000001
+rs 19 = 00000002
+rs 20 = 00000001
+rs 22 = 00002009
+rs 23 = 00000004
+rs 24 = 00000000
+rs 25 = 00000008
+rs 26 = 00000000
+rs 27 = 00000000
+rs 28 = 0000200f
+rs 29 = 00002010
+rs 30 = 00002011
+rs 34 = 00002012
+rs 35 = 00002013
+rs 36 = 00000000
+rs 37 = 3f800000
+rs 38 = 3f800000
+rs 40 = 00000000
+rs 47 = 00000000
+rs 48 = 00002019
+rs 52 = 00000000
+rs 53 = 00000001
+rs 54 = 00000001
+rs 55 = 00000001
+rs 56 = 00000008
+rs 57 = 00000000
+rs 58 = ffffffff
+rs 59 = ffffffff
+rs 60 = ffffffff
+rs 128 = 00000000
+rs 129 = 00000000
+rs 130 = 00000000
+rs 131 = 00000000
+rs 132 = 00000000
+rs 133 = 00000000
+rs 134 = 00000000
+rs 135 = 00000000
+rs 136 = 0000202b
+rs 137 = 0000202c
+rs 139 = 0000202d
+rs 140 = 0000202e
+rs 141 = 0000202f
+rs 142 = 00002030
+rs 143 = 00002031
+rs 145 = 00002032
+rs 146 = 00002033
+rs 147 = 00002034
+rs 148 = 00002035
+rs 151 = 00002036
+rs 152 = 00002037
+rs 153 = 00002038
+rs 154 = 00002039
+rs 155 = 0000203a
+rs 156 = 0000203b
+rs 157 = 0000203c
+rs 158 = 0000203d
+rs 159 = 0000203e
+rs 160 = 0000203f
+rs 161 = 00002040
+rs 162 = 00002041
+rs 163 = 00002042
+rs 164 = 00002043
+rs 166 = 00002044
+rs 167 = 00002045
+rs 168 = 0000000f
+rs 170 = 00002047
+rs 171 = 00000001
+rs 172 = 00002049
+rs 173 = 0000204a
+tss 0 1 = 00000004
+tss 0 2 = 00000002
+tss 0 3 = 00000001
+tss 0 4 = 00000002
+tss 0 5 = 00000002
+tss 0 6 = 00000001
+tss 0 7 = 00000000
+tss 0 8 = 00000000
+tss 0 9 = 00000000
+tss 0 10 = 00000000
+tss 0 11 = 00000000
+tss 0 13 = 00000001
+tss 0 14 = 00000001
+tss 0 15 = 00000000
+tss 0 16 = 00000001
+tss 0 17 = 00000001
+tss 0 18 = 00000000
+tss 0 19 = 00000000
+tss 0 20 = 00000000
+tss 0 21 = 00000001
+tss 0 22 = 00000000
+tss 0 23 = 00000000
+tss 0 24 = 00000000
+tss 0 25 = 00000001
+tss 0 26 = 00000001
+tss 0 27 = 00000001
+tss 0 28 = 00000001
+tss 1 1 = 00000001
+tss 1 2 = 00000002
+tss 1 3 = 00000001
+tss 1 4 = 00000001
+tss 1 5 = 00000002
+tss 1 6 = 00000001
+tss 1 7 = 00000000
+tss 1 8 = 00000000
+tss 1 9 = 00000000
+tss 1 10 = 00000000
+tss 1 11 = 00000001
+tss 1 13 = 00000001
+tss 1 14 = 00000001
+tss 1 15 = 00000000
+tss 1 16 = 00000001
+tss 1 17 = 00000001
+tss 1 18 = 00000000
+tss 1 19 = 00000000
+tss 1 20 = 00000000
+tss 1 21 = 00000001
+tss 1 22 = 00000000
+tss 1 23 = 00000000
+tss 1 24 = 00000000
+tss 1 25 = 00000001
+tss 1 26 = 00000001
+tss 1 27 = 00000001
+tss 1 28 = 00000001
+tss 2 1 = 00000001
+tss 2 2 = 00000002
+tss 2 3 = 00000001
+tss 2 4 = 00000001
+tss 2 5 = 00000002
+tss 2 6 = 00000001
+tss 2 7 = 00000000
+tss 2 8 = 00000000
+tss 2 9 = 00000000
+tss 2 10 = 00000000
+tss 2 11 = 00000002
+tss 2 13 = 00000001
+tss 2 14 = 00000001
+tss 2 15 = 00000000
+tss 2 16 = 00000001
+tss 2 17 = 00000001
+tss 2 18 = 00000000
+tss 2 19 = 00000000
+tss 2 20 = 00000000
+tss 2 21 = 00000001
+tss 2 22 = 00000000
+tss 2 23 = 00000000
+tss 2 24 = 00000000
+tss 2 25 = 00000001
+tss 2 26 = 00000001
+tss 2 27 = 00000001
+tss 2 28 = 00000001
+tss 3 1 = 00000001
+tss 3 2 = 00000002
+tss 3 3 = 00000001
+tss 3 4 = 00000001
+tss 3 5 = 00000002
+tss 3 6 = 00000001
+tss 3 7 = 00000000
+tss 3 8 = 00000000
+tss 3 9 = 00000000
+tss 3 10 = 00000000
+tss 3 11 = 00000003
+tss 3 13 = 00000001
+tss 3 14 = 00000001
+tss 3 15 = 00000000
+tss 3 16 = 00000001
+tss 3 17 = 00000001
+tss 3 18 = 00000000
+tss 3 19 = 00000000
+tss 3 20 = 00000000
+tss 3 21 = 00000001
+tss 3 22 = 00000000
+tss 3 23 = 00000000
+tss 3 24 = 00000000
+tss 3 25 = 00000001
+tss 3 26 = 00000001
+tss 3 27 = 00000001
+tss 3 28 = 00000001
+tss 4 1 = 00000001
+tss 4 2 = 00000002
+tss 4 3 = 00000001
+tss 4 4 = 00000001
+tss 4 5 = 00000002
+tss 4 6 = 00000001
+tss 4 7 = 00000000
+tss 4 8 = 00000000
+tss 4 9 = 00000000
+tss 4 10 = 00000000
+tss 4 11 = 00000004
+tss 4 13 = 00000001
+tss 4 14 = 00000001
+tss 4 15 = 00000000
+tss 4 16 = 00000001
+tss 4 17 = 00000001
+tss 4 18 = 00000000
+tss 4 19 = 00000000
+tss 4 20 = 00000000
+tss 4 21 = 00000001
+tss 4 22 = 00000000
+tss 4 23 = 00000000
+tss 4 24 = 00000000
+tss 4 25 = 00000001
+tss 4 26 = 00000001
+tss 4 27 = 00000001
+tss 4 28 = 00000001
+tss 5 1 = 00000001
+tss 5 2 = 00000002
+tss 5 3 = 00000001
+tss 5 4 = 00000001
+tss 5 5 = 00000002
+tss 5 6 = 00000001
+tss 5 7 = 00000000
+tss 5 8 = 00000000
+tss 5 9 = 00000000
+tss 5 10 = 00000000
+tss 5 11 = 00000005
+tss 5 13 = 00000001
+tss 5 14 = 00000001
+tss 5 15 = 00000000
+tss 5 16 = 00000001
+tss 5 17 = 00000001
+tss 5 18 = 00000000
+tss 5 19 = 00000000
+tss 5 20 = 00000000
+tss 5 21 = 00000001
+tss 5 22 = 00000000
+tss 5 23 = 00000000
+tss 5 24 = 00000000
+tss 5 25 = 00000001
+tss 5 26 = 00000001
+tss 5 27 = 00000001
+tss 5 28 = 00000001
+tss 6 1 = 00000001
+tss 6 2 = 00000002
+tss 6 3 = 00000001
+tss 6 4 = 00000001
+tss 6 5 = 00000002
+tss 6 6 = 00000001
+tss 6 7 = 00000000
+tss 6 8 = 00000000
+tss 6 9 = 00000000
+tss 6 10 = 00000000
+tss 6 11 = 00000006
+tss 6 13 = 00000001
+tss 6 14 = 00000001
+tss 6 15 = 00000000
+tss 6 16 = 00000001
+tss 6 17 = 00000001
+tss 6 18 = 00000000
+tss 6 19 = 00000000
+tss 6 20 = 00000000
+tss 6 21 = 00000001
+tss 6 22 = 00000000
+tss 6 23 = 00000000
+tss 6 24 = 00000000
+tss 6 25 = 00000001
+tss 6 26 = 00000001
+tss 6 27 = 00000001
+tss 6 28 = 00000001
+tss 7 1 = 00000001
+tss 7 2 = 00000002
+tss 7 3 = 00000001
+tss 7 4 = 00000001
+tss 7 5 = 00000002
+tss 7 6 = 00000001
+tss 7 7 = 00000000
+tss 7 8 = 00000000
+tss 7 9 = 00000000
+tss 7 10 = 00000000
+tss 7 11 = 00000007
+tss 7 13 = 00000001
+tss 7 14 = 00000001
+tss 7 15 = 00000000
+tss 7 16 = 00000001
+tss 7 17 = 00000001
+tss 7 18 = 00000000
+tss 7 19 = 00000000
+tss 7 20 = 00000000
+tss 7 21 = 00000001
+tss 7 22 = 00000000
+tss 7 23 = 00000000
+tss 7 24 = 00000000
+tss 7 25 = 00000001
+tss 7 26 = 00000001
+tss 7 27 = 00000001
+tss 7 28 = 00000001
+case create-3
+device8 ok
+rs 7 = 00002000
+rs 8 = 00002001
+rs 9 = 00000002
+rs 10 = 00002003
+rs 14 = 00002004
+rs 15 = 00002005
+rs 16 = 00002006
+rs 19 = 00002007
+rs 20 = 00002008
+rs 22 = 00000003
+rs 23 = 0000200a
+rs 24 = 0000200b
+rs 25 = 0000200c
+rs 26 = 0000200d
+rs 27 = 0000200e
+rs 28 = 00000000
+rs 29 = 00000000
+rs 30 = 00002011
+rs 34 = 00000000
+rs 35 = 00000000
+rs 36 = 00000000
+rs 37 = 3f800000
+rs 38 = 3f800000
+rs 40 = 00002017
+rs 47 = 00002018
+rs 48 = 00000000
+rs 52 = 0000201a
+rs 53 = 0000201b
+rs 54 = 0000201c
+rs 55 = 0000201d
+rs 56 = 0000201e
+rs 57 = 0000201f
+rs 58 = 00002020
+rs 59 = 00002021
+rs 60 = 00002022
+rs 128 = 00002023
+rs 129 = 00002024
+rs 130 = 00002025
+rs 131 = 00002026
+rs 132 = 00002027
+rs 133 = 00002028
+rs 134 = 00002029
+rs 135 = 0000202a
+rs 136 = 00000001
+rs 137 = 00000001
+rs 139 = 00000000
+rs 140 = 00000000
+rs 141 = 00000001
+rs 142 = 00000001
+rs 143 = 00000000
+rs 145 = 00000001
+rs 146 = 00000002
+rs 147 = 00000000
+rs 148 = 00000000
+rs 151 = 00000000
+rs 152 = 00000000
+rs 153 = 00000001
+rs 154 = 3f800000
+rs 155 = 00000000
+rs 156 = 00000000
+rs 157 = 00000000
+rs 158 = 3f800000
+rs 159 = 00000000
+rs 160 = 00000000
+rs 161 = 00000001
+rs 162 = ffffffff
+rs 163 = 00000000
+rs 164 = 3f800000
+rs 166 = 46000000
+rs 167 = 00000000
+rs 168 = 00002046
+rs 170 = 00000000
+rs 171 = 00002048
+rs 172 = 00000003
+rs 173 = 00000001
+tss 0 1 = 0000204b
+tss 0 2 = 0000204c
+tss 0 3 = 0000204d
+tss 0 4 = 0000204e
+tss 0 5 = 0000204f
+tss 0 6 = 00002050
+tss 0 7 = 00002051
+tss 0 8 = 00002052
+tss 0 9 = 00002053
+tss 0 10 = 00002054
+tss 0 11 = 00000000
+tss 0 13 = 00002056
+tss 0 14 = 00002057
+tss 0 15 = 00002058
+tss 0 16 = 00002059
+tss 0 17 = 0000205a
+tss 0 18 = 0000205b
+tss 0 19 = 0000205c
+tss 0 20 = 0000205d
+tss 0 21 = 0000205e
+tss 0 22 = 0000205f
+tss 0 23 = 00002060
+tss 0 24 = 00000000
+tss 0 25 = 00002062
+tss 0 26 = 00002063
+tss 0 27 = 00002064
+tss 0 28 = 00002065
+tss 1 1 = 00002066
+tss 1 2 = 00002067
+tss 1 3 = 00002068
+tss 1 4 = 00002069
+tss 1 5 = 0000206a
+tss 1 6 = 0000206b
+tss 1 7 = 0000206c
+tss 1 8 = 0000206d
+tss 1 9 = 0000206e
+tss 1 10 = 0000206f
+tss 1 11 = 00000001
+tss 1 13 = 00002071
+tss 1 14 = 00002072
+tss 1 15 = 00002073
+tss 1 16 = 00002074
+tss 1 17 = 00002075
+tss 1 18 = 00002076
+tss 1 19 = 00002077
+tss 1 20 = 00002078
+tss 1 21 = 00002079
+tss 1 22 = 0000207a
+tss 1 23 = 0000207b
+tss 1 24 = 00000000
+tss 1 25 = 0000207d
+tss 1 26 = 0000207e
+tss 1 27 = 0000207f
+tss 1 28 = 00002080
+tss 2 1 = 00002081
+tss 2 2 = 00002082
+tss 2 3 = 00002083
+tss 2 4 = 00002084
+tss 2 5 = 00002085
+tss 2 6 = 00002086
+tss 2 7 = 00002087
+tss 2 8 = 00002088
+tss 2 9 = 00002089
+tss 2 10 = 0000208a
+tss 2 11 = 00000002
+tss 2 13 = 0000208c
+tss 2 14 = 0000208d
+tss 2 15 = 0000208e
+tss 2 16 = 0000208f
+tss 2 17 = 00002090
+tss 2 18 = 00002091
+tss 2 19 = 00002092
+tss 2 20 = 00002093
+tss 2 21 = 00002094
+tss 2 22 = 00002095
+tss 2 23 = 00002096
+tss 2 24 = 00000000
+tss 2 25 = 00002098
+tss 2 26 = 00002099
+tss 2 27 = 0000209a
+tss 2 28 = 0000209b
+tss 3 1 = 0000209c
+tss 3 2 = 0000209d
+tss 3 3 = 0000209e
+tss 3 4 = 0000209f
+tss 3 5 = 000020a0
+tss 3 6 = 000020a1
+tss 3 7 = 000020a2
+tss 3 8 = 000020a3
+tss 3 9 = 000020a4
+tss 3 10 = 000020a5
+tss 3 11 = 00000003
+tss 3 13 = 000020a7
+tss 3 14 = 000020a8
+tss 3 15 = 000020a9
+tss 3 16 = 000020aa
+tss 3 17 = 000020ab
+tss 3 18 = 000020ac
+tss 3 19 = 000020ad
+tss 3 20 = 000020ae
+tss 3 21 = 000020af
+tss 3 22 = 000020b0
+tss 3 23 = 000020b1
+tss 3 24 = 00000000
+tss 3 25 = 000020b3
+tss 3 26 = 000020b4
+tss 3 27 = 000020b5
+tss 3 28 = 000020b6
+tss 4 1 = 000020b7
+tss 4 2 = 000020b8
+tss 4 3 = 000020b9
+tss 4 4 = 000020ba
+tss 4 5 = 000020bb
+tss 4 6 = 000020bc
+tss 4 7 = 000020bd
+tss 4 8 = 000020be
+tss 4 9 = 000020bf
+tss 4 10 = 000020c0
+tss 4 11 = 00000004
+tss 4 13 = 000020c2
+tss 4 14 = 000020c3
+tss 4 15 = 000020c4
+tss 4 16 = 000020c5
+tss 4 17 = 000020c6
+tss 4 18 = 000020c7
+tss 4 19 = 000020c8
+tss 4 20 = 000020c9
+tss 4 21 = 000020ca
+tss 4 22 = 000020cb
+tss 4 23 = 000020cc
+tss 4 24 = 00000000
+tss 4 25 = 000020ce
+tss 4 26 = 000020cf
+tss 4 27 = 000020d0
+tss 4 28 = 000020d1
+tss 5 1 = 000020d2
+tss 5 2 = 000020d3
+tss 5 3 = 000020d4
+tss 5 4 = 000020d5
+tss 5 5 = 000020d6
+tss 5 6 = 000020d7
+tss 5 7 = 000020d8
+tss 5 8 = 000020d9
+tss 5 9 = 000020da
+tss 5 10 = 000020db
+tss 5 11 = 00000005
+tss 5 13 = 000020dd
+tss 5 14 = 000020de
+tss 5 15 = 000020df
+tss 5 16 = 000020e0
+tss 5 17 = 000020e1
+tss 5 18 = 000020e2
+tss 5 19 = 000020e3
+tss 5 20 = 000020e4
+tss 5 21 = 000020e5
+tss 5 22 = 000020e6
+tss 5 23 = 000020e7
+tss 5 24 = 00000000
+tss 5 25 = 000020e9
+tss 5 26 = 000020ea
+tss 5 27 = 000020eb
+tss 5 28 = 000020ec
+tss 6 1 = 000020ed
+tss 6 2 = 000020ee
+tss 6 3 = 000020ef
+tss 6 4 = 000020f0
+tss 6 5 = 000020f1
+tss 6 6 = 000020f2
+tss 6 7 = 000020f3
+tss 6 8 = 000020f4
+tss 6 9 = 000020f5
+tss 6 10 = 000020f6
+tss 6 11 = 00000006
+tss 6 13 = 000020f8
+tss 6 14 = 000020f9
+tss 6 15 = 000020fa
+tss 6 16 = 000020fb
+tss 6 17 = 000020fc
+tss 6 18 = 000020fd
+tss 6 19 = 000020fe
+tss 6 20 = 000020ff
+tss 6 21 = 00002100
+tss 6 22 = 00002101
+tss 6 23 = 00002102
+tss 6 24 = 00000000
+tss 6 25 = 00002104
+tss 6 26 = 00002105
+tss 6 27 = 00002106
+tss 6 28 = 00002107
+tss 7 1 = 00002108
+tss 7 2 = 00002109
+tss 7 3 = 0000210a
+tss 7 4 = 0000210b
+tss 7 5 = 0000210c
+tss 7 6 = 0000210d
+tss 7 7 = 0000210e
+tss 7 8 = 0000210f
+tss 7 9 = 00002110
+tss 7 10 = 00002111
+tss 7 11 = 00000007
+tss 7 13 = 00002113
+tss 7 14 = 00002114
+tss 7 15 = 00002115
+tss 7 16 = 00002116
+tss 7 17 = 00002117
+tss 7 18 = 00002118
+tss 7 19 = 00002119
+tss 7 20 = 0000211a
+tss 7 21 = 0000211b
+tss 7 22 = 0000211c
+tss 7 23 = 0000211d
+tss 7 24 = 00000000
+tss 7 25 = 0000211f
+tss 7 26 = 00002120
+tss 7 27 = 00002121
+tss 7 28 = 00002122
+case random-0
+device8 ok
+sb 2 none
+tss 3 15 = 00000000
+rs 132 = 00000000
+tss 3 27 = 00000001
+sb 1 none
+tss 3 20 = 00000000
+tss 5 1 = 00000001
+tss 2 4 = 00000001
+sb 0 none
+sb 1 none
+rs 25 = 00000003
+rs 52 = 9084aa7d
+rs 152 = 64f553a9
+tss 1 4 = 00000006
+tss 4 17 = 80000000
+tss 7 14 = 3f800000
+case random-1
+device8 ok
+tss 0 5 = 00000002
+tss 6 26 = 00000001
+sb 1 none
+sb 1 none
+rs 19 = b05397c4
+rs 141 = 80000000
+rs 153 = f09a8aec
+rs 170 = 00000001
+tss 0 22 = 80000000
+tss 1 5 = 00000008
+tss 2 14 = 7be62493
+tss 2 20 = 00000006
+tss 2 23 = 00000004
+tss 3 14 = 163f7468
+tss 3 18 = 00000000
+case random-2
+device8 ok
+sb 1 none
+tss 2 4 = 00000001
+tss 6 28 = 00000001
+rs 37 = 3f800000
+tss 1 8 = 00000000
+tss 1 27 = 00000001
+tss 5 17 = 00000001
+sb 3 none
+tss 5 15 = 00000000
+tss 6 23 = 00000000
+tss 6 4 = 00000001
+tss 2 19 = 00000000
+sb 0 none
+sb 0 none
+tss 6 17 = 00000001
+sb 3 none
+tss 1 2 = 00000000
+tss 1 5 = 4715917c
+tss 2 11 = 00000002
+tss 2 14 = 00000001
+tss 3 18 = 00000000
+tss 5 11 = 00000005
+tss 6 1 = 00000001
+tss 6 14 = 8d1e6c73
+tss 7 10 = 00000000
+tss 7 27 = 00000001
+case random-3
+device8 ok
+sb 1 none
+sb 0 none
+sb 1 none
+tss 3 6 = 00000001
+tss 7 22 = 00000000
+rs 24 = 00000000
+tss 0 26 = 00000001
+sb 0 none
+rs 10 = 3f800000
+rs 29 = 9de2fb8c
+tss 1 3 = 80000000
+tss 1 28 = 00000001
+tss 3 9 = 80000000
+tss 5 19 = 00000000
+tss 6 7 = 01e840a3
+tss 7 2 = c5976701
+case random-4
+device8 ok
+sb 3 none
+tss 5 28 = 00000001
+tss 1 15 = 00000000
+sb 0 none
+tss 0 25 = 00000001
+tss 7 22 = 00000000
+tss 4 4 = 00000001
+rs 52 = 00000000
+tss 1 16 = 00000001
+tss 1 17 = 00000001
+rs 36 = 00000000
+rs 47 = 00000000
+rs 141 = 00000001
+rs 148 = b6db24b4
+rs 151 = 00000000
+rs 155 = 00000000
+tss 0 16 = b97be346
+tss 0 27 = 00000001
+tss 1 9 = 80000000
+tss 2 19 = 90020d2f
+tss 2 20 = 00000000
+tss 3 10 = 00000008
+tss 3 26 = cbfa74d5
+tss 4 18 = a1ff672b
+tss 5 1 = 00000001
+tss 5 17 = 00000001
+tss 6 8 = 253e12bb
+tss 7 11 = 00000006
+case random-5
+device8 ok
+tss 1 27 = 00000001
+rs 59 = ffffffff
+rs 20 = 00000000
+rs 164 = 80000000
+tss 0 16 = eb22c843
+tss 1 10 = 405d699f
+tss 2 20 = ea029cb7
+tss 3 7 = 00000007
+tss 3 26 = 3f800000
+tss 4 7 = b1ff0d58
+tss 5 8 = 00000006
+tss 6 26 = e8ff1465
+tss 7 8 = 48c393aa
+case random-6
+device8 ok
+sb 2 none
+tss 7 3 = 00000001
+tss 5 8 = 00000000
+tss 1 19 = 00000000
+tss 0 18 = 00000000
+tss 0 26 = 00000001
+sb 1 none
+sb 0 none
+tss 0 6 = 00000001
+tss 3 22 = 00000000
+rs 153 = 00000001
+rs 146 = 00000002
+sb 1 none
+sb 1 none
+rs 135 = 80000000
+tss 7 9 = 00000000
+tss 3 15 = 00000000
+rs 30 = 00000001
+rs 54 = d8e6f73e
+rs 58 = 00000005
+rs 135 = 80000000
+rs 139 = 00000001
+rs 167 = 00000003
+rs 173 = 3f800000
+tss 0 16 = c9421898
+tss 1 3 = 3f800000
+tss 2 9 = bda7c87a
+tss 2 27 = ffffffff
+tss 3 9 = 3f800000
+tss 3 19 = 80000000
+tss 4 8 = 00000001
+tss 6 8 = ffffffff
+tss 7 10 = 00000003
+tss 7 13 = 00000001
+tss 7 20 = 840d5044
+case random-7
+device8 ok
+sb 2 none
+tss 4 7 = 00000000
+tss 0 7 = 1500ac04
+tss 0 9 = 00000008
+tss 1 21 = 00000001
+tss 1 28 = 5408a0ba
+tss 6 19 = 00000000
+tss 6 27 = 00000009
+case random-8
+device8 ok
+tss 2 14 = 00000001
+sb 3 none
+tss 1 19 = 00000000
+sb 0 none
+tss 2 18 = 00000000
+sb 1 none
+sb 0 none
+sb 2 none
+sb 3 none
+rs 40 = 3b2adb40
+rs 156 = 682f670b
+tss 1 16 = 00000007
+tss 2 6 = 00000007
+tss 2 13 = 00000008
+tss 5 15 = 00000004
+tss 7 28 = 00000005
+case random-9
+device8 ok
+rs 38 = 3f800000
+sb 2 none
+rs 145 = 00000000
+rs 153 = ffffffff
+rs 160 = 00000000
+tss 4 11 = 00000004
+tss 7 26 = 61f59776
+case random-10
+device8 ok
+sb 3 none
+sb 0 none
+sb 3 none
+tss 3 8 = 00000000
+rs 151 = 00000000
+sb 2 none
+sb 0 none
+sb 1 none
+sb 2 none
+rs 27 = fac2ad69
+rs 57 = 6c19ee64
+rs 131 = 95035bb4
+tss 0 6 = 00000000
+tss 1 11 = 46dc8ba3
+tss 1 28 = 2d6b47f0
+tss 5 22 = 3f800000
+tss 6 13 = 8f24e77f
+case random-11
+device8 ok
+tss 4 23 = 00000000
+sb 1 none
+rs 132 = 00000000
+tss 6 26 = 00000001
+tss 1 7 = 00000000
+tss 5 6 = 00000001
+sb 1 none
+rs 133 = 00000000
+rs 161 = 00000004
+tss 0 3 = 00000001
+tss 0 21 = 00000001
+tss 0 26 = 00000001
+tss 1 4 = 00000001
+tss 3 10 = 00000000
+tss 3 28 = 00000001
+tss 4 17 = 80000000
+tss 4 24 = 00000000
+tss 6 10 = 00000000
+case random-12
+device8 ok
+sb 0 none
+tss 2 22 = 00000000
+sb 1 none
+tss 1 14 = 00000001
+rs 16 = 6ad63bbf
+rs 134 = 00000002
+rs 148 = 38f13f6d
+tss 7 8 = ffffffff
+case random-13
+device8 ok
+tss 3 17 = 00000001
+tss 4 4 = 00000001
+sb 1 none
+sb 1 none
+sb 2 none
+rs 35 = 00000004
+tss 0 1 = 00000008
+tss 2 26 = d08b9649
+tss 3 14 = 00000005
+tss 6 1 = 00000007
+case random-14
+device8 ok
+sb 2 none
+sb 1 none
+sb 1 none
+tss 5 20 = 00000000
+tss 4 23 = 00000000
+sb 1 none
+tss 5 4 = 00000001
+tss 5 25 = 00000001
+rs 57 = 00000000
+tss 3 26 = 00000001
+tss 1 26 = 00000001
+rs 137 = 00000001
+sb 0 none
+tss 0 2 = 6b3231d7
+tss 0 7 = ffffffff
+tss 0 21 = c10dcae5
+tss 3 5 = 6ab6ccbf
+tss 3 22 = 00000008
+tss 3 27 = 58ef8e15
+tss 4 17 = 00000001
+tss 5 17 = 2b3f1fed
+tss 6 6 = 00000001
+tss 7 20 = 00000000
+tss 7 25 = 3628ba2b
+case random-15
+device8 ok
+rs 58 = ffffffff
+sb 1 none
+tss 6 20 = 00000000
+rs 22 = 00000003
+tss 4 14 = 00000001
+tss 4 10 = 00000000
+sb 3 none
+tss 3 6 = c59540cf
+tss 5 19 = 00000000
+sb 2 none
+rs 48 = 60a21e89
+tss 0 13 = 9a0284a3
+tss 0 20 = 00000003
+tss 1 26 = 00000005
+tss 2 19 = 80000000
+tss 3 6 = 00000009
+tss 4 14 = 88450d77
+tss 4 25 = 00000005
+tss 5 4 = 00000009
+tss 5 19 = 00000004
+tss 6 3 = b34a593a
+tss 6 8 = 5f3f91a7
+tss 6 14 = 00000007
+case random-16
+device8 ok
+tss 2 26 = 00000001
+tss 1 8 = 00000000
+sb 2 none
+tss 0 25 = 915faf8a
+tss 5 2 = 00000005
+tss 7 23 = 00000002
+tss 7 28 = 00000006
+case random-17
+device8 ok
+sb 1 none
+sb 1 none
+rs 131 = 00000000
+sb 0 none
+tss 0 28 = 00000001
+tss 3 15 = 00000000
+tss 3 28 = 00000001
+sb 0 none
+sb 0 none
+rs 132 = 00000000
+sb 1 none
+sb 0 none
+sb 1 none
+sb 2 none
+rs 137 = 00000001
+rs 171 = a15dee1d
+tss 0 26 = 3f800000
+tss 5 15 = a11c458d
+tss 6 14 = ffffffff
+tss 6 15 = 00000006
+tss 6 28 = f20c005a
+case random-18
+device8 ok
+tss 1 15 = 00000000
+sb 3 none
+sb 0 none
+sb 2 none
+rs 167 = 00000000
+tss 2 4 = 00000001
+tss 7 17 = 00000001
+tss 7 9 = 00000000
+rs 140 = 00000000
+tss 0 2 = d354c49e
+tss 0 13 = 00000004
+tss 0 23 = 00000000
+tss 1 18 = 00000000
+tss 2 27 = 00000001
+tss 5 23 = 3f800000
+tss 5 26 = 00000005
+tss 7 21 = 1d89ae05
+case random-19
+device8 ok
+sb 1 none
+sb 0 none
+sb 3 none
+sb 2 none
+tss 6 6 = 00000001
+tss 7 19 = 00000000
+rs 15 = 3f800000
+rs 60 = 94ac7d6e
+rs 133 = e7fc9f69
+rs 171 = 00000000
+tss 2 23 = 00000001
+tss 4 8 = 164cc8d0
+tss 6 1 = f43f8377
+tss 6 17 = 5ad4b488
+tss 7 26 = be2819ef
+case random-20
+device8 ok
+tss 2 14 = 00000001
+rs 37 = 3f800000
+rs 58 = ffffffff
+rs 57 = 9d93606e
+rs 134 = 80000000
+rs 154 = 20f13014
+tss 0 11 = 8daf533c
+tss 3 16 = 00000005
+tss 3 19 = 00000005
+tss 6 5 = ea547e36
+case random-21
+device8 ok
+sb 1 none
+sb 1 none
+tss 6 7 = 00000000
+tss 4 5 = 00000002
+tss 1 8 = 00000000
+tss 6 16 = 00000001
+sb 0 none
+tss 1 23 = 00000000
+sb 1 none
+tss 5 11 = 00000005
+tss 6 17 = 00000001
+rs 135 = 00000000
+sb 2 none
+rs 137 = 17b7dcbb
+rs 167 = 00000009
+tss 0 3 = 00000005
+tss 0 11 = ffffffff
+tss 1 1 = ffffffff
+tss 3 5 = 9a06335f
+tss 5 19 = 00000002
+case random-22
+device8 ok
+tss 4 6 = 00000001
+tss 0 6 = 00000001
+sb 0 none
+sb 2 none
+sb 2 none
+sb 2 none
+tss 7 8 = 00000000
+sb 2 none
+rs 9 = 00000002
+rs 15 = 7f33c70f
+rs 20 = bbb2ecca
+rs 36 = 00000000
+rs 141 = 1e6db49d
+rs 143 = 65aa2891
+rs 145 = ffffffff
+rs 148 = 80000000
+rs 163 = 00000001
+rs 168 = 00000003
+tss 0 1 = 00000004
+tss 0 16 = 00000003
+tss 1 2 = 3f800000
+tss 1 3 = 3f800000
+tss 2 24 = a1046449
+tss 2 27 = 898450f4
+tss 3 2 = 9ff31e28
+tss 6 14 = ffffffff
+tss 6 18 = 1f6ca2b2
+tss 7 1 = 00000000
+tss 7 2 = 00000002
+case random-23
+device8 ok
+tss 1 2 = 00000002
+sb 2 none
+tss 2 26 = 00000001
+sb 3 none
+sb 3 none
+sb 0 none
+tss 4 20 = 00000000
+tss 3 25 = 00000001
+tss 7 7 = 00000000
+sb 2 none
+tss 7 2 = 00000002
+tss 7 20 = 00000000
+sb 3 none
+sb 3 none
+tss 6 25 = 00000001
+sb 2 none
+tss 0 3 = 00000007
+tss 0 7 = 0f83a80f
+tss 0 19 = f65763e0
+tss 0 26 = 00000001
+tss 1 20 = 1a065996
+tss 1 24 = 00000001
+tss 3 10 = fd104e08
+tss 3 19 = 7e6c8379
+tss 3 23 = 06844306
+tss 4 6 = 00000002
+tss 4 21 = 00000000
+tss 5 26 = 80000000
+tss 6 13 = 927b594f
+case random-24
+device8 ok
+rs 160 = 00000000
+sb 1 none
+rs 132 = 00000000
+tss 0 1 = 00000004
+sb 2 none
+tss 7 19 = 00000000
+sb 0 none
+sb 1 none
+sb 2 none
+tss 3 9 = 00000008
+tss 3 13 = 02a93c8e
+tss 7 2 = 36831448
+tss 7 18 = 35a9ad38
+case random-25
+device8 ok
+sb 2 none
+sb 1 none
+tss 3 8 = 00000000
+sb 3 none
+tss 0 10 = 00000000
+sb 2 none
+rs 151 = 00000000
+tss 4 24 = 00000000
+tss 3 25 = 00000001
+sb 1 none
+tss 5 8 = 00000000
+rs 154 = 3f800000
+tss 6 8 = 00000000
+tss 4 8 = 00000000
+tss 0 7 = 00000000
+tss 7 7 = 00000000
+sb 0 none
+rs 25 = 00000008
+rs 155 = bd302d26
+tss 2 1 = 00000007
+tss 2 8 = 00000008
+tss 2 26 = 50bf422e
+tss 3 8 = 43fe7a9c
+tss 3 19 = 00000000
+tss 4 4 = 309257e5
+tss 4 13 = ebe0940d
+tss 4 18 = 056f67df
+tss 4 22 = 36ce8b47
+tss 4 24 = 00000008
+tss 5 4 = 00000004
+tss 7 6 = 00000001
+case random-26
+device8 ok
+sb 2 none
+tss 0 27 = 00000001
+tss 7 25 = 00000001
+sb 0 none
+tss 5 16 = 00000001
+sb 0 none
+rs 58 = ffffffff
+sb 0 none
+sb 2 none
+rs 19 = 3f800000
+rs 25 = 00000008
+tss 1 5 = 00000006
+tss 1 21 = 880e601c
+tss 2 28 = 27ac408e
+tss 4 26 = 00000007
+case random-27
+device8 ok
+sb 2 none
+tss 1 6 = 00000001
+rs 136 = 00000001
+tss 1 13 = 00000001
+sb 1 none
+sb 2 none
+rs 134 = 00000000
+tss 1 9 = 00000000
+tss 1 11 = ca216e7f
+tss 1 23 = 00000000
+tss 3 23 = 00000005
+tss 4 10 = b28d905b
+tss 4 18 = 29ae8e40
+tss 4 25 = 00000001
+tss 5 28 = a48b16b6
+tss 6 9 = 00000003
+tss 6 28 = 00000006
+tss 7 3 = 3f800000
+tss 7 5 = 00000002
+case random-28
+device8 ok
+sb 2 none
+tss 1 19 = 00000000
+sb 2 none
+rs 56 = 00000008
+sb 1 none
+rs 7 = cdeed22b
+case random-29
+device8 ok
+sb 3 none
+sb 0 none
+rs 23 = 5daa3357
+tss 2 6 = 00000000
+tss 4 28 = 0875c379
+tss 6 28 = 00000005
+tss 7 15 = 80000000
+case random-30
+device8 ok
+tss 2 18 = 00000000
+sb 3 none
+tss 2 6 = 00000001
+sb 0 none
+sb 1 none
+sb 2 none
+rs 22 = 00000003
+rs 133 = 00000000
+rs 152 = 00000008
+tss 1 20 = 00000000
+tss 1 24 = 00000000
+tss 4 19 = f0638c88
+tss 4 26 = 00000001
+tss 6 16 = 00000001
+tss 6 22 = 00000000
+tss 7 6 = 00000001
+case random-31
+device8 ok
+tss 3 23 = 00000000
+sb 0 none
+tss 0 18 = 00000000
+sb 3 none
+sb 2 none
+tss 5 4 = 00000001
+sb 1 none
+sb 2 none
+sb 0 none
+sb 0 none
+rs 25 = 80000000
+rs 27 = 00000000
+rs 53 = 00000009
+rs 59 = 00000003
+rs 147 = 00000009
+rs 171 = 64b9db75
+tss 0 8 = 00000000
+tss 0 15 = ffffffff
+tss 0 21 = 00000007
+tss 4 3 = 08226de7
+tss 5 20 = 00000000
+tss 6 6 = 00000000
+tss 6 21 = 00000001
+case random-32
+device8 ok
+tss 3 19 = 00000000
+tss 7 5 = 00000002
+tss 0 25 = 00000001
+rs 20 = 00000001
+sb 0 none
+sb 1 none
+rs 55 = 00000001
+rs 154 = 3f800000
+tss 0 7 = 00000000
+tss 0 10 = 00000000
+tss 1 20 = 00000000
+tss 2 21 = 37ae4513
+tss 2 24 = 00000000
+tss 2 25 = 00000001
+tss 6 13 = 00000001
+tss 7 8 = 00000000
+tss 7 27 = 00000001
+case random-33
+device8 ok
+sb 0 none
+tss 0 8 = 00000000
+tss 1 15 = 00000000
+case random-34
+device8 ok
+tss 3 25 = 00000001
+tss 6 23 = 00000000
+tss 3 24 = 00000000
+rs 57 = 00000000
+rs 152 = 00000000
+tss 2 24 = 00000000
+tss 3 3 = 00000001
+tss 4 19 = 00000000
+tss 6 3 = 00000001
+tss 6 6 = 00000001
+tss 6 13 = 00000001
+tss 7 2 = 00000002
+tss 7 19 = 00000000
+case random-35
+device8 ok
+sb 0 none
+sb 0 none
+sb 2 none
+rs 129 = 00000003
+tss 2 19 = 6a08d1ca
+tss 6 16 = eb1603dc
+case random-36
+device8 ok
+rs 128 = 00000000
+sb 0 none
+tss 3 11 = 00000003
+rs 172 = 00000003
+sb 1 none
+tss 4 13 = 00000001
+sb 0 none
+rs 10 = 00000006
+tss 1 1 = 3f800000
+tss 5 1 = e4c4294a
+tss 5 14 = 00000000
+tss 6 17 = fe79c216
+tss 6 23 = 3f800000
+tss 6 24 = 00000006
+tss 7 9 = 7f2267b7
+tss 7 13 = 00000001
+tss 7 15 = 7d5d697a
+case random-37
+device8 ok
+rs 171 = 00000001
+tss 5 3 = 00000001
+sb 0 none
+rs 168 = 0000000f
+tss 3 18 = 00000000
+tss 7 4 = 00000001
+tss 5 6 = 00000001
+tss 6 9 = 00000000
+sb 0 none
+sb 1 none
+rs 24 = 00000001
+rs 29 = 80000000
+rs 38 = 00000008
+rs 55 = 00000008
+rs 153 = 80000000
+rs 161 = 8bd7564b
+rs 167 = 00000001
+tss 0 7 = 2760520c
+tss 0 15 = 64c71c15
+tss 0 17 = 00000003
+tss 2 18 = 193a9a2d
+tss 4 1 = ffffffff
+tss 4 7 = 753d052d
+tss 6 16 = 00000007
+tss 6 18 = 27b8674c
+tss 6 20 = f821cb5f
+tss 7 8 = 00000006
+tss 7 22 = 73e6d21b
+tss 7 23 = 00000001
+case random-38
+device8 ok
+sb 0 none
+tss 1 18 = 00000000
+rs 146 = 00000002
+sb 3 none
+rs 171 = 00000001
+sb 2 none
+rs 60 = ffffffff
+sb 2 none
+rs 24 = 00000000
+rs 140 = 1b320550
+rs 158 = 53ffd250
+rs 159 = 00000009
+tss 1 1 = 9961eeaa
+tss 1 17 = ffffffff
+tss 1 28 = f0dc5aee
+tss 3 1 = d670e386
+tss 3 8 = 00000000
+tss 4 13 = 413a4d5a
+tss 5 4 = 00000001
+tss 5 11 = 00000005
+tss 5 13 = 00000003
+tss 5 15 = 8785cd87
+tss 6 19 = ffffffff
+case random-39
+device8 ok
+sb 0 none
+tss 1 15 = 00000000
+sb 2 none
+tss 0 21 = 00000001
+tss 1 15 = 00000000
+tss 2 24 = 00000000
+sb 0 none
+tss 7 5 = 00000002
+tss 7 3 = 00000001
+rs 58 = ffffffff
+tss 1 27 = 00000001
+rs 27 = 00000000
+sb 2 none
+rs 24 = 00000006
+rs 34 = 181c8221
+rs 129 = ffffffff
+rs 157 = 00000001
+tss 0 21 = 7f3baae5
+tss 1 23 = 00000009
+tss 3 9 = 00000004
+tss 4 9 = 00000000
+tss 4 27 = 00000001
+tss 5 19 = 3f800000
+tss 6 20 = 0a096f13
+tss 7 8 = bc0a034b
+tss 7 26 = 00000007
+case random-40
+device8 ok
+sb 2 none
+sb 1 none
+sb 3 none
+tss 5 2 = 00000002
+rs 140 = 00000000
+rs 140 = 00000000
+sb 0 none
+rs 158 = a786954c
+rs 162 = 3f800000
+tss 0 2 = 00000000
+tss 1 10 = 3f800000
+tss 2 4 = 9520dea6
+tss 3 19 = 00000001
+tss 5 21 = 8111370c
+tss 6 14 = 00000004
+tss 6 27 = 40e876af
+case random-41
+device8 ok
+tss 3 8 = 00000000
+sb 3 none
+tss 1 25 = 00000001
+tss 6 10 = 00000000
+sb 3 none
+sb 1 none
+sb 0 none
+rs 20 = 92b50a34
+tss 0 28 = 00000001
+tss 3 9 = 00000001
+tss 4 7 = 00000009
+tss 4 18 = 00000004
+case random-42
+device8 ok
+tss 7 5 = 00000002
+sb 0 none
+sb 1 none
+sb 2 none
+tss 1 25 = 00000001
+tss 4 5 = 00000002
+sb 1 none
+tss 3 25 = 00000001
+sb 2 none
+rs 129 = fba1d6e7
+rs 173 = 302fd1f9
+tss 0 4 = 00000008
+tss 0 7 = 9aa9faea
+tss 0 19 = f44323a9
+tss 1 9 = 9b20f7d7
+tss 1 26 = 92db6830
+tss 4 2 = 00000003
+tss 4 18 = 4e77f272
+tss 5 3 = 80000000
+tss 5 23 = 3f800000
+tss 7 23 = f288f129
+case random-43
+device8 ok
+rs 146 = 00000002
+rs 131 = 00000000
+tss 5 11 = 00000005
+sb 2 none
+tss 5 9 = 00000000
+tss 6 18 = 00000000
+sb 0 none
+sb 2 none
+rs 8 = 00000003
+rs 30 = 00000000
+rs 47 = 00000000
+rs 48 = 00000000
+rs 59 = 00000005
+tss 3 25 = 00000001
+tss 7 6 = 00000001
+case random-44
+device8 ok
+sb 2 none
+sb 2 none
+rs 152 = 00000000
+rs 161 = 00000001
+tss 7 15 = 00000000
+sb 2 none
+tss 0 15 = 00000000
+rs 54 = 0ac34c43
+rs 56 = 00000008
+rs 130 = 00000009
+tss 0 7 = e3c8137e
+tss 1 10 = 80000000
+tss 3 11 = 64ea7122
+tss 3 14 = 09257ee3
+tss 3 28 = 6f111f1b
+tss 5 6 = e446a390
+tss 5 20 = e757e4ed
+tss 6 2 = 80000000
+tss 6 10 = a78c3013
+tss 7 4 = 00000004
+tss 7 16 = 84f9e001
+tss 7 21 = a2ed0b5c
+tss 7 22 = 00000000
+case random-45
+device8 ok
+sb 1 none
+tss 4 19 = 00000000
+sb 0 none
+sb 0 none
+sb 0 none
+tss 2 1 = 00000001
+rs 156 = 00000000
+rs 130 = 20d8accb
+rs 134 = 8260a8b1
+tss 1 10 = 3f800000
+tss 3 15 = ffffffff
+tss 4 23 = 39cb12cd
+tss 6 5 = f27df8c8
+tss 6 7 = 0e85ad8e
+tss 7 5 = c3ce4c45
+case random-46
+device8 ok
+tss 7 23 = 00000000
+tss 2 25 = 00000001
+tss 4 10 = 00000000
+tss 1 10 = 00000000
+rs 148 = 00000000
+tss 2 28 = 00000001
+rs 58 = ffffffff
+tss 1 1 = 00000001
+tss 2 4 = 00000001
+tss 2 14 = 00000001
+tss 4 9 = 00000000
+tss 4 18 = 00000000
+tss 5 21 = 00000001
+tss 6 28 = 00000001
+case random-47
+device8 ok
+sb 0 none
+tss 2 15 = 00000000
+tss 2 6 = 00000001
+sb 1 none
+rs 34 = 00000000
+rs 59 = 1be6a042
+rs 147 = f5cce36b
+tss 0 19 = 0b42fb96
+tss 0 21 = 00000001
+tss 2 21 = 00000001
+tss 2 22 = 00000000
+tss 4 4 = 00000004
+case random-48
+device8 ok
+sb 0 none
+sb 3 none
+sb 3 none
+sb 1 none
+sb 0 none
+tss 3 28 = 00000001
+sb 0 none
+tss 2 21 = 00000001
+sb 3 none
+sb 3 none
+sb 0 none
+rs 30 = 00000001
+rs 55 = 24b49e54
+tss 0 26 = e18fb105
+tss 2 16 = 00000008
+tss 2 18 = 00000005
+tss 6 8 = 92210642
+tss 7 11 = 00000002
+tss 7 24 = 3f800000
+case random-49
+device8 ok
+rs 131 = 00000000
+sb 3 none
+tss 3 22 = 00000000
+rs 19 = 00000002
+tss 3 1 = 00000001
+rs 168 = 0000000f
+tss 4 6 = 00000001
+rs 147 = 00000000
+tss 5 10 = 00000000
+tss 6 11 = 00000006
+tss 1 15 = 00000000
+tss 1 28 = 00000001
+tss 0 2 = 00000002
+sb 0 none
+sb 2 none
+rs 25 = 80000000
+rs 30 = 80000000
+rs 156 = 09907bd6
+tss 0 8 = 57c35ed7
+tss 0 20 = 8f3b6c2a
+tss 1 6 = 00000000
+tss 1 25 = 8a56852d
+tss 2 6 = 00000005
+tss 2 15 = 3f800000
+tss 3 26 = 07660d13
+tss 4 13 = 3f800000
+tss 4 20 = 00000004
+tss 5 4 = 3f800000
+tss 5 8 = 00000000
+tss 5 14 = ef976c7d
+tss 6 26 = 00000001
+case random-50
+device8 ok
+sb 3 none
+sb 1 none
+sb 2 none
+sb 3 none
+sb 0 none
+rs 36 = 00000000
+sb 1 none
+rs 170 = 00000005
+tss 0 19 = 00000000
+tss 1 13 = 4e24a6f2
+tss 3 14 = 3f800000
+tss 4 19 = 6400ae1a
+tss 4 28 = 8856b920
+tss 7 2 = 65810ee7
+tss 7 6 = ffffffff
+case random-51
+device8 ok
+sb 2 none
+rs 56 = 00000008
+tss 5 1 = 00000001
+tss 2 6 = 00000001
+sb 1 none
+rs 139 = 00000007
+tss 0 20 = 00000009
+tss 1 19 = 00000000
+tss 4 28 = 00000001
+case random-52
+device8 ok
+sb 3 none
+tss 4 7 = 00000000
+tss 7 4 = 00000001
+rs 54 = 00000001
+tss 4 13 = 00000001
+tss 4 10 = 00000000
+sb 0 none
+rs 25 = 00000008
+rs 142 = 00000001
+rs 167 = 00000000
+tss 0 7 = 00000000
+tss 1 17 = 3f800000
+tss 2 1 = 00000001
+tss 2 10 = 9ee839ec
+tss 4 3 = 00000001
+tss 4 24 = 00000000
+tss 4 28 = 00000001
+tss 5 14 = 00000001
+tss 5 21 = 00000001
+tss 5 24 = 00000000
+tss 6 1 = deda57be
+tss 7 14 = 00000001
+case random-53
+device8 ok
+tss 2 9 = 00000000
+rs 155 = 00000000
+sb 3 none
+tss 0 8 = 00000000
+tss 4 10 = 00000000
+tss 6 9 = 00000000
+tss 1 27 = 00000001
+tss 5 1 = 00000001
+rs 28 = 00000000
+rs 48 = 3fc97ece
+rs 141 = 9c100725
+rs 155 = 00000000
+rs 167 = 00000002
+tss 0 17 = 80000000
+tss 1 2 = 00000002
+tss 2 7 = f781af12
+tss 2 19 = 00000000
+tss 3 4 = 00000004
+tss 3 6 = 00000001
+tss 3 20 = 00000008
+tss 6 9 = 00000000
+tss 6 24 = 0fcf8ebb
+tss 7 14 = 00000001
+tss 7 25 = 6b1b2c8a
+case random-54
+device8 ok
+tss 4 11 = 00000004
+tss 6 25 = 00000001
+sb 0 none
+rs 28 = 36d7f6c8
+rs 145 = e6d0337c
+rs 171 = 00000006
+tss 1 19 = 00000008
+tss 2 6 = 00000001
+tss 5 2 = 5429c730
+tss 6 10 = 476f45d2
+tss 7 4 = 00000008
+case random-55
+device8 ok
+sb 1 none
+sb 2 none
+rs 60 = cf77ac86
+tss 0 1 = 00000008
+tss 0 22 = 6b4440ce
+tss 2 15 = 58a400fe
+tss 5 28 = 74125227
+case random-56
+device8 ok
+tss 2 7 = 00000000
+sb 1 none
+sb 2 none
+rs 135 = 00000000
+tss 3 17 = 00000001
+tss 0 23 = 00000000
+tss 7 14 = 00000001
+sb 0 none
+rs 130 = 00000001
+rs 159 = a6f0b7dd
+rs 160 = 00000006
+tss 1 1 = 3f800000
+tss 1 8 = ffffffff
+tss 1 17 = f6e8c1eb
+tss 2 14 = 00000001
+tss 4 27 = 00000002
+tss 5 10 = 00000007
+tss 6 1 = 00000000
+tss 6 24 = 00000001
+tss 7 23 = 00000006
+case random-57
+device8 ok
+sb 0 none
+sb 3 none
+tss 6 17 = 00000001
+tss 4 10 = 00000000
+sb 3 none
+tss 2 19 = 00000000
+rs 156 = 00000000
+sb 3 none
+tss 5 16 = 00000001
+sb 0 none
+rs 20 = 00000004
+rs 30 = ffffffff
+rs 38 = 00000001
+rs 141 = d87e2252
+tss 0 13 = 45b2cfb0
+tss 0 16 = 6704412c
+tss 0 17 = 8701c0a2
+tss 0 19 = 00000004
+tss 1 9 = 00000002
+tss 2 17 = 84e194e3
+tss 2 21 = 2c6f6d5f
+tss 4 4 = 00000004
+tss 4 9 = 6697e581
+tss 5 6 = 500a6dc3
+tss 5 21 = ffffffff
+tss 6 28 = 00000001
+tss 7 23 = 00000000
+case random-58
+device8 ok
+sb 3 none
+sb 0 none
+sb 1 none
+tss 6 8 = 00000000
+tss 5 27 = 00000001
+tss 2 18 = 00000000
+rs 135 = 00000000
+rs 27 = 00000000
+sb 1 none
+sb 2 none
+rs 170 = 3f800000
+tss 1 5 = 00000009
+tss 3 24 = 00000001
+tss 5 23 = 6e6cf5ce
+tss 5 28 = 00000007
+tss 6 3 = 87baaacf
+tss 7 16 = dd73158a
+case random-59
+device8 ok
+rs 143 = 00000000
+tss 2 17 = 00000001
+tss 6 14 = 00000001
+tss 7 16 = 00000001
+tss 1 19 = 00000000
+sb 0 none
+rs 35 = 00000000
+tss 0 11 = 00000000
+tss 0 24 = 00000000
+tss 2 7 = 00000000
+tss 4 14 = 00000001
+tss 4 23 = 00000000
+tss 5 8 = 00000000
+tss 5 21 = 00000004
+tss 7 3 = 00000001
+tss 7 13 = 00000001
+case random-60
+device8 ok
+tss 6 11 = 00000006
+sb 1 none
+tss 3 17 = 00000001
+tss 4 18 = 00000000
+sb 2 none
+sb 3 none
+tss 6 19 = 00000000
+rs 129 = 00000000
+sb 2 none
+rs 27 = 9a5f0f98
+rs 29 = ffffffff
+rs 168 = fea20d30
+tss 1 9 = f90e91c2
+tss 3 14 = 00000002
+tss 4 15 = e4a76344
+tss 5 20 = b2669095
+tss 6 7 = 00000009
+case random-61
+device8 ok
+rs 9 = 00000002
+tss 0 14 = 00000001
+tss 0 28 = 00000001
+tss 5 13 = 00000001
+rs 23 = 00000004
+rs 136 = 00000001
+rs 172 = 00000003
+tss 0 7 = 00000000
+tss 1 8 = 00000000
+tss 1 17 = 00000001
+tss 3 2 = 00000002
+tss 3 15 = 00000000
+tss 4 25 = 00000001
+tss 7 13 = 00000001
+case random-62
+device8 ok
+sb 0 none
+tss 1 26 = 00000001
+tss 4 15 = 00000000
+tss 4 20 = 00000000
+tss 2 27 = 00000001
+tss 7 22 = 00000000
+tss 1 26 = 00000001
+tss 4 28 = 00000001
+rs 14 = 00000001
+rs 7 = 00000000
+rs 8 = 00000009
+tss 0 25 = 00000005
+tss 1 9 = 00000001
+tss 4 5 = 6ff08e2d
+tss 5 15 = 6c177099
+tss 5 18 = 70adc405
+tss 6 17 = 80000000
+tss 7 14 = 00000006
+tss 7 24 = 3f800000
+case random-63
+device8 ok
+tss 3 8 = 00000000
+tss 6 1 = 00000001
+rs 157 = 00000000
+tss 5 25 = 00000001
+tss 6 16 = 00000001
+tss 6 7 = 00000000
+sb 1 none
+rs 48 = 00000000
+rs 53 = 00000001
+rs 58 = ffffffff
+rs 148 = 00000000
+rs 154 = 3f800000
+tss 0 25 = 00000001
+tss 1 20 = 00000000
+tss 1 23 = 00000000
+tss 1 28 = 00000001
+tss 5 5 = 00000002
+tss 6 3 = 00000001
+tss 7 9 = 00000000
+tss 7 11 = 00000007
+tss 7 14 = 00000001
+tss 7 23 = 00000000
+case random-64
+device8 ok
+tss 2 6 = 00000001
+sb 1 none
+sb 3 none
+tss 5 2 = 00000002
+tss 6 10 = 00000000
+sb 2 none
+sb 1 none
+sb 1 none
+rs 154 = 3f800000
+sb 1 none
+rs 130 = 789d9987
+rs 157 = d164edae
+rs 172 = 3be638bc
+tss 0 3 = 6585185e
+tss 0 13 = 58d6d40f
+tss 1 25 = c3432d08
+tss 5 5 = 00000000
+tss 6 13 = 00000003
+case random-65
+device8 ok
+tss 7 2 = 00000002
+tss 2 16 = 00000001
+tss 4 27 = 00000001
+tss 0 7 = 00000000
+sb 3 none
+tss 6 23 = 00000000
+sb 0 none
+rs 147 = 181c60d7
+tss 0 27 = b508f9d8
+case random-66
+device8 ok
+rs 156 = 00000000
+tss 4 19 = 00000000
+tss 7 5 = 00000002
+tss 5 14 = 00000001
+tss 7 11 = 00000007
+tss 6 19 = 00000000
+sb 2 none
+sb 3 none
+tss 4 5 = 00000002
+tss 4 19 = 00000000
+tss 4 21 = 00000001
+sb 2 none
+rs 8 = 8c04c87f
+rs 55 = bf3faefc
+rs 129 = 017144e8
+rs 142 = 9717bb60
+rs 173 = f4459969
+tss 0 9 = 7176669c
+tss 1 1 = d1080b91
+tss 2 4 = ad55524b
+tss 3 24 = 09e83528
+tss 5 25 = c4b88f00
+tss 7 16 = 00000000
+tss 7 17 = 79f4fd8f
+tss 7 19 = ffffffff
+case random-67
+device8 ok
+rs 154 = 3f800000
+sb 1 none
+tss 0 14 = 00000001
+tss 3 23 = 00000000
+rs 153 = 00000001
+rs 139 = 00000000
+sb 3 none
+sb 1 none
+tss 7 11 = 00000003
+rs 60 = ffffffff
+sb 0 none
+sb 1 none
+rs 10 = fe55465a
+rs 22 = 00000000
+rs 55 = 3f800000
+tss 0 14 = e39a0fa4
+tss 0 22 = 8b50db04
+tss 0 24 = 80000000
+tss 1 18 = 3f800000
+tss 1 20 = 00000005
+tss 2 5 = 00000003
+tss 2 6 = 0b47b510
+tss 2 7 = 3ae5a8a8
+tss 2 8 = 80000000
+tss 2 21 = 7607ec33
+tss 3 3 = e611ead5
+tss 4 21 = 7c9a44f7
+tss 4 23 = 98c3b7a8
+tss 4 25 = 00000008
+tss 5 26 = fb7a6a34
+tss 6 8 = de56e6e2
+tss 6 9 = e047bc37
+tss 6 10 = 80000000
+tss 6 15 = ffffffff
+tss 7 11 = 00000003
+tss 7 16 = ffffffff
+case random-68
+device8 ok
+tss 7 20 = 00000000
+sb 1 none
+sb 1 none
+sb 0 none
+sb 1 none
+tss 3 8 = 00000000
+tss 6 17 = 00000001
+rs 22 = 00000003
+tss 2 8 = 00000000
+sb 2 none
+rs 10 = 00000000
+tss 3 19 = 00000000
+sb 1 none
+tss 1 26 = 00000001
+sb 2 none
+tss 1 11 = 00000001
+sb 1 none
+sb 2 none
+rs 128 = 80000000
+rs 155 = ffffffff
+tss 2 22 = 00000001
+tss 2 27 = 80000000
+tss 3 26 = 49d3246e
+tss 4 23 = b2c6909a
+tss 4 25 = 08061c40
+tss 5 22 = 00000005
+tss 7 15 = bc0789d6
+case random-69
+device8 ok
+rs 60 = ffffffff
+rs 29 = 00000000
+tss 1 14 = 00000001
+sb 1 none
+sb 1 none
+tss 4 10 = 00000000
+tss 0 9 = 00000000
+tss 1 23 = 00000000
+sb 0 none
+rs 35 = 00000000
+sb 0 none
+rs 153 = 00000001
+tss 0 26 = 00000001
+sb 1 none
+sb 0 none
+sb 1 none
+rs 20 = 58b2b881
+rs 52 = 00000009
+rs 143 = 3f800000
+rs 147 = 00000000
+rs 148 = 0915d5c6
+tss 0 15 = 00000000
+tss 1 2 = 80000000
+tss 1 14 = 24d0dc7d
+tss 1 27 = b45467cf
+tss 1 28 = 00000001
+tss 3 15 = 80000000
+tss 3 20 = d998be2e
+tss 4 24 = ffffffff
+tss 5 15 = 80000000
+tss 6 13 = 71f45e9f
+tss 6 17 = 0cf72f84
+tss 7 2 = fe7771ef
+tss 7 3 = c8e5a8e6
+case random-70
+device8 ok
+tss 5 15 = 00000000
+sb 0 none
+sb 0 none
+sb 2 none
+sb 2 none
+tss 3 23 = 00000000
+tss 2 24 = 00000000
+tss 4 7 = 00000000
+sb 1 none
+sb 1 none
+tss 1 26 = 00000001
+sb 3 none
+tss 7 4 = 00000001
+tss 0 14 = 00000001
+tss 3 13 = 00000001
+tss 0 17 = 00000001
+sb 1 none
+sb 2 none
+rs 35 = 01662195
+tss 0 8 = 00000000
+tss 1 26 = 00000001
+tss 2 26 = 1f599cf7
+tss 4 26 = 00000003
+tss 5 1 = 00000001
+tss 7 21 = 00000001
+tss 7 25 = 00000001
+case random-71
+device8 ok
+tss 3 25 = 00000001
+tss 4 24 = 00000000
+tss 3 7 = 00000000
+rs 140 = 00000000
+rs 158 = 3f800000
+tss 3 24 = 00000000
+tss 3 20 = 00000000
+rs 137 = 00000001
+tss 1 25 = 00000001
+rs 133 = 00000000
+rs 26 = 00000000
+sb 2 none
+rs 37 = b7f7ba82
+rs 145 = aa4dc62f
+rs 155 = ffffffff
+tss 1 13 = 00000001
+tss 2 2 = fdf9f8ee
+tss 5 8 = 3f800000
+tss 7 5 = 00000007
+tss 7 14 = 0b334acc
+tss 7 18 = 00000001
+case random-72
+device8 ok
+sb 2 none
+sb 0 none
+tss 0 9 = 00000000
+tss 2 23 = 00000000
+tss 5 18 = 00000000
+sb 0 none
+sb 3 none
+rs 142 = a1622f37
+rs 170 = 00000000
+tss 1 2 = 9b903680
+tss 1 5 = 54ace17f
+tss 1 7 = d2f78c2b
+tss 3 13 = 00000006
+tss 3 26 = 00000001
+tss 4 5 = ffffffff
+tss 4 9 = 3f800000
+tss 4 17 = bc2e8549
+tss 4 21 = fbd9e411
+tss 5 1 = 4c3ba716
+tss 5 6 = 00000001
+tss 5 27 = 47500f20
+tss 6 27 = 3f800000
+tss 7 1 = 9d44d91d
+tss 7 19 = 00000000
+case random-73
+device8 ok
+sb 3 none
+rs 52 = 00000000
+sb 2 none
+tss 2 24 = 00000000
+rs 52 = 3f800000
+rs 59 = 577e3f1f
+case random-74
+device8 ok
+tss 0 13 = 00000001
+sb 0 none
+sb 2 none
+rs 56 = 00000001
+tss 4 4 = 00000000
+tss 4 23 = e60bd914
+case random-75
+device8 ok
+tss 3 20 = 00000000
+tss 1 10 = 00000000
+sb 1 none
+rs 34 = 00000000
+rs 22 = ffffffff
+rs 141 = 357e3dd0
+tss 5 28 = 00000007
+tss 6 23 = 8ab7024b
+case random-76
+device8 ok
+rs 53 = 00000001
+tss 6 4 = 00000001
+sb 1 none
+sb 1 none
+sb 2 none
+tss 0 3 = 00000000
+tss 1 20 = 4aeddf26
+tss 1 21 = 598d5f19
+tss 2 23 = 3cbf7f6e
+tss 4 5 = 00000002
+tss 4 16 = c5f279b8
+case random-77
+device8 ok
+sb 3 none
+sb 0 none
+tss 1 23 = 00000000
+tss 0 4 = 00000002
+sb 0 none
+sb 0 none
+rs 34 = 025827c3
+rs 40 = 00000006
+rs 146 = 3f800000
+rs 162 = 3f800000
+tss 2 3 = 00000001
+tss 3 18 = 00000000
+tss 4 11 = 1891ca09
+tss 5 26 = ffffffff
+tss 6 9 = 00000000
+tss 7 7 = 00000000
+tss 7 8 = 00000001
+tss 7 28 = 3b85a6a9
+case random-78
+device8 ok
+tss 1 16 = 00000001
+tss 2 11 = 00000002
+sb 0 none
+tss 5 2 = 00000002
+tss 0 2 = 00000002
+rs 173 = 00000001
+sb 1 none
+tss 0 7 = 00000002
+tss 1 9 = fbe1a156
+tss 2 2 = 00000002
+tss 5 8 = 3f800000
+case random-79
+device8 ok
+sb 0 none
+tss 2 18 = 00000000
+rs 157 = 00000000
+rs 141 = 00000001
+sb 3 none
+tss 2 5 = 00000002
+sb 3 none
+sb 3 none
+sb 2 none
+rs 8 = 00000002
+rs 36 = 00000000
+rs 143 = 66bd6704
+rs 162 = 00000007
+rs 172 = d9b135bd
+tss 0 7 = 00000004
+tss 1 7 = 00000008
+tss 1 23 = d6a4a9be
+tss 2 3 = 00000000
+tss 2 26 = 00000001
+tss 2 28 = 171e71ba
+tss 3 2 = 00000002
+tss 3 19 = c35184c8
+tss 3 21 = 00000003
+tss 4 28 = da43d5ba
+tss 5 14 = 1e09e35d
+tss 6 15 = 00000000
+tss 6 22 = ab32a0a0
+case random-80
+device8 ok
+tss 7 23 = 00000000
+rs 154 = 3f800000
+tss 2 6 = 00000001
+sb 0 none
+sb 2 none
+rs 146 = 0a3ff288
+tss 2 16 = 00000009
+tss 4 15 = 00000000
+tss 5 5 = 00000005
+case random-81
+device8 ok
+tss 3 11 = 00000003
+sb 3 none
+tss 0 5 = 00000002
+tss 5 11 = 00000005
+rs 57 = 00000000
+rs 24 = 00000000
+tss 5 26 = 00000001
+tss 7 18 = 00000000
+rs 14 = 00000001
+sb 1 none
+rs 14 = 00000001
+rs 134 = 173a2fcc
+rs 160 = 1f12abdc
+tss 0 15 = 00000000
+tss 0 16 = 00000001
+tss 1 16 = 00000001
+tss 2 4 = 00000001
+tss 2 16 = 00000001
+tss 2 22 = 058acfa0
+tss 3 4 = 80000000
+tss 3 25 = 00000007
+tss 4 14 = 00000002
+tss 7 27 = 00000001
+tss 7 28 = 00000001
+case random-82
+device8 ok
+sb 3 none
+sb 0 none
+sb 2 none
+sb 2 none
+sb 0 none
+rs 26 = 00000000
+sb 1 none
+rs 132 = 00000001
+rs 173 = 80000000
+tss 3 13 = 00000001
+tss 4 5 = 00000001
+tss 4 16 = 00000000
+case random-83
+device8 ok
+tss 6 5 = 00000002
+tss 2 15 = 00000000
+tss 0 21 = 00000001
+sb 2 none
+sb 2 none
+sb 3 none
+tss 1 1 = 00000001
+sb 0 none
+tss 7 3 = 00000001
+sb 0 none
+sb 1 none
+rs 29 = 289f7669
+rs 57 = 99b5c08f
+rs 141 = cd567e77
+rs 164 = 00000006
+tss 0 4 = 00000001
+tss 1 3 = 00000003
+tss 1 15 = 00000007
+tss 2 21 = dac7e36b
+tss 3 16 = 6e083998
+tss 5 6 = 00000009
+tss 6 16 = 80000000
+tss 7 1 = 00000004
+case random-84
+device8 ok
+sb 0 none
+sb 1 none
+tss 0 21 = 00000001
+sb 1 none
+rs 151 = 00000000
+tss 1 23 = 00000004
+tss 3 3 = 00000001
+tss 6 9 = 00000000
+tss 7 25 = 00000001
+case random-85
+device8 ok
+tss 1 10 = 00000000
+rs 140 = 00000000
+sb 1 none
+sb 2 none
+tss 2 21 = 00000001
+sb 2 none
+rs 152 = 00000000
+rs 30 = 00000000
+tss 5 14 = 00000001
+tss 5 5 = 00000002
+sb 1 none
+rs 137 = 4a198381
+rs 153 = 04279a5f
+rs 171 = 00000009
+tss 0 8 = 00000005
+tss 0 20 = 00000001
+tss 0 24 = 00000000
+tss 1 23 = 00000001
+tss 4 17 = a63102bd
+tss 4 18 = 80000000
+tss 5 3 = 2185cede
+tss 5 10 = bc49d3c1
+tss 5 11 = 3f800000
+tss 6 7 = 00000000
+tss 6 22 = ede89c86
+case random-86
+device8 ok
+rs 147 = 00000000
+sb 0 none
+sb 2 none
+tss 5 6 = 00000001
+sb 1 none
+sb 1 none
+rs 8 = 00000003
+rs 54 = 00000001
+tss 1 3 = 23c81ae9
+sb 0 none
+rs 14 = 95df88fa
+rs 24 = 80000000
+rs 30 = 41ec0bfc
+rs 163 = 00000000
+rs 170 = 921d28d8
+tss 1 3 = 23c81ae9
+tss 2 6 = 7d4bd429
+tss 2 8 = 9df4a190
+tss 3 28 = 4b3dc74c
+tss 4 13 = 00000001
+tss 4 20 = 00000000
+case random-87
+device8 ok
+tss 4 24 = 00000000
+tss 1 6 = 00000001
+tss 2 7 = 00000000
+tss 3 23 = 00000000
+tss 2 24 = 00000000
+tss 5 2 = 00000002
+sb 0 none
+rs 156 = 20a629c4
+tss 0 10 = 08b777df
+tss 0 27 = ffffffff
+tss 2 5 = ffffffff
+tss 2 18 = 80000000
+tss 4 23 = ca3d069b
+tss 6 16 = 864e5996
+case random-88
+device8 ok
+sb 1 none
+rs 168 = 0000000f
+tss 1 18 = 00000000
+sb 0 none
+sb 0 none
+sb 2 none
+rs 159 = 00000000
+rs 162 = ffffffff
+sb 1 none
+sb 0 none
+rs 141 = 80000000
+tss 0 4 = 1759327a
+tss 0 5 = 00000000
+tss 0 14 = 22cbc2f3
+tss 1 2 = 6cf8a844
+tss 1 5 = e13ecdcc
+tss 2 23 = 00000005
+tss 2 24 = 00000000
+tss 3 3 = 00000001
+tss 3 24 = ffffffff
+tss 5 11 = 00000008
+tss 5 14 = 1c0d1671
+tss 6 9 = 00000001
+tss 6 13 = a0b1efa8
+tss 7 21 = 55f2921d
+tss 7 22 = 00000001
+case random-89
+device8 ok
+rs 23 = 00000004
+tss 6 18 = 00000000
+rs 164 = 3f800000
+tss 7 22 = 00000000
+tss 2 25 = 00000001
+rs 48 = 00000000
+sb 3 none
+tss 1 7 = 00000000
+tss 7 5 = 00000002
+rs 15 = 00000000
+rs 35 = 00000000
+rs 170 = 00000000
+tss 0 8 = d4e991de
+tss 3 5 = 00000002
+tss 3 14 = 00000001
+tss 5 25 = 00000001
+tss 6 16 = 80000000
+tss 7 18 = 00000000
+tss 7 22 = 00000000
+tss 7 26 = 00000001
+case random-90
+device8 ok
+tss 3 9 = 00000000
+tss 6 24 = 00000000
+sb 0 none
+sb 1 none
+sb 2 none
+rs 156 = 00000000
+tss 1 28 = 00000001
+tss 4 23 = 00000008
+tss 4 27 = 00000001
+tss 5 24 = 00000000
+tss 6 6 = 00000001
+tss 6 9 = 00000000
+tss 6 22 = 00000000
+case random-91
+device8 ok
+sb 2 none
+tss 2 10 = 00000000
+tss 0 10 = 00000000
+tss 2 17 = 00000001
+tss 1 1 = 00000001
+tss 0 17 = 00000001
+tss 3 25 = 00000001
+sb 0 none
+sb 2 none
+rs 7 = 00000001
+rs 36 = 00000000
+rs 134 = d30d4ff3
+rs 140 = 86f262e4
+tss 1 13 = 00000001
+tss 3 1 = 00000001
+tss 3 24 = 00000000
+tss 4 17 = 00000001
+tss 6 6 = 11a48b93
+tss 6 11 = 00000006
+tss 7 1 = ffffffff
+tss 7 18 = a9339213
+case random-92
+device8 ok
+tss 6 27 = 00000001
+sb 0 none
+sb 1 none
+rs 160 = 00000006
+tss 5 20 = 00000003
+case random-93
+device8 ok
+tss 2 6 = 00000001
+tss 3 26 = 00000001
+sb 1 none
+tss 3 2 = 5c8c9ee0
+tss 6 4 = 536f233b
+tss 6 17 = 00000009
+case random-94
+device8 ok
+sb 0 none
+rs 163 = 00000000
+sb 3 none
+rs 141 = 00000001
+sb 3 none
+sb 0 none
+sb 0 none
+tss 2 10 = d51ae04f
+sb 0 none
+tss 2 14 = 00000001
+sb 2 none
+rs 142 = 00000001
+tss 0 5 = 00000001
+tss 0 28 = 00000007
+tss 2 10 = d51ae04f
+tss 4 1 = 97c4427b
+tss 6 7 = 30855875
+tss 7 16 = 00000000
+tss 7 27 = e0a5f2e3
+case random-95
+device8 ok
+tss 5 26 = 00000001
+sb 0 none
+rs 139 = 00000000
+sb 2 none
+sb 1 none
+rs 132 = 00000000
+tss 1 7 = 00000000
+rs 142 = 00000001
+tss 2 24 = 00000000
+sb 0 none
+sb 1 none
+rs 53 = 89ca4ce8
+rs 130 = 00000000
+rs 139 = 00000000
+rs 154 = ffffffff
+tss 1 2 = 00000002
+tss 1 18 = 00000000
+tss 2 3 = b5951157
+tss 3 1 = 00000001
+tss 3 13 = 00000001
+tss 3 15 = 00000000
+tss 6 5 = 00000002
+tss 6 21 = 00000000
+case random-96
+device8 ok
+rs 152 = 00000000
+tss 5 15 = 00000000
+tss 3 18 = 00000000
+tss 6 5 = 00000002
+sb 2 none
+sb 3 none
+rs 57 = 0f5aaaa4
+tss 0 25 = 80000000
+tss 1 11 = 2fe36a5f
+tss 2 9 = a22c374f
+tss 2 28 = 00000000
+tss 3 4 = 6d831eb7
+tss 3 11 = 018e25a0
+tss 3 14 = 848ddcaa
+tss 3 19 = 673dcfed
+tss 4 6 = 537e4f59
+tss 7 17 = ed299c89
+tss 7 28 = ccc57c02
+case random-97
+device8 ok
+sb 0 none
+sb 2 none
+sb 2 none
+rs 27 = 3f800000
+rs 59 = 00000003
+rs 166 = 524a8554
+tss 1 2 = 00000006
+tss 1 23 = 30304f90
+tss 2 8 = de27cafb
+tss 5 4 = 00000001
+tss 7 5 = 00000000
+case random-98
+device8 ok
+tss 0 5 = 00000002
+sb 3 none
+tss 3 3 = 00000001
+tss 5 13 = 00000001
+tss 0 24 = 00000000
+tss 4 19 = 00000000
+tss 4 5 = 00000002
+rs 20 = 00000001
+tss 5 19 = 00000000
+sb 1 none
+rs 24 = 00000000
+rs 36 = 00000000
+rs 156 = 00000000
+tss 1 24 = 00000000
+tss 4 13 = 6836de24
+tss 5 23 = 00000000
+tss 5 26 = 00000001
+tss 6 16 = 05157d5e
+case random-99
+device8 ok
+sb 1 none
+sb 0 none
+rs 8 = 00000001
+rs 54 = 00000001
+rs 131 = 80000000
+rs 147 = 00000002
+tss 0 5 = 54650943
+tss 0 27 = 5358d097
+tss 3 13 = 00000001
+tss 3 25 = 963996bc
+tss 4 25 = 00000008
+tss 5 18 = ffffffff
+tss 6 4 = 00000000
+tss 6 21 = 00000003
+tss 7 11 = 00000007
+case random-100
+device8 ok
+sb 3 none
+rs 131 = 00000000
+sb 2 none
+sb 0 none
+sb 0 none
+sb 1 none
+tss 1 25 = 00000001
+sb 1 none
+rs 23 = 08279051
+rs 47 = 3f800000
+tss 0 3 = 00000009
+tss 2 11 = 00000000
+tss 5 3 = 00000001
+tss 6 28 = 00000001
+case random-101
+device8 ok
+rs 145 = 00000001
+tss 4 24 = 00000000
+tss 1 9 = 00000000
+sb 1 none
+sb 2 none
+rs 143 = 00000000
+rs 24 = 58d47fca
+rs 26 = 00000001
+rs 164 = c15b85ae
+tss 1 15 = 00000001
+tss 2 5 = 15a46d94
+tss 4 10 = 3f800000
+tss 5 11 = 00000003
+tss 5 28 = 80000000
+tss 6 18 = 867af045
+tss 6 22 = 8a516874
+tss 7 17 = 394ec8c0
+case random-102
+device8 ok
+rs 163 = 00000000
+sb 1 none
+rs 60 = bff23c80
+rs 155 = 00000005
+tss 2 23 = 7051ad8d
+tss 6 14 = 42a0b09a
+tss 7 3 = 80000000
+tss 7 25 = c2bbc4fd
+case random-103
+device8 ok
+tss 6 23 = 00000000
+sb 1 none
+sb 0 none
+sb 1 none
+rs 25 = 1aad7180
+rs 55 = 00000001
+rs 57 = 00000000
+tss 5 20 = 00000000
+case random-104
+device8 ok
+tss 3 21 = 00000001
+rs 141 = 00000001
+tss 1 11 = 00000001
+tss 2 15 = 7cbb9f00
+tss 3 14 = 00000001
+case random-105
+device8 ok
+sb 1 none
+sb 3 none
+tss 5 21 = 00000001
+tss 6 1 = 00000001
+tss 7 19 = 00000000
+rs 27 = 00000000
+tss 1 21 = 00000001
+sb 3 none
+rs 40 = 00000000
+sb 1 none
+tss 7 20 = 00000000
+tss 0 17 = 00000001
+tss 7 14 = 00000000
+tss 5 20 = 00000000
+tss 4 21 = 00000001
+sb 3 none
+sb 0 none
+sb 1 none
+rs 56 = 00000008
+rs 158 = 3f800000
+rs 172 = 563b3509
+tss 2 13 = 00000001
+tss 3 24 = 00000000
+tss 3 26 = a7492bc6
+tss 4 2 = 00000002
+tss 5 16 = 00000001
+tss 7 10 = 00000000
+tss 7 14 = 00000000
+tss 7 21 = c671850f
+case random-106
+device8 ok
+sb 2 none
+rs 48 = 00000000
+tss 3 15 = 00000000
+tss 2 9 = 00000000
+tss 2 27 = 00000001
+tss 3 20 = 00000000
+sb 0 none
+rs 140 = 80000000
+rs 160 = b434077d
+tss 3 1 = 00000006
+tss 5 19 = 00000000
+tss 6 21 = 00000004
+tss 6 25 = d129c2bd
+tss 7 7 = 00000001
+case random-107
+device8 ok
+sb 3 none
+sb 3 none
+tss 2 9 = 00000000
+tss 4 14 = 00000001
+tss 6 9 = 00000000
+tss 1 15 = 00000000
+tss 5 11 = 00000005
+sb 1 none
+rs 131 = 00000000
+tss 0 27 = 162f53c3
+tss 2 20 = 00000000
+tss 2 23 = 00000000
+tss 3 24 = 00000000
+tss 4 1 = 00000004
+tss 4 23 = 00000000
+tss 5 2 = 00000002
+tss 6 9 = 00000000
+tss 6 14 = 9d287e50
+tss 7 15 = 00000000
+case random-108
+device8 ok
+sb 0 none
+sb 1 none
+rs 140 = ffffffff
+rs 172 = 00000001
+tss 0 8 = 00000002
+tss 6 8 = 00000003
+case random-109
+device8 ok
+sb 2 none
+sb 3 none
+rs 53 = 00000001
+sb 0 none
+tss 5 11 = 00000005
+sb 2 none
+tss 6 19 = 00000000
+sb 0 none
+tss 7 26 = 00000001
+rs 10 = 00000000
+sb 2 none
+rs 60 = 00000000
+rs 151 = 00000000
+rs 170 = 00000008
+tss 0 1 = 00000004
+tss 2 5 = 00000002
+tss 4 2 = 00000002
+tss 4 5 = 00000002
+tss 4 7 = 00000000
+tss 5 25 = 00000001
+tss 7 2 = 00000002
+tss 7 18 = 00000000
+tss 7 23 = 00000000
+case random-110
+device8 ok
+tss 2 16 = 00000001
+tss 0 10 = 00000000
+sb 0 none
+sb 0 none
+sb 1 none
+sb 2 none
+tss 3 3 = 00000001
+sb 0 none
+tss 7 27 = 00000001
+rs 20 = 00000001
+rs 22 = 00000003
+rs 171 = 00000001
+rs 131 = 499eb5d5
+tss 0 3 = 00000001
+tss 2 6 = e1cbeb5c
+tss 2 24 = 00000000
+tss 4 6 = 80000000
+tss 5 11 = 00000005
+tss 5 25 = f217b73b
+tss 6 7 = 73d8a00a
+case random-111
+device8 ok
+sb 2 none
+sb 3 none
+tss 3 5 = 00000002
+tss 7 26 = 00000001
+tss 5 22 = 00000000
+rs 152 = 00000000
+tss 4 21 = 00000001
+tss 1 17 = 00000001
+rs 16 = 00000003
+rs 20 = 00000001
+rs 40 = ffffffff
+rs 133 = 00000000
+rs 156 = 00000001
+tss 4 3 = c4adfbde
+tss 5 13 = aeaeb659
+tss 6 17 = 00000001
+tss 7 1 = 00000001
+tss 7 15 = 00000001
+case random-112
+device8 ok
+tss 1 9 = 00000000
+tss 4 2 = 00000002
+rs 162 = 00000001
+tss 1 6 = 3f800000
+tss 1 23 = 00000003
+tss 6 3 = 00000002
+tss 7 18 = 80000000
+case random-113
+device8 ok
+sb 2 none
+sb 0 none
+tss 2 7 = 00000000
+rs 146 = 00000000
+tss 4 21 = 00000001
+sb 1 none
+sb 2 none
+rs 170 = 00000000
+sb 3 none
+tss 1 27 = 00000001
+sb 2 none
+rs 34 = 00000000
+tss 2 27 = 00000001
+sb 2 none
+sb 2 none
+rs 24 = 00000001
+rs 146 = 00000000
+rs 147 = 3f800000
+tss 0 5 = 00000001
+tss 1 20 = 00000000
+tss 2 24 = 00000004
+tss 2 26 = e114f7c5
+tss 4 27 = 00000009
+tss 5 23 = 00000005
+tss 6 16 = 10a9513a
+tss 7 11 = 00000009
+tss 7 14 = 468d47cd
+tss 7 21 = 12995dbf
+case random-114
+device8 ok
+tss 7 2 = 00000002
+sb 1 none
+sb 3 none
+tss 3 15 = 00000000
+sb 3 none
+rs 129 = d1a0e929
+tss 0 16 = 00000005
+tss 1 7 = cbad4738
+tss 1 20 = 00000000
+tss 1 21 = e431063d
+tss 2 3 = 80000000
+tss 3 8 = 3d7a8e93
+tss 4 8 = ffffffff
+tss 4 9 = 00000000
+tss 4 25 = 0b9dceeb
+tss 5 28 = 00000001
+tss 6 7 = 5fe99115
+tss 6 25 = 42154460
+tss 7 5 = ca4545f6
+tss 7 14 = 3634b184
+tss 7 21 = ffffffff
+case random-115
+device8 ok
+tss 7 2 = 00000002
+tss 3 9 = 00000000
+sb 0 none
+rs 133 = 00000000
+sb 1 none
+sb 2 none
+sb 0 none
+tss 7 6 = 00000001
+sb 2 none
+sb 3 none
+sb 3 none
+tss 0 15 = 00000000
+tss 5 28 = cf6970b1
+sb 1 none
+rs 22 = ffffffff
+rs 25 = 3f800000
+rs 143 = 00000002
+rs 171 = aaaec169
+tss 1 10 = 31c34a4d
+tss 1 18 = 8bad47cd
+tss 3 21 = 00000001
+tss 3 25 = 00000003
+tss 3 27 = fb016090
+tss 5 28 = cf6970b1
+tss 7 15 = 7ba3adad
+case random-116
+device8 ok
+tss 6 3 = 00000001
+tss 3 24 = 00000000
+tss 2 17 = d08462a9
+tss 4 8 = 00000001
+tss 4 16 = cfb7f980
+tss 6 5 = 00000006
+tss 7 16 = 6a2d3c96
+tss 7 26 = 80bee842
+case random-117
+device8 ok
+rs 140 = 00000000
+tss 7 1 = 00000001
+tss 6 21 = 00000001
+tss 2 13 = 00000001
+sb 1 none
+sb 0 none
+sb 0 none
+sb 1 none
+rs 19 = 00000002
+tss 0 28 = 7002b5d2
+tss 1 15 = 00000002
+tss 2 15 = 3f800000
+tss 2 25 = 00000001
+tss 6 18 = 00000001
+tss 7 4 = 00000001
+case random-118
+device8 ok
+sb 2 none
+tss 3 1 = 00000001
+rs 8 = 00000003
+sb 3 none
+tss 6 1 = 00000001
+rs 16 = 00000001
+tss 1 3 = 00000001
+tss 3 15 = 00000000
+tss 3 16 = 00000001
+tss 4 4 = 00000001
+tss 4 6 = 00000001
+case random-119
+device8 ok
+tss 4 13 = 00000001
+sb 3 none
+tss 3 25 = 00000001
+sb 1 none
+rs 130 = 00000000
+tss 4 23 = 00000000
+rs 57 = 00000000
+sb 2 none
+tss 3 25 = 00000001
+rs 132 = 00000000
+sb 1 none
+rs 136 = 00000001
+tss 0 22 = 00000000
+tss 2 19 = 00000000
+tss 3 6 = 00000001
+tss 3 28 = 00000001
+tss 5 14 = 00000001
+tss 7 25 = 00000009
+case random-120
+device8 ok
+tss 7 16 = 00000001
+tss 0 25 = 00000001
+sb 3 none
+rs 57 = 00000000
+sb 0 none
+rs 38 = 00000000
+tss 5 20 = 38491288
+case random-121
+device8 ok
+sb 2 none
+rs 54 = 00000001
+tss 5 9 = 00000000
+tss 6 6 = 00000001
+rs 26 = 00000000
+sb 2 none
+rs 25 = 00000002
+rs 27 = c34ab6ca
+rs 52 = cd63b75c
+tss 2 11 = 4c18e07a
+tss 3 3 = e7ffc773
+tss 4 1 = ae4dd24b
+tss 5 13 = ffffffff
+tss 6 17 = 501afe2f
+tss 7 7 = ec78fb08
+case random-122
+device8 ok
+tss 0 25 = 00000001
+tss 1 19 = 00000000
+tss 5 6 = 00000001
+rs 128 = 03bc1783
+rs 168 = 00000000
+tss 2 2 = 4742e7b8
+tss 3 17 = 80000000
+tss 5 14 = 3f800000
+tss 6 10 = 00000002
+tss 7 24 = c43029d9
+case random-123
+device8 ok
+tss 0 6 = 00000001
+sb 2 none
+sb 1 none
+tss 1 17 = 00000001
+tss 7 18 = 00000000
+sb 3 none
+sb 1 none
+sb 2 none
+tss 5 27 = 00000001
+sb 0 none
+rs 16 = e7f9a3d2
+rs 47 = 40ca6923
+rs 129 = 00000008
+rs 141 = ffffffff
+rs 145 = 00000001
+rs 146 = 00000002
+rs 158 = 80000000
+tss 0 20 = 00000005
+tss 2 6 = d6ac924a
+tss 2 11 = 9a813ecf
+tss 2 26 = 00000005
+tss 3 13 = 1b4e662c
+tss 4 6 = 00000001
+tss 4 13 = ffffffff
+tss 5 3 = 2f03905c
+tss 5 16 = 8bb1c38e
+tss 6 14 = 00000001
+tss 7 17 = ffffffff
+case random-124
+device8 ok
+rs 38 = 3f800000
+rs 59 = ffffffff
+tss 4 18 = 00000000
+tss 3 15 = 2bee024a
+sb 2 none
+rs 36 = 3f800000
+rs 37 = 3f800000
+rs 47 = 4b3fcabb
+rs 137 = 3f800000
+rs 141 = 00000001
+rs 155 = 00000000
+tss 0 1 = 00000000
+tss 0 25 = a6745425
+tss 3 15 = 2bee024a
+tss 3 22 = 1805d33d
+tss 5 7 = 00000000
+tss 5 18 = d66864db
+tss 6 26 = 00000001
+tss 7 2 = 00000002
+tss 7 8 = 00000000
+tss 7 27 = 00000001
+case random-125
+device8 ok
+sb 1 none
+rs 38 = 3f800000
+tss 1 5 = 00000002
+sb 0 none
+sb 1 none
+tss 2 20 = 8760a281
+tss 7 10 = dc0e611a
+tss 7 16 = 00000005
+case random-126
+device8 ok
+tss 1 21 = 00000001
+sb 3 none
+tss 2 21 = 00000001
+sb 1 none
+tss 7 4 = 00000001
+tss 5 13 = 00000001
+sb 2 none
+tss 5 18 = 00000000
+tss 1 19 = 00000000
+sb 2 none
+rs 14 = 00000001
+rs 55 = 3de8efd8
+rs 57 = cdb621af
+rs 59 = b503357d
+tss 0 22 = fbdc6ab8
+tss 0 24 = 00000000
+tss 2 15 = f7431bbf
+tss 3 1 = 9d691863
+tss 5 17 = b94f7892
+tss 5 24 = 00000000
+tss 6 14 = 00000000
+case random-127
+device8 ok
+tss 2 6 = 00000001
+tss 7 28 = 00000001
+tss 4 8 = 00000000
+rs 143 = 00000000
+sb 2 none
+tss 3 21 = 00000001
+tss 2 10 = 00000000
+sb 0 none
+tss 6 19 = 00000000
+tss 3 10 = 00000000
+rs 52 = 00000000
+rs 56 = 00000006
+rs 128 = 3f800000
+tss 1 13 = 00000000
+tss 3 27 = 6b230d20
+tss 4 9 = 00000000
+tss 5 25 = 00000001
+tss 6 2 = 6dd52bb0
+tss 7 10 = 00000000
+case random-128
+device8 ok
+tss 5 27 = 00000001
+tss 3 1 = 00000001
+tss 1 25 = 00000001
+rs 52 = 00000000
+tss 7 20 = 00000000
+sb 1 none
+rs 146 = 3f800000
+rs 172 = 80000000
+tss 1 14 = 00000000
+tss 2 10 = c99bc7af
+tss 2 25 = ffffffff
+tss 3 11 = 00000000
+tss 4 28 = 80000000
+tss 5 19 = e2236b98
+tss 5 21 = 3f800000
+tss 6 27 = 00000004
+tss 7 17 = a6c075d8
+case random-129
+device8 ok
+sb 3 none
+tss 0 6 = 00000001
+sb 0 none
+tss 1 20 = 00000008
+case random-130
+device8 ok
+tss 3 9 = 00000000
+sb 1 none
+tss 6 4 = 00000001
+rs 140 = 00000000
+sb 2 none
+rs 35 = 00000000
+rs 58 = ffffffff
+tss 0 2 = 00000009
+tss 2 11 = 00000001
+tss 4 23 = 00000000
+tss 5 11 = 00000005
+tss 6 2 = 00000002
+tss 7 20 = 00000000
+tss 7 28 = 6d76a469
+case random-131
+device8 ok
+sb 1 none
+rs 37 = 3f800000
+sb 1 none
+tss 1 16 = 00000001
+tss 1 13 = 00000001
+tss 6 20 = 00000000
+rs 15 = 00000003
+rs 167 = 00000001
+tss 0 19 = 9bc3364b
+tss 2 1 = 024eaa59
+tss 2 6 = e529d721
+tss 2 16 = 00000007
+tss 3 5 = 28efea57
+tss 4 7 = 4bdb56a8
+tss 4 17 = 00000007
+tss 5 28 = 00000005
+tss 6 6 = 48185cfd
+tss 6 17 = 3f800000
+tss 7 5 = 00000005
+case random-132
+device8 ok
+sb 2 none
+tss 4 20 = 00000000
+tss 6 16 = 00000001
+sb 3 none
+sb 2 none
+tss 4 6 = 00000001
+rs 38 = 3f800000
+tss 2 6 = 00000001
+sb 1 none
+rs 147 = 00000000
+rs 159 = 00000000
+rs 172 = 00000003
+tss 0 2 = 00000002
+tss 0 14 = 00000001
+tss 0 16 = 00000001
+tss 1 1 = 00000001
+tss 1 7 = 00000000
+tss 1 10 = 00000000
+tss 1 24 = 00000000
+tss 2 18 = 00000000
+tss 3 3 = 00000001
+tss 3 26 = 00000009
+tss 5 2 = f0cef52f
+tss 5 13 = 00000001
+tss 5 23 = 00000000
+tss 7 17 = 00000001
+case random-133
+device8 ok
+sb 2 none
+tss 5 28 = 00000001
+tss 6 16 = 00000001
+sb 3 none
+sb 3 none
+tss 4 24 = 00000000
+tss 4 6 = 00000001
+rs 130 = 00000000
+tss 7 10 = 00000000
+tss 7 27 = 00000001
+sb 1 none
+sb 2 none
+rs 7 = 34487e1b
+rs 10 = 4709ff36
+rs 27 = ffffffff
+rs 36 = e5337917
+rs 152 = 00000001
+tss 0 21 = d76f609d
+tss 2 7 = c91e4e3b
+tss 2 10 = 80000000
+tss 2 25 = 39f15d65
+tss 3 18 = 50130baa
+tss 3 19 = 00000000
+tss 4 10 = 00000009
+tss 4 24 = 80000000
+tss 5 2 = 5e347720
+tss 5 8 = af0c1fbd
+tss 5 13 = 9e2c4890
+tss 5 23 = 00000003
+tss 6 27 = 300597d3
+case random-134
+device8 ok
+tss 2 22 = 00000000
+rs 22 = 00000003
+sb 0 none
+sb 1 none
+sb 2 none
+rs 48 = 00000000
+tss 0 2 = a46dd085
+tss 4 27 = 00000001
+tss 5 5 = 00000000
+tss 6 17 = 12c35b25
+tss 7 13 = ffffffff
+tss 7 26 = 80000000
+case random-135
+device8 ok
+sb 0 none
+rs 48 = 00000000
+tss 7 9 = 00000000
+sb 0 none
+sb 2 none
+sb 1 none
+sb 0 none
+sb 1 none
+tss 0 15 = 00000001
+tss 0 20 = 80000000
+tss 2 9 = 7b5d6334
+tss 2 22 = 0342c679
+tss 4 1 = ffffffff
+tss 6 8 = c57c670b
+case random-136
+device8 ok
+sb 0 none
+sb 2 none
+rs 38 = 3f800000
+rs 47 = 00000000
+tss 5 21 = 00000001
+tss 4 1 = 00000001
+sb 1 none
+rs 53 = 00000001
+rs 146 = 00000002
+rs 153 = 00000001
+rs 155 = 00000000
+rs 168 = 0000000f
+tss 1 1 = 00000001
+tss 1 3 = 00000001
+tss 1 14 = 5deb93db
+tss 1 18 = 00000000
+tss 1 21 = 00000001
+tss 3 15 = 00000000
+tss 3 24 = 00000000
+tss 6 22 = 00000001
+tss 6 26 = a07c53c3
+case random-137
+device8 ok
+rs 15 = 00000000
+tss 0 3 = 00000001
+rs 134 = 809a6783
+tss 0 19 = af818cfd
+tss 0 28 = 1d30e136
+tss 1 15 = 527bc181
+tss 1 16 = 9c140946
+tss 1 21 = 00000001
+tss 2 15 = 36535c46
+tss 4 1 = e9e78b38
+tss 4 7 = 453eeab6
+tss 6 4 = c46075e3
+case random-138
+device8 ok
+tss 7 4 = 00000001
+tss 0 23 = 00000000
+sb 1 none
+sb 0 none
+tss 7 16 = 00000001
+sb 2 none
+sb 0 none
+tss 1 14 = 00000001
+sb 0 none
+sb 1 none
+sb 2 none
+rs 23 = 00000006
+rs 37 = 00000006
+rs 143 = 2f0ab363
+tss 2 19 = 00000000
+tss 4 9 = 3f800000
+tss 5 1 = 8a8ef9f0
+tss 5 14 = 00000000
+tss 5 18 = 00000006
+tss 5 20 = bb2b8dcb
+case random-139
+device8 ok
+sb 2 none
+tss 6 16 = 00000001
+sb 0 none
+tss 6 1 = 00000001
+tss 0 24 = 00000000
+sb 3 none
+sb 0 none
+sb 3 none
+tss 1 2 = 00000002
+sb 2 none
+tss 4 24 = 00000000
+sb 1 none
+tss 4 18 = 00000000
+rs 47 = 00000000
+sb 1 none
+rs 10 = 00000001
+rs 35 = 00000001
+tss 1 10 = 00000004
+tss 1 17 = f3a1ac81
+tss 1 20 = 78c239fc
+tss 3 21 = 70218f04
+tss 4 22 = 00000008
+tss 5 20 = ffffffff
+tss 5 22 = 00000000
+tss 6 19 = 3f800000
+tss 7 16 = 00000002
+tss 7 20 = e26408ca
+case random-140
+device8 ok
+rs 170 = 00000000
+sb 1 none
+sb 2 none
+tss 4 22 = 00000000
+tss 7 10 = 00000000
+tss 2 5 = 00000002
+tss 4 24 = 00000000
+tss 6 24 = 00000000
+sb 2 none
+sb 1 none
+tss 1 22 = 00000000
+sb 2 none
+sb 0 none
+sb 2 none
+rs 148 = 00000000
+rs 172 = 80000000
+tss 1 1 = 00000001
+tss 1 8 = 00000002
+tss 1 9 = 00000000
+tss 2 15 = 63129314
+tss 3 1 = 00000000
+tss 4 8 = 00000000
+tss 5 4 = ffffffff
+tss 6 7 = 00000008
+tss 7 25 = 98144e2e
+case random-141
+device8 ok
+tss 2 18 = 00000000
+tss 5 19 = 00000000
+sb 1 none
+sb 1 none
+tss 2 1 = 00000001
+rs 56 = 00000005
+tss 2 6 = 00000005
+tss 5 21 = 00000001
+tss 5 23 = 27021828
+case random-142
+device8 ok
+tss 6 8 = 00000000
+tss 6 28 = 00000001
+rs 22 = 00000003
+sb 1 none
+rs 133 = 00000000
+sb 1 none
+sb 2 none
+rs 8 = 00000003
+rs 171 = 02648634
+tss 0 18 = eedf8a9a
+tss 2 5 = 00000002
+tss 3 16 = c1bd0a25
+tss 4 11 = 00000008
+tss 6 13 = 00000000
+tss 6 22 = 2aa07389
+case random-143
+device8 ok
+tss 6 13 = 00000001
+tss 4 17 = 00000001
+tss 0 2 = 00000002
+sb 0 none
+sb 0 none
+sb 1 none
+tss 5 6 = 00000001
+tss 3 26 = 00000005
+sb 0 none
+tss 1 3 = 00000000
+rs 143 = 00000002
+tss 6 15 = 00000000
+sb 1 none
+sb 2 none
+rs 36 = c4e08482
+rs 59 = 00000007
+rs 136 = 9673e5a8
+rs 143 = 00000002
+tss 1 3 = 00000000
+tss 1 16 = 39cd6fc0
+tss 2 15 = 3ab37f59
+tss 3 4 = 00000001
+tss 3 23 = 00000003
+tss 3 26 = 00000005
+tss 5 27 = 7a74852d
+tss 7 24 = 261c2a93
+case random-144
+device8 ok
+sb 2 none
+tss 1 2 = 00000002
+tss 3 24 = 00000000
+tss 2 10 = 00000000
+sb 0 none
+tss 1 1 = 00000000
+tss 1 24 = 00000008
+tss 1 26 = bfcf4963
+tss 3 28 = 3f800000
+tss 4 11 = 658e041b
+case random-145
+device8 ok
+tss 5 10 = 00000000
+tss 0 15 = 00000000
+tss 1 6 = 00000001
+sb 1 none
+tss 6 14 = 00000001
+tss 7 10 = 00000000
+sb 3 none
+sb 0 none
+tss 6 9 = 00000000
+tss 4 3 = 00000001
+sb 3 none
+sb 0 none
+tss 7 15 = 00000000
+tss 4 19 = 00000000
+tss 7 25 = 00000001
+sb 0 none
+tss 3 15 = 00000000
+rs 131 = 5edb39a7
+rs 137 = cdd59bd2
+rs 170 = 2cab2285
+rs 171 = 00000009
+tss 1 27 = 3f800000
+tss 3 3 = 4a373bfa
+tss 3 8 = 9d5467de
+tss 4 24 = 80000000
+tss 5 28 = 00000001
+tss 6 28 = 80000000
+tss 7 2 = 80000000
+tss 7 22 = 00000000
+tss 7 27 = 00000002
+case random-146
+device8 ok
+tss 4 21 = 00000001
+rs 47 = 00000000
+tss 5 18 = 00000000
+tss 6 7 = 00000000
+rs 145 = 00000001
+sb 3 none
+rs 146 = 00000002
+rs 172 = 9a3a2582
+tss 0 4 = 80000000
+tss 0 14 = 00000001
+tss 0 25 = 00000001
+tss 1 20 = ffffffff
+tss 2 8 = 00000000
+tss 2 28 = 00000009
+tss 3 21 = ffffffff
+tss 4 3 = 00000001
+tss 5 15 = 00000006
+tss 5 17 = 00000000
+tss 5 26 = 3e8e7a02
+tss 6 17 = 00000008
+case random-147
+device8 ok
+rs 59 = ffffffff
+tss 3 24 = 00000000
+tss 5 27 = 00000001
+tss 1 28 = 00000001
+tss 0 24 = 00000000
+sb 2 none
+tss 0 25 = 00000001
+tss 2 24 = 00000000
+tss 3 26 = 5193feba
+tss 4 5 = 00000002
+tss 5 17 = 00000001
+tss 7 11 = 00000007
+case random-148
+device8 ok
+sb 1 none
+rs 137 = 00000001
+tss 3 9 = 00000000
+rs 14 = 00000001
+sb 0 none
+tss 1 25 = 00000001
+tss 6 20 = 00000000
+tss 1 15 = 00000000
+tss 2 26 = 00000001
+sb 3 none
+rs 132 = 00000000
+sb 0 none
+sb 0 none
+rs 27 = 00000000
+tss 0 7 = 00000000
+tss 1 4 = 00000000
+tss 1 23 = 80000000
+tss 3 5 = 00000002
+tss 3 6 = 00000001
+tss 3 18 = 00000000
+tss 5 8 = 00000008
+tss 6 1 = 00000000
+tss 7 22 = 00000000
+case random-149
+device8 ok
+rs 133 = 00000000
+sb 1 none
+sb 3 none
+sb 0 none
+rs 48 = ad319e97
+rs 134 = 6b6de2a9
+rs 161 = 951d29db
+tss 0 23 = 8a3cb8ac
+tss 1 6 = 00000001
+tss 1 11 = 845c6171
+tss 1 21 = 0908776d
+tss 1 26 = 4343687f
+tss 3 4 = 3705dd4d
+tss 3 15 = 00000007
+tss 5 18 = 00000000
+tss 5 25 = ffffffff
+case edge-set-legacy-rs
+device8 ok
+rs 0 = 00000005
+rs 42 = 00000006
+rs 165 = 00000007
+rs 1 hr 8876086c
+case edge-set-legacy-tss
+device8 ok
+tss 0 0 = 00000005
+tss 1 12 = 00000006
+tss 2 29 = 00000007
+case edge-end-without-begin
+device8 ok
+sb end hr 8876086c
+sb 0 none
+case edge-begin-twice
+device8 ok
+sb begin hr 8876086c
+rs 7 = 00000001
+case edge-calls-while-recording
+device8 ok
+sb apply hr 8876086c
+sb capture hr 8876086c
+sb create hr 8876086c
+rs 7 = 00000001
+case edge-type-0
+device8 ok
+rs 7 = 00000000
+case edge-type-4
+device8 ok
+sb create hr 8876086c
+sb 0 none
+rs 7 = 00000000
+done
