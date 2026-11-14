@@ -3421,6 +3421,358 @@ gpbrush 1 solid 0xffffffff
 gppaint 0 1 0 0 16 8 over 2 0 0 0 0
 gpread 0 16bppRGB555
 end
+case hatchopaque16-0
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1740158248
+gpbrush 0 hatch 12 0xff0f1e96 0x55cd451f
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1740158248
+gpbrush 1 solid 0x55cd451f
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-1
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3576612268
+gpbrush 0 hatch 12 0xff698aea 0x7d4c75d7
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3576612268
+gpbrush 1 solid 0x7d4c75d7
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-2
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2451104595
+gpbrush 0 hatch 15 0xff5633ef 0xc5b76d3b
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2451104595
+gpbrush 1 solid 0xc5b76d3b
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-3
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 405335827
+gpbrush 0 hatch 19 0xff88e630 0xf8fdce6b
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 405335827
+gpbrush 1 solid 0xf8fdce6b
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-4
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1324134951
+gpbrush 0 hatch 18 0xffff4460 0x2ec460af
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1324134951
+gpbrush 1 solid 0x2ec460af
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-5
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1465427832
+gpbrush 0 hatch 14 0xff79fd4f 0xf04c6d0e
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1465427832
+gpbrush 1 solid 0xf04c6d0e
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-6
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3014042977
+gpbrush 0 hatch 19 0xff482a55 0x115b20e2
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3014042977
+gpbrush 1 solid 0x115b20e2
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-7
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1886880090
+gpbrush 0 hatch 40 0xff605fe7 0x40d442dd
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1886880090
+gpbrush 1 solid 0x40d442dd
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-8
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2029819889
+gpbrush 0 hatch 15 0xffc4bbda 0xc05e8c3d
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2029819889
+gpbrush 1 solid 0xc05e8c3d
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-9
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2106991026
+gpbrush 0 hatch 44 0xff3b91c5 0x395163e4
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2106991026
+gpbrush 1 solid 0x395163e4
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-10
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1456349234
+gpbrush 0 hatch 22 0xffbb2c09 0x0d76ae2b
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1456349234
+gpbrush 1 solid 0x0d76ae2b
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-11
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 333666809
+gpbrush 0 hatch 51 0xff7d349c 0xcee03318
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 333666809
+gpbrush 1 solid 0xcee03318
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-12
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3353227920
+gpbrush 0 hatch 27 0xff5fe775 0x98c1aadd
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3353227920
+gpbrush 1 solid 0x98c1aadd
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-13
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1864082476
+gpbrush 0 hatch 26 0xff359e9b 0x45be84b8
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1864082476
+gpbrush 1 solid 0x45be84b8
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-14
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2811869190
+gpbrush 0 hatch 29 0xffe56d74 0xf417d1d0
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2811869190
+gpbrush 1 solid 0xf417d1d0
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-15
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2782025998
+gpbrush 0 hatch 11 0xff4eb05a 0x5bea1b83
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2782025998
+gpbrush 1 solid 0x5bea1b83
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-16
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2314611911
+gpbrush 0 hatch 46 0xff041075 0xbf2e95ee
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2314611911
+gpbrush 1 solid 0xbf2e95ee
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-17
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1867756918
+gpbrush 0 hatch 52 0xff16a1cd 0xbfffb6a3
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1867756918
+gpbrush 1 solid 0xbfffb6a3
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-18
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 264024631
+gpbrush 0 hatch 14 0xff2429af 0xe27ba793
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 264024631
+gpbrush 1 solid 0xe27ba793
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-19
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 23444971
+gpbrush 0 hatch 39 0xff3fa39d 0x24271a3b
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 23444971
+gpbrush 1 solid 0x24271a3b
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-20
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3176525855
+gpbrush 0 hatch 16 0xff75e32b 0x8e568c15
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3176525855
+gpbrush 1 solid 0x8e568c15
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-21
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 352512030
+gpbrush 0 hatch 25 0xffee2ed6 0x2b1a2856
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 352512030
+gpbrush 1 solid 0x2b1a2856
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-22
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1109722738
+gpbrush 0 hatch 10 0xff88ce1e 0x54ab0970
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1109722738
+gpbrush 1 solid 0x54ab0970
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-23
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1253108771
+gpbrush 0 hatch 13 0xff14d8eb 0x3a67b2dd
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1253108771
+gpbrush 1 solid 0x3a67b2dd
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-24
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1027905596
+gpbrush 0 hatch 30 0xffaa7329 0xcd987788
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1027905596
+gpbrush 1 solid 0xcd987788
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-25
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 4018904223
+gpbrush 0 hatch 39 0xff2c090a 0x9dc937e5
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 4018904223
+gpbrush 1 solid 0x9dc937e5
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-26
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3002618349
+gpbrush 0 hatch 40 0xff1aa2e7 0xa9938804
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3002618349
+gpbrush 1 solid 0xa9938804
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-27
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 382329273
+gpbrush 0 hatch 49 0xfff8458e 0xed7f6a06
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 382329273
+gpbrush 1 solid 0xed7f6a06
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-28
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2753851274
+gpbrush 0 hatch 49 0xff51bbea 0x950ca3f3
+gppaint 0 0 0 0 16 8 over 3 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2753851274
+gpbrush 1 solid 0x950ca3f3
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-29
+gpbitmap 0 16 8 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1951012034
+gpbrush 0 hatch 1 0xff465fbd 0xcafb2f0f
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1951012034
+gpbrush 1 solid 0xcafb2f0f
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB565
+end
+case hatchopaque16-30
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1506368036
+gpbrush 0 hatch 44 0xff516dbe 0x84218fc8
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1506368036
+gpbrush 1 solid 0x84218fc8
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
+case hatchopaque16-31
+gpbitmap 0 16 8 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3170325808
+gpbrush 0 hatch 10 0xff10ca83 0x1eda0058
+gppaint 0 0 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3170325808
+gpbrush 1 solid 0x1eda0058
+gppaint 0 1 0 0 16 8 over 2 0 0 0 0
+gpread 0 16bppRGB555
+end
 case paint-nobrush
 gpbitmap 0 4 4 32bppARGB
 gppaint 0 1 0 0 4 4 copy 0 0 0 0 0

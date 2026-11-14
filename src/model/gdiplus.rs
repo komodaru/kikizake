@@ -1014,8 +1014,8 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
         hit(clause::GP_PAINT_NEGATIVE);
         return Ok(());
     }
-    if let Brush::Hatch { .. } = brush {
-        if !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
+    if let Brush::Hatch { fore, back, .. } = brush {
+        if !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) && fore >> 24 == 255 && back >> 24 != 255 {
             return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_GAMMA_16));
         }
     }
