@@ -100,7 +100,7 @@ WICIMAGE.ENCODE.LOSSLESS measured | Native Pixel Formats Overview | PNG and TIFF
 WICIMAGE.ENCODE.GIF open | (none) | GIF: the palette written
 WICIMAGE.ENCODE.LOSSY open | (none) | JPEG, JPEG XR, DDS: what decodes from them
 WICIMAGE.ENCODE.OPTIONS open | (none) | encoder options
-WICIMAGE.DECODE.BROKEN excluded | (none) | files broken in ways the generators never write (a directory or header cut short, offsets past the end, a missing colormap or frame, pictures past 2^24 pixels): not in the suite
+WICIMAGE.DECODE.BROKEN excluded | (none) | files broken in ways the generators never write (a directory or header cut short, offsets past the end, a missing colormap or frame, pictures past 2^20 pixels (found by fuzzing: larger ones took the model seconds)): not in the suite
 WICIMAGE.BMP.RLE.BROKEN measured | Bitmap Compression | RLE data that ends (inside a pair, a delta or an absolute run) ends the picture there, the rest 0; an absolute run cut short is not written at all; runs past the row cut off at its end, deltas past the picture end it (golden wicdecode bmprlebad8-*, bmprlebad4-*)
 WICIMAGE.DDS.DX10 measured | DDS Format Overview; DDS_HEADER_DXT10 | a DX10 header: BC1, BC2, BC3 UNORM (71, 74, 77) decode as their FourCCs into 32bppBGRA, each array slice a frame; every other DXGI format (typeless, sRGB, BC4-BC7, R8G8B8A8, B8G8R8A8) 0x88982f61 (golden wicdecode dds-dx10-*)
 WICIMAGE.DDS.FOURCC excluded | DDS Format Overview | DX10 arrays of mip chains, arrays past 64 slices: not in the suite

@@ -645,8 +645,8 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
     let src_stride = (w as usize * bpp as usize).div_ceil(32) * 4;
     let data = &b[(off as usize).min(b.len())..];
     if comp == 1 || comp == 2 {
-        // (the model does not hold pictures past 2^24 pixels)
-        if w as u64 * h as u64 > 1 << 24 {
+        // (the model does not hold pictures past 2^20 pixels)
+        if w as u64 * h as u64 > 1 << 20 {
             return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
         }
         let px = rle(data, w, h, comp == 2, &pal);
@@ -915,8 +915,8 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     if !allowed || ih[10] != 0 || ih[11] != 0 || ih[12] > 1 {
         return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
-    // (the model does not hold pictures past 2^24 pixels)
-    if w as u64 * h as u64 > 1 << 24 {
+    // (the model does not hold pictures past 2^20 pixels)
+    if w as u64 * h as u64 > 1 << 20 {
         return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
     hit(clause::WICIMAGE_PNG_CHUNKS);
@@ -1339,8 +1339,8 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     let one = |k: u32, d: u32| t.get(&k).and_then(|v| v.first().copied()).unwrap_or(d);
     let (w, h) = (one(256, 0), one(257, 0));
     let (bits, ph, spp, planar) = (one(258, 1), one(262, 1), one(277, 1), one(284, 1));
-    // (the model does not hold pictures past 2^24 pixels)
-    if w as u64 * h as u64 > 1 << 24 || bits > 64 || spp > 16 {
+    // (the model does not hold pictures past 2^20 pixels)
+    if w as u64 * h as u64 > 1 << 20 || bits > 64 || spp > 16 {
         return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
     let extra = t.get(&338).and_then(|v| v.first().copied());
@@ -1564,8 +1564,8 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
     let broken = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
     let h = h2 / 2;
-    // (the model does not hold pictures past 2^24 pixels)
-    if w as u64 * h as u64 > 1 << 24 || bpp > 32 {
+    // (the model does not hold pictures past 2^20 pixels)
+    if w as u64 * h as u64 > 1 << 20 || bpp > 32 {
         return broken;
     }
     let colors = if bpp <= 8 { 1usize << bpp } else { 0 };
@@ -1714,8 +1714,8 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
             return Ok(Err(0x8898_2f61));
         }
     };
-    // (the model does not hold pictures past 2^24 pixels, nor mips past 32)
-    if w as u64 * h as u64 > 1 << 24 || mips > 32 {
+    // (the model does not hold pictures past 2^20 pixels, nor mips past 32)
+    if w as u64 * h as u64 > 1 << 20 || mips > 32 {
         return broken;
     }
     let bs = if kind == 1 { 8 } else { 16 };
