@@ -1025,10 +1025,10 @@ pub fn wicdecode() -> String {
         e2[14..16].copy_from_slice(&(bpp as u16).to_le_bytes());
         decode_case(&mut s, &format!("ico-bmp-depth-{bpp}"), &ico(&[(4, 4, bpp, e2)]), 1, false);
     }
-    for (ct, d, n) in [(0u8, 8u8, 1usize), (3, 8, 1), (2, 16, 6), (4, 8, 2), (0, 1, 1)] {
+    for (ct, d, n) in [(0u8, 8u8, 1usize), (3, 8, 1), (2, 16, 6), (4, 8, 2), (0, 1, 1), (2, 8, 3), (6, 16, 8), (4, 16, 4), (0, 16, 2), (3, 4, 1), (3, 1, 1)] {
         let row = (4 * n * d as usize).div_ceil(8);
         let raw: Vec<Vec<u8>> = (0..4).map(|_| bytes(&mut r, row.max(1))).collect();
-        let extra: Vec<(&[u8; 4], Vec<u8>)> = if ct == 3 { vec![(b"PLTE", bytes(&mut r, 3 * 256))] } else { vec![] };
+        let extra: Vec<(&[u8; 4], Vec<u8>)> = if ct == 3 { vec![(b"PLTE", bytes(&mut r, 3 << d))] } else { vec![] };
         let p = png(4, 4, d, ct, false, &extra, &png_filter(&raw, n.max(1), &[0]), 100);
         decode_case(&mut s, &format!("ico-png-ct{ct}-{d}"), &ico(&[(4, 4, 32, p)]), 1, false);
     }
