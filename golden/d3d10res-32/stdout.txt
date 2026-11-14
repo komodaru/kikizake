@@ -3860,3 +3860,10 @@ tex hr 80070057
 tex hr 80070057
 tex hr 80070057
 tex hr 80070057
+case tex2-f28-usage-u3
+device10 ok
+tex = 8 8 1 1 1c 1 0 0 0 20000 0
+tex hr 80070057
+tex hr 80070057
+tex = 8 8 1 1 1c 1 0 3 0 20000 0
+tex hr 80070057
