@@ -9,6 +9,14 @@ case ctx-3
 wctx 00000000 type 2 exif 00000000 3
 case ctx-4
 wctx 00000000 type 2 exif 00000000 4
+case ctx-5
+wctx 00000000 type 2 exif 00000000 5
+case ctx-100
+wctx 00000000 type 2 exif 00000000 100
+case ctx-65535
+wctx 00000000 type 2 exif 00000000 65535
+case ctx-2147483647
+wctx 00000000 type 2 exif 00000000 2147483647
 case xf-bgra-bgra-11
 wbits 00000000
 wcolor 00000000 00000000 00000000
