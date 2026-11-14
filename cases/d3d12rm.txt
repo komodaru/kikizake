@@ -1,3 +1,5 @@
+# kikizake suite d3d12rm: a removed Direct3D 12 device. Made by `kikizake gen d3d12rm`.
+# x64 only
 case clear-removed
 device12
 clear12 40 0 0 0 0

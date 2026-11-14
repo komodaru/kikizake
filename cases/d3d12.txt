@@ -12786,10 +12786,6 @@ case copy-105
 device12
 copy12 105 8 4 0
 end
-case copy-106
-device12
-copy12 106 8 4 0
-end
 case copy-107
 device12
 copy12 107 8 4 0

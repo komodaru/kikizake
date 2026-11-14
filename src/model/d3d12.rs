@@ -627,7 +627,7 @@ impl D3d12 {
                 let planes = super::dxgi_format::caps(w[0]).map_or(1, |c| c.1).clamp(1, 2);
                 let (fps, total) = footprints(0, planes, 0, &d)?;
                 if total == u64::MAX {
-                    hit(clause::D3D12_COPY_NOFOOTPRINT);
+                    // (the executor does not copy through a layout GetCopyableFootprints lacks)
                     out.push("copy nofootprint".into());
                     return Ok(true);
                 }

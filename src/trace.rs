@@ -176,7 +176,7 @@ pub fn trace(dir: &Path) -> BTreeMap<String, Evidence> {
         let text = crate::gen::suite(s).unwrap();
         let cases = crate::case::parse_cases(&text);
         for arch in [32, 64] {
-            if arch == 64 && text.contains("\n# x86 only") {
+            if arch == 64 && text.contains("\n# x86 only") || arch == 32 && text.contains("\n# x64 only") {
                 continue;
             }
             crate::model::set_arch(arch);

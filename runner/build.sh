@@ -1,7 +1,7 @@
 #!/bin/bash
 # Builds the executor (runner/*.c: main.c and the API modules apis.h lists) once per suite (cases/<suite>.txt compiled in) for x86 and x86-64 with
 # mingw-w64: <out>/kikizake_<suite>-32.exe and -64.exe (-32 only for a suite that says
-# "# x86 only"). Suites that need a GPU (their first line
+# "# x86 only", -64 only for one that says "# x64 only"). Suites that need a GPU (their first line
 # says "# gpu") are listed in <out>/browser.txt, appended to if it exists (a host that runs GPU
 # programs elsewhere, e.g. sake in a browser page, reads it).
 #
@@ -31,10 +31,10 @@ done | xargs -P "$(nproc)" -L 1 bash -c 'obj "$0" "$1"'
 for cases in "$HERE"/../cases/*.txt; do
   suite=$(basename "$cases" .txt)
   { echo "static const char kikizake_cases[] = {"; od -An -v -tx1 "$cases" | sed 's/ \([0-9a-f][0-9a-f]\)/0x\1,/g'; echo "0};"; } > "$TMP/cases_$suite.h"
-  echo "32 $suite"
+  grep -q '^# x64 only' "$cases" || echo "32 $suite"
   grep -q '^# x86 only' "$cases" || echo "64 $suite"
   if head -1 "$cases" | grep -q '^# gpu'; then
-    echo "kikizake_$suite-32" >> "$OUT/browser.txt"
+    grep -q '^# x64 only' "$cases" || echo "kikizake_$suite-32" >> "$OUT/browser.txt"
     if ! grep -q '^# x86 only' "$cases"; then echo "kikizake_$suite-64" >> "$OUT/browser.txt"; fi
   fi
 done | xargs -P "$(nproc)" -L 1 bash -c 'exe "$0" "$1"'

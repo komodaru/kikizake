@@ -37,7 +37,7 @@ fn models_match_windows() {
         for arch in [32, 64] {
             model::set_arch(arch);
             let want = model::run(s, &cases);
-            if arch == 64 && gen::suite(s).unwrap().contains("\n# x86 only") {
+            if arch == 64 && gen::suite(s).unwrap().contains("\n# x86 only") || arch == 32 && gen::suite(s).unwrap().contains("\n# x64 only") {
                 continue;
             }
             let Some(g) = golden(s, arch) else {

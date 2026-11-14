@@ -372,7 +372,8 @@ pub fn d3d12() -> String {
         }
     }
     // copies to a texture of each format and back (8x4: whole blocks)
-    for f in (1u32..=132).chain([189, 190, 191]) {
+    // (not 420_OPAQUE: the CPU has no access to it, and the executor stopped at it, golden 936cec8)
+    for f in (1u32..=132).chain([189, 190, 191]).filter(|f| *f != 106) {
         writeln!(s, "case copy-{f}\ndevice12\ncopy12 {f} 8 4 0\nend").unwrap();
     }
     for f in [20u32, 40, 45, 55] {
@@ -468,7 +469,8 @@ fn chain_line(s: &mut String, op: &str, w: &[u32]) {
 /// a D32_FLOAT render target removes the device (D3D12.CLEAR.REMOVED): alone in a suite, a
 /// process of its own (in the d3d12 suite the executor crashed after it, golden e91efb1)
 pub fn d3d12rm() -> String {
-    "case clear-removed\ndevice12\nclear12 40 0 0 0 0\nend\n".into()
+    // (x64 only: a 32-bit executor crashed making it, golden 936cec8 d3d12rm-32, and in c4c7692)
+    "# kikizake suite d3d12rm: a removed Direct3D 12 device. Made by `kikizake gen d3d12rm`.\n# x64 only\ncase clear-removed\ndevice12\nclear12 40 0 0 0 0\nend\n".into()
 }
 
 pub fn dxgi() -> String {
