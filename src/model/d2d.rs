@@ -822,7 +822,7 @@ impl Extend {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Lerp {
     ColumnsFirst,
-    /// the four texels weighed at once, (256 - f) products, floored
+    /// down the columns kept to 7 more bits (floored), then across, floored (bbrushwx-*)
     Weighed,
     RowsFirst,
 }
@@ -925,7 +925,7 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
                     match order {
                         Lerp::ColumnsFirst => lerp(lerp(a, c, fv), lerp(b, d, fv), fu) as u8,
                         Lerp::RowsFirst => lerp(lerp(a, b, fu), lerp(c, d, fu), fv) as u8,
-                        Lerp::Weighed => ((a * (256 - fu) * (256 - fv) + b * fu * (256 - fv) + c * (256 - fu) * fv + d * fu * fv) >> 16) as u8,
+                        Lerp::Weighed => (((a * (256 - fv) + c * fv) >> 1) * (256 - fu) + ((b * (256 - fv) + d * fv) >> 1) * fu >> 15) as u8,
                     }
                 })
             }
