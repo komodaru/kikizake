@@ -442,6 +442,19 @@ pub fn d3d7dev() -> String {
             }
             writeln!(s, "end").unwrap();
         }
+        // D3DCLEAR_ZBUFFER without a z-buffer, whole and in a rectangle
+        writeln!(s, "case clearnoz-{v}-{d}\n{dv} 32 4 2\nd3dclear 0xff102030\nd3dclear 0xff405060 z 500\nd3ddump\nd3dclear 0xff708090 z 0 1 0 3 2\nd3ddump\nend").unwrap();
+        // the z a triangle writes after each z function was set first (zrange's ALWAYS from the
+        // start wrote other 32-bit z than zfunc's ALWAYS after LESSEQUAL)
+        for z in ["z16", "z32"] {
+            for first in 1..=8 {
+                writeln!(s, "case zhist-{v}-{d}-{z}-{first}\n{dv} 32 2 1 {z}\nd3drs set 22 1\nd3drs set 7 1\nd3drs set 23 {first}").unwrap();
+                for (func, m) in [(first, 500), (first, 1), (8, 500), (8, 999), (4, 300), (8, 700), (first, 250)] {
+                    writeln!(s, "d3dclear 0xff000000 z 1000\nd3drs set 23 {func}\nd3dtri 0xff00ff00 {cover} z {m}\nd3ddump\nd3dzdump").unwrap();
+                }
+                writeln!(s, "end").unwrap();
+            }
+        }
         // points and wireframe of random triangles inside the target, with LASTPIXEL on and off
         for mode in [1, 2] {
             for lp in [1, 0] {

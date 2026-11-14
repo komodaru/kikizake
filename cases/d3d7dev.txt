@@ -12426,6 +12426,687 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case clearnoz-7-rgb
+d3d 7
+d3ddev rgb 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-7-rgb-z16-1
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-2
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-3
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-4
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-5
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-6
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-7
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z16-8
+d3d 7
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-1
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-2
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-3
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-4
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-5
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-6
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-7
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-rgb-z32-8
+d3d 7
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
 case fillmode-7-rgb-1-1
 d3d 7
 d3ddev rgb 565 12 12
@@ -26032,6 +26713,687 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case clearnoz-7-hal
+d3d 7
+d3ddev hal 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-7-hal-z16-1
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-2
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-3
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-4
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-5
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-6
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-7
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z16-8
+d3d 7
+d3ddev hal 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-1
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-2
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-3
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-4
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-5
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-6
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-7
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-hal-z32-8
+d3d 7
+d3ddev hal 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
 case fillmode-7-hal-1-1
 d3d 7
 d3ddev hal 565 12 12
@@ -38771,6 +40133,687 @@ d3ddump
 d3dzdump
 d3dclear 0xff000000 z 500
 d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
+d3ddump
+d3dzdump
+end
+case clearnoz-7-tnl
+d3d 7
+d3ddev tnl 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-7-tnl-z16-1
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-2
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-3
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-4
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-5
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-6
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-7
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z16-8
+d3d 7
+d3ddev tnl 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-1
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-2
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-3
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-4
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-5
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-6
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-7
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-tnl-z32-8
+d3d 7
+d3ddev tnl 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
 d3ddump
 d3dzdump
 end
@@ -51516,6 +53559,687 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case clearnoz-7-mmx
+d3d 7
+d3ddev mmx 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-7-mmx-z16-1
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-2
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-3
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-4
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-5
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-6
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-7
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z16-8
+d3d 7
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-1
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-2
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-3
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-4
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-5
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-6
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-7
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-7-mmx-z32-8
+d3d 7
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
 case fillmode-7-mmx-1-1
 d3d 7
 d3ddev mmx 565 12 12
@@ -64255,6 +66979,687 @@ d3ddump
 d3dzdump
 d3dclear 0xff000000 z 500
 d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
+d3ddump
+d3dzdump
+end
+case clearnoz-3-rgb
+d3d 3
+d3ddev rgb 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-3-rgb-z16-1
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-2
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-3
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-4
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-5
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-6
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-7
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z16-8
+d3d 3
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-1
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-2
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-3
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-4
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-5
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-6
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-7
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-rgb-z32-8
+d3d 3
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
 d3ddump
 d3dzdump
 end
@@ -77000,6 +80405,687 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case clearnoz-2-rgb
+d3d 2
+d3ddev rgb 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-2-rgb-z16-1
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-2
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-3
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-4
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-5
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-6
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-7
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z16-8
+d3d 2
+d3ddev rgb 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-1
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-2
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-3
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-4
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-5
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-6
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-7
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-rgb-z32-8
+d3d 2
+d3ddev rgb 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
 case fillmode-2-rgb-1-1
 d3d 2
 d3ddev rgb 565 12 12
@@ -89742,6 +93828,687 @@ d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
 d3ddump
 d3dzdump
 end
+case clearnoz-2-ramp
+d3d 2
+d3ddev ramp 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-2-ramp-z16-1
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-2
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-3
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-4
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-5
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-6
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-7
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z16-8
+d3d 2
+d3ddev ramp 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-1
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-2
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-3
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-4
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-5
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-6
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-7
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-2-ramp-z32-8
+d3d 2
+d3ddev ramp 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
 case fillmode-2-ramp-1-1
 d3d 2
 d3ddev ramp 565 12 12
@@ -102481,6 +107248,687 @@ d3ddump
 d3dzdump
 d3dclear 0xff000000 z 500
 d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 2000
+d3ddump
+d3dzdump
+end
+case clearnoz-3-mmx
+d3d 3
+d3ddev mmx 32 4 2
+d3dclear 0xff102030
+d3dclear 0xff405060 z 500
+d3ddump
+d3dclear 0xff708090 z 0 1 0 3 2
+d3ddump
+end
+case zhist-3-mmx-z16-1
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-2
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-3
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-4
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-5
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-6
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-7
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z16-8
+d3d 3
+d3ddev mmx 32 2 1 z16
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-1
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 1
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 1
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-2
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 2
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 2
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-3
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 3
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 3
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-4
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 4
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-5
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 5
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 5
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-6
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 6
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 6
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-7
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 7
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 7
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
+d3ddump
+d3dzdump
+end
+case zhist-3-mmx-z32-8
+d3d 3
+d3ddev mmx 32 2 1 z32
+d3drs set 22 1
+d3drs set 7 1
+d3drs set 23 8
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 1
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 500
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 999
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 4
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 300
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3ddump
+d3dzdump
+d3dclear 0xff000000 z 1000
+d3drs set 23 8
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 250
 d3ddump
 d3dzdump
 end
