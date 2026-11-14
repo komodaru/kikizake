@@ -1070,4 +1070,19 @@ fn measure(s: &mut String) {
     for bpp in [32, 24, 16, 8, 4] {
         writeln!(s, "case accum-undefined-{bpp}\n{}{ORTHO}gl glDisable 0xbd0\ngl glAccum 0x102 1\nglread 0 0 16 16 {} {} 1024\ngl glAccum 0x103 2\ngl glAccum 0x102 1\nglread 0 0 16 16 {} {} 1024\nglerr\nend", ctx(bpp), h(RGBA), h(UNSIGNED_BYTE), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
     }
+    // many triangles, each read alone in red: vertices on the eighth grid (cases 0..5) and
+    // anywhere (6..11), both windings, some past the window
+    let mut q = XorShift32::new(0x0960_2004);
+    for k in 0..12 {
+        writeln!(s, "case tri-many-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255", ctx(32)).unwrap();
+        for _ in 0..32 {
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            for _ in 0..3 {
+                let (x, y) = if k < 6 { (v8(&mut q, -2, 18), v8(&mut q, -2, 18)) } else { (q.range(-2048, 18 * 1024) as f64 / 1024.0, q.range(-2048, 18 * 1024) as f64 / 1024.0) };
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
 }
