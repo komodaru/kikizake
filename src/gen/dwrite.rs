@@ -259,4 +259,23 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(1, 8), r.range(0, 200))).collect();
         writeln!(s, "dwrun aliased {} {} {} {}\nend", r.range(8, 40), r.range(0, 40), r.range(40, 96), run.join(" ")).unwrap();
     }
+    // a thin stem (or bar) and one other box, beside, above or below it, either contour first:
+    // which way the dropout pixel goes in a glyph of several contours
+    for i in 0..60u32 {
+        let mut gs = Vec::new();
+        for _ in 0..8 {
+            let (f, w) = (r.range(0, 99) as i16, r.range(5, 60) as i16);
+            let stem = if r.chance(2) { (300 + f, 0, 300 + f + w, 500) } else { (0, 300 + f, 500, 300 + f + w) };
+            let (dx, dy) = *r.pick(&[(-450i16, 0i16), (450, 0), (0, -450), (0, 450), (-450, -450), (450, 450), (-450, 450), (450, -450)]);
+            let other = (300 + dx, 150 + dy, 500 + dx, 350 + dy);
+            let rects = if r.chance(2) { vec![stem, other] } else { vec![other, stem] };
+            gs.push((1000u16, rects));
+        }
+        let f = font_with(0x0f70_0000 + i, 1000, &gs);
+        writeln!(s, "case drop2-{i}\n{}", font_line(&f)).unwrap();
+        for g in 1..=8 {
+            writeln!(s, "dwrun aliased 10 {} {} {g} 0", r.range(0, 3), r.range(40, 43)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
 }
