@@ -128,6 +128,7 @@ fn align(v: u64, a: u64) -> u64 {
 
 /// the mip levels a full chain has
 pub fn full_chain(d: &Desc) -> u32 {
+    hit(clause::D3D12_DESC_MIPS);
     let m = match d.kind() {
         Dim::Tex3D => d.w.max(d.h).max(d.d),
         Dim::Tex2D => d.w.max(d.h),
@@ -136,14 +137,10 @@ pub fn full_chain(d: &Desc) -> u32 {
     32 - m.max(1).leading_zeros()
 }
 
-/// why a description is refused (the clause), or Ok
+/// why a description is refused (the clause), or Ok: GetCopyableFootprints' checks of a description
+/// (a buffer's are CreateCommittedResource's too; a texture's sizes CreateCommittedResource checks
+/// its own way, create_hr)
 pub fn validate(d: &Desc) -> Result<(), crate::spec::ClauseId> {
-    check(d, true)
-}
-
-/// the checks of a description; `strict`: also the size and mip level limits (GetCopyableFootprints
-/// does not check them: MEASURED, golden d3d12-32 fp-invalid)
-pub fn check(d: &Desc, strict: bool) -> Result<(), crate::spec::ClauseId> {
     let no = |c: bool, id: crate::spec::ClauseId| {
         hit(id);
         if c {
@@ -167,16 +164,8 @@ pub fn check(d: &Desc, strict: bool) -> Result<(), crate::spec::ClauseId> {
     no(d.d > dmax || d.h > hmax && d.kind() == Dim::Tex1D, clause::D3D12_DESC_SIZE)?;
     // (MEASURED: GetCopyableFootprints checks the 1D and 3D size limits, not those of 2D
     // textures (golden d3d12-* fp-edge-*), nor the mip count)
-    if strict || d.kind() != Dim::Tex2D {
-        no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE)?;
-    } else if d.w > wmax || d.h > hmax {
-        hit(clause::D3D12_FOOTPRINT_LIMITS);
-    }
-    if strict {
-        no(d.mips > full_chain(d), clause::D3D12_DESC_MIPS)?;
-    } else if d.mips > full_chain(d) {
-        hit(clause::D3D12_FOOTPRINT_LIMITS);
-    }
+    hit(clause::D3D12_FOOTPRINT_LIMITS);
+    no(d.kind() != Dim::Tex2D && (d.w > wmax || d.h > hmax), clause::D3D12_DESC_SIZE)?;
     no(!matches!(d.align, 0 | 4096 | 65536 | 4194304), clause::D3D12_DESC_ALIGN)?;
     no(d.samples == 0, clause::D3D12_DESC_MSAA)?;
     if d.samples > 1 || d.quality > 0 {
@@ -198,7 +187,7 @@ fn invalid_fps(count: u32) -> (Vec<Fp>, u64) {
 
 /// GetCopyableFootprints' layouts and total, or why the model has none
 pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, u64)> {
-    if check(d, false).is_err() {
+    if validate(d).is_err() {
         return Ok(invalid_fps(count));
     }
     if d.kind() == Dim::Buffer {
@@ -977,7 +966,7 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         return Ok(E_INVALIDARG);
     }
     if d.kind() == Dim::Buffer {
-        if check(d, true).is_err() || no(flags & 0x22 != 0, clause::D3D12_CREATE_BUFFERFLAGS) {
+        if validate(d).is_err() || no(flags & 0x22 != 0, clause::D3D12_CREATE_BUFFERFLAGS) {
             return Ok(E_INVALIDARG);
         }
         if heap.cpu() {

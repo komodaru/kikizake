@@ -645,6 +645,32 @@ pub fn d3d12() -> String {
     for w in [0xffff_ff02u32, 0xffff_ff80, 0xffff_fff0, 0xffff_fffe] {
         edge.push((format!("fp-edge-buffer-{w:x}"), format!("footprint12 0 1 0 {}", desc_str(&Desc::buffer(w)))));
     }
+    // (added after: NV12 footprints, small and swizzled allocations, placed at a heap's end)
+    for (n, d) in [("mips2", Desc { mips: 2, ..nv12 }), ("w63", Desc { w: 63, ..nv12 }), ("h31", Desc { h: 31, ..nv12 })] {
+        edge.push((format!("fp-edge-nv12-{n}"), format!("footprint12 0 1 0 {}", desc_str(&d))));
+    }
+    for (n, d) in [
+        ("1d-r8-65536", Desc::tex(2, 65536, 1, 1, 1, 61)), ("1d-r8-65537", Desc::tex(2, 65537, 1, 1, 1, 61)), ("1d-rgba-16384", Desc::tex(2, 16384, 1, 1, 1, 28)), ("1d-rgba-16385", Desc::tex(2, 16385, 1, 1, 1, 28)),
+        ("1d-rgb32-1024", Desc::tex(2, 1024, 1, 1, 1, 6)), ("2d-rgb32-64", Desc::tex(3, 64, 64, 1, 1, 6)),
+        ("3d-r8-64x64x16", Desc::tex(4, 64, 64, 16, 1, 61)), ("3d-r8-64x64x17", Desc::tex(4, 64, 64, 17, 1, 61)), ("3d-r8-65x64x16", Desc::tex(4, 65, 64, 16, 1, 61)),
+        ("3d-rgba-32x32x16", Desc::tex(4, 32, 32, 16, 1, 28)), ("3d-rgba-33x32x16", Desc::tex(4, 33, 32, 16, 1, 28)), ("3d-rgba32f-16x16x16", Desc::tex(4, 16, 16, 16, 1, 2)), ("3d-rgba32f-16x16x17", Desc::tex(4, 16, 16, 17, 1, 2)),
+        ("2d-r8-256x256", Desc::tex(3, 256, 256, 1, 1, 61)), ("2d-r8-257x256", Desc::tex(3, 257, 256, 1, 1, 61)), ("2d-r16-256x128", Desc::tex(3, 256, 128, 1, 1, 54)), ("2d-r16-256x129", Desc::tex(3, 256, 129, 1, 1, 54)),
+    ] {
+        edge.push((format!("alloc-edge-small-{n}"), format!("alloc12 {}", desc_str(&Desc { align: 4096, ..d }))));
+    }
+    for l in [2u32, 3] {
+        for (n, d) in [
+            ("2d-r8", Desc::tex(3, 300, 300, 1, 1, 61)), ("2d-r16", Desc::tex(3, 300, 200, 1, 1, 54)), ("2d-rgba", Desc::tex(3, 200, 200, 1, 1, 28)), ("2d-rgba16", Desc::tex(3, 200, 100, 1, 1, 10)), ("2d-rgba32", Desc::tex(3, 100, 100, 1, 1, 2)),
+            ("3d-r8", Desc::tex(4, 70, 40, 40, 1, 61)), ("3d-r16", Desc::tex(4, 40, 40, 40, 1, 54)), ("3d-rgba", Desc::tex(4, 40, 40, 20, 1, 28)), ("3d-rgba16", Desc::tex(4, 40, 20, 20, 1, 10)), ("3d-rgba32", Desc::tex(4, 20, 20, 20, 1, 2)),
+            ("nv12-600x300", Desc::tex(3, 600, 300, 1, 1, 103)), ("p010-600x300", Desc::tex(3, 600, 300, 1, 1, 104)), ("nv12-600x300x2", Desc::tex(3, 600, 300, 2, 1, 103)),
+        ] {
+            edge.push((format!("alloc-edge-swizzle{l}-{n}"), format!("alloc12 {}", desc_str(&Desc { layout: l, ..d }))));
+        }
+    }
+    let b = Desc::buffer(65536);
+    for (hsize, off) in [(131072u32, 65536u32), (131072, 65537), (131071, 65536), (65536, 0)] {
+        edge.push((format!("placed-edge-{hsize}-{off}"), format!("placed12 1 0 {hsize} {off} 0 {}", desc_str(&b))));
+    }
     for (n, l) in edge {
         writeln!(s, "case {n}\ndevice12\n{l}\nend").unwrap();
     }
@@ -807,5 +833,36 @@ pub fn dxgi() -> String {
     writeln!(s, "case nofactory\ndxgiwarp\ndxgiassoc 0\nswapchain 0 0 87 0 1 0 0x20 2 0 4 0 0\nend").unwrap();
     writeln!(s, "case nochain\ndxgifactory 0\nscresize 0 0 0 0 0\nscbuffer 0\nscpresent 0 0\nsclatency 1\nend").unwrap();
     writeln!(s, "case nodev\ndxgifactory 0\nswapchain 0 0 87 0 1 0 0x20 2 0 4 0 0\nend").unwrap();
+    // edges, one question a case (added after)
+    let tear = { let mut w = CHAIN; w[11] = 0x800; w };
+    let wait = { let mut w = CHAIN; w[11] = 0x40; w };
+    let mut edge: Vec<(String, [u32; 12], String)> = Vec::new();
+    for (sync, flags) in [(0u32, 0x200u32), (1, 0x200), (0, 0x201), (0, 0x204)] {
+        edge.push((format!("chain-edge-tear-{sync}-{flags:x}"), tear, format!("scpresent {sync} {}", hexw(flags))));
+    }
+    for (sync, flags) in [(3u32, 0u32), (0, 3), (0, 0x104)] {
+        edge.push((format!("chain-edge-present-{sync}-{flags:x}"), CHAIN, format!("scpresent {sync} {}", hexw(flags))));
+    }
+    for (n, w, h, fl) in [(0u32, 100u32, 0u32, 0u32), (0, 0, 50, 0), (0, 0, 0, 0x40), (0, 0, 0, 0x800), (0, 0, 0, 0x840)] {
+        edge.push((format!("chain-edge-resize-wait-{w}-{h}-{fl:x}"), wait, format!("scresize {n} {w} {h} 0 {}", hexw(fl))));
+    }
+    for (n, fl) in [(0u32, 0x800u32), (0, 0), (0, 0x840)] {
+        edge.push((format!("chain-edge-resize-tear-{fl:x}"), tear, format!("scresize {n} 0 0 0 {}", hexw(fl))));
+    }
+    for n in [0x7fff_ffffu32, 0x8000_0000, 4, 15] {
+        edge.push((format!("chain-edge-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
+    }
+    for (w, h, n) in [(8192u32, 8192u32, 4u32), (8192, 8192, 3), (16384, 8192, 2), (16383, 8192, 2), (11586, 11586, 2), (11585, 11585, 2), (16384, 16384, 2), (4096, 4096, 16)] {
+        let mut d = CHAIN;
+        d[0] = w;
+        d[1] = h;
+        d[7] = n;
+        edge.push((format!("chain-edge-size-{w}x{h}x{n}"), d, "scpresent 0 0".into()));
+    }
+    for (n, d, l) in edge {
+        writeln!(s, "case {n}\ndevice12\ndxgifactory 0").unwrap();
+        chain_line(&mut s, "swapchain", &d);
+        writeln!(s, "{l}\nend").unwrap();
+    }
     s
 }

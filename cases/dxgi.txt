@@ -2091,3 +2091,165 @@ case nodev
 dxgifactory 0
 swapchain 0 0 87 0 1 0 0x20 2 0 4 0 0
 end
+case chain-edge-tear-0-200
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scpresent 0 0x200
+end
+case chain-edge-tear-1-200
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scpresent 1 0x200
+end
+case chain-edge-tear-0-201
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scpresent 0 0x201
+end
+case chain-edge-tear-0-204
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scpresent 0 0x204
+end
+case chain-edge-present-3-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 3 0
+end
+case chain-edge-present-0-3
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 3
+end
+case chain-edge-present-0-104
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0x104
+end
+case chain-edge-resize-wait-100-0-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+scresize 0 100 0 0 0
+end
+case chain-edge-resize-wait-0-50-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+scresize 0 0 50 0 0
+end
+case chain-edge-resize-wait-0-0-40
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+scresize 0 0 0 0 0x40
+end
+case chain-edge-resize-wait-0-0-800
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+scresize 0 0 0 0 0x800
+end
+case chain-edge-resize-wait-0-0-840
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+scresize 0 0 0 0 0x840
+end
+case chain-edge-resize-tear-800
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scresize 0 0 0 0 0x800
+end
+case chain-edge-resize-tear-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scresize 0 0 0 0 0
+end
+case chain-edge-resize-tear-840
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scresize 0 0 0 0 0x840
+end
+case chain-edge-latency-7fffffff
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x7fffffff
+end
+case chain-edge-latency-80000000
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x80000000
+end
+case chain-edge-latency-4
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 4
+end
+case chain-edge-latency-f
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0xf
+end
+case chain-edge-size-8192x8192x4
+device12
+dxgifactory 0
+swapchain 0x2000 0x2000 0x57 0 1 0 0x20 4 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-8192x8192x3
+device12
+dxgifactory 0
+swapchain 0x2000 0x2000 0x57 0 1 0 0x20 3 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-16384x8192x2
+device12
+dxgifactory 0
+swapchain 0x4000 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-16383x8192x2
+device12
+dxgifactory 0
+swapchain 0x3fff 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-11586x11586x2
+device12
+dxgifactory 0
+swapchain 0x2d42 0x2d42 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-11585x11585x2
+device12
+dxgifactory 0
+swapchain 0x2d41 0x2d41 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-16384x16384x2
+device12
+dxgifactory 0
+swapchain 0x4000 0x4000 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge-size-4096x4096x16
+device12
+dxgifactory 0
+swapchain 0x1000 0x1000 0x57 0 1 0 0x20 0x10 0 4 0 0
+scpresent 0 0
+end
