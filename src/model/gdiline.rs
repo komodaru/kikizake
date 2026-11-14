@@ -185,21 +185,17 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "rop2" | "polyfill" | "arcdir" => {
             let m = n(op, 2)?;
             let (old, ok) = match t0 {
-                "rop2" => (&mut sl.ext.rop2, (1..=16).contains(&m)),
+                // MEASURED: SetROP2(0) is taken (and draws as R2_WHITE, its truth table's low bits)
+                "rop2" => (&mut sl.ext.rop2, (0..=16).contains(&m)),
                 "polyfill" => (&mut sl.ext.polyfill, (1..=2).contains(&m)),
                 _ => (&mut sl.ext.arcdir, (1..=2).contains(&m)),
             };
             hit("GDI.STATE.OLD");
             // (out of range: 0, the mode stays)
-            let v = if ok {
-                std::mem::replace(old, m)
-            } else if t0 == "rop2" && m == 0 {
-                // MEASURED: SetROP2(0) returns the mode (assumed: and keeps it)
+            if t0 == "rop2" && m == 0 {
                 hit("GDI.ROP2.ZERO");
-                *old
-            } else {
-                0
-            };
+            }
+            let v = if ok { std::mem::replace(old, m) } else { 0 };
             out.push(format!("{t0} {v}"));
         }
         "moveto" => {

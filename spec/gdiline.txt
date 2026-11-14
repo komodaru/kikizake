@@ -4,7 +4,7 @@ GDI.PEN.STYLE open | CreatePen (PS_DASH, PS_DOT, PS_DASHDOT, PS_DASHDOTDOT) | th
 GDI.PEN.WIDE open | CreatePen, ExtCreatePen | the pixels of a pen wider than one pixel (end caps, joins, PS_INSIDEFRAME)
 GDI.PEN.EXT open | ExtCreatePen | pens made by ExtCreatePen (cosmetic PS_ALTERNATE, geometric caps and joins)
 GDI.ROP2.TRUTH doc | Binary Raster Operations, SetROP2 | R2_BLACK (1) .. R2_WHITE (16): each result bit is bit (P<<1 | D) of the code minus one, on the pixel values (the pen's value in the destination format)
-GDI.ROP2.ZERO measured | golden lines rop2-* (6 formats); rop2-zero | SetROP2(0) returns the current mode, not 0 (assumed: the mode stays; R2 17 and above return 0)
+GDI.ROP2.ZERO measured | golden lines rop2-* (6 formats), rop2-zero | SetROP2(0) is taken: it returns the old mode, later calls return 0 as the mode, and lines draw as R2_WHITE (0 - 1 has every truth table bit set); 17 and above return 0
 GDI.STATE.OLD doc | SetROP2, SetPolyFillMode, SetArcDirection | each returns the previous mode; 0 for a mode out of range, which leaves the mode as it was
 GDI.POS.MOVE doc | MoveToEx | the current position becomes the point; the previous one is returned (a new DC: 0, 0)
 GDI.LINE.LAST doc | LineTo | "The line is drawn from the current position up to, but not including, the specified point"; the current position becomes the point
