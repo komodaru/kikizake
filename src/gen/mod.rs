@@ -8,8 +8,10 @@
 mod d2d;
 mod d3d11;
 pub mod d3d12;
+mod d3ddraw;
 mod d3dres;
 mod d3d7;
+pub mod dxbc;
 mod d3d9;
 mod ddraw;
 mod gdi;
@@ -68,6 +70,8 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("ddlock", ddraw::ddlock),
     ("ddflip", ddraw::ddflip),
     ("d3d7", d3d7::d3d7),
+    ("d3d10draw", d3ddraw::d3d10draw),
+    ("d3d11draw", d3ddraw::d3d11draw),
 ];
 
 pub const SUITES: &[&str] = &{

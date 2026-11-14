@@ -1,6 +1,7 @@
 #include "core.h"
 #include <d3d10_1.h>
 #include <d3d11.h>
+#include <float.h>
 /* Direct3D 10, 10.1 and 11 resources: format support, textures, buffers, views, clears,
  * updates, copies and reading back (SPEC.md "Direct3D 10 and 11 resources"). The lines act on
  * whichever device the case made: device10 / device10_1 (here) or device11 (runner/d3d11.c). */
@@ -13,7 +14,9 @@ static IUnknown *res[SLOTS], *view[SLOTS];
 static int resdim[SLOTS]; /* 1, 2, 3: textures; 4: buffer */
 static int viewkind[SLOTS]; /* 0 srv, 1 rtv, 2 dsv, 3 uav */
 
+static void draw_reset(void);
 static void d3dres_reset(void) {
+    draw_reset();
     for (int i = 0; i < SLOTS; i++) {
         if (view[i]) IUnknown_Release(view[i]);
         if (res[i]) IUnknown_Release(res[i]);
@@ -454,6 +457,251 @@ static void op_read(void) {
     IUnknown_Release(st);
 }
 
+
+/* ------------------------------------------------------------------------------------------ */
+/* drawing: shaders given as DXBC bytes, one vertex buffer, the output merger on the slots' views */
+
+#define SHADERS 8
+static unsigned char *blob[SHADERS];
+static int bloblen[SHADERS], blobkind[SHADERS];
+static IUnknown *shader[SHADERS], *layout, *states[8], *vbuf;
+static int nstates;
+#define VTX 4096
+static UINT vtx[VTX];
+static int nvtx;
+
+static void draw_reset(void) {
+    for (int i = 0; i < SHADERS; i++) {
+        if (shader[i]) IUnknown_Release(shader[i]);
+        shader[i] = NULL;
+        free(blob[i]);
+        blob[i] = NULL;
+    }
+    for (int i = 0; i < nstates; i++) IUnknown_Release(states[i]);
+    nstates = 0;
+    if (layout) IUnknown_Release(layout);
+    if (vbuf) IUnknown_Release(vbuf);
+    layout = vbuf = NULL;
+    nvtx = 0;
+}
+
+static void keep(IUnknown *o) {
+    if (nstates == 8) { IUnknown_Release(states[0]); memmove(states, states + 1, 7 * sizeof *states); nstates--; }
+    states[nstates++] = o;
+}
+
+/* shader <slot> vs|ps <hex bytes>: CreateVertexShader / CreatePixelShader, then set */
+static void op_shader(void) {
+    int sl = slot(1, SHADERS), vs = is(2, "vs");
+    if (ntok != 4 || !(vs || is(2, "ps"))) bad = 1;
+    if (bad || nodev()) return;
+    int n = (int)strlen(tok[3]) / 2;
+    unsigned char *b = malloc(n);
+    for (int i = 0; i < n; i++) { unsigned v; sscanf(tok[3] + 2 * i, "%2x", &v); b[i] = (unsigned char)v; }
+    if (shader[sl]) IUnknown_Release(shader[sl]);
+    free(blob[sl]);
+    shader[sl] = NULL;
+    blob[sl] = b, bloblen[sl] = n, blobkind[sl] = vs;
+    HRESULT hr;
+    if (dev11) {
+        hr = vs ? ID3D11Device_CreateVertexShader(dev11, b, n, NULL, (ID3D11VertexShader **)&shader[sl]) : ID3D11Device_CreatePixelShader(dev11, b, n, NULL, (ID3D11PixelShader **)&shader[sl]);
+        if (SUCCEEDED(hr) && vs) ID3D11DeviceContext_VSSetShader(ctx11(), (ID3D11VertexShader *)shader[sl], NULL, 0);
+        if (SUCCEEDED(hr) && !vs) ID3D11DeviceContext_PSSetShader(ctx11(), (ID3D11PixelShader *)shader[sl], NULL, 0);
+    } else {
+        hr = vs ? ID3D10Device_CreateVertexShader(dev10, b, n, (ID3D10VertexShader **)&shader[sl]) : ID3D10Device_CreatePixelShader(dev10, b, n, (ID3D10PixelShader **)&shader[sl]);
+        if (SUCCEEDED(hr) && vs) ID3D10Device_VSSetShader(dev10, (ID3D10VertexShader *)shader[sl]);
+        if (SUCCEEDED(hr) && !vs) ID3D10Device_PSSetShader(dev10, (ID3D10PixelShader *)shader[sl]);
+    }
+    if (FAILED(hr)) { out("shader hr %08lx\n", hr); shader[sl] = NULL; }
+}
+
+/* layout <vs slot> <format>...: CreateInputLayout of TEXCOORD0.. in slot 0, appended, then set */
+static void op_layout(void) {
+    int sl = slot(1, SHADERS), n = ntok - 2;
+    if (n < 1 || n > 8) bad = 1;
+    D3D11_INPUT_ELEMENT_DESC e[8];
+    for (int i = 0; i < n && !bad; i++) {
+        D3D11_INPUT_ELEMENT_DESC d = { "TEXCOORD", i, (DXGI_FORMAT)num(2 + i), 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+        e[i] = d;
+    }
+    if (bad || nodev()) return;
+    if (!blob[sl]) { out("layout noshader\n"); return; }
+    if (layout) IUnknown_Release(layout);
+    layout = NULL;
+    HRESULT hr;
+    if (dev11) {
+        hr = ID3D11Device_CreateInputLayout(dev11, e, n, blob[sl], bloblen[sl], (ID3D11InputLayout **)&layout);
+        if (SUCCEEDED(hr)) ID3D11DeviceContext_IASetInputLayout(ctx11(), (ID3D11InputLayout *)layout);
+    } else {
+        hr = ID3D10Device_CreateInputLayout(dev10, (D3D10_INPUT_ELEMENT_DESC *)e, n, blob[sl], bloblen[sl], (ID3D10InputLayout **)&layout);
+        if (SUCCEEDED(hr)) ID3D10Device_IASetInputLayout(dev10, (ID3D10InputLayout *)layout);
+    }
+    if (FAILED(hr)) { out("layout hr %08lx\n", hr); layout = NULL; }
+}
+
+/* vtx <words>...: appended to the vertex data */
+static void op_vtx(void) {
+    for (int i = 1; i < ntok; i++) {
+        if (nvtx == VTX) { bad = 1; return; }
+        vtx[nvtx++] = (UINT)num(i);
+    }
+}
+
+/* draw <topology> <vertices> <stride> [<instances>]: the vertex data as an immutable vertex
+ * buffer in slot 0, Draw / DrawInstanced; the vertex data starts again empty */
+static void op_draw(void) {
+    UINT top = (UINT)num(1), n = (UINT)num(2), stride = (UINT)num(3), inst = ntok > 4 ? (UINT)num(4) : 0, off = 0;
+    if (ntok > 5) bad = 1;
+    if (bad || nodev()) return;
+    if (!nvtx) vtx[nvtx++] = 0;
+    if (vbuf) IUnknown_Release(vbuf);
+    vbuf = NULL;
+    D3D11_SUBRESOURCE_DATA sd = { vtx, 0, 0 };
+    HRESULT hr;
+    if (dev11) {
+        D3D11_BUFFER_DESC d = { nvtx * 4, D3D11_USAGE_IMMUTABLE, D3D11_BIND_VERTEX_BUFFER, 0, 0, 0 };
+        hr = ID3D11Device_CreateBuffer(dev11, &d, &sd, (ID3D11Buffer **)&vbuf);
+        if (FAILED(hr)) { out("draw hr %08lx\n", hr); vbuf = NULL; nvtx = 0; return; }
+        ID3D11DeviceContext *c = ctx11();
+        ID3D11DeviceContext_IASetVertexBuffers(c, 0, 1, (ID3D11Buffer **)&vbuf, &stride, &off);
+        ID3D11DeviceContext_IASetPrimitiveTopology(c, top);
+        if (inst) ID3D11DeviceContext_DrawInstanced(c, n, inst, 0, 0);
+        else ID3D11DeviceContext_Draw(c, n, 0);
+    } else {
+        D3D10_BUFFER_DESC d = { nvtx * 4, D3D10_USAGE_IMMUTABLE, D3D10_BIND_VERTEX_BUFFER, 0, 0 };
+        hr = ID3D10Device_CreateBuffer(dev10, &d, (void *)&sd, (ID3D10Buffer **)&vbuf);
+        if (FAILED(hr)) { out("draw hr %08lx\n", hr); vbuf = NULL; nvtx = 0; return; }
+        ID3D10Device_IASetVertexBuffers(dev10, 0, 1, (ID3D10Buffer **)&vbuf, &stride, &off);
+        ID3D10Device_IASetPrimitiveTopology(dev10, top);
+        if (inst) ID3D10Device_DrawInstanced(dev10, n, inst, 0, 0);
+        else ID3D10Device_Draw(dev10, n, 0);
+    }
+    nvtx = 0;
+}
+
+/* target <rtv|-> [<dsv>]: OMSetRenderTargets
+ * viewport <x> <y> <w> <h> <min z> <max z> (float bits): RSSetViewports
+ * scissor <left> <top> <right> <bottom>: RSSetScissorRects */
+static void op_target(void) {
+    if (is(0, "target")) {
+        int r = is(1, "-") ? -1 : slot(1, SLOTS), d = ntok > 2 ? slot(2, SLOTS) : -1;
+        if (ntok > 3) bad = 1;
+        if (bad || nodev()) return;
+        IUnknown *rv = r >= 0 && viewkind[r] == 1 ? view[r] : NULL, *dv = d >= 0 && viewkind[d] == 2 ? view[d] : NULL;
+        if (dev11) ID3D11DeviceContext_OMSetRenderTargets(ctx11(), rv ? 1 : 0, (ID3D11RenderTargetView **)&rv, (ID3D11DepthStencilView *)dv);
+        else ID3D10Device_OMSetRenderTargets(dev10, rv ? 1 : 0, (ID3D10RenderTargetView **)&rv, (ID3D10DepthStencilView *)dv);
+    } else if (is(0, "viewport")) {
+        float v[6];
+        for (int i = 0; i < 6; i++) v[i] = fl(1 + i);
+        if (ntok != 7) bad = 1;
+        if (bad || nodev()) return;
+        if (dev11) {
+            D3D11_VIEWPORT vp = { v[0], v[1], v[2], v[3], v[4], v[5] };
+            ID3D11DeviceContext_RSSetViewports(ctx11(), 1, &vp);
+        } else {
+            /* (Direct3D 10's viewports are integers) */
+            D3D10_VIEWPORT vp = { (INT)v[0], (INT)v[1], (UINT)v[2], (UINT)v[3], v[4], v[5] };
+            ID3D10Device_RSSetViewports(dev10, 1, &vp);
+        }
+    } else {
+        RECT rc = { num(1), num(2), num(3), num(4) };
+        if (ntok != 5) bad = 1;
+        if (bad || nodev()) return;
+        if (dev11) ID3D11DeviceContext_RSSetScissorRects(ctx11(), 1, &rc);
+        else ID3D10Device_RSSetScissorRects(dev10, 1, &rc);
+    }
+}
+
+/* rast <fill> <cull> <front ccw> <depth bias> <bias clamp> <slope bias> <depth clip> <scissor>
+ *   <multisample> <aa lines>: CreateRasterizerState, RSSetState
+ * blend1 <enable> <src> <dest> <op> <src alpha> <dest alpha> <op alpha> <mask> [<factor r g b a>]:
+ *   a blend state with render target 0's blending (the others off), OMSetBlendState
+ * depthst <enable> <write mask> <func>: a depth stencil state (stencil off), OMSetDepthStencilState */
+static void op_state(void) {
+    UINT v[12];
+    int n = ntok - 1;
+    for (int i = 0; i < n && i < 12; i++) v[i] = (UINT)num(1 + i);
+    HRESULT hr;
+    IUnknown *o = NULL;
+    if (is(0, "rast")) {
+        if (n != 10) bad = 1;
+        if (bad || nodev()) return;
+        /* (the same layout in 10 and 11) */
+        hr = dev11 ? ID3D11Device_CreateRasterizerState(dev11, (void *)v, (ID3D11RasterizerState **)&o) : ID3D10Device_CreateRasterizerState(dev10, (void *)v, (ID3D10RasterizerState **)&o);
+        if (SUCCEEDED(hr)) { if (dev11) ID3D11DeviceContext_RSSetState(ctx11(), (ID3D11RasterizerState *)o); else ID3D10Device_RSSetState(dev10, (ID3D10RasterizerState *)o); }
+    } else if (is(0, "blend1")) {
+        if (n != 8 && n != 12) bad = 1;
+        if (bad || nodev()) return;
+        float f[4] = { 0, 0, 0, 0 };
+        if (n == 12) memcpy(f, v + 8, 16);
+        if (dev11) {
+            D3D11_BLEND_DESC d;
+            memset(&d, 0, sizeof d);
+            d.IndependentBlendEnable = TRUE;
+            D3D11_RENDER_TARGET_BLEND_DESC t = { v[0], v[1], v[2], v[3], v[4], v[5], v[6], (UINT8)v[7] };
+            d.RenderTarget[0] = t;
+            for (int i = 1; i < 8; i++) { D3D11_RENDER_TARGET_BLEND_DESC u = { 0, 2, 1, 1, 2, 1, 1, 0xf }; d.RenderTarget[i] = u; }
+            hr = ID3D11Device_CreateBlendState(dev11, &d, (ID3D11BlendState **)&o);
+            if (SUCCEEDED(hr)) ID3D11DeviceContext_OMSetBlendState(ctx11(), (ID3D11BlendState *)o, f, 0xffffffff);
+        } else {
+            D3D10_BLEND_DESC d;
+            memset(&d, 0, sizeof d);
+            d.BlendEnable[0] = v[0];
+            d.SrcBlend = v[1], d.DestBlend = v[2], d.BlendOp = v[3], d.SrcBlendAlpha = v[4], d.DestBlendAlpha = v[5], d.BlendOpAlpha = v[6];
+            d.RenderTargetWriteMask[0] = (UINT8)v[7];
+            for (int i = 1; i < 8; i++) d.RenderTargetWriteMask[i] = 0xf;
+            hr = ID3D10Device_CreateBlendState(dev10, &d, (ID3D10BlendState **)&o);
+            if (SUCCEEDED(hr)) ID3D10Device_OMSetBlendState(dev10, (ID3D10BlendState *)o, f, 0xffffffff);
+        }
+    } else {
+        if (n != 3) bad = 1;
+        if (bad || nodev()) return;
+        D3D11_DEPTH_STENCIL_DESC d = { v[0], v[1], v[2], 0, 0xff, 0xff, { 1, 1, 1, 8 }, { 1, 1, 1, 8 } };
+        hr = dev11 ? ID3D11Device_CreateDepthStencilState(dev11, &d, (ID3D11DepthStencilState **)&o) : ID3D10Device_CreateDepthStencilState(dev10, (void *)&d, (ID3D10DepthStencilState **)&o);
+        if (SUCCEEDED(hr)) { if (dev11) ID3D11DeviceContext_OMSetDepthStencilState(ctx11(), (ID3D11DepthStencilState *)o, 0); else ID3D10Device_OMSetDepthStencilState(dev10, (ID3D10DepthStencilState *)o, 0); }
+    }
+    if (FAILED(hr)) { out("%s hr %08lx\n", tok[0], hr); return; }
+    keep(o);
+}
+
+/* tsrv <view>: the pixel shader's shader resource 0
+ * samp <filter> <address u> <v> <w>: a sampler (bias 0, anisotropy 1, NEVER, border 0, lod
+ *   -FLT_MAX..FLT_MAX) as the pixel shader's sampler 0
+ * cbuf <buffer>: the vertex and pixel shaders' constant buffer 0 */
+static void op_bindres(void) {
+    if (is(0, "samp")) {
+        UINT v[4];
+        for (int i = 0; i < 4; i++) v[i] = (UINT)num(1 + i);
+        if (ntok != 5) bad = 1;
+        if (bad || nodev()) return;
+        D3D11_SAMPLER_DESC d = { v[0], v[1], v[2], v[3], 0, 1, D3D11_COMPARISON_NEVER, { 0, 0, 0, 0 }, -FLT_MAX, FLT_MAX };
+        IUnknown *o = NULL;
+        HRESULT hr = dev11 ? ID3D11Device_CreateSamplerState(dev11, &d, (ID3D11SamplerState **)&o) : ID3D10Device_CreateSamplerState(dev10, (void *)&d, (ID3D10SamplerState **)&o);
+        if (FAILED(hr)) { out("samp hr %08lx\n", hr); return; }
+        if (dev11) ID3D11DeviceContext_PSSetSamplers(ctx11(), 0, 1, (ID3D11SamplerState **)&o);
+        else ID3D10Device_PSSetSamplers(dev10, 0, 1, (ID3D10SamplerState **)&o);
+        keep(o);
+        return;
+    }
+    int v = slot(1, SLOTS);
+    if (ntok != 2) bad = 1;
+    if (bad || nodev()) return;
+    if (is(0, "tsrv")) {
+        if (!view[v] || viewkind[v] != 0) { out("tsrv noview\n"); return; }
+        if (dev11) ID3D11DeviceContext_PSSetShaderResources(ctx11(), 0, 1, (ID3D11ShaderResourceView **)&view[v]);
+        else ID3D10Device_PSSetShaderResources(dev10, 0, 1, (ID3D10ShaderResourceView **)&view[v]);
+    } else {
+        if (!res[v] || resdim[v] != 4) { out("cbuf nores\n"); return; }
+        if (dev11) {
+            ID3D11DeviceContext_VSSetConstantBuffers(ctx11(), 0, 1, (ID3D11Buffer **)&res[v]);
+            ID3D11DeviceContext_PSSetConstantBuffers(ctx11(), 0, 1, (ID3D11Buffer **)&res[v]);
+        } else {
+            ID3D10Device_VSSetConstantBuffers(dev10, 0, 1, (ID3D10Buffer **)&res[v]);
+            ID3D10Device_PSSetConstantBuffers(dev10, 0, 1, (ID3D10Buffer **)&res[v]);
+        }
+    }
+}
+
 static const struct kz_op d3dres_ops[] = {
     { "device10", op_device10 },
     { "device10_1", op_device10 },
@@ -472,6 +720,19 @@ static const struct kz_op d3dres_ops[] = {
     { "copysub", op_copy },
     { "resolve", op_copy },
     { "read", op_read },
+    { "shader", op_shader },
+    { "layout", op_layout },
+    { "vtx", op_vtx },
+    { "draw", op_draw },
+    { "target", op_target },
+    { "viewport", op_target },
+    { "scissor", op_target },
+    { "rast", op_state },
+    { "blend1", op_state },
+    { "depthst", op_state },
+    { "tsrv", op_bindres },
+    { "samp", op_bindres },
+    { "cbuf", op_bindres },
     { 0 },
 };
 const struct kz_api d3dres_api = { "d3dres", d3dres_ops, d3dres_reset };

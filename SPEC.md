@@ -83,6 +83,18 @@ D3D_FEATURE_LEVEL number, 11_0 by default), `device10` (D3D10CreateDevice, d3d10
 
 Without a device these lines print `nodev`.
 
+### Drawing (d3d10draw, d3d11draw)
+
+| line | calls | prints |
+|---|---|---|
+| `shader <slot 0..7> vs\|ps <hex bytes>` | CreateVertexShader / CreatePixelShader of the DXBC bytes (src/gen/dxbc.rs writes them), then VSSetShader / PSSetShader | `shader hr <hr>` on failure |
+| `layout <shader slot> <format>...` | CreateInputLayout against that shader's bytes: TEXCOORD0, 1, ... of the formats, slot 0, appended; IASetInputLayout | `layout hr <hr>`, `layout noshader` |
+| `vtx <words>...` | appended to the vertex data | |
+| `draw <topology> <vertices> <stride> [<instances>]` | the vertex data as an immutable vertex buffer (slot 0, offset 0), IASetPrimitiveTopology, Draw / DrawInstanced; the vertex data starts again empty | `draw hr <hr>` |
+| `target <rtv\|-> [<dsv>]`, `viewport <x> <y> <w> <h> <min z> <max z>` (float bits; 10: as integers), `scissor <l> <t> <r> <b>` | OMSetRenderTargets, RSSetViewports, RSSetScissorRects | |
+| `rast <10 words>`, `blend1 <enable> <src> <dest> <op> <src a> <dest a> <op a> <mask> [<factor rgba>]`, `depthst <enable> <write mask> <func>` | a rasterizer state (D3D11_RASTERIZER_DESC), a blend state with render target 0's blending only, a depth stencil state with the stencil off; set | `<op> hr <hr>` |
+| `tsrv <view>`, `samp <filter> <u> <v> <w>`, `cbuf <buffer>` | PSSetShaderResources 0, a sampler (bias 0, anisotropy 1, NEVER, border 0, LOD -FLT_MAX..FLT_MAX) as PS sampler 0, VS and PS constant buffer 0 | `tsrv noview`, `samp hr <hr>`, `cbuf nores` |
+
 ## WIC
 
 | line | calls | prints |

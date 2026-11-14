@@ -8,7 +8,7 @@ pub struct D3dres {
     dev: bool,
 }
 
-const OPS: &[&str] = &["fmt", "tex", "buf", "srv", "rtv", "dsv", "uav", "clear", "cleards", "clearuav", "update", "copy", "copysub", "resolve", "read"];
+const OPS: &[&str] = &["fmt", "tex", "buf", "srv", "rtv", "dsv", "uav", "clear", "cleards", "clearuav", "update", "copy", "copysub", "resolve", "read", "shader", "layout", "vtx", "draw", "target", "viewport", "scissor", "rast", "blend1", "depthst", "tsrv", "samp", "cbuf"];
 
 impl D3dres {
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
