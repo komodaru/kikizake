@@ -2109,4 +2109,937 @@ wdecode 88982f50 - frames 0
 wframe -
 winfo -
 wpixels -
+case cut-gif-1
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-4
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-8
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-12
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-16
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-20
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-22
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-26
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-30
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-40
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-45
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-54
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-60
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-68
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-gif-83
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 6 4 idx8 96.000 96.000
+wpixels 00000000 8
+000000000000
+000000000000
+000000000000
+000000000000
+case cut-gif-87
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 6 4 idx8 96.000 96.000
+wpixels 00000000 8
+000000000000
+000000000000
+000000000000
+000000000000
+case cut-gif-90
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 6 4 idx8 96.000 96.000
+wpixels 00000000 8
+03030f0b0205
+020c00050609
+0f0a010f0a0f
+0b04050f0802
+case cut-tiff-1
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-4
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-8
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-12
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-16
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-20
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-26
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-30
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-40
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-50
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-54
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-60
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-100
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-101
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-151
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-194
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-tiff-198
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 bgr24 96.000 96.000
+wpixels 00000000 24
+f37cb0d236e310391d35f7414629a8
+ca9c51cc8c57f49871aa02a83aee32
+578eeaeedd819f8d84bdbeb99e7ccf
+case cut-tiff-201
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 bgr24 96.000 96.000
+wpixels 00000000 24
+f37cb0d236e310391d35f7414629a8
+ca9c51cc8c57f49871aa02a83aee32
+578eeaeedd819f8d84bdbeb99e7ccf
+case cut-ico-1
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-4
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-8
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-12
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-16
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-20
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-26
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-30
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-40
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-54
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-60
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-69
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-100
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-138
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-ico-207
+wdecode 00000000 ico frames 2
+wframe 00000000
+winfo 00000000 3 3 bgra 96.000 96.000
+wpixels 00000000 32
+000000000000000000000000
+000000000000000000000000
+000000000000000000000000
+wframe 00000000
+winfo 00000000 4 4 bgra 96.000 96.000
+wpixels 00000000 32
+4a45ab514679f5abae63f6895bb72891
+942ded6ac82b28722097dc66039fd0df
+bab873fc7630b7094c4c4afeb83b2466
+8ec139d9e8daadc729f8a5fb3484744a
+case cut-ico-269
+wdecode 00000000 ico frames 2
+wframe 00000000
+winfo 00000000 3 3 bgra 96.000 96.000
+wpixels 00000000 32
+b5c07ca4181cf536e2855eeb
+7ddc41f2516b5f4c3821f36f
+2cac6d1e0cbae5fcfd4ecab2
+wframe 00000000
+winfo 00000000 4 4 bgra 96.000 96.000
+wpixels 00000000 32
+4a45ab514679f5abae63f6895bb72891
+942ded6ac82b28722097dc66039fd0df
+bab873fc7630b7094c4c4afeb83b2466
+8ec139d9e8daadc729f8a5fb3484744a
+case cut-ico-273
+wdecode 00000000 ico frames 2
+wframe 00000000
+winfo 00000000 3 3 bgra 96.000 96.000
+wpixels 00000000 32
+b5c07ca4181cf536e2855eeb
+7ddc41f2516b5f4c3821f36f
+2cac6d1e0cbae5fcfd4ecab2
+wframe 00000000
+winfo 00000000 4 4 bgra 96.000 96.000
+wpixels 00000000 32
+4a45ab514679f5abae63f6895bb72891
+942ded6ac82b28722097dc66039fd0df
+bab873fc7630b7094c4c4afeb83b2466
+8ec139d9e8daadc729f8a5fb3484744a
+case cut-ico-276
+wdecode 00000000 ico frames 2
+wframe 00000000
+winfo 00000000 3 3 bgra 96.000 96.000
+wpixels 00000000 32
+b5c07ca4181cf536e2855eeb
+7ddc41f2516b5f4c3821f36f
+2cac6d1e0cbae5fcfd4ecab2
+wframe 00000000
+winfo 00000000 4 4 bgra 96.000 96.000
+wpixels 00000000 32
+4a45ab514679f5abae63f6895bb72891
+942ded6ac82b28722097dc66039fd0df
+bab873fc7630b7094c4c4afeb83b2466
+8ec139d9e8daadc729f8a5fb3484744a
+case cut-dds-1
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-4
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-8
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-12
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-16
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-20
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-26
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-30
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-40
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-42
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-54
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-60
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-84
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-100
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-126
+wdecode 88982f72 - frames 0
+wframe -
+winfo -
+wpixels -
+wframe -
+winfo -
+wpixels -
+case cut-dds-160
+wdecode 00000000 dds frames 2
+wframe 00000000
+winfo 00000000 8 8 pbgra 96.000 96.000
+wpixels 00000000 32
+19a6a5ff00000000295dbdff000000006b59deff4a51a5ff4a51a5ff5554b8ff
+295dbdff295dbdff08ef8cff295dbdff6056cbff6056cbff4a51a5ff4a51a5ff
+295dbdff08ef8cff08ef8cff19a6a5ff4a51a5ff4a51a5ff6056cbff6056cbff
+19a6a5ff295dbdff295dbdff19a6a5ff4a51a5ff6056cbff4a51a5ff5554b8ff
+ce9e31ffce9e31ff8ca358ff08aea5ffadc184ffffdfb5ffd6d09cffd6d09cff
+08aea5ff08aea5ff08aea5ffce9e31ffd6d09cffffdfb5ffffdfb5ff84b26bff
+ce9e31ffce9e31ff4aa97effce9e31ffadc184ffd6d09cffd6d09cffadc184ff
+ce9e31ff8ca358ffce9e31ff08aea5ff84b26bffd6d09cffadc184ffadc184ff
+wframe 00000000
+winfo 00000000 4 4 pbgra 96.000 96.000
+wpixels 88982f72 32
+case cut-dds-164
+wdecode 00000000 dds frames 2
+wframe 00000000
+winfo 00000000 8 8 pbgra 96.000 96.000
+wpixels 00000000 32
+19a6a5ff00000000295dbdff000000006b59deff4a51a5ff4a51a5ff5554b8ff
+295dbdff295dbdff08ef8cff295dbdff6056cbff6056cbff4a51a5ff4a51a5ff
+295dbdff08ef8cff08ef8cff19a6a5ff4a51a5ff4a51a5ff6056cbff6056cbff
+19a6a5ff295dbdff295dbdff19a6a5ff4a51a5ff6056cbff4a51a5ff5554b8ff
+ce9e31ffce9e31ff8ca358ff08aea5ffadc184ffffdfb5ffd6d09cffd6d09cff
+08aea5ff08aea5ff08aea5ffce9e31ffd6d09cffffdfb5ffffdfb5ff84b26bff
+ce9e31ffce9e31ff4aa97effce9e31ffadc184ffd6d09cffd6d09cffadc184ff
+ce9e31ff8ca358ffce9e31ff08aea5ff84b26bffd6d09cffadc184ffadc184ff
+wframe 00000000
+winfo 00000000 4 4 pbgra 96.000 96.000
+wpixels 88982f72 32
+case cut-dds-167
+wdecode 00000000 dds frames 2
+wframe 00000000
+winfo 00000000 8 8 pbgra 96.000 96.000
+wpixels 00000000 32
+19a6a5ff00000000295dbdff000000006b59deff4a51a5ff4a51a5ff5554b8ff
+295dbdff295dbdff08ef8cff295dbdff6056cbff6056cbff4a51a5ff4a51a5ff
+295dbdff08ef8cff08ef8cff19a6a5ff4a51a5ff4a51a5ff6056cbff6056cbff
+19a6a5ff295dbdff295dbdff19a6a5ff4a51a5ff6056cbff4a51a5ff5554b8ff
+ce9e31ffce9e31ff8ca358ff08aea5ffadc184ffffdfb5ffd6d09cffd6d09cff
+08aea5ff08aea5ff08aea5ffce9e31ffd6d09cffffdfb5ffffdfb5ff84b26bff
+ce9e31ffce9e31ff4aa97effce9e31ffadc184ffd6d09cffd6d09cffadc184ff
+ce9e31ff8ca358ffce9e31ff08aea5ff84b26bffd6d09cffadc184ffadc184ff
+wframe 00000000
+winfo 00000000 4 4 pbgra 96.000 96.000
+wpixels 88982f72 32
+case cut-png-1
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-4
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-8
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-12
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-16
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-20
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-26
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-30
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-36
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-40
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case cut-png-54
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+case cut-png-60
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+case cut-png-72
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+0bef1f0e6ebc6bbd562043e4b45957
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+case cut-png-100
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+0bef1f0e6ebc6bbd562043e4b45957
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+case cut-png-108
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+0bef1f0e6ebc6bbd562043e4b45957
+000000000000000000000000000000
+000000000000000000000000000000
+000000000000000000000000000000
+case cut-png-136
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+0bef1f0e6ebc6bbd562043e4b45957
+39169feb2d16e7f4fd5e6e866d8a0f
+92e806a34741d6f949bc2dc8bd5996
+f1807f417877074a4c6ed4b0e914a9
+case cut-png-140
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+0bef1f0e6ebc6bbd562043e4b45957
+39169feb2d16e7f4fd5e6e866d8a0f
+92e806a34741d6f949bc2dc8bd5996
+f1807f417877074a4c6ed4b0e914a9
+case cut-png-143
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 5 4 bgr24 96.000 96.000
+wpixels 00000000 24
+0bef1f0e6ebc6bbd562043e4b45957
+39169feb2d16e7f4fd5e6e866d8a0f
+92e806a34741d6f949bc2dc8bd5996
+f1807f417877074a4c6ed4b0e914a9
+case bmprlebad8-0
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+2d2d2d002d2d2d002d2d2d002d2d2d002d2d2d002d2d2d002d2d2d002d2d2d00
+case bmprlebad4-0
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+000000002d2d2d00000000002d2d2d00000000002d2d2d00000000002d2d2d00
+case bmprlebad8-1
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+2d2d2d002d2d2d002d2d2d002d2d2d002d2d2d002d2d2d002d2d2d002d2d2d00
+1e1e1e001e1e1e001e1e1e001e1e1e001e1e1e001e1e1e001e1e1e001e1e1e00
+0f0f0f000f0f0f000f0f0f000f0f0f000f0f0f000f0f0f000f0f0f000f0f0f00
+case bmprlebad4-1
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+000000002d2d2d00000000002d2d2d00000000002d2d2d00000000002d2d2d00
+000000001e1e1e00000000001e1e1e00000000001e1e1e00000000001e1e1e00
+000000000f0f0f00000000000f0f0f00000000000f0f0f00000000000f0f0f00
+case bmprlebad8-2
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+case bmprlebad4-2
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+case bmprlebad8-3
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+case bmprlebad4-3
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+case bmprlebad8-4
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+6969690069696900000000000000000000000000000000000000000000000000
+case bmprlebad4-4
+wdecode 00000000 bmp frames 1
+wframe 00000000
+winfo 00000000 8 3 bgr32 96.000 96.000
+wpixels 00000000 32
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000069696900000000000000000000000000000000000000000000000000
+case png-trns-gray8-2
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 idx8 96.000 96.000
+wpixels 00000000 8
+fac3b68b
+406959dc
+099139b7
+case png-trns-gray16-2
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 rgba64 96.000 96.000
+wpixels 00000000 64
+c4dcc4dcc4dcffff638763876387ffff2c202c202c20ffffb9f1b9f1b9f1ffff
+3412341234120000e5d4e5d4e5d4ffff9c1f9c1f9c1fffffd212d212d212ffff
+091309130913ffffa946a946a946ffff783378337833ffffb40db40db40dffff
+case png-trns-gray8-1
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 idx8 96.000 96.000
+wpixels 00000000 8
+1067c11a
+406504f4
+e6c10477
+case tiff-other-0
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 gray4 96.000 96.000
+wpixels 00000000 4
+0f0550
+5aff00
+a0a5f0
+case tiff-other-1
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 idx4 96.000 96.000
+wpixels 00000000 4
+201120
+202110
+222010
+wsrcpal 00000000 type 0 count 4 bw 0 gray 0 alpha 0
+ff6d2c07ff678e97fff8eb35ff86d173
+case tiff-other-2
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 rgba64 96.000 96.000
+wpixels 00000000 64
+55ae55ae55aedf1fc445c445c445988ab4a1b4a1b4a1d1ff778577857785da5b3c133c133c13cf27
+121a121a121acce8e6e2e6e2e6e256e7163f163f163f88381ebe1ebe1ebeb0df422342234223e146
+232b232b232bb0cd3c3f3c3f3c3ffe9d126412641264773898f798f798f7b042228f228f228f32f2
+case tiff-other-3
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 rgba64 96.000 96.000
+wpixels 00000000 64
+d2922b58f3578d642add0093440af64c39cd719617a1039fd14baa3389b2b477a4d1da86b91faf7f
+64b8fef409491baa997e164d40ebf2e696ac5175592624a28c615f7690825ff1e20b9c429deea481
+1b83d2d8db87dd3bdb4b565e09bf25c1281d05d01947bccfd623c37dae68d3beff309f792670cfb2
+case tiff-other-4
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 bgra 96.000 96.000
+wpixels 00000000 32
+8d3dcbeee4a23d5aaf1233b0b8144d19f50f2c61
+fc52523b91e436b9d5f322a45b47c85a68faa6c7
+3a63104356ffe2499431426eb856c5d04c12ee9c
+case tiff-other-5
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case tiff-other-6
+wdecode 88982f50 - frames 0
+wframe -
+winfo -
+wpixels -
+case tiff-other-7
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 rgb96float 96.000 96.000
+wpixels 00000000 96
+2431818b9f1406759731342a224dbba8e2a0848e7d0d5f7635af83295bee581dda1fa9d05246bae315191bf16fc7a4c82545c0947ab00837700bb087
+95d6bd63ce9c4ca62e09ac60b49fcb26728971f5a90e2885182e7f3e1497aab79783f734ec8f8b0e2dabbd18149604364a7891700efcc5b6386ef2bd
+5fb52f5aee9a01dbff3af4ade908f38382c1a239116327af11013930efe07dea3c55fd01724dafe342def7e13fca3d8ba5ed984ea97a742448693ad8
+case tiff-other-8
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 gray8 96.000 96.000
+wpixels 00000000 8
+7d0c13db92
+2fc247ed96
+a5e7c8b9ca
+case tiff-other-9
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 pbgra 96.000 96.000
+wpixels 00000000 32
+bebebefa9b9b9b60dfdfdf4d090909dea3a3a3e3
+bababa886d6d6d17121212e8e2e2e2295b5b5b75
+474747319a9a9a1dabababe55e5e5e2e7b7b7bde
+case tiff-other-10
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 cmyka40 96.000 96.000
+wpixels 00000000 40
+bcf1df56ffffd493ffc56dfffff76dffff08ea72d6ff71ff6c
+e2ffbfffcc64a5ffe947629aff3a5bffffffec6effa5ffff4d
+983cff96feffaa3fa2caffc8ff24c661dcffff7e6a7cffe4bd
+case tiff-other-11
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 5 3 bgr24 96.000 96.000
+wpixels 00000000 24
+bbcc11dd22dd99dd7777ffbb775588
+00bb99cc4444eedd66ccdd66cc3399
+dd66dd11117766ee9999ee6699aa77
+case ico-bmp-depth-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case ico-bmp-depth-0
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+case ico-png-ct0-8
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+case ico-png-ct3-8
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+case ico-png-ct2-16
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+case ico-png-ct4-8
+wdecode 00000000 ico frames 1
+wframe 00000000
+winfo 00000000 4 4 bgra 96.000 96.000
+wpixels 00000000 32
+0d0d0d923939391cfbfbfb2e4e4e4e4e
+bebebe62b8b8b8887a7a7a144c4c4c62
+a5a5a5362d2d2dad7a7a7a2bacacac16
+bdbdbd01313131e1b4b4b483b5b5b53f
+case ico-png-ct0-1
+wdecode 88982f60 - frames 0
+wframe -
+winfo -
+wpixels -
+case dds-dxt2
+wdecode 00000000 dds frames 1
+wframe 00000000
+winfo 00000000 4 4 pbgra 96.000 96.000
+wpixels 00000000 32
+7bbd73aa7bbd73ff7bbd73aa9cd22100
+9cd221dd8cc84a776bb29c007bbd73aa
+7bbd73889cd221998cc84a449cd221dd
+6bb29c008cc84a558cc84a118cc84aaa
+case dds-dxt4
+wdecode 00000000 dds frames 1
+wframe 00000000
+winfo 00000000 4 4 pbgra 96.000 96.000
+wpixels 00000000 32
+97be97ff97be978797be97bf50829aa3
+defb94a350829af708459c6b08459cf7
+defb94f797be97dbdefb94db97be97a3
+97be976b50829adb50829aa3defb94db
+case dds-ati1
+wdecode 88982f61 - frames 0
+wframe -
+winfo -
+wpixels -
+case dds-ati2
+wdecode 88982f61 - frames 0
+wframe -
+winfo -
+wpixels -
+case dds-bc4u
+wdecode 88982f61 - frames 0
+wframe -
+winfo -
+wpixels -
+case dds-bc5u
+wdecode 88982f61 - frames 0
+wframe -
+winfo -
+wpixels -
+case dds-dx10
+wdecode 88982f61 - frames 0
+wframe -
+winfo -
+wpixels -
 done

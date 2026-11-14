@@ -4340,3 +4340,19 @@ tex hr 80070057
 tex hr 80070057
 tex hr 80070057
 tex hr 80070057
+case tex2-f28-usage-u0
+device11 ok
+tex = 8 8 1 1 1c 1 0 0 28 0 0
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+case tex2-f28-usage-u2
+device11 ok
+tex = 8 8 1 1 1c 1 0 0 28 10000 0
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
+tex hr 80070057
