@@ -41,6 +41,7 @@ pub fn d2d() -> String {
     huge(&mut s);
     brushworld(&mut s, &mut r);
     strokefit(&mut s, &mut r);
+    xfbounds(&mut s, &mut r);
     s
 }
 
@@ -747,5 +748,42 @@ fn strokefit(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case strokefit-{i}\nd2target 16 12\n{aa}{xf}d2clear {}\nd2path 0 alt {p}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), color(r, false)).unwrap();
             i += 1;
         }
+    }
+}
+
+/// bounds of curves through a transform, pulled apart: ellipses at the origin turned only,
+/// moved off it, the transform moving them, and general ones with several transforms each
+fn xfbounds(s: &mut String, r: &mut XorShift32) {
+    let rot = |r: &mut XorShift32| {
+        let a = r.range(0, 6283) as f64 / 1000.0;
+        let k = r.range(32, 160) as f64 / 64.0;
+        [a.cos() * k, a.sin() * k, -a.sin() * k, a.cos() * k]
+    };
+    let dy = |r: &mut XorShift32, lo: i64, hi: i64| fmt(r.range(lo * 16, hi * 16) as f64 / 16.0);
+    for i in 0..24 {
+        let g = if i % 2 == 0 { format!("d2ell 0 0 0 {} {}", dy(r, 1, 6), dy(r, 1, 6)) } else { format!("d2rrect 0 {} {} {} {} {} {}", dy(r, -6, -1), dy(r, -6, -1), dy(r, 1, 6), dy(r, 1, 6), dy(r, 0, 3), dy(r, 0, 3)) };
+        let mut o = format!("case xfb-rot-{i}\n{g}\n");
+        for _ in 0..4 {
+            let m = rot(r);
+            o += &format!("d2bounds 0 {} {} {} {} 0 0\n", fmt(m[0]), fmt(m[1]), fmt(m[2]), fmt(m[3]));
+        }
+        for _ in 0..4 {
+            let m = rot(r);
+            o += &format!("d2bounds 0 {} {} {} {} {} {}\n", fmt(m[0]), fmt(m[1]), fmt(m[2]), fmt(m[3]), frac(r, -6, 6), frac(r, -6, 6));
+        }
+        writeln!(s, "{o}end").unwrap();
+    }
+    for i in 0..24 {
+        let g = if i % 2 == 0 { format!("d2ell 0 {} {} {} {}", frac(r, -10, 10), frac(r, -10, 10), frac(r, 0, 8), frac(r, 0, 8)) } else { format!("d2rrect 0 {} {} {} {} {} {}", frac(r, -10, 0), frac(r, -10, 0), frac(r, 1, 10), frac(r, 1, 10), frac(r, 0, 4), frac(r, 0, 4)) };
+        let mut o = format!("case xfb-ctr-{i}\n{g}\n");
+        for _ in 0..4 {
+            let m = rot(r);
+            o += &format!("d2bounds 0 {} {} {} {} 0 0\n", fmt(m[0]), fmt(m[1]), fmt(m[2]), fmt(m[3]));
+        }
+        for _ in 0..4 {
+            let m: Vec<String> = (0..6).map(|_| frac(r, -3, 3)).collect();
+            o += &format!("d2bounds 0 {}\n", m.join(" "));
+        }
+        writeln!(s, "{o}end").unwrap();
     }
 }

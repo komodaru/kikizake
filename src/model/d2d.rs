@@ -303,17 +303,40 @@ pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
 /// coordinate) exceeds six times the tolerance and the step is above 1/1024, after each step
 /// halved again while the one at its end does, else doubled while both are within a quarter
 /// of that and the step count allows; the points come after `p0`, the last one `p3` itself
+/// the float CBezierFlattener works in: f32 for Simplify, f64 in the scanner's workspace
+pub trait Flt: Copy + PartialOrd + std::ops::Add<Output = Self> + std::ops::Sub<Output = Self> + std::ops::Mul<Output = Self> {
+    const ZERO: Self;
+    fn k(v: f32) -> Self;
+    fn abs(self) -> Self;
+}
+impl Flt for f32 {
+    const ZERO: Self = 0.0;
+    fn k(v: f32) -> Self { v }
+    fn abs(self) -> Self { f32::abs(self) }
+}
+impl Flt for f64 {
+    const ZERO: Self = 0.0;
+    fn k(v: f32) -> Self { f64::from(v) }
+    fn abs(self) -> Self { f64::abs(self) }
+}
+
 pub fn flatten(p0: P, p1: P, p2: P, p3: P, tol: f32) -> Vec<P> {
     hit(clause::D2D_FLATTEN);
-    type V = [f32; 2];
-    let v = |p: P| [p.0, p.1];
-    let sub = |a: V, b: V| [a[0] - b[0], a[1] - b[1]];
-    let add = |a: V, b: V| [a[0] + b[0], a[1] + b[1]];
-    let sc = |a: V, k: f32| [a[0] * k, a[1] * k];
-    let norm = |a: V| a[0].abs().max(a[1].abs());
-    let tol = if tol >= 0.0 { tol } else { 0.0 } * 6.0;
-    let quarter = tol * 0.25;
-    let (b0, b1, b2, b3) = (v(p0), v(p1), v(p2), v(p3));
+    let mut out: Vec<P> = flatten_in([[p0.0, p0.1], [p1.0, p1.1], [p2.0, p2.1], [p3.0, p3.1]], tol).into_iter().map(|v| (v[0], v[1])).collect();
+    out.push(p3);
+    out
+}
+
+/// the points CBezierFlattener makes between the ends of a cubic
+pub fn flatten_in<T: Flt>(b: [[T; 2]; 4], tol: T) -> Vec<[T; 2]> {
+    type V<T> = [T; 2];
+    let sub = |a: V<T>, b: V<T>| [a[0] - b[0], a[1] - b[1]];
+    let add = |a: V<T>, b: V<T>| [a[0] + b[0], a[1] + b[1]];
+    let sc = |a: V<T>, k: f32| [a[0] * T::k(k), a[1] * T::k(k)];
+    let norm = |a: V<T>| { let (x, y) = (a[0].abs(), a[1].abs()); if y > x { y } else { x } };
+    let tol = if tol >= T::ZERO { tol } else { T::ZERO } * T::k(6.0);
+    let quarter = tol * T::k(0.25);
+    let [b0, b1, b2, b3] = b;
     let mut e0 = b0;
     let mut e1 = sub(b3, b0);
     let mut e2 = sc(add(sub(b1, sc(b2, 2.0)), b3), 6.0);
@@ -321,7 +344,7 @@ pub fn flatten(p0: P, p1: P, p2: P, p3: P, tol: f32) -> Vec<P> {
     let mut steps: u32 = 1;
     let mut size: f64 = 1.0;
     const MIN: f64 = 1.0 / 1024.0;
-    let halve = |e1: &mut V, e2: &mut V, e3: &mut V, steps: &mut u32, size: &mut f64| {
+    let halve = |e1: &mut V<T>, e2: &mut V<T>, e3: &mut V<T>, steps: &mut u32, size: &mut f64| {
         *e2 = sc(add(*e2, *e3), 0.125);
         *e1 = sc(sub(*e1, *e2), 0.5);
         *e3 = sc(*e3, 0.25);
@@ -339,7 +362,7 @@ pub fn flatten(p0: P, p1: P, p2: P, p3: P, tol: f32) -> Vec<P> {
         e1 = add(e1, pt);
         e2 = sub(add(e2, pt), e3);
         e3 = pt;
-        out.push((e0[0], e0[1]));
+        out.push(e0);
         steps -= 1;
         if norm(e2) > tol && size > MIN {
             halve(&mut e1, &mut e2, &mut e3, &mut steps, &mut size);
@@ -357,7 +380,6 @@ pub fn flatten(p0: P, p1: P, p2: P, p3: P, tol: f32) -> Vec<P> {
             }
         }
     }
-    out.push(p3);
     out
 }
 
@@ -446,6 +468,91 @@ fn hi(a: f32, b: f32) -> f32 {
 /// even without one, are four NaNs with every bit set
 const NAN_BOUNDS: [f32; 4] = [f32::from_bits(!0); 4];
 
+/// FITTED, OPEN (D2D.BOUNDS.ELLXF/RRECTXF: 184 of 192 values of cbounds/ell-xf/rrect-xf): milcore's CBounds in floats: the bounds of the
+/// transformed points, and of each cubic's value where a coordinate's derivative is 0; the
+/// derivative's zeros are those of a(1-t)^2 + 2b t(1-t) + c t^2 (a, b, c the control points'
+/// differences in f32), solved as a quadratic in s = (1-t)/t (|a| > |c|) or t/(1-t) in f64,
+/// each positive root kept as an f32 and turned into t in f32; the value is
+/// a s^3 + 3b t s^2 + 3c t^2 s + d t^3 in f32
+fn curve_zeros(a: f32, b: f32, c: f32, d: f32) -> Vec<f32> {
+    if (b - a) * (d - b) >= 0.0 && (c - a) * (d - c) >= 0.0 {
+        return vec![];
+    }
+    let (a, b, c) = (b - a, c - b, d - c);
+    let fuzz = f64::from(b.abs()) * 1e-6;
+    if f64::from(a.abs()) < fuzz && f64::from(c.abs()) < fuzz {
+        return vec![];
+    }
+    let roots = |a: f32, b: f32, c: f32| -> Vec<f32> {
+        let (a, b, c) = (f64::from(a), f64::from(b), f64::from(c));
+        let d = b * b - a * c;
+        if !(d > 0.0) {
+            return vec![];
+        }
+        let d = d.sqrt();
+        [(-b - d) / a, (-b + d) / a].into_iter().map(|r| r as f32).filter(|&r| r > 0.0).collect()
+    };
+    if a.abs() > c.abs() {
+        roots(a, b, c).into_iter().map(|r| 1.0 / (1.0 + r)).collect()
+    } else {
+        roots(c, b, a).into_iter().map(|r| r / (1.0 + r)).collect()
+    }
+}
+fn cubic_at(a: f32, b: f32, c: f32, d: f32, t: f32) -> f32 {
+    let (t2, s) = (t * t, 1.0 - t);
+    let s2 = s * s;
+    a * s * s2 + 3.0 * b * t * s2 + 3.0 * c * t2 * s + d * t * t2
+}
+
+fn curve_bounds(g: &Geom, m: &M) -> Res<[f32; 4]> {
+    let (_, _, figs) = shape(g);
+    let tp = |p: P| apply(m, p.0, p.1);
+    let mut b = [f32::MAX, f32::MAX, -f32::MAX, -f32::MAX];
+    let mut nan = false;
+    let upd = |b: &mut [f32; 4], p: P| {
+        if p.0 < b[0] { b[0] = p.0 }
+        if p.0 > b[2] { b[2] = p.0 }
+        if p.1 < b[1] { b[1] = p.1 }
+        if p.1 > b[3] { b[3] = p.1 }
+    };
+    for f in &figs {
+        let mut cur = tp(f.start);
+        upd(&mut b, cur);
+        for sg in &f.segs {
+            match *sg {
+                Seg::L(p) => {
+                    cur = tp(p);
+                    upd(&mut b, cur);
+                }
+                Seg::C(p1, p2, p3) => {
+                    let (q1, q2, q3) = (tp(p1), tp(p2), tp(p3));
+                    upd(&mut b, q3);
+                    nan |= q1.0.is_nan() || q1.1.is_nan() || q2.0.is_nan() || q2.1.is_nan();
+                    for t in curve_zeros(cur.0, q1.0, q2.0, q3.0) {
+                        let x = cubic_at(cur.0, q1.0, q2.0, q3.0, t);
+                        if x < b[0] { b[0] = x } else if x > b[2] { b[2] = x }
+                        nan |= x.is_nan();
+                    }
+                    for t in curve_zeros(cur.1, q1.1, q2.1, q3.1) {
+                        let y = cubic_at(cur.1, q1.1, q2.1, q3.1, t);
+                        if y < b[1] { b[1] = y } else if y > b[3] { b[3] = y }
+                        nan |= y.is_nan();
+                    }
+                    cur = q3;
+                }
+            }
+        }
+    }
+    hit(match g {
+        Geom::RRect(_) => clause::D2D_BOUNDS_RRECTXF,
+        _ => clause::D2D_BOUNDS_ELLXF,
+    });
+    if nan {
+        return Ok(NAN_BOUNDS);
+    }
+    Ok(b)
+}
+
 /// GetBounds, `m` the world transform (None: NULL)
 pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
     match (g, m) {
@@ -457,7 +564,7 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
             }
             Ok([lo(*l, *r), lo(*t, *b), hi(*l, *r), hi(*t, *b)])
         }
-        (Geom::RRect(_), Some(_)) => Err(Fail::Unmodeled(open::D2D_BOUNDS_RRECTXF)),
+        (Geom::RRect(_), Some(m)) => curve_bounds(g, m),
         (Geom::Rect(_) | Geom::Path { .. }, _) => {
             let (_, figs, m0) = g.lines().unwrap();
             let m = mul(&m0, m.unwrap_or(&IDENTITY));
@@ -495,7 +602,7 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
                 return Ok(NAN_BOUNDS);
             }
             if m[1] != 0.0 || m[2] != 0.0 || [cx, cy, rx, ry].iter().any(|v| !v.is_finite()) {
-                return Err(Fail::Unmodeled(open::D2D_BOUNDS_ELLXF));
+                return curve_bounds(g, m);
             }
             // (MEASURED: a negative radius counts as its size)
             hit(clause::D2D_BOUNDS_ELL);
@@ -641,16 +748,70 @@ pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: 
     area
 }
 
+/// FITTED, OPEN (D2D.AREA.CURVE: every carea-* value, the centered ell-area/rrect-area ones 1-3
+/// ulps high): milcore's CArea scanner: the
+/// geometry is moved to its bounds' center and scaled so their larger side is 2^26, every point
+/// rounded to an integer there (f64), each cubic flattened there in f64 with the tolerance
+/// scaled alike and its points rounded; the area is half the sum of the edges' cross products,
+/// scaled back, in f64, as an f32
+fn curve_area(g: &Geom, tol: f32) -> Res<Measure> {
+    let bb = bounds(g, None)?;
+    let ext = (f64::from(bb[2]) - f64::from(bb[0])).max(f64::from(bb[3]) - f64::from(bb[1]));
+    hit(clause::D2D_AREA_CURVE);
+    // (MEASURED, ell-area-4: bounds not finite fail with D2DERR_BAD_NUMBER, the area untouched;
+    // a geometry of no size has none)
+    if !ext.is_finite() {
+        return Ok(Measure::BadNumber);
+    }
+    if !(ext >= f64::from(f32::MIN_POSITIVE)) {
+        return Ok(Measure::Value(0.0));
+    }
+    let scale = 67108864.0 / ext;
+    let inv = 1.0 / scale;
+    let (cx, cy) = ((f64::from(bb[0]) + f64::from(bb[2])) / 2.0, (f64::from(bb[1]) + f64::from(bb[3])) / 2.0);
+    let ws = |p: P| [((f64::from(p.0) - cx) * scale).round_ties_even(), ((f64::from(p.1) - cy) * scale).round_ties_even()];
+    let (_, _, figs) = shape(g);
+    let mut a = 0f64;
+    for f in &figs {
+        let mut q = vec![ws(f.start)];
+        for sg in &f.segs {
+            match *sg {
+                Seg::L(p) => q.push(ws(p)),
+                Seg::C(p1, p2, p3) => {
+                    let b = [*q.last().unwrap_or(&[0.0, 0.0]), ws(p1), ws(p2), ws(p3)];
+                    q.extend(flatten_in(b, f64::from(tol) * scale).into_iter().map(|v| [v[0].round_ties_even(), v[1].round_ties_even()]));
+                    q.push(b[3]);
+                }
+            }
+        }
+        for i in 0..q.len() {
+            let (u, v) = (q[i], q[(i + 1) % q.len()]);
+            a += u[0] * v[1] - u[1] * v[0];
+        }
+    }
+    Ok(Measure::Value((a.abs() * inv * inv * 0.5) as f32))
+}
+
+/// what ComputeArea / ComputeLength answer
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Measure {
+    Value(f32),
+    /// D2DERR_BAD_NUMBER, the out value left as it was
+    BadNumber,
+}
+
 /// ComputeArea. MEASURED (golden d2d-32/-64, 66 paths of up to three figures, self-crossing and
 /// overlapping ones too): the area the fill mode fills, open figures filled as closed
-pub fn area(g: &Geom) -> Res<f32> {
-    let Some((wind, figs, m)) = g.lines() else { return Err(Fail::Unmodeled(open::D2D_AREA_CURVE)) };
+pub fn area(g: &Geom, tol: f32) -> Res<Measure> {
+    let Some((wind, figs, m)) = g.lines() else {
+        return curve_area(g, tol);
+    };
     if let Geom::Rect([l, t, r, b]) = g {
         hit(clause::D2D_AREA_RECT);
-        return Ok(((r - l) * (b - t)).abs());
+        return Ok(Measure::Value(((r - l) * (b - t)).abs()));
     }
     hit(clause::D2D_AREA_POLY);
-    Ok(region_area(&polys(&figs, &m), wind) as f32)
+    Ok(Measure::Value(region_area(&polys(&figs, &m), wind) as f32))
 }
 
 /// ComputeLength. MEASURED (golden d2d-32/-64, 66 paths bit for bit): each side's length as
@@ -1382,8 +1543,11 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 let Some(g) = g else { return Ok(true) };
-                let v = if t[0] == "d2area" { area(&g)? } else { length(&g, tol)? };
-                out.push(format!("{} 00000000 {}", &t[0][2..], hex(v)));
+                let v = if t[0] == "d2area" { area(&g, tol)? } else { Measure::Value(length(&g, tol)?) };
+                match v {
+                    Measure::Value(v) => out.push(format!("{} 00000000 {}", &t[0][2..], hex(v))),
+                    Measure::BadNumber => out.push(format!("{} 88990011 {}", &t[0][2..], hex(-1.0))),
+                }
             }
             "d2cmp" => {
                 let a = self.geom(op, 1, out)?;

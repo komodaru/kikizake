@@ -10,6 +10,13 @@ fn run(text: &str) -> Vec<String> {
     run_case(&parse_cases(&format!("case p\n{text}end\n"))[0]).unwrap()
 }
 
+fn ar(g: &Geom) -> f32 {
+    match area(g, 0.25).unwrap() {
+        Measure::Value(v) => v,
+        Measure::BadNumber => f32::NAN,
+    }
+}
+
 fn rect(l: f32, t: f32, r: f32, b: f32) -> Geom {
     Geom::Rect([l, t, r, b])
 }
@@ -98,16 +105,16 @@ proptest! {
     fn rectangle_areas_agree(l in -8i32..8, t in -8i32..8, w in 0i32..9, h in 0i32..9, dx in -5i32..5) {
         let (l, t, r, b) = (l as f32, t as f32, (l + w) as f32, (t + h) as f32);
         let want = (w * h) as f32;
-        prop_assert_eq!(area(&rect(l, t, r, b)).unwrap(), want);
-        prop_assert_eq!(area(&rect(r, b, l, t)).unwrap(), want);
+        prop_assert_eq!(ar(&rect(l, t, r, b)), want);
+        prop_assert_eq!(ar(&rect(r, b, l, t)), want);
         for wind in [false, true] {
             let cw: &[(f32, f32)] = &[(l, t), (r, t), (r, b), (l, b)];
             let ccw: &[(f32, f32)] = &[(l, t), (l, b), (r, b), (r, t)];
-            prop_assert_eq!(area(&path(wind, &[cw])).unwrap(), want);
-            prop_assert_eq!(area(&path(wind, &[ccw])).unwrap(), want);
+            prop_assert_eq!(ar(&path(wind, &[cw])), want);
+            prop_assert_eq!(ar(&path(wind, &[ccw])), want);
             let d = dx as f32;
             let moved: Vec<(f32, f32)> = cw.iter().map(|p| (p.0 + d, p.1)).collect();
-            prop_assert_eq!(area(&path(wind, &[&moved])).unwrap(), want);
+            prop_assert_eq!(ar(&path(wind, &[&moved])), want);
         }
     }
 
@@ -117,8 +124,8 @@ proptest! {
     fn winding_fills_at_least_alternate(pts in proptest::collection::vec((0i32..10, 0i32..10), 3..7), pts2 in proptest::collection::vec((0i32..10, 0i32..10), 3..6)) {
         let p: Vec<(f32, f32)> = pts.iter().map(|&(x, y)| (x as f32, y as f32)).collect();
         let q: Vec<(f32, f32)> = pts2.iter().map(|&(x, y)| (x as f32, y as f32)).collect();
-        let alt = area(&path(false, &[&p, &q])).unwrap();
-        let wind = area(&path(true, &[&p, &q])).unwrap();
+        let alt = ar(&path(false, &[&p, &q]));
+        let wind = ar(&path(true, &[&p, &q]));
         prop_assert!(wind >= alt - 1e-4, "winding {} alternate {}", wind, alt);
         let b = bounds(&path(true, &[&p, &q]), None).unwrap();
         prop_assert!(wind <= (b[2] - b[0]) * (b[3] - b[1]) + 1e-4);
@@ -274,6 +281,34 @@ fn no_bad_lines() {
 }
 
 proptest! {
+    /// an ellipse's or rounded rectangle's area is worked out about its own center, rounding
+    /// to nearest even: turning it half way round (every coordinate negated) does not change it;
+    /// it lies between the inscribed rhombus and the ellipse, a rounded rectangle within its box
+    #[test]
+    fn curve_areas_mirror_and_bound(cx in -16i32..16, cy in -16i32..16, rx in 1i32..64, ry in 1i32..64, k in 0usize..3) {
+        let (rx, ry) = (rx as f32 / 8.0, ry as f32 / 8.0);
+        let tol = [0.25f32, 1.0, 0.05][k];
+        let e = |x: i32, y: i32| Geom::Ell([x as f32, y as f32, rx, ry]);
+        let a = |g: &Geom| match area(g, tol).unwrap() { Measure::Value(v) => v, Measure::BadNumber => f32::NAN };
+        let here = a(&e(cx, cy));
+        prop_assert_eq!(here, a(&e(-cx, -cy)));
+        prop_assert!(here >= 2.0 * rx * ry * (1.0 - 1e-6) && here <= std::f32::consts::PI * rx * ry * (1.0 + 1e-6), "{} for {} x {}", here, rx, ry);
+        let r = |x: f32, y: f32| Geom::RRect([x - rx, y - ry, x + rx, y + ry, rx / 2.0, ry / 2.0]);
+        let ra = a(&r(cx as f32, cy as f32));
+        prop_assert_eq!(ra, a(&r(-cx as f32, -cy as f32)));
+        prop_assert!(ra <= 4.0 * rx * ry * (1.0 + 1e-6));
+    }
+
+    /// a geometry whose bounds are not finite has no area: D2DERR_BAD_NUMBER
+    #[test]
+    fn curve_area_of_nan_fails(k in 0usize..4) {
+        let mut v = [0.0f32, 0.0, 2.0, 1.0];
+        v[k] = f32::NAN;
+        prop_assert_eq!(area(&Geom::Ell(v), 0.25).unwrap(), Measure::BadNumber);
+    }
+}
+
+proptest! {
     /// a transformed rectangle's area is the rectangle's times |det|, and its length follows
     /// the sides (exact for these transforms)
     #[test]
@@ -283,7 +318,7 @@ proptest! {
         let r = rect(l as f32, t as f32, (l + w) as f32, (t + h) as f32);
         let x = Geom::Xf(Box::new(r.clone()), m);
         let det = (m[0] * m[3] - m[1] * m[2]).abs();
-        prop_assert_eq!(area(&x).unwrap(), (w * h) as f32 * det);
+        prop_assert_eq!(ar(&x), (w * h) as f32 * det);
         if m[1] == 0.0 && m[2] == 0.0 {
             prop_assert_eq!(length(&x, 0.25).unwrap(), 2.0 * (w as f32 * m[0].abs() + h as f32 * m[3].abs()));
         }
