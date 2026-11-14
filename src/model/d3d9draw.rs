@@ -441,6 +441,9 @@ pub struct Draw {
     pub viewport: Option<(i32, i32, i32, i32, f32, f32)>,
     /// drawing a piece of an untransformed triangle clipped in clip space
     pub in_piece: bool,
+    /// the drawn triangle's texture coordinate derivatives ((du/dx, du/dy), (dv/dx, dv/dy)): its
+    /// footprint in the texture, by which anisotropic filtering differs from linear
+    pub duv: ((f64, f64), (f64, f64)),
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -624,6 +627,32 @@ impl Planes {
             let v = self.plane(self.at.map(|a| a[k]), cx, cy);
             (if PERSP.contains(&k) { v * q } else { v }) as f64
         })
+    }
+}
+
+/// the triangle's vertex of least x, then least y (the first of equals)
+fn least_x(c: &[PolyVtx; 3]) -> usize {
+    (0..3).min_by(|&i, &j| (c[i].x, c[i].y).partial_cmp(&(c[j].x, c[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0)
+}
+
+/// a sampler's D3DTEXTUREFILTERTYPE
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum TexFilter {
+    Point,
+    Linear,
+    Anisotropic,
+    /// NONE, PYRAMIDALQUAD, GAUSSIANQUAD, CONVOLUTIONMONO, or past them (cases filter-other-*)
+    Other(u32),
+}
+
+impl TexFilter {
+    fn of(v: u32) -> TexFilter {
+        match v {
+            1 => TexFilter::Point,
+            2 => TexFilter::Linear,
+            3 => TexFilter::Anisotropic,
+            v => TexFilter::Other(v),
+        }
     }
 }
 
@@ -1178,13 +1207,27 @@ impl D3d9 {
     /// a stage's texture at (u, v)
     fn sample(&self, st: u32, tx: &Surface, u: f64, v: f64) -> Res<[f64; 4]> {
         let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
-        let (mag, min) = (self.samp(st, 5), self.samp(st, 6));
-        if mag != min {
-            return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
-        }
+        // (MEASURED filter2-0-32, filter2-1-32: a texture of one level magnifies everywhere,
+        // minified or not: the level of detail is clamped to the texture's levels, 0, before it
+        // picks the filter, so MINFILTER takes no part)
+        hit(clause::D3D9_TEX_MAGONLY);
+        let filter = match TexFilter::of(self.samp(st, 5)) {
+            TexFilter::Anisotropic => {
+                // (MEASURED filter2-5-4, d3d8draw filter2-2-4: linear while no axis of the
+                // footprint is longer than a texel; past that, its own taps: open)
+                let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv;
+                let (w, h) = (tx.w as f64, tx.h as f64);
+                let major = ((dudx * w).hypot(dvdx * h)).max((dudy * w).hypot(dvdy * h));
+                if major > 1.0 {
+                    return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+                }
+                TexFilter::Linear
+            }
+            f => f,
+        };
         let (x, y) = (u * tx.w as f64, v * tx.h as f64);
-        match mag {
-            1 => {
+        match filter {
+            TexFilter::Point => {
                 hit(clause::D3D9_TEX_POINT);
                 // (MEASURED: the texel coordinate rounded to the nearest 64th, then taken down:
                 // d3d8draw filter2-3-4 takes texel 2 at 1.99375; 1/16, 1/32 break d3d9draw filter2-3-*,
@@ -1192,7 +1235,7 @@ impl D3d9 {
                 let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64;
                 self.texel(st, tx, near64(x), near64(y), mu, mv)
             }
-            2 => {
+            TexFilter::Linear => {
                 hit(clause::D3D9_TEX_LINEAR);
                 // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
                 // down, the weighted sum of 8-bit texels truncated)
@@ -1217,7 +1260,7 @@ impl D3d9 {
                 }
                 Ok(c)
             }
-            _ => Err(Fail::Unmodeled(open::D3D9_TEX_FILTER)),
+            TexFilter::Anisotropic | TexFilter::Other(_) => Err(Fail::Unmodeled(open::D3D9_TEX_FILTER)),
         }
     }
 
@@ -1698,7 +1741,7 @@ impl D3d9 {
             hit(clause::D3D9_RASTER_CLIP);
             // (the triangle turned to start at its vertex of least x, then least y: MEASURED,
             // clip-decide-*, which diagonal cuts a quadrilateral)
-            let first = (0..3).min_by(|&i, &j| (corners[i].x, corners[i].y).partial_cmp(&(corners[j].x, corners[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0);
+            let first = least_x(&corners);
             let turned: [PolyVtx; 3] = std::array::from_fn(|k| corners[(first + k) % 3]);
             // (MEASURED rhw-6: with perspective, the right and bottom sides at the size itself)
             let edge = if persp { 0.0 } else { 0.5 };
@@ -1711,7 +1754,10 @@ impl D3d9 {
                 .collect();
             strip(poly.len()).into_iter().map(|t| t.map(|k| poly[k])).collect()
         } else {
-            vec![corners]
+            // (MEASURED filter2-1-32 on both executors: an unclipped triangle is interpolated from
+            // its vertex of least x, then least y, too; the f32 texture coordinates at a 32nd's edge
+            // tell which)
+            vec![std::array::from_fn(|k| corners[(least_x(&corners) + k) % 3])]
         };
         // (untransformed vertices: the attributes as WARP's Direct3D 10 rasterizer sets them up,
         // D3DRASTER.INTERP)
@@ -1733,6 +1779,7 @@ impl D3d9 {
                 let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
                 ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area32, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area32)
             });
+            self.draw.duv = ((grads[9].0 as f64, grads[9].1 as f64), (grads[10].0 as f64, grads[10].1 as f64));
             for py in clipr.1..clipr.3 {
                 for px in clipr.0..clipr.2 {
                     if !covered[(py * w + px) as usize] {

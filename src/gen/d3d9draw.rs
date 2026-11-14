@@ -739,6 +739,34 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    // anisotropic filtering on one level: a footprint of known axes (texels per pixel along x
+    // and along y of the screen), each anisotropy limit, the magnifying filter apart
+    for i in 0..32 {
+        open(&mut s, &format!("aniso-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 32 32 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        let th = [0.0f32, 0.25, 0.5, 0.785, 1.2][r.range(0, 4) as usize];
+        let big = [1.25f32, 1.5, 2.0, 3.0, 4.0, 6.0][r.range(0, 5) as usize];
+        let small = [0.5f32, 0.75, 1.0, 1.25][r.range(0, 3) as usize].min(big);
+        let (mx, my) = if i % 2 == 0 { (big, small) } else { (small, big) };
+        let (dx, dy) = ((mx * th.cos(), mx * th.sin()), (-my * th.sin(), my * th.cos()));
+        let (fmag, fmip) = ([1u32, 2, 3][r.range(0, 2) as usize], if i % 8 == 7 { 2 } else { 0 });
+        writeln!(s, "{mag} {fmag}\n{min} 3\n{mip} {fmip}\n{aniso} {}", [1u32, 2, 3, 4, 8, 16][r.range(0, 5) as usize]).unwrap();
+        // (16 pixels a side, 32 texels: a texture coordinate step of d / 2 per side)
+        let uv = |a: f32, b: f32| Some((0.3 + (dx.0 * a + dy.0 * b) / 2.0, 0.2 + (dx.1 * a + dy.1 * b) / 2.0));
+        writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, uv(0.0, 0.0)), v(15.5, -0.5, 0.0, !0, uv(1.0, 0.0)), v(-0.5, 15.5, 0.0, !0, uv(0.0, 1.0)), v(15.5, 15.5, 0.0, !0, uv(1.0, 1.0))).unwrap();
+    }
+    // the other D3DTEXTUREFILTERTYPE values (NONE, PYRAMIDALQUAD, GAUSSIANQUAD,
+    // CONVOLUTIONMONO, past them) as the magnifying filter, magnifying and minifying
+    for f in [0u32, 4, 5, 6, 7, 0xffff_ffff] {
+        for n in [4u32, 32] {
+            open(&mut s, &format!("filter-other-{f}-{n}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 0 0 0\nd9tex 0 {n} {n} 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+            texture_stage(&mut s);
+            writeln!(s, "{mag} {f:#x}\n{min} 2\n{mip} 0").unwrap();
+            writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, Some((0.0, 0.0))), v(15.5, -0.5, 0.0, !0, Some((1.3, 0.1))), v(-0.5, 15.5, 0.0, !0, Some((0.2, 1.1))), v(15.5, 15.5, 0.0, !0, Some((1.5, 1.2)))).unwrap();
+        }
+    }
     s
 }
 

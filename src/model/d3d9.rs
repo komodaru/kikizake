@@ -434,8 +434,14 @@ impl D3d9 {
                 if !(0..8).contains(&i) {
                     return Err(Fail::Bad);
                 }
-                // (Release is the block's own IUnknown::Release, not a device call: it releases
-                // while recording too)
+                // (Direct3D 9's Release is the block's own IUnknown::Release, not a device call:
+                // it releases while recording too; Direct3D 8's DeleteStateBlock is a device call
+                // and fails while recording, and the executor forgets the block all the same,
+                // d3d8 edge-release-while-recording)
+                if self.recording.is_some() && self.v8 && verb == "release" {
+                    self.blocks.remove(&i);
+                    return misuse(out);
+                }
                 if self.recording.is_some() && !matches!(verb, "end" | "release") {
                     return misuse(out);
                 }
