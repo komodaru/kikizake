@@ -12436,3 +12436,339 @@ d2unclip
 d2fill 0 0 8 2 255 0 0 255
 d2read
 end
+case gradfit-0
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-1
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 16 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-2
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 256 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-3
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 1024 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-4
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 16384 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-5
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -192 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-6
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 32 0 0 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-7
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0.25 0 63.5 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-8
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 64 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-9
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 16 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-10
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 256 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-11
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 1024 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-12
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 16384 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-13
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp -192 0 64 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-14
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 32 0 0 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-15
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0.25 0 63.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-16
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 64 0 2 0 0 0 0 0 1 255 255 255 255
+d2read
+end
+case gradfit-17
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 16 0 2 0 0 0 0 0 1 255 255 255 255
+d2read
+end
+case gradfit-18
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 256 0 2 0 0 0 0 0 1 255 255 255 255
+d2read
+end
+case gradfit-19
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 64 0 2 0 10 200 90 255 1 240 30 160 128
+d2read
+end
+case gradfit-20
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 16 0 2 0 10 200 90 255 1 240 30 160 128
+d2read
+end
+case gradfit-21
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 0 0 256 0 2 0 10 200 90 255 1 240 30 160 128
+d2read
+end
+case gradfit-22
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 clamp 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-23
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 rad 22 clamp 0 0 0 0 48 0.5 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-24
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 wrap 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-25
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 rad 22 wrap 0 0 0 0 48 0.5 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-26
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 22 mirror 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-27
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 rad 22 mirror 0 0 0 0 48 0.5 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-28
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-29
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 16 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-30
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 256 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-31
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 1024 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-32
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 16384 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-33
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -192 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-34
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 32 0 0 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-35
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0.25 0 63.5 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-36
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 64 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-37
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 16 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-38
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 256 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-39
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 1024 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-40
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 16384 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-41
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp -192 0 64 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-42
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 32 0 0 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-43
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0.25 0 63.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-44
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 64 0 2 0 0 0 0 0 1 255 255 255 255
+d2read
+end
+case gradfit-45
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 16 0 2 0 0 0 0 0 1 255 255 255 255
+d2read
+end
+case gradfit-46
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 256 0 2 0 0 0 0 0 1 255 255 255 255
+d2read
+end
+case gradfit-47
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 64 0 2 0 10 200 90 255 1 240 30 160 128
+d2read
+end
+case gradfit-48
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 16 0 2 0 10 200 90 255 1 240 30 160 128
+d2read
+end
+case gradfit-49
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 0 0 256 0 2 0 10 200 90 255 1 240 30 160 128
+d2read
+end
+case gradfit-50
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 clamp 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-51
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 rad 10 clamp 0 0 0 0 48 0.5 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-52
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 wrap 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-53
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 rad 10 wrap 0 0 0 0 48 0.5 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradfit-54
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 lin 10 mirror 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2read
+end
+case gradfit-55
+d2target 64 1
+d2aa aliased
+d2grad 0 0 64 1 rad 10 mirror 0 0 0 0 48 0.5 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end

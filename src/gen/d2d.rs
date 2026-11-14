@@ -33,6 +33,7 @@ pub fn d2d() -> String {
     arith(&mut s, &mut r);
     target(&mut s, &mut r);
     target_more(&mut s, &mut r);
+    gradfit(&mut s);
     s
 }
 
@@ -599,4 +600,29 @@ fn target_more(s: &mut String, r: &mut XorShift32) {
     writeln!(s, "case layer-pop0\nd2target 8 2\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
     writeln!(s, "case layer-pop1\nd2target 8 2\nd2clip 0 0 4 2 aliased\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
     writeln!(s, "case layer-pop2\nd2target 8 2\nd2layer 0 0 4 2 1\nd2unclip\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
+}
+
+/// gradients made to read the interpolation off: one row of 64 pixels, two stops at 0 and 1,
+/// spans from 16 to 16384 pixels and starts far before the row, both gammas, a radial one
+fn gradfit(s: &mut String) {
+    let pairs = ["0 0 0 255 1 255 255 255 255", "0 255 0 0 255 1 0 0 255 255", "0 0 0 0 0 1 255 255 255 255", "0 10 200 90 255 1 240 30 160 128"];
+    let spans = [(0.0, 64.0), (0.0, 16.0), (0.0, 256.0), (0.0, 1024.0), (0.0, 16384.0), (-192.0, 64.0), (32.0, 0.0), (0.25, 63.5)];
+    let mut i = 0;
+    for gamma in ["22", "10"] {
+        for (pi, pair) in pairs.iter().enumerate() {
+            for (si, &(a, b)) in spans.iter().enumerate() {
+                if pi > 1 && si > 2 {
+                    continue;
+                }
+                writeln!(s, "case gradfit-{i}\nd2target 64 1\nd2aa aliased\nd2grad 0 0 64 1 lin {gamma} clamp {} 0 {} 0 2 {pair}\nd2read\nend", fmt(a), fmt(b)).unwrap();
+                i += 1;
+            }
+        }
+        for ext in ["clamp", "wrap", "mirror"] {
+            writeln!(s, "case gradfit-{i}\nd2target 64 1\nd2aa aliased\nd2grad 0 0 64 1 lin {gamma} {ext} 8 0 24 0 2 {}\nd2read\nend", pairs[0]).unwrap();
+            i += 1;
+            writeln!(s, "case gradfit-{i}\nd2target 64 1\nd2aa aliased\nd2grad 0 0 64 1 rad {gamma} {ext} 0 0 0 0 48 0.5 2 {}\nd2read\nend", pairs[1]).unwrap();
+            i += 1;
+        }
+    }
 }
