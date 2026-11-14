@@ -14160,6 +14160,9 @@ alloc 160000 10000
 alloc 40000 10000
 alloc 60000 10000
 alloc 10000 10000
+alloc 10000 10000
+alloc 100000 10000
+alloc a0000 10000
 case nodev
 nodev
 nodev
