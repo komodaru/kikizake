@@ -2023,4 +2023,79 @@ device12 ok
 factory ok
 swapchain = 1000 1000 57 0 1 0 20 10 0 4 0 0 index 0
 present hr 00000000 index 1
+case chain-edge2-latency-10
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 10
+case chain-edge2-latency-11
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 11
+case chain-edge2-latency-12
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 12
+case chain-edge2-latency-40
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge2-latency-100
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge2-latency-1000
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge2-latency-ffff
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge2-latency-10000
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge2-latency-1000000
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge2-size-16384x10000x2
+device12 ok
+factory ok
+swapchain = 4000 2710 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge2-size-16384x12000x2
+device12 ok
+factory ok
+swapchain = 4000 2ee0 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge2-size-16384x13000x2
+device12 ok
+factory ok
+swapchain = 4000 32c8 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge2-size-16384x14000x2
+device12 ok
+factory ok
+swapchain = 4000 36b0 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge2-size-16384x15000x2
+device12 ok
+factory ok
+swapchain = 4000 3a98 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge2-size-16384x16000x2
+device12 ok
+factory ok
+swapchain = 4000 3e80 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
 done
