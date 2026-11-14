@@ -25,7 +25,8 @@ GL.BEGIN.STRING measured | glGetString | between glBegin and glEnd: the string a
 GL.END.OUTSIDE doc | glEnd (GL_INVALID_OPERATION) | glEnd without glBegin: GL_INVALID_OPERATION
 GL.VERTEX.OUTSIDE measured | glVertex | a vertex outside glBegin / glEnd: ignored, no error (opengl golden edge-vertex-outside)
 GL.CALL.OTHER open | (none) | the calls of the executor's table the model does not follow (fog, zoom, raster position, polygon offset, ...)
-GL.DRAW.ZOOM measured | glPixelZoom | glDrawPixels' image pixel (i, j) covers the window pixels whose centers are in [zx i, zx (i + 1)) across and (zy j, zy (j + 1)] up from the raster position, for positive zooms (opengl golden pixel-zoom: 8 zooms)
+GL.DRAW.ZOOM measured | glPixelZoom | glDrawPixels' image pixel (i, j) covers the window pixels whose centers are in [xr + zx i, xr + zx (i + 1)) across and (yr + zy j, yr + zy (j + 1)] up, from the raster position (xr, yr) as it is, a negative zoom going left or down (opengl golden pixel-zoom: 8 zooms, other-calls-0)
+GL.RASTER.POS measured | glRasterPos | the position goes through the matrices and the viewport; outside the view volume it is invalid and images at it draw nothing; an unzoomed image starts at the position rounded, halves up; its color is the current color then (opengl golden other-calls-0)
 GL.FLUSH doc | glFlush, glFinish | no change of state
 GL.ENABLE doc | glEnable, glDisable | the capability set or cleared
 GL.ENABLE.ENUM doc | glEnable (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM

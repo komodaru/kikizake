@@ -416,6 +416,10 @@ pub struct Ctx {
     pub depth_transfer: (f32, f32),
     /// glPixelZoom
     pub zoom: (f32, f32),
+    /// the current raster position in window coordinates, None when invalid (initially the window
+    /// origin at depth 0), and its color
+    pub raster: Option<[f64; 3]>,
+    pub raster_color: [f32; 4],
     pub line_width: f32,
     pub point_size: f32,
     pub cull_mode: u32,
@@ -489,6 +493,8 @@ impl Ctx {
             index_shift: (0, 0),
             depth_transfer: (1.0, 0.0),
             zoom: (1.0, 1.0),
+            raster: Some([0.0; 3]),
+            raster_color: [1.0; 4],
             line_width: 1.0,
             point_size: 1.0,
             cull_mode: BACK,
@@ -1420,6 +1426,23 @@ impl Ctx {
                     _ => return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER)),
                 }
             }
+            "glRasterPos2i" | "glRasterPos2f" => {
+                // (MEASURED, golden opengl-32 other-calls-0: the position through the matrices
+                // and the viewport; one outside the view volume is invalid and images at it draw
+                // nothing: GL.RASTER.POS)
+                hit(clause::GL_RASTER_POS);
+                let v = [fl(a, 0), fl(a, 1), 0.0];
+                let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
+                let c = xform(self.top(1), e);
+                if c[3] != 1.0 {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+                }
+                let inside = c[..3].iter().all(|v| (-1.0..=1.0).contains(v));
+                let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
+                self.raster = inside.then(|| [(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0]);
+                self.raster_color = self.current();
+            }
             "glPixelZoom" => {
                 // (golden opengl-32 edge-other-call: no error; images drawn zoomed are GL.CALL.OTHER)
                 hit(clause::GL_PIXELTRANSFER);
@@ -2002,9 +2025,8 @@ impl Ctx {
     }
 
     /// a stencil image's element at (i, j) written to the stencil buffer
-    fn draw_stencil(&mut self, i: usize, j: usize, v: f64) {
-        let (x, y) = (i as i64, j as i64);
-        if self.buffers[0] == 0 || x >= W as i64 || y >= H as i64 {
+    fn draw_stencil(&mut self, x: i64, y: i64, v: f64) {
+        if self.buffers[0] == 0 || x < 0 || y < 0 || x >= W as i64 || y >= H as i64 {
             return;
         }
         if self.cap(SCISSOR_TEST) {
@@ -2013,7 +2035,7 @@ impl Ctx {
                 return;
             }
         }
-        let p = j * W + i;
+        let p = y as usize * W + x as usize;
         let m = self.stencil_mask & low_bits(self.pf.stencil);
         self.stencil[p] = (self.stencil[p] & !m) | (index_bits(v) & m);
     }
@@ -2842,9 +2864,16 @@ impl Ctx {
 
     pub fn draw_pixels(&mut self, w: i64, h: i64, f: u32, t: u32, data: &[u8]) -> Res<()> {
         let Some((comps, size)) = self.pixel_args(w, h, f, t, false)? else { return Ok(()) };
-        // (negative zooms, and zoomed depth, stencil and bitmap images, are not measured)
+        let Some([rx, ry, rz]) = self.raster else {
+            hit(clause::GL_RASTER_POS);
+            return Ok(());
+        };
+        // (MEASURED, golden opengl-32 other-calls-0: unzoomed, the image's first pixel at the
+        // raster position rounded, halves up: GL.RASTER.POS)
+        let (ox, oy) = ((rx + 0.5).floor() as i64, (ry + 0.5).floor() as i64);
+        // (zoomed depth, stencil and bitmap images are not measured)
         let zoomed = self.zoom != (1.0, 1.0);
-        if zoomed && (self.zoom.0 < 0.0 || self.zoom.1 < 0.0 || size == 0 || f == DEPTH_COMPONENT || f == STENCIL_INDEX) {
+        if zoomed && (size == 0 || f == DEPTH_COMPONENT || f == STENCIL_INDEX) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
         hit(clause::GL_DRAW);
@@ -2857,7 +2886,7 @@ impl Ctx {
                     let Some(b) = data.get(at) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
                     let v: f32 = if b & m != 0 { 1.0 } else { 0.0 };
                     if f == STENCIL_INDEX {
-                        self.draw_stencil(i, j, f64::from(v));
+                        self.draw_stencil(ox + i as i64, oy + j as i64, f64::from(v));
                         continue;
                     }
                     let c = if self.pf.ty != 0 {
@@ -2867,7 +2896,7 @@ impl Ctx {
                         hit(clause::GL_DRAW_INDEX);
                         self.transfer([0.0; 4])?.map(|v| v as f32)
                     };
-                    self.fragment(Frag { x: i as i64, y: j as i64, c, z: 0.0, trunc: true, zfixed: None })?;
+                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, trunc: true, zfixed: None })?;
                 }
             }
             return Ok(());
@@ -2893,10 +2922,10 @@ impl Ctx {
                     if f == STENCIL_INDEX {
                         // (MEASURED, golden opengl-32 draw-depthstencil-1: the element as a float,
                         // so 32-bit integers lose their low bits)
-                        self.draw_stencil(i, j, self.shifted(f64::from(index_value(&e, t)? as f32)));
+                        self.draw_stencil(ox + i as i64, oy + j as i64, self.shifted(f64::from(index_value(&e, t)? as f32)));
                     } else {
                         let (z, zfixed) = depth_element(&e, t, self.depth_transfer);
-                        self.fragment(Frag { x: i as i64, y: j as i64, c: [1.0; 4], z, trunc: true, zfixed: Some(zfixed) })?;
+                        self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c: self.raster_color, z, trunc: true, zfixed: Some(zfixed) })?;
                     }
                 }
             }
@@ -2951,7 +2980,7 @@ impl Ctx {
                 let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
                 let c = c.map(|v| v as f32);
                 if !zoomed {
-                    self.fragment(Frag { x: i as i64, y: j as i64, c, z: 0.0, trunc: true, zfixed: None })?;
+                    self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, trunc: true, zfixed: None })?;
                     continue;
                 }
                 // (MEASURED, golden opengl-32 pixel-zoom: image pixel (i, j) covers the window
@@ -2959,13 +2988,17 @@ impl Ctx {
                 // up from the raster position: GL.DRAW.ZOOM)
                 hit(clause::GL_DRAW_ZOOM);
                 let (zx, zy) = (f64::from(self.zoom.0), f64::from(self.zoom.1));
-                let (x0, x1) = (zx * i as f64, zx * (i + 1) as f64);
-                let (y0, y1) = (zy * j as f64, zy * (j + 1) as f64);
+                // (MEASURED, other-calls-0: from the raster position as it is, a negative zoom
+                // going left or down)
+                let (xa, xb) = (rx + zx * i as f64, rx + zx * (i + 1) as f64);
+                let (ya, yb) = (ry + zy * j as f64, ry + zy * (j + 1) as f64);
+                let (x0, x1) = (xa.min(xb), xa.max(xb));
+                let (y0, y1) = (ya.min(yb), ya.max(yb));
                 for y in (y0.floor() as i64).max(0)..=(y1.ceil() as i64).min(H as i64 - 1) {
                     for x in (x0.floor() as i64).max(0)..=(x1.ceil() as i64).min(W as i64 - 1) {
                         let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
                         if cx >= x0 && cx < x1 && cy > y0 && cy <= y1 {
-                            self.fragment(Frag { x, y, c, z: 0.0, trunc: true, zfixed: None })?;
+                            self.fragment(Frag { x, y, c, z: rz, trunc: true, zfixed: None })?;
                         }
                     }
                 }
