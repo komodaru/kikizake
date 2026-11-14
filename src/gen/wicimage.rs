@@ -974,6 +974,71 @@ pub fn wicdecode() -> String {
     decode_case(&mut s, "dds-argb", &dds(3, 2, 1, None, &bytes(&mut r, 24)), 1, false);
     // not an image
     decode_case(&mut s, "garbage", &bytes(&mut r, 40), 1, false);
+    // files cut at many lengths (the header, the tables, the pixels), and broken in other ways
+    let mut r = XorShift32::new(0xb20e);
+    let cuts = |s: &mut String, name: &str, f: &[u8], frames: u32| {
+        let n = f.len();
+        let mut at: Vec<usize> = vec![0, 1, 4, 8, 12, 16, 20, 26, 30, 40, 54, 60, 100, n / 4, n / 2, 3 * n / 4, n - 8, n - 4, n - 1];
+        at.retain(|&k| k > 0 && k < n);
+        at.sort();
+        at.dedup();
+        for k in at {
+            decode_case(s, &format!("cut-{name}-{k}"), &f[..k], frames, false);
+        }
+    };
+    let gf = gif(6, 4, Some(&rand_pal(&mut r, 16)), 0, &[GifFrame { x: 0, y: 0, w: 6, h: 4, local: None, transparent: None, interlace: false, idx: bytes(&mut r, 24).iter().map(|v| v & 15).collect(), min: 4 }]);
+    cuts(&mut s, "gif", &gf, 1);
+    let tf = tiff(false, &[TiffImage { w: 5, h: 3, photometric: 2, bits: 8, samples: 3, extra: None, planar: 1, rps: 2, px: bytes(&mut r, 45), map: vec![], res: None, format: 1 }]);
+    cuts(&mut s, "tiff", &tf, 1);
+    let e = icon_bmp(&mut r, 4, 4, 32);
+    let raw: Vec<Vec<u8>> = (0..3).map(|_| bytes(&mut r, 12)).collect();
+    let pe = png(3, 3, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 100);
+    cuts(&mut s, "ico", &ico(&[(4, 4, 32, e), (3, 3, 32, pe)]), 2);
+    cuts(&mut s, "dds", &dds(8, 8, 2, Some(b"DXT1"), &bytes(&mut r, 40)), 2);
+    let raw: Vec<Vec<u8>> = (0..4).map(|_| bytes(&mut r, 15)).collect();
+    cuts(&mut s, "png", &png(5, 4, 8, 2, false, &[], &png_filter(&raw, 3, &[0, 1, 2, 3]), 100), 1);
+    // RLE that runs past the picture: a run past the row, past the last row, a delta past the end,
+    // an absolute run past the data
+    let pal: Vec<u32> = (0..16).map(|i| 0xff00_0000 | (i * 0x0f0f0f)).collect();
+    for (k, rle) in [vec![12u8, 3, 0, 1], vec![8, 1, 0, 0, 8, 2, 0, 0, 8, 3, 0, 0, 8, 4, 0, 1], vec![0, 2, 9, 9, 4, 5, 0, 1], vec![0, 6, 1, 2], vec![2, 7]].into_iter().enumerate() {
+        decode_case(&mut s, &format!("bmprlebad8-{k}"), &bmp(40, 8, 3, 8, 1, [0; 4], 16, &pal, &rle, false, (0, 0)), 1, false);
+        decode_case(&mut s, &format!("bmprlebad4-{k}"), &bmp(40, 8, 3, 4, 2, [0; 4], 16, &pal, &rle, false, (0, 0)), 1, false);
+    }
+    // PNG tRNS on 8 and 16-bit gray: the key level, another, a short chunk
+    for (d, key) in [(8u8, vec![0u8, 0x40]), (16, vec![0x12, 0x34]), (8, vec![0x40])] {
+        let n = if d == 8 { 1 } else { 2 };
+        let mut raw: Vec<Vec<u8>> = (0..3).map(|_| bytes(&mut r, 4 * n)).collect();
+        raw[1][..n].copy_from_slice(&if d == 8 { vec![0x40] } else { vec![0x12, 0x34] });
+        decode_case(&mut s, &format!("png-trns-gray{d}-{}", key.len()), &png(4, 3, d, 0, false, &[(b"tRNS", key)], &png_filter(&raw, n, &[0]), 100), 1, false);
+    }
+    // TIFF layouts beyond the usual: 2-bit gray and palette, 16-bit gray+alpha, 16-bit RGB with
+    // no alpha flag, 8-bit RGB+alpha unspecified premultiplied, YCbCr, a mask, 32-bit RGB, 4 extra
+    for (k, (ph, bits, spp, extra)) in [(1u16, 2u16, 1u16, None), (3, 2, 1, None), (1, 16, 2, Some(2)), (2, 16, 4, Some(0)), (2, 8, 5, Some(2)), (6, 8, 3, None), (4, 1, 1, None), (2, 32, 3, None), (1, 8, 2, Some(0)), (1, 8, 2, Some(1)), (5, 8, 5, Some(1)), (2, 4, 3, None)].into_iter().enumerate() {
+        let (w, h) = (5u32, 3u32);
+        let total = ((w * bits as u32 * spp as u32).div_ceil(8) * h) as usize;
+        let map = if ph == 3 { (0..3 * (1usize << bits)).map(|_| r.next() as u16).collect() } else { vec![] };
+        let im = TiffImage { w, h, photometric: ph, bits, samples: spp, extra, planar: 1, rps: h, px: bytes(&mut r, total), map, res: None, format: 1 };
+        decode_case(&mut s, &format!("tiff-other-{k}"), &tiff(false, &[im]), 1, ph == 3);
+    }
+    // icon BMP entries of 2 bits and of 0 (a directory and header that agree), PNG entries of
+    // gray, palette, 16 bits
+    for bpp in [2u32, 0] {
+        let e = icon_bmp(&mut r, 4, 4, bpp.max(1));
+        let mut e2 = e.clone();
+        e2[14..16].copy_from_slice(&(bpp as u16).to_le_bytes());
+        decode_case(&mut s, &format!("ico-bmp-depth-{bpp}"), &ico(&[(4, 4, bpp, e2)]), 1, false);
+    }
+    for (ct, d, n) in [(0u8, 8u8, 1usize), (3, 8, 1), (2, 16, 6), (4, 8, 2), (0, 1, 1)] {
+        let row = (4 * n * d as usize).div_ceil(8);
+        let raw: Vec<Vec<u8>> = (0..4).map(|_| bytes(&mut r, row.max(1))).collect();
+        let extra: Vec<(&[u8; 4], Vec<u8>)> = if ct == 3 { vec![(b"PLTE", bytes(&mut r, 3 * 256))] } else { vec![] };
+        let p = png(4, 4, d, ct, false, &extra, &png_filter(&raw, n.max(1), &[0]), 100);
+        decode_case(&mut s, &format!("ico-png-ct{ct}-{d}"), &ico(&[(4, 4, 32, p)]), 1, false);
+    }
+    // DDS of other FourCCs and of a DX10 header
+    for fc in [b"DXT2", b"DXT4", b"ATI1", b"ATI2", b"BC4U", b"BC5U", b"DX10"] {
+        decode_case(&mut s, &format!("dds-{}", std::str::from_utf8(fc).unwrap().to_lowercase()), &dds(4, 4, 1, Some(fc), &bytes(&mut r, 32)), 1, false);
+    }
     s
 }
 

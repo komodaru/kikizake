@@ -8,8 +8,8 @@ WICIMAGE.INFO doc | IWICBitmapSource::GetSize, GetPixelFormat, GetResolution | a
 WICIMAGE.COPY doc | IWICBitmapSource::CopyPixels | the rectangle's pixels, (width * bits + 7) / 8 bytes a row, rows cbStride apart; NULL is the whole bitmap
 WICIMAGE.COPY.NEGATIVE measured | IWICBitmapSource::CopyPixels | a rectangle at a negative x or y: HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW) (golden wictransform)
 WICIMAGE.COPY.RECT measured | IWICBitmapSource::CopyPixels (the rectangle must be inside the bitmap) | a rectangle past the bitmap, or empty: E_INVALIDARG (golden wictransform)
-WICIMAGE.COPY.STRIDE assumed | IWICBitmapSource::CopyPixels | a stride shorter than a row: E_INVALIDARG
-WICIMAGE.COPY.BUFFER assumed | IWICBitmapSource::CopyPixels (the caller must give enough buffer) | a buffer shorter than stride * (height - 1) + a row: WINCODEC_ERR_INSUFFICIENTBUFFER
+WICIMAGE.COPY.STRIDE measured | IWICBitmapSource::CopyPixels | a stride shorter than a row: E_INVALIDARG (golden wictransform, wicscale: 8 cases, all as Windows)
+WICIMAGE.COPY.BUFFER measured | IWICBitmapSource::CopyPixels (the caller must give enough buffer) | a buffer shorter than stride * (height - 1) + a row: WINCODEC_ERR_INSUFFICIENTBUFFER (golden wictransform, wicscale: 12 cases, all as Windows)
 # scalers
 WICIMAGE.SCALE.NEAREST measured | WICBitmapInterpolationMode (NearestNeighbor: the one pixel the point falls in) | output pixel d takes source pixel ceil((d + 1) * source / output) - 1 (the one under its right or bottom edge, not its center), in the source's format (golden wicscale: 136 rows, every width 1..=8 to 1..=17, and the columns)
 WICIMAGE.SCALE.FORMAT measured | (none) | the format a scaler works in and answers with: NearestNeighbor, Linear, Cubic, Fant: gray of 8 bits or less 8bppGray, 24bppBGR as it is, 32bppBGRA / 32bppRGBA / 8bppAlpha premultiplied (WIC.FROM.PREMULTIPLY) and answered as 32bppBGRA (WIC.TO.UNPREMULTIPLY: a scaled straight picture loses what premultiplying loses), every other format 32bppPBGRA; Fant: 16bppGray as 32bppGrayFloat, 64bppRGBA as 128bppPRGBAFloat; HighQualityCubic: 16bppGray, 48bppRGB, 64bppRGBA, 32bppRGBA, 8bppAlpha as they are (golden wicscale fmt-*: 15 formats, every mode)
@@ -55,13 +55,13 @@ WICIMAGE.PNG.CHUNKS doc | ISO/IEC 15948 | the chunks, IDATs joined, zlib, the fi
 WICIMAGE.PNG.ADAM7 doc | ISO/IEC 15948 (Adam7) | the seven passes put back in place
 WICIMAGE.PNG.FORMAT doc | Native Pixel Formats Overview (PNG) | gray 1-16 bits as BlackWhite, 2/4/8bppGray, 16bppGray; RGB 24bppBGR / 48bppRGB; indexed 1-8; gray+alpha and RGBA 8 bits 32bppBGRA, 16 bits 64bppRGBA (ASSUMED: which one each takes)
 WICIMAGE.PNG.PALETTE doc | ISO/IEC 15948 (PLTE, tRNS) | the PLTE entries, alpha from tRNS
-WICIMAGE.PNG.PHYS assumed | ISO/IEC 15948 (pHYs) | pixels a meter as dpi when the unit is the meter, else 96
+WICIMAGE.PNG.PHYS measured | ISO/IEC 15948 (pHYs) | pixels a meter as dpi when the unit is the meter, else 96 (golden wicdecode png-*: units 0 and 1: 11 cases, all as Windows)
 WICIMAGE.PNG.TRNS measured | ISO/IEC 15948 (tRNS) | gray below 8 bits with tRNS decodes as indexed (1, 2, 4 bits) of its levels; RGB as 32bppBGRA / 64bppRGBA, the color tRNS names transparent (golden wicdecode png-0-*, png-2-*)
 WICIMAGE.PNG.ZERO measured | (none) | the CRCs are not checked; image data that does not inflate whole (cut, or its Adler-32 wrong): the frame is there, its pixels 0 (golden wicdecode png-bad-crc, png-short)
 WICIMAGE.GIF.FRAME doc | Native Pixel Formats Overview (GIF: 8bppIndexed) | each image a frame of 8bppIndexed (ASSUMED: of the image's own size), its local table or the global one in full
 WICIMAGE.GIF.LZW doc | GIF89a (appendix F) | the variable-length LZW codes, their size growing with the table, clear codes
 WICIMAGE.GIF.INTERLACE doc | GIF89a | interlaced rows put back in place
-WICIMAGE.GIF.TRANSPARENT assumed | GIF89a (graphic control extension) | the transparent index's entry has alpha 0
+WICIMAGE.GIF.TRANSPARENT measured | GIF89a (graphic control extension) | the transparent index's entry has alpha 0 (golden wicdecode gif-*: 5 cases, all as Windows)
 WICIMAGE.TIFF.IFD doc | TIFF 6.0 | each IFD a frame, uncompressed strips
 WICIMAGE.TIFF.FORMAT measured | Native Pixel Formats Overview (TIFF) | BlackIsZero and WhiteIsZero 1/4/8/16 bits BlackWhite, 4/8/16bppGray; 32-bit float gray 32bppGrayFloat; gray+alpha 32bppBGRA; palette indexed; RGB 24bppBGR / 48bppRGB; RGBA unassociated or unspecified 32bppBGRA / 64bppRGBA, associated 32bppPBGRA / 64bppPRGBA; CMYK 32bppCMYK / 64bppCMYK, with alpha 40bppCMYKAlpha (golden wicdecode tiff-*: 21 layouts, both byte orders)
 WICIMAGE.TIFF.PLANAR doc | TIFF 6.0 (PlanarConfiguration 2) | each sample's plane in turn
@@ -70,7 +70,7 @@ WICIMAGE.TIFF.PALETTE measured | TIFF 6.0 (ColorMap) | each 16-bit entry v as v 
 WICIMAGE.TIFF.RESOLUTION measured | TIFF 6.0 | the rationals' integer quotients: inches and no unit as they are, centimeters times 2.54, no resolution 96 (golden wicdecode tiff-*)
 WICIMAGE.ICO doc | ICO Format Overview (decoder: 32bppBGRA) | each directory entry a frame of 32bppBGRA
 WICIMAGE.ICO.PNG doc | ICO Format Overview | a PNG entry: the PNG converted to 32bppBGRA
-WICIMAGE.ICO.BMP assumed | ICO Format Overview | a BMP entry (height doubled, colors then the AND mask, bottom-up): the colors with alpha from 32-bit colors when any is set, else from the mask: where it is 1, transparent black
+WICIMAGE.ICO.BMP measured | ICO Format Overview | a BMP entry (height doubled, colors then the AND mask, bottom-up): the colors with alpha from 32-bit colors when any is set, else from the mask: where it is 1, transparent black (golden wicdecode ico-*: every depth, with and without alpha: 17 cases, all as Windows)
 WICIMAGE.ICO.ORDER measured | (none) | the frames by each entry's own depth (a BMP header's, a PNG's IHDR, not the directory's), deepest first; of one depth PNG entries first, then the last in the file first, whatever their sizes (golden wicdecode ico-three, ico-order-size/depth/mixed/zero, ico-png-*-bmp: 27 frames, all as Windows)
 WICIMAGE.ICO.PNG.SMALL open | (none) | a PNG entry of fewer than 6 pixels beside other entries: it comes after a 32-bit BMP entry and its CopyPixels fails 0x88982f8c (1x1, 2x2, 1x5; alone they decode, and 2x3, 3x2, 4x4 beside a BMP come first and decode)
 WICIMAGE.ICO.DEPTH measured | (none) | a 16-bit BMP entry: 555 widened by repeating bits (golden wicdecode ico-bmp-16)

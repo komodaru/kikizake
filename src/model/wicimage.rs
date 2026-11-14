@@ -1273,18 +1273,21 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
         }
     }
     // resolution: inches (2) as they are, centimeters (3) times 2.54, none (1) as they are
-    if let (Some(x), Some(y)) = (t.get(&282), t.get(&283)) {
+    if let (Some(x), Some(y)) = (t.get(&282).and_then(|v| v.first()), t.get(&283).and_then(|v| v.first())) {
         let unit = one(296, 2);
         let k = match unit {
             3 => 2.54,
             _ => 1.0,
         };
         hit("WICIMAGE.TIFF.RESOLUTION");
-        img.dpi = (x[0] as f64 * k, y[0] as f64 * k);
+        img.dpi = (*x as f64 * k, *y as f64 * k);
     }
     if ph == 3 {
         let Some(m) = t.get(&320) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
         let n = 1usize << bits;
+        if m.len() < 3 * n {
+            return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+        }
         hit("WICIMAGE.TIFF.PALETTE");
         let c = |v: u32| v * 255 / 65535;
         img.pal = Some((0..n).map(|i| 0xff00_0000 | c(m[i]) << 16 | c(m[n + i]) << 8 | c(m[2 * n + i])).collect());
