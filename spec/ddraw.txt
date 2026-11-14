@@ -18,3 +18,41 @@ DDRAW.STRETCH open | IDirectDrawSurface7::Blt | rectangles of different sizes: w
 DDRAW.FORMATS measured | (none) | a blit between surfaces of different pixel formats: DDERR_UNSUPPORTED, nothing changed (golden ddraw)
 DDRAW.NOSOURCE measured | (none) | Blt without a source and without DDBLT_COLORFILL: E_INVALIDARG (golden ddraw)
 DDRAW.KEY.BITS measured | (none) | on 32 bpp surfaces (masks 0xffffff) a key compares all 32 bits of the pixel (golden ddraw; Wine compares otherwise)
+DDRAW.BUSY measured | IDirectDrawSurface7::Blt (DDERR_SURFACEBUSY) | a blit or color fill with a source or destination that is locked or has its DC out: DDERR_SURFACEBUSY (ddlock, dddc golden)
+DDRAW.CLIP.SET doc | IDirectDrawClipper::SetClipList, IDirectDrawSurface7::SetClipper | a clipper with a clip list attached to the destination; SetClipper(NULL) detaches it
+DDRAW.CLIP.BLT measured | IDirectDrawSurface7::Blt | with a clip list the destination rectangle may lie past the surface: only its pixels in the surface and in a rectangle of the list change (ddclip golden)
+DDRAW.CLIP.NOLIST doc | IDirectDrawClipper::GetClipList, IDirectDrawSurface7::Blt (DDERR_NOCLIPLIST) | a clipper without a clip list (and no window): GetClipList, Blt and color fills give DDERR_NOCLIPLIST
+DDRAW.CLIP.NONE doc | IDirectDrawSurface7::GetClipper (DDERR_NOCLIPPERATTACHED) | no clipper attached: GetClipper gives DDERR_NOCLIPPERATTACHED
+DDRAW.CLIP.LIST measured | IDirectDrawClipper::GetClipList | the list as SetClipList took it, rectangles neither merged nor split into bands, with the given bounding box (ddclip golden; Wine makes bands)
+DDRAW.CLIP.FAST doc | IDirectDrawSurface7::BltFast (DDERR_BLTFASTCANTCLIP) | BltFast onto a surface with a clipper: DDERR_BLTFASTCANTCLIP (with or without a clip list, ddclip golden)
+DDRAW.PAL.CREATE measured | IDirectDraw7::CreatePalette | exactly one of DDPCAPS_1BIT, 2BIT, 4BIT, 8BIT; ALLOW256 only with 8BIT, 8BITENTRIES only with fewer bits, not both; PRIMARYSURFACE refused without a primary surface; INITIALIZE and ALPHA accepted and dropped; else E_INVALIDARG (ddpal golden: 49 flag sets)
+DDRAW.PAL.CAPS doc | IDirectDrawPalette::GetCaps | the size flag, 8BITENTRIES and ALLOW256 the palette was made with
+DDRAW.PAL.RESERVED measured | IDirectDraw7::CreatePalette (DDPCAPS_ALLOW256) | a 256-entry palette without ALLOW256 holds black in entry 0 and white in entry 255, whatever CreatePalette and SetEntries give them (ddpal golden)
+DDRAW.PAL.8BITENTRIES open | IDirectDraw7::CreatePalette (DDPCAPS_8BITENTRIES) | entries that are indices into the destination's palette: what GetEntries returns
+DDRAW.PAL.RANGE measured | IDirectDrawPalette::GetEntries, SetEntries | a range of no entries or past the palette's: E_INVALIDARG (ddpal golden)
+DDRAW.PAL.GET doc | IDirectDrawPalette::GetEntries | the entries asked, PALETTEENTRY each
+DDRAW.PAL.SET doc | IDirectDrawPalette::SetEntries | the entries given replace those of the range
+DDRAW.PAL.ATTACH measured | IDirectDrawSurface7::SetPalette, GetPalette | a 256-entry palette on an 8 bpp surface; any other palette or surface: DDERR_INVALIDPIXELFORMAT; detaching none, GetPalette of none: DDERR_NOPALETTEATTACHED; the surface keeps the palette when its slot gets another (ddpal golden)
+DDRAW.DC measured | IDirectDrawSurface7::GetDC, ReleaseDC | a second GetDC: DDERR_DCALREADYCREATED; ReleaseDC without a DC: DDERR_NODC; GetDC works on a locked surface (dddc golden)
+DDRAW.DC.BPP measured | IDirectDrawSurface7::GetDC | the DC's BITSPIXEL is the display's (32 on Windows' runner), its bitmap the surface's size and bits (dddc golden)
+DDRAW.DC.PIXEL measured | SetPixel, GetPixel | on 16, 24 and 32 bpp surfaces the GDI DIB rules (truncation to 5 / 6 bits, widened by bit replication; 32 bpp written with 0 in the top byte); on 8 bpp GetPixel is the palette's entry (dddc golden, every value of each channel)
+DDRAW.DC.FILL measured | FillRect | a solid brush's color written as SetPixel writes it, clipped to the surface; a rectangle turned round fills as its normal form (dddc golden)
+DDRAW.DC.OUTSIDE doc | SetPixel, GetPixel | a point outside the surface: CLR_INVALID
+DDRAW.DC.NOPAL open | IDirectDrawSurface7::GetDC | an 8 bpp surface without a palette: the colors its DC gives the indices
+DDRAW.DC.NEAREST open | SetPixel | a color into an 8 bpp surface: which entry
+DDRAW.PITCH measured | IDirectDrawSurface7::Lock, GetSurfaceDesc (lPitch) | a system-memory surface's rows are padded to 8 bytes on x86, to 4 on x86-64 (ddlock golden: widths 1..33 of every format)
+DDRAW.VID measured | (none) | video memory surfaces of Windows' runner (the basic display driver): no 24 bpp (DDERR_UNSUPPORTED); pitch 20, 36, 72 for 17 pixels of 1, 2, 4 bytes, 32 for 8 of 4 (ddlock, ddflip golden)
+DDRAW.VID.PITCH excluded | (none) | a video memory surface of other widths: its pitch (a property of the display driver; no case asks)
+DDRAW.LOCK doc | IDirectDrawSurface7::Lock | the pitch and the address of the rectangle's first pixel (offset y * pitch + x * bytes)
+DDRAW.LOCK.RECT measured | IDirectDrawSurface7::Lock | a rectangle past the surface or turned round: E_INVALIDARG; an empty one locks (ddlock golden)
+DDRAW.LOCK.BUSY measured | IDirectDrawSurface7::Lock (DDERR_SURFACEBUSY) | a rectangle sharing a pixel with a lock held (the whole surface: any), or the DC out: DDERR_SURFACEBUSY; rectangles apart lock together (ddlock golden)
+DDRAW.LOCK.WRITE doc | IDirectDrawSurface7::Lock | bytes written through the pointer are the surface's pixels
+DDRAW.LOCK.PAD excluded | (none) | bytes written past a row's pixels (no case writes there)
+DDRAW.UNLOCK measured | IDirectDrawSurface7::Unlock | NULL: the first lock held; a rectangle: the lock of that rectangle (the whole surface's lock also by its full rectangle); else DDERR_NOTLOCKED (ddlock golden)
+DDRAW.UNLOCK.DC measured | IDirectDrawSurface7::Unlock | a locked surface whose DC was taken after: DDERR_INVALIDRECT (dddc golden)
+DDRAW.DESC measured | IDirectDrawSurface7::GetSurfaceDesc | DDSD_CAPS, HEIGHT, WIDTH, PITCH, PIXELFORMAT (and BACKBUFFERCOUNT of a front buffer); system memory OFFSCREENPLAIN | SYSTEMMEMORY, video memory OFFSCREENPLAIN | VIDEOMEMORY | LOCALVIDMEM; the pixel format as made (ddlock golden)
+DDRAW.COOP measured | IDirectDraw7::SetCooperativeLevel | DDSCL_NORMAL and DDSCL_EXCLUSIVE | FULLSCREEN both work with the executor's hidden popup window (ddflip golden)
+DDRAW.CHAIN measured | IDirectDraw7::CreateSurface (DDSCAPS_FLIP, COMPLEX) | a flipping chain of offscreen plain surfaces or textures, at either level; 3DDEVICE alone or no type: DDERR_INVALIDCAPS; textures on x86-64: E_NOINTERFACE; no memory asked: local video memory; caps FRONTBUFFER, BACKBUFFER (the first back buffer), FLIP, COMPLEX; one primary surface, a primary chain only in exclusive mode (DDERR_NOEXCLUSIVEMODE, DDERR_PRIMARYSURFACEALREADYEXISTS) (ddflip golden)
+DDRAW.FLIP doc | IDirectDrawSurface7::Flip | the front buffer shows what the first back buffer held, each back buffer the next one's, the last the front buffer's; a surface that is not a front buffer, or the front buffer as target: DDERR_NOTFLIPPABLE
+DDRAW.FLIP.TARGET measured | IDirectDrawSurface7::Flip (lpDDSurfaceTargetOverride) | a flip to a given back buffer exchanges it and the front buffer (ddflip golden)
+DDRAW.FLIP.PRIMARY measured | IDirectDrawSurface7::Flip | a primary chain flips in exclusive mode; back in normal mode: DDERR_NOEXCLUSIVEMODE (ddflip golden)
