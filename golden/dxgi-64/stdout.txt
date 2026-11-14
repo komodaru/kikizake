@@ -2133,6 +2133,31 @@ device12 ok
 factory ok
 swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
 latency hr 887a0001 get 00000000 1
+case chain-edge4-latency-22
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 22
+case chain-edge4-latency-24
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 24
+case chain-edge4-latency-28
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 28
+case chain-edge4-latency-2c
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge4-latency-2f
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
 case chain-edge3-size-16384x14250x2
 device12 ok
 factory ok
