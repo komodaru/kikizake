@@ -180,9 +180,21 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
         hit("D3DRES.DESC.SIZE");
         return Ok(bad);
     }
-    if w > lim || h > lim || d.dim == 3 && da > l3 {
-        // (MEASURED: 16385 accepted at 11_0; where the limit is, open)
-        return Err(Fail::Unmodeled("D3DRES.DESC.BIG"));
+    // (MEASURED, big-*: 1D and 3D textures stop at the level's sizes; a 2D one has no size
+    // limit of its own but one of bytes: 4 MiB of RGBA8 made, 1 GiB refused)
+    if d.dim != 2 && (w > lim || h > lim || d.dim == 3 && da > l3) {
+        hit("D3DRES.DESC.BIG");
+        return Ok(bad);
+    }
+    if d.dim == 2 && (w > lim || h > lim) {
+        let bytes = (0..d.mips.max(1).min(32)).map(|m| f.row_bytes((w >> m).max(1)) as u64 * f.rows((h >> m).max(1)) as u64).sum::<u64>() * da as u64;
+        hit("D3DRES.DESC.BIG");
+        if bytes >= 1 << 30 {
+            return Ok(bad);
+        }
+        if bytes > 1 << 22 {
+            return Err(Fail::Unmodeled("D3DRES.DESC.BIGBYTES"));
+        }
     }
     // (MEASURED: the top level of a block format is whole blocks, tex-random-169)
     if w % f.bw != 0 || h % f.bh != 0 {

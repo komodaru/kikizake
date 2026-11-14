@@ -132,6 +132,8 @@ pub struct D3dres {
     pub res: [Option<Resource>; 16],
     pub views: [Option<View>; 16],
     pub draw: super::d3draster::Draw,
+    /// (an update or copy past a subresource removed the device)
+    pub removed: bool,
 }
 
 pub const OPS: &[&str] = &["fmt", "tex", "buf", "srv", "rtv", "dsv", "uav", "clear", "cleards", "clearuav", "update", "copy", "copysub", "resolve", "read"];
@@ -220,6 +222,16 @@ impl D3dres {
             out.push("nodev".into());
             return Ok(true);
         };
+        if self.removed {
+            // (MEASURED: after the device is removed, the staging copy (11) or its Map (10)
+            // fails with DXGI_ERROR_DEVICE_REMOVED, probe-update-past, probe-copysub-past)
+            if name != "read" {
+                return Err(Fail::Unmodeled("D3DRES.REMOVED.OPS"));
+            }
+            hit("D3DRES.REMOVED");
+            out.push(if dev.d3d11() { "read hr 887a0005" } else { "read map hr 887a0005" }.into());
+            return Ok(true);
+        }
         if drawing {
             super::d3draster::op(self, dev, op, out)?;
             return Ok(true);
@@ -240,7 +252,7 @@ impl D3dres {
                     out.push("update nores".into());
                     return Ok(true);
                 };
-                update(res, sub, &xorbytes(seed, INIT), rp, dp, bx.as_deref())?;
+                self.removed = update(res, sub, &xorbytes(seed, INIT), rp, dp, bx.as_deref())?;
             }
             "copy" => {
                 if t.len() != 3 {
@@ -262,7 +274,7 @@ impl D3dres {
                     return Ok(true);
                 };
                 let dst = self.res[d].as_mut().unwrap();
-                copy_region(dev, dst, ds, (x, y, z), &src, ss, bx.as_deref())?;
+                self.removed = copy_region(dev, dst, ds, (x, y, z), &src, ss, bx.as_deref())?;
             }
             "resolve" => {
                 if t.len() != 6 {
@@ -276,7 +288,12 @@ impl D3dres {
                 hit("D3DRES.RESOLVE");
                 let dst = self.res[d].as_mut().unwrap();
                 // (every sample holds the same value in these cases: the resolve is a copy)
-                if src.d.count < 2 || dst.d.count != 1 || group(f) != group(src.d.fmt) || group(f) != group(dst.d.fmt) || src.size(src.mip_of(ss)) != dst.size(dst.mip_of(ds)) {
+                // (MEASURED: a single-sampled source changes nothing, probe-resolve-single)
+                if src.d.count < 2 {
+                    hit("D3DRES.RESOLVE.IGNORED");
+                    return Ok(true);
+                }
+                if dst.d.count != 1 || group(f) != group(src.d.fmt) || group(f) != group(dst.d.fmt) || src.size(src.mip_of(ss)) != dst.size(dst.mip_of(ds)) {
                     return Err(Fail::Unmodeled("D3DRES.RESOLVE.BAD"));
                 }
                 let v = src.subs.get(ss as usize).cloned().flatten();
@@ -535,9 +552,15 @@ fn fill_subs(res: &mut Resource, subs: &[u32], el: &[u8]) -> Res<()> {
     Ok(())
 }
 
-fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: Option<&[u32]>) -> Res<()> {
+/// true: the device is removed
+fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: Option<&[u32]>) -> Res<bool> {
     hit("D3DRES.UPDATE");
-    if res.d.usage != 0 || res.d.count > 1 || sub >= res.nsubs() {
+    // (MEASURED: a subresource past the last changes nothing, probe-update-sub)
+    if sub >= res.nsubs() {
+        hit("D3DRES.UPDATE.IGNORED");
+        return Ok(false);
+    }
+    if res.d.usage != 0 || res.d.count > 1 {
         return Err(Fail::Unmodeled("D3DRES.UPDATE.BAD"));
     }
     let (rb, rows, sl) = res.layout(sub);
@@ -560,10 +583,12 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
     };
     if l >= r || tp >= b || fr >= bk {
         hit("D3DRES.UPDATE.EMPTY");
-        return Ok(());
+        return Ok(false);
     }
+    // (MEASURED: a box past the subresource removes the device (WARP), probe-update-past)
     if r * el > rb || b > rows || bk > sl {
-        return Err(Fail::Unmodeled("D3DRES.UPDATE.BAD"));
+        hit("D3DRES.REMOVED");
+        return Ok(true);
     }
     let v = res.subs[sub as usize].as_mut().unwrap();
     let w = (r - l) * el;
@@ -573,7 +598,7 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
             v[(z * rows + y) * rb + l * el..][..w].copy_from_slice(&data[at..at + w]);
         }
     }
-    Ok(())
+    Ok(false)
 }
 
 fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
@@ -593,7 +618,8 @@ fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
     Ok(())
 }
 
-fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: &Resource, ss: u32, bx: Option<&[u32]>) -> Res<()> {
+/// true: the device is removed
+fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: &Resource, ss: u32, bx: Option<&[u32]>) -> Res<bool> {
     hit("D3DRES.COPYSUB");
     if ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.usage == 1 || dst.d.count != src.d.count || dst.d.dim != src.d.dim {
         return Err(Fail::Unmodeled("D3DRES.COPYSUB.BAD"));
@@ -606,11 +632,11 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
         }
         let s = src.subs[0].as_ref().unwrap()[l..r].to_vec();
         dst.subs[0].as_mut().unwrap()[x..x + (r - l)].copy_from_slice(&s);
-        return Ok(());
+        return Ok(false);
     }
     if !copy_compatible(dst.d.fmt, src.d.fmt, dev) {
         hit("D3DRES.COPY.IGNORED");
-        return Ok(());
+        return Ok(false);
     }
     let (sf, df) = (src.fmt().unwrap(), dst.fmt().unwrap());
     let (srb, srows, ssl) = src.layout(ss);
@@ -627,8 +653,13 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
         }
     };
     let (dx, dy, dz) = (at.0 as usize / df.bw as usize, at.1 as usize / df.bh as usize, at.2 as usize);
-    if r <= l || b <= t || k <= f || r * sel > srb || b > srows || k > ssl || dx + (r - l) > drb / del || dy + (b - t) > drows || dz + (k - f) > dsl {
+    if r <= l || b <= t || k <= f || r * sel > srb || b > srows || k > ssl {
         return Err(Fail::Unmodeled("D3DRES.COPYSUB.BAD"));
+    }
+    // (MEASURED: a region past the destination removes the device (WARP), probe-copysub-past)
+    if dx + (r - l) > drb / del || dy + (b - t) > drows || dz + (k - f) > dsl {
+        hit("D3DRES.REMOVED");
+        return Ok(true);
     }
     let s = src.subs[ss as usize].clone().unwrap();
     let d = dst.subs[ds as usize].as_mut().unwrap();
@@ -639,7 +670,7 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
             d[to..to + (r - l) * sel].copy_from_slice(&s[from..from + (r - l) * sel]);
         }
     }
-    Ok(())
+    Ok(false)
 }
 
 fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usize, out: &mut Vec<String>) -> Res<()> {
@@ -648,8 +679,16 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
         out.push(format!("read hr {hr:08x}"));
         return Ok(());
     }
-    if res.d.count > 1 || sub >= res.nsubs() {
+    if sub >= res.nsubs() {
         return Err(Fail::Unmodeled("D3DRES.READ.BAD"));
+    }
+    // (MEASURED: a multisampled resource reads as zeros: the copy to the single-sampled
+    // staging texture does not run, probe-read-ms)
+    if res.d.count > 1 {
+        hit("D3DRES.READ.MS");
+        out.push(format!("read {rows} {slices}"));
+        out.extend(std::iter::repeat_n("00".repeat(rb), rows * slices));
+        return Ok(());
     }
     let (srb, srows, ssl) = res.layout(sub);
     if rb > srb || rows > srows || slices > ssl {

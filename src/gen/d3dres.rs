@@ -420,6 +420,22 @@ fn suite(d3d11: bool) -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // where a 2D texture's bytes stop: widths of 1 to 255 MiB of RGBA8, squares, other
+    // texel sizes, mips and arrays (checks only)
+    writeln!(s, "case big-bytes\n{dev}").unwrap();
+    for k in (1u32..=64).chain([80, 96, 112, 127, 128, 129, 160, 192, 224, 255]) {
+        writeln!(s, "{}", tex2("check", k << 18, 1, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+    }
+    for (f, n) in [(28u32, 4u32), (2, 16), (61, 1), (10, 8)] {
+        for side in [4096u32, 8192, 11585, 11586, 16384, 16385, 23170, 23171, 32768] {
+            writeln!(s, "{}", tex2("check", side, side, 1, 1, f, 0, SRV, 0, 0, (1, 0))).unwrap();
+            writeln!(s, "{}", tex2("check", (1u32 << 26) / n, 2, 1, 1, f, 0, SRV, 0, 0, (1, 0))).unwrap();
+        }
+    }
+    for (w, ht, arr, mips) in [(20000u32, 1u32, 2048u32, 1u32), (20000, 4, 512, 1), (20000, 4, 1024, 1), (65536, 1024, 1, 0), (65536, 1024, 1, 1), (65536, 2048, 1, 1), (65536, 2048, 1, 0), (32768, 2048, 2, 1), (32768, 2048, 4, 1)] {
+        writeln!(s, "{}", tex2("check", w, ht, arr, mips, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+    }
+    writeln!(s, "end").unwrap();
     // BUFFEREX and buffer render target views of a plain buffer: formats, ranges, flags
     writeln!(s, "case view-b-bufex\n{dev}\nbuf 0 256 0 {} 0 0 0", h(if d3d11 { SRV | RTV | UAV } else { SRV | RTV })).unwrap();
     for f in [0x1cu32, 0x2a, 0x29, 0x1d] {
@@ -455,6 +471,52 @@ fn suite(d3d11: bool) -> String {
         writeln!(s, "case probe-{name}\n{dev}\n{}\n{}\n{body}\nend", t44(0, SRV, 1), t44(1, SRV, 1)).unwrap();
     }
     writeln!(s, "case probe-read-ms\n{dev}\n{}\nrtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\nread 0 0 16 4 1\nend", t44(0, RTV, 4)).unwrap();
+    // updates of resources that are not default, copies and resolves between unlike resources
+    // (each its own case, against a fresh pair: slot 0 is the one acted on, slot 1 its partner)
+    let usage = |slot: u32, usage: u32, bind: u32, cpu: u32| {
+        let l = tex2(&slot.to_string(), 4, 4, 1, 1, 28, usage, bind, cpu, 0, (1, 0));
+        if usage == 1 { format!("{l} init 7 16 64") } else { l }
+    };
+    let tex1d = "tex 1 1 16 1 1 1 0x1c 0 8 0 0 1 0".to_string();
+    let f2 = tex2("1", 4, 4, 1, 1, 2, 0, SRV, 0, 0, (1, 0));
+    let small = tex2("1", 2, 2, 1, 1, 28, 0, SRV, 0, 0, (1, 0));
+    let ms1 = tex2("1", 4, 4, 1, 1, 28, 0, RTV, 0, 0, (4, 0));
+    for (name, a, b, body) in [
+        ("update-immutable", usage(0, 1, SRV, 0), t44(1, SRV, 1), "update 0 0 5 16 0\nread 0 0 16 4 1"),
+        ("update-dynamic", usage(0, 2, SRV, 0x10000), t44(1, SRV, 1), "update 0 0 5 16 0\nread 0 0 16 4 1"),
+        ("update-staging", usage(0, 3, 0, 0x30000), t44(1, SRV, 1), "update 0 0 5 16 0\nread 0 0 16 4 1"),
+        ("update-ms", t44(0, RTV, 4), t44(1, SRV, 1), "update 0 0 5 16 0\nresolve 1 0 0 0 28\nread 1 0 16 4 1"),
+        ("copysub-dsub", t44(0, SRV, 1), t44(1, SRV, 1), "copysub 1 1 0 0 0 0 0\nread 1 0 16 4 1\nread 0 0 16 4 1"),
+        ("copysub-ssub", t44(0, SRV, 1), t44(1, SRV, 1), "copysub 1 0 0 0 0 0 1\nread 1 0 16 4 1"),
+        ("copysub-immutable", t44(0, SRV, 1), usage(1, 1, SRV, 0), "copysub 1 0 0 0 0 0 0\nread 1 0 16 4 1"),
+        ("copysub-ms", t44(0, RTV, 4), t44(1, SRV, 1), "copysub 1 0 0 0 0 0 0\nread 1 0 16 4 1"),
+        ("copysub-dim", t44(0, SRV, 1), tex1d.clone(), "copysub 1 0 0 0 0 0 0 0 0 0 4 1 1\nread 1 0 64 1 1"),
+        ("copysub-elsize", t44(0, SRV, 1), f2.clone(), "copysub 1 0 0 0 0 0 0\nread 1 0 64 4 1"),
+        ("copysub-srcbox", t44(0, SRV, 1), t44(1, SRV, 1), "copysub 1 0 0 0 0 0 0 0 0 0 8 4 1\nread 1 0 16 4 1"),
+        ("resolve-ms-dst", t44(0, RTV, 4), ms1, "resolve 1 0 0 0 28\nread 0 0 16 4 1"),
+        ("resolve-format", t44(0, RTV, 4), f2.clone(), "resolve 1 0 0 0 28\nread 1 0 64 4 1"),
+        ("resolve-size", t44(0, RTV, 4), small, "resolve 1 0 0 0 28\nread 1 0 8 2 1"),
+        ("read-sub", t44(0, SRV, 1), t44(1, SRV, 1), "read 0 1 16 4 1\nread 0 0 16 4 1"),
+    ] {
+        let fill = if a.contains(" 0x20 ") { "rtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\n" } else { "update 0 0 3 16 0\n" };
+        writeln!(s, "case probe-{name}\n{dev}\n{a}\n{b}\n{fill}{body}\nend").unwrap();
+    }
+    // what a removed device does
+    writeln!(s, "case probe-removed\n{dev}\n{}\n{}\nupdate 0 0 5 16 0 0 0 0 8 4 1\nfmt 0x1c\n{}\nbuf 2 256 0 8 0 0 0\nsrv 3 0 nodesc\nrtv 4 1 nodesc\nclear 4 0 0 0 0\nupdate 1 0 5 16 0\ncopy 1 0\ncopysub 1 0 0 0 0 0 0\nread 0 0 16 4 1\nread 2 0 16 1 1\nend", t44(0, SRV, 1), tex2("1", 4, 4, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0)), tex2("3", 4, 4, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+    // the whole sRGB encoding, every 1/48 of a code step (the curve's inverse, in f64)
+    for part in 0..4u32 {
+        writeln!(s, "case clear-srgb-sweep-{part}\n{dev}\n{}\nrtv 0 0 nodesc", tex2("0", 1, 1, 1, 1, 29, 0, RTV, 0, 0, (1, 0))).unwrap();
+        let v: Vec<String> = (part * 64 * 48..((part + 1) * 64 * 48).min(255 * 48)).map(|i| {
+            let c = i as f64 / (255.0 * 48.0);
+            let x = if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) };
+            h((x as f32).to_bits())
+        }).collect();
+        for t in v.chunks(3) {
+            let g = |i: usize| t.get(i).map_or("0", |x| x.as_str());
+            writeln!(s, "clear 0 {} {} {} 0\nread 0 0 4 1 1", g(0), g(1), g(2)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // (an immutable texture made without initial data crashes the x86 WARP: give it some)
     let s = s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n";
     isolate_x86_crashes(&s)
