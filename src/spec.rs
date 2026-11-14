@@ -34,6 +34,7 @@ pub const FILES: &[(&str, &str)] = &[
     ("gditext", include_str!("../spec/gditext.txt")),
     ("gdiblend", include_str!("../spec/gdiblend.txt")),
     ("gdiddb", include_str!("../spec/gdiddb.txt")),
+    ("d2d", include_str!("../spec/d2d.txt")),
 ];
 
 /// (excluded: deliberately not asked, e.g. calls that read past Windows' own arrays)

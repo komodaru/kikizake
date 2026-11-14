@@ -2,6 +2,7 @@
 //! the model cannot answer prints "unmodeled <why>" in place of its lines (and is then compared
 //! with Windows only).
 
+pub mod d2d;
 pub mod d3d11;
 pub mod d3d12;
 pub mod dxgi_format;
@@ -95,6 +96,12 @@ impl Api for dwrite::Dwrite {
     }
 }
 
+impl Api for d2d::D2d {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        d2d::D2d::op(self, op, out)
+    }
+}
+
 /// every API's model, fresh for a case, in the order a line is offered to them (one line each)
 fn apis() -> Vec<Box<dyn Api>> {
     vec![
@@ -108,6 +115,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(gdiplus::Gdiplus::default()),
         Box::new(dwrite::Dwrite::default()),
         Box::new(d3d12::D3d12::default()),
+        Box::new(d2d::D2d::default()),
     ]
 }
 

@@ -85,12 +85,14 @@ fn math(s: &mut String, r: &mut XorShift32) {
     // and past it
     for from in 0..4 {
         for to in 0..4 {
+            // (the curve between 0 and 1 apart from the ends, the clamping and the alpha)
             write!(s, "case cs-{from}-{to}\n").unwrap();
-            for k in 0..=16 {
+            for k in 1..16 {
                 let v = fmt(k as f64 / 16.0);
                 writeln!(s, "d2cs {from} {to} {v} {v} {v} 0.5").unwrap();
             }
-            writeln!(s, "d2cs {from} {to} -0.5 1.5 2 1\nd2cs {from} {to} {NAN} {INF} {NINF} 0\nend").unwrap();
+            writeln!(s, "end\ncase cs-ends-{from}-{to}\nd2cs {from} {to} 0 0 0 0.5\nd2cs {from} {to} 1 1 1 0.5\nd2cs {from} {to} 0 1 0 1").unwrap();
+            writeln!(s, "d2cs {from} {to} -0.5 1.5 2 1\nd2cs {from} {to} {NAN} {INF} {NINF} 0\nd2cs {from} {to} 0 1 0 1.5\nd2cs {from} {to} 1 0 1 -1\nd2cs {from} {to} 0 0 1 {NAN}\nd2cs {from} {to} 0x80000000 1 0 {INF}\nend").unwrap();
         }
     }
     for i in 0..10 {
@@ -152,11 +154,15 @@ fn geometry(s: &mut String, r: &mut XorShift32) {
     }
     let ells = ["0 0 2 1", "3 -1 0.5 4", "1 1 0 0", "1 1 -2 1", "0 0 0x7fc00000 1"];
     for (i, g) in ells.iter().enumerate() {
-        writeln!(s, "case ell-{i}\nd2ell 0 {g}\nd2bounds 0\nd2bounds 0 2 0 0 2 1 1\nd2area 0\nd2len 0\nend").unwrap();
+        writeln!(s, "case ell-{i}\nd2ell 0 {g}\nd2bounds 0\nd2bounds 0 2 0 0 2 1 1\nend").unwrap();
+        // (the flattened curve's area and length, each by itself)
+        writeln!(s, "case ell-area-{i}\nd2ell 0 {g}\nd2area 0\nend\ncase ell-len-{i}\nd2ell 0 {g}\nd2len 0\nend").unwrap();
     }
     let rrects = ["0 0 8 4 1 1", "0 0 8 4 4 2", "0 0 8 4 10 10", "0 0 8 4 0 0", "0 0 8 4 -1 2", "8 4 0 0 1 1"];
     for (i, g) in rrects.iter().enumerate() {
-        writeln!(s, "case rrect-{i}\nd2rrect 0 {g}\nd2bounds 0\nd2area 0\nd2len 0\nend").unwrap();
+        writeln!(s, "case rrect-{i}\nd2rrect 0 {g}\nd2bounds 0\nend").unwrap();
+        writeln!(s, "case rrect-area-{i}\nd2rrect 0 {g}\nd2area 0\nend\ncase rrect-len-{i}\nd2rrect 0 {g}\nd2len 0\nend").unwrap();
+        writeln!(s, "case rrect-in-{i}\nd2rrect 0 {g}\nd2in 0 4 2\nd2in 0 0.25 0.25\nd2in 0 7.5 3.75\nend").unwrap();
     }
     // transformed bounds of random rectangles under exact transforms
     for i in 0..40 {
@@ -216,11 +222,17 @@ fn geometry(s: &mut String, r: &mut XorShift32) {
         }
         writeln!(s, "end").unwrap();
     }
-    write!(s, "case in-ell\nd2ell 0 6 6 5 3\n").unwrap();
-    for _ in 0..80 {
-        writeln!(s, "d2in 0 {} {}", fmt(r.range(0, 96) as f64 / 8.0), fmt(r.range(0, 96) as f64 / 8.0)).unwrap();
+    // ellipses: points well inside or outside, and (by themselves) points near the curve
+    for (k, (cx, cy, rx, ry)) in [(6.0, 6.0, 5.0, 3.0), (4.0, 5.0, 2.0, 4.5), (8.0, 8.0, 6.0, 6.0)].into_iter().enumerate() {
+        let (mut far, mut near) = (String::new(), String::new());
+        for _ in 0..120 {
+            let (x, y) = (r.range(0, 128) as f64 / 8.0, r.range(0, 128) as f64 / 8.0);
+            let v: f64 = ((x - cx) / rx).powi(2) + ((y - cy) / ry).powi(2);
+            let l = format!("d2in 0 {} {}\n", fmt(x), fmt(y));
+            if (v.sqrt() - 1.0).abs() * rx.min(ry) < 0.75 { near += &l } else { far += &l }
+        }
+        writeln!(s, "case in-ell-{k}\nd2ell 0 {cx} {cy} {rx} {ry}\n{far}end\ncase in-ellnear-{k}\nd2ell 0 {cx} {cy} {rx} {ry}\n{near}end").unwrap();
     }
-    writeln!(s, "end").unwrap();
     // relations: rectangles apart, overlapping, inside one another, the same, touching
     for i in 0..60 {
         let a = (r.range(0, 8), r.range(0, 8), r.range(1, 8), r.range(1, 8));
@@ -230,6 +242,10 @@ fn geometry(s: &mut String, r: &mut XorShift32) {
     for (i, (a, b)) in [("0 0 8 8", "2 2 4 4"), ("0 0 8 8", "0 0 8 8"), ("0 0 4 4", "4 0 8 4"), ("0 0 4 4", "5 0 8 4"), ("0 0 4 4", "4.125 0 8 4"), ("0 0 8 8", "0 0 4 4")].iter().enumerate() {
         writeln!(s, "case cmpf-{i}\nd2rect 0 {a}\nd2rect 1 {b}\nd2cmp 0 1\nd2cmp 1 0\nend").unwrap();
     }
+    // (compared with Windows only for now: transformed curves, NaN in a path, just past the tolerance)
+    writeln!(s, "case rrect-xf\nd2rrect 0 0 0 8 4 1 1\nd2bounds 0 0 1 -1 0 0 0\nend\ncase ell-xf\nd2ell 0 0 0 2 1\nd2bounds 0 0 1 -1 0 0 0\nend").unwrap();
+    writeln!(s, "case path-nan\nd2path 0 alt m 0 0 {NAN} 4 4 4 z\nd2bounds 0\nend\ncase in-edge\nd2rect 0 0 0 8 8\nd2in 0 8.2505 4\nend").unwrap();
+    writeln!(s, "case cmp-same\nd2rect 0 1 1 3 3\nd2cmp 0 0\nend").unwrap();
     writeln!(s, "case cmp-path\nd2path 0 alt m 0 0 8 0 8 8 0 8 z\nd2rect 1 2 2 4 4\nd2ell 2 20 20 1 1\nd2cmp 0 1\nd2cmp 1 0\nd2cmp 0 2\nd2cmp 2 0\nd2cmp 0 0\nend").unwrap();
     writeln!(s, "case count-rect\nd2rect 0 0 0 1 1\nd2count 0\nend").unwrap();
 }
@@ -316,5 +332,12 @@ fn draw(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "case fillg-{i}\nd2target 16 16\nd2aa aliased\nd2path 0 {mode} {}\nd2fillg 0 {}\nd2read\nend", figure(&p, "z"), color(r, true)).unwrap();
     }
     writeln!(s, "case fillg-star\nd2target 16 16\nd2aa aliased\nd2path 0 alt m 8 0 12 16 0 5 16 5 4 16 z\nd2fillg 0 255 255 255 255\nd2read\nd2path 1 wind m 8 0 12 16 0 5 16 5 4 16 z\nd2clear 0 0 0 0\nd2fillg 1 255 255 255 255\nd2read\nend").unwrap();
+    // curves and antialiased colors over a background (compared with Windows only for now)
+    writeln!(s, "case fill-ell\nd2target 16 16\nd2aa aliased\nd2ell 0 8 8 5 3\nd2fillg 0 255 255 255 255\nd2read\nend").unwrap();
+    writeln!(s, "case fill-ell-aa\nd2target 16 16\nd2ell 0 8 8 5 3\nd2fillg 0 255 255 255 255\nd2read\nend").unwrap();
+    for i in 0..12 {
+        let e = |r: &mut XorShift32| fmt(r.range(0, 64) as f64 / 4.0);
+        writeln!(s, "case aa-c{i}\nd2target 16 2\nd2clear {}\nd2fill {} 0 {} 2 {}\nd2read\nend", color(r, i % 2 == 0), e(r), e(r), color(r, i % 3 == 0)).unwrap();
+    }
     writeln!(s, "case nort\nd2fill 0 0 1 1 0 0 0 255\nd2read\nend").unwrap();
 }

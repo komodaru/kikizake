@@ -1,0 +1,67 @@
+# Direct2D clauses (spec/README.md): <id> <status> | <source> | <what it says>
+# (golden d2d-32 and d2d-64 are the same answers: Windows 2025's d2d1.dll, the WIC render target on the software rasterizer)
+D2D.ROT measured | D2D1MakeRotateMatrix | a rotation by angle degrees about the center: m11 m22 cos, m12 sin, m21 -sin; the angle reduced to 0..360 in f32 (fmod, +360 when negative), sin and cos in f64 of r times pi/180 as f32, rounded; dx = cx (1 - m11) - cy m21, dy = cy (1 - m22) - cx m12 in f32 (golden d2d-32/-64: 60 angles bit for bit)
+D2D.ROT.RIGHT measured | D2D1MakeRotateMatrix | a reduced angle that is a multiple of 90 gives exact 0 and +-1 (golden d2d-32/-64: 0, 90, 180, 270, -90, -180, 360, 450, 720, -720, 3600)
+D2D.ROT.NAN measured | D2D1MakeRotateMatrix | a NaN angle makes every element that NaN, an infinite one the indefinite NaN ffc00000; m21 with the sign flipped (golden d2d-32/-64)
+D2D.SKEW measured | D2D1MakeSkewMatrix | m12 tan(angleY), m21 tan(angleX) (f64 tan of the angle times pi/180 as f32, no reduction), the diagonal 1, dx = cx - (cx m11 + cy m21), dy = cy - (cx m12 + cy m22) in f32 (golden d2d-32/-64: 38 skews bit for bit)
+D2D.INV measured | D2D1InvertMatrix | an invertible matrix becomes its inverse and TRUE is returned: i = 1 / (m11 m22 - m12 m21) in f32, then m22 i, -m12 i, -m21 i, m11 i, (m21 dy - m22 dx) i, (m12 dx - m11 dy) i (golden d2d-32/-64: 55 matrices bit for bit)
+D2D.INV.SINGULAR measured | D2D1InvertMatrix, D2D1IsMatrixInvertible | invertible exactly when 1 / det is finite: a zero or subnormal determinant is not (FALSE, the matrix left as it was), an infinite one is (golden d2d-32/-64: inv-11 .. inv-14); IsMatrixInvertible agrees with InvertMatrix
+D2D.TRIG measured | D2D1SinCos, D2D1Tan | f64 sin, cos, tan of the f32 argument, rounded to f32; a NaN argument comes back, an infinite one gives ffc00000 (golden d2d-32/-64: 43 arguments bit for bit)
+D2D.VEC3 measured | D2D1Vec3Length | sqrt(x x + y y + z z) all in f32: 1e20 overflows to infinity, 1e-30 underflows to 0 (golden d2d-32/-64: 30 vectors)
+D2D.CS.OTHER measured | D2D1ConvertColorSpace, D2D1_COLOR_SPACE | a space other than sRGB (1) or scRGB (2) on either side gives 0 0 0 0 (golden d2d-32/-64: cs-0-*, cs-3-*, cs-*-0, cs-*-3)
+D2D.CS.SAME measured | D2D1ConvertColorSpace | the same space on both sides gives the color as given (golden d2d-32/-64: cs-1-1, cs-2-2)
+D2D.CS.CLAMP measured | D2D1ConvertColorSpace | between sRGB and scRGB the color channels are clamped to 0..1 (NaN to 0), 0 and 1 map to themselves, the alpha is kept as given (golden d2d-32/-64)
+D2D.CS.CURVE open | D2D1ConvertColorSpace | the transfer curve between 0 and 1: within 3 ulps of the IEC 61966-2-1 formulas in f64, not bit for bit by f64, f32 or exp/log evaluations of them (golden d2d-32/-64: 150 values)
+D2D.STROKE.ENUM doc | ID2D1Factory::CreateStrokeStyle, D2D1_CAP_STYLE, D2D1_LINE_JOIN, D2D1_DASH_STYLE | caps 0..3, line join 0..3, dash style 0..5; anything else is E_INVALIDARG
+D2D.STROKE.DASHES doc | ID2D1Factory::CreateStrokeStyle (dashes: used only with D2D1_DASH_STYLE_CUSTOM) | dashes given without the custom style, or the custom style without dashes, is E_INVALIDARG
+D2D.STROKE.VALUES measured | D2D1_STROKE_STYLE_PROPERTIES | any miter limit, dash offset and dash is accepted and kept as given: under 1, negative, NaN, infinite (golden d2d-32/-64: stroke-4-*, stroke-6-*, dash-5-6, dash-5-7)
+D2D.STROKE.PATTERN measured | ID2D1StrokeStyle::GetDashes | the predefined styles give their pattern in stroke widths: DASH 2 2, DOT 0 2, DASH_DOT 2 2 0 2, DASH_DOT_DOT 2 2 0 2 0 2, whatever the caps (golden d2d-32/-64: dash-1-0 .. dash-4-0, stroke-r*)
+D2D.STROKE.GET doc | ID2D1StrokeStyle::GetStartCap and the other getters, GetDashes | the getters give the properties as created, GetDashesCount the number of dashes, GetDashes them
+D2D.CREATE doc | ID2D1Factory::CreateRectangleGeometry, CreateEllipseGeometry, CreateRoundedRectangleGeometry | the simple geometries are made from any description (S_OK; measured with NaN, infinite, inverted and negative ones)
+D2D.PATH doc | ID2D1PathGeometry::Open, ID2D1SimplifiedGeometrySink::Close | a path of well-formed figures: Open and Close S_OK
+D2D.XF doc | ID2D1Factory::CreateTransformedGeometry | the source geometry through the transform (bounds of a transformed one are the source's through the product: measured, xbounds-*)
+D2D.BOUNDS.RECT measured | ID2D1Geometry::GetBounds | a rectangle or rounded rectangle without a world transform: its rectangle put in order (left min(l, r) and right max(l, r) as SSE minss / maxss, so a NaN right stays NaN), the radii not mattering (golden d2d-32/-64: rect-*, rrect-*)
+D2D.BOUNDS.RRECT measured | ID2D1Geometry::GetBounds | (the rounded rectangle half of D2D.BOUNDS.RECT: rrect-0 .. rrect-5, radii past half the size and negative ones included)
+D2D.BOUNDS.RECTXF measured | ID2D1Geometry::GetBounds | a rectangle through a world transform: the smallest and largest of its four corners through it (golden d2d-32/-64: xbounds-*, rect-*)
+D2D.BOUNDS.RRECTXF open | ID2D1Geometry::GetBounds | a rounded rectangle through a world transform
+D2D.BOUNDS.PATH doc | ID2D1Geometry::GetBounds | a path of straight lines: the smallest and largest of its points through the transform (measured: path-*)
+D2D.BOUNDS.PATHNAN open | ID2D1Geometry::GetBounds | a path with a NaN point
+D2D.BOUNDS.NAN measured | ID2D1Geometry::GetBounds | through a transform, an axis on which a corner is NaN has both bounds ffffffff (an infinite edge times a zero element is one); an ellipse with a NaN gives four ffffffff with or without a transform (golden d2d-32/-64: rect-4, rect-5, ell-4)
+D2D.BOUNDS.ELL measured | ID2D1Geometry::GetBounds | an ellipse under a scale and translation: center minus and plus the radii, through the transform; a negative radius counts as its size (golden d2d-32/-64: ell-*)
+D2D.BOUNDS.ELLXF open | ID2D1Geometry::GetBounds | an ellipse through a rotation or skew, or with an infinite value
+D2D.IN.TOL measured | ID2D1Geometry::FillContainsPoint (flatteningTolerance: points missing the fill by less than it are still inside) | a point strictly nearer than the tolerance to the outline is inside, one at exactly the tolerance is not (golden d2d-32/-64: intol-*, points 0.25 from a side in in-*)
+D2D.IN.TOL0 measured | ID2D1Geometry::FillContainsPoint | a tolerance of 0 is taken as the default 0.25 (golden d2d-32/-64: intol-0); 0.01 is used as given
+D2D.IN.EDGE open | ID2D1Geometry::FillContainsPoint | a point within 1/1000 past the tolerance from the outline
+D2D.IN.ALT doc | D2D1_FILL_MODE (ALTERNATE) | inside where a ray crosses an odd number of sides (measured: in-*-alt)
+D2D.IN.WIND doc | D2D1_FILL_MODE (WINDING) | inside where the winding number is not zero (measured: in-*-wind)
+D2D.IN.ELL measured | ID2D1Geometry::FillContainsPoint | an ellipse holds the points inside its curve (golden d2d-32/-64: in-ell, points at least 0.56 from the curve)
+D2D.IN.ELLNEAR open | ID2D1Geometry::FillContainsPoint | points near an ellipse's curve (its flattening and the tolerance)
+D2D.IN.RRECT open | ID2D1Geometry::FillContainsPoint | rounded rectangles
+D2D.AREA.RECT doc | ID2D1Geometry::ComputeArea | a rectangle's area: |width times height| in f32 (measured, rect-*)
+D2D.AREA.POLY measured | ID2D1Geometry::ComputeArea | a path of straight lines: the area its fill mode fills, open figures filled as closed, self-crossing and overlapping figures counted by the fill mode (golden d2d-32/-64: 66 paths bit for bit, against exact slab integration)
+D2D.AREA.CURVE open | ID2D1Geometry::ComputeArea | ellipses and rounded rectangles (their flattening: the 2 x 1 ellipse's area is that of an octagon, 4 sqrt 2)
+D2D.LEN measured | ID2D1Geometry::ComputeLength | each side's sqrt(dx dx + dy dy) in f32, summed in f32 in order over every figure, the closing side of closed figures included (golden d2d-32/-64: 66 paths bit for bit; f64 sums and per-figure sums do not match)
+D2D.LEN.CURVE open | ID2D1Geometry::ComputeLength | ellipses and rounded rectangles (their flattening)
+D2D.CMP doc | ID2D1Geometry::CompareWithGeometry, D2D1_GEOMETRY_RELATION | rectangles apart: DISJOINT (1); this one inside the other: IS_CONTAINED (2); the other inside this one: CONTAINS (3); else OVERLAP (4)
+D2D.CMP.EDGE measured | ID2D1Geometry::CompareWithGeometry | rectangles compared as closed sets, the tolerance not widening them: touching is OVERLAP, equal ones IS_CONTAINED both ways, a gap of 1/8 DISJOINT, containment with shared edges CONTAINS / IS_CONTAINED (golden d2d-32/-64: 40 cases)
+D2D.CMP.SHAPE open | ID2D1Geometry::CompareWithGeometry | anything but two rectangles (cmp-path: the path square CONTAINS a rectangle inside it, a geometry compared with itself is IS_CONTAINED)
+D2D.COUNT measured | ID2D1PathGeometry::GetFigureCount, GetSegmentCount | the figures, and the segments: one per line, and the closing line of a closed figure (golden d2d-32/-64: path-*, sink-*)
+D2D.COUNT.NOPATH doc | ID2D1PathGeometry | a rectangle geometry has no ID2D1PathGeometry interface
+D2D.SINK.OPEN doc | ID2D1PathGeometry::Open (can only be opened once) | a path geometry opens once; again is D2DERR_WRONG_STATE (88990001)
+D2D.SINK.CLOSE doc | ID2D1SimplifiedGeometrySink::Close | Close of a sink whose figures are all ended: S_OK
+D2D.SINK.ERROR measured | ID2D1SimplifiedGeometrySink::Close (errors while it was open are returned here) | a figure begun twice, a line or end outside a figure, a figure not ended, a second Close: D2DERR_WRONG_STATE; a second Close leaves a closed geometry usable (golden d2d-32/-64: sink-5 .. sink-12)
+D2D.SINK.COUNT measured | ID2D1PathGeometry::GetFigureCount | the counts of a geometry not closed, or closed in error: D2DERR_WRONG_STATE, the counts not written (golden d2d-32/-64: sink-0, sink-1, sink-7 .. sink-10)
+D2D.SINK.AFTER measured | ID2D1SimplifiedGeometrySink | figure calls on a closed sink are ignored (golden d2d-32/-64: sink-12)
+D2D.SINK.FILL measured | ID2D1SimplifiedGeometrySink::SetFillMode | the fill mode set after a figure is accepted and changes no count (golden d2d-32/-64: sink-13, sink-14)
+D2D.TARGET doc | ID2D1Factory::CreateWicBitmapRenderTarget | a render target on a 32bppPBGRA WIC bitmap, its pixels zero
+D2D.BRUSH measured | ID2D1SolidColorBrush::GetColor, ID2D1Brush::GetOpacity | the color as given, any float (negative, over 1, NaN, infinite); opacity 1 (golden d2d-32/-64: brush)
+D2D.CLEAR measured | ID2D1RenderTarget::Clear, Supported Pixel Formats and Alpha Modes | every pixel the color premultiplied: each channel floor(c/255 a/255 255 + 0.5) in f32, alpha round(a) (golden d2d-32/-64: clear-*, 400 colors)
+D2D.READ doc | ID2D1RenderTarget::EndDraw | EndDraw S_OK, the bitmap holds what was drawn
+D2D.FILL.RECT measured | ID2D1RenderTarget::FillRectangle, D2D1_ANTIALIAS_MODE_ALIASED | aliased: the pixels whose centers are inside the rectangle put in order, axis-aligned transforms included (golden d2d-32/-64: fill-*, xform-*)
+D2D.FILL.POLY measured | ID2D1RenderTarget::FillGeometry, D2D1_FILL_MODE | aliased: the pixels whose centers are inside the path by its fill mode (golden d2d-32/-64: fillg-*)
+D2D.FILL.EDGE measured | ID2D1RenderTarget::FillRectangle, FillGeometry | a pixel center on an edge is inside only on a left or top edge: the winding counts the sides whose y range [min, max) holds the center and that pass strictly right of it (golden d2d-32/-64: 72 cases with centers on edges)
+D2D.FILL.AAGRID measured | D2D1_ANTIALIAS_MODE_PER_PRIMITIVE | antialiased with every edge on the pixel grid: as aliased (golden d2d-32/-64: fill-1, fill-3, ...)
+D2D.FILL.AACOVER measured | D2D1_ANTIALIAS_MODE_PER_PRIMITIVE | an axis-aligned rectangle on quarter pixels, white and opaque on an empty target: each pixel the exact covered fraction of it, every byte round(coverage 255): 0x40, 0x80, 0xbf (golden d2d-32/-64: aa-*)
+D2D.FILL.AA open | D2D1_ANTIALIAS_MODE_PER_PRIMITIVE | antialiased partial coverage in other cases (colors, backgrounds, other edges)
+D2D.FILL.CURVE open | ID2D1RenderTarget::FillGeometry | curves
+D2D.FILL.OVER measured | D2D1_PRIMITIVE_BLEND_SOURCE_OVER | a translucent color over the target: the premultiplied source s plus round(d (255 - sa) / 255) for each byte (golden d2d-32/-64: over-*, 60 fills)
