@@ -355,8 +355,7 @@ pub fn png_filter(raw: &[Vec<u8>], bpp: usize, filters: &[u8]) -> Vec<u8> {
     out
 }
 
-/// GIF's variable-length LZW (GIF89a appendix F; the code size grows when the next code reaches
-/// 2^size, a clear code when the table is full), as data sub-blocks
+/// GIF's variable-length LZW (GIF89a appendix F, as giflib writes it), as data sub-blocks
 pub fn gif_lzw(min: u32, idx: &[u8]) -> Vec<u8> {
     let clear = 1u32 << min;
     let mut bits = Vec::<u8>::new();
@@ -385,6 +384,11 @@ pub fn gif_lzw(min: u32, idx: &[u8]) -> Vec<u8> {
             continue;
         }
         emit(c, size, &mut bits);
+        // (giflib's order: the code goes out, the size grows once the next code needs it, then
+        // the new string gets its code)
+        if next >= 1 << size && size < 12 {
+            size += 1;
+        }
         if next >= 4095 {
             emit(clear, size, &mut bits);
             dict.clear();
@@ -393,9 +397,6 @@ pub fn gif_lzw(min: u32, idx: &[u8]) -> Vec<u8> {
         } else {
             dict.insert((c, p), next);
             next += 1;
-            if next >= 1 << size && size < 12 {
-                size += 1;
-            }
         }
         cur = Some(p as u32);
     }

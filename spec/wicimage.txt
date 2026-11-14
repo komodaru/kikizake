@@ -1,2 +1,71 @@
 # WIC bitmap source clauses (spec/README.md): <id> <status> | <source> | <what it says>
-WICIMAGE.OPEN open | (none) | not modelled yet
+# bitmaps in memory, the current source
+WICIMAGE.BITMAP assumed | IWICImagingFactory::CreateBitmapFromMemory | a bitmap of the bytes given, at 96 dpi; an indexed one shows the palette set on it
+WICIMAGE.BITMAP.ALPHA8 open | (none) | a bitmap of 8bppAlpha from memory
+WICIMAGE.NOSOURCE doc | runner/wicimage.c | an op on no source (after a call that failed) prints "<op> -"
+WICIMAGE.INFO doc | IWICBitmapSource::GetSize, GetPixelFormat, GetResolution | a source's size, pixel format and resolution
+# CopyPixels
+WICIMAGE.COPY doc | IWICBitmapSource::CopyPixels | the rectangle's pixels, (width * bits + 7) / 8 bytes a row, rows cbStride apart; NULL is the whole bitmap
+WICIMAGE.COPY.RECT assumed | IWICBitmapSource::CopyPixels (the rectangle must be inside the bitmap) | a rectangle not inside the bitmap, or empty: E_INVALIDARG
+WICIMAGE.COPY.STRIDE assumed | IWICBitmapSource::CopyPixels | a stride shorter than a row: E_INVALIDARG
+WICIMAGE.COPY.BUFFER assumed | IWICBitmapSource::CopyPixels (the caller must give enough buffer) | a buffer shorter than stride * (height - 1) + a row: WINCODEC_ERR_INSUFFICIENTBUFFER
+# scalers
+WICIMAGE.SCALE.NEAREST assumed | WICBitmapInterpolationMode (NearestNeighbor: the one pixel the point falls in) | output pixel d takes source pixel floor((d + 0.5) * source / output), in the source's format
+WICIMAGE.SCALE.FILTER open | WICBitmapInterpolationMode (Linear 2x2, Cubic 4x4, Fant all the pixels that map to it, HighQualityCubic a kernel resized with the scale) | the weights, their rounding, the output format
+WICIMAGE.SCALE.SIZE open | IWICBitmapScaler::Initialize | a size of 0 or past 65535
+# flip/rotators and clippers
+WICIMAGE.FLIP doc | WICBitmapTransformOptions | Rotate90/180/270 clockwise (the low two bits), then FlipHorizontal (around the vertical axis) and FlipVertical; the format as it is
+WICIMAGE.FLIP.BAD open | IWICBitmapFlipRotator::Initialize | options outside 0x1b
+WICIMAGE.CLIP doc | IWICBitmapClipper::Initialize | the rectangle of the source, in its format
+WICIMAGE.CLIP.RECT assumed | IWICBitmapClipper::Initialize | a rectangle not inside the source, or empty: E_INVALIDARG
+WICIMAGE.CONVERT doc | IWICFormatConverter (spec/wic.txt) | a converter on the current source converts as the wic suite's convert does
+# palettes
+WICIMAGE.PALETTE.BW doc | WICBitmapPaletteType (FixedBW) | black, white
+WICIMAGE.PALETTE.GRAY assumed | WICBitmapPaletteType (FixedGray4, 16, 256) | n grays evenly from black to white, i * 255 / (n - 1)
+WICIMAGE.PALETTE.HALFTONE open | WICBitmapPaletteType (FixedHalftone8 ... 256: the levels of each primary and the 16 system colors) | their order
+WICIMAGE.PALETTE.TRANSPARENT doc | IWICPalette::InitializePredefined | with a transparent color: one more entry under 256 colors, the last one replaced at 256, the type Custom (ASSUMED: the entry 0x00000000)
+WICIMAGE.PALETTE.TYPE assumed | IWICPalette::InitializePredefined | Custom, MedianCut and values past FixedGray256: E_INVALIDARG
+WICIMAGE.SRCPAL doc | IWICBitmapSource::CopyPalette | an indexed source's palette (ASSUMED: of type Custom)
+WICIMAGE.SRCPAL.NONE assumed | IWICBitmapSource::CopyPalette | a source with no palette: WINCODEC_ERR_PALETTEUNAVAILABLE
+# color
+WICIMAGE.COLOR.EXIF doc | IWICColorContext::InitializeFromExifColorSpace | 1 sRGB, 2 Adobe RGB: a context of type ExifColorSpace
+WICIMAGE.COLOR.EXIF.BAD open | IWICColorContext::InitializeFromExifColorSpace | other values
+WICIMAGE.COLOR.TRANSFORM open | IWICColorTransform::Initialize | the transform's pixels (Windows' color management)
+# decoders
+WICIMAGE.DECODE.UNKNOWN assumed | IWICImagingFactory::CreateDecoderFromStream | bytes no decoder takes: WINCODEC_ERR_COMPONENTNOTFOUND
+WICIMAGE.FRAME doc | IWICBitmapDecoder::GetFrame | a frame of the file
+WICIMAGE.BMP.HEADER doc | BITMAPCOREHEADER, BITMAPINFOHEADER, BITMAPV5HEADER | size, depth, compression, colors used, resolution in pixels a meter (ASSUMED: 0 is 96 dpi); a negative height top-down
+WICIMAGE.BMP.FORMAT doc | Native Pixel Formats Overview (BMP) | 1, 4, 8 bits indexed; 16 bits 555 (or those bit fields) BGR555, 565 bit fields BGR565; 24 bits BGR; 32 bits BGR, with an alpha mask BGRA
+WICIMAGE.BMP.PALETTE doc | BITMAPINFOHEADER (biClrUsed: 0 is all 2^n) | the palette, opaque
+WICIMAGE.BMP.FIELDS open | (none) | other bit fields
+WICIMAGE.BMP.V5ALPHA open | Native Pixel Formats Overview (a BITMAPV5HEADER file decodes as 32bppBGRA) | 32 bits without bit fields in a v5 header
+WICIMAGE.BMP.RLE open | (none) | RLE8, RLE4: the format and the pixels a delta skips
+WICIMAGE.DECODE.BROKEN open | (none) | a cut file, a frame past the last
+WICIMAGE.PNG.CHUNKS doc | ISO/IEC 15948 | the chunks, IDATs joined, zlib, the five filters
+WICIMAGE.PNG.ADAM7 doc | ISO/IEC 15948 (Adam7) | the seven passes put back in place
+WICIMAGE.PNG.FORMAT doc | Native Pixel Formats Overview (PNG) | gray 1-16 bits as BlackWhite, 2/4/8bppGray, 16bppGray; RGB 24bppBGR / 48bppRGB; indexed 1-8; gray+alpha and RGBA 8 bits 32bppBGRA, 16 bits 64bppRGBA (ASSUMED: which one each takes)
+WICIMAGE.PNG.PALETTE doc | ISO/IEC 15948 (PLTE, tRNS) | the PLTE entries, alpha from tRNS
+WICIMAGE.PNG.PHYS assumed | ISO/IEC 15948 (pHYs) | pixels a meter as dpi when the unit is the meter, else 96
+WICIMAGE.PNG.TRNS open | (none) | gray or RGB with tRNS
+WICIMAGE.PNG.CRC open | (none) | a chunk whose CRC is wrong
+WICIMAGE.GIF.FRAME doc | Native Pixel Formats Overview (GIF: 8bppIndexed) | each image a frame of 8bppIndexed (ASSUMED: of the image's own size), its local table or the global one in full
+WICIMAGE.GIF.LZW doc | GIF89a (appendix F) | the variable-length LZW codes, their size growing with the table, clear codes
+WICIMAGE.GIF.INTERLACE doc | GIF89a | interlaced rows put back in place
+WICIMAGE.GIF.TRANSPARENT assumed | GIF89a (graphic control extension) | the transparent index's entry has alpha 0
+WICIMAGE.TIFF.IFD doc | TIFF 6.0 | each IFD a frame, uncompressed strips
+WICIMAGE.TIFF.FORMAT doc | Native Pixel Formats Overview (TIFF) | bilevel, 4/8/16-bit gray (BlackIsZero), palette, RGB 24/48, RGBA (unassociated BGRA / 64bppRGBA, associated PBGRA), CMYK 32/64 (ASSUMED: which one each takes)
+WICIMAGE.TIFF.OTHER open | (none) | WhiteIsZero, planar, float, gray+alpha, CMYK+alpha, unspecified extra samples
+WICIMAGE.TIFF.PALETTE doc | TIFF 6.0 (ColorMap) | the colormap's high bytes
+WICIMAGE.TIFF.RESOLUTION assumed | TIFF 6.0 | inches as they are, centimeters times 2.54, none 96
+WICIMAGE.TIFF.UNIT open | (none) | a ResolutionUnit of none
+WICIMAGE.ICO open | ICO Format Overview | entries (BMP with masks, PNG) as 32bppBGRA
+WICIMAGE.DDS open | DDS Format Overview | BC1, BC2, BC3 as 32bppBGRA or 32bppPBGRA
+# encoders
+WICIMAGE.ENCODE.FORMAT doc | Native Pixel Formats Overview (encoder pixel formats) | a format the encoder takes: SetPixelFormat leaves it
+WICIMAGE.ENCODE.NEGOTIATE open | IWICBitmapFrameEncode::SetPixelFormat | a format it does not take: the one it answers
+WICIMAGE.ENCODE.CONVERT open | IWICBitmapFrameEncode::WriteSource | a source of a format other than the frame's
+WICIMAGE.ENCODE.BMP assumed | BMP Format Overview | BITMAPINFOHEADER, bottom-up, rows padded to 4 bytes, the palette in full, resolution in pixels a meter
+WICIMAGE.ENCODE.LOSSLESS assumed | Native Pixel Formats Overview | PNG and TIFF decode to the format and the pixels written
+WICIMAGE.ENCODE.GIF open | (none) | GIF: the palette written
+WICIMAGE.ENCODE.LOSSY open | (none) | JPEG, JPEG XR, DDS: what decodes from them
+WICIMAGE.ENCODE.OPTIONS open | (none) | encoder options

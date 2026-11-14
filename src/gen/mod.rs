@@ -27,6 +27,7 @@ mod gditext;
 mod gdiblend;
 mod gdiddb;
 mod wicimage;
+pub use wicimage::{bmp as wicimage_bmp, ADAM7 as WICIMAGE_ADAM7};
 
 pub use d3d11::{d3d11_base, d3d11_floats};
 pub(crate) use crate::rng::XorShift32;
