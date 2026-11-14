@@ -108,6 +108,19 @@ pub fn ddraw() -> String {
         writeln!(s, "case edge-{name}\ndd\n{body}\ndddump 0\nend").unwrap();
     }
     writeln!(s, "case nodev\nddsurf 0 4 4 32\nend").unwrap();
+    // stretches within one surface whose rectangles overlap (at 8 bpp they take floor(x·s / d),
+    // dd8 overlap8alignstretch): growing and shrinking, moving every way, 16, 24 and 32 bpp
+    let mut ro = XorShift32::new(0x00dd_57e7);
+    for f in ["565", "24", "32"] {
+        writeln!(s, "case overlapstretch-{f}\ndd\nddsurf 0 24 12 {f}").unwrap();
+        for (sw, sh, dw, dh) in [(4, 3, 5, 4), (5, 4, 4, 3), (6, 2, 9, 3), (7, 5, 3, 2)] {
+            for (dx, dy) in [(1i64, 0i64), (-1, 0), (0, 1), (0, -1), (2, 1), (-2, -1)] {
+                let (sx, sy) = (8, 4);
+                writeln!(s, "ddfill 0 {}\nddblt 0 {} {} {} {} 0 {sx} {sy} {} {}\ndddump 0", ro.range(1, 9999), sx + dx, sy + dy, sx + dx + dw, sy + dy + dh, sx + sw, sy + sh).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
 

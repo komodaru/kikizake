@@ -4309,3 +4309,231 @@ end
 case nodev
 ddsurf 0 4 4 32
 end
+case overlapstretch-565
+dd
+ddsurf 0 24 12 565
+ddfill 0 5636
+ddblt 0 9 4 14 8 0 8 4 12 7
+dddump 0
+ddfill 0 6672
+ddblt 0 7 4 12 8 0 8 4 12 7
+dddump 0
+ddfill 0 5144
+ddblt 0 8 5 13 9 0 8 4 12 7
+dddump 0
+ddfill 0 9640
+ddblt 0 8 3 13 7 0 8 4 12 7
+dddump 0
+ddfill 0 6993
+ddblt 0 10 5 15 9 0 8 4 12 7
+dddump 0
+ddfill 0 9857
+ddblt 0 6 3 11 7 0 8 4 12 7
+dddump 0
+ddfill 0 9253
+ddblt 0 9 4 13 7 0 8 4 13 8
+dddump 0
+ddfill 0 1992
+ddblt 0 7 4 11 7 0 8 4 13 8
+dddump 0
+ddfill 0 2397
+ddblt 0 8 5 12 8 0 8 4 13 8
+dddump 0
+ddfill 0 6241
+ddblt 0 8 3 12 6 0 8 4 13 8
+dddump 0
+ddfill 0 9474
+ddblt 0 10 5 14 8 0 8 4 13 8
+dddump 0
+ddfill 0 9909
+ddblt 0 6 3 10 6 0 8 4 13 8
+dddump 0
+ddfill 0 4874
+ddblt 0 9 4 18 7 0 8 4 14 6
+dddump 0
+ddfill 0 4560
+ddblt 0 7 4 16 7 0 8 4 14 6
+dddump 0
+ddfill 0 122
+ddblt 0 8 5 17 8 0 8 4 14 6
+dddump 0
+ddfill 0 1298
+ddblt 0 8 3 17 6 0 8 4 14 6
+dddump 0
+ddfill 0 5336
+ddblt 0 10 5 19 8 0 8 4 14 6
+dddump 0
+ddfill 0 4105
+ddblt 0 6 3 15 6 0 8 4 14 6
+dddump 0
+ddfill 0 4850
+ddblt 0 9 4 12 6 0 8 4 15 9
+dddump 0
+ddfill 0 6841
+ddblt 0 7 4 10 6 0 8 4 15 9
+dddump 0
+ddfill 0 6460
+ddblt 0 8 5 11 7 0 8 4 15 9
+dddump 0
+ddfill 0 7627
+ddblt 0 8 3 11 5 0 8 4 15 9
+dddump 0
+ddfill 0 2026
+ddblt 0 10 5 13 7 0 8 4 15 9
+dddump 0
+ddfill 0 9102
+ddblt 0 6 3 9 5 0 8 4 15 9
+dddump 0
+end
+case overlapstretch-24
+dd
+ddsurf 0 24 12 24
+ddfill 0 2531
+ddblt 0 9 4 14 8 0 8 4 12 7
+dddump 0
+ddfill 0 2148
+ddblt 0 7 4 12 8 0 8 4 12 7
+dddump 0
+ddfill 0 2848
+ddblt 0 8 5 13 9 0 8 4 12 7
+dddump 0
+ddfill 0 8436
+ddblt 0 8 3 13 7 0 8 4 12 7
+dddump 0
+ddfill 0 7185
+ddblt 0 10 5 15 9 0 8 4 12 7
+dddump 0
+ddfill 0 1152
+ddblt 0 6 3 11 7 0 8 4 12 7
+dddump 0
+ddfill 0 2133
+ddblt 0 9 4 13 7 0 8 4 13 8
+dddump 0
+ddfill 0 5303
+ddblt 0 7 4 11 7 0 8 4 13 8
+dddump 0
+ddfill 0 802
+ddblt 0 8 5 12 8 0 8 4 13 8
+dddump 0
+ddfill 0 7425
+ddblt 0 8 3 12 6 0 8 4 13 8
+dddump 0
+ddfill 0 6872
+ddblt 0 10 5 14 8 0 8 4 13 8
+dddump 0
+ddfill 0 6582
+ddblt 0 6 3 10 6 0 8 4 13 8
+dddump 0
+ddfill 0 18
+ddblt 0 9 4 18 7 0 8 4 14 6
+dddump 0
+ddfill 0 9328
+ddblt 0 7 4 16 7 0 8 4 14 6
+dddump 0
+ddfill 0 3143
+ddblt 0 8 5 17 8 0 8 4 14 6
+dddump 0
+ddfill 0 9099
+ddblt 0 8 3 17 6 0 8 4 14 6
+dddump 0
+ddfill 0 2434
+ddblt 0 10 5 19 8 0 8 4 14 6
+dddump 0
+ddfill 0 4210
+ddblt 0 6 3 15 6 0 8 4 14 6
+dddump 0
+ddfill 0 8049
+ddblt 0 9 4 12 6 0 8 4 15 9
+dddump 0
+ddfill 0 9552
+ddblt 0 7 4 10 6 0 8 4 15 9
+dddump 0
+ddfill 0 3238
+ddblt 0 8 5 11 7 0 8 4 15 9
+dddump 0
+ddfill 0 1403
+ddblt 0 8 3 11 5 0 8 4 15 9
+dddump 0
+ddfill 0 870
+ddblt 0 10 5 13 7 0 8 4 15 9
+dddump 0
+ddfill 0 4974
+ddblt 0 6 3 9 5 0 8 4 15 9
+dddump 0
+end
+case overlapstretch-32
+dd
+ddsurf 0 24 12 32
+ddfill 0 2931
+ddblt 0 9 4 14 8 0 8 4 12 7
+dddump 0
+ddfill 0 7244
+ddblt 0 7 4 12 8 0 8 4 12 7
+dddump 0
+ddfill 0 1644
+ddblt 0 8 5 13 9 0 8 4 12 7
+dddump 0
+ddfill 0 3192
+ddblt 0 8 3 13 7 0 8 4 12 7
+dddump 0
+ddfill 0 7483
+ddblt 0 10 5 15 9 0 8 4 12 7
+dddump 0
+ddfill 0 8347
+ddblt 0 6 3 11 7 0 8 4 12 7
+dddump 0
+ddfill 0 7526
+ddblt 0 9 4 13 7 0 8 4 13 8
+dddump 0
+ddfill 0 7121
+ddblt 0 7 4 11 7 0 8 4 13 8
+dddump 0
+ddfill 0 9503
+ddblt 0 8 5 12 8 0 8 4 13 8
+dddump 0
+ddfill 0 8643
+ddblt 0 8 3 12 6 0 8 4 13 8
+dddump 0
+ddfill 0 7942
+ddblt 0 10 5 14 8 0 8 4 13 8
+dddump 0
+ddfill 0 2810
+ddblt 0 6 3 10 6 0 8 4 13 8
+dddump 0
+ddfill 0 610
+ddblt 0 9 4 18 7 0 8 4 14 6
+dddump 0
+ddfill 0 1990
+ddblt 0 7 4 16 7 0 8 4 14 6
+dddump 0
+ddfill 0 2932
+ddblt 0 8 5 17 8 0 8 4 14 6
+dddump 0
+ddfill 0 9127
+ddblt 0 8 3 17 6 0 8 4 14 6
+dddump 0
+ddfill 0 7137
+ddblt 0 10 5 19 8 0 8 4 14 6
+dddump 0
+ddfill 0 7137
+ddblt 0 6 3 15 6 0 8 4 14 6
+dddump 0
+ddfill 0 8546
+ddblt 0 9 4 12 6 0 8 4 15 9
+dddump 0
+ddfill 0 6351
+ddblt 0 7 4 10 6 0 8 4 15 9
+dddump 0
+ddfill 0 4434
+ddblt 0 8 5 11 7 0 8 4 15 9
+dddump 0
+ddfill 0 6892
+ddblt 0 8 3 11 5 0 8 4 15 9
+dddump 0
+ddfill 0 4447
+ddblt 0 10 5 13 7 0 8 4 15 9
+dddump 0
+ddfill 0 5959
+ddblt 0 6 3 9 5 0 8 4 15 9
+dddump 0
+end
