@@ -409,6 +409,16 @@ impl Surface {
     }
 }
 
+/// D3DBLENDOP
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum BlendOp {
+    Add,
+    Sub,
+    RevSub,
+    Min,
+    Max,
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct Draw {
     pub rt: Option<Surface>,
@@ -1437,6 +1447,22 @@ impl D3d9 {
     /// under x * f / 255 (but x * ONE as x exactly); the two added or subtracted, then rounded to 8 bits half up)
     /// blending on a target of any other format (MEASURED, d3d9draw blend-fmt-*: 95 cases, every
     /// format the target takes): in f32, the source clamped to 0..1, the destination as read
+    /// a blend operation outside ADD..MAX is MAX (MEASURED x64 blend-badop-*; the x86 runtime
+    /// dies drawing with one: D3D9.BLEND.OPX86, so it does not get here)
+    fn blend_op(op: u32) -> BlendOp {
+        match op {
+            1 => BlendOp::Add,
+            2 => BlendOp::Sub,
+            3 => BlendOp::RevSub,
+            4 => BlendOp::Min,
+            5 => BlendOp::Max,
+            _ => {
+                hit(clause::D3D9_BLEND_OP);
+                BlendOp::Max
+            }
+        }
+    }
+
     fn blend_float(&self, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
         let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
         let d = d.map(|x| x as f32);
@@ -1467,16 +1493,21 @@ impl D3d9 {
             let alpha = separate && k == 3;
             let (mut sf, mut df, op) = if alpha { (self.rs(207), self.rs(208), self.rs(209)) } else { (self.rs(19), self.rs(20), self.rs(171)) };
             if [sf, df].iter().any(|f| matches!(f, 12 | 13)) {
-                (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
+                if alpha {
+                    hit(clause::D3D9_BLEND_BOTHALPHA);
+                    let zero = |f: u32| if matches!(f, 12 | 13) { 1 } else { f };
+                    (sf, df) = (zero(sf), zero(df));
+                } else {
+                    (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
+                }
             }
             let (a, b) = (s[k] * factor(sf, k)?, d[k] * factor(df, k)?);
-            out[k] = match op {
-                1 => a + b,
-                2 => a - b,
-                3 => b - a,
-                4 => s[k].min(d[k]),
-                5 => s[k].max(d[k]),
-                _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_OP)),
+            out[k] = match Self::blend_op(op) {
+                BlendOp::Add => a + b,
+                BlendOp::Sub => a - b,
+                BlendOp::RevSub => b - a,
+                BlendOp::Min => s[k].min(d[k]),
+                BlendOp::Max => s[k].max(d[k]),
             } as f64;
         }
         Ok(out)
@@ -1524,33 +1555,40 @@ impl D3d9 {
             // (MEASURED: blend-dest-12, blend-dest-13)
             if [sf, df].iter().any(|f| matches!(f, 12 | 13)) {
                 if alpha {
-                    return Err(Fail::Unmodeled(open::D3D9_BLEND_BOTHALPHA));
+                    // (as a separate alpha factor, either is ZERO: MEASURED blend-bothalpha-*,
+                    // blend-random-5, -31)
+                    hit(clause::D3D9_BLEND_BOTHALPHA);
+                    let zero = |f: u32| if matches!(f, 12 | 13) { 1 } else { f };
+                    (sf, df) = (zero(sf), zero(df));
+                } else {
+                    (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
                 }
-                (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
             }
+            let op = Self::blend_op(op);
             let (fs, fd) = (factor(sf, k)?, factor(df, k)?);
             // (ONE exactly: MEASURED, d3d8draw blend-random-2)
             let prod = |x: i64, f: u32, v: i64| if f == 2 { x << 8 } else { x * v * 257 >> 8 };
             let (a, b) = (prod(s[k], sf, fs), prod(d[k], df, fd));
             let v = match op {
-                1 => a + b,
-                2 => a - b,
-                3 => b - a,
-                4 => s[k].min(d[k]) << 8,
-                5 => s[k].max(d[k]) << 8,
-                _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_OP)),
+                BlendOp::Add => a + b,
+                BlendOp::Sub => a - b,
+                BlendOp::RevSub => b - a,
+                BlendOp::Min => s[k].min(d[k]) << 8,
+                BlendOp::Max => s[k].max(d[k]) << 8,
             };
             let r = (v.max(0) + 128 >> 8).min(255);
-            let r = if op <= 3 && exact {
-                hit(clause::D3D9_BLEND_TIE);
-                let n = match op {
-                    1 => s[k] * fs + d[k] * fd,
-                    2 => s[k] * fs - d[k] * fd,
-                    _ => d[k] * fd - s[k] * fs,
-                };
-                ((2 * n.max(0) + 255) / 510).min(255)
-            } else {
-                r
+            let n = match op {
+                BlendOp::Add => Some(s[k] * fs + d[k] * fd),
+                BlendOp::Sub => Some(s[k] * fs - d[k] * fd),
+                BlendOp::RevSub => Some(d[k] * fd - s[k] * fs),
+                BlendOp::Min | BlendOp::Max => None,
+            };
+            let r = match n {
+                Some(n) if exact => {
+                    hit(clause::D3D9_BLEND_TIE);
+                    ((2 * n.max(0) + 255) / 510).min(255)
+                }
+                _ => r,
             };
             out[k] = (r as f32 / 255.0) as f64;
         }
