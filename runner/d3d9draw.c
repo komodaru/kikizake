@@ -281,6 +281,21 @@ static void op_check(void) {
     out("check %ld %lx %ld hr %08lx\n", f, u, t, hr);
 }
 
+/* d9palette <seed>: palette 0's 256 entries from kz_fill_rows's bytes (r, g, b, flags as alpha),
+ * made the current texture palette */
+void d8_palette(void);
+static void op_palette(void) {
+    ON8(d8_palette);
+    long seed = num(1);
+    if (bad) return;
+    PALETTEENTRY e[256];
+    kz_fill_rows((unsigned char *)e, 1024, 1024, 1, D3DFMT_L8, seed);
+    HRESULT hr = IDirect3DDevice9_SetPaletteEntries(DEV, 0, e);
+    if (hr) out("palette hr %08lx\n", hr);
+    hr = IDirect3DDevice9_SetCurrentTexturePalette(DEV, 0);
+    if (hr) out("palette current hr %08lx\n", hr);
+}
+
 static const struct kz_op d3d9draw_ops[] = {
     { "d9target", op_target },
     { "d9clear", op_clear },
@@ -297,6 +312,7 @@ static const struct kz_op d3d9draw_ops[] = {
     { "d9xform", op_xform },
     { "d9scissor", op_scissor },
     { "d9check", op_check },
+    { "d9palette", op_palette },
     { 0 },
 };
 const struct kz_api d3d9draw_api = { "d3d9draw", d3d9draw_ops, d3d9draw_reset };

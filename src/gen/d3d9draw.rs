@@ -66,6 +66,14 @@ fn suite(v8: bool) -> String {
         }
     }
     writeln!(s, "end").unwrap();
+    // other usages and resource types: plain surfaces, depth stencil, dynamic, cube and volume textures
+    writeln!(s, "case check-usage\n{dev} swvp").unwrap();
+    for f in TEXTURE_FORMATS.iter().filter(fmts9).map(|f| f.0).chain([71, 75, 77, 79, 80, 82, 83]) {
+        for (u, t) in [(0, 1), (2, 1), (0x200, 3), (0, 4), (1, 4), (0, 5), (0x400, 3)] {
+            writeln!(s, "d9check {f} {u:#x} {t}").unwrap();
+        }
+    }
+    writeln!(s, "end").unwrap();
 
     // clears: every 8-bit value of each channel (color i,i,i,i in pixel i) and random colors, one
     // 1x1 rectangle per pixel, on each target format
@@ -371,6 +379,228 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    if !v8 {
+        // the declarations SetFVF makes of FVFs with the odd bits (0x1, 0x2000, 0x4000, 0x8000)
+        let mut r = XorShift32(0xf1f0_2000);
+        writeln!(s, "case fvf-bits\ndevice swvp").unwrap();
+        for _ in 0..64 {
+            let mut f = *r.pick(&[0x002u32, 0x004, 0x006, 0x00a, 0x00e, 0x4002]) | (r.next() & 0xf0) | (r.range(0, 8) as u32) << 8;
+            f |= *r.pick(&[0x1u32, 0x2000, 0x4000, 0x8000, 0x1000, 0x2001, 0x6000, 0x8001]);
+            f |= ((r.next() as u64 & 0xffff) << 16 & ((1u64 << (16 + 2 * (f >> 8 & 0xf))) - 1)) as u32;
+            writeln!(s, "d9fvf {f:#x}\nd9getfvf\nd9getdecl").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        // (more than 8 texture coordinate sets)
+        writeln!(s, "case fvf-texcount\ndevice swvp").unwrap();
+        for n in 8..=15u32 {
+            for f in [0x002u32, 0x004, 0x4002] {
+                writeln!(s, "d9fvf {:#x}\nd9getfvf\nd9getdecl", f | n << 8).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+        // CreateVertexDeclaration's checks: every one-element declaration (type, method, usage,
+        // a usage index), then pairs and random ones of elements that pass alone
+        for ty in 0..=17u32 {
+            writeln!(s, "case decl-one-{ty}\ndevice swvp").unwrap();
+            for method in 0..=7u32 {
+                for usage in 0..=13u32 {
+                    for index in [0u32, 1, 15, 16] {
+                        writeln!(s, "d9decl 0x0 {:#x}\nd9getdecl", ty | method << 8 | usage << 16 | index << 24).unwrap();
+                    }
+                }
+            }
+            writeln!(s, "end").unwrap();
+        }
+        let mut r = XorShift32(0xdec1_0002);
+        for i in 0..16 {
+            writeln!(s, "case decl-pair-{i}\ndevice swvp").unwrap();
+            for _ in 0..40 {
+                let mut l = "d9decl".to_string();
+                let mut off = 0u32;
+                let n = r.range(2, 5);
+                for _ in 0..n {
+                    let ty = r.range(0, 16) as u32;
+                    let usage = r.range(0, 12) as u32;
+                    let index = if r.chance(3) { r.range(0, 3) as u32 } else { 0 };
+                    let stream = if r.chance(6) { 1 } else { 0 };
+                    let o = if r.chance(8) { off + 4 } else if r.chance(10) { off.saturating_sub(4) } else { off };
+                    write!(l, " {:#x} {:#x}", stream | o << 16, ty | usage << 16 | index << 24).unwrap();
+                    off = o + crate::model::d3d9draw::decl_type_size(ty).unwrap_or(4);
+                }
+                writeln!(s, "{l}\nd9getdecl").unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
+    // untransformed vertices (lighting off): world, view and projection matrices, viewports;
+    // and pretransformed ones of RHW other than 1 (perspective-correct interpolation)
+    let mut r = XorShift32(0x7a3f_0001);
+    let mat = |m: [f32; 16]| m.iter().map(|&x| format!(" {}", fb(x))).collect::<String>();
+    for i in 0..16 {
+        open(&mut s, &format!("xyz-{i}"), 21, 16, 16);
+        s.push_str("d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\n");
+        let sc = 0.5 + r.range(0, 8) as f32 / 8.0;
+        let (tx, ty) = (r.range(-4, 4) as f32 / 8.0, r.range(-4, 4) as f32 / 8.0);
+        writeln!(s, "d9xform 256{}", mat([sc, 0.0, 0.0, 0.0, 0.0, sc, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, tx, ty, 0.0, 1.0])).unwrap();
+        if i % 2 == 1 {
+            // (a perspective projection: w = z)
+            writeln!(s, "d9xform 3{}", mat([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -0.5, 0.0])).unwrap();
+        }
+        if i >= 8 {
+            writeln!(s, "d9viewport {} {} {} {} {} {}", r.range(0, 4), r.range(0, 4), r.range(8, 12), r.range(8, 12), fb(0.0), fb(1.0)).unwrap();
+        }
+        let mut l = "d9fvf 0x42\nd9draw 4 3".to_string();
+        for _ in 0..3 {
+            let (x, y, z) = (r.range(-12, 12) as f32 / 10.0, r.range(-12, 12) as f32 / 10.0, 1.0 + r.range(0, 30) as f32 / 10.0);
+            write!(l, " {} {} {} {:#x}", fb(x), fb(y), fb(z), r.next() | 0xff00_0000).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    for i in 0..8 {
+        open(&mut s, &format!("rhw-{i}"), 21, 16, 16);
+        s.push_str("d9clear 1 0 0 0\nrs set 22 1\n");
+        let mut l = format!("d9fvf {FVF_TL:#x}\nd9draw 4 3");
+        for _ in 0..3 {
+            let rhw = 1.0 / (1.0 + r.range(0, 40) as f32 / 10.0);
+            write!(l, " {} {} {} {} {:#x}", fb(r.range(-2, 17) as f32), fb(r.range(-2, 17) as f32), fb(0.5), fb(rhw), r.next()).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    let mut r = XorShift32(0x0f09_0001);
+    // fog: vertex fog from the specular alpha (table mode NONE), table fog EXP, EXP2, LINEAR on z
+    for i in 0..8 {
+        open(&mut s, &format!("fog-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 28 1\nrs set 34 {:#x}\nrs set 35 {}\nrs set 140 0", r.next(), i % 4).unwrap();
+        writeln!(s, "rs set 36 {}\nrs set 37 {}\nrs set 38 {}\nd9fvf 0xc4", fb(r.range(0, 4) as f32 / 10.0), fb(0.5 + r.range(0, 5) as f32 / 10.0), fb(0.5 + r.range(0, 30) as f32 / 10.0)).unwrap();
+        let mut l = "d9draw 4 3".to_string();
+        for (x, y) in [(-0.5f32, -0.5f32), (15.5, -0.5), (-0.5, 15.5)] {
+            write!(l, " {} {} {} {} {:#x} {:#x}", fb(x), fb(y), fb(r.range(0, 10) as f32 / 10.0), fb(1.0), r.next(), r.next()).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    // two-sided stencil (9 only): the counterclockwise ops, both windings drawn
+    if !v8 {
+        for i in 0..8 {
+            open(&mut s, &format!("stencil2-{i}"), 21, 16, 16);
+            writeln!(s, "d9clear 5 0 0 {}\nrs set 22 1\nrs set 52 1\nrs set 185 1\nrs set 57 {}", r.range(0, 4), r.range(0, 4)).unwrap();
+            for k in 53..=56 {
+                writeln!(s, "rs set {k} {}", if k == 56 { r.range(1, 8) } else { r.range(1, 8) }).unwrap();
+            }
+            for k in 186..=189 {
+                writeln!(s, "rs set {k} {}", r.range(1, 8)).unwrap();
+            }
+            tri(&mut s, [(-0.5, -0.5), (15.5, -0.5), (-0.5, 15.5)], [0xffff_0000; 3], 0.0);
+            tri(&mut s, [(15.5, 15.5), (15.5, -0.5), (-0.5, 15.5)], [0xff00_ff00; 3], 0.0);
+            tri(&mut s, [(-0.5, -0.5), (15.5, 15.5), (15.5, -0.5)], [0xff00_00ff; 3], 0.0);
+            writeln!(s, "rs set 52 0\nrs set 56 3\nd9rt\nend").unwrap();
+        }
+    }
+    // two stages: stage 1 with a second texture and each operation; RESULTARG TEMP; CONSTANT
+    for &(op, top) in TOPS {
+        open(&mut s, &format!("stage1-{top}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9tex 1 16 16 21\nd9texfill 1 {:#x}\nd9settex 0 0\nd9settex 1 1", r.next(), r.next()).unwrap();
+        writeln!(s, "tss set 0 1 4\ntss set 0 4 4\ntss set 1 1 {op}\ntss set 1 2 2\ntss set 1 3 1\ntss set 1 4 {op}\ntss set 1 5 2\ntss set 1 6 1\nrs set 60 {:#x}", r.next()).unwrap();
+        writeln!(s, "tss set 1 26 3\ntss set 1 27 3\ntss set 1 11 0").unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // bump mapping: stage 0 a V8U8 (or L6V5U5, X8L8V8U8) texture, BUMPENVMAT and LSCALE / LOFFSET,
+    // stage 1 the texture it perturbs
+    for (i, &(f, op)) in [(60u32, 22u32), (60, 23), (61, 23), (62, 23), (63, 22), (64, 22)].iter().enumerate() {
+        open(&mut s, &format!("bump-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 {f}\nd9texfill 0 {:#x}\nd9tex 1 16 16 21\nd9texfill 1 {:#x}\nd9settex 0 0\nd9settex 1 1", r.next(), r.next()).unwrap();
+        writeln!(s, "tss set 0 1 {op}\ntss set 0 2 2\ntss set 0 4 2\ntss set 1 1 2\ntss set 1 2 2\ntss set 1 4 2\ntss set 1 11 0").unwrap();
+        for k in 7..=10 {
+            writeln!(s, "tss set 0 {k} {}", fb(r.range(-8, 8) as f32 / 16.0)).unwrap();
+        }
+        writeln!(s, "tss set 0 22 {}\ntss set 0 23 {}", fb(r.range(0, 8) as f32 / 4.0), fb(r.range(-4, 4) as f32 / 8.0)).unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, 0xffff_ffff);
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    if !v8 {
+        for i in 0..6 {
+            open(&mut s, &format!("stage-temp-const-{i}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nd9settex 1 0", r.next()).unwrap();
+            // (stage 0 into TEMP, stage 1 the diffuse with TEMP and CONSTANT)
+            writeln!(s, "tss set 0 1 {}\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 2\ntss set 0 28 5\ntss set 0 32 {:#x}", r.pick(&[2u32, 4, 7, 10]), r.next()).unwrap();
+            writeln!(s, "tss set 1 1 {}\ntss set 1 2 5\ntss set 1 3 6\ntss set 1 4 4\ntss set 1 5 6\ntss set 1 6 0\ntss set 1 32 {:#x}\ntss set 1 11 0", r.pick(&[2u32, 3, 4, 7, 10, 12, 16]), r.next()).unwrap();
+            quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+            writeln!(s, "d9rt\nend").unwrap();
+        }
+    }
+    // filters: magnification and minification apart, anisotropic, a mip filter on one level
+    let (mag, min, mip, aniso) = if v8 { ("tss set 0 16", "tss set 0 17", "tss set 0 18", "tss set 0 21") } else { ("ss set 0 5", "ss set 0 6", "ss set 0 7", "ss set 0 10") };
+    for (i, (a, b, c)) in [(1u32, 2u32, 0u32), (2, 1, 0), (3, 3, 0), (1, 1, 2), (2, 2, 1), (3, 2, 2)].iter().enumerate() {
+        for n in [4u32, 32] {
+            open(&mut s, &format!("filter2-{i}-{n}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 0 0 0\nd9tex 0 {n} {n} 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+            texture_stage(&mut s);
+            writeln!(s, "{mag} {a}\n{min} {b}\n{mip} {c}\n{aniso} 4").unwrap();
+            let k = r.range(1, 7) as f32 / 4.0;
+            writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, Some((0.0, 0.0))), v(15.5, -0.5, 0.0, !0, Some((k, 0.1))), v(-0.5, 15.5, 0.0, !0, Some((0.2, k))), v(15.5, 15.5, 0.0, !0, Some((k, k)))).unwrap();
+        }
+    }
+    // blend operations past MAX, Direct3D 8's BLENDFACTOR state, a stride past the FVF's size
+    for op in [0u32, 6, 7] {
+        blend_sized(&mut s, dev, &mut r, &format!("blend-badop-{op}"), &[(19, 5), (20, 6), (171, op)], 16);
+    }
+    if v8 {
+        blend_sized(&mut s, dev, &mut r, "blend-factor8", &[(19, 14), (20, 15)], 16);
+    }
+    for i in 0..4 {
+        open(&mut s, &format!("stride-{i}"), 21, 16, 16);
+        s.push_str("d9clear 1 0 0 0\nrs set 22 1\n");
+        let mut l = format!("d9fvf {FVF_TL:#x}\nd9draw 4 3");
+        for (x, y) in [(-0.5f32, -0.5f32), (15.5, -0.5), (-0.5, 15.5)] {
+            write!(l, " {} {} 0x0 0x3f800000 {:#x}", fb(x), fb(y), r.next()).unwrap();
+            for _ in 0..=i {
+                write!(l, " {:#x}", r.next()).unwrap();
+            }
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    // palette textures: P8 and A8P8 with a palette of random entries (flags as alpha)
+    for (f, name) in [(41u32, "P8"), (40, "A8P8")] {
+        open(&mut s, &format!("palette-{name}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 {f}\nd9texfill 0 {:#x}\nd9palette {:#x}\nd9settex 0 0", r.next(), r.next()).unwrap();
+        texture_stage(&mut s);
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, 0xffff_ffff);
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // values outside the enumerations: address modes 0 and 6, cull modes 0 and 4
+    for mode in [0u32, 6] {
+        open(&mut s, &format!("address-{mode}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 4 4 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        if v8 {
+            writeln!(s, "tss set 0 13 {mode}\ntss set 0 14 {mode}\ntss set 0 15 0xff123456").unwrap();
+        } else {
+            writeln!(s, "ss set 0 1 {mode}\nss set 0 2 {mode}\nss set 0 4 0xff123456").unwrap();
+        }
+        writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}", v(-0.5, -0.5, 0.0, 0xffff_ffff, Some((-1.5, -1.5))), v(15.5, -0.5, 0.0, 0xffff_ffff, Some((2.5, -1.5))), v(-0.5, 15.5, 0.0, 0xffff_ffff, Some((-1.5, 2.5))), v(15.5, 15.5, 0.0, 0xffff_ffff, Some((2.5, 2.5)))).unwrap();
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    for mode in [0u32, 4] {
+        open(&mut s, &format!("cull-{mode}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 {mode}").unwrap();
+        tri(&mut s, [(1.0, 1.0), (7.0, 1.0), (1.0, 7.0)], [0xffff_0000; 3], 0.0);
+        tri(&mut s, [(9.0, 9.0), (9.0, 15.0), (15.0, 9.0)], [0xff00_ff00; 3], 0.0);
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // blending on targets of other formats (each kind of factor), ALPHAOP DISABLE under an enabled COLOROP
+    let mut r = XorShift32(0xb1e0_f0a7);
+    for &(f, name) in TARGET_FORMATS.iter().filter(|f| f.0 != 21 && fmts9(f)) {
+        for (k, (a, b)) in [(5u32, 6u32), (2, 2), (9, 4), (3, 8), (10, 7)].iter().enumerate() {
+            blend_on(&mut s, dev, &mut r, &format!("blend-fmt-{name}-{k}"), &[(19, *a), (20, *b)], 16, f);
+        }
+    }
+    for i in 0..4 {
+        open(&mut s, &format!("alphadisable-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next(), r.next()).unwrap();
+        writeln!(s, "tss set 0 1 {}\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 1\nrs set 27 {}\nrs set 19 5\nrs set 20 6", r.pick(&[2u32, 4, 7]), i % 2).unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
     // linear filtering at texture coordinates that are not a whole number of 16ths of a texel
     let mut r = XorShift32(0x51f1_7e2d);
     for i in 0..8 {
@@ -402,7 +632,11 @@ fn suite(v8: bool) -> String {
 
 /// blending: the target holds a random texture (drawn first), a second one is blended over it
 fn blend_sized(s: &mut String, dev: &str, r: &mut XorShift32, name: &str, states: &[(u32, u32)], n: u32) {
-    writeln!(s, "case {name}\n{dev} swvp\nd9target {n} {n} 21").unwrap();
+    blend_on(s, dev, r, name, states, n, 21);
+}
+
+fn blend_on(s: &mut String, dev: &str, r: &mut XorShift32, name: &str, states: &[(u32, u32)], n: u32, fmt: u32) {
+    writeln!(s, "case {name}\n{dev} swvp\nd9target {n} {n} {fmt}").unwrap();
     writeln!(s, "d9tex 0 {n} {n} 21\nd9texfill 0 {:#x}\nd9tex 1 {n} {n} 21\nd9texfill 1 {:#x}\nd9settex 0 0", r.next(), r.next()).unwrap();
     texture_stage(s);
     let f = n as f32;

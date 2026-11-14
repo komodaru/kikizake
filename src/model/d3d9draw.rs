@@ -356,6 +356,8 @@ pub struct Draw {
     pub texs: [Option<Surface>; 8],
     pub stage_tex: [Option<usize>; 8],
     pub fvf: u32,
+    /// the vertex declaration GetVertexDeclaration answers (None: no declaration)
+    pub decl: Option<Vec<(u32, u32)>>,
     pub scissor: Option<(i32, i32, i32, i32)>,
 }
 
@@ -410,6 +412,38 @@ fn argb(c: u32) -> [f64; 4] {
 
 fn cross(p: [(f64, f64); 3]) -> f64 {
     (p[1].0 - p[0].0) * (p[2].1 - p[0].1) - (p[1].1 - p[0].1) * (p[2].0 - p[0].0)
+}
+
+/// the declaration the runtime makes of an FVF (SetFVF, then GetVertexDeclaration): as
+/// D3DXDeclaratorFromFVF's, but XYZW a FLOAT4 POSITION, the reserved bits ignored, 0x2000 a FLOAT1
+/// FOG after the position; FVF 0 none (MEASURED: d3d9draw fvf-*)
+pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
+    use super::d3dx9::{elem, fvf_decl};
+    if fvf == 0 {
+        return Ok(None);
+    }
+    if fvf >> 8 & 0xf > 8 {
+        return Err(Fail::Unmodeled("D3D9.FVF.TEXCOUNT"));
+    }
+    let xyzw = fvf & 0x400e == 0x4002;
+    let mut e = fvf_decl(fvf & !0x6001 & !if xyzw { 0x400e } else { 0 } | if xyzw { 0x002 } else { 0 }).map_err(|_| Fail::Unmodeled("D3D9.FVF.TEXCOUNT"))?;
+    if xyzw {
+        // (a FLOAT4 in place of the FLOAT3: what follows moves 4 on)
+        e[0].1 = e[0].1 & !255 | 3;
+        for x in e.iter_mut().skip(1) {
+            x.0 += 4 << 16;
+        }
+    }
+    if fvf & 0x2000 != 0 {
+        let at = e.iter().take_while(|x| matches!(x.1 >> 16 & 255, 0 | 1 | 2 | 9)).count();
+        let off = e.get(at).map_or_else(|| e.last().map_or(0, |l| (l.0 >> 16) + decl_type_size(l.1 & 255).unwrap()), |x| x.0 >> 16);
+        for x in e.iter_mut().skip(at) {
+            x.0 += 4 << 16;
+        }
+        e.insert(at, elem(off, 0, 11, 0));
+    }
+    hit("D3D9.FVF.DECL");
+    Ok(Some(e))
 }
 
 /// Sutherland-Hodgman against x0 <= x <= x1, y0 <= y <= y1, in f32: a new vertex is
@@ -532,7 +566,7 @@ impl D3d9 {
                     out.push(format!("target failed {INVALIDCALL:08x}"));
                     return Ok(true);
                 }
-                let fm = format(f).ok_or(Fail::Unmodeled("D3D9.FORMATS"))?;
+                let fm = format(f).ok_or(Fail::Unmodeled("D3D9.TEX.FORMAT"))?;
                 self.draw.rt = Some(Surface { w, h, fmt: f, bytes: vec![0; (w * h) as usize * fm.bytes] });
                 self.draw.depth = vec![0; (w * h) as usize];
                 self.draw.stencil = vec![0; (w * h) as usize];
@@ -608,6 +642,30 @@ impl D3d9 {
             "d9fvf" => {
                 self.draw.fvf = n(op, 1)? as u32;
                 hit("D3D9.FVF.SET");
+                self.draw.decl = fvf_runtime_decl(self.draw.fvf)?;
+            }
+            "d9getfvf" => {
+                hit("D3D9.FVF.GET");
+                out.push(format!("getfvf {:08x}", self.draw.fvf));
+            }
+            "d9getdecl" => {
+                hit("D3D9.DECL.GET");
+                match &self.draw.decl {
+                    None => out.push("getdecl null".into()),
+                    Some(e) => out.push(format!("getdecl {}{}", e.len(), e.iter().map(|(a, b)| format!(" {a:08x} {b:08x}")).collect::<String>())),
+                }
+            }
+            "d9check" => {
+                let (f, u, rtype) = (n(op, 1)?, n(op, 2)?, n(op, 3)?);
+                // (MEASURED, check: what CreateTexture / CreateRenderTarget take, Direct3D 8's
+                // CheckDeviceFormat too, though its CreateTexture refuses three more)
+                hit("D3D9.FORMATS.CHECK");
+                let ok = match (u, rtype) {
+                    (0, 3) => supported(f as u32, false, false),
+                    (1, 1) | (1, 3) => supported(f as u32, true, false),
+                    _ => return Err(Fail::Unmodeled("D3D9.FORMATS.USAGE")),
+                };
+                out.push(format!("check {f} {u:x} {rtype} hr {:08x}", if ok { 0 } else { 0x8876_086a_u32 }));
             }
             "d9tex" => {
                 let (i, w, h, f) = (n(op, 1)? as usize, n(op, 2)? as i32, n(op, 3)? as i32, n(op, 4)? as u32);
@@ -617,7 +675,7 @@ impl D3d9 {
                     out.push(format!("tex failed {INVALIDCALL:08x}"));
                     return Ok(true);
                 }
-                let fm = format(f).ok_or(Fail::Unmodeled("D3D9.FORMATS"))?;
+                let fm = format(f).ok_or(Fail::Unmodeled("D3D9.TEX.FORMAT"))?;
                 self.draw.texs[i] = Some(Surface { w, h, fmt: f, bytes: fill_bytes(&fm, w, h, 0).iter().map(|_| 0).collect() });
             }
             "d9texfill" => {
@@ -629,6 +687,7 @@ impl D3d9 {
                 };
                 tx.bytes = fill_bytes(&format(tx.fmt).unwrap(), tx.w, tx.h, seed);
             }
+            "d9palette" => return Err(Fail::Unmodeled("D3D9.TEX.FORMAT")),
             "d9settex" => {
                 let s = n(op, 1)? as usize;
                 let i = if t.get(2).is_some_and(|s| s == "none") { None } else { Some(n(op, 2)? as usize) };
@@ -645,7 +704,12 @@ impl D3d9 {
                 }
                 self.draw_prims(ty, nv, &words)?;
             }
-            "d9getfvf" | "d9getdecl" | "d9decl" | "d9check" | "d9viewport" | "d9xform" => return Err(Fail::Unmodeled("D3D9.DRAW.PENDING")),
+            "d9decl" => {
+                // (SetVertexDeclaration: GetFVF answers 0 after it, MEASURED: decl-*)
+                self.draw.fvf = 0;
+                return Err(Fail::Unmodeled("D3D9.DECL.CREATE"));
+            }
+            "d9viewport" | "d9xform" => return Err(Fail::Unmodeled("D3D9.DRAW.XYZ")),
             _ => return Err(Fail::Bad),
         }
         Ok(true)
@@ -692,7 +756,7 @@ pub fn address(mode: u32, i: i64, n: i64) -> Res<Option<i64>> {
         3 => Some(i.clamp(0, n - 1)),
         4 => (0..n).contains(&i).then_some(i),
         5 => Some(if i < 0 { -i - 1 } else { i }.clamp(0, n - 1)),
-        _ => return Err(Fail::Unmodeled("D3D9.TEX.ADDRESS")),
+        _ => return Err(Fail::Unmodeled("D3D9.TEX.ADDRESS.BAD")),
     })
 }
 
@@ -783,7 +847,11 @@ impl D3d9 {
             hit("D3D9.STAGE.DISABLE");
             return Ok(diffuse);
         }
-        if self.tss(1, 1) != 1 || self.tss(0, 28) != 1 {
+        if self.tss(0, 28) != 1 {
+            // (RESULTARG TEMP)
+            return Err(Fail::Unmodeled("D3D9.STAGE.ARG"));
+        }
+        if self.tss(1, 1) != 1 {
             return Err(Fail::Unmodeled("D3D9.STAGE.MULTI"));
         }
         if aop == 1 {
@@ -903,7 +971,7 @@ impl D3d9 {
             2 if area > 0.0 => return Ok(()),
             3 if area < 0.0 => return Ok(()),
             2 | 3 => {}
-            _ => return Err(Fail::Unmodeled("D3D9.CULL")),
+            _ => return Err(Fail::Unmodeled("D3D9.CULL.BAD")),
         }
         if area == 0.0 {
             return Ok(());

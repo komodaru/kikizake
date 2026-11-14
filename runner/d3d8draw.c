@@ -142,13 +142,24 @@ void d8_check(void) {
     out("check %ld %lx %ld hr %08lx\n", f, u, t, hr);
 }
 
+void d8_palette(void) {
+    long seed = num(1);
+    if (bad) return;
+    PALETTEENTRY e[256];
+    kz_fill_rows((unsigned char *)e, 1024, 1024, 1, D3DFMT_L8, seed);
+    HRESULT hr = IDirect3DDevice8_SetPaletteEntries(DEV, 0, e);
+    if (hr) out("palette hr %08lx\n", hr);
+    hr = IDirect3DDevice8_SetCurrentTexturePalette(DEV, 0);
+    if (hr) out("palette current hr %08lx\n", hr);
+}
+
 static void never(void) { bad = 1; }
 /* (never looked up: d3d9draw comes first in apis.h and owns these names; listed so that
  * runner/golden.py counts this file among the sources of the suites that use them) */
 static const struct kz_op d3d8draw_ops[] = {
     { "d9target", never }, { "d9clear", never }, { "d9rt", never }, { "d9fvf", never },
     { "d9getfvf", never }, { "d9draw", never }, { "d9tex", never }, { "d9texfill", never },
-    { "d9settex", never }, { "d9viewport", never }, { "d9xform", never }, { "d9check", never },
+    { "d9settex", never }, { "d9viewport", never }, { "d9xform", never }, { "d9check", never }, { "d9palette", never },
     { 0 },
 };
 const struct kz_api d3d8draw_api = { "d3d8draw", d3d8draw_ops, d3d8draw_reset };

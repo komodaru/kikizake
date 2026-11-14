@@ -122,12 +122,13 @@ pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
     };
     let mut fvf = 0;
     let mut i = 0;
+    // (MEASURED, declfvf-*: the position's and the blend weights' usage indices are not looked at)
     if is(0, 2, 0, None) {
         // (the blend weights: their count from the type; then the indices, UBYTE4 or D3DCOLOR)
         let mut pos = 0x002;
         i = 1;
         for (ty, n) in [(3, 4), (2, 3), (1, 2), (0, 1)] {
-            if is(1, ty, 1, Some(0)) {
+            if is(1, ty, 1, None) {
                 pos = 0x006 + 2 * (n - 1);
                 i = 2;
                 break;
@@ -147,7 +148,7 @@ pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
             }
         }
         fvf |= pos;
-    } else if is(0, 3, 9, Some(0)) {
+    } else if is(0, 3, 9, None) {
         fvf |= 0x004;
         i = 1;
     }
