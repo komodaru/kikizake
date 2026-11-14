@@ -44,6 +44,18 @@ pub enum Fail {
     Empty,
     /// the clause (spec/*.txt, status open) that does not settle what Windows does here
     Unmodeled(crate::spec::OpenId),
+    /// the executor dies on this line (a crash inside Windows' code): the lines before it are
+    /// the case's, and no later case runs
+    Crash,
+}
+
+/// how the executor leaves a case
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Ended {
+    /// it goes on to the next case
+    Next,
+    /// it died on the case's last printed line
+    Crash,
 }
 
 pub type Res<T> = Result<T, Fail>;
@@ -63,11 +75,16 @@ pub fn arch() -> u32 {
 
 /// one case's lines, or why the model has none
 pub fn run_case(case: &Case) -> Res<Vec<String>> {
-    let r = run_ops(case);
+    run_case_ended(case).0
+}
+
+/// one case's lines, or why the model has none, and whether the executor lives on
+pub fn run_case_ended(case: &Case) -> (Res<Vec<String>>, Ended) {
+    let (r, e) = run_ops(case);
     if let Err(Fail::Unmodeled(id)) = &r {
         crate::spec::hit((*id).into());
     }
-    r
+    (r, e)
 }
 
 /// a model of one API: Ok(true) when it ran the line, Ok(false) when the line is not its own
@@ -166,7 +183,7 @@ fn apis() -> Vec<Box<dyn Api>> {
     ]
 }
 
-fn run_ops(case: &Case) -> Res<Vec<String>> {
+fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
     let mut out = Vec::new();
     let mut apis = apis();
     'line: for op in &case.ops {
@@ -178,12 +195,13 @@ fn run_ops(case: &Case) -> Res<Vec<String>> {
                     out.push(format!("bad line {}", op.line));
                     continue 'line;
                 }
-                Err(e) => return Err(e),
+                Err(Fail::Crash) => return (Ok(out), Ended::Crash),
+                Err(e @ (Fail::Bad | Fail::Unmodeled(_))) => return (Err(e), Ended::Next),
             }
         }
-        return Err(Fail::Bad);
+        return (Err(Fail::Bad), Ended::Next);
     }
-    Ok(out)
+    (Ok(out), Ended::Next)
 }
 
 /// the whole output for a case file of `suite`
@@ -191,13 +209,20 @@ pub fn run(suite: &str, cases: &[Case]) -> String {
     let mut s = format!("kikizake {suite}\n");
     for c in cases {
         s += &format!("case {}\n", c.name);
-        match run_case(c) {
+        let (r, ended) = run_case_ended(c);
+        match r {
             Ok(lines) => lines.iter().for_each(|l| {
                 s += l;
                 s += "\n"
             }),
             Err(Fail::Bad | Fail::Empty) => s += "unmodeled bad line\n",
             Err(Fail::Unmodeled(why)) => s += &format!("unmodeled {why}\n"),
+            Err(Fail::Crash) => unreachable!("run_ops answers a crash as its lines"),
+        }
+        match ended {
+            Ended::Next => {}
+            // (the executor's output ends there, without "done")
+            Ended::Crash => return s,
         }
     }
     s + "done\n"

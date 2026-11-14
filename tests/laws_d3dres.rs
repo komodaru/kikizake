@@ -154,8 +154,8 @@ fn a_covering_triangle_draws_every_pixel() {
     assert!(draw(&[[(2.0, 2.0), (2.0, 2.0), (9.0, 9.0)]]).iter().all(|&v| v == 0));
 }
 
-/// the suites' cases with one word changed (to 0, 1, -1, a large or a nearby value, or another
-/// line's word): the models never panic and answer every case
+/// the suites' cases with one word changed (to 0, 1, -1, a large or a nearby value): the models
+/// never panic and answer every case, or end where the x86 runtime dies
 #[test]
 fn mutated_cases_never_panic() {
     let mut seed = 0x1234_5678u32;
@@ -174,6 +174,10 @@ fn mutated_cases_never_panic() {
             for _ in 0..1 + next() % 3 {
                 let li = 1 + next() as usize % (lines.len() - 1).max(1);
                 let Some(l) = lines.get_mut(li) else { continue };
+                // (a draw of billions of vertices or instances takes Windows as long: not one)
+                if l[0] == "draw" {
+                    continue;
+                }
                 let wi = next() as usize % l.len();
                 let w = &mut l[wi];
                 let v: i64 = w.strip_prefix("0x").map_or_else(|| w.parse().unwrap_or(0), |x| i64::from_str_radix(x, 16).unwrap_or(0));
@@ -188,22 +192,29 @@ fn mutated_cases_never_panic() {
             }
             let t = format!("case {}\n", lines.iter().map(|l| l.join(" ")).collect::<Vec<_>>().join("\n"));
             let parsed = parse_cases(&t);
-            let out = kikizake::model::run(s, &parsed);
-            assert_eq!(kikizake::case::parse_output(&out).cases.len(), parsed.len(), "{t}");
+            for arch in [32, 64] {
+                kikizake::model::set_arch(arch);
+                let o = kikizake::case::parse_output(&kikizake::model::run(s, &parsed));
+                // (a line the x86 runtime dies on ends the output there)
+                assert!(o.cases.len() == parsed.len() && o.done || arch == 32 && !o.done && o.cases.len() == 1, "{t}");
+            }
         }
     }
 }
 
-/// the Direct3D 10/11 models against Windows' 64-bit answers, the cases Windows has answered
+/// the Direct3D 10/11 models against Windows' answers, the cases Windows has answered
 /// (a case newer than the answers is left to tests/windows.rs): for mutation testing
 #[test]
 fn d3d_models_match_the_answered_cases() {
     for s in ["d3d10res", "d3d11res", "d3d10draw", "d3d11draw"] {
-        let Ok(g) = std::fs::read_to_string(format!("{}/golden/{s}-64/stdout.txt", env!("CARGO_MANIFEST_DIR"))) else { continue };
-        let want = kikizake::model::run(s, &parse_cases(&kikizake::gen::suite(s).unwrap()));
-        let r = kikizake::compare::compare_text(&want, &g);
-        let bad: Vec<_> = r.differ.iter().filter(|d| !d.contains(": missing (")).collect();
-        assert!(bad.is_empty(), "{s}: {bad:?}");
+        for arch in [32, 64] {
+            let Ok(g) = std::fs::read_to_string(format!("{}/golden/{s}-{arch}/stdout.txt", env!("CARGO_MANIFEST_DIR"))) else { continue };
+            kikizake::model::set_arch(arch);
+            let want = kikizake::model::run(s, &parse_cases(&kikizake::gen::suite(s).unwrap()));
+            let r = kikizake::compare::compare_text(&want, &g);
+            let bad: Vec<_> = r.differ.iter().filter(|d| !d.contains(": missing (")).collect();
+            assert!(bad.is_empty(), "{s}-{arch}: {bad:?}");
+        }
     }
 }
 

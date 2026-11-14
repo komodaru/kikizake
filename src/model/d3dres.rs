@@ -347,6 +347,13 @@ impl D3dres {
             self.res[s] = None;
         }
         let kind = if buf { "buf" } else { "tex" };
+        // (MEASURED: the x86 runtime dies on usage 0xffffffff (x86-usageff-0 line 2) and on an
+        // unknown usage with CPU access (tex2-f28-usage-u3 line 6), for textures (buffers answer:
+        // buf-cbdyn-usage); x86-64 answers both)
+        if super::arch() == 32 && !buf && (d.usage == 0xffff_ffff || d.usage > 3 && d.cpu != 0) {
+            hit(clause::D3DRES_X86CRASH);
+            return Err(Fail::Crash);
+        }
         let got = check_desc(dev, &d, init.is_some())?;
         let g = match got {
             Err(hr) => {
@@ -591,8 +598,13 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
         hit(clause::D3DRES_REMOVED);
         return Ok(true);
     }
-    let v = res.subs[sub as usize].as_mut().unwrap();
     let w = (r - l) * el;
+    // (the source is the executor's 4 MiB: a box whose last row lies past it reads outside)
+    let last = (bk - fr - 1).checked_mul(dp).zip((b - tp - 1).checked_mul(rp)).and_then(|(a, c)| a.checked_add(c)?.checked_add(w));
+    if last.is_none_or(|e| e > data.len()) {
+        return Err(Fail::Unmodeled(open::D3DRES_INIT_PAST));
+    }
+    let v = res.subs[sub as usize].as_mut().unwrap();
     for z in fr..bk {
         for y in tp..b {
             let at = (z - fr) * dp + (y - tp) * rp;
@@ -683,6 +695,10 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
     if sub >= res.nsubs() {
         return Err(Fail::Unmodeled(open::D3DRES_READ_BAD));
     }
+    let (srb, srows, ssl) = res.layout(sub);
+    if rb > srb || rows > srows || slices > ssl {
+        return Err(Fail::Unmodeled(open::D3DRES_READ_PAST));
+    }
     // (MEASURED: a multisampled resource reads as zeros: the copy to the single-sampled
     // staging texture does not run, probe-read-ms)
     if res.d.count > 1 {
@@ -690,10 +706,6 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
         out.push(format!("read {rows} {slices}"));
         out.extend(std::iter::repeat_n("00".repeat(rb), rows * slices));
         return Ok(());
-    }
-    let (srb, srows, ssl) = res.layout(sub);
-    if rb > srb || rows > srows || slices > ssl {
-        return Err(Fail::Unmodeled(open::D3DRES_READ_PAST));
     }
     let Some(b) = &res.subs[sub as usize] else { return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN)) };
     out.push(format!("read {rows} {slices}"));

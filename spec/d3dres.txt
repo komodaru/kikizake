@@ -3,6 +3,7 @@ D3DRES.NODEV doc | (the executor) | without a device the resource and drawing li
 D3DRES.FMT open | CheckFormatSupport, D3D11_FORMAT_SUPPORT, CheckMultisampleQualityLevels | what each device reports for each format
 D3DRES.DESC measured | D3D11_TEXTURE1D_DESC, D3D11_TEXTURE2D_DESC, D3D11_TEXTURE3D_DESC, D3D11_USAGE, D3D11_BIND_FLAG, D3D11_CPU_ACCESS_FLAG; tex-format-*, tex2-*, tex-random-* (1100 descriptions per suite, 0 differ) | which texture descriptions CreateTexture* accept: usage and CPU access, the format's support bits (dimension, MIP, TEXTURECUBE, CPU_LOCKABLE, binds; a typeless format by its group's), sizes, mips, binds, flags, samples
 D3DRES.DESC.USAGEFF measured | tex2-f*-usage-u* | usage 0xffffffff passes as staging does
+D3DRES.X86CRASH measured | x86-usageff-0, tex2-f28-usage-u3 (x86 WARP) | the x86 runtime ends the program on usage 0xffffffff and on an unknown usage with CPU access; the cases end with these lines
 D3DRES.DESC.SIZE measured | tex2-f*-w-*, tex2-f*-h-*, probe-size | a size of 0x80000000 or more is refused
 D3DRES.DESC.BIG measured | D3D11_REQ_TEXTURE1D_U_DIMENSION, D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION; big-0, big-1, tex2-f*-w-* (WARP) | 1D textures stop at 16384 (11_0) or 8192 (10_x), 3D at 2048; 2D textures have no size limit of their own (16385 and 1048576 wide made) but one of bytes: 4 MiB made, 1 GiB refused
 D3DRES.DESC.BIGBYTES open | big-bytes | where between 4 MiB and 1 GiB a 2D texture is refused
@@ -18,7 +19,7 @@ D3DRES.VIEW.DSVMS measured | view-t2*-dsv (WARP) | a depth view of dimension 2D 
 D3DRES.VIEW.BUFEX10 measured | D3D10_1_SHADER_RESOURCE_VIEW_DESC (BUFFEREX); view-b-bufex (180 views) | Direct3D 10 makes BUFFEREX views of a plain buffer and buffer render target views by the rules of 11 (no RAW flag on a plain buffer, other flags ignored)
 D3DRES.CHECK doc | ID3D11Device::CreateTexture2D (ppTexture2D NULL: S_FALSE) and the others | a NULL out pointer validates only: S_FALSE for an accepted description
 D3DRES.ZERO assumed | (none) | a resource made without initial data reads back as zeros
-D3DRES.INIT.PAST excluded | (none) | initial data read past the executor's 4 MiB
+D3DRES.INIT.PAST excluded | (none) | initial or update data read past the executor's 4 MiB (outside the program's memory)
 D3DRES.CLEAR.RTV doc | ID3D11DeviceContext::ClearRenderTargetView, Data Conversion Rules | every element of the view's subresources takes the color converted to the view's format
 D3DRES.CLEAR.FORMAT excluded | (the model) | a view of a format the model does not know: every view the suites make has a known format
 D3DRES.CLEAR.DSV doc | ID3D11DeviceContext::ClearDepthStencilView | the depth (D3D11_CLEAR_DEPTH) clamped to 0..1 and converted, the stencil (D3D11_CLEAR_STENCIL)
@@ -50,9 +51,8 @@ D3DRES.READ.PAST excluded | (none) | rows or bytes past the subresource
 D3DRES.READ.UNKNOWN excluded | (the model) | contents the model does not know: only after a step it does not model, which stops the case first
 CONV.UNORM measured | Data Conversion Rules; clear-*, chan-* (WARP) | FLOAT to UNORM: NaN 0, clamped, the product by 2^n - 1 in f32, rounded half to even; UNORM to FLOAT: c / (2^n - 1)
 CONV.SNORM measured | Data Conversion Rules; clear-*, chan-* (WARP) | FLOAT to SNORM: NaN 0, clamped to -1..1, the product in f32 rounded half away from zero; SNORM to FLOAT: s times 1 / (2^(n-1) - 1) in f32, -2^(n-1) is -1.0
-CONV.SRGB assumed | Data Conversion Rules (the sRGB curve, with tolerance) | the exact curve, then UNORM, away from the halfway points
-CONV.SRGB.NEAR open | Data Conversion Rules (sRGB tolerance); clear-srgb-curve | a value whose curve lands within 0.02 of a halfway point: WARP's curve differs from the exact one by a few ulps
-CONV.SRGBREAD open | Data Conversion Rules (sRGB to FLOAT) | an sRGB texel read by a shader: WARP's table differs from the exact curve by a few ulps
+CONV.SRGB measured | clear-srgb-curve, clear-srgb-sweep-* (WARP) | the value goes to a 12-bit UNORM code first (round half to even), then round(255 x curve(code/4095)) with the exact curve
+CONV.SRGBREAD measured | ld-table-29, ld-table-91, ld-table-72/75/78/99 (WARP) | an sRGB texel read by a shader goes through WARP's 256-entry table (dxgiconv::SRGB_READ), up to 6 ulps off the exact curve; sRGB block formats decode the UNORM block's codes through it
 CONV.SMALLFLOAT measured | clear-* of R16, R11G11B10, R9G9B9E5 formats (WARP) | FLOAT to 16, 11 and 10 bit floats truncates toward zero; past the largest finite value the largest finite value; unsigned: negatives 0, NaN all ones
 CONV.NANREAD measured | ld of float formats (WARP) | a NaN read keeps its payload (the mantissa shifted up); a 16-bit NaN keeps its top mantissa bits
 CONV.F16 assumed | Data Conversion Rules (FLOAT to 16-bit float: round to nearest even, denormals kept) | NaN keeps a NaN, infinities kept
@@ -61,7 +61,7 @@ CONV.RGB9E5 assumed | DXGI_FORMAT (R9G9B9E5_SHAREDEXP) | the shared exponent of 
 CONV.F32 measured | Data Conversion Rules; clear-* (WARP) | a 32-bit float stored as it is, denormals flushed to a zero of their sign
 CONV.STENCIL doc | DXGI_FORMAT (X24_TYPELESS_G8_UINT: the stencil in green) | the stencil read as green
 CONV.INTCLEAR measured | ClearRenderTargetView; clear-* of UINT and SINT formats (WARP) | a float clear of an integer format: truncated, clamped to the type, NaN 0
-CONV.X8 measured | clear-*, ld of B8G8R8X8 (WARP) | the X byte takes alpha when written; reads give alpha 1
+CONV.X8 measured | clear-*, ld of B8G8R8X8 (WARP) | B8G8R8X8 (88): the X byte takes alpha when written; B8G8R8X8_UNORM_SRGB (93): the X byte is 0; reads give alpha 1
 CONV.XRBIAS excluded | DXGI_FORMAT (R10G10B10_XR_BIAS_A2_UNORM); ld-89, probe-xrbias | the extended range bias format: WARP refuses its SRV (ld-89, 80070057) and the model its RTV (probe-xrbias, measured by the next goldens)
 CONV.OTHER excluded | (none) | the video, packed 4:2:2 and R1 formats as colors: the suites neither clear nor read them
 CONV.BLOCK measured | ld of BC1, BC2, BC3, BC4, BC5 UNORM (WARP); ld-bc* | BC1: endpoints bit-replicated to 8 bits, thirds (171a + 85b) >> 8, half (a + b) >> 1; BC2 alpha 4-bit; BC3 alpha 8-bit steps rounded to nearest; BC4/BC5 UNORM 16-bit steps truncated, / 65535

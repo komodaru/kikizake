@@ -519,15 +519,17 @@ fn suite(d3d11: bool) -> String {
     }
     // (an immutable texture made without initial data crashes the x86 WARP: give it some)
     let s = s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n";
-    isolate_x86_crashes(&s)
+    isolate_x86_crashes(&s, d3d11)
 }
 
-/// the texture lines that end the x86 executor (golden d3d11res-32 and d3d10res-32: an unknown
-/// usage with CPU access, tex2-f28-usage-u3 line 6; suspected: usage 0xffffffff, immutable with
-/// a render target, depth or UAV bind),
-/// out of their cases into cases of their own at the end, so that the rest is answered (each
-/// refused, by the model: the lines stay as a size 0 texture, refused the same way)
-fn isolate_x86_crashes(s: &str) -> String {
+/// the texture lines that end the x86 executor (MEASURED, goldens d3d10res-32 and d3d11res-32:
+/// usage 0xffffffff, x86-usageff-0 line 2; an unknown usage with CPU access, tex2-f28-usage-u3
+/// line 6; suspected: immutable with a render target, depth or UAV bind), out of their cases into
+/// cases of their own at the end, so that the rest is answered. In their place the same lines as
+/// staging. The executor stops at the first, so each suite ends with the suspected kind and then
+/// one measured kind (Direct3D 10 the 0xffffffff usage, 11 the unknown usage with CPU access),
+/// then the other, which only the x86-64 executor reaches.
+fn isolate_x86_crashes(s: &str, d3d11: bool) -> String {
     let kind = |l: &str| -> Option<usize> {
         let t: Vec<&str> = l.split(' ').collect();
         if t.len() < 14 || t[0] != "tex" {
@@ -570,7 +572,10 @@ fn isolate_x86_crashes(s: &str) -> String {
             }
         }
     }
-    for (k, name) in [(0, "x86-usageff"), (1, "x86-immutable-bound"), (2, "x86-usage-cpu")] {
+    // (after the first measured kind the x86 executor is gone: the other is for x86-64)
+    let (a, b) = ((0, "x86-usageff"), (2, "x86-usage-cpu"));
+    let (first, then) = if d3d11 { (b, a) } else { (a, b) };
+    for (k, name) in [(1, "x86-immutable-bound"), first, then] {
         let mut devs: Vec<&String> = moved[k].iter().map(|m| &m.0).collect();
         devs.dedup();
         devs.sort();

@@ -499,10 +499,14 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         };
         Ok(Vert { pos, color })
     };
+    // (a triangle wholly past the buffer reads zeros, a point at w = 0, and with a zero stride
+    // all three vertices are one point: nothing drawn, so the draw stops there)
+    let nv = u64::try_from(vtx.len()).unwrap_or(u64::MAX).saturating_mul(4).checked_div(u64::from(stride)).map_or(1, |n| n + 1);
     let ntri = match top {
-        4 => count / 3,
-        _ => count.saturating_sub(2),
+        4 => u64::from(count / 3).min(nv.div_ceil(3)),
+        _ => u64::from(count.saturating_sub(2)).min(nv),
     };
+    let ntri = u32::try_from(ntri).unwrap_or(u32::MAX);
     for i in 0..instances {
         for p in 0..ntri {
             // (strips: every other triangle's first two vertices swapped; the leading vertex first)
