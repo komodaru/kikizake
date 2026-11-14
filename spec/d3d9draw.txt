@@ -52,7 +52,7 @@ D3D9.STAGE.NOTEX measured | golden d3d9draw top-*, d3d8draw tex-* of formats it 
 D3D9.STAGE.ARG measured | D3DTA, D3DTSS_RESULTARG, D3DTSS_CONSTANT; golden d3d9draw stage-temp-const-* | (9) RESULTARG TEMP writes the TEMP register (0 to begin with) in place of CURRENT; D3DTA_TEMP reads it, D3DTA_CONSTANT the stage's CONSTANT
 D3D9.STAGE.MULTI measured | D3DTEXTUREOP, D3DTSS_COLOROP; golden d3d9draw, d3d8draw stage1-* | the stages in turn to the first whose COLOROP is DISABLE, CURRENT the stage before's result, each its own texture and sampler states
 D3D9.STAGE.ALPHADISABLE.FIRST measured | golden d3d9draw, d3d8draw alphadisable-* (30 cases) | ALPHAOP DISABLE with COLOROP enabled on stage 0: the alpha the stage is given (the diffuse one) where the color operation reads DIFFUSE or CURRENT (an argument it uses, BLENDDIFFUSEALPHA, BLENDCURRENTALPHA), else 1; DOTPRODUCT3 writes its own
-D3D9.STAGE.ALPHADISABLE open | (cases alphadisable-stage1-*) | ALPHAOP DISABLE with COLOROP enabled on a later stage
+D3D9.STAGE.ALPHADISABLE measured | golden d3d9draw, d3d8draw alphadisable-stage1-* | ALPHAOP DISABLE with COLOROP enabled on a later stage: CURRENT's alpha stays (DOTPRODUCT3 writes its own)
 D3D9.SPECULAR doc | D3DRS_SPECULARENABLE | the specular color added to the color
 D3D9.FOG open | (cases fog-*) | fog
 D3D9.ALPHATEST doc | D3DRS_ALPHATESTENABLE, D3DRS_ALPHAREF, D3DRS_ALPHAFUNC | a pixel is drawn when its alpha (8 bits) compares true against ALPHAREF's low 8 bits

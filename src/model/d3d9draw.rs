@@ -1075,9 +1075,6 @@ impl D3d9 {
             if st > 0 {
                 hit(clause::D3D9_STAGE_MULTI);
             }
-            if aop == 1 && st > 0 {
-                return Err(Fail::Unmodeled(open::D3D9_STAGE_ALPHADISABLE));
-            }
             let tex = match self.draw.stage_tex[st as usize] {
                 Some(i) => {
                     if self.tss(st, 11) != 0 {
@@ -1092,10 +1089,20 @@ impl D3d9 {
                 // ALPHAOP DISABLE under an enabled COLOROP (MEASURED, alphadisable-*, stage 0):
                 // the alpha the stage is given where its color operation reads the diffuse color
                 // or CURRENT, else 1 (DOTPRODUCT3 writes its own)
-                hit(clause::D3D9_STAGE_ALPHADISABLE_FIRST);
+                if st == 0 {
+                    hit(clause::D3D9_STAGE_ALPHADISABLE_FIRST);
+                }
                 let mut out = self.stage(st, cop, 2, &r, tex)?;
                 if cop != 24 {
-                    out[3] = if self.reads_current(st, cop) { r.current[3] } else { 1.0 };
+                    out[3] = if st > 0 {
+                        // (MEASURED alphadisable-stage1-*: a later stage leaves CURRENT's alpha)
+                        hit(clause::D3D9_STAGE_ALPHADISABLE);
+                        r.current[3]
+                    } else if self.reads_current(st, cop) {
+                        r.current[3]
+                    } else {
+                        1.0
+                    };
                 }
                 out
             } else {
