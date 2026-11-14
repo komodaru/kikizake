@@ -46,6 +46,7 @@ pub fn d2d() -> String {
     xfbounds_more(&mut s);
     strokemore(&mut s, &mut r);
     bmpsrcmore(&mut s, &mut r);
+    strokewide(&mut s, &mut r);
     s
 }
 
@@ -856,5 +857,27 @@ fn bmpsrcmore(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case bmpsrcmore-{i}\nd2target 16 8\nd2aa aliased\nd2clear {}\nd2bmp 0 4 3 {px}\nd2drawbmp 0 0.5 0.75 13.25 7.5 1 {mode} {src}\nd2read\nend", color(r, true)).unwrap();
             i += 1;
         }
+    }
+}
+
+/// strokes wider than twice a side: small rectangles both ways round, thin triangles and open
+/// figures with short segments, to show what the widener does where a join's inner side
+/// passes the segment before it
+fn strokewide(s: &mut String, r: &mut XorShift32) {
+    for i in 0..36 {
+        let (x, y) = (r.range(32, 72) as f64 / 8.0 + 1.0 / 64.0, r.range(24, 56) as f64 / 8.0 + 3.0 / 128.0);
+        let pts = match i % 4 {
+            0 | 1 => {
+                let (w, h) = (r.range(1, 12) as f64 / 8.0, r.range(1, 12) as f64 / 8.0);
+                let c = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
+                let c: Vec<_> = if i % 4 == 0 { c.to_vec() } else { c.iter().rev().copied().collect() };
+                c.iter().map(|p| format!("{} {}", fmt(p.0), fmt(p.1))).collect::<Vec<_>>().join(" ")
+            }
+            _ => (0..r.range(3, 4)).map(|_| format!("{} {}", frac(r, 3, 11), frac(r, 2, 8))).collect::<Vec<_>>().join(" "),
+        };
+        let end = if i % 4 == 3 { "o" } else { "z" };
+        let w = fmt(r.range(4, 24) as f64 / 4.0);
+        let aa = if i % 2 == 1 { "d2aa aliased\n" } else { "" };
+        writeln!(s, "case strokewide-{i}\nd2target 16 12\n{aa}d2clear {}\nd2path 0 alt m {pts} {end}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), color(r, false)).unwrap();
     }
 }

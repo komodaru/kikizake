@@ -129,7 +129,9 @@ proptest! {
         prop_assert!(wind >= alt - 1e-4, "winding {} alternate {}", wind, alt);
         let b = bounds(&path(true, &[&p, &q]), None).unwrap();
         prop_assert!(wind <= (b[2] - b[0]) * (b[3] - b[1]) + 1e-4);
-        prop_assert!(alt >= 0.0);
+        // (a figure that goes back over its own edges has no area: the f64 sum of its
+        // trapezoids may leave a rounding residue either side of 0)
+        prop_assert!(alt >= -1e-4, "alternate {}", alt);
     }
 
     /// FillContainsPoint: the winding fill holds every point the alternate one does; a point
@@ -346,5 +348,30 @@ proptest! {
         if (l == r && inside(l)) || (t == b && inside(t)) {
             prop_assert_eq!(&one, &empty);
         }
+    }
+}
+
+proptest! {
+    /// DrawGeometry of a rectangle's figure (its four corners in either turn, from any corner)
+    /// paints what DrawRectangle does, aliased or antialiased, under a transform too, while
+    /// each side is at least half the width (shorter sides: strokewide-* asks)
+    #[test]
+    fn stroked_rectangles_are_drawrectangle(l in -8i32..40, t in -8i32..40, w in 1i32..40, h in 1i32..40, sw in 1i32..12, start in 0usize..4, back in proptest::bool::ANY, aa in proptest::bool::ANY, k in 0usize..3) {
+        let q = |v: i32| v as f32 / 4.0;
+        prop_assume!(sw <= 2 * w.min(h));
+        let (l, t, r, b, sw) = (q(l), q(t), q(l + w), q(t + h), q(sw));
+        let mut c = vec![(l, t), (r, t), (r, b), (l, b)];
+        if back {
+            c.reverse();
+        }
+        c.rotate_left(start);
+        let pts: Vec<String> = c.iter().map(|p| format!("{} {}", p.0, p.1)).collect();
+        let xf = ["", "d2xform 2 0 0 2 1 0\n", "d2xform 0 1 -1 0 12 0\n"][k];
+        let aa = if aa { "d2aa aliased\n" } else { "" };
+        let head = format!("d2target 16 12\n{aa}{xf}d2clear 9 80 200 255\n");
+        let mut a = run(&format!("{head}d2path 0 alt m {} z\nd2drawg 0 {sw} 250 120 30 255\nd2read\n", pts.join(" ")));
+        let b = run(&format!("{head}d2drawrect {l} {t} {r} {b} {sw} 250 120 30 255\nd2read\n"));
+        a.retain(|x| !x.starts_with("path"));
+        prop_assert_eq!(a, b);
     }
 }

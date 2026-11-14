@@ -1572,7 +1572,8 @@ impl D2d {
             "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" => self.draw(op, out)?,
             "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" => self.state(op, out)?,
             // (gradients, geometry strokes: asked, not modelled yet)
-            "d2grad" | "d2drawg" => {
+            "d2drawg" => self.draw(op, out)?,
+            "d2grad" => {
                 return Err(Fail::Unmodeled(open::D2D_RT));
             }
             _ => return Ok(false),
@@ -1999,6 +2000,40 @@ impl D2d {
                 tg.keep_clipped(&before);
                 return Ok(());
             }
+            "d2drawg" => {
+                let g = Self::slot(op, 1)?;
+                let w = f(op, 2)?;
+                let c = color(3)?;
+                if len != 7 {
+                    return Err(Fail::Bad);
+                }
+                let Some(tg) = &mut self.t else {
+                    out.push("nort".into());
+                    return Ok(());
+                };
+                let Some(g) = self.g[g].clone() else {
+                    out.push("nogeom".into());
+                    return Ok(());
+                };
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                // (straight figures widen as stroke_pieces says, fitted to strokefit-* and
+                // strokemore-*: all but three pixels one unit off; curves are not modelled yet)
+                let Some((_, figs, m0)) = g.lines() else {
+                    return Err(Fail::Unmodeled(open::D2D_RT));
+                };
+                if !w.is_finite() {
+                    return Err(Fail::Unmodeled(open::D2D_RT));
+                }
+                hit(clause::D2D_RT);
+                let figs: Vec<Figure> = figs.iter().map(|f| Figure { pts: f.pts.iter().map(|&(x, y)| apply(&m0, x, y)).collect(), closed: f.closed }).collect();
+                let pieces: Vec<Figure> = figs.iter().flat_map(|f| stroke_pieces(f, w * 0.5)).collect();
+                let before = tg.px.clone();
+                fill(tg, &Geom::Path { wind: true, figs: pieces }, &Paint::Solid(premultiply(c)))?;
+                tg.keep_clipped(&before);
+                return Ok(());
+            }
             "d2bmp" => {
                 let i = n(op, 1)?;
                 let (w, h) = (n(op, 2)?, n(op, 3)?);
@@ -2182,6 +2217,116 @@ impl D2d {
 
 /// FillRectangle / FillGeometry with a solid color brush: the pixels whose centers the shape
 /// covers (aliased, or antialiased where every edge is on the pixel grid), source over
+/// a side of a stroke's center line: the normal (-dy, dx) points to the left one
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Side {
+    Left,
+    Right,
+}
+
+impl Side {
+    fn sign(self) -> f32 {
+        match self {
+            Side::Left => 1.0,
+            Side::Right => -1.0,
+        }
+    }
+}
+
+/// how a figure turns at a vertex: a join is on the side it turns away from
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Turn {
+    /// the outside of the corner on this side
+    Corner(Side),
+    /// the segments in line: no join
+    Straight,
+}
+
+/// FITTED (D2D.RT, strokefit-*, strokemore-*; three pixels of 76 cases one unit off): a figure
+/// of straight segments stroked with flat caps and miter joins (limit 10) as pieces that fill
+/// it with nonzero winding, in f32: each segment the quad of its ends moved half the width h
+/// along its normal both ways; each join the wedge on its outer side from the two inner
+/// offset points over the segments' outer offset points and the miter between them, the
+/// miter cut square at 10 h from the vertex when longer; an open figure no join at its ends.
+/// The pieces turn positive. (Windows' own widener unions them: the quads and wedges give its
+/// fixed point edges exactly, WPF's rails and a union outline did not.)
+fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
+    let mut p = fg.pts.clone();
+    p.dedup();
+    if fg.closed && p.len() > 1 && p.first() == p.last() {
+        p.pop();
+    }
+    let n = p.len();
+    if n < 2 {
+        return Vec::new();
+    }
+    let nrm = |u: (f32, f32), v: (f32, f32)| {
+        let (dx, dy) = (v.0 - u.0, v.1 - u.1);
+        let l = (dx * dx + dy * dy).sqrt();
+        (-dy / l * h, dx / l * h)
+    };
+    let at = |q: (f32, f32), d: (f32, f32), s: f32| (q.0 + s * d.0, q.1 + s * d.1);
+    let positive = |mut q: Vec<(f32, f32)>| {
+        let a: f32 = (0..q.len()).map(|i| {
+            let (p0, p1) = (q[i], q[(i + 1) % q.len()]);
+            p0.0 * p1.1 - p1.0 * p0.1
+        }).sum();
+        if a < 0.0 {
+            q.reverse();
+        }
+        Figure { pts: q, closed: true }
+    };
+    let segs = if fg.closed { n } else { n - 1 };
+    let mut out = Vec::new();
+    for k in 0..segs {
+        let (a, b) = (p[k], p[(k + 1) % n]);
+        let n1 = nrm(a, b);
+        out.push(positive(vec![at(a, n1, 1.0), at(b, n1, 1.0), at(b, n1, -1.0), at(a, n1, -1.0)]));
+        if !fg.closed && k + 2 >= n {
+            continue;
+        }
+        let c = p[(k + 2) % n];
+        let n2 = nrm(b, c);
+        let cr = (b.0 - a.0) * (c.1 - b.1) - (b.1 - a.1) * (c.0 - b.0);
+        let turn = if cr > 0.0 {
+            Turn::Corner(Side::Right)
+        } else if cr < 0.0 {
+            Turn::Corner(Side::Left)
+        } else {
+            Turn::Straight
+        };
+        let side = match turn {
+            Turn::Corner(side) => side,
+            Turn::Straight => continue,
+        };
+        let s = side.sign();
+        // the miter: the vertex moved along the normals' sum to meet both offset lines
+        let (u1, u2) = ((n1.0 / h, n1.1 / h), (n2.0 / h, n2.1 / h));
+        let (mx, my) = (u1.0 + u2.0, u1.1 + u2.1);
+        let d = mx * u1.0 + my * u1.1;
+        let m = (b.0 + s * h * mx / d, b.1 + s * h * my / d);
+        let (p1, p2) = (at(b, n1, s), at(b, n2, s));
+        let mut wedge = vec![at(b, n2, -s), at(b, n1, -s), p1];
+        let (vx, vy) = (m.0 - b.0, m.1 - b.1);
+        let ml = (vx * vx + vy * vy).sqrt();
+        let lim = 10.0 * h;
+        if ml > lim {
+            let (dx, dy) = (vx / ml, vy / ml);
+            let cut = |q: (f32, f32)| {
+                let pq = (q.0 - b.0) * dx + (q.1 - b.1) * dy;
+                let t = (lim - pq) / (ml - pq);
+                (q.0 + t * (m.0 - q.0), q.1 + t * (m.1 - q.1))
+            };
+            wedge.extend([cut(p1), cut(p2)]);
+        } else {
+            wedge.push(m);
+        }
+        wedge.push(p2);
+        out.push(positive(wedge));
+    }
+    out
+}
+
 fn fill(tg: &mut Target, g: &Geom, paint: &Paint) -> Res<()> {
     let frame = match tg.st.aa {
         Antialias::Aliased => Frame::Aliased,
