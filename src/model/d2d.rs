@@ -770,6 +770,141 @@ pub struct Target {
     pub stack: Vec<Pushed>,
     /// the error state's error, once in it
     pub fault: Option<u32>,
+    /// the bitmaps made on this target, by slot
+    pub bitmaps: [Option<Bitmap>; 4],
+}
+
+/// a premultiplied B8G8R8A8 bitmap
+#[derive(Clone, PartialEq, Debug)]
+pub struct Bitmap {
+    pub w: usize,
+    pub h: usize,
+    pub px: Vec<[u8; 4]>,
+}
+
+/// D2D1_EXTEND_MODE
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Extend {
+    Clamp,
+    Wrap,
+    Mirror,
+}
+
+impl Extend {
+    fn parse(t: &str) -> Option<Self> {
+        match t {
+            "clamp" => Some(Self::Clamp),
+            "wrap" => Some(Self::Wrap),
+            "mirror" => Some(Self::Mirror),
+            _ => None,
+        }
+    }
+    /// texel i of a row or column of n (n > 0) by this mode
+    fn index(self, i: i64, n: usize) -> usize {
+        let n = n as i64;
+        let k = match self {
+            Self::Clamp => i.clamp(0, n - 1),
+            Self::Wrap => i.rem_euclid(n),
+            Self::Mirror => {
+                let p = i.rem_euclid(2 * n);
+                if p < n { p } else { 2 * n - 1 - p }
+            }
+        };
+        k as usize
+    }
+}
+
+/// D2D1_BITMAP_INTERPOLATION_MODE
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Interp {
+    Nearest,
+    Linear,
+}
+
+impl Interp {
+    fn parse(t: &str) -> Option<Self> {
+        match t {
+            "nearest" => Some(Self::Nearest),
+            "linear" => Some(Self::Linear),
+            _ => None,
+        }
+    }
+}
+
+/// where a pixel center falls in a bitmap: DrawBitmap's destination rectangle onto its source
+/// rectangle, or through the inverse of a bitmap brush's transform (to pixels)
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Place {
+    Rect { dst: [f32; 4], src: [f32; 4] },
+    Brush(M),
+}
+
+/// what a fill puts down at each pixel (premultiplied B G R A)
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Paint<'a> {
+    Solid([u8; 4]),
+    Bitmap { bmp: &'a Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, opacity: u32 },
+}
+
+/// a byte scaled by k / 255 rounded
+fn scale_by(p: [u8; 4], k: u32) -> [u8; 4] {
+    p.map(|b| ((u32::from(b) * k + 127) / 255) as u8)
+}
+
+impl Paint<'_> {
+    /// MEASURED (D2D.BITMAP.NEAREST, D2D.BITMAP.LINEAR, D2D.BBRUSH): the color at pixel (x, y)
+    fn at(&self, x: usize, y: usize) -> [u8; 4] {
+        match *self {
+            Paint::Solid(c) => c,
+            Paint::Bitmap { bmp, place, ext, interp, opacity } => texel_at(bmp, place, ext, interp, opacity, x, y),
+        }
+    }
+}
+
+fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, opacity: u32, x: usize, y: usize) -> [u8; 4] {
+    {
+        let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+        let (u, v) = match place {
+            Place::Rect { dst, src } => {
+                let [dl, dt, dr, db] = dst.map(f64::from);
+                let [sl, st, sr, sb] = src.map(f64::from);
+                (sl + (cx - dl) * (sr - sl) / (dr - dl), st + (cy - dt) * (sb - st) / (db - dt))
+            }
+            Place::Brush(m) => {
+                let m = m.map(f64::from);
+                let det = m[0] * m[3] - m[1] * m[2];
+                let (px, py) = (cx - m[4], cy - m[5]);
+                ((m[3] * px - m[2] * py) / det, (-m[1] * px + m[0] * py) / det)
+            }
+        };
+        let texel = |i: i64, j: i64| bmp.px[ext.1.index(j, bmp.h) * bmp.w + ext.0.index(i, bmp.w)];
+        let c = match interp {
+            Interp::Nearest => texel(u.floor() as i64, v.floor() as i64),
+            Interp::Linear => {
+                // (the texel centers at +0.5, the fractions in 1/256 rounded, a lerp down each
+                // of the two columns and then across, each rounded)
+                let (u, v) = (u - 0.5, v - 0.5);
+                let (mut i, mut j) = (u.floor() as i64, v.floor() as i64);
+                let (mut fu, mut fv) = (((u - u.floor()) * 256.0 + 0.5).floor() as u32, ((v - v.floor()) * 256.0 + 0.5).floor() as u32);
+                if fu == 256 {
+                    fu = 0;
+                    i += 1;
+                }
+                if fv == 256 {
+                    fv = 0;
+                    j += 1;
+                }
+                let lerp = |a: u32, b: u32, f: u32| (a * (256 - f) + b * f + 128) / 256;
+                let (a, b, c, d) = (texel(i, j), texel(i + 1, j), texel(i, j + 1), texel(i + 1, j + 1));
+                std::array::from_fn(|k| {
+                    let l = lerp(u32::from(a[k]), u32::from(c[k]), fv);
+                    let r = lerp(u32::from(b[k]), u32::from(d[k]), fv);
+                    lerp(l, r, fu) as u8
+                })
+            }
+        };
+        if opacity == 255 { c } else { scale_by(c, opacity) }
+    }
 }
 
 pub const D2DERR_POP_CALL_DID_NOT_MATCH_PUSH: u32 = 0x8899_0014;
@@ -853,7 +988,7 @@ fn center_in(r: [f32; 4], x: usize, y: usize) -> bool {
 
 impl Target {
     pub fn new(w: usize, h: usize) -> Self {
-        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, stack: Vec::new(), fault: None }
+        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, stack: Vec::new(), fault: None, bitmaps: [None, None, None, None] }
     }
 
     /// MEASURED (D2D.CLIP.BLEND): what a drawing call did to the pixels (`before` -> now) kept
@@ -1163,10 +1298,10 @@ impl D2d {
                 let segs: usize = figs.iter().map(|f| f.pts.len() - 1 + f.closed as usize).sum();
                 out.push(format!("count 00000000 {} 00000000 {segs}", figs.len()));
             }
-            "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" => self.draw(op, out)?,
+            "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" | "d2bmp" | "d2drawbmp" | "d2bbrush" => self.draw(op, out)?,
             "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" => self.state(op, out)?,
-            // (gradients, bitmaps, strokes: asked, not modelled yet)
-            "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
+            // (gradients, strokes: asked, not modelled yet)
+            "d2grad" | "d2line" | "d2drawrect" | "d2drawg" => {
                 return Err(Fail::Unmodeled(open::D2D_RT));
             }
             _ => return Ok(false),
@@ -1563,7 +1698,75 @@ impl D2d {
                     return Ok(());
                 }
                 let before = tg.px.clone();
-                fill(tg, &g, c, o)?;
+                fill(tg, &g, &Paint::Solid(premultiply_o(c, o)))?;
+                tg.keep_clipped(&before);
+                return Ok(());
+            }
+            "d2bmp" => {
+                let i = n(op, 1)?;
+                let (w, h) = (n(op, 2)?, n(op, 3)?);
+                let hexs = t.get(4).ok_or(Fail::Bad)?;
+                if len != 5 || !(0..4).contains(&i) || !(1..=16).contains(&w) || !(1..=16).contains(&h) || hexs.len() as i64 != w * h * 8 {
+                    return Err(Fail::Bad);
+                }
+                let bytes: Vec<u8> = (0..hexs.len() / 2).map(|k| hexs.get(2 * k..2 * k + 2).and_then(|b| u8::from_str_radix(b, 16).ok())).collect::<Option<_>>().ok_or(Fail::Bad)?;
+                let Some(tg) = &mut self.t else {
+                    out.push("nort".into());
+                    return Ok(());
+                };
+                hit(clause::D2D_BITMAP);
+                let px = bytes.chunks_exact(4).map(|c| [c[0], c[1], c[2], c[3]]).collect();
+                tg.bitmaps[i as usize] = Some(Bitmap { w: w as usize, h: h as usize, px });
+                out.push("bmp 00000000".into());
+                return Ok(());
+            }
+            "d2drawbmp" | "d2bbrush" => {
+                let i = n(op, 1)?;
+                let r = [f(op, 2)?, f(op, 3)?, f(op, 4)?, f(op, 5)?];
+                let draw = t[0] == "d2drawbmp";
+                let word = |k: usize| t.get(k).map(String::as_str).unwrap_or("");
+                let (o, interp, ext, rest) = if draw {
+                    (f(op, 6)?, Interp::parse(word(7)).ok_or(Fail::Bad)?, (Extend::Clamp, Extend::Clamp), 8)
+                } else {
+                    let ext = (Extend::parse(word(6)).ok_or(Fail::Bad)?, Extend::parse(word(7)).ok_or(Fail::Bad)?);
+                    (1.0, Interp::parse(word(8)).ok_or(Fail::Bad)?, ext, 9)
+                };
+                let extra = if len == rest { None } else if len == rest + if draw { 4 } else { 6 } {
+                    Some((rest..len).map(|k| f(op, k)).collect::<Res<Vec<f32>>>()?)
+                } else {
+                    return Err(Fail::Bad);
+                };
+                if !(0..4).contains(&i) {
+                    return Err(Fail::Bad);
+                }
+                let Some(tg) = &mut self.t else {
+                    out.push("nort".into());
+                    return Ok(());
+                };
+                let Some(bmp) = tg.bitmaps[i as usize].clone() else { return Ok(()) };
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                let full = [0.0, 0.0, bmp.w as f32, bmp.h as f32];
+                let (place, opacity) = if draw {
+                    hit(match interp {
+                        Interp::Nearest => clause::D2D_BITMAP_NEAREST,
+                        Interp::Linear => clause::D2D_BITMAP_LINEAR,
+                    });
+                    let src = extra.as_deref().map_or(full, |e| [e[0], e[1], e[2], e[3]]);
+                    if tg.st.m != IDENTITY {
+                        return Err(Fail::Unmodeled(open::D2D_RT));
+                    }
+                    // (MEASURED, D2D.BITMAP.OPACITY: the texel scaled by the opacity byte)
+                    (Place::Rect { dst: r, src }, (o * 255.0 + 0.5).floor().clamp(0.0, 255.0) as u32)
+                } else {
+                    hit(clause::D2D_BBRUSH);
+                    let m = extra.as_deref().map_or(IDENTITY, |e| [e[0], e[1], e[2], e[3], e[4], e[5]]);
+                    (Place::Brush(mul(&m, &tg.st.m)), 255)
+                };
+                let paint = Paint::Bitmap { bmp: &bmp, place, ext, interp, opacity };
+                let before = tg.px.clone();
+                fill(tg, &Geom::Rect(r), &paint)?;
                 tg.keep_clipped(&before);
                 return Ok(());
             }
@@ -1615,7 +1818,7 @@ impl D2d {
 
 /// FillRectangle / FillGeometry with a solid color brush: the pixels whose centers the shape
 /// covers (aliased, or antialiased where every edge is on the pixel grid), source over
-fn fill(tg: &mut Target, g: &Geom, c: [i64; 4], o: f32) -> Res<()> {
+fn fill(tg: &mut Target, g: &Geom, paint: &Paint) -> Res<()> {
     let (wind, figs, m) = match g.lines() {
         Some((wind, figs, m0)) => (wind, figs, mul(&m0, &tg.st.m)),
         None => {
@@ -1637,11 +1840,10 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4], o: f32) -> Res<()> {
             // aliased rule, clip-xf)
             return Err(Fail::Unmodeled(open::D2D_FILL_AA));
         } else {
-            return fill_aa(tg, &ps, wind, c, o);
+            return fill_aa(tg, &ps, wind, paint);
         }
     }
-    let src = premultiply_o(c, o);
-    if src[3] != 255 {
+    if matches!(paint, Paint::Solid(src) if src[3] != 255) {
         hit(clause::D2D_FILL_OVER);
     }
     for y in 0..tg.h {
@@ -1657,7 +1859,7 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4], o: f32) -> Res<()> {
             if if wind { w != 0 } else { w % 2 != 0 } {
                 hit(if axis { clause::D2D_FILL_RECT } else { clause::D2D_FILL_POLY });
                 let i = y * tg.w + x;
-                tg.px[i] = over(src, tg.px[i]);
+                tg.px[i] = over(paint.at(x, y), tg.px[i]);
             }
         }
     }
@@ -1668,21 +1870,21 @@ fn fill(tg: &mut Target, g: &Geom, c: [i64; 4], o: f32) -> Res<()> {
 /// an empty target. MEASURED (golden d2d-32/-64, aa-*): each pixel the exact covered fraction
 /// of it, every byte round(coverage 255) (0.25 -> 0x40, 0.5 -> 0x80, 0.75 -> 0xbf)
 
-fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, c: [i64; 4], o: f32) -> Res<()> {
+fn fill_aa(tg: &mut Target, ps: &[Vec<(f64, f64)>], wind: bool, paint: &Paint) -> Res<()> {
     let cov = coverage(tg, ps, wind);
     hit(clause::D2D_FILL_AACOVER);
-    let src = premultiply_o(c, o);
-    for (p, n) in tg.px.iter_mut().zip(cov) {
+    for (i, n) in cov.into_iter().enumerate() {
         if n == 0 {
             continue;
         }
+        let src = paint.at(i % tg.w, i / tg.w);
+        let p = &mut tg.px[i];
         // (MEASURED, aac-*, aa-c*: n of 64 samples is the coverage byte (n 4 255 + 0x80) >> 8,
         // each byte of the premultiplied color times it / 255 rounded, then over the target as
         // an aliased fill)
         hit(clause::D2D_FILL_AABLEND);
         let k = (n * 4 * 255 + 0x80) >> 8;
-        let scaled = src.map(|b| ((u32::from(b) * k + 127) / 255) as u8);
-        *p = over(scaled, *p);
+        *p = over(scale_by(src, k), *p);
     }
     Ok(())
 }

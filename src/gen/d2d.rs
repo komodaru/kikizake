@@ -34,6 +34,7 @@ pub fn d2d() -> String {
     target(&mut s, &mut r);
     target_more(&mut s, &mut r);
     gradfit(&mut s);
+    bitmaps_more(&mut s, &mut r);
     s
 }
 
@@ -624,5 +625,26 @@ fn gradfit(s: &mut String) {
             writeln!(s, "case gradfit-{i}\nd2target 64 1\nd2aa aliased\nd2grad 0 0 64 1 rad {gamma} {ext} 0 0 0 0 48 0.5 2 {}\nd2read\nend", pairs[1]).unwrap();
             i += 1;
         }
+    }
+}
+
+/// DrawBitmap aliased, through world transforms, past the source's edges; bitmap brushes
+/// through world transforms and with odd brush transforms
+fn bitmaps_more(s: &mut String, r: &mut XorShift32) {
+    for i in 0..12 {
+        let (w, h) = (r.range(1, 5), r.range(1, 5));
+        let mode = if i % 2 == 0 { "nearest" } else { "linear" };
+        let aa = if i % 4 < 2 { "d2aa aliased\n" } else { "" };
+        let xf = ["", "d2xform 1.5 0 0 0.75 1.25 0.5\n", "d2xform 0.8 0.6 -0.6 0.8 6 0\n", "d2xform -1 0 0 1 16 0\n"][i % 4];
+        let src = if i % 3 == 0 { format!(" -0.5 0.25 {} {}", fmt(w as f64 + 0.75), fmt(h as f64 - 0.25)) } else { String::new() };
+        writeln!(s, "case bmpx-{i}\nd2target 16 8\n{aa}{xf}d2clear {}\nd2bmp 0 {w} {h} {}\nd2drawbmp 0 {} {} {} {} 1 {mode}{src}\nd2read\nend", color(r, true), bitmap(r, w, h), frac(r, 0, 4), frac(r, 0, 2), frac(r, 6, 14), frac(r, 4, 8)).unwrap();
+    }
+    for i in 0..8 {
+        let (w, h) = (r.range(1, 5), r.range(1, 5));
+        let mode = if i % 2 == 0 { "nearest" } else { "linear" };
+        let ex = ["clamp", "wrap", "mirror"][i % 3];
+        let xf = ["", "d2xform 1 0 0 1 0.5 0.25\n", "d2xform 0.8 0.6 -0.6 0.8 6 0\n", "d2xform 2 0 0 2 0 0\n"][i % 4];
+        let m = ["0.7 0.2 -0.3 1.1 0.25 0.5", "-1 0 0 1 3 0", "2.5 0 0 0.5 0 0", "1 0.5 0 1 -2 1"][(i / 2) % 4];
+        writeln!(s, "case bbrushx-{i}\nd2target 16 8\nd2aa aliased\n{xf}d2bmp 0 {w} {h} {}\nd2bbrush 0 0 0 16 8 {ex} {ex} {mode} {m}\nd2read\nend", bitmap(r, w, h)).unwrap();
     }
 }
