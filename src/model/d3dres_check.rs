@@ -393,10 +393,9 @@ fn view_dims(dev: Dev, kind: u32, d: &Desc) -> &'static [u32] {
     let ms = d.count > 1;
     let cube = d.misc & 4 != 0;
     match (d.dim, kind) {
-        // (MEASURED: Direct3D 10 takes BUFFEREX too, d3d10res view-b-srv, and makes no buffer
-        // render target of the five descriptions view-b-rtv tries)
+        // (MEASURED: Direct3D 10 takes BUFFEREX and buffer render targets too, d3d10res
+        // view-b-srv, view-b-bufex)
         (4, 0) => &[1, 11],
-        (4, 1) if !dev.d3d11() => &[],
         (4, 1 | 3) => &[1],
         (1, 0 | 1 | 3) => &[2, 3],
         (1, 2) => &[1, 2],
@@ -471,10 +470,9 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
         return bad;
     }
     let dim = w[1];
+    // (MEASURED: Direct3D 10 makes BUFFEREX views of a plain buffer as 11 does, view-b-bufex)
     if dim == 11 && !dev.d3d11() && d.misc & 0x20 == 0 {
-        // (Direct3D 10 makes one BUFFEREX view and refuses another of a plain buffer; which
-        // ones, open: view-b-bufex)
-        return Err(Fail::Unmodeled("D3DRES.VIEW.BUFEX10"));
+        hit("D3DRES.VIEW.BUFEX10");
     }
     // (the 11 depth stencil view's flags: READ_ONLY_DEPTH, READ_ONLY_STENCIL)
     if head == 3 && w[2] & !3 != 0 {
@@ -515,7 +513,8 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
         (0 | 1 | 3, 1) | (0, 11) if d.dim == 4 => {
             // (buffers: elements of the view's format; raw views count 32-bit words)
             let el = if rawview { 4 } else { vf.bits / 8 };
-            el != 0 && { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, d.w / el); u[1] = b; o }
+            // (MEASURED: a count of -1 is no "rest" for a buffer, view-b-bufex)
+            el != 0 && u[1] != 0xffff_ffff && { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, d.w / el); u[1] = b; o }
         }
         (0, 2 | 4 | 8 | 9) => { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, mips); u[1] = b; o }
         (0, 3 | 5) => {

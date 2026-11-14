@@ -456,7 +456,68 @@ fn suite(d3d11: bool) -> String {
     }
     writeln!(s, "case probe-read-ms\n{dev}\n{}\nrtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\nread 0 0 16 4 1\nend", t44(0, RTV, 4)).unwrap();
     // (an immutable texture made without initial data crashes the x86 WARP: give it some)
-    s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n"
+    let s = s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n";
+    isolate_x86_crashes(&s)
+}
+
+/// the texture lines one of which ends the x86 executor (golden d3d11res-32 and d3d10res-32 stop
+/// in tex2-f28-usage-u0: usage 0xffffffff, or immutable with a render target, depth or UAV bind),
+/// out of their cases into cases of their own at the end, so that the rest is answered (each
+/// refused, by the model: the lines stay as a size 0 texture, refused the same way)
+fn isolate_x86_crashes(s: &str) -> String {
+    let kind = |l: &str| -> Option<usize> {
+        let t: Vec<&str> = l.split(' ').collect();
+        if t.len() < 14 || t[0] != "tex" {
+            return None;
+        }
+        let num = |s: &str| if let Some(x) = s.strip_prefix("0x") { u32::from_str_radix(x, 16).ok() } else { s.parse().ok() };
+        let (usage, bind) = (num(t[8])?, num(t[9])?);
+        if usage == 0xffff_ffff && bind != 0 {
+            Some(0)
+        } else if usage == 1 && bind & (0x20 | 0x40 | 0x80) != 0 {
+            Some(1)
+        } else {
+            None
+        }
+    };
+    let mut out = String::new();
+    let mut moved: [Vec<(String, String)>; 2] = [vec![], vec![]];
+    let mut dev = String::new();
+    let mut prev = "";
+    for l in s.lines() {
+        if prev.starts_with("case ") {
+            dev = l.to_string();
+        }
+        prev = l;
+        match kind(l) {
+            Some(k) => {
+                moved[k].push((dev.clone(), l.to_string()));
+                // (in its place a size-0 texture: refused as it is, the slot emptied as by it)
+                let mut t: Vec<&str> = l.split(' ').take(14).collect();
+                t[3] = "0";
+                out += &t.join(" ");
+                out += "\n";
+            }
+            None => {
+                out += l;
+                out += "\n";
+            }
+        }
+    }
+    for (k, name) in [(0, "x86-usageff"), (1, "x86-immutable-bound")] {
+        let mut devs: Vec<&String> = moved[k].iter().map(|m| &m.0).collect();
+        devs.dedup();
+        devs.sort();
+        devs.dedup();
+        for (i, d) in devs.iter().enumerate() {
+            writeln!(out, "case {name}-{i}\n{d}").unwrap();
+            for (_, l) in moved[k].iter().filter(|m| &m.0 == *d) {
+                writeln!(out, "{l}").unwrap();
+            }
+            writeln!(out, "end").unwrap();
+        }
+    }
+    out
 }
 
 /// a texture line of usage IMMUTABLE without initial data, with some (pitches of its width)
