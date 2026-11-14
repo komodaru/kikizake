@@ -29,6 +29,7 @@ pub fn d2d() -> String {
     geometry(&mut s, &mut r);
     sink(&mut s);
     draw(&mut s, &mut r);
+    curves(&mut s, &mut r);
     s
 }
 
@@ -340,4 +341,94 @@ fn draw(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "case aa-c{i}\nd2target 16 2\nd2clear {}\nd2fill {} 0 {} 2 {}\nd2read\nend", color(r, i % 2 == 0), e(r), e(r), color(r, i % 3 == 0)).unwrap();
     }
     writeln!(s, "case nort\nd2fill 0 0 1 1 0 0 0 255\nd2read\nend").unwrap();
+}
+
+/// what the geometries give a sink (Simplify, Outline, Widen, CombineWithGeometry, Tessellate),
+/// dense color space curves, antialiased coverage, relations between any shapes
+fn curves(s: &mut String, r: &mut XorShift32) {
+    // ellipses and rounded rectangles as cubics, and flattened at several tolerances
+    let ells = ["0 0 1 1", "0 0 2 1", "3 -1 0.5 4", "8 8 6 6", "0 0 20 10", "0 0 100 100", "1 1 0 0", "1 1 -2 1", "0 0 0.125 0.125", "5 5 3 0"];
+    for (i, e) in ells.iter().enumerate() {
+        writeln!(s, "case simp-ell-{i}\nd2ell 0 {e}\nd2simp 0 cubics\nend").unwrap();
+        for tol in ["0.25", "1", "0.05", "0", "4"] {
+            writeln!(s, "case flat-ell-{i}-{tol}\nd2ell 0 {e}\nd2simp 0 lines {tol}\nend").unwrap();
+        }
+    }
+    let rrs = ["0 0 8 4 1 1", "0 0 8 4 4 2", "0 0 8 4 10 10", "0 0 8 4 0 0", "0 0 8 4 -1 2", "8 4 0 0 1 1", "0 0 40 30 7 3", "0 0 8 4 0 2"];
+    for (i, g) in rrs.iter().enumerate() {
+        writeln!(s, "case simp-rrect-{i}\nd2rrect 0 {g}\nd2simp 0 cubics\nend").unwrap();
+        for tol in ["0.25", "1", "0.05"] {
+            writeln!(s, "case flat-rrect-{i}-{tol}\nd2rrect 0 {g}\nd2simp 0 lines {tol}\nend").unwrap();
+        }
+    }
+    // paths and rectangles through a sink as they are
+    for i in 0..10 {
+        let n = r.range(2, 6);
+        let p = polygon(r, n, 12);
+        let mode = if i % 2 == 0 { "alt" } else { "wind" };
+        writeln!(s, "case simp-path-{i}\nd2path 0 {mode} {} {}\nd2simp 0 cubics\nd2simp 0 lines\nend", figure(&p, "z"), figure(&polygon(r, 3, 12), "o")).unwrap();
+    }
+    writeln!(s, "case simp-rect\nd2rect 0 1 2 5 7\nd2simp 0 cubics\nd2rect 1 5 7 1 2\nd2simp 1 lines\nend").unwrap();
+    // outlines, widenings, combinations, tessellations
+    let shapes = ["d2rect 0 1 1 7 5", "d2path 0 alt m 6 0 9 12 0 4 12 4 3 12 z", "d2path 0 wind m 6 0 9 12 0 4 12 4 3 12 z", "d2path 0 alt m 0 0 6 0 6 6 0 6 z m 3 3 9 3 9 9 3 9 z", "d2ell 0 4 4 3 2", "d2path 0 alt m 1 1 5 1 5 5 o"];
+    for (i, g) in shapes.iter().enumerate() {
+        writeln!(s, "case outline-{i}\n{g}\nd2outline 0\nend\ncase tess-{i}\n{g}\nd2tess 0\nend").unwrap();
+        for w in ["1", "2.5", "0"] {
+            writeln!(s, "case widen-{i}-{w}\n{g}\nd2widen 0 {w}\nend").unwrap();
+        }
+    }
+    let pairs = [("d2rect 0 0 0 4 4", "d2rect 1 2 2 6 6"), ("d2rect 0 0 0 4 4", "d2rect 1 5 5 6 6"), ("d2rect 0 0 0 8 8", "d2rect 1 2 2 4 4"), ("d2rect 0 0 0 4 4", "d2path 1 alt m 2 -2 6 2 2 6 -2 2 z"), ("d2ell 0 4 4 3 3", "d2rect 1 4 4 8 8"), ("d2path 0 alt m 0 0 6 0 6 6 0 6 z", "d2path 1 wind m 3 3 9 3 9 9 3 9 z")];
+    for (i, (a, b)) in pairs.iter().enumerate() {
+        for mode in ["union", "intersect", "xor", "exclude"] {
+            writeln!(s, "case combine-{i}-{mode}\n{a}\n{b}\nd2combine 0 1 {mode}\nend").unwrap();
+        }
+    }
+    // relations between any two shapes: paths, ellipses, rounded rectangles
+    for i in 0..40 {
+        let mk = |r: &mut XorShift32, slot: u32| -> String {
+            match r.range(0, 3) {
+                0 => format!("d2ell {slot} {} {} {} {}", r.range(2, 10), r.range(2, 10), r.range(1, 5), r.range(1, 5)),
+                1 => format!("d2rrect {slot} {} {} {} {} 1 1", r.range(0, 5), r.range(0, 5), r.range(6, 12), r.range(6, 12)),
+                _ => {
+                    let n = r.range(3, 6);
+                    let p = polygon(r, n, 12);
+                    format!("d2path {slot} {} {}", if r.chance(2) { "alt" } else { "wind" }, figure(&p, "z"))
+                }
+            }
+        };
+        let (a, b) = (mk(r, 0), mk(r, 1));
+        writeln!(s, "case cmpg-{i}\n{a}\n{b}\nd2cmp 0 1\nd2cmp 1 0\nend").unwrap();
+    }
+    // the color space curve: every 1/256, and random floats in 0..1
+    for (from, to) in [(1, 2), (2, 1)] {
+        write!(s, "case csd-{from}-{to}\n").unwrap();
+        for k in 1..256 {
+            let v = fmt(k as f64 / 256.0);
+            writeln!(s, "d2cs {from} {to} {v} {v} {v} 1").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        write!(s, "case csr-{from}-{to}\n").unwrap();
+        for _ in 0..200 {
+            let b: Vec<String> = (0..3).map(|_| format!("0x{:08x}", 0x3000_0000 + r.next() % 0x0f80_0000)).collect();
+            writeln!(s, "d2cs {from} {to} {} 1", b.join(" ")).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // antialiased coverage: edges at sixteenths, white on an empty target, colors over colors
+    for i in 0..24 {
+        let e = |r: &mut XorShift32| fmt(r.range(0, 256) as f64 / 16.0);
+        writeln!(s, "case aa16-{i}\nd2target 16 2\nd2fill {} 0 {} 1 255 255 255 255\nd2fill 0 {} 16 {} 255 255 255 255\nd2read\nend", e(r), e(r), fmt(1.0 + r.range(0, 16) as f64 / 16.0), fmt(2.0)).unwrap();
+    }
+    for i in 0..30 {
+        let e = |r: &mut XorShift32| fmt(r.range(0, 64) as f64 / 4.0);
+        writeln!(s, "case aac-{i}\nd2target 16 2\nd2clear {}\nd2fill {} 0 {} 2 {}\nd2read\nend", color(r, i % 2 == 0), e(r), e(r), color(r, i % 3 == 0)).unwrap();
+    }
+    for i in 0..12 {
+        let p = polygon(r, 3, 16);
+        writeln!(s, "case aapoly-{i}\nd2target 16 16\nd2path 0 alt {}\nd2fillg 0 255 255 255 255\nd2read\nend", figure(&p, "z")).unwrap();
+    }
+    for (i, e) in ["8 8 5 3", "8 8 7.5 7.5", "4.5 4.5 2 2"].iter().enumerate() {
+        writeln!(s, "case fillell-{i}\nd2target 16 16\nd2aa aliased\nd2ell 0 {e}\nd2fillg 0 255 255 255 255\nd2read\nend\ncase fillell-aa-{i}\nd2target 16 16\nd2ell 0 {e}\nd2fillg 0 255 255 255 255\nd2read\nend").unwrap();
+    }
+    writeln!(s, "case fillrrect\nd2target 16 16\nd2aa aliased\nd2rrect 0 1 1 15 11 4 3\nd2fillg 0 255 255 255 255\nd2read\nend").unwrap();
 }

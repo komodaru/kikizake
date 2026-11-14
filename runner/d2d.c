@@ -374,6 +374,65 @@ static void op_count(void) {
     ID2D1PathGeometry_Release(p);
 }
 
+
+/* ---------------------------------------------------------------------------------------- */
+/* what a geometry gives a sink: Simplify, Outline, Widen, CombineWithGeometry, Tessellate */
+
+/* a sink that prints each call: " F <mode>" " S <flags>" " B x y <begin>" " L x y" " C x1 y1 x2 y2
+ * x3 y3" " E <end>" " Z" (Close), " T <6 floats>" (a triangle) */
+static HRESULT WINAPI ks_qi(void *t, REFIID r, void **o) { *o = t; return S_OK; }
+static ULONG WINAPI ks_ref(void *t) { return 1; }
+static void WINAPI ks_fill(void *t, D2D1_FILL_MODE m) { out(" F %d", m); }
+static void WINAPI ks_flags(void *t, D2D1_PATH_SEGMENT f) { out(" S %d", f); }
+static void WINAPI ks_begin(void *t, D2D1_POINT_2F p, D2D1_FIGURE_BEGIN b) { out(" B"); outf(p.x); outf(p.y); out(" %d", b); }
+static void WINAPI ks_lines(void *t, const D2D1_POINT_2F *p, UINT n) {
+    for (UINT i = 0; i < n; i++) { out(" L"); outf(p[i].x); outf(p[i].y); }
+}
+static void WINAPI ks_beziers(void *t, const D2D1_BEZIER_SEGMENT *b, UINT n) {
+    for (UINT i = 0; i < n; i++) { out(" C"); outf(b[i].point1.x); outf(b[i].point1.y); outf(b[i].point2.x); outf(b[i].point2.y); outf(b[i].point3.x); outf(b[i].point3.y); }
+}
+static void WINAPI ks_end(void *t, D2D1_FIGURE_END e) { out(" E %d", e); }
+static HRESULT WINAPI ks_close(void *t) { out(" Z"); return S_OK; }
+static void WINAPI ks_tris(void *t, const D2D1_TRIANGLE *tr, UINT n) {
+    for (UINT i = 0; i < n; i++) { out(" T"); outf(tr[i].point1.x); outf(tr[i].point1.y); outf(tr[i].point2.x); outf(tr[i].point2.y); outf(tr[i].point3.x); outf(tr[i].point3.y); }
+}
+static void *ks_vt[] = { ks_qi, ks_ref, ks_ref, ks_fill, ks_flags, ks_begin, ks_lines, ks_beziers, ks_end, ks_close };
+static void *ks_tvt[] = { ks_qi, ks_ref, ks_ref, ks_tris, ks_close };
+static struct { void **vt; } ksink = { ks_vt }, ktess = { ks_tvt };
+
+/* d2simp <g> cubics|lines [tolerance]: Simplify (no transform; tolerance 0.25 when not given);
+ * d2outline <g> [tolerance]: Outline; d2widen <g> <width> [tolerance]: Widen (no stroke style);
+ * d2combine <a> <b> union|intersect|xor|exclude [tolerance]: a's CombineWithGeometry(b);
+ * d2tess <g> [tolerance]: Tessellate. Each prints "<op> <hr>" and then on the same line what the
+ * sink was given */
+static void op_simp(void) {
+    int combine = is(0, "d2combine"), simp = is(0, "d2simp"), widen = is(0, "d2widen"), tess = is(0, "d2tess");
+    ID2D1Geometry *g = get(1), *b = NULL;
+    int at = 2, opt = 0, mode = 0;
+    float width = 0;
+    if (simp) { opt = is(2, "lines"); if (!opt && !is(2, "cubics")) bad = 1; at = 3; }
+    if (widen) { width = fl(2); at = 3; }
+    if (combine) {
+        b = get(2);
+        static const char *modes[] = { "union", "intersect", "xor", "exclude" };
+        for (mode = 0; mode < 4 && !is(3, modes[mode]); mode++) {}
+        if (mode == 4) bad = 1;
+        at = 4;
+    }
+    float tol = ntok > at ? fl(at) : D2D1_DEFAULT_FLATTENING_TOLERANCE;
+    if (bad || ntok > at + 1) { bad = 1; return; }
+    if (!g || (combine && !b)) return;
+    out("%s", tok[0] + 2);
+    HRESULT hr;
+    void *s = tess ? (void *)&ktess : (void *)&ksink;
+    if (simp) hr = g->lpVtbl->Simplify(g, opt, NULL, tol, s);
+    else if (widen) hr = g->lpVtbl->Widen(g, width, NULL, NULL, tol, s);
+    else if (combine) hr = g->lpVtbl->CombineWithGeometry(g, b, mode, NULL, tol, s);
+    else if (tess) hr = g->lpVtbl->Tessellate(g, NULL, tol, s);
+    else hr = g->lpVtbl->Outline(g, NULL, tol, s);
+    out(" hr %08lx\n", hr);
+}
+
 /* ---------------------------------------------------------------------------------------- */
 /* drawing: a WIC bitmap render target */
 
@@ -476,6 +535,7 @@ static const struct kz_op d2d_ops[] = {
     { "d2rect", op_rect }, { "d2ell", op_ell }, { "d2rrect", op_rrect }, { "d2xf", op_xf }, { "d2path", op_path },
     { "d2sink", op_sink }, { "d2bounds", op_bounds }, { "d2in", op_in }, { "d2area", op_area }, { "d2len", op_area },
     { "d2cmp", op_cmp }, { "d2count", op_count },
+    { "d2simp", op_simp }, { "d2outline", op_simp }, { "d2widen", op_simp }, { "d2combine", op_simp }, { "d2tess", op_simp },
     { "d2target", op_target }, { "d2aa", op_aa }, { "d2xform", op_xform }, { "d2clear", op_clear },
     { "d2fill", op_fill }, { "d2fillg", op_fill }, { "d2brush", op_brush }, { "d2read", op_read },
     { 0 },
