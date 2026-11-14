@@ -50,7 +50,7 @@ GL.MATRIX.UNDERFLOW doc | glPopMatrix (GL_STACK_UNDERFLOW) | one matrix left: GL
 GL.ATTRIB.PUSH measured | glPushAttrib | the attribute stack one deeper (GL_ATTRIB_STACK_DEPTH) (opengl golden edge-attrib)
 GL.ATTRIB.OVERFLOW measured | glPushAttrib (GL_STACK_OVERFLOW) | sixteen deep: GL_STACK_OVERFLOW (opengl golden edge-attrib-overflow)
 GL.ATTRIB.UNDERFLOW measured | glPopAttrib (GL_STACK_UNDERFLOW) | an empty stack: GL_STACK_UNDERFLOW (opengl golden errors)
-GL.ATTRIB.POP open | glPopAttrib | the saved state restored: not modelled
+GL.ATTRIB.POP measured | glPopAttrib | the groups of the pushed mask restored as GL 1.1's table of attribute groups lists them, GL_ENABLE_BIT every capability, the others left as they are (opengl golden attrib-*: 12 masks, 27 parameters read back)
 GL.VIEWPORT doc | glViewport | the window transform; width and height clamped to the maximum (16384)
 GL.VIEWPORT.VALUE doc | glViewport, glScissor (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE
 GL.SCISSOR doc | glScissor | the scissor box
@@ -70,7 +70,7 @@ GL.BUFFER measured | glDrawBuffer, glReadBuffer | GL_FRONT, GL_FRONT_LEFT, GL_LE
 GL.BUFFER.MISSING measured | glDrawBuffer, glReadBuffer (GL_INVALID_OPERATION) | a right, back or auxiliary buffer a single-buffered DIB lacks: GL_INVALID_OPERATION (opengl golden errors, edge-buffer)
 GL.BUFFER.ENUM measured | glDrawBuffer, glReadBuffer (GL_INVALID_ENUM) | a name that is no buffer, for reading also GL_FRONT_AND_BACK and GL_NONE: GL_INVALID_ENUM (opengl golden errors, edge-buffer)
 GL.BUFFER.NONE doc | glDrawBuffer (GL_NONE) | with GL_NONE no color buffer is written; depth and stencil still are
-GL.COLOR.UB measured | glColor4ub | each byte times the float reciprocal of 255, not divided (opengl golden errors-begin: the current color as integers)
+GL.COLOR.UB measured | glColor4ub | between glBegin and glEnd each byte times the float reciprocal of 255 (opengl golden errors-begin: the current color as integers); outside them divided by 255 (attrib-*: 3 reads 0x3c40c0c1)
 GL.COLOR.F doc | glColor4f | the current color as given, clamped when used
 GL.COLOR.NOALPHA doc | glReadPixels | a framebuffer without alpha bits reads alpha 1
 GL.COLOR.TOFIXED measured | (none) | a fragment or clear color to an 8-bit channel: rounded to nearest (opengl golden clear-*, rect-*)

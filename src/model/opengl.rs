@@ -376,8 +376,8 @@ pub struct Ctx {
     pub stencil_mask: u32,
     /// glDrawBuffer, glReadBuffer
     pub buffers: [u32; 2],
-    /// the depth of the attribute stack (glPushAttrib)
-    pub attrib: usize,
+    /// the attribute stack (glPushAttrib): each entry the mask and the state when pushed
+    pub attrib: Vec<(u32, Ctx)>,
     pub clear_accum: [f32; 4],
     /// the accumulation buffer, signed channels at the format's accumulation bits; None while its
     /// content is still undefined (nothing loaded or cleared into it yet)
@@ -441,7 +441,7 @@ impl Ctx {
             stencil_op: [KEEP; 3],
             stencil_mask: ((1u64 << stencil_bits) - 1) as u32,
             buffers: [FRONT; 2],
-            attrib: 0,
+            attrib: Vec::new(),
             clear_accum: [0.0; 4],
             acc: None,
             color_mask: [true; 4],
@@ -575,7 +575,7 @@ impl Ctx {
             0xba2 => self.viewport.iter().map(|v| I(*v)).collect(),
             0xba3..=0xba5 => i(self.stacks[(p - 0xba3) as usize].len() as i64),
             0xba6..=0xba8 => self.top((p - 0xba6) as usize).iter().map(|v| F(*v)).collect(),
-            0xbb0 => i(self.attrib as i64),
+            0xbb0 => i(self.attrib.len() as i64),
             0xbb1 => i(0),
             0xbc1 => i(self.alpha.0 as i64),
             0xbc2 => vec![F(self.alpha.1)],
@@ -1182,8 +1182,13 @@ impl Ctx {
             }
             "glColor4ub" | "glColor3ub" => {
                 hit("GL.COLOR.UB");
-                // (MEASURED, golden opengl-32 errors-begin: times the float reciprocal of 255)
-                let c = |i: usize| (u(a, i) & 255) as f32 * (1.0 / 255.0);
+                // (MEASURED: between glBegin and glEnd times the float reciprocal of 255, golden
+                // opengl-32 errors-begin; outside divided by 255, attrib-*: 3 reads 0x3c40c0c1)
+                let inside = self.in_begin.is_some();
+                let c = |i: usize| {
+                    let b = (u(a, i) & 255) as f32;
+                    if inside { b * (1.0 / 255.0) } else { b / 255.0 }
+                };
                 self.color = [c(0), c(1), c(2), if a.len() == 4 { c(3) } else { 1.0 }];
             }
             "glColor4f" | "glColor3f" => {
@@ -1427,22 +1432,27 @@ impl Ctx {
                 }
             }
             "glPushAttrib" => {
-                if self.attrib == 16 {
+                if self.attrib.len() == 16 {
                     hit("GL.ATTRIB.OVERFLOW");
                     self.error(STACK_OVERFLOW);
                 } else {
                     hit("GL.ATTRIB.PUSH");
-                    self.attrib += 1;
+                    let mut saved = self.clone();
+                    saved.attrib = Vec::new();
+                    saved.fb = Vec::new();
+                    saved.depth = Vec::new();
+                    saved.stencil = Vec::new();
+                    saved.acc = None;
+                    self.attrib.push((u(a, 0), saved));
                 }
             }
-            "glPopAttrib" => {
-                if self.attrib == 0 {
+            "glPopAttrib" => match self.attrib.pop() {
+                None => {
                     hit("GL.ATTRIB.UNDERFLOW");
                     self.error(STACK_UNDERFLOW);
-                } else {
-                    return Err(Fail::Unmodeled("GL.ATTRIB.POP"));
                 }
-            }
+                Some((mask, saved)) => self.pop_attrib(mask, saved),
+            },
             "glAccum" => {
                 match AccumOp::try_from(u(a, 0)) {
                     Err(()) => {
@@ -1458,6 +1468,28 @@ impl Ctx {
         }
         Ok(())
     }
+}
+
+/// glPushAttrib's groups
+pub mod attrib {
+    pub const CURRENT: u32 = 0x1;
+    pub const POINT: u32 = 0x2;
+    pub const LINE: u32 = 0x4;
+    pub const POLYGON: u32 = 0x8;
+    pub const PIXEL_MODE: u32 = 0x20;
+    pub const LIGHTING: u32 = 0x40;
+    pub const FOG: u32 = 0x80;
+    pub const DEPTH: u32 = 0x100;
+    pub const ACCUM: u32 = 0x200;
+    pub const STENCIL: u32 = 0x400;
+    pub const VIEWPORT: u32 = 0x800;
+    pub const TRANSFORM: u32 = 0x1000;
+    pub const ENABLE: u32 = 0x2000;
+    pub const COLOR: u32 = 0x4000;
+    pub const HINT: u32 = 0x8000;
+    pub const EVAL: u32 = 0x10000;
+    pub const TEXTURE: u32 = 0x40000;
+    pub const SCISSOR: u32 = 0x80000;
 }
 
 /// glAccum's operations (GL_ACCUM 0x100 .. GL_ADD 0x104)
@@ -1808,6 +1840,87 @@ impl Ctx {
     /// largest value rounded up; RETURN writes the channel times value over the largest value
     /// times the color channel's largest value, rounded on 16 bits, truncated on the others; then
     /// clamped. All wrap at the channel's bits.
+    /// glPopAttrib: the groups of the mask back as they were pushed (GL 1.1 6.1.13's table)
+    fn pop_attrib(&mut self, mask: u32, s: Ctx) {
+        hit("GL.ATTRIB.POP");
+        let mut caps = |group: u32, list: &[u32]| {
+            if mask & group != 0 || mask & attrib::ENABLE != 0 {
+                for c in list {
+                    self.caps.insert(*c, s.caps[c]);
+                }
+            }
+        };
+        caps(attrib::POINT, &[0xb10]);
+        caps(attrib::LINE, &[0xb20, 0xb24]);
+        caps(attrib::POLYGON, &[0xb41, 0xb42, 0xb44, 0x2a01, 0x2a02, 0x8037]);
+        caps(attrib::LIGHTING, &[0xb50, 0xb57, 0x4000, 0x4001, 0x4002, 0x4003, 0x4004, 0x4005, 0x4006, 0x4007]);
+        caps(attrib::FOG, &[0xb60]);
+        caps(attrib::DEPTH, &[0xb71]);
+        caps(attrib::STENCIL, &[0xb90]);
+        caps(attrib::TRANSFORM, &[0xba1, 0x3000, 0x3001, 0x3002, 0x3003, 0x3004, 0x3005]);
+        caps(attrib::COLOR, &[0xbc0, 0xbd0, 0xbe2, 0xbf1, 0xbf2]);
+        caps(attrib::SCISSOR, &[0xc11]);
+        caps(attrib::TEXTURE, &[0xc60, 0xc61, 0xc62, 0xc63, 0xde0, 0xde1]);
+        caps(attrib::EVAL, &[0xd80, 0xd90, 0xd91, 0xd92, 0xd93, 0xd94, 0xd95, 0xd96, 0xd97, 0xd98, 0xdb0, 0xdb1, 0xdb2, 0xdb3, 0xdb4, 0xdb5, 0xdb6, 0xdb7, 0xdb8]);
+        if mask & attrib::CURRENT != 0 {
+            self.color = s.color;
+        }
+        if mask & attrib::POINT != 0 {
+            self.point_size = s.point_size;
+        }
+        if mask & attrib::LINE != 0 {
+            self.line_width = s.line_width;
+        }
+        if mask & attrib::POLYGON != 0 {
+            self.cull_mode = s.cull_mode;
+            self.front_face = s.front_face;
+            self.poly_mode = s.poly_mode;
+        }
+        if mask & attrib::PIXEL_MODE != 0 {
+            self.transfer = s.transfer;
+            self.buffers[1] = s.buffers[1];
+        }
+        if mask & attrib::LIGHTING != 0 {
+            self.shade = s.shade;
+        }
+        if mask & attrib::DEPTH != 0 {
+            self.depth_func = s.depth_func;
+            self.depth_mask = s.depth_mask;
+            self.clear_depth = s.clear_depth;
+        }
+        if mask & attrib::ACCUM != 0 {
+            self.clear_accum = s.clear_accum;
+        }
+        if mask & attrib::STENCIL != 0 {
+            self.stencil_func = s.stencil_func;
+            self.stencil_op = s.stencil_op;
+            self.stencil_mask = s.stencil_mask;
+            self.clear_stencil = s.clear_stencil;
+        }
+        if mask & attrib::VIEWPORT != 0 {
+            self.viewport = s.viewport;
+            self.depth_range = s.depth_range;
+        }
+        if mask & attrib::TRANSFORM != 0 {
+            self.mode = s.mode;
+        }
+        if mask & attrib::COLOR != 0 {
+            self.alpha = s.alpha;
+            self.blend = s.blend;
+            self.logic_op = s.logic_op;
+            self.color_mask = s.color_mask;
+            self.color_mask_raw = s.color_mask_raw;
+            self.clear_color = s.clear_color;
+            self.buffers[0] = s.buffers[0];
+        }
+        if mask & attrib::HINT != 0 {
+            self.hints = s.hints;
+        }
+        if mask & attrib::SCISSOR != 0 {
+            self.scissor = s.scissor;
+        }
+    }
+
     fn accum(&mut self, op: AccumOp, v: f32) -> Res<()> {
         hit("GL.ACCUM");
         let idx = self.scissored();
