@@ -1298,10 +1298,10 @@ impl D2d {
                 let segs: usize = figs.iter().map(|f| f.pts.len() - 1 + f.closed as usize).sum();
                 out.push(format!("count 00000000 {} 00000000 {segs}", figs.len()));
             }
-            "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" | "d2bmp" | "d2drawbmp" | "d2bbrush" => self.draw(op, out)?,
+            "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" => self.draw(op, out)?,
             "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" => self.state(op, out)?,
-            // (gradients, strokes: asked, not modelled yet)
-            "d2grad" | "d2line" | "d2drawrect" | "d2drawg" => {
+            // (gradients, geometry strokes: asked, not modelled yet)
+            "d2grad" | "d2drawg" => {
                 return Err(Fail::Unmodeled(open::D2D_RT));
             }
             _ => return Ok(false),
@@ -1770,6 +1770,50 @@ impl D2d {
                 tg.keep_clipped(&before);
                 return Ok(());
             }
+            "d2line" | "d2drawrect" => {
+                let v = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?, f(op, 5)?];
+                let c = color(6)?;
+                if len != 10 {
+                    return Err(Fail::Bad);
+                }
+                let Some(tg) = &mut self.t else {
+                    out.push("nort".into());
+                    return Ok(());
+                };
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                let h = v[4] * 0.5;
+                let quad = |pts: Vec<(f32, f32)>| Figure { pts, closed: true };
+                let figs = if t[0] == "d2line" {
+                    // (MEASURED, D2D.STROKE.LINE: a line with flat caps is the rectangle of its
+                    // length and the width about it)
+                    hit(clause::D2D_STROKE_LINE);
+                    let (dx, dy) = (v[2] - v[0], v[3] - v[1]);
+                    let l = (dx * dx + dy * dy).sqrt();
+                    if l == 0.0 {
+                        vec![]
+                    } else {
+                        let (nx, ny) = (-dy / l * h, dx / l * h);
+                        vec![quad(vec![(v[0] + nx, v[1] + ny), (v[2] + nx, v[3] + ny), (v[2] - nx, v[3] - ny), (v[0] - nx, v[1] - ny)])]
+                    }
+                } else {
+                    // (MEASURED, D2D.STROKE.RECT: a rectangle's stroke with miter joins is the
+                    // rectangle grown by half the width less the one shrunk by it, when that is
+                    // not empty)
+                    hit(clause::D2D_STROKE_RECT);
+                    let (l, tp, r, b) = (v[0].min(v[2]), v[1].min(v[3]), v[0].max(v[2]), v[1].max(v[3]));
+                    let mut figs = vec![quad(vec![(l - h, tp - h), (r + h, tp - h), (r + h, b + h), (l - h, b + h)])];
+                    if l + h < r - h && tp + h < b - h {
+                        figs.push(quad(vec![(l + h, tp + h), (l + h, b - h), (r - h, b - h), (r - h, tp + h)]));
+                    }
+                    figs
+                };
+                let before = tg.px.clone();
+                fill(tg, &Geom::Path { wind: true, figs }, &Paint::Solid(premultiply(c)))?;
+                tg.keep_clipped(&before);
+                return Ok(());
+            }
             "d2brush" => {
                 let c = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
                 if len != 5 {
@@ -1835,9 +1879,9 @@ fn fill(tg: &mut Target, g: &Geom, paint: &Paint) -> Res<()> {
         let grid = ps.iter().flatten().all(|p| p.0.fract() == 0.0 && p.1.fract() == 0.0);
         if axis && grid {
             hit(clause::D2D_FILL_AAGRID);
-        } else if m[1] != 0.0 || m[2] != 0.0 {
-            // (a turned or sheared antialiased fill: samples on its edges are not in by the
-            // aliased rule, clip-xf)
+        } else if !ps.iter().flatten().all(|p| (p.0 * 16.0).fract() == 0.0 && (p.1 * 16.0).fract() == 0.0) {
+            // (vertices off the sixteenths: the rasterizer's 28.4 fixed point decides, clip-xf,
+            // antialiased lines)
             return Err(Fail::Unmodeled(open::D2D_FILL_AA));
         } else {
             return fill_aa(tg, &ps, wind, paint);
