@@ -562,6 +562,20 @@ fn probes(s: &mut String, dev: &str) {
         }
         writeln!(s, "draw 4 9 32\nresolve 1 0 0 0 {fmt}\nread 1 0 {pitch} 16 1\nend").unwrap();
     }
+    // what D3DRASTER.RTKIND and CLIPW leave open: lines on a multisampled target, a resolve
+    // of differing samples of 16-bit UNORM, a vertex behind the eye under colors that differ
+    writeln!(s, "case probe-rt-ms4-lines\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 2 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    writeln!(s, "case probe-rt-ms4-unorm16\n{dev}\ntex 0 2 16 16 1 1 11 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 11 0 0x20 0 0 1 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 11\nread 1 0 128 16 1\nend").unwrap();
     // an input layout against a refused program
     let mut broken = shader("vs");
     broken[5] ^= 1;
@@ -788,6 +802,14 @@ fn probes(s: &mut String, dev: &str) {
     }
     writeln!(s, "draw 4 3 32").unwrap();
     read_rt(s, 0, 28, 16, 16);
+    writeln!(s, "end").unwrap();
+    begin(s, dev, "probe-clip-w3", 16, 16, 2, "ps");
+    for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
+        let c = color(k as u32 * 5 + 1);
+        writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(x * w.abs()), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+    }
+    writeln!(s, "draw 4 3 32").unwrap();
+    read_rt(s, 0, 2, 16, 16);
     writeln!(s, "end").unwrap();
     begin(s, dev, "probe-clip-z-pos", 16, 16, 2, "pspos");
     tri(s, [-0.5, 0.5, 1.5], one);

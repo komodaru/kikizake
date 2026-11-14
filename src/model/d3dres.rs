@@ -365,24 +365,33 @@ impl D3dres {
                     return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
                 };
                 let w = srb.min(drb);
-                // (MEASURED, WARP: probe-rt-ms*-edges, of samples 0 and 1) samples that differ:
-                // their mean in f32 of the values as floats, encoded in the resolve's format
+                // (MEASURED, WARP: probe-rt-ms*-edges, probe-rt-ms4-colors-*) samples that differ
+                // resolve to their mean: of 8-bit UNORM bytes as integers rounded half up,
+                // (sum + n / 2) / n; of 32-bit floats in f32
                 if let Some(Some(samp)) = src.samples.get(ss as usize) {
                     hit(clause::D3DRES_RESOLVE_MEAN);
                     let f = format(f).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
                     let el = (f.bits / 8) as usize;
+                    let bytes = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 8);
+                    let floats = f.num == Num::Float && f.comps.iter().all(|&c| c == 32);
+                    if !bytes && !floats {
+                        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+                    }
                     let (n, plane) = (src.d.count as usize, sv.len());
                     for y in 0..srows.min(drows) {
                         for x in 0..w / el {
-                            let mut sum = [0f32; 4];
-                            for k in 0..n {
-                                let at = k * plane + y * srb + x * el;
-                                let c = super::dxgiconv::decode(f, &samp[at..at + el])?;
-                                for i in 0..4 {
-                                    sum[i] += f32::from_bits(c[i]);
-                                }
-                            }
-                            let e = super::dxgiconv::encode(f, sum.map(|v| v / n as f32))?;
+                            let at = |k: usize| k * plane + y * srb + x * el;
+                            let e: Vec<u8> = if bytes {
+                                (0..el).map(|i| {
+                                    let sum: usize = (0..n).map(|k| usize::from(samp[at(k) + i])).sum();
+                                    u8::try_from((sum + n / 2) / n).unwrap_or(u8::MAX)
+                                }).collect()
+                            } else {
+                                (0..el / 4).flat_map(|i| {
+                                    let sum = (0..n).fold(0f32, |a, k| a + f32::from_le_bytes(samp[at(k) + 4 * i..][..4].try_into().unwrap()));
+                                    (sum / n as f32).to_le_bytes()
+                                }).collect()
+                            };
                             dv[y * drb + x * el..][..el].copy_from_slice(&e);
                         }
                     }
