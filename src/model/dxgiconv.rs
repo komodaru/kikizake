@@ -23,8 +23,9 @@ pub fn to_unorm(v: f32, n: u32) -> u32 {
     if v.is_nan() {
         return 0;
     }
-    let max = ((1u64 << n) - 1) as f64;
-    rne(v.clamp(0.0, 1.0) as f64 * max) as u32
+    // (MEASURED: the product in single precision, then to nearest even; clear-11-*)
+    let max = ((1u64 << n) - 1) as f32;
+    rne((v.clamp(0.0, 1.0) * max) as f64) as u32
 }
 
 pub fn to_snorm(v: f32, n: u32) -> u32 {
@@ -32,9 +33,10 @@ pub fn to_snorm(v: f32, n: u32) -> u32 {
     if v.is_nan() {
         return 0;
     }
-    let max = ((1u64 << (n - 1)) - 1) as f64;
-    let x = v.clamp(-1.0, 1.0) as f64 * max;
-    let m = rne(x.abs()) as i64;
+    let max = ((1u64 << (n - 1)) - 1) as f32;
+    let x = (v.clamp(-1.0, 1.0) * max) as f64;
+    // (MEASURED: halves away from zero, unlike UNORM; clear-13-*, clear-31-*)
+    let m = (x.abs() + 0.5).floor() as i64;
     let i = if x < 0.0 { -m } else { m };
     (i as u32) & ((1u64 << n) - 1) as u32
 }
@@ -49,16 +51,23 @@ pub fn srgb_to_linear(c: u32) -> f32 {
     (if v <= 0.040_45 { v / 12.92 } else { ((v + 0.055) / 1.055).powf(2.4) }) as f32
 }
 
-/// a float with `e` exponent and `m` mantissa bits (sign bit if `signed`), round half to even,
-/// denormals kept, infinities and NaN kept (NaN: the top mantissa bit)
+/// a float with `e` exponent and `m` mantissa bits (sign bit if `signed`) (MEASURED, WARP,
+/// clear-10-*, clear-26-*: rounded toward zero, so too large a value is the largest finite one;
+/// denormals kept; infinities kept; a NaN keeps the top mantissa bits of a 16-bit float (1 when
+/// they are 0) and is all ones in an unsigned one; a negative value in an unsigned float is 0)
 pub fn to_small_float(v: f32, e: u32, m: u32, signed: bool) -> u32 {
+    hit("CONV.SMALLFLOAT");
     let b = v.to_bits();
     let sign = b >> 31;
     let bias = (1i32 << (e - 1)) - 1;
     let emax = (1u32 << e) - 1;
     let sbit = if signed { sign << (e + m) } else { 0 };
     if v.is_nan() {
-        return sbit | emax << m | 1 << (m - 1);
+        if !signed {
+            return (1 << (e + m)) - 1;
+        }
+        let top = (b & 0x7f_ffff) >> (23 - m);
+        return sbit | emax << m | top.max(1);
     }
     if !signed && sign == 1 {
         return 0;
@@ -74,9 +83,9 @@ pub fn to_small_float(v: f32, e: u32, m: u32, signed: bool) -> u32 {
     let log2 = |x: f64| (x.to_bits() >> 52) as i32 - 1023;
     let ex = log2(a).max(1 - bias);
     let ulp = 2f64.powi(ex - m as i32);
-    let val = rne(a / ulp) as f64 * ulp;
+    let val = (a / ulp).floor() * ulp;
     if val >= 2f64.powi(emax as i32 - bias) {
-        return sbit | emax << m;
+        return sbit | (emax - 1) << m | ((1 << m) - 1);
     }
     let bits = if val < 2f64.powi(1 - bias) {
         (val / 2f64.powi(1 - bias - m as i32)) as u32
@@ -155,7 +164,11 @@ pub fn encode(f: &Format, c: [f32; 4]) -> Res<Vec<u8>> {
             put(&mut out, 0, 32, v);
         }
         67 => put(&mut out, 0, 32, to_rgb9e5([c[0], c[1], c[2]]) as u64),
-        88 | 92 | 93 => return Err(Fail::Unmodeled("CONV.X8")),
+        // (MEASURED: the X byte takes the alpha, as B8G8R8A8 does; clear-88-*, clear-93-*)
+        88 | 92 | 93 => {
+            hit("CONV.X8");
+            return encode(super::dxgifmt::format(f.id - 1).unwrap(), c);
+        }
         89 => return Err(Fail::Unmodeled("CONV.XRBIAS")),
         _ if !f.comps.is_empty() => {
             let mut at = 0;
@@ -164,17 +177,36 @@ pub fn encode(f: &Format, c: [f32; 4]) -> Res<Vec<u8>> {
                 let v = c[ch];
                 let bits: u64 = match f.num {
                     Num::Unorm => to_unorm(v, n) as u64,
-                    Num::Srgb => to_unorm(if ch < 3 { hit("CONV.SRGB"); linear_to_srgb(v) } else { v }, n) as u64,
+                    Num::Srgb if ch < 3 => {
+                        hit("CONV.SRGB");
+                        let x = linear_to_srgb(v);
+                        // (WARP's curve is not the exact one: 0.49999997 gives 187, not 188,
+                        // clear-29-0; which values near a half step, open)
+                        let k = (x.clamp(0.0, 1.0) as f64) * 255.0;
+                        if (k - k.floor() - 0.5).abs() < 0.02 {
+                            return Err(Fail::Unmodeled("CONV.SRGB.NEAR"));
+                        }
+                        to_unorm(x, n) as u64
+                    }
+                    Num::Srgb => to_unorm(v, n) as u64,
                     Num::Snorm => to_snorm(v, n) as u64,
                     Num::Float if n == 32 => {
+                        // (MEASURED: denormals flushed to a zero of their sign, clear-2-*)
                         hit("CONV.F32");
-                        v.to_bits() as u64
+                        let b = v.to_bits();
+                        (if b & 0x7f80_0000 == 0 { b & 0x8000_0000 } else { b }) as u64
                     }
                     Num::Float => {
                         hit("CONV.F16");
                         to_small_float(v, 5, 10, true) as u64
                     }
-                    Num::Uint | Num::Sint => return Err(Fail::Unmodeled("CONV.INTCLEAR")),
+                    // (MEASURED: toward zero, clamped to the type, NaN 0; clear-3-*, 4, 30, 32)
+                    Num::Uint | Num::Sint => {
+                        hit("CONV.INTCLEAR");
+                        let t = if v.is_nan() { 0.0 } else { (v as f64).trunc() };
+                        let (lo, hi) = if f.num == Num::Uint { (0.0, ((1u64 << n) - 1) as f64) } else { (-((1u64 << (n - 1)) as f64), ((1u64 << (n - 1)) - 1) as f64) };
+                        (t.clamp(lo, hi) as i64 as u64) & ((1u64 << n) - 1)
+                    }
                     _ => return Err(Fail::Unmodeled("CONV.OTHER")),
                 };
                 put(&mut out, at, n, bits);
@@ -285,12 +317,15 @@ mod tests {
         assert_eq!(h(-2.0), 0xc000);
         assert_eq!(h(65504.0), 0x7bff);
         assert_eq!(h(65519.0), 0x7bff);
-        assert_eq!(h(65520.0), 0x7c00);
+        assert_eq!(h(65520.0), 0x7bff);
+        assert_eq!(h(f32::INFINITY), 0x7c00);
         assert_eq!(h(2f32.powi(-24)), 1);
         assert_eq!(h(2f32.powi(-25)), 0);
-        assert_eq!(h(3.0 * 2f32.powi(-25)), 2);
+        assert_eq!(h(3.0 * 2f32.powi(-25)), 1);
         assert_eq!(h(2f32.powi(-14)), 0x0400);
-        assert_eq!(h(f32::NAN) & 0x7c00, 0x7c00);
+        assert_eq!(h(f32::from_bits(0x7f80_0001)), 0x7c01);
+        assert_eq!(h(f32::from_bits(0xffc0_0000)), 0xfe00);
+        assert_eq!(to_small_float(f32::NAN, 5, 6, false), 0x7ff);
         assert_eq!(to_small_float(-1.0, 5, 6, false), 0);
         assert_eq!(to_small_float(1.0, 5, 6, false), 0x3c0);
         for b in 0..0x7c00u32 {

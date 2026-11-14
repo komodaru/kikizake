@@ -239,7 +239,8 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     if d.dim == 3 && d.usage == 0 && d.cpu != 0 && g.mips != 1 {
         return Ok(bad);
     }
-    if cube && (d.dim != 2 || da % 6 != 0 || w != h) {
+    // (MEASURED: Direct3D 10.0 has no arrays of cubes, d3d10res view-cubea-*)
+    if cube && (d.dim != 2 || da % 6 != 0 || w != h || dev == Dev::D10 && da != 6) {
         return Ok(bad);
     }
     if d.misc & 1 != 0 && d.bind & (BIND_SRV | BIND_RTV) != BIND_SRV | BIND_RTV {
@@ -367,9 +368,197 @@ pub fn desc_words(dev: Dev, d: &Desc) -> Vec<u32> {
     }
 }
 
+/// the union words a view dimension uses (as the executor prints them)
+pub fn union_words(kind: u32, dim: u32) -> usize {
+    let n: &[usize] = match kind {
+        0 => &[0, 2, 2, 4, 2, 4, 0, 2, 2, 2, 4, 3],
+        1 => &[0, 2, 1, 3, 1, 3, 0, 2, 3],
+        2 => &[0, 1, 3, 1, 3, 0, 2],
+        _ => &[0, 3, 1, 3, 1, 3, 0, 0, 3],
+    };
+    n.get(dim as usize).copied().unwrap_or(0)
+}
+
+/// an R32 UAV of a 32-bit typeless texture (ID3D11Device::CreateUnorderedAccessView, typed UAV
+/// loads: R32_FLOAT, R32_UINT, R32_SINT views of R8G8B8A8_TYPELESS and the like; view-t2tl-uav)
+fn r32_uav(kind: u32, f: u32, res: u32) -> bool {
+    let tl = super::dxgifmt::format(res).is_some_and(|x| x.num == super::dxgifmt::Num::Typeless && x.bits == 32 && x.bw == 1);
+    kind == 3 && (41..=43).contains(&f) && tl
+}
+
+/// the view dimensions a resource takes, by kind (0 srv 1 rtv 2 dsv 3 uav) (MEASURED: the
+/// multisampled dimensions also view a single-sampled 2D texture, view-t2-rtv, view-t2a-srv,
+/// view-cube-rtv)
+fn view_dims(dev: Dev, kind: u32, d: &Desc) -> &'static [u32] {
+    let ms = d.count > 1;
+    let cube = d.misc & 4 != 0;
+    match (d.dim, kind) {
+        // (MEASURED: Direct3D 10 takes BUFFEREX too, d3d10res view-b-srv, and makes no buffer
+        // render target of the five descriptions view-b-rtv tries)
+        (4, 0) => &[1, 11],
+        (4, 1) if !dev.d3d11() => &[],
+        (4, 1 | 3) => &[1],
+        (1, 0 | 1 | 3) => &[2, 3],
+        (1, 2) => &[1, 2],
+        (2, 0) if ms => &[6, 7],
+        (2, 1) if ms => &[6, 7],
+        (2, 2) if ms => &[5, 6],
+        // (Direct3D 10: no multisampled shader resource view of a cube, d3d10res
+        // view-dcube-srv; 10.0 no array of cubes)
+        (2, 0) if cube && dev == Dev::D10 => &[4, 5, 9],
+        (2, 0) if cube && !dev.d3d11() => &[4, 5, 9, 10],
+        (2, 0) if cube => &[4, 5, 6, 7, 9, 10],
+        (2, 0 | 1) => &[4, 5, 6, 7],
+        (2, 2) => &[3, 4, 5, 6],
+        (2, 3) if !ms => &[4, 5],
+        (3, 0 | 1 | 3) => &[8],
+        _ => &[],
+    }
+}
+
+/// the description a view without one takes (MEASURED, view-*-nodesc): the whole resource in
+/// its own format, an array dimension for an array (a 1D one too, even of one slice), a cube
+/// for a shader resource of a cube (an array of cubes from 12 slices)
+fn default_view(dev: Dev, kind: u32, d: &Desc) -> Option<Vec<u32>> {
+    hit("D3DRES.VIEW.DEFAULT");
+    let arr = d.dim != 3 && d.da > 1;
+    let (dim, u): (u32, Vec<u32>) = match (d.dim, kind) {
+        (4, _) => return None,
+        (1, 2) => (if arr { 2 } else { 1 }, vec![0, 0, d.da]),
+        (1, 0) => (if arr { 3 } else { 2 }, vec![0, d.mips, 0, d.da]),
+        (1, _) => (if arr { 3 } else { 2 }, vec![0, 0, d.da]),
+        (2, 0) if d.misc & 4 != 0 => (if d.da > 6 { 10 } else { 9 }, vec![0, d.mips, 0, d.da / 6]),
+        (2, 2) if d.count > 1 => (if arr { 6 } else { 5 }, vec![0, d.da]),
+        (2, 2) => (if arr { 4 } else { 3 }, vec![0, 0, d.da]),
+        (2, _) if d.count > 1 => (if arr { 7 } else { 6 }, vec![0, d.da]),
+        (2, 0) => (if arr { 5 } else { 4 }, vec![0, d.mips, 0, d.da]),
+        (2, _) => (if arr { 5 } else { 4 }, vec![0, 0, d.da]),
+        (3, 0) => (8, vec![0, d.mips]),
+        (3, _) => (8, vec![0, 0, d.da]),
+        _ => return None,
+    };
+    let mut w = vec![d.fmt, dim];
+    if kind == 2 && dev.d3d11() {
+        w.push(0);
+    }
+    w.extend(u);
+    Some(w)
+}
+
 /// Ok(GetDesc's words) or Err(the HRESULT) for a view of `kind` (0 srv 1 rtv 2 dsv 3 uav)
-pub fn check_view(_dev: Dev, _kind: u32, _r: &Resource, _words: Option<&[u32]>) -> Res<Result<Vec<u32>, u32>> {
-    Err(Fail::Unmodeled("D3DRES.VIEW"))
+pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, check: bool) -> Res<Result<Vec<u32>, u32>> {
+    hit("D3DRES.VIEW");
+    let bad = Ok(Err(E_INVALIDARG));
+    let d = &r.d;
+    let need = [BIND_SRV, BIND_RTV, BIND_DSV, BIND_UAV][kind as usize];
+    if d.bind & need == 0 {
+        return bad;
+    }
+    let Some(mut w) = words.map(|w| w.to_vec()).or_else(|| default_view(dev, kind, d)) else { return bad };
+    let head = if kind == 2 && dev.d3d11() { 3 } else { 2 };
+    w.resize(head + 4, 0);
+    // the format: unknown takes the resource's; a typeless resource's views name one of its group
+    if w[0] == 0 {
+        w[0] = d.fmt;
+    }
+    let f = w[0];
+    let Some(vf) = super::dxgifmt::format(f) else { return bad };
+    let typeless = |x: u32| super::dxgifmt::format(x).is_some_and(|x| x.num == super::dxgifmt::Num::Typeless);
+    let raw_buf = d.dim == 4 && d.misc & 0x20 != 0;
+    if d.dim == 4 {
+        hit("D3DRES.VIEW.BUF");
+    } else if f != d.fmt && !(typeless(d.fmt) && super::d3dres::group(f) == super::d3dres::group(d.fmt)) && !r32_uav(kind, f, d.fmt) {
+        return bad;
+    }
+    let dim = w[1];
+    if dim == 11 && !dev.d3d11() && d.misc & 0x20 == 0 {
+        // (Direct3D 10 makes one BUFFEREX view and refuses another of a plain buffer; which
+        // ones, open: view-b-bufex)
+        return Err(Fail::Unmodeled("D3DRES.VIEW.BUFEX10"));
+    }
+    // (the 11 depth stencil view's flags: READ_ONLY_DEPTH, READ_ONLY_STENCIL)
+    if head == 3 && w[2] & !3 != 0 {
+        return bad;
+    }
+    if !view_dims(dev, kind, d).contains(&dim) {
+        return bad;
+    }
+    // (the BUFFEREX RAW flag: an R32_TYPELESS view of a raw buffer)
+    let rawview = kind == 0 && dim == 11 && w[head + 2] & 1 != 0 || kind == 3 && dim == 1 && w[head + 2] & 1 != 0;
+    if typeless(f) && !(rawview && f == 39) {
+        return bad;
+    }
+    if rawview && !(raw_buf && f == 39) {
+        return bad;
+    }
+    // (a UAV's APPEND and COUNTER flags: a structured buffer's, view-braw-uav)
+    if kind == 3 && dim == 1 && (w[head + 2] & !7 != 0 || w[head + 2] & 6 != 0 && d.misc & 0x40 == 0) {
+        return bad;
+    }
+    // the format's support for the kind of view
+    // (MEASURED: a buffer view's format has the BUFFER bit, view-b-srv, view-braw-rtv)
+    let s = support(dev, f).2;
+    let bit = [0x100, 0x4000, 0x10000, 0x2000000][kind as usize] | if d.dim == 4 { 1 } else { 0 };
+    if !rawview && s & bit != bit {
+        return bad;
+    }
+    let u = &mut w[head..];
+    // (a range: the first and a count, -1 for the rest; MEASURED: view-t2a-srv, view-t2tl-uav)
+    let range = |first: u32, n: &mut u32, total: u32| -> bool {
+        if *n == 0xffff_ffff && first < total {
+            *n = total - first;
+        }
+        first < total && *n != 0 && n.checked_add(first).is_some_and(|e| e <= total)
+    };
+    let (mips, arr) = (d.mips, if d.dim == 3 { 1 } else { d.da });
+    let ok = match (kind, dim) {
+        (0 | 1 | 3, 1) | (0, 11) if d.dim == 4 => {
+            // (buffers: elements of the view's format; raw views count 32-bit words)
+            let el = if rawview { 4 } else { vf.bits / 8 };
+            el != 0 && { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, d.w / el); u[1] = b; o }
+        }
+        (0, 2 | 4 | 8 | 9) => { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, mips); u[1] = b; o }
+        (0, 3 | 5) => {
+            let (a, mut b, c, mut e) = (u[0], u[1], u[2], u[3]);
+            let o = range(a, &mut b, mips) && range(c, &mut e, arr);
+            u[1] = b;
+            u[3] = e;
+            o
+        }
+        (0, 10) => {
+            let (a, mut b, c, mut e) = (u[0], u[1], u[2], u[3]);
+            if e == 0xffff_ffff && c < arr {
+                e = (arr - c) / 6;
+            }
+            let o = range(a, &mut b, mips) && e != 0 && e.checked_mul(6).and_then(|x| x.checked_add(c)).is_some_and(|x| x <= arr);
+            u[1] = b;
+            u[3] = e;
+            o
+        }
+        (0 | 1, 6) | (2, 5) => true,
+        (0 | 1, 7) | (2, 6) => { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, arr); u[1] = b; o }
+        (1 | 3, 2 | 4) | (2, 1 | 3) => u[0] < mips,
+        (1 | 3, 3 | 5) | (2, 2 | 4) => { let (a, b, mut c) = (u[0], u[1], u[2]); let o = a < mips && range(b, &mut c, arr); u[2] = c; o }
+        (1 | 3, 8) => {
+            let (a, b, mut c) = (u[0], u[1], u[2]);
+            let o = a < mips && range(b, &mut c, (d.da >> a.min(31)).max(1));
+            u[2] = c;
+            o
+        }
+        _ => false,
+    };
+    if !ok {
+        return bad;
+    }
+    // (MEASURED, WARP: a multisampled depth stencil view of a single-sampled array is out of
+    // memory when made: 11 2DMS, view-dcube-dsv; 10 2DMSARRAY, d3d10res view-dcube-dsv (its
+    // 2DMS is made, view-d2tl-dsv))
+    if kind == 2 && dim == if dev.d3d11() { 5 } else { 6 } && d.count == 1 && d.da > 1 && !check {
+        hit("D3DRES.VIEW.DSVMS");
+        return Ok(Err(0x8007_000e));
+    }
+    w.truncate(head + union_words(kind, dim));
+    Ok(Ok(w))
 }
 
 /// the staging copy of subresource `sub` that `read` makes is refused: its HRESULT (the copy is

@@ -401,7 +401,7 @@ impl D3dres {
         if !check {
             self.views[v] = None;
         }
-        match check_view(dev, kind, res, words.as_deref())? {
+        match check_view(dev, kind, res, words.as_deref(), check)? {
             Err(hr) => out.push(format!("{} hr {hr:08x}", t[0])),
             Ok(_) if check => {
                 hit("D3DRES.CHECK");
@@ -453,10 +453,12 @@ impl D3dres {
             2 => {
                 hit("D3DRES.CLEAR.DSV");
                 let (flags, depth, st) = (w[0], f32::from_bits(w[1]), w[2] as u8);
-                if depth.is_nan() {
-                    return Err(Fail::Unmodeled("D3DRES.CLEAR.DEPTHNAN"));
+                // (MEASURED: a depth outside 0..1, NaN too, drops the whole call, even one that
+                // clears only the stencil; cleards-*)
+                if !(0.0..=1.0).contains(&depth) {
+                    hit("D3DRES.CLEAR.DEPTHRANGE");
+                    return Ok(());
                 }
-                let depth = depth.clamp(0.0, 1.0);
                 let f = vf.ok_or(Fail::Unmodeled("D3DRES.CLEAR.FORMAT"))?;
                 for &s in &subs {
                     let Some(Some(b)) = res.subs.get_mut(s as usize) else { continue };
@@ -473,7 +475,9 @@ impl D3dres {
                     // a raw or structured buffer: 32-bit words, the first value
                     hit("D3DRES.CLEAR.UAVRAW");
                     if float {
-                        return Err(Fail::Unmodeled("D3DRES.CLEAR.UAVRAWF"));
+                        // (MEASURED: a float clear of a raw view changes nothing, clearuav-raw)
+                        hit("D3DRES.CLEAR.UAVRAWF");
+                        return Ok(());
                     }
                     let (first, count) = (view.u(0, true) as usize * 4, view.u(1, true) as usize * 4);
                     let b = res.subs[0].as_mut().unwrap();
