@@ -334,6 +334,10 @@ pub fn d3d12() -> String {
     writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, 28) })).unwrap();
     writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 3, 28) })).unwrap();
     writeln!(s, "alloc12 {}", desc_str(&Desc { samples: 4, align: 65536, flags: 1, ..Desc::tex(3, 64, 64, 1, 1, 28) })).unwrap();
+    // (420_OPAQUE, standard swizzle with an array and BC1)
+    writeln!(s, "alloc12 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, 106))).unwrap();
+    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 300, 200, 2, 2, 28) })).unwrap();
+    writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 512, 256, 1, 0, 71) })).unwrap();
     writeln!(s, "end").unwrap();
     writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
     s

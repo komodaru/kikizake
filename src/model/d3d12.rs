@@ -509,10 +509,10 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         hit("D3D12.ALLOC.INVALID");
         return Ok((u64::MAX, 65536));
     }
-    // (MEASURED, golden d3d12-64 alloc-other: 64KB-swizzled textures in whole 64KB tiles of the
-    // standard shapes, one mip level asked)
-    if d.layout == 2 {
-        let Some((bytes, bw, bh)) = block(d.fmt).filter(|_| d.mips == 1) else { return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")) };
+    // (MEASURED, golden d3d12-64 alloc-other: both 64KB swizzles in whole 64KB tiles of the
+    // standard shapes, each mip level its own tiles)
+    if d.layout == 2 || d.layout == 3 {
+        let Some((bytes, bw, bh)) = block(d.fmt).filter(|_| d.dim == 3) else { return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER")) };
         hit("D3D12.ALLOC.SWIZZLE");
         let (tw, th) = match bytes {
             1 => (256, 256),
@@ -521,10 +521,11 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
             8 => (128, 64),
             _ => (64, 64),
         };
-        let (w, h) = (d.w.div_ceil(bw) as u64, d.h.div_ceil(bh) as u64);
-        return Ok((w.div_ceil(tw) * h.div_ceil(th) * 65536, 65536));
+        let mips = if d.mips == 0 { full_chain(d) } else { d.mips };
+        let tiles: u64 = (0..mips).map(|m| ((d.w >> m).max(1).div_ceil(bw) as u64).div_ceil(tw) * ((d.h >> m).max(1).div_ceil(bh) as u64).div_ceil(th)).sum();
+        return Ok((tiles * d.d as u64 * 65536, 65536));
     }
-    if d.layout != 0 || d.samples > 1 && d.align != 0 && d.align != 4194304 {
+    if d.layout != 0 {
         return Err(Fail::Unmodeled("D3D12.ALLOC.OTHER"));
     }
     // (MEASURED, golden d3d12-64 alloc-other: NV12 in its two planes, 1.5 bytes a texel; the
@@ -559,9 +560,11 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         }
     }
     if d.samples > 1 {
-        // (MEASURED, golden d3d12-64 alloc-other, 6 descriptions: every sample stored, in 4MB)
+        // (MEASURED, golden d3d12-64 alloc-other, 7 descriptions: every sample stored, in 4MB, or
+        // in 64KB when that is the alignment asked)
         hit("D3D12.ALLOC.MSAA");
-        return Ok((align(total * d.samples as u64, 4194304), 4194304));
+        let al = if d.align == 65536 { 65536 } else { 4194304 };
+        return Ok((align(total * d.samples as u64, al), al));
     }
     if d.dim == 2 && d.flags & 1 != 0 {
         // (FITTED, golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats: a 1D render target
