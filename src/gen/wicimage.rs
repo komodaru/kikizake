@@ -1308,5 +1308,20 @@ pub fn wicencode() -> String {
         writeln!(s, "case big-{c}\nwbits {f} 40 30 {seed}\nwencode {c}\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
         seed += 1;
     }
+    // GIF from RGBA: every alpha (which go transparent), and a palette that fills 2^b or 256
+    // with a transparent entry still to come
+    let rgba = |w: u32, px: &dyn Fn(usize) -> [u8; 4]| {
+        let rows: Vec<Vec<u8>> = (0..16usize).map(|y| (0..w as usize).flat_map(|x| px(y * w as usize + x)).collect()).collect();
+        png(w, 16, 8, 6, false, &[], &png_filter(&rows, 4, &[0]), 4096)
+    };
+    let cases: [(&str, Vec<u8>); 4] = [
+        ("alpha", rgba(16, &|i| [(i % 8 * 32) as u8, 255 - (i % 8 * 32) as u8, 77, i as u8])),
+        ("full16", rgba(16, &|i| [(i % 16 * 16) as u8, 9, 200, if i % 5 == 0 { 0 } else { 255 }])),
+        ("full255", rgba(16, &|i| [(i % 255) as u8, (i % 255 * 7) as u8, 3, if i == 255 { 0 } else { 255 }])),
+        ("full256", rgba(16, &|i| [i as u8, (i * 7) as u8, 3, if i == 17 { 0 } else { 255 }])),
+    ];
+    for (n, f) in cases {
+        writeln!(s, "case gifalpha-{n}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&f)).unwrap();
+    }
     s
 }

@@ -417,3 +417,26 @@ proptest! {
         prop_assert!((whites * 255 - sum).abs() <= 256 * edge, "{whites} {sum}");
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(200))]
+
+    /// the GIF encoder's file decodes to its pixels and palette, through runs and noise long
+    /// enough to fill the 12-bit table and clear it
+    #[test]
+    fn gif_encoder_round_trips(w in 1u32..120, h in 1u32..80, colors in 1usize..=256, seed: u32, runs: bool) {
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let mut i = Img::new(w, h, "idx8");
+        i.pal = Some((0..colors as u32).map(|k| 0xff00_0000 | k.wrapping_mul(0x01_0f_3b)).collect());
+        for k in 0..(w * h) as usize {
+            i.px[k] = if runs { (k / 53 % colors) as u8 } else { (r.next() as usize % colors) as u8 };
+        }
+        let f = wi::encode_gif(&i).unwrap();
+        let d = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
+        prop_assert_eq!(&d.px, &i.px);
+        let bits = (2..=8u32).find(|&b| 1usize << b >= colors).unwrap();
+        prop_assert_eq!(f[13 + 9], 0x80 | (bits - 1) as u8);
+        let pal = d.pal.unwrap();
+        prop_assert_eq!(&pal[..colors], &i.pal.unwrap()[..]);
+    }
+}

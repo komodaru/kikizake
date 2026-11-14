@@ -2059,7 +2059,7 @@ impl WicImage {
                         hit(clause::WICIMAGE_ENCODE_LOSSLESS);
                         Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, img)
                     }
-                    "gif" => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_GIF)),
+                    "gif" => Encoded::Bytes(encode_gif(&img)?),
                     _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),
                 };
                 out.push(format!("wencode 00000000 {nf} ok"));
@@ -2090,9 +2090,6 @@ impl WicImage {
                     // (MEASURED: written at 96 dpi when the source has none)
                     if i.dpi == (0.0, 0.0) {
                         i.dpi = (96.0, 96.0);
-                    }
-                    if cont == "gif" {
-                        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_GIF));
                     }
                     i.pal = img.pal.clone();
                     self.dec = Some(Decoded { container: cont, frames: vec![Ok(Frame::Pixels(i))] });
@@ -2246,8 +2243,16 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     if c.fmt == "bw" {
         // (MEASURED: golden enc-bmp-bw: the rows as they are, even the bits past their end)
         hit(clause::WICIMAGE_ENCODE_BWINDEX);
-        o.px = c.px.clone();
         o.pal = Some(vec![0xff00_0000, 0xffff_ffff]);
+        if nf == "idx1" {
+            o.px = c.px.clone();
+            return Ok(o);
+        }
+        for y in 0..c.h {
+            for x in 0..c.w {
+                o.put(x, y, &[u8::from(c.get(x, y)[0] != 0)]);
+            }
+        }
         return Ok(o);
     }
     if c.fmt.starts_with("idx") {
@@ -2261,10 +2266,20 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
         return Ok(o);
     }
     let b = wic_convert(c, "bgra")?;
+    // MEASURED (golden wicencode enc-gif-bgra, -pbgra, -rgba, -prgba, -rgba64, -alpha8: alphas up to 0x7d went
+    // transparent, 0x85 and up stayed): the palette is the colors with their alpha dropped, in the
+    // order they first come, and one transparent entry after them takes every pixel of alpha
+    // below a half; alphas between the measured ones are left open
+    let alpha = |x: u32, y: u32| b.get(x, y)[3];
+    let alphas = (0..c.h).flat_map(|y| (0..c.w).map(move |x| (x, y)));
+    if alphas.clone().any(|(x, y)| (0x7e..=0x84).contains(&alpha(x, y))) {
+        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+    }
+    let clear: Vec<(u32, u32)> = alphas.filter(|&(x, y)| alpha(x, y) < 0x80).collect();
     let mut pal: Vec<u32> = vec![];
     for y in 0..c.h {
         for x in 0..c.w {
-            let v = u32::from_le_bytes(b.get(x, y).try_into().unwrap());
+            let v = u32::from_le_bytes(b.get(x, y).try_into().map_err(|_| Fail::Bad)?) | 0xff00_0000;
             let i = match pal.iter().position(|&p| p == v) {
                 Some(i) => i,
                 None => {
@@ -2284,6 +2299,17 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     if pal.iter().enumerate().any(|(i, &a)| pal[..i].iter().any(|&b| near(a, b))) {
         return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
     }
+    if !clear.is_empty() {
+        let t = pal.len();
+        if t >> bits_of(nf) != 0 {
+            return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+        }
+        hit(clause::WICIMAGE_ENCODE_TRANSPARENT);
+        pal.push(0);
+        for &(x, y) in &clear {
+            o.put(x, y, &[u8::try_from(t).map_err(|_| Fail::Bad)?]);
+        }
+    }
     hit(clause::WICIMAGE_ENCODE_PALETTE);
     o.pal = Some(pal);
     Ok(o)
@@ -2291,6 +2317,99 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
 
 /// ASSUMED: the BMP encoder writes a BITMAPINFOHEADER file, bottom-up, rows padded to 4 bytes,
 /// the palette in full for indexed formats, the resolution in pixels a meter
+/// MEASURED (golden wicencode enc-gif-*: every source format, the bytes as Windows): GIF89a, no
+/// global color table (flags 0x70), a graphic control extension naming the first transparent
+/// palette entry when there is one, one image of a local table of 2^b entries (b at least 2,
+/// the colors past the palette's 0), LZW of minimum code size b, a clear code first, sub-blocks
+/// of up to 255 bytes
+pub fn encode_gif(i: &Img) -> Res<Vec<u8>> {
+    let Some(pal) = i.pal.as_ref().filter(|_| i.fmt == "idx8") else { return Err(Fail::Bad) };
+    let bits = (2..=8u32).find(|&b| 1usize << b >= pal.len()).ok_or(Fail::Bad)?;
+    let (w, h) = (u16::try_from(i.w).map_err(|_| Fail::Bad)?, u16::try_from(i.h).map_err(|_| Fail::Bad)?);
+    let mut v = b"GIF89a".to_vec();
+    v.extend_from_slice(&w.to_le_bytes());
+    v.extend_from_slice(&h.to_le_bytes());
+    v.extend_from_slice(&[0x70, 0, 0]);
+    if let Some(t) = pal.iter().position(|&c| c >> 24 == 0) {
+        v.extend_from_slice(&[0x21, 0xf9, 4, 1, 0, 0, u8::try_from(t).map_err(|_| Fail::Bad)?, 0]);
+    }
+    v.push(0x2c);
+    v.extend_from_slice(&[0, 0, 0, 0]);
+    v.extend_from_slice(&w.to_le_bytes());
+    v.extend_from_slice(&h.to_le_bytes());
+    v.push(0x80 | (bits - 1) as u8);
+    for k in 0..1usize << bits {
+        let c = pal.get(k).copied().unwrap_or(0);
+        v.extend_from_slice(&[(c >> 16) as u8, (c >> 8) as u8, c as u8]);
+    }
+    v.push(bits as u8);
+    // (MEASURED: golden enc-gif-idx8: indices past the palette keep their low b bits)
+    let mask = u8::try_from((1u32 << bits) - 1).map_err(|_| Fail::Bad)?;
+    let px: Vec<u8> = (0..i.h as usize).flat_map(|y| i.px[y * i.stride()..y * i.stride() + i.w as usize].iter().map(move |&p| p & mask)).collect();
+    let data = lzw_encode(bits, &px);
+    for c in data.chunks(255) {
+        v.push(c.len() as u8);
+        v.extend_from_slice(c);
+    }
+    v.extend_from_slice(&[0, 0x3b]);
+    hit(clause::WICIMAGE_ENCODE_GIF);
+    Ok(v)
+}
+
+/// GIF's LZW the encoding way: a clear code first, codes one bit wider once the next code needs
+/// it, a clear code when the table is full, the end code last
+fn lzw_encode(min: u32, px: &[u8]) -> Vec<u8> {
+    let clear = 1u32 << min;
+    let mut out = Vec::new();
+    let (mut acc, mut nacc) = (0u64, 0u32);
+    let mut emit = |code: u32, size: u32, out: &mut Vec<u8>| {
+        acc |= (code as u64) << nacc;
+        nacc += size;
+        while nacc >= 8 {
+            out.push(acc as u8);
+            acc >>= 8;
+            nacc -= 8;
+        }
+    };
+    let mut dict: std::collections::HashMap<(u32, u8), u32> = std::collections::HashMap::new();
+    let mut size = min + 1;
+    let mut next = clear + 2;
+    emit(clear, size, &mut out);
+    let mut cur: Option<u32> = None;
+    for &p in px {
+        let Some(c) = cur else {
+            cur = Some(p as u32);
+            continue;
+        };
+        if let Some(&n) = dict.get(&(c, p)) {
+            cur = Some(n);
+            continue;
+        }
+        emit(c, size, &mut out);
+        if next < 4096 {
+            dict.insert((c, p), next);
+            next += 1;
+            if next > 1 << size && size < 12 {
+                size += 1;
+            }
+        } else {
+            emit(clear, size, &mut out);
+            dict.clear();
+            size = min + 1;
+            next = clear + 2;
+        }
+        cur = Some(p as u32);
+    }
+    if let Some(c) = cur {
+        emit(c, size, &mut out);
+    }
+    emit(clear + 1, size, &mut out);
+    if nacc > 0 {
+        out.push(acc as u8);
+    }
+    out
+}
+
 pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
     if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32", "bgra", "pbgra"].contains(&i.fmt) {
         return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER));
