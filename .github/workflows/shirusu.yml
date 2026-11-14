@@ -1,0 +1,182 @@
+# What the executor calls on Windows (calls/<suite>-<arch>.txt, src/calls.rs): the executors run
+# on a Windows runner under shirusu (github.com/komodaru/shirusu, the commit in shirusu.rev),
+# which records every API call they make through their import tables; the recording is cut into
+# cases and committed to main. `cargo test` (tests/calls.rs) then checks it against the cases and
+# x86 against x86-64. Only recordings whose sources or shirusu commit changed are made again.
+name: shirusu
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cases/**'
+      - 'runner/**'
+      - 'shirusu.rev'
+      - 'src/calls.rs'
+      - '.github/workflows/shirusu.yml'
+  workflow_dispatch:
+    inputs:
+      all:
+        description: 'record every suite, not only the stale ones'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shirusu-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # the suites recorded (their calls go through import tables: GDI and its neighbours; COM
+  # methods are not recorded by shirusu yet)
+  SUITES: gdi stretch pixel lines region xform path text blend ddb
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      stale: ${{ steps.stale.outputs.list }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - id: debs
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: ~/debs
+          key: debs-ubuntu-24.04-mingw-1
+      - name: mingw-w64
+        run: |
+          if [ "${{ steps.debs.outputs.cache-hit }}" = true ]; then
+            sudo dpkg -i ~/debs/*.deb >/dev/null
+          else
+            sudo apt-get update -q
+            sudo apt-get install -y -q --no-install-recommends gcc-mingw-w64-i686 gcc-mingw-w64-x86-64 binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev
+          fi
+      - name: Build the executors
+        run: runner/build.sh exe
+      - id: stale
+        name: Which recordings are missing or older than their sources
+        run: |
+          rev=$(cat shirusu.rev)
+          l=
+          for s in $SUITES; do
+            for a in 32 64; do
+              n=$s-$a
+              [ -f "exe/kikizake_$n.exe" ] || continue
+              h=$(head -1 "calls/$n.txt" 2>/dev/null || true)
+              if [ "${{ inputs.all }}" = true ] || [ "$h" = "${h/ src $(python3 runner/golden.py src "$n") shirusu $rev /}" ]; then l="$l kikizake_$n"; fi
+            done
+          done
+          echo "stale:$l"
+          echo "list=$l" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: exe
+          path: exe
+          retention-days: 7
+
+  windows:
+    needs: build
+    if: needs.build.outputs.stale != ''
+    runs-on: windows-2025
+    timeout-minutes: 90
+    steps:
+      # (the case files byte for byte as on Linux: their hashes name the recording's sources)
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7.0.1
+      - name: shirusu at shirusu.rev
+        shell: bash
+        run: |
+          git init -q shirusu
+          git -C shirusu fetch -q --depth 1 https://github.com/komodaru/shirusu "$(cat shirusu.rev)"
+          git -C shirusu checkout -q FETCH_HEAD
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            shirusu/target
+          key: shirusu-${{ hashFiles('shirusu.rev') }}-windows-2025
+      - name: Build shirusu (x86 and x86-64) and kikizake
+        shell: bash
+        run: |
+          rustup target add i686-pc-windows-msvc x86_64-pc-windows-msvc
+          for t in x86_64-pc-windows-msvc i686-pc-windows-msvc; do
+            (cd shirusu && cargo build -q --release -p shirusu-cli -p shirusu-agent-dll --target $t)
+          done
+          cargo build -q --release
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: exe
+          path: exe
+      - name: Record
+        shell: bash
+        run: |
+          mkdir -p rec new
+          rev=$(cat shirusu.rev)
+          for e in ${{ needs.build.outputs.stale }}; do
+            n=${e#kikizake_}; s=${n%-*}; a=${n##*-}
+            t=$([ "$a" = 32 ] && echo i686 || echo x86_64)-pc-windows-msvc
+            bin=shirusu/target/$t/release
+            st=0; timeout 600 "./exe/$e.exe" > "rec/$n.out" 2>/dev/null || st=$?
+            t0=$SECONDS
+            st2=0; timeout 1800 "$bin/shirusu.exe" capture --dll "$bin/shirusu_agent_dll.dll" --mode full --order=global --output "rec/$n.trace" -- "./exe/$e.exe" > "rec/$n.capture.txt" 2>&1 || st2=$?
+            "$bin/shirusu.exe" export "rec/$n.trace" --format jsonl --output "rec/$n.jsonl" || true
+            ./target/release/kikizake.exe calls import "$n" "cases/$s.txt" "rec/$n.jsonl" "rec/$n.out" "$(python runner/golden.py src "$n")" "$rev" > "new/$n.txt" || rm -f "new/$n.txt"
+            echo "$n: exit $st, capture exit $st2 in $((SECONDS - t0)) s, $(head -1 "new/$n.txt" 2>/dev/null)"
+            tail -3 "rec/$n.capture.txt"
+          done
+          ./target/release/kikizake.exe calls check new || true
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: calls
+          path: new
+          retention-days: 30
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: recordings
+          path: rec
+          retention-days: 7
+
+  commit:
+    needs: windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: calls
+          path: new
+      # (each recording goes onto the newest main only if its sources there are still the same)
+      - name: Commit the recordings
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          M=$RUNNER_TEMP/main
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main
+            git worktree remove --force "$M" 2>/dev/null || true
+            git worktree add -q --detach "$M" FETCH_HEAD
+            took=
+            mkdir -p "$M/calls"
+            for f in new/*.txt; do
+              n=$(basename "$f" .txt)
+              if head -1 "$f" | grep -q " src $(python3 "$M/runner/golden.py" src "$n") shirusu $(cat "$M/shirusu.rev") "; then
+                cp "$f" "$M/calls/$n.txt"; took="$took $n"
+              else
+                echo "$n: its sources changed on main since ${GITHUB_SHA::7}, left for a later run"
+              fi
+            done
+            git -C "$M" add calls
+            if git -C "$M" diff --cached --quiet; then echo "no change"; exit 0; fi
+            git -C "$M" commit -qm "calls: shirusu's recordings of${took} on Windows (${GITHUB_SHA::7})"
+            git -C "$M" push -q origin HEAD:main && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

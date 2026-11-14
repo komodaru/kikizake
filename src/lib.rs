@@ -9,9 +9,11 @@
 //!   * any implementation (sake, Wine, ...) is checked against Windows' recorded answers, and
 //!     against the model for as many fresh generated cases as wanted, with no Windows at hand.
 
+pub mod calls;
 pub mod case;
 pub mod compare;
 pub mod gen;
+pub mod json;
 pub mod learn;
 pub mod model;
 pub mod rng;

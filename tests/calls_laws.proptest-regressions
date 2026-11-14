@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 7aad3157a571643a54b80cb0ed49175e9e6648d928ee110a66ccc445d06becb9 # shrinks to cs = [("c0", [[Call { api: "BitBlt", args: [], ret: Some(Opaque(1)), err: None }, Call { api: "BitBlt", args: [], ret: Some(Opaque(1)), err: None }, Call { api: "BitBlt", args: [], ret: Some(Opaque(1)), err: None }]], [""])], perm = [8, 8]
+cc 6f268b6c3212fb5a038239c12c989f73d86f9ad5a7c99113adbed3f3187ffc81 # shrinks to ops = [["setpixel", "0", "0", "0", "#000000"]], pick = Index(0), arg = Index(0)

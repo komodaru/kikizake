@@ -1,0 +1,21 @@
+# What a case line calls, for checking shirusu's recordings of the executor (src/calls.rs,
+# calls/). One line per call: <op> <API> <argument>..., in the API's parameter order, as many as
+# are checked:
+#   @n   the handle of the slot token n names (the same slot gives the same handle in a case)
+#   n    token n read as a number          %n  token n as #RRGGBB, passed as a COLORREF
+#   =v   this value                        *   anything
+# <op> - new@n: the line makes slot n anew (its handle may change).
+# Lines the executor reports as bad lines are not checked.
+
+dib - new@1
+patblt PatBlt @1 2 3 4 5 6
+bitblt BitBlt @1 2 3 4 5 @6 7 8 9
+stretchblt StretchBlt @1 2 3 4 5 @6 7 8 9 10 11
+mode SetStretchBltMode @1 2
+getpixel GetPixel @1 2 3
+setpixel SetPixel @1 2 3 %4
+text SetTextColor @1 %2
+bk SetBkColor @1 %2
+bkmode SetBkMode @1 2
+org SetBrushOrgEx @1 2 3 =0
+clip IntersectClipRect @1 2 3 4 5
