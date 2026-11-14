@@ -635,6 +635,25 @@ fn least_x(c: &[PolyVtx; 3]) -> usize {
     (0..3).min_by(|&i, &j| (c[i].x, c[i].y).partial_cmp(&(c[j].x, c[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0)
 }
 
+/// a bump mapping stage's color operation
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Bump {
+    /// BUMPENVMAP
+    Plain,
+    /// BUMPENVMAPLUMINANCE
+    Luminance,
+}
+
+impl Bump {
+    fn of(cop: u32) -> Option<Bump> {
+        match cop {
+            22 => Some(Bump::Plain),
+            23 => Some(Bump::Luminance),
+            _ => None,
+        }
+    }
+}
+
 /// a sampler's D3DTEXTUREFILTERTYPE
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum TexFilter {
@@ -1304,6 +1323,10 @@ impl D3d9 {
     /// the texture stages (D3DTEXTUREOP) in turn, to the first whose COLOROP is DISABLE
     fn stages(&self, diffuse: [f64; 4], specular: [f64; 4], uv: [f64; 2]) -> Res<[f64; 4]> {
         let mut r = Regs { diffuse, specular, current: diffuse, temp: [0.0; 4] };
+        // (a bump mapping stage's texel, its kind and the stage, for the stage after it)
+        let mut bump: Option<([f64; 4], Bump, u32)> = None;
+        // (the texture the stage before sampled)
+        let mut last_tex: Option<[f64; 4]> = None;
         for st in 0..8u32 {
             let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
             if cop == 1 {
@@ -1321,10 +1344,47 @@ impl D3d9 {
                         // (TEXCOORDINDEX: another set of coordinates, or a generated one)
                         return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
                     }
-                    Some(self.sample(st, self.draw.texs[i].as_ref().unwrap(), uv[0], uv[1])?)
+                    let (mut u, mut v) = (uv[0], uv[1]);
+                    let mut lum = None;
+                    if let Some((t, kind, bs)) = bump {
+                        // (MEASURED bump-*: the coordinates moved by BUMPENVMAT times (du, dv);
+                        // LUMINANCE: the texture's color times L LSCALE + LOFFSET, clamped to 0..1,
+                        // L 1 where the format has none)
+                        hit(clause::D3D9_STAGE_BUMP);
+                        let m = |k: u32| f32::from_bits(self.tss(bs, k)) as f64;
+                        let (du, dv) = (t[0], t[1]);
+                        u += m(7) * du + m(9) * dv;
+                        v += m(8) * du + m(10) * dv;
+                        if kind == Bump::Luminance {
+                            lum = Some((t[2] * m(22) + m(23)).clamp(0.0, 1.0));
+                        }
+                    }
+                    let mut t = self.sample(st, self.draw.texs[i].as_ref().unwrap(), u, v)?;
+                    if let Some(l) = lum {
+                        for k in 0..3 {
+                            t[k] *= l;
+                        }
+                    }
+                    Some(t)
                 }
                 None => None,
             };
+            let before = std::mem::replace(&mut last_tex, tex);
+            bump = None;
+            if let Some(kind) = Bump::of(cop) {
+                // (MEASURED top-color-BUMPENVMAP*, stage1-BUMPENVMAP*, bump-*: the stage gives
+                // the texture the stage before it sampled, 0 where none did; with no texture of
+                // its own, (du, dv) and L are 0, bump-2, bump-3 on both)
+                hit(clause::D3D9_STAGE_BUMP);
+                bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
+                let out = before.unwrap_or([0.0; 4]);
+                match self.tss(st, 28) {
+                    1 => r.current = out,
+                    5 if !self.v8 => r.temp = out,
+                    _ => return Err(Fail::Bad),
+                }
+                continue;
+            }
             let out = if aop == 1 {
                 // ALPHAOP DISABLE under an enabled COLOROP (MEASURED, alphadisable-*, stage 0):
                 // the alpha the stage is given where its color operation reads the diffuse color
@@ -1392,7 +1452,8 @@ impl D3d9 {
             for &i in chans {
                 let alpha = k == 1;
                 let v: f32 = match op {
-                    2 => a1[i],
+                    // (PREMODULATE: MEASURED top-*-PREMODULATE, stage1-PREMODULATE: as SELECTARG1)
+                    2 | 17 => a1[i],
                     3 => a2[i],
                     4 => a1[i] * a2[i],
                     5 => a1[i] * a2[i] * 2.0,
@@ -1414,8 +1475,9 @@ impl D3d9 {
                     15 => a1[i] + a2[i] * (1.0 - tex.unwrap_or([1.0; 4])[3] as f32),
                     16 => a1[i] * ca + a2[i] * (1.0 - ca),
                     // (MEASURED, top-alpha-*, stage1-*: the color-only operations as alpha
-                    // operations give 1)
-                    18..=21 if alpha => if st == 0 { 1.0 } else { ca },
+                    // operations give 1, the alpha before on a later stage; the bump mapping ones
+                    // and DOTPRODUCT3 too, top-alpha-BUMPENVMAP*, top-alpha-DOTPRODUCT3)
+                    18..=24 if alpha => if st == 0 { 1.0 } else { ca },
                     18 => a1[i] + a1[3] * a2[i],
                     19 => a1[i] * a2[i] + a1[3],
                     20 => (1.0 - a1[3]) * a2[i] + a1[i],

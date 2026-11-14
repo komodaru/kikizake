@@ -767,6 +767,43 @@ fn suite(v8: bool) -> String {
             writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, Some((0.0, 0.0))), v(15.5, -0.5, 0.0, !0, Some((1.3, 0.1))), v(-0.5, 15.5, 0.0, !0, Some((0.2, 1.1))), v(15.5, 15.5, 0.0, !0, Some((1.5, 1.2)))).unwrap();
         }
     }
+    // a bump mapping stage after another and before another: what CURRENT holds after it
+    for i in 0..12u32 {
+        open(&mut s, &format!("bump-chain-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9tex 1 16 16 60\nd9texfill 1 {:#x}\nd9tex 2 16 16 21\nd9texfill 2 {:#x}", r.next(), r.next(), r.next()).unwrap();
+        writeln!(s, "{}\nd9settex 1 1\nd9settex 2 2", if i % 3 == 2 { "d9settex 0 none" } else { "d9settex 0 0" }).unwrap();
+        let op0 = [4u32, 3, 7, 2][(i % 4) as usize];
+        let op2 = [2u32, 4, 3][(i / 4) as usize];
+        writeln!(s, "tss set 0 1 {op0}\ntss set 0 4 {op0}\ntss set 1 1 {}\ntss set 1 4 2\ntss set 2 1 {op2}\ntss set 2 2 2\ntss set 2 3 1\ntss set 2 4 {op2}\ntss set 2 5 2\ntss set 2 6 1", 22 + i % 2).unwrap();
+        writeln!(s, "tss set 1 11 0\ntss set 2 11 0").unwrap();
+        for k in 7..=10 {
+            writeln!(s, "tss set 1 {k} {}", fb(r.range(-8, 8) as f32 / 16.0)).unwrap();
+        }
+        writeln!(s, "tss set 1 22 {}\ntss set 1 23 {}", fb(r.range(0, 8) as f32 / 4.0), fb(r.range(-4, 4) as f32 / 8.0)).unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // PREMODULATE before another stage, DOTPRODUCT3 as a later stage's alpha operation
+    for i in 0..6u32 {
+        open(&mut s, &format!("premod-chain-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9tex 1 16 16 21\nd9texfill 1 {:#x}\nd9settex 0 0\nd9settex 1 1", r.next(), r.next()).unwrap();
+        let (op0, op1) = if i < 4 { (17u32, [4u32, 3, 2, 7][i as usize]) } else { (4, 24) };
+        writeln!(s, "tss set 0 1 {op0}\ntss set 0 4 {op0}\ntss set 1 1 {}\ntss set 1 2 2\ntss set 1 3 1\ntss set 1 4 {op1}\ntss set 1 5 2\ntss set 1 6 1\ntss set 1 11 0", if i < 4 { op1 } else { 4 }).unwrap();
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
+    // TEXCOORDINDEX: the second coordinate set, one past the vertex's sets, generated ones
+    for (i, tci) in [1u32, 2, 0x10000, 0x20000, 0x30000, 0x40000, 0x10001].iter().enumerate() {
+        open(&mut s, &format!("texcoordindex-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        writeln!(s, "tss set 0 11 {tci:#x}\nd9fvf 0x244").unwrap();
+        let mut l = "d9draw 5 4".to_string();
+        for (x, y, u, v) in [(-0.5f32, -0.5f32, 0.0f32, 0.0f32), (15.5, -0.5, 1.0, 0.0), (-0.5, 15.5, 0.0, 1.0), (15.5, 15.5, 1.0, 1.0)] {
+            write!(l, " {} {} {} {} {:#x} {} {} {} {}", fb(x), fb(y), fb(0.0), fb(1.0), r.next(), fb(u), fb(v), fb(0.7 - v * 0.6), fb(0.1 + u * 0.8)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 
