@@ -201,7 +201,7 @@ fn suites_stay_modeled() {
                 Err(Fail::Unmodeled(id)) => Some(id),
                 _ => None,
             }).collect();
-            assert!(un.iter().all(|id| *id == kikizake::spec::open::DXGI_COLORSPACE), "{s}-{arch}: {un:?}");
+            assert!(un.is_empty(), "{s}-{arch}: {un:?}");
         }
     }
     model::set_arch(32);

@@ -15,7 +15,6 @@
 //! "IDXGIFactory2::CreateSwapChainForHwnd", "IDXGISwapChain::ResizeBuffers",
 //! "IDXGIFactory::MakeWindowAssociation".
 
-use crate::spec::open;
 use crate::spec::clause;
 use super::dxgi_format::{block, channels, dims, planar_depth, Chan, Enc, FLIP};
 use super::{Fail, Res};
@@ -1112,17 +1111,13 @@ impl D3d12 {
                     return Err(Fail::Bad);
                 }
                 let cs = words(&t[1..])?[0];
-                // (MEASURED, golden dxgi-* color-*: the color spaces a flip chain presents in, by
-                // format; SetColorSpace1 takes exactly those)
+                // (MEASURED, golden dxgi-* color-*, color-f*-*: the color spaces a flip chain
+                // presents in, by format; SetColorSpace1 takes exactly those)
                 let set: &[u32] = match self.chain.unwrap().0[2] {
-                    87 => &[0, 2, 3, 12, 14, 17, 20, 21],
                     10 => &[1],
-                    24 => &[0, 12, 14, 17],
-                    _ => return Err(Fail::Unmodeled(open::DXGI_COLORSPACE)),
+                    24 | 28 | 87 => &[0, 2, 3, 12, 14, 17, 20, 21],
+                    f => unreachable!("chain_desc takes only the flip formats, not {f}"),
                 };
-                if self.chain.unwrap().0[2] != 87 && ![0, 1, 12, 14, 17].contains(&cs) {
-                    return Err(Fail::Unmodeled(open::DXGI_COLORSPACE));
-                }
                 hit(clause::DXGI_COLORSPACE_FLIP);
                 let ok = set.contains(&cs);
                 out.push(format!("color {} set {:08x}", ok as u32, if ok { S_OK } else { E_INVALIDARG }));
