@@ -1,0 +1,140 @@
+//! Laws of the GDI+ model (tests/laws.rs for the others; a file of its own so that APIs added
+//! side by side do not collide): what the documentation states as properties, exhaustive over
+//! small domains, property-based elsewhere.
+use proptest::prelude::*;
+use kikizake::model::gdiplus::{self as gp, bits, from_argb, get_px, mul, put_px, rotate, to_argb, transform, Bitmap, FORMATS};
+
+fn bitmap(f: usize, w: u32, h: u32, seed: u32) -> Bitmap {
+    let mut b = Bitmap::new(f, w, h);
+    let mut r = kikizake::rng::XorShift32::new(seed);
+    for y in 0..h {
+        for x in 0..w {
+            let v = r.next() as u64 | (r.next() as u64) << 32;
+            let m = if bits(f) == 64 { !0 } else { (1u64 << bits(f)) - 1 };
+            b.set_px(x, y, v & m);
+        }
+    }
+    b
+}
+
+/// every pixel of a row at every bit depth is written and read back alone
+#[test]
+fn pixels_are_independent() {
+    for f in 0..FORMATS.len() {
+        let n = bits(f);
+        let w = 9u32;
+        for x in 0..w {
+            let mut row = vec![0u8; gp::row_bytes(f, w)];
+            let m = if n == 64 { !0 } else { (1u64 << n) - 1 };
+            put_px(&mut row, x, n, m);
+            for o in 0..w {
+                assert_eq!(get_px(&row, o, n), if o == x { m } else { 0 }, "{} x {x} o {o}", FORMATS[f].0);
+            }
+        }
+    }
+}
+
+/// RotateFlipType: the 8 types are the dihedral group of the rectangle; 1 is a quarter turn
+/// clockwise, 4 a horizontal flip, k = (k & 3 turns) then (k & 4: flip), 6 the vertical flip
+#[test]
+fn rotations_are_the_dihedral_group() {
+    for f in 0..FORMATS.len() {
+        for (w, h) in [(1, 1), (3, 2), (5, 3), (9, 4)] {
+            let b = bitmap(f, w, h, f as u32 * 77 + w);
+            assert_eq!(rotate(&b, 0), b);
+            let q = rotate(&b, 1);
+            assert_eq!((q.w, q.h), (h, w));
+            // (a quarter turn clockwise: the bottom-left pixel goes to the top-left)
+            assert_eq!(q.px(0, 0), b.px(0, h - 1));
+            assert_eq!(rotate(&rotate(&q, 1), 1), rotate(&b, 3));
+            assert_eq!(rotate(&rotate(&rotate(&q, 1), 1), 1), b);
+            let fx = rotate(&b, 4);
+            assert_eq!(fx.px(0, 0), b.px(w - 1, 0));
+            assert_eq!(rotate(&fx, 4), b);
+            let fy = rotate(&b, 6);
+            for y in 0..h {
+                for x in 0..w {
+                    assert_eq!(fy.px(x, y), b.px(x, h - 1 - y));
+                }
+            }
+            for k in 0..8 {
+                // turns then flip
+                assert_eq!(rotate(&b, k), if k >= 4 { rotate(&rotate(&b, k & 3), 4) } else { rotate(&b, k) });
+            }
+        }
+    }
+}
+
+/// the low-bit formats: every value of the format survives the trip through ARGB (exhaustive)
+#[test]
+fn low_bit_values_survive_argb() {
+    for name in ["16bppRGB555", "16bppRGB565", "16bppARGB1555", "24bppRGB"] {
+        let f = gp::format(name).unwrap();
+        let n = if name == "24bppRGB" { 1 << 24 } else { 1 << 16 };
+        for v in (0..n).step_by(if n > 65536 { 251 } else { 1 }) {
+            let v = if name == "16bppRGB555" { v & 0x7fff } else { v };
+            let c = to_argb(f, v, &[]).unwrap();
+            assert_eq!(from_argb(f, c).unwrap(), v, "{name} {v:#x}");
+        }
+    }
+}
+
+const ID: gp::Matrix = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
+
+fn small() -> impl Strategy<Value = f32> {
+    (-64i32..64).prop_map(|v| v as f32 / 4.0)
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(500))]
+
+    /// the identity is the identity of the product, both ways, exactly
+    #[test]
+    fn identity(m in prop::array::uniform6(small())) {
+        prop_assert_eq!(mul(&ID, &m), m);
+        prop_assert_eq!(mul(&m, &ID), m);
+        prop_assert_eq!(transform(&ID, m[0], m[1]), (m[0], m[1]));
+    }
+
+    /// row vectors: a point through a × b is the point through a, then through b (exact on
+    /// quarter integers, which float holds exactly here)
+    #[test]
+    fn product_composes(a in prop::array::uniform6(small()), b in prop::array::uniform6(small()), x in small(), y in small()) {
+        let (px, py) = transform(&a, x, y);
+        prop_assert_eq!(transform(&mul(&a, &b), x, y), transform(&b, px, py));
+    }
+
+    /// an invertible matrix times its inverse moves a point back within float rounding; a zero
+    /// determinant is never invertible
+    #[test]
+    fn inverse_undoes(m in prop::array::uniform6(small()), x in small(), y in small()) {
+        let det = m[0] * m[3] - m[1] * m[2];
+        match gp::invert(&m) {
+            None => prop_assert_eq!(det, 0.0),
+            Some(i) => {
+                let (px, py) = transform(&m, x, y);
+                let (bx, by) = transform(&i, px, py);
+                let tol = 1e-3 * (1.0 + px.abs() + py.abs()) * (1.0 + m.iter().fold(0f32, |a, v| a.max(v.abs()))) / det.abs().min(1.0);
+                prop_assert!((bx - x).abs() <= tol && (by - y).abs() <= tol, "{bx} {by} vs {x} {y}");
+            }
+        }
+    }
+
+    /// a bitmap read in its own format is what was written, for any rectangle inside it
+    #[test]
+    fn same_format_round_trip(f in 0..FORMATS.len(), seed: u32, x in 0i64..5, y in 0i64..3, w in 1i64..5, h in 1i64..3) {
+        let name = FORMATS[f].0;
+        let text = format!("case p\ngpbitmap 0 9 5 {name}\ngpwrite 0 {name} seed {seed} at {x} {y} {w} {h}\ngpread 0 {name} at {x} {y} {w} {h}\ngpread 0 {name}\nend\n");
+        let c = &kikizake::case::parse_cases(&text)[0];
+        let out = kikizake::model::run_case(c).unwrap();
+        prop_assert_eq!(&out[1], "write 0 0");
+        // (the untouched pixels stay 0: the rows of the whole read outside the rectangle)
+        let whole = &out[6 + h as usize..];
+        for (yy, row) in whole.iter().enumerate() {
+            let yy = yy as i64;
+            if yy < y || yy >= y + h {
+                prop_assert!(row.bytes().all(|b| b == b'0'), "{}", row);
+            }
+        }
+    }
+}

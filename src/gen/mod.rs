@@ -52,6 +52,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("ddraw", ddraw::ddraw),
     ("d2d", d2d::d2d),
     ("gdiplus", gdiplus::gdiplus),
+    ("gdiplusmat", gdiplus::gdiplusmat),
     ("dwrite", dwrite::dwrite),
     ("d3d12", d3d12::d3d12),
     ("dxgi", d3d12::dxgi),

@@ -122,12 +122,14 @@ static void *the(int s) {
 
 /* the bytes a fill writes: "seed <n>" xorshift32 bytes; "ramp" byte k = k mod 256; "pairs" (32-bit
  * formats) pixel (x, y) = bytes x, 255 - x, 7x mod 256, y; "levels" (48 and 64-bit formats) pixel
- * k's color words k mod 8193, its alpha word 8192 */
+ * k's color words k mod 8193, its alpha word 8192; "grid" (24-bit) pixel k = the 5-bit blue, green,
+ * red of k (bits 0-4, 5-9, 10-14), each widened to 8 bits by repeating its high bits */
 static void fill_bytes(unsigned char *p, int stride, int w, int h, int bits, int i) {
     int rb = (w * bits + 7) / 8;
     unsigned x = 0;
     if (is(i, "seed")) x = (unsigned)num(i + 1);
-    else if (!is(i, "ramp") && !is(i, "pairs") && !is(i, "levels")) bad = 1;
+    else if (!is(i, "ramp") && !is(i, "pairs") && !is(i, "levels") && !is(i, "grid")) bad = 1;
+    if (is(i, "grid") && bits != 24) bad = 1;
     if (is(i, "pairs") && bits != 32) bad = 1;
     if (is(i, "levels") && bits != 48 && bits != 64) bad = 1;
     if (bad) return;
@@ -138,6 +140,7 @@ static void fill_bytes(unsigned char *p, int stride, int w, int h, int bits, int
         for (int b = 0; b < rb; b++, k++) {
             if (is(i, "seed")) { x ^= x << 13; x ^= x >> 17; x ^= x << 5; r[b] = (unsigned char)x; }
             else if (is(i, "ramp")) r[b] = (unsigned char)k;
+            else if (is(i, "grid")) { long px = (long)y * w + b / 3; int v = px >> (5 * (b % 3)) & 31; r[b] = (unsigned char)(v << 3 | v >> 2); }
             else if (is(i, "pairs")) { int px = b / 4, c = b % 4; r[b] = (unsigned char)(c == 0 ? px : c == 1 ? 255 - px : c == 2 ? px * 7 : y); }
             else {
                 long pix = (long)y * w + b / (bits / 8);
@@ -326,7 +329,8 @@ static void op_clone(void) {
  * gpmatrix <slot> <m11> <m12> <m21> <m22> <dx> <dy>: CreateMatrix2 "matrix <st>"
  * gpmatmul <slot> <other slot> <0 prepend|1 append>: MultiplyMatrix, then the elements
  * gpmatinv <slot>: IsMatrixInvertible, InvertMatrix, then the elements
- * gpmatpts <slot> <x> <y>...: TransformMatrixPoints: "pts <st> <x> <y>..." */
+ * gpmatpts <slot> <x> <y>...: TransformMatrixPoints: "pts <st> <x> <y>..."
+ * (a last word "x86" is ignored: the model's mark for x86's rounding, suite gdiplusmat) */
 static float fbits(int i) {
     union { DWORD u; float f; } v;
     v.u = (DWORD)num(i);
@@ -377,8 +381,9 @@ static void op_matinv(void) {
 static void op_matpts(void) {
     int s = slot(1);
     GpPointF p[16];
-    int n = (ntok - 2) / 2;
-    if ((ntok - 2) % 2 || n < 1 || n > 16) bad = 1;
+    int nt = ntok - is(ntok - 1, "x86"); /* (a last "x86" marks the cases of an x86-only suite) */
+    int n = (nt - 2) / 2;
+    if ((nt - 2) % 2 || n < 1 || n > 16) bad = 1;
     for (int i = 0; i < n && !bad; i++) { p[i].X = fbits(2 + 2 * i); p[i].Y = fbits(3 + 2 * i); }
     if (bad || !gp() || !the_matrix(s)) return;
     GpStatus st = GdipTransformMatrixPoints(mat[s], p, n);

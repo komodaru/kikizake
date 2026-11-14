@@ -51,6 +51,10 @@ pub fn gdiplus() -> String {
     for f in ["48bppRGB", "64bppARGB", "64bppPARGB"] {
         writeln!(s, "case levels-{f}\ngpbitmap 0 256 33 {f}\ngpwrite 0 {f} levels\ngpread 0 32bppARGB\ngpread 0 {f}\nend").unwrap();
     }
+    // every 5-bit color to the palettes (the nearest entry)
+    for f in ["1bppIndexed", "4bppIndexed", "8bppIndexed"] {
+        writeln!(s, "case grid-{f}\ngpbitmap 0 256 128 24bppRGB\ngpwrite 0 24bppRGB grid\ngpread 0 {f}\nend").unwrap();
+    }
     // the bytes of a format as GetPixel reads them, and SetPixel
     let mut r = XorShift32::new(0x6d1f_0001);
     for f in &names {
@@ -108,7 +112,8 @@ pub fn gdiplus() -> String {
         let (x, y, w, h) = (r.range(-1, 6), r.range(-1, 4), r.range(-1, 7), r.range(-1, 5));
         writeln!(s, "case clone-{i}\ngpbitmap 0 7 4 {f}\ngpwrite 0 {f} seed {}\ngpclone 1 0 {x} {y} {w} {h} {g}\ngpinfo 1\ngpread 1 {g}\nend", r.next()).unwrap();
     }
-    // matrices: made, multiplied both ways, inverted, points through them
+    // matrices: made, multiplied both ways, inverted, points through them (x86-64's rounding is
+    // not worked out: its answers are recorded here; x86's are modelled in gdiplusmat)
     for i in 0..120 {
         let m: Vec<String> = (0..12).map(|k| {
             // (some singular ones: a row that is a multiple of the other)
@@ -117,6 +122,19 @@ pub fn gdiplus() -> String {
         let pts: Vec<String> = (0..6).map(|_| format!("{:#x}", rfloat(&mut r))).collect();
         writeln!(s, "case matrix-{i}\ngpmatrix 0 {}\ngpmatrix 1 {}\ngpmatpts 0 {}\ngpmatmul 0 1 {}\ngpmatpts 0 {}\ngpmatinv 0\ngpmatpts 0 {}\nend", m[..6].join(" "), m[6..].join(" "), pts.join(" "), i % 2, pts.join(" "), pts.join(" ")).unwrap();
     }
-    writeln!(s, "case matrix-order\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngpmatrix 1 0x40000000 0 0 0x40000000 0 0\ngpmatmul 0 1 2\ngpmatmul 0 1 -1\nend").unwrap();
+    s
+}
+
+/// matrix arithmetic, as x86 rounds it: products both ways, inverses, points
+pub fn gdiplusmat() -> String {
+    let mut s = String::from("# kikizake suite gdiplusmat: GDI+ matrix arithmetic, as x86 rounds it (SPEC.md). Made by `kikizake gen gdiplusmat`.\n# x86 only\n");
+    let mut r = XorShift32::new(0x1e7e_0001);
+    for i in 0..300 {
+        let m: Vec<String> = (0..12).map(|k| if i % 8 == 7 && (2..4).contains(&k) { "0".into() } else { format!("{:#x}", rfloat(&mut r)) }).collect();
+        let pts: Vec<String> = (0..6).map(|_| format!("{:#x}", rfloat(&mut r))).collect();
+        let (a, b, p) = (m[..6].join(" "), m[6..].join(" "), pts.join(" "));
+        writeln!(s, "case matrix-{i}\ngpmatrix 0 {a}\ngpmatrix 1 {b}\ngpmatpts 0 {p} x86\ngpmatmul 0 1 {} x86\ngpmatpts 0 {p} x86\ngpmatinv 0 x86\ngpmatpts 0 {p} x86\ngpmatinv 0 x86\nend", i % 2).unwrap();
+    }
+    writeln!(s, "case matrix-order\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngpmatrix 1 0x40000000 0 0 0x40000000 0 0\ngpmatmul 0 1 2 x86\ngpmatmul 0 1 -1 x86\nend").unwrap();
     s
 }

@@ -2096,6 +2096,21 @@ gpwrite 0 64bppPARGB levels
 gpread 0 32bppARGB
 gpread 0 64bppPARGB
 end
+case grid-1bppIndexed
+gpbitmap 0 256 128 24bppRGB
+gpwrite 0 24bppRGB grid
+gpread 0 1bppIndexed
+end
+case grid-4bppIndexed
+gpbitmap 0 256 128 24bppRGB
+gpwrite 0 24bppRGB grid
+gpread 0 4bppIndexed
+end
+case grid-8bppIndexed
+gpbitmap 0 256 128 24bppRGB
+gpwrite 0 24bppRGB grid
+gpread 0 8bppIndexed
+end
 case pixel-1bppIndexed-0
 gpbitmap 0 4 3 1bppIndexed
 gpwrite 0 1bppIndexed seed 787724110
@@ -6869,10 +6884,4 @@ gpmatmul 0 1 1
 gpmatpts 0 0x40720000 0x41200000 0xc00e4a00 0x0 0xc00e9e00 0x41240000
 gpmatinv 0
 gpmatpts 0 0x40720000 0x41200000 0xc00e4a00 0x0 0xc00e9e00 0x41240000
-end
-case matrix-order
-gpmatrix 0 0x3f800000 0 0 0x3f800000 0 0
-gpmatrix 1 0x40000000 0 0 0x40000000 0 0
-gpmatmul 0 1 2
-gpmatmul 0 1 -1
 end

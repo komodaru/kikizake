@@ -1,34 +1,52 @@
 # GDI+ bitmap and matrix clauses (spec/README.md): <id> <status> | <source> | <what it says>
 GP.START doc | GdiplusStartup | GDI+ 1.0 started once (gdiplus.dll loaded when a case first asks)
 GP.CREATE doc | Bitmap::Bitmap(INT, INT, INT, PixelFormat, BYTE*) | a bitmap of the size and format asked, GDI+ allocating the pixels (no scan0)
-GP.CREATE.SIZE open | (none) | a width or height of 0 or less
+GP.CREATE.SIZE measured | (none) | a width or height of 0 or less: InvalidParameter (golden gdiplus-32/-64, the 4 size cases)
 GP.CREATE.ZERO assumed | (none) | a new bitmap's pixels are all 0
 GP.INFO doc | Image::GetPalette, Image::GetPixelFormat | the format and size as made; an indexed bitmap's palette
-GP.INFO.NOPALETTE open | (none) | the palette of a bitmap that is not indexed
+GP.INFO.NOPALETTE measured | (none) | a bitmap that is not indexed has an empty palette: Ok, flags 0, count 0 (golden gdiplus, all 11 formats)
 GP.LAYOUT doc | Image Pixel Format Constants | each format's channels and sizes (16-bit fields little-endian, sub-byte pixels from the high bits)
 GP.LOCK.SAME doc | Bitmap::LockBits | locked in the bitmap's own format: its bytes as they are, and written ones kept
 GP.LOCK.READ doc | Bitmap::LockBits | ImageLockModeRead: the rectangle's pixels in the format asked
 GP.LOCK.WRITE doc | Bitmap::LockBits, Bitmap::UnlockBits | ImageLockModeWrite: the buffer's pixels, in the format asked, replace the rectangle's at UnlockBits
-GP.LOCK.RECT assumed | (none) | a rectangle past the bitmap or empty is InvalidParameter
-GP.LOCK.INDEXED open | (none) | an indexed format locked as another format, or another as indexed
-GP.CONV.INDEXED doc | Image Pixel Format Constants (indexed) | an index is its palette color
-GP.CONV.EXPAND assumed | (none) | 5 and 6 bit channels to 8 by repeating their high bits; the 1-bit alpha to 0 or 255
-GP.CONV.TRUNCATE assumed | (none) | 8-bit channels to 5 and 6 bits: the high bits; alpha to 1 bit: its high bit
-GP.CONV.OPAQUE assumed | (none) | 24bppRGB, 32bppRGB to ARGB: alpha 255; ARGB to 24bppRGB drops the alpha, to 32bppRGB its byte is 255
-GP.CONV.PREMULTIPLY open | Bitmap::SetPixel (premultiplied: "a different value because of rounding") | straight to premultiplied
-GP.CONV.UNPREMULTIPLY open | Bitmap::GetPixel | premultiplied to straight
-GP.CONV.WIDE open | Image Pixel Format Constants (16 bits a channel "converted to an 8-bits-per-channel format for processing") | to and from 48bppRGB, 64bppARGB, 64bppPARGB
-GP.GRAY16 open | (none) | 16bppGrayScale
-GP.PIXEL.BOUNDS assumed | (none) | GetPixel and SetPixel outside the bitmap: InvalidParameter
+GP.LOCK.RECT measured | (none) | a rectangle past the bitmap or empty is InvalidParameter (golden gdiplus lock-*: 40 cases)
+GP.CONV.TO.INDEXED open | (none) | to an indexed format: the nearest palette entry to the color, each channel first cut to 5 bits and widened again, by squared RGB distance, the first of equals; the halftone palette's unset entries 16..39 never chosen (holds for 1 and 8 bpp in the random cases; 4 bpp and ties near the VGA colors differ: golden gdiplus grid-* settles it)
+GP.CONV.INDEXED doc | Image Pixel Format Constants (indexed) | an index is its palette color (the halftone palette's entries 16..39 are 0: transparent black)
+GP.CONV.EXPAND measured | (none) | 5 and 6 bit channels to 8 by repeating their high bits; the 1-bit alpha to 0 or 255 (golden gdiplus read-*/write-*/pixel-*)
+GP.CONV.TRUNCATE measured | (none) | 8-bit channels to 5 and 6 bits: the high bits; alpha to 1 bit: its high bit (golden gdiplus read-*/write-*)
+GP.CONV.OPAQUE measured | (none) | 24bppRGB, 32bppRGB to ARGB: alpha 255; ARGB to 24bppRGB drops the alpha (golden gdiplus read-*/write-*)
+GP.CONV.KEEP measured | (none) | ARGB to 32bppRGB keeps the alpha byte as it is (golden gdiplus: write-32bppRGB-32bppARGB, read-32bppARGB-32bppRGB, SetPixel on 32bppRGB)
+GP.CONV.PREMULTIPLY measured | Bitmap::SetPixel (premultiplied: "a different value because of rounding") | straight to premultiplied: (c a + 127) / 255 (golden gdiplus pairs-32bppARGB-32bppPARGB: all 65536 (c, a) pairs, 3 channels)
+GP.CONV.UNPREMULTIPLY measured | Bitmap::GetPixel | premultiplied to straight: (c floor((255 << 16) / a)) >> 16, at most 255; alpha 0 keeps the color (golden gdiplus pairs-32bppPARGB-32bppARGB: all 65536 pairs)
+GP.CONV.PREMULTIPLIED.OPAQUE measured | (none) | 32bppPARGB to 16bppRGB555, 16bppRGB565, 24bppRGB, 32bppRGB: the premultiplied color as it is (over black), the alpha byte kept for 32bppRGB (golden gdiplus read-32bppPARGB-*, write-*-32bppPARGB); to 48bppRGB it is undone first
+GP.CONV.WIDE measured | Image Pixel Format Constants (16 bits a channel) | between 48bppRGB, 64bppARGB, 64bppPARGB: the 16-bit words as they are, through straight 64bppARGB (48bppRGB: alpha 8192 and dropped), never through 8 bits (golden gdiplus read-/write- between them)
+GP.CONV.WIDEN measured | (none) | 8 bits to 16-bit channels: linear light 0..8192 (sRGB64): the sRGB curve of c / 255 times 8192, rounded; alpha a 8192 / 255 truncated (golden gdiplus pairs-32bppARGB-64bppARGB: all 256 levels, all 256 alphas)
+GP.CONV.WIDEN.PREMULTIPLIED measured | (none) | to 64bppPARGB from 8 bits: the 16-bit color times the 16-bit alpha / 8192, truncated (golden gdiplus pairs-32bppARGB-64bppPARGB, pairs-32bppPARGB-64bppPARGB: all pairs)
+GP.CONV.NARROW measured | (none) | 16-bit channels to 8 bits: each word signed, clamped to 0..8192, the inverse sRGB curve times 255, rounded; alpha clamped the same, a 255 / 8192 truncated (golden gdiplus levels-*: all 8193 levels; read-*/write-* with random words)
+GP.CONV.NARROW.PREMULTIPLIED measured | (none) | 64bppPARGB to straight: alpha clamped to 0..8192; when not 0 each signed color word c 8192 / a in 32 bits truncated toward 0, kept to 16 bits, then as GP.CONV.NARROW; between the 16-bit formats (c a) >> 13 in 32 bits, kept to 16 bits (golden gdiplus read-64bppPARGB-*, read-64bppARGB-64bppPARGB, random words)
+GP.GRAY16 measured | (none) | 16bppGrayScale: its own format locks; any other read is InvalidParameter, a write locks but UnlockBits is InvalidParameter and nothing changes; GetPixel and SetPixel are InvalidParameter (golden gdiplus read-*/write-*/pixel-*, all 13 other formats)
+GP.PIXEL.BOUNDS measured | (none) | GetPixel and SetPixel outside the bitmap: InvalidParameter (golden gdiplus pixel-*)
 GP.PIXEL.GET doc | Bitmap::GetPixel | the pixel as straight ARGB
 GP.PIXEL.SET doc | Bitmap::SetPixel | the color stored in the bitmap's format ("might not return the same value": 16 bpp loses bits, PARGB rounds)
-GP.PIXEL.SET.INDEXED open | (none) | SetPixel on an indexed bitmap
-GP.FILL open | CompositingMode, CompositingQuality, Graphics::Clear, Graphics::FillRectangle | Clear and FillRectangleI through a Graphics of the bitmap
+GP.PIXEL.SET.INDEXED measured | (none) | SetPixel on an indexed bitmap stores the nearest entry (GP.CONV.TO.INDEXED) (golden gdiplus pixel-*Indexed-*)
+GP.FILL doc | CompositingMode, CompositingQuality, Graphics::Clear, Graphics::FillRectangle | Clear and FillRectangleI through a Graphics of the bitmap (Clear: SourceCopy of all of it)
+GP.FILL.NOGRAPHICS measured | (none) | no Graphics of a 16bppGrayScale or 16bppARGB1555 bitmap: OutOfMemory (golden gdiplus fill-*, clear-*)
+GP.FILL.RECT measured | Graphics::FillRectangle | the pixels of the rectangle inside the bitmap; a negative width or height draws nothing (golden gdiplus fill-*: 27 negative cases)
+GP.FILL.NEGATIVE measured | (none) | (the negative rectangles of GP.FILL.RECT)
+GP.FILL.COPY measured | CompositingMode (SourceCopy) | the brush premultiplied, then converted to the bitmap's format as from 32bppPARGB (golden gdiplus fill-*-copy-*, clear-*)
+GP.FILL.OVER measured | CompositingMode (SourceOver), CompositingQuality (Default, HighSpeed, AssumeLinear: no gamma correction) | both premultiplied, each channel and alpha s + d (255 - sa) / 255 rounded; the destination read and written as from and to 32bppPARGB, a 32bppRGB one's bytes as they are (golden gdiplus over-0..3: all 65536 destinations for 4 brushes; fill-*, blend-*)
+GP.FILL.BUFFER measured | (none) | on a 16-bit channel bitmap (through 32bppARGB) or an indexed one (through 32bppPARGB, written back as the nearest entry to the premultiplied color) the Graphics works on a copy of the whole bitmap, written back whenever the rectangle starts inside it with a width and height of 0 or more (golden gdiplus fill-*: 25 cases, 3 of them empty)
+GP.FILL.INDEXED measured | (none) | a Graphics of an indexed bitmap draws (GP.FILL.BUFFER) (golden gdiplus fill-*Indexed-*)
+GP.FILL.GAMMA open | CompositingQuality (HighQuality, GammaCorrected: gamma correction applied) | SourceOver with gamma correction: in 16-bit linear light as GP.CONV.WIDEN, but the alpha does not follow (253 over alpha 0, 254 over 4..56, 253 over 58..60 for a brush of alpha 254: golden gdiplus over-4)
+GP.FILL.DITHER open | (none) | drawing on 16bppRGB555 and 16bppRGB565 dithers (golden gdiplus clear-16bppRGB555: a solid color stored as alternating values)
 GP.ROTATE doc | RotateFlipType | k & 3 quarter turns clockwise, then for 4..7 a horizontal flip; the pixels as they are
 GP.CLONE doc | Bitmap::Clone | a new bitmap of the area, in the format asked
+GP.CLONE.RECT measured | (none) | an area past the bitmap or empty: OutOfMemory (golden gdiplus, 72 clone cases)
 GP.CLONE.FORMAT open | (none) | a clone into another format
 GP.MATRIX doc | Matrix::Matrix(REAL, REAL, REAL, REAL, REAL, REAL) | m11 m12 m21 m22 dx dy, read back as given
-GP.MATRIX.MUL assumed | Matrix::Multiply (MatrixOrderPrepend: the passed matrix on the left) | the product with points as row vectors, in float
-GP.MATRIX.ORDER open | (none) | an order other than prepend (0) or append (1)
-GP.MATRIX.POINT assumed | Matrix::Matrix (dx, dy the third row) | (x, y) to (m11 x + m21 y + dx, m12 x + m22 y + dy), in float
-GP.MATRIX.INVERT assumed | Matrix::Invert (not invertible: InvalidParameter) | the inverse through the determinant in float; a zero determinant is not invertible
+GP.MATRIX.MUL measured | Matrix::Multiply (MatrixOrderPrepend: the passed matrix on the left) | the product with points as row vectors, each element a sum of float products left to right (golden gdiplus-32, 120 cases, every element)
+GP.MATRIX.ORDER measured | (none) | an order other than prepend (0) or append (1): InvalidParameter, the matrix unchanged (golden gdiplus matrix-order)
+GP.MATRIX.POINT measured | Matrix::Matrix (dx, dy the third row) | (x, y) to (m11 x + m21 y + dx, m12 x + m22 y + dy), in float left to right (golden gdiplus-32, 120 cases x 3 points)
+GP.MATRIX.INVERT measured | Matrix::Invert (not invertible: InvalidParameter) | x86: det = m11 m22 - m12 m21, r = 1 / det, elements m22 r, -m12 r, -m21 r, m11 r, (m21 dy - m22 dx) r, (m12 dx - m11 dy) r, all in float (golden gdiplus-32, 99 of 99 cases, every element); a zero determinant is not invertible
+GP.MATRIX.X86 doc | (none) | the arithmetic below is x86's (suite gdiplusmat, x86 only)
+GP.MATRIX.X64 open | (none) | x86-64 rounds products, points and inverses otherwise: 133 of 360 points and most inverses 1 to 5 ulps away, biased low, signs of zero differ; no float, double or fused order tried fits (golden gdiplus-64)
