@@ -400,7 +400,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -478,6 +478,28 @@ impl D3d12 {
                     "incr12" => "D3D12.FEATURE.INCREMENT",
                     "msq12" => "D3D12.FEATURE.MSAA",
                     _ => "D3D12.FEATURE.FORMAT",
+                }));
+            }
+            "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" => {
+                let n = match name {
+                    "heap12" => 5,
+                    "dheap12" | "queue12" => 4,
+                    "cmdlist12" => 2,
+                    "placed12" => 17,
+                    _ => 3,
+                };
+                if t.len() != n {
+                    return Err(Fail::Bad);
+                }
+                words(&t[1..])?;
+                return Err(Fail::Unmodeled(match name {
+                    "heap12" => "D3D12.MAKE.HEAP",
+                    "dheap12" => "D3D12.MAKE.DESCHEAP",
+                    "queue12" => "D3D12.MAKE.QUEUE",
+                    "cmdlist12" => "D3D12.MAKE.LIST",
+                    "qheap12" => "D3D12.MAKE.QUERYHEAP",
+                    "fence12" => "D3D12.MAKE.FENCE",
+                    _ => "D3D12.MAKE.PLACED",
                 }));
             }
             _ => return self.dxgi(op, out),

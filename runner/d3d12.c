@@ -182,6 +182,79 @@ static void op_feature(void) {
     else out(" planes %x\n", fi.PlaneCount);
 }
 
+/* object creation checked, the object made and released (NULL where the API takes it):
+ *   heap12 <type> <size> <alignment> <heap flags>            CreateHeap
+ *   dheap12 <type> <descriptors> <flags>                     CreateDescriptorHeap
+ *   queue12 <type> <priority> <flags>                        CreateCommandQueue
+ *   cmdlist12 <type>                                         CreateCommandAllocator, CreateCommandList
+ *   qheap12 <type> <count>                                   CreateQueryHeap
+ *   fence12 <initial> <flags>                                CreateFence, GetCompletedValue
+ *   placed12 <heap type> <heap flags> <heap size> <offset> <state> <desc>   CreatePlacedResource
+ * "<op> hr <hr>" (fence12 adds "value <v>") */
+static void op_make(void) {
+    if (!on12) { out("nodev\n"); return; }
+    HRESULT hr = E_FAIL;
+    IUnknown *o = NULL;
+    if (is(0, "heap12")) {
+        if (ntok != 5) bad = 1;
+        D3D12_HEAP_DESC d = { num(2), { num(1), D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 }, num(3), num(4) };
+        if (bad) return;
+        hr = ID3D12Device_CreateHeap(dev12, &d, &IID_ID3D12Heap, (void **)&o);
+    } else if (is(0, "dheap12")) {
+        if (ntok != 4) bad = 1;
+        D3D12_DESCRIPTOR_HEAP_DESC d = { num(1), num(2), num(3), 0 };
+        if (bad) return;
+        hr = ID3D12Device_CreateDescriptorHeap(dev12, &d, &IID_ID3D12DescriptorHeap, (void **)&o);
+    } else if (is(0, "queue12")) {
+        if (ntok != 4) bad = 1;
+        D3D12_COMMAND_QUEUE_DESC d = { num(1), (INT)num(2), num(3), 0 };
+        if (bad) return;
+        hr = ID3D12Device_CreateCommandQueue(dev12, &d, &IID_ID3D12CommandQueue, (void **)&o);
+    } else if (is(0, "cmdlist12")) {
+        if (ntok != 2) bad = 1;
+        D3D12_COMMAND_LIST_TYPE t = num(1);
+        if (bad) return;
+        ID3D12CommandAllocator *a = NULL;
+        hr = ID3D12Device_CreateCommandAllocator(dev12, t, &IID_ID3D12CommandAllocator, (void **)&a);
+        if (FAILED(hr)) { out("cmdlist12 allocator hr %08lx\n", hr); return; }
+        hr = ID3D12Device_CreateCommandList(dev12, 0, t, a, NULL, &IID_ID3D12GraphicsCommandList, (void **)&o);
+        if (o) ID3D12GraphicsCommandList_Close((ID3D12GraphicsCommandList *)o);
+        REL(o);
+        ID3D12CommandAllocator_Release(a);
+    } else if (is(0, "qheap12")) {
+        if (ntok != 3) bad = 1;
+        D3D12_QUERY_HEAP_DESC d = { num(1), num(2), 0 };
+        if (bad) return;
+        hr = ID3D12Device_CreateQueryHeap(dev12, &d, &IID_ID3D12QueryHeap, (void **)&o);
+    } else if (is(0, "fence12")) {
+        if (ntok != 3) bad = 1;
+        UINT64 v0 = (UINT)num(1);
+        D3D12_FENCE_FLAGS fl = num(2);
+        if (bad) return;
+        ID3D12Fence *f = NULL;
+        hr = ID3D12Device_CreateFence(dev12, v0, fl, &IID_ID3D12Fence, (void **)&f);
+        out("fence12 hr %08lx", hr);
+        if (f) { out(" value"); hex64(ID3D12Fence_GetCompletedValue(f)); ID3D12Fence_Release(f); }
+        out("\n");
+        return;
+    } else {
+        if (ntok != 17) { bad = 1; return; }
+        D3D12_HEAP_DESC hd = { num(3), { num(1), D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 }, 0, num(2) };
+        UINT64 off = (UINT)num(4);
+        D3D12_RESOURCE_STATES st = num(5);
+        D3D12_RESOURCE_DESC d = rdesc(6);
+        if (bad) return;
+        ID3D12Heap *h = NULL;
+        hr = ID3D12Device_CreateHeap(dev12, &hd, &IID_ID3D12Heap, (void **)&h);
+        if (FAILED(hr)) { out("placed12 heap hr %08lx\n", hr); return; }
+        hr = ID3D12Device_CreatePlacedResource(dev12, h, off, &d, st, NULL, &IID_ID3D12Resource, (void **)&o);
+        REL(o);
+        ID3D12Heap_Release(h);
+    }
+    REL(o);
+    out("%s hr %08lx\n", tok[0], hr);
+}
+
 static ID3D12Resource *committed(D3D12_HEAP_TYPE heap, D3D12_RESOURCE_STATES st, const D3D12_RESOURCE_DESC *d, HRESULT *hr) {
     D3D12_HEAP_PROPERTIES hp = { heap, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 };
     ID3D12Resource *r = NULL;
@@ -277,6 +350,13 @@ static const struct kz_op d3d12_ops[] = {
     { "feature12", op_feature },
     { "msq12", op_feature },
     { "incr12", op_feature },
+    { "heap12", op_make },
+    { "dheap12", op_make },
+    { "queue12", op_make },
+    { "cmdlist12", op_make },
+    { "qheap12", op_make },
+    { "fence12", op_make },
+    { "placed12", op_make },
     { 0 },
 };
 const struct kz_api d3d12_api = { "d3d12", d3d12_ops, d3d12_reset };

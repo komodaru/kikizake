@@ -362,6 +362,60 @@ pub fn d3d12() -> String {
         writeln!(s, "end").unwrap();
     }
     writeln!(s, "case incr\ndevice12\nincr12\nend").unwrap();
+    // object creation: one line a case, each field swept around a valid description
+    let mut mk: Vec<String> = Vec::new();
+    for t in 0..=6u32 {
+        mk.push(format!("heap12 {t} 65536 0 0"));
+    }
+    for z in [0u64, 1, 4096, 65535, 65537, 1 << 20, 1 << 32] {
+        mk.push(format!("heap12 1 {} 0 0", z.min(u32::MAX as u64)));
+    }
+    for a in [1u32, 4096, 65536, 4194304, 3, 131072] {
+        mk.push(format!("heap12 1 65536 {a} 0"));
+    }
+    for f in [1u32, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0xc0, 0xc4, 0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x8000_0000] {
+        mk.push(format!("heap12 1 65536 0 {}", hexw(f)));
+        mk.push(format!("heap12 2 65536 0 {}", hexw(f)));
+    }
+    for t in 0..=5u32 {
+        for (n, f) in [(1u32, 0u32), (0, 0), (1, 1), (2048, 0), (2049, 0), (2048, 1), (2049, 1), (1_000_000, 1), (1_000_001, 1), (1_000_000, 0), (1, 2), (1, 0x8000_0000)] {
+            mk.push(format!("dheap12 {t} {n} {}", hexw(f)));
+        }
+    }
+    for t in 0..=8u32 {
+        mk.push(format!("queue12 {t} 0 0"));
+        mk.push(format!("cmdlist12 {t}"));
+        mk.push(format!("qheap12 {t} 1"));
+    }
+    for p in [100u32, 10000, 1, 99, 0xffff_ffff] {
+        mk.push(format!("queue12 0 {} 0", hexw(p)));
+    }
+    for f in [1u32, 2, 4] {
+        mk.push(format!("queue12 0 0 {f}"));
+    }
+    for n in [0u32, 65536, 65537, 1 << 24] {
+        mk.push(format!("qheap12 0 {n}"));
+        mk.push(format!("qheap12 2 {n}"));
+    }
+    for (v, f) in [(0u32, 0u32), (5, 0), (0xffff_ffff, 0), (0, 1), (0, 2), (0, 4), (0, 8), (0, 0x10)] {
+        mk.push(format!("fence12 {} {}", hexw(v), hexw(f)));
+    }
+    let tex = Desc::tex(3, 64, 64, 1, 1, 28);
+    let rt = Desc { flags: 1, ..tex };
+    let b = Desc::buffer(65536);
+    for (ht, hf, size, off, st, d) in [
+        (1u32, 0u32, 1u32 << 20, 0u32, 0u32, b), (1, 0, 1 << 20, 65536, 0, b), (1, 0, 1 << 20, 4096, 0, b), (1, 0, 1 << 20, 1 << 20, 0, b), (1, 0, 65536, 0, 0, Desc::buffer(65537)),
+        (1, 4, 1 << 20, 0, 0, b), (1, 0x40, 1 << 20, 0, 0, b), (1, 0x80, 1 << 20, 0, 0, b), (1, 0xc0, 1 << 20, 0, 0, b),
+        (1, 0, 1 << 20, 0, 0, tex), (1, 4, 1 << 20, 0, 0, tex), (1, 0x80, 1 << 20, 0, 0, tex), (1, 0x40, 1 << 20, 0, 0, tex), (1, 0x84, 1 << 20, 0, 0, tex),
+        (1, 0, 1 << 20, 0, 4, rt), (1, 0x40, 1 << 20, 0, 4, rt), (1, 0x80, 1 << 20, 0, 4, rt), (1, 0x44, 1 << 20, 0, 4, rt),
+        (1, 0, 1 << 20, 4096, 0, Desc { align: 4096, ..tex }), (1, 0, 1 << 20, 4096, 0, tex), (1, 0, 4194304, 0, 4, Desc { samples: 4, ..rt }), (1, 0, 8 << 20, 65536, 4, Desc { samples: 4, ..rt }),
+        (2, 0, 1 << 20, 0, 0xac3, b), (2, 0, 1 << 20, 0, 0, b), (2, 0, 1 << 20, 0, 0, tex), (3, 0, 1 << 20, 0, 0x400, b), (3, 0, 1 << 20, 0, 0, b),
+    ] {
+        mk.push(format!("placed12 {ht} {} {size} {off} {} {}", hexw(hf), hexw(st), desc_str(&d)));
+    }
+    for (i, l) in mk.iter().enumerate() {
+        writeln!(s, "case make-{i}\ndevice12\n{l}\nend").unwrap();
+    }
     // (last: a D32_FLOAT render target removes the device, D3D12.CLEAR.REMOVED)
     writeln!(s, "case clear-removed\ndevice12\nclear12 40 0 0 0 0\nend").unwrap();
     s
