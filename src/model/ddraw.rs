@@ -25,6 +25,55 @@ pub const DDERR_NOCLIPPERATTACHED: u32 = 0x8876_0238;
 pub const DDERR_BLTFASTCANTCLIP: u32 = 0x8876_023e;
 pub const DDERR_INVALIDPIXELFORMAT: u32 = 0x8876_0091;
 pub const DDERR_NOPALETTEATTACHED: u32 = 0x8876_023c;
+
+/// MEASURED (dd8 table-0, the same on 32 and 64 bits): the colors an 8 bpp surface's DC gives
+/// the indices while the surface has no palette: the 20 static VGA colors at 0..10 and
+/// 246..256, 236 fixed colors between
+pub const SYSTEM_PALETTE: [u32; 256] = [
+    0x000000, 0x800000, 0x008000, 0x808000, 0x000080, 0x800080, 0x008080, 0xc0c0c0,
+    0xc0dcc0, 0xa6caf0, 0x241808, 0x302814, 0x3c3018, 0x614d30, 0x4d5151, 0x61714d,
+    0x616d82, 0x14140c, 0x827559, 0x089e75, 0x383430, 0x3869aa, 0x283420, 0x616149,
+    0x9e8649, 0x6d9a7d, 0xcb6908, 0x82868e, 0x5d6175, 0xeb6100, 0x710800, 0x30382c,
+    0xef7104, 0xaa928e, 0xf76d30, 0xc3c304, 0xb2aa92, 0x141810, 0x080c04, 0x10710c,
+    0x82a2cf, 0xaa0800, 0x2c4128, 0xb28e49, 0x614d20, 0x555955, 0xd3d304, 0x4d3c1c,
+    0xf7a620, 0x10a210, 0x1c2418, 0xf3ae5d, 0xaa9e71, 0x20e7b2, 0x712810, 0xd3c386,
+    0x2c8a28, 0xba510c, 0x6d7159, 0x4d4d49, 0xc3b6aa, 0x005100, 0xf7cb20, 0x518a4d,
+    0xb2c7be, 0xba3c04, 0x181c10, 0xdf5108, 0xa6e7a6, 0x24cf9e, 0x927579, 0x5975ae,
+    0x69829e, 0xdfe3cf, 0x30200c, 0x2c6928, 0xa2a29e, 0x82c7f7, 0x7d6134, 0xbebeb6,
+    0x869e96, 0xd3fbdb, 0x495165, 0x65ef65, 0xd3d3ae, 0x4d92e7, 0xb2beb2, 0xdbdbd7,
+    0x717579, 0x594d34, 0xcfb286, 0x142c51, 0xfbfba6, 0x655938, 0x928e82, 0x61411c,
+    0x615959, 0x002000, 0x7d6d3c, 0xd7b25d, 0x3cef38, 0x55cb51, 0x24241c, 0xf3c361,
+    0xa2a208, 0x3c4138, 0x514920, 0x148a10, 0x103010, 0xf7e77d, 0x493414, 0x2c65b2,
+    0xaaebf7, 0x92713c, 0xfbfb04, 0x516169, 0x96c7ef, 0xd74104, 0x040400, 0xf78a38,
+    0xf3d38a, 0x006500, 0xe30400, 0xffffdb, 0x69aef7, 0x4d86cf, 0xd3a255, 0xe3efeb,
+    0x418aeb, 0x6192cf, 0x10f7c3, 0x828e8e, 0xfffffb, 0x104110, 0x510804, 0xfbfb82,
+    0x34c73c, 0x8a8a08, 0x454538, 0x344151, 0x96793c, 0x61611c, 0x82b2eb, 0x004100,
+    0x515971, 0xa6aaa2, 0xb2b6b2, 0xfbfbc3, 0x340800, 0x3c4128, 0xcfc7c7, 0xd3d3cf,
+    0x204582, 0x0ccb08, 0x1c1c1c, 0x9ab2a6, 0xbea671, 0x6d9ecf, 0x61716d, 0x048a00,
+    0xbe7151, 0xc3d3c7, 0x969e96, 0x968679, 0x101c2c, 0x495138, 0x3875be, 0x1c1408,
+    0xc7c7c3, 0x282c20, 0xcfe3d3, 0x6d8271, 0x1c3c65, 0x08ef04, 0x755534, 0xa6926d,
+    0x797979, 0x8af386, 0x285592, 0xe7e7e3, 0x516145, 0x9a491c, 0x616965, 0xa29e8e,
+    0xd38679, 0x514120, 0xe3c78a, 0x007100, 0xbe9e51, 0x0c5110, 0xaaaaa6, 0x30302c,
+    0x3479d3, 0x303018, 0x8e8249, 0xc3fbcb, 0x71716d, 0xa62804, 0x45454d, 0x140c04,
+    0x757508, 0x79cb71, 0x0c6d4d, 0xd3fbfb, 0xaeb2aa, 0x929292, 0x559ef3, 0x005d00,
+    0xb2d7e3, 0xc3fbf7, 0x51593c, 0xb2b204, 0x8e6534, 0xef8604, 0xe3fbf7, 0x616161,
+    0xdfe3df, 0x0c101c, 0x0c1008, 0x0c1808, 0x008659, 0xfbfb24, 0x716134, 0xc72c04,
+    0x9ac7ae, 0x4dae45, 0x2ca628, 0x65a2ef, 0x82827d, 0x9ad7f7, 0xf7d365, 0xbae7e3,
+    0x003000, 0x715524, 0x3c82df, 0xc3ae8a, 0xd3c3a2, 0xa2fba6, 0xf3fff3, 0xe7d7aa,
+    0xc3efef, 0xfbf755, 0xf3f3ef, 0xb2d3be, 0xebeb04, 0xf7e3a6, 0xfffbf0, 0xa0a0a4,
+    0x808080, 0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0xff00ff, 0x00ffff, 0xffffff,
+];
+
+/// MEASURED (dd8 nearest-*, nearestrect-*: 0 wrong of 2048 SetPixel colors and 32 FillRect
+/// colors; 36 of 36 ties to the lowest index): the entry a color goes to on an 8 bpp surface's
+/// DC is the one at the least Euclidean RGB distance, the lowest index of those
+pub fn nearest_entry(tab: &[u32], c: u32) -> u8 {
+    let dist = |e: u32| -> u32 {
+        [16u32, 8, 0].iter().map(|&s| (e >> s & 255).abs_diff(c >> s & 255).pow(2)).sum()
+    };
+    let best = tab.iter().take(256).enumerate().min_by_key(|&(i, &e)| (dist(e), i)).map(|(i, _)| i).unwrap_or(0);
+    u8::try_from(best).unwrap_or(u8::MAX)
+}
 pub const DDERR_DCALREADYCREATED: u32 = 0x8876_026c;
 pub const DDERR_NODC: u32 = 0x8876_024a;
 pub const DDERR_INVALIDCAPS: u32 = 0x8876_0064;
@@ -733,11 +782,13 @@ impl Ddraw {
                     // MEASURED: a rectangle turned round is filled as its normal form
                     let (x0, x1, y0, y1) = (x0.min(x1), x0.max(x1), y0.min(y1), y0.max(y1));
                     let c = crate::case::color(t.get(6).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
-                    if surf.bpp == 8 {
-                        return Err(Fail::Unmodeled("DDRAW.DC.NEAREST"));
-                    }
                     hit("DDRAW.DC.FILL");
-                    let v = g.from_rgb(c);
+                    let v = if surf.bpp == 8 {
+                        hit("DDRAW.DC.NEAREST");
+                        nearest_entry(pal.as_deref().unwrap_or(&SYSTEM_PALETTE[..]), c).into()
+                    } else {
+                        g.from_rgb(c)
+                    };
                     for y in y0.max(0)..y1.min(surf.h) {
                         for x in x0.max(0)..x1.min(surf.w) {
                             surf.set(x, y, v);
@@ -753,15 +804,23 @@ impl Ddraw {
                     out.push("pixel invalid".into());
                     return Ok(true);
                 }
-                if surf.bpp == 8 {
-                    if pal.is_none() {
-                        return Err(Fail::Unmodeled("DDRAW.DC.NOPAL"));
-                    }
-                    if c.is_some() {
-                        return Err(Fail::Unmodeled("DDRAW.DC.NEAREST"));
-                    }
-                }
                 hit("DDRAW.DC.PIXEL");
+                if surf.bpp == 8 {
+                    let tab: &[u32] = match &pal {
+                        Some(p) => p,
+                        None => {
+                            hit("DDRAW.DC.NOPAL");
+                            &SYSTEM_PALETTE
+                        }
+                    };
+                    if let Some(c) = c {
+                        hit("DDRAW.DC.NEAREST");
+                        surf.set(x, y, nearest_entry(tab, c).into());
+                    }
+                    let e = usize::try_from(surf.get(x, y) & 0xff).ok().and_then(|i| tab.get(i)).copied().unwrap_or(0);
+                    out.push(format!("pixel {:06x}", e & 0xff_ffff));
+                    return Ok(true);
+                }
                 if let Some(c) = c {
                     surf.set(x, y, g.from_rgb(c));
                 }

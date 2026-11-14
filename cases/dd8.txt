@@ -10115,6 +10115,80 @@ ddfill 0 7763
 ddfast 0 11 6 0 6 4 19 9
 dddump 0
 end
+case overlap8seq-16
+dd
+ddsurf 0 16 12 8
+ddfill 0 21
+ddblt 0 5 4 13 8 0 4 4 12 8
+dddump 0
+ddfast 0 4 5 0 5 5 11 9
+dddump 0
+ddblt 0 3 4 11 8 0 4 4 12 8
+dddump 0
+ddfast 0 6 5 0 5 5 11 9
+dddump 0
+ddblt 0 4 5 12 9 0 4 4 12 8
+dddump 0
+ddfast 0 5 4 0 5 5 11 9
+dddump 0
+ddblt 0 4 3 12 7 0 4 4 12 8
+dddump 0
+ddfast 0 5 6 0 5 5 11 9
+dddump 0
+ddblt 0 6 7 14 11 0 4 4 12 8
+dddump 0
+ddfast 0 3 2 0 5 5 11 9
+dddump 0
+ddblt 0 1 2 9 6 0 4 4 12 8
+dddump 0
+ddfast 0 8 7 0 5 5 11 9
+dddump 0
+ddblt 0 7 3 15 7 0 4 4 12 8
+dddump 0
+ddfast 0 2 6 0 5 5 11 9
+dddump 0
+ddblt 0 2 6 10 10 0 4 4 12 8
+dddump 0
+ddfast 0 7 3 0 5 5 11 9
+dddump 0
+end
+case overlap8seq-24
+dd
+ddsurf 0 24 12 8
+ddfill 0 21
+ddblt 0 5 4 13 8 0 4 4 12 8
+dddump 0
+ddfast 0 4 5 0 5 5 11 9
+dddump 0
+ddblt 0 3 4 11 8 0 4 4 12 8
+dddump 0
+ddfast 0 6 5 0 5 5 11 9
+dddump 0
+ddblt 0 4 5 12 9 0 4 4 12 8
+dddump 0
+ddfast 0 5 4 0 5 5 11 9
+dddump 0
+ddblt 0 4 3 12 7 0 4 4 12 8
+dddump 0
+ddfast 0 5 6 0 5 5 11 9
+dddump 0
+ddblt 0 6 7 14 11 0 4 4 12 8
+dddump 0
+ddfast 0 3 2 0 5 5 11 9
+dddump 0
+ddblt 0 1 2 9 6 0 4 4 12 8
+dddump 0
+ddfast 0 8 7 0 5 5 11 9
+dddump 0
+ddblt 0 7 3 15 7 0 4 4 12 8
+dddump 0
+ddfast 0 2 6 0 5 5 11 9
+dddump 0
+ddblt 0 2 6 10 10 0 4 4 12 8
+dddump 0
+ddfast 0 7 3 0 5 5 11 9
+dddump 0
+end
 case stretchx-8
 dd
 ddsurf 0 20 1 8

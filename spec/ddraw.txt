@@ -38,8 +38,8 @@ DDRAW.DC.BPP measured | IDirectDrawSurface7::GetDC | the DC's BITSPIXEL is the d
 DDRAW.DC.PIXEL measured | SetPixel, GetPixel | on 16, 24 and 32 bpp surfaces the GDI DIB rules (truncation to 5 / 6 bits, widened by bit replication; 32 bpp written with 0 in the top byte); on 8 bpp GetPixel is the palette's entry (dddc golden, every value of each channel)
 DDRAW.DC.FILL measured | FillRect | a solid brush's color written as SetPixel writes it, clipped to the surface; a rectangle turned round fills as its normal form (dddc golden)
 DDRAW.DC.OUTSIDE doc | SetPixel, GetPixel | a point outside the surface: CLR_INVALID
-DDRAW.DC.NOPAL open | IDirectDrawSurface7::GetDC | an 8 bpp surface without a palette: the colors its DC gives the indices
-DDRAW.DC.NEAREST open | SetPixel | a color into an 8 bpp surface: which entry
+DDRAW.DC.NOPAL measured | IDirectDrawSurface7::GetDC | an 8 bpp surface without a palette: its DC gives the indices a fixed system palette (the 20 static VGA colors at 0..10 and 246..256, 236 fixed colors between; the same on 32 and 64 bits and across runs; dd8 table-0, 256/256)
+DDRAW.DC.NEAREST measured | SetPixel, FillRect | a color into an 8 bpp surface: the entry at the least Euclidean RGB distance, ties to the lowest index; FillRect fills solid with that entry, no dither (dd8 nearest-*, nearestrect-*: 2048 + 32 colors, 36 ties, all match; system palette and a set palette)
 DDRAW.PITCH measured | IDirectDrawSurface7::Lock, GetSurfaceDesc (lPitch) | a system-memory surface's rows are padded to 8 bytes on x86, to 4 on x86-64 (ddlock golden: widths 1..33 of every format)
 DDRAW.VID measured | (none) | video memory surfaces of Windows' runner (the basic display driver): no 24 bpp (DDERR_UNSUPPORTED); pitch 20, 36, 72 for 17 pixels of 1, 2, 4 bytes, 32 for 8 of 4 (ddlock, ddflip golden)
 DDRAW.VID.PITCH excluded | (none) | a video memory surface of other widths: its pitch (a property of the display driver; no case asks)

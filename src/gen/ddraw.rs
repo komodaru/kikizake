@@ -438,6 +438,16 @@ pub fn dd8() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // the overlap-8 sequence of ddraw (which differs from copies in places) with a dump after
+    // every blit, at its width 16 and at 24
+    for w in [16, 24] {
+        writeln!(s, "case overlap8seq-{w}\ndd\nddsurf 0 {w} 12 8\nddfill 0 21").unwrap();
+        for (dx, dy) in [(1i64, 0i64), (-1, 0), (0, 1), (0, -1), (2, 3), (-3, -2), (3, -1), (-2, 2)] {
+            let (x, y) = (4 + dx, 4 + dy);
+            writeln!(s, "ddblt 0 {x} {y} {} {} 0 4 4 12 8\ndddump 0\nddfast 0 {} {} 0 5 5 11 9\ndddump 0", x + 8, y + 4, 5 - dx, 5 - dy).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // stretching: each column count to each, each row count to each, then random rectangles,
     // mirrored too, of every format
     for f in ["8", "565", "24", "32"] {
