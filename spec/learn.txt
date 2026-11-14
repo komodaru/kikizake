@@ -586,3 +586,6 @@ ID2D1RenderTarget::PushAxisAlignedClip | https://learn.microsoft.com/en-us/windo
 ID2D1RenderTarget::PopAxisAlignedClip | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-popaxisalignedclip
 ID2D1Brush::SetOpacity | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1brush-setopacity
 D2D1_BRUSH_PROPERTIES | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/ns-d2d1-d2d1_brush_properties
+ID2D1RenderTarget::PushLayer | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-pushlayer(constd2d1_layer_parameters__id2d1layer)
+ID2D1RenderTarget::PopLayer | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-poplayer
+D2D1_LAYER_PARAMETERS | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/ns-d2d1-d2d1_layer_parameters

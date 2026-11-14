@@ -584,4 +584,19 @@ fn target_more(s: &mut String, r: &mut XorShift32) {
     for (i, o) in ["1.5", "-0.5", "2", "0.5", "0.7", "0.25"].iter().enumerate() {
         writeln!(s, "case fillo-x{i}\nd2target 16 2\nd2clear {}\nd2fillo {} 0.25 {} 1.625 {} {o}\nd2read\nend", color(r, true), frac(r, 0, 4), frac(r, 8, 16), color(r, i % 2 == 0)).unwrap();
     }
+    // layers: fractional content bounds, masks with any coverage, nested, under a clip, through
+    // a transform, opacities past 0..1, left pushed, popped on the wrong kind
+    for i in 0..10 {
+        let mask = if i % 2 == 0 { format!("d2path 0 alt m {} {} {} {} {} {} z\n", frac(r, 0, 6), frac(r, 0, 2), frac(r, 10, 16), frac(r, 0, 2), frac(r, 4, 12), frac(r, 2, 4)) } else { "d2rect 0 2.5 0.5 12.5 3.5\n".into() };
+        let o = *r.pick(&["1", "0.5", "0.3", "0.75", "1.5", "-0.5", "0.01"]);
+        writeln!(s, "case layerx-{i}\nd2target 16 4\n{mask}d2clear {}\nd2layer {} {} {} {} {o} 0\nd2fill {} 0 {} 4 {}\nd2poplayer\nd2read\nend", color(r, true), frac(r, 0, 6), frac(r, 0, 2), frac(r, 8, 16), frac(r, 2, 4), frac(r, 0, 4), frac(r, 10, 16), color(r, i % 3 == 0)).unwrap();
+    }
+    writeln!(s, "case layer-nest\nd2target 16 4\nd2clear 10 200 30 255\nd2layer 0 0 12 4 0.5\nd2fill 0 0 16 4 200 10 30 255\nd2layer 4 0 16 4 0.5\nd2fill 0 0 16 4 30 10 200 200\nd2poplayer\nd2poplayer\nd2read\nend").unwrap();
+    writeln!(s, "case layer-clip\nd2target 16 4\nd2clear 10 200 30 255\nd2clip 2.5 0.25 13.375 3.5 per\nd2layer 0 0 12 4 0.75\nd2fill 0 0 16 4 200 10 30 255\nd2poplayer\nd2unclip\nd2read\nend").unwrap();
+    writeln!(s, "case layer-inclip\nd2target 16 4\nd2clear 10 200 30 255\nd2layer 0 0 12 4 0.75\nd2clip 2.5 0.25 13.375 3.5 per\nd2fill 0 0 16 4 200 10 30 255\nd2unclip\nd2poplayer\nd2read\nend").unwrap();
+    writeln!(s, "case layer-xf\nd2target 16 8\nd2path 0 alt m 0 0 6 0 2 3 z\nd2xform 2 0 0 2 0.5 0.25\nd2clear 10 200 30 255\nd2layer 0.5 0 6.25 3 0.5 0\nd2fill 0 0 8 4 200 10 30 255\nd2poplayer\nd2read\nend").unwrap();
+    writeln!(s, "case layer-unbal\nd2target 8 2\nd2clear 10 200 30 255\nd2layer 0 0 4 2 1\nd2fill 0 0 8 2 255 0 0 255\nd2read\nd2fill 0 0 8 2 0 0 255 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-pop0\nd2target 8 2\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-pop1\nd2target 8 2\nd2clip 0 0 4 2 aliased\nd2poplayer\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
+    writeln!(s, "case layer-pop2\nd2target 8 2\nd2layer 0 0 4 2 1\nd2unclip\nd2fill 0 0 8 2 255 0 0 255\nd2read\nend").unwrap();
 }

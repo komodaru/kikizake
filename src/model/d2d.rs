@@ -766,8 +766,8 @@ pub struct Target {
     pub dpi: (f32, f32),
     /// the drawing state block, once made: what its last save held (None: never saved)
     pub block: Option<Option<DrawState>>,
-    /// the axis-aligned clips pushed, innermost last
-    pub clips: Vec<Clip>,
+    /// the clips and layers pushed, innermost last
+    pub stack: Vec<Pushed>,
     /// the error state's error, once in it
     pub fault: Option<u32>,
 }
@@ -818,9 +818,42 @@ pub struct Clip {
     pub aa: Antialias,
 }
 
+/// a pushed layer: the pixels under it (drawing goes into a new transparent surface), its
+/// content bounds in pixels, its opacity byte, its mask's coverage per pixel
+#[derive(Clone, PartialEq, Debug)]
+pub struct Layer {
+    pub below: Vec<[u8; 4]>,
+    pub bounds: [f32; 4],
+    pub opacity: u32,
+    pub mask: Option<Vec<u32>>,
+}
+
+/// what PushAxisAlignedClip and PushLayer push; each pop takes its own kind off the top
+#[derive(Clone, PartialEq, Debug)]
+pub enum Pushed {
+    Clip(Clip),
+    Layer(Layer),
+}
+
+/// the bounds of a rectangle's corners through a transform
+fn corner_bounds(m: &M, r: [f32; 4]) -> [f32; 4] {
+    let cs = [apply(m, r[0], r[1]), apply(m, r[2], r[1]), apply(m, r[2], r[3]), apply(m, r[0], r[3])];
+    let lo = |v: [f32; 4]| v.into_iter().fold(f32::INFINITY, f32::min);
+    let hi = |v: [f32; 4]| v.into_iter().fold(f32::NEG_INFINITY, f32::max);
+    let (xs, ys) = (cs.map(|p| p.0), cs.map(|p| p.1));
+    [lo(xs), lo(ys), hi(xs), hi(ys)]
+}
+
+/// a pixel center inside a rectangle by the fill rule (left and top edges in)
+fn center_in(r: [f32; 4], x: usize, y: usize) -> bool {
+    let [l, t, rr, b] = r.map(f64::from);
+    let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+    l <= cx && cx < rr && t <= cy && cy < b
+}
+
 impl Target {
     pub fn new(w: usize, h: usize) -> Self {
-        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, clips: Vec::new(), fault: None }
+        Target { w, h, px: vec![[0; 4]; w * h], st: FRESH, dpi: (96.0, 96.0), block: None, stack: Vec::new(), fault: None }
     }
 
     /// MEASURED (D2D.CLIP.BLEND): what a drawing call did to the pixels (`before` -> now) kept
@@ -828,7 +861,11 @@ impl Target {
     /// primitive, the coverage n of 8 x 8 samples as k = (n 4 255 + 127) >> 8 and each byte
     /// (before (255 - k) + now k + 127) / 255
     fn keep_clipped(&mut self, before: &[[u8; 4]]) {
-        for c in &self.clips {
+        let clips: Vec<Clip> = self.stack.iter().filter_map(|p| match p {
+            Pushed::Clip(c) => Some(*c),
+            Pushed::Layer(_) => None,
+        }).collect();
+        for c in &clips {
             let [l, t, r, b] = c.r.map(f64::from);
             let inside = |x: f64, y: f64| l <= x && x < r && t <= y && y < b;
             for y in 0..self.h {
@@ -836,7 +873,7 @@ impl Target {
                     let (fx, fy) = (x as f64, y as f64);
                     let k: u32 = match c.aa {
                         Antialias::Aliased => {
-                            if inside(fx + 0.5, fy + 0.5) { 255 } else { 0 }
+                            if center_in(c.r, x, y) { 255 } else { 0 }
                         }
                         Antialias::PerPrimitive => {
                             let mut n = 0u32;
@@ -1127,9 +1164,9 @@ impl D2d {
                 out.push(format!("count 00000000 {} 00000000 {segs}", figs.len()));
             }
             "d2target" | "d2aa" | "d2xform" | "d2clear" | "d2fill" | "d2fillg" | "d2fillo" | "d2brush" | "d2read" => self.draw(op, out)?,
-            "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" => self.state(op, out)?,
-            // (layers, gradients, bitmaps, strokes: asked, not modelled yet)
-            "d2layer" | "d2poplayer" | "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
+            "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" => self.state(op, out)?,
+            // (gradients, bitmaps, strokes: asked, not modelled yet)
+            "d2grad" | "d2bmp" | "d2drawbmp" | "d2bbrush" | "d2line" | "d2drawrect" | "d2drawg" => {
                 return Err(Fail::Unmodeled(open::D2D_RT));
             }
             _ => return Ok(false),
@@ -1200,10 +1237,6 @@ impl D2d {
                 // (MEASURED, D2D.CLIP.XF: through the transform the clip is the bounds of the
                 // rectangle's corners)
                 let m = tg.st.m;
-                let cs = [apply(&m, r[0], r[1]), apply(&m, r[2], r[1]), apply(&m, r[2], r[3]), apply(&m, r[0], r[3])];
-                let lo = |v: [f32; 4]| v.into_iter().fold(f32::INFINITY, f32::min);
-                let hi = |v: [f32; 4]| v.into_iter().fold(f32::NEG_INFINITY, f32::max);
-                let (xs, ys) = (cs.map(|p| p.0), cs.map(|p| p.1));
                 if m != IDENTITY {
                     hit(clause::D2D_CLIP_XF);
                 }
@@ -1211,16 +1244,95 @@ impl D2d {
                     Antialias::Aliased => clause::D2D_CLIP_ALIASED,
                     Antialias::PerPrimitive => clause::D2D_CLIP_BLEND,
                 });
-                tg.clips.push(Clip { r: [lo(xs), lo(ys), hi(xs), hi(ys)], aa });
+                tg.stack.push(Pushed::Clip(Clip { r: corner_bounds(&m, r), aa }));
+            }
+            "d2layer" => {
+                let r = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
+                let o = f(op, 5)?;
+                let mask = if len == 7 { Some(Self::slot(op, 6)?) } else { None };
+                if len != 6 && len != 7 {
+                    return Err(Fail::Bad);
+                }
+                let mask = match mask {
+                    Some(i) => match &self.g[i] {
+                        Some(g) => Some(g.clone()),
+                        None => return Err(Fail::Bad),
+                    },
+                    None => None,
+                };
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                // (MEASURED, D2D.LAYER: the layer's content is drawn on a transparent surface;
+                // at the pop each pixel inside the content bounds is scaled by the opacity byte
+                // floor(o 255 + 0.5), then by the mask's coverage byte (D2D.FILL.AACOVER), and
+                // put over what was under it)
+                hit(clause::D2D_LAYER);
+                let mask = match mask {
+                    Some(g) => {
+                        hit(clause::D2D_LAYER_MASK);
+                        let Some((wind, figs, m0)) = g.lines() else {
+                            return Err(Fail::Unmodeled(open::D2D_FILL_AA));
+                        };
+                        let m = mul(&m0, &tg.st.m);
+                        if m[1] != 0.0 || m[2] != 0.0 {
+                            return Err(Fail::Unmodeled(open::D2D_FILL_AA));
+                        }
+                        Some(coverage(tg, &polys(&figs, &m), wind).into_iter().map(|n| (n * 4 * 255 + 0x80) >> 8).collect())
+                    }
+                    None => None,
+                };
+                let opacity = (o * 255.0 + 0.5).floor().clamp(0.0, 255.0) as u32;
+                let below = std::mem::replace(&mut tg.px, vec![[0; 4]; tg.w * tg.h]);
+                let bounds = corner_bounds(&tg.st.m, r);
+                tg.stack.push(Pushed::Layer(Layer { below, bounds, opacity, mask }));
+            }
+            "d2poplayer" => {
+                want(1)?;
+                let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                let Some(Pushed::Layer(l)) = tg.stack.last() else {
+                    hit(clause::D2D_RT_FAULT);
+                    tg.fault = Some(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH);
+                    return Ok(());
+                };
+                let l = l.clone();
+                tg.stack.pop();
+                let scale = |p: [u8; 4], k: u32| p.map(|b| ((u32::from(b) * k + 127) / 255) as u8);
+                let mut px = l.below.clone();
+                for y in 0..tg.h {
+                    for x in 0..tg.w {
+                        let i = y * tg.w + x;
+                        if !center_in(l.bounds, x, y) {
+                            continue;
+                        }
+                        let s = scale(tg.px[i], l.opacity);
+                        let s = match &l.mask {
+                            Some(k) => scale(s, k[i]),
+                            None => s,
+                        };
+                        px[i] = over(s, l.below[i]);
+                    }
+                }
+                tg.px = px;
+                tg.keep_clipped(&l.below);
             }
             _ => {
                 want(1)?;
                 let Some(tg) = &mut self.t else { out.push("nort".into()); return Ok(()) };
-                // (DOC, D2D.RT.FAULT: a pop without its push puts the target in an error state:
+                // (MEASURED, D2D.RT.FAULT: a pop without its push puts the target in an error state:
                 // drawing does nothing and EndDraw gives the error)
-                if tg.clips.pop().is_none() {
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                if let Some(Pushed::Clip(_)) = tg.stack.last() {
+                    tg.stack.pop();
+                } else {
                     hit(clause::D2D_RT_FAULT);
-                    tg.fault.get_or_insert(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH);
+                    tg.fault = Some(D2DERR_POP_CALL_DID_NOT_MATCH_PUSH);
                 }
             }
         }
@@ -1475,9 +1587,14 @@ impl D2d {
                     // (DOC, D2D.RT.FAULT; MEASURED, D2D.CLIP.UNBALANCED: EndDraw with clips
                     // still pushed fails, and they are gone)
                     let mut hr = tg.fault.take().unwrap_or(0);
-                    if !tg.clips.is_empty() {
+                    if !tg.stack.is_empty() {
                         hit(clause::D2D_CLIP_UNBALANCED);
-                        tg.clips.clear();
+                        // (a layer still pushed: its content as drawn so far is lost? measured
+                        // by layer-unbal)
+                        if let Some(Pushed::Layer(l)) = tg.stack.iter().find(|p| matches!(p, Pushed::Layer(_))) {
+                            tg.px = l.below.clone();
+                        }
+                        tg.stack.clear();
                         if hr == 0 {
                             hr = D2DERR_PUSH_POP_UNBALANCED;
                         }

@@ -12276,3 +12276,163 @@ d2clear 168 61 170 255
 d2fillo 3.7765 0.25 15.792921875 1.625 144 5 83 128 0.25
 d2read
 end
+case layerx-0
+d2target 16 4
+d2path 0 alt m 2.752671875 1.9555 14.524828125 1.2760625 11.89175 3.3345625 z
+d2clear 41 91 62 255
+d2layer 1.255859375 0.250984375 13.6136875 2.236046875 0.5 0
+d2fill 2.291796875 0 11.542234375 4 143 181 60 255
+d2poplayer
+d2read
+end
+case layerx-1
+d2target 16 4
+d2rect 0 2.5 0.5 12.5 3.5
+d2clear 143 32 139 255
+d2layer 3.767328125 0.412125 12.4735625 3.98253125 0.3 0
+d2fill 2.2241875 0 13.795765625 4 167 94 227 128
+d2poplayer
+d2read
+end
+case layerx-2
+d2target 16 4
+d2path 0 alt m 0.770765625 1.748265625 10.226828125 0.483078125 8.53196875 2.269609375 z
+d2clear 201 162 136 255
+d2layer 1.99378125 0.133140625 10.602203125 3.63184375 0.01 0
+d2fill 3.51965625 0 11.7420625 4 215 11 154 128
+d2poplayer
+d2read
+end
+case layerx-3
+d2target 16 4
+d2rect 0 2.5 0.5 12.5 3.5
+d2clear 10 26 66 255
+d2layer 5.0473125 0.475703125 13.725609375 3.244953125 0.5 0
+d2fill 3.265140625 0 15.604984375 4 7 246 202 255
+d2poplayer
+d2read
+end
+case layerx-4
+d2target 16 4
+d2path 0 alt m 2.8661875 1.43525 10.175796875 1.130703125 8.493953125 2.4365 z
+d2clear 240 205 190 255
+d2layer 3.091171875 0.28121875 15.034171875 2.126125 1 0
+d2fill 3.528078125 0 13.74990625 4 238 85 141 0
+d2poplayer
+d2read
+end
+case layerx-5
+d2target 16 4
+d2rect 0 2.5 0.5 12.5 3.5
+d2clear 87 217 37 255
+d2layer 4.9184375 0.9114375 15.4740625 2.023375 0.3 0
+d2fill 2.678859375 0 14.6908125 4 16 64 65 128
+d2poplayer
+d2read
+end
+case layerx-6
+d2target 16 4
+d2path 0 alt m 0.5015625 0.375109375 11.387703125 0.6221875 8.1421875 2.146171875 z
+d2clear 176 96 52 255
+d2layer 5.058015625 0.728375 11.47259375 3.31775 1.5 0
+d2fill 0.57678125 0 14.955546875 4 168 24 30 255
+d2poplayer
+d2read
+end
+case layerx-7
+d2target 16 4
+d2rect 0 2.5 0.5 12.5 3.5
+d2clear 206 112 246 255
+d2layer 5.64928125 1.167078125 8.411953125 2.24015625 0.5 0
+d2fill 3.512859375 0 11.081875 4 211 104 44 127
+d2poplayer
+d2read
+end
+case layerx-8
+d2target 16 4
+d2path 0 alt m 2.63615625 1.59384375 10.48840625 1.205421875 6.06740625 2.918265625 z
+d2clear 172 104 192 255
+d2layer 5.7865625 1.992140625 8.59615625 3.5185625 0.3 0
+d2fill 2.435765625 0 15.92634375 4 4 84 39 200
+d2poplayer
+d2read
+end
+case layerx-9
+d2target 16 4
+d2rect 0 2.5 0.5 12.5 3.5
+d2clear 47 34 166 255
+d2layer 1.479234375 0.067640625 14.0028125 3.328453125 0.01 0
+d2fill 2.008203125 0 11.440171875 4 169 251 63 255
+d2poplayer
+d2read
+end
+case layer-nest
+d2target 16 4
+d2clear 10 200 30 255
+d2layer 0 0 12 4 0.5
+d2fill 0 0 16 4 200 10 30 255
+d2layer 4 0 16 4 0.5
+d2fill 0 0 16 4 30 10 200 200
+d2poplayer
+d2poplayer
+d2read
+end
+case layer-clip
+d2target 16 4
+d2clear 10 200 30 255
+d2clip 2.5 0.25 13.375 3.5 per
+d2layer 0 0 12 4 0.75
+d2fill 0 0 16 4 200 10 30 255
+d2poplayer
+d2unclip
+d2read
+end
+case layer-inclip
+d2target 16 4
+d2clear 10 200 30 255
+d2layer 0 0 12 4 0.75
+d2clip 2.5 0.25 13.375 3.5 per
+d2fill 0 0 16 4 200 10 30 255
+d2unclip
+d2poplayer
+d2read
+end
+case layer-xf
+d2target 16 8
+d2path 0 alt m 0 0 6 0 2 3 z
+d2xform 2 0 0 2 0.5 0.25
+d2clear 10 200 30 255
+d2layer 0.5 0 6.25 3 0.5 0
+d2fill 0 0 8 4 200 10 30 255
+d2poplayer
+d2read
+end
+case layer-unbal
+d2target 8 2
+d2clear 10 200 30 255
+d2layer 0 0 4 2 1
+d2fill 0 0 8 2 255 0 0 255
+d2read
+d2fill 0 0 8 2 0 0 255 255
+d2read
+end
+case layer-pop0
+d2target 8 2
+d2poplayer
+d2fill 0 0 8 2 255 0 0 255
+d2read
+end
+case layer-pop1
+d2target 8 2
+d2clip 0 0 4 2 aliased
+d2poplayer
+d2fill 0 0 8 2 255 0 0 255
+d2read
+end
+case layer-pop2
+d2target 8 2
+d2layer 0 0 4 2 1
+d2unclip
+d2fill 0 0 8 2 255 0 0 255
+d2read
+end
