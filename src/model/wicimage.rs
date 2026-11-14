@@ -602,7 +602,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
     let src_stride = (w as usize * bpp as usize).div_ceil(32) * 4;
     let data = &b[(off as usize).min(b.len())..];
     if comp == 1 || comp == 2 {
-        let Some(px) = rle(data, w, h, comp == 2, &pal) else { return Err(Fail::Unmodeled("WICIMAGE.BMP.RLE")) };
+        let Some(px) = rle(data, w, h, comp == 2, &pal) else { return Err(Fail::Unmodeled("WICIMAGE.BMP.RLE.BROKEN")) };
         hit("WICIMAGE.BMP.RLE");
         let mut i = Img::new(w, h, "bgr32");
         i.dpi = dpi;
@@ -1322,7 +1322,7 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
     if d.starts_with(b"\x89PNG\r\n\x1a\n") {
         let p = png(d)?;
         hit("WICIMAGE.ICO.PNG");
-        let from = crate::model::wic::format(p.fmt).ok_or(Fail::Unmodeled("WICIMAGE.ICO.PNG"))?;
+        let from = crate::model::wic::format(p.fmt).ok_or(Fail::Unmodeled("WICIMAGE.ICO.PNG.FORMAT"))?;
         let px = crate::model::wic::convert(from, bgra, p.w, p.h, &p.px)?;
         return Ok(Img { px, fmt: "bgra", pal: None, dpi: (96.0, 96.0), ..p });
     }
@@ -1364,7 +1364,7 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
                     let p = &row[4 * x as usize..4 * x as usize + 4];
                     [p[0], p[1], p[2], p[3]]
                 }
-                _ => return Err(Fail::Unmodeled("WICIMAGE.ICO.DEPTH")),
+                _ => return Err(Fail::Unmodeled("WICIMAGE.ICO.DEPTH.OTHER")),
             };
             // (ASSUMED: alpha from the colors when any is set, else from the mask: 1 transparent)
             if !any_alpha && m != 0 {
@@ -1441,7 +1441,7 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
         Some(b"DXT1") => 1u8,
         Some(b"DXT3") => 2,
         Some(b"DXT5") => 3,
-        _ => return Err(Fail::Unmodeled("WICIMAGE.DDS.OTHER")),
+        _ => return Err(Fail::Unmodeled("WICIMAGE.DDS.FOURCC")),
     };
     // (the model does not hold pictures past 2^24 pixels, nor mips past 32)
     if w as u64 * h as u64 > 1 << 24 || mips > 32 {

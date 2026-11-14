@@ -91,3 +91,10 @@ WICIMAGE.ENCODE.LOSSLESS measured | Native Pixel Formats Overview | PNG and TIFF
 WICIMAGE.ENCODE.GIF open | (none) | GIF: the palette written
 WICIMAGE.ENCODE.LOSSY open | (none) | JPEG, JPEG XR, DDS: what decodes from them
 WICIMAGE.ENCODE.OPTIONS open | (none) | encoder options
+WICIMAGE.DECODE.BROKEN excluded | (none) | files broken in ways the generators never write (a directory or header cut short, offsets past the end, a missing colormap or frame, pictures past 2^24 pixels): not in the suite
+WICIMAGE.BMP.RLE.BROKEN excluded | BMP Format Overview (RLE) | RLE data that runs past the picture or the file: not in the suite
+WICIMAGE.DDS.FOURCC excluded | DDS Format Overview | compressed FourCCs other than DXT1/3/5 (BC4, BC5, DX10 headers): not in the suite
+WICIMAGE.ICO.DEPTH.OTHER excluded | ICO Format Overview | BMP entries of depths other than 1, 4, 8, 16, 24, 32: not in the suite
+WICIMAGE.ICO.PNG.FORMAT excluded | ICO Format Overview | PNG entries of a format model::wic converts nothing from: not in the suite
+WICIMAGE.PNG.TRNS.GRAY excluded | PNG Format Overview (tRNS) | tRNS on 8 and 16-bit gray: not in the suite
+WICIMAGE.TIFF.OTHER excluded | TIFF Format Overview | photometric/bits/samples layouts beyond the suite's table: not in the suite
