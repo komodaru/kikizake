@@ -415,3 +415,44 @@ pub fn d3d7edge() -> String {
     }
     s
 }
+
+/// each drawing device's Clear and flat colors (every value of each channel), z near and past
+/// the ends of 0..1, and wireframe and point triangles (where lines and points fall)
+pub fn d3d7dev() -> String {
+    let mut s = String::from("# kikizake suite d3d7dev: Direct3D 2, 3 and 7 colors, z range, points and wireframe on every device (SPEC.md). Made by `kikizake gen d3d7dev`.\n# x86 only\n");
+    let mut r = XorShift32::new(0x00d3_d7de);
+    let cover = "-16 -16 600 -16 -16 600";
+    for &(v, d) in DRAWERS {
+        let dv = format!("d3d {v}\nd3ddev {d}");
+        for f in ["565", "555", "24", "32"] {
+            // Clear and a flat triangle of each value of each channel (alpha 0x80)
+            writeln!(s, "case color-{v}-{d}-{f}\n{dv} {f} 2 1\nd3drs set 22 1").unwrap();
+            for sh in [16, 8, 0] {
+                for val in 0..256u32 {
+                    writeln!(s, "d3dclear {:#x}\nd3ddump\nd3dtri {:#x} {cover}\nd3ddump", 0x8000_0000 | val << sh, 0x8000_0000 | (val ^ 0x5a) << sh).unwrap();
+                }
+            }
+            writeln!(s, "end").unwrap();
+        }
+        // z near and past 0 and 1: which triangles are drawn and the z they write
+        for z in ["z16", "z32"] {
+            writeln!(s, "case zrange-{v}-{d}-{z}\n{dv} 32 2 1 {z}\nd3drs set 22 1\nd3drs set 7 1\nd3drs set 23 8").unwrap();
+            for m in [-1000, -10, -1, 0, 1, 500, 990, 998, 999, 1000, 1001, 1010, 2000] {
+                writeln!(s, "d3dclear 0xff000000 z 500\nd3dtri 0xff00ff00 {cover} z {m}\nd3ddump\nd3dzdump").unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+        // points and wireframe of random triangles inside the target, with LASTPIXEL on and off
+        for mode in [1, 2] {
+            for lp in [1, 0] {
+                writeln!(s, "case fillmode-{v}-{d}-{mode}-{lp}\n{dv} 565 12 12\nd3drs set 22 1\nd3drs set 8 {mode}\nd3drs set 16 {lp}").unwrap();
+                for _ in 0..if d == "rgb" && v == 7 { 96 } else { 24 } {
+                    let p: Vec<i64> = (0..6).map(|_| r.range(0, 191)).collect();
+                    writeln!(s, "d3dclear 0\nd3dtri 0xffffffff {} {} {} {} {} {}\nd3ddump", p[0], p[1], p[2], p[3], p[4], p[5]).unwrap();
+                }
+                writeln!(s, "end").unwrap();
+            }
+        }
+    }
+    s
+}
