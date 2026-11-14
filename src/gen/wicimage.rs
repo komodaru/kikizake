@@ -1002,11 +1002,14 @@ pub fn wicdecode() -> String {
         decode_case(&mut s, &format!("bmprlebad4-{k}"), &bmp(40, 8, 3, 4, 2, [0; 4], 16, &pal, &rle, false, (0, 0)), 1, false);
     }
     // PNG tRNS on 8 and 16-bit gray: the key level, another, a short chunk
-    for (d, key) in [(8u8, vec![0u8, 0x40]), (16, vec![0x12, 0x34]), (8, vec![0x40])] {
-        let n = if d == 8 { 1 } else { 2 };
-        let mut raw: Vec<Vec<u8>> = (0..3).map(|_| bytes(&mut r, 4 * n)).collect();
-        raw[1][..n].copy_from_slice(&if d == 8 { vec![0x40] } else { vec![0x12, 0x34] });
-        decode_case(&mut s, &format!("png-trns-gray{d}-{}", key.len()), &png(4, 3, d, 0, false, &[(b"tRNS", key)], &png_filter(&raw, n, &[0]), 100), 1, false);
+    for (d, key) in [(8u8, vec![0u8, 0x40]), (16, vec![0x12, 0x34]), (8, vec![0x40]), (4, vec![0, 5]), (2, vec![0, 1]), (1, vec![0, 1])] {
+        let n = if d == 16 { 2 } else { 1 };
+        let mut raw: Vec<Vec<u8>> = (0..3).map(|_| bytes(&mut r, (4 * d as usize).div_ceil(8))).collect();
+        if d >= 8 {
+            raw[1][..n].copy_from_slice(&if d == 8 { vec![0x40] } else { vec![0x12, 0x34] });
+        }
+        // (the palette too: a gray picture with a key comes out indexed)
+        decode_case(&mut s, &format!("png-trns-gray{d}-{}", key.len()), &png(4, 3, d, 0, false, &[(b"tRNS", key)], &png_filter(&raw, n, &[0]), 100), 1, d < 16);
     }
     // TIFF layouts beyond the usual: 2-bit gray and palette, 16-bit gray+alpha, 16-bit RGB with
     // no alpha flag, 8-bit RGB+alpha unspecified premultiplied, YCbCr, a mask, 32-bit RGB, 4 extra
