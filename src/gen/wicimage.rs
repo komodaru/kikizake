@@ -869,6 +869,27 @@ pub fn wicdecode() -> String {
         let p = png(3, 3, 8, 6, false, &[], &png_filter(&raw, 4, &[0, 1, 4]), 100);
         decode_case(&mut s, "ico-three", &ico(&[(4, 4, 32, e1), (2, 3, 8, e2), (3, 3, 32, p)]), 3, false);
     }
+    // the order of an icon's frames: sizes and depths in several orders
+    {
+        let a = icon_bmp(&mut r, 2, 2, 32);
+        let b = icon_bmp(&mut r, 4, 4, 32);
+        let c = icon_bmp(&mut r, 3, 3, 32);
+        decode_case(&mut s, "ico-order-size", &ico(&[(2, 2, 32, a), (4, 4, 32, b), (3, 3, 32, c)]), 3, false);
+        let a = icon_bmp(&mut r, 3, 3, 8);
+        let b = icon_bmp(&mut r, 3, 3, 32);
+        let c = icon_bmp(&mut r, 3, 3, 4);
+        decode_case(&mut s, "ico-order-depth", &ico(&[(3, 3, 8, a), (3, 3, 32, b), (3, 3, 4, c)]), 3, false);
+        let a = icon_bmp(&mut r, 5, 5, 24);
+        let raw: Vec<Vec<u8>> = (0..2).map(|_| bytes(&mut r, 2 * 4)).collect();
+        let p = png(2, 2, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 100);
+        let c = icon_bmp(&mut r, 3, 3, 32);
+        let d = icon_bmp(&mut r, 6, 2, 1);
+        decode_case(&mut s, "ico-order-mixed", &ico(&[(5, 5, 24, a), (2, 2, 32, p), (3, 3, 32, c), (6, 2, 1, d)]), 4, false);
+        // (a directory that says 0 bits)
+        let a = icon_bmp(&mut r, 3, 3, 8);
+        let b = icon_bmp(&mut r, 2, 2, 4);
+        decode_case(&mut s, "ico-order-zero", &ico(&[(3, 3, 0, a), (2, 2, 0, b)]), 2, false);
+    }
     // DDS: DXT1/3/5 blocks with and without mips, an uncompressed A8R8G8B8 file
     for (k, (fc, bs)) in [(b"DXT1", 8usize), (b"DXT3", 16), (b"DXT5", 16)].into_iter().enumerate() {
         for (w, h, mips) in [(4u32, 4u32, 1u32), (8, 4, 1), (5, 3, 1), (8, 8, 4)] {

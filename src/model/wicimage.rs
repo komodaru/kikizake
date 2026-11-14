@@ -17,6 +17,7 @@ pub const E_INVALIDARG: u32 = 0x8007_0057;
 pub const E_NOTIMPL: u32 = 0x8000_4001;
 pub const PALETTE_UNAVAILABLE: u32 = 0x8898_2f45;
 pub const INSUFFICIENT_BUFFER: u32 = 0x8898_2f8c;
+pub const ARITHMETIC_OVERFLOW: u32 = 0x8007_0216;
 pub const COMPONENT_NOT_FOUND: u32 = 0x8898_2f50;
 
 /// every pixel format the executor names: (name, bits a pixel); the first 23 are model::wic's
@@ -100,6 +101,8 @@ pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Img {
     let f = crate::model::wic::format(fmt).unwrap();
     let mut i = Img::new(w, h, fmt);
     i.px = crate::model::wic::source(f, w, h, seed);
+    // (MEASURED: a bitmap from memory has no resolution: 0 dpi)
+    i.dpi = (0.0, 0.0);
     if crate::model::wic::indexed(f) {
         i.pal = Some(crate::model::wic::palette());
     }
@@ -107,16 +110,49 @@ pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Img {
     i
 }
 
-/// MEASURED/ASSUMED: nearest neighbor: destination pixel d takes source pixel
-/// floor((d + 0.5) * src / dst)
+/// MEASURED (golden wicscale: every width 1..=8 to every width 1..=17, both directions):
+/// nearest neighbor: output pixel d takes source pixel ceil((d + 1) * src / dst) - 1, the one
+/// under the output pixel's right (bottom) edge, not its center
 pub fn nearest(d: u32, src: u32, dst: u32) -> u32 {
-    (((2 * d as u64 + 1) * src as u64) / (2 * dst as u64)) as u32
+    (((d as u64 + 1) * src as u64 - 1) / dst as u64) as u32
+}
+
+/// MEASURED (golden wicscale fmt-*: 15 formats, every mode): the format a scaler works in and
+/// the one it answers with. NearestNeighbor, Linear and Cubic (and Fant but for 16-bit gray and
+/// RGBA): gray of 8 bits or less in 8bppGray, 24bppBGR as it is, 32bppBGRA (and 32bppRGBA,
+/// 8bppAlpha) premultiplied and answered as 32bppBGRA, every other format as 32bppPBGRA
+pub fn scale_formats(f: &str, mode: &str) -> (&'static str, &'static str) {
+    match (f, mode) {
+        ("gray16", "fant") => ("grayfloat", "grayfloat"),
+        ("rgba64", "fant") => ("prgbafloat", "prgbafloat"),
+        ("gray16" | "rgb48" | "rgba64" | "rgba" | "alpha8", "hqcubic") => (fmt_static(f), fmt_static(f)),
+        ("bw" | "gray2" | "gray4" | "gray8", _) => ("gray8", "gray8"),
+        ("bgr24", _) => ("bgr24", "bgr24"),
+        ("bgra" | "rgba" | "alpha8", _) => ("pbgra", "bgra"),
+        _ => ("pbgra", "pbgra"),
+    }
+}
+
+fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
+    if s.fmt == to {
+        return Ok(s.clone());
+    }
+    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled("WICIMAGE.CONVERT.OTHER")) };
+    if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {
+        return Err(Fail::Unmodeled("WICIMAGE.CONVERT.OTHER"));
+    }
+    let px = crate::model::wic::convert(fi, ti, s.w, s.h, &s.px)?;
+    let pal = if crate::model::wic::indexed(ti) { Some(crate::model::wic::palette()) } else { None };
+    Ok(Img { px, fmt: to, pal, ..s.clone() })
 }
 
 pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
+    let (work, out) = scale_formats(s.fmt, mode);
     if mode != "nn" {
         return Err(Fail::Unmodeled("WICIMAGE.SCALE.FILTER"));
     }
+    hit("WICIMAGE.SCALE.FORMAT");
+    let s = wic_convert(s, work)?;
     hit("WICIMAGE.SCALE.NEAREST");
     let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
     for y in 0..h {
@@ -124,11 +160,19 @@ pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
             o.put(x, y, &s.get(nearest(x, s.w, w), nearest(y, s.h, h)));
         }
     }
-    Ok(o)
+    wic_convert(&o, out)
 }
 
-/// WICBitmapTransformOptions: rotation clockwise (low two bits), then the flips
+/// WICBitmapTransformOptions: the flips of the source, then the rotation clockwise (low two
+/// bits) (MEASURED: golden wictransform, every combination)
 pub fn flip(s: &Img, opt: u32) -> Img {
+    if opt & 3 != 0 && opt & 24 != 0 {
+        return rotate_flip(&rotate_flip(s, opt & 24), opt & 3);
+    }
+    rotate_flip(s, opt)
+}
+
+fn rotate_flip(s: &Img, opt: u32) -> Img {
     let rot = opt & 3;
     let (w, h) = if rot & 1 != 0 { (s.h, s.w) } else { (s.w, s.h) };
     let mut o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], dpi: if rot & 1 != 0 { (s.dpi.1, s.dpi.0) } else { s.dpi }, ..s.clone() };
@@ -172,6 +216,10 @@ pub fn clip(s: &Img, x: u32, y: u32, w: u32, h: u32) -> Img {
 /// CopyPixels of a rectangle into rows of `stride` bytes in a buffer of `size`: the hr and the rows
 pub fn copy(s: &Img, rect: Option<(i64, i64, i64, i64)>, bufs: Option<(i64, i64)>) -> (u32, Vec<Vec<u8>>) {
     let (x, y, w, h) = rect.unwrap_or((0, 0, s.w as i64, s.h as i64));
+    if x < 0 || y < 0 {
+        hit("WICIMAGE.COPY.NEGATIVE");
+        return (ARITHMETIC_OVERFLOW, vec![]);
+    }
     if !inside(s, x, y, w, h) {
         hit("WICIMAGE.COPY.RECT");
         return (E_INVALIDARG, vec![]);
@@ -195,6 +243,43 @@ pub fn copy(s: &Img, rect: Option<(i64, i64, i64, i64)>, bufs: Option<(i64, i64)
 /* ---------------------------------------------------------------------------------------- */
 /* palettes */
 
+/// the 16 system colors that are not the 8 on-off primaries, in the order the halftone
+/// palettes append them
+const SYSTEM8: [u32; 8] = [0xc0c0c0, 0x808080, 0x800000, 0x008000, 0x000080, 0x808000, 0x800080, 0x008080];
+
+/// MEASURED (golden wicpalette, every entry of every type): a halftone palette is the cube of
+/// `levels` evenly spaced values of each primary (blue fastest, then green, then red), then the
+/// system colors not in it (none for 252 and 256)
+pub fn halftone(t: u32) -> Vec<u32> {
+    let (r, g, b) = match t {
+        3 => (2, 2, 2),
+        4 => (3, 3, 3),
+        5 => (4, 4, 4),
+        6 => (5, 5, 5),
+        7 => (6, 6, 6),
+        8 => (6, 7, 6),
+        _ => (8, 8, 4),
+    };
+    // (levels rounded to the nearest: 0x2b, 0x40, 0xbf, 0xd5, 0x24, 0x49 ...)
+    let lv = |i: u32, n: u32| (i * 255 * 2 + (n - 1)) / (2 * (n - 1));
+    let mut c = Vec::new();
+    for ri in 0..r {
+        for gi in 0..g {
+            for bi in 0..b {
+                c.push(0xff00_0000 | lv(ri, r) << 16 | lv(gi, g) << 8 | lv(bi, b));
+            }
+        }
+    }
+    if t < 8 {
+        for e in SYSTEM8 {
+            if !c.contains(&(0xff00_0000 | e)) {
+                c.push(0xff00_0000 | e);
+            }
+        }
+    }
+    c
+}
+
 /// InitializePredefined: (hr, type, colors)
 pub fn predefined(t: u32, transparent: bool) -> Res<(u32, u32, Vec<u32>)> {
     let gray = |n: u32| -> Vec<u32> { (0..n).map(|i| 0xff00_0000 | (i * 255 / (n - 1)) * 0x10101).collect() };
@@ -203,7 +288,10 @@ pub fn predefined(t: u32, transparent: bool) -> Res<(u32, u32, Vec<u32>)> {
             hit("WICIMAGE.PALETTE.BW");
             vec![0xff00_0000, 0xffff_ffff]
         }
-        3..=9 => return Err(Fail::Unmodeled("WICIMAGE.PALETTE.HALFTONE")),
+        3..=9 => {
+            hit("WICIMAGE.PALETTE.HALFTONE");
+            halftone(t)
+        }
         10 => gray(4),
         11 => gray(16),
         12 => gray(256),
@@ -216,13 +304,18 @@ pub fn predefined(t: u32, transparent: bool) -> Res<(u32, u32, Vec<u32>)> {
         hit("WICIMAGE.PALETTE.GRAY");
     }
     if transparent {
+        // MEASURED: the black and white and gray palettes ignore it (the documentation says
+        // to pass FALSE for them); the type stays what it was (not Custom as documented)
+        if t == 2 || t >= 10 {
+            hit("WICIMAGE.PALETTE.TRANSPARENT.GRAY");
+            return Ok((0, t, c));
+        }
         hit("WICIMAGE.PALETTE.TRANSPARENT");
         if c.len() == 256 {
             c[255] = 0;
         } else {
             c.push(0);
         }
-        return Ok((0, 0, c));
     }
     Ok((0, t, c))
 }
@@ -824,7 +917,8 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
         let Some(m) = t.get(&320) else { return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN")) };
         let n = 1usize << bits;
         hit("WICIMAGE.TIFF.PALETTE");
-        img.pal = Some((0..n).map(|i| 0xff00_0000 | (m[i] >> 8) << 16 | (m[n + i] >> 8) << 8 | m[2 * n + i] >> 8).collect());
+        let c = |v: u32| v * 255 / 65535;
+        img.pal = Some((0..n).map(|i| 0xff00_0000 | c(m[i]) << 16 | c(m[n + i]) << 8 | c(m[2 * n + i])).collect());
     }
     Ok(img)
 }
@@ -834,12 +928,23 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
 fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
     let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
     let Some(n) = rd16(b, 4) else { return broken };
-    let mut frames = Vec::new();
+    let mut entries = Vec::new();
     for k in 0..n as usize {
         let (Some(size), Some(off)) = (rd32(b, 6 + 16 * k + 8), rd32(b, 6 + 16 * k + 12)) else { return broken };
         let Some(d) = b.get(off as usize..(off + size) as usize) else { return broken };
-        frames.push(ico_entry(d));
+        // (the entry's own depth and size: a PNG's IHDR, a BMP's header)
+        let (w, h, bpp) = if d.starts_with(b"\x89PNG") {
+            let be = |o: usize| d.get(o..o + 4).map_or(0, |x| u32::from_be_bytes(x.try_into().unwrap()));
+            (be(16), be(20), d.get(24).map_or(0, |&x| x as u32) * d.get(25).map_or(1, |&c| crate::gen::wicimage_png_channels(c)))
+        } else {
+            (rd32(d, 4).unwrap_or(0), rd32(d, 8).unwrap_or(0) / 2, rd16(d, 14).unwrap_or(0))
+        };
+        entries.push((bpp, w * h, ico_entry(d)));
     }
+    // ASSUMED (golden wicdecode ico-three, one file): the frames deepest first, then smallest
+    entries.sort_by_key(|e| (std::cmp::Reverse(e.0), e.1));
+    hit("WICIMAGE.ICO.ORDER");
+    let frames = entries.into_iter().map(|e| e.2).collect();
     hit("WICIMAGE.ICO");
     Ok(Ok(Decoded { container: "ico", frames }))
 }
@@ -897,36 +1002,40 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
     Ok(img)
 }
 
-fn rgb565(v: u32) -> [u32; 3] {
-    let x5 = |v: u32| (v << 3) | (v >> 2);
-    let x6 = |v: u32| (v << 2) | (v >> 4);
-    [x5(v & 31), x6(v >> 5 & 63), x5(v >> 11 & 31)]
+/// a 565 color's channels (blue, green, red) and their maximums
+fn rgb565(v: u32) -> ([u32; 3], [u32; 3]) {
+    ([v & 31, v >> 5 & 63, v >> 11 & 31], [31, 63, 31])
 }
 
 /// one 4x4 block of BC1 (DXT1), BC2 (DXT3) or BC3 (DXT5): 16 straight BGRA pixels, row by row
-/// ("Texture Block Compression in Direct3D 11"; ASSUMED: thirds and halves truncated)
+/// ("Texture Block Compression in Direct3D 11"). MEASURED (golden wicdecode dds-*: 522 samples
+/// of the interpolated colors): the thirds and halves are taken of the 5 and 6-bit values, then
+/// scaled to 8 bits and rounded, round((p * c0 + q * c1) / d * 255 / max)
 pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
     let (alpha, color) = if kind == 1 { (&blk[..0], blk) } else { (&blk[..8], &blk[8..]) };
     let c0 = rd16(color, 0).unwrap();
     let c1 = rd16(color, 2).unwrap();
-    let (a, b) = (rgb565(c0), rgb565(c1));
-    let mix = |p: u32, q: u32, d: u32| -> [u32; 3] { [0, 1, 2].map(|i| (p * a[i] + q * b[i]) / d) };
+    let ((a, m), (b, _)) = (rgb565(c0), rgb565(c1));
+    let mix = |p: u32, q: u32, d: u32| -> [u32; 3] { [0, 1, 2].map(|i| (2 * (p * a[i] + q * b[i]) * 255 + d * m[i]) / (2 * d * m[i])) };
     let four = kind != 1 || c0 > c1;
+    let (e0, e1) = (mix(1, 0, 1), mix(0, 1, 1));
     let pal: [[u32; 4]; 4] = if four {
-        let (m, n) = (mix(2, 1, 3), mix(1, 2, 3));
-        [[a[0], a[1], a[2], 255], [b[0], b[1], b[2], 255], [m[0], m[1], m[2], 255], [n[0], n[1], n[2], 255]]
+        let (x, y) = (mix(2, 1, 3), mix(1, 2, 3));
+        [[e0[0], e0[1], e0[2], 255], [e1[0], e1[1], e1[2], 255], [x[0], x[1], x[2], 255], [y[0], y[1], y[2], 255]]
     } else {
-        let m = mix(1, 1, 2);
-        [[a[0], a[1], a[2], 255], [b[0], b[1], b[2], 255], [m[0], m[1], m[2], 255], [0, 0, 0, 0]]
+        let x = mix(1, 1, 2);
+        [[e0[0], e0[1], e0[2], 255], [e1[0], e1[1], e1[2], 255], [x[0], x[1], x[2], 255], [0, 0, 0, 0]]
     };
     let idx = rd32(color, 4).unwrap();
     let mut out = [[0u8; 4]; 16];
+    // (MEASURED: BC3's alphas rounded, (p * a0 + q * a1 + d / 2) / d)
     let alphas: [u32; 8] = if kind == 3 {
         let (a0, a1) = (alpha[0] as u32, alpha[1] as u32);
+        let m = |p: u32, q: u32, d: u32| (p * a0 + q * a1 + d / 2) / d;
         if a0 > a1 {
-            [a0, a1, (6 * a0 + a1) / 7, (5 * a0 + 2 * a1) / 7, (4 * a0 + 3 * a1) / 7, (3 * a0 + 4 * a1) / 7, (2 * a0 + 5 * a1) / 7, (a0 + 6 * a1) / 7]
+            [a0, a1, m(6, 1, 7), m(5, 2, 7), m(4, 3, 7), m(3, 4, 7), m(2, 5, 7), m(1, 6, 7)]
         } else {
-            [a0, a1, (4 * a0 + a1) / 5, (3 * a0 + 2 * a1) / 5, (2 * a0 + 3 * a1) / 5, (a0 + 4 * a1) / 5, 0, 255]
+            [a0, a1, m(4, 1, 5), m(3, 2, 5), m(2, 3, 5), m(1, 4, 5), 0, 255]
         }
     } else {
         [0; 8]
@@ -1080,7 +1189,6 @@ impl WicImage {
                 if !inside(c, x, y, w, h) {
                     hit("WICIMAGE.CLIP.RECT");
                     out.push(format!("wclip {E_INVALIDARG:08x}"));
-                    self.cur = None;
                 } else {
                     hit("WICIMAGE.CLIP");
                     out.push("wclip 00000000".into());
@@ -1088,17 +1196,11 @@ impl WicImage {
                 }
             }
             "wconv" => {
-                let to = *t.get(1).ok_or(Fail::Bad)?;
-                let c = self.cur.as_ref().unwrap();
-                let (Some(fi), Some(ti)) = (crate::model::wic::format(c.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled("WICIMAGE.CONVERT")) };
-                if c.pal.is_some() && c.pal != Some(crate::model::wic::palette()) {
-                    return Err(Fail::Unmodeled("WICIMAGE.CONVERT"));
-                }
+                let to = fmt_static(t.get(1).ok_or(Fail::Bad)?);
                 hit("WICIMAGE.CONVERT");
-                let px = crate::model::wic::convert(fi, ti, c.w, c.h, &c.px)?;
+                let c = wic_convert(self.cur.as_ref().unwrap(), to)?;
                 out.push("wconv 00000000".into());
-                let pal = if crate::model::wic::indexed(ti) { Some(crate::model::wic::palette()) } else { None };
-                self.cur = Some(Img { px, fmt: fmt_static(to), pal, ..c.clone() });
+                self.cur = Some(c);
             }
             "wcolor" => return Err(Fail::Unmodeled("WICIMAGE.COLOR.TRANSFORM")),
             "wctx" => {
@@ -1224,6 +1326,10 @@ impl WicImage {
                 Some(Encoded::Decodes(cont, img)) => {
                     out.push(format!("wredecode 00000000 {cont} frames 1"));
                     let mut i = img.clone();
+                    // (MEASURED: written at 96 dpi when the source has none)
+                    if i.dpi == (0.0, 0.0) {
+                        i.dpi = (96.0, 96.0);
+                    }
                     if cont == "gif" {
                         return Err(Fail::Unmodeled("WICIMAGE.ENCODE.GIF"));
                     }
@@ -1269,5 +1375,9 @@ pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
     }
     let pal: Vec<u32> = i.pal.clone().unwrap_or_default();
     let ppm = (i.dpi.0 / 0.0254 + 0.5) as u32;
-    Ok(crate::gen::wicimage_bmp(40, i.w as i32, i.h as i32, bpp, if i.fmt == "bgr565" { 3 } else { 0 }, [0xf800, 0x07e0, 0x001f, 0], pal.len() as u32, &pal, &px, false, (ppm, ppm)))
+    let mut f = crate::gen::wicimage_bmp(40, i.w as i32, i.h as i32, bpp, if i.fmt == "bgr565" { 3 } else { 0 }, [0xf800, 0x07e0, 0x001f, 0], pal.len() as u32, &pal, &px, false, (ppm, ppm));
+    // (MEASURED: biSizeImage 0, biClrImportant the palette's size, its entries' alpha bytes kept)
+    f[34..38].fill(0);
+    f[50..54].copy_from_slice(&(pal.len() as u32).to_le_bytes());
+    Ok(f)
 }

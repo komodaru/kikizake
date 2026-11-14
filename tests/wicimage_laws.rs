@@ -89,12 +89,25 @@ fn predefined_palettes() {
         assert_eq!(c[0], 0xff00_0000);
         assert_eq!(*c.last().unwrap(), 0xffff_ffff);
         assert!(c.windows(2).all(|p| p[0] < p[1]));
-        let (hr, ty, ct) = wi::predefined(t, true).unwrap();
-        assert_eq!((hr, ty), (0, 0));
-        assert_eq!(ct.len(), if n == 256 { 256 } else { n + 1 });
-        assert_eq!(*ct.last().unwrap() >> 24, 0);
-        assert_eq!(ct[..n.min(255)], c[..n.min(255)]);
+        // (black and white and gray: a transparent color is not added)
+        assert_eq!(wi::predefined(t, true).unwrap(), (0, t, c));
     }
+    // the halftones: the documented cube of each primary's levels, black first, white in it,
+    // every color opaque and different; a transparent color one more entry (the last at 256)
+    for (t, n) in [(3u32, 16usize), (4, 28), (5, 72), (6, 126), (7, 224), (8, 252), (9, 256)] {
+        let (hr, ty, c) = wi::predefined(t, false).unwrap();
+        assert_eq!((hr, ty, c.len()), (0, t, n));
+        assert_eq!(c[0], 0xff00_0000);
+        assert!(c.contains(&0xffff_ffff));
+        let mut u = c.clone();
+        u.sort();
+        u.dedup();
+        assert_eq!(u.len(), n);
+        let (_, ty, ct) = wi::predefined(t, true).unwrap();
+        assert_eq!(ty, t);
+        assert_eq!(ct.len(), if n == 256 { 256 } else { n + 1 });
+        assert_eq!(*ct.last().unwrap(), 0);
+        assert_eq!(ct[..n.min(255)], c[..n.min(255)]);
     for t in [0u32, 1, 13, 14, 0x7fff_ffff] {
         assert_ne!(wi::predefined(t, false).unwrap().0, 0);
     }

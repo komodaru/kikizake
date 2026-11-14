@@ -1,32 +1,36 @@
 # WIC bitmap source clauses (spec/README.md): <id> <status> | <source> | <what it says>
 # bitmaps in memory, the current source
-WICIMAGE.BITMAP assumed | IWICImagingFactory::CreateBitmapFromMemory | a bitmap of the bytes given, at 96 dpi; an indexed one shows the palette set on it
+WICIMAGE.BITMAP measured | IWICImagingFactory::CreateBitmapFromMemory | a bitmap of the bytes given, at 0 dpi; an indexed one shows the palette set on it (golden wictransform, wicpalette)
 WICIMAGE.BITMAP.ALPHA8 open | (none) | a bitmap of 8bppAlpha from memory
 WICIMAGE.NOSOURCE doc | runner/wicimage.c | an op on no source (after a call that failed) prints "<op> -"
 WICIMAGE.INFO doc | IWICBitmapSource::GetSize, GetPixelFormat, GetResolution | a source's size, pixel format and resolution
 # CopyPixels
 WICIMAGE.COPY doc | IWICBitmapSource::CopyPixels | the rectangle's pixels, (width * bits + 7) / 8 bytes a row, rows cbStride apart; NULL is the whole bitmap
-WICIMAGE.COPY.RECT assumed | IWICBitmapSource::CopyPixels (the rectangle must be inside the bitmap) | a rectangle not inside the bitmap, or empty: E_INVALIDARG
+WICIMAGE.COPY.NEGATIVE measured | IWICBitmapSource::CopyPixels | a rectangle at a negative x or y: HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW) (golden wictransform)
+WICIMAGE.COPY.RECT measured | IWICBitmapSource::CopyPixels (the rectangle must be inside the bitmap) | a rectangle past the bitmap, or empty: E_INVALIDARG (golden wictransform)
 WICIMAGE.COPY.STRIDE assumed | IWICBitmapSource::CopyPixels | a stride shorter than a row: E_INVALIDARG
 WICIMAGE.COPY.BUFFER assumed | IWICBitmapSource::CopyPixels (the caller must give enough buffer) | a buffer shorter than stride * (height - 1) + a row: WINCODEC_ERR_INSUFFICIENTBUFFER
 # scalers
-WICIMAGE.SCALE.NEAREST assumed | WICBitmapInterpolationMode (NearestNeighbor: the one pixel the point falls in) | output pixel d takes source pixel floor((d + 0.5) * source / output), in the source's format
+WICIMAGE.SCALE.NEAREST measured | WICBitmapInterpolationMode (NearestNeighbor: the one pixel the point falls in) | output pixel d takes source pixel ceil((d + 1) * source / output) - 1 (the one under its right or bottom edge, not its center), in the source's format (golden wicscale: 136 rows, every width 1..=8 to 1..=17, and the columns)
+WICIMAGE.SCALE.FORMAT measured | (none) | the format a scaler works in and answers with: NearestNeighbor, Linear, Cubic, Fant: gray of 8 bits or less 8bppGray, 24bppBGR as it is, 32bppBGRA / 32bppRGBA / 8bppAlpha premultiplied (WIC.FROM.PREMULTIPLY) and answered as 32bppBGRA (WIC.TO.UNPREMULTIPLY: a scaled straight picture loses what premultiplying loses), every other format 32bppPBGRA; Fant: 16bppGray as 32bppGrayFloat, 64bppRGBA as 128bppPRGBAFloat; HighQualityCubic: 16bppGray, 48bppRGB, 64bppRGBA, 32bppRGBA, 8bppAlpha as they are (golden wicscale fmt-*: 15 formats, every mode)
 WICIMAGE.SCALE.FILTER open | WICBitmapInterpolationMode (Linear 2x2, Cubic 4x4, Fant all the pixels that map to it, HighQualityCubic a kernel resized with the scale) | the weights, their rounding, the output format
 WICIMAGE.SCALE.SIZE open | IWICBitmapScaler::Initialize | a size of 0 or past 65535
 # flip/rotators and clippers
-WICIMAGE.FLIP doc | WICBitmapTransformOptions | Rotate90/180/270 clockwise (the low two bits), then FlipHorizontal (around the vertical axis) and FlipVertical; the format as it is
+WICIMAGE.FLIP measured | WICBitmapTransformOptions | FlipHorizontal (around the vertical axis) and FlipVertical of the source, then Rotate90/180/270 clockwise (the low two bits); the format as it is (golden wictransform: all 16 combinations on 15 formats; the documentation does not say the order)
 WICIMAGE.FLIP.BAD open | IWICBitmapFlipRotator::Initialize | options outside 0x1b
 WICIMAGE.CLIP doc | IWICBitmapClipper::Initialize | the rectangle of the source, in its format
-WICIMAGE.CLIP.RECT assumed | IWICBitmapClipper::Initialize | a rectangle not inside the source, or empty: E_INVALIDARG
+WICIMAGE.CLIP.RECT measured | IWICBitmapClipper::Initialize | a rectangle not inside the source, or empty: E_INVALIDARG (golden wictransform)
 WICIMAGE.CONVERT doc | IWICFormatConverter (spec/wic.txt) | a converter on the current source converts as the wic suite's convert does
+WICIMAGE.CONVERT.OTHER open | (none) | a converter from a format the wic suite does not model, or from an indexed source with another palette
 # palettes
 WICIMAGE.PALETTE.BW doc | WICBitmapPaletteType (FixedBW) | black, white
-WICIMAGE.PALETTE.GRAY assumed | WICBitmapPaletteType (FixedGray4, 16, 256) | n grays evenly from black to white, i * 255 / (n - 1)
-WICIMAGE.PALETTE.HALFTONE open | WICBitmapPaletteType (FixedHalftone8 ... 256: the levels of each primary and the 16 system colors) | their order
-WICIMAGE.PALETTE.TRANSPARENT doc | IWICPalette::InitializePredefined | with a transparent color: one more entry under 256 colors, the last one replaced at 256, the type Custom (ASSUMED: the entry 0x00000000)
-WICIMAGE.PALETTE.TYPE assumed | IWICPalette::InitializePredefined | Custom, MedianCut and values past FixedGray256: E_INVALIDARG
-WICIMAGE.SRCPAL doc | IWICBitmapSource::CopyPalette | an indexed source's palette (ASSUMED: of type Custom)
-WICIMAGE.SRCPAL.NONE assumed | IWICBitmapSource::CopyPalette | a source with no palette: WINCODEC_ERR_PALETTEUNAVAILABLE
+WICIMAGE.PALETTE.GRAY measured | WICBitmapPaletteType (FixedGray4, 16, 256) | n grays evenly from black to white, i * 255 / (n - 1) (golden wicpalette: every entry)
+WICIMAGE.PALETTE.HALFTONE measured | WICBitmapPaletteType (FixedHalftone8 ... 256: the levels of each primary and the 16 system colors) | the cube of 2, 3, 4, 5, 6 levels of each primary (252: 6 red, 7 green, 6 blue; 256: 8, 8, 4), levels round(i * 255 / (n - 1)), blue fastest then green then red, then c0c0c0, 808080, 800000, 008000, 000080, 808000, 800080, 008080 where not in the cube, none for 252 and 256: 16, 28, 72, 126, 224, 252, 256 colors (golden wicpalette: every entry; the documentation's counts 35, 133, 256 for 27, 125, 252 are not what Windows makes)
+WICIMAGE.PALETTE.TRANSPARENT measured | IWICPalette::InitializePredefined | with a transparent color: one more entry 0x00000000 under 256 colors, the last one replaced at 256; the type stays the predefined one, not Custom as documented (golden wicpalette)
+WICIMAGE.PALETTE.TRANSPARENT.GRAY measured | IWICPalette::InitializePredefined (set it FALSE for gray and black and white) | the black and white and gray palettes ignore it (golden wicpalette)
+WICIMAGE.PALETTE.TYPE measured | IWICPalette::InitializePredefined | Custom, MedianCut and values past FixedGray256: E_INVALIDARG (golden wicpalette)
+WICIMAGE.SRCPAL measured | IWICBitmapSource::CopyPalette | an indexed source's palette, of type Custom (golden wicpalette)
+WICIMAGE.SRCPAL.NONE measured | IWICBitmapSource::CopyPalette | a source with no palette: WINCODEC_ERR_PALETTEUNAVAILABLE (golden wicpalette)
 # color
 WICIMAGE.COLOR.EXIF doc | IWICColorContext::InitializeFromExifColorSpace | 1 sRGB, 2 Adobe RGB: a context of type ExifColorSpace
 WICIMAGE.COLOR.EXIF.BAD open | IWICColorContext::InitializeFromExifColorSpace | other values
