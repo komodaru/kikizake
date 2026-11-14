@@ -1,0 +1,5 @@
+kikizake d3d12rm
+case clear-removed
+device12 ok
+clear12 hr 887a0005
+done

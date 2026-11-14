@@ -17055,3 +17055,346 @@ dheap12 hr 80070057
 case make-101
 device12 ok
 dheap12 hr 80070057
+case make-126
+device12 ok
+queue12 hr 00000000
+case make-127
+device12 ok
+cmdlist12 hr 00000000
+case make-128
+device12 ok
+qheap12 hr 00000000
+case make-129
+device12 ok
+queue12 hr 80070057
+case make-130
+device12 ok
+cmdlist12 hr 00000000
+case make-131
+device12 ok
+qheap12 hr 00000000
+case make-132
+device12 ok
+queue12 hr 00000000
+case make-133
+device12 ok
+cmdlist12 hr 00000000
+case make-134
+device12 ok
+qheap12 hr 00000000
+case make-135
+device12 ok
+queue12 hr 00000000
+case make-136
+device12 ok
+cmdlist12 hr 00000000
+case make-137
+device12 ok
+qheap12 hr 00000000
+case make-138
+device12 ok
+queue12 hr 80070057
+case make-139
+device12 ok
+cmdlist12 allocator hr 80070057
+case make-140
+device12 ok
+qheap12 hr 80070057
+case make-141
+device12 ok
+queue12 hr 80070057
+case make-142
+device12 ok
+cmdlist12 allocator hr 80070057
+case make-143
+device12 ok
+qheap12 hr 00000000
+case make-144
+device12 ok
+queue12 hr 80070057
+case make-145
+device12 ok
+cmdlist12 allocator hr 80070057
+case make-146
+device12 ok
+qheap12 hr 00000000
+case make-147
+device12 ok
+queue12 hr 80070057
+case make-148
+device12 ok
+cmdlist12 allocator hr 80070057
+case make-149
+device12 ok
+qheap12 hr 00000000
+case make-150
+device12 ok
+queue12 hr 80070057
+case make-151
+device12 ok
+cmdlist12 allocator hr 80070057
+case make-152
+device12 ok
+qheap12 hr 80070057
+case make-153
+device12 ok
+queue12 hr 00000000
+case make-154
+device12 ok
+queue12 hr 887a002b
+case make-155
+device12 ok
+queue12 hr 80070057
+case make-156
+device12 ok
+queue12 hr 80070057
+case make-157
+device12 ok
+queue12 hr 80070057
+case make-158
+device12 ok
+queue12 hr 00000000
+case make-159
+device12 ok
+queue12 hr 80070057
+case make-160
+device12 ok
+queue12 hr 80070057
+case make-161
+device12 ok
+qheap12 hr 80070057
+case make-162
+device12 ok
+qheap12 hr 80070057
+case make-163
+device12 ok
+qheap12 hr 00000000
+case make-164
+device12 ok
+qheap12 hr 00000000
+case make-165
+device12 ok
+qheap12 hr 00000000
+case make-166
+device12 ok
+qheap12 hr 00000000
+case make-167
+device12 ok
+qheap12 hr 8007000e
+case make-168
+device12 ok
+qheap12 hr 8007000e
+case make-169
+device12 ok
+fence12 hr 00000000 value 0
+case make-170
+device12 ok
+fence12 hr 00000000 value 5
+case make-171
+device12 ok
+fence12 hr 00000000 value ffffffff
+case make-172
+device12 ok
+fence12 hr 00000000 value 0
+case make-173
+device12 ok
+fence12 hr 80070057
+case make-174
+device12 ok
+fence12 hr 80070057
+case make-175
+device12 ok
+fence12 hr 80070057
+case make-176
+device12 ok
+fence12 hr 80070057
+case make-177
+device12 ok
+placed12 hr 00000000
+case make-178
+device12 ok
+placed12 hr 00000000
+case make-179
+device12 ok
+placed12 hr 80070057
+case make-180
+device12 ok
+placed12 hr 80070057
+case make-181
+device12 ok
+placed12 hr 80070057
+case make-182
+device12 ok
+placed12 heap hr 80070057
+case make-183
+device12 ok
+placed12 heap hr 80070057
+case make-184
+device12 ok
+placed12 heap hr 80070057
+case make-185
+device12 ok
+placed12 hr 00000000
+case make-186
+device12 ok
+placed12 hr 00000000
+case make-187
+device12 ok
+placed12 heap hr 80070057
+case make-188
+device12 ok
+placed12 heap hr 80070057
+case make-189
+device12 ok
+placed12 heap hr 80070057
+case make-190
+device12 ok
+placed12 hr 80070057
+case make-191
+device12 ok
+placed12 hr 00000000
+case make-192
+device12 ok
+placed12 heap hr 80070057
+case make-193
+device12 ok
+placed12 heap hr 80070057
+case make-194
+device12 ok
+placed12 hr 80070057
+case make-195
+device12 ok
+placed12 hr 00000000
+case make-196
+device12 ok
+placed12 hr 80070057
+case make-197
+device12 ok
+placed12 hr 80070057
+case make-198
+device12 ok
+placed12 hr 80070057
+case make-199
+device12 ok
+placed12 hr 00000000
+case make-200
+device12 ok
+placed12 hr 00000000
+case make-201
+device12 ok
+placed12 hr 80070057
+case make-202
+device12 ok
+placed12 hr 00000000
+case make-203
+device12 ok
+placed12 hr 00000000
+case make-204
+device12 ok
+heap12 hr 80070057
+case make-205
+device12 ok
+heap12 hr 80070057
+case make-206
+device12 ok
+heap12 hr 80070057
+case make-207
+device12 ok
+heap12 hr 80070057
+case make-208
+device12 ok
+heap12 hr 00000000
+case make-209
+device12 ok
+heap12 hr 00000000
+case make-210
+device12 ok
+heap12 hr 00000000
+case make-211
+device12 ok
+heap12 hr 00000000
+case make-212
+device12 ok
+heap12 hr 00000000
+case make-213
+device12 ok
+heap12 hr 80070057
+case make-214
+device12 ok
+heap12 hr 00000000
+case make-215
+device12 ok
+heap12 hr 00000000
+case make-216
+device12 ok
+heap12 hr 80070057
+case make-217
+device12 ok
+heap12 hr 80070057
+case make-218
+device12 ok
+heap12 hr 80070057
+case make-219
+device12 ok
+heap12 hr 80070057
+case make-220
+device12 ok
+heap12 hr 00000000
+case make-221
+device12 ok
+heap12 hr 00000000
+case make-222
+device12 ok
+heap12 hr 00000000
+case make-223
+device12 ok
+heap12 hr 00000000
+case make-224
+device12 ok
+heap12 hr 00000000
+case make-225
+device12 ok
+heap12 hr 80070057
+case make-226
+device12 ok
+heap12 hr 00000000
+case make-227
+device12 ok
+heap12 hr 00000000
+case make-228
+device12 ok
+heap12 hr 00000000
+case make-229
+device12 ok
+heap12 hr 00000000
+case make-230
+device12 ok
+heap12 hr 00000000
+case make-231
+device12 ok
+heap12 hr 00000000
+case make-232
+device12 ok
+heap12 hr 00000000
+case make-233
+device12 ok
+heap12 hr 80070057
+case make-234
+device12 ok
+heap12 hr 00000000
+case make-235
+device12 ok
+heap12 hr 80070057
+case make-236
+device12 ok
+heap12 hr 80070057
+case make-237
+device12 ok
+heap12 hr 00000000
+case make-238
+device12 ok
+fence12 hr 00000000 value 0
+case make-239
+device12 ok
+fence12 hr 80070057
+done

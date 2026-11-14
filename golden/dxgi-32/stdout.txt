@@ -153,6 +153,411 @@ device12 ok
 factory ok
 swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
 color 0 set 80070057
+case color-f10-0
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-1
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f10-2
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-3
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-4
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-5
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-6
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-7
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-8
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-9
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-10
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-11
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-12
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-13
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-14
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-15
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-16
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-17
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-18
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-19
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-20
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-21
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-22
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-23
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-24
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-25
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f10-4294967295
+device12 ok
+factory ok
+swapchain = 40 40 a 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-0
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-1
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-2
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-3
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-4
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-5
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-6
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-7
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-8
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-9
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-10
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-11
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-12
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-13
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-14
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-15
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-16
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-17
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-18
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-19
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-20
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-21
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f24-22
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-23
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-24
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-25
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f24-4294967295
+device12 ok
+factory ok
+swapchain = 40 40 18 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-0
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-1
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-2
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-3
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-4
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-5
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-6
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-7
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-8
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-9
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-10
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-11
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-12
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-13
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-14
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-15
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-16
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-17
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-18
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-19
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-20
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-21
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 1 set 00000000
+case color-f28-22
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-23
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-24
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-25
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
+case color-f28-4294967295
+device12 ok
+factory ok
+swapchain = 40 40 1c 0 1 0 20 2 0 4 0 0 index 0
+color 0 set 80070057
 case color-fmt10
 device12 ok
 factory ok

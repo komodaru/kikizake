@@ -17055,78 +17055,6 @@ dheap12 hr 80070057
 case make-101
 device12 ok
 dheap12 hr 80070057
-case make-102
-device12 ok
-dheap12 hr 00000000
-case make-103
-device12 ok
-dheap12 hr 00000000
-case make-104
-device12 ok
-dheap12 hr 80070057
-case make-105
-device12 ok
-dheap12 hr 00000000
-case make-106
-device12 ok
-dheap12 hr 00000000
-case make-107
-device12 ok
-dheap12 hr 80070057
-case make-108
-device12 ok
-dheap12 hr 80070057
-case make-109
-device12 ok
-dheap12 hr 80070057
-case make-110
-device12 ok
-dheap12 hr 80070057
-case make-111
-device12 ok
-dheap12 hr 00000000
-case make-112
-device12 ok
-dheap12 hr 80070057
-case make-113
-device12 ok
-dheap12 hr 80070057
-case make-114
-device12 ok
-dheap12 hr 00000000
-case make-115
-device12 ok
-dheap12 hr 00000000
-case make-116
-device12 ok
-dheap12 hr 80070057
-case make-117
-device12 ok
-dheap12 hr 00000000
-case make-118
-device12 ok
-dheap12 hr 00000000
-case make-119
-device12 ok
-dheap12 hr 80070057
-case make-120
-device12 ok
-dheap12 hr 80070057
-case make-121
-device12 ok
-dheap12 hr 80070057
-case make-122
-device12 ok
-dheap12 hr 80070057
-case make-123
-device12 ok
-dheap12 hr 00000000
-case make-124
-device12 ok
-dheap12 hr 80070057
-case make-125
-device12 ok
-dheap12 hr 80070057
 case make-126
 device12 ok
 queue12 hr 00000000
@@ -17361,3 +17289,112 @@ placed12 hr 00000000
 case make-203
 device12 ok
 placed12 hr 00000000
+case make-204
+device12 ok
+heap12 hr 80070057
+case make-205
+device12 ok
+heap12 hr 80070057
+case make-206
+device12 ok
+heap12 hr 80070057
+case make-207
+device12 ok
+heap12 hr 80070057
+case make-208
+device12 ok
+heap12 hr 00000000
+case make-209
+device12 ok
+heap12 hr 00000000
+case make-210
+device12 ok
+heap12 hr 00000000
+case make-211
+device12 ok
+heap12 hr 00000000
+case make-212
+device12 ok
+heap12 hr 00000000
+case make-213
+device12 ok
+heap12 hr 80070057
+case make-214
+device12 ok
+heap12 hr 00000000
+case make-215
+device12 ok
+heap12 hr 00000000
+case make-216
+device12 ok
+heap12 hr 80070057
+case make-217
+device12 ok
+heap12 hr 80070057
+case make-218
+device12 ok
+heap12 hr 80070057
+case make-219
+device12 ok
+heap12 hr 80070057
+case make-220
+device12 ok
+heap12 hr 00000000
+case make-221
+device12 ok
+heap12 hr 00000000
+case make-222
+device12 ok
+heap12 hr 00000000
+case make-223
+device12 ok
+heap12 hr 00000000
+case make-224
+device12 ok
+heap12 hr 00000000
+case make-225
+device12 ok
+heap12 hr 80070057
+case make-226
+device12 ok
+heap12 hr 00000000
+case make-227
+device12 ok
+heap12 hr 00000000
+case make-228
+device12 ok
+heap12 hr 00000000
+case make-229
+device12 ok
+heap12 hr 00000000
+case make-230
+device12 ok
+heap12 hr 00000000
+case make-231
+device12 ok
+heap12 hr 00000000
+case make-232
+device12 ok
+heap12 hr 00000000
+case make-233
+device12 ok
+heap12 hr 80070057
+case make-234
+device12 ok
+heap12 hr 00000000
+case make-235
+device12 ok
+heap12 hr 80070057
+case make-236
+device12 ok
+heap12 hr 80070057
+case make-237
+device12 ok
+heap12 hr 00000000
+case make-238
+device12 ok
+fence12 hr 00000000 value 0
+case make-239
+device12 ok
+fence12 hr 80070057
+done
