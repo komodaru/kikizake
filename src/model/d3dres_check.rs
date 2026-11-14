@@ -1,10 +1,9 @@
 //! Which resource and view descriptions Direct3D 10 and 11 accept, and what GetDesc gives back;
 //! the format support each device reports.
 
-use crate::spec::{clause, open};
+use crate::spec::clause;
 use super::d3dres::{Dev, Resource};
 use super::Res;
-use super::Fail;
 
 pub const E_INVALIDARG: u32 = 0x8007_0057;
 pub const E_FAIL: u32 = 0x8000_4005;
@@ -119,6 +118,12 @@ pub fn full_chain(d: &Desc) -> u32 {
     32 - m.max(1).leading_zeros()
 }
 
+/// a 2D texture past the level's sizes, which a check passes (DESC.BIG)
+pub fn past_level_size(dev: Dev, d: &Desc) -> bool {
+    let (l2, _, _, _) = limits(dev);
+    d.dim == 2 && (d.w > l2 || d.h > l2)
+}
+
 /// Ok(the description GetDesc gives) or Err(the HRESULT)
 pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     hit(clause::D3DRES_DESC);
@@ -181,20 +186,18 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
         hit(clause::D3DRES_DESC_SIZE);
         return Ok(bad);
     }
-    // (MEASURED, big-*: 1D and 3D textures stop at the level's sizes; a 2D one has no size
-    // limit of its own but one of bytes: 4 MiB of RGBA8 made, 1 GiB refused)
+    // (MEASURED, big-*: 1D and 3D textures stop at the level's sizes; a 2D one of one level
+    // and one slice is checked against 2^23 texels a side instead (8388608 wide passes,
+    // 8650752 does not, whatever the texel's bytes; 32768 by 32768 passes); with more levels or
+    // slices the level's sizes hold, big-bytes)
     if d.dim != 2 && (w > lim || h > lim || d.dim == 3 && da > l3) {
         hit(clause::D3DRES_DESC_BIG);
         return Ok(bad);
     }
     if d.dim == 2 && (w > lim || h > lim) {
-        let bytes = (0..d.mips.max(1).min(32)).map(|m| f.row_bytes((w >> m).max(1)) as u64 * f.rows((h >> m).max(1)) as u64).sum::<u64>() * da as u64;
         hit(clause::D3DRES_DESC_BIG);
-        if bytes >= 1 << 30 {
+        if da != 1 || d.mips != 1 || w > 1 << 23 || h > 1 << 23 {
             return Ok(bad);
-        }
-        if bytes > 1 << 22 {
-            return Err(Fail::Unmodeled(open::D3DRES_DESC_BIGBYTES));
         }
     }
     // (MEASURED: the top level of a block format is whole blocks, tex-random-169)

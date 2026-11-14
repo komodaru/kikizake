@@ -435,7 +435,15 @@ fn suite(d3d11: bool) -> String {
     for (w, ht, arr, mips) in [(20000u32, 1u32, 2048u32, 1u32), (20000, 4, 512, 1), (20000, 4, 1024, 1), (65536, 1024, 1, 0), (65536, 1024, 1, 1), (65536, 2048, 1, 1), (65536, 2048, 1, 0), (32768, 2048, 2, 1), (32768, 2048, 4, 1)] {
         writeln!(s, "{}", tex2("check", w, ht, arr, mips, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
     }
+    writeln!(s, "end\ncase big-edge\n{dev}").unwrap();
+    // (the edges of the side limit: heights, 2^23 and one past, two slices or levels at the
+    // level's size and one past)
+    for (w, ht, arr, mips) in [(1u32, 1u32 << 23, 1u32, 1u32), (1, (1 << 23) + 1, 1, 1), ((1 << 23) + 1, 1, 1, 1), (1 << 23, 2, 1, 1), (16384, 1, 2, 1), (16385, 1, 2, 1), (8192, 1, 2, 1), (8193, 1, 2, 1), (16385, 1, 1, 2), (16384, 1, 1, 2), (8193, 1, 1, 2), (1, 16385, 2, 1), (1, 16385, 1, 0)] {
+        writeln!(s, "{}", tex2("check", w, ht, arr, mips, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
+    }
     writeln!(s, "end").unwrap();
+    // making them: one past the level's size, 32 MiB wide, 1 GiB square, then a read of the first
+    writeln!(s, "case big-make\n{dev}\n{}\nread 0 0 16 1 1\n{}\n{}\nend", tex2("0", 16385, 1, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("0", 1 << 23, 1, 1, 1, 28, 0, SRV, 0, 0, (1, 0)), tex2("0", 16385, 16385, 1, 1, 28, 0, SRV, 0, 0, (1, 0))).unwrap();
     // BUFFEREX and buffer render target views of a plain buffer: formats, ranges, flags
     writeln!(s, "case view-b-bufex\n{dev}\nbuf 0 256 0 {} 0 0 0", h(if d3d11 { SRV | RTV | UAV } else { SRV | RTV })).unwrap();
     for f in [0x1cu32, 0x2a, 0x29, 0x1d] {
@@ -497,6 +505,11 @@ fn suite(d3d11: bool) -> String {
         ("resolve-format", t44(0, RTV, 4), f2.clone(), "resolve 1 0 0 0 28\nread 1 0 64 4 1"),
         ("resolve-size", t44(0, RTV, 4), small, "resolve 1 0 0 0 28\nread 1 0 8 2 1"),
         ("read-sub", t44(0, SRV, 1), t44(1, SRV, 1), "read 0 1 16 4 1\nread 0 0 16 4 1"),
+        ("copysub-empty", t44(0, SRV, 1), t44(1, SRV, 1), "copysub 1 0 0 0 0 0 0 1 1 0 1 2 1\nread 1 0 16 4 1\ncopysub 1 0 0 0 0 0 0 1 1 0 2 1 1\nread 1 0 16 4 1\ncopysub 1 0 0 0 0 0 0 1 1 1 2 2 1\nread 1 0 16 4 1"),
+        ("copysub-buftex", "buf 0 64 0 8 0 0 0".to_string(), t44(1, SRV, 1), "copysub 1 0 0 0 0 0 0\nread 1 0 16 4 1\ncopysub 1 0 0 0 0 0 0 0 0 0 16 1 1\nread 1 0 16 4 1"),
+        ("copysub-texbuf", t44(0, SRV, 1), "buf 1 64 0 8 0 0 0".to_string(), "copysub 1 0 0 0 0 0 0\nread 1 0 64 1 1\ncopysub 1 0 0 0 0 0 0 0 0 0 4 1 1\nread 1 0 64 1 1"),
+        ("resolve-dsub", t44(0, RTV, 4), t44(1, SRV, 1), "resolve 1 1 0 0 28\nread 1 0 16 4 1\nresolve 1 0 0 1 28\nread 1 0 16 4 1"),
+        ("resolve-dim", t44(0, RTV, 4), tex1d.clone(), "resolve 1 0 0 0 28\nread 1 0 64 1 1"),
     ] {
         let fill = if a.contains(" 0x20 ") { "rtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\n" } else { "update 0 0 3 16 0\n" };
         writeln!(s, "case probe-{name}\n{dev}\n{a}\n{b}\n{fill}{body}\nend").unwrap();
