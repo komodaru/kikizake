@@ -15074,3 +15074,115 @@ d2fillg 0 200 100 50 255
 d2fill 0 0 1e9 2 50 60 70 255
 d2read
 end
+case bbrushwx-0
+d2target 16 8
+d2aa aliased
+d2xform 1 0.25 0 1 0 0
+d2bmp 0 3 3 02f1cbff3a9806ff6b2b5780259dd7ff0000010001010100550f10807c4f6288c69398ff
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-1
+d2target 16 8
+d2aa aliased
+d2xform 1 0.25 0 1 0 0
+d2bmp 0 3 3 66396e80301a2f800f1c2029bf3f25ff131f091f010000004d7c0c800d4d7580fc3f8dff
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end
+case bbrushwx-2
+d2target 16 8
+d2aa aliased
+d2xform 1 0 0.25 1 0 0
+d2bmp 0 3 3 7f08298038540759d1aa9fff996b10ff3692a3ffe57fb2ff38942fff2ba9cbffd3f76bff
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-3
+d2target 16 8
+d2aa aliased
+d2xform 1 0 0.25 1 0 0
+d2bmp 0 3 3 2d047c8060a497ff1b8a01df6d56146c03d26cff970eb4ff8a2ed6ff5120668001000100
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end
+case bbrushwx-4
+d2target 16 8
+d2aa aliased
+d2xform 0.866 0.5 -0.5 0.866 4 -2
+d2bmp 0 3 3 30732480280063806820329f0c15121a532610799f7c6affbaa721ff0100010000010100
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-5
+d2target 16 8
+d2aa aliased
+d2xform 0.866 0.5 -0.5 0.866 4 -2
+d2bmp 0 3 3 18437bff406a65805ca1cbff000101001a56abff17be1dff1c4760803d6cd9fff7789aff
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end
+case bbrushwx-6
+d2target 16 8
+d2aa aliased
+d2xform 0 1.5 -1 0 16 0
+d2bmp 0 3 3 426a048061427d8001010100615d07ffb325d9ff55304d802f2ee7ffec109bff01000100
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-7
+d2target 16 8
+d2aa aliased
+d2xform 0 1.5 -1 0 16 0
+d2bmp 0 3 3 e46b64ff7a8663ff459c45ff6c7b13ff1f2d74801c7379ff5d180b5f461a4c59274b0a53
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end
+case bbrushwx-8
+d2target 16 8
+d2aa aliased
+d2xform 1.2 0.3 0.1 0.9 0 0
+d2bmp 0 3 3 0000000000010100e4ffbbff00010100669b9dffcafefcff1d42598061d029ff01010100
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-9
+d2target 16 8
+d2aa aliased
+d2xform 1.2 0.3 0.1 0.9 0 0
+d2bmp 0 3 3 010100004d6e02809444b8ff00010100010001007310349c5f6ed0ff527f61cfef6804ff
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end
+case bbrushwx-10
+d2target 16 8
+d2aa aliased
+d2xform -1 0 0 1 16 0
+d2bmp 0 3 3 171987ef020021290101000060622b80801a79ffd40de2ffb89767ffb82ddfff081536c4
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-11
+d2target 16 8
+d2aa aliased
+d2xform -1 0 0 1 16 0
+d2bmp 0 3 3 0510e3ffa1a902ff00010100ecd41affdc6b86ffa969faff0129295649fcccff00000100
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end
+case bbrushwx-12
+d2target 16 8
+d2aa aliased
+d2xform 1 0.001 0 1 0 0
+d2bmp 0 3 3 00010000376b41a48c97e3ff32c0ebff14797690a814f6ffa0a449ff0100000000010000
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 1.3 0 0 0.7 0.1 0.2
+d2read
+end
+case bbrushwx-13
+d2target 16 8
+d2aa aliased
+d2xform 1 0.001 0 1 0 0
+d2bmp 0 3 3 9da072ff1016154301000100062a6ed25e0753800101000060a0acaf0100010048753580
+d2bbrush 0 -16 -16 32 32 wrap wrap linear 0.9 0.4 -0.2 1.1 0.3 0
+d2read
+end

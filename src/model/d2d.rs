@@ -822,6 +822,8 @@ impl Extend {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Lerp {
     ColumnsFirst,
+    /// the four texels weighed at once, (256 - f) products, floored
+    Weighed,
     RowsFirst,
 }
 
@@ -847,7 +849,8 @@ impl Interp {
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Place {
     Rect { dst: [f32; 4], src: [f32; 4] },
-    Brush(M),
+    /// the brush's matrix times the world's, and the world's alone
+    Brush { m: M, world: M },
 }
 
 /// what a fill puts down at each pixel (premultiplied B G R A)
@@ -881,7 +884,7 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
                 let [sl, st, sr, sb] = src.map(f64::from);
                 (sl + (cx - dl) * (sr - sl) / (dr - dl), st + (cy - dt) * (sb - st) / (db - dt))
             }
-            Place::Brush(m) => {
+            Place::Brush { m, .. } => {
                 let m = m.map(f64::from);
                 let det = m[0] * m[3] - m[1] * m[2];
                 let (px, py) = (cx - m[4], cy - m[5]);
@@ -892,8 +895,11 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
         // columns first, a mapping that mixes x into v or y into u lerps along the rows first)
         let order = match place {
             Place::Rect { .. } => Lerp::ColumnsFirst,
-            Place::Brush(m) if m[1] == 0.0 && m[2] == 0.0 => Lerp::ColumnsFirst,
-            Place::Brush(_) => Lerp::RowsFirst,
+            // (MEASURED, bbrushfit-xf1: a world transform that shears, neither keeping nor
+            // swapping the axes, weighs the four texels at once)
+            Place::Brush { world, .. } if (world[1] != 0.0 || world[2] != 0.0) && (world[0] != 0.0 || world[3] != 0.0) => Lerp::Weighed,
+            Place::Brush { m, .. } if m[1] == 0.0 && m[2] == 0.0 => Lerp::ColumnsFirst,
+            Place::Brush { .. } => Lerp::RowsFirst,
         };
         let texel = |i: i64, j: i64| bmp.px[ext.1.index(j, bmp.h) * bmp.w + ext.0.index(i, bmp.w)];
         let c = match interp {
@@ -919,6 +925,7 @@ fn texel_at(bmp: &Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, o
                     match order {
                         Lerp::ColumnsFirst => lerp(lerp(a, c, fv), lerp(b, d, fv), fu) as u8,
                         Lerp::RowsFirst => lerp(lerp(a, b, fu), lerp(c, d, fu), fv) as u8,
+                        Lerp::Weighed => ((a * (256 - fu) * (256 - fv) + b * fu * (256 - fv) + c * (256 - fu) * fv + d * fu * fv) >> 16) as u8,
                     }
                 })
             }
@@ -1893,7 +1900,7 @@ impl D2d {
                 } else {
                     hit(clause::D2D_BBRUSH);
                     let m = extra.as_deref().map_or(IDENTITY, |e| [e[0], e[1], e[2], e[3], e[4], e[5]]);
-                    (Place::Brush(mul(&m, &tg.st.m)), 255)
+                    (Place::Brush { m: mul(&m, &tg.st.m), world: tg.st.m }, 255)
                 };
                 let paint = Paint::Bitmap { bmp: &bmp, place, ext, interp, opacity };
                 let before = tg.px.clone();

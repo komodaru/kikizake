@@ -39,6 +39,7 @@ pub fn d2d() -> String {
     bitmapfit(&mut s, &mut r);
     clipfit(&mut s);
     huge(&mut s);
+    brushworld(&mut s, &mut r);
     s
 }
 
@@ -718,5 +719,19 @@ fn huge(s: &mut String) {
     for (i, v) in ["9000000", "-9000000", "16777216", "1e9"].iter().enumerate() {
         let aa = if i % 2 == 0 { "" } else { "d2aa aliased\n" };
         writeln!(s, "case fillhuge-{i}\nd2target 8 4\n{aa}d2clear 10 20 30 255\nd2path 0 alt m 1 1 {v} 2 1 3 z\nd2fillg 0 200 100 50 255\nd2fill 0 0 {v} 2 50 60 70 255\nd2read\nend").unwrap();
+    }
+}
+
+/// linear bitmap brushes under world transforms that shear, turn or swap the axes, with brush
+/// matrices that keep or mix them: which way the four texels are weighed
+fn brushworld(s: &mut String, r: &mut XorShift32) {
+    let worlds = ["1 0.25 0 1 0 0", "1 0 0.25 1 0 0", "0.866 0.5 -0.5 0.866 4 -2", "0 1.5 -1 0 16 0", "1.2 0.3 0.1 0.9 0 0", "-1 0 0 1 16 0", "1 0.001 0 1 0 0"];
+    let brushes = ["1.3 0 0 0.7 0.1 0.2", "0.9 0.4 -0.2 1.1 0.3 0"];
+    let mut i = 0;
+    for w in worlds {
+        for b in brushes {
+            writeln!(s, "case bbrushwx-{i}\nd2target 16 8\nd2aa aliased\nd2xform {w}\nd2bmp 0 3 3 {}\nd2bbrush 0 -16 -16 32 32 wrap wrap linear {b}\nd2read\nend", bitmap(r, 3, 3)).unwrap();
+            i += 1;
+        }
     }
 }
