@@ -26,7 +26,7 @@ D3D12.ALLOC.VIDEO measured | (none) | NV12, 420_OPAQUE, P010, P016 in their two 
 D3D12.ALLOC.MSAA measured | (none) | a multisampled texture: the tight size times the samples, rounded and aligned to 4MB (64KB when that alignment is asked); D32_FLOAT_S8X24 counts 8 bytes, D24_UNORM_S8 4 (golden d3d12-64 alloc-other, 6 descriptions)
 D3D12.ALLOC.SWIZZLE measured | D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE, _64KB_STANDARD_SWIZZLE | whole 64KB tiles of the standard shapes (2D elements: 256x256 of 1 byte, 256x128 of 2, 128x128 of 4, 128x64 of 8, 64x64 of 16; 3D: 64x32x32, 32x32x32, 32x32x16, 32x16x16, 16x16x16), each mip level in its own, times the array (golden d3d12-64 alloc-other: both layouts, 2D and 3D, 3 and all mip levels, an array of 2, BC1)
 D3D12.ALLOC.RT1D measured | (none) | a 1D render target takes twice the tight size of D3D12.ALLOC.TEXTURE (fitted: golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats, with arrays and mips)
-D3D12.ALLOC.OTHER excluded | (none) | a guard: every description left (swizzled depth stencil, video, unknown layout) is refused before, D3D12.ALLOC.INVALID (golden d3d12-64 alloc-other-24..26)
+D3D12.ALLOC.OTHER open | (none) | 64KB_STANDARD_SWIZZLE of the two-plane formats without a target (asked: alloc-std-planar-*)
 D3D12.ALLOC.INVALID measured | ID3D12Device::GetResourceAllocationInfo (an error: SizeInBytes UINT64_MAX) | a description CreateCommittedResource refuses gives UINT64_MAX, alignment 64KB (alloc-buffer, alloc-texture-*)
 D3D12.CREATE doc | ID3D12Device::CreateCommittedResource (ppvResource NULL: S_FALSE for a valid description) | S_FALSE when the resource could be made, E_INVALIDARG (measured) when not
 D3D12.HEAP.TYPE measured | D3D12_HEAP_TYPE | DEFAULT, UPLOAD, READBACK and GPU_UPLOAD (5) are taken; CUSTOM (with no page properties) and others refused (create-heap-*)
@@ -53,6 +53,6 @@ D3D12.CLEAR.INT measured | Data Conversion Rules (integer targets: round to near
 D3D12.CLEAR.X measured | (none) | the X of B8G8R8X8_UNORM_SRGB is 0 (clear-93-*)
 D3D12.CLEAR.XALPHA measured | (none) | the X of B8G8R8X8_UNORM holds the alpha as UNORM (clear-88-*)
 D3D12.CLEAR.FORMAT measured | D3D12_FORMAT_SUPPORT1_RENDER_TARGET | UNKNOWN, block compressed and unassigned formats: the render target is not made, E_INVALIDARG (clear-unsupported)
-D3D12.CLEAR.REMOVED excluded | (none) | making a D32_FLOAT render target removes the device: DXGI_ERROR_DEVICE_REMOVED (measured, golden d3d12-32 f297a92 clear-unsupported); not asked: the executor crashed in later cases (golden c4c7692 and the run after)
+D3D12.CLEAR.REMOVED measured | (none) | making a D32_FLOAT render target removes the device: DXGI_ERROR_DEVICE_REMOVED (golden d3d12-32 f297a92 clear-unsupported; now the suite's last case, clear-removed, the device left unreleased)
 D3D12.CLEARDSV doc | ID3D12GraphicsCommandList::ClearDepthStencilView (Depth clamped to 0..1) | UNORM depths clamped and converted as UNORM (24 bits in the low bits of plane 0), float depths kept as given, not clamped (measured), the stencil plane the stencil's low byte (cleardsv-*)
 D3D12.CLEARDSV.NAN measured | (none) | a NaN depth clears a UNORM depth to 0 (cleardsv-45, cleardsv-55)

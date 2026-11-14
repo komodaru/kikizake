@@ -24,10 +24,8 @@ static int on12;
 
 static void d3d12_reset(void) {
     on12 = 0;
-    /* (a removed device is not kept) */
-    if (dev12 && ID3D12Device_GetDeviceRemovedReason(dev12) != S_OK) {
-        REL(list12); REL(alloc12); REL(fence12); REL(queue12); REL(dev12);
-    }
+    /* (a removed device is not kept, nor released: left as it is) */
+    if (dev12 && ID3D12Device_GetDeviceRemovedReason(dev12) != S_OK) list12 = NULL, alloc12 = NULL, fence12 = NULL, queue12 = NULL, dev12 = NULL;
 }
 
 void *kz_d3d12_queue(void) { return on12 ? queue12 : NULL; }

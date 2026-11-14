@@ -348,7 +348,13 @@ pub fn d3d12() -> String {
     for (i, l) in o.lines().enumerate() {
         writeln!(s, "case alloc-other-{i}\ndevice12\n{l}\nend").unwrap();
     }
+    // (standard swizzle of the two-plane formats, no target)
+    for (i, f) in [45u32, 20, 103].into_iter().enumerate() {
+        writeln!(s, "case alloc-std-planar-{i}\ndevice12\nalloc12 {}\ncreate12 1 0 {}\nend", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) }), desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) })).unwrap();
+    }
     writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
+    // (last: a D32_FLOAT render target removes the device, D3D12.CLEAR.REMOVED)
+    writeln!(s, "case clear-removed\ndevice12\nclear12 40 0 0 0 0\nend").unwrap();
     s
 }
 
@@ -366,6 +372,8 @@ pub fn dxgi() -> String {
     for f in [2, 4, 0x10, 0x8000_0000u32, 0] {
         writeln!(s, "dxgifactory {}\ndxgiwarp", hexw(f)).unwrap();
     }
+    // (DXGI_CREATE_FACTORY_DEBUG on its own: its answer depends on the Graphics Tools being there)
+    writeln!(s, "end\ncase factory-debug\ndxgifactory 1\ndxgiwarp").unwrap();
     writeln!(s, "end\ncase assoc\ndxgifactory 0").unwrap();
     for f in (0..=8).chain([0x10, 0x100, 0x8000_0000u32]) {
         writeln!(s, "dxgiassoc {}", hexw(f)).unwrap();

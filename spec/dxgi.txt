@@ -1,6 +1,6 @@
 # DXGI clauses (spec/README.md): <id> <status> | <source> | <what it says>
 DXGI.FACTORY measured | CreateDXGIFactory2 | an IDXGIFactory4; flags other than DXGI_CREATE_FACTORY_DEBUG are ignored (golden dxgi-32 factory: 2, 4, 0x10, 0x80000000)
-DXGI.FACTORY.DEBUG excluded | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | depends on the debug layer being installed: not asked
+DXGI.FACTORY.DEBUG open | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | the answer where the Graphics Tools are not installed (asked: factory-debug)
 DXGI.WARP measured | IDXGIFactory4::EnumWarpAdapter, DXGI_ADAPTER_DESC1 | the WARP adapter: vendor 0x1414, device 0x8c, flags DXGI_ADAPTER_FLAG_SOFTWARE (factory)
 DXGI.ASSOC measured | IDXGIFactory::MakeWindowAssociation (NULL only with flags 0) | flags are DXGI_MWA_NO_WINDOW_CHANGES, NO_ALT_ENTER, NO_PRINT_SCREEN, else DXGI_ERROR_INVALID_CALL; a NULL window is taken with any of them (assoc)
 DXGI.CHAIN.EFFECT doc | DXGI_SWAP_EFFECT (Direct3D 12: flip model only) | DISCARD and SEQUENTIAL (and unknown effects) are refused with DXGI_ERROR_INVALID_CALL (swapchain-effect-0)
