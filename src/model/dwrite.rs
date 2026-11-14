@@ -187,14 +187,17 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
     let mut out = Vec::new();
     let name = p.family.encode_utf16().map(|u| format!(" {u}")).collect::<String>();
     if p.family.is_empty() {
-        return Err(Fail::Unmodeled(open::DW_LAYOUT_NAME));
+        // MEASURED: a font without a family name is in no collection's family: E_FAIL
+        hit(clause::DW_LAYOUT_NAME);
+        out.push("dwlayout families 1 hr 80004005 name".into());
+        return Ok(out);
     }
     hit(clause::DW_LAYOUT_FAMILY);
     out.push(format!("dwlayout families 1 hr 00000000 name{name}"));
     if cps.iter().any(|&c| glyph_of(p, c) == 0) {
         return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK));
     }
-    let br = linebreak::breaks(cps)?;
+    let br = linebreak::breaks(cps);
     let scale = em as f32 / p.upm as f32;
     let adv: Vec<f32> = cps.iter().map(|&c| p.hmtx[glyph_of(p, c) as usize].0 as f32 * scale).collect();
     let m = metrics(p);
@@ -325,7 +328,10 @@ impl Dwrite {
                 }
                 let mut m = metrics(face!());
                 if em <= 0 || ppd <= 0 {
-                    return Err(Fail::Unmodeled(open::DW_GDI_INVALID));
+                    // MEASURED: E_INVALIDARG
+                    hit(clause::DW_GDI_INVALID);
+                    out.push("dwgdimetrics hr 80070057".into());
+                    return Ok(true);
                 }
                 hit(clause::DW_GDI_METRICS);
                 let r = gdi_round(m.upm, em * ppd);
@@ -384,7 +390,9 @@ impl Dwrite {
                 if gdi {
                     let (em, ppd) = (n(1)?, n(2)?);
                     if em <= 0 || ppd <= 0 {
-                        return Err(Fail::Unmodeled(open::DW_GDI_INVALID));
+                        hit(clause::DW_GDI_INVALID);
+                        out.push("dwgdiglyph hr 80070057".into());
+                        return Ok(true);
                     }
                     if !GDI_GLYPH {
                         return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
@@ -523,7 +531,7 @@ impl Dwrite {
                     return Err(Fail::Bad);
                 }
                 for (pos, len, sc) in script::runs(&cps)? {
-                    out.push(format!("run {pos} {len} {} {} shapes {}", sc.0, sc.1, sc.2));
+                    out.push(format!("run {pos} {len} {} {} shapes {}", sc.code, sc.num, sc.shapes.value()));
                 }
                 out.push("dwscript hr 00000000".into());
             }
@@ -539,15 +547,18 @@ impl Dwrite {
                     if !(0..=0x10ffff).contains(&c) {
                         return Err(Fail::Bad);
                     }
-                    cs.push(bidi::class(c as u32).ok_or(Fail::Unmodeled(open::DW_BIDI_CLASS))?);
+                    cs.push(c as u32);
                 }
                 if cs.is_empty() {
                     return Err(Fail::Bad);
                 }
-                let lv = bidi::levels(&cs, para);
+                let classes: Vec<bidi::Class> = cs.iter().map(|&c| bidi::class(c)).collect();
+                let (ex, lv) = bidi::analyze(&classes, para);
+                // (a level for each UTF-16 unit)
+                let units = |v: &[u8]| cs.iter().zip(v).map(|(&c, l)| if c >= 0x10000 { format!(" {l} {l}") } else { format!(" {l}") }).collect::<String>();
                 out.push("dwbidi hr 00000000".into());
-                out.push(format!("explicit{}", cs.iter().map(|_| format!(" {para}")).collect::<String>()));
-                out.push(format!("resolved{}", lv.iter().map(|l| format!(" {l}")).collect::<String>()));
+                out.push(format!("explicit{}", units(&ex)));
+                out.push(format!("resolved{}", units(&lv)));
             }
             "dwbreak" => {
                 let mut cps = Vec::new();
@@ -561,7 +572,7 @@ impl Dwrite {
                 if cps.is_empty() {
                     return Err(Fail::Bad);
                 }
-                let b = linebreak::breaks(&cps)?;
+                let b = linebreak::breaks(&cps);
                 out.push("dwbreak hr 00000000".into());
                 out.push(format!("breaks{}", b.iter().map(|x| format!(" {}{}{}{}", x.0, x.1, x.2, x.3)).collect::<String>()));
             }

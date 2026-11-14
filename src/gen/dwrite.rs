@@ -331,14 +331,17 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     }
     writeln!(s, "end").unwrap();
     // every script: the first, middle and last character of each Scripts.txt range, and of each
-    // gap between them (unassigned), alone
+    // gap between them (unassigned), and every common and inherited character, alone
     let mut cps = Vec::new();
     let mut next = 0u32;
-    for &(lo, hi, _) in crate::ucd::scripts().ranges() {
+    for &(lo, hi, v) in crate::ucd::scripts().ranges() {
         if lo > next {
             cps.extend([next, (next + lo - 1) / 2, lo - 1]);
         }
-        cps.extend([lo, (lo + hi) / 2, hi]);
+        match v {
+            "Common" | "Inherited" => cps.extend(lo..=hi),
+            _ => cps.extend([lo, (lo + hi) / 2, hi]),
+        }
         next = hi + 1;
     }
     cps.extend([next, 0x10ffff]);
@@ -354,7 +357,17 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     // every line break class and bidi class: the first, middle and last character of each range
     // of LineBreak.txt and DerivedBidiClass.txt, between letters and alone
     let samples = |t: &crate::ucd::Table| {
-        let mut v: Vec<u32> = t.ranges().iter().flat_map(|&(lo, hi, _)| [lo, (lo + hi) / 2, hi]).filter(|c| !(0xd800..=0xdfff).contains(c) && *c != 0).collect();
+        let mut v: Vec<u32> = Vec::new();
+        let mut next = 0u32;
+        for &(lo, hi, _) in t.ranges() {
+            // (and the gaps, which take the file's @missing values)
+            if lo > next {
+                v.extend([next, (next + lo - 1) / 2, lo - 1]);
+            }
+            v.extend([lo, (lo + hi) / 2, hi]);
+            next = hi + 1;
+        }
+        v.retain(|c| !(0xd800..=0xdfff).contains(c) && *c != 0);
         v.dedup();
         v
     };
@@ -369,6 +382,60 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "case bidiall-{i}").unwrap();
         for c in ch {
             writeln!(s, "dwbidi ltr 0x5d0 {c:#x} 0x5d0\ndwbidi rtl 0x61 {c:#x} 0x61\ndwbidi ltr {c:#x} 0x31").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // a no-visual or unassigned character among others: every common control, format and
+    // separator character and some unassigned ones, between, before and after letters
+    let gc = crate::ucd::general_category();
+    let mut nv: Vec<u32> = crate::ucd::scripts().ranges().iter().filter(|r| r.2 == "Common").flat_map(|r| r.0..=r.1).filter(|&c| matches!(gc.get(c), Some("Cc" | "Cf" | "Zl" | "Zp")) && c != 0).collect();
+    nv.extend([0x378, 0x5ff, 0xfffe, 0xffff, 0x2fffe, 0xe0080, 0x10ffff]);
+    for (i, ch) in nv.chunks(60).enumerate() {
+        writeln!(s, "case scriptctx-{i}").unwrap();
+        for c in ch {
+            writeln!(s, "dwscript 0x41 {c:#x} 0x41\ndwscript {c:#x} 0x41\ndwscript 0x41 {c:#x}\ndwscript 0x5d0 {c:#x} 0x41\ndwscript {c:#x} {c:#x}\ndwscript 0x20 {c:#x}").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // every pair of classes: a character of each line break class (the first the file lists)
+    // before one of each, next to each other and with a space between; of each bidi class, in
+    // both directions, alone and between strong characters, and after each explicit formatting
+    // character closed again
+    let reps = |t: &crate::ucd::Table| {
+        let mut seen: Vec<&str> = Vec::new();
+        let mut v: Vec<u32> = Vec::new();
+        for &(lo, _, val) in t.ranges() {
+            let c = if lo == 0 { 1 } else { lo };
+            if !seen.contains(&val) && !(0xd800..=0xdfff).contains(&c) && t.get(c) == Some(val) {
+                seen.push(val);
+                v.push(c);
+            }
+        }
+        v
+    };
+    let lb = reps(crate::ucd::line_break());
+    let pairs: Vec<(u32, u32)> = lb.iter().flat_map(|&a| lb.iter().map(move |&b| (a, b))).collect();
+    for (i, ch) in pairs.chunks(200).enumerate() {
+        writeln!(s, "case breakpair-{i}").unwrap();
+        for (a, b) in ch {
+            writeln!(s, "dwbreak {a:#x} {b:#x}\ndwbreak {a:#x} 0x20 {b:#x}").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    let bc = reps(crate::ucd::bidi_class());
+    let pairs: Vec<(u32, u32)> = bc.iter().flat_map(|&a| bc.iter().map(move |&b| (a, b))).collect();
+    for (i, ch) in pairs.chunks(100).enumerate() {
+        writeln!(s, "case bidipair-{i}").unwrap();
+        for (a, b) in ch {
+            writeln!(s, "dwbidi ltr {a:#x} {b:#x}\ndwbidi rtl {a:#x} {b:#x}\ndwbidi ltr 0x5d0 {a:#x} {b:#x} 0x61\ndwbidi rtl 0x61 {a:#x} {b:#x} 0x5d0").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    for (i, e) in [0x202a, 0x202b, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068].into_iter().enumerate() {
+        let close = if e >= 0x2066 { 0x2069 } else { 0x202c };
+        writeln!(s, "case bidiembed-{i}").unwrap();
+        for b in &bc {
+            writeln!(s, "dwbidi ltr 0x61 {e:#x} {b:#x} {close:#x} 0x5d0\ndwbidi rtl 0x5d0 {e:#x} {b:#x} {close:#x} 0x61\ndwbidi ltr {e:#x} {b:#x} 0x31\ndwbidi rtl {e:#x} {e:#x} {b:#x}").unwrap();
         }
         writeln!(s, "end").unwrap();
     }
@@ -419,6 +486,9 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         for pp in (8..=104i64).step_by(4) {
             let u = upm as i64;
             let ks: Vec<i64> = (1..pp * 3).filter(|k| (2 * k * u).rem_euclid(2 * pp) * 10 >= 8 * pp && (2 * k * u).rem_euclid(2 * pp) * 10 <= 12 * pp).take(14).collect();
+            if ks.is_empty() {
+                continue;
+            }
             let gs: Vec<_> = ks.iter().map(|k| (((2 * k * u + pp) / (2 * pp)) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 2) as i16)])).collect();
             let f = font_with(0x0fa0_0000 + u as u32 * 256 + pp as u32, upm, &gs);
             let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();

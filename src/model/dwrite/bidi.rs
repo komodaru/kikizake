@@ -1,53 +1,86 @@
-//! AnalyzeBidi: the Unicode Bidirectional Algorithm (UAX #9) for text without explicit
-//! formatting characters or brackets: one isolating run sequence at the paragraph level, rules
-//! W1-W7, N1-N2, I1-I2 and L1.
-use crate::spec::{clause};
+//! AnalyzeBidi: the Unicode Bidirectional Algorithm (UAX #9) as Windows runs it: explicit
+//! embeddings and overrides (X1-X9, depth 61), isolates as other neutrals, level runs (X10),
+//! rules W1-W7, N1-N2, I1-I2 and L1; classes from DerivedBidiClass.txt (Unicode 16.0).
+use crate::spec::clause;
 use crate::spec::hit;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Class {
-    L, R, AL, EN, AN, ES, ET, CS, NSM, WS, ON, S, B,
+    L, R, AL, EN, AN, ES, ET, CS, NSM, WS, ON, S, B, BN, LRE, LRO, RLE, RLO, PDF, LRI, RLI, FSI, PDI,
 }
 use Class::*;
 
-/// the classes of the characters the suite uses (UnicodeData.txt); None: not modelled
-pub fn class(c: u32) -> Option<Class> {
-    Some(match c {
-        0x9 | 0xb | 0x1f => S,
-        0xa | 0xd | 0x1c..=0x1e | 0x85 | 0x2029 => B,
-        0xc | 0x20 => WS,
-        0x30..=0x39 => EN,
-        0x2b | 0x2d => ES,
-        0x23..=0x25 | 0xa2..=0xa5 => ET,
-        0x2c | 0x2e | 0x2f | 0x3a => CS,
-        0x21 | 0x22 | 0x26 | 0x27 | 0x2a | 0x3b..=0x3f | 0x40 | 0x5c | 0x5e | 0x5f | 0x60 | 0x7c | 0x7e => ON,
-        0x41..=0x5a | 0x61..=0x7a => L,
-        0x300..=0x36f => NSM,
-        0x5d0..=0x5ea => R,
-        0x627..=0x64a => AL,
-        0x660..=0x669 => AN,
-        _ => return None,
-    })
+impl Class {
+    /// a DerivedBidiClass.txt value: the short name on its lines, the long one on @missing lines
+    fn parse(v: &str) -> Option<Class> {
+        Some(match v {
+            "L" | "Left_To_Right" => L,
+            "R" | "Right_To_Left" => R,
+            "AL" | "Arabic_Letter" => AL,
+            "EN" | "European_Number" => EN,
+            "AN" | "Arabic_Number" => AN,
+            "ES" | "European_Separator" => ES,
+            "ET" | "European_Terminator" => ET,
+            "CS" | "Common_Separator" => CS,
+            "NSM" | "Nonspacing_Mark" => NSM,
+            "WS" | "White_Space" => WS,
+            "ON" | "Other_Neutral" => ON,
+            "S" | "Segment_Separator" => S,
+            "B" | "Paragraph_Separator" => B,
+            "BN" | "Boundary_Neutral" => BN,
+            "LRE" | "Left_To_Right_Embedding" => LRE,
+            "LRO" | "Left_To_Right_Override" => LRO,
+            "RLE" | "Right_To_Left_Embedding" => RLE,
+            "RLO" | "Right_To_Left_Override" => RLO,
+            "PDF" | "Pop_Directional_Format" => PDF,
+            "LRI" | "Left_To_Right_Isolate" => LRI,
+            "RLI" | "Right_To_Left_Isolate" => RLI,
+            "FSI" | "First_Strong_Isolate" => FSI,
+            "PDI" | "Pop_Directional_Isolate" => PDI,
+            _ => return None,
+        })
+    }
 }
 
-/// the resolved level of each character at paragraph level `para` (0 or 1). MEASURED (golden
-/// dwrite): a segment separator ends the run as a paragraph separator would; the text between
-/// separators is resolved by itself, from and to the paragraph's direction.
-pub fn levels(text: &[Class], para: u8) -> Vec<u8> {
-    let mut lv = Vec::new();
+/// a character's class (DerivedBidiClass.txt, its @missing defaults where unlisted)
+pub fn class(c: u32) -> Class {
+    hit(clause::DW_BIDI_UCD);
+    let v = crate::ucd::bidi_class().get(c).unwrap_or("L");
+    Class::parse(v).unwrap_or_else(|| panic!("DerivedBidiClass.txt: no class {v}"))
+}
+
+/// X9: the characters the explicit rules remove (they take the level of the one before)
+fn removed(c: Class) -> bool {
+    matches!(c, BN | LRE | LRO | RLE | RLO | PDF)
+}
+
+/// UAX #9 6.2's deepest embedding level
+const MAX_DEPTH: u8 = 61;
+
+/// each character's explicit (embedding) level and resolved level at paragraph level `para`
+/// (0 or 1). MEASURED (golden dwrite): a segment separator ends the text as a paragraph separator
+/// would; the text between separators is resolved by itself, embeddings and all
+pub fn analyze(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
+    let (mut ex, mut lv) = (Vec::new(), Vec::new());
     let mut s = 0;
     for (i, c) in text.iter().enumerate() {
         if matches!(c, S | B) {
             if i > s {
                 hit(clause::DW_BIDI_SEGMENT);
             }
-            lv.extend(segment(&text[s..i], para));
+            let (e, l) = segment(&text[s..i], para);
+            ex.extend(e);
+            lv.extend(l);
+            ex.push(para);
             lv.push(para);
             s = i + 1;
         }
     }
-    lv.extend(segment(&text[s..], para));
-    // L1: separators, and whitespace before them or at the end, to the paragraph level
+    let (e, l) = segment(&text[s..], para);
+    ex.extend(e);
+    lv.extend(l);
+    // L1: separators, and whitespace (and removed characters) before them or at the end, to
+    // the paragraph level
     let mut tail = true;
     for i in (0..text.len()).rev() {
         match text[i] {
@@ -55,20 +88,101 @@ pub fn levels(text: &[Class], para: u8) -> Vec<u8> {
                 hit(clause::DW_BIDI_L1);
                 tail = true;
             }
-            WS if tail => {
+            c if tail && (c == WS || removed(c)) => {
                 hit(clause::DW_BIDI_L1);
                 lv[i] = para;
             }
             _ => tail = false,
         }
     }
-    lv
+    (ex, lv)
 }
 
-fn segment(text: &[Class], para: u8) -> Vec<u8> {
-    let e = |l: u8| if l % 2 == 0 { L } else { R };
-    let sos = e(para);
-    let mut t: Vec<Class> = text.to_vec();
+/// the levels of a text without separators
+fn segment(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
+    // X1-X8: the embedding level of each character, and its class under an override
+    let mut stack: Vec<(u8, Option<Class>)> = vec![(para, None)];
+    let mut over_count = 0u32;
+    let mut ex = Vec::with_capacity(text.len());
+    let mut t = Vec::with_capacity(text.len());
+    for &c in text {
+        let (level, dir) = *stack.last().unwrap_or(&(para, None));
+        match c {
+            RLE | LRE | RLO | LRO => {
+                hit(clause::DW_BIDI_X);
+                let next = match c {
+                    RLE | RLO => (level + 1) | 1,
+                    _ => (level + 2) & !1,
+                };
+                let o = match c {
+                    RLO => Some(R),
+                    LRO => Some(L),
+                    _ => None,
+                };
+                if next <= MAX_DEPTH && over_count == 0 {
+                    stack.push((next, o));
+                    ex.push(next);
+                } else {
+                    // (too deep: counted, so that its PDF is matched)
+                    over_count += 1;
+                    ex.push(level);
+                }
+                t.push(c);
+            }
+            PDF => {
+                hit(clause::DW_BIDI_X);
+                ex.push(level);
+                if over_count > 0 {
+                    over_count -= 1;
+                } else if stack.len() > 1 {
+                    stack.pop();
+                }
+                t.push(c);
+            }
+            _ => {
+                ex.push(level);
+                t.push(match (dir, removed(c)) {
+                    (Some(d), false) => d,
+                    _ => c,
+                });
+            }
+        }
+    }
+    // X9, X10: the level runs of the characters left, each resolved with its sos and eos
+    let kept: Vec<usize> = (0..t.len()).filter(|&i| !removed(t[i])).collect();
+    let mut lv = vec![para; t.len()];
+    let mut k = 0;
+    while k < kept.len() {
+        let level = ex[kept[k]];
+        let mut j = k;
+        while j < kept.len() && ex[kept[j]] == level {
+            j += 1;
+        }
+        let before = if k == 0 { para } else { ex[kept[k - 1]] };
+        let after = if j == kept.len() { para } else { ex[kept[j]] };
+        let e = |l: u8| if l % 2 == 0 { L } else { R };
+        let run: Vec<Class> = kept[k..j].iter().map(|&i| t[i]).collect();
+        let r = resolve(&run, level, e(level.max(before)), e(level.max(after)));
+        for (&i, l) in kept[k..j].iter().zip(r) {
+            lv[i] = l;
+        }
+        k = j;
+    }
+    // MEASURED: a removed character takes the resolved level of the one before it (the
+    // paragraph's at the start)
+    let mut prev = para;
+    for i in 0..t.len() {
+        if removed(t[i]) {
+            lv[i] = prev;
+        }
+        prev = lv[i];
+    }
+    (ex, lv)
+}
+
+/// W1-W7, N1-N2, I1-I2 over one level run
+fn resolve(run: &[Class], level: u8, sos: Class, eos: Class) -> Vec<u8> {
+    let mut t: Vec<Class> = run.to_vec();
     hit(clause::DW_BIDI_W);
     // W1
     let mut prev = sos;
@@ -130,14 +244,15 @@ fn segment(text: &[Class], para: u8) -> Vec<u8> {
             _ => {}
         }
     }
-    // N1, N2
+    // N1, N2 (isolates are neutrals here)
     hit(clause::DW_BIDI_N);
-    let ni = |c: Class| matches!(c, WS | ON | S | B);
+    let ni = |c: Class| matches!(c, WS | ON | S | B | LRI | RLI | FSI | PDI);
     let dir = |c: Class| match c {
         L => Some(L),
         R | EN | AN => Some(R),
         _ => None,
     };
+    let e = if level % 2 == 0 { L } else { R };
     let mut i = 0;
     while i < t.len() {
         if ni(t[i]) {
@@ -146,8 +261,8 @@ fn segment(text: &[Class], para: u8) -> Vec<u8> {
                 i += 1;
             }
             let before = if s == 0 { sos } else { dir(t[s - 1]).unwrap_or(sos) };
-            let after = if i == t.len() { sos } else { dir(t[i]).unwrap_or(sos) };
-            let d = if before == after { before } else { e(para) };
+            let after = if i == t.len() { eos } else { dir(t[i]).unwrap_or(eos) };
+            let d = if before == after { before } else { e };
             t[s..i].iter_mut().for_each(|c| *c = d);
         } else {
             i += 1;
@@ -155,14 +270,12 @@ fn segment(text: &[Class], para: u8) -> Vec<u8> {
     }
     // I1, I2
     hit(clause::DW_BIDI_I);
-    let lv: Vec<u8> = t
-        .iter()
-        .map(|c| match (para % 2, c) {
-            (0, R) => para + 1,
-            (0, AN | EN) => para + 2,
-            (1, L | EN | AN) => para + 1,
-            _ => para,
+    t.iter()
+        .map(|c| match (level % 2, c) {
+            (0, R) => level + 1,
+            (0, AN | EN) => level + 2,
+            (1, L | EN | AN) => level + 1,
+            _ => level,
         })
-        .collect();
-    lv
+        .collect()
 }

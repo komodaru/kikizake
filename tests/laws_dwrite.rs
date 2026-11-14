@@ -64,7 +64,7 @@ proptest! {
 }
 
 fn bidi_class(c: u32) -> bidi::Class {
-    bidi::class(c).unwrap()
+    bidi::class(c)
 }
 
 /// every string of up to 4 of the classes, both directions: one level per character; strong
@@ -79,7 +79,7 @@ fn bidi_levels_exhaustive() {
         for idx in 0..(k as u32).pow(n) {
             let t: Vec<_> = (0..n).map(|j| cs[(idx / (k as u32).pow(j)) as usize % k]).collect();
             for para in [0u8, 1] {
-                let lv = bidi::levels(&t, para);
+                let lv = bidi::analyze(&t, para).1;
                 assert_eq!(lv.len(), t.len());
                 for (i, (&c, &l)) in t.iter().zip(&lv).enumerate() {
                     assert!(l >= para && l <= para + 2, "{t:?} {para} {lv:?}");
@@ -106,7 +106,7 @@ fn breaks_exhaustive() {
     for n in 1..=3u32 {
         for idx in 0..(k as u32).pow(n) {
             let t: Vec<u32> = (0..n).map(|j| BREAK_CHARS[(idx / (k as u32).pow(j)) as usize % k]).collect();
-            let b = linebreak::breaks(&t).unwrap();
+            let b = linebreak::breaks(&t);
             assert_eq!(b.len(), t.len());
             assert_eq!(b[0].0, 2, "{t:x?} {b:?}");
             assert!(matches!(b[t.len() - 1].1, 1 | 3), "{t:x?} {b:?}");
@@ -146,7 +146,7 @@ fn script_runs_exhaustive() {
             }
             let mut u = 0;
             for &c in &t {
-                if let Some(s) = script::script(c).unwrap() {
+                if let script::Kind::Script(s) = script::kind(c).unwrap() {
                     let r = runs.iter().find(|r| r.0 <= u && u < r.0 + r.1).unwrap();
                     assert_eq!(r.2, s, "{t:x?} {runs:?}");
                 }
@@ -201,5 +201,87 @@ proptest! {
         let text = format!("case x\ndwfont {hex}\n{} {}\nend\n", names[op], args.join(" "));
         let cases = kikizake::case::parse_cases(&text);
         let _ = kikizake::model::run("dwrite", &cases);
+    }
+}
+
+/// one character of each value a UCD table lists (the first it lists)
+fn reps(t: &kikizake::ucd::Table) -> Vec<u32> {
+    let mut seen: Vec<&str> = Vec::new();
+    let mut v = Vec::new();
+    for &(lo, _, val) in t.ranges() {
+        let c = lo.max(1);
+        if !seen.contains(&val) && !(0xd800..=0xdfff).contains(&c) && t.get(c) == Some(val) {
+            seen.push(val);
+            v.push(c);
+        }
+    }
+    v
+}
+
+/// every triple of the bidi classes (a character of each), both directions: one level per
+/// character; the characters X9 removes at the level before them; strong characters outside
+/// embeddings at their own parity; separators and trailing whitespace at the paragraph level
+#[test]
+fn bidi_every_class_triple() {
+    use bidi::Class::*;
+    let cs: Vec<bidi::Class> = reps(kikizake::ucd::bidi_class()).into_iter().map(bidi::class).collect();
+    assert_eq!(cs.len(), 23);
+    for &a in &cs {
+        for &b in &cs {
+            for &c in &cs {
+                let t = [a, b, c];
+                for para in [0u8, 1] {
+                    let (ex, lv) = bidi::analyze(&t, para);
+                    assert_eq!((ex.len(), lv.len()), (3, 3));
+                    let embedded = t.iter().any(|c| matches!(c, LRE | RLE | LRO | RLO));
+                    for i in 0..3 {
+                        assert!(lv[i] <= para + 6 && ex[i] <= para + 6 && lv[i] >= para, "{t:?} {para} {lv:?}");
+                        match t[i] {
+                            BN | LRE | RLE | LRO | RLO | PDF => {
+                                let before = if i == 0 { para } else { lv[i - 1] };
+                                let trailing = t[i..].iter().all(|c| matches!(c, WS | BN | LRE | RLE | LRO | RLO | PDF | S | B));
+                                assert!(lv[i] == before || trailing, "{t:?} {para} {lv:?}");
+                            }
+                            L if !embedded => assert_eq!(lv[i] % 2, 0, "{t:?} {para} {lv:?}"),
+                            R | AL if !embedded => assert_eq!(lv[i] % 2, 1, "{t:?} {para} {lv:?}"),
+                            S | B => assert_eq!(lv[i], para),
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// every pair of the line break classes (a character of each), next to each other and around
+/// a space: one entry per UTF-16 unit, each boundary told the same from both sides, MAY_NOT
+/// inside a supplementary character, MUST only after a hard line break
+#[test]
+fn breaks_every_class_pair() {
+    let cs = reps(kikizake::ucd::line_break());
+    assert!(cs.len() >= 40);
+    let hard = |c: u32| matches!(c, 0xa..=0xd | 0x85 | 0x2028 | 0x2029);
+    for &a in &cs {
+        for &b in &cs {
+            for t in [vec![a, b], vec![a, 0x20, b]] {
+                let br = linebreak::breaks(&t);
+                let units: Vec<u32> = t.iter().flat_map(|&c| if c >= 0x10000 { vec![c, c] } else { vec![c] }).collect();
+                assert_eq!(br.len(), units.len(), "{t:x?}");
+                assert_eq!(br[0].0, 2);
+                for i in 1..br.len() {
+                    assert_eq!(br[i - 1].1, br[i].0, "{t:x?} {br:?}");
+                    if br[i - 1].1 == 3 {
+                        assert!(hard(units[i - 1]), "{t:x?} {br:?}");
+                    }
+                }
+                for (i, &c) in t.iter().enumerate() {
+                    if c >= 0x10000 {
+                        let u = t[..i].iter().map(|&c| if c >= 0x10000 { 2 } else { 1 }).sum::<usize>();
+                        assert_eq!(br[u].1, 2, "{t:x?} {br:?}");
+                    }
+                }
+            }
+        }
     }
 }
