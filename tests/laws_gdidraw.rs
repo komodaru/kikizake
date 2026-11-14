@@ -168,3 +168,22 @@ proptest! {
         let _ = model::run("x", &cases);
     }
 }
+
+/// what the models answer as Windows does: each suite at least this many cases, so a model that
+/// stops answering (a case turned unmodeled) fails as surely as one that answers wrong
+#[test]
+fn models_keep_answering() {
+    use kikizake::{case, compare, gen};
+    let floor = [("lines", 173), ("region", 358), ("xform", 88), ("path", 31), ("text", 21), ("blend", 382), ("ddb", 14)];
+    for (s, n) in floor {
+        let cases = case::parse_cases(&gen::suite(s).unwrap());
+        for arch in [32, 64] {
+            model::set_arch(arch);
+            let p = format!("{}/golden/{s}-{arch}/stdout.txt", env!("CARGO_MANIFEST_DIR"));
+            let Ok(g) = std::fs::read_to_string(&p) else { continue };
+            let r = compare::compare_text(&model::run(s, &cases), &g);
+            assert!(r.differ.is_empty() && r.same >= n, "{s}-{arch}: {} as Windows (at least {n}), {} differ", r.same, r.differ.len());
+        }
+    }
+    model::set_arch(32);
+}
