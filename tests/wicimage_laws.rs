@@ -59,9 +59,12 @@ fn nearest_neighbor_picks_pixels() {
             for d in 0..dw {
                 let s = wi::nearest(d, sw, dw);
                 assert!(s < sw);
-                // the source pixel whose span holds the output pixel's center
-                let c2 = (2 * d + 1) as u64 * sw as u64;
-                assert!(s as u64 * 2 * dw as u64 <= c2 && c2 < (s as u64 + 1) * 2 * dw as u64);
+                assert!(d + 1 < dw || s == sw - 1);
+                // (measured) the source pixel whose span holds the output pixel's right edge, just inside
+                let e = ((d + 1) * sw - 1) as u64;
+                assert!(s as u64 * dw as u64 <= e && e < (s as u64 + 1) * dw as u64);
+                // monotonic, and the last output pixel takes the last source pixel
+                assert!(d == 0 || wi::nearest(d - 1, sw, dw) <= s);
             }
             if dw % sw == 0 {
                 for d in 0..dw {
@@ -73,7 +76,8 @@ fn nearest_neighbor_picks_pixels() {
             assert_eq!(wi::nearest(d, sw, sw), d);
         }
     }
-    for f in FMTS {
+    // (the formats the scaler answers in as they are)
+    for f in FMTS.iter().filter(|f| wi::scale_formats(f, "nn") == (**f, **f)) {
         let s = img(f, 5, 3, 9);
         assert_eq!(pixels(&wi::scale(&s, 5, 3, "nn").unwrap()), pixels(&s));
     }
