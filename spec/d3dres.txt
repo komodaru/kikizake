@@ -66,7 +66,8 @@ CONV.XRBIAS excluded | DXGI_FORMAT (R10G10B10_XR_BIAS_A2_UNORM); ld-89, probe-xr
 CONV.OTHER excluded | (none) | the video, packed 4:2:2 and R1 formats as colors: the suites neither clear nor read them
 CONV.BLOCK measured | ld of BC1, BC2, BC3, BC4, BC5 UNORM (WARP); ld-bc* | BC1: endpoints bit-replicated to 8 bits, thirds (171a + 85b) >> 8, half (a + b) >> 1; BC2 alpha 4-bit; BC3 alpha 8-bit steps rounded to nearest; BC4/BC5 UNORM 16-bit steps truncated, / 65535
 CONV.BC4SNORM open | BC4_SNORM, BC5_SNORM | signed one and two channel blocks: within 1 ulp of the exact steps, not fitted
-CONV.BLOCKFMT open | BC6H, BC7 | the HDR and mode-based block formats
+CONV.BC6H measured | BC6H Format; ld-95, ld-96 (WARP, every texel of 8 random blocks each) | BC6H_UF16 and SF16: the 14 modes, endpoints unquantized and the deltas, the 3 and 4 bit weights, the result scaled by 31/64 (31/32 signed) to a 16-bit float; a reserved mode reads zeros
+CONV.BC7 measured | BC7 Format; ld-98 (WARP, 8 random blocks) | BC7_UNORM: the 8 modes, p-bits, partitions, rotation and index selection, weights (64 - w) a + w b + 32 >> 6; a reserved mode reads zeros
 D3DRASTER.SHADER doc | ID3D11Device::CreateVertexShader, CreatePixelShader | the generator's programs are accepted
 D3DRASTER.SHADER.BAD assumed | CreatePixelShader | bytes that are not a program of that kind (wrong checksum, truncated, the other kind): E_INVALIDARG
 D3DRASTER.LAYOUT assumed | ID3D11Device::CreateInputLayout | every input of the program needs an element; an element of an unknown, typeless, block or video format is refused

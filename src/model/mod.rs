@@ -8,6 +8,7 @@ pub mod d3d12;
 pub mod dxgi_format;
 pub mod d3draster;
 pub mod d3dres;
+pub mod bptc;
 pub mod d3dres_check;
 pub mod d3dfmt_table;
 pub mod dxgiconv;

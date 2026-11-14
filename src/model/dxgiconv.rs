@@ -389,7 +389,17 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
         83 => [chan(b), chan(&b[8..]), 0.0, one],
         // (the signed steps: within an ulp of 16-bit steps over 32767, which ulp, open)
         81 | 84 => return Err(Fail::Unmodeled("CONV.BC4SNORM")),
-        _ => return Err(Fail::Unmodeled("CONV.BLOCKFMT")),
+        95 | 96 => {
+            hit("CONV.BC6H");
+            let h = super::bptc::bc6h(b, f.id == 96, x, y);
+            [from_small_float(h[0] as u32, 5, 10, true), from_small_float(h[1] as u32, 5, 10, true), from_small_float(h[2] as u32, 5, 10, true), one]
+        }
+        98 => {
+            hit("CONV.BC7");
+            super::bptc::bc7(b, x, y).map(|c| un(c as u32, 8))
+        }
+        72 | 75 | 78 | 99 => return Err(Fail::Unmodeled("CONV.SRGBREAD")),
+        _ => return Err(Fail::Unmodeled("CONV.OTHER")),
     };
     Ok(v.map(f32::to_bits))
 }

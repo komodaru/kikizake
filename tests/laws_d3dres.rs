@@ -206,3 +206,19 @@ fn d3d_models_match_the_answered_cases() {
         assert!(bad.is_empty(), "{s}: {bad:?}");
     }
 }
+
+proptest! {
+    /// any 16 bytes are a BC6H and a BC7 block: every texel decodes, a reserved mode to zeros;
+    /// an unsigned BC6H texel is never negative nor past the largest finite half
+    #[test]
+    fn bptc_blocks_decode(b in proptest::array::uniform16(any::<u8>()), x in 0u32..4, y in 0u32..4) {
+        use kikizake::model::bptc::{bc6h, bc7};
+        let u = bc6h(&b, false, x, y);
+        prop_assert!(u.iter().all(|&h| h <= 0x7bff));
+        let _ = bc6h(&b, true, x, y);
+        let _ = bc7(&b, x, y);
+        let mut z = b;
+        z[0] = 0;
+        prop_assert_eq!(bc7(&z, x, y), [0; 4]);
+    }
+}

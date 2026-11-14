@@ -2,7 +2,6 @@
 # excluded (not asked). This list only shrinks (tests/spec.rs unresolved_only_shrinks); the goal is
 # none. Settle one (model it, fit it to Windows' answers: doc or measured) and take its line out.
 CONV.BC4SNORM open
-CONV.BLOCKFMT open
 CONV.F11 assumed
 CONV.F16 assumed
 CONV.OTHER excluded
