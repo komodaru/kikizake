@@ -289,6 +289,45 @@ pub fn d3d12() -> String {
         writeln!(s, "clear12 {f} 0 0 0 0").unwrap();
     }
     writeln!(s, "cleardsv12 28 0 0\nend").unwrap();
+    // what the sweeps above leave open: 64KB layouts of 2D arrays and mip chains, the planar
+    // video formats without mips, GPU upload heaps, 1D render target sizes
+    writeln!(s, "case create-split\ndevice12").unwrap();
+    for (d, mips) in [(2, 1), (1, 3), (1, 0), (4, 1)] {
+        for layout in [2, 3] {
+            writeln!(s, "create12 1 0 {}", desc_str(&Desc { layout, ..Desc::tex(3, 64, 32, d, mips, 28) })).unwrap();
+        }
+    }
+    for f in [103, 104, 105, 106, 107, 108, 109, 110, 100, 102] {
+        for (w, h, d, mips) in [(64, 32, 1, 1), (63, 32, 1, 1), (64, 31, 1, 1), (64, 32, 2, 1), (64, 32, 1, 2)] {
+            writeln!(s, "create12 1 0 {}", desc_str(&Desc::tex(3, w, h, d, mips, f))).unwrap();
+        }
+        writeln!(s, "footprint12 0 2 0 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, f))).unwrap();
+    }
+    writeln!(s, "end\ncase create-gpuupload\ndevice12").unwrap();
+    for st in [0u32, 1, 4, 8, 0x400, 0xac3] {
+        writeln!(s, "create12 5 {} {}", hexw(st), desc_str(&buf)).unwrap();
+    }
+    for f in [0u32, 1, 4] {
+        writeln!(s, "create12 5 0 {}", desc_str(&Desc { flags: f, ..Desc::tex(3, 64, 32, 1, 1, 28) })).unwrap();
+    }
+    writeln!(s, "create12 5 0 {}", desc_str(&Desc::tex(4, 16, 16, 4, 1, 28))).unwrap();
+    writeln!(s, "end\ncase alloc-rt1d\ndevice12").unwrap();
+    for (w, a, m, f) in [(944, 3, 3, 2), (944, 1, 1, 2), (944, 3, 1, 2), (944, 1, 3, 2), (4096, 1, 1, 28), (16384, 1, 1, 28), (100, 1, 1, 28), (1024, 2, 1, 10), (4000, 1, 1, 2), (2000, 4, 2, 87)] {
+        writeln!(s, "alloc12 {}", desc_str(&Desc { flags: 1, ..Desc::tex(2, w, 1, a, m, f) })).unwrap();
+        writeln!(s, "alloc12 {}", desc_str(&Desc::tex(2, w, 1, a, m, f))).unwrap();
+    }
+    // multisampled, 64KB-swizzled and planar textures (sizes of the driver's own layout)
+    writeln!(s, "end\ncase alloc-other\ndevice12").unwrap();
+    for (w, h, n, f) in [(64u32, 64u32, 2u32, 28u32), (64, 64, 4, 28), (256, 100, 8, 28), (1000, 700, 4, 10), (300, 200, 16, 2), (128, 128, 4, 45)] {
+        writeln!(s, "alloc12 {}", desc_str(&Desc { samples: n, flags: if f == 45 { 2 } else { 1 }, ..Desc::tex(3, w, h, 1, 1, f) })).unwrap();
+    }
+    for (w, h, m, f) in [(256u32, 256u32, 1u32, 28u32), (1000, 300, 1, 2), (64, 64, 1, 71)] {
+        writeln!(s, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
+    }
+    for (w, h, m, f) in [(256u32, 256u32, 1u32, 20u32), (100, 60, 3, 20), (64, 64, 1, 103), (640, 480, 1, 103), (128, 64, 1, 44)] {
+        writeln!(s, "alloc12 {}", desc_str(&Desc { flags: if f == 103 { 0 } else { 2 }, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
+    }
+    writeln!(s, "end").unwrap();
     writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
     s
 }
@@ -369,7 +408,7 @@ pub fn dxgi() -> String {
     }
     writeln!(s, "case chain-present\ndevice12\ndxgifactory 0").unwrap();
     chain_line(&mut s, "swapchain", &CHAIN);
-    for (sync, flags) in [(0, 0), (1, 0), (4, 0), (5, 0), (0, 1), (0, 2), (0, 8), (0, 0x200), (0, 0x8000_0000), (1, 0x200), (0, 0x100)] {
+    for (sync, flags) in [(0, 0), (1, 0), (4, 0), (5, 0), (0, 1), (0, 2), (0, 4), (0, 0x200), (0, 0x8000_0000), (1, 0x200), (0, 0x100)] {
         writeln!(s, "scpresent {sync} {}", hexw(flags)).unwrap();
     }
     writeln!(s, "end").unwrap();

@@ -361,6 +361,8 @@ pub struct D3d12 {
     factory: bool,
     /// the swap chain: its description (GetDesc1's 12 fields) and back buffer index
     chain: Option<([u32; 12], u32)>,
+    /// its maximum frame latency
+    latency: u32,
 }
 
 fn words(t: &[String]) -> Res<Vec<u32>> {
@@ -653,9 +655,12 @@ impl D3d12 {
             self.chain = None;
             let f = num(&t[1]).ok_or(Fail::Bad)? as u32;
             hit("DXGI.FACTORY");
-            if f != 0 {
-                return Err(Fail::Unmodeled("DXGI.FACTORY.FLAGS"));
+            // (MEASURED: flags other than DXGI_CREATE_FACTORY_DEBUG are ignored; DEBUG is not asked:
+            // it depends on the debug layer being installed)
+            if f & 1 != 0 {
+                return Err(Fail::Unmodeled("DXGI.FACTORY.DEBUG"));
             }
+            let _ = f;
             self.factory = true;
             out.push("factory ok".into());
             return Ok(true);
@@ -676,7 +681,9 @@ impl D3d12 {
                 }
                 let f = num(&t[1]).ok_or(Fail::Bad)? as u32;
                 hit("DXGI.ASSOC");
-                let ok = f & !7 == 0 && (!null || f == 0);
+                // (MEASURED: a NULL window is taken with any of the three flags)
+                let _ = null;
+                let ok = f & !7 == 0;
                 out.push(format!("assoc hr {:08x}", if ok { 0 } else { DXGI_ERROR_INVALID_CALL }));
             }
             "swapchain" => {
@@ -689,52 +696,138 @@ impl D3d12 {
                 }
                 let w: [u32; 12] = words(&t[1..])?.try_into().unwrap();
                 self.chain = None;
-                match chain_desc(&w)? {
-                    Some(d) => {
+                match chain_desc(&w) {
+                    Ok(d) => {
                         self.chain = Some((d, 0));
+                        self.latency = 1;
                         out.push(chain_line("swapchain", &d, 0));
                     }
-                    None => out.push(format!("swapchain hr {DXGI_ERROR_INVALID_CALL:08x}")),
+                    Err(hr) => out.push(format!("swapchain hr {hr:08x}")),
                 }
             }
             _ if self.chain.is_none() => out.push("nochain".into()),
-            _ => return Err(Fail::Unmodeled("DXGI.CHAIN.OPS")),
+            _ => {
+                let Some((d, index)) = self.chain.as_mut() else { unreachable!() };
+                let w = words(&t[1..])?;
+                match (name, w.len()) {
+                    ("scbuffer", 1) => {
+                        hit("DXGI.BUFFER");
+                        // (a buffer: a 2D render target of the chain's size and format)
+                        if w[0] < d[7] {
+                            out.push(format!("buffer 3 {:x} {:x} 1 1 {:x} 1 0 1", d[0], d[1], d[2]));
+                        } else {
+                            out.push(format!("buffer hr {DXGI_ERROR_INVALID_CALL:08x}"));
+                        }
+                    }
+                    ("scpresent", 2) => {
+                        hit("DXGI.PRESENT");
+                        let (sync, flags) = (w[0], w[1]);
+                        // (MEASURED: sync intervals 0..4; TEST and DO_NOT_SEQUENCE present nothing;
+                        // ALLOW_TEARING needs the chain's flag; unknown flags refused)
+                        let known = 1 | 2 | 4 | 0x100 | 0x200;
+                        let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0);
+                        if flags & 4 != 0 {
+                            return Err(Fail::Unmodeled("DXGI.PRESENT.RESTART"));
+                        }
+                        if bad {
+                            out.push(format!("present hr {DXGI_ERROR_INVALID_CALL:08x} index {index:x}"));
+                        } else {
+                            if flags & 3 == 0 {
+                                *index = (*index + 1) % d[7];
+                            } else {
+                                hit("DXGI.PRESENT.TEST");
+                            }
+                            out.push(format!("present hr 00000000 index {index:x}"));
+                        }
+                    }
+                    ("scresize", 5) => {
+                        hit("DXGI.RESIZE");
+                        let (n, rw, rh, f, fl) = (w[0], w[1], w[2], w[3], w[4]);
+                        // (MEASURED: 0 keeps the count and format; a 0 size is the window's; the
+                        // flags not to change are FRAME_LATENCY_WAITABLE_OBJECT and ALLOW_TEARING;
+                        // unknown flags DXGI_ERROR_INVALID_CALL, the rest E_INVALIDARG)
+                        if fl & !CHAIN_FLAGS != 0 {
+                            out.push(format!("resize hr {DXGI_ERROR_INVALID_CALL:08x}"));
+                        } else if n == 1 || n > 16 || f != 0 && !FLIP.contains(&f) || (fl ^ d[11]) & 0x840 != 0 {
+                            out.push(format!("resize hr {E_INVALIDARG:08x}"));
+                        } else {
+                            if n != 0 {
+                                d[7] = n;
+                            }
+                            if f != 0 {
+                                d[2] = f;
+                            }
+                            (d[0], d[1]) = if rw == 0 || rh == 0 { (64, 64) } else { (rw, rh) };
+                            d[11] = fl;
+                            *index = 0;
+                            out.push(chain_line("resize", d, 0));
+                        }
+                    }
+                    ("sclatency", 1) => {
+                        hit("DXGI.LATENCY");
+                        // (MEASURED: only with FRAME_LATENCY_WAITABLE_OBJECT; 0 and 0xffffffff
+                        // refused, 17 taken; the default 1)
+                        if d[11] & 0x40 == 0 {
+                            out.push(format!("latency hr {0:08x} get {0:08x} cccccccc", DXGI_ERROR_INVALID_CALL));
+                        } else {
+                            let hr = if w[0] != 0 && w[0] < 0x8000_0000 {
+                                self.latency = w[0];
+                                0
+                            } else {
+                                DXGI_ERROR_INVALID_CALL
+                            };
+                            out.push(format!("latency hr {hr:08x} get 00000000 {:x}", self.latency));
+                        }
+                    }
+                    _ => return Err(Fail::Bad),
+                }
+            }
         }
         Ok(true)
     }
 }
 
-/// GetDesc1 of the swap chain CreateSwapChainForHwnd makes from `w`, None when it refuses it
-pub fn chain_desc(w: &[u32; 12]) -> Res<Option<[u32; 12]>> {
+/// GetDesc1 of the swap chain CreateSwapChainForHwnd makes from `w` (Err(hr) when it refuses it)
+pub fn chain_desc(w: &[u32; 12]) -> Result<[u32; 12], u32> {
     let mut d = *w;
     let no = |c: bool, id: &'static str| {
         hit(id);
-        c
+        if c {
+            Err(DXGI_ERROR_INVALID_CALL)
+        } else {
+            Ok(())
+        }
     };
-    if no(!matches!(d[9], 3 | 4), "DXGI.CHAIN.EFFECT")
-        || no(d[7] < 2 || d[7] > 16, "DXGI.CHAIN.BUFFERS")
-        || no(d[4] != 1 || d[5] != 0, "DXGI.CHAIN.SAMPLES")
-        || no(!FLIP.contains(&d[2]), "DXGI.CHAIN.FORMAT")
-    {
-        return Ok(None);
-    }
-    if d[3] != 0 || d[8] > 2 || d[10] != 0 || d[11] != 0 || d[6] != 0x20 {
-        return Err(Fail::Unmodeled("DXGI.CHAIN.OTHER"));
+    no(!matches!(d[9], 3 | 4), "DXGI.CHAIN.EFFECT")?;
+    no(d[7] < 2 || d[7] > 16, "DXGI.CHAIN.BUFFERS")?;
+    no(d[4] != 1 || d[5] != 0, "DXGI.CHAIN.SAMPLES")?;
+    no(!FLIP.contains(&d[2]), "DXGI.CHAIN.FORMAT")?;
+    // (MEASURED, golden dxgi-32 swapchain-*: scaling STRETCH or NONE (ASPECT_RATIO_STRETCH refused
+    // for a window), alpha UNSPECIFIED or IGNORE, usage bits up to 0x40, these flags; stereo is
+    // taken and kept)
+    no(d[8] > 1, "DXGI.CHAIN.SCALING")?;
+    no(!matches!(d[10], 0 | 3), "DXGI.CHAIN.ALPHA")?;
+    no(d[6] & !0x70 != 0, "DXGI.CHAIN.USAGE")?;
+    no(d[11] & !CHAIN_FLAGS != 0, "DXGI.CHAIN.FLAGS")?;
+    if d[3] != 0 {
+        hit("DXGI.CHAIN.STEREO");
     }
     if d[0] == 0 || d[1] == 0 {
+        // (MEASURED: either one 0 takes both from the window)
         hit("DXGI.CHAIN.SIZE");
-        if d[0] == 0 {
-            d[0] = 64;
-        }
-        if d[1] == 0 {
-            d[1] = 64;
-        }
+        (d[0], d[1]) = (64, 64);
     }
-    if d[0] > 16384 || d[1] > 16384 {
-        return Err(Fail::Unmodeled("DXGI.CHAIN.OTHER"));
+    // (MEASURED: x86 runs out of address space for 16385 by 16385)
+    if super::arch() == 32 && d[0] as u64 * d[1] as u64 * 4 * d[7] as u64 >= 1 << 30 {
+        hit("DXGI.CHAIN.MEMORY");
+        return Err(0x8007_000e);
     }
-    Ok(Some(d))
+    Ok(d)
 }
+
+/// the swap chain flags CreateSwapChainForHwnd takes on Direct3D 12 (MEASURED): ALLOW_MODE_SWITCH,
+/// RESTRICT_SHARED_RESOURCE_DRIVER, FRAME_LATENCY_WAITABLE_OBJECT, ALLOW_TEARING, HW_PROTECTED, 0x2000
+pub const CHAIN_FLAGS: u32 = 0x2 | 0x20 | 0x40 | 0x800 | 0x1000 | 0x2000;
 
 fn chain_line(what: &str, d: &[u32; 12], index: u32) -> String {
     format!("{what} = {} index {index:x}", d.iter().map(|v| format!("{v:x}")).collect::<Vec<_>>().join(" "))

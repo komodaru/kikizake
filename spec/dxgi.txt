@@ -1,12 +1,22 @@
 # DXGI clauses (spec/README.md): <id> <status> | <source> | <what it says>
-DXGI.FACTORY doc | CreateDXGIFactory2 | flags 0 make an IDXGIFactory4
-DXGI.FACTORY.FLAGS open | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | other flags
-DXGI.WARP assumed | IDXGIFactory4::EnumWarpAdapter, DXGI_ADAPTER_DESC1 | the WARP adapter: vendor 0x1414, device 0x8c, flags DXGI_ADAPTER_FLAG_SOFTWARE
-DXGI.ASSOC doc | IDXGIFactory::MakeWindowAssociation | flags are DXGI_MWA_NO_WINDOW_CHANGES, NO_ALT_ENTER, NO_PRINT_SCREEN; a NULL window only with flags 0; else DXGI_ERROR_INVALID_CALL (assumed for unknown flags)
-DXGI.CHAIN.EFFECT doc | DXGI_SWAP_EFFECT (Direct3D 12: flip model only) | DISCARD and SEQUENTIAL (and unknown effects) are refused with DXGI_ERROR_INVALID_CALL
-DXGI.CHAIN.BUFFERS doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | BufferCount 2 to 16
-DXGI.CHAIN.SAMPLES doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | SampleDesc 1 0
-DXGI.CHAIN.FORMAT doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | Format R16G16B16A16_FLOAT, B8G8R8A8_UNORM, R8G8B8A8_UNORM or R10G10B10A2_UNORM
-DXGI.CHAIN.SIZE doc | DXGI_SWAP_CHAIN_DESC1 (Width, Height 0: the window's) | a zero width or height is the window's client area (64)
-DXGI.CHAIN.OTHER open | DXGI_SWAP_CHAIN_DESC1 | stereo, scaling, alpha mode, usage, flags, large sizes
-DXGI.CHAIN.OPS open | IDXGISwapChain::ResizeBuffers, GetBuffer, Present, IDXGISwapChain2::SetMaximumFrameLatency | (being written)
+DXGI.FACTORY measured | CreateDXGIFactory2 | an IDXGIFactory4; flags other than DXGI_CREATE_FACTORY_DEBUG are ignored (golden dxgi-32 factory: 2, 4, 0x10, 0x80000000)
+DXGI.FACTORY.DEBUG excluded | CreateDXGIFactory2 (DXGI_CREATE_FACTORY_DEBUG) | depends on the debug layer being installed: not asked
+DXGI.WARP measured | IDXGIFactory4::EnumWarpAdapter, DXGI_ADAPTER_DESC1 | the WARP adapter: vendor 0x1414, device 0x8c, flags DXGI_ADAPTER_FLAG_SOFTWARE (factory)
+DXGI.ASSOC measured | IDXGIFactory::MakeWindowAssociation (NULL only with flags 0) | flags are DXGI_MWA_NO_WINDOW_CHANGES, NO_ALT_ENTER, NO_PRINT_SCREEN, else DXGI_ERROR_INVALID_CALL; a NULL window is taken with any of them (assoc)
+DXGI.CHAIN.EFFECT doc | DXGI_SWAP_EFFECT (Direct3D 12: flip model only) | DISCARD and SEQUENTIAL (and unknown effects) are refused with DXGI_ERROR_INVALID_CALL (swapchain-effect-0)
+DXGI.CHAIN.BUFFERS doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | BufferCount 2 to 16 (swapchain-buffers-0)
+DXGI.CHAIN.SAMPLES doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | SampleDesc 1 0 (swapchain-samples-0, -quality-0)
+DXGI.CHAIN.FORMAT doc | DXGI_SWAP_CHAIN_DESC1 (flip model) | Format R16G16B16A16_FLOAT, B8G8R8A8_UNORM, R8G8B8A8_UNORM or R10G10B10A2_UNORM; no _SRGB (swapchain-format-*)
+DXGI.CHAIN.SCALING measured | DXGI_SCALING (ASPECT_RATIO_STRETCH: as STRETCH for a window) | STRETCH and NONE are taken; ASPECT_RATIO_STRETCH is refused for a window (swapchain-scaling-0, swapchain-pairs)
+DXGI.CHAIN.ALPHA measured | DXGI_ALPHA_MODE | a window takes UNSPECIFIED and IGNORE only (swapchain-alpha-0)
+DXGI.CHAIN.USAGE measured | DXGI_USAGE | the usage bits SHADER_INPUT, RENDER_TARGET_OUTPUT, BACK_BUFFER (and none) are taken and kept; from 0x80 up refused (swapchain-usage-0)
+DXGI.CHAIN.FLAGS measured | DXGI_SWAP_CHAIN_FLAG | taken: ALLOW_MODE_SWITCH, RESTRICT_SHARED_RESOURCE_DRIVER, FRAME_LATENCY_WAITABLE_OBJECT, ALLOW_TEARING, HW_PROTECTED, 0x2000; refused: NONPREROTATED, GDI_COMPATIBLE, RESTRICTED_CONTENT, DISPLAY_ONLY, FOREGROUND_LAYER, FULLSCREEN_VIDEO, YUV_VIDEO and unknown bits (swapchain-flags-0)
+DXGI.CHAIN.STEREO measured | DXGI_SWAP_CHAIN_DESC1 (Stereo) | Stereo is taken and kept as given (swapchain-stereo-0)
+DXGI.CHAIN.SIZE measured | DXGI_SWAP_CHAIN_DESC1 (Width, Height 0: the window's) | a zero width or height takes both from the window's client area (64 by 64) (swapchain-width-0, -height-0)
+DXGI.CHAIN.MEMORY measured | IDXGIFactory2::CreateSwapChainForHwnd (E_OUTOFMEMORY) | on x86, 16385 by 16385 runs out of memory (golden dxgi-32 swapchain-random-*; x86-64 makes it)
+DXGI.BUFFER doc | IDXGISwapChain::GetBuffer | buffers 0..BufferCount-1 are 2D render targets of the chain's size and format, one mip, one sample; others DXGI_ERROR_INVALID_CALL (chain-buffers-*)
+DXGI.PRESENT measured | IDXGISwapChain::Present, DXGI_PRESENT | each present moves the back buffer index on by one, modulo the count; sync intervals 0..4; ALLOW_TEARING needs the chain's flag and interval 0; unknown flags refused (chain-buffers-*, chain-present)
+DXGI.PRESENT.TEST measured | DXGI_PRESENT (TEST) | TEST and DO_NOT_SEQUENCE present nothing: the index stays (chain-present)
+DXGI.PRESENT.RESTART open | DXGI_PRESENT (RESTART) | a present with RESTART
+DXGI.RESIZE measured | IDXGISwapChain::ResizeBuffers | 0 keeps the count and the format, a 0 width or height is the window's, the index starts at 0 again; a count of 1 or past 16, a format no flip-model chain takes, or changing FRAME_LATENCY_WAITABLE_OBJECT or ALLOW_TEARING gives E_INVALIDARG, unknown flags DXGI_ERROR_INVALID_CALL (chain-resize)
+DXGI.LATENCY measured | IDXGISwapChain2::SetMaximumFrameLatency | only a chain with FRAME_LATENCY_WAITABLE_OBJECT (else both calls DXGI_ERROR_INVALID_CALL); 0 and 0xffffffff refused, 1..17 taken; the default 1 (chain-latency-*)

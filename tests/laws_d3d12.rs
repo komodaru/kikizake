@@ -109,7 +109,8 @@ proptest! {
         let s = to_int(c, n, true);
         prop_assert!(s <= (1u64 << n) - 1);
         if !c.is_nan() && c >= 0.0 && (c as f64) < ((1u64 << n) as f64) - 1.0 {
-            prop_assert!((u as f64 - c as f64).abs() <= 0.5);
+            // (truncated toward zero, measured)
+            prop_assert_eq!(u as f64, (c as f64).trunc());
         }
     }
 
@@ -123,7 +124,7 @@ proptest! {
         }
     }
 
-    /// footprints: rows padded to 256, subresources at multiples of 512 apart, in order, never
+    /// footprints: either all ones, or rows padded to 256, subresources at multiples of 512 apart, in order, never
     /// overlapping, all inside the total
     #[test]
     fn footprints_are_aligned_and_disjoint(dim in 2u32..=4, w in 1u32..3000, h in 1u32..3000, d in 1u32..20, mips in 0u32..5, f in 1u32..116, base in 0u64..100000) {
@@ -135,6 +136,11 @@ proptest! {
         }
         let n = if mips == 0 { kikizake::model::d3d12::full_chain(&desc) } else { mips } * if dim == 4 { 1 } else { d };
         let Ok((fps, total)) = footprints(0, n.min(16), base, &desc) else { return Ok(()) };
+        // (a layout GetCopyableFootprints refuses, such as a block format in 1D: every field all ones)
+        if total == u64::MAX {
+            prop_assert!(fps.iter().all(|fp| fp.0 == u64::MAX && fp.5 == u64::MAX));
+            return Ok(());
+        }
         let mut end = base;
         for (i, fp) in fps.iter().enumerate() {
             prop_assert_eq!(fp.5 % 256, 0);
@@ -150,7 +156,7 @@ proptest! {
     /// multisampling and a flip format; its size is never 0
     #[test]
     fn accepted_chains_are_flip_model(w: [u32; 12]) {
-        if let Ok(Some(d)) = chain_desc(&w) {
+        if let Ok(d) = chain_desc(&w) {
             prop_assert!(matches!(d[9], 3 | 4));
             prop_assert!((2..=16).contains(&d[7]));
             prop_assert!(d[4] == 1 && d[5] == 0);
