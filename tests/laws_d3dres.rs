@@ -233,3 +233,29 @@ proptest! {
         prop_assert_eq!(bc7(&z, x, y), [0; 4]);
     }
 }
+
+/// every signed BC4 endpoint pair and index: the step lies between the endpoints' values (or is
+/// -1, 0 or 1 at the six-step block's fixed codes), and never past [-1, 1]
+#[test]
+fn bc4_snorm_steps_lie_between_their_endpoints() {
+    let f = kikizake::model::dxgifmt::format(81).unwrap();
+    let end = |r: i8| f32::from(r.max(-127)) / 127.0;
+    for r0 in i8::MIN..=i8::MAX {
+        for r1 in i8::MIN..=i8::MAX {
+            for k in 0..8u64 {
+                let mut b = [0u8; 8];
+                b[0] = r0.to_le_bytes()[0];
+                b[1] = r1.to_le_bytes()[0];
+                b[2..8].copy_from_slice(&(k.to_le_bytes())[..6]);
+                let v = f32::from_bits(decode_block(f, &b, 0, 0).unwrap()[0]);
+                assert!((-1.0..=1.0).contains(&v), "{r0} {r1} {k}: {v}");
+                if r0 <= r1 && k >= 6 {
+                    assert_eq!(v, if k == 6 { -1.0 } else { 1.0 });
+                    continue;
+                }
+                let (lo, hi) = (end(r0).min(end(r1)), end(r0).max(end(r1)));
+                assert!(v >= lo - 1e-4 && v <= hi + 1e-4, "{r0} {r1} {k}: {v} not in {lo}..{hi}");
+            }
+        }
+    }
+}

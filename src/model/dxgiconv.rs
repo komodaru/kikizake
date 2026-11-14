@@ -418,6 +418,26 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
         };
         r as f32 / 65535.0
     };
+    // a signed BC4 channel block (MEASURED, WARP, ld-table-81, ld-table-84: every texel of 3072:
+    // the endpoints at least -127; the step's exact value over 127, times 32767, truncated
+    // toward zero to a 16-bit code, then times the float 1/32767)
+    let schan = |c: &[u8]| -> f32 {
+        let (r0, r1) = (i8::from_le_bytes([c[0]]), i8::from_le_bytes([c[1]]));
+        let (a0, a1) = (i64::from(r0.max(-127)), i64::from(r1.max(-127)));
+        let bits = u64::from_le_bytes([c[2], c[3], c[4], c[5], c[6], c[7], 0, 0]);
+        let k = i64::try_from((bits >> (3 * i)) & 7).unwrap_or(0);
+        // (the step as a fraction n / d of the 8-bit range)
+        let (n, d) = match k {
+            0 => (a0, 1),
+            1 => (a1, 1),
+            _ if r0 > r1 => ((8 - k) * a0 + (k - 1) * a1, 7),
+            6 => (-127, 1),
+            7 => (127, 1),
+            _ => ((6 - k) * a0 + (k - 1) * a1, 5),
+        };
+        let code = i16::try_from(n * 32767 / (d * 127)).unwrap_or(i16::MAX);
+        f32::from(code) * (1.0f32 / 32767.0)
+    };
     let v: [f32; 4] = match f.id {
         68 | 69 => {
             let (r, g, bb) = if f.id == 68 { (b[0], [b[1], b[3]][x as usize], b[2]) } else { (b[1], [b[0], b[2]][x as usize], b[3]) };
@@ -448,8 +468,14 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
         }
         80 => [chan(b), 0.0, 0.0, one],
         83 => [chan(b), chan(&b[8..]), 0.0, one],
-        // (the signed steps: within an ulp of 16-bit steps over 32767, which ulp, open)
-        81 | 84 => return Err(Fail::Unmodeled(open::CONV_BC4SNORM)),
+        81 => {
+            hit(clause::CONV_BC4SNORM);
+            [schan(b), 0.0, 0.0, one]
+        }
+        84 => {
+            hit(clause::CONV_BC4SNORM);
+            [schan(b), schan(&b[8..]), 0.0, one]
+        }
         95 | 96 => {
             hit(clause::CONV_BC6H);
             let h = super::bptc::bc6h(b, f.id == 96, x, y);
