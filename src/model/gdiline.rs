@@ -164,7 +164,8 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         return Ok(false);
     }
     let k = n(op, 1)?;
-    let sl = g.slots.get_mut(k as usize).and_then(|s| s.as_mut()).ok_or(Fail::Bad)?;
+    super::gdi::get(&g.slots, k)?;
+    let sl = g.slots[k as usize].as_mut().unwrap();
     if sl.ext.mapped() && !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir") {
         return super::gdixform::mapped_line_op(sl, op, out);
     }

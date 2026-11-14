@@ -174,7 +174,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 202), ("region", 410), ("xform", 98), ("path", 34), ("text", 25), ("blend", 487), ("ddb", 14)];
+    let floor = [("lines", 203), ("region", 413), ("xform", 98), ("path", 35), ("text", 25), ("blend", 541), ("ddb", 44)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {

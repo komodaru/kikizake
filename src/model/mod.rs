@@ -39,6 +39,9 @@ use crate::case::Case;
 pub enum Fail {
     /// a line the executor would print "bad line N" for (the generators never write one)
     Bad,
+    /// an op on an empty slot (a bitmap that could not be selected): the executor prints
+    /// "bad line N" and goes on to the next line
+    Empty,
     /// the clause (spec/*.txt, status open) that does not settle what Windows does here
     Unmodeled(&'static str),
 }
@@ -171,9 +174,7 @@ fn run_ops(case: &Case) -> Res<Vec<String>> {
             match a.op(op, &mut out) {
                 Ok(true) => continue 'line,
                 Ok(false) => {}
-                // (as the executor: "bad line N" for an op it cannot carry out, such as one on
-                // an empty slot, and on to the next line)
-                Err(Fail::Bad) => {
+                Err(Fail::Empty) => {
                     out.push(format!("bad line {}", op.line));
                     continue 'line;
                 }
@@ -195,7 +196,7 @@ pub fn run(suite: &str, cases: &[Case]) -> String {
                 s += l;
                 s += "\n"
             }),
-            Err(Fail::Bad) => s += "unmodeled bad line\n",
+            Err(Fail::Bad | Fail::Empty) => s += "unmodeled bad line\n",
             Err(Fail::Unmodeled(why)) => s += &format!("unmodeled {why}\n"),
         }
     }

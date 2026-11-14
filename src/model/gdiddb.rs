@@ -11,6 +11,14 @@ use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
+/// MEASURED: a negative width or height counts as its magnitude
+fn abs(op: &Op, i: usize) -> Res<(i64, i64)> {
+    let (w, h) = (n(op, i)?, n(op, i + 1)?);
+    if w < 0 || h < 0 {
+        hit("GDI.DDB.NEGATIVE");
+    }
+    Ok((w.abs(), h.abs()))
+}
 fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
 }
@@ -57,21 +65,23 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let kind = op.tok.get(2).ok_or(Fail::Bad)?.clone();
             let s = match kind.as_str() {
                 "mono" => {
-                    let (w, h) = (n(op, 3)?, n(op, 4)?);
+                    let (w, h) = abs(op, 3)?;
                     hit("GDI.DDB.MONO");
                     if w == 0 || h == 0 {
                         hit("GDI.DDB.ZERO");
                         Surf::ddb(1, 1, 1)
-                    } else if w < 0 || h < 0 {
-                        return Err(Fail::Unmodeled("GDI.DDB.NEGATIVE"));
                     } else {
                         Surf::ddb(w as i32, h as i32, 1)
                     }
                 }
                 "bitmap" => {
-                    let (w, h, p, b) = (n(op, 3)?, n(op, 4)?, n(op, 5)?, n(op, 6)?);
-                    if w < 0 || h < 0 || p < 1 || b < 1 {
-                        return Err(Fail::Unmodeled("GDI.DDB.NEGATIVE"));
+                    let ((w, h), p, b) = (abs(op, 3)?, n(op, 5)?, n(op, 6)?);
+                    if p < 1 || b < 1 {
+                        // MEASURED: no bitmap of 0 planes or 0 bits
+                        hit("GDI.DDB.NOBITS");
+                        out.push("ddb failed".into());
+                        g.slots[k as usize] = None;
+                        return Ok(true);
                     }
                     if p != 1 {
                         // MEASURED: the planes' bits make one plane of planes * bits
@@ -93,12 +103,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     Surf::ddb(w as i32, h as i32, b as u32)
                 }
                 "screen" | "compat" => {
-                    let of = if kind == "compat" { Some(g.slots.get(n(op, 3)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?.s.clone()) } else { None };
+                    let of = if kind == "compat" { Some(super::gdi::get(&g.slots, n(op, 3)?)?.s.clone()) } else { None };
                     let at = if kind == "compat" { 4 } else { 3 };
-                    let (w, h) = (n(op, at)?, n(op, at + 1)?);
-                    if w < 0 || h < 0 {
-                        return Err(Fail::Unmodeled("GDI.DDB.NEGATIVE"));
-                    }
+                    let (w, h) = abs(op, at)?;
                     if w == 0 || h == 0 {
                         // MEASURED: "a 1-by-1 pixel, monochrome bitmap", whatever it is compatible with
                         hit("GDI.DDB.ZERO");
@@ -128,7 +135,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             g.slots[k as usize] = Some(Slot::new(s));
         }
         "bmobject" => {
-            let s = &g.slots.get(n(op, 1)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?.s;
+            let s = &super::gdi::get(&g.slots, n(op, 1)?)?.s;
             if s.ddb {
                 hit("GDI.DDB.OBJECT");
                 out.push(format!("bm bitmap {} {} {} 1 {} 0", s.w, s.h, s.stride, s.bpp));
@@ -144,7 +151,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
         }
         "bmbits" => {
-            let sl = g.slots.get(n(op, 1)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?;
+            let sl = super::gdi::get(&g.slots, n(op, 1)?)?;
             let s = &sl.s;
             // a DIB section: MEASURED: its memory rows, each cut to a WORD aligned row
             let wb = if s.ddb { s.stride } else { hit("GDI.DDB.DIBBITS"); (s.w as usize * s.bpp as usize).div_ceil(16) * 2 };
@@ -154,7 +161,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             out.push(mem.iter().flat_map(|r| r[..wb].iter().map(|b| format!("{b:02x}"))).collect());
         }
         "devcaps" => {
-            g.slots.get(n(op, 1)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?;
+            super::gdi::get(&g.slots, n(op, 1)?)?;
             hit("GDI.DDB.CAPS");
             let mut l = String::from("caps");
             for i in 2..op.tok.len() {
@@ -163,7 +170,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             out.push(l);
         }
         "objtype" => {
-            g.slots.get(n(op, 1)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?;
+            super::gdi::get(&g.slots, n(op, 1)?)?;
             let t = match op.tok.get(2).map(String::as_str) {
                 Some("pen") => 1,
                 Some("brush") => 2,

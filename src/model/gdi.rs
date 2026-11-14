@@ -209,13 +209,26 @@ fn c(op: &Op, i: usize) -> Result<u32, Fail> {
     op.tok.get(i).and_then(|t| color(t)).ok_or(Fail::Bad)
 }
 
+/// slot k of v; Empty when the runner has that slot unset (it prints bad line N and goes on)
+pub fn get<T>(v: &[Option<T>], k: i64) -> Result<&T, Fail> {
+    match v.get(k as usize) {
+        Some(Some(s)) => Ok(s),
+        Some(None) => Err(Fail::Empty),
+        None => Err(Fail::Bad),
+    }
+}
+
 impl Gdi {
     pub fn new() -> Gdi {
         Gdi { slots: vec![None; 8], rgns: vec![None; 8] }
     }
     fn slot(&mut self, op: &Op, i: usize) -> Result<&mut Slot, Fail> {
         let k = n(op, i)?;
-        self.slots.get_mut(k as usize).and_then(|s| s.as_mut()).ok_or(Fail::Bad)
+        match self.slots.get_mut(k as usize) {
+            Some(Some(s)) => Ok(s),
+            Some(None) => Err(Fail::Empty),
+            None => Err(Fail::Bad),
+        }
     }
 
     /// runs one op; Ok(true) when it was a GDI op

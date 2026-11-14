@@ -17,7 +17,7 @@ fn n32(op: &Op, i: usize) -> Res<i32> {
     n(op, i).map(|v| v as i32)
 }
 fn slot(g: &Gdi, op: &Op, i: usize) -> Res<Slot> {
-    g.slots.get(n(op, i)? as usize).and_then(|s| s.clone()).ok_or(Fail::Bad)
+    super::gdi::get(&g.slots, n(op, i)?).cloned()
 }
 
 /// s * a / 255 + d * (255 - a) / 255 for one 8 bit channel
@@ -159,15 +159,13 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push("ret 1".into());
                 return Ok(true);
             }
-            // MEASURED: the mask must hold the rectangle less what lies left of or above the
-            // destination's origin; the source need not (pixels outside it are left as they are)
+            // MEASURED: nothing lands where the destination and the source overlap: the call
+            // succeeds; otherwise the mask must hold the whole rectangle
             hit("GDI.MASK.OUTSIDE");
-            let (cw, ch) = (w - (-x).max(0), h - (-y).max(0));
-            if mx < 0 || my < 0 || mx + cw > m.s.w || my + ch > m.s.h {
-                if cw > 0 && ch > 0 && x < d.s.w && y < d.s.h {
-                    out.push("ret 0".into());
-                    return Ok(true);
-                }
+            let lands = |p: i32, sp: i32, e: i32, de: i32, se: i32| (-p).max(-sp).max(0) < e.min(de - p).min(se - sp);
+            if lands(x, sx, w, d.s.w, s.s.w) && lands(y, sy, h, d.s.h, s.s.h) && (mx < 0 || my < 0 || mx + w > m.s.w || my + h > m.s.h) {
+                out.push("ret 0".into());
+                return Ok(true);
             }
             hit("GDI.MASK.ROP4");
             let pv = match &d.brush {

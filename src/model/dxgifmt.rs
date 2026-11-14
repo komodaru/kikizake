@@ -180,8 +180,9 @@ pub fn format(id: u32) -> Option<&'static Format> {
 
 impl Format {
     /// bytes of one row of elements of a `w` pixel wide picture
+    /// (saturated at u32::MAX: the 2D byte limit asks it of widths whose rows pass 4 GiB)
     pub fn row_bytes(&self, w: u32) -> u32 {
-        w.div_ceil(self.bw) * self.bits / 8
+        (w.div_ceil(self.bw) as u64 * self.bits as u64 / 8).min(u32::MAX as u64) as u32
     }
     /// rows of elements of an `h` pixel high picture
     pub fn rows(&self, h: u32) -> u32 {

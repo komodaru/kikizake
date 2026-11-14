@@ -15,4 +15,5 @@ GDI.DDB.CAPS.OTHER excluded | GetDeviceCaps | the indexes the suite does not ask
 GDI.DDB.DIBBITS measured | golden ddb dibbits-* (6 formats) | GetBitmapBits of a DIB section: its memory rows, each cut to WORD alignment
 GDI.DDB.MONOBLT doc | BitBlt | between a monochrome bitmap and a color one: 1 bits become the destination's background color, 0 bits its text color; source pixels of the source DC's background color become 1, all others 0
 GDI.DDB.OBJTYPE doc | GetObjectType, GetCurrentObject | OBJ_PEN 1, OBJ_BRUSH 2, OBJ_FONT 6, OBJ_BITMAP 7
-GDI.DDB.NEGATIVE open | CreateBitmap, CreateCompatibleBitmap | a negative width or height, planes or bits below 1
+GDI.DDB.NEGATIVE measured | golden ddb edge-0..2 | CreateBitmap, CreateCompatibleBitmap: a negative width or height counts as its magnitude
+GDI.DDB.NOBITS measured | golden ddb edge-3, edge-4 | CreateBitmap of 0 planes or 0 bits per pixel fails
