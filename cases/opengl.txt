@@ -30982,6 +30982,159 @@ gl glVertex2f -0.6474609375 -0.41015625
 gl glEnd
 glread 0 0 16 16 0x1903 0x1401 256
 end
+case dither-draw-0
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glEnable 0xbd0
+gldraw 16 16 0x1908 0x1401 20501 1024
+gldib
+gl glColorMask 0 1 0 1
+gl glColor4ub 0x2c 0x1d 0x74 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 61416 1024
+gldib
+gl glColorMask 1 1 0 1
+gl glColor4ub 0x31 0xf3 0xdf 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 34808 1024
+gldib
+gl glColorMask 0 1 1 1
+gl glColor4ub 0x79 0x84 0xe1 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 54886 1024
+gldib
+gl glColorMask 1 1 1 1
+gl glColor4ub 0x5f 0xa6 0xe 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 6434 1024
+gldib
+gl glColorMask 0 1 0 1
+gl glColor4ub 0xb7 0xc8 0x42 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 41579 1024
+gldib
+gl glColorMask 1 1 0 1
+gl glColor4ub 0x38 0x56 0xe 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+glerr
+end
+case dither-draw-1
+glctx 8 25
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glEnable 0xbd0
+gldraw 16 16 0x1908 0x1401 61777 1024
+gldib
+gl glColorMask 0 1 0 1
+gl glColor4ub 0x9a 0x27 0x62 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 51148 1024
+gldib
+gl glColorMask 1 1 0 1
+gl glColor4ub 0x8e 0x61 0x41 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 41561 1024
+gldib
+gl glColorMask 0 1 1 1
+gl glColor4ub 0xd4 0xd8 0x4e 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 18 1024
+gldib
+gl glColorMask 1 1 1 1
+gl glColor4ub 0xeb 0x48 0x8e 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 4140 1024
+gldib
+gl glColorMask 0 1 0 1
+gl glColor4ub 0x86 0x2f 0xbb 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 13808 1024
+gldib
+gl glColorMask 1 1 0 1
+gl glColor4ub 0x90 0xdb 0x81 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+glerr
+end
+case dither-draw-2
+glctx 4 31
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glEnable 0xbd0
+gldraw 16 16 0x1908 0x1401 17269 1024
+gldib
+gl glColorMask 0 1 0 1
+gl glColor4ub 0xa1 7 0xb 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 31955 1024
+gldib
+gl glColorMask 1 1 0 1
+gl glColor4ub 0x24 0x92 0xb4 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 22352 1024
+gldib
+gl glColorMask 0 1 1 1
+gl glColor4ub 0x8e 0x1b 0x42 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 41077 1024
+gldib
+gl glColorMask 1 1 1 1
+gl glColor4ub 0x4a 0xc4 0xc6 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 32407 1024
+gldib
+gl glColorMask 0 1 0 1
+gl glColor4ub 0xe8 0x41 0x1f 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+gldraw 16 16 0x1908 0x1401 29821 1024
+gldib
+gl glColorMask 1 1 0 1
+gl glColor4ub 0xb0 0xfd 0x2f 0xff
+gl glRectf 0 0 16 16
+gldib
+gl glColorMask 1 1 1 1
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

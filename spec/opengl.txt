@@ -77,7 +77,7 @@ GL.COLOR.TOFIXED measured | (none) | a fragment or clear color to an 8-bit chann
 GL.COLOR.TOFIXED24 measured | (none) | on a 24-bit DIB truncated (opengl golden clear-24-*)
 GL.COLOR.TOFIXED16 measured | (none) | a fragment to a 5-bit channel with every channel writable: floor(c * 31 + b), b fitted in [0.0275, 0.0314), one 32nd taken; under a color mask rounded like clears (opengl golden dither-1: 768 channels, scissor-mask-*)
 GL.COLORMASK doc | glColorMask | only the writable channels change; GL_COLOR_WRITEMASK as given
-GL.DITHER open | glEnable (GL_DITHER) | dithering to channels of fewer than 8 bits
+GL.DITHER measured | glEnable (GL_DITHER) | fragments and clears to channels of fewer than 8 bits: floor(c * (2^bits - 1) + (m + 1/2) / 16) with m the 4 by 4 ordered matrix [[15 7 13 5] [3 11 1 9] [12 4 14 6] [0 8 2 10]] at window (x mod 4, y mod 4); undithered fragments take m = 0, on 1-bit channels round (opengl golden dither-fill-*: 16, 8 and 4-bit DIBs); glDrawPixels and masked fragments dithered alike (dither-draw-*)
 GL.DITHER.NONE doc | glEnable (GL_DITHER) | with 8-bit channels dithering changes nothing
 GL.ALPHA.TEST measured | glAlphaFunc | in 8-bit fixed point: the fragment's alpha rounded, the reference truncated (opengl golden alphatest-*)
 GL.FUNC doc | glAlphaFunc, glDepthFunc, glStencilFunc | the comparison recorded
@@ -158,3 +158,4 @@ GL.DRAW.DEPTHSTENCIL open | glDrawPixels | depth or stencil images
 GL.DRAW.BUFFER excluded | glDrawPixels | a layout past the executor's data: Windows would read past its array
 GL.DIB measured | (none) | the DIB section's bits are the color buffer, bottom row first, channels at the format's shifts (opengl golden gldib lines)
 GL.DIB.INDEX measured | (none) | on 8 and 4-bit DIBs the pixel value itself is the DIB's index, 4-bit pixels left one in the high nibble (opengl golden edge-dib-8)
+GL.DIB.RGB4 measured | (none) | on a 4-bit DIB an RGBA format's nonzero pixel values are written 8 higher, the bright half of the 16-color palette (opengl golden dither-fill-6, 7)

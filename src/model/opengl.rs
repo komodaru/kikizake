@@ -1472,6 +1472,16 @@ impl Ctx {
     }
 }
 
+/// the ordered dither matrix (MEASURED, golden opengl-32 dither-fill-0..3: every position of a
+/// 16-bit DIB, 16 colors, fits floor(c * 31 + (m + 1/2) / 16)), indexed by window y then x
+const DITHER_MATRIX: [[u8; 4]; 4] = [[15, 7, 13, 5], [3, 11, 1, 9], [12, 4, 14, 6], [0, 8, 2, 10]];
+
+/// the dither threshold at a window pixel
+fn dither_threshold(x: i64, y: i64) -> f32 {
+    let m = DITHER_MATRIX[y.rem_euclid(4) as usize][x.rem_euclid(4) as usize];
+    (f32::from(m) + 0.5) / 16.0
+}
+
 /// glPushAttrib's groups
 pub mod attrib {
     pub const CURRENT: u32 = 0x1;
@@ -1722,10 +1732,20 @@ impl Ctx {
         if has_stencil {
             self.stencil_update(i, self.stencil_op[2]);
         }
-        if self.cap(DITHER) && self.bits()[0] < 8 {
-            return Err(Fail::Unmodeled(open::GL_DITHER));
-        }
+        // (dithered glDrawPixels and masked fragments: cases dither-draw-*)
+        let dither = self.cap(DITHER) && self.bits()[0] < 8;
         hit(clause::GL_DITHER_NONE);
+        // what is added before truncating to a channel under 8 bits: the 4 by 4 ordered dither
+        // matrix's entry plus one half, over 16; without dithering always the first entry's
+        // (MEASURED, golden opengl-32 dither-fill-6, 7: undithered 1-bit channels round)
+        let threshold = if dither {
+            hit(clause::GL_DITHER);
+            dither_threshold(f.x, f.y)
+        } else if self.bits()[0] == 1 {
+            0.5
+        } else {
+            1.0 / 32.0
+        };
         let bits = self.bits();
         let mut v = [0u32; 4];
         if self.cap(BLEND) {
@@ -1734,6 +1754,8 @@ impl Ctx {
             for k in 0..4 {
                 v[k] = if bits[k] == 0 {
                     0
+                } else if dither {
+                    (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
                 } else if f.trunc && bits[k] == 8 {
                     // (MEASURED, golden opengl-32 draw-*: every type truncated to 8-bit channels; scissor-mask-*: rounded to 5-bit ones)
                     hit(clause::GL_DRAW_TOFIXED);
@@ -1742,7 +1764,7 @@ impl Ctx {
                     // (MEASURED, golden opengl-32 dither-1: with every channel writable, 768 channels of a 16-bit DIB fit
                     // floor(c * 31 + b) for b in [0.0275, 0.0314), one 32nd taken; scissor-mask-*: under a color mask rounded)
                     hit(clause::GL_COLOR_TOFIXED16);
-                    (c[k] * ((1u64 << bits[k]) - 1) as f32 + 1.0 / 32.0).floor() as u32
+                    (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
                 } else {
                     self.to_fixed(c[k], bits[k])
                 };
@@ -2046,11 +2068,14 @@ impl Ctx {
             }
             self.acc = Some(acc);
         }
-        if self.cap(DITHER) && self.bits()[0] < 8 && m & COLOR_BUFFER_BIT != 0 {
-            return Err(Fail::Unmodeled(open::GL_DITHER));
-        }
+        let dither = self.cap(DITHER) && self.bits()[0] < 8 && m & COLOR_BUFFER_BIT != 0;
         let bits = self.bits();
         let cv: Vec<u32> = (0..4).map(|k| if bits[k] == 0 { 0 } else { self.to_fixed(self.clear_color[k], bits[k]) }).collect();
+        // a dithered clear: each pixel as a fragment of the clear color would be (GL.DITHER)
+        let dithered = |x: i64, y: i64, k: usize| {
+            let m = ((1u64 << bits[k]) - 1) as f32;
+            (self.clear_color[k].clamp(0.0, 1.0) * m + dither_threshold(x, y)).floor() as u32
+        };
         let z = if m & DEPTH_BUFFER_BIT != 0 { Ctx::clear_depth_fixed(self.clear_depth as f64, self.pf.depth)? } else { 0 };
         let smax = if self.pf.stencil == 0 { 0 } else { (1u32 << self.pf.stencil) - 1 };
         for y in 0..H as i64 {
@@ -2065,7 +2090,7 @@ impl Ctx {
                 if m & COLOR_BUFFER_BIT != 0 {
                     for k in 0..4 {
                         if self.color_mask[k] {
-                            self.fb[i][k] = cv[k];
+                            self.fb[i][k] = if dither && bits[k] > 0 { dithered(x, y, k) } else { cv[k] };
                         }
                     }
                 }
@@ -2428,7 +2453,13 @@ impl Ctx {
                 if self.bpp >= 8 {
                     b.extend_from_slice(&v.to_le_bytes()[..self.bpp as usize / 8]);
                 } else {
-                    // (4 bits a pixel, the left one in the high nibble)
+                    // (4 bits a pixel, the left one in the high nibble; MEASURED, golden
+                    // opengl-32 dither-fill-6, 7: an RGBA color but black is the bright half of the
+                    // 16-color palette, index 8 more)
+                    if self.pf.ty == 0 && v != 0 {
+                        hit(clause::GL_DIB_RGB4);
+                        v |= 8;
+                    }
                     acc = acc << 4 | (v & 15);
                     if x % 2 == 1 {
                         b.push(acc as u8);

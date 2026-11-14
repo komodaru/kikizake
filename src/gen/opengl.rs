@@ -1085,4 +1085,18 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "end").unwrap();
     }
+    // dithering of glDrawPixels and of fragments under a color mask, 16, 8 and 4 bits
+    let mut q = XorShift32::new(0x0960_2005);
+    for (k, (bpp, pf)) in [(16u32, 0u32), (8, 25), (4, 31)].iter().enumerate() {
+        let head = if *pf == 0 { ctx(*bpp) } else { format!("glctx {bpp} {pf}\n") };
+        writeln!(s, "case dither-draw-{k}\n{head}{ORTHO}gl glEnable 0xbd0").unwrap();
+        for i in 0..6 {
+            random_dst(s, q.next() & 0xffff);
+            writeln!(s, "gldib").unwrap();
+            gl(s, "glColorMask", &[(i & 1) as u32, 1, ((i >> 1) & 1) as u32, 1]);
+            color(s, &mut q);
+            writeln!(s, "gl glRectf 0 0 16 16\ngldib\ngl glColorMask 1 1 1 1").unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
