@@ -444,6 +444,8 @@ pub struct Parsed {
     pub symbol: bool,
     /// name ID 1 (Windows, English): the family
     pub family: String,
+    /// head, loca and glyf there: the glyphs have outlines
+    pub outlines: bool,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -472,15 +474,14 @@ impl R<'_> {
 }
 
 /// the tables of a font file: tag -> bytes
-fn tables(f: &[u8]) -> Option<Vec<([u8; 4], &[u8])>> {
+/// the table directory at `at` (an sfnt's start, or a collection's member): each table, None
+/// where one lies outside the file
+fn tables_at(f: &[u8], at: usize) -> Option<Vec<([u8; 4], &[u8])>> {
     let r = R(f);
-    if r.u32(0)? != 0x0001_0000 {
-        return None;
-    }
-    let n = r.u16(4)? as usize;
+    let n = r.u16(at + 4)? as usize;
     let mut v = Vec::new();
     for i in 0..n {
-        let e = 12 + 16 * i;
+        let e = at + 12 + 16 * i;
         let tag: [u8; 4] = f.get(e..e + 4)?.try_into().ok()?;
         let (o, l) = (r.u32(e + 8)? as usize, r.u32(e + 12)? as usize);
         v.push((tag, f.get(o..o.checked_add(l)?)?));
@@ -488,32 +489,88 @@ fn tables(f: &[u8]) -> Option<Vec<([u8; 4], &[u8])>> {
     Some(v)
 }
 
+/// what IDWriteFontFile::Analyze makes of a file (by its signature)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FileType {
+    /// 0x00010000 or "true": TrueType outlines
+    TrueType,
+    /// "OTTO": CFF outlines
+    Cff,
+    /// "ttcf" with this many fonts (at least one)
+    Collection(u32),
+    /// anything else, or a header or table directory cut short
+    Unknown,
+}
+
+pub fn analyze(f: &[u8]) -> FileType {
+    let r = R(f);
+    let complete = |n: Option<u16>, each: usize| n.is_some_and(|n| f.len() >= 12 + each * n as usize);
+    match f.get(0..4) {
+        Some([0, 1, 0, 0] | b"true") if complete(r.u16(4), 16) => FileType::TrueType,
+        Some(b"OTTO") if complete(r.u16(4), 16) => FileType::Cff,
+        Some(b"ttcf") => match r.u32(8) {
+            Some(n) if n > 0 && f.len() as u64 >= 12 + 4 * n as u64 => FileType::Collection(n),
+            Some(_) | None => FileType::Unknown,
+        },
+        Some(_) | None => FileType::Unknown,
+    }
+}
+
+/// the first face of a file Analyze took: its tables' directory
+pub fn face_at(f: &[u8], t: FileType) -> Option<usize> {
+    match t {
+        FileType::TrueType | FileType::Cff => Some(0),
+        FileType::Collection(_) => R(f).u32(12).map(|o| o as usize),
+        FileType::Unknown => None,
+    }
+}
+
 /// a font as the writer makes them (anything else: None)
 pub fn parse(f: &[u8]) -> Option<Parsed> {
-    let t = tables(f)?;
-    let get = |tag: &[u8; 4]| t.iter().find(|x| &x.0 == tag).map(|x| R(x.1));
-    let mut p = Parsed::default();
-    let head = get(b"head")?;
-    if head.u32(12)? != 0x5F0F_3CF5 {
+    if R(f).u32(0)? != 0x0001_0000 {
         return None;
     }
-    p.upm = head.u16(18)?;
-    p.head_box = (head.i16(36)?, head.i16(38)?, head.i16(40)?, head.i16(42)?);
-    let long_loca = head.i16(50)? == 1;
+    parse_face(f, 0)
+}
+
+/// the face whose table directory is at `at`. MEASURED (golden dwrite, file cases): a face is
+/// made of whatever tables there are but maxp; without head, upm is 2048 and the box empty; without
+/// hhea or hmtx it has no glyphs; without head, loca or glyf no outlines; without cmap no
+/// character maps; None where maxp is missing or a table lies outside the file
+pub fn parse_face(f: &[u8], at: usize) -> Option<Parsed> {
+    let t = tables_at(f, at)?;
+    let get = |tag: &[u8; 4]| t.iter().find(|x| &x.0 == tag).map(|x| R(x.1));
+    let mut p = Parsed { upm: 2048, ..Default::default() };
+    let head = get(b"head");
+    let has_head = head.is_some();
+    let mut long_loca = false;
+    if let Some(head) = head {
+        if head.u32(12)? != 0x5F0F_3CF5 {
+            return None;
+        }
+        p.upm = head.u16(18)?;
+        p.head_box = (head.i16(36)?, head.i16(38)?, head.i16(40)?, head.i16(42)?);
+        long_loca = head.i16(50)? == 1;
+    }
     let maxp = get(b"maxp")?;
     p.num_glyphs = maxp.u16(4)?;
-    let hhea = get(b"hhea")?;
-    p.hhea = Some((hhea.i16(4)?, hhea.i16(6)?, hhea.i16(8)?));
-    let nh = hhea.u16(34)? as usize;
-    let hmtx = get(b"hmtx")?;
-    let mut last = (0, 0);
-    for g in 0..p.num_glyphs as usize {
-        if g < nh {
-            last = (hmtx.u16(4 * g)?, hmtx.i16(4 * g + 2)?);
-            p.hmtx.push(last);
-        } else {
-            p.hmtx.push((last.0, hmtx.i16(4 * nh + 2 * (g - nh))?));
+    if let Some(hhea) = get(b"hhea") {
+        p.hhea = Some((hhea.i16(4)?, hhea.i16(6)?, hhea.i16(8)?));
+    }
+    match (get(b"hhea"), get(b"hmtx")) {
+        (Some(hhea), Some(hmtx)) => {
+            let nh = hhea.u16(34)? as usize;
+            let mut last = (0, 0);
+            for g in 0..p.num_glyphs as usize {
+                if g < nh {
+                    last = (hmtx.u16(4 * g)?, hmtx.i16(4 * g + 2)?);
+                    p.hmtx.push(last);
+                } else {
+                    p.hmtx.push((last.0, hmtx.i16(4 * nh + 2 * (g - nh))?));
+                }
+            }
         }
+        (Some(_), None) | (None, Some(_)) | (None, None) => p.num_glyphs = 0,
     }
     if let Some(vhea) = get(b"vhea") {
         let nv = vhea.u16(34)? as usize;
@@ -546,9 +603,15 @@ pub fn parse(f: &[u8]) -> Option<Parsed> {
     if let Some(post) = get(b"post") {
         p.post = Some((post.i16(8)?, post.i16(10)?, post.u32(12)?));
     }
-    let loca = get(b"loca")?;
-    let glyf = get(b"glyf")?;
-    for g in 0..p.num_glyphs as usize {
+    let (loca, glyf) = match (has_head, get(b"loca"), get(b"glyf")) {
+        (true, Some(l), Some(g)) => (l, g),
+        (true, Some(_), None) | (true, None, _) | (false, _, _) => (R(&[]), R(&[])),
+    };
+    p.outlines = has_head && get(b"loca").is_some() && get(b"glyf").is_some();
+    if !p.outlines {
+        p.glyphs = vec![None; p.num_glyphs as usize];
+    }
+    for g in 0..if p.outlines { p.num_glyphs as usize } else { 0 } {
         let (a, b) = if long_loca { (loca.u32(4 * g)? as usize, loca.u32(4 * g + 4)? as usize) } else { (loca.u16(2 * g)? as usize * 2, loca.u16(2 * g + 2)? as usize * 2) };
         if a == b {
             p.glyphs.push(None);
@@ -606,7 +669,9 @@ pub fn parse(f: &[u8]) -> Option<Parsed> {
             }
         }
     }
-    let cmap = get(b"cmap")?;
+    let Some(cmap) = get(b"cmap") else {
+        return Some(p);
+    };
     let nsub = cmap.u16(2)? as usize;
     let mut subs = Vec::new();
     for i in 0..nsub {

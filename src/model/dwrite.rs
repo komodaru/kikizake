@@ -18,15 +18,13 @@ use crate::spec::open;
 use crate::spec::clause;
 use super::{Fail, Res};
 use crate::spec::hit;
-use crate::ttf::{glyph_of, parse, Parsed};
-
-/// whether the GDI-compatible glyph metrics are modelled: not yet (DW.GDI.GLYPH, open), the
-/// model below matches all but 5 sideways bottom side bearings
-const GDI_GLYPH: bool = false;
+use crate::ttf::{analyze, face_at, glyph_of, parse_face, FileType, Parsed};
 
 #[derive(Default)]
 pub struct Dwrite {
     font: Option<Parsed>,
+    /// what Analyze made of the face's file
+    file: Option<FileType>,
 }
 
 fn hex(t: &str) -> Option<Vec<u8>> {
@@ -97,9 +95,16 @@ pub fn metrics(p: &Parsed) -> Metrics {
             }
         }
     }
-    if let Some((pos, thick, _)) = p.post {
-        m.ulpos = pos;
-        m.ulthick = thick as u16;
+    match p.post {
+        Some((pos, thick, _)) => {
+            m.ulpos = pos;
+            m.ulthick = thick as u16;
+        }
+        // MEASURED (golden dwrite, file-no-post): a tenth of the em below
+        None => {
+            hit(clause::DW_METRICS_DEFAULTS);
+            m.ulpos = -((p.upm / 10) as i16);
+        }
     }
     if m.ulthick == 0 {
         hit(clause::DW_METRICS_DEFAULTS);
@@ -300,17 +305,50 @@ impl Dwrite {
                     return Err(Fail::Bad);
                 }
                 self.font = None;
+                self.file = None;
                 let b = hex(&t[1]).ok_or(Fail::Bad)?;
-                let p = parse(&b).ok_or(Fail::Unmodeled(open::DW_FILE_OTHER))?;
+                // MEASURED (golden dwrite, file cases): Analyze by the signature, the header and
+                // table directory (a collection's: its offsets) whole; the face, of the file's
+                // first font, fails with DWRITE_E_FILEFORMAT where maxp is missing or a table is cut
+                let ft = analyze(&b);
                 hit(clause::DW_FILE_ANALYZE);
-                out.push("dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1".into());
-                out.push("dwfont face hr 00000000".into());
-                self.font = Some(p);
+                let (sup, file, face, faces) = match ft {
+                    FileType::TrueType => (1, 2, 1, 1),
+                    FileType::Cff => (1, 1, 0, 1),
+                    FileType::Collection(n) => (1, 3, 2, n),
+                    FileType::Unknown => (0, 0, 6, 0),
+                };
+                out.push(format!("dwfont analyze hr 00000000 supported {sup} file {file} face {face} faces {faces}"));
+                let Some(at) = face_at(&b, ft) else {
+                    hit(clause::DW_FILE_OTHER);
+                    return Ok(true);
+                };
+                match parse_face(&b, at) {
+                    Some(mut p) => {
+                        out.push("dwfont face hr 00000000".into());
+                        if ft == FileType::Cff {
+                            // (a CFF face of TrueType tables: no outlines)
+                            p.outlines = false;
+                            p.glyphs = vec![None; p.num_glyphs as usize];
+                        }
+                        self.font = Some(p);
+                        self.file = Some(ft);
+                    }
+                    None => {
+                        hit(clause::DW_FILE_OTHER);
+                        out.push("dwfont face hr 88985000".into());
+                    }
+                }
             }
             "dwinfo" => {
                 let p = face!();
                 hit(clause::DW_INFO);
-                out.push(format!("dwinfo glyphs {} type 1 index 0 sim 0 symbol {} mono {} vert 0", p.num_glyphs, p.symbol as u8, p.post.is_some_and(|x| x.2 != 0) as u8));
+                let ty = match self.file {
+                    Some(FileType::Cff) => 0,
+                    Some(FileType::Collection(_)) => 2,
+                    Some(FileType::TrueType | FileType::Unknown) | None => 1,
+                };
+                out.push(format!("dwinfo glyphs {} type {ty} index 0 sim 0 symbol {} mono {} vert 0", p.num_glyphs, p.symbol as u8, p.post.is_some_and(|x| x.2 != 0) as u8));
             }
             "dwmetrics" => {
                 let m = metrics(face!());
@@ -354,7 +392,9 @@ impl Dwrite {
                 hit(clause::DW_CMAP);
                 let mut s = String::from("dwcmap");
                 for i in 1..t.len() {
-                    s += &format!(" {}", glyph_of(p, n(i)? as u32));
+                    // (a glyph the face does not have: 0)
+                    let g = glyph_of(p, n(i)? as u32);
+                    s += &format!(" {}", if g < p.num_glyphs { g } else { 0 });
                 }
                 out.push(s);
             }
@@ -371,6 +411,18 @@ impl Dwrite {
                 }
                 let p = face!();
                 let m = metrics(p);
+                if p.num_glyphs == 0 {
+                    // MEASURED: a face of no glyphs (no hhea or hmtx): E_INVALIDARG
+                    hit(clause::DW_FILE_OTHER);
+                    out.push(format!("{} hr 80070057", t[0]));
+                    return Ok(true);
+                }
+                if !gdi && self.file == Some(FileType::Cff) {
+                    // MEASURED: a CFF face without its CFF table: DWRITE_E_FILEFORMAT
+                    hit(clause::DW_FILE_OTHER);
+                    out.push("dwglyph hr 88985000".into());
+                    return Ok(true);
+                }
                 if side != 0 {
                     hit(clause::DW_GLYPH_SIDEWAYS);
                 }
@@ -384,7 +436,7 @@ impl Dwrite {
                     } else {
                         g
                     };
-                    v.push(glyph_metrics(p, &m, g).ok_or(Fail::Unmodeled(open::DW_FILE_OTHER))?);
+                    v.push(glyph_metrics(p, &m, g).ok_or(Fail::Bad)?);
                     gids.push(g);
                 }
                 if gdi {
@@ -394,9 +446,18 @@ impl Dwrite {
                         out.push("dwgdiglyph hr 80070057".into());
                         return Ok(true);
                     }
-                    if !GDI_GLYPH {
+                    if !p.outlines {
+                        // MEASURED: glyphs without outlines have GDI compatible metrics all 0
+                        hit(clause::DW_FILE_OTHER);
+                        out.push(format!("{} hr 00000000", t[0]));
+                        out.extend(v.iter().map(|_| glyph_line(&GlyphMetrics::default())));
+                        return Ok(true);
+                    }
+                    if side != 0 {
+                        // (sideways: 5 of 6300 bottom side bearings a design unit under the model)
                         return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
                     }
+                    hit(clause::DW_GDI_GLYPH_H);
                     let ppem = em * ppd;
                     // MEASURED: each metric is a whole number of pixels (advances as the GDI
                     // placements round them: DW.SHAPE.GDIPLACE, or DW.SHAPE.NATPLACE for GDI
@@ -499,6 +560,11 @@ impl Dwrite {
                     run.push((n(i)? as u16, n(i + 1)?));
                 }
                 let p = face!();
+                if p.num_glyphs == 0 {
+                    hit(clause::DW_FILE_OTHER);
+                    out.push("dwrun hr 80070057".into());
+                    return Ok(true);
+                }
                 out.push("dwrun hr 00000000".into());
                 out.extend(raster::run(p, mode, fit, em, x4, y4, &run)?);
             }
