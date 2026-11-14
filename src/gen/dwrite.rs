@@ -403,6 +403,18 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "dwscript {c:#x} 0x20\ndwscript {c:#x} 0x20 0x41\ndwscript 0x41 {c:#x} 0x20\ndwscript 0x5d0 {c:#x} 0x20 0x41\ndwscript {c:#x} 0x300\ndwscript {c:#x} 0x2e 0x5d0\ndwscript 0x378 0x20 {c:#x}").unwrap();
     }
     writeln!(s, "end").unwrap();
+    // layouts without font fallback: characters the font does not map among those it does
+    for i in 0..12u32 {
+        let f = font(0x0fe0_0000 + i);
+        writeln!(s, "case layoutnf-{i}\n{}", font_line(&f)).unwrap();
+        let mut rl = XorShift32::new(0x1a70_0000 + i);
+        for _ in 0..4 {
+            let n = rl.range(1, 14);
+            let t: Vec<String> = (0..n).map(|_| format!("{:#x}", *rl.pick(&[0x41, 0x61, 0x20, 0x20, 0x3b1, 0x4e00, 0x430, 0x2d, 0x7e, 0x26]))).collect();
+            writeln!(s, "dwlayoutnf {} {} {} {}", rl.range(6, 48), rl.range(40, 800), rl.range(0, 1), t.join(" ")).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // every pair of classes: a character of each line break class (the first the file lists)
     // before one of each, next to each other and with a space between; of each bidi class, in
     // both directions, alone and between strong characters, and after each explicit formatting

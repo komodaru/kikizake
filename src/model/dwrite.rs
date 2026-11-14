@@ -187,8 +187,17 @@ fn glyph_line(g: &GlyphMetrics) -> String {
     format!("glyph adv {} lsb {} rsb {} tsb {} advh {} bsb {} voy {}", g.adv, g.lsb, g.rsb, g.tsb, g.advh, g.bsb, g.voy)
 }
 
-/// a text layout of the face's font alone (the text only of characters its cmap maps)
-fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<String>> {
+/// where a layout finds the characters its font does not map
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Fallback {
+    /// the system's font fallback (its fonts: not modelled)
+    System,
+    /// an empty IDWriteFontFallback: the font's glyph 0
+    None,
+}
+
+/// a text layout of the face's font alone
+fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, fallback: Fallback, cps: &[u32]) -> Res<Vec<String>> {
     let mut out = Vec::new();
     let name = p.family.encode_utf16().map(|u| format!(" {u}")).collect::<String>();
     if p.family.is_empty() {
@@ -200,7 +209,10 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, cps: &[u32]) -> Res<Vec<Str
     hit(clause::DW_LAYOUT_FAMILY);
     out.push(format!("dwlayout families 1 hr 00000000 name{name}"));
     if cps.iter().any(|&c| glyph_of(p, c) == 0) {
-        return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK));
+        match fallback {
+            Fallback::System => return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK)),
+            Fallback::None => hit(clause::DW_LAYOUT_NOFALLBACK),
+        }
     }
     let br = linebreak::breaks(cps);
     let scale = em as f32 / p.upm as f32;
@@ -569,7 +581,7 @@ impl Dwrite {
                 out.push("dwrun hr 00000000".into());
                 out.extend(raster::run(p, mode, fit, em, x4, y4, &run)?);
             }
-            "dwlayout" => {
+            "dwlayout" | "dwlayoutnf" => {
                 let (em, mw4, wrap) = (n(1)?, n(2)?, n(3)?);
                 let mut cps = Vec::new();
                 for i in 4..t.len() {
@@ -583,7 +595,11 @@ impl Dwrite {
                     return Err(Fail::Bad);
                 }
                 let p = face!();
-                out.extend(layout(p, em, mw4, wrap != 0, &cps)?);
+                let fallback = match t[0].as_str() {
+                    "dwlayoutnf" => Fallback::None,
+                    _ => Fallback::System,
+                };
+                out.extend(layout(p, em, mw4, wrap != 0, fallback, &cps)?);
             }
             "dwscript" => {
                 let mut cps = Vec::new();

@@ -407,6 +407,9 @@ static void op_dwrun(void) {
  * (font set builder), a text format of its first family (normal weight, style, stretch, en-us),
  * a layout of the text maxw4 / 4 pixels wide, 1000 high. Prints the family, GetMetrics, each
  * line's metrics and each cluster's. Floats as bits. */
+/* dwlayout em maxwidth4 wrap chars..., and dwlayoutnf the same with an empty font fallback set
+   on the format (characters the font does not map stay in it) */
+static int nofallback;
 static void op_dwlayout(void) {
     long em = num(1), mw = num(2), wrap = num(3);
     if (bad) return;
@@ -438,6 +441,19 @@ static void op_dwlayout(void) {
     if (FAILED(hr)) goto done;
     hr = IDWriteFactory5_CreateTextFormat(dw, fname, (IDWriteFontCollection *)col, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, (float)em, L"en-us", &fmt);
     if (SUCCEEDED(hr)) IDWriteTextFormat_SetWordWrapping(fmt, wrap ? DWRITE_WORD_WRAPPING_WRAP : DWRITE_WORD_WRAPPING_NO_WRAP);
+    if (SUCCEEDED(hr) && nofallback) {
+        IDWriteFontFallbackBuilder *fb = NULL;
+        IDWriteFontFallback *ff = NULL;
+        IDWriteTextFormat1 *f1 = NULL;
+        hr = IDWriteFactory5_CreateFontFallbackBuilder(dw, &fb);
+        if (SUCCEEDED(hr)) hr = IDWriteFontFallbackBuilder_CreateFontFallback(fb, &ff);
+        if (SUCCEEDED(hr)) hr = IDWriteTextFormat_QueryInterface(fmt, &IID_IDWriteTextFormat1, (void **)&f1);
+        if (SUCCEEDED(hr)) hr = IDWriteTextFormat1_SetFontFallback(f1, ff);
+        if (f1) IDWriteTextFormat1_Release(f1);
+        if (ff) IDWriteFontFallback_Release(ff);
+        if (fb) IDWriteFontFallbackBuilder_Release(fb);
+        if (FAILED(hr)) { out("dwlayout fallback hr %08lx\n", hr); goto done; }
+    }
     if (SUCCEEDED(hr)) hr = IDWriteFactory5_CreateTextLayout(dw, t, n, fmt, mw / 4.0f, 1000.0f, &lay);
     if (FAILED(hr)) { out("dwlayout layout hr %08lx\n", hr); goto done; }
     DWRITE_TEXT_METRICS m;
@@ -464,10 +480,15 @@ done:
     if (set) IDWriteFontSet_Release(set);
     if (sb) IDWriteFontSetBuilder1_Release(sb);
 }
+static void op_dwlayoutnf(void) {
+    nofallback = 1;
+    op_dwlayout();
+    nofallback = 0;
+}
 
 static const struct kz_op dwrite_ops[] = {
     { "dwfont", op_dwfont }, { "dwinfo", op_dwinfo }, { "dwmetrics", op_dwmetrics }, { "dwgdimetrics", op_dwgdimetrics }, { "dwcmap", op_dwcmap }, { "dwglyph", op_dwglyph },
     { "dwgdiglyph", op_dwgdiglyph }, { "dwscript", op_dwscript }, { "dwbidi", op_dwbidi }, { "dwbreak", op_dwbreak }, { "dwshape", op_dwshape }, { "dwrun", op_dwrun },
-    { "dwlayout", op_dwlayout }, { 0 },
+    { "dwlayout", op_dwlayout }, { "dwlayoutnf", op_dwlayoutnf }, { 0 },
 };
 const struct kz_api dwrite_api = { "dwrite", dwrite_ops, dwrite_reset };
