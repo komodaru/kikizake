@@ -138,3 +138,27 @@ proptest! {
         }
     }
 }
+
+/// the ordered dither keeps every level's mean: over a 4x4 block of one 8-bit value c the 5-bit
+/// results are c >> 3 or one more, the larger 2 (c & 7) times (each d of 0..7 twice); 6 bits:
+/// c >> 2 or one more, 4 (c & 3) times; clamped at the top (exhaustive)
+#[test]
+fn dither_keeps_the_mean() {
+    for (name, gbits) in [("16bppRGB555", 5u32), ("16bppRGB565", 6)] {
+        let f = gp::format(name).unwrap();
+        for c in 0..256u32 {
+            let (mut sr, mut sg) = (0, 0);
+            for y in 0..4 {
+                for x in 0..4 {
+                    let v = gp::dither(f, 0xff00_0000 | c << 16 | c << 8 | c, x, y);
+                    let (r, g, b) = (v >> (5 + gbits) & 31, v >> 5 & ((1 << gbits) - 1), v & 31);
+                    assert_eq!(r, b);
+                    sr += r;
+                    sg += g;
+                }
+            }
+            assert_eq!(sr as u32, (16 * (c >> 3) + 2 * (c & 7)).min(31 * 16), "{name} {c} red");
+            assert_eq!(sg as u32, if gbits == 6 { (16 * (c >> 2) + 4 * (c & 3)).min(63 * 16) } else { (16 * (c >> 3) + 2 * (c & 7)).min(31 * 16) }, "{name} {c} green");
+        }
+    }
+}

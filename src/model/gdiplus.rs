@@ -183,6 +183,17 @@ pub fn over(s: u32, d: u32) -> u32 {
     o
 }
 
+/// source over as drawing on 16bppRGB555/565 does it: the destination's part truncated
+pub fn over_truncated(s: u32, d: u32) -> u32 {
+    hit("GP.FILL.OVER");
+    let sa = s >> 24;
+    let mut o = 0;
+    for sh in [0, 8, 16] {
+        o |= ((s >> sh & 255) + (d >> sh & 255) * (255 - sa) / 255) << sh;
+    }
+    o
+}
+
 /// MEASURED (golden gdiplus grid-1bppIndexed, grid-4bppIndexed, grid-8bppIndexed: every 5-bit
 /// color): the index each default palette gives a color, by its high 5 bits a channel, packed as
 /// the grid cases read it (1, 4, 8 bits an index, red, green, blue 5 bits each from the top).
@@ -495,6 +506,19 @@ fn elements(m: &Matrix) -> String {
     s
 }
 
+/// MEASURED: drawing on 16bppRGB555/565 dithers each premultiplied channel with a 4x4 ordered
+/// matrix on the bitmap's own coordinates: c' = min(max, (c + d) >> (8 - bits)), d from DITHER for
+/// 5 bits, DITHER >> 1 for 6 (golden gdiplus dither-*: every gray level at every position)
+pub const DITHER: [[u32; 4]; 4] = [[0, 4, 1, 5], [6, 2, 7, 3], [1, 5, 0, 4], [7, 3, 6, 2]];
+pub fn dither(f: usize, p: u32, x: u32, y: u32) -> u64 {
+    hit("GP.FILL.DITHER");
+    let g6 = FORMATS[f].0 == "16bppRGB565";
+    let d = DITHER[y as usize & 3][x as usize & 3];
+    let ch = |c: u32, n: u32| ((c + (d >> (n - 5))) >> (8 - n)).min((1 << n) - 1) as u64;
+    let (r, g, b) = (p >> 16 & 255, p >> 8 & 255, p & 255);
+    if g6 { ch(r, 5) << 11 | ch(g, 6) << 5 | ch(b, 5) } else { ch(r, 5) << 10 | ch(g, 5) << 5 | ch(b, 5) }
+}
+
 /// matrix arithmetic: modelled as x86 rounds it (the x86 executor, or a line ending in "x86", a
 /// word the executor ignores, in the x86-only suite); x86-64 rounds otherwise (GP.MATRIX.X64)
 fn x86(t: &[String], i: usize) -> Res<()> {
@@ -670,9 +694,6 @@ impl Gdiplus {
                     hit("GP.FILL.NEGATIVE");
                 }
 
-                if matches!(FORMATS[b.f].0, "16bppRGB555" | "16bppRGB565") {
-                    return Err(Fail::Unmodeled("GP.FILL.DITHER"));
-                }
                 hit("GP.FILL.RECT");
                 let (x0, y0) = (r.0.max(0), r.1.max(0));
                 let (x1, y1) = ((r.0 + r.2).min(b.w as i64), (r.1 + r.3).min(b.h as i64));
@@ -709,6 +730,28 @@ impl Gdiplus {
                             // (to an indexed bitmap the premultiplied color, as over black)
                             let v = if indexed(b.f) { from_argb(b.f, q as u32)? } else { convert(bf, b.f, q, &[])? };
                             b.set_px(x, y, v);
+                        }
+                    }
+                } else if matches!(FORMATS[b.f].0, "16bppRGB555" | "16bppRGB565") {
+                    // (MEASURED, golden gdiplus fill-16bppRGB5*-over-*, blend-*: 477 channels: the
+                    // destination widened by a shift alone, the blend truncated, then dithered)
+                    let g6 = FORMATS[b.f].0 == "16bppRGB565";
+                    // (a clear brush over draws nothing: 555's unused top bit stays; drawn, it is 0)
+                    let (y0, y1) = if !copy && sp >> 24 == 0 { (0, 0) } else { (y0, y1) };
+                    for y in y0..y1 {
+                        for x in x0..x1 {
+                            let (x, y) = (x as u32, y as u32);
+                            let v = b.px(x, y) as u32;
+                            let d = if g6 { (v >> 11 & 31) << 19 | (v >> 5 & 63) << 10 | (v & 31) << 3 } else { (v >> 10 & 31) << 19 | (v >> 5 & 31) << 11 | (v & 31) << 3 };
+                            // (x86-64: the destination widened as LockBits does, the blend rounded)
+                            let p = if copy {
+                                blend(d)
+                            } else if super::arch() == 64 {
+                                over(sp, convert(b.f, pargb, v as u64, &[])? as u32)
+                            } else {
+                                over_truncated(sp, d)
+                            };
+                            b.set_px(x, y, dither(b.f, p, x, y));
                         }
                     }
                 } else {
