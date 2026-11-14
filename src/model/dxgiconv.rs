@@ -102,11 +102,13 @@ pub fn from_small_float(b: u32, e: u32, m: u32, signed: bool) -> f32 {
     let man = b & ((1 << m) - 1);
     let bias = (1i32 << (e - 1)) - 1;
     let v = if ex == (1 << e) - 1 {
-        if man == 0 {
-            f64::INFINITY
-        } else {
-            f64::NAN
+        if man != 0 {
+            // (MEASURED: a NaN keeps its mantissa bits on top, ld-10, ld-26)
+            hit("CONV.NANREAD");
+            let sb = if sign < 0.0 { 0x8000_0000 } else { 0 };
+            return f32::from_bits(sb | 0x7f80_0000 | man << (23 - m));
         }
+        f64::INFINITY
     } else if ex == 0 {
         man as f64 * 2f64.powi(1 - bias - m as i32)
     } else {
@@ -260,7 +262,14 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
             hit("CONV.STENCIL");
             v = [0, get(b, 24, 8) as u32, 0, 1];
         }
-        88 | 92 | 93 | 89 => return Err(Fail::Unmodeled("CONV.X8")),
+        88 | 92 | 93 => {
+            // (the X byte reads as an alpha of 1)
+            hit("CONV.X8");
+            let mut v = decode(super::dxgifmt::format(f.id - 1).unwrap(), b)?;
+            v[3] = one;
+            return Ok(v);
+        }
+        89 => return Err(Fail::Unmodeled("CONV.XRBIAS")),
         _ if !f.comps.is_empty() => {
             let mut at = 0;
             for (i, &n) in f.comps.iter().enumerate() {
@@ -273,15 +282,16 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
                         (c as f32 / ((1u64 << n) - 1) as f32).to_bits()
                     }
                     Num::Srgb if ch < 3 => {
-                        hit("CONV.SRGB");
-                        srgb_to_linear(c as u32).to_bits()
+                        // (WARP's curve is a few ulps off the exact one, ld-29; its table, open)
+                        return Err(Fail::Unmodeled("CONV.SRGBREAD"));
                     }
                     Num::Srgb => (c as f32 / 255.0).to_bits(),
                     Num::Snorm => {
                         hit("CONV.SNORM");
                         let s = ((c << (64 - n)) as i64) >> (64 - n);
                         let max = ((1i64 << (n - 1)) - 1) as f32;
-                        ((s as f32 / max).max(-1.0)).to_bits()
+                        // (MEASURED: times the reciprocal, in single precision; ld-31, ld-37)
+                        ((s as f32 * (1.0 / max)).max(-1.0)).to_bits()
                     }
                     Num::Float if n == 32 => {
                         hit("CONV.F32");

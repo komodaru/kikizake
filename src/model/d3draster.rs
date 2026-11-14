@@ -487,8 +487,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     }
     // the viewport transform, then 16.8 fixed point
     let [vx, vy, vw, vh, minz, maxz] = vp;
-    let sx: Vec<f32> = tri.iter().map(|v| vx + (v.pos[0] / v.pos[3] + 1.0) * (vw * 0.5)).collect();
-    let sy: Vec<f32> = tri.iter().map(|v| vy + (1.0 - v.pos[1] / v.pos[3]) * (vh * 0.5)).collect();
+    let to_screen = |q: &[f32; 4]| (vx + (q[0] / q[3] + 1.0) * (vw * 0.5), vy + (1.0 - q[1] / q[3]) * (vh * 0.5));
     hit("D3DRASTER.SNAP");
     let snap = |v: f32| -> i64 {
         let x = v as f64 * 256.0;
@@ -496,7 +495,11 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let r = x - f;
         (if r > 0.5 || r == 0.5 && (f as i64) % 2 != 0 { f + 1.0 } else { f }) as i64
     };
-    let p: Vec<(i64, i64)> = (0..3).map(|i| (snap(sx[i]), snap(sy[i]))).collect();
+    let snap2 = |q: &[f32; 4]| {
+        let (x, y) = to_screen(q);
+        (snap(x), snap(y))
+    };
+    let p: Vec<(i64, i64)> = tri.iter().map(|v| snap2(&v.pos)).collect();
     let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
     let area = cross(p[0], p[1], p[2]);
     if area == 0 {
@@ -518,6 +521,21 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let top_left = |a: (i64, i64), b: (i64, i64)| {
         let (dx, dy) = (b.0 - a.0, b.1 - a.1);
         dy < 0 || dy == 0 && dx > 0
+    };
+    // (MEASURED, WARP: a triangle reaching past the viewport is clipped to it first, in clip
+    // space, and the pieces' new vertices snapped as any other, tri-2: so an edge moves by up
+    // to the snapping of its new end)
+    let poly = clip_xy(tri.map(|v| v.pos));
+    let pieces: Vec<[(i64, i64); 3]> = if poly.len() == 3 && poly.iter().zip(tri.iter()).all(|(a, b)| *a == b.pos) {
+        vec![v]
+    } else {
+        hit("D3DRASTER.CLIP");
+        let q: Vec<(i64, i64)> = poly.iter().map(snap2).collect();
+        (1..q.len().saturating_sub(1))
+            .map(|i| [q[0], q[i], q[i + 1]])
+            .filter(|t| cross(t[0], t[1], t[2]) != 0)
+            .map(|t| if cross(t[0], t[1], t[2]) > 0 { t } else { [t[0], t[2], t[1]] })
+            .collect()
     };
     // depth: one value per triangle in these cases
     let z = {
@@ -549,15 +567,14 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 continue;
             }
             let c = (px * 256 + 128, py * 256 + 128);
-            let mut ins = true;
-            for e in 0..3 {
-                let (a, b) = (v[e], v[(e + 1) % 3]);
-                let w = cross(a, b, c);
-                if w < 0 || w == 0 && !top_left(a, b) {
-                    ins = false;
-                }
-            }
-            if !ins {
+            let inside = |t: &[(i64, i64); 3]| {
+                (0..3).all(|e| {
+                    let (a, b) = (t[e], t[(e + 1) % 3]);
+                    let w = cross(a, b, c);
+                    w > 0 || w == 0 && top_left(a, b)
+                })
+            };
+            if !pieces.iter().any(inside) {
                 continue;
             }
             hit("D3DRASTER.TOPLEFT");
@@ -578,6 +595,37 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         }
     }
     Ok(())
+}
+
+/// a triangle clipped to -w <= x <= w and -w <= y <= w (Sutherland-Hodgman, in single
+/// precision: a new vertex a + (b - a) t, t the distance to the plane at a over the difference)
+fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
+    let mut poly = tri.to_vec();
+    for plane in 0..4 {
+        let dist = |q: &[f32; 4]| match plane {
+            0 => q[3] + q[0],
+            1 => q[3] - q[0],
+            2 => q[3] + q[1],
+            _ => q[3] - q[1],
+        };
+        if poly.iter().all(|q| dist(q) >= 0.0) {
+            continue;
+        }
+        let mut out = Vec::new();
+        for i in 0..poly.len() {
+            let (a, b) = (poly[i], poly[(i + 1) % poly.len()]);
+            let (da, db) = (dist(&a), dist(&b));
+            if da >= 0.0 {
+                out.push(a);
+            }
+            if (da >= 0.0) != (db >= 0.0) {
+                let t = da / (da - db);
+                out.push([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * t));
+            }
+        }
+        poly = out;
+    }
+    poly
 }
 
 /// the pixel shader: what it writes to SV_Target, as bits (floats or uints)
