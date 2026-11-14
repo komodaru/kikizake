@@ -3541,8 +3541,8 @@ ret 1
 px 0 3 4 8
 493121
 f5775f
-c8ecd7
-3efffb
+c8ecff
+3effff
 case random-143
 ret 1
 px 0 6 5 1
