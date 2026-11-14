@@ -586,6 +586,8 @@ pub fn opengl() -> String {
         writeln!(s, "end").unwrap();
     }
 
+    measure(&mut s);
+
     // edges: each case ends at one answer the model leaves open, or checks an error path
     let edges: &[(&str, &str)] = &[
         ("attrib", "gl glPushAttrib 0x4000\nglerr\nglget i 0xbb0 1\ngl glPopAttrib\nglerr\nglget i 0xbb0 1\nglerr"),
@@ -636,4 +638,326 @@ pub fn opengl() -> String {
         }
     }
     s
+}
+
+/// a vertex coordinate in 1/8 steps (three subpixel bits) in lo..hi
+fn v8(q: &mut XorShift32, lo: i64, hi: i64) -> f64 {
+    q.range(lo * 8, hi * 8) as f64 / 8.0
+}
+
+fn color(s: &mut String, q: &mut XorShift32) {
+    let c: Vec<u32> = (0..3).map(|_| q.next() & 255).collect();
+    gl(s, "glColor4ub", &[c[0], c[1], c[2], 255]);
+}
+
+/// the measurements of the rasterizer, shading, clipping, dithering, color index, accumulation,
+/// attribute stack and 16-bit depth: one primitive, then the whole picture read back
+fn measure(s: &mut String) {
+    let mut q = XorShift32::new(0x0960_2001);
+    let start = |s: &mut String, name: String, bpp: u32| {
+        writeln!(s, "case {name}\n{}{ORTHO}gl glDisable 0xbd0", ctx(bpp)).unwrap();
+    };
+    // horizontal edges through pixel centers: every row, as bottom and as top, each vertex order
+    for k in 0..16 {
+        start(s, format!("tie-y-{k}"), 32);
+        let y = k as f64 + 0.5;
+        for (far, order) in [(2.25, 0), (-1.75, 0), (3.0, 1), (-3.0, 1), (5.25, 2), (-0.25, 2), (1.5, 3), (-2.5, 3)] {
+            let (x0, x1) = (v8(&mut q, 0, 6), v8(&mut q, 9, 16));
+            let (ya, yb) = (y, y + far);
+            let r = match order {
+                0 => [x0, ya, x1, yb],
+                1 => [x1, yb, x0, ya],
+                2 => [x0, yb, x1, ya],
+                _ => [x1, ya, x0, yb],
+            };
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            color(s, &mut q);
+            glf(s, "glRectf", &r);
+            read_all(s);
+        }
+        // the same edges from quads of both windings
+        for cw in [false, true] {
+            let (x0, x1) = (v8(&mut q, 0, 6), v8(&mut q, 9, 16));
+            let mut v = vec![(x0, y), (x1, y), (x1, y + 2.5), (x0, y + 2.5)];
+            if cw {
+                v.reverse();
+            }
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            color(s, &mut q);
+            writeln!(s, "gl glBegin 7").unwrap();
+            for (x, y) in v {
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // vertical edges through pixel centers, against the horizontal ones
+    for k in 0..4 {
+        start(s, format!("tie-x-{k}"), 32);
+        for _ in 0..8 {
+            let x0 = q.range(-2, 14) as f64 + 0.5;
+            let x1 = x0 + q.range(1, 6) as f64 + *q.pick(&[0.0, 0.25, 0.5]);
+            let (y0, y1) = (v8(&mut q, -2, 8), v8(&mut q, 9, 18));
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            color(s, &mut q);
+            glf(s, "glRectf", &[x0, y0, x1, y1]);
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // flat triangles at subpixel positions, both windings
+    for k in 0..16 {
+        start(s, format!("tri-{k}"), 32);
+        for _ in 0..6 {
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            color(s, &mut q);
+            writeln!(s, "gl glBegin 4").unwrap();
+            for _ in 0..3 {
+                let (x, y) = if k < 4 { (q.range(-2, 18) as f64 + 0.5 * q.range(0, 1) as f64, q.range(-2, 18) as f64 + 0.5 * q.range(0, 1) as f64) } else { (v8(&mut q, -3, 19), v8(&mut q, -3, 19)) };
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // the other primitives: points of several sizes, lines, strips, loops, fans, quad strips, polygons
+    for (k, (mode, n, extra)) in [(0u32, 12, "gl glPointSize 2\n"), (0, 12, "gl glPointSize 3\n"), (0, 12, "gl glPointSize 1.5\n"), (1, 8, ""), (1, 8, ""), (1, 8, "gl glLineWidth 2\n"), (1, 8, "gl glLineWidth 3\n"), (2, 6, ""), (3, 6, ""), (5, 6, ""), (6, 6, ""), (8, 8, ""), (9, 6, ""), (9, 5, ""), (1, 8, "gl glLineWidth 1.5\n"), (3, 8, "")]
+        .iter()
+        .enumerate()
+    {
+        start(s, format!("prim-{k}"), 32);
+        s.push_str(extra);
+        for _ in 0..4 {
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            color(s, &mut q);
+            writeln!(s, "gl glBegin {mode}").unwrap();
+            let c = (v8(&mut q, 4, 12), v8(&mut q, 4, 12));
+            for i in 0..*n {
+                let (x, y) = if *mode == 9 {
+                    // a convex polygon around a center
+                    let a = i as f64 * std::f64::consts::TAU / *n as f64;
+                    (((c.0 + 6.0 * a.cos()) * 8.0).round() / 8.0, ((c.1 + 6.0 * a.sin()) * 8.0).round() / 8.0)
+                } else {
+                    (v8(&mut q, -2, 18), v8(&mut q, -2, 18))
+                };
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // polygon modes and culling
+    for (k, setup) in ["gl glPolygonMode 0x408 0x1b01", "gl glPolygonMode 0x408 0x1b00", "gl glEnable 0xb44", "gl glEnable 0xb44\ngl glCullFace 0x404", "gl glEnable 0xb44\ngl glFrontFace 0x900\ngl glCullFace 0x408", "gl glPolygonMode 0x404 0x1b01\ngl glPolygonMode 0x405 0x1b00"].iter().enumerate() {
+        start(s, format!("polymode-{k}"), 32);
+        writeln!(s, "{setup}").unwrap();
+        for _ in 0..4 {
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            color(s, &mut q);
+            writeln!(s, "gl glBegin 4").unwrap();
+            for _ in 0..3 {
+                glf(s, "glVertex2f", &[v8(&mut q, -1, 17), v8(&mut q, -1, 17)]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // smooth shading and depth across triangles, lines and quads; flat shading takes the last vertex
+    for k in 0..12 {
+        let bpp = [32, 32, 32, 32, 32, 32, 24, 24, 16, 16, 32, 32][k];
+        start(s, format!("smooth-{k}"), bpp);
+        writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glClear 0x4100").unwrap();
+        if k >= 10 {
+            writeln!(s, "gl glShadeModel 0x1d00").unwrap();
+        }
+        let mode = [4u32, 4, 4, 4, 7, 1, 4, 7, 4, 7, 4, 7][k];
+        for _ in 0..3 {
+            writeln!(s, "gl glClear 0x4100\ngl glBegin {mode}").unwrap();
+            for _ in 0..[3, 3, 3, 3, 4, 2, 3, 4, 3, 4, 3, 4][k] {
+                color(s, &mut q);
+                glf(s, "glVertex3f", &[v8(&mut q, -2, 18), v8(&mut q, -2, 18), q.range(-32, 32) as f64 / 32.0]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // perspective: frustums, triangles in depth, colors and depth read back
+    for k in 0..6 {
+        writeln!(s, "case persp-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glMatrixMode 0x1701\ngl glLoadIdentity", ctx(32)).unwrap();
+        glf(s, "glFrustum", &[-1.0, 1.0, -1.0, 1.0, 1.0, [3.0, 10.0, 2.0, 100.0, 4.0, 8.0][k]]);
+        writeln!(s, "gl glMatrixMode 0x1700").unwrap();
+        if k >= 4 {
+            glf(s, "glRotatef", &[30.0, 0.0, 1.0, 0.0]);
+        }
+        for _ in 0..3 {
+            writeln!(s, "gl glClear 0x4100\ngl glBegin {}", if k % 2 == 0 { 4 } else { 7 }).unwrap();
+            for _ in 0..if k % 2 == 0 { 3 } else { 4 } {
+                color(s, &mut q);
+                glf(s, "glVertex3f", &[q.range(-32, 32) as f64 / 16.0, q.range(-32, 32) as f64 / 16.0, -(q.range(17, 40) as f64) / 16.0]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // clipping against the six planes: triangles past the window and through near and far
+    for k in 0..6 {
+        start(s, format!("clip-{k}"), 32);
+        writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x207").unwrap();
+        for _ in 0..4 {
+            writeln!(s, "gl glClear 0x4100\ngl glBegin 4").unwrap();
+            for _ in 0..3 {
+                color(s, &mut q);
+                glf(s, "glVertex3f", &[v8(&mut q, -24, 40), v8(&mut q, -24, 40), q.range(-64, 64) as f64 / 32.0]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // dithering: whole-window rectangles of one color on 16, 8 and 4-bit DIBs
+    for (k, (bpp, pf)) in [(16u32, 0u32), (16, 0), (16, 0), (16, 0), (8, 25), (8, 25), (4, 31), (4, 31)].iter().enumerate() {
+        if *pf == 0 {
+            writeln!(s, "case dither-fill-{k}\n{}{ORTHO}gl glEnable 0xbd0", ctx(*bpp)).unwrap();
+        } else {
+            writeln!(s, "case dither-fill-{k}\nglctx {bpp} {pf}\n{ORTHO}gl glEnable 0xbd0").unwrap();
+        }
+        for _ in 0..16 {
+            color(s, &mut q);
+            writeln!(s, "gl glRectf 0 0 16 16\ngldib").unwrap();
+        }
+        writeln!(s, "gl glDisable 0xbd0").unwrap();
+        for _ in 0..4 {
+            color(s, &mut q);
+            writeln!(s, "gl glRectf 0 0 16 16\ngldib").unwrap();
+        }
+        for _ in 0..4 {
+            glf(s, "glClearColor", &[(q.next() & 255) as f64 / 256.0, (q.next() & 255) as f64 / 256.0, (q.next() & 255) as f64 / 256.0, 1.0]);
+            writeln!(s, "gl glEnable 0xbd0\ngl glClear 0x4000\ngldib\ngl glDisable 0xbd0\ngl glClear 0x4000\ngldib").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // color index: 8 and 4-bit formats, indices cleared, drawn, masked, read back, and the DIB
+    for (k, (bpp, pf)) in [(8u32, 29u32), (8, 30), (4, 35), (8, 29)].iter().enumerate() {
+        writeln!(s, "case ci-{k}\nglctx {bpp} {pf}\n{ORTHO}glget i 0xd51 1\nglget i 0xc20 1\nglget i 0xc21 1\nglget f 0xb00 4\nglget i 0xb01 1").unwrap();
+        for i in 0..6 {
+            let v = q.range(0, 300);
+            writeln!(s, "gl glClearIndex {v}\ngl glClear 0x4000\ngldib").unwrap();
+            writeln!(s, "gl glIndexi {}\ngl glRectf {} {} {} {}", q.range(0, 300), v8(&mut q, 0, 6), v8(&mut q, 0, 6), v8(&mut q, 9, 16), v8(&mut q, 9, 16)).unwrap();
+            if i == 3 {
+                writeln!(s, "gl glIndexMask 0xf0").unwrap();
+            }
+            if i == 4 {
+                writeln!(s, "gl glEnable 0xbf1\ngl glLogicOp 0x1506").unwrap();
+            }
+            writeln!(s, "gldib\nglread 0 0 16 16 {} {} 256\nglread 0 0 16 16 {} {} 1024\nglerr", h(COLOR_INDEX), h(UNSIGNED_BYTE), h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "gldraw 16 2 {} {} 77 32\ngldib\nglerr\nend", h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    }
+    // the accumulation buffer: load, accumulate, multiply, add, return
+    for k in 0..6 {
+        start(s, format!("accum-{k}"), [32, 32, 32, 16, 24, 32][k]);
+        for _ in 0..4 {
+            random_dst(s, q.next() & 0xffff);
+            let op = *q.pick(&[0x100u32, 0x101]);
+            writeln!(s, "gl glAccum {} {}", h(op), f(q.range(-8, 16) as f64 / 8.0)).unwrap();
+            random_dst(s, q.next() & 0xffff);
+            writeln!(s, "gl glAccum 0x100 {}\ngl glAccum {} {}", f(q.range(-8, 16) as f64 / 8.0), h(*q.pick(&[0x103u32, 0x104])), f(q.range(-8, 16) as f64 / 16.0)).unwrap();
+            writeln!(s, "gl glAccum 0x102 {}", f(q.range(0, 32) as f64 / 8.0)).unwrap();
+            read_all(s);
+            writeln!(s, "glerr").unwrap();
+        }
+        if k == 5 {
+            writeln!(s, "gl glClearAccum 0.25 -0.5 1 0.75\ngl glClear 0x200\ngl glAccum 0x102 1").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // the attribute stack: state changed between push and pop, then read back
+    for (k, mask) in [0x000fffffu32, 0x1, 0x8, 0x20, 0x100, 0x400, 0x1000, 0x4000, 0x2000, 0x800, 0x200, 0x8000].iter().enumerate() {
+        start(s, format!("attrib-{k}"), 32);
+        writeln!(s, "gl glPushAttrib {}", h(*mask)).unwrap();
+        writeln!(s, "gl glColor4ub 1 2 3 4\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glDepthFunc 0x203\ngl glEnable 0xc11\ngl glScissor 1 2 3 4\ngl glViewport 1 1 8 8\ngl glClearColor 0.5 0.5 0.5 0.5\ngl glStencilFunc 0x202 1 3\ngl glLineWidth 3\ngl glPointSize 4\ngl glShadeModel 0x1d00\ngl glHint 0xc50 0x1101\ngl glLogicOp 0x1506\ngl glColorMask 1 0 1 0\ngl glDepthMask 0\ngl glMatrixMode 0x1701\ngl glPolygonMode 0x408 0x1b01\ngl glPixelTransferf 0xd14 0.5\ngl glAlphaFunc 0x204 0.5\ngl glEnable 0xbc0\ngl glDisable 0xbd0\ngl glEnable 0xb71\ngl glCullFace 0x404\ngl glPopAttrib\nglerr").unwrap();
+        for p in [0xb00u32, 0xbe2, 0xbe0, 0xbe1, 0xb74, 0xc11, 0xc10, 0xba2, 0xc22, 0xb92, 0xb21, 0xb11, 0xb54, 0xc50, 0xbf0, 0xc23, 0xb72, 0xba0, 0xb40, 0xd14, 0xbc1, 0xbc2, 0xbc0, 0xbd0, 0xb71, 0xb45, 0xbb0] {
+            writeln!(s, "glget f {} 4", h(p)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // 16-bit depth buffers: tests at every function, clears, reads in every type
+    for k in 0..4 {
+        writeln!(s, "case depth16-{k}\nglctx 32 2\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71").unwrap();
+        glf(s, "glClearDepth", &[[1.0, 0.5, 0.25, 0.75][k]]);
+        writeln!(s, "gl glClear 0x4100").unwrap();
+        for _ in 0..6 {
+            writeln!(s, "gl glDepthFunc {}", h(*q.pick(&FUNCS[1..]))).unwrap();
+            color(s, &mut q);
+            let z = q.range(-64, 64) as f64 / 64.0;
+            glf(s, "glRectf", &[v8(&mut q, -1, 8), v8(&mut q, -1, 8), v8(&mut q, 8, 17), v8(&mut q, 8, 17)]);
+            let _ = z;
+            writeln!(s, "gl glBegin 7").unwrap();
+            let (x0, y0, x1, y1) = (v8(&mut q, -1, 8), v8(&mut q, -1, 8), v8(&mut q, 8, 17), v8(&mut q, 8, 17));
+            let z = q.range(-64, 64) as f64 / 64.0;
+            for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
+                glf(s, "glVertex3f", &[x, y, z]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+        }
+        read_all(s);
+        for ty in [UNSIGNED_INT, UNSIGNED_SHORT, UNSIGNED_BYTE, FLOAT, INT] {
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(ty)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // GL_NEVER: single rectangles on a clear picture
+    for k in 0..4 {
+        start(s, format!("never-{k}"), 32);
+        writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x200").unwrap();
+        for _ in 0..4 {
+            writeln!(s, "gl glClear 0x4100").unwrap();
+            color(s, &mut q);
+            glf(s, "glRectf", &[v8(&mut q, -1, 8), v8(&mut q, -1, 8), v8(&mut q, 8, 17), v8(&mut q, 8, 17)]);
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // blending on 16 and 24-bit DIBs and with destination alpha
+    for (k, (bpp, choose_alpha)) in [(16u32, 0u32), (24, 0), (32, 8), (16, 0), (24, 0), (32, 8)].iter().enumerate() {
+        writeln!(s, "case blend-fmt-{k}\nglctx {bpp} choose 0x38 0 {bpp} {choose_alpha} 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xbe2").unwrap();
+        for _ in 0..12 {
+            let (sf, df) = (*q.pick(BLEND_SRC), *q.pick(BLEND_DST));
+            gl(s, "glBlendFunc", &[sf, df]);
+            writeln!(s, "gl glDisable 0xbe2").unwrap();
+            random_dst(s, q.next() & 0xffff);
+            writeln!(s, "gl glEnable 0xbe2").unwrap();
+            let c: Vec<u32> = (0..4).map(|_| q.next() & 255).collect();
+            gl(s, "glColor4ub", &c);
+            writeln!(s, "gl glRectf 0 0 16 16").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
+    // points on pixel boundaries
+    for k in 0..2 {
+        start(s, format!("point-edge-{k}"), 32);
+        for _ in 0..8 {
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 0").unwrap();
+            for _ in 0..4 {
+                color(s, &mut q);
+                let (x, y) = (q.range(0, 32) as f64 / 2.0, q.range(0, 32) as f64 / 2.0);
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "end").unwrap();
+    }
 }
