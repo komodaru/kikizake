@@ -281,8 +281,17 @@ pub fn to_rgba(f: u32, chans: &[(u8, f64)]) -> [f64; 4] {
 
 /// rgba -> one pixel's bytes of a render target format
 pub fn encode(f: &Fmt, rgba: [f64; 4]) -> Vec<u8> {
+    encode_x(f, rgba, true)
+}
+
+/// a pixel's bytes, the unused X bits the alpha (Clear) or 0 (a draw: MEASURED, d3d9draw
+/// blend-fmt-X8R8G8B8-*)
+pub fn encode_x(f: &Fmt, rgba: [f64; 4], x_alpha: bool) -> Vec<u8> {
     let mut w: u128 = 0;
     for c in &f.ch {
+        if c.c == b'x' && !x_alpha {
+            continue;
+        }
         let v = match c.c {
             b'r' | b'l' | b'u' => rgba[0],
             b'g' | b'v' => rgba[1],
@@ -700,13 +709,20 @@ impl D3d9 {
                 let tex = supported(f, false, false);
                 const NOTAVAILABLE: u32 = 0x8876_086a;
                 let ok = |b: bool| if b { 0 } else { NOTAVAILABLE };
+                let dxt = format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
                 let hr = match (u, rtype) {
+                    // (Direct3D 8, MEASURED d3d8draw check-usage: a plain surface INVALIDCALL; a
+                    // render target volume as a texture, not the palette nor the DXT formats;
+                    // A2R10G10B10, A16B16G16R16 and L16 depth stencil too; no AUTOGENMIPMAP)
+                    (0, 1) | (0x400, 3) if self.v8 => INVALIDCALL,
+                    (1, 4) if self.v8 => ok(tex && !matches!(f, 40 | 41) && !dxt),
+                    (2, 1) if self.v8 && matches!(f, 35 | 36 | 81) => 0,
                     (0, 3) => ok(tex),
                     (1, 1) | (1, 3) => ok(supported(f, true, false)),
                     // (DYNAMIC; volume and cube textures: as textures)
                     (0x200, 3) | (0, 4) | (0, 5) => ok(tex),
                     // (a plain surface: not A8P8 nor the DXT ones, but YUY2)
-                    (0, 1) => ok(tex && f != 40 && !format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_))) || f == fourcc(b"YUY2")),
+                    (0, 1) => ok(tex && f != 40 && !dxt || f == fourcc(b"YUY2")),
                     // (a render target volume: INVALIDCALL)
                     (1, 4) => INVALIDCALL,
                     // (a depth stencil surface: D16, D24S8, D24X8, D32F_LOCKABLE; other depth
@@ -719,7 +735,6 @@ impl D3d9 {
                     // (AUTOGENMIPMAP: D3DOK_NOAUTOGEN for X8R8G8B8, R5G6B5, the palette, signed
                     // and DXT formats)
                     (0x400, 3) if tex => {
-                        let dxt = format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
                         if dxt || matches!(f, 22 | 23 | 40 | 41 | 60 | 63 | 64 | 110) { 0x0876_086f } else { 0 }
                     }
                     (0x400, 3) => NOTAVAILABLE,
@@ -890,16 +905,20 @@ impl D3d9 {
         match mag {
             1 => {
                 hit(clause::D3D9_TEX_POINT);
-                self.texel(st, tx, x.floor() as i64, y.floor() as i64, mu, mv)
+                // (MEASURED: the texel coordinate rounded to the nearest 64th, then taken down:
+                // d3d8draw filter2-3-4 takes texel 2 at 1.99375; 1/16, 1/32 break d3d9draw filter2-3-*,
+                // 1/128 misses it)
+                let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64;
+                self.texel(st, tx, near64(x), near64(y), mu, mv)
             }
             2 => {
                 hit(clause::D3D9_TEX_LINEAR);
-                // (MEASURED, filter-1 and filter-3: weights in 16ths of a texel, the weighted sum of
-                // 8-bit texels truncated; the 16ths taken down (ASSUMED))
+                // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
+                // down, the weighted sum of 8-bit texels truncated)
                 let (x, y) = (x - 0.5, y - 0.5);
                 let (x0, y0) = (x.floor(), y.floor());
-                // (MEASURED, filter2-4-*: with a mip filter, even on one level, weights in 32nds)
-                let q: i64 = if self.samp(st, 7) != 0 { 32 } else { 16 };
+                const Q: i64 = 32;
+                let q = Q;
                 let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
                 let (x0, y0) = (x0 as i64, y0 as i64);
                 let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
@@ -1162,7 +1181,11 @@ impl D3d9 {
         // vertices)
         let pieces: Vec<[PolyVtx; 3]> = if clipped {
             hit(clause::D3D9_RASTER_CLIP);
-            let poly: Vec<PolyVtx> = clip_polygon(&corners, w as f32 - 0.5, h as f32 - 0.5)
+            // (the triangle turned to start at its vertex of least x, then least y: MEASURED,
+            // clip-decide-*, which diagonal cuts a quadrilateral)
+            let first = (0..3).min_by(|&i, &j| (corners[i].x, corners[i].y).partial_cmp(&(corners[j].x, corners[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0);
+            let turned: [PolyVtx; 3] = std::array::from_fn(|k| corners[(first + k) % 3]);
+            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - 0.5, h as f32 - 0.5)
                 .iter()
                 .map(|v| {
                     let (x, y) = snap(v);
@@ -1177,22 +1200,25 @@ impl D3d9 {
         for piece in pieces {
             let mut covered = vec![false; (w * h) as usize];
             cover(piece.map(|v| snap(&v)), w, h, &mut covered);
-            // the attributes: MEASURED (Gouraud shading on 15 triangles, 6072 channel values,
-            // every one): in f32, positions with the half pixel added (D3D10's pixel centers), the
-            // barycentric weights each an edge function over the area, v0 + w2 (v2 - v0) + w1 (v1 - v0)
-            let p32 = piece.map(|v| (v.x + 0.5, v.y + 0.5));
-            let area32 = (p32[1].0 - p32[0].0) * (p32[2].1 - p32[0].1) - (p32[1].1 - p32[0].1) * (p32[2].0 - p32[0].0);
-            let e32 = |i: usize, j: usize, sx: f32, sy: f32| (p32[j].0 - p32[i].0) * (sy - p32[i].1) - (p32[j].1 - p32[i].1) * (sx - p32[i].0);
+            // the attributes: MEASURED (Gouraud shading, d3d9draw shade-*, clip-decide-*, filter2-*
+            // on both executors, every channel value): in f32, positions with the half pixel added
+            // (D3D10's pixel centers), each attribute's gradients over the area and then
+            // v0 + d/dy (y - y0) + d/dx (x - x0), in that order
+            let (x, y) = (piece.map(|v| v.x + 0.5), piece.map(|v| v.y + 0.5));
+            let area32 = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
+            let grads: [(f32, f32); ATTRS] = std::array::from_fn(|k| {
+                let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
+                ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area32, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area32)
+            });
             for py in clipr.1..clipr.3 {
                 for px in clipr.0..clipr.2 {
                     if !covered[(py * w + px) as usize] {
                         continue;
                     }
                     let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
-                    let (w1, w2) = (e32(2, 0, sx, sy) / area32, e32(0, 1, sx, sy) / area32);
                     let at: [f64; ATTRS] = std::array::from_fn(|k| {
-                        let (a0, a1, a2) = (piece[0].at[k], piece[1].at[k], piece[2].at[k]);
-                        ((a0 + w2 * (a2 - a0)) + w1 * (a1 - a0)) as f64
+                        let (dx, dy) = grads[k];
+                        (piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])) as f64
                     });
                     let (diffuse, specular) = if flat {
                         hit(clause::D3D9_SHADE_FLAT);
@@ -1278,7 +1304,10 @@ impl D3d9 {
                 }
             }
         }
-        let px = encode(&fm, new);
+        if fm.ch.iter().any(|c| c.c == b'x') {
+            hit(clause::D3D9_DRAW_XZERO);
+        }
+        let px = encode_x(&fm, new, false);
         self.draw.rt.as_mut().unwrap().set(x, y, &px);
         Ok(())
     }
@@ -1314,6 +1343,11 @@ impl D3d9 {
             })
         };
         let separate = !self.v8 && self.rs(206) != 0;
+        // (MEASURED, blend-*: two ways of rounding. With SRCALPHASAT among the factors, the
+        // separate alpha factors on, or a target without alpha (X bits), each channel is the
+        // exact sum rounded to nearest; otherwise the products are taken in 1/256ths below)
+        let sat = [19, 20].iter().chain(if separate { [207, 208].iter() } else { [].iter() }).any(|&i| self.rs(i) == 11);
+        let exact = sat || separate || fm.ch.iter().any(|c| c.c == b'x');
         let mut out = [0.0; 4];
         for k in 0..4 {
             let alpha = separate && k == 3;
@@ -1339,18 +1373,17 @@ impl D3d9 {
                 _ => return Err(Fail::Unmodeled(open::D3D9_BLEND_OP)),
             };
             let r = (v.max(0) + 128 >> 8).min(255);
-            if op <= 3 {
-                // (open: where the 1/256ths and the exact sum round apart, 23 of 43624 values,
-                // Windows takes either)
+            let r = if op <= 3 && exact {
+                hit(clause::D3D9_BLEND_TIE);
                 let n = match op {
                     1 => s[k] * fs + d[k] * fd,
                     2 => s[k] * fs - d[k] * fd,
                     _ => d[k] * fd - s[k] * fs,
                 };
-                if (2 * n.max(0) + 255) / 510 != r {
-                    return Err(Fail::Unmodeled(open::D3D9_BLEND_TIE));
-                }
-            }
+                ((2 * n.max(0) + 255) / 510).min(255)
+            } else {
+                r
+            };
             out[k] = (r as f32 / 255.0) as f64;
         }
         Ok(out)
