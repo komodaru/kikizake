@@ -1207,4 +1207,45 @@ fn measure(s: &mut String) {
     writeln!(s, "gl glStencilMask 0xff\ngl glClear 0x400\ngl glEnable 0xc11\ngl glScissor 3 2 7 4\ngldraw 16 8 {} {} {} 128\nglread 0 0 16 8 {} {} 128", h(STENCIL_INDEX), h(UNSIGNED_BYTE), q.next() & 0xffff, h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
     writeln!(s, "gl glDisable 0xc11\ngl glClear 0x400\ngl glPixelStorei 0xcf5 1\ngldraw 13 3 {} {} {} 64\nglread 0 0 16 4 {} {} 64", h(STENCIL_INDEX), h(BITMAP), q.next() & 0xffff, h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
     writeln!(s, "glerr\nend").unwrap();
+    // the calls the model does not follow yet, each with a picture to answer it: raster
+    // positions under glDrawPixels (and a negative zoom from one), polygon offset under a depth
+    // test, linear fog over rectangles
+    let mut q = XorShift32::new(0x0960_200a);
+    write!(s, "case other-calls-0\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\n").unwrap();
+    for (pos, zoom) in [("glRasterPos2i 3 5", "1 1"), ("glRasterPos2f 2.5 6.75", "1 1"), ("glRasterPos2i 12 12", "-1 -1"), ("glRasterPos2f 9.25 2.5", "-1.5 2"), ("glRasterPos2i 14 -1", "1 1")] {
+        writeln!(s, "gl glClear 0x4000\ngl glColor4ub 255 255 255 255\ngl {pos}\ngl glPixelZoom {zoom}\ngldraw 8 8 {} {} {} 256", h(RGBA), h(UNSIGNED_BYTE), q.next() & 0xffff).unwrap();
+        read_all(s);
+    }
+    writeln!(s, "gl glPixelZoom 1 1\nglerr\nend").unwrap();
+    write!(s, "case other-calls-1\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x201\n").unwrap();
+    for (fac, units) in [("0 0", "8 8"), ("1 1", "0 0"), ("0 -64", "0 0"), ("2 4", "-1 3")] {
+        writeln!(s, "gl glClearDepth 0.5\ngl glClear 0x4100\ngl glPolygonOffset {fac}\ngl glEnable 0x8037\ngl glColor4ub 255 0 0 255\ngl glRectf 2 2 14 14\ngl glPolygonOffset {units}\ngl glColor4ub 0 255 0 255\ngl glRectf 4 4 12 12\ngl glDisable 0x8037").unwrap();
+        read_all(s);
+        writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case other-calls-2\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb60\n").unwrap();
+    for (mode, a, b) in [(0x2601u32, "-1", "1"), (0x800, "0.5", "0"), (0x801, "2", "0")] {
+        writeln!(s, "gl glClear 0x4000\ngl glFogf 0xb65 {mode}\ngl glFogf 0xb63 {a}\ngl glFogf 0xb64 {b}\ngl glFogf 0xb62 {a}").unwrap();
+        for _ in 0..4 {
+            let (x0, y0) = (q.next() % 12, q.next() % 12);
+            writeln!(s, "gl glColor4ub {} {} {} 255\ngl glBegin 7\ngl glVertex3f {x0} {y0} -0.5\ngl glVertex3f {} {y0} 0\ngl glVertex3f {} {} 0.5\ngl glVertex3f {x0} {} 0.25\ngl glEnd", q.next() & 255, q.next() & 255, q.next() & 255, x0 + 4, x0 + 4, y0 + 4, y0 + 4).unwrap();
+        }
+        read_all(s);
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    // the pixel transfer the model does not follow yet: depth scale and bias over a depth image,
+    // index shift and offset over a color index image
+    write!(s, "case transfer-other\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\n").unwrap();
+    for (sc, bi) in [("0.5", "0.25"), ("2", "-0.5"), ("1", "0.125")] {
+        writeln!(s, "gl glClearDepth 0\ngl glClear 0x100\ngl glPixelTransferf 0xd1e {sc}\ngl glPixelTransferf 0xd1f {bi}\ngldraw 16 8 {} {} {} 512\nglread 0 0 16 8 {} {} 512", h(DEPTH_COMPONENT), h(UNSIGNED_SHORT), q.next() & 0xffff, h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        writeln!(s, "gl glPixelTransferf 0xd1e 1\ngl glPixelTransferf 0xd1f 0\nglread 0 0 16 8 {} {} 512", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case transfer-other-ci\nglctx 8 29\n{ORTHO}").unwrap();
+    for (sh, off) in [(1, 0), (-2, 3), (3, -5), (0, 200)] {
+        writeln!(s, "gl glClear 0x4000\ngl glPixelTransferi 0xd12 {}\ngl glPixelTransferi 0xd13 {}\ngldraw 16 4 {} {} {} 64\nglread 0 0 16 4 {} {} 64", sh, off, h(COLOR_INDEX), h(UNSIGNED_BYTE), q.next() & 0xffff, h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+        writeln!(s, "gl glPixelTransferi 0xd12 0\ngl glPixelTransferi 0xd13 0\nglread 0 0 16 4 {} {} 64", h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }

@@ -32720,6 +32720,295 @@ gldraw 13 3 0x1901 0x1a00 33698 64
 glread 0 0 16 4 0x1901 0x1401 64
 glerr
 end
+case other-calls-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glColor4ub 255 255 255 255
+gl glRasterPos2i 3 5
+gl glPixelZoom 1 1
+gldraw 8 8 0x1908 0x1401 45562 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glColor4ub 255 255 255 255
+gl glRasterPos2f 2.5 6.75
+gl glPixelZoom 1 1
+gldraw 8 8 0x1908 0x1401 45603 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glColor4ub 255 255 255 255
+gl glRasterPos2i 12 12
+gl glPixelZoom -1 -1
+gldraw 8 8 0x1908 0x1401 18295 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glColor4ub 255 255 255 255
+gl glRasterPos2f 9.25 2.5
+gl glPixelZoom -1.5 2
+gldraw 8 8 0x1908 0x1401 51019 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glColor4ub 255 255 255 255
+gl glRasterPos2i 14 -1
+gl glPixelZoom 1 1
+gldraw 8 8 0x1908 0x1401 2715 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glPixelZoom 1 1
+glerr
+end
+case other-calls-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x201
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glPolygonOffset 0 0
+gl glEnable 0x8037
+gl glColor4ub 255 0 0 255
+gl glRectf 2 2 14 14
+gl glPolygonOffset 8 8
+gl glColor4ub 0 255 0 255
+gl glRectf 4 4 12 12
+gl glDisable 0x8037
+glread 0 0 16 16 0x1908 0x1401 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glPolygonOffset 1 1
+gl glEnable 0x8037
+gl glColor4ub 255 0 0 255
+gl glRectf 2 2 14 14
+gl glPolygonOffset 0 0
+gl glColor4ub 0 255 0 255
+gl glRectf 4 4 12 12
+gl glDisable 0x8037
+glread 0 0 16 16 0x1908 0x1401 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glPolygonOffset 0 -64
+gl glEnable 0x8037
+gl glColor4ub 255 0 0 255
+gl glRectf 2 2 14 14
+gl glPolygonOffset 0 0
+gl glColor4ub 0 255 0 255
+gl glRectf 4 4 12 12
+gl glDisable 0x8037
+glread 0 0 16 16 0x1908 0x1401 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+gl glClearDepth 0.5
+gl glClear 0x4100
+gl glPolygonOffset 2 4
+gl glEnable 0x8037
+gl glColor4ub 255 0 0 255
+gl glRectf 2 2 14 14
+gl glPolygonOffset -1 3
+gl glColor4ub 0 255 0 255
+gl glRectf 4 4 12 12
+gl glDisable 0x8037
+glread 0 0 16 16 0x1908 0x1401 1024
+glread 0 0 16 16 0x1902 0x1405 1024
+glerr
+end
+case other-calls-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb60
+gl glClear 0x4000
+gl glFogf 0xb65 9729
+gl glFogf 0xb63 -1
+gl glFogf 0xb64 1
+gl glFogf 0xb62 -1
+gl glColor4ub 95 165 150 255
+gl glBegin 7
+gl glVertex3f 1 5 -0.5
+gl glVertex3f 5 5 0
+gl glVertex3f 5 9 0.5
+gl glVertex3f 1 9 0.25
+gl glEnd
+gl glColor4ub 10 243 38 255
+gl glBegin 7
+gl glVertex3f 1 2 -0.5
+gl glVertex3f 5 2 0
+gl glVertex3f 5 6 0.5
+gl glVertex3f 1 6 0.25
+gl glEnd
+gl glColor4ub 72 253 162 255
+gl glBegin 7
+gl glVertex3f 8 11 -0.5
+gl glVertex3f 12 11 0
+gl glVertex3f 12 15 0.5
+gl glVertex3f 8 15 0.25
+gl glEnd
+gl glColor4ub 152 245 235 255
+gl glBegin 7
+gl glVertex3f 0 7 -0.5
+gl glVertex3f 4 7 0
+gl glVertex3f 4 11 0.5
+gl glVertex3f 0 11 0.25
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glFogf 0xb65 2048
+gl glFogf 0xb63 0.5
+gl glFogf 0xb64 0
+gl glFogf 0xb62 0.5
+gl glColor4ub 24 203 154 255
+gl glBegin 7
+gl glVertex3f 6 1 -0.5
+gl glVertex3f 10 1 0
+gl glVertex3f 10 5 0.5
+gl glVertex3f 6 5 0.25
+gl glEnd
+gl glColor4ub 235 90 99 255
+gl glBegin 7
+gl glVertex3f 11 7 -0.5
+gl glVertex3f 15 7 0
+gl glVertex3f 15 11 0.5
+gl glVertex3f 11 11 0.25
+gl glEnd
+gl glColor4ub 122 45 235 255
+gl glBegin 7
+gl glVertex3f 7 9 -0.5
+gl glVertex3f 11 9 0
+gl glVertex3f 11 13 0.5
+gl glVertex3f 7 13 0.25
+gl glEnd
+gl glColor4ub 100 111 158 255
+gl glBegin 7
+gl glVertex3f 4 6 -0.5
+gl glVertex3f 8 6 0
+gl glVertex3f 8 10 0.5
+gl glVertex3f 4 10 0.25
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glFogf 0xb65 2049
+gl glFogf 0xb63 2
+gl glFogf 0xb64 0
+gl glFogf 0xb62 2
+gl glColor4ub 153 236 134 255
+gl glBegin 7
+gl glVertex3f 8 0 -0.5
+gl glVertex3f 12 0 0
+gl glVertex3f 12 4 0.5
+gl glVertex3f 8 4 0.25
+gl glEnd
+gl glColor4ub 85 230 241 255
+gl glBegin 7
+gl glVertex3f 1 7 -0.5
+gl glVertex3f 5 7 0
+gl glVertex3f 5 11 0.5
+gl glVertex3f 1 11 0.25
+gl glEnd
+gl glColor4ub 212 23 246 255
+gl glBegin 7
+gl glVertex3f 4 3 -0.5
+gl glVertex3f 8 3 0
+gl glVertex3f 8 7 0.5
+gl glVertex3f 4 7 0.25
+gl glEnd
+gl glColor4ub 170 120 2 255
+gl glBegin 7
+gl glVertex3f 10 7 -0.5
+gl glVertex3f 14 7 0
+gl glVertex3f 14 11 0.5
+gl glVertex3f 10 11 0.25
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case transfer-other
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gl glClearDepth 0
+gl glClear 0x100
+gl glPixelTransferf 0xd1e 0.5
+gl glPixelTransferf 0xd1f 0.25
+gldraw 16 8 0x1902 0x1403 36828 512
+glread 0 0 16 8 0x1902 0x1405 512
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+glread 0 0 16 8 0x1902 0x1405 512
+gl glClearDepth 0
+gl glClear 0x100
+gl glPixelTransferf 0xd1e 2
+gl glPixelTransferf 0xd1f -0.5
+gldraw 16 8 0x1902 0x1403 3919 512
+glread 0 0 16 8 0x1902 0x1405 512
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+glread 0 0 16 8 0x1902 0x1405 512
+gl glClearDepth 0
+gl glClear 0x100
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0.125
+gldraw 16 8 0x1902 0x1403 20749 512
+glread 0 0 16 8 0x1902 0x1405 512
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+glread 0 0 16 8 0x1902 0x1405 512
+glerr
+end
+case transfer-other-ci
+glctx 8 29
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 0
+gldraw 16 4 0x1900 0x1401 38355 64
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+gl glClear 0x4000
+gl glPixelTransferi 0xd12 -2
+gl glPixelTransferi 0xd13 3
+gldraw 16 4 0x1900 0x1401 37934 64
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+gl glClear 0x4000
+gl glPixelTransferi 0xd12 3
+gl glPixelTransferi 0xd13 -5
+gldraw 16 4 0x1900 0x1401 48011 64
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+gl glClear 0x4000
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 200
+gldraw 16 4 0x1900 0x1401 33344 64
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

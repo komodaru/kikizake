@@ -25,6 +25,7 @@ GL.BEGIN.STRING measured | glGetString | between glBegin and glEnd: the string a
 GL.END.OUTSIDE doc | glEnd (GL_INVALID_OPERATION) | glEnd without glBegin: GL_INVALID_OPERATION
 GL.VERTEX.OUTSIDE measured | glVertex | a vertex outside glBegin / glEnd: ignored, no error (opengl golden edge-vertex-outside)
 GL.CALL.OTHER open | (none) | the calls of the executor's table the model does not follow (fog, zoom, raster position, polygon offset, ...)
+GL.DRAW.ZOOM measured | glPixelZoom | glDrawPixels' image pixel (i, j) covers the window pixels whose centers are in [zx i, zx (i + 1)) across and (zy j, zy (j + 1)] up from the raster position, for positive zooms (opengl golden pixel-zoom: 8 zooms)
 GL.FLUSH doc | glFlush, glFinish | no change of state
 GL.ENABLE doc | glEnable, glDisable | the capability set or cleared
 GL.ENABLE.ENUM doc | glEnable (GL_INVALID_ENUM) | another name: GL_INVALID_ENUM
@@ -136,7 +137,8 @@ GL.PIXELSTORE.LAYOUT doc | glPixelStore | rows of GL_*_ROW_LENGTH pixels (or the
 GL.PIXELSTORE.SWAP doc | glPixelStore (GL_PACK_SWAP_BYTES) | the bytes of each element of 2 or 4 bytes reversed
 GL.PIXELTRANSFER doc | glPixelTransfer | the scale and bias of each component recorded
 GL.PIXELTRANSFER.APPLY doc | glPixelTransfer | components times the scale plus the bias, clamped, on reads and draws (opengl golden draw-unpack-8..15)
-GL.PIXELTRANSFER.OTHER open | glPixelTransfer | color maps, index shifts and depth scale
+GL.PIXELTRANSFER.OTHER open | glPixelTransfer | index shifts and offsets, depth scale and bias
+GL.PIXELTRANSFER.MAP measured | glPixelTransfer (GL_MAP_COLOR) | with GL_MAP_COLOR on, colors drawn and read go through the RGBA maps, which (no call sets them) hold one entry of 0: every component 0 (opengl golden transfer-map-color)
 GL.PIXELS.ENUM measured | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM, nothing written (opengl golden edge-pixels-errors)
 GL.PIXELS.VALUE measured | glReadPixels, glDrawPixels (GL_INVALID_VALUE) | a negative width or height: GL_INVALID_VALUE (opengl golden edge-pixels-errors)
 GL.PIXELS.NOBUFFER measured | glReadPixels (GL_INVALID_OPERATION) | reading GL_COLOR_INDEX in RGBA mode (before the type is looked at), or depth or stencil without such a buffer: GL_INVALID_OPERATION (opengl golden edge-pixels-errors)

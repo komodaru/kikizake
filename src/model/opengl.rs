@@ -2645,7 +2645,10 @@ impl Ctx {
 
     fn transfer(&self, c: [f64; 4]) -> Res<[f64; 4]> {
         if self.map[0] {
-            return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER));
+            // (MEASURED, golden opengl-32 transfer-map-color: through the initial maps, each
+            // one entry of 0, every component of an image drawn or read is 0: GL.PIXELTRANSFER.MAP)
+            hit(clause::GL_PIXELTRANSFER_MAP);
+            return Ok([0.0; 4]);
         }
         let mut r = c;
         for k in 0..4 {
@@ -2792,7 +2795,9 @@ impl Ctx {
 
     pub fn draw_pixels(&mut self, w: i64, h: i64, f: u32, t: u32, data: &[u8]) -> Res<()> {
         let Some((comps, size)) = self.pixel_args(w, h, f, t, false)? else { return Ok(()) };
-        if self.zoom != (1.0, 1.0) {
+        // (negative zooms, and zoomed depth, stencil and bitmap images, are not measured)
+        let zoomed = self.zoom != (1.0, 1.0);
+        if zoomed && (self.zoom.0 < 0.0 || self.zoom.1 < 0.0 || size == 0 || f == DEPTH_COMPONENT || f == STENCIL_INDEX) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
         hit(clause::GL_DRAW);
@@ -2891,7 +2896,26 @@ impl Ctx {
                     }
                 }
                 let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
-                self.fragment(Frag { x: i as i64, y: j as i64, c: c.map(|v| v as f32), z: 0.0, trunc: true, zfixed: None })?;
+                let c = c.map(|v| v as f32);
+                if !zoomed {
+                    self.fragment(Frag { x: i as i64, y: j as i64, c, z: 0.0, trunc: true, zfixed: None })?;
+                    continue;
+                }
+                // (MEASURED, golden opengl-32 pixel-zoom: image pixel (i, j) covers the window
+                // pixels whose centers are in [zx i, zx (i + 1)) across and (zy j, zy (j + 1)]
+                // up from the raster position: GL.DRAW.ZOOM)
+                hit(clause::GL_DRAW_ZOOM);
+                let (zx, zy) = (f64::from(self.zoom.0), f64::from(self.zoom.1));
+                let (x0, x1) = (zx * i as f64, zx * (i + 1) as f64);
+                let (y0, y1) = (zy * j as f64, zy * (j + 1) as f64);
+                for y in (y0.floor() as i64).max(0)..=(y1.ceil() as i64).min(H as i64 - 1) {
+                    for x in (x0.floor() as i64).max(0)..=(x1.ceil() as i64).min(W as i64 - 1) {
+                        let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+                        if cx >= x0 && cx < x1 && cy > y0 && cy <= y1 {
+                            self.fragment(Frag { x, y, c, z: 0.0, trunc: true, zfixed: None })?;
+                        }
+                    }
+                }
             }
         }
         Ok(())
