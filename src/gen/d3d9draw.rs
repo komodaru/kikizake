@@ -727,6 +727,18 @@ fn suite(v8: bool) -> String {
         line(&mut s, &format!("line-edge-anti-{len}"), (14.0 - x, y), (14.0 - x - len as f32, y + len as f32));
         line(&mut s, &format!("line-edge-anti-back-{len}"), (14.0 - x - len as f32, y + len as f32), (14.0 - x, y));
     }
+    // fog over more depths and factors (D3D9.FOG: which precision the factor and the blend take)
+    let mut r = XorShift32(0x0f09_0002);
+    for i in 0..24 {
+        open(&mut s, &format!("fog2-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 7 0\nrs set 28 1\nrs set 34 {:#x}\nrs set 35 {}\nrs set 140 0", r.next(), i % 4).unwrap();
+        writeln!(s, "rs set 36 {}\nrs set 37 {}\nrs set 38 {}\nd9fvf 0xc4", fb(r.range(0, 40) as f32 / 97.0), fb(0.45 + r.range(0, 50) as f32 / 89.0), fb(0.3 + r.range(0, 300) as f32 / 71.0)).unwrap();
+        let mut l = "d9draw 4 3".to_string();
+        for (x, y) in [(-0.5f32, -0.5f32), (15.5, -0.5), (-0.5, 15.5)] {
+            write!(l, " {} {} {} {} {:#x} {:#x}", fb(x), fb(y), fb(r.range(0, 1000) as f32 / 999.0), fb(1.0), r.next(), r.next()).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 

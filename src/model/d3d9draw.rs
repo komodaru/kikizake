@@ -1777,7 +1777,24 @@ impl D3d9 {
             }
         }
         if self.rs(28) != 0 {
-            return Err(Fail::Unmodeled(open::D3D9_FOG));
+            // (MEASURED fog-*: the factor from the iterated specular alpha (FOGTABLEMODE NONE) or
+            // EXP, EXP2, LINEAR of the pixel's z; the color f c + (1 - f) fog, in f32)
+            hit(clause::D3D9_FOG);
+            let fl = |k: u32| f32::from_bits(self.rs(k)) as f64;
+            let (start, end, density) = (fl(36), fl(37), fl(38));
+            let f = match self.rs(35) {
+                0 => specular[3],
+                1 => (-(z * density)).exp(),
+                2 => (-(z * density) * (z * density)).exp(),
+                3 => (end - z) / (end - start),
+                // (the generators set no other table mode)
+                _ => return Err(Fail::Bad),
+            }
+            .clamp(0.0, 1.0) as f32;
+            let fc = argb(self.rs(34));
+            for k in 0..3 {
+                c[k] = (f * c[k] as f32 + (1.0 - f) * fc[k] as f32) as f64;
+            }
         }
         if self.rs(15) != 0 {
             hit(clause::D3D9_ALPHATEST);

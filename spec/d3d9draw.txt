@@ -57,7 +57,7 @@ D3D9.STAGE.MULTI measured | D3DTEXTUREOP, D3DTSS_COLOROP; golden d3d9draw, d3d8d
 D3D9.STAGE.ALPHADISABLE.FIRST measured | golden d3d9draw, d3d8draw alphadisable-* (30 cases) | ALPHAOP DISABLE with COLOROP enabled on stage 0: the alpha the stage is given (the diffuse one) where the color operation reads DIFFUSE or CURRENT (an argument it uses, BLENDDIFFUSEALPHA, BLENDCURRENTALPHA), else 1; DOTPRODUCT3 writes its own
 D3D9.STAGE.ALPHADISABLE measured | golden d3d9draw, d3d8draw alphadisable-stage1-* | ALPHAOP DISABLE with COLOROP enabled on a later stage: CURRENT's alpha stays (DOTPRODUCT3 writes its own)
 D3D9.SPECULAR doc | D3DRS_SPECULARENABLE | the specular color added to the color
-D3D9.FOG open | (cases fog-*) | fog
+D3D9.FOG measured | D3DRS_FOGENABLE, D3DFOGMODE; golden d3d9draw, d3d8draw fog-*, fog2-* | pixel fog: the factor the iterated specular alpha (table mode NONE) or EXP, EXP2, LINEAR of the pixel's z (clamped to 0..1); the color f c + (1 - f) fog color, in f32
 D3D9.ALPHATEST doc | D3DRS_ALPHATESTENABLE, D3DRS_ALPHAREF, D3DRS_ALPHAFUNC | a pixel is drawn when its alpha (8 bits) compares true against ALPHAREF's low 8 bits
 D3D9.STENCIL doc | D3DRS_STENCILENABLE, D3DSTENCILOP, Stencil Buffer Techniques (Direct3D 9) | (ref & mask) FUNC (stencil & mask); FAIL, ZFAIL or PASS's operation stored through the write mask; INCRSAT / DECRSAT clamp, INCR / DECR wrap
 D3D9.STENCIL.TWOSIDED measured | D3DRS_TWOSIDEDSTENCILMODE, D3DRS_CCW_STENCILFAIL; golden d3d9draw stencil2-* | (9) a counterclockwise triangle (on screen) tested and written with the CCW states
