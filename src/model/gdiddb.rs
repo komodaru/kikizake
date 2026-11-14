@@ -59,15 +59,29 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 "mono" => {
                     let (w, h) = (n(op, 3)?, n(op, 4)?);
                     hit("GDI.DDB.MONO");
-                    if w <= 0 || h <= 0 {
-                        return Err(Fail::Unmodeled("GDI.DDB.ZERO"));
+                    if w == 0 || h == 0 {
+                        hit("GDI.DDB.ZERO");
+                        Surf::ddb(1, 1, 1)
+                    } else if w < 0 || h < 0 {
+                        return Err(Fail::Unmodeled("GDI.DDB.NEGATIVE"));
+                    } else {
+                        Surf::ddb(w as i32, h as i32, 1)
                     }
-                    Surf::ddb(w as i32, h as i32, 1)
                 }
                 "bitmap" => {
                     let (w, h, p, b) = (n(op, 3)?, n(op, 4)?, n(op, 5)?, n(op, 6)?);
-                    if w <= 0 || h <= 0 || p != 1 {
-                        return Err(Fail::Unmodeled("GDI.DDB.PLANES"));
+                    if w < 0 || h < 0 || p < 1 || b < 1 {
+                        return Err(Fail::Unmodeled("GDI.DDB.NEGATIVE"));
+                    }
+                    if p != 1 {
+                        // MEASURED: the planes' bits make one plane of planes * bits
+                        hit("GDI.DDB.PLANES");
+                    }
+                    let b = p * b;
+                    if w == 0 || h == 0 {
+                        hit("GDI.DDB.ZERO");
+                        g.slots[k as usize] = Some(Slot::new(Surf::ddb(1, 1, 1)));
+                        return Ok(true);
                     }
                     hit("GDI.DDB.SELECT");
                     if b != 1 && b != SCREEN_BPP as i64 {
@@ -82,8 +96,14 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     let of = if kind == "compat" { Some(g.slots.get(n(op, 3)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?.s.clone()) } else { None };
                     let at = if kind == "compat" { 4 } else { 3 };
                     let (w, h) = (n(op, at)?, n(op, at + 1)?);
-                    if w <= 0 || h <= 0 {
-                        return Err(Fail::Unmodeled("GDI.DDB.ZERO"));
+                    if w < 0 || h < 0 {
+                        return Err(Fail::Unmodeled("GDI.DDB.NEGATIVE"));
+                    }
+                    if w == 0 || h == 0 {
+                        // MEASURED: "a 1-by-1 pixel, monochrome bitmap", whatever it is compatible with
+                        hit("GDI.DDB.ZERO");
+                        g.slots[k as usize] = Some(Slot::new(Surf::ddb(1, 1, 1)));
+                        return Ok(true);
                     }
                     match of {
                         None => {
@@ -94,7 +114,13 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                             hit("GDI.DDB.COMPAT");
                             Surf::ddb(w as i32, h as i32, o.bpp)
                         }
-                        Some(_) => return Err(Fail::Unmodeled("GDI.DDB.COMPATDIB")),
+                        Some(o) => {
+                            // MEASURED: a DIB section of the DC's bitmap's format (GetObject
+                            // cannot tell its row order: memory taken as bottom-up, as the
+                            // executor reads GetObject's positive height)
+                            hit("GDI.DDB.COMPATDIB");
+                            Surf::new(w as i32, h as i32, o.bpp, o.f565, false, o.pal.clone())
+                        }
                     }
                 }
                 _ => return Err(Fail::Bad),
@@ -111,18 +137,21 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 hit("GDI.DDB.DIBOBJECT");
                 out.push(format!("bm dibsection {} {} {} 1 {} 1", s.w, s.h, s.stride, s.bpp));
                 let used = if s.bpp <= 8 { 1 << s.bpp } else { 0 };
-                out.push(format!("dib {} {} {} {used}", s.bpp, if s.topdown { -s.h } else { s.h }, if s.f565 { 3 } else { 0 }));
-                out.push("bmsize dibsection".into());
+                // MEASURED: the height positive whatever the row order, BI_BITFIELDS for every
+                // 16 bpp section, and GetObject(h, 0, NULL) the size of a BITMAP
+                out.push(format!("dib {} {} {} {used}", s.bpp, s.h, if s.bpp == 16 { 3 } else { 0 }));
+                out.push("bmsize bitmap".into());
             }
         }
         "bmbits" => {
             let sl = g.slots.get(n(op, 1)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?;
-            if !sl.s.ddb {
-                return Err(Fail::Unmodeled("GDI.DDB.DIBBITS"));
-            }
+            let s = &sl.s;
+            // a DIB section: MEASURED: its memory rows, each cut to a WORD aligned row
+            let wb = if s.ddb { s.stride } else { hit("GDI.DDB.DIBBITS"); (s.w as usize * s.bpp as usize).div_ceil(16) * 2 };
             hit("GDI.DDB.BITS");
-            out.push(format!("bmbits {}", sl.s.stride * sl.s.h as usize));
-            out.push(sl.s.rows.iter().flat_map(|r| r.iter().map(|b| format!("{b:02x}"))).collect());
+            out.push(format!("bmbits {}", wb * s.h as usize));
+            let mem: Vec<&Vec<u8>> = if s.ddb || s.topdown { s.rows.iter().collect() } else { s.rows.iter().rev().collect() };
+            out.push(mem.iter().flat_map(|r| r[..wb].iter().map(|b| format!("{b:02x}"))).collect());
         }
         "devcaps" => {
             g.slots.get(n(op, 1)? as usize).and_then(|s| s.as_ref()).ok_or(Fail::Bad)?;

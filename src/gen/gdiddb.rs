@@ -45,5 +45,14 @@ pub fn ddb() -> String {
         let (l, _) = dib_line(&mut r, 1, 7, 3, f, false);
         writeln!(s, "{l}\nfill 1 {}\nddb 0 screen 7 3\nfill 0 {}\nbitblt 0 0 0 4 3 1 0 0 0xcc0020\ndump 0\nbitblt 1 3 0 4 3 0 3 0 0xcc0020\ndump 1\nend", r.next(), r.next()).unwrap();
     }
+    // the edges: negative sizes, planes, the row order of DIB sections (made compatible, or
+    // bottom-up), every documented GetDeviceCaps index
+    for (i, k) in ["mono -2 3", "screen 3 -1", "bitmap -1 2 1 1", "bitmap 2 2 0 1", "bitmap 2 2 1 0", "bitmap 3 2 2 16", "bitmap 3 2 32 1", "bitmap 3 2 1 32"].iter().enumerate() {
+        writeln!(s, "case edge-{i}\nddb 0 {k}\nbmobject 0\nend").unwrap();
+    }
+    for f in FORMATS {
+        writeln!(s, "case order-{0}\ndib 0 3 2 {1}{2}\nddb 1 compat 0 3 2\nfill 1 {3}\ngetpixel 1 0 0\ngetpixel 1 0 1\nbmbits 1\ndib 2 3 2 {1} bu{2}\nfill 2 {3}\nbmobject 2\nbmbits 2\nend", fmt_name(f), f.0, f.1, r.next()).unwrap();
+    }
+    writeln!(s, "case caps-all\nddb 0 mono 1 1\ndevcaps 0 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 32 34 36 38 40 42 44 88 90 104 106 108 110 112 114 116 117 118 119 120 121 122\nend").unwrap();
     s
 }

@@ -168,8 +168,16 @@ fn run_ops(case: &Case) -> Res<Vec<String>> {
     let mut apis = apis();
     'line: for op in &case.ops {
         for a in apis.iter_mut() {
-            if a.op(op, &mut out)? {
-                continue 'line;
+            match a.op(op, &mut out) {
+                Ok(true) => continue 'line,
+                Ok(false) => {}
+                // (as the executor: "bad line N" for an op it cannot carry out, such as one on
+                // an empty slot, and on to the next line)
+                Err(Fail::Bad) => {
+                    out.push(format!("bad line {}", op.line));
+                    continue 'line;
+                }
+                Err(e) => return Err(e),
             }
         }
         return Err(Fail::Bad);

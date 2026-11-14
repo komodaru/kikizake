@@ -1,17 +1,18 @@
 # gdiddb clauses (spec/README.md): <id> <status> | <source> | <what it says>
 GDI.DDB.MONO doc | CreateBitmap | a 1 plane, 1 bit per pixel bitmap is monochrome: 0 black, 1 white
-GDI.DDB.ZERO open | CreateBitmap, CreateCompatibleBitmap | a width or height of 0 ("a 1-by-1 pixel, monochrome bitmap" for CreateBitmap)
-GDI.DDB.PLANES open | CreateBitmap | more than one plane, or bit counts the display has not
+GDI.DDB.ZERO measured | golden ddb kind-10, kind-11 | a width or height of 0 makes a 1 x 1 monochrome bitmap (CreateBitmap, CreateCompatibleBitmap of any DC)
+GDI.DDB.PLANES measured | golden ddb kind-7, kind-12 | CreateBitmap's planes times bits per pixel make one plane of that many bits (3 x 8, 4 x 1: not selectable in a memory DC)
 GDI.DDB.SELECT assumed | SelectObject, CreateCompatibleDC | a memory DC (compatible with the display) takes a monochrome bitmap or one of the display's format; any other fails
 GDI.DDB.SCREEN assumed | CreateCompatibleBitmap | a bitmap compatible with the display: the display's format (Windows' runner: 32 bpp)
 GDI.DDB.COMPAT doc | CreateCompatibleBitmap | a bitmap compatible with a memory DC is of the format of the bitmap selected in it ("the format of the bitmap returned by the CreateCompatibleBitmap function differs when the specified device context is a memory device context"; a new memory DC "initially has a 1-by-1 monochrome bitmap selected into it")
-GDI.DDB.COMPATDIB open | CreateCompatibleBitmap | compatible with a memory DC that has a DIB section selected (a DIB section of the same format?)
+GDI.DDB.COMPATDIB measured | golden ddb compat-* (7 formats) | compatible with a memory DC holding a DIB section: a DIB section of the same format (bits, BI_BITFIELDS for 16 bpp, the color table's size)
 GDI.DDB.OBJECT doc | GetObject, BITMAP | a DDB: BITMAP's width, height, bytes per row (a multiple of 2), 1 plane, bits per pixel, no bits pointer
-GDI.DDB.DIBOBJECT doc | GetObject, DIBSECTION | a DIB section: DIBSECTION, bytes per row a multiple of 4, the bits pointer, and the header it was made from
+GDI.DDB.DIBOBJECT measured | golden ddb compat-* | a DIB section: DIBSECTION, bytes per row a multiple of 4, the bits pointer, the header with a positive height whatever the row order, BI_BITFIELDS for 16 bpp, the color table's size as biClrUsed; GetObject(h, 0, NULL) is sizeof(BITMAP)
 GDI.DDB.BITS doc | GetBitmapBits | the bits of a DDB, rows top to bottom, each a multiple of 2 bytes; returns the number of bytes
-GDI.DDB.DIBBITS open | GetBitmapBits | GetBitmapBits of a DIB section
 GDI.DDB.CAPS measured | GetDeviceCaps | a memory DC answers for the display: DT_RASDISPLAY, 32 bits per pixel, 1 plane, -1 brushes / pens / colors, no palette, 20 reserved entries, 24 bits of color resolution (ddb golden: every case, both executors)
 GDI.DDB.CAPS.RASTER measured | GetDeviceCaps (RASTERCAPS, SHADEBLENDCAPS) | a memory DC: RASTERCAPS 0x7e99 (RC_BITBLT RC_BITMAP64 RC_GDI20_OUTPUT RC_DI_BITMAP RC_DIBTODEV RC_BIGFONT RC_STRETCHBLT RC_FLOODFILL RC_STRETCHDIB RC_OP_DX_OUTPUT), SHADEBLENDCAPS 0 (ddb golden: every case, both executors)
 GDI.DDB.CAPS.OTHER excluded | GetDeviceCaps | the indexes the suite does not ask
+GDI.DDB.DIBBITS measured | golden ddb dibbits-* (6 formats) | GetBitmapBits of a DIB section: its memory rows, each cut to WORD alignment
 GDI.DDB.MONOBLT doc | BitBlt | between a monochrome bitmap and a color one: 1 bits become the destination's background color, 0 bits its text color; source pixels of the source DC's background color become 1, all others 0
 GDI.DDB.OBJTYPE doc | GetObjectType, GetCurrentObject | OBJ_PEN 1, OBJ_BRUSH 2, OBJ_FONT 6, OBJ_BITMAP 7
+GDI.DDB.NEGATIVE open | CreateBitmap, CreateCompatibleBitmap | a negative width or height, planes or bits below 1
