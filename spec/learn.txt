@@ -16,24 +16,24 @@ BC5 UNORM | https://learn.microsoft.com/en-us/windows/win32/direct3d11/texture-b
 BC5_SNORM | https://learn.microsoft.com/en-us/windows/win32/direct3d11/texture-block-compression-in-direct3d-11
 BC6H | https://learn.microsoft.com/en-us/windows/win32/direct3d11/bc6h-format
 BC7 | https://learn.microsoft.com/en-us/windows/win32/direct3d11/bc7-format
+BITMAP | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmap
+BITMAPCOREHEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapcoreheader
+BITMAPINFOHEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
+BITMAPV5HEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv5header
+BLENDFUNCTION | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-blendfunction
+BMP Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/bmp-format-overview
 BeginPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-beginpath
 BeginStateBlock | https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3ddevice9-beginstateblock
 Binary Raster Operations | https://learn.microsoft.com/en-us/windows/win32/gdi/binary-raster-operations
 BitBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-bitblt
 Bitmap Storage | https://learn.microsoft.com/en-us/windows/win32/gdi/bitmap-storage
-BITMAP | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmap
 Bitmap::Bitmap | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-bitmap-bitmap(int_int_graphics)
 Bitmap::Clone | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-bitmap-clone(constrect__pixelformat)
 Bitmap::GetPixel | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-bitmap-getpixel
 Bitmap::LockBits | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-bitmap-lockbits
 Bitmap::SetPixel | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-bitmap-setpixel
 Bitmap::UnlockBits | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-bitmap-unlockbits
-BITMAPCOREHEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapcoreheader
-BITMAPINFOHEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
 Bitmaps | https://learn.microsoft.com/en-us/windows/win32/gdi/bitmaps
-BITMAPV5HEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv5header
-BLENDFUNCTION | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-blendfunction
-BMP Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/bmp-format-overview
 Brush Origin | https://learn.microsoft.com/en-us/windows/win32/gdi/brush-origin
 CheckFormatSupport | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-checkformatsupport
 CheckMultisampleQualityLevels | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-checkmultisamplequalitylevels
@@ -194,23 +194,17 @@ D3DTEXTURESTAGESTATETYPE | https://learn.microsoft.com/en-us/windows/win32/direc
 D3DVERTEXELEMENT9 | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dvertexelement9
 D3DXDeclaratorFromFVF | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxdeclaratorfromfvf
 D3DXFLOAT16 | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxfloat16-extensions
+D3DXFVFFromDeclarator | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxfvffromdeclarator
 D3DXFloat16To32Array | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxfloat16to32array
 D3DXFloat32To16Array | https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-d3dxfloat32to16array
-D3DXFVFFromDeclarator | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxfvffromdeclarator
 D3DXGetDeclLength | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxgetdecllength
 D3DXGetDeclVertexSize | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxgetdeclvertexsize
 D3DXGetFVFVertexSize | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxgetfvfvertexsize
 D3DXLoadSurfaceFromMemory | https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxloadsurfacefrommemory
-Data Conversion Rules | https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
 DDBLTFX | https://learn.microsoft.com/en-us/windows/win32/api/ddraw/ns-ddraw-ddbltfx
 DDS Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/dds-format-overview
-DescribePixelFormat | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-describepixelformat
 DESTBLEND | - (DirectX 7 SDK, not on Microsoft Learn)
 DIBSECTION | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-dibsection
-Direct3DCreate8 | - (DirectX 8 SDK, not on Microsoft Learn)
-Direct3DCreate9 | https://learn.microsoft.com/en-us/windows/win32/api/d3d9/nf-d3d9-direct3dcreate9
-DirectDrawCreateEx | https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-directdrawcreateex
-Directly Mapping Texels to Pixels | https://learn.microsoft.com/en-us/windows/win32/direct3d9/directly-mapping-texels-to-pixels
 DPtoLP | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-dptolp
 DWRITE_CLUSTER_METRICS | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/ns-dwrite-dwrite_cluster_metrics
 DWRITE_FONT_METRICS | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/ns-dwrite-dwrite_font_metrics
@@ -241,6 +235,12 @@ DXGI_SWAP_CHAIN_DESC1 | https://learn.microsoft.com/en-us/windows/win32/api/dxgi
 DXGI_SWAP_CHAIN_FLAG | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_chain_flag
 DXGI_SWAP_EFFECT | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_effect
 DXGI_USAGE | https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-usage
+Data Conversion Rules | https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+DescribePixelFormat | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-describepixelformat
+Direct3DCreate8 | - (DirectX 8 SDK, not on Microsoft Learn)
+Direct3DCreate9 | https://learn.microsoft.com/en-us/windows/win32/api/d3d9/nf-d3d9-direct3dcreate9
+DirectDrawCreateEx | https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-directdrawcreateex
+Directly Mapping Texels to Pixels | https://learn.microsoft.com/en-us/windows/win32/direct3d9/directly-mapping-texels-to-pixels
 Ellipse | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-ellipse
 EndPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-endpath
 EndStateBlock | https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3ddevice9-endstateblock
@@ -256,6 +256,7 @@ FlattenPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wing
 Format Conversion using Direct3D 10.1 | https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-block-compression
 FrameRect | https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-framerect
 FrameRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-framergn
+GIF89a | https://www.w3.org/Graphics/GIF/spec-gif89a.txt
 GdiplusStartup | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusinit/nf-gdiplusinit-gdiplusstartup
 GetBitmapBits | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getbitmapbits
 GetCharABCWidths | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getcharabcwidthsa
@@ -263,8 +264,8 @@ GetCharWidth32 | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-w
 GetClipBox | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getclipbox
 GetClipRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getcliprgn
 GetCurrentObject | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getcurrentobject
-GetDeviceCaps | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
 GetDIBits | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdibits
+GetDeviceCaps | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
 GetGlyphOutline | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getglyphoutlinea
 GetGraphicsMode | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getgraphicsmode
 GetMapMode | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getmapmode
@@ -283,7 +284,6 @@ GetViewportOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf
 GetWindowExtEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getwindowextex
 GetWindowOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getwindoworgex
 GetWorldTransform | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getworldtransform
-GIF89a | https://www.w3.org/Graphics/GIF/spec-gif89a.txt
 GradientFill | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-gradientfill
 Graphics::Clear | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-clear
 Graphics::FillRectangle | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-fillrectangle(constbrush_int_int_int_int)
@@ -330,8 +330,8 @@ ID3D11DeviceContext::CopyResource | https://learn.microsoft.com/en-us/windows/wi
 ID3D11DeviceContext::CopySubresourceRegion | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-copysubresourceregion
 ID3D11DeviceContext::Draw | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-draw
 ID3D11DeviceContext::DrawInstanced | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-drawinstanced
-ID3D11DeviceContext::ResolveSubresource | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-resolvesubresource
 ID3D11DeviceContext::RSSetScissorRects | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-rssetscissorrects
+ID3D11DeviceContext::ResolveSubresource | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-resolvesubresource
 ID3D11DeviceContext::UpdateSubresource | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-updatesubresource
 ID3D12Device::CreateCommandAllocator | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-createcommandallocator
 ID3D12Device::CreateCommandList | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-createcommandlist
@@ -347,6 +347,45 @@ ID3D12Device::GetDescriptorHandleIncrementSize | https://learn.microsoft.com/en-
 ID3D12Device::GetResourceAllocationInfo | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-getresourceallocationinfo(uint_uint_constd3d12_resource_desc)
 ID3D12GraphicsCommandList::ClearDepthStencilView | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12graphicscommandlist-cleardepthstencilview
 ID3D12GraphicsCommandList::ClearRenderTargetView | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12graphicscommandlist-clearrendertargetview
+ID3D12GraphicsCommandList::CopyTextureRegion | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12graphicscommandlist-copytextureregion
+IDWriteFactory5::CreateInMemoryFontFileLoader | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_3/nf-dwrite_3-idwritefactory5-createinmemoryfontfileloader
+IDWriteFontCollection | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwritefontcollection
+IDWriteFontFace | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwritefontface
+IDWriteFontFace1::GetMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_1/nf-dwrite_1-idwritefontface1-getmetrics
+IDWriteFontFace1::HasVerticalGlyphVariants | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_1/nf-dwrite_1-idwritefontface1-hasverticalglyphvariants
+IDWriteFontFace1::IsMonospacedFont | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_1/nf-dwrite_1-idwritefontface1-ismonospacedfont
+IDWriteFontFace::GetDesignGlyphMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getdesignglyphmetrics
+IDWriteFontFace::GetGdiCompatibleGlyphMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getgdicompatibleglyphmetrics
+IDWriteFontFace::GetGdiCompatibleMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getgdicompatiblemetrics
+IDWriteFontFace::GetGlyphCount | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getglyphcount
+IDWriteFontFace::GetGlyphIndices | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getglyphindices
+IDWriteFontFace::GetIndex | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getindex
+IDWriteFontFace::GetSimulations | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getsimulations
+IDWriteFontFace::GetType | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-gettype
+IDWriteFontFace::IsSymbolFont | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-issymbolfont
+IDWriteFontFallback | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_2/nn-dwrite_2-idwritefontfallback
+IDWriteFontFile::Analyze | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontfile-analyze
+IDWriteFontSetBuilder | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_3/nn-dwrite_3-idwritefontsetbuilder
+IDWriteGlyphRunAnalysis | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwriteglyphrunanalysis
+IDWriteGlyphRunAnalysis::GetAlphaTextureBounds | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwriteglyphrunanalysis-getalphatexturebounds
+IDWriteTextAnalyzer::AnalyzeBidi | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-analyzebidi
+IDWriteTextAnalyzer::AnalyzeLineBreakpoints | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-analyzelinebreakpoints
+IDWriteTextAnalyzer::AnalyzeScript | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-analyzescript
+IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-getgdicompatibleglyphplacements
+IDWriteTextAnalyzer::GetGlyphPlacements | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-getglyphplacements
+IDWriteTextAnalyzer::GetGlyphs | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-getglyphs
+IDWriteTextLayout | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwritetextlayout
+IDXGIFactory1::EnumAdapters1 | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgifactory1-enumadapters1
+IDXGIFactory2::CreateSwapChainForHwnd | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_2/nf-dxgi1_2-idxgifactory2-createswapchainforhwnd
+IDXGIFactory4::EnumWarpAdapter | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgifactory4-enumwarpadapter
+IDXGIFactory5::CheckFeatureSupport | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_5/nf-dxgi1_5-idxgifactory5-checkfeaturesupport
+IDXGIFactory::MakeWindowAssociation | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgifactory-makewindowassociation
+IDXGISwapChain2::SetMaximumFrameLatency | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_3/nf-dxgi1_3-idxgiswapchain2-setmaximumframelatency
+IDXGISwapChain3::CheckColorSpaceSupport | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiswapchain3-checkcolorspacesupport
+IDXGISwapChain3::SetColorSpace1 | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiswapchain3-setcolorspace1
+IDXGISwapChain::GetBuffer | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-getbuffer
+IDXGISwapChain::Present | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-present
+IDXGISwapChain::ResizeBuffers | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-resizebuffers
 IDirect3D3::CreateDevice | - (DirectX 7 SDK, not on Microsoft Learn)
 IDirect3D3::EnumDevices | - (DirectX 7 SDK, not on Microsoft Learn)
 IDirect3D7::CreateDevice | - (DirectX 7 SDK, not on Microsoft Learn)
@@ -398,50 +437,6 @@ IDirectDrawSurface7::SetClipper | https://learn.microsoft.com/en-us/windows/win3
 IDirectDrawSurface7::SetColorKey | https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-idirectdrawsurface7-setcolorkey
 IDirectDrawSurface7::SetPalette | https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-idirectdrawsurface7-setpalette
 IDirectDrawSurface7::Unlock | https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-idirectdrawsurface7-unlock
-IDWriteFactory5::CreateInMemoryFontFileLoader | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_3/nf-dwrite_3-idwritefactory5-createinmemoryfontfileloader
-IDWriteFontCollection | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwritefontcollection
-IDWriteFontFace | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwritefontface
-IDWriteFontFace1::GetMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_1/nf-dwrite_1-idwritefontface1-getmetrics
-IDWriteFontFace1::HasVerticalGlyphVariants | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_1/nf-dwrite_1-idwritefontface1-hasverticalglyphvariants
-IDWriteFontFace1::IsMonospacedFont | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_1/nf-dwrite_1-idwritefontface1-ismonospacedfont
-IDWriteFontFace::GetDesignGlyphMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getdesignglyphmetrics
-IDWriteFontFace::GetGdiCompatibleGlyphMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getgdicompatibleglyphmetrics
-IDWriteFontFace::GetGdiCompatibleMetrics | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getgdicompatiblemetrics
-IDWriteFontFace::GetGlyphCount | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getglyphcount
-IDWriteFontFace::GetGlyphIndices | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getglyphindices
-IDWriteFontFace::GetIndex | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getindex
-IDWriteFontFace::GetSimulations | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getsimulations
-IDWriteFontFace::GetType | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-gettype
-IDWriteFontFace::IsSymbolFont | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-issymbolfont
-IDWriteFontFallback | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_2/nn-dwrite_2-idwritefontfallback
-IDWriteFontFile::Analyze | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontfile-analyze
-IDWriteFontSetBuilder | https://learn.microsoft.com/en-us/windows/win32/api/dwrite_3/nn-dwrite_3-idwritefontsetbuilder
-IDWriteGlyphRunAnalysis | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwriteglyphrunanalysis
-IDWriteGlyphRunAnalysis::GetAlphaTextureBounds | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwriteglyphrunanalysis-getalphatexturebounds
-IDWriteTextAnalyzer::AnalyzeBidi | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-analyzebidi
-IDWriteTextAnalyzer::AnalyzeLineBreakpoints | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-analyzelinebreakpoints
-IDWriteTextAnalyzer::AnalyzeScript | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-analyzescript
-IDWriteTextAnalyzer::GetGdiCompatibleGlyphPlacements | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-getgdicompatibleglyphplacements
-IDWriteTextAnalyzer::GetGlyphPlacements | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-getglyphplacements
-IDWriteTextAnalyzer::GetGlyphs | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritetextanalyzer-getglyphs
-IDWriteTextLayout | https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nn-dwrite-idwritetextlayout
-IDXGIFactory1::EnumAdapters1 | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgifactory1-enumadapters1
-IDXGIFactory2::CreateSwapChainForHwnd | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_2/nf-dxgi1_2-idxgifactory2-createswapchainforhwnd
-IDXGIFactory4::EnumWarpAdapter | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgifactory4-enumwarpadapter
-IDXGIFactory5::CheckFeatureSupport | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_5/nf-dxgi1_5-idxgifactory5-checkfeaturesupport
-IDXGIFactory::MakeWindowAssociation | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgifactory-makewindowassociation
-IDXGISwapChain2::SetMaximumFrameLatency | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_3/nf-dxgi1_3-idxgiswapchain2-setmaximumframelatency
-IDXGISwapChain3::CheckColorSpaceSupport | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiswapchain3-checkcolorspacesupport
-IDXGISwapChain3::SetColorSpace1 | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiswapchain3-setcolorspace1
-IDXGISwapChain::GetBuffer | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-getbuffer
-IDXGISwapChain::Present | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-present
-IDXGISwapChain::ResizeBuffers | https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-resizebuffers
-Image Pixel Format Constants | https://learn.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-constant-image-pixel-format-constants
-Image::GetPalette | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-image-getpalette
-Image::GetPixelFormat | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-image-getpixelformat
-IntersectClipRect | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-intersectcliprect
-InvertRect | https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-invertrect
-InvertRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-invertrgn
 ISO/IEC 15948 | https://www.w3.org/TR/png-3/
 IWICBitmapClipper::Initialize | https://learn.microsoft.com/en-us/windows/win32/api/wincodec/nf-wincodec-iwicbitmapclipper-initialize
 IWICBitmapDecoder::GetFrame | https://learn.microsoft.com/en-us/windows/win32/api/wincodec/nf-wincodec-iwicbitmapdecoder-getframe
@@ -463,6 +458,12 @@ IWICImagingFactory::CreateBitmapFromMemory | https://learn.microsoft.com/en-us/w
 IWICImagingFactory::CreateDecoderFromStream | https://learn.microsoft.com/en-us/windows/win32/api/wincodec/nf-wincodec-iwicimagingfactory-createdecoderfromstream
 IWICImagingFactory::CreateEncoder | https://learn.microsoft.com/en-us/windows/win32/api/wincodec/nf-wincodec-iwicimagingfactory-createencoder
 IWICPalette::InitializePredefined | https://learn.microsoft.com/en-us/windows/win32/api/wincodec/nf-wincodec-iwicpalette-initializepredefined
+Image Pixel Format Constants | https://learn.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-constant-image-pixel-format-constants
+Image::GetPalette | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-image-getpalette
+Image::GetPixelFormat | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders/nf-gdiplusheaders-image-getpixelformat
+IntersectClipRect | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-intersectcliprect
+InvertRect | https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-invertrect
+InvertRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-invertrgn
 LineTo | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-lineto
 MAKEROP4 | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-makerop4
 MaskBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-maskblt
@@ -472,22 +473,22 @@ Matrix::Multiply | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusma
 ModifyWorldTransform | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-modifyworldtransform
 MoveToEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-movetoex
 Native Pixel Formats Overview | https://learn.microsoft.com/en-us/windows/win32/wic/-wic-codec-native-pixel-formats
+OS/2 fsSelection USE_TYPO_METRICS | https://learn.microsoft.com/en-us/typography/opentype/spec/os2
+OS/2 sxHeight / sCapHeight | https://learn.microsoft.com/en-us/typography/opentype/spec/os2
 OffsetClipRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-offsetcliprgn
 OffsetRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-offsetrgn
 OffsetViewportOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-offsetviewportorgex
 OffsetWindowOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-offsetwindoworgex
-OS/2 fsSelection USE_TYPO_METRICS | https://learn.microsoft.com/en-us/typography/opentype/spec/os2
-OS/2 sxHeight / sCapHeight | https://learn.microsoft.com/en-us/typography/opentype/spec/os2
+PIXELFORMATDESCRIPTOR | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-pixelformatdescriptor
+PNG Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/png-format-overview
 PaintRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-paintrgn
 PaletteFlags | https://learn.microsoft.com/en-us/windows/win32/api/gdipluspixelformats/ne-gdipluspixelformats-paletteflags
 PaletteType | https://learn.microsoft.com/en-us/windows/win32/api/gdipluspixelformats/ne-gdipluspixelformats-palettetype
 PatBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-patblt
-Paths | https://learn.microsoft.com/en-us/windows/win32/gdi/paths
 PathToRegion | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-pathtoregion
+Paths | https://learn.microsoft.com/en-us/windows/win32/gdi/paths
 Pie | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-pie
-PIXELFORMATDESCRIPTOR | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-pixelformatdescriptor
 PlgBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-plgblt
-PNG Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/png-format-overview
 PolyBezier | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-polybezier
 PolyBezierTo | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-polybezierto
 Polygon | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-polygon
@@ -499,13 +500,18 @@ PtInRegion | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingd
 PtVisible | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-ptvisible
 R11G11B10 | https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
 R9G9B9E5 formats | https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+RGNDATAHEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-rgndataheader
 Rasterization Rules | https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-rasterizer-stage-rules
-Rectangle | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-rectangle
 RectInRegion | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-rectinregion
 RectVisible | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-rectvisible
-RGNDATAHEADER | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-rgndataheader
+Rectangle | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-rectangle
 RotateFlipType | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusimaging/ne-gdiplusimaging-rotatefliptype
 RoundRect | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-roundrect
+SRCBLEND | - (DirectX 7 SDK, not on Microsoft Learn)
+SV_InstanceID | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
+SV_IsFrontFace | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
+SV_PrimitiveID | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
+SV_VertexID | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
 ScaleViewportExtEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-scaleviewportextex
 ScaleWindowExtEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-scalewindowextex
 SelectClipPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectclippath
@@ -521,9 +527,9 @@ SetMiterLimit | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wi
 SetPixel | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setpixel
 SetPixelFormat | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setpixelformat
 SetPolyFillMode | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setpolyfillmode
+SetROP2 | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setrop2
 SetRectRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setrectrgn
 SetRenderState | https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3ddevice9-setrenderstate
-SetROP2 | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setrop2
 SetStretchBltMode | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setstretchbltmode
 SetTextAlign | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-settextalign
 SetTextCharacterExtra | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-settextcharacterextra
@@ -532,22 +538,17 @@ SetViewportOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf
 SetWindowExtEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setwindowextex
 SetWindowOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setwindoworgex
 SetWorldTransform | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setworldtransform
-SRCBLEND | - (DirectX 7 SDK, not on Microsoft Learn)
 State Blocks Save and Restore State | https://learn.microsoft.com/en-us/windows/win32/direct3d9/state-blocks-save-and-restore-state
 Stencil Buffer Techniques | https://learn.microsoft.com/en-us/windows/win32/direct3d9/stencil-buffer-techniques
 StretchBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-stretchblt
 StrokeAndFillPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-strokeandfillpath
 StrokePath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-strokepath
 Supported Pixel Formats and Alpha Modes | https://learn.microsoft.com/en-us/windows/win32/direct2d/supported-pixel-formats-and-alpha-modes
-SV_InstanceID | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
-SV_IsFrontFace | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
-SV_PrimitiveID | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
-SV_VertexID | https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
+TIFF 6.0 | - (Adobe's TIFF 6.0 specification, a PDF)
+TIFF Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/tiff-format-overview
 Ternary Raster Operations | https://learn.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
 TextOut | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-textouta
 Texture Block Compression in Direct3D 11 | https://learn.microsoft.com/en-us/windows/win32/direct3d11/texture-block-compression-in-direct3d-11
-TIFF 6.0 | - (Adobe's TIFF 6.0 specification, a PDF)
-TIFF Format Overview | https://learn.microsoft.com/en-us/windows/win32/wic/tiff-format-overview
 Transformation of Coordinate Spaces | https://learn.microsoft.com/en-us/windows/win32/gdi/transformation-of-coordinate-spaces
 TransparentBlt | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-transparentblt
 UAX #14 | https://www.unicode.org/reports/tr14/
