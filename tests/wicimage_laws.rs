@@ -328,3 +328,38 @@ fn repeated_case_names_compare_with_themselves() {
     assert!(r.differ.is_empty(), "{:?}", r.differ);
     assert_eq!((r.same, r.unmodeled), (1, 2));
 }
+
+/// Every case Windows answered that the model leaves unmodeled is listed in
+/// tests/wicimage_unmodeled.txt, and nothing else: a change that stops answering a case (a
+/// mutant that falls back to Unmodeled) fails here. KIKIZAKE_BLESS=1 rewrites the list.
+#[test]
+fn unmodeled_cases_are_the_listed_ones() {
+    use kikizake::{case, gen, model};
+    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut now = Vec::new();
+    for s in ["wicpalette", "wicscale", "wictransform", "wiccolor", "wicdecode", "wicencode"] {
+        let Ok(g) = std::fs::read_to_string(root.join(format!("golden/{s}-32/stdout.txt"))) else { continue };
+        let answered: std::collections::HashSet<&str> = g.lines().filter_map(|l| l.strip_prefix("case ")).collect();
+        model::set_arch(32);
+        let out = model::run(s, &case::parse_cases(&gen::suite(s).unwrap()));
+        let mut name = "";
+        for l in out.lines() {
+            if let Some(n) = l.strip_prefix("case ") {
+                name = n;
+            } else if l.starts_with("unmodeled") && answered.contains(name) {
+                now.push(format!("{s} {name}"));
+            }
+        }
+    }
+    now.sort();
+    now.dedup();
+    let path = root.join("tests/wicimage_unmodeled.txt");
+    if std::env::var("KIKIZAKE_BLESS").is_ok() {
+        std::fs::write(&path, now.join("\n") + "\n").unwrap();
+        return;
+    }
+    let listed: Vec<String> = std::fs::read_to_string(&path).unwrap_or_default().lines().map(String::from).collect();
+    let new: Vec<&String> = now.iter().filter(|n| !listed.contains(n)).collect();
+    let gone: Vec<&String> = listed.iter().filter(|n| !now.contains(n)).collect();
+    assert!(new.is_empty() && gone.is_empty(), "unmodeled cases changed (KIKIZAKE_BLESS=1 after settling some):\nnewly unmodeled: {new:?}\nnow modeled: {gone:?}");
+}
