@@ -22,7 +22,13 @@ static HANDLE event12;
  * 600 of them, golden d3d12-32 c4c7692) */
 static int on12;
 
-static void d3d12_reset(void) { on12 = 0; }
+static void d3d12_reset(void) {
+    on12 = 0;
+    /* (a removed device is not kept) */
+    if (dev12 && ID3D12Device_GetDeviceRemovedReason(dev12) != S_OK) {
+        REL(list12); REL(alloc12); REL(fence12); REL(queue12); REL(dev12);
+    }
+}
 
 void *kz_d3d12_queue(void) { return on12 ? queue12 : NULL; }
 
