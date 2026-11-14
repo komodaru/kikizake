@@ -1,0 +1,762 @@
+# kikizake suite ddflip: DirectDraw 7 cooperative levels and flipping chains (SPEC.md). Made by `kikizake gen ddflip`.
+case chain-normal-0-1
+dd
+ddchain 0 1 8 4 offscreen
+dddesc 0
+dddesc 1
+end
+case chain-normal-0-2
+dd
+ddchain 0 2 8 4 offscreen
+dddesc 0
+dddesc 1
+end
+case chain-normal-1-1
+dd
+ddchain 0 1 8 4 offscreen sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-1-2
+dd
+ddchain 0 2 8 4 offscreen sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-2-1
+dd
+ddchain 0 1 8 4 offscreen vidmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-2-2
+dd
+ddchain 0 2 8 4 offscreen vidmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-3-1
+dd
+ddchain 0 1 8 4 texture
+dddesc 0
+dddesc 1
+end
+case chain-normal-3-2
+dd
+ddchain 0 2 8 4 texture
+dddesc 0
+dddesc 1
+end
+case chain-normal-4-1
+dd
+ddchain 0 1 8 4 texture sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-4-2
+dd
+ddchain 0 2 8 4 texture sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-5-1
+dd
+ddchain 0 1 8 4 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-normal-5-2
+dd
+ddchain 0 2 8 4 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-normal-6-1
+dd
+ddchain 0 1 8 4 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-6-2
+dd
+ddchain 0 2 8 4 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-7-1
+dd
+ddchain 0 1 8 4 offscreen 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-normal-7-2
+dd
+ddchain 0 2 8 4 offscreen 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-normal-8-1
+dd
+ddchain 0 1 8 4 offscreen 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-8-2
+dd
+ddchain 0 2 8 4 offscreen 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-normal-9-1
+dd
+ddchain 0 1 8 4 texture 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-normal-9-2
+dd
+ddchain 0 2 8 4 texture 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-normal-10-1
+dd
+ddchain 0 1 8 4 
+dddesc 0
+dddesc 1
+end
+case chain-normal-10-2
+dd
+ddchain 0 2 8 4 
+dddesc 0
+dddesc 1
+end
+case primary-normal
+dd
+ddchain 0 0 8 4 primary
+ddchain 1 1 8 4 primary
+end
+case chain-exclusive-0-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 offscreen
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-0-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 offscreen
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-1-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 offscreen sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-1-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 offscreen sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-2-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 offscreen vidmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-2-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 offscreen vidmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-3-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 texture
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-3-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 texture
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-4-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 texture sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-4-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 texture sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-5-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-5-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-6-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-6-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-7-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 offscreen 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-7-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 offscreen 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-8-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 offscreen 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-8-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 offscreen 3ddevice sysmem
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-9-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 texture 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-9-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 texture 3ddevice
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-10-1
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 
+dddesc 0
+dddesc 1
+end
+case chain-exclusive-10-2
+dd
+ddcoop exclusive
+ddchain 0 2 8 4 
+dddesc 0
+dddesc 1
+end
+case primary-exclusive
+dd
+ddcoop exclusive
+ddchain 0 0 8 4 primary
+ddchain 1 1 8 4 primary
+end
+case flip-normal-0-1
+dd
+ddchain 0 1 4 2 offscreen 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 1
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-0-2
+dd
+ddchain 0 2 4 2 offscreen 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 2
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-0-3
+dd
+ddchain 0 3 4 2 offscreen 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddfill 3 13
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 3
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-1-1
+dd
+ddchain 0 1 4 2 texture sysmem
+ddfill 0 10
+ddfill 1 11
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 1
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-1-2
+dd
+ddchain 0 2 4 2 texture sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 2
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-1-3
+dd
+ddchain 0 3 4 2 texture sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddfill 3 13
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 3
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-2-1
+dd
+ddchain 0 1 4 2 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 1
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-2-2
+dd
+ddchain 0 2 4 2 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 2
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-normal-2-3
+dd
+ddchain 0 3 4 2 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddfill 3 13
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 3
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-0-1
+dd
+ddcoop exclusive
+ddchain 0 1 4 2 offscreen 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 1
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-0-2
+dd
+ddcoop exclusive
+ddchain 0 2 4 2 offscreen 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 2
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-0-3
+dd
+ddcoop exclusive
+ddchain 0 3 4 2 offscreen 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddfill 3 13
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 3
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-1-1
+dd
+ddcoop exclusive
+ddchain 0 1 4 2 texture sysmem
+ddfill 0 10
+ddfill 1 11
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 1
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-1-2
+dd
+ddcoop exclusive
+ddchain 0 2 4 2 texture sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 2
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-1-3
+dd
+ddcoop exclusive
+ddchain 0 3 4 2 texture sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddfill 3 13
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 3
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-2-1
+dd
+ddcoop exclusive
+ddchain 0 1 4 2 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 - novsync
+dddump 0
+dddump 1
+ddflip 0 1
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-2-2
+dd
+ddcoop exclusive
+ddchain 0 2 4 2 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+ddflip 0 2
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flip-exclusive-2-3
+dd
+ddcoop exclusive
+ddchain 0 3 4 2 3ddevice sysmem
+ddfill 0 10
+ddfill 1 11
+ddfill 2 12
+ddfill 3 13
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 - novsync
+dddump 0
+dddump 1
+dddump 2
+dddump 3
+ddflip 0 3
+dddump 0
+ddflip 1 -
+ddflip 0 0
+end
+case flags
+dd
+ddchain 0 1 4 2 3ddevice sysmem
+ddflip 0 - nowait
+ddflip 0 - odd
+ddflip 0 - even
+ddflip 0 - interval2
+ddflip 0 - novsync interval2
+end
+case plain
+dd
+ddsurf 0 4 2 32
+ddflip 0 -
+end
+case coop
+dd
+ddcoop exclusive
+ddcoop normal
+ddcoop exclusive
+ddcoop exclusive
+end
+case primaryflip
+dd
+ddcoop exclusive
+ddchain 0 1 8 4 primary
+ddflip 0 - novsync
+ddcoop normal
+ddflip 0 - novsync
+end

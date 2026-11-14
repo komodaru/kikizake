@@ -1,0 +1,1921 @@
+# kikizake suite ddlock: IDirectDrawSurface7::Lock and Unlock, GetSurfaceDesc (SPEC.md). Made by `kikizake gen ddlock`.
+case pitch-8
+dd
+ddsurf 0 1 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 2 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 3 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 4 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 5 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 6 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 7 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 8 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 9 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 10 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 11 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 12 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 13 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 14 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 15 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 16 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 17 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 18 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 19 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 20 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 21 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 22 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 23 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 24 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 25 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 26 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 27 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 28 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 29 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 30 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 31 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 32 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 33 2 8
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+end
+case vid-8
+dd
+ddsurf 0 17 3 8 vid
+dddesc 0
+ddlock 0 all
+ddunlock 0 all
+end
+case pitch-555
+dd
+ddsurf 0 1 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 2 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 3 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 4 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 5 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 6 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 7 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 8 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 9 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 10 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 11 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 12 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 13 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 14 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 15 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 16 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 17 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 18 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 19 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 20 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 21 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 22 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 23 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 24 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 25 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 26 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 27 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 28 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 29 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 30 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 31 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 32 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 33 2 555
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+end
+case vid-555
+dd
+ddsurf 0 17 3 555 vid
+dddesc 0
+ddlock 0 all
+ddunlock 0 all
+end
+case pitch-565
+dd
+ddsurf 0 1 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 2 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 3 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 4 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 5 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 6 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 7 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 8 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 9 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 10 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 11 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 12 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 13 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 14 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 15 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 16 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 17 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 18 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 19 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 20 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 21 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 22 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 23 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 24 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 25 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 26 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 27 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 28 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 29 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 30 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 31 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 32 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 33 2 565
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+end
+case vid-565
+dd
+ddsurf 0 17 3 565 vid
+dddesc 0
+ddlock 0 all
+ddunlock 0 all
+end
+case pitch-24
+dd
+ddsurf 0 1 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 2 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 3 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 4 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 5 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 6 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 7 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 8 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 9 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 10 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 11 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 12 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 13 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 14 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 15 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 16 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 17 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 18 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 19 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 20 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 21 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 22 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 23 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 24 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 25 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 26 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 27 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 28 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 29 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 30 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 31 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 32 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 33 2 24
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+end
+case vid-24
+dd
+ddsurf 0 17 3 24 vid
+dddesc 0
+ddlock 0 all
+ddunlock 0 all
+end
+case pitch-32
+dd
+ddsurf 0 1 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 2 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 3 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 4 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 5 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 6 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 7 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 8 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 9 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 10 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 11 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 12 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 13 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 14 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 15 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 16 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 17 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 18 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 19 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 20 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 21 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 22 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 23 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 24 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 25 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 26 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 27 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 28 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 29 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 30 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 31 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 32 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 33 2 32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+end
+case vid-32
+dd
+ddsurf 0 17 3 32 vid
+dddesc 0
+ddlock 0 all
+ddunlock 0 all
+end
+case pitch-a32
+dd
+ddsurf 0 1 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 2 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 3 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 4 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 5 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 6 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 7 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 8 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 9 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 10 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 11 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 12 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 13 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 14 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 15 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 16 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 17 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 18 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 19 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 20 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 21 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 22 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 23 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 24 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 25 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 26 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 27 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 28 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 29 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 30 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 31 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 32 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+ddsurf 0 33 2 a32
+ddlock 0 all
+ddunlock 0 all
+dddesc 0
+end
+case vid-a32
+dd
+ddsurf 0 17 3 a32 vid
+dddesc 0
+ddlock 0 all
+ddunlock 0 all
+end
+case rects-8
+dd
+ddsurf 0 13 9 8
+ddlock 0 0 0 13 9
+ddunlock 0 0 0 13 9
+ddlock 0 1 2 5 7
+ddunlock 0 1 2 5 7
+ddlock 0 12 8 13 9
+ddunlock 0 12 8 13 9
+ddlock 0 0 0 1 1
+ddunlock 0 0 0 1 1
+ddlock 0 3 3 3 5
+ddunlock 0 3 3 3 5
+ddlock 0 4 4 2 6
+ddunlock 0 4 4 2 6
+ddlock 0 -1 0 4 4
+ddunlock 0 -1 0 4 4
+ddlock 0 0 -1 4 4
+ddunlock 0 0 -1 4 4
+ddlock 0 10 0 14 4
+ddunlock 0 10 0 14 4
+ddlock 0 0 6 4 10
+ddunlock 0 0 6 4 10
+ddlock 0 5 5 5 5
+ddunlock 0 5 5 5 5
+ddlock 0 13 9 14 10
+ddunlock 0 13 9 14 10
+end
+case poke-8
+dd
+ddsurf 0 13 9 8
+ddfill 0 3
+ddlock 0 2 3 9 7
+ddpoke 0 1 0 000102
+ddpoke 0 1 1 28292a
+ddpoke 0 1 2 505152
+ddpoke 0 1 3 78797a
+ddunlock 0 2 3 9 7
+dddump 0
+dddump 0 2 3 9 7
+end
+case rects-555
+dd
+ddsurf 0 13 9 555
+ddlock 0 0 0 13 9
+ddunlock 0 0 0 13 9
+ddlock 0 1 2 5 7
+ddunlock 0 1 2 5 7
+ddlock 0 12 8 13 9
+ddunlock 0 12 8 13 9
+ddlock 0 0 0 1 1
+ddunlock 0 0 0 1 1
+ddlock 0 3 3 3 5
+ddunlock 0 3 3 3 5
+ddlock 0 4 4 2 6
+ddunlock 0 4 4 2 6
+ddlock 0 -1 0 4 4
+ddunlock 0 -1 0 4 4
+ddlock 0 0 -1 4 4
+ddunlock 0 0 -1 4 4
+ddlock 0 10 0 14 4
+ddunlock 0 10 0 14 4
+ddlock 0 0 6 4 10
+ddunlock 0 0 6 4 10
+ddlock 0 5 5 5 5
+ddunlock 0 5 5 5 5
+ddlock 0 13 9 14 10
+ddunlock 0 13 9 14 10
+end
+case poke-555
+dd
+ddsurf 0 13 9 555
+ddfill 0 3
+ddlock 0 2 3 9 7
+ddpoke 0 2 0 000102030405
+ddpoke 0 2 1 28292a2b2c2d
+ddpoke 0 2 2 505152535455
+ddpoke 0 2 3 78797a7b7c7d
+ddunlock 0 2 3 9 7
+dddump 0
+dddump 0 2 3 9 7
+end
+case rects-565
+dd
+ddsurf 0 13 9 565
+ddlock 0 0 0 13 9
+ddunlock 0 0 0 13 9
+ddlock 0 1 2 5 7
+ddunlock 0 1 2 5 7
+ddlock 0 12 8 13 9
+ddunlock 0 12 8 13 9
+ddlock 0 0 0 1 1
+ddunlock 0 0 0 1 1
+ddlock 0 3 3 3 5
+ddunlock 0 3 3 3 5
+ddlock 0 4 4 2 6
+ddunlock 0 4 4 2 6
+ddlock 0 -1 0 4 4
+ddunlock 0 -1 0 4 4
+ddlock 0 0 -1 4 4
+ddunlock 0 0 -1 4 4
+ddlock 0 10 0 14 4
+ddunlock 0 10 0 14 4
+ddlock 0 0 6 4 10
+ddunlock 0 0 6 4 10
+ddlock 0 5 5 5 5
+ddunlock 0 5 5 5 5
+ddlock 0 13 9 14 10
+ddunlock 0 13 9 14 10
+end
+case poke-565
+dd
+ddsurf 0 13 9 565
+ddfill 0 3
+ddlock 0 2 3 9 7
+ddpoke 0 2 0 000102030405
+ddpoke 0 2 1 28292a2b2c2d
+ddpoke 0 2 2 505152535455
+ddpoke 0 2 3 78797a7b7c7d
+ddunlock 0 2 3 9 7
+dddump 0
+dddump 0 2 3 9 7
+end
+case rects-24
+dd
+ddsurf 0 13 9 24
+ddlock 0 0 0 13 9
+ddunlock 0 0 0 13 9
+ddlock 0 1 2 5 7
+ddunlock 0 1 2 5 7
+ddlock 0 12 8 13 9
+ddunlock 0 12 8 13 9
+ddlock 0 0 0 1 1
+ddunlock 0 0 0 1 1
+ddlock 0 3 3 3 5
+ddunlock 0 3 3 3 5
+ddlock 0 4 4 2 6
+ddunlock 0 4 4 2 6
+ddlock 0 -1 0 4 4
+ddunlock 0 -1 0 4 4
+ddlock 0 0 -1 4 4
+ddunlock 0 0 -1 4 4
+ddlock 0 10 0 14 4
+ddunlock 0 10 0 14 4
+ddlock 0 0 6 4 10
+ddunlock 0 0 6 4 10
+ddlock 0 5 5 5 5
+ddunlock 0 5 5 5 5
+ddlock 0 13 9 14 10
+ddunlock 0 13 9 14 10
+end
+case poke-24
+dd
+ddsurf 0 13 9 24
+ddfill 0 3
+ddlock 0 2 3 9 7
+ddpoke 0 3 0 000102030405060708
+ddpoke 0 3 1 28292a2b2c2d2e2f30
+ddpoke 0 3 2 505152535455565758
+ddpoke 0 3 3 78797a7b7c7d7e7f80
+ddunlock 0 2 3 9 7
+dddump 0
+dddump 0 2 3 9 7
+end
+case rects-32
+dd
+ddsurf 0 13 9 32
+ddlock 0 0 0 13 9
+ddunlock 0 0 0 13 9
+ddlock 0 1 2 5 7
+ddunlock 0 1 2 5 7
+ddlock 0 12 8 13 9
+ddunlock 0 12 8 13 9
+ddlock 0 0 0 1 1
+ddunlock 0 0 0 1 1
+ddlock 0 3 3 3 5
+ddunlock 0 3 3 3 5
+ddlock 0 4 4 2 6
+ddunlock 0 4 4 2 6
+ddlock 0 -1 0 4 4
+ddunlock 0 -1 0 4 4
+ddlock 0 0 -1 4 4
+ddunlock 0 0 -1 4 4
+ddlock 0 10 0 14 4
+ddunlock 0 10 0 14 4
+ddlock 0 0 6 4 10
+ddunlock 0 0 6 4 10
+ddlock 0 5 5 5 5
+ddunlock 0 5 5 5 5
+ddlock 0 13 9 14 10
+ddunlock 0 13 9 14 10
+end
+case poke-32
+dd
+ddsurf 0 13 9 32
+ddfill 0 3
+ddlock 0 2 3 9 7
+ddpoke 0 4 0 000102030405060708090a0b
+ddpoke 0 4 1 28292a2b2c2d2e2f30313233
+ddpoke 0 4 2 505152535455565758595a5b
+ddpoke 0 4 3 78797a7b7c7d7e7f80818283
+ddunlock 0 2 3 9 7
+dddump 0
+dddump 0 2 3 9 7
+end
+case rects-a32
+dd
+ddsurf 0 13 9 a32
+ddlock 0 0 0 13 9
+ddunlock 0 0 0 13 9
+ddlock 0 1 2 5 7
+ddunlock 0 1 2 5 7
+ddlock 0 12 8 13 9
+ddunlock 0 12 8 13 9
+ddlock 0 0 0 1 1
+ddunlock 0 0 0 1 1
+ddlock 0 3 3 3 5
+ddunlock 0 3 3 3 5
+ddlock 0 4 4 2 6
+ddunlock 0 4 4 2 6
+ddlock 0 -1 0 4 4
+ddunlock 0 -1 0 4 4
+ddlock 0 0 -1 4 4
+ddunlock 0 0 -1 4 4
+ddlock 0 10 0 14 4
+ddunlock 0 10 0 14 4
+ddlock 0 0 6 4 10
+ddunlock 0 0 6 4 10
+ddlock 0 5 5 5 5
+ddunlock 0 5 5 5 5
+ddlock 0 13 9 14 10
+ddunlock 0 13 9 14 10
+end
+case poke-a32
+dd
+ddsurf 0 13 9 a32
+ddfill 0 3
+ddlock 0 2 3 9 7
+ddpoke 0 4 0 000102030405060708090a0b
+ddpoke 0 4 1 28292a2b2c2d2e2f30313233
+ddpoke 0 4 2 505152535455565758595a5b
+ddpoke 0 4 3 78797a7b7c7d7e7f80818283
+ddunlock 0 2 3 9 7
+dddump 0
+dddump 0 2 3 9 7
+end
+case twice
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 all
+ddlock 0 all
+ddunlock 0 all
+ddunlock 0 all
+end
+case tworects
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 0 0 4 4
+ddlock 0 4 4 8 8
+ddlock 0 2 2 6 6
+ddunlock 0 0 0 4 4
+ddunlock 0 4 4 8 8
+ddunlock 0 2 2 6 6
+end
+case unlockwrong
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 1 1 4 4
+ddunlock 0 0 0 4 4
+ddunlock 0 all
+ddunlock 0 1 1 4 4
+end
+case unlocknone
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddunlock 0 all
+ddunlock 0 none
+end
+case unlockall
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 1 1 4 4
+ddunlock 0 all
+end
+case unlockrectall
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 all
+ddunlock 0 0 0 8 8
+end
+case flags
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 all readonly
+ddunlock 0 all
+ddlock 0 all writeonly
+ddunlock 0 all
+ddlock 0 all nosyslock
+ddunlock 0 all
+ddlock 0 all nowait
+ddunlock 0 all
+ddlock 0 all readonly writeonly
+ddunlock 0 all
+end
+case readonlywrite
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddfill 0 1
+ddlock 0 all readonly
+ddpoke 0 0 0 01020304
+ddunlock 0 all
+dddump 0
+end
+case lockedblt
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddfill 0 1
+ddfill 1 2
+ddlock 0 all
+ddblt 0 all 1 all
+ddblt 1 all 0 all
+ddcolor 0 all 5
+ddunlock 0 all
+dddump 0
+end
+case lockeddesc
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddlock 0 2 2 4 4
+dddesc 0
+ddunlock 0 2 2 4 4
+end
+case nolock
+dd
+ddsurf 0 8 8 32
+ddsurf 1 8 8 32
+ddpoke 0 0 0 00
+end
+case random-0
+dd
+ddsurf 0 23 8 565
+ddlock 0 6 1 9 3
+ddunlock 0 6 1 9 3
+ddlock 0 16 8 23 8
+ddunlock 0 16 8 23 8
+ddlock 0 23 5 23 7
+ddunlock 0 23 5 23 7
+ddlock 0 21 0 24 3
+ddunlock 0 21 0 24 3
+end
+case random-1
+dd
+ddsurf 0 7 5 8
+ddlock 0 1 5 1 6
+ddunlock 0 1 5 1 6
+ddlock 0 6 5 6 6
+ddunlock 0 6 5 6 6
+ddlock 0 5 5 8 5
+ddunlock 0 5 5 8 5
+ddlock 0 0 2 1 2
+ddunlock 0 0 2 1 2
+end
+case random-2
+dd
+ddsurf 0 40 7 555
+ddlock 0 14 0 28 5
+ddunlock 0 14 0 28 5
+ddlock 0 32 2 39 4
+ddunlock 0 32 2 39 4
+ddlock 0 40 1 41 5
+ddunlock 0 40 1 41 5
+ddlock 0 37 4 38 4
+ddunlock 0 37 4 38 4
+end
+case random-3
+dd
+ddsurf 0 11 2 24
+ddlock 0 0 -1 0 -1
+ddunlock 0 0 -1 0 -1
+ddlock 0 11 1 11 2
+ddunlock 0 11 1 11 2
+ddlock 0 9 2 10 2
+ddunlock 0 9 2 10 2
+ddlock 0 3 2 9 2
+ddunlock 0 3 2 9 2
+end
+case random-4
+dd
+ddsurf 0 17 3 32
+ddlock 0 1 0 6 0
+ddunlock 0 1 0 6 0
+ddlock 0 14 3 18 3
+ddunlock 0 14 3 18 3
+ddlock 0 10 0 15 0
+ddunlock 0 10 0 15 0
+ddlock 0 0 0 8 3
+ddunlock 0 0 0 8 3
+end
+case random-5
+dd
+ddsurf 0 17 11 8
+ddlock 0 6 8 17 9
+ddunlock 0 6 8 17 9
+ddlock 0 11 0 11 3
+ddunlock 0 11 0 11 3
+ddlock 0 3 9 6 10
+ddunlock 0 3 9 6 10
+ddlock 0 6 2 18 3
+ddunlock 0 6 2 18 3
+end
+case random-6
+dd
+ddsurf 0 31 3 565
+ddlock 0 23 0 27 2
+ddunlock 0 23 0 27 2
+ddlock 0 13 3 28 3
+ddunlock 0 13 3 28 3
+ddlock 0 0 -1 14 1
+ddunlock 0 0 -1 14 1
+ddlock 0 18 2 18 4
+ddunlock 0 18 2 18 4
+end
+case random-7
+dd
+ddsurf 0 33 2 a32
+ddlock 0 0 0 31 3
+ddunlock 0 0 0 31 3
+ddlock 0 6 2 12 3
+ddunlock 0 6 2 12 3
+ddlock 0 23 0 31 3
+ddunlock 0 23 0 31 3
+ddlock 0 4 1 28 1
+ddunlock 0 4 1 28 1
+end
+case random-8
+dd
+ddsurf 0 15 7 555
+ddlock 0 6 -1 9 4
+ddunlock 0 6 -1 9 4
+ddlock 0 4 1 11 4
+ddunlock 0 4 1 11 4
+ddlock 0 9 1 10 7
+ddunlock 0 9 1 10 7
+ddlock 0 14 4 14 7
+ddunlock 0 14 4 14 7
+end
+case random-9
+dd
+ddsurf 0 40 4 24
+ddlock 0 27 2 37 4
+ddunlock 0 27 2 37 4
+ddlock 0 17 3 31 3
+ddunlock 0 17 3 31 3
+ddlock 0 15 0 21 3
+ddunlock 0 15 0 21 3
+ddlock 0 34 4 37 4
+ddunlock 0 34 4 37 4
+end
+case random-10
+dd
+ddsurf 0 11 3 24
+ddlock 0 6 2 11 3
+ddunlock 0 6 2 11 3
+ddlock 0 1 1 10 2
+ddunlock 0 1 1 10 2
+ddlock 0 3 2 12 2
+ddunlock 0 3 2 12 2
+ddlock 0 6 2 7 2
+ddunlock 0 6 2 7 2
+end
+case random-11
+dd
+ddsurf 0 38 12 565
+ddlock 0 32 7 33 11
+ddunlock 0 32 7 33 11
+ddlock 0 19 11 31 11
+ddunlock 0 19 11 31 11
+ddlock 0 18 5 31 10
+ddunlock 0 18 5 31 10
+ddlock 0 14 9 16 13
+ddunlock 0 14 9 16 13
+end
+case random-12
+dd
+ddsurf 0 5 3 24
+ddlock 0 1 2 4 4
+ddunlock 0 1 2 4 4
+ddlock 0 -1 3 2 3
+ddunlock 0 -1 3 2 3
+ddlock 0 2 2 5 3
+ddunlock 0 2 2 5 3
+ddlock 0 0 3 1 4
+ddunlock 0 0 3 1 4
+end
+case random-13
+dd
+ddsurf 0 5 4 555
+ddlock 0 5 2 6 2
+ddunlock 0 5 2 6 2
+ddlock 0 -1 0 -1 1
+ddunlock 0 -1 0 -1 1
+ddlock 0 2 0 6 3
+ddunlock 0 2 0 6 3
+ddlock 0 -1 0 4 3
+ddunlock 0 -1 0 4 3
+end
+case random-14
+dd
+ddsurf 0 14 5 24
+ddlock 0 10 1 11 1
+ddunlock 0 10 1 11 1
+ddlock 0 6 2 7 2
+ddunlock 0 6 2 7 2
+ddlock 0 9 0 10 3
+ddunlock 0 9 0 10 3
+ddlock 0 3 -1 3 -1
+ddunlock 0 3 -1 3 -1
+end
+case random-15
+dd
+ddsurf 0 38 12 555
+ddlock 0 32 2 38 8
+ddunlock 0 32 2 38 8
+ddlock 0 10 2 12 3
+ddunlock 0 10 2 12 3
+ddlock 0 37 8 38 8
+ddunlock 0 37 8 38 8
+ddlock 0 26 11 35 13
+ddunlock 0 26 11 35 13
+end
+case random-16
+dd
+ddsurf 0 4 5 a32
+ddlock 0 2 0 4 6
+ddunlock 0 2 0 4 6
+ddlock 0 4 3 4 6
+ddunlock 0 4 3 4 6
+ddlock 0 4 1 4 3
+ddunlock 0 4 1 4 3
+ddlock 0 1 1 1 6
+ddunlock 0 1 1 1 6
+end
+case random-17
+dd
+ddsurf 0 1 7 24
+ddlock 0 1 6 2 6
+ddunlock 0 1 6 2 6
+ddlock 0 0 7 1 8
+ddunlock 0 0 7 1 8
+ddlock 0 -1 2 1 3
+ddunlock 0 -1 2 1 3
+ddlock 0 0 3 1 5
+ddunlock 0 0 3 1 5
+end
+case random-18
+dd
+ddsurf 0 26 9 8
+ddlock 0 7 6 13 7
+ddunlock 0 7 6 13 7
+ddlock 0 16 8 18 9
+ddunlock 0 16 8 18 9
+ddlock 0 23 7 24 7
+ddunlock 0 23 7 24 7
+ddlock 0 4 7 16 8
+ddunlock 0 4 7 16 8
+end
+case random-19
+dd
+ddsurf 0 17 3 8
+ddlock 0 14 0 15 0
+ddunlock 0 14 0 15 0
+ddlock 0 12 1 17 4
+ddunlock 0 12 1 17 4
+ddlock 0 0 -1 11 4
+ddunlock 0 0 -1 11 4
+ddlock 0 15 -1 15 3
+ddunlock 0 15 -1 15 3
+end
+case random-20
+dd
+ddsurf 0 35 8 565
+ddlock 0 12 3 31 4
+ddunlock 0 12 3 31 4
+ddlock 0 5 0 15 2
+ddunlock 0 5 0 15 2
+ddlock 0 1 2 9 7
+ddunlock 0 1 2 9 7
+ddlock 0 2 3 23 7
+ddunlock 0 2 3 23 7
+end
+case random-21
+dd
+ddsurf 0 16 12 8
+ddlock 0 4 2 7 9
+ddunlock 0 4 2 7 9
+ddlock 0 12 7 12 13
+ddunlock 0 12 7 12 13
+ddlock 0 2 11 6 11
+ddunlock 0 2 11 6 11
+ddlock 0 1 8 4 8
+ddunlock 0 1 8 4 8
+end
+case random-22
+dd
+ddsurf 0 5 10 8
+ddlock 0 1 9 2 11
+ddunlock 0 1 9 2 11
+ddlock 0 1 1 3 6
+ddunlock 0 1 1 3 6
+ddlock 0 5 -1 5 6
+ddunlock 0 5 -1 5 6
+ddlock 0 4 -1 5 4
+ddunlock 0 4 -1 5 4
+end
+case random-23
+dd
+ddsurf 0 26 12 32
+ddlock 0 25 2 25 13
+ddunlock 0 25 2 25 13
+ddlock 0 23 4 26 10
+ddunlock 0 23 4 26 10
+ddlock 0 -1 1 3 8
+ddunlock 0 -1 1 3 8
+ddlock 0 23 6 25 12
+ddunlock 0 23 6 25 12
+end
+case random-24
+dd
+ddsurf 0 24 3 a32
+ddlock 0 16 2 21 2
+ddunlock 0 16 2 21 2
+ddlock 0 0 3 3 3
+ddunlock 0 0 3 3 3
+ddlock 0 8 3 11 4
+ddunlock 0 8 3 11 4
+ddlock 0 7 2 16 2
+ddunlock 0 7 2 16 2
+end
+case random-25
+dd
+ddsurf 0 28 5 565
+ddlock 0 10 0 16 4
+ddunlock 0 10 0 16 4
+ddlock 0 7 4 28 4
+ddunlock 0 7 4 28 4
+ddlock 0 5 3 8 5
+ddunlock 0 5 3 8 5
+ddlock 0 3 4 16 6
+ddunlock 0 3 4 16 6
+end
+case random-26
+dd
+ddsurf 0 4 7 a32
+ddlock 0 -1 2 1 4
+ddunlock 0 -1 2 1 4
+ddlock 0 1 1 5 6
+ddunlock 0 1 1 5 6
+ddlock 0 -1 3 5 8
+ddunlock 0 -1 3 5 8
+ddlock 0 3 6 4 8
+ddunlock 0 3 6 4 8
+end
+case random-27
+dd
+ddsurf 0 40 11 a32
+ddlock 0 4 5 36 10
+ddunlock 0 4 5 36 10
+ddlock 0 7 11 32 12
+ddunlock 0 7 11 32 12
+ddlock 0 25 0 29 2
+ddunlock 0 25 0 29 2
+ddlock 0 4 11 40 11
+ddunlock 0 4 11 40 11
+end
+case random-28
+dd
+ddsurf 0 12 6 555
+ddlock 0 8 5 12 7
+ddunlock 0 8 5 12 7
+ddlock 0 -1 1 -1 4
+ddunlock 0 -1 1 -1 4
+ddlock 0 3 6 9 7
+ddunlock 0 3 6 9 7
+ddlock 0 4 -1 4 7
+ddunlock 0 4 -1 4 7
+end
+case random-29
+dd
+ddsurf 0 19 8 a32
+ddlock 0 4 1 18 9
+ddunlock 0 4 1 18 9
+ddlock 0 11 3 19 4
+ddunlock 0 11 3 19 4
+ddlock 0 7 5 19 8
+ddunlock 0 7 5 19 8
+ddlock 0 10 6 18 9
+ddunlock 0 10 6 18 9
+end
+case random-30
+dd
+ddsurf 0 10 12 a32
+ddlock 0 1 9 5 10
+ddunlock 0 1 9 5 10
+ddlock 0 8 11 8 13
+ddunlock 0 8 11 8 13
+ddlock 0 6 3 8 5
+ddunlock 0 6 3 8 5
+ddlock 0 5 -1 5 1
+ddunlock 0 5 -1 5 1
+end
+case random-31
+dd
+ddsurf 0 6 6 a32
+ddlock 0 -1 4 6 5
+ddunlock 0 -1 4 6 5
+ddlock 0 -1 4 6 7
+ddunlock 0 -1 4 6 7
+ddlock 0 2 1 5 5
+ddunlock 0 2 1 5 5
+ddlock 0 5 6 6 6
+ddunlock 0 5 6 6 6
+end
+case random-32
+dd
+ddsurf 0 3 2 32
+ddlock 0 0 1 2 2
+ddunlock 0 0 1 2 2
+ddlock 0 -1 2 1 3
+ddunlock 0 -1 2 1 3
+ddlock 0 -1 2 -1 3
+ddunlock 0 -1 2 -1 3
+ddlock 0 0 0 0 2
+ddunlock 0 0 0 0 2
+end
+case random-33
+dd
+ddsurf 0 24 10 a32
+ddlock 0 17 0 20 11
+ddunlock 0 17 0 20 11
+ddlock 0 17 7 20 9
+ddunlock 0 17 7 20 9
+ddlock 0 21 6 24 8
+ddunlock 0 21 6 24 8
+ddlock 0 3 6 15 9
+ddunlock 0 3 6 15 9
+end
+case random-34
+dd
+ddsurf 0 4 11 565
+ddlock 0 -1 10 3 12
+ddunlock 0 -1 10 3 12
+ddlock 0 -1 4 5 5
+ddunlock 0 -1 4 5 5
+ddlock 0 3 -1 4 -1
+ddunlock 0 3 -1 4 -1
+ddlock 0 3 11 5 12
+ddunlock 0 3 11 5 12
+end
+case random-35
+dd
+ddsurf 0 23 5 a32
+ddlock 0 2 4 5 6
+ddunlock 0 2 4 5 6
+ddlock 0 0 2 8 5
+ddunlock 0 0 2 8 5
+ddlock 0 22 4 23 4
+ddunlock 0 22 4 23 4
+ddlock 0 21 4 22 4
+ddunlock 0 21 4 22 4
+end
+case random-36
+dd
+ddsurf 0 31 12 a32
+ddlock 0 20 -1 30 7
+ddunlock 0 20 -1 30 7
+ddlock 0 21 0 32 10
+ddunlock 0 21 0 32 10
+ddlock 0 11 1 27 12
+ddunlock 0 11 1 27 12
+ddlock 0 25 2 31 13
+ddunlock 0 25 2 31 13
+end
+case random-37
+dd
+ddsurf 0 27 7 555
+ddlock 0 2 4 6 4
+ddunlock 0 2 4 6 4
+ddlock 0 7 4 7 5
+ddunlock 0 7 4 7 5
+ddlock 0 3 7 18 8
+ddunlock 0 3 7 18 8
+ddlock 0 5 4 27 8
+ddunlock 0 5 4 27 8
+end
+case random-38
+dd
+ddsurf 0 5 8 565
+ddlock 0 3 7 4 8
+ddunlock 0 3 7 4 8
+ddlock 0 -1 -1 3 -1
+ddunlock 0 -1 -1 3 -1
+ddlock 0 -1 5 1 8
+ddunlock 0 -1 5 1 8
+ddlock 0 4 0 6 6
+ddunlock 0 4 0 6 6
+end
+case random-39
+dd
+ddsurf 0 38 1 565
+ddlock 0 15 -1 16 2
+ddunlock 0 15 -1 16 2
+ddlock 0 19 -1 27 1
+ddunlock 0 19 -1 27 1
+ddlock 0 27 1 31 1
+ddunlock 0 27 1 31 1
+ddlock 0 17 -1 39 0
+ddunlock 0 17 -1 39 0
+end
+case random-40
+dd
+ddsurf 0 8 3 24
+ddlock 0 2 -1 6 3
+ddunlock 0 2 -1 6 3
+ddlock 0 5 0 5 4
+ddunlock 0 5 0 5 4
+ddlock 0 5 1 8 1
+ddunlock 0 5 1 8 1
+ddlock 0 1 0 2 4
+ddunlock 0 1 0 2 4
+end
+case random-41
+dd
+ddsurf 0 33 2 24
+ddlock 0 33 0 34 1
+ddunlock 0 33 0 34 1
+ddlock 0 21 1 28 3
+ddunlock 0 21 1 28 3
+ddlock 0 1 1 15 3
+ddunlock 0 1 1 15 3
+ddlock 0 21 2 25 2
+ddunlock 0 21 2 25 2
+end
+case random-42
+dd
+ddsurf 0 34 9 8
+ddlock 0 27 8 34 9
+ddunlock 0 27 8 34 9
+ddlock 0 20 8 29 10
+ddunlock 0 20 8 29 10
+ddlock 0 8 4 23 6
+ddunlock 0 8 4 23 6
+ddlock 0 3 1 30 5
+ddunlock 0 3 1 30 5
+end
+case random-43
+dd
+ddsurf 0 24 7 8
+ddlock 0 13 4 23 4
+ddunlock 0 13 4 23 4
+ddlock 0 21 1 21 2
+ddunlock 0 21 1 21 2
+ddlock 0 18 6 24 7
+ddunlock 0 18 6 24 7
+ddlock 0 24 6 24 8
+ddunlock 0 24 6 24 8
+end
+case random-44
+dd
+ddsurf 0 3 9 24
+ddlock 0 3 3 3 9
+ddunlock 0 3 3 3 9
+ddlock 0 3 5 4 5
+ddunlock 0 3 5 4 5
+ddlock 0 2 0 2 5
+ddunlock 0 2 0 2 5
+ddlock 0 2 0 2 7
+ddunlock 0 2 0 2 7
+end
+case random-45
+dd
+ddsurf 0 11 12 a32
+ddlock 0 -1 6 4 7
+ddunlock 0 -1 6 4 7
+ddlock 0 11 3 11 13
+ddunlock 0 11 3 11 13
+ddlock 0 5 0 5 5
+ddunlock 0 5 0 5 5
+ddlock 0 4 11 10 13
+ddunlock 0 4 11 10 13
+end
+case random-46
+dd
+ddsurf 0 17 6 555
+ddlock 0 4 2 12 6
+ddunlock 0 4 2 12 6
+ddlock 0 12 4 12 6
+ddunlock 0 12 4 12 6
+ddlock 0 12 6 13 6
+ddunlock 0 12 6 13 6
+ddlock 0 1 2 1 5
+ddunlock 0 1 2 1 5
+end
+case random-47
+dd
+ddsurf 0 24 9 32
+ddlock 0 11 7 16 8
+ddunlock 0 11 7 16 8
+ddlock 0 12 7 18 10
+ddunlock 0 12 7 18 10
+ddlock 0 16 1 18 6
+ddunlock 0 16 1 18 6
+ddlock 0 19 4 23 9
+ddunlock 0 19 4 23 9
+end
+case random-48
+dd
+ddsurf 0 8 3 555
+ddlock 0 3 1 6 3
+ddunlock 0 3 1 6 3
+ddlock 0 8 -1 8 0
+ddunlock 0 8 -1 8 0
+ddlock 0 2 -1 6 2
+ddunlock 0 2 -1 6 2
+ddlock 0 5 -1 7 1
+ddunlock 0 5 -1 7 1
+end
+case random-49
+dd
+ddsurf 0 27 8 a32
+ddlock 0 22 5 23 8
+ddunlock 0 22 5 23 8
+ddlock 0 -1 7 13 8
+ddunlock 0 -1 7 13 8
+ddlock 0 4 7 7 8
+ddunlock 0 4 7 7 8
+ddlock 0 27 1 28 1
+ddunlock 0 27 1 28 1
+end
+case random-50
+dd
+ddsurf 0 6 8 24
+ddlock 0 -1 8 -1 8
+ddunlock 0 -1 8 -1 8
+ddlock 0 6 3 7 3
+ddunlock 0 6 3 7 3
+ddlock 0 5 -1 7 0
+ddunlock 0 5 -1 7 0
+ddlock 0 -1 -1 2 4
+ddunlock 0 -1 -1 2 4
+end
+case random-51
+dd
+ddsurf 0 26 3 32
+ddlock 0 9 2 25 2
+ddunlock 0 9 2 25 2
+ddlock 0 13 0 14 4
+ddunlock 0 13 0 14 4
+ddlock 0 18 3 26 4
+ddunlock 0 18 3 26 4
+ddlock 0 3 1 20 3
+ddunlock 0 3 1 20 3
+end
+case random-52
+dd
+ddsurf 0 27 7 32
+ddlock 0 23 2 27 5
+ddunlock 0 23 2 27 5
+ddlock 0 12 1 17 1
+ddunlock 0 12 1 17 1
+ddlock 0 12 3 27 7
+ddunlock 0 12 3 27 7
+ddlock 0 16 4 23 5
+ddunlock 0 16 4 23 5
+end
+case random-53
+dd
+ddsurf 0 13 3 24
+ddlock 0 0 2 3 3
+ddunlock 0 0 2 3 3
+ddlock 0 13 0 14 1
+ddunlock 0 13 0 14 1
+ddlock 0 3 -1 14 2
+ddunlock 0 3 -1 14 2
+ddlock 0 6 3 9 3
+ddunlock 0 6 3 9 3
+end
+case random-54
+dd
+ddsurf 0 20 11 555
+ddlock 0 12 3 14 8
+ddunlock 0 12 3 14 8
+ddlock 0 20 5 20 8
+ddunlock 0 20 5 20 8
+ddlock 0 1 5 8 5
+ddunlock 0 1 5 8 5
+ddlock 0 14 1 21 12
+ddunlock 0 14 1 21 12
+end
+case random-55
+dd
+ddsurf 0 26 1 24
+ddlock 0 4 -1 23 1
+ddunlock 0 4 -1 23 1
+ddlock 0 18 -1 22 2
+ddunlock 0 18 -1 22 2
+ddlock 0 -1 0 20 1
+ddunlock 0 -1 0 20 1
+ddlock 0 -1 0 15 2
+ddunlock 0 -1 0 15 2
+end
+case random-56
+dd
+ddsurf 0 32 1 24
+ddlock 0 10 0 21 2
+ddunlock 0 10 0 21 2
+ddlock 0 25 1 32 1
+ddunlock 0 25 1 32 1
+ddlock 0 -1 1 29 2
+ddunlock 0 -1 1 29 2
+ddlock 0 20 1 22 1
+ddunlock 0 20 1 22 1
+end
+case random-57
+dd
+ddsurf 0 32 10 8
+ddlock 0 22 1 23 8
+ddunlock 0 22 1 23 8
+ddlock 0 28 9 31 9
+ddunlock 0 28 9 31 9
+ddlock 0 14 8 33 11
+ddunlock 0 14 8 33 11
+ddlock 0 6 4 20 7
+ddunlock 0 6 4 20 7
+end
+case random-58
+dd
+ddsurf 0 5 10 32
+ddlock 0 1 6 4 6
+ddunlock 0 1 6 4 6
+ddlock 0 2 7 2 8
+ddunlock 0 2 7 2 8
+ddlock 0 5 2 5 11
+ddunlock 0 5 2 5 11
+ddlock 0 1 3 1 8
+ddunlock 0 1 3 1 8
+end
+case random-59
+dd
+ddsurf 0 8 1 24
+ddlock 0 -1 -1 7 1
+ddunlock 0 -1 -1 7 1
+ddlock 0 1 -1 1 0
+ddunlock 0 1 -1 1 0
+ddlock 0 4 1 8 1
+ddunlock 0 4 1 8 1
+ddlock 0 1 0 4 2
+ddunlock 0 1 0 4 2
+end

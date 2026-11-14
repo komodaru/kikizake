@@ -107,7 +107,36 @@ Eight surface slots, separate from the GDI ones.
 | `ddcolor <d> <rect> <v>` | Blt DDBLT_COLORFILL | `ret <hr>` |
 | `ddfast <d> <x> <y> <s> <rect> [srckey] [destkey]` | BltFast (DDBLTFAST_WAIT) | `ret <hr>` |
 
-A rect is `all` (NULL) or `x0 y0 x1 y1`. Without `dd` the lines print `nodev`.
+| `ddclip <s> none\|empty\|<x0 y0 x1 y1>...` | SetClipper(NULL), or CreateClipper, SetClipList of those rectangles (RDH_RECTANGLES, their bounding box; empty: no list) and SetClipper | `clip create\|list\|set hr <hr>` on failure |
+| `ddcliplist <s>` | GetClipper, GetClipList | `cliplist <n> <bound> : <rects>`, `cliplist clipper hr <hr>`, `cliplist hr <hr>` |
+| `ddpal <p> <seed> <flag>...` | CreatePalette (palette slots 0..3; flags `1bit 2bit 4bit 8bit 8bitentries allow256 primary alpha initialize`), 256 entries r, g, b from xorshift32, flags 0 | `ddpal hr <hr>` on failure |
+| `ddpalget <p> <start> <n>`, `ddpalset <p> <start> <n> <seed>`, `ddpalcaps <p>` | GetEntries (`pal` and 4 bytes an entry: r g b flags), SetEntries (entries as `ddpal` makes them), GetCaps | `palget hr`, `palset hr` on failure, `palcaps <caps>` |
+| `ddsetpal <s> <p>\|none`, `ddgetpal <s>` | SetPalette, GetPalette | `setpal hr <hr>` on failure; `getpal <p>`, `getpal other`, `getpal hr <hr>` |
+| `ddgetdc <s>`, `ddreldc <s>` | GetDC (kept), ReleaseDC | `getdc hr <hr>`, `getdc again` (a second DC, released at once), `reldc hr <hr>` |
+| `dcpix <s> <x> <y> #c`, `dcget <s> <x> <y>`, `dcrect <s> <x0> <y0> <x1> <y1> #c`, `dcbpp <s>` | SetPixel, GetPixel, FillRect (solid brush), on the DC GetDC gave | `pixel RRGGBB` / `pixel invalid`, `ret <0\|1>`, `dcbpp <BITSPIXEL> <bmBitsPixel> <bmWidth> <bmHeight>` |
+| `ddlock <s> <rect> [readonly] [writeonly] [nosyslock] [nowait]` | Lock (DDLOCK_WAIT unless nowait) | `lock <pitch> <offset from the surface's first byte>`, `lock hr <hr>` |
+| `ddpoke <s> <x> <y> <hex>` | bytes at byte x of row y of the first rectangle locked | `nolock` when none is |
+| `ddunlock <s> <rect>\|none` | Unlock | `unlock <hr>` |
+| `dddesc <s>` | GetSurfaceDesc | `desc <flags> <w> <h> <pitch> <caps> <pf flags> <bits> <r g b a masks>` |
+| `ddcoop normal\|exclusive` | SetCooperativeLevel (exclusive: DDSCL_EXCLUSIVE \| FULLSCREEN) | `coop <hr>` |
+| `ddchain <s> <backs> <w> <h> <caps>...` | CreateSurface (caps `primary offscreen texture 3ddevice sysmem vidmem`; backs > 0: FLIP \| COMPLEX and that many back buffers; primary: no size or pixel format, else 32 bpp RGB), the chain's surfaces in slots s, s+1, ... in GetAttachedSurface(DDSCAPS_FLIP) order | `chain <n>`, `chain hr <hr>` |
+| `ddflip <s> <slot>\|- [novsync] [nowait] [odd] [even] [interval2]` | Flip (DDFLIP_WAIT unless nowait) | `flip <hr>` |
+
+`ddsurf` also takes `24` and `a32` (ARGB, DDPF_ALPHAPIXELS) and a trailing `vid` (DDSCAPS_VIDEOMEMORY in place of SYSTEMMEMORY); `dddump <s> <x0 y0 x1 y1>` prints a rectangle. A rect is `all` (NULL) or `x0 y0 x1 y1`. Without `dd` the lines print `nodev`; a line naming a slot that holds nothing (a surface, palette or DC that a failed call did not make) prints `noslot` / `nopal` / `nodc` and does nothing.
+
+## Direct3D 1, 2, 3 and 7
+
+| line | calls | prints |
+|---|---|---|
+| `d3d <1\|2\|3\|7>` | DirectDrawCreate (DirectDrawCreateEx for 7; ddraw.dll loaded when first needed), SetCooperativeLevel DDSCL_NORMAL, QueryInterface IDirect3D, 2, 3 (through IDirectDraw4) or 7 | `d3d ok`, `d3d none`, `d3d failed <hr>`, `d3d qi <hr>` |
+| `d3denum [caps]` | EnumDevices | `dev <guid> "<name>" "<description>"` each; caps: `hal <dwSize> <hex>`, `hel <dwSize> <hex>` (D3DDEVICEDESC) or `caps <hex>` (D3DDEVICEDESC7) |
+| `d3ddev <rgb\|hal\|tnl\|ref\|mmx\|ramp\|null> <565\|555\|32\|24\|8> <w> <h> [z16\|z24\|z32]` | the render target (OFFSCREENPLAIN \| 3DDEVICE, system memory; video memory for hal and tnl), a z-buffer attached, the device (version 1: the surface's QueryInterface; 2, 3: a viewport of the whole target made current) | `d3ddev ok`, `d3ddev surface\|z\|attach\|viewport hr <hr>`, `d3ddev hr <hr>` |
+| `d3drs get <state>`, `d3drs set <state> <v>` | GetRenderState, SetRenderState (versions 2, 3, 7) | `rs <state> = <v>`, `rs <state> hr <hr>`, `rs set <state> hr <hr>` |
+| `d3dclear <argb> [z <millis>] [<x0> <y0> <x1> <y1>]` | Clear (7), Clear2 (3), the viewport's background material and Clear (2), of the target and with z the z-buffer to millis / 1000 | `clear hr <hr>` on failure |
+| `d3dtri <c>[/<c1>/<c2>] <x0> <y0> <x1> <y1> <x2> <y2> [z <millis>]` | BeginScene, DrawPrimitive of one D3DTLVERTEX triangle (x, y in 16ths of a pixel, z 0.5 or millis / 1000, rhw 1, the diffuse colors, specular 0), EndScene | `tri begin\|draw\|end hr <hr>` on failure |
+| `d3dfill <seed>`, `d3ddump`, `d3dzdump` | the target's (z-buffer's) bytes through Lock as `ddfill` / `dddump` | `dd rt\|z <w> <h> <bits>` and the rows |
+
+Without `d3d` (or a device, for the lines that need one) the lines print `nodev`.
 
 ## OpenGL
 

@@ -9,6 +9,7 @@ mod d2d;
 mod d3d11;
 pub mod d3d12;
 mod d3dres;
+mod d3d7;
 mod d3d9;
 mod ddraw;
 mod gdi;
@@ -61,6 +62,12 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("wicdecode", wicimage::wicdecode),
     ("wicencode", wicimage::wicencode),
     ("opengl", opengl::opengl),
+    ("ddclip", ddraw::ddclip),
+    ("ddpal", ddraw::ddpal),
+    ("dddc", ddraw::dddc),
+    ("ddlock", ddraw::ddlock),
+    ("ddflip", ddraw::ddflip),
+    ("d3d7", d3d7::d3d7),
 ];
 
 pub const SUITES: &[&str] = &{

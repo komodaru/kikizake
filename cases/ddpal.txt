@@ -1,0 +1,752 @@
+# kikizake suite ddpal: DirectDraw palettes (SPEC.md). Made by `kikizake gen ddpal`.
+case create-0
+dd
+ddpal 0 1 
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-1
+dd
+ddpal 0 2 allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-2
+dd
+ddpal 0 3 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-3
+dd
+ddpal 0 4 initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-4
+dd
+ddpal 0 5 primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-5
+dd
+ddpal 0 6 alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-6
+dd
+ddpal 0 7 allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-7
+dd
+ddpal 0 8 1bit
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-8
+dd
+ddpal 0 9 1bit allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-9
+dd
+ddpal 0 10 1bit 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-10
+dd
+ddpal 0 11 1bit initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-11
+dd
+ddpal 0 12 1bit primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-12
+dd
+ddpal 0 13 1bit alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-13
+dd
+ddpal 0 14 1bit allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-14
+dd
+ddpal 0 15 2bit
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-15
+dd
+ddpal 0 16 2bit allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-16
+dd
+ddpal 0 17 2bit 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-17
+dd
+ddpal 0 18 2bit initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-18
+dd
+ddpal 0 19 2bit primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-19
+dd
+ddpal 0 20 2bit alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-20
+dd
+ddpal 0 21 2bit allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-21
+dd
+ddpal 0 22 4bit
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-22
+dd
+ddpal 0 23 4bit allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-23
+dd
+ddpal 0 24 4bit 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-24
+dd
+ddpal 0 25 4bit initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-25
+dd
+ddpal 0 26 4bit primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-26
+dd
+ddpal 0 27 4bit alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-27
+dd
+ddpal 0 28 4bit allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-28
+dd
+ddpal 0 29 8bit
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-29
+dd
+ddpal 0 30 8bit allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-30
+dd
+ddpal 0 31 8bit 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-31
+dd
+ddpal 0 32 8bit initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-32
+dd
+ddpal 0 33 8bit primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-33
+dd
+ddpal 0 34 8bit alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-34
+dd
+ddpal 0 35 8bit allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-35
+dd
+ddpal 0 36 1bit 8bit
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-36
+dd
+ddpal 0 37 1bit 8bit allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-37
+dd
+ddpal 0 38 1bit 8bit 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-38
+dd
+ddpal 0 39 1bit 8bit initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-39
+dd
+ddpal 0 40 1bit 8bit primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-40
+dd
+ddpal 0 41 1bit 8bit alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-41
+dd
+ddpal 0 42 1bit 8bit allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-42
+dd
+ddpal 0 43 2bit 4bit
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-43
+dd
+ddpal 0 44 2bit 4bit allow256
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-44
+dd
+ddpal 0 45 2bit 4bit 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-45
+dd
+ddpal 0 46 2bit 4bit initialize
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-46
+dd
+ddpal 0 47 2bit 4bit primary
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-47
+dd
+ddpal 0 48 2bit 4bit alpha
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case create-48
+dd
+ddpal 0 49 2bit 4bit allow256 8bitentries
+ddpalcaps 0
+ddpalget 0 0 256
+ddpalget 0 0 16
+end
+case entries-1bit-0-2
+dd
+ddpal 0 7 1bit
+ddpalset 0 0 2 9
+ddpalget 0 0 2
+ddpalget 0 0 2
+end
+case entries-1bit-0-1
+dd
+ddpal 0 7 1bit
+ddpalset 0 0 1 9
+ddpalget 0 0 1
+ddpalget 0 0 2
+end
+case entries-1bit-1-1
+dd
+ddpal 0 7 1bit
+ddpalset 0 1 1 9
+ddpalget 0 1 1
+ddpalget 0 0 2
+end
+case entries-1bit-1-2
+dd
+ddpal 0 7 1bit
+ddpalset 0 1 2 9
+ddpalget 0 1 2
+ddpalget 0 0 2
+end
+case entries-1bit-2-1
+dd
+ddpal 0 7 1bit
+ddpalset 0 2 1 9
+ddpalget 0 2 1
+ddpalget 0 0 2
+end
+case entries-1bit-0-3
+dd
+ddpal 0 7 1bit
+ddpalset 0 0 3 9
+ddpalget 0 0 3
+ddpalget 0 0 2
+end
+case entries-1bit-1-1
+dd
+ddpal 0 7 1bit
+ddpalset 0 1 1 9
+ddpalget 0 1 1
+ddpalget 0 0 2
+end
+case entries-1bit-0-0
+dd
+ddpal 0 7 1bit
+ddpalset 0 0 0 9
+ddpalget 0 0 0
+ddpalget 0 0 2
+end
+case entries-1bit-1-1
+dd
+ddpal 0 7 1bit
+ddpalset 0 1 1 9
+ddpalget 0 1 1
+ddpalget 0 0 2
+end
+case entries8-1bit
+dd
+ddpal 0 7 1bit 8bitentries
+ddpalget 0 0 2
+ddpalset 0 0 2 3
+ddpalget 0 0 2
+end
+case entries-2bit-0-4
+dd
+ddpal 0 7 2bit
+ddpalset 0 0 4 9
+ddpalget 0 0 4
+ddpalget 0 0 4
+end
+case entries-2bit-0-1
+dd
+ddpal 0 7 2bit
+ddpalset 0 0 1 9
+ddpalget 0 0 1
+ddpalget 0 0 4
+end
+case entries-2bit-3-1
+dd
+ddpal 0 7 2bit
+ddpalset 0 3 1 9
+ddpalget 0 3 1
+ddpalget 0 0 4
+end
+case entries-2bit-3-2
+dd
+ddpal 0 7 2bit
+ddpalset 0 3 2 9
+ddpalget 0 3 2
+ddpalget 0 0 4
+end
+case entries-2bit-4-1
+dd
+ddpal 0 7 2bit
+ddpalset 0 4 1 9
+ddpalget 0 4 1
+ddpalget 0 0 4
+end
+case entries-2bit-0-5
+dd
+ddpal 0 7 2bit
+ddpalset 0 0 5 9
+ddpalget 0 0 5
+ddpalget 0 0 4
+end
+case entries-2bit-1-3
+dd
+ddpal 0 7 2bit
+ddpalset 0 1 3 9
+ddpalget 0 1 3
+ddpalget 0 0 4
+end
+case entries-2bit-0-0
+dd
+ddpal 0 7 2bit
+ddpalset 0 0 0 9
+ddpalget 0 0 0
+ddpalget 0 0 4
+end
+case entries-2bit-2-2
+dd
+ddpal 0 7 2bit
+ddpalset 0 2 2 9
+ddpalget 0 2 2
+ddpalget 0 0 4
+end
+case entries8-2bit
+dd
+ddpal 0 7 2bit 8bitentries
+ddpalget 0 0 4
+ddpalset 0 0 4 3
+ddpalget 0 0 4
+end
+case entries-4bit-0-16
+dd
+ddpal 0 7 4bit
+ddpalset 0 0 16 9
+ddpalget 0 0 16
+ddpalget 0 0 16
+end
+case entries-4bit-0-1
+dd
+ddpal 0 7 4bit
+ddpalset 0 0 1 9
+ddpalget 0 0 1
+ddpalget 0 0 16
+end
+case entries-4bit-15-1
+dd
+ddpal 0 7 4bit
+ddpalset 0 15 1 9
+ddpalget 0 15 1
+ddpalget 0 0 16
+end
+case entries-4bit-15-2
+dd
+ddpal 0 7 4bit
+ddpalset 0 15 2 9
+ddpalget 0 15 2
+ddpalget 0 0 16
+end
+case entries-4bit-16-1
+dd
+ddpal 0 7 4bit
+ddpalset 0 16 1 9
+ddpalget 0 16 1
+ddpalget 0 0 16
+end
+case entries-4bit-0-17
+dd
+ddpal 0 7 4bit
+ddpalset 0 0 17 9
+ddpalget 0 0 17
+ddpalget 0 0 16
+end
+case entries-4bit-1-15
+dd
+ddpal 0 7 4bit
+ddpalset 0 1 15 9
+ddpalget 0 1 15
+ddpalget 0 0 16
+end
+case entries-4bit-0-0
+dd
+ddpal 0 7 4bit
+ddpalset 0 0 0 9
+ddpalget 0 0 0
+ddpalget 0 0 16
+end
+case entries-4bit-8-8
+dd
+ddpal 0 7 4bit
+ddpalset 0 8 8 9
+ddpalget 0 8 8
+ddpalget 0 0 16
+end
+case entries8-4bit
+dd
+ddpal 0 7 4bit 8bitentries
+ddpalget 0 0 16
+ddpalset 0 0 16 3
+ddpalget 0 0 16
+end
+case entries-8bit-0-256
+dd
+ddpal 0 7 8bit
+ddpalset 0 0 256 9
+ddpalget 0 0 256
+ddpalget 0 0 256
+end
+case entries-8bit-0-1
+dd
+ddpal 0 7 8bit
+ddpalset 0 0 1 9
+ddpalget 0 0 1
+ddpalget 0 0 256
+end
+case entries-8bit-255-1
+dd
+ddpal 0 7 8bit
+ddpalset 0 255 1 9
+ddpalget 0 255 1
+ddpalget 0 0 256
+end
+case entries-8bit-255-2
+dd
+ddpal 0 7 8bit
+ddpalset 0 255 2 9
+ddpalget 0 255 2
+ddpalget 0 0 256
+end
+case entries-8bit-256-1
+dd
+ddpal 0 7 8bit
+ddpalset 0 256 1 9
+ddpalget 0 256 1
+ddpalget 0 0 256
+end
+case entries-8bit-0-256
+dd
+ddpal 0 7 8bit
+ddpalset 0 0 256 9
+ddpalget 0 0 256
+ddpalget 0 0 256
+end
+case entries-8bit-1-255
+dd
+ddpal 0 7 8bit
+ddpalset 0 1 255 9
+ddpalget 0 1 255
+ddpalget 0 0 256
+end
+case entries-8bit-0-0
+dd
+ddpal 0 7 8bit
+ddpalset 0 0 0 9
+ddpalget 0 0 0
+ddpalget 0 0 256
+end
+case entries-8bit-128-128
+dd
+ddpal 0 7 8bit
+ddpalset 0 128 128 9
+ddpalget 0 128 128
+ddpalget 0 0 256
+end
+case entries8-8bit
+dd
+ddpal 0 7 8bit 8bitentries
+ddpalget 0 0 256
+ddpalset 0 0 256 3
+ddpalget 0 0 256
+end
+case surface-8
+dd
+ddsurf 0 4 4 8
+ddgetpal 0
+ddpal 1 5 8bit
+ddsetpal 0 1
+ddgetpal 0
+ddpal 2 6 4bit
+ddsetpal 0 2
+ddgetpal 0
+ddsetpal 0 none
+ddgetpal 0
+end
+case surface-555
+dd
+ddsurf 0 4 4 555
+ddgetpal 0
+ddpal 1 5 8bit
+ddsetpal 0 1
+ddgetpal 0
+ddpal 2 6 4bit
+ddsetpal 0 2
+ddgetpal 0
+ddsetpal 0 none
+ddgetpal 0
+end
+case surface-565
+dd
+ddsurf 0 4 4 565
+ddgetpal 0
+ddpal 1 5 8bit
+ddsetpal 0 1
+ddgetpal 0
+ddpal 2 6 4bit
+ddsetpal 0 2
+ddgetpal 0
+ddsetpal 0 none
+ddgetpal 0
+end
+case surface-24
+dd
+ddsurf 0 4 4 24
+ddgetpal 0
+ddpal 1 5 8bit
+ddsetpal 0 1
+ddgetpal 0
+ddpal 2 6 4bit
+ddsetpal 0 2
+ddgetpal 0
+ddsetpal 0 none
+ddgetpal 0
+end
+case surface-32
+dd
+ddsurf 0 4 4 32
+ddgetpal 0
+ddpal 1 5 8bit
+ddsetpal 0 1
+ddgetpal 0
+ddpal 2 6 4bit
+ddsetpal 0 2
+ddgetpal 0
+ddsetpal 0 none
+ddgetpal 0
+end
+case surface-a32
+dd
+ddsurf 0 4 4 a32
+ddgetpal 0
+ddpal 1 5 8bit
+ddsetpal 0 1
+ddgetpal 0
+ddpal 2 6 4bit
+ddsetpal 0 2
+ddgetpal 0
+ddsetpal 0 none
+ddgetpal 0
+end
+case replace
+dd
+ddsurf 0 4 4 8
+ddpal 0 1 8bit
+ddpal 1 2 8bit
+ddsetpal 0 0
+ddsetpal 0 1
+ddgetpal 0
+ddsetpal 0 1
+ddgetpal 0
+end
+case shared
+dd
+ddsurf 0 4 4 8
+ddsurf 1 4 4 8
+ddpal 0 1 8bit
+ddsetpal 0 0
+ddsetpal 1 0
+ddgetpal 1
+ddpalset 0 0 4 2
+ddpalget 0 0 4
+end
+case blt
+dd
+ddsurf 0 8 4 8
+ddsurf 1 8 4 8
+ddfill 0 1
+ddfill 1 2
+ddpal 0 1 8bit
+ddpal 1 2 8bit
+ddsetpal 0 0
+ddsetpal 1 1
+ddblt 0 all 1 all
+dddump 0
+end
+case released
+dd
+ddsurf 0 4 4 8
+ddpal 0 1 8bit
+ddsetpal 0 0
+ddpal 0 3 8bit
+ddgetpal 0
+end
+case nodd
+dd
+ddpalget 0 0 4
+end
+case nodev
+ddpal 0 1 8bit
+end

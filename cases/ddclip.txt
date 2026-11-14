@@ -1,0 +1,2870 @@
+# kikizake suite ddclip: DirectDraw 7 clippers with clip lists on system-memory surfaces (SPEC.md). Made by `kikizake gen ddclip`.
+case list-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 1 9 6 4 5 14 11
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case one-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 3 2 10 9
+ddblt 0 1 1 13 11 1 0 0 12 10
+dddump 0
+end
+case past-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 12
+ddblt 0 -3 -2 10 8 1 0 0 13 10
+ddblt 0 10 8 19 15 1 0 0 9 7
+dddump 0
+end
+case pastclip-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 -4 -4 20 20
+ddcliplist 0
+ddblt 0 -3 -2 10 8 1 0 0 13 10
+dddump 0
+end
+case outside-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 20 20 30 30
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case srcpast-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 12
+ddblt 0 0 0 8 6 1 10 8 18 14
+dddump 0
+end
+case fill-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 1 1 5 5 8 2 15 4
+ddcolor 0 all 0x55
+ddcolor 0 3 3 12 10 0x2a
+dddump 0
+end
+case mirror-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 12
+ddblt 0 2 1 14 9 1 0 0 12 8 mirrorlr
+ddblt 0 0 0 16 12 1 all mirrorud
+dddump 0
+end
+case stretch-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 6
+ddblt 0 0 0 16 12 1 0 0 8 6
+dddump 0
+end
+case fast-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 2 6 6
+ddfast 0 0 0 1 0 0 8 8
+dddump 0
+end
+case empty-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 empty
+ddcliplist 0
+ddblt 0 all 1 all
+ddcolor 0 all 7
+dddump 0
+end
+case none-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 2 6 6
+ddclip 0 none
+ddcliplist 0
+ddblt 0 -1 0 5 4 1 0 0 6 4
+ddblt 0 all 1 all
+dddump 0
+end
+case srcclip-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 1 0 0 2 2
+ddblt 0 all 1 all
+dddump 0
+end
+case keysrc-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddkey 1 src 0
+ddclip 0 4 0 12 12
+ddblt 0 all 1 all keysrc
+dddump 0
+end
+case overlap-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 6
+ddblt 0 1 1 13 11 0 0 0 12 10
+dddump 0
+end
+case many-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8 10 10 10 10 12 12 12 0 14 2 1 9 3 11
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case overlapping-8
+dd
+ddsurf 0 16 12 8
+ddsurf 1 16 12 8
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 8 4 4 12 12
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case list-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 1 9 6 4 5 14 11
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case one-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 3 2 10 9
+ddblt 0 1 1 13 11 1 0 0 12 10
+dddump 0
+end
+case past-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 12
+ddblt 0 -3 -2 10 8 1 0 0 13 10
+ddblt 0 10 8 19 15 1 0 0 9 7
+dddump 0
+end
+case pastclip-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 -4 -4 20 20
+ddcliplist 0
+ddblt 0 -3 -2 10 8 1 0 0 13 10
+dddump 0
+end
+case outside-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 20 20 30 30
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case srcpast-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 12
+ddblt 0 0 0 8 6 1 10 8 18 14
+dddump 0
+end
+case fill-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 1 1 5 5 8 2 15 4
+ddcolor 0 all 0x55
+ddcolor 0 3 3 12 10 0x2a
+dddump 0
+end
+case mirror-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 12
+ddblt 0 2 1 14 9 1 0 0 12 8 mirrorlr
+ddblt 0 0 0 16 12 1 all mirrorud
+dddump 0
+end
+case stretch-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 6
+ddblt 0 0 0 16 12 1 0 0 8 6
+dddump 0
+end
+case fast-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 2 6 6
+ddfast 0 0 0 1 0 0 8 8
+dddump 0
+end
+case empty-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 empty
+ddcliplist 0
+ddblt 0 all 1 all
+ddcolor 0 all 7
+dddump 0
+end
+case none-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 2 6 6
+ddclip 0 none
+ddcliplist 0
+ddblt 0 -1 0 5 4 1 0 0 6 4
+ddblt 0 all 1 all
+dddump 0
+end
+case srcclip-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 1 0 0 2 2
+ddblt 0 all 1 all
+dddump 0
+end
+case keysrc-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddkey 1 src 0
+ddclip 0 4 0 12 12
+ddblt 0 all 1 all keysrc
+dddump 0
+end
+case overlap-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 6
+ddblt 0 1 1 13 11 0 0 0 12 10
+dddump 0
+end
+case many-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8 10 10 10 10 12 12 12 0 14 2 1 9 3 11
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case overlapping-565
+dd
+ddsurf 0 16 12 565
+ddsurf 1 16 12 565
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 8 4 4 12 12
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case list-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 1 9 6 4 5 14 11
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case one-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 3 2 10 9
+ddblt 0 1 1 13 11 1 0 0 12 10
+dddump 0
+end
+case past-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 12
+ddblt 0 -3 -2 10 8 1 0 0 13 10
+ddblt 0 10 8 19 15 1 0 0 9 7
+dddump 0
+end
+case pastclip-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 -4 -4 20 20
+ddcliplist 0
+ddblt 0 -3 -2 10 8 1 0 0 13 10
+dddump 0
+end
+case outside-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 20 20 30 30
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case srcpast-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 12
+ddblt 0 0 0 8 6 1 10 8 18 14
+dddump 0
+end
+case fill-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 1 1 5 5 8 2 15 4
+ddcolor 0 all 0x55
+ddcolor 0 3 3 12 10 0x2a
+dddump 0
+end
+case mirror-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 12
+ddblt 0 2 1 14 9 1 0 0 12 8 mirrorlr
+ddblt 0 0 0 16 12 1 all mirrorud
+dddump 0
+end
+case stretch-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 6
+ddblt 0 0 0 16 12 1 0 0 8 6
+dddump 0
+end
+case fast-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 2 6 6
+ddfast 0 0 0 1 0 0 8 8
+dddump 0
+end
+case empty-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 empty
+ddcliplist 0
+ddblt 0 all 1 all
+ddcolor 0 all 7
+dddump 0
+end
+case none-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 2 2 6 6
+ddclip 0 none
+ddcliplist 0
+ddblt 0 -1 0 5 4 1 0 0 6 4
+ddblt 0 all 1 all
+dddump 0
+end
+case srcclip-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 1 0 0 2 2
+ddblt 0 all 1 all
+dddump 0
+end
+case keysrc-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddkey 1 src 0
+ddclip 0 4 0 12 12
+ddblt 0 all 1 all keysrc
+dddump 0
+end
+case overlap-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 16 6
+ddblt 0 1 1 13 11 0 0 0 12 10
+dddump 0
+end
+case many-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8 10 10 10 10 12 12 12 0 14 2 1 9 3 11
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case overlapping-32
+dd
+ddsurf 0 16 12 32
+ddsurf 1 16 12 32
+ddfill 0 3
+ddfill 1 4
+ddclip 0 0 0 8 8 4 4 12 12
+ddcliplist 0
+ddblt 0 all 1 all
+dddump 0
+end
+case random-0
+dd
+ddsurf 0 11 12 32
+ddsurf 1 5 1 32
+ddfill 0 4170656907
+ddfill 1 3184141097
+ddclip 0 3 0 4 5 3 3 4 5 0 3 5 10
+ddblt 0 4 -2 5 -1 1 1 0 2 1
+dddump 0
+end
+case random-1
+dd
+ddsurf 0 5 10 24
+ddsurf 1 10 10 24
+ddfill 0 848820577
+ddfill 1 2060208189
+ddclip 0 -2 1 7 9 -1 10 2 13
+ddblt 0 0 2 5 11 1 0 0 5 9
+ddblt 0 4 1 9 8 1 4 1 9 8
+ddblt 0 2 10 9 20 1 1 0 8 10 mirrorud
+dddump 0
+end
+case random-2
+dd
+ddsurf 0 4 9 555
+ddsurf 1 7 2 555
+ddfill 0 872276967
+ddfill 1 2141831367
+ddclip 0 0 2 5 6 3 0 4 10 0 -2 2 5 0 9 3 10
+ddblt 0 4 6 8 8 1 2 0 6 2
+dddump 0
+end
+case random-3
+dd
+ddsurf 0 6 2 565
+ddsurf 1 4 1 565
+ddfill 0 1497974257
+ddfill 1 1327299659
+ddclip 0 0 0 4 5
+ddblt 0 -3 -2 1 -1 1 0 0 4 1
+dddump 0
+end
+case random-4
+dd
+ddsurf 0 4 4 24
+ddsurf 1 1 1 24
+ddfill 0 2544585973
+ddfill 1 948432399
+ddclip 0 -2 -1 3 1
+ddblt 0 -1 4 0 5 1 0 0 1 1
+dddump 0
+end
+case random-5
+dd
+ddsurf 0 3 2 565
+ddsurf 1 7 1 565
+ddfill 0 1121578865
+ddfill 1 2580401547
+ddclip 0 1 1 3 2 -2 -2 3 3
+ddblt 0 -1 -3 4 -2 1 0 0 5 1
+ddblt 0 3 -1 8 0 1 1 0 6 1
+ddblt 0 3 -2 4 -1 1 2 0 3 1
+ddblt 0 2 -3 4 -2 1 0 0 2 1 mirrorud
+dddump 0
+end
+case random-6
+dd
+ddsurf 0 7 4 555
+ddsurf 1 13 1 555
+ddfill 0 488596785
+ddfill 1 3332276301
+ddclip 0 1 2 2 5 5 3 10 7 7 0 8 6
+ddblt 0 0 -2 7 -1 1 5 0 12 1
+ddblt 0 6 -1 19 0 1 0 0 13 1
+ddblt 0 -2 -2 1 -1 1 1 0 4 1
+dddump 0
+end
+case random-7
+dd
+ddsurf 0 6 3 555
+ddsurf 1 4 1 555
+ddfill 0 955092723
+ddfill 1 2940659499
+ddclip 0 -1 3 5 6 4 0 9 1 5 0 8 3 -2 -2 0 1
+ddblt 0 -1 -2 2 -1 1 1 0 4 1
+ddblt 0 0 -2 1 -1 1 2 0 3 1 mirrorlr
+ddblt 0 6 1 7 2 1 3 0 4 1
+dddump 0
+end
+case random-8
+dd
+ddsurf 0 13 5 8
+ddsurf 1 6 3 8
+ddfill 0 3821382175
+ddfill 1 2253015773
+ddclip 0 9 2 12 8
+ddblt 0 1 3 4 4 1 2 2 5 3
+ddblt 0 7 4 11 6 1 0 1 4 3
+dddump 0
+end
+case random-9
+dd
+ddsurf 0 11 2 8
+ddsurf 1 10 2 8
+ddfill 0 4194733013
+ddfill 1 1157616427
+ddclip 0 8 0 9 3 9 -2 11 3 6 -1 13 1 2 1 9 2
+ddblt 0 7 2 13 3 1 0 1 6 2
+ddblt 0 10 0 11 1 1 2 1 3 2
+ddcolor 0 0 -1 10 1 0x64
+ddcolor 0 6 -1 13 0 0x18
+dddump 0
+end
+case random-10
+dd
+ddsurf 0 15 8 555
+ddsurf 1 3 1 555
+ddfill 0 4111924563
+ddfill 1 2099882381
+ddclip 0 6 2 10 4
+ddblt 0 7 5 10 6 1 0 0 3 1 mirrorlr
+dddump 0
+end
+case random-11
+dd
+ddsurf 0 1 10 8
+ddsurf 1 8 6 8
+ddfill 0 2238446797
+ddfill 1 2763396917
+ddclip 0 1 5 4 6
+ddcolor 0 -1 9 3 11 0x2b
+ddblt 0 -2 2 -1 5 1 0 3 1 6
+ddblt 0 -1 5 6 7 1 0 3 7 5
+ddblt 0 0 7 5 12 1 0 1 5 6
+dddump 0
+end
+case random-12
+dd
+ddsurf 0 11 7 565
+ddsurf 1 6 8 565
+ddfill 0 2870605437
+ddfill 1 789941847
+ddclip 0 -1 4 8 6 1 3 14 7
+ddblt 0 8 4 13 9 1 0 1 5 6
+ddblt 0 1 -3 5 0 1 0 3 4 6 mirrorud
+ddblt 0 4 -1 8 0 1 2 3 6 4
+dddump 0
+end
+case random-13
+dd
+ddsurf 0 16 11 565
+ddsurf 1 3 6 565
+ddfill 0 3363621685
+ddfill 1 1918243993
+ddclip 0 11 4 18 5 13 9 18 14 7 3 14 14 3 4 7 13
+ddblt 0 5 3 7 6 1 1 2 3 5 mirrorud
+ddblt 0 6 -2 8 0 1 1 4 3 6
+dddump 0
+end
+case random-14
+dd
+ddsurf 0 5 9 32
+ddsurf 1 14 9 32
+ddfill 0 766903513
+ddfill 1 1216560015
+ddclip 0 -1 0 1 2 -2 1 1 4 5 7 6 10 5 9 8 11
+ddblt 0 5 3 17 11 1 1 1 13 9
+ddblt 0 3 2 17 3 1 0 3 14 4
+ddblt 0 4 3 10 4 1 7 2 13 3
+ddblt 0 2 1 13 9 1 0 1 11 9
+dddump 0
+end
+case random-15
+dd
+ddsurf 0 9 8 24
+ddsurf 1 5 1 24
+ddfill 0 3007081287
+ddfill 1 4106623437
+ddclip 0 -2 7 1 11 9 -1 11 10 -1 -2 11 10
+ddblt 0 4 1 9 2 1 0 0 5 1
+ddblt 0 7 -3 11 -2 1 0 0 4 1 mirrorud
+dddump 0
+end
+case random-16
+dd
+ddsurf 0 8 7 32
+ddsurf 1 5 7 32
+ddfill 0 344678901
+ddfill 1 1846167631
+ddclip 0 -1 1 4 2 6 2 8 8 0 7 4 8
+ddblt 0 1 6 4 7 1 2 4 5 5
+ddcolor 0 -3 3 -1 9 0x18
+ddblt 0 -1 5 0 12 1 1 0 2 7
+ddcolor 0 8 6 10 13 0xc4
+dddump 0
+end
+case random-17
+dd
+ddsurf 0 19 14 565
+ddsurf 1 6 6 565
+ddfill 0 3696560969
+ddfill 1 3669929783
+ddclip 0 8 -2 10 16 17 8 19 17 0 2 9 14 9 14 19 15
+ddblt 0 19 9 25 11 1 0 2 6 4
+ddblt 0 13 3 14 6 1 1 0 2 3
+ddblt 0 4 3 7 7 1 3 1 6 5
+ddblt 0 13 13 14 14 1 4 3 5 4 mirrorlr
+dddump 0
+end
+case random-18
+dd
+ddsurf 0 13 5 565
+ddsurf 1 14 10 565
+ddfill 0 1859629577
+ddfill 1 2320307715
+ddclip 0 8 1 13 3
+ddblt 0 0 5 1 8 1 9 1 10 4
+ddblt 0 5 -3 16 0 1 0 1 11 4 mirrorud
+ddblt 0 4 4 12 6 1 0 7 8 9
+dddump 0
+end
+case random-19
+dd
+ddsurf 0 14 14 8
+ddsurf 1 1 1 8
+ddfill 0 3260847261
+ddfill 1 1227654075
+ddclip 0 -1 9 10 15 5 -2 12 17 8 3 9 4 -1 13 13 15
+ddblt 0 5 8 6 9 1 0 0 1 1 mirrorud
+ddblt 0 0 -3 1 -2 1 0 0 1 1
+ddcolor 0 7 5 8 6 0xcc
+ddblt 0 13 7 14 8 1 0 0 1 1
+dddump 0
+end
+case random-20
+dd
+ddsurf 0 13 11 8
+ddsurf 1 12 9 8
+ddfill 0 2423213715
+ddfill 1 1310424013
+ddclip 0 13 0 16 4 1 1 6 4
+ddblt 0 6 7 16 16 1 1 0 11 9 mirrorud
+dddump 0
+end
+case random-21
+dd
+ddsurf 0 10 10 24
+ddsurf 1 2 8 24
+ddfill 0 3854017955
+ddfill 1 830105955
+ddclip 0 0 0 5 1 2 9 9 11
+ddblt 0 1 -2 3 6 1 0 0 2 8
+ddblt 0 7 -1 8 1 1 1 4 2 6
+dddump 0
+end
+case random-22
+dd
+ddsurf 0 10 7 565
+ddsurf 1 9 1 565
+ddfill 0 45638143
+ddfill 1 3732107549
+ddclip 0 2 -1 11 3 -2 -2 8 -1
+ddblt 0 0 6 7 7 1 2 0 9 1
+dddump 0
+end
+case random-23
+dd
+ddsurf 0 12 2 24
+ddsurf 1 1 4 24
+ddfill 0 2144020343
+ddfill 1 2140968517
+ddclip 0 4 -1 5 4 2 2 15 5 11 2 13 5 5 -1 11 5
+ddcolor 0 -1 -3 0 0 0x61
+dddump 0
+end
+case random-24
+dd
+ddsurf 0 3 10 24
+ddsurf 1 3 10 24
+ddfill 0 1923148913
+ddfill 1 2331084583
+ddclip 0 1 9 4 11
+ddblt 0 0 -2 2 0 1 1 2 3 4
+ddblt 0 -3 3 -1 4 1 0 3 2 4 mirrorud
+ddblt 0 -2 8 0 15 1 0 1 2 8
+ddblt 0 1 5 2 12 1 0 1 1 8
+dddump 0
+end
+case random-25
+dd
+ddsurf 0 7 7 32
+ddsurf 1 1 7 32
+ddfill 0 601302169
+ddfill 1 801939579
+ddclip 0 6 5 10 8 5 -2 9 1 2 4 3 7 6 -2 10 4
+ddblt 0 6 0 7 2 1 0 2 1 4
+ddblt 0 7 7 8 12 1 0 1 1 6
+ddcolor 0 1 7 2 11 0x9c
+dddump 0
+end
+case random-26
+dd
+ddsurf 0 18 6 24
+ddsurf 1 13 5 24
+ddfill 0 1121537203
+ddfill 1 44841877
+ddclip 0 2 5 6 9 4 3 18 8 -1 1 5 6 9 3 17 7
+ddblt 0 4 2 5 6 1 1 1 2 5 mirrorud
+dddump 0
+end
+case random-27
+dd
+ddsurf 0 6 8 555
+ddsurf 1 3 10 555
+ddfill 0 90621233
+ddfill 1 1708511697
+ddclip 0 5 3 6 4 2 8 7 9 0 5 5 7 4 -1 8 1
+ddblt 0 -2 1 -1 8 1 2 2 3 9 mirrorud
+ddblt 0 5 -1 8 5 1 0 2 3 8
+ddblt 0 6 7 8 12 1 0 2 2 7 mirrorud
+dddump 0
+end
+case random-28
+dd
+ddsurf 0 11 3 565
+ddsurf 1 13 9 565
+ddfill 0 1477465355
+ddfill 1 76715571
+ddclip 0 -1 0 12 2 6 3 8 4
+ddblt 0 9 0 10 4 1 3 5 4 9
+dddump 0
+end
+case random-29
+dd
+ddsurf 0 8 14 24
+ddsurf 1 6 7 24
+ddfill 0 3500214045
+ddfill 1 4162402493
+ddclip 0 7 9 11 15 3 0 4 10 0 0 7 3 7 10 9 12
+ddblt 0 2 1 8 2 1 0 5 6 6
+ddcolor 0 5 -3 8 -1 0x9e
+dddump 0
+end
+case random-30
+dd
+ddsurf 0 15 5 565
+ddsurf 1 6 4 565
+ddfill 0 3757591429
+ddfill 1 127441121
+ddclip 0 4 1 11 2 9 -1 15 8 2 3 17 4 -1 3 7 5
+ddblt 0 15 4 19 7 1 0 0 4 3
+ddblt 0 10 -2 13 2 1 0 0 3 4
+ddblt 0 5 -3 7 -1 1 1 1 3 3 mirrorud
+ddblt 0 11 -2 15 1 1 1 0 5 3
+dddump 0
+end
+case random-31
+dd
+ddsurf 0 14 14 24
+ddsurf 1 5 9 24
+ddfill 0 2255315915
+ddfill 1 1754713825
+ddclip 0 9 -1 15 6
+ddblt 0 8 10 13 11 1 0 2 5 3
+dddump 0
+end
+case random-32
+dd
+ddsurf 0 9 3 32
+ddsurf 1 2 7 32
+ddfill 0 3418923527
+ddfill 1 781030819
+ddclip 0 3 2 7 3 8 0 11 6 7 3 11 4 8 3 10 6
+ddblt 0 -3 3 -2 5 1 1 3 2 5 mirrorlr
+ddblt 0 3 2 5 6 1 0 2 2 6
+ddblt 0 5 1 7 5 1 0 1 2 5
+dddump 0
+end
+case random-33
+dd
+ddsurf 0 18 4 565
+ddsurf 1 6 4 565
+ddfill 0 2361550957
+ddfill 1 4164598219
+ddclip 0 14 -2 20 1 14 3 21 7 3 2 5 7 11 2 12 3
+ddblt 0 5 -3 8 -1 1 2 1 5 3
+ddblt 0 4 4 7 7 1 1 1 4 4 mirrorud
+dddump 0
+end
+case random-34
+dd
+ddsurf 0 12 5 8
+ddsurf 1 11 4 8
+ddfill 0 1455718431
+ddfill 1 505629917
+ddclip 0 8 0 11 5 -1 1 5 7
+ddblt 0 9 2 14 5 1 2 0 7 3
+ddblt 0 5 -2 9 1 1 6 0 10 3
+ddblt 0 0 -3 7 -2 1 1 3 8 4
+ddblt 0 -3 3 7 5 1 0 0 10 2
+dddump 0
+end
+case random-35
+dd
+ddsurf 0 17 3 565
+ddsurf 1 1 3 565
+ddfill 0 4174268281
+ddfill 1 873370185
+ddclip 0 13 -1 18 5 14 -1 19 2 14 3 18 4
+ddblt 0 13 3 14 5 1 0 1 1 3 mirrorlr
+ddblt 0 5 1 6 3 1 0 0 1 2
+dddump 0
+end
+case random-36
+dd
+ddsurf 0 17 6 565
+ddsurf 1 4 6 565
+ddfill 0 2993046475
+ddfill 1 972867141
+ddclip 0 10 2 14 9 15 -2 16 -1 11 1 14 6
+ddblt 0 10 0 11 2 1 1 2 2 4 mirrorlr
+ddblt 0 1 2 2 6 1 1 0 2 4 mirrorud
+ddblt 0 7 0 8 2 1 1 3 2 5
+ddblt 0 3 -3 6 -1 1 1 2 4 4
+dddump 0
+end
+case random-37
+dd
+ddsurf 0 3 8 24
+ddsurf 1 10 7 24
+ddfill 0 1254823911
+ddfill 1 785366109
+ddclip 0 1 6 4 8 3 1 6 6 2 4 4 11 -1 0 4 5
+ddblt 0 -2 -3 8 0 1 0 3 10 6
+ddcolor 0 -2 4 3 8 0x7d
+dddump 0
+end
+case random-38
+dd
+ddsurf 0 14 12 32
+ddsurf 1 8 4 32
+ddfill 0 1020830439
+ddfill 1 940474885
+ddclip 0 4 10 17 11 12 8 17 10 8 6 15 14
+ddcolor 0 1 2 8 3 0x77
+ddblt 0 -3 -2 3 -1 1 1 0 7 1
+ddcolor 0 8 5 13 6 0xef
+ddblt 0 0 11 8 14 1 0 1 8 4
+dddump 0
+end
+case random-39
+dd
+ddsurf 0 5 5 555
+ddsurf 1 12 1 555
+ddfill 0 795171235
+ddfill 1 242887371
+ddclip 0 3 1 4 8 5 -1 7 2 0 3 4 6 2 0 4 6
+ddcolor 0 0 -3 1 -2 0x2e
+ddblt 0 4 0 14 1 1 1 0 11 1
+ddblt 0 -2 1 5 2 1 5 0 12 1
+dddump 0
+end
+case random-40
+dd
+ddsurf 0 9 1 32
+ddsurf 1 7 5 32
+ddfill 0 1845432649
+ddfill 1 1964802755
+ddclip 0 0 -2 6 3 -1 1 11 2
+ddblt 0 8 -1 13 0 1 1 3 6 4
+ddcolor 0 -2 1 5 4 0xe8
+dddump 0
+end
+case random-41
+dd
+ddsurf 0 11 13 32
+ddsurf 1 13 1 32
+ddfill 0 1531887175
+ddfill 1 474290309
+ddclip 0 4 6 9 13 4 12 13 14 5 1 14 7
+ddblt 0 -3 8 -2 9 1 1 0 2 1
+ddblt 0 6 4 19 5 1 0 0 13 1
+ddblt 0 -3 8 1 9 1 7 0 11 1
+ddblt 0 5 0 9 1 1 3 0 7 1 mirrorud
+dddump 0
+end
+case random-42
+dd
+ddsurf 0 10 1 24
+ddsurf 1 7 3 24
+ddfill 0 961417215
+ddfill 1 4001621831
+ddclip 0 4 -1 9 3 2 1 13 2 8 -2 11 -1
+ddblt 0 3 -1 8 0 1 0 1 5 2
+ddblt 0 10 1 14 3 1 0 0 4 2
+ddcolor 0 1 1 2 3 0x70
+dddump 0
+end
+case random-43
+dd
+ddsurf 0 8 13 565
+ddsurf 1 6 2 565
+ddfill 0 177962651
+ddfill 1 3427372031
+ddclip 0 6 10 9 13 2 3 10 15
+ddblt 0 5 7 8 9 1 2 0 5 2
+ddblt 0 0 -3 2 -2 1 3 1 5 2
+dddump 0
+end
+case random-44
+dd
+ddsurf 0 13 7 32
+ddsurf 1 10 5 32
+ddfill 0 3862622975
+ddfill 1 3033053005
+ddclip 0 5 6 10 9
+ddblt 0 1 1 5 3 1 5 1 9 3
+ddblt 0 5 5 15 9 1 0 0 10 4 mirrorud
+ddcolor 0 13 3 22 8 0x62
+dddump 0
+end
+case random-45
+dd
+ddsurf 0 6 12 24
+ddsurf 1 1 9 24
+ddfill 0 3840384875
+ddfill 1 4132456719
+ddclip 0 1 6 9 12 3 2 9 9 6 -2 9 4 3 8 9 12
+ddcolor 0 2 6 3 14 0x2a
+ddcolor 0 -3 2 -2 5 0xe
+ddblt 0 2 4 3 9 1 0 4 1 9
+ddblt 0 5 -2 6 6 1 0 1 1 9
+dddump 0
+end
+case random-46
+dd
+ddsurf 0 9 5 8
+ddsurf 1 7 9 8
+ddfill 0 956467089
+ddfill 1 1474748009
+ddclip 0 -2 4 6 5 -2 4 0 5
+ddcolor 0 6 -2 9 5 0xf5
+ddblt 0 0 -1 6 8 1 1 0 7 9
+ddblt 0 -1 -2 6 1 1 0 6 7 9
+dddump 0
+end
+case random-47
+dd
+ddsurf 0 10 1 24
+ddsurf 1 14 4 24
+ddfill 0 3793886697
+ddfill 1 2457266631
+ddclip 0 10 0 13 1
+ddblt 0 3 -2 16 2 1 1 0 14 4
+dddump 0
+end
+case random-48
+dd
+ddsurf 0 20 4 24
+ddsurf 1 2 7 24
+ddfill 0 3745749589
+ddfill 1 757393009
+ddclip 0 1 0 4 1
+ddcolor 0 17 2 19 9 0xa8
+ddblt 0 16 -2 17 2 1 1 2 2 6
+ddblt 0 13 -1 14 5 1 1 1 2 7 mirrorud
+ddblt 0 9 4 11 6 1 0 3 2 5
+dddump 0
+end
+case random-49
+dd
+ddsurf 0 5 10 565
+ddsurf 1 3 6 565
+ddfill 0 1069981899
+ddfill 1 2418610597
+ddclip 0 4 0 8 7 0 0 1 10 2 1 6 4
+ddcolor 0 -2 4 -1 5 0x64
+ddblt 0 -3 3 0 8 1 0 0 3 5 mirrorlr
+ddblt 0 3 1 6 7 1 0 0 3 6 mirrorud
+dddump 0
+end
+case random-50
+dd
+ddsurf 0 19 13 565
+ddsurf 1 11 7 565
+ddfill 0 2015028501
+ddfill 1 3015089737
+ddclip 0 13 11 16 12 3 1 19 15 9 -1 12 9 6 4 19 15
+ddblt 0 16 3 22 9 1 3 1 9 7
+dddump 0
+end
+case random-51
+dd
+ddsurf 0 13 1 565
+ddsurf 1 9 4 565
+ddfill 0 289680613
+ddfill 1 264247209
+ddclip 0 13 0 14 3 12 -1 15 4 6 -1 14 3 4 1 6 3
+ddblt 0 -2 -3 7 -1 1 0 2 9 4
+ddcolor 0 9 0 10 3 0x79
+dddump 0
+end
+case random-52
+dd
+ddsurf 0 14 8 24
+ddsurf 1 5 5 24
+ddfill 0 620103189
+ddfill 1 1655338447
+ddclip 0 3 0 12 1 -2 4 12 7 0 3 8 11 7 6 16 10
+ddcolor 0 5 0 6 2 0xa0
+ddblt 0 11 2 14 5 1 1 2 4 5
+ddcolor 0 -3 7 2 10 0xc
+ddblt 0 2 -3 5 2 1 2 0 5 5
+dddump 0
+end
+case random-53
+dd
+ddsurf 0 9 3 555
+ddsurf 1 5 9 555
+ddfill 0 91837875
+ddfill 1 3593423093
+ddclip 0 0 -1 2 3 7 2 10 4
+ddblt 0 8 3 11 6 1 0 5 3 8
+ddblt 0 9 0 11 4 1 1 2 3 6
+ddblt 0 3 -3 7 3 1 1 3 5 9
+dddump 0
+end
+case random-54
+dd
+ddsurf 0 9 4 555
+ddsurf 1 2 3 555
+ddfill 0 43138045
+ddfill 1 4166957131
+ddclip 0 -2 1 2 6 6 -1 10 4
+ddcolor 0 4 3 6 5 0xc6
+ddblt 0 -1 -1 0 0 1 1 0 2 1
+ddblt 0 3 -2 5 1 1 0 0 2 3
+dddump 0
+end
+case random-55
+dd
+ddsurf 0 4 7 32
+ddsurf 1 1 3 32
+ddfill 0 1244771683
+ddfill 1 4011888269
+ddclip 0 1 1 3 5 1 0 2 7
+ddblt 0 -2 7 -1 9 1 0 0 1 2
+ddblt 0 2 7 3 10 1 0 0 1 3
+ddblt 0 3 -1 4 2 1 0 0 1 3 mirrorud
+dddump 0
+end
+case random-56
+dd
+ddsurf 0 19 2 32
+ddsurf 1 5 4 32
+ddfill 0 3503401333
+ddfill 1 1511271147
+ddclip 0 19 0 22 2 5 -2 19 4 5 2 22 4 13 -2 19 5
+ddblt 0 0 2 1 4 1 0 0 1 2
+dddump 0
+end
+case random-57
+dd
+ddsurf 0 9 6 565
+ddsurf 1 1 10 565
+ddfill 0 4089597387
+ddfill 1 4111822391
+ddclip 0 -1 4 3 6 9 -2 12 1 2 2 10 4 6 4 11 6
+ddblt 0 5 1 6 8 1 0 0 1 7
+dddump 0
+end
+case random-58
+dd
+ddsurf 0 8 5 32
+ddsurf 1 5 5 32
+ddfill 0 3310198435
+ddfill 1 2779076655
+ddclip 0 8 4 9 5 -2 0 6 2 7 2 10 7
+ddblt 0 7 2 9 4 1 1 2 3 4 mirrorlr
+dddump 0
+end
+case random-59
+dd
+ddsurf 0 13 8 555
+ddsurf 1 12 4 555
+ddfill 0 1260591015
+ddfill 1 321620685
+ddclip 0 8 -1 16 0 4 4 16 5
+ddblt 0 -3 -1 1 3 1 7 0 11 4 mirrorud
+ddblt 0 7 -1 15 1 1 1 0 9 2
+ddblt 0 8 1 18 3 1 1 0 11 2 mirrorud
+ddblt 0 8 -2 17 2 1 0 0 9 4
+dddump 0
+end
+case random-60
+dd
+ddsurf 0 1 9 555
+ddsurf 1 10 5 555
+ddfill 0 4046303993
+ddfill 1 2837494113
+ddclip 0 -1 8 3 11 -1 9 4 11 -1 2 4 8 1 1 3 12
+ddcolor 0 1 2 7 6 0x37
+ddblt 0 -2 2 0 6 1 8 0 10 4
+ddblt 0 1 -2 5 -1 1 1 2 5 3 mirrorlr
+ddcolor 0 0 -2 1 -1 0x5c
+dddump 0
+end
+case random-61
+dd
+ddsurf 0 20 3 24
+ddsurf 1 5 1 24
+ddfill 0 2860876005
+ddfill 1 1236842665
+ddclip 0 20 -2 23 1 5 1 10 3 16 0 22 1
+ddblt 0 13 2 18 3 1 0 0 5 1
+ddblt 0 13 0 15 1 1 3 0 5 1
+ddblt 0 18 0 22 1 1 0 0 4 1
+dddump 0
+end
+case random-62
+dd
+ddsurf 0 6 9 24
+ddsurf 1 2 10 24
+ddfill 0 198117455
+ddfill 1 2987735213
+ddclip 0 5 9 6 12
+ddblt 0 -2 4 0 9 1 0 2 2 7
+ddblt 0 6 -3 8 7 1 0 0 2 10
+ddblt 0 0 9 1 10 1 0 3 1 4
+ddblt 0 3 1 5 11 1 0 0 2 10
+dddump 0
+end
+case random-63
+dd
+ddsurf 0 5 14 32
+ddsurf 1 14 8 32
+ddfill 0 1653047237
+ddfill 1 579647035
+ddclip 0 5 2 8 14 5 10 8 13 -2 14 8 16 -1 9 6 11
+ddblt 0 2 11 9 17 1 2 0 9 6
+dddump 0
+end
+case random-64
+dd
+ddsurf 0 15 2 32
+ddsurf 1 2 9 32
+ddfill 0 2360824157
+ddfill 1 3036971123
+ddclip 0 7 2 15 4 14 1 18 5 2 1 10 4
+ddblt 0 0 0 2 7 1 0 2 2 9
+ddblt 0 4 0 6 5 1 0 0 2 5
+ddblt 0 11 0 13 4 1 0 5 2 9
+ddblt 0 12 1 14 5 1 0 4 2 8 mirrorlr
+dddump 0
+end
+case random-65
+dd
+ddsurf 0 19 3 32
+ddsurf 1 5 10 32
+ddfill 0 2163712555
+ddfill 1 3806975507
+ddclip 0 0 -1 11 0 0 0 6 2 17 1 22 4
+ddblt 0 9 -3 14 -2 1 0 8 5 9
+ddblt 0 0 -3 3 -1 1 2 4 5 6
+dddump 0
+end
+case random-66
+dd
+ddsurf 0 19 14 565
+ddsurf 1 9 8 565
+ddfill 0 1425244931
+ddfill 1 3068786731
+ddclip 0 13 -2 14 14 15 1 22 16
+ddblt 0 17 3 18 8 1 6 0 7 5
+ddblt 0 -3 4 6 10 1 0 1 9 7 mirrorud
+dddump 0
+end
+case random-67
+dd
+ddsurf 0 14 12 555
+ddsurf 1 13 1 555
+ddfill 0 1659734047
+ddfill 1 2922265833
+ddclip 0 8 0 11 1 3 2 6 3
+ddblt 0 2 3 14 4 1 0 0 12 1
+ddblt 0 13 8 21 9 1 3 0 11 1
+dddump 0
+end
+case random-68
+dd
+ddsurf 0 1 8 8
+ddsurf 1 6 2 8
+ddfill 0 1852290729
+ddfill 1 2397938897
+ddclip 0 0 2 4 8 1 1 3 11 1 2 3 11
+ddblt 0 -3 -2 3 -1 1 0 0 6 1
+ddblt 0 0 5 1 6 1 4 1 5 2
+dddump 0
+end
+case random-69
+dd
+ddsurf 0 17 13 24
+ddsurf 1 14 9 24
+ddfill 0 2107654591
+ddfill 1 3345012181
+ddclip 0 17 6 19 15
+ddblt 0 -1 12 12 13 1 1 4 14 5
+ddcolor 0 2 13 16 22 0xf3
+ddblt 0 15 7 24 14 1 5 2 14 9
+dddump 0
+end
+case random-70
+dd
+ddsurf 0 16 5 32
+ddsurf 1 9 6 32
+ddfill 0 944855745
+ddfill 1 1915165669
+ddclip 0 6 0 19 1
+ddblt 0 0 2 6 8 1 0 0 6 6
+dddump 0
+end
+case random-71
+dd
+ddsurf 0 4 7 565
+ddsurf 1 12 3 565
+ddfill 0 1566247507
+ddfill 1 3191865147
+ddclip 0 3 3 7 10 4 4 6 5 3 -2 6 6 -1 -1 3 5
+ddblt 0 4 5 10 8 1 4 0 10 3
+ddblt 0 4 0 8 1 1 1 0 5 1 mirrorlr
+ddblt 0 4 0 10 1 1 2 1 8 2
+ddblt 0 1 0 8 2 1 5 0 12 2
+dddump 0
+end
+case random-72
+dd
+ddsurf 0 20 4 24
+ddsurf 1 12 9 24
+ddfill 0 752794447
+ddfill 1 2371089429
+ddclip 0 0 3 19 5
+ddblt 0 18 4 21 7 1 5 1 8 4
+ddblt 0 7 -2 16 6 1 1 0 10 8
+dddump 0
+end
+case random-73
+dd
+ddsurf 0 12 10 8
+ddsurf 1 2 9 8
+ddfill 0 3406674659
+ddfill 1 4134100363
+ddclip 0 12 9 14 13 4 8 9 10 12 2 15 6
+ddblt 0 -3 3 -2 6 1 1 4 2 7
+dddump 0
+end
+case random-74
+dd
+ddsurf 0 3 7 565
+ddsurf 1 11 10 565
+ddfill 0 1472383799
+ddfill 1 3659636933
+ddclip 0 -1 6 5 8 -2 0 4 3
+ddblt 0 1 -1 12 8 1 0 1 11 10
+ddcolor 0 3 2 10 7 0xc8
+ddblt 0 -3 -1 1 2 1 1 0 5 3
+ddblt 0 -2 3 0 9 1 1 3 3 9
+dddump 0
+end
+case random-75
+dd
+ddsurf 0 8 8 8
+ddsurf 1 9 4 8
+ddfill 0 692295411
+ddfill 1 673356989
+ddclip 0 6 -1 9 9 1 1 10 6 1 3 10 7
+ddblt 0 -3 3 4 7 1 1 0 8 4
+ddblt 0 7 7 16 8 1 0 3 9 4
+ddblt 0 -3 2 0 5 1 4 1 7 4
+dddump 0
+end
+case random-76
+dd
+ddsurf 0 6 6 32
+ddsurf 1 10 7 32
+ddfill 0 685507211
+ddfill 1 3106664301
+ddclip 0 4 -2 5 6 -2 6 4 7 1 5 9 7
+ddblt 0 4 3 5 10 1 9 0 10 7
+ddblt 0 -1 1 6 4 1 1 0 8 3
+dddump 0
+end
+case random-77
+dd
+ddsurf 0 5 4 565
+ddsurf 1 7 4 565
+ddfill 0 1767141469
+ddfill 1 212590003
+ddclip 0 1 0 4 4
+ddblt 0 1 0 8 3 1 0 1 7 4
+ddblt 0 0 3 1 6 1 4 0 5 3
+ddblt 0 0 4 2 8 1 2 0 4 4
+ddblt 0 0 3 4 7 1 3 0 7 4
+dddump 0
+end
+case random-78
+dd
+ddsurf 0 6 2 24
+ddsurf 1 12 3 24
+ddfill 0 4291468491
+ddfill 1 640087715
+ddclip 0 1 2 4 4 5 -2 9 -1 6 1 8 2 2 1 5 4
+ddblt 0 6 -3 17 0 1 1 0 12 3
+ddcolor 0 3 1 14 3 0xf4
+dddump 0
+end
+case random-79
+dd
+ddsurf 0 7 3 8
+ddsurf 1 10 2 8
+ddfill 0 2236875535
+ddfill 1 2743989013
+ddclip 0 -1 -1 10 1 -2 -2 3 1 -2 -1 9 6 0 2 8 6
+ddblt 0 0 3 5 5 1 4 0 9 2
+ddblt 0 -2 -2 3 -1 1 3 0 8 1
+dddump 0
+end
+case random-80
+dd
+ddsurf 0 8 13 24
+ddsurf 1 3 8 24
+ddfill 0 3038028491
+ddfill 1 150192109
+ddclip 0 4 10 11 16 6 7 11 13 -1 11 9 15 0 1 11 13
+ddblt 0 1 9 4 14 1 0 0 3 5
+dddump 0
+end
+case random-81
+dd
+ddsurf 0 4 14 565
+ddsurf 1 14 2 565
+ddfill 0 3879335159
+ddfill 1 3981204613
+ddclip 0 2 13 4 17 -2 1 5 8 -1 11 1 12 4 4 6 7
+ddblt 0 -1 3 9 4 1 0 1 10 2
+dddump 0
+end
+case random-82
+dd
+ddsurf 0 16 6 8
+ddsurf 1 14 5 8
+ddfill 0 584400165
+ddfill 1 726535197
+ddclip 0 4 0 15 2 6 6 13 9 15 4 19 7
+ddblt 0 12 2 18 6 1 4 0 10 4
+dddump 0
+end
+case random-83
+dd
+ddsurf 0 8 12 8
+ddsurf 1 7 3 8
+ddfill 0 1724006635
+ddfill 1 4114474789
+ddclip 0 0 8 11 9 2 5 6 7
+ddblt 0 7 11 14 13 1 0 0 7 2
+ddcolor 0 -3 3 0 5 0x6f
+ddblt 0 8 4 13 6 1 0 1 5 3
+ddblt 0 7 7 12 10 1 2 0 7 3
+dddump 0
+end
+case random-84
+dd
+ddsurf 0 5 7 32
+ddsurf 1 13 6 32
+ddfill 0 2210430089
+ddfill 1 108154497
+ddclip 0 -2 5 3 10
+ddblt 0 -2 -3 10 2 1 0 0 12 5 mirrorlr
+ddcolor 0 4 7 17 9 0x24
+ddblt 0 5 0 10 4 1 8 1 13 5
+ddblt 0 4 4 14 9 1 2 1 12 6
+dddump 0
+end
+case random-85
+dd
+ddsurf 0 8 2 24
+ddsurf 1 13 7 24
+ddfill 0 2169325727
+ddfill 1 596445841
+ddclip 0 6 2 8 4 5 -2 9 -1 7 0 9 5
+ddblt 0 -1 0 5 5 1 2 0 8 5
+ddcolor 0 8 1 18 6 0x38
+dddump 0
+end
+case random-86
+dd
+ddsurf 0 20 13 8
+ddsurf 1 14 1 8
+ddfill 0 2343792265
+ddfill 1 706849433
+ddclip 0 15 9 23 14
+ddblt 0 19 5 24 6 1 7 0 12 1
+ddblt 0 19 7 31 8 1 0 0 12 1 mirrorlr
+ddblt 0 7 3 17 4 1 3 0 13 1
+dddump 0
+end
+case random-87
+dd
+ddsurf 0 3 1 8
+ddsurf 1 3 5 8
+ddfill 0 299387225
+ddfill 1 110878977
+ddclip 0 -1 -2 4 4
+ddblt 0 2 0 3 5 1 1 0 2 5
+ddcolor 0 3 -1 5 4 0xc0
+dddump 0
+end
+case random-88
+dd
+ddsurf 0 13 11 24
+ddsurf 1 13 10 24
+ddfill 0 3845175093
+ddfill 1 2300294431
+ddclip 0 4 -1 10 5 0 2 2 13 11 10 16 14
+ddcolor 0 8 11 10 13 0xfe
+dddump 0
+end
+case random-89
+dd
+ddsurf 0 8 5 24
+ddsurf 1 11 4 24
+ddfill 0 48280543
+ddfill 1 2280934387
+ddclip 0 2 5 11 8 -2 2 4 6 7 0 9 3
+ddblt 0 4 -1 12 2 1 2 0 10 3 mirrorlr
+ddblt 0 4 3 14 5 1 0 1 10 3 mirrorlr
+ddblt 0 -3 3 2 7 1 0 0 5 4 mirrorud
+ddblt 0 -2 -1 0 2 1 5 1 7 4
+dddump 0
+end
+case random-90
+dd
+ddsurf 0 1 11 565
+ddsurf 1 10 10 565
+ddfill 0 605338987
+ddfill 1 3297587831
+ddclip 0 -1 4 3 5 0 -1 1 10 -1 5 3 9 1 6 2 13
+ddblt 0 -3 8 -2 15 1 4 0 5 7 mirrorlr
+dddump 0
+end
+case random-91
+dd
+ddsurf 0 17 5 24
+ddsurf 1 10 6 24
+ddfill 0 3972991957
+ddfill 1 3137613007
+ddclip 0 3 2 8 3
+ddblt 0 13 2 14 4 1 7 4 8 6
+ddblt 0 14 5 16 6 1 4 4 6 5
+ddblt 0 3 2 12 6 1 1 2 10 6
+dddump 0
+end
+case random-92
+dd
+ddsurf 0 14 2 8
+ddsurf 1 11 3 8
+ddfill 0 3889819009
+ddfill 1 2539501077
+ddclip 0 6 -1 17 2 2 -2 8 2 -2 1 3 2
+ddblt 0 -3 -2 1 0 1 3 0 7 2
+ddcolor 0 2 0 11 3 0x8e
+ddblt 0 7 1 11 2 1 0 2 4 3 mirrorlr
+ddblt 0 3 -3 7 -1 1 6 0 10 2
+dddump 0
+end
+case random-93
+dd
+ddsurf 0 6 1 8
+ddsurf 1 1 9 8
+ddfill 0 3610405757
+ddfill 1 3521735699
+ddclip 0 1 0 2 1 5 0 9 3 5 -2 9 0 -1 -2 5 2
+ddblt 0 -3 -3 -2 2 1 0 3 1 8
+ddcolor 0 3 -3 4 3 0x99
+ddcolor 0 4 -2 5 1 0x7
+dddump 0
+end
+case random-94
+dd
+ddsurf 0 7 5 32
+ddsurf 1 5 6 32
+ddfill 0 2624179881
+ddfill 1 305074871
+ddclip 0 6 5 9 6 3 -2 5 4 5 -2 9 -1
+ddblt 0 7 -1 12 1 1 0 0 5 2
+dddump 0
+end
+case random-95
+dd
+ddsurf 0 6 12 24
+ddsurf 1 4 1 24
+ddfill 0 2056933959
+ddfill 1 713551855
+ddclip 0 -1 5 2 14 2 12 3 14 -2 2 3 9 2 4 8 6
+ddblt 0 2 8 6 9 1 0 0 4 1
+ddcolor 0 2 7 3 8 0x7a
+dddump 0
+end
+case random-96
+dd
+ddsurf 0 4 3 8
+ddsurf 1 14 1 8
+ddfill 0 1691165541
+ddfill 1 3567093141
+ddclip 0 3 -1 4 4 -1 -1 1 2 0 -2 5 2
+ddblt 0 -1 1 7 2 1 5 0 13 1
+ddblt 0 -3 -3 -2 -2 1 10 0 11 1
+ddblt 0 0 3 8 4 1 1 0 9 1
+ddblt 0 -1 1 11 2 1 0 0 12 1
+dddump 0
+end
+case random-97
+dd
+ddsurf 0 11 4 8
+ddsurf 1 4 9 8
+ddfill 0 1062884387
+ddfill 1 3457939309
+ddclip 0 2 -1 11 0 5 -1 14 5 5 3 12 6
+ddblt 0 -3 0 -2 4 1 2 5 3 9
+ddblt 0 1 -2 3 4 1 2 2 4 8
+ddcolor 0 2 1 6 6 0xa7
+ddblt 0 0 2 4 4 1 0 5 4 7
+dddump 0
+end
+case random-98
+dd
+ddsurf 0 16 14 8
+ddsurf 1 10 9 8
+ddfill 0 691345061
+ddfill 1 4158626293
+ddclip 0 10 13 13 15 -2 -1 1 8
+ddblt 0 -3 1 2 2 1 0 3 5 4
+ddblt 0 0 -2 3 -1 1 1 4 4 5 mirrorlr
+dddump 0
+end
+case random-99
+dd
+ddsurf 0 3 10 8
+ddsurf 1 9 6 8
+ddfill 0 1885962271
+ddfill 1 1294361931
+ddclip 0 -1 -1 5 9
+ddblt 0 -1 -2 3 4 1 2 0 6 6
+dddump 0
+end
+case random-100
+dd
+ddsurf 0 7 11 565
+ddsurf 1 14 8 565
+ddfill 0 2550290273
+ddfill 1 2402147543
+ddclip 0 2 3 10 13 0 8 3 9
+ddblt 0 4 -2 12 2 1 1 4 9 8
+ddcolor 0 0 3 14 5 0xdd
+dddump 0
+end
+case random-101
+dd
+ddsurf 0 9 2 555
+ddsurf 1 8 3 555
+ddfill 0 1609958027
+ddfill 1 1799792249
+ddclip 0 3 2 9 4 8 2 11 5
+ddblt 0 -2 2 6 5 1 0 0 8 3 mirrorud
+ddblt 0 1 -1 4 0 1 2 1 5 2
+ddblt 0 8 -1 14 2 1 2 0 8 3
+dddump 0
+end
+case random-102
+dd
+ddsurf 0 1 2 32
+ddsurf 1 7 10 32
+ddfill 0 1681533589
+ddfill 1 209714721
+ddclip 0 -1 0 0 1 0 2 2 5
+ddblt 0 -1 1 6 7 1 0 4 7 10
+ddblt 0 -1 -3 5 1 1 1 4 7 8
+dddump 0
+end
+case random-103
+dd
+ddsurf 0 8 4 555
+ddsurf 1 12 10 555
+ddfill 0 1582354235
+ddfill 1 2974159073
+ddclip 0 -1 0 3 4 1 -2 11 0
+ddblt 0 3 3 5 6 1 4 4 6 7
+ddblt 0 1 -3 8 -2 1 0 1 7 2
+ddblt 0 6 -1 17 0 1 0 9 11 10
+dddump 0
+end
+case random-104
+dd
+ddsurf 0 16 1 24
+ddsurf 1 1 6 24
+ddfill 0 3213605595
+ddfill 1 3536013555
+ddclip 0 10 0 11 3
+ddblt 0 5 -1 6 1 1 0 1 1 3
+ddblt 0 2 -1 3 0 1 0 3 1 4
+ddblt 0 2 -3 3 1 1 0 1 1 5
+ddblt 0 0 -1 1 1 1 0 3 1 5
+dddump 0
+end
+case random-105
+dd
+ddsurf 0 2 4 32
+ddsurf 1 12 6 32
+ddfill 0 1616685225
+ddfill 1 1551078285
+ddclip 0 -2 1 0 6 -1 4 3 7
+ddblt 0 1 -3 11 1 1 1 1 11 5 mirrorud
+ddblt 0 1 1 8 6 1 2 1 9 6
+dddump 0
+end
+case random-106
+dd
+ddsurf 0 5 10 555
+ddsurf 1 2 3 555
+ddfill 0 1302499939
+ddfill 1 3795152693
+ddclip 0 4 -2 6 6
+ddblt 0 -2 5 -1 7 1 0 1 1 3 mirrorud
+dddump 0
+end
+case random-107
+dd
+ddsurf 0 1 14 24
+ddsurf 1 2 4 24
+ddfill 0 825431097
+ddfill 1 624402819
+ddclip 0 -1 -1 1 13
+ddblt 0 0 14 2 15 1 0 3 2 4
+ddblt 0 -1 10 1 11 1 0 3 2 4
+ddcolor 0 0 9 1 10 0xfb
+dddump 0
+end
+case random-108
+dd
+ddsurf 0 5 1 565
+ddsurf 1 9 5 565
+ddfill 0 2683053505
+ddfill 1 1909785867
+ddclip 0 0 1 2 3 2 1 7 3
+ddcolor 0 -3 -1 5 2 0x36
+ddcolor 0 3 1 8 5 0xf6
+dddump 0
+end
+case random-109
+dd
+ddsurf 0 15 14 555
+ddsurf 1 1 4 555
+ddfill 0 1098742597
+ddfill 1 748692911
+ddclip 0 4 12 16 16 10 12 11 15
+ddblt 0 9 6 10 8 1 0 2 1 4
+ddblt 0 1 3 2 5 1 0 0 1 2
+ddcolor 0 1 8 2 10 0x59
+ddblt 0 0 8 1 11 1 0 0 1 3
+dddump 0
+end
+case random-110
+dd
+ddsurf 0 9 9 8
+ddsurf 1 5 10 8
+ddfill 0 1645700719
+ddfill 1 1434640707
+ddclip 0 5 0 10 10 8 3 10 12 -1 3 8 5 1 6 12 8
+ddblt 0 -1 1 4 3 1 0 8 5 10
+ddblt 0 8 5 10 15 1 1 0 3 10
+ddblt 0 8 1 12 11 1 1 0 5 10
+dddump 0
+end
+case random-111
+dd
+ddsurf 0 17 7 8
+ddsurf 1 4 5 8
+ddfill 0 1865383953
+ddfill 1 2056265575
+ddclip 0 14 2 17 3 5 7 20 10
+ddcolor 0 6 1 7 4 0x1b
+ddblt 0 10 5 13 10 1 1 0 4 5
+dddump 0
+end
+case random-112
+dd
+ddsurf 0 15 10 24
+ddsurf 1 14 3 24
+ddfill 0 979079815
+ddfill 1 1231398627
+ddclip 0 15 1 18 11 12 0 17 7 15 1 16 9 -1 7 4 13
+ddblt 0 6 6 13 9 1 0 0 7 3 mirrorud
+dddump 0
+end
+case random-113
+dd
+ddsurf 0 12 9 555
+ddsurf 1 8 8 555
+ddfill 0 896327607
+ddfill 1 2111002523
+ddclip 0 7 -2 14 1 5 8 6 9 8 5 15 7 10 -2 14 9
+ddblt 0 2 -3 4 -1 1 0 3 2 5
+ddblt 0 -2 -2 -1 -1 1 4 4 5 5
+ddblt 0 12 -1 16 6 1 0 1 4 8
+dddump 0
+end
+case random-114
+dd
+ddsurf 0 14 5 24
+ddsurf 1 8 7 24
+ddfill 0 1466523813
+ddfill 1 348552795
+ddclip 0 4 -2 12 2
+ddblt 0 13 3 21 5 1 0 1 8 3
+dddump 0
+end
+case random-115
+dd
+ddsurf 0 18 4 32
+ddsurf 1 14 7 32
+ddfill 0 2013855399
+ddfill 1 2623112297
+ddclip 0 6 3 12 6 10 3 19 6 2 4 16 7 0 -2 2 6
+ddblt 0 8 -1 21 0 1 0 4 13 5 mirrorud
+ddblt 0 12 2 21 9 1 0 0 9 7
+ddblt 0 5 -1 10 6 1 3 0 8 7
+dddump 0
+end
+case random-116
+dd
+ddsurf 0 5 5 8
+ddsurf 1 4 3 8
+ddfill 0 3637848519
+ddfill 1 3226939697
+ddclip 0 0 -1 4 8
+ddblt 0 -3 -1 0 0 1 1 2 4 3
+ddblt 0 1 5 2 6 1 1 0 2 1 mirrorud
+dddump 0
+end
+case random-117
+dd
+ddsurf 0 20 5 555
+ddsurf 1 10 6 555
+ddfill 0 183690051
+ddfill 1 2244708847
+ddclip 0 5 0 21 5
+ddblt 0 0 1 10 7 1 0 0 10 6
+ddcolor 0 8 2 9 8 0x6c
+ddblt 0 3 5 5 8 1 0 2 2 5 mirrorud
+dddump 0
+end
+case random-118
+dd
+ddsurf 0 15 3 24
+ddsurf 1 11 4 24
+ddfill 0 491385045
+ddfill 1 1228885725
+ddclip 0 4 1 16 5 4 3 6 6 7 -2 17 1 13 0 17 3
+ddblt 0 9 -1 12 0 1 4 3 7 4
+ddcolor 0 15 0 17 4 0x7c
+ddcolor 0 5 0 14 1 0x21
+ddcolor 0 1 0 7 2 0x8b
+dddump 0
+end
+case random-119
+dd
+ddsurf 0 17 8 32
+ddsurf 1 14 3 32
+ddfill 0 3732583155
+ddfill 1 2360756929
+ddclip 0 0 6 16 10 13 4 20 9 1 2 14 4
+ddblt 0 8 6 18 9 1 4 0 14 3
+ddblt 0 4 3 5 5 1 6 1 7 3
+ddblt 0 -3 5 1 8 1 6 0 10 3
+dddump 0
+end
+case random-120
+dd
+ddsurf 0 7 13 24
+ddsurf 1 5 9 24
+ddfill 0 2987764441
+ddfill 1 4003440319
+ddclip 0 5 11 10 13 5 5 9 6 1 7 3 14
+ddblt 0 3 9 4 12 1 2 0 3 3
+ddblt 0 -1 9 1 16 1 0 1 2 8
+ddcolor 0 0 -2 1 2 0x94
+ddblt 0 3 11 7 12 1 0 1 4 2
+dddump 0
+end
+case random-121
+dd
+ddsurf 0 16 8 24
+ddsurf 1 1 9 24
+ddfill 0 549782511
+ddfill 1 2544432627
+ddclip 0 6 3 15 8 16 8 19 9
+ddblt 0 11 7 12 9 1 0 7 1 9
+ddblt 0 13 1 14 3 1 0 4 1 6
+ddcolor 0 4 7 5 8 0x1a
+ddblt 0 3 4 4 11 1 0 2 1 9
+dddump 0
+end
+case random-122
+dd
+ddsurf 0 19 9 8
+ddsurf 1 2 9 8
+ddfill 0 1378296555
+ddfill 1 2034041655
+ddclip 0 6 2 18 7 -1 1 13 4 2 -1 18 10
+ddblt 0 11 3 12 7 1 0 1 1 5
+dddump 0
+end
+case random-123
+dd
+ddsurf 0 6 8 24
+ddsurf 1 9 7 24
+ddfill 0 1658864729
+ddfill 1 654662861
+ddclip 0 1 -2 8 5 3 3 7 11 5 5 8 7 2 2 9 8
+ddcolor 0 -3 -2 0 -1 0x20
+ddblt 0 -1 -2 5 3 1 2 0 8 5
+ddblt 0 6 5 13 7 1 0 3 7 5
+dddump 0
+end
+case random-124
+dd
+ddsurf 0 6 13 32
+ddsurf 1 10 7 32
+ddfill 0 3639131425
+ddfill 1 651405927
+ddclip 0 0 0 3 9
+ddblt 0 -3 13 3 17 1 1 3 7 7
+ddcolor 0 4 7 8 14 0xc9
+dddump 0
+end
+case random-125
+dd
+ddsurf 0 12 10 32
+ddsurf 1 12 1 32
+ddfill 0 3099481491
+ddfill 1 864919093
+ddclip 0 11 10 14 13
+ddcolor 0 11 -3 21 -2 0xdf
+dddump 0
+end
+case random-126
+dd
+ddsurf 0 19 1 32
+ddsurf 1 14 8 32
+ddfill 0 2851166203
+ddfill 1 3804281341
+ddclip 0 12 1 14 4 0 -2 19 2 6 -2 9 2 10 -2 18 1
+ddblt 0 18 -2 32 6 1 0 0 14 8
+ddblt 0 10 -1 20 5 1 0 0 10 6 mirrorlr
+dddump 0
+end
+case random-127
+dd
+ddsurf 0 19 2 565
+ddsurf 1 11 1 565
+ddfill 0 641982387
+ddfill 1 3943152713
+ddclip 0 12 0 17 5 0 -2 8 0 7 1 16 5
+ddblt 0 -1 -1 1 0 1 0 0 2 1
+ddblt 0 -3 -2 2 -1 1 1 0 6 1
+ddblt 0 13 2 22 3 1 0 0 9 1
+ddblt 0 12 -3 18 -2 1 0 0 6 1 mirrorlr
+dddump 0
+end
+case random-128
+dd
+ddsurf 0 8 2 8
+ddsurf 1 2 5 8
+ddfill 0 1113534355
+ddfill 1 1376433349
+ddclip 0 5 -2 9 -1 0 0 5 4
+ddblt 0 5 -1 6 0 1 1 2 2 3
+ddblt 0 0 2 2 4 1 0 0 2 2
+ddblt 0 7 1 8 5 1 1 0 2 4
+dddump 0
+end
+case random-129
+dd
+ddsurf 0 16 10 555
+ddsurf 1 7 1 555
+ddfill 0 1791732125
+ddfill 1 3774401089
+ddclip 0 3 1 17 3 9 9 16 10
+ddcolor 0 -2 2 -1 3 0x46
+ddblt 0 4 8 6 9 1 2 0 4 1
+dddump 0
+end
+case random-130
+dd
+ddsurf 0 3 12 8
+ddsurf 1 1 7 8
+ddfill 0 1347756647
+ddfill 1 1999549707
+ddclip 0 1 11 6 15
+ddblt 0 1 -1 2 2 1 0 3 1 6 mirrorlr
+ddblt 0 3 10 4 14 1 0 2 1 6
+ddblt 0 1 3 2 9 1 0 0 1 6
+dddump 0
+end
+case random-131
+dd
+ddsurf 0 16 14 555
+ddsurf 1 5 8 555
+ddfill 0 1797967135
+ddfill 1 1672462139
+ddclip 0 3 9 7 15 12 -2 16 10 3 10 15 15 7 -2 10 14
+ddblt 0 11 3 14 4 1 0 3 3 4
+ddblt 0 11 12 16 20 1 0 0 5 8
+ddblt 0 6 9 11 11 1 0 0 5 2
+ddblt 0 -2 8 -1 11 1 4 0 5 3
+dddump 0
+end
+case random-132
+dd
+ddsurf 0 17 7 565
+ddsurf 1 13 10 565
+ddfill 0 3879415541
+ddfill 1 3730317127
+ddclip 0 6 7 15 9 8 1 18 5 1 0 3 2
+ddblt 0 15 2 25 3 1 2 3 12 4
+dddump 0
+end
+case random-133
+dd
+ddsurf 0 1 8 24
+ddsurf 1 14 8 24
+ddfill 0 330630871
+ddfill 1 3734524769
+ddclip 0 0 -2 2 10 0 1 1 5 -2 1 2 4
+ddblt 0 1 5 7 8 1 6 4 12 7 mirrorud
+dddump 0
+end
+case random-134
+dd
+ddsurf 0 7 6 24
+ddsurf 1 10 5 24
+ddfill 0 1714616957
+ddfill 1 383098531
+ddclip 0 3 5 7 7 6 6 7 8 -1 5 6 9 6 -1 9 4
+ddblt 0 5 4 9 9 1 3 0 7 5
+ddblt 0 4 6 9 10 1 1 1 6 5
+ddcolor 0 5 5 8 8 0x3d
+ddblt 0 -1 -1 8 4 1 0 0 9 5
+dddump 0
+end
+case random-135
+dd
+ddsurf 0 2 10 555
+ddsurf 1 14 4 555
+ddfill 0 3562455847
+ddfill 1 2323022591
+ddclip 0 2 1 5 6 2 6 3 12 -1 8 2 11
+ddblt 0 -3 4 10 7 1 1 1 14 4 mirrorud
+ddblt 0 0 -3 8 -1 1 5 0 13 2
+dddump 0
+end
+case random-136
+dd
+ddsurf 0 11 8 565
+ddsurf 1 6 2 565
+ddfill 0 1635071667
+ddfill 1 868587811
+ddclip 0 0 1 10 11 2 7 4 11 2 6 4 8
+ddblt 0 0 6 4 7 1 1 1 5 2 mirrorud
+ddblt 0 1 0 7 2 1 0 0 6 2
+dddump 0
+end
+case random-137
+dd
+ddsurf 0 20 2 555
+ddsurf 1 4 8 555
+ddfill 0 3994645915
+ddfill 1 3588541455
+ddclip 0 6 -2 8 2
+ddblt 0 -2 0 0 5 1 0 2 2 7 mirrorud
+ddblt 0 -3 -3 1 3 1 0 2 4 8
+ddblt 0 14 1 16 9 1 0 0 2 8 mirrorud
+dddump 0
+end
+case random-138
+dd
+ddsurf 0 4 3 32
+ddsurf 1 2 8 32
+ddfill 0 2033144787
+ddfill 1 4194178425
+ddclip 0 -2 -1 2 6
+ddblt 0 0 2 2 5 1 0 5 2 8
+ddcolor 0 -3 -2 -1 6 0xf0
+dddump 0
+end
+case random-139
+dd
+ddsurf 0 2 5 32
+ddsurf 1 7 1 32
+ddfill 0 4183004423
+ddfill 1 4120194879
+ddclip 0 -1 1 5 4 -2 2 1 3 -2 -2 1 -1 1 5 4 8
+ddblt 0 -1 0 0 1 1 1 0 2 1
+ddblt 0 2 5 8 6 1 1 0 7 1 mirrorud
+ddblt 0 0 2 5 3 1 0 0 5 1
+dddump 0
+end
+case random-140
+dd
+ddsurf 0 4 7 8
+ddsurf 1 1 6 8
+ddfill 0 1641788095
+ddfill 1 3859248729
+ddclip 0 3 -2 7 8 -2 2 -1 10 2 2 6 9 3 6 4 7
+ddblt 0 2 3 3 4 1 0 2 1 3 mirrorud
+dddump 0
+end
+case random-141
+dd
+ddsurf 0 2 14 8
+ddsurf 1 10 5 8
+ddfill 0 1347066477
+ddfill 1 1675642415
+ddclip 0 2 5 3 8
+ddblt 0 1 4 5 6 1 0 0 4 2
+ddblt 0 -3 9 -2 11 1 2 2 3 4
+ddblt 0 2 -2 10 1 1 2 1 10 4
+dddump 0
+end
+case random-142
+dd
+ddsurf 0 16 12 24
+ddsurf 1 2 2 24
+ddfill 0 1081347269
+ddfill 1 4235545171
+ddclip 0 7 7 13 10
+ddblt 0 -2 4 -1 5 1 0 1 1 2
+ddcolor 0 0 10 2 11 0x4e
+ddblt 0 12 7 14 8 1 0 1 2 2
+dddump 0
+end
+case random-143
+dd
+ddsurf 0 19 8 565
+ddsurf 1 7 2 565
+ddfill 0 808505919
+ddfill 1 1687406469
+ddclip 0 17 0 19 6 13 0 22 3
+ddblt 0 3 -2 7 -1 1 0 1 4 2
+ddblt 0 8 7 11 8 1 0 0 3 1
+ddblt 0 15 2 21 3 1 0 0 6 1
+ddblt 0 14 -2 20 0 1 0 0 6 2
+dddump 0
+end
+case random-144
+dd
+ddsurf 0 10 4 8
+ddsurf 1 10 3 8
+ddfill 0 1382905423
+ddfill 1 1748880285
+ddclip 0 7 1 10 4 7 2 12 6 6 1 9 5 4 3 7 7
+ddblt 0 3 2 7 3 1 5 2 9 3
+ddblt 0 0 2 1 5 1 7 0 8 3
+ddblt 0 2 4 9 7 1 0 0 7 3
+ddblt 0 -1 2 7 3 1 0 0 8 1
+dddump 0
+end
+case random-145
+dd
+ddsurf 0 11 2 8
+ddsurf 1 3 4 8
+ddfill 0 1352006839
+ddfill 1 258616791
+ddclip 0 6 2 7 5 2 -2 7 0 11 2 12 4 8 2 10 4
+ddblt 0 5 -2 8 0 1 0 1 3 3
+ddcolor 0 1 0 3 3 0x6
+dddump 0
+end
+case random-146
+dd
+ddsurf 0 13 10 32
+ddsurf 1 7 4 32
+ddfill 0 2509509137
+ddfill 1 3977586331
+ddclip 0 8 1 12 11
+ddblt 0 10 3 15 7 1 2 0 7 4
+ddcolor 0 -3 9 1 12 0xdb
+ddblt 0 -3 5 -1 9 1 5 0 7 4
+ddcolor 0 3 3 9 7 0xe3
+dddump 0
+end
+case random-147
+dd
+ddsurf 0 10 1 565
+ddsurf 1 4 3 565
+ddfill 0 3444370155
+ddfill 1 1378221699
+ddclip 0 0 1 2 2 3 0 6 3
+ddblt 0 6 1 9 2 1 0 0 3 1
+ddblt 0 1 -1 5 0 1 0 0 4 1
+ddblt 0 5 -1 6 0 1 2 1 3 2
+dddump 0
+end
+case random-148
+dd
+ddsurf 0 3 13 8
+ddsurf 1 5 2 8
+ddfill 0 1509575839
+ddfill 1 492376555
+ddclip 0 3 8 4 11
+ddblt 0 -2 8 -1 10 1 4 0 5 2
+dddump 0
+end
+case random-149
+dd
+ddsurf 0 13 5 8
+ddsurf 1 14 6 8
+ddfill 0 3285919223
+ddfill 1 1272151749
+ddclip 0 2 4 14 5 2 1 15 2
+ddblt 0 13 -1 17 0 1 3 1 7 2
+ddblt 0 11 1 16 3 1 3 0 8 2 mirrorud
+ddblt 0 -2 2 8 5 1 1 3 11 6
+ddblt 0 8 3 14 4 1 7 1 13 2
+dddump 0
+end
+case random-150
+dd
+ddsurf 0 8 7 32
+ddsurf 1 7 8 32
+ddfill 0 2157476659
+ddfill 1 1882318189
+ddclip 0 2 0 4 8 0 -1 5 6 1 2 7 6 6 3 7 5
+ddblt 0 2 1 6 7 1 2 2 6 8 mirrorlr
+ddblt 0 -1 2 4 9 1 1 1 6 8
+ddcolor 0 2 -3 3 3 0x6b
+dddump 0
+end
+case random-151
+dd
+ddsurf 0 9 14 8
+ddsurf 1 5 5 8
+ddfill 0 3996582683
+ddfill 1 3302547985
+ddclip 0 0 3 1 4
+ddblt 0 1 11 2 16 1 2 0 3 5
+ddcolor 0 2 3 3 7 0xd8
+ddblt 0 -1 -3 3 1 1 1 0 5 4
+ddcolor 0 0 2 2 6 0x2d
+dddump 0
+end
+case random-152
+dd
+ddsurf 0 8 14 565
+ddsurf 1 5 10 565
+ddfill 0 613538305
+ddfill 1 3857410281
+ddclip 0 -2 -2 10 14 1 8 8 11 0 5 1 10 0 4 10 14
+ddblt 0 -2 3 -1 4 1 3 5 4 6
+dddump 0
+end
+case random-153
+dd
+ddsurf 0 10 3 32
+ddsurf 1 1 4 32
+ddfill 0 3396906419
+ddfill 1 639551733
+ddclip 0 3 0 5 2 8 1 9 4
+ddblt 0 -1 3 0 4 1 0 1 1 2 mirrorlr
+ddblt 0 10 0 11 1 1 0 2 1 3
+ddblt 0 9 1 10 3 1 0 1 1 3
+ddblt 0 9 3 10 7 1 0 0 1 4
+dddump 0
+end
+case random-154
+dd
+ddsurf 0 7 1 565
+ddsurf 1 14 10 565
+ddfill 0 1847856759
+ddfill 1 314411491
+ddclip 0 4 1 6 3 -1 -2 5 3 3 -1 6 2 6 -2 8 -1
+ddblt 0 4 -2 6 2 1 12 6 14 10
+ddblt 0 3 -3 10 7 1 4 0 11 10
+ddblt 0 7 -1 16 2 1 3 0 12 3
+dddump 0
+end
+case random-155
+dd
+ddsurf 0 18 1 555
+ddsurf 1 5 7 555
+ddfill 0 3671663355
+ddfill 1 776047289
+ddclip 0 6 -2 19 0 18 0 21 3 3 -1 14 4 16 -2 19 2
+ddblt 0 3 0 7 1 1 0 5 4 6
+ddblt 0 0 -3 1 0 1 3 0 4 3
+ddcolor 0 16 0 20 3 0xe7
+ddblt 0 4 -3 7 -2 1 1 1 4 2
+dddump 0
+end
+case random-156
+dd
+ddsurf 0 19 5 565
+ddsurf 1 2 2 565
+ddfill 0 510256041
+ddfill 1 1635952231
+ddclip 0 -1 -2 4 5 7 4 13 5
+ddblt 0 0 -3 2 -2 1 0 1 2 2
+dddump 0
+end
+case random-157
+dd
+ddsurf 0 10 4 565
+ddsurf 1 1 4 565
+ddfill 0 1404087241
+ddfill 1 2683870509
+ddclip 0 4 -2 10 4 3 4 5 7 4 2 11 4
+ddblt 0 -1 3 0 5 1 0 1 1 3
+ddblt 0 0 3 1 6 1 0 0 1 3
+ddblt 0 6 1 7 3 1 0 1 1 3
+ddblt 0 -1 -3 0 -2 1 0 0 1 1 mirrorud
+dddump 0
+end
+case random-158
+dd
+ddsurf 0 13 1 24
+ddsurf 1 7 1 24
+ddfill 0 2432311971
+ddfill 1 1097799253
+ddclip 0 11 -2 13 1 -1 0 9 2 6 1 15 2 2 -2 11 2
+ddblt 0 -3 -3 3 -2 1 1 0 7 1
+ddblt 0 6 1 7 2 1 0 0 1 1
+dddump 0
+end
+case random-159
+dd
+ddsurf 0 13 3 555
+ddsurf 1 8 6 555
+ddfill 0 2643519315
+ddfill 1 2921478703
+ddclip 0 3 2 12 3 9 -2 13 1
+ddblt 0 3 1 4 6 1 4 0 5 5
+ddblt 0 5 -2 12 4 1 0 0 7 6
+ddblt 0 7 -3 14 -1 1 1 2 8 4
+dddump 0
+end
+case random-160
+dd
+ddsurf 0 3 1 555
+ddsurf 1 5 5 555
+ddfill 0 223892297
+ddfill 1 3776932593
+ddclip 0 -2 -2 3 4 1 -2 3 0
+ddcolor 0 -1 1 1 4 0x2d
+ddcolor 0 0 -2 2 0 0x54
+ddblt 0 -3 1 -2 2 1 4 1 5 2
+dddump 0
+end
+case random-161
+dd
+ddsurf 0 8 1 555
+ddsurf 1 7 2 555
+ddfill 0 596315919
+ddfill 1 255003003
+ddclip 0 0 0 1 2
+ddblt 0 -1 1 4 3 1 1 0 6 2
+ddblt 0 4 1 6 2 1 2 0 4 1
+dddump 0
+end
+case random-162
+dd
+ddsurf 0 18 2 555
+ddsurf 1 3 1 555
+ddfill 0 351660171
+ddfill 1 2508149593
+ddclip 0 5 1 14 4 8 1 14 2 6 -2 8 2 14 -2 21 -1
+ddblt 0 3 -1 4 0 1 1 0 2 1
+ddblt 0 12 -3 15 -2 1 0 0 3 1
+dddump 0
+end
+case random-163
+dd
+ddsurf 0 15 4 32
+ddsurf 1 7 8 32
+ddfill 0 3188376093
+ddfill 1 795555353
+ddclip 0 4 1 5 5 3 1 11 3
+ddblt 0 4 2 5 4 1 1 6 2 8
+ddblt 0 -1 3 0 5 1 4 1 5 3
+ddblt 0 8 3 13 10 1 1 0 6 7
+ddcolor 0 -3 2 2 9 0x27
+dddump 0
+end
+case random-164
+dd
+ddsurf 0 20 3 24
+ddsurf 1 4 7 24
+ddfill 0 2024449907
+ddfill 1 2766076785
+ddclip 0 4 0 14 1 1 2 4 5
+ddblt 0 17 2 20 8 1 0 0 3 6
+dddump 0
+end
+case random-165
+dd
+ddsurf 0 12 3 8
+ddsurf 1 14 3 8
+ddfill 0 3545525641
+ddfill 1 2185837979
+ddclip 0 2 -1 8 3 1 -1 14 0 0 2 1 5
+ddblt 0 3 1 9 2 1 6 2 12 3
+ddblt 0 -2 -1 0 2 1 10 0 12 3 mirrorud
+ddblt 0 -1 3 5 4 1 3 1 9 2
+ddblt 0 -3 -3 4 0 1 5 0 12 3
+dddump 0
+end
+case random-166
+dd
+ddsurf 0 19 3 555
+ddsurf 1 6 2 555
+ddfill 0 505377291
+ddfill 1 4220726949
+ddclip 0 -2 1 2 4 16 -2 17 3 1 -2 16 0 11 -1 12 2
+ddblt 0 13 -1 15 0 1 3 0 5 1
+ddblt 0 2 0 8 1 1 0 0 6 1
+ddcolor 0 19 2 20 3 0x98
+dddump 0
+end
+case random-167
+dd
+ddsurf 0 12 3 8
+ddsurf 1 2 8 8
+ddfill 0 2805921517
+ddfill 1 1166944669
+ddclip 0 0 0 5 2 4 1 11 5 10 1 12 3
+ddblt 0 12 3 13 7 1 1 2 2 6
+ddblt 0 8 0 10 6 1 0 2 2 8
+dddump 0
+end
+case random-168
+dd
+ddsurf 0 16 8 24
+ddsurf 1 11 5 24
+ddfill 0 1285774211
+ddfill 1 3719701803
+ddclip 0 12 -2 14 0 -2 4 7 7 14 8 19 10 7 2 10 6
+ddblt 0 8 0 9 2 1 1 1 2 3
+ddblt 0 13 2 21 4 1 1 0 9 2
+dddump 0
+end
+case random-169
+dd
+ddsurf 0 1 12 24
+ddsurf 1 3 1 24
+ddfill 0 3498496025
+ddfill 1 1514110491
+ddclip 0 0 12 1 14
+ddblt 0 0 -1 2 0 1 0 0 2 1
+ddblt 0 1 3 3 4 1 0 0 2 1 mirrorud
+ddblt 0 -1 8 0 9 1 0 0 1 1
+dddump 0
+end
+case random-170
+dd
+ddsurf 0 13 8 565
+ddsurf 1 12 7 565
+ddfill 0 2207021155
+ddfill 1 2625886787
+ddclip 0 7 6 16 11 12 2 14 11 0 -1 13 4
+ddblt 0 6 3 13 7 1 1 3 8 7
+dddump 0
+end
+case random-171
+dd
+ddsurf 0 9 1 555
+ddsurf 1 13 8 555
+ddfill 0 1908828207
+ddfill 1 616112015
+ddclip 0 -1 -2 4 3 6 1 12 2 0 1 8 4
+ddblt 0 -3 -3 4 4 1 5 1 12 8
+ddblt 0 2 -1 12 5 1 1 1 11 7 mirrorud
+dddump 0
+end
+case random-172
+dd
+ddsurf 0 1 10 32
+ddsurf 1 4 7 32
+ddfill 0 409449891
+ddfill 1 883424139
+ddclip 0 1 -1 2 5 -2 1 4 4
+ddblt 0 -2 7 1 11 1 0 0 3 4
+ddblt 0 0 6 4 8 1 0 4 4 6
+ddcolor 0 0 4 3 6 0x66
+dddump 0
+end
+case random-173
+dd
+ddsurf 0 1 7 32
+ddsurf 1 8 9 32
+ddfill 0 749359491
+ddfill 1 3050986255
+ddclip 0 1 6 2 8 -2 -2 3 6 0 2 1 4 -2 4 4 8
+ddblt 0 -1 -3 0 3 1 3 1 4 7 mirrorlr
+ddcolor 0 -2 6 2 7 0x66
+ddblt 0 -2 4 6 9 1 0 0 8 5
+ddblt 0 -2 6 2 15 1 4 0 8 9
+dddump 0
+end
+case random-174
+dd
+ddsurf 0 17 5 565
+ddsurf 1 10 9 565
+ddfill 0 2978992145
+ddfill 1 976441111
+ddclip 0 17 0 20 6 9 2 11 8 -2 0 12 7
+ddcolor 0 6 5 13 7 0x59
+ddcolor 0 2 0 12 8 0x94
+ddblt 0 6 5 14 8 1 1 5 9 8
+ddblt 0 15 3 17 6 1 4 5 6 8
+dddump 0
+end
+case random-175
+dd
+ddsurf 0 7 4 24
+ddsurf 1 6 8 24
+ddfill 0 1386278973
+ddfill 1 3628710831
+ddclip 0 5 2 9 6
+ddblt 0 4 -1 5 3 1 0 3 1 7
+ddblt 0 -2 2 -1 5 1 1 4 2 7
+ddblt 0 -3 3 1 4 1 1 0 5 1
+dddump 0
+end
+case random-176
+dd
+ddsurf 0 12 9 32
+ddsurf 1 12 2 32
+ddfill 0 663427031
+ddfill 1 3947591823
+ddclip 0 11 1 15 10 0 0 1 9 0 5 3 12
+ddblt 0 10 3 17 4 1 3 0 10 1
+ddcolor 0 10 9 18 10 0x1a
+ddblt 0 7 -2 16 -1 1 1 1 10 2
+dddump 0
+end
+case random-177
+dd
+ddsurf 0 19 1 32
+ddsurf 1 8 5 32
+ddfill 0 3596968039
+ddfill 1 928913203
+ddclip 0 5 0 13 2 -1 1 3 3 6 -2 9 1 14 -1 16 4
+ddblt 0 4 -1 6 4 1 0 0 2 5
+ddblt 0 3 -2 8 -1 1 3 2 8 3
+ddblt 0 7 1 13 2 1 1 3 7 4
+dddump 0
+end
+case random-178
+dd
+ddsurf 0 1 6 8
+ddsurf 1 3 5 8
+ddfill 0 2202648463
+ddfill 1 599310259
+ddclip 0 0 -1 1 2
+ddblt 0 1 -1 4 1 1 0 2 3 4 mirrorud
+ddblt 0 -3 -3 -1 1 1 1 1 3 5
+ddblt 0 -2 4 1 6 1 0 0 3 2
+dddump 0
+end
+case random-179
+dd
+ddsurf 0 10 13 24
+ddsurf 1 14 5 24
+ddfill 0 2798940439
+ddfill 1 908200141
+ddclip 0 -2 4 11 5
+ddblt 0 8 11 14 15 1 1 0 7 4
+ddblt 0 2 3 7 4 1 5 3 10 4 mirrorlr
+ddblt 0 1 7 7 10 1 0 2 6 5 mirrorud
+dddump 0
+end
+case random-180
+dd
+ddsurf 0 19 7 555
+ddsurf 1 8 9 555
+ddfill 0 2542118323
+ddfill 1 1162432875
+ddclip 0 19 4 20 5
+ddcolor 0 10 0 17 1 0xcd
+ddblt 0 15 2 20 7 1 2 1 7 6
+dddump 0
+end
+case random-181
+dd
+ddsurf 0 8 2 565
+ddsurf 1 9 9 565
+ddfill 0 3306701493
+ddfill 1 1687823987
+ddclip 0 7 -1 8 4 5 -2 11 5
+ddblt 0 0 2 3 6 1 4 0 7 4 mirrorud
+dddump 0
+end
+case random-182
+dd
+ddsurf 0 18 6 555
+ddsurf 1 11 10 555
+ddfill 0 4172352665
+ddfill 1 4251869481
+ddclip 0 10 3 19 9
+ddcolor 0 4 5 8 10 0x27
+dddump 0
+end
+case random-183
+dd
+ddsurf 0 10 2 32
+ddsurf 1 10 5 32
+ddfill 0 2169821357
+ddfill 1 1383056429
+ddclip 0 10 0 13 4
+ddblt 0 9 -2 19 3 1 0 0 10 5
+ddblt 0 -1 2 6 5 1 3 2 10 5
+ddblt 0 2 -1 10 4 1 1 0 9 5
+ddblt 0 10 0 19 2 1 1 0 10 2
+dddump 0
+end
+case random-184
+dd
+ddsurf 0 8 10 555
+ddsurf 1 13 1 555
+ddfill 0 934933617
+ddfill 1 802016683
+ddclip 0 -2 9 6 10 1 5 5 11 8 3 11 5
+ddblt 0 6 6 15 7 1 2 0 11 1
+ddblt 0 7 5 14 6 1 5 0 12 1
+dddump 0
+end
+case random-185
+dd
+ddsurf 0 18 7 555
+ddsurf 1 1 10 555
+ddfill 0 399862637
+ddfill 1 3987632177
+ddclip 0 16 7 17 8
+ddblt 0 13 7 14 10 1 0 5 1 8
+ddcolor 0 -2 1 -1 7 0xd6
+dddump 0
+end
+case random-186
+dd
+ddsurf 0 8 2 555
+ddsurf 1 2 5 555
+ddfill 0 1414024457
+ddfill 1 3771014269
+ddclip 0 7 2 8 4 5 2 7 5
+ddblt 0 -3 0 -2 2 1 1 3 2 5
+dddump 0
+end
+case random-187
+dd
+ddsurf 0 18 14 24
+ddsurf 1 1 1 24
+ddfill 0 377394767
+ddfill 1 1381340821
+ddclip 0 18 11 19 16 0 5 15 9 5 12 11 15 16 11 21 14
+ddblt 0 14 1 15 2 1 0 0 1 1 mirrorud
+ddblt 0 14 12 15 13 1 0 0 1 1 mirrorlr
+ddblt 0 -1 0 0 1 1 0 0 1 1
+ddblt 0 18 3 19 4 1 0 0 1 1
+dddump 0
+end
+case random-188
+dd
+ddsurf 0 15 12 32
+ddsurf 1 2 10 32
+ddfill 0 3923562267
+ddfill 1 2009954181
+ddclip 0 0 -1 13 0 7 6 17 12 3 -1 16 3
+ddblt 0 -2 10 0 14 1 0 4 2 8
+ddblt 0 6 7 7 14 1 1 2 2 9
+ddblt 0 -1 -3 1 -2 1 0 7 2 8 mirrorlr
+dddump 0
+end
+case random-189
+dd
+ddsurf 0 1 11 555
+ddsurf 1 5 3 555
+ddfill 0 326083825
+ddfill 1 432748041
+ddclip 0 0 7 3 12 1 7 4 12
+ddblt 0 -3 5 -2 6 1 3 2 4 3
+ddblt 0 -2 0 -1 3 1 1 0 2 3
+ddblt 0 0 3 3 4 1 2 2 5 3
+dddump 0
+end
+case random-190
+dd
+ddsurf 0 2 10 565
+ddsurf 1 9 8 565
+ddfill 0 3840273309
+ddfill 1 1801096599
+ddclip 0 2 0 4 12 1 9 2 11 0 9 5 13
+ddblt 0 -2 3 2 4 1 5 7 9 8
+ddblt 0 -2 9 5 16 1 2 0 9 7
+ddcolor 0 -1 10 0 14 0x3b
+ddblt 0 2 2 9 3 1 0 2 7 3
+dddump 0
+end
+case random-191
+dd
+ddsurf 0 15 6 8
+ddsurf 1 8 5 8
+ddfill 0 148459619
+ddfill 1 2020671529
+ddclip 0 10 2 11 6 10 6 18 8 5 6 17 9 10 -2 12 3
+ddblt 0 4 6 12 7 1 0 3 8 4
+dddump 0
+end
+case random-192
+dd
+ddsurf 0 10 5 32
+ddsurf 1 9 9 32
+ddfill 0 1935551405
+ddfill 1 1934739385
+ddclip 0 5 2 7 7 0 2 13 7 -2 3 6 8 5 5 10 6
+ddblt 0 -1 2 3 11 1 3 0 7 9
+ddblt 0 -3 4 -2 12 1 3 1 4 9
+dddump 0
+end
+case random-193
+dd
+ddsurf 0 20 8 555
+ddsurf 1 7 9 555
+ddfill 0 1366738629
+ddfill 1 3161088083
+ddclip 0 18 3 21 8 0 -2 20 8 1 3 7 9
+ddcolor 0 11 -2 13 5 0x9d
+ddblt 0 14 0 15 6 1 0 0 1 6
+ddblt 0 13 7 18 15 1 2 0 7 8
+ddcolor 0 5 4 8 6 0x34
+dddump 0
+end
+case random-194
+dd
+ddsurf 0 2 11 24
+ddsurf 1 11 1 24
+ddfill 0 4260482923
+ddfill 1 1199653349
+ddclip 0 1 2 2 14 -2 3 2 5 2 1 3 11
+ddblt 0 2 2 13 3 1 0 0 11 1
+ddblt 0 -3 8 0 9 1 3 0 6 1
+ddblt 0 -1 1 8 2 1 0 0 9 1
+dddump 0
+end
+case random-195
+dd
+ddsurf 0 6 3 8
+ddsurf 1 11 4 8
+ddfill 0 3011322977
+ddfill 1 3922787513
+ddclip 0 -2 1 6 4 4 0 7 5 -1 0 4 6
+ddblt 0 -3 0 5 2 1 2 0 10 2
+dddump 0
+end
+case random-196
+dd
+ddsurf 0 7 11 24
+ddsurf 1 3 10 24
+ddfill 0 1175918381
+ddfill 1 984248309
+ddclip 0 1 -2 8 4 4 5 10 9 -1 0 3 2 6 11 7 13
+ddcolor 0 3 -3 5 2 0xd9
+ddblt 0 -3 9 -2 18 1 1 0 2 9
+dddump 0
+end
+case random-197
+dd
+ddsurf 0 14 5 8
+ddsurf 1 14 1 8
+ddfill 0 2281866799
+ddfill 1 3223479277
+ddclip 0 -2 -2 7 2 3 3 16 4 4 2 14 8
+ddblt 0 1 2 10 3 1 5 0 14 1
+ddblt 0 14 -1 25 0 1 0 0 11 1
+dddump 0
+end
+case random-198
+dd
+ddsurf 0 15 5 8
+ddsurf 1 6 3 8
+ddfill 0 3662423989
+ddfill 1 2313917897
+ddclip 0 3 5 9 7
+ddcolor 0 7 4 12 5 0xa
+ddblt 0 10 -1 14 1 1 2 0 6 2
+dddump 0
+end
+case random-199
+dd
+ddsurf 0 12 7 32
+ddsurf 1 7 10 32
+ddfill 0 2921483355
+ddfill 1 310808143
+ddclip 0 12 0 13 3 11 5 15 6
+ddblt 0 6 7 12 15 1 0 2 6 10 mirrorud
+ddblt 0 4 0 11 2 1 0 2 7 4
+ddblt 0 11 0 15 10 1 3 0 7 10
+ddblt 0 -2 -2 4 3 1 0 2 6 7
+dddump 0
+end
