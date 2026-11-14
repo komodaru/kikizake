@@ -33042,6 +33042,77 @@ glerr
 gl glPixelTransferf 0xd00 1
 glerr
 end
+case transfer-maps-read
+glctx 8 29
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClearIndex 85
+gl glClear 0x4000
+gl glPixelTransferi 0xd10 1
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+glread 0 0 16 4 0x1900 0x1406 256
+glread 0 0 16 4 0x1900 0x1a00 8
+gldraw 16 2 0x1900 0x1401 35491 32
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd10 1
+gl glPixelTransferi 0xd12 2
+gl glPixelTransferi 0xd13 2
+glread 0 0 16 4 0x1900 0x1401 64
+glread 0 0 16 4 0x1900 0x1406 256
+glread 0 0 16 4 0x1900 0x1a00 8
+gldraw 16 2 0x1900 0x1401 44055 32
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd12 2
+gl glPixelTransferi 0xd13 2
+glread 0 0 16 4 0x1900 0x1401 64
+glread 0 0 16 4 0x1900 0x1406 256
+glread 0 0 16 4 0x1900 0x1a00 8
+gldraw 16 2 0x1900 0x1401 42941 32
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1900 0x1401 64
+glerr
+end
+case transfer-maps-read-stencil
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glClearStencil 0xa7
+gl glClear 0x400
+gl glPixelTransferi 0xd11 1
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 16 4 0x1901 0x1401 64
+glread 0 0 16 4 0x1901 0x1406 256
+glread 0 0 16 4 0x1901 0x1a00 8
+gl glPixelTransferi 0xd11 1
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 1
+glread 0 0 16 4 0x1901 0x1401 64
+glread 0 0 16 4 0x1901 0x1406 256
+glread 0 0 16 4 0x1901 0x1a00 8
+gl glPixelTransferi 0xd11 0
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 1
+glread 0 0 16 4 0x1901 0x1401 64
+glread 0 0 16 4 0x1901 0x1406 256
+glread 0 0 16 4 0x1901 0x1a00 8
+glerr
+end
 case fog-rects-0
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glMatrixMode 0x1701

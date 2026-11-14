@@ -1256,6 +1256,19 @@ fn measure(s: &mut String) {
     write!(s, "case transfer-maps-stencil\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}").unwrap();
     writeln!(s, "gl glClearStencil 0x5a\ngl glClear 0x400\ngl glPixelTransferi 0xd11 1\ngldraw 16 4 {} {} 78 64\nglread 0 0 16 4 {} {} 64\ngl glPixelTransferi 0xd11 0\nglread 0 0 16 4 {} {} 64", h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(UNSIGNED_BYTE)).unwrap();
     writeln!(s, "glerr\ngl glPixelTransferi 0xd16 1\nglerr\ngl glPixelTransferf 0xd00 1\nglerr\nend").unwrap();
+    // the index and stencil maps on reads of values not 0, with the shift and offset, as
+    // bytes, floats and bitmaps; a draw of indices with both
+    write!(s, "case transfer-maps-read\nglctx 8 29\n{ORTHO}gl glClearIndex 85\ngl glClear 0x4000\n").unwrap();
+    for (m, sh) in [(1, 0), (1, 2), (0, 2)] {
+        writeln!(s, "gl glPixelTransferi 0xd10 {m}\ngl glPixelTransferi 0xd12 {sh}\ngl glPixelTransferi 0xd13 {sh}\nglread 0 0 16 4 {} {} 64\nglread 0 0 16 4 {} {} 256\nglread 0 0 16 4 {} {} 8", h(COLOR_INDEX), h(UNSIGNED_BYTE), h(COLOR_INDEX), h(FLOAT), h(COLOR_INDEX), h(BITMAP)).unwrap();
+        writeln!(s, "gldraw 16 2 {} {} {} 32\ngl glPixelTransferi 0xd10 0\ngl glPixelTransferi 0xd12 0\ngl glPixelTransferi 0xd13 0\nglread 0 0 16 4 {} {} 64", h(COLOR_INDEX), h(UNSIGNED_BYTE), q.next() & 0xffff, h(COLOR_INDEX), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    write!(s, "case transfer-maps-read-stencil\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glClearStencil 0xa7\ngl glClear 0x400\n").unwrap();
+    for (m, sh) in [(1, 0), (1, 1), (0, 1)] {
+        writeln!(s, "gl glPixelTransferi 0xd11 {m}\ngl glPixelTransferi 0xd12 {sh}\ngl glPixelTransferi 0xd13 {sh}\nglread 0 0 16 4 {} {} 64\nglread 0 0 16 4 {} {} 256\nglread 0 0 16 4 {} {} 8", h(STENCIL_INDEX), h(UNSIGNED_BYTE), h(STENCIL_INDEX), h(FLOAT), h(STENCIL_INDEX), h(BITMAP)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
     // fog over flat quads, one depth each, in every mode on the RGBA bit depths, a fog color,
     // the state read back; and color index fog and points
     let mut q = XorShift32::new(0x0960_200b);

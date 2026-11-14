@@ -143,7 +143,8 @@ GL.PIXELSTORE.LAYOUT doc | glPixelStore | rows of GL_*_ROW_LENGTH pixels (or the
 GL.PIXELSTORE.SWAP doc | glPixelStore (GL_PACK_SWAP_BYTES) | the bytes of each element of 2 or 4 bytes reversed
 GL.PIXELTRANSFER doc | glPixelTransfer | the scale and bias of each component recorded
 GL.PIXELTRANSFER.APPLY doc | glPixelTransfer | components times the scale plus the bias, clamped, on reads and draws (opengl golden draw-unpack-8..15)
-GL.PIXELTRANSFER.OTHER open | glPixelTransfer | color index maps, stencil maps
+GL.PIXELTRANSFER.MAPINDEX measured | glPixelTransfer (GL_MAP_COLOR in color index mode, GL_MAP_STENCIL) | indices and stencil values drawn and read go, after the shift and offset, through GL_PIXEL_MAP_I_TO_I or GL_PIXEL_MAP_S_TO_S, which (no call sets them) hold one entry of 0: every value 0 (opengl golden transfer-maps-ci, transfer-maps-stencil, transfer-maps-read)
+GL.PIXELTRANSFER.ENUM measured | glPixelTransfer (GL_INVALID_ENUM) | a name not one of glPixelTransfer's, GL_ZOOM_X and GL_PACK_SWAP_BYTES among them: GL_INVALID_ENUM (opengl golden transfer-maps-stencil)
 GL.PIXELTRANSFER.SHIFT measured | glPixelTransfer (GL_INDEX_SHIFT, GL_INDEX_OFFSET, GL_DEPTH_SCALE, GL_DEPTH_BIAS) | indices drawn and read are shifted (left, right when negative) and offset, the fraction truncated with the index; depths drawn and read are scaled, biased and clamped, every read type then converted from the value as colors are (opengl golden transfer-other, transfer-other-ci)
 GL.PIXELTRANSFER.MAP measured | glPixelTransfer (GL_MAP_COLOR) | with GL_MAP_COLOR on, colors drawn and read go through the RGBA maps, which (no call sets them) hold one entry of 0: every component 0 (opengl golden transfer-map-color)
 GL.PIXELS.ENUM measured | glReadPixels, glDrawPixels (GL_INVALID_ENUM) | another format or type: GL_INVALID_ENUM, nothing written (opengl golden edge-pixels-errors)

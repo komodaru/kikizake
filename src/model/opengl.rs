@@ -1439,7 +1439,7 @@ impl Ctx {
                         }
                     }
                     // (golden opengl-32 edge-transfer-map: the maps turned on with no error; images
-                    // drawn or read through them are GL.PIXELTRANSFER.OTHER)
+                    // drawn or read through them: GL.PIXELTRANSFER.MAP, GL.PIXELTRANSFER.MAPINDEX)
                     _ if p == MAP_COLOR || p == MAP_STENCIL => {
                         hit(clause::GL_PIXELTRANSFER);
                         self.map[usize::from(p == MAP_STENCIL)] = fl(a, 1) != 0.0;
@@ -1453,7 +1453,12 @@ impl Ctx {
                         hit(clause::GL_PIXELTRANSFER_SHIFT);
                         if p == DEPTH_SCALE { self.depth_transfer.0 = fl(a, 1) as f32 } else { self.depth_transfer.1 = fl(a, 1) as f32 }
                     }
-                    _ => return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER)),
+                    // (MEASURED, golden opengl-32 transfer-maps-stencil: GL_ZOOM_X and
+                    // GL_PACK_SWAP_BYTES INVALID_ENUM: GL.PIXELTRANSFER.ENUM)
+                    _ => {
+                        hit(clause::GL_PIXELTRANSFER_ENUM);
+                        self.error(INVALID_ENUM);
+                    }
                 }
             }
             "glRasterPos2i" | "glRasterPos2f" => {
@@ -2872,6 +2877,19 @@ impl Ctx {
         v * 2f64.powi(sh.clamp(-64, 64) as i32) + off as f64
     }
 
+    /// an index or stencil value (after the shift and offset) through GL_PIXEL_MAP_I_TO_I or
+    /// GL_PIXEL_MAP_S_TO_S under GL_MAP_COLOR in color index mode or GL_MAP_STENCIL (MEASURED,
+    /// golden opengl-32 transfer-maps-ci, transfer-maps-stencil: the initial maps hold one entry
+    /// of 0, so every value maps to 0, drawn and read: GL.PIXELTRANSFER.MAPINDEX)
+    fn index_map(&self, stencil: bool, v: f64) -> f64 {
+        if self.map[usize::from(stencil)] {
+            hit(clause::GL_PIXELTRANSFER_MAPINDEX);
+            0.0
+        } else {
+            v
+        }
+    }
+
     fn transfer(&self, c: [f64; 4]) -> Res<[f64; 4]> {
         if self.map[0] {
             // (MEASURED, golden opengl-32 transfer-map-color: through the initial maps, each
@@ -2909,6 +2927,7 @@ impl Ctx {
                     }
                     let p = py as usize * W + px as usize;
                     let v = if f == COLOR_INDEX { self.fb[p][0] } else { self.stencil[p] };
+                    let v = if self.map[usize::from(f != COLOR_INDEX)] { self.index_map(f != COLOR_INDEX, 0.0) as u32 } else { v };
                     let (at, m) = bitmap_bit(&self.pack, w, i, j);
                     let Some(b) = buf.get_mut(at) else {
                         hit(clause::GL_READ_BUFFER);
@@ -2998,7 +3017,7 @@ impl Ctx {
                                 self.stencil[p]
                             };
                             // (the index shift and offset, the value's low 32 bits)
-                            let s = u64::from(index_bits(self.shifted(f64::from(s))));
+                            let s = u64::from(index_bits(self.index_map(*which != 7, self.shifted(f64::from(s)))));
                             // (MEASURED, golden opengl-32 ci-types-*: the signed types keep the
                             // index's low 7, 15 or 31 bits)
                             let s = match t {
@@ -3091,13 +3110,10 @@ impl Ctx {
                     if self.unpack[0] != 0 {
                         e.reverse();
                     }
-                    if f == STENCIL_INDEX && self.map[1] {
-                        return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER));
-                    }
                     if f == STENCIL_INDEX {
                         // (MEASURED, golden opengl-32 draw-depthstencil-1: the element as a float,
                         // so 32-bit integers lose their low bits)
-                        self.draw_stencil(ox + i as i64, oy + j as i64, self.shifted(f64::from(index_value(&e, t)? as f32)));
+                        self.draw_stencil(ox + i as i64, oy + j as i64, self.index_map(true, self.shifted(f64::from(index_value(&e, t)? as f32))));
                     } else {
                         let (z, zfixed) = depth_element(&e, t, self.depth_transfer);
                         self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c: self.raster_color, z, trunc: true, zfixed: Some(zfixed) })?;
@@ -3138,10 +3154,7 @@ impl Ctx {
                             // an index in color index mode: the element's integer value as it is
                             // (MEASURED, golden opengl-32 ci-*: unsigned bytes)
                             hit(clause::GL_COLORINDEX);
-                            if self.map[0] {
-                                return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER));
-                            }
-                            c[0] = self.shifted(index_value(&e, t)?);
+                            c[0] = self.index_map(false, self.shifted(index_value(&e, t)?));
                         }
                         7 => {
                             // an index in RGBA mode through GL_PIXEL_MAP_I_TO_R.. A, whose
