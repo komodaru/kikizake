@@ -55,6 +55,25 @@ impl Ver {
     }
 }
 
+/// the versions whose devices draw (version 1 devices have no render states, Clear or
+/// DrawPrimitive here)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum DrawVer {
+    V2,
+    V3,
+    V7,
+}
+
+impl From<DrawVer> for Ver {
+    fn from(v: DrawVer) -> Ver {
+        match v {
+            DrawVer::V2 => Ver::V2,
+            DrawVer::V3 => Ver::V3,
+            DrawVer::V7 => Ver::V7,
+        }
+    }
+}
+
 /// the device GUIDs the executor knows
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Dev {
@@ -406,20 +425,33 @@ pub fn clear_z(depth: Depth, z: f32) -> u32 {
     if v >= f64::from(max) { max } else { v as u32 }
 }
 
+/// x rounded toward zero to a float (the software rasterizers run the FPU in single precision,
+/// chopping)
+fn chop_f32(x: f64) -> f32 {
+    let f = x as f32;
+    if f64::from(f).abs() > x.abs() { f32::from_bits(f.to_bits() - 1) } else { f }
+}
+
 /// a software triangle's z value (constant over it): MEASURED (zsweep golden: 144 z values, every
-/// 7/1000 from 0 to 1, into 16 and 32 bits, all exact; zcover: 0.3, 0.5, 0.6; d3d7shade zfunc-*)
-/// the largest integer below z · 2^16 (16 bits) or z · 2^24 (32 bits: shifted up 8, the low byte
-/// 0xff), at least 0 and at most the largest value
+/// 7/1000 from 0 to 1, into 16 and 32 bits, all exact; zcover: 0.3, 0.5, 0.6; d3d7shade zfunc-*;
+/// d3d7dev zrange and zhist: the low byte of 32-bit z after clears to 0.5 and 1) z · 2^32 less 1
+/// in single precision rounded toward zero, at least 0: all 32 bits of it (32 bits; the write
+/// keeps the low byte's set bits, tri_z_write) or its top 16 (16 bits)
 pub fn tri_z(depth: Depth, z: f32) -> u32 {
-    let k = match depth {
-        Depth::Z16 => 16,
-        Depth::Z24 | Depth::Z32 => 24,
-    };
-    let x = f64::from(z) * (1u64 << k) as f64;
-    let v = (x.ceil() - 1.0).clamp(0.0, ((1u64 << k) - 1) as f64) as u32;
+    let x = f64::from(chop_f32(f64::from(z) * 4_294_967_296.0 - 1.0)).clamp(0.0, f64::from(u32::MAX)) as u32;
     match depth {
-        Depth::Z16 => v,
-        Depth::Z24 | Depth::Z32 => v << 8 | 0xff,
+        Depth::Z16 => x >> 16,
+        Depth::Z24 | Depth::Z32 => x,
+    }
+}
+
+/// the z a software triangle writes over `old`: MEASURED (d3d7dev zhist: every 32-bit z written
+/// over 1's 0xffffffff ends in 0xff, zrange: over 0.5's 0x80000000 as tri_z) 32 bits keep the
+/// old low byte's set bits
+pub fn tri_z_write(depth: Depth, z: f32, old: u32) -> u32 {
+    match depth {
+        Depth::Z16 => tri_z(depth, z),
+        Depth::Z24 | Depth::Z32 => tri_z(depth, z) | (old & 0xff),
     }
 }
 
@@ -512,14 +544,12 @@ impl D3d7 {
             Dev::Hal | Dev::Tnl => true,
             Dev::Rgb | Dev::Ref | Dev::Mmx | Dev::Ramp | Dev::Null => false,
         };
-        // MEASURED (d3d7dev color-*): the display's video memory has no 24-bit render targets
-        if hw && fmt == Fmt::R24 {
+        // MEASURED (d3d7dev color-*, dev8-*): the display's video memory has no 24-bit or 8-bit
+        // render targets
+        if hw && matches!(fmt, Fmt::R24 | Fmt::P8) {
             hit(clause::D3D7_DEVICE_HW24);
             out.push(format!("d3ddev surface hr {DDERR_UNSUPPORTED:08x}"));
             return Ok(true);
-        }
-        if hw && fmt == Fmt::P8 {
-            return Err(Fail::Unmodeled(open::D3D7_OTHERDEV));
         }
         // MEASURED (dev golden: 7 devices x 4 versions x 9 targets): a 24-bit z-buffer in system
         // memory has no pixel format, none in the display's video memory takes 24 or 32 bits
@@ -568,10 +598,11 @@ impl D3d7 {
 
     fn draw(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
-        // (version 1 devices have no render states, Clear or DrawPrimitive here)
         let ver = match (self.ver, &self.dev) {
             (Some(Ver::V1), _) | (None, _) | (_, None) => None,
-            (Some(v @ (Ver::V2 | Ver::V3 | Ver::V7)), Some(_)) => Some(v),
+            (Some(Ver::V2), Some(_)) => Some(DrawVer::V2),
+            (Some(Ver::V3), Some(_)) => Some(DrawVer::V3),
+            (Some(Ver::V7), Some(_)) => Some(DrawVer::V7),
         };
         match t[0].as_str() {
             "d3drs" => {
@@ -593,7 +624,7 @@ impl D3d7 {
                 if set {
                     // MEASURED (rsset golden): SetRenderState keeps any value of a known state
                     // for GetRenderState; an unknown state: E_INVALIDARG
-                    if rs_default(ver, st).is_none() {
+                    if rs_default(ver.into(), st).is_none() {
                         out.push(format!("rs set {st} hr {E_INVALIDARG:08x}"));
                     } else {
                         hit(clause::D3D7_STATES);
@@ -696,25 +727,26 @@ impl D3d7 {
 }
 
 /// Clear of the target (and z-buffer) in rectangle r (None: all)
-fn clear(ver: Ver, d: &mut Device, c: u32, z: Option<f32>, r: Option<(i64, i64, i64, i64)>, out: &mut Vec<String>) -> Res<()> {
+fn clear(ver: DrawVer, d: &mut Device, c: u32, z: Option<f32>, r: Option<(i64, i64, i64, i64)>, out: &mut Vec<String>) -> Res<()> {
     let rt = &mut d.rt;
     let zv = match (z, rt.depth) {
         (Some(_), None) => {
-            // MEASURED (clearnoz golden, version 7): D3DCLEAR_ZBUFFER without a z-buffer fails
-            // and clears nothing
-            return match ver {
-                Ver::V7 => {
-                    hit(clause::D3D7_CLEAR_NOZ);
+            // MEASURED (d3d7dev clearnoz-*: whole and in a rectangle, every software drawer):
+            // D3DCLEAR_ZBUFFER without a z-buffer fails and clears nothing in versions 3 and 7;
+            // IDirect3DViewport2::Clear clears the target alone
+            hit(clause::D3D7_CLEAR_NOZ);
+            match ver {
+                DrawVer::V3 | DrawVer::V7 => {
                     out.push(format!("clear hr {D3DERR_ZBUFFER_NOTPRESENT:08x}"));
-                    Ok(())
+                    return Ok(());
                 }
-                Ver::V1 | Ver::V2 | Ver::V3 => Err(Fail::Unmodeled(open::D3D7_CLEAR_NOZ)),
-            };
+                DrawVer::V2 => None,
+            }
         }
         (None, _) => None,
         // MEASURED (d3d7dev zrange): IDirect3DViewport2::Clear takes no z, it clears to the
         // largest value
-        (Some(_), Some(dp)) if ver == Ver::V2 => {
+        (Some(_), Some(dp)) if ver == DrawVer::V2 => {
             hit(clause::D3D7_CLEAR_Z2);
             Some(dp.max())
         }
@@ -755,6 +787,14 @@ fn clear(ver: Ver, d: &mut Device, c: u32, z: Option<f32>, r: Option<(i64, i64, 
         }
     }
     Ok(())
+}
+
+/// how a triangle's z is written: by the software rasterizers over each pixel's old z, by the
+/// HAL as one value
+#[derive(Clone, Copy)]
+enum Zw {
+    Soft(Depth),
+    Hw(u32),
 }
 
 /// one D3DTLVERTEX triangle: x, y in 16ths of a pixel, diffuse and specular ARGB, z
@@ -1060,13 +1100,8 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     let zv = match (st.zenable, rt.depth, family) {
         (false, _, _) => None,
         (true, None, _) => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
-        (true, Some(Depth::Z32), Family::Soft { .. } | Family::Ramp) if st.zfunc == Cmp::Always => {
-            // (d3d7dev zrange: ALWAYS from a device's start wrote other 32-bit z than ALWAYS
-            // after LESSEQUAL; zhist measures it)
-            return Err(Fail::Unmodeled(open::D3D7_ZFUNC_OTHER));
-        }
-        (true, Some(dp), Family::Soft { .. } | Family::Ramp) => Some(tri_z(dp, z)),
-        (true, Some(Depth::Z16), Family::Hw { .. }) => Some(tri_z_hw(z)),
+        (true, Some(dp), Family::Soft { .. } | Family::Ramp) => Some(Zw::Soft(dp)),
+        (true, Some(Depth::Z16), Family::Hw { .. }) => Some(Zw::Hw(tri_z_hw(z))),
         (true, Some(Depth::Z24 | Depth::Z32), Family::Hw { .. }) => return Err(Fail::Bad),
     };
     let fmt = rt.fmt;
@@ -1089,7 +1124,11 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
                     continue;
                 }
             }
-            if let Some(zv) = zv {
+            if let Some(zw) = zv {
+                let zv = match zw {
+                    Zw::Soft(dp) => tri_z_write(dp, z, rt.z[k]),
+                    Zw::Hw(v) => v,
+                };
                 // MEASURED (d3d7shade zfunc-*: every function, z writes on and off, every
                 // device): the documented compares
                 hit(clause::D3D7_ZTEST);

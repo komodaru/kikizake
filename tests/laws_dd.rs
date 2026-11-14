@@ -3,7 +3,7 @@
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
-use kikizake::model::d3d7::{clear_z, pixel, rs_default, tri_z, Depth, Fmt, Ver};
+use kikizake::model::d3d7::{clear_z, pixel, rs_default, tri_z, tri_z_write, Depth, Fmt, Ver};
 use kikizake::model::ddraw::{pal_entries, pitch};
 use kikizake::model::{self, run_case, Fail};
 
@@ -24,8 +24,9 @@ fn rows(out: &[String], header: &str) -> Vec<String> {
 
 const FMTS: [&str; 4] = ["565", "555", "24", "32"];
 
-/// every z in millis into 16 and 32 bits: 0 (0xff) at 0, the largest value at 1, never
-/// decreasing; a triangle's z below z * 2^16 (2^24) by less than one step
+/// every z in millis into 16 and 32 bits: 0 at 0, never decreasing; a triangle's z below
+/// z * 2^16 (2^32) by less than one step (a float's step, 32 bits), the 16-bit value the top of
+/// the 32-bit one; a write over an old z keeps the old low byte's set bits and nothing else
 #[test]
 fn z_values_are_monotone() {
     for (bits, dp) in [(16, Depth::Z16), (32, Depth::Z32)] {
@@ -36,17 +37,29 @@ fn z_values_are_monotone() {
             let (c, t) = (clear_z(dp, z), tri_z(dp, z));
             assert!(c >= pc && t >= pt, "{bits} {m}");
             assert!(c <= max && t <= max);
-            let x = z as f64 * if bits == 32 { 16777216.0 } else { 65536.0 };
-            let t0 = if bits == 32 { t >> 8 } else { t } as f64;
-            assert!(m == 0 || m == 1000 || (t0 < x && x <= t0 + 1.0), "{bits} {m}");
+            let x = z as f64 * if bits == 32 { 4294967296.0 } else { 65536.0 };
+            let step = if bits == 32 { (x / 8388608.0).max(1.0) + 1.0 } else { 1.0 };
+            assert!(m == 0 || (f64::from(t) < x && x <= f64::from(t) + step), "{bits} {m}");
+            assert_eq!(tri_z(Depth::Z16, z), tri_z(Depth::Z32, z) >> 16, "{m}");
+            for old in [0, 0x80, 0xff, 0x1234_5678, u32::MAX] {
+                let w = tri_z_write(dp, z, old);
+                assert_eq!(w & !0xff, t & !0xff);
+                assert_eq!(w & 0xff, if bits == 32 { (t | old) & 0xff } else { t & 0xff });
+            }
             (pc, pt) = (c, t);
         }
         assert_eq!(clear_z(dp, 0.0), 0);
-        assert_eq!(tri_z(dp, 0.0), if bits == 32 { 0xff } else { 0 });
-        assert_eq!(tri_z(dp, 1.0), max);
+        assert_eq!(tri_z(dp, 0.0), 0);
         assert_eq!(clear_z(dp, 1.0), max);
     }
+    // (z 1 is not drawn by the software rasterizers, D3D7.ZRANGE)
     assert_eq!(tri_z(Depth::Z16, 1.0), 65535);
+    assert_eq!(tri_z(Depth::Z32, 1.0), 0xffff_ff00);
+    // d3d7dev zrange (over 0x80000000) and zhist (over 0xffffffff)
+    for (m, a, b) in [(1, 0x0041_8936, 0x0041_89ff), (500, 0x7fff_ff80, 0x7fff_ffff), (990, 0xfd70_a300, 0xfd70_a3ff), (999, 0xffbe_7600, 0xffbe_76ff)] {
+        let z = m as f32 / 1000.0;
+        assert_eq!((tri_z_write(Depth::Z32, z, 0x8000_0000), tri_z_write(Depth::Z32, z, u32::MAX)), (a, b), "{m}");
+    }
 }
 
 /// every value of each channel: the target pixel keeps the channel's top bits, monotone, alpha gone

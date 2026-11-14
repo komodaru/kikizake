@@ -75,9 +75,11 @@ fn triangle_z_is_monotone() {
     let bits = if wide { Depth::Z32 } else { Depth::Z16 };
     assert!(tri_z(bits, z1) <= tri_z(bits, z2));
     if z2 == 1.0 {
-        assert!(tri_z(bits, z2) == if wide { 0xffff_ffff } else { 0xffff });
+        assert!(tri_z(bits, z2) == if wide { 0xffff_ff00 } else { 0xffff });
     }
     if z1 == 0.0 {
-        assert!(tri_z(bits, z1) == if wide { 0xff } else { 0 });
+        assert!(tri_z(bits, z1) == 0);
     }
+    // (the 16-bit z is the top of the 32-bit one)
+    assert!(tri_z(Depth::Z16, z1) == tri_z(Depth::Z32, z1) >> 16);
 }
