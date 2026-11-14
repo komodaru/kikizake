@@ -321,3 +321,22 @@ fn x86_and_x86_64_differences_are_found() {
     assert!(calls::differ(&a, &a).is_empty());
     assert_eq!(calls::differ(&a, &b).len(), 1);
 }
+
+proptest! {
+    /// an application that makes exactly the recorded calls needs nothing new; one more API or
+    /// one more mode value is reported, and non-graphics modules are not looked at
+    #[test]
+    fn usage_reports_what_no_case_does(modes in prop::collection::vec(0i32..20, 1..6), extra in 20i32..40) {
+        let call = |m: i32| Call { api: Api("SetStretchBltMode".into()), args: vec![Val::Handle(Handle(5)), Val::Dec(m.into())], ret: Ret::Value(Val::Dec(1)), err: None };
+        let rec = calls::Recording { header: header(), cases: vec![calls::Case { name: "a".into(), bad: vec![], calls: modes.iter().map(|m| call(*m)).collect() }] };
+        let ev = |api: &str, m: i32| format!("{{\"phase\":\"enter\",\"api\":\"{api}\",\"call_id\":1,\"fields\":{{\"hdc\":{{\"ty\":\"U64\",\"capture\":\"captured\",\"value\":\"0x99\",\"kind\":\"handle\"}},\"mode\":{{\"ty\":\"I32\",\"capture\":\"captured\",\"value\":{m}}}}}}}");
+        let same: Vec<String> = modes.iter().map(|m| ev("gdi32!SetStretchBltMode", *m)).chain([ev("kernel32!Sleep", 3)]).collect();
+        prop_assert_eq!(calls::usage(&same.join("\n"), std::slice::from_ref(&rec)).unwrap(), Vec::<String>::new());
+        let more = [same.clone(), vec![ev("gdi32!SetStretchBltMode", extra), ev("gdi32!SetROP2", 1)]].concat();
+        let u = calls::usage(&more.join("\n"), &[rec]).unwrap();
+        prop_assert_eq!(u.len(), 2, "{:?}", u);
+        prop_assert!(u.iter().any(|l| l.starts_with("gdi32!SetROP2") && l.ends_with("no case calls it")));
+        let want = format!("argument 2: {extra} ");
+        prop_assert!(u.iter().any(|l| l.starts_with("gdi32!SetStretchBltMode") && l.contains(&want)));
+    }
+}

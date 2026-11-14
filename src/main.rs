@@ -8,6 +8,7 @@
 //!   kikizake calls import <suite>-<arch> <cases> <jsonl> <stdout> <src> <shirusu rev>
 //!                                         a shirusu recording of the executor as calls/<suite>-<arch>.txt (src/calls.rs)
 //!   kikizake calls check [calls dir]      the recordings against the cases, x86 against x86-64
+//!   kikizake calls usage <app.jsonl> [calls dir]  graphics calls and argument values an application (shirusu export) makes that no case does
 use std::process::exit;
 use kikizake::{case, compare, gen, model};
 
@@ -55,6 +56,22 @@ fn main() {
             r.header.shirusu = rev.to_string();
             print!("{}", kikizake::calls::format(&r));
         }
+        ["calls", "usage", app, rest @ ..] => {
+            let dir = std::path::Path::new(rest.first().copied().unwrap_or("calls"));
+            let recs: Vec<_> = std::fs::read_dir(dir)
+                .into_iter()
+                .flatten()
+                .filter_map(|e| Some(e.ok()?.path()).filter(|p| p.extension().is_some_and(|x| x == "txt")))
+                .filter_map(|p| kikizake::calls::parse(&std::fs::read_to_string(p).ok()?).ok())
+                .collect();
+            match kikizake::calls::usage(&read(app), &recs) {
+                Ok(lines) => lines.iter().for_each(|l| println!("{l}")),
+                Err(e) => {
+                    eprintln!("{app}: {e}");
+                    exit(2)
+                }
+            }
+        }
         ["calls", "check", rest @ ..] => {
             let r = kikizake::calls::check_dir(std::path::Path::new(rest.first().copied().unwrap_or("calls")), std::path::Path::new("."));
             print!("{}", r.report());
@@ -69,7 +86,7 @@ fn main() {
             exit(if r.differ.is_empty() { 0 } else { 1 })
         }
         _ => {
-            eprintln!("usage: kikizake gen <suite> | model <suite> [cases] | compare <want> <got> | spec | trace [golden] | calls import|check | learn pages|resolve|check");
+            eprintln!("usage: kikizake gen <suite> | model <suite> [cases] | compare <want> <got> | spec | trace [golden] | calls import|check|usage | learn pages|resolve|check");
             exit(2)
         }
     }

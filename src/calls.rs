@@ -874,3 +874,93 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
     ch.arch.sort();
     ch
 }
+
+/// The modules whose calls `usage` looks at: Windows' graphics APIs.
+const GRAPHICS: [&str; 14] = ["gdi32", "gdi32full", "msimg32", "user32", "gdiplus", "opengl32", "ddraw", "d3d8", "d3d9", "d3d10", "d3d11", "d3d12", "dxgi", "windowscodecs"];
+
+/// user32's drawing calls (the rest of user32 is windows and messages)
+const USER32_DRAWING: [&str; 16] = ["FillRect", "FrameRect", "InvertRect", "DrawTextA", "DrawTextW", "DrawTextExA", "DrawTextExW", "DrawEdge", "DrawFocusRect", "DrawIcon", "DrawIconEx", "GetDC", "GetDCEx", "GetWindowDC", "ReleaseDC", "BeginPaint"];
+
+/// How an application (a game, recorded by shirusu) uses the graphics APIs against what the
+/// executor's recordings exercise: the APIs it calls that no case calls, and for each API both
+/// call, the values of its small-domain arguments (at most 16 different ones in the
+/// application: modes, ROPs, flags) that no case passes. One line each.
+pub fn usage(app_jsonl: &str, recordings: &[Recording]) -> Result<Vec<String>, String> {
+    let mut seen: HashMap<&str, Vec<Vec<String>>> = HashMap::new();
+    for r in recordings {
+        for c in &r.cases {
+            for k in &c.calls {
+                let e = seen.entry(k.api.0.as_str()).or_default();
+                e.resize(e.len().max(k.args.len()), Vec::new());
+                for (i, v) in k.args.iter().enumerate() {
+                    let s = Ids::default().show(v);
+                    if !e[i].contains(&s) {
+                        e[i].push(s);
+                    }
+                }
+            }
+        }
+    }
+    // (API -> calls, per argument its values)
+    let mut app: Vec<(String, String, usize, Vec<Vec<String>>)> = Vec::new();
+    for (i, l) in app_jsonl.lines().enumerate() {
+        if l.trim().is_empty() {
+            continue;
+        }
+        let e = json::parse(l).map_err(|m| format!("line {}: {m}", i + 1))?;
+        if e.get("phase").and_then(Json::str) != Some("enter") {
+            continue;
+        }
+        let full = e.get("api").and_then(Json::str).unwrap_or("?");
+        let Some((module, api)) = full.split_once('!') else { continue };
+        let module = module.to_ascii_lowercase();
+        let module = module.trim_end_matches(".dll");
+        if !GRAPHICS.contains(&module) || (module == "user32" && !USER32_DRAWING.contains(&api)) {
+            continue;
+        }
+        let fields: &[(String, Json)] = match e.get("fields") {
+            Some(Json::Obj(p)) => p,
+            None | Some(Json::Null | Json::Bool(_) | Json::Num(_) | Json::Str(_) | Json::Arr(_)) => &[],
+        };
+        let k = match app.iter().position(|(_, a, _, _)| a == api) {
+            Some(k) => k,
+            None => {
+                app.push((module.to_string(), api.to_string(), 0, Vec::new()));
+                app.len() - 1
+            }
+        };
+        let entry = &mut app[k];
+        entry.2 += 1;
+        entry.3.resize(entry.3.len().max(fields.len()), Vec::new());
+        for (j, (_, f)) in fields.iter().enumerate() {
+            let v = val(f).map_err(|m| format!("line {}: {m}", i + 1))?;
+            // (handles and pointers say nothing about coverage)
+            match v {
+                Val::Handle(_) | Val::Null | Val::Missing(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) => continue,
+                Val::Dec(_) | Val::Hex(_) | Val::Bool(_) => {}
+            }
+            let s = Ids::default().show(&v);
+            if entry.3[j].len() <= 16 && !entry.3[j].contains(&s) {
+                entry.3[j].push(s);
+            }
+        }
+    }
+    app.sort_by(|a, b| b.2.cmp(&a.2));
+    let mut out = Vec::new();
+    for (module, api, n, args) in &app {
+        let Some(ours) = seen.get(api.as_str()) else {
+            out.push(format!("{module}!{api}: {n} calls, no case calls it"));
+            continue;
+        };
+        for (j, vals) in args.iter().enumerate() {
+            if vals.len() > 16 {
+                continue;
+            }
+            let missing: Vec<&str> = vals.iter().filter(|v| ours.get(j).is_none_or(|o| !o.contains(v))).map(String::as_str).collect();
+            if !missing.is_empty() {
+                out.push(format!("{module}!{api}: {n} calls, argument {}: {} not passed by any case", j + 1, missing.join(" ")));
+            }
+        }
+    }
+    Ok(out)
+}

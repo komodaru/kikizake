@@ -37,6 +37,23 @@ cases/<suite>.txt ──► runner/ (executor, a Win32 console program) ──�
   stand in for Windows: an implementation can be checked against the model on any number of
   freshly generated cases.
 
+## What the executor calls (shirusu)
+
+The `shirusu` workflow runs the GDI suites' executors on Windows under
+[shirusu](https://github.com/komodaru/shirusu) (the commit in `shirusu.rev`), which records every
+call they make through their import tables with its arguments, result and last error. The
+recording, cut into cases by the executor's own output, is kept as `calls/<suite>-<arch>.txt`
+(format in `src/calls.rs`). `cargo test` (tests/calls.rs) checks that every case line
+`spec/calls.txt` names made the call SPEC.md says with the case's arguments, that x86 and x86-64
+made the same calls, and that recording did not change the output. That checks kikizake's
+executor (an answer is only as good as the call it answers) and shirusu (argument decoding, the
+32/64-bit ABI relay, transparency) against each other.
+
+```
+kikizake calls check                       # the recordings against the cases
+kikizake calls usage game.jsonl            # graphics calls and argument values a game (shirusu export) makes that no case does
+```
+
 ## Test methods
 
 | method | where |
