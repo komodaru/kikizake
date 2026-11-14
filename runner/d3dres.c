@@ -112,6 +112,9 @@ static int slot(int i, int max) {
 /* tex <slot|check> <dim> <w> <h> <depth|array> <mips> <format> <usage> <bind> <cpu> <misc>
  *   <samples> <quality> [init <seed> <row pitch> <slice pitch>] */
 static void op_tex(void) {
+    /* (what came before reaches the output first: the x86 WARP ends the executor on some
+     * descriptions, golden d3d11res-32 and d3d10res-32, and this tells which) */
+    oflush();
     int check = is(1, "check"), s = check ? 0 : slot(1, SLOTS);
     UINT v[12];
     for (int i = 0; i < 12; i++) v[i] = (UINT)num(2 + i);
