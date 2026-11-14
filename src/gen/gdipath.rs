@@ -69,5 +69,24 @@ pub fn path() -> String {
         }
         writeln!(s, "endpath 0\ngetpath 0\n{} 0\ndump 0\nend", ["fillpath", "strokepath", "strokefill"][r.range(0, 2) as usize]).unwrap();
     }
+    // random curves (their own stream): the Bézier points GetPath returns, FlattenPath's lines,
+    // PathToRegion's pixels, and the path filled and stroked
+    let mut r = XorShift32::new(0x9a7b_c0de);
+    for i in 0..160 {
+        let c = |r: &mut XorShift32| r.range(-3, 26);
+        let q = |r: &mut XorShift32, n: usize| (0..n).map(|_| c(r).to_string()).collect::<Vec<_>>().join(" ");
+        let sh = match r.range(0, 6) {
+            0 => format!("ellipse 0 {}", q(&mut r, 4)),
+            1 => format!("roundrect 0 {} {} {}", q(&mut r, 4), r.range(0, 16), r.range(0, 16)),
+            2 => format!("arc 0 {}", q(&mut r, 8)),
+            3 => format!("arcto 0 {}", q(&mut r, 8)),
+            4 => format!("pie 0 {}", q(&mut r, 8)),
+            5 => format!("chord 0 {}", q(&mut r, 8)),
+            _ => format!("moveto 0 {}\npolybezierto 0 {}", q(&mut r, 2), q(&mut r, 6)),
+        };
+        let dir = r.range(1, 2);
+        let tail = if i % 2 == 0 { "getpath 0\nflatten 0\ngetpath 0\npathrgn 0 0\nrgndata 0".to_string() } else { format!("{} 0\ndump 0", ["fillpath", "strokepath", "strokefill"][r.range(0, 2) as usize]) };
+        writeln!(s, "case curve-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\narcdir 0 {dir}\nbeginpath 0\n{sh}\nendpath 0\n{tail}\nend", r.range(1, 2)).unwrap();
+    }
     s
 }

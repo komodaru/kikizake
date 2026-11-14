@@ -2432,3 +2432,2178 @@ getpath 0
 strokefill 0
 dump 0
 end
+case curve-0
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 22 5 17 -2 -3 10 -1 22
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-1
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+chord 0 16 7 22 21 22 22 1 20
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-2
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 13 15 -3 21
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-3
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 0 6 25 4 7 5
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-4
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 7 25 4 6 19 7 1 10
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-5
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 16 -3 12 23 19 4 -1 5
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-6
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 -2 16 17 6 3 6
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-7
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+moveto 0 1 26
+polybezierto 0 16 19 1 6 23 5
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-8
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 26 9 18 23
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-9
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+pie 0 -1 4 12 10 3 23 3 22
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-10
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+chord 0 13 24 24 18 11 2 5 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-11
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+ellipse 0 2 12 -3 3
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-12
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 19 4 12 16
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-13
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+chord 0 4 25 3 18 10 0 12 13
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-14
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 7 16 19 23 8 13 18 -2
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-15
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+arcto 0 -3 15 8 12 8 -2 5 5
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-16
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arcto 0 -2 21 26 12 15 16 25 22
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-17
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 13 -2 23 25 14 12 -3 4
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-18
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+roundrect 0 5 24 0 19 5 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-19
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+moveto 0 24 11
+polybezierto 0 6 9 -1 17 24 -2
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-20
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 26 23 15 26 4 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-21
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 -3 12 14 26 9 10
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-22
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+ellipse 0 0 20 7 2
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-23
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+moveto 0 10 2
+polybezierto 0 22 17 -2 16 13 25
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-24
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 21 14 21 8 8 6 24 10
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-25
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+arcto 0 3 12 19 7 9 9 25 1
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-26
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 17 7 -1 -2 3 5 19 17
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-27
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 -2 12 14 12 14 -3 10 14
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-28
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+pie 0 26 12 2 20 8 14 9 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-29
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+moveto 0 17 4
+polybezierto 0 4 24 10 9 -2 5
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-30
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 18 19 18 21 2 21 -3 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-31
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+roundrect 0 1 18 1 -2 3 4
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-32
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+pie 0 10 3 17 10 13 20 10 13
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-33
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 16 20 16 11 4 0
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-34
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 18 0 3 21 1 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-35
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+roundrect 0 20 10 10 22 12 10
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-36
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 15 -3 23 3 11 19 8 17
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-37
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 3 21 13 0 6 21 5 19
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-38
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+ellipse 0 12 20 25 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-39
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 1 14 -1 0 6 -1 -1 12
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-40
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+moveto 0 24 25
+polybezierto 0 11 6 10 3 9 24
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-41
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+arcto 0 10 3 26 7 20 24 1 13
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-42
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 6 0 -2 -3 6 13 22 24
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-43
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 20 26 -3 23 16 11
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-44
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 8 -2 14 20 10 11 26 26
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-45
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+moveto 0 1 16
+polybezierto 0 2 1 1 25 23 24
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-46
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arcto 0 15 -1 10 24 8 -2 19 1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-47
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 23 7 19 15
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-48
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+roundrect 0 -2 16 4 20 14 10
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-49
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 19 8 2 17 18 5 4 5
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-50
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+pie 0 17 7 15 9 2 1 4 16
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-51
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 21 8 0 25 26 1 16 25
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-52
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 10 14 11 11 3 5 14 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-53
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 11 16 21 3 7 0
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-54
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+pie 0 4 7 18 18 0 -3 24 23
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-55
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 -1 19 20 11 12 5 8 0
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-56
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+chord 0 16 18 1 22 11 2 3 21
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-57
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 13 26 13 1
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-58
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+ellipse 0 5 24 24 26
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-59
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 16 22 17 2 10 14 6 22
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-60
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 25 18 5 15 26 2 14 23
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-61
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 20 9 3 4 4 0
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-62
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 13 18 10 21 10 0 19 19
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-63
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 5 14 5 0
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-64
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+moveto 0 6 21
+polybezierto 0 11 21 21 5 22 3
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-65
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+pie 0 15 23 6 1 10 19 8 1
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-66
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+ellipse 0 11 -1 -3 26
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-67
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arcto 0 10 24 13 3 -1 15 0 2
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-68
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 18 2 25 23 14 13
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-69
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 4 9 12 14 -1 4 6 16
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-70
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+chord 0 1 24 4 17 -2 21 20 13
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-71
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+pie 0 -3 20 20 -2 -1 4 0 6
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-72
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+moveto 0 26 20
+polybezierto 0 8 21 -1 24 8 2
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-73
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 4 0 6 14
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-74
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arcto 0 11 15 24 14 -1 24 8 -3
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-75
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 -3 24 8 2 20 -2 25 23
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-76
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 19 6 18 15 25 13 25 3
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-77
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 23 7 -2 3 4 14 20 23
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-78
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 25 26 6 2 5 17 14 24
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-79
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 0 17 -3 17
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-80
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 13 15 15 8 18 3 -1 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-81
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 19 16 13 8 9 13
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-82
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 10 4 -3 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-83
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+pie 0 7 13 7 16 0 24 -1 3
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-84
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 4 16 13 4 24 14 14 5
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-85
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 -1 23 12 7
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-86
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 12 14 -3 4 6 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-87
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+moveto 0 5 7
+polybezierto 0 19 2 -2 15 -2 11
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-88
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+arc 0 19 26 18 -1 18 22 3 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-89
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+moveto 0 -3 18
+polybezierto 0 22 16 10 23 3 9
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-90
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arcto 0 16 21 15 6 22 24 18 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-91
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 10 -2 21 19 23 2 -3 13
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-92
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+chord 0 14 10 23 -3 -2 8 1 19
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-93
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+ellipse 0 14 17 5 20
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-94
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+chord 0 3 26 2 6 5 26 14 23
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-95
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+ellipse 0 23 13 15 22
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-96
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 2 6 23 9 15 15 24 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-97
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+moveto 0 25 26
+polybezierto 0 -3 10 22 20 -3 12
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-98
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+roundrect 0 24 18 8 12 7 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-99
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+roundrect 0 15 12 24 4 6 1
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-100
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+pie 0 18 11 7 0 14 18 24 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-101
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 18 18 23 -1 2 19 14 13
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-102
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 6 9 4 -3 -2 7 19 20
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-103
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 9 16 25 8
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-104
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 24 14 -3 21 20 16 25 17
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-105
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 7 9 0 25 9 26 3 -2
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-106
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+chord 0 -3 15 6 6 8 -2 10 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-107
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 2 22 26 -1 18 -3 21 1
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-108
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 14 11 21 1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-109
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+chord 0 7 0 9 25 20 8 26 4
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-110
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 4 8 14 4 18 26 -1 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-111
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 -2 3 24 12 8 7
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-112
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 16 22 1 14 24 24 20 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-113
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+pie 0 15 2 13 5 -2 17 6 10
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-114
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 25 12 6 21 0 18 10 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-115
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 9 -3 26 6 -2 -2 17 6
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-116
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 16 5 6 9 13 4 5 -3
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-117
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 26 -1 21 19 2 25 0 22
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-118
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+moveto 0 -3 18
+polybezierto 0 24 20 17 22 25 -2
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-119
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 6 9 18 14
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-120
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+pie 0 20 16 23 -3 10 1 19 19
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-121
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+chord 0 8 11 0 2 6 6 2 15
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-122
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 5 23 -3 9 16 1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-123
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+roundrect 0 8 26 5 5 15 6
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-124
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 17 -3 18 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-125
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+moveto 0 24 8
+polybezierto 0 17 7 18 9 21 15
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-126
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+chord 0 5 0 4 13 10 17 25 18
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-127
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arc 0 4 11 13 4 12 11 20 13
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-128
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+chord 0 1 -3 13 18 18 20 13 14
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-129
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arcto 0 6 -2 4 13 10 24 -2 18
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-130
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+moveto 0 21 0
+polybezierto 0 11 26 21 5 3 16
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-131
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arcto 0 -1 8 1 7 15 2 14 5
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-132
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+arcto 0 6 -1 12 22 10 10 16 -1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-133
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+pie 0 8 20 5 4 1 15 2 14
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-134
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+arc 0 3 15 9 3 9 23 11 -1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-135
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 21 16 25 24 9 13
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-136
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+roundrect 0 -3 -3 13 9 13 10
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-137
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 22 0 3 -2
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-138
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 25 0 14 10
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-139
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+chord 0 20 -2 5 2 5 21 13 16
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-140
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+chord 0 19 -3 7 12 2 10 24 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-141
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arcto 0 0 9 21 12 4 18 8 26
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-142
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arcto 0 19 25 10 1 7 -2 23 15
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-143
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+ellipse 0 5 11 10 1
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-144
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+roundrect 0 12 11 19 -1 7 9
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-145
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 14 12 12 22 -2 7 16 26
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-146
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+ellipse 0 9 5 0 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-147
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+roundrect 0 17 14 21 12 11 16
+endpath 0
+fillpath 0
+dump 0
+end
+case curve-148
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+roundrect 0 0 18 -2 10 11 7
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-149
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+ellipse 0 19 13 3 6
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-150
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 21 11 23 9 17 24 2 19
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-151
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 1
+beginpath 0
+arcto 0 4 18 14 14 4 9 -2 3
+endpath 0
+strokefill 0
+dump 0
+end
+case curve-152
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+arc 0 1 18 26 10 18 24 7 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-153
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+pie 0 11 16 26 1 -1 12 24 16
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-154
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 2
+beginpath 0
+chord 0 21 10 26 -1 13 23 0 15
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-155
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+arcdir 0 1
+beginpath 0
+roundrect 0 21 5 12 5 16 7
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-156
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+moveto 0 5 8
+polybezierto 0 1 20 14 21 1 24
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-157
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 4 5 4 18 4 18 19 24
+endpath 0
+strokepath 0
+dump 0
+end
+case curve-158
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+roundrect 0 1 17 24 17 12 5
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case curve-159
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+arcdir 0 2
+beginpath 0
+pie 0 11 5 15 4 22 18 3 17
+endpath 0
+fillpath 0
+dump 0
+end
