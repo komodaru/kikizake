@@ -847,6 +847,22 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    // a stage after the first that reads the texture it lacks, before a bump mapping stage
+    // followed by another
+    for i in 0..4u32 {
+        open(&mut s, &format!("bump-late-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9tex 2 16 16 60\nd9texfill 2 {:#x}\nd9tex 3 16 16 21\nd9texfill 3 {:#x}", r.next(), r.next(), r.next()).unwrap();
+        writeln!(s, "d9settex 0 0\nd9settex 1 none\nd9settex 2 2\nd9settex 3 3").unwrap();
+        let op1 = [4u32, 2][(i % 2) as usize];
+        let op3 = [3u32, 2][(i / 2) as usize];
+        writeln!(s, "tss set 0 1 2\ntss set 0 4 2\ntss set 1 1 {op1}\ntss set 1 2 2\ntss set 1 3 1\ntss set 1 4 {op1}\ntss set 1 5 2\ntss set 1 6 1\ntss set 2 1 22\ntss set 2 4 2\ntss set 3 1 {op3}\ntss set 3 2 2\ntss set 3 3 1\ntss set 3 4 {op3}\ntss set 3 5 2\ntss set 3 6 1").unwrap();
+        writeln!(s, "tss set 1 11 0\ntss set 2 11 0\ntss set 3 11 0").unwrap();
+        for k in 7..=10 {
+            writeln!(s, "tss set 2 {k} {}", fb(r.range(-8, 8) as f32 / 16.0)).unwrap();
+        }
+        quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+        writeln!(s, "d9rt\nend").unwrap();
+    }
     s
 }
 

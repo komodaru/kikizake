@@ -1433,12 +1433,22 @@ impl D3d9 {
                 // the texture the stage before it sampled, 0 where none did; with no texture of
                 // its own, (du, dv) and L are 0, bump-2, bump-3 on both)
                 hit(clause::D3D9_STAGE_BUMP);
-                // (what the stages after it read as CURRENT, and their textures where a stage
-                // before has none, are not WARP's plain rules: bump-chain-2, -4, -5, -6, -8 .. -11
-                // show the CURRENT before with its channels reversed and the like, open)
                 let next = st + 1;
-                if next < 8 && self.tss(next, 1) != 1 && ((0..st).any(|s| self.draw.stage_tex[s as usize].is_none()) || self.reads_current_any(next)) {
-                    return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
+                if next < 8 && self.tss(next, 1) != 1 {
+                    // (MEASURED bump-chain-4, -5, -6, -9, -10: followed by a stage, it writes
+                    // nothing, CURRENT going on as the stage before left it)
+                    hit(clause::D3D9_STAGE_BUMPCHAIN);
+                    if let Some(s) = (0..st).find(|&s| self.draw.stage_tex[s as usize].is_none() && self.reads_texture_any(s)) {
+                        if s > 0 {
+                            // (a later stage reading a texture it lacks: no case yet)
+                            return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
+                        }
+                        // (MEASURED bump-chain-2, -8, -11: a stage before reading the texture it
+                        // lacks turns the stages off, the diffuse color out as with DISABLE)
+                        return Ok(diffuse);
+                    }
+                    bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
+                    continue;
                 }
                 bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
                 let out = before.unwrap_or([0.0; 4]);
@@ -1499,12 +1509,12 @@ impl D3d9 {
         Ok(r.current)
     }
 
-    /// whether a stage's color or alpha operation reads CURRENT (or the diffuse color, which
-    /// CURRENT is on stage 0)
-    fn reads_current_any(&self, st: u32) -> bool {
-        let sel = |a: u32| matches!(self.tss(st, a) & 0xf, 0 | 1);
+    /// whether a stage's color or alpha operation reads its texture (D3DTA_TEXTURE, or
+    /// BLENDTEXTUREALPHA, BLENDTEXTUREALPHAPM)
+    fn reads_texture_any(&self, st: u32) -> bool {
+        let sel = |a: u32| self.tss(st, a) & 0xf == 2;
         let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
-        let reads = |op: u32, a1: u32, a2: u32, a0: u32| (op != 3 && sel(a1)) || (op != 2 && sel(a2)) || (matches!(op, 25 | 26) && sel(a0)) || matches!(op, 12 | 16);
+        let reads = |op: u32, a1: u32, a2: u32, a0: u32| (op != 3 && sel(a1)) || (op != 2 && sel(a2)) || (matches!(op, 25 | 26) && sel(a0)) || matches!(op, 13 | 14);
         reads(cop, 2, 3, 26) || aop != 1 && reads(aop, 5, 6, 27)
     }
 

@@ -29250,3 +29250,167 @@ d9fvf 0x142
 d9draw 5 4 0xbf666666 0x3f666666 0x3f000000 0xffa9772a 0x3d4cccd0 0x3d4cccd0 0x3f666666 0x3f666666 0x3f000000 0xffc1580c 0x3f733333 0x3d4cccd0 0xbf666666 0xbf666666 0x3f000000 0xffd83a6c 0x3d4cccd0 0x3f733333 0x3f666666 0xbf666666 0x3f000000 0xff2e9ee6 0x3f733333 0x3f733333
 d9rt
 end
+case bump-late-0
+device8 swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9tex 0 16 16 21
+d9texfill 0 0x3fb99dff
+d9tex 2 16 16 60
+d9texfill 2 0x8cc9047c
+d9tex 3 16 16 21
+d9texfill 3 0x249c99bf
+d9settex 0 0
+d9settex 1 none
+d9settex 2 2
+d9settex 3 3
+tss set 0 1 2
+tss set 0 4 2
+tss set 1 1 4
+tss set 1 2 2
+tss set 1 3 1
+tss set 1 4 4
+tss set 1 5 2
+tss set 1 6 1
+tss set 2 1 22
+tss set 2 4 2
+tss set 3 1 3
+tss set 3 2 2
+tss set 3 3 1
+tss set 3 4 3
+tss set 3 5 2
+tss set 3 6 1
+tss set 1 11 0
+tss set 2 11 0
+tss set 3 11 0
+tss set 2 7 0xbee00000
+tss set 2 8 0xbd800000
+tss set 2 9 0x3d800000
+tss set 2 10 0xbea00000
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xd8ae9a09 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0xd8ae9a09 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0xd8ae9a09 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0xd8ae9a09 0x3f800000 0x3f800000
+d9rt
+end
+case bump-late-1
+device8 swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9tex 0 16 16 21
+d9texfill 0 0x7618403e
+d9tex 2 16 16 60
+d9texfill 2 0xbde85911
+d9tex 3 16 16 21
+d9texfill 3 0x6f8e6cf4
+d9settex 0 0
+d9settex 1 none
+d9settex 2 2
+d9settex 3 3
+tss set 0 1 2
+tss set 0 4 2
+tss set 1 1 2
+tss set 1 2 2
+tss set 1 3 1
+tss set 1 4 2
+tss set 1 5 2
+tss set 1 6 1
+tss set 2 1 22
+tss set 2 4 2
+tss set 3 1 3
+tss set 3 2 2
+tss set 3 3 1
+tss set 3 4 3
+tss set 3 5 2
+tss set 3 6 1
+tss set 1 11 0
+tss set 2 11 0
+tss set 3 11 0
+tss set 2 7 0xbf000000
+tss set 2 8 0x3e800000
+tss set 2 9 0xbea00000
+tss set 2 10 0xbe800000
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xdbca5177 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0xdbca5177 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0xdbca5177 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0xdbca5177 0x3f800000 0x3f800000
+d9rt
+end
+case bump-late-2
+device8 swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9tex 0 16 16 21
+d9texfill 0 0xad7bc925
+d9tex 2 16 16 60
+d9texfill 2 0x5fbf624a
+d9tex 3 16 16 21
+d9texfill 3 0xcd390d91
+d9settex 0 0
+d9settex 1 none
+d9settex 2 2
+d9settex 3 3
+tss set 0 1 2
+tss set 0 4 2
+tss set 1 1 4
+tss set 1 2 2
+tss set 1 3 1
+tss set 1 4 4
+tss set 1 5 2
+tss set 1 6 1
+tss set 2 1 22
+tss set 2 4 2
+tss set 3 1 2
+tss set 3 2 2
+tss set 3 3 1
+tss set 3 4 2
+tss set 3 5 2
+tss set 3 6 1
+tss set 1 11 0
+tss set 2 11 0
+tss set 3 11 0
+tss set 2 7 0xbd800000
+tss set 2 8 0x3ec00000
+tss set 2 9 0x3e000000
+tss set 2 10 0xbee00000
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xf1c23018 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0xf1c23018 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0xf1c23018 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0xf1c23018 0x3f800000 0x3f800000
+d9rt
+end
+case bump-late-3
+device8 swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9tex 0 16 16 21
+d9texfill 0 0x4fec14f8
+d9tex 2 16 16 60
+d9texfill 2 0x631d3a61
+d9tex 3 16 16 21
+d9texfill 3 0x4e7e7169
+d9settex 0 0
+d9settex 1 none
+d9settex 2 2
+d9settex 3 3
+tss set 0 1 2
+tss set 0 4 2
+tss set 1 1 2
+tss set 1 2 2
+tss set 1 3 1
+tss set 1 4 2
+tss set 1 5 2
+tss set 1 6 1
+tss set 2 1 22
+tss set 2 4 2
+tss set 3 1 2
+tss set 3 2 2
+tss set 3 3 1
+tss set 3 4 2
+tss set 3 5 2
+tss set 3 6 1
+tss set 1 11 0
+tss set 2 11 0
+tss set 3 11 0
+tss set 2 7 0xbec00000
+tss set 2 8 0xbea00000
+tss set 2 9 0x0
+tss set 2 10 0xbe400000
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xb9349eaa 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0xb9349eaa 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0xb9349eaa 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0xb9349eaa 0x3f800000 0x3f800000
+d9rt
+end
