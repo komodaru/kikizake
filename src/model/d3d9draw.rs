@@ -627,6 +627,102 @@ impl Planes {
     }
 }
 
+/// a line's snapped ends (1/256 pixel, Direct3D 9's pixel centers at whole pixels)
+struct Seg9 {
+    a: (i128, i128),
+    b: (i128, i128),
+}
+
+/// how a line meets a pixel's diamond
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Meet {
+    No,
+    Yes,
+    /// along one of the diamond's edges (open, D3D9.DRAW.POINTSLINES)
+    AlongEdge,
+}
+
+const DIAMOND: i128 = 128;
+
+impl Seg9 {
+    /// p, scaled by s, in the diamond of the pixel whose center is c: its inside, its lower-left
+    /// and lower-right edges and bottom corner, and for a y-major line also its right corner
+    fn in_diamond(&self, p: (i128, i128), c: (i128, i128), s: i128, ymaj: bool) -> bool {
+        let (dx, dy) = (p.0 - c.0 * s, p.1 - c.1 * s);
+        let (d, r) = (dx.abs() + dy.abs(), DIAMOND * s);
+        if d != r {
+            return d < r;
+        }
+        dx == 0 && dy == r || dx == r && dy == 0 && ymaj || dy > 0 && dx != 0
+    }
+
+    fn meets(&self, c: (i128, i128), ymaj: bool) -> Meet {
+        let (a, b) = (self.a, self.b);
+        let (dx, dy) = (b.0 - a.0, b.1 - a.1);
+        let less = |p: (i128, i128), q: (i128, i128)| p.0 * q.1 < q.0 * p.1;
+        let (mut t0, mut t1) = ((0i128, 1i128), (1i128, 1i128));
+        for (u, v) in [(1i128, 1i128), (1, -1), (-1, 1), (-1, -1)] {
+            let num = DIAMOND - (u * (a.0 - c.0) + v * (a.1 - c.1));
+            let den = u * dx + v * dy;
+            match den.signum() {
+                0 if num < 0 => return Meet::No,
+                0 if num == 0 && dx != 0 => {
+                    // (the line runs on this edge's line of the diamond)
+                    return if self.along(c) { Meet::AlongEdge } else { Meet::No };
+                }
+                0 => {}
+                1 => {
+                    if less((num, den), t1) {
+                        t1 = (num, den);
+                    }
+                }
+                _ => {
+                    if less(t0, (-num, -den)) {
+                        t0 = (-num, -den);
+                    }
+                }
+            }
+        }
+        if less(t1, t0) {
+            return Meet::No;
+        }
+        let mid = (t0.0 * t1.1 + t1.0 * t0.1, 2 * t0.1 * t1.1);
+        if [t0, t1, mid].iter().any(|&(n, s)| self.in_diamond((a.0 * s + dx * n, a.1 * s + dy * n), c, s, ymaj)) {
+            Meet::Yes
+        } else {
+            Meet::No
+        }
+    }
+
+    /// some stretch of the segment, of length, lies on the diamond's boundary
+    fn along(&self, c: (i128, i128)) -> bool {
+        let (a, b) = (self.a, self.b);
+        let (dx, dy) = (b.0 - a.0, b.1 - a.1);
+        // the parameters inside the closed diamond
+        let (mut lo, mut hi) = ((0i128, 1i128), (1i128, 1i128));
+        let less = |p: (i128, i128), q: (i128, i128)| p.0 * q.1 < q.0 * p.1;
+        for (u, v) in [(1i128, 1i128), (1, -1), (-1, 1), (-1, -1)] {
+            let num = DIAMOND - (u * (a.0 - c.0) + v * (a.1 - c.1));
+            let den = u * dx + v * dy;
+            match den.signum() {
+                0 if num < 0 => return false,
+                0 => {}
+                1 => {
+                    if less((num, den), hi) {
+                        hi = (num, den);
+                    }
+                }
+                _ => {
+                    if less(lo, (-num, -den)) {
+                        lo = (-num, -den);
+                    }
+                }
+            }
+        }
+        less(lo, hi)
+    }
+}
+
 /// the sides a triangle is clipped against, in the order it is
 #[derive(Clone, Copy)]
 enum Side {
@@ -1340,7 +1436,13 @@ impl D3d9 {
             4 => (0..nv / 3).map(|i| [3 * i, 3 * i + 1, 3 * i + 2]).collect(),
             5 => (0..nv.saturating_sub(2)).map(|i| if i % 2 == 0 { [i, i + 1, i + 2] } else { [i, i + 2, i + 1] }).collect(),
             6 => (0..nv.saturating_sub(2)).map(|i| [i + 1, i + 2, 0]).collect(),
-            2 | 3 => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
+            2 | 3 => {
+                let segs: Vec<(usize, usize)> = if ty == 2 { (0..nv / 2).map(|i| (2 * i, 2 * i + 1)).collect() } else { (0..nv.saturating_sub(1)).map(|i| (i, i + 1)).collect() };
+                for (i, j) in segs {
+                    self.line(vs[i], vs[j])?;
+                }
+                return Ok(());
+            }
             _ => return Err(Fail::Bad),
         };
         hit(clause::D3D9_DRAW_ASSEMBLY);
@@ -1369,6 +1471,68 @@ impl D3d9 {
         let (x, y, z) = (c[0] * rhw, c[1] * rhw, c[2] * rhw);
         let (hw, hh) = (vw as f32 / 2.0, vh as f32 / 2.0);
         (vx as f32 + (1.0 + x) * hw, vy as f32 + (1.0 - y) * hh, z0 + z * (z1 - z0), rhw, c)
+    }
+
+    /// a line of pretransformed vertices: as WARP's Direct3D 10 rasterizer draws them
+    /// (D3DRASTER.LINE: the diamond-exit rule over the snapped ends, the diamond's inside, lower
+    /// edges and bottom corner, a y-major line's right corner too; the colors a plane over the
+    /// major axis), in Direct3D 9's pixel centers (MEASURED d3d9draw, d3d8draw line-*,
+    /// points-lines-*)
+    fn line(&mut self, a: Vtx, b: Vtx) -> Res<()> {
+        let Some(rt) = &self.draw.rt else {
+            hit(clause::D3D9_CLEAR_BACKBUFFER);
+            return Ok(());
+        };
+        let (w, h) = (rt.w, rt.h);
+        if a.clip.is_some() || a.rhw != 1.0 || b.rhw != 1.0 {
+            // (the generators draw lines of pretransformed vertices of rhw 1 only)
+            return Err(Fail::Bad);
+        }
+        let inside = |v: &Vtx| (-0.5..=w as f32 - 0.5).contains(&v.x) && (-0.5..=h as f32 - 0.5).contains(&v.y);
+        if !inside(&a) || !inside(&b) {
+            // (open: a line clipped lights the pixel its end is in for some lines and not others,
+            // and its start's pixel moves, line-random-*)
+            return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES));
+        }
+        let snap = |v: f32| round_even(v as f64 * 256.0) as i128;
+        let l = Seg9 { a: (snap(a.x), snap(a.y)), b: (snap(b.x), snap(b.y)) };
+        if l.a == l.b {
+            return Ok(());
+        }
+        hit(clause::D3D9_DRAW_LINES);
+        let ymaj = (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs();
+        let mut lit = Vec::new();
+        for py in 0..h {
+            for px in 0..w {
+                let c = (px as i128 * 256, py as i128 * 256);
+                match l.meets(c, ymaj) {
+                    Meet::No => {}
+                    // (open: a line running along diamonds' edges lights some of them and not
+                    // others, line-diag-0, -4, line-anti-0, -4)
+                    Meet::AlongEdge => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
+                    Meet::Yes => {
+                        if !l.in_diamond(l.b, c, 1, ymaj) {
+                            lit.push((px, py));
+                        }
+                    }
+                }
+            }
+        }
+        let flat = self.rs(9) == 1;
+        let (at, bt) = (a.attrs(), b.attrs());
+        for (px, py) in lit {
+            // (the plane over the major axis in Direct3D 10's coordinates, in f32)
+            let (pa, pb, c) = if ymaj { (l.a.1, l.b.1, py as f32 + 0.5) } else { (l.a.0, l.b.0, px as f32 + 0.5) };
+            let (pa, pb) = (pa as f32 / 256.0 + 0.5, pb as f32 / 256.0 + 0.5);
+            let g = 1.0 / (pb - pa);
+            let v: [f64; ATTRS] = std::array::from_fn(|k| {
+                let grad = (bt[k] - at[k]) * g;
+                ((at[k] - grad * pa) + grad * c) as f64
+            });
+            let (diffuse, specular) = if flat { (a.diffuse, a.specular) } else { (std::array::from_fn(|k| v[1 + k]), std::array::from_fn(|k| v[5 + k])) };
+            self.pixel(px, py, v[0], diffuse, specular, [v[9], v[10]])?;
+        }
+        Ok(())
     }
 
     /// a point list: each point the one pixel whose area holds it, (x, y) taken to the pixel
