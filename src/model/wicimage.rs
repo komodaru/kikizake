@@ -288,11 +288,11 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
         "fant" => {
             // (MEASURED: exact in both directions, rounded once, halves up)
             let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
-            let den = (tx.den * ty.den) as i128;
+            let den = tx.den as i128 * ty.den as i128;
             for (y, a) in ty.taps.iter().enumerate() {
                 for (x, b) in tx.taps.iter().enumerate() {
                     for k in 0..c {
-                        let v: i128 = a.iter().map(|&(jy, wy)| b.iter().map(|&(jx, wx)| (wy * wx * src(jx, jy, k)) as i128).sum::<i128>()).sum();
+                        let v: i128 = a.iter().map(|&(jy, wy)| b.iter().map(|&(jx, wx)| wy as i128 * wx as i128 * src(jx, jy, k) as i128).sum::<i128>()).sum();
                         o.px[y * ost + x * c + k] = ((2 * v + den).div_euclid(2 * den)).clamp(0, 255) as u8;
                     }
                 }
@@ -833,6 +833,10 @@ fn png(b: &[u8]) -> Res<Img> {
     let Some(ih) = ihdr.filter(|h| h.len() == 13) else { return open };
     let be = |o: usize| u32::from_be_bytes(ih[o..o + 4].try_into().unwrap());
     let (w, h, depth, ct, il) = (be(0), be(4), ih[8] as u32, ih[9], ih[12] == 1);
+    // (the model does not hold pictures past 2^24 pixels)
+    if w as u64 * h as u64 > 1 << 24 {
+        return Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    }
     hit("WICIMAGE.PNG.CHUNKS");
     // MEASURED: image data that does not inflate whole (cut, or its Adler-32 wrong): the frame
     // is there, its pixels all 0
@@ -1293,13 +1297,20 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         } else {
             (rd32(d, 4).unwrap_or(0), rd32(d, 8).unwrap_or(0) / 2, rd16(d, 14).unwrap_or(0))
         };
-        entries.push((bpp, w * h, ico_entry(d)));
+        let png = d.starts_with(b"\x89PNG");
+        // (OPEN: beside other entries, a PNG entry of 1x1, 2x2 or 1x5 comes after a 32-bit BMP
+        // entry and its CopyPixels fails 0x88982f8c, one of 2x3, 3x2 or 4x4 comes before it)
+        if png && n > 1 && w * h < 6 {
+            return Err(Fail::Unmodeled("WICIMAGE.ICO.PNG.SMALL"));
+        }
+        entries.push((bpp, !png, ico_entry(d)));
     }
-    // MEASURED (golden wicdecode ico-three, ico-order-*: the same sizes in every depth, the same
-    // depth in every size, PNG and BMP entries, directories that say 0 bits): the frames by the
-    // entries' own depth, deepest first, and of one depth the last in the file first (not by size)
+    // MEASURED (golden wicdecode ico-three, ico-order-*, ico-png-*-bmp: the same sizes in every
+    // depth, the same depth in every size, PNG and BMP entries, directories that say 0 bits): the
+    // frames by the entries' own depth, deepest first, of one depth PNG entries first, then the
+    // last in the file first (not by size)
     entries.reverse();
-    entries.sort_by_key(|e| std::cmp::Reverse(e.0));
+    entries.sort_by_key(|e| (std::cmp::Reverse(e.0), e.1));
     hit("WICIMAGE.ICO.ORDER");
     let frames = entries.into_iter().map(|e| e.2).collect();
     hit("WICIMAGE.ICO");
@@ -1374,13 +1385,13 @@ fn rgb565(v: u32) -> ([u32; 3], [u32; 3]) {
 /// one 4x4 block of BC1 (DXT1), BC2 (DXT3) or BC3 (DXT5): 16 straight BGRA pixels, row by row
 /// ("Texture Block Compression in Direct3D 11"). MEASURED (golden wicdecode dds-*: 522 samples
 /// of the interpolated colors): the thirds and halves are taken of the 5 and 6-bit values, then
-/// scaled to 8 bits and rounded, round((p * c0 + q * c1) / d * 255 / max)
+/// scaled to 8 bits and rounded, halves down (one half in 3-color mode: 10.5 of 63 is 42), round((p * c0 + q * c1) / d * 255 / max)
 pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
     let (alpha, color) = if kind == 1 { (&blk[..0], blk) } else { (&blk[..8], &blk[8..]) };
     let c0 = rd16(color, 0).unwrap();
     let c1 = rd16(color, 2).unwrap();
     let ((a, m), (b, _)) = (rgb565(c0), rgb565(c1));
-    let mix = |p: u32, q: u32, d: u32| -> [u32; 3] { [0, 1, 2].map(|i| (2 * (p * a[i] + q * b[i]) * 255 + d * m[i]) / (2 * d * m[i])) };
+    let mix = |p: u32, q: u32, d: u32| -> [u32; 3] { [0, 1, 2].map(|i| (2 * (p * a[i] + q * b[i]) * 255 + d * m[i] - 1) / (2 * d * m[i])) };
     let four = kind != 1 || c0 > c1;
     let (e0, e1) = (mix(1, 0, 1), mix(0, 1, 1));
     let pal: [[u32; 4]; 4] = if four {
@@ -1432,6 +1443,10 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
         Some(b"DXT5") => 3,
         _ => return Err(Fail::Unmodeled("WICIMAGE.DDS.OTHER")),
     };
+    // (the model does not hold pictures past 2^24 pixels, nor mips past 32)
+    if w as u64 * h as u64 > 1 << 24 || mips > 32 {
+        return broken;
+    }
     let bs = if kind == 1 { 8 } else { 16 };
     let mut at = 128;
     let mut frames = Vec::new();
@@ -1533,7 +1548,7 @@ impl WicImage {
                 if !["nn", "linear", "cubic", "fant", "hqcubic"].contains(&m) {
                     return Err(Fail::Bad);
                 }
-                if w <= 0 || h <= 0 || w > 0xffff || h > 0xffff {
+                if w <= 0 || h <= 0 || w > 0xffff || h > 0xffff || w * h > 1 << 22 {
                     return Err(Fail::Unmodeled("WICIMAGE.SCALE.SIZE"));
                 }
                 let s = scale(self.cur.as_ref().unwrap(), w as u32, h as u32, m)?;
@@ -1643,7 +1658,7 @@ impl WicImage {
             }
             "wdecode" => {
                 let h = *t.get(1).ok_or(Fail::Bad)?;
-                if t.len() != 2 || h.len() % 2 != 0 {
+                if t.len() != 2 || h.len() % 2 != 0 || !h.is_ascii() {
                     return Err(Fail::Bad);
                 }
                 let b: Option<Vec<u8>> = (0..h.len() / 2).map(|i| u8::from_str_radix(&h[2 * i..2 * i + 2], 16).ok()).collect();
