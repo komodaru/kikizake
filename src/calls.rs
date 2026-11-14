@@ -182,7 +182,7 @@ impl Val {
     pub fn int32(&self) -> Option<u32> {
         match self {
             // (the ABI passes the low 32 bits: -1 and 0xffffffff are the same argument)
-            Val::Dec(v) => Some(*v as u32),
+            Val::Dec(v) => Some(low32(*v)),
             Val::Hex(v) => Some(*v),
             Val::Null | Val::Handle(_) | Val::Bool(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) | Val::Missing(_) => None,
         }
@@ -196,6 +196,12 @@ impl Val {
             },
         }
     }
+}
+
+/// The low 32 bits of an integer, as the ABI passes an int or a DWORD (-1 and 0xffffffff are the
+/// same argument).
+pub fn low32(v: i64) -> u32 {
+    u32::try_from(v & 0xffff_ffff).unwrap_or(0)
 }
 
 /// What a call returned.
@@ -397,7 +403,7 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
             continue;
         }
         let e = json::parse(l).map_err(|m| format!("line {}: {m}", i + 1))?;
-        let order = e.get("global_order").and_then(Json::u64).unwrap_or(i as u64);
+        let order = e.get("global_order").and_then(Json::u64).unwrap_or_else(|| u64::try_from(i).unwrap_or(u64::MAX));
         ev.push((order, i + 1, e));
     }
     ev.sort_by_key(|(o, _, _)| *o);
@@ -736,10 +742,10 @@ pub fn check_ops(cases: &[crate::case::Case], rec: &Recording, rules: &[Rule]) -
                     why.push(format!("{} arguments recorded", call.args.len()));
                 }
                 for (i, (a, v)) in args.iter().zip(&call.args).enumerate() {
-                    let num = |t: Tok| crate::case::num(tok(t)).map(|x| x as u32);
+                    let num = |t: Tok| crate::case::num(tok(t)).map(low32);
                     let ok = match a {
                         Arg::Any => true,
-                        Arg::Lit(x) => v.int32() == Some(*x as u32) || (*x == 0 && *v == Val::Null),
+                        Arg::Lit(x) => v.int32() == Some(low32(*x)) || (*x == 0 && *v == Val::Null),
                         Arg::Num(t) => num(*t).is_some_and(|x| v.int32() == Some(x) || (x == 0 && *v == Val::Null)),
                         Arg::Color(t) => crate::case::color(tok(*t)).is_some_and(|c| v.int32() == Some(colorref(c)) || (c == 0 && *v == Val::Null)),
                         Arg::Slot(t) => match v {
