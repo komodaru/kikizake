@@ -757,14 +757,18 @@ impl Gdiplus {
                     out.push(format!("clone {OUT_OF_MEMORY}"));
                     return Ok(true);
                 }
+                if f != b.f && gray16(f) != gray16(b.f) {
+                    hit("GP.GRAY16");
+                    out.push(format!("clone {OUT_OF_MEMORY}"));
+                    return Ok(true);
+                }
                 if f != b.f {
-                    return Err(Fail::Unmodeled("GP.CLONE.FORMAT"));
+                    hit("GP.CLONE.FORMAT");
                 }
                 let mut c = Bitmap::new(f, r.2 as u32, r.3 as u32);
-                c.pal = b.pal.clone();
                 for y in 0..r.3 as u32 {
                     for x in 0..r.2 as u32 {
-                        c.set_px(x, y, b.px(r.0 as u32 + x, r.1 as u32 + y));
+                        c.set_px(x, y, convert(b.f, f, b.px(r.0 as u32 + x, r.1 as u32 + y), &[])?);
                     }
                 }
                 out.push("clone 0".into());

@@ -90,6 +90,15 @@ pub fn gdiplus() -> String {
             }
         }
     }
+    // every gray level in an 8x8 block, on the 16-bit formats (where drawing dithers), and with
+    // the blocks moved off the 8-pixel grid
+    for (f, o) in [("16bppRGB555", 0), ("16bppRGB565", 0), ("16bppRGB565", 3)] {
+        write!(s, "case dither-{f}-{o}\ngpbitmap 0 {} {} {f}\n", 128 + o, 128 + o).unwrap();
+        for v in 0..256 {
+            writeln!(s, "gpfill 0 {} {} 8 8 {:#010x} copy 0", o + v % 16 * 8, o + v / 16 * 8, 0xff00_0000u32 | v * 0x01_0101).unwrap();
+        }
+        writeln!(s, "gpread 0 {f}\nend").unwrap();
+    }
     // source over every (color, alpha) of the destination, for a few sources
     for (i, c) in [0x80ff_4010u32, 0x40_20c0f0, 0xc0_7f8001, 0x01_ffffff, 0xfe_000000].iter().enumerate() {
         let q = if i == 4 { 3 } else { 0 };
