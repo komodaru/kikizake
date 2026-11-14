@@ -1394,8 +1394,9 @@ impl D3d9 {
             }
             let tex = match self.draw.stage_tex[st as usize] {
                 Some(i) => {
-                    if self.tss(st, 11) != 0 {
-                        // (TEXCOORDINDEX: another set of coordinates, or a generated one)
+                    if self.tss(st, 11) != self.tss(0, 11) {
+                        // (a later stage's TEXCOORDINDEX other than stage 0's: the draw carries
+                        // stage 0's set only)
                         return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
                     }
                     let (mut u, mut v) = (uv[0], uv[1]);
@@ -1591,6 +1592,18 @@ impl D3d9 {
         let ntex = (fvf >> 8 & 0xf) as usize;
         let tsize = |i: usize| [2, 3, 4, 1][(fvf >> (16 + 2 * i) & 3) as usize];
         let size = pos + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize + (fvf >> 6 & 1) as usize + (fvf >> 7 & 1) as usize + (0..ntex).map(tsize).sum::<usize>();
+        // (MEASURED texcoordindex-*: a stage's TEXCOORDINDEX picks the vertex's set by its low
+        // word, (0, 0) past the sets; with XYZRHW vertices the generation mode in its high word
+        // is ignored)
+        let tci = self.tss(0, 11);
+        let (set, gen) = ((tci & 0xffff) as usize, tci >> 16);
+        if tci != 0 {
+            hit(clause::D3D9_STAGE_TCI);
+        }
+        if gen != 0 && pos == 3 {
+            // (texture coordinates generated from transformed vertices: no case yet)
+            return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
+        }
         let stride = words.len() / nv;
         if stride < size {
             // (the generators write no stride short of the FVF's size)
@@ -1611,7 +1624,14 @@ impl D3d9 {
                 };
                 let diffuse = argb(take(fvf & 0x40 != 0).unwrap_or(0xffff_ffff));
                 let specular = argb(take(fvf & 0x80 != 0).unwrap_or(0));
-                let uv = if ntex > 0 && tsize(0) >= 2 { [fl(w[i]), fl(w[i + 1])] } else { [0.0; 2] };
+                // (the set stage 0's TEXCOORDINDEX names, D3D9.STAGE.TCI: (0, 0) past the
+                // vertex's sets)
+                let uv = if set < ntex && tsize(set) >= 2 {
+                    let o = i + (0..set).map(tsize).sum::<usize>();
+                    [fl(w[o]), fl(w[o + 1])]
+                } else {
+                    [0.0; 2]
+                };
                 if pos == 3 {
                     let (x, y, z, rhw, clip) = self.transform([w[0], w[1], w[2]].map(f32::from_bits));
                     return Vtx { x, y, z: z as f64, rhw: rhw as f64, diffuse, specular, uv, clip: Some(clip) };

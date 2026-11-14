@@ -822,6 +822,31 @@ fn suite(v8: bool) -> String {
         writeln!(s, "{mag_s} 2\n{min} {f:#x}\n{mip} 0", mag_s = if v8 { "tss set 0 16" } else { "ss set 0 5" }).unwrap();
         writeln!(s, "d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend", v(-0.5, -0.5, 0.0, !0, Some((0.0, 0.0))), v(15.5, -0.5, 0.0, !0, Some((1.3, 0.1))), v(-0.5, 15.5, 0.0, !0, Some((0.2, 1.1))), v(15.5, 15.5, 0.0, !0, Some((1.5, 1.2)))).unwrap();
     }
+    // TEXCOORDINDEX differing between two stages (stage 1 modulates stage 0's texture)
+    for (i, (a, b)) in [(0u32, 1u32), (1, 0), (0, 2), (2, 1)].iter().enumerate() {
+        open(&mut s, &format!("tci-multi-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nd9tex 1 16 16 21\nd9texfill 1 {:#x}\nd9settex 1 1", r.next(), r.next()).unwrap();
+        texture_stage(&mut s);
+        writeln!(s, "tss set 0 11 {a:#x}\ntss set 1 1 4\ntss set 1 2 2\ntss set 1 3 1\ntss set 1 11 {b:#x}\nd9fvf 0x244").unwrap();
+        let mut l = "d9draw 5 4".to_string();
+        for (x, y, u, v) in [(-0.5f32, -0.5f32, 0.0f32, 0.0f32), (15.5, -0.5, 1.0, 0.0), (-0.5, 15.5, 0.0, 1.0), (15.5, 15.5, 1.0, 1.0)] {
+            write!(l, " {} {} {} {} {:#x} {} {} {} {}", fb(x), fb(y), fb(0.0), fb(1.0), r.next(), fb(u), fb(v), fb(0.7 - v * 0.6), fb(0.1 + u * 0.8)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    // generated texture coordinates from untransformed vertices (lighting off, identity
+    // matrices; no normals in the vertex)
+    for (i, tci) in [0x10000u32, 0x20000, 0x30000, 0x40000].iter().enumerate() {
+        open(&mut s, &format!("tci-xyz-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\nrs set 7 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        writeln!(s, "tss set 0 11 {tci:#x}").unwrap();
+        let mut l = "d9fvf 0x142\nd9draw 5 4".to_string();
+        for (x, y) in [(-0.9f32, 0.9f32), (0.9, 0.9), (-0.9, -0.9), (0.9, -0.9)] {
+            write!(l, " {} {} {} {:#x} {} {}", fb(x), fb(y), fb(0.5), r.next() | 0xff00_0000, fb(x * 0.5 + 0.5), fb(0.5 - y * 0.5)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 
