@@ -10086,401 +10086,537 @@ polylineto 0 14 16 0 20 17 4 15 3 10 14 2 7
 getpos 0
 dump 0
 end
-case fillrect
+case fillrect-0
 dib 0 6 6 32
 fill 0 300
 brush 0 solid #d24178
 fillrect 0 0 0 6 1
 dump 0
+end
+case fillrect-1
 dib 0 6 6 32
 fill 0 301
 brush 0 solid #e514e0
 fillrect 0 -2 3 -3 6
 dump 0
+end
+case fillrect-2
 dib 0 6 6 32
 fill 0 302
 brush 0 solid #1420a4
 fillrect 0 2 5 4 4
 dump 0
+end
+case fillrect-3
 dib 0 6 6 32
 fill 0 303
 brush 0 solid #8cf074
 fillrect 0 2 3 6 7
 dump 0
+end
+case fillrect-4
 dib 0 6 6 32
 fill 0 304
 brush 0 solid #74bdec
 fillrect 0 2 0 4 4
 dump 0
+end
+case fillrect-5
 dib 0 6 6 32
 fill 0 305
-brush 0 solid #4f9803
-fillrect 0 1 -2 2 -1
-dump 0
-dib 0 6 6 32
-fill 0 306
-brush 0 solid #ba745f
-fillrect 0 6 -1 11 2
-dump 0
-dib 0 6 6 32
-fill 0 307
-brush 0 solid #a52ff6
-fillrect 0 4 -1 9 -1
-dump 0
-dib 0 6 6 32
-fill 0 308
-brush 0 solid #5ff3cd
-fillrect 0 -1 -1 5 0
-dump 0
-dib 0 6 6 32
-fill 0 309
-brush 0 solid #bdbe97
-fillrect 0 3 0 7 -1
-dump 0
-dib 0 6 6 32
-fill 0 310
-brush 0 solid #0fc161
-fillrect 0 5 2 8 4
-dump 0
-dib 0 6 6 32
-fill 0 311
-brush 0 solid #84847e
-fillrect 0 -1 2 -2 7
-dump 0
-dib 0 6 6 32
-fill 0 312
-brush 0 solid #20dcb7
-fillrect 0 0 2 4 6
-dump 0
-dib 0 6 6 32
-fill 0 313
-brush 0 solid #47c3e4
-fillrect 0 -2 3 -2 9
-dump 0
-dib 0 6 6 32
-fill 0 314
-brush 0 solid #1920d5
-fillrect 0 4 0 6 2
-dump 0
-dib 0 6 6 32
-fill 0 315
-brush 0 solid #abf116
-fillrect 0 1 4 1 7
-dump 0
-dib 0 6 6 32
-fill 0 316
-brush 0 solid #c442f3
-fillrect 0 -1 -2 -2 3
-dump 0
-dib 0 6 6 32
-fill 0 317
-brush 0 solid #474054
-fillrect 0 6 1 7 0
-dump 0
-dib 0 6 6 32
-fill 0 318
-brush 0 solid #177fe9
-fillrect 0 5 4 11 9
-dump 0
-dib 0 6 6 32
-fill 0 319
-brush 0 solid #74534c
-fillrect 0 3 0 5 0
-dump 0
-dib 0 6 6 32
-fill 0 320
-brush 0 solid #0a7e73
-fillrect 0 1 -1 2 -1
-dump 0
-dib 0 6 6 32
-fill 0 321
-brush 0 solid #07e978
-fillrect 0 1 1 0 5
-dump 0
-dib 0 6 6 32
-fill 0 322
-brush 0 solid #5a7609
-fillrect 0 0 0 6 0
-dump 0
-dib 0 6 6 32
-fill 0 323
-brush 0 solid #fe7c61
-fillrect 0 1 3 3 2
+brush 0 hatch 5 #b10324
+fillrect 0 -2 2 -1 8
 dump 0
 end
-case framerect
-dib 0 6 6 32
-fill 0 300
-brush 0 solid #4daa94
-framerect 0 4 3 3 8
-dump 0
-dib 0 6 6 32
-fill 0 301
-brush 0 solid #3fb64d
-framerect 0 5 1 7 1
-dump 0
-dib 0 6 6 32
-fill 0 302
-brush 0 solid #ae100c
-framerect 0 6 1 11 4
-dump 0
-dib 0 6 6 32
-fill 0 303
-brush 0 solid #4c35bd
-framerect 0 -2 1 -3 1
-dump 0
-dib 0 6 6 32
-fill 0 304
-brush 0 solid #05dc47
-framerect 0 5 3 4 6
-dump 0
-dib 0 6 6 32
-fill 0 305
-brush 0 solid #281da8
-framerect 0 2 -1 2 0
-dump 0
+case fillrect-6
 dib 0 6 6 32
 fill 0 306
-brush 0 solid #fdaf6a
-framerect 0 4 0 5 3
+brush 0 solid #024627
+fillrect 0 -1 4 2 9
 dump 0
+end
+case fillrect-7
 dib 0 6 6 32
 fill 0 307
+brush 0 solid #2ec03b
+fillrect 0 -1 0 -1 4
+dump 0
+end
+case fillrect-8
+dib 0 6 6 32
+fill 0 308
+brush 0 solid #e7b61e
+fillrect 0 -1 1 0 7
+dump 0
+end
+case fillrect-9
+dib 0 6 6 32
+fill 0 309
+brush 0 solid #8b6620
+fillrect 0 0 6 -1 6
+dump 0
+end
+case fillrect-10
+dib 0 6 6 32
+fill 0 310
+brush 0 solid #587370
+fillrect 0 2 4 4 9
+dump 0
+end
+case fillrect-11
+dib 0 6 6 32
+fill 0 311
+brush 0 hatch 1 #f6d592
+fillrect 0 -2 1 4 4
+dump 0
+end
+case fillrect-12
+dib 0 6 6 32
+fill 0 312
+brush 0 solid #dcb903
+fillrect 0 4 6 7 6
+dump 0
+end
+case fillrect-13
+dib 0 6 6 32
+fill 0 313
+brush 0 solid #6ffcca
+fillrect 0 0 3 4 6
+dump 0
+end
+case fillrect-14
+dib 0 6 6 32
+fill 0 314
+brush 0 solid #efbd37
+fillrect 0 -2 3 3 4
+dump 0
+end
+case fillrect-15
+dib 0 6 6 32
+fill 0 315
+brush 0 solid #79abe3
+fillrect 0 0 5 2 10
+dump 0
+end
+case fillrect-16
+dib 0 6 6 32
+fill 0 316
+brush 0 solid #aee5f0
+fillrect 0 4 2 7 3
+dump 0
+end
+case fillrect-17
+dib 0 6 6 32
+fill 0 317
+brush 0 hatch 0 #fca442
+fillrect 0 3 5 6 11
+dump 0
+end
+case fillrect-18
+dib 0 6 6 32
+fill 0 318
+brush 0 solid #e82cdf
+fillrect 0 -2 -1 -1 2
+dump 0
+end
+case fillrect-19
+dib 0 6 6 32
+fill 0 319
+brush 0 solid #20c5a3
+fillrect 0 5 3 5 2
+dump 0
+end
+case fillrect-20
+dib 0 6 6 32
+fill 0 320
+brush 0 solid #71a632
+fillrect 0 0 3 3 9
+dump 0
+end
+case fillrect-21
+dib 0 6 6 32
+fill 0 321
+brush 0 solid #00d750
+fillrect 0 1 3 4 9
+dump 0
+end
+case fillrect-22
+dib 0 6 6 32
+fill 0 322
+brush 0 solid #7c1a0f
+fillrect 0 3 6 2 8
+dump 0
+end
+case fillrect-23
+dib 0 6 6 32
+fill 0 323
+brush 0 hatch 3 #dfa438
+fillrect 0 -2 4 1 3
+dump 0
+end
+case framerect-0
+dib 0 6 6 32
+fill 0 300
+brush 0 solid #356e9e
+framerect 0 -1 5 -2 7
+dump 0
+end
+case framerect-1
+dib 0 6 6 32
+fill 0 301
+brush 0 solid #3536f9
+framerect 0 4 6 8 11
+dump 0
+end
+case framerect-2
+dib 0 6 6 32
+fill 0 302
+brush 0 solid #402294
+framerect 0 -1 -2 -2 -3
+dump 0
+end
+case framerect-3
+dib 0 6 6 32
+fill 0 303
+brush 0 solid #11b469
+framerect 0 6 5 12 4
+dump 0
+end
+case framerect-4
+dib 0 6 6 32
+fill 0 304
+brush 0 solid #6cf32c
+framerect 0 -1 2 1 2
+dump 0
+end
+case framerect-5
+dib 0 6 6 32
+fill 0 305
+brush 0 hatch 4 #fdaf6a
+framerect 0 4 0 5 3
+dump 0
+end
+case framerect-6
+dib 0 6 6 32
+fill 0 306
 brush 0 solid #229cf1
 framerect 0 2 3 2 2
 dump 0
+end
+case framerect-7
 dib 0 6 6 32
-fill 0 308
+fill 0 307
 brush 0 solid #728c3e
 framerect 0 1 -1 4 2
 dump 0
+end
+case framerect-8
 dib 0 6 6 32
-fill 0 309
+fill 0 308
 brush 0 solid #d13019
 framerect 0 4 2 9 4
 dump 0
+end
+case framerect-9
 dib 0 6 6 32
-fill 0 310
+fill 0 309
 brush 0 solid #2d3ffe
 framerect 0 5 6 8 10
 dump 0
+end
+case framerect-10
 dib 0 6 6 32
-fill 0 311
+fill 0 310
 brush 0 solid #922dc4
 framerect 0 0 5 3 9
 dump 0
-dib 0 6 6 32
-fill 0 312
-brush 0 solid #1af098
-framerect 0 5 6 8 12
-dump 0
-dib 0 6 6 32
-fill 0 313
-brush 0 solid #190954
-framerect 0 -2 -1 -1 0
-dump 0
-dib 0 6 6 32
-fill 0 314
-brush 0 solid #fe2b54
-framerect 0 2 5 7 9
-dump 0
-dib 0 6 6 32
-fill 0 315
-brush 0 solid #db8291
-framerect 0 2 3 3 7
-dump 0
-dib 0 6 6 32
-fill 0 316
-brush 0 solid #3d3c8b
-framerect 0 6 0 10 1
-dump 0
-dib 0 6 6 32
-fill 0 317
-brush 0 solid #eed0de
-framerect 0 6 3 9 2
-dump 0
-dib 0 6 6 32
-fill 0 318
-brush 0 solid #f37bbe
-framerect 0 5 -1 10 2
-dump 0
-dib 0 6 6 32
-fill 0 319
-brush 0 solid #4272e6
-framerect 0 -1 6 -1 11
-dump 0
-dib 0 6 6 32
-fill 0 320
-brush 0 solid #7b2339
-framerect 0 0 -1 2 4
-dump 0
-dib 0 6 6 32
-fill 0 321
-brush 0 solid #715088
-framerect 0 4 5 3 10
-dump 0
-dib 0 6 6 32
-fill 0 322
-brush 0 solid #2edf3d
-framerect 0 2 3 4 9
-dump 0
-dib 0 6 6 32
-fill 0 323
-brush 0 solid #91134a
-framerect 0 -1 3 2 4
-dump 0
 end
-case invertrect
-dib 0 6 6 32
-fill 0 300
-brush 0 solid #6e839d
-invertrect 0 0 3 2 7
-dump 0
-dib 0 6 6 32
-fill 0 301
-brush 0 solid #b0204c
-invertrect 0 1 5 1 8
-dump 0
-dib 0 6 6 32
-fill 0 302
-brush 0 solid #6fe23e
-invertrect 0 3 -2 5 0
-dump 0
-dib 0 6 6 32
-fill 0 303
-brush 0 solid #e12244
-invertrect 0 0 1 1 0
-dump 0
-dib 0 6 6 32
-fill 0 304
-brush 0 solid #04dd04
-invertrect 0 3 4 5 10
-dump 0
-dib 0 6 6 32
-fill 0 305
-brush 0 solid #646687
-invertrect 0 4 2 4 3
-dump 0
-dib 0 6 6 32
-fill 0 306
-brush 0 solid #585d54
-invertrect 0 -2 2 -3 4
-dump 0
-dib 0 6 6 32
-fill 0 307
-brush 0 solid #a6bcc2
-invertrect 0 0 0 1 4
-dump 0
-dib 0 6 6 32
-fill 0 308
-brush 0 solid #88f6e3
-invertrect 0 0 4 -1 5
-dump 0
-dib 0 6 6 32
-fill 0 309
-brush 0 solid #7e7135
-invertrect 0 4 4 8 9
-dump 0
-dib 0 6 6 32
-fill 0 310
-brush 0 solid #8daa07
-invertrect 0 5 3 8 2
-dump 0
+case framerect-11
 dib 0 6 6 32
 fill 0 311
-brush 0 solid #7f2f9d
-invertrect 0 -1 -1 2 4
+brush 0 hatch 2 #387c1c
+framerect 0 6 3 12 6
 dump 0
+end
+case framerect-12
 dib 0 6 6 32
 fill 0 312
-brush 0 solid #6c1624
-invertrect 0 6 3 5 5
+brush 0 solid #4e756d
+framerect 0 -1 5 0 8
 dump 0
+end
+case framerect-13
 dib 0 6 6 32
 fill 0 313
-brush 0 solid #f8129c
-invertrect 0 -1 2 3 6
+brush 0 solid #05ba5e
+framerect 0 5 5 9 5
 dump 0
+end
+case framerect-14
 dib 0 6 6 32
 fill 0 314
+brush 0 solid #bf4d75
+framerect 0 3 4 7 6
+dump 0
+end
+case framerect-15
+dib 0 6 6 32
+fill 0 315
+brush 0 solid #2bf5fd
+framerect 0 0 6 1 11
+dump 0
+end
+case framerect-16
+dib 0 6 6 32
+fill 0 316
+brush 0 solid #5315a4
+framerect 0 3 4 2 9
+dump 0
+end
+case framerect-17
+dib 0 6 6 32
+fill 0 317
+brush 0 hatch 4 #0c53ff
+framerect 0 6 2 11 2
+dump 0
+end
+case framerect-18
+dib 0 6 6 32
+fill 0 318
+brush 0 solid #f6781b
+framerect 0 5 6 5 12
+dump 0
+end
+case framerect-19
+dib 0 6 6 32
+fill 0 319
+brush 0 solid #218f21
+framerect 0 1 -1 0 -2
+dump 0
+end
+case framerect-20
+dib 0 6 6 32
+fill 0 320
+brush 0 solid #8bdf72
+framerect 0 2 2 6 2
+dump 0
+end
+case framerect-21
+dib 0 6 6 32
+fill 0 321
+brush 0 solid #ffaa3f
+framerect 0 6 2 7 7
+dump 0
+end
+case framerect-22
+dib 0 6 6 32
+fill 0 322
+brush 0 solid #d9f6d5
+framerect 0 -2 -2 2 0
+dump 0
+end
+case framerect-23
+dib 0 6 6 32
+fill 0 323
+brush 0 hatch 5 #28d3ab
+framerect 0 1 6 0 8
+dump 0
+end
+case invertrect-0
+dib 0 6 6 32
+fill 0 300
+brush 0 solid #7c30b9
+invertrect 0 4 5 5 11
+dump 0
+end
+case invertrect-1
+dib 0 6 6 32
+fill 0 301
+brush 0 solid #3689b3
+invertrect 0 -1 6 -2 9
+dump 0
+end
+case invertrect-2
+dib 0 6 6 32
+fill 0 302
+brush 0 solid #e6ff12
+invertrect 0 0 4 5 5
+dump 0
+end
+case invertrect-3
+dib 0 6 6 32
+fill 0 303
+brush 0 solid #81eacb
+invertrect 0 0 -1 4 3
+dump 0
+end
+case invertrect-4
+dib 0 6 6 32
+fill 0 304
+brush 0 solid #2851f9
+invertrect 0 5 -1 9 0
+dump 0
+end
+case invertrect-5
+dib 0 6 6 32
+fill 0 305
+brush 0 hatch 2 #af2363
+invertrect 0 3 0 7 1
+dump 0
+end
+case invertrect-6
+dib 0 6 6 32
+fill 0 306
+brush 0 solid #ecef05
+invertrect 0 -1 0 -1 -1
+dump 0
+end
+case invertrect-7
+dib 0 6 6 32
+fill 0 307
+brush 0 solid #b7304a
+invertrect 0 6 4 10 8
+dump 0
+end
+case invertrect-8
+dib 0 6 6 32
+fill 0 308
+brush 0 solid #21a616
+invertrect 0 0 5 1 8
+dump 0
+end
+case invertrect-9
+dib 0 6 6 32
+fill 0 309
+brush 0 solid #1e1920
+invertrect 0 0 -1 -1 2
+dump 0
+end
+case invertrect-10
+dib 0 6 6 32
+fill 0 310
+brush 0 solid #5eb5d6
+invertrect 0 3 6 5 5
+dump 0
+end
+case invertrect-11
+dib 0 6 6 32
+fill 0 311
+brush 0 hatch 3 #f8129c
+invertrect 0 -1 2 3 6
+dump 0
+end
+case invertrect-12
+dib 0 6 6 32
+fill 0 312
 brush 0 solid #bc2cdf
 invertrect 0 3 -2 2 4
 dump 0
+end
+case invertrect-13
 dib 0 6 6 32
-fill 0 315
+fill 0 313
 brush 0 solid #6e23c4
 invertrect 0 0 -1 3 0
 dump 0
+end
+case invertrect-14
 dib 0 6 6 32
-fill 0 316
+fill 0 314
 brush 0 solid #82a80b
 invertrect 0 4 4 7 9
 dump 0
+end
+case invertrect-15
 dib 0 6 6 32
-fill 0 317
+fill 0 315
 brush 0 solid #b98d7f
 invertrect 0 -2 0 -3 0
 dump 0
+end
+case invertrect-16
 dib 0 6 6 32
-fill 0 318
+fill 0 316
 brush 0 solid #102876
 invertrect 0 1 4 5 10
 dump 0
+end
+case invertrect-17
+dib 0 6 6 32
+fill 0 317
+brush 0 hatch 0 #fb72f3
+invertrect 0 6 2 6 7
+dump 0
+end
+case invertrect-18
+dib 0 6 6 32
+fill 0 318
+brush 0 solid #2a1dcb
+invertrect 0 5 4 10 4
+dump 0
+end
+case invertrect-19
 dib 0 6 6 32
 fill 0 319
-brush 0 solid #b41518
-invertrect 0 -1 6 3 6
+brush 0 solid #4e0735
+invertrect 0 4 0 8 0
 dump 0
+end
+case invertrect-20
 dib 0 6 6 32
 fill 0 320
-brush 0 solid #2afb0e
-invertrect 0 6 5 11 10
+brush 0 solid #463dd7
+invertrect 0 -1 6 3 6
 dump 0
+end
+case invertrect-21
 dib 0 6 6 32
 fill 0 321
-brush 0 solid #3f8b39
-invertrect 0 1 4 1 8
+brush 0 solid #64ddb1
+invertrect 0 -1 1 0 3
 dump 0
+end
+case invertrect-22
 dib 0 6 6 32
 fill 0 322
-brush 0 solid #3536c1
-invertrect 0 -2 -1 0 3
+brush 0 solid #f45f7d
+invertrect 0 -2 3 1 9
 dump 0
+end
+case invertrect-23
 dib 0 6 6 32
 fill 0 323
-brush 0 solid #f70db1
-invertrect 0 0 -1 2 0
+brush 0 hatch 4 #1b4436
+invertrect 0 1 1 1 4
 dump 0
 end
 case random-0
-dib 0 13 10 8
-fill 0 2355472668
-pen 0 0 1 #1b4436
-brush 0 solid #7f7f7f
-clip 0 11 0 19 5
-rectangle 0 5 2 9 9
+dib 0 14 5 24 bu
+fill 0 46242186
+pen 0 0 0 #d12151
+brush 0 solid #797a9d
+rop2 0 12
+ellipse 0 15 -2 14 4
 dump 0
 end
 case random-1
-dib 0 20 15 24 bu
-fill 0 590432898
-pen 0 0 0 #0d6ad5
-brush 0 solid #76ddc9
-rop2 0 16
-ellipse 0 18 12 0 -1
-polygon 0 -2 0 5 13 19 16
-polygon 0 -3 1 17 12 8 14
+dib 0 17 13 32
+fill 0 1317599222
+pen 0 0 1 #c80539
+brush 0 solid #c2b762
+moveto 0 -3 0
+lineto 0 8 6
+polygon 0 14 -1 16 11 2 15
 dump 0
 end
 case random-2
-dib 0 4 11 8
-fill 0 1621280447
-pen 0 0 1 #b40b28
-brush 0 solid #0c6d48
-rop2 0 6
-rectangle 0 0 3 -2 7
-moveto 0 5 8
-lineto 0 -1 9
+dib 0 5 9 1
+fill 0 919759397
+pen 0 0 0 #ff0000
+brush 0 solid #0000ff
+rectangle 0 5 4 3 -2
+moveto 0 -2 11
+lineto 0 4 5
 dump 0
 end
 case random-3

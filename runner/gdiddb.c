@@ -33,17 +33,23 @@ static void op_ddb(void) {
     gdi_adopt(n, dc, b, old);
 }
 
+/* the size GetObject gave, by what it is (so that x86 and x86-64 print the same) */
+static const char *size_name(int k) {
+    return k == sizeof(DIBSECTION) ? "dibsection" : k == sizeof(BITMAP) ? "bitmap" : k ? "other" : "0";
+}
+
 /* bmobject <s>: GetObject of the slot's bitmap: "bm <size> <w> <h> <widthbytes> <planes> <bpp>
- * <bits 0|1>" and for a DIB section "dib <bitcount> <height> <compression> <clrused>" */
+ * <bits 0|1>", for a DIB section "dib <bitcount> <height> <compression> <clrused>", and
+ * "bmsize <size>" (GetObject with no buffer) */
 static void op_bmobject(void) {
     HBITMAP b = gdi_bitmap(1);
     if (bad) return;
     DIBSECTION ds;
     memset(&ds, 0, sizeof ds);
     int k = GetObjectA(b, sizeof ds, &ds);
-    out("bm %d %ld %ld %ld %d %d %d\n", k, ds.dsBm.bmWidth, ds.dsBm.bmHeight, ds.dsBm.bmWidthBytes, ds.dsBm.bmPlanes, ds.dsBm.bmBitsPixel, ds.dsBm.bmBits ? 1 : 0);
+    out("bm %s %ld %ld %ld %d %d %d\n", size_name(k), ds.dsBm.bmWidth, ds.dsBm.bmHeight, ds.dsBm.bmWidthBytes, ds.dsBm.bmPlanes, ds.dsBm.bmBitsPixel, ds.dsBm.bmBits ? 1 : 0);
     if (k == sizeof ds) out("dib %d %ld %lu %lu\n", ds.dsBmih.biBitCount, ds.dsBmih.biHeight, ds.dsBmih.biCompression, ds.dsBmih.biClrUsed);
-    out("bmsize %d\n", GetObjectA(b, 0, NULL));
+    out("bmsize %s\n", size_name(GetObjectA(b, 0, NULL)));
 }
 
 /* bmbits <s>: GetBitmapBits of the whole bitmap ("bmbits <count>" then the bytes) */

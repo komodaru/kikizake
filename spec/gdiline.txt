@@ -1,2 +1,24 @@
 # gdiline clauses (spec/README.md): <id> <status> | <source> | <what it says>
-GDI.LINE.OPEN open | (none) | not modelled yet: checked against Windows only
+GDI.PEN.CREATE doc | CreatePen | a pen of a style, a width and a color; width 0 is one pixel whatever the transformation; the DC's default pen is the black one-pixel pen (BLACK_PEN)
+GDI.PEN.STYLE open | CreatePen (PS_DASH, PS_DOT, PS_DASHDOT, PS_DASHDOTDOT) | the dash pattern of a styled cosmetic pen, its phase, and the gaps in OPAQUE mode
+GDI.PEN.WIDE open | CreatePen, ExtCreatePen | the pixels of a pen wider than one pixel (end caps, joins, PS_INSIDEFRAME)
+GDI.PEN.EXT open | ExtCreatePen | pens made by ExtCreatePen (cosmetic PS_ALTERNATE, geometric caps and joins)
+GDI.ROP2.TRUTH doc | Binary Raster Operations, SetROP2 | R2_BLACK (1) .. R2_WHITE (16): each result bit is bit (P<<1 | D) of the code minus one, on the pixel values (the pen's value in the destination format)
+GDI.STATE.OLD doc | SetROP2, SetPolyFillMode, SetArcDirection | each returns the previous mode; 0 for a mode out of range, which leaves the mode as it was
+GDI.POS.MOVE doc | MoveToEx | the current position becomes the point; the previous one is returned (a new DC: 0, 0)
+GDI.LINE.LAST doc | LineTo | "The line is drawn from the current position up to, but not including, the specified point"; the current position becomes the point
+GDI.LINE.PIXELS assumed | (none) | a one-pixel line lights one pixel per step of its major axis (the longer of |dx|, |dy|; x when equal), the minor coordinate rounded from start + i * minor / major
+GDI.LINE.TIE measured | (none) | a minor coordinate exactly halfway between two pixels goes to the smaller one (up for x-major lines, left for y-major), whichever way the line runs (golden lines-32/-64: every line from the center of a 17x17 picture to every point of it and back, 578 lines)
+GDI.LINE.POLY doc | Polyline, PolylineTo | lines between consecutive points; Polyline neither uses nor changes the current position, PolylineTo starts at it and leaves it at the last point
+GDI.LINE.POLYSHORT open | Polyline | Polyline with fewer than two points
+GDI.LINE.BEZIER open | PolyBezier, PolyBezierTo | the pixels of a Bézier curve
+GDI.RECT.FILL doc | FillRect | fills the rectangle "including the left and top borders, but excluding the right and bottom borders" with the brush
+GDI.RECT.FRAME doc | FrameRect | a border one logical unit wide around the rectangle, drawn with the brush
+GDI.RECT.INVERT doc | InvertRect | inverts the rectangle's pixels (a logical NOT of each value)
+GDI.RECT.EMPTY open | FillRect, FrameRect, InvertRect | a rectangle whose right <= left or bottom <= top
+GDI.SHAPE.RECT doc | Rectangle | outlined with the pen, filled with the brush; "The rectangle that is drawn excludes the bottom and right edges"; with the null pen the filled area is (l, t) - (r - 1, b - 1) exclusive
+GDI.SHAPE.RECTPEN open | Rectangle | a rectangle outlined by a wider pen, PS_INSIDEFRAME, or a binary raster operation other than R2_COPYPEN
+GDI.SHAPE.RECTTHIN open | Rectangle | a rectangle one pixel wide or high with a pen
+GDI.SHAPE.BRUSH open | Rectangle, FillRect, FillRgn | shapes filled with a hatched or pattern brush
+GDI.SHAPE.POLYGON open | Polygon, SetPolyFillMode | which pixels a polygon fills (ALTERNATE / WINDING), and its outline
+GDI.SHAPE.CURVE open | Ellipse, RoundRect, Arc, ArcTo, Pie, Chord | the pixels of ellipses and their parts

@@ -2,136 +2,184 @@
 case kind-0
 ddb 0 mono 9 5
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-1
 ddb 0 bitmap 9 5 1 1
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-2
 ddb 0 bitmap 9 5 1 4
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-3
 ddb 0 bitmap 9 5 1 8
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-4
 ddb 0 bitmap 9 5 1 16
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-5
 ddb 0 bitmap 9 5 1 24
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-6
 ddb 0 bitmap 9 5 1 32
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-7
 ddb 0 bitmap 9 5 4 1
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-8
 ddb 0 bitmap 9 5 1 2
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-9
 ddb 0 screen 9 5
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-10
 ddb 0 screen 0 0
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-11
 ddb 0 mono 0 3
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case kind-12
 ddb 0 bitmap 9 5 3 8
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 objtype 0 bitmap
+objtype 0 pen
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 end
 case compat-1
 dib 0 4 4 1
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-1
+dib 0 4 4 1
+fill 0 7
+bmbits 0
 end
 case compat-4
 dib 0 4 4 4
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-4
+dib 0 4 4 4
+fill 0 7
+bmbits 0
 end
 case compat-8
 dib 0 4 4 8
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-8
+dib 0 4 4 8
+fill 0 7
+bmbits 0
 end
 case compat-16
 dib 0 4 4 16
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-16
+dib 0 4 4 16
+fill 0 7
+bmbits 0
 end
 case compat-16565
 dib 0 4 4 16 565
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-16565
+dib 0 4 4 16 565
+fill 0 7
+bmbits 0
 end
 case compat-24
 dib 0 4 4 24
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-24
+dib 0 4 4 24
+fill 0 7
+bmbits 0
 end
 case compat-32
 dib 0 4 4 32
 bmobject 0
-devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 ddb 1 compat 0 7 3
 bmobject 1
+devcaps 0 2 12 14 16 18 24 38 104 106 108 120
 devcaps 1 2 12 14 16 18 24 38 104 106 108 120
+end
+case dibbits-32
+dib 0 4 4 32
+fill 0 7
+bmbits 0
 end
 case compat-ddb
 ddb 0 mono 4 4

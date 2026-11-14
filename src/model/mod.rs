@@ -13,6 +13,7 @@ pub mod d3d9;
 pub mod gdi;
 pub mod gdiplus;
 pub mod gdiline;
+pub mod rgn;
 pub mod gdirgn;
 pub mod gdixform;
 pub mod gdipath;

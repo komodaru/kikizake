@@ -65,7 +65,11 @@ fn surf(fmt: (u32, bool), w: i32, h: i32, seed: u32) -> Surf {
 fn gdi_with(d: Surf, s: Surf, brush: Brush, org: (i32, i32), clip: Option<(i32, i32, i32, i32)>) -> Gdi {
     let mut g = Gdi::new();
     for (i, x) in [d, s].into_iter().enumerate() {
-        g.slots[i] = Some(kikizake::model::gdi::Slot { s: x, text: 0, bk: 0xffffff, bkmode: 2, org, clip, brush: brush.clone(), mode: 1 });
+        let mut sl = kikizake::model::gdi::Slot::new(x);
+        sl.org = org;
+        sl.clip = clip.map(|c| kikizake::model::rgn::Rgn::rect(c.0, c.1, c.2, c.3));
+        sl.brush = brush.clone();
+        g.slots[i] = Some(sl);
     }
     g
 }

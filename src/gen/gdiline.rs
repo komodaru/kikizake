@@ -150,13 +150,15 @@ pub fn lines() -> String {
     }
     // FillRect, FrameRect, InvertRect with every rectangle around a 6x6 picture's edges
     for op in ["fillrect", "framerect", "invertrect"] {
-        writeln!(s, "case {op}").unwrap();
         for i in 0..24 {
-            writeln!(s, "dib 0 6 6 32\nfill 0 {}\nbrush 0 solid #{:06x}", 300 + i, r.next() & 0xffffff).unwrap();
+            writeln!(s, "case {op}-{i}\ndib 0 6 6 32\nfill 0 {}", 300 + i).unwrap();
+            match i % 6 {
+                5 => writeln!(s, "brush 0 hatch {} #{:06x}", r.range(0, 5), r.next() & 0xffffff).unwrap(),
+                _ => writeln!(s, "brush 0 solid #{:06x}", r.next() & 0xffffff).unwrap(),
+            }
             let (l, t) = (r.range(-2, 6), r.range(-2, 6));
-            writeln!(s, "{op} 0 {l} {t} {} {}\ndump 0", l + r.range(-1, 6), t + r.range(-1, 6)).unwrap();
+            writeln!(s, "{op} 0 {l} {t} {} {}\ndump 0\nend", l + r.range(-1, 6), t + r.range(-1, 6)).unwrap();
         }
-        writeln!(s, "end").unwrap();
     }
     // random: formats, colors, ROP2, shapes, clipping
     for i in 0..200 {

@@ -12,11 +12,11 @@ pub fn ddb() -> String {
     // the kinds of bitmap: what GetObject and GetDeviceCaps say
     let kinds = ["mono 9 5", "bitmap 9 5 1 1", "bitmap 9 5 1 4", "bitmap 9 5 1 8", "bitmap 9 5 1 16", "bitmap 9 5 1 24", "bitmap 9 5 1 32", "bitmap 9 5 4 1", "bitmap 9 5 1 2", "screen 9 5", "screen 0 0", "mono 0 3", "bitmap 9 5 3 8"];
     for (i, k) in kinds.iter().enumerate() {
-        writeln!(s, "case kind-{i}\nddb 0 {k}\nbmobject 0\ndevcaps 0 {CAPS}\nobjtype 0 bitmap\nend").unwrap();
+        writeln!(s, "case kind-{i}\nddb 0 {k}\nbmobject 0\nobjtype 0 bitmap\nobjtype 0 pen\ndevcaps 0 {CAPS}\nend").unwrap();
     }
     // compatible bitmaps of DIB sections of every format and of DDBs
     for f in FORMATS {
-        writeln!(s, "case compat-{}\ndib 0 4 4 {}{}\nbmobject 0\ndevcaps 0 {CAPS}\nddb 1 compat 0 7 3\nbmobject 1\ndevcaps 1 {CAPS}\nend", fmt_name(f), f.0, f.1).unwrap();
+        writeln!(s, "case compat-{0}\ndib 0 4 4 {1}{2}\nbmobject 0\nddb 1 compat 0 7 3\nbmobject 1\ndevcaps 0 {CAPS}\ndevcaps 1 {CAPS}\nend\ncase dibbits-{0}\ndib 0 4 4 {1}{2}\nfill 0 7\nbmbits 0\nend", fmt_name(f), f.0, f.1).unwrap();
     }
     writeln!(s, "case compat-ddb\nddb 0 mono 4 4\nddb 1 compat 0 5 3\nbmobject 1\nddb 2 screen 4 4\nddb 3 compat 2 5 3\nbmobject 3\nend").unwrap();
     // GetBitmapBits / SetBitmapBits (fill and dump) round trips, GetDIBits of DDBs

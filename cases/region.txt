@@ -7677,6 +7677,27 @@ rectvisible 0 -1 9 5 18
 patblt 0 0 0 16 12 0xf00021
 dump 0
 end
+case combine-mode-0
+rgn 0 rect 0 0 4 4
+rgn 1 rect 2 2 6 6
+rgn 2 rect 9 9 10 10
+combine 2 0 1 0
+rgndata 2
+end
+case combine-mode-6
+rgn 0 rect 0 0 4 4
+rgn 1 rect 2 2 6 6
+rgn 2 rect 9 9 10 10
+combine 2 0 1 6
+rgndata 2
+end
+case combine-mode--1
+rgn 0 rect 0 0 4 4
+rgn 1 rect 2 2 6 6
+rgn 2 rect 9 9 10 10
+combine 2 0 1 -1
+rgndata 2
+end
 case selclip-none-1
 dib 0 6 4 32
 clip 0 1 1 4 3

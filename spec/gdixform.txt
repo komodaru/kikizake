@@ -1,2 +1,21 @@
 # gdixform clauses (spec/README.md): <id> <status> | <source> | <what it says>
-GDI.XFORM.OPEN open | (none) | not modelled yet: checked against Windows only
+GDI.MAP.MODE doc | SetMapMode | returns the previous mapping mode, 0 for one out of MM_TEXT (1) .. MM_ANISOTROPIC (8)
+GDI.MAP.METRIC open | SetMapMode | the metric modes' and MM_ISOTROPIC's extents (from the device's size and resolution), and the modes reached from them
+GDI.MAP.EXT doc | SetWindowExtEx, SetViewportExtEx | sets the extent in MM_ANISOTROPIC; in MM_TEXT and the metric modes the call is ignored; returns nonzero and the previous extent
+GDI.MAP.ZEROEXT open | SetWindowExtEx | an extent of 0
+GDI.MAP.ORG doc | SetWindowOrgEx, SetViewportOrgEx, OffsetWindowOrgEx, OffsetViewportOrgEx | sets (or moves) the origin in any mode; returns the previous one
+GDI.MAP.SCALE open | ScaleWindowExtEx, ScaleViewportExtEx | the scaled extents (rounding, a 0 denominator)
+GDI.MAP.GET doc | GetMapMode, GetWindowExtEx, GetViewportExtEx, GetWindowOrgEx, GetViewportOrgEx, GetGraphicsMode | the state as set
+GDI.MAP.FORMULA doc | Transformation of Coordinate Spaces (page space to device space) | Dx = (Lx - xWO) * xVE / xWE + xVO, and likewise for y
+GDI.MAP.INVERSE doc | DPtoLP | the inverse: Lx = (Dx - xVO) * xWE / xVE + xWO
+GDI.MAP.ROUND assumed | (none) | the result rounded to the nearest integer
+GDI.MAP.HALF open | (none) | a result exactly halfway between two integers
+GDI.MAP.DRAW open | (none) | drawing (PatBlt, BitBlt, lines, regions, ...) through a mapping or a world transform
+GDI.XFORM.GMODE doc | SetGraphicsMode | returns the previous mode; GM_COMPATIBLE cannot be set again until the world transform is the identity (0)
+GDI.XFORM.SET doc | SetWorldTransform | fails (0) unless the graphics mode is GM_ADVANCED; else the world transform becomes the matrix
+GDI.XFORM.SINGULAR open | SetWorldTransform | a matrix whose determinant is 0
+GDI.XFORM.GET doc | GetWorldTransform | the world transform (the identity on a new DC)
+GDI.XFORM.MODIFY doc | ModifyWorldTransform | MWT_IDENTITY resets; MWT_LEFTMULTIPLY: the matrix times the transform; MWT_RIGHTMULTIPLY: the transform times the matrix; fails in GM_COMPATIBLE
+GDI.XFORM.COMBINE doc | CombineTransform, XFORM | the product of two transforms (the first applied first), as the XFORM page's formulas multiply it
+GDI.XFORM.WORLDPOINT doc | Transformation of Coordinate Spaces (world space to page space) | x' = x * eM11 + y * eM21 + eDx, y' = x * eM12 + y * eM22 + eDy
+GDI.XFORM.ROUNDWORLD open | (none) | the rounding of points through a world transform

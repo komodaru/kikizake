@@ -11,6 +11,8 @@ use super::{Fail, Res};
 use crate::case::{color, num, Op};
 use crate::rng::XorShift32;
 use crate::spec::hit;
+pub use super::gdiline::Draw;
+use super::rgn::Rgn;
 
 /// ternary raster operation on whole words: each result bit is bit (p<<2|s<<1|d) of `idx`
 pub fn rop3(idx: u8, p: u32, s: u32, d: u32) -> u32 {
@@ -51,6 +53,8 @@ pub struct Surf {
     pub pal: Vec<u32>,
     pub stride: usize,
     pub rows: Vec<Vec<u8>>,
+    /// a device-dependent bitmap (gdiddb.c): rows WORD aligned, top to bottom in memory
+    pub ddb: bool,
 }
 
 pub fn default_palette(bpp: u32) -> Vec<u32> {
@@ -66,7 +70,13 @@ pub fn default_palette(bpp: u32) -> Vec<u32> {
 impl Surf {
     pub fn new(w: i32, h: i32, bpp: u32, f565: bool, topdown: bool, pal: Vec<u32>) -> Surf {
         let stride = ((w as usize * bpp as usize + 31) / 32) * 4;
-        Surf { w, h, bpp, f565, topdown, pal, stride, rows: vec![vec![0; stride]; h as usize] }
+        Surf { w, h, bpp, f565, topdown, pal, stride, rows: vec![vec![0; stride]; h as usize], ddb: false }
+    }
+    /// a DDB: 1 bpp black and white, or the screen's format (32 bpp)
+    pub fn ddb(w: i32, h: i32, bpp: u32) -> Surf {
+        let stride = (w as usize * bpp as usize).div_ceil(16) * 2;
+        let pal = if bpp == 1 { vec![0, 0xffffff] } else { Vec::new() };
+        Surf { w, h, bpp, f565: false, topdown: true, pal, stride, rows: vec![vec![0; stride]; h as usize], ddb: true }
     }
     pub fn mask(&self) -> u32 {
         if self.bpp == 32 { !0 } else { (1u32 << self.bpp) - 1 }
@@ -164,16 +174,32 @@ pub struct Slot {
     pub bk: u32,
     pub bkmode: i64,
     pub org: (i32, i32),
-    /// the clip rectangle (x0, y0, x1, y1), None = no clip region
-    pub clip: Option<(i32, i32, i32, i32)>,
+    /// the clip region (device coordinates), None = no clip region
+    pub clip: Option<Rgn>,
     pub brush: Brush,
     /// SetStretchBltMode (a memory DC starts with BLACKONWHITE)
     pub mode: i64,
+    /// the state the other GDI modules keep (pen, mapping, path, ...)
+    pub ext: Draw,
+}
+
+impl Slot {
+    /// a new memory DC with this bitmap: black text, white background, opaque, the white stock
+    /// brush, BLACKONWHITE
+    pub fn new(s: Surf) -> Slot {
+        Slot { s, text: 0, bk: 0xffffff, bkmode: 2, org: (0, 0), clip: None, brush: Brush::Solid(0xffffff), mode: 1, ext: Draw::default() }
+    }
+    /// whether a device pixel may change (in the bitmap and the clip region)
+    pub fn visible(&self, x: i32, y: i32) -> bool {
+        x >= 0 && y >= 0 && x < self.s.w && y < self.s.h && self.clip.as_ref().is_none_or(|c| c.contains(x, y))
+    }
 }
 
 #[derive(Default)]
 pub struct Gdi {
     pub slots: Vec<Option<Slot>>,
+    /// gdirgn.c's region slots
+    pub rgns: Vec<Option<Rgn>>,
 }
 
 fn n(op: &Op, i: usize) -> Result<i64, Fail> {
@@ -185,7 +211,7 @@ fn c(op: &Op, i: usize) -> Result<u32, Fail> {
 
 impl Gdi {
     pub fn new() -> Gdi {
-        Gdi { slots: vec![None; 8] }
+        Gdi { slots: vec![None; 8], rgns: vec![None; 8] }
     }
     fn slot(&mut self, op: &Op, i: usize) -> Result<&mut Slot, Fail> {
         let k = n(op, i)?;
@@ -205,6 +231,9 @@ impl Gdi {
 
     fn op_inner(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t0 = op.tok[0].as_str();
+        if matches!(t0, "patblt" | "bitblt" | "stretchblt" | "getpixel" | "setpixel" | "clip") && self.slot(op, 1)?.ext.mapped() {
+            return super::gdixform::mapped_gdi_op(self, op, out);
+        }
         match t0 {
             "dib" => {
                 let k = n(op, 1)?;
@@ -230,7 +259,7 @@ impl Gdi {
                     pal[j] = color(t).ok_or(Fail::Bad)?;
                 }
                 // (a memory DC's defaults: black text, white background, opaque, the white stock brush)
-                self.slots[k as usize] = Some(Slot { s: Surf::new(w as i32, h as i32, bpp as u32, f565, topdown, pal), text: 0, bk: 0xffffff, bkmode: 2, org: (0, 0), clip: None, brush: Brush::Solid(0xffffff), mode: 1 });
+                self.slots[k as usize] = Some(Slot::new(Surf::new(w as i32, h as i32, bpp as u32, f565, topdown, pal)));
             }
             "fill" => {
                 let seed = n(op, 2)? as u32;
@@ -295,12 +324,11 @@ impl Gdi {
                     return Err(Fail::Unmodeled("GDI.CLIP.UNORDERED"));
                 }
                 let sl = self.slot(op, 1)?;
-                let c = match sl.clip {
-                    None => r,
+                if sl.clip.is_some() || sl.ext.mapped() {
                     // (what it returns on a DC with a clip region already: not measured yet)
-                    Some(_) => return Err(Fail::Unmodeled("GDI.CLIP.AGAIN")),
-                };
-                sl.clip = Some(c);
+                    return Err(Fail::Unmodeled("GDI.CLIP.AGAIN"));
+                }
+                sl.clip = Some(Rgn::rect(r.0, r.1, r.2, r.3));
                 // MEASURED: COMPLEXREGION (3) on a memory DC without a clip region, whatever
                 // the rectangle (the documentation lists NULLREGION / SIMPLEREGION / COMPLEXREGION)
                 hit("GDI.CLIP.RESULT");
@@ -332,7 +360,7 @@ impl Gdi {
                 let (x, y) = (n(op, 2)? as i32, n(op, 3)? as i32);
                 let c = if t0 == "setpixel" { Some(c(op, 4)?) } else { None };
                 let sl = self.slot(op, 1)?;
-                let inside = x >= 0 && y >= 0 && x < sl.s.w && y < sl.s.h && sl.clip.is_none_or(|r| x >= r.0 && x < r.2 && y >= r.1 && y < r.3);
+                let inside = sl.visible(x, y);
                 hit(if c.is_some() { "GDI.PIXEL.SET" } else { "GDI.PIXEL.GET" });
                 if !inside {
                     out.push("pixel invalid".into());
@@ -506,19 +534,17 @@ impl Gdi {
         }
         if let Some((s, ..)) = &sp {
             if (s.s.bpp == 1) != (d.s.bpp == 1) {
-                return Err(Fail::Unmodeled("GDI.BLT.MONO"));
+                // (documented for monochrome bitmaps; a 1 bpp DIB section's color table: open)
+                if !(if s.s.bpp == 1 { s.s.ddb } else { d.s.ddb }) {
+                    return Err(Fail::Unmodeled("GDI.BLT.MONO"));
+                }
+                hit("GDI.DDB.MONOBLT");
             }
         }
         let d = self.slots[k].as_mut().unwrap();
         hit("GDI.FMT.LAYOUT");
         hit("GDI.BLT.CLIP");
-        let (mut x0, mut y0, mut x1, mut y1) = (x.max(0), y.max(0), (x + w).min(d.s.w), (y + h).min(d.s.h));
-        if let Some(c) = d.clip {
-            x0 = x0.max(c.0);
-            y0 = y0.max(c.1);
-            x1 = x1.min(c.2);
-            y1 = y1.min(c.3);
-        }
+        let (x0, y0, x1, y1) = (x.max(0), y.max(0), (x + w).min(d.s.w), (y + h).min(d.s.h));
         let mask = d.s.mask();
         let solid = match &d.brush {
             Brush::Solid(c) => d.s.from_rgb(*c),
@@ -526,6 +552,9 @@ impl Gdi {
         };
         for py in y0..y1 {
             for px in x0..x1 {
+                if !d.visible(px, py) {
+                    continue;
+                }
                 let sv = match &sp {
                     None => 0,
                     Some((s, sx, sy)) => {
@@ -539,6 +568,12 @@ impl Gdi {
                         if s.s.same_format(&d.s) {
                             hit("GDI.FMT.RAW");
                             v
+                        } else if s.s.bpp == 1 && d.s.bpp != 1 {
+                            // 1 bits to the background color, 0 bits to the text color
+                            d.s.from_rgb(if v == 1 { d.bk } else { d.text })
+                        } else if d.s.bpp == 1 && s.s.bpp != 1 {
+                            // the source's background color to 1, every other color to 0
+                            (v == s.s.from_rgb(s.bk)) as u32
                         } else {
                             d.s.from_rgb(s.s.to_rgb(v))
                         }

@@ -103,6 +103,10 @@ pub fn region() -> String {
         writeln!(s, "getcliprgn 0 6\nrgndata 6\nptvisible 0 {} {}\nrectvisible 0 {}", r.range(-1, 16), r.range(-1, 12), rect(&mut r, -2, 12)).unwrap();
         writeln!(s, "patblt 0 0 0 16 12 0xf00021\ndump 0\nend").unwrap();
     }
+    // CombineRgn with a mode out of range
+    for m in [0, 6, -1] {
+        writeln!(s, "case combine-mode-{m}\nrgn 0 rect 0 0 4 4\nrgn 1 rect 2 2 6 6\nrgn 2 rect 9 9 10 10\ncombine 2 0 1 {m}\nrgndata 2\nend").unwrap();
+    }
     // the documented edge cases: selclip none with each mode, a null region selected
     for m in 1..=5 {
         writeln!(s, "case selclip-none-{m}\ndib 0 6 4 32\nclip 0 1 1 4 3\nselclip 0 none {m}\nclipbox 0\nend").unwrap();
