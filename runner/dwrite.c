@@ -346,12 +346,22 @@ static void op_dwshape(void) {
  * ALIASED_1x1), gray (natural symmetric, grayscale, ALIASED_1x1), cleartype (natural symmetric,
  * cleartype, CLEARTYPE_3x1), natural (natural, grayscale), gdi (GDI classic rendering and
  * measuring, grayscale), gdinatural (GDI natural rendering and measuring, grayscale); grid fit
- * default. Prints "dwrun hr", the texture bounds, then each row's bytes. */
+ * default, or enabled when the mode ends in .fit, disabled in .nofit. Prints "dwrun hr", the texture bounds, then each row's bytes. */
 static void op_dwrun(void) {
     static const char *modes[] = { "aliased", "gray", "cleartype", "natural", "gdi", "gdinatural" };
     int mode = -1;
+    DWRITE_GRID_FIT_MODE fit = DWRITE_GRID_FIT_MODE_DEFAULT;
+    char m[32] = "";
+    if (ntok > 1 && strlen(tok[1]) < sizeof m) strcpy(m, tok[1]);
+    char *dot = strchr(m, '.');
+    if (dot) {
+        *dot++ = 0;
+        if (!strcmp(dot, "fit")) fit = DWRITE_GRID_FIT_MODE_ENABLED;
+        else if (!strcmp(dot, "nofit")) fit = DWRITE_GRID_FIT_MODE_DISABLED;
+        else bad = 1;
+    }
     for (int i = 0; i < 6; i++)
-        if (is(1, modes[i])) mode = i;
+        if (!strcmp(m, modes[i])) mode = i;
     long em = num(2), x4 = num(3), y4 = num(4);
     int n = (ntok - 5) / 2;
     UINT16 g[MAXTOK];
@@ -371,7 +381,7 @@ static void op_dwrun(void) {
     DWRITE_TEXTURE_TYPE tt = mode == 2 ? DWRITE_TEXTURE_CLEARTYPE_3x1 : DWRITE_TEXTURE_ALIASED_1x1;
     DWRITE_GLYPH_RUN run = { face, (float)em, n, g, adv, off, FALSE, 0 };
     IDWriteGlyphRunAnalysis *a = NULL;
-    HRESULT hr = IDWriteFactory3_CreateGlyphRunAnalysis((IDWriteFactory3 *)dw, &run, NULL, rm[mode], mm[mode], DWRITE_GRID_FIT_MODE_DEFAULT,
+    HRESULT hr = IDWriteFactory3_CreateGlyphRunAnalysis((IDWriteFactory3 *)dw, &run, NULL, rm[mode], mm[mode], fit,
                                                         mode == 2 ? DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE : DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE, x4 / 4.0f, y4 / 4.0f, &a);
     out("dwrun hr %08lx\n", hr);
     if (FAILED(hr) || !a) return;

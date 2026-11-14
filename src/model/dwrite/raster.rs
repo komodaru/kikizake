@@ -1,7 +1,7 @@
 //! IDWriteGlyphRunAnalysis: the alpha texture of a glyph run (the fonts' glyphs are
 //! rectangles, so coverage is a matter of where their edges fall): every mode is the aliased
 //! rasterizer on a grid of samples, the samples then counted (or filtered) into pixels.
-use super::super::{Fail, Res};
+use super::super::Res;
 use crate::spec::hit;
 use crate::ttf::Parsed;
 
@@ -58,10 +58,27 @@ fn spans(r: &[(i64, i64, i64, i64)], c: i64, horizontal: bool) -> Vec<(i64, i64)
     m
 }
 
+/// MEASURED: the largest size whose textures have dropout control (32 has it, 39 not)
+const DROPOUT_MAX_PPEM: i64 = 32;
+
+/// whether the rasterizer keeps dropout control on (MEASURED: only up to a size)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Dropout {
+    On,
+    Off,
+}
+
+impl Dropout {
+    /// at `ppem` pixels an em
+    pub fn at(ppem: i64) -> Dropout {
+        if ppem <= DROPOUT_MAX_PPEM { Dropout::On } else { Dropout::Off }
+    }
+}
+
 /// the pixels the aliased rasterizer sets: those whose centers are inside, and (MEASURED:
-/// dropout control) on a scan line whose span between two crossings holds no center, the pixel
-/// after the span on a row and the one before it (above) on a column
-pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i64, i64)>> {
+/// dropout control) one pixel beside each scan line span between two crossings that holds no
+/// center, chosen by the glyph's box
+pub fn aliased(r: &[(i64, i64, i64, i64)], dropout: Dropout) -> Res<std::collections::BTreeSet<(i64, i64)>> {
     let mut lit = std::collections::BTreeSet::new();
     let (mut y0, mut y1, mut x0, mut x1) = (i64::MAX, i64::MIN, i64::MAX, i64::MIN);
     for q in r {
@@ -70,6 +87,8 @@ pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i6
         y0 = y0.min(q.1.div_euclid(64) - 1);
         y1 = y1.max(q.3.div_euclid(64) + 1);
     }
+    let bx0 = r.iter().map(|q| q.0).min().unwrap_or(0);
+    let by1 = r.iter().map(|q| q.3).max().unwrap_or(0);
     for (horizontal, a0, a1) in [(true, y0, y1), (false, x0, x1)] {
         for a in a0..=a1 {
             for (lo, hi) in spans(r, a * 64 + 32, horizontal) {
@@ -84,12 +103,25 @@ pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i6
                     }
                 } else {
                     // MEASURED (dropout control): a span between two centers lights the pixel
-                    // after it on a row and the one before it (above) on a column
+                    // before it on a row (left) when that pixel's center is inside the glyph's box,
+                    // else the one after; on a column the one after it (below) when its center is
+                    // inside the box, else the one before (above)
                     hit("DW.RUN.DROPOUT");
-                    if r.len() > 1 {
-                        return Err(Fail::Unmodeled("DW.RUN.DROPOUT.CONTOURS"));
+                    if dropout == Dropout::Off {
+                        hit("DW.RUN.DROPOUT.SIZE");
                     }
-                    lit.insert(px(if horizontal { first } else { first - 1 }));
+                    // MEASURED: none when either pixel beside the span is already lit
+                    if dropout == Dropout::Off || lit.contains(&px(first - 1)) || lit.contains(&px(first)) {
+                        continue;
+                    }
+                    let b = if horizontal {
+                        if (first - 1) * 64 + 32 >= bx0 { first - 1 } else { first }
+                    } else if first * 64 + 32 <= by1 {
+                        first
+                    } else {
+                        first - 1
+                    };
+                    lit.insert(px(b));
                 }
             }
         }
@@ -97,17 +129,64 @@ pub fn aliased(r: &[(i64, i64, i64, i64)]) -> Res<std::collections::BTreeSet<(i6
     Ok(lit)
 }
 
-pub fn run(p: &Parsed, mode: &str, em: i64, x4: i64, y4: i64, run: &[(u16, i64)]) -> Res<Vec<String>> {
+/// how CreateGlyphRunAnalysis renders (the runner's dwrun modes)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Mode {
+    /// rendering aliased, measuring natural
+    Aliased,
+    /// natural symmetric, grayscale
+    Gray,
+    /// natural symmetric, ClearType 3x1
+    ClearType,
+    /// natural, grayscale
+    Natural,
+    /// GDI classic rendering and measuring
+    Gdi,
+    /// GDI natural rendering and measuring
+    GdiNatural,
+}
+
+/// the grid fit mode asked for
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Fit {
+    Default,
+    Enabled,
+    Disabled,
+}
+
+impl Mode {
+    /// a dwrun mode token: the mode, then .fit or .nofit for the grid fit mode
+    pub fn parse(t: &str) -> Option<(Mode, Fit)> {
+        let (m, f) = match t.split_once('.') {
+            None => (t, Fit::Default),
+            Some((m, "fit")) => (m, Fit::Enabled),
+            Some((m, "nofit")) => (m, Fit::Disabled),
+            Some(_) => return None,
+        };
+        let m = match m {
+            "aliased" => Mode::Aliased,
+            "gray" => Mode::Gray,
+            "cleartype" => Mode::ClearType,
+            "natural" => Mode::Natural,
+            "gdi" => Mode::Gdi,
+            "gdinatural" => Mode::GdiNatural,
+            _ => return None,
+        };
+        Some((m, f))
+    }
+}
+
+pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(u16, i64)]) -> Res<Vec<String>> {
     // MEASURED: the samples of each mode and where its glyphs' origins snap (aliased: one sample
     // a pixel, origin to the pixel; gray (natural symmetric): 4 x 4, unsnapped; natural: 8 x 1,
     // y to the pixel; GDI classic and natural: 8 x 1, origin to the pixel; ClearType: 6 x 5,
     // origin to the sample)
     let (g, clause) = match mode {
-        "aliased" => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, "DW.RUN.ALIASED"),
-        "gray" => (Grid { nx: 4, ny: 4, qx: 0, qy: 0 }, "DW.RUN.GRAY"),
-        "natural" => (Grid { nx: 8, ny: 1, qx: 0, qy: 1 }, "DW.RUN.NATURAL"),
-        "gdi" | "gdinatural" => (Grid { nx: 8, ny: 1, qx: 1, qy: 1 }, "DW.RUN.GDI"),
-        _ => (Grid { nx: 6, ny: 5, qx: 6, qy: 5 }, "DW.RUN.CLEARTYPE"),
+        Mode::Aliased => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, "DW.RUN.ALIASED"),
+        Mode::Gray => (Grid { nx: 4, ny: 4, qx: 0, qy: 0 }, "DW.RUN.GRAY"),
+        Mode::Natural => (Grid { nx: 8, ny: 1, qx: 0, qy: 1 }, "DW.RUN.NATURAL"),
+        Mode::Gdi | Mode::GdiNatural => (Grid { nx: 8, ny: 1, qx: 1, qy: 1 }, "DW.RUN.GDI"),
+        Mode::ClearType => (Grid { nx: 6, ny: 5, qx: 6, qy: 5 }, "DW.RUN.CLEARTYPE"),
     };
     hit(clause);
     // MEASURED: the pen starts at the unsnapped origin and moves by each advance; each glyph
@@ -115,42 +194,25 @@ pub fn run(p: &Parsed, mode: &str, em: i64, x4: i64, y4: i64, run: &[(u16, i64)]
     if run.len() > 1 {
         hit("DW.RUN.PEN");
     }
-    let mut lit = std::collections::BTreeSet::new();
+    // MEASURED: the texture's bounds hold the pixels dropout control lights, also at the sizes
+    // where the texture itself has them off
+    let (mut lit, mut on) = (std::collections::BTreeSet::new(), std::collections::BTreeSet::new());
     for r in rects(p, em, g, x4, y4, run) {
-        lit.extend(aliased(&r)?);
+        // (grid fit disabled: no dropout control at any size)
+        let d = match fit {
+            Fit::Default | Fit::Enabled => Dropout::at(em),
+            Fit::Disabled => Dropout::Off,
+        };
+        lit.extend(aliased(&r, d)?);
+        on.extend(aliased(&r, Dropout::On)?);
     }
-    // each pixel's (or ClearType subpixel's) value
-    let mut val: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
-    let cleartype = mode == "cleartype";
-    if cleartype {
-        // MEASURED: a subpixel is 2 x 5 samples, the 5 rows weighted 4 9 10 9 4 (/36); each
-        // subpixel's value is the sum of it and its two neighbours, of 255 for 6 x 36
-        const W: [i64; 5] = [4, 9, 10, 9, 4];
-        let mut acc: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
-        for &(x, y) in &lit {
-            let s = x.div_euclid(2);
-            for d in -1..=1 {
-                *acc.entry((s + d, y.div_euclid(5))).or_default() += W[y.rem_euclid(5) as usize];
-            }
-        }
-        for (k, v) in acc {
-            val.insert(k, (2 * 255 * v + 216).div_euclid(432));
-        }
-    } else {
-        let n = g.nx * g.ny;
-        let mut acc: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
-        for &(x, y) in &lit {
-            *acc.entry((x.div_euclid(g.nx), y.div_euclid(g.ny))).or_default() += 1;
-        }
-        for (k, v) in acc {
-            val.insert(k, (2 * 255 * v + n).div_euclid(2 * n));
-        }
-    }
-    val.retain(|_, v| *v != 0);
+    let cleartype = mode == Mode::ClearType;
+    let val = values(&lit, g, cleartype);
+    let bound = values(&on, g, cleartype);
     let bpp = if cleartype { 3 } else { 1 };
     let mut out = Vec::new();
-    let xs = val.keys().map(|k| k.0.div_euclid(bpp));
-    let ys = val.keys().map(|k| k.1);
+    let xs = bound.keys().map(|k| k.0.div_euclid(bpp));
+    let ys = bound.keys().map(|k| k.1);
     match (xs.clone().min(), ys.clone().min(), xs.max(), ys.max()) {
         (Some(x0), Some(y0), Some(x1), Some(y1)) => {
             out.push(format!("bounds hr 00000000 {x0} {y0} {} {}", x1 + 1, y1 + 1));
@@ -167,4 +229,52 @@ pub fn run(p: &Parsed, mode: &str, em: i64, x4: i64, y4: i64, run: &[(u16, i64)]
         }
     }
     Ok(out)
+}
+
+/// each pixel's (or ClearType subpixel's) nonzero value, of the samples lit
+fn values(lit: &std::collections::BTreeSet<(i64, i64)>, g: Grid, cleartype: bool) -> std::collections::BTreeMap<(i64, i64), i64> {
+    let mut val: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
+    if cleartype {
+        // MEASURED: a subpixel is 2 x 5 samples, the 5 rows weighted 4 9 10 9 4 (/36); each
+        // subpixel's value is the sum of it and its two neighbours, of 255 for 6 x 36
+        const W: [i64; 5] = [4, 9, 10, 9, 4];
+        let mut acc: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
+        for &(x, y) in lit {
+            let s = x.div_euclid(2);
+            for d in -1..=1 {
+                *acc.entry((s + d, y.div_euclid(5))).or_default() += W[y.rem_euclid(5) as usize];
+            }
+        }
+        for (k, v) in acc {
+            val.insert(k, (2 * 255 * v + 216).div_euclid(432));
+        }
+    } else {
+        let n = g.nx * g.ny;
+        let mut acc: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
+        for &(x, y) in lit {
+            *acc.entry((x.div_euclid(g.nx), y.div_euclid(g.ny))).or_default() += 1;
+        }
+        for (k, v) in acc {
+            val.insert(k, (2 * 255 * v + n).div_euclid(2 * n));
+        }
+    }
+    val.retain(|_, v| *v != 0);
+    val
+}
+
+/// the black box of glyph `gid` at `ppem` with its origin at (0, 0), in samples of an nx by ny
+/// grid (x0, y0, x1, y1: the lit samples' columns x0..x1 and rows y0..y1, y down); None when
+/// nothing is lit
+pub fn black_box(p: &Parsed, ppem: i64, gid: u16, nx: i64, ny: i64) -> Res<Option<(i64, i64, i64, i64)>> {
+    let g = Grid { nx, ny, qx: 0, qy: 0 };
+    let mut lit = std::collections::BTreeSet::new();
+    for r in rects(p, ppem, g, 0, 0, &[(gid, 0)]) {
+        lit.extend(aliased(&r, Dropout::On)?);
+    }
+    let xs = lit.iter().map(|q| q.0);
+    let ys = lit.iter().map(|q| q.1);
+    Ok(match (xs.clone().min(), ys.clone().min(), xs.max(), ys.max()) {
+        (Some(x0), Some(y0), Some(x1), Some(y1)) => Some((x0, y0, x1 + 1, y1 + 1)),
+        _ => None,
+    })
 }

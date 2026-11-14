@@ -18,6 +18,10 @@ use super::{Fail, Res};
 use crate::spec::hit;
 use crate::ttf::{glyph_of, parse, Parsed};
 
+/// whether the GDI-compatible glyph metrics are modelled: not yet (DW.GDI.GLYPH, open), the
+/// model below matches most of them but not every rounding
+const GDI_GLYPH: bool = false;
+
 #[derive(Default)]
 pub struct Dwrite {
     font: Option<Parsed>,
@@ -353,6 +357,7 @@ impl Dwrite {
                     hit("DW.GLYPH.SIDEWAYS");
                 }
                 let mut v = Vec::new();
+                let mut gids = Vec::new();
                 for g in gs {
                     // (MEASURED: a glyph past the font's has glyph 0's metrics)
                     let g = if g >= p.num_glyphs {
@@ -362,11 +367,50 @@ impl Dwrite {
                         g
                     };
                     v.push(glyph_metrics(p, &m, g).ok_or(Fail::Unmodeled("DW.FILE.OTHER"))?);
+                    gids.push(g);
                 }
                 if gdi {
-                    // OPEN: advances and voy are the GDI rounding of the design values (2925 of
-                    // 2940), but the side bearings are neither that nor whole pixels
-                    return Err(Fail::Unmodeled("DW.GDI.GLYPH"));
+                    let (em, ppd) = (n(1)?, n(2)?);
+                    if em <= 0 || ppd <= 0 {
+                        return Err(Fail::Unmodeled("DW.GDI.INVALID"));
+                    }
+                    if !GDI_GLYPH {
+                        return Err(Fail::Unmodeled("DW.GDI.GLYPH"));
+                    }
+                    let ppem = em * ppd;
+                    // MEASURED: each metric is a whole number of pixels (advances as the GDI
+                    // placements round them: DW.SHAPE.GDIPLACE, or DW.SHAPE.NATPLACE for GDI
+                    // natural), back in design units rounded; the vertical advance without vmtx
+                    // is the ascent less the signed descent (typographic, or hhea without OS/2);
+                    // the side bearings are the black box of the glyph drawn on 6 samples a pixel
+                    // across and 1 down (sideways: 1 across and 6 down), from its unsnapped origin
+                    let nat = n(3)? != 0;
+                    let upm = m.upm as i64;
+                    let fix = (ppem << 16) / upm;
+                    let pxv = |v: i32| (v as i64 * fix + 0x8000) >> 16;
+                    let px = |v: i32| if nat { (128 * v as i64 * ppem + 69 * upm).div_euclid(128 * upm) } else { (v as i64 * fix + 0x8000) >> 16 };
+                    // (a length of k / n pixels in design units, rounded)
+                    let du = |k: i64, n: i64| (2 * k * upm + n * ppem).div_euclid(2 * n * ppem) as i32;
+                    let (vadv, vorg) = match (&p.vmtx, &p.os2) {
+                        (Some(_), _) => (None, None),
+                        (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
+                        (None, None) => p.hhea.map_or((None, None), |h| (Some(h.0 as i32 - h.1 as i32), Some(h.0 as i32))),
+                    };
+                    for (g, gid) in v.iter_mut().zip(&gids) {
+                        // (sideways: the glyph's y is drawn across, so the 6 samples are its y)
+                        let (nx, ny) = if side != 0 { (1, 6) } else { (6, 1) };
+                        let bb = raster::black_box(p, ppem, *gid, nx, ny)?.unwrap_or((0, 0, 0, 0));
+                        let (advp, voyp, advhp) = (px(g.adv as i32), pxv(vorg.unwrap_or(g.voy)), pxv(vadv.unwrap_or(g.advh as i32)));
+                        *g = GlyphMetrics {
+                            adv: du(advp, 1) as u32,
+                            lsb: du(bb.0, nx),
+                            rsb: du(nx * advp - bb.2, nx),
+                            tsb: du(ny * voyp + bb.1, ny),
+                            advh: du(advhp, 1) as u32,
+                            bsb: du(ny * (advhp - voyp) - bb.3, ny),
+                            voy: du(voyp, 1),
+                        };
+                    }
                 }
                 out.push(format!("{} hr 00000000", t[0]));
                 out.extend(v.iter().map(glyph_line));
@@ -411,9 +455,9 @@ impl Dwrite {
                 out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f((adv(g) as i64 * em * 128 + 69 * upm as i64).div_euclid(128 * upm as i64) as f32)).collect())));
             }
             "dwrun" => {
-                let mode = t.get(1).ok_or(Fail::Bad)?.as_str();
+                let (mode, fit) = raster::Mode::parse(t.get(1).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
                 let (em, x4, y4) = (n(2)?, n(3)?, n(4)?);
-                if t.len() < 7 || (t.len() - 5) % 2 != 0 || !["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"].contains(&mode) {
+                if t.len() < 7 || (t.len() - 5) % 2 != 0 {
                     return Err(Fail::Bad);
                 }
                 let mut run = Vec::new();
@@ -422,7 +466,7 @@ impl Dwrite {
                 }
                 let p = self.face()?;
                 out.push("dwrun hr 00000000".into());
-                out.extend(raster::run(p, mode, em, x4, y4, &run)?);
+                out.extend(raster::run(p, mode, fit, em, x4, y4, &run)?);
             }
             "dwlayout" => {
                 let (em, mw4, wrap) = (n(1)?, n(2)?, n(3)?);

@@ -35,15 +35,15 @@ proptest! {
     fn aliased_translates(x0 in -300i64..300, y0 in -300i64..300, w in 64i64..400, h in 64i64..400, dx in -5i64..5, dy in -5i64..5) {
         let r = [(x0, y0, x0 + w, y0 + h)];
         let t = [(x0 + dx * 64, y0 + dy * 64, x0 + w + dx * 64, y0 + h + dy * 64)];
-        let a = raster::aliased(&r).unwrap();
-        let b = raster::aliased(&t).unwrap();
+        let a = raster::aliased(&r, raster::Dropout::On).unwrap();
+        let b = raster::aliased(&t, raster::Dropout::On).unwrap();
         prop_assert_eq!(b, a.iter().map(|&(x, y)| (x + dx, y + dy)).collect());
     }
 
     /// a rectangle at least a pixel wide lights exactly the pixels whose centers it holds
     #[test]
     fn aliased_is_centers(x0 in -300i64..300, y0 in -300i64..300, w in 64i64..400, h in 64i64..400) {
-        let a = raster::aliased(&[(x0, y0, x0 + w, y0 + h)]).unwrap();
+        let a = raster::aliased(&[(x0, y0, x0 + w, y0 + h)], raster::Dropout::On).unwrap();
         let inside = |c: i64, lo: i64, hi: i64| lo <= c * 64 + 32 && c * 64 + 32 <= hi;
         for y in y0.div_euclid(64) - 1..=(y0 + h).div_euclid(64) + 1 {
             for x in x0.div_euclid(64) - 1..=(x0 + w).div_euclid(64) + 1 {

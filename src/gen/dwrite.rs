@@ -278,4 +278,43 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
         writeln!(s, "end").unwrap();
     }
+    // thin stems and bars, alone or crossing a box, at the larger sizes: up to which size the
+    // rasterizer keeps dropout control on, in each mode
+    for em in (26..=64i64).step_by(2) {
+        let u = 1000i64;
+        let mut gs = Vec::new();
+        for k in 0..8i64 {
+            // (a width of 0.2 .. 0.8 pixel, at a fraction of a pixel offset)
+            let w = (u * (2 + r.range(0, 6)) / 10 / em).max(1) as i16;
+            let f = r.range(0, u / em) as i16;
+            let rects = match k % 4 {
+                0 => vec![(300 + f, 0, 300 + f + w, 500)],
+                1 => vec![(0, 300 + f, 500, 300 + f + w)],
+                2 => vec![(0, 300 + f, 500, 300 + f + w), (250, 0, 450, 280 + f)],
+                _ => vec![(300 + f, 0, 300 + f + w, 500), (320 + f + w, 100, 600, 300), (0, 200, 200, 420)],
+            };
+            gs.push((1000u16, rects));
+        }
+        let f = font_with(0x0f80_0000 + em as u32, u as u16, &gs);
+        for mode in ["aliased", "natural", "gray"] {
+            writeln!(s, "case dropem-{em}-{mode}\n{}", font_line(&f)).unwrap();
+            for g in 1..=8 {
+                writeln!(s, "dwrun {mode} {em} {} {} {g} 0", r.range(0, 4), r.range(160, 164)).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
+    // the grid fit mode asked for (enabled, disabled), in each mode, small sizes to large: single
+    // glyphs and runs of two
+    for mode in ["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"] {
+        for fit in ["fit", "nofit"] {
+            let f = font_with(0x0f90_0000 + r.range(0, 1 << 16) as u32, 1000, &(0..8).map(|k| (r.range(300, 1000) as u16, if k % 2 == 0 { vec![(r.range(0, 300) as i16, r.range(-100, 100) as i16, r.range(400, 900) as i16, r.range(300, 800) as i16)] } else { vec![(300 + r.range(0, 99) as i16, 0, 300 + r.range(100, 160) as i16, 500), (0, 600, r.range(50, 500) as i16, 600 + r.range(5, 60) as i16)] })).collect::<Vec<_>>());
+            writeln!(s, "case fit-{mode}-{fit}\n{}", font_line(&f)).unwrap();
+            for em in [6, 9, 12, 16, 20, 28, 36, 48, 64, 96] {
+                let run = if r.chance(2) { format!("{} 0", r.range(1, 8)) } else { format!("{} {} {} 0", r.range(1, 8), r.range(0, 200), r.range(1, 8)) };
+                writeln!(s, "dwrun {mode}.{fit} {em} {} {} {run}", r.range(0, 40), r.range(160, 200)).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
 }
