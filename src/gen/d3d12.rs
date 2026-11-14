@@ -353,6 +353,15 @@ pub fn d3d12() -> String {
         writeln!(s, "case alloc-std-planar-{i}\ndevice12\nalloc12 {}\ncreate12 1 0 {}\nend", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) }), desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) })).unwrap();
     }
     writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
+    // CheckFeatureSupport: every format's support, planes and multisample quality levels
+    for f in (0u32..=191).chain([0xffff_ffff]) {
+        writeln!(s, "case fsup-{f}\ndevice12\nfeature12 {}\nend\ncase msq-{f}\ndevice12", hexw(f)).unwrap();
+        for n in [0u32, 1, 2, 4, 8, 16, 32, 3] {
+            writeln!(s, "msq12 {} {n}", hexw(f)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    writeln!(s, "case incr\ndevice12\nincr12\nend").unwrap();
     // (last: a D32_FLOAT render target removes the device, D3D12.CLEAR.REMOVED)
     writeln!(s, "case clear-removed\ndevice12\nclear12 40 0 0 0 0\nend").unwrap();
     s
@@ -371,6 +380,22 @@ pub fn dxgi() -> String {
     writeln!(s, "case factory\ndxgifactory 0\ndxgiwarp").unwrap();
     for f in [2, 4, 0x10, 0x8000_0000u32, 0] {
         writeln!(s, "dxgifactory {}\ndxgiwarp", hexw(f)).unwrap();
+    }
+    writeln!(s, "case tearing\ndxgifactory 0\ndxgitearing\nend\ncase adapters\ndxgifactory 0\ndxgiadapters\nend").unwrap();
+    for cs in (0u32..=25).chain([0xffff_ffff]) {
+        writeln!(s, "case color-{cs}\ndevice12\ndxgifactory 0").unwrap();
+        chain_line(&mut s, "swapchain", &CHAIN);
+        writeln!(s, "sccolor {}\nend", hexw(cs)).unwrap();
+    }
+    for f in [10u32, 24] {
+        writeln!(s, "case color-fmt{f}\ndevice12\ndxgifactory 0").unwrap();
+        let mut c = CHAIN;
+        c[2] = f;
+        chain_line(&mut s, "swapchain", &c);
+        for cs in [0u32, 1, 12, 14, 17] {
+            writeln!(s, "sccolor {}", hexw(cs)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
     }
     // (DXGI_CREATE_FACTORY_DEBUG on its own: its answer depends on the Graphics Tools being there)
     writeln!(s, "end\ncase factory-debug\ndxgifactory 1\ndxgiwarp").unwrap();

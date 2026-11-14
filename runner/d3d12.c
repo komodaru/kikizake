@@ -147,6 +147,41 @@ static void op_create(void) {
     out("create hr %08lx\n", hr);
 }
 
+/* feature12 <format>: CheckFeatureSupport FORMAT_SUPPORT, FORMAT_INFO: "fsup <support1> <support2>
+ * planes <n>" (or "fsup hr <hr>", "planes hr <hr>"); msq12 <format> <count>: MULTISAMPLE_QUALITY_LEVELS
+ * (no flags): "msq <levels>" or "msq hr <hr>"; incr12: GetDescriptorHandleIncrementSize of the four
+ * heap types: "incr <cbv srv uav> <sampler> <rtv> <dsv>" */
+static void op_feature(void) {
+    if (!on12) { out("nodev\n"); return; }
+    if (is(0, "incr12")) {
+        if (ntok != 1) { bad = 1; return; }
+        out("incr");
+        for (int t = 0; t < 4; t++) out(" %x", ID3D12Device_GetDescriptorHandleIncrementSize(dev12, t));
+        out("\n");
+        return;
+    }
+    int ms = is(0, "msq12");
+    DXGI_FORMAT f = num(1);
+    if (ntok != (ms ? 3 : 2)) bad = 1;
+    if (bad) return;
+    HRESULT hr;
+    if (ms) {
+        D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS q = { f, num(2), 0, 0xcccccccc };
+        hr = ID3D12Device_CheckFeatureSupport(dev12, D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &q, sizeof q);
+        if (FAILED(hr)) out("msq hr %08lx\n", hr);
+        else out("msq %x\n", q.NumQualityLevels);
+        return;
+    }
+    D3D12_FEATURE_DATA_FORMAT_SUPPORT fs = { f, 0xcccccccc, 0xcccccccc };
+    hr = ID3D12Device_CheckFeatureSupport(dev12, D3D12_FEATURE_FORMAT_SUPPORT, &fs, sizeof fs);
+    if (FAILED(hr)) out("fsup hr %08lx", hr);
+    else out("fsup %x %x", fs.Support1, fs.Support2);
+    D3D12_FEATURE_DATA_FORMAT_INFO fi = { f, 0xcc };
+    hr = ID3D12Device_CheckFeatureSupport(dev12, D3D12_FEATURE_FORMAT_INFO, &fi, sizeof fi);
+    if (FAILED(hr)) out(" planes hr %08lx\n", hr);
+    else out(" planes %x\n", fi.PlaneCount);
+}
+
 static ID3D12Resource *committed(D3D12_HEAP_TYPE heap, D3D12_RESOURCE_STATES st, const D3D12_RESOURCE_DESC *d, HRESULT *hr) {
     D3D12_HEAP_PROPERTIES hp = { heap, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 };
     ID3D12Resource *r = NULL;
@@ -239,6 +274,9 @@ static const struct kz_op d3d12_ops[] = {
     { "create12", op_create },
     { "clear12", op_clear },
     { "cleardsv12", op_clear },
+    { "feature12", op_feature },
+    { "msq12", op_feature },
+    { "incr12", op_feature },
     { 0 },
 };
 const struct kz_api d3d12_api = { "d3d12", d3d12_ops, d3d12_reset };

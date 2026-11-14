@@ -400,7 +400,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -464,6 +464,21 @@ impl D3d12 {
                         out.push(format!("cleardsv12 hr {E_INVALIDARG:08x}"));
                     }
                 }
+            }
+            "feature12" | "msq12" | "incr12" => {
+                if t.len() != match name {
+                    "incr12" => 1,
+                    "msq12" => 3,
+                    _ => 2,
+                } {
+                    return Err(Fail::Bad);
+                }
+                words(&t[1..])?;
+                return Err(Fail::Unmodeled(match name {
+                    "incr12" => "D3D12.FEATURE.INCREMENT",
+                    "msq12" => "D3D12.FEATURE.MSAA",
+                    _ => "D3D12.FEATURE.FORMAT",
+                }));
             }
             _ => return self.dxgi(op, out),
         }
@@ -720,7 +735,7 @@ impl D3d12 {
     fn dxgi(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         let name = t[0].as_str();
-        if !matches!(name, "dxgifactory" | "dxgiwarp" | "dxgiassoc" | "swapchain" | "scresize" | "scbuffer" | "scpresent" | "sclatency") {
+        if !matches!(name, "dxgifactory" | "dxgiwarp" | "dxgiassoc" | "swapchain" | "scresize" | "scbuffer" | "scpresent" | "sclatency" | "dxgitearing" | "dxgiadapters" | "sccolor") {
             return Ok(false);
         }
         if name == "dxgifactory" {
@@ -741,7 +756,7 @@ impl D3d12 {
             out.push("factory ok".into());
             return Ok(true);
         }
-        if !self.factory && matches!(name, "dxgiwarp" | "dxgiassoc" | "swapchain") {
+        if !self.factory && matches!(name, "dxgiwarp" | "dxgiassoc" | "swapchain" | "dxgitearing" | "dxgiadapters") {
             out.push("nofactory".into());
             return Ok(true);
         }
@@ -761,6 +776,12 @@ impl D3d12 {
                 let _ = null;
                 let ok = f & !7 == 0;
                 out.push(format!("assoc hr {:08x}", if ok { 0 } else { DXGI_ERROR_INVALID_CALL }));
+            }
+            "dxgitearing" | "dxgiadapters" => {
+                if t.len() != 1 {
+                    return Err(Fail::Bad);
+                }
+                return Err(Fail::Unmodeled(if name == "dxgitearing" { "DXGI.TEARING" } else { "DXGI.ADAPTERS" }));
             }
             "swapchain" => {
                 if !self.dev {
@@ -782,6 +803,13 @@ impl D3d12 {
                 }
             }
             _ if self.chain.is_none() => out.push("nochain".into()),
+            "sccolor" => {
+                if t.len() != 2 {
+                    return Err(Fail::Bad);
+                }
+                words(&t[1..])?;
+                return Err(Fail::Unmodeled("DXGI.COLORSPACE"));
+            }
             _ => {
                 let Some((d, index)) = self.chain.as_mut() else { unreachable!() };
                 let w = words(&t[1..])?;

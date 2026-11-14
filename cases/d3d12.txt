@@ -9413,6 +9413,2905 @@ alloc12 1 0 0x400 1 1 1 0 1 0 1 0
 create12 1 0 1 0 0x400 1 1 1 0 1 0 1 0
 clear12 28 0 0 0 0
 end
+case fsup-0
+device12
+feature12 0
+end
+case msq-0
+device12
+msq12 0 0
+msq12 0 1
+msq12 0 2
+msq12 0 4
+msq12 0 8
+msq12 0 16
+msq12 0 32
+msq12 0 3
+end
+case fsup-1
+device12
+feature12 1
+end
+case msq-1
+device12
+msq12 1 0
+msq12 1 1
+msq12 1 2
+msq12 1 4
+msq12 1 8
+msq12 1 16
+msq12 1 32
+msq12 1 3
+end
+case fsup-2
+device12
+feature12 2
+end
+case msq-2
+device12
+msq12 2 0
+msq12 2 1
+msq12 2 2
+msq12 2 4
+msq12 2 8
+msq12 2 16
+msq12 2 32
+msq12 2 3
+end
+case fsup-3
+device12
+feature12 3
+end
+case msq-3
+device12
+msq12 3 0
+msq12 3 1
+msq12 3 2
+msq12 3 4
+msq12 3 8
+msq12 3 16
+msq12 3 32
+msq12 3 3
+end
+case fsup-4
+device12
+feature12 4
+end
+case msq-4
+device12
+msq12 4 0
+msq12 4 1
+msq12 4 2
+msq12 4 4
+msq12 4 8
+msq12 4 16
+msq12 4 32
+msq12 4 3
+end
+case fsup-5
+device12
+feature12 5
+end
+case msq-5
+device12
+msq12 5 0
+msq12 5 1
+msq12 5 2
+msq12 5 4
+msq12 5 8
+msq12 5 16
+msq12 5 32
+msq12 5 3
+end
+case fsup-6
+device12
+feature12 6
+end
+case msq-6
+device12
+msq12 6 0
+msq12 6 1
+msq12 6 2
+msq12 6 4
+msq12 6 8
+msq12 6 16
+msq12 6 32
+msq12 6 3
+end
+case fsup-7
+device12
+feature12 7
+end
+case msq-7
+device12
+msq12 7 0
+msq12 7 1
+msq12 7 2
+msq12 7 4
+msq12 7 8
+msq12 7 16
+msq12 7 32
+msq12 7 3
+end
+case fsup-8
+device12
+feature12 8
+end
+case msq-8
+device12
+msq12 8 0
+msq12 8 1
+msq12 8 2
+msq12 8 4
+msq12 8 8
+msq12 8 16
+msq12 8 32
+msq12 8 3
+end
+case fsup-9
+device12
+feature12 9
+end
+case msq-9
+device12
+msq12 9 0
+msq12 9 1
+msq12 9 2
+msq12 9 4
+msq12 9 8
+msq12 9 16
+msq12 9 32
+msq12 9 3
+end
+case fsup-10
+device12
+feature12 0xa
+end
+case msq-10
+device12
+msq12 0xa 0
+msq12 0xa 1
+msq12 0xa 2
+msq12 0xa 4
+msq12 0xa 8
+msq12 0xa 16
+msq12 0xa 32
+msq12 0xa 3
+end
+case fsup-11
+device12
+feature12 0xb
+end
+case msq-11
+device12
+msq12 0xb 0
+msq12 0xb 1
+msq12 0xb 2
+msq12 0xb 4
+msq12 0xb 8
+msq12 0xb 16
+msq12 0xb 32
+msq12 0xb 3
+end
+case fsup-12
+device12
+feature12 0xc
+end
+case msq-12
+device12
+msq12 0xc 0
+msq12 0xc 1
+msq12 0xc 2
+msq12 0xc 4
+msq12 0xc 8
+msq12 0xc 16
+msq12 0xc 32
+msq12 0xc 3
+end
+case fsup-13
+device12
+feature12 0xd
+end
+case msq-13
+device12
+msq12 0xd 0
+msq12 0xd 1
+msq12 0xd 2
+msq12 0xd 4
+msq12 0xd 8
+msq12 0xd 16
+msq12 0xd 32
+msq12 0xd 3
+end
+case fsup-14
+device12
+feature12 0xe
+end
+case msq-14
+device12
+msq12 0xe 0
+msq12 0xe 1
+msq12 0xe 2
+msq12 0xe 4
+msq12 0xe 8
+msq12 0xe 16
+msq12 0xe 32
+msq12 0xe 3
+end
+case fsup-15
+device12
+feature12 0xf
+end
+case msq-15
+device12
+msq12 0xf 0
+msq12 0xf 1
+msq12 0xf 2
+msq12 0xf 4
+msq12 0xf 8
+msq12 0xf 16
+msq12 0xf 32
+msq12 0xf 3
+end
+case fsup-16
+device12
+feature12 0x10
+end
+case msq-16
+device12
+msq12 0x10 0
+msq12 0x10 1
+msq12 0x10 2
+msq12 0x10 4
+msq12 0x10 8
+msq12 0x10 16
+msq12 0x10 32
+msq12 0x10 3
+end
+case fsup-17
+device12
+feature12 0x11
+end
+case msq-17
+device12
+msq12 0x11 0
+msq12 0x11 1
+msq12 0x11 2
+msq12 0x11 4
+msq12 0x11 8
+msq12 0x11 16
+msq12 0x11 32
+msq12 0x11 3
+end
+case fsup-18
+device12
+feature12 0x12
+end
+case msq-18
+device12
+msq12 0x12 0
+msq12 0x12 1
+msq12 0x12 2
+msq12 0x12 4
+msq12 0x12 8
+msq12 0x12 16
+msq12 0x12 32
+msq12 0x12 3
+end
+case fsup-19
+device12
+feature12 0x13
+end
+case msq-19
+device12
+msq12 0x13 0
+msq12 0x13 1
+msq12 0x13 2
+msq12 0x13 4
+msq12 0x13 8
+msq12 0x13 16
+msq12 0x13 32
+msq12 0x13 3
+end
+case fsup-20
+device12
+feature12 0x14
+end
+case msq-20
+device12
+msq12 0x14 0
+msq12 0x14 1
+msq12 0x14 2
+msq12 0x14 4
+msq12 0x14 8
+msq12 0x14 16
+msq12 0x14 32
+msq12 0x14 3
+end
+case fsup-21
+device12
+feature12 0x15
+end
+case msq-21
+device12
+msq12 0x15 0
+msq12 0x15 1
+msq12 0x15 2
+msq12 0x15 4
+msq12 0x15 8
+msq12 0x15 16
+msq12 0x15 32
+msq12 0x15 3
+end
+case fsup-22
+device12
+feature12 0x16
+end
+case msq-22
+device12
+msq12 0x16 0
+msq12 0x16 1
+msq12 0x16 2
+msq12 0x16 4
+msq12 0x16 8
+msq12 0x16 16
+msq12 0x16 32
+msq12 0x16 3
+end
+case fsup-23
+device12
+feature12 0x17
+end
+case msq-23
+device12
+msq12 0x17 0
+msq12 0x17 1
+msq12 0x17 2
+msq12 0x17 4
+msq12 0x17 8
+msq12 0x17 16
+msq12 0x17 32
+msq12 0x17 3
+end
+case fsup-24
+device12
+feature12 0x18
+end
+case msq-24
+device12
+msq12 0x18 0
+msq12 0x18 1
+msq12 0x18 2
+msq12 0x18 4
+msq12 0x18 8
+msq12 0x18 16
+msq12 0x18 32
+msq12 0x18 3
+end
+case fsup-25
+device12
+feature12 0x19
+end
+case msq-25
+device12
+msq12 0x19 0
+msq12 0x19 1
+msq12 0x19 2
+msq12 0x19 4
+msq12 0x19 8
+msq12 0x19 16
+msq12 0x19 32
+msq12 0x19 3
+end
+case fsup-26
+device12
+feature12 0x1a
+end
+case msq-26
+device12
+msq12 0x1a 0
+msq12 0x1a 1
+msq12 0x1a 2
+msq12 0x1a 4
+msq12 0x1a 8
+msq12 0x1a 16
+msq12 0x1a 32
+msq12 0x1a 3
+end
+case fsup-27
+device12
+feature12 0x1b
+end
+case msq-27
+device12
+msq12 0x1b 0
+msq12 0x1b 1
+msq12 0x1b 2
+msq12 0x1b 4
+msq12 0x1b 8
+msq12 0x1b 16
+msq12 0x1b 32
+msq12 0x1b 3
+end
+case fsup-28
+device12
+feature12 0x1c
+end
+case msq-28
+device12
+msq12 0x1c 0
+msq12 0x1c 1
+msq12 0x1c 2
+msq12 0x1c 4
+msq12 0x1c 8
+msq12 0x1c 16
+msq12 0x1c 32
+msq12 0x1c 3
+end
+case fsup-29
+device12
+feature12 0x1d
+end
+case msq-29
+device12
+msq12 0x1d 0
+msq12 0x1d 1
+msq12 0x1d 2
+msq12 0x1d 4
+msq12 0x1d 8
+msq12 0x1d 16
+msq12 0x1d 32
+msq12 0x1d 3
+end
+case fsup-30
+device12
+feature12 0x1e
+end
+case msq-30
+device12
+msq12 0x1e 0
+msq12 0x1e 1
+msq12 0x1e 2
+msq12 0x1e 4
+msq12 0x1e 8
+msq12 0x1e 16
+msq12 0x1e 32
+msq12 0x1e 3
+end
+case fsup-31
+device12
+feature12 0x1f
+end
+case msq-31
+device12
+msq12 0x1f 0
+msq12 0x1f 1
+msq12 0x1f 2
+msq12 0x1f 4
+msq12 0x1f 8
+msq12 0x1f 16
+msq12 0x1f 32
+msq12 0x1f 3
+end
+case fsup-32
+device12
+feature12 0x20
+end
+case msq-32
+device12
+msq12 0x20 0
+msq12 0x20 1
+msq12 0x20 2
+msq12 0x20 4
+msq12 0x20 8
+msq12 0x20 16
+msq12 0x20 32
+msq12 0x20 3
+end
+case fsup-33
+device12
+feature12 0x21
+end
+case msq-33
+device12
+msq12 0x21 0
+msq12 0x21 1
+msq12 0x21 2
+msq12 0x21 4
+msq12 0x21 8
+msq12 0x21 16
+msq12 0x21 32
+msq12 0x21 3
+end
+case fsup-34
+device12
+feature12 0x22
+end
+case msq-34
+device12
+msq12 0x22 0
+msq12 0x22 1
+msq12 0x22 2
+msq12 0x22 4
+msq12 0x22 8
+msq12 0x22 16
+msq12 0x22 32
+msq12 0x22 3
+end
+case fsup-35
+device12
+feature12 0x23
+end
+case msq-35
+device12
+msq12 0x23 0
+msq12 0x23 1
+msq12 0x23 2
+msq12 0x23 4
+msq12 0x23 8
+msq12 0x23 16
+msq12 0x23 32
+msq12 0x23 3
+end
+case fsup-36
+device12
+feature12 0x24
+end
+case msq-36
+device12
+msq12 0x24 0
+msq12 0x24 1
+msq12 0x24 2
+msq12 0x24 4
+msq12 0x24 8
+msq12 0x24 16
+msq12 0x24 32
+msq12 0x24 3
+end
+case fsup-37
+device12
+feature12 0x25
+end
+case msq-37
+device12
+msq12 0x25 0
+msq12 0x25 1
+msq12 0x25 2
+msq12 0x25 4
+msq12 0x25 8
+msq12 0x25 16
+msq12 0x25 32
+msq12 0x25 3
+end
+case fsup-38
+device12
+feature12 0x26
+end
+case msq-38
+device12
+msq12 0x26 0
+msq12 0x26 1
+msq12 0x26 2
+msq12 0x26 4
+msq12 0x26 8
+msq12 0x26 16
+msq12 0x26 32
+msq12 0x26 3
+end
+case fsup-39
+device12
+feature12 0x27
+end
+case msq-39
+device12
+msq12 0x27 0
+msq12 0x27 1
+msq12 0x27 2
+msq12 0x27 4
+msq12 0x27 8
+msq12 0x27 16
+msq12 0x27 32
+msq12 0x27 3
+end
+case fsup-40
+device12
+feature12 0x28
+end
+case msq-40
+device12
+msq12 0x28 0
+msq12 0x28 1
+msq12 0x28 2
+msq12 0x28 4
+msq12 0x28 8
+msq12 0x28 16
+msq12 0x28 32
+msq12 0x28 3
+end
+case fsup-41
+device12
+feature12 0x29
+end
+case msq-41
+device12
+msq12 0x29 0
+msq12 0x29 1
+msq12 0x29 2
+msq12 0x29 4
+msq12 0x29 8
+msq12 0x29 16
+msq12 0x29 32
+msq12 0x29 3
+end
+case fsup-42
+device12
+feature12 0x2a
+end
+case msq-42
+device12
+msq12 0x2a 0
+msq12 0x2a 1
+msq12 0x2a 2
+msq12 0x2a 4
+msq12 0x2a 8
+msq12 0x2a 16
+msq12 0x2a 32
+msq12 0x2a 3
+end
+case fsup-43
+device12
+feature12 0x2b
+end
+case msq-43
+device12
+msq12 0x2b 0
+msq12 0x2b 1
+msq12 0x2b 2
+msq12 0x2b 4
+msq12 0x2b 8
+msq12 0x2b 16
+msq12 0x2b 32
+msq12 0x2b 3
+end
+case fsup-44
+device12
+feature12 0x2c
+end
+case msq-44
+device12
+msq12 0x2c 0
+msq12 0x2c 1
+msq12 0x2c 2
+msq12 0x2c 4
+msq12 0x2c 8
+msq12 0x2c 16
+msq12 0x2c 32
+msq12 0x2c 3
+end
+case fsup-45
+device12
+feature12 0x2d
+end
+case msq-45
+device12
+msq12 0x2d 0
+msq12 0x2d 1
+msq12 0x2d 2
+msq12 0x2d 4
+msq12 0x2d 8
+msq12 0x2d 16
+msq12 0x2d 32
+msq12 0x2d 3
+end
+case fsup-46
+device12
+feature12 0x2e
+end
+case msq-46
+device12
+msq12 0x2e 0
+msq12 0x2e 1
+msq12 0x2e 2
+msq12 0x2e 4
+msq12 0x2e 8
+msq12 0x2e 16
+msq12 0x2e 32
+msq12 0x2e 3
+end
+case fsup-47
+device12
+feature12 0x2f
+end
+case msq-47
+device12
+msq12 0x2f 0
+msq12 0x2f 1
+msq12 0x2f 2
+msq12 0x2f 4
+msq12 0x2f 8
+msq12 0x2f 16
+msq12 0x2f 32
+msq12 0x2f 3
+end
+case fsup-48
+device12
+feature12 0x30
+end
+case msq-48
+device12
+msq12 0x30 0
+msq12 0x30 1
+msq12 0x30 2
+msq12 0x30 4
+msq12 0x30 8
+msq12 0x30 16
+msq12 0x30 32
+msq12 0x30 3
+end
+case fsup-49
+device12
+feature12 0x31
+end
+case msq-49
+device12
+msq12 0x31 0
+msq12 0x31 1
+msq12 0x31 2
+msq12 0x31 4
+msq12 0x31 8
+msq12 0x31 16
+msq12 0x31 32
+msq12 0x31 3
+end
+case fsup-50
+device12
+feature12 0x32
+end
+case msq-50
+device12
+msq12 0x32 0
+msq12 0x32 1
+msq12 0x32 2
+msq12 0x32 4
+msq12 0x32 8
+msq12 0x32 16
+msq12 0x32 32
+msq12 0x32 3
+end
+case fsup-51
+device12
+feature12 0x33
+end
+case msq-51
+device12
+msq12 0x33 0
+msq12 0x33 1
+msq12 0x33 2
+msq12 0x33 4
+msq12 0x33 8
+msq12 0x33 16
+msq12 0x33 32
+msq12 0x33 3
+end
+case fsup-52
+device12
+feature12 0x34
+end
+case msq-52
+device12
+msq12 0x34 0
+msq12 0x34 1
+msq12 0x34 2
+msq12 0x34 4
+msq12 0x34 8
+msq12 0x34 16
+msq12 0x34 32
+msq12 0x34 3
+end
+case fsup-53
+device12
+feature12 0x35
+end
+case msq-53
+device12
+msq12 0x35 0
+msq12 0x35 1
+msq12 0x35 2
+msq12 0x35 4
+msq12 0x35 8
+msq12 0x35 16
+msq12 0x35 32
+msq12 0x35 3
+end
+case fsup-54
+device12
+feature12 0x36
+end
+case msq-54
+device12
+msq12 0x36 0
+msq12 0x36 1
+msq12 0x36 2
+msq12 0x36 4
+msq12 0x36 8
+msq12 0x36 16
+msq12 0x36 32
+msq12 0x36 3
+end
+case fsup-55
+device12
+feature12 0x37
+end
+case msq-55
+device12
+msq12 0x37 0
+msq12 0x37 1
+msq12 0x37 2
+msq12 0x37 4
+msq12 0x37 8
+msq12 0x37 16
+msq12 0x37 32
+msq12 0x37 3
+end
+case fsup-56
+device12
+feature12 0x38
+end
+case msq-56
+device12
+msq12 0x38 0
+msq12 0x38 1
+msq12 0x38 2
+msq12 0x38 4
+msq12 0x38 8
+msq12 0x38 16
+msq12 0x38 32
+msq12 0x38 3
+end
+case fsup-57
+device12
+feature12 0x39
+end
+case msq-57
+device12
+msq12 0x39 0
+msq12 0x39 1
+msq12 0x39 2
+msq12 0x39 4
+msq12 0x39 8
+msq12 0x39 16
+msq12 0x39 32
+msq12 0x39 3
+end
+case fsup-58
+device12
+feature12 0x3a
+end
+case msq-58
+device12
+msq12 0x3a 0
+msq12 0x3a 1
+msq12 0x3a 2
+msq12 0x3a 4
+msq12 0x3a 8
+msq12 0x3a 16
+msq12 0x3a 32
+msq12 0x3a 3
+end
+case fsup-59
+device12
+feature12 0x3b
+end
+case msq-59
+device12
+msq12 0x3b 0
+msq12 0x3b 1
+msq12 0x3b 2
+msq12 0x3b 4
+msq12 0x3b 8
+msq12 0x3b 16
+msq12 0x3b 32
+msq12 0x3b 3
+end
+case fsup-60
+device12
+feature12 0x3c
+end
+case msq-60
+device12
+msq12 0x3c 0
+msq12 0x3c 1
+msq12 0x3c 2
+msq12 0x3c 4
+msq12 0x3c 8
+msq12 0x3c 16
+msq12 0x3c 32
+msq12 0x3c 3
+end
+case fsup-61
+device12
+feature12 0x3d
+end
+case msq-61
+device12
+msq12 0x3d 0
+msq12 0x3d 1
+msq12 0x3d 2
+msq12 0x3d 4
+msq12 0x3d 8
+msq12 0x3d 16
+msq12 0x3d 32
+msq12 0x3d 3
+end
+case fsup-62
+device12
+feature12 0x3e
+end
+case msq-62
+device12
+msq12 0x3e 0
+msq12 0x3e 1
+msq12 0x3e 2
+msq12 0x3e 4
+msq12 0x3e 8
+msq12 0x3e 16
+msq12 0x3e 32
+msq12 0x3e 3
+end
+case fsup-63
+device12
+feature12 0x3f
+end
+case msq-63
+device12
+msq12 0x3f 0
+msq12 0x3f 1
+msq12 0x3f 2
+msq12 0x3f 4
+msq12 0x3f 8
+msq12 0x3f 16
+msq12 0x3f 32
+msq12 0x3f 3
+end
+case fsup-64
+device12
+feature12 0x40
+end
+case msq-64
+device12
+msq12 0x40 0
+msq12 0x40 1
+msq12 0x40 2
+msq12 0x40 4
+msq12 0x40 8
+msq12 0x40 16
+msq12 0x40 32
+msq12 0x40 3
+end
+case fsup-65
+device12
+feature12 0x41
+end
+case msq-65
+device12
+msq12 0x41 0
+msq12 0x41 1
+msq12 0x41 2
+msq12 0x41 4
+msq12 0x41 8
+msq12 0x41 16
+msq12 0x41 32
+msq12 0x41 3
+end
+case fsup-66
+device12
+feature12 0x42
+end
+case msq-66
+device12
+msq12 0x42 0
+msq12 0x42 1
+msq12 0x42 2
+msq12 0x42 4
+msq12 0x42 8
+msq12 0x42 16
+msq12 0x42 32
+msq12 0x42 3
+end
+case fsup-67
+device12
+feature12 0x43
+end
+case msq-67
+device12
+msq12 0x43 0
+msq12 0x43 1
+msq12 0x43 2
+msq12 0x43 4
+msq12 0x43 8
+msq12 0x43 16
+msq12 0x43 32
+msq12 0x43 3
+end
+case fsup-68
+device12
+feature12 0x44
+end
+case msq-68
+device12
+msq12 0x44 0
+msq12 0x44 1
+msq12 0x44 2
+msq12 0x44 4
+msq12 0x44 8
+msq12 0x44 16
+msq12 0x44 32
+msq12 0x44 3
+end
+case fsup-69
+device12
+feature12 0x45
+end
+case msq-69
+device12
+msq12 0x45 0
+msq12 0x45 1
+msq12 0x45 2
+msq12 0x45 4
+msq12 0x45 8
+msq12 0x45 16
+msq12 0x45 32
+msq12 0x45 3
+end
+case fsup-70
+device12
+feature12 0x46
+end
+case msq-70
+device12
+msq12 0x46 0
+msq12 0x46 1
+msq12 0x46 2
+msq12 0x46 4
+msq12 0x46 8
+msq12 0x46 16
+msq12 0x46 32
+msq12 0x46 3
+end
+case fsup-71
+device12
+feature12 0x47
+end
+case msq-71
+device12
+msq12 0x47 0
+msq12 0x47 1
+msq12 0x47 2
+msq12 0x47 4
+msq12 0x47 8
+msq12 0x47 16
+msq12 0x47 32
+msq12 0x47 3
+end
+case fsup-72
+device12
+feature12 0x48
+end
+case msq-72
+device12
+msq12 0x48 0
+msq12 0x48 1
+msq12 0x48 2
+msq12 0x48 4
+msq12 0x48 8
+msq12 0x48 16
+msq12 0x48 32
+msq12 0x48 3
+end
+case fsup-73
+device12
+feature12 0x49
+end
+case msq-73
+device12
+msq12 0x49 0
+msq12 0x49 1
+msq12 0x49 2
+msq12 0x49 4
+msq12 0x49 8
+msq12 0x49 16
+msq12 0x49 32
+msq12 0x49 3
+end
+case fsup-74
+device12
+feature12 0x4a
+end
+case msq-74
+device12
+msq12 0x4a 0
+msq12 0x4a 1
+msq12 0x4a 2
+msq12 0x4a 4
+msq12 0x4a 8
+msq12 0x4a 16
+msq12 0x4a 32
+msq12 0x4a 3
+end
+case fsup-75
+device12
+feature12 0x4b
+end
+case msq-75
+device12
+msq12 0x4b 0
+msq12 0x4b 1
+msq12 0x4b 2
+msq12 0x4b 4
+msq12 0x4b 8
+msq12 0x4b 16
+msq12 0x4b 32
+msq12 0x4b 3
+end
+case fsup-76
+device12
+feature12 0x4c
+end
+case msq-76
+device12
+msq12 0x4c 0
+msq12 0x4c 1
+msq12 0x4c 2
+msq12 0x4c 4
+msq12 0x4c 8
+msq12 0x4c 16
+msq12 0x4c 32
+msq12 0x4c 3
+end
+case fsup-77
+device12
+feature12 0x4d
+end
+case msq-77
+device12
+msq12 0x4d 0
+msq12 0x4d 1
+msq12 0x4d 2
+msq12 0x4d 4
+msq12 0x4d 8
+msq12 0x4d 16
+msq12 0x4d 32
+msq12 0x4d 3
+end
+case fsup-78
+device12
+feature12 0x4e
+end
+case msq-78
+device12
+msq12 0x4e 0
+msq12 0x4e 1
+msq12 0x4e 2
+msq12 0x4e 4
+msq12 0x4e 8
+msq12 0x4e 16
+msq12 0x4e 32
+msq12 0x4e 3
+end
+case fsup-79
+device12
+feature12 0x4f
+end
+case msq-79
+device12
+msq12 0x4f 0
+msq12 0x4f 1
+msq12 0x4f 2
+msq12 0x4f 4
+msq12 0x4f 8
+msq12 0x4f 16
+msq12 0x4f 32
+msq12 0x4f 3
+end
+case fsup-80
+device12
+feature12 0x50
+end
+case msq-80
+device12
+msq12 0x50 0
+msq12 0x50 1
+msq12 0x50 2
+msq12 0x50 4
+msq12 0x50 8
+msq12 0x50 16
+msq12 0x50 32
+msq12 0x50 3
+end
+case fsup-81
+device12
+feature12 0x51
+end
+case msq-81
+device12
+msq12 0x51 0
+msq12 0x51 1
+msq12 0x51 2
+msq12 0x51 4
+msq12 0x51 8
+msq12 0x51 16
+msq12 0x51 32
+msq12 0x51 3
+end
+case fsup-82
+device12
+feature12 0x52
+end
+case msq-82
+device12
+msq12 0x52 0
+msq12 0x52 1
+msq12 0x52 2
+msq12 0x52 4
+msq12 0x52 8
+msq12 0x52 16
+msq12 0x52 32
+msq12 0x52 3
+end
+case fsup-83
+device12
+feature12 0x53
+end
+case msq-83
+device12
+msq12 0x53 0
+msq12 0x53 1
+msq12 0x53 2
+msq12 0x53 4
+msq12 0x53 8
+msq12 0x53 16
+msq12 0x53 32
+msq12 0x53 3
+end
+case fsup-84
+device12
+feature12 0x54
+end
+case msq-84
+device12
+msq12 0x54 0
+msq12 0x54 1
+msq12 0x54 2
+msq12 0x54 4
+msq12 0x54 8
+msq12 0x54 16
+msq12 0x54 32
+msq12 0x54 3
+end
+case fsup-85
+device12
+feature12 0x55
+end
+case msq-85
+device12
+msq12 0x55 0
+msq12 0x55 1
+msq12 0x55 2
+msq12 0x55 4
+msq12 0x55 8
+msq12 0x55 16
+msq12 0x55 32
+msq12 0x55 3
+end
+case fsup-86
+device12
+feature12 0x56
+end
+case msq-86
+device12
+msq12 0x56 0
+msq12 0x56 1
+msq12 0x56 2
+msq12 0x56 4
+msq12 0x56 8
+msq12 0x56 16
+msq12 0x56 32
+msq12 0x56 3
+end
+case fsup-87
+device12
+feature12 0x57
+end
+case msq-87
+device12
+msq12 0x57 0
+msq12 0x57 1
+msq12 0x57 2
+msq12 0x57 4
+msq12 0x57 8
+msq12 0x57 16
+msq12 0x57 32
+msq12 0x57 3
+end
+case fsup-88
+device12
+feature12 0x58
+end
+case msq-88
+device12
+msq12 0x58 0
+msq12 0x58 1
+msq12 0x58 2
+msq12 0x58 4
+msq12 0x58 8
+msq12 0x58 16
+msq12 0x58 32
+msq12 0x58 3
+end
+case fsup-89
+device12
+feature12 0x59
+end
+case msq-89
+device12
+msq12 0x59 0
+msq12 0x59 1
+msq12 0x59 2
+msq12 0x59 4
+msq12 0x59 8
+msq12 0x59 16
+msq12 0x59 32
+msq12 0x59 3
+end
+case fsup-90
+device12
+feature12 0x5a
+end
+case msq-90
+device12
+msq12 0x5a 0
+msq12 0x5a 1
+msq12 0x5a 2
+msq12 0x5a 4
+msq12 0x5a 8
+msq12 0x5a 16
+msq12 0x5a 32
+msq12 0x5a 3
+end
+case fsup-91
+device12
+feature12 0x5b
+end
+case msq-91
+device12
+msq12 0x5b 0
+msq12 0x5b 1
+msq12 0x5b 2
+msq12 0x5b 4
+msq12 0x5b 8
+msq12 0x5b 16
+msq12 0x5b 32
+msq12 0x5b 3
+end
+case fsup-92
+device12
+feature12 0x5c
+end
+case msq-92
+device12
+msq12 0x5c 0
+msq12 0x5c 1
+msq12 0x5c 2
+msq12 0x5c 4
+msq12 0x5c 8
+msq12 0x5c 16
+msq12 0x5c 32
+msq12 0x5c 3
+end
+case fsup-93
+device12
+feature12 0x5d
+end
+case msq-93
+device12
+msq12 0x5d 0
+msq12 0x5d 1
+msq12 0x5d 2
+msq12 0x5d 4
+msq12 0x5d 8
+msq12 0x5d 16
+msq12 0x5d 32
+msq12 0x5d 3
+end
+case fsup-94
+device12
+feature12 0x5e
+end
+case msq-94
+device12
+msq12 0x5e 0
+msq12 0x5e 1
+msq12 0x5e 2
+msq12 0x5e 4
+msq12 0x5e 8
+msq12 0x5e 16
+msq12 0x5e 32
+msq12 0x5e 3
+end
+case fsup-95
+device12
+feature12 0x5f
+end
+case msq-95
+device12
+msq12 0x5f 0
+msq12 0x5f 1
+msq12 0x5f 2
+msq12 0x5f 4
+msq12 0x5f 8
+msq12 0x5f 16
+msq12 0x5f 32
+msq12 0x5f 3
+end
+case fsup-96
+device12
+feature12 0x60
+end
+case msq-96
+device12
+msq12 0x60 0
+msq12 0x60 1
+msq12 0x60 2
+msq12 0x60 4
+msq12 0x60 8
+msq12 0x60 16
+msq12 0x60 32
+msq12 0x60 3
+end
+case fsup-97
+device12
+feature12 0x61
+end
+case msq-97
+device12
+msq12 0x61 0
+msq12 0x61 1
+msq12 0x61 2
+msq12 0x61 4
+msq12 0x61 8
+msq12 0x61 16
+msq12 0x61 32
+msq12 0x61 3
+end
+case fsup-98
+device12
+feature12 0x62
+end
+case msq-98
+device12
+msq12 0x62 0
+msq12 0x62 1
+msq12 0x62 2
+msq12 0x62 4
+msq12 0x62 8
+msq12 0x62 16
+msq12 0x62 32
+msq12 0x62 3
+end
+case fsup-99
+device12
+feature12 0x63
+end
+case msq-99
+device12
+msq12 0x63 0
+msq12 0x63 1
+msq12 0x63 2
+msq12 0x63 4
+msq12 0x63 8
+msq12 0x63 16
+msq12 0x63 32
+msq12 0x63 3
+end
+case fsup-100
+device12
+feature12 0x64
+end
+case msq-100
+device12
+msq12 0x64 0
+msq12 0x64 1
+msq12 0x64 2
+msq12 0x64 4
+msq12 0x64 8
+msq12 0x64 16
+msq12 0x64 32
+msq12 0x64 3
+end
+case fsup-101
+device12
+feature12 0x65
+end
+case msq-101
+device12
+msq12 0x65 0
+msq12 0x65 1
+msq12 0x65 2
+msq12 0x65 4
+msq12 0x65 8
+msq12 0x65 16
+msq12 0x65 32
+msq12 0x65 3
+end
+case fsup-102
+device12
+feature12 0x66
+end
+case msq-102
+device12
+msq12 0x66 0
+msq12 0x66 1
+msq12 0x66 2
+msq12 0x66 4
+msq12 0x66 8
+msq12 0x66 16
+msq12 0x66 32
+msq12 0x66 3
+end
+case fsup-103
+device12
+feature12 0x67
+end
+case msq-103
+device12
+msq12 0x67 0
+msq12 0x67 1
+msq12 0x67 2
+msq12 0x67 4
+msq12 0x67 8
+msq12 0x67 16
+msq12 0x67 32
+msq12 0x67 3
+end
+case fsup-104
+device12
+feature12 0x68
+end
+case msq-104
+device12
+msq12 0x68 0
+msq12 0x68 1
+msq12 0x68 2
+msq12 0x68 4
+msq12 0x68 8
+msq12 0x68 16
+msq12 0x68 32
+msq12 0x68 3
+end
+case fsup-105
+device12
+feature12 0x69
+end
+case msq-105
+device12
+msq12 0x69 0
+msq12 0x69 1
+msq12 0x69 2
+msq12 0x69 4
+msq12 0x69 8
+msq12 0x69 16
+msq12 0x69 32
+msq12 0x69 3
+end
+case fsup-106
+device12
+feature12 0x6a
+end
+case msq-106
+device12
+msq12 0x6a 0
+msq12 0x6a 1
+msq12 0x6a 2
+msq12 0x6a 4
+msq12 0x6a 8
+msq12 0x6a 16
+msq12 0x6a 32
+msq12 0x6a 3
+end
+case fsup-107
+device12
+feature12 0x6b
+end
+case msq-107
+device12
+msq12 0x6b 0
+msq12 0x6b 1
+msq12 0x6b 2
+msq12 0x6b 4
+msq12 0x6b 8
+msq12 0x6b 16
+msq12 0x6b 32
+msq12 0x6b 3
+end
+case fsup-108
+device12
+feature12 0x6c
+end
+case msq-108
+device12
+msq12 0x6c 0
+msq12 0x6c 1
+msq12 0x6c 2
+msq12 0x6c 4
+msq12 0x6c 8
+msq12 0x6c 16
+msq12 0x6c 32
+msq12 0x6c 3
+end
+case fsup-109
+device12
+feature12 0x6d
+end
+case msq-109
+device12
+msq12 0x6d 0
+msq12 0x6d 1
+msq12 0x6d 2
+msq12 0x6d 4
+msq12 0x6d 8
+msq12 0x6d 16
+msq12 0x6d 32
+msq12 0x6d 3
+end
+case fsup-110
+device12
+feature12 0x6e
+end
+case msq-110
+device12
+msq12 0x6e 0
+msq12 0x6e 1
+msq12 0x6e 2
+msq12 0x6e 4
+msq12 0x6e 8
+msq12 0x6e 16
+msq12 0x6e 32
+msq12 0x6e 3
+end
+case fsup-111
+device12
+feature12 0x6f
+end
+case msq-111
+device12
+msq12 0x6f 0
+msq12 0x6f 1
+msq12 0x6f 2
+msq12 0x6f 4
+msq12 0x6f 8
+msq12 0x6f 16
+msq12 0x6f 32
+msq12 0x6f 3
+end
+case fsup-112
+device12
+feature12 0x70
+end
+case msq-112
+device12
+msq12 0x70 0
+msq12 0x70 1
+msq12 0x70 2
+msq12 0x70 4
+msq12 0x70 8
+msq12 0x70 16
+msq12 0x70 32
+msq12 0x70 3
+end
+case fsup-113
+device12
+feature12 0x71
+end
+case msq-113
+device12
+msq12 0x71 0
+msq12 0x71 1
+msq12 0x71 2
+msq12 0x71 4
+msq12 0x71 8
+msq12 0x71 16
+msq12 0x71 32
+msq12 0x71 3
+end
+case fsup-114
+device12
+feature12 0x72
+end
+case msq-114
+device12
+msq12 0x72 0
+msq12 0x72 1
+msq12 0x72 2
+msq12 0x72 4
+msq12 0x72 8
+msq12 0x72 16
+msq12 0x72 32
+msq12 0x72 3
+end
+case fsup-115
+device12
+feature12 0x73
+end
+case msq-115
+device12
+msq12 0x73 0
+msq12 0x73 1
+msq12 0x73 2
+msq12 0x73 4
+msq12 0x73 8
+msq12 0x73 16
+msq12 0x73 32
+msq12 0x73 3
+end
+case fsup-116
+device12
+feature12 0x74
+end
+case msq-116
+device12
+msq12 0x74 0
+msq12 0x74 1
+msq12 0x74 2
+msq12 0x74 4
+msq12 0x74 8
+msq12 0x74 16
+msq12 0x74 32
+msq12 0x74 3
+end
+case fsup-117
+device12
+feature12 0x75
+end
+case msq-117
+device12
+msq12 0x75 0
+msq12 0x75 1
+msq12 0x75 2
+msq12 0x75 4
+msq12 0x75 8
+msq12 0x75 16
+msq12 0x75 32
+msq12 0x75 3
+end
+case fsup-118
+device12
+feature12 0x76
+end
+case msq-118
+device12
+msq12 0x76 0
+msq12 0x76 1
+msq12 0x76 2
+msq12 0x76 4
+msq12 0x76 8
+msq12 0x76 16
+msq12 0x76 32
+msq12 0x76 3
+end
+case fsup-119
+device12
+feature12 0x77
+end
+case msq-119
+device12
+msq12 0x77 0
+msq12 0x77 1
+msq12 0x77 2
+msq12 0x77 4
+msq12 0x77 8
+msq12 0x77 16
+msq12 0x77 32
+msq12 0x77 3
+end
+case fsup-120
+device12
+feature12 0x78
+end
+case msq-120
+device12
+msq12 0x78 0
+msq12 0x78 1
+msq12 0x78 2
+msq12 0x78 4
+msq12 0x78 8
+msq12 0x78 16
+msq12 0x78 32
+msq12 0x78 3
+end
+case fsup-121
+device12
+feature12 0x79
+end
+case msq-121
+device12
+msq12 0x79 0
+msq12 0x79 1
+msq12 0x79 2
+msq12 0x79 4
+msq12 0x79 8
+msq12 0x79 16
+msq12 0x79 32
+msq12 0x79 3
+end
+case fsup-122
+device12
+feature12 0x7a
+end
+case msq-122
+device12
+msq12 0x7a 0
+msq12 0x7a 1
+msq12 0x7a 2
+msq12 0x7a 4
+msq12 0x7a 8
+msq12 0x7a 16
+msq12 0x7a 32
+msq12 0x7a 3
+end
+case fsup-123
+device12
+feature12 0x7b
+end
+case msq-123
+device12
+msq12 0x7b 0
+msq12 0x7b 1
+msq12 0x7b 2
+msq12 0x7b 4
+msq12 0x7b 8
+msq12 0x7b 16
+msq12 0x7b 32
+msq12 0x7b 3
+end
+case fsup-124
+device12
+feature12 0x7c
+end
+case msq-124
+device12
+msq12 0x7c 0
+msq12 0x7c 1
+msq12 0x7c 2
+msq12 0x7c 4
+msq12 0x7c 8
+msq12 0x7c 16
+msq12 0x7c 32
+msq12 0x7c 3
+end
+case fsup-125
+device12
+feature12 0x7d
+end
+case msq-125
+device12
+msq12 0x7d 0
+msq12 0x7d 1
+msq12 0x7d 2
+msq12 0x7d 4
+msq12 0x7d 8
+msq12 0x7d 16
+msq12 0x7d 32
+msq12 0x7d 3
+end
+case fsup-126
+device12
+feature12 0x7e
+end
+case msq-126
+device12
+msq12 0x7e 0
+msq12 0x7e 1
+msq12 0x7e 2
+msq12 0x7e 4
+msq12 0x7e 8
+msq12 0x7e 16
+msq12 0x7e 32
+msq12 0x7e 3
+end
+case fsup-127
+device12
+feature12 0x7f
+end
+case msq-127
+device12
+msq12 0x7f 0
+msq12 0x7f 1
+msq12 0x7f 2
+msq12 0x7f 4
+msq12 0x7f 8
+msq12 0x7f 16
+msq12 0x7f 32
+msq12 0x7f 3
+end
+case fsup-128
+device12
+feature12 0x80
+end
+case msq-128
+device12
+msq12 0x80 0
+msq12 0x80 1
+msq12 0x80 2
+msq12 0x80 4
+msq12 0x80 8
+msq12 0x80 16
+msq12 0x80 32
+msq12 0x80 3
+end
+case fsup-129
+device12
+feature12 0x81
+end
+case msq-129
+device12
+msq12 0x81 0
+msq12 0x81 1
+msq12 0x81 2
+msq12 0x81 4
+msq12 0x81 8
+msq12 0x81 16
+msq12 0x81 32
+msq12 0x81 3
+end
+case fsup-130
+device12
+feature12 0x82
+end
+case msq-130
+device12
+msq12 0x82 0
+msq12 0x82 1
+msq12 0x82 2
+msq12 0x82 4
+msq12 0x82 8
+msq12 0x82 16
+msq12 0x82 32
+msq12 0x82 3
+end
+case fsup-131
+device12
+feature12 0x83
+end
+case msq-131
+device12
+msq12 0x83 0
+msq12 0x83 1
+msq12 0x83 2
+msq12 0x83 4
+msq12 0x83 8
+msq12 0x83 16
+msq12 0x83 32
+msq12 0x83 3
+end
+case fsup-132
+device12
+feature12 0x84
+end
+case msq-132
+device12
+msq12 0x84 0
+msq12 0x84 1
+msq12 0x84 2
+msq12 0x84 4
+msq12 0x84 8
+msq12 0x84 16
+msq12 0x84 32
+msq12 0x84 3
+end
+case fsup-133
+device12
+feature12 0x85
+end
+case msq-133
+device12
+msq12 0x85 0
+msq12 0x85 1
+msq12 0x85 2
+msq12 0x85 4
+msq12 0x85 8
+msq12 0x85 16
+msq12 0x85 32
+msq12 0x85 3
+end
+case fsup-134
+device12
+feature12 0x86
+end
+case msq-134
+device12
+msq12 0x86 0
+msq12 0x86 1
+msq12 0x86 2
+msq12 0x86 4
+msq12 0x86 8
+msq12 0x86 16
+msq12 0x86 32
+msq12 0x86 3
+end
+case fsup-135
+device12
+feature12 0x87
+end
+case msq-135
+device12
+msq12 0x87 0
+msq12 0x87 1
+msq12 0x87 2
+msq12 0x87 4
+msq12 0x87 8
+msq12 0x87 16
+msq12 0x87 32
+msq12 0x87 3
+end
+case fsup-136
+device12
+feature12 0x88
+end
+case msq-136
+device12
+msq12 0x88 0
+msq12 0x88 1
+msq12 0x88 2
+msq12 0x88 4
+msq12 0x88 8
+msq12 0x88 16
+msq12 0x88 32
+msq12 0x88 3
+end
+case fsup-137
+device12
+feature12 0x89
+end
+case msq-137
+device12
+msq12 0x89 0
+msq12 0x89 1
+msq12 0x89 2
+msq12 0x89 4
+msq12 0x89 8
+msq12 0x89 16
+msq12 0x89 32
+msq12 0x89 3
+end
+case fsup-138
+device12
+feature12 0x8a
+end
+case msq-138
+device12
+msq12 0x8a 0
+msq12 0x8a 1
+msq12 0x8a 2
+msq12 0x8a 4
+msq12 0x8a 8
+msq12 0x8a 16
+msq12 0x8a 32
+msq12 0x8a 3
+end
+case fsup-139
+device12
+feature12 0x8b
+end
+case msq-139
+device12
+msq12 0x8b 0
+msq12 0x8b 1
+msq12 0x8b 2
+msq12 0x8b 4
+msq12 0x8b 8
+msq12 0x8b 16
+msq12 0x8b 32
+msq12 0x8b 3
+end
+case fsup-140
+device12
+feature12 0x8c
+end
+case msq-140
+device12
+msq12 0x8c 0
+msq12 0x8c 1
+msq12 0x8c 2
+msq12 0x8c 4
+msq12 0x8c 8
+msq12 0x8c 16
+msq12 0x8c 32
+msq12 0x8c 3
+end
+case fsup-141
+device12
+feature12 0x8d
+end
+case msq-141
+device12
+msq12 0x8d 0
+msq12 0x8d 1
+msq12 0x8d 2
+msq12 0x8d 4
+msq12 0x8d 8
+msq12 0x8d 16
+msq12 0x8d 32
+msq12 0x8d 3
+end
+case fsup-142
+device12
+feature12 0x8e
+end
+case msq-142
+device12
+msq12 0x8e 0
+msq12 0x8e 1
+msq12 0x8e 2
+msq12 0x8e 4
+msq12 0x8e 8
+msq12 0x8e 16
+msq12 0x8e 32
+msq12 0x8e 3
+end
+case fsup-143
+device12
+feature12 0x8f
+end
+case msq-143
+device12
+msq12 0x8f 0
+msq12 0x8f 1
+msq12 0x8f 2
+msq12 0x8f 4
+msq12 0x8f 8
+msq12 0x8f 16
+msq12 0x8f 32
+msq12 0x8f 3
+end
+case fsup-144
+device12
+feature12 0x90
+end
+case msq-144
+device12
+msq12 0x90 0
+msq12 0x90 1
+msq12 0x90 2
+msq12 0x90 4
+msq12 0x90 8
+msq12 0x90 16
+msq12 0x90 32
+msq12 0x90 3
+end
+case fsup-145
+device12
+feature12 0x91
+end
+case msq-145
+device12
+msq12 0x91 0
+msq12 0x91 1
+msq12 0x91 2
+msq12 0x91 4
+msq12 0x91 8
+msq12 0x91 16
+msq12 0x91 32
+msq12 0x91 3
+end
+case fsup-146
+device12
+feature12 0x92
+end
+case msq-146
+device12
+msq12 0x92 0
+msq12 0x92 1
+msq12 0x92 2
+msq12 0x92 4
+msq12 0x92 8
+msq12 0x92 16
+msq12 0x92 32
+msq12 0x92 3
+end
+case fsup-147
+device12
+feature12 0x93
+end
+case msq-147
+device12
+msq12 0x93 0
+msq12 0x93 1
+msq12 0x93 2
+msq12 0x93 4
+msq12 0x93 8
+msq12 0x93 16
+msq12 0x93 32
+msq12 0x93 3
+end
+case fsup-148
+device12
+feature12 0x94
+end
+case msq-148
+device12
+msq12 0x94 0
+msq12 0x94 1
+msq12 0x94 2
+msq12 0x94 4
+msq12 0x94 8
+msq12 0x94 16
+msq12 0x94 32
+msq12 0x94 3
+end
+case fsup-149
+device12
+feature12 0x95
+end
+case msq-149
+device12
+msq12 0x95 0
+msq12 0x95 1
+msq12 0x95 2
+msq12 0x95 4
+msq12 0x95 8
+msq12 0x95 16
+msq12 0x95 32
+msq12 0x95 3
+end
+case fsup-150
+device12
+feature12 0x96
+end
+case msq-150
+device12
+msq12 0x96 0
+msq12 0x96 1
+msq12 0x96 2
+msq12 0x96 4
+msq12 0x96 8
+msq12 0x96 16
+msq12 0x96 32
+msq12 0x96 3
+end
+case fsup-151
+device12
+feature12 0x97
+end
+case msq-151
+device12
+msq12 0x97 0
+msq12 0x97 1
+msq12 0x97 2
+msq12 0x97 4
+msq12 0x97 8
+msq12 0x97 16
+msq12 0x97 32
+msq12 0x97 3
+end
+case fsup-152
+device12
+feature12 0x98
+end
+case msq-152
+device12
+msq12 0x98 0
+msq12 0x98 1
+msq12 0x98 2
+msq12 0x98 4
+msq12 0x98 8
+msq12 0x98 16
+msq12 0x98 32
+msq12 0x98 3
+end
+case fsup-153
+device12
+feature12 0x99
+end
+case msq-153
+device12
+msq12 0x99 0
+msq12 0x99 1
+msq12 0x99 2
+msq12 0x99 4
+msq12 0x99 8
+msq12 0x99 16
+msq12 0x99 32
+msq12 0x99 3
+end
+case fsup-154
+device12
+feature12 0x9a
+end
+case msq-154
+device12
+msq12 0x9a 0
+msq12 0x9a 1
+msq12 0x9a 2
+msq12 0x9a 4
+msq12 0x9a 8
+msq12 0x9a 16
+msq12 0x9a 32
+msq12 0x9a 3
+end
+case fsup-155
+device12
+feature12 0x9b
+end
+case msq-155
+device12
+msq12 0x9b 0
+msq12 0x9b 1
+msq12 0x9b 2
+msq12 0x9b 4
+msq12 0x9b 8
+msq12 0x9b 16
+msq12 0x9b 32
+msq12 0x9b 3
+end
+case fsup-156
+device12
+feature12 0x9c
+end
+case msq-156
+device12
+msq12 0x9c 0
+msq12 0x9c 1
+msq12 0x9c 2
+msq12 0x9c 4
+msq12 0x9c 8
+msq12 0x9c 16
+msq12 0x9c 32
+msq12 0x9c 3
+end
+case fsup-157
+device12
+feature12 0x9d
+end
+case msq-157
+device12
+msq12 0x9d 0
+msq12 0x9d 1
+msq12 0x9d 2
+msq12 0x9d 4
+msq12 0x9d 8
+msq12 0x9d 16
+msq12 0x9d 32
+msq12 0x9d 3
+end
+case fsup-158
+device12
+feature12 0x9e
+end
+case msq-158
+device12
+msq12 0x9e 0
+msq12 0x9e 1
+msq12 0x9e 2
+msq12 0x9e 4
+msq12 0x9e 8
+msq12 0x9e 16
+msq12 0x9e 32
+msq12 0x9e 3
+end
+case fsup-159
+device12
+feature12 0x9f
+end
+case msq-159
+device12
+msq12 0x9f 0
+msq12 0x9f 1
+msq12 0x9f 2
+msq12 0x9f 4
+msq12 0x9f 8
+msq12 0x9f 16
+msq12 0x9f 32
+msq12 0x9f 3
+end
+case fsup-160
+device12
+feature12 0xa0
+end
+case msq-160
+device12
+msq12 0xa0 0
+msq12 0xa0 1
+msq12 0xa0 2
+msq12 0xa0 4
+msq12 0xa0 8
+msq12 0xa0 16
+msq12 0xa0 32
+msq12 0xa0 3
+end
+case fsup-161
+device12
+feature12 0xa1
+end
+case msq-161
+device12
+msq12 0xa1 0
+msq12 0xa1 1
+msq12 0xa1 2
+msq12 0xa1 4
+msq12 0xa1 8
+msq12 0xa1 16
+msq12 0xa1 32
+msq12 0xa1 3
+end
+case fsup-162
+device12
+feature12 0xa2
+end
+case msq-162
+device12
+msq12 0xa2 0
+msq12 0xa2 1
+msq12 0xa2 2
+msq12 0xa2 4
+msq12 0xa2 8
+msq12 0xa2 16
+msq12 0xa2 32
+msq12 0xa2 3
+end
+case fsup-163
+device12
+feature12 0xa3
+end
+case msq-163
+device12
+msq12 0xa3 0
+msq12 0xa3 1
+msq12 0xa3 2
+msq12 0xa3 4
+msq12 0xa3 8
+msq12 0xa3 16
+msq12 0xa3 32
+msq12 0xa3 3
+end
+case fsup-164
+device12
+feature12 0xa4
+end
+case msq-164
+device12
+msq12 0xa4 0
+msq12 0xa4 1
+msq12 0xa4 2
+msq12 0xa4 4
+msq12 0xa4 8
+msq12 0xa4 16
+msq12 0xa4 32
+msq12 0xa4 3
+end
+case fsup-165
+device12
+feature12 0xa5
+end
+case msq-165
+device12
+msq12 0xa5 0
+msq12 0xa5 1
+msq12 0xa5 2
+msq12 0xa5 4
+msq12 0xa5 8
+msq12 0xa5 16
+msq12 0xa5 32
+msq12 0xa5 3
+end
+case fsup-166
+device12
+feature12 0xa6
+end
+case msq-166
+device12
+msq12 0xa6 0
+msq12 0xa6 1
+msq12 0xa6 2
+msq12 0xa6 4
+msq12 0xa6 8
+msq12 0xa6 16
+msq12 0xa6 32
+msq12 0xa6 3
+end
+case fsup-167
+device12
+feature12 0xa7
+end
+case msq-167
+device12
+msq12 0xa7 0
+msq12 0xa7 1
+msq12 0xa7 2
+msq12 0xa7 4
+msq12 0xa7 8
+msq12 0xa7 16
+msq12 0xa7 32
+msq12 0xa7 3
+end
+case fsup-168
+device12
+feature12 0xa8
+end
+case msq-168
+device12
+msq12 0xa8 0
+msq12 0xa8 1
+msq12 0xa8 2
+msq12 0xa8 4
+msq12 0xa8 8
+msq12 0xa8 16
+msq12 0xa8 32
+msq12 0xa8 3
+end
+case fsup-169
+device12
+feature12 0xa9
+end
+case msq-169
+device12
+msq12 0xa9 0
+msq12 0xa9 1
+msq12 0xa9 2
+msq12 0xa9 4
+msq12 0xa9 8
+msq12 0xa9 16
+msq12 0xa9 32
+msq12 0xa9 3
+end
+case fsup-170
+device12
+feature12 0xaa
+end
+case msq-170
+device12
+msq12 0xaa 0
+msq12 0xaa 1
+msq12 0xaa 2
+msq12 0xaa 4
+msq12 0xaa 8
+msq12 0xaa 16
+msq12 0xaa 32
+msq12 0xaa 3
+end
+case fsup-171
+device12
+feature12 0xab
+end
+case msq-171
+device12
+msq12 0xab 0
+msq12 0xab 1
+msq12 0xab 2
+msq12 0xab 4
+msq12 0xab 8
+msq12 0xab 16
+msq12 0xab 32
+msq12 0xab 3
+end
+case fsup-172
+device12
+feature12 0xac
+end
+case msq-172
+device12
+msq12 0xac 0
+msq12 0xac 1
+msq12 0xac 2
+msq12 0xac 4
+msq12 0xac 8
+msq12 0xac 16
+msq12 0xac 32
+msq12 0xac 3
+end
+case fsup-173
+device12
+feature12 0xad
+end
+case msq-173
+device12
+msq12 0xad 0
+msq12 0xad 1
+msq12 0xad 2
+msq12 0xad 4
+msq12 0xad 8
+msq12 0xad 16
+msq12 0xad 32
+msq12 0xad 3
+end
+case fsup-174
+device12
+feature12 0xae
+end
+case msq-174
+device12
+msq12 0xae 0
+msq12 0xae 1
+msq12 0xae 2
+msq12 0xae 4
+msq12 0xae 8
+msq12 0xae 16
+msq12 0xae 32
+msq12 0xae 3
+end
+case fsup-175
+device12
+feature12 0xaf
+end
+case msq-175
+device12
+msq12 0xaf 0
+msq12 0xaf 1
+msq12 0xaf 2
+msq12 0xaf 4
+msq12 0xaf 8
+msq12 0xaf 16
+msq12 0xaf 32
+msq12 0xaf 3
+end
+case fsup-176
+device12
+feature12 0xb0
+end
+case msq-176
+device12
+msq12 0xb0 0
+msq12 0xb0 1
+msq12 0xb0 2
+msq12 0xb0 4
+msq12 0xb0 8
+msq12 0xb0 16
+msq12 0xb0 32
+msq12 0xb0 3
+end
+case fsup-177
+device12
+feature12 0xb1
+end
+case msq-177
+device12
+msq12 0xb1 0
+msq12 0xb1 1
+msq12 0xb1 2
+msq12 0xb1 4
+msq12 0xb1 8
+msq12 0xb1 16
+msq12 0xb1 32
+msq12 0xb1 3
+end
+case fsup-178
+device12
+feature12 0xb2
+end
+case msq-178
+device12
+msq12 0xb2 0
+msq12 0xb2 1
+msq12 0xb2 2
+msq12 0xb2 4
+msq12 0xb2 8
+msq12 0xb2 16
+msq12 0xb2 32
+msq12 0xb2 3
+end
+case fsup-179
+device12
+feature12 0xb3
+end
+case msq-179
+device12
+msq12 0xb3 0
+msq12 0xb3 1
+msq12 0xb3 2
+msq12 0xb3 4
+msq12 0xb3 8
+msq12 0xb3 16
+msq12 0xb3 32
+msq12 0xb3 3
+end
+case fsup-180
+device12
+feature12 0xb4
+end
+case msq-180
+device12
+msq12 0xb4 0
+msq12 0xb4 1
+msq12 0xb4 2
+msq12 0xb4 4
+msq12 0xb4 8
+msq12 0xb4 16
+msq12 0xb4 32
+msq12 0xb4 3
+end
+case fsup-181
+device12
+feature12 0xb5
+end
+case msq-181
+device12
+msq12 0xb5 0
+msq12 0xb5 1
+msq12 0xb5 2
+msq12 0xb5 4
+msq12 0xb5 8
+msq12 0xb5 16
+msq12 0xb5 32
+msq12 0xb5 3
+end
+case fsup-182
+device12
+feature12 0xb6
+end
+case msq-182
+device12
+msq12 0xb6 0
+msq12 0xb6 1
+msq12 0xb6 2
+msq12 0xb6 4
+msq12 0xb6 8
+msq12 0xb6 16
+msq12 0xb6 32
+msq12 0xb6 3
+end
+case fsup-183
+device12
+feature12 0xb7
+end
+case msq-183
+device12
+msq12 0xb7 0
+msq12 0xb7 1
+msq12 0xb7 2
+msq12 0xb7 4
+msq12 0xb7 8
+msq12 0xb7 16
+msq12 0xb7 32
+msq12 0xb7 3
+end
+case fsup-184
+device12
+feature12 0xb8
+end
+case msq-184
+device12
+msq12 0xb8 0
+msq12 0xb8 1
+msq12 0xb8 2
+msq12 0xb8 4
+msq12 0xb8 8
+msq12 0xb8 16
+msq12 0xb8 32
+msq12 0xb8 3
+end
+case fsup-185
+device12
+feature12 0xb9
+end
+case msq-185
+device12
+msq12 0xb9 0
+msq12 0xb9 1
+msq12 0xb9 2
+msq12 0xb9 4
+msq12 0xb9 8
+msq12 0xb9 16
+msq12 0xb9 32
+msq12 0xb9 3
+end
+case fsup-186
+device12
+feature12 0xba
+end
+case msq-186
+device12
+msq12 0xba 0
+msq12 0xba 1
+msq12 0xba 2
+msq12 0xba 4
+msq12 0xba 8
+msq12 0xba 16
+msq12 0xba 32
+msq12 0xba 3
+end
+case fsup-187
+device12
+feature12 0xbb
+end
+case msq-187
+device12
+msq12 0xbb 0
+msq12 0xbb 1
+msq12 0xbb 2
+msq12 0xbb 4
+msq12 0xbb 8
+msq12 0xbb 16
+msq12 0xbb 32
+msq12 0xbb 3
+end
+case fsup-188
+device12
+feature12 0xbc
+end
+case msq-188
+device12
+msq12 0xbc 0
+msq12 0xbc 1
+msq12 0xbc 2
+msq12 0xbc 4
+msq12 0xbc 8
+msq12 0xbc 16
+msq12 0xbc 32
+msq12 0xbc 3
+end
+case fsup-189
+device12
+feature12 0xbd
+end
+case msq-189
+device12
+msq12 0xbd 0
+msq12 0xbd 1
+msq12 0xbd 2
+msq12 0xbd 4
+msq12 0xbd 8
+msq12 0xbd 16
+msq12 0xbd 32
+msq12 0xbd 3
+end
+case fsup-190
+device12
+feature12 0xbe
+end
+case msq-190
+device12
+msq12 0xbe 0
+msq12 0xbe 1
+msq12 0xbe 2
+msq12 0xbe 4
+msq12 0xbe 8
+msq12 0xbe 16
+msq12 0xbe 32
+msq12 0xbe 3
+end
+case fsup-191
+device12
+feature12 0xbf
+end
+case msq-191
+device12
+msq12 0xbf 0
+msq12 0xbf 1
+msq12 0xbf 2
+msq12 0xbf 4
+msq12 0xbf 8
+msq12 0xbf 16
+msq12 0xbf 32
+msq12 0xbf 3
+end
+case fsup-4294967295
+device12
+feature12 0xffffffff
+end
+case msq-4294967295
+device12
+msq12 0xffffffff 0
+msq12 0xffffffff 1
+msq12 0xffffffff 2
+msq12 0xffffffff 4
+msq12 0xffffffff 8
+msq12 0xffffffff 16
+msq12 0xffffffff 32
+msq12 0xffffffff 3
+end
+case incr
+device12
+incr12
+end
 case clear-removed
 device12
 clear12 40 0 0 0 0

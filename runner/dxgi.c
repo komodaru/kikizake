@@ -138,7 +138,53 @@ static void op_latency(void) {
     out("latency hr %08lx get %08lx %x\n", hr, g, got);
 }
 
+/* dxgitearing: IDXGIFactory5::CheckFeatureSupport(PRESENT_ALLOW_TEARING): "tearing <BOOL>" or
+ * "tearing hr <hr>" */
+static void op_tearing(void) {
+    if (!factory) { out("nofactory\n"); return; }
+    if (ntok != 1) { bad = 1; return; }
+    IDXGIFactory5 *f5 = NULL;
+    HRESULT hr = IDXGIFactory4_QueryInterface(factory, &IID_IDXGIFactory5, (void **)&f5);
+    if (FAILED(hr)) { out("tearing hr %08lx\n", hr); return; }
+    BOOL b = 0xcccccccc;
+    hr = IDXGIFactory5_CheckFeatureSupport(f5, DXGI_FEATURE_PRESENT_ALLOW_TEARING, &b, sizeof b);
+    if (FAILED(hr)) out("tearing hr %08lx\n", hr);
+    else out("tearing %x\n", b);
+    IDXGIFactory5_Release(f5);
+}
+
+/* sccolor <color space>: CheckColorSpaceSupport, then SetColorSpace1: "color <flags> set <hr>" or
+ * "color hr <hr> set <hr>" */
+static void op_color(void) {
+    if (!chain) { out("nochain\n"); return; }
+    UINT cs = num(1), fl = 0xcccccccc;
+    if (bad || ntok != 2) { bad = 1; return; }
+    HRESULT hr = IDXGISwapChain3_CheckColorSpaceSupport(chain, cs, &fl);
+    if (FAILED(hr)) out("color hr %08lx", hr);
+    else out("color %x", fl);
+    out(" set %08lx\n", IDXGISwapChain3_SetColorSpace1(chain, cs));
+}
+
+/* dxgiadapters: EnumAdapters1 until NOT_FOUND: "adapters <n> last <vendor> <device> <flags>" (the
+ * last is the Basic Render Driver on a machine without a GPU) */
+static void op_adapters(void) {
+    if (!factory) { out("nofactory\n"); return; }
+    if (ntok != 1) { bad = 1; return; }
+    UINT n = 0;
+    DXGI_ADAPTER_DESC1 d = { 0 };
+    IDXGIAdapter1 *a;
+    while (n < 64 && SUCCEEDED(IDXGIFactory4_EnumAdapters1(factory, n, &a))) {
+        IDXGIAdapter1_GetDesc1(a, &d);
+        IDXGIAdapter1_Release(a);
+        n++;
+    }
+    out("adapters %x last %x %x %x\n", n, d.VendorId, d.DeviceId, d.Flags);
+}
+
 static const struct kz_op dxgi_ops[] = {
+    { "dxgitearing", op_tearing },
+    { "sccolor", op_color },
+    { "dxgiadapters", op_adapters },
     { "dxgifactory", op_factory },
     { "dxgiwarp", op_warp },
     { "dxgiassoc", op_assoc },

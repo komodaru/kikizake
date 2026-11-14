@@ -56,3 +56,6 @@ D3D12.CLEAR.FORMAT measured | D3D12_FORMAT_SUPPORT1_RENDER_TARGET | UNKNOWN, blo
 D3D12.CLEAR.REMOVED measured | (none) | making a D32_FLOAT render target removes the device: DXGI_ERROR_DEVICE_REMOVED (golden d3d12-32 f297a92 clear-unsupported; now the suite's last case, clear-removed, the device left unreleased)
 D3D12.CLEARDSV doc | ID3D12GraphicsCommandList::ClearDepthStencilView (Depth clamped to 0..1) | UNORM depths clamped and converted as UNORM (24 bits in the low bits of plane 0), float depths kept as given, not clamped (measured), the stencil plane the stencil's low byte (cleardsv-*)
 D3D12.CLEARDSV.NAN measured | (none) | a NaN depth clears a UNORM depth to 0 (cleardsv-45, cleardsv-55)
+D3D12.FEATURE.FORMAT open | D3D12_FEATURE_DATA_FORMAT_SUPPORT, D3D12_FEATURE_DATA_FORMAT_INFO | each format's Support1 and Support2 bits and plane count on WARP (asked: fsup-*)
+D3D12.FEATURE.MSAA open | D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS | each format's quality levels for 0..32 samples (asked: msq-*)
+D3D12.FEATURE.INCREMENT open | ID3D12Device::GetDescriptorHandleIncrementSize | the four heap types' descriptor sizes (asked: incr)
