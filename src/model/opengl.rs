@@ -365,7 +365,8 @@ pub struct Ctx {
     /// the matrix stacks, column-major, the top last: modelview, projection, texture
     pub stacks: [Vec<[f32; 16]>; 3],
     pub clear_color: [f32; 4],
-    pub clear_depth: f32,
+    /// a GLclampd, kept as a double (golden opengl-32 depth-types-0: 0.999 clears to 0xffbe76c6)
+    pub clear_depth: f64,
     pub clear_stencil: i64,
     pub color: [f32; 4],
     pub blend: (u32, u32),
@@ -408,7 +409,7 @@ pub struct Ctx {
     pub poly_mode: [u32; 2],
     /// the framebuffer, row 0 at the bottom: color channels at the format's bits, depth, stencil
     pub fb: Vec<[u32; 4]>,
-    pub depth: Vec<u32>,
+    pub depth: Vec<Depth>,
     pub stencil: Vec<u32>,
     /// the DIB's bits a pixel
     pub bpp: u32,
@@ -470,7 +471,7 @@ impl Ctx {
             front_face: CCW,
             poly_mode: [0x1b02, 0x1b02],
             fb: vec![[0; 4]; W * H],
-            depth: vec![0; W * H],
+            depth: vec![Depth(0); W * H],
             stencil: vec![0; W * H],
             bpp,
             verts: Vec::new(),
@@ -571,7 +572,7 @@ impl Ctx {
             0xb66 => c4([0.0; 4]),
             0xb70 => vec![C(self.depth_range[0]), C(self.depth_range[1])],
             0xb72 => vec![B(self.depth_mask)],
-            0xb73 => vec![C(self.clear_depth)],
+            0xb73 => vec![C(self.clear_depth as f32)],
             0xb74 => i(self.depth_func as i64),
             0xb80 => c4(self.clear_accum),
             0xb91 => i(self.clear_stencil),
@@ -869,7 +870,13 @@ impl Gl {
                 let mut a = Vec::new();
                 for (k, ty) in call.1.chars().enumerate() {
                     let tok = &t[2 + k];
-                    a.push(if ty == 'i' { A::I(num(tok).ok_or(Fail::Bad)?) } else { A::F(parse_float(tok)?) });
+                    // (a GLfloat argument reaches the call as an f32, a GLdouble one as it is)
+                    a.push(match ty {
+                        'i' => A::I(num(tok).ok_or(Fail::Bad)?),
+                        'f' => A::F(f64::from(parse_float(tok)? as f32)),
+                        'd' => A::F(parse_float(tok)?),
+                        _ => return Err(Fail::Bad),
+                    });
                 }
                 ctx.call(call.0, &a)?;
             }
@@ -1183,7 +1190,7 @@ impl Ctx {
             }
             "glClearDepth" => {
                 hit(clause::GL_CLEARDEPTH);
-                self.clear_depth = clamp01(fl(a, 0));
+                self.clear_depth = fl(a, 0).clamp(0.0, 1.0);
             }
             "glDepthRange" => {
                 hit(clause::GL_DEPTHRANGE);
@@ -1757,14 +1764,14 @@ impl Ctx {
             if self.depth_func == NEVER {
                 return Err(Fail::Unmodeled(open::GL_DEPTH_NEVER));
             }
-            if !compare_u(self.depth_func, z, self.depth[i] as u64) {
+            if !compare_u(self.depth_func, z, u64::from(self.depth[i].bits())) {
                 if has_stencil {
                     self.stencil_update(i, self.stencil_op[1]);
                 }
                 return Ok(());
             }
             if self.depth_mask {
-                self.depth[i] = (z & 0xffff_ffff) as u32;
+                self.depth[i] = Depth(z);
             }
         }
         if has_stencil {
@@ -1847,6 +1854,8 @@ impl Ctx {
             return Err(Fail::Bad);
         }
         hit(clause::GL_DEPTH_FIXED);
+        // (the window depth is a float: golden opengl-32 depth-types-0, 0.85 gives 0xd9999a00)
+        let z = f64::from(z as f32);
         Ok((z.clamp(0.0, 1.0) * 4_294_967_296.0) as u64)
     }
 
@@ -2155,7 +2164,7 @@ impl Ctx {
             let m = ((1u64 << bits[k]) - 1) as f32;
             (self.clear_color[k].clamp(0.0, 1.0) * m + dither_threshold(x, y)).floor() as u32
         };
-        let z = if m & DEPTH_BUFFER_BIT != 0 { Ctx::clear_depth_fixed(self.clear_depth as f64, self.pf.depth)? } else { 0 };
+        let z = if m & DEPTH_BUFFER_BIT != 0 { Ctx::clear_depth_fixed(self.clear_depth, self.pf.depth)? } else { 0 };
         let smax = if self.pf.stencil == 0 { 0 } else { (1u32 << self.pf.stencil) - 1 };
         for y in 0..H as i64 {
             for x in 0..W as i64 {
@@ -2177,7 +2186,7 @@ impl Ctx {
                     }
                 }
                 if m & DEPTH_BUFFER_BIT != 0 && self.depth_mask {
-                    self.depth[i] = z;
+                    self.depth[i] = Depth(u64::from(z));
                 }
                 if m & STENCIL_BUFFER_BIT != 0 {
                     let mk = self.stencil_mask & smax;
@@ -2335,6 +2344,19 @@ fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
 /// ci-*, the others in ci-types-*)
 /// an index's bits: truncated to a 32-bit integer, an index out of its range giving 0x80000000
 /// (MEASURED, golden opengl-32 ci-types-*: indices drawn as floats past 2^31 store 0)
+/// a depth sample: the fragment's fixed-point depth, which at 1.0 is 2^32 in a 32-bit buffer;
+/// the depth test and UNSIGNED_INT reads see its low 32 bits, the other read types all of it
+/// (golden opengl-32 depth-types-0)
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Depth(pub u64);
+
+impl Depth {
+    /// the bits the buffer holds
+    pub fn bits(self) -> u32 {
+        (self.0 & 0xffff_ffff) as u32
+    }
+}
+
 pub fn index_bits(v: f64) -> u32 {
     let t = v.trunc();
     if t >= -2147483648.0 && t < 2147483648.0 {
@@ -2479,7 +2501,8 @@ impl Ctx {
                             // (MEASURED, golden opengl-32 depth-*: UNSIGNED_INT gives the 32 bits as they are;
                             // depth16-*: 16 bits as they are in UNSIGNED_INT's top half and in
                             // UNSIGNED_SHORT, the other types from the value over 0xfffe)
-                            let d = self.depth[p];
+                            let dv = self.depth[p];
+                            let d = dv.bits();
                             match (self.pf.depth, t) {
                                 (32, UNSIGNED_INT) => {
                                     hit(clause::GL_READ_DEPTH);
@@ -2491,13 +2514,27 @@ impl Ctx {
                                 }
                                 (16, UNSIGNED_SHORT) => {
                                     hit(clause::GL_READ_DEPTH_16);
-                                    u16::try_from(d).map_err(|_| Fail::Unmodeled(open::GL_READ_DEPTH_TYPE))?.to_le_bytes().to_vec()
+                                    u16::try_from(d).map_err(|_| Fail::Bad)?.to_le_bytes().to_vec()
                                 }
-                                (16, UNSIGNED_BYTE | INT | FLOAT) => {
+                                (16, BYTE | UNSIGNED_BYTE | SHORT | INT | FLOAT) => {
                                     hit(clause::GL_READ_DEPTH_16);
+                                    hit(clause::GL_READ_DEPTH_TYPE);
                                     from_float(d as f32 / 65534.0, t)
                                 }
-                                _ => return Err(Fail::Unmodeled(open::GL_READ_DEPTH_TYPE)),
+                                (32, UNSIGNED_SHORT) => {
+                                    // (MEASURED, golden opengl-32 depth-types-0: the top 16 bits)
+                                    hit(clause::GL_READ_DEPTH_TYPE);
+                                    u16::try_from(d >> 16).map_err(|_| Fail::Bad)?.to_le_bytes().to_vec()
+                                }
+                                (32, BYTE | UNSIGNED_BYTE | SHORT | INT | FLOAT) => {
+                                    // (MEASURED, golden opengl-32 depth-types-0: the other types
+                                    // from the value over 2^32 as a float, a fragment at 1.0
+                                    // reading 1.0 though UNSIGNED_INT gives its 32 bits, 0)
+                                    hit(clause::GL_READ_DEPTH_TYPE);
+                                    from_float((dv.0 as f64 / 4_294_967_296.0) as f32, t)
+                                }
+                                // (the formats have 32 or 16 depth bits, pixel_args takes these types only)
+                                _ => return Err(Fail::Bad),
                             }
                         }
                         _ => {

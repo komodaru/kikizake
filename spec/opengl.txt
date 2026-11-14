@@ -145,7 +145,7 @@ GL.READ.LUMINANCE doc | glReadPixels | luminance: red + green + blue, clamped to
 GL.READ.BITMAP measured | glReadPixels | GL_BITMAP with a color format: GL_INVALID_OPERATION, not GL_INVALID_ENUM (opengl golden read-formats, read-pack-*)
 GL.READ.DEPTH measured | glReadPixels (GL_DEPTH_COMPONENT) | GL_UNSIGNED_INT: the stored bits as they are, a 16-bit buffer's in the top half (opengl golden depth-*, edge-depth-16)
 GL.READ.DEPTH.16 measured | glReadPixels (GL_DEPTH_COMPONENT) | from a 16-bit depth buffer GL_UNSIGNED_SHORT gives the stored bits, GL_UNSIGNED_BYTE, GL_INT and GL_FLOAT the stored value over 0xfffe converted as colors are (opengl golden depth16-*: 19 values in each type)
-GL.READ.DEPTH.TYPE open | glReadPixels (GL_DEPTH_COMPONENT) | the other types from a 32-bit buffer, GL_BYTE and GL_SHORT from a 16-bit one (depth-types-* read every type)
+GL.READ.DEPTH.TYPE measured | glReadPixels (GL_DEPTH_COMPONENT) | from a 32-bit depth buffer the types other than GL_UNSIGNED_INT give the fixed-point value over 2^32 as a float converted as colors are, a fragment at depth 1.0 (2^32, whose 32 bits are 0) reading 1.0; from a 16-bit one GL_BYTE and GL_SHORT too give the value over 0xfffe (opengl golden depth-types-0, 1: every type)
 GL.READ.STENCIL doc | glReadPixels (GL_STENCIL_INDEX) | the stencil values as integers of the type
 GL.READ.OUTSIDE measured | glReadPixels | the elements of pixels outside the window are left as they are (opengl golden edge-read-outside)
 GL.READ.BUFFER open | glReadPixels | a layout past the executor's buffer (Windows writes past it)
