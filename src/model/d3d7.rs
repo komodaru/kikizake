@@ -876,7 +876,6 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>
     let edges = [(a, b), (b, c), (c, a)];
     let inside = v.iter().all(|&(x, y)| (0..=w * 16).contains(&x) && (0..=h * 16).contains(&y));
     let mut cover = Vec::with_capacity(usize::try_from(w * h).map_err(|_| Fail::Bad)?);
-    let mut near = false;
     for py in 0..h {
         for px in 0..w {
             let (sx, sy) = (px * 16, py * 16);
@@ -895,13 +894,9 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>
                             ins = false;
                         }
                     }
+                    // (the exact inside, for a triangle crossing the target; one inside is
+                    // walked)
                     Family::Soft { .. } | Family::Ramp => {
-                        let len = ((dx * dx + dy * dy) as f64).sqrt();
-                        // (within 1/8 pixel of an edge the software rasterizer decides by its own
-                        // fixed-point arithmetic: D3D7.TRI.EDGE)
-                        if (e as f64).abs() / len < 2.0 {
-                            near = true;
-                        }
                         if e < 0 {
                             ins = false;
                         }
@@ -917,20 +912,101 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>
             Ok(cover)
         }
         Family::Soft { .. } | Family::Ramp => {
-            if !inside && cover.iter().all(|&c| c) {
-                hit(clause::D3D7_TRI_COVERALL);
-                return Ok(cover);
-            }
-            if near {
-                return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
-            }
             if !inside {
+                if cover.iter().all(|&c| c) {
+                    hit(clause::D3D7_TRI_COVERALL);
+                    return Ok(cover);
+                }
                 return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
             }
             hit(clause::D3D7_TRI);
-            Ok(cover)
+            walk(v, w, h)
         }
     }
+}
+
+/// f32's "ceiling" of the software rasterizers: x + (1 − 2^-23) in single precision (rounded to
+/// nearest), then its floor: the next integer above x, but x itself for an integer x below 2
+fn ceil_f32(num: i64, den: i64) -> i64 {
+    // (num / den: below 2^24 · den here, a vertex within the target)
+    let x = (num as f64 / den as f64) as f32;
+    (x + (1.0 - f32::EPSILON)).floor() as i64
+}
+
+/// one edge's walk, from top t to bottom b (in 16ths, t above b): the rows it spans, each with
+/// its x as the next pixel at or right of the edge, and whether that row's x lies exactly on a
+/// pixel past the first row
+struct EdgeWalk {
+    first: i64,
+    xs: Vec<(i64, bool)>,
+}
+
+impl EdgeWalk {
+    fn new(t: (i64, i64), b: (i64, i64)) -> EdgeWalk {
+        let (dxn, dyn_) = (b.0 - t.0, b.1 - t.1);
+        let first = ceil_f32(t.1, 16);
+        let last = b.1.div_euclid(16);
+        // x at row y = (t.x dy + (16 y − t.y) dx) / (16 dy)
+        let den = 16 * dyn_;
+        let num = t.0 * dyn_ + (first * 16 - t.1) * dxn;
+        let mut xi = ceil_f32(num, den);
+        // the error to the next pixel, in 1/den: with xi it walks the edge; an x on a pixel
+        // on the first row (x + 1 there, but no error) moves the whole edge one pixel right
+        let mut err = (-num).rem_euclid(den);
+        let (fl, fr) = ((16 * dxn).div_euclid(den), (16 * dxn).rem_euclid(den));
+        let mut xs = Vec::new();
+        for y in first..=last {
+            if y > first {
+                xi += fl;
+                err -= fr;
+                if err < 0 {
+                    xi += 1;
+                    err += den;
+                }
+            }
+            xs.push((xi, y > first && err == 0));
+        }
+        EdgeWalk { first, xs }
+    }
+    fn at(&self, y: i64) -> Option<(i64, bool)> {
+        usize::try_from(y - self.first).ok().and_then(|k| self.xs.get(k).copied())
+    }
+}
+
+/// the pixels the RGB, MMX and ramp rasterizers draw of a triangle inside the target: MEASURED
+/// (d3d7rast, d3d7edge, d3d7, d3d7shade: 2400 of 2400 dumps with no exact tie on a later row)
+/// each edge walked down from its first row (the f32 ceiling of its top: rows below the top,
+/// and the top's own row when that is 0 or 1) to the row of its bottom (inclusive), its x the
+/// f32 ceiling of the edge's x on the first row, then stepped by a whole part and an exact
+/// error; the long edge (top to bottom vertex) against the two short ones, a row drawn from the
+/// left edge's x to the right edge's x less 1 (nothing when they cross); pixels past the row's
+/// end go on into the next row, as in memory. An x exactly on a pixel past an edge's first row
+/// goes either way (D3D7.TRI.EDGE)
+fn walk(v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
+    let mut s = v;
+    s.sort_by_key(|p| p.1);
+    let [t, m, b] = s;
+    hit(clause::D3D7_TRI_WALK);
+    let long = EdgeWalk::new(t, b);
+    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m));
+    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b));
+    let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
+    let n = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
+    let mut cover = vec![false; n];
+    for y in 0..h {
+        let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
+        let (Some(l), Some(r)) = (long.at(y), short) else { continue };
+        let ((xl, tl), (xr, tr)) = if long_left { (l, r) } else { (r, l) };
+        if tl || tr {
+            return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
+        }
+        for x in xl..xr {
+            if let Some(c) = usize::try_from(y * w + x).ok().and_then(|k| cover.get_mut(k)) {
+                *c = true;
+            }
+        }
+    }
+    Ok(cover)
 }
 
 /// the pixels of D3DFILL_POINT: MEASURED (d3d7dev fillmode-*-1-*: 48 x 2 random triangles,
@@ -974,11 +1050,16 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Re
     let f = |c: u32| f64::from(ch(c));
     let val = f(c[0]) + l1 * (f(c[1]) - f(c[0])) + l2 * (f(c[2]) - f(c[0]));
     let fr = val - val.floor();
+    // the change of the value over one pixel across and down
+    let gx = ((f(c[1]) - f(c[0])) * (cc.1 - a.1) - (f(c[2]) - f(c[0])) * (b.1 - a.1)) / den;
+    let gy = ((f(c[2]) - f(c[0])) * (b.0 - a.0) - (f(c[1]) - f(c[0])) * (cc.0 - a.0)) / den;
+    let margin = 1.0 / 32.0 + (gx.abs() + gy.abs()) / 128.0;
     match family {
         // MEASURED (d3d7shade gouraud-*): the software rasterizers take the floor of the exact
-        // value; near a whole number their fixed point decides (D3D7.GOURAUD)
+        // value; near a whole number (nearer as the color changes faster across the pixels)
+        // their fixed point decides (D3D7.GOURAUD)
         Family::Soft { .. } | Family::Ramp => {
-            if !(1.0 / 32.0..=31.0 / 32.0).contains(&fr) {
+            if fr < margin || fr > 1.0 - margin {
                 return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
             }
             hit(clause::D3D7_GOURAUD);

@@ -153,6 +153,35 @@ proptest! {
         }
     }
 
+    /// the software rasterizers' walk of a triangle inside the target: every pixel more than
+    /// 1.5 px inside its three edges is drawn, and none more than 1.5 px outside one (the walk's
+    /// shifts and ties move edges by at most a pixel; a pixel past the right side spills into
+    /// the next row, so the target is as wide as the triangle can reach)
+    #[test]
+    fn walk_stays_by_the_edges(x: [i64; 3], y: [i64; 3], dev in prop::sample::select(vec!["rgb", "mmx", "ramp"])) {
+        let x = x.map(|v| v.rem_euclid(161));
+        let y = y.map(|v| v.rem_euclid(161));
+        let base = format!("d3d 2\nd3ddev {dev} 32 12 11\nd3drs set 22 1\nd3dclear 0xff000000\n");
+        let out = try_run(&format!("{base}d3dtri 0xffffffff {} {} {} {} {} {}\nd3ddump\n", x[0], y[0], x[1], y[1], x[2], y[2]));
+        let area = (x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]);
+        if let (Ok(out), true) = (out, area != 0) {
+            let r = rows(&out, "dd rt");
+            let s = area.signum();
+            for (py, row) in r.iter().enumerate() {
+                for px in 0..11 {
+                    let on = &row[8 * px..8 * px + 8] != "00000000";
+                    // the least signed distance to an edge, in pixels, inside positive
+                    let d = (0..3).map(|i| {
+                        let (ax, ay, bx, by) = (x[i], y[i], x[(i + 1) % 3], y[(i + 1) % 3]);
+                        let e = (bx - ax) * (py as i64 * 16 - ay) - (by - ay) * (px as i64 * 16 - ax);
+                        (s * e) as f64 / (((bx - ax).pow(2) + (by - ay).pow(2)) as f64).sqrt() / 16.0
+                    }).fold(f64::INFINITY, f64::min);
+                    prop_assert!(!(d > 1.5 && !on) && !(d < -1.5 && on), "({px},{py}) d {d} on {on}");
+                }
+            }
+        }
+    }
+
     /// blending: alpha 255 gives the source's colors, alpha 0 the destination's, each scaled by 255/256
     #[test]
     fn blend_ends(seed in 1u32..1000, c in 0u32..0x100_0000, f in prop::sample::select(vec!["32", "24"])) {
@@ -242,7 +271,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::gen;
-    for (s, n32, n64) in [("ddraw", 2, 2), ("ddclip", 1, 1), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 19, 19), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 200, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
+    for (s, n32, n64) in [("ddraw", 2, 2), ("ddclip", 1, 1), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 19, 19), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 167, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

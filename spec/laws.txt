@@ -41,6 +41,7 @@ tests/laws_dd.rs::render_state_defaults_read_back exhaustive D3D7.RS
 tests/laws_dd.rs::pitches_hold_a_row exhaustive DDRAW.PITCH DDRAW.LOCK
 tests/laws_dd.rs::clear_fills_the_target pbt D3D7.CLEAR D3D7.LOCK
 tests/laws_dd.rs::vertex_order_and_redraw pbt D3D7.TRI D3D7.CULL D3D7.FLAT
+tests/laws_dd.rs::walk_stays_by_the_edges pbt D3D7.TRI.WALK D3D7.TRI
 tests/laws_dd.rs::blend_ends pbt D3D7.BLEND D3D7.BLEND.OTHER
 tests/laws_dd.rs::poke_reads_back pbt DDRAW.LOCK DDRAW.LOCK.WRITE
 tests/laws_dd.rs::flips_rotate pbt DDRAW.FLIP DDRAW.CHAIN
