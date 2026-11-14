@@ -58,8 +58,12 @@ WICIMAGE.TIFF.OTHER open | (none) | WhiteIsZero, planar, float, gray+alpha, CMYK
 WICIMAGE.TIFF.PALETTE doc | TIFF 6.0 (ColorMap) | the colormap's high bytes
 WICIMAGE.TIFF.RESOLUTION assumed | TIFF 6.0 | inches as they are, centimeters times 2.54, none 96
 WICIMAGE.TIFF.UNIT open | (none) | a ResolutionUnit of none
-WICIMAGE.ICO open | ICO Format Overview | entries (BMP with masks, PNG) as 32bppBGRA
-WICIMAGE.DDS open | DDS Format Overview | BC1, BC2, BC3 as 32bppBGRA or 32bppPBGRA
+WICIMAGE.ICO doc | ICO Format Overview (decoder: 32bppBGRA) | each directory entry a frame of 32bppBGRA
+WICIMAGE.ICO.PNG doc | ICO Format Overview | a PNG entry: the PNG converted to 32bppBGRA
+WICIMAGE.ICO.BMP assumed | ICO Format Overview | a BMP entry (height doubled, colors then the AND mask, bottom-up): the colors with alpha from 32-bit colors when any is set, else from the mask: where it is 1, transparent black
+WICIMAGE.ICO.DEPTH open | (none) | BMP entries of 16 bits
+WICIMAGE.DDS assumed | DDS Format Overview (BC1-3 as 32bppBGRA or 32bppPBGRA); Texture Block Compression in Direct3D 11 | each mip level a frame, BC1 of 32bppPBGRA, BC2 and BC3 of 32bppBGRA; colors 565 widened by repeating their high bits, thirds and halves truncated, BC1 3-color blocks' fourth entry transparent black, BC2 alpha times 17, BC3 alpha interpolated in sevenths or fifths
+WICIMAGE.DDS.OTHER open | DDS Format Overview (only BC1, BC2, BC3) | other DDS formats
 # encoders
 WICIMAGE.ENCODE.FORMAT doc | Native Pixel Formats Overview (encoder pixel formats) | a format the encoder takes: SetPixelFormat leaves it
 WICIMAGE.ENCODE.NEGOTIATE open | IWICBitmapFrameEncode::SetPixelFormat | a format it does not take: the one it answers

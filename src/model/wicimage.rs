@@ -829,16 +829,159 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
     Ok(img)
 }
 
-/// ICO: each entry a frame of 32bppBGRA
+/// ICO: each entry a frame of 32bppBGRA ("ICO Format Overview"): a PNG, or a BMP without its
+/// file header, its height doubled, the colors then the AND mask
 fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
-    let _ = b;
-    Err(Fail::Unmodeled("WICIMAGE.ICO"))
+    let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let Some(n) = rd16(b, 4) else { return broken };
+    let mut frames = Vec::new();
+    for k in 0..n as usize {
+        let (Some(size), Some(off)) = (rd32(b, 6 + 16 * k + 8), rd32(b, 6 + 16 * k + 12)) else { return broken };
+        let Some(d) = b.get(off as usize..(off + size) as usize) else { return broken };
+        frames.push(ico_entry(d));
+    }
+    hit("WICIMAGE.ICO");
+    Ok(Ok(Decoded { container: "ico", frames }))
 }
 
-/// DDS: block compressed (BC1, BC2, BC3) frames
+fn ico_entry(d: &[u8]) -> Res<Img> {
+    let bgra = crate::model::wic::format("bgra").unwrap();
+    if d.starts_with(b"\x89PNG\r\n\x1a\n") {
+        let p = png(d)?;
+        hit("WICIMAGE.ICO.PNG");
+        let from = crate::model::wic::format(p.fmt).ok_or(Fail::Unmodeled("WICIMAGE.ICO.PNG"))?;
+        let px = crate::model::wic::convert(from, bgra, p.w, p.h, &p.px)?;
+        return Ok(Img { px, fmt: "bgra", pal: None, dpi: (96.0, 96.0), ..p });
+    }
+    let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
+    let h = h2 / 2;
+    let colors = if bpp <= 8 { 1usize << bpp } else { 0 };
+    let used = rd32(d, 32).unwrap_or(0) as usize;
+    let colors = if used > 0 && used < colors { used } else { colors };
+    let pal: Vec<u32> = (0..colors).filter_map(|i| d.get(hdr as usize + 4 * i..hdr as usize + 4 * i + 4).map(|c| (c[2] as u32) << 16 | (c[1] as u32) << 8 | c[0] as u32)).collect();
+    let xs = (w as usize * bpp as usize).div_ceil(32) * 4;
+    let ms = (w as usize).div_ceil(32) * 4;
+    let at = hdr as usize + 4 * colors;
+    let Some(xor) = d.get(at..at + xs * h as usize) else { return broken };
+    let Some(and) = d.get(at + xs * h as usize..at + xs * h as usize + ms * h as usize) else { return broken };
+    hit("WICIMAGE.ICO.BMP");
+    let mut img = Img::new(w, h, "bgra");
+    let any_alpha = bpp == 32 && (0..h as usize).any(|y| (0..w as usize).any(|x| xor[y * xs + 4 * x + 3] != 0));
+    for y in 0..h {
+        let sy = (h - 1 - y) as usize;
+        let row = &xor[sy * xs..];
+        for x in 0..w {
+            let m = (and[sy * ms + (x / 8) as usize] >> (7 - x % 8)) & 1;
+            let c: [u8; 4] = match bpp {
+                1 | 4 | 8 => {
+                    let v = get_sample_bits(row, x, bpp as u32)[0] as usize;
+                    let c = *pal.get(v).unwrap_or(&0);
+                    [c as u8, (c >> 8) as u8, (c >> 16) as u8, 255]
+                }
+                24 => [row[3 * x as usize], row[3 * x as usize + 1], row[3 * x as usize + 2], 255],
+                32 => {
+                    let p = &row[4 * x as usize..4 * x as usize + 4];
+                    [p[0], p[1], p[2], p[3]]
+                }
+                _ => return Err(Fail::Unmodeled("WICIMAGE.ICO.DEPTH")),
+            };
+            // (ASSUMED: alpha from the colors when any is set, else from the mask: 1 transparent)
+            if !any_alpha && m != 0 {
+                img.put(x, y, &[0, 0, 0, 0]);
+            } else {
+                img.put(x, y, &[c[0], c[1], c[2], if any_alpha { c[3] } else { 255 }]);
+            }
+        }
+    }
+    Ok(img)
+}
+
+fn rgb565(v: u32) -> [u32; 3] {
+    let x5 = |v: u32| (v << 3) | (v >> 2);
+    let x6 = |v: u32| (v << 2) | (v >> 4);
+    [x5(v & 31), x6(v >> 5 & 63), x5(v >> 11 & 31)]
+}
+
+/// one 4x4 block of BC1 (DXT1), BC2 (DXT3) or BC3 (DXT5): 16 straight BGRA pixels, row by row
+/// ("Texture Block Compression in Direct3D 11"; ASSUMED: thirds and halves truncated)
+pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
+    let (alpha, color) = if kind == 1 { (&blk[..0], blk) } else { (&blk[..8], &blk[8..]) };
+    let c0 = rd16(color, 0).unwrap();
+    let c1 = rd16(color, 2).unwrap();
+    let (a, b) = (rgb565(c0), rgb565(c1));
+    let mix = |p: u32, q: u32, d: u32| -> [u32; 3] { [0, 1, 2].map(|i| (p * a[i] + q * b[i]) / d) };
+    let four = kind != 1 || c0 > c1;
+    let pal: [[u32; 4]; 4] = if four {
+        let (m, n) = (mix(2, 1, 3), mix(1, 2, 3));
+        [[a[0], a[1], a[2], 255], [b[0], b[1], b[2], 255], [m[0], m[1], m[2], 255], [n[0], n[1], n[2], 255]]
+    } else {
+        let m = mix(1, 1, 2);
+        [[a[0], a[1], a[2], 255], [b[0], b[1], b[2], 255], [m[0], m[1], m[2], 255], [0, 0, 0, 0]]
+    };
+    let idx = rd32(color, 4).unwrap();
+    let mut out = [[0u8; 4]; 16];
+    let alphas: [u32; 8] = if kind == 3 {
+        let (a0, a1) = (alpha[0] as u32, alpha[1] as u32);
+        if a0 > a1 {
+            [a0, a1, (6 * a0 + a1) / 7, (5 * a0 + 2 * a1) / 7, (4 * a0 + 3 * a1) / 7, (3 * a0 + 4 * a1) / 7, (2 * a0 + 5 * a1) / 7, (a0 + 6 * a1) / 7]
+        } else {
+            [a0, a1, (4 * a0 + a1) / 5, (3 * a0 + 2 * a1) / 5, (2 * a0 + 3 * a1) / 5, (a0 + 4 * a1) / 5, 0, 255]
+        }
+    } else {
+        [0; 8]
+    };
+    let abits = if kind == 3 { alpha[2..8].iter().rev().fold(0u64, |v, &x| v << 8 | x as u64) } else { 0 };
+    for (i, o) in out.iter_mut().enumerate() {
+        let c = pal[(idx >> (2 * i) & 3) as usize];
+        let al = match kind {
+            1 => c[3],
+            2 => ((alpha[i / 2] >> (4 * (i % 2))) & 15) as u32 * 17,
+            _ => alphas[(abits >> (3 * i) & 7) as usize],
+        };
+        *o = [c[2] as u8, c[1] as u8, c[0] as u8, al as u8];
+    }
+    out
+}
+
+/// DDS: BC1, BC2, BC3 ("DDS Format Overview"), each mip level a frame (ASSUMED), 32bppBGRA
 fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
-    let _ = b;
-    Err(Fail::Unmodeled("WICIMAGE.DDS"))
+    let broken = Err(Fail::Unmodeled("WICIMAGE.DECODE.BROKEN"));
+    let (Some(h), Some(w), Some(mips), Some(pf)) = (rd32(b, 12), rd32(b, 16), rd32(b, 28), rd32(b, 80)) else { return broken };
+    if pf & 4 == 0 {
+        return Err(Fail::Unmodeled("WICIMAGE.DDS.OTHER"));
+    }
+    let kind = match b.get(84..88) {
+        Some(b"DXT1") => 1u8,
+        Some(b"DXT3") => 2,
+        Some(b"DXT5") => 3,
+        _ => return Err(Fail::Unmodeled("WICIMAGE.DDS.OTHER")),
+    };
+    let bs = if kind == 1 { 8 } else { 16 };
+    let mut at = 128;
+    let mut frames = Vec::new();
+    for m in 0..mips.max(1) {
+        let (mw, mh) = ((w >> m).max(1), (h >> m).max(1));
+        let (bw, bh) = (mw.div_ceil(4), mh.div_ceil(4));
+        // (ASSUMED: BC1 as premultiplied, its alpha all 0 or 255; BC2 and BC3 straight)
+        let mut img = Img::new(mw, mh, if kind == 1 { "pbgra" } else { "bgra" });
+        for by in 0..bh {
+            for bx in 0..bw {
+                let Some(blk) = b.get(at..at + bs) else { return broken };
+                at += bs;
+                let px = bc_block(kind, blk);
+                for (i, p) in px.iter().enumerate() {
+                    let (x, y) = (bx * 4 + i as u32 % 4, by * 4 + i as u32 / 4);
+                    if x < mw && y < mh {
+                        img.put(x, y, &if kind == 1 && p[3] == 0 { [0; 4] } else { *p });
+                    }
+                }
+            }
+        }
+        frames.push(Ok(img));
+    }
+    hit("WICIMAGE.DDS");
+    Ok(Ok(Decoded { container: "dds", frames }))
 }
 
 /* ---------------------------------------------------------------------------------------- */
