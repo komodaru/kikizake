@@ -395,6 +395,11 @@ pub fn d3d7edge() -> String {
         // an edge whose x is a whole pixel on its first row, its top off the rows: as the
         // short edge (third vertex below its top, above its bottom) and as the long edge
         for kind in ["short", "long"] {
+            if kind == "long" {
+                // (the Windows executor crashed in whole-rgb-long: the long edges come last, in
+                // cases of 12, so that the crash leaves the rest and names its triangles)
+                continue;
+            }
             writeln!(s, "case whole-{dev}-{kind}\nd3d 7\nd3ddev {dev} 565 12 12\nd3drs set 22 1").unwrap();
             let mut n = 0;
             while n < 96 {
@@ -407,6 +412,23 @@ pub fn d3d7edge() -> String {
                 if third.y > 191 || third.y == b.y {
                     continue;
                 }
+                writeln!(s, "{}", tri(t, b, third)).unwrap();
+                n += 1;
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
+    for dev in ["rgb", "mmx"] {
+        for chunk in 0..8 {
+            writeln!(s, "case whole-{dev}-long-{chunk}\nd3d 7\nd3ddev {dev} 565 12 12\nd3drs set 22 1").unwrap();
+            let mut n = 0;
+            while n < 12 {
+                let t = V16 { x: r.range(0, 191), y: r.range(0, 120) };
+                let b = V16 { x: r.range(0, 191), y: r.range(t.y + 24, 191) };
+                if t.y % 16 == 0 || x_at_first_row(t, b).is_none() {
+                    continue;
+                }
+                let third = V16 { x: r.range(0, 191), y: r.range(t.y + 1, b.y - 1) };
                 writeln!(s, "{}", tri(t, b, third)).unwrap();
                 n += 1;
             }
