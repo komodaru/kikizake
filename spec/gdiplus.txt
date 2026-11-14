@@ -1,0 +1,34 @@
+# GDI+ bitmap and matrix clauses (spec/README.md): <id> <status> | <source> | <what it says>
+GP.START doc | GdiplusStartup | GDI+ 1.0 started once (gdiplus.dll loaded when a case first asks)
+GP.CREATE doc | Bitmap::Bitmap(INT, INT, INT, PixelFormat, BYTE*) | a bitmap of the size and format asked, GDI+ allocating the pixels (no scan0)
+GP.CREATE.SIZE open | (none) | a width or height of 0 or less
+GP.CREATE.ZERO assumed | (none) | a new bitmap's pixels are all 0
+GP.INFO doc | Image::GetPalette, Image::GetPixelFormat | the format and size as made; an indexed bitmap's palette
+GP.INFO.NOPALETTE open | (none) | the palette of a bitmap that is not indexed
+GP.LAYOUT doc | Image Pixel Format Constants | each format's channels and sizes (16-bit fields little-endian, sub-byte pixels from the high bits)
+GP.LOCK.SAME doc | Bitmap::LockBits | locked in the bitmap's own format: its bytes as they are, and written ones kept
+GP.LOCK.READ doc | Bitmap::LockBits | ImageLockModeRead: the rectangle's pixels in the format asked
+GP.LOCK.WRITE doc | Bitmap::LockBits, Bitmap::UnlockBits | ImageLockModeWrite: the buffer's pixels, in the format asked, replace the rectangle's at UnlockBits
+GP.LOCK.RECT assumed | (none) | a rectangle past the bitmap or empty is InvalidParameter
+GP.LOCK.INDEXED open | (none) | an indexed format locked as another format, or another as indexed
+GP.CONV.INDEXED doc | Image Pixel Format Constants (indexed) | an index is its palette color
+GP.CONV.EXPAND assumed | (none) | 5 and 6 bit channels to 8 by repeating their high bits; the 1-bit alpha to 0 or 255
+GP.CONV.TRUNCATE assumed | (none) | 8-bit channels to 5 and 6 bits: the high bits; alpha to 1 bit: its high bit
+GP.CONV.OPAQUE assumed | (none) | 24bppRGB, 32bppRGB to ARGB: alpha 255; ARGB to 24bppRGB drops the alpha, to 32bppRGB its byte is 255
+GP.CONV.PREMULTIPLY open | Bitmap::SetPixel (premultiplied: "a different value because of rounding") | straight to premultiplied
+GP.CONV.UNPREMULTIPLY open | Bitmap::GetPixel | premultiplied to straight
+GP.CONV.WIDE open | Image Pixel Format Constants (16 bits a channel "converted to an 8-bits-per-channel format for processing") | to and from 48bppRGB, 64bppARGB, 64bppPARGB
+GP.GRAY16 open | (none) | 16bppGrayScale
+GP.PIXEL.BOUNDS assumed | (none) | GetPixel and SetPixel outside the bitmap: InvalidParameter
+GP.PIXEL.GET doc | Bitmap::GetPixel | the pixel as straight ARGB
+GP.PIXEL.SET doc | Bitmap::SetPixel | the color stored in the bitmap's format ("might not return the same value": 16 bpp loses bits, PARGB rounds)
+GP.PIXEL.SET.INDEXED open | (none) | SetPixel on an indexed bitmap
+GP.FILL open | CompositingMode, CompositingQuality, Graphics::Clear, Graphics::FillRectangle | Clear and FillRectangleI through a Graphics of the bitmap
+GP.ROTATE doc | RotateFlipType | k & 3 quarter turns clockwise, then for 4..7 a horizontal flip; the pixels as they are
+GP.CLONE doc | Bitmap::Clone | a new bitmap of the area, in the format asked
+GP.CLONE.FORMAT open | (none) | a clone into another format
+GP.MATRIX doc | Matrix::Matrix(REAL, REAL, REAL, REAL, REAL, REAL) | m11 m12 m21 m22 dx dy, read back as given
+GP.MATRIX.MUL assumed | Matrix::Multiply (MatrixOrderPrepend: the passed matrix on the left) | the product with points as row vectors, in float
+GP.MATRIX.ORDER open | (none) | an order other than prepend (0) or append (1)
+GP.MATRIX.POINT assumed | Matrix::Matrix (dx, dy the third row) | (x, y) to (m11 x + m21 y + dx, m12 x + m22 y + dy), in float
+GP.MATRIX.INVERT assumed | Matrix::Invert (not invertible: InvalidParameter) | the inverse through the determinant in float; a zero determinant is not invertible

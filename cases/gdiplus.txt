@@ -1,0 +1,6878 @@
+# kikizake suite gdiplus: GDI+ bitmaps, pixel formats, fills, rotations, clones, matrices (SPEC.md). Made by `kikizake gen gdiplus`.
+case create-1bppIndexed
+gpbitmap 0 5 3 1bppIndexed
+gpinfo 0
+gpread 0 1bppIndexed
+end
+case create-4bppIndexed
+gpbitmap 0 5 3 4bppIndexed
+gpinfo 0
+gpread 0 4bppIndexed
+end
+case create-8bppIndexed
+gpbitmap 0 5 3 8bppIndexed
+gpinfo 0
+gpread 0 8bppIndexed
+end
+case create-16bppGrayScale
+gpbitmap 0 5 3 16bppGrayScale
+gpinfo 0
+gpread 0 16bppGrayScale
+end
+case create-16bppRGB555
+gpbitmap 0 5 3 16bppRGB555
+gpinfo 0
+gpread 0 16bppRGB555
+end
+case create-16bppRGB565
+gpbitmap 0 5 3 16bppRGB565
+gpinfo 0
+gpread 0 16bppRGB565
+end
+case create-16bppARGB1555
+gpbitmap 0 5 3 16bppARGB1555
+gpinfo 0
+gpread 0 16bppARGB1555
+end
+case create-24bppRGB
+gpbitmap 0 5 3 24bppRGB
+gpinfo 0
+gpread 0 24bppRGB
+end
+case create-32bppRGB
+gpbitmap 0 5 3 32bppRGB
+gpinfo 0
+gpread 0 32bppRGB
+end
+case create-32bppARGB
+gpbitmap 0 5 3 32bppARGB
+gpinfo 0
+gpread 0 32bppARGB
+end
+case create-32bppPARGB
+gpbitmap 0 5 3 32bppPARGB
+gpinfo 0
+gpread 0 32bppPARGB
+end
+case create-48bppRGB
+gpbitmap 0 5 3 48bppRGB
+gpinfo 0
+gpread 0 48bppRGB
+end
+case create-64bppARGB
+gpbitmap 0 5 3 64bppARGB
+gpinfo 0
+gpread 0 64bppARGB
+end
+case create-64bppPARGB
+gpbitmap 0 5 3 64bppPARGB
+gpinfo 0
+gpread 0 64bppPARGB
+end
+case size-0
+gpbitmap 0 0 1 32bppARGB
+gpinfo 0
+end
+case size-1
+gpbitmap 0 1 0 32bppARGB
+gpinfo 0
+end
+case size-2
+gpbitmap 0 -1 4 32bppARGB
+gpinfo 0
+end
+case size-3
+gpbitmap 0 4 -1 32bppARGB
+gpinfo 0
+end
+case size-4
+gpbitmap 0 1 1 32bppARGB
+gpinfo 0
+end
+case size-5
+gpbitmap 0 1 1000 32bppARGB
+gpinfo 0
+end
+case read-1bppIndexed-1bppIndexed
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 2
+gpread 0 1bppIndexed
+end
+case write-1bppIndexed-1bppIndexed
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 3
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-4bppIndexed
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 4
+gpread 0 4bppIndexed
+end
+case write-1bppIndexed-4bppIndexed
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 4bppIndexed seed 5
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-8bppIndexed
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 6
+gpread 0 8bppIndexed
+end
+case write-1bppIndexed-8bppIndexed
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 8bppIndexed seed 7
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-16bppGrayScale
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 8
+gpread 0 16bppGrayScale
+end
+case write-1bppIndexed-16bppGrayScale
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 16bppGrayScale seed 9
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-16bppRGB555
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 10
+gpread 0 16bppRGB555
+end
+case write-1bppIndexed-16bppRGB555
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 16bppRGB555 seed 11
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-16bppRGB565
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 12
+gpread 0 16bppRGB565
+end
+case write-1bppIndexed-16bppRGB565
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 16bppRGB565 seed 13
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-16bppARGB1555
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 14
+gpread 0 16bppARGB1555
+end
+case write-1bppIndexed-16bppARGB1555
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 16bppARGB1555 seed 15
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-24bppRGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 16
+gpread 0 24bppRGB
+end
+case write-1bppIndexed-24bppRGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 24bppRGB seed 17
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-32bppRGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 18
+gpread 0 32bppRGB
+end
+case write-1bppIndexed-32bppRGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 32bppRGB seed 19
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-32bppARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 20
+gpread 0 32bppARGB
+end
+case write-1bppIndexed-32bppARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 32bppARGB seed 21
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-32bppPARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 22
+gpread 0 32bppPARGB
+end
+case write-1bppIndexed-32bppPARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 32bppPARGB seed 23
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-48bppRGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 24
+gpread 0 48bppRGB
+end
+case write-1bppIndexed-48bppRGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 48bppRGB seed 25
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-64bppARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 26
+gpread 0 64bppARGB
+end
+case write-1bppIndexed-64bppARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 64bppARGB seed 27
+gpread 0 1bppIndexed
+end
+case read-1bppIndexed-64bppPARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 28
+gpread 0 64bppPARGB
+end
+case write-1bppIndexed-64bppPARGB
+gpbitmap 0 9 3 1bppIndexed
+gpwrite 0 64bppPARGB seed 29
+gpread 0 1bppIndexed
+end
+case read-4bppIndexed-1bppIndexed
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 30
+gpread 0 1bppIndexed
+end
+case write-4bppIndexed-1bppIndexed
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 1bppIndexed seed 31
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-4bppIndexed
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 32
+gpread 0 4bppIndexed
+end
+case write-4bppIndexed-4bppIndexed
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 33
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-8bppIndexed
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 34
+gpread 0 8bppIndexed
+end
+case write-4bppIndexed-8bppIndexed
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 8bppIndexed seed 35
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-16bppGrayScale
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 36
+gpread 0 16bppGrayScale
+end
+case write-4bppIndexed-16bppGrayScale
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 16bppGrayScale seed 37
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-16bppRGB555
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 38
+gpread 0 16bppRGB555
+end
+case write-4bppIndexed-16bppRGB555
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 16bppRGB555 seed 39
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-16bppRGB565
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 40
+gpread 0 16bppRGB565
+end
+case write-4bppIndexed-16bppRGB565
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 16bppRGB565 seed 41
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-16bppARGB1555
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 42
+gpread 0 16bppARGB1555
+end
+case write-4bppIndexed-16bppARGB1555
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 16bppARGB1555 seed 43
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-24bppRGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 44
+gpread 0 24bppRGB
+end
+case write-4bppIndexed-24bppRGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 24bppRGB seed 45
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-32bppRGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 46
+gpread 0 32bppRGB
+end
+case write-4bppIndexed-32bppRGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 32bppRGB seed 47
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-32bppARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 48
+gpread 0 32bppARGB
+end
+case write-4bppIndexed-32bppARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 32bppARGB seed 49
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-32bppPARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 50
+gpread 0 32bppPARGB
+end
+case write-4bppIndexed-32bppPARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 32bppPARGB seed 51
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-48bppRGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 52
+gpread 0 48bppRGB
+end
+case write-4bppIndexed-48bppRGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 48bppRGB seed 53
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-64bppARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 54
+gpread 0 64bppARGB
+end
+case write-4bppIndexed-64bppARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 64bppARGB seed 55
+gpread 0 4bppIndexed
+end
+case read-4bppIndexed-64bppPARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 56
+gpread 0 64bppPARGB
+end
+case write-4bppIndexed-64bppPARGB
+gpbitmap 0 9 3 4bppIndexed
+gpwrite 0 64bppPARGB seed 57
+gpread 0 4bppIndexed
+end
+case read-8bppIndexed-1bppIndexed
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 58
+gpread 0 1bppIndexed
+end
+case write-8bppIndexed-1bppIndexed
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 1bppIndexed seed 59
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-4bppIndexed
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 60
+gpread 0 4bppIndexed
+end
+case write-8bppIndexed-4bppIndexed
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 4bppIndexed seed 61
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-8bppIndexed
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 62
+gpread 0 8bppIndexed
+end
+case write-8bppIndexed-8bppIndexed
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 63
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-16bppGrayScale
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 64
+gpread 0 16bppGrayScale
+end
+case write-8bppIndexed-16bppGrayScale
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 16bppGrayScale seed 65
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-16bppRGB555
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 66
+gpread 0 16bppRGB555
+end
+case write-8bppIndexed-16bppRGB555
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 16bppRGB555 seed 67
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-16bppRGB565
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 68
+gpread 0 16bppRGB565
+end
+case write-8bppIndexed-16bppRGB565
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 16bppRGB565 seed 69
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-16bppARGB1555
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 70
+gpread 0 16bppARGB1555
+end
+case write-8bppIndexed-16bppARGB1555
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 16bppARGB1555 seed 71
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-24bppRGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 72
+gpread 0 24bppRGB
+end
+case write-8bppIndexed-24bppRGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 24bppRGB seed 73
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-32bppRGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 74
+gpread 0 32bppRGB
+end
+case write-8bppIndexed-32bppRGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 32bppRGB seed 75
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-32bppARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 76
+gpread 0 32bppARGB
+end
+case write-8bppIndexed-32bppARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 32bppARGB seed 77
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-32bppPARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 78
+gpread 0 32bppPARGB
+end
+case write-8bppIndexed-32bppPARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 32bppPARGB seed 79
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-48bppRGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 80
+gpread 0 48bppRGB
+end
+case write-8bppIndexed-48bppRGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 48bppRGB seed 81
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-64bppARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 82
+gpread 0 64bppARGB
+end
+case write-8bppIndexed-64bppARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 64bppARGB seed 83
+gpread 0 8bppIndexed
+end
+case read-8bppIndexed-64bppPARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 84
+gpread 0 64bppPARGB
+end
+case write-8bppIndexed-64bppPARGB
+gpbitmap 0 9 3 8bppIndexed
+gpwrite 0 64bppPARGB seed 85
+gpread 0 8bppIndexed
+end
+case read-16bppGrayScale-1bppIndexed
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 86
+gpread 0 1bppIndexed
+end
+case write-16bppGrayScale-1bppIndexed
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 1bppIndexed seed 87
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-4bppIndexed
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 88
+gpread 0 4bppIndexed
+end
+case write-16bppGrayScale-4bppIndexed
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 4bppIndexed seed 89
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-8bppIndexed
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 90
+gpread 0 8bppIndexed
+end
+case write-16bppGrayScale-8bppIndexed
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 8bppIndexed seed 91
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-16bppGrayScale
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 92
+gpread 0 16bppGrayScale
+end
+case write-16bppGrayScale-16bppGrayScale
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 93
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-16bppRGB555
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 94
+gpread 0 16bppRGB555
+end
+case write-16bppGrayScale-16bppRGB555
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppRGB555 seed 95
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-16bppRGB565
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 96
+gpread 0 16bppRGB565
+end
+case write-16bppGrayScale-16bppRGB565
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppRGB565 seed 97
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-16bppARGB1555
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 98
+gpread 0 16bppARGB1555
+end
+case write-16bppGrayScale-16bppARGB1555
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppARGB1555 seed 99
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-24bppRGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 100
+gpread 0 24bppRGB
+end
+case write-16bppGrayScale-24bppRGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 24bppRGB seed 101
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-32bppRGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 102
+gpread 0 32bppRGB
+end
+case write-16bppGrayScale-32bppRGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 32bppRGB seed 103
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-32bppARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 104
+gpread 0 32bppARGB
+end
+case write-16bppGrayScale-32bppARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 32bppARGB seed 105
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-32bppPARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 106
+gpread 0 32bppPARGB
+end
+case write-16bppGrayScale-32bppPARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 32bppPARGB seed 107
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-48bppRGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 108
+gpread 0 48bppRGB
+end
+case write-16bppGrayScale-48bppRGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 48bppRGB seed 109
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-64bppARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 110
+gpread 0 64bppARGB
+end
+case write-16bppGrayScale-64bppARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 64bppARGB seed 111
+gpread 0 16bppGrayScale
+end
+case read-16bppGrayScale-64bppPARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 112
+gpread 0 64bppPARGB
+end
+case write-16bppGrayScale-64bppPARGB
+gpbitmap 0 9 3 16bppGrayScale
+gpwrite 0 64bppPARGB seed 113
+gpread 0 16bppGrayScale
+end
+case read-16bppRGB555-1bppIndexed
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 114
+gpread 0 1bppIndexed
+end
+case write-16bppRGB555-1bppIndexed
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 1bppIndexed seed 115
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-4bppIndexed
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 116
+gpread 0 4bppIndexed
+end
+case write-16bppRGB555-4bppIndexed
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 4bppIndexed seed 117
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-8bppIndexed
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 118
+gpread 0 8bppIndexed
+end
+case write-16bppRGB555-8bppIndexed
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 8bppIndexed seed 119
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-16bppGrayScale
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 120
+gpread 0 16bppGrayScale
+end
+case write-16bppRGB555-16bppGrayScale
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppGrayScale seed 121
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-16bppRGB555
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 122
+gpread 0 16bppRGB555
+end
+case write-16bppRGB555-16bppRGB555
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 123
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-16bppRGB565
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 124
+gpread 0 16bppRGB565
+end
+case write-16bppRGB555-16bppRGB565
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB565 seed 125
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-16bppARGB1555
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 126
+gpread 0 16bppARGB1555
+end
+case write-16bppRGB555-16bppARGB1555
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppARGB1555 seed 127
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-24bppRGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 128
+gpread 0 24bppRGB
+end
+case write-16bppRGB555-24bppRGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 24bppRGB seed 129
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-32bppRGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 130
+gpread 0 32bppRGB
+end
+case write-16bppRGB555-32bppRGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 32bppRGB seed 131
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-32bppARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 132
+gpread 0 32bppARGB
+end
+case write-16bppRGB555-32bppARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 32bppARGB seed 133
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-32bppPARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 134
+gpread 0 32bppPARGB
+end
+case write-16bppRGB555-32bppPARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 32bppPARGB seed 135
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-48bppRGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 136
+gpread 0 48bppRGB
+end
+case write-16bppRGB555-48bppRGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 48bppRGB seed 137
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-64bppARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 138
+gpread 0 64bppARGB
+end
+case write-16bppRGB555-64bppARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 64bppARGB seed 139
+gpread 0 16bppRGB555
+end
+case read-16bppRGB555-64bppPARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 140
+gpread 0 64bppPARGB
+end
+case write-16bppRGB555-64bppPARGB
+gpbitmap 0 9 3 16bppRGB555
+gpwrite 0 64bppPARGB seed 141
+gpread 0 16bppRGB555
+end
+case read-16bppRGB565-1bppIndexed
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 142
+gpread 0 1bppIndexed
+end
+case write-16bppRGB565-1bppIndexed
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 1bppIndexed seed 143
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-4bppIndexed
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 144
+gpread 0 4bppIndexed
+end
+case write-16bppRGB565-4bppIndexed
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 4bppIndexed seed 145
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-8bppIndexed
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 146
+gpread 0 8bppIndexed
+end
+case write-16bppRGB565-8bppIndexed
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 8bppIndexed seed 147
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-16bppGrayScale
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 148
+gpread 0 16bppGrayScale
+end
+case write-16bppRGB565-16bppGrayScale
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppGrayScale seed 149
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-16bppRGB555
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 150
+gpread 0 16bppRGB555
+end
+case write-16bppRGB565-16bppRGB555
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB555 seed 151
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-16bppRGB565
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 152
+gpread 0 16bppRGB565
+end
+case write-16bppRGB565-16bppRGB565
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 153
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-16bppARGB1555
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 154
+gpread 0 16bppARGB1555
+end
+case write-16bppRGB565-16bppARGB1555
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppARGB1555 seed 155
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-24bppRGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 156
+gpread 0 24bppRGB
+end
+case write-16bppRGB565-24bppRGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 24bppRGB seed 157
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-32bppRGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 158
+gpread 0 32bppRGB
+end
+case write-16bppRGB565-32bppRGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 32bppRGB seed 159
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-32bppARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 160
+gpread 0 32bppARGB
+end
+case write-16bppRGB565-32bppARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 32bppARGB seed 161
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-32bppPARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 162
+gpread 0 32bppPARGB
+end
+case write-16bppRGB565-32bppPARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 32bppPARGB seed 163
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-48bppRGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 164
+gpread 0 48bppRGB
+end
+case write-16bppRGB565-48bppRGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 48bppRGB seed 165
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-64bppARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 166
+gpread 0 64bppARGB
+end
+case write-16bppRGB565-64bppARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 64bppARGB seed 167
+gpread 0 16bppRGB565
+end
+case read-16bppRGB565-64bppPARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 168
+gpread 0 64bppPARGB
+end
+case write-16bppRGB565-64bppPARGB
+gpbitmap 0 9 3 16bppRGB565
+gpwrite 0 64bppPARGB seed 169
+gpread 0 16bppRGB565
+end
+case read-16bppARGB1555-1bppIndexed
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 170
+gpread 0 1bppIndexed
+end
+case write-16bppARGB1555-1bppIndexed
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 1bppIndexed seed 171
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-4bppIndexed
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 172
+gpread 0 4bppIndexed
+end
+case write-16bppARGB1555-4bppIndexed
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 4bppIndexed seed 173
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-8bppIndexed
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 174
+gpread 0 8bppIndexed
+end
+case write-16bppARGB1555-8bppIndexed
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 8bppIndexed seed 175
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-16bppGrayScale
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 176
+gpread 0 16bppGrayScale
+end
+case write-16bppARGB1555-16bppGrayScale
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppGrayScale seed 177
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-16bppRGB555
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 178
+gpread 0 16bppRGB555
+end
+case write-16bppARGB1555-16bppRGB555
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppRGB555 seed 179
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-16bppRGB565
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 180
+gpread 0 16bppRGB565
+end
+case write-16bppARGB1555-16bppRGB565
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppRGB565 seed 181
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-16bppARGB1555
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 182
+gpread 0 16bppARGB1555
+end
+case write-16bppARGB1555-16bppARGB1555
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 183
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-24bppRGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 184
+gpread 0 24bppRGB
+end
+case write-16bppARGB1555-24bppRGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 24bppRGB seed 185
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-32bppRGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 186
+gpread 0 32bppRGB
+end
+case write-16bppARGB1555-32bppRGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 32bppRGB seed 187
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-32bppARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 188
+gpread 0 32bppARGB
+end
+case write-16bppARGB1555-32bppARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 32bppARGB seed 189
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-32bppPARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 190
+gpread 0 32bppPARGB
+end
+case write-16bppARGB1555-32bppPARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 32bppPARGB seed 191
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-48bppRGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 192
+gpread 0 48bppRGB
+end
+case write-16bppARGB1555-48bppRGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 48bppRGB seed 193
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-64bppARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 194
+gpread 0 64bppARGB
+end
+case write-16bppARGB1555-64bppARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 64bppARGB seed 195
+gpread 0 16bppARGB1555
+end
+case read-16bppARGB1555-64bppPARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 196
+gpread 0 64bppPARGB
+end
+case write-16bppARGB1555-64bppPARGB
+gpbitmap 0 9 3 16bppARGB1555
+gpwrite 0 64bppPARGB seed 197
+gpread 0 16bppARGB1555
+end
+case read-24bppRGB-1bppIndexed
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 198
+gpread 0 1bppIndexed
+end
+case write-24bppRGB-1bppIndexed
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 1bppIndexed seed 199
+gpread 0 24bppRGB
+end
+case read-24bppRGB-4bppIndexed
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 200
+gpread 0 4bppIndexed
+end
+case write-24bppRGB-4bppIndexed
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 4bppIndexed seed 201
+gpread 0 24bppRGB
+end
+case read-24bppRGB-8bppIndexed
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 202
+gpread 0 8bppIndexed
+end
+case write-24bppRGB-8bppIndexed
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 8bppIndexed seed 203
+gpread 0 24bppRGB
+end
+case read-24bppRGB-16bppGrayScale
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 204
+gpread 0 16bppGrayScale
+end
+case write-24bppRGB-16bppGrayScale
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 16bppGrayScale seed 205
+gpread 0 24bppRGB
+end
+case read-24bppRGB-16bppRGB555
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 206
+gpread 0 16bppRGB555
+end
+case write-24bppRGB-16bppRGB555
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 16bppRGB555 seed 207
+gpread 0 24bppRGB
+end
+case read-24bppRGB-16bppRGB565
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 208
+gpread 0 16bppRGB565
+end
+case write-24bppRGB-16bppRGB565
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 16bppRGB565 seed 209
+gpread 0 24bppRGB
+end
+case read-24bppRGB-16bppARGB1555
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 210
+gpread 0 16bppARGB1555
+end
+case write-24bppRGB-16bppARGB1555
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 16bppARGB1555 seed 211
+gpread 0 24bppRGB
+end
+case read-24bppRGB-24bppRGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 212
+gpread 0 24bppRGB
+end
+case write-24bppRGB-24bppRGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 213
+gpread 0 24bppRGB
+end
+case read-24bppRGB-32bppRGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 214
+gpread 0 32bppRGB
+end
+case write-24bppRGB-32bppRGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 32bppRGB seed 215
+gpread 0 24bppRGB
+end
+case read-24bppRGB-32bppARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 216
+gpread 0 32bppARGB
+end
+case write-24bppRGB-32bppARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 32bppARGB seed 217
+gpread 0 24bppRGB
+end
+case read-24bppRGB-32bppPARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 218
+gpread 0 32bppPARGB
+end
+case write-24bppRGB-32bppPARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 32bppPARGB seed 219
+gpread 0 24bppRGB
+end
+case read-24bppRGB-48bppRGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 220
+gpread 0 48bppRGB
+end
+case write-24bppRGB-48bppRGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 48bppRGB seed 221
+gpread 0 24bppRGB
+end
+case read-24bppRGB-64bppARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 222
+gpread 0 64bppARGB
+end
+case write-24bppRGB-64bppARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 64bppARGB seed 223
+gpread 0 24bppRGB
+end
+case read-24bppRGB-64bppPARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 24bppRGB seed 224
+gpread 0 64bppPARGB
+end
+case write-24bppRGB-64bppPARGB
+gpbitmap 0 9 3 24bppRGB
+gpwrite 0 64bppPARGB seed 225
+gpread 0 24bppRGB
+end
+case read-32bppRGB-1bppIndexed
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 226
+gpread 0 1bppIndexed
+end
+case write-32bppRGB-1bppIndexed
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 1bppIndexed seed 227
+gpread 0 32bppRGB
+end
+case read-32bppRGB-4bppIndexed
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 228
+gpread 0 4bppIndexed
+end
+case write-32bppRGB-4bppIndexed
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 4bppIndexed seed 229
+gpread 0 32bppRGB
+end
+case read-32bppRGB-8bppIndexed
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 230
+gpread 0 8bppIndexed
+end
+case write-32bppRGB-8bppIndexed
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 8bppIndexed seed 231
+gpread 0 32bppRGB
+end
+case read-32bppRGB-16bppGrayScale
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 232
+gpread 0 16bppGrayScale
+end
+case write-32bppRGB-16bppGrayScale
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 16bppGrayScale seed 233
+gpread 0 32bppRGB
+end
+case read-32bppRGB-16bppRGB555
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 234
+gpread 0 16bppRGB555
+end
+case write-32bppRGB-16bppRGB555
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 16bppRGB555 seed 235
+gpread 0 32bppRGB
+end
+case read-32bppRGB-16bppRGB565
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 236
+gpread 0 16bppRGB565
+end
+case write-32bppRGB-16bppRGB565
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 16bppRGB565 seed 237
+gpread 0 32bppRGB
+end
+case read-32bppRGB-16bppARGB1555
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 238
+gpread 0 16bppARGB1555
+end
+case write-32bppRGB-16bppARGB1555
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 16bppARGB1555 seed 239
+gpread 0 32bppRGB
+end
+case read-32bppRGB-24bppRGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 240
+gpread 0 24bppRGB
+end
+case write-32bppRGB-24bppRGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 24bppRGB seed 241
+gpread 0 32bppRGB
+end
+case read-32bppRGB-32bppRGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 242
+gpread 0 32bppRGB
+end
+case write-32bppRGB-32bppRGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 243
+gpread 0 32bppRGB
+end
+case read-32bppRGB-32bppARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 244
+gpread 0 32bppARGB
+end
+case write-32bppRGB-32bppARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppARGB seed 245
+gpread 0 32bppRGB
+end
+case read-32bppRGB-32bppPARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 246
+gpread 0 32bppPARGB
+end
+case write-32bppRGB-32bppPARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppPARGB seed 247
+gpread 0 32bppRGB
+end
+case read-32bppRGB-48bppRGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 248
+gpread 0 48bppRGB
+end
+case write-32bppRGB-48bppRGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 48bppRGB seed 249
+gpread 0 32bppRGB
+end
+case read-32bppRGB-64bppARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 250
+gpread 0 64bppARGB
+end
+case write-32bppRGB-64bppARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 64bppARGB seed 251
+gpread 0 32bppRGB
+end
+case read-32bppRGB-64bppPARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 32bppRGB seed 252
+gpread 0 64bppPARGB
+end
+case write-32bppRGB-64bppPARGB
+gpbitmap 0 9 3 32bppRGB
+gpwrite 0 64bppPARGB seed 253
+gpread 0 32bppRGB
+end
+case read-32bppARGB-1bppIndexed
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 254
+gpread 0 1bppIndexed
+end
+case write-32bppARGB-1bppIndexed
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 1bppIndexed seed 255
+gpread 0 32bppARGB
+end
+case read-32bppARGB-4bppIndexed
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 256
+gpread 0 4bppIndexed
+end
+case write-32bppARGB-4bppIndexed
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 4bppIndexed seed 257
+gpread 0 32bppARGB
+end
+case read-32bppARGB-8bppIndexed
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 258
+gpread 0 8bppIndexed
+end
+case write-32bppARGB-8bppIndexed
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 8bppIndexed seed 259
+gpread 0 32bppARGB
+end
+case read-32bppARGB-16bppGrayScale
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 260
+gpread 0 16bppGrayScale
+end
+case write-32bppARGB-16bppGrayScale
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 16bppGrayScale seed 261
+gpread 0 32bppARGB
+end
+case read-32bppARGB-16bppRGB555
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 262
+gpread 0 16bppRGB555
+end
+case write-32bppARGB-16bppRGB555
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 16bppRGB555 seed 263
+gpread 0 32bppARGB
+end
+case read-32bppARGB-16bppRGB565
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 264
+gpread 0 16bppRGB565
+end
+case write-32bppARGB-16bppRGB565
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 16bppRGB565 seed 265
+gpread 0 32bppARGB
+end
+case read-32bppARGB-16bppARGB1555
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 266
+gpread 0 16bppARGB1555
+end
+case write-32bppARGB-16bppARGB1555
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 16bppARGB1555 seed 267
+gpread 0 32bppARGB
+end
+case read-32bppARGB-24bppRGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 268
+gpread 0 24bppRGB
+end
+case write-32bppARGB-24bppRGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 24bppRGB seed 269
+gpread 0 32bppARGB
+end
+case read-32bppARGB-32bppRGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 270
+gpread 0 32bppRGB
+end
+case write-32bppARGB-32bppRGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppRGB seed 271
+gpread 0 32bppARGB
+end
+case read-32bppARGB-32bppARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 272
+gpread 0 32bppARGB
+end
+case write-32bppARGB-32bppARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 273
+gpread 0 32bppARGB
+end
+case read-32bppARGB-32bppPARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 274
+gpread 0 32bppPARGB
+end
+case write-32bppARGB-32bppPARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppPARGB seed 275
+gpread 0 32bppARGB
+end
+case read-32bppARGB-48bppRGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 276
+gpread 0 48bppRGB
+end
+case write-32bppARGB-48bppRGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 48bppRGB seed 277
+gpread 0 32bppARGB
+end
+case read-32bppARGB-64bppARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 278
+gpread 0 64bppARGB
+end
+case write-32bppARGB-64bppARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 64bppARGB seed 279
+gpread 0 32bppARGB
+end
+case read-32bppARGB-64bppPARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 32bppARGB seed 280
+gpread 0 64bppPARGB
+end
+case write-32bppARGB-64bppPARGB
+gpbitmap 0 9 3 32bppARGB
+gpwrite 0 64bppPARGB seed 281
+gpread 0 32bppARGB
+end
+case read-32bppPARGB-1bppIndexed
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 282
+gpread 0 1bppIndexed
+end
+case write-32bppPARGB-1bppIndexed
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 1bppIndexed seed 283
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-4bppIndexed
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 284
+gpread 0 4bppIndexed
+end
+case write-32bppPARGB-4bppIndexed
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 4bppIndexed seed 285
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-8bppIndexed
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 286
+gpread 0 8bppIndexed
+end
+case write-32bppPARGB-8bppIndexed
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 8bppIndexed seed 287
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-16bppGrayScale
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 288
+gpread 0 16bppGrayScale
+end
+case write-32bppPARGB-16bppGrayScale
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 16bppGrayScale seed 289
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-16bppRGB555
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 290
+gpread 0 16bppRGB555
+end
+case write-32bppPARGB-16bppRGB555
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 16bppRGB555 seed 291
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-16bppRGB565
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 292
+gpread 0 16bppRGB565
+end
+case write-32bppPARGB-16bppRGB565
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 16bppRGB565 seed 293
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-16bppARGB1555
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 294
+gpread 0 16bppARGB1555
+end
+case write-32bppPARGB-16bppARGB1555
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 16bppARGB1555 seed 295
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-24bppRGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 296
+gpread 0 24bppRGB
+end
+case write-32bppPARGB-24bppRGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 24bppRGB seed 297
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-32bppRGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 298
+gpread 0 32bppRGB
+end
+case write-32bppPARGB-32bppRGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppRGB seed 299
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-32bppARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 300
+gpread 0 32bppARGB
+end
+case write-32bppPARGB-32bppARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppARGB seed 301
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-32bppPARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 302
+gpread 0 32bppPARGB
+end
+case write-32bppPARGB-32bppPARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 303
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-48bppRGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 304
+gpread 0 48bppRGB
+end
+case write-32bppPARGB-48bppRGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 48bppRGB seed 305
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-64bppARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 306
+gpread 0 64bppARGB
+end
+case write-32bppPARGB-64bppARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 64bppARGB seed 307
+gpread 0 32bppPARGB
+end
+case read-32bppPARGB-64bppPARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 308
+gpread 0 64bppPARGB
+end
+case write-32bppPARGB-64bppPARGB
+gpbitmap 0 9 3 32bppPARGB
+gpwrite 0 64bppPARGB seed 309
+gpread 0 32bppPARGB
+end
+case read-48bppRGB-1bppIndexed
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 310
+gpread 0 1bppIndexed
+end
+case write-48bppRGB-1bppIndexed
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 1bppIndexed seed 311
+gpread 0 48bppRGB
+end
+case read-48bppRGB-4bppIndexed
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 312
+gpread 0 4bppIndexed
+end
+case write-48bppRGB-4bppIndexed
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 4bppIndexed seed 313
+gpread 0 48bppRGB
+end
+case read-48bppRGB-8bppIndexed
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 314
+gpread 0 8bppIndexed
+end
+case write-48bppRGB-8bppIndexed
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 8bppIndexed seed 315
+gpread 0 48bppRGB
+end
+case read-48bppRGB-16bppGrayScale
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 316
+gpread 0 16bppGrayScale
+end
+case write-48bppRGB-16bppGrayScale
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 16bppGrayScale seed 317
+gpread 0 48bppRGB
+end
+case read-48bppRGB-16bppRGB555
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 318
+gpread 0 16bppRGB555
+end
+case write-48bppRGB-16bppRGB555
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 16bppRGB555 seed 319
+gpread 0 48bppRGB
+end
+case read-48bppRGB-16bppRGB565
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 320
+gpread 0 16bppRGB565
+end
+case write-48bppRGB-16bppRGB565
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 16bppRGB565 seed 321
+gpread 0 48bppRGB
+end
+case read-48bppRGB-16bppARGB1555
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 322
+gpread 0 16bppARGB1555
+end
+case write-48bppRGB-16bppARGB1555
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 16bppARGB1555 seed 323
+gpread 0 48bppRGB
+end
+case read-48bppRGB-24bppRGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 324
+gpread 0 24bppRGB
+end
+case write-48bppRGB-24bppRGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 24bppRGB seed 325
+gpread 0 48bppRGB
+end
+case read-48bppRGB-32bppRGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 326
+gpread 0 32bppRGB
+end
+case write-48bppRGB-32bppRGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 32bppRGB seed 327
+gpread 0 48bppRGB
+end
+case read-48bppRGB-32bppARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 328
+gpread 0 32bppARGB
+end
+case write-48bppRGB-32bppARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 32bppARGB seed 329
+gpread 0 48bppRGB
+end
+case read-48bppRGB-32bppPARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 330
+gpread 0 32bppPARGB
+end
+case write-48bppRGB-32bppPARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 32bppPARGB seed 331
+gpread 0 48bppRGB
+end
+case read-48bppRGB-48bppRGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 332
+gpread 0 48bppRGB
+end
+case write-48bppRGB-48bppRGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 333
+gpread 0 48bppRGB
+end
+case read-48bppRGB-64bppARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 334
+gpread 0 64bppARGB
+end
+case write-48bppRGB-64bppARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 64bppARGB seed 335
+gpread 0 48bppRGB
+end
+case read-48bppRGB-64bppPARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 48bppRGB seed 336
+gpread 0 64bppPARGB
+end
+case write-48bppRGB-64bppPARGB
+gpbitmap 0 9 3 48bppRGB
+gpwrite 0 64bppPARGB seed 337
+gpread 0 48bppRGB
+end
+case read-64bppARGB-1bppIndexed
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 338
+gpread 0 1bppIndexed
+end
+case write-64bppARGB-1bppIndexed
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 1bppIndexed seed 339
+gpread 0 64bppARGB
+end
+case read-64bppARGB-4bppIndexed
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 340
+gpread 0 4bppIndexed
+end
+case write-64bppARGB-4bppIndexed
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 4bppIndexed seed 341
+gpread 0 64bppARGB
+end
+case read-64bppARGB-8bppIndexed
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 342
+gpread 0 8bppIndexed
+end
+case write-64bppARGB-8bppIndexed
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 8bppIndexed seed 343
+gpread 0 64bppARGB
+end
+case read-64bppARGB-16bppGrayScale
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 344
+gpread 0 16bppGrayScale
+end
+case write-64bppARGB-16bppGrayScale
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 16bppGrayScale seed 345
+gpread 0 64bppARGB
+end
+case read-64bppARGB-16bppRGB555
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 346
+gpread 0 16bppRGB555
+end
+case write-64bppARGB-16bppRGB555
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 16bppRGB555 seed 347
+gpread 0 64bppARGB
+end
+case read-64bppARGB-16bppRGB565
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 348
+gpread 0 16bppRGB565
+end
+case write-64bppARGB-16bppRGB565
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 16bppRGB565 seed 349
+gpread 0 64bppARGB
+end
+case read-64bppARGB-16bppARGB1555
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 350
+gpread 0 16bppARGB1555
+end
+case write-64bppARGB-16bppARGB1555
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 16bppARGB1555 seed 351
+gpread 0 64bppARGB
+end
+case read-64bppARGB-24bppRGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 352
+gpread 0 24bppRGB
+end
+case write-64bppARGB-24bppRGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 24bppRGB seed 353
+gpread 0 64bppARGB
+end
+case read-64bppARGB-32bppRGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 354
+gpread 0 32bppRGB
+end
+case write-64bppARGB-32bppRGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 32bppRGB seed 355
+gpread 0 64bppARGB
+end
+case read-64bppARGB-32bppARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 356
+gpread 0 32bppARGB
+end
+case write-64bppARGB-32bppARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 32bppARGB seed 357
+gpread 0 64bppARGB
+end
+case read-64bppARGB-32bppPARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 358
+gpread 0 32bppPARGB
+end
+case write-64bppARGB-32bppPARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 32bppPARGB seed 359
+gpread 0 64bppARGB
+end
+case read-64bppARGB-48bppRGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 360
+gpread 0 48bppRGB
+end
+case write-64bppARGB-48bppRGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 48bppRGB seed 361
+gpread 0 64bppARGB
+end
+case read-64bppARGB-64bppARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 362
+gpread 0 64bppARGB
+end
+case write-64bppARGB-64bppARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 363
+gpread 0 64bppARGB
+end
+case read-64bppARGB-64bppPARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppARGB seed 364
+gpread 0 64bppPARGB
+end
+case write-64bppARGB-64bppPARGB
+gpbitmap 0 9 3 64bppARGB
+gpwrite 0 64bppPARGB seed 365
+gpread 0 64bppARGB
+end
+case read-64bppPARGB-1bppIndexed
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 366
+gpread 0 1bppIndexed
+end
+case write-64bppPARGB-1bppIndexed
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 1bppIndexed seed 367
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-4bppIndexed
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 368
+gpread 0 4bppIndexed
+end
+case write-64bppPARGB-4bppIndexed
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 4bppIndexed seed 369
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-8bppIndexed
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 370
+gpread 0 8bppIndexed
+end
+case write-64bppPARGB-8bppIndexed
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 8bppIndexed seed 371
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-16bppGrayScale
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 372
+gpread 0 16bppGrayScale
+end
+case write-64bppPARGB-16bppGrayScale
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 16bppGrayScale seed 373
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-16bppRGB555
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 374
+gpread 0 16bppRGB555
+end
+case write-64bppPARGB-16bppRGB555
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 16bppRGB555 seed 375
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-16bppRGB565
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 376
+gpread 0 16bppRGB565
+end
+case write-64bppPARGB-16bppRGB565
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 16bppRGB565 seed 377
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-16bppARGB1555
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 378
+gpread 0 16bppARGB1555
+end
+case write-64bppPARGB-16bppARGB1555
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 16bppARGB1555 seed 379
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-24bppRGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 380
+gpread 0 24bppRGB
+end
+case write-64bppPARGB-24bppRGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 24bppRGB seed 381
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-32bppRGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 382
+gpread 0 32bppRGB
+end
+case write-64bppPARGB-32bppRGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 32bppRGB seed 383
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-32bppARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 384
+gpread 0 32bppARGB
+end
+case write-64bppPARGB-32bppARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 32bppARGB seed 385
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-32bppPARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 386
+gpread 0 32bppPARGB
+end
+case write-64bppPARGB-32bppPARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 32bppPARGB seed 387
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-48bppRGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 388
+gpread 0 48bppRGB
+end
+case write-64bppPARGB-48bppRGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 48bppRGB seed 389
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-64bppARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 390
+gpread 0 64bppARGB
+end
+case write-64bppPARGB-64bppARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppARGB seed 391
+gpread 0 64bppPARGB
+end
+case read-64bppPARGB-64bppPARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 392
+gpread 0 64bppPARGB
+end
+case write-64bppPARGB-64bppPARGB
+gpbitmap 0 9 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 393
+gpread 0 64bppPARGB
+end
+case pairs-32bppARGB-32bppPARGB
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpread 0 32bppPARGB
+end
+case pairs-32bppPARGB-32bppARGB
+gpbitmap 0 256 256 32bppPARGB
+gpwrite 0 32bppPARGB pairs
+gpread 0 32bppARGB
+end
+case pairs-32bppARGB-64bppARGB
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpread 0 64bppARGB
+end
+case pairs-32bppARGB-64bppPARGB
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpread 0 64bppPARGB
+end
+case pairs-32bppPARGB-64bppPARGB
+gpbitmap 0 256 256 32bppPARGB
+gpwrite 0 32bppPARGB pairs
+gpread 0 64bppPARGB
+end
+case levels-48bppRGB
+gpbitmap 0 256 33 48bppRGB
+gpwrite 0 48bppRGB levels
+gpread 0 32bppARGB
+gpread 0 48bppRGB
+end
+case levels-64bppARGB
+gpbitmap 0 256 33 64bppARGB
+gpwrite 0 64bppARGB levels
+gpread 0 32bppARGB
+gpread 0 64bppARGB
+end
+case levels-64bppPARGB
+gpbitmap 0 256 33 64bppPARGB
+gpwrite 0 64bppPARGB levels
+gpread 0 32bppARGB
+gpread 0 64bppPARGB
+end
+case pixel-1bppIndexed-0
+gpbitmap 0 4 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 787724110
+gpget 0 2 1
+gpget 0 1 2
+gpget 0 0 3
+gpget 0 0 0
+gpset 0 4 1 0xfff1e7ef
+gpget 0 4 1
+gpset 0 0 1 0xa886ff56
+gpget 0 0 1
+gpset 0 3 1 0xde773a3a
+gpget 0 3 1
+gpset 0 -1 -1 0x8ff5ee94
+gpget 0 -1 -1
+gpset 0 4 0 0x7f00ff00
+gpget 0 4 0
+gpset 0 1 1 0x95ae07b3
+gpget 0 1 1
+gpread 0 1bppIndexed
+end
+case pixel-1bppIndexed-1
+gpbitmap 0 4 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 4266782463
+gpget 0 1 3
+gpget 0 0 0
+gpget 0 4 1
+gpget 0 0 1
+gpset 0 1 1 0xffac9644
+gpget 0 1 1
+gpset 0 1 3 0x9add52c9
+gpget 0 1 3
+gpset 0 4 2 0x3c83e9ee
+gpget 0 4 2
+gpset 0 2 1 0xff000000
+gpget 0 2 1
+gpset 0 3 -1 0x338b9b76
+gpget 0 3 -1
+gpset 0 3 1 0x11effa96
+gpget 0 3 1
+gpread 0 1bppIndexed
+end
+case pixel-1bppIndexed-2
+gpbitmap 0 4 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 957674696
+gpget 0 1 1
+gpget 0 3 1
+gpget 0 3 2
+gpget 0 -1 1
+gpset 0 -1 2 0x935946f0
+gpget 0 -1 2
+gpset 0 0 1 0xff46339a
+gpget 0 0 1
+gpset 0 1 -1 0xdf41a8fc
+gpget 0 1 -1
+gpset 0 2 -1 0x00000000
+gpget 0 2 -1
+gpset 0 -1 2 0x00000000
+gpget 0 -1 2
+gpset 0 3 -1 0xdb39f9e9
+gpget 0 3 -1
+gpread 0 1bppIndexed
+end
+case pixel-4bppIndexed-0
+gpbitmap 0 4 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 1687279243
+gpget 0 4 2
+gpget 0 1 2
+gpget 0 2 0
+gpget 0 3 -1
+gpset 0 4 2 0xff7b5d80
+gpget 0 4 2
+gpset 0 4 -1 0xac2b1cfd
+gpget 0 4 -1
+gpset 0 4 1 0xffbefda4
+gpget 0 4 1
+gpset 0 4 -1 0x61b6fca5
+gpget 0 4 -1
+gpset 0 1 0 0xa31ebe76
+gpget 0 1 0
+gpset 0 1 1 0x0c6a5869
+gpget 0 1 1
+gpread 0 4bppIndexed
+end
+case pixel-4bppIndexed-1
+gpbitmap 0 4 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 2878087322
+gpget 0 2 -1
+gpget 0 1 3
+gpget 0 3 0
+gpget 0 -1 0
+gpset 0 3 2 0x5f9de061
+gpget 0 3 2
+gpset 0 4 2 0xffe2ec37
+gpget 0 4 2
+gpset 0 2 3 0xff000000
+gpget 0 2 3
+gpset 0 0 0 0xffffffff
+gpget 0 0 0
+gpset 0 4 -1 0x77e5aadc
+gpget 0 4 -1
+gpset 0 4 3 0x010000ff
+gpget 0 4 3
+gpread 0 4bppIndexed
+end
+case pixel-4bppIndexed-2
+gpbitmap 0 4 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 3200257074
+gpget 0 0 -1
+gpget 0 4 1
+gpget 0 4 0
+gpget 0 0 -1
+gpset 0 -1 1 0xd3d91c5e
+gpget 0 -1 1
+gpset 0 4 -1 0xff804c13
+gpget 0 4 -1
+gpset 0 -1 0 0x5668bae2
+gpget 0 -1 0
+gpset 0 3 -1 0xff27deeb
+gpget 0 3 -1
+gpset 0 1 1 0x06fbcf29
+gpget 0 1 1
+gpset 0 1 0 0x8c11da46
+gpget 0 1 0
+gpread 0 4bppIndexed
+end
+case pixel-8bppIndexed-0
+gpbitmap 0 4 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 1550941354
+gpget 0 1 3
+gpget 0 -1 0
+gpget 0 1 0
+gpget 0 1 2
+gpset 0 -1 2 0x96a7f062
+gpget 0 -1 2
+gpset 0 2 2 0x9ac10bbe
+gpget 0 2 2
+gpset 0 0 3 0x890b94d2
+gpget 0 0 3
+gpset 0 3 1 0xff08f4af
+gpget 0 3 1
+gpset 0 0 0 0xeb4a2fe6
+gpget 0 0 0
+gpset 0 0 1 0x73490c38
+gpget 0 0 1
+gpread 0 8bppIndexed
+end
+case pixel-8bppIndexed-1
+gpbitmap 0 4 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 185241279
+gpget 0 4 -1
+gpget 0 3 3
+gpget 0 1 3
+gpget 0 3 2
+gpset 0 4 -1 0xff3a31d8
+gpget 0 4 -1
+gpset 0 3 2 0x59bad105
+gpget 0 3 2
+gpset 0 1 1 0xff000000
+gpget 0 1 1
+gpset 0 0 3 0xc0a5ecda
+gpget 0 0 3
+gpset 0 0 1 0xeca005dd
+gpget 0 0 1
+gpset 0 -1 -1 0x5e84f928
+gpget 0 -1 -1
+gpread 0 8bppIndexed
+end
+case pixel-8bppIndexed-2
+gpbitmap 0 4 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 4120028920
+gpget 0 3 1
+gpget 0 2 -1
+gpget 0 3 3
+gpget 0 -1 2
+gpset 0 -1 -1 0x80ff0000
+gpget 0 -1 -1
+gpset 0 3 2 0x06538d53
+gpget 0 3 2
+gpset 0 4 1 0x010000ff
+gpget 0 4 1
+gpset 0 4 -1 0x5a4f2270
+gpget 0 4 -1
+gpset 0 -1 -1 0x7f00ff00
+gpget 0 -1 -1
+gpset 0 3 1 0x23236e1c
+gpget 0 3 1
+gpread 0 8bppIndexed
+end
+case pixel-16bppGrayScale-0
+gpbitmap 0 4 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2465850604
+gpget 0 -1 -1
+gpget 0 0 -1
+gpget 0 0 3
+gpget 0 4 1
+gpset 0 -1 -1 0xb667f364
+gpget 0 -1 -1
+gpset 0 4 -1 0x76164eac
+gpget 0 4 -1
+gpset 0 2 -1 0xffffffff
+gpget 0 2 -1
+gpset 0 0 2 0x0325dd7d
+gpget 0 0 2
+gpset 0 1 -1 0x2cb5c130
+gpget 0 1 -1
+gpset 0 2 2 0x8aa12a7b
+gpget 0 2 2
+gpread 0 16bppGrayScale
+end
+case pixel-16bppGrayScale-1
+gpbitmap 0 4 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1378724876
+gpget 0 -1 3
+gpget 0 2 0
+gpget 0 1 0
+gpget 0 1 -1
+gpset 0 -1 -1 0xe039cd30
+gpget 0 -1 -1
+gpset 0 4 3 0x00000000
+gpget 0 4 3
+gpset 0 0 3 0x5068ca45
+gpget 0 0 3
+gpset 0 0 1 0xffdf714a
+gpget 0 0 1
+gpset 0 4 1 0x80ff0000
+gpget 0 4 1
+gpset 0 1 2 0xffd89eae
+gpget 0 1 2
+gpread 0 16bppGrayScale
+end
+case pixel-16bppGrayScale-2
+gpbitmap 0 4 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1235365800
+gpget 0 2 3
+gpget 0 3 0
+gpget 0 0 3
+gpget 0 2 -1
+gpset 0 0 1 0x00000000
+gpget 0 0 1
+gpset 0 1 3 0x59149fa1
+gpget 0 1 3
+gpset 0 4 2 0x4d208a72
+gpget 0 4 2
+gpset 0 0 1 0xbd287b09
+gpget 0 0 1
+gpset 0 0 3 0x190ec2d1
+gpget 0 0 3
+gpset 0 2 2 0xff24687a
+gpget 0 2 2
+gpread 0 16bppGrayScale
+end
+case pixel-16bppRGB555-0
+gpbitmap 0 4 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 105391119
+gpget 0 2 0
+gpget 0 4 0
+gpget 0 0 2
+gpget 0 -1 2
+gpset 0 4 3 0xff02c80c
+gpget 0 4 3
+gpset 0 4 1 0x00000000
+gpget 0 4 1
+gpset 0 0 2 0xff98fbce
+gpget 0 0 2
+gpset 0 -1 2 0xff000000
+gpget 0 -1 2
+gpset 0 3 0 0x40cd860e
+gpget 0 3 0
+gpset 0 3 0 0x00000000
+gpget 0 3 0
+gpread 0 16bppRGB555
+end
+case pixel-16bppRGB555-1
+gpbitmap 0 4 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 409292219
+gpget 0 1 2
+gpget 0 2 1
+gpget 0 -1 1
+gpget 0 3 3
+gpset 0 4 0 0x50177717
+gpget 0 4 0
+gpset 0 0 -1 0x0f9cdd40
+gpget 0 0 -1
+gpset 0 3 2 0x12a87a35
+gpget 0 3 2
+gpset 0 3 0 0x1466bfd4
+gpget 0 3 0
+gpset 0 1 3 0xc43b56df
+gpget 0 1 3
+gpset 0 2 1 0xff0f5050
+gpget 0 2 1
+gpread 0 16bppRGB555
+end
+case pixel-16bppRGB555-2
+gpbitmap 0 4 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3902909970
+gpget 0 0 1
+gpget 0 1 3
+gpget 0 3 1
+gpget 0 3 -1
+gpset 0 1 -1 0xff223d62
+gpget 0 1 -1
+gpset 0 2 3 0x2bdac28e
+gpget 0 2 3
+gpset 0 2 0 0x541ff2df
+gpget 0 2 0
+gpset 0 4 2 0x00ffffff
+gpget 0 4 2
+gpset 0 0 3 0x00000000
+gpget 0 0 3
+gpset 0 0 2 0xfc7b914b
+gpget 0 0 2
+gpread 0 16bppRGB555
+end
+case pixel-16bppRGB565-0
+gpbitmap 0 4 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1141144098
+gpget 0 3 3
+gpget 0 4 2
+gpget 0 3 2
+gpget 0 0 -1
+gpset 0 -1 2 0xb9ee6fb1
+gpget 0 -1 2
+gpset 0 2 -1 0x1859eda7
+gpget 0 2 -1
+gpset 0 2 -1 0xff000000
+gpget 0 2 -1
+gpset 0 4 1 0xff000000
+gpget 0 4 1
+gpset 0 2 -1 0x00ffffff
+gpget 0 2 -1
+gpset 0 -1 1 0x45ced106
+gpget 0 -1 1
+gpread 0 16bppRGB565
+end
+case pixel-16bppRGB565-1
+gpbitmap 0 4 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1646624977
+gpget 0 3 2
+gpget 0 4 -1
+gpget 0 -1 0
+gpget 0 -1 0
+gpset 0 1 3 0x3f91e94a
+gpget 0 1 3
+gpset 0 -1 0 0x61bed831
+gpget 0 -1 0
+gpset 0 0 0 0xde607681
+gpget 0 0 0
+gpset 0 0 3 0x00ffffff
+gpget 0 0 3
+gpset 0 1 0 0xc74d5831
+gpget 0 1 0
+gpset 0 1 3 0xffde171b
+gpget 0 1 3
+gpread 0 16bppRGB565
+end
+case pixel-16bppRGB565-2
+gpbitmap 0 4 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3466425125
+gpget 0 4 -1
+gpget 0 1 2
+gpget 0 -1 0
+gpget 0 -1 1
+gpset 0 2 -1 0xff000000
+gpget 0 2 -1
+gpset 0 -1 -1 0x1778e92b
+gpget 0 -1 -1
+gpset 0 0 3 0x8417c7e2
+gpget 0 0 3
+gpset 0 2 -1 0xff29baa5
+gpget 0 2 -1
+gpset 0 0 -1 0x8edd1d83
+gpget 0 0 -1
+gpset 0 4 0 0x28651b9b
+gpget 0 4 0
+gpread 0 16bppRGB565
+end
+case pixel-16bppARGB1555-0
+gpbitmap 0 4 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3922852880
+gpget 0 2 1
+gpget 0 4 2
+gpget 0 0 -1
+gpget 0 1 0
+gpset 0 3 0 0x6dfa3279
+gpget 0 3 0
+gpset 0 2 0 0x442f3377
+gpget 0 2 0
+gpset 0 0 2 0x00ffffff
+gpget 0 0 2
+gpset 0 1 -1 0xe4ec0ac1
+gpget 0 1 -1
+gpset 0 4 -1 0x25277e18
+gpget 0 4 -1
+gpset 0 1 0 0xffbae5fc
+gpget 0 1 0
+gpread 0 16bppARGB1555
+end
+case pixel-16bppARGB1555-1
+gpbitmap 0 4 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3785730750
+gpget 0 4 2
+gpget 0 0 1
+gpget 0 4 0
+gpget 0 1 2
+gpset 0 0 -1 0x062d4e60
+gpget 0 0 -1
+gpset 0 1 3 0x7f00ff00
+gpget 0 1 3
+gpset 0 1 -1 0x035b991d
+gpget 0 1 -1
+gpset 0 2 1 0xff434259
+gpget 0 2 1
+gpset 0 0 1 0xde812363
+gpget 0 0 1
+gpset 0 4 0 0xffbe2c6b
+gpget 0 4 0
+gpread 0 16bppARGB1555
+end
+case pixel-16bppARGB1555-2
+gpbitmap 0 4 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1750103346
+gpget 0 0 0
+gpget 0 -1 0
+gpget 0 1 3
+gpget 0 0 0
+gpset 0 -1 3 0xdb71b4fa
+gpget 0 -1 3
+gpset 0 2 0 0xe6baa43f
+gpget 0 2 0
+gpset 0 0 1 0xfe808080
+gpget 0 0 1
+gpset 0 4 0 0xffd40099
+gpget 0 4 0
+gpset 0 -1 -1 0x0c189646
+gpget 0 -1 -1
+gpset 0 -1 3 0xf3d8bcc0
+gpget 0 -1 3
+gpread 0 16bppARGB1555
+end
+case pixel-24bppRGB-0
+gpbitmap 0 4 3 24bppRGB
+gpwrite 0 24bppRGB seed 1817776864
+gpget 0 3 0
+gpget 0 0 0
+gpget 0 3 2
+gpget 0 2 2
+gpset 0 3 1 0x2ef5c9d1
+gpget 0 3 1
+gpset 0 3 3 0x00000000
+gpget 0 3 3
+gpset 0 3 0 0xe921e9c2
+gpget 0 3 0
+gpset 0 1 -1 0xff903fcb
+gpget 0 1 -1
+gpset 0 4 3 0x244ecd58
+gpget 0 4 3
+gpset 0 3 -1 0xaa73ff7c
+gpget 0 3 -1
+gpread 0 24bppRGB
+end
+case pixel-24bppRGB-1
+gpbitmap 0 4 3 24bppRGB
+gpwrite 0 24bppRGB seed 1713284082
+gpget 0 -1 1
+gpget 0 4 -1
+gpget 0 -1 -1
+gpget 0 2 -1
+gpset 0 2 0 0xffffffff
+gpget 0 2 0
+gpset 0 4 -1 0xffffffff
+gpget 0 4 -1
+gpset 0 2 3 0x379b0d8b
+gpget 0 2 3
+gpset 0 1 1 0x827fcf98
+gpget 0 1 1
+gpset 0 1 2 0xff000000
+gpget 0 1 2
+gpset 0 3 3 0x6546a771
+gpget 0 3 3
+gpread 0 24bppRGB
+end
+case pixel-24bppRGB-2
+gpbitmap 0 4 3 24bppRGB
+gpwrite 0 24bppRGB seed 2226334469
+gpget 0 -1 2
+gpget 0 2 -1
+gpget 0 2 0
+gpget 0 2 1
+gpset 0 2 -1 0xee0d6782
+gpget 0 2 -1
+gpset 0 3 -1 0xffffffff
+gpget 0 3 -1
+gpset 0 0 3 0x7ea268ca
+gpget 0 0 3
+gpset 0 2 0 0xfe808080
+gpget 0 2 0
+gpset 0 4 0 0x43056b66
+gpget 0 4 0
+gpset 0 1 3 0xff1f7441
+gpget 0 1 3
+gpread 0 24bppRGB
+end
+case pixel-32bppRGB-0
+gpbitmap 0 4 3 32bppRGB
+gpwrite 0 32bppRGB seed 2608271818
+gpget 0 4 1
+gpget 0 1 3
+gpget 0 1 1
+gpget 0 4 -1
+gpset 0 3 0 0xf6460d4a
+gpget 0 3 0
+gpset 0 4 3 0xff517c59
+gpget 0 4 3
+gpset 0 -1 0 0x05a13908
+gpget 0 -1 0
+gpset 0 3 0 0xffe2cd38
+gpget 0 3 0
+gpset 0 3 1 0xccaba509
+gpget 0 3 1
+gpset 0 -1 0 0xff000000
+gpget 0 -1 0
+gpread 0 32bppRGB
+end
+case pixel-32bppRGB-1
+gpbitmap 0 4 3 32bppRGB
+gpwrite 0 32bppRGB seed 3599103742
+gpget 0 4 -1
+gpget 0 3 0
+gpget 0 4 -1
+gpget 0 0 2
+gpset 0 3 1 0xffffffff
+gpget 0 3 1
+gpset 0 3 3 0x056f78a7
+gpget 0 3 3
+gpset 0 -1 3 0x288adc29
+gpget 0 -1 3
+gpset 0 3 3 0xa8b18d39
+gpget 0 3 3
+gpset 0 -1 0 0x736378bb
+gpget 0 -1 0
+gpset 0 0 2 0x00000000
+gpget 0 0 2
+gpread 0 32bppRGB
+end
+case pixel-32bppRGB-2
+gpbitmap 0 4 3 32bppRGB
+gpwrite 0 32bppRGB seed 586090733
+gpget 0 1 0
+gpget 0 0 3
+gpget 0 1 3
+gpget 0 4 -1
+gpset 0 4 3 0x00000000
+gpget 0 4 3
+gpset 0 -1 3 0xff47215d
+gpget 0 -1 3
+gpset 0 0 3 0x45626031
+gpget 0 0 3
+gpset 0 0 1 0x5e34c786
+gpget 0 0 1
+gpset 0 -1 0 0x6a145bf6
+gpget 0 -1 0
+gpset 0 4 1 0x00ffffff
+gpget 0 4 1
+gpread 0 32bppRGB
+end
+case pixel-32bppARGB-0
+gpbitmap 0 4 3 32bppARGB
+gpwrite 0 32bppARGB seed 868136410
+gpget 0 1 -1
+gpget 0 4 0
+gpget 0 4 1
+gpget 0 -1 -1
+gpset 0 1 3 0xffd85b4f
+gpget 0 1 3
+gpset 0 0 0 0x59252406
+gpget 0 0 0
+gpset 0 1 2 0x00ffffff
+gpget 0 1 2
+gpset 0 0 0 0xa5ce14d8
+gpget 0 0 0
+gpset 0 -1 0 0x3ce76a8a
+gpget 0 -1 0
+gpset 0 0 2 0x1f952cb1
+gpget 0 0 2
+gpread 0 32bppARGB
+end
+case pixel-32bppARGB-1
+gpbitmap 0 4 3 32bppARGB
+gpwrite 0 32bppARGB seed 4201211824
+gpget 0 2 3
+gpget 0 2 -1
+gpget 0 2 0
+gpget 0 3 0
+gpset 0 0 0 0xff196a3d
+gpget 0 0 0
+gpset 0 3 2 0xff977077
+gpget 0 3 2
+gpset 0 2 -1 0xffd5d02e
+gpget 0 2 -1
+gpset 0 1 0 0xde82dde6
+gpget 0 1 0
+gpset 0 0 0 0x31a8b24b
+gpget 0 0 0
+gpset 0 0 -1 0x72714270
+gpget 0 0 -1
+gpread 0 32bppARGB
+end
+case pixel-32bppARGB-2
+gpbitmap 0 4 3 32bppARGB
+gpwrite 0 32bppARGB seed 500335247
+gpget 0 3 0
+gpget 0 -1 0
+gpget 0 0 0
+gpget 0 4 1
+gpset 0 -1 0 0x82df369e
+gpget 0 -1 0
+gpset 0 3 0 0x45baf815
+gpget 0 3 0
+gpset 0 2 1 0x3af9079a
+gpget 0 2 1
+gpset 0 0 3 0x4c73e875
+gpget 0 0 3
+gpset 0 2 -1 0xffd5b1a4
+gpget 0 2 -1
+gpset 0 -1 -1 0x86a15778
+gpget 0 -1 -1
+gpread 0 32bppARGB
+end
+case pixel-32bppPARGB-0
+gpbitmap 0 4 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 630074047
+gpget 0 0 -1
+gpget 0 3 0
+gpget 0 3 0
+gpget 0 1 2
+gpset 0 1 1 0x80ff0000
+gpget 0 1 1
+gpset 0 -1 -1 0xc383d378
+gpget 0 -1 -1
+gpset 0 1 2 0x0c6f9829
+gpget 0 1 2
+gpset 0 3 0 0xc4c5f491
+gpget 0 3 0
+gpset 0 -1 0 0x6d242b1d
+gpget 0 -1 0
+gpset 0 1 3 0xff05d5ff
+gpget 0 1 3
+gpread 0 32bppPARGB
+end
+case pixel-32bppPARGB-1
+gpbitmap 0 4 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 972166882
+gpget 0 0 0
+gpget 0 2 3
+gpget 0 1 0
+gpget 0 -1 0
+gpset 0 0 2 0xff000000
+gpget 0 0 2
+gpset 0 4 3 0x80ff0000
+gpget 0 4 3
+gpset 0 0 2 0x266a52d6
+gpget 0 0 2
+gpset 0 -1 -1 0xc6d9ec8e
+gpget 0 -1 -1
+gpset 0 1 -1 0xffffffff
+gpget 0 1 -1
+gpset 0 -1 1 0xf25cff5c
+gpget 0 -1 1
+gpread 0 32bppPARGB
+end
+case pixel-32bppPARGB-2
+gpbitmap 0 4 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 3680401767
+gpget 0 3 0
+gpget 0 0 0
+gpget 0 1 1
+gpget 0 4 0
+gpset 0 4 3 0x00ffffff
+gpget 0 4 3
+gpset 0 -1 0 0x093f36b9
+gpget 0 -1 0
+gpset 0 2 3 0x1a90187b
+gpget 0 2 3
+gpset 0 3 3 0xffcb768b
+gpget 0 3 3
+gpset 0 3 3 0x2f01e172
+gpget 0 3 3
+gpset 0 2 2 0x010000ff
+gpget 0 2 2
+gpread 0 32bppPARGB
+end
+case pixel-48bppRGB-0
+gpbitmap 0 4 3 48bppRGB
+gpwrite 0 48bppRGB seed 1013688823
+gpget 0 2 2
+gpget 0 1 3
+gpget 0 0 0
+gpget 0 2 1
+gpset 0 3 2 0xd3efb902
+gpget 0 3 2
+gpset 0 0 0 0x594dfc82
+gpget 0 0 0
+gpset 0 3 0 0x69ab5e3e
+gpget 0 3 0
+gpset 0 -1 0 0xff515577
+gpget 0 -1 0
+gpset 0 -1 1 0xcbfd8a49
+gpget 0 -1 1
+gpset 0 4 1 0x0929f1b5
+gpget 0 4 1
+gpread 0 48bppRGB
+end
+case pixel-48bppRGB-1
+gpbitmap 0 4 3 48bppRGB
+gpwrite 0 48bppRGB seed 3572895098
+gpget 0 3 0
+gpget 0 -1 0
+gpget 0 4 -1
+gpget 0 0 1
+gpset 0 1 -1 0xde4f2e91
+gpget 0 1 -1
+gpset 0 4 3 0xff000000
+gpget 0 4 3
+gpset 0 -1 2 0xdc2e51e5
+gpget 0 -1 2
+gpset 0 -1 0 0xa09a6db8
+gpget 0 -1 0
+gpset 0 1 -1 0x00ffffff
+gpget 0 1 -1
+gpset 0 -1 2 0x6f2f4142
+gpget 0 -1 2
+gpread 0 48bppRGB
+end
+case pixel-48bppRGB-2
+gpbitmap 0 4 3 48bppRGB
+gpwrite 0 48bppRGB seed 1743723233
+gpget 0 1 3
+gpget 0 3 3
+gpget 0 1 -1
+gpget 0 2 0
+gpset 0 2 0 0xe1270867
+gpget 0 2 0
+gpset 0 1 1 0x66723e09
+gpget 0 1 1
+gpset 0 1 0 0x9ff3aae7
+gpget 0 1 0
+gpset 0 3 1 0x5e213005
+gpget 0 3 1
+gpset 0 4 -1 0x473a0c02
+gpget 0 4 -1
+gpset 0 2 1 0xffa5f976
+gpget 0 2 1
+gpread 0 48bppRGB
+end
+case pixel-64bppARGB-0
+gpbitmap 0 4 3 64bppARGB
+gpwrite 0 64bppARGB seed 1625892819
+gpget 0 1 1
+gpget 0 1 1
+gpget 0 4 3
+gpget 0 4 0
+gpset 0 3 3 0x17ecca0e
+gpget 0 3 3
+gpset 0 1 -1 0xafca5d98
+gpget 0 1 -1
+gpset 0 3 0 0x0fa8c83b
+gpget 0 3 0
+gpset 0 1 2 0x62758036
+gpget 0 1 2
+gpset 0 4 -1 0xd53a4b32
+gpget 0 4 -1
+gpset 0 -1 0 0x6cd6f363
+gpget 0 -1 0
+gpread 0 64bppARGB
+end
+case pixel-64bppARGB-1
+gpbitmap 0 4 3 64bppARGB
+gpwrite 0 64bppARGB seed 3856895486
+gpget 0 3 3
+gpget 0 2 -1
+gpget 0 0 0
+gpget 0 1 0
+gpset 0 -1 0 0x52127f72
+gpget 0 -1 0
+gpset 0 1 -1 0x068637a4
+gpget 0 1 -1
+gpset 0 0 2 0xc2423a73
+gpget 0 0 2
+gpset 0 2 3 0xffca18ae
+gpget 0 2 3
+gpset 0 0 -1 0x0fc622b6
+gpget 0 0 -1
+gpset 0 3 -1 0xfe808080
+gpget 0 3 -1
+gpread 0 64bppARGB
+end
+case pixel-64bppARGB-2
+gpbitmap 0 4 3 64bppARGB
+gpwrite 0 64bppARGB seed 2574110022
+gpget 0 -1 2
+gpget 0 1 -1
+gpget 0 0 0
+gpget 0 3 2
+gpset 0 -1 2 0xeb4fc567
+gpget 0 -1 2
+gpset 0 1 1 0xff46bbf0
+gpget 0 1 1
+gpset 0 1 1 0xfe808080
+gpget 0 1 1
+gpset 0 3 -1 0xfff36b34
+gpget 0 3 -1
+gpset 0 3 -1 0x7ddda9aa
+gpget 0 3 -1
+gpset 0 -1 3 0x5e546d07
+gpget 0 -1 3
+gpread 0 64bppARGB
+end
+case pixel-64bppPARGB-0
+gpbitmap 0 4 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 2909305693
+gpget 0 -1 2
+gpget 0 3 2
+gpget 0 1 3
+gpget 0 3 3
+gpset 0 2 -1 0x1a409472
+gpget 0 2 -1
+gpset 0 4 1 0xffb8d018
+gpget 0 4 1
+gpset 0 0 1 0xb26576e5
+gpget 0 0 1
+gpset 0 4 1 0xff092419
+gpget 0 4 1
+gpset 0 1 3 0xfc3c62bb
+gpget 0 1 3
+gpset 0 3 -1 0xa2869812
+gpget 0 3 -1
+gpread 0 64bppPARGB
+end
+case pixel-64bppPARGB-1
+gpbitmap 0 4 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 1092156112
+gpget 0 0 3
+gpget 0 0 3
+gpget 0 4 -1
+gpget 0 1 0
+gpset 0 0 1 0x844f2b50
+gpget 0 0 1
+gpset 0 -1 0 0xbab3a212
+gpget 0 -1 0
+gpset 0 -1 2 0x847fe9e3
+gpget 0 -1 2
+gpset 0 -1 3 0x28fc63f6
+gpget 0 -1 3
+gpset 0 2 1 0x00ffffff
+gpget 0 2 1
+gpset 0 3 -1 0xee2946ef
+gpget 0 3 -1
+gpread 0 64bppPARGB
+end
+case pixel-64bppPARGB-2
+gpbitmap 0 4 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 409761589
+gpget 0 3 3
+gpget 0 2 2
+gpget 0 2 1
+gpget 0 1 1
+gpset 0 4 3 0xea35e3e5
+gpget 0 4 3
+gpset 0 4 2 0x01d6d519
+gpget 0 4 2
+gpset 0 2 2 0xb5ea9e7f
+gpget 0 2 2
+gpset 0 2 -1 0x2855d7f2
+gpget 0 2 -1
+gpset 0 4 2 0xbc6d8216
+gpget 0 4 2
+gpset 0 0 3 0xffac7f03
+gpget 0 0 3
+gpread 0 64bppPARGB
+end
+case lock-0
+gpbitmap 0 6 4 32bppARGB
+gpwrite 0 32bppARGB seed 1217455379
+gpread 0 64bppPARGB at 3 4 1 3
+gpwrite 0 64bppPARGB seed 3529985610 at 3 4 1 3
+gpread 0 32bppARGB
+end
+case lock-1
+gpbitmap 0 6 4 48bppRGB
+gpwrite 0 48bppRGB seed 1485389448
+gpread 0 64bppARGB at 5 2 1 1
+gpwrite 0 64bppARGB seed 2488804772 at 5 2 1 1
+gpread 0 48bppRGB
+end
+case lock-2
+gpbitmap 0 6 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 2924071945
+gpread 0 24bppRGB at 4 0 1 -1
+gpwrite 0 24bppRGB seed 1859934797 at 4 0 1 -1
+gpread 0 1bppIndexed
+end
+case lock-3
+gpbitmap 0 6 4 32bppARGB
+gpwrite 0 32bppARGB seed 295043328
+gpread 0 16bppRGB565 at -1 2 0 5
+gpwrite 0 16bppRGB565 seed 3883619003 at -1 2 0 5
+gpread 0 32bppARGB
+end
+case lock-4
+gpbitmap 0 6 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 3890347182
+gpread 0 32bppARGB at 3 -2 2 5
+gpwrite 0 32bppARGB seed 3606987284 at 3 -2 2 5
+gpread 0 64bppPARGB
+end
+case lock-5
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 73123038
+gpread 0 48bppRGB at 6 4 3 5
+gpwrite 0 48bppRGB seed 3838274942 at 6 4 3 5
+gpread 0 16bppARGB1555
+end
+case lock-6
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3303573844
+gpread 0 24bppRGB at -2 3 7 1
+gpwrite 0 24bppRGB seed 1838028053 at -2 3 7 1
+gpread 0 16bppARGB1555
+end
+case lock-7
+gpbitmap 0 6 4 24bppRGB
+gpwrite 0 24bppRGB seed 3907824980
+gpread 0 48bppRGB at 4 2 3 5
+gpwrite 0 48bppRGB seed 3582225687 at 4 2 3 5
+gpread 0 24bppRGB
+end
+case lock-8
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3134950112
+gpread 0 1bppIndexed at 5 -1 -1 2
+gpwrite 0 1bppIndexed seed 3145337667 at 5 -1 -1 2
+gpread 0 16bppARGB1555
+end
+case lock-9
+gpbitmap 0 6 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 89552814
+gpread 0 32bppRGB at 3 -1 1 5
+gpwrite 0 32bppRGB seed 3218709919 at 3 -1 1 5
+gpread 0 1bppIndexed
+end
+case lock-10
+gpbitmap 0 6 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 4192142409
+gpread 0 32bppPARGB at 1 -2 7 0
+gpwrite 0 32bppPARGB seed 865285282 at 1 -2 7 0
+gpread 0 1bppIndexed
+end
+case lock-11
+gpbitmap 0 6 4 48bppRGB
+gpwrite 0 48bppRGB seed 3988677605
+gpread 0 32bppPARGB at -1 1 6 5
+gpwrite 0 32bppPARGB seed 429437828 at -1 1 6 5
+gpread 0 48bppRGB
+end
+case lock-12
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2476559771
+gpread 0 8bppIndexed at 0 -2 2 1
+gpwrite 0 8bppIndexed seed 2145919244 at 0 -2 2 1
+gpread 0 16bppARGB1555
+end
+case lock-13
+gpbitmap 0 6 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1132994506
+gpread 0 16bppARGB1555 at -2 -2 2 1
+gpwrite 0 16bppARGB1555 seed 1314816434 at -2 -2 2 1
+gpread 0 32bppPARGB
+end
+case lock-14
+gpbitmap 0 6 4 32bppRGB
+gpwrite 0 32bppRGB seed 686348547
+gpread 0 16bppRGB555 at 1 0 6 3
+gpwrite 0 16bppRGB555 seed 1255980039 at 1 0 6 3
+gpread 0 32bppRGB
+end
+case lock-15
+gpbitmap 0 6 4 48bppRGB
+gpwrite 0 48bppRGB seed 937246746
+gpread 0 8bppIndexed at -2 0 -1 3
+gpwrite 0 8bppIndexed seed 1679274325 at -2 0 -1 3
+gpread 0 48bppRGB
+end
+case lock-16
+gpbitmap 0 6 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 290582665
+gpread 0 16bppGrayScale at -1 4 5 5
+gpwrite 0 16bppGrayScale seed 3344441865 at -1 4 5 5
+gpread 0 16bppRGB565
+end
+case lock-17
+gpbitmap 0 6 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 1795321877
+gpread 0 64bppARGB at 1 1 1 0
+gpwrite 0 64bppARGB seed 2232979509 at 1 1 1 0
+gpread 0 4bppIndexed
+end
+case lock-18
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 859835244
+gpread 0 48bppRGB at -1 1 6 2
+gpwrite 0 48bppRGB seed 2006965562 at -1 1 6 2
+gpread 0 16bppARGB1555
+end
+case lock-19
+gpbitmap 0 6 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1015736027
+gpread 0 64bppPARGB at -2 3 6 0
+gpwrite 0 64bppPARGB seed 1785161875 at -2 3 6 0
+gpread 0 16bppRGB555
+end
+case lock-20
+gpbitmap 0 6 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2536229329
+gpread 0 32bppARGB at 5 0 6 2
+gpwrite 0 32bppARGB seed 740443641 at 5 0 6 2
+gpread 0 16bppGrayScale
+end
+case lock-21
+gpbitmap 0 6 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 483243429
+gpread 0 32bppPARGB at 3 -1 3 0
+gpwrite 0 32bppPARGB seed 3847312313 at 3 -1 3 0
+gpread 0 16bppGrayScale
+end
+case lock-22
+gpbitmap 0 6 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 3292132554
+gpread 0 16bppRGB555 at 2 4 2 -1
+gpwrite 0 16bppRGB555 seed 2931423962 at 2 4 2 -1
+gpread 0 8bppIndexed
+end
+case lock-23
+gpbitmap 0 6 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 618488747
+gpread 0 16bppARGB1555 at 4 -2 2 5
+gpwrite 0 16bppARGB1555 seed 2644555807 at 4 -2 2 5
+gpread 0 16bppRGB565
+end
+case lock-24
+gpbitmap 0 6 4 64bppARGB
+gpwrite 0 64bppARGB seed 3709152046
+gpread 0 32bppARGB at -1 4 0 5
+gpwrite 0 32bppARGB seed 1986672086 at -1 4 0 5
+gpread 0 64bppARGB
+end
+case lock-25
+gpbitmap 0 6 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 4025834245
+gpread 0 16bppGrayScale at 4 1 4 1
+gpwrite 0 16bppGrayScale seed 3593400495 at 4 1 4 1
+gpread 0 1bppIndexed
+end
+case lock-26
+gpbitmap 0 6 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3974746630
+gpread 0 64bppARGB at 6 0 1 5
+gpwrite 0 64bppARGB seed 59134738 at 6 0 1 5
+gpread 0 32bppPARGB
+end
+case lock-27
+gpbitmap 0 6 4 64bppARGB
+gpwrite 0 64bppARGB seed 1941556463
+gpread 0 16bppGrayScale at 2 1 -1 2
+gpwrite 0 16bppGrayScale seed 245708381 at 2 1 -1 2
+gpread 0 64bppARGB
+end
+case lock-28
+gpbitmap 0 6 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2138277936
+gpread 0 32bppARGB at -2 0 2 4
+gpwrite 0 32bppARGB seed 3234098762 at -2 0 2 4
+gpread 0 8bppIndexed
+end
+case lock-29
+gpbitmap 0 6 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 686576216
+gpread 0 24bppRGB at 6 -2 -1 5
+gpwrite 0 24bppRGB seed 4131873387 at 6 -2 -1 5
+gpread 0 32bppPARGB
+end
+case lock-30
+gpbitmap 0 6 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 878005660
+gpread 0 8bppIndexed at 0 -1 1 2
+gpwrite 0 8bppIndexed seed 557248143 at 0 -1 1 2
+gpread 0 32bppPARGB
+end
+case lock-31
+gpbitmap 0 6 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1928778329
+gpread 0 16bppGrayScale at 1 2 6 -1
+gpwrite 0 16bppGrayScale seed 3205064423 at 1 2 6 -1
+gpread 0 32bppPARGB
+end
+case lock-32
+gpbitmap 0 6 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2033541926
+gpread 0 16bppRGB565 at 1 -1 0 0
+gpwrite 0 16bppRGB565 seed 2137585742 at 1 -1 0 0
+gpread 0 4bppIndexed
+end
+case lock-33
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 790839823
+gpread 0 16bppGrayScale at 1 -1 3 -1
+gpwrite 0 16bppGrayScale seed 2872227454 at 1 -1 3 -1
+gpread 0 16bppARGB1555
+end
+case lock-34
+gpbitmap 0 6 4 64bppARGB
+gpwrite 0 64bppARGB seed 3573000286
+gpread 0 16bppRGB555 at -1 3 3 4
+gpwrite 0 16bppRGB555 seed 510880928 at -1 3 3 4
+gpread 0 64bppARGB
+end
+case lock-35
+gpbitmap 0 6 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1762164855
+gpread 0 16bppARGB1555 at 1 -1 5 -1
+gpwrite 0 16bppARGB1555 seed 1506656884 at 1 -1 5 -1
+gpread 0 64bppPARGB
+end
+case lock-36
+gpbitmap 0 6 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2629130357
+gpread 0 24bppRGB at -1 -1 2 2
+gpwrite 0 24bppRGB seed 3234305704 at -1 -1 2 2
+gpread 0 16bppGrayScale
+end
+case lock-37
+gpbitmap 0 6 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1413571710
+gpread 0 48bppRGB at -1 1 -1 1
+gpwrite 0 48bppRGB seed 1629330233 at -1 1 -1 1
+gpread 0 64bppPARGB
+end
+case lock-38
+gpbitmap 0 6 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1646523848
+gpread 0 16bppGrayScale at -1 -1 6 4
+gpwrite 0 16bppGrayScale seed 2412088101 at -1 -1 6 4
+gpread 0 16bppARGB1555
+end
+case lock-39
+gpbitmap 0 6 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2952979850
+gpread 0 64bppARGB at 4 1 4 1
+gpwrite 0 64bppARGB seed 2060036531 at 4 1 4 1
+gpread 0 16bppRGB565
+end
+case fill-1bppIndexed-over-0
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 3963664832
+gpfill 0 1 3 5 0 0xffef2b13 over 0
+gpread 0 1bppIndexed
+end
+case clear-1bppIndexed
+gpbitmap 0 3 2 1bppIndexed
+gpclear 0 0x010000ff
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-over-1
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 3522451513
+gpfill 0 -1 3 4 1 0x5d0dfbd8 over 1
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-over-2
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 646324229
+gpfill 0 0 3 1 -1 0x8461eb72 over 2
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-over-3
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 1171517880
+gpfill 0 -2 3 9 5 0x10da0c26 over 3
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-over-4
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 474446655
+gpfill 0 -2 -1 6 6 0x3b7fa305 over 4
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-copy-0
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 2045720312
+gpfill 0 -1 3 10 3 0xff000000 copy 0
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-copy-1
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 1987573950
+gpfill 0 2 0 10 -1 0x7f00ff00 copy 1
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-copy-2
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 3778071491
+gpfill 0 0 4 2 -2 0x3260b2de copy 2
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-copy-3
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 2648739872
+gpfill 0 8 -2 6 5 0x6f4ae874 copy 3
+gpread 0 1bppIndexed
+end
+case fill-1bppIndexed-copy-4
+gpbitmap 0 10 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 2423692026
+gpfill 0 7 -2 5 2 0x6ca6b52f copy 4
+gpread 0 1bppIndexed
+end
+case fill-4bppIndexed-over-0
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 3108618842
+gpfill 0 -1 0 3 4 0xffdd912d over 0
+gpread 0 4bppIndexed
+end
+case clear-4bppIndexed
+gpbitmap 0 3 2 4bppIndexed
+gpclear 0 0x035bd271
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-over-1
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 3859595746
+gpfill 0 0 3 5 4 0xff117df2 over 1
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-over-2
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 1284366004
+gpfill 0 2 -2 2 6 0x73e2d8e5 over 2
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-over-3
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2214991526
+gpfill 0 3 -2 2 6 0xb43d73cb over 3
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-over-4
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 387468677
+gpfill 0 2 0 8 1 0xc9fc6224 over 4
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-copy-0
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 1053296397
+gpfill 0 -3 3 2 2 0x7f00ff00 copy 0
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-copy-1
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 597932924
+gpfill 0 8 -1 0 2 0x6bab8cd8 copy 1
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-copy-2
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2071718879
+gpfill 0 -3 -2 -2 -2 0xffb6a08c copy 2
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-copy-3
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2257717725
+gpfill 0 4 -2 5 1 0x5d42e0b3 copy 3
+gpread 0 4bppIndexed
+end
+case fill-4bppIndexed-copy-4
+gpbitmap 0 10 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 829560396
+gpfill 0 -2 2 5 -1 0x7f00ff00 copy 4
+gpread 0 4bppIndexed
+end
+case fill-8bppIndexed-over-0
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 85566663
+gpfill 0 7 2 9 3 0x1cf42e7c over 0
+gpread 0 8bppIndexed
+end
+case clear-8bppIndexed
+gpbitmap 0 3 2 8bppIndexed
+gpclear 0 0x7a68fbce
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-over-1
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 4134169647
+gpfill 0 3 0 8 -2 0x1294389f over 1
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-over-2
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 4271466709
+gpfill 0 -3 1 5 6 0x23206096 over 2
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-over-3
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 3604153226
+gpfill 0 8 2 8 5 0x105e1cf0 over 3
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-over-4
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 1994249068
+gpfill 0 5 0 0 5 0x90caad54 over 4
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-copy-0
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 3337834262
+gpfill 0 -3 0 -2 2 0xff612ebe copy 0
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-copy-1
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2066789333
+gpfill 0 6 1 1 0 0xff70b9c0 copy 1
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-copy-2
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 1481356980
+gpfill 0 5 -1 0 0 0xff28086d copy 2
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-copy-3
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2395066098
+gpfill 0 0 1 7 -1 0xff6a4742 copy 3
+gpread 0 8bppIndexed
+end
+case fill-8bppIndexed-copy-4
+gpbitmap 0 10 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2643224767
+gpfill 0 4 2 1 2 0x7781332c copy 4
+gpread 0 8bppIndexed
+end
+case fill-16bppGrayScale-over-0
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2641964402
+gpfill 0 -1 1 -1 0 0xffb83242 over 0
+gpread 0 16bppGrayScale
+end
+case clear-16bppGrayScale
+gpbitmap 0 3 2 16bppGrayScale
+gpclear 0 0x53eb37d6
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-over-1
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 3404565456
+gpfill 0 3 2 0 1 0xff0ed51c over 1
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-over-2
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1278084984
+gpfill 0 7 0 10 1 0x7f00ff00 over 2
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-over-3
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 3751270453
+gpfill 0 6 3 7 2 0x72f4071e over 3
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-over-4
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2850092494
+gpfill 0 6 2 -2 3 0xce20417a over 4
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-copy-0
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 4127264024
+gpfill 0 2 3 1 -2 0x766f59e0 copy 0
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-copy-1
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 3955794642
+gpfill 0 -2 4 0 -1 0xffc724fc copy 1
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-copy-2
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 459509166
+gpfill 0 1 2 0 5 0xfe808080 copy 2
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-copy-3
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2619924978
+gpfill 0 -2 -2 0 0 0xff23d871 copy 3
+gpread 0 16bppGrayScale
+end
+case fill-16bppGrayScale-copy-4
+gpbitmap 0 10 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2149172131
+gpfill 0 8 2 -2 4 0x7aee36ef copy 4
+gpread 0 16bppGrayScale
+end
+case fill-16bppRGB555-over-0
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3663786524
+gpfill 0 7 1 1 6 0x2ce49277 over 0
+gpread 0 16bppRGB555
+end
+case clear-16bppRGB555
+gpbitmap 0 3 2 16bppRGB555
+gpclear 0 0xffb30463
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-over-1
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3511229747
+gpfill 0 -3 -2 0 6 0xff73526f over 1
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-over-2
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2762591382
+gpfill 0 5 0 2 5 0xfff780f4 over 2
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-over-3
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1414701467
+gpfill 0 5 4 -2 -1 0x6ad138cb over 3
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-over-4
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 539866749
+gpfill 0 0 -2 4 6 0x00000000 over 4
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-copy-0
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2104974567
+gpfill 0 6 3 2 5 0x8ec938e5 copy 0
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-copy-1
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1694958224
+gpfill 0 4 4 8 2 0x655ada93 copy 1
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-copy-2
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1951350271
+gpfill 0 8 2 9 6 0x40aac858 copy 2
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-copy-3
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 257260251
+gpfill 0 5 1 3 -1 0x3e7aa5ea copy 3
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB555-copy-4
+gpbitmap 0 10 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2410948409
+gpfill 0 2 4 5 5 0x6f0bf500 copy 4
+gpread 0 16bppRGB555
+end
+case fill-16bppRGB565-over-0
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2241985422
+gpfill 0 -2 -2 5 6 0x84907caa over 0
+gpread 0 16bppRGB565
+end
+case clear-16bppRGB565
+gpbitmap 0 3 2 16bppRGB565
+gpclear 0 0xa5ce8bdf
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-over-1
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1322404631
+gpfill 0 -2 1 5 -2 0xfe808080 over 1
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-over-2
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2165667779
+gpfill 0 1 1 9 3 0x216c649a over 2
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-over-3
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 804528214
+gpfill 0 6 0 6 4 0x53101835 over 3
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-over-4
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3230019526
+gpfill 0 -1 3 2 -2 0x9fe8668d over 4
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-copy-0
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2674850674
+gpfill 0 2 3 2 2 0xe800e768 copy 0
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-copy-1
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2300456600
+gpfill 0 3 3 9 1 0xfff4639b copy 1
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-copy-2
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 381876724
+gpfill 0 5 -1 4 5 0xb621ee15 copy 2
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-copy-3
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3089908314
+gpfill 0 5 2 1 0 0x7bc8a39f copy 3
+gpread 0 16bppRGB565
+end
+case fill-16bppRGB565-copy-4
+gpbitmap 0 10 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2896476552
+gpfill 0 7 3 10 3 0xf88a1012 copy 4
+gpread 0 16bppRGB565
+end
+case fill-16bppARGB1555-over-0
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2810357129
+gpfill 0 -1 1 6 6 0x4b4019b7 over 0
+gpread 0 16bppARGB1555
+end
+case clear-16bppARGB1555
+gpbitmap 0 3 2 16bppARGB1555
+gpclear 0 0x8ebfaada
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-over-1
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 711481627
+gpfill 0 1 0 7 -2 0x010000ff over 1
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-over-2
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 395861469
+gpfill 0 -2 1 2 2 0x0b97c606 over 2
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-over-3
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 23828897
+gpfill 0 2 -1 0 5 0x7f00ff00 over 3
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-over-4
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2252772592
+gpfill 0 0 4 7 4 0xfff3796a over 4
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-copy-0
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2136109452
+gpfill 0 2 1 -2 2 0x5d6c939b copy 0
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-copy-1
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2689187329
+gpfill 0 1 0 4 -2 0xffe6d5aa copy 1
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-copy-2
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 4161675432
+gpfill 0 0 4 1 4 0x65b7387b copy 2
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-copy-3
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1725294351
+gpfill 0 0 0 1 2 0x8c555822 copy 3
+gpread 0 16bppARGB1555
+end
+case fill-16bppARGB1555-copy-4
+gpbitmap 0 10 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1259106677
+gpfill 0 -1 1 2 2 0x00000000 copy 4
+gpread 0 16bppARGB1555
+end
+case fill-24bppRGB-over-0
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 2964403813
+gpfill 0 2 2 6 6 0x772aeadb over 0
+gpread 0 24bppRGB
+end
+case clear-24bppRGB
+gpbitmap 0 3 2 24bppRGB
+gpclear 0 0xff70e4da
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-over-1
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 3145088073
+gpfill 0 0 2 -2 0 0x80ff0000 over 1
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-over-2
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 3354708701
+gpfill 0 4 -1 2 6 0xff0f4a85 over 2
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-over-3
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 1955950788
+gpfill 0 3 1 4 -1 0xff000000 over 3
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-over-4
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 1308866807
+gpfill 0 1 -1 1 2 0xd809ec76 over 4
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-copy-0
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 2489699610
+gpfill 0 2 -1 -2 3 0x010000ff copy 0
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-copy-1
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 960955447
+gpfill 0 -2 3 10 -2 0xff77766c copy 1
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-copy-2
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 3293423559
+gpfill 0 -2 0 2 3 0xc43bc993 copy 2
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-copy-3
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 2400035541
+gpfill 0 0 -1 -2 2 0xffc9ba8f copy 3
+gpread 0 24bppRGB
+end
+case fill-24bppRGB-copy-4
+gpbitmap 0 10 4 24bppRGB
+gpwrite 0 24bppRGB seed 2881000201
+gpfill 0 8 -2 -1 0 0xff1ad363 copy 4
+gpread 0 24bppRGB
+end
+case fill-32bppRGB-over-0
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 3266373172
+gpfill 0 5 -2 5 -1 0x40fcf57a over 0
+gpread 0 32bppRGB
+end
+case clear-32bppRGB
+gpbitmap 0 3 2 32bppRGB
+gpclear 0 0x80ff0000
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-over-1
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 793136714
+gpfill 0 3 2 4 2 0xb2583037 over 1
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-over-2
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 1294324694
+gpfill 0 5 -2 10 5 0x5b7481d5 over 2
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-over-3
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 4158057455
+gpfill 0 -1 1 1 4 0xb800eaa1 over 3
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-over-4
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 1895099615
+gpfill 0 0 4 5 0 0xffcf9f9e over 4
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-copy-0
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 2647451418
+gpfill 0 -3 4 2 1 0xffc4f562 copy 0
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-copy-1
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 4072835436
+gpfill 0 7 3 5 -2 0xb81b0886 copy 1
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-copy-2
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 1295800084
+gpfill 0 0 2 8 2 0xff11b3e6 copy 2
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-copy-3
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 32638017
+gpfill 0 -3 -1 3 4 0x97f5bf16 copy 3
+gpread 0 32bppRGB
+end
+case fill-32bppRGB-copy-4
+gpbitmap 0 10 4 32bppRGB
+gpwrite 0 32bppRGB seed 3691116942
+gpfill 0 -2 2 -1 4 0x20184007 copy 4
+gpread 0 32bppRGB
+end
+case fill-32bppARGB-over-0
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 3771226545
+gpfill 0 4 0 8 2 0xff408ee9 over 0
+gpread 0 32bppARGB
+end
+case clear-32bppARGB
+gpbitmap 0 3 2 32bppARGB
+gpclear 0 0x00000000
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-over-1
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 429413347
+gpfill 0 2 -1 8 -2 0x0cce5863 over 1
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-over-2
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 2738484904
+gpfill 0 -1 3 7 1 0x97034bda over 2
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-over-3
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 1779260477
+gpfill 0 -1 1 -2 6 0xc46b1ecb over 3
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-over-4
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 1442512159
+gpfill 0 7 3 -2 0 0x00ffffff over 4
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-copy-0
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 2434719681
+gpfill 0 -1 1 0 0 0x00ffffff copy 0
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-copy-1
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 334793079
+gpfill 0 0 -2 5 6 0xa27ad120 copy 1
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-copy-2
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 1816000458
+gpfill 0 0 3 2 1 0x0e6df99d copy 2
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-copy-3
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 1919353580
+gpfill 0 3 3 -2 -2 0xd8e1439d copy 3
+gpread 0 32bppARGB
+end
+case fill-32bppARGB-copy-4
+gpbitmap 0 10 4 32bppARGB
+gpwrite 0 32bppARGB seed 1683494563
+gpfill 0 5 1 1 4 0x00ffffff copy 4
+gpread 0 32bppARGB
+end
+case fill-32bppPARGB-over-0
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1370968913
+gpfill 0 7 4 1 4 0xff3da836 over 0
+gpread 0 32bppPARGB
+end
+case clear-32bppPARGB
+gpbitmap 0 3 2 32bppPARGB
+gpclear 0 0x1c1aea30
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-over-1
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 776344075
+gpfill 0 7 3 5 2 0x00ffffff over 1
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-over-2
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 617825362
+gpfill 0 -3 -1 -2 1 0x339983bb over 2
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-over-3
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 225736143
+gpfill 0 5 0 1 2 0x1a995d62 over 3
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-over-4
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3998391948
+gpfill 0 -3 -2 6 4 0xfe0dab46 over 4
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-copy-0
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3328215971
+gpfill 0 5 4 0 5 0x019b04fb copy 0
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-copy-1
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 2207467828
+gpfill 0 2 1 -1 -1 0xbcc61a15 copy 1
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-copy-2
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 897013310
+gpfill 0 8 1 3 -1 0xff66d9c3 copy 2
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-copy-3
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 2146994993
+gpfill 0 1 4 6 0 0x00ffffff copy 3
+gpread 0 32bppPARGB
+end
+case fill-32bppPARGB-copy-4
+gpbitmap 0 10 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 143388532
+gpfill 0 4 3 0 1 0xa988d911 copy 4
+gpread 0 32bppPARGB
+end
+case fill-48bppRGB-over-0
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 1623958697
+gpfill 0 -3 0 1 -1 0xffb328c5 over 0
+gpread 0 48bppRGB
+end
+case clear-48bppRGB
+gpbitmap 0 3 2 48bppRGB
+gpclear 0 0x4635a718
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-over-1
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 3999473381
+gpfill 0 0 -2 10 1 0x905a180d over 1
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-over-2
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 3428003254
+gpfill 0 -3 0 6 4 0x2a243c51 over 2
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-over-3
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 3321476041
+gpfill 0 7 3 4 4 0x7f00ff00 over 3
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-over-4
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 41922131
+gpfill 0 4 1 9 3 0x53549822 over 4
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-copy-0
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 246907568
+gpfill 0 7 1 -2 6 0xa6a02e93 copy 0
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-copy-1
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 2845415230
+gpfill 0 7 -2 -1 5 0xe0c1cef5 copy 1
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-copy-2
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 2192196049
+gpfill 0 7 0 0 6 0xc699a3ca copy 2
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-copy-3
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 1715434136
+gpfill 0 -1 1 8 -2 0xe96eba0d copy 3
+gpread 0 48bppRGB
+end
+case fill-48bppRGB-copy-4
+gpbitmap 0 10 4 48bppRGB
+gpwrite 0 48bppRGB seed 1341878601
+gpfill 0 3 -2 -2 5 0xf0e5b9d7 copy 4
+gpread 0 48bppRGB
+end
+case fill-64bppARGB-over-0
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 2739930644
+gpfill 0 5 4 -2 6 0x5cbb2d9e over 0
+gpread 0 64bppARGB
+end
+case clear-64bppARGB
+gpbitmap 0 3 2 64bppARGB
+gpclear 0 0xffe39df4
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-over-1
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 871177986
+gpfill 0 -1 3 4 -2 0x84b7454b over 1
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-over-2
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 3777594173
+gpfill 0 1 -2 3 2 0xec129594 over 2
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-over-3
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 1676286653
+gpfill 0 1 -1 -1 2 0xfe808080 over 3
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-over-4
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 1480421664
+gpfill 0 4 4 4 5 0xffffffff over 4
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-copy-0
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 3811596453
+gpfill 0 6 1 4 4 0x00000000 copy 0
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-copy-1
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 1624286737
+gpfill 0 -3 1 4 5 0x6564eeab copy 1
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-copy-2
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 4113891348
+gpfill 0 4 1 10 4 0x3946ea38 copy 2
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-copy-3
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 3932067057
+gpfill 0 5 -1 1 2 0x67f9ff70 copy 3
+gpread 0 64bppARGB
+end
+case fill-64bppARGB-copy-4
+gpbitmap 0 10 4 64bppARGB
+gpwrite 0 64bppARGB seed 3125481620
+gpfill 0 8 2 -2 5 0xdc3df2b0 copy 4
+gpread 0 64bppARGB
+end
+case fill-64bppPARGB-over-0
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1149483204
+gpfill 0 6 -1 10 4 0x80ff0000 over 0
+gpread 0 64bppPARGB
+end
+case clear-64bppPARGB
+gpbitmap 0 3 2 64bppPARGB
+gpclear 0 0x06b78df6
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-over-1
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 2566823072
+gpfill 0 7 2 6 1 0x00000000 over 1
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-over-2
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 3777570502
+gpfill 0 8 0 -2 -2 0x2c632a01 over 2
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-over-3
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1048042076
+gpfill 0 5 4 9 -2 0xd3c71937 over 3
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-over-4
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1826722943
+gpfill 0 0 1 -2 -1 0x88693f7e over 4
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-copy-0
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 321168235
+gpfill 0 2 3 6 0 0xffd6a7a1 copy 0
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-copy-1
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1454980794
+gpfill 0 1 3 2 -2 0xff3f5104 copy 1
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-copy-2
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1512323487
+gpfill 0 4 1 7 -1 0x7f00ff00 copy 2
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-copy-3
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1529656871
+gpfill 0 3 4 7 6 0xffba1d8f copy 3
+gpread 0 64bppPARGB
+end
+case fill-64bppPARGB-copy-4
+gpbitmap 0 10 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 1351306576
+gpfill 0 7 2 1 2 0x76596af9 copy 4
+gpread 0 64bppPARGB
+end
+case over-0
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpfill 0 0 0 256 256 0x80ff4010 over 0
+gpread 0 32bppARGB
+end
+case over-1
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpfill 0 0 0 256 256 0x4020c0f0 over 0
+gpread 0 32bppARGB
+end
+case over-2
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpfill 0 0 0 256 256 0xc07f8001 over 0
+gpread 0 32bppARGB
+end
+case over-3
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpfill 0 0 0 256 256 0x01ffffff over 0
+gpread 0 32bppARGB
+end
+case over-4
+gpbitmap 0 256 256 32bppARGB
+gpwrite 0 32bppARGB pairs
+gpfill 0 0 0 256 256 0xfe000000 over 3
+gpread 0 32bppARGB
+end
+case blend-0
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1284811528
+gpfill 0 0 0 16 4 0xe74d39b2 over 1
+gpread 0 32bppPARGB
+end
+case blend-1
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 823465441
+gpfill 0 0 0 16 4 0xe686fa95 over 2
+gpread 0 32bppPARGB
+end
+case blend-2
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2666745815
+gpfill 0 0 0 16 4 0x16335e33 over 3
+gpread 0 16bppARGB1555
+end
+case blend-3
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 804276782
+gpfill 0 0 0 16 4 0xf006b7f4 over 4
+gpread 0 16bppARGB1555
+end
+case blend-4
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 4261610798
+gpfill 0 0 0 16 4 0x4a77c5dd over 4
+gpread 0 24bppRGB
+end
+case blend-5
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 759070297
+gpfill 0 0 0 16 4 0xbc50cb43 over 1
+gpread 0 32bppARGB
+end
+case blend-6
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 4151441588
+gpfill 0 0 0 16 4 0xc4848c67 over 3
+gpread 0 32bppRGB
+end
+case blend-7
+gpbitmap 0 16 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 567465423
+gpfill 0 0 0 16 4 0x160a073a over 0
+gpread 0 16bppRGB565
+end
+case blend-8
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1317587325
+gpfill 0 0 0 16 4 0xa34f176e over 4
+gpread 0 32bppPARGB
+end
+case blend-9
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 2328154052
+gpfill 0 0 0 16 4 0x74b48d1a over 1
+gpread 0 32bppRGB
+end
+case blend-10
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 2468948744
+gpfill 0 0 0 16 4 0x7f4675ac over 4
+gpread 0 24bppRGB
+end
+case blend-11
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2583414955
+gpfill 0 0 0 16 4 0xfd35c35c over 1
+gpread 0 16bppARGB1555
+end
+case blend-12
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 3103513921
+gpfill 0 0 0 16 4 0xa92001e8 over 1
+gpread 0 32bppARGB
+end
+case blend-13
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 2858986062
+gpfill 0 0 0 16 4 0x5b078e1e over 0
+gpread 0 32bppARGB
+end
+case blend-14
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 677883578
+gpfill 0 0 0 16 4 0x6ba08c22 over 1
+gpread 0 32bppPARGB
+end
+case blend-15
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 73752371
+gpfill 0 0 0 16 4 0x5fee76b2 over 3
+gpread 0 16bppARGB1555
+end
+case blend-16
+gpbitmap 0 16 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2261439529
+gpfill 0 0 0 16 4 0x55bcdbce over 3
+gpread 0 16bppRGB565
+end
+case blend-17
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 3663981990
+gpfill 0 0 0 16 4 0x5d38b7ed over 1
+gpread 0 64bppARGB
+end
+case blend-18
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 1078631762
+gpfill 0 0 0 16 4 0x6ffa40e2 over 3
+gpread 0 24bppRGB
+end
+case blend-19
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3416252013
+gpfill 0 0 0 16 4 0x3a1eaec4 over 1
+gpread 0 32bppPARGB
+end
+case blend-20
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 419502360
+gpfill 0 0 0 16 4 0x7e628529 over 0
+gpread 0 64bppARGB
+end
+case blend-21
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 1087518681
+gpfill 0 0 0 16 4 0xc30b8d6d over 1
+gpread 0 32bppARGB
+end
+case blend-22
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3059015903
+gpfill 0 0 0 16 4 0x63adaaf8 over 1
+gpread 0 16bppARGB1555
+end
+case blend-23
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 2233712764
+gpfill 0 0 0 16 4 0x58abe3aa over 1
+gpread 0 24bppRGB
+end
+case blend-24
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 2341636011
+gpfill 0 0 0 16 4 0xb796c918 over 4
+gpread 0 32bppRGB
+end
+case blend-25
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 608659290
+gpfill 0 0 0 16 4 0xdd24228c over 0
+gpread 0 32bppRGB
+end
+case blend-26
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 108918966
+gpfill 0 0 0 16 4 0x9407e463 over 4
+gpread 0 32bppRGB
+end
+case blend-27
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 3259132526
+gpfill 0 0 0 16 4 0x6ef250c9 over 3
+gpread 0 32bppRGB
+end
+case blend-28
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 2551441063
+gpfill 0 0 0 16 4 0x7c29ec44 over 4
+gpread 0 64bppARGB
+end
+case blend-29
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 2454471683
+gpfill 0 0 0 16 4 0x434905c5 over 0
+gpread 0 32bppRGB
+end
+case blend-30
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 2391015195
+gpfill 0 0 0 16 4 0xdd7c12cb over 1
+gpread 0 32bppPARGB
+end
+case blend-31
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 852474296
+gpfill 0 0 0 16 4 0x7ae3b3c4 over 1
+gpread 0 32bppPARGB
+end
+case blend-32
+gpbitmap 0 16 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 356969897
+gpfill 0 0 0 16 4 0xd68693d0 over 2
+gpread 0 16bppRGB565
+end
+case blend-33
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 1695804701
+gpfill 0 0 0 16 4 0x0eb869e5 over 3
+gpread 0 32bppARGB
+end
+case blend-34
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3021121409
+gpfill 0 0 0 16 4 0xfcbc09f0 over 1
+gpread 0 16bppARGB1555
+end
+case blend-35
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1724948886
+gpfill 0 0 0 16 4 0x2ea94407 over 3
+gpread 0 32bppPARGB
+end
+case blend-36
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 2431070428
+gpfill 0 0 0 16 4 0xa96dffe2 over 2
+gpread 0 32bppARGB
+end
+case blend-37
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 3571705817
+gpfill 0 0 0 16 4 0xab0ae975 over 3
+gpread 0 32bppARGB
+end
+case blend-38
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 4243973714
+gpfill 0 0 0 16 4 0x47cf4fed over 0
+gpread 0 16bppARGB1555
+end
+case blend-39
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 135260192
+gpfill 0 0 0 16 4 0x5479c605 over 4
+gpread 0 32bppPARGB
+end
+case blend-40
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1708981732
+gpfill 0 0 0 16 4 0xb6601a54 over 4
+gpread 0 32bppPARGB
+end
+case blend-41
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 2159641877
+gpfill 0 0 0 16 4 0xb374de18 over 3
+gpread 0 24bppRGB
+end
+case blend-42
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 100159444
+gpfill 0 0 0 16 4 0x8c5bf375 over 4
+gpread 0 24bppRGB
+end
+case blend-43
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3690375767
+gpfill 0 0 0 16 4 0xd935ec29 over 2
+gpread 0 32bppPARGB
+end
+case blend-44
+gpbitmap 0 16 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 571074310
+gpfill 0 0 0 16 4 0xc3cc2632 over 3
+gpread 0 16bppRGB565
+end
+case blend-45
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 4126800291
+gpfill 0 0 0 16 4 0x93726465 over 0
+gpread 0 64bppARGB
+end
+case blend-46
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 776104545
+gpfill 0 0 0 16 4 0x02c10726 over 0
+gpread 0 24bppRGB
+end
+case blend-47
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 3784991270
+gpfill 0 0 0 16 4 0x16006de9 over 0
+gpread 0 64bppARGB
+end
+case blend-48
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1530931456
+gpfill 0 0 0 16 4 0x9260c030 over 1
+gpread 0 32bppPARGB
+end
+case blend-49
+gpbitmap 0 16 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 344438333
+gpfill 0 0 0 16 4 0xaa4c84bd over 2
+gpread 0 16bppRGB565
+end
+case blend-50
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 2950760642
+gpfill 0 0 0 16 4 0x51d8f87e over 4
+gpread 0 32bppARGB
+end
+case blend-51
+gpbitmap 0 16 4 24bppRGB
+gpwrite 0 24bppRGB seed 1944596895
+gpfill 0 0 0 16 4 0xcea68532 over 4
+gpread 0 24bppRGB
+end
+case blend-52
+gpbitmap 0 16 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 2593010400
+gpfill 0 0 0 16 4 0xc6918da9 over 2
+gpread 0 32bppPARGB
+end
+case blend-53
+gpbitmap 0 16 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3997371057
+gpfill 0 0 0 16 4 0x6db8ca5b over 1
+gpread 0 16bppARGB1555
+end
+case blend-54
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 1810374039
+gpfill 0 0 0 16 4 0x6303fefa over 1
+gpread 0 64bppARGB
+end
+case blend-55
+gpbitmap 0 16 4 64bppARGB
+gpwrite 0 64bppARGB seed 861737513
+gpfill 0 0 0 16 4 0xb2172e05 over 0
+gpread 0 64bppARGB
+end
+case blend-56
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 499115500
+gpfill 0 0 0 16 4 0xc140b8cd over 1
+gpread 0 32bppARGB
+end
+case blend-57
+gpbitmap 0 16 4 32bppRGB
+gpwrite 0 32bppRGB seed 3908435424
+gpfill 0 0 0 16 4 0xbe731ec4 over 2
+gpread 0 32bppRGB
+end
+case blend-58
+gpbitmap 0 16 4 32bppARGB
+gpwrite 0 32bppARGB seed 1397780685
+gpfill 0 0 0 16 4 0xf4763349 over 2
+gpread 0 32bppARGB
+end
+case blend-59
+gpbitmap 0 16 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 4053746316
+gpfill 0 0 0 16 4 0x2017030b over 0
+gpread 0 16bppRGB565
+end
+case rotate-1bppIndexed-0
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 3468059952
+gprotate 0 0
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-1
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 1075635000
+gprotate 0 1
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-2
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 1393175973
+gprotate 0 2
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-3
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 3245234618
+gprotate 0 3
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-4
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 1098550870
+gprotate 0 4
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-5
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 112756686
+gprotate 0 5
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-6
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 3731411246
+gprotate 0 6
+gpread 0 1bppIndexed
+end
+case rotate-1bppIndexed-7
+gpbitmap 0 5 3 1bppIndexed
+gpwrite 0 1bppIndexed seed 1306726920
+gprotate 0 7
+gpread 0 1bppIndexed
+end
+case rotate-4bppIndexed-0
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 3689070329
+gprotate 0 0
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-1
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 193381383
+gprotate 0 1
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-2
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 3016752388
+gprotate 0 2
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-3
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 3246669139
+gprotate 0 3
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-4
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 2212607684
+gprotate 0 4
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-5
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 303359832
+gprotate 0 5
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-6
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 1359717575
+gprotate 0 6
+gpread 0 4bppIndexed
+end
+case rotate-4bppIndexed-7
+gpbitmap 0 5 3 4bppIndexed
+gpwrite 0 4bppIndexed seed 2549716942
+gprotate 0 7
+gpread 0 4bppIndexed
+end
+case rotate-8bppIndexed-0
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 83930254
+gprotate 0 0
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-1
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 46005254
+gprotate 0 1
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-2
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 445723032
+gprotate 0 2
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-3
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 2833766121
+gprotate 0 3
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-4
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 358687092
+gprotate 0 4
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-5
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 414745523
+gprotate 0 5
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-6
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 286399828
+gprotate 0 6
+gpread 0 8bppIndexed
+end
+case rotate-8bppIndexed-7
+gpbitmap 0 5 3 8bppIndexed
+gpwrite 0 8bppIndexed seed 95302920
+gprotate 0 7
+gpread 0 8bppIndexed
+end
+case rotate-16bppGrayScale-0
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2732967279
+gprotate 0 0
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-1
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1397563691
+gprotate 0 1
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-2
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 443509119
+gprotate 0 2
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-3
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 526297407
+gprotate 0 3
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-4
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2237443171
+gprotate 0 4
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-5
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 180897131
+gprotate 0 5
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-6
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1321316217
+gprotate 0 6
+gpread 0 16bppGrayScale
+end
+case rotate-16bppGrayScale-7
+gpbitmap 0 5 3 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 519630638
+gprotate 0 7
+gpread 0 16bppGrayScale
+end
+case rotate-16bppRGB555-0
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1622735520
+gprotate 0 0
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-1
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2188668822
+gprotate 0 1
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-2
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 4283671285
+gprotate 0 2
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-3
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3936725267
+gprotate 0 3
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-4
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2944089296
+gprotate 0 4
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-5
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 3570027680
+gprotate 0 5
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-6
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 916341743
+gprotate 0 6
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB555-7
+gpbitmap 0 5 3 16bppRGB555
+gpwrite 0 16bppRGB555 seed 580407134
+gprotate 0 7
+gpread 0 16bppRGB555
+end
+case rotate-16bppRGB565-0
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1157678599
+gprotate 0 0
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-1
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3854636039
+gprotate 0 1
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-2
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 796091207
+gprotate 0 2
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-3
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 544209802
+gprotate 0 3
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-4
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 1019499685
+gprotate 0 4
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-5
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2084920877
+gprotate 0 5
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-6
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 663889997
+gprotate 0 6
+gpread 0 16bppRGB565
+end
+case rotate-16bppRGB565-7
+gpbitmap 0 5 3 16bppRGB565
+gpwrite 0 16bppRGB565 seed 837589248
+gprotate 0 7
+gpread 0 16bppRGB565
+end
+case rotate-16bppARGB1555-0
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 4216702118
+gprotate 0 0
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-1
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1004899718
+gprotate 0 1
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-2
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3237223724
+gprotate 0 2
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-3
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 694561796
+gprotate 0 3
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-4
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1883083927
+gprotate 0 4
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-5
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2538450368
+gprotate 0 5
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-6
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2084711418
+gprotate 0 6
+gpread 0 16bppARGB1555
+end
+case rotate-16bppARGB1555-7
+gpbitmap 0 5 3 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 512990180
+gprotate 0 7
+gpread 0 16bppARGB1555
+end
+case rotate-24bppRGB-0
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 3490353011
+gprotate 0 0
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-1
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 3178323873
+gprotate 0 1
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-2
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 1176742019
+gprotate 0 2
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-3
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 1430909530
+gprotate 0 3
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-4
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 189955259
+gprotate 0 4
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-5
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 3697468921
+gprotate 0 5
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-6
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 2607626103
+gprotate 0 6
+gpread 0 24bppRGB
+end
+case rotate-24bppRGB-7
+gpbitmap 0 5 3 24bppRGB
+gpwrite 0 24bppRGB seed 2382036854
+gprotate 0 7
+gpread 0 24bppRGB
+end
+case rotate-32bppRGB-0
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 2426313212
+gprotate 0 0
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-1
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 931544492
+gprotate 0 1
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-2
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 4132139797
+gprotate 0 2
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-3
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 2635759393
+gprotate 0 3
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-4
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 2369322398
+gprotate 0 4
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-5
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 3286626235
+gprotate 0 5
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-6
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 3158615794
+gprotate 0 6
+gpread 0 32bppRGB
+end
+case rotate-32bppRGB-7
+gpbitmap 0 5 3 32bppRGB
+gpwrite 0 32bppRGB seed 1002743135
+gprotate 0 7
+gpread 0 32bppRGB
+end
+case rotate-32bppARGB-0
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 1116557288
+gprotate 0 0
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-1
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 2239197264
+gprotate 0 1
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-2
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 81131566
+gprotate 0 2
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-3
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 3252477190
+gprotate 0 3
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-4
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 368719672
+gprotate 0 4
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-5
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 817809526
+gprotate 0 5
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-6
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 3753896302
+gprotate 0 6
+gpread 0 32bppARGB
+end
+case rotate-32bppARGB-7
+gpbitmap 0 5 3 32bppARGB
+gpwrite 0 32bppARGB seed 1893022919
+gprotate 0 7
+gpread 0 32bppARGB
+end
+case rotate-32bppPARGB-0
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 1056660289
+gprotate 0 0
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-1
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 3891880072
+gprotate 0 1
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-2
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 3068701436
+gprotate 0 2
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-3
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 3579322311
+gprotate 0 3
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-4
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 45221495
+gprotate 0 4
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-5
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 233057897
+gprotate 0 5
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-6
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 2365588957
+gprotate 0 6
+gpread 0 32bppPARGB
+end
+case rotate-32bppPARGB-7
+gpbitmap 0 5 3 32bppPARGB
+gpwrite 0 32bppPARGB seed 986153728
+gprotate 0 7
+gpread 0 32bppPARGB
+end
+case rotate-48bppRGB-0
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 2656775219
+gprotate 0 0
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-1
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 2155547261
+gprotate 0 1
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-2
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 3350169095
+gprotate 0 2
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-3
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 3665873840
+gprotate 0 3
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-4
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 3173245739
+gprotate 0 4
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-5
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 3919221384
+gprotate 0 5
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-6
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 3266454221
+gprotate 0 6
+gpread 0 48bppRGB
+end
+case rotate-48bppRGB-7
+gpbitmap 0 5 3 48bppRGB
+gpwrite 0 48bppRGB seed 1536423608
+gprotate 0 7
+gpread 0 48bppRGB
+end
+case rotate-64bppARGB-0
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 2379769690
+gprotate 0 0
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-1
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 2808061859
+gprotate 0 1
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-2
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 3251727158
+gprotate 0 2
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-3
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 2051829965
+gprotate 0 3
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-4
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 2128672263
+gprotate 0 4
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-5
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 1680139511
+gprotate 0 5
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-6
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 4025839082
+gprotate 0 6
+gpread 0 64bppARGB
+end
+case rotate-64bppARGB-7
+gpbitmap 0 5 3 64bppARGB
+gpwrite 0 64bppARGB seed 189371662
+gprotate 0 7
+gpread 0 64bppARGB
+end
+case rotate-64bppPARGB-0
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 81884858
+gprotate 0 0
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-1
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 1827821441
+gprotate 0 1
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-2
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 3863934080
+gprotate 0 2
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-3
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 587461903
+gprotate 0 3
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-4
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 3924115486
+gprotate 0 4
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-5
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 2100477261
+gprotate 0 5
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-6
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 2046429184
+gprotate 0 6
+gpread 0 64bppPARGB
+end
+case rotate-64bppPARGB-7
+gpbitmap 0 5 3 64bppPARGB
+gpwrite 0 64bppPARGB seed 666409949
+gprotate 0 7
+gpread 0 64bppPARGB
+end
+case clone-0
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3613636356
+gpclone 1 0 6 1 6 -1 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-1
+gpbitmap 0 7 4 32bppARGB
+gpwrite 0 32bppARGB seed 2597716108
+gpclone 1 0 2 1 4 4 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-2
+gpbitmap 0 7 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 4019128480
+gpclone 1 0 6 0 5 3 32bppPARGB
+gpinfo 1
+gpread 1 32bppPARGB
+end
+case clone-3
+gpbitmap 0 7 4 32bppARGB
+gpwrite 0 32bppARGB seed 2722777654
+gpclone 1 0 4 -1 0 0 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-4
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 888393646
+gpclone 1 0 4 0 7 2 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-5
+gpbitmap 0 7 4 48bppRGB
+gpwrite 0 48bppRGB seed 1710621861
+gpclone 1 0 0 3 0 1 16bppARGB1555
+gpinfo 1
+gpread 1 16bppARGB1555
+end
+case clone-6
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 1579197921
+gpclone 1 0 0 2 7 1 24bppRGB
+gpinfo 1
+gpread 1 24bppRGB
+end
+case clone-7
+gpbitmap 0 7 4 48bppRGB
+gpwrite 0 48bppRGB seed 1100217825
+gpclone 1 0 4 0 0 -1 32bppARGB
+gpinfo 1
+gpread 1 32bppARGB
+end
+case clone-8
+gpbitmap 0 7 4 32bppRGB
+gpwrite 0 32bppRGB seed 3801718277
+gpclone 1 0 5 3 1 1 16bppARGB1555
+gpinfo 1
+gpread 1 16bppARGB1555
+end
+case clone-9
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 708715534
+gpclone 1 0 6 -1 1 -1 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-10
+gpbitmap 0 7 4 48bppRGB
+gpwrite 0 48bppRGB seed 1743409666
+gpclone 1 0 3 2 5 3 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-11
+gpbitmap 0 7 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 678228289
+gpclone 1 0 5 4 -1 3 16bppRGB565
+gpinfo 1
+gpread 1 16bppRGB565
+end
+case clone-12
+gpbitmap 0 7 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 3719523504
+gpclone 1 0 4 0 4 4 24bppRGB
+gpinfo 1
+gpread 1 24bppRGB
+end
+case clone-13
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 147197719
+gpclone 1 0 1 2 7 2 64bppPARGB
+gpinfo 1
+gpread 1 64bppPARGB
+end
+case clone-14
+gpbitmap 0 7 4 32bppARGB
+gpwrite 0 32bppARGB seed 1595547943
+gpclone 1 0 3 2 5 3 48bppRGB
+gpinfo 1
+gpread 1 48bppRGB
+end
+case clone-15
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 755011912
+gpclone 1 0 5 0 4 0 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-16
+gpbitmap 0 7 4 64bppARGB
+gpwrite 0 64bppARGB seed 786371234
+gpclone 1 0 4 0 3 0 16bppGrayScale
+gpinfo 1
+gpread 1 16bppGrayScale
+end
+case clone-17
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 3374602183
+gpclone 1 0 0 -1 4 2 16bppGrayScale
+gpinfo 1
+gpread 1 16bppGrayScale
+end
+case clone-18
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 3607083339
+gpclone 1 0 3 2 0 0 32bppPARGB
+gpinfo 1
+gpread 1 32bppPARGB
+end
+case clone-19
+gpbitmap 0 7 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 2241221244
+gpclone 1 0 4 -1 3 0 16bppGrayScale
+gpinfo 1
+gpread 1 16bppGrayScale
+end
+case clone-20
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 355214039
+gpclone 1 0 2 2 2 3 16bppARGB1555
+gpinfo 1
+gpread 1 16bppARGB1555
+end
+case clone-21
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3540878854
+gpclone 1 0 3 1 1 3 48bppRGB
+gpinfo 1
+gpread 1 48bppRGB
+end
+case clone-22
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 2618991315
+gpclone 1 0 2 1 2 1 48bppRGB
+gpinfo 1
+gpread 1 48bppRGB
+end
+case clone-23
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 1434016331
+gpclone 1 0 2 4 3 0 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-24
+gpbitmap 0 7 4 32bppARGB
+gpwrite 0 32bppARGB seed 2636247730
+gpclone 1 0 6 1 2 2 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-25
+gpbitmap 0 7 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2170668093
+gpclone 1 0 5 3 6 2 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-26
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 1744256033
+gpclone 1 0 0 3 6 2 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-27
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 4078385497
+gpclone 1 0 4 3 4 3 16bppGrayScale
+gpinfo 1
+gpread 1 16bppGrayScale
+end
+case clone-28
+gpbitmap 0 7 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1755581837
+gpclone 1 0 3 0 0 2 64bppARGB
+gpinfo 1
+gpread 1 64bppARGB
+end
+case clone-29
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 1794444822
+gpclone 1 0 -1 1 1 -1 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-30
+gpbitmap 0 7 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 3519835564
+gpclone 1 0 6 0 4 3 16bppARGB1555
+gpinfo 1
+gpread 1 16bppARGB1555
+end
+case clone-31
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1292232559
+gpclone 1 0 3 3 6 2 24bppRGB
+gpinfo 1
+gpread 1 24bppRGB
+end
+case clone-32
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 1660376786
+gpclone 1 0 5 4 5 0 4bppIndexed
+gpinfo 1
+gpread 1 4bppIndexed
+end
+case clone-33
+gpbitmap 0 7 4 32bppRGB
+gpwrite 0 32bppRGB seed 612973553
+gpclone 1 0 2 -1 7 3 48bppRGB
+gpinfo 1
+gpread 1 48bppRGB
+end
+case clone-34
+gpbitmap 0 7 4 32bppRGB
+gpwrite 0 32bppRGB seed 1394381687
+gpclone 1 0 2 0 5 2 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-35
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1623050617
+gpclone 1 0 3 3 1 4 16bppARGB1555
+gpinfo 1
+gpread 1 16bppARGB1555
+end
+case clone-36
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 613514333
+gpclone 1 0 3 2 4 3 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-37
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1270779610
+gpclone 1 0 1 3 6 2 16bppRGB565
+gpinfo 1
+gpread 1 16bppRGB565
+end
+case clone-38
+gpbitmap 0 7 4 64bppARGB
+gpwrite 0 64bppARGB seed 3991930253
+gpclone 1 0 1 -1 3 4 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-39
+gpbitmap 0 7 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2877953088
+gpclone 1 0 -1 2 4 1 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-40
+gpbitmap 0 7 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3279391832
+gpclone 1 0 -1 2 4 1 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-41
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2257752850
+gpclone 1 0 5 -1 7 4 24bppRGB
+gpinfo 1
+gpread 1 24bppRGB
+end
+case clone-42
+gpbitmap 0 7 4 32bppRGB
+gpwrite 0 32bppRGB seed 1096541225
+gpclone 1 0 4 3 7 2 32bppARGB
+gpinfo 1
+gpread 1 32bppARGB
+end
+case clone-43
+gpbitmap 0 7 4 64bppARGB
+gpwrite 0 64bppARGB seed 602126852
+gpclone 1 0 0 1 2 5 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-44
+gpbitmap 0 7 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 1895331343
+gpclone 1 0 5 1 3 5 32bppPARGB
+gpinfo 1
+gpread 1 32bppPARGB
+end
+case clone-45
+gpbitmap 0 7 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 2182753834
+gpclone 1 0 3 0 5 3 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-46
+gpbitmap 0 7 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 1766300771
+gpclone 1 0 0 -1 6 3 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-47
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 3400456566
+gpclone 1 0 -1 1 5 2 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-48
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 842701785
+gpclone 1 0 6 1 7 2 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-49
+gpbitmap 0 7 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 821719467
+gpclone 1 0 4 1 5 5 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-50
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3270746499
+gpclone 1 0 3 2 1 4 16bppRGB565
+gpinfo 1
+gpread 1 16bppRGB565
+end
+case clone-51
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 71135367
+gpclone 1 0 -1 0 7 0 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-52
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 3996303467
+gpclone 1 0 5 -1 0 4 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-53
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 987083103
+gpclone 1 0 3 2 3 2 64bppPARGB
+gpinfo 1
+gpread 1 64bppPARGB
+end
+case clone-54
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2887251454
+gpclone 1 0 2 2 1 4 64bppARGB
+gpinfo 1
+gpread 1 64bppARGB
+end
+case clone-55
+gpbitmap 0 7 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 710111088
+gpclone 1 0 4 1 5 3 32bppARGB
+gpinfo 1
+gpread 1 32bppARGB
+end
+case clone-56
+gpbitmap 0 7 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 1997327260
+gpclone 1 0 4 -1 7 0 16bppRGB555
+gpinfo 1
+gpread 1 16bppRGB555
+end
+case clone-57
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 2201107138
+gpclone 1 0 -1 -1 5 3 4bppIndexed
+gpinfo 1
+gpread 1 4bppIndexed
+end
+case clone-58
+gpbitmap 0 7 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 3413576595
+gpclone 1 0 -1 0 3 2 64bppARGB
+gpinfo 1
+gpread 1 64bppARGB
+end
+case clone-59
+gpbitmap 0 7 4 32bppARGB
+gpwrite 0 32bppARGB seed 4109857621
+gpclone 1 0 3 4 5 0 16bppRGB565
+gpinfo 1
+gpread 1 16bppRGB565
+end
+case clone-60
+gpbitmap 0 7 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 649674811
+gpclone 1 0 4 0 3 3 64bppPARGB
+gpinfo 1
+gpread 1 64bppPARGB
+end
+case clone-61
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 4231324371
+gpclone 1 0 3 -1 7 5 4bppIndexed
+gpinfo 1
+gpread 1 4bppIndexed
+end
+case clone-62
+gpbitmap 0 7 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 4195457643
+gpclone 1 0 -1 0 0 2 16bppARGB1555
+gpinfo 1
+gpread 1 16bppARGB1555
+end
+case clone-63
+gpbitmap 0 7 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 171301557
+gpclone 1 0 4 2 -1 0 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-64
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 3541836561
+gpclone 1 0 4 1 6 2 48bppRGB
+gpinfo 1
+gpread 1 48bppRGB
+end
+case clone-65
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 1919005783
+gpclone 1 0 2 -1 5 4 32bppARGB
+gpinfo 1
+gpread 1 32bppARGB
+end
+case clone-66
+gpbitmap 0 7 4 64bppARGB
+gpwrite 0 64bppARGB seed 3467908759
+gpclone 1 0 1 3 2 3 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-67
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 340707604
+gpclone 1 0 0 -1 4 3 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-68
+gpbitmap 0 7 4 64bppARGB
+gpwrite 0 64bppARGB seed 1887064344
+gpclone 1 0 2 0 2 3 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-69
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2685084077
+gpclone 1 0 6 -1 2 3 32bppARGB
+gpinfo 1
+gpread 1 32bppARGB
+end
+case clone-70
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1960258154
+gpclone 1 0 1 -1 7 5 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-71
+gpbitmap 0 7 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 360171150
+gpclone 1 0 0 -1 1 0 32bppRGB
+gpinfo 1
+gpread 1 32bppRGB
+end
+case clone-72
+gpbitmap 0 7 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 3391672776
+gpclone 1 0 0 4 1 -1 32bppPARGB
+gpinfo 1
+gpread 1 32bppPARGB
+end
+case clone-73
+gpbitmap 0 7 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 1957505531
+gpclone 1 0 1 0 6 -1 32bppARGB
+gpinfo 1
+gpread 1 32bppARGB
+end
+case clone-74
+gpbitmap 0 7 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2429788583
+gpclone 1 0 4 3 2 5 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-75
+gpbitmap 0 7 4 32bppRGB
+gpwrite 0 32bppRGB seed 3404657519
+gpclone 1 0 3 2 4 4 48bppRGB
+gpinfo 1
+gpread 1 48bppRGB
+end
+case clone-76
+gpbitmap 0 7 4 32bppRGB
+gpwrite 0 32bppRGB seed 2178433681
+gpclone 1 0 -1 1 0 -1 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-77
+gpbitmap 0 7 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2389170944
+gpclone 1 0 1 3 4 0 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case clone-78
+gpbitmap 0 7 4 24bppRGB
+gpwrite 0 24bppRGB seed 2644492014
+gpclone 1 0 4 -1 5 3 1bppIndexed
+gpinfo 1
+gpread 1 1bppIndexed
+end
+case clone-79
+gpbitmap 0 7 4 32bppARGB
+gpwrite 0 32bppARGB seed 81745512
+gpclone 1 0 -1 -1 0 2 8bppIndexed
+gpinfo 1
+gpread 1 8bppIndexed
+end
+case matrix-0
+gpmatrix 0 0x41000000 0xc0a00000 0xc00cf400 0x40700000 0x3fbe8400 0x40300000
+gpmatrix 1 0x40400000 0xbf400000 0xc002cc00 0xbfdd7400 0x40900000 0x3f1d5000
+gpmatpts 0 0x3ff67c00 0xc0800000 0x3f000000 0x40d00000 0x40000000 0x0
+gpmatmul 0 1 0
+gpmatpts 0 0x3ff67c00 0xc0800000 0x3f000000 0x40d00000 0x40000000 0x0
+gpmatinv 0
+gpmatpts 0 0x3ff67c00 0xc0800000 0x3f000000 0x40d00000 0x40000000 0x0
+end
+case matrix-1
+gpmatrix 0 0xbf96f800 0x4035a400 0x405a8600 0x40400000 0x40513a00 0xc05bd800
+gpmatrix 1 0xc0400000 0xc0000000 0x40550e00 0xc02b4800 0x3fe00000 0xbf53b800
+gpmatpts 0 0x40400000 0x40000000 0xc0656000 0xc0700000 0x41200000 0xbfa05c00
+gpmatmul 0 1 1
+gpmatpts 0 0x40400000 0x40000000 0xc0656000 0xc0700000 0x41200000 0xbfa05c00
+gpmatinv 0
+gpmatpts 0 0x40400000 0x40000000 0xc0656000 0xc0700000 0x41200000 0xbfa05c00
+end
+case matrix-2
+gpmatrix 0 0xbfb7e800 0x3ffa8000 0xc03afa00 0x3e800000 0xc1800000 0x41640000
+gpmatrix 1 0x3f800000 0x4002c000 0x4054f600 0x40000000 0xbeee3000 0xc1140000
+gpmatpts 0 0x40458a00 0xbe138000 0xc0000000 0x41100000 0x41180000 0xc013fa00
+gpmatmul 0 1 0
+gpmatpts 0 0x40458a00 0xbe138000 0xc0000000 0x41100000 0x41180000 0xc013fa00
+gpmatinv 0
+gpmatpts 0 0x40458a00 0xbe138000 0xc0000000 0x41100000 0x41180000 0xc013fa00
+end
+case matrix-3
+gpmatrix 0 0x3fc7e000 0x3f064000 0xc0107400 0x3f000000 0x40000000 0x4072fa00
+gpmatrix 1 0x3f585800 0x40400000 0x40000000 0x3fa56000 0xc0375c00 0x3eef1000
+gpmatpts 0 0x40800000 0xc0725c00 0xc0400000 0x40000000 0x3f000000 0xc0800000
+gpmatmul 0 1 1
+gpmatpts 0 0x40800000 0xc0725c00 0xc0400000 0x40000000 0x3f000000 0xc0800000
+gpmatinv 0
+gpmatpts 0 0x40800000 0xc0725c00 0xc0400000 0x40000000 0x3f000000 0xc0800000
+end
+case matrix-4
+gpmatrix 0 0x40000000 0x3fa68c00 0xc14c0000 0x400ab400 0x3f000000 0xc0d80000
+gpmatrix 1 0xbfc31c00 0xc1240000 0xc070f000 0xc0400000 0xc06ece00 0x401c2e00
+gpmatpts 0 0xc06ce600 0x40000000 0x40c00000 0xbf800000 0xc0098800 0x3fcbd800
+gpmatmul 0 1 0
+gpmatpts 0 0xc06ce600 0x40000000 0x40c00000 0xbf800000 0xc0098800 0x3fcbd800
+gpmatinv 0
+gpmatpts 0 0xc06ce600 0x40000000 0x40c00000 0xbf800000 0xc0098800 0x3fcbd800
+end
+case matrix-5
+gpmatrix 0 0xc1480000 0x40800000 0 0 0x40400000 0x40400000
+gpmatrix 1 0x401ce600 0x40c80000 0x40c00000 0xc02f8600 0xbf3c5800 0x3fe72800
+gpmatpts 0 0x40400000 0x417c0000 0xc0614c00 0x0 0x3f800000 0xc1080000
+gpmatmul 0 1 1
+gpmatpts 0 0x40400000 0x417c0000 0xc0614c00 0x0 0x3f800000 0xc1080000
+gpmatinv 0
+gpmatpts 0 0x40400000 0x417c0000 0xc0614c00 0x0 0x3f800000 0xc1080000
+end
+case matrix-6
+gpmatrix 0 0xc01c0800 0x406b8400 0x40a00000 0x0 0x41580000 0xbfe31c00
+gpmatrix 1 0x3f800000 0x41200000 0x40612800 0x3fe68400 0xbfe00000 0x40000000
+gpmatpts 0 0xc0900000 0x4054e000 0xc0101200 0xc00e8c00 0xbf3e8800 0xc0800000
+gpmatmul 0 1 0
+gpmatpts 0 0xc0900000 0x4054e000 0xc0101200 0xc00e8c00 0xbf3e8800 0xc0800000
+gpmatinv 0
+gpmatpts 0 0xc0900000 0x4054e000 0xc0101200 0xc00e8c00 0xbf3e8800 0xc0800000
+end
+case matrix-7
+gpmatrix 0 0xc0e00000 0x3e8e1000 0x3e192000 0xc004ac00 0x40619600 0xc0000000
+gpmatrix 1 0xc0400000 0x3fe23c00 0x3f867400 0xc0400000 0x3f800000 0xbf800000
+gpmatpts 0 0xc00cc400 0x4012ea00 0x3fb44c00 0x41540000 0x41740000 0xc0200000
+gpmatmul 0 1 1
+gpmatpts 0 0xc00cc400 0x4012ea00 0x3fb44c00 0x41540000 0x41740000 0xc0200000
+gpmatinv 0
+gpmatpts 0 0xc00cc400 0x4012ea00 0x3fb44c00 0x41540000 0x41740000 0xc0200000
+end
+case matrix-8
+gpmatrix 0 0xc019b200 0xc1000000 0x4054a200 0xc0400000 0x40000000 0x40900000
+gpmatrix 1 0x0 0xc0379a00 0xc1180000 0xbeb44000 0x3e720000 0x4017b200
+gpmatpts 0 0x40700000 0xc0c80000 0x3ffb0000 0xc0187200 0x0 0x403cba00
+gpmatmul 0 1 0
+gpmatpts 0 0x40700000 0xc0c80000 0x3ffb0000 0xc0187200 0x0 0x403cba00
+gpmatinv 0
+gpmatpts 0 0x40700000 0xc0c80000 0x3ffb0000 0xc0187200 0x0 0x403cba00
+end
+case matrix-9
+gpmatrix 0 0x41200000 0xbfde3000 0x40000000 0xc0494e00 0xbf772000 0x40000000
+gpmatrix 1 0x3f800000 0xc0000000 0xc018cc00 0x403a0e00 0x3f9fb800 0x3f800000
+gpmatpts 0 0x3f5c7800 0x40609c00 0x41180000 0xc0727800 0xc0000000 0xc0790600
+gpmatmul 0 1 1
+gpmatpts 0 0x3f5c7800 0x40609c00 0x41180000 0xc0727800 0xc0000000 0xc0790600
+gpmatinv 0
+gpmatpts 0 0x3f5c7800 0x40609c00 0x41180000 0xc0727800 0xc0000000 0xc0790600
+end
+case matrix-10
+gpmatrix 0 0x80000000 0xbf800000 0xbf800000 0x40d00000 0xbfc1d000 0x4026e200
+gpmatrix 1 0x406e9a00 0x40430800 0x400ba000 0xc0255200 0xbe0a8000 0xbf800000
+gpmatpts 0 0xbf9e9800 0xc0e00000 0x40723400 0xbeaa3000 0xc011f400 0x40000000
+gpmatmul 0 1 0
+gpmatpts 0 0xbf9e9800 0xc0e00000 0x40723400 0xbeaa3000 0xc011f400 0x40000000
+gpmatinv 0
+gpmatpts 0 0xbf9e9800 0xc0e00000 0x40723400 0xbeaa3000 0xc011f400 0x40000000
+end
+case matrix-11
+gpmatrix 0 0x4077f000 0xbfb52c00 0 0 0xc07e1c00 0x402e5c00
+gpmatrix 1 0xc0285e00 0x3db30000 0x4005c000 0x80000000 0xbddf4000 0x3ff93c00
+gpmatpts 0 0xc03e0e00 0x40400000 0xc0800000 0xc02d7600 0xbf5ef800 0x3fc10000
+gpmatmul 0 1 1
+gpmatpts 0 0xc03e0e00 0x40400000 0xc0800000 0xc02d7600 0xbf5ef800 0x3fc10000
+gpmatinv 0
+gpmatpts 0 0xc03e0e00 0x40400000 0xc0800000 0xc02d7600 0xbf5ef800 0x3fc10000
+end
+case matrix-12
+gpmatrix 0 0x40f00000 0xc0778c00 0x3f61c800 0xc0d00000 0x3fefbc00 0x3fdcbc00
+gpmatrix 1 0xbf000000 0xc0a00000 0xc0613800 0xbfe00000 0xc048d600 0x3ed20000
+gpmatpts 0 0x3f800000 0x400a6c00 0x40980000 0x3e895000 0x41380000 0x3f800000
+gpmatmul 0 1 0
+gpmatpts 0 0x3f800000 0x400a6c00 0x40980000 0x3e895000 0x41380000 0x3f800000
+gpmatinv 0
+gpmatpts 0 0x3f800000 0x400a6c00 0x40980000 0x3e895000 0x41380000 0x3f800000
+end
+case matrix-13
+gpmatrix 0 0x40700000 0xbf6c7000 0x401a7c00 0xc0600000 0x40400000 0x3ef95000
+gpmatrix 1 0xc0490000 0xc1600000 0x40000000 0x417c0000 0x80000000 0x3f0ce800
+gpmatpts 0 0xbfc92000 0xc0321400 0xbf800000 0xbfdcf800 0xc1000000 0xc0522a00
+gpmatmul 0 1 1
+gpmatpts 0 0xbfc92000 0xc0321400 0xbf800000 0xbfdcf800 0xc1000000 0xc0522a00
+gpmatinv 0
+gpmatpts 0 0xbfc92000 0xc0321400 0xbf800000 0xbfdcf800 0xc1000000 0xc0522a00
+end
+case matrix-14
+gpmatrix 0 0xc1000000 0x405cc000 0x3f304800 0xc0748a00 0x80000000 0x40278c00
+gpmatrix 1 0x4076f200 0xc0b80000 0x40800000 0x3f8ef000 0x4036d600 0x41380000
+gpmatpts 0 0xbf8ff000 0x0 0x40700000 0xbff03800 0x3f800000 0x41000000
+gpmatmul 0 1 0
+gpmatpts 0 0xbf8ff000 0x0 0x40700000 0xbff03800 0x3f800000 0x41000000
+gpmatinv 0
+gpmatpts 0 0xbf8ff000 0x0 0x40700000 0xbff03800 0x3f800000 0x41000000
+end
+case matrix-15
+gpmatrix 0 0x0 0xc0800000 0x40687400 0xc04bfc00 0xbf435000 0x4038ca00
+gpmatrix 1 0xbfe6c000 0xc1380000 0x3ee6b000 0xc0a00000 0x3f000000 0xc0000000
+gpmatpts 0 0xc0800000 0x3f84a000 0x3db84000 0xc061aa00 0xc04dcc00 0xc0046a00
+gpmatmul 0 1 1
+gpmatpts 0 0xc0800000 0x3f84a000 0x3db84000 0xc061aa00 0xc04dcc00 0xc0046a00
+gpmatinv 0
+gpmatpts 0 0xc0800000 0x3f84a000 0x3db84000 0xc061aa00 0xc04dcc00 0xc0046a00
+end
+case matrix-16
+gpmatrix 0 0xc009f000 0xc0980000 0x3f232000 0xc018c400 0x3fabe000 0x3f13c000
+gpmatrix 1 0xbe80c000 0xbf12c000 0x3fa8e800 0xc07f6600 0xc1200000 0x3f800000
+gpmatpts 0 0x40400000 0xc0c00000 0x40000000 0xbf9e6c00 0x40584800 0xc0a80000
+gpmatmul 0 1 0
+gpmatpts 0 0x40400000 0xc0c00000 0x40000000 0xbf9e6c00 0x40584800 0xc0a80000
+gpmatinv 0
+gpmatpts 0 0x40400000 0xc0c00000 0x40000000 0xbf9e6c00 0x40584800 0xc0a80000
+end
+case matrix-17
+gpmatrix 0 0xc0100000 0xbf014000 0 0 0xc0000000 0xbe911000
+gpmatrix 1 0xbfd8ec00 0xc0800000 0x3f800000 0xbfc08400 0xc1680000 0xc1380000
+gpmatpts 0 0xc0656c00 0xbf099000 0xc00b5e00 0x40678600 0x3fc8d000 0xbf211000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0656c00 0xbf099000 0xc00b5e00 0x40678600 0x3fc8d000 0xbf211000
+gpmatinv 0
+gpmatpts 0 0xc0656c00 0xbf099000 0xc00b5e00 0x40678600 0x3fc8d000 0xbf211000
+end
+case matrix-18
+gpmatrix 0 0x3fb8d400 0x40c00000 0x41200000 0xc0900000 0x3c740000 0xc0510a00
+gpmatrix 1 0x40d00000 0x402f2600 0xbe93c000 0xbfad6000 0xc1240000 0x3eb96000
+gpmatpts 0 0xc00d3000 0x3ce30000 0xc045aa00 0x4010a000 0x0 0xc035ac00
+gpmatmul 0 1 0
+gpmatpts 0 0xc00d3000 0x3ce30000 0xc045aa00 0x4010a000 0x0 0xc035ac00
+gpmatinv 0
+gpmatpts 0 0xc00d3000 0x3ce30000 0xc045aa00 0x4010a000 0x0 0xc035ac00
+end
+case matrix-19
+gpmatrix 0 0xc0a00000 0xc0880000 0xc0617600 0x40159c00 0xc051d000 0xbf97a000
+gpmatrix 1 0x40719000 0x406d1000 0xc0160c00 0x40000000 0xbf88ac00 0x3ef3c000
+gpmatpts 0 0x40342a00 0x402dfe00 0x40000000 0x4010a000 0x41800000 0xc0e00000
+gpmatmul 0 1 1
+gpmatpts 0 0x40342a00 0x402dfe00 0x40000000 0x4010a000 0x41800000 0xc0e00000
+gpmatinv 0
+gpmatpts 0 0x40342a00 0x402dfe00 0x40000000 0x4010a000 0x41800000 0xc0e00000
+end
+case matrix-20
+gpmatrix 0 0xc035cc00 0x3fe8c800 0x0 0x40000000 0xc1000000 0x80000000
+gpmatrix 1 0x3f82a000 0xc0400000 0x3fc2bc00 0x0 0xc014be00 0x40674800
+gpmatpts 0 0x40560000 0xbfa16800 0xc0c00000 0x40400000 0x402f8a00 0x41200000
+gpmatmul 0 1 0
+gpmatpts 0 0x40560000 0xbfa16800 0xc0c00000 0x40400000 0x402f8a00 0x41200000
+gpmatinv 0
+gpmatpts 0 0x40560000 0xbfa16800 0xc0c00000 0x40400000 0x402f8a00 0x41200000
+end
+case matrix-21
+gpmatrix 0 0xc0a00000 0xbfb03800 0x401d4400 0x40000000 0x3d904000 0x3f800000
+gpmatrix 1 0xc00da200 0x40000000 0x413c0000 0x40c00000 0xbf800000 0xc0446200
+gpmatpts 0 0xc0428e00 0x40000000 0xbf800000 0x40000000 0x400e6c00 0x40b00000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0428e00 0x40000000 0xbf800000 0x40000000 0x400e6c00 0x40b00000
+gpmatinv 0
+gpmatpts 0 0xc0428e00 0x40000000 0xbf800000 0x40000000 0x400e6c00 0x40b00000
+end
+case matrix-22
+gpmatrix 0 0x41000000 0x40199a00 0xbfa22c00 0xbf800000 0x40880000 0x3e3dc000
+gpmatrix 1 0x40326000 0xc074f000 0x3f8be400 0x3f000000 0xbea9d000 0x40c00000
+gpmatpts 0 0xc0d80000 0x40800000 0xc06c5c00 0xc042d200 0x40724800 0x3fee3c00
+gpmatmul 0 1 0
+gpmatpts 0 0xc0d80000 0x40800000 0xc06c5c00 0xc042d200 0x40724800 0x3fee3c00
+gpmatinv 0
+gpmatpts 0 0xc0d80000 0x40800000 0xc06c5c00 0xc042d200 0x40724800 0x3fee3c00
+end
+case matrix-23
+gpmatrix 0 0xc0043400 0xbf5df800 0 0 0xc0066c00 0x3fae9400
+gpmatrix 1 0xc003c800 0xc005b600 0x41200000 0xc0400000 0xc0f00000 0xc0505000
+gpmatpts 0 0x40000000 0x40e00000 0x4066c600 0x40e00000 0xc1780000 0x80000000
+gpmatmul 0 1 1
+gpmatpts 0 0x40000000 0x40e00000 0x4066c600 0x40e00000 0xc1780000 0x80000000
+gpmatinv 0
+gpmatpts 0 0x40000000 0x40e00000 0x4066c600 0x40e00000 0xc1780000 0x80000000
+end
+case matrix-24
+gpmatrix 0 0x41180000 0x4049aa00 0xc031aa00 0x3d838000 0x416c0000 0x3f5dc000
+gpmatrix 1 0xc1600000 0xbc890000 0xc13c0000 0xc1380000 0x415c0000 0xc0e00000
+gpmatpts 0 0xc15c0000 0x3f000000 0x40d80000 0x40126a00 0x40400000 0x40577000
+gpmatmul 0 1 0
+gpmatpts 0 0xc15c0000 0x3f000000 0x40d80000 0x40126a00 0x40400000 0x40577000
+gpmatinv 0
+gpmatpts 0 0xc15c0000 0x3f000000 0x40d80000 0x40126a00 0x40400000 0x40577000
+end
+case matrix-25
+gpmatrix 0 0x40c00000 0xbf7b0800 0x3e04a000 0x3d984000 0xc078b000 0xc03dfc00
+gpmatrix 1 0x3f000000 0x3f800000 0x403d4e00 0xc04b5400 0xbf28c000 0x40c00000
+gpmatpts 0 0x40400000 0x4065b800 0x40400000 0x40000000 0xbf000000 0xc06afe00
+gpmatmul 0 1 1
+gpmatpts 0 0x40400000 0x4065b800 0x40400000 0x40000000 0xbf000000 0xc06afe00
+gpmatinv 0
+gpmatpts 0 0x40400000 0x4065b800 0x40400000 0x40000000 0xbf000000 0xc06afe00
+end
+case matrix-26
+gpmatrix 0 0x3f000000 0x41200000 0x41680000 0x41800000 0x0 0x407a1800
+gpmatrix 1 0xc00c7000 0xc0471000 0x3f5c2000 0xc0600000 0x40400000 0x3f000000
+gpmatpts 0 0xbf584800 0xbf71d000 0x3f000000 0xbf800000 0x40a00000 0xc07f3200
+gpmatmul 0 1 0
+gpmatpts 0 0xbf584800 0xbf71d000 0x3f000000 0xbf800000 0x40a00000 0xc07f3200
+gpmatinv 0
+gpmatpts 0 0xbf584800 0xbf71d000 0x3f000000 0xbf800000 0x40a00000 0xc07f3200
+end
+case matrix-27
+gpmatrix 0 0xc0900000 0xbff7f400 0xc01ae800 0x41200000 0xbf1d1800 0xc0212800
+gpmatrix 1 0xbe800000 0x3d920000 0xbf800000 0x406f4e00 0x40a80000 0xc05e8200
+gpmatpts 0 0xc0589800 0xbeab7000 0xc00b6200 0xc1180000 0xc1000000 0x3fe5d800
+gpmatmul 0 1 1
+gpmatpts 0 0xc0589800 0xbeab7000 0xc00b6200 0xc1180000 0xc1000000 0x3fe5d800
+gpmatinv 0
+gpmatpts 0 0xc0589800 0xbeab7000 0xc00b6200 0xc1180000 0xc1000000 0x3fe5d800
+end
+case matrix-28
+gpmatrix 0 0x3f000000 0xc06af800 0x4036fa00 0xc0f00000 0x41200000 0xbfb8b800
+gpmatrix 1 0xc0e00000 0xc01fb800 0x3ff61c00 0xc0a80000 0xc0e00000 0xc020d200
+gpmatpts 0 0xc1000000 0x400b8600 0x41180000 0x40259000 0x3fcca000 0xc0693c00
+gpmatmul 0 1 0
+gpmatpts 0 0xc1000000 0x400b8600 0x41180000 0x40259000 0x3fcca000 0xc0693c00
+gpmatinv 0
+gpmatpts 0 0xc1000000 0x400b8600 0x41180000 0x40259000 0x3fcca000 0xc0693c00
+end
+case matrix-29
+gpmatrix 0 0xc0800000 0xc0000000 0 0 0xbfff8800 0x4011f000
+gpmatrix 1 0x405df800 0xc0e00000 0x40018400 0xc0c00000 0x80000000 0xc1140000
+gpmatpts 0 0xbf50b000 0x40f80000 0x3fada400 0x40473c00 0xbf800000 0x40475800
+gpmatmul 0 1 1
+gpmatpts 0 0xbf50b000 0x40f80000 0x3fada400 0x40473c00 0xbf800000 0x40475800
+gpmatinv 0
+gpmatpts 0 0xbf50b000 0x40f80000 0x3fada400 0x40473c00 0xbf800000 0x40475800
+end
+case matrix-30
+gpmatrix 0 0xc1000000 0x3f9a4c00 0xbfb3cc00 0x3d914000 0x4066c200 0x0
+gpmatrix 1 0x40e00000 0xbfdc7000 0xbe814000 0xbf800000 0x3ff4cc00 0xc16c0000
+gpmatpts 0 0x40800000 0x3f87c800 0x40400000 0xc0429c00 0x40400000 0xbf70d000
+gpmatmul 0 1 0
+gpmatpts 0 0x40800000 0x3f87c800 0x40400000 0xc0429c00 0x40400000 0xbf70d000
+gpmatinv 0
+gpmatpts 0 0x40800000 0x3f87c800 0x40400000 0xc0429c00 0x40400000 0xbf70d000
+end
+case matrix-31
+gpmatrix 0 0xc048ce00 0x40a80000 0xbf9e4800 0x3f000000 0x3faff400 0xc0100000
+gpmatrix 1 0x3f801c00 0x40400000 0x0 0xc0a00000 0x40400000 0x40e80000
+gpmatpts 0 0x80000000 0xbf215000 0x40a80000 0x412c0000 0xbfc72000 0x4039a400
+gpmatmul 0 1 1
+gpmatpts 0 0x80000000 0xbf215000 0x40a80000 0x412c0000 0xbfc72000 0x4039a400
+gpmatinv 0
+gpmatpts 0 0x80000000 0xbf215000 0x40a80000 0x412c0000 0xbfc72000 0x4039a400
+end
+case matrix-32
+gpmatrix 0 0xc1480000 0x3feb7c00 0xbf8f9400 0x403c0600 0x40157e00 0x40d00000
+gpmatrix 1 0xc03e5000 0xc04d3e00 0x3f952800 0xc028fc00 0xc01ffc00 0x41200000
+gpmatpts 0 0xbfbe0c00 0xbfa99400 0x80000000 0x3f934000 0x3db90000 0x406f9600
+gpmatmul 0 1 0
+gpmatpts 0 0xbfbe0c00 0xbfa99400 0x80000000 0x3f934000 0x3db90000 0x406f9600
+gpmatinv 0
+gpmatpts 0 0xbfbe0c00 0xbfa99400 0x80000000 0x3f934000 0x3db90000 0x406f9600
+end
+case matrix-33
+gpmatrix 0 0x80000000 0xc0000000 0x3f161000 0x407ebe00 0x3f162800 0x40000000
+gpmatrix 1 0xc0763a00 0x3ff66000 0x40a00000 0x3fded400 0x413c0000 0xc0c00000
+gpmatpts 0 0xc0690800 0xc1340000 0x80000000 0xc06f5a00 0x3f800000 0x41800000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0690800 0xc1340000 0x80000000 0xc06f5a00 0x3f800000 0x41800000
+gpmatinv 0
+gpmatpts 0 0xc0690800 0xc1340000 0x80000000 0xc06f5a00 0x3f800000 0x41800000
+end
+case matrix-34
+gpmatrix 0 0xbf4b3800 0xc0400000 0x407cec00 0x40400000 0xbfacf000 0xbff0ec00
+gpmatrix 1 0x3f000000 0x40c00000 0xbf1bf000 0xbe5bc000 0x80000000 0xbff1ec00
+gpmatpts 0 0xc054b600 0xc075f200 0xc0643c00 0x0 0x40f00000 0x3f28b000
+gpmatmul 0 1 0
+gpmatpts 0 0xc054b600 0xc075f200 0xc0643c00 0x0 0x40f00000 0x3f28b000
+gpmatinv 0
+gpmatpts 0 0xc054b600 0xc075f200 0xc0643c00 0x0 0x40f00000 0x3f28b000
+end
+case matrix-35
+gpmatrix 0 0x3fb4d800 0xc01f1c00 0 0 0x40706800 0x401ede00
+gpmatrix 1 0xc1000000 0xc041f400 0x3f6ca800 0xc024c600 0xbf800000 0xbf4fd800
+gpmatpts 0 0xbf800000 0x80000000 0xbff21c00 0x3f800000 0xbfc72c00 0xc0d00000
+gpmatmul 0 1 1
+gpmatpts 0 0xbf800000 0x80000000 0xbff21c00 0x3f800000 0xbfc72c00 0xc0d00000
+gpmatinv 0
+gpmatpts 0 0xbf800000 0x80000000 0xbff21c00 0x3f800000 0xbfc72c00 0xc0d00000
+end
+case matrix-36
+gpmatrix 0 0x3ff50800 0x40d80000 0xc069da00 0x3f000000 0x41180000 0xc049cc00
+gpmatrix 1 0x3f800000 0x3f800000 0x40c00000 0x3f000000 0x41200000 0xbe3fe000
+gpmatpts 0 0x3f957400 0x40000000 0x40762400 0x40572600 0x40a00000 0x40583c00
+gpmatmul 0 1 0
+gpmatpts 0 0x3f957400 0x40000000 0x40762400 0x40572600 0x40a00000 0x40583c00
+gpmatinv 0
+gpmatpts 0 0x3f957400 0x40000000 0x40762400 0x40572600 0x40a00000 0x40583c00
+end
+case matrix-37
+gpmatrix 0 0x40396e00 0x41200000 0xc03d7c00 0x407d9000 0x407b5e00 0x3f5a2800
+gpmatrix 1 0xbf800000 0x3fb82800 0xc0c00000 0x40198c00 0xc0474a00 0xbfc6a000
+gpmatpts 0 0x40400000 0x40e00000 0x41200000 0xbfc46c00 0xc0706800 0x406c4e00
+gpmatmul 0 1 1
+gpmatpts 0 0x40400000 0x40e00000 0x41200000 0xbfc46c00 0xc0706800 0x406c4e00
+gpmatinv 0
+gpmatpts 0 0x40400000 0x40e00000 0x41200000 0xbfc46c00 0xc0706800 0x406c4e00
+end
+case matrix-38
+gpmatrix 0 0xbf1ce800 0x3f800000 0x40e00000 0x40393400 0x41180000 0x40c00000
+gpmatrix 1 0x80000000 0xc1000000 0x0 0x40000000 0xc1040000 0xbf4d2000
+gpmatpts 0 0xc031ea00 0xc00b2800 0xbfdf1800 0xbfdb1400 0x40000000 0x40000000
+gpmatmul 0 1 0
+gpmatpts 0 0xc031ea00 0xc00b2800 0xbfdf1800 0xbfdb1400 0x40000000 0x40000000
+gpmatinv 0
+gpmatpts 0 0xc031ea00 0xc00b2800 0xbfdf1800 0xbfdb1400 0x40000000 0x40000000
+end
+case matrix-39
+gpmatrix 0 0x40c80000 0xbf739000 0xc0c00000 0xc0a00000 0x3d0d0000 0x40e80000
+gpmatrix 1 0x3f0c6000 0xbf800000 0x3f000000 0x0 0x3fc1e000 0xbf87bc00
+gpmatpts 0 0xbed89000 0x3f800000 0x3f000000 0xbe9c3000 0xc0468a00 0x3f333000
+gpmatmul 0 1 1
+gpmatpts 0 0xbed89000 0x3f800000 0x3f000000 0xbe9c3000 0xc0468a00 0x3f333000
+gpmatinv 0
+gpmatpts 0 0xbed89000 0x3f800000 0x3f000000 0xbe9c3000 0xc0468a00 0x3f333000
+end
+case matrix-40
+gpmatrix 0 0x3fdbf400 0x3fce6400 0x4049ea00 0x40800000 0x3f800000 0x3e94b000
+gpmatrix 1 0x3f000000 0xc0700000 0xbf9f7800 0xc1780000 0x400f5000 0xbf56e800
+gpmatpts 0 0x406df400 0x40400000 0x40000000 0xc033a800 0x40b80000 0xbf8e1400
+gpmatmul 0 1 0
+gpmatpts 0 0x406df400 0x40400000 0x40000000 0xc033a800 0x40b80000 0xbf8e1400
+gpmatinv 0
+gpmatpts 0 0x406df400 0x40400000 0x40000000 0xc033a800 0x40b80000 0xbf8e1400
+end
+case matrix-41
+gpmatrix 0 0x410c0000 0x41240000 0 0 0xbf8f1400 0xbf800000
+gpmatrix 1 0x40400000 0xc01baa00 0xbf08b800 0xbf800000 0x405e4800 0x41200000
+gpmatpts 0 0x0 0xc0800000 0x3f800000 0x40768400 0x40400000 0xc1640000
+gpmatmul 0 1 1
+gpmatpts 0 0x0 0xc0800000 0x3f800000 0x40768400 0x40400000 0xc1640000
+gpmatinv 0
+gpmatpts 0 0x0 0xc0800000 0x3f800000 0x40768400 0x40400000 0xc1640000
+end
+case matrix-42
+gpmatrix 0 0x3f797800 0x3f92f000 0xc16c0000 0x40800000 0x3fdb7c00 0xbf661000
+gpmatrix 1 0x3f847800 0xbd030000 0x40400000 0xbf67d800 0xc1100000 0x40000000
+gpmatpts 0 0x3f29c000 0x3f000000 0xc1280000 0xc1000000 0x41180000 0x401fb000
+gpmatmul 0 1 0
+gpmatpts 0 0x3f29c000 0x3f000000 0xc1280000 0xc1000000 0x41180000 0x401fb000
+gpmatinv 0
+gpmatpts 0 0x3f29c000 0x3f000000 0xc1280000 0xc1000000 0x41180000 0x401fb000
+end
+case matrix-43
+gpmatrix 0 0x3f800000 0xc0467800 0xc0b80000 0xbf84b800 0x0 0x40349400
+gpmatrix 1 0xc1800000 0xbf800000 0xbf4f5000 0x3fd29000 0x41200000 0x40229000
+gpmatpts 0 0xbf800000 0x40548400 0x41540000 0xc04ef800 0x41280000 0x41200000
+gpmatmul 0 1 1
+gpmatpts 0 0xbf800000 0x40548400 0x41540000 0xc04ef800 0x41280000 0x41200000
+gpmatinv 0
+gpmatpts 0 0xbf800000 0x40548400 0x41540000 0xc04ef800 0x41280000 0x41200000
+end
+case matrix-44
+gpmatrix 0 0xc1300000 0xbfcc5400 0x40400000 0x40880000 0xc1280000 0xc0b00000
+gpmatrix 1 0xc006fa00 0x402bfa00 0xc0800000 0xbfa48400 0x403c7a00 0x3f800000
+gpmatpts 0 0x41040000 0x3e74c000 0x40400000 0x40560400 0xc0306600 0xbf9b6800
+gpmatmul 0 1 0
+gpmatpts 0 0x41040000 0x3e74c000 0x40400000 0x40560400 0xc0306600 0xbf9b6800
+gpmatinv 0
+gpmatpts 0 0x41040000 0x3e74c000 0x40400000 0x40560400 0xc0306600 0xbf9b6800
+end
+case matrix-45
+gpmatrix 0 0xc1000000 0x3f400000 0x404a3a00 0xc03f7000 0x3f9b8400 0xc05c9200
+gpmatrix 1 0x3f000000 0x3cab0000 0xc026b400 0x40800000 0x4061c800 0x400a0e00
+gpmatpts 0 0xbf191800 0x3f22f800 0x3f800000 0x4013f800 0x41200000 0x3fee9800
+gpmatmul 0 1 1
+gpmatpts 0 0xbf191800 0x3f22f800 0x3f800000 0x4013f800 0x41200000 0x3fee9800
+gpmatinv 0
+gpmatpts 0 0xbf191800 0x3f22f800 0x3f800000 0x4013f800 0x41200000 0x3fee9800
+end
+case matrix-46
+gpmatrix 0 0xc0000000 0x40980000 0x3f234800 0xc0768c00 0xbfa2d800 0xc0d80000
+gpmatrix 1 0xbfb3b800 0x403f6e00 0x3f800000 0x3fd2f400 0xc048fa00 0x3f933c00
+gpmatpts 0 0xc0270a00 0x80000000 0x3e90c000 0x40900000 0x401f3800 0xc0f00000
+gpmatmul 0 1 0
+gpmatpts 0 0xc0270a00 0x80000000 0x3e90c000 0x40900000 0x401f3800 0xc0f00000
+gpmatinv 0
+gpmatpts 0 0xc0270a00 0x80000000 0x3e90c000 0x40900000 0x401f3800 0xc0f00000
+end
+case matrix-47
+gpmatrix 0 0x3f055000 0xc0726a00 0 0 0x3dcd8000 0x416c0000
+gpmatrix 1 0xc0472200 0x3f7cc800 0xbf800000 0xbffcb800 0xc03e1a00 0xbffaec00
+gpmatpts 0 0x40800000 0xc0f00000 0x3f000000 0x40620600 0xc10c0000 0x40800000
+gpmatmul 0 1 1
+gpmatpts 0 0x40800000 0xc0f00000 0x3f000000 0x40620600 0xc10c0000 0x40800000
+gpmatinv 0
+gpmatpts 0 0x40800000 0xc0f00000 0x3f000000 0x40620600 0xc10c0000 0x40800000
+end
+case matrix-48
+gpmatrix 0 0xbf800000 0x3f832000 0x3f5c0800 0x0 0xc05a9800 0x41500000
+gpmatrix 1 0x40a00000 0xbfd7c800 0xc0318800 0xc1180000 0x40e00000 0xc0288000
+gpmatpts 0 0xc0e00000 0xbf425000 0xc0d80000 0xc1000000 0xbe8e3000 0x3f10e000
+gpmatmul 0 1 0
+gpmatpts 0 0xc0e00000 0xbf425000 0xc0d80000 0xc1000000 0xbe8e3000 0x3f10e000
+gpmatinv 0
+gpmatpts 0 0xc0e00000 0xbf425000 0xc0d80000 0xc1000000 0xbe8e3000 0x3f10e000
+end
+case matrix-49
+gpmatrix 0 0x3fdfd800 0x406da800 0x41200000 0xbf2f8800 0x3ff87c00 0xc0e00000
+gpmatrix 1 0x3f298800 0x41280000 0x40007800 0x3f000000 0xc0323c00 0xc0700000
+gpmatpts 0 0x40632400 0x403a2400 0x80000000 0xc0249000 0x0 0xc0800000
+gpmatmul 0 1 1
+gpmatpts 0 0x40632400 0x403a2400 0x80000000 0xc0249000 0x0 0xc0800000
+gpmatinv 0
+gpmatpts 0 0x40632400 0x403a2400 0x80000000 0xc0249000 0x0 0xc0800000
+end
+case matrix-50
+gpmatrix 0 0xc060aa00 0x40400000 0x407fa200 0x41740000 0xc0228600 0x40445c00
+gpmatrix 1 0x41000000 0x3f800000 0x3eae5000 0xc0772a00 0x3f94e000 0xbfa91800
+gpmatpts 0 0x40e00000 0x41000000 0x40800000 0xbf800000 0x3d3e0000 0xbe805000
+gpmatmul 0 1 0
+gpmatpts 0 0x40e00000 0x41000000 0x40800000 0xbf800000 0x3d3e0000 0xbe805000
+gpmatinv 0
+gpmatpts 0 0x40e00000 0x41000000 0x40800000 0xbf800000 0x3d3e0000 0xbe805000
+end
+case matrix-51
+gpmatrix 0 0x40287600 0xc0217400 0xbf800000 0x40000000 0x80000000 0xbfcdac00
+gpmatrix 1 0xc0735200 0x3f800000 0x41700000 0x40000000 0x40000000 0xbe8a5000
+gpmatpts 0 0xbfabc400 0xc0000000 0x3fa57000 0xbf85bc00 0x40601800 0x41200000
+gpmatmul 0 1 1
+gpmatpts 0 0xbfabc400 0xc0000000 0x3fa57000 0xbf85bc00 0x40601800 0x41200000
+gpmatinv 0
+gpmatpts 0 0xbfabc400 0xc0000000 0x3fa57000 0xbf85bc00 0x40601800 0x41200000
+end
+case matrix-52
+gpmatrix 0 0xc10c0000 0xc04a6400 0x40e80000 0xc0c00000 0x0 0x40d00000
+gpmatrix 1 0x3fca0c00 0x40508600 0x3f355800 0xc075ce00 0x3f400000 0x41200000
+gpmatpts 0 0x40000000 0xbf19e800 0x400c5200 0x41700000 0x41800000 0x405a4800
+gpmatmul 0 1 0
+gpmatpts 0 0x40000000 0xbf19e800 0x400c5200 0x41700000 0x41800000 0x405a4800
+gpmatinv 0
+gpmatpts 0 0x40000000 0xbf19e800 0x400c5200 0x41700000 0x41800000 0x405a4800
+end
+case matrix-53
+gpmatrix 0 0x3f800000 0xbf800000 0 0 0x40000000 0xc0178800
+gpmatrix 1 0x41180000 0x402ee600 0xbfcafc00 0x0 0x3e2b2000 0x40a00000
+gpmatpts 0 0x4054c800 0x414c0000 0x3f46f000 0x3fbc3400 0x0 0xc0544c00
+gpmatmul 0 1 1
+gpmatpts 0 0x4054c800 0x414c0000 0x3f46f000 0x3fbc3400 0x0 0xc0544c00
+gpmatinv 0
+gpmatpts 0 0x4054c800 0x414c0000 0x3f46f000 0x3fbc3400 0x0 0xc0544c00
+end
+case matrix-54
+gpmatrix 0 0xc1600000 0x80000000 0xc04a4800 0x40800000 0xbf925400 0x40e00000
+gpmatrix 1 0x80000000 0x41700000 0xbfeb3c00 0xc001dc00 0xc0000000 0x3f800000
+gpmatpts 0 0x401e5e00 0x406dc800 0x3ff6c400 0xbfc10800 0x41200000 0x3f800000
+gpmatmul 0 1 0
+gpmatpts 0 0x401e5e00 0x406dc800 0x3ff6c400 0xbfc10800 0x41200000 0x3f800000
+gpmatinv 0
+gpmatpts 0 0x401e5e00 0x406dc800 0x3ff6c400 0xbfc10800 0x41200000 0x3f800000
+end
+case matrix-55
+gpmatrix 0 0x3f800000 0x3fe95000 0xc0300000 0x41000000 0xbb940000 0xc0400000
+gpmatrix 1 0xc0c00000 0xc03ae600 0xc03c6c00 0x0 0x40000000 0xbe562000
+gpmatpts 0 0x4058e600 0x41680000 0xbcd10000 0xc0e00000 0xc1000000 0xbf800000
+gpmatmul 0 1 1
+gpmatpts 0 0x4058e600 0x41680000 0xbcd10000 0xc0e00000 0xc1000000 0xbf800000
+gpmatinv 0
+gpmatpts 0 0x4058e600 0x41680000 0xbcd10000 0xc0e00000 0xc1000000 0xbf800000
+end
+case matrix-56
+gpmatrix 0 0x3f800000 0x40400000 0x3fb67000 0x3f000000 0xc052b600 0xc00c6600
+gpmatrix 1 0xc0600000 0xc046fc00 0x407f6000 0xc0e80000 0xbf800000 0xbebe1000
+gpmatpts 0 0xbfa00000 0x407de400 0x40400000 0x3dab8000 0x40a00000 0x40292200
+gpmatmul 0 1 0
+gpmatpts 0 0xbfa00000 0x407de400 0x40400000 0x3dab8000 0x40a00000 0x40292200
+gpmatinv 0
+gpmatpts 0 0xbfa00000 0x407de400 0x40400000 0x3dab8000 0x40a00000 0x40292200
+end
+case matrix-57
+gpmatrix 0 0x40400000 0x3f918c00 0xc0e00000 0xc0000000 0xc05e5600 0xc0481400
+gpmatrix 1 0xbf788000 0xc06cde00 0x40800000 0xc17c0000 0x40e00000 0x3e960000
+gpmatpts 0 0x3f5d5000 0xc1000000 0x3f335000 0x40400000 0xc1200000 0xc1200000
+gpmatmul 0 1 1
+gpmatpts 0 0x3f5d5000 0xc1000000 0x3f335000 0x40400000 0xc1200000 0xc1200000
+gpmatinv 0
+gpmatpts 0 0x3f5d5000 0xc1000000 0x3f335000 0x40400000 0xc1200000 0xc1200000
+end
+case matrix-58
+gpmatrix 0 0x41240000 0xc0693000 0x41000000 0xc06db400 0xc0a80000 0xbf800000
+gpmatrix 1 0xc0269200 0x41040000 0xc07dce00 0x41000000 0x41200000 0xc14c0000
+gpmatpts 0 0xc05e7200 0x406f4000 0x40030400 0x40400000 0xc041fa00 0x3fe2c400
+gpmatmul 0 1 0
+gpmatpts 0 0xc05e7200 0x406f4000 0x40030400 0x40400000 0xc041fa00 0x3fe2c400
+gpmatinv 0
+gpmatpts 0 0xc05e7200 0x406f4000 0x40030400 0x40400000 0xc041fa00 0x3fe2c400
+end
+case matrix-59
+gpmatrix 0 0x3fb33400 0xc0000000 0 0 0x40000000 0x40326a00
+gpmatrix 1 0xc068b000 0x3f3e0000 0xbe0f8000 0x40400000 0xbf24a000 0x3d0b0000
+gpmatpts 0 0xc0698c00 0xc044e800 0xbf800000 0x3fbbb400 0x400c7200 0x40200000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0698c00 0xc044e800 0xbf800000 0x3fbbb400 0x400c7200 0x40200000
+gpmatinv 0
+gpmatpts 0 0xc0698c00 0xc044e800 0xbf800000 0x3fbbb400 0x400c7200 0x40200000
+end
+case matrix-60
+gpmatrix 0 0x40980000 0xc0a00000 0x3f800000 0x3faaac00 0x400a1800 0xc02d6200
+gpmatrix 1 0x0 0x41180000 0xc0a00000 0x3fd42800 0xc1580000 0x3f800000
+gpmatpts 0 0x40400000 0x3f22f000 0xc0200000 0xc07a6400 0x40400000 0xc0000000
+gpmatmul 0 1 0
+gpmatpts 0 0x40400000 0x3f22f000 0xc0200000 0xc07a6400 0x40400000 0xc0000000
+gpmatinv 0
+gpmatpts 0 0x40400000 0x3f22f000 0xc0200000 0xc07a6400 0x40400000 0xc0000000
+end
+case matrix-61
+gpmatrix 0 0xbf800000 0x41200000 0x40c00000 0x3fe93800 0xc0269600 0x40716200
+gpmatrix 1 0xbf800000 0xc0000000 0xc07a9c00 0x3fcbf400 0x40000000 0x41000000
+gpmatpts 0 0xc0597000 0xc0e00000 0x3ce10000 0xc1040000 0x41380000 0x3f800000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0597000 0xc0e00000 0x3ce10000 0xc1040000 0x41380000 0x3f800000
+gpmatinv 0
+gpmatpts 0 0xc0597000 0xc0e00000 0x3ce10000 0xc1040000 0x41380000 0x3f800000
+end
+case matrix-62
+gpmatrix 0 0x4040ac00 0x3f69a000 0x40800000 0xbf729000 0xc0031000 0xc1000000
+gpmatrix 1 0xc0a80000 0xc0072600 0xc0485800 0xc03ecc00 0x3fab0800 0xbf800000
+gpmatpts 0 0x3f800000 0x0 0x402e1000 0xc0800000 0x3fdb3400 0x40e00000
+gpmatmul 0 1 0
+gpmatpts 0 0x3f800000 0x0 0x402e1000 0xc0800000 0x3fdb3400 0x40e00000
+gpmatinv 0
+gpmatpts 0 0x3f800000 0x0 0x402e1000 0xc0800000 0x3fdb3400 0x40e00000
+end
+case matrix-63
+gpmatrix 0 0xbf90b400 0xc0355400 0xc0400000 0x40400000 0x3fb9dc00 0xc058ac00
+gpmatrix 1 0x41200000 0xbfb7e000 0x3f800000 0xbf3aa800 0xc0f00000 0xc065ee00
+gpmatpts 0 0xc0484000 0xbf800000 0xc0300000 0x3fa62000 0xc0900000 0x3f000000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0484000 0xbf800000 0xc0300000 0x3fa62000 0xc0900000 0x3f000000
+gpmatinv 0
+gpmatpts 0 0xc0484000 0xbf800000 0xc0300000 0x3fa62000 0xc0900000 0x3f000000
+end
+case matrix-64
+gpmatrix 0 0xc07af200 0xc000ec00 0xbff61c00 0x41200000 0x3f800000 0x40796200
+gpmatrix 1 0x40000000 0xbf800000 0x3e274000 0x41280000 0xc02fd000 0x40400000
+gpmatpts 0 0xc1500000 0xc0a00000 0x40a00000 0xbfb1fc00 0x40200000 0x40c00000
+gpmatmul 0 1 0
+gpmatpts 0 0xc1500000 0xc0a00000 0x40a00000 0xbfb1fc00 0x40200000 0x40c00000
+gpmatinv 0
+gpmatpts 0 0xc1500000 0xc0a00000 0x40a00000 0xbfb1fc00 0x40200000 0x40c00000
+end
+case matrix-65
+gpmatrix 0 0x41500000 0xc053de00 0 0 0x40a00000 0xbf1e2800
+gpmatrix 1 0x40677e00 0x3f400000 0xc1300000 0xc10c0000 0xc1000000 0x40c00000
+gpmatpts 0 0x40220200 0xc1780000 0x3f33f800 0x40f80000 0xbfdc1800 0xbeccc000
+gpmatmul 0 1 1
+gpmatpts 0 0x40220200 0xc1780000 0x3f33f800 0x40f80000 0xbfdc1800 0xbeccc000
+gpmatinv 0
+gpmatpts 0 0x40220200 0xc1780000 0x3f33f800 0x40f80000 0xbfdc1800 0xbeccc000
+end
+case matrix-66
+gpmatrix 0 0x40000000 0xc04b6c00 0x3d308000 0x40000000 0xc05ed800 0x4006da00
+gpmatrix 1 0x40600c00 0x3fe7cc00 0xbfca4000 0x0 0x41200000 0x40c00000
+gpmatpts 0 0x41440000 0x3ed20000 0xc0043e00 0xbed45000 0x41780000 0xc0e00000
+gpmatmul 0 1 0
+gpmatpts 0 0x41440000 0x3ed20000 0xc0043e00 0xbed45000 0x41780000 0xc0e00000
+gpmatinv 0
+gpmatpts 0 0x41440000 0x3ed20000 0xc0043e00 0xbed45000 0x41780000 0xc0e00000
+end
+case matrix-67
+gpmatrix 0 0x3dfe8000 0x0 0xc1000000 0x40453a00 0x40000000 0xc0c00000
+gpmatrix 1 0x40294a00 0x41200000 0x80000000 0x40408000 0x3e07a000 0xc0400000
+gpmatpts 0 0xbfcb5400 0x3f7f5000 0xc0800000 0xc025f600 0xc0800000 0x40000000
+gpmatmul 0 1 1
+gpmatpts 0 0xbfcb5400 0x3f7f5000 0xc0800000 0xc025f600 0xc0800000 0x40000000
+gpmatinv 0
+gpmatpts 0 0xbfcb5400 0x3f7f5000 0xc0800000 0xc025f600 0xc0800000 0x40000000
+end
+case matrix-68
+gpmatrix 0 0x4058ac00 0xbdaf8000 0xbfdc0800 0xc0000000 0xc0795c00 0xc1400000
+gpmatrix 1 0x406c6a00 0x3faa8400 0xc07d8c00 0xc1680000 0xc1640000 0x4025ce00
+gpmatpts 0 0xbfc54c00 0xc1000000 0x40186e00 0x0 0x40400000 0x40589400
+gpmatmul 0 1 0
+gpmatpts 0 0xbfc54c00 0xc1000000 0x40186e00 0x0 0x40400000 0x40589400
+gpmatinv 0
+gpmatpts 0 0xbfc54c00 0xc1000000 0x40186e00 0x0 0x40400000 0x40589400
+end
+case matrix-69
+gpmatrix 0 0x4044ac00 0x40800000 0xc04c8c00 0x40500000 0x40e00000 0xc0a00000
+gpmatrix 1 0xc0a00000 0x40437e00 0xbef97000 0xbdd5c000 0xc0e00000 0xc02cba00
+gpmatpts 0 0xc068c800 0x40400000 0xbebda000 0x3f800000 0x41640000 0xc035ae00
+gpmatmul 0 1 1
+gpmatpts 0 0xc068c800 0x40400000 0xbebda000 0x3f800000 0x41640000 0xc035ae00
+gpmatinv 0
+gpmatpts 0 0xc068c800 0x40400000 0xbebda000 0x3f800000 0x41640000 0xc035ae00
+end
+case matrix-70
+gpmatrix 0 0xc0400000 0x3f800000 0xbdf34000 0xbf67f000 0x40400000 0xc1340000
+gpmatrix 1 0xbf400000 0x414c0000 0xc0c00000 0x0 0xbf800000 0xbf800000
+gpmatpts 0 0xbd238000 0xc07f0600 0x40610800 0x3fa13c00 0x40400000 0xbf51e000
+gpmatmul 0 1 0
+gpmatpts 0 0xbd238000 0xc07f0600 0x40610800 0x3fa13c00 0x40400000 0xbf51e000
+gpmatinv 0
+gpmatpts 0 0xbd238000 0xc07f0600 0x40610800 0x3fa13c00 0x40400000 0xbf51e000
+end
+case matrix-71
+gpmatrix 0 0xc16c0000 0x407ee000 0 0 0x4019ba00 0x3f000000
+gpmatrix 1 0x41700000 0x400c4600 0xc0668600 0x41500000 0x4028b400 0x40a00000
+gpmatpts 0 0xbed09000 0x4034ba00 0xc00d3800 0x41200000 0x3fd30000 0xc1200000
+gpmatmul 0 1 1
+gpmatpts 0 0xbed09000 0x4034ba00 0xc00d3800 0x41200000 0x3fd30000 0xc1200000
+gpmatinv 0
+gpmatpts 0 0xbed09000 0x4034ba00 0xc00d3800 0x41200000 0x3fd30000 0xc1200000
+end
+case matrix-72
+gpmatrix 0 0xc0e00000 0xc0400000 0x3fd81400 0x40222000 0x3fbbac00 0x3f00c000
+gpmatrix 1 0x40000000 0xbf196000 0x80000000 0x41200000 0x402adc00 0x3f093000
+gpmatpts 0 0x3f902000 0x40000000 0xbf18b800 0xc04ca800 0x3f000000 0xc0529800
+gpmatmul 0 1 0
+gpmatpts 0 0x3f902000 0x40000000 0xbf18b800 0xc04ca800 0x3f000000 0xc0529800
+gpmatinv 0
+gpmatpts 0 0x3f902000 0x40000000 0xbf18b800 0xc04ca800 0x3f000000 0xc0529800
+end
+case matrix-73
+gpmatrix 0 0x3f9d4400 0x3f7c7000 0x3fbc6c00 0x3f800000 0x400bce00 0x3dd2c000
+gpmatrix 1 0xc0800000 0x40167400 0xbf400000 0xc0900000 0x80000000 0x0
+gpmatpts 0 0x80000000 0x401fac00 0xbec15000 0x3f000000 0xbf370800 0xbfb55c00
+gpmatmul 0 1 1
+gpmatpts 0 0x80000000 0x401fac00 0xbec15000 0x3f000000 0xbf370800 0xbfb55c00
+gpmatinv 0
+gpmatpts 0 0x80000000 0x401fac00 0xbec15000 0x3f000000 0xbf370800 0xbfb55c00
+end
+case matrix-74
+gpmatrix 0 0xbf72e000 0xbf3da800 0xbf64e800 0xbffa8000 0xc0a00000 0x3fdcd400
+gpmatrix 1 0x3f400000 0x40100000 0xc01dd000 0x80000000 0x41100000 0x3fa00000
+gpmatpts 0 0x40226600 0x3f8b7800 0x40c80000 0x41500000 0xc045e000 0x4022f200
+gpmatmul 0 1 0
+gpmatpts 0 0x40226600 0x3f8b7800 0x40c80000 0x41500000 0xc045e000 0x4022f200
+gpmatinv 0
+gpmatpts 0 0x40226600 0x3f8b7800 0x40c80000 0x41500000 0xc045e000 0x4022f200
+end
+case matrix-75
+gpmatrix 0 0x406bae00 0x3f99e000 0x80000000 0x40c00000 0x41000000 0x3f68e800
+gpmatrix 1 0xc0300000 0x40000000 0x80000000 0x40000000 0xc0000000 0x3eec3000
+gpmatpts 0 0x41200000 0x3f800000 0x40124a00 0x40f80000 0xbf754800 0x3eded000
+gpmatmul 0 1 1
+gpmatpts 0 0x41200000 0x3f800000 0x40124a00 0x40f80000 0xbf754800 0x3eded000
+gpmatinv 0
+gpmatpts 0 0x41200000 0x3f800000 0x40124a00 0x40f80000 0xbf754800 0x3eded000
+end
+case matrix-76
+gpmatrix 0 0xbf800000 0x3f000000 0x40800000 0x400efc00 0xc0e00000 0x3f2d9000
+gpmatrix 1 0xc0604c00 0xc0800000 0xc04fd400 0xbfd89c00 0x3f595800 0xc1540000
+gpmatpts 0 0xbee5d000 0x4056be00 0xc11c0000 0x3f6ba000 0x3fb37c00 0xc0400000
+gpmatmul 0 1 0
+gpmatpts 0 0xbee5d000 0x4056be00 0xc11c0000 0x3f6ba000 0x3fb37c00 0xc0400000
+gpmatinv 0
+gpmatpts 0 0xbee5d000 0x4056be00 0xc11c0000 0x3f6ba000 0x3fb37c00 0xc0400000
+end
+case matrix-77
+gpmatrix 0 0x3f000000 0x4015ce00 0 0 0xc03fa600 0xc1300000
+gpmatrix 1 0xc06bae00 0xbf81ac00 0xbf800000 0x3f8e8000 0xc0668800 0x40400000
+gpmatpts 0 0x0 0xc02ef200 0xc078f400 0x3f81ec00 0x40a00000 0xbfed7800
+gpmatmul 0 1 1
+gpmatpts 0 0x0 0xc02ef200 0xc078f400 0x3f81ec00 0x40a00000 0xbfed7800
+gpmatinv 0
+gpmatpts 0 0x0 0xc02ef200 0xc078f400 0x3f81ec00 0x40a00000 0xbfed7800
+end
+case matrix-78
+gpmatrix 0 0x3fc00000 0x80000000 0xc0880000 0xbfe87000 0x40400000 0x40046e00
+gpmatrix 1 0x3f89d000 0x41580000 0xc0a00000 0x3f829000 0xc0c00000 0x3f795800
+gpmatpts 0 0x0 0x404d0c00 0xc0191200 0x80000000 0x3ff3cc00 0x400b8400
+gpmatmul 0 1 0
+gpmatpts 0 0x0 0x404d0c00 0xc0191200 0x80000000 0x3ff3cc00 0x400b8400
+gpmatinv 0
+gpmatpts 0 0x0 0x404d0c00 0xc0191200 0x80000000 0x3ff3cc00 0x400b8400
+end
+case matrix-79
+gpmatrix 0 0x405cc000 0xc0000000 0x411c0000 0xc17c0000 0x41200000 0x3fb57c00
+gpmatrix 1 0xc0711800 0x41000000 0x40648200 0x0 0x402d1400 0xbf184800
+gpmatpts 0 0xc1740000 0x40053800 0xc0980000 0xc0400000 0x3e1e6000 0x40800000
+gpmatmul 0 1 1
+gpmatpts 0 0xc1740000 0x40053800 0xc0980000 0xc0400000 0x3e1e6000 0x40800000
+gpmatinv 0
+gpmatpts 0 0xc1740000 0x40053800 0xc0980000 0xc0400000 0x3e1e6000 0x40800000
+end
+case matrix-80
+gpmatrix 0 0x40800000 0x3ed81000 0x41200000 0xc1640000 0x40384e00 0x3fe50400
+gpmatrix 1 0xc0c00000 0x4072f200 0xc0600000 0xc00ad400 0x40400000 0x40400000
+gpmatpts 0 0x41240000 0xbfc00000 0x3c8c0000 0x40000000 0xc0431e00 0xc0703600
+gpmatmul 0 1 0
+gpmatpts 0 0x41240000 0xbfc00000 0x3c8c0000 0x40000000 0xc0431e00 0xc0703600
+gpmatinv 0
+gpmatpts 0 0x41240000 0xbfc00000 0x3c8c0000 0x40000000 0xc0431e00 0xc0703600
+end
+case matrix-81
+gpmatrix 0 0xbf9c8c00 0x3f800000 0x40400000 0xc0600000 0xc023b600 0x3fc5b000
+gpmatrix 1 0xc0400000 0x402c4a00 0x3f800000 0x40400000 0x3f334800 0xc0469c00
+gpmatpts 0 0xc071f800 0x400f2200 0xbf8b0800 0x0 0x3fb81000 0xbf8a2400
+gpmatmul 0 1 1
+gpmatpts 0 0xc071f800 0x400f2200 0xbf8b0800 0x0 0x3fb81000 0xbf8a2400
+gpmatinv 0
+gpmatpts 0 0xc071f800 0x400f2200 0xbf8b0800 0x0 0x3fb81000 0xbf8a2400
+end
+case matrix-82
+gpmatrix 0 0xc062ca00 0xbfc9bc00 0xc0000000 0xbfc42c00 0xc038d200 0x0
+gpmatrix 1 0x40400000 0xc0000000 0x3f53e000 0xbf392800 0x3f9c6400 0x40618a00
+gpmatpts 0 0x41440000 0xc0800000 0x3f9a0400 0xbfd1d000 0x3fe6e800 0xbec38000
+gpmatmul 0 1 0
+gpmatpts 0 0x41440000 0xc0800000 0x3f9a0400 0xbfd1d000 0x3fe6e800 0xbec38000
+gpmatinv 0
+gpmatpts 0 0x41440000 0xc0800000 0x3f9a0400 0xbfd1d000 0x3fe6e800 0xbec38000
+end
+case matrix-83
+gpmatrix 0 0x3f91b000 0xc0400000 0 0 0x3f389800 0x3f800000
+gpmatrix 1 0x3fca2800 0xbfd27800 0x40400000 0x40044c00 0x40500c00 0x80000000
+gpmatpts 0 0x3f000000 0x414c0000 0x3fc60000 0xbf3fe000 0x40000000 0x40779600
+gpmatmul 0 1 1
+gpmatpts 0 0x3f000000 0x414c0000 0x3fc60000 0xbf3fe000 0x40000000 0x40779600
+gpmatinv 0
+gpmatpts 0 0x3f000000 0x414c0000 0x3fc60000 0xbf3fe000 0x40000000 0x40779600
+end
+case matrix-84
+gpmatrix 0 0xc0771e00 0xc0484000 0x40000000 0xc044e800 0xbf863400 0x3f800000
+gpmatrix 1 0x80000000 0x40072a00 0xbfc00000 0xc0a00000 0x3e36e000 0xc0a00000
+gpmatpts 0 0x413c0000 0xc0518c00 0x400d9000 0x40400000 0x4057b200 0x40465e00
+gpmatmul 0 1 0
+gpmatpts 0 0x413c0000 0xc0518c00 0x400d9000 0x40400000 0x4057b200 0x40465e00
+gpmatinv 0
+gpmatpts 0 0x413c0000 0xc0518c00 0x400d9000 0x40400000 0x4057b200 0x40465e00
+end
+case matrix-85
+gpmatrix 0 0xc0d00000 0xc0400000 0x40500000 0xc11c0000 0xbfb10000 0x3f087000
+gpmatrix 1 0x3ff3dc00 0x3e340000 0x405c9200 0x3f000000 0xbf3dc800 0xc0037200
+gpmatpts 0 0x3f27c800 0xc0000000 0xbf800000 0xbf434000 0xbfcc9c00 0xbf800000
+gpmatmul 0 1 1
+gpmatpts 0 0x3f27c800 0xc0000000 0xbf800000 0xbf434000 0xbfcc9c00 0xbf800000
+gpmatinv 0
+gpmatpts 0 0x3f27c800 0xc0000000 0xbf800000 0xbf434000 0xbfcc9c00 0xbf800000
+end
+case matrix-86
+gpmatrix 0 0x80000000 0x3f0c1000 0xc0e00000 0xc07a6c00 0x40653800 0x0
+gpmatrix 1 0x40a00000 0x3fb15800 0x3f4d7000 0x3f000000 0x40880000 0xc0800000
+gpmatpts 0 0xbf800000 0x3f800000 0xc01b4200 0xc0560c00 0x4059c400 0x4031dc00
+gpmatmul 0 1 0
+gpmatpts 0 0xbf800000 0x3f800000 0xc01b4200 0xc0560c00 0x4059c400 0x4031dc00
+gpmatinv 0
+gpmatpts 0 0xbf800000 0x3f800000 0xc01b4200 0xc0560c00 0x4059c400 0x4031dc00
+end
+case matrix-87
+gpmatrix 0 0xc0000000 0x40e00000 0x41000000 0xc0c00000 0xc07e9600 0xbed4b000
+gpmatrix 1 0x41080000 0x3f000000 0x4027c200 0x3f800000 0xc0013800 0xbfb92c00
+gpmatpts 0 0xc008ba00 0x407d5800 0x41500000 0x40087c00 0xbf800000 0x3f790800
+gpmatmul 0 1 1
+gpmatpts 0 0xc008ba00 0x407d5800 0x41500000 0x40087c00 0xbf800000 0x3f790800
+gpmatinv 0
+gpmatpts 0 0xc008ba00 0x407d5800 0x41500000 0x40087c00 0xbf800000 0x3f790800
+end
+case matrix-88
+gpmatrix 0 0xbf800000 0x3fde0400 0xc06f3000 0xc0222800 0xc0033000 0x41640000
+gpmatrix 1 0xc1280000 0x3e9d5000 0x4053ca00 0xbf2b0800 0xc01e0400 0x416c0000
+gpmatpts 0 0xbf9cf400 0x3fb9cc00 0xc00b8200 0x3f000000 0xc0c00000 0x0
+gpmatmul 0 1 0
+gpmatpts 0 0xbf9cf400 0x3fb9cc00 0xc00b8200 0x3f000000 0xc0c00000 0x0
+gpmatinv 0
+gpmatpts 0 0xbf9cf400 0x3fb9cc00 0xc00b8200 0x3f000000 0xc0c00000 0x0
+end
+case matrix-89
+gpmatrix 0 0x41400000 0x40000000 0 0 0xc0655800 0xc0000000
+gpmatrix 1 0x40300000 0x406a7c00 0xc0192400 0xbf62d000 0x3e879000 0x41500000
+gpmatpts 0 0xbf28a000 0xbfed9400 0x3ff69800 0x402c6a00 0x40a00000 0xbf943400
+gpmatmul 0 1 1
+gpmatpts 0 0xbf28a000 0xbfed9400 0x3ff69800 0x402c6a00 0x40a00000 0xbf943400
+gpmatinv 0
+gpmatpts 0 0xbf28a000 0xbfed9400 0x3ff69800 0x402c6a00 0x40a00000 0xbf943400
+end
+case matrix-90
+gpmatrix 0 0x80000000 0x40c00000 0x40000000 0x3bc40000 0xbf47d800 0x40166c00
+gpmatrix 1 0xc1400000 0xc0439400 0xc04eba00 0x40000000 0xc1800000 0xbec16000
+gpmatpts 0 0xbf930800 0xbff4ec00 0x40000000 0xc0c00000 0xbfcef800 0x3fd07c00
+gpmatmul 0 1 0
+gpmatpts 0 0xbf930800 0xbff4ec00 0x40000000 0xc0c00000 0xbfcef800 0x3fd07c00
+gpmatinv 0
+gpmatpts 0 0xbf930800 0xbff4ec00 0x40000000 0xc0c00000 0xbfcef800 0x3fd07c00
+end
+case matrix-91
+gpmatrix 0 0xbf0bb800 0x40a80000 0x41200000 0xc065ec00 0xc0800000 0x40206800
+gpmatrix 1 0x40400000 0x40400000 0x3f400000 0xc005f400 0x0 0x41780000
+gpmatpts 0 0xbf2eb000 0xbf800000 0x40000000 0x41000000 0x4045cc00 0x41340000
+gpmatmul 0 1 1
+gpmatpts 0 0xbf2eb000 0xbf800000 0x40000000 0x41000000 0x4045cc00 0x41340000
+gpmatinv 0
+gpmatpts 0 0xbf2eb000 0xbf800000 0x40000000 0x41000000 0x4045cc00 0x41340000
+end
+case matrix-92
+gpmatrix 0 0xbfce1000 0xc11c0000 0xbeff0000 0xbfe83000 0x40542200 0xbf0df800
+gpmatrix 1 0x40e00000 0x40000000 0x3fc00000 0x0 0x3faff800 0xc1280000
+gpmatpts 0 0xc0e00000 0xc0592a00 0xc01bf800 0x40400000 0xc0a00000 0x41200000
+gpmatmul 0 1 0
+gpmatpts 0 0xc0e00000 0xc0592a00 0xc01bf800 0x40400000 0xc0a00000 0x41200000
+gpmatinv 0
+gpmatpts 0 0xc0e00000 0xc0592a00 0xc01bf800 0x40400000 0xc0a00000 0x41200000
+end
+case matrix-93
+gpmatrix 0 0x4011e800 0x3f274800 0x40416c00 0xbeb1a000 0xc15c0000 0xc1000000
+gpmatrix 1 0xbf2f0000 0x407f5000 0x80000000 0xc0a00000 0xbf800000 0xc0f00000
+gpmatpts 0 0x41300000 0xc0549a00 0x3f800000 0x417c0000 0x3f000000 0x407c9a00
+gpmatmul 0 1 1
+gpmatpts 0 0x41300000 0xc0549a00 0x3f800000 0x417c0000 0x3f000000 0x407c9a00
+gpmatinv 0
+gpmatpts 0 0x41300000 0xc0549a00 0x3f800000 0x417c0000 0x3f000000 0x407c9a00
+end
+case matrix-94
+gpmatrix 0 0x404e8a00 0xc1300000 0xc0400000 0xc0c00000 0xbfe8a400 0x41640000
+gpmatrix 1 0x80000000 0xc0691000 0x3df78000 0xc0300000 0x41200000 0x4053d000
+gpmatpts 0 0xc035b000 0xbf665800 0x4009f200 0x400f9600 0xc12c0000 0x407a3c00
+gpmatmul 0 1 0
+gpmatpts 0 0xc035b000 0xbf665800 0x4009f200 0x400f9600 0xc12c0000 0x407a3c00
+gpmatinv 0
+gpmatpts 0 0xc035b000 0xbf665800 0x4009f200 0x400f9600 0xc12c0000 0x407a3c00
+end
+case matrix-95
+gpmatrix 0 0xc061e600 0x3f3a3000 0 0 0x40612a00 0x3f6b1800
+gpmatrix 1 0x40d80000 0xc0e80000 0xc052e600 0x41200000 0xc07c9e00 0x40e00000
+gpmatpts 0 0x411c0000 0xbe3ae000 0x41440000 0x3f4f5800 0x404ca200 0x40000000
+gpmatmul 0 1 1
+gpmatpts 0 0x411c0000 0xbe3ae000 0x41440000 0x3f4f5800 0x404ca200 0x40000000
+gpmatinv 0
+gpmatpts 0 0x411c0000 0xbe3ae000 0x41440000 0x3f4f5800 0x404ca200 0x40000000
+end
+case matrix-96
+gpmatrix 0 0x40400000 0xc0300000 0xc05d5c00 0x40760800 0x3fccbc00 0xc04d6a00
+gpmatrix 1 0x40005a00 0x3e26c000 0x3ff95400 0xc1100000 0xc0400000 0x40e00000
+gpmatpts 0 0xbf85c400 0xc1580000 0xc03bfc00 0xc01e1200 0xc0042c00 0x3fecec00
+gpmatmul 0 1 0
+gpmatpts 0 0xbf85c400 0xc1580000 0xc03bfc00 0xc01e1200 0xc0042c00 0x3fecec00
+gpmatinv 0
+gpmatpts 0 0xbf85c400 0xc1580000 0xc03bfc00 0xc01e1200 0xc0042c00 0x3fecec00
+end
+case matrix-97
+gpmatrix 0 0xc06d8800 0x3f25c000 0x40000000 0xbff1f000 0xbfdc8400 0x80000000
+gpmatrix 1 0x3f240000 0xbf8a6800 0x40100000 0xbf800000 0x40000000 0xbea1e000
+gpmatpts 0 0xc0400000 0x40400000 0x40400000 0x40287600 0x4049ce00 0xc1580000
+gpmatmul 0 1 1
+gpmatpts 0 0xc0400000 0x40400000 0x40400000 0x40287600 0x4049ce00 0xc1580000
+gpmatinv 0
+gpmatpts 0 0xc0400000 0x40400000 0x40400000 0x40287600 0x4049ce00 0xc1580000
+end
+case matrix-98
+gpmatrix 0 0x415c0000 0xc0777200 0x403db400 0x3efea000 0x3f8dc800 0xc0000000
+gpmatrix 1 0x40a00000 0x40a00000 0x4072d800 0x3f0b3800 0x40000000 0xbf800000
+gpmatpts 0 0xc0176400 0xc0e00000 0xc1440000 0x402cb800 0x40c80000 0x40400000
+gpmatmul 0 1 0
+gpmatpts 0 0xc0176400 0xc0e00000 0xc1440000 0x402cb800 0x40c80000 0x40400000
+gpmatinv 0
+gpmatpts 0 0xc0176400 0xc0e00000 0xc1440000 0x402cb800 0x40c80000 0x40400000
+end
+case matrix-99
+gpmatrix 0 0x3c4e0000 0x3e8fc000 0xbfd1a000 0xc01b6200 0x40068400 0x41000000
+gpmatrix 1 0x3fd10800 0x3f000000 0x40536600 0xbeecb000 0x40980000 0x405de200
+gpmatpts 0 0xbfcc6400 0xc1000000 0xbf800000 0xc1240000 0xc0800000 0x40357e00
+gpmatmul 0 1 1
+gpmatpts 0 0xbfcc6400 0xc1000000 0xbf800000 0xc1240000 0xc0800000 0x40357e00
+gpmatinv 0
+gpmatpts 0 0xbfcc6400 0xc1000000 0xbf800000 0xc1240000 0xc0800000 0x40357e00
+end
+case matrix-100
+gpmatrix 0 0x407d5c00 0xbe800000 0x40222400 0xbf1c9000 0xc0518400 0x40697600
+gpmatrix 1 0x40000000 0xc039b200 0xbf400000 0xc03d7a00 0x3f000000 0x40c80000
+gpmatpts 0 0x3ef1b000 0x40800000 0x40e00000 0xbf800000 0x3f800000 0x411c0000
+gpmatmul 0 1 0
+gpmatpts 0 0x3ef1b000 0x40800000 0x40e00000 0xbf800000 0x3f800000 0x411c0000
+gpmatinv 0
+gpmatpts 0 0x3ef1b000 0x40800000 0x40e00000 0xbf800000 0x3f800000 0x411c0000
+end
+case matrix-101
+gpmatrix 0 0xc0400000 0x3f0cd800 0 0 0x80000000 0x41200000
+gpmatrix 1 0x0 0x3eaed000 0x3feb1c00 0x41200000 0xc06ecc00 0x4034c400
+gpmatpts 0 0x3f000000 0xbe376000 0x3f000000 0xbf0b3000 0xbf800000 0x3ea53000
+gpmatmul 0 1 1
+gpmatpts 0 0x3f000000 0xbe376000 0x3f000000 0xbf0b3000 0xbf800000 0x3ea53000
+gpmatinv 0
+gpmatpts 0 0x3f000000 0xbe376000 0x3f000000 0xbf0b3000 0xbf800000 0x3ea53000
+end
+case matrix-102
+gpmatrix 0 0x3f22d000 0xbf005800 0x41200000 0xc0343200 0x40e80000 0x402e2800
+gpmatrix 1 0x400e4200 0x80000000 0xbeb3b000 0x407f6600 0x40092200 0x41200000
+gpmatpts 0 0x403d9400 0xbf643000 0x3f469000 0x3f800000 0x4016c000 0x404f8400
+gpmatmul 0 1 0
+gpmatpts 0 0x403d9400 0xbf643000 0x3f469000 0x3f800000 0x4016c000 0x404f8400
+gpmatinv 0
+gpmatpts 0 0x403d9400 0xbf643000 0x3f469000 0x3f800000 0x4016c000 0x404f8400
+end
+case matrix-103
+gpmatrix 0 0x80000000 0xc0e00000 0xbf8d8c00 0x40444200 0xc0a00000 0xbfc00000
+gpmatrix 1 0x41700000 0x3f8ff800 0x4019c200 0x0 0xbd880000 0xbeb7e000
+gpmatpts 0 0x80000000 0x40000000 0xc0400000 0x3f000000 0xc1580000 0xc07b6c00
+gpmatmul 0 1 1
+gpmatpts 0 0x80000000 0x40000000 0xc0400000 0x3f000000 0xc1580000 0xc07b6c00
+gpmatinv 0
+gpmatpts 0 0x80000000 0x40000000 0xc0400000 0x3f000000 0xc1580000 0xc07b6c00
+end
+case matrix-104
+gpmatrix 0 0xbf8d4c00 0x0 0x3fcb9c00 0x4073d600 0x3f800000 0x41200000
+gpmatrix 1 0x80000000 0x41200000 0x3f47b800 0xc06b0a00 0x3f000000 0x3fb21400
+gpmatpts 0 0x3fbb1800 0x40000000 0x80000000 0xbfb9a000 0xc0200000 0x40400000
+gpmatmul 0 1 0
+gpmatpts 0 0x3fbb1800 0x40000000 0x80000000 0xbfb9a000 0xc0200000 0x40400000
+gpmatinv 0
+gpmatpts 0 0x3fbb1800 0x40000000 0x80000000 0xbfb9a000 0xc0200000 0x40400000
+end
+case matrix-105
+gpmatrix 0 0x40400000 0xc0e00000 0x400ada00 0x41480000 0x40a00000 0x3ef3d000
+gpmatrix 1 0x3f237800 0xc07c5800 0x404bca00 0x40400000 0x3fbbc400 0xc0c00000
+gpmatpts 0 0x41580000 0xbfd66c00 0xc0361600 0xc1040000 0x3f800000 0x40000000
+gpmatmul 0 1 1
+gpmatpts 0 0x41580000 0xbfd66c00 0xc0361600 0xc1040000 0x3f800000 0x40000000
+gpmatinv 0
+gpmatpts 0 0x41580000 0xbfd66c00 0xc0361600 0xc1040000 0x3f800000 0x40000000
+end
+case matrix-106
+gpmatrix 0 0xbdfa4000 0x3f000000 0x40344600 0x40682200 0x40202200 0xc1180000
+gpmatrix 1 0x40e00000 0x3f800000 0xc02ee200 0x80000000 0x3f000000 0x40328800
+gpmatpts 0 0x80000000 0xc05f0c00 0xc0e00000 0xc07fb800 0x40f80000 0x40d80000
+gpmatmul 0 1 0
+gpmatpts 0 0x80000000 0xc05f0c00 0xc0e00000 0xc07fb800 0x40f80000 0x40d80000
+gpmatinv 0
+gpmatpts 0 0x80000000 0xc05f0c00 0xc0e00000 0xc07fb800 0x40f80000 0x40d80000
+end
+case matrix-107
+gpmatrix 0 0x40a00000 0x0 0 0 0x40880000 0xbfa80c00
+gpmatrix 1 0x40800000 0x80000000 0x41800000 0xc1400000 0x3e8be000 0x40400000
+gpmatpts 0 0xbfaee000 0x0 0x3e837000 0xc0e00000 0x80000000 0xc0000000
+gpmatmul 0 1 1
+gpmatpts 0 0xbfaee000 0x0 0x3e837000 0xc0e00000 0x80000000 0xc0000000
+gpmatinv 0
+gpmatpts 0 0xbfaee000 0x0 0x3e837000 0xc0e00000 0x80000000 0xc0000000
+end
+case matrix-108
+gpmatrix 0 0x40c00000 0x41000000 0xbfe4e800 0x0 0x3f226000 0x0
+gpmatrix 1 0x3f198000 0xbf90d400 0x0 0xc1000000 0x3ff94800 0xbf800000
+gpmatpts 0 0x3fe77800 0xc1000000 0xc03dc800 0xc0400000 0x3f41a800 0xbfa40000
+gpmatmul 0 1 0
+gpmatpts 0 0x3fe77800 0xc1000000 0xc03dc800 0xc0400000 0x3f41a800 0xbfa40000
+gpmatinv 0
+gpmatpts 0 0x3fe77800 0xc1000000 0xc03dc800 0xc0400000 0x3f41a800 0xbfa40000
+end
+case matrix-109
+gpmatrix 0 0xc1340000 0x3f800000 0xc0400000 0x400b8600 0xc05ae000 0xbf902000
+gpmatrix 1 0xc1180000 0x40400000 0x40491200 0x3ffa2400 0xc04b5000 0x40400000
+gpmatpts 0 0xbfadb400 0x3eba1000 0xbf800000 0x3f000000 0xc02f5000 0xc15c0000
+gpmatmul 0 1 1
+gpmatpts 0 0xbfadb400 0x3eba1000 0xbf800000 0x3f000000 0xc02f5000 0xc15c0000
+gpmatinv 0
+gpmatpts 0 0xbfadb400 0x3eba1000 0xbf800000 0x3f000000 0xc02f5000 0xc15c0000
+end
+case matrix-110
+gpmatrix 0 0x3f000000 0x41400000 0xc004d600 0x3fd7a800 0xc07b0800 0x4042a400
+gpmatrix 1 0x3f000000 0xc0980000 0x417c0000 0x40880000 0xbf800000 0x40100000
+gpmatpts 0 0x40400000 0xbe778000 0xbece4000 0xbff94400 0x3fb15c00 0x40000000
+gpmatmul 0 1 0
+gpmatpts 0 0x40400000 0xbe778000 0xbece4000 0xbff94400 0x3fb15c00 0x40000000
+gpmatinv 0
+gpmatpts 0 0x40400000 0xbe778000 0xbece4000 0xbff94400 0x3fb15c00 0x40000000
+end
+case matrix-111
+gpmatrix 0 0x406ede00 0x41440000 0x3f800000 0x3ef12000 0xc0e00000 0x40a00000
+gpmatrix 1 0x4078dc00 0x3f830c00 0x3fe00000 0x3f800000 0x3f800000 0x3f800000
+gpmatpts 0 0xbf440000 0xbe3c8000 0x40653000 0x41700000 0x3f461000 0x40600000
+gpmatmul 0 1 1
+gpmatpts 0 0xbf440000 0xbe3c8000 0x40653000 0x41700000 0x3f461000 0x40600000
+gpmatinv 0
+gpmatpts 0 0xbf440000 0xbe3c8000 0x40653000 0x41700000 0x3f461000 0x40600000
+end
+case matrix-112
+gpmatrix 0 0x0 0xc1700000 0x40800000 0xbe364000 0x3fcf0400 0xc0400000
+gpmatrix 1 0xc0000000 0xc0e00000 0xc0200000 0xc0e00000 0x3faa5c00 0x401c9200
+gpmatpts 0 0x40c00000 0x40026c00 0xc0400000 0xc1340000 0x40361e00 0x3fa66400
+gpmatmul 0 1 0
+gpmatpts 0 0x40c00000 0x40026c00 0xc0400000 0xc1340000 0x40361e00 0x3fa66400
+gpmatinv 0
+gpmatpts 0 0x40c00000 0x40026c00 0xc0400000 0xc1340000 0x40361e00 0x3fa66400
+end
+case matrix-113
+gpmatrix 0 0xc02ad600 0x41200000 0 0 0x41480000 0x41680000
+gpmatrix 1 0x41200000 0xc0400000 0x4030a000 0xc0400000 0xc059da00 0x40795800
+gpmatpts 0 0xbf800000 0x40d80000 0x3ffb5400 0xc01bbc00 0x41000000 0xbe800000
+gpmatmul 0 1 1
+gpmatpts 0 0xbf800000 0x40d80000 0x3ffb5400 0xc01bbc00 0x41000000 0xbe800000
+gpmatinv 0
+gpmatpts 0 0xbf800000 0x40d80000 0x3ffb5400 0xc01bbc00 0x41000000 0xbe800000
+end
+case matrix-114
+gpmatrix 0 0xc02b0e00 0x40400000 0x40880000 0xbfa3c800 0xbfc98000 0x3f000000
+gpmatrix 1 0xbf822400 0xbf5e3000 0x3f000000 0xc0218400 0x4029cc00 0xc0d00000
+gpmatpts 0 0x41400000 0x41000000 0x80000000 0xc07a6e00 0xbf800000 0x41600000
+gpmatmul 0 1 0
+gpmatpts 0 0x41400000 0x41000000 0x80000000 0xc07a6e00 0xbf800000 0x41600000
+gpmatinv 0
+gpmatpts 0 0x41400000 0x41000000 0x80000000 0xc07a6e00 0xbf800000 0x41600000
+end
+case matrix-115
+gpmatrix 0 0x4012d000 0xc0697000 0x41000000 0x40a00000 0x406d8e00 0xc0a00000
+gpmatrix 1 0x0 0xbfc4d400 0xbed18000 0x3f4f0000 0xc0400000 0xbe5b4000
+gpmatpts 0 0xc041ae00 0x3f806c00 0x403f9c00 0xc0759800 0x3f000000 0xbf838c00
+gpmatmul 0 1 1
+gpmatpts 0 0xc041ae00 0x3f806c00 0x403f9c00 0xc0759800 0x3f000000 0xbf838c00
+gpmatinv 0
+gpmatpts 0 0xc041ae00 0x3f806c00 0x403f9c00 0xc0759800 0x3f000000 0xbf838c00
+end
+case matrix-116
+gpmatrix 0 0xc0000000 0x40e00000 0x40767400 0xc05cfc00 0x400a0800 0xc041a200
+gpmatrix 1 0x40c80000 0x40e00000 0x3e8c5000 0x40393600 0xc1080000 0x414c0000
+gpmatpts 0 0x40c00000 0xc0e80000 0x3f895400 0x3f800000 0xc04ad000 0xc0400000
+gpmatmul 0 1 0
+gpmatpts 0 0x40c00000 0xc0e80000 0x3f895400 0x3f800000 0xc04ad000 0xc0400000
+gpmatinv 0
+gpmatpts 0 0x40c00000 0xc0e80000 0x3f895400 0x3f800000 0xc04ad000 0xc0400000
+end
+case matrix-117
+gpmatrix 0 0xc03e6400 0xc0400000 0xc01e0e00 0xbf800000 0xc0400000 0x4035e800
+gpmatrix 1 0xc07ebe00 0x41280000 0x413c0000 0x4067ee00 0xc06cd400 0x40375e00
+gpmatpts 0 0xc06b7e00 0x403ec200 0x40000000 0xc11c0000 0xbff5c000 0xc0400000
+gpmatmul 0 1 1
+gpmatpts 0 0xc06b7e00 0x403ec200 0x40000000 0xc11c0000 0xbff5c000 0xc0400000
+gpmatinv 0
+gpmatpts 0 0xc06b7e00 0x403ec200 0x40000000 0xc11c0000 0xbff5c000 0xc0400000
+end
+case matrix-118
+gpmatrix 0 0x404d4200 0x3e1b6000 0xc068d400 0x3f761800 0x3f800000 0x40800000
+gpmatrix 1 0xc0980000 0xc0800000 0x40800000 0xbf800000 0x80000000 0xc0526a00
+gpmatpts 0 0xc072b000 0x3dd40000 0x40b00000 0x3fb68000 0x405fea00 0x4037cc00
+gpmatmul 0 1 0
+gpmatpts 0 0xc072b000 0x3dd40000 0x40b00000 0x3fb68000 0x405fea00 0x4037cc00
+gpmatinv 0
+gpmatpts 0 0xc072b000 0x3dd40000 0x40b00000 0x3fb68000 0x405fea00 0x4037cc00
+end
+case matrix-119
+gpmatrix 0 0x3f800000 0xc0082600 0 0 0x3f2cb800 0xc0492200
+gpmatrix 1 0x3f262000 0xbdb14000 0xc0000000 0x402d0000 0xc1000000 0x41000000
+gpmatpts 0 0x40720000 0x41200000 0xc00e4a00 0x0 0xc00e9e00 0x41240000
+gpmatmul 0 1 1
+gpmatpts 0 0x40720000 0x41200000 0xc00e4a00 0x0 0xc00e9e00 0x41240000
+gpmatinv 0
+gpmatpts 0 0x40720000 0x41200000 0xc00e4a00 0x0 0xc00e9e00 0x41240000
+end
+case matrix-order
+gpmatrix 0 0x3f800000 0 0 0x3f800000 0 0
+gpmatrix 1 0x40000000 0 0 0x40000000 0 0
+gpmatmul 0 1 2
+gpmatmul 0 1 -1
+end

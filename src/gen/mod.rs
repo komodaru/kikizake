@@ -10,6 +10,7 @@ mod d3d11;
 mod d3d9;
 mod ddraw;
 mod gdi;
+mod gdiplus;
 mod wic;
 
 pub use d3d11::{d3d11_base, d3d11_floats};
@@ -28,6 +29,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("wic", wic::wic),
     ("ddraw", ddraw::ddraw),
     ("d2d", d2d::d2d),
+    ("gdiplus", gdiplus::gdiplus),
 ];
 
 pub const SUITES: &[&str] = &{
