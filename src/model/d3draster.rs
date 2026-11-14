@@ -145,7 +145,14 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
                     return Ok(());
                 }
-                _ => return Err(Fail::Unmodeled(open::D3DRASTER_LAYOUT_SIG)),
+                // (MEASURED: against a pixel program given as a vertex one, refused,
+                // probe-layout-otherkind)
+                "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" => {
+                    hit(clause::D3DRASTER_LAYOUT_SIG);
+                    out.push(format!("layout hr {E_INVALIDARG:08x}"));
+                    return Ok(());
+                }
+                _ => return Err(Fail::Bad),
             };
             // every input of the program from an element, no element of an unknown format
             let ok = fmts.len() >= needs && fmts.iter().all(|f| format(*f).is_some_and(|f| !f.block() && !f.video() && f.num != Num::Typeless));
@@ -466,6 +473,13 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         return Ok(());
     };
     let Some(topo) = Topo::of(top) else {
+        // (MEASURED, WARP: probe-topology-33, x86 and x86-64, Direct3D 10 and 11) a patch list
+        // with no hull and domain programs ends the executor (what it printed since its last
+        // flush, before the case's last tex line, is lost)
+        if (33..=64).contains(&top) {
+            hit(clause::D3DRASTER_PATCH);
+            return Err(Fail::Crash);
+        }
         return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
     };
     let view = m.views[tv].clone().unwrap();
@@ -508,6 +522,10 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         Topo::LineStrip => u64::from(count.saturating_sub(1)).min(nv),
         Topo::Tris => u64::from(count / 3).min(nv.div_ceil(3)),
         Topo::TriStrip => u64::from(count.saturating_sub(2)).min(nv),
+        Topo::LinesAdj => u64::from(count / 4).min(nv.div_ceil(4)),
+        Topo::LineStripAdj => u64::from(count.saturating_sub(3)).min(nv),
+        Topo::TrisAdj => u64::from(count / 6).min(nv.div_ceil(6)),
+        Topo::TriStripAdj => u64::from((count / 2).saturating_sub(2)).min(nv.div_ceil(2)),
     };
     let nprim = u32::try_from(nprim).unwrap_or(u32::MAX);
     let tg = Target { dev, vp, size: (rw, rh), view: &view, fmt: rt_fmt, sub: rt_sub, dsv: dsv.as_ref() };
@@ -518,23 +536,42 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         for p in 0..nprim {
             match topo {
                 Topo::Points => point(m, &d, &tg, ps, fetch(p, i)?)?,
-                Topo::Lines | Topo::LineStrip => {
-                    let k = if topo == Topo::Lines { 2 * p } else { p };
+                Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj => {
+                    // (MEASURED, WARP: probe-topology-10 to -13, D3DRASTER.ADJ) with adjacency and no geometry
+                    // program, the adjacent vertices are skipped: lines 4p + 1 to 4p + 2, and
+                    // p + 1 to p + 2
+                    if matches!(topo, Topo::LinesAdj | Topo::LineStripAdj) {
+                        hit(clause::D3DRASTER_ADJ);
+                    }
+                    let k = match topo {
+                        Topo::Lines => 2 * p,
+                        Topo::LinesAdj => 4 * p + 1,
+                        Topo::LineStripAdj => p + 1,
+                        _ => p,
+                    };
                     let a = fetch(k, i)?;
                     segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a });
                 }
-                Topo::Tris | Topo::TriStrip => {
+                Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj => {
                     // (strips: every other triangle's first two vertices swapped; the leading
                     // vertex first)
-                    let idx = match topo {
-                        Topo::Tris => [3 * p, 3 * p + 1, 3 * p + 2],
-                        _ if p % 2 == 0 => [p, p + 1, p + 2],
+                    // (MEASURED, WARP: probe-topology-12, -13) with adjacency and no geometry
+                    // program, the triangles of the even vertices: 6p, 6p + 2, 6p + 4, and the
+                    // strip of 0, 2, 4, ...
+                    let (idx, lead) = match topo {
+                        Topo::Tris => ([3 * p, 3 * p + 1, 3 * p + 2], 3 * p),
+                        Topo::TrisAdj => {
+                            hit(clause::D3DRASTER_ADJ);
+                            ([6 * p, 6 * p + 2, 6 * p + 4], 6 * p)
+                        }
+                        Topo::TriStripAdj if p % 2 == 0 => ([2 * p, 2 * p + 2, 2 * p + 4], 2 * p),
+                        Topo::TriStripAdj => ([2 * p + 2, 2 * p, 2 * p + 4], 2 * p),
+                        _ if p % 2 == 0 => ([p, p + 1, p + 2], p),
                         _ => {
                             hit(clause::D3DRASTER_STRIP);
-                            [p + 1, p, p + 2]
+                            ([p + 1, p, p + 2], p)
                         }
                     };
-                    let lead = if topo == Topo::TriStrip { p } else { 3 * p };
                     let tri = [fetch(idx[0], i)?, fetch(idx[1], i)?, fetch(idx[2], i)?];
                     let leadv = fetch(lead, i)?;
                     triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), &view, rt_fmt, rt_sub, dsv.as_ref(), &mut segs)?;
@@ -546,7 +583,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     Ok(())
 }
 
-/// the primitive topologies the model draws (D3D11_PRIMITIVE_TOPOLOGY 1 to 5)
+/// the primitive topologies the model draws (D3D11_PRIMITIVE_TOPOLOGY 1 to 5, 10 to 13)
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Topo {
     Points,
@@ -554,6 +591,10 @@ enum Topo {
     LineStrip,
     Tris,
     TriStrip,
+    LinesAdj,
+    LineStripAdj,
+    TrisAdj,
+    TriStripAdj,
 }
 
 impl Topo {
@@ -564,6 +605,10 @@ impl Topo {
             3 => Some(Topo::LineStrip),
             4 => Some(Topo::Tris),
             5 => Some(Topo::TriStrip),
+            10 => Some(Topo::LinesAdj),
+            11 => Some(Topo::LineStripAdj),
+            12 => Some(Topo::TrisAdj),
+            13 => Some(Topo::TriStripAdj),
             _ => None,
         }
     }
@@ -884,18 +929,38 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         hit(clause::D3DRASTER_CLIP);
         return Ok(());
     }
-    if tri.iter().any(|v| !(v.pos[3] > 0.0) || v.pos.iter().any(|x| !x.is_finite())) {
+    if tri.iter().any(|v| v.pos.iter().any(|x| !x.is_finite())) {
+        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+    }
+    if tri.iter().any(|v| !(v.pos[3] > 0.0)) {
+        // (MEASURED, WARP: probe-clip-w) a vertex at w <= 0: the clipping to the viewport
+        // planes in homogeneous coordinates takes it away; what is left with no area draws
+        // nothing
+        let poly = clip_xy(tri.map(|v| v.pos));
+        if poly.iter().all(|q| q[3] > 0.0) {
+            let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
+            let area = |a: Sub, b: Sub, c: Sub| (i128::from(b.x) - i128::from(a.x)) * (i128::from(c.y) - i128::from(a.y)) - (i128::from(b.y) - i128::from(a.y)) * (i128::from(c.x) - i128::from(a.x));
+            if (1..q.len().saturating_sub(1)).all(|i| area(q[0], q[i], q[i + 1]) == 0) {
+                hit(clause::D3DRASTER_CLIPW_AWAY);
+                return Ok(());
+            }
+        }
         return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
     }
     // depth clipping: whole triangles in these cases
     let zs: Vec<f32> = tri.iter().map(|v| v.pos[2] / v.pos[3]).collect();
     let inside = |z: f32| (0.0..=1.0).contains(&z);
+    let mut zclip = false;
     if d.rast[6] != 0 && !zs.iter().all(|z| inside(*z)) {
         if zs.iter().all(|z| *z < 0.0) || zs.iter().all(|z| *z > 1.0) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             return Ok(());
         }
-        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPZ));
+        // (the depth of what is left is not measured: only where nothing reads it)
+        if dsv.is_some() || ps == "pspos" {
+            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPZ));
+        }
+        zclip = true;
     }
     // the viewport transform, then 16.8 fixed point
     let [vx, vy, vw, vh, minz, maxz] = vp;
@@ -949,6 +1014,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     // space, and the pieces' new vertices snapped as any other, tri-2: so an edge moves by up
     // to the snapping of its new end)
     let poly = clip_xy(tri.map(|v| v.pos));
+    let poly = if zclip {
+        hit(clause::D3DRASTER_CLIPZ_PIECES);
+        clip_z(poly)
+    } else {
+        poly
+    };
     let unclipped = poly.len() == 3 && poly.iter().zip(tri.iter()).all(|(a, b)| *a == b.pos);
     let planes = unclipped.then(|| Planes::new(tri, |q| {
         let (x, y) = snap2(q);
@@ -1116,6 +1187,30 @@ fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
     poly
 }
 
+/// a polygon clipped to 0 <= z <= w, as clip_xy
+fn clip_z(mut poly: Vec<[f32; 4]>) -> Vec<[f32; 4]> {
+    for plane in 0..2 {
+        let dist = |q: &[f32; 4]| if plane == 0 { q[2] } else { q[3] - q[2] };
+        if poly.iter().all(|q| dist(q) >= 0.0) {
+            continue;
+        }
+        let mut out = Vec::new();
+        for i in 0..poly.len() {
+            let (a, b) = (poly[i], poly[(i + 1) % poly.len()]);
+            let (da, db) = (dist(&a), dist(&b));
+            if da >= 0.0 {
+                out.push(a);
+            }
+            if (da >= 0.0) != (db >= 0.0) {
+                let t = da / (da - db);
+                out.push([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * t));
+            }
+        }
+        poly = out;
+    }
+    poly
+}
+
 /// the pixel shader: what it writes to SV_Target, as bits (floats or uints)
 #[allow(clippy::too_many_arguments)]
 fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: Vert, prim: u32, front: bool, (px, py): (i64, i64), z: Option<f32>, d: &Draw) -> Res<[u32; 4]> {
@@ -1177,7 +1272,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 hit(clause::D3DRASTER_NOSRV);
                 return Ok([0; 4]);
             };
-            let Some(s) = d.sampler else { return Err(Fail::Unmodeled(open::D3DRASTER_NOSAMPLER)) };
+            // (MEASURED, WARP: probe-sample-nosampler) no sampler bound: the default one,
+            // linear filtering, clamped addresses
+            let s = d.sampler.unwrap_or_else(|| {
+                hit(clause::D3DRASTER_NOSAMPLER);
+                [0x15, 3, 3, 3]
+            });
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
             let (w, h, _) = r.size(0);
@@ -1255,7 +1355,8 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         let (rb, _, _) = dres.layout(dsub);
         let el = (df.bits / 8) as usize;
         let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
-        let e = &mut b[y * rb + x * el..][..el];
+        // (a depth view smaller than the target: not measured)
+        let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
         if d.depthst[0] != 0 {
             let z = z.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
             let (a, s) = (quantized_depth(df, z), stored_depth(df, e));

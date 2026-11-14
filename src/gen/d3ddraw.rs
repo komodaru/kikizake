@@ -474,6 +474,15 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "case shader-bad\n{dev}\nshader 0 ps {}\nshader 1 ps {}\nshader 2 vs {}\nshader 3 ps 00\nend", hex(&broken), hex(&short), hex(&shader("ps"))).unwrap();
     // an input layout that the program's input signature does not match
     writeln!(s, "case layout-bad\n{dev}\nshader 0 vs {}\nlayout 0 2\nlayout 0 2 2 2\nlayout 0 0x1c 2\nlayout 0 0x29 2\nlayout 0 0 2\nlayout 1 2 2\nend", hex(&shader("vs"))).unwrap();
+    // a patch list drawn without hull and domain programs: WARP ends the executor there, so
+    // it comes last
+    begin(&mut s, dev, "probe-topology-33", 16, 16, 28, "ps");
+    for k in 0..3 {
+        vertex(&mut s, 2.0 + 5.0 * k as f32, 3.0 + 4.0 * k as f32, 0.5, color(k), 16.0, 16.0);
+    }
+    writeln!(s, "draw 33 3 32").unwrap();
+    read_rt(&mut s, 0, 28, 16, 16);
+    writeln!(s, "end").unwrap();
     s
 }
 
@@ -688,7 +697,7 @@ fn probes(s: &mut String, dev: &str) {
         read_rt(s, 0, 28, 16, 16);
         writeln!(s, "end").unwrap();
     }
-    for top in [10u32, 11, 12, 13, 33] {
+    for top in [10u32, 11, 12, 13] {
         begin(s, dev, &format!("probe-topology-{top}"), 16, 16, 28, "ps");
         some(s, &mut r3, 12);
         writeln!(s, "draw {top} 12 32").unwrap();
@@ -703,6 +712,33 @@ fn probes(s: &mut String, dev: &str) {
             read_rt(s, 0, 2, 16, 16);
             writeln!(s, "end").unwrap();
         }
+    }
+    // what D3DRASTER.CLIPW, CLIPZ and FILTER leave open: a vertex behind the eye with the
+    // triangle keeping an area, the depth of a triangle crossing the depth range as
+    // SV_Position, minification, linear filtering of 16-bit UNORM and float texels
+    begin(s, dev, "probe-clip-w2", 16, 16, 28, "ps");
+    for (x, y, w) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)] {
+        let c = color(9);
+        writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(x * w), fb(y * w), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+    }
+    writeln!(s, "draw 4 3 32").unwrap();
+    read_rt(s, 0, 28, 16, 16);
+    writeln!(s, "end").unwrap();
+    begin(s, dev, "probe-clip-z-pos", 16, 16, 2, "pspos");
+    tri(s, [-0.5, 0.5, 1.5], one);
+    writeln!(s, "draw 4 3 32").unwrap();
+    read_rt(s, 0, 2, 16, 16);
+    writeln!(s, "end").unwrap();
+    for (name, filter, fmt, uv) in [("min", 0x10u32, 28u32, (-2.0f32, 3.0f32)), ("min-point", 0x04, 28, (-1.5, 2.5)), ("unorm16", 0x15, 11, (-0.2, 0.9)), ("float", 0x15, 2, (-0.2, 0.9))] {
+        writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        let pitch = format(fmt).unwrap().row_bytes(4);
+        writeln!(s, "tex 1 2 4 4 1 1 {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("pssample"))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (x, y, u, v) in [(-1.0f32, 1.0f32, uv.0, uv.0), (1.0, 1.0, uv.1, uv.0), (-1.0, -1.0, uv.0, uv.1), (1.0, -1.0, uv.1, uv.1)] {
+            writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }
     // a constant buffer bound (no program reads it)
     begin(s, dev, "probe-cbuf", 16, 16, 28, "ps");

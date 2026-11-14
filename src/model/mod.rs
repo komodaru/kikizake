@@ -201,7 +201,14 @@ fn apis() -> Vec<Box<dyn Api>> {
 fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
     let mut out = Vec::new();
     let mut apis = apis();
+    // (the executor's output reaches the file at its flushes, so a crash loses what came after
+    // the last: at a case's start, and before each Direct3D 10/11 resource ("tex", runner/
+    // d3dres.c op_tex))
+    let mut flushed = 0;
     'line: for op in &case.ops {
+        if op.tok.first().is_some_and(|t| t == "tex") {
+            flushed = out.len();
+        }
         for a in apis.iter_mut() {
             match a.op(op, &mut out) {
                 Ok(true) => continue 'line,
@@ -210,7 +217,10 @@ fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
                     out.push(format!("bad line {}", op.line));
                     continue 'line;
                 }
-                Err(Fail::Crash) => return (Ok(out), Ended::Crash),
+                Err(Fail::Crash) => {
+                    out.truncate(flushed);
+                    return (Ok(out), Ended::Crash);
+                }
                 Err(e @ (Fail::Bad | Fail::Unmodeled(_))) => return (Err(e), Ended::Next),
             }
         }

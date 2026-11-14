@@ -73,14 +73,16 @@ CONV.BC7 measured | BC7 Format; ld-98 (WARP, 8 random blocks) | BC7_UNORM: the 8
 D3DRASTER.SHADER doc | ID3D11Device::CreateVertexShader, CreatePixelShader | the generator's programs are accepted
 D3DRASTER.SHADER.BAD assumed | CreatePixelShader | bytes that are not a program of that kind (wrong checksum, truncated, the other kind): E_INVALIDARG
 D3DRASTER.LAYOUT assumed | ID3D11Device::CreateInputLayout | every input of the program needs an element; an element of an unknown, typeless, block or video format is refused
-D3DRASTER.LAYOUT.SIG open | (none) | an input layout against a refused program
+D3DRASTER.LAYOUT.SIG measured | CreateInputLayout; probe-layout-otherkind (WARP) | an input layout against a pixel program's bytes (refused as a vertex program) is refused, E_INVALIDARG
 D3DRASTER.LAYOUT.BAD measured | CreateInputLayout; probe-layout-refused | an input layout against bytes that are no program (a broken checksum) is refused, E_INVALIDARG
 D3DRASTER.VIEWPORT doc | D3D11_VIEWPORT, D3D10_VIEWPORT (integers) | the viewport transform
 D3DRASTER.VP10 measured | D3D10_VIEWPORT (INT TopLeftX, TopLeftY); probe-vp-frac | a fractional viewport origin on Direct3D 10 is the executor's integer cast of it, toward zero
 D3DRASTER.DRAW doc | ID3D11DeviceContext::Draw, DrawInstanced | the vertices through the pipeline
 D3DRASTER.INCOMPLETE measured | Draw; probe-incomplete | a draw without programs and an input layout draws nothing; nothing is drawn without a target or depth view to draw to
 D3DRASTER.NOVIEWPORT measured | RSSetViewports; probe-noviewport | a draw without a viewport draws nothing
-D3DRASTER.TOPOLOGY open | (none) | the lists and strips with adjacency, patch lists; points and lines through programs other than ps and psflat; lines with the multisample or antialiased-line state; colors along a line with w other than 1; a line's end inside a pixel's diamond that no later line lights (lit for some lines, not others: probe-lineend-*)
+D3DRASTER.TOPOLOGY open | (none) | points and lines through programs other than ps and psflat; lines with the multisample or antialiased-line state; colors along a line with w other than 1; a line's end inside a pixel's diamond that no later line lights (lit for some lines, not others: probe-lineend-*)
+D3DRASTER.ADJ measured | Primitive Topologies (adjacency); probe-topology-10 to -13 (WARP) | the lists and strips with adjacency drawn with no geometry program skip the adjacent vertices: lines 4p + 1 to 4p + 2, strips' lines p + 1 to p + 2, triangles 6p, 6p + 2, 6p + 4, strips' triangles of the even vertices as a triangle strip
+D3DRASTER.PATCH measured | IASetPrimitiveTopology (patch lists); probe-topology-33 (WARP, x86 and x86-64, Direct3D 10 and 11) | a draw of a patch list without hull and domain programs ends the executor; the output since the executor's last flush (before the case's last tex line) is lost
 D3DRASTER.POINT measured | Point Rasterization Rules; probe-points-* (WARP, every pixel) | a point inside the clip volume lights the one pixel (ceil(x) - 1, ceil(y) - 1) of its snapped position, in its vertex's values
 D3DRASTER.LINE measured | Aliased Line Rasterization Rules (the figure); probe-lines-*, probe-linestrip-*, probe-wire-* (WARP, every pixel but the end rule of D3DRASTER.TOPOLOGY) | a line is clipped to the viewport planes in f32 (the end outside a plane moves to a + (b - a) da / (da - db), its attributes with it), snapped; it lights a pixel when it exits the pixel's diamond going from its start to its end: it meets the diamond (its inside, lower-left and lower-right edges and bottom corner, for a y-major line also its right corner) and its end is not in it; strips as the separate lines in order
 D3DRASTER.LINE.COLOR measured | probe-lines-*, probe-linestrip-*, probe-wire-* (WARP, 904 pixels) | the color along a line: a plane over the major axis, gradient (cb - ca) (1 / (b - a)), C = ca - gradient a, the value C + gradient c at the pixel center's major coordinate, in f32
@@ -90,9 +92,11 @@ D3DRASTER.VBPAST measured | Draw (out of bounds vertex buffer reads); probe-vb-p
 D3DRASTER.IDS doc | SV_VertexID, SV_InstanceID | the vertex's index in the draw and the instance's
 D3DRASTER.STRIP doc | Primitive Topologies (triangle strips) | every other triangle of a strip has its first two vertices swapped
 D3DRASTER.CLIP measured | Rasterization Rules, the clip volume; draw-clip-* (WARP) | a triangle is clipped against the viewport planes in homogeneous f32 (Sutherland-Hodgman) before snapping; the pieces are fanned, attributes from the original triangle
-D3DRASTER.CLIPW open | (none) | w not positive
+D3DRASTER.CLIPW open | (none) | a vertex at w not positive (or a coordinate not finite) whose triangle keeps an area after clipping
+D3DRASTER.CLIPW.AWAY measured | Rasterization Rules, the clip volume; probe-clip-w (WARP) | a triangle with a vertex at w <= 0 is clipped to the viewport planes in homogeneous coordinates; when what is left has no area once snapped, nothing is drawn
 D3DRASTER.DEPTHCLIP doc | D3D11_RASTERIZER_DESC (DepthClipEnable) | a triangle wholly in front of 0 or past 1 is clipped away; without depth clipping its depth is clamped to the viewport's range
-D3DRASTER.CLIPZ open | (none) | a triangle that crosses the depth range
+D3DRASTER.CLIPZ open | (none) | the depth of a triangle that crosses the depth range (its pixels' depth, tested or read as SV_Position)
+D3DRASTER.CLIPZ.PIECES measured | Rasterization Rules, the clip volume; probe-clip-z (WARP) | with depth clipping a triangle that crosses the depth range is clipped after the viewport planes to 0 <= z then z <= w, in f32, the pieces fanned as D3DRASTER.CLIP
 D3DRASTER.SNAP assumed | Rasterization Rules | vertices snapped to 1/256 of a pixel, rounding half to even
 D3DRASTER.DEGENERATE doc | Rasterization Rules | a triangle of zero area draws nothing
 D3DRASTER.CULL doc | D3D11_CULL_MODE, D3D11_RASTERIZER_DESC (FrontCounterClockwise) | clockwise triangles face front unless FrontCounterClockwise
@@ -109,7 +113,7 @@ D3DRASTER.PRIM doc | SV_PrimitiveID, SV_IsFrontFace | the primitive's index in i
 D3DRASTER.LD doc | ld (sm4 - asm) | the texel, converted from the view's format
 D3DRASTER.LD.OUT doc | ld (sm4 - asm) (out of range: 0) | an address outside the texture reads 0
 D3DRASTER.NOSRV measured | (WARP) | no shader resource bound: the read gives zeros
-D3DRASTER.NOSAMPLER open | (none) | no sampler
+D3DRASTER.NOSAMPLER measured | ID3D11DeviceContext::PSSetSamplers (default sampler state); probe-sample-nosampler (WARP) | no sampler bound: the default sampler, linear filtering with clamped addresses
 D3DRASTER.SAMPLE doc | sample (sm4 - asm) | the texture coordinates interpolated as any attribute (D3DRASTER.INTERP.PLANE), filtered by the sampler
 D3DRASTER.FILTER open | (none) | minification (a pixel spanning a texel or more, where the minifying filter differs from the magnifying one), anisotropic and comparison filters, linear filtering of formats other than the 8-bit UNORM ones
 D3DRASTER.FILTER.POINT measured | D3D11_FILTER (point); probe-filter-* (WARP, every pixel) | point sampling: the texel floor(u width), floor(v height), the products in f32, through the address modes

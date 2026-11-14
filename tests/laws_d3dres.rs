@@ -203,8 +203,10 @@ fn mutated_cases_never_panic() {
             for arch in [32, 64] {
                 kikizake::model::set_arch(arch);
                 let o = kikizake::case::parse_output(&kikizake::model::run(s, &parsed));
-                // (a line the x86 runtime dies on ends the output there)
-                assert!(o.cases.len() == parsed.len() && o.done || arch == 32 && !o.done && o.cases.len() == 1, "{t}");
+                // (a line the x86 runtime dies on ends the output there, as a patch list's draw
+                // does on either)
+                let patch = lines.iter().any(|l| l[0] == "draw" && l.get(1).and_then(|w| w.parse::<u32>().ok()).is_some_and(|top| (33..=64).contains(&top)));
+                assert!(o.cases.len() == parsed.len() && o.done || (arch == 32 || patch) && !o.done && o.cases.len() == 1, "{t}");
             }
         }
     }

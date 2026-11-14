@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc 5d9cd22f362d2e000fa70e0cfe0829b04cadf35941595d01cf2107b6bc99719b # shrinks to cx = 0, cy = 14, rx = 8, ry = 1, dx = 0, dy = 2, k = 2
+cc 17a566bfdc8688c575d6566a804e493615177cfada7105e5f96a3151c021aa5f # shrinks to pts = [(0, 7), (4, 9), (6, 6), (8, 3), (4, 9)], pts2 = [(0, 0), (0, 0), (0, 0)]
