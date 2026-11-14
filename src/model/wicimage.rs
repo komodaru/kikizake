@@ -1972,6 +1972,49 @@ pub enum EncodeOption {
 /// MEASURED (golden wicencode enc-jpeg-*: every byte and pixel, see model::jpeg): WIC's JPEG
 /// encoder is IJG libjpeg 6b's at quality 90 (ImageQuality 0.9); the file decodes at 0 dpi
 /// (JFIF's density 0), a CMYK one (Adobe, no JFIF) at 96
+/// MEASURED (golden wicencode enc-dds-*: every byte): a DDS file of one BC3 (DXT5) surface:
+/// the 124-byte header with caps, height, width, pixel format and linear size (the blocks'
+/// bytes), depth 1 and 1 mip level, the FourCC DXT5 and caps TEXTURE; then the blocks
+/// (src/model/bc.rs) left to right, top to bottom, a block past the picture repeating its last
+/// column and row
+fn encode_dds(i: &Img) -> Res<Vec<u8>> {
+    if i.fmt != "bgra" {
+        return Err(Fail::Bad);
+    }
+    let (bw, bh) = (i.w.div_ceil(4), i.h.div_ceil(4));
+    let mut blocks = Vec::new();
+    for by in 0..bh {
+        for bx in 0..bw {
+            let px: [crate::model::bc::Px; 16] = std::array::from_fn(|k| {
+                let k = u32::try_from(k).unwrap_or(0);
+                let (x, y) = ((bx * 4 + k % 4).min(i.w - 1), (by * 4 + k / 4).min(i.h - 1));
+                let p = i.get(x, y);
+                [p[2], p[1], p[0], p[3]].map(|v| f32::from(v) * (1.0 / 255.0))
+            });
+            let b = crate::model::bc::encode_bc3(&px).ok_or(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY))?;
+            blocks.extend_from_slice(&b);
+        }
+    }
+    hit(clause::WICIMAGE_ENCODE_DDS);
+    let mut v = Vec::with_capacity(128 + blocks.len());
+    v.extend_from_slice(b"DDS ");
+    let le = |v: &mut Vec<u8>, x: u32| v.extend_from_slice(&x.to_le_bytes());
+    let linear = u32::try_from(blocks.len()).map_err(|_| Fail::Bad)?;
+    for x in [124, 0x000a_1007, i.h, i.w, linear, 1, 1] {
+        le(&mut v, x);
+    }
+    v.resize(v.len() + 44, 0);
+    for x in [32, 4] {
+        le(&mut v, x);
+    }
+    v.extend_from_slice(b"DXT5");
+    v.resize(v.len() + 20, 0);
+    le(&mut v, 0x1000);
+    v.resize(128, 0);
+    v.extend_from_slice(&blocks);
+    Ok(v)
+}
+
 fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     use crate::model::jpeg::{self, Kind};
 
@@ -2363,6 +2406,7 @@ impl WicImage {
                     "gif" => Encoded::Bytes(encode_gif(&img)?),
                     "wmp" if opts.wmp_lossless => Encoded::Decodes("wmp", img),
                     "jpeg" => encode_jpeg(&img, opts)?,
+                    "dds" => Encoded::Bytes(encode_dds(&img)?),
                     _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),
                 };
                 out.push(format!("wencode 00000000 {nf} ok"));

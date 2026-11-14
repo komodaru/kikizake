@@ -548,3 +548,56 @@ proptest! {
         prop_assert!(worst <= if color { 4 } else { 2 }, "worst {}", worst);
     }
 }
+
+/// BC3 as Microsoft Learn's "Texture block compression in Direct3D 11" decodes it: two 5:6:5
+/// colors and the thirds between them (color0 > color1), two alpha ends and the steps between
+/// (6 and the ends 0 and 255 when alpha0 <= alpha1)
+fn bc3_decode(b: &[u8; 16]) -> [[u8; 4]; 16] {
+    let c = |w: u16| [(w >> 11) & 31, (w >> 5) & 63, w & 31];
+    let up = |v: u16, bits: u32| f64::from(v) * 255.0 / f64::from((1u16 << bits) - 1);
+    let (w0, w1) = (u16::from_le_bytes([b[8], b[9]]), u16::from_le_bytes([b[10], b[11]]));
+    let (c0, c1) = (c(w0), c(w1));
+    let e0 = [up(c0[0], 5), up(c0[1], 6), up(c0[2], 5)];
+    let e1 = [up(c1[0], 5), up(c1[1], 6), up(c1[2], 5)];
+    let pal: [[f64; 3]; 4] = [e0, e1, std::array::from_fn(|k| (2.0 * e0[k] + e1[k]) / 3.0), std::array::from_fn(|k| (e0[k] + 2.0 * e1[k]) / 3.0)];
+    let (a0, a1) = (f64::from(b[0]), f64::from(b[1]));
+    let apal: Vec<f64> = if b[0] > b[1] {
+        (0..8).map(|i| match i { 0 => a0, 1 => a1, _ => ((8 - i) as f64 * a0 + (i - 1) as f64 * a1) / 7.0 }).collect()
+    } else {
+        (0..8).map(|i| match i { 0 => a0, 1 => a1, 6 => 0.0, 7 => 255.0, _ => ((6 - i) as f64 * a0 + (i - 1) as f64 * a1) / 5.0 }).collect()
+    };
+    let abits = (0..6).fold(0u64, |a, i| a | u64::from(b[2 + i]) << (8 * i));
+    let cbits = u32::from_le_bytes([b[12], b[13], b[14], b[15]]);
+    std::array::from_fn(|i| {
+        let p = pal[((cbits >> (2 * i)) & 3) as usize];
+        let a = apal[((abits >> (3 * i)) & 7) as usize];
+        [p[0], p[1], p[2], a].map(|v| v.round() as u8)
+    })
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(256))]
+
+    /// a block of one color decodes to that color within the 5:6:5 rounding, its alpha exactly;
+    /// a block of two alphas (or 0 and 255 with one more) keeps every alpha exactly; a gray
+    /// block is always modelled
+    #[test]
+    fn bc3_keeps_what_it_can_hold(c: [u8; 3], alphas: [u8; 2], pick: u16, gray: bool) {
+        use kikizake::model::bc;
+        let f = |v: u8| f32::from(v) * (1.0 / 255.0);
+        let rgb = if gray { [c[0]; 3] } else { c };
+        let px: [bc::Px; 16] = std::array::from_fn(|i| {
+            let a = alphas[usize::from(pick >> i & 1)];
+            [f(rgb[0]), f(rgb[1]), f(rgb[2]), f(a)]
+        });
+        let b = bc::encode_bc3(&px).expect("one color does not depend on the start diagonal");
+        let d = bc3_decode(&b);
+        for (i, p) in d.iter().enumerate() {
+            for k in 0..3 {
+                let tol = if k == 1 { 3 } else { 5 };
+                prop_assert!(p[k].abs_diff(rgb[k]) <= tol, "{:?} vs {:?}", p, rgb);
+            }
+            prop_assert_eq!(p[3], alphas[usize::from(pick >> i & 1)]);
+        }
+    }
+}
