@@ -32,9 +32,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 144 16 53 123 69 45
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 64 16 167 85 109 187
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 144 16 42 87 74 185
 d3ddump
 d3dclear 0xff000000
@@ -78,9 +75,6 @@ d3dtri 0xffffffff 32 48 92 74 110 95
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 128 64 25 85 55 190
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 64 174 184 141 182
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 80 64 168 119 20 101
@@ -140,9 +134,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 80 112 177 160 114 166
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 64 112 179 180 74 166
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 144 112 163 165 88 140
 d3ddump
 d3dclear 0xff000000
@@ -158,16 +149,7 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 144 128 99 191 22 155
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 48 128 95 148 178 183
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 128 188 183 34 165
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 48 128 126 148 159 171
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 144 35 186 189 167
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 32 144 17 156 153 171
@@ -229,9 +211,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 96 32 64 9 82 134
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 112 32 168 16 9 182
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 112 32 109 10 66 91
 d3ddump
 d3dclear 0xff000000
@@ -271,9 +250,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 112 64 38 53 167 91
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 96 64 124 27 178 178
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 80 64 187 60 82 156
 d3ddump
 d3dclear 0xff000000
@@ -304,19 +280,10 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 32 96 99 90 75 113
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 112 96 187 31 135 184
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 96 164 44 191 184
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 32 96 170 44 157 131
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 128 96 94 82 147 105
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 112 164 67 47 190
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 128 112 177 41 185 137
@@ -343,9 +310,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 80 128 142 99 183 164
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 112 128 174 37 100 176
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 144 128 182 64 4 149
 d3ddump
 d3dclear 0xff000000
@@ -365,9 +329,6 @@ d3dtri 0xffffffff 64 144 136 59 138 164
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 96 144 35 40 186 169
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 144 183 2 1 179
 d3ddump
 end
 case center-rgb-bot
@@ -593,9 +554,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 98 94 45 147 135 171
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 113 75 191 101 71 187
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 129 84 184 128 149 140
 d3ddump
 d3dclear 0xff000000
@@ -608,9 +566,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 121 18 167 110 99 149
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 137 104 172 144 161 182
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 149 41 2 90 78 145
 d3ddump
 d3dclear 0xff000000
@@ -618,9 +573,6 @@ d3dtri 0xffffffff 128 68 128 161 11 169
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 1 75 118 114 91 118
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 172 113 60 141 138 182
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 18 20 156 56 72 186
@@ -632,9 +584,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 96 109 96 139 36 182
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 96 103 96 163 185 188
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 62 100 34 124 148 175
 d3ddump
 d3dclear 0xff000000
@@ -642,9 +591,6 @@ d3dtri 0xffffffff 80 66 80 118 106 185
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 183 105 128 160 137 169
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 11 95 131 119 180 188
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 18 118 159 165 122 184
@@ -666,9 +612,6 @@ d3dtri 0xffffffff 103 82 185 110 40 172
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 29 20 169 68 90 162
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 43 93 188 180 96 183
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 67 19 136 88 21 109
@@ -710,13 +653,7 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 141 90 157 122 56 185
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 170 88 70 168 75 187
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 90 26 178 50 177 83
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 166 106 88 184 127 189
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 185 6 75 50 166 161
@@ -731,25 +668,10 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 147 115 176 144 168 165
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 7 90 82 140 180 191
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 67 113 190 154 190 182
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 36 116 166 142 125 167
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 186 43 16 128 117 184
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 103 118 34 148 156 150
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 130 62 23 169 179 176
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 116 68 79 179 177 186
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 136 67 80 158 74 190
@@ -794,13 +716,7 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 95 88 100 128 130 169
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 143 7 163 187 144 188
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 96 46 96 134 68 150
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 70 64 162 191 179
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 61 115 3 141 110 177
@@ -824,15 +740,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 116 110 30 153 36 190
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 160 22 160 56 162 185
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 120 176 176 66 191
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 172 100 190 154 184 186
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 78 37 84 70 56 155
 d3ddump
 d3dclear 0xff000000
@@ -847,566 +754,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 171 103 63 139 105 148
 d3ddump
-end
-case center-mmx-top
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 0 101 59 114 183
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 0 187 120 78 143
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 0 91 153 73 189
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 0 111 122 56 42
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 0 72 152 33 62
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 0 121 157 79 79
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 16 59 178 137 84
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 16 84 147 39 98
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 16 165 64 174 88
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 16 9 94 96 178
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 16 94 173 27 39
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 16 44 185 80 85
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 32 57 150 77 170
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 32 92 174 109 107
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 32 157 86 88 128
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 32 28 79 135 166
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 32 22 69 70 135
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 32 143 169 4 179
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 48 3 163 96 58
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 48 33 128 106 181
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 48 188 124 163 190
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 48 161 84 130 161
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 48 38 86 186 180
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 48 49 116 47 145
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 64 174 149 106 73
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 64 69 94 122 180
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 64 85 78 113 90
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 64 27 188 133 135
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 64 167 162 89 93
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 64 135 90 73 104
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 80 157 150 88 165
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 80 153 156 123 125
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 80 115 159 136 88
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 80 116 153 24 185
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 80 91 141 137 188
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 80 110 126 121 177
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 96 48 162 131 153
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 96 107 153 37 145
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 96 131 123 16 172
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 96 9 162 119 150
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 96 106 140 146 123
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 96 124 179 43 141
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 112 183 141 97 188
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 112 37 179 24 183
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 112 150 135 165 188
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 112 76 147 38 190
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 112 69 134 41 151
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 112 64 148 191 189
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 128 177 181 31 144
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 128 165 165 152 166
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 128 152 180 111 153
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 128 77 176 185 167
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 128 102 154 165 152
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 128 137 156 16 189
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 144 25 159 28 182
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 144 46 162 166 165
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 144 104 180 153 177
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 144 32 183 38 155
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 144 148 155 107 178
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 144 89 154 131 176
-d3ddump
-end
-case center-mmx-mid
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 0 120 0 138 141
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 0 99 0 80 116
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 0 17 0 128 108
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 0 118 0 64 149
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 0 26 0 19 176
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 0 26 0 133 63
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 16 145 11 131 34
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 16 186 9 12 97
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 16 130 10 99 27
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 16 27 0 68 185
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 16 69 3 175 165
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 16 118 5 96 109
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 32 11 12 3 101
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 32 12 17 156 83
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 32 142 15 72 109
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 32 100 6 105 45
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 32 165 3 158 79
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 32 62 18 84 167
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 48 100 37 56 119
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 48 130 25 93 92
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 48 58 1 110 119
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 48 18 30 101 190
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 48 90 9 75 89
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 48 163 29 150 100
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 64 70 49 161 80
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 64 177 42 152 77
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 64 171 9 130 159
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 64 177 58 23 140
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 64 99 44 150 157
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 64 133 8 79 95
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 80 135 60 118 122
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 80 4 44 177 142
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 80 166 76 106 140
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 80 169 76 98 145
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 80 116 22 170 160
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 80 117 24 11 97
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 96 58 3 55 116
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 96 8 47 63 144
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 96 158 88 140 174
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 96 38 46 81 167
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 96 185 70 180 176
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 96 127 79 74 179
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 112 178 23 191 129
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 112 150 82 101 162
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 112 78 20 58 181
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 112 183 12 63 177
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 112 101 48 52 135
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 112 146 28 87 191
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 128 10 101 98 148
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 128 120 3 49 145
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 128 136 12 162 138
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 128 136 105 102 168
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 128 68 80 28 145
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 128 14 1 51 165
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 144 183 64 13 183
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 144 172 24 59 160
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 144 47 0 33 152
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 144 56 5 112 177
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 144 109 81 119 158
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 144 185 80 37 161
-d3ddump
-end
-case center-mmx-bot
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 0 71 0 39 0
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 0 70 0 23 0
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 0 10 0 60 0
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 0 133 0 153 0
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 0 102 0 59 0
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 0 149 0 5 0
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 16 97 6 102 2
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 16 24 2 129 2
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 16 136 7 106 3
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 16 191 3 73 6
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 16 51 1 122 3
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 16 63 7 179 7
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 32 127 15 42 5
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 32 132 8 14 24
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 32 44 7 14 15
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 32 15 5 188 19
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 32 121 18 53 13
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 32 181 10 175 14
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 48 35 13 147 38
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 48 36 16 124 14
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 48 55 29 125 1
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 48 59 33 55 31
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 48 46 10 131 27
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 48 163 37 169 10
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 64 169 22 162 42
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 64 159 1 153 27
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 64 107 3 80 16
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 64 54 36 12 55
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 64 153 33 59 52
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 64 161 47 116 49
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 80 87 36 26 36
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 80 57 43 24 26
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 80 13 55 162 62
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 80 128 51 165 30
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 80 154 7 175 12
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 80 186 25 185 47
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 96 152 31 36 71
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 96 55 12 36 36
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 96 70 33 183 13
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 96 67 78 113 29
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 96 144 25 183 65
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 96 177 60 36 52
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 112 164 74 66 68
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 112 86 23 37 22
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 112 133 63 107 29
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 112 178 62 25 7
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 112 148 78 80 38
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 112 34 29 0 92
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 80 128 41 57 71 116
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 128 111 62 180 94
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 128 167 73 127 89
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 32 128 101 44 52 25
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 128 157 45 52 2
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 128 139 73 160 74
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 112 144 49 51 163 50
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 144 60 20 70 97
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 144 163 26 114 88
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 144 84 124 84 111
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 144 22 110 126 52
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 48 144 135 110 28 54
-d3ddump
-end
-case whole-mmx-short
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 56 82 20 145 152 173
 d3ddump
@@ -1417,9 +764,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 169 77 22 126 109 147
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 36 109 168 142 168 178
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 128 68 8 158 98 170
 d3ddump
 d3dclear 0xff000000
@@ -1427,9 +771,6 @@ d3dtri 0xffffffff 12 60 133 181 89 188
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 144 53 0 152 191 159
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 64 115 64 164 174 184
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 28 52 74 190 37 191
@@ -1445,12 +786,6 @@ d3dtri 0xffffffff 125 7 155 97 32 157
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 48 40 116 74 88 140
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 17 115 141 167 167 187
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 134 116 99 186 169 187
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 75 85 20 140 85 182
@@ -1473,12 +808,551 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 97 60 74 152 85 185
 d3ddump
+end
+case center-mmx-top
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
-d3dtri 0xffffffff 68 18 24 172 189 191
+d3dtri 0xffffffff 112 0 77 95 52 8
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 99 72 81 120 80 146
+d3dtri 0xffffffff 96 0 45 153 143 116
 d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 0 145 73 85 16
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 0 84 44 92 99
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 0 94 130 79 188
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 0 19 73 82 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 16 103 50 90 119
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 16 22 123 9 33
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 16 164 110 52 84
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 16 3 84 26 134
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 16 87 122 142 66
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 16 131 71 112 171
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 32 70 151 0 185
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 32 35 117 60 45
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 32 191 98 157 159
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 32 27 138 126 85
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 32 122 160 75 119
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 32 91 190 123 76
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 48 184 100 141 160
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 48 37 177 18 108
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 48 12 136 84 170
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 48 183 112 174 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 48 97 133 143 191
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 48 34 133 146 153
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 64 113 84 108 170
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 64 160 103 117 146
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 64 181 82 189 107
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 64 62 101 172 139
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 64 70 175 36 137
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 64 108 87 111 120
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 80 130 99 155 110
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 80 125 94 22 137
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 80 131 177 58 191
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 80 181 158 180 97
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 80 113 124 132 93
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 80 15 179 154 152
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 96 43 164 119 173
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 96 64 162 179 113
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 96 185 104 88 125
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 96 149 115 65 139
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 112 84 188 154 144
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 112 23 169 172 123
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 112 131 184 11 191
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 112 108 139 7 190
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 112 57 126 60 154
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 128 120 188 111 172
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 128 63 180 86 164
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 128 181 166 151 173
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 128 41 164 148 175
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 128 23 186 92 163
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 144 185 165 14 159
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 144 114 157 64 183
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 144 54 153 73 152
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 144 101 169 30 155
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 144 60 188 158 186
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 144 101 174 179 165
+d3ddump
+end
+case center-mmx-mid
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 0 53 0 80 149
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 0 110 0 45 23
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 0 15 0 172 22
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 0 124 0 84 72
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 0 149 0 23 177
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 0 32 0 180 65
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 16 133 0 65 43
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 16 146 8 96 47
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 16 150 4 0 127
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 16 116 0 124 133
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 16 124 1 133 130
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 16 9 1 147 54
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 32 66 19 63 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 32 99 5 186 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 32 169 20 115 101
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 32 156 16 185 72
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 32 88 27 134 92
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 32 155 7 81 50
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 48 68 36 113 170
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 48 150 4 8 87
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 48 15 18 112 115
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 48 94 32 171 159
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 48 189 20 4 62
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 48 135 17 37 141
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 64 134 41 149 186
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 64 7 55 135 188
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 64 29 49 56 151
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 64 177 26 167 129
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 64 96 21 93 81
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 64 80 60 173 128
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 80 112 64 131 168
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 80 131 9 145 163
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 80 34 63 59 146
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 80 36 28 95 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 80 18 42 171 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 80 138 12 2 111
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 96 94 17 144 138
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 96 120 10 18 127
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 96 9 56 23 134
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 96 98 5 126 156
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 96 113 24 11 106
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 96 66 16 186 135
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 112 31 83 149 187
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 112 150 96 112 128
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 112 143 42 21 189
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 112 82 42 30 184
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 112 14 31 93 140
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 112 50 41 155 129
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 128 49 37 160 190
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 128 81 73 11 166
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 128 151 86 25 179
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 128 111 0 92 186
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 128 55 34 30 173
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 144 122 48 33 176
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 144 74 64 115 163
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 144 41 101 44 158
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 144 171 19 3 153
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 144 165 63 95 157
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 144 140 56 77 160
+d3ddump
+end
+case center-mmx-bot
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 0 20 0 57 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 0 68 0 93 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 0 52 0 134 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 0 20 0 141 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 0 118 0 66 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 0 28 0 143 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 16 136 7 21 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 16 31 8 95 6
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 16 43 4 0 4
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 16 134 7 40 4
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 16 38 0 40 7
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 16 167 2 77 6
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 32 162 23 62 15
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 32 97 4 122 2
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 32 181 2 173 17
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 32 71 18 92 4
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 32 36 16 55 11
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 32 177 21 59 7
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 48 49 6 95 29
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 48 79 12 70 24
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 48 73 4 133 14
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 48 85 8 22 25
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 48 139 4 146 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 48 31 28 151 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 64 179 19 85 22
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 64 57 23 85 10
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 64 159 40 153 49
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 64 41 31 128 10
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 64 129 34 101 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 64 56 37 99 16
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 80 116 38 103 49
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 80 50 12 82 29
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 80 65 64 89 54
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 80 15 25 67 33
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 80 90 16 181 23
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 80 19 0 136 24
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 96 118 60 28 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 96 123 31 14 67
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 96 85 82 40 25
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 96 91 32 73 7
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 96 180 41 174 20
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 96 21 48 52 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 112 74 2 172 77
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 112 163 14 159 26
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 112 163 104 153 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 112 119 7 173 9
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 112 115 13 81 13
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 112 131 64 155 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 128 177 69 112 99
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 128 156 22 67 74
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 128 58 5 116 65
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 128 24 49 2 5
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 128 36 89 135 11
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 128 53 74 161 71
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 144 22 116 58 47
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 144 55 17 144 132
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 144 143 24 13 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 144 75 99 28 27
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 144 131 52 48 124
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 144 110 120 82 0
+d3ddump
+end
+case whole-mmx-short
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 62 30 104 72 122 133
 d3ddump
@@ -1540,13 +1414,7 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 107 83 181 109 93 111
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 4 117 180 161 86 189
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 85 30 0 64 158 71
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 1 118 103 186 168 187
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 89 71 54 106 98 121
@@ -1559,9 +1427,6 @@ d3dtri 0xffffffff 48 29 48 141 4 145
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 97 110 81 142 107 179
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 146 62 21 187 168 189
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 46 43 64 88 161 128
@@ -1595,9 +1460,6 @@ d3dtri 0xffffffff 153 23 118 58 16 120
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 171 99 138 138 107 169
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 170 49 82 181 135 186
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 29 39 65 147 165 152
@@ -1675,9 +1537,6 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 74 19 162 71 182 101
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 1 106 161 170 76 190
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 66 97 172 150 19 162
 d3ddump
 d3dclear 0xff000000
@@ -1687,166 +1546,106 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 176 10 176 156 15 168
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 53 113 182 158 128 186
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 58 69 106 157 32 189
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 4 10 186 101 138 122
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 44 12 111 79 79 122
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 188 100 157 131 23 167
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 33 51 95 77 50 110
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 45 43 123 173 104 174
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 116 116 153 153 131 162
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 157 50 118 92 45 165
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 62 93 122 92 160
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 23 71 80 128 141 170
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 82 86 64 176 102 177
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 33 108 17 172 82 175
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 117 49 89 133 101 188
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 9 96 42 76 104
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 20 0 92 2 125
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 105 4 63 60 132 68
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 88 55 184 91 18 150
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 86 128 124 105 156
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 100 40 139 161 145
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 82 116 43 142 71 176
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 147 30 90 68 141 116
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 158 85 8 140 18 180
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 116 76 64 128 55 189
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 1 144 103 111 162
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 100 110 24 148 47 157
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 150 74 97 127 118 165
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 154 115 26 179 39 190
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 57 37 127 147 67 162
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 148 120 130 156 94 187
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 146 111 30 169 31 191
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 150 20 67 186 146 189
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 148 88 111 162 47 186
 d3ddump
 end
 case whole-rgb-long-0
 d3d 7
 d3ddev rgb 565 12 12
 d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 37 92 191 148 12 138
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 44 12 111 79 79 66
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 84 86 168 156 72 101
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 188 100 157 131 23 123
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 33 51 95 77 50 64
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 92 114 182 177 145 124
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 45 43 123 173 104 101
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 179 28 110 120 15 30
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 19 106 162 172 170 122
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 116 116 153 153 131 131
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 157 50 118 92 45 89
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 63 62 93 122 92 121
-d3ddump
-end
-case whole-rgb-long-1
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 23 71 80 128 141 121
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 82 86 64 176 102 127
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 33 108 17 172 82 155
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 130 100 31 166 127 126
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 117 49 89 133 101 65
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 91 89 184 120 53 115
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 96 9 96 42 76 33
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 0 20 0 92 2 91
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 0 115 0 191 117 128
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 30 33 168 148 87 83
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 105 4 63 60 132 56
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 65 105 53 189 145 124
-d3ddump
-end
-case whole-rgb-long-2
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 88 55 184 91 18 58
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 128 86 128 124 105 115
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 6 104 162 152 184 129
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 8 100 90 141 162 130
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 100 40 139 161 101
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 82 116 43 142 71 125
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 147 30 90 68 141 34
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 158 85 8 140 18 109
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 116 76 64 128 55 111
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 144 1 144 103 111 44
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 66 109 12 190 183 138
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 100 110 24 148 47 144
-d3ddump
-end
-case whole-rgb-long-3
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
-d3dclear 0xff000000
-d3dtri 0xffffffff 150 74 97 127 118 99
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 154 115 26 179 39 123
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 57 37 127 147 67 67
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 132 104 93 182 109 119
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 148 120 130 156 94 127
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 146 111 30 169 31 164
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 150 20 67 186 146 29
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 148 88 111 162 47 106
-d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 143 66 53 150 27 101
 d3ddump
@@ -1859,11 +1658,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 134 71 84 146 177 100
 d3ddump
-end
-case whole-rgb-long-4
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 108 108 137 137 70 136
 d3ddump
@@ -1888,6 +1682,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 160 1 160 149 56 92
 d3ddump
+end
+case whole-rgb-long-1
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 18 100 46 124 33 123
 d3ddump
@@ -1900,11 +1699,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 156 100 66 190 155 153
 d3ddump
-end
-case whole-rgb-long-5
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 184 66 112 108 90 90
 d3ddump
@@ -1929,6 +1723,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 31 67 171 95 126 80
 d3ddump
+end
+case whole-rgb-long-2
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 161 31 42 150 128 103
 d3ddump
@@ -1941,11 +1740,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 83 10 7 34 20 15
 d3ddump
-end
-case whole-rgb-long-6
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 27 113 46 170 159 145
 d3ddump
@@ -1970,6 +1764,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 184 26 48 60 98 57
 d3ddump
+end
+case whole-rgb-long-3
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 103 87 167 151 43 102
 d3ddump
@@ -1982,11 +1781,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 67 28 34 72 27 31
 d3ddump
-end
-case whole-rgb-long-7
-d3d 7
-d3ddev rgb 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 72 56 30 98 173 89
 d3ddump
@@ -2011,6 +1805,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 13 2 127 86 183 54
 d3ddump
+end
+case whole-rgb-long-4
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 34 81 22 171 173 149
 d3ddump
@@ -2023,11 +1822,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 71 93 188 132 57 131
 d3ddump
-end
-case whole-mmx-long-0
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 14 11 54 111 66 32
 d3ddump
@@ -2052,6 +1846,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 21 34 190 60 152 48
 d3ddump
+end
+case whole-rgb-long-5
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 54 67 188 134 142 122
 d3ddump
@@ -2064,11 +1863,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 31 113 2 142 60 124
 d3ddump
-end
-case whole-mmx-long-1
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 80 54 80 128 73 87
 d3ddump
@@ -2093,6 +1887,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 187 107 132 132 171 127
 d3ddump
+end
+case whole-rgb-long-6
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 52 40 20 104 32 52
 d3ddump
@@ -2105,11 +1904,6 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 29 119 43 161 144 159
 d3ddump
-end
-case whole-mmx-long-2
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 1 10 189 34 86 15
 d3ddump
@@ -2134,6 +1928,11 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 98 115 126 141 183 116
 d3ddump
+end
+case whole-rgb-long-7
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 60 60 122 122 103 100
 d3ddump
@@ -2141,16 +1940,8 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 168 33 32 118 114 117
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 54 116 20 184 169 151
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 2 34 107 83 167 82
 d3ddump
-end
-case whole-mmx-long-3
-d3d 7
-d3ddev mmx 565 12 12
-d3drs set 22 1
 d3dclear 0xff000000
 d3dtri 0xffffffff 70 97 60 122 5 109
 d3ddump
@@ -2173,25 +1964,19 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 144 69 144 93 143 75
 d3ddump
 d3dclear 0xff000000
-d3dtri 0xffffffff 142 92 184 176 72 94
-d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 176 83 176 184 189 165
-d3ddump
-d3dclear 0xff000000
 d3dtri 0xffffffff 166 13 44 74 181 35
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 42 84 70 140 154 113
 d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 102 40 182 104 130 85
-d3ddump
 end
-case whole-mmx-long-4
+case whole-mmx-long-0
 d3d 7
 d3ddev mmx 565 12 12
 d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 102 40 182 104 130 85
+d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 85 49 45 169 79 168
 d3ddump
@@ -2225,11 +2010,8 @@ d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 9 61 72 88 9 68
 d3ddump
-d3dclear 0xff000000
-d3dtri 0xffffffff 158 105 182 189 91 127
-d3ddump
 end
-case whole-mmx-long-5
+case whole-mmx-long-1
 d3d 7
 d3ddev mmx 565 12 12
 d3drs set 22 1
@@ -2270,7 +2052,7 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 3 51 32 80 11 66
 d3ddump
 end
-case whole-mmx-long-6
+case whole-mmx-long-2
 d3d 7
 d3ddev mmx 565 12 12
 d3drs set 22 1
@@ -2311,7 +2093,7 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 145 101 190 134 132 118
 d3ddump
 end
-case whole-mmx-long-7
+case whole-mmx-long-3
 d3d 7
 d3ddev mmx 565 12 12
 d3drs set 22 1
@@ -2350,5 +2132,169 @@ d3dtri 0xffffffff 18 89 96 128 26 110
 d3ddump
 d3dclear 0xff000000
 d3dtri 0xffffffff 161 44 137 140 107 112
+d3ddump
+end
+case whole-mmx-long-4
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 160 2 160 157 39 140
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 93 83 58 118 171 104
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 147 56 132 96 0 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 178 17 78 47 24 19
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 68 60 107 124 90
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 38 91 140 142 186 101
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 67 48 132 20 76
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 8 116 140 182 43 144
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 188 20 108 100 154 84
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 1 16 76 122 13
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 115 0 140 76 130
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 6 168 81 183 51
+d3ddump
+end
+case whole-mmx-long-5
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 23 82 137 110 60 96
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 180 111 28 149 41 130
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 102 16 181 118 177
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 76 51 100 129 8 123
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 69 16 127 64 102
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 124 67 144 132 37 121
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 78 114 25 167 143 138
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 12 73 44 129 107 119
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 29 114 163 142 106 126
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 62 0 178 78 167
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 112 53 112 105 24 85
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 84 72 28 184 93 78
+d3ddump
+end
+case whole-mmx-long-6
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 92 104 109 138 91 115
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 151 84 73 108 4 87
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 139 59 170 90 77 64
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 103 69 145 51 135
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 190 102 155 127 38 109
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 81 71 111 177 108
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 144 20 144 152 34 105
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 142 93 184 156 45 116
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 105 128 183 85 119
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 190 25 74 83 137 55
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 160 43 160 184 35 179
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 61 35 0 96 191 39
+d3ddump
+end
+case whole-mmx-long-7
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 77 120 104 90 86
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 157 19 87 89 111 26
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 57 57 99 99 53 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 58 80 84 5 75
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 23 45 131 37 81
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 82 152 131 77 101
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 45 58 99 166 80 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 59 113 77 167 75 156
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 69 117 101 149 191 140
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 138 107 52 150 189 123
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 114 111 58 139 4 133
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 1 83 125 135 88 105
 d3ddump
 end

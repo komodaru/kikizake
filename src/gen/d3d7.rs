@@ -386,6 +386,13 @@ fn x_at_first_row(t: V16, b: V16) -> Option<i64> {
 
 /// the edges the d3d7rast scans found shifted: vertices on pixel centers at each row, edges whose
 /// x is a whole pixel on their first row (short and long), on the RGB and MMX devices
+/// no row of the triangle spills past the 12 x 12 target's last pixel (memory after it would be
+/// written: d3d7edge-32 died after whole-rgb-short): a triangle reaching the last row stays
+/// left of x 10
+fn stays_in(v: &[V16]) -> bool {
+    v.iter().all(|p| p.y < 176) || v.iter().all(|p| p.x <= 160)
+}
+
 pub fn d3d7edge() -> String {
     let mut s = String::from("# kikizake suite d3d7edge: Direct3D 7 software rasterizer edges (SPEC.md). Made by `kikizake gen d3d7edge`.\n# x86 only\n");
     let mut r = XorShift32::new(0x00d3_d7ed);
@@ -402,7 +409,9 @@ pub fn d3d7edge() -> String {
                         "mid" => (V16 { x: r.range(0, 191), y: r.range(0, (row * 16 - 4).max(0)) }, V16 { x: r.range(0, 191), y: r.range(row * 16 + 8, 191) }),
                         _ => (V16 { x: r.range(0, 191), y: r.range(0, (row * 16 - 8).max(0)) }, V16 { x: r.range(0, 191), y: r.range(0, (row * 16 - 8).max(0)) }),
                     };
-                    writeln!(s, "{}", tri(c, a, b)).unwrap();
+                    if stays_in(&[c, a, b]) {
+                        writeln!(s, "{}", tri(c, a, b)).unwrap();
+                    }
                 }
             }
             writeln!(s, "end").unwrap();
@@ -424,7 +433,7 @@ pub fn d3d7edge() -> String {
                     continue;
                 }
                 let third = if kind == "short" { V16 { x: r.range(0, 191), y: r.range(b.y + 1, 192) } } else { V16 { x: r.range(0, 191), y: r.range(t.y + 1, b.y - 1) } };
-                if third.y > 191 || third.y == b.y {
+                if third.y > 191 || third.y == b.y || !stays_in(&[t, b, third]) {
                     continue;
                 }
                 writeln!(s, "{}", tri(t, b, third)).unwrap();
@@ -444,6 +453,9 @@ pub fn d3d7edge() -> String {
                     continue;
                 }
                 let third = V16 { x: r.range(0, 191), y: r.range(t.y + 1, b.y - 1) };
+                if !stays_in(&[t, b, third]) {
+                    continue;
+                }
                 writeln!(s, "{}", tri(t, b, third)).unwrap();
                 n += 1;
             }

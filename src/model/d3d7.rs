@@ -1022,6 +1022,11 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
             Spans::Spill => (xl, xr),
             Spans::Clamp => (xl.max(0), xr.min(w)),
         };
+        // (a row spilling past the surface's last pixel writes the memory after it: d3d7edge-32
+        // died after whole-rgb-short, whose triangle 36 did, in the next case)
+        if x0 < x1 && (y * w + x1 > w * h || y * w + x0 < 0) {
+            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+        }
         for x in x0..x1 {
             if let Some(c) = usize::try_from(y * w + x).ok().and_then(|k| cover.get_mut(k)) {
                 *c = true;
