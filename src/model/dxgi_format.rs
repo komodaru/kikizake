@@ -12,6 +12,8 @@ pub enum Enc {
     Sint,
     /// X: not used
     Unused,
+    /// X of B8G8R8X8_UNORM: WARP writes the alpha there (measured)
+    Alpha,
 }
 
 /// one channel of a texel: which of the clear color's r g b a (0..3) it holds, its bit offset in
@@ -100,7 +102,11 @@ pub fn channels(f: u32) -> Option<Vec<Chan>> {
         86 => vec![Chan { src: 2, at: 0, bits: 5, enc: Unorm }, Chan { src: 1, at: 5, bits: 5, enc: Unorm }, Chan { src: 0, at: 10, bits: 5, enc: Unorm }, Chan { src: 3, at: 15, bits: 1, enc: Unorm }],
         87 | 88 | 91 | 93 => {
             let e = if f >= 91 { Srgb } else { Unorm };
-            let a = if f == 88 || f == 93 { Unused } else { Unorm };
+            let a = match f {
+                88 => Alpha,
+                93 => Unused,
+                _ => Unorm,
+            };
             vec![Chan { src: 2, at: 0, bits: 8, enc: e }, Chan { src: 1, at: 8, bits: 8, enc: e }, Chan { src: 0, at: 16, bits: 8, enc: e }, Chan { src: 3, at: 24, bits: 8, enc: a }]
         }
         115 => vec![Chan { src: 2, at: 0, bits: 4, enc: Unorm }, Chan { src: 1, at: 4, bits: 4, enc: Unorm }, Chan { src: 0, at: 8, bits: 4, enc: Unorm }, Chan { src: 3, at: 12, bits: 4, enc: Unorm }],
@@ -114,3 +120,48 @@ pub const DEPTH: &[u32] = &[20, 40, 45, 55];
 
 /// the formats a flip-model swap chain takes (DXGI_SWAP_CHAIN_DESC1)
 pub const FLIP: &[u32] = &[10, 24, 28, 87];
+
+/// the texture dimensions a format takes, bit 0 1D, bit 1 2D, bit 2 3D (D3D12_FORMAT_SUPPORT1_TEXTURE1D
+/// and the others; MEASURED on WARP by GetCopyableFootprints, golden d3d12-32 fp-format-*, fp-blocks-*,
+/// fp-random-*: of the video and palette formats only AYUV, Y416, YUY2, Y210, Y216, in 2D)
+pub fn dims(f: u32) -> Option<u32> {
+    Some(match f {
+        19..=22 | 40 | 44..=47 | 55 => 0b011,
+        1..=65 | 67..=69 | 85..=88 | 90..=93 | 115 | 191 => 0b111,
+        70..=84 | 94..=99 => 0b110,
+        100 | 102 | 107..=109 => 0b010,
+        _ => 0,
+    })
+}
+
+pub const T1: u32 = 1;
+pub const T2: u32 = 2;
+pub const T3: u32 = 4;
+/// render target
+pub const RT: u32 = 8;
+/// depth stencil (the format's family has a depth format)
+pub const DS: u32 = 16;
+/// multisampled render target
+pub const MS: u32 = 32;
+/// no mip levels or arrays (the planar video formats)
+pub const SINGLE: u32 = 64;
+
+/// what CreateCommittedResource takes a format for on WARP (MEASURED, golden d3d12-32
+/// create-tex1d-format, create-tex2d-format, create-tex3d-format, create-tex2drt-format,
+/// create-depth-format, create-msaa-format: every value 0..132, 189..192 and 0xffffffff for each)
+pub fn support(f: u32) -> u32 {
+    let color = T1 | T2 | T3 | RT | MS;
+    match f {
+        1..=18 | 23..=38 | 48..=52 | 60..=65 | 67 | 85..=88 | 90..=93 | 115 | 191 => color,
+        39 | 41..=43 | 53 | 54 | 56..=59 => color | DS,
+        40 | 55 => T1 | T2 | RT | MS | DS,
+        19..=22 | 44..=47 => T1 | T2 | DS,
+        68 | 69 => T1 | T2 | T3,
+        70..=84 | 94..=99 => T2 | T3,
+        89 => RT,
+        100 => T2 | RT,
+        102 => T2,
+        103..=105 => T2 | RT | SINGLE,
+        _ => 0,
+    }
+}
