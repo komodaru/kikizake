@@ -148,11 +148,33 @@ pub fn convert_space(from: i64, to: i64, c: &[f32]) -> Res<Vec<f32>> {
         } else if *v >= 1.0 {
             *v = 1.0;
         } else {
-            return Err(Fail::Unmodeled("D2D.CS.CURVE"));
+            hit("D2D.CS.CURVE");
+            *v = if from == 1 { srgb_to_linear(*v) } else { linear_to_srgb(*v) };
         }
     }
     hit("D2D.CS.CLAMP");
     Ok(o)
+}
+
+/// MEASURED (D2D.CS.CURVE, csd-1-2, csr-1-2): sRGB to scRGB in f32 as v / 12.92 up to 0.04045,
+/// above it pow((v + 0.055) / 1.055, 2.4) with the quotient in f32 and the power correctly
+/// rounded
+pub fn srgb_to_linear(v: f32) -> f32 {
+    if v > 0.04045 {
+        (f64::from((v + 0.055) / 1.055).powf(f64::from(2.4f32))) as f32
+    } else {
+        v / 12.92
+    }
+}
+
+/// MEASURED (D2D.CS.CURVE, csd-2-1, csr-2-1): scRGB to sRGB in f32 as v 12.92 below 0.0031308,
+/// else 1.055 pow(v, 1 / 2.4) - 0.055, 1 / 2.4 an f32 and the power correctly rounded
+pub fn linear_to_srgb(v: f32) -> f32 {
+    if v < 0.0031308 {
+        v * 12.92
+    } else {
+        1.055 * (f64::from(v).powf(f64::from(1.0f32 / 2.4)) as f32) - 0.055
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
