@@ -10,7 +10,7 @@ GP.LOCK.SAME doc | Bitmap::LockBits | locked in the bitmap's own format: its byt
 GP.LOCK.READ doc | Bitmap::LockBits | ImageLockModeRead: the rectangle's pixels in the format asked
 GP.LOCK.WRITE doc | Bitmap::LockBits, Bitmap::UnlockBits | ImageLockModeWrite: the buffer's pixels, in the format asked, replace the rectangle's at UnlockBits
 GP.LOCK.RECT measured | (none) | a rectangle past the bitmap or empty is InvalidParameter (golden gdiplus lock-*: 40 cases)
-GP.CONV.TO.INDEXED open | (none) | to an indexed format: the nearest palette entry to the color, each channel first cut to 5 bits and widened again, by squared RGB distance, the first of equals; the halftone palette's unset entries 16..39 never chosen (holds for 1 and 8 bpp in the random cases; 4 bpp and ties near the VGA colors differ: golden gdiplus grid-* settles it)
+GP.CONV.TO.INDEXED measured | (none) | to an indexed format: each channel cut to 5 bits, then a fixed table from the 32768 5-bit colors to an index (src/model/data/gdiplus_nearest.bin, packed from golden gdiplus grid-1bppIndexed, grid-4bppIndexed, grid-8bppIndexed: every 5-bit color); not plain nearest RGB distance (that misses 4 bpp and ties near the VGA colors); the 5-bit cut holds on every random read/write/pixel/fill/clone case (golden gdiplus, 0 differ)
 GP.CONV.INDEXED doc | Image Pixel Format Constants (indexed) | an index is its palette color (the halftone palette's entries 16..39 are 0: transparent black)
 GP.CONV.EXPAND measured | (none) | 5 and 6 bit channels to 8 by repeating their high bits; the 1-bit alpha to 0 or 255 (golden gdiplus read-*/write-*/pixel-*)
 GP.CONV.TRUNCATE measured | (none) | 8-bit channels to 5 and 6 bits: the high bits; alpha to 1 bit: its high bit (golden gdiplus read-*/write-*)
@@ -43,6 +43,7 @@ GP.ROTATE doc | RotateFlipType | k & 3 quarter turns clockwise, then for 4..7 a 
 GP.CLONE doc | Bitmap::Clone | a new bitmap of the area, in the format asked
 GP.CLONE.RECT measured | (none) | an area past the bitmap or empty: OutOfMemory (golden gdiplus, 72 clone cases)
 GP.CLONE.FORMAT measured | Bitmap::Clone | into another format: each pixel as LockBits converts it (golden gdiplus clone-*: 80 cases)
+GP.CLONE.PALETTE open | (none) | a clone of a non-indexed bitmap into an indexed format gets a palette made from its colors, not the default one (golden gdiplus clone-68: 64bppARGB to 8bppIndexed, flags 0x700, 224 entries)
 GP.MATRIX doc | Matrix::Matrix(REAL, REAL, REAL, REAL, REAL, REAL) | m11 m12 m21 m22 dx dy, read back as given
 GP.MATRIX.MUL measured | Matrix::Multiply (MatrixOrderPrepend: the passed matrix on the left) | the product with points as row vectors, each element a sum of float products left to right (golden gdiplus-32, 120 cases, every element)
 GP.MATRIX.ORDER measured | (none) | an order other than prepend (0) or append (1): InvalidParameter, the matrix unchanged (golden gdiplus matrix-order)

@@ -183,26 +183,22 @@ pub fn over(s: u32, d: u32) -> u32 {
     o
 }
 
-/// the palette entry nearest a color (ASSUMED: each channel first cut to 5 bits and widened
-/// again, then the least squared RGB distance, the first such entry; entries never set, 16..39
-/// of the halftone palette, are not candidates)
-pub fn nearest(pal: &[u32], c: u32) -> usize {
-    let q = |v: u32| {
-        let v = v >> 3;
-        ((v << 3) | (v >> 2)) as i32
+/// MEASURED (golden gdiplus grid-1bppIndexed, grid-4bppIndexed, grid-8bppIndexed: every 5-bit
+/// color): the index each default palette gives a color, by its high 5 bits a channel, packed as
+/// the grid cases read it (1, 4, 8 bits an index, red, green, blue 5 bits each from the top).
+/// Not the least RGB distance: that holds for 98.8% of the cells (1 bpp), 96.9% (4 bpp), 99.1%
+/// (8 bpp), and no weighting, rounding or tie rule tried makes it all.
+pub const NEAREST: &[u8] = include_bytes!("data/gdiplus_nearest.bin");
+
+/// the index of a color in the default palette of indexed format `f`
+pub fn nearest(f: usize, c: u32) -> u32 {
+    let k = ((c >> 19 & 31) << 10 | (c >> 11 & 31) << 5 | (c >> 3 & 31)) as usize;
+    let (base, n) = match f {
+        0 => (0, 1),
+        1 => (4096, 4),
+        _ => (4096 + 16384, 8),
     };
-    let (r, g, b) = (q(c >> 16 & 255), q(c >> 8 & 255), q(c & 255));
-    let mut best = (i32::MAX, 0);
-    for (i, &e) in pal.iter().enumerate() {
-        if pal.len() == 256 && (16..40).contains(&i) {
-            continue;
-        }
-        let d = (r - (e >> 16 & 255) as i32).pow(2) + (g - (e >> 8 & 255) as i32).pow(2) + (b - (e & 255) as i32).pow(2);
-        if d < best.0 {
-            best = (d, i);
-        }
-    }
-    best.1
+    get_px(&NEAREST[base..], k as u32, n) as u32
 }
 
 /// a pixel value of `f` as straight ARGB
@@ -262,12 +258,8 @@ pub fn from_argb(f: usize, c: u32) -> Res<u64> {
     let (a, r, g, b) = ((c >> 24) as u64, (c >> 16 & 255) as u64, (c >> 8 & 255) as u64, (c & 255) as u64);
     Ok(match name(f) {
         n if n.ends_with("Indexed") => {
-            // (not settled yet: the grid cases ask every 5-bit color)
-            if std::env::var_os("KIKIZAKE_GP_NEAREST").is_none() {
-                return Err(Fail::Unmodeled("GP.CONV.TO.INDEXED"));
-            }
             hit("GP.CONV.TO.INDEXED");
-            nearest(&default_palette(f), c) as u64
+            nearest(f, c) as u64
         }
         "16bppGrayScale" => return Err(Fail::Unmodeled("GP.GRAY16")),
         "16bppRGB555" => {
@@ -503,10 +495,10 @@ fn elements(m: &Matrix) -> String {
     s
 }
 
-/// matrix arithmetic: modelled as x86 rounds it, in an x86-only suite whose lines end in "x86"
-/// (the executor ignores the word); x86-64 rounds otherwise (GP.MATRIX.X64)
+/// matrix arithmetic: modelled as x86 rounds it (the x86 executor, or a line ending in "x86", a
+/// word the executor ignores, in the x86-only suite); x86-64 rounds otherwise (GP.MATRIX.X64)
 fn x86(t: &[String], i: usize) -> Res<()> {
-    if t.get(i).is_some_and(|v| v == "x86") {
+    if super::arch() == 32 || t.get(i).is_some_and(|v| v == "x86") {
         hit("GP.MATRIX.X86");
         Ok(())
     } else {
@@ -764,6 +756,9 @@ impl Gdiplus {
                 }
                 if f != b.f {
                     hit("GP.CLONE.FORMAT");
+                }
+                if indexed(f) && !indexed(b.f) {
+                    return Err(Fail::Unmodeled("GP.CLONE.PALETTE"));
                 }
                 let mut c = Bitmap::new(f, r.2 as u32, r.3 as u32);
                 for y in 0..r.3 as u32 {
