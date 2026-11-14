@@ -385,4 +385,100 @@ px 1 7 3 32
 2363a155700ec08b705c0eff13720150c92584c31a014ec0c5545ebd
 bd2ed35fb83969d1b47e6fd0296e6902aab1db58299ef08763d5fc23
 c612ed9a1fd0898a3afef23e0fa8c971bee12b79c3e29b691e0bf035
+case edge-0
+ddb failed
+bad line 448
+case edge-1
+ddb failed
+bad line 452
+case edge-2
+ddb failed
+bad line 456
+case edge-3
+bm bitmap 2 2 2 1 1 0
+bmsize bitmap
+case edge-4
+bm bitmap 2 2 2 1 1 0
+bmsize bitmap
+case edge-5
+bm bitmap 3 2 12 1 32 0
+bmsize bitmap
+case edge-6
+bm bitmap 3 2 12 1 32 0
+bmsize bitmap
+case edge-7
+bm bitmap 3 2 12 1 32 0
+bmsize bitmap
+case order-1
+pixel ffffff
+pixel ffffff
+bmbits 4
+898aed9a
+bm dibsection 3 2 4 1 1 1
+dib 1 2 0 2
+bmsize bitmap
+bmbits 4
+898aed9a
+case order-4
+pixel 808080
+pixel ff0000
+bmbits 4
+8a3a9a1f
+bm dibsection 3 2 4 1 4 1
+dib 4 2 0 16
+bmsize bitmap
+bmbits 4
+8a3a9a1f
+case order-8
+pixel 24daaa
+pixel 00ffff
+bmbits 8
+3afef23e1fd0898a
+bm dibsection 3 2 4 1 8 1
+dib 8 2 0 256
+bmsize bitmap
+bmbits 8
+3afef23e1fd0898a
+case order-16
+pixel 946b42
+pixel 107384
+bmbits 12
+a8c9715bc925d0898a3afef2
+bm dibsection 3 2 8 1 16 1
+dib 16 2 3 0
+bmsize bitmap
+bmbits 12
+a8c9715bc925d0898a3afef2
+case order-16565
+pixel 73384a
+pixel 8c514a
+bmbits 12
+c9715bc92584898a3afef23e
+bm dibsection 3 2 8 1 16 1
+dib 16 2 3 0
+bmsize bitmap
+bmbits 12
+c9715bc92584898a3afef23e
+case order-24
+pixel 1ac384
+pixel fe3a8a
+bmbits 20
+84c31a014ec0c5545ebd8a3afef23e0fa8c9715b
+bm dibsection 3 2 12 1 24 1
+dib 24 2 0 0
+bmsize bitmap
+bmbits 20
+84c31a014ec0c5545ebd8a3afef23e0fa8c9715b
+case order-32
+pixel 011ac3
+pixel f2fe3a
+bmbits 24
+c31a014ec0c5545ebd2ed35f3afef23e0fa8c9715bc92584
+bm dibsection 3 2 12 1 32 1
+dib 32 2 0 0
+bmsize bitmap
+bmbits 24
+c31a014ec0c5545ebd2ed35f3afef23e0fa8c9715bc92584
+case caps-all
+caps 16384 1 271 203 1024 768 32 1 -1 -1 0 0 -1 0 511 255 30727 1 32409 36 36 51 96 96 0 20 24 0 0 0 64 768 1024 1 0 0 0
 done
