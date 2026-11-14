@@ -1,0 +1,1408 @@
+# gpu
+# kikizake suite dxgi: DXGI factories and flip-model swap chains on Direct3D 12 (SPEC.md). Made by `kikizake gen dxgi`.
+case factory
+dxgifactory 0
+dxgiwarp
+dxgifactory 2
+dxgiwarp
+dxgifactory 4
+dxgiwarp
+dxgifactory 0x10
+dxgiwarp
+dxgifactory 0x80000000
+dxgiwarp
+dxgifactory 0
+dxgiwarp
+end
+case assoc
+dxgifactory 0
+dxgiassoc 0
+dxgiassoc 0 null
+dxgiassoc 1
+dxgiassoc 1 null
+dxgiassoc 2
+dxgiassoc 2 null
+dxgiassoc 3
+dxgiassoc 3 null
+dxgiassoc 4
+dxgiassoc 4 null
+dxgiassoc 5
+dxgiassoc 5 null
+dxgiassoc 6
+dxgiassoc 6 null
+dxgiassoc 7
+dxgiassoc 7 null
+dxgiassoc 8
+dxgiassoc 8 null
+dxgiassoc 0x10
+dxgiassoc 0x10 null
+dxgiassoc 0x100
+dxgiassoc 0x100 null
+dxgiassoc 0x80000000
+dxgiassoc 0x80000000 null
+end
+case swapchain-width-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 1 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 2 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x3f 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x40 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x64 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x2000 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x4000 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-height-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 1 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 2 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x3f 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x40 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x64 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x4000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-format-0
+device12
+dxgifactory 0
+swapchain 0 0 0 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 1 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 2 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 3 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 4 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 5 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 6 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 7 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 8 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 9 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xb 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xc 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xd 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xe 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xf 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x10 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x11 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x12 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x13 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x14 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x15 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x16 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x17 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x19 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x20 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x21 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x22 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x23 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x24 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x25 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x26 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x27 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x28 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x29 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x30 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x31 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-format-1
+device12
+dxgifactory 0
+swapchain 0 0 0x32 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x33 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x34 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x35 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x36 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x37 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x38 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x39 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x3a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x3b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x3c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x3d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x3e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x3f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x40 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x41 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x42 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x43 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x44 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x45 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x46 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x47 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x48 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x49 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x4a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x4b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x4c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x4d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x4e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x4f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x50 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x51 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x52 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x53 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x54 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x55 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x56 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x58 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x59 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x60 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x61 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x62 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x63 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-format-2
+device12
+dxgifactory 0
+swapchain 0 0 0x64 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x65 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x66 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x67 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x68 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x69 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x6a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x6b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x6c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x6d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x6e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x6f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x70 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x71 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x72 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x73 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x74 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x75 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x76 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x77 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x78 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x79 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7e 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7f 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x80 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x81 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x82 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x83 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x84 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xbf 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xc0 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-stereo-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+end
+case swapchain-samples-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 0 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 8 0 0x20 2 0 4 0 0
+end
+case swapchain-quality-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+end
+case swapchain-usage-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x10 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x30 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x40 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x60 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x80 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x100 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x200 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x400 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x420 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x800 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x1000 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0xffffffff 2 0 4 0 0
+end
+case swapchain-buffers-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 1 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 3 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 4 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 5 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 6 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 7 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 8 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 9 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xa 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xb 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xc 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xd 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xe 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xf 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0x10 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0x11 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xffffffff 0 4 0 0
+end
+case swapchain-scaling-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 4 4 0 0
+end
+case swapchain-effect-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 0 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 1 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 2 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 0
+end
+case swapchain-alpha-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 1 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 3 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 4 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 5 0
+end
+case swapchain-flags-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 1
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 2
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 4
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 8
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x10
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x20
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x80
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x100
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x200
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x400
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x1000
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x2000
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x840
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x80000000
+end
+case swapchain-pairs
+device12
+dxgifactory 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0xa 0 1 0 0x20 2 1 3 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 1 3 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 1 3 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 3 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 1 3 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 1 3 0 0
+swapchain 0 0 0xa 0 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0xa 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xa 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0xa 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 2 4 0 0
+end
+case chain-buffers-2
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scbuffer 0
+scbuffer 1
+scbuffer 2
+scbuffer 0xffffffff
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+end
+case chain-buffers-3
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 3 0 4 0 0
+scbuffer 0
+scbuffer 1
+scbuffer 2
+scbuffer 3
+scbuffer 0xffffffff
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+end
+case chain-buffers-5
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 5 0 4 0 0
+scbuffer 0
+scbuffer 1
+scbuffer 2
+scbuffer 3
+scbuffer 4
+scbuffer 5
+scbuffer 0xffffffff
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+end
+case chain-buffers-16
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0x10 0 4 0 0
+scbuffer 0
+scbuffer 1
+scbuffer 2
+scbuffer 3
+scbuffer 4
+scbuffer 5
+scbuffer 6
+scbuffer 7
+scbuffer 8
+scbuffer 9
+scbuffer 10
+scbuffer 11
+scbuffer 12
+scbuffer 13
+scbuffer 14
+scbuffer 15
+scbuffer 16
+scbuffer 0xffffffff
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+scpresent 0 0
+scpresent 1 0
+end
+case chain-present
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+scpresent 1 0
+scpresent 4 0
+scpresent 5 0
+scpresent 0 1
+scpresent 0 2
+scpresent 0 8
+scpresent 0 0x200
+scpresent 0 0x80000000
+scpresent 1 0x200
+scpresent 0 0x100
+end
+case chain-resize
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scresize 0 0 0 0 0
+scpresent 0 0
+scresize 3 0 0 0 0
+scpresent 0 0
+scresize 0 100 50 0 0
+scpresent 0 0
+scresize 0 0 0 28 0
+scpresent 0 0
+scresize 0 0 0 10 0
+scpresent 0 0
+scresize 0 0 0 24 0
+scpresent 0 0
+scresize 0 0 0 29 0
+scpresent 0 0
+scresize 0 0 0 2 0
+scpresent 0 0
+scresize 1 0 0 0 0
+scpresent 0 0
+scresize 16 0 0 0 0
+scpresent 0 0
+scresize 17 0 0 0 0
+scpresent 0 0
+scresize 2 0 0 0 0
+scpresent 0 0
+scresize 0 16385 1 0 0
+scpresent 0 0
+scresize 0 0 0 0 0x40
+scpresent 0 0
+scresize 0 0 0 0 0x800
+scpresent 0 0
+scresize 0 0 0 0 2
+scpresent 0 0
+scresize 0 0 0 0 0x80000000
+scpresent 0 0
+scresize 0 0 0 4294967295 0
+scpresent 0 0
+end
+case chain-latency-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+sclatency 0
+sclatency 1
+sclatency 2
+sclatency 3
+sclatency 0x10
+sclatency 0x11
+sclatency 0xffffffff
+end
+case chain-latency-40
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0
+sclatency 1
+sclatency 2
+sclatency 3
+sclatency 0x10
+sclatency 0x11
+sclatency 0xffffffff
+end
+case swapchain-random-0
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 0 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0x2000 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x63 0 1 0 0x20 2 0 4 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x20 2 0 0 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xf 0 2 5 0
+scpresent 0 0
+end
+case swapchain-random-1
+device12
+dxgifactory 0
+swapchain 0 0x40 0x6a 1 1 0 0x20 2 0 4 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 1 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 4 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0x400
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+end
+case swapchain-random-2
+device12
+dxgifactory 0
+swapchain 0x4000 0 0x57 0 1 0 0x20 2 0 0 0 0
+scpresent 0 0
+swapchain 0 0 0x83 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x71 0 1 0 0x20 2 2 4 0 0
+scpresent 0 0
+swapchain 0 2 0x57 0 1 0 0x20 0xc 3 4 0 0
+swapchain 0 0 0x23 0 1 0 0x60 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 2 0 0
+swapchain 0 0x3f 0x57 1 1 0 0x400 2 0 4 0 0
+end
+case swapchain-random-3
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0xa 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 4 4 0 0x2000
+swapchain 0x4000 1 0x57 0 1 0 0x20 2 0 1 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 0x4000 0 0x57 0 1 0 0x20 2 0 5 0 0x20
+swapchain 0 0 0x57 0 1 1 0x20 0xf 0 4 0 0
+end
+case swapchain-random-4
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 2 0
+scpresent 0 0
+swapchain 0x2000 0 0x57 0 1 0 0x20 2 0 2 1 0
+swapchain 2 0 0x26 0 1 0 0x20 2 0 4 3 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 1 4 0 0
+swapchain 0 0x4000 0x1c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x20 0xa 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x100 2 3 4 0 0
+scpresent 0 0
+swapchain 0 0x3f 0x57 0 1 2 0x20 2 0 4 0 0
+end
+case swapchain-random-5
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+swapchain 0x3f 0 0x57 0 1 0 0x420 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x57 0 1 0 0x200 2 0 4 0 0
+swapchain 0x40 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x4000 0x57 0 1 0 0x20 2 0 4 0 0x20
+swapchain 0 0 0x57 0 0 0 0x20 3 0 3 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x80 2 0 4 0 0
+swapchain 2 0x4001 0x57 0 1 0 0x20 2 0 0 0 0
+end
+case swapchain-random-6
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 4
+scpresent 0 0
+swapchain 0 0 0x7f 0 1 0 0x20 2 0 4 0 4
+swapchain 0 0 0x17 0 1 0 0x20 2 0 4 0 0
+swapchain 1 0 0x57 0 1 1 0x100 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 0 0 0
+scpresent 0 0
+end
+case swapchain-random-7
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x60 2 4 4 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xe 4 4 0 0
+scpresent 0 0
+swapchain 0 1 0x57 0 2 0 0x20 2 0 4 1 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x2c 0 4 0 0x20 2 0 4 0 0
+swapchain 0x3f 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 8
+swapchain 0 0 0x57 0 2 0 0x20 0 0 4 0 0
+end
+case swapchain-random-8
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 4 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x40 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-9
+device12
+dxgifactory 0
+swapchain 0x3f 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x1000 2 0 4 0 0
+swapchain 2 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x800 7 0 4 0 0
+end
+case swapchain-random-10
+device12
+dxgifactory 0
+swapchain 1 0 0x57 0 1 0 0x20 2 0 4 4 0x10
+swapchain 0 0 0x57 0 1 0 0x20 0xe 0 4 0 0x20
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x100 2 2 4 0 0
+swapchain 0x64 0 0x57 1 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 1 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-11
+device12
+dxgifactory 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 0 0 2 0 4 0 0
+swapchain 2 0 0x57 0 4 0 0x20 0x10 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 1
+scpresent 0 0
+swapchain 0 2 0x57 0 1 0 0x100 2 0 4 3 0
+scpresent 0 0
+swapchain 0 0 0x57 0 2 0 0x20 0x10 0 4 0 0
+swapchain 0x4001 0x4001 0x57 0 1 0 0x20 2 0 4 3 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 4 4 5 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 5 0
+swapchain 0 0x4001 0x58 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+swapchain 0x2000 0 0x57 0 0 0 0x20 2 0 1 0 0
+swapchain 0 0x3f 0x57 0 1 2 0x20 6 0 4 0 0
+end
+case swapchain-random-12
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+swapchain 0 0x40 0x57 0 1 2 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x20 0 8 0 0x20 0x10 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 1 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x64 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 4 0 4 0 0x1000
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x57 0 0 0 0x20 5 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-13
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0x200
+swapchain 0 0 0x57 0 1 1 0x20 0xd 0 4 0 0
+scpresent 0 0
+swapchain 1 0 0x57 0 1 0 0x40 2 0 4 1 0
+swapchain 0 0 0x57 0 1 0 0x60 2 0 5 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xe 0 4 0 0x1000
+swapchain 0 0 0x57 2 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 2
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0 0 8 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-14
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 0 0
+swapchain 1 0 0x57 0 1 0 0x20 3 0 4 0 0
+scpresent 0 0
+swapchain 0 0x4001 0x57 1 1 0 0x80 2 0 4 0 0
+swapchain 0x4001 0x40 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x2a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x56 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x1000 2 0 4 0 2
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+scpresent 0 0
+swapchain 0 0 0x14 0 1 0 0x20 2 0 4 0 0x20
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 2 0 0
+end
+case swapchain-random-15
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0xb 0 1 4 0
+swapchain 0x3f 2 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x27 0 1 0 0x20 0xd 0 4 0 0x200
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 2 0x20 2 1 4 0 0
+end
+case swapchain-random-16
+device12
+dxgifactory 0
+swapchain 2 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0x2000 0 0x57 0 0 0 0x20 2 0 4 5 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x40 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 7 4 4 0 1
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0x200
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+swapchain 0x4001 0x4000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 5 0 0
+end
+case swapchain-random-17
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 2 0x200 2 0 4 0 0
+swapchain 1 0 0x57 0 4 2 0x20 2 0 4 0 0
+swapchain 0 0 8 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x1000 2 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xd 0 4 3 0x1000
+swapchain 0 0 0x57 2 1 0 0x20 2 2 1 0 0
+swapchain 0x2000 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+end
+case swapchain-random-18
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0xe 0 4 0 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 0 0
+swapchain 0x3f 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 3 0
+scpresent 0 0
+end
+case swapchain-random-19
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 0 0 0
+scpresent 0 0
+swapchain 0x3f 1 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x4001 0 0x31 0 1 0 0x20 2 0 4 0 0x800
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+swapchain 0x3f 0 0x6c 0 1 0 0x20 0xa 0 4 0 0
+swapchain 0 1 0x57 2 1 0 0x20 2 4 4 0 0
+scpresent 0 0
+end
+case swapchain-random-20
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 1 0 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-21
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x3f 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0xffffffff 0xb 0 4 0 0
+end
+case swapchain-random-22
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x1000 2 0 4 4 0
+scpresent 0 0
+swapchain 1 0 0x57 0 4 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 0 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 0 0 0
+swapchain 0 0x3f 0x57 0 1 0 0x20 2 0 4 0 0x800
+swapchain 0 0 0x57 0 1 0 0xffffffff 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0 2 0 4 5 0
+scpresent 0 0
+swapchain 0 0 0x4d 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-23
+device12
+dxgifactory 0
+swapchain 2 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x30 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x6e 0 0 0 0x20 2 0 4 5 0
+swapchain 0 0 0x41 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 1 1 2 0x20 2 0 4 0 0
+swapchain 0x40 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 0x64 0 0x57 0 1 0 0x20 2 0 2 0 0
+scpresent 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x400 2 0 3 0 0
+end
+case swapchain-random-24
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 0 0 0
+swapchain 0 2 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 4 0
+swapchain 0 0 0x64 0 1 0 0x20 2 0 4 2 0
+scpresent 0 0
+swapchain 0 2 0x57 0 1 0 0x20 2 0 4 0 0x100
+swapchain 0 0 0x57 0 1 0 0x20 0xf 0 3 0 0
+swapchain 2 0 0x57 0 1 0 0x100 2 0 5 0 0
+swapchain 0 0 0x57 0 8 0 0x20 8 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x10 2 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+end
+case swapchain-random-25
+device12
+dxgifactory 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 8 0 0x20 2 1 4 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+end
+case swapchain-random-26
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 1 0x20 2 1 4 0 0x10
+scpresent 0 0
+swapchain 0 1 0x57 0 1 0 0x20 2 0 5 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 4 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0x11 0 4 1 0
+scpresent 0 0
+end
+case swapchain-random-27
+device12
+dxgifactory 0
+swapchain 0 0 2 0 1 0 0x20 2 0 4 0 0x100
+swapchain 0 0 0x57 0 1 0 0x400 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xc 0 4 0 0
+swapchain 0 0x4000 0x57 0 1 0 0xffffffff 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x800
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 1 0 0x200
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0 0 0x1e 0 1 0 0 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xc 0 4 0 0
+swapchain 0x40 0 0x57 0 0 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x800 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-28
+device12
+dxgifactory 0
+swapchain 0 0 0x44 0 1 0 0x20 2 0 4 0 0x20
+scpresent 0 0
+swapchain 1 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+swapchain 0 0x40 0x57 0 8 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0x800
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x200
+end
+case swapchain-random-29
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0xe 2 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0x11 0 4 0 0
+swapchain 0 0 0x57 0 8 0 0x20 2 0 4 0 2
+swapchain 1 0 0x57 0 4 0 0x20 2 0 5 0 0
+end
+case swapchain-random-30
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 4 0
+swapchain 0 0 1 1 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 1 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x60 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-31
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 4 4 0 0
+swapchain 0x40 0 0x57 0 1 0 0x20 2 0 4 1 0
+swapchain 0 0 0x57 0 1 0 0x20 0xf 0 4 3 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0x11 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+end
+case swapchain-random-32
+device12
+dxgifactory 0
+swapchain 0 0 0x1a 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 4 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 1 0
+scpresent 0 0
+swapchain 0 0 0x57 0 0 1 0x20 0x11 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 8 0 0x20 2 0 4 0 4
+swapchain 0 0 0x57 0 1 0 0 2 0 4 1 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xffffffff 0 4 4 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 4 0
+scpresent 0 0
+swapchain 0 0 0x18 0 1 0 0x20 2 0 4 5 0x40
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xffffffff 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 4 1 0 0
+end
+case swapchain-random-33
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x800 2 3 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0x10
+scpresent 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x100 2 0 4 5 0
+end
+case swapchain-random-34
+device12
+dxgifactory 0
+swapchain 0 0 0x15 0 1 0 0x20 2 0 1 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 2 0
+end
+case swapchain-random-35
+device12
+dxgifactory 0
+swapchain 0 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x2000 0x3a 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x800 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0x40 0x57 0 1 0 0x20 2 0 1 0 0
+swapchain 0 0 0x57 0 1 0 0xffffffff 2 0 4 4 0
+swapchain 0 0 0x5b 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x40 0x57 0 0 0 0x20 0xb 0 4 0 0
+swapchain 0 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0 0 4 1 0
+scpresent 0 0
+swapchain 0x4000 0 0x57 0 1 0 0x20 0xa 0 1 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-36
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x400 6 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 6 0 4 0 0
+swapchain 0 0 0x57 0 1 1 0x10 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xa 0 4 0 4
+scpresent 0 0
+swapchain 0 0x3f 0x57 0 1 0 0x20 2 0 0 0 0
+swapchain 0 0 0x2b 0 1 0 0x40 2 0 5 0 0
+swapchain 0x4001 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 0x10 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x100
+swapchain 0 2 0x57 0 1 0 0x20 2 0 2 0 0
+swapchain 0 0 0x26 0 1 0 0x30 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-37
+device12
+dxgifactory 0
+swapchain 0 0x2000 0x57 0 1 0 0x10 2 0 4 0 0
+swapchain 0x3f 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x64 0x57 0 4 0 0x20 2 0 4 4 0
+swapchain 0 0 0x3d 0 1 0 0x20 2 4 4 5 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 0 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 0 0
+end
+case swapchain-random-38
+device12
+dxgifactory 0
+swapchain 0 0 0x4b 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0x4000 0 0x57 1 1 0 0x20 2 0 4 0 0
+swapchain 2 0 0x57 2 1 1 0x20 2 0 4 0 0
+end
+case swapchain-random-39
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0x4001 0 0x57 0 4 0 0x20 2 0 2 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 1 0 0x57 0 1 0 0x20 2 0 4 2 0
+swapchain 0 0 0x57 0 1 0 0x1000 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 0 0x20 5 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-40
+device12
+dxgifactory 0
+swapchain 0 0 0x55 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x3f 0x57 0 1 0 0x20 2 0 0 5 0
+swapchain 0 0x40 0x57 0 1 0 0x30 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0x100
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x40 0x57 0 1 0 0x20 2 4 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x1000
+swapchain 0 0 0x36 2 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 1 0x20 0x10 0 4 0 0
+scpresent 0 0
+swapchain 0 0x40 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-41
+device12
+dxgifactory 0
+swapchain 0 0 0x47 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+swapchain 0 0x4001 0x57 0 2 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x200 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0xd 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 4 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xffffffff 0 4 0 0x20
+end
+case swapchain-random-42
+device12
+dxgifactory 0
+swapchain 0 0x2000 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 1 0x7d 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xf 0 4 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x400 2 0 4 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 0 4 0 0x2000
+swapchain 0 0 0x57 0 1 0 0x30 2 0 4 0 0
+end
+case swapchain-random-43
+device12
+dxgifactory 0
+swapchain 0 0x64 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 2 0 0x20 0xb 0 4 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x20
+swapchain 0 1 0x4d 0 1 0 0x20 2 4 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 5 0
+swapchain 0 0 0x57 1 1 0 0x20 2 2 3 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-44
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 2 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 2 1 0 0x30 2 0 4 0 0
+end
+case swapchain-random-45
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0x800
+swapchain 0 0 0x46 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 5 0 4 0 0
+swapchain 0 0 0x57 0 8 0 0x20 2 0 4 4 0
+scpresent 0 0
+swapchain 0 0 0x11 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 0 0x20 2 3 4 0 0
+swapchain 0 0 0x57 0 2 2 0x20 2 4 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x30 2 0 5 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-46
+device12
+dxgifactory 0
+swapchain 0x64 0x3f 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0x40 0 0x57 1 1 0 0x60 2 0 4 0 0
+swapchain 0 0 0x1c 0 1 0 0x20 0x11 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 3 0
+swapchain 0 0 0x57 0 1 1 0x800 0xffffffff 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 5 0 0
+scpresent 0 0
+swapchain 0 0 0x57 1 1 1 0x20 2 0 4 0 0
+swapchain 0 0x3f 0x57 0 0 0 0x20 2 1 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x10 2 0 3 0 0
+end
+case swapchain-random-47
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x20
+swapchain 0 0 0x57 0 1 0 0x400 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0x80000000
+end
+case swapchain-random-48
+device12
+dxgifactory 0
+swapchain 0x4000 0 0x57 0 1 0 0x20 2 0 0 0 0x80000000
+swapchain 1 0 0x57 1 1 0 0x20 2 1 4 0 0
+scpresent 0 0
+swapchain 0 0 0x1d 0 1 0 0x20 0xc 0 4 0 0
+swapchain 0 0x3f 0x7a 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 0 3 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0x4001 0 0x1a 0 1 0 0x20 9 0 4 0 0
+swapchain 0 0x3f 0x57 1 1 0 0x20 2 0 4 0 0x40
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xc 0 4 0 0
+swapchain 0 0 0x69 0 1 0 0x20 0 0 4 0 0
+scpresent 0 0
+swapchain 0 0x40 0x43 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-49
+device12
+dxgifactory 0
+swapchain 0 0 0x39 0 1 1 0x20 2 0 3 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0x20
+swapchain 0 0 0x57 0 0 0 0x20 2 0 4 0 0
+swapchain 0 0 0x38 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0x3f 0x28 0 1 0 0x20 2 2 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0x10
+scpresent 0 0
+swapchain 0x3f 0x4001 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0x2000 0x6c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 0xffffffff 0 4 0 0
+end
+case swapchain-random-50
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x60 2 0 3 0 0
+scpresent 0 0
+swapchain 0 0 0x84 0 1 0 0x20 2 0 4 0 2
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-51
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 0xffffffff 0 0 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 1 4 5 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 2
+swapchain 0 0 0x7b 0 1 0 0x20 2 0 4 0 0
+swapchain 0x64 0 0x57 0 1 0 0x20 2 4 4 0 0
+end
+case swapchain-random-52
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 4 0 0x20 2 4 4 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 3 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 2 1 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x4000 0x57 0 8 0 0x20 9 0 4 0 0
+swapchain 0x40 0 0x57 0 1 0 0x20 2 4 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 0 0 0x40
+scpresent 0 0
+swapchain 0 0x3f 0x57 0 1 0 0x20 2 0 4 4 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+swapchain 0 0 0x57 1 1 0 0x400 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x64 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 2 0x57 0 2 0 0x20 2 0 4 0 0
+end
+case swapchain-random-53
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x3a 0 1 2 0x20 2 0 4 0 0
+swapchain 0 1 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x36 0 1 2 0x20 2 0 4 0 0x100
+swapchain 0 0 0x57 1 1 0 0x100 2 0 4 0 0
+scpresent 0 0
+end
+case swapchain-random-54
+device12
+dxgifactory 0
+swapchain 0 0 0x45 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 4 4 0 0
+scpresent 0 0
+swapchain 0 2 0x57 0 1 1 0x20 2 0 0 0 0
+swapchain 0x4001 0 0x57 0 1 0 0x10 2 4 4 0 0
+scpresent 0 0
+swapchain 0 0 0x41 0 1 0 0x20 7 0 4 0 0x80000000
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 2 4 2 0
+end
+case swapchain-random-55
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 4
+swapchain 0 0 0x57 0 1 0 0x420 2 0 4 1 0
+swapchain 0x4001 0 0x7f 0 1 2 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 3 4 0
+swapchain 0 0 0x57 0 1 0 0x20 6 0 4 0 0
+swapchain 2 0 0x57 2 1 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 2 0 0
+scpresent 0 0
+end
+case swapchain-random-56
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x800 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 0 0 0x20 2 0 2 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x20
+swapchain 0 0 0x4c 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xd 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 5 0
+swapchain 2 0 0x57 0 8 2 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 4 4 0 0
+end
+case swapchain-random-57
+device12
+dxgifactory 0
+swapchain 0 0 0x57 2 1 0 0x20 4 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 2 0x20 2 0 4 0 0
+swapchain 0x3f 0 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 0xe 0 4 0 0
+swapchain 1 0x4001 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent 0 0
+swapchain 0 0 0x57 2 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x7e 0 1 0 0x20 2 0 4 0 0
+swapchain 1 0 0x57 0 0 0 0x20 2 0 4 1 0
+swapchain 0 0 0x57 0 1 0 0x20 9 0 4 0 0
+scpresent 0 0
+swapchain 0 0x4000 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-58
+device12
+dxgifactory 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 8 2 0x20 2 0 4 0 0
+swapchain 2 0 0x57 0 1 0 0x30 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x840
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x1000
+swapchain 0 0x2000 0x57 0 2 0 0x20 2 0 4 0 0
+swapchain 0 0 0x57 0 0 0 0x20 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0x3f 0x57 0 1 0 0x20 2 0 4 0 0
+end
+case swapchain-random-59
+device12
+dxgifactory 0
+swapchain 0 0 0x57 1 1 0 0 2 0 4 0 0
+scpresent 0 0
+swapchain 0 0 0x57 0 4 0 0x20 2 0 4 0 0
+swapchain 0x2000 0 0x57 0 1 0 0x20 2 0 4 1 0
+swapchain 0 1 0x57 0 1 0 0x1000 2 0 4 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 3 4 0 0x40
+scpresent 0 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x400
+swapchain 0 0 0x57 0 1 0 0x20 1 0 4 0 0
+scpresent 0 0
+swapchain 0 2 0x57 0 1 0 0x20 2 0 4 4 0
+swapchain 0 0 0x57 0 1 1 0x20 2 0 4 0 0
+swapchain 0 0x4001 0x57 0 1 0 0x20 2 0 4 5 0x2000
+scpresent 0 0
+end
+case nofactory
+dxgiwarp
+dxgiassoc 0
+swapchain 0 0 87 0 1 0 0x20 2 0 4 0 0
+end
+case nochain
+dxgifactory 0
+scresize 0 0 0 0 0
+scbuffer 0
+scpresent 0 0
+sclatency 1
+end
+case nodev
+dxgifactory 0
+swapchain 0 0 87 0 1 0 0x20 2 0 4 0 0
+end

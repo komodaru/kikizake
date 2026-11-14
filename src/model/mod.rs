@@ -3,6 +3,8 @@
 //! with Windows only).
 
 pub mod d3d11;
+pub mod d3d12;
+pub mod dxgi_format;
 pub mod ddraw;
 pub mod d3d9;
 pub mod gdi;
@@ -57,6 +59,11 @@ impl Api for Wic {
         wic::op(op, out)
     }
 }
+impl Api for d3d12::D3d12 {
+    fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
+        d3d12::D3d12::op(self, op, out)
+    }
+}
 impl Api for ddraw::Ddraw {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         ddraw::Ddraw::op(self, op, out)
@@ -84,6 +91,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(ddraw::Ddraw::default()),
         Box::new(gdiplus::Gdiplus::default()),
         Box::new(dwrite::Dwrite::default()),
+        Box::new(d3d12::D3d12::default()),
     ]
 }
 

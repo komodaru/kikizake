@@ -1,0 +1,3 @@
+# DXGI clauses (spec/README.md): <id> <status> | <source> | <what it says>
+DXGI.FACTORY open | CreateDXGIFactory2 | (being written)
+DXGI.SWAPCHAIN open | IDXGIFactory2::CreateSwapChainForHwnd | (being written)

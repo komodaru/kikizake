@@ -1,0 +1,6 @@
+# Direct3D 12 clauses (spec/README.md): <id> <status> | <source> | <what it says>
+D3D12.DEVICE doc | D3D12CreateDevice | a feature level 11_0 device on the default adapter (WARP where there is no GPU)
+D3D12.FOOTPRINT open | ID3D12Device::GetCopyableFootprints | (being written)
+D3D12.ALLOC open | ID3D12Device::GetResourceAllocationInfo | (being written)
+D3D12.CREATE open | ID3D12Device::CreateCommittedResource | (being written)
+D3D12.CLEAR open | ID3D12GraphicsCommandList::ClearRenderTargetView | (being written)
