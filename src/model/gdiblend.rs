@@ -141,11 +141,13 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                         dsl.s.from_rgb(s.s.to_rgb(sv))
                     } else {
                         // (other formats: as 32 bpp colors, alpha 0)
-                        // MEASURED (alpha-palette): a color-table source's alpha is 255
+                        // MEASURED (alpha-palette-*, alpha-stretch-*): a source of another
+                        // format blends with alpha 255 when it has a color table or is
+                        // stretched, 0 otherwise and at a constant alpha of 255
+                        let opaque = (s.s.bpp <= 8 || w != sw || h != sh) && sca < 255;
                         let s32 = match s.s.bpp {
                             32 => sv,
-                            ..=8 => s.s.to_rgb(sv) | 0xff00_0000,
-                            _ => s.s.to_rgb(sv),
+                            _ => s.s.to_rgb(sv) | if opaque { 0xff00_0000 } else { 0 },
                         };
                         let d32 = if dsl.s.bpp == 32 { dv } else { dsl.s.to_rgb(dv) };
                         let r = alpha(s32, d32, sca, pp);
@@ -257,6 +259,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 // MEASURED: a parallelogram that is a rectangle draws as StretchBlt does, a
                 // negative side running from the point it starts at back (that pixel included)
                 hit(clause::GDI_PLG_RECT);
+                match d.mode {
+                    4 => return Err(Fail::Unmodeled(open::GDI_STRETCH_HALFTONE)),
+                    3 => {}
+                    _ if w > ax.abs() || h > by.abs() => return Err(Fail::Unmodeled(open::GDI_STRETCH_COMBINE)),
+                    _ => {}
+                }
                 for oy in 0..by.abs() {
                     for ox in 0..ax.abs() {
                         let u = super::gdi::sample(ox as i32, w as i32, ax.abs() as i32, h == by.abs()) as i64;

@@ -12,13 +12,20 @@ use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
-/// MEASURED: a negative width or height counts as its magnitude
-fn abs(op: &Op, i: usize) -> Res<(i64, i64)> {
+/// a width and height; None (the call fails) for a negative one (MEASURED)
+fn size(op: &Op, i: usize) -> Res<Option<(i64, i64)>> {
     let (w, h) = (n(op, i)?, n(op, i + 1)?);
     if w < 0 || h < 0 {
         hit(clause::GDI_DDB_NEGATIVE);
+        return Ok(None);
     }
-    Ok((w.abs(), h.abs()))
+    Ok(Some((w, h)))
+}
+/// the executor's "ddb failed": the slot left empty
+fn failed(g: &mut Gdi, k: i64, out: &mut Vec<String>) -> Res<bool> {
+    out.push("ddb failed".into());
+    g.slots[k as usize] = None;
+    Ok(true)
 }
 fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
@@ -66,7 +73,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let kind = op.tok.get(2).ok_or(Fail::Bad)?.clone();
             let s = match kind.as_str() {
                 "mono" => {
-                    let (w, h) = abs(op, 3)?;
+                    let Some((w, h)) = size(op, 3)? else { return failed(g, k, out) };
                     hit(clause::GDI_DDB_MONO);
                     if w == 0 || h == 0 {
                         hit(clause::GDI_DDB_ZERO);
@@ -76,14 +83,15 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     }
                 }
                 "bitmap" => {
-                    let ((w, h), p, b) = (abs(op, 3)?, n(op, 5)?, n(op, 6)?);
-                    if p < 1 || b < 1 {
-                        // MEASURED: no bitmap of 0 planes or 0 bits
+                    let (sz, p, b) = (size(op, 3)?, n(op, 5)?, n(op, 6)?);
+                    let Some((w, h)) = sz else { return failed(g, k, out) };
+                    let (p, b) = if p < 1 || b < 1 {
+                        // MEASURED: 0 planes or 0 bits make a monochrome bitmap
                         hit(clause::GDI_DDB_NOBITS);
-                        out.push("ddb failed".into());
-                        g.slots[k as usize] = None;
-                        return Ok(true);
-                    }
+                        (1, 1)
+                    } else {
+                        (p, b)
+                    };
                     if p != 1 {
                         // MEASURED: the planes' bits make one plane of planes * bits
                         hit(clause::GDI_DDB_PLANES);
@@ -106,7 +114,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 "screen" | "compat" => {
                     let of = if kind == "compat" { Some(super::gdi::get(&g.slots, n(op, 3)?)?.s.clone()) } else { None };
                     let at = if kind == "compat" { 4 } else { 3 };
-                    let (w, h) = abs(op, at)?;
+                    let Some((w, h)) = size(op, at)? else { return failed(g, k, out) };
                     if w == 0 || h == 0 {
                         // MEASURED: "a 1-by-1 pixel, monochrome bitmap", whatever it is compatible with
                         hit(clause::GDI_DDB_ZERO);
@@ -154,12 +162,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "bmbits" => {
             let sl = super::gdi::get(&g.slots, n(op, 1)?)?;
             let s = &sl.s;
-            // a DIB section: MEASURED: its memory rows, each cut to a WORD aligned row
+            // a DIB section: MEASURED: its rows top to bottom whatever its memory order, each cut
+            // to a WORD aligned row
             let wb = if s.ddb { s.stride } else { hit(clause::GDI_DDB_DIBBITS); (s.w as usize * s.bpp as usize).div_ceil(16) * 2 };
             hit(clause::GDI_DDB_BITS);
             out.push(format!("bmbits {}", wb * s.h as usize));
-            let mem: Vec<&Vec<u8>> = if s.ddb || s.topdown { s.rows.iter().collect() } else { s.rows.iter().rev().collect() };
-            out.push(mem.iter().flat_map(|r| r[..wb].iter().map(|b| format!("{b:02x}"))).collect());
+            out.push(s.rows.iter().flat_map(|r| r[..wb].iter().map(|b| format!("{b:02x}"))).collect());
         }
         "devcaps" => {
             super::gdi::get(&g.slots, n(op, 1)?)?;
