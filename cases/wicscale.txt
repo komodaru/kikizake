@@ -12899,6 +12899,51 @@ case size-1-65536
 wbits gray8 4 4 ramp
 wscale 1 65536 nn
 end
+case bigsize-65536-1
+wbits gray8 4 4 ramp
+wscale 65536 1 nn
+winfo
+end
+case bigsize-1-65536
+wbits gray8 4 4 ramp
+wscale 1 65536 nn
+winfo
+end
+case bigsize-100000-1
+wbits gray8 4 4 ramp
+wscale 100000 1 nn
+winfo
+end
+case bigsize-1-100000
+wbits gray8 4 4 ramp
+wscale 1 100000 nn
+winfo
+end
+case bigsize-65536-65536
+wbits gray8 4 4 ramp
+wscale 65536 65536 nn
+winfo
+end
+case bigsize-65535-65535
+wbits gray8 4 4 ramp
+wscale 65535 65535 nn
+winfo
+end
+case bigsize-2147483647-1
+wbits gray8 4 4 ramp
+wscale 2147483647 1 nn
+winfo
+end
+case bigsize-1-2147483647
+wbits gray8 4 4 ramp
+wscale 1 2147483647 nn
+winfo
+end
+case bigsize-4294967295-1
+wbits gray8 4 4 ramp
+wscale 4294967295 1 nn
+winfo
+end
 case rect-0
 wbits bgr24 11 8 1387995763
 wscale 10 1 fant

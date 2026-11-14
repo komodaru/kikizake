@@ -96,6 +96,10 @@ pub fn wicscale() -> String {
     for (w, h) in [(0, 4), (4, 0), (0, 0), (0x10000, 1), (1, 0x10000)] {
         writeln!(s, "case size-{w}-{h}\nwbits gray8 4 4 ramp\nwscale {w} {h} nn\nend").unwrap();
     }
+    // (how large a scaler Windows makes)
+    for (w, h) in [(0x10000, 1), (1, 0x10000), (100_000, 1), (1, 100_000), (0x10000, 0x10000), (65535, 65535), (0x7fff_ffff, 1), (1, 0x7fff_ffff), (0xffff_ffffu32, 1)] {
+        writeln!(s, "case bigsize-{w}-{h}\nwbits gray8 4 4 ramp\nwscale {w} {h} nn\nwinfo\nend").unwrap();
+    }
     let mut r = XorShift32::new(0x5ca1e);
     for i in 0..60 {
         let m = r.pick(MODES);
@@ -118,6 +122,10 @@ pub fn wictransform() -> String {
     }
     for o in [4u32, 5, 7, 32, 0x7fffffff] {
         writeln!(s, "case flip-bad-{o}\nwbits gray8 3 2 ramp\nwflip {o}\nwinfo\nend").unwrap();
+    }
+    // (what the options outside the documented ones do to the pixels)
+    for o in [4u32, 5, 6, 7, 12, 13, 20, 28, 31, 32, 33, 64, 0x80, 0x100, 0x8000_0000, 0x7fff_ffff, 0xffff_ffff] {
+        writeln!(s, "case flipbad-{o}\nwbits gray8 3 2 ramp\nwflip {o}\nwinfo\nwpixels\nend").unwrap();
     }
     // rectangles of a flipped picture (the rotator reads its source by rows or columns)
     let mut r = XorShift32::new(0xf11b);
@@ -199,6 +207,26 @@ pub fn wiccolor() -> String {
     }
     for (a, b) in [(0, 1), (1, 0), (3, 1), (1, 3)] {
         writeln!(s, "case xf-bad-{a}{b}\nwbits bgra 2 2 1\nwcolor {a} {b} bgra\nend").unwrap();
+    }
+    // the transforms' curves and mixing: ramps of each primary, gray, and random colors, from a
+    // 24-bit BMP, into 24bppBGR and 64bppRGBA (16 bits show the arithmetic), between every pair
+    // of contexts and the values InitializeFromExifColorSpace takes besides 1 and 2
+    let mut r = XorShift32::new(0xc01a);
+    let mut ramps: Vec<(&str, Vec<[u8; 3]>)> = vec![];
+    for (k, name) in ["b", "g", "r", "gray"].iter().enumerate() {
+        ramps.push((name, (0..=255u8).map(|v| if k == 3 { [v; 3] } else { let mut c = [0; 3]; c[k] = v; c }).collect()));
+    }
+    ramps.push(("rand", (0..1024).map(|_| [r.next() as u8, r.next() as u8, r.next() as u8]).collect()));
+    for (name, px) in &ramps {
+        let w = 256u32;
+        let h = px.len() as u32 / w;
+        let rows: Vec<u8> = (0..h as usize).rev().flat_map(|y| px[y * 256..y * 256 + 256].iter().flat_map(|c| c.iter().copied()).collect::<Vec<_>>()).collect();
+        let f = bmp(40, w as i32, h as i32, 24, 0, [0; 4], 0, &[], &rows, false, (3780, 3780));
+        for (a, b) in [(1, 1), (1, 2), (2, 1), (2, 2), (0, 1), (1, 0), (3, 2), (65535, 1)] {
+            for t in ["bgr24", "rgba64"] {
+                writeln!(s, "case cm-{name}-{a}{b}-{t}\nwdecode {}\nwframe 0\nwcolor {a} {b} {t}\nwpixels\nend", hex(&f)).unwrap();
+            }
+        }
     }
     // every 8-bit level through sRGB to Adobe RGB and back
     writeln!(s, "case levels-12\nwbits bgr24 256 1 ramp\nwcolor 1 2 bgr24\nwpixels\nend").unwrap();

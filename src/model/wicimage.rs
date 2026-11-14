@@ -109,6 +109,9 @@ pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Img {
         i.pal = Some(crate::model::wic::palette());
     }
     hit("WICIMAGE.BITMAP");
+    if fmt == "alpha8" {
+        hit("WICIMAGE.BITMAP.ALPHA8");
+    }
     i
 }
 
@@ -1548,9 +1551,6 @@ impl WicImage {
                     return Err(Fail::Bad);
                 }
                 let seed = if t[4] == "ramp" { None } else { Some(n(4)? as u32) };
-                if crate::model::wic::FORMATS[f].0 == "alpha8" {
-                    return Err(Fail::Unmodeled("WICIMAGE.BITMAP.ALPHA8"));
-                }
                 out.push("wbits 00000000".into());
                 self.cur = Some(bitmap(crate::model::wic::FORMATS[f].0, w as u32, h as u32, seed));
             }

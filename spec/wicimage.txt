@@ -1,7 +1,7 @@
 # WIC bitmap source clauses (spec/README.md): <id> <status> | <source> | <what it says>
 # bitmaps in memory, the current source
 WICIMAGE.BITMAP measured | IWICImagingFactory::CreateBitmapFromMemory | a bitmap of the bytes given, at 0 dpi; an indexed one shows the palette set on it (golden wictransform, wicpalette)
-WICIMAGE.BITMAP.ALPHA8 open | (none) | a bitmap of 8bppAlpha from memory
+WICIMAGE.BITMAP.ALPHA8 measured | IWICImagingFactory::CreateBitmapFromMemory | a bitmap of 8bppAlpha: the bytes as alphas of white, like any other format (golden wicscale fmt-alpha8-*, wicencode enc-*-alpha8: as Windows through the scalers' and encoders' conversions)
 WICIMAGE.NOSOURCE doc | runner/wicimage.c | an op on no source (after a call that failed) prints "<op> -"
 WICIMAGE.INFO doc | IWICBitmapSource::GetSize, GetPixelFormat, GetResolution | a source's size, pixel format and resolution
 # CopyPixels

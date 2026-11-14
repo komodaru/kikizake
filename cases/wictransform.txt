@@ -1464,6 +1464,108 @@ wbits gray8 3 2 ramp
 wflip 2147483647
 winfo
 end
+case flipbad-4
+wbits gray8 3 2 ramp
+wflip 4
+winfo
+wpixels
+end
+case flipbad-5
+wbits gray8 3 2 ramp
+wflip 5
+winfo
+wpixels
+end
+case flipbad-6
+wbits gray8 3 2 ramp
+wflip 6
+winfo
+wpixels
+end
+case flipbad-7
+wbits gray8 3 2 ramp
+wflip 7
+winfo
+wpixels
+end
+case flipbad-12
+wbits gray8 3 2 ramp
+wflip 12
+winfo
+wpixels
+end
+case flipbad-13
+wbits gray8 3 2 ramp
+wflip 13
+winfo
+wpixels
+end
+case flipbad-20
+wbits gray8 3 2 ramp
+wflip 20
+winfo
+wpixels
+end
+case flipbad-28
+wbits gray8 3 2 ramp
+wflip 28
+winfo
+wpixels
+end
+case flipbad-31
+wbits gray8 3 2 ramp
+wflip 31
+winfo
+wpixels
+end
+case flipbad-32
+wbits gray8 3 2 ramp
+wflip 32
+winfo
+wpixels
+end
+case flipbad-33
+wbits gray8 3 2 ramp
+wflip 33
+winfo
+wpixels
+end
+case flipbad-64
+wbits gray8 3 2 ramp
+wflip 64
+winfo
+wpixels
+end
+case flipbad-128
+wbits gray8 3 2 ramp
+wflip 128
+winfo
+wpixels
+end
+case flipbad-256
+wbits gray8 3 2 ramp
+wflip 256
+winfo
+wpixels
+end
+case flipbad-2147483648
+wbits gray8 3 2 ramp
+wflip 2147483648
+winfo
+wpixels
+end
+case flipbad-2147483647
+wbits gray8 3 2 ramp
+wflip 2147483647
+winfo
+wpixels
+end
+case flipbad-4294967295
+wbits gray8 3 2 ramp
+wflip 4294967295
+winfo
+wpixels
+end
 case fliprect-0
 wbits bw 4 2 164805427
 wflip 18
