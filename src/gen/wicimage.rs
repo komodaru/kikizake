@@ -1114,6 +1114,27 @@ pub fn wicencode() -> String {
             seed += 1;
         }
     }
+    // color into BlackWhite: 16x16 of one gray at every level, of one primary every 5 levels
+    let one = |c: [u8; 3]| bmp(40, 16, 16, 24, 0, [0; 4], 0, &[], &c.repeat(256), false, (0, 0));
+    for v in 0..=255u8 {
+        writeln!(s, "case encbw-gray-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one([v; 3]))).unwrap();
+    }
+    for (k, ch) in ["b", "g", "r"].iter().enumerate() {
+        for v in (0..=255u8).step_by(5) {
+            let mut c = [0u8; 3];
+            c[k] = v;
+            writeln!(s, "case encbw-{ch}-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one(c))).unwrap();
+        }
+    }
+    // a gray ramp and random pictures of 2 to 300 colors into 8bppIndexed: the palette chosen
+    let mut r = XorShift32::new(0x9a1e);
+    let ramp: Vec<u8> = (0..=255u8).flat_map(|v| [v; 3]).collect();
+    writeln!(s, "case encq-ramp\nwdecode {}\nwframe 0\nwencode png idx8\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&bmp(40, 16, 16, 24, 0, [0; 4], 0, &[], &ramp, false, (0, 0)))).unwrap();
+    for n in [2usize, 3, 16, 17, 100, 255, 256, 257, 300] {
+        let cols: Vec<[u8; 3]> = (0..n).map(|_| [r.next() as u8, r.next() as u8, r.next() as u8]).collect();
+        let px: Vec<u8> = (0..400).flat_map(|i| cols[if i < n { i } else { r.next() as usize % n }]).collect();
+        writeln!(s, "case encq-{n}\nwdecode {}\nwframe 0\nwencode png idx8\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&bmp(40, 20, 20, 24, 0, [0; 4], 0, &[], &px, false, (0, 0)))).unwrap();
+    }
     // options
     let opts: &[(&str, &str)] = &[
         ("bmp", "EnableV5Header32bppBGRA=1"),
