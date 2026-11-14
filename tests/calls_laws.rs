@@ -2,7 +2,7 @@
 //! its output was flushed and in whatever order shirusu's export lists the events; a calls file
 //! reads back as written; a faithful executor passes check_ops and any one wrong argument is
 //! found; the JSON reader reads what a writer writes.
-use kikizake::calls::{self, Call, Val};
+use kikizake::calls::{self, Api, Call, Handle, LastError, Ret, Val};
 use kikizake::json::{self, Json};
 use proptest::prelude::*;
 
@@ -51,10 +51,15 @@ fn json_value() -> impl Strategy<Value = Json> {
 
 /// one shirusu field
 fn field(name: &str, v: &Val) -> String {
-    match v {
-        Val::Opaque(h) => format!("{}:{{\"ty\":\"U64\",\"capture\":\"captured\",\"value\":\"{h:#x}\"}}", esc(name)),
-        Val::Text(t) => format!("{}:{{\"ty\":\"I32\",\"capture\":\"captured\",\"value\":{t}}}", esc(name)),
-    }
+    let (ty, kind, value) = match v {
+        Val::Handle(Handle(h)) => ("U64", ",\"kind\":\"handle\"", format!("\"{h:#x}\"")),
+        Val::Null => ("U64", "", "\"0x0\"".into()),
+        Val::Dec(x) => ("I32", "", x.to_string()),
+        Val::Hex(x) => ("U32", "", x.to_string()),
+        Val::Bool(b) => ("Bool", "", b.to_string()),
+        Val::Missing(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) => unreachable!("not generated"),
+    };
+    format!("{}:{{\"ty\":\"{ty}\",\"capture\":\"captured\",\"value\":{value}{kind}}}", esc(name))
 }
 
 /// shirusu's JSONL for an executor that made `cases` (name, calls, output chunks: the calls of
@@ -72,11 +77,12 @@ fn jsonl(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize]) -> (St
         for (j, (calls, out)) in chunks.iter().zip(outs).enumerate() {
             for c in calls {
                 let a: Vec<String> = c.args.iter().enumerate().map(|(i, v)| field(&format!("a{i}"), v)).collect();
-                let mut l = vec![field("return", c.ret.as_ref().unwrap())];
-                if let Some(e) = &c.err {
+                let Ret::Value(r) = &c.ret else { unreachable!("not generated") };
+                let mut l = vec![field("return", r)];
+                if let Some(LastError(e)) = c.err {
                     l.push(format!("\"last_error\":{{\"ty\":\"U32\",\"capture\":\"captured\",\"value\":{e}}}"));
                 }
-                emit(&mut ev, &c.api, a.join(","), l.join(","));
+                emit(&mut ev, &c.api.0, a.join(","), l.join(","));
             }
             let mut text = String::new();
             if k == 0 && j == 0 {
@@ -107,14 +113,25 @@ fn jsonl(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize]) -> (St
     (lines.join("\n"), stdout)
 }
 
+fn value() -> impl Strategy<Value = Val> {
+    prop_oneof![
+        (1u64..6).prop_map(|h| Val::Handle(Handle(h))),
+        (1u64..u64::MAX).prop_map(|h| Val::Handle(Handle(h))),
+        Just(Val::Null),
+        any::<i32>().prop_map(|n| Val::Dec(n.into())),
+        (0x10000u32..).prop_map(Val::Hex),
+        any::<bool>().prop_map(Val::Bool),
+    ]
+}
+
 fn call() -> impl Strategy<Value = Call> {
     (
         prop::sample::select(vec!["BitBlt", "PatBlt", "SelectObject", "CreateDIBSection"]),
-        prop::collection::vec(prop_oneof![(1u64..6).prop_map(Val::Opaque), (-5i64..300).prop_map(|n| Val::Text(n.to_string()))], 0..5),
-        prop_oneof![(1u64..6).prop_map(Val::Opaque), (0i64..2).prop_map(|n| Val::Text(n.to_string()))],
-        prop::option::of(1u32..100),
+        prop::collection::vec(value(), 0..5),
+        value(),
+        prop::option::of(any::<u32>()),
     )
-        .prop_map(|(api, args, ret, err)| Call { api: api.into(), args, ret: Some(ret), err: err.map(|e| e.to_string()) })
+        .prop_map(|(api, args, ret, err)| Call { api: Api(api.into()), args, ret: Ret::Value(ret), err: err.map(LastError) })
 }
 
 fn cases() -> impl Strategy<Value = Vec<(String, Vec<Vec<Call>>, Vec<String>)>> {
@@ -137,13 +154,24 @@ fn cases() -> impl Strategy<Value = Vec<(String, Vec<Vec<Call>>, Vec<String>)>> 
 fn renumber(calls: &[Call]) -> Vec<Call> {
     let mut ids = std::collections::HashMap::new();
     let mut f = |v: &Val| match v {
-        Val::Opaque(h) => {
+        Val::Handle(h) => {
             let n = ids.len() as u64 + 1;
-            Val::Opaque(*ids.entry(*h).or_insert(n))
+            Val::Handle(Handle(*ids.entry(*h).or_insert(n)))
         }
         t => t.clone(),
     };
-    calls.iter().map(|c| Call { api: c.api.clone(), args: c.args.iter().map(&mut f).collect(), ret: c.ret.as_ref().map(&mut f), err: c.err.clone() }).collect()
+    calls
+        .iter()
+        .map(|c| Call {
+            api: c.api.clone(),
+            args: c.args.iter().map(&mut f).collect(),
+            ret: match &c.ret {
+                Ret::Value(v) => Ret::Value(f(v)),
+                r => r.clone(),
+            },
+            err: c.err,
+        })
+        .collect()
 }
 
 proptest! {
@@ -160,9 +188,10 @@ proptest! {
     #[test]
     fn recording_is_cut_into_the_cases(cs in cases(), perm in prop::collection::vec(0usize..200, 0..40)) {
         let (text, stdout) = jsonl(&cs, &perm);
-        let (got, same, _, other) = calls::from_jsonl(&text, Some(&stdout)).unwrap();
-        prop_assert_eq!(same, "same");
-        prop_assert_eq!(other, 0);
+        let got = calls::from_jsonl(&text, Some(&stdout)).unwrap();
+        prop_assert_eq!(got.header.stdout, calls::Stdout::Same);
+        prop_assert_eq!(got.header.other, 0);
+        let got = got.cases;
         prop_assert_eq!(got.len(), cs.len());
         for (g, (name, chunks, _)) in got.iter().zip(&cs) {
             prop_assert_eq!(&g.name, name);
@@ -170,20 +199,22 @@ proptest! {
             prop_assert_eq!(&g.calls, &want);
         }
         // and a calls file reads back as written, handles renumbered per case
-        let r = calls::Recording { header: "kikizake calls s-32 cases 0".into(), cases: got.clone() };
+        let header = calls::Header { name: "s-32".into(), cases: calls::CasesHash(7), src: "x".into(), shirusu: "y".into(), stdout: calls::Stdout::Same, events: 1, other: 0 };
+        let r = calls::Recording { header: header.clone(), cases: got.clone() };
         let back = calls::parse(&calls::format(&r)).unwrap();
         prop_assert_eq!(back.cases.len(), got.len());
         for (b, g) in back.cases.iter().zip(&got) {
             prop_assert_eq!(&b.calls, &renumber(&g.calls));
         }
+        prop_assert_eq!(&back.header, &header);
         prop_assert_eq!(calls::format(&back), calls::format(&r));
     }
 
     #[test]
     fn output_changed_under_recording_is_seen(cs in cases()) {
         let (text, stdout) = jsonl(&cs, &[]);
-        let (_, same, _, _) = calls::from_jsonl(&text, Some(&(stdout + "x"))).unwrap();
-        prop_assert_eq!(same, "differ");
+        let r = calls::from_jsonl(&text, Some(&(stdout + "x"))).unwrap();
+        prop_assert_eq!(r.header.stdout, calls::Stdout::Differ);
     }
 }
 
@@ -193,24 +224,22 @@ fn faithful(ops: &[Vec<String>], rules: &[calls::Rule], noise: &[usize]) -> Vec<
     let mut v = Vec::new();
     for (i, t) in ops.iter().enumerate() {
         for _ in 0..noise.get(i).copied().unwrap_or(0) {
-            v.push(Call { api: "SelectObject".into(), args: vec![Val::Opaque(7)], ret: Some(Val::Opaque(8)), err: None });
+            v.push(Call { api: Api("SelectObject".into()), args: vec![Val::Handle(Handle(7))], ret: Ret::Value(Val::Handle(Handle(8))), err: None });
         }
-        for r in rules.iter().filter(|r| r.op == t[0] && r.api != "-") {
-            let args = r
-                .args
+        for r in rules.iter().filter(|r| r.op == t[0]) {
+            let calls::Does::Call(api, args) = &r.does else { continue };
+            let tok = |n: &calls::Tok| &t[n.0];
+            let args = args
                 .iter()
                 .map(|a| match a {
-                    calls::Arg::Slot(n) => Val::Opaque(100 + t[*n].parse::<u64>().unwrap()),
-                    calls::Arg::Num(n) => Val::Text(kikizake::case::num(&t[*n]).unwrap().to_string()),
-                    calls::Arg::Color(n) => {
-                        let c = kikizake::case::color(&t[*n]).unwrap();
-                        Val::Text(((c & 0xff) << 16 | (c & 0xff00) | (c >> 16 & 0xff)).to_string())
-                    }
-                    calls::Arg::Lit(x) => Val::Text(x.to_string()),
-                    calls::Arg::Any => Val::Opaque(9),
+                    calls::Arg::Slot(n) => Val::Handle(Handle(100 + tok(n).parse::<u64>().unwrap())),
+                    calls::Arg::Num(n) => Val::Dec(kikizake::case::num(tok(n)).unwrap()),
+                    calls::Arg::Color(n) => Val::Dec(calls::colorref(kikizake::case::color(tok(n)).unwrap()).into()),
+                    calls::Arg::Lit(x) => Val::Dec(*x),
+                    calls::Arg::Any => Val::Handle(Handle(9)),
                 })
                 .collect();
-            v.push(Call { api: r.api.clone(), args, ret: Some(Val::Text("1".into())), err: None });
+            v.push(Call { api: api.clone(), args, ret: Ret::Value(Val::Dec(1)), err: None });
         }
     }
     v
@@ -229,6 +258,10 @@ fn op() -> impl Strategy<Value = Vec<String>> {
     ]
 }
 
+fn header() -> calls::Header {
+    calls::Header { name: "s-32".into(), cases: calls::CasesHash(7), src: "x".into(), shirusu: "y".into(), stdout: calls::Stdout::Same, events: 1, other: 0 }
+}
+
 fn rules() -> Vec<calls::Rule> {
     calls::rules(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/spec/calls.txt")).unwrap()).unwrap()
 }
@@ -236,7 +269,7 @@ fn rules() -> Vec<calls::Rule> {
 fn setup(ops: &[Vec<String>], noise: &[usize]) -> (Vec<kikizake::case::Case>, calls::Recording) {
     let rs = rules();
     let case = kikizake::case::Case { name: "x".into(), ops: ops.iter().enumerate().map(|(i, t)| kikizake::case::Op { line: i + 2, tok: t.clone() }).collect() };
-    let rec = calls::Recording { header: String::new(), cases: vec![calls::Case { name: "x".into(), bad: vec![], calls: faithful(ops, &rs, noise) }] };
+    let rec = calls::Recording { header: header(), cases: vec![calls::Case { name: "x".into(), bad: vec![], calls: faithful(ops, &rs, noise) }] };
     (vec![case], rec)
 }
 
@@ -253,10 +286,10 @@ proptest! {
         let calls_ = &mut rec.cases[0].calls;
         let k = pick.index(calls_.len());
         // (a slot's first handle is whatever it is: a wrong one shows only where it is used again)
-        let nums: Vec<usize> = (0..calls_[k].args.len()).filter(|&i| matches!(calls_[k].args[i], Val::Text(_))).collect();
+        let nums: Vec<usize> = (0..calls_[k].args.len()).filter(|&i| matches!(calls_[k].args[i], Val::Dec(_))).collect();
         let a = nums[arg.index(nums.len())];
-        let Val::Text(t) = &calls_[k].args[a] else { unreachable!() };
-        calls_[k].args[a] = Val::Text((t.parse::<i64>().unwrap() ^ 0x40).to_string());
+        let Val::Dec(x) = calls_[k].args[a] else { unreachable!() };
+        calls_[k].args[a] = Val::Dec(x ^ 0x40);
         prop_assert!(!calls::check_ops(&cases, &rec, &rules()).is_empty());
     }
 
@@ -275,16 +308,16 @@ proptest! {
         // (the executor refused line k: it made no call for it)
         let without: Vec<Vec<String>> = ops.iter().enumerate().filter(|(i, _)| *i != k).map(|(_, t)| t.clone()).collect();
         rec.cases[0].calls = faithful(&without, &rules(), &[]);
-        rec.cases[0].bad = vec![k + 2];
+        rec.cases[0].bad = vec![calls::Line(k + 2)];
         prop_assert_eq!(calls::check_ops(&cases, &rec, &rules()), Vec::<String>::new());
     }
 }
 
 #[test]
 fn x86_and_x86_64_differences_are_found() {
-    let c = |r: &str| calls::Case { name: "a".into(), bad: vec![], calls: vec![Call { api: "BitBlt".into(), args: vec![Val::Opaque(1), Val::Text("3".into())], ret: Some(Val::Text(r.into())), err: None }] };
-    let a = calls::Recording { header: String::new(), cases: vec![c("1")] };
-    let b = calls::Recording { header: String::new(), cases: vec![c("0")] };
+    let c = |r: i64| calls::Case { name: "a".into(), bad: vec![], calls: vec![Call { api: Api("BitBlt".into()), args: vec![Val::Handle(Handle(1)), Val::Dec(3)], ret: Ret::Value(Val::Dec(r)), err: None }] };
+    let a = calls::Recording { header: header(), cases: vec![c(1)] };
+    let b = calls::Recording { header: header(), cases: vec![c(0)] };
     assert!(calls::differ(&a, &a).is_empty());
     assert_eq!(calls::differ(&a, &b).len(), 1);
 }

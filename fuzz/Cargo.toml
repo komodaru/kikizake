@@ -20,3 +20,10 @@ path = "fuzz_targets/cases.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "calls"
+path = "fuzz_targets/calls.rs"
+test = false
+doc = false
+bench = false

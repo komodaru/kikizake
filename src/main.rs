@@ -45,12 +45,15 @@ fn main() {
         ["learn", rest @ ..] => exit(kikizake::learn::main(rest)),
         ["trace", rest @ ..] => print!("{}", kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden")))),
         ["calls", "import", name, cases, jsonl, stdout, src, rev] => {
-            let (cs, same, events, other) = kikizake::calls::from_jsonl(&read(jsonl), std::fs::read_to_string(stdout).ok().as_deref()).unwrap_or_else(|e| {
+            let mut r = kikizake::calls::from_jsonl(&read(jsonl), std::fs::read_to_string(stdout).ok().as_deref()).unwrap_or_else(|e| {
                 eprintln!("{jsonl}: {e}");
                 exit(2)
             });
-            let header = format!("kikizake calls {name} cases {} src {src} shirusu {rev} stdout {same} events {events} other {other}", kikizake::calls::fnv(&read(cases)));
-            print!("{}", kikizake::calls::format(&kikizake::calls::Recording { header, cases: cs }));
+            r.header.name = name.to_string();
+            r.header.cases = kikizake::calls::CasesHash::of(&read(cases));
+            r.header.src = src.to_string();
+            r.header.shirusu = rev.to_string();
+            print!("{}", kikizake::calls::format(&r));
         }
         ["calls", "check", rest @ ..] => {
             let r = kikizake::calls::check_dir(std::path::Path::new(rest.first().copied().unwrap_or("calls")), std::path::Path::new("."));
