@@ -21,6 +21,10 @@ fn main() {
             exit(2)
         })),
         ["model", suite, rest @ ..] => {
+            // (KIKIZAKE_ARCH=64: the answers of the x86-64 executor)
+            if std::env::var("KIKIZAKE_ARCH").as_deref() == Ok("64") {
+                model::set_arch(64);
+            }
             let text = match rest {
                 [f] => read(f),
                 _ => gen::suite(suite).unwrap_or_default(),

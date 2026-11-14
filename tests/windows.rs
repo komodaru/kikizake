@@ -29,8 +29,9 @@ fn models_match_windows() {
     let mut bad = Vec::new();
     for s in gen::SUITES {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
-        let want = model::run(s, &cases);
         for arch in [32, 64] {
+            model::set_arch(arch);
+            let want = model::run(s, &cases);
             if arch == 64 && gen::suite(s).unwrap().contains("\n# x86 only") {
                 continue;
             }
@@ -43,6 +44,7 @@ fn models_match_windows() {
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));
         }
     }
+    model::set_arch(32);
     assert!(bad.is_empty(), "the model differs from Windows:\n{}", bad.join("\n"));
 }
 

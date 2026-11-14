@@ -39,6 +39,19 @@ pub enum Fail {
 
 pub type Res<T> = Result<T, Fail>;
 
+thread_local! {
+    static ARCH: std::cell::Cell<u32> = const { std::cell::Cell::new(32) };
+}
+
+/// the executor the model answers for: 32 (x86) or 64 (x86-64); a few calls differ by it
+/// (DirectDraw's system-memory pitches, Direct3D 7 only on x86). The default is 32.
+pub fn set_arch(a: u32) {
+    ARCH.with(|c| c.set(a));
+}
+pub fn arch() -> u32 {
+    ARCH.with(|c| c.get())
+}
+
 /// one case's lines, or why the model has none
 pub fn run_case(case: &Case) -> Res<Vec<String>> {
     let r = run_ops(case);

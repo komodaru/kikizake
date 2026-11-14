@@ -78,12 +78,20 @@ pub fn coverage() -> std::collections::BTreeMap<String, Vec<String>> {
     let mut m: std::collections::BTreeMap<String, Vec<String>> = Default::default();
     for s in crate::gen::SUITES {
         for c in crate::case::parse_cases(&crate::gen::suite(s).unwrap()) {
-            take();
-            let _ = crate::model::run_case(&c);
-            for id in take() {
-                m.entry(id.to_string()).or_default().push(format!("{s}:{}", c.name));
+            for arch in [32, 64] {
+                crate::model::set_arch(arch);
+                take();
+                let _ = crate::model::run_case(&c);
+                for id in take() {
+                    let v = m.entry(id.to_string()).or_default();
+                    let n = format!("{s}:{}", c.name);
+                    if v.last() != Some(&n) {
+                        v.push(n);
+                    }
+                }
             }
         }
     }
+    crate::model::set_arch(32);
     m
 }
