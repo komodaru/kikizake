@@ -14220,9 +14220,20 @@ alloc ffffffffffffffff 10000
 case alloc-other-26
 device12 ok
 alloc ffffffffffffffff 10000
+case alloc-std-planar-0
+device12 ok
+alloc 40000 10000
+create hr 00000001
+case alloc-std-planar-1
+device12 ok
+alloc 80000 10000
+create hr 00000001
+case alloc-std-planar-2
+device12 ok
+alloc 20000 10000
+create hr 00000001
 case nodev
 nodev
 nodev
 nodev
 nodev
-done

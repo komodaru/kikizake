@@ -12,6 +12,9 @@ factory ok
 warp vendor 1414 device 8c flags 2
 factory ok
 warp vendor 1414 device 8c flags 2
+case factory-debug
+factory ok
+warp vendor 1414 device 8c flags 2
 case assoc
 factory ok
 assoc hr 00000000
