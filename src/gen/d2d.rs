@@ -42,6 +42,8 @@ pub fn d2d() -> String {
     brushworld(&mut s, &mut r);
     strokefit(&mut s, &mut r);
     xfbounds(&mut s, &mut r);
+    bmpsrcfit(&mut s, &mut r);
+    xfbounds_more(&mut s);
     s
 }
 
@@ -783,6 +785,44 @@ fn xfbounds(s: &mut String, r: &mut XorShift32) {
         for _ in 0..4 {
             let m: Vec<String> = (0..6).map(|_| frac(r, -3, 3)).collect();
             o += &format!("d2bounds 0 {}\n", m.join(" "));
+        }
+        writeln!(s, "{o}end").unwrap();
+    }
+}
+
+/// DrawBitmap source rectangles that are empty, turned round, or outside the bitmap, one way
+/// at a time, with both interpolations; a 4 x 3 bitmap of opaque texels
+fn bmpsrcfit(s: &mut String, r: &mut XorShift32) {
+    let srcs = [
+        "5 5 7 7", "-3 -3 -1 -1", "5 1 7 2", "-3 1 -1 2", "1 5 2 7", "1 -3 2 -1", "3 1 1 2", "1 2 3 1", "3 2 1 1", "1 1 1 2", "1 1 3 1", "2 2 2 2",
+        "4 1 6 2", "1 3 2 5", "0 0 4 0", "0 3 4 3", "4 0 4 3", "0 0 0 3", "4.5 0 5 3", "0 -2 4 -0.5", "-1 0.5 0.25 2.5", "3.75 0.5 6 2.5", "0 0 4 -1", "0 0 -1 3",
+    ];
+    let mut i = 0;
+    for mode in ["nearest", "linear"] {
+        for src in srcs {
+            let px: String = (0..12).map(|_| format!("{:02x}{:02x}{:02x}ff", r.range(0, 256), r.range(0, 256), r.range(0, 256))).collect();
+            writeln!(s, "case bmpsrcfit-{i}\nd2target 16 8\nd2aa aliased\nd2clear {}\nd2bmp 0 4 3 {px}\nd2drawbmp 0 0.5 0.75 13.25 7.5 1 {mode} {src}\nd2read\nend", color(r, true)).unwrap();
+            i += 1;
+        }
+    }
+}
+
+/// the geometries xfb-ctr-* miss, through transforms of few rounding steps: shears and
+/// turns by dyadic factors, the same with a translation
+fn xfbounds_more(s: &mut String) {
+    let geoms = [
+        "d2ell 0 0.4874375 -3.896546875 7.037171875 4.902140625",
+        "d2ell 0 4.292125 -5.831296875 5.793234375 7.86309375",
+        "d2ell 0 -3.222703125 4.936015625 5.97175 5.959046875",
+        "d2ell 0 -0.48653125 -5.624578125 6.990609375 6.106734375",
+        "d2ell 0 8.78415625 -1.774265625 4.11884375 7.5035",
+        "d2ell 0 0.5 -3.75 7 5",
+    ];
+    let ms = ["1 1 -1 1 0 0", "1 0.5 -0.5 1 0 0", "0.5 -1 1 0.5 0 0", "1 0 0.5 1 0 0", "1 0.25 0 1 0 0", "1 1 -1 1 3 -2", "2 1 -1 2 0.5 0.25", "0.75 -0.5 0.25 1.5 0 0"];
+    for (i, g) in geoms.iter().enumerate() {
+        let mut o = format!("case xfbm-{i}\n{g}\n");
+        for m in ms {
+            o += &format!("d2bounds 0 {m}\n");
         }
         writeln!(s, "{o}end").unwrap();
     }
