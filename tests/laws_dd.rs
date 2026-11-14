@@ -274,7 +274,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::gen;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 3, 3), ("ddlock", 0, 0), ("ddflip", 1, 1), ("d3d7", 87, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 3, 3), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 87, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

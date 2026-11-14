@@ -1172,13 +1172,14 @@ impl Ddraw {
             return Ok(true);
         }
         if primary {
-            if backs > 0 {
-                return Err(Fail::Unmodeled(open::DDRAW_FLIP_PRIMARY));
-            }
             self.primary = true;
-            // (the screen's size and pixels: not this model's)
-            self.s[s] = Some(Surf { w: 1, h: 1, bpp: 32, fmt: "32", caps: 0x200, px: vec![0], chain: Some((s, 0)), ..Default::default() });
-            out.push("chain 1".into());
+            // (the screen's size and pixels: not this model's; a chain's back buffers are the
+            // screen's size too)
+            let n = (backs as usize + 1).min(8 - s);
+            for k in 0..n {
+                self.s[s + k] = Some(Surf { w: 1, h: 1, bpp: 32, fmt: "32", caps: 0x200, px: vec![0], chain: Some((s, k)), ..Default::default() });
+            }
+            out.push(format!("chain {n}"));
             return Ok(true);
         }
         // MEASURED: no memory asked: local video memory; the front buffer FRONTBUFFER, each back
