@@ -1,0 +1,12477 @@
+# kikizake suite lines: GDI pens, lines and filled shapes into DIB sections (SPEC.md). Made by `kikizake gen lines`.
+case line-out-0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 0
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 0
+getpos 0
+dump 0
+end
+case line-out-1
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 1
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 1
+getpos 0
+dump 0
+end
+case line-out-2
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 2
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 2
+getpos 0
+dump 0
+end
+case line-out-3
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 3
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 3
+getpos 0
+dump 0
+end
+case line-out-4
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 4
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 4
+getpos 0
+dump 0
+end
+case line-out-5
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 5
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 5
+getpos 0
+dump 0
+end
+case line-out-6
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 6
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 6
+getpos 0
+dump 0
+end
+case line-out-7
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 7
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 7
+getpos 0
+dump 0
+end
+case line-out-8
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 8
+getpos 0
+dump 0
+end
+case line-out-9
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 9
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 9
+getpos 0
+dump 0
+end
+case line-out-10
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 10
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 10
+getpos 0
+dump 0
+end
+case line-out-11
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 11
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 11
+getpos 0
+dump 0
+end
+case line-out-12
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 12
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 12
+getpos 0
+dump 0
+end
+case line-out-13
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 13
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 13
+getpos 0
+dump 0
+end
+case line-out-14
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 14
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 14
+getpos 0
+dump 0
+end
+case line-out-15
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 15
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 15
+getpos 0
+dump 0
+end
+case line-out-16
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 0 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 1 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 2 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 3 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 4 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 5 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 6 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 7 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 9 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 10 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 11 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 12 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 13 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 14 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 15 16
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 16 16
+getpos 0
+dump 0
+end
+case line-in-0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 0
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 0
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-1
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 1
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 1
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-2
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 2
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 2
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-3
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 3
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 3
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-4
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 4
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 4
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-5
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 5
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 5
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-6
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 6
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 6
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-7
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 7
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 7
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-8
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 8
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 8
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-9
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 9
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 9
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-10
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 10
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 10
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-11
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 11
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 11
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-12
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 12
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 12
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-13
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 13
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 13
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-14
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 14
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 14
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-15
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 15
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 15
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case line-in-16
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 0 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 1 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 2 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 3 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 4 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 5 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 6 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 7 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 8 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 9 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 10 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 11 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 12 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 13 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 14 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 15 16
+lineto 0 8 8
+getpos 0
+dump 0
+dib 0 17 17 8
+pen 0 0 0 #ffffff
+moveto 0 16 16
+lineto 0 8 8
+getpos 0
+dump 0
+end
+case long-0
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 7 -26
+lineto 0 44 42
+dump 0
+end
+case long-1
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 5 -20
+lineto 0 -9 28
+dump 0
+end
+case long-2
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 -22 4
+lineto 0 -21 -12
+dump 0
+end
+case long-3
+dib 0 24 20 8
+clip 0 2 2 7 8
+pen 0 0 1 #ffffff
+moveto 0 21 -5
+lineto 0 2 -3
+dump 0
+end
+case long-4
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 45 25
+lineto 0 50 12
+dump 0
+end
+case long-5
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 13 -26
+lineto 0 1 -25
+dump 0
+end
+case long-6
+dib 0 24 20 8
+clip 0 1 1 2 2
+pen 0 0 1 #ffffff
+moveto 0 54 5
+lineto 0 -11 3
+dump 0
+end
+case long-7
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 15 11
+lineto 0 50 -13
+dump 0
+end
+case long-8
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 25 46
+lineto 0 -6 14
+dump 0
+end
+case long-9
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 -27 43
+lineto 0 -4 -28
+dump 0
+end
+case long-10
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 2 -1
+lineto 0 6 -9
+dump 0
+end
+case long-11
+dib 0 24 20 8
+clip 0 6 2 12 9
+pen 0 0 1 #ffffff
+moveto 0 29 -18
+lineto 0 -2 25
+dump 0
+end
+case long-12
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -2 27
+lineto 0 30 41
+dump 0
+end
+case long-13
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -11 14
+lineto 0 -23 47
+dump 0
+end
+case long-14
+dib 0 24 20 8
+clip 0 2 7 3 11
+pen 0 0 0 #ffffff
+moveto 0 -25 50
+lineto 0 -7 -4
+dump 0
+end
+case long-15
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 26 18
+lineto 0 14 -20
+dump 0
+end
+case long-16
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 48 -1
+lineto 0 -22 32
+dump 0
+end
+case long-17
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -27 27
+lineto 0 15 26
+dump 0
+end
+case long-18
+dib 0 24 20 8
+clip 0 4 3 15 4
+pen 0 0 1 #ffffff
+moveto 0 7 15
+lineto 0 -24 39
+dump 0
+end
+case long-19
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -26 42
+lineto 0 -23 -7
+dump 0
+end
+case long-20
+dib 0 24 20 8
+clip 0 3 5 13 12
+pen 0 0 0 #ffffff
+moveto 0 23 23
+lineto 0 -7 10
+dump 0
+end
+case long-21
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 9 8
+lineto 0 -6 17
+dump 0
+end
+case long-22
+dib 0 24 20 8
+clip 0 9 0 17 9
+pen 0 0 1 #ffffff
+moveto 0 10 21
+lineto 0 27 44
+dump 0
+end
+case long-23
+dib 0 24 20 8
+clip 0 6 3 9 9
+pen 0 0 0 #ffffff
+moveto 0 -8 -16
+lineto 0 -30 32
+dump 0
+end
+case long-24
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 39 -14
+lineto 0 11 -25
+dump 0
+end
+case long-25
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 8 14
+lineto 0 20 3
+dump 0
+end
+case long-26
+dib 0 24 20 8
+clip 0 9 9 12 19
+pen 0 0 1 #ffffff
+moveto 0 21 9
+lineto 0 32 -3
+dump 0
+end
+case long-27
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -3 -17
+lineto 0 21 5
+dump 0
+end
+case long-28
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 51 -10
+lineto 0 10 -20
+dump 0
+end
+case long-29
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 24 -26
+lineto 0 31 25
+dump 0
+end
+case long-30
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 -20 37
+lineto 0 -28 9
+dump 0
+end
+case long-31
+dib 0 24 20 8
+clip 0 10 2 15 12
+pen 0 0 1 #ffffff
+moveto 0 34 31
+lineto 0 34 38
+dump 0
+end
+case long-32
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -21 -7
+lineto 0 -23 -20
+dump 0
+end
+case long-33
+dib 0 24 20 8
+clip 0 9 9 15 17
+pen 0 0 1 #ffffff
+moveto 0 -12 -19
+lineto 0 42 44
+dump 0
+end
+case long-34
+dib 0 24 20 8
+clip 0 11 1 16 9
+pen 0 0 1 #ffffff
+moveto 0 6 35
+lineto 0 10 26
+dump 0
+end
+case long-35
+dib 0 24 20 8
+clip 0 6 5 14 15
+pen 0 0 1 #ffffff
+moveto 0 -13 14
+lineto 0 -2 -30
+dump 0
+end
+case long-36
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 1 8
+lineto 0 49 -20
+dump 0
+end
+case long-37
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 54 -24
+lineto 0 37 -14
+dump 0
+end
+case long-38
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 35 45
+lineto 0 48 -9
+dump 0
+end
+case long-39
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 28 -24
+lineto 0 22 15
+dump 0
+end
+case long-40
+dib 0 24 20 8
+clip 0 4 1 7 9
+pen 0 0 1 #ffffff
+moveto 0 -30 -1
+lineto 0 40 -18
+dump 0
+end
+case long-41
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -12 38
+lineto 0 -18 -18
+dump 0
+end
+case long-42
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 23 43
+lineto 0 -7 8
+dump 0
+end
+case long-43
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 50 -18
+lineto 0 5 24
+dump 0
+end
+case long-44
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 35 -7
+lineto 0 6 -23
+dump 0
+end
+case long-45
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 39 39
+lineto 0 54 -10
+dump 0
+end
+case long-46
+dib 0 24 20 8
+clip 0 5 9 17 15
+pen 0 0 0 #ffffff
+moveto 0 -14 -17
+lineto 0 52 45
+dump 0
+end
+case long-47
+dib 0 24 20 8
+clip 0 4 8 5 12
+pen 0 0 0 #ffffff
+moveto 0 -3 41
+lineto 0 27 12
+dump 0
+end
+case long-48
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 35 -14
+lineto 0 -13 36
+dump 0
+end
+case long-49
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 43 45
+lineto 0 16 4
+dump 0
+end
+case long-50
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 15 -10
+lineto 0 47 30
+dump 0
+end
+case long-51
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 22 50
+lineto 0 40 8
+dump 0
+end
+case long-52
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 38 39
+lineto 0 24 44
+dump 0
+end
+case long-53
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 29 24
+lineto 0 11 41
+dump 0
+end
+case long-54
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 -5 -11
+lineto 0 38 39
+dump 0
+end
+case long-55
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 43 40
+lineto 0 26 2
+dump 0
+end
+case long-56
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 35 27
+lineto 0 -20 -8
+dump 0
+end
+case long-57
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 29 31
+lineto 0 35 -30
+dump 0
+end
+case long-58
+dib 0 24 20 8
+pen 0 0 0 #ffffff
+moveto 0 17 7
+lineto 0 36 14
+dump 0
+end
+case long-59
+dib 0 24 20 8
+pen 0 0 1 #ffffff
+moveto 0 -18 3
+lineto 0 0 37
+dump 0
+end
+case rop2-1
+dib 0 16 16 1 bu
+fill 0 2969236890
+pen 0 0 0 #15adb1
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case rop2-4
+dib 0 16 16 4 bu
+fill 0 3585075887
+pen 0 0 0 #ffffff
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case rop2-8
+dib 0 16 16 8
+fill 0 2551436532
+pen 0 0 0 #0000ff
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case rop2-16
+dib 0 16 16 16
+fill 0 4088306670
+pen 0 0 0 #0a540c
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case rop2-16565
+dib 0 16 16 16 565
+fill 0 3038366795
+pen 0 0 0 #f26fe3
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case rop2-24
+dib 0 16 16 24
+fill 0 488136289
+pen 0 0 0 #281f00
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case rop2-32
+dib 0 16 16 32 bu
+fill 0 439494117
+pen 0 0 0 #000000
+rop2 0 1
+moveto 0 0 0
+lineto 0 16 0
+rop2 0 2
+moveto 0 0 1
+lineto 0 16 1
+rop2 0 3
+moveto 0 0 2
+lineto 0 16 2
+rop2 0 4
+moveto 0 0 3
+lineto 0 16 3
+rop2 0 5
+moveto 0 0 4
+lineto 0 16 4
+rop2 0 6
+moveto 0 0 5
+lineto 0 16 5
+rop2 0 7
+moveto 0 0 6
+lineto 0 16 6
+rop2 0 8
+moveto 0 0 7
+lineto 0 16 7
+rop2 0 9
+moveto 0 0 8
+lineto 0 16 8
+rop2 0 10
+moveto 0 0 9
+lineto 0 16 9
+rop2 0 11
+moveto 0 0 10
+lineto 0 16 10
+rop2 0 12
+moveto 0 0 11
+lineto 0 16 11
+rop2 0 13
+moveto 0 0 12
+lineto 0 16 12
+rop2 0 14
+moveto 0 0 13
+lineto 0 16 13
+rop2 0 15
+moveto 0 0 14
+lineto 0 16 14
+rop2 0 16
+moveto 0 0 15
+lineto 0 16 15
+rop2 0 0
+rop2 0 17
+dump 0
+end
+case style-0-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 0 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-0-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 0 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-1-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 1 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-1-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 1 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-2-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 2 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-2-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 2 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-3-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 3 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-3-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 3 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-4-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 4 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-4-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 4 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-5-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 5 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-5-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 5 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-6-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+pen 0 6 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-6-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+pen 0 6 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-7-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+extpen 0 0x8 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-7-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+extpen 0 0x8 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-8-1
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 1
+extpen 0 0x2 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case style-8-2
+dib 0 40 12 32
+bk 0 #0000ff
+bkmode 0 2
+extpen 0 0x2 1 #ffffff
+moveto 0 0 0
+lineto 0 40 0
+moveto 0 39 2
+lineto 0 0 2
+moveto 0 0 4
+lineto 0 7 11
+lineto 0 30 4
+lineto 0 39 11
+dump 0
+end
+case wide-0
+dib 0 24 24 8
+pen 0 0 2 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-1
+dib 0 24 24 8
+pen 0 0 3 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-2
+dib 0 24 24 8
+pen 0 0 4 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-3
+dib 0 24 24 8
+pen 0 0 5 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-4
+dib 0 24 24 8
+pen 0 6 3 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-5
+dib 0 24 24 8
+extpen 0 0x10000 3 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-6
+dib 0 24 24 8
+extpen 0 0x10100 4 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-7
+dib 0 24 24 8
+extpen 0 0x10200 5 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-8
+dib 0 24 24 8
+extpen 0 0x12000 4 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-9
+dib 0 24 24 8
+extpen 0 0x11000 4 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-10
+dib 0 24 24 8
+extpen 0 0x12100 5 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case wide-11
+dib 0 24 24 8
+extpen 0 0x11200 6 #ffffff
+polyline 0 3 3 18 4 5 19 20 20
+moveto 0 2 12
+lineto 0 2 12
+dump 0
+end
+case rect-both
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 8
+dump 0
+end
+case rect-nopen
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 1 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 2 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 3 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 4 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 5 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 6 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 7 8
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 1
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 2
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 3
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 4
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 5
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 6
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 7
+dump 0
+dib 0 10 10 8
+pen 0 null
+brush 0 solid #ff0000
+rectangle 0 2 2 8 8
+dump 0
+end
+case rect-nobrush
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 1 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 2 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 3 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 4 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 5 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 6 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 7 8
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 1
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 2
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 3
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 4
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 5
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 6
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 7
+dump 0
+dib 0 10 10 8
+pen 0 0 1 #ffffff
+brush 0 null
+rectangle 0 2 2 8 8
+dump 0
+end
+case rect-inside
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 1 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 2 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 3 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 4 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 5 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 6 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 7 8
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 1
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 2
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 3
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 4
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 5
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 6
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 7
+dump 0
+dib 0 10 10 8
+pen 0 6 3 #ffffff
+brush 0 solid #ff0000
+rectangle 0 2 2 8 8
+dump 0
+end
+case ellipse-fill-1
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 2
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 2
+dump 0
+end
+case ellipse-fill-2
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 3
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 3
+dump 0
+end
+case ellipse-fill-3
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 4
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 4
+dump 0
+end
+case ellipse-fill-4
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 5
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 5
+dump 0
+end
+case ellipse-fill-5
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 6
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 6
+dump 0
+end
+case ellipse-fill-6
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 7
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 7
+dump 0
+end
+case ellipse-fill-7
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 8
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 8
+dump 0
+end
+case ellipse-fill-8
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 9
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 9
+dump 0
+end
+case ellipse-fill-9
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 10
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 10
+dump 0
+end
+case ellipse-fill-10
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 11
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 11
+dump 0
+end
+case ellipse-fill-11
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 12
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 12
+dump 0
+end
+case ellipse-fill-12
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 13
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 13
+dump 0
+end
+case ellipse-fill-13
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 2 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 3 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 4 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 5 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 6 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 7 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 8 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 9 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 10 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 11 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 12 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 13 14
+dump 0
+dib 0 16 16 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 1 1 14 14
+dump 0
+end
+case ellipse-frame-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 2
+dump 0
+end
+case ellipse-frame-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 3
+dump 0
+end
+case ellipse-frame-3
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 4
+dump 0
+end
+case ellipse-frame-4
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 5
+dump 0
+end
+case ellipse-frame-5
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 6
+dump 0
+end
+case ellipse-frame-6
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 7
+dump 0
+end
+case ellipse-frame-7
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 8
+dump 0
+end
+case ellipse-frame-8
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 9
+dump 0
+end
+case ellipse-frame-9
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 10
+dump 0
+end
+case ellipse-frame-10
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 11
+dump 0
+end
+case ellipse-frame-11
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 12
+dump 0
+end
+case ellipse-frame-12
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 13
+dump 0
+end
+case ellipse-frame-13
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 2 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 3 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 4 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 5 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 6 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 7 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 8 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 9 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 10 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 11 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 12 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 13 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 1 1 14 14
+dump 0
+end
+case ellipse-both-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 2
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 2
+dump 0
+end
+case ellipse-both-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 3
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 3
+dump 0
+end
+case ellipse-both-3
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 4
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 4
+dump 0
+end
+case ellipse-both-4
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 5
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 5
+dump 0
+end
+case ellipse-both-5
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 6
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 6
+dump 0
+end
+case ellipse-both-6
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 7
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 7
+dump 0
+end
+case ellipse-both-7
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 8
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 8
+dump 0
+end
+case ellipse-both-8
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 9
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 9
+dump 0
+end
+case ellipse-both-9
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 10
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 10
+dump 0
+end
+case ellipse-both-10
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 11
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 11
+dump 0
+end
+case ellipse-both-11
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 12
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 12
+dump 0
+end
+case ellipse-both-12
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 13
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 13
+dump 0
+end
+case ellipse-both-13
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 2 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 3 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 4 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 5 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 6 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 7 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 8 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 9 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 10 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 11 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 12 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 13 14
+dump 0
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 1 1 14 14
+dump 0
+end
+case roundrect-0
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 8 17 6 20
+dump 0
+end
+case roundrect-1
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 6 4 0 13
+dump 0
+end
+case roundrect-2
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 7 6 9 17
+dump 0
+end
+case roundrect-3
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 4 12 16 3
+dump 0
+end
+case roundrect-4
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 13 14 13 11
+dump 0
+end
+case roundrect-5
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 8 16 12 4
+dump 0
+end
+case roundrect-6
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 19 2 12 3
+dump 0
+end
+case roundrect-7
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 16 6 20 18
+dump 0
+end
+case roundrect-8
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 13 14 10 8
+dump 0
+end
+case roundrect-9
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 15 2 1 20
+dump 0
+end
+case roundrect-10
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 5 13 5 7
+dump 0
+end
+case roundrect-11
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 15 8 9 5
+dump 0
+end
+case roundrect-12
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 17 3 19 6
+dump 0
+end
+case roundrect-13
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 15 13 19 5
+dump 0
+end
+case roundrect-14
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 14 9 6 5
+dump 0
+end
+case roundrect-15
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 14 17 8 9
+dump 0
+end
+case roundrect-16
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 8 2 12 19
+dump 0
+end
+case roundrect-17
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 15 12 7 10
+dump 0
+end
+case roundrect-18
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 9 7 12 17
+dump 0
+end
+case roundrect-19
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 6 4 11 7
+dump 0
+end
+case roundrect-20
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 2 18 19 8
+dump 0
+end
+case roundrect-21
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 19 2 15 17
+dump 0
+end
+case roundrect-22
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 3 12 1 14
+dump 0
+end
+case roundrect-23
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 9 2 20 2
+dump 0
+end
+case roundrect-24
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 3 19 13 1
+dump 0
+end
+case roundrect-25
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 7 3 11 19
+dump 0
+end
+case roundrect-26
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 19 6 1 2
+dump 0
+end
+case roundrect-27
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 11 11 8 6
+dump 0
+end
+case roundrect-28
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 5 14 13 3
+dump 0
+end
+case roundrect-29
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 10 15 0 11
+dump 0
+end
+case roundrect-30
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 3 17 2 16
+dump 0
+end
+case roundrect-31
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 2 10 2 7
+dump 0
+end
+case roundrect-32
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 7 8 8 19
+dump 0
+end
+case roundrect-33
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 2 7 5 16
+dump 0
+end
+case roundrect-34
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 9 4 7 5
+dump 0
+end
+case roundrect-35
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 12 19 2 10
+dump 0
+end
+case roundrect-36
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 9 11 13 19
+dump 0
+end
+case roundrect-37
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 12 5 8 18
+dump 0
+end
+case roundrect-38
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 8 9 7 10
+dump 0
+end
+case roundrect-39
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+roundrect 0 1 1 8 10 16 20
+dump 0
+end
+case arc-0
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arc 0 2 3 8 17 13 21 14 11
+getpos 0
+dump 0
+end
+case pie-1
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+pie 0 4 6 13 9 22 16 -4 2
+getpos 0
+dump 0
+end
+case chord-2
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+chord 0 1 5 18 9 6 21 4 21
+getpos 0
+dump 0
+end
+case arcto-3
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arcto 0 1 0 7 17 5 24 11 -2
+getpos 0
+dump 0
+end
+case arc-4
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arc 0 6 0 18 11 1 11 -3 2
+getpos 0
+dump 0
+end
+case pie-5
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+pie 0 4 3 17 16 1 4 11 1
+getpos 0
+dump 0
+end
+case chord-6
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+chord 0 2 1 10 8 25 -2 27 26
+getpos 0
+dump 0
+end
+case arcto-7
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arcto 0 1 1 18 10 -5 19 16 15
+getpos 0
+dump 0
+end
+case arc-8
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arc 0 2 0 14 10 12 27 14 3
+getpos 0
+dump 0
+end
+case pie-9
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+pie 0 3 3 16 19 12 17 15 5
+getpos 0
+dump 0
+end
+case chord-10
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+chord 0 3 1 18 5 3 14 17 -4
+getpos 0
+dump 0
+end
+case arcto-11
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arcto 0 0 0 17 5 0 9 15 7
+getpos 0
+dump 0
+end
+case arc-12
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arc 0 4 0 10 5 27 20 -4 17
+getpos 0
+dump 0
+end
+case pie-13
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+pie 0 6 3 24 5 -4 25 8 -1
+getpos 0
+dump 0
+end
+case chord-14
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+chord 0 5 6 17 22 17 17 7 3
+getpos 0
+dump 0
+end
+case arcto-15
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arcto 0 3 6 12 13 6 24 21 23
+getpos 0
+dump 0
+end
+case arc-16
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arc 0 3 0 16 14 12 24 27 25
+getpos 0
+dump 0
+end
+case pie-17
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+pie 0 5 2 21 10 24 -3 27 5
+getpos 0
+dump 0
+end
+case chord-18
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+chord 0 2 2 15 7 2 -5 -4 -2
+getpos 0
+dump 0
+end
+case arcto-19
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arcto 0 6 4 8 9 7 27 -3 3
+getpos 0
+dump 0
+end
+case arc-20
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arc 0 6 1 13 17 17 20 1 6
+getpos 0
+dump 0
+end
+case pie-21
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+pie 0 4 1 11 8 1 -1 13 19
+getpos 0
+dump 0
+end
+case chord-22
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+chord 0 1 6 6 22 3 -2 7 20
+getpos 0
+dump 0
+end
+case arcto-23
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arcto 0 4 6 13 22 15 28 9 12
+getpos 0
+dump 0
+end
+case arc-24
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arc 0 1 2 12 17 6 5 7 23
+getpos 0
+dump 0
+end
+case pie-25
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+pie 0 1 1 14 10 4 18 6 4
+getpos 0
+dump 0
+end
+case chord-26
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+chord 0 1 0 7 10 16 21 -1 7
+getpos 0
+dump 0
+end
+case arcto-27
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arcto 0 2 6 12 9 22 18 15 5
+getpos 0
+dump 0
+end
+case arc-28
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arc 0 0 6 15 18 9 22 14 11
+getpos 0
+dump 0
+end
+case pie-29
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+pie 0 2 2 13 7 26 25 19 8
+getpos 0
+dump 0
+end
+case chord-30
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+chord 0 0 6 9 19 28 7 26 27
+getpos 0
+dump 0
+end
+case arcto-31
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arcto 0 5 5 15 11 0 12 25 17
+getpos 0
+dump 0
+end
+case arc-32
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arc 0 1 4 7 9 5 8 -1 2
+getpos 0
+dump 0
+end
+case pie-33
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+pie 0 0 4 16 15 15 -1 26 6
+getpos 0
+dump 0
+end
+case chord-34
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+chord 0 2 2 8 16 14 27 -5 22
+getpos 0
+dump 0
+end
+case arcto-35
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arcto 0 6 0 12 11 11 10 9 12
+getpos 0
+dump 0
+end
+case arc-36
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arc 0 2 4 14 14 -3 19 14 7
+getpos 0
+dump 0
+end
+case pie-37
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+pie 0 3 2 20 4 3 22 -2 5
+getpos 0
+dump 0
+end
+case chord-38
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+chord 0 6 0 20 12 6 8 11 15
+getpos 0
+dump 0
+end
+case arcto-39
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arcto 0 0 5 14 7 27 -2 21 25
+getpos 0
+dump 0
+end
+case arc-40
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arc 0 5 3 21 9 11 0 -4 -3
+getpos 0
+dump 0
+end
+case pie-41
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+pie 0 0 4 10 11 21 21 20 2
+getpos 0
+dump 0
+end
+case chord-42
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+chord 0 6 2 23 6 24 25 2 26
+getpos 0
+dump 0
+end
+case arcto-43
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+moveto 0 0 0
+arcto 0 4 1 6 4 12 20 20 19
+getpos 0
+dump 0
+end
+case arc-44
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arc 0 4 3 18 19 -3 11 19 13
+getpos 0
+dump 0
+end
+case pie-45
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+pie 0 1 6 16 8 24 6 -1 3
+getpos 0
+dump 0
+end
+case chord-46
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+chord 0 3 6 21 15 20 25 -3 8
+getpos 0
+dump 0
+end
+case arcto-47
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+moveto 0 0 0
+arcto 0 5 1 13 6 14 12 26 14
+getpos 0
+dump 0
+end
+case polygon-0
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 12 14 19 17 -2 11 13 14 15 19 18 17 14 20
+dump 0
+end
+case polygon-1
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 18 11 5 10 -2 20 6 4 14 -1
+dump 0
+end
+case polygon-2
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 17 9 16 12 17 10 15 7
+dump 0
+end
+case polygon-3
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 10 20 13 17 -1 21 17 21 18 3
+dump 0
+end
+case polygon-4
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 17 13 16 16 -1 19 17 1
+dump 0
+end
+case polygon-5
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 15 13 4 10 14 18 19 15 1 17
+dump 0
+end
+case polygon-6
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 19 6 16 19 19 19 1 5
+dump 0
+end
+case polygon-7
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 21 4 -2 18 16 16 6 1 21 20
+dump 0
+end
+case polygon-8
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 17 -2 1 15 2 2
+dump 0
+end
+case polygon-9
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 12 18 15 1 7 13 8 9 8 9 19 12 0 13
+dump 0
+end
+case polygon-10
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 16 11 13 15 -2 15 17 18 7 16
+dump 0
+end
+case polygon-11
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 18 1 16 15 8 2 -2 0 -2 -1 13 1 11 -2
+dump 0
+end
+case polygon-12
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 19 11 14 16 20 3 10 -1 4 8 18 0
+dump 0
+end
+case polygon-13
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 8 -2 9 11 7 0 10 1 10 1
+dump 0
+end
+case polygon-14
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 -1 16 10 1 19 7 7 10
+dump 0
+end
+case polygon-15
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 10 20 19 10 16 5 6 9 12 10
+dump 0
+end
+case polygon-16
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 18 2 16 11 14 19
+dump 0
+end
+case polygon-17
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 17 11 -1 0 14 20 8 18 20 2 16 20 14 2
+dump 0
+end
+case polygon-18
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 8 16 -2 17 2 3 14 13 11 3
+dump 0
+end
+case polygon-19
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 21 11 16 3 0 18 3 12 -2 21 15 12 6 21
+dump 0
+end
+case polygon-20
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 0 0 5 -1 11 5 11 16 17 5
+dump 0
+end
+case polygon-21
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 19 -2 14 1 3 2 -2 4 13 14 8 18
+dump 0
+end
+case polygon-22
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 21 5 17 0 6 19 -2 18 3 5
+dump 0
+end
+case polygon-23
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 18 12 18 4 -1 16
+dump 0
+end
+case polygon-24
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 15 3 20 20 14 10 1 20
+dump 0
+end
+case polygon-25
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 7 6 2 5 19 15 19 1
+dump 0
+end
+case polygon-26
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 4 19 13 6 20 8 10 15
+dump 0
+end
+case polygon-27
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 19 3 15 18 0 2
+dump 0
+end
+case polygon-28
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 6 12 5 14 20 7 6 1
+dump 0
+end
+case polygon-29
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 7 0 9 13 20 10 12 0 12 4 14 7 19 21
+dump 0
+end
+case polygon-30
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 0 4 -2 9 17 4 18 1 5 4
+dump 0
+end
+case polygon-31
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 20 1 19 17 7 -2 -2 19 21 5
+dump 0
+end
+case polygon-32
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 17 -1 10 4 18 15
+dump 0
+end
+case polygon-33
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 14 8 1 4 19 16 9 17 13 20 17 11 6 17
+dump 0
+end
+case polygon-34
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 6 -2 18 13 18 17 15 16 3 -1
+dump 0
+end
+case polygon-35
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 18 15 8 1 9 4 2 7 2 13 18 1 3 14
+dump 0
+end
+case polygon-36
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 8 4 9 6 16 17 8 5 20 5
+dump 0
+end
+case polygon-37
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 8 14 5 8 17 8 10 18
+dump 0
+end
+case polygon-38
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 11 2 2 10 11 11 6 12 2 12 15 2
+dump 0
+end
+case polygon-39
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 4 0 1 8 2 16 -2 -1 10 18 10 12 5 21
+dump 0
+end
+case polygon-40
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 5 10 1 16 7 7
+dump 0
+end
+case polygon-41
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 8 3 2 18 4 10 5 3 8 10 20 17 4 3
+dump 0
+end
+case polygon-42
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 14 -1 0 7 8 -1 18 20 0 15 15 -2 2 3
+dump 0
+end
+case polygon-43
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 15 15 15 21 19 3 4 10 8 16 15 5 19 2
+dump 0
+end
+case polygon-44
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 9 2 3 17 -2 11 5 16
+dump 0
+end
+case polygon-45
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 3 1 8 -2 2 4
+dump 0
+end
+case polygon-46
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 19 8 6 18 8 -1 6 5 7 21 0 -2 5 20
+dump 0
+end
+case polygon-47
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 13 4 17 15 -1 1 2 17 7 20 -1 21
+dump 0
+end
+case polygon-48
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 8 -1 14 15 18 0 -2 11 13 18 10 14
+dump 0
+end
+case polygon-49
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 -2 8 6 -1 1 12
+dump 0
+end
+case polygon-50
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 15 16 15 3 0 6 9 3 14 18 -2 14 8 11
+dump 0
+end
+case polygon-51
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 13 16 18 6 9 14 13 4 13 1
+dump 0
+end
+case polygon-52
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 -2 18 12 18 10 16 1 14
+dump 0
+end
+case polygon-53
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 16 14 16 6 9 -2 3 17 16 6
+dump 0
+end
+case polygon-54
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 12 14 -1 6 5 21 -2 14
+dump 0
+end
+case polygon-55
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 4 11 -2 19 -2 11 10 9
+dump 0
+end
+case polygon-56
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 -2 12 5 2 0 14 20 19
+dump 0
+end
+case polygon-57
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 4 6 13 7 -2 4
+dump 0
+end
+case polygon-58
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 1
+polygon 0 -2 4 15 7 2 1 19 13
+dump 0
+end
+case polygon-59
+dib 0 20 20 8
+pen 0 null
+brush 0 solid #ffffff
+polyfill 0 2
+polygon 0 9 -1 -2 -2 10 4 19 16 18 -1 8 1
+dump 0
+end
+case poly-0
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 15 7
+polyline 0 5 19 12 8 1 -2 7 7 12 1
+getpos 0
+dump 0
+end
+case poly-1
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 7 1
+polylineto 0 -1 -2 14 16 10 16 -1 5 8 12
+getpos 0
+dump 0
+end
+case poly-2
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 9 10
+polybezier 0 9 15 2 17 9 21 21 3
+getpos 0
+dump 0
+end
+case poly-3
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 12 5
+polybezierto 0 21 -1 6 20 6 8 5 7 19 -1 10 12
+getpos 0
+dump 0
+end
+case poly-4
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 18 7
+polyline 0 8 5 12 -1
+getpos 0
+dump 0
+end
+case poly-5
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 0 15
+polylineto 0 20 16 17 16 4 12 10 20
+getpos 0
+dump 0
+end
+case poly-6
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 3 17
+polybezier 0 6 -2 1 8 15 0 13 12 4 2 14 11 12 1
+getpos 0
+dump 0
+end
+case poly-7
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 19 13
+polybezierto 0 0 20 14 -2 13 3
+getpos 0
+dump 0
+end
+case poly-8
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 0 18
+polyline 0 10 14 21 7
+getpos 0
+dump 0
+end
+case poly-9
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 16 1
+polylineto 0 19 20 18 -1 16 10 19 19 5 20
+getpos 0
+dump 0
+end
+case poly-10
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 3 4
+polybezier 0 11 19 1 10 19 20 4 1 20 12 3 1 20 17
+getpos 0
+dump 0
+end
+case poly-11
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 12 8
+polybezierto 0 2 1 14 2 12 6
+getpos 0
+dump 0
+end
+case poly-12
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 4 17
+polyline 0 4 7 0 1 14 19 10 0 -2 -2 20 21
+getpos 0
+dump 0
+end
+case poly-13
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 1 19
+polylineto 0 4 -2 18 2 1 16 2 17 13 16 9 17
+getpos 0
+dump 0
+end
+case poly-14
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 0 18
+polybezier 0 -2 21 -2 7 6 0 1 10
+getpos 0
+dump 0
+end
+case poly-15
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 4 10
+polybezierto 0 2 1 0 8 5 18 8 17 20 18 9 0
+getpos 0
+dump 0
+end
+case poly-16
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 17 3
+polyline 0 15 17 19 7
+getpos 0
+dump 0
+end
+case poly-17
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 11 3
+polylineto 0 -1 14
+getpos 0
+dump 0
+end
+case poly-18
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 10 6
+polybezier 0 1 6 4 7 10 6 11 11
+getpos 0
+dump 0
+end
+case poly-19
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 11 8
+polybezierto 0 4 19 4 4 9 19
+getpos 0
+dump 0
+end
+case poly-20
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 13 11
+polyline 0 17 20 -1 -1 18 6 11 20
+getpos 0
+dump 0
+end
+case poly-21
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 7 11
+polylineto 0 16 7 19 13 13 16 21 -2
+getpos 0
+dump 0
+end
+case poly-22
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 17 19
+polybezier 0 7 21 9 9 4 11 1 5 12 13 9 10 20 19
+getpos 0
+dump 0
+end
+case poly-23
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 8 19
+polybezierto 0 17 -1 3 16 11 14 21 2 4 7 15 5
+getpos 0
+dump 0
+end
+case poly-24
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 5 10
+polyline 0 8 2 6 2 2 20 18 3
+getpos 0
+dump 0
+end
+case poly-25
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 10 18
+polylineto 0 17 14 15 0
+getpos 0
+dump 0
+end
+case poly-26
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 3 2
+polybezier 0 11 7 -1 0 3 2 4 17
+getpos 0
+dump 0
+end
+case poly-27
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 8 0
+polybezierto 0 12 -1 11 14 9 20 11 4 17 7 13 -1
+getpos 0
+dump 0
+end
+case poly-28
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 2 6
+polyline 0 8 5
+getpos 0
+dump 0
+end
+case poly-29
+dib 0 20 20 8
+pen 0 0 0 #ffffff
+moveto 0 19 2
+polylineto 0 14 16 0 20 17 4 15 3 10 14 2 7
+getpos 0
+dump 0
+end
+case fillrect
+dib 0 6 6 32
+fill 0 300
+brush 0 solid #d24178
+fillrect 0 0 0 6 1
+dump 0
+dib 0 6 6 32
+fill 0 301
+brush 0 solid #e514e0
+fillrect 0 -2 3 -3 6
+dump 0
+dib 0 6 6 32
+fill 0 302
+brush 0 solid #1420a4
+fillrect 0 2 5 4 4
+dump 0
+dib 0 6 6 32
+fill 0 303
+brush 0 solid #8cf074
+fillrect 0 2 3 6 7
+dump 0
+dib 0 6 6 32
+fill 0 304
+brush 0 solid #74bdec
+fillrect 0 2 0 4 4
+dump 0
+dib 0 6 6 32
+fill 0 305
+brush 0 solid #4f9803
+fillrect 0 1 -2 2 -1
+dump 0
+dib 0 6 6 32
+fill 0 306
+brush 0 solid #ba745f
+fillrect 0 6 -1 11 2
+dump 0
+dib 0 6 6 32
+fill 0 307
+brush 0 solid #a52ff6
+fillrect 0 4 -1 9 -1
+dump 0
+dib 0 6 6 32
+fill 0 308
+brush 0 solid #5ff3cd
+fillrect 0 -1 -1 5 0
+dump 0
+dib 0 6 6 32
+fill 0 309
+brush 0 solid #bdbe97
+fillrect 0 3 0 7 -1
+dump 0
+dib 0 6 6 32
+fill 0 310
+brush 0 solid #0fc161
+fillrect 0 5 2 8 4
+dump 0
+dib 0 6 6 32
+fill 0 311
+brush 0 solid #84847e
+fillrect 0 -1 2 -2 7
+dump 0
+dib 0 6 6 32
+fill 0 312
+brush 0 solid #20dcb7
+fillrect 0 0 2 4 6
+dump 0
+dib 0 6 6 32
+fill 0 313
+brush 0 solid #47c3e4
+fillrect 0 -2 3 -2 9
+dump 0
+dib 0 6 6 32
+fill 0 314
+brush 0 solid #1920d5
+fillrect 0 4 0 6 2
+dump 0
+dib 0 6 6 32
+fill 0 315
+brush 0 solid #abf116
+fillrect 0 1 4 1 7
+dump 0
+dib 0 6 6 32
+fill 0 316
+brush 0 solid #c442f3
+fillrect 0 -1 -2 -2 3
+dump 0
+dib 0 6 6 32
+fill 0 317
+brush 0 solid #474054
+fillrect 0 6 1 7 0
+dump 0
+dib 0 6 6 32
+fill 0 318
+brush 0 solid #177fe9
+fillrect 0 5 4 11 9
+dump 0
+dib 0 6 6 32
+fill 0 319
+brush 0 solid #74534c
+fillrect 0 3 0 5 0
+dump 0
+dib 0 6 6 32
+fill 0 320
+brush 0 solid #0a7e73
+fillrect 0 1 -1 2 -1
+dump 0
+dib 0 6 6 32
+fill 0 321
+brush 0 solid #07e978
+fillrect 0 1 1 0 5
+dump 0
+dib 0 6 6 32
+fill 0 322
+brush 0 solid #5a7609
+fillrect 0 0 0 6 0
+dump 0
+dib 0 6 6 32
+fill 0 323
+brush 0 solid #fe7c61
+fillrect 0 1 3 3 2
+dump 0
+end
+case framerect
+dib 0 6 6 32
+fill 0 300
+brush 0 solid #4daa94
+framerect 0 4 3 3 8
+dump 0
+dib 0 6 6 32
+fill 0 301
+brush 0 solid #3fb64d
+framerect 0 5 1 7 1
+dump 0
+dib 0 6 6 32
+fill 0 302
+brush 0 solid #ae100c
+framerect 0 6 1 11 4
+dump 0
+dib 0 6 6 32
+fill 0 303
+brush 0 solid #4c35bd
+framerect 0 -2 1 -3 1
+dump 0
+dib 0 6 6 32
+fill 0 304
+brush 0 solid #05dc47
+framerect 0 5 3 4 6
+dump 0
+dib 0 6 6 32
+fill 0 305
+brush 0 solid #281da8
+framerect 0 2 -1 2 0
+dump 0
+dib 0 6 6 32
+fill 0 306
+brush 0 solid #fdaf6a
+framerect 0 4 0 5 3
+dump 0
+dib 0 6 6 32
+fill 0 307
+brush 0 solid #229cf1
+framerect 0 2 3 2 2
+dump 0
+dib 0 6 6 32
+fill 0 308
+brush 0 solid #728c3e
+framerect 0 1 -1 4 2
+dump 0
+dib 0 6 6 32
+fill 0 309
+brush 0 solid #d13019
+framerect 0 4 2 9 4
+dump 0
+dib 0 6 6 32
+fill 0 310
+brush 0 solid #2d3ffe
+framerect 0 5 6 8 10
+dump 0
+dib 0 6 6 32
+fill 0 311
+brush 0 solid #922dc4
+framerect 0 0 5 3 9
+dump 0
+dib 0 6 6 32
+fill 0 312
+brush 0 solid #1af098
+framerect 0 5 6 8 12
+dump 0
+dib 0 6 6 32
+fill 0 313
+brush 0 solid #190954
+framerect 0 -2 -1 -1 0
+dump 0
+dib 0 6 6 32
+fill 0 314
+brush 0 solid #fe2b54
+framerect 0 2 5 7 9
+dump 0
+dib 0 6 6 32
+fill 0 315
+brush 0 solid #db8291
+framerect 0 2 3 3 7
+dump 0
+dib 0 6 6 32
+fill 0 316
+brush 0 solid #3d3c8b
+framerect 0 6 0 10 1
+dump 0
+dib 0 6 6 32
+fill 0 317
+brush 0 solid #eed0de
+framerect 0 6 3 9 2
+dump 0
+dib 0 6 6 32
+fill 0 318
+brush 0 solid #f37bbe
+framerect 0 5 -1 10 2
+dump 0
+dib 0 6 6 32
+fill 0 319
+brush 0 solid #4272e6
+framerect 0 -1 6 -1 11
+dump 0
+dib 0 6 6 32
+fill 0 320
+brush 0 solid #7b2339
+framerect 0 0 -1 2 4
+dump 0
+dib 0 6 6 32
+fill 0 321
+brush 0 solid #715088
+framerect 0 4 5 3 10
+dump 0
+dib 0 6 6 32
+fill 0 322
+brush 0 solid #2edf3d
+framerect 0 2 3 4 9
+dump 0
+dib 0 6 6 32
+fill 0 323
+brush 0 solid #91134a
+framerect 0 -1 3 2 4
+dump 0
+end
+case invertrect
+dib 0 6 6 32
+fill 0 300
+brush 0 solid #6e839d
+invertrect 0 0 3 2 7
+dump 0
+dib 0 6 6 32
+fill 0 301
+brush 0 solid #b0204c
+invertrect 0 1 5 1 8
+dump 0
+dib 0 6 6 32
+fill 0 302
+brush 0 solid #6fe23e
+invertrect 0 3 -2 5 0
+dump 0
+dib 0 6 6 32
+fill 0 303
+brush 0 solid #e12244
+invertrect 0 0 1 1 0
+dump 0
+dib 0 6 6 32
+fill 0 304
+brush 0 solid #04dd04
+invertrect 0 3 4 5 10
+dump 0
+dib 0 6 6 32
+fill 0 305
+brush 0 solid #646687
+invertrect 0 4 2 4 3
+dump 0
+dib 0 6 6 32
+fill 0 306
+brush 0 solid #585d54
+invertrect 0 -2 2 -3 4
+dump 0
+dib 0 6 6 32
+fill 0 307
+brush 0 solid #a6bcc2
+invertrect 0 0 0 1 4
+dump 0
+dib 0 6 6 32
+fill 0 308
+brush 0 solid #88f6e3
+invertrect 0 0 4 -1 5
+dump 0
+dib 0 6 6 32
+fill 0 309
+brush 0 solid #7e7135
+invertrect 0 4 4 8 9
+dump 0
+dib 0 6 6 32
+fill 0 310
+brush 0 solid #8daa07
+invertrect 0 5 3 8 2
+dump 0
+dib 0 6 6 32
+fill 0 311
+brush 0 solid #7f2f9d
+invertrect 0 -1 -1 2 4
+dump 0
+dib 0 6 6 32
+fill 0 312
+brush 0 solid #6c1624
+invertrect 0 6 3 5 5
+dump 0
+dib 0 6 6 32
+fill 0 313
+brush 0 solid #f8129c
+invertrect 0 -1 2 3 6
+dump 0
+dib 0 6 6 32
+fill 0 314
+brush 0 solid #bc2cdf
+invertrect 0 3 -2 2 4
+dump 0
+dib 0 6 6 32
+fill 0 315
+brush 0 solid #6e23c4
+invertrect 0 0 -1 3 0
+dump 0
+dib 0 6 6 32
+fill 0 316
+brush 0 solid #82a80b
+invertrect 0 4 4 7 9
+dump 0
+dib 0 6 6 32
+fill 0 317
+brush 0 solid #b98d7f
+invertrect 0 -2 0 -3 0
+dump 0
+dib 0 6 6 32
+fill 0 318
+brush 0 solid #102876
+invertrect 0 1 4 5 10
+dump 0
+dib 0 6 6 32
+fill 0 319
+brush 0 solid #b41518
+invertrect 0 -1 6 3 6
+dump 0
+dib 0 6 6 32
+fill 0 320
+brush 0 solid #2afb0e
+invertrect 0 6 5 11 10
+dump 0
+dib 0 6 6 32
+fill 0 321
+brush 0 solid #3f8b39
+invertrect 0 1 4 1 8
+dump 0
+dib 0 6 6 32
+fill 0 322
+brush 0 solid #3536c1
+invertrect 0 -2 -1 0 3
+dump 0
+dib 0 6 6 32
+fill 0 323
+brush 0 solid #f70db1
+invertrect 0 0 -1 2 0
+dump 0
+end
+case random-0
+dib 0 13 10 8
+fill 0 2355472668
+pen 0 0 1 #1b4436
+brush 0 solid #7f7f7f
+clip 0 11 0 19 5
+rectangle 0 5 2 9 9
+dump 0
+end
+case random-1
+dib 0 20 15 24 bu
+fill 0 590432898
+pen 0 0 0 #0d6ad5
+brush 0 solid #76ddc9
+rop2 0 16
+ellipse 0 18 12 0 -1
+polygon 0 -2 0 5 13 19 16
+polygon 0 -3 1 17 12 8 14
+dump 0
+end
+case random-2
+dib 0 4 11 8
+fill 0 1621280447
+pen 0 0 1 #b40b28
+brush 0 solid #0c6d48
+rop2 0 6
+rectangle 0 0 3 -2 7
+moveto 0 5 8
+lineto 0 -1 9
+dump 0
+end
+case random-3
+dib 0 5 16 8
+fill 0 141978132
+pen 0 0 0 #61602d
+brush 0 solid #da4800
+polygon 0 5 10 2 1 -1 2
+moveto 0 5 1
+lineto 0 6 12
+dump 0
+end
+case random-4
+dib 0 20 12 4
+fill 0 2894022765
+pen 0 0 0 #c4e625
+brush 0 solid #585907
+rectangle 0 5 0 10 7
+ellipse 0 21 9 2 -2
+rectangle 0 10 2 18 6
+dump 0
+end
+case random-5
+dib 0 7 12 8 bu
+fill 0 603470050
+pen 0 0 0 #ce264f
+brush 0 solid #a4549d
+rop2 0 11
+rectangle 0 7 11 -2 0
+dump 0
+end
+case random-6
+dib 0 13 14 8 bu
+fill 0 4188157506
+pen 0 0 1 #140ef8
+brush 0 solid #171b0b
+rop2 0 13
+clip 0 2 10 9 14
+rectangle 0 -1 1 5 8
+dump 0
+end
+case random-7
+dib 0 19 5 1
+fill 0 2072906877
+pen 0 0 1 #000000
+brush 0 solid #73bde1
+rop2 0 14
+ellipse 0 14 0 13 -3
+dump 0
+end
+case random-8
+dib 0 4 6 4
+fill 0 693326802
+pen 0 0 0 #64768b
+brush 0 solid #6d9beb
+polygon 0 -1 -2 5 5 1 0
+moveto 0 2 6
+lineto 0 0 5
+polygon 0 3 0 1 1 6 6
+dump 0
+end
+case random-9
+dib 0 10 9 16
+fill 0 3197161934
+pen 0 0 0 #909a42
+brush 0 solid #3c303c
+polygon 0 3 6 3 0 1 -1
+dump 0
+end
+case random-10
+dib 0 16 8 8 bu
+fill 0 1644295438
+pen 0 0 0 #4976e0
+brush 0 solid #b1ccec
+rop2 0 11
+polygon 0 13 -3 3 -2 -2 -1
+moveto 0 7 8
+lineto 0 17 -2
+rectangle 0 -3 8 3 7
+dump 0
+end
+case random-11
+dib 0 8 16 16
+fill 0 3393509639
+pen 0 0 1 #9e9acf
+brush 0 solid #7f7f7f
+rop2 0 9
+clip 0 5 10 13 15
+ellipse 0 9 0 5 8
+polygon 0 -1 2 2 17 8 8
+dump 0
+end
+case random-12
+dib 0 20 12 8 bu
+fill 0 2222969739
+pen 0 0 0 #58eb92
+brush 0 solid #ff4855
+rop2 0 2
+moveto 0 18 13
+lineto 0 20 10
+polygon 0 4 10 14 4 -3 7
+dump 0
+end
+case random-13
+dib 0 20 8 16 565
+fill 0 1162298753
+pen 0 0 0 #17287f
+brush 0 solid #9ce639
+rop2 0 4
+moveto 0 -2 8
+lineto 0 7 5
+ellipse 0 12 2 0 2
+dump 0
+end
+case random-14
+dib 0 9 8 16 bu 565
+fill 0 1212068004
+pen 0 0 1 #000000
+brush 0 solid #1fe6f5
+ellipse 0 10 7 6 7
+rectangle 0 -3 7 -3 -3
+dump 0
+end
+case random-15
+dib 0 15 6 32 bu
+fill 0 576560560
+pen 0 0 1 #506fdd
+brush 0 solid #2c239c
+polygon 0 17 8 1 6 0 7
+dump 0
+end
+case random-16
+dib 0 10 4 8 bu
+fill 0 2084592705
+pen 0 0 1 #b8771f
+brush 0 solid #ee18c4
+rectangle 0 4 3 6 -3
+rectangle 0 7 5 10 -3
+dump 0
+end
+case random-17
+dib 0 12 8 16 bu 565
+fill 0 1761462283
+pen 0 0 1 #2dae1d
+brush 0 solid #ffffff
+rop2 0 9
+moveto 0 3 0
+lineto 0 0 6
+rectangle 0 6 -3 5 -2
+dump 0
+end
+case random-18
+dib 0 16 4 8
+fill 0 2519477753
+pen 0 0 0 #c8e312
+brush 0 solid #48daaa
+clip 0 2 0 14 2
+moveto 0 14 3
+lineto 0 7 2
+moveto 0 5 5
+lineto 0 18 1
+dump 0
+end
+case random-19
+dib 0 9 15 1 bu
+fill 0 2224706918
+pen 0 0 1 #0000ff
+brush 0 solid #ffffff
+ellipse 0 9 2 7 -2
+polygon 0 6 12 4 15 2 4
+dump 0
+end
+case random-20
+dib 0 19 10 16 bu 565
+fill 0 3947892477
+pen 0 0 0 #f23b63
+brush 0 solid #843aff
+rop2 0 14
+clip 0 7 -2 11 4
+rectangle 0 2 -1 -2 6
+rectangle 0 -2 0 8 5
+rectangle 0 10 12 10 3
+dump 0
+end
+case random-21
+dib 0 6 12 16 bu 565
+fill 0 729822550
+pen 0 0 1 #9d93e8
+brush 0 solid #16f805
+rop2 0 8
+rectangle 0 7 14 3 7
+dump 0
+end
+case random-22
+dib 0 4 11 16
+fill 0 974197769
+pen 0 0 1 #ceabcd
+brush 0 solid #5129b9
+rop2 0 15
+rectangle 0 -2 9 -3 2
+ellipse 0 -1 11 2 6
+dump 0
+end
+case random-23
+dib 0 19 7 1 bu
+fill 0 674483725
+pen 0 0 0 #6a438a
+brush 0 solid #b679d5
+clip 0 15 4 16 10
+rectangle 0 15 9 8 2
+ellipse 0 6 7 15 0
+moveto 0 21 8
+lineto 0 5 6
+dump 0
+end
+case random-24
+dib 0 7 9 8
+fill 0 2344609494
+pen 0 0 0 #ff24aa
+brush 0 solid #24da00
+ellipse 0 -1 11 4 10
+dump 0
+end
+case random-25
+dib 0 11 11 16
+fill 0 2939542026
+pen 0 0 0 #0000ff
+brush 0 solid #d56f93
+rop2 0 16
+polygon 0 0 12 3 -3 4 3
+rectangle 0 10 -2 0 3
+dump 0
+end
+case random-26
+dib 0 8 5 16
+fill 0 3782663895
+pen 0 0 1 #fd90eb
+brush 0 solid #72b136
+rop2 0 12
+clip 0 1 0 1 1
+moveto 0 9 2
+lineto 0 4 7
+dump 0
+end
+case random-27
+dib 0 19 15 24
+fill 0 2360259605
+pen 0 0 1 #7e4b85
+brush 0 solid #703631
+rop2 0 14
+polygon 0 10 10 9 12 8 13
+polygon 0 18 16 2 16 3 11
+dump 0
+end
+case random-28
+dib 0 14 8 8
+fill 0 2467995573
+pen 0 0 1 #ffffff
+brush 0 solid #e77a79
+polygon 0 13 -1 9 10 8 -1
+rectangle 0 13 10 12 4
+dump 0
+end
+case random-29
+dib 0 16 4 4
+fill 0 1485280373
+pen 0 0 1 #ffffff
+brush 0 solid #7f7f7f
+ellipse 0 13 -1 0 -3
+dump 0
+end
+case random-30
+dib 0 15 9 16
+fill 0 2186819955
+pen 0 0 0 #ff0000
+brush 0 solid #d1ec39
+rop2 0 3
+ellipse 0 -2 2 3 6
+moveto 0 -3 3
+lineto 0 10 2
+rectangle 0 5 -1 17 1
+dump 0
+end
+case random-31
+dib 0 19 11 16
+fill 0 497128298
+pen 0 0 0 #7fa4c8
+brush 0 solid #2e42a4
+clip 0 8 1 20 12
+ellipse 0 16 11 12 -1
+polygon 0 9 0 1 1 1 -3
+moveto 0 15 10
+lineto 0 20 11
+dump 0
+end
+case random-32
+dib 0 5 5 4 bu
+fill 0 3289131606
+pen 0 0 1 #42a2e1
+brush 0 solid #53524d
+rop2 0 10
+ellipse 0 -2 5 -2 0
+moveto 0 -1 3
+lineto 0 -1 5
+dump 0
+end
+case random-33
+dib 0 4 14 32 bu
+fill 0 2501462219
+pen 0 0 1 #78cee9
+brush 0 solid #ed9fdc
+polygon 0 3 12 0 14 -2 3
+ellipse 0 3 14 -1 -1
+polygon 0 3 -3 -2 7 3 9
+dump 0
+end
+case random-34
+dib 0 14 6 16 bu
+fill 0 3284901656
+pen 0 0 0 #d3158c
+brush 0 solid #fce04e
+rop2 0 4
+moveto 0 10 -1
+lineto 0 14 0
+polygon 0 16 6 -2 -3 16 -2
+ellipse 0 12 0 14 -1
+dump 0
+end
+case random-35
+dib 0 11 7 4 bu
+fill 0 61306638
+pen 0 0 1 #ff0000
+brush 0 solid #1a14aa
+clip 0 6 3 7 3
+rectangle 0 13 7 8 6
+rectangle 0 9 5 8 9
+dump 0
+end
+case random-36
+dib 0 16 6 32
+fill 0 885014391
+pen 0 0 0 #6e920c
+brush 0 solid #32729f
+rectangle 0 3 4 12 4
+dump 0
+end
+case random-37
+dib 0 14 4 32
+fill 0 1714375127
+pen 0 0 1 #fb141d
+brush 0 solid #1262b6
+rop2 0 1
+polygon 0 13 -1 2 0 2 -1
+ellipse 0 15 -2 15 5
+dump 0
+end
+case random-38
+dib 0 11 9 1
+fill 0 3707148197
+pen 0 0 0 #000000
+brush 0 solid #000000
+clip 0 7 9 20 17
+ellipse 0 9 9 9 2
+moveto 0 10 3
+lineto 0 12 9
+dump 0
+end
+case random-39
+dib 0 14 7 1
+fill 0 666788780
+pen 0 0 1 #2a89d1
+brush 0 solid #61167a
+ellipse 0 9 3 12 3
+dump 0
+end
+case random-40
+dib 0 16 10 32
+fill 0 1497604645
+pen 0 0 0 #ffffff
+brush 0 solid #644587
+ellipse 0 1 9 1 7
+dump 0
+end
+case random-41
+dib 0 4 4 24
+fill 0 654726468
+pen 0 0 1 #1c23d7
+brush 0 solid #63c85e
+rop2 0 14
+polygon 0 6 4 5 2 3 6
+dump 0
+end
+case random-42
+dib 0 13 11 16
+fill 0 2690041256
+pen 0 0 1 #249a19
+brush 0 solid #952ee6
+rop2 0 1
+polygon 0 3 9 2 2 9 1
+polygon 0 14 10 1 10 2 5
+ellipse 0 -3 0 7 13
+dump 0
+end
+case random-43
+dib 0 8 13 16 565
+fill 0 2760958773
+pen 0 0 0 #56f25a
+brush 0 solid #3672d1
+rectangle 0 4 14 1 -3
+polygon 0 8 8 4 -2 9 0
+dump 0
+end
+case random-44
+dib 0 10 5 16 565
+fill 0 593083483
+pen 0 0 0 #90d572
+brush 0 solid #a14cb5
+rop2 0 11
+ellipse 0 5 4 11 4
+ellipse 0 1 1 -2 0
+ellipse 0 -3 1 1 0
+dump 0
+end
+case random-45
+dib 0 19 12 4 bu
+fill 0 1002148389
+pen 0 0 0 #cab9aa
+brush 0 solid #000080
+rop2 0 1
+polygon 0 9 6 8 -3 12 2
+ellipse 0 1 -3 4 8
+rectangle 0 15 6 -3 7
+dump 0
+end
+case random-46
+dib 0 16 14 32
+fill 0 2769680379
+pen 0 0 0 #b22b63
+brush 0 solid #154483
+moveto 0 18 -1
+lineto 0 1 15
+polygon 0 10 5 1 11 11 11
+rectangle 0 1 6 2 1
+dump 0
+end
+case random-47
+dib 0 14 7 16
+fill 0 3135306446
+pen 0 0 0 #7ccb95
+brush 0 solid #000000
+rop2 0 12
+rectangle 0 14 9 11 2
+moveto 0 -2 5
+lineto 0 1 3
+rectangle 0 2 -3 14 3
+dump 0
+end
+case random-48
+dib 0 16 15 16
+fill 0 2078416194
+pen 0 0 1 #010c4d
+brush 0 solid #85f0c4
+rop2 0 7
+rectangle 0 3 0 0 1
+polygon 0 17 0 5 0 -2 13
+rectangle 0 6 4 16 0
+dump 0
+end
+case random-49
+dib 0 20 6 8
+fill 0 1427772951
+pen 0 0 1 #841896
+brush 0 solid #00b655
+rop2 0 9
+clip 0 3 4 21 11
+rectangle 0 17 4 16 2
+dump 0
+end
+case random-50
+dib 0 19 13 24 bu
+fill 0 1320952817
+pen 0 0 0 #ffffff
+brush 0 solid #56201c
+rop2 0 11
+polygon 0 2 12 18 6 17 6
+ellipse 0 13 5 19 7
+dump 0
+end
+case random-51
+dib 0 20 10 1
+fill 0 1669960788
+pen 0 0 1 #e05dd8
+brush 0 solid #000000
+polygon 0 2 1 8 10 19 7
+ellipse 0 -3 -1 11 10
+polygon 0 16 8 4 1 4 4
+dump 0
+end
+case random-52
+dib 0 19 14 8
+fill 0 1303011922
+pen 0 0 0 #6c274f
+brush 0 solid #79c4ba
+moveto 0 15 -3
+lineto 0 11 -1
+rectangle 0 21 -1 14 3
+dump 0
+end
+case random-53
+dib 0 13 16 8 bu
+fill 0 3288666231
+pen 0 0 0 #4d687f
+brush 0 solid #52af63
+rop2 0 3
+polygon 0 -1 13 1 13 12 16
+ellipse 0 3 13 7 3
+polygon 0 5 12 11 11 -1 4
+dump 0
+end
+case random-54
+dib 0 6 14 1
+fill 0 3786652913
+pen 0 0 1 #b43221
+brush 0 solid #000000
+rop2 0 16
+clip 0 2 3 8 9
+rectangle 0 8 7 8 11
+moveto 0 1 2
+lineto 0 -2 7
+rectangle 0 -1 9 4 2
+dump 0
+end
+case random-55
+dib 0 11 6 1
+fill 0 2712429676
+pen 0 0 0 #921567
+brush 0 solid #7f7f7f
+rop2 0 10
+clip 0 3 1 10 5
+rectangle 0 -3 6 -3 1
+ellipse 0 1 1 -3 -1
+dump 0
+end
+case random-56
+dib 0 5 12 32 bu
+fill 0 4036226481
+pen 0 0 1 #09b0e3
+brush 0 solid #3b3ae8
+rectangle 0 7 13 7 1
+polygon 0 3 9 2 2 0 6
+dump 0
+end
+case random-57
+dib 0 20 5 1
+fill 0 1255116897
+pen 0 0 0 #000000
+brush 0 solid #de8a1a
+rop2 0 6
+ellipse 0 -1 1 2 3
+dump 0
+end
+case random-58
+dib 0 15 6 8 bu
+fill 0 4291492569
+pen 0 0 1 #808080
+brush 0 solid #dc0f4b
+ellipse 0 14 1 14 5
+moveto 0 7 0
+lineto 0 0 -3
+moveto 0 15 7
+lineto 0 6 8
+dump 0
+end
+case random-59
+dib 0 14 5 16 bu
+fill 0 2146302191
+pen 0 0 1 #0947aa
+brush 0 solid #e51b3e
+polygon 0 14 5 0 0 6 6
+rectangle 0 -2 3 13 5
+dump 0
+end
+case random-60
+dib 0 7 8 8
+fill 0 1533809984
+pen 0 0 0 #b6ff55
+brush 0 solid #d1713f
+rop2 0 7
+polygon 0 4 0 4 1 6 -2
+polygon 0 6 5 9 7 5 3
+dump 0
+end
+case random-61
+dib 0 13 6 16 565
+fill 0 1413846030
+pen 0 0 0 #54354b
+brush 0 solid #f48551
+rop2 0 1
+ellipse 0 10 5 15 1
+moveto 0 4 2
+lineto 0 -1 3
+ellipse 0 15 -1 12 -2
+dump 0
+end
+case random-62
+dib 0 10 10 4
+fill 0 2523982605
+pen 0 0 1 #00ffff
+brush 0 solid #6704af
+rop2 0 3
+moveto 0 1 8
+lineto 0 3 -3
+dump 0
+end
+case random-63
+dib 0 14 6 24 bu
+fill 0 1795984900
+pen 0 0 0 #7d49d5
+brush 0 solid #4478dd
+rop2 0 3
+polygon 0 8 8 5 4 1 7
+polygon 0 1 1 -2 1 12 5
+ellipse 0 11 0 1 3
+dump 0
+end
+case random-64
+dib 0 7 9 16
+fill 0 3634320240
+pen 0 0 0 #f44fae
+brush 0 solid #8fa17e
+rop2 0 3
+moveto 0 9 -2
+lineto 0 -3 8
+ellipse 0 4 6 6 1
+dump 0
+end
+case random-65
+dib 0 15 13 8
+fill 0 3456706325
+pen 0 0 0 #ffffff
+brush 0 solid #91daaa
+rop2 0 6
+rectangle 0 13 13 -3 12
+dump 0
+end
+case random-66
+dib 0 19 4 16 bu
+fill 0 3089081803
+pen 0 0 0 #800567
+brush 0 solid #036c72
+rop2 0 9
+rectangle 0 13 2 15 1
+dump 0
+end
+case random-67
+dib 0 7 12 1
+fill 0 3494827594
+pen 0 0 1 #395122
+brush 0 solid #720119
+polygon 0 -2 6 1 1 4 13
+polygon 0 6 0 2 0 9 7
+dump 0
+end
+case random-68
+dib 0 14 15 8
+fill 0 3487419748
+pen 0 0 0 #0000ff
+brush 0 solid #47d0f8
+rop2 0 11
+clip 0 1 6 5 6
+ellipse 0 5 14 10 13
+polygon 0 2 5 5 0 -3 10
+dump 0
+end
+case random-69
+dib 0 12 14 4
+fill 0 2742886993
+pen 0 0 0 #db6d81
+brush 0 solid #e3b0cc
+polygon 0 6 5 11 11 12 15
+dump 0
+end
+case random-70
+dib 0 7 12 32 bu
+fill 0 3800050125
+pen 0 0 1 #9d0e23
+brush 0 solid #81d15f
+rop2 0 12
+ellipse 0 6 3 -2 7
+rectangle 0 3 1 8 2
+ellipse 0 2 4 -2 3
+dump 0
+end
+case random-71
+dib 0 11 14 4
+fill 0 3543547738
+pen 0 0 0 #825ef9
+brush 0 solid #ff0000
+rop2 0 12
+polygon 0 9 2 0 11 6 15
+dump 0
+end
+case random-72
+dib 0 17 15 32
+fill 0 633813333
+pen 0 0 1 #000000
+brush 0 solid #deee9b
+clip 0 13 4 31 7
+polygon 0 12 0 4 6 5 -3
+rectangle 0 18 6 6 6
+rectangle 0 7 16 11 16
+dump 0
+end
+case random-73
+dib 0 5 9 32
+fill 0 423528201
+pen 0 0 0 #0ec3c3
+brush 0 solid #ff0000
+rop2 0 13
+polygon 0 -1 -1 -2 -1 6 8
+dump 0
+end
+case random-74
+dib 0 13 4 1 bu
+fill 0 3823249705
+pen 0 0 0 #ff0000
+brush 0 solid #c9e24a
+rop2 0 6
+ellipse 0 4 -2 1 -1
+dump 0
+end
+case random-75
+dib 0 20 6 32
+fill 0 2765703894
+pen 0 0 1 #68a3da
+brush 0 solid #6ae26f
+rop2 0 9
+clip 0 20 5 24 8
+ellipse 0 -2 7 14 5
+dump 0
+end
+case random-76
+dib 0 19 9 8 bu
+fill 0 3513170376
+pen 0 0 1 #ff6d00
+brush 0 solid #000000
+polygon 0 10 -1 12 9 16 5
+polygon 0 -2 2 12 -3 14 9
+polygon 0 20 0 12 2 15 5
+dump 0
+end
+case random-77
+dib 0 17 12 32 bu
+fill 0 17330340
+pen 0 0 0 #f2eb70
+brush 0 solid #00ff00
+rop2 0 8
+rectangle 0 2 10 3 14
+rectangle 0 14 2 4 14
+polygon 0 15 11 19 9 11 7
+dump 0
+end
+case random-78
+dib 0 17 14 16 bu
+fill 0 1243438090
+pen 0 0 0 #000000
+brush 0 solid #2faadf
+polygon 0 9 16 19 7 6 4
+dump 0
+end
+case random-79
+dib 0 5 15 16 565
+fill 0 1190865296
+pen 0 0 0 #c0d38d
+brush 0 solid #1c864c
+rop2 0 16
+polygon 0 1 -1 7 17 -3 17
+dump 0
+end
+case random-80
+dib 0 19 10 32
+fill 0 2980286721
+pen 0 0 0 #000000
+brush 0 solid #7da46b
+rectangle 0 -1 8 -2 8
+ellipse 0 16 4 13 -2
+ellipse 0 5 5 3 3
+dump 0
+end
+case random-81
+dib 0 10 13 8
+fill 0 1928130478
+pen 0 0 0 #b60000
+brush 0 solid #e9afd0
+clip 0 10 -1 22 3
+ellipse 0 11 14 4 9
+dump 0
+end
+case random-82
+dib 0 20 16 24
+fill 0 3252711436
+pen 0 0 0 #22d105
+brush 0 solid #44c0a9
+clip 0 2 6 7 15
+rectangle 0 9 2 10 2
+polygon 0 11 14 13 18 22 -2
+dump 0
+end
+case random-83
+dib 0 10 7 8
+fill 0 4056677564
+pen 0 0 0 #7f7f7f
+brush 0 solid #b6045b
+polygon 0 8 -1 0 -2 0 9
+dump 0
+end
+case random-84
+dib 0 18 6 4
+fill 0 3214028916
+pen 0 0 0 #35e0c2
+brush 0 solid #20a2c3
+polygon 0 0 4 -2 8 5 1
+dump 0
+end
+case random-85
+dib 0 5 11 16 bu 565
+fill 0 2386972578
+pen 0 0 1 #a7348a
+brush 0 solid #bfbbc2
+clip 0 3 -1 7 -1
+polygon 0 2 8 -3 9 4 10
+moveto 0 2 -3
+lineto 0 -1 13
+ellipse 0 4 -3 -1 1
+dump 0
+end
+case random-86
+dib 0 13 16 24 bu
+fill 0 3741518738
+pen 0 0 0 #df5321
+brush 0 solid #a8fea2
+rop2 0 5
+polygon 0 2 13 -3 18 -2 7
+moveto 0 5 10
+lineto 0 8 10
+rectangle 0 11 2 2 -2
+dump 0
+end
+case random-87
+dib 0 14 13 32
+fill 0 733283165
+pen 0 0 0 #c98517
+brush 0 solid #808080
+rop2 0 1
+polygon 0 5 5 8 8 0 5
+rectangle 0 8 4 16 9
+rectangle 0 -1 15 10 -1
+dump 0
+end
+case random-88
+dib 0 8 16 1
+fill 0 2026827704
+pen 0 0 0 #7cc98a
+brush 0 solid #be12f3
+moveto 0 -1 6
+lineto 0 4 0
+ellipse 0 4 8 7 0
+dump 0
+end
+case random-89
+dib 0 7 9 8
+fill 0 3910255798
+pen 0 0 1 #4e246a
+brush 0 solid #a69e4e
+moveto 0 -2 4
+lineto 0 1 3
+polygon 0 9 6 7 3 5 2
+dump 0
+end
+case random-90
+dib 0 15 11 1 bu
+fill 0 1617897260
+pen 0 0 1 #00ff00
+brush 0 solid #1d7ad0
+polygon 0 -3 10 5 6 5 3
+dump 0
+end
+case random-91
+dib 0 7 16 24 bu
+fill 0 3700284965
+pen 0 0 1 #ae230a
+brush 0 solid #cdc511
+rop2 0 7
+polygon 0 7 0 6 0 2 6
+rectangle 0 1 -3 6 -1
+dump 0
+end
+case random-92
+dib 0 12 7 32 bu
+fill 0 681381793
+pen 0 0 1 #ffffff
+brush 0 solid #96d604
+polygon 0 6 -2 14 0 14 -1
+rectangle 0 14 -2 14 2
+dump 0
+end
+case random-93
+dib 0 11 15 24 bu
+fill 0 2264541889
+pen 0 0 0 #0044e9
+brush 0 solid #a8faf4
+clip 0 7 9 15 12
+moveto 0 13 7
+lineto 0 -2 16
+ellipse 0 2 16 3 15
+dump 0
+end
+case random-94
+dib 0 7 6 32 bu
+fill 0 3753609144
+pen 0 0 0 #00ff00
+brush 0 solid #10d866
+rop2 0 9
+rectangle 0 -2 0 8 6
+polygon 0 -1 8 -3 2 -3 8
+ellipse 0 5 4 1 3
+dump 0
+end
+case random-95
+dib 0 5 9 24
+fill 0 926130232
+pen 0 0 0 #23adf2
+brush 0 solid #ff0000
+rop2 0 13
+clip 0 5 2 6 5
+polygon 0 6 10 2 8 -1 4
+dump 0
+end
+case random-96
+dib 0 12 15 24
+fill 0 808916159
+pen 0 0 1 #5f43fd
+brush 0 solid #ffe29e
+rop2 0 16
+clip 0 3 -1 9 16
+polygon 0 10 8 2 15 -2 7
+moveto 0 -2 1
+lineto 0 -2 16
+polygon 0 8 8 -1 17 10 9
+dump 0
+end
+case random-97
+dib 0 18 16 16 565
+fill 0 3997914793
+pen 0 0 0 #df7460
+brush 0 solid #eb77a5
+rop2 0 10
+polygon 0 19 -2 20 -1 5 12
+rectangle 0 -2 7 2 15
+dump 0
+end
+case random-98
+dib 0 5 13 16 bu 565
+fill 0 1989438077
+pen 0 0 0 #e2f5e2
+brush 0 solid #07c5de
+rop2 0 7
+moveto 0 5 15
+lineto 0 -3 4
+dump 0
+end
+case random-99
+dib 0 11 14 4
+fill 0 1823512646
+pen 0 0 0 #800000
+brush 0 solid #2bb554
+rop2 0 7
+moveto 0 3 14
+lineto 0 13 -2
+moveto 0 -3 0
+lineto 0 1 12
+polygon 0 4 -2 9 16 -2 -3
+dump 0
+end
+case random-100
+dib 0 16 14 32
+fill 0 2037274498
+pen 0 0 1 #aa5e65
+brush 0 solid #4a53e1
+rop2 0 7
+clip 0 11 11 20 27
+polygon 0 10 16 8 7 15 2
+ellipse 0 0 -2 6 -1
+rectangle 0 6 -2 5 15
+dump 0
+end
+case random-101
+dib 0 7 12 1 bu
+fill 0 598362499
+pen 0 0 0 #4a5515
+brush 0 solid #c53415
+rop2 0 12
+ellipse 0 3 8 5 11
+dump 0
+end
+case random-102
+dib 0 16 10 16 bu 565
+fill 0 1376802622
+pen 0 0 1 #32b44b
+brush 0 solid #000000
+rop2 0 4
+moveto 0 10 2
+lineto 0 18 4
+dump 0
+end
+case random-103
+dib 0 6 11 16 bu
+fill 0 116362221
+pen 0 0 0 #6388bd
+brush 0 solid #8b9d4b
+rop2 0 1
+ellipse 0 8 0 2 -3
+dump 0
+end
+case random-104
+dib 0 6 8 32
+fill 0 4269755169
+pen 0 0 0 #b4da0d
+brush 0 solid #ca838e
+rectangle 0 -2 5 -1 7
+dump 0
+end
+case random-105
+dib 0 11 10 1
+fill 0 1723382481
+pen 0 0 0 #9ecbd1
+brush 0 solid #ffffff
+moveto 0 7 4
+lineto 0 5 -1
+dump 0
+end
+case random-106
+dib 0 8 11 16
+fill 0 2080608408
+pen 0 0 0 #9e559e
+brush 0 solid #7f7f7f
+rop2 0 2
+rectangle 0 4 0 -3 7
+dump 0
+end
+case random-107
+dib 0 12 6 16
+fill 0 905660522
+pen 0 0 1 #7b7359
+brush 0 solid #d386bb
+clip 0 1 -1 10 2
+rectangle 0 10 6 -1 1
+rectangle 0 -2 -2 5 5
+dump 0
+end
+case random-108
+dib 0 10 6 24 bu
+fill 0 1718993700
+pen 0 0 0 #00ff00
+brush 0 solid #40c677
+rop2 0 5
+moveto 0 10 -2
+lineto 0 -1 3
+moveto 0 -1 2
+lineto 0 -3 -3
+dump 0
+end
+case random-109
+dib 0 14 14 16 bu
+fill 0 3302932348
+pen 0 0 0 #aef880
+brush 0 solid #9c028f
+clip 0 14 11 30 22
+ellipse 0 7 11 16 2
+moveto 0 14 11
+lineto 0 -1 0
+dump 0
+end
+case random-110
+dib 0 18 16 16 565
+fill 0 825931879
+pen 0 0 0 #00ff00
+brush 0 solid #1ad0da
+rop2 0 8
+ellipse 0 -2 3 17 5
+ellipse 0 17 5 3 14
+ellipse 0 10 0 -3 18
+dump 0
+end
+case random-111
+dib 0 4 13 24 bu
+fill 0 52195477
+pen 0 0 0 #2f46f3
+brush 0 solid #ca5b64
+polygon 0 0 3 6 -1 0 6
+moveto 0 -3 4
+lineto 0 0 11
+ellipse 0 6 9 0 13
+dump 0
+end
+case random-112
+dib 0 4 6 4 bu
+fill 0 1060996268
+pen 0 0 0 #ff0000
+brush 0 solid #ffffff
+rop2 0 13
+clip 0 -2 6 -2 13
+polygon 0 -2 7 5 -1 5 -1
+ellipse 0 5 3 5 5
+dump 0
+end
+case random-113
+dib 0 19 4 1
+fill 0 2449559523
+pen 0 0 1 #f06be7
+brush 0 solid #ae71e8
+polygon 0 14 -1 0 5 18 -2
+dump 0
+end
+case random-114
+dib 0 9 8 16 bu
+fill 0 567310006
+pen 0 0 1 #0dd499
+brush 0 solid #808080
+rop2 0 12
+polygon 0 2 1 11 -1 7 -1
+polygon 0 11 8 5 0 11 2
+ellipse 0 4 9 -2 3
+dump 0
+end
+case random-115
+dib 0 18 12 8 bu
+fill 0 3575087573
+pen 0 0 1 #0af452
+brush 0 solid #76d620
+clip 0 15 6 28 7
+ellipse 0 6 1 2 13
+ellipse 0 10 4 0 5
+rectangle 0 12 1 5 5
+dump 0
+end
+case random-116
+dib 0 16 4 16 565
+fill 0 3062315450
+pen 0 0 0 #1bbca8
+brush 0 solid #ca2e10
+rop2 0 15
+polygon 0 17 0 17 1 18 3
+dump 0
+end
+case random-117
+dib 0 17 9 4
+fill 0 1292011963
+pen 0 0 1 #008000
+brush 0 solid #808080
+rop2 0 9
+rectangle 0 19 1 7 10
+polygon 0 19 6 10 5 19 0
+moveto 0 1 7
+lineto 0 0 -2
+dump 0
+end
+case random-118
+dib 0 12 13 32
+fill 0 198389167
+pen 0 0 0 #c16bb5
+brush 0 solid #7f7f7f
+clip 0 8 0 13 8
+moveto 0 -1 10
+lineto 0 9 -1
+moveto 0 1 8
+lineto 0 0 13
+dump 0
+end
+case random-119
+dib 0 11 11 32
+fill 0 617645860
+pen 0 0 0 #80454f
+brush 0 solid #7f7161
+rop2 0 6
+clip 0 6 6 16 13
+polygon 0 10 3 12 -3 -2 0
+dump 0
+end
+case random-120
+dib 0 7 8 16 bu
+fill 0 2410412923
+pen 0 0 1 #aaffc9
+brush 0 solid #7f7f7f
+rop2 0 1
+moveto 0 -3 -2
+lineto 0 8 -2
+rectangle 0 6 5 9 7
+polygon 0 1 -3 -3 3 -2 -3
+dump 0
+end
+case random-121
+dib 0 5 16 16
+fill 0 3069988805
+pen 0 0 1 #f2598c
+brush 0 solid #142eff
+rop2 0 15
+rectangle 0 -1 2 3 12
+moveto 0 -3 2
+lineto 0 6 17
+ellipse 0 -1 16 1 0
+dump 0
+end
+case random-122
+dib 0 14 8 32 bu
+fill 0 3684078023
+pen 0 0 0 #920e9b
+brush 0 solid #575890
+rop2 0 7
+moveto 0 16 3
+lineto 0 7 8
+rectangle 0 12 -3 11 5
+ellipse 0 2 4 -2 10
+dump 0
+end
+case random-123
+dib 0 9 10 16 565
+fill 0 360619377
+pen 0 0 1 #b65acf
+brush 0 solid #e6b6d1
+clip 0 7 10 16 21
+ellipse 0 10 6 6 11
+dump 0
+end
+case random-124
+dib 0 10 6 8 bu
+fill 0 3284810571
+pen 0 0 0 #6d48aa
+brush 0 solid #b4fec1
+clip 0 2 4 9 7
+polygon 0 7 0 4 5 7 3
+moveto 0 11 4
+lineto 0 4 0
+dump 0
+end
+case random-125
+dib 0 6 14 8 bu
+fill 0 2064822177
+pen 0 0 0 #1abf34
+brush 0 solid #c07ba2
+rop2 0 10
+clip 0 2 2 5 14
+ellipse 0 5 4 -2 0
+rectangle 0 -2 -3 -3 13
+dump 0
+end
+case random-126
+dib 0 10 4 16
+fill 0 4034678848
+pen 0 0 0 #a63a3e
+brush 0 solid #da2ba7
+rop2 0 11
+rectangle 0 2 4 6 5
+ellipse 0 10 6 1 5
+dump 0
+end
+case random-127
+dib 0 16 8 1
+fill 0 202546112
+pen 0 0 1 #6f7e57
+brush 0 solid #ffffff
+clip 0 7 5 8 15
+rectangle 0 11 2 2 10
+rectangle 0 10 10 16 5
+dump 0
+end
+case random-128
+dib 0 11 4 4
+fill 0 2022324867
+pen 0 0 0 #165f64
+brush 0 solid #008080
+rop2 0 12
+rectangle 0 -3 -2 6 6
+dump 0
+end
+case random-129
+dib 0 7 6 4
+fill 0 1319572313
+pen 0 0 1 #43bb6d
+brush 0 solid #4ef3c4
+moveto 0 8 7
+lineto 0 -3 6
+polygon 0 6 4 9 -2 -2 6
+rectangle 0 5 1 3 -3
+dump 0
+end
+case random-130
+dib 0 13 7 16 bu
+fill 0 4055366874
+pen 0 0 0 #641e9c
+brush 0 solid #47e6ec
+polygon 0 11 -1 13 8 2 7
+ellipse 0 6 6 2 6
+moveto 0 9 -1
+lineto 0 4 7
+dump 0
+end
+case random-131
+dib 0 14 5 16 bu 565
+fill 0 2756683145
+pen 0 0 0 #eb30f3
+brush 0 solid #f8497c
+polygon 0 0 1 -3 7 11 -1
+ellipse 0 11 -1 7 3
+ellipse 0 6 -2 -1 1
+dump 0
+end
+case random-132
+dib 0 18 16 16 bu 565
+fill 0 3803387159
+pen 0 0 1 #b547dd
+brush 0 solid #e3810b
+rop2 0 12
+ellipse 0 8 2 18 4
+dump 0
+end
+case random-133
+dib 0 20 5 4 bu
+fill 0 3641960147
+pen 0 0 1 #800000
+brush 0 solid #fe8cb0
+rop2 0 7
+ellipse 0 18 7 3 6
+rectangle 0 18 -2 -1 0
+dump 0
+end
+case random-134
+dib 0 15 10 32 bu
+fill 0 695226229
+pen 0 0 0 #8de280
+brush 0 solid #ffffff
+moveto 0 -3 2
+lineto 0 9 10
+rectangle 0 12 -1 6 0
+dump 0
+end
+case random-135
+dib 0 4 13 32
+fill 0 2607604670
+pen 0 0 1 #e67ef5
+brush 0 solid #1559f1
+rop2 0 9
+moveto 0 4 4
+lineto 0 0 -3
+moveto 0 5 9
+lineto 0 6 15
+rectangle 0 -1 7 -1 0
+dump 0
+end
+case random-136
+dib 0 14 14 1
+fill 0 922956539
+pen 0 0 1 #e15ae3
+brush 0 solid #000000
+clip 0 0 10 4 23
+ellipse 0 -1 10 10 5
+polygon 0 13 14 2 -1 3 3
+dump 0
+end
+case random-137
+dib 0 17 13 16
+fill 0 753157519
+pen 0 0 1 #7f7f7f
+brush 0 solid #fd9b63
+ellipse 0 14 4 -2 -3
+polygon 0 16 8 5 8 12 12
+dump 0
+end
+case random-138
+dib 0 9 14 8
+fill 0 2047900664
+pen 0 0 1 #9e452c
+brush 0 solid #c8e0d7
+rop2 0 11
+ellipse 0 6 14 0 4
+dump 0
+end
+case random-139
+dib 0 15 12 16 bu
+fill 0 4214836684
+pen 0 0 0 #05d88a
+brush 0 solid #865ac9
+rop2 0 1
+rectangle 0 14 3 15 -2
+dump 0
+end
+case random-140
+dib 0 10 10 8
+fill 0 2165648101
+pen 0 0 1 #da9c2d
+brush 0 solid #dadfe4
+ellipse 0 9 4 10 11
+dump 0
+end
+case random-141
+dib 0 18 4 8
+fill 0 253806740
+pen 0 0 1 #71d487
+brush 0 solid #57c5dc
+rop2 0 13
+clip 0 8 3 11 9
+moveto 0 -1 5
+lineto 0 -1 -2
+dump 0
+end
+case random-142
+dib 0 18 10 16
+fill 0 962628329
+pen 0 0 1 #f9c2a7
+brush 0 solid #93362c
+ellipse 0 9 3 1 8
+polygon 0 11 8 0 9 7 10
+dump 0
+end
+case random-143
+dib 0 11 16 32
+fill 0 408169611
+pen 0 0 1 #8a2a45
+brush 0 solid #e8d9d8
+moveto 0 11 1
+lineto 0 7 0
+dump 0
+end
+case random-144
+dib 0 5 13 24
+fill 0 2804939232
+pen 0 0 1 #56175b
+brush 0 solid #a36940
+polygon 0 5 3 3 11 3 7
+dump 0
+end
+case random-145
+dib 0 14 4 8
+fill 0 1078942272
+pen 0 0 1 #ca39cc
+brush 0 solid #fdba50
+ellipse 0 12 4 7 5
+ellipse 0 3 -1 6 -2
+dump 0
+end
+case random-146
+dib 0 11 14 16
+fill 0 537614476
+pen 0 0 1 #0afcdd
+brush 0 solid #a6da53
+polygon 0 2 12 7 1 0 -1
+dump 0
+end
+case random-147
+dib 0 7 6 32 bu
+fill 0 1369193608
+pen 0 0 0 #4fe142
+brush 0 solid #e18801
+polygon 0 -1 4 -1 0 0 3
+dump 0
+end
+case random-148
+dib 0 14 5 32 bu
+fill 0 1721746396
+pen 0 0 0 #f3d1a4
+brush 0 solid #0e65d1
+polygon 0 13 -3 4 7 3 -3
+dump 0
+end
+case random-149
+dib 0 18 6 16 565
+fill 0 3222383954
+pen 0 0 1 #630b48
+brush 0 solid #6c596f
+moveto 0 12 3
+lineto 0 12 0
+dump 0
+end
+case random-150
+dib 0 19 14 4
+fill 0 3979690227
+pen 0 0 0 #00ffff
+brush 0 solid #26bd47
+rop2 0 10
+clip 0 12 1 21 16
+ellipse 0 7 15 12 0
+moveto 0 2 3
+lineto 0 13 -3
+dump 0
+end
+case random-151
+dib 0 9 16 4
+fill 0 3069361824
+pen 0 0 1 #d75b54
+brush 0 solid #e27260
+ellipse 0 2 18 11 2
+dump 0
+end
+case random-152
+dib 0 7 10 16 565
+fill 0 3852783925
+pen 0 0 0 #ffffff
+brush 0 solid #418fa0
+rop2 0 15
+rectangle 0 -2 11 0 -1
+dump 0
+end
+case random-153
+dib 0 9 13 8 bu
+fill 0 2939362756
+pen 0 0 1 #8c7ab1
+brush 0 solid #26294c
+polygon 0 3 15 11 3 2 7
+dump 0
+end
+case random-154
+dib 0 17 11 24 bu
+fill 0 1794723548
+pen 0 0 1 #16702a
+brush 0 solid #9143ff
+rop2 0 8
+ellipse 0 13 2 -1 5
+moveto 0 9 -2
+lineto 0 19 1
+rectangle 0 -2 9 4 6
+dump 0
+end
+case random-155
+dib 0 20 16 16 565
+fill 0 1088942530
+pen 0 0 1 #2d9faf
+brush 0 solid #21d355
+rop2 0 16
+clip 0 3 5 20 8
+moveto 0 -2 1
+lineto 0 16 12
+dump 0
+end
+case random-156
+dib 0 8 7 16 565
+fill 0 3347493074
+pen 0 0 0 #8ac763
+brush 0 solid #6b96fe
+rop2 0 8
+polygon 0 7 6 4 3 10 7
+dump 0
+end
+case random-157
+dib 0 4 8 1 bu
+fill 0 1448924538
+pen 0 0 1 #03c08c
+brush 0 solid #ba30d7
+moveto 0 2 0
+lineto 0 5 -2
+dump 0
+end
+case random-158
+dib 0 10 8 24
+fill 0 3955627326
+pen 0 0 0 #55335e
+brush 0 solid #fd74be
+ellipse 0 9 2 -3 8
+dump 0
+end
+case random-159
+dib 0 12 6 8 bu
+fill 0 945653571
+pen 0 0 1 #aae0f5
+brush 0 solid #48da00
+polygon 0 5 -1 6 4 10 -2
+ellipse 0 10 1 10 4
+rectangle 0 10 -2 11 4
+dump 0
+end
+case random-160
+dib 0 4 11 24
+fill 0 1712396008
+pen 0 0 0 #d762d9
+brush 0 solid #d3e778
+rop2 0 7
+ellipse 0 -2 10 5 10
+dump 0
+end
+case random-161
+dib 0 12 13 16 565
+fill 0 3564700597
+pen 0 0 0 #96562e
+brush 0 solid #865054
+rop2 0 5
+clip 0 12 5 16 15
+polygon 0 2 8 9 9 -3 14
+moveto 0 10 15
+lineto 0 2 12
+moveto 0 14 6
+lineto 0 7 11
+dump 0
+end
+case random-162
+dib 0 17 6 4 bu
+fill 0 1090685381
+pen 0 0 0 #ffffff
+brush 0 solid #36c601
+rop2 0 14
+rectangle 0 16 4 13 4
+ellipse 0 16 -3 15 5
+dump 0
+end
+case random-163
+dib 0 18 16 24
+fill 0 3561472758
+pen 0 0 0 #4c4fa1
+brush 0 solid #fed79f
+ellipse 0 5 7 12 -1
+polygon 0 0 8 7 3 -3 -3
+dump 0
+end
+case random-164
+dib 0 16 6 16 565
+fill 0 738197955
+pen 0 0 1 #5c3e52
+brush 0 solid #71d2ab
+moveto 0 14 -2
+lineto 0 13 8
+dump 0
+end
+case random-165
+dib 0 16 5 32 bu
+fill 0 2410285489
+pen 0 0 1 #7dce3d
+brush 0 solid #dc261f
+rop2 0 1
+polygon 0 14 5 11 -1 17 -3
+ellipse 0 3 5 18 2
+dump 0
+end
+case random-166
+dib 0 18 6 16 565
+fill 0 2154714318
+pen 0 0 1 #9a9b38
+brush 0 solid #535160
+moveto 0 -1 1
+lineto 0 2 -1
+polygon 0 9 5 11 -3 -1 4
+dump 0
+end
+case random-167
+dib 0 14 12 16
+fill 0 2379963971
+pen 0 0 0 #13cb7a
+brush 0 solid #0c1e53
+rop2 0 7
+clip 0 1 -2 17 1
+moveto 0 13 1
+lineto 0 10 13
+moveto 0 11 1
+lineto 0 0 13
+rectangle 0 10 3 12 13
+dump 0
+end
+case random-168
+dib 0 9 4 16
+fill 0 4011862202
+pen 0 0 1 #937939
+brush 0 solid #51a753
+rop2 0 13
+polygon 0 6 -3 9 -1 0 4
+ellipse 0 3 6 11 -1
+ellipse 0 5 0 -3 5
+dump 0
+end
+case random-169
+dib 0 7 15 8 bu
+fill 0 2087007046
+pen 0 0 0 #91ffaa
+brush 0 solid #fb8a7b
+clip 0 3 5 7 10
+moveto 0 9 9
+lineto 0 -2 17
+dump 0
+end
+case random-170
+dib 0 12 13 8 bu
+fill 0 1987091390
+pen 0 0 1 #02030d
+brush 0 solid #c983c6
+rop2 0 2
+clip 0 6 6 6 7
+polygon 0 -2 12 2 3 7 2
+dump 0
+end
+case random-171
+dib 0 4 13 16 bu 565
+fill 0 309755381
+pen 0 0 1 #048dc5
+brush 0 solid #2bba9f
+ellipse 0 -2 12 3 15
+polygon 0 6 10 -2 -1 3 10
+polygon 0 5 5 3 4 0 11
+dump 0
+end
+case random-172
+dib 0 16 5 4
+fill 0 529299879
+pen 0 0 1 #ff0000
+brush 0 solid #808080
+rop2 0 4
+polygon 0 2 4 11 1 14 -1
+dump 0
+end
+case random-173
+dib 0 16 13 8 bu
+fill 0 1556436215
+pen 0 0 0 #0000ff
+brush 0 solid #6fc14a
+moveto 0 10 13
+lineto 0 15 4
+ellipse 0 14 12 14 12
+ellipse 0 13 -1 -2 5
+dump 0
+end
+case random-174
+dib 0 17 4 1 bu
+fill 0 3971615855
+pen 0 0 0 #83c689
+brush 0 solid #d986de
+ellipse 0 -2 0 6 1
+rectangle 0 -1 2 18 6
+moveto 0 5 -1
+lineto 0 6 -2
+dump 0
+end
+case random-175
+dib 0 4 4 1
+fill 0 2790627169
+pen 0 0 1 #ffffff
+brush 0 solid #ffffff
+rop2 0 1
+clip 0 4 -2 10 1
+rectangle 0 4 1 2 6
+dump 0
+end
+case random-176
+dib 0 16 15 16 bu
+fill 0 415783048
+pen 0 0 0 #f06139
+brush 0 solid #84008b
+clip 0 11 5 28 21
+ellipse 0 -1 0 -3 14
+rectangle 0 10 14 18 5
+dump 0
+end
+case random-177
+dib 0 13 8 16
+fill 0 213956574
+pen 0 0 1 #f8a4c5
+brush 0 solid #4aabce
+moveto 0 9 -3
+lineto 0 -2 -1
+polygon 0 11 10 8 0 14 -3
+moveto 0 0 0
+lineto 0 -3 8
+dump 0
+end
+case random-178
+dib 0 12 14 32 bu
+fill 0 3913868295
+pen 0 0 1 #378646
+brush 0 solid #b6a26f
+rop2 0 7
+moveto 0 -3 8
+lineto 0 6 14
+dump 0
+end
+case random-179
+dib 0 7 11 16 bu 565
+fill 0 2560952637
+pen 0 0 0 #e8e941
+brush 0 solid #c84c41
+rectangle 0 -2 10 -3 12
+moveto 0 9 8
+lineto 0 -3 -2
+polygon 0 8 2 -1 4 6 9
+dump 0
+end
+case random-180
+dib 0 6 13 16 bu
+fill 0 618421204
+pen 0 0 1 #7f7f7f
+brush 0 solid #a4b106
+rop2 0 11
+clip 0 3 -1 6 7
+ellipse 0 -3 9 -1 9
+polygon 0 3 -1 -2 -1 8 10
+polygon 0 5 -3 5 -2 4 10
+dump 0
+end
+case random-181
+dib 0 16 13 16 bu 565
+fill 0 4107617694
+pen 0 0 1 #a885fc
+brush 0 solid #229dfa
+rop2 0 12
+ellipse 0 17 2 8 11
+dump 0
+end
+case random-182
+dib 0 6 4 24 bu
+fill 0 467489063
+pen 0 0 1 #6f1acb
+brush 0 solid #000000
+polygon 0 2 -2 -2 5 3 4
+rectangle 0 -2 4 1 3
+polygon 0 5 4 -2 0 6 1
+dump 0
+end
+case random-183
+dib 0 19 11 8
+fill 0 2537361788
+pen 0 0 1 #dcd95f
+brush 0 solid #50bc87
+polygon 0 18 10 19 6 -1 7
+ellipse 0 5 -2 17 7
+dump 0
+end
+case random-184
+dib 0 11 8 32
+fill 0 2187574218
+pen 0 0 1 #ffffff
+brush 0 solid #a0b6b1
+rop2 0 11
+moveto 0 3 9
+lineto 0 6 3
+rectangle 0 8 6 12 8
+moveto 0 7 -1
+lineto 0 9 -2
+dump 0
+end
+case random-185
+dib 0 11 13 8
+fill 0 1785098654
+pen 0 0 0 #c09272
+brush 0 solid #365934
+rop2 0 10
+moveto 0 -3 -3
+lineto 0 5 11
+dump 0
+end
+case random-186
+dib 0 17 8 1
+fill 0 3779230337
+pen 0 0 0 #a54ca7
+brush 0 solid #82247a
+rop2 0 11
+rectangle 0 15 -2 15 3
+dump 0
+end
+case random-187
+dib 0 4 14 24
+fill 0 2264328209
+pen 0 0 1 #b689ec
+brush 0 solid #8fe6fb
+rectangle 0 -1 0 1 -2
+polygon 0 4 1 4 -2 6 2
+dump 0
+end
+case random-188
+dib 0 12 4 4
+fill 0 1682912956
+pen 0 0 0 #8b22f2
+brush 0 solid #a39a4f
+rop2 0 16
+rectangle 0 4 -1 2 2
+dump 0
+end
+case random-189
+dib 0 10 8 16
+fill 0 2395204007
+pen 0 0 0 #15bb62
+brush 0 solid #808080
+moveto 0 6 1
+lineto 0 4 0
+rectangle 0 6 0 0 1
+dump 0
+end
+case random-190
+dib 0 8 13 8
+fill 0 2135745787
+pen 0 0 0 #2ab1ef
+brush 0 solid #a464ab
+moveto 0 0 4
+lineto 0 8 5
+ellipse 0 8 5 -3 10
+polygon 0 -2 14 2 7 0 8
+dump 0
+end
+case random-191
+dib 0 4 15 24 bu
+fill 0 3445044560
+pen 0 0 0 #4e052b
+brush 0 solid #1a2d43
+rop2 0 9
+rectangle 0 0 5 -1 10
+dump 0
+end
+case random-192
+dib 0 15 12 4
+fill 0 2097693619
+pen 0 0 0 #ffffff
+brush 0 solid #00ff00
+rectangle 0 8 -2 11 10
+rectangle 0 -1 13 0 -2
+ellipse 0 7 5 13 12
+dump 0
+end
+case random-193
+dib 0 16 4 24 bu
+fill 0 3464616052
+pen 0 0 1 #47c00f
+brush 0 solid #ff0000
+rop2 0 3
+polygon 0 5 5 -2 4 10 -3
+dump 0
+end
+case random-194
+dib 0 8 14 24
+fill 0 3326789144
+pen 0 0 0 #bd8b64
+brush 0 solid #a66ed0
+rop2 0 12
+clip 0 2 -1 4 5
+ellipse 0 6 16 -1 7
+polygon 0 5 13 10 1 -1 3
+ellipse 0 4 1 7 6
+dump 0
+end
+case random-195
+dib 0 5 11 16 bu
+fill 0 859467094
+pen 0 0 0 #491d24
+brush 0 solid #808080
+rop2 0 6
+moveto 0 -2 6
+lineto 0 1 11
+dump 0
+end
+case random-196
+dib 0 6 15 1
+fill 0 2783235677
+pen 0 0 0 #6e485e
+brush 0 solid #00ff00
+clip 0 2 1 8 3
+rectangle 0 4 4 2 10
+dump 0
+end
+case random-197
+dib 0 8 14 16 bu
+fill 0 1109312757
+pen 0 0 1 #ff0000
+brush 0 solid #de4c4b
+rop2 0 3
+moveto 0 8 10
+lineto 0 10 7
+rectangle 0 5 14 -3 10
+moveto 0 9 15
+lineto 0 5 14
+dump 0
+end
+case random-198
+dib 0 10 8 24
+fill 0 2678512962
+pen 0 0 1 #a14534
+brush 0 solid #2d0123
+moveto 0 -2 7
+lineto 0 0 1
+rectangle 0 -1 10 0 2
+dump 0
+end
+case random-199
+dib 0 16 13 32
+fill 0 744179933
+pen 0 0 1 #7f7f7f
+brush 0 solid #49507f
+rop2 0 8
+rectangle 0 0 11 9 -1
+rectangle 0 2 6 5 7
+moveto 0 13 7
+lineto 0 4 14
+dump 0
+end

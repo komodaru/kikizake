@@ -1,0 +1,2368 @@
+# kikizake suite path: GDI paths (SPEC.md). Made by `kikizake gen path`.
+case shape-0-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-0-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-0-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-0-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-0-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-0
+dib 0 16 16 8
+fill 0 3038042781
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+endpath 0
+selclippath 0 5
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-1-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+closefig 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-1-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+closefig 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-1-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+closefig 0
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-1-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+closefig 0
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-1-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+closefig 0
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-1
+dib 0 16 16 8
+fill 0 21878028
+beginpath 0
+moveto 0 2 3
+lineto 0 9 4
+lineto 0 5 11
+closefig 0
+endpath 0
+selclippath 0 2
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-2-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-2-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-2-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-2-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-2-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-2
+dib 0 16 16 8
+fill 0 4158053143
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+selclippath 0 5
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-3-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+rectangle 0 12 9 2 3
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-3-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+rectangle 0 12 9 2 3
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-3-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+rectangle 0 12 9 2 3
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-3-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+rectangle 0 12 9 2 3
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-3-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+rectangle 0 12 9 2 3
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-3
+dib 0 16 16 8
+fill 0 3743438555
+beginpath 0
+rectangle 0 12 9 2 3
+endpath 0
+selclippath 0 2
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-4-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-4-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-4-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-4-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-4-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-4
+dib 0 16 16 8
+fill 0 1074275360
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+selclippath 0 4
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-5-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+ellipse 0 1 1 4 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-5-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+ellipse 0 1 1 4 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-5-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+ellipse 0 1 1 4 4
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-5-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+ellipse 0 1 1 4 4
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-5-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+ellipse 0 1 1 4 4
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-5
+dib 0 16 16 8
+fill 0 3344809418
+beginpath 0
+ellipse 0 1 1 4 4
+endpath 0
+selclippath 0 1
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-6-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+roundrect 0 2 3 14 11 5 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-6-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+roundrect 0 2 3 14 11 5 4
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-6-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+roundrect 0 2 3 14 11 5 4
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-6-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+roundrect 0 2 3 14 11 5 4
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-6-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+roundrect 0 2 3 14 11 5 4
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-6
+dib 0 16 16 8
+fill 0 2806740493
+beginpath 0
+roundrect 0 2 3 14 11 5 4
+endpath 0
+selclippath 0 4
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-7-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+arc 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-7-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+arc 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-7-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+arc 0 2 3 14 11 14 3 2 11
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-7-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+arc 0 2 3 14 11 14 3 2 11
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-7-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+arc 0 2 3 14 11 14 3 2 11
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-7
+dib 0 16 16 8
+fill 0 3508468314
+beginpath 0
+arc 0 2 3 14 11 14 3 2 11
+endpath 0
+selclippath 0 4
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-8-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+arcto 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-8-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+arcto 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-8-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+arcto 0 2 3 14 11 14 3 2 11
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-8-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+arcto 0 2 3 14 11 14 3 2 11
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-8-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+arcto 0 2 3 14 11 14 3 2 11
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-8
+dib 0 16 16 8
+fill 0 1460033270
+beginpath 0
+arcto 0 2 3 14 11 14 3 2 11
+endpath 0
+selclippath 0 3
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-9-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+pie 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-9-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+pie 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-9-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+pie 0 2 3 14 11 14 3 2 11
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-9-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+pie 0 2 3 14 11 14 3 2 11
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-9-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+pie 0 2 3 14 11 14 3 2 11
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-9
+dib 0 16 16 8
+fill 0 3904767054
+beginpath 0
+pie 0 2 3 14 11 14 3 2 11
+endpath 0
+selclippath 0 5
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-10-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+chord 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-10-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+chord 0 2 3 14 11 14 3 2 11
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-10-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+chord 0 2 3 14 11 14 3 2 11
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-10-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+chord 0 2 3 14 11 14 3 2 11
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-10-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+chord 0 2 3 14 11 14 3 2 11
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-10
+dib 0 16 16 8
+fill 0 670382012
+beginpath 0
+chord 0 2 3 14 11 14 3 2 11
+endpath 0
+selclippath 0 2
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-11-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-11-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-11-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-11-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-11-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-11
+dib 0 16 16 8
+fill 0 1253803642
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+selclippath 0 4
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-12-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+polygon 0 1 1 8 2 3 9 12 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-12-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+polygon 0 1 1 8 2 3 9 12 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-12-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 1 1 8 2 3 9 12 12
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-12-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 1 1 8 2 3 9 12 12
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-12-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 1 1 8 2 3 9 12 12
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-12
+dib 0 16 16 8
+fill 0 3531190883
+beginpath 0
+polygon 0 1 1 8 2 3 9 12 12
+endpath 0
+selclippath 0 2
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-13-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+moveto 0 1 1
+polybezier 0 1 1 9 0 13 12 2 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-13-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+moveto 0 1 1
+polybezier 0 1 1 9 0 13 12 2 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-13-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 1 1
+polybezier 0 1 1 9 0 13 12 2 12
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-13-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 1 1
+polybezier 0 1 1 9 0 13 12 2 12
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-13-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 1 1
+polybezier 0 1 1 9 0 13 12 2 12
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-13
+dib 0 16 16 8
+fill 0 3124640108
+beginpath 0
+moveto 0 1 1
+polybezier 0 1 1 9 0 13 12 2 12
+endpath 0
+selclippath 0 5
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-14-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+moveto 0 1 1
+polybezierto 0 9 0 13 12 2 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-14-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+moveto 0 1 1
+polybezierto 0 9 0 13 12 2 12
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-14-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 1 1
+polybezierto 0 9 0 13 12 2 12
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-14-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 1 1
+polybezierto 0 9 0 13 12 2 12
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-14-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 1 1
+polybezierto 0 9 0 13 12 2 12
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-14
+dib 0 16 16 8
+fill 0 2977688384
+beginpath 0
+moveto 0 1 1
+polybezierto 0 9 0 13 12 2 12
+endpath 0
+selclippath 0 3
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-15-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+moveto 0 1 1
+polylineto 0 5 5 9 1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-15-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+moveto 0 1 1
+polylineto 0 5 5 9 1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-15-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 1 1
+polylineto 0 5 5 9 1
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-15-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 1 1
+polylineto 0 5 5 9 1
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-15-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+moveto 0 1 1
+polylineto 0 5 5 9 1
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-15
+dib 0 16 16 8
+fill 0 1460609758
+beginpath 0
+moveto 0 1 1
+polylineto 0 5 5 9 1
+endpath 0
+selclippath 0 5
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case shape-16-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 2
+beginpath 0
+moveto 0 1 1
+lineto 0 5 5
+moveto 0 8 1
+lineto 0 12 7
+lineto 0 8 9
+closefig 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case shape-16-1
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+arcdir 0 1
+beginpath 0
+moveto 0 1 1
+lineto 0 5 5
+moveto 0 8 1
+lineto 0 12 7
+lineto 0 8 9
+closefig 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case draw-16-strokepath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 1 1
+lineto 0 5 5
+moveto 0 8 1
+lineto 0 12 7
+lineto 0 8 9
+closefig 0
+endpath 0
+strokepath 0
+getpath 0
+dump 0
+end
+case draw-16-fillpath
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 1 1
+lineto 0 5 5
+moveto 0 8 1
+lineto 0 12 7
+lineto 0 8 9
+closefig 0
+endpath 0
+fillpath 0
+getpath 0
+dump 0
+end
+case draw-16-strokefill
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+moveto 0 1 1
+lineto 0 5 5
+moveto 0 8 1
+lineto 0 12 7
+lineto 0 8 9
+closefig 0
+endpath 0
+strokefill 0
+getpath 0
+dump 0
+end
+case clip-16
+dib 0 16 16 8
+fill 0 3437071626
+beginpath 0
+moveto 0 1 1
+lineto 0 5 5
+moveto 0 8 1
+lineto 0 12 7
+lineto 0 8 9
+closefig 0
+endpath 0
+selclippath 0 2
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 16 16 0xf00021
+dump 0
+end
+case widen-0-2
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-0-11
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-0-4
+dib 0 16 16 8
+pen 0 0 1 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-1-2
+dib 0 16 16 8
+pen 0 0 3 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-1-11
+dib 0 16 16 8
+pen 0 0 3 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-1-4
+dib 0 16 16 8
+pen 0 0 3 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-2-2
+dib 0 16 16 8
+extpen 0 0x10000 3 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-2-11
+dib 0 16 16 8
+extpen 0 0x10000 3 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-2-4
+dib 0 16 16 8
+extpen 0 0x10000 3 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-3-2
+dib 0 16 16 8
+extpen 0 0x10100 4 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-3-11
+dib 0 16 16 8
+extpen 0 0x10100 4 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-3-4
+dib 0 16 16 8
+extpen 0 0x10100 4 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-4-2
+dib 0 16 16 8
+extpen 0 0x10200 3 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-4-11
+dib 0 16 16 8
+extpen 0 0x10200 3 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-4-4
+dib 0 16 16 8
+extpen 0 0x10200 3 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-5-2
+dib 0 16 16 8
+extpen 0 0x11000 5 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-5-11
+dib 0 16 16 8
+extpen 0 0x11000 5 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-5-4
+dib 0 16 16 8
+extpen 0 0x11000 5 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-6-2
+dib 0 16 16 8
+extpen 0 0x12000 5 #ffffff
+beginpath 0
+rectangle 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case widen-6-11
+dib 0 16 16 8
+extpen 0 0x12000 5 #ffffff
+beginpath 0
+polyline 0 1 1 8 2 3 9 12 12
+endpath 0
+widen 0
+getpath 0
+end
+case widen-6-4
+dib 0 16 16 8
+extpen 0 0x12000 5 #ffffff
+beginpath 0
+ellipse 0 2 3 12 9
+endpath 0
+widen 0
+getpath 0
+end
+case order
+dib 0 8 8 8
+getpath 0
+endpath 0
+flatten 0
+strokepath 0
+beginpath 0
+getpath 0
+moveto 0 1 1
+lineto 0 4 4
+getpath 0
+beginpath 0
+lineto 0 2 5
+endpath 0
+getpath 0
+abortpath 0
+getpath 0
+beginpath 0
+endpath 0
+getpath 0
+pathrgn 0 1
+fillpath 0
+getpath 0
+end
+case miter
+dib 0 8 8 8
+miter 0 3
+miter 0 0.5
+miter 0 20
+end
+case random-0
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 1 22 19 6 4 1 6 16 13 20 22 4
+polyline 0 21 3 11 -1 5 11 8 11 1 13 -2 19
+polygon 0 -2 21 8 1 13 13 19 15 19 -1
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-1
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 13 19 6 9 6 4 22 14
+polyline 0 1 20 11 0 13 3 5 4 18 -2 5 15
+polyline 0 15 3 1 -1 22 11 -2 12 22 3
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-2
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 11 21 14 17 21 21 6 13 5 7 19 19
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-3
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 11 -2 2 21
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-4
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 18 14 1 10 -2 -1
+polyline 0 11 18 14 9 17 20 10 8 18 18 6 2
+polyline 0 15 2 0 13 15 1 10 8 22 14 13 4
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-5
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 4 21 6 6 -1 4
+polygon 0 21 -2 0 15 5 16 9 16 17 3 17 19
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-6
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 -1 20 7 18
+polygon 0 22 6 -2 4 4 -1 20 1 8 17 2 12
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-7
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 18 -2 9 5 2 0 10 2
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-8
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 11 0 19 14 14 15 22 11
+polygon 0 20 22 1 7 16 2 3 15 22 14 22 9
+polyline 0 22 22 9 18
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-9
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 6 7 -1 5 1 21 14 13
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-10
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 17 16 10 10 12 -1
+polyline 0 12 10 1 21 -2 12
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-11
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 6 11 14 20 5 19 17 21 20 9 3 2
+polyline 0 -2 0 19 12 -2 0
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-12
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 -1 12 21 21
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-13
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 19 2 16 20 -1 4
+polyline 0 -2 22 22 -1 4 9 18 19
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-14
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 12 6 -2 6
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-15
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 11 9 16 1 17 12
+polygon 0 11 2 17 21 19 3
+polyline 0 5 2 16 9 18 21 19 14 17 19 7 22
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-16
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 18 6 19 15 17 18 20 2 4 12
+polygon 0 15 8 20 -1 -2 15 17 1 20 12 22 11
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-17
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 3 15 5 4 0 11
+polygon 0 19 14 15 9 -2 7 -2 2 8 17 19 14
+polygon 0 12 12 8 22 4 5 16 7 17 5
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-18
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 5 -1 12 22
+polygon 0 0 18 20 22 14 15 3 0
+polygon 0 18 10 12 13 -1 17
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-19
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 4 16 1 16 2 12 10 9
+polygon 0 19 2 6 -2 22 16 4 7
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-20
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 9 18 5 3 15 16 3 1 4 -2
+polygon 0 21 -1 13 22 19 12 3 6 11 21
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-21
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 -2 12 22 5 16 2 21 17
+polyline 0 19 16 8 14 20 12 0 0 13 9 13 11
+polygon 0 14 2 3 20 19 0 18 13 5 13
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-22
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 16 9 8 1
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-23
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 20 10 4 11 5 0
+polyline 0 11 0 5 10 11 10 7 8 22 5 2 1
+polyline 0 1 21 14 1
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-24
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 2 10 2 2 -1 12 7 17 11 -1
+polygon 0 8 1 2 21
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-25
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 1 0 20 -1 20 -2
+polyline 0 2 7 5 21 7 19 20 6
+polyline 0 10 4 14 22 18 1 8 13 19 2 19 21
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-26
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 -1 19 19 16 16 9 12 9 9 12 4 4
+polyline 0 19 3 11 15
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-27
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 9 17 15 3
+polygon 0 16 21 3 14
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-28
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 12 10 -1 9 13 16 19 17 17 14 13 1
+polygon 0 1 11 3 5 12 4 20 6 -2 0 6 22
+polyline 0 7 3 11 11 19 10 18 -1 15 18 12 17
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-29
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 7 -1 21 20 10 5
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-30
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 15 20 5 17 7 2 17 6
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-31
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 2 20 13 0 2 15
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-32
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 10 16 10 7
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-33
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 7 15 8 12 -2 12
+polyline 0 8 19 2 -2 10 14 13 -2
+polyline 0 13 22 20 7 13 12 22 20 1 21 4 -2
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-34
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 13 12 8 19 22 3 4 14 13 21
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-35
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 0 6 17 2 11 11 -2 7
+polygon 0 15 9 16 18 20 17 13 12 1 2
+polyline 0 9 13 19 10 5 22 3 15 9 3 11 3
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-36
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 7 19 -1 14 12 20 -2 6
+polygon 0 -1 5 18 21 -1 8 22 18
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-37
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 0 9 13 20 14 4 9 22 8 12
+polygon 0 13 20 12 18 16 16 19 14 19 2
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-38
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 16 14 3 10 13 -1
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-39
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 17 10 7 19
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-40
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 3 0 1 11 14 22
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-41
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 15 0 9 6
+polyline 0 12 4 18 7 22 3 4 1 9 21
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-42
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 6 6 21 4 19 -1
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-43
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 13 12 1 9 0 13 7 7 -2 17
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-44
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 13 8 14 15
+polygon 0 6 11 8 21 1 11 -1 13 3 19
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-45
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 18 16 12 6 -1 11 9 12
+polyline 0 22 -1 0 16 20 6 0 3
+polyline 0 3 3 16 -2 3 4 -1 11
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-46
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 19 0 0 14 6 17 5 11
+polyline 0 5 21 1 4
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-47
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 9 10 21 -1 17 9 11 3
+polygon 0 16 11 9 12 22 8 9 20 16 7
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-48
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 21 5 4 7 19 -1 5 17 22 18
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-49
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 7 8 3 14 16 9 3 12
+polyline 0 18 15 19 4
+polyline 0 8 16 4 -1 19 -2 7 16 7 5
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-50
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 11 13 22 5 14 22 20 4 10 19 11 12
+polygon 0 18 19 11 -2 2 0 4 13
+polygon 0 4 10 14 12 13 22 6 2 5 7
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-51
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 20 -1 15 10 5 14 17 18 16 18 3 10
+polyline 0 4 5 6 15 4 -1 17 16 5 10 11 14
+polygon 0 10 5 12 14 20 18
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-52
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 20 5 13 7
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-53
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 17 1 11 11 10 2 14 14
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-54
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polyline 0 8 9 2 21
+polyline 0 18 13 6 16 5 18 17 8 7 7 6 15
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end
+case random-55
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polygon 0 16 1 20 16 16 10
+polygon 0 18 -1 5 0 13 2 20 5
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-56
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 0 4 12 8 10 19 8 7
+polyline 0 21 -2 19 -2 10 3 17 4 6 22 -2 9
+polygon 0 0 12 -1 10 17 2 4 16 7 13
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case random-57
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 18 13 13 8 5 22 21 8 0 14 -1 -2
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-58
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 1
+beginpath 0
+polygon 0 16 16 21 18
+polygon 0 15 8 1 12 11 18 16 15 22 4
+endpath 0
+getpath 0
+strokepath 0
+dump 0
+end
+case random-59
+dib 0 20 20 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+polyfill 0 2
+beginpath 0
+polyline 0 2 8 5 15
+polygon 0 17 4 21 22
+polyline 0 17 11 9 12 22 6 -2 11 3 12 10 12
+endpath 0
+getpath 0
+strokefill 0
+dump 0
+end

@@ -15,6 +15,13 @@ mod gdi;
 mod gdiplus;
 mod wic;
 mod dwrite;
+mod gdiline;
+mod gdirgn;
+mod gdixform;
+mod gdipath;
+mod gditext;
+mod gdiblend;
+mod gdiddb;
 
 pub use d3d11::{d3d11_base, d3d11_floats};
 pub(crate) use crate::rng::XorShift32;
@@ -38,6 +45,13 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("dxgi", d3d12::dxgi),
     ("d3d10res", d3dres::d3d10res),
     ("d3d11res", d3dres::d3d11res),
+    ("lines", gdiline::lines),
+    ("region", gdirgn::region),
+    ("xform", gdixform::xform),
+    ("path", gdipath::path),
+    ("text", gditext::text),
+    ("blend", gdiblend::blend),
+    ("ddb", gdiddb::ddb),
 ];
 
 pub const SUITES: &[&str] = &{

@@ -1,0 +1,2513 @@
+# kikizake suite text: GDI fonts and text (SPEC.md). Made by `kikizake gen text`.
+case defaults
+dib 0 8 8 32
+face 0
+metrics 0
+align 0 24
+align 0 0
+extra 0 3
+extra 0 0
+objtype 0 font
+end
+case font-0--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-0--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-0--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-0--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-0-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-0-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-0-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Arial
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-0
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Arial
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-1--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-1--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-1--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-1--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-1-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-1-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-1-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Courier New
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-1
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Courier New
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-2--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-2--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-2--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-2--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-2-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-2-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-2-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Times New Roman
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-2
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Times New Roman
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-3--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-3--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-3--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-3--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-3-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-3-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-3-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Tahoma
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-3
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Tahoma
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-4--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-4--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-4--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-4--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-4-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-4-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-4-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Segoe UI
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-4
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Segoe UI
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-5--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-5--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-5--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-5--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-5-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-5-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-5-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Consolas
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-5
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Consolas
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-6--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-6--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-6--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-6--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-6-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-6-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-6-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 System
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-6
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 System
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-7--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-7--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-7--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-7--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-7-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-7-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-7-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Fixedsys
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-7
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Fixedsys
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-8--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-8--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-8--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-8--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-8-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-8-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-8-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Terminal
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-8
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Terminal
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-9--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-9--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-9--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-9--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-9-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-9-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-9-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-9
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 MS Sans Serif
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-10--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-10--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-10--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-10--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-10-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-10-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-10-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 Small Fonts
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-10
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 Small Fonts
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case font-11--8
+dib 0 8 8 32
+font 0 -8 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-11--11
+dib 0 8 8 32
+font 0 -11 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-11--13
+dib 0 8 8 32
+font 0 -13 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-11--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-11-12
+dib 0 8 8 32
+font 0 12 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-11-20
+dib 0 8 8 32
+font 0 20 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case font-11-0
+dib 0 8 8 32
+font 0 0 0 0 400 0 3 No Such Face
+face 0
+metrics 0
+widths 0 32 126
+abc 0 32 126
+extent 0 Hello,_world!
+extent 0 iiiWWW
+extent 0 _
+extentex 0 40 Hello,_world!
+extra 0 2
+extent 0 iiiWWW
+end
+case bold-11
+dib 0 8 8 32
+font 0 -13 0 0 700 1 3 No Such Face
+face 0
+metrics 0
+widths 0 65 90
+extent 0 Bold_Italic
+end
+case glyph-Arial--9
+dib 0 8 8 32
+font 0 -9 0 0 400 0 3 Arial
+glyph 0 65 0
+glyph 0 65 1
+glyph 0 65 4
+glyph 0 65 5
+glyph 0 65 6
+glyph 0 103 0
+glyph 0 103 1
+glyph 0 103 4
+glyph 0 103 5
+glyph 0 103 6
+glyph 0 46 0
+glyph 0 46 1
+glyph 0 46 4
+glyph 0 46 5
+glyph 0 46 6
+glyph 0 87 0
+glyph 0 87 1
+glyph 0 87 4
+glyph 0 87 5
+glyph 0 87 6
+glyph 0 32 0
+glyph 0 32 1
+glyph 0 32 4
+glyph 0 32 5
+glyph 0 32 6
+glyph 0 64 0
+glyph 0 64 1
+glyph 0 64 4
+glyph 0 64 5
+glyph 0 64 6
+end
+case glyph-Arial--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Arial
+glyph 0 65 0
+glyph 0 65 1
+glyph 0 65 4
+glyph 0 65 5
+glyph 0 65 6
+glyph 0 103 0
+glyph 0 103 1
+glyph 0 103 4
+glyph 0 103 5
+glyph 0 103 6
+glyph 0 46 0
+glyph 0 46 1
+glyph 0 46 4
+glyph 0 46 5
+glyph 0 46 6
+glyph 0 87 0
+glyph 0 87 1
+glyph 0 87 4
+glyph 0 87 5
+glyph 0 87 6
+glyph 0 32 0
+glyph 0 32 1
+glyph 0 32 4
+glyph 0 32 5
+glyph 0 32 6
+glyph 0 64 0
+glyph 0 64 1
+glyph 0 64 4
+glyph 0 64 5
+glyph 0 64 6
+end
+case glyph-CourierNew--9
+dib 0 8 8 32
+font 0 -9 0 0 400 0 3 Courier New
+glyph 0 65 0
+glyph 0 65 1
+glyph 0 65 4
+glyph 0 65 5
+glyph 0 65 6
+glyph 0 103 0
+glyph 0 103 1
+glyph 0 103 4
+glyph 0 103 5
+glyph 0 103 6
+glyph 0 46 0
+glyph 0 46 1
+glyph 0 46 4
+glyph 0 46 5
+glyph 0 46 6
+glyph 0 87 0
+glyph 0 87 1
+glyph 0 87 4
+glyph 0 87 5
+glyph 0 87 6
+glyph 0 32 0
+glyph 0 32 1
+glyph 0 32 4
+glyph 0 32 5
+glyph 0 32 6
+glyph 0 64 0
+glyph 0 64 1
+glyph 0 64 4
+glyph 0 64 5
+glyph 0 64 6
+end
+case glyph-CourierNew--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Courier New
+glyph 0 65 0
+glyph 0 65 1
+glyph 0 65 4
+glyph 0 65 5
+glyph 0 65 6
+glyph 0 103 0
+glyph 0 103 1
+glyph 0 103 4
+glyph 0 103 5
+glyph 0 103 6
+glyph 0 46 0
+glyph 0 46 1
+glyph 0 46 4
+glyph 0 46 5
+glyph 0 46 6
+glyph 0 87 0
+glyph 0 87 1
+glyph 0 87 4
+glyph 0 87 5
+glyph 0 87 6
+glyph 0 32 0
+glyph 0 32 1
+glyph 0 32 4
+glyph 0 32 5
+glyph 0 32 6
+glyph 0 64 0
+glyph 0 64 1
+glyph 0 64 4
+glyph 0 64 5
+glyph 0 64 6
+end
+case glyph-TimesNewRoman--9
+dib 0 8 8 32
+font 0 -9 0 0 400 0 3 Times New Roman
+glyph 0 65 0
+glyph 0 65 1
+glyph 0 65 4
+glyph 0 65 5
+glyph 0 65 6
+glyph 0 103 0
+glyph 0 103 1
+glyph 0 103 4
+glyph 0 103 5
+glyph 0 103 6
+glyph 0 46 0
+glyph 0 46 1
+glyph 0 46 4
+glyph 0 46 5
+glyph 0 46 6
+glyph 0 87 0
+glyph 0 87 1
+glyph 0 87 4
+glyph 0 87 5
+glyph 0 87 6
+glyph 0 32 0
+glyph 0 32 1
+glyph 0 32 4
+glyph 0 32 5
+glyph 0 32 6
+glyph 0 64 0
+glyph 0 64 1
+glyph 0 64 4
+glyph 0 64 5
+glyph 0 64 6
+end
+case glyph-TimesNewRoman--16
+dib 0 8 8 32
+font 0 -16 0 0 400 0 3 Times New Roman
+glyph 0 65 0
+glyph 0 65 1
+glyph 0 65 4
+glyph 0 65 5
+glyph 0 65 6
+glyph 0 103 0
+glyph 0 103 1
+glyph 0 103 4
+glyph 0 103 5
+glyph 0 103 6
+glyph 0 46 0
+glyph 0 46 1
+glyph 0 46 4
+glyph 0 46 5
+glyph 0 46 6
+glyph 0 87 0
+glyph 0 87 1
+glyph 0 87 4
+glyph 0 87 5
+glyph 0 87 6
+glyph 0 32 0
+glyph 0 32 1
+glyph 0 32 4
+glyph 0 32 5
+glyph 0 32 6
+glyph 0 64 0
+glyph 0 64 1
+glyph 0 64 4
+glyph 0 64 5
+glyph 0 64 6
+end
+case draw-0
+dib 0 48 20 32
+font 0 -12 0 0 700 0 3 Tahoma
+text 0 #ffffff
+bk 0 #16b4c8
+bkmode 0 2
+align 0 0
+textout 0 28 13 Ag
+getpos 0
+dump 0
+end
+case draw-1
+dib 0 48 20 1
+font 0 -11 0 0 700 0 3 Courier New
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+exttext 0 5 1 2 23 13 40 13 kikizake
+getpos 0
+dump 0
+end
+case draw-2
+dib 0 48 20 32
+font 0 -13 0 0 400 0 3 System
+text 0 #ffffff
+bk 0 #3e36f6
+bkmode 0 1
+exttext 0 15 8 6 29 7 34 11 kikizake
+getpos 0
+dump 0
+end
+case draw-3
+dib 0 48 20 8
+font 0 -8 0 0 400 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #668721
+bkmode 0 1
+align 0 0
+exttext 0 2 0 4 8 12 18 21 |_|
+getpos 0
+dump 0
+end
+case draw-4
+dib 0 48 20 32
+font 0 -14 0 0 700 0 3 Consolas
+text 0 #ffffff
+bk 0 #e23fbd
+bkmode 0 2
+textout 0 4 9 W.i
+getpos 0
+dump 0
+end
+case draw-5
+dib 0 48 20 1
+font 0 -15 0 0 400 0 3 Terminal
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+exttext 0 39 6 0 0 9 22 20 Ag
+getpos 0
+dump 0
+end
+case draw-6
+dib 0 48 20 32
+font 0 -9 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #586f42
+bkmode 0 1
+textout 0 9 6 Ag
+getpos 0
+dump 0
+end
+case draw-7
+dib 0 48 20 32
+font 0 -16 0 0 700 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #b2ce3d
+bkmode 0 2
+align 0 1
+exttext 0 12 13 0 -1 11 24 24 Ag
+getpos 0
+dump 0
+end
+case draw-8
+dib 0 48 20 8
+font 0 -15 0 0 700 0 3 Terminal
+text 0 #ffffff
+bk 0 #cf3a51
+bkmode 0 2
+textout 0 29 -4 Hello
+getpos 0
+dump 0
+end
+case draw-9
+dib 0 48 20 8
+font 0 -8 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #49f363
+bkmode 0 2
+align 0 8
+exttext 0 37 15 4 28 4 50 9 0123
+getpos 0
+dump 0
+end
+case draw-10
+dib 0 48 20 1
+font 0 -8 0 0 700 0 3 Consolas
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 8
+exttext 0 27 3 4 28 14 42 17 Hello
+getpos 0
+dump 0
+end
+case draw-11
+dib 0 48 20 1
+font 0 -9 0 0 700 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 6
+exttext 0 4 -3 2 3 14 18 23 Hello
+getpos 0
+dump 0
+end
+case draw-12
+dib 0 48 20 32
+font 0 -13 0 0 400 0 3 System
+text 0 #ffffff
+bk 0 #7bebca
+bkmode 0 2
+textout 0 31 1 Ag
+getpos 0
+dump 0
+end
+case draw-13
+dib 0 48 20 8
+font 0 -9 0 0 400 0 3 Tahoma
+text 0 #ffffff
+bk 0 #5323f8
+bkmode 0 1
+exttext 0 -4 0 4 12 5 32 15 W.i
+getpos 0
+dump 0
+end
+case draw-14
+dib 0 48 20 32
+font 0 -8 0 0 700 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #5f3c24
+bkmode 0 2
+align 0 2
+textout 0 37 17 Ag
+getpos 0
+dump 0
+end
+case draw-15
+dib 0 48 20 1
+font 0 -11 0 0 400 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 6
+exttext 0 36 1 2 30 12 32 24 Ag
+getpos 0
+dump 0
+end
+case draw-16
+dib 0 48 20 1
+font 0 -16 0 0 700 0 3 Consolas
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+exttext 0 23 15 2 -1 9 8 20 W.i
+getpos 0
+dump 0
+end
+case draw-17
+dib 0 48 20 32
+font 0 -12 0 0 400 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #06f5a4
+bkmode 0 2
+align 0 0
+exttext 0 2 17 4 26 14 48 28 kikizake
+getpos 0
+dump 0
+end
+case draw-18
+dib 0 48 20 32
+font 0 -12 0 0 400 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #7c1d2c
+bkmode 0 1
+exttext 0 39 15 4 30 11 48 21 W.i
+getpos 0
+dump 0
+end
+case draw-19
+dib 0 48 20 1
+font 0 -12 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 9
+textout 0 28 -3 W.i
+getpos 0
+dump 0
+end
+case draw-20
+dib 0 48 20 8
+font 0 -14 0 0 700 0 3 Arial
+text 0 #ffffff
+bk 0 #8a8b25
+bkmode 0 1
+align 0 2
+textout 0 -3 5 |_|
+getpos 0
+dump 0
+end
+case draw-21
+dib 0 48 20 1
+font 0 -12 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 8
+textout 0 15 16 W.i
+getpos 0
+dump 0
+end
+case draw-22
+dib 0 48 20 1
+font 0 -8 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 26
+textout 0 11 18 |_|
+getpos 0
+dump 0
+end
+case draw-23
+dib 0 48 20 8
+font 0 -13 0 0 400 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #e072f0
+bkmode 0 2
+align 0 9
+textout 0 -3 11 kikizake
+getpos 0
+dump 0
+end
+case draw-24
+dib 0 48 20 8
+font 0 -11 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #261122
+bkmode 0 2
+exttext 0 22 7 4 -2 10 24 15 Hello
+getpos 0
+dump 0
+end
+case draw-25
+dib 0 48 20 1
+font 0 -11 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+exttext 0 -3 8 2 21 8 33 19 Hello
+getpos 0
+dump 0
+end
+case draw-26
+dib 0 48 20 32
+font 0 -8 0 0 700 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #2267fe
+bkmode 0 1
+align 0 0
+textout 0 37 7 |_|
+getpos 0
+dump 0
+end
+case draw-27
+dib 0 48 20 1
+font 0 -16 0 0 700 0 3 Consolas
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+textout 0 20 9 W.i
+getpos 0
+dump 0
+end
+case draw-28
+dib 0 48 20 32
+font 0 -15 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #00ef47
+bkmode 0 2
+textout 0 38 10 kikizake
+getpos 0
+dump 0
+end
+case draw-29
+dib 0 48 20 32
+font 0 -14 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #7b0b87
+bkmode 0 1
+textout 0 19 3 Hello
+getpos 0
+dump 0
+end
+case draw-30
+dib 0 48 20 1
+font 0 -9 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+textout 0 14 -3 |_|
+getpos 0
+dump 0
+end
+case draw-31
+dib 0 48 20 32
+font 0 -13 0 0 700 0 3 Tahoma
+text 0 #ffffff
+bk 0 #3144b5
+bkmode 0 1
+textout 0 10 18 0123
+getpos 0
+dump 0
+end
+case draw-32
+dib 0 48 20 1
+font 0 -16 0 0 700 0 3 Arial
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 24
+exttext 0 0 -2 4 6 2 11 9 kikizake
+getpos 0
+dump 0
+end
+case draw-33
+dib 0 48 20 32
+font 0 -9 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #bb2109
+bkmode 0 1
+textout 0 21 2 kikizake
+getpos 0
+dump 0
+end
+case draw-34
+dib 0 48 20 8
+font 0 -11 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #c485cb
+bkmode 0 2
+exttext 0 32 5 6 12 9 15 12 Hello
+getpos 0
+dump 0
+end
+case draw-35
+dib 0 48 20 1
+font 0 -13 0 0 400 0 3 Arial
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+exttext 0 9 13 4 6 2 10 15 kikizake
+getpos 0
+dump 0
+end
+case draw-36
+dib 0 48 20 32
+font 0 -14 0 0 700 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #55bea9
+bkmode 0 2
+align 0 2
+exttext 0 0 6 0 -1 14 4 15 kikizake
+getpos 0
+dump 0
+end
+case draw-37
+dib 0 48 20 8
+font 0 -8 0 0 700 0 3 Arial
+text 0 #ffffff
+bk 0 #18b9bc
+bkmode 0 2
+align 0 24
+exttext 0 21 15 6 4 12 9 17 |_|
+getpos 0
+dump 0
+end
+case draw-38
+dib 0 48 20 32
+font 0 -13 0 0 700 0 3 Terminal
+text 0 #ffffff
+bk 0 #6c2998
+bkmode 0 2
+align 0 8
+exttext 0 6 2 6 9 9 37 13 0123
+getpos 0
+dump 0
+end
+case draw-39
+dib 0 48 20 1
+font 0 -8 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+exttext 0 10 1 6 25 -2 55 -2 Ag
+getpos 0
+dump 0
+end
+case draw-40
+dib 0 48 20 1
+font 0 -14 0 0 400 0 3 Tahoma
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+textout 0 34 15 0123
+getpos 0
+dump 0
+end
+case draw-41
+dib 0 48 20 1
+font 0 -14 0 0 700 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+exttext 0 15 7 0 10 7 10 16 W.i
+getpos 0
+dump 0
+end
+case draw-42
+dib 0 48 20 1
+font 0 -11 0 0 700 0 3 Consolas
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+textout 0 8 16 W.i
+getpos 0
+dump 0
+end
+case draw-43
+dib 0 48 20 1
+font 0 -12 0 0 400 0 3 System
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 0
+textout 0 13 5 Ag
+getpos 0
+dump 0
+end
+case draw-44
+dib 0 48 20 1
+font 0 -14 0 0 400 0 3 Arial
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+exttext 0 33 6 4 2 13 24 26 W.i
+getpos 0
+dump 0
+end
+case draw-45
+dib 0 48 20 1
+font 0 -10 0 0 400 0 3 System
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+textout 0 40 8 Hello
+getpos 0
+dump 0
+end
+case draw-46
+dib 0 48 20 8
+font 0 -11 0 0 400 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #c68be5
+bkmode 0 1
+textout 0 0 16 kikizake
+getpos 0
+dump 0
+end
+case draw-47
+dib 0 48 20 8
+font 0 -10 0 0 700 0 3 Terminal
+text 0 #ffffff
+bk 0 #5b17a2
+bkmode 0 2
+align 0 24
+exttext 0 6 -4 2 19 -2 29 7 W.i
+getpos 0
+dump 0
+end
+case draw-48
+dib 0 48 20 32
+font 0 -8 0 0 400 0 3 Terminal
+text 0 #ffffff
+bk 0 #c61ed3
+bkmode 0 2
+align 0 8
+textout 0 8 8 kikizake
+getpos 0
+dump 0
+end
+case draw-49
+dib 0 48 20 8
+font 0 -9 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #748778
+bkmode 0 2
+align 0 26
+exttext 0 20 11 0 6 3 10 6 W.i
+getpos 0
+dump 0
+end
+case draw-50
+dib 0 48 20 8
+font 0 -15 0 0 700 0 3 System
+text 0 #ffffff
+bk 0 #ccdcfe
+bkmode 0 2
+exttext 0 26 10 4 13 7 27 15 Ag
+getpos 0
+dump 0
+end
+case draw-51
+dib 0 48 20 32
+font 0 -12 0 0 400 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #91a765
+bkmode 0 2
+textout 0 3 -4 Hello
+getpos 0
+dump 0
+end
+case draw-52
+dib 0 48 20 32
+font 0 -13 0 0 700 0 3 Arial
+text 0 #ffffff
+bk 0 #765963
+bkmode 0 1
+exttext 0 1 2 6 20 11 27 13 W.i
+getpos 0
+dump 0
+end
+case draw-53
+dib 0 48 20 8
+font 0 -16 0 0 400 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #88d61b
+bkmode 0 1
+align 0 6
+textout 0 13 6 Ag
+getpos 0
+dump 0
+end
+case draw-54
+dib 0 48 20 32
+font 0 -13 0 0 400 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #90a348
+bkmode 0 1
+exttext 0 -1 3 4 14 9 42 21 0123
+getpos 0
+dump 0
+end
+case draw-55
+dib 0 48 20 32
+font 0 -10 0 0 700 0 3 Segoe UI
+text 0 #ffffff
+bk 0 #a374b7
+bkmode 0 2
+align 0 24
+textout 0 10 0 W.i
+getpos 0
+dump 0
+end
+case draw-56
+dib 0 48 20 8
+font 0 -8 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #0f472b
+bkmode 0 1
+align 0 26
+textout 0 33 4 |_|
+getpos 0
+dump 0
+end
+case draw-57
+dib 0 48 20 1
+font 0 -10 0 0 700 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 26
+exttext 0 24 9 4 1 4 3 13 |_|
+getpos 0
+dump 0
+end
+case draw-58
+dib 0 48 20 1
+font 0 -13 0 0 700 0 3 System
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 9
+textout 0 7 17 |_|
+getpos 0
+dump 0
+end
+case draw-59
+dib 0 48 20 8
+font 0 -13 0 0 400 0 3 System
+text 0 #ffffff
+bk 0 #c8d736
+bkmode 0 2
+exttext 0 31 10 6 18 4 24 9 |_|
+getpos 0
+dump 0
+end
+case draw-60
+dib 0 48 20 8
+font 0 -10 0 0 400 0 3 Tahoma
+text 0 #ffffff
+bk 0 #78e0d1
+bkmode 0 1
+align 0 26
+textout 0 8 -1 |_|
+getpos 0
+dump 0
+end
+case draw-61
+dib 0 48 20 1
+font 0 -16 0 0 700 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 26
+exttext 0 -3 8 4 6 11 25 14 Hello
+getpos 0
+dump 0
+end
+case draw-62
+dib 0 48 20 32
+font 0 -14 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #1b1702
+bkmode 0 2
+align 0 0
+textout 0 5 2 0123
+getpos 0
+dump 0
+end
+case draw-63
+dib 0 48 20 1
+font 0 -16 0 0 400 0 3 Consolas
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 24
+textout 0 7 6 kikizake
+getpos 0
+dump 0
+end
+case draw-64
+dib 0 48 20 1
+font 0 -15 0 0 400 0 3 System
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 26
+exttext 0 32 -2 6 30 2 53 15 kikizake
+getpos 0
+dump 0
+end
+case draw-65
+dib 0 48 20 32
+font 0 -16 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #733193
+bkmode 0 2
+align 0 0
+exttext 0 8 2 4 2 6 7 16 0123
+getpos 0
+dump 0
+end
+case draw-66
+dib 0 48 20 8
+font 0 -15 0 0 700 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #394b0e
+bkmode 0 1
+align 0 0
+exttext 0 0 13 0 20 1 24 2 W.i
+getpos 0
+dump 0
+end
+case draw-67
+dib 0 48 20 8
+font 0 -12 0 0 700 0 3 Tahoma
+text 0 #ffffff
+bk 0 #9bfc1b
+bkmode 0 2
+align 0 26
+textout 0 34 1 Ag
+getpos 0
+dump 0
+end
+case draw-68
+dib 0 48 20 8
+font 0 -10 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #522585
+bkmode 0 1
+align 0 0
+exttext 0 33 11 6 25 9 49 16 Hello
+getpos 0
+dump 0
+end
+case draw-69
+dib 0 48 20 8
+font 0 -15 0 0 400 0 3 Courier New
+text 0 #ffffff
+bk 0 #598a27
+bkmode 0 2
+align 0 8
+exttext 0 34 8 2 19 2 33 3 0123
+getpos 0
+dump 0
+end
+case draw-70
+dib 0 48 20 1
+font 0 -13 0 0 400 0 3 Tahoma
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 2
+align 0 24
+exttext 0 3 2 4 8 7 28 13 Ag
+getpos 0
+dump 0
+end
+case draw-71
+dib 0 48 20 32
+font 0 -16 0 0 400 0 3 Arial
+text 0 #ffffff
+bk 0 #66823e
+bkmode 0 1
+textout 0 19 15 0123
+getpos 0
+dump 0
+end
+case draw-72
+dib 0 48 20 8
+font 0 -8 0 0 700 0 3 Arial
+text 0 #ffffff
+bk 0 #3a6045
+bkmode 0 1
+textout 0 25 9 |_|
+getpos 0
+dump 0
+end
+case draw-73
+dib 0 48 20 32
+font 0 -12 0 0 700 0 3 Tahoma
+text 0 #ffffff
+bk 0 #9b869e
+bkmode 0 1
+align 0 9
+exttext 0 10 -4 4 20 12 46 21 0123
+getpos 0
+dump 0
+end
+case draw-74
+dib 0 48 20 8
+font 0 -8 0 0 400 0 3 Fixedsys
+text 0 #ffffff
+bk 0 #746ad9
+bkmode 0 1
+align 0 24
+exttext 0 14 14 0 19 10 23 22 Hello
+getpos 0
+dump 0
+end
+case draw-75
+dib 0 48 20 1
+font 0 -11 0 0 400 0 3 Terminal
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 26
+exttext 0 37 16 2 3 8 25 18 Ag
+getpos 0
+dump 0
+end
+case draw-76
+dib 0 48 20 1
+font 0 -8 0 0 700 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+textout 0 34 10 Ag
+getpos 0
+dump 0
+end
+case draw-77
+dib 0 48 20 32
+font 0 -12 0 0 400 0 3 Times New Roman
+text 0 #ffffff
+bk 0 #85d763
+bkmode 0 2
+align 0 24
+exttext 0 19 -2 2 7 -2 27 11 Hello
+getpos 0
+dump 0
+end
+case draw-78
+dib 0 48 20 1
+font 0 -13 0 0 700 0 3 Terminal
+text 0 #ffffff
+bk 0 #000000
+bkmode 0 1
+align 0 1
+exttext 0 24 14 0 22 6 26 9 |_|
+getpos 0
+dump 0
+end
+case draw-79
+dib 0 48 20 8
+font 0 -12 0 0 700 0 3 Courier New
+text 0 #ffffff
+bk 0 #6febe4
+bkmode 0 2
+align 0 8
+exttext 0 14 17 4 -2 4 3 14 W.i
+getpos 0
+dump 0
+end
+case opaque-0
+dib 0 12 8 32
+fill 0 1703265645
+bk 0 #2974d9
+exttext 0 4 2 2 7 -1 13 -1
+dump 0
+end
+case opaque-1
+dib 0 12 8 32
+fill 0 2224691503
+bk 0 #4cc4f0
+exttext 0 1 0 4 -1 3 9 8
+dump 0
+end
+case opaque-2
+dib 0 12 8 32
+fill 0 1599771683
+bk 0 #00ab4c
+exttext 0 0 4 4 5 0 4 1
+dump 0
+end
+case opaque-3
+dib 0 12 8 32
+fill 0 2422072292
+bk 0 #0fcb74
+exttext 0 0 4 4 -3 -1 2 2
+dump 0
+end
+case opaque-4
+dib 0 12 8 32
+fill 0 2459251320
+bk 0 #9f2ab5
+exttext 0 3 2 6 -3 8 -1 6
+dump 0
+end
+case opaque-5
+dib 0 12 8 32
+fill 0 2410148234
+bk 0 #47a161
+exttext 0 0 3 2 10 0 17 -2
+dump 0
+end
+case opaque-6
+dib 0 12 8 32
+fill 0 2823038460
+bk 0 #8dc3a1
+exttext 0 5 4 6 2 1 8 8
+dump 0
+end
+case opaque-7
+dib 0 12 8 32
+fill 0 4005057702
+bk 0 #b030b0
+exttext 0 3 0 2 10 0 8 4
+dump 0
+end
+case opaque-8
+dib 0 12 8 32
+fill 0 2418577352
+bk 0 #e82b20
+exttext 0 2 5 0 2 -2 12 4
+dump 0
+end
+case opaque-9
+dib 0 12 8 32
+fill 0 612253408
+bk 0 #eba911
+exttext 0 1 5 2 -2 6 7 11
+dump 0
+end
+case opaque-10
+dib 0 12 8 32
+fill 0 3869458069
+bk 0 #4a1b8d
+exttext 0 0 2 4 -3 4 0 4
+dump 0
+end
+case opaque-11
+dib 0 12 8 32
+fill 0 2544816345
+bk 0 #0f1663
+exttext 0 0 2 4 9 -3 12 3
+dump 0
+end
+case opaque-12
+dib 0 12 8 32
+fill 0 1520202599
+bk 0 #efdaff
+exttext 0 5 5 4 -3 -2 -3 5
+dump 0
+end
+case opaque-13
+dib 0 12 8 32
+fill 0 1722156410
+bk 0 #2bd9be
+exttext 0 4 2 4 7 -2 16 5
+dump 0
+end
+case opaque-14
+dib 0 12 8 32
+fill 0 2255636850
+bk 0 #d1b55c
+exttext 0 5 1 0 6 6 11 4
+dump 0
+end
+case opaque-15
+dib 0 12 8 32
+fill 0 1791536531
+bk 0 #24b7ee
+exttext 0 2 1 0 4 7 6 5
+dump 0
+end
+case opaque-16
+dib 0 12 8 32
+fill 0 4247060063
+bk 0 #0aca28
+exttext 0 5 3 0 5 -2 10 4
+dump 0
+end
+case opaque-17
+dib 0 12 8 32
+fill 0 1049158479
+bk 0 #c355df
+exttext 0 5 4 4 3 1 9 5
+dump 0
+end
+case opaque-18
+dib 0 12 8 32
+fill 0 2228926889
+bk 0 #11fb9e
+exttext 0 3 3 0 5 3 10 1
+dump 0
+end
+case opaque-19
+dib 0 12 8 32
+fill 0 2566773148
+bk 0 #07471b
+exttext 0 3 4 0 2 4 0 12
+dump 0
+end
+case opaque-20
+dib 0 12 8 32
+fill 0 3999362175
+bk 0 #335c88
+exttext 0 3 4 4 6 -1 5 -2
+dump 0
+end
+case opaque-21
+dib 0 12 8 32
+fill 0 3728635069
+bk 0 #9241c9
+exttext 0 4 4 2 -1 8 -1 7
+dump 0
+end
+case opaque-22
+dib 0 12 8 32
+fill 0 833531325
+bk 0 #368991
+exttext 0 3 1 6 -3 1 7 2
+dump 0
+end
+case opaque-23
+dib 0 12 8 32
+fill 0 4044976533
+bk 0 #5c7e00
+exttext 0 2 2 0 -2 1 3 8
+dump 0
+end
+case updatecp
+dib 0 64 16 1
+font 0 -11 0 0 400 0 3 Arial
+align 0 1
+moveto 0 2 2
+textout 0 0 0 ab
+getpos 0
+textout 0 0 0 cd
+getpos 0
+exttext 0 0 0 0 0 0 0 0 ef
+getpos 0
+dump 0
+end

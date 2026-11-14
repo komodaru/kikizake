@@ -27,6 +27,13 @@ pub const FILES: &[(&str, &str)] = &[
     ("d3d12", include_str!("../spec/d3d12.txt")),
     ("dxgi", include_str!("../spec/dxgi.txt")),
     ("d3dres", include_str!("../spec/d3dres.txt")),
+    ("gdiline", include_str!("../spec/gdiline.txt")),
+    ("gdirgn", include_str!("../spec/gdirgn.txt")),
+    ("gdixform", include_str!("../spec/gdixform.txt")),
+    ("gdipath", include_str!("../spec/gdipath.txt")),
+    ("gditext", include_str!("../spec/gditext.txt")),
+    ("gdiblend", include_str!("../spec/gdiblend.txt")),
+    ("gdiddb", include_str!("../spec/gdiddb.txt")),
 ];
 
 /// (excluded: deliberately not asked, e.g. calls that read past Windows' own arrays)

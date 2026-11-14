@@ -1,0 +1,2 @@
+# gdiddb clauses (spec/README.md): <id> <status> | <source> | <what it says>
+GDI.DDB.OPEN open | (none) | not modelled yet: checked against Windows only

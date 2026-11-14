@@ -1,4 +1,5 @@
 #include "core.h"
+#include "gdi.h"
 /* GDI: surfaces in slots, each a DIB section selected into its own memory DC */
 
 #define SLOTS 8
@@ -29,6 +30,31 @@ static void default_palette(int bpp, RGBQUAD *p) {
         else if (bpp == 4) c = vga[i];
         else c = ((i >> 5 & 7) * 255 / 7) << 16 | ((i >> 2 & 7) * 255 / 7) << 8 | (i & 3) * 255 / 3;
         p[i].rgbRed = c >> 16; p[i].rgbGreen = c >> 8 & 255; p[i].rgbBlue = c & 255; p[i].rgbReserved = 0;
+    }
+}
+
+HDC gdi_dc(int i) { struct slot *s = slot(i); return s ? s->dc : NULL; }
+HBITMAP gdi_bitmap(int i) { struct slot *s = slot(i); return s ? s->bmp : NULL; }
+
+static void free_slot(struct slot *s);
+/* a bitmap made elsewhere (gdiddb.c): a DIB section keeps its bits, a DDB is read and written
+ * through GetBitmapBits / SetBitmapBits (bits NULL) */
+void gdi_adopt(long n, HDC dc, HBITMAP bmp, HGDIOBJ oldbmp) {
+    struct slot *s = &sl[n];
+    free_slot(s);
+    DIBSECTION ds;
+    memset(&ds, 0, sizeof(ds));
+    int k = GetObjectA(bmp, sizeof(ds), &ds);
+    s->dc = dc; s->bmp = bmp; s->oldbmp = oldbmp;
+    s->w = ds.dsBm.bmWidth; s->h = ds.dsBm.bmHeight; s->bpp = ds.dsBm.bmBitsPixel * ds.dsBm.bmPlanes;
+    s->stride = ds.dsBm.bmWidthBytes;
+    s->topdown = 1;
+    if (k == sizeof(ds)) {
+        s->bits = ds.dsBm.bmBits;
+        s->topdown = ds.dsBmih.biHeight < 0;
+        if (s->bpp <= 8) {
+            GetDIBColorTable(dc, 0, 1 << s->bpp, s->pal);
+        }
     }
 }
 
@@ -87,10 +113,12 @@ static void op_fill(void) {
     unsigned x = (unsigned)num(2);
     if (bad) return;
     if (!x) x = 0x9e3779b9;
+    unsigned char *b = s->bits ? s->bits : malloc(s->stride * s->h);
     for (int i = 0; i < s->stride * s->h; i++) {
         x ^= x << 13; x ^= x >> 17; x ^= x << 5;
-        s->bits[i] = (unsigned char)x;
+        b[i] = (unsigned char)x;
     }
+    if (!s->bits) { SetBitmapBits(s->bmp, s->stride * s->h, b); free(b); }
 }
 
 /* the row of the picture's top-to-bottom y in memory */
@@ -104,6 +132,14 @@ static void op_dump(void) {
     GdiFlush();
     out("px %ld %d %d %d\n", num(1), s->w, s->h, s->bpp);
     int bytes = (s->w * s->bpp + 7) / 8;
+    if (!s->bits) {
+        /* a DDB: its bits as GetBitmapBits gives them (rows top to bottom, WORD aligned) */
+        unsigned char *b = calloc(1, s->stride * s->h);
+        GetBitmapBits(s->bmp, s->stride * s->h, b);
+        for (int y = 0; y < s->h; y++) out_hex(b + y * s->stride, bytes);
+        free(b);
+        return;
+    }
     for (int y = 0; y < s->h; y++) {
         unsigned char *p = row(s, y);
         out_hex(p, bytes);
@@ -114,7 +150,7 @@ static void op_dump(void) {
 static void op_poke(void) {
     struct slot *s = slot(1);
     int x = num(2), y = num(3);
-    if (bad || s->bpp < 8 || x < 0 || y < 0 || x >= s->w || y >= s->h || ntok < 5) { bad = 1; return; }
+    if (bad || !s->bits || s->bpp < 8 || x < 0 || y < 0 || x >= s->w || y >= s->h || ntok < 5) { bad = 1; return; }
     unsigned char *p = row(s, y) + x * (s->bpp / 8);
     for (int i = 0; tok[4][2 * i] && tok[4][2 * i + 1] && i < s->bpp / 8; i++) {
         char b[3] = { tok[4][2 * i], tok[4][2 * i + 1], 0 };
@@ -143,7 +179,7 @@ static void op_brush(void) {
         if (!bad) set_brush(s, CreateHatchBrush(st, c));
     } else if (is(2, "dib")) {
         struct slot *p = slot(3);
-        if (bad) return;
+        if (bad || !p->bits) { bad = 1; return; }
         /* a packed DIB of the slot's picture: header, color table, bits */
         int ncol = p->bpp <= 8 ? 1 << p->bpp : 0;
         int size = sizeof(BITMAPINFOHEADER) + ncol * 4 + p->stride * p->h;

@@ -1,0 +1,2 @@
+# gdipath clauses (spec/README.md): <id> <status> | <source> | <what it says>
+GDI.PATH.OPEN open | (none) | not modelled yet: checked against Windows only

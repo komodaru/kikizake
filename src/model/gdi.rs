@@ -415,7 +415,15 @@ impl Gdi {
                 let r = self.blt(k, x as i32, y as i32, w as i32, h as i32, Some((ks, sx as i32, sy as i32)), rop as u32, false)?;
                 out.push(format!("ret {}", r as u8));
             }
-            _ => return Ok(false),
+            _ => {
+                // (the other GDI modules' ops, one line each)
+                for m in [super::gdiline::op, super::gdirgn::op, super::gdixform::op, super::gdipath::op, super::gditext::op, super::gdiblend::op, super::gdiddb::op] {
+                    if m(self, op, out)? {
+                        return Ok(true);
+                    }
+                }
+                return Ok(false);
+            }
         }
         Ok(true)
     }

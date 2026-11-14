@@ -1,0 +1,7729 @@
+# kikizake suite region: GDI regions, CombineRgn, region data, FillRgn & co, clip regions (SPEC.md). Made by `kikizake gen region`.
+case combine-0
+rgn 0 rect 10 12 20 10
+rgn 1 rect -3 0 1 9
+rgn 2 rect 3 10 13 20
+combine 5 2 0 1
+combine 5 5 1 5
+combine 2 2 1 2
+combine 0 5 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-1
+rgn 0 rect -4 -2 4 7
+rgn 1 rect 12 -1 16 8
+rgn 2 rect -3 5 -4 15
+combine 4 1 2 3
+combine 2 4 1 3
+combine 3 0 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-2
+rgn 0 rect 2 10 1 12
+rgn 1 rect 1 9 3 13
+rgn 2 rect 0 10 8 10
+combine 4 2 1 1
+combine 0 1 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-3
+rgn 0 rect 9 7 13 16
+rgn 1 rect 2 8 4 17
+rgn 2 rect 11 3 15 2
+combine 1 0 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-4
+rgn 0 rect 12 1 19 7
+rgn 1 rect 9 10 17 14
+rgn 2 rect -2 6 -1 8
+combine 4 2 2 1
+combine 2 0 1 2
+combine 1 2 2 5
+combine 0 2 4 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-5
+rgn 0 rect 12 1 16 2
+rgn 1 rect 4 6 3 9
+rgn 2 rect -4 5 -4 14
+combine 1 2 2 3
+combine 4 2 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-6
+rgn 0 rect 11 11 9 12
+rgn 1 rect 4 7 7 7
+rgn 2 rect 0 8 10 14
+combine 1 1 2 4
+combine 4 2 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-7
+rgn 0 rect 6 8 15 17
+rgn 1 rect -3 -4 -3 -3
+rgn 2 rect 10 -3 16 -5
+combine 0 2 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-8
+rgn 0 rect 10 -4 16 -2
+rgn 1 rect -2 -4 6 -1
+rgn 2 rect 10 9 8 7
+combine 3 2 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-9
+rgn 0 rect 2 -1 6 7
+rgn 1 rect 11 4 20 8
+rgn 2 rect 5 9 7 19
+combine 5 1 0 1
+combine 3 5 1 3
+combine 4 1 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-10
+rgn 0 rect 12 2 21 4
+rgn 1 rect 9 7 17 5
+rgn 2 rect 8 12 13 12
+combine 1 1 1 3
+combine 0 1 1 2
+combine 4 0 0 5
+combine 3 0 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-11
+rgn 0 rect -4 4 -1 4
+rgn 1 rect 2 -1 4 2
+rgn 2 rect -2 12 5 13
+combine 2 2 1 4
+combine 3 1 1 5
+combine 2 3 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-12
+rgn 0 rect 12 7 22 9
+rgn 1 rect -1 -1 4 -3
+rgn 2 rect 2 12 12 20
+combine 2 2 0 1
+combine 0 0 1 1
+combine 2 2 1 1
+combine 2 2 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-13
+rgn 0 rect 6 -3 7 -3
+rgn 1 rect 0 -3 0 4
+rgn 2 rect 6 2 5 1
+combine 3 0 2 2
+combine 3 3 3 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-14
+rgn 0 rect 8 -2 7 4
+rgn 1 rect 5 7 5 11
+rgn 2 rect 2 8 3 16
+combine 2 1 1 3
+combine 1 2 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-15
+rgn 0 rect 12 -2 13 7
+rgn 1 rect 12 6 20 13
+rgn 2 rect 8 0 15 9
+combine 5 1 0 5
+combine 4 1 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgnbox 0
+end
+case combine-16
+rgn 0 rect -2 0 0 10
+rgn 1 rect 11 8 10 9
+rgn 2 rect -3 9 5 15
+combine 3 1 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-17
+rgn 0 rect -3 -3 5 -4
+rgn 1 rect 8 4 9 14
+rgn 2 rect 5 -1 11 5
+combine 0 0 2 4
+combine 0 0 1 1
+combine 2 1 1 4
+combine 0 1 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-18
+rgn 0 rect 0 -2 8 -1
+rgn 1 rect -1 9 7 19
+rgn 2 rect 8 4 9 2
+combine 4 2 1 4
+combine 3 1 4 4
+combine 3 0 4 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-19
+rgn 0 rect -4 7 -3 9
+rgn 1 rect 10 10 15 14
+rgn 2 rect 2 4 5 13
+combine 2 2 0 3
+combine 1 2 2 2
+combine 1 1 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-20
+rgn 0 rect 9 -4 14 -5
+rgn 1 rect 10 4 9 9
+rgn 2 rect 10 6 11 8
+combine 2 0 1 1
+combine 1 1 2 5
+combine 4 2 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-21
+rgn 0 rect -3 -1 6 9
+rgn 1 rect 4 8 2 7
+rgn 2 rect 3 2 10 0
+combine 3 2 2 1
+combine 2 2 2 1
+combine 0 2 1 4
+combine 0 2 3 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-22
+rgn 0 rect 12 11 11 16
+rgn 1 rect 12 1 19 -1
+rgn 2 rect 6 0 14 7
+combine 5 0 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-23
+rgn 0 rect -4 12 4 16
+rgn 1 rect 0 2 2 11
+rgn 2 rect -3 -2 -4 5
+combine 1 1 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-24
+rgn 0 rect 12 -3 11 1
+rgn 1 rect 3 7 6 11
+rgn 2 rect 11 1 17 6
+combine 3 2 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-25
+rgn 0 rect 0 4 6 11
+rgn 1 rect -2 10 3 17
+rgn 2 rect -4 5 -4 6
+combine 3 2 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-26
+rgn 0 rect 4 3 4 1
+rgn 1 rect 9 4 19 12
+rgn 2 rect 10 11 8 16
+combine 4 0 2 1
+combine 4 2 2 3
+combine 3 0 4 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-27
+rgn 0 rect 1 4 7 4
+rgn 1 rect 7 -3 8 1
+rgn 2 rect 2 2 11 5
+combine 2 2 0 5
+combine 5 2 0 2
+combine 0 5 2 3
+combine 3 0 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-28
+rgn 0 rect 12 -3 21 2
+rgn 1 rect 8 0 18 8
+rgn 2 rect 11 0 11 8
+combine 1 2 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-29
+rgn 0 rect 4 1 4 7
+rgn 1 rect 1 5 3 10
+rgn 2 rect 12 -2 10 6
+combine 4 2 0 4
+combine 5 0 2 1
+combine 1 1 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-30
+rgn 0 rect 10 1 19 0
+rgn 1 rect 10 1 18 3
+rgn 2 rect 2 -4 12 1
+combine 0 2 1 1
+combine 4 2 1 5
+combine 1 4 1 4
+combine 3 0 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-31
+rgn 0 rect 4 9 8 14
+rgn 1 rect 8 -1 11 1
+rgn 2 rect 3 4 6 3
+combine 2 0 2 4
+combine 5 1 0 2
+combine 0 2 5 1
+combine 0 2 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-32
+rgn 0 rect 11 10 18 16
+rgn 1 rect -4 1 -3 11
+rgn 2 rect -3 -4 -1 -4
+combine 3 2 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-33
+rgn 0 rect 1 8 11 6
+rgn 1 rect 3 6 8 15
+rgn 2 rect 4 5 7 4
+combine 5 1 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-34
+rgn 0 rect 12 -4 22 -2
+rgn 1 rect 8 0 14 7
+rgn 2 rect 5 12 11 15
+combine 1 0 0 1
+combine 0 1 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-35
+rgn 0 rect 8 8 10 8
+rgn 1 rect -1 9 0 13
+rgn 2 rect 10 -2 9 -3
+combine 1 2 0 3
+combine 1 0 0 3
+combine 5 1 0 4
+combine 2 0 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-36
+rgn 0 rect 11 1 12 4
+rgn 1 rect 8 0 6 8
+rgn 2 rect 8 8 10 13
+combine 2 1 0 3
+combine 1 2 0 1
+combine 4 2 2 4
+combine 0 4 4 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-37
+rgn 0 rect 10 3 8 2
+rgn 1 rect -4 3 -6 1
+rgn 2 rect -4 5 -3 9
+combine 1 1 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-38
+rgn 0 rect 7 7 9 7
+rgn 1 rect 6 0 12 -1
+rgn 2 rect 7 8 14 12
+combine 2 0 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-39
+rgn 0 rect 9 5 16 7
+rgn 1 rect 4 9 8 8
+rgn 2 rect 9 -3 9 -5
+combine 5 0 2 4
+combine 1 1 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-40
+rgn 0 rect 5 -1 6 7
+rgn 1 rect 10 2 18 0
+rgn 2 rect 12 -1 20 1
+combine 4 1 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-41
+rgn 0 rect 10 12 8 15
+rgn 1 rect -2 4 7 12
+rgn 2 rect 4 4 6 7
+combine 0 2 0 4
+combine 3 1 0 4
+combine 3 0 2 4
+combine 1 0 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-42
+rgn 0 rect 12 -4 10 -3
+rgn 1 rect 0 4 7 3
+rgn 2 rect -2 9 3 19
+combine 4 1 1 4
+combine 5 4 4 3
+combine 0 5 0 1
+combine 1 2 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-43
+rgn 0 rect 11 1 21 2
+rgn 1 rect 4 0 11 2
+rgn 2 rect 7 5 9 4
+combine 1 2 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-44
+rgn 0 rect 0 7 1 12
+rgn 1 rect -4 9 -1 16
+rgn 2 rect 6 0 14 6
+combine 3 2 1 3
+combine 4 2 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-45
+rgn 0 rect -1 7 3 12
+rgn 1 rect 4 12 12 22
+rgn 2 rect 9 1 11 11
+combine 1 0 2 2
+combine 3 1 2 4
+combine 1 2 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-46
+rgn 0 rect -2 11 -2 14
+rgn 1 rect 8 -1 7 -1
+rgn 2 rect 12 8 12 11
+combine 1 1 0 1
+combine 2 0 1 3
+combine 1 0 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-47
+rgn 0 rect -4 10 6 9
+rgn 1 rect 5 7 3 11
+rgn 2 rect 3 4 3 11
+combine 5 1 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-48
+rgn 0 rect 6 0 6 1
+rgn 1 rect -3 -2 -4 -2
+rgn 2 rect 1 7 5 12
+combine 1 0 0 4
+combine 2 1 0 5
+combine 4 1 0 3
+combine 5 0 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-49
+rgn 0 rect 8 6 11 5
+rgn 1 rect 1 11 1 16
+rgn 2 rect 11 5 11 11
+combine 3 1 0 4
+combine 3 3 3 4
+combine 2 3 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-50
+rgn 0 rect 8 10 16 13
+rgn 1 rect 10 2 18 2
+rgn 2 rect 7 7 10 7
+combine 2 1 0 5
+combine 1 0 1 1
+combine 1 0 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-51
+rgn 0 rect 2 9 8 14
+rgn 1 rect 3 0 7 4
+rgn 2 rect 10 11 9 21
+combine 2 0 1 4
+combine 4 1 1 5
+combine 3 2 2 2
+combine 5 3 4 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgndata 5
+rgnbox 0
+end
+case combine-52
+rgn 0 rect -1 -3 2 -2
+rgn 1 rect 1 7 7 15
+rgn 2 rect 3 -4 8 0
+combine 3 2 2 2
+combine 0 2 3 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-53
+rgn 0 rect 12 6 14 7
+rgn 1 rect 10 12 13 22
+rgn 2 rect 12 -3 22 -3
+combine 5 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-54
+rgn 0 rect 6 2 12 10
+rgn 1 rect 3 6 5 11
+rgn 2 rect 1 1 10 4
+combine 5 1 2 4
+combine 5 5 0 5
+combine 3 0 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-55
+rgn 0 rect 12 9 11 19
+rgn 1 rect 3 3 3 8
+rgn 2 rect 3 6 1 7
+combine 2 1 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-56
+rgn 0 rect 0 8 0 13
+rgn 1 rect -4 6 0 11
+rgn 2 rect 3 2 13 9
+combine 5 0 0 2
+combine 2 0 5 1
+combine 3 1 2 1
+combine 1 0 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-57
+rgn 0 rect 6 11 11 20
+rgn 1 rect 7 6 8 5
+rgn 2 rect 2 9 1 10
+combine 0 1 0 3
+combine 1 0 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-58
+rgn 0 rect -1 6 0 16
+rgn 1 rect 0 7 6 10
+rgn 2 rect 1 3 8 2
+combine 2 1 2 4
+combine 4 1 2 3
+combine 3 0 0 4
+combine 2 2 3 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-59
+rgn 0 rect 3 4 10 10
+rgn 1 rect 3 5 3 5
+rgn 2 rect 1 -2 2 5
+combine 1 2 1 5
+combine 0 1 2 1
+combine 5 1 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-60
+rgn 0 rect -2 -2 8 2
+rgn 1 rect 7 6 17 14
+rgn 2 rect 12 5 12 6
+combine 4 0 0 4
+combine 4 1 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-61
+rgn 0 rect 12 3 12 9
+rgn 1 rect -4 -1 5 0
+rgn 2 rect 8 2 12 2
+combine 2 2 2 1
+combine 2 2 0 2
+combine 4 2 2 4
+combine 2 4 4 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-62
+rgn 0 rect -4 7 -4 12
+rgn 1 rect -3 10 5 15
+rgn 2 rect 8 0 6 3
+combine 0 1 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-63
+rgn 0 rect 5 7 8 17
+rgn 1 rect 11 3 9 12
+rgn 2 rect -4 11 4 16
+combine 3 2 2 2
+combine 0 0 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-64
+rgn 0 rect 5 0 15 -2
+rgn 1 rect -3 -2 -3 -2
+rgn 2 rect -1 8 5 6
+combine 5 1 0 2
+combine 4 1 5 3
+combine 1 0 4 4
+combine 3 2 5 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-65
+rgn 0 rect -4 3 3 7
+rgn 1 rect 8 12 9 16
+rgn 2 rect 2 11 6 21
+combine 3 2 1 3
+combine 4 3 1 1
+combine 3 4 2 5
+combine 0 0 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-66
+rgn 0 rect 4 -4 8 1
+rgn 1 rect -1 9 7 11
+rgn 2 rect 11 3 14 6
+combine 4 2 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-67
+rgn 0 rect 6 1 6 5
+rgn 1 rect 1 3 11 5
+rgn 2 rect 3 2 9 11
+combine 0 1 1 2
+combine 4 0 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-68
+rgn 0 rect 4 3 12 1
+rgn 1 rect 5 1 4 11
+rgn 2 rect 5 4 13 3
+combine 4 2 2 2
+combine 5 4 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-69
+rgn 0 rect 5 -3 10 5
+rgn 1 rect 7 8 16 7
+rgn 2 rect 7 -4 13 -3
+combine 2 1 0 2
+combine 0 2 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-70
+rgn 0 rect 2 12 1 17
+rgn 1 rect 7 5 15 10
+rgn 2 rect 11 -4 17 0
+combine 0 2 1 1
+combine 0 1 2 2
+combine 0 0 1 1
+combine 5 2 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-71
+rgn 0 rect 9 7 8 8
+rgn 1 rect 3 6 13 16
+rgn 2 rect 3 2 11 9
+combine 5 2 2 5
+combine 0 1 5 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-72
+rgn 0 rect 12 3 19 2
+rgn 1 rect 3 9 5 7
+rgn 2 rect 9 -3 12 5
+combine 3 0 0 3
+combine 3 0 2 2
+combine 3 3 3 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-73
+rgn 0 rect -3 11 0 18
+rgn 1 rect -2 9 0 11
+rgn 2 rect 11 9 14 14
+combine 2 2 0 1
+combine 4 0 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-74
+rgn 0 rect 4 -4 2 1
+rgn 1 rect 1 -2 0 4
+rgn 2 rect 8 11 7 11
+combine 4 1 0 1
+combine 4 0 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-75
+rgn 0 rect 10 -4 17 -6
+rgn 1 rect 10 -4 19 6
+rgn 2 rect 5 -4 8 2
+combine 2 2 2 1
+combine 0 2 1 1
+combine 2 2 2 1
+combine 5 1 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-76
+rgn 0 rect 0 6 8 13
+rgn 1 rect 1 -2 0 -4
+rgn 2 rect -1 4 4 9
+combine 3 1 1 3
+combine 0 3 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-77
+rgn 0 rect 10 11 17 20
+rgn 1 rect -2 2 -4 2
+rgn 2 rect 11 -1 10 -2
+combine 0 1 0 5
+combine 4 0 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-78
+rgn 0 rect -2 4 8 14
+rgn 1 rect 9 9 12 18
+rgn 2 rect 1 11 2 10
+combine 0 2 0 5
+combine 2 2 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-79
+rgn 0 rect 10 12 8 14
+rgn 1 rect 10 11 17 16
+rgn 2 rect 2 7 4 10
+combine 0 0 2 1
+combine 3 2 0 4
+combine 5 2 3 4
+combine 3 5 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 5
+rgnbox 0
+end
+case combine-80
+rgn 0 rect 1 5 8 7
+rgn 1 rect 12 5 14 4
+rgn 2 rect 0 -4 -1 1
+combine 5 2 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-81
+rgn 0 rect 8 -4 17 -3
+rgn 1 rect -3 10 6 8
+rgn 2 rect 9 12 8 15
+combine 1 0 2 3
+combine 2 0 1 4
+combine 0 1 1 4
+combine 5 2 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-82
+rgn 0 rect 12 4 18 6
+rgn 1 rect 4 1 9 5
+rgn 2 rect 2 0 8 2
+combine 5 1 2 5
+combine 0 1 0 2
+combine 3 1 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-83
+rgn 0 rect -2 7 0 12
+rgn 1 rect 7 7 14 10
+rgn 2 rect 7 1 13 1
+combine 1 0 2 2
+combine 5 2 0 3
+combine 5 2 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-84
+rgn 0 rect 9 12 18 12
+rgn 1 rect 5 0 15 9
+rgn 2 rect 2 8 3 14
+combine 3 0 2 3
+combine 3 0 3 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-85
+rgn 0 rect -2 10 4 15
+rgn 1 rect 6 12 13 14
+rgn 2 rect -4 3 3 6
+combine 4 1 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-86
+rgn 0 rect 5 12 4 19
+rgn 1 rect 11 12 12 14
+rgn 2 rect -4 -3 5 6
+combine 4 2 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-87
+rgn 0 rect -4 10 -2 19
+rgn 1 rect 1 6 11 7
+rgn 2 rect 1 -1 2 1
+combine 3 2 1 2
+combine 1 3 2 2
+combine 4 3 2 1
+combine 3 4 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-88
+rgn 0 rect 0 9 2 16
+rgn 1 rect 3 -3 5 5
+rgn 2 rect -1 -3 -3 0
+combine 5 2 2 2
+combine 1 5 0 1
+combine 0 0 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-89
+rgn 0 rect -1 8 -1 12
+rgn 1 rect 5 7 5 9
+rgn 2 rect 8 1 7 0
+combine 4 1 1 3
+combine 4 2 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-90
+rgn 0 rect 2 7 4 17
+rgn 1 rect 5 -1 9 -1
+rgn 2 rect 4 7 10 17
+combine 5 0 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-91
+rgn 0 rect 2 2 7 7
+rgn 1 rect 4 12 11 19
+rgn 2 rect 7 10 12 18
+combine 0 0 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-92
+rgn 0 rect 8 11 8 12
+rgn 1 rect 1 0 1 8
+rgn 2 rect 6 10 6 18
+combine 0 2 0 1
+combine 0 1 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-93
+rgn 0 rect 4 11 12 9
+rgn 1 rect -1 2 2 1
+rgn 2 rect 8 -1 16 5
+combine 1 2 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-94
+rgn 0 rect 7 3 10 10
+rgn 1 rect 11 4 11 9
+rgn 2 rect 7 0 11 1
+combine 0 2 0 3
+combine 3 1 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-95
+rgn 0 rect 4 9 7 16
+rgn 1 rect 5 4 4 10
+rgn 2 rect 8 2 13 0
+combine 4 2 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-96
+rgn 0 rect 10 10 15 10
+rgn 1 rect -1 -3 7 6
+rgn 2 rect 6 4 8 11
+combine 4 0 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-97
+rgn 0 rect 11 3 12 11
+rgn 1 rect -3 -2 4 -4
+rgn 2 rect 3 -3 13 2
+combine 1 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-98
+rgn 0 rect -1 -2 0 5
+rgn 1 rect 10 4 16 10
+rgn 2 rect -3 6 -1 8
+combine 3 0 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-99
+rgn 0 rect 8 6 15 5
+rgn 1 rect 4 8 7 9
+rgn 2 rect -1 -4 -3 -2
+combine 2 1 0 4
+combine 3 0 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-100
+rgn 0 rect 2 12 3 19
+rgn 1 rect 3 9 5 7
+rgn 2 rect 6 8 11 14
+combine 1 0 2 3
+combine 3 0 1 3
+combine 5 1 3 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 5
+rgnbox 0
+end
+case combine-101
+rgn 0 rect 11 3 10 10
+rgn 1 rect -2 0 -3 9
+rgn 2 rect 0 4 -1 4
+combine 5 2 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-102
+rgn 0 rect 2 0 10 3
+rgn 1 rect 5 12 12 14
+rgn 2 rect 1 11 8 16
+combine 2 0 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-103
+rgn 0 rect 12 11 19 18
+rgn 1 rect 7 10 12 19
+rgn 2 rect 6 10 5 16
+combine 4 0 2 1
+combine 1 1 1 5
+combine 5 2 0 3
+combine 1 1 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-104
+rgn 0 rect 11 -3 13 2
+rgn 1 rect 2 9 8 10
+rgn 2 rect 9 11 12 13
+combine 4 0 1 3
+combine 3 2 0 5
+combine 5 1 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgndata 5
+rgnbox 0
+end
+case combine-105
+rgn 0 rect 11 7 21 7
+rgn 1 rect -2 7 -3 10
+rgn 2 rect 4 10 2 10
+combine 1 0 1 2
+combine 0 2 2 4
+combine 1 1 0 5
+combine 5 1 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-106
+rgn 0 rect 2 8 8 14
+rgn 1 rect 2 -1 0 -3
+rgn 2 rect -4 -2 6 1
+combine 2 0 2 2
+combine 3 1 1 5
+combine 2 3 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-107
+rgn 0 rect 12 5 10 3
+rgn 1 rect 8 -4 16 2
+rgn 2 rect 11 5 18 4
+combine 4 1 1 4
+combine 4 0 4 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-108
+rgn 0 rect 10 1 9 2
+rgn 1 rect -3 12 -2 10
+rgn 2 rect -2 -4 0 4
+combine 0 0 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-109
+rgn 0 rect 8 7 17 13
+rgn 1 rect 2 5 4 7
+rgn 2 rect -2 7 2 11
+combine 0 2 1 4
+combine 3 2 2 1
+combine 4 0 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-110
+rgn 0 rect -2 6 7 5
+rgn 1 rect 2 5 8 5
+rgn 2 rect 0 7 9 12
+combine 4 2 2 4
+combine 0 2 2 2
+combine 4 2 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-111
+rgn 0 rect 9 -3 9 2
+rgn 1 rect -4 1 0 2
+rgn 2 rect 12 12 15 20
+combine 5 0 2 2
+combine 2 0 5 2
+combine 4 5 5 4
+combine 3 1 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-112
+rgn 0 rect 5 0 15 10
+rgn 1 rect 0 12 9 17
+rgn 2 rect 8 9 6 18
+combine 4 2 2 2
+combine 4 2 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-113
+rgn 0 rect 2 7 2 5
+rgn 1 rect 4 -1 6 7
+rgn 2 rect -3 6 4 13
+combine 1 1 1 4
+combine 4 2 2 1
+combine 1 0 4 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-114
+rgn 0 rect -1 6 -3 9
+rgn 1 rect 7 12 7 14
+rgn 2 rect 2 10 7 13
+combine 2 2 0 3
+combine 5 0 2 2
+combine 1 1 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-115
+rgn 0 rect 11 -2 10 2
+rgn 1 rect 3 9 5 7
+rgn 2 rect -2 0 1 8
+combine 4 0 2 4
+combine 0 2 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-116
+rgn 0 rect 9 6 17 10
+rgn 1 rect 2 -2 4 -2
+rgn 2 rect 7 -1 17 -3
+combine 1 2 0 1
+combine 0 1 2 3
+combine 0 0 0 4
+combine 2 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-117
+rgn 0 rect 9 6 10 9
+rgn 1 rect -1 5 -1 6
+rgn 2 rect 12 2 18 4
+combine 2 1 2 4
+combine 5 1 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-118
+rgn 0 rect 6 7 12 7
+rgn 1 rect 9 10 10 15
+rgn 2 rect 2 0 6 6
+combine 2 2 0 4
+combine 5 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-119
+rgn 0 rect -1 9 4 13
+rgn 1 rect 3 1 6 3
+rgn 2 rect 3 -4 8 -4
+combine 0 0 0 2
+combine 1 0 2 2
+combine 4 0 0 5
+combine 3 4 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-120
+rgn 0 rect 9 5 12 15
+rgn 1 rect 1 3 1 13
+rgn 2 rect -1 7 3 11
+combine 5 0 0 5
+combine 5 1 5 4
+combine 4 0 1 2
+combine 2 0 4 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgnbox 0
+end
+case combine-121
+rgn 0 rect 11 7 17 15
+rgn 1 rect 9 11 12 13
+rgn 2 rect -4 1 4 7
+combine 1 2 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-122
+rgn 0 rect 6 1 12 10
+rgn 1 rect -4 10 6 9
+rgn 2 rect 0 2 10 7
+combine 5 1 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-123
+rgn 0 rect 5 -2 13 0
+rgn 1 rect 1 12 6 14
+rgn 2 rect 4 9 14 18
+combine 3 2 0 2
+combine 0 3 3 2
+combine 3 1 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-124
+rgn 0 rect 6 7 6 15
+rgn 1 rect -2 4 3 6
+rgn 2 rect 3 8 9 16
+combine 4 0 0 3
+combine 0 1 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-125
+rgn 0 rect 9 0 15 10
+rgn 1 rect 4 1 11 2
+rgn 2 rect 10 -1 16 9
+combine 2 1 0 2
+combine 2 2 0 2
+combine 0 1 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-126
+rgn 0 rect 9 11 18 11
+rgn 1 rect 10 12 16 19
+rgn 2 rect 4 5 9 13
+combine 1 2 2 1
+combine 4 2 2 2
+combine 2 0 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-127
+rgn 0 rect 11 4 21 3
+rgn 1 rect 10 9 12 15
+rgn 2 rect 8 6 8 5
+combine 4 0 1 3
+combine 3 4 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-128
+rgn 0 rect 7 -4 8 -6
+rgn 1 rect 0 11 -2 9
+rgn 2 rect 2 -4 12 6
+combine 3 0 1 4
+combine 0 3 1 1
+combine 3 3 3 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-129
+rgn 0 rect 0 1 3 8
+rgn 1 rect 2 11 11 12
+rgn 2 rect -1 5 4 5
+combine 2 0 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-130
+rgn 0 rect 2 2 11 12
+rgn 1 rect -2 7 5 11
+rgn 2 rect 0 4 3 11
+combine 0 1 1 4
+combine 5 0 0 4
+combine 2 2 5 5
+combine 0 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-131
+rgn 0 rect 12 4 14 9
+rgn 1 rect 5 3 6 9
+rgn 2 rect 0 6 6 11
+combine 0 1 2 2
+combine 5 0 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-132
+rgn 0 rect 12 5 20 3
+rgn 1 rect 7 8 11 18
+rgn 2 rect 11 -4 9 1
+combine 1 0 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-133
+rgn 0 rect 1 3 8 6
+rgn 1 rect -1 -4 5 1
+rgn 2 rect 3 3 5 9
+combine 2 1 0 4
+combine 5 1 2 1
+combine 3 2 0 1
+combine 4 5 3 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-134
+rgn 0 rect 10 -1 14 -3
+rgn 1 rect 5 12 13 16
+rgn 2 rect 3 8 13 11
+combine 4 0 0 2
+combine 5 1 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-135
+rgn 0 rect 0 2 1 10
+rgn 1 rect -2 8 2 8
+rgn 2 rect -3 6 5 14
+combine 0 1 2 4
+combine 4 0 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-136
+rgn 0 rect 2 -4 4 5
+rgn 1 rect 8 3 8 7
+rgn 2 rect 10 0 18 6
+combine 5 2 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-137
+rgn 0 rect 6 9 4 7
+rgn 1 rect 4 6 3 14
+rgn 2 rect 12 2 11 2
+combine 5 0 0 3
+combine 4 2 5 3
+combine 0 4 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgnbox 0
+end
+case combine-138
+rgn 0 rect 7 12 7 20
+rgn 1 rect 4 11 10 20
+rgn 2 rect -2 10 3 14
+combine 1 2 1 5
+combine 5 1 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-139
+rgn 0 rect 10 8 10 13
+rgn 1 rect -3 -2 6 6
+rgn 2 rect 3 0 1 -2
+combine 2 2 2 4
+combine 5 2 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-140
+rgn 0 rect 11 -4 15 -2
+rgn 1 rect -4 2 0 2
+rgn 2 rect 2 8 11 11
+combine 0 1 0 5
+combine 2 0 1 5
+combine 3 2 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-141
+rgn 0 rect 5 9 15 17
+rgn 1 rect 10 -3 20 -4
+rgn 2 rect 8 3 16 6
+combine 4 2 2 1
+combine 0 0 4 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-142
+rgn 0 rect 9 0 19 7
+rgn 1 rect 10 -2 20 -3
+rgn 2 rect 3 8 10 9
+combine 1 2 2 2
+combine 4 1 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-143
+rgn 0 rect 10 -3 18 6
+rgn 1 rect 12 11 11 16
+rgn 2 rect -1 2 4 8
+combine 4 1 2 4
+combine 4 4 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-144
+rgn 0 rect 10 -1 17 7
+rgn 1 rect 4 4 14 2
+rgn 2 rect 2 10 3 13
+combine 0 1 1 3
+combine 0 2 0 2
+combine 3 2 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-145
+rgn 0 rect -4 0 -5 3
+rgn 1 rect 0 8 0 13
+rgn 2 rect -3 4 -4 7
+combine 0 2 2 3
+combine 4 2 2 2
+combine 4 2 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-146
+rgn 0 rect -3 10 5 12
+rgn 1 rect 1 -1 9 -2
+rgn 2 rect 0 4 2 4
+combine 4 1 1 2
+combine 1 0 2 4
+combine 1 1 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-147
+rgn 0 rect 12 9 13 16
+rgn 1 rect 8 6 13 6
+rgn 2 rect 2 7 1 11
+combine 0 2 1 3
+combine 5 1 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-148
+rgn 0 rect 8 12 16 17
+rgn 1 rect 4 7 8 6
+rgn 2 rect -3 5 2 13
+combine 4 2 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-149
+rgn 0 rect 2 8 8 7
+rgn 1 rect -2 -1 -2 8
+rgn 2 rect 4 5 10 11
+combine 5 2 2 3
+combine 5 1 5 2
+combine 5 5 5 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-150
+rgn 0 rect 5 0 8 10
+rgn 1 rect -2 2 2 3
+rgn 2 rect 6 10 8 11
+combine 5 2 0 3
+combine 5 1 1 5
+combine 3 5 2 2
+combine 3 0 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-151
+rgn 0 rect 10 1 20 10
+rgn 1 rect 1 9 9 12
+rgn 2 rect 12 7 16 17
+combine 3 2 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-152
+rgn 0 rect 3 3 13 8
+rgn 1 rect 3 9 5 15
+rgn 2 rect 8 -3 14 -3
+combine 3 0 0 2
+combine 4 2 3 5
+combine 2 2 2 1
+combine 5 4 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-153
+rgn 0 rect -3 -3 1 4
+rgn 1 rect -1 3 8 7
+rgn 2 rect -3 8 6 14
+combine 0 1 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-154
+rgn 0 rect -3 7 1 9
+rgn 1 rect -1 10 -2 16
+rgn 2 rect 6 3 8 4
+combine 3 2 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-155
+rgn 0 rect 6 -4 10 2
+rgn 1 rect 2 10 12 9
+rgn 2 rect 12 1 18 5
+combine 3 2 1 1
+combine 0 1 3 1
+combine 0 3 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-156
+rgn 0 rect 0 9 10 8
+rgn 1 rect -2 4 0 12
+rgn 2 rect 3 12 7 13
+combine 1 2 0 2
+combine 0 0 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-157
+rgn 0 rect -2 10 5 20
+rgn 1 rect 12 11 17 18
+rgn 2 rect -1 -3 1 -4
+combine 5 0 1 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-158
+rgn 0 rect 12 4 11 4
+rgn 1 rect 2 5 9 11
+rgn 2 rect 10 8 16 15
+combine 0 0 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-159
+rgn 0 rect -2 7 8 17
+rgn 1 rect 5 0 15 0
+rgn 2 rect 3 4 9 2
+combine 5 0 1 5
+combine 1 5 1 2
+combine 5 0 5 3
+combine 3 2 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-160
+rgn 0 rect 4 10 5 18
+rgn 1 rect 12 7 14 13
+rgn 2 rect 5 6 9 8
+combine 3 1 1 4
+combine 3 0 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-161
+rgn 0 rect 0 5 -2 9
+rgn 1 rect 12 2 19 4
+rgn 2 rect -3 4 6 2
+combine 2 2 0 3
+combine 0 1 2 1
+combine 2 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-162
+rgn 0 rect 4 -4 10 -3
+rgn 1 rect -2 9 1 12
+rgn 2 rect 5 4 10 8
+combine 3 0 2 2
+combine 1 3 1 1
+combine 1 3 1 3
+combine 4 3 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-163
+rgn 0 rect -1 9 -1 8
+rgn 1 rect 5 -1 10 1
+rgn 2 rect 12 5 21 14
+combine 2 2 0 5
+combine 2 1 0 1
+combine 0 0 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-164
+rgn 0 rect -1 4 0 6
+rgn 1 rect 9 1 14 11
+rgn 2 rect 0 8 4 12
+combine 5 0 1 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-165
+rgn 0 rect -3 -1 2 2
+rgn 1 rect -1 2 -3 12
+rgn 2 rect -2 7 4 13
+combine 4 1 0 3
+combine 5 4 0 1
+combine 3 0 4 2
+combine 3 4 0 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-166
+rgn 0 rect -4 1 0 4
+rgn 1 rect 1 8 8 9
+rgn 2 rect 9 9 12 18
+combine 1 2 0 5
+combine 4 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-167
+rgn 0 rect -1 3 7 9
+rgn 1 rect -1 7 8 17
+rgn 2 rect -3 10 6 13
+combine 2 0 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-168
+rgn 0 rect 6 -2 14 6
+rgn 1 rect -1 -3 -2 1
+rgn 2 rect 4 4 12 9
+combine 2 1 0 3
+combine 5 2 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-169
+rgn 0 rect 7 9 13 13
+rgn 1 rect 6 -3 6 -1
+rgn 2 rect 1 9 1 13
+combine 3 1 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-170
+rgn 0 rect 9 1 8 5
+rgn 1 rect 7 10 14 14
+rgn 2 rect 2 0 4 3
+combine 3 2 2 2
+combine 0 1 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-171
+rgn 0 rect 10 2 18 0
+rgn 1 rect 2 11 4 21
+rgn 2 rect 11 10 18 11
+combine 4 2 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-172
+rgn 0 rect 8 0 18 -1
+rgn 1 rect 10 4 20 13
+rgn 2 rect 1 1 9 10
+combine 2 2 2 5
+combine 0 2 1 3
+combine 3 2 1 3
+combine 1 0 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-173
+rgn 0 rect -3 5 2 3
+rgn 1 rect -1 9 2 8
+rgn 2 rect -2 6 -1 12
+combine 0 2 1 1
+combine 1 1 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-174
+rgn 0 rect -4 0 5 5
+rgn 1 rect 9 -3 14 -1
+rgn 2 rect -1 12 -1 21
+combine 5 0 0 2
+combine 1 0 2 4
+combine 5 2 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-175
+rgn 0 rect 7 -2 14 5
+rgn 1 rect -3 -1 -3 6
+rgn 2 rect -2 -1 5 0
+combine 0 2 0 3
+combine 3 0 1 3
+combine 1 1 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-176
+rgn 0 rect 12 0 20 6
+rgn 1 rect 8 2 8 4
+rgn 2 rect 0 -4 4 -2
+combine 0 2 1 5
+combine 0 2 2 4
+combine 5 2 2 5
+combine 2 0 0 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-177
+rgn 0 rect 1 12 4 13
+rgn 1 rect 7 -3 6 -1
+rgn 2 rect 1 8 3 16
+combine 5 2 2 1
+combine 4 5 2 3
+combine 5 5 5 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgnbox 0
+end
+case combine-178
+rgn 0 rect 9 9 11 12
+rgn 1 rect 10 -2 10 4
+rgn 2 rect 2 11 12 17
+combine 1 1 2 4
+combine 3 1 2 2
+combine 4 3 3 2
+combine 0 0 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-179
+rgn 0 rect 8 12 10 17
+rgn 1 rect 6 0 4 0
+rgn 2 rect -2 3 -2 8
+combine 2 0 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-180
+rgn 0 rect -3 6 -5 15
+rgn 1 rect 2 -4 12 -2
+rgn 2 rect 1 9 9 16
+combine 1 0 2 3
+combine 1 0 2 3
+combine 2 1 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-181
+rgn 0 rect -3 2 6 8
+rgn 1 rect 6 2 15 3
+rgn 2 rect -1 12 0 18
+combine 1 0 2 5
+combine 5 2 0 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-182
+rgn 0 rect -2 8 8 18
+rgn 1 rect -3 6 2 16
+rgn 2 rect 10 10 8 12
+combine 5 0 2 5
+combine 1 5 5 4
+combine 5 0 5 4
+combine 4 5 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgnbox 0
+end
+case combine-183
+rgn 0 rect 5 2 7 9
+rgn 1 rect -4 6 -4 13
+rgn 2 rect 12 7 21 12
+combine 5 1 1 3
+combine 2 0 2 1
+combine 3 5 1 1
+combine 0 5 0 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-184
+rgn 0 rect 11 7 18 17
+rgn 1 rect 12 4 11 14
+rgn 2 rect -1 -2 0 -4
+combine 3 0 0 4
+combine 3 3 3 1
+combine 1 0 2 1
+combine 3 1 3 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-185
+rgn 0 rect 6 12 10 11
+rgn 1 rect 4 -4 9 0
+rgn 2 rect 5 12 3 10
+combine 4 2 0 5
+combine 0 2 2 2
+combine 4 4 4 5
+combine 3 1 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgnbox 0
+end
+case combine-186
+rgn 0 rect -2 12 5 14
+rgn 1 rect 12 2 14 4
+rgn 2 rect 6 -3 9 0
+combine 0 0 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-187
+rgn 0 rect 0 2 -2 6
+rgn 1 rect 6 7 5 5
+rgn 2 rect 3 -3 8 4
+combine 2 1 1 1
+combine 1 1 1 1
+combine 1 0 0 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-188
+rgn 0 rect 0 5 1 14
+rgn 1 rect 4 10 13 11
+rgn 2 rect -4 12 -6 13
+combine 2 2 1 2
+combine 4 2 1 3
+combine 5 2 1 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 5
+rgnbox 0
+end
+case combine-189
+rgn 0 rect 1 -4 3 -5
+rgn 1 rect 3 2 4 5
+rgn 2 rect -1 11 1 18
+combine 5 1 1 1
+combine 2 0 2 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-190
+rgn 0 rect 11 4 17 7
+rgn 1 rect 6 9 5 17
+rgn 2 rect -2 8 -2 9
+combine 4 0 1 3
+combine 3 0 1 5
+combine 0 2 2 1
+combine 5 3 4 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgndata 3
+rgndata 5
+rgnbox 0
+end
+case combine-191
+rgn 0 rect 8 5 12 12
+rgn 1 rect 4 -4 8 0
+rgn 2 rect 8 9 17 18
+combine 3 0 1 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case combine-192
+rgn 0 rect 0 9 0 17
+rgn 1 rect 11 12 14 17
+rgn 2 rect 4 3 6 5
+combine 0 0 0 4
+combine 5 2 0 4
+combine 0 0 5 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgnbox 0
+end
+case combine-193
+rgn 0 rect 6 10 7 10
+rgn 1 rect 9 8 15 6
+rgn 2 rect 1 11 11 19
+combine 1 0 1 1
+combine 0 0 2 1
+rgndata 0
+rgndata 1
+rgndata 2
+rgnbox 0
+end
+case combine-194
+rgn 0 rect 12 8 19 8
+rgn 1 rect 12 -4 14 2
+rgn 2 rect -1 8 3 8
+combine 5 0 2 4
+combine 3 0 2 1
+combine 5 0 2 4
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgnbox 0
+end
+case combine-195
+rgn 0 rect -3 4 -3 10
+rgn 1 rect 8 4 13 4
+rgn 2 rect -4 3 1 13
+combine 4 1 2 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-196
+rgn 0 rect 2 4 3 2
+rgn 1 rect 9 -4 17 -3
+rgn 2 rect 7 8 5 11
+combine 5 2 2 3
+combine 3 0 1 1
+combine 4 3 2 5
+combine 4 4 4 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 3
+rgndata 4
+rgnbox 0
+end
+case combine-197
+rgn 0 rect 8 1 9 5
+rgn 1 rect -4 1 2 4
+rgn 2 rect 6 9 8 12
+combine 5 1 1 5
+combine 4 1 5 2
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 5
+rgndata 4
+rgnbox 0
+end
+case combine-198
+rgn 0 rect 9 3 14 9
+rgn 1 rect -2 0 -1 10
+rgn 2 rect -4 1 -5 4
+combine 2 2 1 4
+combine 0 2 2 1
+combine 2 1 0 1
+combine 4 1 2 3
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 4
+rgnbox 0
+end
+case combine-199
+rgn 0 rect 7 2 10 1
+rgn 1 rect 1 5 11 4
+rgn 2 rect -1 7 5 13
+combine 3 0 1 5
+rgndata 0
+rgndata 1
+rgndata 2
+rgndata 3
+rgnbox 0
+end
+case edge-0
+rgn 0 rect 0 0 0 0
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 0 0 0 0
+rgndata 0
+rgn 1 ellipse 0 0 0 0
+rgndata 1
+end
+case edge-1
+rgn 0 rect 5 5 1 1
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 5 5 1 1
+rgndata 0
+rgn 1 ellipse 5 5 1 1
+rgndata 1
+end
+case edge-2
+rgn 0 rect 1 5 5 1
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 1 5 5 1
+rgndata 0
+rgn 1 ellipse 1 5 5 1
+rgndata 1
+end
+case edge-3
+rgn 0 rect 3 3 3 9
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 3 3 3 9
+rgndata 0
+rgn 1 ellipse 3 3 3 9
+rgndata 1
+end
+case edge-4
+rgn 0 rect -5 -5 5 5
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 -5 -5 5 5
+rgndata 0
+rgn 1 ellipse -5 -5 5 5
+rgndata 1
+end
+case edge-5
+rgn 0 rect -100000 -100000 100000 100000
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 -100000 -100000 100000 100000
+rgndata 0
+rgn 1 ellipse -100000 -100000 100000 100000
+rgndata 1
+end
+case edge-6
+rgn 0 rect 0 0 1 1
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 0 0 1 1
+rgndata 0
+rgn 1 ellipse 0 0 1 1
+rgndata 1
+end
+case edge-7
+rgn 0 rect -1 -1 0 0
+rgndata 0
+rgnbox 0
+ptin 0 0 0
+ptin 0 4 4
+rectin 0 0 0 1 1
+setrect 0 -1 -1 0 0
+rgndata 0
+rgn 1 ellipse -1 -1 0 0
+rgndata 1
+end
+case ellipse-1
+rgn 0 ellipse 2 3 3 4
+rgndata 0
+rgn 0 ellipse 2 3 4 4
+rgndata 0
+rgn 0 ellipse 2 3 5 4
+rgndata 0
+rgn 0 ellipse 2 3 6 4
+rgndata 0
+rgn 0 ellipse 2 3 7 4
+rgndata 0
+rgn 0 ellipse 2 3 8 4
+rgndata 0
+rgn 0 ellipse 2 3 9 4
+rgndata 0
+rgn 0 ellipse 2 3 10 4
+rgndata 0
+rgn 0 ellipse 2 3 11 4
+rgndata 0
+rgn 0 ellipse 2 3 12 4
+rgndata 0
+rgn 0 ellipse 2 3 13 4
+rgndata 0
+rgn 0 ellipse 2 3 14 4
+rgndata 0
+rgn 0 ellipse 2 3 15 4
+rgndata 0
+rgn 0 ellipse 2 3 16 4
+rgndata 0
+rgn 0 ellipse 2 3 17 4
+rgndata 0
+rgn 0 ellipse 2 3 18 4
+rgndata 0
+end
+case ellipse-2
+rgn 0 ellipse 2 3 3 5
+rgndata 0
+rgn 0 ellipse 2 3 4 5
+rgndata 0
+rgn 0 ellipse 2 3 5 5
+rgndata 0
+rgn 0 ellipse 2 3 6 5
+rgndata 0
+rgn 0 ellipse 2 3 7 5
+rgndata 0
+rgn 0 ellipse 2 3 8 5
+rgndata 0
+rgn 0 ellipse 2 3 9 5
+rgndata 0
+rgn 0 ellipse 2 3 10 5
+rgndata 0
+rgn 0 ellipse 2 3 11 5
+rgndata 0
+rgn 0 ellipse 2 3 12 5
+rgndata 0
+rgn 0 ellipse 2 3 13 5
+rgndata 0
+rgn 0 ellipse 2 3 14 5
+rgndata 0
+rgn 0 ellipse 2 3 15 5
+rgndata 0
+rgn 0 ellipse 2 3 16 5
+rgndata 0
+rgn 0 ellipse 2 3 17 5
+rgndata 0
+rgn 0 ellipse 2 3 18 5
+rgndata 0
+end
+case ellipse-3
+rgn 0 ellipse 2 3 3 6
+rgndata 0
+rgn 0 ellipse 2 3 4 6
+rgndata 0
+rgn 0 ellipse 2 3 5 6
+rgndata 0
+rgn 0 ellipse 2 3 6 6
+rgndata 0
+rgn 0 ellipse 2 3 7 6
+rgndata 0
+rgn 0 ellipse 2 3 8 6
+rgndata 0
+rgn 0 ellipse 2 3 9 6
+rgndata 0
+rgn 0 ellipse 2 3 10 6
+rgndata 0
+rgn 0 ellipse 2 3 11 6
+rgndata 0
+rgn 0 ellipse 2 3 12 6
+rgndata 0
+rgn 0 ellipse 2 3 13 6
+rgndata 0
+rgn 0 ellipse 2 3 14 6
+rgndata 0
+rgn 0 ellipse 2 3 15 6
+rgndata 0
+rgn 0 ellipse 2 3 16 6
+rgndata 0
+rgn 0 ellipse 2 3 17 6
+rgndata 0
+rgn 0 ellipse 2 3 18 6
+rgndata 0
+end
+case ellipse-4
+rgn 0 ellipse 2 3 3 7
+rgndata 0
+rgn 0 ellipse 2 3 4 7
+rgndata 0
+rgn 0 ellipse 2 3 5 7
+rgndata 0
+rgn 0 ellipse 2 3 6 7
+rgndata 0
+rgn 0 ellipse 2 3 7 7
+rgndata 0
+rgn 0 ellipse 2 3 8 7
+rgndata 0
+rgn 0 ellipse 2 3 9 7
+rgndata 0
+rgn 0 ellipse 2 3 10 7
+rgndata 0
+rgn 0 ellipse 2 3 11 7
+rgndata 0
+rgn 0 ellipse 2 3 12 7
+rgndata 0
+rgn 0 ellipse 2 3 13 7
+rgndata 0
+rgn 0 ellipse 2 3 14 7
+rgndata 0
+rgn 0 ellipse 2 3 15 7
+rgndata 0
+rgn 0 ellipse 2 3 16 7
+rgndata 0
+rgn 0 ellipse 2 3 17 7
+rgndata 0
+rgn 0 ellipse 2 3 18 7
+rgndata 0
+end
+case ellipse-5
+rgn 0 ellipse 2 3 3 8
+rgndata 0
+rgn 0 ellipse 2 3 4 8
+rgndata 0
+rgn 0 ellipse 2 3 5 8
+rgndata 0
+rgn 0 ellipse 2 3 6 8
+rgndata 0
+rgn 0 ellipse 2 3 7 8
+rgndata 0
+rgn 0 ellipse 2 3 8 8
+rgndata 0
+rgn 0 ellipse 2 3 9 8
+rgndata 0
+rgn 0 ellipse 2 3 10 8
+rgndata 0
+rgn 0 ellipse 2 3 11 8
+rgndata 0
+rgn 0 ellipse 2 3 12 8
+rgndata 0
+rgn 0 ellipse 2 3 13 8
+rgndata 0
+rgn 0 ellipse 2 3 14 8
+rgndata 0
+rgn 0 ellipse 2 3 15 8
+rgndata 0
+rgn 0 ellipse 2 3 16 8
+rgndata 0
+rgn 0 ellipse 2 3 17 8
+rgndata 0
+rgn 0 ellipse 2 3 18 8
+rgndata 0
+end
+case ellipse-6
+rgn 0 ellipse 2 3 3 9
+rgndata 0
+rgn 0 ellipse 2 3 4 9
+rgndata 0
+rgn 0 ellipse 2 3 5 9
+rgndata 0
+rgn 0 ellipse 2 3 6 9
+rgndata 0
+rgn 0 ellipse 2 3 7 9
+rgndata 0
+rgn 0 ellipse 2 3 8 9
+rgndata 0
+rgn 0 ellipse 2 3 9 9
+rgndata 0
+rgn 0 ellipse 2 3 10 9
+rgndata 0
+rgn 0 ellipse 2 3 11 9
+rgndata 0
+rgn 0 ellipse 2 3 12 9
+rgndata 0
+rgn 0 ellipse 2 3 13 9
+rgndata 0
+rgn 0 ellipse 2 3 14 9
+rgndata 0
+rgn 0 ellipse 2 3 15 9
+rgndata 0
+rgn 0 ellipse 2 3 16 9
+rgndata 0
+rgn 0 ellipse 2 3 17 9
+rgndata 0
+rgn 0 ellipse 2 3 18 9
+rgndata 0
+end
+case ellipse-7
+rgn 0 ellipse 2 3 3 10
+rgndata 0
+rgn 0 ellipse 2 3 4 10
+rgndata 0
+rgn 0 ellipse 2 3 5 10
+rgndata 0
+rgn 0 ellipse 2 3 6 10
+rgndata 0
+rgn 0 ellipse 2 3 7 10
+rgndata 0
+rgn 0 ellipse 2 3 8 10
+rgndata 0
+rgn 0 ellipse 2 3 9 10
+rgndata 0
+rgn 0 ellipse 2 3 10 10
+rgndata 0
+rgn 0 ellipse 2 3 11 10
+rgndata 0
+rgn 0 ellipse 2 3 12 10
+rgndata 0
+rgn 0 ellipse 2 3 13 10
+rgndata 0
+rgn 0 ellipse 2 3 14 10
+rgndata 0
+rgn 0 ellipse 2 3 15 10
+rgndata 0
+rgn 0 ellipse 2 3 16 10
+rgndata 0
+rgn 0 ellipse 2 3 17 10
+rgndata 0
+rgn 0 ellipse 2 3 18 10
+rgndata 0
+end
+case ellipse-8
+rgn 0 ellipse 2 3 3 11
+rgndata 0
+rgn 0 ellipse 2 3 4 11
+rgndata 0
+rgn 0 ellipse 2 3 5 11
+rgndata 0
+rgn 0 ellipse 2 3 6 11
+rgndata 0
+rgn 0 ellipse 2 3 7 11
+rgndata 0
+rgn 0 ellipse 2 3 8 11
+rgndata 0
+rgn 0 ellipse 2 3 9 11
+rgndata 0
+rgn 0 ellipse 2 3 10 11
+rgndata 0
+rgn 0 ellipse 2 3 11 11
+rgndata 0
+rgn 0 ellipse 2 3 12 11
+rgndata 0
+rgn 0 ellipse 2 3 13 11
+rgndata 0
+rgn 0 ellipse 2 3 14 11
+rgndata 0
+rgn 0 ellipse 2 3 15 11
+rgndata 0
+rgn 0 ellipse 2 3 16 11
+rgndata 0
+rgn 0 ellipse 2 3 17 11
+rgndata 0
+rgn 0 ellipse 2 3 18 11
+rgndata 0
+end
+case ellipse-9
+rgn 0 ellipse 2 3 3 12
+rgndata 0
+rgn 0 ellipse 2 3 4 12
+rgndata 0
+rgn 0 ellipse 2 3 5 12
+rgndata 0
+rgn 0 ellipse 2 3 6 12
+rgndata 0
+rgn 0 ellipse 2 3 7 12
+rgndata 0
+rgn 0 ellipse 2 3 8 12
+rgndata 0
+rgn 0 ellipse 2 3 9 12
+rgndata 0
+rgn 0 ellipse 2 3 10 12
+rgndata 0
+rgn 0 ellipse 2 3 11 12
+rgndata 0
+rgn 0 ellipse 2 3 12 12
+rgndata 0
+rgn 0 ellipse 2 3 13 12
+rgndata 0
+rgn 0 ellipse 2 3 14 12
+rgndata 0
+rgn 0 ellipse 2 3 15 12
+rgndata 0
+rgn 0 ellipse 2 3 16 12
+rgndata 0
+rgn 0 ellipse 2 3 17 12
+rgndata 0
+rgn 0 ellipse 2 3 18 12
+rgndata 0
+end
+case ellipse-10
+rgn 0 ellipse 2 3 3 13
+rgndata 0
+rgn 0 ellipse 2 3 4 13
+rgndata 0
+rgn 0 ellipse 2 3 5 13
+rgndata 0
+rgn 0 ellipse 2 3 6 13
+rgndata 0
+rgn 0 ellipse 2 3 7 13
+rgndata 0
+rgn 0 ellipse 2 3 8 13
+rgndata 0
+rgn 0 ellipse 2 3 9 13
+rgndata 0
+rgn 0 ellipse 2 3 10 13
+rgndata 0
+rgn 0 ellipse 2 3 11 13
+rgndata 0
+rgn 0 ellipse 2 3 12 13
+rgndata 0
+rgn 0 ellipse 2 3 13 13
+rgndata 0
+rgn 0 ellipse 2 3 14 13
+rgndata 0
+rgn 0 ellipse 2 3 15 13
+rgndata 0
+rgn 0 ellipse 2 3 16 13
+rgndata 0
+rgn 0 ellipse 2 3 17 13
+rgndata 0
+rgn 0 ellipse 2 3 18 13
+rgndata 0
+end
+case ellipse-11
+rgn 0 ellipse 2 3 3 14
+rgndata 0
+rgn 0 ellipse 2 3 4 14
+rgndata 0
+rgn 0 ellipse 2 3 5 14
+rgndata 0
+rgn 0 ellipse 2 3 6 14
+rgndata 0
+rgn 0 ellipse 2 3 7 14
+rgndata 0
+rgn 0 ellipse 2 3 8 14
+rgndata 0
+rgn 0 ellipse 2 3 9 14
+rgndata 0
+rgn 0 ellipse 2 3 10 14
+rgndata 0
+rgn 0 ellipse 2 3 11 14
+rgndata 0
+rgn 0 ellipse 2 3 12 14
+rgndata 0
+rgn 0 ellipse 2 3 13 14
+rgndata 0
+rgn 0 ellipse 2 3 14 14
+rgndata 0
+rgn 0 ellipse 2 3 15 14
+rgndata 0
+rgn 0 ellipse 2 3 16 14
+rgndata 0
+rgn 0 ellipse 2 3 17 14
+rgndata 0
+rgn 0 ellipse 2 3 18 14
+rgndata 0
+end
+case ellipse-12
+rgn 0 ellipse 2 3 3 15
+rgndata 0
+rgn 0 ellipse 2 3 4 15
+rgndata 0
+rgn 0 ellipse 2 3 5 15
+rgndata 0
+rgn 0 ellipse 2 3 6 15
+rgndata 0
+rgn 0 ellipse 2 3 7 15
+rgndata 0
+rgn 0 ellipse 2 3 8 15
+rgndata 0
+rgn 0 ellipse 2 3 9 15
+rgndata 0
+rgn 0 ellipse 2 3 10 15
+rgndata 0
+rgn 0 ellipse 2 3 11 15
+rgndata 0
+rgn 0 ellipse 2 3 12 15
+rgndata 0
+rgn 0 ellipse 2 3 13 15
+rgndata 0
+rgn 0 ellipse 2 3 14 15
+rgndata 0
+rgn 0 ellipse 2 3 15 15
+rgndata 0
+rgn 0 ellipse 2 3 16 15
+rgndata 0
+rgn 0 ellipse 2 3 17 15
+rgndata 0
+rgn 0 ellipse 2 3 18 15
+rgndata 0
+end
+case ellipse-13
+rgn 0 ellipse 2 3 3 16
+rgndata 0
+rgn 0 ellipse 2 3 4 16
+rgndata 0
+rgn 0 ellipse 2 3 5 16
+rgndata 0
+rgn 0 ellipse 2 3 6 16
+rgndata 0
+rgn 0 ellipse 2 3 7 16
+rgndata 0
+rgn 0 ellipse 2 3 8 16
+rgndata 0
+rgn 0 ellipse 2 3 9 16
+rgndata 0
+rgn 0 ellipse 2 3 10 16
+rgndata 0
+rgn 0 ellipse 2 3 11 16
+rgndata 0
+rgn 0 ellipse 2 3 12 16
+rgndata 0
+rgn 0 ellipse 2 3 13 16
+rgndata 0
+rgn 0 ellipse 2 3 14 16
+rgndata 0
+rgn 0 ellipse 2 3 15 16
+rgndata 0
+rgn 0 ellipse 2 3 16 16
+rgndata 0
+rgn 0 ellipse 2 3 17 16
+rgndata 0
+rgn 0 ellipse 2 3 18 16
+rgndata 0
+end
+case ellipse-14
+rgn 0 ellipse 2 3 3 17
+rgndata 0
+rgn 0 ellipse 2 3 4 17
+rgndata 0
+rgn 0 ellipse 2 3 5 17
+rgndata 0
+rgn 0 ellipse 2 3 6 17
+rgndata 0
+rgn 0 ellipse 2 3 7 17
+rgndata 0
+rgn 0 ellipse 2 3 8 17
+rgndata 0
+rgn 0 ellipse 2 3 9 17
+rgndata 0
+rgn 0 ellipse 2 3 10 17
+rgndata 0
+rgn 0 ellipse 2 3 11 17
+rgndata 0
+rgn 0 ellipse 2 3 12 17
+rgndata 0
+rgn 0 ellipse 2 3 13 17
+rgndata 0
+rgn 0 ellipse 2 3 14 17
+rgndata 0
+rgn 0 ellipse 2 3 15 17
+rgndata 0
+rgn 0 ellipse 2 3 16 17
+rgndata 0
+rgn 0 ellipse 2 3 17 17
+rgndata 0
+rgn 0 ellipse 2 3 18 17
+rgndata 0
+end
+case ellipse-15
+rgn 0 ellipse 2 3 3 18
+rgndata 0
+rgn 0 ellipse 2 3 4 18
+rgndata 0
+rgn 0 ellipse 2 3 5 18
+rgndata 0
+rgn 0 ellipse 2 3 6 18
+rgndata 0
+rgn 0 ellipse 2 3 7 18
+rgndata 0
+rgn 0 ellipse 2 3 8 18
+rgndata 0
+rgn 0 ellipse 2 3 9 18
+rgndata 0
+rgn 0 ellipse 2 3 10 18
+rgndata 0
+rgn 0 ellipse 2 3 11 18
+rgndata 0
+rgn 0 ellipse 2 3 12 18
+rgndata 0
+rgn 0 ellipse 2 3 13 18
+rgndata 0
+rgn 0 ellipse 2 3 14 18
+rgndata 0
+rgn 0 ellipse 2 3 15 18
+rgndata 0
+rgn 0 ellipse 2 3 16 18
+rgndata 0
+rgn 0 ellipse 2 3 17 18
+rgndata 0
+rgn 0 ellipse 2 3 18 18
+rgndata 0
+end
+case ellipse-16
+rgn 0 ellipse 2 3 3 19
+rgndata 0
+rgn 0 ellipse 2 3 4 19
+rgndata 0
+rgn 0 ellipse 2 3 5 19
+rgndata 0
+rgn 0 ellipse 2 3 6 19
+rgndata 0
+rgn 0 ellipse 2 3 7 19
+rgndata 0
+rgn 0 ellipse 2 3 8 19
+rgndata 0
+rgn 0 ellipse 2 3 9 19
+rgndata 0
+rgn 0 ellipse 2 3 10 19
+rgndata 0
+rgn 0 ellipse 2 3 11 19
+rgndata 0
+rgn 0 ellipse 2 3 12 19
+rgndata 0
+rgn 0 ellipse 2 3 13 19
+rgndata 0
+rgn 0 ellipse 2 3 14 19
+rgndata 0
+rgn 0 ellipse 2 3 15 19
+rgndata 0
+rgn 0 ellipse 2 3 16 19
+rgndata 0
+rgn 0 ellipse 2 3 17 19
+rgndata 0
+rgn 0 ellipse 2 3 18 19
+rgndata 0
+end
+case round-0
+rgn 0 round 1 2 20 18 17 11
+rgndata 0
+end
+case round-1
+rgn 0 round 1 2 21 10 9 13
+rgndata 0
+end
+case round-2
+rgn 0 round 1 2 19 9 14 6
+rgndata 0
+end
+case round-3
+rgn 0 round 1 2 17 4 18 9
+rgndata 0
+end
+case round-4
+rgn 0 round 1 2 2 5 20 1
+rgndata 0
+end
+case round-5
+rgn 0 round 1 2 21 3 2 7
+rgndata 0
+end
+case round-6
+rgn 0 round 1 2 13 22 8 8
+rgndata 0
+end
+case round-7
+rgn 0 round 1 2 15 21 23 0
+rgndata 0
+end
+case round-8
+rgn 0 round 1 2 6 8 17 2
+rgndata 0
+end
+case round-9
+rgn 0 round 1 2 13 19 22 22
+rgndata 0
+end
+case round-10
+rgn 0 round 1 2 8 3 20 2
+rgndata 0
+end
+case round-11
+rgn 0 round 1 2 20 6 2 11
+rgndata 0
+end
+case round-12
+rgn 0 round 1 2 5 13 0 10
+rgndata 0
+end
+case round-13
+rgn 0 round 1 2 10 10 6 17
+rgndata 0
+end
+case round-14
+rgn 0 round 1 2 18 5 21 0
+rgndata 0
+end
+case round-15
+rgn 0 round 1 2 7 19 7 19
+rgndata 0
+end
+case round-16
+rgn 0 round 1 2 14 4 15 19
+rgndata 0
+end
+case round-17
+rgn 0 round 1 2 16 15 24 22
+rgndata 0
+end
+case round-18
+rgn 0 round 1 2 3 20 11 1
+rgndata 0
+end
+case round-19
+rgn 0 round 1 2 11 11 7 4
+rgndata 0
+end
+case round-20
+rgn 0 round 1 2 11 9 6 20
+rgndata 0
+end
+case round-21
+rgn 0 round 1 2 8 14 20 3
+rgndata 0
+end
+case round-22
+rgn 0 round 1 2 7 3 10 18
+rgndata 0
+end
+case round-23
+rgn 0 round 1 2 20 16 13 20
+rgndata 0
+end
+case round-24
+rgn 0 round 1 2 21 4 19 19
+rgndata 0
+end
+case round-25
+rgn 0 round 1 2 20 6 23 5
+rgndata 0
+end
+case round-26
+rgn 0 round 1 2 14 7 22 10
+rgndata 0
+end
+case round-27
+rgn 0 round 1 2 14 16 22 8
+rgndata 0
+end
+case round-28
+rgn 0 round 1 2 21 3 14 12
+rgndata 0
+end
+case round-29
+rgn 0 round 1 2 5 9 23 24
+rgndata 0
+end
+case round-30
+rgn 0 round 1 2 9 11 18 8
+rgndata 0
+end
+case round-31
+rgn 0 round 1 2 5 11 2 21
+rgndata 0
+end
+case round-32
+rgn 0 round 1 2 12 17 13 22
+rgndata 0
+end
+case round-33
+rgn 0 round 1 2 5 19 12 8
+rgndata 0
+end
+case round-34
+rgn 0 round 1 2 18 4 5 24
+rgndata 0
+end
+case round-35
+rgn 0 round 1 2 21 22 24 2
+rgndata 0
+end
+case round-36
+rgn 0 round 1 2 20 19 24 18
+rgndata 0
+end
+case round-37
+rgn 0 round 1 2 17 3 22 16
+rgndata 0
+end
+case round-38
+rgn 0 round 1 2 19 5 17 1
+rgndata 0
+end
+case round-39
+rgn 0 round 1 2 14 15 20 18
+rgndata 0
+end
+case round-40
+rgn 0 round 1 2 9 5 3 16
+rgndata 0
+end
+case round-41
+rgn 0 round 1 2 11 21 8 22
+rgndata 0
+end
+case round-42
+rgn 0 round 1 2 20 15 6 8
+rgndata 0
+end
+case round-43
+rgn 0 round 1 2 19 21 8 23
+rgndata 0
+end
+case round-44
+rgn 0 round 1 2 12 8 12 2
+rgndata 0
+end
+case round-45
+rgn 0 round 1 2 4 4 17 4
+rgndata 0
+end
+case round-46
+rgn 0 round 1 2 16 22 14 10
+rgndata 0
+end
+case round-47
+rgn 0 round 1 2 14 11 11 21
+rgndata 0
+end
+case round-48
+rgn 0 round 1 2 8 19 19 18
+rgndata 0
+end
+case round-49
+rgn 0 round 1 2 12 18 24 11
+rgndata 0
+end
+case round-50
+rgn 0 round 1 2 18 17 7 18
+rgndata 0
+end
+case round-51
+rgn 0 round 1 2 2 5 5 10
+rgndata 0
+end
+case round-52
+rgn 0 round 1 2 15 3 14 8
+rgndata 0
+end
+case round-53
+rgn 0 round 1 2 19 14 21 8
+rgndata 0
+end
+case round-54
+rgn 0 round 1 2 11 21 14 22
+rgndata 0
+end
+case round-55
+rgn 0 round 1 2 16 7 7 23
+rgndata 0
+end
+case round-56
+rgn 0 round 1 2 14 6 7 12
+rgndata 0
+end
+case round-57
+rgn 0 round 1 2 13 20 12 20
+rgndata 0
+end
+case round-58
+rgn 0 round 1 2 6 11 24 13
+rgndata 0
+end
+case round-59
+rgn 0 round 1 2 16 19 5 3
+rgndata 0
+end
+case poly-0
+rgn 0 poly 1 3 0 -2 13 15 16 -3 10
+rgndata 0
+end
+case poly-1
+rgn 0 poly 2 5 -1 -1 8 8 4 3 10
+rgndata 0
+end
+case poly-2
+rgn 0 poly 1 13 -1 2 1 -2 6 14 16 11 6 12 16 4 0
+rgndata 0
+end
+case poly-3
+rgn 0 poly 2 14 1 14 4 6 5 1 -1 7 7 7 5 14 3
+rgndata 0
+end
+case poly-4
+rgn 0 poly 1 10 16 13 0 -3 3
+rgndata 0
+end
+case poly-5
+rgn 0 poly 2 10 -3 -2 -1 12 -2 3 11
+rgndata 0
+end
+case poly-6
+rgn 0 poly 1 3 7 14 -3 3 12
+rgndata 0
+end
+case poly-7
+rgn 0 poly 2 1 11 -2 -2 0 14 7 8 0 -2 10 4 -1 1 7 9
+rgndata 0
+end
+case poly-8
+rgn 0 poly 1 2 7 12 6 8 15 2 8 1 15 8 15
+rgndata 0
+end
+case poly-9
+rgn 0 poly 2 7 4 12 3 14 12
+rgndata 0
+end
+case poly-10
+rgn 0 poly 1 9 -2 10 -1 11 9 8 13 -2 7
+rgndata 0
+end
+case poly-11
+rgn 0 poly 2 -3 2 -3 1 16 14 10 11
+rgndata 0
+end
+case poly-12
+rgn 0 poly 1 14 2 0 2 0 9 -3 11 4 9 11 2
+rgndata 0
+end
+case poly-13
+rgn 0 poly 2 3 10 12 1 12 2
+rgndata 0
+end
+case poly-14
+rgn 0 poly 1 8 7 9 3 8 8 -3 -2 11 4 8 0 6 8 9 -2
+rgndata 0
+end
+case poly-15
+rgn 0 poly 2 13 0 10 13 9 0 3 10 3 -2 7 7 7 10 -1 4
+rgndata 0
+end
+case poly-16
+rgn 0 poly 1 15 0 8 11 -1 5 -1 9 16 1 1 9
+rgndata 0
+end
+case poly-17
+rgn 0 poly 2 -2 7 9 5 14 1 -3 16 -1 11 7 8 8 0 6 -3
+rgndata 0
+end
+case poly-18
+rgn 0 poly 1 9 2 7 1 1 -3 6 11 3 8
+rgndata 0
+end
+case poly-19
+rgn 0 poly 2 12 -3 10 11 2 1 15 8
+rgndata 0
+end
+case poly-20
+rgn 0 poly 1 3 5 10 14 13 10 0 -1 12 14 10 5 -3 -2
+rgndata 0
+end
+case poly-21
+rgn 0 poly 2 1 13 12 4 10 -3 11 4 3 0 7 16 -2 3 6 -2
+rgndata 0
+end
+case poly-22
+rgn 0 poly 1 3 5 4 1 -3 7 -3 4 0 16 0 4
+rgndata 0
+end
+case poly-23
+rgn 0 poly 2 14 -3 -3 9 9 -1
+rgndata 0
+end
+case poly-24
+rgn 0 poly 1 1 3 2 16 16 10 4 5 11 9
+rgndata 0
+end
+case poly-25
+rgn 0 poly 2 8 6 2 4 7 -1 11 -3 -1 10 2 2 -3 14 16 0
+rgndata 0
+end
+case poly-26
+rgn 0 poly 1 3 0 2 3 3 9 12 13 4 7 3 4 -3 12 3 13
+rgndata 0
+end
+case poly-27
+rgn 0 poly 2 14 9 -1 14 -2 9 13 15 -3 -1 7 16 1 4
+rgndata 0
+end
+case poly-28
+rgn 0 poly 1 -1 6 9 4 -1 3 10 10
+rgndata 0
+end
+case poly-29
+rgn 0 poly 2 13 0 15 9 -2 14 15 7 -1 -3 12 10
+rgndata 0
+end
+case poly-30
+rgn 0 poly 1 14 8 9 7 5 -1 3 12
+rgndata 0
+end
+case poly-31
+rgn 0 poly 2 3 10 2 -3 12 15 4 -3 9 0 -1 2 2 7
+rgndata 0
+end
+case poly-32
+rgn 0 poly 1 4 6 13 5 5 9 4 11
+rgndata 0
+end
+case poly-33
+rgn 0 poly 2 14 5 12 4 12 3 -2 9 8 1 10 16
+rgndata 0
+end
+case poly-34
+rgn 0 poly 1 8 -1 9 4 -3 10 -2 11 12 5
+rgndata 0
+end
+case poly-35
+rgn 0 poly 2 -2 1 6 11 2 13 0 1 12 16 -2 -2
+rgndata 0
+end
+case poly-36
+rgn 0 poly 1 6 14 -3 3 13 7 10 13 12 5
+rgndata 0
+end
+case poly-37
+rgn 0 poly 2 1 6 2 -1 2 9 12 8 13 16 -3 14
+rgndata 0
+end
+case poly-38
+rgn 0 poly 1 7 4 12 11 0 5 5 4 13 -1 10 9
+rgndata 0
+end
+case poly-39
+rgn 0 poly 2 0 2 0 14 14 13 9 -1 -2 10
+rgndata 0
+end
+case poly-40
+rgn 0 poly 1 8 2 15 -2 9 15
+rgndata 0
+end
+case poly-41
+rgn 0 poly 2 4 1 2 12 5 2 9 10 9 16 3 2 15 12 14 11
+rgndata 0
+end
+case poly-42
+rgn 0 poly 1 11 10 0 9 6 16 10 5 0 -2 -1 0
+rgndata 0
+end
+case poly-43
+rgn 0 poly 2 4 4 -1 11 2 7 8 15
+rgndata 0
+end
+case poly-44
+rgn 0 poly 1 -3 6 14 12 0 15
+rgndata 0
+end
+case poly-45
+rgn 0 poly 2 9 0 8 6 5 1 0 11 11 9 14 14
+rgndata 0
+end
+case poly-46
+rgn 0 poly 1 13 15 -2 1 3 13
+rgndata 0
+end
+case poly-47
+rgn 0 poly 2 3 3 0 5 5 7 9 1 14 10
+rgndata 0
+end
+case poly-48
+rgn 0 poly 1 14 5 -3 8 1 9 11 13 13 16 13 -2 12 4 0 11
+rgndata 0
+end
+case poly-49
+rgn 0 poly 2 1 3 15 16 -2 2 13 6 16 4 -1 16 14 8
+rgndata 0
+end
+case poly-50
+rgn 0 poly 1 12 14 13 16 14 0 11 12 7 15 10 11 12 15
+rgndata 0
+end
+case poly-51
+rgn 0 poly 2 9 16 2 12 3 1 -1 11 8 -1 12 2
+rgndata 0
+end
+case poly-52
+rgn 0 poly 1 7 6 4 0 -3 10 0 14 14 12 7 7 5 4
+rgndata 0
+end
+case poly-53
+rgn 0 poly 2 11 10 -3 -2 1 8
+rgndata 0
+end
+case poly-54
+rgn 0 poly 1 6 0 3 1 11 8 1 8 10 11
+rgndata 0
+end
+case poly-55
+rgn 0 poly 2 9 15 9 15 11 1
+rgndata 0
+end
+case poly-56
+rgn 0 poly 1 2 7 7 8 -1 5 16 5
+rgndata 0
+end
+case poly-57
+rgn 0 poly 2 -2 8 5 3 13 7 -1 -2 7 16 2 7 15 2 8 14
+rgndata 0
+end
+case poly-58
+rgn 0 poly 1 7 14 9 1 4 8 16 2 4 11 -2 12
+rgndata 0
+end
+case poly-59
+rgn 0 poly 2 12 0 11 5 3 7 -3 12 -3 6 14 4
+rgndata 0
+end
+case poly-60
+rgn 0 poly 1 10 13 -3 12 0 13 2 4 10 8 8 14
+rgndata 0
+end
+case poly-61
+rgn 0 poly 2 3 4 10 14 10 1 15 7 15 3 -3 12
+rgndata 0
+end
+case poly-62
+rgn 0 poly 1 2 2 16 4 -2 8 7 -3 13 8 -1 0
+rgndata 0
+end
+case poly-63
+rgn 0 poly 2 2 13 9 -2 15 15 9 0 6 11 15 15 2 1 7 10
+rgndata 0
+end
+case poly-64
+rgn 0 poly 1 16 10 3 -3 -2 6 11 1 3 4 -1 0 0 1
+rgndata 0
+end
+case poly-65
+rgn 0 poly 2 -2 6 -1 3 4 7
+rgndata 0
+end
+case poly-66
+rgn 0 poly 1 -2 1 6 5 0 14
+rgndata 0
+end
+case poly-67
+rgn 0 poly 2 7 13 0 1 -2 9 11 -1 15 6
+rgndata 0
+end
+case poly-68
+rgn 0 poly 1 14 8 8 16 0 8 1 16
+rgndata 0
+end
+case poly-69
+rgn 0 poly 2 14 6 14 6 5 8
+rgndata 0
+end
+case poly-70
+rgn 0 poly 1 0 4 8 -2 10 -1 14 4 2 11
+rgndata 0
+end
+case poly-71
+rgn 0 poly 2 12 6 14 7 15 14 -1 -1 4 12
+rgndata 0
+end
+case poly-72
+rgn 0 poly 1 -2 11 12 2 12 5 6 0 2 10
+rgndata 0
+end
+case poly-73
+rgn 0 poly 2 -3 6 2 5 14 15
+rgndata 0
+end
+case poly-74
+rgn 0 poly 1 15 16 3 15 4 16 1 16 9 2 2 10 4 8
+rgndata 0
+end
+case poly-75
+rgn 0 poly 2 5 6 10 3 15 13 15 10 12 12 -3 15 8 6 1 -1
+rgndata 0
+end
+case poly-76
+rgn 0 poly 1 16 4 10 13 3 13 5 -2 5 14 13 16 6 13 14 1
+rgndata 0
+end
+case poly-77
+rgn 0 poly 2 -2 14 3 4 2 1 12 1 11 0 9 -3
+rgndata 0
+end
+case poly-78
+rgn 0 poly 1 6 11 0 5 0 10
+rgndata 0
+end
+case poly-79
+rgn 0 poly 2 10 10 7 11 14 9 -3 -1 2 3 9 5
+rgndata 0
+end
+case poly-80
+rgn 0 poly 1 13 7 12 5 8 -2 9 7
+rgndata 0
+end
+case poly-81
+rgn 0 poly 2 6 3 0 9 1 16 -3 14 13 15 6 2 3 -3 0 -3
+rgndata 0
+end
+case poly-82
+rgn 0 poly 1 5 2 4 8 8 10 11 16 8 8 -3 2
+rgndata 0
+end
+case poly-83
+rgn 0 poly 2 5 10 -1 15 10 2 12 2 16 11 0 -1 12 -1
+rgndata 0
+end
+case poly-84
+rgn 0 poly 1 12 9 14 1 16 -3 11 12 3 14
+rgndata 0
+end
+case poly-85
+rgn 0 poly 2 5 13 14 3 6 9 3 7 -1 -3 6 -3 11 15
+rgndata 0
+end
+case poly-86
+rgn 0 poly 1 5 12 4 -1 -3 16 5 16 9 1
+rgndata 0
+end
+case poly-87
+rgn 0 poly 2 13 2 -2 11 -3 -2 1 11
+rgndata 0
+end
+case poly-88
+rgn 0 poly 1 6 5 8 10 4 4 13 15
+rgndata 0
+end
+case poly-89
+rgn 0 poly 2 -3 -2 14 7 2 -1 10 6 14 4 0 1 15 3 2 11
+rgndata 0
+end
+case poly-90
+rgn 0 poly 1 7 4 16 3 -2 7 -2 4
+rgndata 0
+end
+case poly-91
+rgn 0 poly 2 7 8 4 13 14 15 1 8 15 10 13 14 -3 0 11 8
+rgndata 0
+end
+case poly-92
+rgn 0 poly 1 8 6 10 12 6 11
+rgndata 0
+end
+case poly-93
+rgn 0 poly 2 8 13 -3 3 -2 6 9 11 4 14 14 -2
+rgndata 0
+end
+case poly-94
+rgn 0 poly 1 16 -2 6 -1 0 9 -3 8
+rgndata 0
+end
+case poly-95
+rgn 0 poly 2 13 10 4 11 12 11 13 1 -2 4
+rgndata 0
+end
+case poly-96
+rgn 0 poly 1 2 16 9 6 6 11 2 8 -1 15 -1 4 -2 -1
+rgndata 0
+end
+case poly-97
+rgn 0 poly 2 13 0 4 1 9 9 0 5 13 -3 11 5 9 12
+rgndata 0
+end
+case poly-98
+rgn 0 poly 1 3 -3 5 3 -1 3 1 14 -2 -3 0 7 12 15 16 12
+rgndata 0
+end
+case poly-99
+rgn 0 poly 2 15 9 8 -3 -1 9 1 15 3 7
+rgndata 0
+end
+case poly-100
+rgn 0 poly 1 2 4 10 13 2 11 7 16 11 15 13 13 7 13
+rgndata 0
+end
+case poly-101
+rgn 0 poly 2 7 15 5 4 2 15 9 3
+rgndata 0
+end
+case poly-102
+rgn 0 poly 1 9 2 -3 0 9 13 9 16 11 -1 7 6 3 14
+rgndata 0
+end
+case poly-103
+rgn 0 poly 2 10 10 7 7 3 -2 10 -2 8 13 16 16 8 15
+rgndata 0
+end
+case poly-104
+rgn 0 poly 1 9 16 -2 -2 5 6
+rgndata 0
+end
+case poly-105
+rgn 0 poly 2 -3 12 11 12 -3 -3 -1 3 5 7 11 16
+rgndata 0
+end
+case poly-106
+rgn 0 poly 1 15 12 14 7 1 15 9 12
+rgndata 0
+end
+case poly-107
+rgn 0 poly 2 9 11 7 11 9 6 9 2 10 10
+rgndata 0
+end
+case poly-108
+rgn 0 poly 1 2 -1 2 -3 -2 11 8 4 13 9 1 14 12 8 15 8
+rgndata 0
+end
+case poly-109
+rgn 0 poly 2 15 3 7 8 5 6 6 13 15 1
+rgndata 0
+end
+case poly-110
+rgn 0 poly 1 12 2 11 2 11 5 12 -3 -3 15 -2 -1 15 15
+rgndata 0
+end
+case poly-111
+rgn 0 poly 2 10 0 4 3 -2 -2 9 4
+rgndata 0
+end
+case poly-112
+rgn 0 poly 1 13 5 14 -3 -2 13 5 6 6 16 5 6 15 13 16 11
+rgndata 0
+end
+case poly-113
+rgn 0 poly 2 11 16 13 11 11 15
+rgndata 0
+end
+case poly-114
+rgn 0 poly 1 2 10 3 13 7 4 3 15 16 3 6 0 15 -3
+rgndata 0
+end
+case poly-115
+rgn 0 poly 2 10 13 7 -2 9 12
+rgndata 0
+end
+case poly-116
+rgn 0 poly 1 6 6 6 4 10 6
+rgndata 0
+end
+case poly-117
+rgn 0 poly 2 10 7 3 15 13 4 2 13 11 2
+rgndata 0
+end
+case poly-118
+rgn 0 poly 1 6 6 16 8 1 14 0 4
+rgndata 0
+end
+case poly-119
+rgn 0 poly 2 0 1 16 8 6 -3
+rgndata 0
+end
+case query-0
+rgn 0 rect 1 6 3 7
+rgn 1 rect 3 8 13 7
+combine 2 0 1 3
+ptin 2 13 15
+ptin 2 -3 4
+ptin 2 3 -3
+ptin 2 -1 4
+ptin 2 5 4
+ptin 2 5 -1
+rectin 2 6 11 15 15
+rectin 2 9 10 18 17
+rectin 2 0 2 10 11
+rectin 2 -2 13 6 16
+equal 2 0
+equal 0 0
+rgn 3 rect -2 -2 0 -2
+equal 2 3
+offsetrgn 2 -2 6
+rgndata 2
+rgnbox 2
+end
+case query-1
+rgn 0 rect 4 3 8 5
+rgn 1 rect -2 2 -3 5
+combine 2 0 1 3
+ptin 2 -1 12
+ptin 2 18 1
+ptin 2 7 -2
+ptin 2 10 4
+ptin 2 5 18
+ptin 2 8 3
+rectin 2 11 -2 11 2
+rectin 2 13 11 15 16
+rectin 2 13 13 13 21
+rectin 2 9 12 13 20
+equal 2 0
+equal 0 0
+rgn 3 rect -1 -2 1 8
+equal 2 3
+offsetrgn 2 -9 1
+rgndata 2
+rgnbox 2
+end
+case query-2
+rgn 0 rect 7 8 11 6
+rgn 1 rect 8 0 15 5
+combine 2 0 1 3
+ptin 2 4 12
+ptin 2 6 16
+ptin 2 2 18
+ptin 2 13 16
+ptin 2 5 11
+ptin 2 -3 5
+rectin 2 12 -2 13 7
+rectin 2 9 5 16 4
+rectin 2 3 3 10 11
+rectin 2 13 13 20 12
+equal 2 0
+equal 0 0
+rgn 3 rect 8 -2 8 2
+equal 2 3
+offsetrgn 2 -4 -3
+rgndata 2
+rgnbox 2
+end
+case query-3
+rgn 0 rect 2 8 5 16
+rgn 1 rect 8 4 15 13
+combine 2 0 1 1
+ptin 2 -3 10
+ptin 2 -3 7
+ptin 2 7 7
+ptin 2 0 1
+ptin 2 16 -3
+ptin 2 11 1
+rectin 2 -1 -1 8 -1
+rectin 2 4 -1 11 -1
+rectin 2 14 14 12 14
+rectin 2 2 14 9 22
+equal 2 0
+equal 0 0
+rgn 3 rect 2 3 10 6
+equal 2 3
+offsetrgn 2 6 5
+rgndata 2
+rgnbox 2
+end
+case query-4
+rgn 0 rect 3 -2 2 6
+rgn 1 rect 5 0 15 3
+combine 2 0 1 5
+ptin 2 5 -2
+ptin 2 4 0
+ptin 2 15 3
+ptin 2 5 13
+ptin 2 4 11
+ptin 2 11 1
+rectin 2 10 -1 10 6
+rectin 2 8 4 7 12
+rectin 2 10 0 8 9
+rectin 2 -2 10 7 8
+equal 2 0
+equal 0 0
+rgn 3 rect 2 1 8 6
+equal 2 3
+offsetrgn 2 -7 3
+rgndata 2
+rgnbox 2
+end
+case query-5
+rgn 0 rect -1 1 7 5
+rgn 1 rect -2 -1 -4 7
+combine 2 0 1 5
+ptin 2 6 17
+ptin 2 0 -1
+ptin 2 8 13
+ptin 2 -3 7
+ptin 2 -2 -3
+ptin 2 0 14
+rectin 2 4 0 13 4
+rectin 2 9 7 14 5
+rectin 2 0 5 -2 6
+rectin 2 -2 3 0 5
+equal 2 0
+equal 0 0
+rgn 3 rect 6 5 15 14
+equal 2 3
+offsetrgn 2 6 8
+rgndata 2
+rgnbox 2
+end
+case query-6
+rgn 0 rect 8 5 17 9
+rgn 1 rect 4 5 12 13
+combine 2 0 1 4
+ptin 2 4 4
+ptin 2 4 -1
+ptin 2 12 17
+ptin 2 15 8
+ptin 2 -1 -1
+ptin 2 -1 -3
+rectin 2 7 13 15 18
+rectin 2 4 1 4 9
+rectin 2 11 14 9 21
+rectin 2 9 1 9 6
+equal 2 0
+equal 0 0
+rgn 3 rect 1 0 6 10
+equal 2 3
+offsetrgn 2 8 -9
+rgndata 2
+rgnbox 2
+end
+case query-7
+rgn 0 rect 7 2 14 10
+rgn 1 rect 2 0 0 0
+combine 2 0 1 4
+ptin 2 11 -2
+ptin 2 10 -3
+ptin 2 0 14
+ptin 2 13 3
+ptin 2 5 6
+ptin 2 15 3
+rectin 2 1 0 8 9
+rectin 2 0 13 6 16
+rectin 2 -3 13 -3 12
+rectin 2 12 -2 18 1
+equal 2 0
+equal 0 0
+rgn 3 rect 2 5 0 3
+equal 2 3
+offsetrgn 2 3 1
+rgndata 2
+rgnbox 2
+end
+case query-8
+rgn 0 rect 7 -1 11 3
+rgn 1 rect 3 -1 10 -2
+combine 2 0 1 5
+ptin 2 -3 15
+ptin 2 12 9
+ptin 2 0 15
+ptin 2 17 16
+ptin 2 5 -2
+ptin 2 16 1
+rectin 2 6 -2 4 1
+rectin 2 2 11 1 16
+rectin 2 4 12 6 14
+rectin 2 11 2 9 4
+equal 2 0
+equal 0 0
+rgn 3 rect 6 0 8 5
+equal 2 3
+offsetrgn 2 -6 3
+rgndata 2
+rgnbox 2
+end
+case query-9
+rgn 0 rect 0 6 -2 7
+rgn 1 rect 1 4 -1 13
+combine 2 0 1 4
+ptin 2 10 5
+ptin 2 10 4
+ptin 2 5 -3
+ptin 2 7 9
+ptin 2 11 1
+ptin 2 -1 3
+rectin 2 2 12 10 13
+rectin 2 8 10 6 10
+rectin 2 5 9 14 19
+rectin 2 14 -3 23 0
+equal 2 0
+equal 0 0
+rgn 3 rect 3 1 12 3
+equal 2 3
+offsetrgn 2 -9 -9
+rgndata 2
+rgnbox 2
+end
+case query-10
+rgn 0 rect 6 3 6 4
+rgn 1 rect -1 6 9 8
+combine 2 0 1 1
+ptin 2 10 17
+ptin 2 10 5
+ptin 2 -3 1
+ptin 2 13 9
+ptin 2 6 16
+ptin 2 7 4
+rectin 2 -3 1 -4 2
+rectin 2 13 6 21 11
+rectin 2 7 9 13 8
+rectin 2 5 6 10 16
+equal 2 0
+equal 0 0
+rgn 3 rect 0 8 -1 8
+equal 2 3
+offsetrgn 2 -9 5
+rgndata 2
+rgnbox 2
+end
+case query-11
+rgn 0 rect 4 6 10 11
+rgn 1 rect 6 1 7 1
+combine 2 0 1 3
+ptin 2 10 3
+ptin 2 4 12
+ptin 2 1 14
+ptin 2 2 14
+ptin 2 6 2
+ptin 2 1 1
+rectin 2 12 8 15 8
+rectin 2 5 10 11 13
+rectin 2 8 5 11 7
+rectin 2 11 11 19 17
+equal 2 0
+equal 0 0
+rgn 3 rect 1 4 11 10
+equal 2 3
+offsetrgn 2 6 -2
+rgndata 2
+rgnbox 2
+end
+case query-12
+rgn 0 rect -2 4 6 14
+rgn 1 rect 6 8 4 9
+combine 2 0 1 5
+ptin 2 13 15
+ptin 2 6 0
+ptin 2 9 13
+ptin 2 5 4
+ptin 2 10 8
+ptin 2 -1 -2
+rectin 2 4 10 3 10
+rectin 2 -3 5 7 14
+rectin 2 13 2 22 1
+rectin 2 11 -2 14 -3
+equal 2 0
+equal 0 0
+rgn 3 rect 8 7 13 16
+equal 2 3
+offsetrgn 2 -3 5
+rgndata 2
+rgnbox 2
+end
+case query-13
+rgn 0 rect -2 3 4 3
+rgn 1 rect 8 0 6 -1
+combine 2 0 1 1
+ptin 2 3 17
+ptin 2 3 16
+ptin 2 -1 12
+ptin 2 -2 13
+ptin 2 3 12
+ptin 2 3 0
+rectin 2 12 8 22 6
+rectin 2 9 14 19 17
+rectin 2 7 7 7 8
+rectin 2 4 12 3 15
+equal 2 0
+equal 0 0
+rgn 3 rect 4 -2 11 7
+equal 2 3
+offsetrgn 2 -6 3
+rgndata 2
+rgnbox 2
+end
+case query-14
+rgn 0 rect 0 3 0 12
+rgn 1 rect 0 8 2 6
+combine 2 0 1 1
+ptin 2 11 15
+ptin 2 1 13
+ptin 2 1 7
+ptin 2 11 7
+ptin 2 18 3
+ptin 2 -3 10
+rectin 2 14 5 23 12
+rectin 2 10 -2 18 2
+rectin 2 10 -2 11 5
+rectin 2 3 3 4 8
+equal 2 0
+equal 0 0
+rgn 3 rect 7 4 5 5
+equal 2 3
+offsetrgn 2 3 4
+rgndata 2
+rgnbox 2
+end
+case query-15
+rgn 0 rect 0 4 4 5
+rgn 1 rect -1 3 5 12
+combine 2 0 1 3
+ptin 2 13 10
+ptin 2 11 4
+ptin 2 0 11
+ptin 2 2 14
+ptin 2 -2 -1
+ptin 2 4 3
+rectin 2 11 -1 15 2
+rectin 2 9 13 9 18
+rectin 2 0 1 -2 3
+rectin 2 -2 13 5 13
+equal 2 0
+equal 0 0
+rgn 3 rect 3 1 10 7
+equal 2 3
+offsetrgn 2 8 2
+rgndata 2
+rgnbox 2
+end
+case query-16
+rgn 0 rect 7 1 9 11
+rgn 1 rect 5 -2 10 0
+combine 2 0 1 5
+ptin 2 8 -3
+ptin 2 10 4
+ptin 2 -3 7
+ptin 2 10 5
+ptin 2 7 8
+ptin 2 1 1
+rectin 2 13 13 11 18
+rectin 2 -3 11 1 20
+rectin 2 0 2 10 2
+rectin 2 5 5 11 11
+equal 2 0
+equal 0 0
+rgn 3 rect -2 2 -2 9
+equal 2 3
+offsetrgn 2 -7 -6
+rgndata 2
+rgnbox 2
+end
+case query-17
+rgn 0 rect 5 4 3 13
+rgn 1 rect -1 5 -3 13
+combine 2 0 1 1
+ptin 2 11 -3
+ptin 2 -1 -2
+ptin 2 17 7
+ptin 2 12 -2
+ptin 2 9 4
+ptin 2 -3 -3
+rectin 2 10 11 15 21
+rectin 2 7 10 10 12
+rectin 2 14 5 20 3
+rectin 2 14 2 13 11
+equal 2 0
+equal 0 0
+rgn 3 rect 0 7 3 5
+equal 2 3
+offsetrgn 2 -4 1
+rgndata 2
+rgnbox 2
+end
+case query-18
+rgn 0 rect 8 3 18 4
+rgn 1 rect 4 4 11 9
+combine 2 0 1 3
+ptin 2 9 1
+ptin 2 11 15
+ptin 2 17 17
+ptin 2 15 -3
+ptin 2 3 -2
+ptin 2 9 -3
+rectin 2 -2 9 -2 15
+rectin 2 -1 11 0 20
+rectin 2 2 0 0 -1
+rectin 2 6 0 14 5
+equal 2 0
+equal 0 0
+rgn 3 rect 3 8 13 17
+equal 2 3
+offsetrgn 2 3 8
+rgndata 2
+rgnbox 2
+end
+case query-19
+rgn 0 rect 6 7 13 13
+rgn 1 rect 4 1 13 7
+combine 2 0 1 3
+ptin 2 10 -2
+ptin 2 13 -1
+ptin 2 -3 -2
+ptin 2 15 9
+ptin 2 13 9
+ptin 2 2 10
+rectin 2 1 5 1 15
+rectin 2 10 13 9 16
+rectin 2 6 3 15 8
+rectin 2 12 11 11 12
+equal 2 0
+equal 0 0
+rgn 3 rect 1 0 10 7
+equal 2 3
+offsetrgn 2 -2 -8
+rgndata 2
+rgnbox 2
+end
+case query-20
+rgn 0 rect 6 -1 14 -3
+rgn 1 rect -2 6 6 8
+combine 2 0 1 4
+ptin 2 5 -3
+ptin 2 10 -1
+ptin 2 14 2
+ptin 2 -1 5
+ptin 2 7 4
+ptin 2 15 -2
+rectin 2 2 3 4 10
+rectin 2 10 -3 10 1
+rectin 2 14 7 17 6
+rectin 2 -3 10 -1 16
+equal 2 0
+equal 0 0
+rgn 3 rect 3 -1 7 4
+equal 2 3
+offsetrgn 2 1 9
+rgndata 2
+rgnbox 2
+end
+case query-21
+rgn 0 rect -1 5 7 13
+rgn 1 rect 8 3 11 11
+combine 2 0 1 1
+ptin 2 13 2
+ptin 2 7 1
+ptin 2 10 7
+ptin 2 -2 14
+ptin 2 16 0
+ptin 2 10 6
+rectin 2 13 13 14 13
+rectin 2 -2 6 8 11
+rectin 2 4 3 2 10
+rectin 2 5 11 5 19
+equal 2 0
+equal 0 0
+rgn 3 rect 1 -1 6 2
+equal 2 3
+offsetrgn 2 -3 9
+rgndata 2
+rgnbox 2
+end
+case query-22
+rgn 0 rect 8 3 17 2
+rgn 1 rect 2 5 5 7
+combine 2 0 1 2
+ptin 2 13 7
+ptin 2 2 6
+ptin 2 13 5
+ptin 2 8 10
+ptin 2 -2 13
+ptin 2 4 5
+rectin 2 7 9 17 19
+rectin 2 9 -3 9 3
+rectin 2 14 8 14 10
+rectin 2 4 3 14 10
+equal 2 0
+equal 0 0
+rgn 3 rect 1 5 2 3
+equal 2 3
+offsetrgn 2 9 7
+rgndata 2
+rgnbox 2
+end
+case query-23
+rgn 0 rect 8 5 13 6
+rgn 1 rect 4 8 11 7
+combine 2 0 1 5
+ptin 2 -2 -3
+ptin 2 0 5
+ptin 2 17 -2
+ptin 2 7 14
+ptin 2 17 2
+ptin 2 11 8
+rectin 2 3 9 5 14
+rectin 2 6 13 16 18
+rectin 2 8 7 7 17
+rectin 2 -3 9 0 18
+equal 2 0
+equal 0 0
+rgn 3 rect 6 7 16 9
+equal 2 3
+offsetrgn 2 -1 -9
+rgndata 2
+rgnbox 2
+end
+case query-24
+rgn 0 rect 7 5 16 10
+rgn 1 rect 1 3 0 1
+combine 2 0 1 5
+ptin 2 17 10
+ptin 2 -2 10
+ptin 2 6 3
+ptin 2 12 2
+ptin 2 -1 -2
+ptin 2 11 5
+rectin 2 12 10 10 17
+rectin 2 -2 12 7 15
+rectin 2 6 6 7 6
+rectin 2 7 10 13 17
+equal 2 0
+equal 0 0
+rgn 3 rect -2 6 6 11
+equal 2 3
+offsetrgn 2 2 -5
+rgndata 2
+rgnbox 2
+end
+case query-25
+rgn 0 rect 6 8 16 17
+rgn 1 rect 5 7 7 9
+combine 2 0 1 1
+ptin 2 8 16
+ptin 2 1 7
+ptin 2 5 0
+ptin 2 10 5
+ptin 2 3 5
+ptin 2 5 -1
+rectin 2 4 8 4 12
+rectin 2 9 2 14 10
+rectin 2 13 1 11 9
+rectin 2 14 0 22 -1
+equal 2 0
+equal 0 0
+rgn 3 rect -1 -2 1 8
+equal 2 3
+offsetrgn 2 4 -5
+rgndata 2
+rgnbox 2
+end
+case query-26
+rgn 0 rect -2 7 6 16
+rgn 1 rect 1 7 11 11
+combine 2 0 1 5
+ptin 2 7 17
+ptin 2 13 6
+ptin 2 7 15
+ptin 2 9 18
+ptin 2 7 10
+ptin 2 14 7
+rectin 2 13 -2 16 2
+rectin 2 0 10 1 17
+rectin 2 7 1 14 3
+rectin 2 2 8 7 9
+equal 2 0
+equal 0 0
+rgn 3 rect 2 6 3 9
+equal 2 3
+offsetrgn 2 -8 6
+rgndata 2
+rgnbox 2
+end
+case query-27
+rgn 0 rect 2 5 11 6
+rgn 1 rect -2 0 2 -2
+combine 2 0 1 2
+ptin 2 8 11
+ptin 2 3 3
+ptin 2 -3 4
+ptin 2 -1 12
+ptin 2 18 14
+ptin 2 8 -2
+rectin 2 6 4 4 4
+rectin 2 11 -2 9 0
+rectin 2 10 -2 10 1
+rectin 2 6 14 14 19
+equal 2 0
+equal 0 0
+rgn 3 rect 5 4 10 6
+equal 2 3
+offsetrgn 2 -4 -1
+rgndata 2
+rgnbox 2
+end
+case query-28
+rgn 0 rect 0 2 -2 0
+rgn 1 rect 4 1 6 4
+combine 2 0 1 2
+ptin 2 2 4
+ptin 2 2 17
+ptin 2 15 -2
+ptin 2 10 3
+ptin 2 4 6
+ptin 2 8 13
+rectin 2 9 8 16 13
+rectin 2 6 10 15 17
+rectin 2 9 8 8 17
+rectin 2 6 13 6 18
+equal 2 0
+equal 0 0
+rgn 3 rect 8 3 16 11
+equal 2 3
+offsetrgn 2 -3 5
+rgndata 2
+rgnbox 2
+end
+case query-29
+rgn 0 rect 4 -2 10 -1
+rgn 1 rect 0 -1 3 3
+combine 2 0 1 2
+ptin 2 10 10
+ptin 2 -3 -1
+ptin 2 -2 16
+ptin 2 2 17
+ptin 2 -2 1
+ptin 2 0 15
+rectin 2 12 2 20 11
+rectin 2 1 11 6 17
+rectin 2 -1 5 2 7
+rectin 2 2 14 0 18
+equal 2 0
+equal 0 0
+rgn 3 rect 2 8 6 9
+equal 2 3
+offsetrgn 2 1 0
+rgndata 2
+rgnbox 2
+end
+case query-30
+rgn 0 rect -1 3 3 5
+rgn 1 rect 2 -2 9 0
+combine 2 0 1 4
+ptin 2 18 18
+ptin 2 9 -1
+ptin 2 2 10
+ptin 2 10 13
+ptin 2 12 7
+ptin 2 -1 7
+rectin 2 11 0 16 6
+rectin 2 11 -1 17 -3
+rectin 2 8 3 8 4
+rectin 2 -3 5 1 15
+equal 2 0
+equal 0 0
+rgn 3 rect 6 -2 8 -1
+equal 2 3
+offsetrgn 2 6 7
+rgndata 2
+rgnbox 2
+end
+case query-31
+rgn 0 rect 2 -1 7 8
+rgn 1 rect 3 8 5 9
+combine 2 0 1 5
+ptin 2 16 13
+ptin 2 14 -3
+ptin 2 18 12
+ptin 2 6 14
+ptin 2 -3 9
+ptin 2 16 1
+rectin 2 7 4 16 3
+rectin 2 2 3 12 2
+rectin 2 5 6 11 9
+rectin 2 10 -2 12 5
+equal 2 0
+equal 0 0
+rgn 3 rect 0 0 0 9
+equal 2 3
+offsetrgn 2 -5 -9
+rgndata 2
+rgnbox 2
+end
+case query-32
+rgn 0 rect 0 6 1 5
+rgn 1 rect 0 8 0 11
+combine 2 0 1 3
+ptin 2 10 2
+ptin 2 4 7
+ptin 2 15 11
+ptin 2 10 18
+ptin 2 11 -3
+ptin 2 4 5
+rectin 2 -3 9 -2 7
+rectin 2 9 1 19 3
+rectin 2 12 12 10 12
+rectin 2 10 13 10 23
+equal 2 0
+equal 0 0
+rgn 3 rect 4 7 4 6
+equal 2 3
+offsetrgn 2 -9 5
+rgndata 2
+rgnbox 2
+end
+case query-33
+rgn 0 rect -2 8 6 11
+rgn 1 rect 2 5 3 5
+combine 2 0 1 4
+ptin 2 -3 1
+ptin 2 14 3
+ptin 2 15 10
+ptin 2 10 12
+ptin 2 18 3
+ptin 2 6 -2
+rectin 2 14 4 23 7
+rectin 2 9 11 19 16
+rectin 2 6 8 15 17
+rectin 2 2 3 3 5
+equal 2 0
+equal 0 0
+rgn 3 rect 5 1 9 0
+equal 2 3
+offsetrgn 2 -3 4
+rgndata 2
+rgnbox 2
+end
+case query-34
+rgn 0 rect 0 3 3 2
+rgn 1 rect 6 8 13 7
+combine 2 0 1 3
+ptin 2 11 5
+ptin 2 16 12
+ptin 2 -3 12
+ptin 2 2 14
+ptin 2 0 15
+ptin 2 -3 1
+rectin 2 9 4 18 7
+rectin 2 12 1 17 7
+rectin 2 -2 8 1 12
+rectin 2 6 2 14 2
+equal 2 0
+equal 0 0
+rgn 3 rect 1 5 4 15
+equal 2 3
+offsetrgn 2 6 -5
+rgndata 2
+rgnbox 2
+end
+case query-35
+rgn 0 rect -2 8 8 7
+rgn 1 rect -2 7 5 10
+combine 2 0 1 1
+ptin 2 11 0
+ptin 2 6 18
+ptin 2 11 4
+ptin 2 12 10
+ptin 2 12 8
+ptin 2 7 3
+rectin 2 -3 -2 -4 5
+rectin 2 -3 4 3 2
+rectin 2 13 11 16 12
+rectin 2 4 7 14 13
+equal 2 0
+equal 0 0
+rgn 3 rect 1 -2 7 -4
+equal 2 3
+offsetrgn 2 5 -2
+rgndata 2
+rgnbox 2
+end
+case query-36
+rgn 0 rect 7 2 9 9
+rgn 1 rect 1 5 1 4
+combine 2 0 1 4
+ptin 2 12 14
+ptin 2 11 6
+ptin 2 0 18
+ptin 2 4 3
+ptin 2 11 0
+ptin 2 13 11
+rectin 2 -1 10 7 20
+rectin 2 8 1 17 5
+rectin 2 8 4 7 11
+rectin 2 12 9 11 11
+equal 2 0
+equal 0 0
+rgn 3 rect 3 2 4 7
+equal 2 3
+offsetrgn 2 3 -2
+rgndata 2
+rgnbox 2
+end
+case query-37
+rgn 0 rect 6 6 14 13
+rgn 1 rect 0 -2 -2 3
+combine 2 0 1 5
+ptin 2 8 9
+ptin 2 17 8
+ptin 2 16 11
+ptin 2 16 -1
+ptin 2 13 1
+ptin 2 2 6
+rectin 2 11 12 16 20
+rectin 2 14 4 19 11
+rectin 2 7 10 15 14
+rectin 2 10 -2 18 7
+equal 2 0
+equal 0 0
+rgn 3 rect 8 0 17 4
+equal 2 3
+offsetrgn 2 -1 -2
+rgndata 2
+rgnbox 2
+end
+case query-38
+rgn 0 rect 6 1 9 8
+rgn 1 rect 2 6 4 16
+combine 2 0 1 2
+ptin 2 18 -1
+ptin 2 -3 4
+ptin 2 12 15
+ptin 2 -2 6
+ptin 2 3 4
+ptin 2 13 -3
+rectin 2 -2 5 0 4
+rectin 2 9 10 7 12
+rectin 2 7 1 6 2
+rectin 2 0 -2 5 5
+equal 2 0
+equal 0 0
+rgn 3 rect 3 3 1 6
+equal 2 3
+offsetrgn 2 0 5
+rgndata 2
+rgnbox 2
+end
+case query-39
+rgn 0 rect -1 1 3 9
+rgn 1 rect 5 0 5 6
+combine 2 0 1 4
+ptin 2 2 14
+ptin 2 13 0
+ptin 2 3 6
+ptin 2 10 6
+ptin 2 16 14
+ptin 2 17 14
+rectin 2 13 13 16 23
+rectin 2 6 12 7 14
+rectin 2 0 9 2 18
+rectin 2 -2 -1 5 9
+equal 2 0
+equal 0 0
+rgn 3 rect 4 4 7 8
+equal 2 3
+offsetrgn 2 4 8
+rgndata 2
+rgnbox 2
+end
+case query-40
+rgn 0 rect 8 0 14 7
+rgn 1 rect 5 -2 15 7
+combine 2 0 1 1
+ptin 2 8 17
+ptin 2 18 1
+ptin 2 17 3
+ptin 2 3 4
+ptin 2 6 10
+ptin 2 -3 -3
+rectin 2 13 14 16 22
+rectin 2 11 -3 21 1
+rectin 2 -3 1 -5 1
+rectin 2 6 10 9 20
+equal 2 0
+equal 0 0
+rgn 3 rect -1 1 -3 3
+equal 2 3
+offsetrgn 2 -6 8
+rgndata 2
+rgnbox 2
+end
+case query-41
+rgn 0 rect 6 4 10 11
+rgn 1 rect -1 6 -1 16
+combine 2 0 1 2
+ptin 2 9 16
+ptin 2 1 3
+ptin 2 5 6
+ptin 2 2 16
+ptin 2 6 2
+ptin 2 -2 16
+rectin 2 2 11 4 21
+rectin 2 -1 9 1 14
+rectin 2 0 0 2 7
+rectin 2 10 -3 15 0
+equal 2 0
+equal 0 0
+rgn 3 rect -2 2 3 8
+equal 2 3
+offsetrgn 2 7 0
+rgndata 2
+rgnbox 2
+end
+case query-42
+rgn 0 rect 8 8 14 10
+rgn 1 rect -1 6 1 14
+combine 2 0 1 4
+ptin 2 2 16
+ptin 2 13 13
+ptin 2 1 3
+ptin 2 8 17
+ptin 2 15 8
+ptin 2 8 14
+rectin 2 11 9 16 17
+rectin 2 3 10 9 19
+rectin 2 4 -1 11 2
+rectin 2 3 1 10 5
+equal 2 0
+equal 0 0
+rgn 3 rect -1 4 -2 11
+equal 2 3
+offsetrgn 2 6 6
+rgndata 2
+rgnbox 2
+end
+case query-43
+rgn 0 rect 0 1 0 2
+rgn 1 rect 7 -2 5 4
+combine 2 0 1 2
+ptin 2 -2 11
+ptin 2 6 0
+ptin 2 6 11
+ptin 2 6 17
+ptin 2 7 14
+ptin 2 7 13
+rectin 2 -3 2 -2 5
+rectin 2 2 -1 5 3
+rectin 2 2 1 9 2
+rectin 2 9 4 7 11
+equal 2 0
+equal 0 0
+rgn 3 rect 1 8 8 17
+equal 2 3
+offsetrgn 2 6 -3
+rgndata 2
+rgnbox 2
+end
+case query-44
+rgn 0 rect 2 -1 0 2
+rgn 1 rect 7 1 10 11
+combine 2 0 1 3
+ptin 2 14 3
+ptin 2 0 3
+ptin 2 1 5
+ptin 2 0 9
+ptin 2 1 8
+ptin 2 13 -2
+rectin 2 1 12 8 21
+rectin 2 13 14 22 15
+rectin 2 1 -1 9 0
+rectin 2 5 2 5 4
+equal 2 0
+equal 0 0
+rgn 3 rect 0 3 5 8
+equal 2 3
+offsetrgn 2 3 -3
+rgndata 2
+rgnbox 2
+end
+case query-45
+rgn 0 rect 6 1 16 0
+rgn 1 rect 7 -2 13 -1
+combine 2 0 1 1
+ptin 2 8 9
+ptin 2 10 8
+ptin 2 9 6
+ptin 2 -1 16
+ptin 2 12 2
+ptin 2 -2 -3
+rectin 2 1 13 8 23
+rectin 2 7 13 5 11
+rectin 2 8 2 15 4
+rectin 2 0 3 9 13
+equal 2 0
+equal 0 0
+rgn 3 rect 0 8 -1 7
+equal 2 3
+offsetrgn 2 -2 -8
+rgndata 2
+rgnbox 2
+end
+case query-46
+rgn 0 rect -2 6 4 7
+rgn 1 rect 5 2 12 10
+combine 2 0 1 4
+ptin 2 10 7
+ptin 2 8 13
+ptin 2 3 8
+ptin 2 1 3
+ptin 2 15 -3
+ptin 2 14 8
+rectin 2 4 2 3 11
+rectin 2 7 6 8 8
+rectin 2 -1 9 7 14
+rectin 2 7 3 5 12
+equal 2 0
+equal 0 0
+rgn 3 rect 5 1 3 5
+equal 2 3
+offsetrgn 2 -4 -2
+rgndata 2
+rgnbox 2
+end
+case query-47
+rgn 0 rect 1 5 -1 4
+rgn 1 rect 3 6 9 16
+combine 2 0 1 2
+ptin 2 10 2
+ptin 2 3 8
+ptin 2 15 0
+ptin 2 16 16
+ptin 2 5 17
+ptin 2 13 2
+rectin 2 7 0 5 10
+rectin 2 5 -2 11 0
+rectin 2 5 -3 11 -3
+rectin 2 6 7 5 14
+equal 2 0
+equal 0 0
+rgn 3 rect 2 3 11 3
+equal 2 3
+offsetrgn 2 -2 -4
+rgndata 2
+rgnbox 2
+end
+case query-48
+rgn 0 rect 2 2 11 5
+rgn 1 rect 4 5 10 15
+combine 2 0 1 5
+ptin 2 6 16
+ptin 2 12 1
+ptin 2 11 5
+ptin 2 -1 0
+ptin 2 17 0
+ptin 2 -2 -3
+rectin 2 10 10 17 14
+rectin 2 3 6 8 13
+rectin 2 12 12 20 21
+rectin 2 2 2 1 11
+equal 2 0
+equal 0 0
+rgn 3 rect 0 7 0 16
+equal 2 3
+offsetrgn 2 9 2
+rgndata 2
+rgnbox 2
+end
+case query-49
+rgn 0 rect 0 -2 -1 -2
+rgn 1 rect 5 8 8 18
+combine 2 0 1 1
+ptin 2 3 0
+ptin 2 17 12
+ptin 2 9 6
+ptin 2 17 -1
+ptin 2 3 12
+ptin 2 13 2
+rectin 2 -2 1 1 10
+rectin 2 6 3 5 10
+rectin 2 7 0 8 3
+rectin 2 1 8 3 6
+equal 2 0
+equal 0 0
+rgn 3 rect 6 -1 13 -1
+equal 2 3
+offsetrgn 2 -8 7
+rgndata 2
+rgnbox 2
+end
+case query-50
+rgn 0 rect -1 8 5 8
+rgn 1 rect 2 6 10 5
+combine 2 0 1 4
+ptin 2 5 18
+ptin 2 5 14
+ptin 2 -2 0
+ptin 2 15 16
+ptin 2 17 7
+ptin 2 2 11
+rectin 2 5 5 8 7
+rectin 2 13 10 14 15
+rectin 2 13 4 16 3
+rectin 2 2 -3 12 -4
+equal 2 0
+equal 0 0
+rgn 3 rect 3 6 13 16
+equal 2 3
+offsetrgn 2 -7 -7
+rgndata 2
+rgnbox 2
+end
+case query-51
+rgn 0 rect 2 6 9 13
+rgn 1 rect 2 6 11 8
+combine 2 0 1 1
+ptin 2 12 7
+ptin 2 0 0
+ptin 2 13 5
+ptin 2 -2 2
+ptin 2 12 8
+ptin 2 7 2
+rectin 2 3 3 6 1
+rectin 2 8 6 8 10
+rectin 2 14 12 13 12
+rectin 2 10 2 16 0
+equal 2 0
+equal 0 0
+rgn 3 rect 0 6 0 14
+equal 2 3
+offsetrgn 2 -8 -4
+rgndata 2
+rgnbox 2
+end
+case query-52
+rgn 0 rect 4 0 11 2
+rgn 1 rect 0 4 1 8
+combine 2 0 1 4
+ptin 2 3 -3
+ptin 2 11 12
+ptin 2 1 9
+ptin 2 10 1
+ptin 2 8 10
+ptin 2 6 0
+rectin 2 8 8 11 15
+rectin 2 6 12 9 14
+rectin 2 9 8 7 8
+rectin 2 -1 8 9 8
+equal 2 0
+equal 0 0
+rgn 3 rect 2 4 3 2
+equal 2 3
+offsetrgn 2 6 2
+rgndata 2
+rgnbox 2
+end
+case query-53
+rgn 0 rect -1 -1 8 2
+rgn 1 rect 0 6 1 13
+combine 2 0 1 4
+ptin 2 18 1
+ptin 2 0 4
+ptin 2 9 9
+ptin 2 15 0
+ptin 2 5 12
+ptin 2 15 12
+rectin 2 7 2 14 4
+rectin 2 11 -2 13 -3
+rectin 2 14 3 13 6
+rectin 2 10 13 18 15
+equal 2 0
+equal 0 0
+rgn 3 rect 1 5 10 11
+equal 2 3
+offsetrgn 2 8 -4
+rgndata 2
+rgnbox 2
+end
+case query-54
+rgn 0 rect 5 2 5 0
+rgn 1 rect 2 1 9 7
+combine 2 0 1 4
+ptin 2 8 6
+ptin 2 18 1
+ptin 2 8 -1
+ptin 2 9 -1
+ptin 2 10 1
+ptin 2 11 1
+rectin 2 14 -2 13 8
+rectin 2 4 5 10 11
+rectin 2 13 12 19 22
+rectin 2 10 7 11 10
+equal 2 0
+equal 0 0
+rgn 3 rect 2 7 6 12
+equal 2 3
+offsetrgn 2 -9 7
+rgndata 2
+rgnbox 2
+end
+case query-55
+rgn 0 rect 2 3 1 2
+rgn 1 rect 4 -1 10 2
+combine 2 0 1 2
+ptin 2 17 2
+ptin 2 4 -3
+ptin 2 14 14
+ptin 2 -2 4
+ptin 2 7 7
+ptin 2 11 -2
+rectin 2 10 13 13 23
+rectin 2 0 0 4 10
+rectin 2 1 13 7 18
+rectin 2 7 -1 7 6
+equal 2 0
+equal 0 0
+rgn 3 rect 4 0 8 6
+equal 2 3
+offsetrgn 2 8 2
+rgndata 2
+rgnbox 2
+end
+case query-56
+rgn 0 rect 6 4 5 9
+rgn 1 rect 2 5 4 10
+combine 2 0 1 3
+ptin 2 0 15
+ptin 2 12 3
+ptin 2 0 8
+ptin 2 13 7
+ptin 2 10 1
+ptin 2 4 13
+rectin 2 -1 11 0 14
+rectin 2 7 6 6 8
+rectin 2 13 6 11 10
+rectin 2 12 9 16 11
+equal 2 0
+equal 0 0
+rgn 3 rect 1 6 10 16
+equal 2 3
+offsetrgn 2 2 -6
+rgndata 2
+rgnbox 2
+end
+case query-57
+rgn 0 rect 6 5 7 11
+rgn 1 rect 1 5 10 6
+combine 2 0 1 1
+ptin 2 -2 7
+ptin 2 -2 13
+ptin 2 14 0
+ptin 2 12 11
+ptin 2 14 4
+ptin 2 13 14
+rectin 2 7 6 13 8
+rectin 2 10 11 11 16
+rectin 2 8 9 10 14
+rectin 2 12 13 22 18
+equal 2 0
+equal 0 0
+rgn 3 rect -1 1 7 5
+equal 2 3
+offsetrgn 2 3 9
+rgndata 2
+rgnbox 2
+end
+case query-58
+rgn 0 rect 5 2 13 10
+rgn 1 rect 3 4 9 8
+combine 2 0 1 2
+ptin 2 17 5
+ptin 2 -3 16
+ptin 2 1 12
+ptin 2 8 12
+ptin 2 8 6
+ptin 2 -2 5
+rectin 2 3 5 5 8
+rectin 2 14 2 15 2
+rectin 2 -3 -1 -3 -3
+rectin 2 8 14 13 15
+equal 2 0
+equal 0 0
+rgn 3 rect 2 0 0 4
+equal 2 3
+offsetrgn 2 -5 7
+rgndata 2
+rgnbox 2
+end
+case query-59
+rgn 0 rect 4 4 8 3
+rgn 1 rect 5 -1 9 7
+combine 2 0 1 1
+ptin 2 13 12
+ptin 2 -1 3
+ptin 2 18 4
+ptin 2 8 5
+ptin 2 18 7
+ptin 2 3 6
+rectin 2 -2 4 -4 12
+rectin 2 10 7 10 16
+rectin 2 -2 8 7 17
+rectin 2 10 -1 18 0
+equal 2 0
+equal 0 0
+rgn 3 rect 1 4 0 3
+equal 2 3
+offsetrgn 2 -8 9
+rgndata 2
+rgnbox 2
+end
+case draw-fillrgn-1
+dib 0 16 12 1 bu
+fill 0 381690324
+brush 0 solid #c6d046
+rgn 0 rect 8 2 15 9
+rgn 1 rect 5 7 14 12
+combine 0 0 1 2
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-1
+dib 0 16 12 1 bu
+fill 0 3812624552
+brush 0 solid #8d5d43
+rgn 0 rect 9 6 11 14
+rgn 1 rect 2 10 0 9
+combine 0 0 1 2
+framergn 0 0 3 1
+dump 0
+end
+case draw-invertrgn-1
+dib 0 16 12 1 bu
+fill 0 1517443727
+brush 0 solid #a0f949
+rgn 0 rect 2 6 10 9
+rgn 1 rect 10 7 14 10
+combine 0 0 1 2
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-1
+dib 0 16 12 1 bu
+fill 0 210588055
+brush 0 solid #000000
+rgn 0 rect 3 0 6 10
+rgn 1 rect 0 7 10 5
+combine 0 0 1 2
+paintrgn 0 0
+dump 0
+end
+case draw-fillrgn-4
+dib 0 16 12 4 bu
+fill 0 3390529000
+brush 0 solid #bfb6e5
+rgn 0 rect 6 -2 12 6
+rgn 1 rect 8 7 6 14
+combine 0 0 1 3
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-4
+dib 0 16 12 4 bu
+fill 0 196365563
+brush 0 solid #20cf6f
+rgn 0 rect 8 0 13 6
+rgn 1 rect 7 10 10 16
+combine 0 0 1 3
+framergn 0 0 2 1
+dump 0
+end
+case draw-invertrgn-4
+dib 0 16 12 4
+fill 0 92806515
+brush 0 solid #1cce72
+rgn 0 rect -1 10 0 12
+rgn 1 rect 2 0 7 0
+combine 0 0 1 3
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-4
+dib 0 16 12 4
+fill 0 820575063
+brush 0 solid #280212
+rgn 0 rect 6 8 13 10
+rgn 1 rect 3 4 8 14
+combine 0 0 1 3
+paintrgn 0 0
+dump 0
+end
+case draw-fillrgn-8
+dib 0 16 12 8
+fill 0 3951923819
+brush 0 solid #eb90f8
+rgn 0 rect 9 8 10 13
+rgn 1 rect 7 2 10 9
+combine 0 0 1 4
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-8
+dib 0 16 12 8
+fill 0 1414015325
+brush 0 solid #d13f01
+rgn 0 rect -2 7 5 14
+rgn 1 rect 1 5 -1 13
+combine 0 0 1 4
+framergn 0 0 1 3
+dump 0
+end
+case draw-invertrgn-8
+dib 0 16 12 8
+fill 0 3188541202
+brush 0 solid #d3848e
+rgn 0 rect 5 1 4 0
+rgn 1 rect 2 0 6 6
+combine 0 0 1 4
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-8
+dib 0 16 12 8
+fill 0 2348460046
+brush 0 solid #8f5eaf
+rgn 0 rect 10 -1 10 9
+rgn 1 rect -2 6 8 13
+combine 0 0 1 4
+paintrgn 0 0
+dump 0
+end
+case draw-fillrgn-16
+dib 0 16 12 16
+fill 0 605745159
+brush 0 solid #ff0000
+rgn 0 rect 7 0 16 6
+rgn 1 rect 10 6 8 4
+combine 0 0 1 2
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-16
+dib 0 16 12 16
+fill 0 2669002066
+brush 0 solid #bc2b46
+rgn 0 rect -1 7 -3 14
+rgn 1 rect 7 0 8 3
+combine 0 0 1 2
+framergn 0 0 3 1
+dump 0
+end
+case draw-invertrgn-16
+dib 0 16 12 16
+fill 0 3997601515
+brush 0 solid #ff0000
+rgn 0 rect -2 3 1 1
+rgn 1 rect 8 6 12 9
+combine 0 0 1 2
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-16
+dib 0 16 12 16 bu
+fill 0 2024155481
+brush 0 solid #af3d4b
+rgn 0 rect 6 -1 14 6
+rgn 1 rect 4 6 8 6
+combine 0 0 1 2
+paintrgn 0 0
+dump 0
+end
+case draw-fillrgn-16565
+dib 0 16 12 16 565
+fill 0 1733281480
+brush 0 solid #1b2f96
+rgn 0 rect 2 8 2 10
+rgn 1 rect 10 6 14 13
+combine 0 0 1 3
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-16565
+dib 0 16 12 16 565
+fill 0 785612383
+brush 0 solid #b13c1f
+rgn 0 rect 9 0 12 5
+rgn 1 rect 3 2 4 2
+combine 0 0 1 3
+framergn 0 0 3 2
+dump 0
+end
+case draw-invertrgn-16565
+dib 0 16 12 16 565
+fill 0 665536646
+brush 0 solid #7abff7
+rgn 0 rect 10 -2 19 6
+rgn 1 rect -1 -2 6 -4
+combine 0 0 1 3
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-16565
+dib 0 16 12 16 bu 565
+fill 0 2788519590
+brush 0 solid #28bac5
+rgn 0 rect 0 7 9 16
+rgn 1 rect 9 5 14 8
+combine 0 0 1 3
+paintrgn 0 0
+dump 0
+end
+case draw-fillrgn-24
+dib 0 16 12 24 bu
+fill 0 2174592420
+brush 0 solid #7f7f7f
+rgn 0 rect 7 8 13 9
+rgn 1 rect -2 9 5 10
+combine 0 0 1 4
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-24
+dib 0 16 12 24
+fill 0 910496329
+brush 0 solid #6322f4
+rgn 0 rect 1 1 -1 -1
+rgn 1 rect 9 9 19 13
+combine 0 0 1 4
+framergn 0 0 2 2
+dump 0
+end
+case draw-invertrgn-24
+dib 0 16 12 24 bu
+fill 0 194748837
+brush 0 solid #91b8b5
+rgn 0 rect -2 10 6 12
+rgn 1 rect -2 2 5 1
+combine 0 0 1 4
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-24
+dib 0 16 12 24 bu
+fill 0 793818204
+brush 0 solid #e3f8c7
+rgn 0 rect 9 3 17 3
+rgn 1 rect 7 6 15 13
+combine 0 0 1 4
+paintrgn 0 0
+dump 0
+end
+case draw-fillrgn-32
+dib 0 16 12 32
+fill 0 1926703761
+brush 0 solid #26acd6
+rgn 0 rect 3 10 1 13
+rgn 1 rect 10 10 18 17
+combine 0 0 1 2
+fillrgn 0 0
+dump 0
+end
+case draw-framergn-32
+dib 0 16 12 32
+fill 0 1567751816
+brush 0 solid #ff0000
+rgn 0 rect 10 2 17 12
+rgn 1 rect 0 10 2 15
+combine 0 0 1 2
+framergn 0 0 2 2
+dump 0
+end
+case draw-invertrgn-32
+dib 0 16 12 32
+fill 0 926634870
+brush 0 solid #1264c8
+rgn 0 rect 4 2 6 2
+rgn 1 rect 9 0 16 9
+combine 0 0 1 2
+invertrgn 0 0
+dump 0
+end
+case draw-paintrgn-32
+dib 0 16 12 32
+fill 0 1625880919
+brush 0 solid #000000
+rgn 0 rect 0 6 3 11
+rgn 1 rect 6 3 4 11
+combine 0 0 1 2
+paintrgn 0 0
+dump 0
+end
+case clip-0
+dib 0 16 12 32
+fill 0 583503612
+brush 0 solid #148970
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+rgn 0 rect 1 10 10 16
+selclip 0 0 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 2
+rectvisible 0 5 -2 9 -4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-1
+dib 0 16 12 32
+fill 0 2598869053
+brush 0 solid #e1956d
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 1 8 11 10
+selclip 0 0 5
+clipbox 0
+selclip 0 none
+clipbox 0
+offsetclip 0 1 0
+clipbox 0
+rgn 0 rect 2 5 5 11
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 0 2
+rectvisible 0 5 8 5 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-2
+dib 0 16 12 32
+fill 0 2177054866
+brush 0 solid #f074ba
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 4 10 10 8
+selclip 0 0
+clipbox 0
+clip 0 11 12 10 18
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 6 3
+rectvisible 0 -1 5 8 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-3
+dib 0 16 12 32
+fill 0 182666041
+brush 0 solid #0e1d1b
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 0 5 6 8
+selclip 0 0 4
+clipbox 0
+rgn 0 rect 3 12 3 14
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 6
+rectvisible 0 9 2 14 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-4
+dib 0 16 12 32
+fill 0 464789193
+brush 0 solid #c32d1f
+clipbox 0
+getcliprgn 0 7
+clip 0 0 11 8 14
+clipbox 0
+selclip 0 none
+clipbox 0
+clip 0 -1 4 4 9
+clipbox 0
+rgn 0 rect 0 6 2 5
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 4
+rectvisible 0 10 1 12 -1
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-5
+dib 0 16 12 32
+fill 0 2766774722
+brush 0 solid #e49cea
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 0 -2
+clipbox 0
+rgn 0 rect -1 3 8 13
+selclip 0 0 5
+clipbox 0
+exclude 0 5 -1 9 7
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 12
+rectvisible 0 12 1 17 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-6
+dib 0 16 12 32
+fill 0 1171558431
+brush 0 solid #346574
+clipbox 0
+getcliprgn 0 7
+clip 0 1 1 10 3
+clipbox 0
+rgn 0 rect 12 8 22 13
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 9
+rectvisible 0 0 -2 0 0
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-7
+dib 0 16 12 32
+fill 0 4262654595
+brush 0 solid #1a96e2
+clipbox 0
+getcliprgn 0 7
+clip 0 -2 -2 -2 -1
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 11
+rectvisible 0 9 -2 14 3
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-8
+dib 0 16 12 32
+fill 0 971371065
+brush 0 solid #f0ace8
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -4 3
+clipbox 0
+rgn 0 rect 10 9 20 14
+selclip 0 0
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 10
+rectvisible 0 0 -2 5 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-9
+dib 0 16 12 32
+fill 0 1030150642
+brush 0 solid #45b11e
+clipbox 0
+getcliprgn 0 7
+exclude 0 10 0 11 6
+clipbox 0
+rgn 0 rect 10 2 14 5
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 9
+rectvisible 0 0 2 1 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-10
+dib 0 16 12 32
+fill 0 2652075624
+brush 0 solid #1fcee7
+clipbox 0
+getcliprgn 0 7
+exclude 0 7 -1 8 -1
+clipbox 0
+clip 0 5 1 4 0
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 0 7
+rectvisible 0 9 12 9 17
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-11
+dib 0 16 12 32
+fill 0 3245672142
+brush 0 solid #323518
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 12 4 18 8
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 16 5
+rectvisible 0 10 11 11 18
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-12
+dib 0 16 12 32
+fill 0 5230523
+brush 0 solid #a2bf87
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 9 11 19 16
+selclip 0 0
+clipbox 0
+selclip 0 none
+clipbox 0
+offsetclip 0 1 2
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 6
+rectvisible 0 -1 2 0 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-13
+dib 0 16 12 32
+fill 0 3567682317
+brush 0 solid #230cae
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 2 7 0 6
+selclip 0 0
+clipbox 0
+clip 0 5 10 5 18
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 7
+rectvisible 0 12 5 16 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-14
+dib 0 16 12 32
+fill 0 2883430559
+brush 0 solid #06b8f8
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 9 -1 7 7
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 11
+rectvisible 0 -1 5 3 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-15
+dib 0 16 12 32
+fill 0 2047237126
+brush 0 solid #5e5c65
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 0 -3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 4
+rectvisible 0 12 0 16 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-16
+dib 0 16 12 32
+fill 0 486299467
+brush 0 solid #baf461
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -2 7 1 8
+selclip 0 0 4
+clipbox 0
+selclip 0 none
+clipbox 0
+exclude 0 10 9 10 12
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 1
+rectvisible 0 5 6 12 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-17
+dib 0 16 12 32
+fill 0 3240327275
+brush 0 solid #e7a0fc
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 2 -1 0 -3
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 10
+rectvisible 0 -2 7 8 13
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-18
+dib 0 16 12 32
+fill 0 1513533882
+brush 0 solid #3740fa
+clipbox 0
+getcliprgn 0 7
+exclude 0 5 2 9 9
+clipbox 0
+rgn 0 rect 4 8 5 16
+selclip 0 0
+clipbox 0
+exclude 0 10 11 20 15
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 4
+rectvisible 0 7 3 8 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-19
+dib 0 16 12 32
+fill 0 1749084305
+brush 0 solid #0cb538
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+rgn 0 rect 11 8 11 10
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 8 7
+rectvisible 0 7 0 15 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-20
+dib 0 16 12 32
+fill 0 3405042019
+brush 0 solid #cbb8ef
+clipbox 0
+getcliprgn 0 7
+exclude 0 8 3 11 8
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 6
+rectvisible 0 7 -2 14 1
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-21
+dib 0 16 12 32
+fill 0 2860639298
+brush 0 solid #340786
+clipbox 0
+getcliprgn 0 7
+clip 0 3 5 10 6
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 6 7
+rectvisible 0 4 2 5 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-22
+dib 0 16 12 32
+fill 0 2250565433
+brush 0 solid #ba8158
+clipbox 0
+getcliprgn 0 7
+exclude 0 3 -2 6 2
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 2
+rectvisible 0 9 10 14 13
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-23
+dib 0 16 12 32
+fill 0 3398138587
+brush 0 solid #d94e53
+clipbox 0
+getcliprgn 0 7
+exclude 0 -2 12 5 19
+clipbox 0
+rgn 0 rect 1 3 7 4
+selclip 0 0
+clipbox 0
+clip 0 1 4 4 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 10
+rectvisible 0 1 2 0 12
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-24
+dib 0 16 12 32
+fill 0 4069170144
+brush 0 solid #2fa87b
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 2 -3
+clipbox 0
+clip 0 7 10 12 16
+clipbox 0
+clip 0 11 9 19 19
+clipbox 0
+clip 0 3 12 10 16
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 12 1
+rectvisible 0 1 0 7 9
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-25
+dib 0 16 12 32
+fill 0 239082036
+brush 0 solid #d50a57
+clipbox 0
+getcliprgn 0 7
+clip 0 -2 7 -3 16
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 0
+rectvisible 0 7 3 12 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-26
+dib 0 16 12 32
+fill 0 1555745525
+brush 0 solid #6968e7
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 3 -2
+clipbox 0
+rgn 0 rect 11 4 9 10
+selclip 0 0 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 12
+rectvisible 0 11 10 11 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-27
+dib 0 16 12 32
+fill 0 4241269602
+brush 0 solid #ba3172
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 12 12 19 19
+selclip 0 0 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 3
+rectvisible 0 11 10 14 19
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-28
+dib 0 16 12 32
+fill 0 1967672712
+brush 0 solid #d70d74
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 4 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 2
+rectvisible 0 8 1 11 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-29
+dib 0 16 12 32
+fill 0 3412912145
+brush 0 solid #b287e6
+clipbox 0
+getcliprgn 0 7
+clip 0 11 6 15 7
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 0
+rectvisible 0 2 8 11 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-30
+dib 0 16 12 32
+fill 0 3441064325
+brush 0 solid #798a90
+clipbox 0
+getcliprgn 0 7
+exclude 0 6 11 16 19
+clipbox 0
+clip 0 2 8 11 11
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 3
+rectvisible 0 9 12 10 20
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-31
+dib 0 16 12 32
+fill 0 4158799288
+brush 0 solid #f9d7d2
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 2 4
+clipbox 0
+rgn 0 rect 4 11 3 10
+selclip 0 0 1
+clipbox 0
+rgn 0 rect 1 9 11 18
+selclip 0 0 4
+clipbox 0
+exclude 0 2 12 3 20
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 4
+rectvisible 0 1 -2 11 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-32
+dib 0 16 12 32
+fill 0 3753167426
+brush 0 solid #698ebc
+clipbox 0
+getcliprgn 0 7
+exclude 0 -1 3 9 6
+clipbox 0
+exclude 0 5 2 5 1
+clipbox 0
+rgn 0 rect 4 2 11 7
+selclip 0 0
+clipbox 0
+rgn 0 rect 8 11 11 10
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 16 3
+rectvisible 0 8 10 6 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-33
+dib 0 16 12 32
+fill 0 3792945222
+brush 0 solid #72e42b
+clipbox 0
+getcliprgn 0 7
+clip 0 3 -1 12 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 4
+rectvisible 0 -1 4 6 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-34
+dib 0 16 12 32
+fill 0 971855751
+brush 0 solid #a23f29
+clipbox 0
+getcliprgn 0 7
+exclude 0 5 8 12 16
+clipbox 0
+clip 0 -2 5 4 9
+clipbox 0
+clip 0 4 8 2 16
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 8 4
+rectvisible 0 12 8 13 17
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-35
+dib 0 16 12 32
+fill 0 3662409884
+brush 0 solid #5c74b0
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 10 12 20 12
+selclip 0 0 4
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 5
+rectvisible 0 11 -1 18 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-36
+dib 0 16 12 32
+fill 0 1251020608
+brush 0 solid #5e657c
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 1 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 3
+rectvisible 0 0 6 -1 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-37
+dib 0 16 12 32
+fill 0 1269892107
+brush 0 solid #3a63f3
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 1 4
+clipbox 0
+rgn 0 rect 12 1 10 0
+selclip 0 0 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 0
+rectvisible 0 2 7 11 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-38
+dib 0 16 12 32
+fill 0 1935949816
+brush 0 solid #f3f315
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+rgn 0 rect 10 6 13 5
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 3
+rectvisible 0 12 -2 19 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-39
+dib 0 16 12 32
+fill 0 179732281
+brush 0 solid #768fb1
+clipbox 0
+getcliprgn 0 7
+exclude 0 3 -1 2 8
+clipbox 0
+exclude 0 -2 1 0 10
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 2
+rectvisible 0 7 9 10 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-40
+dib 0 16 12 32
+fill 0 2310422675
+brush 0 solid #240861
+clipbox 0
+getcliprgn 0 7
+exclude 0 10 4 18 9
+clipbox 0
+exclude 0 8 1 7 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 6
+rectvisible 0 8 11 15 10
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-41
+dib 0 16 12 32
+fill 0 492197519
+brush 0 solid #7c74cc
+clipbox 0
+getcliprgn 0 7
+exclude 0 0 -1 1 2
+clipbox 0
+selclip 0 none
+clipbox 0
+rgn 0 rect 7 2 15 8
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 3
+rectvisible 0 9 -2 16 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-42
+dib 0 16 12 32
+fill 0 1166463563
+brush 0 solid #30482c
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 3 0
+clipbox 0
+rgn 0 rect 7 10 15 19
+selclip 0 0
+clipbox 0
+rgn 0 rect 3 6 1 5
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 2
+rectvisible 0 10 11 8 10
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-43
+dib 0 16 12 32
+fill 0 495186267
+brush 0 solid #bcb16f
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 3 -3
+clipbox 0
+offsetclip 0 2 -3
+clipbox 0
+clip 0 8 2 18 4
+clipbox 0
+clip 0 7 -1 15 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 4
+rectvisible 0 6 9 10 15
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-44
+dib 0 16 12 32
+fill 0 3689450770
+brush 0 solid #1faed7
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+rgn 0 rect 3 -1 7 0
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 9
+rectvisible 0 9 4 10 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-45
+dib 0 16 12 32
+fill 0 4115248121
+brush 0 solid #e8be22
+clipbox 0
+getcliprgn 0 7
+exclude 0 1 4 7 7
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 5
+rectvisible 0 8 2 7 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-46
+dib 0 16 12 32
+fill 0 3288651145
+brush 0 solid #0e80b3
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -4 -1
+clipbox 0
+rgn 0 rect 10 -1 9 -2
+selclip 0 0
+clipbox 0
+rgn 0 rect 12 -1 12 6
+selclip 0 0
+clipbox 0
+exclude 0 -2 4 5 8
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 6 10
+rectvisible 0 2 10 8 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-47
+dib 0 16 12 32
+fill 0 3500667276
+brush 0 solid #5abe27
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -2 0 8 10
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 4
+rectvisible 0 4 9 13 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-48
+dib 0 16 12 32
+fill 0 2398933703
+brush 0 solid #232a35
+clipbox 0
+getcliprgn 0 7
+clip 0 3 3 9 6
+clipbox 0
+rgn 0 rect -1 9 -3 7
+selclip 0 0
+clipbox 0
+offsetclip 0 -1 4
+clipbox 0
+rgn 0 rect 4 9 6 17
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 16 5
+rectvisible 0 11 2 11 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-49
+dib 0 16 12 32
+fill 0 390125253
+brush 0 solid #967129
+clipbox 0
+getcliprgn 0 7
+clip 0 11 3 17 11
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 5
+rectvisible 0 12 -1 21 -1
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-50
+dib 0 16 12 32
+fill 0 3728048269
+brush 0 solid #a6e47f
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 1 1
+clipbox 0
+rgn 0 rect 7 -2 17 -3
+selclip 0 0
+clipbox 0
+offsetclip 0 -2 2
+clipbox 0
+clip 0 4 9 8 18
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 11 7
+rectvisible 0 4 3 6 9
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-51
+dib 0 16 12 32
+fill 0 2396780248
+brush 0 solid #1155d8
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 9 -1 13 0
+selclip 0 0 5
+clipbox 0
+clip 0 7 -2 12 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 -1
+rectvisible 0 9 11 10 12
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-52
+dib 0 16 12 32
+fill 0 26143161
+brush 0 solid #8d5b45
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 8 -2 18 -3
+selclip 0 0
+clipbox 0
+selclip 0 none
+clipbox 0
+rgn 0 rect 7 5 13 4
+selclip 0 0 3
+clipbox 0
+clip 0 12 3 13 7
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 0
+rectvisible 0 -2 5 6 12
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-53
+dib 0 16 12 32
+fill 0 2270610963
+brush 0 solid #05b2f9
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -2 -2 -4 8
+selclip 0 0 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 8
+rectvisible 0 9 -2 18 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-54
+dib 0 16 12 32
+fill 0 455755054
+brush 0 solid #7a31c9
+clipbox 0
+getcliprgn 0 7
+exclude 0 9 9 16 14
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 5
+rectvisible 0 3 6 8 13
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-55
+dib 0 16 12 32
+fill 0 2987322514
+brush 0 solid #0ff0dc
+clipbox 0
+getcliprgn 0 7
+exclude 0 12 -2 11 -2
+clipbox 0
+clip 0 1 6 10 14
+clipbox 0
+clip 0 6 12 6 19
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 2 12
+rectvisible 0 -1 10 1 20
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-56
+dib 0 16 12 32
+fill 0 1427951495
+brush 0 solid #6577d1
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -2 -4
+clipbox 0
+offsetclip 0 0 3
+clipbox 0
+clip 0 1 1 3 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 1
+rectvisible 0 12 7 17 15
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-57
+dib 0 16 12 32
+fill 0 1162726082
+brush 0 solid #ab6dc8
+clipbox 0
+getcliprgn 0 7
+clip 0 7 8 6 10
+clipbox 0
+rgn 0 rect 0 11 10 14
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 10
+rectvisible 0 0 5 2 12
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-58
+dib 0 16 12 32
+fill 0 1987876698
+brush 0 solid #630731
+clipbox 0
+getcliprgn 0 7
+clip 0 2 4 10 6
+clipbox 0
+clip 0 -1 1 -3 11
+clipbox 0
+clip 0 7 12 5 13
+clipbox 0
+rgn 0 rect 5 11 14 13
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 6 7
+rectvisible 0 10 3 16 13
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-59
+dib 0 16 12 32
+fill 0 2284073771
+brush 0 solid #6bd56b
+clipbox 0
+getcliprgn 0 7
+exclude 0 8 9 15 13
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 4
+rectvisible 0 1 6 2 15
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-60
+dib 0 16 12 32
+fill 0 1172040105
+brush 0 solid #346e1e
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 7 9 15 10
+selclip 0 0 2
+clipbox 0
+rgn 0 rect 3 1 13 7
+selclip 0 0 2
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 2
+rectvisible 0 11 9 14 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-61
+dib 0 16 12 32
+fill 0 1058820907
+brush 0 solid #545b77
+clipbox 0
+getcliprgn 0 7
+clip 0 11 12 12 11
+clipbox 0
+exclude 0 6 2 10 1
+clipbox 0
+rgn 0 rect 8 12 12 17
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 7
+rectvisible 0 5 2 11 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-62
+dib 0 16 12 32
+fill 0 3856685344
+brush 0 solid #41e602
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 2 -2
+clipbox 0
+selclip 0 none
+clipbox 0
+clip 0 1 -1 5 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 7
+rectvisible 0 4 12 8 12
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-63
+dib 0 16 12 32
+fill 0 506019956
+brush 0 solid #dcb787
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 3 -2
+clipbox 0
+rgn 0 rect 7 12 17 11
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 4
+rectvisible 0 -2 3 -1 9
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-64
+dib 0 16 12 32
+fill 0 706321352
+brush 0 solid #727878
+clipbox 0
+getcliprgn 0 7
+clip 0 2 5 12 4
+clipbox 0
+rgn 0 rect 9 0 18 4
+selclip 0 0 1
+clipbox 0
+rgn 0 rect 9 -2 8 7
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 2 10
+rectvisible 0 -2 12 -1 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-65
+dib 0 16 12 32
+fill 0 2750905702
+brush 0 solid #28f22b
+clipbox 0
+getcliprgn 0 7
+exclude 0 4 6 4 15
+clipbox 0
+rgn 0 rect 0 7 6 12
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 7
+rectvisible 0 -2 10 -3 20
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-66
+dib 0 16 12 32
+fill 0 2401690634
+brush 0 solid #5636f9
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 0 -3
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 2
+rectvisible 0 10 0 15 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-67
+dib 0 16 12 32
+fill 0 944296217
+brush 0 solid #17e5ac
+clipbox 0
+getcliprgn 0 7
+exclude 0 2 7 1 14
+clipbox 0
+rgn 0 rect 9 8 8 6
+selclip 0 0 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 7
+rectvisible 0 7 6 7 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-68
+dib 0 16 12 32
+fill 0 2964699824
+brush 0 solid #949161
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 10 12 9 22
+selclip 0 0
+clipbox 0
+rgn 0 rect 5 9 11 10
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 11
+rectvisible 0 10 7 13 15
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-69
+dib 0 16 12 32
+fill 0 1955171230
+brush 0 solid #b74503
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 3 3 3 7
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 9
+rectvisible 0 8 -2 12 -2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-70
+dib 0 16 12 32
+fill 0 3660343819
+brush 0 solid #c9161d
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 1
+rectvisible 0 -2 2 8 12
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-71
+dib 0 16 12 32
+fill 0 1526433760
+brush 0 solid #f5ce83
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -2 3
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 1
+rectvisible 0 8 -2 11 3
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-72
+dib 0 16 12 32
+fill 0 3319938799
+brush 0 solid #cc61f0
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 4 -3
+clipbox 0
+rgn 0 rect 12 8 17 10
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 9
+rectvisible 0 11 1 14 0
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-73
+dib 0 16 12 32
+fill 0 1269016941
+brush 0 solid #4cd36a
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+offsetclip 0 -1 -3
+clipbox 0
+rgn 0 rect 7 1 13 3
+selclip 0 0 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 10
+rectvisible 0 12 3 18 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-74
+dib 0 16 12 32
+fill 0 299676263
+brush 0 solid #92244f
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 4 -2 11 3
+selclip 0 0
+clipbox 0
+rgn 0 rect 10 -2 19 3
+selclip 0 0 3
+clipbox 0
+rgn 0 rect 5 9 3 17
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 8
+rectvisible 0 0 4 6 10
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-75
+dib 0 16 12 32
+fill 0 1096768497
+brush 0 solid #04f2c1
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 5 5 4 15
+selclip 0 0 3
+clipbox 0
+exclude 0 2 -1 3 3
+clipbox 0
+selclip 0 none
+clipbox 0
+exclude 0 3 8 4 6
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 6
+rectvisible 0 10 -1 19 5
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-76
+dib 0 16 12 32
+fill 0 2763148625
+brush 0 solid #1b607d
+clipbox 0
+getcliprgn 0 7
+exclude 0 9 -2 17 -1
+clipbox 0
+selclip 0 none
+clipbox 0
+rgn 0 rect 12 -2 15 4
+selclip 0 0 4
+clipbox 0
+clip 0 7 0 11 -2
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 9
+rectvisible 0 0 6 -2 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-77
+dib 0 16 12 32
+fill 0 121502449
+brush 0 solid #135ec0
+clipbox 0
+getcliprgn 0 7
+exclude 0 1 4 8 3
+clipbox 0
+rgn 0 rect 8 -1 17 6
+selclip 0 0 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 11
+rectvisible 0 3 3 11 1
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-78
+dib 0 16 12 32
+fill 0 1407190755
+brush 0 solid #b5a0dd
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+exclude 0 5 4 14 12
+clipbox 0
+rgn 0 rect 12 3 14 12
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 -1
+rectvisible 0 7 10 16 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-79
+dib 0 16 12 32
+fill 0 1082512588
+brush 0 solid #991182
+clipbox 0
+getcliprgn 0 7
+clip 0 10 2 13 2
+clipbox 0
+clip 0 7 -1 11 -1
+clipbox 0
+offsetclip 0 2 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 16 8
+rectvisible 0 8 3 7 9
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-80
+dib 0 16 12 32
+fill 0 120077386
+brush 0 solid #8eff5a
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 7
+rectvisible 0 11 -1 14 -3
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-81
+dib 0 16 12 32
+fill 0 4006686067
+brush 0 solid #9a314c
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 1 9 -1 18
+selclip 0 0 3
+clipbox 0
+rgn 0 rect 5 3 11 5
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 1 10
+rectvisible 0 9 2 16 3
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-82
+dib 0 16 12 32
+fill 0 2535508402
+brush 0 solid #cf1999
+clipbox 0
+getcliprgn 0 7
+exclude 0 5 11 7 19
+clipbox 0
+clip 0 5 3 11 9
+clipbox 0
+rgn 0 rect 8 9 8 17
+selclip 0 0
+clipbox 0
+offsetclip 0 2 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 8 10
+rectvisible 0 3 11 13 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-83
+dib 0 16 12 32
+fill 0 2015472152
+brush 0 solid #331989
+clipbox 0
+getcliprgn 0 7
+clip 0 10 2 15 6
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 0
+rectvisible 0 3 6 4 5
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-84
+dib 0 16 12 32
+fill 0 2937941398
+brush 0 solid #5a34e1
+clipbox 0
+getcliprgn 0 7
+clip 0 4 -1 8 5
+clipbox 0
+selclip 0 none
+clipbox 0
+rgn 0 rect 1 -1 6 -1
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 0
+rectvisible 0 1 0 5 -1
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-85
+dib 0 16 12 32
+fill 0 1874346468
+brush 0 solid #1ab6e6
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 8 8 14 13
+selclip 0 0 5
+clipbox 0
+exclude 0 1 2 8 10
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 16 11
+rectvisible 0 9 7 10 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-86
+dib 0 16 12 32
+fill 0 2504589188
+brush 0 solid #bf61d8
+clipbox 0
+getcliprgn 0 7
+clip 0 3 2 12 1
+clipbox 0
+offsetclip 0 2 3
+clipbox 0
+exclude 0 3 4 10 10
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 11
+rectvisible 0 4 3 3 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-87
+dib 0 16 12 32
+fill 0 4070469989
+brush 0 solid #eb28bc
+clipbox 0
+getcliprgn 0 7
+clip 0 2 8 7 7
+clipbox 0
+selclip 0 none
+clipbox 0
+rgn 0 rect 12 9 18 18
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 4
+rectvisible 0 6 12 9 14
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-88
+dib 0 16 12 32
+fill 0 1508045115
+brush 0 solid #77c9f9
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -2 4
+clipbox 0
+rgn 0 rect 8 11 18 19
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 8
+rectvisible 0 3 8 1 15
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-89
+dib 0 16 12 32
+fill 0 1979977329
+brush 0 solid #80e714
+clipbox 0
+getcliprgn 0 7
+clip 0 3 -1 13 1
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 10
+rectvisible 0 3 5 1 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-90
+dib 0 16 12 32
+fill 0 1844147635
+brush 0 solid #ff97bd
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 10 12 12 19
+selclip 0 0 4
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 8
+rectvisible 0 0 -2 5 1
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-91
+dib 0 16 12 32
+fill 0 2645031050
+brush 0 solid #67b3f1
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 7 5 7 14
+selclip 0 0 2
+clipbox 0
+clip 0 12 1 12 3
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 12
+rectvisible 0 2 1 3 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-92
+dib 0 16 12 32
+fill 0 2643979112
+brush 0 solid #a1b9b5
+clipbox 0
+getcliprgn 0 7
+exclude 0 11 -1 11 0
+clipbox 0
+exclude 0 9 10 16 14
+clipbox 0
+rgn 0 rect 2 1 11 1
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 0
+rectvisible 0 3 6 12 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-93
+dib 0 16 12 32
+fill 0 4240310946
+brush 0 solid #a1c637
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 2
+rectvisible 0 6 12 16 20
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-94
+dib 0 16 12 32
+fill 0 1359641911
+brush 0 solid #3ede41
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+offsetclip 0 4 -2
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 8
+rectvisible 0 9 5 18 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-95
+dib 0 16 12 32
+fill 0 1374880087
+brush 0 solid #e6cedb
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -2 1 3 2
+selclip 0 0 5
+clipbox 0
+exclude 0 9 2 19 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 6
+rectvisible 0 -2 5 6 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-96
+dib 0 16 12 32
+fill 0 1365248606
+brush 0 solid #57ab2b
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -2 10 6 20
+selclip 0 0 3
+clipbox 0
+exclude 0 7 -2 9 -3
+clipbox 0
+rgn 0 rect 1 1 8 4
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 3 6
+rectvisible 0 10 3 11 10
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-97
+dib 0 16 12 32
+fill 0 2621489021
+brush 0 solid #440fea
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 1 2
+clipbox 0
+rgn 0 rect 7 11 11 15
+selclip 0 0
+clipbox 0
+clip 0 1 6 0 8
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 2
+rectvisible 0 7 5 17 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-98
+dib 0 16 12 32
+fill 0 3019851193
+brush 0 solid #414bbd
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 9 1 18 11
+selclip 0 0 3
+clipbox 0
+rgn 0 rect 2 10 4 20
+selclip 0 0 2
+clipbox 0
+offsetclip 0 -3 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 -1
+rectvisible 0 12 4 17 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-99
+dib 0 16 12 32
+fill 0 1433342167
+brush 0 solid #c0c6cd
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 3 4 11 11
+selclip 0 0 5
+clipbox 0
+clip 0 7 7 17 7
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 13 1
+rectvisible 0 12 9 20 16
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-100
+dib 0 16 12 32
+fill 0 1741487667
+brush 0 solid #56a4f6
+clipbox 0
+getcliprgn 0 7
+clip 0 6 0 10 2
+clipbox 0
+selclip 0 none
+clipbox 0
+clip 0 4 8 5 8
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 0 0
+rectvisible 0 3 3 2 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-101
+dib 0 16 12 32
+fill 0 1246996221
+brush 0 solid #0f2edb
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -2 2
+clipbox 0
+offsetclip 0 -2 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 9 3
+rectvisible 0 6 3 10 5
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-102
+dib 0 16 12 32
+fill 0 817695244
+brush 0 solid #649cb2
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -1 4 -3 11
+selclip 0 0
+clipbox 0
+clip 0 2 4 9 6
+clipbox 0
+offsetclip 0 2 4
+clipbox 0
+exclude 0 9 -1 17 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 2
+rectvisible 0 0 10 3 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-103
+dib 0 16 12 32
+fill 0 3216851189
+brush 0 solid #de8fa4
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 -3 3
+clipbox 0
+rgn 0 rect 2 4 4 10
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 11
+rectvisible 0 4 4 13 6
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-104
+dib 0 16 12 32
+fill 0 2067570299
+brush 0 solid #82ca42
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -1 1 6 0
+selclip 0 0 1
+clipbox 0
+exclude 0 2 -1 3 4
+clipbox 0
+rgn 0 rect -2 -1 -2 9
+selclip 0 0
+clipbox 0
+rgn 0 rect 10 12 16 12
+selclip 0 0 2
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 2
+rectvisible 0 12 6 21 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-105
+dib 0 16 12 32
+fill 0 3947348323
+brush 0 solid #1eb216
+clipbox 0
+getcliprgn 0 7
+exclude 0 9 9 18 19
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 10 10
+rectvisible 0 10 5 15 5
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-106
+dib 0 16 12 32
+fill 0 2893616570
+brush 0 solid #0c497d
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 10 3 9 1
+selclip 0 0 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 0
+rectvisible 0 12 6 19 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-107
+dib 0 16 12 32
+fill 0 3852824116
+brush 0 solid #1a8aa5
+clipbox 0
+getcliprgn 0 7
+selclip 0 none
+clipbox 0
+rgn 0 rect 9 2 12 12
+selclip 0 0 4
+clipbox 0
+rgn 0 rect 11 4 9 4
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 11
+rectvisible 0 11 10 18 9
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-108
+dib 0 16 12 32
+fill 0 3971104089
+brush 0 solid #305275
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 9 4 11 13
+selclip 0 0
+clipbox 0
+offsetclip 0 2 2
+clipbox 0
+offsetclip 0 4 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 8 0
+rectvisible 0 0 8 3 18
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-109
+dib 0 16 12 32
+fill 0 3894316409
+brush 0 solid #878581
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 12 4 12 12
+selclip 0 0 5
+clipbox 0
+offsetclip 0 2 2
+clipbox 0
+clip 0 4 1 5 11
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 12 4
+rectvisible 0 3 6 8 13
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-110
+dib 0 16 12 32
+fill 0 3795371772
+brush 0 solid #004a6f
+clipbox 0
+getcliprgn 0 7
+clip 0 8 7 7 11
+clipbox 0
+selclip 0 none
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 5 1
+rectvisible 0 9 4 13 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-111
+dib 0 16 12 32
+fill 0 2116514750
+brush 0 solid #4f8956
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 2 11 2 20
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 7 12
+rectvisible 0 3 5 9 4
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-112
+dib 0 16 12 32
+fill 0 215243709
+brush 0 solid #d4b5ec
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 1 -2 11 -4
+selclip 0 0 5
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 8 0
+rectvisible 0 0 3 9 9
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-113
+dib 0 16 12 32
+fill 0 335257495
+brush 0 solid #20bdf3
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 11 4 20 8
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 4 0
+rectvisible 0 10 -1 13 2
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-114
+dib 0 16 12 32
+fill 0 2827096853
+brush 0 solid #f80ac5
+clipbox 0
+getcliprgn 0 7
+exclude 0 10 2 9 0
+clipbox 0
+clip 0 -2 12 8 22
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 15 -1
+rectvisible 0 10 0 10 0
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-115
+dib 0 16 12 32
+fill 0 1911682375
+brush 0 solid #7f6f8b
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect -1 11 -2 19
+selclip 0 0 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 14 -1
+rectvisible 0 -1 4 7 11
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-116
+dib 0 16 12 32
+fill 0 2637893124
+brush 0 solid #85ff59
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 3 0
+clipbox 0
+exclude 0 3 7 4 7
+clipbox 0
+rgn 0 rect 8 10 14 14
+selclip 0 0 1
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 6 9
+rectvisible 0 4 9 13 7
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-117
+dib 0 16 12 32
+fill 0 2176051299
+brush 0 solid #4131bc
+clipbox 0
+getcliprgn 0 7
+exclude 0 5 -2 10 3
+clipbox 0
+offsetclip 0 -4 -4
+clipbox 0
+offsetclip 0 1 1
+clipbox 0
+rgn 0 rect 9 11 14 15
+selclip 0 0
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 -1 7
+rectvisible 0 -2 1 2 10
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-118
+dib 0 16 12 32
+fill 0 3221901904
+brush 0 solid #42f970
+clipbox 0
+getcliprgn 0 7
+rgn 0 rect 9 9 7 19
+selclip 0 0 2
+clipbox 0
+selclip 0 none
+clipbox 0
+clip 0 12 0 17 4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 12 7
+rectvisible 0 0 -1 10 8
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case clip-119
+dib 0 16 12 32
+fill 0 1330306223
+brush 0 solid #39eec0
+clipbox 0
+getcliprgn 0 7
+offsetclip 0 2 -4
+clipbox 0
+getcliprgn 0 6
+rgndata 6
+ptvisible 0 0 4
+rectvisible 0 -1 9 5 18
+patblt 0 0 0 16 12 0xf00021
+dump 0
+end
+case selclip-none-1
+dib 0 6 4 32
+clip 0 1 1 4 3
+selclip 0 none 1
+clipbox 0
+end
+case selclip-none-2
+dib 0 6 4 32
+clip 0 1 1 4 3
+selclip 0 none 2
+clipbox 0
+end
+case selclip-none-3
+dib 0 6 4 32
+clip 0 1 1 4 3
+selclip 0 none 3
+clipbox 0
+end
+case selclip-none-4
+dib 0 6 4 32
+clip 0 1 1 4 3
+selclip 0 none 4
+clipbox 0
+end
+case selclip-none-5
+dib 0 6 4 32
+clip 0 1 1 4 3
+selclip 0 none 5
+clipbox 0
+end
+case selclip-null
+dib 0 6 4 32
+rgn 0 null
+selclip 0 0
+clipbox 0
+ptvisible 0 0 0
+brush 0 solid #ffffff
+patblt 0 0 0 6 4 0xf00021
+dump 0
+end
+case selclip-copy
+dib 0 6 4 32
+rgn 0 rect 1 1 3 3
+selclip 0 0
+offsetrgn 0 2 0
+clipbox 0
+brush 0 solid #ffffff
+patblt 0 0 0 6 4 0xf00021
+dump 0
+end

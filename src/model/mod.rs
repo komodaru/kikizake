@@ -11,6 +11,13 @@ pub mod ddraw;
 pub mod d3d9;
 pub mod gdi;
 pub mod gdiplus;
+pub mod gdiline;
+pub mod gdirgn;
+pub mod gdixform;
+pub mod gdipath;
+pub mod gditext;
+pub mod gdiblend;
+pub mod gdiddb;
 pub mod wic;
 pub mod dwrite;
 

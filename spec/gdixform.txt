@@ -1,0 +1,2 @@
+# gdixform clauses (spec/README.md): <id> <status> | <source> | <what it says>
+GDI.XFORM.OPEN open | (none) | not modelled yet: checked against Windows only

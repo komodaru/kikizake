@@ -1,0 +1,2 @@
+# gdirgn clauses (spec/README.md): <id> <status> | <source> | <what it says>
+GDI.RGN.OPEN open | (none) | not modelled yet: checked against Windows only
