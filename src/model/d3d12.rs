@@ -216,7 +216,7 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         return Ok(invalid_fps(count));
     }
     // (MEASURED: the two-texel formats want an even width, the packed video ones no mip levels)
-    if matches!(d.fmt, 89 | 101 | 107..=109) && d.mips != 1 {
+    if matches!(d.fmt, 89 | 101 | 107..=109 | 113 | 114) && d.mips != 1 {
         hit(clause::D3D12_FOOTPRINT_PAIRS);
         return Ok(invalid_fps(count));
     }
@@ -505,9 +505,36 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
+            }
+            "rootsig12" => {
+                use super::rootsig::{checksum, dxbc, parse, rts0, valid, Version};
+                if t.len() < 3 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..3])?;
+                let (ps, ss) = parse(&t[3..]).ok_or(Fail::Bad)?;
+                hit(clause::D3D12_ROOTSIG_VALID);
+                let ver = match Version::of(w[0]) {
+                    Some(v) if valid(v, w[1], &ps, &ss) => v,
+                    Some(_) | None => {
+                        out.push(format!("rs hr {E_INVALIDARG:08x}"));
+                        return Ok(true);
+                    }
+                };
+                // (the blob: a DXBC container of one RTS0 part, its checksum DXBC's)
+                hit(clause::D3D12_ROOTSIG_BLOB);
+                let b = dxbc(b"RTS0", &rts0(ver, w[1], &ps, &ss));
+                debug_assert_eq!(checksum(&b[20..]).iter().flat_map(|w| w.to_le_bytes()).collect::<Vec<u8>>(), b[4..20]);
+                out.push(format!("rs hr {S_OK:08x} size {:x}", b.len()));
+                for c in b[20..].chunks(64) {
+                    out.push(format!("rs {}", c.iter().map(|x| format!("{x:02x}")).collect::<String>()));
+                }
+                out.push(format!("rs sum {}", b[4..20].iter().map(|x| format!("{x:02x}")).collect::<String>()));
+                hit(clause::D3D12_ROOTSIG_MAKE);
+                out.push(format!("rsmake hr {S_OK:08x}"));
             }
             "footprint12" => {
                 if t.len() != 15 {
@@ -697,13 +724,22 @@ impl D3d12 {
                     "qheap12" => {
                         // (MEASURED: every type but video decode statistics (4), at least one query)
                         hit(clause::D3D12_MAKE_QUERYHEAP);
-                        ok(w[0] <= 7 && w[0] != 4 && w[1] > 0)
+                        let valid = w[0] <= 7 && w[0] != 4 && w[1] > 0;
+                        // (MEASURED, golden d3d12-32 make-167/168: 16M queries are more than a
+                        // 32-bit process has room for, 65537 are not; the bound between is fitted
+                        // by make-240..)
+                        if valid && super::arch() == 32 && w[1] >= QHEAP32_OOM {
+                            E_OUTOFMEMORY
+                        } else {
+                            ok(valid)
+                        }
                     }
                     "fence12" => {
-                        // (MEASURED: SHARED taken, the cross-adapter and non-monitored ones not; a new
-                        // fence has completed its initial value)
+                        // (MEASURED: SHARED taken, alone or with SHARED_CROSS_ADAPTER (make-238); the
+                        // cross-adapter one alone and the non-monitored one not; a new fence has
+                        // completed its initial value)
                         hit(clause::D3D12_MAKE_FENCE);
-                        if w[1] & !1 == 0 {
+                        if matches!(w[1], 0 | 1 | 3) {
                             out.push(format!("fence12 hr 00000000 value {:x}", w[0]));
                         } else {
                             out.push(format!("fence12 hr {E_INVALIDARG:08x}"));
@@ -852,6 +888,9 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
 }
 
 /// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)
+/// the fewest queries a 32-bit process's CreateQueryHeap runs out of memory for
+const QHEAP32_OOM: u32 = 1 << 24;
+
 pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
     hit(clause::D3D12_MAKE_HEAP);
     // (the deny flags only as a tier 2 heap takes them: none, or allowing only buffers, only
@@ -859,7 +898,11 @@ pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
     let deny = matches!(flags & 0xc4, 0 | 0xc0 | 0x44 | 0x84);
     // (SHARED on the default heap, write watch on CPU heaps, atomics on the default one; hardware
     // protected, not resident, not zeroed everywhere)
-    let gpu = matches!(heap, Heap::Default | Heap::GpuUpload);
+    // (MEASURED, golden d3d12-* make-216..227: the GPU upload heap takes flags as the CPU heaps do)
+    let gpu = match heap {
+        Heap::Default => true,
+        Heap::Upload | Heap::Readback | Heap::Custom | Heap::GpuUpload | Heap::Other => false,
+    };
     let other = flags & !0xc4 & !(0x100 | 0x800 | 0x1000 | if gpu { 0x401 } else { 0x200 }) == 0;
     let ok = heap.known() && size > 0 && size < 0xffff_ffff && matches!(al, 0 | 65536 | 4194304) && deny && other;
     if ok {

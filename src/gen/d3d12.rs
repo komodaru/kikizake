@@ -366,7 +366,7 @@ pub fn d3d12() -> String {
     for f in [19u32, 20, 44, 45] {
         writeln!(s, "case fp-stencil-{f}\ndevice12\nfootprint12 0 2 0 {}\nfootprint12 0 6 0 {}\nfootprint12 1 2 64 {}\nend", desc_str(&Desc::tex(3, 100, 30, 1, 1, f)), desc_str(&Desc::tex(3, 64, 64, 3, 1, f)), desc_str(&Desc::tex(2, 300, 1, 2, 2, f))).unwrap();
     }
-    for f in [89u32, 101] {
+    for f in [89u32, 101, 113, 114] {
         for (dim, w, h, d) in [(2u32, 64u32, 1u32, 1u32), (3, 7, 3, 2), (4, 16, 8, 4)] {
             writeln!(s, "case fp-onemip-{f}-{dim}\ndevice12\nfootprint12 0 1 0 {}\ncreate12 1 0 {}\nend", desc_str(&Desc::tex(dim, w, h, d, 1, f)), desc_str(&Desc::tex(dim, w, h, d, 1, f))).unwrap();
         }
@@ -446,6 +446,12 @@ pub fn d3d12() -> String {
     for (v, f) in [(0u32, 3u32), (0, 5)] {
         mk.push(format!("fence12 {} {}", hexw(v), hexw(f)));
     }
+    // (the bound on a 32-bit process's query heaps)
+    for t in [0u32, 1, 2, 3, 5, 6, 7] {
+        for n in [1u32 << 20, 1 << 21, 1 << 22, 1 << 23, (1 << 24) - 1] {
+            mk.push(format!("qheap12 {t} {n}"));
+        }
+    }
     for (i, l) in mk.iter().enumerate() {
         // (descriptor heap types past the last, 4 and 5: a 32-bit process crashed making one,
         // golden e91efb1; their numbers left unused)
@@ -453,6 +459,80 @@ pub fn d3d12() -> String {
             continue;
         }
         writeln!(s, "case make-{i}\ndevice12\n{l}\nend").unwrap();
+    }
+
+    // root signatures (D3D12SerializeVersionedRootSignature, CreateRootSignature): new lines only
+    // at the end, so that the cases keep their numbers
+    let mut rs: Vec<String> = Vec::new();
+    for v in [1u32, 2] {
+        for f in [0u32, 1, 0x7f, 0x800, 0xfff, 0x1000, 0x8000_0000] {
+            rs.push(format!("{v} {} ", hexw(f)));
+        }
+        for n in [0u32, 1, 4, 63, 64, 65] {
+            rs.push(format!("{v} 0 c 0 0 {n} 0"));
+        }
+        for vis in 0u32..=8 {
+            rs.push(format!("{v} 0 c 1 2 3 {vis}"));
+            rs.push(format!("{v} 0 t {vis} 1 0 1 0 0 0 0"));
+            rs.push(format!("{v} 0 s 0x15 0 0 {vis}"));
+        }
+        for k in ["cbv", "srv", "uav"] {
+            for f in [0u32, 1, 2, 4, 6, 8, 0xe, 0x10] {
+                rs.push(format!("{v} 0 {k} 3 1 0 {}", hexw(f)));
+            }
+        }
+        for ty in 0u32..=4 {
+            for (n, f) in [(1u32, 0u32), (0, 0), (0xffff_ffff, 0), (4, 1), (4, 2), (4, 3), (4, 8), (4, 0xa), (4, 0x10000), (4, 0x10001), (4, 0x10008), (4, 0x20000)] {
+                rs.push(format!("{v} 0 t 0 1 {ty} {} 2 1 0 {}", hexw(n), hexw(f)));
+            }
+            rs.push(format!("{v} 0 t 0 1 {ty} 4 0 0 0xffffffff 0"));
+        }
+        rs.push(format!("{v} 0 t 0 0"));
+        rs.push(format!("{v} 0 t 0 2 3 1 0 0 0 0 1 1 0 0 0 0"));
+        rs.push(format!("{v} 0 t 0 2 3 1 0 0 0 0 3 1 1 0 1 0"));
+        rs.push(format!("{v} 0 t 0 3 0 2 0 0 0 0 1 4 0 0 0xffffffff 0 2 1 0 0 0xffffffff 0"));
+        rs.push(format!("{v} 0 t 0 2 1 4 0 0 0 0 1 4 2 0 0 0"));
+        rs.push(format!("{v} 0 c 0 0 1 0 cbv 0 0 0 0"));
+        rs.push(format!("{v} 0 c 0 0 1 1 cbv 0 0 2 0"));
+        rs.push(format!("{v} 0 cbv 0 0 0 0 cbv 0 0 0 0"));
+        rs.push(format!("{v} 0 s 0x15 0 0 0 s 0x15 0 0 0"));
+        rs.push(format!("{v} 0 s 0x15 0 0 0 s 0x15 1 0 0"));
+        for f in [0u32, 1, 0x14, 0x15, 0x55, 0x80, 0x95, 0xd5, 0x100, 0x115, 0x155, 0x180, 0x195, 0x1d5, 0xffff] {
+            rs.push(format!("{v} 0 s {} 5 6 0", hexw(f)));
+        }
+        rs.push(format!("{v} 0 {}", (0..16).map(|k| format!("c {k} 0 1 0")).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {}", (0..32).map(|k| format!("cbv {k} 0 0 0")).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {}", (0..16).map(|k| format!("s 0x15 {k} 0 0")).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 c 0 0 62 0 cbv 0 0 0 0"));
+        rs.push(format!("{v} 0 c 0 0 61 0 cbv 0 0 0 0 t 0 1 0 1 1 0 0 0"));
+    }
+    // (random root signatures: a few of each parameter, valid values)
+    let mut r = XorShift32::new(0xd3d1_2500);
+    for _ in 0..48 {
+        let v = r.range(1, 2);
+        let mut l = format!("{v} {}", hexw(*r.pick(&[0u32, 1, 2, 0x10, 0x41, 0x7f])));
+        for _ in 0..r.range(0, 6) {
+            let vis = r.range(0, 7);
+            match r.range(0, 4) {
+                0 => write!(l, " c {} {} {} {vis}", r.range(0, 8), r.range(0, 3), r.range(1, 9)).unwrap(),
+                1 => write!(l, " {} {} {} {vis} {}", r.pick(&["cbv", "srv", "uav"]), r.range(0, 8), r.range(0, 3), r.pick(&[0u32, 2, 4, 8])).unwrap(),
+                2 => {
+                    let n = r.range(1, 4);
+                    let sampler = r.chance(4);
+                    write!(l, " t {vis} {n}").unwrap();
+                    for _ in 0..n {
+                        let ty = if sampler { 3 } else { r.range(0, 3) };
+                        let f = if sampler { *r.pick(&[0u32, 1]) } else { *r.pick(&[0u32, 1, 2, 4, 8, 0x10000]) };
+                        write!(l, " {ty} {} {} {} {} {}", r.range(1, 9), r.range(0, 8), r.range(0, 3), hexw(*r.pick(&[0u32, 8, 0xffff_ffff])), hexw(f)).unwrap();
+                    }
+                }
+                _ => write!(l, " s {} {} {} {vis}", hexw(*r.pick(&[0u32, 0x15, 0x55, 0x94])), r.range(0, 8), r.range(0, 3)).unwrap(),
+            }
+        }
+        rs.push(l);
+    }
+    for (i, l) in rs.iter().enumerate() {
+        writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
     }
 
     s

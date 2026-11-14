@@ -597,3 +597,9 @@ D2D1_BITMAP_INTERPOLATION_MODE_LINEAR | https://learn.microsoft.com/en-us/window
 ID2D1RenderTarget::CreateBitmapBrush | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/nf-d2d1-id2d1rendertarget-createbitmapbrush(id2d1bitmap_constd2d1_bitmap_brush_properties_constd2d1_brush_properties_id2d1bitmapbrush)
 D2D1_BITMAP_BRUSH_PROPERTIES | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/ns-d2d1-d2d1_bitmap_brush_properties
 D2D1_EXTEND_MODE | https://learn.microsoft.com/en-us/windows/win32/api/d2d1/ne-d2d1-d2d1_extend_mode
+Root Signature Limits | https://learn.microsoft.com/en-us/windows/win32/direct3d12/root-signature-limits
+Using Descriptor Tables | https://learn.microsoft.com/en-us/windows/win32/direct3d12/using-descriptor-tables
+D3D12_ROOT_DESCRIPTOR_FLAGS | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_root_descriptor_flags
+D3D12_DESCRIPTOR_RANGE_FLAGS | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_descriptor_range_flags
+D3D12_ROOT_SIGNATURE_FLAGS | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_root_signature_flags
+ID3D12Device::CreateRootSignature | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-createrootsignature

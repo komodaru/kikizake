@@ -5,6 +5,7 @@
 pub mod d2d;
 pub mod d3d11;
 pub mod d3d12;
+pub mod rootsig;
 pub mod dxgi_format;
 pub mod d3draster;
 pub mod d3dres;

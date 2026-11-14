@@ -414,7 +414,110 @@ static void op_copy(void) {
     REL(back); REL(up); REL(tex);
 }
 
+/* rootsig12 <version 1|2> <flags> <parameter>...: D3D12SerializeVersionedRootSignature, then
+ * CreateRootSignature of the blob. Parameters:
+ *   c <register> <space> <values> <visibility>          32-bit constants
+ *   cbv|srv|uav <register> <space> <visibility> <flags> a root descriptor (flags: 1.1)
+ *   t <visibility> <ranges> then per range <type> <descriptors> <base> <space> <offset> <flags>
+ *   s <filter> <register> <space> <visibility>           a static sampler (wrap, LOD 0..max)
+ * "rs hr <hr> size <bytes>", the blob past its 4-byte magic and 16-byte checksum as "rs <hex>"
+ * lines of 64 bytes, "rs sum <checksum hex>", then "rsmake hr <hr>" */
+#define RSP 16
+#define RSR 32
+static void op_rootsig(void) {
+    if (!on12) { out("nodev\n"); return; }
+    static HRESULT (WINAPI *ser)(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC *, ID3DBlob **, ID3DBlob **);
+    if (!ser) ser = (void *)GetProcAddress(GetModuleHandleA("d3d12.dll"), "D3D12SerializeVersionedRootSignature");
+    if (!ser) { out("rs none\n"); return; }
+    UINT ver = num(1), np = 0, ns = 0, nr = 0;
+    D3D12_ROOT_PARAMETER p0[RSP];
+    D3D12_ROOT_PARAMETER1 p1[RSP];
+    D3D12_DESCRIPTOR_RANGE r0[RSR];
+    D3D12_DESCRIPTOR_RANGE1 r1[RSR];
+    D3D12_STATIC_SAMPLER_DESC sm[RSP];
+    int i = 3;
+    while (i < ntok && !bad) {
+        if (is(i, "s")) {
+            if (ns == RSP || i + 4 >= ntok) { bad = 1; break; }
+            D3D12_STATIC_SAMPLER_DESC d = { num(i + 1), 1, 1, 1, 0, 16, 1, 0, 0, 3.402823466e+38f, num(i + 2), num(i + 3), num(i + 4) };
+            sm[ns++] = d;
+            i += 5;
+            continue;
+        }
+        if (np == RSP) { bad = 1; break; }
+        D3D12_ROOT_PARAMETER *a = &p0[np];
+        D3D12_ROOT_PARAMETER1 *b = &p1[np];
+        if (is(i, "c")) {
+            if (i + 4 >= ntok) { bad = 1; break; }
+            a->ParameterType = b->ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+            a->Constants.ShaderRegister = b->Constants.ShaderRegister = num(i + 1);
+            a->Constants.RegisterSpace = b->Constants.RegisterSpace = num(i + 2);
+            a->Constants.Num32BitValues = b->Constants.Num32BitValues = num(i + 3);
+            a->ShaderVisibility = b->ShaderVisibility = num(i + 4);
+            i += 5;
+        } else if (is(i, "cbv") || is(i, "srv") || is(i, "uav")) {
+            if (i + 4 >= ntok) { bad = 1; break; }
+            a->ParameterType = b->ParameterType = is(i, "cbv") ? D3D12_ROOT_PARAMETER_TYPE_CBV : is(i, "srv") ? D3D12_ROOT_PARAMETER_TYPE_SRV : D3D12_ROOT_PARAMETER_TYPE_UAV;
+            a->Descriptor.ShaderRegister = b->Descriptor.ShaderRegister = num(i + 1);
+            a->Descriptor.RegisterSpace = b->Descriptor.RegisterSpace = num(i + 2);
+            a->ShaderVisibility = b->ShaderVisibility = num(i + 3);
+            b->Descriptor.Flags = num(i + 4);
+            i += 5;
+        } else if (is(i, "t")) {
+            if (i + 2 >= ntok) { bad = 1; break; }
+            UINT n = num(i + 2);
+            if (n > RSR || nr + n > RSR || i + 3 + 6 * (int)n > ntok) { bad = 1; break; }
+            a->ParameterType = b->ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+            a->ShaderVisibility = b->ShaderVisibility = num(i + 1);
+            a->DescriptorTable.NumDescriptorRanges = b->DescriptorTable.NumDescriptorRanges = n;
+            a->DescriptorTable.pDescriptorRanges = &r0[nr];
+            b->DescriptorTable.pDescriptorRanges = &r1[nr];
+            for (UINT k = 0; k < n; k++) {
+                int j = i + 3 + 6 * k;
+                D3D12_DESCRIPTOR_RANGE x = { num(j), num(j + 1), num(j + 2), num(j + 3), num(j + 4) };
+                D3D12_DESCRIPTOR_RANGE1 y = { num(j), num(j + 1), num(j + 2), num(j + 3), num(j + 5), num(j + 4) };
+                r0[nr] = x;
+                r1[nr++] = y;
+            }
+            i += 3 + 6 * n;
+        } else { bad = 1; break; }
+        np++;
+    }
+    if (bad || ntok < 3) { bad = 1; return; }
+    D3D12_VERSIONED_ROOT_SIGNATURE_DESC d;
+    memset(&d, 0, sizeof d);
+    d.Version = ver;
+    if (ver == D3D_ROOT_SIGNATURE_VERSION_1_1) {
+        D3D12_ROOT_SIGNATURE_DESC1 x = { np, np ? p1 : NULL, ns, ns ? sm : NULL, num(2) };
+        d.Desc_1_1 = x;
+    } else {
+        D3D12_ROOT_SIGNATURE_DESC x = { np, np ? p0 : NULL, ns, ns ? sm : NULL, num(2) };
+        d.Desc_1_0 = x;
+    }
+    ID3DBlob *blob = NULL, *err = NULL;
+    HRESULT hr = ser(&d, &blob, &err);
+    if (err) ID3D10Blob_Release(err);
+    if (FAILED(hr) || !blob) { out("rs hr %08lx\n", hr); if (blob) ID3D10Blob_Release(blob); return; }
+    const unsigned char *m = ID3D10Blob_GetBufferPointer(blob);
+    SIZE_T n = ID3D10Blob_GetBufferSize(blob);
+    out("rs hr %08lx size %lx\n", hr, (unsigned long)n);
+    for (SIZE_T k = 20; k < n; k += 64) {
+        out("rs ");
+        for (SIZE_T j = k; j < k + 64 && j < n; j++) out("%02x", m[j]);
+        out("\n");
+    }
+    out("rs sum ");
+    for (SIZE_T j = 4; j < 20 && j < n; j++) out("%02x", m[j]);
+    out("\n");
+    ID3D12RootSignature *rs = NULL;
+    hr = ID3D12Device_CreateRootSignature(dev12, 0, m, n, &IID_ID3D12RootSignature, (void **)&rs);
+    out("rsmake hr %08lx\n", hr);
+    REL(rs);
+    ID3D10Blob_Release(blob);
+}
+
 static const struct kz_op d3d12_ops[] = {
+    { "rootsig12", op_rootsig },
     { "copy12", op_copy },
     { "device12", op_device12 },
     { "footprint12", op_footprint },

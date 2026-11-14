@@ -206,3 +206,24 @@ fn suites_stay_modeled() {
     }
     model::set_arch(32);
 }
+
+/// the creation rules agree with CheckFeatureSupport: a format takes one mip level only exactly
+/// when it supports 2D textures but not MIP (0x1000), and 2D textures exactly when it says so
+/// (0x20), but for the two sampler feedback formats, which CreateCommittedResource refuses (golden
+/// d3d12-* copy-189/190: they are made as feedback maps)
+#[test]
+fn one_mip_formats_are_the_ones_without_mip_support() {
+    use kikizake::model::dxgi_format::{caps, support, ONE_MIP, SINGLE, T2};
+    for f in 0..=200u32 {
+        let Some((Some((s1, _)), _)) = caps(f) else { continue };
+        if matches!(f, 189 | 190) {
+            assert_eq!(support(f), 0, "format {f}");
+            continue;
+        }
+        let s = support(f);
+        assert_eq!(s & T2 != 0, s1 & 0x20 != 0, "format {f}: TEXTURE2D");
+        if s & T2 != 0 {
+            assert_eq!(s & (ONE_MIP | SINGLE) != 0, s1 & 0x1000 == 0, "format {f}: MIP");
+        }
+    }
+}
