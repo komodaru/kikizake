@@ -32371,6 +32371,66 @@ gl glColor4ub 0x7e 0x80 0x6c 0xa5
 gl glRectf 0 0 16 16
 glread 0 0 16 16 0x1908 0x1401 1024
 end
+case pixel-zoom
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPixelZoom 2 2
+gldraw 8 8 0x1908 0x1401 4183 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 0.5 0.5
+gldraw 8 8 0x1908 0x1401 39982 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 3 1.5
+gldraw 8 8 0x1908 0x1401 15519 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 1.25 0.75
+gldraw 8 8 0x1908 0x1401 60530 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 0.3 2
+gldraw 8 8 0x1908 0x1401 51186 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 1.5 1
+gldraw 8 8 0x1908 0x1401 21522 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 1 2.5
+gldraw 8 8 0x1908 0x1401 33194 256
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4000
+gl glPixelZoom 0.75 0.25
+gldraw 8 8 0x1908 0x1401 10089 256
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case transfer-map-color
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPixelTransferi 0xd10 1
+gldraw 16 16 0x1908 0x1401 46290 1024
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glPixelTransferi 0xd10 0
+gldraw 16 16 0x1908 0x1401 41282 1024
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glPixelTransferi 0xd10 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glread 0 0 16 16 0x1908 0x1406 1024
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

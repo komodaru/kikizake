@@ -150,13 +150,13 @@ GL.READ.DEPTH.16 measured | glReadPixels (GL_DEPTH_COMPONENT) | from a 16-bit de
 GL.READ.DEPTH.TYPE measured | glReadPixels (GL_DEPTH_COMPONENT) | from a 32-bit depth buffer the types other than GL_UNSIGNED_INT give the fixed-point value over 2^32 as a float converted as colors are, a fragment at depth 1.0 (2^32, whose 32 bits are 0) reading 1.0; from a 16-bit one GL_BYTE and GL_SHORT too give the value over 0xfffe (opengl golden depth-types-0, 1: every type)
 GL.READ.STENCIL doc | glReadPixels (GL_STENCIL_INDEX) | the stencil values as integers of the type
 GL.READ.OUTSIDE measured | glReadPixels | the elements of pixels outside the window are left as they are (opengl golden edge-read-outside)
-GL.READ.BUFFER open | glReadPixels | a layout past the executor's buffer (Windows writes past it)
+GL.READ.BUFFER measured | glReadPixels | a layout past the executor's buffer: the elements inside it are written as any others, the ones past it go past the buffer and the answer does not show them (opengl golden read-pack-17)
 GL.DRAW doc | glDrawPixels | the image as fragments from the bottom left at the raster position
 GL.DRAW.CONVERT doc | glDrawPixels | each element to a component: unsigned ones over their maximum, signed (2v + 1) / (2^n - 1), floats as they are
 GL.DRAW.TOFIXED measured | glDrawPixels | a drawn component to an 8-bit channel truncated, to a 5-bit one rounded (opengl golden draw-*, scissor-mask-*)
 GL.DRAW.LUMINANCE doc | glDrawPixels | luminance to red, green and blue
 GL.DRAW.INDEX assumed | glPixelMap, glDrawPixels | GL_COLOR_INDEX in RGBA mode: through the index-to-RGBA maps, initially one zero each: black, alpha 0; no error (opengl golden edge-pixels-errors)
-GL.DRAW.NAN open | glDrawPixels | a NaN or infinite float component
+GL.DRAW.NAN measured | glDrawPixels | a NaN float component draws as 0, an infinite one is clamped as any other value (opengl golden draw-6, draw-unpack-11)
 GL.DRAW.BITMAP measured | glDrawPixels (GL_INVALID_ENUM) | GL_BITMAP with a color format: GL_INVALID_ENUM (opengl golden edge-draw-bitmap)
 GL.DRAW.DEPTHSTENCIL open | glDrawPixels | depth or stencil images
 GL.DRAW.BUFFER excluded | glDrawPixels | a layout past the executor's data: Windows would read past its array

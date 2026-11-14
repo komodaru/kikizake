@@ -61,6 +61,8 @@ pub mod e {
     pub const TEXTURE: u32 = 0x1702;
 
     pub const COLOR_INDEX: u32 = 0x1900;
+    pub const MAP_COLOR: u32 = 0xd10;
+    pub const MAP_STENCIL: u32 = 0xd11;
     pub const STENCIL_INDEX: u32 = 0x1901;
     pub const DEPTH_COMPONENT: u32 = 0x1902;
     pub const RED: u32 = 0x1903;
@@ -402,6 +404,10 @@ pub struct Ctx {
     pub unpack: [i64; 6],
     /// RED_SCALE, RED_BIAS, GREEN_*, BLUE_*, ALPHA_* (scale, bias)
     pub transfer: [(f32, f32); 4],
+    /// GL_MAP_COLOR, GL_MAP_STENCIL (glPixelTransfer): the pixel maps the model does not follow
+    pub map: [bool; 2],
+    /// glPixelZoom
+    pub zoom: (f32, f32),
     pub line_width: f32,
     pub point_size: f32,
     pub cull_mode: u32,
@@ -471,6 +477,8 @@ impl Ctx {
             pack: [0, 0, 0, 0, 0, 4],
             unpack: [0, 0, 0, 0, 0, 4],
             transfer: [(1.0, 0.0); 4],
+            map: [false; 2],
+            zoom: (1.0, 1.0),
             line_width: 1.0,
             point_size: 1.0,
             cull_mode: BACK,
@@ -1382,8 +1390,19 @@ impl Ctx {
                             self.transfer[k].1 = fl(a, 1) as f32;
                         }
                     }
+                    // (golden opengl-32 edge-transfer-map: the maps turned on with no error; images
+                    // drawn or read through them are GL.PIXELTRANSFER.OTHER)
+                    _ if p == MAP_COLOR || p == MAP_STENCIL => {
+                        hit(clause::GL_PIXELTRANSFER);
+                        self.map[usize::from(p == MAP_STENCIL)] = fl(a, 1) != 0.0;
+                    }
                     _ => return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER)),
                 }
+            }
+            "glPixelZoom" => {
+                // (golden opengl-32 edge-other-call: no error; images drawn zoomed are GL.CALL.OTHER)
+                hit(clause::GL_PIXELTRANSFER);
+                self.zoom = (fl(a, 0) as f32, fl(a, 1) as f32);
             }
             "glViewport" | "glScissor" => {
                 let v = [int(a, 0), int(a, 1), int(a, 2), int(a, 3)];
@@ -2114,6 +2133,8 @@ impl Ctx {
         }
         if mask & attrib::PIXEL_MODE != 0 {
             self.transfer = s.transfer;
+            self.map = s.map;
+            self.zoom = s.zoom;
             self.buffers[1] = s.buffers[1];
         }
         if mask & attrib::LIGHTING != 0 {
@@ -2557,7 +2578,10 @@ impl Ctx {
         Ok(Some((comps, size)))
     }
 
-    fn transfer(&self, c: [f64; 4]) -> [f64; 4] {
+    fn transfer(&self, c: [f64; 4]) -> Res<[f64; 4]> {
+        if self.map[0] {
+            return Err(Fail::Unmodeled(open::GL_PIXELTRANSFER_OTHER));
+        }
         let mut r = c;
         for k in 0..4 {
             let (s, b) = self.transfer[k];
@@ -2566,7 +2590,7 @@ impl Ctx {
             }
             r[k] = (c[k] * s as f64 + b as f64).clamp(0.0, 1.0);
         }
-        r
+        Ok(r)
     }
 
     pub fn read_pixels(&mut self, x: i64, y: i64, w: i64, h: i64, f: u32, t: u32, buf: &mut [u8]) -> Res<()> {
@@ -2587,7 +2611,7 @@ impl Ctx {
                 }
                 let p = py as usize * W + px as usize;
                 let c = self.dst_color(p).map(|v| v as f64);
-                let c = self.transfer(c).map(|v| v as f32);
+                let c = self.transfer(c)?.map(|v| v as f32);
                 for (n, which) in comps.iter().enumerate() {
                     let mut e = match which {
                         0..=3 => from_float(c[*which], t),
@@ -2665,7 +2689,11 @@ impl Ctx {
                     }
                     let at = (start + j * k + i * comps.len() + n) * size;
                     if at + size > buf.len() {
-                        return Err(Fail::Unmodeled(open::GL_READ_BUFFER));
+                        // (MEASURED, golden opengl-32 read-pack-17: Windows writes past the
+                        // executor's buffer, which the answer does not show; the elements inside
+                        // it are written as any others: GL.READ.BUFFER)
+                        hit(clause::GL_READ_BUFFER);
+                        continue;
                     }
                     buf[at..at + size].copy_from_slice(&e);
                 }
@@ -2676,6 +2704,9 @@ impl Ctx {
 
     pub fn draw_pixels(&mut self, w: i64, h: i64, f: u32, t: u32, data: &[u8]) -> Res<()> {
         let Some((comps, size)) = self.pixel_args(w, h, f, t, false)? else { return Ok(()) };
+        if self.zoom != (1.0, 1.0) {
+            return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
+        }
         if f == DEPTH_COMPONENT || f == STENCIL_INDEX {
             return Err(Fail::Unmodeled(open::GL_DRAW_DEPTHSTENCIL));
         }
@@ -2694,9 +2725,14 @@ impl Ctx {
                         e.reverse();
                     }
                     let v = to_float(&e, t);
-                    if !v.is_finite() {
-                        return Err(Fail::Unmodeled(open::GL_DRAW_NAN));
-                    }
+                    // (MEASURED, golden opengl-32 draw-6, draw-unpack-11: a NaN component draws
+                    // as 0, an infinite one clamps as any other: GL.DRAW.NAN)
+                    let v = if v.is_finite() {
+                        v
+                    } else {
+                        hit(clause::GL_DRAW_NAN);
+                        if v.is_nan() { 0.0 } else { v.clamp(-1.0, 1.0) }
+                    };
                     match which {
                         4 => {
                             hit(clause::GL_DRAW_LUMINANCE);
@@ -2719,7 +2755,7 @@ impl Ctx {
                         _ => c[*which] = v,
                     }
                 }
-                let c = if self.pf.ty != 0 { c } else { self.transfer(c) };
+                let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
                 self.fragment(Frag { x: i as i64, y: j as i64, c: c.map(|v| v as f32), z: 0.0, trunc: true })?;
             }
         }

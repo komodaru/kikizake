@@ -1131,4 +1131,23 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "end").unwrap();
     }
+    // glPixelZoom: an 8 x 8 image drawn at several zooms, down and up, whole and fractional
+    let mut q = XorShift32::new(0x0960_2007);
+    writeln!(s, "case pixel-zoom\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0").unwrap();
+    for z in ["2 2", "0.5 0.5", "3 1.5", "1.25 0.75", "0.3 2", "1.5 1", "1 2.5", "0.75 0.25"] {
+        writeln!(s, "gl glClear 0x4000\ngl glPixelZoom {z}\ngldraw 8 8 {} {} {} 256", h(RGBA), h(UNSIGNED_BYTE), q.next() & 0xffff).unwrap();
+        read_all(s);
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    // GL_MAP_COLOR with the initial maps (one entry each, 0): images drawn through them, and
+    // read through them
+    writeln!(s, "case transfer-map-color\nglctx 32 choose 0x38 0 32 0 0 32 8\n{ORTHO}gl glDisable 0xbd0").unwrap();
+    writeln!(s, "gl glClear 0x4000\ngl glPixelTransferi 0xd10 1\ngldraw 16 16 {} {} {} 1024", h(RGBA), h(UNSIGNED_BYTE), q.next() & 0xffff).unwrap();
+    read_all(s);
+    writeln!(s, "gl glPixelTransferi 0xd10 0\ngldraw 16 16 {} {} {} 1024", h(RGBA), h(UNSIGNED_BYTE), q.next() & 0xffff).unwrap();
+    read_all(s);
+    writeln!(s, "gl glPixelTransferi 0xd10 1").unwrap();
+    read_all(s);
+    writeln!(s, "glread 0 0 16 16 {} {} 1024", h(RGBA), h(FLOAT)).unwrap();
+    writeln!(s, "glerr\nend").unwrap();
 }
