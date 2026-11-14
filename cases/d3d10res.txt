@@ -23846,6 +23846,12 @@ read 0 0 16 1 1
 tex 0 2 8388608 1 1 1 0x1c 0 8 0 0 1 0
 tex 0 2 16385 16385 1 1 0x1c 0 8 0 0 1 0
 end
+case big-make-huge
+device10
+tex 0 2 23171 23171 1 1 0x1c 0 8 0 0 1 0
+tex 0 2 32768 32768 1 1 0x1c 0 8 0 0 1 0
+tex 0 2 8388608 4096 1 1 0x1c 0 8 0 0 1 0
+end
 case view-b-bufex
 device10
 buf 0 256 0 0x28 0 0 0
@@ -25290,6 +25296,26 @@ tex 1 1 16 1 1 1 0x1c 0 8 0 0 1 0
 rtv 0 0 nodesc
 clear 0 0x3f800000 0 0 0x3f800000
 resolve 1 0 0 0 28
+read 1 0 64 1 1
+end
+case probe-copysub-buf
+device10
+buf 0 64 0 8 0 0 0
+buf 1 64 0 8 0 0 0
+update 0 0 3 16 0
+copysub 1 0 8 0 0 0 0 0 0 0 16 1 1
+read 1 0 64 1 1
+copysub 1 0 0 0 0 0 0 4 0 0 4 1 1
+read 1 0 64 1 1
+copysub 1 0 0 0 0 0 0 0 0 0 72 1 1
+read 1 0 64 1 1
+end
+case probe-copysub-bufpast
+device10
+buf 0 64 0 8 0 0 0
+buf 1 64 0 8 0 0 0
+update 0 0 3 16 0
+copysub 1 0 60 0 0 0 0 0 0 0 16 1 1
 read 1 0 64 1 1
 end
 case probe-removed
