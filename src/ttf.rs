@@ -343,40 +343,83 @@ impl Font {
             }
             tables.push((*b"vmtx", t));
         }
-        tables.sort_by(|a, b| a.0.cmp(&b.0));
-        let nt = tables.len();
-        let mut sr = 1;
-        let mut es = 0u16;
-        while sr * 2 <= nt {
-            sr *= 2;
-            es += 1;
-        }
-        let mut f = Vec::new();
-        be32(&mut f, 0x0001_0000);
-        be16(&mut f, nt as u16);
-        be16(&mut f, (sr * 16) as u16);
-        be16(&mut f, es);
-        be16(&mut f, ((nt - sr) * 16) as u16);
-        let mut off = 12 + 16 * nt;
-        let mut body = Vec::new();
-        for (tag, t) in &tables {
-            f.extend(tag);
-            be32(&mut f, checksum(t));
-            be32(&mut f, off as u32);
-            be32(&mut f, t.len() as u32);
-            body.extend(t);
-            while body.len() % 4 != 0 {
-                body.push(0);
-            }
-            off = 12 + 16 * nt + body.len();
-        }
-        f.extend(body);
-        let adj = 0xB1B0_AFBAu32.wrapping_sub(checksum(&f));
-        let head = tables.iter().position(|t| &t.0 == b"head").unwrap();
-        let ho = u32::from_be_bytes(f[12 + 16 * head + 8..12 + 16 * head + 12].try_into().unwrap()) as usize;
-        f[ho + 8..ho + 12].copy_from_slice(&adj.to_be_bytes());
-        f
+        assemble(tables)
     }
+}
+
+/// a font file of the tables, sorted by tag, the head checksum adjustment set (when there is a head)
+pub fn assemble(mut tables: Vec<([u8; 4], Vec<u8>)>) -> Vec<u8> {
+    tables.sort_by(|a, b| a.0.cmp(&b.0));
+    let nt = tables.len();
+    let mut sr = 1;
+    let mut es = 0u16;
+    while sr * 2 <= nt {
+        sr *= 2;
+        es += 1;
+    }
+    let mut f = Vec::new();
+    be32(&mut f, 0x0001_0000);
+    be16(&mut f, nt as u16);
+    be16(&mut f, (sr * 16) as u16);
+    be16(&mut f, es);
+    be16(&mut f, ((nt - sr) * 16) as u16);
+    let mut off = 12 + 16 * nt;
+    let mut body = Vec::new();
+    for (tag, t) in &tables {
+        f.extend(tag);
+        be32(&mut f, checksum(t));
+        be32(&mut f, off as u32);
+        be32(&mut f, t.len() as u32);
+        body.extend(t);
+        while body.len() % 4 != 0 {
+            body.push(0);
+        }
+        off = 12 + 16 * nt + body.len();
+    }
+    f.extend(body);
+    let adj = 0xB1B0_AFBAu32.wrapping_sub(checksum(&f));
+    if let Some(head) = tables.iter().position(|t| &t.0 == b"head") {
+        let ho = u32::from_be_bytes(f[12 + 16 * head + 8..12 + 16 * head + 12].try_into().unwrap_or([0; 4])) as usize;
+        if let Some(d) = f.get_mut(ho + 8..ho + 12) {
+            d.copy_from_slice(&adj.to_be_bytes());
+        }
+    }
+    f
+}
+
+/// the tables (tag, bytes) of a font file assemble made
+pub fn tables_of(b: &[u8]) -> Vec<([u8; 4], Vec<u8>)> {
+    let u16at = |o: usize| u16::from_be_bytes([b[o], b[o + 1]]) as usize;
+    let u32at = |o: usize| u32::from_be_bytes([b[o], b[o + 1], b[o + 2], b[o + 3]]) as usize;
+    (0..u16at(4)).map(|i| {
+        let d = 12 + 16 * i;
+        ([b[d], b[d + 1], b[d + 2], b[d + 3]], b[u32at(d + 8)..u32at(d + 8) + u32at(d + 12)].to_vec())
+    }).collect()
+}
+
+/// a TrueType collection of the font files: the ttcf header, then each font, its table offsets
+/// moved to where it lands
+pub fn ttc(fonts: &[Vec<u8>]) -> Vec<u8> {
+    let mut out = Vec::new();
+    out.extend(b"ttcf");
+    be32(&mut out, 0x0001_0000);
+    be32(&mut out, fonts.len() as u32);
+    let mut at = 12 + 4 * fonts.len();
+    let mut body = Vec::new();
+    for f in fonts {
+        be32(&mut out, at as u32);
+        let mut f = f.clone();
+        let nt = u16::from_be_bytes([f[4], f[5]]) as usize;
+        for i in 0..nt {
+            let d = 12 + 16 * i + 8;
+            let o = u32::from_be_bytes([f[d], f[d + 1], f[d + 2], f[d + 3]]) as usize + at;
+            f[d..d + 4].copy_from_slice(&(o as u32).to_be_bytes());
+        }
+        at += f.len();
+        body.extend(f);
+    }
+    out.extend(body);
+    out
 }
 
 /// what the reader takes from a font file

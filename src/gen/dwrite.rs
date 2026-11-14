@@ -372,6 +372,34 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
         writeln!(s, "end").unwrap();
     }
+    // files that are not one TrueType font: collections, fonts short of a table or cut short,
+    // other signatures, bytes at random; each then asked what a face answers
+    let probe = "dwinfo\ndwmetrics\ndwcmap 0x41 0x61\ndwglyph 0 0 1 2\ndwgdiglyph 12 1 0 0 1\ndwrun aliased 12 0 40 1 0";
+    let base = font(0x0fd0_0000).bytes();
+    let mut files: Vec<(String, Vec<u8>)> = Vec::new();
+    for n in 1..=3u32 {
+        files.push((format!("ttc{n}"), crate::ttf::ttc(&(0..n).map(|k| font(0x0fd1_0000 + k).bytes()).collect::<Vec<_>>())));
+    }
+    files.push(("ttc0".into(), crate::ttf::ttc(&[])));
+    for (tag, _) in crate::ttf::tables_of(&base) {
+        let t: Vec<_> = crate::ttf::tables_of(&base).into_iter().filter(|x| x.0 != tag).collect();
+        files.push((format!("no-{}", String::from_utf8_lossy(&tag).trim().replace('/', "")), crate::ttf::assemble(t)));
+    }
+    for cut in [1usize, 4, 11, 12, 13, 40, 200, base.len() / 2, base.len() - 4, base.len() - 1] {
+        files.push((format!("cut{cut}"), base[..cut].to_vec()));
+    }
+    for sig in [*b"true", *b"OTTO", *b"typ1", *b"\0\x01\0\x01", *b"wOFF"] {
+        let mut b = base.clone();
+        b[..4].copy_from_slice(&sig);
+        files.push((format!("sig{}", hex(&sig)), b));
+    }
+    let mut rb = XorShift32::new(0xf11e);
+    for i in 0..6usize {
+        files.push((format!("rand{i}"), (0..[3usize, 16, 64, 300, 1000, 4000][i]).map(|_| rb.range(0, 255) as u8).collect()));
+    }
+    for (name, b) in files {
+        writeln!(s, "case file-{name}\ndwfont {}\n{probe}\nend", hex(&b)).unwrap();
+    }
     // GDI modes with grid fit disabled: single boxes at sizes 6..96, edges anywhere in a pixel
     for mode in ["gdi", "gdinatural"] {
         for i in 0..6u32 {
