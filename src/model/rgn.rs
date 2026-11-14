@@ -197,11 +197,28 @@ impl Edge {
 /// as X11's integer scan converter steps them; ALTERNATE pairs the edges in x order, WINDING
 /// keeps the spans of nonzero winding; a closed axis-aligned rectangle is that rectangle
 pub fn polygon(polys: &[Vec<(i32, i32)>], winding: bool) -> Result<Rgn, super::Fail> {
+    let (g, ymax) = scan(polys, winding);
+    if g.bands.last().is_some_and(|b| b.1 != ymax) {
+        // (rows left empty above the lowest vertex: Windows' bounding rectangle reaches down to
+        // that vertex in some such regions and not in others, open)
+        return Err(super::Fail::Unmodeled(crate::spec::open::GDI_RGN_POLYGON));
+    }
+    Ok(g)
+}
+
+/// the pixels of a polygon fill (Polygon, PolyPolygon, FillPath): those of its region
+pub fn polygon_pixels(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
+    scan(polys, winding).0
+}
+
+/// the scan conversion, and the polygon's lowest y
+fn scan(polys: &[Vec<(i32, i32)>], winding: bool) -> (Rgn, i32) {
     if let [p] = polys {
         let rectangle = (p.len() == 4 || p.len() == 5 && p[4] == p[0])
             && ((p[0].1 == p[1].1 && p[1].0 == p[2].0 && p[2].1 == p[3].1 && p[3].0 == p[0].0) || (p[0].0 == p[1].0 && p[1].1 == p[2].1 && p[2].0 == p[3].0 && p[3].1 == p[0].1));
         if rectangle {
-            return Ok(Rgn::rect(p[0].0.min(p[2].0), p[0].1.min(p[2].1), p[0].0.max(p[2].0), p[0].1.max(p[2].1)));
+            let ymax = p[0].1.max(p[2].1);
+            return (Rgn::rect(p[0].0.min(p[2].0), p[0].1.min(p[2].1), p[0].0.max(p[2].0), ymax), ymax);
         }
     }
     // the edge table: (top scanline, edge), in the order the polygons give them
@@ -216,7 +233,7 @@ pub fn polygon(polys: &[Vec<(i32, i32)>], winding: bool) -> Result<Rgn, super::F
             table.push((top.1, Edge::new(top, bottom, down)));
         }
     }
-    let Some(ymin) = table.iter().map(|e| e.0).min() else { return Ok(Rgn::empty()) };
+    let Some(ymin) = table.iter().map(|e| e.0).min() else { return (Rgn::empty(), 0) };
     let ymax = table.iter().map(|e| e.1.ymax + 1).max().unwrap();
     // edges entering at one scanline, in x order (a later one before an earlier of equal x)
     let mut buckets: std::collections::BTreeMap<i32, Vec<Edge>> = Default::default();
@@ -271,13 +288,7 @@ pub fn polygon(polys: &[Vec<(i32, i32)>], winding: bool) -> Result<Rgn, super::F
             }
         }
     }
-    let g = Rgn::from_rows(rows);
-    if g.bands.last().is_some_and(|b| b.1 != ymax) {
-        // (rows left empty above the lowest vertex: Windows' bounding rectangle reaches down to
-        // that vertex in some such regions and not in others, open)
-        return Err(super::Fail::Unmodeled(crate::spec::open::GDI_RGN_POLYGON));
-    }
-    Ok(g)
+    (Rgn::from_rows(rows), ymax)
 }
 
 /// spans sorted, overlapping and touching ones merged, empty ones dropped

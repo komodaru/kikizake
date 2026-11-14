@@ -143,15 +143,24 @@ impl Slot {
     }
     /// the brush over [l, r) x [t, b) with PATCOPY through the clip region
     pub fn fill_rect(&mut self, l: i32, t: i32, r: i32, b: i32) -> Res<()> {
+        self.fill_with(l, t, r, b, 13)
+    }
+    /// the brush over [l, r) x [t, b) through the DC's ROP2 (a shape's interior)
+    pub fn fill_shape(&mut self, l: i32, t: i32, r: i32, b: i32) -> Res<()> {
+        self.fill_with(l, t, r, b, self.ext.rop2)
+    }
+    fn fill_with(&mut self, l: i32, t: i32, r: i32, b: i32, rop: i64) -> Res<()> {
         let v = match &self.brush {
             Brush::Solid(c) => self.s.from_rgb(*c),
             Brush::Null => return Ok(()),
             _ => return Err(Fail::Unmodeled(open::GDI_SHAPE_BRUSH)),
         };
+        let m = self.s.mask();
         for y in t.max(0)..b.min(self.s.h) {
             for x in l.max(0)..r.min(self.s.w) {
                 if self.visible(x, y) {
-                    self.s.set(x, y, v);
+                    let d = self.s.get(x, y);
+                    self.s.set(x, y, rop2(rop, v, d) & m);
                 }
             }
         }
@@ -312,7 +321,23 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             out.push("ret 1".into());
         }
-        "polygon" => return Err(Fail::Unmodeled(open::GDI_SHAPE_POLYGON)),
+        "polygon" => {
+            let p = points(op, 2)?;
+            if p.len() < 2 {
+                return Err(Fail::Bad);
+            }
+            // MEASURED: the interior is CreatePolygonRgn's region of the points in the fill
+            // mode, the brush over it; then the pen's closed outline
+            hit(clause::GDI_SHAPE_POLYFILL);
+            let r = super::rgn::polygon_pixels(&[p.clone()], sl.ext.polyfill == 2);
+            for (l, t, rr, b) in r.rects() {
+                sl.fill_shape(l, t, rr, b)?;
+            }
+            for i in 0..p.len() {
+                sl.line(p[i], p[(i + 1) % p.len()])?;
+            }
+            out.push("ret 1".into());
+        }
         "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
         _ => return Err(Fail::Unmodeled(open::GDI_LINE_BEZIER)),
     }
