@@ -524,4 +524,26 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case gdiside-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
         }
     }
+    // sideways bottoms a design unit apart through one sample row, at the sizes and vertical
+    // origins of the gdiglyph cases whose bottom side bearing the model has a unit over or under
+    // (does the result follow the outline's own bottom or only the sample row it ends in?)
+    let rows: [(u16, i64, i16, i16, i64); 8] = [
+        (2000, 13, 1486, -143, -346),
+        (2000, 13, 1486, -143, -332),
+        (2000, 13, 1486, -143, 12),
+        (2000, 13, 1486, -143, 26),
+        (2000, 13, 1460, -169, -346),
+        (2000, 13, 1510, -119, -346),
+        (2048, 27, 1398, -813, 440),
+        (2048, 27, 1398, -813, 454),
+    ];
+    for (k, &(upm, pp, asc, desc, b0)) in rows.iter().enumerate() {
+        let u = upm as i64;
+        let gs: Vec<_> = (0..14i64).map(|j| ((u / 2) as u16, vec![(0i16, (b0 + j) as i16, (u / 4) as i16, (b0 + j + u / 4) as i16)])).collect();
+        let mut f = font_with(0x0fd0_0000 + k as u32, upm, &gs);
+        f.os2 = Some(4);
+        f.typo = (asc, desc, 0);
+        let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
+        writeln!(s, "case gdisidebot-{k}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" "), gids.join(" ")).unwrap();
+    }
 }
