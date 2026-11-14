@@ -1242,16 +1242,41 @@ impl D3d9 {
                 Vtx { x: f32::from_bits(w[0]), y: f32::from_bits(w[1]), z: fl(w[2]), rhw: fl(w[3]), diffuse, specular, uv }
             })
             .collect();
+        if ty == 1 {
+            return self.points(&vs);
+        }
         // the triangles, each with its first (flat shading) vertex first
         let tris: Vec<[usize; 3]> = match ty {
             4 => (0..nv / 3).map(|i| [3 * i, 3 * i + 1, 3 * i + 2]).collect(),
             5 => (0..nv.saturating_sub(2)).map(|i| if i % 2 == 0 { [i, i + 1, i + 2] } else { [i, i + 2, i + 1] }).collect(),
             6 => (0..nv.saturating_sub(2)).map(|i| [i + 1, i + 2, 0]).collect(),
-            _ => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
+            2 | 3 => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
+            _ => return Err(Fail::Bad),
         };
         hit(clause::D3D9_DRAW_ASSEMBLY);
         for t in tris {
             self.triangle(vs[t[0]], vs[t[1]], vs[t[2]])?;
+        }
+        Ok(())
+    }
+
+    /// a point list: each point the one pixel whose area holds it, (x, y) taken to the pixel
+    /// whose center is nearest, halves down (MEASURED points-lines-0, -3)
+    fn points(&mut self, vs: &[Vtx]) -> Res<()> {
+        let Some(rt) = &self.draw.rt else {
+            hit(clause::D3D9_CLEAR_BACKBUFFER);
+            return Ok(());
+        };
+        let (w, h) = (rt.w, rt.h);
+        hit(clause::D3D9_DRAW_POINTS);
+        for v in vs {
+            if v.rhw != 1.0 {
+                return Err(Fail::Unmodeled(open::D3D9_DRAW_RHW));
+            }
+            let (x, y) = ((v.x - 0.5).ceil() as i64, (v.y - 0.5).ceil() as i64);
+            if (0..w as i64).contains(&x) && (0..h as i64).contains(&y) {
+                self.pixel(x as i32, y as i32, v.z, v.diffuse, v.specular, v.uv)?;
+            }
         }
         Ok(())
     }

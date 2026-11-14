@@ -20,7 +20,8 @@ D3D9.FORMATS.USAGE measured | IDirect3D9::CheckDeviceFormat; golden d3d9draw, d3
 D3D9.FVF.SET doc | IDirect3DDevice9::SetFVF, D3DFVF | the vertex layout: position, then the optional normal, point size, diffuse, specular, texture coordinate sets in that order
 D3D9.DRAW.XYZ open | IDirect3DDevice9::SetTransform, SetViewport; cases xyz-* | untransformed vertices: world, view, projection, the viewport
 D3D9.DRAW.STRIDE measured | DrawPrimitiveUP; golden d3d9draw, d3d8draw stride-* | a stride past the FVF's size: each vertex read from where the stride puts it, the words past the FVF's elements not read
-D3D9.DRAW.POINTSLINES open | Rasterization Rules (Direct3D 9) | points and lines
+D3D9.DRAW.POINTS measured | Rasterization Rules (Direct3D 9); golden d3d9draw, d3d8draw points-lines-0, -3 | a point lights the one pixel whose center is nearest (x and y each taken to the nearest integer, halves down), in the vertex's colors
+D3D9.DRAW.POINTSLINES open | Rasterization Rules (Direct3D 9) | lines (lists and strips): not the diamond-exit rule with fixed corners and edges (a 45-degree line along diamond edges lights some edge pixels and not others, points-lines-2)
 D3D9.DRAW.ASSEMBLY doc | Primitive Types (Direct3D 9) | lists take three vertices per triangle; strips each next vertex with the two before (every other triangle in reverse order, so all keep one winding); fans each next pair with the first
 D3D9.CULL doc | D3DCULL, D3DRS_CULLMODE | NONE draws both windings, CW culls clockwise triangles (on screen, y down), CCW (the default) counterclockwise ones
 D3D9.CULL.BAD measured | D3DCULL; golden d3d9draw cull-0, cull-4 | a cull mode outside the enumeration culls as CW on x64, as CCW on x86 (d3d9draw-32, d3d8draw-32)
