@@ -492,7 +492,7 @@ fn cross(p: [(f64, f64); 3]) -> f64 {
 
 /// the declaration the runtime makes of an FVF (SetFVF, then GetVertexDeclaration): as
 /// D3DXDeclaratorFromFVF's, but XYZW a FLOAT4 POSITION, the reserved bits ignored, 0x2000 a FLOAT1
-/// FOG after the position; FVF 0 none (MEASURED: d3d9draw fvf-*)
+/// FOG before the texture coordinates; FVF 0 none (MEASURED: d3d9draw fvf-*)
 pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
     use super::d3dx9::{elem, fvf_decl};
     if fvf == 0 {
@@ -500,9 +500,18 @@ pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
     }
     let sets = fvf >> 8 & 0xf;
     let xyzw = fvf & 0x400e == 0x4002;
-    let base = fvf & !0x6001 & !if xyzw { 0x400e } else { 0 } | if xyzw { 0x002 } else { 0 };
+    // (MEASURED fvf-bits: 0x4000 with other position bits than XYZW's is no position at all)
+    let base = fvf & !0x6001 & !if fvf & 0x4000 != 0 { 0x400e } else { 0 } | if xyzw { 0x002 } else { 0 };
     // (MEASURED, fvf-texcount: past 8 texture coordinate sets, FLOAT2 ones of the next indices)
-    let mut e = fvf_decl(if sets > 8 { base & !0xf00 | 8 << 8 } else { base }).map_err(|_| Fail::Unmodeled(open::D3D9_FVF_BLEND5))?;
+    let base = if sets > 8 { base & !0xf00 | 8 << 8 } else { base };
+    // (MEASURED, fvf-6, fvf-blend5, fvf-bits: XYZB5 without an index flag, which D3DX refuses, as
+    // four weights and the fifth a FLOAT1 BLENDINDICES)
+    let b5 = base & 0x400e == 0xe && base & 0x9000 == 0;
+    let mut e = fvf_decl(if b5 { base | 0x1000 } else { base }).map_err(|_| Fail::Bad)?;
+    if b5 {
+        hit(clause::D3D9_FVF_BLEND5);
+        e[2].1 &= !255;
+    }
     if sets > 8 {
         hit(clause::D3D9_FVF_TEXCOUNT);
         for k in 8..sets {
@@ -518,7 +527,7 @@ pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
         }
     }
     if fvf & 0x2000 != 0 {
-        let at = e.iter().take_while(|x| matches!(x.1 >> 16 & 255, 0 | 1 | 2 | 9)).count();
+        let at = e.iter().take_while(|x| x.1 >> 16 & 255 != 5).count();
         let off = e.get(at).map_or_else(|| e.last().map_or(0, |l| (l.0 >> 16) + decl_type_size(l.1 & 255).unwrap()), |x| x.0 >> 16);
         for x in e.iter_mut().skip(at) {
             x.0 += 4 << 16;
