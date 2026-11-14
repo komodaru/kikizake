@@ -669,10 +669,13 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
 /// what a shader reads from texel (x, y) of a subresource, through a view's format
 pub fn texel(res: &Resource, sub: u32, fmt: u32, x: u32, y: u32) -> Res<[u32; 4]> {
     let f = format(fmt).ok_or(Fail::Unmodeled("CONV.OTHER"))?;
-    if f.bw != 1 || f.bh != 1 {
-        return Err(Fail::Unmodeled("CONV.BLOCK"));
-    }
     let (rb, _, _) = res.layout(sub);
+    if f.bw != 1 || f.bh != 1 {
+        let el = (f.bits / 8) as usize;
+        let b = res.subs[sub as usize].as_ref().ok_or(Fail::Unmodeled("D3DRES.READ.UNKNOWN"))?;
+        let at = (y / f.bh) as usize * rb + (x / f.bw) as usize * el;
+        return super::dxgiconv::decode_block(f, &b[at..at + el], x % f.bw, y % f.bh);
+    }
     let el = (f.bits / 8) as usize;
     let b = res.subs[sub as usize].as_ref().ok_or(Fail::Unmodeled("D3DRES.READ.UNKNOWN"))?;
     let at = y as usize * rb + x as usize * el;

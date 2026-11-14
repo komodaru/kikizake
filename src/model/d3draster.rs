@@ -647,12 +647,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
         }
         "pspos" => {
             hit("D3DRASTER.POS");
+            // (MEASURED: w reads as the vertices' clip w, pos-3, pos-4)
             let w = same(&|v| [v.pos[3]; 4])?[0];
             if w != 1.0 {
-                return Err(Fail::Unmodeled("D3DRASTER.POSW"));
+                hit("D3DRASTER.POSW");
             }
             let z = z.ok_or(Fail::Unmodeled("D3DRASTER.INTERP"))?;
-            [px as f32 + 0.5, py as f32 + 0.5, z, 1.0].map(f32::to_bits)
+            [px as f32 + 0.5, py as f32 + 0.5, z, w].map(f32::to_bits)
         }
         "psprim" => {
             hit("D3DRASTER.PRIM");
@@ -660,7 +661,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
         }
         "psld" | "psldu" => {
             hit("D3DRASTER.LD");
-            let Some(sv) = d.srv else { return Err(Fail::Unmodeled("D3DRASTER.NOSRV")) };
+            // (an unbound shader resource reads as zeros, ld-89)
+            let Some(sv) = d.srv else {
+                hit("D3DRASTER.NOSRV");
+                return Ok([0; 4]);
+            };
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
             let (w, h, _) = r.size(0);
@@ -673,7 +678,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, front: bo
         }
         "pssample" => {
             hit("D3DRASTER.SAMPLE");
-            let Some(sv) = d.srv else { return Err(Fail::Unmodeled("D3DRASTER.NOSRV")) };
+            // (an unbound shader resource reads as zeros, ld-89)
+            let Some(sv) = d.srv else {
+                hit("D3DRASTER.NOSRV");
+                return Ok([0; 4]);
+            };
             let Some(s) = d.sampler else { return Err(Fail::Unmodeled("D3DRASTER.NOSAMPLER")) };
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();

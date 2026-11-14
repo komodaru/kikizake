@@ -313,6 +313,87 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
 }
 
 /// the color (as floats) a format's element holds, for blending (dst read back)
+/// the texel (x, y) of a block (block-compressed formats: Direct3D 11 functional spec, 19.5;
+/// the 2x1 pairs of R8G8_B8G8 and G8R8_G8B8)
+pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
+    hit("CONV.BLOCK");
+    let one = 1.0f32;
+    let un = |c: u32, n: u32| c as f32 / ((1u32 << n) - 1) as f32;
+    let i = (y * 4 + x) as usize;
+    // a BC1 color block: the colors' endpoints in 5:6:5, two more between them (or one and
+    // black with no alpha when the first is not the larger) (MEASURED, WARP, ld-71, 74, 77: the
+    // endpoints widened to 8 bits by repeating their top bits, the thirds (171 a + 85 b) >> 8,
+    // the half (a + b) >> 1)
+    let color = |c: &[u8], four: bool| -> [f32; 4] {
+        let (c0, c1) = (u16::from_le_bytes([c[0], c[1]]) as u32, u16::from_le_bytes([c[2], c[3]]) as u32);
+        let rep = |v: u32, n: u32| v << (8 - n) | v >> (2 * n - 8);
+        let e = |v: u32| [rep(v >> 11, 5), rep(v >> 5 & 63, 6), rep(v & 31, 5)];
+        let (a, z) = (e(c0), e(c1));
+        let idx = (u32::from_le_bytes([c[4], c[5], c[6], c[7]]) >> (2 * i)) & 3;
+        let rgb = match (idx, four || c0 > c1) {
+            (0, _) => a,
+            (1, _) => z,
+            (2, true) => [0, 1, 2].map(|k| (171 * a[k] + 85 * z[k]) >> 8),
+            (3, true) => [0, 1, 2].map(|k| (85 * a[k] + 171 * z[k]) >> 8),
+            (2, false) => [0, 1, 2].map(|k| (a[k] + z[k]) >> 1),
+            _ => return [0.0; 4],
+        };
+        [un(rgb[0], 8), un(rgb[1], 8), un(rgb[2], 8), one]
+    };
+    // a BC4 channel block: two endpoints, six or four between them (with 0 and 1)
+    // (MEASURED, WARP, ld-80, ld-83: in 16 bits, the endpoints times 257, the steps truncated,
+    // then over 65535)
+    let chan = |c: &[u8]| -> f32 {
+        let (a0, a1) = (c[0] as u32 * 257, c[1] as u32 * 257);
+        let bits = u64::from_le_bytes([c[2], c[3], c[4], c[5], c[6], c[7], 0, 0]);
+        let k = ((bits >> (3 * i)) & 7) as u32;
+        let r = match k {
+            0 => a0,
+            1 => a1,
+            _ if c[0] > c[1] => ((8 - k) * a0 + (k - 1) * a1) / 7,
+            6 => 0,
+            7 => 65535,
+            _ => ((6 - k) * a0 + (k - 1) * a1) / 5,
+        };
+        r as f32 / 65535.0
+    };
+    let v: [f32; 4] = match f.id {
+        68 | 69 => {
+            let (r, g, bb) = if f.id == 68 { (b[0], [b[1], b[3]][x as usize], b[2]) } else { (b[1], [b[0], b[2]][x as usize], b[3]) };
+            [un(r as u32, 8), un(g as u32, 8), un(bb as u32, 8), one]
+        }
+        71 => color(b, false),
+        74 => {
+            let mut c = color(&b[8..], true);
+            c[3] = un((b[i / 2] >> (4 * (i % 2)) & 15) as u32, 4);
+            c
+        }
+        77 => {
+            // (MEASURED: BC3's alpha steps in 8 bits, to nearest, ld-77)
+            let (a0, a1) = (b[0] as u32, b[1] as u32);
+            let bits = u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]);
+            let k = ((bits >> (3 * i)) & 7) as u32;
+            let a = match k {
+                0 => a0,
+                1 => a1,
+                _ if a0 > a1 => ((8 - k) * a0 + (k - 1) * a1 + 3) / 7,
+                6 => 0,
+                7 => 255,
+                _ => ((6 - k) * a0 + (k - 1) * a1 + 2) / 5,
+            };
+            let mut c = color(&b[8..], true);
+            c[3] = un(a, 8);
+            c
+        }
+        80 => [chan(b), 0.0, 0.0, one],
+        83 => [chan(b), chan(&b[8..]), 0.0, one],
+        // (the signed steps: within an ulp of 16-bit steps over 32767, which ulp, open)
+        81 | 84 => return Err(Fail::Unmodeled("CONV.BC4SNORM")),
+        _ => return Err(Fail::Unmodeled("CONV.BLOCKFMT")),
+    };
+    Ok(v.map(f32::to_bits))
+}
+
 pub fn decode_f(f: &Format, b: &[u8]) -> Res<[f32; 4]> {
     Ok(decode(f, b)?.map(f32::from_bits))
 }
