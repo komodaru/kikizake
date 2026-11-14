@@ -1918,7 +1918,7 @@ impl Ctx {
         // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
         // color materials and color index lighting are not measured)
         let alpha_used = self.pf.rgba[3].0 > 0 || self.cap(BLEND) || self.cap(ALPHA_TEST);
-        if (mode == POINTS && self.cap(POINT_SMOOTH)) || (mode != POINTS && self.cap(POLYGON_SMOOTH) && alpha_used) {
+        if (mode == POINTS && self.cap(POINT_SMOOTH) && alpha_used) || (mode != POINTS && self.cap(POLYGON_SMOOTH) && alpha_used) {
             return Err(Fail::Unmodeled(open::GL_CALL_OTHER));
         }
         if self.cap(LIGHTING) && (self.pf.ty != 0 || (0x4000..=0x4007).any(|l| self.cap(l))) {
@@ -1960,6 +1960,12 @@ impl Ctx {
                     // held to the size range, covers n x n pixels: for odd n centered on the pixel
                     // the position is in, for even n with its corner at the pixel boundary nearest
                     // the position, ties toward the pivot as for 1-pixel points: GL.POINT.WIDE)
+                    if self.cap(POINT_SMOOTH) {
+                        for (x, y) in self.smooth_point(w[0], w[1])? {
+                            self.fragment(Frag { x, y, c: self.fogged(c, v), z: w[2], fixed: self.point_fixed(), zfixed: None })?;
+                        }
+                        continue;
+                    }
                     let n = f64::from(self.point_size.clamp(1.0, 10.0)).round();
                     if n > 1.0 {
                         hit(clause::GL_POINT_WIDE);
@@ -2141,12 +2147,46 @@ impl Ctx {
         Ok(())
     }
 
+    /// the pixels of an antialiased point at window (x, y) (MEASURED, golden opengl-32
+    /// smooth-points-*: 51 images of points 0.5 to 9.25 wide: its size held to 0.5..10 and
+    /// rounded to the granularity 1/8, the pixels with any of 4 by 4 samples at ((i + 1/2) / 4,
+    /// (j + 1/2) / 4) strictly inside the circle of that diameter: GL.POINT.SMOOTH); a sample
+    /// within 0.004 of the circle is GL.RASTER.TIE (13 images on both sides of it)
+    fn smooth_point(&self, x: f64, y: f64) -> Res<Vec<(i64, i64)>> {
+        hit(clause::GL_POINT_SMOOTH);
+        let size = (f64::from(self.point_size.clamp(0.5, 10.0)) * 8.0 + 0.5).floor() / 8.0;
+        let r = size / 2.0;
+        let mut out = Vec::new();
+        for py in 0..H as i64 {
+            for px in 0..W as i64 {
+                let mut d = f64::INFINITY;
+                for i in 0..4 {
+                    for j in 0..4 {
+                        let (sx, sy) = (px as f64 + (i as f64 + 0.5) / 4.0, py as f64 + (j as f64 + 0.5) / 4.0);
+                        d = d.min(((sx - x).powi(2) + (sy - y).powi(2)).sqrt());
+                    }
+                }
+                if (d - r).abs() < 0.004 {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
+                }
+                if d < r {
+                    out.push((px, py));
+                }
+            }
+        }
+        Ok(out)
+    }
+
     /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden opengl-32
-    /// prim-3..8, 14, 15: the diamond-exit rule, GL 1.1 3.4.1: a pixel whose diamond
+    /// prim-3..8, 14, 15, lines-*: the ends rounded to 1/64, then the diamond-exit rule, GL 1.1 3.4.1: a pixel whose diamond
     /// |x - xc| + |y - yc| < 1/2 the segment meets, unless b is inside it, inside the viewport:
     /// GL.RASTER.LINE); a segment touching a diamond's border or ending on one is GL.RASTER.TIE
     fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
         hit(clause::GL_RASTER_LINE);
+        // (MEASURED, golden opengl-32 lines-0: the ends first rounded to 1/64 of a pixel, a line
+        // 0.0004 from a diamond falling on the other side)
+        let snap = |v: f64| (v * 64.0).round() / 64.0;
+        let (a, b) = ([snap(a[0]), snap(a[1])], [snap(b[0]), snap(b[1])]);
         let l1 = |p: [f64; 2], xc: f64, yc: f64| (p[0] - xc).abs() + (p[1] - yc).abs();
         let [vx, vy, vw, vh] = self.viewport;
         let mut out = Vec::new();
