@@ -1102,7 +1102,9 @@ pub fn wicencode() -> String {
     let mut seed = 1;
     for c in ENCODERS {
         for f in &names {
-            let bytes = if *c == "bmp" { "wbytes\n" } else { "" };
+            // (the file itself too where the model writes it byte by byte: BMP, and the lossy
+            // encoders and GIF, whose bytes are what to fit)
+            let bytes = if ["bmp", "gif", "jpeg", "wmp", "dds"].contains(c) { "wbytes\n" } else { "" };
             // (GIF: the palette it writes too)
             let pal = if *c == "gif" { "wsrcpal\n" } else { "" };
             writeln!(s, "case enc-{c}-{f}\nwbits {f} 5 3 {seed}\nwencode {c}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\n{pal}end").unwrap();

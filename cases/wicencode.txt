@@ -577,6 +577,7 @@ end
 case enc-gif-bw
 wbits bw 5 3 70
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -586,6 +587,7 @@ end
 case enc-gif-gray2
 wbits gray2 5 3 71
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -595,6 +597,7 @@ end
 case enc-gif-gray4
 wbits gray4 5 3 72
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -604,6 +607,7 @@ end
 case enc-gif-gray8
 wbits gray8 5 3 73
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -613,6 +617,7 @@ end
 case enc-gif-gray16
 wbits gray16 5 3 74
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -622,6 +627,7 @@ end
 case enc-gif-bgr555
 wbits bgr555 5 3 75
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -631,6 +637,7 @@ end
 case enc-gif-bgr565
 wbits bgr565 5 3 76
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -640,6 +647,7 @@ end
 case enc-gif-bgr24
 wbits bgr24 5 3 77
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -649,6 +657,7 @@ end
 case enc-gif-rgb24
 wbits rgb24 5 3 78
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -658,6 +667,7 @@ end
 case enc-gif-bgr32
 wbits bgr32 5 3 79
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -667,6 +677,7 @@ end
 case enc-gif-bgra
 wbits bgra 5 3 80
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -676,6 +687,7 @@ end
 case enc-gif-pbgra
 wbits pbgra 5 3 81
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -685,6 +697,7 @@ end
 case enc-gif-rgb32
 wbits rgb32 5 3 82
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -694,6 +707,7 @@ end
 case enc-gif-rgba
 wbits rgba 5 3 83
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -703,6 +717,7 @@ end
 case enc-gif-prgba
 wbits prgba 5 3 84
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -712,6 +727,7 @@ end
 case enc-gif-rgb48
 wbits rgb48 5 3 85
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -721,6 +737,7 @@ end
 case enc-gif-rgba64
 wbits rgba64 5 3 86
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -730,6 +747,7 @@ end
 case enc-gif-cmyk
 wbits cmyk 5 3 87
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -739,6 +757,7 @@ end
 case enc-gif-alpha8
 wbits alpha8 5 3 88
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -748,6 +767,7 @@ end
 case enc-gif-idx1
 wbits idx1 5 3 89
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -757,6 +777,7 @@ end
 case enc-gif-idx2
 wbits idx2 5 3 90
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -766,6 +787,7 @@ end
 case enc-gif-idx4
 wbits idx4 5 3 91
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -775,6 +797,7 @@ end
 case enc-gif-idx8
 wbits idx8 5 3 92
 wencode gif
+wbytes
 wredecode
 wframe 0
 winfo
@@ -784,6 +807,7 @@ end
 case enc-jpeg-bw
 wbits bw 5 3 93
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -792,6 +816,7 @@ end
 case enc-jpeg-gray2
 wbits gray2 5 3 94
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -800,6 +825,7 @@ end
 case enc-jpeg-gray4
 wbits gray4 5 3 95
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -808,6 +834,7 @@ end
 case enc-jpeg-gray8
 wbits gray8 5 3 96
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -816,6 +843,7 @@ end
 case enc-jpeg-gray16
 wbits gray16 5 3 97
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -824,6 +852,7 @@ end
 case enc-jpeg-bgr555
 wbits bgr555 5 3 98
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -832,6 +861,7 @@ end
 case enc-jpeg-bgr565
 wbits bgr565 5 3 99
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -840,6 +870,7 @@ end
 case enc-jpeg-bgr24
 wbits bgr24 5 3 100
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -848,6 +879,7 @@ end
 case enc-jpeg-rgb24
 wbits rgb24 5 3 101
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -856,6 +888,7 @@ end
 case enc-jpeg-bgr32
 wbits bgr32 5 3 102
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -864,6 +897,7 @@ end
 case enc-jpeg-bgra
 wbits bgra 5 3 103
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -872,6 +906,7 @@ end
 case enc-jpeg-pbgra
 wbits pbgra 5 3 104
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -880,6 +915,7 @@ end
 case enc-jpeg-rgb32
 wbits rgb32 5 3 105
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -888,6 +924,7 @@ end
 case enc-jpeg-rgba
 wbits rgba 5 3 106
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -896,6 +933,7 @@ end
 case enc-jpeg-prgba
 wbits prgba 5 3 107
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -904,6 +942,7 @@ end
 case enc-jpeg-rgb48
 wbits rgb48 5 3 108
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -912,6 +951,7 @@ end
 case enc-jpeg-rgba64
 wbits rgba64 5 3 109
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -920,6 +960,7 @@ end
 case enc-jpeg-cmyk
 wbits cmyk 5 3 110
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -928,6 +969,7 @@ end
 case enc-jpeg-alpha8
 wbits alpha8 5 3 111
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -936,6 +978,7 @@ end
 case enc-jpeg-idx1
 wbits idx1 5 3 112
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -944,6 +987,7 @@ end
 case enc-jpeg-idx2
 wbits idx2 5 3 113
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -952,6 +996,7 @@ end
 case enc-jpeg-idx4
 wbits idx4 5 3 114
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -960,6 +1005,7 @@ end
 case enc-jpeg-idx8
 wbits idx8 5 3 115
 wencode jpeg
+wbytes
 wredecode
 wframe 0
 winfo
@@ -968,6 +1014,7 @@ end
 case enc-wmp-bw
 wbits bw 5 3 116
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -976,6 +1023,7 @@ end
 case enc-wmp-gray2
 wbits gray2 5 3 117
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -984,6 +1032,7 @@ end
 case enc-wmp-gray4
 wbits gray4 5 3 118
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -992,6 +1041,7 @@ end
 case enc-wmp-gray8
 wbits gray8 5 3 119
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1000,6 +1050,7 @@ end
 case enc-wmp-gray16
 wbits gray16 5 3 120
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1008,6 +1059,7 @@ end
 case enc-wmp-bgr555
 wbits bgr555 5 3 121
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1016,6 +1068,7 @@ end
 case enc-wmp-bgr565
 wbits bgr565 5 3 122
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1024,6 +1077,7 @@ end
 case enc-wmp-bgr24
 wbits bgr24 5 3 123
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1032,6 +1086,7 @@ end
 case enc-wmp-rgb24
 wbits rgb24 5 3 124
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1040,6 +1095,7 @@ end
 case enc-wmp-bgr32
 wbits bgr32 5 3 125
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1048,6 +1104,7 @@ end
 case enc-wmp-bgra
 wbits bgra 5 3 126
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1056,6 +1113,7 @@ end
 case enc-wmp-pbgra
 wbits pbgra 5 3 127
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1064,6 +1122,7 @@ end
 case enc-wmp-rgb32
 wbits rgb32 5 3 128
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1072,6 +1131,7 @@ end
 case enc-wmp-rgba
 wbits rgba 5 3 129
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1080,6 +1140,7 @@ end
 case enc-wmp-prgba
 wbits prgba 5 3 130
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1088,6 +1149,7 @@ end
 case enc-wmp-rgb48
 wbits rgb48 5 3 131
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1096,6 +1158,7 @@ end
 case enc-wmp-rgba64
 wbits rgba64 5 3 132
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1104,6 +1167,7 @@ end
 case enc-wmp-cmyk
 wbits cmyk 5 3 133
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1112,6 +1176,7 @@ end
 case enc-wmp-alpha8
 wbits alpha8 5 3 134
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1120,6 +1185,7 @@ end
 case enc-wmp-idx1
 wbits idx1 5 3 135
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1128,6 +1194,7 @@ end
 case enc-wmp-idx2
 wbits idx2 5 3 136
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1136,6 +1203,7 @@ end
 case enc-wmp-idx4
 wbits idx4 5 3 137
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1144,6 +1212,7 @@ end
 case enc-wmp-idx8
 wbits idx8 5 3 138
 wencode wmp
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1152,6 +1221,7 @@ end
 case enc-dds-bw
 wbits bw 5 3 139
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1160,6 +1230,7 @@ end
 case enc-dds-gray2
 wbits gray2 5 3 140
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1168,6 +1239,7 @@ end
 case enc-dds-gray4
 wbits gray4 5 3 141
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1176,6 +1248,7 @@ end
 case enc-dds-gray8
 wbits gray8 5 3 142
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1184,6 +1257,7 @@ end
 case enc-dds-gray16
 wbits gray16 5 3 143
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1192,6 +1266,7 @@ end
 case enc-dds-bgr555
 wbits bgr555 5 3 144
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1200,6 +1275,7 @@ end
 case enc-dds-bgr565
 wbits bgr565 5 3 145
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1208,6 +1284,7 @@ end
 case enc-dds-bgr24
 wbits bgr24 5 3 146
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1216,6 +1293,7 @@ end
 case enc-dds-rgb24
 wbits rgb24 5 3 147
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1224,6 +1302,7 @@ end
 case enc-dds-bgr32
 wbits bgr32 5 3 148
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1232,6 +1311,7 @@ end
 case enc-dds-bgra
 wbits bgra 5 3 149
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1240,6 +1320,7 @@ end
 case enc-dds-pbgra
 wbits pbgra 5 3 150
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1248,6 +1329,7 @@ end
 case enc-dds-rgb32
 wbits rgb32 5 3 151
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1256,6 +1338,7 @@ end
 case enc-dds-rgba
 wbits rgba 5 3 152
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1264,6 +1347,7 @@ end
 case enc-dds-prgba
 wbits prgba 5 3 153
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1272,6 +1356,7 @@ end
 case enc-dds-rgb48
 wbits rgb48 5 3 154
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1280,6 +1365,7 @@ end
 case enc-dds-rgba64
 wbits rgba64 5 3 155
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1288,6 +1374,7 @@ end
 case enc-dds-cmyk
 wbits cmyk 5 3 156
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1296,6 +1383,7 @@ end
 case enc-dds-alpha8
 wbits alpha8 5 3 157
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1304,6 +1392,7 @@ end
 case enc-dds-idx1
 wbits idx1 5 3 158
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1312,6 +1401,7 @@ end
 case enc-dds-idx2
 wbits idx2 5 3 159
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1320,6 +1410,7 @@ end
 case enc-dds-idx4
 wbits idx4 5 3 160
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
@@ -1328,6 +1419,7 @@ end
 case enc-dds-idx8
 wbits idx8 5 3 161
 wencode dds
+wbytes
 wredecode
 wframe 0
 winfo
