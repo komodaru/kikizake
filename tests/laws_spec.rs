@@ -39,17 +39,19 @@ fn ddb_rows_are_words() {
     }
 }
 
-/// GetObject of a DIB section: DIBSECTION, rows a multiple of 4 bytes, the bits pointer, and the
-/// header it was made from (height negative top-down)
+/// GetObject of a DIB section (GDI.DDB.DIBOBJECT): DIBSECTION, rows a multiple of 4 bytes, the
+/// header with a positive height whatever the row order, BI_BITFIELDS for 16 bpp, biClrUsed the
+/// color table's size, and GetObject(h, 0, NULL) the size of a BITMAP
 #[test]
 fn dibsection_object_is_its_header() {
     for bpp in [1, 4, 8, 16, 24, 32] {
         for w in 1..=33 {
-            for (dir, sign) in [("td", -1), ("bu", 1)] {
+            for dir in ["td", "bu"] {
                 let o = run(&format!("dib 0 {w} 3 {bpp} {dir}\nbmobject 0"));
                 let stride = (w * bpp + 31) / 32 * 4;
-                assert_eq!(o[0], format!("bm dibsection {w} 3 {stride} 1 {bpp} 1"), "{bpp} bpp, {w} wide");
-                assert!(o[1].starts_with(&format!("dib {bpp} {} ", 3 * sign)), "{bpp} bpp, {w} wide {dir}: {}", o[1]);
+                let used = if bpp <= 8 { 1 << bpp } else { 0 };
+                let comp = if bpp == 16 { 3 } else { 0 };
+                assert_eq!(o, [format!("bm dibsection {w} 3 {stride} 1 {bpp} 1"), format!("dib {bpp} 3 {comp} {used}"), "bmsize bitmap".to_string()], "{bpp} bpp, {w} wide {dir}");
             }
         }
     }
