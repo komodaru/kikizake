@@ -663,6 +663,17 @@ enum Setup {
     D3d10,
 }
 
+/// one in the bilinear filter's weights (32nds of a texel each way)
+const BILERP_ONE: i64 = 1024;
+
+/// a bilinear filter's weighted sum
+enum Weighted {
+    /// of 8-bit texels, in 1/BILERP_ONE of 255
+    Bytes([i64; 4]),
+    /// of other texels, their values
+    Float([f64; 4]),
+}
+
 /// a sampler's D3DTEXTUREFILTERTYPE, as WARP filters with it
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum TexFilter {
@@ -1255,9 +1266,19 @@ impl D3d9 {
     fn bilinear(&self, st: u32, tx: &Surface, x: f64, y: f64, mu: u32, mv: u32) -> Res<[f64; 4]> {
         // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
         // down, the weighted sum of 8-bit texels truncated)
+        Ok(match self.bilinear_sum(st, tx, x, y, mu, mv)? {
+            Weighted::Bytes(v) => v.map(|v| ((v / BILERP_ONE) as f32 / 255.0) as f64),
+            Weighted::Float(c) => c,
+        })
+    }
+
+    /// the bilinear filter's weighted sum at texel coordinates (x, y): of 8-bit texels in
+    /// 1/BILERP_ONE, before it is truncated, or of other texels' values
+    fn bilinear_sum(&self, st: u32, tx: &Surface, x: f64, y: f64, mu: u32, mv: u32) -> Res<Weighted> {
         let (x, y) = (x - 0.5, y - 0.5);
         let (x0, y0) = (x.floor(), y.floor());
         const Q: i64 = 32;
+        const _: () = assert!(Q * Q == BILERP_ONE);
         let q = Q;
         let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
         let (x0, y0) = (x0 as i64, y0 as i64);
@@ -1265,16 +1286,11 @@ impl D3d9 {
         let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
         let fm = format(tx.fmt).unwrap();
         let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
-        let mut c = [0.0; 4];
-        for k in 0..4 {
-            c[k] = if bytes {
-                let v: i64 = (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum();
-                ((v / (q * q)) as f32 / 255.0) as f64
-            } else {
-                (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64
-            };
-        }
-        Ok(c)
+        Ok(if bytes {
+            Weighted::Bytes(std::array::from_fn(|k| (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum()))
+        } else {
+            Weighted::Float(std::array::from_fn(|k| (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64))
+        })
     }
 
     /// a stage's texture at (u, v)
@@ -1306,12 +1322,45 @@ impl D3d9 {
             TexFilter::Anisotropic => {
                 // (MEASURED filter2-5-4, d3d8draw filter2-2-4: linear while no axis of the
                 // footprint is longer than a texel, aniso-3, -11, -18, -21, -23, -31: and with
-                // MAXANISOTROPY 1; past that, its own taps: open)
+                // MAXANISOTROPY 1, aniso-8: and with axes of one length)
                 let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv;
                 let (w, h) = (tx.w as f64, tx.h as f64);
-                let major = ((dudx * w).hypot(dvdx * h)).max((dudy * w).hypot(dvdy * h));
-                if major > 1.0 && self.samp(st, 10) > 1 {
-                    return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+                let (ax, ay) = ((dudx * w, dvdx * h), (dudy * w, dvdy * h));
+                let (lx, ly) = (ax.0.hypot(ax.1), ay.0.hypot(ay.1));
+                let (axis, major) = if lx >= ly { (ax, lx) } else { (ay, ly) };
+                // (MEASURED filter2-2-32, filter2-5-32: the minor axis the footprint's area over
+                // the major one, not the shorter derivative)
+                let minor = (ax.0 * ay.1 - ax.1 * ay.0).abs() / major;
+                let ratio = major / minor.max(1.0);
+                let limit = self.samp(st, 10);
+                if major > 1.0 && limit > 1 && ratio > 1.0 {
+                    if limit > 3 && ratio >= 2.0 - 1.0 / 1024.0 {
+                        // (more taps: MAXANISOTROPY past 3 with the axes 2 or more apart,
+                        // aniso-axis-*; at 2 itself, as f32 rounds, aniso-4, -5, -17 mix two
+                        // taps with more)
+                        return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+                    }
+                    // (MEASURED aniso-0, -1, -2, -6, -9, -12, -13, -15, -16, -19, -24, -25, -28
+                    // .. -30: two bilinear taps along the major axis, min(ratio - 1, 1) texels
+                    // apart about the center, ratio = major / max(minor, 1), their weighted sums
+                    // averaged and truncated)
+                    hit(clause::D3D9_TEX_ANISO2);
+                    let off = (ratio - 1.0).min(1.0) / 2.0;
+                    // (the taps' coordinates in f32: the offset turned to (u, v) and added to
+                    // them, aniso-30)
+                    let f = |a: f64| a as f32 as f64;
+                    let (du, dv) = (f(axis.0 / major * off / w), f(axis.1 / major * off / h));
+                    let (u, v) = (f(u), f(v));
+                    let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
+                    let tap = |s: f64| self.bilinear_sum(st, tx, f(u + s * du) * w, f(v + s * dv) * h, mu, mv);
+                    let (Weighted::Bytes(a), Weighted::Bytes(b)) = (tap(-1.0)?, tap(1.0)?) else {
+                        // (texels other than 8-bit ones: no case)
+                        return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+                    };
+                    // (MEASURED: each tap's sum truncated to a 64th of 1/255 before the two are
+                    // averaged and truncated; to 32nds or 128ths, or rounded, misses pixels)
+                    const TAP: i64 = BILERP_ONE / 64;
+                    return Ok(std::array::from_fn(|k| (((a[k] / TAP + b[k] / TAP) / (2 * 64)) as f32 / 255.0) as f64));
                 }
                 TexFilter::Linear
             }
