@@ -11,50 +11,166 @@ use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
-/// (case-language name, PixelFormat value)
-pub const FORMATS: &[(&str, u32)] = &[
-    ("1bppIndexed", 0x0003_0101),
-    ("4bppIndexed", 0x0003_0402),
-    ("8bppIndexed", 0x0003_0803),
-    ("16bppGrayScale", 0x0010_1004),
-    ("16bppRGB555", 0x0002_1005),
-    ("16bppRGB565", 0x0002_1006),
-    ("16bppARGB1555", 0x0006_1007),
-    ("24bppRGB", 0x0002_1808),
-    ("32bppRGB", 0x0002_2009),
-    ("32bppARGB", 0x0026_200a),
-    ("32bppPARGB", 0x000e_200b),
-    ("48bppRGB", 0x0010_300c),
-    ("64bppARGB", 0x0034_400d),
-    ("64bppPARGB", 0x001c_400e),
-];
+/// a pixel format (PixelFormat, "Image Pixel Format Constants")
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Pf {
+    I1,
+    I4,
+    I8,
+    Gray16,
+    Rgb555,
+    Rgb565,
+    Argb1555,
+    Rgb24,
+    Rgb32,
+    Argb32,
+    Pargb32,
+    Rgb48,
+    Argb64,
+    Pargb64,
+}
+
+/// the formats of 16-bit channels
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Wide {
+    Rgb48,
+    Argb64,
+    Pargb64,
+}
+
+/// CompositingMode
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Mode {
+    SourceOver,
+    SourceCopy,
+}
+
+/// CompositingQuality (0 Default .. 4 AssumeLinear)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Quality {
+    Default,
+    HighSpeed,
+    HighQuality,
+    GammaCorrected,
+    AssumeLinear,
+}
+
+impl Quality {
+    pub fn from_value(v: i64) -> Option<Quality> {
+        [Quality::Default, Quality::HighSpeed, Quality::HighQuality, Quality::GammaCorrected, Quality::AssumeLinear].get(usize::try_from(v).ok()?).copied()
+    }
+    /// gamma corrected blending (HighQuality, GammaCorrected)
+    pub const fn gamma(self) -> bool {
+        match self {
+            Quality::HighQuality | Quality::GammaCorrected => true,
+            Quality::Default | Quality::HighSpeed | Quality::AssumeLinear => false,
+        }
+    }
+}
+
+/// the bits of an index of an indexed format
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Depth {
+    One,
+    Four,
+    Eight,
+}
+
+impl Pf {
+    pub const ALL: [Pf; 14] = [Pf::I1, Pf::I4, Pf::I8, Pf::Gray16, Pf::Rgb555, Pf::Rgb565, Pf::Argb1555, Pf::Rgb24, Pf::Rgb32, Pf::Argb32, Pf::Pargb32, Pf::Rgb48, Pf::Argb64, Pf::Pargb64];
+    /// its name in the case language
+    pub const fn name(self) -> &'static str {
+        match self {
+            Pf::I1 => "1bppIndexed",
+            Pf::I4 => "4bppIndexed",
+            Pf::I8 => "8bppIndexed",
+            Pf::Gray16 => "16bppGrayScale",
+            Pf::Rgb555 => "16bppRGB555",
+            Pf::Rgb565 => "16bppRGB565",
+            Pf::Argb1555 => "16bppARGB1555",
+            Pf::Rgb24 => "24bppRGB",
+            Pf::Rgb32 => "32bppRGB",
+            Pf::Argb32 => "32bppARGB",
+            Pf::Pargb32 => "32bppPARGB",
+            Pf::Rgb48 => "48bppRGB",
+            Pf::Argb64 => "64bppARGB",
+            Pf::Pargb64 => "64bppPARGB",
+        }
+    }
+    /// its PixelFormat value
+    pub const fn code(self) -> u32 {
+        match self {
+            Pf::I1 => 0x0003_0101,
+            Pf::I4 => 0x0003_0402,
+            Pf::I8 => 0x0003_0803,
+            Pf::Gray16 => 0x0010_1004,
+            Pf::Rgb555 => 0x0002_1005,
+            Pf::Rgb565 => 0x0002_1006,
+            Pf::Argb1555 => 0x0006_1007,
+            Pf::Rgb24 => 0x0002_1808,
+            Pf::Rgb32 => 0x0002_2009,
+            Pf::Argb32 => 0x0026_200a,
+            Pf::Pargb32 => 0x000e_200b,
+            Pf::Rgb48 => 0x0010_300c,
+            Pf::Argb64 => 0x0034_400d,
+            Pf::Pargb64 => 0x001c_400e,
+        }
+    }
+    pub const fn bits(self) -> u32 {
+        self.code() >> 8 & 255
+    }
+    pub const fn depth(self) -> Option<Depth> {
+        match self {
+            Pf::I1 => Some(Depth::One),
+            Pf::I4 => Some(Depth::Four),
+            Pf::I8 => Some(Depth::Eight),
+            Pf::Gray16 | Pf::Rgb555 | Pf::Rgb565 | Pf::Argb1555 | Pf::Rgb24 | Pf::Rgb32 | Pf::Argb32 | Pf::Pargb32 | Pf::Rgb48 | Pf::Argb64 | Pf::Pargb64 => None,
+        }
+    }
+    /// a format of 16-bit channels
+    pub const fn wide(self) -> Option<Wide> {
+        match self {
+            Pf::Rgb48 => Some(Wide::Rgb48),
+            Pf::Argb64 => Some(Wide::Argb64),
+            Pf::Pargb64 => Some(Wide::Pargb64),
+            Pf::I1 | Pf::I4 | Pf::I8 | Pf::Gray16 | Pf::Rgb555 | Pf::Rgb565 | Pf::Argb1555 | Pf::Rgb24 | Pf::Rgb32 | Pf::Argb32 | Pf::Pargb32 => None,
+        }
+    }
+    pub fn parse(name: &str) -> Option<Pf> {
+        Pf::ALL.into_iter().find(|f| f.name() == name)
+    }
+}
+
+// (every format's bits are a whole number of bytes or below 8)
+const _: () = {
+    let mut i = 0;
+    while i < Pf::ALL.len() {
+        let b = Pf::ALL[i].bits();
+        assert!(b == 1 || b == 4 || b % 8 == 0 && b <= 64);
+        i += 1;
+    }
+};
 
 pub const OK: u32 = 0;
 pub const INVALID_PARAMETER: u32 = 2;
 pub const OUT_OF_MEMORY: u32 = 3;
 
-pub fn format(name: &str) -> Option<usize> {
-    FORMATS.iter().position(|f| f.0 == name)
+pub fn bits(f: Pf) -> u32 {
+    f.bits()
 }
-pub fn bits(f: usize) -> u32 {
-    FORMATS[f].1 >> 8 & 255
+fn gray16(f: Pf) -> bool {
+    f == Pf::Gray16
 }
-fn gray16(f: usize) -> bool {
-    FORMATS[f].0 == "16bppGrayScale"
+pub fn indexed(f: Pf) -> bool {
+    f.depth().is_some()
 }
-pub fn indexed(f: usize) -> bool {
-    f < 3
-}
-fn name(f: usize) -> &'static str {
-    FORMATS[f].0
-}
-pub fn row_bytes(f: usize, w: u32) -> usize {
+pub fn row_bytes(f: Pf, w: u32) -> usize {
     (w * bits(f)).div_ceil(8) as usize
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Bitmap {
-    pub f: usize,
+    pub f: Pf,
     pub w: u32,
     pub h: u32,
     pub rows: Vec<Vec<u8>>,
@@ -92,15 +208,15 @@ pub fn put_px(row: &mut [u8], x: u32, bits: u32, v: u64) {
 
 /// the default palettes of a new indexed bitmap (MEASURED gdiplus golden: 1 bpp black and white,
 /// 4 bpp the 16 VGA colors, 8 bpp the halftone palette)
-pub fn default_palette(f: usize) -> Vec<u32> {
+pub fn default_palette(f: Pf) -> Vec<u32> {
     let vga = [
         0xff00_0000u32, 0xff80_0000, 0xff00_8000, 0xff80_8000, 0xff00_0080, 0xff80_0080, 0xff00_8080, 0xff80_8080, 0xffc0_c0c0, 0xffff_0000, 0xff00_ff00, 0xffff_ff00,
         0xff00_00ff, 0xffff_00ff, 0xff00_ffff, 0xffff_ffff,
     ];
-    match f {
-        0 => vec![0xff00_0000, 0xffff_ffff],
-        1 => vga.to_vec(),
-        2 => {
+    match f.depth() {
+        Some(Depth::One) => vec![0xff00_0000, 0xffff_ffff],
+        Some(Depth::Four) => vga.to_vec(),
+        Some(Depth::Eight) => {
             let mut p = vga.to_vec();
             p.resize(40, 0);
             for r in 0..6 {
@@ -112,17 +228,17 @@ pub fn default_palette(f: usize) -> Vec<u32> {
             }
             p
         }
-        _ => vec![],
+        None => vec![],
     }
 }
 
 /// palette flags GetImagePalette reports (PaletteFlagsGrayScale 2, PaletteFlagsHalftone 4;
 /// MEASURED: black and white is gray)
-fn palette_flags(f: usize) -> u32 {
-    match f {
-        0 => 2,
-        2 => 4,
-        _ => 0,
+fn palette_flags(f: Pf) -> u32 {
+    match f.depth() {
+        Some(Depth::One) => 2,
+        Some(Depth::Eight) => 4,
+        Some(Depth::Four) | None => 0,
     }
 }
 
@@ -203,59 +319,60 @@ pub fn over_truncated(s: u32, d: u32) -> u32 {
 /// (8 bpp), and no weighting, rounding or tie rule tried makes it all.
 pub const NEAREST: &[u8] = include_bytes!("data/gdiplus_nearest.bin");
 
-/// the index of a color in the default palette of indexed format `f`
-pub fn nearest(f: usize, c: u32) -> u32 {
+/// the index of a color in the default palette of an indexed format
+pub fn nearest(d: Depth, c: u32) -> u32 {
+    hit("GP.CONV.TO.INDEXED");
     let k = ((c >> 19 & 31) << 10 | (c >> 11 & 31) << 5 | (c >> 3 & 31)) as usize;
-    let (base, n) = match f {
-        0 => (0, 1),
-        1 => (4096, 4),
-        _ => (4096 + 16384, 8),
+    let (base, n) = match d {
+        Depth::One => (0, 1),
+        Depth::Four => (4096, 4),
+        Depth::Eight => (4096 + 16384, 8),
     };
     get_px(&NEAREST[base..], k as u32, n) as u32
 }
 
 /// a pixel value of `f` as straight ARGB
-pub fn to_argb(f: usize, v: u64, pal: &[u32]) -> Res<u32> {
+pub fn to_argb(f: Pf, v: u64, pal: &[u32]) -> Res<u32> {
     let c = |r: u32, g: u32, b: u32| 0xff00_0000 | r << 16 | g << 8 | b;
-    Ok(match name(f) {
-        n if n.ends_with("Indexed") => {
+    Ok(match f {
+        Pf::I1 | Pf::I4 | Pf::I8 => {
             hit("GP.CONV.INDEXED");
             if pal.is_empty() { default_palette(f)[v as usize] } else { pal[v as usize] }
         }
         // (no call converts a 16bppGrayScale pixel: GP.GRAY16 refuses them all first)
-        "16bppGrayScale" => return Err(Fail::Bad),
-        "16bppRGB555" => {
+        Pf::Gray16 => return Err(Fail::Bad),
+        Pf::Rgb555 => {
             hit("GP.CONV.EXPAND");
             c(x5(v >> 10 & 31), x5(v >> 5 & 31), x5(v & 31))
         }
-        "16bppRGB565" => {
+        Pf::Rgb565 => {
             hit("GP.CONV.EXPAND");
             c(x5(v >> 11 & 31), x6(v >> 5 & 63), x5(v & 31))
         }
-        "16bppARGB1555" => {
+        Pf::Argb1555 => {
             hit("GP.CONV.EXPAND");
             (if v & 0x8000 != 0 { 0xff00_0000 } else { 0 }) | (c(x5(v >> 10 & 31), x5(v >> 5 & 31), x5(v & 31)) & 0xff_ffff)
         }
-        "24bppRGB" | "32bppRGB" => {
+        Pf::Rgb24 | Pf::Rgb32 => {
             hit("GP.CONV.OPAQUE");
             0xff00_0000 | v as u32 & 0xff_ffff
         }
-        "32bppARGB" => v as u32,
-        "32bppPARGB" => {
+        Pf::Argb32 => v as u32,
+        Pf::Pargb32 => {
             hit("GP.CONV.UNPREMULTIPLY");
             let a = (v >> 24) as u32;
             let ch = |s: u32| unpremultiply((v >> s) as u32 & 255, a) << s;
             a << 24 | ch(16) | ch(8) | ch(0)
         }
-        "48bppRGB" => {
+        Pf::Rgb48 => {
             hit("GP.CONV.NARROW");
             c(narrow(v >> 32), narrow(v >> 16), narrow(v))
         }
-        "64bppARGB" => {
+        Pf::Argb64 => {
             hit("GP.CONV.NARROW");
             narrow_alpha(v >> 48) << 24 | (c(narrow(v >> 32), narrow(v >> 16), narrow(v)) & 0xff_ffff)
         }
-        _ => {
+        Pf::Pargb64 => {
             hit("GP.CONV.NARROW.PREMULTIPLIED");
             let a = level(v >> 48) as i32;
             // (MEASURED: c * 8192 / a in 32 bits, kept to 16 bits, then a level)
@@ -266,49 +383,48 @@ pub fn to_argb(f: usize, v: u64, pal: &[u32]) -> Res<u32> {
 }
 
 /// straight ARGB as a pixel value of `f`
-pub fn from_argb(f: usize, c: u32) -> Res<u64> {
+pub fn from_argb(f: Pf, c: u32) -> Res<u64> {
     let (a, r, g, b) = ((c >> 24) as u64, (c >> 16 & 255) as u64, (c >> 8 & 255) as u64, (c & 255) as u64);
-    Ok(match name(f) {
-        n if n.ends_with("Indexed") => {
-            hit("GP.CONV.TO.INDEXED");
-            nearest(f, c) as u64
-        }
+    Ok(match f {
+        Pf::I1 => nearest(Depth::One, c) as u64,
+        Pf::I4 => nearest(Depth::Four, c) as u64,
+        Pf::I8 => nearest(Depth::Eight, c) as u64,
         // (no call converts a 16bppGrayScale pixel: GP.GRAY16 refuses them all first)
-        "16bppGrayScale" => return Err(Fail::Bad),
-        "16bppRGB555" => {
+        Pf::Gray16 => return Err(Fail::Bad),
+        Pf::Rgb555 => {
             hit("GP.CONV.TRUNCATE");
             (r >> 3) << 10 | (g >> 3) << 5 | b >> 3
         }
-        "16bppRGB565" => {
+        Pf::Rgb565 => {
             hit("GP.CONV.TRUNCATE");
             (r >> 3) << 11 | (g >> 2) << 5 | b >> 3
         }
-        "16bppARGB1555" => {
+        Pf::Argb1555 => {
             hit("GP.CONV.TRUNCATE");
             (a >> 7) << 15 | (r >> 3) << 10 | (g >> 3) << 5 | b >> 3
         }
-        "24bppRGB" => {
+        Pf::Rgb24 => {
             hit("GP.CONV.OPAQUE");
             (c & 0xff_ffff) as u64
         }
-        "32bppRGB" => {
+        Pf::Rgb32 => {
             hit("GP.CONV.KEEP");
             c as u64
         }
-        "32bppARGB" => c as u64,
-        "32bppPARGB" => {
+        Pf::Argb32 => c as u64,
+        Pf::Pargb32 => {
             hit("GP.CONV.PREMULTIPLY");
             a << 24 | premultiply(r, a) << 16 | premultiply(g, a) << 8 | premultiply(b, a)
         }
-        "48bppRGB" => {
+        Pf::Rgb48 => {
             hit("GP.CONV.WIDEN");
             widen(r) << 32 | widen(g) << 16 | widen(b)
         }
-        "64bppARGB" => {
+        Pf::Argb64 => {
             hit("GP.CONV.WIDEN");
             widen_alpha(a) << 48 | widen(r) << 32 | widen(g) << 16 | widen(b)
         }
-        _ => {
+        Pf::Pargb64 => {
             hit("GP.CONV.WIDEN.PREMULTIPLIED");
             let a16 = widen_alpha(a);
             let p = |c: u64| widen(c) * a16 / 8192;
@@ -318,18 +434,17 @@ pub fn from_argb(f: usize, c: u32) -> Res<u64> {
 }
 
 /// a pixel of `from` as a pixel of `to` (LockBits, CloneBitmapArea)
-pub fn convert(from: usize, to: usize, v: u64, pal: &[u32]) -> Res<u64> {
+pub fn convert(from: Pf, to: Pf, v: u64, pal: &[u32]) -> Res<u64> {
     if from == to {
         hit("GP.LOCK.SAME");
         return Ok(v);
     }
-    let wide = |f: usize| bits(f) >= 48;
-    if wide(from) && wide(to) {
+    if let (Some(a), Some(b)) = (from.wide(), to.wide()) {
         hit("GP.CONV.WIDE");
-        return Ok(from_argb64(to, to_argb64(from, v)));
+        return Ok(from_argb64(b, to_argb64(a, v)));
     }
-    let opaque = |f: usize| matches!(name(f), "16bppRGB555" | "16bppRGB565" | "24bppRGB" | "32bppRGB");
-    if name(from) == "32bppPARGB" && opaque(to) {
+    let opaque = |f: Pf| matches!(f, Pf::Rgb555 | Pf::Rgb565 | Pf::Rgb24 | Pf::Rgb32);
+    if from == Pf::Pargb32 && opaque(to) {
         hit("GP.CONV.PREMULTIPLIED.OPAQUE");
         return from_argb(to, v as u32);
     }
@@ -340,11 +455,11 @@ pub fn convert(from: usize, to: usize, v: u64, pal: &[u32]) -> Res<u64> {
 /// (MEASURED, golden gdiplus read-/write- between the 16-bit formats: signed words; a
 /// premultiplied one with 0 < alpha < 8192 divided, c * 8192 / a in 32 bits truncated, kept to
 /// 16 bits; others as they are)
-fn to_argb64(f: usize, v: u64) -> u64 {
-    match name(f) {
-        "48bppRGB" => 8192 << 48 | v & 0xffff_ffff_ffff,
-        "64bppARGB" => v,
-        _ => {
+fn to_argb64(f: Wide, v: u64) -> u64 {
+    match f {
+        Wide::Rgb48 => 8192 << 48 | v & 0xffff_ffff_ffff,
+        Wide::Argb64 => v,
+        Wide::Pargb64 => {
             let a = level(v >> 48) as i32;
             let un = |s: u32| (if a == 0 { v >> s & 0xffff } else { (word(v >> s) * 8192 / a) as u16 as u64 }) << s;
             (v & 0xffff << 48) | un(32) | un(16) | un(0)
@@ -352,11 +467,11 @@ fn to_argb64(f: usize, v: u64) -> u64 {
     }
 }
 /// and back: premultiplied (c * a) >> 13 in 32 bits, kept to 16 bits, the alpha word as it is
-fn from_argb64(f: usize, v: u64) -> u64 {
-    match name(f) {
-        "48bppRGB" => v & 0xffff_ffff_ffff,
-        "64bppARGB" => v,
-        _ => {
+fn from_argb64(f: Wide, v: u64) -> u64 {
+    match f {
+        Wide::Rgb48 => v & 0xffff_ffff_ffff,
+        Wide::Argb64 => v,
+        Wide::Pargb64 => {
             let a = word(v >> 48);
             let p = |s: u32| (((word(v >> s) * a) >> 13) as u16 as u64) << s;
             (v & 0xffff << 48) | p(32) | p(16) | p(0)
@@ -370,7 +485,7 @@ fn word(v: u64) -> i32 {
 }
 
 impl Bitmap {
-    pub fn new(f: usize, w: u32, h: u32) -> Bitmap {
+    pub fn new(f: Pf, w: u32, h: u32) -> Bitmap {
         hit("GP.CREATE.ZERO");
         Bitmap { f, w, h, rows: vec![vec![0; row_bytes(f, w)]; h as usize], pal: default_palette(f), flags: palette_flags(f) }
     }
@@ -451,8 +566,8 @@ fn n(t: &[String], i: usize) -> Res<i64> {
     t.get(i).and_then(|v| num(v)).ok_or(Fail::Bad)
 }
 
-fn fmt_at(t: &[String], i: usize) -> Res<usize> {
-    t.get(i).and_then(|v| format(v)).ok_or(Fail::Bad)
+fn fmt_at(t: &[String], i: usize) -> Res<Pf> {
+    t.get(i).and_then(|v| Pf::parse(v)).ok_or(Fail::Bad)
 }
 
 fn hex_row(row: &[u8], w: u32, bits: u32) -> String {
@@ -473,12 +588,12 @@ pub type Matrix = [f32; 6];
 /// indexed format gets, its type (PaletteType) in the flags' bits 8..: 1 bpp FixedBW, 4 bpp
 /// FixedHalftone8 (the 8 corners of the cube and 8 more), 8 bpp FixedHalftone216 (the 6x6x6 cube
 /// and the same 8 more)
-pub fn fixed_palette(f: usize) -> (Vec<u32>, u32) {
+pub fn fixed_palette(d: Depth) -> (Vec<u32>, u32) {
     let more = [0xffc0_c0c0, 0xff80_8080, 0xff80_0000, 0xff00_8000, 0xff00_0080, 0xff80_8000, 0xff80_0080, 0xff00_8080];
-    match bits(f) {
-        1 => (vec![0xff00_0000, 0xffff_ffff], 2 << 8),
-        4 => ((0..8u32).map(|k| 0xff00_0000 | (k >> 2) * 0xff_0000 | (k >> 1 & 1) * 0xff00 | (k & 1) * 0xff).chain(more).collect(), 3 << 8),
-        _ => ((0..216u32).map(|k| 0xff00_0000 | (k / 36) * 0x33_0000 | (k / 6 % 6) * 0x3300 | (k % 6) * 0x33).chain(more).collect(), 7 << 8),
+    match d {
+        Depth::One => (vec![0xff00_0000, 0xffff_ffff], 2 << 8),
+        Depth::Four => ((0..8u32).map(|k| 0xff00_0000 | (k >> 2) * 0xff_0000 | (k >> 1 & 1) * 0xff00 | (k & 1) * 0xff).chain(more).collect(), 3 << 8),
+        Depth::Eight => ((0..216u32).map(|k| 0xff00_0000 | (k / 36) * 0x33_0000 | (k / 6 % 6) * 0x3300 | (k % 6) * 0x33).chain(more).collect(), 7 << 8),
     }
 }
 
@@ -600,9 +715,9 @@ fn elements(m: &Matrix) -> String {
 /// matrix on the bitmap's own coordinates: c' = min(max, (c + d) >> (8 - bits)), d from DITHER for
 /// 5 bits, DITHER >> 1 for 6 (golden gdiplus dither-*: every gray level at every position)
 pub const DITHER: [[u32; 4]; 4] = [[0, 4, 1, 5], [6, 2, 7, 3], [1, 5, 0, 4], [7, 3, 6, 2]];
-pub fn dither(f: usize, p: u32, x: u32, y: u32) -> u64 {
+pub fn dither(f: Pf, p: u32, x: u32, y: u32) -> u64 {
     hit("GP.FILL.DITHER");
-    let g6 = FORMATS[f].0 == "16bppRGB565";
+    let g6 = f == Pf::Rgb565;
     let d = DITHER[y as usize & 3][x as usize & 3];
     let ch = |c: u32, n: u32| ((c + (d >> (n - 5))) >> (8 - n)).min((1 << n) - 1) as u64;
     let (r, g, b) = (p >> 16 & 255, p >> 8 & 255, p & 255);
@@ -747,7 +862,7 @@ impl Gdiplus {
                 if b.pal.is_empty() {
                     hit("GP.INFO.NOPALETTE");
                 }
-                out.push(format!("info {:08x} {} {} palette 0 {} {}", FORMATS[b.f].1, b.w, b.h, b.flags, b.pal.len()));
+                out.push(format!("info {:08x} {} {} palette 0 {} {}", b.f.code(), b.w, b.h, b.flags, b.pal.len()));
                 for ch in b.pal.chunks(16) {
                     out.push(ch.iter().map(|c| format!("{c:08x}")).collect::<Vec<_>>().join(" "));
                 }
@@ -755,18 +870,22 @@ impl Gdiplus {
             "gpfill" | "gpclear" => {
                 let b = self.bmp[Self::slot(t, 1)?].as_mut().unwrap();
                 let w = &name[2..];
-                let (r, c, copy, q) = if name == "gpfill" {
-                    let copy = match t.get(7).map(String::as_str) {
-                        Some("copy") => true,
-                        Some("over") => false,
+                let (r, c, mode, q) = if name == "gpfill" {
+                    let mode = match t.get(7).map(String::as_str) {
+                        Some("copy") => Mode::SourceCopy,
+                        Some("over") => Mode::SourceOver,
                         _ => return Err(Fail::Bad),
                     };
-                    ((n(t, 2)?, n(t, 3)?, n(t, 4)?, n(t, 5)?), n(t, 6)? as u32, copy, n(t, 8)?)
+                    ((n(t, 2)?, n(t, 3)?, n(t, 4)?, n(t, 5)?), n(t, 6)? as u32, mode, n(t, 8)?)
                 } else {
-                    ((0, 0, b.w as i64, b.h as i64), n(t, 2)? as u32, true, 0)
+                    ((0, 0, b.w as i64, b.h as i64), n(t, 2)? as u32, Mode::SourceCopy, 0)
+                };
+                let copy = match mode {
+                    Mode::SourceCopy => true,
+                    Mode::SourceOver => false,
                 };
                 hit("GP.FILL");
-                if matches!(FORMATS[b.f].0, "16bppGrayScale" | "16bppARGB1555") {
+                if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
                     hit("GP.FILL.NOGRAPHICS");
                     out.push(format!("{w} {OUT_OF_MEMORY}"));
                     return Ok(true);
@@ -774,9 +893,9 @@ impl Gdiplus {
                 if indexed(b.f) {
                     hit("GP.FILL.INDEXED");
                 }
-                if !(0..=4).contains(&q) {
+                let Some(q) = Quality::from_value(q) else {
                     return Err(Fail::Bad);
-                }
+                };
                 if r.2 < 0 || r.3 < 0 {
                     hit("GP.FILL.NEGATIVE");
                 }
@@ -784,8 +903,8 @@ impl Gdiplus {
                 hit("GP.FILL.RECT");
                 let (x0, y0) = (r.0.max(0), r.1.max(0));
                 let (x1, y1) = ((r.0 + r.2).min(b.w as i64), (r.1 + r.3).min(b.h as i64));
-                let pargb = format("32bppPARGB").unwrap();
-                let argb = format("32bppARGB").unwrap();
+                let pargb = Pf::Pargb32;
+                let argb = Pf::Argb32;
                 // (the brush premultiplied)
                 let sp = convert(argb, pargb, c as u64, &[])? as u32;
                 let inside = |x: u32, y: u32| (x0..x1).contains(&(x as i64)) && (y0..y1).contains(&(y as i64));
@@ -799,29 +918,29 @@ impl Gdiplus {
                 };
                 // (gamma corrected, MEASURED: SourceOver of a pixel of a 32-bit format (ARGB, PARGB, RGB)
                 // in 64bppPARGB words, in float as the executor rounds (GP.FILL.GAMMA))
-                let gamma = !copy && matches!(q, 2 | 3);
+                let gamma = !copy && q.gamma();
                 if gamma && super::arch() == 32 {
                     return Err(Fail::Unmodeled("GP.FILL.GAMMA"));
                 }
-                let p64 = format("64bppPARGB").unwrap();
+                let p64 = Pf::Pargb64;
                 let rd = rounding();
                 let s64 = convert(pargb, p64, sp as u64, &[])?;
                 let word = |v: u64, k: u32| (v >> (16 * k) & 0xffff) as f32;
                 let rest = rd.sub(1.0, rd.div(word(s64, 3), 8192.0));
                 let mix = |s: f32, d: f32| rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff;
-                let gam = |f: usize, v: u64| -> Res<u64> {
+                let gam = |f: Pf, v: u64| -> Res<u64> {
                     hit("GP.FILL.GAMMA.X64");
                     let d = convert(f, p64, v, &[])?;
                     let o = (0..4).fold(0, |o, k| o | mix(word(s64, k), word(d, k)) << (16 * k));
                     let mut r = convert(p64, f, o, &[])?;
-                    if FORMATS[f].0 == "32bppRGB" {
+                    if f == Pf::Rgb32 {
                         // (32bppRGB: the colors as opaque, its alpha byte blended as an alpha)
                         let a = mix(word(s64, 3), widen_alpha(v >> 24) as f32);
                         r = r & 0xff_ffff | (narrow_alpha(a) as u64) << 24;
                     }
                     Ok(r)
                 };
-                if bits(b.f) >= 48 || indexed(b.f) {
+                if b.f.wide().is_some() || indexed(b.f) {
                     // (MEASURED: a Graphics of a 16-bit channel or indexed bitmap works on a copy of
                     // all of it, 32bppARGB or 32bppPARGB, written back once it draws: the pixels it
                     // does not draw on make the trip too)
@@ -853,10 +972,10 @@ impl Gdiplus {
                             b.set_px(x, y, v);
                         }
                     }
-                } else if matches!(FORMATS[b.f].0, "16bppRGB555" | "16bppRGB565") {
+                } else if matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
                     // (MEASURED, golden gdiplus fill-16bppRGB5*-over-*, blend-*: 477 channels: the
                     // destination widened by a shift alone, the blend truncated, then dithered)
-                    let g6 = FORMATS[b.f].0 == "16bppRGB565";
+                    let g6 = b.f == Pf::Rgb565;
                     // (a clear brush over draws nothing: 555's unused top bit stays; drawn, it is 0)
                     let (y0, y1) = if !copy && sp >> 24 == 0 { (0, 0) } else { (y0, y1) };
                     for y in y0..y1 {
@@ -888,7 +1007,7 @@ impl Gdiplus {
                                 continue;
                             }
                             // (32bppRGB: its bytes as premultiplied, as they are)
-                            let rgb = FORMATS[b.f].0 == "32bppRGB";
+                            let rgb = b.f == Pf::Rgb32;
                             let d = if rgb { b.px(x, y) } else { convert(b.f, pargb, b.px(x, y), &[])? };
                             let p = blend(d as u32) as u64;
                             b.set_px(x, y, if rgb { p } else { convert(pargb, b.f, p, &[])? });
@@ -930,22 +1049,24 @@ impl Gdiplus {
                     hit("GP.CLONE.FORMAT");
                 }
                 let mut c = Bitmap::new(f, r.2 as u32, r.3 as u32);
-                let fixed = indexed(f) && f != b.f;
+                let fixed = f.depth().filter(|_| f != b.f);
                 if f == b.f {
                     (c.pal, c.flags) = (b.pal.clone(), b.flags);
-                } else if fixed {
+                } else if let Some(d) = fixed {
                     hit("GP.CLONE.PALETTE");
-                    (c.pal, c.flags) = fixed_palette(f);
+                    (c.pal, c.flags) = fixed_palette(d);
                 }
                 for y in 0..r.3 as u32 {
                     for x in 0..r.2 as u32 {
                         let v = b.px(r.0 as u32 + x, r.1 as u32 + y);
-                        let v = if fixed {
-                            // (the entry of the color LockBits' default palette gives, GP.CONV.TO.INDEXED)
-                            let q = default_palette(f)[nearest(f, to_argb(b.f, v, &b.pal)?) as usize];
-                            c.pal.iter().position(|&e| e == q).unwrap() as u64
-                        } else {
-                            convert(b.f, f, v, &b.pal)?
+                        let v = match fixed {
+                            // (the entry of the color LockBits' default palette gives, GP.CONV.TO.INDEXED;
+                            // every default entry it picks is in the fixed palette: tests/laws_gdiplus.rs)
+                            Some(d) => {
+                                let q = default_palette(f)[nearest(d, to_argb(b.f, v, &b.pal)?) as usize];
+                                c.pal.iter().position(|&e| e == q).ok_or(Fail::Bad)? as u64
+                            }
+                            None => convert(b.f, f, v, &b.pal)?,
                         };
                         c.set_px(x, y, v);
                     }

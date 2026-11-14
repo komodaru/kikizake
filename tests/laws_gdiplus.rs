@@ -2,9 +2,9 @@
 //! side by side do not collide): what the documentation states as properties, exhaustive over
 //! small domains, property-based elsewhere.
 use proptest::prelude::*;
-use kikizake::model::gdiplus::{self as gp, bits, from_argb, get_px, mul, put_px, rotate, to_argb, transform, Bitmap, FORMATS};
+use kikizake::model::gdiplus::{self as gp, bits, from_argb, get_px, mul, put_px, rotate, to_argb, transform, Bitmap, Pf};
 
-fn bitmap(f: usize, w: u32, h: u32, seed: u32) -> Bitmap {
+fn bitmap(f: Pf, w: u32, h: u32, seed: u32) -> Bitmap {
     let mut b = Bitmap::new(f, w, h);
     let mut r = kikizake::rng::XorShift32::new(seed);
     for y in 0..h {
@@ -20,7 +20,7 @@ fn bitmap(f: usize, w: u32, h: u32, seed: u32) -> Bitmap {
 /// every pixel of a row at every bit depth is written and read back alone
 #[test]
 fn pixels_are_independent() {
-    for f in 0..FORMATS.len() {
+    for f in Pf::ALL {
         let n = bits(f);
         let w = 9u32;
         for x in 0..w {
@@ -28,7 +28,7 @@ fn pixels_are_independent() {
             let m = if n == 64 { !0 } else { (1u64 << n) - 1 };
             put_px(&mut row, x, n, m);
             for o in 0..w {
-                assert_eq!(get_px(&row, o, n), if o == x { m } else { 0 }, "{} x {x} o {o}", FORMATS[f].0);
+                assert_eq!(get_px(&row, o, n), if o == x { m } else { 0 }, "{} x {x} o {o}", f.name());
             }
         }
     }
@@ -38,9 +38,9 @@ fn pixels_are_independent() {
 /// clockwise, 4 a horizontal flip, k = (k & 3 turns) then (k & 4: flip), 6 the vertical flip
 #[test]
 fn rotations_are_the_dihedral_group() {
-    for f in 0..FORMATS.len() {
+    for (i, f) in Pf::ALL.into_iter().enumerate() {
         for (w, h) in [(1, 1), (3, 2), (5, 3), (9, 4)] {
-            let b = bitmap(f, w, h, f as u32 * 77 + w);
+            let b = bitmap(f, w, h, i as u32 * 77 + w);
             assert_eq!(rotate(&b, 0), b);
             let q = rotate(&b, 1);
             assert_eq!((q.w, q.h), (h, w));
@@ -69,7 +69,7 @@ fn rotations_are_the_dihedral_group() {
 #[test]
 fn low_bit_values_survive_argb() {
     for name in ["16bppRGB555", "16bppRGB565", "16bppARGB1555", "24bppRGB"] {
-        let f = gp::format(name).unwrap();
+        let f = Pf::parse(name).unwrap();
         let n = if name == "24bppRGB" { 1 << 24 } else { 1 << 16 };
         for v in (0..n).step_by(if n > 65536 { 251 } else { 1 }) {
             let v = if name == "16bppRGB555" { v & 0x7fff } else { v };
@@ -145,8 +145,8 @@ proptest! {
 
     /// a bitmap read in its own format is what was written, for any rectangle inside it
     #[test]
-    fn same_format_round_trip(f in 0..FORMATS.len(), seed: u32, x in 0i64..5, y in 0i64..3, w in 1i64..5, h in 1i64..3) {
-        let name = FORMATS[f].0;
+    fn same_format_round_trip(f in 0..Pf::ALL.len(), seed: u32, x in 0i64..5, y in 0i64..3, w in 1i64..5, h in 1i64..3) {
+        let name = Pf::ALL[f].name();
         let text = format!("case p\ngpbitmap 0 9 5 {name}\ngpwrite 0 {name} seed {seed} at {x} {y} {w} {h}\ngpread 0 {name} at {x} {y} {w} {h}\ngpread 0 {name}\nend\n");
         let c = &kikizake::case::parse_cases(&text)[0];
         let out = kikizake::model::run_case(c).unwrap();
@@ -168,7 +168,7 @@ proptest! {
 #[test]
 fn dither_keeps_the_mean() {
     for (name, gbits) in [("16bppRGB555", 5u32), ("16bppRGB565", 6)] {
-        let f = gp::format(name).unwrap();
+        let f = Pf::parse(name).unwrap();
         for c in 0..256u32 {
             let (mut sr, mut sg) = (0, 0);
             for y in 0..4 {
@@ -208,4 +208,19 @@ fn the_model_answers_all_but_the_open_clauses() {
         assert_eq!(n, open, "{suite}-{arch}");
     }
     kikizake::model::set_arch(32);
+}
+
+/// a clone into an indexed format finds each pixel's color in its fixed palette: every entry the
+/// nearest table picks from a default palette is in the fixed one (exhaustive over 5-bit colors)
+#[test]
+fn fixed_palettes_hold_every_nearest_color() {
+    for (f, d) in [(Pf::I1, gp::Depth::One), (Pf::I4, gp::Depth::Four), (Pf::I8, gp::Depth::Eight)] {
+        let (fixed, _) = gp::fixed_palette(d);
+        let default = gp::default_palette(f);
+        for k in 0..32768u32 {
+            let c = 0xff00_0000 | (k >> 10) << 19 | (k >> 5 & 31) << 11 | (k & 31) << 3;
+            let e = default[gp::nearest(d, c) as usize];
+            assert!(fixed.contains(&e), "{f:?} {k:#x} {e:08x}");
+        }
+    }
 }

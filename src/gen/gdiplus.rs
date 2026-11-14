@@ -1,6 +1,6 @@
 //! The gdiplus suite's case generator.
 use super::*;
-use crate::model::gdiplus::FORMATS;
+use crate::model::gdiplus::Pf;
 
 fn rargb(r: &mut XorShift32) -> u32 {
     match r.range(0, 4) {
@@ -22,7 +22,7 @@ fn rfloat(r: &mut XorShift32) -> u32 {
 
 pub fn gdiplus() -> String {
     let mut s = String::from("# kikizake suite gdiplus: GDI+ bitmaps, pixel formats, fills, rotations, clones, matrices (SPEC.md). Made by `kikizake gen gdiplus`.\n");
-    let names: Vec<&str> = FORMATS.iter().map(|f| f.0).collect();
+    let names: Vec<&str> = Pf::ALL.iter().map(|f| f.name()).collect();
     let mut seed = 1u32;
     let mut next = || {
         seed += 1;
