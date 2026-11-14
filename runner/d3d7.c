@@ -368,6 +368,9 @@ static void op_d3dlock(void) {
     if (ver == 7) IDirectDrawSurface7_Unlock((IDirectDrawSurface7 *)s, NULL);
     else if (ver == 3) IDirectDrawSurface4_Unlock((IDirectDrawSurface4 *)s, NULL);
     else IDirectDrawSurface_Unlock((IDirectDrawSurface *)s, NULL);
+    /* (each dump is written out at once: the software rasterizers crash inside some cases
+     * (golden d3d7edge-32 2cd0348), and the dumps before the crash name the triangle) */
+    if (!fill) oflush();
 }
 
 static const struct kz_op d3d7_ops[] = {
