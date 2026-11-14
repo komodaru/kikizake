@@ -7728,6 +7728,33 @@ clip 0 1 1 4 3
 selclip 0 none 5
 clipbox 0
 end
+case selclip-mode-0
+dib 0 6 4 32
+rgn 0 rect 0 0 2 2
+selclip 0 0 0
+clipbox 0
+clip 0 1 1 4 3
+selclip 0 0 0
+clipbox 0
+end
+case selclip-mode-6
+dib 0 6 4 32
+rgn 0 rect 0 0 2 2
+selclip 0 0 6
+clipbox 0
+clip 0 1 1 4 3
+selclip 0 0 6
+clipbox 0
+end
+case selclip-mode--1
+dib 0 6 4 32
+rgn 0 rect 0 0 2 2
+selclip 0 0 -1
+clipbox 0
+clip 0 1 1 4 3
+selclip 0 0 -1
+clipbox 0
+end
 case selclip-null
 dib 0 6 4 32
 rgn 0 null

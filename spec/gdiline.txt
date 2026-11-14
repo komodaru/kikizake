@@ -11,12 +11,12 @@ GDI.LINE.LAST doc | LineTo | "The line is drawn from the current position up to,
 GDI.LINE.PIXELS assumed | (none) | a one-pixel line lights one pixel per step of its major axis (the longer of |dx|, |dy|; x when equal), the minor coordinate rounded from start + i * minor / major
 GDI.LINE.TIE measured | (none) | a minor coordinate exactly halfway between two pixels goes to the smaller one (up for x-major lines, left for y-major), whichever way the line runs (golden lines-32/-64: every line from the center of a 17x17 picture to every point of it and back, 578 lines)
 GDI.LINE.POLY doc | Polyline, PolylineTo | lines between consecutive points; Polyline neither uses nor changes the current position, PolylineTo starts at it and leaves it at the last point
-GDI.LINE.POLYSHORT open | Polyline | Polyline with fewer than two points
+GDI.LINE.POLYSHORT measured | golden lines poly-28 | Polyline with fewer than two points fails (0): nothing drawn, the current position kept
 GDI.LINE.BEZIER open | PolyBezier, PolyBezierTo | the pixels of a Bézier curve
 GDI.RECT.FILL doc | FillRect | fills the rectangle "including the left and top borders, but excluding the right and bottom borders" with the brush
 GDI.RECT.FRAME doc | FrameRect | a border one logical unit wide around the rectangle, drawn with the brush
 GDI.RECT.INVERT doc | InvertRect | inverts the rectangle's pixels (a logical NOT of each value)
-GDI.RECT.EMPTY open | FillRect, FrameRect, InvertRect | a rectangle whose right <= left or bottom <= top
+GDI.RECT.EMPTY measured | golden lines fillrect-*, framerect-*, invertrect-* (31 cases) | FillRect and InvertRect take the corners in either order and draw nothing for an empty rectangle, returning 1; FrameRect fails (0) when right < left or bottom < top, and with right == left or bottom == top still draws its edges (top row t, bottom row b - 1, ...)
 GDI.SHAPE.RECT doc | Rectangle | outlined with the pen, filled with the brush; "The rectangle that is drawn excludes the bottom and right edges"; with the null pen the filled area is (l, t) - (r - 1, b - 1) exclusive
 GDI.SHAPE.RECTPEN open | Rectangle | a rectangle outlined by a wider pen, PS_INSIDEFRAME, or a binary raster operation other than R2_COPYPEN
 GDI.SHAPE.RECTTHIN open | Rectangle | a rectangle one pixel wide or high with a pen

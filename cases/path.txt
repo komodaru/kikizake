@@ -1637,6 +1637,17 @@ strokepath 0
 getpath 0
 dump 0
 end
+case polyshort
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+beginpath 0
+polyline 0 2 2
+polygon 0 3 3
+moveto 0 1 1
+lineto 0 5 2
+endpath 0
+getpath 0
+end
 case miter
 dib 0 8 8 8
 miter 0 3

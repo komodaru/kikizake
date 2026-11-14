@@ -1,10 +1,10 @@
 # gdipath clauses (spec/README.md): <id> <status> | <source> | <what it says>
 GDI.PATH.BEGIN doc | BeginPath | opens a path bracket; the DC's previous path is discarded
-GDI.PATH.BEGINAGAIN open | BeginPath | BeginPath while a bracket is open (what happens to the points so far)
+GDI.PATH.BEGINAGAIN measured | golden path order-2 | BeginPath in an open bracket drops the points so far and begins an empty path (the current position stays)
 GDI.PATH.END doc | EndPath | closes the bracket and selects the path into the DC; fails (0) when no bracket is open
 GDI.PATH.ABORT doc | AbortPath | closes and discards any path; succeeds with none
 GDI.PATH.CLOSE doc | CloseFigure | closes the open figure: its last point gets PT_CLOSEFIGURE; fails outside a bracket
-GDI.PATH.CLOSEEMPTY open | CloseFigure | CloseFigure in a bracket with no figure
+GDI.PATH.CLOSEEMPTY measured | golden path order-4 | CloseFigure with no figure open (none yet, a lone MoveToEx, or the last one closed) succeeds and changes nothing
 GDI.PATH.RECORD doc | Paths (the functions that define a path) | in a bracket, LineTo, MoveToEx, Polyline, PolylineTo, Polygon, Rectangle, ... add their points instead of drawing; a line starts a figure (PT_MOVETO) at the current position
 GDI.PATH.MOVETO assumed | GetPath | MoveToEx starts a new figure (a PT_MOVETO); one that no line follows is replaced by the next
 GDI.PATH.RECT assumed | Rectangle | a rectangle in a path: four points from the corner (right, top) counterclockwise, or (right, bottom) clockwise (SetArcDirection), the right and bottom edges excluded (r - 1, b - 1), the figure closed
@@ -15,5 +15,6 @@ GDI.PATH.STROKE doc | StrokePath | draws the path's lines with the pen (as LineT
 GDI.PATH.NOPATH doc | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion | fail (0, no region) when the DC has no closed path
 GDI.PATH.FILL open | FillPath, StrokeAndFillPath, SelectClipPath, PathToRegion | which pixels a path's interior holds
 GDI.PATH.WIDEN open | WidenPath | the outline a geometric pen makes of the path
-GDI.PATH.MITER open | SetMiterLimit | the limits taken, and the old value
+GDI.PATH.MITER measured | golden path miter | SetMiterLimit: a limit below 1 fails without writing the old value; otherwise returns the old limit (10 at first) and keeps the new one
 GDI.PATH.ENDMOVE measured | golden path order-5 | EndPath drops a PT_MOVETO that ends the path (a MoveToEx after the last figure)
+GDI.PATH.POLYSHORT assumed | Polyline, Polygon | in a path, fewer than two points fail as outside one, recording nothing

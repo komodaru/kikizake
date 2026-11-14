@@ -174,7 +174,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 173), ("region", 358), ("xform", 88), ("path", 31), ("text", 21), ("blend", 382), ("ddb", 14)];
+    let floor = [("lines", 202), ("region", 410), ("xform", 98), ("path", 34), ("text", 25), ("blend", 487), ("ddb", 14)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
@@ -182,7 +182,9 @@ fn models_keep_answering() {
             let p = format!("{}/golden/{s}-{arch}/stdout.txt", env!("CARGO_MANIFEST_DIR"));
             let Ok(g) = std::fs::read_to_string(&p) else { continue };
             let r = compare::compare_text(&model::run(s, &cases), &g);
-            assert!(r.differ.is_empty() && r.same >= n, "{s}-{arch}: {} as Windows (at least {n}), {} differ", r.same, r.differ.len());
+            // (cases Windows has not answered yet are left to tests/windows.rs)
+            let differ = r.differ.iter().filter(|d| !d.contains("missing")).count();
+            assert!(differ == 0 && r.same >= n, "{s}-{arch}: {} as Windows (at least {n}), {differ} differ", r.same);
         }
     }
     model::set_arch(32);

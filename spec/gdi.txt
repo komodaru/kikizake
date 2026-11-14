@@ -29,8 +29,8 @@ GDI.BRUSH.HATCH open | CreateHatchBrush | hatch patterns: which pixels, and the 
 GDI.BRUSH.NULL open | GetStockObject(NULL_BRUSH) | what an operation that uses the pattern does with the null brush
 GDI.CLIP.INTERSECT doc | IntersectClipRect | the clip region becomes its intersection with the rectangle
 GDI.CLIP.RESULT measured | IntersectClipRect (says NULLREGION / SIMPLEREGION / COMPLEXREGION) | on a memory DC without a clip region it returns COMPLEXREGION (3), whatever the rectangle, even an empty one (gdi golden)
-GDI.CLIP.AGAIN open | IntersectClipRect | what it returns on a DC that has a clip region already
-GDI.CLIP.UNORDERED open | IntersectClipRect | a rectangle with left > right or top > bottom
+GDI.CLIP.AGAIN measured | golden region clip-* (120 cases, 1034 answers, both archs) | on a DC with a clip region: the clip region becomes its intersection with the rectangle; returns COMPLEXREGION (3), except NULLREGION (1) when the result is empty and either the rectangle is empty or the clip region was not a single rectangle
+GDI.CLIP.UNORDERED measured | golden region clip-* | IntersectClipRect takes the corners in either order
 GDI.DIB.PARAMS open | CreateDIBSection | other bit counts and sizes
 GDI.STRETCH.SAME doc | StretchBlt | equal extents: BitBlt
 GDI.STRETCH.SAMPLE doc | StretchBlt, SetStretchBltMode (COLORONCOLOR) | stretching / COLORONCOLOR deleting: one source pixel for each destination pixel

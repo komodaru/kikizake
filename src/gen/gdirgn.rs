@@ -111,6 +111,10 @@ pub fn region() -> String {
     for m in 1..=5 {
         writeln!(s, "case selclip-none-{m}\ndib 0 6 4 32\nclip 0 1 1 4 3\nselclip 0 none {m}\nclipbox 0\nend").unwrap();
     }
+    // ExtSelectClipRgn with a mode out of range, with and without a clip region
+    for m in [0, 6, -1] {
+        writeln!(s, "case selclip-mode-{m}\ndib 0 6 4 32\nrgn 0 rect 0 0 2 2\nselclip 0 0 {m}\nclipbox 0\nclip 0 1 1 4 3\nselclip 0 0 {m}\nclipbox 0\nend").unwrap();
+    }
     writeln!(s, "case selclip-null\ndib 0 6 4 32\nrgn 0 null\nselclip 0 0\nclipbox 0\nptvisible 0 0 0\nbrush 0 solid #ffffff\npatblt 0 0 0 6 4 0xf00021\ndump 0\nend").unwrap();
     // the region is copied: changing it afterwards leaves the clip region
     writeln!(s, "case selclip-copy\ndib 0 6 4 32\nrgn 0 rect 1 1 3 3\nselclip 0 0\noffsetrgn 0 2 0\nclipbox 0\nbrush 0 solid #ffffff\npatblt 0 0 0 6 4 0xf00021\ndump 0\nend").unwrap();

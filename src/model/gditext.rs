@@ -42,8 +42,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             if o & 2 != 0 {
                 hit("GDI.TEXT.OPAQUE");
                 if l > r || t > b {
-                    return Err(Fail::Unmodeled("GDI.TEXT.OPAQUEORDER"));
+                    // (MEASURED: succeeds; the rectangle's corners in either order)
+                    hit("GDI.TEXT.OPAQUEORDER");
                 }
+                let (l, r, t, b) = (l.min(r), l.max(r), t.min(b), t.max(b));
                 let v = sl.s.from_rgb(sl.bk);
                 for y in t.max(0)..b.min(sl.s.h) {
                     for x in l.max(0)..r.min(sl.s.w) {

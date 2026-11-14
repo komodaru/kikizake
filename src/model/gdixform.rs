@@ -34,7 +34,22 @@ impl Default for Map {
 
 impl Map {
     pub fn identity(&self) -> bool {
-        self.wext == self.vext && self.worg == self.vorg && self.world == IDENTITY
+        self.wext == self.ve() && self.worg == self.vorg && self.world == IDENTITY
+    }
+    /// the viewport extents in effect: MM_ISOTROPIC shrinks one of those set so that a logical
+    /// unit is as wide as high (MEASURED: from the extents as set, each time they are asked for)
+    pub fn ve(&self) -> (i32, i32) {
+        let v = self.vext;
+        if self.mode != 7 {
+            return v;
+        }
+        hit("GDI.MAP.ISOTROPIC");
+        let (xd, yd) = (v.0 as f64 / self.wext.0 as f64, v.1 as f64 / self.wext.1 as f64);
+        if xd.abs() > yd.abs() {
+            ((v.0 as f64 * (yd / xd).abs() + 0.5).floor() as i32, v.1)
+        } else {
+            (v.0, (v.1 as f64 * (xd / yd).abs() + 0.5).floor() as i32)
+        }
     }
     /// LPtoDP of one point: world (f32), then page: p * vext / wext + (vorg - worg * vext / wext)
     pub fn lp_to_dp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
@@ -43,7 +58,10 @@ impl Map {
             return Err(Fail::Unmodeled("GDI.XFORM.ROUNDWORLD"));
         }
         hit("GDI.MAP.FORMULA");
-        Ok((page(p.0, self.wext.0, self.vext.0, self.worg.0, self.vorg.0), page(p.1, self.wext.1, self.vext.1, self.worg.1, self.vorg.1)))
+        if self.mode == 7 {
+            return Err(Fail::Unmodeled("GDI.MAP.ISOROUND"));
+        }
+        Ok((page(p.0, self.wext.0, self.ve().0, self.worg.0, self.vorg.0), page(p.1, self.wext.1, self.ve().1, self.worg.1, self.vorg.1)))
     }
     /// DPtoLP: exact when each window extent is a multiple of the viewport extent
     pub fn dp_to_lp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
@@ -51,10 +69,14 @@ impl Map {
             return Err(Fail::Unmodeled("GDI.XFORM.ROUNDWORLD"));
         }
         hit("GDI.MAP.INVERSE");
-        if self.wext.0 % self.vext.0 != 0 || self.wext.1 % self.vext.1 != 0 {
+        let v = self.ve();
+        if v.0 == 0 || v.1 == 0 {
             return Err(Fail::Unmodeled("GDI.MAP.DPROUND"));
         }
-        let (kx, ky) = (self.wext.0 / self.vext.0, self.wext.1 / self.vext.1);
+        if self.wext.0 % self.ve().0 != 0 || self.wext.1 % self.ve().1 != 0 {
+            return Err(Fail::Unmodeled("GDI.MAP.DPROUND"));
+        }
+        let (kx, ky) = (self.wext.0 / self.ve().0, self.wext.1 / self.ve().1);
         Ok(((p.0 - self.vorg.0) * kx + self.worg.0, (p.1 - self.vorg.1) * ky + self.worg.1))
     }
 }
@@ -138,9 +160,19 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             if !(1..=8).contains(&v) {
                 out.push("mapmode 0".into());
             } else {
-                if !matches!(v, 1 | 8) || m.mode != 1 {
-                    // (the metric modes' extents and MM_ISOTROPIC's come from the device)
-                    return Err(Fail::Unmodeled("GDI.MAP.METRIC"));
+                match v {
+                    1 => (m.wext, m.vext) = ((1, 1), (1, 1)),
+                    2..=7 => {
+                        // MEASURED: the window extents are the display's size in the mode's
+                        // units (at 96 pixels per inch, rounded), the viewport's its pixels, y up
+                        hit("GDI.MAP.METRIC");
+                        let k = [254, 2540, 100, 1000, 1440, 254][v as usize - 2];
+                        let (w, h) = super::gdiddb::SCREEN;
+                        m.wext = (((w * k) as f64 / 96.0).round() as i32, ((h * k) as f64 / 96.0).round() as i32);
+                        m.vext = (w, -h);
+                    }
+                    // (MM_ANISOTROPIC keeps the extents it finds)
+                    _ => {}
                 }
                 out.push(format!("mapmode {}", std::mem::replace(&mut m.mode, v)));
             }
@@ -156,13 +188,16 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let e = if t0 == "winext" { &mut m.wext } else { &mut m.vext };
             let old = *e;
             hit("GDI.MAP.EXT");
-            if m.mode == 8 {
+            if m.mode >= 7 {
                 if x == 0 || y == 0 {
-                    return Err(Fail::Unmodeled("GDI.MAP.ZEROEXT"));
+                    // MEASURED: succeeds, the extents as they were
+                    hit("GDI.MAP.ZEROEXT");
+                } else {
+                    *e = (x, y);
                 }
-                *e = (x, y);
-            } else if m.mode == 7 {
-                return Err(Fail::Unmodeled("GDI.MAP.METRIC"));
+            } else {
+                // MEASURED: the fixed modes ignore them, succeeding
+                hit("GDI.MAP.FIXEDEXT");
             }
             out.push(format!("ext 1 {} {}", old.0, old.1));
         }
@@ -177,7 +212,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "scalewin" | "scalevp" => return Err(Fail::Unmodeled("GDI.MAP.SCALE")),
         "getmap" => {
             hit("GDI.MAP.GET");
-            out.push(format!("map {} {} wext {} {} vext {} {} worg {} {} vorg {} {}", m.mode, m.gmode, m.wext.0, m.wext.1, m.vext.0, m.vext.1, m.worg.0, m.worg.1, m.vorg.0, m.vorg.1));
+            out.push(format!("map {} {} wext {} {} vext {} {} worg {} {} vorg {} {}", m.mode, m.gmode, m.wext.0, m.wext.1, m.ve().0, m.ve().1, m.worg.0, m.worg.1, m.vorg.0, m.vorg.1));
         }
         "lptodp" | "dptolp" => {
             let t = &op.tok[2..];
@@ -204,7 +239,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push("setxform 0".into());
             } else {
                 if x[0] * x[3] - x[1] * x[2] == 0.0 {
-                    return Err(Fail::Unmodeled("GDI.XFORM.SINGULAR"));
+                    // MEASURED: fails, the transform as it was
+                    hit("GDI.XFORM.SINGULAR");
+                    out.push("setxform 0".into());
+                    return Ok(true);
                 }
                 m.world = x;
                 out.push("setxform 1".into());

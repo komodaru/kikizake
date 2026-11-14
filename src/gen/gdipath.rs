@@ -56,6 +56,8 @@ pub fn path() -> String {
         "beginpath 0\nmoveto 0 1 1\nmoveto 0 2 2\nlineto 0 5 2\nmoveto 0 6 6\nendpath 0\ngetpath 0\nstrokepath 0\ngetpath 0"].iter().enumerate() {
         writeln!(s, "case order-{i}\ndib 0 8 8 8\npen 0 0 1 #ffffff\n{c}\ndump 0\nend").unwrap();
     }
+    // Polyline and Polygon of one point in a path, then a line
+    writeln!(s, "case polyshort\ndib 0 8 8 8\npen 0 0 1 #ffffff\nbeginpath 0\npolyline 0 2 2\npolygon 0 3 3\nmoveto 0 1 1\nlineto 0 5 2\nendpath 0\ngetpath 0\nend").unwrap();
     writeln!(s, "case miter\ndib 0 8 8 8\nmiter 0 3\nmiter 0 0.5\nmiter 0 20\nend").unwrap();
     // random polygons and polylines, through a region and drawn
     for i in 0..60 {

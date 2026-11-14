@@ -57,7 +57,10 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         }
         "polyline" | "polygon" => {
             if pts.len() < 2 {
-                return Err(Fail::Unmodeled("GDI.LINE.POLYSHORT"));
+                // (as outside a path: fails, nothing recorded)
+                hit("GDI.PATH.POLYSHORT");
+                out.push("ret 0".into());
+                return Ok(true);
             }
             p.push((pts[0].0, pts[0].1, PT_MOVETO));
             for &q in &pts[1..] {
@@ -106,12 +109,25 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     if sl.ext.mapped() {
         return Err(Fail::Unmodeled("GDI.MAP.DRAW"));
     }
+    if t0 == "miter" {
+        let v: f32 = op.tok.get(2).and_then(|t| t.parse().ok()).ok_or(Fail::Bad)?;
+        // MEASURED: a limit below 1 fails and leaves the old value unwritten; the limit is kept
+        // as given (10 at first)
+        hit("GDI.PATH.MITER");
+        if v < 1.0 {
+            out.push("miter 0 -1000".into());
+        } else {
+            out.push(format!("miter 1 {}", (std::mem::replace(&mut sl.ext.miter, v) * 1000.0) as i32));
+        }
+        return Ok(true);
+    }
     let path = &mut sl.ext.path;
     let ok = match t0 {
         "beginpath" => {
             hit("GDI.PATH.BEGIN");
             if matches!(path, Path::Open(_)) {
-                return Err(Fail::Unmodeled("GDI.PATH.BEGINAGAIN"));
+                // MEASURED: the points so far are dropped, a new path begins
+                hit("GDI.PATH.BEGINAGAIN");
             }
             *path = Path::Open(Vec::new());
             true
@@ -146,7 +162,11 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     p.last_mut().unwrap().2 |= PT_CLOSEFIGURE;
                     true
                 }
-                Path::Open(_) => return Err(Fail::Unmodeled("GDI.PATH.CLOSEEMPTY")),
+                Path::Open(_) => {
+                    // MEASURED: no figure (or a lone MoveToEx): succeeds, nothing changes
+                    hit("GDI.PATH.CLOSEEMPTY");
+                    true
+                }
                 _ => false,
             }
         }
@@ -205,7 +225,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             return Err(Fail::Unmodeled("GDI.PATH.FILL"));
         }
         "widen" => return Err(Fail::Unmodeled("GDI.PATH.WIDEN")),
-        _ => return Err(Fail::Unmodeled("GDI.PATH.MITER")),
+        _ => unreachable!(),
     };
     out.push(format!("{t0} {}", ok as u8));
     Ok(true)

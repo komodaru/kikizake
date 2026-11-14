@@ -17,6 +17,8 @@ fn n(op: &Op, i: usize) -> Res<i64> {
 
 /// the display's bits per pixel (Windows' runner: 32)
 pub const SCREEN_BPP: u32 = 32;
+/// the display of Windows' runner (windows-2025): 1024 x 768 at 96 dpi
+pub const SCREEN: (i32, i32) = (1024, 768);
 
 /// GetDeviceCaps of a memory DC, any bitmap selected: the display's (MEASURED)
 fn devcap(i: i64) -> Res<i64> {

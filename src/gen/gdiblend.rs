@@ -120,5 +120,25 @@ pub fn blend() -> String {
         writeln!(s, "plgblt 0 {x0} {y0} {} {} {} {} 1 0 0 6 5", x0 + ax, y0 + ay, x0 + bx, y0 + by).unwrap();
         writeln!(s, "dump 0\nend").unwrap();
     }
+    // MaskBlt's rectangles: negative and 0 extents, the destination's edges, the mask's and the
+    // source's bounds
+    for i in 0..80 {
+        writeln!(s, "case maskblt-bounds-{i}\ndib 0 6 5 32\nfill 0 {}\ndib 1 6 5 32\nfill 1 {}\nbrush 0 solid #{:06x}", r.next(), r.next(), r.next() & 0xffffff).unwrap();
+        if r.chance(2) {
+            writeln!(s, "ddb 2 mono 6 5\nfill 2 {}", r.next()).unwrap();
+        } else {
+            writeln!(s, "dib 2 6 5 1\nfill 2 {}", r.next()).unwrap();
+        }
+        let (x, y, w, h) = (r.range(-3, 6), r.range(-3, 5), r.range(-2, 8), r.range(-2, 7));
+        writeln!(s, "maskblt 0 {x} {y} {w} {h} 1 {} {} 2 {} {} 0xaacc0020\ndump 0\nend", r.range(-2, 3), r.range(-2, 3), r.range(-2, 3), r.range(-2, 3)).unwrap();
+    }
+    // TransparentBlt's extents and source rectangle: 0, negative, partly outside the source
+    for i in 0..60 {
+        writeln!(s, "case transparent-ext-{i}\ndib 0 6 5 32\nfill 0 {}\ndib 1 5 4 32\nfill 1 {}", r.next(), r.next()).unwrap();
+        let e = |r: &mut XorShift32, n: i64| if r.chance(3) { r.range(-1, 0) } else { r.range(1, n) };
+        let (w, h) = (e(&mut r, 6), e(&mut r, 5));
+        let (sw, sh) = if r.chance(2) { (w, h) } else { (e(&mut r, 5), e(&mut r, 4)) };
+        writeln!(s, "transparent 0 {} {} {w} {h} 1 {} {} {sw} {sh} #000000\ndump 0\nend", r.range(-1, 3), r.range(-1, 3), r.range(-1, 2), r.range(-1, 2)).unwrap();
+    }
     s
 }

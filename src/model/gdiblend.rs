@@ -77,7 +77,15 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let (sx, sy, sw, sh) = (n32(op, 7)?, n32(op, 8)?, n32(op, 9)?, n32(op, 10)?);
             let (sca, pp, key) = if t0 == "alphablend" { (n(op, 11)? as u32, n(op, 12)? != 0, 0) } else { (0, false, color(op.tok.get(11).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?) };
             if w <= 0 || h <= 0 || sw <= 0 || sh <= 0 {
-                return Err(Fail::Unmodeled("GDI.ALPHA.EXTENTS"));
+                if t0 == "transparent" {
+                    return Err(Fail::Unmodeled("GDI.TRANS.EXTENTS"));
+                }
+                // MEASURED: a negative source extent fails; then any extent of 0 succeeds
+                // drawing nothing; then a negative destination extent fails
+                hit("GDI.ALPHA.EXTENTS");
+                let ok = sw >= 0 && sh >= 0 && (w == 0 || h == 0 || sw == 0 || sh == 0);
+                out.push(format!("ret {}", ok as u8));
+                return Ok(true);
             }
             if t0 == "alphablend" {
                 hit("GDI.ALPHA.SRCRECT");
@@ -142,8 +150,24 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push(format!("ret {}", r as u8));
                 return Ok(true);
             };
-            if w <= 0 || h <= 0 || mx < 0 || my < 0 || mx + w > m.s.w || my + h > m.s.h || sx < 0 || sy < 0 || sx + w > s.s.w || sy + h > s.s.h {
-                return Err(Fail::Unmodeled("GDI.MASK.OUTSIDE"));
+            if w < 0 || h < 0 {
+                return Err(Fail::Unmodeled("GDI.MASK.NEGATIVE"));
+            }
+            if w == 0 || h == 0 {
+                // MEASURED: nothing to draw, and the call succeeds
+                hit("GDI.MASK.EMPTY");
+                out.push("ret 1".into());
+                return Ok(true);
+            }
+            // MEASURED: the mask must hold the rectangle less what lies left of or above the
+            // destination's origin; the source need not (pixels outside it are left as they are)
+            hit("GDI.MASK.OUTSIDE");
+            let (cw, ch) = (w - (-x).max(0), h - (-y).max(0));
+            if mx < 0 || my < 0 || mx + cw > m.s.w || my + ch > m.s.h {
+                if cw > 0 && ch > 0 && x < d.s.w && y < d.s.h {
+                    out.push("ret 0".into());
+                    return Ok(true);
+                }
             }
             hit("GDI.MASK.ROP4");
             let pv = match &d.brush {
@@ -156,6 +180,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 for i in 0..w {
                     let (px, py) = (x + i, y + j);
                     if !dsl.visible(px, py) {
+                        continue;
+                    }
+                    if sx + i < 0 || sy + j < 0 || sx + i >= s.s.w || sy + j >= s.s.h || mx + i >= m.s.w || my + j >= m.s.h {
                         continue;
                     }
                     let idx = if m.s.get(mx + i, my + j) == 1 { fore } else { back };

@@ -5,7 +5,7 @@ GDI.RGN.ELLIPSE open | CreateEllipticRgn, CreateRoundRectRgn | which pixels an e
 GDI.RGN.POLYGON open | CreatePolygonRgn | which pixels a polygon region holds (ALTERNATE / WINDING)
 GDI.RGN.COMBINE doc | CombineRgn | RGN_AND intersection, RGN_OR union, RGN_XOR union minus intersection, RGN_DIFF the first minus the second
 GDI.RGN.COPY doc | CombineRgn | RGN_COPY copies the first region
-GDI.RGN.BADMODE open | CombineRgn | a mode out of range
+GDI.RGN.BADMODE measured | golden region combine-mode-{-1,0,6} | CombineRgn with a mode out of 1..5 returns ERROR (0) and leaves the destination as it was
 GDI.RGN.KIND doc | CombineRgn | returns NULLREGION (1), SIMPLEREGION (2, one rectangle) or COMPLEXREGION (3)
 GDI.RGN.DATA assumed | GetRegionData, RGNDATAHEADER | the rectangles: bands top to bottom, each band's rectangles left to right and apart, equal neighbouring bands merged; the bound rectangle; 0 0 0 0 and no rectangle for no region
 GDI.RGN.BOX doc | GetRgnBox | the region's type and bounding rectangle
@@ -18,7 +18,7 @@ GDI.RGN.PAINT doc | PaintRgn | fills the region with the DC's brush through the 
 GDI.RGN.INVERT doc | InvertRgn | inverts the colors in the region
 GDI.RGN.FRAME assumed | FrameRgn | a border of width w and height h inside the region's edges: the region minus its intersection with itself moved by (-w, 0), (w, 0), (0, -h), (0, h)
 GDI.CLIP.SELNONE doc | ExtSelectClipRgn | a NULL region with RGN_COPY removes the clip region
-GDI.CLIP.SELNULLMODE open | ExtSelectClipRgn | a NULL region with another mode ("an error")
+GDI.CLIP.SELNULLMODE measured | golden region selclip-none-{1..4} | a NULL region with a mode other than RGN_COPY returns ERROR (0) and keeps the clip region
 GDI.CLIP.SELCOPY doc | SelectClipRgn, ExtSelectClipRgn | RGN_COPY: the clip region becomes a copy of the region (later changes to the region do not move it); returns its type
 GDI.CLIP.SELMODE doc | ExtSelectClipRgn | the other modes combine the clip region with the region as CombineRgn does
 GDI.CLIP.SELNOCLIP measured | golden region | RGN_OR, RGN_XOR, RGN_DIFF on a DC without a clip region combine with the bitmap's rectangle
@@ -26,10 +26,11 @@ GDI.CLIP.SELNOCLIPAND measured | golden region clip-27 | RGN_AND on a DC without
 GDI.CLIP.BOX doc | GetClipBox | the type and bounding rectangle of the visible area (the clip region within the bitmap)
 GDI.CLIP.GETRGN doc | GetClipRgn | 0 when the DC has no clip region, 1 and a copy of it when it has
 GDI.CLIP.EXCLUDE doc | ExcludeClipRect | the clip region minus the rectangle (no clip region: the bitmap's area minus it); returns the new type
-GDI.CLIP.EXUNORDERED open | ExcludeClipRect | a rectangle with left > right or top > bottom
+GDI.CLIP.EXUNORDERED measured | golden region clip-* | ExcludeClipRect takes the corners in either order
 GDI.CLIP.OFFSET doc | OffsetClipRgn | moves the clip region; returns its type
 GDI.CLIP.OFFSETNONE measured | golden region clip-* | on a DC without a clip region: returns SIMPLEREGION (2) and the DC keeps no clip region
 GDI.CLIP.PTVISIBLE doc | PtVisible | whether the point is in the clip region (and the bitmap)
 GDI.CLIP.RECTVISIBLE doc | RectVisible | whether any part of the rectangle is in the clip region
 GDI.RGN.OVERLAP measured | golden region query-*, clip-* | RectInRegion and RectVisible: the rectangle normalized, true when some rectangle of the region has left < R, right > L, top < B and bottom > T (so a rectangle of zero width or height strictly inside counts)
-GDI.CLIP.EXRESULT measured | golden region clip-* | ExcludeClipRect on a DC without a clip region returns COMPLEXREGION (3), whatever the result's shape
+GDI.CLIP.EXRESULT measured | golden region clip-* | ExcludeClipRect: the clip region (or, without one, the bitmap's rectangle) minus the rectangle; returns NULLREGION (1) when that is empty, else COMPLEXREGION (3) whatever its shape
+GDI.CLIP.SELBADMODE assumed | ExtSelectClipRgn | a mode out of 1..5 with a region: ERROR (0), the clip region as it was (as CombineRgn)

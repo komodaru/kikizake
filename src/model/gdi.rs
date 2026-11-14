@@ -12,7 +12,7 @@ use crate::case::{color, num, Op};
 use crate::rng::XorShift32;
 use crate::spec::hit;
 pub use super::gdiline::Draw;
-use super::rgn::Rgn;
+use super::rgn::{Rgn, SetOp, NULLREGION, SIMPLEREGION};
 
 /// ternary raster operation on whole words: each result bit is bit (p<<2|s<<1|d) of `idx`
 pub fn rop3(idx: u8, p: u32, s: u32, d: u32) -> u32 {
@@ -321,18 +321,32 @@ impl Gdi {
                 let r = (n(op, 2)? as i32, n(op, 3)? as i32, n(op, 4)? as i32, n(op, 5)? as i32);
                 hit("GDI.CLIP.INTERSECT");
                 if r.0 > r.2 || r.1 > r.3 {
-                    return Err(Fail::Unmodeled("GDI.CLIP.UNORDERED"));
+                    // MEASURED: the corners in either order
+                    hit("GDI.CLIP.UNORDERED");
                 }
                 let sl = self.slot(op, 1)?;
-                if sl.clip.is_some() || sl.ext.mapped() {
-                    // (what it returns on a DC with a clip region already: not measured yet)
-                    return Err(Fail::Unmodeled("GDI.CLIP.AGAIN"));
+                if sl.ext.mapped() {
+                    return Err(Fail::Unmodeled("GDI.MAP.DRAW"));
                 }
-                sl.clip = Some(Rgn::rect(r.0, r.1, r.2, r.3));
-                // MEASURED: COMPLEXREGION (3) on a memory DC without a clip region, whatever
-                // the rectangle (the documentation lists NULLREGION / SIMPLEREGION / COMPLEXREGION)
+                let q = Rgn::rect(r.0, r.1, r.2, r.3);
+                // MEASURED: COMPLEXREGION (3) whatever the result, but NULLREGION (1) when a clip
+                // region was there and the result is empty because the rectangle is, or the
+                // clip region was not a single rectangle (an empty one included)
                 hit("GDI.CLIP.RESULT");
-                out.push("clip 3".into());
+                let ret = match &sl.clip {
+                    None => 3,
+                    Some(c) => {
+                        hit("GDI.CLIP.AGAIN");
+                        let v = c.combine(&q, SetOp::And);
+                        let r = if v.kind() == NULLREGION && (c.kind() != SIMPLEREGION || q.kind() == NULLREGION) { 1 } else { 3 };
+                        sl.clip = Some(v);
+                        r
+                    }
+                };
+                if sl.clip.is_none() {
+                    sl.clip = Some(q);
+                }
+                out.push(format!("clip {ret}"));
             }
             "noclip" => self.slot(op, 1)?.clip = None,
             "mode" => self.slot(op, 1)?.mode = n(op, 2)?,

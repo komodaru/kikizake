@@ -7,7 +7,7 @@
 //! "GetClipBox", "GetClipRgn", "ExcludeClipRect", "OffsetClipRgn", "PtVisible", "RectVisible".
 
 use super::gdi::{Brush, Gdi};
-use super::rgn::{Rgn, SetOp};
+use super::rgn::{Rgn, SetOp, NULLREGION};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -87,7 +87,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     hit("GDI.RGN.COMBINE");
                     a.combine(&b, o)
                 }
-                _ => return Err(Fail::Unmodeled("GDI.RGN.BADMODE")),
+                _ => {
+                    // MEASURED: ERROR, the destination as it was
+                    hit("GDI.RGN.BADMODE");
+                    out.push("combine 0".into());
+                    return Ok(true);
+                }
             };
             hit("GDI.RGN.KIND");
             out.push(format!("combine {}", r.kind()));
@@ -202,13 +207,23 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     hit("GDI.CLIP.SELNONE");
                     None
                 }
-                (None, _) => return Err(Fail::Unmodeled("GDI.CLIP.SELNULLMODE")),
+                (None, _) => {
+                    // MEASURED: ERROR, the clip region as it was
+                    hit("GDI.CLIP.SELNULLMODE");
+                    out.push("selclip 0".into());
+                    return Ok(true);
+                }
                 (Some(r), 5) => {
                     hit("GDI.CLIP.SELCOPY");
                     Some(r)
                 }
                 (Some(r), m) => {
-                    let o = SetOp::from_mode(m).ok_or(Fail::Unmodeled("GDI.RGN.BADMODE"))?;
+                    let Some(o) = SetOp::from_mode(m) else {
+                        // (as CombineRgn: ERROR, the clip region as it was)
+                        hit("GDI.CLIP.SELBADMODE");
+                        out.push("selclip 0".into());
+                        return Ok(true);
+                    };
                     hit("GDI.CLIP.SELMODE");
                     match &sl.clip {
                         Some(c) => Some(c.combine(&r, o)),
@@ -255,15 +270,13 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let q = rect(op, 2)?;
             hit("GDI.CLIP.EXCLUDE");
             if q.0 > q.2 || q.1 > q.3 {
-                return Err(Fail::Unmodeled("GDI.CLIP.EXUNORDERED"));
+                // MEASURED: the corners in either order
+                hit("GDI.CLIP.EXUNORDERED");
             }
-            if sl.clip.is_some() {
-                return Err(Fail::Unmodeled("GDI.CLIP.AGAIN"));
-            }
-            let c = dev.combine(&Rgn::rect(q.0, q.1, q.2, q.3), SetOp::Diff);
-            // MEASURED: COMPLEXREGION on a DC without a clip region, as IntersectClipRect
+            let c = sl.clip.as_ref().unwrap_or(&dev).combine(&Rgn::rect(q.0, q.1, q.2, q.3), SetOp::Diff);
+            // MEASURED: COMPLEXREGION (3) whatever the result, NULLREGION (1) when it is empty
             hit("GDI.CLIP.EXRESULT");
-            out.push("exclude 3".into());
+            out.push(format!("exclude {}", if c.kind() == NULLREGION { 1 } else { 3 }));
             sl.clip = Some(c);
         }
         "offsetclip" => {

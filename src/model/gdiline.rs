@@ -33,12 +33,14 @@ pub struct Draw {
     /// SetTextAlign, SetTextCharacterExtra
     pub align: i64,
     pub extra: i64,
+    /// SetMiterLimit's limit
+    pub miter: f32,
 }
 
 impl Default for Draw {
     /// a new DC: the black pen, R2_COPYPEN, (0, 0), ALTERNATE, AD_COUNTERCLOCKWISE
     fn default() -> Draw {
-        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0 }
+        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0, miter: 10.0 }
     }
 }
 
@@ -216,7 +218,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let p = points(op, 2)?;
             hit("GDI.LINE.POLY");
             if t0 == "polyline" && p.len() < 2 {
-                return Err(Fail::Unmodeled("GDI.LINE.POLYSHORT"));
+                // MEASURED: fails, nothing drawn, the current position kept
+                hit("GDI.LINE.POLYSHORT");
+                out.push("ret 0".into());
+                return Ok(true);
             }
             let mut a = if t0 == "polyline" { p[0] } else { sl.ext.pos };
             for &b in &p[if t0 == "polyline" { 1 } else { 0 }..] {
@@ -235,8 +240,16 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             let ((l, t), (r, b)) = (p[0], p[1]);
             if l >= r || t >= b {
-                return Err(Fail::Unmodeled("GDI.RECT.EMPTY"));
+                hit("GDI.RECT.EMPTY");
+                if t0 == "framerect" && (l > r || t > b) {
+                    // MEASURED: FrameRect fails on corners out of order, drawing nothing
+                    out.push("ret 0".into());
+                    return Ok(true);
+                }
             }
+            // MEASURED: FillRect and InvertRect take the corners in either order (an empty
+            // rectangle draws nothing); FrameRect's edges of a 0 wide or high one still draw
+            let (l, r, t, b) = if t0 == "framerect" { (l, r, t, b) } else { (l.min(r), l.max(r), t.min(b), t.max(b)) };
             match t0 {
                 "fillrect" => {
                     hit("GDI.RECT.FILL");
