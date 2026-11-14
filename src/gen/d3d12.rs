@@ -869,6 +869,16 @@ pub fn dxgi() -> String {
         d[7] = 2;
         edge.push((format!("chain-edge2-size-16384x{h}x2"), d, "scpresent 0 0".into()));
     }
+    for n in [19u32, 20, 24, 32, 33, 48, 63] {
+        edge.push((format!("chain-edge3-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
+    }
+    for h in [14250u32, 14500, 14750] {
+        let mut d = CHAIN;
+        d[0] = 16384;
+        d[1] = h;
+        d[7] = 2;
+        edge.push((format!("chain-edge3-size-16384x{h}x2"), d, "scpresent 0 0".into()));
+    }
     for (n, d, l) in edge {
         writeln!(s, "case {n}\ndevice12\ndxgifactory 0").unwrap();
         chain_line(&mut s, "swapchain", &d);

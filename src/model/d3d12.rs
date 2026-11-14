@@ -945,12 +945,13 @@ pub fn placed_hr(heap: Heap, hflags: u32, hsize: u64, off: u64, state: u32, d: &
 /// the size limit of a single 2D texture of one level
 const SINGLE2D_MAX: u32 = 1 << 23;
 
-/// the largest frame latency SetMaximumFrameLatency takes (17 taken, 0x7fffffff not; fitted by
-/// chain-edge2-latency-*)
-const LATENCY_MAX: u32 = 0xffff;
+/// the largest frame latency SetMaximumFrameLatency takes (18 taken, 64 not; fitted by
+/// chain-edge3-latency-*)
+const LATENCY_MAX: u32 = 63;
 
-/// the bytes of buffers a 32-bit process makes a swap chain of no more
-const CHAIN32_OOM: u64 = 3 << 29;
+/// the bytes of buffers a 32-bit process runs out of memory making a swap chain of (1.84GB taken,
+/// 1.97GB not: the first measured that failed; fitted by chain-edge3-size-*)
+const CHAIN32_OOM: u64 = 16384 * 15000 * 8;
 
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
@@ -1303,8 +1304,7 @@ pub fn chain_desc(w: &[u32; 12]) -> Result<[u32; 12], Hr> {
         (d[0], d[1]) = (64, 64);
     }
     // (MEASURED: x86 runs out of address space for 16385 by 16385)
-    // (MEASURED, golden dxgi-32 chain-edge-size-*: 1.07GB of buffers taken, 2GB not; between
-    // fitted by chain-edge2-size-*)
+    // (MEASURED, golden dxgi-32 chain-edge-size-*, chain-edge2-size-*)
     if super::arch() == 32 && d[0] as u64 * d[1] as u64 * 4 * d[7] as u64 >= CHAIN32_OOM {
         hit(clause::DXGI_CHAIN_MEMORY);
         return Err(E_OUTOFMEMORY);

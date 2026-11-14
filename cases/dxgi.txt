@@ -2343,3 +2343,63 @@ dxgifactory 0
 swapchain 0x4000 0x3e80 0x57 0 1 0 0x20 2 0 4 0 0
 scpresent 0 0
 end
+case chain-edge3-latency-13
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x13
+end
+case chain-edge3-latency-14
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x14
+end
+case chain-edge3-latency-18
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x18
+end
+case chain-edge3-latency-20
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x20
+end
+case chain-edge3-latency-21
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x21
+end
+case chain-edge3-latency-30
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x30
+end
+case chain-edge3-latency-3f
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+sclatency 0x3f
+end
+case chain-edge3-size-16384x14250x2
+device12
+dxgifactory 0
+swapchain 0x4000 0x37aa 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge3-size-16384x14500x2
+device12
+dxgifactory 0
+swapchain 0x4000 0x38a4 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
+case chain-edge3-size-16384x14750x2
+device12
+dxgifactory 0
+swapchain 0x4000 0x399e 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 0
+end
