@@ -174,19 +174,19 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             // MEASURED: four Béziers in 28.4 around (l, t) - (r - 1, b - 1), from the right
             // end of the middle row, counterclockwise (upwards) or, with AD_CLOCKWISE,
-            // clockwise, control points the radius times 4/3 (sqrt 2 - 1) from the ends
+            // clockwise; each control point the radius times 1 - 4/3 (sqrt 2 - 1) in from the
+            // box's edge, that inset rounded down across, and down the box rounded up
+            // counterclockwise, down clockwise
             hit(clause::GDI_PATH_ELLIPSE);
             let (fl, fr, ft, fb) = (l * 16, (r - 1) * 16, t * 16, (bt - 1) * 16);
             let (cx, cy) = ((fl + fr) / 2, (ft + fb) / 2);
-            // (the control points' x rounded down, their y up, as in a y-up frame)
-            let kf = |rad2: i32| f64::from(rad2) * 0.5 * 0.552_284_749_8;
-            let (kx, ky) = (kf(fr - fl), kf(fb - ft));
-            let fx = |v: f64| v.floor() as i32;
-            let fy = |v: f64| v.ceil() as i32;
-            let (cxf, cyf) = (f64::from(cx), f64::from(cy));
-            let (xp, xm, yp, ym) = (fx(cxf + kx), fx(cxf - kx), fy(cyf + ky), fy(cyf - ky));
+            let inset = |rad2: i32| f64::from(rad2) * 0.5 * (1.0 - 0.552_284_749_8);
+            let cw = sl.ext.arcdir == 2;
+            let dx = inset(fr - fl).floor() as i32;
+            let dy = if cw { inset(fb - ft).floor() } else { inset(fb - ft).ceil() } as i32;
+            let (xp, xm, ym, yp) = (fr - dx, fl + dx, ft + dy, fb - dy);
             let mut c = [(fr, cy), (fr, ym), (xp, ft), (cx, ft), (xm, ft), (fl, ym), (fl, cy), (fl, yp), (xm, fb), (cx, fb), (xp, fb), (fr, yp), (fr, cy)];
-            if sl.ext.arcdir == 2 {
+            if cw {
                 for q in c.iter_mut() {
                     q.1 = ft + fb - q.1;
                 }
