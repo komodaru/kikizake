@@ -977,6 +977,17 @@ pub const FRESH: DrawState = DrawState { m: IDENTITY, aa: Antialias::PerPrimitiv
 pub struct Clip {
     pub r: [f32; 4],
     pub aa: Antialias,
+    pub edge: ClipEdge,
+}
+
+/// how an antialiased clip covers a pixel
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ClipEdge {
+    /// pushed under an axis preserving transform: 8 x 8 samples (D2D.CLIP.BLEND)
+    Samples,
+    /// pushed under a turning transform: the bounds' edges floored to 1/256 pixel and the
+    /// covered area (D2D.CLIP.XF)
+    Area,
 }
 
 /// the error state: its error, and whether EndDraw throws the frame's drawing away
@@ -1088,6 +1099,15 @@ impl Target {
                     let k: u32 = match c.aa {
                         Antialias::Aliased => {
                             if center_in(c.r, x, y) { 255 } else { 0 }
+                        }
+                        Antialias::PerPrimitive if c.edge == ClipEdge::Area => {
+                            // (MEASURED, clipxf-*: 4091 of 4096 pixels; four corner pixels a
+                            // step higher)
+                            let q = |v: f64| (v * 256.0).floor() / 256.0;
+                            let (ql, qt, qr, qb) = (q(l), q(t), q(r), q(b));
+                            let cx = (qr.min(fx + 1.0) - ql.max(fx)).max(0.0);
+                            let cy = (qb.min(fy + 1.0) - qt.max(fy)).max(0.0);
+                            (255.0 * cx * cy).round() as u32
                         }
                         Antialias::PerPrimitive => {
                             let mut n = 0u32;
@@ -1468,7 +1488,8 @@ impl D2d {
                 if tg.fault.is_some() {
                     return Ok(());
                 }
-                tg.stack.push(Pushed::Clip(Clip { r: corner_bounds(&m, r), aa }));
+                let edge = if m[1] == 0.0 && m[2] == 0.0 { ClipEdge::Samples } else { ClipEdge::Area };
+                tg.stack.push(Pushed::Clip(Clip { r: corner_bounds(&m, r), aa, edge }));
                 tg.depth += 1;
             }
             "d2layer" => {
