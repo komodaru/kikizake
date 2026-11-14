@@ -225,6 +225,20 @@ pub fn gdipluspaint() -> String {
         let mode = *r.pick(&["over", "copy"]);
         writeln!(s, "case rectfblend-{i}\ngpbitmap 0 12 12 32bppARGB\ngpwrite 0 32bppARGB seed {}\ngpbrush 0 solid {:#010x}\ngppaint 0 0 {x} {y} {w} {h} {mode} {} {} {} 0 0\ngpread 0 32bppARGB\nend", r.next(), rargb(&mut r), r.range(0, 5), r.range(0, 7), r.range(0, 5)).unwrap();
     }
+    // the antialiased styles between colors that are not opaque, read as they are (copy into
+    // 32bppPARGB) and as straight colors
+    for i in 0..32 {
+        let style = *r.pick(&[2, 3, 5]);
+        let f = *r.pick(&["32bppPARGB", "32bppARGB"]);
+        writeln!(s, "case hatchpartial-{i}\ngpbitmap 0 8 8 {f}\ngpbrush 0 hatch {style} {:#010x} {:#010x}\ngppaint 0 0 0 0 8 8 copy 0 0 0 0 0\ngpread 0 {f}\nend", r.next(), r.next()).unwrap();
+    }
+    // hatches over 16bppRGB555 / 565, each beside a solid fill of its fore color
+    for i in 0..32 {
+        let f = *r.pick(&["16bppRGB555", "16bppRGB565"]);
+        let (fore, back) = (r.next(), r.next());
+        let seed = r.next();
+        writeln!(s, "case hatch16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 0 hatch {} {fore:#010x} {back:#010x}\ngppaint 0 0 0 0 16 8 over {} 0 0 0 0\ngpread 0 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 1 solid {fore:#010x}\ngppaint 0 1 0 0 16 8 over 0 0 0 0 0\ngpread 0 {f}\nend", r.range(0, 52), r.range(0, 4)).unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s

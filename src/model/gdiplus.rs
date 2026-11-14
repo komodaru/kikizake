@@ -7,7 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
-use crate::spec::clause;
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -54,17 +54,27 @@ pub enum Quality {
     HighQuality,
     GammaCorrected,
     AssumeLinear,
+    /// a value past the enum, which SetCompositingQuality takes as it is (GP.FILL.QUALITY.OTHER)
+    Other,
 }
 
 impl Quality {
     pub fn from_value(v: i64) -> Option<Quality> {
-        [Quality::Default, Quality::HighSpeed, Quality::HighQuality, Quality::GammaCorrected, Quality::AssumeLinear].get(usize::try_from(v).ok()?).copied()
+        let named = [Quality::Default, Quality::HighSpeed, Quality::HighQuality, Quality::GammaCorrected, Quality::AssumeLinear];
+        match usize::try_from(v).ok().and_then(|i| named.get(i)) {
+            Some(&q) => Some(q),
+            None if v == 5 => {
+                hit(clause::GP_FILL_QUALITY_OTHER);
+                Some(Quality::Other)
+            }
+            None => None,
+        }
     }
     /// gamma corrected blending (HighQuality, GammaCorrected)
     pub const fn gamma(self) -> bool {
         match self {
             Quality::HighQuality | Quality::GammaCorrected => true,
-            Quality::Default | Quality::HighSpeed | Quality::AssumeLinear => false,
+            Quality::Default | Quality::HighSpeed | Quality::AssumeLinear | Quality::Other => false,
         }
     }
 }
@@ -743,6 +753,163 @@ fn rounding() -> Round {
     }
 }
 
+/// a brush color made ready for blending: premultiplied, and as 64bppPARGB words
+struct Src {
+    sp: u32,
+    s64: u64,
+    sa: u64,
+    rest: f32,
+}
+impl Src {
+    /// of a premultiplied color
+    fn new(sp: u32) -> Res<Src> {
+        let s64 = convert(Pf::Pargb32, Pf::Pargb64, sp as u64, &[])?;
+        let sa = s64 >> 48 & 0xffff;
+        let rd = rounding();
+        Ok(Src { sp, s64, sa, rest: rd.sub(1.0, rd.div(sa as f32, 8192.0)) })
+    }
+    /// (gamma corrected, MEASURED: SourceOver of a pixel of a 32-bit format (ARGB, PARGB, RGB) in
+    /// 64bppPARGB words: x86-64 in float as the executor rounds (GP.FILL.GAMMA.X64), x86 in
+    /// 16-bit lanes (GP.FILL.GAMMA.X86))
+    fn mix(&self, s: u64, d: u64) -> u64 {
+        if super::arch() == 32 {
+            hit(clause::GP_FILL_GAMMA_X86);
+            (s + lanes(d, 8192 - self.sa)) & 0xffff
+        } else {
+            hit(clause::GP_FILL_GAMMA_X64);
+            let rd = rounding();
+            let (s, d) = (s as f32, d as f32);
+            rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), self.rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff
+        }
+    }
+    fn word(v: u64, k: u32) -> u64 {
+        v >> (16 * k) & 0xffff
+    }
+    fn gam(&self, f: Pf, v: u64) -> Res<u64> {
+        if f == Pf::Rgb32 && self.sa == 0 {
+            // (MEASURED, golden gdipluspaint hatchblend-8: a clear source leaves a 32bppRGB pixel
+            // as it is, its alpha byte too)
+            hit(clause::GP_FILL_GAMMA_CLEAR);
+            return Ok(v);
+        }
+        let p64 = Pf::Pargb64;
+        let d = convert(f, p64, v, &[])?;
+        let o = (0..4).fold(0, |o, k| o | self.mix(Self::word(self.s64, k), Self::word(d, k)) << (16 * k));
+        let mut r = convert(p64, f, o, &[])?;
+        if f == Pf::Rgb32 {
+            // (32bppRGB: the colors as opaque, its alpha byte blended as an alpha)
+            let a = self.mix(self.sa, widen_alpha(v >> 24));
+            r = r & 0xff_ffff | (narrow_alpha(a) as u64) << 24;
+        }
+        Ok(r)
+    }
+    fn blend(&self, copy: bool, d: u32) -> u32 {
+        if copy {
+            hit(clause::GP_FILL_COPY);
+            self.sp
+        } else {
+            over(self.sp, d)
+        }
+    }
+}
+
+/// a fill of the pixels of a box (clipped to the bitmap; empty when x0 >= x1 or y0 >= y1), each
+/// with the premultiplied brush color c(x, y) gives, none for a pixel the shape leaves out
+fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(u32, u32) -> Option<u32>, copy: bool, q: Quality) -> Res<()> {
+    let pargb = Pf::Pargb32;
+    let argb = Pf::Argb32;
+    let gamma = !copy && q.gamma();
+    let inbox = |x: u32, y: u32| (x0..x1).contains(&(x as i64)) && (y0..y1).contains(&(y as i64));
+    let src = |x: u32, y: u32| -> Res<Option<Src>> {
+        match c(x, y) {
+            Some(c) if inbox(x, y) => Src::new(c).map(Some),
+            _ => Ok(None),
+        }
+    };
+    if b.f.wide().is_some() || indexed(b.f) {
+        // (MEASURED: a Graphics of a 16-bit channel or indexed bitmap works on a copy of all of
+        // it, 32bppARGB or 32bppPARGB, written back once it draws: the pixels it does not draw on
+        // make the trip too)
+        hit(clause::GP_FILL_BUFFER);
+        let trip = x0 <= x1 && y0 <= y1 && x0 < b.w as i64 && y0 < b.h as i64;
+        let bf = if indexed(b.f) { pargb } else { argb };
+        for y in 0..b.h {
+            for x in 0..b.w {
+                let s = src(x, y)?;
+                if !trip && s.is_none() {
+                    continue;
+                }
+                let mut q = convert(b.f, bf, b.px(x, y), &[])?;
+                match s {
+                    Some(s) if gamma && indexed(b.f) => {
+                        // (gamma corrected into an indexed bitmap: the premultiplied linear words
+                        // narrowed as they are, as over black)
+                        let d = convert(bf, Pf::Pargb64, q, &[])?;
+                        let o = (0..3).fold(0xff00_0000u32, |o, k| o | narrow(s.mix(Src::word(s.s64, k), Src::word(d, k))) << (8 * k));
+                        b.set_px(x, y, from_argb(b.f, o)?);
+                        continue;
+                    }
+                    Some(s) if gamma => q = s.gam(bf, q)?,
+                    Some(s) => {
+                        let d = convert(bf, pargb, q, &[])? as u32;
+                        q = convert(pargb, bf, s.blend(copy, d) as u64, &[])?;
+                    }
+                    None => {}
+                }
+                // (to an indexed bitmap the premultiplied color, as over black)
+                let v = if indexed(b.f) { from_argb(b.f, q as u32)? } else { convert(bf, b.f, q, &[])? };
+                b.set_px(x, y, v);
+            }
+        }
+    } else if matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
+        // (MEASURED, golden gdiplus fill-16bppRGB5*-over-*, blend-*: 477 channels: the destination
+        // widened by a shift alone, the blend truncated, then dithered)
+        let g6 = b.f == Pf::Rgb565;
+        for y in y0.max(0)..y1 {
+            for x in x0.max(0)..x1 {
+                let (x, y) = (x as u32, y as u32);
+                let Some(s) = src(x, y)? else { continue };
+                // (a clear brush over draws nothing: 555's unused top bit stays; drawn, it is 0)
+                if !copy && s.sp >> 24 == 0 {
+                    continue;
+                }
+                let v = b.px(x, y) as u32;
+                let d = if g6 { (v >> 11 & 31) << 19 | (v >> 5 & 63) << 10 | (v & 31) << 3 } else { (v >> 10 & 31) << 19 | (v >> 5 & 31) << 11 | (v & 31) << 3 };
+                // (x86-64: the destination widened as LockBits does, the blend rounded)
+                let p = if copy {
+                    s.blend(copy, d)
+                } else if gamma {
+                    // (gamma corrected: the destination widened as LockBits does)
+                    s.gam(argb, convert(b.f, argb, v as u64, &[])?)? as u32
+                } else if super::arch() == 64 {
+                    over(s.sp, convert(b.f, pargb, v as u64, &[])? as u32)
+                } else {
+                    over_truncated(s.sp, d)
+                };
+                b.set_px(x, y, dither(b.f, p, x, y));
+            }
+        }
+    } else {
+        for y in y0.max(0)..y1 {
+            for x in x0.max(0)..x1 {
+                let (x, y) = (x as u32, y as u32);
+                let Some(s) = src(x, y)? else { continue };
+                if gamma {
+                    let v = s.gam(b.f, b.px(x, y))?;
+                    b.set_px(x, y, v);
+                    continue;
+                }
+                // (32bppRGB: its bytes as premultiplied, as they are)
+                let rgb = b.f == Pf::Rgb32;
+                let d = if rgb { b.px(x, y) } else { convert(b.f, pargb, b.px(x, y), &[])? };
+                let p = s.blend(copy, d as u32) as u64;
+                b.set_px(x, y, if rgb { p } else { convert(pargb, b.f, p, &[])? });
+            }
+        }
+    }
+    Ok(())
+}
+
 /// a HatchStyle GDI+ makes a brush of (0 ..= 52, HatchStyleMin ..= HatchStyleMax)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct HatchStyle(u8);
@@ -760,6 +927,142 @@ impl HatchStyle {
 pub enum Brush {
     Solid(u32),
     Hatch { style: HatchStyle, fore: u32, back: u32 },
+}
+
+/// SmoothingMode as GDI+ 1.0 takes it (AntiAlias8x8 and past it: InvalidParameter)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Smoothing {
+    Default,
+    HighSpeed,
+    HighQuality,
+    None,
+    AntiAlias,
+    AntiAlias8x8,
+}
+impl Smoothing {
+    pub fn from_value(v: i64) -> Option<Smoothing> {
+        Some(match v {
+            0 => Smoothing::Default,
+            1 => Smoothing::HighSpeed,
+            2 => Smoothing::HighQuality,
+            3 => Smoothing::None,
+            4 => Smoothing::AntiAlias,
+            5 => Smoothing::AntiAlias8x8,
+            _ => return None,
+        })
+    }
+    /// the subsamples per pixel down (8 across); none when aliased
+    pub fn rows(self) -> Option<u32> {
+        match self {
+            Smoothing::Default | Smoothing::HighSpeed | Smoothing::None => None,
+            Smoothing::HighQuality | Smoothing::AntiAlias => Some(4),
+            Smoothing::AntiAlias8x8 => Some(8),
+        }
+    }
+}
+
+/// PixelOffsetMode
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PixelOffset {
+    Default,
+    HighSpeed,
+    HighQuality,
+    None,
+    Half,
+}
+impl PixelOffset {
+    pub fn from_value(v: i64) -> Option<PixelOffset> {
+        Some(match v {
+            0 => PixelOffset::Default,
+            1 => PixelOffset::HighSpeed,
+            2 => PixelOffset::HighQuality,
+            3 => PixelOffset::None,
+            4 => PixelOffset::Half,
+            _ => return None,
+        })
+    }
+    pub fn half(self) -> bool {
+        match self {
+            PixelOffset::Default | PixelOffset::HighSpeed | PixelOffset::None => false,
+            PixelOffset::HighQuality | PixelOffset::Half => true,
+        }
+    }
+}
+
+/// MEASURED (golden gdipluspaint hatch-*): each style's 8 x 8 pattern, the fore color's weight
+/// 0..255 (255 - the gray of black on white), row by row
+pub const HATCH: &[u8] = include_bytes!("data/gdiplus_hatch.bin");
+const _: () = assert!(HATCH.len() == (HatchStyle::MAX as usize + 1) * 64);
+
+/// an ARGB color premultiplied as 32bppPARGB holds it
+fn premultiplied(c: u32) -> u32 {
+    (0..3).fold(c & 0xff00_0000, |o, k| o | (premultiply((c >> (8 * k) & 255) as u64, (c >> 24) as u64) as u32) << (8 * k))
+}
+
+/// the subsamples at p + k / n (k = 0 .. n) in [a, b)
+fn samples(p: i64, a: f64, b: f64, n: u32) -> u32 {
+    (0..n).filter(|&k| (a..b).contains(&(p as f64 + k as f64 / n as f64))).count() as u32
+}
+
+/// FillRectangle of a brush in float coordinates (MEASURED, golden gdipluspaint rectf-*,
+/// rectfblend-*, hatch*-*)
+#[allow(clippy::too_many_arguments)]
+fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), copy: bool, q: Quality, sm: Smoothing, po: PixelOffset, (ox, oy): (i64, i64)) -> Res<()> {
+    if w < 0.0 || h < 0.0 {
+        hit(clause::GP_PAINT_NEGATIVE);
+        return Ok(());
+    }
+    if let Brush::Hatch { style, fore, back } = brush {
+        if super::arch() == 32 && !copy && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
+            return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_X86_16));
+        }
+        let partial = HATCH[style.get() as usize * 64..][..64].iter().any(|&w| w != 0 && w != 255);
+        if partial && (fore >> 24 != 255 || back >> 24 != 255) {
+            return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_PARTIAL));
+        }
+    }
+    let (x, y, w, h) = (x as f64, y as f64, w as f64, h as f64);
+    let pre = |c: u32| premultiplied(c);
+    // (the brush's color at a pixel, premultiplied)
+    let color = |px: u32, py: u32| -> u32 {
+        match brush {
+            Brush::Solid(c) => pre(c),
+            Brush::Hatch { style, fore, back } => {
+                hit(clause::GP_PAINT_HATCH);
+                let (hx, hy) = ((px as i64 - ox).rem_euclid(8), (py as i64 - oy).rem_euclid(8));
+                let wt = HATCH[style.get() as usize * 64 + hy as usize * 8 + hx as usize] as u32;
+                let (fore, back) = (pre(fore), pre(back));
+                (0..4).fold(0, |o, k| {
+                    let (f, g) = (fore >> (8 * k) & 255, back >> (8 * k) & 255);
+                    o | (f * wt + g * (255 - wt) + 127) / 255 << (8 * k)
+                })
+            }
+        }
+    };
+    match sm.rows() {
+        None => {
+            hit(clause::GP_PAINT_ALIASED);
+            let off = if po.half() { 0.5 } else { 0.0 };
+            let edge = |v: f64| (v - off).ceil() as i64;
+            let bx = (edge(x).max(0), edge(y).max(0), edge(x + w).min(b.w as i64), edge(y + h).min(b.h as i64));
+            fill_area(b, bx, &|px, py| Some(color(px, py)), copy, q)
+        }
+        Some(n) => {
+            hit(clause::GP_PAINT_AA);
+            let s = if po.half() { 0.0 } else { 0.5 };
+            let cov = |px: u32, py: u32| samples(px as i64, x + s, x + w + s, 8) * samples(py as i64, y + s, y + h + s, n);
+            let full = 8 * n;
+            let bx = (0, 0, b.w as i64, b.h as i64);
+            fill_area(b, bx, &|px, py| {
+                let c = cov(px, py);
+                (c > 0).then(|| {
+                    // (each premultiplied channel times the share of subsamples, rounded, halves up)
+                    let c0 = color(px, py);
+                    (0..4).fold(0, |o, k| o | (2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full) << (8 * k))
+                })
+            }, copy, q)
+        }
+    }
 }
 
 #[derive(Default)]
@@ -931,124 +1234,8 @@ impl Gdiplus {
                 hit(clause::GP_FILL_RECT);
                 let (x0, y0) = (r.0.max(0), r.1.max(0));
                 let (x1, y1) = ((r.0 + r.2).min(b.w as i64), (r.1 + r.3).min(b.h as i64));
-                let pargb = Pf::Pargb32;
-                let argb = Pf::Argb32;
-                // (the brush premultiplied)
-                let sp = convert(argb, pargb, c as u64, &[])? as u32;
-                let inside = |x: u32, y: u32| (x0..x1).contains(&(x as i64)) && (y0..y1).contains(&(y as i64));
-                let blend = |d: u32| {
-                    if copy {
-                        hit(clause::GP_FILL_COPY);
-                        sp
-                    } else {
-                        over(sp, d)
-                    }
-                };
-                // (gamma corrected, MEASURED: SourceOver of a pixel of a 32-bit format (ARGB, PARGB, RGB)
-                // in 64bppPARGB words: x86-64 in float as the executor rounds (GP.FILL.GAMMA.X64),
-                // x86 in 16-bit lanes (GP.FILL.GAMMA.X86))
-                let gamma = !copy && q.gamma();
-                let p64 = Pf::Pargb64;
-                let rd = rounding();
-                let s64 = convert(pargb, p64, sp as u64, &[])?;
-                let word = |v: u64, k: u32| v >> (16 * k) & 0xffff;
-                let sa = word(s64, 3);
-                let rest = rd.sub(1.0, rd.div(sa as f32, 8192.0));
-                let x86 = super::arch() == 32;
-                let mix = |s: u64, d: u64| -> u64 {
-                    if x86 {
-                        hit(clause::GP_FILL_GAMMA_X86);
-                        (s + lanes(d, 8192 - sa)) & 0xffff
-                    } else {
-                        hit(clause::GP_FILL_GAMMA_X64);
-                        let (s, d) = (s as f32, d as f32);
-                        rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff
-                    }
-                };
-                let gam = |f: Pf, v: u64| -> Res<u64> {
-                    let d = convert(f, p64, v, &[])?;
-                    let o = (0..4).fold(0, |o, k| o | mix(word(s64, k), word(d, k)) << (16 * k));
-                    let mut r = convert(p64, f, o, &[])?;
-                    if f == Pf::Rgb32 {
-                        // (32bppRGB: the colors as opaque, its alpha byte blended as an alpha)
-                        let a = mix(sa, widen_alpha(v >> 24));
-                        r = r & 0xff_ffff | (narrow_alpha(a) as u64) << 24;
-                    }
-                    Ok(r)
-                };
-                if b.f.wide().is_some() || indexed(b.f) {
-                    // (MEASURED: a Graphics of a 16-bit channel or indexed bitmap works on a copy of
-                    // all of it, 32bppARGB or 32bppPARGB, written back once it draws: the pixels it
-                    // does not draw on make the trip too)
-                    hit(clause::GP_FILL_BUFFER);
-                    let trip = x0 <= x1 && y0 <= y1 && x0 < b.w as i64 && y0 < b.h as i64;
-                    let bf = if indexed(b.f) { pargb } else { argb };
-                    for y in 0..b.h {
-                        for x in 0..b.w {
-                            if !trip && !inside(x, y) {
-                                continue;
-                            }
-                            let mut q = convert(b.f, bf, b.px(x, y), &[])?;
-                            if inside(x, y) && gamma && indexed(b.f) {
-                                // (gamma corrected into an indexed bitmap: the premultiplied linear
-                                // words narrowed as they are, as over black)
-                                let d = convert(bf, p64, q, &[])?;
-                                let o = (0..3).fold(0xff00_0000u32, |o, k| o | narrow(mix(word(s64, k), word(d, k))) << (8 * k));
-                                b.set_px(x, y, from_argb(b.f, o)?);
-                                continue;
-                            } else if inside(x, y) && gamma {
-                                q = gam(bf, q)?;
-                            } else if inside(x, y) {
-                                let d = convert(bf, pargb, q, &[])? as u32;
-                                q = convert(pargb, bf, blend(d) as u64, &[])?;
-                            }
-                            // (to an indexed bitmap the premultiplied color, as over black)
-                            let v = if indexed(b.f) { from_argb(b.f, q as u32)? } else { convert(bf, b.f, q, &[])? };
-                            b.set_px(x, y, v);
-                        }
-                    }
-                } else if matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
-                    // (MEASURED, golden gdiplus fill-16bppRGB5*-over-*, blend-*: 477 channels: the
-                    // destination widened by a shift alone, the blend truncated, then dithered)
-                    let g6 = b.f == Pf::Rgb565;
-                    // (a clear brush over draws nothing: 555's unused top bit stays; drawn, it is 0)
-                    let (y0, y1) = if !copy && sp >> 24 == 0 { (0, 0) } else { (y0, y1) };
-                    for y in y0..y1 {
-                        for x in x0..x1 {
-                            let (x, y) = (x as u32, y as u32);
-                            let v = b.px(x, y) as u32;
-                            let d = if g6 { (v >> 11 & 31) << 19 | (v >> 5 & 63) << 10 | (v & 31) << 3 } else { (v >> 10 & 31) << 19 | (v >> 5 & 31) << 11 | (v & 31) << 3 };
-                            // (x86-64: the destination widened as LockBits does, the blend rounded)
-                            let p = if copy {
-                                blend(d)
-                            } else if gamma {
-                                // (gamma corrected: the destination widened as LockBits does)
-                                gam(argb, convert(b.f, argb, v as u64, &[])?)? as u32
-                            } else if super::arch() == 64 {
-                                over(sp, convert(b.f, pargb, v as u64, &[])? as u32)
-                            } else {
-                                over_truncated(sp, d)
-                            };
-                            b.set_px(x, y, dither(b.f, p, x, y));
-                        }
-                    }
-                } else {
-                    for y in y0..y1 {
-                        for x in x0..x1 {
-                            let (x, y) = (x as u32, y as u32);
-                            if gamma {
-                                let v = gam(b.f, b.px(x, y))?;
-                                b.set_px(x, y, v);
-                                continue;
-                            }
-                            // (32bppRGB: its bytes as premultiplied, as they are)
-                            let rgb = b.f == Pf::Rgb32;
-                            let d = if rgb { b.px(x, y) } else { convert(b.f, pargb, b.px(x, y), &[])? };
-                            let p = blend(d as u32) as u64;
-                            b.set_px(x, y, if rgb { p } else { convert(pargb, b.f, p, &[])? });
-                        }
-                    }
-                }
+                let sp = convert(Pf::Argb32, Pf::Pargb32, c as u64, &[])? as u32;
+                fill_area(b, (x0, y0, x1, y1), &|_, _| Some(sp), copy, q)?;
                 out.push(format!("{w} 0 0"));
             }
             "gprotate" => {
@@ -1203,14 +1390,38 @@ impl Gdiplus {
             "gppaint" => {
                 let s = Self::slot(t, 1)?;
                 let k = Self::slot(t, 2)?;
-                if self.bmp[s].is_none() {
+                let Some(b) = self.bmp[s].as_mut() else {
                     out.push("gppaint nobitmap".into());
-                } else if self.brush[k].is_none() {
+                    return Ok(true);
+                };
+                let Some(brush) = self.brush[k] else {
                     hit(clause::GP_PAINT_NOBRUSH);
                     out.push("paint nobrush".into());
-                } else {
-                    return Err(Fail::Unmodeled(crate::spec::open::GP_PAINT));
+                    return Ok(true);
+                };
+                let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
+                let (x, y, w, h) = (f(3)?, f(4)?, f(5)?, f(6)?);
+                let copy = match t.get(7).map(String::as_str) {
+                    Some("copy") => true,
+                    Some("over") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                let q = Quality::from_value(n(t, 8)?).ok_or(Fail::Bad)?;
+                let (sm, po) = (n(t, 9)?, n(t, 10)?);
+                let origin = (n(t, 11)?, n(t, 12)?);
+                hit(clause::GP_PAINT);
+                if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
+                    hit(clause::GP_FILL_NOGRAPHICS);
+                    out.push(format!("paint {OUT_OF_MEMORY}"));
+                    return Ok(true);
                 }
+                let (Some(sm), Some(po)) = (Smoothing::from_value(sm), PixelOffset::from_value(po)) else {
+                    hit(clause::GP_PAINT_MODES);
+                    out.push(format!("paint 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
+                };
+                paint_rect(b, brush, (x, y, w, h), copy, q, sm, po, origin)?;
+                out.push("paint 0 0".into());
             }
             _ => return Ok(false),
         }
