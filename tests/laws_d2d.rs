@@ -325,3 +325,26 @@ proptest! {
         prop_assert_eq!(length(&r, 0.25).unwrap(), (2 * (w + h)) as f32);
     }
 }
+
+proptest! {
+    /// DrawBitmap's source rectangle is put in order first: naming its sides the other way round
+    /// draws the same; one with no width or height inside the bitmap draws nothing (a side past an edge is moved onto
+    /// it, so one wholly past an edge is turned round and repeats the edge texels instead)
+    #[test]
+    fn bitmap_sources_are_ordered(l in -12i32..20, t in -12i32..20, r in -12i32..20, b in -12i32..20, lin in proptest::bool::ANY, px in proptest::array::uniform12(0u8..=255)) {
+        let q = |v: i32| v as f32 / 4.0;
+        let hex: String = px.iter().enumerate().map(|(i, v)| format!("{:02x}", if i % 4 == 3 { 255 } else { *v })).collect::<String>().repeat(3);
+        let mode = if lin { "linear" } else { "nearest" };
+        let pixels = |out: Vec<String>| out.into_iter().skip_while(|l| !l.starts_with("px ")).collect::<Vec<_>>();
+        let draw = |s: [f32; 4]| pixels(run(&format!("d2target 8 8\nd2aa aliased\nd2clear 1 2 3 255\nd2bmp 0 3 3 {hex}\nd2drawbmp 0 0.5 0.75 7.25 7.5 1 {mode} {} {} {} {}\nd2read\n", s[0], s[1], s[2], s[3])));
+        let (l, t, r, b) = (q(l), q(t), q(r), q(b));
+        let one = draw([l, t, r, b]);
+        prop_assert_eq!(&one, &draw([r, t, l, b]));
+        prop_assert_eq!(&one, &draw([l, b, r, t]));
+        let empty = pixels(run("d2target 8 8\nd2aa aliased\nd2clear 1 2 3 255\nd2read\n"));
+        let inside = |v: f32| (0.0..=3.0).contains(&v);
+        if (l == r && inside(l)) || (t == b && inside(t)) {
+            prop_assert_eq!(&one, &empty);
+        }
+    }
+}

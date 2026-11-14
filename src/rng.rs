@@ -20,6 +20,10 @@ impl XorShift32 {
     pub fn range(&mut self, lo: i64, hi: i64) -> i64 {
         lo + (self.next() as i64).rem_euclid(hi - lo + 1)
     }
+    /// a byte: u8 cannot hold the 256 that range(0, 256) can give
+    pub fn byte(&mut self) -> u8 {
+        u8::try_from(self.range(0, 255)).unwrap_or(u8::MAX)
+    }
     pub fn pick<'a, T>(&mut self, xs: &'a [T]) -> &'a T {
         &xs[self.range(0, xs.len() as i64 - 1) as usize]
     }

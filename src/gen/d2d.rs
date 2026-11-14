@@ -45,6 +45,7 @@ pub fn d2d() -> String {
     bmpsrcfit(&mut s, &mut r);
     xfbounds_more(&mut s);
     strokemore(&mut s, &mut r);
+    bmpsrcmore(&mut s, &mut r);
     s
 }
 
@@ -801,7 +802,7 @@ fn bmpsrcfit(s: &mut String, r: &mut XorShift32) {
     let mut i = 0;
     for mode in ["nearest", "linear"] {
         for src in srcs {
-            let px: String = (0..12).map(|_| format!("{:02x}{:02x}{:02x}ff", r.range(0, 256), r.range(0, 256), r.range(0, 256))).collect();
+            let px: String = (0..12).map(|_| format!("{:02x}{:02x}{:02x}ff", r.byte(), r.byte(), r.byte())).collect();
             writeln!(s, "case bmpsrcfit-{i}\nd2target 16 8\nd2aa aliased\nd2clear {}\nd2bmp 0 4 3 {px}\nd2drawbmp 0 0.5 0.75 13.25 7.5 1 {mode} {src}\nd2read\nend", color(r, true)).unwrap();
             i += 1;
         }
@@ -841,5 +842,19 @@ fn strokemore(s: &mut String, r: &mut XorShift32) {
         let aa = if i % 2 == 1 { "d2aa aliased\n" } else { "" };
         let xf = if i % 5 == 4 { "d2xform 0.8 0.6 -0.6 0.8 4 -2\n" } else { "" };
         writeln!(s, "case strokemore-{i}\nd2target 16 12\n{aa}{xf}d2clear {}\nd2path 0 alt m {} {end}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), pts.join(" "), color(r, false)).unwrap();
+    }
+}
+
+/// more source rectangles turned round by the cut, on each side, both interpolations, to pull
+/// apart which ones linear interpolation drops
+fn bmpsrcmore(s: &mut String, r: &mut XorShift32) {
+    let srcs = ["-3 1 -0.5 2", "-0.5 1 -0.25 2", "-3 -3 -0.5 2", "4.25 1 5 2", "4.5 4 6 5", "1 -3 2 -0.25", "1 -0.5 2 -0.25", "1 3.25 2 4", "-2 -2 -1 5", "-1 -1 6 -0.5", "6 -1 7 4", "0.5 4 3.5 5"];
+    let mut i = 0;
+    for mode in ["linear", "nearest"] {
+        for src in srcs {
+            let px: String = (0..12).map(|_| format!("{:02x}{:02x}{:02x}ff", r.byte(), r.byte(), r.byte())).collect();
+            writeln!(s, "case bmpsrcmore-{i}\nd2target 16 8\nd2aa aliased\nd2clear {}\nd2bmp 0 4 3 {px}\nd2drawbmp 0 0.5 0.75 13.25 7.5 1 {mode} {src}\nd2read\nend", color(r, true)).unwrap();
+            i += 1;
+        }
     }
 }

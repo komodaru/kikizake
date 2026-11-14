@@ -2050,10 +2050,18 @@ impl D2d {
                         Interp::Nearest => clause::D2D_BITMAP_NEAREST,
                         Interp::Linear => clause::D2D_BITMAP_LINEAR,
                     });
-                    // (MEASURED, bmpx-0: a source rectangle past the bitmap is cut to the bitmap,
-                    // the destination rectangle stays, so what is left stretches over all of it)
-                    let src = extra.as_deref().map_or(full, |e| [e[0].max(0.0), e[1].max(0.0), e[2].min(full[2]), e[3].min(full[3])]);
-                    if !(src[0] < src[2] && src[1] < src[3]) {
+                    // (MEASURED, bmpx-0, bmpsrcfit-*: the source rectangle is put in order, then
+                    // each side past the bitmap is moved onto it, the destination rectangle
+                    // staying, so what is left stretches over all of it; a side moved past the
+                    // other turns the rectangle round onto the texels beyond that edge, which the
+                    // clamp repeats; one of no width or height draws nothing, nor, with linear
+                    // interpolation, one turned round left of the bitmap)
+                    let src = extra.as_deref().map_or(full, |e| [lo(e[0], e[2]).max(0.0), lo(e[1], e[3]).max(0.0), hi(e[0], e[2]).min(full[2]), hi(e[1], e[3]).min(full[3])]);
+                    hit(clause::D2D_BITMAP_SRC);
+                    if src[0] == src[2] || src[1] == src[3] || (interp == Interp::Linear && src[2] < 0.0) {
+                        return Ok(());
+                    }
+                    if !(src.iter().all(|v| v.is_finite())) {
                         return Err(Fail::Unmodeled(open::D2D_RT));
                     }
                     // (MEASURED, D2D.BITMAP.OPACITY: the texel scaled by the opacity byte)

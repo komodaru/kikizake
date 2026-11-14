@@ -15928,7 +15928,7 @@ case bmpsrcfit-0
 d2target 16 8
 d2aa aliased
 d2clear 175 98 225 255
-d2bmp 0 4 3 c3380aff7173e9ffca9082ffc8f829fff59b8dff670f1cff3a98e0ff2a35f5ffc63919ff75a1b6ff2e70f8ffc8473fff
+d2bmp 0 4 3 420efbffc6caf9ffce1aacff6262f5ffdf44f4ff96119effca3a84ffb3e725ff79bb24ff92d223fffac0d5ffd1e2a3ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 5 5 7 7
 d2read
 end
@@ -15936,7 +15936,7 @@ case bmpsrcfit-1
 d2target 16 8
 d2aa aliased
 d2clear 107 175 183 255
-d2bmp 0 4 3 5b3533ff31947ffffe050eff3b40e7ffbf17cdffbfc654fff70802ffa57e3fff2e8e33ff462a43ff6763c0fff3305cff
+d2bmp 0 4 3 bdf8dfffd26e0dff05216fff2ae717ff09db7eff1ec665ff495d8dff68965cff76f95effcd99ecff561c66ff817684ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -3 -3 -1 -1
 d2read
 end
@@ -15944,7 +15944,7 @@ case bmpsrcfit-2
 d2target 16 8
 d2aa aliased
 d2clear 52 169 6 255
-d2bmp 0 4 3 a66541fff78a30ff55d4c9ff164ae4ff9492b3ffff9a3bff78365eff697fecff906dedffb6b792fffc0538ffcfe014ff
+d2bmp 0 4 3 47a1e7ff0101faff9fd3c4ff549ca5ff5fd4abffd672d3ffc389e7ff005ee9ffb83804ff9aa810ffcbfa8fffb9fef2ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 5 1 7 2
 d2read
 end
@@ -15952,7 +15952,7 @@ case bmpsrcfit-3
 d2target 16 8
 d2aa aliased
 d2clear 206 160 1 255
-d2bmp 0 4 3 20bcedff24b08dffa26939ff003482ffc46e71ff13537eff5e2d15ffd0725cff5fc75dff989dbeffc45165ffe92565ff
+d2bmp 0 4 3 9d15fdfff4ab15ffc8ddbbff0ddc23ff4d2510ffbb7b2effeb81a8ffdfcebbffc99586ff293e73ff330ac0ff07b3baff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -3 1 -1 2
 d2read
 end
@@ -15960,7 +15960,7 @@ case bmpsrcfit-4
 d2target 16 8
 d2aa aliased
 d2clear 176 230 34 255
-d2bmp 0 4 3 eb656aff1ceb31ff91a48bffa4914cffaaede5ff6360e4ff4a29a7ff280dceff9a9a2dff731f3bff11c69effa2bb04ff
+d2bmp 0 4 3 5f87feff27025bff308aedff79bf46ff29d3b1ff97ae13ff308b4cff99768dffedea71ff82ae1dff439f4dff934d97ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 5 2 7
 d2read
 end
@@ -15968,7 +15968,7 @@ case bmpsrcfit-5
 d2target 16 8
 d2aa aliased
 d2clear 11 159 210 255
-d2bmp 0 4 3 11aec0ff26fce5ffd3e7a5ffd75241ffcff41effe15cceffd21ebeff37264cff26c2b6ffdc307dffff052dffcdd3e9ff
+d2bmp 0 4 3 421ebdff70a06cff4d5809fff19320ff39dfccff200611ffcdd8edffab77e2ffd61a73ff9dd1a2ffdabb50ffd78861ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 -3 2 -1
 d2read
 end
@@ -15976,7 +15976,7 @@ case bmpsrcfit-6
 d2target 16 8
 d2aa aliased
 d2clear 72 88 165 255
-d2bmp 0 4 3 a7ecebff79a9b7ff534917ffadf55bffc7eaacff2f1968ff74c01aff95d831ff267d4cff1dc8f3ff7116b8ff7b9e1fff
+d2bmp 0 4 3 aec66fff0ef7f5ff526540ffa0c488ff629f5dff77f896ff7a9e02ff2cda16ffc424c8fff26c83ff0d2d2afff8b506ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 3 1 1 2
 d2read
 end
@@ -15984,7 +15984,7 @@ case bmpsrcfit-7
 d2target 16 8
 d2aa aliased
 d2clear 69 124 221 255
-d2bmp 0 4 3 210e32ff216b7bffbae245ff270b62ff9fa12dff2eb3e0fff04dd9ff945353ffc69897fffbf84bfffb4d63ffbcc896ff
+d2bmp 0 4 3 42b6a7ff7f157fff02ea38ff7d496fffda5414ffb24666ffb54f48ff0fc3c3fffe46c7ff4c2ab3ff413040ff9fd8b2ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 2 3 1
 d2read
 end
@@ -15992,7 +15992,7 @@ case bmpsrcfit-8
 d2target 16 8
 d2aa aliased
 d2clear 211 90 58 255
-d2bmp 0 4 3 7bc9a2fff5546effda5045ff9e6659ffe2cfd9ff642d00ffbf7c7dff95ed83ff56630aff871288ff06e42eff4e2267ff
+d2bmp 0 4 3 2d1e14ff5c68f6ffc88341ff7e9ca3ffb3d053fff359ceff14ab5cff52c1a4ff3b44b1ffd688e2ff2f9d44ffdba11bff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 3 2 1 1
 d2read
 end
@@ -16000,7 +16000,7 @@ case bmpsrcfit-9
 d2target 16 8
 d2aa aliased
 d2clear 198 191 191 255
-d2bmp 0 4 3 9acc49ff28cfedff485ab7ff6d1effff4d5288ffa2f792fff91970ff03a876ff4a384dff2128a9ff7728f8ff1a6643ff
+d2bmp 0 4 3 09f024ff1f585dff6879a1ff860bc7ff57089bffc7acaaff8a8f8eff09547cff338a2eff2bfce4ffe0d893ff3f6472ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 1 1 2
 d2read
 end
@@ -16008,7 +16008,7 @@ case bmpsrcfit-10
 d2target 16 8
 d2aa aliased
 d2clear 186 71 237 255
-d2bmp 0 4 3 a17e28ff7c9c5afff0b6b9ff5877d7ff9edc8bfffc157aff164c97ff98ccc0ffbfa805ffcd8816fff804c6fff6d73eff
+d2bmp 0 4 3 c02f79ff9af4a1fff41385ff1a634aff8bc4c5fff192d1fff1aee8ff52d98effd360cbff2f30effffa6e2eff00b615ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 1 3 1
 d2read
 end
@@ -16016,7 +16016,7 @@ case bmpsrcfit-11
 d2target 16 8
 d2aa aliased
 d2clear 2 204 5 255
-d2bmp 0 4 3 bf582eff206e63ff482aa1ffd70a0eff189f86ff766ad3ffa0d5b4ff14a6e7ff22e2e3fffad7ffffd6e963ff7108ccff
+d2bmp 0 4 3 a99d86ff88bd99ffa09f52ffe1678fff6c77fffffd52e7ff1fa28eff1ff7e7ff998404ff5b22d9ff8b2821ff11cde5ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 2 2 2 2
 d2read
 end
@@ -16024,7 +16024,7 @@ case bmpsrcfit-12
 d2target 16 8
 d2aa aliased
 d2clear 236 67 191 255
-d2bmp 0 4 3 4b1044ff100de0aff9b7b5cffb320b0ff500968ffec38c8ffd9f5ebff16ee72ffdeb306ff7486d9ffc7fdfaffa94ba7ff
+d2bmp 0 4 3 327a52ff891f79ff055d33ff75eef1ff5ba8beffbf118cff9ee5f4ff455bc5ff5f4aefffd0e526ff244b05fff6c7c5ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 4 1 6 2
 d2read
 end
@@ -16032,7 +16032,7 @@ case bmpsrcfit-13
 d2target 16 8
 d2aa aliased
 d2clear 32 213 133 255
-d2bmp 0 4 3 2081deff2dd57fffcb667dffb62097fffe76fffffd6f64ff9aae33ffd73490ff4c4b2affe1e67eff7e0d34ffe63583ff
+d2bmp 0 4 3 352916ff738505ff78f6baff34fa02ff77c95effa6d69affa7a4aaff6d5c81ffddf87aff355381ff6772dfffcd5ccaff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 3 2 5
 d2read
 end
@@ -16040,7 +16040,7 @@ case bmpsrcfit-14
 d2target 16 8
 d2aa aliased
 d2clear 112 34 45 255
-d2bmp 0 4 3 01a0c4ffb8fb2aff9485d0ff5f727eff2def52ffa8dcafff0b2398ff8a99bfffdd8c9cff9849f5ff9bc94fff844f10ff
+d2bmp 0 4 3 e1c693ff5fa874ff0c5154ffc92a06ffc923bbffcb590fff2fefa0ffc7f2a6ff33b172ff1204b5ff9b0bfcff7a4b7fff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 0 4 0
 d2read
 end
@@ -16048,7 +16048,7 @@ case bmpsrcfit-15
 d2target 16 8
 d2aa aliased
 d2clear 121 162 113 255
-d2bmp 0 4 3 5e87b1fff79ea2ffad3286fffb5398ff755812ff333c4bff622dc7ffa0bb06ffd92b07fff8fb59ffcd4289ffa721c2ff
+d2bmp 0 4 3 f8d4f2ff2db7e2ff75b5d3ff966770ff38829fffebbef8ff6591a0ff1555eeff067754ffa9c837ffc313d6ff478816ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 3 4 3
 d2read
 end
@@ -16056,7 +16056,7 @@ case bmpsrcfit-16
 d2target 16 8
 d2aa aliased
 d2clear 150 184 81 255
-d2bmp 0 4 3 8cd5f1ff8c189bff3cb731ffd554c7ff7acbd6ff2572afffec3334ff06c104ff65465dffcc9fa3ffebdcc3ffee777fff
+d2bmp 0 4 3 8d7a31ffbff2c3ffee327aff4eb36affbc4818ffde192fff494832fff4be4bff74eb19ffd68547ff7f9d03ff456c6cff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 4 0 4 3
 d2read
 end
@@ -16064,7 +16064,7 @@ case bmpsrcfit-17
 d2target 16 8
 d2aa aliased
 d2clear 152 189 147 255
-d2bmp 0 4 3 372a23fffce459ffad0fc5ff6991ccff552483ffa20cddffcd1900ffc59789ff4625acff9fa260ff296494ffefdb0aff
+d2bmp 0 4 3 fc5e94ff8ba62dff2578b6ffc59c42ffd2b34bff932c52ffe5dc19ffce2462ff5cfcbaff581eebffd36c78ffcf53e6ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 0 0 3
 d2read
 end
@@ -16072,7 +16072,7 @@ case bmpsrcfit-18
 d2target 16 8
 d2aa aliased
 d2clear 144 106 205 255
-d2bmp 0 4 3 781842ff91779dffa533f0ff788527ff7ae48fffc1b6c9ffa92ce8ffeadfa0ff21ad95ff93d62affbd0b3bffa7a514ff
+d2bmp 0 4 3 510249ffde7df8ff56aba3ff149d57ff47c96cffcacfc6ff36b42aff84cd8eff7e8288ff42fb99ffa4cc5fffd0edeeff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 4.5 0 5 3
 d2read
 end
@@ -16080,7 +16080,7 @@ case bmpsrcfit-19
 d2target 16 8
 d2aa aliased
 d2clear 88 216 61 255
-d2bmp 0 4 3 ba3117ffa69decff4fcff6ff1e7c6afff56b13fff4e2ebffe55115ff026d01ff6b7aefff9ce38eff08c24fffb74185ff
+d2bmp 0 4 3 296014ff52e441ff03ea11ffc16775ff8ec2deffeb6c0efff4103cff943713ffb0fd77ffda3c99ff453b9cff118edbff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 -2 4 -0.5
 d2read
 end
@@ -16088,7 +16088,7 @@ case bmpsrcfit-20
 d2target 16 8
 d2aa aliased
 d2clear 29 214 14 255
-d2bmp 0 4 3 15dd54ff96c875ff691244ff333faefff3f858ff1e20fcffdd336aff45bac3ff95bab7ffcc7090ffaedb29ff1dcc71ff
+d2bmp 0 4 3 3b1030ff578a29ff7eb793ff1c254effd879f9ff762758ff5ee99bffd48f4dffec8692ff242049fffa5476ffa4f6f4ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -1 0.5 0.25 2.5
 d2read
 end
@@ -16096,7 +16096,7 @@ case bmpsrcfit-21
 d2target 16 8
 d2aa aliased
 d2clear 144 241 174 255
-d2bmp 0 4 3 161e4effc9f1d1ffa85be7ffbba8f9ff6b484bff4783e8ff5698dbffb7feefff5de309ffd4d51bff0a2b23ffadf65eff
+d2bmp 0 4 3 4ea9b0ff6228d1ff91c230ffed623bff3fcdd8ff2d2848ff0b9310ffa60c52ff3e4969ffd79474ff1b12a1ff2ea025ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 3.75 0.5 6 2.5
 d2read
 end
@@ -16104,7 +16104,7 @@ case bmpsrcfit-22
 d2target 16 8
 d2aa aliased
 d2clear 222 95 47 255
-d2bmp 0 4 3 804fd7ff505fc5fffd5871ff16e562ffe229c1ff65d49eff378112ff2340a3ffbc3d58ff6b1ab4ff3b3256ff227a1cff
+d2bmp 0 4 3 d0e9e2ff900bdeff376240ffae8a57ff360c3affab96e5ffd2267eff6f7bb7ff16127cff5b2a66ff8effd8ffa27df4ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 0 4 -1
 d2read
 end
@@ -16112,7 +16112,7 @@ case bmpsrcfit-23
 d2target 16 8
 d2aa aliased
 d2clear 132 188 9 255
-d2bmp 0 4 3 6b1d1bff0e5872ff021c99ffabe5aeff054c46ff85fa30ff5f5423ff95744effaec750ffa6ea4fffdf3556ff9fa173ff
+d2bmp 0 4 3 e52a93ff5847c1ff56b317ff242e5affa0c1bbff6c1eebff649dfbffefcfc5ff5e6ec0ffb2316cffaa7446ffe7a813ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0 0 -1 3
 d2read
 end
@@ -16120,7 +16120,7 @@ case bmpsrcfit-24
 d2target 16 8
 d2aa aliased
 d2clear 161 21 243 255
-d2bmp 0 4 3 3c3110ffaff052ff2036a4ffb59c5efff45240ff6e4231ffb60ee8ff0579afff04974bff043295ffa70b07ff2cacf8ff
+d2bmp 0 4 3 3f0c32ffac214affc7b685ff055634ff8f58c4ff3ea317ff3734f4ff0f49f1ff053fedff581f2dff7519e8ffc04040ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 5 5 7 7
 d2read
 end
@@ -16128,7 +16128,7 @@ case bmpsrcfit-25
 d2target 16 8
 d2aa aliased
 d2clear 83 226 32 255
-d2bmp 0 4 3 60be04ff4b2fe0ff9b5441ff1231b2ff100263eff25850eff347b86fff8adb4ffed948fff86587efffa697fff56a9faff
+d2bmp 0 4 3 9b560afffdb36bff66c2e5ffcdbddeff1e150aff72ab91ff2a8029ff35cf17ff5b5423ff0d1592ff8ddb6fff894f0aff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -3 -3 -1 -1
 d2read
 end
@@ -16136,7 +16136,7 @@ case bmpsrcfit-26
 d2target 16 8
 d2aa aliased
 d2clear 125 240 117 255
-d2bmp 0 4 3 067fb6ff0e04d1fffe9fbdffe2c1f8ff371159ff4c7e42ffcc1574ffd6b4dfff6303c9ff4eaf48ffa017a4ffca0b92ff
+d2bmp 0 4 3 b25bfdff45af0dffbdcbf3ff1bc5b3ff7f0b9dff4e696affb8c7fcff094f3dff0d1582ffab570fffc0c827ffb7fe79ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 5 1 7 2
 d2read
 end
@@ -16144,7 +16144,7 @@ case bmpsrcfit-27
 d2target 16 8
 d2aa aliased
 d2clear 20 144 197 255
-d2bmp 0 4 3 441342ff79fc95ffe7f313ff9629b8ff8f32d2ff97f161ff484e23ff8c6a88ff8e222affa48b74ff2dcf8cff0d52100ff
+d2bmp 0 4 3 89126cff88c570ff19dbefff864586ffaf846cffe7d3ceff473a5efffac758ff868ef9ff99b414ff423c8affa61995ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -3 1 -1 2
 d2read
 end
@@ -16152,7 +16152,7 @@ case bmpsrcfit-28
 d2target 16 8
 d2aa aliased
 d2clear 173 178 129 255
-d2bmp 0 4 3 3fa224ff6f1d98ff6a6a9affae494cff09b5bbffc0495eff282b18ffa7e0d4ff0ce89fff6e4520ff7707e3ff2261c5ff
+d2bmp 0 4 3 6d9c7affe33534ff1f5679ff4a14cdff0fe10dff96974dfff131fcff85f9f5ff0420a3ff0ca29aff918257ff9f506bff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 5 2 7
 d2read
 end
@@ -16160,7 +16160,7 @@ case bmpsrcfit-29
 d2target 16 8
 d2aa aliased
 d2clear 254 138 17 255
-d2bmp 0 4 3 b68693ffbdf077ff40826dff31bc4affd2a255ff344909ff738233ffda8e47ff64e9a7ffc0b8bcffe2012eff3eb98eff
+d2bmp 0 4 3 7582daffb18395ff0c4d42ffe66bb1ff15e0c3ffd9f48fffe3d225fffc55bbff3aefa1ffc77f36ff1a1ae2ff34b723ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 -3 2 -1
 d2read
 end
@@ -16168,7 +16168,7 @@ case bmpsrcfit-30
 d2target 16 8
 d2aa aliased
 d2clear 242 118 127 255
-d2bmp 0 4 3 24d49dff38860fff8465b7ff120b75ff213e4fffa51e7fffb73942ffb5c13aff4e5a07ff32167effa9160bff5245bdff
+d2bmp 0 4 3 3c2068ff16fe8cffbe4c8fff9a9cb2ffb8c98fffd8d88bffc82718ffd10169ff87889fff912490ff2df0e2ffd78051ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 3 1 1 2
 d2read
 end
@@ -16176,7 +16176,7 @@ case bmpsrcfit-31
 d2target 16 8
 d2aa aliased
 d2clear 179 89 160 255
-d2bmp 0 4 3 669b5aff694adcff3ad782ffe00659ff08ccc9ff7b3f61ff1cdb91ff3b28bfffcc15e1ff9c27e2ff5fabadff6b15baff
+d2bmp 0 4 3 a8d1f3ff94bdd7ff325e25ff0e45e9ff5e45affff2ce95ff132d43fff90d4bff820d6fff2f9af6ff1941d8ff7fb53cff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 2 3 1
 d2read
 end
@@ -16184,7 +16184,7 @@ case bmpsrcfit-32
 d2target 16 8
 d2aa aliased
 d2clear 66 175 201 255
-d2bmp 0 4 3 bf1238ff3a1827ff397aabffad07acffac83cbff2d8a95ffc5a7bbffe6c05dfff1b3c1fff67057ff8358b9ff9281ffff
+d2bmp 0 4 3 747813ff32b1fdff9aa4fbff8aeb1bff36b5cdffa089c7ffb56970ff51030effa78abdff7ab4a0fffd3c33ffe0f877ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 3 2 1 1
 d2read
 end
@@ -16192,7 +16192,7 @@ case bmpsrcfit-33
 d2target 16 8
 d2aa aliased
 d2clear 215 174 102 255
-d2bmp 0 4 3 631822ffeb6247ff2c6d50fff38e7cff362897ff1bc905ff9fdf9dff7d4156ff606144ffd39083ff0f6113ffb70f4eff
+d2bmp 0 4 3 94a518ff897da7fffbc715ff43d07cff5aad8affbb1557ff10b784ffadf9d7ff12e111ff60ba75ffbc3dc4ff6b83c2ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 1 1 2
 d2read
 end
@@ -16200,7 +16200,7 @@ case bmpsrcfit-34
 d2target 16 8
 d2aa aliased
 d2clear 45 239 95 255
-d2bmp 0 4 3 eb11f7ff807103fff57113ffebf4c8ff3debe9ff824b58ff9bed1bff84f883ff5b2d69ffdf15ccffb86738ff643a7eff
+d2bmp 0 4 3 13b92fffafd5cdff94c5f4ffdf3603ffb1ec28fff88fbcff133cebffa1128effccfc72ff041aaeff076c51ff4a0174ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 1 3 1
 d2read
 end
@@ -16208,7 +16208,7 @@ case bmpsrcfit-35
 d2target 16 8
 d2aa aliased
 d2clear 235 212 37 255
-d2bmp 0 4 3 f7bf3eff9cbf58ffa8f817ffbca2bfff151f5dff8d5d4cff48bb68ff9aed59ff921d82ffa44717ff32b056ff1dd527ff
+d2bmp 0 4 3 49c2b3ff6e54abffadfb7ffff79560ff87caf2ffa42118ffddf0cbff85fc9fff58739effcf3cbbffbd6c3effb648aeff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 2 2 2 2
 d2read
 end
@@ -16216,7 +16216,7 @@ case bmpsrcfit-36
 d2target 16 8
 d2aa aliased
 d2clear 56 7 162 255
-d2bmp 0 4 3 01c6bfff03c798ffc17d6cff020589ffda3c100ffcd3ea0ff8386edffca8201ff71222eff88ac2aff2935b3ff4af6aeff
+d2bmp 0 4 3 2f5322fff6366cff2423faff10b759ff27a73fff0d36f3ff80d8c7ff3a4d12ff92b16eff0e5e30ffd1717fff143e82ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 4 1 6 2
 d2read
 end
@@ -16224,7 +16224,7 @@ case bmpsrcfit-37
 d2target 16 8
 d2aa aliased
 d2clear 248 3 251 255
-d2bmp 0 4 3 fdd628ffcfb4b3ffe20927ffdb3523ffc1312bff4745acfff57b4fff8c7ceeffcca66fffb2c03affc997d4ffa08393ff
+d2bmp 0 4 3 d8d6c2ffba0306ff9722abfffda0b0ff8e4c8bff2853c7fffa9cbfff9d7168ff3acff1ff842de6ff3e8592ff1aeaf5ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 3 2 5
 d2read
 end
@@ -16232,7 +16232,7 @@ case bmpsrcfit-38
 d2target 16 8
 d2aa aliased
 d2clear 204 20 232 255
-d2bmp 0 4 3 43931cff2057b8ffc88e0bffeb7764ff602046fff8ed5bffb8e73effac8cd6ff6b7ac9ff3613ecffe5c920fffb2368ff
+d2bmp 0 4 3 7c8ffdff6e1449ffd18538ffa85645ff7d41b1ff56a586ff34d578ff2cb3dcffdab706fff1d78fff3ac0d1ffa94de8ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0 0 4 0
 d2read
 end
@@ -16240,7 +16240,7 @@ case bmpsrcfit-39
 d2target 16 8
 d2aa aliased
 d2clear 229 155 96 255
-d2bmp 0 4 3 ab80a7ffc8ebb3ff9797d8ff5dd857ff092ac8ff937da1ff58559bff8022c8ff948f83ff9a69a2ff612bbdffed3043ff
+d2bmp 0 4 3 b37859ff18799fffce5004ff8fd80cffaa3aa1ff8fa17bff91625fff2266e1fff9d13bff0434d9ff0b9e29ff3613d4ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0 3 4 3
 d2read
 end
@@ -16248,7 +16248,7 @@ case bmpsrcfit-40
 d2target 16 8
 d2aa aliased
 d2clear 244 15 84 255
-d2bmp 0 4 3 50fb8dff61c39fffceb59bffd0300eff66ee91ff1ec7eeff017bf1fff5b870ff4bd54cff95dae2ffdcd69dff12a4a8ff
+d2bmp 0 4 3 ac5a50ff4f9375ff97b4bbff0ccf15ff4a2795ffc84966ff20b229ff3b5287ffc73447ff607e30ffa4888cff72a44fff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 4 0 4 3
 d2read
 end
@@ -16256,7 +16256,7 @@ case bmpsrcfit-41
 d2target 16 8
 d2aa aliased
 d2clear 231 150 240 255
-d2bmp 0 4 3 2c6a3affda1df0ffa4b144ff43b1ffffa25d78ff33c3c0ff1c1301ffa5c644ff6dbf0fff9e2236ff9dd305ffe23462ff
+d2bmp 0 4 3 19c069ffc5c794ffafe841ff61e680ff585e65ffed5f0cff1078b9ff56d66cff011d80fff5518dfff038d4ff2dd6b4ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0 0 0 3
 d2read
 end
@@ -16264,7 +16264,7 @@ case bmpsrcfit-42
 d2target 16 8
 d2aa aliased
 d2clear 85 77 155 255
-d2bmp 0 4 3 8d2679ff453b00ff5e74bffff83b63ffe2d572ff40d95bffcdb620ffad726aff9dad0cff23b167ff4e4577ff57bacbff
+d2bmp 0 4 3 5126a8ff3c68d7ffb3cfbbff62ef79ff396f13ff455ee5ff7b16d9ff0ff654ff562be0ff4bdfbefff4ef88ff50b3dbff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 4.5 0 5 3
 d2read
 end
@@ -16272,7 +16272,7 @@ case bmpsrcfit-43
 d2target 16 8
 d2aa aliased
 d2clear 84 254 163 255
-d2bmp 0 4 3 a7e02affc4af02ffe08dc2ff31083dff637606ffdbee56ffdb4894ff7a3881ffc1017fff3f4cbbff7aa46bff73a88aff
+d2bmp 0 4 3 0e0e60ffeb7c9bff6ba0b3ffb8dde8ff82592eff29d660ffb0429effab87e3ff31a08affaefdbeff271e7dffcc9e61ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0 -2 4 -0.5
 d2read
 end
@@ -16280,7 +16280,7 @@ case bmpsrcfit-44
 d2target 16 8
 d2aa aliased
 d2clear 119 155 160 255
-d2bmp 0 4 3 b65c11ffe7ffaeff0754e4ff225781fff23b3eff541429fffddb22ffb603d9ff21e23bff01aa5affad73a6ff38c8c4ff
+d2bmp 0 4 3 4b5eb3ff0c3b8bffd94030ff519cbdff51ae1eff5f2ce4ff1062faffcecc7bffa8dde9ffa45ff4ff9fe820ff7b17d3ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -1 0.5 0.25 2.5
 d2read
 end
@@ -16288,7 +16288,7 @@ case bmpsrcfit-45
 d2target 16 8
 d2aa aliased
 d2clear 55 225 90 255
-d2bmp 0 4 3 65ae42ff4f6699ff45a096ffb8920dff0abeb2ff200da1ff4533defffe4348ff90db7affd8cb93ff56a18eff9325a4ff
+d2bmp 0 4 3 a746b4ffdf6b1affc043baff19367fff214d7bff76c891ffeea0f9ff715f5eff8a93beffbc2d8cffbed824ff14019bff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 3.75 0.5 6 2.5
 d2read
 end
@@ -16296,7 +16296,7 @@ case bmpsrcfit-46
 d2target 16 8
 d2aa aliased
 d2clear 128 47 191 255
-d2bmp 0 4 3 7607fdff1683faff878c5fff90baccff670a04ff821efdff6e4f48ff2a50a5ff973625ffe3eac9ff840aa0ff9afde4ff
+d2bmp 0 4 3 de6148ff3cd966ff740f22ff3a9b21ff381d4eff6ee71bff0dceeeffd05fdfff86cacafffaceb7ff439c56ffdec710ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0 0 4 -1
 d2read
 end
@@ -16304,7 +16304,7 @@ case bmpsrcfit-47
 d2target 16 8
 d2aa aliased
 d2clear 158 36 59 255
-d2bmp 0 4 3 232a0bffdfaa32ff78861cffd8f4dcff6a8a2affe80766ff27a25aff0013b9ff92fb50ffe0698cffa3e8b0ff2fccdcff
+d2bmp 0 4 3 c8740affa22435ff28c513ff0b0331ff7f6252ff9263fdff731dccff56e643ff0e4840ff212169ffb19522ff519469ff
 d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0 0 -1 3
 d2read
 end
@@ -16741,5 +16741,197 @@ d2aa aliased
 d2clear 94 119 13 255
 d2path 0 alt m 13.524171875 3.94440625 12.5075 6.39325 8.778671875 1.25484375 o
 d2drawg 0 3.25 205 40 155 200
+d2read
+end
+case bmpsrcmore-0
+d2target 16 8
+d2aa aliased
+d2clear 46 245 126 255
+d2bmp 0 4 3 1a4339ffb07507ffa7dd20ff0a3eb9ff79614aff6f1d44ff7e8975ff7d155dff12d473ff2fe918ff594c29ff3830abff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -3 1 -0.5 2
+d2read
+end
+case bmpsrcmore-1
+d2target 16 8
+d2aa aliased
+d2clear 211 168 166 255
+d2bmp 0 4 3 ba1fa0ffa7e23aff0f55e5ffb131e6ffbc0b52ff2b2767ff28290aff56c3c7ff2d7559ffa4d4cdff9fb347ffe99290ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -0.5 1 -0.25 2
+d2read
+end
+case bmpsrcmore-2
+d2target 16 8
+d2aa aliased
+d2clear 15 184 145 255
+d2bmp 0 4 3 9d4523fff6d570ff81997dff2dd2dffff66985ff077691ffc72873ff579a8bfff93110ff96c22fff743ce9ff2e7bb7ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -3 -3 -0.5 2
+d2read
+end
+case bmpsrcmore-3
+d2target 16 8
+d2aa aliased
+d2clear 71 45 21 255
+d2bmp 0 4 3 c72280ff775040ff7ba7f6ffc03539ff4dcc8eff91a169ff28d6eafff984f0ff37aa0fffc36088ff69b9e7ffe936ebff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 4.25 1 5 2
+d2read
+end
+case bmpsrcmore-4
+d2target 16 8
+d2aa aliased
+d2clear 32 80 112 255
+d2bmp 0 4 3 86ebf3ff24c006ffd5162aff016ac0ffd11650ff4d5de0ff693454ff1d272bffd0007afff1026eff91cbbbffb4d5e8ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 4.5 4 6 5
+d2read
+end
+case bmpsrcmore-5
+d2target 16 8
+d2aa aliased
+d2clear 218 83 204 255
+d2bmp 0 4 3 3e71a8ff148315ff76ba6dffd9fc91ff18ba36ffee85e7ff1fc7b4ff94032dff304dc1fffd386eff9f8a56ffa7ff13ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 -3 2 -0.25
+d2read
+end
+case bmpsrcmore-6
+d2target 16 8
+d2aa aliased
+d2clear 58 101 249 255
+d2bmp 0 4 3 6bb5c0ff7d5b25ffa06e7cff1c7e1eff717690ff00fcccff2b3db6ff62a1daffd9bf58ff1840e3ff47e349ff3a0081ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 -0.5 2 -0.25
+d2read
+end
+case bmpsrcmore-7
+d2target 16 8
+d2aa aliased
+d2clear 240 123 40 255
+d2bmp 0 4 3 410790ffc6cd4cff654ed7ffa2c3ffff18c66fff803caeff767a5cffb31d44ffea3406ffa6da75ff260924ffc8e6f8ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 1 3.25 2 4
+d2read
+end
+case bmpsrcmore-8
+d2target 16 8
+d2aa aliased
+d2clear 11 107 47 255
+d2bmp 0 4 3 be74d3ff7d9bcbfff82388ff677c33ffd37b77ffbacc94ffe77ecfffe97628ff5de4b2ffbb41e7ff1069c7ff94369fff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -2 -2 -1 5
+d2read
+end
+case bmpsrcmore-9
+d2target 16 8
+d2aa aliased
+d2clear 1 40 172 255
+d2bmp 0 4 3 fa7ef0ff132619ff95a508ff7a4678ffb2039eff7fee45ff23639cff2d8193ffb9a427ffec012effcdd440ff7ceba7ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear -1 -1 6 -0.5
+d2read
+end
+case bmpsrcmore-10
+d2target 16 8
+d2aa aliased
+d2clear 63 185 213 255
+d2bmp 0 4 3 338125ff0c547cffc21a79ffcbac5bff66ca9dffb2f954ffd5edaeff5c5262ff356c29ff2341a5ffedc58bffe485d7ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 6 -1 7 4
+d2read
+end
+case bmpsrcmore-11
+d2target 16 8
+d2aa aliased
+d2clear 238 220 34 255
+d2bmp 0 4 3 3502f8ff0ea307ffd54d91ffdf501dffc5d36eff32705bff2922dfff564df3ff624fc6ff91c162ff5301baff924a33ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 linear 0.5 4 3.5 5
+d2read
+end
+case bmpsrcmore-12
+d2target 16 8
+d2aa aliased
+d2clear 106 154 213 255
+d2bmp 0 4 3 4ea1f2ff4f5bf5ffdcb188fff9bc9fff8be139ffb66700ff6757b9ffe33e03ffa12398ff771ee6ffbd698eff29b29cff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -3 1 -0.5 2
+d2read
+end
+case bmpsrcmore-13
+d2target 16 8
+d2aa aliased
+d2clear 115 251 135 255
+d2bmp 0 4 3 99b820ff553f75ff209b4cff597736fff5a75effd2a366ff7daf9aff852abaffbae118ff6666e8ffa998c7ffc2bfd7ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -0.5 1 -0.25 2
+d2read
+end
+case bmpsrcmore-14
+d2target 16 8
+d2aa aliased
+d2clear 58 11 191 255
+d2bmp 0 4 3 73f5affff94bafffa905b2ff7bfc0fffdc57b9ffc7ae3efff1a84bff096349ff39997bffdd9defff30f6faff1d42c0ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -3 -3 -0.5 2
+d2read
+end
+case bmpsrcmore-15
+d2target 16 8
+d2aa aliased
+d2clear 143 86 176 255
+d2bmp 0 4 3 0d52d9ff33d64cffbf5a77ff3c0cb1ff226f14ff5aca69ff3ec2f2ff93a620ff8655daff3f6af6ffcf5234ffaf991bff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 4.25 1 5 2
+d2read
+end
+case bmpsrcmore-16
+d2target 16 8
+d2aa aliased
+d2clear 194 31 5 255
+d2bmp 0 4 3 96a048ffe9909affc111e0ff501ef8ff94c4d0ff400faaff9b2744ffa2104fff925b58ff28de65ffde8367ffaa6b37ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 4.5 4 6 5
+d2read
+end
+case bmpsrcmore-17
+d2target 16 8
+d2aa aliased
+d2clear 72 250 47 255
+d2bmp 0 4 3 0f5543ff319428fffe7298ff32dd0cffe1268cff2cccdcffe8b63cfff4e25fff615155ffee1bb8ff5c6d29ff6e04c2ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 -3 2 -0.25
+d2read
+end
+case bmpsrcmore-18
+d2target 16 8
+d2aa aliased
+d2clear 94 194 140 255
+d2bmp 0 4 3 1e3c8cffeb5388fff5a094ff54c961ff296ca6ff309b2bff7f14b2ff014636ff47f5e9ffbe2447ffa790daff601e46ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 -0.5 2 -0.25
+d2read
+end
+case bmpsrcmore-19
+d2target 16 8
+d2aa aliased
+d2clear 19 92 140 255
+d2bmp 0 4 3 d1a8f9ff1e6acaff37332affbbf6bbffd28a12ff9a0aadffb8aa38ffefc2dbff50b155ff4b9d89ffec79bdfffaabfcff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 1 3.25 2 4
+d2read
+end
+case bmpsrcmore-20
+d2target 16 8
+d2aa aliased
+d2clear 42 0 113 255
+d2bmp 0 4 3 fc37f4ff7df6c0ff4d8c43ff0e7327ffdf5c69ffddb7c4ff226367ff1e5a48ff0ab426ff97073eff4a6ff7ffc0eb2bff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -2 -2 -1 5
+d2read
+end
+case bmpsrcmore-21
+d2target 16 8
+d2aa aliased
+d2clear 62 22 98 255
+d2bmp 0 4 3 2bc071ff92fd7eff0ce760ff56a9d3ff4b54bbffed50b6ff21433dfff74c3eff77aed5ff30babdff6c3939ffd7dfd7ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest -1 -1 6 -0.5
+d2read
+end
+case bmpsrcmore-22
+d2target 16 8
+d2aa aliased
+d2clear 116 62 51 255
+d2bmp 0 4 3 de535dff01487effb56064ff101fcbff98f9f1ff7ef7afff27b25aff84fe7fff0c4659ffd20e29ffece710ff104752ff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 6 -1 7 4
+d2read
+end
+case bmpsrcmore-23
+d2target 16 8
+d2aa aliased
+d2clear 182 88 145 255
+d2bmp 0 4 3 db517affee1d92ff250152ff0b1209ff5ec2b1ff5e0126ff29c9cdffeb84e8ff203c06ff60ab09ff278afaff5f85deff
+d2drawbmp 0 0.5 0.75 13.25 7.5 1 nearest 0.5 4 3.5 5
 d2read
 end
