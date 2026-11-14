@@ -2098,4 +2098,54 @@ device12 ok
 factory ok
 swapchain = 4000 3e80 57 0 1 0 20 2 0 4 0 0 index 0
 present hr 00000000 index 1
+case chain-edge3-latency-13
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 13
+case chain-edge3-latency-14
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 14
+case chain-edge3-latency-18
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 18
+case chain-edge3-latency-20
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 20
+case chain-edge3-latency-21
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 00000000 get 00000000 21
+case chain-edge3-latency-30
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge3-latency-3f
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+latency hr 887a0001 get 00000000 1
+case chain-edge3-size-16384x14250x2
+device12 ok
+factory ok
+swapchain = 4000 37aa 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge3-size-16384x14500x2
+device12 ok
+factory ok
+swapchain = 4000 38a4 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
+case chain-edge3-size-16384x14750x2
+device12 ok
+factory ok
+swapchain = 4000 399e 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 1
 done
