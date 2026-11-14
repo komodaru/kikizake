@@ -533,6 +533,8 @@ fn probes(s: &mut String, dev: &str) {
     let mut broken = shader("vs");
     broken[5] ^= 1;
     writeln!(s, "case probe-layout-refused\n{dev}\nshader 0 vs {}\nlayout 0 2 2\nend", hex(&broken)).unwrap();
+    // an input layout against a pixel program given as a vertex one
+    writeln!(s, "case probe-layout-otherkind\n{dev}\nshader 0 vs {}\nlayout 0 2 2\nlayout 0 2\nend", hex(&shader("ps"))).unwrap();
     // ld past the texture, no sampler, samples between texel centers, blending an integer target
     let ldtex = "tex 1 2 4 4 1 1 28 0 8 0 0 1 0 init 91 16 0\nsrv 1 1 nodesc\ntsrv 1";
     let quad = |s: &mut String, uv: (f32, f32)| {

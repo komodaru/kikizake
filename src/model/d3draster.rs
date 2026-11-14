@@ -116,8 +116,9 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                     // (checksum, size or kind wrong: assumed refused like any other bad bytecode)
                     hit("D3DRASTER.SHADER.BAD");
                     out.push(format!("shader hr {E_INVALIDARG:08x}"));
-                    // (the blob is kept for an input layout: by its signature, not known here)
-                    d.shaders[sl] = Some(("bad", vs));
+                    // (the blob is kept for an input layout: a program of the other kind by its
+                    // name, bytes that are no program as "bad")
+                    d.shaders[sl] = Some((known(&b).map_or("bad", |k| k.0), vs));
                 }
             }
         }
@@ -136,6 +137,13 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             let needs = match name {
                 "vs" => 2,
                 "vsid" => 1,
+                // (MEASURED: against bytes that are no program (a broken checksum), refused,
+                // probe-layout-refused)
+                "bad" => {
+                    hit("D3DRASTER.LAYOUT.BAD");
+                    out.push(format!("layout hr {E_INVALIDARG:08x}"));
+                    return Ok(());
+                }
                 _ => return Err(Fail::Unmodeled("D3DRASTER.LAYOUT.SIG")),
             };
             // every input of the program from an element, no element of an unknown format
@@ -166,7 +174,11 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             if !dev.d3d11() {
                 // (Direct3D 10 viewports: integer origin and size)
                 for x in v.iter_mut().take(4) {
-                    *x = if *x < 0.0 && x.fract() != 0.0 { return Err(Fail::Unmodeled("D3DRASTER.VP10")) } else { x.trunc() };
+                    // (MEASURED: the executor's (INT) cast, toward zero, probe-vp-frac)
+                    if *x < 0.0 && x.fract() != 0.0 {
+                        hit("D3DRASTER.VP10");
+                    }
+                    *x = x.trunc();
                 }
             }
             hit("D3DRASTER.VIEWPORT");
@@ -242,7 +254,18 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 None => out.push(format!("samp hr {E_INVALIDARG:08x}")),
             }
         }
-        "cbuf" => return Err(Fail::Unmodeled("D3DRASTER.CBUF")),
+        // (MEASURED: a bound constant buffer no program reads changes nothing, probe-cbuf)
+        "cbuf" => {
+            hit("D3DRASTER.CBUF");
+            let b = n(t, 1)? as usize;
+            if b >= 16 {
+                return Err(Fail::Bad);
+            }
+            // (the executor binds only a buffer)
+            if m.res[b].as_ref().is_none_or(|r| r.d.dim != 4) {
+                out.push("cbuf nores".into());
+            }
+        }
         "draw" => {
             if t.len() < 4 || t.len() > 5 {
                 return Err(Fail::Bad);
@@ -355,7 +378,16 @@ fn factor(f: u32, s: [f32; 4], dst: [f32; 4], bf: [f32; 4], ch: usize) -> Res<f3
         }
         14 => bf[ch],
         15 => 1.0 - bf[ch],
-        _ => return Err(Fail::Unmodeled("D3DRASTER.BLEND.FACTOR")),
+        // (MEASURED: the second source, which no program here writes, is 0, probe-blend-src1)
+        16 | 17 => {
+            hit("D3DRASTER.BLEND.FACTOR");
+            0.0
+        }
+        18 | 19 => {
+            hit("D3DRASTER.BLEND.FACTOR");
+            1.0
+        }
+        _ => return Err(Fail::Unmodeled("D3DRASTER.BLEND.OP")),
     })
 }
 
@@ -414,10 +446,24 @@ fn address(mode: u32, i: i64, size: i64) -> Option<i64> {
 fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, vtx: &[u32]) -> Res<()> {
     hit("D3DRASTER.DRAW");
     let d = m.draw.clone();
-    let (Some(vs), Some(ps), Some(_), Some(tv)) = (d.vs, d.ps, d.layout, d.target) else {
-        return Err(Fail::Unmodeled("D3DRASTER.INCOMPLETE"));
+    // (MEASURED: without programs and layout, or without a viewport, nothing is drawn,
+    // probe-incomplete, probe-noviewport; without a target nor a depth view nothing is there to
+    // draw to)
+    let (Some(vs), Some(ps), Some(_)) = (d.vs, d.ps, d.layout) else {
+        hit("D3DRASTER.INCOMPLETE");
+        return Ok(());
     };
-    let Some(vp) = d.viewport else { return Err(Fail::Unmodeled("D3DRASTER.NOVIEWPORT")) };
+    let Some(tv) = d.target else {
+        if d.depth.is_some() {
+            return Err(Fail::Unmodeled("D3DRASTER.RTKIND"));
+        }
+        hit("D3DRASTER.INCOMPLETE");
+        return Ok(());
+    };
+    let Some(vp) = d.viewport else {
+        hit("D3DRASTER.NOVIEWPORT");
+        return Ok(());
+    };
     if !matches!(top, 4 | 5) {
         return Err(Fail::Unmodeled("D3DRASTER.TOPOLOGY"));
     }
@@ -435,7 +481,13 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     let instances = inst.max(1);
     // the vertices through the vertex shader
     let fetch = |v: u32, i: u32| -> Res<Vert> {
-        let w = |k: u32| -> Res<f32> { vtx.get((v * stride / 4 + k) as usize).map(|x| f32::from_bits(*x)).ok_or(Fail::Unmodeled("D3DRASTER.VBPAST")) };
+        // (MEASURED: past the buffer the vertex reads zeros, probe-vb-past)
+        let w = |k: u32| -> Res<f32> {
+            Ok(vtx.get((v * stride / 4 + k) as usize).map_or_else(|| {
+                hit("D3DRASTER.VBPAST");
+                0.0
+            }, |x| f32::from_bits(*x)))
+        };
         let pos = [w(0)?, w(1)?, w(2)?, w(3)?];
         let color = match vs {
             "vs" => [w(4)?, w(5)?, w(6)?, w(7)?],
@@ -472,6 +524,12 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
 
 #[allow(clippy::too_many_arguments)]
 fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[Vert; 3], lead: Vert, prim: u32, (rw, rh): (u32, u32), view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>) -> Res<()> {
+    // (every vertex at w <= 0: wholly outside the clip volume, or (w = 0, so x = y = 0 inside
+    // it) a point: nothing drawn, probe-vb-past)
+    if tri.iter().all(|v| v.pos[3] <= 0.0 && v.pos.iter().all(|x| x.is_finite()) && (v.pos[3] < 0.0 || v.pos[0] == 0.0 && v.pos[1] == 0.0)) {
+        hit("D3DRASTER.CLIP");
+        return Ok(());
+    }
     if tri.iter().any(|v| !(v.pos[3] > 0.0) || v.pos.iter().any(|x| !x.is_finite())) {
         return Err(Fail::Unmodeled("D3DRASTER.CLIPW"));
     }

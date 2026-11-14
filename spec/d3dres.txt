@@ -72,15 +72,16 @@ D3DRASTER.SHADER doc | ID3D11Device::CreateVertexShader, CreatePixelShader | the
 D3DRASTER.SHADER.BAD assumed | CreatePixelShader | bytes that are not a program of that kind (wrong checksum, truncated, the other kind): E_INVALIDARG
 D3DRASTER.LAYOUT assumed | ID3D11Device::CreateInputLayout | every input of the program needs an element; an element of an unknown, typeless, block or video format is refused
 D3DRASTER.LAYOUT.SIG open | (none) | an input layout against a refused program
+D3DRASTER.LAYOUT.BAD measured | CreateInputLayout; probe-layout-refused | an input layout against bytes that are no program (a broken checksum) is refused, E_INVALIDARG
 D3DRASTER.VIEWPORT doc | D3D11_VIEWPORT, D3D10_VIEWPORT (integers) | the viewport transform
-D3DRASTER.VP10 open | (none) | a negative fractional viewport on Direct3D 10
+D3DRASTER.VP10 measured | D3D10_VIEWPORT (INT TopLeftX, TopLeftY); probe-vp-frac | a fractional viewport origin on Direct3D 10 is the executor's integer cast of it, toward zero
 D3DRASTER.DRAW doc | ID3D11DeviceContext::Draw, DrawInstanced | the vertices through the pipeline
-D3DRASTER.INCOMPLETE open | (none) | a draw with no shader, layout or target
-D3DRASTER.NOVIEWPORT open | (none) | a draw with no viewport
+D3DRASTER.INCOMPLETE measured | Draw; probe-incomplete | a draw without programs and an input layout draws nothing; nothing is drawn without a target or depth view to draw to
+D3DRASTER.NOVIEWPORT measured | RSSetViewports; probe-noviewport | a draw without a viewport draws nothing
 D3DRASTER.TOPOLOGY open | (none) | points and lines
 D3DRASTER.RTFMT excluded | (the model) | a target of a format the model does not know: every target the suites make has a known format
-D3DRASTER.RTKIND open | (none) | multisampled or array targets
-D3DRASTER.VBPAST open | (none) | vertices past the buffer
+D3DRASTER.RTKIND open | (none) | targets other than one single-sampled 2D view: multisampled, arrays, a depth view alone
+D3DRASTER.VBPAST measured | Draw (out of bounds vertex buffer reads); probe-vb-past | vertices past the vertex buffer read as zeros
 D3DRASTER.IDS doc | SV_VertexID, SV_InstanceID | the vertex's index in the draw and the instance's
 D3DRASTER.STRIP doc | Primitive Topologies (triangle strips) | every other triangle of a strip has its first two vertices swapped
 D3DRASTER.CLIP measured | Rasterization Rules, the clip volume; draw-clip-* (WARP) | a triangle is clipped against the viewport planes in homogeneous f32 (Sutherland-Hodgman) before snapping; the pieces are fanned, attributes from the original triangle
@@ -111,8 +112,8 @@ D3DRASTER.PS excluded | (the model) | a program the model does not know: the sui
 D3DRASTER.DEPTH doc | D3D11_COMPARISON_FUNC, D3D11_DEPTH_WRITE_MASK | the pixel's depth (in the format's precision) against the stored one, written when it passes and the mask is ALL
 D3DRASTER.DEPTHFMT excluded | (the model) | depth formats past D16, D24S8, D32, D32S8X24: there are none
 D3DRASTER.BLEND assumed | D3D11_BLEND, D3D11_BLEND_OP | float arithmetic: source and destination times their factors, the operation; the source clamped to a normalized target's range first
-D3DRASTER.BLEND.FACTOR open | (none) | dual source factors
-D3DRASTER.BLEND.OP excluded | D3D11_BLEND_OP; probe-blend-badop | an unknown operation: the model refuses the state (to be measured), so no draw blends with it
+D3DRASTER.BLEND.FACTOR measured | D3D11_BLEND (SRC1_COLOR, SRC1_ALPHA, INV_SRC1_*); probe-blend-src1 | the second source, which no program here writes, is 0
+D3DRASTER.BLEND.OP excluded | D3D11_BLEND_OP, D3D11_BLEND; probe-blend-badop | an unknown operation or factor: the state is refused (blend1 hr), so no draw blends with it
 D3DRASTER.BLEND.INT doc | D3D11_RENDER_TARGET_BLEND_DESC (integer targets do not blend) | integer targets take the shader's value
 D3DRASTER.WRITEMASK doc | D3D11_COLOR_WRITE_ENABLE | only the channels the mask names are written
-D3DRASTER.CBUF open | (none) | constant buffers
+D3DRASTER.CBUF measured | VSSetConstantBuffers, PSSetConstantBuffers; probe-cbuf | a constant buffer no program reads changes nothing
