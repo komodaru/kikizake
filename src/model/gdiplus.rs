@@ -7,7 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
-use crate::spec::{clause, open};
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -815,12 +815,42 @@ impl Src {
     }
 }
 
+/// a fill's brush: one color, or a texture of them (a hatch)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Source {
+    Solid,
+    Texture,
+}
+
 /// a fill of the pixels of a box (clipped to the bitmap; empty when x0 >= x1 or y0 >= y1), each
 /// with the premultiplied brush color c(x, y) gives, none for a pixel the shape leaves out
-fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(u32, u32) -> Option<u32>, copy: bool, q: Quality) -> Res<()> {
+fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(u32, u32) -> Option<u32>, kind: Source, copy: bool, q: Quality) -> Res<()> {
+    let gamma = !copy && q.gamma();
+    let bw = b.w as i64;
+    // (MEASURED, golden gdipluspaint hatchopaque16-*: gamma corrected, the dither's column counts
+    // from the start of the pixel's run of opaque, or of translucent, source pixels in its row; a
+    // run of one pixel takes column 2)
+    let opaque = |x: u32, y: u32| c(x, y).map(|v| v >> 24 == 255);
+    let column = |x: u32, y: u32| -> u32 {
+        if !gamma || kind == Source::Solid {
+            return x;
+        }
+        hit(clause::GP_PAINT_GAMMA_RUNS);
+        let o = opaque(x, y);
+        let (mut a0, mut a1) = (x, x + 1);
+        while i64::from(a0) > x0.max(0) && opaque(a0 - 1, y) == o {
+            a0 -= 1;
+        }
+        while i64::from(a1) < x1.min(bw) && opaque(a1, y) == o {
+            a1 += 1;
+        }
+        // (x86: column 2 for a run of one pixel, and for the last pixel of a translucent run of
+        // odd length)
+        let odd_end = (a1 - a0) % 2 == 1 && x == a1 - 1 && (o == Some(false) || a1 - a0 == 1);
+        if odd_end && super::arch() == 32 { 2 } else { x - a0 }
+    };
     let pargb = Pf::Pargb32;
     let argb = Pf::Argb32;
-    let gamma = !copy && q.gamma();
     let inbox = |x: u32, y: u32| (x0..x1).contains(&(x as i64)) && (y0..y1).contains(&(y as i64));
     let src = |x: u32, y: u32| -> Res<Option<Src>> {
         match c(x, y) {
@@ -888,7 +918,8 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
                 } else {
                     over_truncated(s.sp, d)
                 };
-                b.set_px(x, y, dither(b.f, p, x, y));
+                let col = column(x, y);
+                b.set_px(x, y, dither(b.f, p, col, y));
             }
         }
     } else {
@@ -1014,13 +1045,12 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
         hit(clause::GP_PAINT_NEGATIVE);
         return Ok(());
     }
-    if let Brush::Hatch { fore, back, .. } = brush {
-        if !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) && fore >> 24 == 255 && back >> 24 != 255 {
-            return Err(Fail::Unmodeled(open::GP_PAINT_HATCH_GAMMA_16));
-        }
-    }
     let (x, y, w, h) = (x as f64, y as f64, w as f64, h as f64);
     let pre = |c: u32| premultiplied(c);
+    let kind = match brush {
+        Brush::Solid(_) => Source::Solid,
+        Brush::Hatch { .. } => Source::Texture,
+    };
     // (the brush's color at a pixel, premultiplied)
     let color = |px: u32, py: u32| -> u32 {
         match brush {
@@ -1048,7 +1078,7 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
             let off = if po.half() { 0.5 } else { 0.0 };
             let edge = |v: f64| (v - off).ceil() as i64;
             let bx = (edge(x).max(0), edge(y).max(0), edge(x + w).min(b.w as i64), edge(y + h).min(b.h as i64));
-            fill_area(b, bx, &|px, py| Some(color(px, py)), copy, q)
+            fill_area(b, bx, &|px, py| Some(color(px, py)), kind, copy, q)
         }
         Some(n) => {
             hit(clause::GP_PAINT_AA);
@@ -1063,7 +1093,7 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
                     let c0 = color(px, py);
                     (0..4).fold(0, |o, k| o | ((2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full)) << (8 * k))
                 })
-            }, copy, q)
+            }, kind, copy, q)
         }
     }
 }
@@ -1238,7 +1268,7 @@ impl Gdiplus {
                 let (x0, y0) = (r.0.max(0), r.1.max(0));
                 let (x1, y1) = ((r.0 + r.2).min(b.w as i64), (r.1 + r.3).min(b.h as i64));
                 let sp = convert(Pf::Argb32, Pf::Pargb32, c as u64, &[])? as u32;
-                fill_area(b, (x0, y0, x1, y1), &|_, _| Some(sp), copy, q)?;
+                fill_area(b, (x0, y0, x1, y1), &|_, _| Some(sp), Source::Solid, copy, q)?;
                 out.push(format!("{w} 0 0"));
             }
             "gprotate" => {

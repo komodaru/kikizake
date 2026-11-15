@@ -256,6 +256,14 @@ pub fn gdipluspaint() -> String {
         let seed = r.next();
         writeln!(s, "case hatchopaque16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 0 hatch {} {fore:#010x} {back:#010x}\ngppaint 0 0 0 0 16 8 over {} 0 0 0 0\ngpread 0 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 1 solid {back:#010x}\ngppaint 0 1 0 0 16 8 over 2 0 0 0 0\ngpread 0 {f}\nend", r.range(0, 52), r.range(2, 3)).unwrap();
     }
+    // the same, in rectangles off the bitmap's corner: where a run starts
+    for i in 0..24 {
+        let f = *r.pick(&["16bppRGB555", "16bppRGB565"]);
+        let fore = 0xff00_0000 | r.next() & 0xff_ffff;
+        let back = (r.range(1, 254) as u32) << 24 | r.next() & 0xff_ffff;
+        let (x, y) = (r.range(1, 7), r.range(0, 3));
+        writeln!(s, "case hatchrun16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch {} {fore:#010x} {back:#010x}\ngppaint 0 0 {x} {y} {} 5 over {} 0 0 {} {}\ngpread 0 {f}\nend", r.next(), r.range(0, 52), r.range(3, 16 - x), r.range(2, 3), r.range(-4, 4), r.range(-4, 4)).unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s

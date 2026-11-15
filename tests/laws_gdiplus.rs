@@ -242,3 +242,26 @@ fn fixed_palettes_hold_every_nearest_color() {
         }
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(64))]
+    /// a hatch of one color paints as a solid brush of it does, in every compositing mode and
+    /// quality, on every format, on both executors (the runs of GP.PAINT.GAMMA.RUNS are then one a
+    /// row, from the bitmap's left edge)
+    #[test]
+    fn a_hatch_of_one_color_is_a_solid_fill(f in 0..Pf::ALL.len(), c in any::<u32>(), seed in any::<u32>(), style in 0..53i64, over in any::<bool>(), q in 0..6i64, arch in prop::sample::select(vec![32u32, 64])) {
+        let f = Pf::ALL[f].name();
+        let mode = if over { "over" } else { "copy" };
+        let run = |brush: String| {
+            let text = format!("# t\ncase t\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {seed}\ngpbrush 0 {brush}\ngppaint 0 0 0 0 16 8 {mode} {q} 0 0 0 0\ngpread 0 {f}\nend\n");
+            let cases = kikizake::case::parse_cases(&text);
+            kikizake::model::set_arch(arch);
+            let r = kikizake::model::run_case(&cases[0]).ok();
+            kikizake::model::set_arch(32);
+            r
+        };
+        let hatch = run(format!("hatch {style} {c:#010x} {c:#010x}"));
+        let solid = run(format!("solid {c:#010x}"));
+        prop_assert_eq!(hatch.map(|l| l.into_iter().filter(|l| !l.starts_with("brush")).collect::<Vec<_>>()), solid.map(|l| l.into_iter().filter(|l| !l.starts_with("brush")).collect::<Vec<_>>()));
+    }
+}
