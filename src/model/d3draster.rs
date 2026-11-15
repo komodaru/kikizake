@@ -936,6 +936,19 @@ impl Line {
 
     /// the line lights the pixel: it exits the pixel's diamond going from a to b (it meets the
     /// diamond and b is not in it), or it ends in it as D3DRASTER.LINE.END lights
+    /// whether the line is longer than 4 pixels along its major axis and passes exactly
+    /// through the minor-axis corners of the diamond about the center c
+    fn long_through_corner(&self, c: (i128, i128)) -> bool {
+        let (a, b) = ((i128::from(self.a.x), i128::from(self.a.y)), (i128::from(self.b.x), i128::from(self.b.y)));
+        let (am, an, bm, bn, cm, cn) = if self.ymaj { (a.1, a.0, b.1, b.0, c.1, c.0) } else { (a.0, a.1, b.0, b.1, c.0, c.1) };
+        let (dm, dn) = (bm - am, bn - an);
+        if dm.abs() <= 4 * 256 {
+            return false;
+        }
+        let within = (am.min(bm)..=am.max(bm)).contains(&cm);
+        within && [cn - DIAMOND, cn + DIAMOND].iter().any(|&k| (cm - am) * dn == (k - an) * dm)
+    }
+
     fn lights(&self, c: (i128, i128)) -> bool {
         let b = (i128::from(self.b.x), i128::from(self.b.y));
         // (MEASURED, WARP: probe-linevert-2, -3, 4 lines) a y-major line going up that ends on
@@ -1099,18 +1112,14 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         for py in y0..=y1 {
             for px in x0..=x1 {
                 // (a multisample line's triangle there)
-                // (an aliased line's end on a corner of a pixel's diamond on a multisampled
-                // target: not measured, probe-rt-ms4-linevert-*; probe-rt-ms4-lines-over lit the
-                // pixel below a start on a top corner where one sample lights the one above)
-                if matches!(mode, LineMode::Aliased) && tg.samples.is_some() {
-                    let c = center((px, py));
-                    let corner = |p: Sub| {
-                        let (dx, dy) = (i128::from(p.x) - c.0, i128::from(p.y) - c.1);
-                        dx.abs() + dy.abs() == DIAMOND && (dx == 0 || dy == 0)
-                    };
-                    if corner(l.a) || corner(l.b) {
-                        return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
-                    }
+                // (an aliased line longer than 4 pixels along its major axis through a corner of
+                // a pixel's diamond on its minor axis, inside or at an end: not measured; WARP
+                // picks the pixel above or below by the corner's distance along the line,
+                // probe-linecorner-22, -23, -26 .. -29, probe-rt-ms4-lines-over, where no exact
+                // or f32 rule tried fits; shorter lines follow D3DRASTER.LINE.*, probe-linevert-*,
+                // probe-rt-ms4-linevert-*)
+                if matches!(mode, LineMode::Aliased) && l.long_through_corner(center((px, py))) {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
                 }
                 let (quad, mask) = match (mode, tg.samples) {
                     (LineMode::Aliased, _) if l.lights(center((px, py))) => (None, None),
@@ -1272,7 +1281,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let planes = unclipped.then(|| Planes::new(tri, |q| {
         let (x, y) = snap2(q);
         (x as f32 / 256.0, y as f32 / 256.0)
-    }, |q| minz + q[2] / q[3] * (maxz - minz)));
+    }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz)));
     // (MEASURED, WARP: probe-clip-z-pos) a triangle cut by the depth range takes its depth from
     // the whole triangle's plane (D3DRASTER.INTERP.DEPTH)
     let zplanes = zclip.then(|| {
@@ -1280,7 +1289,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         Planes::new(tri, |q| {
             let (x, y) = snap2(q);
             (x as f32 / 256.0, y as f32 / 256.0)
-        }, |q| minz + q[2] / q[3] * (maxz - minz))
+        }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz))
     });
     let pieces: Vec<[(i64, i64); 3]> = if unclipped {
         vec![v]
@@ -1678,7 +1687,15 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
         "pspos" => {
             hit(clause::D3DRASTER_POS);
             // (MEASURED: w reads as the vertices' clip w, pos-3, pos-4)
-            let w = same(&|v| [v.pos[3]; 4])?[0];
+            let w = match (same(&|v| [v.pos[3]; 4]), planes) {
+                (Ok(w), _) => w[0],
+                // (MEASURED, WARP: probe-zplane-1, -3) w that varies: 1 / the plane of 1/w
+                (Err(_), Some(p)) => {
+                    hit(clause::D3DRASTER_POSW_PLANE);
+                    1.0 / p.plane(p.iw, px as f32 + 0.5, py as f32 + 0.5)
+                }
+                (Err(e), None) => return Err(e),
+            };
             if w != 1.0 {
                 hit(clause::D3DRASTER_POSW);
             }

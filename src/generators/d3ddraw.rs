@@ -906,6 +906,23 @@ fn probes(s: &mut String, dev: &str) {
         read_rt(s, 0, 28, 16, 16);
         writeln!(s, "end").unwrap();
     }
+    // x-major lines from a pixel center through diamond corners at every other column (slope
+    // 1/2) or every fourth (1/4), of major lengths 5 to 15, rightward and leftward, down and up:
+    // probe-linecorner-22 lit the pixel below or above such a corner by its distance along the
+    // line
+    for (k, (slope, sx)) in [(0.5f32, 1.0f32), (0.5, -1.0), (-0.5, 1.0), (0.25, 1.0), (0.25, -1.0), (-0.25, 1.0)].into_iter().enumerate() {
+        for len in 5..=15u8 {
+            let len = f32::from(len);
+            begin(s, dev, &format!("probe-linetie-{k}-{len}"), 16, 16, 28, "ps");
+            let x = if sx > 0.0 { 0.5 } else { 15.5 };
+            let y = if slope > 0.0 { 0.5 } else { 15.5 };
+            vertex(s, x, y, 0.5, color(k as u32 * 3), 16.0, 16.0);
+            vertex(s, x + sx * len, y + slope * len, 0.5, color(k as u32 * 3 + 1), 16.0, 16.0);
+            writeln!(s, "draw 2 2 32").unwrap();
+            read_rt(s, 0, 28, 16, 16);
+            writeln!(s, "end").unwrap();
+        }
+    }
     for i in 0..4u32 {
         begin(s, dev, &format!("probe-linesw-{i}"), 16, 16, 2, "ps");
         for _ in 0..8 {
