@@ -463,20 +463,22 @@ pub fn tri_z_hw(z: f32) -> u32 {
     (z * 65535.0f32).round_ties_even().clamp(0.0, 65535.0) as u32
 }
 
-/// the ordered dither matrix of the software rasterizers: MEASURED (d3d7shade dither-*: 256
-/// grays and random colors at every position, 565 and 555, RGB and MMX)
-const DITHER: [[u32; 4]; 4] = [[7, 1, 6, 0], [3, 5, 2, 4], [6, 0, 7, 1], [2, 4, 3, 5]];
+/// the ordered dither matrix of the software rasterizers, 16 levels: MEASURED (d3d7shade
+/// dither-*: 256 grays and random colors at every position, 565 and 555, RGB and MMX, where
+/// whole values see only its halves; gdither-*: 22599 of 22599 Gouraud channels, and d3d7
+/// shade-*, where the 8.8 fraction sees all 16)
+const DITHER: [[u32; 4]; 4] = [[15, 3, 12, 0], [7, 11, 4, 8], [13, 1, 14, 2], [5, 9, 6, 10]];
 
 /// an 8-bit channel dithered down to `bits` at (x, y)
 pub fn dither(v: u32, bits: u32, x: i64, y: i64) -> u32 {
     dither_fix(Fix88::whole(v), bits, x, y)
 }
 
-/// a channel in 8.8 fixed point dithered down to `bits` at (x, y), the threshold against the
-/// whole 8.8 value (measured for whole values only: dither())
+/// a channel in 8.8 fixed point dithered down to `bits` at (x, y): (v · 2^bits + (16 · M + 15)
+/// · 256) >> 16, M the matrix entry, at most the top value
 pub fn dither_fix(v: Fix88, bits: u32, x: i64, y: i64) -> u32 {
     let (xi, yi) = (usize::try_from(x.rem_euclid(4)).unwrap_or(0), usize::try_from(y.rem_euclid(4)).unwrap_or(0));
-    (((v.0 << bits) + (DITHER[yi][xi] * 32 + 16) * 256) >> 16).min((1 << bits) - 1)
+    (((v.0 << bits) + (16 * DITHER[yi][xi] + 15) * 256) >> 16).min((1 << bits) - 1)
 }
 
 /// a color channel in 8.8 fixed point (0..=0xffff)
@@ -1669,11 +1671,9 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool], anchor: &[Opt
                     for i in 0..3 {
                         q[i] = match (dith, srcf[i]) {
                             (false, _) => src[i] >> (8 - bits[i]),
-                            (true, Shade::Fix(f)) if f == Fix88::whole(f.int()) => dither_fix(f, bits[i], px, py),
-                            // (a Gouraud color between whole values: neither its 8-bit value nor
-                            // its 8.8 one dithered as measured gives Windows' pixels in d3d7
-                            // shade-1, -9, -13: D3D7.GOURAUD)
-                            (true, Shade::Fix(_) | Shade::Int(_)) => return Err(Fail::Unmodeled(open::D3D7_GOURAUD)),
+                            (true, Shade::Fix(f)) => dither_fix(f, bits[i], px, py),
+                            // (the fraction of a Gouraud color crossing the target: D3D7.GOURAUD)
+                            (true, Shade::Int(_)) => return Err(Fail::Unmodeled(open::D3D7_GOURAUD)),
                         };
                     }
                     q
