@@ -323,10 +323,32 @@ pub fn ellipse_shape(sl: &mut Slot, a: (i32, i32), b: (i32, i32), filled: bool) 
     if let Some(last) = p.last_mut() {
         last.close = true;
     }
-    if !filled {
-        return stroke(sl, &p);
+    draw_shape(sl, &p, filled)
+}
+
+/// RoundRect outside a path (GDI.SHAPE.ROUNDPEN): the path's RoundRect (counterclockwise)
+/// stroked, or filled and outlined, as ellipse_shape does
+pub fn round_rect_shape(sl: &mut Slot, a: (i32, i32), b: (i32, i32), wh: (i32, i32), filled: bool) -> Res<()> {
+    let (l, r) = (a.0.min(b.0), a.0.max(b.0));
+    let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
+    if r == l || bt == t || wh.0 <= 0 || wh.1 <= 0 || a.0 > b.0 || a.1 > b.1 {
+        // (empty or inverted boxes, flat or negative corners: not measured outside a path)
+        return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE));
     }
-    let figs = figures(&p)?;
+    hit(clause::GDI_SHAPE_ROUNDPEN);
+    let c = round_rect_points((l, t, r, bt), wh, false);
+    let mut p: Vec<Pt> = c.iter().enumerate().map(|(i, q)| Pt::fix(*q, if i == 0 { Kind::Move } else if i % 4 == 0 { Kind::Line } else { Kind::Bezier })).collect();
+    if let Some(last) = p.last_mut() {
+        last.close = true;
+    }
+    draw_shape(sl, &p, filled)
+}
+
+fn draw_shape(sl: &mut Slot, p: &[Pt], filled: bool) -> Res<()> {
+    if !filled {
+        return stroke(sl, p);
+    }
+    let figs = figures(p)?;
     for q in super::rgn::fix_polygon_pixels(&figs, sl.ext.polyfill == 2).rects() {
         sl.fill_shape(q.0, q.1, q.2, q.3)?;
     }
