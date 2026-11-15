@@ -1584,4 +1584,27 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // the edge a hair off the vertical (slope 1/3000, the left boundary) with the lower vertex at
+    // five heights and the upper one at y = 116 or 32: which rows Windows moves the edge in
+    // (tri-hair-*: with the lower vertex inside the window the edge stays put for ten rows, then
+    // moves in rows 12 and 14)
+    let mut cfg = Vec::new();
+    for ya in [0.3125, 1.3125, 1.8125, 3.3125, 5.3125] {
+        for yb in [116.0, 32.0] {
+            cfg.push((ya, yb));
+        }
+    }
+    let sl = 1.0 / 3000.0;
+    for (k, (ya, yb)) in cfg.into_iter().enumerate() {
+        writeln!(s, "case tri-hair2-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for j in -8..=8 {
+            let x0 = 8.5 - sl * 0.5 + f64::from(j) / 1024.0;
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            glf(s, "glVertex2f", &[x0 + sl * (ya - 8.0), ya]);
+            glf(s, "glVertex2f", &[x0 + sl * (yb - 8.0), yb]);
+            glf(s, "glVertex2f", &[x0 + sl * (ya + 1.0 - 8.0) + 10.0, ya + 1.0]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
