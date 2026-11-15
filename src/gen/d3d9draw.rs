@@ -948,6 +948,24 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    // (D3D9.DRAW.POINTSLINES) which lines light the pixel their end is in: the end at a known
+    // offset from pixel (8, 8)'s center, along the line's travel (major) and across it (minor),
+    // in each of the eight octants, a short line inside the target and a long one from past it
+    let fracs: [(f32, f32); 12] = [(0.0, 0.25), (-0.25, 0.0), (0.0, 0.0), (0.25, 0.0), (0.0, -0.25), (-0.125, 0.125), (0.125, 0.125), (0.0, 0.125), (-0.125, 0.0), (0.0, 0.375), (-0.375, 0.0), (-0.125, 0.25)];
+    for (fi, (fu, fv)) in fracs.into_iter().enumerate() {
+        for oct in 0..8u32 {
+            for (kind, len) in [("in", 5.0f32), ("clip", 12.0)] {
+                let slope = [0.25f32, 0.5, 0.625][(fi + oct as usize) % 3];
+                let (su, sv) = (if oct & 1 == 0 { 1.0f32 } else { -1.0 }, if oct & 2 == 0 { 1.0f32 } else { -1.0 });
+                // (travel frame (u, v) to the screen: u along x unless octant bit 2)
+                let screen = |u: f32, v: f32| if oct & 4 == 0 { (u * su, v * sv) } else { (v * sv, u * su) };
+                let e = screen(fu, fv);
+                let b = (8.0 + e.0, 8.0 + e.1);
+                let d = screen(len, len * slope);
+                line(&mut s, &format!("line-end-{fi}-{oct}-{kind}"), (b.0 - d.0, b.1 - d.1), b);
+            }
+        }
+    }
     s
 }
 
