@@ -212,6 +212,22 @@ proptest! {
         prop_assert_eq!(got, want);
     }
 
+    /// GL.RASTER.LINE.SMOOTH: an antialiased line into a buffer with alpha covers each pixel
+    /// by at most 1, the same drawn either way, and fully nowhere farther than its ends allow
+    #[test]
+    fn smooth_lines_cover_the_same_both_ways(v in any::<[(u8, u8); 2]>()) {
+        let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 4.0, f64::from(y) / 32.0 + 4.0];
+        let (a, b) = (end(v[0]), end(v[1]));
+        let there = tri::smooth_line(a, b, [0, 0, 16, 16]);
+        let back = tri::smooth_line(b, a, [0, 0, 16, 16]);
+        prop_assert_eq!(there.len(), back.len());
+        for (p, q) in there.iter().zip(&back) {
+            prop_assert_eq!((p.0, p.1), (q.0, q.1));
+            prop_assert!((p.2 - q.2).abs() < 1e-9, "{p:?} {q:?}");
+            prop_assert!(p.2 > 0.0 && p.2 <= 1.0);
+        }
+    }
+
     /// A triangle (convex) crosses each plane of the view volume at most twice; a bow tie
     /// moved past one plane by more than its middle crosses it four times
     #[test]

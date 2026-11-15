@@ -2512,9 +2512,9 @@ impl Ctx {
                 }
             }
             LINES | LINE_LOOP | LINE_STRIP => {
-                // (stippled lines, and antialiased ones wide, under a projection or whose
-                // coverage would show in alpha, are not measured)
-                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && (alpha_used || self.line_width != 1.0)) {
+                // (stippled lines, and antialiased ones wide, under a projection, blended or
+                // alpha tested, are not measured)
+                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && (self.cap(BLEND) || self.cap(ALPHA_TEST) || self.line_width != 1.0)) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
@@ -2550,6 +2550,16 @@ impl Ctx {
                     let flat = |c: [f32; 4]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]);
                     if !wide && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
                         let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
+                        if self.cap(LINE_SMOOTH) && self.pf.rgba[3].0 > 0 {
+                            // (into a buffer with alpha: every pixel the line's cone reaches,
+                            // its alpha times the coverage, truncated, GL.RASTER.LINE.SMOOTH)
+                            for (x, y, f) in tri::smooth_line([wa[0], wa[1]], [wb[0], wb[1]], self.viewport) {
+                                let mut c = c;
+                                c[3] = (f64::from(c[3]) * f) as f32;
+                                self.fragment(Frag { x, y, c, z: wa[2], fixed: self.smooth_fixed(), zfixed: None })?;
+                            }
+                            continue;
+                        }
                         for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]])? {
                             self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
                         }
@@ -4113,6 +4123,42 @@ pub mod tri {
     /// A line where Windows' choice is not measured (GL.RASTER.TIE).
     #[derive(Debug, PartialEq, Eq)]
     pub struct Tie;
+
+    /// The pixels of an antialiased 1-pixel line from a to b (window coordinates) drawn into a
+    /// buffer with alpha, each with its coverage (MEASURED, golden opengl-32 raster-mode-8:
+    /// 3072 pixels of 12 lines, every one exact): the ends snapped as a polygon's corners; at
+    /// a pixel's center d its distance from the line and s its distance along the line inside
+    /// the nearer end (negative past it), the coverage (1 - |d|) times s + 1/2 held to 0..1,
+    /// the pixels where it is above 0, inside the viewport (GL.RASTER.LINE.SMOOTH)
+    pub fn smooth_line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> Vec<(i64, i64, f64)> {
+        super::hit(super::clause::GL_RASTER_LINE_SMOOTH);
+        let [vx, vy, vw, vh] = viewport;
+        let snap = |v: f64, o: i64, size: i64| {
+            let size = size as f64;
+            Sub::snap((v - o as f64) * 2.0 / size - 1.0, size, Sub((o as f64 * 256.0 + size * 128.0) as i64)).0 as f64 / 256.0
+        };
+        let (a, b) = ([snap(a[0], vx, vw), snap(a[1], vy, vh)], [snap(b[0], vx, vw), snap(b[1], vy, vh)]);
+        let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
+        let len = dx.hypot(dy);
+        let mut out = Vec::new();
+        if len == 0.0 {
+            return out;
+        }
+        let (x0, y0, x1, y1) = (vx.max(0), vy.max(0), (vx + vw).min(super::W as i64), (vy + vh).min(super::H as i64));
+        for y in y0..y1 {
+            for x in x0..x1 {
+                let (px, py) = (x as f64 + 0.5 - a[0], y as f64 + 0.5 - a[1]);
+                let d = (px * dy - py * dx) / len;
+                let along = (px * dx + py * dy) / len;
+                let s = along.min(len - along);
+                let f = (s + 0.5).clamp(0.0, 1.0) * (1.0 - d.abs()).max(0.0);
+                if f > 0.0 {
+                    out.push((x, y, f));
+                }
+            }
+        }
+        out
+    }
 
     /// How a line is drawn: aliased of a width, or antialiased (1 pixel wide).
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
