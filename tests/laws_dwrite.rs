@@ -303,3 +303,58 @@ fn layout_of_mapped_chars_is_modeled() {
         }
     }
 }
+
+/// a layout without fallback of a character the font does not map is modeled (as glyph 0),
+/// and so not as the system fallback, which is open
+#[test]
+fn layout_without_fallback_of_unmapped_is_modeled() {
+    let f = font(0);
+    let hex: String = f.bytes().iter().map(|x| format!("{x:02x}")).collect();
+    let p = parse(&f.bytes()).unwrap();
+    let un = (0x100u32..0x10000).find(|&c| glyph_of(&p, c) == 0).unwrap();
+    let text = format!("case x\ndwfont {hex}\ndwlayoutnf 20 4000 1 {un}\nend\n");
+    let out = kikizake::model::run("dwrite", &kikizake::case::parse_cases(&text));
+    assert!(out.contains("dwlayout families 1 hr 00000000"), "{out}");
+}
+
+/// UAX #9 X5 to X7: past the deepest level an embedding is counted, not entered, and its PDF
+/// takes that count back before it pops a level; at depth 61
+#[test]
+fn bidi_overflow_counts() {
+    use bidi::Class::*;
+    // LRE to 2, then RLE and LRE in turn up to 60
+    let mut t = vec![LRE];
+    while t.len() < 59 {
+        t.push(if t.len() % 2 == 1 { RLE } else { LRE });
+    }
+    let (ex, _) = bidi::analyze(&[t.clone(), vec![L]].concat(), 0);
+    assert_eq!(ex[t.len()], 60);
+    // an LRE overflows (62); an RLE after it would reach 61 but is counted too
+    let mut u = t.clone();
+    u.extend([LRE, RLE, L, PDF, L, PDF, L, PDF, L]);
+    let (ex, _) = bidi::analyze(&u, 0);
+    let n = t.len();
+    assert_eq!((ex[n + 2], ex[n + 4], ex[n + 6], ex[n + 8]), (60, 60, 60, 59));
+}
+
+/// X10: a level run's sos and eos are of the higher of its level and its neighbours': a
+/// neutral between two embedded runs takes their direction
+#[test]
+fn bidi_run_sos_from_neighbour() {
+    use bidi::Class::*;
+    let (_, lv) = bidi::analyze(&[RLE, L, PDF, ON, RLE, L, PDF], 0);
+    assert_eq!(lv[3], 1);
+}
+
+/// lines the executor refuses (no text to shape, a run without a glyph or an advance) are its
+/// "bad line N" and the case goes on; a supplementary character to shape is no line the
+/// generators write
+#[test]
+fn malformed_lines_are_bad_lines() {
+    let hex: String = font(0).bytes().iter().map(|x| format!("{x:02x}")).collect();
+    for (line, want) in [("dwshape 12", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0 1", "bad line 3\ndwinfo"), ("dwshape 12 0x41 0x1f600", "unmodeled bad line")] {
+        let text = format!("case x\ndwfont {hex}\n{line}\ndwinfo\nend\n");
+        let out = kikizake::model::run("dwrite", &kikizake::case::parse_cases(&text));
+        assert!(out.contains(want), "{line}: {out}");
+    }
+}

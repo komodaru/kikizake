@@ -145,15 +145,14 @@ fn paragraph(text: &[Class], para: u8) -> (Vec<u8>, Vec<u8>) {
     while k < kept.len() {
         let level = ex[kept[k]];
         if t[kept[k]] == S {
+            // (a segment separator: the level runs on either side are resolved apart)
+            hit(clause::DW_BIDI_SEGMENT);
             k += 1;
             continue;
         }
         let mut j = k;
         while j < kept.len() && ex[kept[j]] == level && t[kept[j]] != S {
             j += 1;
-        }
-        if k > 0 && t[kept[k - 1]] == S || j < kept.len() && t[kept[j]] == S {
-            hit(clause::DW_BIDI_SEGMENT);
         }
         let before = if k == 0 { para } else { ex[kept[k - 1]] };
         let after = if j == kept.len() { para } else { ex[kept[j]] };

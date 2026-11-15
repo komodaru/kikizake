@@ -101,6 +101,10 @@ tests/laws_dwrite.rs::fonts_map_chars exhaustive DW.CMAP
 tests/laws_dwrite.rs::bidi_every_class_triple exhaustive DW.BIDI.X DW.BIDI.UCD DW.BIDI.L1
 tests/laws_dwrite.rs::breaks_every_class_pair exhaustive DW.BREAK.UAX14 DW.BREAK.MUST
 tests/laws_dwrite.rs::layout_of_mapped_chars_is_modeled exhaustive DW.LAYOUT.FAMILY DW.LAYOUT.NOFALLBACK
+tests/laws_dwrite.rs::layout_without_fallback_of_unmapped_is_modeled exhaustive DW.LAYOUT.NOFALLBACK
+tests/laws_dwrite.rs::bidi_overflow_counts exhaustive DW.BIDI.X
+tests/laws_dwrite.rs::bidi_run_sos_from_neighbour exhaustive DW.BIDI.N
+tests/laws_dwrite.rs::malformed_lines_are_bad_lines exhaustive DW.SHAPE.GLYPHS DW.RUN.ALIASED
 tests/wicimage_laws.rs::flips_are_the_square_symmetries exhaustive WICIMAGE.FLIP
 tests/wicimage_laws.rs::nearest_neighbor_picks_pixels exhaustive WICIMAGE.SCALE.NEAREST
 tests/wicimage_laws.rs::predefined_palettes exhaustive WICIMAGE.PALETTE.BW WICIMAGE.PALETTE.GRAY WICIMAGE.PALETTE.HALFTONE WICIMAGE.PALETTE.TRANSPARENT

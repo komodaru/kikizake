@@ -417,7 +417,7 @@ impl Dwrite {
                 for i in at..t.len() {
                     gs.push(n(i)? as u16);
                 }
-                let side = n(at - 1)?;
+                let sideways = n(at - 1)? != 0;
                 if gs.is_empty() {
                     return Err(Fail::Bad);
                 }
@@ -435,7 +435,7 @@ impl Dwrite {
                     out.push("dwglyph hr 88985000".into());
                     return Ok(true);
                 }
-                if side != 0 {
+                if sideways {
                     hit(clause::DW_GLYPH_SIDEWAYS);
                 }
                 let mut v = Vec::new();
@@ -465,9 +465,9 @@ impl Dwrite {
                         out.extend(v.iter().map(|_| glyph_line(&GlyphMetrics::default())));
                         return Ok(true);
                     }
-                    if side != 0 {
-                        // (sideways: 5 of 6300 bottom side bearings in gdiglyph a design unit under the
-                        // model; the 30 gdiside cases match it)
+                    if sideways {
+                        // (sideways: 9 of 5795 bottom side bearings a design unit off the model,
+                        // at em fraction ties: DW.GDI.GLYPH)
                         return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
                     }
                     hit(clause::DW_GDI_GLYPH_H);
@@ -484,7 +484,7 @@ impl Dwrite {
                     // (the vertical advance: rounded half down, and down up to 65/128)
                     let pxa = |v: i32| -((-128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm));
                     let pxv = |v: i32| (128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm);
-                    let px = |v: i32| match (nat, side != 0) {
+                    let px = |v: i32| match (nat, sideways) {
                         (true, false) => (128 * v as i64 * ppem + 69 * upm).div_euclid(128 * upm),
                         (_, true) => pxv(v),
                         (false, false) => (v as i64 * fix + 0x8000) >> 16,
@@ -506,7 +506,7 @@ impl Dwrite {
                     };
                     for (g, gid) in v.iter_mut().zip(&gids) {
                         // (sideways: the glyph's y is drawn across, so the 6 samples are its y)
-                        let (nx, ny) = if side != 0 { (1, 6) } else { (6, 1) };
+                        let (nx, ny) = if sideways { (1, 6) } else { (6, 1) };
                         let bb = raster::black_box(p, ppem, *gid, nx, ny)?.unwrap_or((0, 0, 0, 0));
                         let (advp, voyp, advhp) = (px(g.adv as i32), pxv(vorg.unwrap_or(g.voy)), pxa(vadv.unwrap_or(g.advh as i32)));
                         *g = GlyphMetrics {
@@ -529,7 +529,12 @@ impl Dwrite {
                 for i in 2..t.len() {
                     cps.push(n(i)? as u32);
                 }
-                if cps.is_empty() || cps.iter().any(|&c| c >= 0x10000) {
+                // (the executor: no text is a bad line)
+                if cps.is_empty() {
+                    return Err(Fail::Empty);
+                }
+                // (supplementary characters: the generators write none)
+                if cps.iter().any(|&c| c >= 0x10000) {
                     return Err(Fail::Bad);
                 }
                 let p = face!();
@@ -565,8 +570,9 @@ impl Dwrite {
             "dwrun" => {
                 let (mode, fit) = raster::Mode::parse(t.get(1).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
                 let (em, x4, y4) = (n(2)?, n(3)?, n(4)?);
-                if t.len() < 7 || (t.len() - 5) % 2 != 0 {
-                    return Err(Fail::Bad);
+                // (the executor: no glyph, or a glyph without its advance, is a bad line)
+                if t.len() < 7 || t.len() % 2 == 0 {
+                    return Err(Fail::Empty);
                 }
                 let mut run = Vec::new();
                 for i in (5..t.len()).step_by(2) {
