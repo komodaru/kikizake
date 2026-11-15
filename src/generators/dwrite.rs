@@ -669,4 +669,22 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "end").unwrap();
         }
     }
+    // the sideways advance heights at 10 and 22 ppem whose em fractions are lower than at
+    // other sizes, against 18 and 26: every advance of 1 to 24 pixels, centred and 0.3 pixel
+    // over, each at 4 units per em (DW.GDI.GLYPH)
+    for pp in [10i64, 22, 18, 26] {
+        for a in 1..=24i64 {
+            for (h, off) in [(0, 0i64), (1, 3)] {
+                for u in [16384i64, 14009, 12011, 10007] {
+                    let vadv = ((10 * a + off) * u * 2 + 10 * pp).div_euclid(20 * pp);
+                    let vorg = vadv * 3 / 5;
+                    let gs = vec![((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])];
+                    let mut f = font_with(0x0fd4_0000 + (pp * 256 + a * 4 + h) as u32, u as u16, &gs);
+                    f.os2 = Some(4);
+                    f.typo = (vorg as i16, (vorg - vadv) as i16, 0);
+                    writeln!(s, "case gdivadvp-{pp}-{a}-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f)).unwrap();
+                }
+            }
+        }
+    }
 }
