@@ -1526,4 +1526,22 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // a lone edge (slope 0.4296875 through x = 8.25 at y = 8, the left boundary) made part of a
+    // smaller triangle step by step: the third vertex nearer (400 .. 10 pixels to the right), the
+    // lower vertex higher (y = -100 .. 3.8125, inside the window), both; each swept by -8/1024 ..
+    // 8/1024 pixel under a viewport that cuts nothing
+    const NEAR: [(f64, f64, f64); 11] = [(-100.0, 400.0, 8.0), (-100.0, 100.0, 8.0), (-100.0, 40.0, 8.0), (-100.0, 16.0, 8.0), (-100.0, 10.0, 8.0), (-20.0, 400.0, 8.0), (-2.6875, 400.0, 8.0), (1.3125, 400.0, 8.0), (3.8125, 400.0, 8.0), (1.3125, 10.0, 8.0), (1.3125, 10.0, 12.3125)];
+    let sl = 0.4296875;
+    for (k, (ya, dx, yc)) in NEAR.iter().enumerate() {
+        writeln!(s, "case tri-near-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for j in -8..=8 {
+            let x0 = 8.25 + f64::from(j) / 1024.0;
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            glf(s, "glVertex2f", &[x0 + sl * (ya - 8.0), *ya]);
+            glf(s, "glVertex2f", &[x0 + sl * 108.0, 116.0]);
+            glf(s, "glVertex2f", &[x0 + sl * (yc - 8.0) + dx, *yc]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
