@@ -1210,10 +1210,10 @@ enum End {
 /// and the ramp device, the line crosses each whole column m of its major axis (x when |dx| >
 /// |dy|) strictly between its ends at floor(v + 7/16), v the exact line there; an end on a whole
 /// column takes that rule too, another one its diamond: the pixel of centre (ceil(x - 1/2),
-/// ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the diamond's corner at the start; the
-/// start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out without. Exact
-/// ties, a corner at the last end, |dx| = |dy|, ends outside the target and the HAL's lines
-/// are not worked out (D3D7.STATES.OTHER)
+/// ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the diamond's corner; the start's pixel
+/// is drawn, the last one's drawn with LASTPIXEL and taken out without. Exact ties, a corner at
+/// the last end of a line within 1/4 pixel of the diagonal, |dx| = |dy|, ends outside the target
+/// and the HAL's lines are not worked out (D3D7.STATES.OTHER)
 pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
     let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
     match family {
@@ -1266,6 +1266,10 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
             match (d < 8, corner, end) {
                 (true, _, _) => Some(Along { major: ca, minor: cb }),
                 (false, true, End::Start) => Some(Along { major: ca, minor: cb }),
+                // MEASURED (d3d7dev linecorner-*: 186 lines ending on a corner) as at the
+                // start; a line within 1/4 pixel of the diagonal (|dx| − |dy|, in 16ths) went
+                // the other way in 3 of 8 (D3D7.STATES.OTHER)
+                (false, true, End::Last) if (dx.abs() - dy.abs()).abs() > 4 => Some(Along { major: ca, minor: cb }),
                 (false, true, End::Last) => return Err(other),
                 (false, false, _) => None,
             }
