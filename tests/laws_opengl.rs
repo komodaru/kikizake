@@ -156,7 +156,7 @@ proptest! {
     fn line_is_thin_and_moves_with_its_ends(v in any::<[(u8, u8); 2]>(), dx in -3i64..4, dy in -3i64..4) {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 4.0, f64::from(y) / 32.0 + 4.0];
         let (a, b) = (end(v[0]), end(v[1]));
-        let p = tri::line(a, b, [0, 0, 16, 16]);
+        let p = tri::line(a, b, [0, 0, 16, 16], tri::LineWidth::ONE);
         let xmajor = (b[0] - a[0]).abs() > (b[1] - a[1]).abs();
         let mut seen = std::collections::BTreeSet::new();
         for &(x, y) in &p {
@@ -168,9 +168,32 @@ proptest! {
         let span = if xmajor { (b[0] - a[0]).abs() } else { (b[1] - a[1]).abs() };
         prop_assert!((p.len() as f64 - span).abs() <= 2.0, "{} pixels for {span}", p.len());
         let shift = |c: [f64; 2]| [c[0] + dx as f64, c[1] + dy as f64];
-        let q = tri::line(shift(a), shift(b), [dx, dy, 16, 16]);
+        let q = tri::line(shift(a), shift(b), [dx, dy, 16, 16], tri::LineWidth::ONE);
         let moved: Vec<(i64, i64)> = p.iter().map(|(x, y)| (x + dx, y + dy)).collect();
         prop_assert_eq!(q, moved);
+    }
+
+    /// GL.RASTER.LINE.WIDE: a line of width n (not a diagonal, inside the viewport) has n
+    /// pixels in a run across each of its 1-pixel line's steps, the 1-pixel line's pixel among
+    /// them
+    #[test]
+    fn wide_lines_hold_the_thin_line(v in any::<[(u8, u8); 2]>(), w in 1f32..10.4) {
+        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
+        let (a, b) = (end(v[0]), end(v[1]));
+        let thin = tri::line(a, b, [0, 0, 16, 16], tri::LineWidth::ONE);
+        let n = tri::LineWidth::of(w);
+        let wide = tri::line(a, b, [0, 0, 16, 16], n);
+        let (dx, dy) = ((b[0] - a[0]).abs(), (b[1] - a[1]).abs());
+        // (not within the snapping of a diagonal)
+        prop_assume!((dx - dy).abs() > 1.0 / 32.0);
+        let xmajor = dx > dy;
+        prop_assert_eq!(wide.len() as i64, thin.len() as i64 * n.pixels());
+        for (x, y) in &thin {
+            let run: Vec<i64> = wide.iter().filter(|p| if xmajor { p.0 == *x } else { p.1 == *y }).map(|p| if xmajor { p.1 } else { p.0 }).collect();
+            prop_assert_eq!(run.len() as i64, n.pixels());
+            prop_assert!(run.windows(2).all(|r| r[1] == r[0] + 1), "not one run: {run:?}");
+            prop_assert!(run.contains(if xmajor { y } else { x }), "({x}, {y}) not in {run:?}");
+        }
     }
 
     /// A triangle (convex) crosses each plane of the view volume at most twice; a bow tie

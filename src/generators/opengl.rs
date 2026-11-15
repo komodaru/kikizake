@@ -2021,6 +2021,32 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // wide lines whose first end lies past the left plane (widths 2 and 3, x- and y-major,
+    // up and down), the same lines drawn the other way, and first ends past the other planes
+    let mut q = XorShift32::new(0x51d7_0e2b);
+    for k in 0..4 {
+        start(s, format!("line-wide-{}", k + 9), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        glf(s, "glLineWidth", &[if k % 2 == 0 { 2.0 } else { 3.0 }]);
+        for i in 0..12 {
+            let mut v = |lo: u32, hi: u32| f64::from(lo + q.next() % (hi - lo + 1)) / 8.0;
+            // the end past a plane: left of x = 0, then for k = 3 below, right of and above
+            let out = v(1, 24);
+            let past = match (k, i % 3) {
+                (3, 0) => (v(8, 120), -out),
+                (3, 1) => (16.0 + out, v(8, 120)),
+                (3, _) => (v(8, 120), 16.0 + out),
+                _ => (-out, v(8, 120)),
+            };
+            let inside = (v(16, 120), v(8, 120));
+            let (a, b) = if k == 2 { (inside, past) } else { (past, inside) };
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+            glf(s, "glVertex2f", &[a.0, a.1]);
+            glf(s, "glVertex2f", &[b.0, b.1]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // antialiased lines; stippled (the default pattern, all set), antialiased and offset polygons
     for (k, setup) in ["gl glEnable 0xb20", "gl glEnable 0xb42", "gl glEnable 0xb41", "gl glEnable 0x8037\ngl glPolygonOffset 1 4\ngl glEnable 0xb71\ngl glDepthFunc 0x207"].into_iter().enumerate() {
         start(s, format!("raster-mode-{k}"), 32);

@@ -2501,11 +2501,7 @@ impl Ctx {
                 if self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
-                // (wide lines: the n pixels from floor(v + 1/2 - n/2) across each step fit
-                // line-wide-0..7, but not one starting column of line-wide-8: not measured)
-                if self.line_width != 1.0 {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                }
+                let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
                 let n = verts.len();
                 let pairs: Vec<(usize, usize)> = match mode {
                     LINES => (0..n / 2).map(|k| (2 * k, 2 * k + 1)).collect(),
@@ -2523,10 +2519,16 @@ impl Ctx {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
                     let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
+                    // (a wide line: cut to the view volume as one under a projection, golden
+                    // opengl-32 prim-6, prim-14; one whose first end the left plane cuts not
+                    // measured: prim-5, prim-6, line-wide-9..)
+                    if wide && ca[0] < -ca[3] {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                    }
                     // (w = 1 between the near and far planes, one depth: not cut, as measured
                     // at w = 1, golden opengl-32 lines-0, prim-15)
                     let flat = |c: [f32; 4]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]);
-                    if flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
+                    if !wide && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
                         let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
                         for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]])? {
                             self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
@@ -2680,7 +2682,7 @@ impl Ctx {
             _ => return Err(Fail::Bad),
         };
         let (dx, dy) = ((pb[0].0 - pa[0].0).abs(), (pb[1].0 - pa[1].0).abs());
-        let major = usize::from(dy > dx || (dy == dx && self.line_width == 1.0));
+        let major = usize::from(dy > dx || (dy == dx && tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE));
         let first = pixels.first().map(|p| [p.0, p.1][major]);
         for (x, y) in pixels {
             let zfixed = match (bits, first) {
@@ -2698,7 +2700,7 @@ impl Ctx {
 
     /// the pixels of a 1-pixel line from a to b in window coordinates (`tri::line`)
     fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
-        Ok(tri::line(a, b, self.viewport))
+        Ok(tri::line(a, b, self.viewport, tri::LineWidth::of(self.line_width)))
     }
 
     fn bits(&self) -> [u32; 4] {
@@ -4090,6 +4092,21 @@ pub mod tri {
     #[derive(Debug, PartialEq, Eq)]
     pub struct Tie;
 
+    /// A line's width in pixels: glLineWidth's rounded, a half up, held to 1..10 (MEASURED,
+    /// golden opengl-32 line-wide-*: 0.25 draws 1, 1.5 draws 2, 2.5 draws 3, 142.5 draws 10).
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct LineWidth(i64);
+
+    impl LineWidth {
+        pub const ONE: LineWidth = LineWidth(1);
+        pub fn of(w: f32) -> LineWidth {
+            LineWidth((f64::from(w.clamp(1.0, 10.0)) + 0.5).floor() as i64)
+        }
+        pub fn pixels(self) -> i64 {
+            self.0
+        }
+    }
+
     /// The pixel whose diamond holds `p` (1/256 units), if any (MEASURED, golden opengl-32
     /// line-tie-*): its open inside and its four edges; of its corners (a point with a
     /// coordinate on a pixel center) the one pixel (floor x, ceil y - 1), the pixel right of a
@@ -4119,8 +4136,9 @@ pub mod tri {
     /// pixels from the one whose diamond holds a (else the first whose center is at or past
     /// a) up to, not including, the same for b; across, the exact line at each one's center,
     /// floor, a value on a pixel boundary going to the pixel below when x-major and right when
-    /// y-major; inside the viewport: GL.RASTER.LINE, GL.RASTER.LINE.TIE
-    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> Vec<(i64, i64)> {
+    /// y-major; a wide line the run of its width about that value (GL.RASTER.LINE.WIDE);
+    /// inside the viewport: GL.RASTER.LINE, GL.RASTER.LINE.TIE
+    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: LineWidth) -> Vec<(i64, i64)> {
         super::hit(super::clause::GL_RASTER_LINE);
         let [vx, vy, vw, vh] = viewport;
         let snap = |v: f64, o: i64, size: i64| {
@@ -4132,7 +4150,11 @@ pub mod tri {
         if dx == 0 && dy == 0 {
             return Vec::new();
         }
-        let ymajor = dy.abs() >= dx.abs();
+        // (a diagonal: y-major, but x-major when wide, golden opengl-32 line-wide-5)
+        let ymajor = dy.abs() > dx.abs() || (dy.abs() == dx.abs() && width.0 == 1);
+        if width.0 > 1 {
+            super::hit(super::clause::GL_RASTER_LINE_WIDE);
+        }
         let (major, minor) = if ymajor { (1, 0) } else { (0, 1) };
         let (dmaj, dmin) = if ymajor { (dy, dx) } else { (dx, dy) };
         let step = dmaj.signum();
@@ -4155,16 +4177,21 @@ pub mod tri {
         let mut j = j0;
         let mut n: i128 = 0;
         while j != j1 && (j - j1).signum() == -step {
-            // the line across over 256 |dmaj|
-            let (num, den) = (first + n * 256 * i128::from(dmin), 256 * span);
-            let mut k = num.div_euclid(den) as i64;
-            if num.rem_euclid(den) == 0 && !ymajor {
+            // the line across over 256 |dmaj|, less (width + 1) / 2: the run starts at the
+            // first pixel past it, at it when y-major (a 1-pixel line's floor, an exact value
+            // going below when x-major, GL.RASTER.LINE.TIE)
+            let den = 256 * span;
+            let num = first + n * 256 * i128::from(dmin) - i128::from(width.0 + 1) * den / 2;
+            let (q, exact) = (num.div_euclid(den) as i64, num.rem_euclid(den) == 0);
+            if exact {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);
-                k -= 1;
             }
-            let (x, y) = if ymajor { (k, j) } else { (j, k) };
-            if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
-                out.push((x, y));
+            let k0 = if exact && !ymajor { q } else { q + 1 };
+            for k in k0..k0 + width.0 {
+                let (x, y) = if ymajor { (k, j) } else { (j, k) };
+                if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
+                    out.push((x, y));
+                }
             }
             j += step;
             n += 1;
