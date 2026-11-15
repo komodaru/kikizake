@@ -650,4 +650,23 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
         }
     }
+    // the sideways advance height's and vertical origin's em fractions alone: one glyph, every
+    // size from 8 to 120 pixels per em, the advance and origin a fixed share of the em at
+    // units per em from 7001 to 16384 (the same pixels: the design units back pin the 16.16
+    // fraction at each size)
+    let shares: [(i64, i64); 12] = [(8460, 7430), (8145, 7550), (10796, 6826), (6206, 4500), (5000, 7000), (5003, 3001), (7777, 6667), (9231, 8462), (12345, 9876), (6667, 5000), (10000, 8000), (7500, 7499)];
+    for (k, &(ra, ro)) in shares.iter().enumerate() {
+        for u in [16384i64, 15013, 13331, 12007, 10007, 9001, 8191, 7001] {
+            let gs = vec![((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])];
+            let mut f = font_with(0x0fd3_0000 + k as u32 * 64 + (u % 61) as u32, u as u16, &gs);
+            f.os2 = Some(4);
+            let (vadv, vorg) = ((ra * u + 5000) / 10000, (ro * u + 5000) / 10000);
+            f.typo = (vorg as i16, (vorg - vadv) as i16, 0);
+            write!(s, "case gdivadv-{k}-{u}\n{}\n", font_line(&f)).unwrap();
+            for pp in 8..=120 {
+                writeln!(s, "dwgdiglyph {pp} 1 0 1 1").unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
 }
