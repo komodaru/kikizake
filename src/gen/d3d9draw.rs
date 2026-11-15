@@ -892,6 +892,34 @@ fn suite(v8: bool) -> String {
             k += 1;
         }
     }
+    // generated texture coordinates: vertices with normals (0..3), LOCALVIEWER off (4, 5), a
+    // world matrix that scales and moves (6, 7)
+    let mat = |m: [f32; 16]| m.iter().map(|&x| format!(" {}", fb(x))).collect::<String>();
+    for i in 0..8u32 {
+        open(&mut s, &format!("tci-gen-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\nrs set 7 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        let tci = [0x10000u32, 0x20000, 0x30000, 0x40000, 0x30000, 0x40000, 0x20000, 0x30000][i as usize];
+        writeln!(s, "tss set 0 11 {tci:#x}").unwrap();
+        if i == 4 || i == 5 {
+            writeln!(s, "rs set 142 0").unwrap();
+        }
+        if i >= 6 {
+            writeln!(s, "d9xform 256{}", mat([0.8, 0.0, 0.0, 0.0, 0.0, 0.7, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.1, -0.05, 0.3, 1.0])).unwrap();
+        }
+        let normals = i < 4;
+        let mut l = format!("d9fvf {:#x}\nd9draw 5 4", if normals { 0x152 } else { 0x142 });
+        for (x, y) in [(-0.9f32, 0.9f32), (0.9, 0.9), (-0.9, -0.9), (0.9, -0.9)] {
+            write!(l, " {} {} {}", fb(x), fb(y), fb(0.5)).unwrap();
+            if normals {
+                let (nx, ny) = (r.range(-8, 8) as f32 / 10.0, r.range(-8, 8) as f32 / 10.0);
+                let nz = -(1.0 - (nx * nx + ny * ny).min(1.0)).sqrt();
+                write!(l, " {} {} {}", fb(nx), fb(ny), fb(nz)).unwrap();
+            }
+            write!(l, " {:#x} {} {}", r.next() | 0xff00_0000, fb(x * 0.5 + 0.5), fb(0.5 - y * 0.5)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 

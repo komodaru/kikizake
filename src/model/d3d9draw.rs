@@ -443,7 +443,8 @@ pub struct Draw {
     pub in_piece: bool,
     /// the drawn triangle's texture coordinate derivatives ((du/dx, du/dy), (dv/dx, dv/dy)): its
     /// footprint in the texture, by which anisotropic filtering differs from linear
-    pub duv: ((f64, f64), (f64, f64)),
+    /// the texture coordinates' derivatives, of each set the stages read (TexSet)
+    pub duv: [((f64, f64), (f64, f64)); 2],
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -487,7 +488,8 @@ struct Vtx {
     rhw: f64,
     diffuse: [f64; 4],
     specular: [f64; 4],
-    uv: [f64; 2],
+    /// the texture coordinates of the sets the stages read (TexSet)
+    uv: [[f64; 2]; 2],
     /// an untransformed vertex's clip position (D3D9.DRAW.XYZ); None: pretransformed
     clip: Option<[f32; 4]>,
 }
@@ -558,10 +560,54 @@ struct Regs {
 }
 
 /// the attributes a vertex carries through clipping: z, diffuse (r, g, b, a), specular, u, v
-/// z, diffuse, specular, (u, v), rhw
-const ATTRS: usize = 12;
+/// z, diffuse, specular, (u, v), rhw, a second (u, v)
+const ATTRS: usize = 14;
 /// the attributes perspective divides (all but z and rhw)
-const PERSP: std::ops::Range<usize> = 1..11;
+const PERSP: [usize; 12] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13];
+/// where each set of texture coordinates (TexSet) is among the attributes
+const UV_AT: [usize; 2] = [9, 12];
+
+/// TEXCOORDINDEX's generation mode (its high word)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum TexGen {
+    Passthru,
+    Normal,
+    Position,
+    Reflection,
+    SphereMap,
+}
+
+impl TexGen {
+    /// (4 SPHEREMAP; the generators write no mode past it; MEASURED d3d8draw tci-xyz-3:
+    /// Direct3D 8, which has no SPHEREMAP, passes the set through for it)
+    fn of(tci: u32, v8: bool) -> TexGen {
+        match tci >> 16 {
+            0 => TexGen::Passthru,
+            4 if v8 => TexGen::Passthru,
+            1 => TexGen::Normal,
+            2 => TexGen::Position,
+            3 => TexGen::Reflection,
+            _ => TexGen::SphereMap,
+        }
+    }
+}
+
+/// which of a vertex's two carried sets of texture coordinates a stage reads: the set stage 0's
+/// TEXCOORDINDEX names, or the one other set a later stage's names
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum TexSet {
+    First,
+    Second,
+}
+
+impl TexSet {
+    fn at(self) -> usize {
+        match self {
+            TexSet::First => 0,
+            TexSet::Second => 1,
+        }
+    }
+}
 
 /// a vertex of a clipped polygon: its position and attributes, in f32
 #[derive(Clone, Copy)]
@@ -575,7 +621,7 @@ impl Vtx {
     fn attrs(&self) -> [f32; ATTRS] {
         let d = self.diffuse.map(|c| c as f32);
         let s = self.specular.map(|c| c as f32);
-        [self.z as f32, d[0], d[1], d[2], d[3], s[0], s[1], s[2], s[3], self.uv[0] as f32, self.uv[1] as f32, self.rhw as f32]
+        [self.z as f32, d[0], d[1], d[2], d[3], s[0], s[1], s[2], s[3], self.uv[0][0] as f32, self.uv[0][1] as f32, self.rhw as f32, self.uv[1][0] as f32, self.uv[1][1] as f32]
     }
 }
 
@@ -1323,7 +1369,7 @@ impl D3d9 {
                 // (MEASURED filter2-5-4, d3d8draw filter2-2-4: linear while no axis of the
                 // footprint is longer than a texel, aniso-3, -11, -18, -21, -23, -31: and with
                 // MAXANISOTROPY 1, aniso-8: and with axes of one length)
-                let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv;
+                let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv[self.tex_set(st).at()];
                 let (w, h) = (tx.w as f64, tx.h as f64);
                 let (ax, ay) = ((dudx * w, dvdx * h), (dudy * w, dvdy * h));
                 let (lx, ly) = (ax.0.hypot(ax.1), ay.0.hypot(ay.1));
@@ -1429,13 +1475,16 @@ impl D3d9 {
     }
 
     /// the texture stages (D3DTEXTUREOP) in turn, to the first whose COLOROP is DISABLE
-    fn stages(&self, diffuse: [f64; 4], specular: [f64; 4], uv: [f64; 2]) -> Res<[f64; 4]> {
+    fn stages(&self, diffuse: [f64; 4], specular: [f64; 4], uv: [[f64; 2]; 2]) -> Res<[f64; 4]> {
         let mut r = Regs { diffuse, specular, current: diffuse, temp: [0.0; 4] };
         // (a bump mapping stage's texel, its kind and the stage, for the stage after it)
         let mut bump: Option<([f64; 4], Bump, u32)> = None;
         // (the texture the stage before sampled)
         let mut last_tex: Option<[f64; 4]> = None;
+        // (CURRENT as each stage found it)
+        let mut found = [diffuse; 8];
         for st in 0..8u32 {
+            found[st as usize] = r.current;
             let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
             if cop == 1 {
                 if st == 0 {
@@ -1448,12 +1497,11 @@ impl D3d9 {
             }
             let tex = match self.draw.stage_tex[st as usize] {
                 Some(i) => {
-                    if self.tss(st, 11) != self.tss(0, 11) {
-                        // (a later stage's TEXCOORDINDEX other than stage 0's: the draw carries
-                        // stage 0's set only)
+                    if self.tss(st, 11) != self.tss(0, 11) && self.tss(st, 11) != self.second_tci() {
+                        // (a third TEXCOORDINDEX among the stages: no case)
                         return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
                     }
-                    let (mut u, mut v) = (uv[0], uv[1]);
+                    let [mut u, mut v] = uv[self.tex_set(st).at()];
                     let mut lum = None;
                     if let Some((t, kind, bs)) = bump {
                         // (MEASURED bump-*: the coordinates moved by BUMPENVMAT times (du, dv);
@@ -1493,13 +1541,10 @@ impl D3d9 {
                     // nothing, CURRENT going on as the stage before left it)
                     hit(clause::D3D9_STAGE_BUMPCHAIN);
                     if let Some(s) = (0..st).find(|&s| self.draw.stage_tex[s as usize].is_none() && self.reads_texture_any(s)) {
-                        if s > 0 {
-                            // (a later stage reading a texture it lacks: no case yet)
-                            return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
-                        }
-                        // (MEASURED bump-chain-2, -8, -11: a stage before reading the texture it
-                        // lacks turns the stages off, the diffuse color out as with DISABLE)
-                        return Ok(diffuse);
+                        // (MEASURED bump-chain-2, -8, -11, bump-late-*: a stage before reading
+                        // the texture it lacks turns the stages off from it, as DISABLE there:
+                        // CURRENT as it found it, the diffuse color on stage 0)
+                        return Ok(found[s as usize]);
                     }
                     bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
                     continue;
@@ -1542,7 +1587,7 @@ impl D3d9 {
             if (cop == 17 || aop == 17) && st < 7 && self.tss(st + 1, 1) != 1 {
                 if let Some(i) = self.draw.stage_tex[st as usize + 1] {
                     hit(clause::D3D9_STAGE_BUMP);
-                    let nt = self.sample(st + 1, self.draw.texs[i].as_ref().unwrap(), uv[0], uv[1])?;
+                    let nt = self.sample(st + 1, self.draw.texs[i].as_ref().unwrap(), uv[self.tex_set(st + 1).at()][0], uv[self.tex_set(st + 1).at()][1])?;
                     for k in 0..4 {
                         if (k < 3 && cop == 17) || (k == 3 && aop == 17) {
                             out[k] = ((out[k] as f32) * (nt[k] as f32)) as f64;
@@ -1561,6 +1606,23 @@ impl D3d9 {
             }
         }
         Ok(r.current)
+    }
+
+    /// the TEXCOORDINDEX of the first enabled stage past stage 0 that names another than stage
+    /// 0's, else stage 0's
+    fn second_tci(&self) -> u32 {
+        let first = self.tss(0, 11);
+        (1..8u32).take_while(|&st| self.tss(st, 1) != 1).map(|st| self.tss(st, 11)).find(|&t| t != first).unwrap_or(first)
+    }
+
+    /// the set of texture coordinates a stage reads (MEASURED tci-multi-*: each stage its own
+    /// TEXCOORDINDEX's, D3D9.STAGE.TCI)
+    fn tex_set(&self, st: u32) -> TexSet {
+        if self.tss(st, 11) == self.tss(0, 11) {
+            TexSet::First
+        } else {
+            TexSet::Second
+        }
     }
 
     /// whether a stage's color or alpha operation reads its texture (D3DTA_TEXTURE, or
@@ -1659,13 +1721,14 @@ impl D3d9 {
         // (MEASURED texcoordindex-*: a stage's TEXCOORDINDEX picks the vertex's set by its low
         // word, (0, 0) past the sets; with XYZRHW vertices the generation mode in its high word
         // is ignored)
-        let tci = self.tss(0, 11);
-        let (set, gen) = ((tci & 0xffff) as usize, tci >> 16);
-        if tci != 0 {
+        let tcis = [self.tss(0, 11), self.second_tci()];
+        let sets = tcis.map(|t| (t & 0xffff) as usize);
+        if tcis.iter().any(|&t| t != 0) {
             hit(clause::D3D9_STAGE_TCI);
         }
-        if gen != 0 && pos == 3 {
-            // (texture coordinates generated from transformed vertices: no case yet)
+        if tcis.iter().any(|&t| t >> 16 != 0) && pos == 3 && (fvf & 0x10 != 0 || self.rs(142) == 0 || (0..8).any(|st| self.tss(st, 24) != 0)) {
+            // (texture coordinates generated from untransformed vertices with normals, without
+            // LOCALVIEWER, or transformed by TEXTURETRANSFORMFLAGS: cases tci-gen-*, open)
             return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
         }
         let stride = words.len() / nv;
@@ -1688,16 +1751,43 @@ impl D3d9 {
                 };
                 let diffuse = argb(take(fvf & 0x40 != 0).unwrap_or(0xffff_ffff));
                 let specular = argb(take(fvf & 0x80 != 0).unwrap_or(0));
-                // (the set stage 0's TEXCOORDINDEX names, D3D9.STAGE.TCI: (0, 0) past the
+                // (the sets the stages' TEXCOORDINDEX name, D3D9.STAGE.TCI: (0, 0) past the
                 // vertex's sets)
-                let uv = if set < ntex && tsize(set) >= 2 {
-                    let o = i + (0..set).map(tsize).sum::<usize>();
-                    [fl(w[o]), fl(w[o + 1])]
-                } else {
-                    [0.0; 2]
-                };
+                let uv = sets.map(|set| {
+                    if set < ntex && tsize(set) >= 2 {
+                        let o = i + (0..set).map(tsize).sum::<usize>();
+                        [fl(w[o]), fl(w[o + 1])]
+                    } else {
+                        [0.0; 2]
+                    }
+                });
                 if pos == 3 {
-                    let (x, y, z, rhw, clip) = self.transform([w[0], w[1], w[2]].map(f32::from_bits));
+                    let p = [w[0], w[1], w[2]].map(f32::from_bits);
+                    // (MEASURED tci-xyz-*: coordinates generated from the camera-space
+                    // position P (world then view) with no normal in the vertex, N = 0, and
+                    // LOCALVIEWER: CAMERASPACENORMAL (0, 0); CAMERASPACEPOSITION (Px, Py);
+                    // CAMERASPACEREFLECTIONVECTOR R = 2 (E.N) N - E, E = -P / |P|, so P / |P|;
+                    // SPHEREMAP from R, m = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2), (Rx / m + 1/2,
+                    // Ry / m + 1/2); D3D9.STAGE.TCIGEN)
+                    let uv = std::array::from_fn(|k| match TexGen::of(tcis[k], self.v8) {
+                        TexGen::Passthru => uv[k],
+                        gen => {
+                            hit(clause::D3D9_STAGE_TCIGEN);
+                            let c = self.camera_space(p);
+                            let n = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+                            let r = [c[0] / n, c[1] / n, c[2] / n];
+                            match gen {
+                                TexGen::Passthru | TexGen::Normal => [0.0, 0.0],
+                                TexGen::Position => [c[0] as f64, c[1] as f64],
+                                TexGen::Reflection => [r[0] as f64, r[1] as f64],
+                                TexGen::SphereMap => {
+                                    let m = 2.0 * (r[0] * r[0] + r[1] * r[1] + (r[2] - 1.0) * (r[2] - 1.0)).sqrt();
+                                    [(r[0] / m + 0.5) as f64, (r[1] / m + 0.5) as f64]
+                                }
+                            }
+                        }
+                    });
+                    let (x, y, z, rhw, clip) = self.transform(p);
                     return Vtx { x, y, z: z as f64, rhw: rhw as f64, diffuse, specular, uv, clip: Some(clip) };
                 }
                 Vtx { x: f32::from_bits(w[0]), y: f32::from_bits(w[1]), z: fl(w[2]), rhw: fl(w[3]), diffuse, specular, uv, clip: None }
@@ -1733,6 +1823,14 @@ impl D3d9 {
     fn viewport(&self) -> (i32, i32, i32, i32, f32, f32) {
         let (rw, rh) = self.draw.rt.as_ref().map_or((0, 0), |r| (r.w, r.h));
         self.draw.viewport.unwrap_or((0, 0, rw, rh, 0.0, 1.0))
+    }
+
+    /// a position in camera space: times the world matrix, then the view one, in f32
+    fn camera_space(&self, p: [f32; 3]) -> [f32; 4] {
+        let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
+        let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
+        let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
+        xv(xv([p[0], p[1], p[2], 1.0], m(256)), m(2))
     }
 
     fn transform(&self, p: [f32; 3]) -> (f32, f32, f32, f32, [f32; 4]) {
@@ -1805,7 +1903,7 @@ impl D3d9 {
                 ((at[k] - grad * pa) + grad * c) as f64
             });
             let (diffuse, specular) = if flat { (a.diffuse, a.specular) } else { (std::array::from_fn(|k| v[1 + k]), std::array::from_fn(|k| v[5 + k])) };
-            self.pixel(px, py, v[0], diffuse, specular, [v[9], v[10]])?;
+            self.pixel(px, py, v[0], diffuse, specular, UV_AT.map(|k| [v[k], v[k + 1]]))?;
         }
         Ok(())
     }
@@ -1914,7 +2012,7 @@ impl D3d9 {
                         rhw: rhw as f64,
                         diffuse: std::array::from_fn(|k| at[1 + k] as f64),
                         specular: std::array::from_fn(|k| at[5 + k] as f64),
-                        uv: [at[9] as f64, at[10] as f64],
+                        uv: UV_AT.map(|k| [at[k] as f64, at[k + 1] as f64]),
                         clip: Some([q[0] - q[3] / vw as f32, q[1] + q[3] / vh as f32, q[2], q[3]]),
                     }
                 };
@@ -2028,7 +2126,7 @@ impl D3d9 {
                 let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
                 ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area32, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area32)
             });
-            self.draw.duv = ((grads[9].0 as f64, grads[9].1 as f64), (grads[10].0 as f64, grads[10].1 as f64));
+            self.draw.duv = UV_AT.map(|k| ((grads[k].0 as f64, grads[k].1 as f64), (grads[k + 1].0 as f64, grads[k + 1].1 as f64)));
             // (MEASURED filter-other-4-*, -5-*: a draw that filters with PYRAMIDALQUAD or
             // GAUSSIANQUAD has its attributes set up as Direct3D 10's rasterizer does, the planes
             // C + gy y + gx x with the area's reciprocal; four pixels a 32nd's edge apart tell)
@@ -2076,14 +2174,14 @@ impl D3d9 {
                         hit(clause::D3D9_SHADE_GOURAUD);
                         (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k]))
                     };
-                    self.pixel(px, py, at[0], diffuse, specular, [at[9], at[10]])?;
+                    self.pixel(px, py, at[0], diffuse, specular, UV_AT.map(|k| [at[k], at[k + 1]]))?;
                 }
             }
         }
         Ok(())
     }
 
-    fn pixel(&mut self, x: i32, y: i32, z: f64, diffuse: [f64; 4], specular: [f64; 4], uv: [f64; 2]) -> Res<()> {
+    fn pixel(&mut self, x: i32, y: i32, z: f64, diffuse: [f64; 4], specular: [f64; 4], uv: [[f64; 2]; 2]) -> Res<()> {
         let mut c = self.stages(diffuse, specular, uv)?;
         if self.rs(29) != 0 {
             hit(clause::D3D9_SPECULAR);
