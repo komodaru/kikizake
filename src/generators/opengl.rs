@@ -1607,4 +1607,31 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // single edges swept by 1/8192 pixel across the center (8.5, 8.5): vertical left and right
+    // boundaries with far vertices, with the upper or the lower vertex inside the window, slopes
+    // 1/64 and 1/3 through the center, and horizontal lower and upper boundaries: where Windows
+    // rounds a vertex, where it starts an edge's walk, and how it steps it (tri-hair2-*: the
+    // vertices look rounded to 1/256 and the edges walked from the upper vertex)
+    let fine: [fn(f64) -> [(f64, f64); 3]; 9] = [
+        |d| [(8.5 + d, -100.0), (8.5 + d, 116.0), (408.5 + d, 8.0)],
+        |d| [(8.5 + d, -100.0), (8.5 + d, 116.0), (-391.5 + d, 8.0)],
+        |d| [(8.5 + d, -100.0), (8.5 + d, 12.3125), (408.5 + d, 8.0)],
+        |d| [(8.5 + d, 3.6875), (8.5 + d, 116.0), (408.5 + d, 8.0)],
+        |d| [(8.5 - 108.5 / 64.0 + d, -100.0), (8.5 + 107.5 / 64.0 + d, 116.0), (408.5 + d, 8.0)],
+        |d| [(8.5 - 108.5 / 3.0 + d, -100.0), (8.5 + 107.5 / 3.0 + d, 116.0), (408.5 + d, 8.0)],
+        |d| [(8.5 - 108.5 / 3.0 + d, -100.0), (8.5 + 107.5 / 3.0 + d, 116.0), (-391.5 + d, 8.0)],
+        |d| [(-400.0, 8.5 + d), (400.0, 8.5 + d), (0.0, 200.0)],
+        |d| [(-400.0, 8.5 + d), (400.0, 8.5 + d), (0.0, -200.0)],
+    ];
+    for (k, tri) in fine.iter().enumerate() {
+        writeln!(s, "case tri-fine-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for j in -24..=24 {
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            for (x, y) in tri(f64::from(j) / 8192.0) {
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
