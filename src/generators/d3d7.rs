@@ -386,6 +386,20 @@ pub fn d3d7shade() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // Gouraud colors dithered to 565 and 555 (which fraction the dither sees; D3D7.GOURAUD):
+    // wide random triangles, the dither on (its own generator)
+    let mut rd = XorShift32::new(0x00d3_d7a6);
+    for d in ["rgb", "mmx"] {
+        for f in ["565", "555"] {
+            writeln!(s, "case gdither-{d}-{f}\nd3d 7\nd3ddev {d} {f} 64 16\nd3drs set 22 1\nd3drs set 26 1").unwrap();
+            for _ in 0..24 {
+                let c: Vec<u32> = (0..3).map(|_| rd.next()).collect();
+                let p: Vec<i64> = (0..3).flat_map(|_| [rd.range(0, 1023), rd.range(0, 255)]).collect();
+                writeln!(s, "d3dclear 0\nd3dtri {:#x}/{:#x}/{:#x} {} {} {} {} {} {}\nd3ddump", c[0], c[1], c[2], p[0], p[1], p[2], p[3], p[4], p[5]).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
     s
 }
 

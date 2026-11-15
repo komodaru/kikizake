@@ -40154,3 +40154,315 @@ d3dclear 0
 d3dtri 0xa81271e2/0x23e61c55/0xa81271e2 45 7 641 225 45 218
 d3ddump
 end
+case gdither-rgb-565
+d3d 7
+d3ddev rgb 565 64 16
+d3drs set 22 1
+d3drs set 26 1
+d3dclear 0
+d3dtri 0x3ec27c15/0x595c7215/0x34c98ada 627 17 382 166 812 251
+d3ddump
+d3dclear 0
+d3dtri 0xba8ebfd5/0xc3f1048f/0x8f7232df 811 22 875 242 845 253
+d3ddump
+d3dclear 0
+d3dtri 0x69d14eb0/0x40eab8d3/0xe9eab64b 666 90 176 16 730 54
+d3ddump
+d3dclear 0
+d3dtri 0x87445b59/0x89c0d48e/0xf97af9e6 613 198 432 225 166 235
+d3ddump
+d3dclear 0
+d3dtri 0x73a1e451/0xaa579b44/0x7ed9ccbb 156 90 853 73 510 122
+d3ddump
+d3dclear 0
+d3dtri 0x207f641c/0x536cce22/0x9fb585b6 215 238 113 168 954 125
+d3ddump
+d3dclear 0
+d3dtri 0x27d4a723/0xd52349db/0x3f168d37 911 110 208 106 1006 152
+d3ddump
+d3dclear 0
+d3dtri 0x9a7a9fbc/0xf822143a/0xee042468 172 83 224 164 621 101
+d3ddump
+d3dclear 0
+d3dtri 0x463599db/0x54dee8dc/0xb160abfe 977 80 247 214 455 140
+d3ddump
+d3dclear 0
+d3dtri 0xde219a0b/0x41711bdb/0x2343111e 110 119 764 190 667 127
+d3ddump
+d3dclear 0
+d3dtri 0x9e32d67/0xe5b09340/0xcc5fd2c 796 63 974 77 152 100
+d3ddump
+d3dclear 0
+d3dtri 0x787cbacf/0xb8086fd/0x70ba4112 670 122 300 205 9 32
+d3ddump
+d3dclear 0
+d3dtri 0x198803e3/0x27798c39/0xc92a4f86 651 34 139 17 918 169
+d3ddump
+d3dclear 0
+d3dtri 0x4b6c0a36/0x8f7f4b43/0xa4f41148 742 246 755 20 238 59
+d3ddump
+d3dclear 0
+d3dtri 0xfd2759c7/0xd5e9ebc8/0xfa836f80 793 195 521 103 99 214
+d3ddump
+d3dclear 0
+d3dtri 0xa407720d/0x29812ee/0x187f830c 867 93 398 67 41 147
+d3ddump
+d3dclear 0
+d3dtri 0x2356c84f/0xb1b5f960/0xdda63bac 613 241 721 176 788 28
+d3ddump
+d3dclear 0
+d3dtri 0x5094c7c4/0xc5e85db2/0x591293d 422 14 789 56 361 242
+d3ddump
+d3dclear 0
+d3dtri 0xa1488be/0xfb63a2df/0x6838ad23 589 168 145 224 521 41
+d3ddump
+d3dclear 0
+d3dtri 0x14ae5456/0x1abb93c4/0x70a7d305 678 156 1003 48 414 252
+d3ddump
+d3dclear 0
+d3dtri 0x258ce0b1/0x8ac913fc/0xbe6e3347 964 117 299 64 220 206
+d3ddump
+d3dclear 0
+d3dtri 0xbd1d6394/0x3c928f43/0xc221e63e 237 85 481 7 588 109
+d3ddump
+d3dclear 0
+d3dtri 0x38f190bb/0x56384cc8/0xab8d0018 575 155 630 107 392 233
+d3ddump
+d3dclear 0
+d3dtri 0x240bfbd0/0x354b1b68/0x92e03f1b 730 231 186 231 404 202
+d3ddump
+end
+case gdither-rgb-555
+d3d 7
+d3ddev rgb 555 64 16
+d3drs set 22 1
+d3drs set 26 1
+d3dclear 0
+d3dtri 0x5761d321/0xcdbd71c3/0x13212021 467 109 677 186 734 43
+d3ddump
+d3dclear 0
+d3dtri 0xe22dd44a/0x4c33bb18/0x514470b0 57 50 135 38 589 94
+d3ddump
+d3dclear 0
+d3dtri 0x30263689/0x281ad3b2/0x3ff9fa04 344 70 1017 178 33 83
+d3ddump
+d3dclear 0
+d3dtri 0x7abaffc/0x38d6cc16/0xcbdbeb3c 34 221 329 79 504 38
+d3ddump
+d3dclear 0
+d3dtri 0xde67c08/0x8e84ba5b/0x2035013c 917 233 777 93 772 130
+d3ddump
+d3dclear 0
+d3dtri 0xe5f5222d/0x77a4fc55/0xedeb2002 535 209 797 33 679 188
+d3ddump
+d3dclear 0
+d3dtri 0x6d9b2ef2/0xe830d0/0xd8b44689 475 32 768 80 812 232
+d3ddump
+d3dclear 0
+d3dtri 0x3f66384a/0xf58f8bdd/0x9a711d47 203 209 904 220 517 195
+d3ddump
+d3dclear 0
+d3dtri 0xdadf13c8/0x2c67fcfb/0xace655e7 906 23 605 148 1019 149
+d3ddump
+d3dclear 0
+d3dtri 0x25bf9cfd/0x122aaa4d/0xab06167c 408 31 801 177 828 226
+d3ddump
+d3dclear 0
+d3dtri 0xec101bb0/0x3abec63/0xbad1dd70 47 75 86 7 666 138
+d3ddump
+d3dclear 0
+d3dtri 0xcfd2ca6/0x845eba52/0x318ea8d8 210 72 607 7 241 248
+d3ddump
+d3dclear 0
+d3dtri 0xfda6ed39/0x203a7a19/0x8054d905 863 119 473 57 433 49
+d3ddump
+d3dclear 0
+d3dtri 0x21f651f0/0x92cca694/0xc5da96fb 601 5 971 80 710 87
+d3ddump
+d3dclear 0
+d3dtri 0x31459308/0xe7be81da/0xc73e9918 470 156 143 241 605 73
+d3ddump
+d3dclear 0
+d3dtri 0x56688f43/0xb7995ce3/0x1cab2ec1 376 133 32 42 89 133
+d3ddump
+d3dclear 0
+d3dtri 0xb8caa45d/0x646f3ddd/0xf94f5ad7 125 203 390 184 863 187
+d3ddump
+d3dclear 0
+d3dtri 0x4f29354d/0x5994902d/0xb9bbe945 652 191 543 246 374 106
+d3ddump
+d3dclear 0
+d3dtri 0x53059fad/0xfef9b575/0xc2b95a9e 779 96 536 150 307 49
+d3ddump
+d3dclear 0
+d3dtri 0xf6b3e35f/0xd1d08053/0xfa8a977e 716 66 358 2 429 0
+d3ddump
+d3dclear 0
+d3dtri 0xa2927a57/0x56c57bdb/0xce728784 101 198 23 119 374 208
+d3ddump
+d3dclear 0
+d3dtri 0xd86100e1/0xf7d6c73f/0xc9172447 904 194 877 17 919 136
+d3ddump
+d3dclear 0
+d3dtri 0x1a65248/0xb609c05f/0x4e4e8c9e 368 185 427 247 771 190
+d3ddump
+d3dclear 0
+d3dtri 0x3cbd2d20/0xba35542c/0x6ab52f4 334 254 716 84 943 199
+d3ddump
+end
+case gdither-mmx-565
+d3d 7
+d3ddev mmx 565 64 16
+d3drs set 22 1
+d3drs set 26 1
+d3dclear 0
+d3dtri 0x252b70ba/0x2cbeb1a4/0xabc3d0c1 428 98 492 75 328 242
+d3ddump
+d3dclear 0
+d3dtri 0x2178eaf/0x8b80fe8e/0x1e7fe066 703 24 179 154 1019 203
+d3ddump
+d3dclear 0
+d3dtri 0xb9f12054/0x22863b89/0x5b1a4732 844 198 355 196 180 237
+d3ddump
+d3dclear 0
+d3dtri 0xaa64256c/0xf7fff308/0x3a400f27 85 173 799 102 311 60
+d3ddump
+d3dclear 0
+d3dtri 0x680284b0/0x2a0787ba/0x84e5f282 216 53 317 55 14 128
+d3ddump
+d3dclear 0
+d3dtri 0x641f8d85/0x20438d12/0x6ddd59a2 22 116 233 1 539 156
+d3ddump
+d3dclear 0
+d3dtri 0x9145980/0xc6a70ad2/0xd8567cac 749 125 275 235 44 16
+d3ddump
+d3dclear 0
+d3dtri 0x2a5bc624/0x172820b/0x774a98d2 442 101 101 210 730 147
+d3ddump
+d3dclear 0
+d3dtri 0xe5613645/0xb69705b1/0x9200da81 777 90 683 62 717 245
+d3ddump
+d3dclear 0
+d3dtri 0xb80ced46/0x9123cd14/0xf8a613d4 506 163 535 219 495 226
+d3ddump
+d3dclear 0
+d3dtri 0x40a33bec/0xdc0ba863/0x89f400e0 660 169 431 76 118 4
+d3ddump
+d3dclear 0
+d3dtri 0x631da6/0x192a65ed/0xe76a0be6 333 27 1000 14 700 133
+d3ddump
+d3dclear 0
+d3dtri 0x87ea98ca/0x4a85e4d3/0x35e0045c 969 217 374 89 273 118
+d3ddump
+d3dclear 0
+d3dtri 0x7d172d2e/0x8ee68f97/0xbd9c43bd 72 198 1001 31 466 83
+d3ddump
+d3dclear 0
+d3dtri 0x6482e768/0x359090bf/0xd76b0cfc 838 165 119 64 533 211
+d3ddump
+d3dclear 0
+d3dtri 0x11570d02/0xee119a59/0x76004a74 947 0 373 80 705 188
+d3ddump
+d3dclear 0
+d3dtri 0x6d650b9e/0x4ec31f35/0x89909d47 827 247 289 51 831 85
+d3ddump
+d3dclear 0
+d3dtri 0xb67481d0/0xef9ccc17/0xb5dcf418 855 19 868 66 441 76
+d3ddump
+d3dclear 0
+d3dtri 0x88ed42b6/0x37c9cf8b/0xc92dba77 390 121 771 58 714 233
+d3ddump
+d3dclear 0
+d3dtri 0xd83fc9de/0x18732dc/0x1c44e772 967 0 731 83 1023 247
+d3ddump
+d3dclear 0
+d3dtri 0x3f9888c2/0xfe9b2fc2/0xf7076c13 881 84 835 98 690 109
+d3ddump
+d3dclear 0
+d3dtri 0x711e253/0x5028603e/0xd9de4b09 406 102 79 7 595 189
+d3ddump
+d3dclear 0
+d3dtri 0x3827ff13/0x3f7a62d1/0x172f1361 448 105 241 165 193 251
+d3ddump
+d3dclear 0
+d3dtri 0x4d3bc710/0x8ee2627c/0x971de66a 962 189 357 16 113 134
+d3ddump
+end
+case gdither-mmx-555
+d3d 7
+d3ddev mmx 555 64 16
+d3drs set 22 1
+d3drs set 26 1
+d3dclear 0
+d3dtri 0xcb7f0bf2/0x6a2a80b2/0x7da7682c 989 59 300 161 227 206
+d3ddump
+d3dclear 0
+d3dtri 0x1b8793c9/0xd62621f6/0x5105f7ba 35 244 228 135 851 33
+d3ddump
+d3dclear 0
+d3dtri 0xf0fb4860/0xa71797fb/0xe8f37cef 88 167 23 175 914 228
+d3ddump
+d3dclear 0
+d3dtri 0x2b1d82ec/0xf349a6cc/0x3598e584 784 114 244 248 726 222
+d3ddump
+d3dclear 0
+d3dtri 0x18fefe77/0x213fc00f/0xfef7de90 66 105 198 165 476 249
+d3ddump
+d3dclear 0
+d3dtri 0xe5e20a30/0x302f5422/0x8fc45797 140 180 603 72 1013 213
+d3ddump
+d3dclear 0
+d3dtri 0x7f1b14f5/0xad32fcd7/0xa7a4d5e3 655 193 496 209 825 80
+d3ddump
+d3dclear 0
+d3dtri 0x152b0dd8/0xe696c590/0xfabf8ac2 273 239 874 195 852 82
+d3ddump
+d3dclear 0
+d3dtri 0x9b29e48b/0x50a23db7/0xf58e119d 547 165 103 156 270 235
+d3ddump
+d3dclear 0
+d3dtri 0x6adae9e9/0xcb1d915a/0x5feb55e1 522 87 645 206 188 127
+d3ddump
+d3dclear 0
+d3dtri 0x6cee06f1/0x2a3e6dc9/0x1760ff4a 718 29 216 238 907 76
+d3ddump
+d3dclear 0
+d3dtri 0x567daae4/0x870a35f4/0xf72e70ee 663 189 630 48 732 225
+d3ddump
+d3dclear 0
+d3dtri 0x925ba3fe/0x22a60d6c/0x827461c9 783 237 197 158 853 31
+d3ddump
+d3dclear 0
+d3dtri 0x59b5c523/0xc32b60cb/0x4978bd12 415 70 264 227 87 210
+d3ddump
+d3dclear 0
+d3dtri 0xf9627a2a/0x72cb4619/0x5b0508bd 820 67 267 172 388 122
+d3ddump
+d3dclear 0
+d3dtri 0xb7035db1/0x4a176e8b/0x5f0df068 488 126 704 191 921 38
+d3ddump
+d3dclear 0
+d3dtri 0x35ed8b07/0x15280161/0xb5815783 859 33 397 105 822 203
+d3ddump
+d3dclear 0
+d3dtri 0x99e0c256/0xb4e212e3/0x217f3e3c 352 71 720 175 773 81
+d3ddump
+d3dclear 0
+d3dtri 0x6a0d5278/0xc8047979/0xa244276c 824 68 463 130 792 77
+d3ddump
+d3dclear 0
+d3dtri 0x946cf3d6/0x48d0ed7d/0xfa939f82 339 206 835 15 390 25
+d3ddump
+d3dclear 0
+d3dtri 0xef1f90ad/0xbc4dfb28/0x6637ad3c 628 189 507 177 629 232
+d3ddump
+d3dclear 0
+d3dtri 0xc0fe9486/0x5fa5eb91/0xb820e5ba 465 120 948 229 538 182
+d3ddump
+d3dclear 0
+d3dtri 0x45f8e084/0x64e1c270/0xc95268c7 674 97 938 19 12 166
+d3ddump
+d3dclear 0
+d3dtri 0x359dc0ae/0x3c808b2a/0x915e66d8 858 89 236 195 284 172
+d3ddump
+end
