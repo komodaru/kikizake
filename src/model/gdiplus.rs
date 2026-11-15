@@ -7,7 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
-use crate::spec::clause;
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -1051,6 +1051,13 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
         Brush::Solid(_) => Source::Solid,
         Brush::Hatch { .. } => Source::Texture,
     };
+    // (the runs' dither (GP.PAINT.GAMMA.RUNS) is fitted for a fill from column 0 with the
+    // rendering origin at 0 only: from another column or origin the dither's row and column move
+    // by an amount not fitted yet (golden gdipluspaint hatchrun16-*))
+    let off_zero = ox != 0 || oy != 0 || x > 0.0;
+    if kind == Source::Texture && !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) && off_zero {
+        return Err(Fail::Unmodeled(open::GP_PAINT_GAMMA_RUNS_OFFSET));
+    }
     // (the brush's color at a pixel, premultiplied)
     let color = |px: u32, py: u32| -> u32 {
         match brush {
