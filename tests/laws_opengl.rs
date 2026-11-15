@@ -123,7 +123,7 @@ proptest! {
     #[test]
     fn clip_cuts_to_the_volume(v in any::<[(i16, i16); 3]>(), scale in 1f64..8.0) {
         let t = v.map(|(x, y)| [f64::from(x) / 32768.0 * scale, f64::from(y) / 32768.0 * scale]);
-        let p = tri::clip(t);
+        let p = tri::clip(&t);
         if t.iter().all(|c| c[0].abs() <= 1.0 && c[1].abs() <= 1.0) {
             prop_assert_eq!(p, t.to_vec());
             return Ok(());

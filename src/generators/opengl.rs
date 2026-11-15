@@ -1738,4 +1738,31 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256\nglerr\nend", h(RED), h(UNSIGNED_BYTE)).unwrap();
     }
+    // polygons that are not convex (a bow tie, an arrow, a pentagon with a notch, a pentagram),
+    // each from every vertex both ways round, as GL_POLYGON and four-cornered ones as GL_QUADS:
+    // how Windows splits them
+    let shapes: [&[(f64, f64)]; 4] = [
+        &[(2.3125, 2.1875), (13.6875, 13.5625), (13.5625, 2.4375), (2.1875, 13.8125)],
+        &[(2.0625, 2.3125), (13.9375, 8.1875), (2.1875, 13.6875), (6.0625, 8.0625)],
+        &[(1.1875, 1.3125), (14.8125, 1.4375), (14.6875, 14.5625), (8.0625, 5.1875), (1.3125, 14.6875)],
+        &[(8.0625, 15.1875), (12.3125, 1.4375), (1.0625, 9.8125), (14.9375, 9.6875), (3.6875, 1.3125)],
+    ];
+    for (k, shape) in shapes.into_iter().enumerate() {
+        writeln!(s, "case poly-nc-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport 0 0 16 16\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        let n = shape.len();
+        let modes: &[u32] = if n == 4 { &[9, 7] } else { &[9] };
+        for &mode in modes {
+            for back in [false, true] {
+                for first in 0..n {
+                    writeln!(s, "gl glClear 0x4000\ngl glBegin {mode}").unwrap();
+                    for i in 0..n {
+                        let at = if back { (first + n - i) % n } else { (first + i) % n };
+                        glf(s, "glVertex2f", &[shape[at].0, shape[at].1]);
+                    }
+                    writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+                }
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

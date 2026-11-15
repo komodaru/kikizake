@@ -21,6 +21,8 @@ pub mod e {
     pub const TRIANGLES: u32 = 4;
     pub const TRIANGLE_STRIP: u32 = 5;
     pub const TRIANGLE_FAN: u32 = 6;
+    pub const QUAD_STRIP: u32 = 8;
+    pub const POLYGON_MODE_POLYGON: u32 = 9;
     pub const LINES: u32 = 1;
     pub const LINE_LOOP: u32 = 2;
     pub const LINE_STRIP: u32 = 3;
@@ -2011,6 +2013,63 @@ impl Ctx {
         Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
     }
 
+    /// A filled convex polygon of one color and depth (GL.RASTER.TRIANGLE: cut to the view
+    /// volume, then a fan from its first vertex).
+    fn polygon(&mut self, q: &[([f64; 3], [f32; 4])]) -> Res<()> {
+        // (filled, flat polygons only: other polygon modes, stipple, antialiasing and offsets
+        // on triangles are not measured)
+        if self.poly_mode != [0x1b02, 0x1b02] || self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
+            return Ok(());
+        }
+        let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
+        let last = q[q.len() - 1];
+        let c = self.fogged(last.1, last.0);
+        if q.iter().any(|v| v.1 != last.1 || self.fogged(v.1, v.0) != c) || w.iter().any(|p| p[2] != w[0][2]) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+        }
+        let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
+        // (a polygon that is not convex, its corners not all turning one way or going round
+        // more than once: how Windows splits it is not pinned)
+        if !convex(&w) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_POLYGON));
+        }
+        if self.cap(CULL_FACE) {
+            hit(clause::GL_CULL);
+            let front = (area > 0.0) == (self.front_face == CCW);
+            let culled = match self.cull_mode {
+                FRONT => front,
+                BACK => !front,
+                _ => true,
+            };
+            if culled {
+                return Ok(());
+            }
+        }
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+        let ndc: Vec<[f64; 2]> = q.iter().map(|v| self.ndc(v.0).map(|c| [c[0], c[1]])).collect::<Res<_>>()?;
+        // (a polygon past the view volume's sides: clipped to it, then drawn as a fan from the
+        // clipped polygon's first vertex, golden tri-clip-*, tri-many-*)
+        let poly = tri::clip(&ndc);
+        if poly.len() < 3 {
+            return Ok(());
+        }
+        if poly != ndc {
+            hit(clause::GL_RASTER_CLIP_XY);
+        }
+        let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
+        hit(clause::GL_RASTER_TRIANGLE);
+        let px: Vec<(i64, i64)> = (1..v.len() - 1).flat_map(|k| tri::pixels([v[0], v[k], v[k + 1]], W as i64, H as i64)).collect();
+        self.never = NeverPath::Other;
+        for (x, y) in px {
+            self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
+        }
+        Ok(())
+    }
+
     fn end(&mut self, mode: u32) -> Res<()> {
         let verts = std::mem::take(&mut self.verts);
         // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
@@ -2098,7 +2157,8 @@ impl Ctx {
                     let xs = [w[0][0], w[1][0], w[2][0], w[3][0]];
                     let ys = [w[0][1], w[1][1], w[2][1], w[3][1]];
                     if !(xs[0] == xs[3] && xs[1] == xs[2] && ys[0] == ys[1] && ys[2] == ys[3]) {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_POLYGON));
+                        self.polygon(q)?;
+                        continue;
                     }
                     // clipped to the view volume: the viewport's rectangle (GL.RASTER.CLIP.XY)
                     let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
@@ -2260,62 +2320,21 @@ impl Ctx {
                     self.never = NeverPath::Other;
                 }
             }
-            TRIANGLES | TRIANGLE_STRIP | TRIANGLE_FAN => {
+            TRIANGLES | TRIANGLE_STRIP | TRIANGLE_FAN | QUAD_STRIP | POLYGON_MODE_POLYGON => {
                 // (GL 1.1 2.6.1: a strip's triangle i is (i, i+1, i+2) with every other one
-                // turned so all face as the first; a fan's is (0, i+1, i+2))
+                // turned so all face as the first; a fan's is (0, i+1, i+2); a quad strip's quad
+                // i is (2i, 2i+1, 2i+3, 2i+2))
                 let n = verts.len();
-                let tris: Vec<[usize; 3]> = match mode {
-                    TRIANGLES => (0..n / 3).map(|k| [3 * k, 3 * k + 1, 3 * k + 2]).collect(),
-                    TRIANGLE_STRIP => (0..n.saturating_sub(2)).map(|k| if k % 2 == 0 { [k, k + 1, k + 2] } else { [k + 1, k, k + 2] }).collect(),
-                    _ => (1..n.saturating_sub(1)).map(|k| [0, k, k + 1]).collect(),
+                let polys: Vec<Vec<usize>> = match mode {
+                    TRIANGLES => (0..n / 3).map(|k| vec![3 * k, 3 * k + 1, 3 * k + 2]).collect(),
+                    TRIANGLE_STRIP => (0..n.saturating_sub(2)).map(|k| if k % 2 == 0 { vec![k, k + 1, k + 2] } else { vec![k + 1, k, k + 2] }).collect(),
+                    TRIANGLE_FAN => (1..n.saturating_sub(1)).map(|k| vec![0, k, k + 1]).collect(),
+                    QUAD_STRIP => (0..n.saturating_sub(2) / 2).map(|k| vec![2 * k, 2 * k + 1, 2 * k + 3, 2 * k + 2]).collect(),
+                    _ if n >= 3 => vec![(0..n).collect()],
+                    _ => Vec::new(),
                 };
-                // (filled, flat polygons only: other polygon modes, stipple, antialiasing and
-                // offsets on triangles are not measured)
-                if self.poly_mode != [0x1b02, 0x1b02] || self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                }
-                for t in tris {
-                    let q = t.map(|k| verts[k]);
-                    if self.culled_z(&q.map(|v| v.0)) {
-                        continue;
-                    }
-                    let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
-                    let c = self.fogged(q[2].1, q[2].0);
-                    if q.iter().any(|v| v.1 != q[2].1 || self.fogged(v.1, v.0) != c) || w.iter().any(|p| p[2] != w[0][2]) {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
-                    }
-                    let area = (w[1][0] - w[0][0]) * (w[2][1] - w[0][1]) - (w[2][0] - w[0][0]) * (w[1][1] - w[0][1]);
-                    if self.cap(CULL_FACE) {
-                        hit(clause::GL_CULL);
-                        let front = (area > 0.0) == (self.front_face == CCW);
-                        let culled = match self.cull_mode {
-                            FRONT => front,
-                            BACK => !front,
-                            _ => true,
-                        };
-                        if culled {
-                            continue;
-                        }
-                    }
-                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-                    let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
-                    let ndc: Vec<[f64; 3]> = q.iter().map(|v| self.ndc(v.0)).collect::<Res<_>>()?;
-                    // (a triangle past the view volume's sides: clipped to it, then drawn as a fan
-                    // from the clipped polygon's first vertex, golden tri-clip-*, tri-many-*)
-                    let poly = tri::clip([ndc[0], ndc[1], ndc[2]].map(|c| [c[0], c[1]]));
-                    if poly.len() < 3 {
-                        continue;
-                    }
-                    if poly.iter().any(|c| [0, 1, 2].iter().all(|k| *c != [ndc[*k][0], ndc[*k][1]])) {
-                        hit(clause::GL_RASTER_CLIP_XY);
-                    }
-                    let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
-                    hit(clause::GL_RASTER_TRIANGLE);
-                    let px: Vec<(i64, i64)> = (1..v.len() - 1).flat_map(|k| tri::pixels([v[0], v[k], v[k + 1]], W as i64, H as i64)).collect();
-                    self.never = NeverPath::Other;
-                    for (x, y) in px {
-                        self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
-                    }
+                for p in polys {
+                    self.polygon(&p.iter().map(|k| verts[*k]).collect::<Vec<_>>())?;
                 }
             }
             LINES | LINE_LOOP | LINE_STRIP => {
@@ -3803,6 +3822,25 @@ impl Ctx {
     }
 }
 
+/// Whether window corners `w` make a convex polygon: every corner turning the same way (or
+/// not at all) and the edges' directions going round once, not twice like a star.
+fn convex(w: &[[f64; 3]]) -> bool {
+    let n = w.len();
+    let edge = |k: usize| [w[(k + 1) % n][0] - w[k][0], w[(k + 1) % n][1] - w[k][1]];
+    let turns: Vec<f64> = (0..n).map(|k| {
+        let (a, b) = (edge(k), edge((k + 1) % n));
+        a[0] * b[1] - a[1] * b[0]
+    }).collect();
+    if turns.iter().any(|t| *t > 0.0) && turns.iter().any(|t| *t < 0.0) {
+        return false;
+    }
+    let total: f64 = (0..n).map(|k| {
+        let (a, b) = (edge(k), edge((k + 1) % n));
+        (a[0] * b[1] - a[1] * b[0]).atan2(a[0] * b[0] + a[1] * b[1])
+    }).sum();
+    total.abs() < 2.0 * std::f64::consts::PI + 1e-6
+}
+
 /// Filled triangles as Windows' generic OpenGL draws them (MEASURED, golden opengl-32 and
 /// opengl-64 tri-*: GL.RASTER.TRIANGLE, GL.RASTER.CLIP.XY):
 /// - normalized device coordinates are scaled by half the viewport's size less 1/256 about its
@@ -3910,10 +3948,10 @@ pub mod tri {
         }
     }
 
-    /// A polygon in normalized device coordinates clipped to -1 <= x, y <= 1 (x = 1, x = -1,
+    /// A convex polygon in normalized device coordinates clipped to -1 <= x, y <= 1 (x = 1, x = -1,
     /// y = 1, y = -1 in turn), a new vertex where an edge crosses a plane.
-    pub fn clip(tri: [[f64; 2]; 3]) -> Vec<[f64; 2]> {
-        let mut poly = tri.to_vec();
+    pub fn clip(poly: &[[f64; 2]]) -> Vec<[f64; 2]> {
+        let mut poly = poly.to_vec();
         for (axis, sign) in [(0, 1.0), (0, -1.0), (1, 1.0), (1, -1.0)] {
             let mut out = Vec::new();
             for (i, a) in poly.iter().enumerate() {
