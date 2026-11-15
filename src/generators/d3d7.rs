@@ -578,5 +578,53 @@ pub fn d3d7dev() -> String {
             writeln!(s, "end").unwrap();
         }
     }
+    // lines whose exact minor coordinate lands on a whole pixel boundary at some column (an
+    // exact tie of floor(v + 7/16)), lines of |dx| = |dy|, and lines ending on a corner of their
+    // end pixel's diamond (x.5 with a whole y, or a whole x with y.5): the cases D3D7.LINE leaves
+    // to D3D7.STATES.OTHER
+    let mut rt = XorShift32::new(0x00d3_d712);
+    let tie = |p: &[i64]| -> bool {
+        let (dx, dy) = (p[2] - p[0], p[3] - p[1]);
+        if dx.abs() == dy.abs() {
+            return false;
+        }
+        let (a0, b0, a1, b1) = if dx.abs() > dy.abs() { (p[0], p[1], p[2], p[3]) } else { (p[1], p[0], p[3], p[2]) };
+        let (da, db) = (a1 - a0, b1 - b0);
+        (0..16).any(|m: i64| a0.min(a1) < m * 16 && m * 16 < a0.max(a1) && ((b0 + 7) * da + (m * 16 - a0) * db).rem_euclid(16 * da.abs()) == 0)
+    };
+    for &(v, d) in DRAWERS {
+        for lp in [1, 0] {
+            writeln!(s, "case lineties-{v}-{d}-{lp}\nd3d {v}\nd3ddev {d} 565 16 16\nd3drs set 22 1\nd3drs set 16 {lp}").unwrap();
+            let mut k = 0;
+            while k < 48 {
+                let p: Vec<i64> = (0..4).map(|_| rt.range(0, 255)).collect();
+                if tie(&p) {
+                    writeln!(s, "d3dclear 0\nd3dline 0xffffffff {} {} {} {}\nd3ddump", p[0], p[1], p[2], p[3]).unwrap();
+                    k += 1;
+                }
+            }
+            writeln!(s, "end").unwrap();
+            writeln!(s, "case linediag-{v}-{d}-{lp}\nd3d {v}\nd3ddev {d} 565 16 16\nd3drs set 22 1\nd3drs set 16 {lp}").unwrap();
+            for _ in 0..32 {
+                let (x, y) = (rt.range(0, 255), rt.range(0, 255));
+                let n = rt.range(1, 255);
+                let (sx, sy) = (if rt.next() & 1 == 0 { 1 } else { -1 }, if rt.next() & 1 == 0 { 1 } else { -1 });
+                let (x1, y1) = (x + sx * n, y + sy * n);
+                if (0..256).contains(&x1) && (0..256).contains(&y1) {
+                    writeln!(s, "d3dclear 0\nd3dline 0xffffffff {x} {y} {x1} {y1}\nd3ddump").unwrap();
+                }
+            }
+            writeln!(s, "end").unwrap();
+            writeln!(s, "case linecorner-{v}-{d}-{lp}\nd3d {v}\nd3ddev {d} 565 16 16\nd3drs set 22 1\nd3drs set 16 {lp}").unwrap();
+            for _ in 0..32 {
+                let (x0, y0) = (rt.range(0, 255), rt.range(0, 255));
+                // the last end on a corner: x.5 and a whole y, or a whole x and y.5
+                let (cx, cy) = (rt.range(0, 15) * 16, rt.range(0, 15) * 16);
+                let (x1, y1) = if rt.next() & 1 == 0 { (cx + 8, cy) } else { (cx, cy + 8) };
+                writeln!(s, "d3dclear 0\nd3dline 0xffffffff {x0} {y0} {x1} {y1}\nd3ddump").unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
     s
 }

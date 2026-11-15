@@ -221,6 +221,7 @@ pub enum Rs {
     FogEnable,
     SpecularEnable,
     FogColor,
+    LastPixel,
 }
 
 impl Rs {
@@ -242,6 +243,7 @@ impl Rs {
             Rs::FogEnable => 28,
             Rs::SpecularEnable => 29,
             Rs::FogColor => 34,
+            Rs::LastPixel => 16,
         }
     }
 }
@@ -659,11 +661,11 @@ impl D3d7 {
                 clear(ver, d, c, z, r, out)?;
             }
             "d3dline" => {
-                // (a line list of one line: the rasterizers' lines are not worked out, as
-                // wireframe triangles, D3D7.STATES.OTHER)
-                n32(op, 1)?;
-                for k in 2..6 {
-                    n(op, k)?;
+                // a line list of one line
+                let c = n32(op, 1)?;
+                let mut v = [(0i64, 0i64); 2];
+                for (k, p) in v.iter_mut().enumerate() {
+                    *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
                 }
                 if t.len() != 6 {
                     return Err(Fail::Bad);
@@ -672,7 +674,11 @@ impl D3d7 {
                     out.push("nodev".into());
                     return Ok(true);
                 }
-                return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
+                let st = States::read(self)?;
+                let d = self.dev.as_mut().ok_or(Fail::Bad)?;
+                let cover = line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?;
+                let tri = Tri { v: [v[0], v[1], v[1]], c: [c; 3], spec: [0; 3], z: 0.5 };
+                paint(d, &st, &tri, &cover)?;
             }
             "d3dtri" => {
                 let c = colors(t.get(1).ok_or(Fail::Bad)?)?;
@@ -834,6 +840,7 @@ struct States {
     blend: Option<(Factor, Factor)>,
     fog: Option<u32>,
     specular: bool,
+    lastpixel: bool,
 }
 
 impl States {
@@ -881,6 +888,7 @@ impl States {
             blend,
             fog: (st(Rs::FogEnable) != 0).then(|| st(Rs::FogColor)),
             specular: st(Rs::SpecularEnable) != 0,
+            lastpixel: st(Rs::LastPixel) != 0,
         })
     }
 }
@@ -1142,6 +1150,116 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
     Ok(cover)
 }
 
+/// a pixel of a line: its column along the major axis and its row across (a pixel index each)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+struct Along {
+    major: i64,
+    minor: i64,
+}
+
+/// which of a line's two ends
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum End {
+    Start,
+    Last,
+}
+
+/// the pixels of a line from v[0] to v[1] (1/16 pixel units): MEASURED (d3d7dev lines-*: 64
+/// random lines inside the target per drawer, LASTPIXEL on and off) on the software rasterizers
+/// and the ramp device, the line crosses each whole column m of its major axis (x when |dx| >
+/// |dy|) strictly between its ends at floor(v + 7/16), v the exact line there; an end on a whole
+/// column takes that rule too, another one its diamond: the pixel of centre (ceil(x - 1/2),
+/// ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the diamond's corner at the start; the
+/// start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out without. Exact
+/// ties, a corner at the last end, |dx| = |dy|, ends outside the target and the HAL's lines
+/// are not worked out (D3D7.STATES.OTHER)
+pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
+    let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
+    match family {
+        Family::Soft { .. } | Family::Ramp => {}
+        Family::Hw { .. } => return Err(other),
+    }
+    if !v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..h * 16).contains(&y)) {
+        return Err(other);
+    }
+    let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
+    let (dx, dy) = (v[1].0 - v[0].0, v[1].1 - v[0].1);
+    if dx == 0 && dy == 0 {
+        hit(clause::D3D7_LINE);
+        return Ok(cover);
+    }
+    let xmajor = match dx.abs().cmp(&dy.abs()) {
+        std::cmp::Ordering::Greater => true,
+        std::cmp::Ordering::Less => false,
+        std::cmp::Ordering::Equal => return Err(other),
+    };
+    // (major, minor) of each end
+    let ends = v.map(|(x, y)| if xmajor { (x, y) } else { (y, x) });
+    let ((a0, b0), (a1, b1)) = (ends[0], ends[1]);
+    // the line's minor pixel at whole column m: floor(b + 7/16) as num / den, den > 0
+    let column = |m: i64| -> Res<Along> {
+        let (da, db) = (a1 - a0, b1 - b0);
+        let num = (b0 + 7) * da + (m * 16 - a0) * db;
+        let (num, den) = if da < 0 { (-num, -16 * da) } else { (num, 16 * da) };
+        if num.rem_euclid(den) == 0 {
+            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
+        }
+        Ok(Along { major: m, minor: num.div_euclid(den) })
+    };
+    let mut px: Vec<Along> = Vec::new();
+    let (lo, hi) = (a0.min(a1), a0.max(a1));
+    for m in lo.div_euclid(16)..=hi.div_euclid(16) + 1 {
+        if lo < m * 16 && m * 16 < hi {
+            px.push(column(m)?);
+        }
+    }
+    for (end, (a, b)) in [(End::Start, ends[0]), (End::Last, ends[1])] {
+        let p = if a.rem_euclid(16) == 0 {
+            Some(column(a / 16)?)
+        } else {
+            // the diamond of the nearest centre, x.5 to the one below
+            let (ca, cb) = ((a + 7).div_euclid(16), (b + 7).div_euclid(16));
+            let (ua, ub) = (a - ca * 16, b - cb * 16);
+            let d = ua.abs() + ub.abs();
+            let corner = d == 8 && (ua == 8 || ub == 8);
+            match (d < 8, corner, end) {
+                (true, _, _) => Some(Along { major: ca, minor: cb }),
+                (false, true, End::Start) => Some(Along { major: ca, minor: cb }),
+                (false, true, End::Last) => return Err(other),
+                (false, false, _) => None,
+            }
+        };
+        let Some(p) = p else { continue };
+        match (end, lastpixel) {
+            (End::Start, _) | (End::Last, true) => px.push(p),
+            (End::Last, false) => px.retain(|&q| q != p),
+        }
+    }
+    hit(clause::D3D7_LINE);
+    for Along { major, minor } in px {
+        let (x, y) = if xmajor { (major, minor) } else { (minor, major) };
+        if (0..w).contains(&x) && (0..h).contains(&y) {
+            cover[usize::try_from(y * w + x).map_err(|_| Fail::Bad)?] = true;
+        }
+    }
+    Ok(cover)
+}
+
+/// the pixels of D3DFILL_WIREFRAME: MEASURED (d3d7dev fillmode-*-2-*: 96 + 5 x 24 random
+/// triangles, LASTPIXEL on and off, the software rasterizers and the ramp device) its three
+/// edges v0 v1, v1 v2, v2 v0 drawn as lines (D3D7.LINE)
+fn wireframe(family: Family, v: [(i64, i64); 3], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
+    hit(clause::D3D7_WIREFRAME);
+    let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
+    for k in 0..3 {
+        let edge = line(family, [v[k], v[(k + 1) % 3]], lastpixel, w, h)?;
+        for (c, e) in cover.iter_mut().zip(edge) {
+            *c |= e;
+        }
+    }
+    Ok(cover)
+}
+
 /// the pixels of D3DFILL_POINT: MEASURED (d3d7dev fillmode-*-1-*: 48 x 2 random triangles,
 /// LASTPIXEL on and off, every drawer) each vertex at its position rounded, x.5 up on the
 /// software rasterizers and down on the HAL; the ramp device draws no points
@@ -1292,8 +1410,9 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     };
     match st.fill {
         Fill::Solid => {}
-        // (points of a culled or flat triangle, and points of several colors, not measured)
-        Fill::Point if st.cull == Cull::None && area != 0 && tri.c[0] == tri.c[1] && tri.c[0] == tri.c[2] && tri.spec[0] == tri.spec[1] && tri.spec[0] == tri.spec[2] => {}
+        // (points or wireframe of a culled or flat triangle, or of several colors, not
+        // measured)
+        Fill::Point | Fill::Wireframe if st.cull == Cull::None && area != 0 && tri.c[0] == tri.c[1] && tri.c[0] == tri.c[2] && tri.spec[0] == tri.spec[1] && tri.spec[0] == tri.spec[2] => {}
         Fill::Point | Fill::Wireframe => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
     }
     if area == 0 || culled {
@@ -1309,8 +1428,19 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     let (w, h) = (rt.w, rt.h);
     let cover = match st.fill {
         Fill::Point => points(family, v, w, h)?,
-        Fill::Solid | Fill::Wireframe => coverage(family, v, w, h, rt.fmt)?,
+        Fill::Wireframe => wireframe(family, v, st.lastpixel, w, h)?,
+        Fill::Solid => coverage(family, v, w, h, rt.fmt)?,
     };
+    paint(dev, st, tri, &cover)
+}
+
+/// the covered pixels of a primitive of one color per vertex written through the pixel pipeline
+/// (alpha test, depth, shading, specular, fog, blend or dither)
+fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool]) -> Res<()> {
+    let family = dev.family;
+    let rt = &mut dev.rt;
+    let (w, h) = (rt.w, rt.h);
+    let z = tri.z;
     let zv = match (st.zenable, rt.depth, family) {
         (false, _, _) => None,
         (true, None, _) => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),

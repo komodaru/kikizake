@@ -3,7 +3,7 @@
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
-use kikizake::model::d3d7::{clear_z, f32_past, pixel, rs_default, tri_z, tri_z_write, Depth, Fmt, Ver};
+use kikizake::model::d3d7::{clear_z, f32_past, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
 use kikizake::model::ddraw::{pal_entries, pitch};
 use kikizake::model::{self, run_case, Fail};
 
@@ -292,7 +292,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 32, 0), ("d3d7shade", 52, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 76, 0), ("d3d7shade", 52, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -434,4 +434,52 @@ fn ties_round_symmetrically() {
     }
     // (most slopes are not exact in f32: some edges move)
     assert!(moved > 1000, "{moved}");
+}
+
+/// D3D7.LINE: a line (|dx| > |dy|, or the other way) draws exactly one pixel in each whole column
+/// of its major axis strictly between its ends, the same one walked either way; LASTPIXEL off
+/// draws the same pixels but at most the last one's; for every line between two points of a
+/// grid of fifths of a pixel up to (5, 5) on a 6 x 6 target, on the RGB and ramp rasterizers
+#[test]
+fn lines_cross_each_column_once() {
+    let (w, h) = (6i64, 6i64);
+    let pts: Vec<(i64, i64)> = (0..17).flat_map(|i| (0..17).map(move |j| (i * 5, j * 5))).collect();
+    let mut drawn = 0;
+    for family in [Family::Soft { mmx: false }, Family::Ramp] {
+        for &a in &pts {
+            for &b in &pts {
+                let (dx, dy) = (b.0 - a.0, b.1 - a.1);
+                let (Ok(on), Ok(off), Ok(back)) = (line(family, [a, b], true, w, h), line(family, [a, b], false, w, h), line(family, [b, a], true, w, h)) else { continue };
+                drawn += 1;
+                // off draws a subset of on, missing at most one pixel
+                assert!(on.iter().zip(&off).all(|(&n, &f)| n || !f), "{a:?} {b:?}");
+                assert!(on.iter().zip(&off).filter(|(n, f)| n != f).count() <= 1, "{a:?} {b:?}");
+                if dx == 0 && dy == 0 {
+                    assert!(on.iter().all(|&c| !c));
+                    continue;
+                }
+                let xmajor = dx.abs() > dy.abs();
+                let (lo, hi) = if xmajor { (a.0.min(b.0), a.0.max(b.0)) } else { (a.1.min(b.1), a.1.max(b.1)) };
+                for m in 0..if xmajor { w } else { h } {
+                    if !(lo < m * 16 && m * 16 < hi) {
+                        continue;
+                    }
+                    let cells = |c: &[bool]| -> Vec<i64> {
+                        (0..if xmajor { h } else { w })
+                            .filter(|&n| {
+                                let (x, y) = if xmajor { (m, n) } else { (n, m) };
+                                c[(y * w + x) as usize]
+                            })
+                            .collect()
+                    };
+                    // (an end's pixel may share the column with the line's)
+                    let (one, two) = (cells(&on), cells(&back));
+                    let mid: Vec<i64> = one.iter().copied().filter(|n| two.contains(n)).collect();
+                    assert!(!mid.is_empty() && one.len() <= 2, "{a:?} {b:?} column {m}: {one:?}");
+                }
+            }
+        }
+    }
+    // (most lines have no exact tie)
+    assert!(drawn > 100_000, "{drawn}");
 }
