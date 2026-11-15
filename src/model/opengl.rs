@@ -2518,7 +2518,7 @@ impl Ctx {
         let bits = self.bits();
         let mut v = [0u32; 4];
         if self.cap(BLEND) {
-            v = self.blend(c, self.fb[i])?;
+            v = self.blend(c, self.fb[i], dither.then_some(threshold))?;
         } else {
             for k in 0..4 {
                 v[k] = if bits[k] == 0 {
@@ -2636,17 +2636,17 @@ impl Ctx {
     /// SRC_ALPHA / ONE_MINUS_SRC_ALPHA in integers (GL.BLEND.ALPHA), every other pair in floats
     /// (GL.BLEND.FLOAT); a missing destination alpha makes DST_ALPHA one and ONE_MINUS_DST_ALPHA
     /// zero; the result truncated and clamped
-    pub fn blend(&self, c: [f32; 4], d: [u32; 4]) -> Res<[u32; 4]> {
+    pub fn blend(&self, c: [f32; 4], d: [u32; 4], dither: Option<f32>) -> Res<[u32; 4]> {
         hit(clause::GL_BLEND_APPLY);
         let bits = self.bits();
         if bits[0] < 8 {
-            if self.cap(DITHER) {
-                return Err(Fail::Unmodeled(open::GL_BLEND_FORMAT));
-            }
+
             // (MEASURED, golden opengl-32 blend-fmt-0, 3: 18432 channels of a 16-bit DIB: the
             // factors in floats on the source over 255 and the channel over its largest value,
             // the sum rounded to the channel)
-            hit(clause::GL_BLEND_SMALL);
+            // (MEASURED, golden opengl-32 / 64 blend-dither-*: dithered, the dither matrix's
+            // threshold in place of the half: GL.BLEND.DITHER)
+            hit(if dither.is_some() { clause::GL_BLEND_DITHER } else { clause::GL_BLEND_SMALL });
             let dc = self.dst_color_raw(d);
             let mut r = [0u32; 4];
             for k in 0..3 {
@@ -2654,7 +2654,7 @@ impl Ctx {
                 let sv = ((c[k] * 255.0 + 0.5).floor() as f64) / 255.0;
                 let sa = ((c[3] * 255.0 + 0.5).floor() as f64) / 255.0;
                 let x = sv * blend_factor(self.blend.0, sv, sa, dc[k], dc[3]) + dc[k] * blend_factor(self.blend.1, sv, sa, dc[k], dc[3]);
-                r[k] = (x.clamp(0.0, 1.0) * m + 0.5).floor() as u32;
+                r[k] = (x.clamp(0.0, 1.0) * m + dither.map_or(0.5, f64::from)).floor() as u32;
             }
             return Ok(r);
         }
