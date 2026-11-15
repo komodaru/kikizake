@@ -725,6 +725,29 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case rastertie-{}-{u}-{em}\n{}\ndwgdiglyph {em} 1 0 0 {}\ndwgdiglyph {em} 1 0 1 {}\nend", ["y", "x"][axis as usize], font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
         }
     }
+    // the remainders that round both ways (DW.GDI.EDGE): every k of the remainder, each at the
+    // units per em that read its fraction back, as the advance and as the origin
+    for (pp, t) in [(66i64, 2i64), (26, -2), (50, -2), (62, -2), (97, 1)] {
+        let fu = |f: i64, u: i64| (2 * f * u + 65536).div_euclid(131072);
+        let us: Vec<i64> = (4096..=16384i64).rev().step_by(257).collect();
+        let mut j = 0;
+        for &u in &us {
+            let ks: Vec<i64> = (1..=(i16::MAX as i64 - u / 4) * pp / u).filter(|&k| 2 * (k * 65536 % pp) - pp == t && fu(k * 65536 / pp, u) != fu(k * 65536 / pp + 1, u)).take(14).collect();
+            if ks.is_empty() || j >= 24 {
+                continue;
+            }
+            let gs: Vec<_> = ks.iter().map(|_| ((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])).collect();
+            let mut f = font_with(0x0fd7_0000 + (pp * 64 + j) as u32, u as u16, &gs);
+            f.vertical = true;
+            let sc = |k: i64| (2 * k * u + pp).div_euclid(2 * pp);
+            for (i, &k) in ks.iter().enumerate() {
+                f.glyphs[i + 1].vert = (sc(k) as u16, (sc(k) - u / 4) as i16);
+            }
+            let gids: Vec<String> = (1..=ks.len()).map(|g| g.to_string()).collect();
+            writeln!(s, "case gdivmixed-{pp}-{j}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 0 0 {}\nend", font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
+            j += 1;
+        }
+    }
     // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
