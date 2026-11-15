@@ -123,7 +123,12 @@ proptest! {
     #[test]
     fn clip_cuts_to_the_volume(v in any::<[(i16, i16); 3]>(), scale in 1f64..8.0) {
         let t = v.map(|(x, y)| [f64::from(x) / 32768.0 * scale, f64::from(y) / 32768.0 * scale]);
-        let p = tri::clip(&t);
+        let h = t.map(|c| [c[0] as f32, c[1] as f32, 0.0, 1.0]);
+        let t = h.map(|c| [f64::from(c[0]), f64::from(c[1])]);
+        let p: Vec<[f64; 2]> = tri::clip(&h).iter().map(|c| {
+            assert!(c[2] == 0.0 && c[3] == 1.0);
+            [f64::from(c[0]), f64::from(c[1])]
+        }).collect();
         if t.iter().all(|c| c[0].abs() <= 1.0 && c[1].abs() <= 1.0) {
             prop_assert_eq!(p, t.to_vec());
             return Ok(());
@@ -131,15 +136,15 @@ proptest! {
         let area = (t[1][0] - t[0][0]) * (t[2][1] - t[0][1]) - (t[2][0] - t[0][0]) * (t[1][1] - t[0][1]);
         let side = |a: [f64; 2], b: [f64; 2], c: [f64; 2]| (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
         for c in &p {
-            prop_assert!(c[0].abs() <= 1.0 + 1e-9 && c[1].abs() <= 1.0 + 1e-9);
+            prop_assert!(c[0].abs() <= 1.0 + 1e-6 && c[1].abs() <= 1.0 + 1e-6);
             for k in 0..3 {
                 let s = side(t[k], t[(k + 1) % 3], *c) * area.signum();
-                prop_assert!(s >= -1e-9 * (1.0 + area.abs()), "{c:?} off the triangle");
+                prop_assert!(s >= -1e-5 * (1.0 + area.abs()), "{c:?} off the triangle");
             }
         }
         if p.len() >= 3 {
             let turns: Vec<f64> = (0..p.len()).map(|k| side(p[k], p[(k + 1) % p.len()], p[(k + 2) % p.len()]) * area.signum()).collect();
-            prop_assert!(turns.iter().all(|t| *t >= -1e-9), "not convex: {p:?}");
+            prop_assert!(turns.iter().all(|t| *t >= -1e-5), "not convex: {p:?}");
         }
     }
 

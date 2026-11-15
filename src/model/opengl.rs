@@ -1821,6 +1821,11 @@ impl Fog {
 }
 
 /// the transform of a vertex to window coordinates (x, y, z in 0..1)
+/// `m` times `v` in float32, each row's products added left to right (GL.RASTER.PERSPECTIVE)
+fn xform32(m: &[f32; 16], v: [f32; 4]) -> [f32; 4] {
+    std::array::from_fn(|row| (0..4).fold(0.0f32, |s, k| s + m[k * 4 + row] * v[k]))
+}
+
 fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
     let mut r = [0f64; 4];
     for row in 0..4 {
@@ -1996,16 +2001,25 @@ impl Ctx {
 
     /// A vertex's normalized device coordinates (w = 1 only).
     fn ndc(&self, v: [f64; 3]) -> Res<[f64; 3]> {
-        let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
-        let c = xform(self.top(1), e);
+        // (MEASURED, golden opengl-32 persp-*: in float32, through the modelview matrix, then
+        // the projection, then divided by w: GL.RASTER.PERSPECTIVE)
+        let e = xform32(self.top(0), [v[0] as f32, v[1] as f32, v[2] as f32, 1.0]);
+        let c = xform32(self.top(1), e);
         if c[3] != 1.0 {
-            return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+            hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
         }
-        if c[2] < -1.0 || c[2] > 1.0 {
-            // (a primitive the near or far plane cuts: depths across the cut part)
-            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+        if !c[..3].iter().all(|q| (-c[3]..=c[3]).contains(q)) {
+            if c[3] != 1.0 {
+                // (a primitive cut in clip coordinates of w other than 1)
+                return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+            }
+            if c[2] < -1.0 || c[2] > 1.0 {
+                // (a primitive the near or far plane cuts: depths across the cut part)
+                return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+            }
         }
-        Ok([c[0], c[1], c[2]])
+        let inv = 1.0 / c[3];
+        Ok([c[0] * inv, c[1] * inv, c[2] * inv].map(f64::from))
     }
 
     fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
@@ -2013,27 +2027,49 @@ impl Ctx {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
         hit(clause::GL_RASTER_WINDOW);
-        Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
+        // (the depth in float32: golden opengl-32 persp-*)
+        let z = c[2] as f32 * ((f - n) / 2.0) as f32 + ((n + f) / 2.0) as f32;
+        Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, f64::from(z)])
+    }
+
+    /// A vertex's clip coordinates (MEASURED, golden opengl-32 persp-*: in float32, through the
+    /// modelview matrix, then the projection: GL.RASTER.PERSPECTIVE.DIVIDE).
+    fn clip_coords(&self, v: [f64; 3]) -> [f32; 4] {
+        xform32(self.top(1), xform32(self.top(0), [v[0] as f32, v[1] as f32, v[2] as f32, 1.0]))
     }
 
     /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
-    /// (one per vertex) interpolate to there: cut to the view volume (the colors with it), then
-    /// a fan from its first vertex, convex or not (golden poly-nc-*, prim-11; tie-x-2: the
-    /// fan's diagonal taking in a corner on a center), each triangle's colors a plane through
-    /// its rounded corners (GL.RASTER.INTERPOLATE).
-    fn fill(&self, q: &[([f64; 3], [f32; 4])], colors: &[[f64; 4]], depth: Option<(&[f32], tri::DepthBits)>) -> Res<Vec<Filled>> {
+    /// (one per vertex) interpolate to there and, given the buffer, its depth: cut to the view
+    /// volume (the colors and depths with it, `tri::clip`), then a fan from its first vertex,
+    /// convex or not (golden poly-nc-*, prim-11; tie-x-2: the fan's diagonal taking in a corner
+    /// on a center), each triangle's colors a plane through its rounded corners
+    /// (GL.RASTER.INTERPOLATE.COLOR), its depths `tri::depths`.
+    fn fill(&self, q: &[([f64; 3], [f32; 4])], colors: &[[f64; 4]], depth: Option<tri::DepthBits>) -> Res<Vec<Filled>> {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
-        let ndc: Vec<[f64; 6]> = q.iter().zip(colors).map(|(v, c)| self.ndc(v.0).map(|n| [n[0], n[1], c[0], c[1], c[2], c[3]])).collect::<Res<_>>()?;
-        let poly = tri::clip(&ndc);
+        let clip: Vec<[f32; 8]> = q
+            .iter()
+            .zip(colors)
+            .map(|(v, c)| {
+                let p = self.clip_coords(v.0);
+                [p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32]
+            })
+            .collect();
+        let poly = tri::clip(&clip);
         if poly.len() < 3 {
             return Ok(Vec::new());
         }
-        if poly != ndc {
+        if poly != clip {
             hit(clause::GL_RASTER_CLIP_XY);
+            if clip.iter().any(|c| c[3] != 1.0) {
+                hit(clause::GL_RASTER_PERSPECTIVE);
+            }
         }
-        let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
-        let col: Vec<[f64; 4]> = poly.iter().map(|c| [c[2], c[3], c[4], c[5]]).collect();
+        // (divided by w as times 1 / w in float32: golden opengl-32 persp-2)
+        let ndc: Vec<[f32; 3]> = poly.iter().map(|c| [c[0], c[1], c[2]].map(|v| v * (1.0 / c[3]))).collect();
+        let v: Vec<tri::Vertex> = ndc.iter().map(|c| tri::Vertex { x: tri::Sub::snap(f64::from(c[0]), vw, center.0), y: tri::Sub::snap(f64::from(c[1]), vh, center.1) }).collect();
+        let col: Vec<[f64; 4]> = poly.iter().map(|c| [c[4], c[5], c[6], c[7]].map(f64::from)).collect();
+        let zs: Vec<f32> = ndc.iter().map(|c| self.window_z(c[2])).collect();
         let (w, h) = (W as i64, H as i64);
         let mut out = Vec::new();
         for k in 1..v.len() - 1 {
@@ -2042,15 +2078,19 @@ impl Ctx {
             let color = |x, y| if value[1] == value[0] && value[2] == value[0] { value[0] } else { tri::plane(at, value, x, y) };
             match depth {
                 None => out.extend(tri::pixels(&at, w, h).into_iter().map(|(x, y)| (x, y, color(x, y), None))),
-                Some((zs, bits)) if poly == ndc && zs.len() == v.len() => {
+                Some(bits) => {
                     let fixed = |z| FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(z)) };
                     out.extend(tri::depths(at, [zs[0], zs[k], zs[k + 1]], w, h, bits).into_iter().map(|(x, y, z)| (x, y, color(x, y), Some(fixed(z)))));
                 }
-                // (depths that vary across a cut polygon are not measured)
-                Some(_) => return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE)),
             }
         }
         Ok(out)
+    }
+
+    /// A normalized device depth in the window (in float32: golden opengl-32 persp-*).
+    fn window_z(&self, z: f32) -> f32 {
+        let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
+        z * ((f - n) / 2.0) as f32 + ((n + f) / 2.0) as f32
     }
 
     /// A filled polygon of one depth (GL.RASTER.TRIANGLE), its colors flat (the `provoking`
@@ -2064,22 +2104,43 @@ impl Ctx {
         if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
             return Ok(());
         }
-        let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
-        let zs: Vec<f32> = w.iter().map(|p| p[2] as f32).collect();
-        // (depths that vary across the polygon, where a depth test reads them: in a 32-bit
-        // buffer GL.RASTER.INTERPOLATE.DEPTH, in a 16-bit one not measured)
+        let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
+        if clip.iter().any(|c| c[3] != 1.0) {
+            hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
+        }
+        if clip.iter().any(|c| c[3] != 1.0) {
+            let m = self.top(0);
+            let turned = (0..4).any(|r| (0..4).any(|c| r != c && m[c * 4 + r] != 0.0 && !(c == 3 && r < 3)));
+            let cut = !clip.iter().all(|c| c[..3].iter().all(|q| (-c[3]..=c[3]).contains(q)));
+            // (a modelview that turns the vertices before a projection: depths an ulp off,
+            // golden opengl-32 persp-4, persp-5; a cut polygon of more than 3 vertices under
+            // a projection: persp-3, Windows drawing nothing)
+            if turned || (cut && q.len() > 3) {
+                return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+            }
+        }
+        let zs: Vec<f32> = clip.iter().map(|c| self.window_z(c[2] * (1.0 / c[3]))).collect();
+        // (depths that vary across the polygon, where a depth test reads them:
+        // GL.RASTER.INTERPOLATE.DEPTH)
         let depth = if self.pf.depth > 0 && self.cap(DEPTH_TEST) && zs.iter().any(|z| *z != zs[0]) {
-            let bits = match self.pf.depth {
+            hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
+            Some(match self.pf.depth {
                 32 => tri::DepthBits::D32,
                 16 => tri::DepthBits::D16,
                 // (the formats have 32 or 16 depth bits only: WGL.FORMATS)
                 _ => return Err(Fail::Bad),
-            };
-            hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
-            Some((zs.as_slice(), bits))
+            })
         } else {
             None
         };
+        // (one depth: the window depth of the first vertex, GL.DEPTH.FIXED)
+        let z0 = f64::from(zs[0]);
+        // (which way it turns, for culling: in normalized device coordinates; with a vertex at
+        // or behind the eye not measured)
+        if self.cap(CULL_FACE) && clip.iter().any(|c| c[3] <= 0.0) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+        }
+        let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
         let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
         let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
         // (smooth colors under fog or lighting are not measured)
@@ -2113,7 +2174,7 @@ impl Ctx {
         }
         self.never = NeverPath::Other;
         for (x, y, c, zfixed) in px {
-            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: w[0][2], fixed, zfixed })?;
+            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed })?;
         }
         Ok(())
     }
@@ -2197,11 +2258,13 @@ impl Ctx {
                     if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
                         continue;
                     }
-                    let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
-                    if q.iter().any(|v| v.1 != q[3].1) || w.iter().any(|p| p[2] != w[0][2]) {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
-                    }
-                    // (axis-aligned rectangles only: the cases draw no other quads)
+                    // (an axis-aligned rectangle of one color and depth inside the near and far
+                    // planes at w = 1 as glRect; any other quad a polygon)
+                    let w: Option<Vec<[f64; 3]>> = q.iter().map(|v| self.window(v.0).ok()).collect();
+                    let Some(w) = w.filter(|w| q.iter().all(|v| v.1 == q[3].1) && w.iter().all(|p| p[2] == w[0][2])) else {
+                        self.polygon(q, 3)?;
+                        continue;
+                    };
                     let xs = [w[0][0], w[1][0], w[2][0], w[3][0]];
                     let ys = [w[0][1], w[1][1], w[2][1], w[3][1]];
                     if !(xs[0] == xs[3] && xs[1] == xs[2] && ys[0] == ys[1] && ys[2] == ys[3]) {
@@ -3961,20 +4024,27 @@ pub mod tri {
         }
     }
 
-    /// A polygon in normalized device coordinates clipped to -1 <= x, y <= 1 (x = 1, x = -1,
-    /// y = 1, y = -1 in turn): each edge from the previous vertex to the next adds where it
-    /// crosses the plane, then its end when inside (golden prim-11, rect-13, tie-x-2: the order
-    /// a fan from the first vertex starts from).
-    pub fn clip<const D: usize>(poly: &[[f64; D]]) -> Vec<[f64; D]> {
+    /// A polygon in clip coordinates (x, y, z, w, then any values that go with them) cut to
+    /// -w <= x, y, z <= w, against x = -w, x = w, y = -w, y = w, z = -w, z = w in turn, in
+    /// float32: each edge from the previous vertex to the next adds where it crosses the plane,
+    /// then its end when inside; the crossing from the edge's end inside, t its distance to
+    /// the plane over the two ends' difference, each value moved t of the way to the end
+    /// outside, the coordinate the plane cuts then set to the plane's (golden opengl-32 clip-*,
+    /// smooth-*: depths along the cuts; prim-11, rect-13, tie-x-2: the order a fan from the
+    /// first vertex starts from).
+    pub fn clip<const D: usize>(poly: &[[f32; D]]) -> Vec<[f32; D]> {
         let mut poly = poly.to_vec();
-        for (axis, sign) in [(0, 1.0), (0, -1.0), (1, 1.0), (1, -1.0)] {
+        for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
             let mut out = Vec::new();
             for (i, b) in poly.iter().enumerate() {
                 let a = poly[(i + poly.len() - 1) % poly.len()];
-                let (da, db) = (1.0 - sign * a[axis], 1.0 - sign * b[axis]);
+                let (da, db) = (a[3] - sign * a[axis], b[3] - sign * b[axis]);
                 if (da >= 0.0) != (db >= 0.0) {
-                    let t = da / (da - db);
-                    out.push(std::array::from_fn(|k| a[k] + t * (b[k] - a[k])));
+                    let (inside, outside, di, dout) = if da >= 0.0 { (a, *b, da, db) } else { (*b, a, db, da) };
+                    let t = di / (di - dout);
+                    let mut c: [f32; D] = std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k]));
+                    c[axis] = sign * c[3];
+                    out.push(c);
                 }
                 if db >= 0.0 {
                     out.push(*b);
@@ -4126,6 +4196,10 @@ pub mod tri {
     pub fn depths(v: [Vertex; 3], z: [f32; 3], w: i64, h: i64, bits: DepthBits) -> Vec<(i64, i64, Fixed)> {
         let top = (0..3).max_by_key(|k| (v[*k].y, std::cmp::Reverse(*k))).unwrap_or(0);
         let bottom = (0..3).min_by_key(|k| (v[*k].y, *k)).unwrap_or(0);
+        if top == bottom {
+            // (all at one height: no row to fill)
+            return Vec::new();
+        }
         let mid = 3 - top - bottom;
         let px = |c: Sub| c.0 as f32 / 256.0;
         let (o, p, q) = (v[bottom], v[top], v[mid]);
