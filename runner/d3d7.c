@@ -330,6 +330,34 @@ static void op_d3dtri(void) {
     if (hr) out("tri end hr %08lx\n", hr);
 }
 
+/* d3dline <c> <x0> <y0> <x1> <y1>: BeginScene, a D3DTLVERTEX line list of one line (x, y in
+ * 16ths of a pixel, z 0.5, rhw 1, the diffuse color ARGB), EndScene ("line <step> hr <hr>") */
+static void op_d3dline(void) {
+    D3DTLVERTEX v[2];
+    memset(v, 0, sizeof v);
+    if (ntok != 6) { bad = 1; return; }
+    char *e;
+    DWORD c = (DWORD)strtoul(tok[1], &e, 0);
+    if (*e || e == tok[1]) bad = 1;
+    for (int k = 0; k < 2; k++) {
+        v[k].sx = num(2 + 2 * k) / 16.0f;
+        v[k].sy = num(3 + 2 * k) / 16.0f;
+        v[k].sz = 0.5f;
+        v[k].rhw = 1.0f;
+        v[k].color = c;
+    }
+    if (bad) return;
+    if (!dev2 && !dev3 && !dev7) { out("nodev\n"); return; }
+    HRESULT hr = dev7 ? IDirect3DDevice7_BeginScene(dev7) : dev3 ? IDirect3DDevice3_BeginScene(dev3) : IDirect3DDevice2_BeginScene(dev2);
+    if (hr) { out("line begin hr %08lx\n", hr); return; }
+    hr = dev7 ? IDirect3DDevice7_DrawPrimitive(dev7, D3DPT_LINELIST, D3DFVF_TLVERTEX, v, 2, 0)
+       : dev3 ? IDirect3DDevice3_DrawPrimitive(dev3, D3DPT_LINELIST, D3DFVF_TLVERTEX, v, 2, 0)
+       : IDirect3DDevice2_DrawPrimitive(dev2, D3DPT_LINELIST, D3DVT_TLVERTEX, v, 2, 0);
+    if (hr) out("line draw hr %08lx\n", hr);
+    hr = dev7 ? IDirect3DDevice7_EndScene(dev7) : dev3 ? IDirect3DDevice3_EndScene(dev3) : IDirect3DDevice2_EndScene(dev2);
+    if (hr) out("line end hr %08lx\n", hr);
+}
+
 /* d3dfill <seed> / d3ddump / d3dzdump: the target's (z-buffer's) bytes through Lock, as ddfill
  * and dddump ("dd rt|z <w> <h> <bits>" and the rows) */
 static void op_d3dlock(void) {
@@ -380,6 +408,7 @@ static const struct kz_op d3d7_ops[] = {
     { "d3drs", op_d3drs },
     { "d3dclear", op_d3dclear },
     { "d3dtri", op_d3dtri },
+    { "d3dline", op_d3dline },
     { "d3dfill", op_d3dlock },
     { "d3ddump", op_d3dlock },
     { "d3dzdump", op_d3dlock },

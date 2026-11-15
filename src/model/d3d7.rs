@@ -515,7 +515,7 @@ impl D3d7 {
                 }
             }
             "d3ddev" => return self.make_device(op, out),
-            "d3drs" | "d3dclear" | "d3dtri" | "d3dfill" | "d3ddump" | "d3dzdump" => return self.draw(op, out),
+            "d3drs" | "d3dclear" | "d3dtri" | "d3dline" | "d3dfill" | "d3ddump" | "d3dzdump" => return self.draw(op, out),
             _ => return Ok(false),
         }
         Ok(true)
@@ -657,6 +657,22 @@ impl D3d7 {
                     return Ok(true);
                 };
                 clear(ver, d, c, z, r, out)?;
+            }
+            "d3dline" => {
+                // (a line list of one line: the rasterizers' lines are not worked out, as
+                // wireframe triangles, D3D7.STATES.OTHER)
+                n32(op, 1)?;
+                for k in 2..6 {
+                    n(op, k)?;
+                }
+                if t.len() != 6 {
+                    return Err(Fail::Bad);
+                }
+                if ver.is_none() || self.dev.is_none() {
+                    out.push("nodev".into());
+                    return Ok(true);
+                }
+                return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
             }
             "d3dtri" => {
                 let c = colors(t.get(1).ok_or(Fail::Bad)?)?;

@@ -539,5 +539,19 @@ pub fn d3d7dev() -> String {
             }
         }
     }
+    // lines (D3D7.STATES.OTHER: wireframe triangles draw their edges as lines): one line list of
+    // one line at a time, every drawer, LASTPIXEL on and off, random ends inside the target
+    // (its own generator, so that the cases before keep theirs)
+    let mut rl = XorShift32::new(0x00d3_d711);
+    for &(v, d) in DRAWERS {
+        for lp in [1, 0] {
+            writeln!(s, "case lines-{v}-{d}-{lp}\nd3d {v}\nd3ddev {d} 565 16 16\nd3drs set 22 1\nd3drs set 16 {lp}").unwrap();
+            for _ in 0..64 {
+                let p: Vec<i64> = (0..4).map(|_| rl.range(0, 255)).collect();
+                writeln!(s, "d3dclear 0\nd3dline 0xffffffff {} {} {} {}\nd3ddump", p[0], p[1], p[2], p[3]).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
     s
 }
