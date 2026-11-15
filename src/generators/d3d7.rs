@@ -745,5 +745,19 @@ pub fn d3d7dev() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // the HAL's last pixel: a line from far off to each 16th inside and on pixel (6, 6)'s diamond,
+    // in eight directions (diamond exit leaves out a last pixel the HAL drew in about 3 of 10)
+    for (k, (dx, dy)) in [(160, 37), (160, -37), (-160, 37), (-160, -37), (37, 160), (-37, 160), (37, -160), (-37, -160)].into_iter().enumerate() {
+        writeln!(s, "case halend-{k}\nd3d 7\nd3ddev hal 565 12 12\nd3drs set 22 1").unwrap();
+        for ex in -8i64..=8 {
+            for ey in -8i64..=8 {
+                if ex.abs() + ey.abs() <= 8 {
+                    let (x1, y1) = (96 + ex, 96 + ey);
+                    writeln!(s, "d3dclear 0\nd3dline 0xffffffff {} {} {x1} {y1}\nd3ddump", x1 - dx / 2, y1 - dy / 2).unwrap();
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
