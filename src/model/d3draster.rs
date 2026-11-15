@@ -1555,8 +1555,9 @@ fn filter_path(id: u32) -> Option<FilterPath> {
     match (f.num, id) {
         // R8G8B8A8, R8G8, R8, A8, B8G8R8A8, B8G8R8X8 UNORM; BC1, BC2, BC3, BC7 UNORM
         (_, 28 | 49 | 61 | 65 | 87 | 88 | 71 | 74 | 77 | 98) => Some(FilterPath::Fixed),
-        // R11G11B10, R9G9B9E5, B5G6R5, B5G5R5A1, B4G4R4A4; BC1 sRGB, BC4 UNORM and SNORM, BC5 UNORM, BC6H
-        (_, 26 | 67 | 85 | 86 | 115 | 72 | 80 | 81 | 83 | 95) => Some(FilterPath::Wide),
+        // R11G11B10, R9G9B9E5, B5G6R5, B5G5R5A1, B4G4R4A4; BC1 sRGB, BC4 and BC5 UNORM and SNORM,
+        // BC6H; R24_UNORM_X8 and R32_FLOAT_X8X24 (depth formats' views)
+        (_, 26 | 67 | 85 | 86 | 115 | 72 | 80 | 81 | 83 | 84 | 95 | 46 | 21) => Some(FilterPath::Wide),
         (Num::Float | Num::Srgb | Num::Snorm, _) if f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) => Some(FilterPath::Wide),
         (Num::Unorm, _) if f.comps.iter().all(|&c| c == 16) || f.comps == [10, 10, 10, 2] => Some(FilterPath::Wide),
         _ => None,

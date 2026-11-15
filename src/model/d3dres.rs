@@ -279,7 +279,6 @@ impl D3dres {
         // and reads (zeros, D3DRES.READ.MS) are modeled on them)
         let at: &[usize] = match name {
             "update" => &[1],
-            "copy" => &[1, 2],
             "copysub" => &[1, 6],
             _ => &[],
         };
@@ -376,14 +375,40 @@ impl D3dres {
                     let bytes = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 8);
                     let words = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16);
                     let floats = f.num == Num::Float && f.comps.iter().all(|&c| c == 32);
-                    if !bytes && !words && !floats {
+                    // (16-bit float and 8-bit sRGB: their decoded values' f32 mean, encoded as a
+                    // pixel's output to the format, probe-rt-ms4-colors-10, -29)
+                    // (packed UNORM, 10-10-10-2: each component's integer mean rounded half up as
+                    // bytes, probe-rt-ms4-colors-24)
+                    let packed = f.num == Num::Unorm && f.comps == [10, 10, 10, 2];
+                    let other = !bytes && !words && !floats && !packed;
+                    if other && !(f.num == Num::Float && f.comps.iter().all(|&c| c == 16) || f.num == Num::Srgb && f.comps.iter().all(|&c| c == 8)) {
                         return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                     }
                     let (n, plane) = (src.d.count as usize, sv.len());
                     for y in 0..srows.min(drows) {
                         for x in 0..w / el {
                             let at = |k: usize| k * plane + y * srb + x * el;
-                            let e: Vec<u8> = if bytes {
+                            let e: Vec<u8> = if packed {
+                                let word = |k: usize| samp[at(k)..][..el].iter().rev().fold(0u64, |a, &b| a << 8 | u64::from(b));
+                                let mut out = 0u64;
+                                let mut shift = 0;
+                                for &c in f.comps {
+                                    let mask = (1u64 << c) - 1;
+                                    let sum: u64 = (0..n).map(|k| word(k) >> shift & mask).sum();
+                                    out |= ((sum + n as u64 / 2) / n as u64).min(mask) << shift;
+                                    shift += c;
+                                }
+                                out.to_le_bytes()[..el].to_vec()
+                            } else if other {
+                                let mut sum = [0f32; 4];
+                                for k in 0..n {
+                                    let c = super::dxgiconv::decode_f(f, &samp[at(k)..][..el])?;
+                                    for (s, v) in sum.iter_mut().zip(c) {
+                                        *s += v;
+                                    }
+                                }
+                                super::dxgiconv::encode(f, sum.map(|v| v / n as f32))?
+                            } else if bytes {
                                 (0..el).map(|i| {
                                     let sum: usize = (0..n).map(|k| usize::from(samp[at(k) + i])).sum();
                                     u8::try_from((sum + n / 2) / n).unwrap_or(u8::MAX)
@@ -745,6 +770,11 @@ fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
         return Ok(());
     }
     dst.subs = src.subs.clone();
+    // (MEASURED, WARP: probe-rt-ms4-copy) a multisampled resource's samples copy with it
+    if src.samples.iter().any(Option::is_some) || dst.samples.iter().any(Option::is_some) {
+        hit(clause::D3DRES_COPY_SAMPLES);
+    }
+    dst.samples = src.samples.clone();
     Ok(())
 }
 
