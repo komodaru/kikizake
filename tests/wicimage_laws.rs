@@ -601,3 +601,44 @@ proptest! {
         }
     }
 }
+
+/// an ICO of one PNG entry and one BMP entry: both file orders give the same two frames, in the
+/// same order or each with the later entry first (the rule is of the pair, not of the file), and
+/// a PNG frame's CopyPixels fails exactly when it comes after a wider frame
+#[test]
+fn ico_pairs_order_alike_in_both_file_orders() {
+    use kikizake::generators::{wicimage_bmp, wicimage_ico, wicimage_png, wicimage_png_filter};
+    use wi::Frame;
+    proptest!(ProptestConfig::with_cases(400), |(pw in 1u32..20, ph in 1u32..20, bw in 1u32..20, bh in 1u32..20, depth in prop::sample::select(vec![1u32, 4, 8, 24, 32]), seed in any::<u8>())| {
+        let raw: Vec<Vec<u8>> = (0..ph).map(|y| (0..pw * 4).map(|x| (x * 31 + y * 7 + seed as u32) as u8).collect()).collect();
+        let p = wicimage_png(pw, ph, 8, 6, false, &[], &wicimage_png_filter(&raw, 4, &[0]), 100);
+        let stride = (bw * depth).div_ceil(32) * 4;
+        let pal: Vec<u32> = if depth <= 8 { (0..1u32 << depth).map(|i| i * 0x10101).collect() } else { vec![] };
+        let px: Vec<u8> = (0..(stride + bw.div_ceil(32) * 4) * bh).map(|i| (i * 13 + seed as u32) as u8).collect();
+        let b = wicimage_bmp(40, bw as i32, (2 * bh) as i32, depth, 0, [0; 4], 0, &pal, &px, false, (0, 0))[14..].to_vec();
+        let order = |f: &[u8]| -> Vec<(u32, u32, bool)> {
+            let d = wi::decode(f).unwrap().unwrap();
+            d.frames.into_iter().map(|fr| match fr.unwrap() {
+                Frame::Pixels(i) => (i.w, i.h, false),
+                Frame::NoPixels(i, hr) => { assert_eq!(hr, wi::INSUFFICIENT_BUFFER); (i.w, i.h, true) }
+                Frame::NoInfo(hr) => panic!("no frame info {hr:x}"),
+            }).collect()
+        };
+        let pb = order(&wicimage_ico(&[(pw, ph, 32, p.clone()), (bw, bh, depth, b.clone())]));
+        let bp = order(&wicimage_ico(&[(bw, bh, depth, b), (pw, ph, 32, p)]));
+        prop_assert_eq!(pb.len(), 2);
+        let png_first = |o: &[(u32, u32, bool)], png_in_file_first: bool| if (pw, ph) == (bw, bh) { None } else { Some((o[0].0, o[0].1) == (pw, ph)) }.map(|x| x != png_in_file_first);
+        // (each file order: did the later entry come first)
+        let (a, z) = (png_first(&pb, true), png_first(&bp, false));
+        if let (Some(a), Some(z)) = (a, z) {
+            // (the same frame first in both, or the later first in both)
+            prop_assert!(a != z || a, "{pw}x{ph} PNG, {bw}x{bh} {depth}-bit BMP: {pb:?} {bp:?}");
+        }
+        for o in [&pb, &bp] {
+            let starved = o[1].2;
+            let second_is_png = (o[1].0, o[1].1) == (pw, ph) && ((o[0].0, o[0].1) != (pw, ph) || starved);
+            prop_assert_eq!(starved, second_is_png && o[0].0 > o[1].0);
+            prop_assert!(!o[0].2);
+        }
+    });
+}

@@ -1803,59 +1803,46 @@ struct IcoEntry {
 }
 
 /// MEASURED (golden wicdecode icopair-*: every 32-bit PNG of 1..5 x 1..5 beside every 32-bit
-/// BMP of 1..4 x 1..4 in both file orders, 384 pairs; icosmall-*, icoseed-*, icopng-*): a PNG
-/// entry and a BMP entry of one depth: the PNG first when its size is near the BMP's, the BMP
-/// first when far, the later in the file first when just between. Near: the height difference,
-/// plus the width difference when the PNG is the wider or twice it when the narrower, below the
-/// lesser height; just between: equal to it
-fn ico_png_vs_bmp(p: (u32, u32), b: (u32, u32)) -> std::cmp::Ordering {
-    use std::cmp::Ordering;
+/// BMP of 1..4 x 1..4 in both file orders, 384 pairs; icodepth-*: PNGs of 3, 8, 16 beside BMPs of
+/// 3 and 16 of 1, 4, 8, 24 bits; icosmall-*, icoseed-*, icopng-*): a file of one PNG entry and one
+/// BMP entry: the PNG first when it is near the BMP, the BMP first when far, the later in the file
+/// first when just between. The distance: the heights' difference, plus the widths' difference
+/// when the PNG is the wider or twice it when the narrower, plus twice the bits the BMP has fewer;
+/// near: below the lesser height, just between: equal to it
+fn ico_png_vs_bmp(p: (u32, u32), b: (u32, u32, u32)) -> std::cmp::Ordering {
     let dw = if p.0 >= b.0 { p.0 - b.0 } else { 2 * (b.0 - p.0) };
-    let d = p.1.abs_diff(b.1) + dw;
-    match d.cmp(&p.1.min(b.1)) {
-        Ordering::Less => Ordering::Less,
-        Ordering::Equal => Ordering::Equal,
-        Ordering::Greater => Ordering::Greater,
-    }
+    let d = p.1.abs_diff(b.1) + dw + 2 * 32u32.saturating_sub(b.2);
+    d.cmp(&p.1.min(b.1))
 }
 
-/// the frames' order: MEASURED (golden wicdecode ico-three, ico-order-size/depth/mixed/zero,
-/// ico-png-*-bmp, icopair-*, icosmall-*): by the entries' own depth, deepest first; of one depth a
-/// PNG before or after a BMP by `ico_png_vs_bmp`, else the last in the file first; a 32-bit PNG
-/// beside one BMP entry of fewer bits: the BMP first (icosmall-*-b3x8)
+/// the frames' order: MEASURED (golden wicdecode ico-order-size/depth/zero, ico-png-*-bmp,
+/// icopair-*, icodepth-*, icosmall-*): BMP entries by their own depth, deepest first, of one depth
+/// the last in the file first; one PNG entry beside one BMP entry by `ico_png_vs_bmp`
 fn ico_order(mut entries: Vec<IcoEntry>) -> Res<Vec<IcoEntry>> {
     use std::cmp::Ordering;
     if let [a, b] = &entries[..]
         && a.png != b.png
     {
-        let (p, m) = if a.png { (a, b) } else { (b, a) };
-        if m.bpp < p.bpp {
-            hit(clause::WICIMAGE_ICO_ORDER_PNG_PAIR);
-            if a.png {
-                entries.reverse();
-            }
-            return Ok(entries);
+        let ((p, m), png_first_in_file) = if a.png { ((a, b), true) } else { ((b, a), false) };
+        let png_first = match ico_png_vs_bmp((p.w, p.h), (m.w, m.h, m.bpp)) {
+            Ordering::Less => true,
+            Ordering::Greater => false,
+            Ordering::Equal => !png_first_in_file,
+        };
+        if png_first != png_first_in_file {
+            entries.reverse();
         }
+        hit(clause::WICIMAGE_ICO_ORDER_PNG_PAIR);
+        return Ok(entries);
     }
-    let cmp = |x: &IcoEntry, y: &IcoEntry| -> Ordering {
-        match y.bpp.cmp(&x.bpp) {
-            Ordering::Equal => match (x.png, y.png) {
-                (true, false) => ico_png_vs_bmp((x.w, x.h), (y.w, y.h)),
-                (false, true) => ico_png_vs_bmp((y.w, y.h), (x.w, x.h)).reverse(),
-                (true, true) | (false, false) => Ordering::Equal,
-            },
-            o @ (Ordering::Less | Ordering::Greater) => o,
-        }
-    };
-    // (the PNG rule is no order of the sizes: a depth that holds a PNG and more than one other
-    // entry is not measured)
-    for e in &entries {
-        if e.png && entries.iter().filter(|o| o.bpp == e.bpp).count() > 2 {
-            return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
-        }
+    // (OPEN: a PNG among three or more entries, or two PNGs: the frames are no sort of the pair
+    // rule (golden icotri-*: the BMPs then come by size, a PNG before a BMP the pair rule puts
+    // first), WICIMAGE.ICO.PNG.SMALL)
+    if entries.iter().any(|e| e.png) {
+        return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
     }
     entries.reverse();
-    entries.sort_by(cmp);
+    entries.sort_by_key(|e| std::cmp::Reverse(e.bpp));
     hit(clause::WICIMAGE_ICO_ORDER);
     Ok(entries)
 }
