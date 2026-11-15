@@ -2597,7 +2597,7 @@ impl Ctx {
                 // alpha tested, are not measured)
                 // (blended into a buffer without alpha: GL.RASTER.LINE.SMOOTH.BLEND)
                 let blended = self.cap(BLEND) && self.pf.rgba[3].0 == 0;
-                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST) || (self.line_width != 1.0 && (self.pf.rgba[3].0 > 0 || !(1.0..=3.0).contains(&self.line_width))))) {
+                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST))) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
@@ -2657,7 +2657,7 @@ impl Ctx {
                             // GL.RASTER.LINE.SMOOTH.WIDE)
                             let width = if wide {
                                 hit(clause::GL_RASTER_LINE_SMOOTH_WIDE);
-                                tri::SmoothWidth(f64::from(self.line_width))
+                                tri::SmoothWidth(f64::from(self.line_width.min(10.0)))
                             } else {
                                 tri::SmoothWidth::ONE
                             };
