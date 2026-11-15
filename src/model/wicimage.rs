@@ -225,11 +225,138 @@ fn wide_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
     Some(Ok(o))
 }
 
+/// the channels of the fixed-point, half and three-float formats: how many, their kind, the
+/// alpha's index when one is there (the colors are in r, g, b order but 64bppBGRAFixedPoint's)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum WideKind {
+    /// s2.13 in 16 bits
+    Fix16,
+    /// s7.24 in 32 bits
+    Fix32,
+    /// IEEE binary16
+    Half,
+    /// IEEE binary32
+    Float,
+}
+
+/// (channels, kind, whether the fourth channel is there)
+fn wide_layout(f: &str) -> Option<(usize, WideKind)> {
+    Some(match f {
+        "grayfix16" => (1, WideKind::Fix16),
+        "grayfix32" => (1, WideKind::Fix32),
+        "grayhalf" => (1, WideKind::Half),
+        "rgb48fixed" => (3, WideKind::Fix16),
+        "rgb48half" => (3, WideKind::Half),
+        "rgb64fixed" | "bgra64fixed" => (4, WideKind::Fix16),
+        "rgb64half" | "rgba64half" => (4, WideKind::Half),
+        "rgb96fixed" => (3, WideKind::Fix32),
+        "rgb128fixed" | "rgba128fixed" => (4, WideKind::Fix32),
+        "rgb96float" => (3, WideKind::Float),
+        "grayfloat" => (1, WideKind::Float),
+        "rgbafloat" | "prgbafloat" | "rgbfloat" => (4, WideKind::Float),
+        _ => return None,
+    })
+}
+
+/// MEASURED (golden wicencode fixpath-gray16-*: 4096 levels of 16bppGray into each format, every
+/// value as this): into a half format each channel the LINEAR16 value rounded to the nearest
+/// half (even on a tie); into an s2.13 format the 48bppRGB level's (GRAY16_RGB48) LINEAR16 value
+/// times 8192 rounded; into an s7.24 format the 48bppRGB level's LINEAR16 value times 2^24 plus
+/// 0.5 in f32, truncated, and into 32bppGrayFixedPoint that value back in f32 (times 2^-24) as
+/// 32bppGrayFloat's sum of the three; 96bppRGBFloat the LINEAR16 value; the fourth channel 1
+fn gray16_to_wide(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    if s.fmt != "gray16" || matches!(to, "grayfloat" | "rgbafloat" | "prgbafloat" | "rgbfloat") {
+        return None;
+    }
+    let (n, kind) = wide_layout(to)?;
+    hit(clause::WICIMAGE_CONVERT_GRAY16_WIDE);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (st, ost) = (s.stride(), o.stride());
+    let size = match kind {
+        WideKind::Fix16 | WideKind::Half => 2,
+        WideKind::Fix32 | WideKind::Float => 4,
+    };
+    for y in 0..s.h as usize {
+        for x in 0..s.w as usize {
+            let i = y * st + x * 2;
+            let v = u16::from_le_bytes([s.px[i], s.px[i + 1]]);
+            let lin = linear16(v);
+            let lin48 = linear16(gray16_rgb48(v));
+            let fix32 = |f: f32| (f * 16_777_216.0f32 + 0.5f32) as i32;
+            let (c, one): (Vec<u8>, Vec<u8>) = match kind {
+                WideKind::Half => (crate::model::d3d9draw::f32_to_f16(lin).to_le_bytes().to_vec(), crate::model::d3d9draw::f32_to_f16(1.0).to_le_bytes().to_vec()),
+                WideKind::Fix16 => ((((f64::from(lin48) * 8192.0) + 0.5).floor() as i16).to_le_bytes().to_vec(), 8192i16.to_le_bytes().to_vec()),
+                WideKind::Fix32 if n == 1 => {
+                    let f = fix32(lin48) as f32 * (1.0 / 16_777_216.0f32);
+                    (fix32((f * 0.2126 + f * 0.7152) + f * 0.0722).to_le_bytes().to_vec(), vec![])
+                }
+                WideKind::Fix32 => (fix32(lin48).to_le_bytes().to_vec(), (1i32 << 24).to_le_bytes().to_vec()),
+                WideKind::Float => (lin.to_le_bytes().to_vec(), 1.0f32.to_le_bytes().to_vec()),
+            };
+            let d = &mut o.px[y * ost + x * n * size..y * ost + (x + 1) * n * size];
+            for k in 0..n {
+                d[k * size..(k + 1) * size].copy_from_slice(if k == 3 { &one } else { &c });
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
+/// MEASURED (golden wicencode fixpath-gray16-*: from each format into 64bppRGBAFixedPoint, every
+/// value as this): a float or half channel times 8192 rounded; an s2.13 one as it is; an s7.24
+/// one shifted right 11 bits; a gray channel into each color; no fourth channel: alpha 1 (8192)
+fn wide_to_rgba64fixed(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    if to != "rgba64fixed" || s.fmt == "rgba64fixed" {
+        return None;
+    }
+    let (n, kind) = wide_layout(s.fmt)?;
+    hit(clause::WICIMAGE_CONVERT_WIDE_FIXED);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (st, ost) = (s.stride(), o.stride());
+    let size = match kind {
+        WideKind::Fix16 | WideKind::Half => 2,
+        WideKind::Fix32 | WideKind::Float => 4,
+    };
+    for y in 0..s.h as usize {
+        for x in 0..s.w as usize {
+            let at = |k: usize| -> i16 {
+                let i = y * st + (x * n + k) * size;
+                let b = &s.px[i..i + size];
+                let round = |v: f64| (v * 8192.0 + 0.5).floor() as i16;
+                match kind {
+                    WideKind::Fix16 => i16::from_le_bytes([b[0], b[1]]),
+                    WideKind::Fix32 => (i32::from_le_bytes([b[0], b[1], b[2], b[3]]) >> 11) as i16,
+                    WideKind::Half => round(crate::model::d3d9draw::f16_to_f64(u16::from_le_bytes([b[0], b[1]]))),
+                    WideKind::Float => round(f64::from(f32::from_le_bytes([b[0], b[1], b[2], b[3]]))),
+                }
+            };
+            let v: [i16; 4] = match (n, s.fmt) {
+                (1, _) => [at(0), at(0), at(0), 8192],
+                (3, _) => [at(0), at(1), at(2), 8192],
+                (_, "bgra64fixed") => [at(2), at(1), at(0), at(3)],
+                _ => [at(0), at(1), at(2), at(3)],
+            };
+            for (k, c) in v.iter().enumerate() {
+                o.px[y * ost + x * 8 + k * 2..y * ost + x * 8 + k * 2 + 2].copy_from_slice(&c.to_le_bytes());
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
 pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if s.fmt == to {
         return Ok(s.clone());
     }
     if let Some(r) = wide_to_float(s, to) {
+        return r;
+    }
+    if let Some(r) = gray16_to_wide(s, to) {
+        return r;
+    }
+    if let Some(r) = wide_to_rgba64fixed(s, to) {
         return r;
     }
     if (s.fmt, to) == ("gray16", "rgb48") {

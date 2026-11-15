@@ -642,3 +642,19 @@ fn ico_pairs_order_alike_in_both_file_orders() {
         }
     });
 }
+
+/// every 16-bit gray level: into 64bppRGBAFixedPoint directly, or first into any s2.13 format,
+/// is the same (both go through 48bppRGB, and s2.13 into 64bppRGBAFixedPoint keeps the values)
+#[test]
+fn gray16_into_fixed_point_through_any_s2_13_format() {
+    let mut g = Img::new(256, 256, "gray16");
+    for v in 0..65536usize {
+        g.px[2 * v..2 * v + 2].copy_from_slice(&(v as u16).to_le_bytes());
+    }
+    let direct = wi::wic_convert(&g, "rgba64fixed").unwrap();
+    for mid in ["grayfix16", "rgb48fixed", "rgb64fixed", "bgra64fixed"] {
+        let m = wi::wic_convert(&g, mid).unwrap();
+        let back = wi::wic_convert(&m, "rgba64fixed").unwrap();
+        assert!(back.px == direct.px, "through {mid}");
+    }
+}
