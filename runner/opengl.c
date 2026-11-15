@@ -305,12 +305,14 @@ static void op_glread(void) {
         if (rbuf[n + i] != 0xcc) { out("over\n"); break; }
 }
 
-/* gldraw <w> <h> <format> <type> <seed> <bytes>: glDrawPixels of <bytes> bytes from xorshift32 */
+/* gldraw <w> <h> <format> <type> <seed> <bytes>: glDrawPixels of <bytes> bytes from xorshift32,
+ * zeros after them to the end of rbuf (what an image laid out past its bytes reads) */
 static void op_gldraw(void) {
     NOCTX();
     long w = num(1), h = num(2), f = num(3), t = num(4), seed = num(5), n = num(6);
     if (bad || n < 1 || n > 65536) { bad = 1; return; }
     unsigned x = seed ? (unsigned)seed : 0x9e3779b9;
+    memset(rbuf, 0, sizeof rbuf);
     for (int i = 0; i < n; i++) {
         x ^= x << 13; x ^= x >> 17; x ^= x << 5;
         rbuf[i] = x;

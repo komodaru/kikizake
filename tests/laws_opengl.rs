@@ -3,7 +3,7 @@
 use kikizake::compare::line_matches;
 use kikizake::model::opengl::e::*;
 use kikizake::model::opengl::tri::{self, Sub, Vertex};
-use kikizake::model::opengl::{blend_bytes, blend_undefined, logic, logic_reads_dst, Fog, FogMode};
+use kikizake::model::opengl::{blend_bytes, Given, blend_undefined, logic, logic_reads_dst, Fog, FogMode};
 use proptest::prelude::*;
 
 fn fog(mode: FogMode, density: f32, start: f32, end: f32) -> Fog {
@@ -240,6 +240,17 @@ proptest! {
         let mut first: Vec<i64> = p.iter().filter(|q| q.1 == row).map(|q| q.0).collect();
         first.sort();
         prop_assert_eq!(first, (0..w).collect::<Vec<i64>>());
+    }
+
+    /// GL.DRAW.BUFFER: the bytes glDrawPixels reads are the given ones, then the runner's
+    /// zeros to the end of its buffer; past the buffer is no answer
+    #[test]
+    fn draw_reads_the_given_bytes_then_zeros(bytes in proptest::collection::vec(any::<u8>(), 1..512), at in 0usize..1024, n in 1usize..16) {
+        let g = Given::new(bytes.clone());
+        let want: Vec<u8> = (at..at + n).map(|i| bytes.get(i).copied().unwrap_or(0)).collect();
+        prop_assert_eq!(g.bytes(at, n).ok().map(<[u8]>::to_vec), Some(want));
+        prop_assert!(g.bytes(Given::BUFFER - n + 1, n).is_err());
+        prop_assert!(g.bytes(Given::BUFFER - n, n).is_ok());
     }
 
     /// GL.RASTER.TIE: a rectangle's two antialiased triangles (v0 v1 v2, v0 v2 v3) share its

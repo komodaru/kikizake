@@ -1127,8 +1127,8 @@ impl Gl {
                     return Err(Fail::Bad);
                 }
                 let mut r = crate::rng::XorShift32::new(v[4] as u32);
-                let data: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
-                ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &data)?;
+                let given: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
+                ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &Given::new(given))?;
             }
             "gldib" => {
                 let rows = ctx.dib()?;
@@ -1147,6 +1147,39 @@ pub fn hex(b: &[u8]) -> String {
 
 fn is_func(f: u32) -> bool {
     (NEVER..=ALWAYS).contains(&f)
+}
+
+/// The bytes `gldraw` hands glDrawPixels: the runner's buffer, the given bytes first and zeros
+/// after them to its end (runner/opengl.c rbuf, zeroed before each gldraw). An image's layout
+/// past the given bytes reads those zeros (GL 1.1 3.6.3: the image is read from the pointer as
+/// its layout says, whatever the bytes are; GL.DRAW.BUFFER); past the buffer is a line the model
+/// refuses.
+pub struct Given {
+    bytes: Vec<u8>,
+    given: usize,
+}
+
+impl Given {
+    /// The runner's buffer: 65536 bytes and 64 more (runner/opengl.c rbuf)
+    pub const BUFFER: usize = 65536 + 64;
+
+    pub fn new(mut bytes: Vec<u8>) -> Self {
+        let given = bytes.len();
+        bytes.resize(Self::BUFFER.max(given), 0);
+        Given { bytes, given }
+    }
+
+    pub fn bytes(&self, at: usize, n: usize) -> Res<&[u8]> {
+        let end = at.checked_add(n).ok_or(Fail::Bad)?;
+        if end > self.given {
+            hit(clause::GL_DRAW_BUFFER);
+        }
+        self.bytes.get(at..end).ok_or(Fail::Bad)
+    }
+
+    pub fn byte(&self, at: usize) -> Res<u8> {
+        Ok(self.bytes(at, 1)?[0])
+    }
 }
 
 /// How a line's first end came through the view volume.
@@ -3903,7 +3936,7 @@ impl Ctx {
         Ok(())
     }
 
-    pub fn draw_pixels(&mut self, w: i64, h: i64, f: u32, t: u32, data: &[u8]) -> Res<()> {
+    pub fn draw_pixels(&mut self, w: i64, h: i64, f: u32, t: u32, data: &Given) -> Res<()> {
         let Some((comps, size)) = self.pixel_args(w, h, f, t, false)? else { return Ok(()) };
         let Some([rx, ry, rz]) = self.raster else {
             hit(clause::GL_RASTER_POS);
@@ -3923,7 +3956,7 @@ impl Ctx {
             for j in 0..h as usize {
                 for i in 0..w as usize {
                     let (at, m) = bitmap_bit(&self.unpack, w, i, j);
-                    let Some(b) = data.get(at) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
+                    let b = data.byte(at)?;
                     let v: f32 = if b & m != 0 { 1.0 } else { 0.0 };
                     if f == STENCIL_INDEX {
                         for (x, y) in self.image_pixels(rx, ry, i, j) {
@@ -3956,7 +3989,7 @@ impl Ctx {
             for j in 0..h as usize {
                 for i in 0..w as usize {
                     let at = (start + j * k + i) * size;
-                    let Some(e) = data.get(at..at + size) else { return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER)) };
+                    let e = data.bytes(at, size)?;
                     let mut e = e.to_vec();
                     if self.unpack[0] != 0 {
                         e.reverse();
@@ -3984,10 +4017,7 @@ impl Ctx {
                 let mut c = [0.0, 0.0, 0.0, 1.0];
                 for (n, which) in comps.iter().enumerate() {
                     let at = (start + j * k + i * comps.len() + n) * size;
-                    if at + size > data.len() {
-                        return Err(Fail::Unmodeled(open::GL_DRAW_BUFFER));
-                    }
-                    let mut e = data[at..at + size].to_vec();
+                    let mut e = data.bytes(at, size)?.to_vec();
                     if self.unpack[0] != 0 {
                         e.reverse();
                     }
