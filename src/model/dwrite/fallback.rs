@@ -49,23 +49,23 @@ impl Sys {
     }
 }
 
-/// the Unicode block a character is in (Blocks.txt), as far as the table's characters go: a
-/// piece of the fallback's answer ends where the block changes
+/// the range of the fallback's own table a character is in (MEASURED, golden dwrite,
+/// fallback-pairs: which of the table's characters one piece takes together): a piece of the
+/// fallback's answer ends where the range changes
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Block {
-    BasicLatin,
-    Latin1Supplement,
-    GreekAndCoptic,
-    Cyrillic,
+pub enum Range {
+    /// U+007E, U+00E9, U+0378, U+03B1, U+0430: one piece (U+0378: none)
+    LatinGreekCyrillic,
     Hebrew,
+    /// U+0627, U+0628
     Arabic,
     Devanagari,
     Thai,
     CurrencySymbols,
     Arrows,
     MiscellaneousSymbols,
-    Hiragana,
-    Katakana,
+    /// U+3042, U+30A2: one piece (but not with U+4E00)
+    Kana,
     CjkUnifiedIdeographs,
     HangulSyllables,
     PrivateUseArea,
@@ -73,17 +73,17 @@ pub enum Block {
     SupplementaryPrivateUseAreaB,
 }
 
-/// what the fallback answers for a character the font does not map: its block, and the font,
+/// what the fallback answers for a character the font does not map: its range, and the font,
 /// glyph and design advance (None: no font of the machine's maps it)
-pub fn sys(c: u32) -> Option<(Block, Option<(Sys, u16, u16)>)> {
-    use Block::*;
+pub fn sys(c: u32) -> Option<(Range, Option<(Sys, u16, u16)>)> {
+    use Range::*;
     use Sys::*;
     Some(match c {
-        0x7e => (BasicLatin, Some((SegoeUi, 97, 1401))),
-        0xe9 => (Latin1Supplement, Some((SegoeUi, 112, 1071))),
-        0x378 => (GreekAndCoptic, None),
-        0x3b1 => (GreekAndCoptic, Some((SegoeUi, 303, 1258))),
-        0x430 => (Cyrillic, Some((SegoeUi, 519, 1042))),
+        0x7e => (LatinGreekCyrillic, Some((SegoeUi, 97, 1401))),
+        0xe9 => (LatinGreekCyrillic, Some((SegoeUi, 112, 1071))),
+        0x378 => (LatinGreekCyrillic, None),
+        0x3b1 => (LatinGreekCyrillic, Some((SegoeUi, 303, 1258))),
+        0x430 => (LatinGreekCyrillic, Some((SegoeUi, 519, 1042))),
         0x5d1 => (Hebrew, Some((SegoeUi, 2921, 1168))),
         0x627 => (Arabic, Some((SegoeUi, 2317, 513))),
         0x628 => (Arabic, Some((SegoeUi, 2318, 1881))),
@@ -92,8 +92,8 @@ pub fn sys(c: u32) -> Option<(Block, Option<(Sys, u16, u16)>)> {
         0x20ac => (CurrencySymbols, Some((SegoeUi, 189, 1104))),
         0x2192 => (Arrows, Some((SegoeUi, 2862, 1767))),
         0x2603 => (MiscellaneousSymbols, Some((SegoeUiEmoji, 3869, 2812))),
-        0x3042 => (Hiragana, Some((YuGothicUi, 23644, 1671))),
-        0x30a2 => (Katakana, Some((YuGothicUi, 23727, 1589))),
+        0x3042 => (Kana, Some((YuGothicUi, 23644, 1671))),
+        0x30a2 => (Kana, Some((YuGothicUi, 23727, 1589))),
         0x4e00 => (CjkUnifiedIdeographs, Some((YuGothicUi, 1202, 2048))),
         0xac00 => (HangulSyllables, Some((MalgunGothic, 636, 2048))),
         0xe000 => (PrivateUseArea, None),
@@ -132,15 +132,15 @@ impl Piece {
 
 /// what the fallback answers for a text: its pieces. MEASURED (golden dwrite, fallback-*): a
 /// character the own font maps is the own font's; the others the table's; a piece ends where the
-/// font changes, and, among the machine's fonts (and none), where the block changes too
+/// font changes, and, among the machine's fonts (and none), where the range changes too
 /// (Hebrew | Greek, both Segoe UI; CJK | Hiragana, both Yu Gothic UI; Greek | Supplementary
-/// Private Use Area-B, both none), the own font's going on across blocks
+/// Private Use Area-B, both none), the own font's going on across them
 pub fn pieces(p: &Parsed, cps: &[u32]) -> Res<Vec<Piece>> {
     hit(clause::DW_FALLBACK_MAP);
-    let mut v: Vec<(Pick, Option<Block>, Piece)> = Vec::new();
+    let mut v: Vec<(Pick, Option<Range>, Piece)> = Vec::new();
     for &c in cps {
         let g = glyph_of(p, c);
-        let (pick, block, glyph) = if g != 0 {
+        let (pick, range, glyph) = if g != 0 {
             (Pick::Own, None, (g, p.hmtx[g as usize].0))
         } else {
             hit(clause::DW_FALLBACK_FONTS);
@@ -151,11 +151,11 @@ pub fn pieces(p: &Parsed, cps: &[u32]) -> Res<Vec<Piece>> {
             }
         };
         match v.last_mut() {
-            Some(l) if l.0 == pick && l.1 == block => {
+            Some(l) if l.0 == pick && l.1 == range => {
                 l.2.cps.push(c);
                 l.2.glyphs.push(glyph);
             }
-            _ => v.push((pick, block, Piece { pick, cps: vec![c], glyphs: vec![glyph] })),
+            _ => v.push((pick, range, Piece { pick, cps: vec![c], glyphs: vec![glyph] })),
         }
     }
     Ok(v.into_iter().map(|e| e.2).collect())

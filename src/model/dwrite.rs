@@ -324,7 +324,16 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, fallback: Fallback, cps: &[
     // the resolved bidi levels (MEASURED: a left-to-right paragraph); a cluster at an odd one
     // is right to left
     let classes: Vec<bidi::Class> = cps.iter().map(|&c| bidi::class(c)).collect();
-    let (_, lv) = bidi::analyze(&classes, 0);
+    let (_, mut lv) = bidi::analyze(&classes, 0);
+    // (MEASURED, fallback-bidi: a line's trailing whitespace takes the paragraph's level, UAX #9
+    // L1, line by line)
+    for &(s, e) in &lines {
+        let mut k = e;
+        while k > s && ws(k - 1) {
+            k -= 1;
+            lv[k] = 0;
+        }
+    }
     hit(clause::DW_LAYOUT_DEPTH);
     let depth = depth(&lv, &lines);
     // (MEASURED: left is negative zero)
