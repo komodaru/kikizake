@@ -673,11 +673,12 @@ static void op_state(void) {
  * cbuf <buffer>: the vertex and pixel shaders' constant buffer 0 */
 static void op_bindres(void) {
     if (is(0, "samp")) {
-        UINT v[4];
-        for (int i = 0; i < 4; i++) v[i] = (UINT)num(1 + i);
-        if (ntok != 5) bad = 1;
+        /* samp filter address-u address-v address-w [comparison function] */
+        UINT v[5] = { 0, 0, 0, 0, D3D11_COMPARISON_NEVER };
+        if (ntok != 5 && ntok != 6) bad = 1;
+        for (int i = 0; i < ntok - 1 && i < 5; i++) v[i] = (UINT)num(1 + i);
         if (bad || nodev()) return;
-        D3D11_SAMPLER_DESC d = { v[0], v[1], v[2], v[3], 0, 1, D3D11_COMPARISON_NEVER, { 0, 0, 0, 0 }, -FLT_MAX, FLT_MAX };
+        D3D11_SAMPLER_DESC d = { v[0], v[1], v[2], v[3], 0, 1, v[4], { 0, 0, 0, 0 }, -FLT_MAX, FLT_MAX };
         IUnknown *o = NULL;
         HRESULT hr = dev11 ? ID3D11Device_CreateSamplerState(dev11, &d, (ID3D11SamplerState **)&o) : ID3D10Device_CreateSamplerState(dev10, (void *)&d, (ID3D10SamplerState **)&o);
         if (FAILED(hr)) { out("samp hr %08lx\n", hr); return; }

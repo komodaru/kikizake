@@ -84,6 +84,19 @@ pub fn shaders() -> Vec<(&'static str, Vec<u8>)> {
         ins(SAMPLE, &[&dst(OUTPUT, 0, 0xf)[..], &src(INPUT, 1, swz(0, 1, 0, 0)), &src(RESOURCE, 0, XYZW), &[SAMPLER << 12 | 1 << 20, 0]].concat()),
         ret.clone(),
     ]))));
+    // pssamplec: texture 0 compared with sampler 0 (comparison mode) at the color's xy against
+    // its z, the result in every channel
+    let isgn = [isgn[0], f4("TEXCOORD", 0, 1, 7)];
+    v.push(("pssamplec", blob(0, &isgn, &target, &cat(&[
+        ins(DCL_SAMPLER | 1 << 11, &[SAMPLER << 12 | 1 << 20, 0]),
+        ins(DCL_RESOURCE | 3 << 11, &[RESOURCE << 12 | 1 << 20, 0, 0x5555]),
+        ins(DCL_INPUT_PS | LINEAR, &dst(INPUT, 1, 7)),
+        ins(DCL_OUTPUT, &dst(OUTPUT, 0, 0xf)),
+        ins(DCL_TEMPS, &[1]),
+        ins(SAMPLE_C, &[&dst(TEMP, 0, 1)[..], &src(INPUT, 1, swz(0, 1, 0, 0)), &src(RESOURCE, 0, XYZW), &[SAMPLER << 12 | 1 << 20, 0], &src1(INPUT, 1, 2)].concat()),
+        mov(dst(OUTPUT, 0, 0xf), src(TEMP, 0, 0)),
+        ret.clone(),
+    ]))));
     v
 }
 
@@ -474,6 +487,19 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "case shader-bad\n{dev}\nshader 0 ps {}\nshader 1 ps {}\nshader 2 vs {}\nshader 3 ps 00\nend", hex(&broken), hex(&short), hex(&shader("ps"))).unwrap();
     // an input layout that the program's input signature does not match
     writeln!(s, "case layout-bad\n{dev}\nshader 0 vs {}\nlayout 0 2\nlayout 0 2 2 2\nlayout 0 0x1c 2\nlayout 0 0x29 2\nlayout 0 0 2\nlayout 1 2 2\nend", hex(&shader("vs"))).unwrap();
+    // what D3DRASTER.FILTER leaves open: sample_c through a sampler without comparison, and
+    // sample through one with it (undefined by the documentation: near the end, as WARP may end
+    // the executor on them)
+    for (name, ps, filter) in [("samplec-nocmp", "pssamplec", 0x15u32), ("sample-cmp", "pssample", 0x95)] {
+        writeln!(s, "case probe-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        writeln!(s, "tex 1 2 4 4 1 1 56 0 8 0 0 1 0 init 400 8 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3 2").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader(ps))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (x, y, u, v, r) in [(-1.0f32, 1.0f32, -0.2f32, -0.2f32, 0.0f32), (1.0, 1.0, 0.9, -0.2, 1.0), (-1.0, -1.0, -0.2, 0.9, 0.0), (1.0, -1.0, 0.9, 0.9, 1.0)] {
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(r), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
+    }
     // a patch list drawn without hull and domain programs: WARP ends the executor there, so
     // it comes last
     begin(&mut s, dev, "probe-topology-33", 16, 16, 28, "ps");
@@ -979,6 +1005,19 @@ fn probes(s: &mut String, dev: &str) {
         writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (x, y, u, v) in [(-1.0f32, 1.0f32, uv.0, uv.0), (1.0, 1.0, uv.1, uv.0), (-1.0, -1.0, uv.0, uv.1), (1.0, -1.0, uv.1, uv.1)] {
             writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
+    }
+    // sample_c: a comparison filter (point, linear) and every comparison function, against a
+    // reference that runs across the triangle, of a 16-bit UNORM and a 32-bit float texture
+    for (filter, func, fmt) in [0x80u32, 0x95].into_iter().flat_map(|f| (1..=8u32).map(move |c| (f, c, 56u32))).chain([(0x95, 2, 41), (0x80, 4, 41)]) {
+        writeln!(s, "case probe-sample-cmp-{filter:x}-{func}-{fmt}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        let pitch = format(fmt).unwrap().row_bytes(4);
+        writeln!(s, "tex 1 2 4 4 1 1 {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3 {func}").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("pssamplec"))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (x, y, u, v, r) in [(-1.0f32, 1.0f32, -0.2f32, -0.2f32, 0.0f32), (1.0, 1.0, 0.9, -0.2, 1.0), (-1.0, -1.0, -0.2, 0.9, 0.0), (1.0, -1.0, 0.9, 0.9, 1.0)] {
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(r), fb(1.0)).unwrap();
         }
         writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }

@@ -150,6 +150,10 @@ pub fn dst(ty: u32, reg: u32, mask: u32) -> [u32; 2] {
 pub fn src(ty: u32, reg: u32, swz: u32) -> [u32; 2] {
     [2 | 1 << 2 | swz << 4 | ty << 12 | 1 << 20, reg]
 }
+/// one component of a source register (a scalar operand)
+pub fn src1(ty: u32, reg: u32, comp: u32) -> [u32; 2] {
+    [2 | 2 << 2 | comp << 4 | ty << 12 | 1 << 20, reg]
+}
 /// cb<slot>[element], swizzled
 pub fn cbsrc(slot: u32, el: u32, swz: u32) -> [u32; 3] {
     [2 | 1 << 2 | swz << 4 | CB << 12 | 2 << 20, slot, el]
@@ -170,6 +174,7 @@ pub const FTOU: u32 = 0x1c;
 pub const UTOF: u32 = 0x56;
 pub const LD: u32 = 0x2d;
 pub const SAMPLE: u32 = 0x45;
+pub const SAMPLE_C: u32 = 0x46;
 pub const RET: u32 = 0x3e;
 pub const DCL_INPUT: u32 = 0x5f;
 pub const DCL_INPUT_SGV: u32 = 0x60;

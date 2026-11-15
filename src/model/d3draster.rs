@@ -39,7 +39,8 @@ pub struct Draw {
     blend: ([u32; 8], [f32; 4]),
     depthst: [u32; 3],
     srv: Option<usize>,
-    sampler: Option<[u32; 4]>,
+    /// filter, the three address modes, the comparison function
+    sampler: Option<[u32; 5]>,
 }
 
 impl Default for Draw {
@@ -147,7 +148,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 }
                 // (MEASURED: against a pixel program given as a vertex one, refused,
                 // probe-layout-otherkind)
-                "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" => {
+                "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" | "pssamplec" => {
                     hit(clause::D3DRASTER_LAYOUT_SIG);
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
                     return Ok(());
@@ -252,11 +253,13 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             }
         }
         "samp" => {
-            if t.len() != 5 {
+            if t.len() != 5 && t.len() != 6 {
                 return Err(Fail::Bad);
             }
-            let w: Vec<u32> = (1..5).map(|i| n(t, i)).collect::<Res<_>>()?;
-            let desc = [w[0], w[1], w[2], w[3], 0, 1, 1, 0, 0, 0, 0, 0xff7f_ffff, 0x7f7f_ffff];
+            let mut w: Vec<u32> = (1..t.len()).map(|i| n(t, i)).collect::<Res<_>>()?;
+            // (the comparison function: never when not given)
+            w.resize(5, 1);
+            let desc = [w[0], w[1], w[2], w[3], 0, 1, w[4], 0, 0, 0, 0, 0xff7f_ffff, 0x7f7f_ffff];
             match normalize(Kind::Sampler, &desc) {
                 Some(_) => d.sampler = Some(w.try_into().unwrap()),
                 None => out.push(format!("samp hr {E_INVALIDARG:08x}")),
@@ -1698,7 +1701,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 texel(r, 0, v.format(), px as u32, py as u32)?
             }
         }
-        "pssample" => {
+        "pssample" | "pssamplec" => {
             hit(clause::D3DRASTER_SAMPLE);
             // (an unbound shader resource reads as zeros, ld-89)
             let Some(sv) = d.srv else {
@@ -1709,7 +1712,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             // linear filtering, clamped addresses
             let s = d.sampler.unwrap_or_else(|| {
                 hit(clause::D3DRASTER_NOSAMPLER);
-                [0x15, 3, 3, 3]
+                [0x15, 3, 3, 3, 1]
             });
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
@@ -1735,7 +1738,22 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 }
             };
             let uv = uv_at(px, py)?;
-            let filter = Filter::of(s[0]).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
+            // (sample_c: each texel's red against the reference, the color's z, by the sampler's
+            // comparison function; a comparison filter only, sample with one and sample_c with
+            // another not measured)
+            let cmp = match (ps == "pssamplec", s[0] & 0x80 != 0) {
+                (true, true) => {
+                    hit(clause::D3DRASTER_SAMPLE_CMP);
+                    let reference = match planes {
+                        Some(p) => p.at(px as f32 + 0.5, py as f32 + 0.5)[2],
+                        None => same(&|v| v.color)?[2],
+                    };
+                    Some((reference, s[4]))
+                }
+                (false, false) => None,
+                (true, false) | (false, true) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+            };
+            let filter = Filter::of(s[0] & !0x80).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
             // pixel spans, as the 2 x 2 quad's differences give them)
             // (MEASURED, WARP: probe-filter-aniso, -aniso-min, -aniso-2, -4, -16, -aniso-mips,
@@ -1780,7 +1798,26 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 let (w, h, _) = r.size(base + level);
                 let at = |i: i64, j: i64| -> Res<[u32; 4]> {
                     match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
-                        (Some(x), Some(y)) => texel(r, base + level, v.format(), x as u32, y as u32),
+                        (Some(x), Some(y)) => {
+                            let t = texel(r, base + level, v.format(), x as u32, y as u32)?;
+                            Ok(match cmp {
+                                None => t,
+                                Some((reference, func)) => {
+                                    let a = f32::from_bits(t[0]);
+                                    let pass = match func {
+                                        2 => reference < a,
+                                        3 => reference == a,
+                                        4 => reference <= a,
+                                        5 => reference > a,
+                                        6 => reference != a,
+                                        7 => reference >= a,
+                                        8 => true,
+                                        _ => false,
+                                    };
+                                    [if pass { 1.0f32 } else { 0.0 }.to_bits(); 4]
+                                }
+                            })
+                        }
                         _ => {
                             hit(clause::D3DRASTER_BORDER);
                             Ok([0; 4])
@@ -1804,7 +1841,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
                 // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
                 // 1/256 below the fraction
-                let path = filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
+                // (comparisons' results filtered as floats: to verify, probe-sample-cmp-*)
+                let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))? };
                 if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
                     let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);

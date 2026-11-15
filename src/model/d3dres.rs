@@ -764,7 +764,8 @@ fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
         let f = r.fmt();
         (f.map_or(r.d.w, |f| r.d.w.div_ceil(f.bw)), f.map_or(r.d.h, |f| r.d.h.div_ceil(f.bh)))
     };
-    let ok = same_shape && dst.d.usage != 1 && (a.dim == 4 && a.w == b.w || a.dim != 4 && copy_compatible(a.fmt, b.fmt, dev) && (if group(a.fmt) == group(b.fmt) { (a.w, a.h) == (b.w, b.h) } else { blocks(dst) == blocks(src) }));
+    // (MEASURED, WARP: probe-rt-ms4-copy) Direct3D 10 copies no multisampled resource
+    let ok = same_shape && dst.d.usage != 1 && !(dev == Dev::D10 && a.count > 1) && (a.dim == 4 && a.w == b.w || a.dim != 4 && copy_compatible(a.fmt, b.fmt, dev) && (if group(a.fmt) == group(b.fmt) { (a.w, a.h) == (b.w, b.h) } else { blocks(dst) == blocks(src) }));
     if !ok {
         hit(clause::D3DRES_COPY_IGNORED);
         return Ok(());
