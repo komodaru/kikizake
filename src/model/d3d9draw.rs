@@ -772,6 +772,30 @@ impl TexFilter {
     }
 }
 
+/// the stretch of a..b inside [-0.5, max.0] x [-0.5, max.1] in f32 (Liang-Barsky): t = (edge - a)
+/// / (b - a) per edge, the ends a + t (b - a)
+fn clip_line(a: (f32, f32), b: (f32, f32), max: (f32, f32)) -> Option<((f32, f32), (f32, f32))> {
+    let (mut t0, mut t1) = (0f32, 1f32);
+    for (pa, pb, hi) in [(a.0, b.0, max.0), (a.1, b.1, max.1)] {
+        let d = pb - pa;
+        if d == 0.0 {
+            if pa < -0.5 || pa > hi {
+                return None;
+            }
+            continue;
+        }
+        let (tl, th) = ((-0.5 - pa) / d, (hi - pa) / d);
+        let (enter, leave) = if d > 0.0 { (tl, th) } else { (th, tl) };
+        t0 = t0.max(enter);
+        t1 = t1.min(leave);
+    }
+    if t0 > t1 {
+        return None;
+    }
+    let at = |t: f32| if t == 0.0 { a } else if t == 1.0 { b } else { (a.0 + t * (b.0 - a.0), a.1 + t * (b.1 - a.1)) };
+    Some((at(t0), at(t1)))
+}
+
 /// a line's snapped ends (1/256 pixel, Direct3D 9's pixel centers at whole pixels)
 struct Seg9 {
     a: (i128, i128),
@@ -2040,32 +2064,83 @@ impl D3d9 {
         if l.a == l.b {
             return Ok(());
         }
-        let mut centers = (0..h).flat_map(|py| (0..w).map(move |px| (px as i128 * 256, py as i128 * 256)));
-        match (inside(&a), inside(&b)) {
-            (true, true) => {}
-            // (open: a line past the target at both ends, line-random-46; one past it through a
-            // diamond's corner, line-random-25, line-end-2-4-clip ..: WARP's clipping moves it)
-            (false, false) => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
-            _ if centers.any(|c| l.through_corner(c, (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs())) => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
-            // (MEASURED line-clip-*, line-random-*, line-end-*-clip: a line past the target at
-            // one end drawn as the whole line over the target, D3D9.DRAW.LINECLIP)
-            (true, false) | (false, true) => hit(clause::D3D9_DRAW_LINECLIP),
+        // (the segment rasterized: a line past the target cut to it in f32 and snapped again)
+        let r = match (inside(&a), inside(&b)) {
+            (true, true) => {
+                // (open: a line starting on the corner of a diamond that a tie gives the pixel
+                // and running left, d3d8draw points-lines-5 does not light it; to the right it
+                // does, line-end-2-2-in, -2-5-in, -4-2-in, -4-5-in; cases line-start-*)
+                let ymaj = (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs();
+                let tie_corner = |c: (i128, i128)| l.a == (c.0, c.1 + DIAMOND) || ymaj && l.a == (c.0 + DIAMOND, c.1);
+                let mut centers = (0..h).flat_map(|py| (0..w).map(move |px| (px as i128 * 256, py as i128 * 256)));
+                if l.b.0 < l.a.0 && centers.any(tie_corner) {
+                    return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES));
+                }
+                Seg9 { a: l.a, b: l.b }
+            }
+            (ia, ib) => {
+                let unsnap = |p: (i128, i128)| (p.0 as f32 / 256.0, p.1 as f32 / 256.0);
+                let (mut pa, mut pb) = (unsnap(l.a), unsnap(l.b));
+                if !ia && !ib {
+                    // (MEASURED line-both-*: past the target at both ends, an end past it only
+                    // on the right or bottom side and by at most half a pixel is moved onto it)
+                    hit(clause::D3D9_DRAW_LINECLIP_NEAR);
+                    let (rx, by) = (w as f32 - 0.5, h as f32 - 0.5);
+                    for p in [&mut pa, &mut pb] {
+                        let past = p.0 > rx || p.1 > by;
+                        let near = p.0 >= -0.5 && p.1 >= -0.5 && p.0 <= rx + 0.5 && p.1 <= by + 0.5;
+                        if past && near {
+                            *p = (p.0.min(rx), p.1.min(by));
+                        }
+                    }
+                }
+                // (MEASURED points-lines-2 of d3d8draw: Direct3D 8's right (bottom) edge at the
+                // size itself where an end is at the width (height), as D3D9.RASTER.CLIP8SIDE)
+                let side = |size: i32, at: bool| if self.v8 && at { size as f32 } else { size as f32 - 0.5 };
+                let (wf, hf) = (w as f32, h as f32);
+                let max = (side(w, pa.0 == wf || pb.0 == wf), side(h, pa.1 == hf || pb.1 == hf));
+                if max != (wf - 0.5, hf - 0.5) {
+                    hit(clause::D3D9_RASTER_CLIP8SIDE);
+                }
+                let Some((ca, cb)) = clip_line(pa, pb, max) else {
+                    hit(clause::D3D9_DRAW_LINECLIP);
+                    return Ok(());
+                };
+                let snap = |v: f32| round_even(f64::from(v) * 256.0) as i128;
+                let r = Seg9 { a: (snap(ca.0), snap(ca.1)), b: (snap(cb.0), snap(cb.1)) };
+                // (open: a line past the target at one end with a tie at a diamond's corner after
+                // the cut, line-random-25, line-end-2-4-clip, line-corner-23 ..: WARP picks the
+                // other pixel at some of them)
+                let rmaj = (r.b.1 - r.a.1).abs() > (r.b.0 - r.a.0).abs();
+                let mut centers = (0..h).flat_map(|py| (0..w).map(move |px| (px as i128 * 256, py as i128 * 256)));
+                if ia != ib && r.a != r.b && centers.any(|c| r.through_corner(c, rmaj)) {
+                    return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES));
+                }
+                // (MEASURED line-clip-*, line-random-*, line-end-*-clip, line-corner-*,
+                // line-both-*: a line past the target cut to it in f32, t = (edge - a) / (b - a),
+                // a + t (b - a), D3D9.DRAW.LINECLIP)
+                hit(clause::D3D9_DRAW_LINECLIP);
+                r
+            }
+        };
+        if r.a == r.b {
+            return Ok(());
         }
         hit(clause::D3D9_DRAW_LINES);
-        let ymaj = (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs();
+        let ymaj = (r.b.1 - r.a.1).abs() > (r.b.0 - r.a.0).abs();
         let mut lit = Vec::new();
         for py in 0..h {
             for px in 0..w {
                 let c = (px as i128 * 256, py as i128 * 256);
-                match l.meets(c, ymaj) {
+                match r.meets(c, ymaj) {
                     Meet::No => {}
                     // (open: a line running along diamonds' edges lights some of them and not
                     // others, line-diag-0, -4, line-anti-0, -4)
                     Meet::AlongEdge => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
                     Meet::Yes => {
-                        if !l.in_diamond(l.b, c, 1, ymaj) {
+                        if !r.in_diamond(r.b, c, 1, ymaj) {
                             lit.push((px, py));
-                        } else if l.end_lit(c, ymaj) {
+                        } else if r.end_lit(c, ymaj) {
                             hit(clause::D3D9_DRAW_LINEEND);
                             lit.push((px, py));
                         }

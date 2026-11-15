@@ -1054,6 +1054,20 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    // (D3D9.DRAW.POINTSLINES) lines starting on a corner of pixel (8, 8)'s diamond, each way of
+    // twelve directions (slopes 1/4, 1/2, 3/4 either major), the four corners
+    let corners = [(8.0f32, 7.5f32), (8.0, 8.5), (7.5, 8.0), (8.5, 8.0)];
+    let mut n = 0;
+    for (ci, c) in corners.into_iter().enumerate() {
+        for (sx, sy) in [(1.0f32, 1.0f32), (1.0, -1.0), (-1.0, 1.0), (-1.0, -1.0)] {
+            for (ymaj, k) in [(false, 1.0f32), (false, 2.0), (false, 3.0), (true, 1.0), (true, 2.0), (true, 3.0)] {
+                let (dx, dy) = if ymaj { (k, 4.0) } else { (4.0, k) };
+                let b = (c.0 + sx * dx * 1.25, c.1 + sy * dy * 1.25);
+                line(&mut s, &format!("line-start-{ci}-{n}"), c, b);
+                n += 1;
+            }
+        }
+    }
     s
 }
 
