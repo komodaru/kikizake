@@ -675,6 +675,13 @@ fn probes(s: &mut String, dev: &str) {
         vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nread 0 1 64 16 1\nread 0 0 64 16 1\nend").unwrap();
+    // what D3DRASTER.RTKIND leaves open: a 3D texture's view as the target (2 slices)
+    writeln!(s, "case probe-rt-3d\n{dev}\ntex 0 3 16 16 2 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\nread 0 0 64 16 2\nend").unwrap();
     writeln!(s, "case probe-rt-ms4-q1\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 1\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
     for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
@@ -1094,9 +1101,11 @@ fn probes(s: &mut String, dev: &str) {
     }
     // what D3DRASTER.FILTER leaves open: a view of its own range of levels (levels 1 and 2 of
     // three, minifying and magnifying)
-    for (name, uv) in [("view-mips", (-1.5f32, 4.5f32)), ("view-mips-mag", (-0.2, 0.9))] {
+    // (and what D3DRASTER.FILTER leaves open: a 2D array of 2 slices with mips, its whole view)
+    for (name, uv) in [("view-mips", (-1.5f32, 4.5f32)), ("view-mips-mag", (-0.2, 0.9)), ("array-mips", (-1.5, 4.5))] {
         writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
-        writeln!(s, "tex 1 2 4 4 1 3 28 0 8 0 0 1 0 init 400 16 0\nsrv 1 1 28 4 1 2\ntsrv 1\nsamp 0x15 3 3 3").unwrap();
+        let (tex, srv) = if name == "array-mips" { ("tex 1 2 4 4 2 3 28 0 8 0 0 1 0 init 400 16 0", "srv 1 1 nodesc") } else { ("tex 1 2 4 4 1 3 28 0 8 0 0 1 0 init 400 16 0", "srv 1 1 28 4 1 2") };
+        writeln!(s, "{tex}\n{srv}\ntsrv 1\nsamp 0x15 3 3 3").unwrap();
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("pssample"))).unwrap();
         writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (x, y, u, v) in [(-1.0f32, 1.0f32, uv.0, uv.0), (1.0, 1.0, uv.1, uv.0), (-1.0, -1.0, uv.0, uv.1), (1.0, -1.0, uv.1, uv.1)] {

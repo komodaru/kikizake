@@ -284,8 +284,13 @@ impl D3dres {
             "copysub" => &[1, 6],
             _ => &[],
         };
-        if at.iter().any(|&i| slot(t, i).ok().and_then(|k| self.res[k].as_ref()).is_some_and(|r| r.samples.iter().any(Option::is_some))) {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        // (MEASURED, WARP: probe-rt-ms4-update, -copysub-box; "ID3D11DeviceContext::
+        // UpdateSubresource", "CopySubresourceRegion": a multisampled resource takes neither,
+        // nor a region of one) an update of a multisampled resource, or a region copy with a box
+        // or an offset to or from one, changes nothing
+        if at.iter().any(|&i| slot(t, i).ok().and_then(|k| self.res[k].as_ref()).is_some_and(|r| r.d.count > 1)) {
+            hit(clause::D3DRES_MS_REGION);
+            return Ok(true);
         }
         match name {
             "fmt" => {

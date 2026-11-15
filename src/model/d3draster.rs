@@ -2016,10 +2016,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
                 let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
-                // (a minimum or maximum filter of 8-bit UNORM texels: not measured,
-                // probe-sample-min-unorm8)
-                if reduction.pick().is_some() {
-                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                // (MEASURED, WARP: probe-sample-min-unorm8) of 8-bit UNORM texels the least or
+                // greatest byte
+                if let Some(pick) = reduction.pick() {
+                    let w = |t: [i64; 4]| t.map(|n| n as f32);
+                    return Ok(Filtered::Fixed(reduce(pick, [w(a), w(b), w(c), w(e)], (wu, wv)).map(|n| n as i64 * 128)));
                 }
                 Ok(Filtered::Fixed([0, 1, 2, 3].map(|k| {
                     let l = (a[k] * (256 - wv) + c[k] * wv) >> 1;
@@ -2040,9 +2041,23 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 Level::One(l) => done(one(l)?),
                 // (MEASURED, WARP: probe-filter-trilinear*) between two levels; point texels blend
                 // in f32, 8-bit UNORM too
-                // (a minimum or maximum filter between two levels: not measured,
-                // probe-sample-min-mips)
-                Level::Two(..) if reduction.pick().is_some() => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                // (MEASURED, WARP: probe-sample-max-mips) a minimum or maximum filter between two
+                // levels: the least or greatest of the two levels' values
+                Level::Two(l, _) if let Some(pick) = reduction.pick() => {
+                    let take = |x: f32, y: f32| match pick {
+                        Pick::Least => x.min(y),
+                        Pick::Greatest => x.max(y),
+                    };
+                    match (one(l)?, one(l + 1)?) {
+                        (Filtered::Wide(a), Filtered::Wide(b)) => done(Filtered::Wide([0, 1, 2, 3].map(|k| take(a[k], b[k])))),
+                        (Filtered::Fixed(a), Filtered::Fixed(b)) => done(Filtered::Fixed([0, 1, 2, 3].map(|k| match pick {
+                            Pick::Least => a[k].min(b[k]),
+                            Pick::Greatest => a[k].max(b[k]),
+                        }))),
+                        (Filtered::Point(a), Filtered::Point(b)) => [0, 1, 2, 3].map(|k| take(f32::from_bits(a[k]), f32::from_bits(b[k])).to_bits()),
+                        (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                    }
+                }
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
                     (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed([0, 1, 2, 3].map(|k| (a[k] * (256 - f) + b[k] * f) >> 8)))),
                     (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| lerp_sse(a[k], b[k], f as f32 / 256.0))))),
