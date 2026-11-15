@@ -934,7 +934,14 @@ impl Line {
     /// the line lights the pixel: it exits the pixel's diamond going from a to b (it meets the
     /// diamond and b is not in it), or it ends in it as D3DRASTER.LINE.END lights
     fn lights(&self, c: (i128, i128)) -> bool {
-        self.meets(c) && (!self.in_diamond((i128::from(self.b.x), i128::from(self.b.y)), c, 1) || self.end_lights(c))
+        let b = (i128::from(self.b.x), i128::from(self.b.y));
+        // (MEASURED, WARP: probe-linevert-2, -3, 4 lines) a y-major line going up that ends on
+        // the pixel's bottom corner lights it
+        if self.ymaj && self.b.y < self.a.y && b == (c.0, c.1 + DIAMOND) {
+            hit(clause::D3DRASTER_LINE_END);
+            return true;
+        }
+        self.meets(c) && (!self.in_diamond(b, c, 1) || self.end_lights(c))
     }
 
     /// (MEASURED, WARP: probe-lineend-*, 128 lines, and the ends of probe-lines-*,
@@ -1089,9 +1096,10 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         for py in y0..=y1 {
             for px in x0..=x1 {
                 // (a multisample line's triangle there)
-                // (an aliased line's end on a corner of the pixel's diamond: not measured,
-                // probe-linevert-*)
-                if matches!(mode, LineMode::Aliased) {
+                // (an aliased line's end on a corner of a pixel's diamond on a multisampled
+                // target: not measured, probe-rt-ms4-linevert-*; probe-rt-ms4-lines-over lit the
+                // pixel below a start on a top corner where one sample lights the one above)
+                if matches!(mode, LineMode::Aliased) && tg.samples.is_some() {
                     let c = center((px, py));
                     let corner = |p: Sub| {
                         let (dx, dy) = (i128::from(p.x) - c.0, i128::from(p.y) - c.1);

@@ -828,8 +828,14 @@ fn probes(s: &mut String, dev: &str) {
     // x-major and y-major in every direction, one line a 4 x 4 cell (probe-rt-ms4-lines-over
     // lit a pixel a line only touches)
     let combos: Vec<(usize, (f32, f32), bool)> = (0..4).flat_map(|v| [(1.0f32, 0.375f32), (1.0, -0.375), (-1.0, 0.375), (-1.0, -0.375), (0.375, 1.0), (-0.375, 1.0), (0.375, -1.0), (-0.375, -1.0)].into_iter().flat_map(move |d| [(v, d, true), (v, d, false)])).collect();
-    for (i, part) in combos.chunks(16).enumerate() {
-        begin(s, dev, &format!("probe-linevert-{i}"), 16, 16, 28, "ps");
+    for (ms, (i, part)) in [false, true].into_iter().flat_map(|ms| combos.chunks(16).enumerate().map(move |p| (ms, p))) {
+        if ms {
+            // (and on a 4-sample target, resolved)
+            writeln!(s, "case probe-rt-ms4-linevert-{i}\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+            writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        } else {
+            begin(s, dev, &format!("probe-linevert-{i}"), 16, 16, 28, "ps");
+        }
         for (cell, &(v, (dx, dy), starts)) in part.iter().enumerate() {
             let (cx, cy) = ((cell % 4 * 4) as f32 + 2.5, (cell / 4 * 4) as f32 + 2.5);
             let (vx, vy) = [(cx - 0.5, cy), (cx + 0.5, cy), (cx, cy - 0.5), (cx, cy + 0.5)][v];
@@ -838,7 +844,11 @@ fn probes(s: &mut String, dev: &str) {
             vertex(s, bx, by, 0.5, color(i as u32 * 37 + 2 * cell as u32 + 1), 16.0, 16.0);
         }
         writeln!(s, "draw 2 32 32").unwrap();
-        read_rt(s, 0, 28, 16, 16);
+        if ms {
+            writeln!(s, "resolve 1 0 0 0 28\nread 1 0 64 16 1").unwrap();
+        } else {
+            read_rt(s, 0, 28, 16, 16);
+        }
         writeln!(s, "end").unwrap();
     }
     for i in 0..4u32 {
