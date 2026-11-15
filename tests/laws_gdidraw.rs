@@ -175,6 +175,26 @@ proptest! {
         }
     }
 
+    /// GIQ moves with whole pixels, diagonals along diamond edges included (their closed lower
+    /// edges), and such a diagonal lights one pixel per pixel it advances, its end's left out
+    #[test]
+    fn giq_shifts_with_whole_pixels(a in (-64i64..64, -64i64..64), b in (-64i64..64, -64i64..64), s in (-5i64..6, -5i64..6), k in 1i64..60, dir in 0u8..4, f in 0i64..16) {
+        let shift = |v: Vec<(i32, i32)>| { let mut v: Vec<(i32, i32)> = v.iter().map(|p| (p.0 + s.0 as i32, p.1 + s.1 as i32)).collect(); v.sort(); v };
+        let moved = |p: Fix28| Fix28(p.0 + s.0 * 16, p.1 + s.1 * 16);
+        // a diagonal along diamond edges: x - y or x + y is 8 modulo 16
+        let (sx, sy) = [(1, 1), (-1, -1), (1, -1), (-1, 1)][dir as usize];
+        let st = Fix28(a.0, if sx == sy { a.0 - 8 - 16 * f } else { 8 + 16 * f - a.0 });
+        let en = Fix28(st.0 + sx * k, st.1 + sy * k);
+        for (p, q) in [(Fix28(a.0, a.1), Fix28(b.0, b.1)), (st, en)] {
+            let mut g = giq_pixels(moved(p), moved(q)).unwrap();
+            g.sort();
+            prop_assert_eq!(g, shift(giq_pixels(p, q).unwrap()));
+        }
+        let n = giq_pixels(st, en).unwrap().len() as i64;
+        // (the pixels whose lower edge spans the run, less one if the end is on one)
+        prop_assert!((n - (k / 16)).abs() <= 1, "{} pixels for a run of {}", n, k);
+    }
+
     /// drawing through a viewport origin is drawing shifted by it (PatBlt, Rectangle, LineTo)
     #[test]
     fn viewport_origin_shifts_drawing(o in (-6i32..7, -6i32..7), a in (-4i32..14, -4i32..14), d in (-6i32..9, -6i32..9), kind in 0u8..3) {
@@ -208,7 +228,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 342), ("region", 506), ("xform", 625), ("path", 164), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 342), ("region", 506), ("xform", 652), ("path", 165), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {

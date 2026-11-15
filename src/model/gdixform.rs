@@ -442,6 +442,14 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             if t.len() % 2 == 1 {
                 return Err(Fail::Bad);
             }
+            let v = m.ve_points();
+            if t0 == "dptolp" && m.world == IDENTITY && (v.0 == 0 || v.1 == 0 || m.wext.0 == 0 || m.wext.1 == 0) {
+                // MEASURED (isomore-13): MM_ISOTROPIC shrinking an axis to 0 leaves no inverse;
+                // DPtoLP fails, the points as they were (GDI.MAP.ZEROEXT)
+                hit(clause::GDI_MAP_ZEROEXT);
+                out.push(format!("pts 0 {}", t.join(" ")));
+                return Ok(true);
+            }
             let mut s = String::from("pts 1");
             for p in t.chunks(2) {
                 let p = (num(&p[0]).ok_or(Fail::Bad)? as i32, num(&p[1]).ok_or(Fail::Bad)? as i32);

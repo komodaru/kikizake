@@ -107,16 +107,36 @@ pub struct Fix28(pub i64, pub i64);
 /// the pixels of a cosmetic line between two 28.4 points by grid intersect quantization
 /// (MEASURED, GDI.LINE.GIQ: PolyBezier's flattened polylines, 14 of 14): a pixel is lit when the
 /// line crosses its diamond, the open square |x - cx| + |y - cy| < 1/2 with its right and bottom
-/// corners, and does not end inside it; whole ends give line_pixels' pixels. None for a
-/// diagonal running along diamond edges (path curve-47 lights other pixels; open)
+/// corners, and does not end inside it; whole ends give line_pixels' pixels. A diagonal
+/// running along diamond edges takes their closed lower edges instead (xform diagline-*)
 pub fn giq_pixels(a: Fix28, b: Fix28) -> Option<Vec<(i32, i32)>> {
     hit(clause::GDI_LINE_GIQ);
     let (dx, dy) = (i128::from(b.0 - a.0), i128::from(b.1 - a.1));
     if dx == 0 && dy == 0 {
         return Some(Vec::new());
     }
+    let px = |v: i64| v.div_euclid(16);
+    let (x0, x1) = (px(a.0.min(b.0)) - 1, px(a.0.max(b.0)) + 2);
+    let (y0, y1) = (px(a.1.min(b.1)) - 1, px(a.1.max(b.1)) + 2);
     if dx.abs() == dy.abs() && (a.0 + if dx == dy { -a.1 } else { a.1 }).rem_euclid(16) == 8 {
-        return None;
+        // MEASURED (xform diagline-*, 24 of 24): a diagonal running along diamond edges meets
+        // no open diamond; it lights the pixels whose lower edge on its line (the lower left
+        // one for x - y, the lower right one for x + y), closed at both corners, it runs along,
+        // except the one whose such edge holds the end
+        let (lo, hi) = (a.0.min(b.0), a.0.max(b.0));
+        let mut v = Vec::new();
+        for y in y0..=y1 {
+            for x in x0..=x1 {
+                let (cx, cy) = (i64::from(x) * 16, i64::from(y) * 16);
+                // the edge from its corner at y = cy to the bottom one, in x
+                let (ex0, ex1) = if dx == dy { (cx - 8, cx) } else { (cx, cx + 8) };
+                let on_line = dx * i128::from(cy - a.1) == dy * i128::from(if dx == dy { cx - 8 } else { cx + 8 } - a.0);
+                if on_line && lo.max(ex0) <= hi.min(ex1) && !(ex0..=ex1).contains(&b.0) {
+                    v.push((i32::try_from(x).ok()?, i32::try_from(y).ok()?));
+                }
+            }
+        }
+        return Some(v);
     }
     // (corner (x, y) on the segment: collinear, and between the ends)
     let on = |x: i128, y: i128| -> bool {
@@ -138,9 +158,6 @@ pub fn giq_pixels(a: Fix28, b: Fix28) -> Option<Vec<(i32, i32)>> {
         ts.iter().any(|&(n, d)| (0..=d).contains(&n) && (ox * d + n * dx).abs() + (oy * d + n * dy).abs() < 8 * d) || on(c.0 + 8, c.1) || on(c.0, c.1 + 8)
     };
     let end = (i128::from(b.0), i128::from(b.1));
-    let px = |v: i64| v.div_euclid(16);
-    let (x0, x1) = (px(a.0.min(b.0)) - 1, px(a.0.max(b.0)) + 2);
-    let (y0, y1) = (px(a.1.min(b.1)) - 1, px(a.1.max(b.1)) + 2);
     let mut v = Vec::new();
     for y in y0..=y1 {
         for x in x0..=x1 {
@@ -197,7 +214,7 @@ impl Slot {
     /// a line between 28.4 points with the pen (GDI.LINE.GIQ)
     pub fn line_fix(&mut self, a: Fix28, b: Fix28) -> Res<()> {
         if let Some(v) = self.pen_value()? {
-            let Some(px) = giq_pixels(a, b) else { return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)) };
+            let Some(px) = giq_pixels(a, b) else { return Err(Fail::Bad) };
             for (x, y) in px {
                 self.plot(x, y, v);
             }
@@ -244,23 +261,38 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         }
         let pos = sl.ext.pos;
+        if t0 == "rectangle" && sl.ext.map.world != super::gdixform::IDENTITY && (sl.ext.map.world[1] != 0.0 || sl.ext.map.world[2] != 0.0) {
+            // MEASURED (xform draw-*): the parallelogram, corners through the world in 28.4,
+            // filled by the 28.4 path rule and outlined by GIQ lines (GDI.MAP.DRAWADV)
+            world_pen_thin(sl.ext.map.world, &sl.ext.pen)?;
+            hit(clause::GDI_MAP_DRAWADV);
+            let p = points(op, 2)?;
+            if p.len() != 2 {
+                return Err(Fail::Bad);
+            }
+            let m = &sl.ext.map;
+            let mut q = Vec::new();
+            for c in [(p[0].0, p[0].1), (p[1].0, p[0].1), (p[1].0, p[1].1), (p[0].0, p[1].1)] {
+                q.push(m.world_to_fix(c)?);
+            }
+            let r = super::rgn::fix_polygon_pixels(&[q.iter().map(|v| (v.0 as i32, v.1 as i32)).collect()], false);
+            for b in r.rects() {
+                sl.fill_shape(b.0, b.1, b.2, b.3)?;
+            }
+            for i in 0..4 {
+                let (a, b) = (q[i], q[(i + 1) % 4]);
+                sl.line_fix(Fix28(a.0, a.1), Fix28(b.0, b.1))?;
+            }
+            out.push("ret 1".into());
+            return Ok(true);
+        }
         if t0 == "lineto" && sl.ext.map.world != super::gdixform::IDENTITY {
             // MEASURED (xform fraclineadv-*, 32 of 32 cosmetic, 16 of 16 width 1): a line
             // through a GM_ADVANCED world transform keeps its ends in 28.4 (GDI.LINE.GIQ); a pen
             // of width 1 stays a cosmetic one while the transform stretches no direction past
             // about 1.41 (√2 measured thin, 1.5 wide), past 1.5 it is a wide pen (GDI.MAP.DRAWADV)
             let to = (n(op, 2)? as i32, n(op, 3)? as i32);
-            let w = sl.ext.map.world;
-            let (a, b, c, d) = (f64::from(w[0]), f64::from(w[1]), f64::from(w[2]), f64::from(w[3]));
-            // (the largest singular value, and the square root of |det|)
-            let t = a * a + b * b + c * c + d * d;
-            let det = (a * d - b * c).abs();
-            let smax = ((t + (t * t - 4.0 * det * det).max(0.0).sqrt()) / 2.0).sqrt();
-            match sl.ext.pen {
-                Pen::Plain { width: 1, .. } if det.sqrt() >= 1.5 => return Err(Fail::Unmodeled(open::GDI_PEN_WIDE)),
-                Pen::Plain { width: 1, .. } if smax > 1.4143 => return Err(Fail::Unmodeled(open::GDI_MAP_DRAW)),
-                _ => {}
-            }
+            world_pen_thin(sl.ext.map.world, &sl.ext.pen)?;
             hit(clause::GDI_MAP_DRAWADV);
             let m = &sl.ext.map;
             let (p0, p1) = (m.world_to_fix(pos)?, m.world_to_fix(to)?);
@@ -481,4 +513,18 @@ fn op_device(g: &mut Gdi, k: i64, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         _ => return Err(Fail::Bad),
     }
     Ok(true)
+}
+
+/// A pen of width 1 under a GM_ADVANCED world stays cosmetic only while the transform
+/// stretches no direction past about √2 (largest singular value; √|det| ≥ 1.5 is wide)
+fn world_pen_thin(w: [f32; 6], pen: &Pen) -> Res<()> {
+    let (a, b, c, d) = (f64::from(w[0]), f64::from(w[1]), f64::from(w[2]), f64::from(w[3]));
+    let t = a * a + b * b + c * c + d * d;
+    let det = (a * d - b * c).abs();
+    let smax = ((t + (t * t - 4.0 * det * det).max(0.0).sqrt()) / 2.0).sqrt();
+    match pen {
+        Pen::Plain { width: 1, .. } if det.sqrt() >= 1.5 => Err(Fail::Unmodeled(open::GDI_PEN_WIDE)),
+        Pen::Plain { width: 1, .. } if smax > 1.4143 => Err(Fail::Unmodeled(open::GDI_MAP_DRAW)),
+        _ => Ok(()),
+    }
 }

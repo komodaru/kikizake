@@ -146,5 +146,6 @@ tests/laws_opengl.rs::blend_dstalpha_identities pbt GL.BLEND.DSTALPHA
 tests/laws_gdidraw.rs::dptolp_whole_ratios_are_exact pbt GDI.MAP.DPROUND GDI.MAP.INVERSE
 tests/laws_gdidraw.rs::isotropic_shrinks_one_axis_to_the_others_ratio pbt GDI.MAP.ISOTROPIC
 tests/laws_gdidraw.rs::giq_of_whole_ends_is_the_integer_line pbt GDI.LINE.GIQ GDI.LINE.PIXELS GDI.LINE.TIE
+tests/laws_gdidraw.rs::giq_shifts_with_whole_pixels pbt GDI.LINE.GIQ
 tests/laws_gdidraw.rs::viewport_origin_shifts_drawing pbt GDI.MAP.DRAWPTS GDI.BLT.PATNEG
 tests/laws_gdidraw.rs::world_whole_maps_are_exact_both_ways pbt GDI.XFORM.WORLDPOINT GDI.XFORM.WORLDINV GDI.XFORM.WARMX86
