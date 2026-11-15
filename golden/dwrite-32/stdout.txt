@@ -256720,6 +256720,644 @@ dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
 dwfont face hr 00000000
 dwgdiglyph hr 00000000
 glyph adv 5004 lsb 0 rsb 2309 tsb 3271 advh 9237 bsb 3464 voy 5773
+case rastertie-y-6656-13
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 3584 lsb 0 rsb 1877 tsb 3072 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 3072 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 3072 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 5120 advh 6656 bsb -512 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 5120 advh 6656 bsb -1024 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 5120 advh 6656 bsb -1024 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 3072 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 2560 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 2560 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 5120 advh 6656 bsb -512 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 5120 advh 6656 bsb -512 voy 5120
+glyph adv 3584 lsb 0 rsb 1877 tsb 5120 advh 6656 bsb -512 voy 5120
+dwgdiglyph hr 00000000
+glyph adv 3584 lsb 0 rsb 2048 tsb 2901 advh 6656 bsb 1451 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 2987 advh 6656 bsb 1365 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 3072 advh 6656 bsb 1365 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 5205 advh 6656 bsb -768 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 5205 advh 6656 bsb -768 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 5291 advh 6656 bsb -853 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 2816 advh 6656 bsb 1621 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 2816 advh 6656 bsb 1621 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 2731 advh 6656 bsb 1707 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 5035 advh 6656 bsb -683 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 4949 advh 6656 bsb -597 voy 5120
+glyph adv 3584 lsb 0 rsb 2048 tsb 4949 advh 6656 bsb -512 voy 5120
+case rastertie-x-6656-13
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 3584 lsb -85 rsb 1365 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -171 rsb 1451 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -171 rsb 1536 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2304 rsb 3669 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2304 rsb 3669 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2389 rsb 3755 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 85 rsb 1280 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 85 rsb 1280 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 171 rsb 1195 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2219 rsb 3499 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2133 rsb 3413 tsb 3584 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2048 rsb 3413 tsb 3584 advh 6656 bsb 1536 voy 5120
+dwgdiglyph hr 00000000
+glyph adv 3584 lsb 0 rsb 1536 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1536 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1536 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2048 rsb 3584 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2560 rsb 3584 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2560 rsb 3584 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1536 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1024 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb 0 rsb 1024 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2048 rsb 3584 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2048 rsb 3584 tsb 3413 advh 6656 bsb 1536 voy 5120
+glyph adv 3584 lsb -2048 rsb 3584 tsb 3413 advh 6656 bsb 1536 voy 5120
+case rastertie-y-13312-13
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb 0 rsb 3755 tsb 6144 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 6144 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 6144 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 10240 advh 13312 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 10240 advh 13312 bsb -2048 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 10240 advh 13312 bsb -2048 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 6144 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 5120 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 5120 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 10240 advh 13312 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 10240 advh 13312 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3755 tsb 10240 advh 13312 bsb -1024 voy 10240
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb 0 rsb 4096 tsb 5803 advh 13312 bsb 2901 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 5973 advh 13312 bsb 2731 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 6144 advh 13312 bsb 2731 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 10411 advh 13312 bsb -1536 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 10411 advh 13312 bsb -1536 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 10581 advh 13312 bsb -1707 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 5632 advh 13312 bsb 3243 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 5632 advh 13312 bsb 3243 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 5461 advh 13312 bsb 3413 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 10069 advh 13312 bsb -1365 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 9899 advh 13312 bsb -1195 voy 10240
+glyph adv 7168 lsb 0 rsb 4096 tsb 9899 advh 13312 bsb -1024 voy 10240
+case rastertie-x-13312-13
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb -171 rsb 2731 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -341 rsb 2901 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -341 rsb 3072 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4608 rsb 7339 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4608 rsb 7339 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4779 rsb 7509 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 171 rsb 2560 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 171 rsb 2560 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 341 rsb 2389 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4437 rsb 6997 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4267 rsb 6827 tsb 7168 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4096 rsb 6827 tsb 7168 advh 13312 bsb 3072 voy 10240
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb 0 rsb 3072 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3072 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3072 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4096 rsb 7168 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -5120 rsb 7168 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -5120 rsb 7168 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 3072 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 2048 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb 0 rsb 2048 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4096 rsb 7168 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4096 rsb 7168 tsb 6827 advh 13312 bsb 3072 voy 10240
+glyph adv 7168 lsb -4096 rsb 7168 tsb 6827 advh 13312 bsb 3072 voy 10240
+case rastertie-y-4608-27
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 2389 lsb 0 rsb 1223 tsb 1877 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 2048 advh 4608 bsb 1024 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 2048 advh 4608 bsb 1024 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 3413 advh 4608 bsb -341 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 3584 advh 4608 bsb -512 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 3584 advh 4608 bsb -512 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 1877 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 1707 advh 4608 bsb 1365 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 1707 advh 4608 bsb 1365 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 3413 advh 4608 bsb -341 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 3243 advh 4608 bsb -171 voy 3413
+glyph adv 2389 lsb 0 rsb 1223 tsb 3243 advh 4608 bsb -171 voy 3413
+dwgdiglyph hr 00000000
+glyph adv 2389 lsb 0 rsb 1195 tsb 1906 advh 4608 bsb 1138 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 1963 advh 4608 bsb 1081 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 2020 advh 4608 bsb 1024 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 3470 advh 4608 bsb -398 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 3527 advh 4608 bsb -455 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 3584 advh 4608 bsb -512 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 1820 advh 4608 bsb 1252 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 1764 advh 4608 bsb 1308 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 1707 advh 4608 bsb 1365 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 3356 advh 4608 bsb -313 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 3300 advh 4608 bsb -256 voy 3413
+glyph adv 2389 lsb 0 rsb 1195 tsb 3243 advh 4608 bsb -199 voy 3413
+case rastertie-x-4608-27
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 2389 lsb -57 rsb 882 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -114 rsb 939 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -171 rsb 996 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1593 rsb 2446 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1650 rsb 2503 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1707 rsb 2560 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 57 rsb 797 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 114 rsb 740 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 171 rsb 683 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1508 rsb 2332 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1451 rsb 2276 tsb 2219 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1394 rsb 2219 tsb 2219 advh 4608 bsb 1195 voy 3413
+dwgdiglyph hr 00000000
+glyph adv 2389 lsb 0 rsb 853 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -171 rsb 1024 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -171 rsb 1024 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1536 rsb 2389 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1707 rsb 2560 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1707 rsb 2560 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 0 rsb 853 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 171 rsb 683 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb 171 rsb 683 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1536 rsb 2389 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1365 rsb 2219 tsb 2247 advh 4608 bsb 1195 voy 3413
+glyph adv 2389 lsb -1365 rsb 2219 tsb 2247 advh 4608 bsb 1195 voy 3413
+case rastertie-y-13824-27
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb 0 rsb 3669 tsb 5632 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 5632 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 5632 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 10240 advh 13824 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 10240 advh 13824 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 10240 advh 13824 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 5632 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 5632 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 5632 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 10240 advh 13824 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 10240 advh 13824 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3669 tsb 10240 advh 13824 bsb -1024 voy 10240
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb 0 rsb 3584 tsb 5632 advh 13824 bsb 3499 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 5717 advh 13824 bsb 3413 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 5717 advh 13824 bsb 3413 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 10325 advh 13824 bsb -1109 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 10325 advh 13824 bsb -1195 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 10411 advh 13824 bsb -1195 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 5547 advh 13824 bsb 3669 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 5461 advh 13824 bsb 3669 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 5461 advh 13824 bsb 3755 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 10155 advh 13824 bsb -1024 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 10069 advh 13824 bsb -939 voy 10240
+glyph adv 7168 lsb 0 rsb 3584 tsb 10069 advh 13824 bsb -939 voy 10240
+case rastertie-x-13824-27
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb -85 rsb 2560 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -171 rsb 2645 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -171 rsb 2645 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4693 rsb 7254 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4779 rsb 7254 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4779 rsb 7339 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 85 rsb 2475 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 85 rsb 2390 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 171 rsb 2390 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7083 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4523 rsb 6997 tsb 6656 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4523 rsb 6997 tsb 6656 advh 13824 bsb 3584 voy 10240
+dwgdiglyph hr 00000000
+glyph adv 7168 lsb 0 rsb 2560 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 2560 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 2560 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7168 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7168 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7168 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 2560 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 2560 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb 0 rsb 2560 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7168 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7168 tsb 6741 advh 13824 bsb 3584 voy 10240
+glyph adv 7168 lsb -4608 rsb 7168 tsb 6741 advh 13824 bsb 3584 voy 10240
+case rastertie-y-3072-12
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2304 advh 3072 bsb -256 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2304 advh 3072 bsb -256 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2304 advh 3072 bsb -256 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2304 advh 3072 bsb -256 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2304 advh 3072 bsb -256 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2304 advh 3072 bsb -256 voy 2304
+dwgdiglyph hr 00000000
+glyph adv 1536 lsb 0 rsb 768 tsb 1280 advh 3072 bsb 725 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1323 advh 3072 bsb 683 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1323 advh 3072 bsb 683 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2347 advh 3072 bsb -299 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2347 advh 3072 bsb -341 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2389 advh 3072 bsb -341 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1237 advh 3072 bsb 811 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1195 advh 3072 bsb 811 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 1195 advh 3072 bsb 853 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2261 advh 3072 bsb -256 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2219 advh 3072 bsb -213 voy 2304
+glyph adv 1536 lsb 0 rsb 768 tsb 2219 advh 3072 bsb -213 voy 2304
+case rastertie-x-3072-12
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1536 lsb -43 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -85 rsb 555 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -85 rsb 555 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1067 rsb 1579 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1109 rsb 1579 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1109 rsb 1621 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 43 rsb 469 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 43 rsb 427 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 85 rsb 427 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1493 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -981 rsb 1451 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -981 rsb 1451 tsb 1536 advh 3072 bsb 768 voy 2304
+dwgdiglyph hr 00000000
+glyph adv 1536 lsb 0 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1536 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1536 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1536 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb 0 rsb 512 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1536 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1536 tsb 1536 advh 3072 bsb 768 voy 2304
+glyph adv 1536 lsb -1024 rsb 1536 tsb 1536 advh 3072 bsb 768 voy 2304
+case rastertie-y-12288-24
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9216 advh 12288 bsb -1024 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9216 advh 12288 bsb -1024 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9216 advh 12288 bsb -1024 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9216 advh 12288 bsb -1024 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9216 advh 12288 bsb -1024 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9216 advh 12288 bsb -1024 voy 9216
+dwgdiglyph hr 00000000
+glyph adv 6144 lsb 0 rsb 3072 tsb 5120 advh 12288 bsb 2987 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5205 advh 12288 bsb 2901 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5205 advh 12288 bsb 2901 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9301 advh 12288 bsb -1109 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9301 advh 12288 bsb -1195 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9387 advh 12288 bsb -1195 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 5035 advh 12288 bsb 3157 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 4949 advh 12288 bsb 3157 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 4949 advh 12288 bsb 3243 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9131 advh 12288 bsb -1024 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9045 advh 12288 bsb -939 voy 9216
+glyph adv 6144 lsb 0 rsb 3072 tsb 9045 advh 12288 bsb -939 voy 9216
+case rastertie-x-12288-24
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6144 lsb -85 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -171 rsb 2133 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -171 rsb 2133 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4181 rsb 6229 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4267 rsb 6229 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4267 rsb 6315 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 85 rsb 1963 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 85 rsb 1877 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 171 rsb 1877 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6059 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4011 rsb 5973 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4011 rsb 5973 tsb 6144 advh 12288 bsb 3072 voy 9216
+dwgdiglyph hr 00000000
+glyph adv 6144 lsb 0 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6144 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6144 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6144 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb 0 rsb 2048 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6144 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6144 tsb 6144 advh 12288 bsb 3072 voy 9216
+glyph adv 6144 lsb -4096 rsb 6144 tsb 6144 advh 12288 bsb 3072 voy 9216
+case rastertie-y-2048-27
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb 0 rsb 544 tsb 1062 advh 2048 bsb 303 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 1138 advh 2048 bsb 228 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 1593 advh 2048 bsb -228 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 1745 advh 2048 bsb -379 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 1820 advh 2048 bsb -455 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 2276 advh 2048 bsb -910 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 607 advh 2048 bsb 759 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 531 advh 2048 bsb 834 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 76 advh 2048 bsb 1290 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 1289 advh 2048 bsb 76 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 1214 advh 2048 bsb 152 voy 1517
+glyph adv 1062 lsb 0 rsb 544 tsb 759 advh 2048 bsb 607 voy 1517
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb 0 rsb 531 tsb 1037 advh 2048 bsb 329 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 1113 advh 2048 bsb 266 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 1593 advh 2048 bsb -215 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 1719 advh 2048 bsb -354 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 1783 advh 2048 bsb -417 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 2263 advh 2048 bsb -898 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 632 advh 2048 bsb 733 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 569 advh 2048 bsb 809 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 89 advh 2048 bsb 1290 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 1302 advh 2048 bsb 51 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 1239 advh 2048 bsb 126 voy 1517
+glyph adv 1062 lsb 0 rsb 531 tsb 759 advh 2048 bsb 607 voy 1517
+case rastertie-x-2048-27
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb -202 rsb 582 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -265 rsb 657 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -746 rsb 1138 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -885 rsb 1264 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -948 rsb 1327 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -1429 rsb 1808 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 202 rsb 177 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 278 rsb 114 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 759 rsb -367 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -480 rsb 847 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -405 rsb 784 tsb 986 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 76 rsb 303 tsb 986 advh 2048 bsb 531 voy 1517
+dwgdiglyph hr 00000000
+glyph adv 1062 lsb -228 rsb 607 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -303 rsb 683 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -759 rsb 1138 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -910 rsb 1290 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -986 rsb 1365 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -1441 rsb 1820 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 228 rsb 152 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 303 rsb 76 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 759 rsb -379 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -455 rsb 834 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb -379 rsb 759 tsb 999 advh 2048 bsb 531 voy 1517
+glyph adv 1062 lsb 76 rsb 303 tsb 999 advh 2048 bsb 531 voy 1517
+case rastertie-y-1024-60
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 512 lsb 0 rsb 256 tsb 444 advh 1024 bsb 239 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 461 advh 1024 bsb 222 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 529 advh 1024 bsb 154 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 785 advh 1024 bsb -102 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 802 advh 1024 bsb -119 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 870 advh 1024 bsb -188 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 410 advh 1024 bsb 273 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 393 advh 1024 bsb 290 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 324 advh 1024 bsb 358 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 751 advh 1024 bsb -68 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 734 advh 1024 bsb -51 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 666 advh 1024 bsb 17 voy 768
+dwgdiglyph hr 00000000
+glyph adv 512 lsb 0 rsb 256 tsb 438 advh 1024 bsb 247 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 458 advh 1024 bsb 225 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 526 advh 1024 bsb 159 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 777 advh 1024 bsb -94 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 796 advh 1024 bsb -114 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 865 advh 1024 bsb -182 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 418 advh 1024 bsb 267 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 398 advh 1024 bsb 287 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 330 advh 1024 bsb 353 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 757 advh 1024 bsb -74 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 737 advh 1024 bsb -54 voy 768
+glyph adv 512 lsb 0 rsb 256 tsb 668 advh 1024 bsb 14 voy 768
+case rastertie-x-1024-60
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 512 lsb -9 rsb 182 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -31 rsb 202 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -97 rsb 270 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -350 rsb 521 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -370 rsb 540 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -438 rsb 609 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb 11 rsb 162 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb 31 rsb 142 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb 97 rsb 74 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -330 rsb 501 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -310 rsb 481 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -242 rsb 412 tsb 512 advh 1024 bsb 256 voy 768
+dwgdiglyph hr 00000000
+glyph adv 512 lsb -17 rsb 188 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -34 rsb 205 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -102 rsb 273 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -358 rsb 529 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -375 rsb 546 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -444 rsb 614 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb 17 rsb 154 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb 34 rsb 137 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb 102 rsb 68 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -324 rsb 495 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -307 rsb 478 tsb 512 advh 1024 bsb 256 voy 768
+glyph adv 512 lsb -239 rsb 410 tsb 512 advh 1024 bsb 256 voy 768
+case rastertie-y-256-54
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 128 lsb 0 rsb 64 tsb 123 advh 256 bsb 47 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 128 advh 256 bsb 43 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 156 advh 256 bsb 14 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 209 advh 256 bsb -38 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 213 advh 256 bsb -43 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 242 advh 256 bsb -71 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 95 advh 256 bsb 76 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 90 advh 256 bsb 81 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 62 advh 256 bsb 109 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 180 advh 256 bsb -9 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 175 advh 256 bsb -5 voy 194
+glyph adv 128 lsb 0 rsb 64 tsb 147 advh 256 bsb 24 voy 194
+dwgdiglyph hr 00000000
+glyph adv 128 lsb 0 rsb 62 tsb 122 advh 256 bsb 49 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 126 advh 256 bsb 45 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 156 advh 256 bsb 15 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 207 advh 256 bsb -36 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 211 advh 256 bsb -40 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 241 advh 256 bsb -70 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 96 advh 256 bsb 74 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 92 advh 256 bsb 79 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 62 advh 256 bsb 109 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 181 advh 256 bsb -10 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 177 advh 256 bsb -6 voy 194
+glyph adv 128 lsb 0 rsb 62 tsb 147 advh 256 bsb 24 voy 194
+case rastertie-x-256-54
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 128 lsb -13 rsb 56 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -17 rsb 60 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -47 rsb 90 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -98 rsb 141 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -102 rsb 145 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -132 rsb 175 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb 13 rsb 30 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb 17 rsb 26 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb 47 rsb -4 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -72 rsb 115 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -68 rsb 111 tsb 128 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -38 rsb 81 tsb 128 advh 256 bsb 62 voy 194
+dwgdiglyph hr 00000000
+glyph adv 128 lsb -14 rsb 57 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -19 rsb 62 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -47 rsb 90 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -100 rsb 142 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -104 rsb 147 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -133 rsb 175 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb 14 rsb 28 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb 19 rsb 24 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb 47 rsb -5 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -71 rsb 114 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -66 rsb 109 tsb 130 advh 256 bsb 62 voy 194
+glyph adv 128 lsb -38 rsb 81 tsb 130 advh 256 bsb 62 voy 194
+case rastertie-y-4096-26
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 2048 lsb 0 rsb 1024 tsb 1890 advh 4096 bsb 788 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 2206 advh 4096 bsb 473 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 2363 advh 4096 bsb 315 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 3308 advh 4096 bsb -630 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 3623 advh 4096 bsb -788 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 3781 advh 4096 bsb -945 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 1575 advh 4096 bsb 1103 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 1418 advh 4096 bsb 1418 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 1260 advh 4096 bsb 1575 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 2993 advh 4096 bsb -315 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 2678 advh 4096 bsb 0 voy 3151
+glyph adv 2048 lsb 0 rsb 1024 tsb 2521 advh 4096 bsb 158 voy 3151
+dwgdiglyph hr 00000000
+glyph adv 2048 lsb 0 rsb 945 tsb 1917 advh 4096 bsb 814 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 2206 advh 4096 bsb 525 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 2389 advh 4096 bsb 341 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 3282 advh 4096 bsb -551 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 3571 advh 4096 bsb -840 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 3728 advh 4096 bsb -1024 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 1654 advh 4096 bsb 1103 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 1365 advh 4096 bsb 1365 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 1182 advh 4096 bsb 1549 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 2993 advh 4096 bsb -289 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 2704 advh 4096 bsb 0 voy 3151
+glyph adv 2048 lsb 0 rsb 945 tsb 2547 advh 4096 bsb 184 voy 3151
+case rastertie-x-4096-26
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 2048 lsb -131 rsb 814 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -420 rsb 1103 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -604 rsb 1287 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1497 rsb 2179 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1785 rsb 2468 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1969 rsb 2626 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb 158 rsb 551 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb 420 rsb 263 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb 604 rsb 79 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1234 rsb 1890 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -945 rsb 1602 tsb 2048 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -761 rsb 1444 tsb 2048 advh 4096 bsb 945 voy 3151
+dwgdiglyph hr 00000000
+glyph adv 2048 lsb -158 rsb 788 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -473 rsb 1103 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -630 rsb 1260 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1575 rsb 2206 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1733 rsb 2521 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1890 rsb 2678 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb 158 rsb 473 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb 473 rsb 315 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb 630 rsb 158 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -1260 rsb 1890 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -945 rsb 1575 tsb 2127 advh 4096 bsb 945 voy 3151
+glyph adv 2048 lsb -788 rsb 1418 tsb 2127 advh 4096 bsb 945 voy 3151
+case rastertie-y-8192-13
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 4411 lsb 0 rsb 2311 tsb 4411 advh 8192 bsb 1260 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 5041 advh 8192 bsb 0 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 5671 advh 8192 bsb -630 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 6932 advh 8192 bsb -1260 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 8192 advh 8192 bsb -2521 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 8822 advh 8192 bsb -3151 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 3151 advh 8192 bsb 2521 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 1890 advh 8192 bsb 3781 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 1260 advh 8192 bsb 4411 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 5671 advh 8192 bsb 0 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 4411 advh 8192 bsb 630 voy 6302
+glyph adv 4411 lsb 0 rsb 2311 tsb 3781 advh 8192 bsb 1260 voy 6302
+dwgdiglyph hr 00000000
+glyph adv 4411 lsb 0 rsb 2521 tsb 4096 advh 8192 bsb 1365 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 5251 advh 8192 bsb 210 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 5986 advh 8192 bsb -525 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 6827 advh 8192 bsb -1470 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 7982 advh 8192 bsb -2521 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 8612 advh 8192 bsb -3256 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 2941 advh 8192 bsb 2521 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 1890 advh 8192 bsb 3571 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 1155 advh 8192 bsb 4306 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 5671 advh 8192 bsb -315 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 4516 advh 8192 bsb 840 voy 6302
+glyph adv 4411 lsb 0 rsb 2521 tsb 3886 advh 8192 bsb 1575 voy 6302
+case rastertie-x-8192-13
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 4411 lsb -525 rsb 2206 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -1680 rsb 3361 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -2416 rsb 4096 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -3361 rsb 4936 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -4411 rsb 6092 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -5146 rsb 6722 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb 630 rsb 1050 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb 1680 rsb 0 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb 2416 rsb -735 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -2205 rsb 3781 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -1050 rsb 2626 tsb 4411 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -315 rsb 1996 tsb 4411 advh 8192 bsb 1891 voy 6302
+dwgdiglyph hr 00000000
+glyph adv 4411 lsb -630 rsb 2521 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -1890 rsb 3151 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -2521 rsb 3781 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -3151 rsb 5041 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -4411 rsb 6302 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -5041 rsb 6932 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb 630 rsb 1260 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb 1891 rsb 0 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb 2521 rsb -630 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -1890 rsb 3781 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -1260 rsb 2521 tsb 4201 advh 8192 bsb 1891 voy 6302
+glyph adv 4411 lsb -630 rsb 1891 tsb 4201 advh 8192 bsb 1891 voy 6302
 case gdivtie-3-0
 dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
 dwfont face hr 00000000
