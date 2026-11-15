@@ -202,17 +202,17 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     if !matches!(sm.kind, Kind::Int | Kind::F16 | Kind::F32) || !matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
     }
-    if sm.ch.iter().chain(&dm.ch).any(|c| matches!(c.c, b'u' | b'v' | b'w' | b'q')) {
-        return Err(Fail::Unmodeled(open::D3DX9_LOAD_SIGNED));
+    if sm.ch.iter().chain(&dm.ch).any(|c| is_bump(c.c)) {
+        hit(clause::D3DX9_LOAD_SIGNED);
     }
     let src = fill_bytes(&sm, wd, ht, seed);
     out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
     // (open: halves of exponent 31 read, or numbers past the half range written as halves, come
     // out differently from one pair of formats to another)
     let big = |v: f32| v.is_nan() || v.abs() >= 65504.0;
-    let pixels: Vec<[f32; 4]> = src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect();
+    let pixels: Vec<[Sample; 4]> = src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect();
     let src_e31 = sm.kind == Kind::F16 && src.chunks(2).any(|h| u16::from_le_bytes([h[0], h[1]]) & 0x7c00 == 0x7c00);
-    if sf != df && (src_e31 || dm.kind == Kind::F16 && pixels.iter().flatten().any(|&v| big(v))) {
+    if sf != df && (src_e31 || dm.kind == Kind::F16 && pixels.iter().flatten().any(|&(Sample::Unsigned(v) | Sample::Signed(v))| big(v))) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_F16RANGE));
     }
     if sf == df {
@@ -224,14 +224,23 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
         return Ok(());
     }
     for row in src.chunks(wd as usize * sm.bytes) {
-        out.push(row.chunks(sm.bytes).flat_map(|p| load_encode(&dm, load_decode(&sm, sf, p))).map(|x| format!("{x:02x}")).collect());
+        out.push(row.chunks(sm.bytes).flat_map(|p| load_encode(&dm, sm.kind, load_decode(&sm, sf, p))).map(|x| format!("{x:02x}")).collect());
     }
     Ok(())
 }
 
-/// a source pixel as D3DX reads it: (r, g, b, a) in f32, an n-bit channel v times the f32
-/// nearest 1 / (2^n - 1) (MEASURED: d3dx9load)
-fn load_decode(f: &super::d3d9draw::Fmt, code: u32, p: &[u8]) -> [f32; 4] {
+/// a channel as D3DX holds it between formats: an unsigned one in 0..1 (unorm) or as it is
+/// (floats), a signed (bump) one in -1..1
+#[derive(Clone, Copy)]
+enum Sample {
+    Unsigned(f32),
+    Signed(f32),
+}
+
+/// a source pixel as D3DX reads it: (r, g, b, a), an n-bit channel v times the f32 nearest
+/// 1 / (2^n - 1), a signed one its two's complement times 1 / (2^(n-1) - 1) (MEASURED:
+/// d3dx9load)
+fn load_decode(f: &super::d3d9draw::Fmt, code: u32, p: &[u8]) -> [Sample; 4] {
     use super::d3d9draw::{to_rgba, Kind};
     let mut word = [0u8; 16];
     word[..p.len()].copy_from_slice(p);
@@ -245,22 +254,67 @@ fn load_decode(f: &super::d3d9draw::Fmt, code: u32, p: &[u8]) -> [f32; 4] {
             let v = match f.kind {
                 Kind::F16 => f16_to_f32(raw as u16),
                 Kind::F32 => f32::from_bits(raw as u32),
+                _ if is_bump(c.c) => {
+                    let half = 1i64 << (c.bits - 1);
+                    let sv = raw as i64 - if raw as i64 >= half { 2 * half } else { 0 };
+                    (sv as f32 * (1.0 / (half - 1) as f32)).max(-1.0)
+                }
                 _ => raw as f32 * (1.0 / ((1u64 << c.bits) - 1) as f32),
             };
-            (c.c, v as f64)
+            // (a bump format's luminance is the alpha: MEASURED d3dx9load load-L6V5U5,
+            // load-X8L8V8U8)
+            let name = if c.c == b'l' && f.ch.iter().any(|c| is_bump(c.c)) { b'a' } else { c.c };
+            (name, v as f64)
         })
         .collect();
-    to_rgba(code, &ch).map(|v| v as f32)
+    let rgba = to_rgba(code, &ch).map(|v| v as f32);
+    std::array::from_fn(|k| {
+        let bump = [b'u', b'v', b'w', b'q'][k];
+        if k == 2 && code == 117 {
+            // (CxV8U8's W: sqrt(1 - U^2 - V^2))
+            Sample::Signed((1.0 - rgba[0] * rgba[0] - rgba[1] * rgba[1]).max(0.0).sqrt())
+        } else if f.kind == Kind::Int && f.ch.iter().any(|c| c.c == bump) {
+            Sample::Signed(rgba[k])
+        } else {
+            Sample::Unsigned(rgba[k])
+        }
+    })
+}
+
+/// a signed (bump) channel: U, V, W, Q
+fn is_bump(c: u8) -> bool {
+    matches!(c, b'u' | b'v' | b'w' | b'q')
 }
 
 /// (r, g, b, a) into a pixel as D3DX writes it: unorm channels rounded to nearest, X bits 0,
 /// luminance Rec. 709's 0.2125 r + 0.7154 g + 0.0721 b, halves rounded to nearest (MEASURED:
 /// d3dx9load)
-fn load_encode(f: &super::d3d9draw::Fmt, c: [f32; 4]) -> Vec<u8> {
+fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample; 4]) -> Vec<u8> {
     use super::d3d9draw::{round_even, Kind};
     hit(clause::D3DX9_LOAD_CONVERT);
+    // (a signed channel into an unsigned or luminance one as (s + 1) / 2, into a float as it is)
+    let c: [f32; 4] = px.map(|x| match (x, f.kind) {
+        (Sample::Unsigned(v), _) | (Sample::Signed(v), Kind::F16 | Kind::F32) => v,
+        (Sample::Signed(v), _) => (v + 1.0) / 2.0,
+    });
     let mut w: u128 = 0;
     for ch in &f.ch {
+        if f.kind == Kind::Int && is_bump(ch.c) {
+            // (into a signed channel: an unsigned one as 2 x - 1, a signed one as it is,
+            // rounded to the nearest of the 2^(n-1) - 1 steps)
+            let k = [b'u', b'v', b'w', b'q'].iter().position(|&b| b == ch.c).unwrap_or(0);
+            let v = match (px[k], src) {
+                (Sample::Unsigned(x), Kind::Int) => 2.0 * x - 1.0,
+                (Sample::Unsigned(x), _) | (Sample::Signed(x), _) => x,
+            };
+            let half = 1i64 << (ch.bits - 1);
+            // (MEASURED load-*-signed: v (2^(n-1) - 1) + 1/2 truncated toward 0)
+            // (a NaN as 1, as into unorm channels: load-R32F-signed)
+            let v = if v.is_nan() { 1.0 } else { v.clamp(-1.0, 1.0) };
+            let q = (v * (half - 1) as f32 + 0.5) as i64;
+            w |= ((q & (2 * half - 1)) as u128) << ch.shift;
+            continue;
+        }
         // (into unorm channels each clamped to 0..1 first, luminance's too, a NaN to 1)
         let k = |i: usize| if f.kind != Kind::Int { c[i] } else if c[i].is_nan() { 1.0 } else { c[i].clamp(0.0, 1.0) };
         let v = match ch.c {
@@ -278,7 +332,12 @@ fn load_encode(f: &super::d3d9draw::Fmt, c: [f32; 4]) -> Vec<u8> {
             Kind::F32 => v.to_bits() as u64,
             _ => {
                 let m = ((1u64 << ch.bits) - 1) as f32;
-                round_even((v.clamp(0.0, 1.0) * m) as f64) as u64
+                // (x86 multiplies on the x87 at more than f32's precision and rounds to nearest,
+                // x64 adds 1/2 to the f32 product and truncates: load-L6V5U5)
+                match crate::model::arch() {
+                    64 => (v.clamp(0.0, 1.0) * m + 0.5) as u64,
+                    _ => round_even(v.clamp(0.0, 1.0) as f64 * m as f64) as u64,
+                }
             }
         };
         w |= (raw as u128) << ch.shift;
