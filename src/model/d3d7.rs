@@ -1125,15 +1125,7 @@ impl EdgeWalk {
                 if tie {
                     hit(clause::D3D7_TRI_TIE);
                 }
-                // (a long edge one row tall from exactly row 0, off a pixel, to its bottom vertex
-                // on a pixel of row 1: a pixel right of it there, D3D7.TRI.EDGE; d3d7edge
-                // center-*-bot, toprow-rgb-left: 7 of 7; taller ones from row 0 and ones from row
-                // 1 go by the walk, toprow-*, longseq-rgb-0)
-                let one_row = matches!(side, Side::Long) && t.1 == 0 && b.1 == 16 && !whole && tie;
-                if one_row {
-                    hit(clause::D3D7_TRI_EDGE);
-                }
-                xs.push(ceil(x)? + shift + i64::from(one_row));
+                xs.push(ceil(x)? + shift);
             }
         }
         Ok(EdgeWalk { first, xs })
@@ -1192,6 +1184,14 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
         let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
         let (Some(l), Some(r)) = (long.at(y), short) else { continue };
         let (xl, xr) = if long_left { (l, r) } else { (r, l) };
+        // (a bottom vertex on a pixel of row 1, the edges meeting there: that row is empty,
+        // D3D7.TRI.EDGE; d3d7edge center-*-bot, toprow-rgb-left, onerow-*: every one, tops at
+        // -1/2, 0 and 1/16, either side; a bottom vertex on a pixel of a row below goes by the walk,
+        // toprow-* on row 2, whole-*, longleft-*)
+        if m.1 != b.1 && b.1 == 16 && y == 1 && b.0.rem_euclid(16) == 0 {
+            hit(clause::D3D7_TRI_EDGE);
+            continue;
+        }
         match spans {
             Spans::Spill(fmt) => {
                 let b = i64::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?;

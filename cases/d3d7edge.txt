@@ -4194,6 +4194,232 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 105 1 0 16 52 5
 d3ddump
 end
+case lowrow-rgb-left
+d3d 7
+d3ddev rgb 565 12 6
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 161 16 80 32 175 19
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 62 32 48 48 97 38
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 25 48 64 64 71 56
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 82 8 64 32 156 10
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 5 24 80 48 99 37
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 84 40 144 64 172 52
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 17 48 32 87 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 66 33 80 48 108 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 28 49 80 64 107 52
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 8 16 32 32 70 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 18 32 0 48 50 40
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 91 48 32 64 93 54
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 14 8 0 32 80 10
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 85 24 96 48 155 27
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 146 40 96 64 160 54
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 17 160 32 82 22
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 76 33 48 48 133 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 69 49 0 64 113 57
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 38 16 128 32 160 26
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 94 32 128 48 143 43
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 81 48 128 64 124 52
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 8 64 32 94 12
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 40 24 160 48 174 38
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 33 40 48 64 67 43
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 21 17 128 32 121 27
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 33 96 48 165 40
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 167 49 32 64 149 58
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 139 16 16 32 82 29
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 25 32 144 48 81 34
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 170 48 16 64 166 54
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 4 8 160 32 95 18
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 173 24 96 48 166 34
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 136 40 0 64 154 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 119 17 32 32 88 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 75 33 160 48 154 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 60 49 144 64 160 60
+d3ddump
+end
+case lowrow-rgb-right
+d3d 7
+d3ddev rgb 565 12 6
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 52 16 64 32 23 21
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 23 32 144 48 13 38
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 172 48 160 64 128 61
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 166 8 96 32 127 11
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 102 24 160 48 79 34
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 60 40 80 64 1 48
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 142 17 112 32 67 27
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 170 33 80 48 34 43
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 151 49 160 64 120 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 47 16 80 32 39 29
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 108 32 64 48 31 41
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 75 48 96 64 25 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 169 8 64 32 89 11
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 104 24 160 48 55 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 170 40 160 64 137 47
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 119 17 160 32 115 25
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 102 33 160 48 98 41
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 135 49 64 64 37 55
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 1 16 112 32 23 27
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 32 160 48 113 45
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 73 48 144 64 50 51
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 101 8 112 32 46 21
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 24 32 48 21 38
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 131 40 128 64 65 54
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 87 17 112 32 29 26
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 93 33 96 48 25 45
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 109 49 160 64 87 61
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 91 16 128 32 91 29
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 1 32 96 48 11 41
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 165 48 16 64 1 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 58 8 160 32 18 12
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 166 24 64 48 121 26
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 40 128 64 53 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 150 17 112 32 88 20
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 33 160 48 17 36
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 88 49 144 64 84 62
+d3ddump
+end
 case longseq-rgb-0
 d3d 7
 d3ddev rgb 565 64 128

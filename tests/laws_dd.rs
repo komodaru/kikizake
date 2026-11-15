@@ -436,15 +436,15 @@ fn ties_round_symmetrically() {
     assert!(moved > 1000, "{moved}");
 }
 
-/// a triangle one row tall from exactly row 0 (D3D7.TRI.EDGE): its top off a pixel, its bottom
-/// vertex on a pixel of row 1 from 2 on, its middle on either side; row 1, where both edges meet
-/// at the bottom vertex, is empty and row 0 is drawn by the walk alone, on both soft drawers
+/// a triangle with its bottom vertex on a pixel of row 1 (D3D7.TRI.EDGE): its top on row 0 off a
+/// pixel, its middle on either side; row 1, where both edges meet at the bottom vertex, is empty
+/// on both soft drawers
 #[test]
 fn one_row_tops_leave_row_1_empty() {
     let mut n = 0;
     for dev in ["rgb", "mmx"] {
         for tx in (1..176).step_by(7).filter(|x| x % 16 != 0) {
-            for px in 2..=10 {
+            for px in 0..=10 {
                 for my in [3, 8, 13] {
                     for off in [-40, 40] {
                         let bx = 16 * px;
