@@ -259,15 +259,14 @@ pub fn multiply(a: &Xform, b: &Xform) -> Xform {
 /// coordinates, as the op in device coordinates: lineto from the current position (logical)
 /// to the point, rectangle and patblt by their two corners, each point through LPtoDP
 /// (GDI.MAP.DRAW), with the current position (device) it starts from; None for an op or a transform no case measures (rotations, shears)
-pub fn device_op(m: &mut Map, pos: (i32, i32), size: (i32, i32), op: &Op) -> Res<Option<(Op, (i32, i32))>> {
+pub fn device_op(m: &mut Map, pos: (i32, i32), op: &Op) -> Res<Option<(Op, (i32, i32))>> {
     let t0 = op.tok[0].as_str();
     if m.world[1] != 0.0 || m.world[2] != 0.0 {
         // (a rectangle under a rotation or shear is a parallelogram)
         return Ok(None);
     }
     if t0 == "lineto" && m.world != IDENTITY {
-        // (GM_ADVANCED keeps a line's ends in 28.4 (draw-7) and transforms the pen's width
-        // (draw-16); fraclineadv-* measure it)
+        // (gdiline draws these itself, in 28.4: GDI.MAP.DRAWADV)
         return Ok(None);
     }
     m.settle();
@@ -283,11 +282,12 @@ pub fn device_op(m: &mut Map, pos: (i32, i32), size: (i32, i32), op: &Op) -> Res
             let to = (n(op, 2)?, n(op, 3)?);
             let a = lp(i64::from(pos.0), i64::from(pos.1))?;
             let b = lp(to.0, to.1)?;
-            let on = |q: (i32, i32)| (0..size.0).contains(&q.0) && (0..size.1).contains(&q.1);
             let whole = m.whole(pos) && m.whole((i32::try_from(to.0).map_err(|_| Fail::Bad)?, i32::try_from(to.1).map_err(|_| Fail::Bad)?));
-            if !whole && !(on(a) && on(b)) {
-                // (a line whose ends fall between pixels and that leaves the surface: draw-45
-                // lights its end pixel; fracclip-* measure it)
+            let e = m.ve_points();
+            let flips_up = |w: i32, v: i32| (w < 0) != (v < 0) && v.abs() > w.abs();
+            if !whole && (flips_up(m.wext.0, e.0) || flips_up(m.wext.1, e.1)) {
+                // (a mapping that mirrors and magnifies an axis: draw-45 and fracclip-8/14/20/23
+                // light the end pixel and take the other halfway step; open)
                 return Ok(None);
             }
             // MEASURED (fracline-*, 48 of 48, both archs): a line whose ends fall between

@@ -244,7 +244,32 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         }
         let pos = sl.ext.pos;
-        let Some((d, from)) = super::gdixform::device_op(&mut sl.ext.map, pos, (sl.s.w, sl.s.h.abs()), op)? else {
+        if t0 == "lineto" && sl.ext.map.world != super::gdixform::IDENTITY {
+            // MEASURED (xform fraclineadv-*, 32 of 32 cosmetic, 16 of 16 width 1): a line
+            // through a GM_ADVANCED world transform keeps its ends in 28.4 (GDI.LINE.GIQ); a pen
+            // of width 1 stays a cosmetic one while the transform stretches no direction past
+            // about 1.41 (√2 measured thin, 1.5 wide), past 1.5 it is a wide pen (GDI.MAP.DRAWADV)
+            let to = (n(op, 2)? as i32, n(op, 3)? as i32);
+            let w = sl.ext.map.world;
+            let (a, b, c, d) = (f64::from(w[0]), f64::from(w[1]), f64::from(w[2]), f64::from(w[3]));
+            // (the largest singular value, and the square root of |det|)
+            let t = a * a + b * b + c * c + d * d;
+            let det = (a * d - b * c).abs();
+            let smax = ((t + (t * t - 4.0 * det * det).max(0.0).sqrt()) / 2.0).sqrt();
+            match sl.ext.pen {
+                Pen::Plain { width: 1, .. } if det.sqrt() >= 1.5 => return Err(Fail::Unmodeled(open::GDI_PEN_WIDE)),
+                Pen::Plain { width: 1, .. } if smax > 1.4143 => return Err(Fail::Unmodeled(open::GDI_MAP_DRAW)),
+                _ => {}
+            }
+            hit(clause::GDI_MAP_DRAWADV);
+            let m = &sl.ext.map;
+            let (p0, p1) = (m.world_to_fix(pos)?, m.world_to_fix(to)?);
+            sl.line_fix(Fix28(p0.0, p0.1), Fix28(p1.0, p1.1))?;
+            sl.ext.pos = to;
+            out.push("ret 1".into());
+            return Ok(true);
+        }
+        let Some((d, from)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         };
         let map = std::mem::take(&mut sl.ext.map);

@@ -248,7 +248,7 @@ impl Gdi {
         if matches!(t0, "patblt" | "bitblt" | "stretchblt" | "getpixel" | "setpixel" | "clip") && self.slot(op, 1)?.ext.mapped() {
             let sl = self.slot(op, 1)?;
             let pos = sl.ext.pos;
-            let Some((d, _)) = super::gdixform::device_op(&mut sl.ext.map, pos, (sl.s.w, sl.s.h.abs()), op)? else {
+            let Some((d, _)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
                 if t0 == "patblt" && n(op, 6)? == 0xf0_0021 && sl.ext.map.world != super::gdixform::IDENTITY {
                     // MEASURED (draw-4, draw-37, draw-40): PatBlt through a rotating or shearing
                     // world transform fills its parallelogram, corners in 28.4, as a path's fill
