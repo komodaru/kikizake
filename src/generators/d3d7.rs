@@ -549,6 +549,30 @@ pub fn d3d7edge() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // long-left edges through a whole pixel every few rows down a tall target (D3D7.TRI.EDGE):
+    // a pixel slope a/b, the edge through pixel P and its vertices whole steps of (a, b)
+    // sixteenths from P, so its x is a whole pixel on every b-th row; how each such row settles
+    let mut rq = XorShift32::new(0x00d3_d7e3);
+    const SLOPES: [(i64, i64); 24] = [(1, 3), (-1, 3), (1, 5), (-1, 5), (2, 5), (-2, 5), (1, 7), (-1, 7), (2, 7), (-3, 7), (3, 7), (1, 9), (-2, 9), (4, 9), (-4, 9), (1, 11), (-3, 11), (4, 11), (-1, 13), (4, 13), (-5, 13), (3, 8), (-3, 8), (-1, 4)];
+    for part in 0..2 {
+        writeln!(s, "case longseq-rgb-{part}\nd3d 7\nd3ddev rgb 565 64 128\nd3drs set 22 1").unwrap();
+        for &(a, b) in &SLOPES {
+            loop {
+                let p = V16 { x: rq.range(4, 59) * 16, y: rq.range(40, 80) * 16 };
+                let m = p.y / b - rq.range(0, 15);
+                let n = (16 * 126 - p.y) / b - rq.range(0, 15);
+                let t = V16 { x: p.x - m * a, y: p.y - m * b };
+                let bot = V16 { x: p.x + n * a, y: p.y + n * b };
+                let c = V16 { x: 16 * 62, y: (t.y + bot.y) / 2 };
+                let inside = |v: V16| (0..=16 * 60).contains(&v.x) && (0..=16 * 126).contains(&v.y);
+                if inside(t) && inside(bot) && t.x.max(bot.x) < 16 * 56 {
+                    writeln!(s, "{}", tri(t, bot, c)).unwrap();
+                    break;
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
 
