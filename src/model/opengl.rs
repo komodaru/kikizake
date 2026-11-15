@@ -1218,6 +1218,8 @@ pub enum ToFixed {
     Trunc,
     /// a fogged one: one 32nd added and truncated, as on channels under 8 bits (GL.FOG.TOFIXED)
     Span,
+    /// a smooth line's: truncated on channels of every size (GL.RASTER.INTERPOLATE.LINECOLOR)
+    Floor,
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2577,16 +2579,14 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
-                    // (fogged at the ends; flat: the second end's color, GL 1.1 2.13.7 table 2.8,
-                    // segment i takes vertex i + 1's)
-                    let (fa, fb) = (self.fogged(a.1, a.0), self.fogged(b.1, b.0));
-                    if self.shade == FLAT && fa != fb {
-                        hit(clause::GL_RASTER_LINE_FLAT);
+                    // (fogged at the ends; flat-shaded lines are drawn at other pixels than smooth
+                    // ones, a step along apart, golden opengl-32 line-color-4, not settled:
+                    // GL.RASTER.MODE)
+                    if self.shade == FLAT {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                     }
-                    let color = match (self.shade == FLAT, fa == fb) {
-                        (true, _) | (false, true) => LineColor::Flat(fb),
-                        (false, false) => LineColor::Smooth(fa, fb),
-                    };
+                    let (fa, fb) = (self.fogged(a.1, a.0), self.fogged(b.1, b.0));
+                    let color = if fa == fb { LineColor::Flat(fb) } else { LineColor::Smooth(fa, fb) };
                     let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
                     let c = match color {
                         LineColor::Flat(c) => c,
@@ -2819,7 +2819,7 @@ impl Ctx {
             let (c, fixed) = match (color, first) {
                 (LineColor::Smooth(..), Some(first)) => {
                     hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
-                    (tri::line_color([pa[major], pb[major]], ends, first, [x, y][major]), ToFixed::Span)
+                    (tri::line_color([pa[major], pb[major]], ends, first, [x, y][major]), ToFixed::Floor)
                 }
                 _ => (ends[1], self.span()),
             };
@@ -3047,6 +3047,8 @@ impl Ctx {
                     0
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
+                } else if f.fixed == ToFixed::Floor {
+                    (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
                 } else if f.fixed == ToFixed::Span && bits[k] == 8 {
                     // (MEASURED, golden opengl-32 fog-rects-0, 2, 3: 288 fogged channels on 32 and
                     // 24 bits fit floor(c * 255 + 1/32), where unfogged rectangles round)
@@ -4393,9 +4395,6 @@ pub mod tri {
                 (true, false) => -i128::from(width.0 - 1) * den / 2,
             };
             let num = first + n * 256 * i128::from(dmin) - i128::from(width.0 + 1) * den / 2 + moved;
-            // (antialiased: of the line itself, not rounded at the first center)
-            let unrounded = (i128::from(a[minor].0) * i128::from(dmaj) + i128::from(center(j0).0 - a[major].0) * i128::from(dmin)) * i128::from(step) + n * 256 * i128::from(dmin) - den;
-            let num = if smooth { unrounded } else { num };
             let (q, exact) = (num.div_euclid(den) as i64, num.rem_euclid(den) == 0);
             if exact {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);
@@ -4406,7 +4405,9 @@ pub mod tri {
             let (k0, count) = if smooth { (if ymajor { k0 } else { k0 - 1 }, 2) } else { (k0, width.0) };
             // (the line's fraction past the floor in 1/256: the upper pixel's floor(f * 256) when
             // x-major, the left one's floor((1 - f) * 256) when y-major, the other 255 less)
-            let rem = num.rem_euclid(den);
+            // (of the line itself, not rounded at the first center)
+            let unrounded = (i128::from(a[minor].0) * i128::from(dmaj) + i128::from(center(j0).0 - a[major].0) * i128::from(dmin)) * i128::from(step) + n * 256 * i128::from(dmin) - den;
+            let rem = unrounded.rem_euclid(den);
             let (first_part, other) = if ymajor {
                 let left = ((den - rem) * 256 / den).min(255) as u8;
                 (left, 255 - left)

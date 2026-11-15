@@ -2514,4 +2514,26 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // flat-shaded lines (line-color-4 drew them a step apart from smooth ones): one geometry
+    // of 12 single lines, all white, then each end its own color, then smooth and white
+    let lines: Vec<[f64; 4]> = (0..12).map(|_| [v8(&mut r, 1, 15), v8(&mut r, 1, 15), v8(&mut r, 1, 15), v8(&mut r, 1, 15)]).collect();
+    for k in 0..3 {
+        writeln!(s, "case line-flat-{k}\n{}{ORTHO}gl glDisable 0xbd0", ctx(32)).unwrap();
+        if k < 2 {
+            writeln!(s, "gl glShadeModel 0x1d00").unwrap();
+        }
+        for l in &lines {
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+            for e in 0..2 {
+                if k == 1 {
+                    color(s, &mut r);
+                } else {
+                    writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+                }
+                glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
