@@ -95,18 +95,51 @@ proptest! {
         prop_assert_eq!(blend_bytes((ZERO, ONE), s, d, Some(d[3])), d);
     }
 
-    /// GL.RASTER.TRIANGLE: a coordinate on the 1/256 grid stays put, the rounding is the same
-    /// either side of the viewport's center, and never moves a coordinate past another
+    /// GL.RASTER.TRIANGLE: the rounding is the same either side of the viewport's center, stays
+    /// within half a step of NDC times half the size less 1/256, and never moves a coordinate
+    /// past another
     #[test]
-    fn snap_is_symmetric_and_monotone(o in -4096i64..4096, a in -1e5f64..1e5, b in -1e5f64..1e5, k in -100_000i64..100_000) {
-        let o = Sub(o);
-        let c = o.0 as f64 / 256.0;
-        prop_assert_eq!(Sub::snap((o.0 + k) as f64 / 256.0, o), Sub(o.0 + k));
-        let (sa, sm) = (Sub::snap(c + a / 256.0, o), Sub::snap(c - a / 256.0, o));
+    fn snap_is_symmetric_and_monotone(o in -4096i64..4096, size in 1u32..4096, a in -1f64..1.0, b in -1f64..1.0) {
+        let (o, size) = (Sub(o), f64::from(size));
+        let (sa, sm) = (Sub::snap(a, size, o), Sub::snap(-a, size, o));
         prop_assert_eq!(sa.0 - o.0, o.0 - sm.0);
-        prop_assert!((sa.0 - o.0) as f64 - a <= 0.5 && a - ((sa.0 - o.0) as f64) <= 0.5);
+        let want = a * (size * 128.0 - 1.0);
+        prop_assert!(((sa.0 - o.0) as f64 - want).abs() <= 0.5 + 1e-6);
         if a <= b {
-            prop_assert!(sa <= Sub::snap(c + b / 256.0, o));
+            prop_assert!(sa <= Sub::snap(b, size, o));
+        }
+    }
+
+    /// GL.RASTER.TRIANGLE: the view volume's sides land 1/256 inside the viewport's
+    #[test]
+    fn snap_keeps_the_sides_inside(o in -4096i64..4096, size in 1i64..4096) {
+        let o = Sub(o);
+        prop_assert_eq!(Sub::snap(1.0, size as f64, o), Sub(o.0 + size * 128 - 1));
+        prop_assert_eq!(Sub::snap(-1.0, size as f64, o), Sub(o.0 - size * 128 + 1));
+    }
+
+    /// GL.RASTER.CLIP.XY: a triangle inside the view volume is left as it is; any other is cut to
+    /// a convex polygon inside it whose every vertex lies on the triangle
+    #[test]
+    fn clip_cuts_to_the_volume(v in any::<[(i16, i16); 3]>(), scale in 1f64..8.0) {
+        let t = v.map(|(x, y)| [f64::from(x) / 32768.0 * scale, f64::from(y) / 32768.0 * scale]);
+        let p = tri::clip(t);
+        if t.iter().all(|c| c[0].abs() <= 1.0 && c[1].abs() <= 1.0) {
+            prop_assert_eq!(p, t.to_vec());
+            return Ok(());
+        }
+        let area = (t[1][0] - t[0][0]) * (t[2][1] - t[0][1]) - (t[2][0] - t[0][0]) * (t[1][1] - t[0][1]);
+        let side = |a: [f64; 2], b: [f64; 2], c: [f64; 2]| (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+        for c in &p {
+            prop_assert!(c[0].abs() <= 1.0 + 1e-9 && c[1].abs() <= 1.0 + 1e-9);
+            for k in 0..3 {
+                let s = side(t[k], t[(k + 1) % 3], *c) * area.signum();
+                prop_assert!(s >= -1e-9 * (1.0 + area.abs()), "{c:?} off the triangle");
+            }
+        }
+        if p.len() >= 3 {
+            let turns: Vec<f64> = (0..p.len()).map(|k| side(p[k], p[(k + 1) % p.len()], p[(k + 2) % p.len()]) * area.signum()).collect();
+            prop_assert!(turns.iter().all(|t| *t >= -1e-9), "not convex: {p:?}");
         }
     }
 
@@ -114,7 +147,7 @@ proptest! {
     #[test]
     fn triangle_ignores_vertex_order(v in any::<[(i16, i16); 3]>()) {
         let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8), y: Sub(i64::from(y) / 8) });
-        let sorted = |r: Result<Vec<(i64, i64)>, tri::Undecided>| r.map(|mut p| { p.sort(); p });
+        let sorted = |mut p: Vec<(i64, i64)>| { p.sort(); p };
         let a = sorted(tri::pixels(v, 16, 16));
         for p in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
             prop_assert_eq!(&a, &sorted(tri::pixels(p.map(|k| v[k]), 16, 16)));
@@ -122,7 +155,7 @@ proptest! {
     }
 
     /// GL 1.1 3.5.1: two triangles sharing an edge (a convex quad split along a diagonal) draw
-    /// no pixel twice and leave no center strictly inside the quad undrawn
+    /// no pixel twice and leave no center 1/128 pixel inside the quad undrawn
     #[test]
     fn shared_edges_tile(c in (-2000i64..6000, -2000i64..6000), r in (256f64..3000.0, 256f64..3000.0), t in 0f64..1.0, j in any::<[u8; 4]>()) {
         // four points on an ellipse around c at increasing angles: a convex quad
@@ -135,9 +168,7 @@ proptest! {
         if !(0..4).all(|k| turn(q[k], q[(k + 1) % 4], q[(k + 2) % 4]) > 0) {
             return Ok(());
         }
-        let (Ok(p), Ok(s)) = (tri::pixels([q[0], q[1], q[2]], 32, 32), tri::pixels([q[0], q[2], q[3]], 32, 32)) else {
-            return Ok(());
-        };
+        let (p, s) = (tri::pixels([q[0], q[1], q[2]], 32, 32), tri::pixels([q[0], q[2], q[3]], 32, 32));
         let mut both: Vec<(i64, i64)> = p.iter().chain(&s).copied().collect();
         both.sort();
         let n = both.len();
@@ -148,7 +179,13 @@ proptest! {
             for x in 0..32i64 {
                 let (cx, cy) = (x * 256 + 128, y * 256 + 128);
                 let e: Vec<i128> = (0..4).map(|k| cross(q[k], q[(k + 1) % 4], cx, cy)).collect();
-                if e.iter().all(|v| *v > 0) || e.iter().all(|v| *v < 0) {
+                // (the walk strays from the line by its first x's rounding, at most 1/512 pixel,
+                // and its step's, 2^-23 a row: a center 1/128 pixel inside along x is drawn)
+                let clear = (0..4).all(|k| {
+                    let dy = i128::from((q[(k + 1) % 4].y.0 - q[k].y.0).abs());
+                    dy == 0 || e[k].abs() >= 2 * dy
+                });
+                if clear && (e.iter().all(|v| *v > 0) || e.iter().all(|v| *v < 0)) {
                     prop_assert!(both.binary_search(&(x, y)).is_ok(), "center ({x}, {y}) inside the quad undrawn");
                 }
             }
@@ -160,14 +197,11 @@ proptest! {
     fn triangle_moves_with_whole_pixels(v in any::<[(i16, i16); 3]>(), dx in -4i64..4, dy in -4i64..4) {
         let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 16 + 4096), y: Sub(i64::from(y) / 16 + 4096) });
         let m = v.map(|p| Vertex { x: Sub(p.x.0 + dx * 256), y: Sub(p.y.0 + dy * 256) });
-        let (a, b) = (tri::pixels(v, 40, 40), tri::pixels(m, 40, 40));
-        prop_assert_eq!(a.is_ok(), b.is_ok());
-        if let (Ok(mut a), Ok(mut b)) = (a, b) {
-            let mut a: Vec<(i64, i64)> = a.drain(..).map(|(x, y)| (x + dx, y + dy)).filter(|(x, y)| (0..40).contains(x) && (0..40).contains(y)).collect();
-            a.sort();
-            b.retain(|(x, y)| (x - dx) >= 0 && (x - dx) < 40 && (y - dy) >= 0 && (y - dy) < 40);
-            b.sort();
-            prop_assert_eq!(a, b);
-        }
+        let (a, mut b) = (tri::pixels(v, 40, 40), tri::pixels(m, 40, 40));
+        let mut a: Vec<(i64, i64)> = a.into_iter().map(|(x, y)| (x + dx, y + dy)).filter(|(x, y)| (0..40).contains(x) && (0..40).contains(y)).collect();
+        a.sort();
+        b.retain(|(x, y)| (x - dx) >= 0 && (x - dx) < 40 && (y - dy) >= 0 && (y - dy) < 40);
+        b.sort();
+        prop_assert_eq!(a, b);
     }
 }

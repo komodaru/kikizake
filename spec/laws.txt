@@ -156,6 +156,8 @@ tests/laws_gdidraw.rs::round_rect_of_the_whole_box_is_the_ellipse pbt GDI.PATH.R
 tests/laws_gdidraw.rs::viewport_origin_shifts_drawing pbt GDI.MAP.DRAWPTS GDI.BLT.PATNEG
 tests/laws_gdidraw.rs::world_whole_maps_are_exact_both_ways pbt GDI.XFORM.WORLDPOINT GDI.XFORM.WORLDINV GDI.XFORM.WARMX86
 tests/laws_opengl.rs::snap_is_symmetric_and_monotone pbt GL.RASTER.TRIANGLE
+tests/laws_opengl.rs::snap_keeps_the_sides_inside pbt GL.RASTER.TRIANGLE
+tests/laws_opengl.rs::clip_cuts_to_the_volume pbt GL.RASTER.CLIP.XY
 tests/laws_opengl.rs::triangle_ignores_vertex_order pbt GL.RASTER.TRIANGLE
 tests/laws_opengl.rs::shared_edges_tile pbt GL.RASTER.TRIANGLE
 tests/laws_opengl.rs::triangle_moves_with_whole_pixels pbt GL.RASTER.TRIANGLE

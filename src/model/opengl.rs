@@ -1989,18 +1989,24 @@ impl Ctx {
         out
     }
 
-    fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
+    /// A vertex's normalized device coordinates (w = 1 only).
+    fn ndc(&self, v: [f64; 3]) -> Res<[f64; 3]> {
         let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
         let c = xform(self.top(1), e);
         if c[3] != 1.0 {
             return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
         }
-        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-        let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
         if c[2] < -1.0 || c[2] > 1.0 {
             // (a primitive the near or far plane cuts: depths across the cut part)
             return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
         }
+        Ok([c[0], c[1], c[2]])
+    }
+
+    fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
+        let c = self.ndc(v)?;
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
         hit(clause::GL_RASTER_WINDOW);
         Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
     }
@@ -2278,12 +2284,6 @@ impl Ctx {
                     if q.iter().any(|v| v.1 != q[2].1 || self.fogged(v.1, v.0) != c) || w.iter().any(|p| p[2] != w[0][2]) {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
-                    // (a triangle past the view volume's sides: Windows' clipped vertices are not
-                    // pinned, golden tri-clip-*)
-                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-                    if w.iter().any(|p| p[0] < vx || p[0] > vx + vw || p[1] < vy || p[1] > vy + vh) {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
-                    }
                     let area = (w[1][0] - w[0][0]) * (w[2][1] - w[0][1]) - (w[2][0] - w[0][0]) * (w[1][1] - w[0][1]);
                     if self.cap(CULL_FACE) {
                         hit(clause::GL_CULL);
@@ -2297,10 +2297,21 @@ impl Ctx {
                             continue;
                         }
                     }
-                    let origin = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
-                    let v = [0, 1, 2].map(|k| tri::Vertex { x: tri::Sub::snap(w[k][0], origin.0), y: tri::Sub::snap(w[k][1], origin.1) });
+                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                    let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+                    let ndc: Vec<[f64; 3]> = q.iter().map(|v| self.ndc(v.0)).collect::<Res<_>>()?;
+                    // (a triangle past the view volume's sides: clipped to it, then drawn as a fan
+                    // from the clipped polygon's first vertex, golden tri-clip-*, tri-many-*)
+                    let poly = tri::clip([ndc[0], ndc[1], ndc[2]].map(|c| [c[0], c[1]]));
+                    if poly.len() < 3 {
+                        continue;
+                    }
+                    if poly.iter().any(|c| [0, 1, 2].iter().all(|k| *c != [ndc[*k][0], ndc[*k][1]])) {
+                        hit(clause::GL_RASTER_CLIP_XY);
+                    }
+                    let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
                     hit(clause::GL_RASTER_TRIANGLE);
-                    let px = tri::pixels(v, W as i64, H as i64).map_err(|tri::Undecided| Fail::Unmodeled(open::GL_RASTER_TIE))?;
+                    let px: Vec<(i64, i64)> = (1..v.len() - 1).flat_map(|k| tri::pixels([v[0], v[k], v[k + 1]], W as i64, H as i64)).collect();
                     self.never = NeverPath::Other;
                     for (x, y) in px {
                         self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
@@ -3793,40 +3804,50 @@ impl Ctx {
 }
 
 /// Filled triangles as Windows' generic OpenGL draws them (MEASURED, golden opengl-32 and
-/// opengl-64 tri-near-*, tri-edge-*, tri-low-*, tri-hair*-*, tri-fine-*, tri-sweep-*,
-/// tri-probe-*, tri-snap-*: GL.RASTER.TRIANGLE):
-/// - each window coordinate is rounded to 1/256 pixel by its distance from the viewport's
-///   center, an exact half toward the center ([`Sub::snap`]);
-/// - each edge is walked down from its upper vertex: its x at the first pixel row center below
-///   that vertex rounded to 1/256 (an exact half up), then stepped by the slope of the rounded
-///   vertices, exactly;
-/// - a row takes the pixel centers strictly right of its left edge and at or left of its right
-///   edge, the rows from an edge's lower vertex up to (not at) its upper one.
-///
-/// Windows' answer for a center within 1/128 pixel of an edge (measured along x, or along y for
-/// edges steeper than 1) still differs from that by up to 1/256 pixel in a way the cases have not
-/// pinned (with viewports 20 and 64 wide, and long edges whose slope is not dyadic): those are
-/// GL.RASTER.TIE.
+/// opengl-64 tri-*: GL.RASTER.TRIANGLE, GL.RASTER.CLIP.XY):
+/// - normalized device coordinates are scaled by half the viewport's size less 1/256 about its
+///   center and rounded to 1/256 pixel, an exact half to even ([`Sub::snap`]);
+/// - a triangle past the view volume's sides is cut to it ([`clip`]) and drawn as a fan;
+/// - each edge is walked down from its upper vertex by a step of dx / dy divided in float32 and
+///   rounded to 2^-22 pixel; its x at the first row center below is the upper vertex's moved by
+///   that step, rounded up to 2^-22, then rounded to 1/256 (an exact half to even);
+/// - the long edge (top to bottom vertex) is the left one when the middle vertex is right of it;
+///   a row takes the centers strictly right of its left edge and at or left of its right edge,
+///   the rows from an edge's lower vertex up to (not at) its upper one.
 pub mod tri {
     /// A window coordinate in units of 1/256 pixel.
     #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
     pub struct Sub(pub i64);
 
-    /// A pixel row or column center, in units of 1/256 pixel.
-    const fn center(i: i64) -> i64 {
-        i * 256 + 128
-    }
+    /// A position along a row in units of 2^-22 pixel.
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+    struct Fine(i64);
+
+    /// An edge's step in x per row walked down, in units of 2^-22 pixel.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    struct Step(i64);
+
+    const FINE_PER_SUB: i64 = 1 << 14;
 
     impl Sub {
-        /// `v` rounded to 1/256 by its distance from `origin` (the viewport's center, itself on
-        /// the 1/256 grid), an exact half toward the origin.
-        pub fn snap(v: f64, origin: Sub) -> Sub {
+        /// A vertex at normalized device coordinate `ndc` along an axis whose viewport is `size`
+        /// pixels about `center`: Windows scales NDC by half the size less 1/256, then rounds to
+        /// 1/256 (an exact half to even).
+        pub fn snap(ndc: f64, size: f64, center: Sub) -> Sub {
+            let scaled = ndc * (size * 128.0 - 1.0);
             // (to 1/65536 of the unit first: the model's double-precision transform leaves
             // noise far below what the cases resolve, which would push an exact half past it)
-            let d = ((v - origin.0 as f64 / 256.0) * 256.0 * 65536.0).round() / 65536.0;
-            let r = (d.abs() - 0.5).ceil().max(0.0).copysign(d);
-            Sub(origin.0 + r as i64)
+            let d = (scaled * 65536.0).round() / 65536.0;
+            Sub(center.0 + d.round_ties_even() as i64)
         }
+        fn fine(self) -> Fine {
+            Fine(self.0 * FINE_PER_SUB)
+        }
+    }
+
+    /// A pixel row or column center.
+    const fn center(i: i64) -> Sub {
+        Sub(i * 256 + 128)
     }
 
     /// A vertex in 1/256 pixel.
@@ -3836,96 +3857,113 @@ pub mod tri {
         pub y: Sub,
     }
 
-    /// An x position num / den (in 1/256 pixel), den > 0.
-    #[derive(Clone, Copy, Debug)]
-    struct Ratio {
-        num: i128,
-        den: i128,
+    /// `num / den` rounded to the nearest integer, an exact half to even (den > 0).
+    fn div_even(num: i128, den: i128) -> i128 {
+        let q = num.div_euclid(den);
+        let r = num.rem_euclid(den);
+        match (2 * r).cmp(&den) {
+            std::cmp::Ordering::Less => q,
+            std::cmp::Ordering::Greater => q + 1,
+            std::cmp::Ordering::Equal => q + (q & 1),
+        }
     }
 
-    fn floor_div(a: i128, b: i128) -> i128 {
-        let q = a / b;
-        if (a % b != 0) && ((a < 0) != (b < 0)) { q - 1 } else { q }
-    }
-
-    /// An edge going up from `lo` to `hi` (hi.y > lo.y).
+    /// An edge walked down from `hi` to `lo` (hi.y > lo.y).
     #[derive(Clone, Copy, Debug)]
     struct Edge {
         lo: Vertex,
         hi: Vertex,
+        step: Step,
+        /// the first row center strictly below `hi`, and x there
+        first: Sub,
+        start: Fine,
     }
 
     impl Edge {
         fn new(a: Vertex, b: Vertex) -> Option<Edge> {
-            match a.y.cmp(&b.y) {
-                std::cmp::Ordering::Less => Some(Edge { lo: a, hi: b }),
-                std::cmp::Ordering::Greater => Some(Edge { lo: b, hi: a }),
-                std::cmp::Ordering::Equal => None,
-            }
-        }
-        fn dx(&self) -> i128 {
-            i128::from(self.hi.x.0 - self.lo.x.0)
-        }
-        fn dy(&self) -> i128 {
-            i128::from(self.hi.y.0 - self.lo.y.0)
+            let (lo, hi) = match a.y.cmp(&b.y) {
+                std::cmp::Ordering::Less => (a, b),
+                std::cmp::Ordering::Greater => (b, a),
+                std::cmp::Ordering::Equal => return None,
+            };
+            let (dx, dy) = (lo.x.0 - hi.x.0, hi.y.0 - lo.y.0);
+            // (the step: dx / dy divided in float32, then rounded to 2^-22 pixel, an exact half
+            // to even)
+            let slope = dx as f32 / dy as f32;
+            let step = Step((f64::from(slope) * f64::from(1u32 << 22)).round_ties_even() as i64);
+            let first = Sub((hi.y.0 - 129).div_euclid(256) * 256 + 128);
+            // (x at the first row: the upper vertex moved down by the rounded step, up to
+            // 2^-22, then rounded to 1/256, an exact half to even: golden tri-start-*)
+            let moved = i128::from(hi.y.0 - first.0) * i128::from(step.0);
+            let fine = i128::from(hi.x.fine().0) - (-moved).div_euclid(256);
+            let start = Sub(div_even(fine, i128::from(FINE_PER_SUB)) as i64).fine();
+            Some(Edge { lo, hi, step, first, start })
         }
         /// whether the row through center y is drawn along this edge
-        fn spans(&self, y: i64) -> bool {
-            self.lo.y.0 <= y && y < self.hi.y.0
+        fn spans(&self, y: Sub) -> bool {
+            self.lo.y <= y && y < self.hi.y
         }
-        /// the line's own x at row center y
-        fn exact(&self, y: i64) -> Ratio {
-            Ratio { num: i128::from(self.lo.x.0) * self.dy() + i128::from(y - self.lo.y.0) * self.dx(), den: self.dy() }
-        }
-        /// Windows' x at row center y: walked down from the upper vertex
-        fn walked(&self, y: i64) -> Ratio {
-            let top = self.hi.y.0;
-            // the first row center strictly below the upper vertex
-            let first = (top - 128 - 1).div_euclid(256) * 256 + 128;
-            let (dx, dy) = (self.dx(), self.dy());
-            let num = i128::from(self.hi.x.0) * dy + i128::from(first - top) * dx;
-            let start = floor_div(2 * num + dy, 2 * dy);
-            let n = i128::from((first - y) / 256);
-            Ratio { num: start * dy - n * 256 * dx, den: dy }
-        }
-        /// whether center x lies within 1/128 pixel of the walked x (along y when steep)
-        fn near(&self, at: Ratio, x: i64) -> bool {
-            (at.num - i128::from(x) * at.den).abs() < 2 * at.den.max(self.dx().abs())
+        /// Windows' x at row center y
+        fn walked(&self, y: Sub) -> Fine {
+            let n = (self.first.0 - y.0) / 256;
+            Fine(self.start.0 + n * self.step.0)
         }
     }
 
-    fn less(a: Ratio, b: Ratio) -> bool {
-        a.num * b.den < b.num * a.den
+    /// A polygon in normalized device coordinates clipped to -1 <= x, y <= 1 (x = 1, x = -1,
+    /// y = 1, y = -1 in turn), a new vertex where an edge crosses a plane.
+    pub fn clip(tri: [[f64; 2]; 3]) -> Vec<[f64; 2]> {
+        let mut poly = tri.to_vec();
+        for (axis, sign) in [(0, 1.0), (0, -1.0), (1, 1.0), (1, -1.0)] {
+            let mut out = Vec::new();
+            for (i, a) in poly.iter().enumerate() {
+                let b = poly[(i + 1) % poly.len()];
+                let (da, db) = (1.0 - sign * a[axis], 1.0 - sign * b[axis]);
+                if da >= 0.0 {
+                    out.push(*a);
+                }
+                if (da >= 0.0) != (db >= 0.0) {
+                    let t = da / (da - db);
+                    out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
+                }
+            }
+            poly = out;
+        }
+        poly
     }
 
-    /// A center near an edge, where Windows' rule is not known (GL.RASTER.TIE).
-    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-    pub struct Undecided;
-
-    /// The pixels (x, y) of a `w` by `h` window whose centers the triangle covers.
-    pub fn pixels(v: [Vertex; 3], w: i64, h: i64) -> Result<Vec<(i64, i64)>, Undecided> {
-        let edges: Vec<Edge> = (0..3).filter_map(|i| Edge::new(v[i], v[(i + 1) % 3])).collect();
+    /// The pixels (x, y) of a `w` by `h` window whose centers the triangle covers: per row,
+    /// those with L < x <= R, L the edge on the left by the triangle's turn.
+    pub fn pixels(v: [Vertex; 3], w: i64, h: i64) -> Vec<(i64, i64)> {
+        let mut by_y = v;
+        by_y.sort_by_key(|v| std::cmp::Reverse(v.y));
+        let [t, m, b] = by_y;
+        let Some(long) = Edge::new(t, b) else {
+            return Vec::new();
+        };
+        // the middle vertex's side of the long edge (positive: right of it)
+        let side = i128::from(m.x.0 - b.x.0) * i128::from(t.y.0 - b.y.0) - i128::from(m.y.0 - b.y.0) * i128::from(t.x.0 - b.x.0);
+        if side == 0 {
+            return Vec::new();
+        }
+        let shorts: Vec<Edge> = [Edge::new(m, t), Edge::new(b, m)].into_iter().flatten().collect();
         let mut out = Vec::new();
         for row in 0..h {
             let y = center(row);
-            let live: Vec<&Edge> = edges.iter().filter(|e| e.spans(y)).collect();
-            let [a, b] = live[..] else {
+            if !long.spans(y) {
+                continue;
+            }
+            let Some(short) = shorts.iter().find(|e| e.spans(y)) else {
                 continue;
             };
-            let (l, r) = if less(b.exact(y), a.exact(y)) { (b, a) } else { (a, b) };
-            let (lx, rx) = (l.walked(y), r.walked(y));
+            let (l, r) = if side > 0 { (long.walked(y), short.walked(y)) } else { (short.walked(y), long.walked(y)) };
             for col in 0..w {
-                let x = center(col);
-                if l.near(lx, x) || r.near(rx, x) {
-                    return Err(Undecided);
-                }
-                let inside_l = lx.num < i128::from(x) * lx.den;
-                let inside_r = i128::from(x) * rx.den <= rx.num;
-                if inside_l && inside_r {
+                let x = center(col).fine();
+                if l < x && x <= r {
                     out.push((col, row));
                 }
             }
         }
-        Ok(out)
+        out
     }
 }
