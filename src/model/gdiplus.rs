@@ -1050,11 +1050,48 @@ fn premultiplied(c: u32) -> u32 {
     (0..3).fold(c & 0xff00_0000, |o, k| o | (premultiply((c >> (8 * k) & 255) as u64, (c >> 24) as u64) as u32) << (8 * k))
 }
 
+/// a hatch texel's weight of fore: data/gdiplus_hatch.bin holds only these four
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Weight {
+    Back,
+    Quarter,
+    Most,
+    Fore,
+}
+impl Weight {
+    const fn known(v: u8) -> bool {
+        matches!(v, 0 | 64 | 234 | 255)
+    }
+    fn of(v: u32) -> Weight {
+        match v {
+            0 => Weight::Back,
+            64 => Weight::Quarter,
+            234 => Weight::Most,
+            255 => Weight::Fore,
+            _ => unreachable!("a hatch weight past the table's four (the const assert below)"),
+        }
+    }
+}
+const _: () = {
+    let mut i = 0;
+    while i < HATCH.len() {
+        assert!(Weight::known(HATCH[i]));
+        i += 1;
+    }
+};
+
 /// (MEASURED, golden gdipluspaint hatchedge16-*, hatchrun16-22, hatchbetween16-*, hatchcarry-*:
-/// gamma corrected, a hatch texel between fore and back mixes its alpha with 6 more before the
-/// shift: hatchrun16-22's 60154 carries, texels 8 short do not; every weight is even (64, 234), so
-/// the mix is even and 6 and 7 are the same)
-const GAMMA_ALPHA_CARRY: u32 = 6;
+/// gamma corrected, the alpha of a texel of weight 234 is b + (f - b) c floored with c a float just
+/// under 32 / 35 (the answers put c in [0.914163, 0.914286); 234 / 256 = 0.914063 is out), not
+/// f 234 + b 22, >> 8 as without gamma (hatchpartial-*) and as its colors)
+fn gamma_alpha_234(f: u32, b: u32) -> u32 {
+    hit(clause::GP_PAINT_GAMMA_BETWEEN);
+    if f == b {
+        return b;
+    }
+    let d = i64::from(f) - i64::from(b);
+    u32::try_from(i64::from(b) + (32 * d - 1).div_euclid(35)).expect("between b and f, 0..=255")
+}
 
 /// the subsamples at p + k / n (k = 0 .. n) in [a, b)
 fn samples(p: i64, a: f64, b: f64, n: u32) -> u32 {
@@ -1084,22 +1121,21 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
                 let (hx, hy) = ((px as i64 - ox).rem_euclid(8), (py as i64 - oy).rem_euclid(8));
                 let wt = HATCH[style.get() as usize * 64 + hy as usize * 8 + hx as usize] as u32;
                 // (premultiplied; between them (antialiased styles) f w + b (256 - w), >> 8;
-                // gamma corrected, the alpha with GAMMA_ALPHA_CARRY more before the shift)
+                // gamma corrected, the alpha of a texel of 234 as gamma_alpha_234 makes it)
                 let (fore, back) = (pre(fore), pre(back));
-                let carry = if q.gamma() && !copy { GAMMA_ALPHA_CARRY } else { 0 };
-                match wt {
-                    0 => back,
-                    255 => fore,
-                    _ => (0..4).fold(0, |o, k| {
+                let gamma = q.gamma() && !copy;
+                let lerp = |wt: u32| {
+                    (0..4).fold(0, |o, k| {
                         let (f, g) = (fore >> (8 * k) & 255, back >> (8 * k) & 255);
-                        let more = if k == 3 && carry > 0 {
-                            hit(clause::GP_PAINT_GAMMA_BETWEEN);
-                            carry
-                        } else {
-                            0
-                        };
-                        o | ((f * wt + g * (256 - wt) + more) >> 8) << (8 * k)
-                    }),
+                        let v = if k == 3 && wt == 234 && gamma { gamma_alpha_234(f, g) } else { (f * wt + g * (256 - wt)) >> 8 };
+                        o | v << (8 * k)
+                    })
+                };
+                match Weight::of(wt) {
+                    Weight::Back => back,
+                    Weight::Fore => fore,
+                    Weight::Quarter => lerp(64),
+                    Weight::Most => lerp(234),
                 }
             }
         }
