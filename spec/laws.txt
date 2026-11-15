@@ -144,3 +144,4 @@ tests/laws_opengl.rs::undefined_bytes_match_any pbt GL.UNDEFINED
 tests/laws_opengl.rs::blend_dstalpha_identities pbt GL.BLEND.DSTALPHA
 tests/laws_gdidraw.rs::dptolp_whole_ratios_are_exact pbt GDI.MAP.DPROUND GDI.MAP.INVERSE
 tests/laws_gdidraw.rs::isotropic_shrinks_one_axis_to_the_others_ratio pbt GDI.MAP.ISOTROPIC
+tests/laws_gdidraw.rs::world_whole_maps_are_exact_both_ways pbt GDI.XFORM.WORLDPOINT GDI.XFORM.WORLDINV GDI.XFORM.WARMX86

@@ -44,11 +44,27 @@ impl Map {
     /// the viewport extents in effect: MM_ISOTROPIC shrinks one of those stored so that a
     /// logical unit is as wide as high, rounded to the nearest, 0 included (see settle)
     pub fn ve(&self) -> (i32, i32) {
-        let v = self.vext;
         if self.mode != 7 || !self.unsettled {
+            return self.vext;
+        }
+        self.shrunk()
+    }
+    /// MEASURED (GDI.MAP.ISOPOINTS, isomore-*, iso-51): LPtoDP and DPtoLP in MM_ISOTROPIC map
+    /// through the extents stored shrunk once more, y only: when the rule would now shrink x,
+    /// they keep those stored
+    fn ve_points(&self) -> (i32, i32) {
+        let v = self.ve();
+        if self.mode != 7 || self.unsettled {
             return v;
         }
+        hit(clause::GDI_MAP_ISOPOINTS);
+        let s = self.shrunk();
+        if s.0 == v.0 { s } else { v }
+    }
+    /// the stored viewport extents shrunk for MM_ISOTROPIC (GDI.MAP.ISOTROPIC)
+    fn shrunk(&self) -> (i32, i32) {
         hit(clause::GDI_MAP_ISOTROPIC);
+        let v = self.vext;
         let (xd, yd) = (v.0 as f64 / self.wext.0 as f64, v.1 as f64 / self.wext.1 as f64);
         let near = |r: f64| -> i32 { (r + 0.5).floor() as i32 };
         if xd.abs() > yd.abs() {
@@ -70,18 +86,13 @@ impl Map {
     /// LPtoDP of one point: world (f32), then page: p * vext / wext + (vorg - worg * vext / wext)
     pub fn lp_to_dp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
         if self.world != IDENTITY {
-            hit(clause::GDI_XFORM_WORLDPOINT);
-            return Err(Fail::Unmodeled(open::GDI_XFORM_ROUNDWORLD));
+            return self.world_to_dp(p);
         }
         hit(clause::GDI_MAP_FORMULA);
-        if self.mode == 7 && super::arch() == 64 {
-            // (x64 rounds a few isotropic points otherwise: iso-51's y = 5 row; open)
-            return Err(Fail::Unmodeled(open::GDI_MAP_ISOROUND));
-        }
         if self.mode == 7 {
-            // MEASURED (x86, 3840 of 3840 iso-* coordinates): the page rule with the viewport
-            // extents in effect (GDI.MAP.ISOTROPIC)
-            hit(clause::GDI_MAP_ISOX86);
+            // MEASURED (both archs, iso-* isomore-*): the page rule with the viewport extents
+            // of GDI.MAP.ISOPOINTS (GDI.MAP.ISOLP)
+            hit(clause::GDI_MAP_ISOLP);
         }
         // MEASURED: 32-bit GDI's LPtoDP after another with the same mapping truncates the
         // scaled point to 28.4 toward zero (the first call, and every call on x64, rounds it)
@@ -89,7 +100,7 @@ impl Map {
         if trunc {
             hit(clause::GDI_MAP_ROUNDX86);
         }
-        let e = self.ve();
+        let e = self.ve_points();
         Ok((page_with(p.0, self.wext.0, e.0, self.worg.0, self.vorg.0, trunc), page_with(p.1, self.wext.1, e.1, self.worg.1, self.vorg.1, trunc)))
     }
     /// DPtoLP (MEASURED, GDI.MAP.DPROUND): the page transform's matrix in f32 (vext / wext
@@ -97,10 +108,10 @@ impl Map {
     /// inverse and the offset wO - vO times the inverse, each rounded halves away from zero
     pub fn dp_to_lp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
         if self.world != IDENTITY {
-            return Err(Fail::Unmodeled(open::GDI_XFORM_ROUNDWORLD));
+            return self.dp_to_world(p);
         }
         hit(clause::GDI_MAP_INVERSE);
-        let v = self.ve();
+        let v = self.ve_points();
         if v.0 == 0 || v.1 == 0 || self.wext.0 == 0 || self.wext.1 == 0 {
             return Err(Fail::Bad);
         }
@@ -109,12 +120,69 @@ impl Map {
         let m22 = v.1 as f32 / self.wext.1 as f32;
         let det = m11 * m22;
         let (i11, i22) = (m22 / det, m11 / det);
+        let iso = self.mode == 7;
         let axis = |d: i32, inv: f32, wo: i32, vo: i32| -> i32 {
             let a = f64::from(d as f32 * inv).round();
-            let b = f64::from(wo as f32 - vo as f32 * inv).round();
+            // (MM_ISOTROPIC: the offset in f64, isomore-0: 8 - 2 * -1.2499999 is 10.4999998,
+            // not f32's 10.5; GDI.MAP.ISOPOINTS)
+            let b = if iso { (f64::from(wo) - f64::from(vo) * f64::from(inv)).round() } else { f64::from(wo as f32 - vo as f32 * inv).round() };
             (a + b) as i32
         };
         Ok((axis(p.0, i11, self.worg.0, self.vorg.0), axis(p.1, i22, self.worg.1, self.vorg.1)))
+    }
+}
+
+impl Map {
+    /// the world transform times the page scale, in f32: each of the world's six numbers times
+    /// vext / wext (an f32 quotient) of its axis (GDI.XFORM.WORLDPOINT); None with the origins
+    /// not 0, whose place in it no case measures yet (GDI.XFORM.ROUNDWORLD)
+    fn device_matrix(&self) -> Res<Xform> {
+        if self.worg != (0, 0) || self.vorg != (0, 0) {
+            return Err(Fail::Unmodeled(open::GDI_XFORM_ROUNDWORLD));
+        }
+        let e = self.ve();
+        if self.wext.0 == 0 || self.wext.1 == 0 {
+            return Err(Fail::Bad);
+        }
+        let (sx, sy) = (e.0 as f32 / self.wext.0 as f32, e.1 as f32 / self.wext.1 as f32);
+        let w = self.world;
+        Ok([w[0] * sx, w[1] * sy, w[2] * sx, w[3] * sy, w[4] * sx, w[5] * sy])
+    }
+    /// MEASURED (GDI.XFORM.WORLDPOINT, 5120 of 5120 world-* coordinates each arch): LPtoDP
+    /// through a world transform: each axis the point times the f32 matrix (device_matrix),
+    /// exactly, to 28.4 rounded halves away from zero (truncated toward zero on x86 once warm:
+    /// GDI.XFORM.WARMX86), plus the offset to 28.4 rounded halves away; then (v + 8) >> 4
+    fn world_to_dp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
+        let m = self.device_matrix()?;
+        hit(clause::GDI_XFORM_WORLDPOINT);
+        let trunc = self.warm && super::arch() == 32;
+        if trunc {
+            hit(clause::GDI_XFORM_WARMX86);
+        }
+        let axis = |a: f32, b: f32, d: f32| -> i32 {
+            // (x * a + y * b is exact in f64: two 24-bit mantissas times 32-bit integers)
+            let v = (f64::from(p.0) * f64::from(a) + f64::from(p.1) * f64::from(b)) * 16.0;
+            let s = if trunc { v.trunc() } else { v.round() } + (f64::from(d) * 16.0).round();
+            ((s as i64 + 8).div_euclid(16)) as i32
+        };
+        Ok((axis(m[0], m[2], m[4]), axis(m[1], m[3], m[5])))
+    }
+    /// MEASURED (GDI.XFORM.WORLDINV, 3840 of 3840 world-* coordinates each arch): DPtoLP
+    /// through a world transform: the f32 matrix inverted in f32 through its determinant
+    /// (m11 m22 - m12 m21), the inverse offset -(dx i11 + dy i21) in f32; each axis the f32 sum
+    /// of the point's two f32 products rounded halves away, plus the offset rounded halves away
+    fn dp_to_world(&self, p: (i32, i32)) -> Res<(i32, i32)> {
+        let [a, b, c, d, e, f] = self.device_matrix()?;
+        let det = a * d - b * c;
+        if det == 0.0 {
+            return Err(Fail::Bad);
+        }
+        hit(clause::GDI_XFORM_WORLDINV);
+        let i = [d / det, -b / det, -c / det, a / det];
+        let (ox, oy) = (-(e * i[0] + f * i[2]), -(e * i[1] + f * i[3]));
+        let (x, y) = (p.0 as f32, p.1 as f32);
+        let axis = |v: f32, o: f32| -> i32 { (f64::from(v).round() + f64::from(o).round()) as i32 };
+        Ok((axis(x * i[0] + y * i[2], ox), axis(x * i[1] + y * i[3], oy)))
     }
 }
 
@@ -227,14 +295,27 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "gmode" => {
             let v = n(op, 2)?;
             hit(clause::GDI_XFORM_GMODE);
-            let ok = (v == 1 && m.world == IDENTITY) || v == 2;
-            out.push(format!("gmode {}", if ok { std::mem::replace(&mut m.gmode, v) } else { 0 }));
+            // MEASURED (world-*): GM_COMPATIBLE over a world transform other than the identity
+            // returns the mode as it was, as a success, and the transform stays (the doc: it
+            // cannot be set then; cases gmodeback-* ask the mode afterwards)
+            let out_mode = match v {
+                1 | 2 if v == 1 && m.world != IDENTITY => m.gmode,
+                1 | 2 => std::mem::replace(&mut m.gmode, v),
+                _ => 0,
+            };
+            out.push(format!("gmode {out_mode}"));
         }
         "winext" | "vpext" => {
             let (x, y) = (n(op, 2)? as i32, n(op, 3)? as i32);
             let e = if t0 == "winext" { &mut m.wext } else { &mut m.vext };
             let old = *e;
             hit(clause::GDI_MAP_EXT);
+            if m.mode == 7 && (x == 0 || y == 0) {
+                // MEASURED (isomore-2): MM_ISOTROPIC refuses an extent of 0, failing
+                hit(clause::GDI_MAP_ZEROEXT);
+                out.push(format!("ext 0 {} {}", old.0, old.1));
+                return Ok(true);
+            }
             if m.mode >= 7 {
                 if x == 0 || y == 0 {
                     // MEASURED: succeeds, the extents as they were
@@ -345,6 +426,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     2 => multiply(&x, &m.world),
                     _ => multiply(&m.world, &x),
                 };
+                // MEASURED (x86): a multiplying ModifyWorldTransform leaves the transform warm,
+                // as an LPtoDP does (GDI.XFORM.WARMX86); SetWorldTransform does not
+                m.warm = mode != 1;
                 out.push("modxform 1".into());
             }
         }

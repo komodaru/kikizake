@@ -104,5 +104,20 @@ pub fn xform() -> String {
         writeln!(s, "case scalemode-{i}\ndib 0 8 8 32\nmapmode 0 {mode}\nwinext 0 {} {}\nvpext 0 {} {}\ngetmap 0", r.range(1, 50), r.range(1, 50), r.range(1, 50), r.range(1, 50)).unwrap();
         writeln!(s, "scalewin 0 {} {} {} {}\ngetmap 0\nscalevp 0 {} {} {} {}\ngetmap 0\n{}\nend", r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), grid("lptodp")).unwrap();
     }
+    // world transforms with window / viewport origins, a mapping too (their own stream)
+    let mut r = XorShift32::new(0x0e1d_0c1a);
+    for i in 0..40 {
+        writeln!(s, "case worldorg-{i}\ndib 0 8 8 32\ngmode 0 2").unwrap();
+        writeln!(s, "setxform 0 {} {} {} {} {} {}", fl(&mut r, -3, 3), fl(&mut r, -3, 3), fl(&mut r, -3, 3), fl(&mut r, -3, 3), fl(&mut r, -20, 20), fl(&mut r, -20, 20)).unwrap();
+        if i % 2 == 1 {
+            writeln!(s, "mapmode 0 8\nwinext 0 {} {}\nvpext 0 {} {}", r.range(1, 9), r.range(1, 9), *r.pick(&[1, 2, 3, 5, 7, -1, -3]), *r.pick(&[1, 2, 3, 5, 7, -1, -3])).unwrap();
+        }
+        writeln!(s, "winorg 0 {} {}\nvporg 0 {} {}\ngetmap 0\n{}\n{}\nend", r.range(-9, 9), r.range(-9, 9), r.range(-9, 9), r.range(-9, 9), grid("lptodp"), grid("dptolp")).unwrap();
+    }
+    // GM_COMPATIBLE asked over a world transform: is the mode still GM_ADVANCED afterwards
+    for i in 0..4 {
+        let w = ["2 0 0 1 3 -2", "1 0.5 0 1 0 0", "1 0 0 1 0.5 0.25", "-1 0 0 1 0 0"][i];
+        writeln!(s, "case gmodeback-{i}\ndib 0 8 8 32\ngmode 0 2\nsetxform 0 {w}\ngmode 0 1\ngmode 0 2\ngmode 0 1\ngetxform 0\n{}\nmodxform 0 1 1 0 0 1 0 0\ngmode 0 1\ngmode 0 1\nend", grid("lptodp")).unwrap();
+    }
     s
 }

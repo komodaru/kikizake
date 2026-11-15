@@ -174,7 +174,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 328), ("region", 506), ("xform", 269), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 328), ("region", 506), ("xform", 436), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
@@ -220,8 +220,24 @@ proptest! {
 }
 
 proptest! {
-    /// DPtoLP: with each window extent a whole multiple k of the viewport's, the inverse is
-    /// exact, Lx = (Dx - xVO) k + xWO (the f32 inverse of a ratio 1/k is exact for small k)
+    /// LPtoDP / DPtoLP through a whole world transform (integer scales or a swap, whole
+    /// offsets) under MM_TEXT are exact, cold or warm
+    #[test]
+    fn world_whole_maps_are_exact_both_ways(k in (-4i32..5, -4i32..5), sw in any::<bool>(), d in (-50i32..50, -50i32..50), p in (-500i32..500, -500i32..500), warm in any::<bool>()) {
+        // an integer world (scale or swap, whole offsets) under MM_TEXT: LPtoDP and DPtoLP exact
+        prop_assume!(k.0 != 0 && k.1 != 0);
+        let (a, b) = (k.0 as f32, k.1 as f32);
+        let world = if sw { [0.0, b, a, 0.0, d.0 as f32, d.1 as f32] } else { [a, 0.0, 0.0, b, d.0 as f32, d.1 as f32] };
+        let m = kikizake::model::gdixform::Map { mode: 1, gmode: 2, world, warm, ..Default::default() };
+        let q = m.lp_to_dp(p).unwrap();
+        let want = if sw { (p.1 * k.0 + d.0, p.0 * k.1 + d.1) } else { (p.0 * k.0 + d.0, p.1 * k.1 + d.1) };
+        prop_assert_eq!(q, want);
+        if k.0.abs() == 1 && k.1.abs() == 1 {
+            prop_assert_eq!(m.dp_to_lp(q).unwrap(), p);
+        }
+    }
+    /// MM_ISOTROPIC shrinks one axis to within half a unit of the other's ratio, and the stored
+    /// extents read back unchanged
     #[test]
     fn isotropic_shrinks_one_axis_to_the_others_ratio(w in (1i32..3000, 1i32..3000), v in (-3000i32..3000, -3000i32..3000), sw in (any::<bool>(), any::<bool>())) {
         prop_assume!(v.0 != 0 && v.1 != 0);
@@ -240,6 +256,9 @@ proptest! {
         let s = kikizake::model::gdixform::Map { vext: e, unsettled: false, ..m };
         prop_assert_eq!(s.ve(), e);
     }
+    /// DPtoLP: with each window extent a whole multiple k of the viewport's, the inverse is
+    /// exact, Lx = (Dx - xVO) k + xWO (the f32 inverse of a ratio 1/k is exact for small k)
+    #[test]
     fn dptolp_whole_ratios_are_exact(kx in -64i32..64, ky in -64i32..64, vx in 1i32..64, vy in 1i32..64, wo in (-500i32..500, -500i32..500), vo in (-500i32..500, -500i32..500), d in (-2000i32..2000, -2000i32..2000)) {
         prop_assume!(kx != 0 && ky != 0);
         let m = kikizake::model::gdixform::Map { mode: 8, wext: (kx * vx, ky * vy), vext: (vx, vy), worg: wo, vorg: vo, ..Default::default() };
