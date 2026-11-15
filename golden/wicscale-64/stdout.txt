@@ -22214,4 +22214,22 @@ wpixels 00000000 24
 3b4e6e486e57
 8551bf8e4bbb
 4333dc4e2be2
+case bigsize-fmt-hqcubic
+wbits 00000000
+wscale 00000000
+winfo 00000000 4096 2048 bgra 0.000 0.000
+wscale 00000000
+winfo 00000000 3 2 bgra 0.000 0.000
+case bigsize-fmt-fant
+wbits 00000000
+wscale 00000000
+winfo 00000000 4096 2048 bgra 0.000 0.000
+wscale 00000000
+winfo 00000000 3 2 bgra 0.000 0.000
+case bigsize-fmt-linear
+wbits 00000000
+wscale 00000000
+winfo 00000000 4096 2048 bgra 0.000 0.000
+wscale 00000000
+winfo 00000000 3 2 bgra 0.000 0.000
 done
