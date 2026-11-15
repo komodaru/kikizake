@@ -920,6 +920,34 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    // generated coordinates further: normals under a world matrix (0, 1), NORMALIZENORMALS
+    // with normals of other lengths (2, 3), a texture matrix by TEXTURETRANSFORMFLAGS COUNT2 on
+    // generated (4) and passed (5) coordinates
+    for i in 0..6u32 {
+        open(&mut s, &format!("tci-gen2-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\nrs set 7 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        let tci = [0x10000u32, 0x30000, 0x10000, 0x40000, 0x20000, 0][i as usize];
+        writeln!(s, "tss set 0 11 {tci:#x}").unwrap();
+        if i < 2 {
+            writeln!(s, "d9xform 256{}", mat([0.6, 0.2, 0.0, 0.0, -0.3, 0.8, 0.0, 0.0, 0.0, 0.0, 1.5, 0.0, 0.1, 0.0, 0.2, 1.0])).unwrap();
+        }
+        if i == 2 || i == 3 {
+            writeln!(s, "rs set 143 1").unwrap();
+        }
+        if i >= 4 {
+            writeln!(s, "tss set 0 24 2\nd9xform 16{}", mat([0.5, 0.25, 0.0, 0.0, -0.25, 0.75, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.3, 0.1, 0.0, 1.0])).unwrap();
+        }
+        let mut l = "d9fvf 0x152\nd9draw 5 4".to_string();
+        for (x, y) in [(-0.9f32, 0.9f32), (0.9, 0.9), (-0.9, -0.9), (0.9, -0.9)] {
+            let (nx, ny) = (r.range(-8, 8) as f32 / 10.0, r.range(-8, 8) as f32 / 10.0);
+            let nz = -(1.0 - (nx * nx + ny * ny).min(1.0)).sqrt();
+            let k = if i == 2 || i == 3 { 0.5 + r.range(0, 8) as f32 / 4.0 } else { 1.0 };
+            write!(l, " {} {} {} {} {} {}", fb(x), fb(y), fb(0.5), fb(nx * k), fb(ny * k), fb(nz * k)).unwrap();
+            write!(l, " {:#x} {} {}", r.next() | 0xff00_0000, fb(x * 0.5 + 0.5), fb(0.5 - y * 0.5)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 

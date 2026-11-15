@@ -1189,8 +1189,8 @@ impl D3d9 {
             "d9xform" => {
                 let ty = n(op, 1)? as u32;
                 let m: Vec<f32> = (2..18).map(|i| n(op, i).map(|v| f32::from_bits(v as u32))).collect::<Res<_>>()?;
-                if !matches!(ty, 2 | 3 | 256) {
-                    // (the generators set only VIEW, PROJECTION, WORLD)
+                if !matches!(ty, 2 | 3 | 16..=23 | 256) {
+                    // (the generators set only VIEW, PROJECTION, TEXTURE0..7, WORLD)
                     return Err(Fail::Bad);
                 }
                 hit(clause::D3D9_DRAW_XYZ);
@@ -1757,9 +1757,10 @@ impl D3d9 {
         if tcis.iter().any(|&t| t != 0) {
             hit(clause::D3D9_STAGE_TCI);
         }
-        if tcis.iter().any(|&t| t >> 16 != 0) && pos == 3 && (fvf & 0x10 != 0 || self.rs(142) == 0 || (0..8).any(|st| self.tss(st, 24) != 0)) {
-            // (texture coordinates generated from untransformed vertices with normals, without
-            // LOCALVIEWER, or transformed by TEXTURETRANSFORMFLAGS: cases tci-gen-*, open)
+        let moved = [256u32, 2].iter().any(|t| self.draw.xform.get(t).is_some_and(|m| *m != std::array::from_fn::<f32, 16, _>(|i| if i % 5 == 0 { 1.0 } else { 0.0 })));
+        if (0..8).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.tss(st, 24) != 0) || tcis.iter().any(|&t| t >> 16 != 0) && pos == 3 && fvf & 0x10 != 0 && (moved || self.rs(143) != 0) {
+            // (texture coordinates generated from normals under world or view matrices or
+            // NORMALIZENORMALS, or transformed by TEXTURETRANSFORMFLAGS: no case, open)
             return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
         }
         let stride = words.len() / nv;
@@ -1794,10 +1795,10 @@ impl D3d9 {
                 });
                 if pos == 3 {
                     let p = [w[0], w[1], w[2]].map(f32::from_bits);
-                    // (MEASURED tci-xyz-*: coordinates generated from the camera-space
-                    // position P (world then view) with no normal in the vertex, N = 0, and
-                    // LOCALVIEWER: CAMERASPACENORMAL (0, 0); CAMERASPACEPOSITION (Px, Py);
-                    // CAMERASPACEREFLECTIONVECTOR R = 2 (E.N) N - E, E = -P / |P|, so P / |P|;
+                    // (MEASURED tci-xyz-*, tci-gen-*: coordinates generated from the camera-space
+                    // position P (world then view) and normal N (0 where the vertex has none):
+                    // CAMERASPACENORMAL (Nx, Ny); CAMERASPACEPOSITION (Px, Py);
+                    // CAMERASPACEREFLECTIONVECTOR R = 2 (E.N) N - E, E = -P / |P| (LOCALVIEWER);
                     // SPHEREMAP from R, m = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2), (Rx / m + 1/2,
                     // Ry / m + 1/2); D3D9.STAGE.TCIGEN)
                     let uv = std::array::from_fn(|k| match TexGen::of(tcis[k], self.v8) {
@@ -1805,10 +1806,16 @@ impl D3d9 {
                         gen => {
                             hit(clause::D3D9_STAGE_TCIGEN);
                             let c = self.camera_space(p);
-                            let n = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
-                            let r = [c[0] / n, c[1] / n, c[2] / n];
+                            // (the vertex's normal as it is, world and view the identity; none: 0)
+                            let nn = if fvf & 0x10 != 0 { [w[pos], w[pos + 1], w[pos + 2]].map(f32::from_bits) } else { [0.0f32; 3] };
+                            let pl = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+                            // (MEASURED tci-gen-4, -5: without LOCALVIEWER E = (0, 0, 1))
+                            let e = if self.rs(142) != 0 { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
+                            let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
+                            let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
                             match gen {
-                                TexGen::Passthru | TexGen::Normal => [0.0, 0.0],
+                                TexGen::Passthru => [0.0, 0.0],
+                                TexGen::Normal => [nn[0] as f64, nn[1] as f64],
                                 TexGen::Position => [c[0] as f64, c[1] as f64],
                                 TexGen::Reflection => [r[0] as f64, r[1] as f64],
                                 TexGen::SphereMap => {
