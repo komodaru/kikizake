@@ -1,13 +1,16 @@
 //! The DDS encoder's BC3 (DXT5) blocks, as WIC writes them.
 //!
-//! MEASURED (golden wicencode enc-dds-*: every byte): the D3DX family's block encoder, with the
-//! points taken as they are (not first rounded to 5:6:5), weighted by luminance; the endpoints
-//! of both the color and the alpha line are refitted by least squares to the steps the points
-//! fall on until no point moves, so that each lands on the least-squares fit of its own
-//! indices; past the picture a block repeats its last column and row.
-//! OPEN (WICIMAGE.ENCODE.LOSSY): which of the four diagonals of the color box the fit starts
-//! from: neither the D3DX choice (the diagonal the points spread along most) nor the principal
-//! axis gives Windows' every block; a block whose result depends on it is not modelled.
+//! MEASURED (golden wicencode enc-dds-*, encdds-*: every byte): the D3DX family's block encoder,
+//! weighted by luminance: the color box the fit starts from is that of the points rounded to
+//! 5:6:5, the diagonal of it the one the points as they are spread along most (D3DX's sums of
+//! squares about the box's middle); the endpoints of both the color and the alpha line are then
+//! refitted by least squares to the steps the points (as they are) fall on until no point moves;
+//! each pixel's step is chosen from its color rounded to 5:6:5; past the picture a block repeats
+//! its last column and row.
+//! OPEN (WICIMAGE.ENCODE.LOSSY): some blocks end elsewhere (encdds-bgr24-4x8: Windows stops at
+//! the third refit although a point still moves; enc-dds-bgr555 block 1 starts from another
+//! diagonal than the largest sum), so a block whose result depends on the diagonal is not
+//! modelled.
 
 /// one pixel: red, green, blue, alpha in 0..=1
 pub type Px = [f32; 4];
@@ -18,6 +21,12 @@ const LUM_INV: [f32; 3] = [0.7154f32 / 0.2125f32, 1.0, 0.7154f32 / 0.0721f32];
 
 /// at most this many refits (none of the goldens takes more than a few)
 const REFITS: usize = 64;
+
+/// a 0..=1 channel rounded to the 5:6:5 grid (5 bits red and blue, 6 green), as D3DX rounds
+fn grid565(c: [f32; 3]) -> [f32; 3] {
+    const LEVELS: [f32; 3] = [31.0, 63.0, 31.0];
+    std::array::from_fn(|k| trunc(c[k] * LEVELS[k] + 0.5) as f32 * (1.0 / LEVELS[k]))
+}
 
 /// a float to int as C's cast: toward zero
 fn trunc(x: f32) -> i32 {
@@ -64,12 +73,13 @@ fn project(p: &[f32; 3], x: &[f32; 3], dir: &[f32; 3], last: f32, steps: usize) 
 }
 
 /// the two ends of the color line through luminance-weighted points
-fn optimize_rgb(pts: &[[f32; 3]; 16], start: Option<Diagonal>) -> ([f32; 3], [f32; 3]) {
+fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diagonal>) -> ([f32; 3], [f32; 3]) {
     let c4 = [1.0f32, 2.0 / 3.0, 1.0 / 3.0, 0.0];
     let d4 = [0.0f32, 1.0 / 3.0, 2.0 / 3.0, 1.0];
     let mut x = LUM;
     let mut y = [0.0f32; 3];
-    for p in pts {
+    // (the box of the points rounded to 5:6:5)
+    for p in grid {
         for k in 0..3 {
             if p[k] < x[k] {
                 x[k] = p[k];
@@ -149,8 +159,10 @@ fn optimize_rgb(pts: &[[f32; 3]; 16], start: Option<Diagonal>) -> ([f32; 3], [f3
 
 /// the 8 color bytes of a block (4 steps: endpoints, then 2 bits a pixel)
 fn encode_color(px: &[Px; 16], start: Option<Diagonal>) -> [u8; 8] {
-    let pts: [[f32; 3]; 16] = std::array::from_fn(|i| std::array::from_fn(|k| px[i][k] * LUM[k]));
-    let (a, b) = optimize_rgb(&pts, start);
+    let lum = |c: [f32; 3]| -> [f32; 3] { std::array::from_fn(|k| c[k] * LUM[k]) };
+    let pts: [[f32; 3]; 16] = std::array::from_fn(|i| lum([px[i][0], px[i][1], px[i][2]]));
+    let grid: [[f32; 3]; 16] = std::array::from_fn(|i| lum(grid565([px[i][0], px[i][1], px[i][2]])));
+    let (a, b) = optimize_rgb(&pts, &grid, start);
     let wa = encode565(std::array::from_fn(|k| a[k] * LUM_INV[k]));
     let wb = encode565(std::array::from_fn(|k| b[k] * LUM_INV[k]));
     let mut out = [0u8; 8];
@@ -159,7 +171,6 @@ fn encode_color(px: &[Px; 16], start: Option<Diagonal>) -> [u8; 8] {
         out[2..4].copy_from_slice(&wb.to_le_bytes());
         return out;
     }
-    let lum = |c: [f32; 3]| -> [f32; 3] { std::array::from_fn(|k| c[k] * LUM[k]) };
     let (ca, cb) = (lum(decode565(wa)), lum(decode565(wb)));
     // (4 steps: the larger endpoint first)
     let (w0, w1, s0, s1) = if wa <= wb { (wb, wa, cb, ca) } else { (wa, wb, ca, cb) };
@@ -169,7 +180,8 @@ fn encode_color(px: &[Px; 16], start: Option<Diagonal>) -> [u8; 8] {
     dir = dir.map(|v| v * scale);
     let mut dw = 0u32;
     for p in px {
-        let c = lum([p[0], p[1], p[2]]);
+        // (each pixel's step from its color rounded to 5:6:5)
+        let c = lum(grid565([p[0], p[1], p[2]]));
         let dot = (c[0] - s0[0]) * dir[0] + (c[1] - s0[1]) * dir[1] + (c[2] - s0[2]) * dir[2];
         let step = if dot <= 0.0 { 0 } else if dot >= 3.0 { 1 } else { order[trunc(dot + 0.5) as usize] };
         dw = (step << 30) | (dw >> 2);
