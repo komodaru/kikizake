@@ -45,6 +45,7 @@ tests/laws_dd.rs::walk_stays_by_the_edges pbt D3D7.TRI.WALK D3D7.TRI D3D7.TRI.GU
 tests/laws_dd.rs::ties_round_symmetrically exhaustive D3D7.TRI.TIE
 tests/laws_dd.rs::blend_ends pbt D3D7.BLEND D3D7.BLEND.OTHER
 tests/laws_dd.rs::poke_reads_back pbt DDRAW.LOCK DDRAW.LOCK.WRITE
+tests/laws_dd.rs::padding_reads_back pbt DDRAW.LOCK.PADDING DDRAW.OVERLAP8
 tests/laws_dd.rs::flips_rotate pbt DDRAW.FLIP DDRAW.CHAIN
 tests/laws_dd.rs::clip_lists_round_trip pbt DDRAW.CLIP.SET DDRAW.CLIP.LIST
 tests/laws_dd.rs::palette_entries_round_trip pbt DDRAW.PAL.GET DDRAW.PAL.SET

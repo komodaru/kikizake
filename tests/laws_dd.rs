@@ -219,6 +219,22 @@ proptest! {
         prop_assert_eq!(rows(&after, "dd 0"), want);
     }
 
+    /// bytes poked into a row's padding are what the 8 bpp backward copy's extra pixels take
+    /// from there (DDRAW.LOCK.PADDING, DDRAW.OVERLAP8): the first extra pixel of row y is the
+    /// padding byte dx before the end of row y - 1
+    #[test]
+    fn padding_reads_back(w in 29i64..32, dx in 1i64..4, v in prop::collection::vec(any::<u8>(), 18)) {
+        let pokes: String = (0..6).map(|y| format!("ddpoke 0 {w} {y} {}\n", (w..32).map(|c| format!("{:02x}", v[(y * 3 + c - w) as usize])).collect::<String>())).collect();
+        let out = run(&format!("dd\nddsurf 0 {w} 6 8\nddfill 0 7\nddlock 0 all\n{pokes}ddunlock 0 none\nddblt 0 {dx} 2 {} 4 0 0 2 4 4\ndddump 0\n", dx + 4));
+        let r = rows(&out, "dd 0");
+        for y in 2..4usize {
+            // (the byte at address y·32 − dx: row y − 1, column 32 − dx)
+            let c = 32 - dx;
+            let want = if c >= w { v[((y as i64 - 1) * 3 + c - w) as usize] } else { u8::from_str_radix(&rows(&run(&format!("dd\nddsurf 0 {w} 6 8\nddfill 0 7\ndddump 0\n")), "dd 0")[y - 1][2 * c as usize..2 * c as usize + 2], 16).unwrap() };
+            prop_assert_eq!(&r[y][0..2], format!("{want:02x}"));
+        }
+    }
+
     /// flipping a chain of n buffers n times brings every buffer's contents back
     #[test]
     fn flips_rotate(n in 1usize..4, seed in 1u32..999) {
@@ -276,7 +292,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::gen;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 7, 7), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 16, 0), ("d3d7shade", 48, 0)] {
         let cases = parse_cases(&gen::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

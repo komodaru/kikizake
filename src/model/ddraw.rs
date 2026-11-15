@@ -108,6 +108,10 @@ pub struct Surf {
     pub poke: Option<(i64, i64)>,
     /// a flipping chain: (its first slot, this surface's place in it)
     pub chain: Option<(usize, usize)>,
+    /// a system-memory surface's bytes past each row's pixels up to its pitch (DDRAW.PITCH), row
+    /// after row: 0 as made (MEASURED dd8 overlap8padfresh-*), what ddpoke wrote there
+    /// (overlap8padpoke-*); None for the others (their pitch is not measured, DDRAW.VID.PITCH)
+    pub pad: Option<Vec<u8>>,
 }
 
 impl Surf {
@@ -323,7 +327,7 @@ impl Ddraw {
 
     /// the pixels an 8 bpp backward Blt writes left of its destination (DDRAW.OVERLAP8): each
     /// row's `n` pixels before dr, each from the byte dx left and dy down of it in memory (rows
-    /// a pitch apart; a byte in a row's padding or before the surface is not modeled)
+    /// a pitch apart, a row's padding as Surf::pad, before the surface 0)
     fn extra(&mut self, d: usize, dr: Rect, src: &Surf, sr: Rect, n: i64) -> Res<()> {
         let (dx, dy) = (dr.0 - sr.0, dr.1 - sr.1);
         let p = pitch(src.w, src.bpp);
@@ -336,10 +340,24 @@ impl Ddraw {
                 }
                 let a = (y - dy) * p + x - dx;
                 let (ry, rx) = (a.div_euclid(p), a.rem_euclid(p));
-                if a < 0 || rx >= src.w {
-                    return Err(Fail::Unmodeled(open::DDRAW_OVERLAP8));
-                }
-                dst.set(x, y, src.get(rx, ry));
+                let v = if a < 0 {
+                    // the 3 bytes before the surface (MEASURED dd8 overlap8front, a 32 x 6
+                    // surface): 0 on x86; 01 00 90 on x86-64 (the heap's header)
+                    match (super::arch(), a) {
+                        (64, -3) => 0x01,
+                        (64, -1) => 0x90,
+                        (64, -2) | (32, -3..=-1) => 0,
+                        _ => return Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD)),
+                    }
+                } else if rx >= src.w {
+                    // a row's padding (overlap8padpoke-*, overlap8padfresh-*)
+                    let pad = src.pad.as_ref().ok_or(Fail::Unmodeled(open::DDRAW_VID_PITCH))?;
+                    let at = usize::try_from(ry * (p - src.w) + rx - src.w).map_err(|_| Fail::Bad)?;
+                    u32::from(*pad.get(at).ok_or(Fail::Bad)?)
+                } else {
+                    src.get(rx, ry)
+                };
+                dst.set(x, y, v);
             }
         }
         Ok(())
@@ -459,7 +477,8 @@ impl Ddraw {
                 }
                 // (the pixels a new surface starts with are not documented: cases fill first)
                 let caps = if vid { 0x1000_4040 } else { 0x840 };
-                self.s[i as usize] = Some(Surf { w, h, bpp, fmt, caps, flags: 0x100f, vid, px: vec![0; (w * h) as usize], ..Default::default() });
+                let pad = (!vid).then(|| vec![0; usize::try_from(h * (pitch(w, bpp) - w * i64::from(bpp / 8))).unwrap_or(0)]);
+                self.s[i as usize] = Some(Surf { w, h, bpp, fmt, caps, flags: 0x100f, vid, px: vec![0; (w * h) as usize], pad, ..Default::default() });
             }
             "ddfill" | "dddump" => {
                 let s = slot!(1);
@@ -1001,14 +1020,26 @@ impl Ddraw {
                     return Ok(true);
                 };
                 let b = surf.bpp as i64 / 8;
+                let p = pitch(surf.w, surf.bpp);
                 hit(clause::DDRAW_LOCK_WRITE);
                 for k in 0..hex.len() as i64 / 2 {
                     let v = u32::from_str_radix(&hex[2 * k as usize..2 * k as usize + 2], 16).map_err(|_| Fail::Bad)?;
-                    let bx = x0 * b + x + k;
-                    let (px, py, byte) = (bx / b, y0 + y, bx % b);
-                    if px >= surf.w || py >= surf.h {
-                        // (into the padding past the row, or past the surface)
+                    // (the byte's address from the surface's first, rows a pitch apart)
+                    let a = (y0 + y) * p + x0 * b + x + k;
+                    let (py, col) = (a / p, a % p);
+                    let (px, byte) = (col / b, col % b);
+                    if py >= surf.h {
+                        // (past the surface's last row: memory after it)
                         return Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD));
+                    }
+                    if px >= surf.w {
+                        // into a row's padding
+                        let row = p - surf.w * b;
+                        let Some(pad) = surf.pad.as_mut() else { return Err(Fail::Unmodeled(open::DDRAW_VID_PITCH)) };
+                        hit(clause::DDRAW_LOCK_PADDING);
+                        let at = usize::try_from(py * row + col - surf.w * b).map_err(|_| Fail::Bad)?;
+                        *pad.get_mut(at).ok_or(Fail::Bad)? = u8::try_from(v).map_err(|_| Fail::Bad)?;
+                        continue;
                     }
                     let old = surf.get(px, py);
                     surf.set(px, py, old & !(0xff << (8 * byte)) | v << (8 * byte));
