@@ -4,7 +4,7 @@
 use proptest::prelude::*;
 use kikizake::case::parse_cases;
 use kikizake::model::gdiblend::{alpha, mix};
-use kikizake::model::gdiline::{line_pixels, rop2};
+use kikizake::model::gdiline::{giq_pixels, line_pixels, rop2, Fix28};
 use kikizake::model::gdixform::{multiply, page, IDENTITY};
 use kikizake::model::rgn::{Rgn, SetOp, COMPLEXREGION, NULLREGION, SIMPLEREGION};
 use kikizake::model::{self, run_case};
@@ -158,6 +158,23 @@ proptest! {
         prop_assert!(if up { p1 >= p0 } else { p1 <= p0 }, "monotone");
     }
 
+    /// GIQ with whole ends is the integer line rule (both measured: the corners of the diamond
+    /// it includes are the halfway ties' side); a 28.4 line never lights the pixel it ends in
+    #[test]
+    fn giq_of_whole_ends_is_the_integer_line(a in (-40i32..40, -40i32..40), b in (-40i32..40, -40i32..40), f in (-64i64..64, -64i64..64, -64i64..64, -64i64..64)) {
+        let mut g = giq_pixels(Fix28(i64::from(a.0) * 16, i64::from(a.1) * 16), Fix28(i64::from(b.0) * 16, i64::from(b.1) * 16));
+        let mut l = line_pixels(a, b);
+        g.sort();
+        l.sort();
+        prop_assert_eq!(g, l);
+        let (p, q) = (Fix28(i64::from(a.0) * 16 + f.0, i64::from(a.1) * 16 + f.1), Fix28(i64::from(b.0) * 16 + f.2, i64::from(b.1) * 16 + f.3));
+        for t in giq_pixels(p, q) {
+            let (cx, cy) = (i64::from(t.0) * 16, i64::from(t.1) * 16);
+            let ends_in = (q.0 - cx).abs() + (q.1 - cy).abs() < 8 || (q.0, q.1) == (cx + 8, cy) || (q.0, q.1) == (cx, cy + 8);
+            prop_assert!(!ends_in, "the end's own pixel is left out");
+        }
+    }
+
     /// drawing through a viewport origin is drawing shifted by it (PatBlt, Rectangle, LineTo)
     #[test]
     fn viewport_origin_shifts_drawing(o in (-6i32..7, -6i32..7), a in (-4i32..14, -4i32..14), d in (-6i32..9, -6i32..9), kind in 0u8..3) {
@@ -191,7 +208,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 328), ("region", 506), ("xform", 566), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 342), ("region", 506), ("xform", 566), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {

@@ -100,6 +100,55 @@ pub fn line_pixels(a: (i32, i32), b: (i32, i32)) -> Vec<(i32, i32)> {
     v
 }
 
+/// a point in 28.4 device units (1/16 pixel), pixel (x, y)'s center at (16 x, 16 y)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Fix28(pub i64, pub i64);
+
+/// the pixels of a cosmetic line between two 28.4 points by grid intersect quantization
+/// (MEASURED, GDI.LINE.GIQ: PolyBezier's flattened polylines, 14 of 14): a pixel is lit when the
+/// line crosses its diamond, the open square |x - cx| + |y - cy| < 1/2 with its right and bottom
+/// corners, and does not end inside it; whole ends give line_pixels' pixels
+pub fn giq_pixels(a: Fix28, b: Fix28) -> Vec<(i32, i32)> {
+    hit(clause::GDI_LINE_GIQ);
+    let (dx, dy) = (i128::from(b.0 - a.0), i128::from(b.1 - a.1));
+    if dx == 0 && dy == 0 {
+        return Vec::new();
+    }
+    // (corner (x, y) on the segment: collinear, and between the ends)
+    let on = |x: i128, y: i128| -> bool {
+        let (ux, uy) = (x - i128::from(a.0), y - i128::from(a.1));
+        dx * uy - dy * ux == 0 && (0..=dx * dx + dy * dy).contains(&(ux * dx + uy * dy))
+    };
+    let inside = |p: (i128, i128), c: (i128, i128)| -> bool { (p.0 - c.0).abs() + (p.1 - c.1).abs() < 8 || p == (c.0 + 8, c.1) || p == (c.0, c.1 + 8) };
+    // the least L1 distance from the segment to c is at an end or where x or y crosses c's: t
+    // = n / d, compared as d * distance < 8 d
+    let crosses = |c: (i128, i128)| -> bool {
+        let (ox, oy) = (i128::from(a.0) - c.0, i128::from(a.1) - c.1);
+        let mut ts: Vec<(i128, i128)> = vec![(0, 1), (1, 1)];
+        if dx != 0 {
+            ts.push(if dx > 0 { (-ox, dx) } else { (ox, -dx) });
+        }
+        if dy != 0 {
+            ts.push(if dy > 0 { (-oy, dy) } else { (oy, -dy) });
+        }
+        ts.iter().any(|&(n, d)| (0..=d).contains(&n) && (ox * d + n * dx).abs() + (oy * d + n * dy).abs() < 8 * d) || on(c.0 + 8, c.1) || on(c.0, c.1 + 8)
+    };
+    let end = (i128::from(b.0), i128::from(b.1));
+    let px = |v: i64| v.div_euclid(16);
+    let (x0, x1) = (px(a.0.min(b.0)) - 1, px(a.0.max(b.0)) + 2);
+    let (y0, y1) = (px(a.1.min(b.1)) - 1, px(a.1.max(b.1)) + 2);
+    let mut v = Vec::new();
+    for y in y0..=y1 {
+        for x in x0..=x1 {
+            let c = (i128::from(x) * 16, i128::from(y) * 16);
+            if crosses(c) && !inside(end, c) {
+                v.push((x as i32, y as i32));
+            }
+        }
+    }
+    v
+}
+
 /// whether a line's minor step at exactly half a pixel is taken: the half goes to the smaller
 /// minor coordinate (up for x-major lines, left for y-major ones) whichever way the line runs
 /// (MEASURED, golden lines: every line from the center of a 17x17 picture, both ways)
@@ -136,6 +185,15 @@ impl Slot {
                 hit(clause::GDI_ROP2_TRUTH);
             }
             for (x, y) in line_pixels(a, b) {
+                self.plot(x, y, v);
+            }
+        }
+        Ok(())
+    }
+    /// a line between 28.4 points with the pen (GDI.LINE.GIQ)
+    pub fn line_fix(&mut self, a: Fix28, b: Fix28) -> Res<()> {
+        if let Some(v) = self.pen_value()? {
+            for (x, y) in giq_pixels(a, b) {
                 self.plot(x, y, v);
             }
         }
@@ -363,7 +421,34 @@ fn op_device(g: &mut Gdi, k: i64, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             out.push("ret 1".into());
         }
         "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
-        _ => return Err(Fail::Unmodeled(open::GDI_LINE_BEZIER)),
+        "polybezier" | "polybezierto" => {
+            let pts = points(op, 2)?;
+            let to = t0 == "polybezierto";
+            let n = if to { pts.len() } else { pts.len().saturating_sub(1) };
+            if pts.is_empty() || n % 3 != 0 {
+                return Err(Fail::Bad);
+            }
+            // MEASURED (lines poly-*, 14 of 14): each curve flattened in 28.4 as a path is
+            // (GDI.PATH.FLATTENHFD), the points joined by 28.4 lines (GDI.LINE.GIQ)
+            hit(clause::GDI_LINE_BEZIER);
+            let mut at = if to { sl.ext.pos } else { pts[0] };
+            for c in pts[pts.len() - n..].chunks(3) {
+                let q = [at, c[0], c[1], c[2]].map(|v| (v.0 * 16, v.1 * 16));
+                let Some(f) = super::bezier::flatten(q) else { return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)) };
+                let mut prev = Fix28(i64::from(q[0].0), i64::from(q[0].1));
+                for v in f {
+                    let r = Fix28(i64::from(v.0), i64::from(v.1));
+                    sl.line_fix(prev, r)?;
+                    prev = r;
+                }
+                at = c[2];
+            }
+            if to {
+                sl.ext.pos = at;
+            }
+            out.push("ret 1".into());
+        }
+        _ => return Err(Fail::Bad),
     }
     Ok(true)
 }
