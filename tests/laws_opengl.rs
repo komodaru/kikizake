@@ -228,6 +228,20 @@ proptest! {
         }
     }
 
+    /// GL.RASTER.LINE.WIDE: a wide y-major line entering through the left edge has the
+    /// window's first width columns at its first row, whatever its slope
+    #[test]
+    fn entering_lines_start_at_the_edge(y in 256u16..3584, b in any::<(u16, u16)>(), w in 2i64..10) {
+        let a = [0.0, f64::from(y) / 256.0];
+        let b = [f64::from(b.0 % 1024) / 256.0 + 1.0, f64::from(b.1 % 2048) / 256.0 + if b.1 % 2 == 0 { 8.0 } else { -6.0 } + 4.0];
+        prop_assume!((b[1] - a[1]).abs() > (b[0] - a[0]).abs() + 0.1);
+        let p = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Entering(tri::LineWidth::of(w as f32)));
+        let Some(&(_, row)) = p.first() else { return Ok(()) };
+        let mut first: Vec<i64> = p.iter().filter(|q| q.1 == row).map(|q| q.0).collect();
+        first.sort();
+        prop_assert_eq!(first, (0..w).collect::<Vec<i64>>());
+    }
+
     /// GL.RASTER.TIE: a rectangle's two antialiased triangles (v0 v1 v2, v0 v2 v3) share its
     /// samples out between them, each once, the samples x0 <= x < x1, y0 <= y < y1 per pixel
     #[test]
