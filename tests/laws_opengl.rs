@@ -148,9 +148,9 @@ proptest! {
     fn triangle_ignores_vertex_order(v in any::<[(i16, i16); 3]>()) {
         let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8), y: Sub(i64::from(y) / 8) });
         let sorted = |mut p: Vec<(i64, i64)>| { p.sort(); p };
-        let a = sorted(tri::pixels(v, 16, 16));
+        let a = sorted(tri::pixels(&v, 16, 16));
         for p in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
-            prop_assert_eq!(&a, &sorted(tri::pixels(p.map(|k| v[k]), 16, 16)));
+            prop_assert_eq!(&a, &sorted(tri::pixels(&p.map(|k| v[k]), 16, 16)));
         }
     }
 
@@ -160,7 +160,7 @@ proptest! {
     fn shared_edges_tile(c in (-2000i64..6000, -2000i64..6000), r in (256f64..3000.0, 256f64..3000.0), t in 0f64..1.0, j in any::<[u8; 4]>()) {
         // four points on an ellipse around c at increasing angles: a convex quad
         let q: Vec<Vertex> = (0..4).map(|k| {
-            let a = t * 6.283 + k as f64 * 1.5707963 + f64::from(j[k]) / 256.0 * 1.2;
+            let a = t * std::f64::consts::TAU + k as f64 * std::f64::consts::FRAC_PI_2 + f64::from(j[k]) / 256.0 * 1.2;
             Vertex { x: Sub(c.0 + (r.0 * a.cos()) as i64), y: Sub(c.1 + (r.1 * a.sin()) as i64) }
         }).collect();
         let turn = |a: Vertex, b: Vertex, c: Vertex| (b.x.0 - a.x.0) * (c.y.0 - b.y.0) - (b.y.0 - a.y.0) * (c.x.0 - b.x.0);
@@ -168,7 +168,7 @@ proptest! {
         if !(0..4).all(|k| turn(q[k], q[(k + 1) % 4], q[(k + 2) % 4]) > 0) {
             return Ok(());
         }
-        let (p, s) = (tri::pixels([q[0], q[1], q[2]], 32, 32), tri::pixels([q[0], q[2], q[3]], 32, 32));
+        let (p, s) = (tri::pixels(&[q[0], q[1], q[2]], 32, 32), tri::pixels(&[q[0], q[2], q[3]], 32, 32));
         let mut both: Vec<(i64, i64)> = p.iter().chain(&s).copied().collect();
         both.sort();
         let n = both.len();
@@ -192,12 +192,46 @@ proptest! {
         }
     }
 
+    /// GL.RASTER.TRIANGLE: a convex polygon walked as a whole draws what its fan's triangles
+    /// draw, except at centers within 1/128 pixel of a diagonal, and any rotation of its
+    /// vertices draws the same
+    #[test]
+    fn whole_polygon_is_its_fan_off_the_diagonals(c in (-2000i64..6000, -2000i64..6000), r in (256f64..3000.0, 256f64..3000.0), t in 0f64..1.0, j in any::<[u8; 5]>(), back in any::<bool>()) {
+        let mut q: Vec<Vertex> = (0..5).map(|k| {
+            let a = t * std::f64::consts::TAU + k as f64 * (std::f64::consts::TAU / 5.0) + f64::from(j[k]) / 256.0;
+            Vertex { x: Sub(c.0 + (r.0 * a.cos()) as i64), y: Sub(c.1 + (r.1 * a.sin()) as i64) }
+        }).collect();
+        if back {
+            q.reverse();
+        }
+        let turn = |a: Vertex, b: Vertex, c: Vertex| (b.x.0 - a.x.0) * (c.y.0 - b.y.0) - (b.y.0 - a.y.0) * (c.x.0 - b.x.0);
+        let sign = turn(q[0], q[1], q[2]).signum();
+        if sign == 0 || !(0..5).all(|k| turn(q[k], q[(k + 1) % 5], q[(k + 2) % 5]).signum() == sign) {
+            return Ok(());
+        }
+        let sorted = |mut p: Vec<(i64, i64)>| { p.sort(); p };
+        let whole = sorted(tri::pixels(&q, 32, 32));
+        for k in 1..5 {
+            let rot: Vec<Vertex> = (0..5).map(|i| q[(i + k) % 5]).collect();
+            prop_assert_eq!(&whole, &sorted(tri::pixels(&rot, 32, 32)));
+        }
+        let fan = sorted((1..4).flat_map(|k| tri::pixels(&[q[0], q[k], q[k + 1]], 32, 32)).collect());
+        let near = |x: i64, y: i64| (2..4).any(|k| {
+            let (a, b) = (q[0], q[k]);
+            let dy = i128::from((b.y.0 - a.y.0).abs()).max(1);
+            let e = i128::from(b.x.0 - a.x.0) * i128::from(y * 256 + 128 - a.y.0) - i128::from(b.y.0 - a.y.0) * i128::from(x * 256 + 128 - a.x.0);
+            e.abs() < 2 * dy
+        });
+        let off = |p: &Vec<(i64, i64)>| p.iter().copied().filter(|(x, y)| !near(*x, *y)).collect::<Vec<_>>();
+        prop_assert_eq!(off(&whole), off(&fan));
+    }
+
     /// GL.RASTER.TRIANGLE: moving a triangle by whole pixels moves its pixels the same
     #[test]
     fn triangle_moves_with_whole_pixels(v in any::<[(i16, i16); 3]>(), dx in -4i64..4, dy in -4i64..4) {
         let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 16 + 4096), y: Sub(i64::from(y) / 16 + 4096) });
         let m = v.map(|p| Vertex { x: Sub(p.x.0 + dx * 256), y: Sub(p.y.0 + dy * 256) });
-        let (a, mut b) = (tri::pixels(v, 40, 40), tri::pixels(m, 40, 40));
+        let (a, mut b) = (tri::pixels(&v, 40, 40), tri::pixels(&m, 40, 40));
         let mut a: Vec<(i64, i64)> = a.into_iter().map(|(x, y)| (x + dx, y + dy)).filter(|(x, y)| (0..40).contains(x) && (0..40).contains(y)).collect();
         a.sort();
         b.retain(|(x, y)| (x - dx) >= 0 && (x - dx) < 40 && (y - dy) >= 0 && (y - dy) < 40);

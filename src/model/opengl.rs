@@ -2013,8 +2013,28 @@ impl Ctx {
         Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
     }
 
-    /// A filled convex polygon of one color and depth (GL.RASTER.TRIANGLE: cut to the view
-    /// volume, then a fan from its first vertex).
+    /// The pixels a filled convex polygon covers (GL.RASTER.TRIANGLE): cut to the view volume;
+    /// one inside it as a fan from its first vertex, one cut as a whole (golden rect-13: no
+    /// diagonal; tie-x-2: the diagonal's walk taking in a corner on a center).
+    fn fill(&self, q: &[([f64; 3], [f32; 4])]) -> Res<Vec<(i64, i64)>> {
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+        let ndc: Vec<[f64; 2]> = q.iter().map(|v| self.ndc(v.0).map(|c| [c[0], c[1]])).collect::<Res<_>>()?;
+        let poly = tri::clip(&ndc);
+        if poly.len() < 3 {
+            return Ok(Vec::new());
+        }
+        let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
+        let (w, h) = (W as i64, H as i64);
+        if poly == ndc {
+            Ok((1..v.len() - 1).flat_map(|k| tri::pixels(&[v[0], v[k], v[k + 1]], w, h)).collect())
+        } else {
+            hit(clause::GL_RASTER_CLIP_XY);
+            Ok(tri::pixels(&v, w, h))
+        }
+    }
+
+    /// A filled convex polygon of one color and depth (GL.RASTER.TRIANGLE).
     fn polygon(&mut self, q: &[([f64; 3], [f32; 4])]) -> Res<()> {
         // (filled, flat polygons only: other polygon modes, stipple, antialiasing and offsets
         // on triangles are not measured)
@@ -2048,21 +2068,8 @@ impl Ctx {
                 return Ok(());
             }
         }
-        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
-        let ndc: Vec<[f64; 2]> = q.iter().map(|v| self.ndc(v.0).map(|c| [c[0], c[1]])).collect::<Res<_>>()?;
-        // (a polygon past the view volume's sides: clipped to it, then drawn as a fan from the
-        // clipped polygon's first vertex, golden tri-clip-*, tri-many-*)
-        let poly = tri::clip(&ndc);
-        if poly.len() < 3 {
-            return Ok(());
-        }
-        if poly != ndc {
-            hit(clause::GL_RASTER_CLIP_XY);
-        }
-        let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
+        let px = self.fill(q)?;
         hit(clause::GL_RASTER_TRIANGLE);
-        let px: Vec<(i64, i64)> = (1..v.len() - 1).flat_map(|k| tri::pixels([v[0], v[k], v[k + 1]], W as i64, H as i64)).collect();
         self.never = NeverPath::Other;
         for (x, y) in px {
             self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
@@ -2193,33 +2200,14 @@ impl Ctx {
                     if smooth {
                         hit(clause::GL_POLYGON_SMOOTH);
                     }
-                    // a pixel whose center is on an edge (MEASURED, golden opengl-32 rect-*, tie-x-*,
-                    // tie-y-*, tie-vp-*: every vertical and horizontal edge through pixel centers):
-                    // as if the vertices were moved a little toward the window point of normalized
-                    // device coordinates (0.5, -0.5), the pixel in when that moves the edge past
-                    // its center (GL.RASTER.TIE.X, GL.RASTER.TIE.Y)
+                    // a pixel whose center is on an edge: as the triangle rule has it, the vertices
+                    // scaled toward the viewport's center first (GL.RASTER.TIE.X, GL.RASTER.TIE.Y)
                     let on = |a: f64| (a - 0.5).fract() == 0.0;
                     if on(x0) || on(x1) {
                         hit(clause::GL_RASTER_TIE_X);
                     }
                     if on(y0) || on(y1) {
                         hit(clause::GL_RASTER_TIE_Y);
-                    }
-                    let (px, py) = self.tie_pivot();
-                    let inside = |c: f64, lo: f64, hi: f64, p: f64| (c > lo || (c == lo && lo > p)) && (c < hi || (c == hi && hi < p));
-                    // a corner on a pixel center that one edge's rule takes in and the other's
-                    // leaves out: the diagonal the rectangle is split along decides (golden
-                    // opengl-32 tie-x-2, rect-16: in, where tie-x-* and tie-y-* have it out)
-                    for cx in [x0, x1] {
-                        for cy in [y0, y1] {
-                            if !smooth && on(cx) && on(cy) && (0.0..W as f64).contains(&cx) && (0.0..H as f64).contains(&cy) {
-                                let ix = (cx == x0 && x0 > px) || (cx == x1 && x1 < px);
-                                let iy = (cy == y0 && y0 > py) || (cy == y1 && y1 < py);
-                                if ix != iy {
-                                    return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
-                                }
-                            }
-                        }
                     }
                     hit(clause::GL_RASTER_RECT);
                     let clipped = x0 != xs[0].min(xs[1]) || x1 != xs[0].max(xs[1]) || y0 != ys[0].min(ys[2]) || y1 != ys[0].max(ys[2]);
@@ -2304,18 +2292,14 @@ impl Ctx {
                         self.never = NeverPath::Other;
                         continue;
                     }
-                    for y in 0..H as i64 {
-                        for x in 0..W as i64 {
-                            let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
-                            let covered = inside(cx, x0, x1, px) && inside(cy, y0, y1, py);
-                            if covered {
-                                let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
-                                if r.is_err() {
-                                    self.never = NeverPath::Other;
-                                }
-                                r?;
-                            }
+                    let mut px = self.fill(q)?;
+                    px.sort_by_key(|(x, y)| (*y, *x));
+                    for (x, y) in px {
+                        let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
+                        if r.is_err() {
+                            self.never = NeverPath::Other;
                         }
+                        r?;
                     }
                     self.never = NeverPath::Other;
                 }
@@ -3970,31 +3954,38 @@ pub mod tri {
         poly
     }
 
-    /// The pixels (x, y) of a `w` by `h` window whose centers the triangle covers: per row,
-    /// those with L < x <= R, L the edge on the left by the triangle's turn.
-    pub fn pixels(v: [Vertex; 3], w: i64, h: i64) -> Vec<(i64, i64)> {
-        let mut by_y = v;
-        by_y.sort_by_key(|v| std::cmp::Reverse(v.y));
-        let [t, m, b] = by_y;
-        let Some(long) = Edge::new(t, b) else {
-            return Vec::new();
-        };
-        // the middle vertex's side of the long edge (positive: right of it)
-        let side = i128::from(m.x.0 - b.x.0) * i128::from(t.y.0 - b.y.0) - i128::from(m.y.0 - b.y.0) * i128::from(t.x.0 - b.x.0);
-        if side == 0 {
+    /// The pixels (x, y) of a `w` by `h` window whose centers a convex polygon covers, walked
+    /// as a whole (no diagonals): its two chains from the top vertex down to the bottom one,
+    /// the left one by the polygon's turn; per row, the centers L < x <= R.
+    pub fn pixels(v: &[Vertex], w: i64, h: i64) -> Vec<(i64, i64)> {
+        let n = v.len();
+        let twice_area: i128 = (0..n).map(|k| i128::from(v[k].x.0) * i128::from(v[(k + 1) % n].y.0) - i128::from(v[(k + 1) % n].x.0) * i128::from(v[k].y.0)).sum();
+        if n < 3 || twice_area == 0 {
             return Vec::new();
         }
-        let shorts: Vec<Edge> = [Edge::new(m, t), Edge::new(b, m)].into_iter().flatten().collect();
+        let top = (0..n).max_by_key(|k| (v[*k].y, std::cmp::Reverse(*k))).unwrap_or(0);
+        // (the chain going forward from the top vertex is the left one when the polygon turns
+        // counterclockwise)
+        let bottom = (0..n).min_by_key(|k| (v[*k].y, *k)).unwrap_or(0);
+        let chain = |step: usize| -> Vec<Edge> {
+            let mut out = Vec::new();
+            let mut k = top;
+            while k != bottom {
+                let next = (k + step) % n;
+                out.extend(Edge::new(v[k], v[next]));
+                k = next;
+            }
+            out
+        };
+        let (fwd, back) = (chain(1), chain(n - 1));
+        let (left, right) = if twice_area > 0 { (fwd, back) } else { (back, fwd) };
         let mut out = Vec::new();
         for row in 0..h {
             let y = center(row);
-            if !long.spans(y) {
-                continue;
-            }
-            let Some(short) = shorts.iter().find(|e| e.spans(y)) else {
+            let (Some(l), Some(r)) = (left.iter().find(|e| e.spans(y)), right.iter().find(|e| e.spans(y))) else {
                 continue;
             };
-            let (l, r) = if side > 0 { (long.walked(y), short.walked(y)) } else { (short.walked(y), long.walked(y)) };
+            let (l, r) = (l.walked(y), r.walked(y));
             for col in 0..w {
                 let x = center(col).fine();
                 if l < x && x <= r {
