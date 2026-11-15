@@ -1801,9 +1801,10 @@ impl D3d9 {
         // (MEASURED tci-gen2-4, -5: TEXTURETRANSFORMFLAGS COUNT2 on stage 0 of XYZ vertices
         // takes its set through TEXTURE0's matrix, D3D9.STAGE.TEXXFORM)
         let ttf0 = self.tss(0, 24);
-        if (1..8).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.tss(st, 24) != 0) || ttf0 != 0 && (ttf0 != 2 || pos != 3 || tcis[0] >> 16 == 0 && sets[0] < ntex && tsize(sets[0]) != 2) {
-            // (TEXTURETRANSFORMFLAGS past stage 0, other counts, PROJECTED, sets not 2-D,
-            // pretransformed vertices: cases tci-ttf-*, open)
+        if (1..8).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.tss(st, 24) != 0) || ttf0 != 0 && !(1..=4).contains(&ttf0) && pos == 3 {
+            // (TEXTURETRANSFORMFLAGS past stage 0, PROJECTED on untransformed vertices: cases
+            // tci-ttf-*, open; MEASURED tci-ttf-12, -13: pretransformed vertices' sets are not
+            // transformed)
             return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
         }
         let stride = words.len() / nv;
@@ -1828,14 +1829,28 @@ impl D3d9 {
                 let specular = argb(take(fvf & 0x80 != 0).unwrap_or(0));
                 // (the sets the stages' TEXCOORDINDEX name, D3D9.STAGE.TCI: (0, 0) past the
                 // vertex's sets)
-                let uv = sets.map(|set| {
-                    if set < ntex && tsize(set) >= 2 {
+                // (the set as a row vector for a texture matrix: its coordinates, then 1, then 0)
+                let tc4: [[f32; 4]; 2] = sets.map(|set| {
+                    if set < ntex {
                         let o = i + (0..set).map(tsize).sum::<usize>();
-                        [fl(w[o]), fl(w[o + 1])]
+                        std::array::from_fn(|k| match k.cmp(&tsize(set)) {
+                            std::cmp::Ordering::Less => f32::from_bits(w[o + k]),
+                            std::cmp::Ordering::Equal => 1.0,
+                            std::cmp::Ordering::Greater => 0.0,
+                        })
+                    } else {
+                        [0.0, 0.0, 1.0, 0.0]
+                    }
+                });
+                let uv: [[f64; 2]; 2] = std::array::from_fn(|k| {
+                    let set = sets[k];
+                    if set < ntex && tsize(set) >= 2 {
+                        [tc4[k][0] as f64, tc4[k][1] as f64]
                     } else {
                         [0.0; 2]
                     }
                 });
+                let uv: [[f64; 2]; 2] = std::array::from_fn(|k| if k == 0 && ttf0 != 0 && pos == 3 && tcis[0] >> 16 == 0 { self.ttf(ttf0, tc4[k]) } else { uv[k] });
                 if pos == 3 {
                     let p = [w[0], w[1], w[2]].map(f32::from_bits);
                     // (MEASURED tci-xyz-*, tci-gen-*: coordinates generated from the camera-space
@@ -1845,15 +1860,7 @@ impl D3d9 {
                     // SPHEREMAP from R, m = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2), (Rx / m + 1/2,
                     // Ry / m + 1/2); D3D9.STAGE.TCIGEN)
                     let uv: [[f64; 2]; 2] = std::array::from_fn(|k| match TexGen::of(tcis[k], self.v8) {
-                        TexGen::Passthru => {
-                            if k == 0 && ttf0 == 2 {
-                                hit(clause::D3D9_STAGE_TEXXFORM);
-                                let t = self.tex_matrix([uv[k][0] as f32, uv[k][1] as f32, 1.0, 0.0]);
-                                [t[0] as f64, t[1] as f64]
-                            } else {
-                                uv[k]
-                            }
-                        }
+                        TexGen::Passthru => uv[k],
                         gen => {
                             hit(clause::D3D9_STAGE_TCIGEN);
                             let c = self.camera_space(p);
@@ -1875,14 +1882,11 @@ impl D3d9 {
                                     [r[0] / m + 0.5, r[1] / m + 0.5, 0.0]
                                 }
                             };
-                            let g = if k == 0 && ttf0 == 2 {
-                                hit(clause::D3D9_STAGE_TEXXFORM);
-                                let t = self.tex_matrix([g[0], g[1], g[2], 1.0]);
-                                [t[0], t[1], 0.0]
+                            if k == 0 && ttf0 != 0 {
+                                self.ttf(ttf0, [g[0], g[1], g[2], 1.0])
                             } else {
-                                g
-                            };
-                            [g[0] as f64, g[1] as f64]
+                                [g[0] as f64, g[1] as f64]
+                            }
                         }
                     });
                     let (x, y, z, rhw, clip) = self.transform(p);
@@ -1953,6 +1957,22 @@ impl D3d9 {
             t.map(|x| x / l)
         } else {
             t
+        }
+    }
+
+    /// a set through stage 0's TEXTURETRANSFORMFLAGS COUNTn (MEASURED tci-gen2-4, -5,
+    /// tci-ttf-*): COUNT2 .. 4 the row vector times TEXTURE0's matrix, the first two taken;
+    /// COUNT1 the set as it is on Direct3D 9
+    fn ttf(&self, ttf: u32, v: [f32; 4]) -> [f64; 2] {
+        hit(clause::D3D9_STAGE_TEXXFORM);
+        match ttf {
+            // (Direct3D 8: a 1-D coordinate, the matrix's first, then 0 (1 alike under WRAP))
+            1 if self.v8 => [self.tex_matrix(v)[0] as f64, 0.0],
+            1 => [v[0] as f64, v[1] as f64],
+            _ => {
+                let t = self.tex_matrix(v);
+                [t[0] as f64, t[1] as f64]
+            }
         }
     }
 
