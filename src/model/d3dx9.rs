@@ -207,13 +207,16 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     }
     let src = fill_bytes(&sm, wd, ht, seed);
     out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
-    // (open: halves of exponent 31 read, or numbers past the half range written as halves, come
-    // out differently from one pair of formats to another)
-    let big = |v: f32| v.is_nan() || v.abs() >= 65504.0;
+    // (MEASURED load-R16F .. load-A32B32G32R32F: halves of exponent 31 read as numbers and NaNs,
+    // numbers past the half range written as f16_load has them, D3DX9.LOAD.F16RANGE; open: on
+    // x64 a denormal half into R16F rounded or truncated, b75ffa2a rounded and b66623f9 not)
     let pixels: Vec<[Sample; 4]> = src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect();
-    let src_e31 = sm.kind == Kind::F16 && src.chunks(2).any(|h| u16::from_le_bytes([h[0], h[1]]) & 0x7c00 == 0x7c00);
-    if sf != df && (src_e31 || dm.kind == Kind::F16 && pixels.iter().flatten().any(|&(Sample::Unsigned(v) | Sample::Signed(v))| big(v))) {
+    let one_denormal = |p: &[Sample; 4]| p.iter().take(1).any(|&(Sample::Unsigned(v) | Sample::Signed(v))| f16_x64(v.to_bits(), false) != f16_x64(v.to_bits(), true));
+    if crate::model::arch() == 64 && dm.kind == Kind::F16 && dm.ch.len() == 1 && sf != df && pixels.iter().any(one_denormal) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_F16RANGE));
+    }
+    if sm.kind == Kind::F16 || dm.kind == Kind::F16 {
+        hit(clause::D3DX9_LOAD_F16HALVES);
     }
     if sf == df {
         // (a format into itself: the bytes as they are)
@@ -224,7 +227,7 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
         return Ok(());
     }
     for row in src.chunks(wd as usize * sm.bytes) {
-        out.push(row.chunks(sm.bytes).flat_map(|p| load_encode(&dm, sm.kind, load_decode(&sm, sf, p))).map(|x| format!("{x:02x}")).collect());
+        out.push(row.chunks(sm.bytes).enumerate().flat_map(|(i, p)| load_encode(&dm, sm.kind, load_decode(&sm, sf, p), (i, wd as usize))).map(|x| format!("{x:02x}")).collect());
     }
     Ok(())
 }
@@ -289,7 +292,7 @@ fn is_bump(c: u8) -> bool {
 /// (r, g, b, a) into a pixel as D3DX writes it: unorm channels rounded to nearest, X bits 0,
 /// luminance Rec. 709's 0.2125 r + 0.7154 g + 0.0721 b, halves rounded to nearest (MEASURED:
 /// d3dx9load)
-fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample; 4]) -> Vec<u8> {
+fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample; 4], (at, row): (usize, usize)) -> Vec<u8> {
     use super::d3d9draw::{round_even, Kind};
     hit(clause::D3DX9_LOAD_CONVERT);
     // (a signed channel into an unsigned or luminance one as (s + 1) / 2, into a float as it is)
@@ -298,7 +301,7 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
         (Sample::Signed(v), _) => (v + 1.0) / 2.0,
     });
     let mut w: u128 = 0;
-    for ch in &f.ch {
+    for (ci, ch) in f.ch.iter().enumerate() {
         if f.kind == Kind::Int && is_bump(ch.c) {
             // (into a signed channel: an unsigned one as 2 x - 1, a signed one as it is,
             // rounded to the nearest of the 2^(n-1) - 1 steps)
@@ -327,8 +330,7 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
         };
         let raw = match f.kind {
             // (a row's floats through D3DXFloat32To16Array: whole blocks, in this suite)
-            Kind::F16 if crate::model::arch() == 64 => f16_x64(v.to_bits(), true) as u64,
-            Kind::F16 => f16_block(v.to_bits()) as u64,
+            Kind::F16 => f16_load(v.to_bits(), f.ch.len(), ci + f.ch.len() * at, f.ch.len() * row) as u64,
             Kind::F32 => v.to_bits() as u64,
             _ => {
                 let m = ((1u64 << ch.bits) - 1) as f32;
@@ -343,6 +345,21 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
         w |= (raw as u128) << ch.shift;
     }
     w.to_le_bytes()[..f.bytes].to_vec()
+}
+
+/// a float as D3DXLoadSurfaceFromMemory writes it into a half channel, the channel k of n of
+/// the row's pixels (at = n x + k of len = n x width) (MEASURED d3dx9load load-R32F, -G32R32F,
+/// -A32B32G32R32F, -A16B16G16R16F): four halves a pixel as the row's array through
+/// D3DXFloat32To16Array; two a pixel as an array of the pixel's two; one through
+/// D3DXFloat32To16, as an array's rest on x86, as its bulk on x64
+fn f16_load(x: u32, n: usize, at: usize, len: usize) -> u16 {
+    match (n, crate::model::arch()) {
+        (4, 64) => f16_x64(x, at < len - len % 4),
+        (4, _) if at < len - len % 8 => f16_block(x),
+        (1, 64) => f16_x64(x, true),
+        (_, 64) => f16_x64(x, false),
+        _ => f16_one(x),
+    }
 }
 
 /// D3DXGetDeclVertexSize of stream 0: the end of the furthest element of the stream
