@@ -2154,6 +2154,36 @@ fn measure(s: &mut String) {
         read_all(s);
     }
     writeln!(s, "glerr\nend").unwrap();
+    // antialiased triangles into a buffer with alpha: vertical edges 1/256 right of, on and left
+    // of a column of samples (left, then right sides), an edge of slope 2 that many rows pass
+    // 1/256 right of a sample, raster-mode-5's sixth and raster-mode-9's seventh and eleventh
+    // again and moved by a pixel (the corners chosen to snap to whole 1/256s)
+    writeln!(s, "case raster-mode-11\nglctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glColor4ub 255 255 255 255").unwrap();
+    let tris: [[[f64; 2]; 3]; 14] = [
+        [[5.87890625, 1.12109375], [15.87890625, 8.0], [5.87890625, 14.87890625]],
+        [[5.875, 1.12109375], [15.87890625, 8.0], [5.875, 14.87890625]],
+        [[5.87109375, 1.12109375], [15.87890625, 8.0], [5.87109375, 14.87890625]],
+        [[5.87890625, 1.12109375], [5.87890625, 14.87890625], [0.12109375, 8.0]],
+        [[5.875, 1.12109375], [5.875, 14.87890625], [0.12109375, 8.0]],
+        [[5.87109375, 1.12109375], [5.87109375, 14.87890625], [0.12109375, 8.0]],
+        [[2.125, 8.25], [15.62890625, 8.25], [13.375, 13.875]],
+        [[3.0, 6.125], [2.125, 8.25], [13.375, 13.875]],
+        [[4.00390625, 6.125], [3.125, 8.25], [14.375, 13.875]],
+        [[3.0, 5.125], [2.125, 7.25], [13.375, 12.875]],
+        [[7.25, 4.875], [10.125, 13.75], [4.25, 13.0]],
+        [[6.25, 4.875], [9.125, 13.75], [3.24609375, 13.0]],
+        [[13.375, 2.5], [12.125, 11.75], [2.875, 12.125]],
+        [[13.375, 3.5], [12.125, 12.75390625], [2.875, 13.125]],
+    ];
+    for t in tris {
+        writeln!(s, "gl glClear 0x4100\ngl glBegin 4").unwrap();
+        for p in t {
+            glf(s, "glVertex2f", &p);
+        }
+        writeln!(s, "gl glEnd").unwrap();
+        read_all(s);
+    }
+    writeln!(s, "glerr\nend").unwrap();
     // 1-pixel lines with an end on a diamond's border, as line-tie-* but about pixels on the
     // other sides of the tie pivot (13, 9), (13, 2), (8, 2)
     for (q, (px, py, read)) in [(13.0, 9.0, "10 6 6 7"), (13.0, 2.0, "10 0 6 6"), (8.0, 2.0, "5 0 7 6")].into_iter().enumerate() {

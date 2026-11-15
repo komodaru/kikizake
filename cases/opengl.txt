@@ -98373,6 +98373,115 @@ gl glRectf 6 6 10 10
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case raster-mode-11
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb41
+gl glColor4ub 255 255 255 255
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 5.87890625 1.12109375
+gl glVertex2f 15.87890625 8
+gl glVertex2f 5.87890625 14.87890625
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 5.875 1.12109375
+gl glVertex2f 15.87890625 8
+gl glVertex2f 5.875 14.87890625
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 5.87109375 1.12109375
+gl glVertex2f 15.87890625 8
+gl glVertex2f 5.87109375 14.87890625
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 5.87890625 1.12109375
+gl glVertex2f 5.87890625 14.87890625
+gl glVertex2f 0.12109375 8
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 5.875 1.12109375
+gl glVertex2f 5.875 14.87890625
+gl glVertex2f 0.12109375 8
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 5.87109375 1.12109375
+gl glVertex2f 5.87109375 14.87890625
+gl glVertex2f 0.12109375 8
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 2.125 8.25
+gl glVertex2f 15.62890625 8.25
+gl glVertex2f 13.375 13.875
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 3 6.125
+gl glVertex2f 2.125 8.25
+gl glVertex2f 13.375 13.875
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 4.00390625 6.125
+gl glVertex2f 3.125 8.25
+gl glVertex2f 14.375 13.875
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 3 5.125
+gl glVertex2f 2.125 7.25
+gl glVertex2f 13.375 12.875
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 7.25 4.875
+gl glVertex2f 10.125 13.75
+gl glVertex2f 4.25 13
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 6.25 4.875
+gl glVertex2f 9.125 13.75
+gl glVertex2f 3.24609375 13
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 13.375 2.5
+gl glVertex2f 12.125 11.75
+gl glVertex2f 2.875 12.125
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+gl glClear 0x4100
+gl glBegin 4
+gl glVertex2f 13.375 3.5
+gl glVertex2f 12.125 12.75390625
+gl glVertex2f 2.875 13.125
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
 case line-tie-8
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glMatrixMode 0x1701
