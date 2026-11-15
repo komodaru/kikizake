@@ -424,5 +424,33 @@ pub fn gdiplusdraw() -> String {
         let po = *r.pick(&[0, 2, 3, 4]);
         writeln!(s, "case scale-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbitmap 1 8 8 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpdraw 0 1 - 0 0 {w} {h} 0 0 8 8 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
     }
+    // the filtering modes (Default, LowQuality, HighQuality, Bilinear, Bicubic, HighQualityBilinear,
+    // HighQualityBicubic): one axis scaled at a time over an opaque bitmap (the kernel's weights
+    // read off each column or row), then both, off the corners, then a translucent source
+    const FILTERS: [i64; 7] = [0, 1, 2, 3, 4, 6, 7];
+    const OFFSETS: [i64; 4] = [0, 4, 2, 3];
+    for i in 0..112 {
+        let (im, po) = (FILTERS[i % 7], OFFSETS[i / 7 % 4]);
+        let w = r.range(1, 32);
+        writeln!(s, "case filterx-{i}\ngpbitmap 0 32 8 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - 0 0 {w} 8 0 0 8 8 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
+    for i in 0..112 {
+        let (im, po) = (FILTERS[i % 7], OFFSETS[i / 7 % 4]);
+        let h = r.range(1, 32);
+        writeln!(s, "case filtery-{i}\ngpbitmap 0 8 32 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - 0 0 8 {h} 0 0 8 8 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
+    for i in 0..112 {
+        let (im, po) = (FILTERS[i % 7], OFFSETS[i / 7 % 4]);
+        let (sw, sh) = (r.range(1, 8), r.range(1, 8));
+        let (sx, sy) = (r.range(0, 8 - sw), r.range(0, 8 - sh));
+        let (w, h) = (r.range(1, 24), r.range(1, 24));
+        let (dx, dy) = (r.range(0, 32 - w), r.range(0, 32 - h));
+        writeln!(s, "case filter-{i}\ngpbitmap 0 32 32 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {dx} {dy} {w} {h} {sx} {sy} {sw} {sh} copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
+    for i in 0..56 {
+        let (im, po) = (FILTERS[i % 7], OFFSETS[i / 7 % 4]);
+        let (w, h) = (r.range(1, 24), r.range(1, 24));
+        writeln!(s, "case filteralpha-{i}\ngpbitmap 0 24 24 32bppARGB\ngpbitmap 1 8 8 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpdraw 0 1 - 0 0 {w} {h} 0 0 8 8 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
     s
 }

@@ -4158,3 +4158,2747 @@ gpwrite 1 32bppARGB seed 2683048651
 gpdraw 0 1 - 0 0 3 9 0 0 8 8 copy 0 1 4
 gpread 0 32bppARGB
 end
+case filterx-0
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1867001791
+gpdraw 0 1 - 0 0 18 8 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filterx-1
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 436926446
+gpdraw 0 1 - 0 0 1 8 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filterx-2
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2962569676
+gpdraw 0 1 - 0 0 22 8 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filterx-3
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1043072274
+gpdraw 0 1 - 0 0 27 8 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filterx-4
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1864489436
+gpdraw 0 1 - 0 0 22 8 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filterx-5
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2603244100
+gpdraw 0 1 - 0 0 18 8 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filterx-6
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 912383298
+gpdraw 0 1 - 0 0 22 8 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filterx-7
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3420268109
+gpdraw 0 1 - 0 0 7 8 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filterx-8
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1214704116
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filterx-9
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1572171155
+gpdraw 0 1 - 0 0 25 8 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filterx-10
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3413102653
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filterx-11
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3645898785
+gpdraw 0 1 - 0 0 10 8 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filterx-12
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1148428987
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filterx-13
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1821862126
+gpdraw 0 1 - 0 0 10 8 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filterx-14
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3802912116
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filterx-15
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2487995230
+gpdraw 0 1 - 0 0 23 8 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filterx-16
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2221262841
+gpdraw 0 1 - 0 0 15 8 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filterx-17
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3528179845
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filterx-18
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1950199740
+gpdraw 0 1 - 0 0 9 8 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filterx-19
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 227839391
+gpdraw 0 1 - 0 0 26 8 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filterx-20
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 585073389
+gpdraw 0 1 - 0 0 13 8 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filterx-21
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1154963915
+gpdraw 0 1 - 0 0 13 8 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filterx-22
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3314777334
+gpdraw 0 1 - 0 0 29 8 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filterx-23
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3634054583
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filterx-24
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1759571408
+gpdraw 0 1 - 0 0 2 8 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filterx-25
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4200955472
+gpdraw 0 1 - 0 0 30 8 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filterx-26
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1105725539
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filterx-27
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1346962468
+gpdraw 0 1 - 0 0 18 8 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filterx-28
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3501595679
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filterx-29
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3100810738
+gpdraw 0 1 - 0 0 6 8 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filterx-30
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4006498100
+gpdraw 0 1 - 0 0 5 8 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filterx-31
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3485776723
+gpdraw 0 1 - 0 0 1 8 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filterx-32
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3214325956
+gpdraw 0 1 - 0 0 5 8 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filterx-33
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3500443850
+gpdraw 0 1 - 0 0 4 8 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filterx-34
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 18462877
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filterx-35
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2457643700
+gpdraw 0 1 - 0 0 25 8 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filterx-36
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2049617958
+gpdraw 0 1 - 0 0 2 8 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filterx-37
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1107239617
+gpdraw 0 1 - 0 0 18 8 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filterx-38
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3689854449
+gpdraw 0 1 - 0 0 19 8 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filterx-39
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4059639743
+gpdraw 0 1 - 0 0 26 8 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filterx-40
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3861788350
+gpdraw 0 1 - 0 0 25 8 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filterx-41
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2595447688
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filterx-42
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3376183413
+gpdraw 0 1 - 0 0 10 8 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filterx-43
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1689385268
+gpdraw 0 1 - 0 0 13 8 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filterx-44
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2480013584
+gpdraw 0 1 - 0 0 32 8 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filterx-45
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1800338760
+gpdraw 0 1 - 0 0 9 8 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filterx-46
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1125649079
+gpdraw 0 1 - 0 0 28 8 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filterx-47
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1746747266
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filterx-48
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3800906044
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filterx-49
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1211415545
+gpdraw 0 1 - 0 0 10 8 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filterx-50
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2685981787
+gpdraw 0 1 - 0 0 29 8 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filterx-51
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 18276752
+gpdraw 0 1 - 0 0 19 8 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filterx-52
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1609951468
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filterx-53
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2377170756
+gpdraw 0 1 - 0 0 25 8 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filterx-54
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3252531861
+gpdraw 0 1 - 0 0 9 8 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filterx-55
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 118235862
+gpdraw 0 1 - 0 0 19 8 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filterx-56
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3007295217
+gpdraw 0 1 - 0 0 30 8 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filterx-57
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 895882033
+gpdraw 0 1 - 0 0 2 8 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filterx-58
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2813820796
+gpdraw 0 1 - 0 0 18 8 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filterx-59
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2556221284
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filterx-60
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3610201530
+gpdraw 0 1 - 0 0 29 8 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filterx-61
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 663165240
+gpdraw 0 1 - 0 0 23 8 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filterx-62
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4264273017
+gpdraw 0 1 - 0 0 9 8 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filterx-63
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 335611697
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filterx-64
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4004610578
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filterx-65
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3496413512
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filterx-66
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1019073449
+gpdraw 0 1 - 0 0 16 8 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filterx-67
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3566915220
+gpdraw 0 1 - 0 0 14 8 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filterx-68
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3027145239
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filterx-69
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3750398657
+gpdraw 0 1 - 0 0 2 8 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filterx-70
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1289415621
+gpdraw 0 1 - 0 0 9 8 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filterx-71
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1523236472
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filterx-72
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3522623512
+gpdraw 0 1 - 0 0 27 8 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filterx-73
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3622657173
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filterx-74
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 773864887
+gpdraw 0 1 - 0 0 11 8 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filterx-75
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 361935796
+gpdraw 0 1 - 0 0 29 8 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filterx-76
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1928000317
+gpdraw 0 1 - 0 0 7 8 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filterx-77
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 213372712
+gpdraw 0 1 - 0 0 28 8 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filterx-78
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 699991385
+gpdraw 0 1 - 0 0 2 8 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filterx-79
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3986790150
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filterx-80
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2948085619
+gpdraw 0 1 - 0 0 7 8 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filterx-81
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3710291294
+gpdraw 0 1 - 0 0 25 8 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filterx-82
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 482583915
+gpdraw 0 1 - 0 0 25 8 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filterx-83
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2743586953
+gpdraw 0 1 - 0 0 29 8 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filterx-84
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4167297124
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filterx-85
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3038272605
+gpdraw 0 1 - 0 0 20 8 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filterx-86
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 242512958
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filterx-87
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 304677195
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filterx-88
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 425834750
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filterx-89
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4205852294
+gpdraw 0 1 - 0 0 2 8 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filterx-90
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 877693577
+gpdraw 0 1 - 0 0 23 8 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filterx-91
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 275100704
+gpdraw 0 1 - 0 0 10 8 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filterx-92
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3046866315
+gpdraw 0 1 - 0 0 17 8 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filterx-93
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1929048569
+gpdraw 0 1 - 0 0 31 8 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filterx-94
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1319759050
+gpdraw 0 1 - 0 0 28 8 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filterx-95
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 181049394
+gpdraw 0 1 - 0 0 19 8 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filterx-96
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2659707800
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filterx-97
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 450862871
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filterx-98
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2028352493
+gpdraw 0 1 - 0 0 10 8 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filterx-99
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4164890811
+gpdraw 0 1 - 0 0 1 8 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filterx-100
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1663676986
+gpdraw 0 1 - 0 0 16 8 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filterx-101
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1939436869
+gpdraw 0 1 - 0 0 14 8 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filterx-102
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1260882525
+gpdraw 0 1 - 0 0 30 8 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filterx-103
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 819372826
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filterx-104
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 550535479
+gpdraw 0 1 - 0 0 1 8 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filterx-105
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2151319900
+gpdraw 0 1 - 0 0 13 8 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filterx-106
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1386813599
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filterx-107
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3820124563
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filterx-108
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1304806700
+gpdraw 0 1 - 0 0 20 8 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filterx-109
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3160904110
+gpdraw 0 1 - 0 0 29 8 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filterx-110
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 182030319
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filterx-111
+gpbitmap 0 32 8 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 438545269
+gpdraw 0 1 - 0 0 30 8 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filtery-0
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2510903821
+gpdraw 0 1 - 0 0 8 20 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filtery-1
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3025943362
+gpdraw 0 1 - 0 0 8 26 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filtery-2
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 48300985
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filtery-3
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3305396337
+gpdraw 0 1 - 0 0 8 19 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filtery-4
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2526200875
+gpdraw 0 1 - 0 0 8 21 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filtery-5
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4184915845
+gpdraw 0 1 - 0 0 8 1 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filtery-6
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2159189125
+gpdraw 0 1 - 0 0 8 6 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filtery-7
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2598258809
+gpdraw 0 1 - 0 0 8 21 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filtery-8
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4133838518
+gpdraw 0 1 - 0 0 8 18 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filtery-9
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3539600661
+gpdraw 0 1 - 0 0 8 16 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filtery-10
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4041756746
+gpdraw 0 1 - 0 0 8 26 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filtery-11
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3488686811
+gpdraw 0 1 - 0 0 8 27 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filtery-12
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2190970452
+gpdraw 0 1 - 0 0 8 15 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filtery-13
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1551610316
+gpdraw 0 1 - 0 0 8 27 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filtery-14
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 281491610
+gpdraw 0 1 - 0 0 8 14 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filtery-15
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2680130733
+gpdraw 0 1 - 0 0 8 17 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filtery-16
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1497093927
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filtery-17
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3751766281
+gpdraw 0 1 - 0 0 8 9 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filtery-18
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 721116453
+gpdraw 0 1 - 0 0 8 23 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filtery-19
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 9876948
+gpdraw 0 1 - 0 0 8 11 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filtery-20
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2374062105
+gpdraw 0 1 - 0 0 8 3 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filtery-21
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 125812854
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filtery-22
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4068212449
+gpdraw 0 1 - 0 0 8 15 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filtery-23
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4190891231
+gpdraw 0 1 - 0 0 8 19 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filtery-24
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3073812858
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filtery-25
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 91308748
+gpdraw 0 1 - 0 0 8 23 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filtery-26
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3103713332
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filtery-27
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3955330861
+gpdraw 0 1 - 0 0 8 9 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filtery-28
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3706368084
+gpdraw 0 1 - 0 0 8 32 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filtery-29
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2542841577
+gpdraw 0 1 - 0 0 8 5 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filtery-30
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3943687767
+gpdraw 0 1 - 0 0 8 16 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filtery-31
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2026030550
+gpdraw 0 1 - 0 0 8 22 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filtery-32
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 932537917
+gpdraw 0 1 - 0 0 8 11 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filtery-33
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1241972356
+gpdraw 0 1 - 0 0 8 21 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filtery-34
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1007285887
+gpdraw 0 1 - 0 0 8 16 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filtery-35
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1450560567
+gpdraw 0 1 - 0 0 8 29 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filtery-36
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2934240418
+gpdraw 0 1 - 0 0 8 15 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filtery-37
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2857914805
+gpdraw 0 1 - 0 0 8 27 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filtery-38
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 265776739
+gpdraw 0 1 - 0 0 8 3 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filtery-39
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1460153598
+gpdraw 0 1 - 0 0 8 15 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filtery-40
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 800663155
+gpdraw 0 1 - 0 0 8 22 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filtery-41
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3658026699
+gpdraw 0 1 - 0 0 8 9 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filtery-42
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 678718238
+gpdraw 0 1 - 0 0 8 4 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filtery-43
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3477269042
+gpdraw 0 1 - 0 0 8 22 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filtery-44
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2246205903
+gpdraw 0 1 - 0 0 8 17 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filtery-45
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1273661639
+gpdraw 0 1 - 0 0 8 3 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filtery-46
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1088093638
+gpdraw 0 1 - 0 0 8 31 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filtery-47
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3932355404
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filtery-48
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 423242064
+gpdraw 0 1 - 0 0 8 10 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filtery-49
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2968141621
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filtery-50
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 25806966
+gpdraw 0 1 - 0 0 8 20 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filtery-51
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3705179726
+gpdraw 0 1 - 0 0 8 22 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filtery-52
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3483637532
+gpdraw 0 1 - 0 0 8 7 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filtery-53
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2050724002
+gpdraw 0 1 - 0 0 8 32 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filtery-54
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 392276766
+gpdraw 0 1 - 0 0 8 22 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filtery-55
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1797641094
+gpdraw 0 1 - 0 0 8 32 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filtery-56
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3185022427
+gpdraw 0 1 - 0 0 8 13 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filtery-57
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1357901322
+gpdraw 0 1 - 0 0 8 14 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filtery-58
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2270981942
+gpdraw 0 1 - 0 0 8 30 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filtery-59
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2161387020
+gpdraw 0 1 - 0 0 8 12 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filtery-60
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3842969242
+gpdraw 0 1 - 0 0 8 7 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filtery-61
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2255708121
+gpdraw 0 1 - 0 0 8 21 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filtery-62
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1107852306
+gpdraw 0 1 - 0 0 8 30 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filtery-63
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1295417424
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filtery-64
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2430074540
+gpdraw 0 1 - 0 0 8 15 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filtery-65
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3113026016
+gpdraw 0 1 - 0 0 8 14 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filtery-66
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1612799283
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filtery-67
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3438362253
+gpdraw 0 1 - 0 0 8 17 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filtery-68
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4218208936
+gpdraw 0 1 - 0 0 8 30 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filtery-69
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 547140460
+gpdraw 0 1 - 0 0 8 21 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filtery-70
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1415418419
+gpdraw 0 1 - 0 0 8 21 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filtery-71
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1732086436
+gpdraw 0 1 - 0 0 8 31 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filtery-72
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2547411563
+gpdraw 0 1 - 0 0 8 17 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filtery-73
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3253477319
+gpdraw 0 1 - 0 0 8 7 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filtery-74
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3963108572
+gpdraw 0 1 - 0 0 8 14 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filtery-75
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2603225226
+gpdraw 0 1 - 0 0 8 14 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filtery-76
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1506749686
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filtery-77
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2748177212
+gpdraw 0 1 - 0 0 8 31 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filtery-78
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1335588029
+gpdraw 0 1 - 0 0 8 10 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filtery-79
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2534638500
+gpdraw 0 1 - 0 0 8 28 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filtery-80
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2670166940
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filtery-81
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2718924080
+gpdraw 0 1 - 0 0 8 23 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filtery-82
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 833737523
+gpdraw 0 1 - 0 0 8 5 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filtery-83
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3486658869
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filtery-84
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 664640026
+gpdraw 0 1 - 0 0 8 16 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filtery-85
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 102262654
+gpdraw 0 1 - 0 0 8 22 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filtery-86
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 582846286
+gpdraw 0 1 - 0 0 8 6 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filtery-87
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1906779808
+gpdraw 0 1 - 0 0 8 5 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filtery-88
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 969815269
+gpdraw 0 1 - 0 0 8 26 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filtery-89
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1335393415
+gpdraw 0 1 - 0 0 8 13 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filtery-90
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 887147234
+gpdraw 0 1 - 0 0 8 4 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filtery-91
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1380730128
+gpdraw 0 1 - 0 0 8 29 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filtery-92
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2496470554
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filtery-93
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 137041309
+gpdraw 0 1 - 0 0 8 30 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filtery-94
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1879268570
+gpdraw 0 1 - 0 0 8 18 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filtery-95
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4076630118
+gpdraw 0 1 - 0 0 8 23 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filtery-96
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2684872211
+gpdraw 0 1 - 0 0 8 31 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filtery-97
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3353816972
+gpdraw 0 1 - 0 0 8 18 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filtery-98
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3971527873
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filtery-99
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2352860112
+gpdraw 0 1 - 0 0 8 18 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filtery-100
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1773029820
+gpdraw 0 1 - 0 0 8 20 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filtery-101
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 231628570
+gpdraw 0 1 - 0 0 8 17 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filtery-102
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3663274293
+gpdraw 0 1 - 0 0 8 13 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filtery-103
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4215663550
+gpdraw 0 1 - 0 0 8 11 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filtery-104
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2626304762
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filtery-105
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2775483834
+gpdraw 0 1 - 0 0 8 17 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filtery-106
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2261689404
+gpdraw 0 1 - 0 0 8 23 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filtery-107
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3688792301
+gpdraw 0 1 - 0 0 8 25 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filtery-108
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3858687991
+gpdraw 0 1 - 0 0 8 13 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filtery-109
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2172938159
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filtery-110
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1893598568
+gpdraw 0 1 - 0 0 8 24 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filtery-111
+gpbitmap 0 8 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3190187594
+gpdraw 0 1 - 0 0 8 18 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filter-0
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1592231686
+gpdraw 0 1 - 11 2 3 13 1 1 6 3 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filter-1
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 858958859
+gpdraw 0 1 - 9 6 12 23 0 0 6 6 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filter-2
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2313360757
+gpdraw 0 1 - 18 4 9 15 2 0 3 6 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filter-3
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 725873713
+gpdraw 0 1 - 7 13 22 11 4 1 4 3 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filter-4
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3879986570
+gpdraw 0 1 - 10 4 9 21 0 1 4 6 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filter-5
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2687705611
+gpdraw 0 1 - 12 6 16 13 3 0 4 6 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filter-6
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3683153855
+gpdraw 0 1 - 19 6 10 24 2 1 3 7 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filter-7
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 245837046
+gpdraw 0 1 - 19 3 2 1 7 2 1 1 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filter-8
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 735296609
+gpdraw 0 1 - 16 0 8 24 1 0 3 6 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filter-9
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2666043243
+gpdraw 0 1 - 20 18 8 11 0 0 7 3 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filter-10
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2820970390
+gpdraw 0 1 - 4 1 16 15 2 2 2 5 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filter-11
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1304126336
+gpdraw 0 1 - 26 3 6 20 2 0 6 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filter-12
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3011566636
+gpdraw 0 1 - 7 8 15 8 0 3 6 4 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filter-13
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 77266632
+gpdraw 0 1 - 18 1 13 18 1 5 7 3 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filter-14
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2611684061
+gpdraw 0 1 - 5 2 24 6 6 2 2 2 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filter-15
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2061143461
+gpdraw 0 1 - 1 20 19 2 0 4 6 3 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filter-16
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3184804732
+gpdraw 0 1 - 9 3 3 19 0 4 3 4 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filter-17
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 590360930
+gpdraw 0 1 - 5 19 8 12 6 5 2 2 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filter-18
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1615146165
+gpdraw 0 1 - 7 17 15 9 1 0 5 3 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filter-19
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1739651210
+gpdraw 0 1 - 20 14 2 14 2 1 5 7 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filter-20
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1818202243
+gpdraw 0 1 - 1 1 24 20 5 0 3 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filter-21
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4041065606
+gpdraw 0 1 - 15 12 16 1 2 3 5 3 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filter-22
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2547280276
+gpdraw 0 1 - 1 9 22 18 5 0 1 7 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filter-23
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3466967303
+gpdraw 0 1 - 3 7 5 12 0 5 8 3 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filter-24
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1150229454
+gpdraw 0 1 - 12 9 6 14 0 0 6 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filter-25
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3293955553
+gpdraw 0 1 - 17 12 2 15 2 0 6 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filter-26
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2863551565
+gpdraw 0 1 - 0 6 19 22 1 0 6 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filter-27
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4089193147
+gpdraw 0 1 - 12 4 15 8 0 3 7 1 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filter-28
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 607012525
+gpdraw 0 1 - 6 0 4 22 1 0 7 5 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filter-29
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2817094192
+gpdraw 0 1 - 25 7 7 13 3 1 1 2 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filter-30
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3712790766
+gpdraw 0 1 - 5 2 9 8 0 0 8 4 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filter-31
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1784770648
+gpdraw 0 1 - 2 23 12 4 1 4 7 4 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filter-32
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2792275433
+gpdraw 0 1 - 12 21 4 2 0 6 6 2 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filter-33
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3818082007
+gpdraw 0 1 - 27 8 5 16 3 4 1 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filter-34
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3646382239
+gpdraw 0 1 - 15 17 11 4 0 7 4 1 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filter-35
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1877439169
+gpdraw 0 1 - 8 4 5 23 2 0 6 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filter-36
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 367529958
+gpdraw 0 1 - 11 6 13 19 1 2 7 6 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filter-37
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1362150568
+gpdraw 0 1 - 2 2 1 16 1 0 5 5 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filter-38
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4014975095
+gpdraw 0 1 - 6 22 22 2 2 2 3 6 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filter-39
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1778245015
+gpdraw 0 1 - 2 15 7 16 0 2 8 1 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filter-40
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2154047524
+gpdraw 0 1 - 12 9 18 21 3 1 1 2 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filter-41
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 857188244
+gpdraw 0 1 - 12 15 9 17 3 0 5 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filter-42
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3659568299
+gpdraw 0 1 - 5 6 16 24 0 2 7 3 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filter-43
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2508910794
+gpdraw 0 1 - 1 3 7 12 5 0 2 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filter-44
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 222633510
+gpdraw 0 1 - 3 12 12 14 3 1 4 2 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filter-45
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3188004483
+gpdraw 0 1 - 14 5 7 17 1 3 7 5 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filter-46
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3811396686
+gpdraw 0 1 - 13 1 10 23 5 0 2 1 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filter-47
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1396661561
+gpdraw 0 1 - 1 9 18 19 1 1 5 6 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filter-48
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3548013661
+gpdraw 0 1 - 3 1 16 17 0 1 6 7 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filter-49
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1122984642
+gpdraw 0 1 - 17 2 2 21 2 0 6 6 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filter-50
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3617174922
+gpdraw 0 1 - 6 5 15 6 1 1 2 7 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filter-51
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3989957109
+gpdraw 0 1 - 9 24 13 8 0 0 7 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filter-52
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1727270964
+gpdraw 0 1 - 18 0 14 18 3 0 3 4 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filter-53
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1968809077
+gpdraw 0 1 - 24 2 7 21 1 2 6 5 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filter-54
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3048159253
+gpdraw 0 1 - 18 12 12 14 0 3 7 3 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filter-55
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 384070685
+gpdraw 0 1 - 13 16 12 12 1 3 4 5 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filter-56
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1176145013
+gpdraw 0 1 - 4 7 10 14 0 4 7 3 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filter-57
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3213765999
+gpdraw 0 1 - 21 7 4 21 0 4 8 3 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filter-58
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 999432933
+gpdraw 0 1 - 11 2 17 23 1 1 7 4 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filter-59
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3737952805
+gpdraw 0 1 - 6 8 19 14 1 4 3 3 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filter-60
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2566919762
+gpdraw 0 1 - 28 2 1 4 6 3 2 4 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filter-61
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2039738780
+gpdraw 0 1 - 3 6 7 24 0 0 8 7 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filter-62
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 877465695
+gpdraw 0 1 - 4 7 16 21 2 0 5 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filter-63
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3784209802
+gpdraw 0 1 - 9 8 7 14 3 3 5 4 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filter-64
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 399988273
+gpdraw 0 1 - 21 7 7 17 2 4 6 4 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filter-65
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1121397851
+gpdraw 0 1 - 9 16 5 13 5 7 2 1 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filter-66
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3243066370
+gpdraw 0 1 - 2 10 7 20 2 0 6 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filter-67
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3280633287
+gpdraw 0 1 - 0 13 15 15 0 0 5 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filter-68
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 960001828
+gpdraw 0 1 - 9 4 19 19 1 3 7 4 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filter-69
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3055568390
+gpdraw 0 1 - 8 8 19 18 3 4 3 3 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filter-70
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2107460378
+gpdraw 0 1 - 9 0 11 15 0 3 7 1 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filter-71
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1628123595
+gpdraw 0 1 - 1 6 4 20 0 6 6 1 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filter-72
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3273842622
+gpdraw 0 1 - 6 5 20 6 2 0 3 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filter-73
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4222083982
+gpdraw 0 1 - 7 9 21 19 2 1 5 7 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filter-74
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4162817906
+gpdraw 0 1 - 11 13 21 6 1 7 6 1 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filter-75
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3825548629
+gpdraw 0 1 - 19 3 3 1 4 5 3 3 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filter-76
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4160350287
+gpdraw 0 1 - 0 1 15 14 5 4 3 3 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filter-77
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3151698897
+gpdraw 0 1 - 4 15 15 12 0 2 8 5 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filter-78
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3082007145
+gpdraw 0 1 - 1 0 20 24 3 0 2 7 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filter-79
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3258644413
+gpdraw 0 1 - 27 4 4 22 1 4 7 4 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filter-80
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1720082131
+gpdraw 0 1 - 13 4 14 17 1 0 4 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filter-81
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2267846902
+gpdraw 0 1 - 3 3 19 24 0 7 6 1 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filter-82
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3823570362
+gpdraw 0 1 - 7 10 3 4 0 2 8 4 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filter-83
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1551346264
+gpdraw 0 1 - 19 9 4 23 3 3 3 4 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filter-84
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4084387849
+gpdraw 0 1 - 13 9 12 23 0 0 7 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filter-85
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3478003698
+gpdraw 0 1 - 24 7 3 17 1 6 1 1 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filter-86
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1829997377
+gpdraw 0 1 - 6 22 23 9 2 5 3 2 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filter-87
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1565004846
+gpdraw 0 1 - 2 12 18 19 2 1 5 5 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filter-88
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1771484021
+gpdraw 0 1 - 14 6 1 13 0 2 1 6 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filter-89
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1037244750
+gpdraw 0 1 - 15 11 12 21 5 0 2 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filter-90
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 4020150355
+gpdraw 0 1 - 8 10 12 19 3 1 4 5 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filter-91
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1237947392
+gpdraw 0 1 - 17 21 1 9 2 2 2 6 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filter-92
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1887000256
+gpdraw 0 1 - 12 4 13 9 1 4 5 1 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filter-93
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3322110497
+gpdraw 0 1 - 4 4 20 16 6 0 1 7 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filter-94
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3737890034
+gpdraw 0 1 - 12 20 20 3 3 1 3 5 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filter-95
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3370473937
+gpdraw 0 1 - 3 9 13 3 5 3 1 5 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filter-96
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1303343368
+gpdraw 0 1 - 27 5 5 12 1 0 7 3 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filter-97
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 499614088
+gpdraw 0 1 - 7 0 7 23 0 1 8 1 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filter-98
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 507167163
+gpdraw 0 1 - 25 15 7 17 3 1 4 7 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filter-99
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3922327846
+gpdraw 0 1 - 2 2 15 13 1 4 6 3 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filter-100
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1883072365
+gpdraw 0 1 - 9 16 22 9 5 1 1 7 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filter-101
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1310213982
+gpdraw 0 1 - 8 1 11 22 2 1 6 6 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filter-102
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1105546600
+gpdraw 0 1 - 5 3 15 4 0 1 8 1 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filter-103
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 2387374929
+gpdraw 0 1 - 0 7 19 20 1 0 5 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filter-104
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3210456525
+gpdraw 0 1 - 15 4 4 15 5 2 3 5 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filter-105
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1252096801
+gpdraw 0 1 - 11 15 5 12 1 0 5 1 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filter-106
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 334273310
+gpdraw 0 1 - 23 6 6 6 4 1 4 6 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filter-107
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 884738550
+gpdraw 0 1 - 13 14 15 6 3 7 2 1 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filter-108
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 172882022
+gpdraw 0 1 - 12 18 17 13 0 2 8 3 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filter-109
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 701567822
+gpdraw 0 1 - 25 8 1 19 1 0 7 1 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filter-110
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1069662324
+gpdraw 0 1 - 5 23 19 3 5 0 3 7 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filter-111
+gpbitmap 0 32 32 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 934201234
+gpdraw 0 1 - 8 2 2 20 1 0 4 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filteralpha-0
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1996929327
+gpdraw 0 1 - 0 0 13 15 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filteralpha-1
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1008910372
+gpdraw 0 1 - 0 0 15 9 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filteralpha-2
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2401147007
+gpdraw 0 1 - 0 0 16 23 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filteralpha-3
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 769152227
+gpdraw 0 1 - 0 0 24 4 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filteralpha-4
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3476742112
+gpdraw 0 1 - 0 0 2 24 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filteralpha-5
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 4078027830
+gpdraw 0 1 - 0 0 12 24 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filteralpha-6
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2155930446
+gpdraw 0 1 - 0 0 22 6 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filteralpha-7
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3503960667
+gpdraw 0 1 - 0 0 3 8 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filteralpha-8
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3077330213
+gpdraw 0 1 - 0 0 4 14 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filteralpha-9
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 4288324474
+gpdraw 0 1 - 0 0 10 22 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filteralpha-10
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3065210117
+gpdraw 0 1 - 0 0 1 10 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filteralpha-11
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1661780640
+gpdraw 0 1 - 0 0 21 8 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filteralpha-12
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2113810864
+gpdraw 0 1 - 0 0 5 12 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filteralpha-13
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 96491306
+gpdraw 0 1 - 0 0 21 20 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filteralpha-14
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3409897368
+gpdraw 0 1 - 0 0 1 1 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filteralpha-15
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1503373938
+gpdraw 0 1 - 0 0 7 14 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filteralpha-16
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 334756397
+gpdraw 0 1 - 0 0 17 21 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filteralpha-17
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1335445114
+gpdraw 0 1 - 0 0 23 1 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filteralpha-18
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 416658863
+gpdraw 0 1 - 0 0 10 23 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filteralpha-19
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 184148002
+gpdraw 0 1 - 0 0 16 9 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filteralpha-20
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1817702227
+gpdraw 0 1 - 0 0 13 13 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filteralpha-21
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 919935290
+gpdraw 0 1 - 0 0 22 6 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filteralpha-22
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3577665100
+gpdraw 0 1 - 0 0 4 2 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filteralpha-23
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2691680655
+gpdraw 0 1 - 0 0 8 13 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filteralpha-24
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 766685362
+gpdraw 0 1 - 0 0 1 14 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filteralpha-25
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3050162701
+gpdraw 0 1 - 0 0 9 1 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filteralpha-26
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1422506891
+gpdraw 0 1 - 0 0 20 10 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filteralpha-27
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2045006868
+gpdraw 0 1 - 0 0 16 7 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case filteralpha-28
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1734794427
+gpdraw 0 1 - 0 0 24 19 0 0 8 8 copy 0 0 0
+gpread 0 32bppARGB
+end
+case filteralpha-29
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 4132484930
+gpdraw 0 1 - 0 0 4 24 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case filteralpha-30
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3975566137
+gpdraw 0 1 - 0 0 15 8 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case filteralpha-31
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 497058877
+gpdraw 0 1 - 0 0 10 19 0 0 8 8 copy 0 3 0
+gpread 0 32bppARGB
+end
+case filteralpha-32
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3664313822
+gpdraw 0 1 - 0 0 15 10 0 0 8 8 copy 0 4 0
+gpread 0 32bppARGB
+end
+case filteralpha-33
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3884877380
+gpdraw 0 1 - 0 0 16 7 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case filteralpha-34
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 980065783
+gpdraw 0 1 - 0 0 24 14 0 0 8 8 copy 0 7 0
+gpread 0 32bppARGB
+end
+case filteralpha-35
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1583413917
+gpdraw 0 1 - 0 0 22 9 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case filteralpha-36
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 192120612
+gpdraw 0 1 - 0 0 5 3 0 0 8 8 copy 0 1 4
+gpread 0 32bppARGB
+end
+case filteralpha-37
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2427924869
+gpdraw 0 1 - 0 0 24 16 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case filteralpha-38
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2000775613
+gpdraw 0 1 - 0 0 7 24 0 0 8 8 copy 0 3 4
+gpread 0 32bppARGB
+end
+case filteralpha-39
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 686797108
+gpdraw 0 1 - 0 0 23 8 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case filteralpha-40
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2454644701
+gpdraw 0 1 - 0 0 9 13 0 0 8 8 copy 0 6 4
+gpread 0 32bppARGB
+end
+case filteralpha-41
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 4007372823
+gpdraw 0 1 - 0 0 24 6 0 0 8 8 copy 0 7 4
+gpread 0 32bppARGB
+end
+case filteralpha-42
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2353860472
+gpdraw 0 1 - 0 0 20 23 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case filteralpha-43
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 803971397
+gpdraw 0 1 - 0 0 2 10 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case filteralpha-44
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 258421197
+gpdraw 0 1 - 0 0 5 22 0 0 8 8 copy 0 2 2
+gpread 0 32bppARGB
+end
+case filteralpha-45
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2743859499
+gpdraw 0 1 - 0 0 3 18 0 0 8 8 copy 0 3 2
+gpread 0 32bppARGB
+end
+case filteralpha-46
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3869344397
+gpdraw 0 1 - 0 0 21 20 0 0 8 8 copy 0 4 2
+gpread 0 32bppARGB
+end
+case filteralpha-47
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1065462676
+gpdraw 0 1 - 0 0 6 5 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case filteralpha-48
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2372360347
+gpdraw 0 1 - 0 0 6 19 0 0 8 8 copy 0 7 2
+gpread 0 32bppARGB
+end
+case filteralpha-49
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3094801458
+gpdraw 0 1 - 0 0 10 20 0 0 8 8 copy 0 0 3
+gpread 0 32bppARGB
+end
+case filteralpha-50
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2955176457
+gpdraw 0 1 - 0 0 11 4 0 0 8 8 copy 0 1 3
+gpread 0 32bppARGB
+end
+case filteralpha-51
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2843862976
+gpdraw 0 1 - 0 0 20 10 0 0 8 8 copy 0 2 3
+gpread 0 32bppARGB
+end
+case filteralpha-52
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1948062196
+gpdraw 0 1 - 0 0 5 6 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case filteralpha-53
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3635246415
+gpdraw 0 1 - 0 0 22 16 0 0 8 8 copy 0 4 3
+gpread 0 32bppARGB
+end
+case filteralpha-54
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3566890142
+gpdraw 0 1 - 0 0 14 4 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case filteralpha-55
+gpbitmap 0 24 24 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 276323661
+gpdraw 0 1 - 0 0 3 14 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
