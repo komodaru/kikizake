@@ -2598,7 +2598,8 @@ impl Ctx {
                     // ones, a step along apart, golden opengl-32 line-color-4, not settled:
                     // GL.RASTER.MODE)
                     if self.shade == FLAT {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                        self.flat_line(a, b)?;
+                        continue;
                     }
                     let (fa, fb) = (self.fogged(a.1, a.0), self.fogged(b.1, b.0));
                     let color = if fa == fb { LineColor::Flat(fb) } else { LineColor::Smooth(fa, fb) };
@@ -2869,6 +2870,26 @@ impl Ctx {
         }
         Ok(())
     }
+
+    /// A flat-shaded line from a to b in b's color (GL.RASTER.LINE.FLAT, measured for 1-pixel lines
+    /// inside the window without depth test, blending, fog, stencil or masks into a 32-bit DIB;
+    /// the rest open: GL.RASTER.MODE).
+    fn flat_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4])) -> Res<()> {
+        let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
+        let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
+        let inside = |c: [f32; 4], w: [f64; 3]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]) && (0.0..W as f64).contains(&w[0]) && (0.0..H as f64).contains(&w[1]);
+        let plain = !self.cap(LINE_SMOOTH) && !self.cap(DEPTH_TEST) && !self.cap(BLEND) && !self.cap(FOG) && !self.cap(STENCIL_TEST) && !self.cap(ALPHA_TEST) && !self.cap(COLOR_LOGIC_OP) && !self.cap(INDEX_LOGIC_OP) && !self.cap(SCISSOR_TEST);
+        if !plain || tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE || self.bpp != 32 || self.viewport != [0, 0, W as i64, H as i64] || self.color_mask != [true; 4] || !inside(ca, wa) || !inside(cb, wb) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        let h = H as i64;
+        for p in tri::flat_line(tri::DevicePixel::of([wa[0], wa[1]], h), tri::DevicePixel::of([wb[0], wb[1]], h)) {
+            let (x, y) = p.window(h);
+            self.fragment(Frag { x, y, c: b.1, z: wb[2], fixed: self.span(), zfixed: None })?;
+        }
+        Ok(())
+    }
+
 
     /// the pixels of a line from a to b in window coordinates (`tri::line`), its first end as
     /// `first` has it
@@ -4374,6 +4395,46 @@ pub mod tri {
         }
         None
     }
+
+    /// A pixel of the window as Windows' DIB has it: its column, and its row counted from the top.
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub struct DevicePixel {
+        pub x: i64,
+        pub row: i64,
+    }
+
+    impl DevicePixel {
+        /// the pixel a window position (x, y) lands on: floor(x - 1/2), floor(height - y - 1/2)
+        pub fn of(w: [f64; 2], height: i64) -> DevicePixel {
+            DevicePixel { x: (w[0] - 0.5).floor() as i64, row: (height as f64 - w[1] - 0.5).floor() as i64 }
+        }
+        /// back to the window's (column, row from the bottom)
+        pub fn window(self, height: i64) -> (i64, i64) {
+            (self.x, height - 1 - self.row)
+        }
+    }
+
+    /// The pixels of a flat-shaded 1-pixel line from a to b (MEASURED, golden opengl-32
+    /// line-flat-0, 1: 12 lines, every pixel; GL.RASTER.LINE.FLAT): each end to the DIB pixel
+    /// DevicePixel::of, then Bresenham's between them as GDI's LineTo (the last pixel not drawn,
+    /// the minor step at each major one round(i * minor / major); at exactly a half, toward the
+    /// next pixel when x-major running up the DIB's rows, or y-major running left, else back)
+    pub fn flat_line(a: DevicePixel, b: DevicePixel) -> Vec<DevicePixel> {
+        super::hit(super::clause::GL_RASTER_LINE_FLAT);
+        let (dx, dy) = (b.x - a.x, b.row - a.row);
+        let (sx, sy) = (dx.signum(), dy.signum());
+        let xmajor = dx.abs() >= dy.abs();
+        let (len, minor) = if xmajor { (dx.abs(), dy.abs()) } else { (dy.abs(), dx.abs()) };
+        let away = if xmajor { dy < 0 } else { dx < 0 };
+        (0..len)
+            .map(|i| {
+                let (num, den) = (2 * i * minor + len, 2 * len);
+                let m = if num % den == 0 && !away { num / den - 1 } else { num / den };
+                if xmajor { DevicePixel { x: a.x + sx * i, row: a.row + sy * m } } else { DevicePixel { x: a.x + sx * m, row: a.row + sy * i } }
+            })
+            .collect()
+    }
+
 
     /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden
     /// opengl-32 line-tie-*, line-dda-*: lines from and to each corner and edge middle of a

@@ -2536,4 +2536,60 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // flat-shaded lines (GL.RASTER.LINE.FLAT measured on line-flat-0's lines): ends a little
+    // either side of the pixel boundaries and centers (3); ends past the window (4); under a
+    // viewport (5); on 16- and 24-bit DIBs (6, 7); depth tested (8); blended (9); scissored
+    // (10); in strips and loops of colors (11); 2 wide (12); depths that differ (13)
+    let near: Vec<[f64; 4]> = (0..24)
+        .map(|_| {
+            let mut v = || r.range(2, 28) as f64 / 2.0 + [-1.0 / 128.0, 0.0, 1.0 / 128.0, -1.0 / 256.0, 1.0 / 256.0][r.range(0, 4) as usize];
+            [v(), v(), v(), v()]
+        })
+        .collect();
+    let past: Vec<[f64; 4]> = (0..24).map(|_| [v8(&mut r, -6, 22), v8(&mut r, -6, 22), v8(&mut r, -6, 22), v8(&mut r, -6, 22)]).collect();
+    for k in 3..14 {
+        let bpp = match k {
+            6 => 16,
+            7 => 24,
+            _ => 32,
+        };
+        writeln!(s, "case line-flat-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00", ctx(bpp)).unwrap();
+        match k {
+            5 => writeln!(s, "gl glViewport 3 2 10 11").unwrap(),
+            8 => writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x201\ngl glClearDepth 1").unwrap(),
+            9 => writeln!(s, "gl glEnable 0xbe2\ngl glBlendFunc 1 0").unwrap(),
+            10 => writeln!(s, "gl glEnable 0xc11\ngl glScissor 0 0 16 16").unwrap(),
+            12 => writeln!(s, "gl glLineWidth 2").unwrap(),
+            _ => {}
+        }
+        let set: &[[f64; 4]] = match k {
+            3 => &near,
+            4 => &past,
+            _ => &lines,
+        };
+        for (n, l) in set.iter().enumerate() {
+            writeln!(s, "gl glClear {}", if k == 8 { 0x4100 } else { 0x4000 }).unwrap();
+            if k == 11 {
+                // a strip or a loop through this line's ends and the next one's
+                let m = &set[(n + 1) % set.len()];
+                writeln!(s, "gl glBegin {}", 2 + n % 2).unwrap();
+                for p in [[l[0], l[1]], [l[2], l[3]], [m[0], m[1]]] {
+                    color(s, &mut r);
+                    glf(s, "glVertex2f", &p);
+                }
+            } else {
+                writeln!(s, "gl glBegin 1").unwrap();
+                for e in 0..2 {
+                    color(s, &mut r);
+                    if k == 13 {
+                        glf(s, "glVertex3f", &[l[2 * e], l[2 * e + 1], [-0.75, 0.5][e]]);
+                    } else {
+                        glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+                    }
+                }
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

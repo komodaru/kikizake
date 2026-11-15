@@ -222,6 +222,38 @@ proptest! {
         }
     }
 
+    /// GL.RASTER.LINE.FLAT: a flat-shaded line is one pixel per major step from its first end's,
+    /// each next to the last, the second end's not drawn; drawn the other way it lights the same
+    /// pixels between the ends (the ties go the same way whichever way it runs), each within half
+    /// a pixel across of the line between the ends' pixels
+    #[test]
+    fn flat_lines_run_alike_both_ways(v in any::<[(i8, i8); 2]>()) {
+        let p = |(x, row): (i8, i8)| tri::DevicePixel { x: i64::from(x), row: i64::from(row) };
+        let (a, b) = (p(v[0]), p(v[1]));
+        let fwd = tri::flat_line(a, b);
+        let (dx, dy) = (b.x - a.x, b.row - a.row);
+        prop_assert_eq!(fwd.len() as i64, dx.abs().max(dy.abs()));
+        if let Some(first) = fwd.first() {
+            prop_assert_eq!(*first, a);
+        }
+        prop_assert!(!fwd.contains(&b));
+        for w in fwd.windows(2) {
+            prop_assert!((w[1].x - w[0].x).abs() <= 1 && (w[1].row - w[0].row).abs() <= 1);
+        }
+        for q in &fwd {
+            // twice the distance across, in units of the major length
+            let across = (dx * (q.row - a.row) - dy * (q.x - a.x)).abs() * 2;
+            prop_assert!(across <= dx.abs().max(dy.abs()), "{q:?} off the line {a:?} {b:?}");
+        }
+        let mut one: Vec<_> = fwd.iter().copied().chain([b]).collect();
+        let mut other: Vec<_> = tri::flat_line(b, a).into_iter().chain([a]).collect();
+        one.sort_by_key(|q| (q.x, q.row));
+        other.sort_by_key(|q| (q.x, q.row));
+        one.dedup();
+        other.dedup();
+        prop_assert_eq!(one, other);
+    }
+
     /// GL.RASTER.LINE.SMOOTH.BLEND: an antialiased line's two pixels across at each step cover
     /// 255 between them, each its share
     #[test]
