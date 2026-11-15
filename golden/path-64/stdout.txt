@@ -10718,4 +10718,2684 @@ px 0 24 24 8
 000000000000000000000000000000000000000000000000
 000000000000000000000000000000000000000000000000
 000000000000000000000000000000000000000000000000
+case arcpath-0
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 18 5 6
+pt 18 3 4
+pt 16 2 4
+pt 14 2 4
+pt 2 2 2
+pt 0 2 4
+pt -2 3 4
+pt -2 5 4
+pt -2 21 2
+pt -2 23 4
+pt 0 24 4
+pt 2 24 4
+pt 14 24 2
+pt 16 24 4
+pt 18 23 4
+pt 18 21 5
+flatten 1
+path 12
+pt 18 5 6
+pt 17 3 2
+pt 14 2 2
+pt 2 2 2
+pt -1 3 2
+pt -2 5 2
+pt -2 21 2
+pt -1 23 2
+pt 2 24 2
+pt 14 24 2
+pt 17 23 2
+pt 18 21 3
+case arcpath-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 19 7 6
+pt 19 7 4
+pt 17 7 4
+pt 16 7 4
+pt 16 7 2
+pt 14 7 4
+pt 12 7 4
+pt 12 7 4
+pt 12 7 2
+pt 12 7 4
+pt 14 7 4
+pt 16 7 4
+pt 16 7 2
+pt 17 7 4
+pt 19 7 4
+pt 19 7 5
+flatten 1
+path 12
+pt 19 7 6
+pt 18 7 2
+pt 16 7 2
+pt 16 7 2
+pt 13 7 2
+pt 12 7 2
+pt 12 7 2
+pt 13 7 2
+pt 16 7 2
+pt 16 7 2
+pt 18 7 2
+pt 19 7 3
+case arcpath-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 7 -2 6
+pt 8 -2 4
+pt 8 -2 4
+pt 8 -2 4
+pt 8 -2 4
+pt 8 -2 4
+pt 8 -2 4
+flatten 1
+path 3
+pt 7 -2 6
+pt 8 -2 2
+pt 8 -2 2
+case arcpath-3
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 0 0 6
+pt 16 2 2
+pt 16 2 4
+pt 17 3 4
+pt 17 3 4
+flatten 1
+path 3
+pt 0 0 6
+pt 16 2 2
+pt 17 3 2
+case arcpath-4
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 12 19 6
+pt 12 19 4
+pt 12 19 4
+pt 12 19 4
+pt 12 21 3
+flatten 1
+path 3
+pt 12 19 6
+pt 12 19 2
+pt 12 21 3
+case arcpath-5
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 4 14 6
+pt 4 14 4
+pt 3 13 4
+pt 2 13 4
+pt 1 13 4
+pt 1 13 4
+pt 1 13 5
+flatten 1
+path 3
+pt 4 14 6
+pt 2 13 2
+pt 1 13 3
+case arcpath-6
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 6 22 6
+pt 6 22 4
+pt 6 23 4
+pt 6 23 4
+pt 6 23 2
+pt 6 23 4
+pt 6 22 4
+pt 6 22 4
+pt 6 0 2
+pt 6 0 4
+pt 6 -1 4
+pt 6 -1 4
+pt 6 -1 2
+pt 6 -1 4
+pt 6 0 4
+pt 6 0 5
+flatten 1
+path 8
+pt 6 22 6
+pt 6 23 2
+pt 6 23 2
+pt 6 22 2
+pt 6 0 2
+pt 6 -1 2
+pt 6 -1 2
+pt 6 0 3
+case arcpath-7
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 24 15 6
+pt 24 19 4
+pt 23 23 4
+pt 22 23 4
+pt 22 23 2
+pt 21 23 4
+pt 20 19 4
+pt 20 15 4
+pt 20 15 2
+pt 20 11 4
+pt 21 7 4
+pt 22 7 4
+pt 22 7 2
+pt 23 7 4
+pt 24 11 4
+pt 24 15 5
+flatten 1
+path 16
+pt 24 15 6
+pt 23 21 2
+pt 23 22 2
+pt 22 23 2
+pt 22 23 2
+pt 21 22 2
+pt 21 21 2
+pt 20 15 2
+pt 20 15 2
+pt 21 9 2
+pt 21 8 2
+pt 22 7 2
+pt 22 7 2
+pt 23 8 2
+pt 23 9 2
+pt 24 15 3
+case arcpath-8
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 13 22 6
+pt 12 22 4
+pt 10 22 4
+pt 8 22 4
+pt 4 22 4
+pt 1 22 4
+pt 1 21 4
+pt 1 20 4
+pt 4 20 4
+pt 8 20 4
+pt 8 20 4
+pt 8 20 4
+pt 8 20 4
+flatten 1
+path 9
+pt 13 22 6
+pt 8 22 2
+pt 3 22 2
+pt 2 21 2
+pt 1 21 2
+pt 2 21 2
+pt 3 20 2
+pt 8 20 2
+pt 8 20 2
+case arcpath-9
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt 0 0 6
+pt 20 8 2
+pt 20 8 4
+pt 20 9 4
+pt 20 9 4
+pt 20 13 4
+pt 20 17 4
+pt 20 17 4
+pt 19 17 4
+pt 19 13 4
+pt 19 9 4
+pt 19 5 4
+pt 19 1 4
+pt 20 1 4
+pt 20 1 4
+pt 20 1 4
+pt 20 1 4
+flatten 1
+path 13
+pt 0 0 6
+pt 20 8 2
+pt 20 9 2
+pt 20 15 2
+pt 20 16 2
+pt 20 17 2
+pt 19 16 2
+pt 19 15 2
+pt 19 9 2
+pt 19 3 2
+pt 19 2 2
+pt 20 1 2
+pt 20 1 2
+case arcpath-10
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 13 7 6
+pt 15 8 4
+pt 16 9 4
+pt 16 10 4
+pt 16 12 4
+pt 12 14 4
+pt 7 14 4
+pt 1 14 4
+pt -3 12 4
+pt -3 10 4
+pt -3 8 4
+pt -1 7 4
+pt 3 6 4
+pt 7 10 3
+flatten 1
+path 12
+pt 13 7 6
+pt 15 8 2
+pt 16 10 2
+pt 15 12 2
+pt 13 13 2
+pt 7 14 2
+pt 0 13 2
+pt -2 12 2
+pt -3 10 2
+pt -1 8 2
+pt 3 6 2
+pt 7 10 3
+case arcpath-11
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 10 21 6
+pt 8 19 4
+pt 7 14 4
+pt 7 9 4
+pt 7 8 4
+pt 7 6 4
+pt 7 5 5
+flatten 1
+path 5
+pt 10 21 6
+pt 9 19 2
+pt 8 16 2
+pt 7 9 2
+pt 7 5 3
+case arcpath-12
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 19 25 6
+pt 19 25 4
+pt 19 25 4
+pt 19 25 4
+pt 19 25 2
+pt 18 25 4
+pt 18 25 4
+pt 18 25 4
+pt 18 25 2
+pt 18 25 4
+pt 18 25 4
+pt 19 25 4
+pt 19 25 2
+pt 19 25 4
+pt 19 25 4
+pt 19 25 5
+flatten 1
+path 8
+pt 19 25 6
+pt 19 25 2
+pt 19 25 2
+pt 18 25 2
+pt 18 25 2
+pt 19 25 2
+pt 19 25 2
+pt 19 25 3
+case arcpath-13
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 14 11 6
+pt 14 10 4
+pt 14 9 4
+pt 14 9 4
+pt 8 9 2
+pt 8 9 4
+pt 8 10 4
+pt 8 11 4
+pt 8 11 2
+pt 8 11 4
+pt 8 12 4
+pt 8 12 4
+pt 14 12 2
+pt 14 12 4
+pt 14 11 4
+pt 14 11 5
+flatten 1
+path 12
+pt 14 11 6
+pt 14 9 2
+pt 14 9 2
+pt 8 9 2
+pt 8 9 2
+pt 8 11 2
+pt 8 11 2
+pt 8 12 2
+pt 8 12 2
+pt 14 12 2
+pt 14 12 2
+pt 14 11 3
+case arcpath-14
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 15 15 6
+pt 14 15 4
+pt 14 15 4
+pt 14 15 4
+flatten 1
+path 2
+pt 15 15 6
+pt 14 15 2
+case arcpath-15
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 0 6
+pt 9 17 2
+pt 9 17 4
+pt 9 17 4
+pt 9 17 4
+pt 9 16 4
+pt 8 15 4
+pt 7 15 4
+pt 6 15 4
+pt 5 16 4
+pt 5 17 4
+pt 5 17 4
+pt 5 17 4
+pt 6 18 4
+flatten 1
+path 8
+pt 0 0 6
+pt 9 17 2
+pt 9 17 2
+pt 8 15 2
+pt 7 15 2
+pt 6 15 2
+pt 5 17 2
+pt 6 18 2
+case arcpath-16
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 15 11 6
+pt 12 12 4
+pt 10 14 4
+pt 10 17 4
+pt 10 20 4
+pt 13 23 4
+pt 16 23 4
+pt 17 23 4
+pt 17 23 4
+pt 18 23 4
+pt 16 17 3
+flatten 1
+path 8
+pt 15 11 6
+pt 11 13 2
+pt 10 17 2
+pt 12 21 2
+pt 14 23 2
+pt 16 23 2
+pt 18 23 2
+pt 16 17 3
+case arcpath-17
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 8 20 6
+pt 9 23 4
+pt 10 24 4
+pt 11 24 4
+pt 13 24 4
+pt 15 19 4
+pt 15 12 4
+pt 15 5 4
+pt 13 0 4
+pt 11 0 4
+pt 10 0 4
+pt 9 1 4
+pt 8 3 5
+flatten 1
+path 13
+pt 8 20 6
+pt 9 23 2
+pt 11 24 2
+pt 13 23 2
+pt 14 21 2
+pt 15 17 2
+pt 15 12 2
+pt 15 7 2
+pt 14 4 2
+pt 13 1 2
+pt 11 0 2
+pt 10 1 2
+pt 8 3 3
+case arcpath-18
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 20 19 6
+pt 20 20 4
+pt 19 21 4
+pt 17 21 4
+pt 9 21 2
+pt 7 21 4
+pt 6 20 4
+pt 6 19 4
+pt 6 9 2
+pt 6 8 4
+pt 7 7 4
+pt 9 7 4
+pt 17 7 2
+pt 19 7 4
+pt 20 8 4
+pt 20 9 5
+flatten 1
+path 12
+pt 20 19 6
+pt 19 20 2
+pt 17 21 2
+pt 9 21 2
+pt 7 20 2
+pt 6 19 2
+pt 6 9 2
+pt 7 8 2
+pt 9 7 2
+pt 17 7 2
+pt 19 8 2
+pt 20 9 3
+case arcpath-19
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 18 10 6
+pt 18 15 4
+pt 15 20 4
+pt 11 20 4
+pt 11 20 2
+pt 7 20 4
+pt 4 15 4
+pt 4 10 4
+pt 4 10 2
+pt 4 4 4
+pt 7 -1 4
+pt 11 -1 4
+pt 11 -1 2
+pt 15 -1 4
+pt 18 4 4
+pt 18 10 5
+flatten 1
+path 20
+pt 18 10 6
+pt 17 14 2
+pt 16 17 2
+pt 14 19 2
+pt 11 20 2
+pt 11 20 2
+pt 8 19 2
+pt 6 17 2
+pt 5 14 2
+pt 4 10 2
+pt 4 10 2
+pt 5 5 2
+pt 6 2 2
+pt 8 0 2
+pt 11 -1 2
+pt 11 -1 2
+pt 14 0 2
+pt 16 2 2
+pt 17 5 2
+pt 18 10 3
+case arcpath-20
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 17 18 6
+pt 17 18 4
+pt 17 19 4
+pt 17 20 4
+pt 17 20 4
+pt 17 20 4
+pt 17 21 4
+flatten 1
+path 3
+pt 17 18 6
+pt 17 20 2
+pt 17 21 2
+case arcpath-21
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 0 0 6
+pt 1 21 2
+pt 1 21 4
+pt 1 21 4
+pt 1 21 4
+pt 1 21 4
+pt 1 21 4
+pt 1 21 4
+flatten 1
+path 4
+pt 0 0 6
+pt 1 21 2
+pt 1 21 2
+pt 1 21 2
+case arcpath-22
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 8 12 6
+pt 4 12 4
+pt 1 12 4
+pt 1 12 4
+pt 1 12 4
+pt 5 12 4
+pt 10 12 4
+pt 10 12 4
+pt 10 12 4
+pt 10 12 4
+pt 10 12 3
+flatten 1
+path 9
+pt 8 12 6
+pt 3 12 2
+pt 2 12 2
+pt 1 12 2
+pt 2 12 2
+pt 4 12 2
+pt 10 12 2
+pt 10 12 2
+pt 10 12 3
+case arcpath-23
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 18 10 6
+pt 18 6 4
+pt 20 3 4
+pt 22 3 4
+pt 23 3 4
+pt 25 7 4
+pt 25 12 4
+pt 25 14 4
+pt 25 17 4
+pt 24 18 5
+flatten 1
+path 8
+pt 18 10 6
+pt 19 5 2
+pt 20 4 2
+pt 22 3 2
+pt 23 4 2
+pt 24 6 2
+pt 25 12 2
+pt 24 18 3
+case arcpath-24
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 19 18 6
+pt 19 16 4
+pt 15 15 4
+pt 10 15 4
+pt 10 15 2
+pt 5 15 4
+pt 1 16 4
+pt 1 18 4
+pt 1 18 2
+pt 1 19 4
+pt 5 20 4
+pt 10 20 4
+pt 10 20 2
+pt 15 20 4
+pt 19 19 4
+pt 19 18 5
+flatten 1
+path 16
+pt 19 18 6
+pt 18 17 2
+pt 16 16 2
+pt 10 15 2
+pt 10 15 2
+pt 4 16 2
+pt 2 17 2
+pt 1 18 2
+pt 1 18 2
+pt 2 19 2
+pt 4 19 2
+pt 10 20 2
+pt 10 20 2
+pt 16 19 2
+pt 18 19 2
+pt 19 18 3
+case arcpath-25
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 23 0 6
+pt 19 0 2
+pt 19 25 2
+pt 23 25 3
+flatten 1
+path 4
+pt 23 0 6
+pt 19 0 2
+pt 19 25 2
+pt 23 25 3
+case arcpath-26
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 23 13 6
+pt 23 19 4
+pt 23 24 4
+pt 24 24 4
+pt 25 24 4
+pt 25 19 4
+pt 25 13 4
+pt 25 6 4
+pt 25 1 4
+pt 24 1 4
+pt 23 1 4
+pt 23 6 4
+pt 23 12 4
+flatten 1
+path 17
+pt 23 13 6
+pt 23 17 2
+pt 23 21 2
+pt 24 23 2
+pt 24 24 2
+pt 24 23 2
+pt 25 21 2
+pt 25 17 2
+pt 25 13 2
+pt 25 8 2
+pt 25 4 2
+pt 24 2 2
+pt 24 1 2
+pt 24 2 2
+pt 23 4 2
+pt 23 8 2
+pt 23 12 2
+case arcpath-27
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt 0 0 6
+pt 10 19 2
+pt 8 19 4
+pt 7 20 4
+pt 7 21 4
+pt 7 23 4
+pt 10 24 4
+pt 14 24 4
+pt 17 24 4
+pt 20 23 4
+pt 20 21 4
+pt 20 19 4
+pt 17 18 4
+pt 14 18 4
+pt 12 18 4
+pt 11 18 4
+pt 10 18 4
+flatten 1
+path 14
+pt 0 0 6
+pt 10 19 2
+pt 8 20 2
+pt 7 21 2
+pt 8 22 2
+pt 9 23 2
+pt 14 24 2
+pt 18 23 2
+pt 20 22 2
+pt 20 21 2
+pt 20 20 2
+pt 18 19 2
+pt 14 18 2
+pt 10 18 2
+case arcpath-28
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 22 10 6
+pt 22 10 4
+pt 22 10 4
+pt 22 10 4
+pt 23 9 3
+flatten 1
+path 3
+pt 22 10 6
+pt 22 10 2
+pt 23 9 3
+case arcpath-29
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 15 13 6
+pt 19 13 4
+pt 21 13 4
+pt 21 12 4
+pt 21 12 4
+pt 18 11 4
+pt 15 11 4
+pt 11 11 4
+pt 8 12 4
+pt 8 12 4
+pt 8 12 4
+pt 8 12 4
+pt 8 12 5
+flatten 1
+path 10
+pt 15 13 6
+pt 19 13 2
+pt 21 12 2
+pt 21 12 2
+pt 19 11 2
+pt 15 11 2
+pt 10 11 2
+pt 9 12 2
+pt 8 12 2
+pt 8 12 3
+case arcpath-30
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 25 7 6
+pt 25 10 4
+pt 22 12 4
+pt 17 12 4
+pt 6 12 2
+pt 1 12 4
+pt -2 10 4
+pt -2 7 4
+pt -2 7 2
+pt -2 4 4
+pt 1 2 4
+pt 6 2 4
+pt 17 2 2
+pt 22 2 4
+pt 25 4 4
+pt 25 7 5
+flatten 1
+path 16
+pt 25 7 6
+pt 24 9 2
+pt 23 11 2
+pt 17 12 2
+pt 6 12 2
+pt 0 11 2
+pt -1 9 2
+pt -2 7 2
+pt -2 7 2
+pt -1 5 2
+pt 0 3 2
+pt 6 2 2
+pt 17 2 2
+pt 23 3 2
+pt 24 5 2
+pt 25 7 3
+case arcpath-31
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 25 16 6
+pt 25 18 4
+pt 23 20 4
+pt 20 20 4
+pt 10 20 2
+pt 7 20 4
+pt 5 18 4
+pt 5 16 4
+pt 5 15 2
+pt 5 13 4
+pt 7 11 4
+pt 10 11 4
+pt 20 11 2
+pt 23 11 4
+pt 25 13 4
+pt 25 15 5
+flatten 1
+path 12
+pt 25 16 6
+pt 24 19 2
+pt 20 20 2
+pt 10 20 2
+pt 7 19 2
+pt 5 16 2
+pt 5 15 2
+pt 7 12 2
+pt 10 11 2
+pt 20 11 2
+pt 24 12 2
+pt 25 15 3
+case arcpath-32
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 9 19 6
+pt 9 20 4
+pt 10 21 4
+pt 10 22 4
+pt 10 23 4
+pt 8 25 4
+pt 6 25 4
+pt 3 25 4
+pt 1 23 4
+pt 1 22 4
+pt 1 21 4
+pt 1 21 4
+pt 1 20 4
+flatten 1
+path 7
+pt 9 19 6
+pt 10 22 2
+pt 9 24 2
+pt 6 25 2
+pt 2 24 2
+pt 1 22 2
+pt 1 20 2
+case arcpath-33
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 0 6
+pt 23 13 2
+pt 23 11 4
+pt 24 10 4
+pt 24 10 4
+pt 25 10 4
+pt 25 12 4
+pt 25 15 4
+pt 25 18 4
+pt 25 20 4
+pt 24 20 4
+pt 24 20 4
+pt 24 20 4
+pt 24 19 4
+flatten 1
+path 9
+pt 0 0 6
+pt 23 13 2
+pt 23 11 2
+pt 24 10 2
+pt 25 11 2
+pt 25 15 2
+pt 25 19 2
+pt 24 20 2
+pt 24 19 2
+case arcpath-34
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 12 7 6
+pt 13 7 4
+pt 13 7 4
+pt 14 7 4
+pt 14 7 4
+pt 15 7 4
+pt 15 7 4
+pt 14 8 3
+flatten 1
+path 4
+pt 12 7 6
+pt 14 7 2
+pt 15 7 2
+pt 14 8 3
+case arcpath-35
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 12 1 6
+pt 12 0 4
+pt 13 0 4
+pt 15 0 4
+pt 16 0 4
+pt 18 1 4
+pt 18 3 4
+pt 18 3 4
+pt 18 3 4
+pt 18 4 5
+flatten 1
+path 5
+pt 12 1 6
+pt 15 0 2
+pt 17 1 2
+pt 18 3 2
+pt 18 4 3
+case arcpath-36
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 24 16 6
+pt 24 15 4
+pt 24 15 4
+pt 24 15 4
+pt 16 15 2
+pt 16 15 4
+pt 16 15 4
+pt 16 16 4
+pt 16 22 2
+pt 16 23 4
+pt 16 23 4
+pt 16 23 4
+pt 24 23 2
+pt 24 23 4
+pt 24 23 4
+pt 24 22 5
+flatten 1
+path 8
+pt 24 16 6
+pt 24 15 2
+pt 16 15 2
+pt 16 16 2
+pt 16 22 2
+pt 16 23 2
+pt 24 23 2
+pt 24 22 3
+case arcpath-37
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 6 20 6
+pt 6 19 4
+pt 6 19 4
+pt 6 19 4
+pt -3 19 2
+pt -3 19 4
+pt -3 19 4
+pt -3 20 4
+pt -3 20 2
+pt -3 20 4
+pt -3 20 4
+pt -3 20 4
+pt 6 20 2
+pt 6 20 4
+pt 6 20 4
+pt 6 20 5
+flatten 1
+path 8
+pt 6 20 6
+pt 6 19 2
+pt -3 19 2
+pt -3 20 2
+pt -3 20 2
+pt -3 20 2
+pt 6 20 2
+pt 6 20 3
+case arcpath-38
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 4 15 6
+pt 4 14 4
+pt 4 14 4
+pt 4 13 4
+flatten 1
+path 2
+pt 4 15 6
+pt 4 13 2
+case arcpath-39
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 0 0 6
+pt 16 4 2
+pt 16 5 4
+pt 17 5 4
+pt 18 5 4
+pt 18 5 4
+pt 19 5 4
+pt 19 4 4
+pt 19 4 4
+pt 19 4 4
+pt 19 4 4
+flatten 1
+path 5
+pt 0 0 6
+pt 16 4 2
+pt 18 5 2
+pt 19 4 2
+pt 19 4 2
+case arcpath-40
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt 17 12 6
+pt 17 12 4
+pt 17 12 4
+pt 17 12 4
+pt 17 12 4
+pt 17 12 4
+pt 18 12 4
+pt 18 12 4
+pt 18 12 4
+pt 18 12 4
+pt 18 12 4
+pt 18 12 4
+pt 18 12 4
+pt 17 12 4
+pt 17 12 4
+pt 17 12 4
+pt 18 12 3
+flatten 1
+path 7
+pt 17 12 6
+pt 17 12 2
+pt 18 12 2
+pt 18 12 2
+pt 18 12 2
+pt 17 12 2
+pt 18 12 3
+case arcpath-41
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 10 19 6
+pt 11 20 4
+pt 13 20 4
+pt 15 20 4
+pt 18 20 4
+pt 21 19 4
+pt 21 17 4
+pt 21 16 4
+pt 19 14 4
+pt 16 14 5
+flatten 1
+path 7
+pt 10 19 6
+pt 15 20 2
+pt 19 19 2
+pt 21 18 2
+pt 21 17 2
+pt 20 15 2
+pt 16 14 3
+case arcpath-42
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 20 -1 6
+pt 20 -1 4
+pt 18 -1 4
+pt 16 -1 4
+pt 16 -1 2
+pt 13 -1 4
+pt 11 -1 4
+pt 11 -1 4
+pt 11 -1 2
+pt 11 -2 4
+pt 13 -2 4
+pt 16 -2 4
+pt 16 -2 2
+pt 18 -2 4
+pt 20 -2 4
+pt 20 -1 5
+flatten 1
+path 12
+pt 20 -1 6
+pt 19 -1 2
+pt 16 -1 2
+pt 16 -1 2
+pt 12 -1 2
+pt 11 -1 2
+pt 11 -1 2
+pt 12 -2 2
+pt 16 -2 2
+pt 16 -2 2
+pt 19 -2 2
+pt 20 -1 3
+case arcpath-43
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 10 24 6
+pt 10 24 4
+pt 7 25 4
+pt 4 25 4
+pt 4 25 2
+pt 0 25 4
+pt -3 24 4
+pt -3 24 4
+pt -3 24 2
+pt -3 23 4
+pt 0 22 4
+pt 4 22 4
+pt 4 22 2
+pt 7 22 4
+pt 10 23 4
+pt 10 24 5
+flatten 1
+path 16
+pt 10 24 6
+pt 10 24 2
+pt 8 25 2
+pt 4 25 2
+pt 4 25 2
+pt -1 25 2
+pt -2 24 2
+pt -3 24 2
+pt -3 24 2
+pt -2 23 2
+pt -1 22 2
+pt 4 22 2
+pt 4 22 2
+pt 8 22 2
+pt 10 23 2
+pt 10 24 3
+case arcpath-44
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -1 13 6
+pt -1 14 4
+pt -1 14 4
+pt -1 15 4
+flatten 1
+path 2
+pt -1 13 6
+pt -1 15 2
+case arcpath-45
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 0 0 6
+pt 17 2 2
+pt 17 4 4
+pt 17 8 4
+pt 17 11 4
+pt 17 18 4
+pt 17 23 4
+pt 16 23 4
+pt 16 23 4
+pt 15 19 4
+pt 15 13 4
+flatten 1
+path 12
+pt 0 0 6
+pt 17 2 2
+pt 17 6 2
+pt 17 11 2
+pt 17 16 2
+pt 17 20 2
+pt 16 22 2
+pt 16 23 2
+pt 16 22 2
+pt 15 20 2
+pt 15 17 2
+pt 15 13 2
+case arcpath-46
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+flatten 1
+path 0
+case arcpath-47
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 16 16 6
+pt 16 16 4
+pt 17 16 4
+pt 17 16 4
+pt 21 16 4
+pt 25 17 4
+pt 25 18 4
+pt 25 18 4
+pt 21 19 4
+pt 17 19 4
+pt 13 19 4
+pt 9 18 4
+pt 9 18 4
+pt 9 17 4
+pt 9 17 4
+pt 10 17 5
+flatten 1
+path 12
+pt 16 16 6
+pt 17 16 2
+pt 23 16 2
+pt 24 17 2
+pt 25 18 2
+pt 24 18 2
+pt 23 19 2
+pt 17 19 2
+pt 11 19 2
+pt 10 18 2
+pt 9 18 2
+pt 10 17 3
+case arcpath-48
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 20 -2 6
+pt 15 -2 2
+pt 15 22 2
+pt 20 22 3
+flatten 1
+path 4
+pt 20 -2 6
+pt 15 -2 2
+pt 15 22 2
+pt 20 22 3
+case arcpath-49
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 18 8 6
+pt 18 2 4
+pt 18 -3 4
+pt 18 -3 4
+pt 3 -3 2
+pt 2 -3 4
+pt 2 2 4
+pt 2 8 4
+pt 2 9 2
+pt 2 15 4
+pt 2 20 4
+pt 3 20 4
+pt 18 20 2
+pt 18 20 4
+pt 18 15 4
+pt 18 9 5
+flatten 1
+path 20
+pt 18 8 6
+pt 18 4 2
+pt 18 0 2
+pt 18 -2 2
+pt 18 -3 2
+pt 3 -3 2
+pt 2 -2 2
+pt 2 0 2
+pt 2 4 2
+pt 2 8 2
+pt 2 9 2
+pt 2 13 2
+pt 2 17 2
+pt 2 19 2
+pt 3 20 2
+pt 18 20 2
+pt 18 19 2
+pt 18 17 2
+pt 18 13 2
+pt 18 9 3
+case arcpath-50
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 8 9 6
+pt 8 9 4
+pt 8 9 4
+pt 8 10 4
+pt 8 14 4
+pt 11 17 4
+pt 16 17 4
+pt 20 17 4
+pt 23 14 4
+pt 23 10 4
+pt 23 5 4
+pt 20 2 4
+pt 16 2 4
+pt 13 2 4
+pt 11 3 4
+pt 9 6 4
+flatten 1
+path 16
+pt 8 9 6
+pt 8 10 2
+pt 9 12 2
+pt 10 15 2
+pt 13 16 2
+pt 16 17 2
+pt 18 16 2
+pt 21 15 2
+pt 22 12 2
+pt 23 10 2
+pt 22 7 2
+pt 21 4 2
+pt 18 3 2
+pt 16 2 2
+pt 12 3 2
+pt 9 6 2
+case arcpath-51
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 0 0 6
+pt 14 0 2
+pt 14 -2 4
+pt 14 -3 4
+pt 14 -3 4
+pt 13 -3 4
+pt 13 -2 4
+pt 13 0 4
+pt 13 0 4
+pt 13 0 4
+pt 13 1 4
+flatten 1
+path 7
+pt 0 0 6
+pt 14 0 2
+pt 14 -2 2
+pt 14 -3 2
+pt 13 -2 2
+pt 13 0 2
+pt 13 1 2
+case arcpath-52
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 20 17 6
+pt 20 17 4
+pt 20 18 4
+pt 20 18 4
+pt 22 19 3
+flatten 1
+path 3
+pt 20 17 6
+pt 20 18 2
+pt 22 19 3
+case arcpath-53
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 8 19 6
+pt 8 19 4
+pt 8 19 4
+pt 8 19 4
+pt 3 19 4
+pt 0 20 4
+pt 0 21 4
+pt 0 22 4
+pt 3 23 4
+pt 8 23 4
+pt 12 23 4
+pt 15 22 4
+pt 15 21 4
+pt 15 20 4
+pt 12 19 4
+pt 9 19 5
+flatten 1
+path 13
+pt 8 19 6
+pt 8 19 2
+pt 2 20 2
+pt 1 20 2
+pt 0 21 2
+pt 1 22 2
+pt 2 22 2
+pt 8 23 2
+pt 13 22 2
+pt 14 22 2
+pt 15 21 2
+pt 13 20 2
+pt 9 19 3
+case arcpath-54
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 8 18 6
+pt 8 18 4
+pt 8 19 4
+pt 8 19 4
+pt 8 19 2
+pt 7 19 4
+pt 7 18 4
+pt 7 18 4
+pt 7 12 2
+pt 7 12 4
+pt 7 11 4
+pt 8 11 4
+pt 8 11 2
+pt 8 11 4
+pt 8 12 4
+pt 8 12 5
+flatten 1
+path 8
+pt 8 18 6
+pt 8 19 2
+pt 8 19 2
+pt 7 18 2
+pt 7 12 2
+pt 8 11 2
+pt 8 11 2
+pt 8 12 3
+case arcpath-55
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 16 11 6
+pt 16 15 4
+pt 12 18 4
+pt 8 18 4
+pt 5 18 2
+pt 1 18 4
+pt -3 15 4
+pt -3 11 4
+pt -3 4 2
+pt -3 0 4
+pt 1 -3 4
+pt 5 -3 4
+pt 8 -3 2
+pt 12 -3 4
+pt 16 0 4
+pt 16 4 5
+flatten 1
+path 20
+pt 16 11 6
+pt 15 14 2
+pt 14 16 2
+pt 11 18 2
+pt 8 18 2
+pt 5 18 2
+pt 2 18 2
+pt -1 16 2
+pt -2 14 2
+pt -3 11 2
+pt -3 4 2
+pt -2 1 2
+pt -1 -1 2
+pt 2 -2 2
+pt 5 -3 2
+pt 8 -3 2
+pt 11 -2 2
+pt 14 -1 2
+pt 15 1 2
+pt 16 4 3
+case arcpath-56
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 23 11 6
+pt 23 11 4
+pt 23 11 4
+pt 23 11 4
+flatten 1
+path 2
+pt 23 11 6
+pt 23 11 2
+case arcpath-57
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 0 6
+pt 11 17 2
+pt 11 16 4
+pt 11 15 4
+pt 11 14 4
+pt 11 9 4
+pt 12 5 4
+pt 14 5 4
+pt 16 5 4
+pt 17 9 4
+pt 17 14 4
+pt 17 14 4
+pt 17 14 4
+pt 17 15 4
+flatten 1
+path 10
+pt 0 0 6
+pt 11 17 2
+pt 11 14 2
+pt 12 8 2
+pt 13 6 2
+pt 14 5 2
+pt 15 6 2
+pt 16 8 2
+pt 17 14 2
+pt 17 15 2
+case arcpath-58
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+flatten 1
+path 0
+case arcpath-59
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt -2 3 6
+pt -2 3 4
+pt -2 3 4
+pt -2 3 4
+pt -3 3 4
+pt -3 3 4
+pt -3 2 4
+pt -3 1 4
+pt -3 1 4
+pt -2 1 4
+pt -2 1 4
+pt -2 1 4
+pt -2 2 4
+pt -2 2 4
+pt -2 2 4
+pt -2 2 5
+flatten 1
+path 6
+pt -2 3 6
+pt -2 3 2
+pt -3 2 2
+pt -2 1 2
+pt -2 2 2
+pt -2 2 3
+case arcpath-60
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 13 1 6
+pt 13 1 4
+pt 12 0 4
+pt 10 0 4
+pt 1 0 2
+pt -1 0 4
+pt -2 1 4
+pt -2 1 4
+pt -2 1 2
+pt -2 2 4
+pt -1 2 4
+pt 1 2 4
+pt 10 2 2
+pt 12 2 4
+pt 13 2 4
+pt 13 1 5
+flatten 1
+path 12
+pt 13 1 6
+pt 12 0 2
+pt 10 0 2
+pt 1 0 2
+pt -1 0 2
+pt -2 1 2
+pt -2 1 2
+pt -1 2 2
+pt 1 2 2
+pt 10 2 2
+pt 12 2 2
+pt 13 1 3
+case arcpath-61
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 18 11 6
+pt 18 9 4
+pt 13 8 4
+pt 8 8 4
+pt 8 8 2
+pt 2 8 4
+pt -3 9 4
+pt -3 11 4
+pt -3 18 2
+pt -3 20 4
+pt 2 21 4
+pt 8 21 4
+pt 8 21 2
+pt 13 21 4
+pt 18 20 4
+pt 18 18 5
+flatten 1
+path 20
+pt 18 11 6
+pt 17 10 2
+pt 15 9 2
+pt 12 8 2
+pt 8 8 2
+pt 8 8 2
+pt 3 8 2
+pt 0 9 2
+pt -2 10 2
+pt -3 11 2
+pt -3 18 2
+pt -2 19 2
+pt 0 20 2
+pt 3 21 2
+pt 8 21 2
+pt 8 21 2
+pt 12 21 2
+pt 15 20 2
+pt 17 19 2
+pt 18 18 3
+case arcpath-62
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 15 21 6
+pt 14 21 4
+pt 13 21 4
+pt 12 21 4
+flatten 1
+path 2
+pt 15 21 6
+pt 12 21 2
+case arcpath-63
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 0 0 6
+pt 8 12 2
+pt 10 12 4
+pt 12 12 4
+pt 14 12 4
+pt 15 12 4
+pt 15 12 4
+pt 16 12 4
+flatten 1
+path 4
+pt 0 0 6
+pt 8 12 2
+pt 14 12 2
+pt 16 12 2
+case arcpath-64
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 7 14 6
+pt 7 14 4
+pt 7 14 4
+pt 7 14 4
+pt 11 10 3
+flatten 1
+path 3
+pt 7 14 6
+pt 7 14 2
+pt 11 10 3
+case arcpath-65
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 9 16 6
+pt 8 16 4
+pt 7 16 4
+pt 7 16 4
+pt 7 16 4
+pt 8 16 4
+pt 10 16 4
+pt 12 16 4
+pt 13 16 4
+pt 13 16 4
+pt 13 16 4
+pt 12 16 4
+pt 10 16 4
+pt 10 16 4
+pt 10 16 4
+pt 10 16 5
+flatten 1
+path 10
+pt 9 16 6
+pt 8 16 2
+pt 7 16 2
+pt 8 16 2
+pt 10 16 2
+pt 12 16 2
+pt 13 16 2
+pt 12 16 2
+pt 10 16 2
+pt 10 16 3
+case arcpath-66
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 20 16 6
+pt 20 16 4
+pt 19 16 4
+pt 19 16 4
+pt 19 16 2
+pt 18 16 4
+pt 17 16 4
+pt 17 16 4
+pt 17 3 2
+pt 17 3 4
+pt 18 3 4
+pt 19 3 4
+pt 19 3 2
+pt 19 3 4
+pt 20 3 4
+pt 20 3 5
+flatten 1
+path 8
+pt 20 16 6
+pt 19 16 2
+pt 19 16 2
+pt 17 16 2
+pt 17 3 2
+pt 19 3 2
+pt 19 3 2
+pt 20 3 3
+case arcpath-67
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 25 7 6
+pt 25 10 4
+pt 24 12 4
+pt 22 12 4
+pt 0 12 2
+pt -1 12 4
+pt -3 10 4
+pt -3 7 4
+pt -3 3 2
+pt -3 0 4
+pt -1 -2 4
+pt 0 -2 4
+pt 22 -2 2
+pt 24 -2 4
+pt 25 0 4
+pt 25 3 5
+flatten 1
+path 12
+pt 25 7 6
+pt 24 11 2
+pt 22 12 2
+pt 0 12 2
+pt -2 11 2
+pt -3 7 2
+pt -3 3 2
+pt -2 0 2
+pt 0 -2 2
+pt 22 -2 2
+pt 24 0 2
+pt 25 3 3
+case arcpath-68
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 19 5 6
+pt 19 5 4
+pt 19 5 4
+pt 19 5 4
+flatten 1
+path 2
+pt 19 5 6
+pt 19 5 2
+case arcpath-69
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 0 0 6
+pt 13 11 2
+pt 8 11 4
+pt 4 11 4
+pt 4 10 4
+pt 4 10 4
+pt 5 10 4
+pt 6 9 4
+flatten 1
+path 8
+pt 0 0 6
+pt 13 11 2
+pt 10 11 2
+pt 7 11 2
+pt 5 10 2
+pt 4 10 2
+pt 5 10 2
+pt 6 9 2
+case arcpath-70
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 6 17 6
+pt 6 17 4
+pt 6 17 4
+pt 6 17 4
+pt 6 17 4
+pt 6 18 4
+pt 6 18 4
+pt 5 17 3
+flatten 1
+path 4
+pt 6 17 6
+pt 6 17 2
+pt 6 18 2
+pt 5 17 3
+case arcpath-71
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 21 21 6
+pt 21 19 4
+pt 21 18 4
+pt 22 18 4
+pt 22 18 4
+pt 22 19 4
+pt 22 21 4
+pt 22 23 4
+pt 22 24 4
+pt 22 24 4
+pt 21 24 4
+pt 21 23 4
+pt 21 21 4
+pt 21 21 4
+pt 21 21 4
+pt 21 21 5
+flatten 1
+path 10
+pt 21 21 6
+pt 21 19 2
+pt 22 18 2
+pt 22 19 2
+pt 22 21 2
+pt 22 23 2
+pt 22 24 2
+pt 21 23 2
+pt 21 21 2
+pt 21 21 3
+case arcpath-72
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 12 10 6
+pt 12 8 4
+pt 12 7 4
+pt 11 7 4
+pt 11 7 2
+pt 10 7 4
+pt 10 8 4
+pt 10 10 4
+pt 10 21 2
+pt 10 23 4
+pt 10 24 4
+pt 11 24 4
+pt 11 24 2
+pt 12 24 4
+pt 12 23 4
+pt 12 21 5
+flatten 1
+path 12
+pt 12 10 6
+pt 12 8 2
+pt 11 7 2
+pt 11 7 2
+pt 10 8 2
+pt 10 10 2
+pt 10 21 2
+pt 10 23 2
+pt 11 24 2
+pt 11 24 2
+pt 12 23 2
+pt 12 21 3
+case arcpath-73
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 17 6 6
+pt 17 4 4
+pt 15 3 4
+pt 12 3 4
+pt 12 3 2
+pt 9 3 4
+pt 7 4 4
+pt 7 6 4
+pt 7 6 2
+pt 7 8 4
+pt 9 9 4
+pt 12 9 4
+pt 12 9 2
+pt 15 9 4
+pt 17 8 4
+pt 17 6 5
+flatten 1
+path 12
+pt 17 6 6
+pt 16 4 2
+pt 12 3 2
+pt 12 3 2
+pt 8 4 2
+pt 7 6 2
+pt 7 6 2
+pt 8 8 2
+pt 12 9 2
+pt 12 9 2
+pt 16 8 2
+pt 17 6 3
+case arcpath-74
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3 0 6
+pt 2 2 4
+pt 2 4 4
+pt 2 6 4
+pt 2 10 4
+pt 3 14 4
+pt 5 14 4
+pt 7 14 4
+pt 8 10 4
+pt 8 6 4
+pt 8 5 4
+pt 8 5 4
+pt 8 4 4
+flatten 1
+path 9
+pt 3 0 6
+pt 2 6 2
+pt 3 12 2
+pt 4 13 2
+pt 5 14 2
+pt 6 13 2
+pt 7 12 2
+pt 8 6 2
+pt 8 4 2
+case arcpath-75
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 0 6
+pt 5 4 2
+pt 5 1 4
+pt 4 -2 4
+pt 3 -2 4
+pt 2 -2 4
+pt 1 1 4
+pt 1 5 4
+pt 1 8 4
+pt 2 11 4
+pt 3 11 4
+pt 4 11 4
+pt 4 10 4
+pt 5 8 4
+flatten 1
+path 12
+pt 0 0 6
+pt 5 4 2
+pt 4 0 2
+pt 3 -2 2
+pt 2 -1 2
+pt 2 0 2
+pt 1 5 2
+pt 2 9 2
+pt 2 11 2
+pt 3 11 2
+pt 4 10 2
+pt 5 8 2
+case arcpath-76
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt 12 13 6
+pt 12 13 4
+pt 12 13 4
+pt 12 13 4
+pt 8 13 4
+pt 5 16 4
+pt 5 19 4
+pt 5 22 4
+pt 8 24 4
+pt 12 24 4
+pt 16 24 4
+pt 19 22 4
+pt 19 19 4
+pt 19 16 4
+pt 17 14 4
+pt 15 13 4
+pt 12 19 3
+flatten 1
+path 14
+pt 12 13 6
+pt 12 13 2
+pt 7 15 2
+pt 6 16 2
+pt 5 19 2
+pt 6 21 2
+pt 7 22 2
+pt 12 24 2
+pt 17 22 2
+pt 18 21 2
+pt 19 19 2
+pt 18 15 2
+pt 15 13 2
+pt 12 19 3
+case arcpath-77
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 22 1 6
+pt 21 -1 4
+pt 17 -2 4
+pt 12 -2 4
+pt 6 -2 4
+pt 1 -1 4
+pt 1 1 4
+pt 1 3 4
+pt 6 4 4
+pt 12 4 4
+pt 12 4 4
+pt 12 4 4
+pt 12 4 5
+flatten 1
+path 13
+pt 22 1 6
+pt 21 0 2
+pt 18 -1 2
+pt 12 -2 2
+pt 7 -2 2
+pt 4 -1 2
+pt 2 0 2
+pt 1 1 2
+pt 2 2 2
+pt 4 3 2
+pt 7 4 2
+pt 12 4 2
+pt 12 4 3
+case arcpath-78
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 2 8 6
+pt 2 11 4
+pt 1 13 4
+pt 0 13 4
+pt 0 13 2
+pt -1 13 4
+pt -2 11 4
+pt -2 8 4
+pt -2 8 2
+pt -2 5 4
+pt -1 3 4
+pt 0 3 4
+pt 0 3 2
+pt 1 3 4
+pt 2 5 4
+pt 2 8 5
+flatten 1
+path 12
+pt 2 8 6
+pt 1 12 2
+pt 0 13 2
+pt 0 13 2
+pt -1 12 2
+pt -2 8 2
+pt -2 8 2
+pt -1 4 2
+pt 0 3 2
+pt 0 3 2
+pt 1 4 2
+pt 2 8 3
+case arcpath-79
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 13 1 6
+pt 13 1 4
+pt 11 2 4
+pt 8 2 4
+pt 8 2 2
+pt 4 2 4
+pt 2 1 4
+pt 2 1 4
+pt 2 1 2
+pt 2 0 4
+pt 4 -1 4
+pt 8 -1 4
+pt 8 -1 2
+pt 11 -1 4
+pt 13 0 4
+pt 13 1 5
+flatten 1
+path 12
+pt 13 1 6
+pt 11 2 2
+pt 8 2 2
+pt 8 2 2
+pt 4 2 2
+pt 2 1 2
+pt 2 1 2
+pt 4 -1 2
+pt 8 -1 2
+pt 8 -1 2
+pt 11 -1 2
+pt 13 1 3
+case arcpath-80
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 8 4 6
+pt 9 6 4
+pt 10 9 4
+pt 10 12 4
+pt 10 18 4
+pt 8 22 4
+pt 5 22 4
+pt 4 22 4
+pt 3 22 4
+pt 2 21 4
+flatten 1
+path 8
+pt 8 4 6
+pt 9 8 2
+pt 10 12 2
+pt 10 16 2
+pt 8 19 2
+pt 7 21 2
+pt 5 22 2
+pt 2 21 2
+case arcpath-81
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt 0 0 6
+pt 11 16 2
+pt 11 16 4
+pt 11 16 4
+pt 11 16 4
+pt 11 12 4
+pt 13 9 4
+pt 16 9 4
+pt 18 9 4
+pt 20 12 4
+pt 20 16 4
+pt 20 19 4
+pt 18 22 4
+pt 16 22 4
+pt 14 22 4
+pt 13 21 4
+pt 12 20 4
+flatten 1
+path 14
+pt 0 0 6
+pt 11 16 2
+pt 11 16 2
+pt 12 11 2
+pt 14 10 2
+pt 16 9 2
+pt 17 10 2
+pt 19 11 2
+pt 20 16 2
+pt 19 20 2
+pt 17 22 2
+pt 16 22 2
+pt 14 21 2
+pt 12 20 2
+case arcpath-82
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+flatten 1
+path 0
+case arcpath-83
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 5 17 6
+pt 5 17 4
+pt 5 17 4
+pt 5 17 4
+pt 5 17 4
+pt 4 17 4
+pt 3 17 4
+pt 2 17 4
+pt 1 17 4
+pt 1 17 4
+pt 1 17 4
+pt 2 17 4
+pt 3 17 5
+flatten 1
+path 8
+pt 5 17 6
+pt 5 17 2
+pt 4 17 2
+pt 3 17 2
+pt 2 17 2
+pt 1 17 2
+pt 2 17 2
+pt 3 17 3
+case arcpath-84
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 0 16 6
+pt 0 15 4
+pt -1 15 4
+pt -1 15 4
+pt -1 15 2
+pt -2 15 4
+pt -3 15 4
+pt -3 16 4
+pt -3 21 2
+pt -3 22 4
+pt -2 22 4
+pt -1 22 4
+pt -1 22 2
+pt -1 22 4
+pt 0 22 4
+pt 0 21 5
+flatten 1
+path 8
+pt 0 16 6
+pt -1 15 2
+pt -1 15 2
+pt -3 16 2
+pt -3 21 2
+pt -1 22 2
+pt -1 22 2
+pt 0 21 3
+case arcpath-85
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+flatten 1
+path 0
+case arcpath-86
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 16 7 6
+pt 15 6 4
+pt 14 6 4
+pt 13 6 4
+pt 12 6 4
+pt 12 6 4
+pt 12 6 4
+flatten 1
+path 3
+pt 16 7 6
+pt 13 6 2
+pt 12 6 2
+case arcpath-87
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 0 0 6
+pt 20 6 2
+pt 20 6 4
+pt 19 6 4
+pt 19 6 4
+pt 16 6 4
+pt 13 9 4
+pt 13 13 4
+pt 13 14 4
+pt 13 14 4
+pt 13 15 4
+flatten 1
+path 7
+pt 0 0 6
+pt 20 6 2
+pt 19 6 2
+pt 17 7 2
+pt 15 8 2
+pt 13 13 2
+pt 13 15 2
+case arcpath-88
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt -2 18 6
+pt -2 18 4
+pt -2 18 4
+pt -2 18 4
+pt -2 18 3
+flatten 1
+path 3
+pt -2 18 6
+pt -2 18 2
+pt -2 18 3
+case arcpath-89
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 13 14 6
+pt 13 14 4
+pt 13 14 4
+pt 13 14 4
+pt 13 12 4
+pt 13 11 4
+pt 12 9 5
+flatten 1
+path 3
+pt 13 14 6
+pt 13 14 2
+pt 12 9 3
+case arcpath-90
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 19 21 6
+pt 4 21 2
+pt 4 0 2
+pt 19 0 3
+flatten 1
+path 4
+pt 19 21 6
+pt 4 21 2
+pt 4 0 2
+pt 19 0 3
+case arcpath-91
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 9 21 6
+pt 9 22 4
+pt 8 23 4
+pt 7 23 4
+pt 7 23 2
+pt 5 23 4
+pt 4 22 4
+pt 4 21 4
+pt 4 1 2
+pt 4 0 4
+pt 5 -1 4
+pt 7 -1 4
+pt 7 -1 2
+pt 8 -1 4
+pt 9 0 4
+pt 9 1 5
+flatten 1
+path 12
+pt 9 21 6
+pt 8 22 2
+pt 7 23 2
+pt 7 23 2
+pt 5 22 2
+pt 4 21 2
+pt 4 1 2
+pt 5 0 2
+pt 7 -1 2
+pt 7 -1 2
+pt 8 0 2
+pt 9 1 3
+case arcpath-92
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 12 9 6
+pt 12 8 4
+pt 12 7 4
+pt 12 7 4
+flatten 1
+path 2
+pt 12 9 6
+pt 12 7 2
+case arcpath-93
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 0 6
+pt 14 11 2
+pt 14 11 4
+pt 14 11 4
+pt 14 11 4
+pt 14 16 4
+pt 14 20 4
+pt 14 20 4
+pt 14 20 4
+pt 14 16 4
+pt 14 11 4
+pt 14 11 4
+pt 14 11 4
+pt 14 11 4
+flatten 1
+path 10
+pt 0 0 6
+pt 14 11 2
+pt 14 11 2
+pt 14 17 2
+pt 14 19 2
+pt 14 20 2
+pt 14 19 2
+pt 14 17 2
+pt 14 11 2
+pt 14 11 2
+case arcpath-94
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 18 16 6
+pt 17 19 4
+pt 15 20 4
+pt 13 20 4
+pt 9 20 4
+pt 7 18 4
+pt 7 16 4
+pt 7 14 4
+pt 8 13 4
+pt 9 12 4
+pt 13 16 3
+flatten 1
+path 8
+pt 18 16 6
+pt 16 19 2
+pt 13 20 2
+pt 9 19 2
+pt 7 16 2
+pt 8 14 2
+pt 9 12 2
+pt 13 16 3
+case arcpath-95
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 23 14 6
+pt 23 14 4
+pt 23 14 4
+pt 23 14 4
+pt 24 14 4
+pt 24 14 4
+pt 24 14 4
+pt 24 14 4
+pt 24 14 4
+pt 23 14 4
+pt 22 14 4
+pt 22 14 4
+pt 22 14 4
+pt 22 14 4
+pt 22 14 4
+pt 23 14 5
+flatten 1
+path 6
+pt 23 14 6
+pt 23 14 2
+pt 24 14 2
+pt 23 14 2
+pt 22 14 2
+pt 23 14 3
 done
