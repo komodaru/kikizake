@@ -61,6 +61,10 @@ pub fn font(seed: u32) -> Font {
     }
 }
 
+fn gcd(a: i64, b: i64) -> i64 {
+    if b == 0 { a } else { gcd(b, a % b) }
+}
+
 fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02x}")).collect()
 }
@@ -678,12 +682,68 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                 for u in [16384i64, 14009, 12011, 10007] {
                     let vadv = ((10 * a + off) * u * 2 + 10 * pp).div_euclid(20 * pp);
                     let vorg = vadv * 3 / 5;
+                    // (an advance past i16 has no typographic ascender and descender)
+                    if vadv > i16::MAX as i64 {
+                        continue;
+                    }
                     let gs = vec![((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])];
                     let mut f = font_with(0x0fd4_0000 + (pp * 256 + a * 4 + h) as u32, u as u16, &gs);
                     f.os2 = Some(4);
                     f.typo = (vorg as i16, (vorg - vadv) as i16, 0);
                     writeln!(s, "case gdivadvp-{pp}-{a}-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f)).unwrap();
                 }
+            }
+        }
+    }
+    // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
+    // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
+    // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
+    // come back as different design units (DW.GDI.GLYPH: where each size rounds the half)
+    for pp in 1..=160i64 {
+        let g = gcd(65536, pp);
+        let rs: Vec<i64> = (g..pp).step_by(g as usize).filter(|r| (2 * r - pp).abs() <= 9).collect();
+        // (advance or origin, the residue k * 65536 mod ppem)
+        let mut left: Vec<(bool, i64)> = [false, true].iter().flat_map(|&o| rs.iter().map(move |&r| (o, r))).collect();
+        let fu = |f: i64, u: i64| (2 * f * u + 65536).div_euclid(131072);
+        // (the least k of that residue whose fraction reads back at u)
+        // (k of one residue repeat every ppem / g)
+        let k0: Vec<i64> = (0..pp).map(|r| (1..=pp).find(|&k| k * 65536 % pp == r).unwrap_or(0)).collect();
+        let at = |r: i64, u: i64| (k0[r as usize]..=(i16::MAX as i64 - u / 4) * pp / u).step_by((pp / g) as usize).find(|&k| fu(k * 65536 / pp, u) != fu(k * 65536 / pp + 1, u));
+        let mut j = 0;
+        while !left.is_empty() {
+            // (the largest units per em that reads back the most of them: the first that reads all)
+            let mut best = (0, 0);
+            for u in (2048..=16384i64).rev() {
+                let n = left.iter().filter(|t| at(t.1, u).is_some()).count();
+                if n > best.1 {
+                    best = (u, n);
+                }
+                if n == left.len() {
+                    break;
+                }
+            }
+            if best.1 == 0 {
+                // (a residue no units per em reads back: its fraction never shows)
+                break;
+            }
+            let u = best.0;
+            let (got, rest): (Vec<_>, Vec<_>) = left.iter().partition(|t| at(t.1, u).is_some());
+            left = rest;
+            let ka: Vec<i64> = got.iter().filter(|t| !t.0).map(|t| at(t.1, u).unwrap()).collect();
+            let kv: Vec<i64> = got.iter().filter(|t| t.0).map(|t| at(t.1, u).unwrap()).collect();
+            let n = ka.len().max(kv.len());
+            let pairs: Vec<(i64, i64)> = (0..n).map(|i| (*ka.get(i).unwrap_or(&1), *kv.get(i).unwrap_or(&1))).collect();
+            for c in pairs.chunks(14) {
+                let gs: Vec<_> = c.iter().map(|_| ((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])).collect();
+                let mut f = font_with(0x0fd5_0000 + (pp * 64 + j) as u32, u as u16, &gs);
+                f.vertical = true;
+                let sc = |k: i64| (2 * k * u + pp).div_euclid(2 * pp);
+                for (i, &(a, v)) in c.iter().enumerate() {
+                    f.glyphs[i + 1].vert = (sc(a) as u16, (sc(v) - u / 4) as i16);
+                }
+                let gids: Vec<String> = (1..=c.len()).map(|g| g.to_string()).collect();
+                writeln!(s, "case gdivtie-{pp}-{j}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" ")).unwrap();
+                j += 1;
             }
         }
     }
