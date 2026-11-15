@@ -501,25 +501,18 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         match r.d.count {
             0 | 1 => None,
             n => {
-                // (MEASURED, WARP: probe-rt-ms4-lines) aliased lines (neither line state) light
-                // every sample of the pixels they light
-                let aliased_lines = matches!(topo, Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj) && d.rast[8] == 0 && d.rast[9] == 0;
-                if aliased_lines && r.d.q == 0 {
-                    hit(clause::D3DRASTER_MS_LINES);
+                // (MEASURED, WARP: probe-rt-ms4-lines, -wire, -linesms, -linesboth) aliased lines
+                // and wireframe's edges light every sample of the pixels they light, multisample
+                // lines the samples their quad covers; (probe-rt-ms4-points) a point the samples
+                // of the pixel square about it
+                match topo {
+                    Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj => hit(clause::D3DRASTER_MS_LINES),
+                    Topo::Points => hit(clause::D3DRASTER_MS_POINTS),
+                    Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj if d.rast[0] == 2 => hit(clause::D3DRASTER_MS_LINES),
+                    Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj => {}
                 }
-                // (MEASURED, WARP: probe-rt-ms4-points) a point covers the samples of the pixel
-                // square about it, by the top-left rule
-                let points = topo == Topo::Points;
-                if points && r.d.q == 0 {
-                    hit(clause::D3DRASTER_MS_POINTS);
-                }
-                // (MEASURED, WARP: probe-rt-ms4-wire) wireframe's aliased edges likewise
-                let tris = matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj);
-                let wire = tris && d.rast[0] == 2 && d.rast[8] == 0 && d.rast[9] == 0;
-                if wire && r.d.q == 0 {
-                    hit(clause::D3DRASTER_MS_LINES);
-                }
-                if !(aliased_lines || points || wire || tris && d.rast[0] != 2) || r.d.q != 0 {
+                // (quality levels other than 0: not measured)
+                if r.d.q != 0 {
                     return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                 }
                 Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
@@ -973,19 +966,34 @@ impl Line {
     /// triangle's planes (D3DRASTER.INTERP.PLANE, not turned) over the snapped corners, a's
     /// values at a +- n and b's at b +- n (84 UNORM pixels; probe-linesms-*, 220 float values)
     fn quad(&self, (px, py): (i64, i64)) -> Option<Planes> {
+        self.quad_at((px, py), &[(0, 0)]).1
+    }
+
+    /// the quad's two triangles: corners in 1/256 pixels, and whether each is at b
+    fn quad_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
         let (ax, ay, bx, by) = (self.a.x as f32 / 256.0, self.a.y as f32 / 256.0, self.b.x as f32 / 256.0, self.b.y as f32 / 256.0);
         let (dx, dy) = (bx - ax, by - ay);
         let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
         let (nx, ny) = (-dy * k, dx * k);
         let q = |x: f32, y: f32| (snap256(x), snap256(y));
         let corner = [(q(ax + nx, ay + ny), false), (q(bx + nx, by + ny), true), (q(bx - nx, by - ny), true), (q(ax - nx, ay - ny), false)];
-        let c = (px * 256 + 128, py * 256 + 128);
-        let t = [[0, 1, 2], [0, 2, 3]].into_iter().map(|t| t.map(|i| corner[i])).find(|t| tri_covers(t.map(|v| v.0), c))?;
+        [[0, 1, 2], [0, 2, 3]].map(|t| t.map(|i| corner[i]))
+    }
+
+    /// the samples (offsets in 1/16 pixel from the center) the quad covers, and the planes of
+    /// the triangle covering the first covered sample (D3DRASTER.MS.LINES)
+    fn quad_at(&self, (px, py): (i64, i64), pattern: &[(i64, i64)]) -> (Vec<bool>, Option<Planes>) {
+        let tris = self.quad_tris();
+        let at = |(ox, oy): (i64, i64)| (px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16);
+        let mask: Vec<bool> = pattern.iter().map(|&o| tris.iter().any(|t| tri_covers(t.map(|v| v.0), at(o)))).collect();
+        let Some(t) = pattern.iter().zip(&mask).filter(|(_, c)| **c).find_map(|(&o, _)| tris.into_iter().find(|t| tri_covers(t.map(|v| v.0), at(o)))) else {
+            return (mask, None);
+        };
         // (MEASURED, WARP: probe-linesms-*, 220 float values) the planes start at a + n, as
         // the triangles are given, not turned
         let iw = t.map(|v| if v.1 { self.iwb } else { self.iwa });
         let aw = [0, 1, 2].map(|i| (if t[i].1 { self.cb } else { self.ca }).map(|a| a * iw[i]));
-        Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw })
+        (mask, Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw }))
     }
 
     /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels;
@@ -1081,12 +1089,29 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         for py in y0..=y1 {
             for px in x0..=x1 {
                 // (a multisample line's triangle there)
-                let quad = match mode {
-                    LineMode::Aliased if l.lights(center((px, py))) => None,
-                    LineMode::Aliased => continue,
-                    LineMode::Quad => match l.quad((px, py)) {
-                        Some(p) => Some(p),
+                // (an aliased line's end on a corner of the pixel's diamond: not measured,
+                // probe-linevert-*)
+                if matches!(mode, LineMode::Aliased) {
+                    let c = center((px, py));
+                    let corner = |p: Sub| {
+                        let (dx, dy) = (i128::from(p.x) - c.0, i128::from(p.y) - c.1);
+                        dx.abs() + dy.abs() == DIAMOND && (dx == 0 || dy == 0)
+                    };
+                    if corner(l.a) || corner(l.b) {
+                        return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
+                    }
+                }
+                let (quad, mask) = match (mode, tg.samples) {
+                    (LineMode::Aliased, _) if l.lights(center((px, py))) => (None, None),
+                    (LineMode::Aliased, _) => continue,
+                    (LineMode::Quad, None) => match l.quad((px, py)) {
+                        Some(p) => (Some(p), None),
                         None => continue,
+                    },
+                    // (on a multisampled target the samples the quad covers, D3DRASTER.MS.LINES)
+                    (LineMode::Quad, Some(pattern)) => match l.quad_at((px, py), pattern) {
+                        (mask, Some(p)) => (Some(p), Some(mask)),
+                        (_, None) => continue,
                     },
                 };
                 if !tg.drawable(d, (px, py)) {
@@ -1100,7 +1125,10 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     ("ps", Some(p)) => p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits),
                     _ => prim_out(ps, l.lead, (px, py), l.z, l.w, l.prim, l.front)?,
                 };
-                tg.put(m, d, (px, py), l.z, out)?;
+                match mask {
+                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(l.z), out, &mask)?,
+                    None => tg.put(m, d, (px, py), l.z, out)?,
+                }
             }
         }
     }

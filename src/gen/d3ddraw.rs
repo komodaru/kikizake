@@ -552,7 +552,7 @@ fn probes(s: &mut String, dev: &str) {
     }
     // the resolve's mean of samples of other values, overlapping colored triangles, in a
     // UNORM and a float target
-    for (fmt, pitch) in [(28u32, 64u32), (2, 256)] {
+    for (fmt, pitch) in [(28u32, 64u32), (2, 256), (10, 128), (24, 64), (29, 64), (87, 64)] {
         writeln!(s, "case probe-rt-ms4-colors-{fmt}\n{dev}\ntex 0 2 16 16 1 1 {fmt} 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 {fmt} 0 0x20 0 0 1 0").unwrap();
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (k, t) in [[(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], [(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], [(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)]].iter().enumerate() {
@@ -635,6 +635,27 @@ fn probes(s: &mut String, dev: &str) {
         }
         writeln!(s, "draw {top} 6 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
     }
+    // what D3DRASTER.RTKIND leaves open: a target in an array's second slice, a multisampled
+    // target of quality 1
+    writeln!(s, "case probe-rt-array\n{dev}\ntex 0 2 16 16 2 1 28 0 0x20 0 0 1 0\nrtv 0 0 28 5 0 1 1\nclear 0 0 0 0 0\ntarget 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\nread 0 1 64 16 1\nread 0 0 64 16 1\nend").unwrap();
+    writeln!(s, "case probe-rt-ms4-q1\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 1\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    // copies of differing samples: the whole resource, then resolved
+    writeln!(s, "case probe-rt-ms4-copy\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0\ntex 2 2 16 16 1 1 28 0 0x20 0 0 4 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\ncopy 2 0\nresolve 1 0 2 0 28\nread 1 0 64 16 1\nend").unwrap();
     writeln!(s, "case probe-depth-alone\n{dev}\ntex 1 2 8 8 1 1 40 0 0x40 0 0 1 0\ndsv 1 1 nodesc\ncleards 1 3 {} 0\ntarget - 1\ndepthst 1 1 8", fb(1.0)).unwrap();
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(8.0), fb(8.0), fb(1.0)).unwrap();
     for (x, y) in [(0.0f32, 0.0f32), (8.0, 1.5), (0.5, 7.0)] {
@@ -777,6 +798,23 @@ fn probes(s: &mut String, dev: &str) {
             let grid = |v: f32| (v * 256.0).round() / 256.0;
             vertex(s, grid(bx - dx * len), grid(by - dy * len), 0.5, color(i * 37 + 2 * cell), 16.0, 16.0);
             vertex(s, bx, by, 0.5, color(i * 37 + 2 * cell + 1), 16.0, 16.0);
+        }
+        writeln!(s, "draw 2 32 32").unwrap();
+        read_rt(s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
+    // lines that start or end on a corner of a pixel's diamond (left, right, top, bottom),
+    // x-major and y-major in every direction, one line a 4 x 4 cell (probe-rt-ms4-lines-over
+    // lit a pixel a line only touches)
+    let combos: Vec<(usize, (f32, f32), bool)> = (0..4).flat_map(|v| [(1.0f32, 0.375f32), (1.0, -0.375), (-1.0, 0.375), (-1.0, -0.375), (0.375, 1.0), (-0.375, 1.0), (0.375, -1.0), (-0.375, -1.0)].into_iter().flat_map(move |d| [(v, d, true), (v, d, false)])).collect();
+    for (i, part) in combos.chunks(16).enumerate() {
+        begin(s, dev, &format!("probe-linevert-{i}"), 16, 16, 28, "ps");
+        for (cell, &(v, (dx, dy), starts)) in part.iter().enumerate() {
+            let (cx, cy) = ((cell % 4 * 4) as f32 + 2.5, (cell / 4 * 4) as f32 + 2.5);
+            let (vx, vy) = [(cx - 0.5, cy), (cx + 0.5, cy), (cx, cy - 0.5), (cx, cy + 0.5)][v];
+            let (ax, ay, bx, by) = if starts { (vx, vy, vx + dx * 1.5, vy + dy * 1.5) } else { (vx - dx * 1.5, vy - dy * 1.5, vx, vy) };
+            vertex(s, ax, ay, 0.5, color(i as u32 * 37 + 2 * cell as u32), 16.0, 16.0);
+            vertex(s, bx, by, 0.5, color(i as u32 * 37 + 2 * cell as u32 + 1), 16.0, 16.0);
         }
         writeln!(s, "draw 2 32 32").unwrap();
         read_rt(s, 0, 28, 16, 16);
