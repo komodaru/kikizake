@@ -1785,6 +1785,25 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // more small triangles of varying depth, corners on a 1/128 grid, tall and thin ones among
+    // them: how Windows steps depth from row to row along an edge
+    let mut r = XorShift32::new(0x5a1d_93e7);
+    for k in 8..16 {
+        writeln!(s, "case zinterp-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glColor4ub 255 0 0 255\ngl glViewport 0 0 16 16\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for _ in 0..12 {
+            let thin = k % 2 == 1;
+            let corners: [(f64, f64); 3] = std::array::from_fn(|_| {
+                let x = if thin { f64::from(r.next() % 513) / 128.0 + 6.0 } else { f64::from(r.next() % 1921) / 128.0 };
+                (x, f64::from(r.next() % 1921) / 128.0)
+            });
+            writeln!(s, "gl glClear 0x4100\ngl glBegin 4").unwrap();
+            for c in corners {
+                glf(s, "glVertex3f", &[c.0, c.1, f64::from(r.next() % 2001) / 1000.0 - 1.0]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // polygons that are not convex (a bow tie, an arrow, a pentagon with a notch, a pentagram),
     // each from every vertex both ways round, as GL_POLYGON and four-cornered ones as GL_QUADS:
     // how Windows splits them
