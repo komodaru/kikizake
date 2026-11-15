@@ -1218,6 +1218,27 @@ pub fn wicdecode() -> String {
         let p = png(3, 3, 8, 6, false, &[(b"pHYs", phys)], &png_filter(&raw, 4, &[0, 0, 0]), 100);
         decode_case(&mut s, "ico-png-phys", &ico(&[(3, 3, 32, p)]), 1, false);
     }
+    // (does the order of a small PNG entry and a BMP entry hang on the PNG's pixels? one 3x3
+    // PNG of other pixels, alpha all 255 or all 0, and the PNG's stored block size, beside BMPs
+    // that came first and second in icopair-*)
+    {
+        let mut r = XorShift32::new(0x1c10);
+        for k in 0..8u32 {
+            let raw: Vec<Vec<u8>> = (0..3).map(|_| {
+                let mut row = bytes(&mut r, 12);
+                if k >= 4 {
+                    for a in row.iter_mut().skip(3).step_by(4) { *a = if k % 2 == 0 { 255 } else { 0 }; }
+                }
+                row
+            }).collect();
+            let p = png(3, 3, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), if k == 3 { 7 } else { 100 });
+            for (bw, bh) in [(2u32, 2u32), (1, 3), (2, 3), (4, 4)] {
+                let b = icon_bmp(&mut r, bw, bh, 32);
+                decode_case(&mut s, &format!("icopng-{k}-p-b{bw}x{bh}"), &ico(&[(3, 3, 32, p.clone()), (bw, bh, 32, b.clone())]), 2, false);
+                decode_case(&mut s, &format!("icopng-{k}-b{bw}x{bh}-p"), &ico(&[(bw, bh, 32, b), (3, 3, 32, p.clone())]), 2, false);
+            }
+        }
+    }
     s
 }
 
