@@ -1219,16 +1219,22 @@ pub fn recolor(c: u32, m: &ColorMatrix, flags: MatrixFlags) -> u32 {
     let ch = |k: u32| (c >> (8 * k) & 255) as f32;
     let v = [ch(2), ch(1), ch(0), ch(3), 255.0];
     let gray = ch(2) == ch(1) && ch(1) == ch(0);
-    let m = match flags {
+    let (m, v) = match flags {
         MatrixFlags::SkipGrays if gray => {
             hit(clause::GP_DRAW_SKIPGRAYS);
             return c;
         }
+        // (MEASURED, golden gdiplusdraw altgray-*, gray-14, gray-29: under a color matrix that
+        // only translates, the gray matrix takes a gray pixel as opaque)
+        MatrixFlags::AltGray(g) if gray && m.translation_only() => {
+            hit(clause::GP_DRAW_ALTGRAY_TRANSLATE);
+            (g, [v[0], v[1], v[2], 255.0, 255.0])
+        }
         MatrixFlags::AltGray(g) if gray => {
             hit(clause::GP_DRAW_ALTGRAY);
-            g
+            (g, v)
         }
-        MatrixFlags::Default | MatrixFlags::SkipGrays | MatrixFlags::AltGray(_) => *m,
+        MatrixFlags::Default | MatrixFlags::SkipGrays | MatrixFlags::AltGray(_) => (*m, v),
     };
     hit(clause::GP_DRAW_MATRIX);
     let out = |j: usize| -> u32 {
@@ -1669,9 +1675,6 @@ impl Gdiplus {
                         let p = src.px(px as u32, py as u32);
                         let c = match attr.as_ref().and_then(|a| a.matrix) {
                             None => convert(src.f, Pf::Pargb32, p, &[])? as u32,
-                            Some((m, MatrixFlags::AltGray(_))) if m.translation_only() => {
-                                return Err(Fail::Unmodeled(open::GP_DRAW_ALTGRAY_TRANSLATE));
-                            }
                             Some((m, flags)) => {
                                 let argb = convert(src.f, Pf::Argb32, p, &[])? as u32;
                                 convert(Pf::Argb32, Pf::Pargb32, u64::from(recolor(argb, &m, flags)), &[])? as u32

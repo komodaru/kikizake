@@ -406,6 +406,17 @@ pub fn gdiplusdraw() -> String {
         }
         writeln!(s, "case altgray-{i}\ngpbitmap 0 8 4 32bppARGB\ngpbitmap 1 8 4 32bppARGB\n{set}gpattr 0 matrix 2 {m} gray {g}\ngpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4\ngpread 0 32bppARGB\nend").unwrap();
     }
+    // NearestNeighbor scaled draws of an opaque bitmap (so every pixel is told apart exactly):
+    // which source pixel each destination pixel takes, under every pixel offset mode, up and down,
+    // off the corners
+    for i in 0..64 {
+        let (sw, sh) = (r.range(2, 12), r.range(2, 12));
+        let (w, h) = (r.range(1, 24), r.range(1, 24));
+        let (sx, sy) = (r.range(0, 12 - sw), r.range(0, 12 - sh));
+        let (dx, dy) = (r.range(0, 24 - w), r.range(0, 24 - h));
+        let po = [0, 1, 2, 3, 4][i % 5];
+        writeln!(s, "case nearest-{i}\ngpbitmap 0 24 24 32bppARGB\ngpbitmap 1 12 12 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {dx} {dy} {w} {h} {sx} {sy} {sw} {sh} copy 0 5 {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
     // scaled draws, other interpolation and pixel offset modes (GP.DRAW.SCALED): asked, not fitted
     for i in 0..24 {
         let (w, h) = (r.range(1, 16), r.range(1, 16));

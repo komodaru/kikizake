@@ -73,4 +73,4 @@ GP.DRAW.SCALED open | Graphics::DrawImage | DrawImage scaled, other interpolatio
 GP.DRAW.MATRIX measured | ImageAttributes::SetColorMatrix | the straight ARGB color, each channel c / 255, as [r g b a 1] times the matrix, clamped to 0 ..= 1, times 255, rounded (golden gdiplusdraw matrix-*)
 GP.DRAW.SKIPGRAYS measured | ColorMatrixFlags | SkipGrays: a gray pixel (r = g = b) left as it is (golden gdiplusdraw gray-*)
 GP.DRAW.ALTGRAY measured | ColorMatrixFlags | AltGray: a gray pixel through the gray matrix (golden gdiplusdraw gray-*)
-GP.DRAW.ALTGRAY.TRANSLATE open | ColorMatrixFlags | AltGray with a color matrix that only translates: gray pixels come out gray (r = g = b) with values neither matrix gives (golden gdiplusdraw gray-14, gray-29); not fitted yet
+GP.DRAW.ALTGRAY.TRANSLATE measured | ColorMatrixFlags | AltGray with a color matrix that only translates (the identity but for its last row): a gray pixel goes through the gray matrix as if opaque, [v v v 255 255] (golden gdiplusdraw altgray-*, gray-14, gray-29: 0 wrong on either)
