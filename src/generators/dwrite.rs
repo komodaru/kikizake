@@ -748,6 +748,26 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             j += 1;
         }
     }
+    // the one origin that rounds by units per em (DW.GDI.EDGE): 66 pixels at 97 ppem, sideways,
+    // at a fourth of the units per em of 2048 to 16384 that read its fraction back, the glyph's box and
+    // advance the same share of the em
+    {
+        let (pp, k) = (97i64, 66i64);
+        let fu = |f: i64, u: i64| (2 * f * u + 65536).div_euclid(131072);
+        let f0 = k * 65536 / pp;
+        let us: Vec<i64> = (2048..=16384i64).filter(|&u| fu(f0, u) != fu(f0 + 1, u)).collect();
+        // (every fourth of them)
+        for &u in us.iter().step_by(4) {
+            {
+                let gs = vec![((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])];
+                let mut f = font_with(0x0fd8_0000 + u as u32, u as u16, &gs);
+                f.vertical = true;
+                let v = (2 * k * u + pp).div_euclid(2 * pp);
+                f.glyphs[1].vert = (v as u16, (v - u / 4) as i16);
+                writeln!(s, "case gdiv97-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f)).unwrap();
+            }
+        }
+    }
     // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
