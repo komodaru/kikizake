@@ -1590,7 +1590,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 let (qx, qy) = (px & !1, py & !1);
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
                 let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * w as f64).powi(2) + (f64::from(b[1] - a[1]) * h as f64).powi(2)).sqrt();
-                let rho = span(q[0], q[1]).max(span(q[0], q[2]));
+                let (sx, sy) = (span(q[0], q[1]), span(q[0], q[2]));
+                let rho = sx.max(sy);
                 // (MEASURED, WARP: probe-filter-min, -min-point, -rho-*) a span of up to one texel
                 // magnifies, past it minifies (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25); with
                 // more than one mip level the level is not measured
@@ -1602,9 +1603,16 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                         hit(clause::D3DRASTER_FILTER_ANISO);
                     }
                     (filter.mag, Level::One(0))
-                } else if aniso {
+                } else if aniso && (sx != sy || r.d.mips > 1) {
+                    // (a footprint longer one way than the other, or a texture with mips: not
+                    // measured)
                     return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 } else if r.d.mips == 1 {
+                    // (MEASURED, WARP: probe-filter-aniso-min) anisotropic filtering over a square
+                    // footprint is the linear filter
+                    if aniso {
+                        hit(clause::D3DRASTER_FILTER_ANISO);
+                    }
                     hit(clause::D3DRASTER_FILTER_MINMAG);
                     (filter.min, Level::One(0))
                 } else {
@@ -1649,11 +1657,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     (i as i64, ((s - i) * 256.0).floor() as i64)
                 };
                 let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
-                // (MEASURED, WARP: probe-filter-float, -unorm16, -srgb, -snorm, every value) float
-                // texels, 16-bit UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
+                // (MEASURED, WARP: probe-filter-float, -unorm16, -r10, -srgb, -snorm, every value) float
+                // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
                 // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
                 // 1/256 below the fraction
-                let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16));
+                let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && (f.comps.iter().all(|&c| c == 16) || f.comps == [10, 10, 10, 2]));
                 if wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
                     let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);

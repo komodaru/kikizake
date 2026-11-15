@@ -843,7 +843,7 @@ fn probes(s: &mut String, dev: &str) {
     // what D3DRASTER.FILTER leaves open: anisotropic filtering, linear filtering of sRGB and
     // SNORM texels, minifying a texture with mips (two texels a pixel), between two levels
     // (spans of 1.0625, 1.25, sqrt 2, 1.75, 2.5 and 3 texels; float, 16-bit UNORM and point texels)
-    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5)), ("trilinear", 0x15, 28, 3, (-1.5, 4.5)), ("aniso-min", 0x55, 28, 1, (-3.5, 4.5)), ("r10", 0x15, 24, 1, (-0.2, 0.9)), ("mips-point", 0x14, 28, 3, (-1.5, 4.5)), ("trilinear-1", 0x15, 28, 3, (-1.0, 3.25)), ("trilinear-2", 0x15, 28, 3, (-1.0, 4.0)), ("trilinear-3", 0x15, 28, 3, (-1.0, 4.656854)), ("trilinear-4", 0x15, 28, 3, (-1.0, 6.0)), ("trilinear-5", 0x15, 28, 3, (-1.0, 9.0)), ("trilinear-6", 0x15, 28, 3, (-1.0, 11.0)), ("trilinear-float", 0x15, 2, 3, (-1.5, 4.5)), ("trilinear-point", 0x1, 28, 3, (-1.5, 4.5)), ("trilinear-unorm16", 0x15, 11, 3, (-1.0, 6.0))] {
+    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5)), ("trilinear", 0x15, 28, 3, (-1.5, 4.5)), ("aniso-min", 0x55, 28, 1, (-3.5, 4.5)), ("r10", 0x15, 24, 1, (-0.2, 0.9)), ("mips-point", 0x14, 28, 3, (-1.5, 4.5)), ("trilinear-1", 0x15, 28, 3, (-1.0, 3.25)), ("trilinear-2", 0x15, 28, 3, (-1.0, 4.0)), ("trilinear-3", 0x15, 28, 3, (-1.0, 4.656854)), ("trilinear-4", 0x15, 28, 3, (-1.0, 6.0)), ("trilinear-5", 0x15, 28, 3, (-1.0, 9.0)), ("trilinear-6", 0x15, 28, 3, (-1.0, 11.0)), ("trilinear-float", 0x15, 2, 3, (-1.5, 4.5)), ("trilinear-point", 0x1, 28, 3, (-1.5, 4.5)), ("trilinear-unorm16", 0x15, 11, 3, (-1.0, 6.0)), ("r11g11b10", 0x15, 26, 1, (-0.2, 0.9)), ("rgb9e5", 0x15, 67, 1, (-0.2, 0.9)), ("b5g6r5", 0x15, 85, 1, (-0.2, 0.9)), ("b5g5r5a1", 0x15, 86, 1, (-0.2, 0.9)), ("b4g4r4a4", 0x15, 115, 1, (-0.2, 0.9)), ("r8g8b8a8-uint", 0x15, 30, 1, (-0.2, 0.9))] {
         writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
         let pitch = format(fmt).unwrap().row_bytes(4);
         writeln!(s, "tex 1 2 4 4 1 {mips} {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3").unwrap();
@@ -851,6 +851,18 @@ fn probes(s: &mut String, dev: &str) {
         writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (x, y, u, v) in [(-1.0f32, 1.0f32, uv.0, uv.0), (1.0, 1.0, uv.1, uv.0), (-1.0, -1.0, uv.0, uv.1), (1.0, -1.0, uv.1, uv.1)] {
             writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0)).unwrap();
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
+    }
+    // what D3DRASTER.FILTER leaves open: anisotropic filtering of a footprint longer one way
+    // than the other (2 to 1, 4 to 1, 16 to 1), and over a texture with mips
+    for (name, mips, u, v) in [("aniso-2", 1u32, (-3.5f32, 4.5f32), (-1.5f32, 2.5f32)), ("aniso-4", 1, (-3.5, 4.5), (-0.5, 1.5)), ("aniso-16", 1, (-7.5, 8.5), (-0.5, 1.5)), ("aniso-mips", 3, (-1.5, 4.5), (-1.5, 4.5)), ("aniso-mips-2", 3, (-3.5, 4.5), (-1.5, 2.5))] {
+        writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
+        writeln!(s, "tex 1 2 4 4 1 {mips} 28 0 8 0 0 1 0 init 400 16 0\nsrv 1 1 nodesc\ntsrv 1\nsamp 0x55 3 3 3").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader("pssample"))).unwrap();
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (x, y, a, b) in [(-1.0f32, 1.0f32, u.0, v.0), (1.0, 1.0, u.1, v.0), (-1.0, -1.0, u.0, v.1), (1.0, -1.0, u.1, v.1)] {
+            writeln!(s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(a), fb(b), fb(1.0)).unwrap();
         }
         writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }
