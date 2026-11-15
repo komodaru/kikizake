@@ -447,6 +447,11 @@ proptest! {
         let c = c.map(|q| q.map(|b| f64::from(b) / 255.0));
         let area = (v[1].x.0 - v[0].x.0) * (v[2].y.0 - v[0].y.0) - (v[2].x.0 - v[0].x.0) * (v[1].y.0 - v[0].y.0);
         prop_assume!(area != 0);
+        // (no slivers: a covered pixel's center may lie a rasterizer's rounding outside the
+        // corners, its color the farther past theirs the thinner the triangle; every height at
+        // least a pixel)
+        let len = |i: usize, j: usize| ((v[j].x.0 - v[i].x.0) as f64).hypot((v[j].y.0 - v[i].y.0) as f64);
+        prop_assume!([(0, 1), (1, 2), (2, 0)].iter().all(|&(i, j)| (area.abs() as f64) / len(i, j) >= 256.0));
         let near = |a: [f64; 4], b: [f64; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
         for (x, y) in tri::pixels(&v, 16, 16) {
             let at = tri::plane(v, c, x, y);
