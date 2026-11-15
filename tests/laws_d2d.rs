@@ -6,11 +6,18 @@ use kikizake::case::parse_cases;
 use kikizake::model::d2d::*;
 use kikizake::model::{self, run_case};
 
+/// the laws are of the fitted approximations too: they answer here
+fn fitted() {
+    model::set_fitted(model::Fitted::Answered);
+}
+
 fn run(text: &str) -> Vec<String> {
+    fitted();
     run_case(&parse_cases(&format!("case p\n{text}end\n"))[0]).unwrap()
 }
 
 fn ar(g: &Geom) -> f32 {
+    fitted();
     match area(g, 0.25).unwrap() {
         Measure::Value(v) => v,
         Measure::BadNumber => f32::NAN,
@@ -291,6 +298,7 @@ proptest! {
         let (rx, ry) = (rx as f32 / 8.0, ry as f32 / 8.0);
         let tol = [0.25f32, 1.0, 0.05][k];
         let e = |x: i32, y: i32| Geom::Ell([x as f32, y as f32, rx, ry]);
+        fitted();
         let a = |g: &Geom| match area(g, tol).unwrap() { Measure::Value(v) => v, Measure::BadNumber => f32::NAN };
         let here = a(&e(cx, cy));
         prop_assert_eq!(here, a(&e(-cx, -cy)));

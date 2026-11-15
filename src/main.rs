@@ -34,6 +34,10 @@ fn main() {
             }
             // (KIKIZAKE_CPU="cpu ...": the processor line of the answer compared with)
             model::set_cpu(std::env::var("KIKIZAKE_CPU").ok());
+            // (KIKIZAKE_FITTED=1: the fitted approximations of open clauses answer too)
+            if std::env::var("KIKIZAKE_FITTED").as_deref() == Ok("1") {
+                model::set_fitted(model::Fitted::Answered);
+            }
             let text = match rest {
                 [f] => read(f),
                 _ => generators::suite(suite).unwrap_or_default(),

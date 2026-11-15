@@ -77,6 +77,35 @@ pub fn arch() -> u32 {
     ARCH.with(|c| c.get())
 }
 
+/// what the model answers where only a fitted approximation of an open clause says what
+/// Windows does
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Fitted {
+    /// unmodeled (Fail::Unmodeled of that clause): the default, so that every answer the model
+    /// gives is one Windows gives
+    Withheld,
+    /// the approximation's answer, for fitting it against Windows' (KIKIZAKE_FITTED=1)
+    Answered,
+}
+
+thread_local! {
+    static FITTED: std::cell::Cell<Fitted> = const { std::cell::Cell::new(Fitted::Withheld) };
+}
+
+pub fn set_fitted(f: Fitted) {
+    FITTED.with(|c| c.set(f));
+}
+
+/// an answer that comes from a fitted approximation of open clause `id`: Err(Unmodeled(id))
+/// unless the approximations are Fitted::Answered
+pub fn approx(id: crate::spec::OpenId) -> Res<()> {
+    crate::spec::hit(id.into());
+    match FITTED.with(|c| c.get()) {
+        Fitted::Withheld => Err(Fail::Unmodeled(id)),
+        Fitted::Answered => Ok(()),
+    }
+}
+
 thread_local! {
     static CPU: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
 }

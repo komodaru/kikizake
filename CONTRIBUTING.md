@@ -43,6 +43,10 @@ so work on different APIs does not collide.
   difference from the answers: correct the model, mark the clause `measured` with the golden
   named, and say how it was found (a table of every value, a fitted formula and on how many
   samples). Never widen `unmodeled` to hide a difference you can explain.
+* A fitted approximation of an open clause answers only through `model::approx(open::X)?`:
+  by default it is unmodeled, so every answer `cargo test` compares is one Windows gives.
+  `KIKIZAKE_FITTED=1 cargo run -- model <suite>` makes the approximations answer too, to fit
+  them against the goldens with `compare`.
 
 ## Evidence (spec/laws.txt, spec/learn.txt, spec/unresolved.txt)
 

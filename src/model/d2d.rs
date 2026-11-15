@@ -543,13 +543,13 @@ fn curve_bounds(g: &Geom, m: &M) -> Res<[f32; 4]> {
             }
         }
     }
-    hit(match g {
-        Geom::RRect(_) => clause::D2D_BOUNDS_RRECTXF,
-        _ => clause::D2D_BOUNDS_ELLXF,
-    });
     if nan {
         return Ok(NAN_BOUNDS);
     }
+    super::approx(match g {
+        Geom::RRect(_) => open::D2D_BOUNDS_RRECTXF,
+        _ => open::D2D_BOUNDS_ELLXF,
+    })?;
     Ok(b)
 }
 
@@ -757,7 +757,6 @@ pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: 
 fn curve_area(g: &Geom, tol: f32) -> Res<Measure> {
     let bb = bounds(g, None)?;
     let ext = (f64::from(bb[2]) - f64::from(bb[0])).max(f64::from(bb[3]) - f64::from(bb[1]));
-    hit(clause::D2D_AREA_CURVE);
     // (MEASURED, ell-area-4: bounds not finite fail with D2DERR_BAD_NUMBER, the area untouched;
     // a geometry of no size has none)
     if !ext.is_finite() {
@@ -766,6 +765,7 @@ fn curve_area(g: &Geom, tol: f32) -> Res<Measure> {
     if !(ext >= f64::from(f32::MIN_POSITIVE)) {
         return Ok(Measure::Value(0.0));
     }
+    super::approx(open::D2D_AREA_CURVE)?;
     let scale = 67108864.0 / ext;
     let inv = 1.0 / scale;
     let (cx, cy) = ((f64::from(bb[0]) + f64::from(bb[2])) / 2.0, (f64::from(bb[1]) + f64::from(bb[3])) / 2.0);
@@ -812,11 +812,12 @@ pub fn area(g: &Geom, tol: f32) -> Res<Measure> {
     }
     let ps = polys(&figs, &m);
     // (MEASURED, parea-3/5/7/11/18/24: off the integer grid Windows' value is not the exact area
-    // but 1-18 ulps from it, mostly above, as the curves' are: D2D.AREA.CURVE, open)
-    if ps.iter().flatten().all(|&(x, y)| x.fract() == 0.0 && y.fract() == 0.0) {
+    // but 1-18 ulps from it, mostly above, as the curves' are: D2D.AREA.CURVE, open; a
+    // rectangle through a transform, xbounds-*, is exact)
+    if !matches!(g, Geom::Path { .. }) || ps.iter().flatten().all(|&(x, y)| x.fract() == 0.0 && y.fract() == 0.0) {
         hit(clause::D2D_AREA_POLY);
     } else {
-        hit(clause::D2D_AREA_CURVE);
+        super::approx(open::D2D_AREA_CURVE)?;
     }
     Ok(Measure::Value(region_area(&ps, wind) as f32))
 }
@@ -1675,6 +1676,12 @@ impl D2d {
                     return Ok(());
                 }
                 let edge = if m[1] == 0.0 && m[2] == 0.0 { ClipEdge::Samples } else { ClipEdge::Area };
+                // (FITTED, OPEN, D2D.RT: an antialiased clip through a transform that turns the
+                // axes, clipxf-*: all but four corner pixels; two antialiased clips nested,
+                // clipnest-1: all but one pixel)
+                if matches!(aa, Antialias::PerPrimitive) && (matches!(edge, ClipEdge::Area) || tg.stack.iter().any(|p| matches!(p, Pushed::Clip(Clip { aa: Antialias::PerPrimitive, .. })))) {
+                    super::approx(open::D2D_RT)?;
+                }
                 tg.stack.push(Pushed::Clip(Clip { r: corner_bounds(&m, r), aa, edge }));
                 tg.depth += 1;
             }
@@ -2040,7 +2047,7 @@ impl D2d {
                 if !w.is_finite() {
                     return Err(Fail::Unmodeled(open::D2D_RT));
                 }
-                hit(clause::D2D_RT);
+                super::approx(open::D2D_RT)?;
                 let figs: Vec<Figure> = figs.iter().map(|f| Figure { pts: f.pts.iter().map(|&(x, y)| apply(&m0, x, y)).collect(), closed: f.closed }).collect();
                 let pieces: Vec<Figure> = figs.iter().flat_map(|f| stroke_pieces(f, w * 0.5)).collect();
                 let before = tg.px.clone();
