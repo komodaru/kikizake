@@ -1544,4 +1544,20 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // the same edges (vertical through x = 8.5, slope 1 through the pixel centres) with the lower
+    // vertex at uneven heights inside the window and the third vertex 10 pixels to the right (left
+    // boundary) or left (right boundary): whether the edge moves with where its vertices lie
+    const LOW: [f64; 6] = [1.0009765625, 2.3330078125, 3.7509765625, 4.1259765625, 5.6669921875, 6.9990234375];
+    for (k, (ya, sl, dx)) in LOW.iter().flat_map(|&a| [(a, 0.0, 10.0), (a, 1.0, 10.0), (a, 0.0, -10.0), (a, 1.0, -10.0)]).enumerate() {
+        writeln!(s, "case tri-low-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for j in -8..=8 {
+            let x0 = 8.5 - sl * 0.5 + f64::from(j) / 1024.0;
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            glf(s, "glVertex2f", &[x0 + sl * (ya - 8.0), ya]);
+            glf(s, "glVertex2f", &[x0 + sl * 108.0, 116.0]);
+            glf(s, "glVertex2f", &[x0 + sl * (ya + 1.0 - 8.0) + dx, ya + 1.0]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
