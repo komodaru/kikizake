@@ -2047,6 +2047,35 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // wide lines whose first end a plane across their minor axis cuts: y-major past the left
+    // and the right, x-major past the bottom and the top (widths 2, 3, 4), each up and down
+    let mut q = XorShift32::new(0x7e21_93ad);
+    for k in 0..4 {
+        start(s, format!("line-wide-{}", k + 13), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        glf(s, "glLineWidth", &[[2.0, 3.0, 4.0, 3.0][k]]);
+        for i in 0..16 {
+            let mut v = |lo: u32, hi: u32| f64::from(lo + q.next() % (hi - lo + 1)) / 8.0;
+            let (out, along, far) = (v(1, 20), v(16, 112), v(24, 104));
+            // (the other end inside, across by less than along so the major axis stays)
+            let across = v(0, 6) * if i % 4 < 2 { 1.0 } else { -1.0 };
+            let side = if k == 3 { 1 - i % 2 } else { i % 2 };
+            let (a, b) = if (i / 2) % 2 == 0 {
+                // y-major, past the left (side 0) or the right
+                let x = if side == 0 { -out } else { 16.0 + out };
+                ((x, along), (x + (out + across.abs() * 0.5 + 1.0) * if side == 0 { 1.0 } else { -1.0 }, if along < 8.0 { along + far * 0.75 } else { along - far * 0.75 }))
+            } else {
+                // x-major, past the bottom (side 0) or the top
+                let y = if side == 0 { -out } else { 16.0 + out };
+                ((along, y), (if along < 8.0 { along + far * 0.75 } else { along - far * 0.75 }, y + (out + across.abs() * 0.5 + 1.0) * if side == 0 { 1.0 } else { -1.0 }))
+            };
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+            glf(s, "glVertex2f", &[a.0, a.1]);
+            glf(s, "glVertex2f", &[b.0, b.1]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // antialiased lines; stippled (the default pattern, all set), antialiased and offset polygons
     for (k, setup) in ["gl glEnable 0xb20", "gl glEnable 0xb42", "gl glEnable 0xb41", "gl glEnable 0x8037\ngl glPolygonOffset 1 4\ngl glEnable 0xb71\ngl glDepthFunc 0x207"].into_iter().enumerate() {
         start(s, format!("raster-mode-{k}"), 32);
