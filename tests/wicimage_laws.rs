@@ -658,3 +658,30 @@ fn gray16_into_fixed_point_through_any_s2_13_format() {
         assert!(back.px == direct.px, "through {mid}");
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(40))]
+
+    /// more colors than 8bppIndexed holds with transparent pixels: 255 grid entries, all
+    /// different, then the transparent one, which every transparent pixel and no other takes
+    #[test]
+    fn grid_leaves_the_last_entry_transparent(w in 17u32..40, h in 16u32..30, seed: u32, every in 1usize..50) {
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let mut i = Img::new(w, h, "bgra");
+        for k in 0..(w * h) as usize {
+            let c = r.next().to_le_bytes();
+            i.px[k * 4..k * 4 + 4].copy_from_slice(&[c[0], c[1], c[2], if k % every == 0 { 0 } else { 255 }]);
+        }
+        let o = wi::encode_source(&i, "idx8").unwrap();
+        let pal = o.pal.clone().unwrap();
+        prop_assert_eq!(pal.len(), 256);
+        prop_assert_eq!(pal[255], 0);
+        let mut seen = pal[..255].to_vec();
+        seen.sort_unstable();
+        seen.dedup();
+        prop_assert_eq!(seen.len(), 255);
+        for k in 0..(w * h) as usize {
+            prop_assert_eq!(o.px[k] == 255, k % every == 0);
+        }
+    }
+}

@@ -2901,7 +2901,7 @@ pub fn dither(w: usize, h: usize, px: &dyn Fn(usize, usize) -> [i32; 3], pal: &[
 /// wider index format; any other source written as indices has the palette of its colors in
 /// the order they first appear (MEASURED: golden wicencode enc-bmp-bw/gray*, encas-*-idx8: the
 /// sources' colors, all fewer than the palette holds); else the source converted
-fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
+pub fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     if c.fmt == nf {
         return Ok(c.clone());
     }
@@ -2961,13 +2961,11 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
             }
         }
     }
-    // past the palette's size: boxes of the cube (grid_palette); with a transparent entry beside
-    // them open (gifalpha-full256)
-    if pal.len() > 1usize << bits_of(nf) {
-        if (0..c.h).any(|y| (0..c.w).any(|x| clear(x as usize, y as usize))) {
-            return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
-        }
-        pal = grid_palette(&b, bits_of(nf))?;
+    // past the palette's size: boxes of the cube (grid_palette), one fewer where a transparent
+    // entry is to come
+    let any_clear = (0..c.h).any(|y| (0..c.w).any(|x| clear(x as usize, y as usize)));
+    if pal.len() + usize::from(any_clear) > 1usize << bits_of(nf) {
+        pal = grid_palette(&b, bits_of(nf), if any_clear { Reserve::Transparent } else { Reserve::Nothing })?;
     }
     let rgb: Vec<[i32; 3]> = pal.iter().map(|&p| [16, 8, 0].map(|s| ((p >> s) & 0xff) as i32)).collect();
     let src = |x: usize, y: usize| {
@@ -2976,7 +2974,6 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     };
     let (w, h) = (c.w as usize, c.h as usize);
     let ix = dither(w, h, &src, &rgb, &clear);
-    let any_clear = (0..h).any(|y| (0..w).any(|x| clear(x, y)));
     let t = pal.len();
     if any_clear {
         if t >> bits_of(nf) != 0 {
@@ -3013,7 +3010,14 @@ struct Box5 {
 /// widened by 255 / 31 rounded (so a picture whose colors fill the cube takes the 2x1x1, 4x2x2,
 /// 8x8x4 grid). OPEN (ENCODE.QUANTIZE): 256 entries where most boxes would be empty
 /// (gridtie-idx8-few-* split the full boxes finer)
-fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
+/// whether the grid leaves an entry of the palette for a transparent one
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Reserve {
+    Nothing,
+    Transparent,
+}
+
+fn grid_palette(b: &Img, bits: u32, reserve: Reserve) -> Res<Vec<u32>> {
     let at = |r: usize, g: usize, bl: usize| (r * 32 + g) * 32 + bl;
     let mut hist = vec![0u32; 32 * 32 * 32];
     for y in 0..b.h {
@@ -3035,8 +3039,13 @@ fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
     };
     let total = count([0; 3], [31; 3]);
     let mut boxes = vec![Box5 { lo: [0; 3], hi: [31; 3], depth: 0, count: total }];
-    while boxes.len() < 1 << bits {
-        let best = (0..boxes.len()).max_by_key(|&i| (std::cmp::Reverse(boxes[i].depth), boxes[i].count, std::cmp::Reverse(i))).ok_or(Fail::Bad)?;
+    let entries: usize = match reserve {
+        Reserve::Nothing => 1 << bits,
+        Reserve::Transparent => (1 << bits) - 1,
+    };
+    let next = |boxes: &[Box5]| (0..boxes.len()).max_by_key(|&i| (std::cmp::Reverse(boxes[i].depth), boxes[i].count, std::cmp::Reverse(i))).ok_or(Fail::Bad);
+    while boxes.len() < entries {
+        let best = next(&boxes)?;
         let bx = boxes[best];
         let axis = (0..3).max_by_key(|&k| (bx.hi[k] - bx.lo[k], std::cmp::Reverse(k))).ok_or(Fail::Bad)?;
         if bx.hi[axis] == bx.lo[axis] {
@@ -3053,11 +3062,23 @@ fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
         boxes[best] = upper;
         boxes.push(lower);
     }
-    // (the goldens with 256 entries that agree have at most 94 boxes empty, those that do not 253)
-    if bits > 4 && boxes.iter().filter(|bx| bx.count == 0).count() > boxes.len() / 2 {
+    // (the goldens with 256 entries that agree have at most 199 boxes empty, those that do not 253)
+    if bits > 4 && boxes.iter().filter(|bx| bx.count == 0).count() * 8 > boxes.len() * 7 {
         return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
     }
+    // MEASURED (golden wicencode gifalpha-full256, gifgrid-*): with a transparent entry to come
+    // the grid stops a box short, and the box it would halve next comes first, the others after
+    // it by their pixels (the transparent ones counted at their colors), the transparent entry
+    // last
+    let first = match reserve {
+        Reserve::Nothing => None,
+        Reserve::Transparent => {
+            hit(clause::WICIMAGE_ENCODE_GRID_TRANSPARENT);
+            Some(boxes.remove(next(&boxes)?))
+        }
+    };
     boxes.sort_by_key(|bx| std::cmp::Reverse(bx.count));
+    boxes.splice(0..0, first);
     let level = |bx: &Box5, k: usize| u8::try_from(((bx.lo[k] + bx.hi[k]) / 2 * 255 * 2 + 31) / 62).map_err(|_| Fail::Bad);
     hit(clause::WICIMAGE_ENCODE_GRID);
     boxes.iter().map(|bx| Ok(u32::from_be_bytes([0xff, level(bx, 0)?, level(bx, 1)?, level(bx, 2)?]))).collect()

@@ -1488,6 +1488,16 @@ pub fn wicencode() -> String {
     for (k, (f, t)) in [("rgba64fixed", "bgra"), ("rgbafloat", "bgra"), ("rgb48fixed", "rgb48"), ("grayfix16", "gray8"), ("rgba64half", "bgra")].into_iter().enumerate() {
         writeln!(s, "case back-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xbac0_0000u32 + k as u32).unwrap();
     }
+    // GIF from RGBA of more colors than 256 with transparent pixels (the grid a box short):
+    // random colors, random colors of a few levels (counts differ), one transparent pixel or many
+    let mut r = crate::rng::XorShift32::new(0x61f6_0000);
+    for (k, (w, levels, every)) in [(32u32, 256u32, 7usize), (32, 256, 1000), (32, 12, 5), (48, 40, 3)].into_iter().enumerate() {
+        let px: Vec<[u8; 4]> = (0..(w * 16) as usize).map(|i| {
+            let mut c = || (r.next() % levels * (255 / (levels - 1).max(1))).min(255) as u8;
+            [c(), c(), c(), if i % every == every / 2 { 0 } else { 255 }]
+        }).collect();
+        writeln!(s, "case gifgrid-{k}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&rgba(w, &|i| px[i]))).unwrap();
+    }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
