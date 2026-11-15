@@ -165,17 +165,22 @@ impl Map {
     /// exactly, to 28.4 rounded halves away from zero (truncated toward zero on x86 once warm:
     /// GDI.XFORM.WARMX86), plus the offset to 28.4 rounded halves away; then (v + 8) >> 4
     fn world_to_dp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
+        let f = self.world_to_fix(p)?;
+        Ok((((f.0 + 8).div_euclid(16)) as i32, ((f.1 + 8).div_euclid(16)) as i32))
+    }
+    /// a point through the world transform to 28.4 device units (world_to_dp before its last
+    /// rounding)
+    pub fn world_to_fix(&self, p: (i32, i32)) -> Res<(i64, i64)> {
         let m = self.device_matrix()?;
         hit(clause::GDI_XFORM_WORLDPOINT);
         let trunc = self.warm && super::arch() == 32;
         if trunc {
             hit(clause::GDI_XFORM_WARMX86);
         }
-        let axis = |a: f32, b: f32, d: f32| -> i32 {
+        let axis = |a: f32, b: f32, d: f32| -> i64 {
             // (x * a + y * b is exact in f64: two 24-bit mantissas times 32-bit integers)
             let v = (f64::from(p.0) * f64::from(a) + f64::from(p.1) * f64::from(b)) * 16.0;
-            let s = if trunc { v.trunc() } else { v.round() } + (f64::from(d) * 16.0).round();
-            ((s as i64 + 8).div_euclid(16)) as i32
+            (if trunc { v.trunc() } else { v.round() } + (f64::from(d) * 16.0).round()) as i64
         };
         Ok((axis(m[0], m[2], m[4]), axis(m[1], m[3], m[5])))
     }

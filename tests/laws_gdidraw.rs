@@ -158,6 +158,23 @@ proptest! {
         prop_assert!(if up { p1 >= p0 } else { p1 <= p0 }, "monotone");
     }
 
+    /// drawing through a viewport origin is drawing shifted by it (PatBlt, Rectangle, LineTo)
+    #[test]
+    fn viewport_origin_shifts_drawing(o in (-6i32..7, -6i32..7), a in (-4i32..14, -4i32..14), d in (-6i32..9, -6i32..9), kind in 0u8..3) {
+        let draw = |dx: i32, dy: i32| match kind {
+            0 => format!("patblt 0 {} {} {} {} 0xf00021", a.0 + dx, a.1 + dy, d.0, d.1),
+            1 => format!("rectangle 0 {} {} {} {}", a.0 + dx, a.1 + dy, a.0 + d.0 + dx, a.1 + d.1 + dy),
+            _ => format!("moveto 0 {} {}\nlineto 0 {} {}", a.0 + dx, a.1 + dy, a.0 + d.0 + dx, a.1 + d.1 + dy),
+        };
+        let head = "dib 0 16 16 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000";
+        let mapped = parse_cases(&format!("case m\n{head}\nvporg 0 {} {}\n{}\ndump 0\nend\n", o.0, o.1, draw(0, 0)));
+        let plain = parse_cases(&format!("case m\n{head}\n{}\ndump 0\nend\n", draw(o.0, o.1)));
+        let (m, p) = (run_case(&mapped[0]), run_case(&plain[0]));
+        let (Ok(m), Ok(p)) = (m, p) else { panic!("{:?}", (run_case(&mapped[0]).err(), run_case(&plain[0]).err())) };
+        // (the dump is the last lines; the mapped case answers one line more, for SetViewportOrgEx)
+        prop_assert_eq!(&m[m.len() - 17..], &p[p.len() - 17..]);
+    }
+
     /// whatever text comes in, the drawing models never panic
     #[test]
     fn never_panics(text in "(case [a-z]{1,3}\n|end\n|(dib|ddb|fill|dump|pen|extpen|moveto|lineto|polyline|polylineto|polygon|rectangle|ellipse|fillrect|framerect|invertrect|rop2|rgn|combine|rgndata|selclip|clipbox|exclude|offsetclip|mapmode|winext|vpext|winorg|lptodp|dptolp|gmode|setxform|modxform|getxform|beginpath|endpath|getpath|closefig|strokepath|alphablend|transparent|maskblt|align|extra|exttext|bmobject|bmbits|devcaps)( (-?[0-9]{1,3}|0x[0-9a-f]{1,8}|#[0-9a-f]{6}|solid|null|rect|mono|screen|compat|none|1.5)){0,13}\n){0,30}") {
@@ -174,7 +191,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 328), ("region", 506), ("xform", 563), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 328), ("region", 506), ("xform", 566), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {

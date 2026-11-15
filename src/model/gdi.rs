@@ -249,6 +249,25 @@ impl Gdi {
             let sl = self.slot(op, 1)?;
             let pos = sl.ext.pos;
             let Some((d, _)) = super::gdixform::device_op(&mut sl.ext.map, pos, (sl.s.w, sl.s.h.abs()), op)? else {
+                if t0 == "patblt" && n(op, 6)? == 0xf0_0021 && sl.ext.map.world != super::gdixform::IDENTITY {
+                    // MEASURED (draw-4, draw-37, draw-40): PatBlt through a rotating or shearing
+                    // world transform fills its parallelogram, corners in 28.4, as a path's fill
+                    // (GDI.PATH.FILLFIX; GDI.MAP.DRAWPTS)
+                    hit(clause::GDI_MAP_DRAWPTS);
+                    let (x, y, w, h) = (n(op, 2)? as i32, n(op, 3)? as i32, n(op, 4)? as i32, n(op, 5)? as i32);
+                    let m = &sl.ext.map;
+                    let mut q = Vec::new();
+                    for c in [(x, y), (x + w, y), (x + w, y + h), (x, y + h)] {
+                        let f = m.world_to_fix(c)?;
+                        q.push((f.0 as i32, f.1 as i32));
+                    }
+                    let r = super::rgn::fix_polygon_pixels(&[q], false);
+                    for b in r.rects() {
+                        sl.fill_shape(b.0, b.1, b.2, b.3)?;
+                    }
+                    out.push("ret 1".into());
+                    return Ok(true);
+                }
                 return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
             };
             let map = std::mem::take(&mut self.slot(op, 1)?.ext.map);
