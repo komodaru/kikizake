@@ -264,6 +264,24 @@ pub fn gdipluspaint() -> String {
         let (x, y) = (r.range(1, 7), r.range(0, 3));
         writeln!(s, "case hatchrun16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch {} {fore:#010x} {back:#010x}\ngppaint 0 0 {x} {y} {} 5 over {} 0 0 {} {}\ngpread 0 {f}\nend", r.next(), r.range(0, 52), r.range(3, 16 - x), r.range(2, 3), r.range(-4, 4), r.range(-4, 4)).unwrap();
     }
+    // one run per row (fore and back opaque), from each column 0..7 and each origin x 0..7: how
+    // far the dither moves with the fill's left edge and with the rendering origin
+    for i in 0..64 {
+        let f = *r.pick(&["16bppRGB555", "16bppRGB565"]);
+        let fore = 0xff00_0000 | r.next() & 0xff_ffff;
+        let back = 0xff00_0000 | r.next() & 0xff_ffff;
+        let (x, ox) = (i % 8, i / 8);
+        writeln!(s, "case hatchshift16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch {} {fore:#010x} {back:#010x}\ngppaint 0 0 {x} 0 {} 8 over {} 0 0 {ox} {}\ngpread 0 {f}\nend", r.next(), r.range(0, 52), 16 - x, r.range(2, 3), r.range(-4, 4)).unwrap();
+    }
+    // horizontal lines (a row all fore, the rest translucent): one opaque run per line row, from
+    // each column and origin, rows moved by the origin's y
+    for i in 0..32 {
+        let f = *r.pick(&["16bppRGB555", "16bppRGB565"]);
+        let fore = 0xff00_0000 | r.next() & 0xff_ffff;
+        let back = (r.range(1, 254) as u32) << 24 | r.next() & 0xff_ffff;
+        let (x, ox, oy) = (i % 8, (i / 8) as i64 * 3 - 4, r.range(-4, 4));
+        writeln!(s, "case hatchline16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch 0 {fore:#010x} {back:#010x}\ngppaint 0 0 {x} 0 {} 8 over {} 0 0 {ox} {oy}\ngpread 0 {f}\nend", r.next(), 16 - x, r.range(2, 3)).unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s
