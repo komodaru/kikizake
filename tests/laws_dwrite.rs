@@ -352,7 +352,7 @@ fn bidi_run_sos_from_neighbour() {
 #[test]
 fn malformed_lines_are_bad_lines() {
     let hex: String = font(0).bytes().iter().map(|x| format!("{x:02x}")).collect();
-    for (line, want) in [("dwshape 12", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0 1", "bad line 3\ndwinfo"), ("dwshape 12 0x41 0x1f600", "unmodeled bad line")] {
+    for (line, want) in [("dwshape 12", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0 1", "bad line 3\ndwinfo"), ("dwrun aliased 12 0 0 1 0 2", "bad line 3\ndwinfo"), ("dwshape 12 0x41 0x1f600", "unmodeled bad line")] {
         let text = format!("case x\ndwfont {hex}\n{line}\ndwinfo\nend\n");
         let out = kikizake::model::run("dwrite", &kikizake::case::parse_cases(&text));
         assert!(out.contains(want), "{line}: {out}");
