@@ -2013,9 +2013,9 @@ impl Ctx {
         Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
     }
 
-    /// The pixels a filled convex polygon covers (GL.RASTER.TRIANGLE): cut to the view volume;
-    /// one inside it as a fan from its first vertex, one cut as a whole (golden rect-13: no
-    /// diagonal; tie-x-2: the diagonal's walk taking in a corner on a center).
+    /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE): cut to the view volume, then a
+    /// fan from its first vertex, convex or not (golden poly-nc-*, prim-11; tie-x-2: the fan's
+    /// diagonal taking in a corner on a center).
     fn fill(&self, q: &[([f64; 3], [f32; 4])]) -> Res<Vec<(i64, i64)>> {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
@@ -2025,16 +2025,14 @@ impl Ctx {
             return Ok(Vec::new());
         }
         let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
-        let (w, h) = (W as i64, H as i64);
-        if poly == ndc {
-            Ok((1..v.len() - 1).flat_map(|k| tri::pixels(&[v[0], v[k], v[k + 1]], w, h)).collect())
-        } else {
+        if poly != ndc {
             hit(clause::GL_RASTER_CLIP_XY);
-            Ok(tri::pixels(&v, w, h))
         }
+        let (w, h) = (W as i64, H as i64);
+        Ok((1..v.len() - 1).flat_map(|k| tri::pixels(&[v[0], v[k], v[k + 1]], w, h)).collect())
     }
 
-    /// A filled convex polygon of one color and depth (GL.RASTER.TRIANGLE).
+    /// A filled polygon of one color and depth (GL.RASTER.TRIANGLE).
     fn polygon(&mut self, q: &[([f64; 3], [f32; 4])]) -> Res<()> {
         // (filled, flat polygons only: other polygon modes, stipple, antialiasing and offsets
         // on triangles are not measured)
@@ -2051,11 +2049,6 @@ impl Ctx {
             return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
         }
         let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
-        // (a polygon that is not convex, its corners not all turning one way or going round
-        // more than once: how Windows splits it is not pinned)
-        if !convex(&w) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_POLYGON));
-        }
         if self.cap(CULL_FACE) {
             hit(clause::GL_CULL);
             let front = (area > 0.0) == (self.front_face == CCW);
@@ -2070,6 +2063,9 @@ impl Ctx {
         }
         let px = self.fill(q)?;
         hit(clause::GL_RASTER_TRIANGLE);
+        if q.len() > 3 {
+            hit(clause::GL_RASTER_POLYGON);
+        }
         self.never = NeverPath::Other;
         for (x, y) in px {
             self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
@@ -3806,30 +3802,11 @@ impl Ctx {
     }
 }
 
-/// Whether window corners `w` make a convex polygon: every corner turning the same way (or
-/// not at all) and the edges' directions going round once, not twice like a star.
-fn convex(w: &[[f64; 3]]) -> bool {
-    let n = w.len();
-    let edge = |k: usize| [w[(k + 1) % n][0] - w[k][0], w[(k + 1) % n][1] - w[k][1]];
-    let turns: Vec<f64> = (0..n).map(|k| {
-        let (a, b) = (edge(k), edge((k + 1) % n));
-        a[0] * b[1] - a[1] * b[0]
-    }).collect();
-    if turns.iter().any(|t| *t > 0.0) && turns.iter().any(|t| *t < 0.0) {
-        return false;
-    }
-    let total: f64 = (0..n).map(|k| {
-        let (a, b) = (edge(k), edge((k + 1) % n));
-        (a[0] * b[1] - a[1] * b[0]).atan2(a[0] * b[0] + a[1] * b[1])
-    }).sum();
-    total.abs() < 2.0 * std::f64::consts::PI + 1e-6
-}
-
 /// Filled triangles as Windows' generic OpenGL draws them (MEASURED, golden opengl-32 and
 /// opengl-64 tri-*: GL.RASTER.TRIANGLE, GL.RASTER.CLIP.XY):
 /// - normalized device coordinates are scaled by half the viewport's size less 1/256 about its
 ///   center and rounded to 1/256 pixel, an exact half to even ([`Sub::snap`]);
-/// - a triangle past the view volume's sides is cut to it ([`clip`]) and drawn as a fan;
+/// - a polygon is cut to the view volume ([`clip`]) and drawn as a fan from its first vertex;
 /// - each edge is walked down from its upper vertex by a step of dx / dy divided in float32 and
 ///   rounded to 2^-22 pixel; its x at the first row center below is the upper vertex's moved by
 ///   that step, rounded up to 2^-22, then rounded to 1/256 (an exact half to even);
@@ -3932,21 +3909,23 @@ pub mod tri {
         }
     }
 
-    /// A convex polygon in normalized device coordinates clipped to -1 <= x, y <= 1 (x = 1, x = -1,
-    /// y = 1, y = -1 in turn), a new vertex where an edge crosses a plane.
+    /// A polygon in normalized device coordinates clipped to -1 <= x, y <= 1 (x = 1, x = -1,
+    /// y = 1, y = -1 in turn): each edge from the previous vertex to the next adds where it
+    /// crosses the plane, then its end when inside (golden prim-11, rect-13, tie-x-2: the order
+    /// a fan from the first vertex starts from).
     pub fn clip(poly: &[[f64; 2]]) -> Vec<[f64; 2]> {
         let mut poly = poly.to_vec();
         for (axis, sign) in [(0, 1.0), (0, -1.0), (1, 1.0), (1, -1.0)] {
             let mut out = Vec::new();
-            for (i, a) in poly.iter().enumerate() {
-                let b = poly[(i + 1) % poly.len()];
+            for (i, b) in poly.iter().enumerate() {
+                let a = poly[(i + poly.len() - 1) % poly.len()];
                 let (da, db) = (1.0 - sign * a[axis], 1.0 - sign * b[axis]);
-                if da >= 0.0 {
-                    out.push(*a);
-                }
                 if (da >= 0.0) != (db >= 0.0) {
                     let t = da / (da - db);
                     out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
+                }
+                if db >= 0.0 {
+                    out.push(*b);
                 }
             }
             poly = out;
@@ -3954,9 +3933,9 @@ pub mod tri {
         poly
     }
 
-    /// The pixels (x, y) of a `w` by `h` window whose centers a convex polygon covers, walked
-    /// as a whole (no diagonals): its two chains from the top vertex down to the bottom one,
-    /// the left one by the polygon's turn; per row, the centers L < x <= R.
+    /// The pixels (x, y) of a `w` by `h` window whose centers a triangle (or any convex polygon)
+    /// covers: its two chains from the top vertex down to the bottom one, the left one by its
+    /// turn; per row, the centers L < x <= R.
     pub fn pixels(v: &[Vertex], w: i64, h: i64) -> Vec<(i64, i64)> {
         let n = v.len();
         let twice_area: i128 = (0..n).map(|k| i128::from(v[k].x.0) * i128::from(v[(k + 1) % n].y.0) - i128::from(v[(k + 1) % n].x.0) * i128::from(v[k].y.0)).sum();
