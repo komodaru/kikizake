@@ -507,7 +507,13 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                 if aliased_lines && whole && r.d.q == 0 {
                     hit(clause::D3DRASTER_MS_LINES);
                 }
-                if !whole || !(aliased_lines || matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) && d.rast[0] != 2) || r.d.q != 0 {
+                // (MEASURED, WARP: probe-rt-ms4-points) a point covers the samples of the pixel
+                // square about it, by the top-left rule
+                let points = topo == Topo::Points && r.samples.iter().all(Option::is_none);
+                if points && whole && r.d.q == 0 {
+                    hit(clause::D3DRASTER_MS_POINTS);
+                }
+                if !whole || !(aliased_lines || points || matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) && d.rast[0] != 2) || r.d.q != 0 {
                     return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                 }
                 Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
@@ -550,7 +556,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         Topo::TriStripAdj => u64::from((count / 2).saturating_sub(2)).min(nv.div_ceil(2)),
     };
     let nprim = u32::try_from(nprim).unwrap_or(u32::MAX);
-    let tg = Target { dev, vp, size: (rw, rh), view: &view, fmt: rt_fmt, sub: rt_sub, dsv: dsv.as_ref() };
+    let tg = Target { dev, vp, size: (rw, rh), view: &view, fmt: rt_fmt, sub: rt_sub, dsv: dsv.as_ref(), samples };
     for i in 0..instances {
         // (the lines of the draw, or the edges of its triangles in wireframe: drawn together,
         // since whether a line's end lights its pixel depends on the lines after it)
@@ -645,6 +651,8 @@ struct Target<'a> {
     fmt: &'static Format,
     sub: u32,
     dsv: Option<&'a super::d3dres::View>,
+    /// a multisampled target's sample positions
+    samples: Option<&'static [(i64, i64)]>,
 }
 
 impl Target<'_> {
@@ -725,6 +733,28 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
         }
     }
     let s = snapped(tg.vp, &q);
+    if let Some(pattern) = tg.samples {
+        let z = tg.depth(z);
+        let out = prim_out(ps, v.color, (0, 0), z, Some(q[3]), prim, true)?;
+        if ps == "pspos" {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
+        for py in (s.y - 128).div_euclid(256) - 1..=(s.y + 128).div_euclid(256) + 1 {
+            for px in (s.x - 128).div_euclid(256) - 1..=(s.x + 128).div_euclid(256) + 1 {
+                if !tg.drawable(d, (px, py)) {
+                    continue;
+                }
+                let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| {
+                    let (sx, sy) = (px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16);
+                    s.x - 128 <= sx && sx < s.x + 128 && s.y - 128 <= sy && sy < s.y + 128
+                }).collect();
+                if mask.contains(&true) {
+                    put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), out, &mask)?;
+                }
+            }
+        }
+        return Ok(());
+    }
     let px = ((s.x - 1).div_euclid(256), (s.y - 1).div_euclid(256));
     if !tg.drawable(d, px) {
         return Ok(());
@@ -1269,46 +1299,56 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 continue;
             }
             let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, d)?;
-            let r = m.res[view.res].as_ref().unwrap();
-            if mask.iter().all(|&k| k) && r.samples.get(rt_sub as usize).is_none_or(Option::is_none) {
-                output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
-                continue;
-            }
-            // (samples that differ: depth per sample is not measured)
-            if dsv.is_some() {
-                return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-            }
-            let (rb, _, _) = r.layout(rt_sub);
-            let el = (rt_fmt.bits / 8) as usize;
-            let off = py as usize * rb + px as usize * el;
-            let r = m.res[view.res].as_mut().unwrap();
-            let base = r.subs[rt_sub as usize].clone().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
-            let n = mask.len();
-            // (the model keeps samples of targets up to 64 MiB of them)
-            if base.len().saturating_mul(n) > 64 << 20 {
-                return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-            }
-            if r.samples.len() <= rt_sub as usize {
-                r.samples.resize(rt_sub as usize + 1, None);
-            }
-            let planes_n = r.samples[rt_sub as usize].get_or_insert_with(|| base.repeat(n)).len() / n;
-            // (each covered sample through the pixel's own output: its value put in the
-            // subresource's place for the blend, then taken back)
-            for (k, _) in mask.iter().enumerate().filter(|(_, c)| **c) {
-                let r = m.res[view.res].as_mut().unwrap();
-                let sv = r.samples[rt_sub as usize].as_ref().unwrap()[k * planes_n + off..][..el].to_vec();
-                r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&sv);
-                output(m, dev, d, view, rt_fmt, rt_sub, None, at, z, out)?;
-                let r = m.res[view.res].as_mut().unwrap();
-                let nv = r.subs[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
-                r.samples[rt_sub as usize].as_mut().unwrap()[k * planes_n + off..][..el].copy_from_slice(&nv);
-            }
-            // (the subresource's own place keeps sample 0)
-            let r = m.res[view.res].as_mut().unwrap();
-            let s0 = r.samples[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
-            r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&s0);
+            put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out, &mask)?;
         }
     }
+    Ok(())
+}
+
+/// a pixel's value into the covered samples of a multisampled target (D3DRASTER.MS.SAMPLES):
+/// all of them while every sample is alike, else per sample, each through the pixel's own
+/// output (its value put in the subresource's place for the blend, then taken back)
+#[allow(clippy::too_many_arguments)]
+fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, at: (usize, usize, usize), z: Option<f32>, out: [u32; 4], mask: &[bool]) -> Res<()> {
+    let (px, py) = (at.0, at.1);
+    let r = m.res[view.res].as_ref().unwrap();
+    if mask.iter().all(|&k| k) && r.samples.get(rt_sub as usize).is_none_or(Option::is_none) {
+        output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
+        return Ok(());
+    }
+    // (samples that differ: depth per sample is not measured)
+    if dsv.is_some() {
+        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+    }
+    let (rb, _, _) = r.layout(rt_sub);
+    let el = (rt_fmt.bits / 8) as usize;
+    let off = py as usize * rb + px as usize * el;
+    let r = m.res[view.res].as_mut().unwrap();
+    let base = r.subs[rt_sub as usize].clone().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
+    let n = mask.len();
+    // (the model keeps samples of targets up to 64 MiB of them)
+    if base.len().saturating_mul(n) > 64 << 20 {
+        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+    }
+    if r.samples.len() <= rt_sub as usize {
+        r.samples.resize(rt_sub as usize + 1, None);
+    }
+    let planes_n = r.samples[rt_sub as usize].get_or_insert_with(|| base.repeat(n)).len() / n;
+    // (each covered sample through the pixel's own output: its value put in the
+    // subresource's place for the blend, then taken back)
+    for (k, _) in mask.iter().enumerate().filter(|(_, c)| **c) {
+        let r = m.res[view.res].as_mut().unwrap();
+        let sv = r.samples[rt_sub as usize].as_ref().unwrap()[k * planes_n + off..][..el].to_vec();
+        r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&sv);
+        output(m, dev, d, view, rt_fmt, rt_sub, None, at, z, out)?;
+        let r = m.res[view.res].as_mut().unwrap();
+        let nv = r.subs[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
+        r.samples[rt_sub as usize].as_mut().unwrap()[k * planes_n + off..][..el].copy_from_slice(&nv);
+    }
+    // (the subresource's own place keeps sample 0)
+    let r = m.res[view.res].as_mut().unwrap();
+    let s0 = r.samples[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
+    r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&s0);
     Ok(())
 }
 
@@ -1556,11 +1596,16 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     // span: a whole level of it samples that level alone (mip point or linear);
                     // between levels not measured
                     let lod = rho.log2();
-                    if lod.fract() != 0.0 && lod < f64::from(r.d.mips - 1) {
+                    let level = if s[0] & 1 == 0 {
+                        // (mip point: the nearest level)
+                        (lod + 0.5).floor()
+                    } else if lod.fract() == 0.0 || lod >= f64::from(r.d.mips - 1) {
+                        lod.floor()
+                    } else {
                         return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
-                    }
+                    };
                     hit(clause::D3DRASTER_FILTER_LEVEL);
-                    (filter.min, (lod as u32).min(r.d.mips - 1))
+                    (filter.min, (level as u32).min(r.d.mips - 1))
                 }
             };
             let (w, h, _) = r.size(level);

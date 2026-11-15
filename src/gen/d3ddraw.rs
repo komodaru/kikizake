@@ -582,6 +582,13 @@ fn probes(s: &mut String, dev: &str) {
         vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 11\nread 1 0 128 16 1\nend").unwrap();
+    // what D3DRASTER.RTKIND leaves open: wireframe on a multisampled target
+    writeln!(s, "case probe-rt-ms4-wire\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 2 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
     // an input layout against a refused program
     let mut broken = shader("vs");
     broken[5] ^= 1;
