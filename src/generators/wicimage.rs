@@ -1477,6 +1477,12 @@ pub fn wicencode() -> String {
         let p = png(256, 1, 8, 0, false, &[], &png_filter(&raw, 1, &[0]), 4096);
         writeln!(s, "case rgba64fixed-every-gray8\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p)).unwrap();
     }
+    // (not measured yet: premultiplied and RGBA order into 64bppRGBAFixedPoint, and a
+    // TiffCompressionMethod past 7)
+    for (k, f) in ["pbgra", "rgba", "prgba"].iter().enumerate() {
+        writeln!(s, "case rgba64fixed-from-{f}\nwbits {f} 16 16 {}\nwconv rgba64fixed\nwpixels\nend", 0x64f1_0000u32 + k as u32).unwrap();
+    }
+    writeln!(s, "case opt-tiff-8-bgra\nwbits bgra 6 4 {}\nwencode tiff TiffCompressionMethod=8\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0100u32).unwrap();
     s
 }
 

@@ -7297,3 +7297,26 @@ wframe 0
 wconv rgba64fixed
 wpixels
 end
+case rgba64fixed-from-pbgra
+wbits pbgra 16 16 1693515776
+wconv rgba64fixed
+wpixels
+end
+case rgba64fixed-from-rgba
+wbits rgba 16 16 1693515777
+wconv rgba64fixed
+wpixels
+end
+case rgba64fixed-from-prgba
+wbits prgba 16 16 1693515778
+wconv rgba64fixed
+wpixels
+end
+case opt-tiff-8-bgra
+wbits bgra 6 4 1903624448
+wencode tiff TiffCompressionMethod=8
+wredecode
+wframe 0
+winfo
+wpixels
+end
