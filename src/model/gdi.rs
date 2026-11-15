@@ -536,9 +536,16 @@ impl Gdi {
     #[allow(clippy::too_many_arguments)]
     pub fn blt(&mut self, k: usize, x: i32, y: i32, w: i32, h: i32, src: Option<(usize, i32, i32)>, rop: u32, pat: bool) -> Res<bool> {
         let idx = (rop >> 16) as u8;
-        if w < 0 || h < 0 {
-            return Err(Fail::Unmodeled(open::GDI_BLT_NEGATIVE));
-        }
+        let (x, y, w, h) = match src {
+            None if w < 0 || h < 0 => {
+                // MEASURED (xform draw-*): PatBlt with a negative width or height fills the
+                // rectangle on the other side of the point, x + w .. x (GDI.BLT.PATNEG)
+                hit(clause::GDI_BLT_PATNEG);
+                (if w < 0 { x + w } else { x }, if h < 0 { y + h } else { y }, w.abs(), h.abs())
+            }
+            Some(_) if w < 0 || h < 0 => return Err(Fail::Unmodeled(open::GDI_BLT_NEGATIVE)),
+            _ => (x, y, w, h),
+        };
         if rop & 0xff00_0000 != 0 {
             return Err(Fail::Unmodeled(open::GDI_ROP3_FLAGS));
         }

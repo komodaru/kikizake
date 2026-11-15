@@ -16,7 +16,8 @@ GDI.BLT.CONVERT doc | BitBlt | "If the color formats of the source and destinati
 GDI.BLT.MONO open | BitBlt, Bitmaps: monochrome to color | monochrome <-> color: 1 bits to the background color, 0 bits to the text color; color pixels equal to the background color to 1 (how a DIB section's color table takes part is not said)
 GDI.BLT.CLIP doc | BitBlt, Clipping | only pixels in the destination bitmap and in the clipping region change
 GDI.BLT.SRCOUT assumed | (none) | destination pixels whose source pixel lies outside the source bitmap are left as they are
-GDI.BLT.NEGATIVE open | (none) | BitBlt / PatBlt with a negative width or height
+GDI.BLT.PATNEG measured | golden xform draw-* | PatBlt with a negative width or height fills the rectangle on the other side of the point: x + w .. x, y + h .. y
+GDI.BLT.NEGATIVE open | (none) | BitBlt with a negative width or height
 GDI.BLT.OVERLAP assumed | (none) | source and destination in the same bitmap: as if the source were copied first
 GDI.PATBLT.ROPS doc | PatBlt | PATCOPY, PATINVERT, DSTINVERT, BLACKNESS, WHITENESS (and any operation of P and D) on the rectangle
 GDI.PATBLT.SRCOP open | PatBlt | PatBlt with an operation that uses a source
