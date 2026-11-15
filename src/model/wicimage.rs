@@ -359,6 +359,24 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if let Some(r) = wide_to_rgba64fixed(s, to) {
         return r;
     }
+    if (s.fmt, to) == ("bgr24", "rgba64fixed") {
+        // MEASURED (golden wicencode encas-bmp-rgba64, rgba64fixed-every-*): each 8-bit channel
+        // the LINEAR16 value of its 16-bit level (c * 257) times 8192 rounded, alpha 1 (8192)
+        hit(clause::WICIMAGE_CONVERT_BYTE_FIXED);
+        let mut o = Img::new(s.w, s.h, to);
+        o.dpi = s.dpi;
+        let (st, ost) = (s.stride(), o.stride());
+        for y in 0..s.h as usize {
+            for x in 0..s.w as usize {
+                let p = &s.px[y * st + x * 3..y * st + x * 3 + 3];
+                let fix = |c: u8| (f64::from(linear16(u16::from(c) * 257)) * 8192.0 + 0.5).floor() as i16;
+                for (k, v) in [fix(p[2]), fix(p[1]), fix(p[0]), 8192].into_iter().enumerate() {
+                    o.px[y * ost + x * 8 + k * 2..y * ost + x * 8 + k * 2 + 2].copy_from_slice(&v.to_le_bytes());
+                }
+            }
+        }
+        return Ok(o);
+    }
     if (s.fmt, to) == ("gray16", "rgb48") {
         hit(clause::WICIMAGE_CONVERT_GRAY16_RGB48);
         let mut o = Img::new(s.w, s.h, to);

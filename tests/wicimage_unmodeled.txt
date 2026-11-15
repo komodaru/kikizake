@@ -1316,7 +1316,6 @@ wicencode enc-wmp-rgb32
 wicencode enc-wmp-rgb48
 wicencode enc-wmp-rgba
 wicencode enc-wmp-rgba64
-wicencode encas-bmp-rgba64
 wicencode encdds-bgr24-4x8
 wicencode encdds-bgra-9x9
 wicencode encdds-gray16-8x12
@@ -1330,6 +1329,8 @@ wicencode gridtie-idx8-few-3
 wicencode opt-19-bgr24
 wicencode opt-19-bgra
 wicencode opt-19-gray8
+wicencode rgba64fixed-every-bgra
+wicencode rgba64fixed-every-gray8
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic

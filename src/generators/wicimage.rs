@@ -1463,6 +1463,20 @@ pub fn wicencode() -> String {
             writeln!(s, "case fixpath-gray16-{mid}\nwdecode {}\nwframe 0\nwconv {mid}\nwinfo\nwpixels\nwconv rgba64fixed\nwpixels\nend", hex(&f)).unwrap();
         }
     }
+    // every 8-bit level of 24bppBGR, 32bppBGRA (and every alpha) and 8bppGray into
+    // 64bppRGBAFixedPoint
+    {
+        let ramp: Vec<u8> = (0..256u32).flat_map(|v| [v as u8, (255 - v) as u8, (v * 7 % 256) as u8]).collect();
+        let b = bmp(40, 256, 1, 24, 0, [0; 4], 0, &[], &ramp, true, (2835, 2835));
+        writeln!(s, "case rgba64fixed-every-bgr24\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&b)).unwrap();
+        let ramp: Vec<u8> = (0..256u32).flat_map(|v| [v as u8, (255 - v) as u8, (v * 7 % 256) as u8, (v * 13 % 256) as u8]).collect();
+        let raw: Vec<Vec<u8>> = vec![ramp.chunks(4).flat_map(|c| [c[2], c[1], c[0], c[3]]).collect()];
+        let p = png(256, 1, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 4096);
+        writeln!(s, "case rgba64fixed-every-bgra\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p)).unwrap();
+        let raw: Vec<Vec<u8>> = vec![(0..=255u8).collect()];
+        let p = png(256, 1, 8, 0, false, &[], &png_filter(&raw, 1, &[0]), 4096);
+        writeln!(s, "case rgba64fixed-every-gray8\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p)).unwrap();
+    }
     s
 }
 
