@@ -148,28 +148,30 @@ proptest! {
         }
     }
 
-    /// GL 1.1 3.4.1: a 1-pixel line's pixels lie within 1/2 (in |dx| + |dy|) of the segment,
-    /// an x-major line has at most one per column (a y-major one per row), and moving both ends
-    /// by whole pixels moves the pixels with them
+    /// GL 1.1 3.4.1: a 1-pixel line has at most one pixel per column when x-major (per row
+    /// when y-major), each within a pixel of the segment, as many as it spans along that axis
+    /// give or take two, and moving both ends by whole pixels moves the pixels with them (the
+    /// tie pivot far away, so ties go one way)
     #[test]
     fn line_is_thin_and_moves_with_its_ends(v in any::<[(u8, u8); 2]>(), dx in -3i64..4, dy in -3i64..4) {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 3.0, f64::from(y) / 32.0 + 3.0];
         let (a, b) = (end(v[0]), end(v[1]));
-        let vp = [0, 0, 16, 16];
-        let Ok(p) = tri::line(a, b, vp) else { return Ok(()) };
-        let xmajor = (b[0] - a[0]).abs() >= (b[1] - a[1]).abs();
+        let (vp, pivot) = ([0, 0, 16, 16], (100.0, -100.0));
+        let p = tri::line(a, b, vp, pivot);
+        let xmajor = (b[0] - a[0]).abs() > (b[1] - a[1]).abs();
         let mut seen = std::collections::BTreeSet::new();
         for &(x, y) in &p {
             prop_assert!(seen.insert(if xmajor { x } else { y }), "two pixels in one column or row: {p:?}");
             let (xc, yc) = (x as f64 + 0.5, y as f64 + 0.5);
-            let t = (0..=256).map(|k| f64::from(k) / 256.0).map(|t| (a[0] + t * (b[0] - a[0]) - xc).abs() + (a[1] + t * (b[1] - a[1]) - yc).abs()).fold(f64::INFINITY, f64::min);
-            prop_assert!(t <= 0.5 + 1.0 / 64.0, "({x}, {y}) {t} from the line");
+            let t = (0..=256).map(|k| f64::from(k) / 256.0).map(|t| (a[0] + t * (b[0] - a[0]) - xc).hypot(a[1] + t * (b[1] - a[1]) - yc)).fold(f64::INFINITY, f64::min);
+            prop_assert!(t <= 1.5, "({x}, {y}) {t} from the line");
         }
+        let span = if xmajor { (b[0] - a[0]).abs() } else { (b[1] - a[1]).abs() };
+        prop_assert!((p.len() as f64 - span).abs() <= 2.0, "{} pixels for {span}", p.len());
         let shift = |c: [f64; 2]| [c[0] + dx as f64, c[1] + dy as f64];
-        if let Ok(q) = tri::line(shift(a), shift(b), vp) {
-            let moved: Vec<(i64, i64)> = p.iter().map(|(x, y)| (x + dx, y + dy)).collect();
-            prop_assert_eq!(q, moved);
-        }
+        let q = tri::line(shift(a), shift(b), vp, pivot);
+        let moved: Vec<(i64, i64)> = p.iter().map(|(x, y)| (x + dx, y + dy)).collect();
+        prop_assert_eq!(q, moved);
     }
 
     /// A triangle (convex) crosses each plane of the view volume at most twice; a bow tie

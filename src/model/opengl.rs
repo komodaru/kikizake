@@ -2604,12 +2604,9 @@ impl Ctx {
         Ok(out)
     }
 
-    /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden opengl-32
-    /// prim-3..8, 14, 15, lines-*: the ends rounded to 1/64, then the diamond-exit rule, GL 1.1 3.4.1: a pixel whose diamond
-    /// |x - xc| + |y - yc| < 1/2 the segment meets, unless b is inside it, inside the viewport:
-    /// GL.RASTER.LINE); a segment touching a diamond's border or ending on one is GL.RASTER.TIE
+    /// the pixels of a 1-pixel line from a to b in window coordinates (`tri::line`)
     fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
-        tri::line(a, b, self.viewport).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_TIE))
+        Ok(tri::line(a, b, self.viewport, self.tie_pivot()))
     }
 
     fn bits(&self) -> [u32; 4] {
@@ -3997,85 +3994,105 @@ impl Ctx {
 ///   a row takes the centers strictly right of its left edge and at or left of its right edge,
 ///   the rows from an edge's lower vertex up to (not at) its upper one.
 pub mod tri {
-    /// A line touching a diamond where Windows' choice is not measured (GL.RASTER.TIE).
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct Tie;
+    /// A window coordinate in units of 1/64 pixel, where a line's ends are rounded to.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct Q64(pub i64);
 
-    /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden opengl-32
-    /// prim-3..8, 14, 15, lines-*: the ends rounded to 1/64, then the diamond-exit rule, GL 1.1 3.4.1: a pixel whose diamond
-    /// |x - xc| + |y - yc| < 1/2 the segment meets, unless b is inside it, inside the viewport:
-    /// GL.RASTER.LINE)
-    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> Result<Vec<(i64, i64)>, Tie> {
-        use std::cmp::Ordering;
-        super::hit(super::clause::GL_RASTER_LINE);
-        // (MEASURED, golden opengl-32 lines-0: the ends first rounded to 1/64 of a pixel, a line
-        // 0.0004 from a diamond falling on the other side)
-        let snap = |v: f64| (v * 64.0).round() / 64.0;
-        let (a, b) = ([snap(a[0]), snap(a[1])], [snap(b[0]), snap(b[1])]);
-        let l1 = |p: [f64; 2], xc: f64, yc: f64| (p[0] - xc).abs() + (p[1] - yc).abs();
-        let [vx, vy, vw, vh] = viewport;
-        let mut out = Vec::new();
-        if a == b {
-            return Ok(out);
-        }
-        for y in vy.max(0)..(vy + vh).min(super::H as i64) {
-            for x in vx.max(0)..(vx + vw).min(super::W as i64) {
-                let (xc, yc) = (x as f64 + 0.5, y as f64 + 0.5);
-                // the least |x - xc| + |y - yc| on the segment: at an end or where it crosses
-                // the center's row or column
-                let mut pts = vec![a, b];
-                for t in [(xc - a[0]) / (b[0] - a[0]), (yc - a[1]) / (b[1] - a[1])] {
-                    if (0.0..=1.0).contains(&t) {
-                        pts.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
-                    }
-                }
-                let d = pts.iter().map(|p| l1(*p, xc, yc)).fold(f64::INFINITY, f64::min);
-                let e = l1(b, xc, yc);
-                if d == 0.5 || e == 0.5 {
-                    // (MEASURED, golden opengl-32 prim-3, 4, 8, 15, polymode-0, 5: a diamond keeps
-                    // its bottom and right corners and the edge between them, not its top and
-                    // left corners: GL.RASTER.LINE.TIE; an end on a corner, and the other three
-                    // edges, not measured)
-                    let on: Vec<[f64; 2]> = pts.iter().copied().filter(|p| l1(*p, xc, yc) == 0.5).collect();
-                    let corner = |p: [f64; 2]| p[0] == xc || p[1] == yc;
-                    if (l1(a, xc, yc) == 0.5 && corner(a)) || (e == 0.5 && corner(b)) {
-                        return Err(Tie);
-                    }
-                    let mut touch = on.clone();
-                    for i in 0..on.len() {
-                        for j in i + 1..on.len() {
-                            touch.push([(on[i][0] + on[j][0]) / 2.0, (on[i][1] + on[j][1]) / 2.0]);
-                        }
-                    }
-                    let inc = |p: [f64; 2]| -> Result<bool, Tie> {
-                        let (dx, dy) = (p[0] - xc, p[1] - yc);
-                        if (dx.abs() + dy.abs()) != 0.5 {
-                            return Ok(dx.abs() + dy.abs() < 0.5);
-                        }
-                        Ok(match (dx.partial_cmp(&0.0), dy.partial_cmp(&0.0)) {
-                            // the bottom and right corners, the edge between them
-                            (Some(Ordering::Equal), Some(Ordering::Less)) | (Some(Ordering::Greater), Some(Ordering::Equal)) | (Some(Ordering::Greater), Some(Ordering::Less)) => true,
-                            // the top and left corners
-                            (Some(Ordering::Equal), Some(Ordering::Greater)) | (Some(Ordering::Less), Some(Ordering::Equal)) => false,
-                            _ => return Err(Tie),
-                        })
-                    };
+    /// The pixel whose diamond holds `p` (1/64 units), if any: its four edges belong to it,
+    /// and of its corners the ones a point on a pixel boundary goes with toward the tie
+    /// pivot `pivot` (1/64 units: x on a boundary to the pixel right of it while at or left of
+    /// the pivot, y to the pixel below it while at or above the pivot: GL.POINT.TIE).
+    fn diamond(p: [Q64; 2], pivot: [Q64; 2]) -> Option<[i64; 2]> {
+        let (fx, fy) = (p[0].0.div_euclid(64), p[1].0.div_euclid(64));
+        for x in fx - 1..=fx + 1 {
+            for y in fy - 1..=fy + 1 {
+                let (dx, dy) = (p[0].0 - (x * 64 + 32), p[1].0 - (y * 64 + 32));
+                let d = dx.abs() + dy.abs();
+                if d == 32 {
                     super::hit(super::clause::GL_RASTER_LINE_TIE);
-                    let mut hits = d < 0.5;
-                    for p in &touch {
-                        hits |= inc(*p)?;
-                    }
-                    if hits && !inc(b)? {
-                        out.push((x, y));
-                    }
-                    continue;
                 }
-                if d < 0.5 && e > 0.5 {
-                    out.push((x, y));
+                let holds = d < 32
+                    || (d == 32
+                        && match (dx.signum(), dy.signum()) {
+                            // the left and right corners: on the boundary x = p.x
+                            (-1, 0) => p[0].0 <= pivot[0].0,
+                            (1, 0) => p[0].0 > pivot[0].0,
+                            // the bottom and top corners: on the boundary y = p.y
+                            (0, -1) => p[1].0 < pivot[1].0,
+                            (0, 1) => p[1].0 >= pivot[1].0,
+                            _ => true,
+                        });
+                if holds {
+                    return Some([x, y]);
                 }
             }
         }
-        Ok(out)
+        None
+    }
+
+    /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden
+    /// opengl-32 line-tie-*: 256 lines from and to each corner and edge middle of a pixel;
+    /// prim-*, lines-*, polymode-*): the ends rounded to 1/64; along the major axis (y when
+    /// |dy| >= |dx|) the pixels from the one whose diamond holds a (else the first whose center
+    /// is at or past a) up to, not including, the same for b; across, the line at each one's
+    /// center, floor, a value on a pixel boundary going toward the tie pivot as a point's;
+    /// inside the viewport: GL.RASTER.LINE, GL.RASTER.LINE.TIE
+    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], pivot: (f64, f64)) -> Vec<(i64, i64)> {
+        super::hit(super::clause::GL_RASTER_LINE);
+        let q = |v: f64| Q64((v * 64.0).round() as i64);
+        let pivot = [q(pivot.0), q(pivot.1)];
+        let (a, b) = ([q(a[0]), q(a[1])], [q(b[0]), q(b[1])]);
+        let (dx, dy) = (b[0].0 - a[0].0, b[1].0 - a[1].0);
+        if dx == 0 && dy == 0 {
+            return Vec::new();
+        }
+        let ymajor = dy.abs() >= dx.abs();
+        let (major, minor) = if ymajor { (1, 0) } else { (0, 1) };
+        let (dmaj, dmin) = if ymajor { (dy, dx) } else { (dx, dy) };
+        let step = dmaj.signum();
+        // the major index a point starts or stops the run at
+        let index = |p: [Q64; 2]| match diamond(p, pivot) {
+            Some(px) => px[major],
+            // (the first center at or past it: (2j + 1) * 32 >= v going up)
+            None if step > 0 => (p[major].0 - 32 + 63).div_euclid(64),
+            None => (p[major].0 - 32).div_euclid(64),
+        };
+        let (j0, j1) = (index(a), index(b));
+        let [vx, vy, vw, vh] = viewport;
+        let (x0, y0, x1, y1) = (vx.max(0), vy.max(0), (vx + vw).min(super::W as i64), (vy + vh).min(super::H as i64));
+        let mut out = Vec::new();
+        let mut j = j0;
+        // (MEASURED, golden opengl-32 prim-3: the line across in float32, from the first
+        // center's exact value, the slope added at each step)
+        let slope = dmin as f32 / dmaj as f32 * step as f32;
+        let mut across: Option<f32> = None;
+        while j != j1 && (j - j1).signum() == -step {
+            let v = match across {
+                Some(v) => v + slope,
+                None => {
+                    // the line across at center (2j + 1) * 32: a + (c - a) * dmin / dmaj, in 1/64 units
+                    let c = (2 * j + 1) * 32;
+                    ((a[minor].0 * dmaj + (c - a[major].0) * dmin) as f64 / (64 * dmaj) as f64) as f32
+                }
+            };
+            across = Some(v);
+            let mut k = v.floor() as i64;
+            // (on a boundary: toward the tie pivot, as a point's; on the pivot itself the way the
+            // line goes across, golden opengl-32 prim-7, prim-8)
+            if v == v.floor() {
+                super::hit(super::clause::GL_RASTER_LINE_TIE);
+                let at = k * 64 - pivot[minor].0;
+                if at > 0 || (at == 0 && dmin < 0) {
+                    k -= 1;
+                }
+            }
+            let (x, y) = if ymajor { (k, j) } else { (j, k) };
+            if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
+                out.push((x, y));
+            }
+            j += step;
+        }
+        out
     }
 
     /// A window coordinate in units of 1/256 pixel.
