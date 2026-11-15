@@ -719,5 +719,31 @@ pub fn d3d7dev() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // long lines of minor/major slopes a/b through a tie (minor 9/16 past a whole pixel at a
+    // whole major column) every b-th column, each drawn both ways, x-major on a 64 x 40 target
+    // and y-major on a 40 x 64 one: how each of a line's ties settles in turn
+    let mut rq = XorShift32::new(0x00d3_d714);
+    const SLOPES: [(i64, i64); 24] = [(1, 3), (-1, 3), (1, 5), (-1, 5), (2, 5), (-2, 5), (1, 7), (-1, 7), (2, 7), (-3, 7), (3, 7), (1, 9), (-2, 9), (4, 9), (-4, 9), (1, 11), (-3, 11), (4, 11), (-1, 13), (4, 13), (-5, 13), (3, 8), (-3, 8), (-1, 4)];
+    for major_x in [true, false] {
+        let (w, h, axis) = if major_x { (64, 40, "x") } else { (40, 64, "y") };
+        writeln!(s, "case lineseq-rgb-{axis}\nd3d 7\nd3ddev rgb 565 {w} {h}\nd3drs set 22 1").unwrap();
+        for &(a, b) in &SLOPES {
+            // (major, minor) in 16ths
+            let (p, m0, m1) = loop {
+                let p = (rq.range(20, 44) * 16, rq.range(4, 35) * 16 + 9);
+                let (m0, m1) = (p.0 / b - rq.range(1, 15), (16 * 63 - p.0) / b - rq.range(1, 15));
+                let inside = |q: i64| (0..16 * 40).contains(&q);
+                if m0 > 0 && m1 > 0 && inside(p.1 - m0 * a) && inside(p.1 + m1 * a) {
+                    break (p, m0, m1);
+                }
+            };
+            let ends = [(p.0 - m0 * b, p.1 - m0 * a), (p.0 + m1 * b, p.1 + m1 * a)];
+            for (e0, e1) in [(ends[0], ends[1]), (ends[1], ends[0])] {
+                let ((x0, y0), (x1, y1)) = if major_x { (e0, e1) } else { ((e0.1, e0.0), (e1.1, e1.0)) };
+                writeln!(s, "d3dclear 0\nd3dline 0xffffffff {x0} {y0} {x1} {y1}\nd3ddump").unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
