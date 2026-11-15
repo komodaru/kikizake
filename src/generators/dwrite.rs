@@ -790,6 +790,36 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             }
         }
     }
+    // the same origin by the glyph's black box at 2048 units per em (the top decides it, by the
+    // sixth of a pixel its edge falls in): every top a sixth apart up to 100 pixels (row), and
+    // at four tops the bottom (bot) and the right edge (wid) moved a sixth at a time
+    {
+        let (pp, k, u) = (97i64, 66i64, 2048i64);
+        let v = (2 * k * u + pp).div_euclid(2 * pp);
+        // (design units of the middle of sixth j of a pixel)
+        let at = |j: i64| ((2 * j - 1) * u + 6 * pp).div_euclid(12 * pp);
+        let mut put = |name: String, seed: u32, boxes: &[(i64, i64, i64)]| {
+            let gs: Vec<_> = boxes.iter().map(|&(y0, x1, t)| ((u / 2) as u16, vec![(0i16, y0 as i16, x1 as i16, t as i16)])).collect();
+            let mut f = font_with(seed, u as u16, &gs);
+            f.vertical = true;
+            for (i, &(_, _, t)) in boxes.iter().enumerate() {
+                f.glyphs[i + 1].vert = (v as u16, (v - t) as i16);
+            }
+            let gids: Vec<String> = (1..=boxes.len()).map(|g| g.to_string()).collect();
+            writeln!(s, "case {name}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" ")).unwrap();
+        };
+        let rows: Vec<i64> = (1..=600).collect();
+        for (i, c) in rows.chunks(14).enumerate() {
+            let b: Vec<_> = c.iter().map(|&j| (0, u / 4, at(j))).collect();
+            put(format!("gdiv97row-{i}"), 0x0fda_0000 + i as u32, &b);
+        }
+        for (i, &j) in [145i64, 146, 109, 36].iter().enumerate() {
+            let b: Vec<_> = (0..14).map(|y| (at(y * 6 / 5), u / 4, at(j))).collect();
+            put(format!("gdiv97bot-{j}"), 0x0fdb_0000 + i as u32, &b);
+            let b: Vec<_> = (0..14).map(|x| (0, at(30 + x * 25), at(j))).collect();
+            put(format!("gdiv97wid-{j}"), 0x0fdc_0000 + i as u32, &b);
+        }
+    }
     // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
