@@ -1498,6 +1498,11 @@ pub fn wicencode() -> String {
         }).collect();
         writeln!(s, "case gifgrid-{k}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&rgba(w, &|i| px[i]))).unwrap();
     }
+    // (64bppRGBAFixedPoint's alpha back into 16 bits, and the float and half formats' alpha:
+    // random alphas)
+    for (k, (f, t)) in [("rgba64fixed", "rgba64"), ("rgbafloat", "rgba64"), ("rgba64half", "rgba64")].into_iter().enumerate() {
+        writeln!(s, "case backalpha-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xba1f_0000u32 + k as u32).unwrap();
+    }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits

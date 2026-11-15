@@ -7394,6 +7394,24 @@ winfo
 wpixels
 wsrcpal
 end
+case backalpha-rgba64fixed-rgba64
+wbits bgra 16 16 3122593792
+wconv rgba64fixed
+wconv rgba64
+wpixels
+end
+case backalpha-rgbafloat-rgba64
+wbits bgra 16 16 3122593793
+wconv rgbafloat
+wconv rgba64
+wpixels
+end
+case backalpha-rgba64half-rgba64
+wbits bgra 16 16 3122593794
+wconv rgba64half
+wconv rgba64
+wpixels
+end
 case opt-jpeg-sub1-bgra
 wbits bgra 6 4 1903624449
 wencode jpeg JpegYCrCbSubsampling=1

@@ -685,3 +685,28 @@ proptest! {
         }
     }
 }
+
+/// s2.13 back into 16 bits climbs from black to white; every 8-bit level through
+/// 64bppRGBAFixedPoint and back keeps its alpha and its color or the one below (the 8-bit
+/// tables of the two ways are not each other's inverse)
+#[test]
+fn fixed_point_goes_back_where_it_came_from() {
+    for t in [wi::FixBack::Color, wi::FixBack::Gray] {
+        let at = |v: i16| wi::fix13_srgb16(wi::Fix13::new(v).unwrap(), t);
+        assert_eq!((at(0), at(8192)), (0, 65535));
+        assert!((1..=8192).all(|v| at(v - 1) <= at(v)));
+    }
+    assert!(wi::Fix13::new(-1).is_none() && wi::Fix13::new(8193).is_none());
+    let mut i = Img::new(256, 256, "bgra");
+    for k in 0..65536usize {
+        i.px[k * 4..k * 4 + 4].copy_from_slice(&[k as u8, (k * 7) as u8, (k * 13) as u8, (k >> 8) as u8]);
+    }
+    let f = wi::wic_convert(&i, "rgba64fixed").unwrap();
+    let b = wi::wic_convert(&f, "bgra").unwrap();
+    for (k, (&got, &was)) in b.px.iter().zip(&i.px).enumerate() {
+        match k % 4 {
+            3 => assert_eq!(got, was),
+            _ => assert!(got == was || got + 1 == was, "{k}: {was} back as {got}"),
+        }
+    }
+}

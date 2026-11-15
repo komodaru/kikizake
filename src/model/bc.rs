@@ -95,12 +95,8 @@ fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diago
     // (the box of the points rounded to 5:6:5)
     for p in match start_box { Rounding::Grid => grid, Rounding::Plain => pts } {
         for k in 0..3 {
-            if p[k] < x[k] {
-                x[k] = p[k];
-            }
-            if p[k] > y[k] {
-                y[k] = p[k];
-            }
+            x[k] = x[k].min(p[k]);
+            y[k] = y[k].max(p[k]);
         }
     }
     let ab = [y[0] - x[0], y[1] - x[1], y[2] - x[2]];

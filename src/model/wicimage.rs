@@ -153,6 +153,37 @@ static LINEAR16: &[u8; 65536 * 4] = include_bytes!("data/wic_linear16.bin");
 /// no 256-multiple but 0 comes out; no rule of the 8 bits and the rest found), little-endian
 static GRAY16_RGB48: &[u8; 65536 * 2] = include_bytes!("data/wic_gray16_rgb48.bin");
 
+/// MEASURED (golden wicencode backsweep-rgba64fixed-*, -grayfix16-*: every s2.13 level 0..=8192):
+/// the 16-bit sRGB level of each, color and gray
+static FIX16_SRGB16: &[u8; 8193 * 2] = include_bytes!("data/wic_fix16_srgb16.bin");
+static GRAYFIX16_GRAY16: &[u8; 8193 * 2] = include_bytes!("data/wic_grayfix16_gray16.bin");
+
+/// an s2.13 level inside 0..=1 (0..=8192)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Fix13(u16);
+
+impl Fix13 {
+    pub fn new(v: i16) -> Option<Self> {
+        u16::try_from(v).ok().filter(|&v| v <= 8192).map(Self)
+    }
+}
+
+/// which table an s2.13 level goes back to 16 bits through
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum FixBack {
+    Color,
+    Gray,
+}
+
+pub fn fix13_srgb16(v: Fix13, t: FixBack) -> u16 {
+    let k = usize::from(v.0) * 2;
+    let b = match t {
+        FixBack::Color => FIX16_SRGB16,
+        FixBack::Gray => GRAYFIX16_GRAY16,
+    };
+    u16::from_le_bytes([b[k], b[k + 1]])
+}
+
 pub fn gray16_rgb48(v: u16) -> u16 {
     let k = usize::from(v) * 2;
     u16::from_le_bytes([GRAY16_RGB48[k], GRAY16_RGB48[k + 1]])
@@ -346,6 +377,61 @@ fn wide_to_rgba64fixed(s: &Img, to: &'static str) -> Option<Res<Img>> {
     Some(Ok(o))
 }
 
+/// MEASURED (golden wicencode backsweep-rgba64fixed-*, -grayfix16-*: every s2.13 level 0..=8192;
+/// back-rgba64fixed-bgra, back-rgb48fixed-rgb48: 256 random pixels each): s2.13 back into 8 and
+/// 16 bits: each color channel through the measured table (FIX16_SRGB16, gray through its own,
+/// GRAYFIX16_GRAY16; neither is a formula found: 256 pieces between the sRGB levels k / 256 come
+/// close, 90 %), 8 bits its high byte; alpha a * 65535 / 8192 rounded, 8 bits its high byte (ASSUMED
+/// for 16 bits: only alpha 1 is in the goldens so far). Levels outside 0..=1 open (CONVERT.OTHER:
+/// no bitmap the executor makes has them)
+fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    let (n, back) = match (s.fmt, to) {
+        ("rgba64fixed", "rgba64" | "rgb48" | "bgra" | "bgr24") => (4usize, FixBack::Color),
+        ("rgb48fixed", "rgb48") => (3, FixBack::Color),
+        ("grayfix16", "gray16" | "gray8") => (1, FixBack::Gray),
+        _ => return None,
+    };
+    hit(clause::WICIMAGE_CONVERT_FIXED_NARROW);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (st, ost) = (s.stride(), o.stride());
+    for y in 0..s.h as usize {
+        for x in 0..s.w as usize {
+            let at = |k: usize| {
+                let i = y * st + (x * n + k) * 2;
+                Fix13::new(i16::from_le_bytes([s.px[i], s.px[i + 1]]))
+            };
+            let color = |k: usize| at(k).map(|v| fix13_srgb16(v, back));
+            let alpha = |k: usize| at(k).map(|v| u16::try_from((u32::from(v.0) * 65535 + 4096) / 8192).unwrap_or(u16::MAX));
+            let v: Option<Vec<u16>> = match n {
+                1 => [color(0)].into_iter().collect(),
+                3 => [color(0), color(1), color(2), Some(u16::MAX)].into_iter().collect(),
+                _ => [color(0), color(1), color(2), alpha(3)].into_iter().collect(),
+            };
+            let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
+            let hi = |c: u16| c.to_be_bytes()[0];
+            let d = &mut o.px[y * ost..];
+            match to {
+                "gray16" => d[x * 2..x * 2 + 2].copy_from_slice(&v[0].to_le_bytes()),
+                "gray8" => d[x] = hi(v[0]),
+                "rgba64" => {
+                    for k in 0..4 {
+                        d[x * 8 + k * 2..x * 8 + k * 2 + 2].copy_from_slice(&v[k].to_le_bytes());
+                    }
+                }
+                "rgb48" => {
+                    for k in 0..3 {
+                        d[x * 6 + k * 2..x * 6 + k * 2 + 2].copy_from_slice(&v[k].to_le_bytes());
+                    }
+                }
+                "bgra" => d[x * 4..x * 4 + 4].copy_from_slice(&[hi(v[2]), hi(v[1]), hi(v[0]), hi(v[3])]),
+                _ => d[x * 3..x * 3 + 3].copy_from_slice(&[hi(v[2]), hi(v[1]), hi(v[0])]),
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
 pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if s.fmt == to {
         return Ok(s.clone());
@@ -359,7 +445,10 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if let Some(r) = wide_to_rgba64fixed(s, to) {
         return r;
     }
-    if matches!(s.fmt, "bgr24" | "bgra" | "gray8" | "pbgra" | "rgba" | "prgba") && to == "rgba64fixed" {
+    if let Some(r) = fixed_to_narrow(s, to) {
+        return r;
+    }
+    if matches!(s.fmt, "bgr24" | "bgra" | "gray8" | "pbgra" | "rgba" | "prgba") && (to == "rgba64fixed" || (s.fmt, to) == ("bgra", "rgb48fixed")) {
         // MEASURED (golden wicencode encas-bmp-rgba64, rgba64fixed-every-bgr24, -bgra, -gray8:
         // every level; rgba64fixed-from-pbgra, -rgba, -prgba: 256 random pixels each): each 8-bit
         // color channel the LINEAR16 value of its 16-bit level (c * 257) times 8192 rounded, not
@@ -389,8 +478,10 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
                     "pbgra" => [2, 1, 0].map(|k| fix(unpremultiply(p[k], p[3]))).into_iter().chain([alpha(p[3])]).collect::<Vec<_>>().try_into().map_err(|_| Fail::Bad)?,
                     _ => [0, 1, 2].map(|k| fix(unpremultiply(p[k], p[3]))).into_iter().chain([alpha(p[3])]).collect::<Vec<_>>().try_into().map_err(|_| Fail::Bad)?,
                 };
-                let at = y as usize * ost + x as usize * 8;
-                for (k, c) in v.iter().enumerate() {
+                // (into 48bppRGBFixedPoint the same, alpha dropped: golden back-rgb48fixed-rgb48)
+                let n = if to == "rgb48fixed" { 3 } else { 4 };
+                let at = y as usize * ost + x as usize * n * 2;
+                for (k, c) in v.iter().take(n).enumerate() {
                     o.px[at + k * 2..at + k * 2 + 2].copy_from_slice(&c.to_le_bytes());
                 }
             }
