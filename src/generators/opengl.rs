@@ -1833,4 +1833,65 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // perspective through a modelview that turns: small smooth triangles about the origin,
+    // turned, then pushed back into the frustum (none cut): how Windows rounds turned vertices
+    let mut r = XorShift32::new(0x7e57_0b1c);
+    let turns: [(f64, [f64; 3]); 8] = [(10.0, [0.0, 1.0, 0.0]), (30.0, [1.0, 0.0, 0.0]), (45.0, [0.0, 1.0, 0.0]), (60.0, [1.0, 1.0, 0.0]), (90.0, [0.0, 0.0, 1.0]), (135.0, [0.0, 1.0, 1.0]), (20.0, [1.0, 2.0, 3.0]), (-75.0, [0.0, 1.0, 0.0])];
+    for (k, (angle, axis)) in turns.into_iter().enumerate() {
+        writeln!(s, "case persp-turn-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glShadeModel 0x1d01\ngl glMatrixMode 0x1701\ngl glLoadIdentity", ctx(32)).unwrap();
+        glf(s, "glFrustum", &[-1.0, 1.0, -1.0, 1.0, 1.0, 8.0]);
+        writeln!(s, "gl glMatrixMode 0x1700\ngl glLoadIdentity").unwrap();
+        glf(s, "glTranslatef", &[0.0, 0.0, -3.0]);
+        glf(s, "glRotatef", &[angle, axis[0], axis[1], axis[2]]);
+        for _ in 0..4 {
+            writeln!(s, "gl glClear 0x4100\ngl glBegin 4").unwrap();
+            for _ in 0..3 {
+                writeln!(s, "gl glColor4ub {} {} {} 255", r.next() % 256, r.next() % 256, r.next() % 256).unwrap();
+                let c = |r: &mut XorShift32| f64::from(r.next() % 41) / 64.0 - 0.3125;
+                let v = [c(&mut r), c(&mut r), c(&mut r)];
+                glf(s, "glVertex3f", &v);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // the polygons that are not convex, moved partly past the viewport (w = 1) and, under a
+    // projection, partly past the sides and the near plane: how Windows cuts them
+    let shifts: [(f64, f64); 4] = [(-6.0, 0.0), (6.0, 1.0), (1.0, 6.0), (-1.0, -6.0)];
+    for (k, shape) in shapes.into_iter().enumerate() {
+        writeln!(s, "case clip-nc-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport 0 0 16 16\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for (dx, dy) in shifts {
+            for first in 0..2 {
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 9").unwrap();
+                for i in 0..shape.len() {
+                    let at = shape[(first + i) % shape.len()];
+                    glf(s, "glVertex2f", &[at.0 + dx, at.1 + dy]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    for (k, shape) in shapes.into_iter().enumerate() {
+        writeln!(s, "case persp-cut-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glColor4ub 255 0 0 255\ngl glMatrixMode 0x1701\ngl glLoadIdentity", ctx(32)).unwrap();
+        glf(s, "glFrustum", &[-1.0, 1.0, -1.0, 1.0, 1.0, 8.0]);
+        writeln!(s, "gl glMatrixMode 0x1700").unwrap();
+        // (k even: past the sides; odd: through the near plane too)
+        for (dx, dy) in shifts {
+            for first in 0..2 {
+                writeln!(s, "gl glClear 0x4100\ngl glBegin 9").unwrap();
+                for i in 0..shape.len() {
+                    let at = shape[(first + i) % shape.len()];
+                    let z = if k % 2 == 0 { -2.0 - at.0 / 16.0 } else { -0.5 - at.1 / 8.0 };
+                    glf(s, "glVertex3f", &[(at.0 + dx - 8.0) / 8.0, (at.1 + dy - 8.0) / 8.0, z]);
+                }
+                writeln!(s, "gl glEnd").unwrap();
+                read_all(s);
+                writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
