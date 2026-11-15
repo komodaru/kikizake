@@ -2536,9 +2536,13 @@ impl Ctx {
                     }
                     let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
                     // (a wide line: cut to the view volume as one under a projection, golden
-                    // opengl-32 prim-6, prim-14; one whose first end the left plane cuts not
-                    // measured: prim-5, prim-6, line-wide-9..)
-                    if wide && ca[0] < -ca[3] {
+                    // opengl-32 prim-6, prim-14, line-wide-9..16; one whose first end the left
+                    // plane cuts when y-major, or the top one when x-major, drawn moved into the
+                    // window by about (width - 1) / 2: not measured, prim-5, prim-6,
+                    // line-wide-9..16)
+                    let [_, _, vw, vh] = self.viewport;
+                    let ymajor = ((cb[1] / cb[3] - ca[1] / ca[3]) * vh as f32).abs() > ((cb[0] / cb[3] - ca[0] / ca[3]) * vw as f32).abs();
+                    if wide && ((ymajor && ca[0] < -ca[3]) || (!ymajor && ca[1] > ca[3])) {
                         return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                     }
                     // (w = 1 between the near and far planes, one depth: not cut, as measured
