@@ -33,7 +33,12 @@ fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u
     let upm = p.upm as i64;
     let s16 = ((em << 17) / upm + 1) >> 1;
     let sc = |v: i16| match scale {
-        Scale::Direct => (v as i64 * em * 64 * 2 + upm).div_euclid(2 * upm),
+        // (MEASURED, golden dwrite, rastertie, gdisideupm: half a 1/64 pixel rounds up, but
+        // away from zero below zero at units per em not a power of 2)
+        Scale::Direct => {
+            let n = v as i64 * em * 64 * 2;
+            if n < 0 && !(upm as u64).is_power_of_two() { -((-n + upm).div_euclid(2 * upm)) } else { (n + upm).div_euclid(2 * upm) }
+        }
         Scale::Fixed16 => (v as i64 * s16 + 0x200) >> 10,
     };
     // (a position in 1/64 sample snapped to 1/q pixel, a step of 64 n / q of them)

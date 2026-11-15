@@ -15,8 +15,8 @@ pub mod linebreak;
 pub mod raster;
 pub mod script;
 
-use crate::spec::open;
 use crate::spec::clause;
+use crate::spec::open;
 use super::{Fail, Res};
 use crate::spec::hit;
 use crate::ttf::{analyze, face_at, glyph_of, parse_face, FileType, Parsed};
@@ -183,6 +183,54 @@ pub fn glyph_metrics(p: &Parsed, m: &Metrics, g: u16) -> Option<GlyphMetrics> {
     };
     Some(GlyphMetrics { adv: adv as u32, lsb: x0, rsb: adv as i32 - x1, tsb: voy - y1, advh, bsb: advh as i32 - voy + y0, voy })
 }
+
+/// the vertical edges of a GDI compatible glyph whose em fractions round their own way
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Edge {
+    /// the advance height
+    Advance,
+    /// the vertical origin
+    Origin,
+}
+
+/// MEASURED (golden dwrite, gdivtie: every size of 1 to 160 ppem, the remainders within 9/2 of
+/// half a ppem; gdivadv, gdivadvp, gdisideupm: 24938 sideways glyphs): k pixels' em fraction
+/// k * 65536 / ppem in 16.16 rounds up where the remainder r of k * 65536 by ppem reaches
+/// ppem - h: h is ppem / 2 (rounded down) for the origin and one less for the advance (an
+/// advance rounds up only past the half), with sizes of their own (HALF); OPEN where one
+/// remainder at a size rounds both ways (MIXED: another k or units per em)
+fn edge_fraction(e: Edge, ppem: i64, k: i64) -> Res<i64> {
+    let n = k * 65536;
+    if MIXED.contains(&(e, ppem, 2 * n.rem_euclid(ppem) - ppem)) {
+        return Err(Fail::Unmodeled(open::DW_GDI_EDGE));
+    }
+    hit(clause::DW_GDI_EDGE);
+    let d = HALF.iter().find(|x| x.0 == ppem).map_or(0, |x| match e {
+        Edge::Advance => x.1,
+        Edge::Origin => x.2,
+    });
+    let h = ppem / 2 - (e == Edge::Advance) as i64 + d as i64;
+    Ok((n + h).div_euclid(ppem))
+}
+
+/// (ppem, the advance's h less its rule's, the origin's)
+const HALF: [(i64, i8, i8); 32] = [
+    (10, -1, 0), (13, 0, 1), (14, -1, 0), (22, -1, 0), (37, 0, 1), (45, 0, 1), (46, 0, 1), (50, 0, 1),
+    (65, 0, 1), (67, 0, 1), (74, 0, 1), (78, 0, 1), (83, 0, 1), (90, 0, 1), (94, 0, 1), (95, 0, 1),
+    (98, 0, 1), (106, 0, 1), (109, 1, 1), (117, 0, 1), (121, 0, 1), (125, 0, 1), (129, 0, 1), (131, 0, 1),
+    (134, 0, 1), (138, 0, 1), (139, 0, 1), (147, 0, 1), (153, 0, 1), (154, 0, 1), (158, 0, 1), (159, 0, 1),
+];
+
+/// (edge, ppem, 2 r - ppem): remainders that round up at one k or units per em and down at
+/// another (advance 16 down, 49 and 82 up at 66 ppem; origin 4 up, 17 down at 26; 34 at 50 and 66
+/// at 97 down at some units per em, up at others; 15 up, 46 down at 62)
+const MIXED: [(Edge, i64, i64); 5] = [
+    (Edge::Advance, 66, 2),
+    (Edge::Origin, 26, -2),
+    (Edge::Origin, 50, -2),
+    (Edge::Origin, 62, -2),
+    (Edge::Origin, 97, 1),
+];
 
 fn glyph_line(g: &GlyphMetrics) -> String {
     format!("glyph adv {} lsb {} rsb {} tsb {} advh {} bsb {} voy {}", g.adv, g.lsb, g.rsb, g.tsb, g.advh, g.bsb, g.voy)
@@ -522,10 +570,7 @@ impl Dwrite {
                         return Ok(true);
                     }
                     if sideways {
-                        // (sideways: 12 of 22943 glyphs' advance heights or bearings a design
-                        // unit off the model below, at 10 and 22 ppem and on a sample's edge:
-                        // DW.GDI.GLYPH)
-                        return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
+                        hit(clause::DW_GDI_GLYPH);
                     }
                     hit(clause::DW_GDI_GLYPH_H);
                     let ppem = em * ppd;
@@ -556,10 +601,13 @@ impl Dwrite {
                     // is the difference of its two edges' em fractions, each rounded on its own)
                     let ef = |k: i64, n: i64| (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
                     let fu = |f: i64| (2 * f * upm + 65536).div_euclid(131072) as i32;
-                    // MEASURED (golden dwrite, gdivadv, gdisideupm: 10844 of 10848 advances): the
-                    // advance height's em fraction rounds k / ppem up only past the half by more
-                    // than 1/65536 of a pixel: (k * 65536 - 1) / ppem rounded half up
-                    let efa = |k: i64| (2 * (k * 65536 - 1) + ppem).div_euclid(2 * ppem);
+                    // (the advance height's and the vertical origin's em fractions: see edge_fraction)
+                    if ppem > 160 {
+                        // (beyond the sizes measured: the generators write none)
+                        return Err(Fail::Bad);
+                    }
+                    let efa = |k: i64| edge_fraction(Edge::Advance, ppem, k);
+                    let efo = |k: i64| edge_fraction(Edge::Origin, ppem, k);
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
                         (Some(_), _) => (None, None),
                         (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
@@ -574,10 +622,10 @@ impl Dwrite {
                             adv: du(advp, 1) as u32,
                             lsb: du(bb.0, nx),
                             rsb: fu(ef(advp, 1) - ef(bb.2, nx)),
-                            tsb: fu(ef(voyp, 1) + ef(bb.1, ny)),
-                            advh: fu(efa(advhp)) as u32,
-                            bsb: fu(efa(advhp) - ef(voyp, 1) - ef(bb.3, ny)),
-                            voy: du(voyp, 1),
+                            tsb: fu(efo(voyp)? + ef(bb.1, ny)),
+                            advh: fu(efa(advhp)?) as u32,
+                            bsb: fu(efa(advhp)? - efo(voyp)? - ef(bb.3, ny)),
+                            voy: fu(efo(voyp)?),
                         };
                     }
                 }
