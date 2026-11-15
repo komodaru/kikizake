@@ -1849,7 +1849,7 @@ impl Place128 {
     /// HighQualityBilinear's place of destination pixel p (GP.DRAW.HQ_BILINEAR): a 16.16 step
     /// (s / d rounded) from the rectangle's first pixel, for a half pixel offset the first
     /// place across half the step rounded up less one half, down (s - d) / 2d rounded; rounded
-    /// up to 1/128; across, a half offset's place at a fraction of exactly 1/2 moves 1/128 on
+    /// up to 1/128
     pub fn high_bilinear(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset, axis: Axis) -> Place128 {
         let step = (2 * sn * 65536 + dn).div_euclid(2 * dn);
         let start = match (po.half(), axis) {
@@ -1858,16 +1858,13 @@ impl Place128 {
             (true, Axis::Down) => ((sn - dn) * 65536 + dn).div_euclid(2 * dn),
         };
         let u = s0 * 65536 + start + (p - d0) * step;
-        let lift = match axis {
-            Axis::Across => po.half() && (u + 32768).rem_euclid(65536) == 0,
-            Axis::Down => false,
-        };
-        Place128((u + 511).div_euclid(512) + i64::from(lift))
+        Place128((u + 511).div_euclid(512))
     }
     /// the source pixels the quadratic spline reaches from here, with their weights in 1/32768
     pub fn taps(self) -> impl Iterator<Item = (i64, i64)> {
         let at = self.0.div_euclid(128);
-        (at - 1..=at + 2).map(move |c| (c, spline2(self.0 - 128 * c))).filter(|&(_, w)| w > 0)
+        // (the last is 0 for a place on a pixel or before)
+        (at - 1..=at + 2).map(move |c| (c, spline2(self.0 - 128 * c)))
     }
 }
 
@@ -1889,7 +1886,7 @@ const _: () = assert!(spline2(0) + 2 * spline2(128) == 32768 && spline2(64) + sp
 pub fn spline_pass(line: &[(u32, i64)], bits: u32) -> u32 {
     [0, 8, 16, 24].iter().fold(0, |o, &sh| {
         let s: i64 = line.iter().map(|&(p, w)| i64::from(p >> sh & 255) * w).sum();
-        o | (((s + (1 << (bits - 1))) >> bits).clamp(0, 255) as u32) << sh
+        o + ((((s + (1 << (bits - 1))) >> bits).clamp(0, 255) as u32) << sh)
     })
 }
 
