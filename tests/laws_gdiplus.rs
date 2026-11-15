@@ -345,5 +345,32 @@ proptest! {
         let (a, b) = (gp::Tap::bilinear(d0 + p, d0, dn, s0, sn, po), gp::Tap::bilinear(d0 + p + 1, d0, dn, s0, sn, po));
         prop_assert!((b.at, b.w) >= (a.at, a.w));
     }
+    /// Bicubic: entry 0 gives the texel at its place back, and sixteen equal opaque texels give
+    /// the color back whatever the entries, on either arch
+    #[test]
+    fn bicubic_keeps_a_lone_or_uniform_texel(c in any::<u32>(), ex in 0i64..65536, ey in 0i64..65536, arch in prop_oneof![Just(32u32), Just(64)]) {
+        kikizake::model::set_arch(arch);
+        let c = c | 0xff00_0000;
+        let mut q = [[0u32; 4]; 4];
+        q[1][1] = c;
+        let zero = gp::Entry::of(0);
+        prop_assert_eq!(gp::bicubic(q, zero, zero), c);
+        prop_assert_eq!(gp::bicubic([[c; 4]; 4], gp::Entry::of(ex), gp::Entry::of(ey)), c);
+    }
 }
 
+
+/// the bicubic tables: each entry's weights sum to one, and entry q mirrors entry 64 - q
+#[test]
+fn cubic_tables_sum_to_one_and_mirror() {
+    for q in 0..64 {
+        let s: i64 = gp::CUBIC16[q].iter().sum();
+        assert!((65535..=65537).contains(&s), "{q}: {s}");
+        if q > 0 {
+            let (a, b) = (gp::CUBIC16[q], gp::CUBIC16[64 - q]);
+            assert_eq!(a, [b[3], b[2], b[1], b[0]]);
+            let (a, b) = (gp::CUBIC14[q], gp::CUBIC14[64 - q]);
+            assert_eq!(a, [b[3], b[2], b[1], b[0]]);
+        }
+    }
+}

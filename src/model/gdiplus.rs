@@ -1669,8 +1669,8 @@ impl Gdiplus {
                     return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
                 }
                 match interp {
-                    Interp::NearestNeighbor | Interp::Bilinear => {}
-                    Interp::Bicubic | Interp::HighQualityBilinear | Interp::HighQualityBicubic => {
+                    Interp::NearestNeighbor | Interp::Bilinear | Interp::Bicubic => {}
+                    Interp::HighQualityBilinear | Interp::HighQualityBicubic => {
                         return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
                     }
                 }
@@ -1724,7 +1724,18 @@ impl Gdiplus {
                                 }
                                 bilinear(q4, tx.w, ty.w)
                             }
-                            Interp::Bicubic | Interp::HighQualityBilinear | Interp::HighQualityBicubic => unreachable!(),
+                            Interp::Bicubic => {
+                                hit(clause::GP_DRAW_BICUBIC);
+                                let (tx, ty) = (Cubic::across(x, dx, w, sx, sw, po), Cubic::down(y, dy, h, sy, sh, po));
+                                let mut q16 = [[0u32; 4]; 4];
+                                for (j, row) in q16.iter_mut().enumerate() {
+                                    for (i, t) in row.iter_mut().enumerate() {
+                                        *t = texel(tx.at - 1 + i as i64, ty.at - 1 + j as i64)?.unwrap_or(0);
+                                    }
+                                }
+                                bicubic(q16, tx.entry, ty.entry)
+                            }
+                            Interp::HighQualityBilinear | Interp::HighQualityBicubic => unreachable!(),
                         };
                         colors.insert((x as u32, y as u32), c);
                     }
@@ -1798,6 +1809,116 @@ impl Tap {
             Tap { at: (u >> 16) + (w >> 11), w: (w & 2047) as u32 }
         }
     }
+}
+
+/// a bicubic tap: the source pixel at (the taps at - 1 ..= at + 2) and the entry of the weights'
+/// table, the place's fraction in 1/64 truncated (GP.DRAW.BICUBIC)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Cubic {
+    pub at: i64,
+    pub entry: Entry,
+}
+
+/// an entry of the bicubic weights' table, 0 ..= 63 by construction
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Entry(u8);
+
+impl Entry {
+    pub fn of(fraction16: i64) -> Entry {
+        Entry(((fraction16 & 0xffff) >> 10) as u8)
+    }
+    pub fn get(self) -> usize {
+        usize::from(self.0)
+    }
+}
+
+impl Cubic {
+    /// across: a 16.16 step (s / d rounded) from the rectangle's first column, the first place
+    /// s / 2d rounded less one half for a half pixel offset
+    pub fn across(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset) -> Cubic {
+        let step = (2 * sn * 65536 + dn).div_euclid(2 * dn);
+        let start = if po.half() { (sn * 65536 + dn).div_euclid(2 * dn) - 32768 } else { 0 };
+        let u = s0 * 65536 + start + (p - d0) * step;
+        Cubic { at: u >> 16, entry: Entry::of(u) }
+    }
+    /// down: each row's place on its own, rounded to 16.16
+    pub fn down(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset) -> Cubic {
+        let half = if po.half() { sn * 65536 - dn * 65536 } else { 0 };
+        let u = (2 * (p - d0) * sn * 65536 + 2 * dn * s0 * 65536 + half + dn).div_euclid(2 * dn);
+        Cubic { at: u >> 16, entry: Entry::of(u) }
+    }
+}
+
+/// x / 8 rounded, halves away from zero
+const fn round8(x: i64) -> i64 {
+    if x >= 0 { (x + 4) / 8 } else { -((-x + 4) / 8) }
+}
+/// 65536 times Keys' cubic (a = -1/2) at m / 64 for m in 0 ..= 64: (3 m^3 - 320 m^2 + 2^19) / 8
+const fn inner16(m: i64) -> i64 {
+    round8(3 * m * m * m - 320 * m * m + 524_288)
+}
+/// and at n / 64 for n in 64 ..= 128: (-n^3 + 320 n^2 - 32768 n + 2^20) / 8
+const fn outer16(n: i64) -> i64 {
+    round8(-n * n * n + 320 * n * n - 32768 * n + 1_048_576)
+}
+
+/// MEASURED (golden gdiplusdraw cubicq-*, filterx-*: every entry pinned on both arches): the
+/// weights of taps at - 1 ..= at + 2 for each entry q, Keys' cubic (a = -1/2) at 1 + q/64, q/64,
+/// 1 - q/64, 2 - q/64 in 1/65536 rounded, halves away from zero
+pub const CUBIC16: [[i64; 4]; 64] = {
+    let mut t = [[0; 4]; 64];
+    let mut q = 0;
+    while q < 64 {
+        let m = q as i64;
+        t[q] = [outer16(64 + m), inner16(m), inner16(64 - m), outer16(128 - m)];
+        q += 1;
+    }
+    t
+};
+const _: () = assert!(CUBIC16[0][1] == 65536 && CUBIC16[0][0] == 0 && CUBIC16[0][2] == 0 && CUBIC16[32][1] == CUBIC16[32][2]);
+
+/// x86's table: CUBIC16 / 4 rounded, halves away from zero (Q14)
+pub const CUBIC14: [[i64; 4]; 64] = {
+    let mut t = [[0; 4]; 64];
+    let mut q = 0;
+    while q < 64 {
+        let mut j = 0;
+        while j < 4 {
+            let w = CUBIC16[q][j];
+            t[q][j] = if w >= 0 { (w + 2) / 4 } else { -((-w + 2) / 4) };
+            j += 1;
+        }
+        q += 1;
+    }
+    t
+};
+
+/// four premultiplied texel values weighted by one entry, clamped to a byte: x86 each product
+/// in Q14 shifted down 11 (floored), the sum rounded from 1/8; x86-64 in Q16, the sum floored
+fn cubic_line(v: [u32; 4], e: Entry) -> u32 {
+    let s: i64 = if super::arch() == 32 {
+        let w = CUBIC14[e.get()];
+        let t: i64 = (0..4).map(|j| (i64::from(v[j]) * w[j]) >> 11).sum();
+        (t + 4) >> 3
+    } else {
+        let w = CUBIC16[e.get()];
+        (0..4).map(|j| i64::from(v[j]) * w[j]).sum::<i64>() >> 16
+    };
+    s.clamp(0, 255) as u32
+}
+
+/// sixteen premultiplied texels (rows top down) through the bicubic weights (GP.DRAW.BICUBIC):
+/// down each column first, each clamped to a byte, then across
+pub fn bicubic(q: [[u32; 4]; 4], ex: Entry, ey: Entry) -> u32 {
+    // (each pass cuts a premultiplied channel past its alpha to it, golden gdiplusdraw
+    // filterx-25, filter-67, filteralpha-*)
+    let cut = |o: u32| {
+        let a = o >> 24;
+        (0..3).fold(o & 0xff00_0000, |c, k| c | (o >> (8 * k) & 255).min(a) << (8 * k))
+    };
+    let pass = |v: [u32; 4], e: Entry| cut([0, 8, 16, 24].iter().fold(0, |o, &sh| o | cubic_line(v.map(|p| p >> sh & 255), e) << sh));
+    let mid: [u32; 4] = std::array::from_fn(|i| pass(std::array::from_fn(|j| q[j][i]), ey));
+    pass(mid, ex)
 }
 
 /// four premultiplied texels [[top left, top right], [bottom left, bottom right]] weighted
