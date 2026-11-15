@@ -695,6 +695,36 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             }
         }
     }
+    // glyph edges exactly on half a 1/64 pixel, above and below zero, at units per em that are
+    // and are not powers of 2, where the tie decides a sample row or column of the black box
+    // (sideways: y, 6 samples down; horizontal: x, 6 across): which way the scaled coordinate
+    // rounds (DW.GDI.GLYPH)
+    for (u, em) in [(6656i64, 13i64), (13312, 13), (4608, 27), (13824, 27), (3072, 12), (12288, 24), (2048, 27), (1024, 60), (256, 54), (4096, 26), (8192, 13)] {
+        let tie = |v: i64| (2 * v * em * 64).rem_euclid(2 * u) == u;
+        // (the two edges a tie gives, in 1/64 sample: does a sample centre lie between?)
+        let matters = |v: i64| {
+            let m = (v * em * 64).div_euclid(u) * 6;
+            (m..=m + 6).any(|c| (c - 32).rem_euclid(64) == 0)
+        };
+        let off = |v: i64, d: i64| (d..d + 64).map(|h| v + h).find(|&w| !tie(w)).unwrap();
+        for axis in 0..2 {
+            let mut gs = Vec::new();
+            for (neg, low) in [(true, true), (true, false), (false, true), (false, false)] {
+                let vs: Vec<i64> = if neg { (-u..0).rev().collect() } else { (1..u).collect() };
+                for v in vs.into_iter().filter(|&v| tie(v) && matters(v)).take(3) {
+                    // (the tie is the low or the high edge; the other a third of the em away)
+                    let (a, b) = if low { (v, off(v, u / 3)) } else { (-off(-v, u / 3), v) };
+                    let r = if axis == 0 { (0, a, u / 4, b) } else { (a, 0, b, u / 4) };
+                    gs.push(((u / 2) as u16, vec![(r.0 as i16, r.1 as i16, r.2 as i16, r.3 as i16)]));
+                }
+            }
+            let mut f = font_with(0x0fd6_0000 + (u * 4 + axis) as u32, u as u16, &gs);
+            f.os2 = Some(4);
+            f.typo = ((u * 3 / 4) as i16, (-u / 4) as i16, 0);
+            let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
+            writeln!(s, "case rastertie-{}-{u}-{em}\n{}\ndwgdiglyph {em} 1 0 0 {}\ndwgdiglyph {em} 1 0 1 {}\nend", ["y", "x"][axis as usize], font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
+        }
+    }
     // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
