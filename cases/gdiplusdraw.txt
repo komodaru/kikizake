@@ -2294,3 +2294,1419 @@ gpattr 0 matrix 1 -0.80078125 -1.69140625 1.8125 -0.6875 0 1.37109375 -0.3710937
 gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
 gpread 0 32bppARGB
 end
+case altgray-0
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xfc8a8a8a
+gpset 1 1 0 0xbef9f9f9
+gpset 1 2 0 0x68898989
+gpset 1 3 0 0x319e9e9e
+gpset 1 4 0 0xba202020
+gpset 1 5 0 0xae878787
+gpset 1 6 0 0x16727272
+gpset 1 7 0 0xeeb9b9b9
+gpset 1 0 1 0x3aeaeaea
+gpset 1 1 1 0x8b8e8e8e
+gpset 1 2 1 0x61515151
+gpset 1 3 1 0xa79e9e9e
+gpset 1 4 1 0xd1151515
+gpset 1 5 1 0x34ebebeb
+gpset 1 6 1 0xc2cdcdcd
+gpset 1 7 1 0xcb9b9b9b
+gpset 1 0 2 0x417a7a7a
+gpset 1 1 2 0xa3818181
+gpset 1 2 2 0x93bbbbbb
+gpset 1 3 2 0x721e1e1e
+gpset 1 4 2 0x96a2a2a2
+gpset 1 5 2 0xa1272727
+gpset 1 6 2 0x183f3f3f
+gpset 1 7 2 0xf7f2f2f2
+gpset 1 0 3 0xe5212121
+gpset 1 1 3 0x87cccccc
+gpset 1 2 3 0xebbcbcbc
+gpset 1 3 3 0x56060606
+gpset 1 4 3 0x75858585
+gpset 1 5 3 0xaaf5f5f5
+gpset 1 6 3 0x29b6b6b6
+gpset 1 7 3 0x6dacacac
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.78515625 2 0.48828125 0.98828125 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-1
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xd7717171
+gpset 1 1 0 0xdacecece
+gpset 1 2 0 0x34909090
+gpset 1 3 0 0xc8848484
+gpset 1 4 0 0x5e9f9f9f
+gpset 1 5 0 0x41494949
+gpset 1 6 0 0xd8b0b0b0
+gpset 1 7 0 0x17e6e6e6
+gpset 1 0 1 0xc2505050
+gpset 1 1 1 0xdaefefef
+gpset 1 2 1 0xf6393939
+gpset 1 3 1 0x06878787
+gpset 1 4 1 0xf6464646
+gpset 1 5 1 0xc3b7b7b7
+gpset 1 6 1 0xcbcacaca
+gpset 1 7 1 0x66a0a0a0
+gpset 1 0 2 0xd8727272
+gpset 1 1 2 0x3e444444
+gpset 1 2 2 0x76a4a4a4
+gpset 1 3 2 0xbc787878
+gpset 1 4 2 0x86e4e4e4
+gpset 1 5 2 0x94b7b7b7
+gpset 1 6 2 0x5a1b1b1b
+gpset 1 7 2 0x751e1e1e
+gpset 1 0 3 0x34424242
+gpset 1 1 3 0xf1757575
+gpset 1 2 3 0x6dcbcbcb
+gpset 1 3 3 0x69050505
+gpset 1 4 3 0xa14e4e4e
+gpset 1 5 3 0x2cc1c1c1
+gpset 1 6 3 0x1b111111
+gpset 1 7 3 0x5b5b5b5b
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.33984375 0.75 0.18359375 0.52734375 1 gray -0.25 0 0 0 0 0 -1.0703125 0 0 0 0 0 1.09765625 0 0 0 0 0 -1.00390625 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-2
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x0ee8e8e8
+gpset 1 1 0 0x4fefefef
+gpset 1 2 0 0x6d3b3b3b
+gpset 1 3 0 0x06535353
+gpset 1 4 0 0x978f8f8f
+gpset 1 5 0 0xff383838
+gpset 1 6 0 0x4e474747
+gpset 1 7 0 0x47757575
+gpset 1 0 1 0xb0d5d5d5
+gpset 1 1 1 0xf6b6b6b6
+gpset 1 2 1 0xf7cfcfcf
+gpset 1 3 1 0x58737373
+gpset 1 4 1 0x08eeeeee
+gpset 1 5 1 0xacb5b5b5
+gpset 1 6 1 0x58a1a1a1
+gpset 1 7 1 0xece2e2e2
+gpset 1 0 2 0x20989898
+gpset 1 1 2 0xe2232323
+gpset 1 2 2 0xde2e2e2e
+gpset 1 3 2 0x70737373
+gpset 1 4 2 0x3b181818
+gpset 1 5 2 0x9b363636
+gpset 1 6 2 0x30313131
+gpset 1 7 2 0x5a707070
+gpset 1 0 3 0x63b3b3b3
+gpset 1 1 3 0xfb8d8d8d
+gpset 1 2 3 0x89efefef
+gpset 1 3 3 0xd8080808
+gpset 1 4 3 0x386e6e6e
+gpset 1 5 3 0x04e3e3e3
+gpset 1 6 3 0x079f9f9f
+gpset 1 7 3 0xf4484848
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1 1.47265625 1.04296875 1.8203125 1 gray 1 0 0 0 0 0 -1.1875 0 0 0 0 0 0.91015625 0 0 0 0 0 -0.9140625 0 0 0 0 0 -0.0859375
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-3
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x47c9c9c9
+gpset 1 1 0 0x2a333333
+gpset 1 2 0 0x95454545
+gpset 1 3 0 0x834f4f4f
+gpset 1 4 0 0x18000000
+gpset 1 5 0 0x7ab0b0b0
+gpset 1 6 0 0x0da9a9a9
+gpset 1 7 0 0xfa353535
+gpset 1 0 1 0xeb818181
+gpset 1 1 1 0x765c5c5c
+gpset 1 2 1 0x10828282
+gpset 1 3 1 0x73777777
+gpset 1 4 1 0x73b8b8b8
+gpset 1 5 1 0x5ae3e3e3
+gpset 1 6 1 0xa58d8d8d
+gpset 1 7 1 0xda010101
+gpset 1 0 2 0x40c4c4c4
+gpset 1 1 2 0x008c8c8c
+gpset 1 2 2 0x4b323232
+gpset 1 3 2 0x5ee4e4e4
+gpset 1 4 2 0x2c303030
+gpset 1 5 2 0x7bf9f9f9
+gpset 1 6 2 0x647c7c7c
+gpset 1 7 2 0xa6949494
+gpset 1 0 3 0x12b0b0b0
+gpset 1 1 3 0xa4b0b0b0
+gpset 1 2 3 0xc81b1b1b
+gpset 1 3 3 0xf5bfbfbf
+gpset 1 4 3 0xc5757575
+gpset 1 5 3 0x6d424242
+gpset 1 6 3 0x386b6b6b
+gpset 1 7 3 0x2faeaeae
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.26953125 -0.23046875 -1.50390625 -0.35546875 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1 1.1953125 -0.265625 -1.0859375 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-4
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x48a6a6a6
+gpset 1 1 0 0x626d6d6d
+gpset 1 2 0 0xdee9e9e9
+gpset 1 3 0 0xb1464646
+gpset 1 4 0 0xbd4b4b4b
+gpset 1 5 0 0xfeb3b3b3
+gpset 1 6 0 0xf2efefef
+gpset 1 7 0 0x8db1b1b1
+gpset 1 0 1 0x79515151
+gpset 1 1 1 0xbc4b4b4b
+gpset 1 2 1 0x190b0b0b
+gpset 1 3 1 0x1f7c7c7c
+gpset 1 4 1 0x0d9e9e9e
+gpset 1 5 1 0x78161616
+gpset 1 6 1 0xdedcdcdc
+gpset 1 7 1 0x3d121212
+gpset 1 0 2 0x0be9e9e9
+gpset 1 1 2 0x6ab7b7b7
+gpset 1 2 2 0x298c8c8c
+gpset 1 3 2 0x33868686
+gpset 1 4 2 0x7da1a1a1
+gpset 1 5 2 0xa2626262
+gpset 1 6 2 0x8e989898
+gpset 1 7 2 0x03949494
+gpset 1 0 3 0x91cccccc
+gpset 1 1 3 0xa0ececec
+gpset 1 2 3 0x8dababab
+gpset 1 3 3 0xc8676767
+gpset 1 4 3 0xdd888888
+gpset 1 5 3 0x86757575
+gpset 1 6 3 0x850a0a0a
+gpset 1 7 3 0x6d595959
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.75 0 0.5 -1.65234375 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-5
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x223d3d3d
+gpset 1 1 0 0xa3949494
+gpset 1 2 0 0xce797979
+gpset 1 3 0 0xaff2f2f2
+gpset 1 4 0 0x14fcfcfc
+gpset 1 5 0 0x24c8c8c8
+gpset 1 6 0 0xc1474747
+gpset 1 7 0 0x679b9b9b
+gpset 1 0 1 0xa5949494
+gpset 1 1 1 0x75090909
+gpset 1 2 1 0xdfa0a0a0
+gpset 1 3 1 0x93070707
+gpset 1 4 1 0xa4262626
+gpset 1 5 1 0xa8eaeaea
+gpset 1 6 1 0x0f595959
+gpset 1 7 1 0xaa6a6a6a
+gpset 1 0 2 0x11bdbdbd
+gpset 1 1 2 0x20bbbbbb
+gpset 1 2 2 0xbfd9d9d9
+gpset 1 3 2 0x42969696
+gpset 1 4 2 0x1ffdfdfd
+gpset 1 5 2 0x1e555555
+gpset 1 6 2 0xa7858585
+gpset 1 7 2 0xe6adadad
+gpset 1 0 3 0xd9181818
+gpset 1 1 3 0x8f030303
+gpset 1 2 3 0x6e131313
+gpset 1 3 3 0xcf7a7a7a
+gpset 1 4 3 0xe01c1c1c
+gpset 1 5 3 0x19848484
+gpset 1 6 3 0xbf8c8c8c
+gpset 1 7 3 0x49a6a6a6
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1 -1.6328125 -0.7265625 -0.203125 1 gray 0.5 0.25 0.5546875 0.62890625 0 -1.46875 1.68359375 1 -0.3984375 0 1.97265625 -0.75 -0.62890625 -0.5 0 1.07421875 1.26171875 -1.296875 -1.59375 0 0.70703125 0.46875 1.015625 1 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-6
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x291b1b1b
+gpset 1 1 0 0xb1595959
+gpset 1 2 0 0x1a777777
+gpset 1 3 0 0x5ec1c1c1
+gpset 1 4 0 0x55858585
+gpset 1 5 0 0xfc828282
+gpset 1 6 0 0xab454545
+gpset 1 7 0 0x92bbbbbb
+gpset 1 0 1 0x6aa3a3a3
+gpset 1 1 1 0x837e7e7e
+gpset 1 2 1 0x58d5d5d5
+gpset 1 3 1 0x24ededed
+gpset 1 4 1 0x5e131313
+gpset 1 5 1 0x27a3a3a3
+gpset 1 6 1 0x0f3f3f3f
+gpset 1 7 1 0xabdbdbdb
+gpset 1 0 2 0x13434343
+gpset 1 1 2 0x99313131
+gpset 1 2 2 0xc0121212
+gpset 1 3 2 0xb6535353
+gpset 1 4 2 0x4b909090
+gpset 1 5 2 0xdfdedede
+gpset 1 6 2 0xad9c9c9c
+gpset 1 7 2 0x241a1a1a
+gpset 1 0 3 0x48d1d1d1
+gpset 1 1 3 0x00121212
+gpset 1 2 3 0xb4121212
+gpset 1 3 3 0xe6111111
+gpset 1 4 3 0xb41d1d1d
+gpset 1 5 3 0x541c1c1c
+gpset 1 6 3 0x33eeeeee
+gpset 1 7 3 0xa4aeaeae
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.6484375 2 1.9453125 0 1 gray 0.5 -1 -1.92578125 0.94921875 0 -0.9609375 -1 0.5859375 0.30078125 0 -0.53125 1.640625 -0.55859375 -1.7890625 0 1.296875 0.4921875 -1.28125 -0.5 0 0.25 -0.0390625 -0.9140625 0.75390625 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-7
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x35bfbfbf
+gpset 1 1 0 0x4e333333
+gpset 1 2 0 0xa1d4d4d4
+gpset 1 3 0 0x98dddddd
+gpset 1 4 0 0xe1e3e3e3
+gpset 1 5 0 0xa7f6f6f6
+gpset 1 6 0 0x28ababab
+gpset 1 7 0 0xa89f9f9f
+gpset 1 0 1 0x8d303030
+gpset 1 1 1 0xef797979
+gpset 1 2 1 0x19848484
+gpset 1 3 1 0xe5262626
+gpset 1 4 1 0xe1595959
+gpset 1 5 1 0x35d2d2d2
+gpset 1 6 1 0xc8131313
+gpset 1 7 1 0x09868686
+gpset 1 0 2 0x80fafafa
+gpset 1 1 2 0xff646464
+gpset 1 2 2 0x3e767676
+gpset 1 3 2 0xaa000000
+gpset 1 4 2 0x81f1f1f1
+gpset 1 5 2 0x37f8f8f8
+gpset 1 6 2 0x15e1e1e1
+gpset 1 7 2 0xff919191
+gpset 1 0 3 0x14818181
+gpset 1 1 3 0xa9cccccc
+gpset 1 2 3 0x1c5a5a5a
+gpset 1 3 3 0xc2565656
+gpset 1 4 3 0x307b7b7b
+gpset 1 5 3 0xd0a1a1a1
+gpset 1 6 3 0x8fc7c7c7
+gpset 1 7 3 0x6e101010
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 2 0.72265625 -0.02734375 0.8046875 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1 0.5 -1.28125 0.86328125 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-8
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x39060606
+gpset 1 1 0 0xea555555
+gpset 1 2 0 0xeaadadad
+gpset 1 3 0 0x6c949494
+gpset 1 4 0 0xc72d2d2d
+gpset 1 5 0 0x82888888
+gpset 1 6 0 0x4d686868
+gpset 1 7 0 0xc1cbcbcb
+gpset 1 0 1 0xa8848484
+gpset 1 1 1 0x76c5c5c5
+gpset 1 2 1 0xc8a2a2a2
+gpset 1 3 1 0xbc848484
+gpset 1 4 1 0x10ababab
+gpset 1 5 1 0xfa909090
+gpset 1 6 1 0x0df5f5f5
+gpset 1 7 1 0xa01f1f1f
+gpset 1 0 2 0x3bf1f1f1
+gpset 1 1 2 0xd28c8c8c
+gpset 1 2 2 0x3d4b4b4b
+gpset 1 3 2 0xa0a9a9a9
+gpset 1 4 2 0x8cdfdfdf
+gpset 1 5 2 0xb6000000
+gpset 1 6 2 0xc3a7a7a7
+gpset 1 7 2 0xcfb6b6b6
+gpset 1 0 3 0xfe707070
+gpset 1 1 3 0xdfbcbcbc
+gpset 1 2 3 0xff414141
+gpset 1 3 3 0x812f2f2f
+gpset 1 4 3 0x4ce7e7e7
+gpset 1 5 3 0xb5c5c5c5
+gpset 1 6 3 0x78787878
+gpset 1 7 3 0x3a3e3e3e
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.99609375 0.72265625 -1 1.89453125 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-9
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xfb898989
+gpset 1 1 0 0x7ab8b8b8
+gpset 1 2 0 0x34f2f2f2
+gpset 1 3 0 0xf15e5e5e
+gpset 1 4 0 0xc4232323
+gpset 1 5 0 0xea2b2b2b
+gpset 1 6 0 0xabbebebe
+gpset 1 7 0 0x8b414141
+gpset 1 0 1 0x18d7d7d7
+gpset 1 1 1 0x74595959
+gpset 1 2 1 0xb5e3e3e3
+gpset 1 3 1 0x8c8b8b8b
+gpset 1 4 1 0x4ce9e9e9
+gpset 1 5 1 0x37cdcdcd
+gpset 1 6 1 0xafc2c2c2
+gpset 1 7 1 0x51989898
+gpset 1 0 2 0xd4e7e7e7
+gpset 1 1 2 0x79919191
+gpset 1 2 2 0x7d303030
+gpset 1 3 2 0x2e404040
+gpset 1 4 2 0xf02e2e2e
+gpset 1 5 2 0x89141414
+gpset 1 6 2 0xc5bdbdbd
+gpset 1 7 2 0xdfe7e7e7
+gpset 1 0 3 0xe13a3a3a
+gpset 1 1 3 0x5d666666
+gpset 1 2 3 0x8b9c9c9c
+gpset 1 3 3 0x0d7b7b7b
+gpset 1 4 3 0x2dbcbcbc
+gpset 1 5 3 0x488c8c8c
+gpset 1 6 3 0xd5d1d1d1
+gpset 1 7 3 0x9fe6e6e6
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.8671875 0.01171875 -0.25 0.42578125 1 gray 1.8984375 0 0 0 0 0 1.69921875 0 0 0 0 0 1.5 0 0 0 0 0 0.89453125 0 0 0 0 0 1.76953125
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-10
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x33a1a1a1
+gpset 1 1 0 0x442e2e2e
+gpset 1 2 0 0x31434343
+gpset 1 3 0 0x848f8f8f
+gpset 1 4 0 0x126c6c6c
+gpset 1 5 0 0xf9595959
+gpset 1 6 0 0x63909090
+gpset 1 7 0 0x4d767676
+gpset 1 0 1 0x178a8a8a
+gpset 1 1 1 0x7f2f2f2f
+gpset 1 2 1 0x94838383
+gpset 1 3 1 0x90a7a7a7
+gpset 1 4 1 0x8abebebe
+gpset 1 5 1 0x63676767
+gpset 1 6 1 0xea8a8a8a
+gpset 1 7 1 0x30dedede
+gpset 1 0 2 0x83a8a8a8
+gpset 1 1 2 0x8ebababa
+gpset 1 2 2 0xa4909090
+gpset 1 3 2 0xa6dadada
+gpset 1 4 2 0x40898989
+gpset 1 5 2 0x00fefefe
+gpset 1 6 2 0x7ad0d0d0
+gpset 1 7 2 0x072e2e2e
+gpset 1 0 3 0x79d1d1d1
+gpset 1 1 3 0x51afafaf
+gpset 1 2 3 0x23acacac
+gpset 1 3 3 0x0b5f5f5f
+gpset 1 4 3 0xcc484848
+gpset 1 5 3 0x20202020
+gpset 1 6 3 0x52515151
+gpset 1 7 3 0x272a2a2a
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.1640625 -0.5703125 0.25 -1.60546875 1 gray -1.42578125 -0.25390625 -0.6875 -0.98046875 0 0.47265625 1 -1.81640625 0.1171875 0 -0.0546875 0 -1.36328125 -1 0 0.19921875 1.015625 -0.21875 0 0 -0.75 0.94140625 0 -1.52734375 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-11
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x3b515151
+gpset 1 1 0 0xc20b0b0b
+gpset 1 2 0 0xd0151515
+gpset 1 3 0 0x39202020
+gpset 1 4 0 0x9ba4a4a4
+gpset 1 5 0 0x2af8f8f8
+gpset 1 6 0 0x4a414141
+gpset 1 7 0 0x5ed6d6d6
+gpset 1 0 1 0x99eaeaea
+gpset 1 1 1 0x0e999999
+gpset 1 2 1 0x51909090
+gpset 1 3 1 0x11ededed
+gpset 1 4 1 0xcff4f4f4
+gpset 1 5 1 0x24f2f2f2
+gpset 1 6 1 0x1f454545
+gpset 1 7 1 0xe59d9d9d
+gpset 1 0 2 0xc3c2c2c2
+gpset 1 1 2 0xf9b9b9b9
+gpset 1 2 2 0x69c1c1c1
+gpset 1 3 2 0x29181818
+gpset 1 4 2 0x49d7d7d7
+gpset 1 5 2 0xeb585858
+gpset 1 6 2 0x5f737373
+gpset 1 7 2 0x304e4e4e
+gpset 1 0 3 0x07a3a3a3
+gpset 1 1 3 0xb8222222
+gpset 1 2 3 0xa97d7d7d
+gpset 1 3 3 0xc0ebebeb
+gpset 1 4 3 0x00545454
+gpset 1 5 3 0x16878787
+gpset 1 6 3 0x47efefef
+gpset 1 7 3 0xc0030303
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.3984375 -0.08203125 0.8984375 -1 1 gray 1.28125 0 0 0 0 0 -1.5234375 0 0 0 0 0 0.5 0 0 0 0 0 0 0 0 0 0 0 -1.32421875
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-12
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x95fbfbfb
+gpset 1 1 0 0x3d5e5e5e
+gpset 1 2 0 0x24fefefe
+gpset 1 3 0 0xdb8e8e8e
+gpset 1 4 0 0xd74c4c4c
+gpset 1 5 0 0x8d828282
+gpset 1 6 0 0x551f1f1f
+gpset 1 7 0 0xbf5d5d5d
+gpset 1 0 1 0x7d191919
+gpset 1 1 1 0x5b808080
+gpset 1 2 1 0x5c626262
+gpset 1 3 1 0x219b9b9b
+gpset 1 4 1 0x790a0a0a
+gpset 1 5 1 0x968b8b8b
+gpset 1 6 1 0x93f1f1f1
+gpset 1 7 1 0xc1030303
+gpset 1 0 2 0x4a2a2a2a
+gpset 1 1 2 0xab222222
+gpset 1 2 2 0x5c838383
+gpset 1 3 2 0x6c424242
+gpset 1 4 2 0xa8525252
+gpset 1 5 2 0x62999999
+gpset 1 6 2 0x2b141414
+gpset 1 7 2 0xf9d0d0d0
+gpset 1 0 3 0x98737373
+gpset 1 1 3 0x53909090
+gpset 1 2 3 0xb3ebebeb
+gpset 1 3 3 0xdaaaaaaa
+gpset 1 4 3 0x6f4a4a4a
+gpset 1 5 3 0x6f4e4e4e
+gpset 1 6 3 0x11999999
+gpset 1 7 3 0x2e5e5e5e
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 1.0078125 1.31640625 1.73046875 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-13
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x0ed0d0d0
+gpset 1 1 0 0x56fdfdfd
+gpset 1 2 0 0xf5b3b3b3
+gpset 1 3 0 0x02565656
+gpset 1 4 0 0x5ce1e1e1
+gpset 1 5 0 0xaa505050
+gpset 1 6 0 0xd01b1b1b
+gpset 1 7 0 0x17dedede
+gpset 1 0 1 0xf76d6d6d
+gpset 1 1 1 0x93141414
+gpset 1 2 1 0x0f1c1c1c
+gpset 1 3 1 0x76303030
+gpset 1 4 1 0xc5d1d1d1
+gpset 1 5 1 0x506a6a6a
+gpset 1 6 1 0x0b3c3c3c
+gpset 1 7 1 0x8ab1b1b1
+gpset 1 0 2 0xf7191919
+gpset 1 1 2 0xda434343
+gpset 1 2 2 0x2b7d7d7d
+gpset 1 3 2 0xfa000000
+gpset 1 4 2 0x38030303
+gpset 1 5 2 0xc7e8e8e8
+gpset 1 6 2 0x1c838383
+gpset 1 7 2 0x2aefefef
+gpset 1 0 3 0xb9e6e6e6
+gpset 1 1 3 0xa7000000
+gpset 1 2 3 0x36797979
+gpset 1 3 3 0x6f0c0c0c
+gpset 1 4 3 0xa67e7e7e
+gpset 1 5 3 0xc1e8e8e8
+gpset 1 6 3 0x52fefefe
+gpset 1 7 3 0x311d1d1d
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.11328125 -0.34765625 0.5 1.5703125 1 gray 0 1.55078125 -0.93359375 -0.41796875 0 0.25 1.17578125 1 -1.1015625 0 -1.6484375 0.3203125 -0.75 -0.484375 0 0.16796875 0.25 -1 -0.75 0 0.25 2 2 1 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-14
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x98c0c0c0
+gpset 1 1 0 0x31525252
+gpset 1 2 0 0xb0515151
+gpset 1 3 0 0xae636363
+gpset 1 4 0 0xec2e2e2e
+gpset 1 5 0 0x685c5c5c
+gpset 1 6 0 0x68f7f7f7
+gpset 1 7 0 0x149d9d9d
+gpset 1 0 1 0x48e0e0e0
+gpset 1 1 1 0x57101010
+gpset 1 2 1 0xb2b5b5b5
+gpset 1 3 1 0xb1c0c0c0
+gpset 1 4 1 0x8d0b0b0b
+gpset 1 5 1 0xa1d7d7d7
+gpset 1 6 1 0x1e464646
+gpset 1 7 1 0x46ececec
+gpset 1 0 2 0xf5191919
+gpset 1 1 2 0x5c3b3b3b
+gpset 1 2 2 0x9f9d9d9d
+gpset 1 3 2 0x04909090
+gpset 1 4 2 0xb39c9c9c
+gpset 1 5 2 0xc2141414
+gpset 1 6 2 0x20666666
+gpset 1 7 2 0xc95e5e5e
+gpset 1 0 3 0x4a989898
+gpset 1 1 3 0xc5575757
+gpset 1 2 3 0x99737373
+gpset 1 3 3 0x20a6a6a6
+gpset 1 4 3 0x08cacaca
+gpset 1 5 3 0xfdc0c0c0
+gpset 1 6 3 0xc0989898
+gpset 1 7 3 0x343e3e3e
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.625 0.25 0.75 0 1 gray -1.5859375 0 0 0 0 0 1 0 0 0 0 0 0.25 0 0 0 0 0 -1.6640625 0 0 0 0 0 0
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-15
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x24a6a6a6
+gpset 1 1 0 0xd1050505
+gpset 1 2 0 0x0d575757
+gpset 1 3 0 0x7a393939
+gpset 1 4 0 0xc6898989
+gpset 1 5 0 0xc35c5c5c
+gpset 1 6 0 0xb63d3d3d
+gpset 1 7 0 0xd39e9e9e
+gpset 1 0 1 0xca2e2e2e
+gpset 1 1 1 0x07afafaf
+gpset 1 2 1 0x72909090
+gpset 1 3 1 0x01c9c9c9
+gpset 1 4 1 0x8bd5d5d5
+gpset 1 5 1 0xcdaaaaaa
+gpset 1 6 1 0x84f0f0f0
+gpset 1 7 1 0x9aa3a3a3
+gpset 1 0 2 0xee949494
+gpset 1 1 2 0xa3232323
+gpset 1 2 2 0x87dddddd
+gpset 1 3 2 0x54373737
+gpset 1 4 2 0x1e616161
+gpset 1 5 2 0x57a6a6a6
+gpset 1 6 2 0x58cbcbcb
+gpset 1 7 2 0x61d1d1d1
+gpset 1 0 3 0xbbdedede
+gpset 1 1 3 0xeab7b7b7
+gpset 1 2 3 0x6b353535
+gpset 1 3 3 0x7c494949
+gpset 1 4 3 0x71f0f0f0
+gpset 1 5 3 0x7da8a8a8
+gpset 1 6 3 0x86636363
+gpset 1 7 3 0xbc050505
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.75 -0.39453125 -0.62890625 1 1 gray 0.30078125 1 0.75 -1.51171875 0 -1.50390625 0.25 1 -1 0 -0.72265625 -0.5 0.734375 0.25 0 0 -0.25 1.8203125 2 0 0.3984375 -0.36328125 0.25 -1.76171875 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-16
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x958c8c8c
+gpset 1 1 0 0x0f757575
+gpset 1 2 0 0xc9484848
+gpset 1 3 0 0xc8282828
+gpset 1 4 0 0x25747474
+gpset 1 5 0 0x5d999999
+gpset 1 6 0 0xd32d2d2d
+gpset 1 7 0 0xb95e5e5e
+gpset 1 0 1 0x7fafafaf
+gpset 1 1 1 0x2dd7d7d7
+gpset 1 2 1 0x89fdfdfd
+gpset 1 3 1 0xda7c7c7c
+gpset 1 4 1 0x8cfefefe
+gpset 1 5 1 0x42494949
+gpset 1 6 1 0xb6dedede
+gpset 1 7 1 0x18aaaaaa
+gpset 1 0 2 0xc8575757
+gpset 1 1 2 0x8b1e1e1e
+gpset 1 2 2 0xd5717171
+gpset 1 3 2 0x051c1c1c
+gpset 1 4 2 0x9f959595
+gpset 1 5 2 0xa5f5f5f5
+gpset 1 6 2 0x00a8a8a8
+gpset 1 7 2 0x2cacacac
+gpset 1 0 3 0x0bfafafa
+gpset 1 1 3 0x40474747
+gpset 1 2 3 0x33000000
+gpset 1 3 3 0x9abababa
+gpset 1 4 3 0xda4d4d4d
+gpset 1 5 3 0xb3111111
+gpset 1 6 3 0x76fefefe
+gpset 1 7 3 0xc3aeaeae
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.375 0.25 1.6640625 0 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-17
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xd69f9f9f
+gpset 1 1 0 0x17cdcdcd
+gpset 1 2 0 0x11969696
+gpset 1 3 0 0xfbf8f8f8
+gpset 1 4 0 0xc8f7f7f7
+gpset 1 5 0 0x984d4d4d
+gpset 1 6 0 0xa9c1c1c1
+gpset 1 7 0 0x79a7a7a7
+gpset 1 0 1 0x06f4f4f4
+gpset 1 1 1 0x3c1a1a1a
+gpset 1 2 1 0x59a5a5a5
+gpset 1 3 1 0x64454545
+gpset 1 4 1 0xa3a2a2a2
+gpset 1 5 1 0x40323232
+gpset 1 6 1 0x0c4c4c4c
+gpset 1 7 1 0x00ececec
+gpset 1 0 2 0xe16f6f6f
+gpset 1 1 2 0x5aefefef
+gpset 1 2 2 0xed262626
+gpset 1 3 2 0x148b8b8b
+gpset 1 4 2 0xdd515151
+gpset 1 5 2 0xc02b2b2b
+gpset 1 6 2 0xa0434343
+gpset 1 7 2 0x9ccdcdcd
+gpset 1 0 3 0xe3ffffff
+gpset 1 1 3 0xe5b7b7b7
+gpset 1 2 3 0xfb2b2b2b
+gpset 1 3 3 0x1e202020
+gpset 1 4 3 0x47dfdfdf
+gpset 1 5 3 0x2a5e5e5e
+gpset 1 6 3 0x71545454
+gpset 1 7 3 0xac161616
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1.88671875 1.2265625 -1.52734375 2 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1.49609375 2 -1 -1.890625 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-18
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x040d0d0d
+gpset 1 1 0 0x3fb1b1b1
+gpset 1 2 0 0x50444444
+gpset 1 3 0 0x5cdadada
+gpset 1 4 0 0x40848484
+gpset 1 5 0 0x45d8d8d8
+gpset 1 6 0 0x374f4f4f
+gpset 1 7 0 0x47a7a7a7
+gpset 1 0 1 0x5b818181
+gpset 1 1 1 0x97040404
+gpset 1 2 1 0xf7696969
+gpset 1 3 1 0x20d2d2d2
+gpset 1 4 1 0x93a6a6a6
+gpset 1 5 1 0x57dddddd
+gpset 1 6 1 0xfae1e1e1
+gpset 1 7 1 0xb0626262
+gpset 1 0 2 0x326d6d6d
+gpset 1 1 2 0x1c212121
+gpset 1 2 2 0x79424242
+gpset 1 3 2 0xb3000000
+gpset 1 4 2 0x238d8d8d
+gpset 1 5 2 0x9dc1c1c1
+gpset 1 6 2 0xc69f9f9f
+gpset 1 7 2 0x76bababa
+gpset 1 0 3 0x3eb2b2b2
+gpset 1 1 3 0xd3a8a8a8
+gpset 1 2 3 0x5b747474
+gpset 1 3 3 0x2ff7f7f7
+gpset 1 4 3 0x01444444
+gpset 1 5 3 0xdf444444
+gpset 1 6 3 0x0e8a8a8a
+gpset 1 7 3 0xd8505050
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.76171875 0.5 1.17578125 -1.3203125 1 gray 0.5 0 0 0 0 0 -1.6171875 0 0 0 0 0 -0.50390625 0 0 0 0 0 1.9921875 0 0 0 0 0 0
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-19
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xda858585
+gpset 1 1 0 0x89535353
+gpset 1 2 0 0xe6232323
+gpset 1 3 0 0xf9f2f2f2
+gpset 1 4 0 0xeb909090
+gpset 1 5 0 0xb5191919
+gpset 1 6 0 0x37a3a3a3
+gpset 1 7 0 0x8e474747
+gpset 1 0 1 0xc5f3f3f3
+gpset 1 1 1 0x7f616161
+gpset 1 2 1 0xc6333333
+gpset 1 3 1 0x98f0f0f0
+gpset 1 4 1 0x481a1a1a
+gpset 1 5 1 0x0ae7e7e7
+gpset 1 6 1 0x2b2f2f2f
+gpset 1 7 1 0x4eababab
+gpset 1 0 2 0x7a3b3b3b
+gpset 1 1 2 0xef444444
+gpset 1 2 2 0x33f6f6f6
+gpset 1 3 2 0x878c8c8c
+gpset 1 4 2 0x5b777777
+gpset 1 5 2 0xdf676767
+gpset 1 6 2 0x40585858
+gpset 1 7 2 0x8a070707
+gpset 1 0 3 0xb7747474
+gpset 1 1 3 0x41333333
+gpset 1 2 3 0x256c6c6c
+gpset 1 3 3 0x49dddddd
+gpset 1 4 3 0xeeb6b6b6
+gpset 1 5 3 0xa3373737
+gpset 1 6 3 0xfc010101
+gpset 1 7 3 0x7f979797
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.7265625 0.75 0 1.75390625 1 gray 1 0 0 0 0 0 -0.25 0 0 0 0 0 -1.92578125 0 0 0 0 0 -0.6015625 0 0 0 0 0 -0.8984375
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-20
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x70414141
+gpset 1 1 0 0xc3494949
+gpset 1 2 0 0xa5f3f3f3
+gpset 1 3 0 0x15e4e4e4
+gpset 1 4 0 0xabc4c4c4
+gpset 1 5 0 0xe27e7e7e
+gpset 1 6 0 0x4a090909
+gpset 1 7 0 0xae666666
+gpset 1 0 1 0x45f3f3f3
+gpset 1 1 1 0xa33a3a3a
+gpset 1 2 1 0x69bdbdbd
+gpset 1 3 1 0xa83b3b3b
+gpset 1 4 1 0xc2d7d7d7
+gpset 1 5 1 0x0d323232
+gpset 1 6 1 0x88282828
+gpset 1 7 1 0xe2cbcbcb
+gpset 1 0 2 0xeb545454
+gpset 1 1 2 0x425e5e5e
+gpset 1 2 2 0xda404040
+gpset 1 3 2 0x8f414141
+gpset 1 4 2 0x9e3f3f3f
+gpset 1 5 2 0x0c030303
+gpset 1 6 2 0x26121212
+gpset 1 7 2 0xf1f6f6f6
+gpset 1 0 3 0x83555555
+gpset 1 1 3 0x801a1a1a
+gpset 1 2 3 0x72505050
+gpset 1 3 3 0x93cfcfcf
+gpset 1 4 3 0x603d3d3d
+gpset 1 5 3 0xa92d2d2d
+gpset 1 6 3 0x331b1b1b
+gpset 1 7 3 0xaba3a3a3
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.05078125 1.78125 0.25 0.25 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-21
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x811e1e1e
+gpset 1 1 0 0xa2404040
+gpset 1 2 0 0xea767676
+gpset 1 3 0 0xd7dedede
+gpset 1 4 0 0x58dbdbdb
+gpset 1 5 0 0x61a3a3a3
+gpset 1 6 0 0x3ac0c0c0
+gpset 1 7 0 0x06575757
+gpset 1 0 1 0x981e1e1e
+gpset 1 1 1 0x0ae0e0e0
+gpset 1 2 1 0xf5545454
+gpset 1 3 1 0xd7fafafa
+gpset 1 4 1 0xa2b2b2b2
+gpset 1 5 1 0x1a737373
+gpset 1 6 1 0xb3a4a4a4
+gpset 1 7 1 0x4c757575
+gpset 1 0 2 0x93464646
+gpset 1 1 2 0x09272727
+gpset 1 2 2 0x8fd7d7d7
+gpset 1 3 2 0xf0b5b5b5
+gpset 1 4 2 0x626b6b6b
+gpset 1 5 2 0x1dfdfdfd
+gpset 1 6 2 0xfc363636
+gpset 1 7 2 0x77d0d0d0
+gpset 1 0 3 0xdadadada
+gpset 1 1 3 0xd7c0c0c0
+gpset 1 2 3 0x51858585
+gpset 1 3 3 0x9fe6e6e6
+gpset 1 4 3 0xfeececec
+gpset 1 5 3 0x538f8f8f
+gpset 1 6 3 0x7e050505
+gpset 1 7 3 0x87e0e0e0
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.86328125 -1.203125 -1.39453125 -0.24609375 1 gray 1.6171875 1.36328125 0 0.40234375 0 1.2109375 -0.56640625 0.41796875 0 0 0.3125 -1.9453125 -1 0.1171875 0 -0.609375 -0.1328125 0.14453125 -0.01171875 0 -1.9921875 0.3828125 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-22
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x4aa5a5a5
+gpset 1 1 0 0x52a0a0a0
+gpset 1 2 0 0x638c8c8c
+gpset 1 3 0 0x70131313
+gpset 1 4 0 0x39797979
+gpset 1 5 0 0x58717171
+gpset 1 6 0 0xdabfbfbf
+gpset 1 7 0 0x19b2b2b2
+gpset 1 0 1 0xffa0a0a0
+gpset 1 1 1 0x968d8d8d
+gpset 1 2 1 0x2ed9d9d9
+gpset 1 3 1 0x36a7a7a7
+gpset 1 4 1 0x55e7e7e7
+gpset 1 5 1 0xb0bebebe
+gpset 1 6 1 0xe9f5f5f5
+gpset 1 7 1 0xe3adadad
+gpset 1 0 2 0x49181818
+gpset 1 1 2 0xae848484
+gpset 1 2 2 0xa9222222
+gpset 1 3 2 0x4d313131
+gpset 1 4 2 0x88545454
+gpset 1 5 2 0x40dbdbdb
+gpset 1 6 2 0xea1b1b1b
+gpset 1 7 2 0x34a7a7a7
+gpset 1 0 3 0xf55c5c5c
+gpset 1 1 3 0xb08c8c8c
+gpset 1 2 3 0xb4f1f1f1
+gpset 1 3 3 0x745e5e5e
+gpset 1 4 3 0xb5e5e5e5
+gpset 1 5 3 0xc9161616
+gpset 1 6 3 0xa50e0e0e
+gpset 1 7 3 0x71949494
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.140625 1.4921875 0.91015625 1.00390625 1 gray 0.75 0.72265625 0.3828125 0.5 0 1.69921875 0.04296875 -1.296875 0.72265625 0 -1.8125 -1.67578125 0.5 -1 0 0.17578125 -1.93359375 1 -0.3203125 0 1.3046875 1 -1 1 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-23
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x789f9f9f
+gpset 1 1 0 0x10e4e4e4
+gpset 1 2 0 0x89737373
+gpset 1 3 0 0xdfe2e2e2
+gpset 1 4 0 0xdc363636
+gpset 1 5 0 0x44b4b4b4
+gpset 1 6 0 0xa06f6f6f
+gpset 1 7 0 0xfc858585
+gpset 1 0 1 0xe4a1a1a1
+gpset 1 1 1 0xa8e6e6e6
+gpset 1 2 1 0x06383838
+gpset 1 3 1 0x4e737373
+gpset 1 4 1 0x4b1b1b1b
+gpset 1 5 1 0xb29e9e9e
+gpset 1 6 1 0x32595959
+gpset 1 7 1 0x5af1f1f1
+gpset 1 0 2 0x3f626262
+gpset 1 1 2 0xacb3b3b3
+gpset 1 2 2 0x1f575757
+gpset 1 3 2 0x3f8b8b8b
+gpset 1 4 2 0xa20a0a0a
+gpset 1 5 2 0x1ec8c8c8
+gpset 1 6 2 0x40a3a3a3
+gpset 1 7 2 0x0eafafaf
+gpset 1 0 3 0x91b3b3b3
+gpset 1 1 3 0x8b242424
+gpset 1 2 3 0xf32c2c2c
+gpset 1 3 3 0x23dadada
+gpset 1 4 3 0x648d8d8d
+gpset 1 5 3 0xb6191919
+gpset 1 6 3 0x99646464
+gpset 1 7 3 0x50686868
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.29296875 -0.75 0.94921875 1.046875 1 gray 0.5 -0.64453125 2 0.5 0 0.82421875 1 -1 0.25 0 1.24609375 2 0.6484375 2 0 -0.19140625 -0.3046875 -0.8984375 -0.25 0 -1.5078125 0 0.5 -1 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-24
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x021f1f1f
+gpset 1 1 0 0x02a8a8a8
+gpset 1 2 0 0xc9898989
+gpset 1 3 0 0x81fefefe
+gpset 1 4 0 0xbd010101
+gpset 1 5 0 0xe95a5a5a
+gpset 1 6 0 0x24040404
+gpset 1 7 0 0x0b494949
+gpset 1 0 1 0x9e030303
+gpset 1 1 1 0x45bcbcbc
+gpset 1 2 1 0xf6d7d7d7
+gpset 1 3 1 0x123f3f3f
+gpset 1 4 1 0xff9a9a9a
+gpset 1 5 1 0x71c6c6c6
+gpset 1 6 1 0x721c1c1c
+gpset 1 7 1 0x0ba1a1a1
+gpset 1 0 2 0x68080808
+gpset 1 1 2 0x72c7c7c7
+gpset 1 2 2 0x8e191919
+gpset 1 3 2 0xbe919191
+gpset 1 4 2 0x0e7f7f7f
+gpset 1 5 2 0x98a3a3a3
+gpset 1 6 2 0x57fcfcfc
+gpset 1 7 2 0x7f212121
+gpset 1 0 3 0x1b555555
+gpset 1 1 3 0x1ef4f4f4
+gpset 1 2 3 0x24e4e4e4
+gpset 1 3 3 0xc3434343
+gpset 1 4 3 0xfe9c9c9c
+gpset 1 5 3 0xf6434343
+gpset 1 6 3 0x64c7c7c7
+gpset 1 7 3 0xbc3d3d3d
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1.80859375 0.25 0.20703125 0.5 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-25
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x334b4b4b
+gpset 1 1 0 0xc1060606
+gpset 1 2 0 0xe8cecece
+gpset 1 3 0 0xc0a9a9a9
+gpset 1 4 0 0x0cd1d1d1
+gpset 1 5 0 0x9f9d9d9d
+gpset 1 6 0 0xdc343434
+gpset 1 7 0 0x0ddedede
+gpset 1 0 1 0x20bdbdbd
+gpset 1 1 1 0xfdf6f6f6
+gpset 1 2 1 0x43969696
+gpset 1 3 1 0x28636363
+gpset 1 4 1 0x283b3b3b
+gpset 1 5 1 0x713b3b3b
+gpset 1 6 1 0xcc232323
+gpset 1 7 1 0x7ed1d1d1
+gpset 1 0 2 0x4f626262
+gpset 1 1 2 0x30484848
+gpset 1 2 2 0x5b050505
+gpset 1 3 2 0x399d9d9d
+gpset 1 4 2 0xbbfcfcfc
+gpset 1 5 2 0x897c7c7c
+gpset 1 6 2 0xf4494949
+gpset 1 7 2 0xef3e3e3e
+gpset 1 0 3 0x18232323
+gpset 1 1 3 0xdc999999
+gpset 1 2 3 0x13bfbfbf
+gpset 1 3 3 0x30161616
+gpset 1 4 3 0xe2e8e8e8
+gpset 1 5 3 0x6d7b7b7b
+gpset 1 6 3 0x8b373737
+gpset 1 7 3 0x6a767676
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.75 1.390625 0.828125 -1.0703125 1 gray -0.80078125 0.23828125 2 1 0 -0.16015625 -1 -0.25 -0.80078125 0 0.25 0.12109375 -1 -0.00390625 0 -1.109375 0.29296875 -0.9765625 1.79296875 0 -0.296875 1.9765625 -1.36328125 1.16796875 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-26
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xf9a3a3a3
+gpset 1 1 0 0xd4494949
+gpset 1 2 0 0xed060606
+gpset 1 3 0 0x7a3b3b3b
+gpset 1 4 0 0x33131313
+gpset 1 5 0 0x5e7a7a7a
+gpset 1 6 0 0xa41d1d1d
+gpset 1 7 0 0xf2dcdcdc
+gpset 1 0 1 0x27858585
+gpset 1 1 1 0x581d1d1d
+gpset 1 2 1 0x9ba4a4a4
+gpset 1 3 1 0x07070707
+gpset 1 4 1 0x63131313
+gpset 1 5 1 0xadf9f9f9
+gpset 1 6 1 0x04373737
+gpset 1 7 1 0xd6949494
+gpset 1 0 2 0xe19a9a9a
+gpset 1 1 2 0xa58a8a8a
+gpset 1 2 2 0xbd292929
+gpset 1 3 2 0x3b212121
+gpset 1 4 2 0xeeeeeeee
+gpset 1 5 2 0x74b2b2b2
+gpset 1 6 2 0x1faeaeae
+gpset 1 7 2 0xd5dddddd
+gpset 1 0 3 0xafc5c5c5
+gpset 1 1 3 0xc2959595
+gpset 1 2 3 0xcbeeeeee
+gpset 1 3 3 0xb4d3d3d3
+gpset 1 4 3 0xca050505
+gpset 1 5 3 0xc84a4a4a
+gpset 1 6 3 0xb6d7d7d7
+gpset 1 7 3 0xe2686868
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.75 1.30078125 0 1.54296875 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1.6796875 0.25 1 -0.78125 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-27
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x01d8d8d8
+gpset 1 1 0 0x36f8f8f8
+gpset 1 2 0 0xa5f9f9f9
+gpset 1 3 0 0xc5e0e0e0
+gpset 1 4 0 0x27818181
+gpset 1 5 0 0x5d0a0a0a
+gpset 1 6 0 0x620c0c0c
+gpset 1 7 0 0xe3111111
+gpset 1 0 1 0xaddbdbdb
+gpset 1 1 1 0x4bededed
+gpset 1 2 1 0x03111111
+gpset 1 3 1 0xc8eeeeee
+gpset 1 4 1 0xf8343434
+gpset 1 5 1 0xdef6f6f6
+gpset 1 6 1 0x5d606060
+gpset 1 7 1 0xc0979797
+gpset 1 0 2 0xf9171717
+gpset 1 1 2 0xabe2e2e2
+gpset 1 2 2 0x63dcdcdc
+gpset 1 3 2 0xd4bcbcbc
+gpset 1 4 2 0x81878787
+gpset 1 5 2 0xf0b3b3b3
+gpset 1 6 2 0xd2818181
+gpset 1 7 2 0xb56e6e6e
+gpset 1 0 3 0x03a5a5a5
+gpset 1 1 3 0xb4343434
+gpset 1 2 3 0x9a808080
+gpset 1 3 3 0x62848484
+gpset 1 4 3 0x1a999999
+gpset 1 5 3 0x956f6f6f
+gpset 1 6 3 0x0afcfcfc
+gpset 1 7 3 0xdd9d9d9d
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.97265625 -1 0.37109375 -0.171875 1 gray 1 -1.3359375 0.5 1.20703125 0 0.5 0.5 -0.5 0.56640625 0 -0.75 0.25 1.84375 2 0 1.6875 -1 -0.66796875 -1.37890625 0 -1.49609375 1.4375 -0.32421875 1.18359375 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-28
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x6dcbcbcb
+gpset 1 1 0 0xd7414141
+gpset 1 2 0 0xd1606060
+gpset 1 3 0 0xb3cecece
+gpset 1 4 0 0xff707070
+gpset 1 5 0 0x23636363
+gpset 1 6 0 0xa3383838
+gpset 1 7 0 0x4cd0d0d0
+gpset 1 0 1 0xf2848484
+gpset 1 1 1 0x043c3c3c
+gpset 1 2 1 0xe3101010
+gpset 1 3 1 0x192b2b2b
+gpset 1 4 1 0xf2c3c3c3
+gpset 1 5 1 0x11242424
+gpset 1 6 1 0x52757575
+gpset 1 7 1 0xf6b6b6b6
+gpset 1 0 2 0x1cb3b3b3
+gpset 1 1 2 0x43fcfcfc
+gpset 1 2 2 0x2f3a3a3a
+gpset 1 3 2 0x3f272727
+gpset 1 4 2 0xaa696969
+gpset 1 5 2 0x8f090909
+gpset 1 6 2 0x75c1c1c1
+gpset 1 7 2 0x8af9f9f9
+gpset 1 0 3 0x6f8e8e8e
+gpset 1 1 3 0x1a8b8b8b
+gpset 1 2 3 0x7c4e4e4e
+gpset 1 3 3 0x49171717
+gpset 1 4 3 0x3ae8e8e8
+gpset 1 5 3 0xd4050505
+gpset 1 6 3 0xb9fdfdfd
+gpset 1 7 3 0xdcf4f4f4
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.0703125 1.05078125 0.3359375 0.71875 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-29
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x3dadadad
+gpset 1 1 0 0x99474747
+gpset 1 2 0 0x0bb1b1b1
+gpset 1 3 0 0x2fa3a3a3
+gpset 1 4 0 0x95050505
+gpset 1 5 0 0xae3c3c3c
+gpset 1 6 0 0x7f515151
+gpset 1 7 0 0xb6878787
+gpset 1 0 1 0xb3f8f8f8
+gpset 1 1 1 0x642c2c2c
+gpset 1 2 1 0xd4191919
+gpset 1 3 1 0x4a828282
+gpset 1 4 1 0x903d3d3d
+gpset 1 5 1 0x2a9f9f9f
+gpset 1 6 1 0xccf6f6f6
+gpset 1 7 1 0x9fb9b9b9
+gpset 1 0 2 0x210e0e0e
+gpset 1 1 2 0x55cacaca
+gpset 1 2 2 0xf84e4e4e
+gpset 1 3 2 0xd22b2b2b
+gpset 1 4 2 0x78232323
+gpset 1 5 2 0x7fafafaf
+gpset 1 6 2 0xc6303030
+gpset 1 7 2 0x74787878
+gpset 1 0 3 0x4d4c4c4c
+gpset 1 1 3 0xebafafaf
+gpset 1 2 3 0xeab6b6b6
+gpset 1 3 3 0x7eb5b5b5
+gpset 1 4 3 0x97808080
+gpset 1 5 3 0x86464646
+gpset 1 6 3 0x7df2f2f2
+gpset 1 7 3 0x70e6e6e6
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -0.83203125 -0.79296875 -0.25 0.5390625 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.76953125 -0.4921875 -1.07421875 0.75 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-30
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0xc79b9b9b
+gpset 1 1 0 0xd6909090
+gpset 1 2 0 0x70030303
+gpset 1 3 0 0x0a909090
+gpset 1 4 0 0xfe7a7a7a
+gpset 1 5 0 0x5b7c7c7c
+gpset 1 6 0 0x311d1d1d
+gpset 1 7 0 0x0f272727
+gpset 1 0 1 0xd5737373
+gpset 1 1 1 0x4f979797
+gpset 1 2 1 0x64838383
+gpset 1 3 1 0xe21d1d1d
+gpset 1 4 1 0x71606060
+gpset 1 5 1 0x71a7a7a7
+gpset 1 6 1 0x3cbfbfbf
+gpset 1 7 1 0x88a2a2a2
+gpset 1 0 2 0x73858585
+gpset 1 1 2 0x51454545
+gpset 1 2 2 0xe6929292
+gpset 1 3 2 0x45bbbbbb
+gpset 1 4 2 0xda111111
+gpset 1 5 2 0x013f3f3f
+gpset 1 6 2 0x2e242424
+gpset 1 7 2 0xe75b5b5b
+gpset 1 0 3 0x28111111
+gpset 1 1 3 0x0b9f9f9f
+gpset 1 2 3 0x511a1a1a
+gpset 1 3 3 0x64717171
+gpset 1 4 3 0x38555555
+gpset 1 5 3 0xd3525252
+gpset 1 6 3 0xc8050505
+gpset 1 7 3 0x06262626
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1.0234375 1.45703125 1.53125 0.25 1 gray -0.06640625 0.93359375 1 -1.75 0 -1 0.5625 1.21875 0 0 0.50390625 -1 0.5 1.76171875 0 -0.08984375 0.5 2 -0.61328125 0 1.79296875 -0.28515625 1.14453125 1 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case altgray-31
+gpbitmap 0 8 4 32bppARGB
+gpbitmap 1 8 4 32bppARGB
+gpset 1 0 0 0x05f5f5f5
+gpset 1 1 0 0x68383838
+gpset 1 2 0 0x1e818181
+gpset 1 3 0 0x5c252525
+gpset 1 4 0 0xcd929292
+gpset 1 5 0 0x4fe9e9e9
+gpset 1 6 0 0x5b101010
+gpset 1 7 0 0xfed2d2d2
+gpset 1 0 1 0x87eeeeee
+gpset 1 1 1 0x39adadad
+gpset 1 2 1 0x382c2c2c
+gpset 1 3 1 0xaf4f4f4f
+gpset 1 4 1 0x6a434343
+gpset 1 5 1 0xb3585858
+gpset 1 6 1 0xc9151515
+gpset 1 7 1 0x00080808
+gpset 1 0 2 0x50f4f4f4
+gpset 1 1 2 0x5fe6e6e6
+gpset 1 2 2 0x29080808
+gpset 1 3 2 0x4ef1f1f1
+gpset 1 4 2 0x7a040404
+gpset 1 5 2 0xb2292929
+gpset 1 6 2 0x78353535
+gpset 1 7 2 0x36040404
+gpset 1 0 3 0xf56f6f6f
+gpset 1 1 3 0x278c8c8c
+gpset 1 2 3 0x072f2f2f
+gpset 1 3 3 0xe99b9b9b
+gpset 1 4 3 0x2b333333
+gpset 1 5 3 0xb9a9a9a9
+gpset 1 6 3 0x7d5e5e5e
+gpset 1 7 3 0x13c8c8c8
+gpattr 0 matrix 2 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0.54296875 0.6953125 0 0 1 gray 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 -1.41015625 0.7265625 -1 1.21484375 1
+gpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4
+gpread 0 32bppARGB
+end
+case scale-0
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3878062303
+gpdraw 0 1 - 0 0 8 6 0 0 8 8 copy 0 3 3
+gpread 0 32bppARGB
+end
+case scale-1
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 267418522
+gpdraw 0 1 - 0 0 2 7 0 0 8 8 copy 0 2 0
+gpread 0 32bppARGB
+end
+case scale-2
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2192283910
+gpdraw 0 1 - 0 0 12 3 0 0 8 8 copy 0 5 2
+gpread 0 32bppARGB
+end
+case scale-3
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3531434055
+gpdraw 0 1 - 0 0 4 15 0 0 8 8 copy 0 5 3
+gpread 0 32bppARGB
+end
+case scale-4
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3853374805
+gpdraw 0 1 - 0 0 14 10 0 0 8 8 copy 0 5 2
+gpread 0 32bppARGB
+end
+case scale-5
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2297193802
+gpdraw 0 1 - 0 0 7 2 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case scale-6
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2547452817
+gpdraw 0 1 - 0 0 9 15 0 0 8 8 copy 0 6 2
+gpread 0 32bppARGB
+end
+case scale-7
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 613922542
+gpdraw 0 1 - 0 0 4 11 0 0 8 8 copy 0 1 0
+gpread 0 32bppARGB
+end
+case scale-8
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2973822103
+gpdraw 0 1 - 0 0 12 6 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case scale-9
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3113012604
+gpdraw 0 1 - 0 0 15 2 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case scale-10
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2827770647
+gpdraw 0 1 - 0 0 14 6 0 0 8 8 copy 0 5 4
+gpread 0 32bppARGB
+end
+case scale-11
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 363761832
+gpdraw 0 1 - 0 0 1 4 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case scale-12
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1680412190
+gpdraw 0 1 - 0 0 6 11 0 0 8 8 copy 0 0 2
+gpread 0 32bppARGB
+end
+case scale-13
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 682047597
+gpdraw 0 1 - 0 0 12 9 0 0 8 8 copy 0 6 3
+gpread 0 32bppARGB
+end
+case scale-14
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 11269882
+gpdraw 0 1 - 0 0 9 10 0 0 8 8 copy 0 2 4
+gpread 0 32bppARGB
+end
+case scale-15
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3427926177
+gpdraw 0 1 - 0 0 1 15 0 0 8 8 copy 0 5 2
+gpread 0 32bppARGB
+end
+case scale-16
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2140051633
+gpdraw 0 1 - 0 0 3 12 0 0 8 8 copy 0 7 3
+gpread 0 32bppARGB
+end
+case scale-17
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 767661515
+gpdraw 0 1 - 0 0 14 11 0 0 8 8 copy 0 4 4
+gpread 0 32bppARGB
+end
+case scale-18
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 391077905
+gpdraw 0 1 - 0 0 8 14 0 0 8 8 copy 0 6 0
+gpread 0 32bppARGB
+end
+case scale-19
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 1241958574
+gpdraw 0 1 - 0 0 8 8 0 0 8 8 copy 0 0 4
+gpread 0 32bppARGB
+end
+case scale-20
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2302101845
+gpdraw 0 1 - 0 0 8 7 0 0 8 8 copy 0 5 2
+gpread 0 32bppARGB
+end
+case scale-21
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2432939884
+gpdraw 0 1 - 0 0 12 12 0 0 8 8 copy 0 5 4
+gpread 0 32bppARGB
+end
+case scale-22
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 3624103809
+gpdraw 0 1 - 0 0 12 8 0 0 8 8 copy 0 1 2
+gpread 0 32bppARGB
+end
+case scale-23
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppARGB
+gpwrite 1 32bppARGB seed 2643259295
+gpdraw 0 1 - 0 0 9 8 0 0 8 8 copy 0 5 4
+gpread 0 32bppARGB
+end

@@ -265,3 +265,32 @@ proptest! {
         prop_assert_eq!(hatch.map(|l| l.into_iter().filter(|l| !l.starts_with("brush")).collect::<Vec<_>>()), solid.map(|l| l.into_iter().filter(|l| !l.starts_with("brush")).collect::<Vec<_>>()));
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(4096))]
+    /// the identity ColorMatrix gives every color back (the channels go through as integers)
+    #[test]
+    fn the_identity_matrix_keeps_every_color(c in any::<u32>()) {
+        let id = gp::ColorMatrix(std::array::from_fn(|k| if k % 6 == 0 { 1.0 } else { 0.0 }));
+        prop_assert_eq!(gp::recolor(c, &id, gp::MatrixFlags::Default), c);
+    }
+    /// a translation by t / 256 adds it to every channel, clamped to 0 ..= 255 and rounded
+    #[test]
+    fn a_translation_adds_and_clamps(c in any::<u32>(), t in -512i32..512) {
+        let mut m: [f32; 25] = std::array::from_fn(|k| if k % 6 == 0 { 1.0 } else { 0.0 });
+        for j in 0..4 {
+            m[20 + j] = t as f32 / 256.0;
+        }
+        let o = gp::recolor(c, &gp::ColorMatrix(m), gp::MatrixFlags::Default);
+        for k in 0..4 {
+            let want = ((f64::from(c >> (8 * k) & 255) + f64::from(t) * 255.0 / 256.0).clamp(0.0, 255.0) + 0.5).floor() as u32;
+            prop_assert_eq!(o >> (8 * k) & 255, want);
+        }
+    }
+    /// SkipGrays leaves a gray pixel whatever the matrix
+    #[test]
+    fn skip_grays_keeps_grays(a in any::<u8>(), v in any::<u8>(), m in proptest::array::uniform25(-2.0f32..2.0)) {
+        let c = (u32::from(a) << 24) | (u32::from(v) * 0x1_0101);
+        prop_assert_eq!(gp::recolor(c, &gp::ColorMatrix(m), gp::MatrixFlags::SkipGrays), c);
+    }
+}

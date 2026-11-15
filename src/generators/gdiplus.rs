@@ -384,9 +384,34 @@ pub fn gdiplusdraw() -> String {
         let mut set = String::new();
         for k in 0..8 {
             let v = r.next() & 255;
-            writeln!(set, "gpset 1 {k} {} {:#010x}", k % 4, (r.next() & 0xff00_0000) | v * 0x1_0101).unwrap();
+            writeln!(set, "gpset 1 {k} {} {:#010x}", k % 4, (r.next() & 0xff00_0000) | (v * 0x1_0101)).unwrap();
         }
         writeln!(s, "case gray-{i}\ngpbitmap 0 8 4 32bppARGB\ngpwrite 0 32bppARGB seed {}\ngpbitmap 1 8 4 32bppARGB\ngpwrite 1 32bppARGB seed {}\n{set}gpattr 0 matrix {flags} {m} gray {g}\ngpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4\ngpread 0 32bppARGB\nend", r.next(), r.next()).unwrap();
+    }
+    // AltGray under a color matrix that only translates (GP.DRAW.ALTGRAY.TRANSLATE): every pixel
+    // gray, the gray matrix the identity, a scale, a translation or full
+    for i in 0..32 {
+        let t: Vec<String> = (0..4).map(|_| rentry(&mut r)).collect();
+        let m = format!("1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 {} 1", t.join(" "));
+        let g = match i % 4 {
+            0 => id.to_string(),
+            _ => rmatrix(&mut r).join(" "),
+        };
+        let mut set = String::new();
+        for y in 0..4 {
+            for x in 0..8 {
+                let v = r.next() & 255;
+                writeln!(set, "gpset 1 {x} {y} {:#010x}", (r.next() & 0xff00_0000) | (v * 0x1_0101)).unwrap();
+            }
+        }
+        writeln!(s, "case altgray-{i}\ngpbitmap 0 8 4 32bppARGB\ngpbitmap 1 8 4 32bppARGB\n{set}gpattr 0 matrix 2 {m} gray {g}\ngpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    // scaled draws, other interpolation and pixel offset modes (GP.DRAW.SCALED): asked, not fitted
+    for i in 0..24 {
+        let (w, h) = (r.range(1, 16), r.range(1, 16));
+        let im = *r.pick(&[0, 1, 2, 3, 4, 5, 6, 7]);
+        let po = *r.pick(&[0, 2, 3, 4]);
+        writeln!(s, "case scale-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbitmap 1 8 8 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpdraw 0 1 - 0 0 {w} {h} 0 0 8 8 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
     }
     s
 }

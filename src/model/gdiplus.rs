@@ -306,7 +306,11 @@ pub fn over(s: u32, d: u32) -> u32 {
     let sa = s >> 24;
     let mut o = 0;
     for sh in [0, 8, 16, 24] {
-        o |= ((s >> sh & 255) + ((d >> sh & 255) * (255 - sa) + 127) / 255) << sh;
+        // (MEASURED, golden gdiplusdraw copy-20: a premultiplied source whose color is past its
+        // alpha: x86 saturates the channel at 255, x86-64 adds the channels packed, the carry
+        // into the next one)
+        let v = (s >> sh & 255) + ((d >> sh & 255) * (255 - sa) + 127) / 255;
+        o = if super::arch() == 32 { o | v.min(255) << sh } else { o.wrapping_add(v << sh) };
     }
     o
 }
@@ -1171,6 +1175,67 @@ pub struct Gdiplus {
     pub bmp: [Option<Bitmap>; 2],
     pub mat: [Option<Matrix>; 2],
     pub brush: [Option<Brush>; 2],
+    pub attr: [Option<Attr>; 2],
+}
+
+/// a 5 x 5 ColorMatrix, row by row: [r g b a 1] times it
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct ColorMatrix(pub [f32; 25]);
+impl ColorMatrix {
+    /// the identity but for its translation row
+    fn translation_only(&self) -> bool {
+        (0..4).all(|i| (0..4).all(|j| self.0[i * 5 + j] == if i == j { 1.0 } else { 0.0 }))
+    }
+}
+
+/// ColorMatrixFlags as SetColorMatrix takes them (AltGray only with a gray matrix)
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum MatrixFlags {
+    Default,
+    SkipGrays,
+    AltGray(ColorMatrix),
+}
+impl MatrixFlags {
+    /// (MEASURED, golden gdiplusdraw attr-flags*: past 0 ..= 2, or AltGray without a gray
+    /// matrix: InvalidParameter)
+    fn new(v: i64, gray: Option<ColorMatrix>) -> Option<MatrixFlags> {
+        match (v, gray) {
+            (0, _) => Some(MatrixFlags::Default),
+            (1, _) => Some(MatrixFlags::SkipGrays),
+            (2, Some(g)) => Some(MatrixFlags::AltGray(g)),
+            _ => None,
+        }
+    }
+}
+
+/// an ImageAttributes: its color matrix (ColorAdjustTypeDefault), if one was set
+#[derive(Clone, PartialEq, Debug)]
+pub struct Attr {
+    pub matrix: Option<(ColorMatrix, MatrixFlags)>,
+}
+
+/// a straight ARGB color through a ColorMatrix (GP.DRAW.MATRIX)
+pub fn recolor(c: u32, m: &ColorMatrix, flags: MatrixFlags) -> u32 {
+    let ch = |k: u32| (c >> (8 * k) & 255) as f32;
+    let v = [ch(2), ch(1), ch(0), ch(3), 255.0];
+    let gray = ch(2) == ch(1) && ch(1) == ch(0);
+    let m = match flags {
+        MatrixFlags::SkipGrays if gray => {
+            hit(clause::GP_DRAW_SKIPGRAYS);
+            return c;
+        }
+        MatrixFlags::AltGray(g) if gray => {
+            hit(clause::GP_DRAW_ALTGRAY);
+            g
+        }
+        MatrixFlags::Default | MatrixFlags::SkipGrays | MatrixFlags::AltGray(_) => *m,
+    };
+    hit(clause::GP_DRAW_MATRIX);
+    let out = |j: usize| -> u32 {
+        let s: f32 = (0..5).map(|i| v[i] * m.0[i * 5 + j]).sum();
+        (s.clamp(0.0, 255.0) + 0.5) as u32
+    };
+    out(3) << 24 | out(0) << 16 | out(1) << 8 | out(2)
 }
 
 impl Gdiplus {
@@ -1524,8 +1589,100 @@ impl Gdiplus {
                 paint_rect(b, brush, (x, y, w, h), copy, q, sm, po, origin)?;
                 out.push("paint 0 0".into());
             }
-            // (ImageAttributes and DrawImage: the cases are out, Windows' answers not yet in)
-            "gpattr" | "gpdraw" => return Err(Fail::Unmodeled(open::GP_DRAW)),
+            "gpattr" => {
+                let a = Self::slot(t, 1)?;
+                self.attr[a] = None;
+                let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
+                let m = |at: usize| -> Res<ColorMatrix> {
+                    let mut m = [0f32; 25];
+                    for (k, v) in m.iter_mut().enumerate() {
+                        *v = f(at + k)?;
+                    }
+                    Ok(ColorMatrix(m))
+                };
+                hit(clause::GP_ATTR);
+                let st = match t.get(2).map(String::as_str) {
+                    Some("none") => {
+                        self.attr[a] = Some(Attr { matrix: None });
+                        0
+                    }
+                    Some("matrix") => {
+                        let main = m(4)?;
+                        let gray = if t.get(29).map(String::as_str) == Some("gray") { Some(m(30)?) } else { None };
+                        let flags = MatrixFlags::new(n(t, 3)?, gray);
+                        self.attr[a] = Some(Attr { matrix: flags.map(|flags| (main, flags)) });
+                        if flags.is_some() {
+                            0
+                        } else {
+                            hit(clause::GP_ATTR_FLAGS);
+                            INVALID_PARAMETER
+                        }
+                    }
+                    _ => return Err(Fail::Bad),
+                };
+                out.push(format!("attr 0 {st}"));
+            }
+            "gpdraw" => {
+                let (d, s) = (Self::slot(t, 1)?, Self::slot(t, 2)?);
+                let attr = match t.get(3).map(String::as_str) {
+                    Some("-") => None,
+                    _ => Some(Self::slot(t, 3)?),
+                };
+                let v: Vec<i64> = (4..12).map(|i| n(t, i)).collect::<Res<_>>()?;
+                let copy = match t.get(12).map(String::as_str) {
+                    Some("copy") => true,
+                    Some("over") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                let q = Quality::from_value(n(t, 13)?).ok_or(Fail::Bad)?;
+                let (interp, po) = (n(t, 14)?, n(t, 15)?);
+                if self.bmp[d].is_none() || self.bmp[s].is_none() {
+                    out.push("gpdraw nobitmap".into());
+                    return Ok(true);
+                }
+                let attr = match attr {
+                    None => None,
+                    Some(a) => match &self.attr[a] {
+                        Some(a) => Some(a.clone()),
+                        None => {
+                            hit(clause::GP_DRAW_NOATTR);
+                            out.push("draw noattr".into());
+                            return Ok(true);
+                        }
+                    },
+                };
+                // (the cases draw 1:1 with NearestNeighbor and PixelOffsetMode Half only)
+                if v[2] != v[6] || v[3] != v[7] || interp != 5 || po != 4 || d == s {
+                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                }
+                hit(clause::GP_DRAW);
+                let src = self.bmp[s].clone().unwrap();
+                let b = self.bmp[d].as_mut().unwrap();
+                let (dx, dy, w, h, sx, sy) = (v[0], v[1], v[2], v[3], v[4], v[5]);
+                let mut colors = std::collections::HashMap::new();
+                for y in dy.max(0)..(dy + h).min(b.h as i64) {
+                    for x in dx.max(0)..(dx + w).min(b.w as i64) {
+                        let (px, py) = (x - dx + sx, y - dy + sy);
+                        if px < 0 || py < 0 || px >= src.w as i64 || py >= src.h as i64 {
+                            continue;
+                        }
+                        let p = src.px(px as u32, py as u32);
+                        let c = match attr.as_ref().and_then(|a| a.matrix) {
+                            None => convert(src.f, Pf::Pargb32, p, &[])? as u32,
+                            Some((m, MatrixFlags::AltGray(_))) if m.translation_only() => {
+                                return Err(Fail::Unmodeled(open::GP_DRAW_ALTGRAY_TRANSLATE));
+                            }
+                            Some((m, flags)) => {
+                                let argb = convert(src.f, Pf::Argb32, p, &[])? as u32;
+                                convert(Pf::Argb32, Pf::Pargb32, u64::from(recolor(argb, &m, flags)), &[])? as u32
+                            }
+                        };
+                        colors.insert((x as u32, y as u32), c);
+                    }
+                }
+                fill_area(b, (dx, dy, dx + w, dy + h), &|x, y| colors.get(&(x, y)).copied(), Source::Solid, copy, q)?;
+                out.push("draw 0 0".into());
+            }
             _ => return Ok(false),
         }
         Ok(true)
