@@ -1752,12 +1752,6 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
             (rd32(d, 4).unwrap_or(0), rd32(d, 8).unwrap_or(0) / 2, rd16(d, 14).unwrap_or(0))
         };
         let png = d.starts_with(b"\x89PNG");
-        // (OPEN: beside other entries, a PNG entry under 6 pixels a side: where it comes and
-        // whether its CopyPixels fails 0x88982f8c hang on more than the sizes; cases icopair-*,
-        // icoseed-*)
-        if png && n > 1 && w.min(h) < 6 {
-            return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
-        }
         // MEASURED (golden wicdecode ico-bmp-depth-*, ico-png-ct*): a BMP entry of a depth but 1, 4,
         // 8, 16, 24 and 32 (2, 3, 5, 48, 64): no decoder for the file (0x88982f07), of 0 bits
         // WINCODEC_ERR_BADIMAGE; a PNG entry
@@ -1770,7 +1764,7 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
             hit(clause::WICIMAGE_ICO_PNG_BAD);
             return Ok(Err(BAD_IMAGE));
         }
-        entries.push((bpp, !png, ico_entry(d)));
+        entries.push(IcoEntry { bpp, png, w, h, img: ico_entry(d) });
     }
     // MEASURED (golden wicdecode ico-three, ico-order-*, ico-png-*-bmp: the same sizes in every
     // depth, the same depth in every size, PNG and BMP entries, directories that say 0 bits): the
@@ -1780,12 +1774,90 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         hit(clause::WICIMAGE_ICO_SHORT);
         return Ok(Err(BAD_IMAGE));
     }
-    entries.reverse();
-    entries.sort_by_key(|e| (std::cmp::Reverse(e.0), e.1));
-    hit(clause::WICIMAGE_ICO_ORDER);
-    let frames = entries.into_iter().map(|e| e.2.map(Frame::Pixels)).collect();
+    let entries = ico_order(entries)?;
+    let mut wider = 0;
+    let mut frames = Vec::new();
+    for e in entries {
+        // MEASURED (golden wicdecode icopair-*, icosmall-*, ico-order-mixed): a PNG frame after
+        // a wider frame: its CopyPixels fails WINCODEC_ERR_INSUFFICIENTBUFFER (0x88982f8c)
+        let starved = e.png && wider > e.w;
+        wider = wider.max(e.w);
+        frames.push(e.img.map(|i| if starved {
+            hit(clause::WICIMAGE_ICO_PNG_AFTER_WIDER);
+            Frame::NoPixels(i, INSUFFICIENT_BUFFER)
+        } else {
+            Frame::Pixels(i)
+        }));
+    }
     hit(clause::WICIMAGE_ICO);
     Ok(Ok(Decoded { container: "ico", frames }))
+}
+
+struct IcoEntry {
+    /// the entry's own depth (a BMP header's, a PNG's IHDR), not the directory's
+    bpp: u32,
+    png: bool,
+    w: u32,
+    h: u32,
+    img: Res<Img>,
+}
+
+/// MEASURED (golden wicdecode icopair-*: every 32-bit PNG of 1..5 x 1..5 beside every 32-bit
+/// BMP of 1..4 x 1..4 in both file orders, 384 pairs; icosmall-*, icoseed-*, icopng-*): a PNG
+/// entry and a BMP entry of one depth: the PNG first when its size is near the BMP's, the BMP
+/// first when far, the later in the file first when just between. Near: the height difference,
+/// plus the width difference when the PNG is the wider or twice it when the narrower, below the
+/// lesser height; just between: equal to it
+fn ico_png_vs_bmp(p: (u32, u32), b: (u32, u32)) -> std::cmp::Ordering {
+    use std::cmp::Ordering;
+    let dw = if p.0 >= b.0 { p.0 - b.0 } else { 2 * (b.0 - p.0) };
+    let d = p.1.abs_diff(b.1) + dw;
+    match d.cmp(&p.1.min(b.1)) {
+        Ordering::Less => Ordering::Less,
+        Ordering::Equal => Ordering::Equal,
+        Ordering::Greater => Ordering::Greater,
+    }
+}
+
+/// the frames' order: MEASURED (golden wicdecode ico-three, ico-order-size/depth/mixed/zero,
+/// ico-png-*-bmp, icopair-*, icosmall-*): by the entries' own depth, deepest first; of one depth a
+/// PNG before or after a BMP by `ico_png_vs_bmp`, else the last in the file first; a 32-bit PNG
+/// beside one BMP entry of fewer bits: the BMP first (icosmall-*-b3x8)
+fn ico_order(mut entries: Vec<IcoEntry>) -> Res<Vec<IcoEntry>> {
+    use std::cmp::Ordering;
+    if let [a, b] = &entries[..]
+        && a.png != b.png
+    {
+        let (p, m) = if a.png { (a, b) } else { (b, a) };
+        if m.bpp < p.bpp {
+            hit(clause::WICIMAGE_ICO_ORDER_PNG_PAIR);
+            if a.png {
+                entries.reverse();
+            }
+            return Ok(entries);
+        }
+    }
+    let cmp = |x: &IcoEntry, y: &IcoEntry| -> Ordering {
+        match y.bpp.cmp(&x.bpp) {
+            Ordering::Equal => match (x.png, y.png) {
+                (true, false) => ico_png_vs_bmp((x.w, x.h), (y.w, y.h)),
+                (false, true) => ico_png_vs_bmp((y.w, y.h), (x.w, x.h)).reverse(),
+                (true, true) | (false, false) => Ordering::Equal,
+            },
+            o @ (Ordering::Less | Ordering::Greater) => o,
+        }
+    };
+    // (the PNG rule is no order of the sizes: a depth that holds a PNG and more than one other
+    // entry is not measured)
+    for e in &entries {
+        if e.png && entries.iter().filter(|o| o.bpp == e.bpp).count() > 2 {
+            return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
+        }
+    }
+    entries.reverse();
+    entries.sort_by(cmp);
+    hit(clause::WICIMAGE_ICO_ORDER);
+    Ok(entries)
 }
 
 fn ico_entry(d: &[u8]) -> Res<Img> {

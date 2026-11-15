@@ -1239,6 +1239,55 @@ pub fn wicdecode() -> String {
             }
         }
     }
+    // (three entries of one depth, a PNG among them, in every file order: which order does a
+    // sort make of the PNG rule, which is no order; then a PNG beside BMPs of fewer bits, larger
+    // PNGs beside 32-bit BMPs, and a PNG among BMPs of two other depths)
+    {
+        let mut r = XorShift32::new(0x1c11);
+        let pngp = |r: &mut XorShift32, w: u32, h: u32| {
+            let raw: Vec<Vec<u8>> = (0..h).map(|_| bytes(r, w as usize * 4)).collect();
+            png(w, h, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 100)
+        };
+        const PERMS: [[usize; 3]; 6] = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+        // (each entry: is it a PNG, its size, its depth)
+        let trios: [[(bool, u32, u32, u32); 3]; 10] = [
+            [(true, 2, 2, 32), (false, 1, 2, 32), (false, 2, 1, 32)],
+            [(true, 3, 3, 32), (false, 2, 3, 32), (false, 3, 1, 32)],
+            [(true, 3, 3, 32), (false, 4, 4, 32), (false, 1, 1, 32)],
+            [(true, 3, 3, 32), (false, 3, 4, 32), (false, 2, 2, 32)],
+            [(true, 4, 4, 32), (false, 3, 3, 32), (false, 4, 3, 32)],
+            [(true, 2, 2, 32), (false, 4, 4, 32), (false, 1, 1, 32)],
+            [(true, 3, 3, 32), (true, 2, 2, 32), (false, 3, 2, 32)],
+            [(true, 2, 2, 32), (true, 3, 3, 32), (false, 4, 4, 32)],
+            [(true, 3, 3, 32), (false, 3, 3, 8), (false, 3, 3, 24)],
+            [(true, 3, 3, 32), (false, 2, 3, 8), (false, 4, 4, 24)],
+        ];
+        for (t, trio) in trios.iter().enumerate() {
+            let files: Vec<Vec<u8>> = trio.iter().map(|&(p, w, h, bpp)| if p { pngp(&mut r, w, h) } else { icon_bmp(&mut r, w, h, bpp) }).collect();
+            for (k, perm) in PERMS.iter().enumerate() {
+                let es: Vec<(u32, u32, u32, Vec<u8>)> = perm.iter().map(|&i| (trio[i].1, trio[i].2, trio[i].3, files[i].clone())).collect();
+                decode_case(&mut s, &format!("icotri-{t}-{k}"), &ico(&es), 3, false);
+            }
+        }
+        for (pw, ph) in [(3u32, 3u32), (8, 8), (16, 16)] {
+            let p = pngp(&mut r, pw, ph);
+            for bw in [3u32, 16] {
+                for bpp in [1u32, 4, 8, 24] {
+                    let b = icon_bmp(&mut r, bw, bw, bpp);
+                    decode_case(&mut s, &format!("icodepth-p{pw}x{ph}-b{bw}x{bpp}"), &ico(&[(pw, ph, 32, p.clone()), (bw, bw, bpp, b.clone())]), 2, false);
+                    decode_case(&mut s, &format!("icodepth-b{bw}x{bpp}-p{pw}x{ph}"), &ico(&[(bw, bw, bpp, b), (pw, ph, 32, p.clone())]), 2, false);
+                }
+            }
+        }
+        for (pw, ph) in [(8u32, 8u32), (16, 16), (12, 12), (16, 8)] {
+            let p = pngp(&mut r, pw, ph);
+            for (bw, bh) in [(8u32, 8u32), (16, 16), (10, 10), (6, 6), (16, 12)] {
+                let b = icon_bmp(&mut r, bw, bh, 32);
+                decode_case(&mut s, &format!("icobig-p{pw}x{ph}-b{bw}x{bh}"), &ico(&[(pw, ph, 32, p.clone()), (bw, bh, 32, b.clone())]), 2, false);
+                decode_case(&mut s, &format!("icobig-b{bw}x{bh}-p{pw}x{ph}"), &ico(&[(bw, bh, 32, b), (pw, ph, 32, p.clone())]), 2, false);
+            }
+        }
+    }
     s
 }
 
