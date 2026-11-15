@@ -134,3 +134,4 @@ tests/laws_gdidraw.rs::flatten_ends_at_the_end pbt GDI.PATH.FLATTENHFD
 tests/laws_gdidraw.rs::fix_fill_rectangles_and_moves pbt GDI.PATH.FILLFIX
 tests/laws_opengl.rs::fog_factor_follows_the_modes pbt GL.FOG.APPLY
 tests/laws_opengl.rs::fog_modes_round_trip pbt GL.FOG.STATE GL.FOG.ENUM
+tests/laws_gdidraw.rs::dptolp_whole_ratios_are_exact pbt GDI.MAP.DPROUND GDI.MAP.INVERSE

@@ -24,12 +24,14 @@ pub struct Map {
     pub worg: (i32, i32),
     pub vorg: (i32, i32),
     pub world: Xform,
+    /// x86 only: an LPtoDP has run since the mapping last changed (GDI.MAP.ROUNDX86)
+    pub warm: bool,
 }
 
 impl Default for Map {
     /// MM_TEXT, GM_COMPATIBLE, extents 1 x 1, origins 0, the identity
     fn default() -> Map {
-        Map { mode: 1, gmode: 1, wext: (1, 1), vext: (1, 1), worg: (0, 0), vorg: (0, 0), world: IDENTITY }
+        Map { mode: 1, gmode: 1, wext: (1, 1), vext: (1, 1), worg: (0, 0), vorg: (0, 0), world: IDENTITY, warm: false }
     }
 }
 
@@ -62,23 +64,38 @@ impl Map {
         if self.mode == 7 {
             return Err(Fail::Unmodeled(open::GDI_MAP_ISOROUND));
         }
-        Ok((page(p.0, self.wext.0, self.ve().0, self.worg.0, self.vorg.0), page(p.1, self.wext.1, self.ve().1, self.worg.1, self.vorg.1)))
+        // MEASURED: 32-bit GDI's LPtoDP after another with the same mapping truncates the
+        // scaled point to 28.4 toward zero (the first call, and every call on x64, rounds it)
+        let trunc = self.warm && super::arch() == 32;
+        if trunc {
+            hit(clause::GDI_MAP_ROUNDX86);
+        }
+        let e = self.ve();
+        Ok((page_with(p.0, self.wext.0, e.0, self.worg.0, self.vorg.0, trunc), page_with(p.1, self.wext.1, e.1, self.worg.1, self.vorg.1, trunc)))
     }
-    /// DPtoLP: exact when each window extent is a multiple of the viewport extent
+    /// DPtoLP (MEASURED, GDI.MAP.DPROUND): the page transform's matrix in f32 (vext / wext
+    /// each axis), inverted through its determinant in f32; each axis the point times the
+    /// inverse and the offset wO - vO times the inverse, each rounded halves away from zero
     pub fn dp_to_lp(&self, p: (i32, i32)) -> Res<(i32, i32)> {
         if self.world != IDENTITY {
             return Err(Fail::Unmodeled(open::GDI_XFORM_ROUNDWORLD));
         }
         hit(clause::GDI_MAP_INVERSE);
         let v = self.ve();
-        if v.0 == 0 || v.1 == 0 {
-            return Err(Fail::Unmodeled(open::GDI_MAP_DPROUND));
+        if v.0 == 0 || v.1 == 0 || self.wext.0 == 0 || self.wext.1 == 0 {
+            return Err(Fail::Bad);
         }
-        if self.wext.0 % self.ve().0 != 0 || self.wext.1 % self.ve().1 != 0 {
-            return Err(Fail::Unmodeled(open::GDI_MAP_DPROUND));
-        }
-        let (kx, ky) = (self.wext.0 / self.ve().0, self.wext.1 / self.ve().1);
-        Ok(((p.0 - self.vorg.0) * kx + self.worg.0, (p.1 - self.vorg.1) * ky + self.worg.1))
+        hit(clause::GDI_MAP_DPROUND);
+        let m11 = v.0 as f32 / self.wext.0 as f32;
+        let m22 = v.1 as f32 / self.wext.1 as f32;
+        let det = m11 * m22;
+        let (i11, i22) = (m22 / det, m11 / det);
+        let axis = |d: i32, inv: f32, wo: i32, vo: i32| -> i32 {
+            let a = f64::from(d as f32 * inv).round();
+            let b = f64::from(wo as f32 - vo as f32 * inv).round();
+            (a + b) as i32
+        };
+        Ok((axis(p.0, i11, self.worg.0, self.vorg.0), axis(p.1, i22, self.worg.1, self.vorg.1)))
     }
 }
 
@@ -91,10 +108,16 @@ fn fix(n: i64, d: i64) -> i64 {
 /// one axis of the page transform as Windows rounds it (MEASURED): the scaled point and the
 /// offset each to 28.4 fixed point, their sum to the nearest pixel, halves up
 pub fn page(a: i32, w: i32, v: i32, worg: i32, vorg: i32) -> i32 {
+    page_with(a, w, v, worg, vorg, false)
+}
+
+/// page, the scaled point truncated toward zero to 28.4 instead when `trunc`
+fn page_with(a: i32, w: i32, v: i32, worg: i32, vorg: i32, trunc: bool) -> i32 {
     hit(clause::GDI_MAP_ROUND);
-    let (a, w, v, wo, vo) = (a as i64, w as i64, v as i64, worg as i64, vorg as i64);
-    let s = fix(a * v, w) + fix(vo * w - wo * v, w);
-    (s + 8).div_euclid(16) as i32
+    let (a, w, v, wo, vo) = (i64::from(a), i64::from(w), i64::from(v), i64::from(worg), i64::from(vorg));
+    let scaled = if trunc { (16 * a * v) / w } else { fix(a * v, w) };
+    let s = scaled + fix(vo * w - wo * v, w);
+    i32::try_from((s + 8).div_euclid(16)).unwrap_or(i32::MAX)
 }
 
 fn n(op: &Op, i: usize) -> Res<i64> {
@@ -154,6 +177,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let k = n(op, 1)?;
     let sl = g.slots.get_mut(k as usize).and_then(|s| s.as_mut()).ok_or(Fail::Bad)?;
     let m = &mut sl.ext.map;
+    if !matches!(t0, "lptodp" | "dptolp" | "getmap" | "getxform") {
+        m.warm = false;
+    }
     match t0 {
         "mapmode" => {
             let v = n(op, 2)?;
@@ -227,6 +253,9 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 s += &format!(" {} {}", q.0, q.1);
             }
             out.push(s);
+            if t0 == "lptodp" {
+                m.warm = true;
+            }
         }
         "getxform" => {
             hit(clause::GDI_XFORM_GET);

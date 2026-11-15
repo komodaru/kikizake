@@ -9,7 +9,7 @@ GDI.MAP.GET doc | GetMapMode, GetWindowExtEx, GetViewportExtEx, GetWindowOrgEx, 
 GDI.MAP.FORMULA doc | Transformation of Coordinate Spaces (page space to device space) | Dx = (Lx - xWO) * xVE / xWE + xVO, and likewise for y
 GDI.MAP.INVERSE doc | DPtoLP | the inverse: Lx = (Dx - xVO) * xWE / xVE + xWO
 GDI.MAP.ROUND measured | golden xform (11520 LPtoDP coordinates per arch) | Lx * xVE / xWE and the offset xVO - xWO * xVE / xWE each rounded to 1/16 (28.4 fixed point, halves up), their sum rounded to an integer (halves up)
-GDI.MAP.DPROUND open | golden xform | DPtoLP's rounding when an extent ratio is not an integer (not the inverse of LPtoDP's: 7612 of 7680 coordinates fit each term rounded halves away from zero, ties differ)
+GDI.MAP.DPROUND measured | golden xform (7680 DPtoLP coordinates per arch) | DPtoLP: the page transform's matrix in f32 (vext / wext each axis) is inverted through its determinant in f32 (x: M22 / (M11 M22), y: M11 / (M11 M22)); each axis takes the point times that inverse and the offset wO - vO times it, each rounded halves away from zero, and adds them
 GDI.MAP.DRAW open | (none) | drawing (PatBlt, BitBlt, lines, regions, ...) through a mapping or a world transform
 GDI.XFORM.GMODE doc | SetGraphicsMode | returns the previous mode; GM_COMPATIBLE cannot be set again until the world transform is the identity (0)
 GDI.XFORM.SET doc | SetWorldTransform | fails (0) unless the graphics mode is GM_ADVANCED; else the world transform becomes the matrix
@@ -22,3 +22,4 @@ GDI.XFORM.ROUNDWORLD open | (none) | the rounding of points through a world tran
 GDI.MAP.ISOTROPIC measured | golden xform iso-*, mapmode-7 (187 GetViewportExtEx answers) | MM_ISOTROPIC: the viewport extents in effect are those set with one of them scaled down, floor(v * |r| + 0.5), r the ratio of the smaller to the larger of |vx / wx| and |vy / wy| (x scaled when |vx / wx| is larger), recomputed from the extents as set each time (SetViewportExtEx returns those as set)
 GDI.MAP.FIXEDEXT measured | golden xform mapmode-* | the fixed modes (MM_TEXT and the metric ones) ignore SetWindowExtEx and SetViewportExtEx, which succeed returning the extents
 GDI.MAP.ISOROUND open | golden xform iso-* | LPtoDP's rounding in MM_ISOTROPIC: the 28.4 two-stage rule with the extents in effect fits 7672 of 7680 coordinates on x64 and 7592 on x86 (one grid point per case comes out nearer 0)
+GDI.MAP.ROUNDX86 measured | golden xform-32 aniso-* (5120 coordinates of repeated calls) | 32-bit Windows: an LPtoDP after another LPtoDP with the mapping unchanged truncates the scaled point toward zero to 28.4 (the offset still rounded, the sum rounded halves up); the first call after a change rounds as GDI.MAP.ROUND, and x64 always does

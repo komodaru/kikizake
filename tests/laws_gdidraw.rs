@@ -174,7 +174,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 328), ("region", 506), ("xform", 98), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 328), ("region", 506), ("xform", 213), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
@@ -216,5 +216,17 @@ proptest! {
         let mut a = kikizake::model::rgn::fix_polygon_pixels(&[pts], winding);
         a.offset(dx, dy);
         prop_assert_eq!(a, kikizake::model::rgn::fix_polygon_pixels(&[moved], winding));
+    }
+}
+
+proptest! {
+    /// DPtoLP: with each window extent a whole multiple k of the viewport's, the inverse is
+    /// exact, Lx = (Dx - xVO) k + xWO (the f32 inverse of a ratio 1/k is exact for small k)
+    #[test]
+    fn dptolp_whole_ratios_are_exact(kx in -64i32..64, ky in -64i32..64, vx in 1i32..64, vy in 1i32..64, wo in (-500i32..500, -500i32..500), vo in (-500i32..500, -500i32..500), d in (-2000i32..2000, -2000i32..2000)) {
+        prop_assume!(kx != 0 && ky != 0);
+        let m = kikizake::model::gdixform::Map { mode: 8, wext: (kx * vx, ky * vy), vext: (vx, vy), worg: wo, vorg: vo, ..Default::default() };
+        let l = m.dp_to_lp(d).unwrap();
+        prop_assert_eq!(l, ((d.0 - vo.0) * kx + wo.0, (d.1 - vo.1) * ky + wo.1));
     }
 }
