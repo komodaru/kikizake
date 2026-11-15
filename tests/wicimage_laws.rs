@@ -164,7 +164,7 @@ proptest! {
         let mut r = kikizake::rng::XorShift32::new(seed);
         let px: Vec<u8> = (0..st * h as u32).map(|_| r.next() as u8).collect();
         let pal: Vec<u32> = if bpp == 8 { (0..256).map(|i| i * 0x010101).collect() } else { vec![] };
-        let f = kikizake::gen::wicimage_bmp(40, w, h, bpp, 0, [0; 4], 0, &pal, &px, top, (0, 0));
+        let f = kikizake::generators::wicimage_bmp(40, w, h, bpp, 0, [0; 4], 0, &pal, &px, top, (0, 0));
         let d = wi::decode(&f).unwrap().unwrap();
         let i = d.frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!((i.w, i.h), (w as u32, h as u32));
@@ -181,15 +181,15 @@ proptest! {
         let mut r = kikizake::rng::XorShift32::new(seed);
         let pix: Vec<Vec<u8>> = (0..h).map(|_| (0..w).map(|_| r.next() as u8).collect()).collect();
         let mut filtered = Vec::new();
-        let passes: Vec<(u32, u32, u32, u32)> = if il { kikizake::gen::WICIMAGE_ADAM7.to_vec() } else { vec![(0, 0, 1, 1)] };
+        let passes: Vec<(u32, u32, u32, u32)> = if il { kikizake::generators::WICIMAGE_ADAM7.to_vec() } else { vec![(0, 0, 1, 1)] };
         for (x0, y0, dx, dy) in passes {
             let raw: Vec<Vec<u8>> = (y0..h).step_by(dy as usize).map(|y| (x0..w).step_by(dx as usize).map(|x| pix[y as usize][x as usize]).collect()).filter(|r: &Vec<u8>| !r.is_empty()).collect();
             if raw.is_empty() {
                 continue;
             }
-            filtered.extend(kikizake::gen::wicimage_png_filter(&raw, 1, &[f0, f1]));
+            filtered.extend(kikizake::generators::wicimage_png_filter(&raw, 1, &[f0, f1]));
         }
-        let f = kikizake::gen::wicimage_png(w, h, 8, 0, il, &[], &filtered, block);
+        let f = kikizake::generators::wicimage_png(w, h, 8, 0, il, &[], &filtered, block);
         let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!(i.fmt, "gray8");
         prop_assert_eq!(rows_of(&i), pix);
@@ -200,8 +200,8 @@ proptest! {
         let mut r = kikizake::rng::XorShift32::new(seed);
         let idx: Vec<u8> = (0..w * h).map(|_| (r.next() % (1 << bits)) as u8).collect();
         let pal: Vec<u32> = (0..1u32 << bits).collect();
-        let fr = kikizake::gen::WicGifFrame { x: 0, y: 0, w, h, local: None, transparent: None, interlace: il, idx: idx.clone(), min: bits.max(2) };
-        let f = kikizake::gen::wicimage_gif(w, h, Some(&pal), 0, &[fr]);
+        let fr = kikizake::generators::WicGifFrame { x: 0, y: 0, w, h, local: None, transparent: None, interlace: il, idx: idx.clone(), min: bits.max(2) };
+        let f = kikizake::generators::wicimage_gif(w, h, Some(&pal), 0, &[fr]);
         let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!(i.px, idx);
     }
@@ -212,8 +212,8 @@ proptest! {
         let mut r = kikizake::rng::XorShift32::new(seed);
         let idx: Vec<u8> = (0..n).map(|i| if runs { ((i / 37) as u32 % (1 << bits)) as u8 } else { (r.next() % (1 << bits)) as u8 }).collect();
         let pal: Vec<u32> = (0..1u32 << bits).collect();
-        let fr = kikizake::gen::WicGifFrame { x: 0, y: 0, w: n as u32, h: 1, local: None, transparent: None, interlace: false, idx: idx.clone(), min: bits.max(2) };
-        let f = kikizake::gen::wicimage_gif(n as u32, 1, Some(&pal), 0, &[fr]);
+        let fr = kikizake::generators::WicGifFrame { x: 0, y: 0, w: n as u32, h: 1, local: None, transparent: None, interlace: false, idx: idx.clone(), min: bits.max(2) };
+        let f = kikizake::generators::wicimage_gif(n as u32, 1, Some(&pal), 0, &[fr]);
         let i = wi::decode(&f).unwrap().unwrap().frames[0].clone().unwrap().pixels().unwrap();
         prop_assert_eq!(i.px, idx);
     }
@@ -338,12 +338,12 @@ fn repeated_case_names_compare_with_themselves() {
 /// change it.) KIKIZAKE_BLESS=1 rewrites the list.
 #[test]
 fn unmodeled_cases_are_the_listed_ones() {
-    use kikizake::{case, gen, model};
+    use kikizake::{case, generators, model};
     let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let mut now = Vec::new();
     for s in ["wicpalette", "wicscale", "wictransform", "wiccolor", "wicdecode", "wicencode"] {
         model::set_arch(32);
-        let out = model::run(s, &case::parse_cases(&gen::suite(s).unwrap()));
+        let out = model::run(s, &case::parse_cases(&generators::suite(s).unwrap()));
         let mut name = "";
         for l in out.lines() {
             if let Some(n) = l.strip_prefix("case ") {
@@ -372,7 +372,7 @@ proptest! {
     /// does not allow is never decoded as if it were
     #[test]
     fn png_any_ihdr_never_panics(w in 1u32..6, h in 1u32..4, depth in any::<u8>(), ct in 0u8..9, il in any::<bool>(), data in proptest::collection::vec(any::<u8>(), 0..200)) {
-        let f = kikizake::gen::wicimage_png(w, h, depth, ct, il, &[(b"PLTE", vec![7; 768])], &data, 50);
+        let f = kikizake::generators::wicimage_png(w, h, depth, ct, il, &[(b"PLTE", vec![7; 768])], &data, 50);
         let r = wi::decode(&f);
         let allowed = matches!((ct, depth), (0, 1 | 2 | 4 | 8 | 16) | (3, 1 | 2 | 4 | 8) | (2 | 4 | 6, 8 | 16));
         if !allowed {

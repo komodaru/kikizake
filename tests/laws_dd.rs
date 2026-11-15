@@ -291,9 +291,9 @@ proptest! {
 /// Windows comparison skips unmodeled cases, a lost answer would hide there)
 #[test]
 fn suites_stay_modeled() {
-    use kikizake::gen;
+    use kikizake::generators;
     for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 32, 0), ("d3d7shade", 52, 0)] {
-        let cases = parse_cases(&gen::suite(s).unwrap());
+        let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
             let res: Vec<_> = cases.iter().map(run_case).collect();

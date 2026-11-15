@@ -1,7 +1,7 @@
 //! Drawing on Direct3D 10 and 11: the input assembler (one vertex buffer, triangle lists and
 //! strips, instances), the viewport transform, the rasterizer (16.8 fixed point vertices, pixel
 //! centers, the top-left rule, culling, scissor), the pixel shaders the generator writes
-//! (src/gen/d3ddraw.rs, known here by their bytes), depth tests and blending.
+//! (src/generators/d3ddraw.rs, known here by their bytes), depth tests and blending.
 //!
 //! Sources (Microsoft Learn): "Rasterization Rules" (triangles: a pixel is drawn when its center
 //! is inside, the top-left rule on edges), "D3D11_RASTERIZER_DESC" (FrontCounterClockwise FALSE:
@@ -75,7 +75,7 @@ fn hexbytes(s: &str) -> Vec<u8> {
 /// the generator's programs: name, bytes, a vertex shader
 fn known(b: &[u8]) -> Option<(&'static str, bool)> {
     thread_local! {
-        static S: Vec<(&'static str, Vec<u8>)> = crate::gen::d3ddraw::shaders();
+        static S: Vec<(&'static str, Vec<u8>)> = crate::generators::d3ddraw::shaders();
     }
     S.with(|s| s.iter().find(|x| x.1 == b).map(|x| (x.0, x.0.starts_with("vs"))))
 }

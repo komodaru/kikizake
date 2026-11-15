@@ -87,7 +87,7 @@ Without a device these lines print `nodev`.
 
 | line | calls | prints |
 |---|---|---|
-| `shader <slot 0..7> vs\|ps <hex bytes>` | CreateVertexShader / CreatePixelShader of the DXBC bytes (src/gen/dxbc.rs writes them), then VSSetShader / PSSetShader | `shader hr <hr>` on failure |
+| `shader <slot 0..7> vs\|ps <hex bytes>` | CreateVertexShader / CreatePixelShader of the DXBC bytes (src/generators/dxbc.rs writes them), then VSSetShader / PSSetShader | `shader hr <hr>` on failure |
 | `layout <shader slot> <format>...` | CreateInputLayout against that shader's bytes: TEXCOORD0, 1, ... of the formats, slot 0, appended; IASetInputLayout | `layout hr <hr>`, `layout noshader` |
 | `vtx <words>...` | appended to the vertex data | |
 | `draw <topology> <vertices> <stride> [<instances>]` | the vertex data as an immutable vertex buffer (slot 0, offset 0), IASetPrimitiveTopology, Draw / DrawInstanced; the vertex data starts again empty | `draw hr <hr>` |

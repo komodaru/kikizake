@@ -11,7 +11,7 @@
 //!   kikizake calls check [calls dir]      the recordings against the cases, x86 against x86-64
 //!   kikizake calls usage <app.jsonl> [calls dir]  graphics calls and argument values an application (shirusu export) makes that no case does
 use std::process::exit;
-use kikizake::{case, compare, gen, model};
+use kikizake::{case, compare, generators, model};
 
 fn read(p: &str) -> String {
     std::fs::read_to_string(p).unwrap_or_else(|e| {
@@ -23,8 +23,8 @@ fn read(p: &str) -> String {
 fn main() {
     let a: Vec<String> = std::env::args().skip(1).collect();
     match a.iter().map(String::as_str).collect::<Vec<_>>().as_slice() {
-        ["gen", suite] => print!("{}", gen::suite(suite).unwrap_or_else(|| {
-            eprintln!("suites: {:?}", gen::SUITES);
+        ["gen", suite] => print!("{}", generators::suite(suite).unwrap_or_else(|| {
+            eprintln!("suites: {:?}", generators::SUITES);
             exit(2)
         })),
         ["model", suite, rest @ ..] => {
@@ -36,7 +36,7 @@ fn main() {
             model::set_cpu(std::env::var("KIKIZAKE_CPU").ok());
             let text = match rest {
                 [f] => read(f),
-                _ => gen::suite(suite).unwrap_or_default(),
+                _ => generators::suite(suite).unwrap_or_default(),
             };
             print!("{}", model::run(suite, &case::parse_cases(&text)));
         }

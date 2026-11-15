@@ -314,10 +314,8 @@ impl Ddraw {
                 if k.src == Some(v) {
                     continue;
                 }
-                if let Some(dk) = k.dest {
-                    if dst.get(tx, ty) != dk {
-                        continue;
-                    }
+                if let Some(dk) = k.dest && dst.get(tx, ty) != dk {
+                    continue;
                 }
                 dst.set(tx, ty, v);
             }
@@ -987,11 +985,9 @@ impl Ddraw {
                 // MEASURED: a rectangle past the surface or turned round: E_INVALIDARG (an empty
                 // one is fine); one overlapping a lock held, or the DC out: DDERR_SURFACEBUSY
                 hit(clause::DDRAW_LOCK_RECT);
-                if let Some((x0, y0, x1, y1)) = r {
-                    if x0 < 0 || y0 < 0 || x1 > surf.w || y1 > surf.h || x0 > x1 || y0 > y1 {
-                        out.push(format!("lock hr {E_INVALIDARG:08x}"));
-                        return Ok(true);
-                    }
+                if let Some((x0, y0, x1, y1)) = r && (x0 < 0 || y0 < 0 || x1 > surf.w || y1 > surf.h || x0 > x1 || y0 > y1) {
+                    out.push(format!("lock hr {E_INVALIDARG:08x}"));
+                    return Ok(true);
                 }
                 if let Some(hr) = self.lock_hr(s, r) {
                     out.push(format!("lock hr {hr:08x}"));

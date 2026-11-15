@@ -88,11 +88,9 @@ impl Rgn {
         if s.is_empty() || t >= b {
             return;
         }
-        if let Some(last) = self.bands.last_mut() {
-            if last.1 == t && last.2 == s {
-                last.1 = b;
-                return;
-            }
+        if let Some(last) = self.bands.last_mut() && last.1 == t && last.2 == s {
+            last.1 = b;
+            return;
         }
         self.bands.push((t, b, s));
     }

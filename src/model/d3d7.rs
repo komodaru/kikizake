@@ -1125,10 +1125,8 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
                         return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
                     }
                     let (row, col) = (a / p, a % p / b);
-                    if col < w {
-                        if let Some(c) = usize::try_from(row * w + col).ok().and_then(|k| cover.get_mut(k)) {
-                            *c = true;
-                        }
+                    if col < w && let Some(c) = usize::try_from(row * w + col).ok().and_then(|k| cover.get_mut(k)) {
+                        *c = true;
                     }
                 }
             }

@@ -254,8 +254,8 @@ use kikizake::model::d3d11::{normalize, Kind};
 /// any word
 fn arb_desc(k: Kind) -> impl Strategy<Value = Vec<u32>> {
     let n = k.words();
-    proptest::collection::vec((0..n, prop_oneof![0u32..24, any::<u32>(), prop::sample::select(kikizake::gen::d3d11_floats())]), 0..6).prop_map(move |ch| {
-        let mut d = kikizake::gen::d3d11_base(k);
+    proptest::collection::vec((0..n, prop_oneof![0u32..24, any::<u32>(), prop::sample::select(kikizake::generators::d3d11_floats())]), 0..6).prop_map(move |ch| {
+        let mut d = kikizake::generators::d3d11_base(k);
         for (at, v) in ch {
             d[at] = v;
         }
@@ -307,7 +307,7 @@ proptest! {
             format!("{}{} {}\n", k.name(), if check { " check" } else { "" }, w.join(" "))
         };
         let other = Kind::ALL[(k as usize + 1) % 4];
-        let ow: Vec<String> = kikizake::gen::d3d11_base(other).iter().map(|w| format!("{w:#x}")).collect();
+        let ow: Vec<String> = kikizake::generators::d3d11_base(other).iter().map(|w| format!("{w:#x}")).collect();
         let text = format!("case p\ndevice11\n{}{}{} {}\n{}end\n", line(true), line(false), other.name(), ow.join(" "), line(false));
         let c = &parse_cases(&text)[0];
         let out = run_case(c).unwrap();

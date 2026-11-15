@@ -594,14 +594,12 @@ impl Gdi {
                 }
             }
         }
-        if let Some((s, ..)) = &sp {
-            if (s.s.bpp == 1) != (d.s.bpp == 1) {
-                // (documented for monochrome bitmaps; a 1 bpp DIB section's color table: open)
-                if !(if s.s.bpp == 1 { s.s.ddb } else { d.s.ddb }) {
-                    return Err(Fail::Unmodeled(open::GDI_BLT_MONO));
-                }
-                hit(clause::GDI_DDB_MONOBLT);
+        if let Some((s, ..)) = &sp && (s.s.bpp == 1) != (d.s.bpp == 1) {
+            // (documented for monochrome bitmaps; a 1 bpp DIB section's color table: open)
+            if !(if s.s.bpp == 1 { s.s.ddb } else { d.s.ddb }) {
+                return Err(Fail::Unmodeled(open::GDI_BLT_MONO));
             }
+            hit(clause::GDI_DDB_MONOBLT);
         }
         let d = self.slots[k].as_mut().unwrap();
         hit(clause::GDI_FMT_LAYOUT);

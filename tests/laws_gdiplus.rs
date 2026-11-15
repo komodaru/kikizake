@@ -191,7 +191,7 @@ fn dither_keeps_the_mean() {
 fn the_model_answers_every_case() {
     for (suite, arch) in [("gdiplus", 32), ("gdiplus", 64), ("gdiplusmat", 32), ("gdiplusmat", 64)] {
         kikizake::model::set_arch(arch);
-        let cases = kikizake::case::parse_cases(&kikizake::gen::suite(suite).unwrap());
+        let cases = kikizake::case::parse_cases(&kikizake::generators::suite(suite).unwrap());
         for c in &cases {
             match kikizake::model::run_case(c) {
                 Ok(_) => {}

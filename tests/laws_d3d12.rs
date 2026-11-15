@@ -1,7 +1,7 @@
 //! Laws of the Direct3D 12 and DXGI models (exhaustive over small domains, property-based
 //! elsewhere): what the documentation states as properties, whatever Windows' measured details
 //! turn out to be.
-use kikizake::gen::d3d12::Desc;
+use kikizake::generators::d3d12::Desc;
 use kikizake::model::d3d12::{chain_desc, clear_texel, footprints, to_int, to_small_float, to_snorm, to_srgb, to_unorm, validate};
 use kikizake::model::dxgi_format::{block, channels};
 use proptest::prelude::*;
@@ -191,10 +191,10 @@ fn buffer_rules_are_the_documented_ones() {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::case::parse_cases;
-    use kikizake::gen;
+    use kikizake::generators;
     use kikizake::model::{self, run_case, Fail};
     for s in ["d3d12", "dxgi", "d3d12rm"] {
-        let cases = parse_cases(&gen::suite(s).unwrap());
+        let cases = parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
             // (a malformed case is unmodeled too: the generators write none)

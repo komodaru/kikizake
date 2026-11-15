@@ -12,7 +12,7 @@
 pub mod calls;
 pub mod case;
 pub mod compare;
-pub mod gen;
+pub mod generators;
 pub mod json;
 pub mod learn;
 mod proofs;

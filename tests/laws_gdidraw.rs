@@ -227,10 +227,10 @@ proptest! {
 /// stops answering (a case turned unmodeled) fails as surely as one that answers wrong
 #[test]
 fn models_keep_answering() {
-    use kikizake::{case, compare, gen};
+    use kikizake::{case, compare, generators};
     let floor = [("lines", 342), ("region", 506), ("xform", 652), ("path", 165), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
-        let cases = case::parse_cases(&gen::suite(s).unwrap());
+        let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
             let p = format!("{}/golden/{s}-{arch}/stdout.txt", env!("CARGO_MANIFEST_DIR"));

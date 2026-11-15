@@ -1,8 +1,8 @@
 //! Laws of the Direct3D 10/11 models (conversions, the rasterizer), apart from Windows' answers:
 //! exhaustive over the small formats, properties over the rest.
 use kikizake::case::parse_cases;
-use kikizake::gen::d3ddraw::shader;
-use kikizake::gen::dxbc::hex;
+use kikizake::generators::d3ddraw::shader;
+use kikizake::generators::dxbc::hex;
 use kikizake::model::dxgiconv::*;
 use kikizake::model::run_case;
 use proptest::prelude::*;
@@ -166,7 +166,7 @@ fn mutated_cases_never_panic() {
         seed
     };
     for s in ["d3d10res", "d3d11res", "d3d10draw", "d3d11draw"] {
-        let text = kikizake::gen::suite(s).unwrap();
+        let text = kikizake::generators::suite(s).unwrap();
         let cases: Vec<&str> = text.split("\ncase ").skip(1).collect();
         for _ in 0..600 {
             let c = cases[next() as usize % cases.len()];
@@ -220,7 +220,7 @@ fn d3d_models_match_the_answered_cases() {
         for arch in [32, 64] {
             let Ok(g) = std::fs::read_to_string(format!("{}/golden/{s}-{arch}/stdout.txt", env!("CARGO_MANIFEST_DIR"))) else { continue };
             kikizake::model::set_arch(arch);
-            let want = kikizake::model::run(s, &parse_cases(&kikizake::gen::suite(s).unwrap()));
+            let want = kikizake::model::run(s, &parse_cases(&kikizake::generators::suite(s).unwrap()));
             let r = kikizake::compare::compare_text(&want, &g);
             let bad: Vec<_> = r.differ.iter().filter(|d| !d.contains(": missing (")).collect();
             assert!(bad.is_empty(), "{s}-{arch}: {bad:?}");

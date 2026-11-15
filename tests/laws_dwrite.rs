@@ -2,7 +2,7 @@
 //! text analyses keep the invariants UAX #9 / #14 / #24 and the API's output shape promise,
 //! whatever Windows' measured details are. Exhaustive over small alphabets, proptest elsewhere.
 use proptest::prelude::*;
-use kikizake::gen::dwrite::{font, BIDI_CHARS, BREAK_CHARS, CHARS, SCRIPT_CHARS};
+use kikizake::generators::dwrite::{font, BIDI_CHARS, BREAK_CHARS, CHARS, SCRIPT_CHARS};
 use kikizake::model::dwrite::{bidi, gdi_round, linebreak, raster, script};
 use kikizake::ttf::{glyph_of, parse};
 

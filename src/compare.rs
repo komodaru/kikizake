@@ -64,12 +64,10 @@ pub fn compare(want: &Output, got: &Output) -> Report {
             }
             if !line_matches(a, b) {
                 let mut d = format!("{name}: line {}: want {:?} got {:?}", i + 1, a.unwrap_or("(none)"), b.unwrap_or("(none)"));
-                if let (Some(a), Some(b), true) = (a, b, bpp > 0) {
-                    if a.len() == b.len() && a.bytes().all(|c| c.is_ascii_hexdigit()) {
-                        let row = (0..i).rev().take_while(|&j| !wl[j].starts_with("px ")).count();
-                        if let Some(x) = first_pixel(a, b, bpp) {
-                            d += &format!(" (row {row}, first pixel {x})");
-                        }
+                if let (Some(a), Some(b), true) = (a, b, bpp > 0) && a.len() == b.len() && a.bytes().all(|c| c.is_ascii_hexdigit()) {
+                    let row = (0..i).rev().take_while(|&j| !wl[j].starts_with("px ")).count();
+                    if let Some(x) = first_pixel(a, b, bpp) {
+                        d += &format!(" (row {row}, first pixel {x})");
                     }
                 }
                 diff = Some(d);

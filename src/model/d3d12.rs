@@ -19,7 +19,7 @@ use crate::spec::clause;
 use super::dxgi_format::{block, channels, dims, planar_depth, Chan, Enc, FLIP};
 use super::{Fail, Res};
 use crate::case::{num, Op};
-use crate::gen::d3d12::Desc;
+use crate::generators::d3d12::Desc;
 use crate::spec::hit;
 
 /// an HRESULT: kept apart from the other numbers (printed as its 8 hex digits)

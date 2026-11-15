@@ -17,10 +17,8 @@ pub struct Op {
 /// is a color), as the executor splits it.
 pub fn tokens(line: &str) -> Vec<String> {
     let mut l = line;
-    if let Some(i) = l.find('#') {
-        if i == 0 || l[i + 1..].starts_with(' ') {
-            l = &l[..i];
-        }
+    if let Some(i) = l.find('#') && (i == 0 || l[i + 1..].starts_with(' ')) {
+        l = &l[..i];
     }
     l.split([' ', '\t', '\r']).filter(|t| !t.is_empty()).map(str::to_string).collect()
 }

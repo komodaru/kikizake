@@ -1154,7 +1154,7 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     let pbits = depth * ch;
     // the picture's samples, row by row (Adam7's passes put back in place)
     let mut full: Vec<Vec<u8>> = vec![vec![0; (w as usize * pbits as usize).div_ceil(8)]; h as usize];
-    let passes: Vec<(u32, u32, u32, u32)> = if il { crate::gen::WICIMAGE_ADAM7.to_vec() } else { vec![(0, 0, 1, 1)] };
+    let passes: Vec<(u32, u32, u32, u32)> = if il { crate::generators::WICIMAGE_ADAM7.to_vec() } else { vec![(0, 0, 1, 1)] };
     let mut at = 0;
     for (x0, y0, dx, dy) in if zero { vec![] } else { passes } {
         let pw = if x0 < w { (w - x0).div_ceil(dx) } else { 0 };
@@ -1333,12 +1333,10 @@ fn lzw(min: u32, data: &[u8], n: usize, cut: bool) -> Option<Vec<u8>> {
             e.push(e[0]);
             e
         };
-        if let Some(pc) = prev {
-            if dict.len() < 4096 {
-                let mut e = dict[pc as usize].clone();
-                e.push(entry[0]);
-                dict.push(e);
-            }
+        if let Some(pc) = prev && dict.len() < 4096 {
+            let mut e = dict[pc as usize].clone();
+            e.push(entry[0]);
+            dict.push(e);
         }
         out.extend_from_slice(&entry);
         if dict.len() >= 1 << size && size < 12 {
@@ -1716,7 +1714,7 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         // (the entry's own depth and size: a PNG's IHDR, a BMP's header)
         let (w, h, bpp) = if d.starts_with(b"\x89PNG") {
             let be = |o: usize| d.get(o..o + 4).map_or(0, |x| u32::from_be_bytes(x.try_into().unwrap()));
-            (be(16), be(20), d.get(24).map_or(0, |&x| x as u32) * d.get(25).map_or(1, |&c| crate::gen::wicimage_png_channels(c)))
+            (be(16), be(20), d.get(24).map_or(0, |&x| x as u32) * d.get(25).map_or(1, |&c| crate::generators::wicimage_png_channels(c)))
         } else {
             (rd32(d, 4).unwrap_or(0), rd32(d, 8).unwrap_or(0) / 2, rd16(d, 14).unwrap_or(0))
         };
@@ -2916,7 +2914,7 @@ pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
     }
     let pal: Vec<u32> = i.pal.clone().unwrap_or_default();
     let ppm = (i.dpi.0 / 0.0254 + 0.5) as u32;
-    let mut f = crate::gen::wicimage_bmp(40, i.w as i32, i.h as i32, bpp, if i.fmt == "bgr565" { 3 } else { 0 }, [0xf800, 0x07e0, 0x001f, 0], pal.len() as u32, &pal, &px, false, (ppm, ppm));
+    let mut f = crate::generators::wicimage_bmp(40, i.w as i32, i.h as i32, bpp, if i.fmt == "bgr565" { 3 } else { 0 }, [0xf800, 0x07e0, 0x001f, 0], pal.len() as u32, &pal, &px, false, (ppm, ppm));
     // (MEASURED: biSizeImage 0, biClrImportant the palette's size, its entries' alpha bytes kept)
     f[34..38].fill(0);
     f[50..54].copy_from_slice(&(pal.len() as u32).to_le_bytes());

@@ -26,9 +26,9 @@ fn every_clause_is_reached_and_known() {
 /// a case is named once in its suite: the answers are matched to the cases by name
 #[test]
 fn case_names_are_unique() {
-    for s in kikizake::gen::SUITES {
+    for s in kikizake::generators::SUITES {
         let mut seen = BTreeSet::new();
-        for c in kikizake::case::parse_cases(&kikizake::gen::suite(s).unwrap()) {
+        for c in kikizake::case::parse_cases(&kikizake::generators::suite(s).unwrap()) {
             assert!(seen.insert(c.name.clone()), "{s}: case {} twice", c.name);
         }
     }

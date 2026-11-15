@@ -8,7 +8,7 @@ so work on different APIs does not collide.
 | executor module: its ops (`struct kz_op`), its reset | `runner/<api>.c` (`#include "core.h"`) | `runner/apis.h` (`API(<api>)`) |
 | clauses | `spec/<api>.txt` | `src/spec.rs` `FILES` |
 | model | `src/model/<api>.rs` (`impl Api`) | `src/model/mod.rs` `apis()` |
-| generator | `src/gen/<api>.rs` | `src/gen/mod.rs` `GENERATORS` |
+| generator | `src/generators/<api>.rs` | `src/generators/mod.rs` `GENERATORS` |
 | case file | `cases/<suite>.txt` (`cargo run -- gen <suite> > cases/<suite>.txt`) | |
 | Windows' answers | `golden/<suite>-<arch>/` (committed by the `windows` workflow) | |
 

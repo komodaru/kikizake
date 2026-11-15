@@ -172,8 +172,8 @@ fn golden(dir: &Path, suite: &str, arch: u32) -> Option<BTreeMap<String, Vec<Str
 /// every suite's cases, each executor, through the models and against Windows' answers in `dir`
 pub fn trace(dir: &Path) -> BTreeMap<String, Evidence> {
     let mut m: BTreeMap<String, Evidence> = BTreeMap::new();
-    for s in crate::gen::SUITES {
-        let text = crate::gen::suite(s).unwrap();
+    for s in crate::generators::SUITES {
+        let text = crate::generators::suite(s).unwrap();
         let cases = crate::case::parse_cases(&text);
         for arch in [32, 64] {
             if arch == 64 && text.contains("\n# x86 only") || arch == 32 && text.contains("\n# x64 only") {
@@ -199,10 +199,8 @@ pub fn trace(dir: &Path) -> BTreeMap<String, Evidence> {
                         1 => e.differ += 1,
                         2 => {
                             e.unmodeled += 1;
-                            if let Err(crate::model::Fail::Unmodeled(why)) = &r {
-                                if why.as_str() != id {
-                                    *e.blocked.entry(why.to_string()).or_default() += 1;
-                                }
+                            if let Err(crate::model::Fail::Unmodeled(why)) = &r && why.as_str() != id {
+                                *e.blocked.entry(why.to_string()).or_default() += 1;
                             }
                         }
                         _ => e.unanswered += 1,
@@ -269,10 +267,8 @@ pub fn gaps(c: &Clause, e: &Evidence, learn: &BTreeMap<String, String>) -> Vec<S
                 v.push(format!("measured, but no case reaching it agrees with a Windows answer{}", blocked(e)));
             }
         }
-        "assumed" => {
-            if e.laws.is_empty() && e.same == 0 && !pending {
-                v.push(format!("no law and no case Windows agrees with{}", blocked(e)));
-            }
+        "assumed" if e.laws.is_empty() && e.same == 0 && !pending => {
+            v.push(format!("no law and no case Windows agrees with{}", blocked(e)));
         }
         _ => {}
     }

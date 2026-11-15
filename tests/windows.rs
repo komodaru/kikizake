@@ -5,7 +5,7 @@
 //! probes (github.com/a-kaibu/masu, tests/winref) that check the models independently. A suite
 //! with no answer yet is reported and skipped.
 use std::path::PathBuf;
-use kikizake::{case, compare, gen, model};
+use kikizake::{case, compare, generators, model};
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -18,9 +18,9 @@ fn golden(suite: &str, arch: u32) -> Option<String> {
 
 #[test]
 fn case_files_are_what_the_generators_make() {
-    for s in gen::SUITES {
+    for s in generators::SUITES {
         let f = std::fs::read_to_string(root().join(format!("cases/{s}.txt"))).unwrap();
-        assert!(f == gen::suite(s).unwrap(), "cases/{s}.txt is stale: cargo run -- gen {s} > cases/{s}.txt");
+        assert!(f == generators::suite(s).unwrap(), "cases/{s}.txt is stale: cargo run -- gen {s} > cases/{s}.txt");
     }
 }
 
@@ -29,15 +29,15 @@ fn models_match_windows() {
     let mut bad = Vec::new();
     // (KIKIZAKE_SUITES=a,b: only those, as cargo mutants of one model wants)
     let only = std::env::var("KIKIZAKE_SUITES").ok();
-    for s in gen::SUITES {
+    for s in generators::SUITES {
         if only.as_ref().is_some_and(|o| !o.split(',').any(|x| x == *s)) {
             continue;
         }
-        let cases = case::parse_cases(&gen::suite(s).unwrap());
+        let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
             let want = model::run(s, &cases);
-            if arch == 64 && gen::suite(s).unwrap().contains("\n# x86 only") || arch == 32 && gen::suite(s).unwrap().contains("\n# x64 only") {
+            if arch == 64 && generators::suite(s).unwrap().contains("\n# x86 only") || arch == 32 && generators::suite(s).unwrap().contains("\n# x64 only") {
                 continue;
             }
             let Some(g) = golden(s, arch) else {
@@ -149,7 +149,7 @@ fn d3d11_matches_the_d3d11desc_probe() {
         let mut made: Vec<(String, Vec<u32>)> = Vec::new();
         for l in body.lines().filter(|l| l.trim_start().starts_with("{ \"")) {
             let name = l.split('"').nth(1).unwrap().to_string();
-            let mut d = kikizake::gen::d3d11_base(k);
+            let mut d = kikizake::generators::d3d11_base(k);
             // { "name", { { at, v }, ... END } }, at maybe RT(i, f)
             for c in l.split("{ ").skip(3) {
                 let c = c.split(" }").next().unwrap();
@@ -260,11 +260,11 @@ fn wic_matches_the_wicconv_probe() {
 fn no_generated_line_is_bad() {
     let only = std::env::var("KIKIZAKE_SUITES").ok();
     let mut bad = Vec::new();
-    for s in gen::SUITES {
+    for s in generators::SUITES {
         if only.as_ref().is_some_and(|o| !o.split(',').any(|x| x == *s)) {
             continue;
         }
-        let cases = case::parse_cases(&gen::suite(s).unwrap());
+        let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
             let out = model::run(s, &cases);

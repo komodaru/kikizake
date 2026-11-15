@@ -13,7 +13,7 @@ The name is 利き酒, sake tasting: telling by taste whether it is right.
 cases/<suite>.txt ──► runner/ (executor, a Win32 console program) ──► output
         ▲                    │ on Windows: the reference, recorded once
         │                    │ on Wine / sake / ...: the implementation under test
-   src/gen/                  ▼
+   src/generators/                  ▼
  (generators)          src/model/ (executable specification) ──► the output Windows should give
 ```
 
@@ -69,7 +69,7 @@ kikizake calls usage game.jsonl            # graphics calls and argument values 
 | property-based (metamorphic: clipping = masking, blit = two half blits, BitBlt without source = PatBlt, DSTINVERT twice = identity, brush origin modulo the pattern, color round trips, state blocks restore) | `tests/laws.rs` (proptest) |
 | coverage-guided fuzzing of the parser, models and comparison | `fuzz/` (`cargo +nightly fuzz run cases`) |
 | mutation testing of the models | `.cargo/mutants.toml` (`cargo mutants`) |
-| generated cases, deterministic seeds | `src/gen/`, `cases/` (a test keeps them current) |
+| generated cases, deterministic seeds | `src/generators/`, `cases/` (a test keeps them current) |
 
 ## Use
 

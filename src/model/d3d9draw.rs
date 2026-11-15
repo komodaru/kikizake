@@ -1675,14 +1675,12 @@ impl D3d9 {
             // (MEASURED premod-chain-*: PREMODULATE gives its first argument times the next
             // stage's texture, in f32, where the next stage is enabled and has one)
             let mut out = out;
-            if (cop == 17 || aop == 17) && st < 7 && self.tss(st + 1, 1) != 1 {
-                if let Some(i) = self.draw.stage_tex[st as usize + 1] {
-                    hit(clause::D3D9_STAGE_BUMP);
-                    let nt = self.sample(st + 1, self.draw.texs[i].as_ref().unwrap(), uv[self.tex_set(st + 1).at()][0], uv[self.tex_set(st + 1).at()][1])?;
-                    for k in 0..4 {
-                        if (k < 3 && cop == 17) || (k == 3 && aop == 17) {
-                            out[k] = ((out[k] as f32) * (nt[k] as f32)) as f64;
-                        }
+            if (cop == 17 || aop == 17) && st < 7 && self.tss(st + 1, 1) != 1 && let Some(i) = self.draw.stage_tex[st as usize + 1] {
+                hit(clause::D3D9_STAGE_BUMP);
+                let nt = self.sample(st + 1, self.draw.texs[i].as_ref().unwrap(), uv[self.tex_set(st + 1).at()][0], uv[self.tex_set(st + 1).at()][1])?;
+                for k in 0..4 {
+                    if (k < 3 && cop == 17) || (k == 3 && aop == 17) {
+                        out[k] = ((out[k] as f32) * (nt[k] as f32)) as f64;
                     }
                 }
             }
@@ -1886,7 +1884,7 @@ impl D3d9 {
                     let uv: [[f64; 3]; NSET] = std::array::from_fn(|k| {
                         let v: [f32; 4] = match TexGen::of(tcis[k], self.v8) {
                             TexGen::Passthru => passed[k],
-                            gen => {
+                            texgen => {
                                 hit(clause::D3D9_STAGE_TCIGEN);
                                 let c = self.camera_space(p);
                                 // (the vertex's normal through the inverse transpose of world
@@ -1897,7 +1895,7 @@ impl D3d9 {
                                 let e = if self.rs(142) != 0 { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
                                 let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
                                 let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
-                                let g: [f32; 3] = match gen {
+                                let g: [f32; 3] = match texgen {
                                     TexGen::Passthru => [0.0; 3],
                                     TexGen::Normal => nn,
                                     TexGen::Position => [c[0], c[1], c[2]],

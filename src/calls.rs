@@ -1013,10 +1013,8 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
         current.insert(n.clone(), rec);
     }
     for (n, a) in &current {
-        if let Some(s) = n.strip_suffix("-32") {
-            if let Some(b) = current.get(&format!("{s}-64")) {
-                ch.arch.extend(differ(a, b, &arch).into_iter().map(|d| format!("{s} {d}")));
-            }
+        if let Some(s) = n.strip_suffix("-32") && let Some(b) = current.get(&format!("{s}-64")) {
+            ch.arch.extend(differ(a, b, &arch).into_iter().map(|d| format!("{s} {d}")));
         }
     }
     ch.arch.sort();
