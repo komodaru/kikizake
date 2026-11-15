@@ -1788,8 +1788,10 @@ fn measure(s: &mut String) {
     // more small triangles of varying depth, corners on a 1/128 grid, tall and thin ones among
     // them: how Windows steps depth from row to row along an edge
     let mut r = XorShift32::new(0x5a1d_93e7);
-    for k in 8..16 {
-        writeln!(s, "case zinterp-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glColor4ub 255 0 0 255\ngl glViewport 0 0 16 16\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+    for k in 8..20 {
+        // (16..20: a 16-bit depth buffer)
+        let ctx = if k < 16 { ctx(32) } else { "glctx 32 2\n".to_string() };
+        writeln!(s, "case zinterp-{k}\n{ctx}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glColor4ub 255 0 0 255\ngl glViewport 0 0 16 16\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700").unwrap();
         for _ in 0..12 {
             let thin = k % 2 == 1;
             let corners: [(f64, f64); 3] = std::array::from_fn(|_| {
