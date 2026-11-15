@@ -38,7 +38,8 @@ fn trunc(x: f32) -> i32 {
 fn encode565(c: [f32; 3]) -> u16 {
     let q = |v: f32, m: f32| trunc(v.clamp(0.0, 1.0) * m + 0.5);
     let (r, g, b) = (q(c[0], 31.0), q(c[1], 63.0), q(c[2], 31.0));
-    u16::try_from((r << 11) | (g << 5) | b).unwrap_or(u16::MAX)
+    // (the fields do not overlap: added, so that no mutant of the packing is equivalent)
+    u16::try_from((r << 11) + (g << 5) + b).unwrap_or(u16::MAX)
 }
 
 fn decode565(w: u16) -> [f32; 3] {
