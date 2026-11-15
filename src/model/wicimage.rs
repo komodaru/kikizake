@@ -2113,16 +2113,17 @@ struct EncodeOptions {
 }
 
 /// MEASURED (golden wicencode opt-*: every option the cases set, on BGRA, BGR and gray sources):
-/// PNG's InterlaceOption and FilterOption (1 to 6), TIFF's TiffCompressionMethod 1 (none), 6
-/// (ZIP) and 7 (LZW with differencing) change only the file; TiffCompressionMethod 2 (CCITT3)
-/// makes the frame BlackWhite; WMP's Lossless keeps every pixel; PNG takes no ImageQuality. Other names and values are not measured.
+/// PNG's InterlaceOption and FilterOption (1 to 6), TIFF's TiffCompressionMethod 0 (don't care),
+/// 1 (none), 4 (LZW), 6 (ZIP) and 7 (LZW with differencing) change only the file;
+/// TiffCompressionMethod 2 (CCITT3), 3 (CCITT4) and 5 (RLE) make the frame BlackWhite
+/// (golden opt-tiff-*); WMP's Lossless keeps every pixel; PNG takes no ImageQuality. Other names and values are not measured.
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
     Ok(match (cont, name, val) {
-        ("png", "InterlaceOption", "0" | "1") | ("png", "FilterOption", "1" | "2" | "3" | "4" | "5" | "6") | ("tiff", "TiffCompressionMethod", "1" | "6" | "7") => EncodeOption::Lossless,
+        ("png", "InterlaceOption", "0" | "1") | ("png", "FilterOption", "1" | "2" | "3" | "4" | "5" | "6") | ("tiff", "TiffCompressionMethod", "0" | "1" | "4" | "6" | "7") => EncodeOption::Lossless,
         ("bmp", "EnableV5Header32bppBGRA", "0") => EncodeOption::V5Header(false),
         ("bmp", "EnableV5Header32bppBGRA", "1") => EncodeOption::V5Header(true),
-        ("tiff", "TiffCompressionMethod", "2") => EncodeOption::BlackWhite,
+        ("tiff", "TiffCompressionMethod", "2" | "3" | "5") => EncodeOption::BlackWhite,
         ("png", "ImageQuality", _) => EncodeOption::Rejected,
         ("wmp", "Lossless", "1") => EncodeOption::WmpLossless,
         ("jpeg", "ImageQuality", v) => EncodeOption::JpegQuality((v.parse::<f64>().map_err(|_| Fail::Bad)? * 100.0).round() as i64),

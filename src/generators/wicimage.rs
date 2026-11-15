@@ -1379,6 +1379,13 @@ pub fn wicencode() -> String {
     for (f, w, h, seed) in [("gray8", 9u32, 9u32, 0x0dd5_0001u32), ("gray8", 6, 10, 0x0dd5_0002), ("gray16", 8, 12, 0x0dd5_0003), ("bgra", 9, 9, 0x0dd5_0004), ("bgr24", 4, 8, 0x0dd5_0005)] {
         writeln!(s, "case encdds-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode dds\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
     }
+    // the TIFF compression methods the options above leave out (0 don't care, 3 CCITT4, 4 LZW,
+    // 5 RLE), on their own seeds
+    for (k, m) in [0u32, 3, 4, 5].iter().enumerate() {
+        for (j, f) in ["bgra", "bgr24", "gray8", "bw"].iter().enumerate() {
+            writeln!(s, "case opt-tiff-{m}-{f}\nwbits {f} 6 4 {}\nwencode tiff TiffCompressionMethod={m}\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0000u32 + (k * 4 + j) as u32).unwrap();
+        }
+    }
     // every 16-bit gray level into 48bppRGB (16bppGray's own path into 64bppRGBAFixedPoint goes
     // through it, fixpath-gray16-rgb48)
     {
