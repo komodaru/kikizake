@@ -172,6 +172,17 @@ proptest! {
         }
     }
 
+    /// A triangle (convex) crosses each plane of the view volume at most twice; a bow tie
+    /// moved past one plane by more than its middle crosses it four times
+    #[test]
+    fn convex_outlines_cross_a_plane_at_most_twice(v in any::<[(i16, i16); 3]>(), scale in 1f32..8.0, shift in 1.3f32..1.7) {
+        let t = v.map(|(x, y)| [f32::from(x) / 32768.0 * scale, f32::from(y) / 32768.0 * scale, 0.0, 1.0]);
+        prop_assert!(tri::clip_crossing(&t).1 <= 2);
+        let tie = [[-1.0, -1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, 1.0]].map(|[x, y]: [f32; 2]| [x * 0.75, y * 0.75 + shift, 0.0, 1.0]);
+        let (p, n) = tri::clip_crossing(&tie);
+        prop_assert_eq!(n, 4, "{:?}", p);
+    }
+
     /// GL 1.1 3.5.1: which pixels a triangle covers does not depend on the order of its vertices
     #[test]
     fn triangle_ignores_vertex_order(v in any::<[(i16, i16); 3]>()) {

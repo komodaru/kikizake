@@ -166,3 +166,4 @@ tests/laws_opengl.rs::triangle_ignores_vertex_order pbt GL.RASTER.TRIANGLE
 tests/laws_opengl.rs::shared_edges_tile pbt GL.RASTER.TRIANGLE
 tests/laws_opengl.rs::triangle_moves_with_whole_pixels pbt GL.RASTER.TRIANGLE
 tests/laws_opengl.rs::line_is_thin_and_moves_with_its_ends pbt GL.RASTER.LINE GL.RASTER.LINE.TIE
+tests/laws_opengl.rs::convex_outlines_cross_a_plane_at_most_twice pbt GL.RASTER.CLIP.XY

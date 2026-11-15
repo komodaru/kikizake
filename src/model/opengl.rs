@@ -1619,7 +1619,21 @@ impl Ctx {
                 hit(clause::GL_NORMAL);
                 self.normal = [fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32];
             }
-            "glVertex4f" if fl(a, 3) != 1.0 => return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE)),
+            "glVertex4f" if fl(a, 3) != 1.0 => {
+                // (a point of w other than 1: as (x, y, z) / w when w > 0, past the view volume
+                // when w < 0, its clip coordinates' w then negative, GL 1.1 2.11; other
+                // primitives, and fog from such eye coordinates, not measured)
+                let w = fl(a, 3);
+                if self.in_begin != Some(POINTS) || w == 0.0 || self.cap(FOG) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+                }
+                hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
+                if w > 0.0 {
+                    self.verts.push(([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w], self.lit(self.current())));
+                } else {
+                    hit(clause::GL_RASTER_CLIP_XY);
+                }
+            }
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
@@ -1825,11 +1839,6 @@ impl Fog {
     }
 }
 
-/// the transform of a vertex to window coordinates (x, y, z in 0..1)
-/// `m` times `v` in float32, each row's products added left to right (GL.RASTER.PERSPECTIVE)
-fn xform32(m: &[f32; 16], v: [f32; 4]) -> [f32; 4] {
-    std::array::from_fn(|row| (0..4).fold(0.0f32, |s, k| s + m[k * 4 + row] * v[k]))
-}
 
 fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
     let mut r = [0f64; 4];
@@ -2008,8 +2017,7 @@ impl Ctx {
     fn ndc(&self, v: [f64; 3]) -> Res<[f64; 3]> {
         // (MEASURED, golden opengl-32 persp-*: in float32, through the modelview matrix, then
         // the projection, then divided by w: GL.RASTER.PERSPECTIVE)
-        let e = xform32(self.top(0), [v[0] as f32, v[1] as f32, v[2] as f32, 1.0]);
-        let c = xform32(self.top(1), e);
+        let c = self.clip_coords(v);
         if c[3] != 1.0 {
             hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
         }
@@ -2040,7 +2048,11 @@ impl Ctx {
     /// A vertex's clip coordinates (MEASURED, golden opengl-32 persp-*: in float32, through the
     /// modelview matrix, then the projection: GL.RASTER.PERSPECTIVE.DIVIDE).
     fn clip_coords(&self, v: [f64; 3]) -> [f32; 4] {
-        xform32(self.top(1), xform32(self.top(0), [v[0] as f32, v[1] as f32, v[2] as f32, 1.0]))
+        // (MEASURED, golden opengl-32 persp-turn-*, persp-4, persp-5: through one matrix, the
+        // projection times the modelview in float32, each row's sum begun from its w term)
+        let m = mat_mul(self.top(1), self.top(0));
+        let v = [v[0] as f32, v[1] as f32, v[2] as f32];
+        std::array::from_fn(|row| ((m[12 + row] + m[row] * v[0]) + m[4 + row] * v[1]) + m[8 + row] * v[2])
     }
 
     /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
@@ -2060,8 +2072,14 @@ impl Ctx {
                 [p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32]
             })
             .collect();
-        let poly = tri::clip(&clip);
+        let (poly, crossed) = tri::clip_crossing(&clip);
         if poly.len() < 3 {
+            return Ok(Vec::new());
+        }
+        // (MEASURED, golden opengl-32 clip-nc-*, persp-3: a polygon whose outline crosses one
+        // plane of the view volume more than twice is not drawn at all: GL.RASTER.CLIP.XY)
+        if crossed > 2 {
+            hit(clause::GL_RASTER_CLIP_XY);
             return Ok(Vec::new());
         }
         if poly != clip {
@@ -2186,17 +2204,6 @@ impl Ctx {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
         if clip.iter().any(|c| c[3] != 1.0) {
             hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
-        }
-        if clip.iter().any(|c| c[3] != 1.0) {
-            let m = self.top(0);
-            let turned = (0..4).any(|r| (0..4).any(|c| r != c && m[c * 4 + r] != 0.0 && !(c == 3 && r < 3)));
-            let cut = !clip.iter().all(|c| c[..3].iter().all(|q| (-c[3]..=c[3]).contains(q)));
-            // (a modelview that turns the vertices before a projection: depths an ulp off,
-            // golden opengl-32 persp-4, persp-5; a cut polygon of more than 3 vertices under
-            // a projection: persp-3, Windows drawing nothing)
-            if turned || (cut && q.len() > 3) {
-                return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
-            }
         }
         let zs: Vec<f32> = clip.iter().map(|c| self.window_z(c[2] * (1.0 / c[3]))).collect();
         // (depths that vary across the polygon, where a depth test reads them:
@@ -4175,26 +4182,36 @@ pub mod tri {
     /// smooth-*: depths along the cuts; prim-11, rect-13, tie-x-2: the order a fan from the
     /// first vertex starts from).
     pub fn clip<const D: usize>(poly: &[[f32; D]]) -> Vec<[f32; D]> {
+        clip_crossing(poly).0
+    }
+
+    /// `clip`, and the most times the outline crossed one plane (more than 2 only for a
+    /// polygon that is not convex).
+    pub fn clip_crossing<const D: usize>(poly: &[[f32; D]]) -> (Vec<[f32; D]>, usize) {
         let mut poly = poly.to_vec();
+        let mut most = 0;
         for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
             let mut out = Vec::new();
+            let mut crossed = 0;
             for (i, b) in poly.iter().enumerate() {
                 let a = poly[(i + poly.len() - 1) % poly.len()];
                 let (da, db) = (a[3] - sign * a[axis], b[3] - sign * b[axis]);
                 if (da >= 0.0) != (db >= 0.0) {
+                    crossed += 1;
                     let (inside, outside, di, dout) = if da >= 0.0 { (a, *b, da, db) } else { (*b, a, db, da) };
                     let t = di / (di - dout);
-                    let mut c: [f32; D] = std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k]));
-                    c[axis] = sign * c[3];
-                    out.push(c);
+                    // (the cut point as interpolated, its cut coordinate not set to the plane's:
+                    // golden opengl-32 persp-4)
+                    out.push(std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k])));
                 }
                 if db >= 0.0 {
                     out.push(*b);
                 }
             }
+            most = most.max(crossed);
             poly = out;
         }
-        poly
+        (poly, most)
     }
 
     /// The value at pixel (x, y)'s center of the plane through `at` taking `value` at each
