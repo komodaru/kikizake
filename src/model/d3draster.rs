@@ -1771,7 +1771,8 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     let (rb, _, _) = res.layout(sub);
     let el = (f.bits / 8) as usize;
     let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
-    let e = &mut b[y * rb + x * el..][..el];
+    // (a view whose elements are wider than its resource's, as mutations make: not measured)
+    let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
     let new = match f.num {
         Num::Uint | Num::Sint => {
             if d.blend.0[0] != 0 {
