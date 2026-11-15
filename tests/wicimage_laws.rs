@@ -710,3 +710,26 @@ fn fixed_point_goes_back_where_it_came_from() {
         }
     }
 }
+
+/// floats back into 8 and 16 bits climb with the value from black to white, every 16-bit
+/// level's float lands within one level of where it came from, and nothing outside 0..=1 or NaN
+/// gets an answer
+#[test]
+fn floats_go_back_in_order() {
+    for t in [wi::FloatBack::Bits16, wi::FloatBack::Bits8] {
+        let top = if t == wi::FloatBack::Bits16 { 65535 } else { 255 };
+        assert_eq!((wi::float_srgb(0.0, t), wi::float_srgb(1.0, t)), (Some(0), Some(top)));
+        for x in [-0.0001f32, 1.0001, f32::NAN, f32::INFINITY] {
+            assert_eq!(wi::float_srgb(x, t), None);
+        }
+        let mut was = 0;
+        for v in 0..=65535u16 {
+            let got = wi::float_srgb(wi::linear16(v), t).unwrap();
+            assert!(got >= was);
+            was = got;
+            if t == wi::FloatBack::Bits16 {
+                assert!(got.abs_diff(v) <= 1, "{v} back as {got}");
+            }
+        }
+    }
+}

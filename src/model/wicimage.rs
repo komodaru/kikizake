@@ -184,6 +184,48 @@ pub fn fix13_srgb16(v: Fix13, t: FixBack) -> u16 {
     u16::from_le_bytes([b[k], b[k + 1]])
 }
 
+/// MEASURED (golden wicencode backsweep*-rgbafloat-*, -rgba64half-*, -grayfloat-*: every 16-bit
+/// level as float, as half and as 32bppGrayFloat's luma of it, and every s2.13 level): one
+/// function of the float value, whatever format it came in, into 16 bits and another into 8 (not
+/// the 16-bit one's high byte); per output level n the largest float measured below it and the
+/// smallest measured at or above it (f32 pairs, n = 1..=65535 and 1..=255)
+static FLOAT_SRGB16: &[u8; 65535 * 8] = include_bytes!("data/wic_float_srgb16.bin");
+static FLOAT_SRGB8: &[u8; 255 * 8] = include_bytes!("data/wic_float_srgb8.bin");
+
+/// how many bits a float goes back into
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum FloatBack {
+    Bits16,
+    Bits8,
+}
+
+/// a float of 0..=1 back into 8 or 16 bits sRGB; None outside 0..=1 and between two measured
+/// floats either side of a step (no bitmap the executor makes has those)
+pub fn float_srgb(x: f32, t: FloatBack) -> Option<u16> {
+    if !(0.0..=1.0).contains(&x) {
+        return None;
+    }
+    let tab: &[u8] = match t {
+        FloatBack::Bits16 => FLOAT_SRGB16,
+        FloatBack::Bits8 => FLOAT_SRGB8,
+    };
+    let at = |n: usize, k: usize| f32::from_le_bytes([tab[n * 8 + k * 4], tab[n * 8 + k * 4 + 1], tab[n * 8 + k * 4 + 2], tab[n * 8 + k * 4 + 3]]);
+    let steps = tab.len() / 8;
+    // (the steps' smallest floats at or above them climb: count those at or below x)
+    let n = {
+        let (mut lo, mut hi) = (0usize, steps);
+        while lo < hi {
+            let m = (lo + hi) / 2;
+            if at(m, 1) <= x { lo = m + 1 } else { hi = m }
+        }
+        lo
+    };
+    if n < steps && x > at(n, 0) {
+        return None;
+    }
+    u16::try_from(n).ok()
+}
+
 pub fn gray16_rgb48(v: u16) -> u16 {
     let k = usize::from(v) * 2;
     u16::from_le_bytes([GRAY16_RGB48[k], GRAY16_RGB48[k + 1]])
@@ -381,8 +423,8 @@ fn wide_to_rgba64fixed(s: &Img, to: &'static str) -> Option<Res<Img>> {
 /// back-rgba64fixed-bgra, back-rgb48fixed-rgb48: 256 random pixels each): s2.13 back into 8 and
 /// 16 bits: each color channel through the measured table (FIX16_SRGB16, gray through its own,
 /// GRAYFIX16_GRAY16; neither is a formula found: 256 pieces between the sRGB levels k / 256 come
-/// close, 90 %), 8 bits its high byte; alpha a * 65535 / 8192 rounded, 8 bits its high byte (ASSUMED
-/// for 16 bits: only alpha 1 is in the goldens so far). Levels outside 0..=1 open (CONVERT.OTHER:
+/// close, 90 %), 8 bits its high byte; alpha a / 8192 * 65535 + 0.5 in f32, truncated, 8 bits its high byte
+/// (backalpha-rgba64fixed-rgba64: 4112 gives 32896, not 32895 as in exact arithmetic). Levels outside 0..=1 open (CONVERT.OTHER:
 /// no bitmap the executor makes has them)
 fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (n, back) = match (s.fmt, to) {
@@ -402,7 +444,7 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 Fix13::new(i16::from_le_bytes([s.px[i], s.px[i + 1]]))
             };
             let color = |k: usize| at(k).map(|v| fix13_srgb16(v, back));
-            let alpha = |k: usize| at(k).map(|v| u16::try_from((u32::from(v.0) * 65535 + 4096) / 8192).unwrap_or(u16::MAX));
+            let alpha = |k: usize| at(k).map(|v| (f32::from(v.0) / 8192.0f32 * 65535.0f32 + 0.5f32).floor() as u16);
             let v: Option<Vec<u16>> = match n {
                 1 => [color(0)].into_iter().collect(),
                 3 => [color(0), color(1), color(2), Some(u16::MAX)].into_iter().collect(),
@@ -432,6 +474,95 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     Some(Ok(o))
 }
 
+/// MEASURED (golden wicencode backsweep*-rgbafloat-*, -rgba64half-*, -grayfloat-*: every 16-bit
+/// level; backalpha-rgbafloat-rgba64, -rgba64half-rgba64, back-rgbafloat-bgra, back-rgba64half-bgra:
+/// 256 random pixels each): 128bppRGBAFloat, 64bppRGBAHalf and 32bppGrayFloat back into
+/// 64bppRGBA, 32bppBGRA, 16bppGray, 8bppGray: each color channel through float_srgb; alpha
+/// a * 65535 + 0.5 in f32 truncated, into 8 bits a * 255 + 0.5. Others open (CONVERT.OTHER)
+fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    let (n, half) = match (s.fmt, to) {
+        ("rgbafloat", "rgba64" | "bgra") => (4usize, false),
+        ("rgba64half", "rgba64" | "bgra") => (4, true),
+        ("grayfloat", "gray16" | "gray8") => (1, false),
+        _ => return None,
+    };
+    hit(clause::WICIMAGE_CONVERT_FLOAT_NARROW);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (st, ost) = (s.stride(), o.stride());
+    let size = if half { 2 } else { 4 };
+    let back = if matches!(to, "rgba64" | "gray16") { FloatBack::Bits16 } else { FloatBack::Bits8 };
+    for y in 0..s.h as usize {
+        for x in 0..s.w as usize {
+            let at = |k: usize| -> f32 {
+                let i = y * st + (x * n + k) * size;
+                let b = &s.px[i..i + size];
+                if half {
+                    crate::model::d3d9draw::f16_to_f64(u16::from_le_bytes([b[0], b[1]])) as f32
+                } else {
+                    f32::from_le_bytes([b[0], b[1], b[2], b[3]])
+                }
+            };
+            let alpha = |a: f32| -> Option<u16> {
+                (0.0..=1.0).contains(&a).then(|| match back {
+                    FloatBack::Bits16 => (a * 65535.0f32 + 0.5f32).floor() as u16,
+                    FloatBack::Bits8 => (a * 255.0f32 + 0.5f32).floor() as u16,
+                })
+            };
+            let v: Option<Vec<u16>> = match n {
+                1 => [float_srgb(at(0), back)].into_iter().collect(),
+                _ => [float_srgb(at(0), back), float_srgb(at(1), back), float_srgb(at(2), back), alpha(at(3))].into_iter().collect(),
+            };
+            let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
+            let lo = |c: u16| c.to_le_bytes()[0];
+            let d = &mut o.px[y * ost..];
+            match to {
+                "gray16" => d[x * 2..x * 2 + 2].copy_from_slice(&v[0].to_le_bytes()),
+                "gray8" => d[x] = lo(v[0]),
+                "rgba64" => {
+                    for k in 0..4 {
+                        d[x * 8 + k * 2..x * 8 + k * 2 + 2].copy_from_slice(&v[k].to_le_bytes());
+                    }
+                }
+                _ => d[x * 4..x * 4 + 4].copy_from_slice(&[lo(v[2]), lo(v[1]), lo(v[0]), lo(v[3])]),
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
+/// MEASURED (through the goldens back-rgbafloat-bgra, back-rgba64half-bgra, backalpha-rgbafloat-*,
+/// -rgba64half-*: the pixels come back as Windows'): 32bppBGRA into 128bppRGBAFloat each color
+/// channel the LINEAR16 value of c * 257, alpha a / 255 in f32; into 64bppRGBAHalf those rounded
+/// to half
+fn byte_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    let half = match (s.fmt, to) {
+        ("bgra", "rgbafloat") => false,
+        ("bgra", "rgba64half") => true,
+        _ => return None,
+    };
+    hit(clause::WICIMAGE_CONVERT_BYTE_FLOAT);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let ost = o.stride();
+    let size = if half { 2 } else { 4 };
+    for y in 0..s.h {
+        for x in 0..s.w {
+            let p = s.get(x, y);
+            let v = [linear16(u16::from(p[2]) * 257), linear16(u16::from(p[1]) * 257), linear16(u16::from(p[0]) * 257), f32::from(p[3]) / 255.0f32];
+            for (k, c) in v.iter().enumerate() {
+                let i = y as usize * ost + (x as usize * 4 + k) * size;
+                if half {
+                    o.px[i..i + 2].copy_from_slice(&crate::model::d3d9draw::f32_to_f16(*c).to_le_bytes());
+                } else {
+                    o.px[i..i + 4].copy_from_slice(&c.to_le_bytes());
+                }
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
 pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if s.fmt == to {
         return Ok(s.clone());
@@ -446,6 +577,12 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
         return r;
     }
     if let Some(r) = fixed_to_narrow(s, to) {
+        return r;
+    }
+    if let Some(r) = float_to_narrow(s, to) {
+        return r;
+    }
+    if let Some(r) = byte_to_float(s, to) {
         return r;
     }
     if matches!(s.fmt, "bgr24" | "bgra" | "gray8" | "pbgra" | "rgba" | "prgba") && (to == "rgba64fixed" || (s.fmt, to) == ("bgra", "rgb48fixed")) {
