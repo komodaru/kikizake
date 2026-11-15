@@ -3,7 +3,8 @@
  * GetProcAddress, declared here: the C headers of GDI+ are C++). Bitmaps in two slots, their
  * pixels through LockBits in any format, GetPixel / SetPixel, palettes, fills and clears through a
  * Graphics of the bitmap, RotateFlip, CloneBitmapArea, matrices, and solid and hatch brushes
- * painting rectangles in float coordinates.
+ * painting rectangles in float coordinates, image attributes (color matrices) and DrawImage of
+ * one bitmap onto another.
  *
  * Every op prints the Status it got (decimal, the Status enum of gdiplustypes.h) and, when that
  * is Ok, what it read. */
@@ -48,7 +49,12 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipFillRectangle, (void *, void *, float, float, float, float)) \
     X(GdipSetSmoothingMode, (void *, INT)) \
     X(GdipSetPixelOffsetMode, (void *, INT)) \
-    X(GdipSetRenderingOrigin, (void *, INT, INT))
+    X(GdipSetRenderingOrigin, (void *, INT, INT)) \
+    X(GdipCreateImageAttributes, (void **)) \
+    X(GdipDisposeImageAttributes, (void *)) \
+    X(GdipSetImageAttributesColorMatrix, (void *, INT, BOOL, const float *, const float *, INT)) \
+    X(GdipSetInterpolationMode, (void *, INT)) \
+    X(GdipDrawImageRectRectI, (void *, void *, INT, INT, INT, INT, INT, INT, INT, INT, INT, void *, void *, void *))
 
 #define X(n, a) static GpStatus (WINAPI *n) a;
 GP_FUNCS(X)
@@ -94,12 +100,14 @@ static int fmtbits(INT f) { return f >> 8 & 255; }
 static void *bmp[SLOTS];
 static void *mat[SLOTS];
 static void *brush[SLOTS];
+static void *attr[SLOTS];
 
 static void gdiplus_reset(void) {
     for (int i = 0; i < SLOTS; i++) {
         if (bmp[i]) { GdipDisposeImage(bmp[i]); bmp[i] = NULL; }
         if (mat[i]) { GdipDeleteMatrix(mat[i]); mat[i] = NULL; }
         if (brush[i]) { GdipDeleteBrush(brush[i]); brush[i] = NULL; }
+        if (attr[i]) { GdipDisposeImageAttributes(attr[i]); attr[i] = NULL; }
     }
 }
 
@@ -447,12 +455,62 @@ static void op_paint(void) {
     out("paint 0 %d\n", st);
 }
 
+/* gpattr <a> none | matrix <flags> <25 floats, row by row> [gray <25 floats>]: an ImageAttributes,
+ * and SetColorMatrix (ColorAdjustTypeDefault) of the matrix (and gray matrix): "attr <st> <st>" */
+static void op_attr(void) {
+    int a = slot(1);
+    int none = is(2, "none"), matrix = is(2, "matrix");
+    if (!none && !matrix) bad = 1;
+    float m[25], g[25];
+    long flags = 0;
+    int gray = 0;
+    if (matrix) {
+        flags = num(3);
+        for (int i = 0; i < 25; i++) m[i] = fdec(4 + i);
+        if (ntok > 29 && is(29, "gray")) {
+            gray = 1;
+            for (int i = 0; i < 25; i++) g[i] = fdec(30 + i);
+        }
+    }
+    if (bad || !gp()) return;
+    if (attr[a]) { GdipDisposeImageAttributes(attr[a]); attr[a] = NULL; }
+    void *ia = NULL;
+    GpStatus st = GdipCreateImageAttributes(&ia);
+    GpStatus sm = 0;
+    if (!st && matrix) sm = GdipSetImageAttributesColorMatrix(ia, 0, TRUE, m, gray ? g : NULL, flags);
+    out("attr %d %d\n", st, sm);
+    if (!st) attr[a] = ia;
+}
+/* gpdraw <dst> <src> <attr | -> <dx> <dy> <dw> <dh> <sx> <sy> <sw> <sh> <over|copy> <quality>
+ * <interpolation> <pixeloffset>: DrawImageRectRectI in pixels through a Graphics of the destination:
+ * "draw 0 <st>" */
+static void op_draw(void) {
+    int d = slot(1), s = slot(2);
+    int a = is(3, "-") ? -1 : slot(3);
+    long v[8];
+    for (int i = 0; i < 8; i++) v[i] = num(4 + i);
+    int copy = is(12, "copy");
+    if (!copy && !is(12, "over")) bad = 1;
+    long q = num(13), im = num(14), po = num(15);
+    if (bad || !gp() || !the(d) || !the(s)) return;
+    if (a >= 0 && !attr[a]) { out("draw noattr\n"); return; }
+    void *g = graphics(d, "draw");
+    if (!g) return;
+    GdipSetCompositingMode(g, copy);
+    GpStatus st = GdipSetCompositingQuality(g, q);
+    if (!st) st = GdipSetInterpolationMode(g, im);
+    if (!st) st = GdipSetPixelOffsetMode(g, po);
+    if (!st) st = GdipDrawImageRectRectI(g, bmp[s], v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], 2, a >= 0 ? attr[a] : NULL, NULL, NULL);
+    GdipDeleteGraphics(g);
+    out("draw 0 %d\n", st);
+}
+
 static const struct kz_op gdiplus_ops[] = {
     { "gpbitmap", op_bitmap }, { "gpwrite", op_write }, { "gpread", op_read }, { "gpset", op_set },
     { "gpget", op_get }, { "gpinfo", op_info }, { "gpfill", op_fill }, { "gpclear", op_clear },
     { "gprotate", op_rotate }, { "gpclone", op_clone }, { "gpmatrix", op_matrix },
     { "gpmatmul", op_matmul }, { "gpmatinv", op_matinv }, { "gpmatpts", op_matpts },
-    { "gpbrush", op_brush }, { "gppaint", op_paint },
+    { "gpbrush", op_brush }, { "gppaint", op_paint }, { "gpattr", op_attr }, { "gpdraw", op_draw },
     { 0 },
 };
 const struct kz_api gdiplus_api = { "gdiplus", gdiplus_ops, gdiplus_reset };

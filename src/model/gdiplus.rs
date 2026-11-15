@@ -7,7 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
-use crate::spec::clause;
+use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -1524,6 +1524,8 @@ impl Gdiplus {
                 paint_rect(b, brush, (x, y, w, h), copy, q, sm, po, origin)?;
                 out.push("paint 0 0".into());
             }
+            // (ImageAttributes and DrawImage: the cases are out, Windows' answers not yet in)
+            "gpattr" | "gpdraw" => return Err(Fail::Unmodeled(open::GP_DRAW)),
             _ => return Ok(false),
         }
         Ok(true)

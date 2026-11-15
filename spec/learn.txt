@@ -604,3 +604,5 @@ D3D12_DESCRIPTOR_RANGE_FLAGS | https://learn.microsoft.com/en-us/windows/win32/a
 D3D12_ROOT_SIGNATURE_FLAGS | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_root_signature_flags
 ID3D12Device::CreateRootSignature | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-createrootsignature
 ID3D12Device5::RemoveDevice | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device5-removedevice
+Graphics::DrawImage | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-drawimage(image_constrect__int_int_int_int_unit_constimageattributes_drawimageabort_void)
+ImageAttributes::SetColorMatrix | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusimageattributes/nf-gdiplusimageattributes-imageattributes-setcolormatrix

@@ -319,3 +319,74 @@ pub fn gdipluspaint() -> String {
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s
 }
+
+/// a ColorMatrix entry: exact in binary (k / 256) so strtof and Rust read the same float
+fn rentry(r: &mut XorShift32) -> String {
+    let v = match r.range(0, 5) {
+        0 => *r.pick(&[0.0, 1.0, -1.0, 0.5, 2.0, 0.25]),
+        1 => r.range(-4, 4) as f32 / 4.0,
+        _ => r.range(-512, 512) as f32 / 256.0,
+    };
+    // (written out in full: k / 256 has at most 8 decimals)
+    format!("{}", f64::from(v))
+}
+
+/// a 5 x 5 ColorMatrix: the identity, a scale, a translation, or all entries random
+fn rmatrix(r: &mut XorShift32) -> Vec<String> {
+    let kind = r.range(0, 3);
+    (0..25)
+        .map(|k| {
+            let (row, col) = (k / 5, k % 5);
+            match kind {
+                0 if row == col => rentry(r),
+                0 => "0".into(),
+                1 if row == col => "1".into(),
+                1 if row == 4 && col < 4 => rentry(r),
+                1 => "0".into(),
+                _ if col == 4 => if row == 4 { "1".into() } else { "0".into() },
+                _ => rentry(r),
+            }
+        })
+        .collect()
+}
+
+pub fn gdiplusdraw() -> String {
+    let mut s = String::from("# kikizake suite gdiplusdraw: GDI+ DrawImage of one bitmap onto another, with image attributes (color matrices) (SPEC.md). Made by `kikizake gen gdiplusdraw`.\n");
+    let mut r = XorShift32::new(0xd7a3_0001);
+    let fmts = ["32bppARGB", "32bppPARGB", "32bppRGB", "24bppRGB"];
+    let id = "1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1";
+    writeln!(s, "case attr-none\ngpattr 0 none\nend").unwrap();
+    writeln!(s, "case attr-identity\ngpattr 0 matrix 0 {id}\nend").unwrap();
+    for flags in [1, 2, 3, -1] {
+        writeln!(s, "case attr-flags{flags}\ngpattr 0 matrix {flags} {id}\nend").unwrap();
+    }
+    writeln!(s, "case draw-noattr\ngpbitmap 0 4 4 32bppARGB\ngpbitmap 1 4 4 32bppARGB\ngpdraw 0 1 1 0 0 4 4 0 0 4 4 copy 0 5 4\nend").unwrap();
+    // a plain copy 1:1 (no attributes, identity attributes), each pair of formats, both modes
+    for i in 0..32 {
+        let (fs, fd) = (*r.pick(&fmts), *r.pick(&fmts));
+        let mode = *r.pick(&["over", "copy"]);
+        let a = if i % 2 == 0 { "-" } else { "0" };
+        writeln!(s, "case copy-{i}\ngpbitmap 0 8 8 {fd}\ngpwrite 0 {fd} seed {}\ngpbitmap 1 8 8 {fs}\ngpwrite 1 {fs} seed {}\ngpattr 0 matrix 0 {id}\ngpdraw 0 1 {a} 0 0 8 8 0 0 8 8 {mode} 0 5 4\ngpread 0 {fd}\nend", r.next(), r.next()).unwrap();
+    }
+    // color matrices: scales, translations, full; copy and over, default and gamma corrected
+    for i in 0..160 {
+        let (fs, fd) = (*r.pick(&fmts), *r.pick(&fmts));
+        let mode = *r.pick(&["over", "copy"]);
+        let m = rmatrix(&mut r).join(" ");
+        let q = *r.pick(&[0, 0, 2]);
+        writeln!(s, "case matrix-{i}\ngpbitmap 0 8 8 {fd}\ngpwrite 0 {fd} seed {}\ngpbitmap 1 8 8 {fs}\ngpwrite 1 {fs} seed {}\ngpattr 0 matrix 0 {m}\ngpdraw 0 1 0 0 0 8 8 0 0 8 8 {mode} {q} 5 4\ngpread 0 {fd}\nend", r.next(), r.next()).unwrap();
+    }
+    // gray pixels (r = g = b) under SkipGrays and AltGray (the gray matrix)
+    for i in 0..32 {
+        let m = rmatrix(&mut r).join(" ");
+        let g = rmatrix(&mut r).join(" ");
+        let flags = [0, 1, 2][i % 3];
+        let mut set = String::new();
+        for k in 0..8 {
+            let v = r.next() & 255;
+            writeln!(set, "gpset 1 {k} {} {:#010x}", k % 4, (r.next() & 0xff00_0000) | v * 0x1_0101).unwrap();
+        }
+        writeln!(s, "case gray-{i}\ngpbitmap 0 8 4 32bppARGB\ngpwrite 0 32bppARGB seed {}\ngpbitmap 1 8 4 32bppARGB\ngpwrite 1 32bppARGB seed {}\n{set}gpattr 0 matrix {flags} {m} gray {g}\ngpdraw 0 1 0 0 0 8 4 0 0 8 4 copy 0 5 4\ngpread 0 32bppARGB\nend", r.next(), r.next()).unwrap();
+    }
+    s
+}
