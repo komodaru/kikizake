@@ -2005,4 +2005,36 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // wide lines whose ends sit off every diamond border (odd 64ths): widths 2, 3, 5
+    let mut r = XorShift32::new(0x2b9d_61c3);
+    for (k, width) in [2.0, 3.0, 5.0].into_iter().enumerate() {
+        start(s, format!("line-wide-{}", k + 6), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        glf(s, "glLineWidth", &[width]);
+        for _ in 0..12 {
+            let mut v = || f64::from(r.next() % 49) / 4.0 + 2.0 + f64::from(2 * (r.next() % 8) + 1) / 64.0;
+            let (a, b) = ((v(), v()), (v(), v()));
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+            glf(s, "glVertex2f", &[a.0, a.1]);
+            glf(s, "glVertex2f", &[b.0, b.1]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // antialiased lines; stippled (the default pattern, all set), antialiased and offset polygons
+    for (k, setup) in ["gl glEnable 0xb20", "gl glEnable 0xb42", "gl glEnable 0xb41", "gl glEnable 0x8037\ngl glPolygonOffset 1 4\ngl glEnable 0xb71\ngl glDepthFunc 0x207"].into_iter().enumerate() {
+        start(s, format!("raster-mode-{k}"), 32);
+        writeln!(s, "{setup}\ngl glColor4ub 255 255 255 255").unwrap();
+        for _ in 0..4 {
+            let mut v = || f64::from(r.next() % 113) / 8.0 + 1.0;
+            writeln!(s, "gl glClear 0x4100\ngl glBegin {}", if k < 1 { 3 } else { 4 }).unwrap();
+            for _ in 0..3 {
+                let p = [v(), v()];
+                glf(s, "glVertex2f", &p);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
