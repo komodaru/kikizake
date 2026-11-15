@@ -816,6 +816,47 @@ impl Seg9 {
         }
     }
 
+    /// the end's pixel lit though the end is in its diamond (MEASURED line-end-*, line-clip-*,
+    /// line-random-*, D3D9.DRAW.LINEEND): the line crosses the pixel's major axis (the line
+    /// through its center along the line's major direction) inside the diamond, ties as
+    /// in_diamond, before the center and at or before the end
+    fn end_lit(&self, c: (i128, i128), ymaj: bool) -> bool {
+        let (a, b) = (self.a, self.b);
+        let d = (b.0 - a.0, b.1 - a.1);
+        let (major, minor): (fn((i128, i128)) -> i128, fn((i128, i128)) -> i128) = if ymaj { (|p| p.1, |p| p.0) } else { (|p| p.0, |p| p.1) };
+        // (a line along the axis crosses it nowhere: line-h-*, line-v-*)
+        if minor(d) == 0 {
+            return false;
+        }
+        // the crossing at t = num / den of the segment, den > 0
+        let (num, den) = if minor(d) > 0 { (minor(c) - minor(a), minor(d)) } else { (minor(a) - minor(c), -minor(d)) };
+        if num < 0 || num > den {
+            return false;
+        }
+        let p = (a.0 * den + d.0 * num, a.1 * den + d.1 * num);
+        let before = (major(p) - major(c) * den) * major(d).signum() < 0;
+        before && self.in_diamond(p, c, den, ymaj)
+    }
+
+    /// the segment runs through a corner of the pixel's diamond where a tie picks the pixel:
+    /// one across the major direction, or the end pixel's one behind its center (D3D9.DRAW.LINEEND)
+    fn through_corner(&self, c: (i128, i128), ymaj: bool) -> bool {
+        let (a, b) = (self.a, self.b);
+        let d = (b.0 - a.0, b.1 - a.1);
+        let across: [(i128, i128); 2] = if ymaj { [(DIAMOND, 0), (-DIAMOND, 0)] } else { [(0, DIAMOND), (0, -DIAMOND)] };
+        let behind = if self.in_diamond(b, c, 1, ymaj) {
+            let back = |v: i128| -v.signum() * DIAMOND;
+            Some(if ymaj { (0, back(d.1)) } else { (back(d.0), 0) })
+        } else {
+            None
+        };
+        across.iter().chain(behind.iter()).any(|&(ox, oy)| {
+            let v = (c.0 + ox - a.0, c.1 + oy - a.1);
+            let dot = v.0 * d.0 + v.1 * d.1;
+            v.0 * d.1 == v.1 * d.0 && (0..=d.0 * d.0 + d.1 * d.1).contains(&dot)
+        })
+    }
+
     /// some stretch of the segment, of length, lies on the diamond's boundary
     fn along(&self, c: (i128, i128)) -> bool {
         let (a, b) = (self.a, self.b);
@@ -1951,15 +1992,21 @@ impl D3d9 {
             return Err(Fail::Bad);
         }
         let inside = |v: &Vtx| (-0.5..=w as f32 - 0.5).contains(&v.x) && (-0.5..=h as f32 - 0.5).contains(&v.y);
-        if !inside(&a) || !inside(&b) {
-            // (open: a line clipped lights the pixel its end is in for some lines and not others,
-            // and its start's pixel moves, line-random-*)
-            return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES));
-        }
         let snap = |v: f32| round_even(v as f64 * 256.0) as i128;
         let l = Seg9 { a: (snap(a.x), snap(a.y)), b: (snap(b.x), snap(b.y)) };
         if l.a == l.b {
             return Ok(());
+        }
+        let mut centers = (0..h).flat_map(|py| (0..w).map(move |px| (px as i128 * 256, py as i128 * 256)));
+        match (inside(&a), inside(&b)) {
+            (true, true) => {}
+            // (open: a line past the target at both ends, line-random-46; one past it through a
+            // diamond's corner, line-random-25, line-end-2-4-clip ..: WARP's clipping moves it)
+            (false, false) => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
+            _ if centers.any(|c| l.through_corner(c, (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs())) => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
+            // (MEASURED line-clip-*, line-random-*, line-end-*-clip: a line past the target at
+            // one end drawn as the whole line over the target, D3D9.DRAW.LINECLIP)
+            (true, false) | (false, true) => hit(clause::D3D9_DRAW_LINECLIP),
         }
         hit(clause::D3D9_DRAW_LINES);
         let ymaj = (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs();
@@ -1974,6 +2021,9 @@ impl D3d9 {
                     Meet::AlongEdge => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
                     Meet::Yes => {
                         if !l.in_diamond(l.b, c, 1, ymaj) {
+                            lit.push((px, py));
+                        } else if l.end_lit(c, ymaj) {
+                            hit(clause::D3D9_DRAW_LINEEND);
                             lit.push((px, py));
                         }
                     }

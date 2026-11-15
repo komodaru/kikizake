@@ -1012,6 +1012,34 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend").unwrap();
     }
+    // (D3D9.DRAW.POINTSLINES) lines past the target at both ends, across it between two sides
+    // (each pair of sides, both ways); lines from past it through a diamond's corner inside, the
+    // corner across the line and behind the end's center
+    let mut r = XorShift32(0x11e5_b0f4);
+    let past = |r: &mut XorShift32, side: u32| {
+        let (o, along) = (r.range(-12, -3) as f32 / 4.0, r.range(-4, 68) as f32 / 4.0);
+        match side {
+            0 => (o, along),
+            1 => (15.0 - o, along),
+            2 => (along, o),
+            _ => (along, 15.0 - o),
+        }
+    };
+    for i in 0..48u32 {
+        let (s0, s1) = (i % 4, (i % 4 + 1 + i / 4 % 3) % 4);
+        let (a, b) = (past(&mut r, s0), past(&mut r, s1));
+        line(&mut s, &format!("line-both-{i}"), a, b);
+    }
+    for i in 0..32u32 {
+        // the end at a pixel center or a quarter off it, the line through the corner (x + 1/2, y)
+        // or (x, y + 1/2) of a pixel between, from past the target
+        let b = (r.range(5, 11) as f32 + [0.0f32, 0.25, -0.25, 0.0][(i % 4) as usize], r.range(5, 11) as f32 + [0.0f32, 0.0, 0.25, -0.25][(i / 4 % 4) as usize]);
+        let (k, n) = (r.range(1, 4) as f32, r.range(1, 3) as f32);
+        let corner = if i % 2 == 0 { (b.0.round() + 0.5 * (n * 2.0 - 3.0), b.1.round() - k) } else { (b.0.round() - k, b.1.round() + 0.5 * (n * 2.0 - 3.0)) };
+        let (dx, dy) = (corner.0 - b.0, corner.1 - b.1);
+        let m = (20.0 / dx.abs().max(dy.abs())).ceil();
+        line(&mut s, &format!("line-corner-{i}"), (b.0 + dx * m, b.1 + dy * m), b);
+    }
     s
 }
 
