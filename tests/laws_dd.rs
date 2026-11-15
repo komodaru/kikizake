@@ -292,7 +292,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 34, 0), ("d3d7dev", 77, 0), ("d3d7shade", 49, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 34, 0), ("d3d7dev", 75, 0), ("d3d7shade", 43, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -458,7 +458,7 @@ fn lines_cross_each_column_once() {
                     assert!(on.iter().all(|&c| !c));
                     continue;
                 }
-                let xmajor = dx.abs() > dy.abs();
+                let xmajor = dx.abs() >= dy.abs();
                 let (lo, hi) = if xmajor { (a.0.min(b.0), a.0.max(b.0)) } else { (a.1.min(b.1), a.1.max(b.1)) };
                 for m in 0..if xmajor { w } else { h } {
                     if !(lo < m * 16 && m * 16 < hi) {

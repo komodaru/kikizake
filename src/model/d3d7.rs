@@ -1234,7 +1234,11 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
     let xmajor = match dx.abs().cmp(&dy.abs()) {
         std::cmp::Ordering::Greater => true,
         std::cmp::Ordering::Less => false,
-        std::cmp::Ordering::Equal => return Err(other),
+        // MEASURED (d3d7dev linediag-*, lineties-*, linecorner-*: 109 soft diagonals) as
+        // x-major, but for a diagonal along the pixels' diamonds' sides (y ∓ x half a pixel past
+        // a whole one, its ends on those sides; 14 lines, D3D7.STATES.OTHER)
+        std::cmp::Ordering::Equal if (v[0].1 - dx.signum() * dy.signum() * v[0].0).rem_euclid(16) == 8 => return Err(other),
+        std::cmp::Ordering::Equal => true,
     };
     // (major, minor) of each end
     let ends = v.map(|(x, y)| if xmajor { (x, y) } else { (y, x) });
