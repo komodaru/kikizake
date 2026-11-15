@@ -2037,4 +2037,45 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // 1-pixel lines with an end on a diamond's border, as line-tie-* but about pixels on the
+    // other sides of the tie pivot (13, 9), (13, 2), (8, 2)
+    for (q, (px, py, read)) in [(13.0, 9.0, "10 6 6 7"), (13.0, 2.0, "10 0 6 6"), (8.0, 2.0, "5 0 7 6")].into_iter().enumerate() {
+        for (k, p) in at.into_iter().enumerate() {
+            let p = (p.0 - 8.0 + px, p.1 - 8.0 + py);
+            start(s, format!("line-tie-{}", 8 + 8 * q + k), 32);
+            writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+            for d in dirs {
+                for ends in [false, true] {
+                    let (a, b) = if ends { ((p.0 - d.0, p.1 - d.1), p) } else { (p, (p.0 + d.0, p.1 + d.1)) };
+                    writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+                    glf(s, "glVertex2f", &[a.0, a.1]);
+                    glf(s, "glVertex2f", &[b.0, b.1]);
+                    writeln!(s, "gl glEnd\nglread {read} {} {} 196", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+                }
+            }
+            writeln!(s, "glerr\nend").unwrap();
+        }
+    }
+    // lines of slope +-1/3 through pixel boundaries at centers, on every side of the tie pivot
+    // and on it, x- and y-major, both ways
+    for (k, cy) in [2.0, 4.0, 7.0, 12.0].into_iter().enumerate() {
+        start(s, format!("line-dda-{}", 4 + k), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        for (cx, back, ahead) in [(3.5, 3.0, 6.0), (8.5, 6.0, 6.0), (12.5, 6.0, 3.0)] {
+            for sign in [1.0, -1.0] {
+                for ymajor in [false, true] {
+                    for flip in [false, true] {
+                        let (a, b) = ((cx - back, cy - back / 3.0 * sign), (cx + ahead, cy + ahead / 3.0 * sign));
+                        let (a, b) = if flip { (b, a) } else { (a, b) };
+                        let (a, b) = if ymajor { ((a.1, a.0), (b.1, b.0)) } else { (a, b) };
+                        writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+                        glf(s, "glVertex2f", &[a.0, a.1]);
+                        glf(s, "glVertex2f", &[b.0, b.1]);
+                        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+                    }
+                }
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
