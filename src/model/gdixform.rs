@@ -26,12 +26,14 @@ pub struct Map {
     pub world: Xform,
     /// x86 only: an LPtoDP has run since the mapping last changed (GDI.MAP.ROUNDX86)
     pub warm: bool,
+    /// the extents or the mode changed since the mapping was last read (GDI.MAP.ISOTROPIC)
+    pub unsettled: bool,
 }
 
 impl Default for Map {
     /// MM_TEXT, GM_COMPATIBLE, extents 1 x 1, origins 0, the identity
     fn default() -> Map {
-        Map { mode: 1, gmode: 1, wext: (1, 1), vext: (1, 1), worg: (0, 0), vorg: (0, 0), world: IDENTITY, warm: false }
+        Map { mode: 1, gmode: 1, wext: (1, 1), vext: (1, 1), worg: (0, 0), vorg: (0, 0), world: IDENTITY, warm: false, unsettled: false }
     }
 }
 
@@ -39,19 +41,30 @@ impl Map {
     pub fn identity(&self) -> bool {
         self.wext == self.ve() && self.worg == self.vorg && self.world == IDENTITY
     }
-    /// the viewport extents in effect: MM_ISOTROPIC shrinks one of those set so that a logical
-    /// unit is as wide as high (MEASURED: from the extents as set, each time they are asked for)
+    /// the viewport extents in effect: MM_ISOTROPIC shrinks one of those stored so that a
+    /// logical unit is as wide as high, rounded to the nearest, 0 included (see settle)
     pub fn ve(&self) -> (i32, i32) {
         let v = self.vext;
-        if self.mode != 7 {
+        if self.mode != 7 || !self.unsettled {
             return v;
         }
         hit(clause::GDI_MAP_ISOTROPIC);
         let (xd, yd) = (v.0 as f64 / self.wext.0 as f64, v.1 as f64 / self.wext.1 as f64);
+        let near = |r: f64| -> i32 { (r + 0.5).floor() as i32 };
         if xd.abs() > yd.abs() {
-            ((v.0 as f64 * (yd / xd).abs() + 0.5).floor() as i32, v.1)
+            (near(v.0 as f64 * (yd / xd).abs()), v.1)
         } else {
-            (v.0, (v.1 as f64 * (xd / yd).abs() + 0.5).floor() as i32)
+            (v.0, near(v.1 as f64 * (xd / yd).abs()))
+        }
+    }
+    /// MEASURED (GDI.MAP.ISOTROPIC): the shrunk viewport extents are stored the first time
+    /// something reads the mapping after a change (GetViewportExtEx, LPtoDP, Scale*ExtEx),
+    /// and later changes start from them; Set*ExtEx return the extents stored, unshrunk
+    /// (cases iso-*: Set*ExtEx alone; scalemode-*: a read between each change)
+    fn settle(&mut self) {
+        if self.unsettled {
+            self.vext = self.ve();
+            self.unsettled = false;
         }
     }
     /// LPtoDP of one point: world (f32), then page: p * vext / wext + (vorg - worg * vext / wext)
@@ -208,6 +221,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     _ => {}
                 }
                 out.push(format!("mapmode {}", std::mem::replace(&mut m.mode, v)));
+                m.unsettled = true;
             }
         }
         "gmode" => {
@@ -233,6 +247,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 hit(clause::GDI_MAP_FIXEDEXT);
             }
             out.push(format!("ext 1 {} {}", old.0, old.1));
+            m.unsettled = true;
         }
         "winorg" | "vporg" | "offsetwin" | "offsetvp" => {
             let (x, y) = (n(op, 2)? as i32, n(op, 3)? as i32);
@@ -243,10 +258,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             out.push(format!("org 1 {} {}", old.0, old.1));
         }
         "scalewin" | "scalevp" => {
+            m.settle();
             let (xn, xd, yn, yd) = (n(op, 2)?, n(op, 3)?, n(op, 4)?, n(op, 5)?);
             if m.mode < 7 {
-                // (the fixed modes keep their extents, succeeding, as SetWindowExtEx does in
-                // them: cases scalemode-* measure it)
+                // MEASURED (scalemode-*): the fixed modes keep their extents, succeeding
                 hit(clause::GDI_MAP_SCALE);
                 let e = if t0 == "scalewin" { m.wext } else { m.vext };
                 out.push(format!("ext 1 {} {}", e.0, e.1));
@@ -269,16 +284,19 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 (Some(x), Some(y)) => {
                     *e = (x, y);
                     out.push(format!("ext 1 {} {}", old.0, old.1));
+                    m.unsettled = true;
                 }
                 _ if win => out.push("ext 0 -1 -1".into()),
                 _ => out.push(format!("ext 0 {} {}", old.0, old.1)),
             }
         }
         "getmap" => {
+            m.settle();
             hit(clause::GDI_MAP_GET);
             out.push(format!("map {} {} wext {} {} vext {} {} worg {} {} vorg {} {}", m.mode, m.gmode, m.wext.0, m.wext.1, m.ve().0, m.ve().1, m.worg.0, m.worg.1, m.vorg.0, m.vorg.1));
         }
         "lptodp" | "dptolp" => {
+            m.settle();
             let t = &op.tok[2..];
             if t.len() % 2 == 1 {
                 return Err(Fail::Bad);

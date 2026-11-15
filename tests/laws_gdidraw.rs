@@ -174,7 +174,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, gen};
-    let floor = [("lines", 328), ("region", 506), ("xform", 253), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 328), ("region", 506), ("xform", 269), ("path", 152), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&gen::suite(s).unwrap());
         for arch in [32, 64] {
@@ -223,6 +223,23 @@ proptest! {
     /// DPtoLP: with each window extent a whole multiple k of the viewport's, the inverse is
     /// exact, Lx = (Dx - xVO) k + xWO (the f32 inverse of a ratio 1/k is exact for small k)
     #[test]
+    fn isotropic_shrinks_one_axis_to_the_others_ratio(w in (1i32..3000, 1i32..3000), v in (-3000i32..3000, -3000i32..3000), sw in (any::<bool>(), any::<bool>())) {
+        prop_assume!(v.0 != 0 && v.1 != 0);
+        let w = (if sw.0 { -w.0 } else { w.0 }, if sw.1 { -w.1 } else { w.1 });
+        let m = kikizake::model::gdixform::Map { mode: 7, wext: w, vext: v, unsettled: true, ..Default::default() };
+        let e = m.ve();
+        let (rx, ry) = ((f64::from(v.0) / f64::from(w.0)).abs(), (f64::from(v.1) / f64::from(w.1)).abs());
+        if rx > ry {
+            prop_assert_eq!(e.1, v.1);
+            prop_assert!((f64::from(e.0.abs()) - ry * f64::from(w.0.abs())).abs() <= 0.5 + 1e-9);
+        } else {
+            prop_assert_eq!(e.0, v.0);
+            prop_assert!((f64::from(e.1.abs()) - rx * f64::from(w.1.abs())).abs() <= 0.5 + 1e-9);
+        }
+        // once stored, read again unchanged (no drift: iso-0)
+        let s = kikizake::model::gdixform::Map { vext: e, unsettled: false, ..m };
+        prop_assert_eq!(s.ve(), e);
+    }
     fn dptolp_whole_ratios_are_exact(kx in -64i32..64, ky in -64i32..64, vx in 1i32..64, vy in 1i32..64, wo in (-500i32..500, -500i32..500), vo in (-500i32..500, -500i32..500), d in (-2000i32..2000, -2000i32..2000)) {
         prop_assume!(kx != 0 && ky != 0);
         let m = kikizake::model::gdixform::Map { mode: 8, wext: (kx * vx, ky * vy), vext: (vx, vy), worg: wo, vorg: vo, ..Default::default() };
