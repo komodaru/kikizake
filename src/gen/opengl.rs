@@ -1490,4 +1490,24 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // one triangle edge measured alone: an edge through the window from y = -100 to y = 116
+    // (slope s in x per y, through x0 at y = 8), the third vertex 400 pixels to its right (the
+    // edge the left boundary) or left (the right one), under a viewport 512 pixels past every side
+    // so that nothing is cut; x0 swept over -16/2048 .. 16/2048 around a point between pixel
+    // centres, each row's pixel flipping where Windows puts the edge in that row
+    const SLOPES: [f64; 10] = [0.0, 1.0 / 64.0, 0.125, 33.0 / 64.0, 1.0, -1.0, 1.2109375, -1.03125, 2.25, 0.4296875];
+    for (k, sl) in SLOPES.iter().enumerate() {
+        for (side, dx) in [("l", 400.0), ("r", -400.0)] {
+            writeln!(s, "case tri-edge-{side}{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+            for j in -16..=16 {
+                let x0 = 8.25 + f64::from(j) / 2048.0;
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+                glf(s, "glVertex2f", &[x0 - 108.0 * sl, -100.0]);
+                glf(s, "glVertex2f", &[x0 + 108.0 * sl, 116.0]);
+                glf(s, "glVertex2f", &[x0 + dx, 8.0]);
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+            writeln!(s, "glerr\nend").unwrap();
+        }
+    }
 }
