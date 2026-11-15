@@ -195,6 +195,22 @@ proptest! {
         prop_assert!((n - (k / 16)).abs() <= 1, "{} pixels for a run of {}", n, k);
     }
 
+    /// a whole turn of Arc from the right end of the middle row is Ellipse's four Béziers, then
+    /// one of no length at the end (an arc ending on a quarter point keeps it), either way round
+    #[test]
+    fn arc_whole_turn_is_the_ellipse(l in -20i32..20, t in -20i32..20, w in 3i32..30, h in 2i32..15, cw in proptest::bool::ANY) {
+        use kikizake::model::gdipath::{arc_beziers, ellipse_points};
+        let (r, b) = (l + w, t + 2 * h);
+        let at = (r + 5, t + h);
+        let v = arc_beziers((l, t, r, b), at, at, cw).unwrap();
+        let c = ellipse_points(l, t, r, b, cw);
+        prop_assert_eq!(v.len(), 5);
+        for (q, (g, _)) in v.iter().take(4).enumerate() {
+            prop_assert_eq!(g.to_vec(), c[3 * q..3 * q + 4].to_vec());
+        }
+        prop_assert!(v[4].0.iter().all(|p| *p == c[12]), "the last Bézier has no length");
+    }
+
     /// drawing through a viewport origin is drawing shifted by it (PatBlt, Rectangle, LineTo)
     #[test]
     fn viewport_origin_shifts_drawing(o in (-6i32..7, -6i32..7), a in (-4i32..14, -4i32..14), d in (-6i32..9, -6i32..9), kind in 0u8..3) {
@@ -228,7 +244,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 342), ("region", 506), ("xform", 670), ("path", 284), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 342), ("region", 506), ("xform", 670), ("path", 175), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
