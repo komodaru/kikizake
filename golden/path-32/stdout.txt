@@ -15980,4 +15980,7144 @@ path 3
 pt -158 -56 6
 pt -158 -50 2
 pt -158 -42 2
+case rrgrid-0
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 8
+pt 39 3 6
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 39 32 2
+pt 39 32 3
+case rrgrid-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 8
+pt 39 3 6
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 8
+pt 39 3 6
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-3
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 37 2 2
+pt 5 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 5 32 2
+pt 37 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-4
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 37 2 2
+pt 5 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 5 32 2
+pt 37 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-5
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 36 2 2
+pt 6 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 6 32 2
+pt 36 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-6
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 36 2 2
+pt 6 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 6 32 2
+pt 36 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-7
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 35 2 2
+pt 7 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 7 32 2
+pt 35 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-8
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 35 2 2
+pt 7 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 7 32 2
+pt 35 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-9
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 32 2
+pt 3 32 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 32 4
+pt 39 32 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 34 2 2
+pt 8 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 32 2
+pt 4 32 2
+pt 8 32 2
+pt 34 32 2
+pt 38 32 2
+pt 39 32 3
+case rrgrid-10
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 8
+pt 39 3 6
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 3
+case rrgrid-11
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 8
+pt 39 3 6
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-12
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 8
+pt 39 3 6
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-13
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 37 2 2
+pt 5 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 5 32 2
+pt 37 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-14
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 37 2 2
+pt 5 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 5 32 2
+pt 37 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-15
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 36 2 2
+pt 6 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 6 32 2
+pt 36 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-16
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 36 2 2
+pt 6 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 6 32 2
+pt 36 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-17
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 35 2 2
+pt 7 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 7 32 2
+pt 35 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-18
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 35 2 2
+pt 7 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 7 32 2
+pt 35 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-19
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 2 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 2 4
+pt 3 3 4
+pt 3 31 2
+pt 3 32 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 32 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 34 2 2
+pt 8 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 8 32 2
+pt 34 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-20
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 39 2 2
+pt 39 2 2
+pt 4 2 2
+pt 3 2 2
+pt 3 3 2
+pt 3 31 2
+pt 3 32 2
+pt 4 32 2
+pt 39 32 2
+pt 39 32 2
+pt 39 31 3
+case rrgrid-21
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 39 2 2
+pt 38 2 2
+pt 4 2 2
+pt 3 2 2
+pt 3 3 2
+pt 3 31 2
+pt 3 32 2
+pt 4 32 2
+pt 38 32 2
+pt 39 32 2
+pt 39 31 3
+case rrgrid-22
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 39 2 2
+pt 38 2 2
+pt 4 2 2
+pt 3 2 2
+pt 3 3 2
+pt 3 31 2
+pt 3 32 2
+pt 4 32 2
+pt 38 32 2
+pt 39 32 2
+pt 39 31 3
+case rrgrid-23
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 37 2 2
+pt 5 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 5 32 2
+pt 37 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-24
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 37 2 2
+pt 5 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 5 32 2
+pt 37 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-25
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 36 2 2
+pt 6 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 6 32 2
+pt 36 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-26
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 36 2 2
+pt 6 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 6 32 2
+pt 36 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-27
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 35 2 2
+pt 7 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 7 32 2
+pt 35 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-28
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 35 2 2
+pt 7 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 7 32 2
+pt 35 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-29
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 3 6
+pt 39 3 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 3 4
+pt 3 31 2
+pt 3 31 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 31 5
+flatten 1
+path 12
+pt 39 3 6
+pt 38 2 2
+pt 34 2 2
+pt 8 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 31 2
+pt 4 32 2
+pt 8 32 2
+pt 34 32 2
+pt 38 32 2
+pt 39 31 3
+case rrgrid-30
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 4 2
+pt 3 30 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 30 3
+case rrgrid-31
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 4 2
+pt 3 30 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 30 3
+case rrgrid-32
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 4 2
+pt 3 30 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 30 3
+case rrgrid-33
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-34
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-35
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-36
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-37
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-38
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-39
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-40
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 4 2
+pt 3 30 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 30 3
+case rrgrid-41
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 4 2
+pt 3 30 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 30 3
+case rrgrid-42
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 4 2
+pt 3 30 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 30 3
+case rrgrid-43
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-44
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-45
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-46
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-47
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-48
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-49
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 4 6
+pt 39 3 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 4 4
+pt 3 30 2
+pt 3 31 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 30 5
+flatten 1
+path 12
+pt 39 4 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 4 2
+pt 3 30 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 30 3
+case rrgrid-50
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 5 2
+pt 3 29 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 29 3
+case rrgrid-51
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 5 2
+pt 3 29 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 29 3
+case rrgrid-52
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 5 2
+pt 3 29 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 29 3
+case rrgrid-53
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-54
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-55
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-56
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-57
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-58
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-59
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 3 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 3 4
+pt 3 5 4
+pt 3 29 2
+pt 3 31 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 31 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-60
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 5 2
+pt 3 29 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 29 3
+case rrgrid-61
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 5 2
+pt 3 29 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 29 3
+case rrgrid-62
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 5 2
+pt 3 29 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 29 3
+case rrgrid-63
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-64
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-65
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-66
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-67
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-68
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-69
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 5 6
+pt 39 4 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 5 4
+pt 3 29 2
+pt 3 30 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 29 5
+flatten 1
+path 12
+pt 39 5 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 5 2
+pt 3 29 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 29 3
+case rrgrid-70
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 6 2
+pt 3 28 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 28 3
+case rrgrid-71
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 6 2
+pt 3 28 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 28 3
+case rrgrid-72
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 6 2
+pt 3 28 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 28 3
+case rrgrid-73
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-74
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-75
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-76
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-77
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-78
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-79
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-80
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 6 2
+pt 3 28 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 28 3
+case rrgrid-81
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 6 2
+pt 3 28 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 28 3
+case rrgrid-82
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 6 2
+pt 3 28 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 28 3
+case rrgrid-83
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-84
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-85
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-86
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-87
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-88
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-89
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 6 6
+pt 39 4 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 6 4
+pt 3 28 2
+pt 3 30 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 28 5
+flatten 1
+path 12
+pt 39 6 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 6 2
+pt 3 28 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 28 3
+case rrgrid-90
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 39 2 4
+pt 39 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 39 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 39 3 2
+pt 39 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 7 2
+pt 3 27 2
+pt 3 31 2
+pt 4 32 2
+pt 39 32 2
+pt 39 31 2
+pt 39 27 3
+case rrgrid-91
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 39 2 4
+pt 38 2 4
+pt 4 2 2
+pt 3 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 3 32 4
+pt 4 32 4
+pt 38 32 2
+pt 39 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 7 2
+pt 3 27 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 27 3
+case rrgrid-92
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 38 2 4
+pt 38 2 4
+pt 4 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 4 32 4
+pt 4 32 4
+pt 38 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 39 3 2
+pt 38 2 2
+pt 4 2 2
+pt 3 3 2
+pt 3 7 2
+pt 3 27 2
+pt 3 31 2
+pt 4 32 2
+pt 38 32 2
+pt 39 31 2
+pt 39 27 3
+case rrgrid-93
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-94
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 38 2 4
+pt 37 2 4
+pt 5 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 4 32 4
+pt 5 32 4
+pt 37 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 37 2 2
+pt 5 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 5 32 2
+pt 37 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-95
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 4 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 4 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-96
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 38 2 4
+pt 36 2 4
+pt 6 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 5 32 4
+pt 6 32 4
+pt 36 32 2
+pt 38 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 36 2 2
+pt 6 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 6 32 2
+pt 36 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-97
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-98
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 37 2 4
+pt 35 2 4
+pt 7 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 5 32 4
+pt 7 32 4
+pt 35 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 35 2 2
+pt 7 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 7 32 2
+pt 35 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-99
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 7 6
+pt 39 4 4
+pt 37 2 4
+pt 34 2 4
+pt 8 2 2
+pt 5 2 4
+pt 3 4 4
+pt 3 7 4
+pt 3 27 2
+pt 3 30 4
+pt 5 32 4
+pt 8 32 4
+pt 34 32 2
+pt 37 32 4
+pt 39 30 4
+pt 39 27 5
+flatten 1
+path 12
+pt 39 7 6
+pt 38 3 2
+pt 34 2 2
+pt 8 2 2
+pt 4 3 2
+pt 3 7 2
+pt 3 27 2
+pt 4 31 2
+pt 8 32 2
+pt 34 32 2
+pt 38 31 2
+pt 39 27 3
+case rrgrid-100
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 32 6
+pt 39 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 3
+case rrgrid-101
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 32 6
+pt 38 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-102
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 32 6
+pt 38 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-103
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 37 32 2
+pt 5 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 5 2 2
+pt 37 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-104
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 37 32 2
+pt 5 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 5 2 2
+pt 37 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-105
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 36 32 2
+pt 6 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 6 2 2
+pt 36 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-106
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 36 32 2
+pt 6 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 6 2 2
+pt 36 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-107
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 35 32 2
+pt 7 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 7 2 2
+pt 35 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-108
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 35 32 2
+pt 7 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 7 2 2
+pt 35 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-109
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 32 6
+pt 39 32 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 32 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 32 6
+pt 38 32 2
+pt 34 32 2
+pt 8 32 2
+pt 4 32 2
+pt 3 32 2
+pt 3 3 2
+pt 4 2 2
+pt 8 2 2
+pt 34 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-110
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 31 6
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 3
+case rrgrid-111
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 31 6
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-112
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 31 6
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-113
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 37 32 2
+pt 5 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 5 2 2
+pt 37 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-114
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 37 32 2
+pt 5 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 5 2 2
+pt 37 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-115
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 36 32 2
+pt 6 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 6 2 2
+pt 36 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-116
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 36 32 2
+pt 6 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 6 2 2
+pt 36 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-117
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 35 32 2
+pt 7 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 7 2 2
+pt 35 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-118
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 35 32 2
+pt 7 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 7 2 2
+pt 35 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-119
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 32 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 32 4
+pt 3 31 4
+pt 3 3 2
+pt 3 2 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 2 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 34 32 2
+pt 8 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 8 2 2
+pt 34 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-120
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 31 6
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 3
+case rrgrid-121
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 31 6
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-122
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 8
+pt 39 31 6
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-123
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 37 32 2
+pt 5 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 5 2 2
+pt 37 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-124
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 37 32 2
+pt 5 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 5 2 2
+pt 37 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-125
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 36 32 2
+pt 6 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 6 2 2
+pt 36 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-126
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 36 32 2
+pt 6 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 6 2 2
+pt 36 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-127
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 35 32 2
+pt 7 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 7 2 2
+pt 35 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-128
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 35 32 2
+pt 7 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 7 2 2
+pt 35 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-129
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 31 6
+pt 39 31 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 31 4
+pt 3 3 2
+pt 3 3 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 3 5
+flatten 1
+path 12
+pt 39 31 6
+pt 38 32 2
+pt 34 32 2
+pt 8 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 3 2
+pt 4 2 2
+pt 8 2 2
+pt 34 2 2
+pt 38 2 2
+pt 39 3 3
+case rrgrid-130
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 30 2
+pt 3 4 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 4 3
+case rrgrid-131
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 30 2
+pt 3 4 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 4 3
+case rrgrid-132
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 30 2
+pt 3 4 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 4 3
+case rrgrid-133
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-134
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-135
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-136
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-137
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-138
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-139
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-140
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 30 2
+pt 3 4 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 4 3
+case rrgrid-141
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 30 2
+pt 3 4 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 4 3
+case rrgrid-142
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 30 2
+pt 3 4 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 4 3
+case rrgrid-143
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-144
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-145
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-146
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-147
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-148
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-149
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 30 6
+pt 39 31 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 30 4
+pt 3 4 2
+pt 3 3 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 4 5
+flatten 1
+path 12
+pt 39 30 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 30 2
+pt 3 4 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 4 3
+case rrgrid-150
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 29 2
+pt 3 5 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 5 3
+case rrgrid-151
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 29 2
+pt 3 5 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 5 3
+case rrgrid-152
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 29 2
+pt 3 5 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 5 3
+case rrgrid-153
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-154
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-155
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-156
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-157
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-158
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-159
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 3 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 3 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-160
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 29 2
+pt 3 5 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 5 3
+case rrgrid-161
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 29 2
+pt 3 5 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 5 3
+case rrgrid-162
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 29 2
+pt 3 5 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 5 3
+case rrgrid-163
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-164
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-165
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-166
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-167
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-168
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-169
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 29 6
+pt 39 31 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 31 4
+pt 3 29 4
+pt 3 5 2
+pt 3 4 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 5 5
+flatten 1
+path 12
+pt 39 29 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 29 2
+pt 3 5 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 5 3
+case rrgrid-170
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 28 2
+pt 3 6 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 6 3
+case rrgrid-171
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 28 2
+pt 3 6 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 6 3
+case rrgrid-172
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 28 2
+pt 3 6 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 6 3
+case rrgrid-173
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-174
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-175
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-176
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-177
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-178
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-179
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-180
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 28 2
+pt 3 6 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 6 3
+case rrgrid-181
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 28 2
+pt 3 6 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 6 3
+case rrgrid-182
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 28 2
+pt 3 6 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 6 3
+case rrgrid-183
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-184
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-185
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-186
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-187
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-188
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-189
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 28 6
+pt 39 30 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 28 4
+pt 3 6 2
+pt 3 4 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 6 5
+flatten 1
+path 12
+pt 39 28 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 28 2
+pt 3 6 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 6 3
+case rrgrid-190
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 39 32 4
+pt 39 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 39 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 39 31 2
+pt 39 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 27 2
+pt 3 7 2
+pt 3 3 2
+pt 4 2 2
+pt 39 2 2
+pt 39 3 2
+pt 39 7 3
+case rrgrid-191
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 39 32 4
+pt 38 32 4
+pt 4 32 2
+pt 3 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 3 2 4
+pt 4 2 4
+pt 38 2 2
+pt 39 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 27 2
+pt 3 7 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 7 3
+case rrgrid-192
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 38 32 4
+pt 38 32 4
+pt 4 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 4 2 4
+pt 4 2 4
+pt 38 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 39 31 2
+pt 38 32 2
+pt 4 32 2
+pt 3 31 2
+pt 3 27 2
+pt 3 7 2
+pt 3 3 2
+pt 4 2 2
+pt 38 2 2
+pt 39 3 2
+pt 39 7 3
+case rrgrid-193
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 7 3
+case rrgrid-194
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 38 32 4
+pt 37 32 4
+pt 5 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 4 2 4
+pt 5 2 4
+pt 37 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 37 32 2
+pt 5 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 5 2 2
+pt 37 2 2
+pt 38 3 2
+pt 39 7 3
+case rrgrid-195
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 4 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 4 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 7 3
+case rrgrid-196
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 38 32 4
+pt 36 32 4
+pt 6 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 5 2 4
+pt 6 2 4
+pt 36 2 2
+pt 38 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 36 32 2
+pt 6 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 6 2 2
+pt 36 2 2
+pt 38 3 2
+pt 39 7 3
+case rrgrid-197
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 7 3
+case rrgrid-198
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 37 32 4
+pt 35 32 4
+pt 7 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 5 2 4
+pt 7 2 4
+pt 35 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 35 32 2
+pt 7 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 7 2 2
+pt 35 2 2
+pt 38 3 2
+pt 39 7 3
+case rrgrid-199
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 39 27 6
+pt 39 30 4
+pt 37 32 4
+pt 34 32 4
+pt 8 32 2
+pt 5 32 4
+pt 3 30 4
+pt 3 27 4
+pt 3 7 2
+pt 3 4 4
+pt 5 2 4
+pt 8 2 4
+pt 34 2 2
+pt 37 2 4
+pt 39 4 4
+pt 39 7 5
+flatten 1
+path 12
+pt 39 27 6
+pt 38 31 2
+pt 34 32 2
+pt 8 32 2
+pt 4 31 2
+pt 3 27 2
+pt 3 7 2
+pt 4 3 2
+pt 8 2 2
+pt 34 2 2
+pt 38 3 2
+pt 39 7 3
 done
