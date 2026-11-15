@@ -183839,6 +183839,1695 @@ dwscript hr 00000000
 run 0 2 Zzzz 999 shapes 0
 run 2 2 Zyyy 998 shapes 1
 dwscript hr 00000000
+case fallback-chars
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048 1202/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23644/1671
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23644/1671
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23644/1671 23644/1671
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23644/1671
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589 23727/1589
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 77 97 108 103 117 110 32 71 111 116 104 105 99
+fmetrics upm 2048 asc 2229 desc 495 gap 0
+glyphs 636/2048
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 77 97 108 103 117 110 32 71 111 116 104 105 99
+fmetrics upm 2048 asc 2229 desc 495 gap 0
+glyphs 636/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 77 97 108 103 117 110 32 71 111 116 104 105 99
+fmetrics upm 2048 asc 2229 desc 495 gap 0
+glyphs 636/2048 636/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 77 97 108 103 117 110 32 71 111 116 104 105 99
+fmetrics upm 2048 asc 2229 desc 495 gap 0
+glyphs 636/2048
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513 2317/513
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881 2318/1881
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168 2921/1168
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768 248/1768
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175 251/1175
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258 303/1258
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042 519/1042
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812 2267/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812 3869/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767 2862/1767
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+dwfallback hr 00000000
+map 1 scale 3f800000
+nofont
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+nofont
+dwfallback hr 00000000
+map 1 scale 3f800000
+nofont
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+nofont
+dwfallback hr 00000000
+map 2 scale 3f800000
+nofont
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 4 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 2 scale 3f800000
+nofont
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104 189/1104
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071 112/1071
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 2/3
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401 97/1401
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+dwfallback hr 00000000
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 49 48 48 48 48
+fmetrics upm 16 asc 14 desc 4 gap 2
+glyphs 1/10 2/3 8/15 6/8
+case fallback-0
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 1/1162
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+metrics hr 00000000 left 80000000 top 00000000 width 4298bac0 wtrail 4298bac0 height 4224ee00 lines 1 depth 1
+line 3 trail 0 nl 0 height 4224ee00 base 4205cf00 trimmed 0
+clusters hr 00000000 n 3 4181b100/1/00000 418cb600/1/10000 422a4200/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 1/1162
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 8/1162 8/1162
+map 1 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513
+map 1 scale 3f800000
+nofont
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 8/1162 8/1162
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 11/1162
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+metrics hr 00000000 left 80000000 top 00000000 width 42a33b80 wtrail 42a33b80 height 4154d000 lines 1 depth 3
+line 13 trail 0 nl 0 height 4154d000 base 412ca800 trimmed 0
+clusters hr 00000000 n 13 40b59000/1/00000 410a2000/1/10000 41200000/1/10000 40a2d000/1/00000 40b59000/1/01000 40b59000/1/11000 40b59000/1/00000 40205000/1/00001 40b59000/1/00000 40b59000/1/01000 40b59000/1/11000 41200000/1/00000 40b59000/1/10000
+dwfallback hr 00000000
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 11/1162 1/1162 8/1162
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 8/1162
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+metrics hr 00000000 left 80000000 top 00000000 width 425d6a00 wtrail 42832200 height 41bf8800 lines 1 depth 1
+line 6 trail 1 nl 0 height 41bf8800 base 419b6400 trimmed 0
+clusters hr 00000000 n 5 41236800/1/10000 41236800/1/00000 41236800/1/11000 41c5b800/2/00000 41236800/1/11000
+dwfallback hr 00000000
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 8/1162 6/1162 8/1162
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 1/1162 8/1162 8/1162 1/1162
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+fmetrics upm 2048 asc 1657 desc 398 gap 95
+glyphs 8/1162 8/1162 11/1162
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 48
+metrics hr 00000000 left 80000000 top 00000000 width 4363c4c0 wtrail 4363c4c0 height 421f9c00 lines 1 depth 3
+line 12 trail 0 nl 0 height 421f9c00 base 42017e00 trimmed 0
+clusters hr 00000000 n 12 41882c00/1/11000 41882c00/1/00000 41882c00/1/11000 41dc6e00/1/00001 41882c00/1/00000 41882c00/1/01000 41882c00/1/11000 41882c00/1/10000 41f00000/1/00000 41882c00/1/01000 41882c00/1/11000 41882c00/1/10000
+case fallback-1
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 1/654 11/654
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+map 2 scale 3f800000
+nofont
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 8/654 8/654
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+metrics hr 00000000 left 80000000 top 00000000 width 42223127 wtrail 429a111e height 42ab1076 lines 2 depth 1
+line 2 trail 0 nl 0 height 4218c49c base 41c26e98 trimmed 0
+line 5 trail 2 nl 0 height 423d5c50 base 4205cf00 trimmed 0
+clusters hr 00000000 n 6 41a23127/1/00000 41a23127/1/10000 4181b100/1/00000 41a23127/2/00000 41a23127/1/01000 41a23127/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+nofont
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 11/654 11/654 1/654 1/654
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+metrics hr 00000000 left 80000000 top 00000000 width 4289570a wtrail 4289570a height 42ac7ae2 lines 2 depth 1
+line 3 trail 0 nl 0 height 422c7ae2 base 41db851f trimmed 0
+line 2 trail 0 nl 0 height 422c7ae2 base 41db851f trimmed 0
+clusters hr 00000000 n 5 41b71eb8/1/00000 41b71eb8/1/00000 41b71eb8/1/10000 41b71eb8/1/00000 41b71eb8/1/10000
+dwfallback hr 00000000
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 11/654 11/654 6/654
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 1/654 8/654 8/654
+map 2 scale 3f800000
+nofont
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+metrics hr 00000000 left 80000000 top 00000000 width 432626fa wtrail 432626fa height 42437810 lines 1 depth 1
+line 9 trail 0 nl 0 height 42437810 base 420a2000 trimmed 0
+clusters hr 00000000 n 8 41a76c8c/1/00000 41a76c8c/1/10000 41a76c8c/1/00000 419d4000/1/00000 41a76c8c/1/00000 41a76c8c/1/01000 41a76c8c/1/11000 41a76c8c/2/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 8/654
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 9 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+fmetrics upm 1000 asc 644 desc 448 gap 140
+glyphs 1/654 11/654 8/654 8/654 8/654 1/654 1/654 8/654 6/654
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 49
+metrics hr 00000000 left 80000000 top 00000000 width 42af94c2 wtrail 42af94c2 height 41929a0c lines 1 depth 1
+line 11 trail 0 nl 0 height 41929a0c base 414f3000 trimmed 0
+clusters hr 00000000 n 11 40fb22d1/1/11000 4114f800/1/10000 40fb22d1/1/00000 40fb22d1/1/00000 40fb22d1/1/01000 40fb22d1/1/01000 40fb22d1/1/11000 40fb22d1/1/00000 40fb22d1/1/00000 40fb22d1/1/11000 40fb22d1/1/10000
+case fallback-2
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 6/56 1/105 8/222
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 8/222
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+metrics hr 00000000 left 80000000 top 00000000 width 42608c00 wtrail 42a0d600 height 422b9c00 lines 1 depth 1
+line 5 trail 1 nl 0 height 422b9c00 base 41f1b800 trimmed 0
+clusters hr 00000000 n 5 40c40000/1/00000 4137c000/1/00000 41c24000/1/11000 4163f000/1/00000 41c24000/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 6/56
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+metrics hr 00000000 left 80000000 top 00000000 width 3fe00000 wtrail 3fe00000 height 41238000 lines 1 depth 1
+line 1 trail 0 nl 0 height 41238000 base 40d30000 trimmed 0
+clusters hr 00000000 n 1 3fe00000/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 11 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 8/222 11/186 8/222 8/222 6/56 11/186 1/105 1/105 6/56 8/222 8/222
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+metrics hr 00000000 left 80000000 top 00000000 width 4312cf00 wtrail 4312cf00 height 42921900 lines 2 depth 1
+line 7 trail 0 nl 0 height 421f5a00 base 41e07400 trimmed 0
+line 5 trail 2 nl 0 height 4204d800 base 41ab7000 trimmed 0
+clusters hr 00000000 n 12 420ecc00/1/00000 41b46000/1/11000 41972000/1/00000 41b46000/1/01000 41b46000/1/11000 40b60000/1/00000 41972000/1/10000 412aa000/1/00000 412aa000/1/00000 40b60000/1/00000 41b46000/1/01000 41b46000/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 6/56
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 8/222
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 6/56
+map 1 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 8/222
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+fmetrics upm 256 asc 174 desc 116 gap 37
+glyphs 8/222 8/222
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 50
+metrics hr 00000000 left 80000000 top 00000000 width 433e4b20 wtrail 437e7720 height 4262c500 lines 1 depth 3
+line 10 trail 2 nl 0 height 4262c500 base 421fb500 trimmed 0
+clusters hr 00000000 n 10 41018000/1/10000 419f9000/1/00000 42005800/1/11000 41144a00/1/00001 41018000/1/00000 41ef5800/1/00000 42005800/1/11000 424b3600/1/00000 42005800/1/01000 42005800/1/11000
+case fallback-3
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 8/279 1/0
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 11/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 1202/2048
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23644/1671
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 8/279
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+metrics hr 00000000 left 80000000 top 00000000 width 43305a20 wtrail 433b85e0 height 427ea600 lines 1 depth 1
+line 9 trail 1 nl 0 height 427ea600 base 42557d00 trimmed 0
+clusters hr 00000000 n 8 4132bc00/1/11000 00000000/1/00000 4209bc00/2/00000 00000000/1/10000 42612e00/1/10000 42240000/1/10000 4205cf80/1/00000 4132bc00/1/11000
+dwfallback hr 00000000
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 11/0 1/0 11/0 11/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+metrics hr 00000000 left 80000000 top 00000000 width 00000000 wtrail 00000000 height 427e1000 lines 1 depth 1
+line 4 trail 0 nl 0 height 427e1000 base 4279f000 trimmed 0
+clusters hr 00000000 n 4 00000000/1/10000 00000000/1/00000 00000000/1/00000 00000000/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 1/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 8/279 11/0 8/279 1/0 8/279 6/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 8/279
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 6/0 1/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+metrics hr 00000000 left 80000000 top 00000000 width 419c1800 wtrail 41c35400 height 42a7b200 lines 3 depth 1
+line 7 trail 1 nl 0 height 41df9800 base 41bb7400 trimmed 0
+line 3 trail 1 nl 0 height 41df9800 base 41bb7400 trimmed 0
+line 3 trail 0 nl 0 height 41df9800 base 41bb7400 trimmed 0
+clusters hr 00000000 n 13 00000000/1/10000 411b4000/1/00000 409cf000/1/11000 00000000/1/00000 409cf000/1/11000 00000000/1/00000 409cf000/1/11000 00000000/1/00000 41450400/1/00000 409cf000/1/11000 4130e800/1/00000 00000000/1/00000 00000000/1/10000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+fmetrics upm 1024 asc 1112 desc 22 gap 221
+glyphs 8/279 8/279
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 51
+metrics hr 00000000 left 80000000 top 00000000 width 00000000 wtrail 41371800 height 41de4e00 lines 1 depth 1
+line 2 trail 2 nl 0 height 41de4e00 base 41dab200 trimmed 0
+clusters hr 00000000 n 2 40b71800/1/01000 40b71800/1/11000
+case fallback-4
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 8/1643
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 8/1643 1/3949 8/1643 6/3853
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 1 scale 3f800000
+nofont
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 1/3949 1/3949
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+metrics hr 00000000 left 80000000 top 00000000 width 420e2740 wtrail 42464f80 height 43a20990 lines 8 depth 1
+line 3 trail 1 nl 0 height 42422400 base 42171300 trimmed 0
+line 2 trail 1 nl 0 height 4211f280 base 41cdc300 trimmed 0
+line 1 trail 0 nl 0 height 4211f280 base 41cdc300 trimmed 0
+line 1 trail 0 nl 0 height 423a3600 base 42171300 trimmed 0
+line 1 trail 0 nl 0 height 4211f280 base 41cdc300 trimmed 0
+line 1 trail 0 nl 0 height 4211f280 base 41cdc300 trimmed 0
+line 1 trail 0 nl 0 height 4211f280 base 41cdc300 trimmed 0
+line 1 trail 0 nl 0 height 423a3600 base 42171300 trimmed 0
+clusters hr 00000000 n 11 4160a100/1/11000 41abfe00/1/00000 4160a100/1/11000 4206f9c0/1/00000 4160a100/1/11000 4203b1c0/1/10000 41d93f00/1/10000 41673100/1/00000 4206f9c0/1/00000 4206f9c0/1/00000 41f19500/1/10000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 8/1643 1/3949
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+map 5 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 1/3949 11/2278 1/3949 8/1643 6/3853
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+metrics hr 00000000 left 80000000 top 00000000 width 420a72c0 wtrail 420a72c0 height 42e96100 lines 5 depth 1
+line 1 trail 1 nl 0 height 41af2300 base 4176ea00 trimmed 0
+line 2 trail 0 nl 0 height 41e8f800 base 41b54a00 trimmed 0
+line 2 trail 0 nl 0 height 41af2300 base 4176ea00 trimmed 0
+line 2 trail 1 nl 0 height 41af2300 base 4176ea00 trimmed 0
+line 1 trail 0 nl 0 height 41af2300 base 4176ea00 trimmed 0
+clusters hr 00000000 n 8 4106c700/1/11000 41a1f880/1/00000 4165da00/1/00000 41a1f880/1/00000 413ade00/1/10000 41a1f880/1/00000 4106c700/1/11000 419e0880/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 11/2278
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 11/2278 8/1643 8/1643
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401 97/1401
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 8/1643 8/1643
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+metrics hr 00000000 left 80000000 top 00000000 width 42899580 wtrail 42a67700 height 41c7b000 lines 1 depth 1
+line 9 trail 2 nl 0 height 41c7b000 base 419b6400 trimmed 0
+clusters hr 00000000 n 9 41202c00/1/10000 411b4000/1/00000 41202c00/1/00000 40e70c00/1/01000 40e70c00/1/11000 41450400/1/00000 41450400/1/00000 40e70c00/1/01000 40e70c00/1/11000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+fmetrics upm 4096 asc 2322 desc 1260 gap 688
+glyphs 11/2278 6/3853
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 52
+metrics hr 00000000 left 80000000 top 00000000 width 4127a500 wtrail 4127a500 height 40e98400 lines 1 depth 1
+line 2 trail 0 nl 0 height 40e98400 base 40a49c00 trimmed 0
+clusters hr 00000000 n 2 40792800/1/10000 40d2b600/1/10000
+case fallback-5
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 9 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 11/8 11/8 1/3 11/8 8/15 8/15 6/15 8/15 8/15
+map 1 scale 3f800000
+nofont
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 11/8 11/8
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 1/3
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+metrics hr 00000000 left 80000000 top 00000000 width 42df8000 wtrail 42df8000 height 41840000 lines 1 depth 1
+line 15 trail 0 nl 0 height 41840000 base 41280000 trimmed 0
+clusters hr 00000000 n 14 40c00000/1/00000 40c00000/1/10000 40100000/1/00000 40c00000/1/00000 41340000/1/01000 41340000/1/11000 41340000/1/00000 41340000/1/01000 41340000/1/11000 41280000/1/00000 40c00000/1/00000 40c00000/1/10000 41280000/2/00000 40100000/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 1/3
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 1/3 8/15
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 8/15
+map 2 scale 3f800000
+nofont
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 1/3 1/3 11/8
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+metrics hr 00000000 left 80000000 top 00000000 width 42c21980 wtrail 42c21980 height 41b0dc00 lines 1 depth 1
+line 14 trail 0 nl 0 height 41b0dc00 base 4171b800 trimmed 0
+clusters hr 00000000 n 11 40280000/1/00000 41193c00/1/10000 4199c800/2/10000 40280000/1/00000 41520000/1/11000 41440000/2/00000 41520000/1/11000 41440000/2/00000 40280000/1/00000 40280000/1/00000 40e00000/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 8/15
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 97/1401
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 6/15 8/15 8/15 6/15 1/3 1/3
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 6/15
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 11/8
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+metrics hr 00000000 left 80000000 top 00000000 width 43d1e080 wtrail 43d1e080 height 4284a500 lines 1 depth 1
+line 14 trail 0 nl 0 height 4284a500 base 42354a00 trimmed 0
+clusters hr 00000000 n 13 41c0c600/1/00000 421d8000/1/11000 41e5da00/1/00000 421d8000/1/00000 421d8000/1/01000 421d8000/1/11000 421d8000/1/00000 40fc0000/1/00000 40fc0000/1/00000 42110800/1/00000 421d8000/1/10000 4266ac00/2/00000 41a80000/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+fmetrics upm 16 asc 12 desc 8 gap 2
+glyphs 1/3
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 53
+metrics hr 00000000 left 80000000 top 00000000 width 40c60000 wtrail 40c60000 height 42358000 lines 1 depth 1
+line 1 trail 0 nl 0 height 42358000 base 41e70000 trimmed 0
+clusters hr 00000000 n 1 40c60000/1/10000
+case fallback-6
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 1/702 1/702 8/351 8/351
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 8/351 1/702 1/702
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 8/351 8/351
+map 1 scale 3f800000
+nofont
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+metrics hr 00000000 left 80000000 top 00000000 width 428a4e51 wtrail 428a4e51 height 416a1800 lines 1 depth 3
+line 13 trail 0 nl 0 height 416a1800 base 413dec00 trimmed 0
+clusters hr 00000000 n 13 40f71aa0/1/00000 40f71aa0/1/00000 40771aa0/1/01000 40771aa0/1/11000 40c8c000/1/00001 40d83800/1/00000 40771aa0/1/11000 40f71aa0/1/00000 40f71aa0/1/10000 40bdc000/1/00000 40771aa0/1/01000 40771aa0/1/11000 00000000/1/10000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 8/351 8/351
+map 1 scale 3f800000
+nofont
+map 2 scale 3f800000
+nofont
+map 5 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 1/702 11/753 6/394 11/753 8/351
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 8/351 8/351 1/702
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+metrics hr 00000000 left 80000000 top 00000000 width 4340e40b wtrail 4340e40b height 4234e400 lines 1 depth 1
+line 14 trail 0 nl 0 height 4234e400 base 4212c200 trimmed 0
+clusters hr 00000000 n 13 413ef1ab/1/01000 413ef1ab/1/11000 00000000/1/00000 00000000/2/00000 41bef1ab/1/00000 41ccd0e6/1/10000 41565605/1/00000 41ccd0e6/1/00000 413ef1ab/1/11000 41a71400/1/00000 413ef1ab/1/01000 413ef1ab/1/11000 41bef1ab/1/10000
+dwfallback hr 00000000
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 6/394 6/394 8/351 1/702 1/702 8/351
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+metrics hr 00000000 left 80000000 top 00000000 width 431947a6 wtrail 431947a6 height 422a4000 lines 1 depth 1
+line 9 trail 0 nl 0 height 422a4000 base 420a2000 trimmed 0
+clusters hr 00000000 n 8 4149ba5f/1/00000 4149ba5f/1/00000 4133b646/1/11000 41b3b646/1/00000 41b3b646/1/00000 4133b646/1/11000 422fc000/2/10000 4185e000/1/10000
+dwfallback hr 00000000
+map 9 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+fmetrics upm 1000 asc 927 desc 195 gap 0
+glyphs 1/702 8/351 8/351 6/394 8/351 6/394 1/702 6/394 1/702
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 54
+metrics hr 00000000 left 80000000 top 00000000 width 41e0a3d7 wtrail 4260a3d7 height 43a13dd7 lines 7 depth 1
+line 3 trail 2 nl 0 height 4233851f base 421451ec trimmed 0
+line 2 trail 1 nl 0 height 4233851f base 421451ec trimmed 0
+line 1 trail 0 nl 0 height 4233851f base 421451ec trimmed 0
+line 1 trail 0 nl 0 height 4233851f base 421451ec trimmed 0
+line 1 trail 0 nl 0 height 4233851f base 421451ec trimmed 0
+line 1 trail 0 nl 0 height 4233851f base 421451ec trimmed 0
+line 1 trail 0 nl 0 height 4254d000 base 422ca800 trimmed 0
+clusters hr 00000000 n 10 41e0a3d7/1/00000 4160a3d7/1/01000 4160a3d7/1/11000 417c28f5/1/00000 4160a3d7/1/11000 417c28f5/1/00000 41e0a3d7/1/00000 417c28f5/1/00000 41e0a3d7/1/00000 41b68000/1/10001
+case fallback-7
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2317/513
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+metrics hr 00000000 left 80000000 top 00000000 width 41765400 wtrail 41765400 height 419f9c00 lines 1 depth 2
+line 2 trail 0 nl 0 height 419f9c00 base 41817e00 trimmed 0
+clusters hr 00000000 n 2 413a3600/1/10000 40707800/1/10001
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+fmetrics upm 2000 asc 1352 desc 475 gap 294
+glyphs 1/965
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 4 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+fmetrics upm 2000 asc 1352 desc 475 gap 294
+glyphs 1/965 8/446 6/428 8/446
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+metrics hr 00000000 left 80000000 top 00000000 width 41b39000 wtrail 41b39000 height 4317e210 lines 5 depth 1
+line 1 trail 0 nl 0 height 420a5400 base 41e07400 trimmed 0
+line 1 trail 0 nl 0 height 41dc9582 base 41ab2f1b trimmed 0
+line 1 trail 0 nl 0 height 420a5400 base 41e07400 trimmed 0
+line 2 trail 1 nl 0 height 41dc9582 base 41ab2f1b trimmed 0
+line 2 trail 1 nl 0 height 41dc9582 base 41ab2f1b trimmed 0
+clusters hr 00000000 n 7 41b39000/1/00000 4148b852/1/10000 41604000/1/00000 4148b852/1/00000 40b98938/1/11000 40b20c4a/1/00000 40b98938/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 5 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+fmetrics upm 2000 asc 1352 desc 475 gap 294
+glyphs 11/1459 8/446 11/1459 6/428 11/1459
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+fmetrics upm 2000 asc 1352 desc 475 gap 294
+glyphs 1/965 6/428
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+metrics hr 00000000 left 80000000 top 00000000 width 4252c047 wtrail 4252c047 height 4154d000 lines 1 depth 1
+line 9 trail 0 nl 0 height 4154d000 base 412ca800 trimmed 0
+clusters hr 00000000 n 9 415bb000/1/00000 40e970a3/1/00000 400eb852/1/11000 40e970a3/1/10000 4008f5c2/1/00000 40e970a3/1/10000 40b79800/1/00000 409a6666/1/00000 4008f5c2/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+fmetrics upm 2000 asc 1352 desc 475 gap 294
+glyphs 8/446 8/446 8/446
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+map 5 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+fmetrics upm 2000 asc 1352 desc 475 gap 294
+glyphs 1/965 11/1459 8/446 6/428 8/446
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 55
+metrics hr 00000000 left 80000000 top 00000000 width 42220d10 wtrail 42292fe1 height 412a4000 lines 1 depth 1
+line 10 trail 1 nl 0 height 412a4000 base 410a2000 trimmed 0
+clusters hr 00000000 n 10 412fc000/1/00000 3fe45a1d/1/01000 3fe45a1d/1/01000 3fe45a1d/1/11000 412fc000/1/10000 40770a3e/1/00000 40bac084/1/00000 3fe45a1d/1/11000 3fdb22d2/1/00000 3fe45a1d/1/11000
+case fallback-8
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 9 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 11/259 1/804 6/339 8/0 11/259 8/0 8/0 11/259 8/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+metrics hr 00000000 left 80000000 top 00000000 width 42b47ae0 wtrail 42b47ae0 height 42544083 lines 1 depth 1
+line 9 trail 1 nl 0 height 42544083 base 4210322d trimmed 0
+clusters hr 00000000 n 9 4142c49b/1/10000 421726e9/1/00000 417eed91/1/00000 00000000/1/11000 4142c49b/1/00000 00000000/1/01000 00000000/1/11000 4142c49b/1/00000 00000000/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 8/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 8/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2921/1168
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 8/0 8/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+metrics hr 00000000 left 80000000 top 00000000 width 426f4000 wtrail 426f4000 height 42387604 lines 1 depth 3
+line 7 trail 2 nl 0 height 42387604 base 420a2000 trimmed 0
+clusters hr 00000000 n 7 00000000/1/11000 41c6a000/1/00000 00000000/1/11000 41920000/1/00001 4185e000/1/00000 00000000/1/01000 00000000/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 1/804
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 6/339 8/0 8/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+metrics hr 00000000 left 80000000 top 00000000 width 423a8a52 wtrail 423a8a52 height 41669385 lines 1 depth 1
+line 9 trail 0 nl 0 height 41669385 base 412ca800 trimmed 0
+clusters hr 00000000 n 8 4100a3d7/1/00000 410a0c00/1/00000 4058f5c2/1/00000 00000000/1/01000 00000000/1/11000 40f84800/1/10000 40a2d000/1/10000 415bb000/2/10000
+dwfallback hr 00000000
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 8/0 1/804 8/0 11/259 11/259 6/339
+map 1 scale 3f800000
+nofont
+map 7 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+fmetrics upm 1000 asc 658 desc 362 gap 109
+glyphs 6/339 1/804 8/0 8/0 1/804 11/259 8/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 56
+metrics hr 00000000 left 80000000 top 00000000 width 42788937 wtrail 42788937 height 43544083 lines 4 depth 1
+line 5 trail 0 nl 0 height 42544083 base 4210322d trimmed 0
+line 3 trail 0 nl 0 height 42544083 base 4210322d trimmed 0
+line 3 trail 2 nl 0 height 42544083 base 4210322d trimmed 0
+line 3 trail 1 nl 0 height 42544083 base 4210322d trimmed 0
+clusters hr 00000000 n 14 00000000/1/11000 421726e9/1/00000 00000000/1/11000 4142c49b/1/00000 4142c49b/1/10000 417eed91/1/00000 4169df3b/1/00000 417eed91/1/00000 421726e9/1/00000 00000000/1/01000 00000000/1/11000 421726e9/1/00000 4142c49b/1/00000 00000000/1/11000
+case fallback-9
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 11/1448 8/1901
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 189/1104
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 8/1901 8/1901
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 8/1901 1/1327 8/1901 1/1327 8/1901 8/1901
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+metrics hr 00000000 left 80000000 top 00000000 width 42f97e7b wtrail 430fc1cd height 42367c7b lines 2 depth 1
+line 9 trail 1 nl 0 height 41d4d000 base 41aca800 trimmed 0
+line 3 trail 2 nl 0 height 419828f6 base 4194cccd trimmed 0
+clusters hr 00000000 n 12 4167ae14/1/00000 4198147b/1/11000 412c8000/1/00000 4198147b/1/01000 4198147b/1/11000 4122d000/1/00000 4198147b/1/11000 415451eb/1/00000 4198147b/1/11000 415451eb/1/00000 4198147b/1/01000 4198147b/1/11000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+map 5 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 11/1448 8/1901 6/1587 6/1587 11/1448
+map 2 scale 3f800000
+nofont
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 8/1901 8/1901 8/1901
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 11/1448 8/1901 8/1901
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+metrics hr 00000000 left 80000000 top 00000000 width 431e1e4f wtrail 433e6f76 height 41b4e400 lines 1 depth 1
+line 15 trail 2 nl 0 height 41b4e400 base 4192c200 trimmed 0
+clusters hr 00000000 n 14 416aae00/1/00000 4144ed92/1/00000 4181449c/1/11000 4157d4ff/1/00000 4157d4ff/1/00000 4144ed92/1/10000 40c876c9/2/00000 4181449c/1/01000 4181449c/1/01000 4181449c/1/11000 410a6400/1/00000 4144ed92/1/00000 4181449c/1/01000 4181449c/1/11000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 1/1327 8/1901
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+metrics hr 00000000 left 80000000 top 00000000 width 41e67bc7 wtrail 41e67bc7 height 412a4000 lines 1 depth 1
+line 5 trail 0 nl 0 height 412a4000 base 410a2000 trimmed 0
+clusters hr 00000000 n 4 412fc000/2/10000 40a9db23/1/00000 40f353f9/1/11000 409d4000/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 1/1327
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 76 101 101 108 97 119 97 100 101 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 251/1175
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 8/1901 1/1327 1/1327
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 112/1071
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 1/1327
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23727/1589
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+fmetrics upm 2000 asc 1672 desc 42 gap 188
+glyphs 8/1901
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 57
+metrics hr 00000000 left 80000000 top 00000000 width 4211dd80 wtrail 42a24795 height 43d66bdc lines 8 depth 1
+line 1 trail 0 nl 0 height 4232c9ba base 422ed70a trimmed 0
+line 1 trail 0 nl 0 height 427a0e00 base 424adf00 trimmed 0
+line 2 trail 1 nl 0 height 427a0e00 base 424adf00 trimmed 0
+line 1 trail 0 nl 0 height 4232c9ba base 422ed70a trimmed 0
+line 1 trail 0 nl 0 height 4232c9ba base 422ed70a trimmed 0
+line 1 trail 0 nl 0 height 427a0e00 base 424adf00 trimmed 0
+line 1 trail 0 nl 0 height 4232c9ba base 422ed70a trimmed 0
+line 2 trail 1 nl 0 height 427a0e00 base 424adf00 trimmed 0
+clusters hr 00000000 n 10 41f979db/1/00000 41d7b900/1/00000 41c4a100/1/00000 4232b1aa/1/11000 41f979db/1/00000 41f979db/1/00000 41c4a100/1/00000 41f979db/1/10000 4211dd80/1/00000 4232b1aa/1/11000
+case fallback-10
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 8/0 6/86
+map 1 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2862/1767
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 8/0 8/0 11/456 1/0 1/0 11/456
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 78 105 114 109 97 108 97 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 248/1768
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+metrics hr 00000000 left 80000000 top 00000000 width 42fd5f3c wtrail 42fd5f3c height 423b6416 lines 1 depth 1
+line 11 trail 0 nl 0 height 423b6416 base 41e91600 trimmed 0
+clusters hr 00000000 n 11 00000000/1/11000 40949ba6/1/00000 41d1851f/1/00000 41ba5d00/1/00000 00000000/1/01000 00000000/1/11000 41c4fdf4/1/10000 00000000/1/00000 00000000/1/00000 41c4fdf4/1/10000 41ba7800/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 1/0 6/86
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 8/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+metrics hr 00000000 left 80000000 top 00000000 width 429603d1 wtrail 429603d1 height 4298b05e lines 1 depth 3
+line 5 trail 1 nl 0 height 4298b05e base 423dec00 trimmed 0
+clusters hr 00000000 n 5 41d83800/1/00000 00000000/1/00000 40f22d0e/1/00000 4221a600/1/00001 00000000/1/11000
+dwfallback hr 00000000
+map 8 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 1/0 1/0 8/0 8/0 1/0 8/0 8/0 6/86
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2267/2812
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 1/0 11/456 1/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+metrics hr 00000000 left 80000000 top 00000000 width 42a71446 wtrail 42a71446 height 426bf94c lines 1 depth 1
+line 13 trail 0 nl 0 height 426bf94c base 4212c200 trimmed 0
+clusters hr 00000000 n 12 00000000/1/00000 00000000/1/00000 00000000/1/01000 00000000/1/11000 00000000/1/00000 00000000/1/01000 00000000/1/11000 40bb22d2/1/10000 423abc00/2/10000 00000000/1/00000 41f81063/1/10000 00000000/1/10000
+dwfallback hr 00000000
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+fmetrics upm 500 asc 289 desc 328 gap 0
+glyphs 11/456 1/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 97
+metrics hr 00000000 left 80000000 top 00000000 width 41c4fdf4 wtrail 41c4fdf4 height 420545a2 lines 1 depth 1
+line 2 trail 0 nl 0 height 420545a2 base 4179b22d trimmed 0
+clusters hr 00000000 n 2 41c4fdf4/1/10000 00000000/1/10000
+case fallback-11
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwfallback hr 00000000
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 8/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 519/1042
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 8/0 8/0 11/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 2318/1881
+map 6 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 6/0 8/0 11/0 1/1411 6/0 11/0
+map 2 scale 3f800000
+nofont
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 6/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+metrics hr 00000000 left 80000000 top 00000000 width 4238f500 wtrail 4238f500 height 41bf8800 lines 1 depth 3
+line 15 trail 0 nl 0 height 41bf8800 base 419b6400 trimmed 0
+clusters hr 00000000 n 14 00000000/1/11000 41128800/1/00000 00000000/1/01000 00000000/1/11000 00000000/1/10000 41844200/1/00001 00000000/1/00000 00000000/1/11000 00000000/1/10000 41466c00/1/00000 00000000/1/00000 00000000/1/10000 41025c00/2/00000 00000000/1/10000
+dwfallback hr 00000000
+map 7 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 8/0 11/0 8/0 6/0 6/0 11/0 8/0
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+metrics hr 00000000 left 80000000 top 00000000 width 00000000 wtrail 00000000 height 41ac8f00 lines 1 depth 1
+line 7 trail 1 nl 0 height 41ac8f00 base 41a1a600 trimmed 0
+clusters hr 00000000 n 7 00000000/1/11000 00000000/1/00000 00000000/1/11000 00000000/1/00000 00000000/1/00000 00000000/1/00000 00000000/1/11000
+dwfallback hr 00000000
+map 3 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 8/0 1/1411 1/1411
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 8/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 89 117 32 71 111 116 104 105 99 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 23644/1671
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+metrics hr 00000000 left 80000000 top 00000000 width 42287c80 wtrail 42287c80 height 419f9c00 lines 1 depth 1
+line 6 trail 0 nl 0 height 419f9c00 base 41817e00 trimmed 0
+clusters hr 00000000 n 6 00000000/1/11000 41255a00/1/00000 41255a00/1/00000 41136c00/1/00000 00000000/1/11000 4143d200/1/10000
+dwfallback hr 00000000
+map 1 scale 3f800000
+nofont
+map 2 scale 3f800000
+font 400 0 5 sim 0 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+fmetrics upm 2048 asc 2178 desc 147 gap 0
+glyphs 8/0 11/0
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 303/1258
+map 1 scale 3f800000
+font 400 0 5 sim 0 name 83 101 103 111 101 32 85 73 32 69 109 111 106 105
+fmetrics upm 2048 asc 2210 desc 514 gap 0
+glyphs 3869/2812
+dwlayout families 1 hr 00000000 name 75 105 107 105 122 97 107 101 32 102 101 50 48 48 48 98
+metrics hr 00000000 left 80000000 top 00000000 width 41ea3c00 wtrail 41ea3c00 height 417f6000 lines 1 depth 1
+line 5 trail 0 nl 0 height 417f6000 base 414f3000 trimmed 0
+clusters hr 00000000 n 5 40add000/1/00000 00000000/1/11000 00000000/1/10000 40ebe000/1/10000 4183d000/1/10000
 case layoutnf-0
 dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
 dwfont face hr 00000000
