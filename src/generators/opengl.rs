@@ -2124,4 +2124,31 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // glVertex4f corners of w = 0 (points, a triangle's corner, a line's end) and of w = 2
+    // outside glBegin
+    writeln!(s, "case persp-more-11\n{}gl glDisable 0xbd0\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+    let draws: [(u32, &[[f64; 4]]); 6] = [
+        (0, &[[1.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [16.0, 16.0, 0.0, 2.0]]),
+        (4, &[[4.0, 4.0, 0.0, 1.0], [12.0, 4.0, 0.0, 1.0], [1.0, 1.0, 0.0, 0.0]]),
+        (4, &[[4.0, 4.0, 0.0, 1.0], [12.0, 4.0, 0.0, 1.0], [-1.0, 2.0, 0.0, 0.0]]),
+        (1, &[[4.0, 4.0, 0.0, 1.0], [1.0, 0.5, 0.0, 0.0]]),
+        (1, &[[8.0, 8.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0]]),
+        (0, &[]),
+    ];
+    for (i, (mode, vs)) in draws.iter().enumerate() {
+        writeln!(s, "gl glClear 0x4000\ngl glColor4ub {} 200 100 255", 40 * i + 20).unwrap();
+        if vs.is_empty() {
+            glf(s, "glVertex4f", &[8.0, 8.0, 0.0, 2.0]);
+        }
+        writeln!(s, "gl glBegin {mode}").unwrap();
+        for v in *vs {
+            glf(s, "glVertex4f", v);
+        }
+        if vs.is_empty() {
+            glf(s, "glVertex2f", &[3.0, 3.0]);
+        }
+        writeln!(s, "gl glEnd").unwrap();
+        read_all(s);
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }

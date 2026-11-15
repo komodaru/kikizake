@@ -1563,17 +1563,17 @@ impl Ctx {
                 hit(clause::GL_RASTER_POS);
                 let v = [fl(a, 0), fl(a, 1), 0.0];
                 let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
-                let c = xform(self.top(1), e);
-                // (under a projection: inside the view volume of its w, then divided by it,
-                // golden opengl-32 persp-more-9)
+                // (under a projection: inside the view volume of its w, then times 1 / w and
+                // its depth in float32 as a vertex's, golden opengl-32 persp-more-9)
+                let c = self.clip_coords(Obj::at(v));
                 if c[3] != 1.0 {
                     hit(clause::GL_RASTER_PERSPECTIVE);
                 }
                 let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v));
-                let c = c.map(|v| v / c[3]);
+                let c = c.map(|v| v * (1.0 / c[3]));
                 let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-                let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
-                self.raster = inside.then(|| [(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0]);
+                let (x, y) = (f64::from(c[0]), f64::from(c[1]));
+                self.raster = inside.then(|| [(x + 1.0) * vw / 2.0 + vx, (y + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(c[2]))]);
                 self.raster_color = self.current();
                 self.raster_eye = e[2];
             }
@@ -1637,10 +1637,15 @@ impl Ctx {
             }
             "glVertex4f" if fl(a, 3) != 1.0 => {
                 // (a point of w other than 1: as (x, y, z) / w when w > 0, past the view volume
-                // when w < 0, its clip coordinates' w then negative, GL 1.1 2.11; other
-                // primitives, and fog from such eye coordinates, not measured)
+                // when w < 0, its clip coordinates' w then negative, GL 1.1 2.11; a corner of
+                // w = 0 not measured: persp-more-11)
                 let w = fl(a, 3);
-                if self.in_begin.is_none() || w == 0.0 || self.cap(FOG) {
+                if self.in_begin.is_none() {
+                    // (ignored, as any other vertex outside glBegin: persp-more-11)
+                    hit(clause::GL_VERTEX_OUTSIDE);
+                    return Ok(());
+                }
+                if w == 0.0 {
                     return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
                 }
                 hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
@@ -2253,7 +2258,7 @@ impl Ctx {
         let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
         let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
         // (smooth colors under fog or lighting are not measured)
-        if !flat && (self.cap(FOG) || self.cap(LIGHTING)) {
+        if !flat && self.cap(LIGHTING) {
             return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
         }
         let colors: Vec<[f64; 4]> = if flat { vec![fogged[provoking].map(f64::from); q.len()] } else { fogged.iter().map(|c| c.map(f64::from)).collect() };
