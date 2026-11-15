@@ -2456,4 +2456,31 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // wide lines whose first end lies on one plane and past the one across it (prim-6's x-major
+    // line from (-0.5, 16)): x-major on the top or bottom, past the left or right; y-major on
+    // the left or right, past the bottom or top (widths 2, 3, 4)
+    for k in 0..3 {
+        writeln!(s, "case line-wide-{}\n{}{ORTHO}gl glDisable 0xbd0\ngl glColor4ub 255 255 255 255", k + 17, ctx(32)).unwrap();
+        glf(s, "glLineWidth", &[[2.0, 3.0, 4.0][k]]);
+        for i in 0..16u32 {
+            let out = v8(&mut r, 1, 3);
+            let (run, rise) = (v8(&mut r, 6, 15), v8(&mut r, 1, 5));
+            let (on_hi, past_hi) = (i % 2 == 1, (i / 2) % 2 == 1);
+            let (a, b) = if (i / 4) % 2 == 0 {
+                // x-major: on the bottom or top, past the left or right
+                let (x, y) = (if past_hi { 16.0 + out } else { -out }, if on_hi { 16.0 } else { 0.0 });
+                ((x, y), (x + if past_hi { -run } else { run }, y + if on_hi { -rise } else { rise }))
+            } else {
+                // y-major: on the left or right, past the bottom or top
+                let (x, y) = (if on_hi { 16.0 } else { 0.0 }, if past_hi { 16.0 + out } else { -out });
+                ((x, y), (x + if on_hi { -rise } else { rise }, y + if past_hi { -run } else { run }))
+            };
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+            let (a, b) = if i >= 8 { (b, a) } else { (a, b) };
+            glf(s, "glVertex2f", &[a.0, a.1]);
+            glf(s, "glVertex2f", &[b.0, b.1]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
