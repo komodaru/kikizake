@@ -61,6 +61,8 @@ void kz_fill_rows(unsigned char *p, int pitch, int w, int h, DWORD fmt, long see
 void kz_dump_rows(const unsigned char *p, int pitch, int w, int h, DWORD fmt) {
     int b = kz_fmt_bits(fmt);
     out("px rt %d %d %d\n", w, h, b);
+    /* (a block format: its rows of 4 x 4 blocks of -b bytes) */
+    if (b < 0) { for (int y = 0; y < (h + 3) / 4; y++) out_hex(p + y * pitch, (w + 3) / 4 * -b); return; }
     for (int y = 0; y < h; y++) out_hex(p + y * pitch, w * b / 8);
 }
 

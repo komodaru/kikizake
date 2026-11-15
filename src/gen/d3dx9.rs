@@ -146,5 +146,14 @@ pub fn d3dx9load() -> String {
         }
         writeln!(s, "end\ncase load-{}-signed\ndevice swvp\n{signed}x9load 60 {} 64 1 ramp 1\nend", src.1, src.0).unwrap();
     }
+    // (into the block and YUV formats: D3DX's encoders, from A8R8G8B8, A32B32G32R32F and X8R8G8B8,
+    // a ramp, random pictures, a 1 x 1 and a 5 x 3 one past a block)
+    for dst in TEXTURE_FORMATS.iter().filter(|f| matches!(f.1, "DXT1" | "DXT2" | "DXT3" | "DXT4" | "DXT5" | "UYVY" | "YUY2")) {
+        writeln!(s, "case load-into-{}\ndevice swvp\nx9load {} 21 16 4 ramp 1\nx9load {} 116 16 4 ramp 1", dst.1, dst.0, dst.0).unwrap();
+        for (src, w, h) in [(21, 8, 8), (21, 8, 8), (21, 8, 4), (116, 8, 8), (22, 8, 4), (21, 1, 1), (21, 5, 3)] {
+            writeln!(s, "x9load {} {src} {w} {h} {:#x} 1", dst.0, r.next()).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }

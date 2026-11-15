@@ -199,7 +199,7 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
         return Ok(());
     }
     let (sm, dm) = (format(sf).ok_or(Fail::Bad)?, format(df).ok_or(Fail::Bad)?);
-    if !matches!(sm.kind, Kind::Int | Kind::F16 | Kind::F32) || !matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) {
+    if !matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
     }
     if sm.ch.iter().chain(&dm.ch).any(|c| is_bump(c.c)) {
@@ -210,7 +210,17 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     // (MEASURED load-R16F .. load-A32B32G32R32F: halves of exponent 31 read as numbers and NaNs,
     // numbers past the half range written as f16_load has them, D3DX9.LOAD.F16RANGE; open: on
     // x64 a denormal half into R16F rounded or truncated, b75ffa2a rounded and b66623f9 not)
-    let pixels: Vec<[Sample; 4]> = src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect();
+    let pixels: Vec<[Sample; 4]> = match sm.kind {
+        Kind::Dxt(n) => {
+            let alpha = DxtAlpha::of(n).ok_or(Fail::Bad)?;
+            (0..ht).flat_map(|y| (0..wd).map(move |x| (x, y))).map(|(x, y)| dxt_d3dx(alpha, &src, wd, x, y).map(Sample::Unsigned)).collect()
+        }
+        Kind::Yuv => {
+            hit(clause::D3DX9_LOAD_YUV);
+            (0..wd as usize * ht as usize).map(|i| yuv_d3dx(sf, &src, wd as usize, i).map(Sample::Unsigned)).collect()
+        }
+        Kind::Int | Kind::F16 | Kind::F32 => src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect(),
+    };
     let one_denormal = |p: &[Sample; 4]| p.iter().take(1).any(|&(Sample::Unsigned(v) | Sample::Signed(v))| f16_x64(v.to_bits(), false) != f16_x64(v.to_bits(), true));
     if crate::model::arch() == 64 && dm.kind == Kind::F16 && dm.ch.len() == 1 && sf != df && pixels.iter().any(one_denormal) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_F16RANGE));
@@ -226,8 +236,8 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
         }
         return Ok(());
     }
-    for row in src.chunks(wd as usize * sm.bytes) {
-        out.push(row.chunks(sm.bytes).enumerate().flat_map(|(i, p)| load_encode(&dm, sm.kind, load_decode(&sm, sf, p), (i, wd as usize))).map(|x| format!("{x:02x}")).collect());
+    for row in pixels.chunks(wd as usize) {
+        out.push(row.iter().enumerate().flat_map(|(i, &p)| load_encode(&dm, sm.kind, p, (i, wd as usize))).map(|x| format!("{x:02x}")).collect());
     }
     Ok(())
 }
@@ -284,6 +294,131 @@ fn load_decode(f: &super::d3d9draw::Fmt, code: u32, p: &[u8]) -> [Sample; 4] {
     })
 }
 
+/// how a DXT format keeps its alpha
+#[derive(Clone, Copy, PartialEq)]
+enum DxtAlpha {
+    /// DXT1: the colour block's three colour mode index 3
+    Punch,
+    /// DXT2 (premultiplied) and DXT3: 4 bits a texel
+    Explicit { premultiplied: bool },
+    /// DXT4 (premultiplied) and DXT5: two endpoints and 3 bit indices
+    Interpolated { premultiplied: bool },
+}
+
+impl DxtAlpha {
+    fn of(n: u32) -> Option<DxtAlpha> {
+        match n {
+            1 => Some(DxtAlpha::Punch),
+            2 | 3 => Some(DxtAlpha::Explicit { premultiplied: n == 2 }),
+            4 | 5 => Some(DxtAlpha::Interpolated { premultiplied: n == 4 }),
+            _ => None,
+        }
+    }
+}
+
+/// a DXT texel as D3DX reads it, (r, g, b, a), in f32 (MEASURED: d3dx9load load-DXT*):
+/// endpoints c * (1 / 31) and c * (1 / 63); the three colour mode whenever c0 <= c1, in every
+/// DXT format; index 2 a + (b - a) / 3 (four colours) or a + (b - a) * 0.5, index 3
+/// a + (b - a) * (2 / 3) or black; DXT3's alpha a4 * (1 / 15), DXT5's ((n - k) a0 + k a1) * (1 / n)
+/// of a0, a1 as b * (1 / 255); DXT2 and DXT4 divided back, colour * (1 / a) at most 1, 0 where a is 0
+fn dxt_d3dx(alpha: DxtAlpha, src: &[u8], w: i32, x: i32, y: i32) -> [f32; 4] {
+    hit(clause::D3DX9_LOAD_DXT);
+    let bsz = if alpha == DxtAlpha::Punch { 8 } else { 16 };
+    let bi = usize::try_from((y / 4) * ((w + 3) / 4) + x / 4).unwrap_or(0) * bsz;
+    let Some(b) = src.get(bi..bi + bsz) else { return [0.0; 4] };
+    let t = u32::try_from((y % 4) * 4 + x % 4).unwrap_or(0);
+    let cb = &b[bsz - 8..];
+    let (c0, c1) = (u32::from(u16::from_le_bytes([cb[0], cb[1]])), u32::from(u16::from_le_bytes([cb[2], cb[3]])));
+    let idx = u32::from_le_bytes([cb[4], cb[5], cb[6], cb[7]]) >> (2 * t) & 3;
+    let unit = |c: u32, bits: u32| -> f32 {
+        let m = (1u16 << bits) - 1;
+        f32::from(u16::try_from(c).unwrap_or(0) & m) * (1.0 / f32::from(m))
+    };
+    let ex = |c: u32| [unit(c >> 11, 5), unit(c >> 5, 6), unit(c, 5)];
+    let (e0, e1) = (ex(c0), ex(c1));
+    let four = c0 > c1;
+    let mut c = [0.0f32, 0.0, 0.0, 1.0];
+    for k in 0..3 {
+        let (a, b) = (e0[k], e1[k]);
+        c[k] = match (idx, four) {
+            (0, _) => a,
+            (1, _) => b,
+            (2, true) => a + (b - a) * (1.0 / 3.0),
+            (3, true) => a + (b - a) * (2.0 / 3.0),
+            (2, false) => a + (b - a) * 0.5,
+            (_, false) | (_, true) => 0.0,
+        };
+    }
+    let premultiplied = match alpha {
+        DxtAlpha::Punch => {
+            c[3] = if !four && idx == 3 { 0.0 } else { 1.0 };
+            false
+        }
+        DxtAlpha::Explicit { premultiplied } => {
+            let a4 = u64::from_le_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) >> (4 * t) & 15;
+            c[3] = f32::from(u8::try_from(a4).unwrap_or(0)) * (1.0 / 15.0);
+            premultiplied
+        }
+        DxtAlpha::Interpolated { premultiplied } => {
+            let (a0, a1) = (f32::from(b[0]) * (1.0 / 255.0), f32::from(b[1]) * (1.0 / 255.0));
+            let mix = |k: u8, n: u8| (f32::from(n - k) * a0 + f32::from(k) * a1) * (1.0 / f32::from(n));
+            let ai = u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]) >> (3 * t) & 7;
+            let ai = u8::try_from(ai).unwrap_or(0);
+            c[3] = match ai {
+                0 => a0,
+                1 => a1,
+                i if b[0] > b[1] => mix(i - 1, 7),
+                6 => 0.0,
+                7 => 1.0,
+                i => mix(i - 1, 5),
+            };
+            premultiplied
+        }
+    };
+    if premultiplied {
+        for k in 0..3 {
+            c[k] = if c[3] == 0.0 { 0.0 } else { (c[k] * (1.0 / c[3])).min(1.0) };
+        }
+    }
+    c
+}
+
+/// a UYVY or YUY2 pixel as D3DX reads it, (r, g, b, a): an even pixel its pair's U and V, an
+/// odd one theirs between its pair and the next by the taps (-1, 9, 9, -1) / 16 over the
+/// pairs before and after (the row's ends repeated), rounded; BT.601's studio range
+fn yuv_d3dx(f: u32, src: &[u8], w: usize, i: usize) -> [f32; 4] {
+    let (row, x) = (i / w, i % w);
+    let pairs = w.div_ceil(2);
+    // (UYVY: U Y0 V Y1; YUY2: Y0 U Y1 V)
+    let uyvy = f == super::d3d9draw::fourcc(b"UYVY");
+    let pair = |q: isize| {
+        let q = q.clamp(0, pairs as isize - 1) as usize;
+        let at = (row * pairs + q) * 4;
+        let b = src.get(at..at + 4).unwrap_or(&[0; 4]);
+        if uyvy { ([b[1], b[3]], b[0], b[2]) } else { ([b[0], b[2]], b[1], b[3]) }
+    };
+    let p = (x / 2) as isize;
+    let (ys, u0, v0) = pair(p);
+    let y = ys[x % 2];
+    // (an odd pixel's chroma from the four nearest pairs, -1 9 9 -1 / 16 rounded in unsigned 32
+    // bit arithmetic, not clamped: 256 seen, and a negative sum wraps to a huge one, the load-YUY2
+    // magenta; a source row's ends repeat)
+    let (u, v) = if x % 2 == 1 {
+        let tap = |k: fn(([u8; 2], u8, u8)) -> u8| {
+            let s = 9 * (u32::from(k(pair(p))) + u32::from(k(pair(p + 1)))) + 8;
+            i64::from(s.wrapping_sub(u32::from(k(pair(p - 1))) + u32::from(k(pair(p + 2)))) >> 4)
+        };
+        (tap(|t| t.1), tap(|t| t.2))
+    } else {
+        (i64::from(u0), i64::from(v0))
+    };
+    // (studio range BT.601 with D3DX's six digit constants, in f32)
+    let c = f32::from(i16::from(y) - 16) * 0.00456621f32;
+    let (d, e) = ((u - 128) as f32, (v - 128) as f32);
+    let cl = |x: f32| x.clamp(0.0, 1.0);
+    [cl(c + e * 0.00625893), cl((c - d * 0.00153632) - e * 0.00318811), cl(c + d * 0.00791071), 1.0]
+}
+
 /// a signed (bump) channel: U, V, W, Q
 fn is_bump(c: u8) -> bool {
     matches!(c, b'u' | b'v' | b'w' | b'q')
@@ -307,7 +442,7 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
             // rounded to the nearest of the 2^(n-1) - 1 steps)
             let k = [b'u', b'v', b'w', b'q'].iter().position(|&b| b == ch.c).unwrap_or(0);
             let v = match (px[k], src) {
-                (Sample::Unsigned(x), Kind::Int) => 2.0 * x - 1.0,
+                (Sample::Unsigned(x), Kind::Int | Kind::Dxt(_) | Kind::Yuv) => 2.0 * x - 1.0,
                 (Sample::Unsigned(x), _) | (Sample::Signed(x), _) => x,
             };
             let half = 1i64 << (ch.bits - 1);
