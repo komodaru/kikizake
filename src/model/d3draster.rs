@@ -488,6 +488,11 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
     };
     let view = m.views[tv].clone().unwrap();
+    // (a view whose resource's slot was emptied since, by a failed creation there: the model
+    // has lost the resource)
+    if m.res[view.res].is_none() || d.depth.is_some_and(|v| m.views[v].as_ref().is_some_and(|dv| m.res[dv.res].is_none())) {
+        return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
+    }
     let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_RTFMT))?;
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
     let (rw, rh, _) = {
@@ -522,7 +527,16 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             }
         }
     };
-    let dsv = d.depth.map(|v| m.views[v].clone().unwrap());
+    // (MEASURED, WARP: probe-rt-ms4-depth1) a depth view of another sample count than the
+    // target's is not bound: the draw goes on without the depth test
+    let samples_of = |v: &super::d3dres::View| m.res[v.res].as_ref().map_or(1, |r| r.d.count.max(1));
+    let dsv = d.depth.map(|v| m.views[v].clone().unwrap()).filter(|dv| {
+        let same = samples_of(dv) == samples_of(&view);
+        if !same {
+            hit(clause::D3DRASTER_MS_DEPTHCOUNT);
+        }
+        same
+    });
     let instances = inst.max(1);
     // the vertices through the vertex shader
     let fetch = |v: u32, i: u32| -> Res<Vert> {
@@ -1388,9 +1402,9 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
     if let Some(dv) = dsv {
         let df = format(dv.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_DEPTHFMT))?;
         let dres = m.res[dv.res].as_ref().unwrap();
-        // (a depth view of another sample count: not measured)
+        // (a depth view of another sample count is unbound, D3DRASTER.MS.DEPTHCOUNT)
         if dres.d.count.max(1) as usize != n {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            return Err(Fail::Bad);
         }
         let dsub = super::d3dres::view_subs(dev, dv, dres)[0];
         slots.push(Slot::of(m, dv.res, dsub, df, (px, py))?);
@@ -1520,6 +1534,53 @@ impl Planes {
         let q = 1.0 / self.plane(self.iw, cx, cy);
         [0, 1, 2, 3].map(|k| self.plane(self.aw.map(|a| a[k]), cx, cy) * q)
     }
+}
+
+/// D3D11_FILTER_REDUCTION_TYPE, the filter's bits 7 and 8
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Reduction {
+    Standard,
+    Comparison,
+    Minimum,
+    Maximum,
+}
+
+/// the least or the greatest of the texels a filter takes
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Pick {
+    Least,
+    Greatest,
+}
+
+impl Reduction {
+    fn of(f: u32) -> Reduction {
+        match (f >> 7 & 1 != 0, f >> 8 & 1 != 0) {
+            (false, false) => Reduction::Standard,
+            (true, false) => Reduction::Comparison,
+            (false, true) => Reduction::Minimum,
+            (true, true) => Reduction::Maximum,
+        }
+    }
+
+    fn pick(self) -> Option<Pick> {
+        match self {
+            Reduction::Standard | Reduction::Comparison => None,
+            Reduction::Minimum => Some(Pick::Least),
+            Reduction::Maximum => Some(Pick::Greatest),
+        }
+    }
+}
+
+/// (MEASURED, WARP: probe-sample-min, -max) a minimum or maximum filter: per component the
+/// least or greatest of the 2 x 2 texels (a, b on the upper row, c, e on the lower) whose
+/// weight is not 0 (the weights fu, fv in 1/256)
+fn reduce(pick: Pick, [a, b, c, e]: [[f32; 4]; 4], (wu, wv): (i64, i64)) -> [f32; 4] {
+    hit(clause::D3DRASTER_FILTER_MINMAX);
+    let taken: Vec<[f32; 4]> = [(a, true, true), (b, wu != 0, true), (c, true, wv != 0), (e, wu != 0, wv != 0)].into_iter().filter(|&(_, u, v)| u && v).map(|(t, _, _)| t).collect();
+    [0, 1, 2, 3].map(|k| taken.iter().map(|t| t[k]).reduce(|x, y| match pick {
+        Pick::Least => x.min(y),
+        Pick::Greatest => x.max(y),
+    }).unwrap_or(0.0))
 }
 
 /// the filters of D3D11_FILTER the model samples with: point or linear for minifying and for
@@ -1782,7 +1843,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // as its filter without the comparison
                 (false, _) => None,
             };
-            let filter = Filter::of(s[0] & !0x80).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
+            let reduction = Reduction::of(s[0]);
+            let filter = Filter::of(s[0] & 0x7f).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
             // pixel spans, as the 2 x 2 quad's differences give them)
             // (MEASURED, WARP: probe-filter-aniso, -aniso-min, -aniso-2, -4, -16, -aniso-mips,
@@ -1876,6 +1938,9 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
+                    if let Some(pick) = reduction.pick() {
+                        return Ok(Filtered::Wide(reduce(pick, [a, b, c, e], (wu, wv))));
+                    }
                     return Ok(Filtered::Wide([0, 1, 2, 3].map(|k| {
                         let l = lerp_sse(a[k], c[k], fv);
                         let r = lerp_sse(b[k], e[k], fv);
@@ -1884,6 +1949,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
                 let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
+                // (a minimum or maximum filter of 8-bit UNORM texels: not measured,
+                // probe-sample-min-unorm8)
+                if reduction.pick().is_some() {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                }
                 Ok(Filtered::Fixed([0, 1, 2, 3].map(|k| {
                     let l = (a[k] * (256 - wv) + c[k] * wv) >> 1;
                     let r = (b[k] * (256 - wv) + e[k] * wv) >> 1;
@@ -1903,6 +1973,9 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 Level::One(l) => done(one(l)?),
                 // (MEASURED, WARP: probe-filter-trilinear*) between two levels; point texels blend
                 // in f32, 8-bit UNORM too
+                // (a minimum or maximum filter between two levels: not measured,
+                // probe-sample-min-mips)
+                Level::Two(..) if reduction.pick().is_some() => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
                     (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed([0, 1, 2, 3].map(|k| (a[k] * (256 - f) + b[k] * f) >> 8)))),
                     (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| lerp_sse(a[k], b[k], f as f32 / 256.0))))),

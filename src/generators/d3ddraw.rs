@@ -490,9 +490,15 @@ fn suite(d3d11: bool) -> String {
     // sample_c through a sampler without comparison, sample through one with it, and the
     // minimum and maximum filters (what D3DRASTER.FILTER leaves open; undefined by the
     // documentation, or a tier WARP may lack: near the end, as WARP may end the executor on them)
-    for (name, ps, filter) in [("samplec-nocmp", "pssamplec", 0x15u32), ("sample-cmp", "pssample", 0x95), ("sample-min", "pssample", 0x115), ("sample-max", "pssample", 0x195), ("sample-min-point", "pssample", 0x100)] {
+    for (name, ps, filter) in [("samplec-nocmp", "pssamplec", 0x15u32), ("sample-cmp", "pssample", 0x95), ("sample-min", "pssample", 0x115), ("sample-max", "pssample", 0x195), ("sample-min-point", "pssample", 0x100), ("sample-min-unorm8", "pssample", 0x115), ("sample-max-mips", "pssample", 0x195)] {
         writeln!(s, "case probe-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
-        writeln!(s, "tex 1 2 4 4 1 1 56 0 8 0 0 1 0 init 400 8 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3 2").unwrap();
+        let tex = match name {
+            "sample-min-unorm8" => "tex 1 2 4 4 1 1 28 0 8 0 0 1 0 init 400 16 0",
+            // (two levels, 24 x 24 and 12 x 12, minified about 1.65 times: between them)
+            "sample-max-mips" => "tex 1 2 24 24 1 2 56 0 8 0 0 1 0 init 400 48 0",
+            _ => "tex 1 2 4 4 1 1 56 0 8 0 0 1 0 init 400 8 0",
+        };
+        writeln!(s, "{tex}\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3 2").unwrap();
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader(ps))).unwrap();
         writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (x, y, u, v, r) in [(-1.0f32, 1.0f32, -0.2f32, -0.2f32, 0.0f32), (1.0, 1.0, 0.9, -0.2, 1.0), (-1.0, -1.0, -0.2, 0.9, 0.0), (1.0, -1.0, 0.9, 0.9, 1.0)] {
@@ -683,9 +689,12 @@ fn probes(s: &mut String, dev: &str) {
     }
     writeln!(s, "draw 4 3 32\ncopy 2 0\nresolve 1 0 2 0 28\nread 1 0 64 16 1\nend").unwrap();
     // what D3DRASTER.RTKIND leaves open: a whole-subresource region copy of differing samples,
-    // and a depth view of one sample under a 4-sample target
-    for (name, setup, after) in [("copysub", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0\nresolve 1 0 2 0 28"), ("depth1", "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 0x3f000000 0\ntarget 0 2\ndepthst 1 1 2", "resolve 1 0 0 0 28")] {
-        writeln!(s, "case probe-rt-ms4-{name}\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0\n{setup}").unwrap();
+    // a depth view of one sample under a 4-sample target, a region copy with a box, an update
+    for (name, setup, after) in [("copysub", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0\nresolve 1 0 2 0 28"), ("depth1", "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 0x3f000000 0\ntarget 0 2\ndepthst 1 1 2", "resolve 1 0 0 0 28"), ("copysub-box", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0 0 0 0 8 8 1\nresolve 1 0 2 0 28"), ("update", "", "update 0 0 7 64 0\nresolve 1 0 0 0 28")] {
+        writeln!(s, "case probe-rt-ms4-{name}\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+        if !setup.is_empty() {
+            writeln!(s, "{setup}").unwrap();
+        }
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
             vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);

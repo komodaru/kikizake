@@ -279,6 +279,8 @@ impl D3dres {
         // and reads (zeros, D3DRES.READ.MS) are modeled on them)
         let at: &[usize] = match name {
             "update" => &[1],
+            // (a whole subresource's copy without a box: D3DRES.COPYSUB.SAMPLES)
+            "copysub" if t.len() == 8 && (3..6).all(|i| n(t, i).is_ok_and(|v| v == 0)) => &[],
             "copysub" => &[1, 6],
             _ => &[],
         };
@@ -323,7 +325,24 @@ impl D3dres {
                     return Ok(true);
                 };
                 let dst = self.res[d].as_mut().unwrap();
+                // (MEASURED, WARP: probe-rt-ms4-copysub) a whole multisampled subresource copies
+                // with its samples on Direct3D 11, and not at all on Direct3D 10 (as
+                // D3DRES.COPY)
+                let ms = src.d.count > 1 && src.samples.iter().chain(&dst.samples).any(Option::is_some);
+                if ms {
+                    hit(clause::D3DRES_COPYSUB_SAMPLES);
+                    if dev == Dev::D10 {
+                        return Ok(true);
+                    }
+                }
                 self.removed |= copy_region(dev, dst, ds, (x, y, z), &src, ss, bx.as_deref())?;
+                if ms && dst.d.count == src.d.count && ds < dst.nsubs() && ss < src.nsubs() {
+                    let v = src.samples.get(ss as usize).cloned().flatten();
+                    if dst.samples.len() <= ds as usize {
+                        dst.samples.resize(ds as usize + 1, None);
+                    }
+                    dst.samples[ds as usize] = v;
+                }
             }
             "resolve" => {
                 if t.len() != 6 {
