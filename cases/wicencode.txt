@@ -6449,3 +6449,48 @@ wframe 0
 wpixels
 wsrcpal
 end
+case encdds-gray8-9x9
+wbits gray8 9 9 232062977
+wencode dds
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encdds-gray8-6x10
+wbits gray8 6 10 232062978
+wencode dds
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encdds-gray16-8x12
+wbits gray16 8 12 232062979
+wencode dds
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encdds-bgra-9x9
+wbits bgra 9 9 232062980
+wencode dds
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encdds-bgr24-4x8
+wbits bgr24 4 8 232062981
+wencode dds
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end

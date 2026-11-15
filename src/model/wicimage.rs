@@ -2671,9 +2671,12 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
             }
         }
     }
-    // MEASURED (golden encq-257, -300): past the palette's size the palette is otherwise (the
-    // 8x8x4 grid of 0x08 + 0x21 k reds and greens, 0x19 + 0x42 k blues, in an order not found)
+    // past the palette's size: boxes of the cube (grid_palette); with a transparent entry beside
+    // them open (gifalpha-full256)
     if pal.len() > 1usize << bits_of(nf) {
+        if (0..c.h).any(|y| (0..c.w).any(|x| clear(x as usize, y as usize))) {
+            return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+        }
         pal = grid_palette(&b, bits_of(nf))?;
     }
     let rgb: Vec<[i32; 3]> = pal.iter().map(|&p| [16, 8, 0].map(|s| ((p >> s) & 0xff) as i32)).collect();
@@ -2701,18 +2704,14 @@ fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     Ok(o)
 }
 
-/// a box of the 5-bit RGB cube (both ends in) and how many pixels fall in it
+/// a box of the 5-bit RGB cube (both ends in), how many halvings made it (its volume is the
+/// cube's halved that often) and how many pixels fall in it
 #[derive(Clone, Copy)]
 struct Box5 {
     lo: [usize; 3],
     hi: [usize; 3],
+    depth: u32,
     count: u32,
-}
-
-impl Box5 {
-    fn volume(&self) -> usize {
-        (0..3).map(|k| self.hi[k] - self.lo[k] + 1).product()
-    }
 }
 
 /// MEASURED (golden wicencode encpal-*, encq-*, gridtie-*: every palette, including the order
@@ -2730,9 +2729,6 @@ fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
     for y in 0..b.h {
         for x in 0..b.w {
             let p = b.get(x, y);
-            if p[3] < 0x80 {
-                return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
-            }
             hist[at(usize::from(p[2] >> 3), usize::from(p[1] >> 3), usize::from(p[0] >> 3))] += 1;
         }
     }
@@ -2748,20 +2744,21 @@ fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
         n
     };
     let total = count([0; 3], [31; 3]);
-    let mut boxes = vec![Box5 { lo: [0; 3], hi: [31; 3], count: total }];
+    let mut boxes = vec![Box5 { lo: [0; 3], hi: [31; 3], depth: 0, count: total }];
     while boxes.len() < 1 << bits {
-        let best = (0..boxes.len()).max_by_key(|&i| (boxes[i].volume(), boxes[i].count, std::cmp::Reverse(i))).ok_or(Fail::Bad)?;
+        let best = (0..boxes.len()).max_by_key(|&i| (std::cmp::Reverse(boxes[i].depth), boxes[i].count, std::cmp::Reverse(i))).ok_or(Fail::Bad)?;
         let bx = boxes[best];
         let axis = (0..3).max_by_key(|&k| (bx.hi[k] - bx.lo[k], std::cmp::Reverse(k))).ok_or(Fail::Bad)?;
         if bx.hi[axis] == bx.lo[axis] {
             return Err(Fail::Bad);
         }
         let mid = (bx.lo[axis] + bx.hi[axis]) / 2;
-        let mut lower = bx;
+        let mut lower = Box5 { depth: bx.depth + 1, ..bx };
         lower.hi[axis] = mid;
         lower.count = count(lower.lo, lower.hi);
-        let mut upper = bx;
+        let mut upper = lower;
         upper.lo[axis] = mid + 1;
+        upper.hi[axis] = bx.hi[axis];
         upper.count = bx.count - lower.count;
         boxes[best] = upper;
         boxes.push(lower);
@@ -2771,9 +2768,9 @@ fn grid_palette(b: &Img, bits: u32) -> Res<Vec<u32>> {
         return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
     }
     boxes.sort_by_key(|bx| std::cmp::Reverse(bx.count));
-    let level = |bx: &Box5, k: usize| u32::try_from(((bx.lo[k] + bx.hi[k]) / 2 * 255 * 2 + 31) / 62).map_err(|_| Fail::Bad);
+    let level = |bx: &Box5, k: usize| u8::try_from(((bx.lo[k] + bx.hi[k]) / 2 * 255 * 2 + 31) / 62).map_err(|_| Fail::Bad);
     hit(clause::WICIMAGE_ENCODE_GRID);
-    boxes.iter().map(|bx| Ok(0xff00_0000 | level(bx, 0)? << 16 | level(bx, 1)? << 8 | level(bx, 2)?)).collect()
+    boxes.iter().map(|bx| Ok(u32::from_be_bytes([0xff, level(bx, 0)?, level(bx, 1)?, level(bx, 2)?]))).collect()
 }
 
 /// ASSUMED: the BMP encoder writes a BITMAPINFOHEADER file, bottom-up, rows padded to 4 bytes,
