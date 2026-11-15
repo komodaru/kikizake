@@ -365,65 +365,17 @@ impl D3dres {
                 };
                 let w = srb.min(drb);
                 // (MEASURED, WARP: probe-rt-ms*-edges, probe-rt-ms4-colors-*, -unorm16) samples
-                // that differ resolve to their mean: of 8-bit UNORM bytes as integers rounded half
-                // up, (sum + n / 2) / n; of 16-bit UNORM as floats (v / 65535 in f32, summed, / n)
-                // times 65535 rounded half to even; of 32-bit floats in f32
+                // that differ resolve to their mean, by the format's Mean
                 if let Some(Some(samp)) = src.samples.get(ss as usize) {
                     hit(clause::D3DRES_RESOLVE_MEAN);
                     let f = format(f).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
                     let el = (f.bits / 8) as usize;
-                    let bytes = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 8);
-                    let words = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16);
-                    let floats = f.num == Num::Float && f.comps.iter().all(|&c| c == 32);
-                    // (16-bit float and 8-bit sRGB: their decoded values' f32 mean, encoded as a
-                    // pixel's output to the format, probe-rt-ms4-colors-10, -29)
-                    // (packed UNORM, 10-10-10-2: each component's integer mean rounded half up as
-                    // bytes, probe-rt-ms4-colors-24)
-                    let packed = f.num == Num::Unorm && f.comps == [10, 10, 10, 2];
-                    let other = !bytes && !words && !floats && !packed;
-                    if other && !(f.num == Num::Float && f.comps.iter().all(|&c| c == 16) || f.num == Num::Srgb && f.comps.iter().all(|&c| c == 8)) {
-                        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-                    }
+                    let mean = Mean::of(f).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
                     let (n, plane) = (src.d.count as usize, sv.len());
                     for y in 0..srows.min(drows) {
                         for x in 0..w / el {
                             let at = |k: usize| k * plane + y * srb + x * el;
-                            let e: Vec<u8> = if packed {
-                                let word = |k: usize| samp[at(k)..][..el].iter().rev().fold(0u64, |a, &b| a << 8 | u64::from(b));
-                                let mut out = 0u64;
-                                let mut shift = 0;
-                                for &c in f.comps {
-                                    let mask = (1u64 << c) - 1;
-                                    let sum: u64 = (0..n).map(|k| word(k) >> shift & mask).sum();
-                                    out |= ((sum + n as u64 / 2) / n as u64).min(mask) << shift;
-                                    shift += c;
-                                }
-                                out.to_le_bytes()[..el].to_vec()
-                            } else if other {
-                                let mut sum = [0f32; 4];
-                                for k in 0..n {
-                                    let c = super::dxgiconv::decode_f(f, &samp[at(k)..][..el])?;
-                                    for (s, v) in sum.iter_mut().zip(c) {
-                                        *s += v;
-                                    }
-                                }
-                                super::dxgiconv::encode(f, sum.map(|v| v / n as f32))?
-                            } else if bytes {
-                                (0..el).map(|i| {
-                                    let sum: usize = (0..n).map(|k| usize::from(samp[at(k) + i])).sum();
-                                    u8::try_from((sum + n / 2) / n).unwrap_or(u8::MAX)
-                                }).collect()
-                            } else if words {
-                                (0..el / 2).flat_map(|i| {
-                                    let mean = (0..n).fold(0f32, |a, k| a + f32::from(u16::from_le_bytes([samp[at(k) + 2 * i], samp[at(k) + 2 * i + 1]])) / 65535.0) / n as f32;
-                                    ((mean * 65535.0).round_ties_even() as u16).to_le_bytes()
-                                }).collect()
-                            } else {
-                                (0..el / 4).flat_map(|i| {
-                                    let sum = (0..n).fold(0f32, |a, k| a + f32::from_le_bytes(samp[at(k) + 4 * i..][..4].try_into().unwrap()));
-                                    (sum / n as f32).to_le_bytes()
-                                }).collect()
-                            };
+                            let e = mean.resolve(f, n, |k| &samp[at(k)..][..el])?;
                             dv[y * drb + x * el..][..el].copy_from_slice(&e);
                         }
                     }
@@ -912,4 +864,96 @@ pub fn texel(res: &Resource, sub: u32, fmt: u32, x: u32, y: u32) -> Res<[u32; 4]
     let b = res.subs[sub as usize].as_ref().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     let at = y as usize * rb + x as usize * el;
     decode(f, &b[at..at + el])
+}
+
+/// how samples that differ resolve to their mean, by the format (D3DRES.RESOLVE.MEAN)
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Mean {
+    /// 8-bit UNORM: bytes as integers, (sum + n / 2) / n
+    Bytes,
+    /// 16-bit UNORM: v / 65535 in f32 summed, / n, times 65535 rounded half to even
+    Words,
+    /// 32-bit floats in f32
+    Floats,
+    /// 10-10-10-2 UNORM: each component's integer mean rounded half up
+    Packed,
+    /// other UNORM and SNORM (5-6-5, 8-bit SNORM): v times the f32 reciprocal of the largest
+    /// value, summed in order, / n, times the largest value rounded half to even (SNORM's
+    /// lowest value read as -largest)
+    Norm,
+    /// 16-bit float, sRGB, packed floats: the decoded values' f32 mean, encoded as a pixel's
+    /// output to the format
+    Decoded,
+}
+
+impl Mean {
+    fn of(f: &Format) -> Option<Mean> {
+        let all = |b: u32| f.comps.iter().all(|&c| c == b);
+        match f.num {
+            Num::Unorm if all(8) => Some(Mean::Bytes),
+            Num::Unorm if all(16) => Some(Mean::Words),
+            Num::Unorm if f.comps == [10, 10, 10, 2] => Some(Mean::Packed),
+            Num::Unorm | Num::Snorm => Some(Mean::Norm),
+            Num::Float if all(32) => Some(Mean::Floats),
+            Num::Float if all(16) => Some(Mean::Decoded),
+            Num::Srgb if all(8) => Some(Mean::Decoded),
+            Num::Other if f.id == 26 => Some(Mean::Decoded),
+            Num::Float | Num::Srgb | Num::Other | Num::Typeless | Num::Uint | Num::Sint => None,
+        }
+    }
+
+    fn resolve<'a>(self, f: &Format, n: usize, sample: impl Fn(usize) -> &'a [u8]) -> Res<Vec<u8>> {
+        let el = (f.bits / 8) as usize;
+        let word = |k: usize| sample(k).iter().rev().fold(0u64, |a, &b| a << 8 | u64::from(b));
+        Ok(match self {
+            Mean::Packed | Mean::Norm => {
+                let mut out = 0u64;
+                let mut shift = 0;
+                for &c in f.comps {
+                    let mask = (1u64 << c) - 1;
+                    let field = |k: usize| word(k) >> shift & mask;
+                    let v = if self == Mean::Packed {
+                        let sum: u64 = (0..n).map(field).sum();
+                        ((sum + n as u64 / 2) / n as u64).min(mask)
+                    } else {
+                        let (top, signed) = if f.num == Num::Snorm { ((mask >> 1) as f32, true) } else { (mask as f32, false) };
+                        let value = |k: usize| {
+                            let u = field(k);
+                            let i = if signed && u >> (c - 1) & 1 == 1 { u as i64 - (1i64 << c) } else { u as i64 };
+                            (i as f32).max(-top)
+                        };
+                        let r = 1.0 / top;
+                        let sum = (0..n).fold(0f32, |a, k| a + value(k) * r);
+                        let m = ((sum / n as f32) * top).round_ties_even() as i64;
+                        (m as u64) & mask
+                    };
+                    out |= v << shift;
+                    shift += c;
+                }
+                out.to_le_bytes()[..el].to_vec()
+            }
+            Mean::Decoded => {
+                let mut sum = [0f32; 4];
+                for k in 0..n {
+                    let c = super::dxgiconv::decode_f(f, sample(k))?;
+                    for (s, v) in sum.iter_mut().zip(c) {
+                        *s += v;
+                    }
+                }
+                super::dxgiconv::encode(f, sum.map(|v| v / n as f32))?
+            }
+            Mean::Bytes => (0..el).map(|i| {
+                let sum: usize = (0..n).map(|k| usize::from(sample(k)[i])).sum();
+                u8::try_from((sum + n / 2) / n).unwrap_or(u8::MAX)
+            }).collect(),
+            Mean::Words => (0..el / 2).flat_map(|i| {
+                let mean = (0..n).fold(0f32, |a, k| a + f32::from(u16::from_le_bytes([sample(k)[2 * i], sample(k)[2 * i + 1]])) / 65535.0) / n as f32;
+                ((mean * 65535.0).round_ties_even() as u16).to_le_bytes()
+            }).collect(),
+            Mean::Floats => (0..el / 4).flat_map(|i| {
+                let sum = (0..n).fold(0f32, |a, k| a + f32::from_le_bytes(sample(k)[4 * i..][..4].try_into().unwrap_or([0; 4])));
+                (sum / n as f32).to_le_bytes()
+            }).collect(),
+        })
+    }
 }

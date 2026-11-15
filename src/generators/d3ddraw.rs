@@ -578,7 +578,7 @@ fn probes(s: &mut String, dev: &str) {
     }
     // the resolve's mean of samples of other values, overlapping colored triangles, in a
     // UNORM and a float target
-    for (fmt, pitch) in [(28u32, 64u32), (2, 256), (10, 128), (24, 64), (29, 64), (87, 64), (85, 32), (26, 64), (31, 64), (16, 128), (35, 64), (41, 64)] {
+    for (fmt, pitch) in [(28u32, 64u32), (2, 256), (10, 128), (24, 64), (29, 64), (87, 64), (85, 32), (26, 64), (31, 64), (16, 128), (35, 64), (41, 64), (13, 128), (86, 32), (115, 32)] {
         writeln!(s, "case probe-rt-ms4-colors-{fmt}\n{dev}\ntex 0 2 16 16 1 1 {fmt} 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 {fmt} 0 0x20 0 0 1 0").unwrap();
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
         for (k, t) in [[(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], [(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], [(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)]].iter().enumerate() {
@@ -682,6 +682,16 @@ fn probes(s: &mut String, dev: &str) {
         vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\ncopy 2 0\nresolve 1 0 2 0 28\nread 1 0 64 16 1\nend").unwrap();
+    // what D3DRASTER.RTKIND leaves open: a whole-subresource region copy of differing samples,
+    // and a depth view of one sample under a 4-sample target
+    for (name, setup, after) in [("copysub", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0\nresolve 1 0 2 0 28"), ("depth1", "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 0x3f000000 0\ntarget 0 2\ndepthst 1 1 2", "resolve 1 0 0 0 28")] {
+        writeln!(s, "case probe-rt-ms4-{name}\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0\n{setup}").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+        for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        }
+        writeln!(s, "draw 4 3 32\n{after}\nread 1 0 64 16 1\nend").unwrap();
+    }
     writeln!(s, "case probe-depth-alone\n{dev}\ntex 1 2 8 8 1 1 40 0 0x40 0 0 1 0\ndsv 1 1 nodesc\ncleards 1 3 {} 0\ntarget - 1\ndepthst 1 1 8", fb(1.0)).unwrap();
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(8.0), fb(8.0), fb(1.0)).unwrap();
     for (x, y) in [(0.0f32, 0.0f32), (8.0, 1.5), (0.5, 7.0)] {
