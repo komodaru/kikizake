@@ -91,6 +91,11 @@ pub fn xform() -> String {
         }
         writeln!(s, "dump 0\nend").unwrap();
     }
+    // more MM_ISOTROPIC mappings, origins too (their own stream)
+    let mut r = XorShift32::new(0x150_7e0d);
+    for i in 0..40 {
+        writeln!(s, "case isomore-{i}\ndib 0 8 8 32\nmapmode 0 7\nvpext 0 {} {}\nwinext 0 {} {}\nwinorg 0 {} {}\nvporg 0 {} {}\ngetmap 0\n{}\n{}\nend", r.range(-300, 300), r.range(-300, 300), r.range(-300, 300), r.range(-300, 300), r.range(-9, 9), r.range(-9, 9), r.range(-9, 9), r.range(-9, 9), grid("lptodp"), grid("dptolp")).unwrap();
+    }
     // ScaleWindowExtEx / ScaleViewportExtEx in MM_TEXT, a metric mode and MM_ISOTROPIC (their
     // own stream)
     let mut r = XorShift32::new(0x5ca1_e0de);

@@ -61,8 +61,14 @@ impl Map {
             return Err(Fail::Unmodeled(open::GDI_XFORM_ROUNDWORLD));
         }
         hit(clause::GDI_MAP_FORMULA);
-        if self.mode == 7 {
+        if self.mode == 7 && super::arch() == 64 {
+            // (x64 rounds a few isotropic points otherwise: iso-51's y = 5 row; open)
             return Err(Fail::Unmodeled(open::GDI_MAP_ISOROUND));
+        }
+        if self.mode == 7 {
+            // MEASURED (x86, 3840 of 3840 iso-* coordinates): the page rule with the viewport
+            // extents in effect (GDI.MAP.ISOTROPIC)
+            hit(clause::GDI_MAP_ISOX86);
         }
         // MEASURED: 32-bit GDI's LPtoDP after another with the same mapping truncates the
         // scaled point to 28.4 toward zero (the first call, and every call on x64, rounds it)
