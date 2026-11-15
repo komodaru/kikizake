@@ -1657,18 +1657,39 @@ impl Gdiplus {
                         }
                     },
                 };
-                // (the cases draw 1:1 with NearestNeighbor and PixelOffsetMode Half only)
-                if v[2] != v[6] || v[3] != v[7] || interp != 5 || po != 4 || d == s {
+                let one = v[2] == v[6] && v[3] == v[7];
+                let Some(interp) = Interp::new(interp) else {
+                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                };
+                let Some(po) = PixelOffset::from_value(po) else {
+                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                };
+                // (a bitmap onto itself and flipped rectangles not asked)
+                if d == s || v[2] <= 0 || v[3] <= 0 || v[6] <= 0 || v[7] <= 0 {
                     return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
                 }
+                match interp {
+                    Interp::NearestNeighbor => {}
+                    Interp::Other => return Err(Fail::Unmodeled(open::GP_DRAW_SCALED)),
+                }
                 hit(clause::GP_DRAW);
+                if !one {
+                    hit(clause::GP_DRAW_NEAREST);
+                }
                 let src = self.bmp[s].clone().unwrap();
                 let b = self.bmp[d].as_mut().unwrap();
-                let (dx, dy, w, h, sx, sy) = (v[0], v[1], v[2], v[3], v[4], v[5]);
+                let (dx, dy, w, h, sx, sy, sw, sh) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
                 let mut colors = std::collections::HashMap::new();
                 for y in dy.max(0)..(dy + h).min(b.h as i64) {
                     for x in dx.max(0)..(dx + w).min(b.w as i64) {
-                        let (px, py) = (x - dx + sx, y - dy + sy);
+                        let (kx, ky) = (nearest_x(x - dx, sw, w, po), nearest_y(y - dy, sh, h, po));
+                        // (a corner offset rounds the last rows and columns past the source
+                        // rectangle: such rows are left as they are, such columns read the
+                        // source pixel past the rectangle)
+                        if ky >= sh {
+                            continue;
+                        }
+                        let (px, py) = (sx + kx, sy + ky);
                         if px < 0 || py < 0 || px >= src.w as i64 || py >= src.h as i64 {
                             continue;
                         }
@@ -1690,6 +1711,40 @@ impl Gdiplus {
         }
         Ok(true)
     }
+}
+
+/// InterpolationMode: NearestNeighbor (5) measured, the filtering modes open (GP.DRAW.SCALED)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Interp {
+    NearestNeighbor,
+    Other,
+}
+
+impl Interp {
+    pub fn new(v: i64) -> Option<Interp> {
+        match v {
+            5 => Some(Interp::NearestNeighbor),
+            0..=7 => Some(Interp::Other),
+            _ => None,
+        }
+    }
+}
+
+/// the source column of destination column k of a NearestNeighbor draw (GP.DRAW.NEAREST):
+/// a corner offset rounds k*s/d half up; a half offset steps in 16.16 fixed point from half a step
+pub fn nearest_x(k: i64, s: i64, d: i64, po: PixelOffset) -> i64 {
+    if po.half() {
+        let step = (2 * s * 65536 + d).div_euclid(2 * d);
+        let start = (s * 65536 + d).div_euclid(2 * d);
+        (start + k * step) >> 16
+    } else {
+        (2 * k * s + d).div_euclid(2 * d)
+    }
+}
+
+/// the source row of destination row k: a half offset floors (k + 1/2)*s/d
+pub fn nearest_y(k: i64, s: i64, d: i64, po: PixelOffset) -> i64 {
+    if po.half() { ((2 * k + 1) * s).div_euclid(2 * d) } else { (2 * k * s + d).div_euclid(2 * d) }
 }
 
 /// RotateFlipType k: k & 3 quarter turns clockwise, then (k >= 4) a horizontal flip

@@ -293,4 +293,35 @@ proptest! {
         let c = (u32::from(a) << 24) | (u32::from(v) * 0x1_0101);
         prop_assert_eq!(gp::recolor(c, &gp::ColorMatrix(m), gp::MatrixFlags::SkipGrays), c);
     }
+    /// NearestNeighbor at 1:1 maps every pixel onto itself under every PixelOffsetMode
+    #[test]
+    fn nearest_one_to_one_is_the_identity(k in 0i64..4096, d in 1i64..4096, po in 0i64..5) {
+        let po = gp::PixelOffset::from_value(po).unwrap();
+        let k = k % d;
+        prop_assert_eq!(gp::nearest_x(k, d, d, po), k);
+        prop_assert_eq!(gp::nearest_y(k, d, d, po), k);
+    }
+    /// NearestNeighbor stays inside the source and never steps back
+    #[test]
+    fn nearest_is_monotone_and_inside(k in 0i64..4095, s in 1i64..4096, d in 1i64..4096, po in 0i64..5) {
+        let po = gp::PixelOffset::from_value(po).unwrap();
+        let k = k % d;
+        for f in [gp::nearest_x, gp::nearest_y] {
+            let p = f(k, s, d, po);
+            prop_assert!((0..s).contains(&p) || (!po.half() && p == s), "{} of {} -> {}", k, d, p);
+            if k + 1 < d {
+                prop_assert!(f(k + 1, s, d, po) >= p);
+            }
+        }
+    }
+    /// an integer enlargement by n repeats each source pixel n times
+    #[test]
+    fn nearest_integer_enlargement_repeats(s in 1i64..256, n in 1i64..16, k in 0i64..4096, po in 0i64..5) {
+        let po = gp::PixelOffset::from_value(po).unwrap();
+        let k = k % (s * n);
+        if po.half() {
+            prop_assert_eq!(gp::nearest_y(k, s, s * n, po), k / n);
+            prop_assert_eq!(gp::nearest_x(k, s, s * n, po), k / n);
+        }
+    }
 }
