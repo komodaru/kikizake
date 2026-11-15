@@ -148,6 +148,16 @@ pub fn scale_formats(f: &str, mode: &str) -> (&'static str, &'static str) {
 /// 0.4% of the levels, nor the 8-bit table interpolated at v / 257, 43%, makes it)
 static LINEAR16: &[u8; 65536 * 4] = include_bytes!("data/wic_linear16.bin");
 
+/// MEASURED (golden wicencode gray16-every-rgb48: every 16-bit level): the 48bppRGB level
+/// Windows gives each 16bppGray level (not the level itself: 16510 of 65536 levels are one off,
+/// no 256-multiple but 0 comes out; no rule of the 8 bits and the rest found), little-endian
+static GRAY16_RGB48: &[u8; 65536 * 2] = include_bytes!("data/wic_gray16_rgb48.bin");
+
+pub fn gray16_rgb48(v: u16) -> u16 {
+    let k = usize::from(v) * 2;
+    u16::from_le_bytes([GRAY16_RGB48[k], GRAY16_RGB48[k + 1]])
+}
+
 pub fn linear16(v: u16) -> f32 {
     let k = usize::from(v) * 4;
     f32::from_le_bytes([LINEAR16[k], LINEAR16[k + 1], LINEAR16[k + 2], LINEAR16[k + 3]])
@@ -157,7 +167,7 @@ pub fn linear16(v: u16) -> f32 {
 /// 64bppRGBA, every value as this): 16 bits a channel into the float formats: each color channel
 /// its LINEAR16 value, alpha v / 65535 in f32; 128bppPRGBAFloat multiplies in f32; 32bppGrayFloat
 /// is (r * 0.2126 + g * 0.7152) + b * 0.0722 in f32; 64bppRGBAFixedPoint rounds the value times
-/// 8192 (16bppGray's own path there is a level off for 140 of 4096 levels: open)
+/// 8192 (16bppGray's own path there first through 48bppRGB: GRAY16_RGB48)
 fn wide_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let n: usize = match s.fmt {
         "gray16" => 1,
@@ -168,8 +178,7 @@ fn wide_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let out: usize = match to {
         "grayfloat" => 4,
         "rgbafloat" | "prgbafloat" | "rgbfloat" => 16,
-        "rgba64fixed" if n > 1 => 8,
-        "rgba64fixed" => return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))),
+        "rgba64fixed" => 8,
         _ => return None,
     };
     hit(clause::WICIMAGE_CONVERT_WIDE_FLOAT);
@@ -182,7 +191,13 @@ fn wide_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 let i = y * st + (x * n + k) * 2;
                 u16::from_le_bytes([s.px[i], s.px[i + 1]])
             };
-            let c: [u16; 3] = if n == 1 { [at(0); 3] } else { [at(0), at(1), at(2)] };
+            // (MEASURED: golden fixpath-gray16-*: 16bppGray into 64bppRGBAFixedPoint goes through
+            // 48bppRGB, into the float formats it does not)
+            let c: [u16; 3] = match (n, to) {
+                (1, "rgba64fixed") => [gray16_rgb48(at(0)); 3],
+                (1, _) => [at(0); 3],
+                _ => [at(0), at(1), at(2)],
+            };
             let [r, g, b] = c.map(linear16);
             let a16 = if n == 4 { Some(at(3)) } else { None };
             let a = a16.map_or(1.0, |a| f32::from(a) / 65535.0);
@@ -216,6 +231,22 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     }
     if let Some(r) = wide_to_float(s, to) {
         return r;
+    }
+    if (s.fmt, to) == ("gray16", "rgb48") {
+        hit(clause::WICIMAGE_CONVERT_GRAY16_RGB48);
+        let mut o = Img::new(s.w, s.h, to);
+        o.dpi = s.dpi;
+        let (st, ost) = (s.stride(), o.stride());
+        for y in 0..s.h as usize {
+            for x in 0..s.w as usize {
+                let i = y * st + x * 2;
+                let v = gray16_rgb48(u16::from_le_bytes([s.px[i], s.px[i + 1]])).to_le_bytes();
+                for k in 0..3 {
+                    o.px[y * ost + x * 6 + k * 2..y * ost + x * 6 + k * 2 + 2].copy_from_slice(&v);
+                }
+            }
+        }
+        return Ok(o);
     }
     let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER)) };
     if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {

@@ -7,10 +7,12 @@
 //! refitted by least squares to the steps the points (as they are) fall on until no point moves;
 //! each pixel's step is chosen from its color rounded to 5:6:5; past the picture a block repeats
 //! its last column and row.
-//! OPEN (WICIMAGE.ENCODE.LOSSY): some blocks end elsewhere (encdds-bgr24-4x8: Windows stops at
-//! the third refit although a point still moves; enc-dds-bgr555 block 1 starts from another
-//! diagonal than the largest sum), so a block whose result depends on the diagonal is not
-//! modelled.
+//! OPEN (WICIMAGE.ENCODE.LOSSY): Windows' fit is not this one everywhere (golden ddsblock-*:
+//! 152 of 172 blocks as this; ddsblock-bgr24-24, -38: the same steps but other ends, so its ends
+//! are not the least-squares fit of its steps; enc-dds-bgr555 block 1 starts from another
+//! diagonal; ddsblock-bgra-15, -28, -31: other alpha ends), so a block is modelled only where it
+//! comes out the same from every start diagonal, whether or not the start box and the steps take
+//! the points rounded, and after 2, 3, 4 or all refits.
 
 /// one pixel: red, green, blue, alpha in 0..=1
 pub type Px = [f32; 4];
@@ -73,13 +75,24 @@ fn project(p: &[f32; 3], x: &[f32; 3], dir: &[f32; 3], last: f32, steps: usize) 
 }
 
 /// the two ends of the color line through luminance-weighted points
-fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diagonal>) -> ([f32; 3], [f32; 3]) {
+/// whether a stage takes the points rounded to 5:6:5 or as they are
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Rounding {
+    Grid,
+    Plain,
+}
+
+impl Rounding {
+    const ALL: [Rounding; 2] = [Rounding::Grid, Rounding::Plain];
+}
+
+fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diagonal>, start_box: Rounding, refits: usize) -> ([f32; 3], [f32; 3]) {
     let c4 = [1.0f32, 2.0 / 3.0, 1.0 / 3.0, 0.0];
     let d4 = [0.0f32, 1.0 / 3.0, 2.0 / 3.0, 1.0];
     let mut x = LUM;
     let mut y = [0.0f32; 3];
     // (the box of the points rounded to 5:6:5)
-    for p in grid {
+    for p in match start_box { Rounding::Grid => grid, Rounding::Plain => pts } {
         for k in 0..3 {
             if p[k] < x[k] {
                 x[k] = p[k];
@@ -122,7 +135,7 @@ fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diago
         return (x, y);
     }
     let mut was: Option<[usize; 16]> = None;
-    for _ in 0..REFITS {
+    for _ in 0..refits {
         let mut dir = [y[0] - x[0], y[1] - x[1], y[2] - x[2]];
         let len = dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
         if len < 1.0 / 4096.0 {
@@ -158,11 +171,11 @@ fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diago
 }
 
 /// the 8 color bytes of a block (4 steps: endpoints, then 2 bits a pixel)
-fn encode_color(px: &[Px; 16], start: Option<Diagonal>) -> [u8; 8] {
+fn encode_color(px: &[Px; 16], start: Option<Diagonal>, start_box: Rounding, steps_from: Rounding, refits: usize) -> [u8; 8] {
     let lum = |c: [f32; 3]| -> [f32; 3] { std::array::from_fn(|k| c[k] * LUM[k]) };
     let pts: [[f32; 3]; 16] = std::array::from_fn(|i| lum([px[i][0], px[i][1], px[i][2]]));
     let grid: [[f32; 3]; 16] = std::array::from_fn(|i| lum(grid565([px[i][0], px[i][1], px[i][2]])));
-    let (a, b) = optimize_rgb(&pts, &grid, start);
+    let (a, b) = optimize_rgb(&pts, &grid, start, start_box, refits);
     let wa = encode565(std::array::from_fn(|k| a[k] * LUM_INV[k]));
     let wb = encode565(std::array::from_fn(|k| b[k] * LUM_INV[k]));
     let mut out = [0u8; 8];
@@ -181,7 +194,7 @@ fn encode_color(px: &[Px; 16], start: Option<Diagonal>) -> [u8; 8] {
     let mut dw = 0u32;
     for p in px {
         // (each pixel's step from its color rounded to 5:6:5)
-        let c = lum(grid565([p[0], p[1], p[2]]));
+        let c = lum(match steps_from { Rounding::Grid => grid565([p[0], p[1], p[2]]), Rounding::Plain => [p[0], p[1], p[2]] });
         let dot = (c[0] - s0[0]) * dir[0] + (c[1] - s0[1]) * dir[1] + (c[2] - s0[2]) * dir[2];
         let step = if dot <= 0.0 { 0 } else if dot >= 3.0 { 1 } else { order[trunc(dot + 0.5) as usize] };
         dw = (step << 30) | (dw >> 2);
@@ -231,7 +244,7 @@ fn alpha_step(v: f32, s0: f32, s1: f32, scale: f32, steps: AlphaSteps) -> usize 
 }
 
 /// the ends of the alpha line, refitted by least squares
-fn optimize_alpha(pts: &[f32; 16], steps: AlphaSteps) -> (f32, f32) {
+fn optimize_alpha(pts: &[f32; 16], steps: AlphaSteps, refits: usize) -> (f32, f32) {
     let n = steps.count();
     let last = (n - 1) as f32;
     let c = |s: usize| (n - 1 - s) as f32 / last;
@@ -254,7 +267,7 @@ fn optimize_alpha(pts: &[f32; 16], steps: AlphaSteps) -> (f32, f32) {
         }
     }
     let mut was: Option<[usize; 16]> = None;
-    for _ in 0..REFITS {
+    for _ in 0..refits {
         if y - x < 1.0 / 256.0 {
             break;
         }
@@ -298,7 +311,7 @@ fn optimize_alpha(pts: &[f32; 16], steps: AlphaSteps) -> (f32, f32) {
     (x.clamp(0.0, 1.0), y.clamp(0.0, 1.0))
 }
 
-fn encode_alpha(px: &[Px; 16]) -> [u8; 8] {
+fn encode_alpha(px: &[Px; 16], refits: usize) -> [u8; 8] {
     let q = |v: f32| trunc(v * 255.0 + 0.5);
     let fa: [f32; 16] = std::array::from_fn(|i| q(px[i][3]) as f32 * (1.0 / 255.0));
     let (mut lo, mut hi) = (px[0][3], px[0][3]);
@@ -316,7 +329,7 @@ fn encode_alpha(px: &[Px; 16]) -> [u8; 8] {
         return out;
     }
     let steps = if lo == 0.0 || hi == 1.0 { AlphaSteps::Six } else { AlphaSteps::Eight };
-    let (a, b) = optimize_alpha(&fa, steps);
+    let (a, b) = optimize_alpha(&fa, steps, refits);
     let byte = |v: f32| u8::try_from(q(v) & 0xff).unwrap_or(0);
     let (ba, bb) = (byte(a), byte(b));
     let (fa_, fb_) = (f32::from(ba) * (1.0 / 255.0), f32::from(bb) * (1.0 / 255.0));
@@ -347,13 +360,28 @@ fn encode_alpha(px: &[Px; 16]) -> [u8; 8] {
 /// one BC3 block; None when the color part depends on the start diagonal (open; even a gray
 /// block's can: golden encdds-gray8-6x10)
 pub fn encode_bc3(px: &[Px; 16]) -> Option<[u8; 16]> {
-    let first = encode_color(px, Some(Diagonal::ALL[0]));
-    if Diagonal::ALL[1..].iter().any(|&d| encode_color(px, Some(d)) != first) {
+    let first = encode_color(px, Some(Diagonal::ALL[0]), Rounding::Grid, Rounding::Grid, REFITS);
+    // (modelled only where the block comes out the same from every start diagonal and whether
+    // or not the start box and the steps take the points rounded: the goldens' blocks that hang
+    // on them follow no one of the choices)
+    for d in Diagonal::ALL {
+        for b in Rounding::ALL {
+            for s in Rounding::ALL {
+                for r in [2, 3, 4, REFITS] {
+                    if encode_color(px, Some(d), b, s, r) != first {
+                        return None;
+                    }
+                }
+            }
+        }
+    }
+    let alpha = encode_alpha(px, REFITS);
+    if [2, 3, 4].iter().any(|&r| encode_alpha(px, r) != alpha) {
         return None;
     }
     let color = first;
     let mut out = [0u8; 16];
-    out[0..8].copy_from_slice(&encode_alpha(px));
+    out[0..8].copy_from_slice(&alpha);
     out[8..16].copy_from_slice(&color);
     Some(out)
 }
