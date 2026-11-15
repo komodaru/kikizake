@@ -184,17 +184,49 @@ pub fn decl_fvf(e: &[Elem]) -> Result<u32, u32> {
     Ok(fvf)
 }
 
+/// where x9load (a plain system memory surface) and x9loadtex (level 0 of a system memory texture)
+/// load
+#[derive(Clone, Copy, PartialEq)]
+enum Dest {
+    Plain,
+    Texture,
+}
+
+/// an x9load source picture: the ramp (bytes 0, 1, 2, ..), a seed's random bytes, or the bytes
+/// given (b:<hex>, the rest 0)
+enum Picture {
+    Ramp,
+    Seed(i64),
+    Given(Vec<u8>),
+}
+
+fn hex_bytes(h: &str) -> Option<Vec<u8>> {
+    (0..h.len() / 2).map(|i| h.get(2 * i..2 * i + 2).and_then(|b| u8::from_str_radix(b, 16).ok())).collect()
+}
+
 /// x9load: D3DXLoadSurfaceFromMemory of a filled picture into a system memory surface
-fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
+fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
     use super::d3d9draw::{fill_bytes, format, supported, Kind};
     let t = op.tok.as_slice();
     let w: Vec<u32> = (1..5).map(|i| t.get(i).and_then(|x| num(x)).map(|v| v as u32).ok_or(Fail::Bad)).collect::<Res<_>>()?;
     let (df, sf, wd, ht) = (w[0], w[1], w[2] as i32, w[3] as i32);
-    let seed = if t.get(5).is_some_and(|s| s == "ramp") { -1 } else { num(&t[5]).ok_or(Fail::Bad)? };
+    let picture = match t.get(5).map(String::as_str) {
+        Some("ramp") => Picture::Ramp,
+        Some(b) if b.starts_with("b:") => Picture::Given(hex_bytes(&b[2..]).ok_or(Fail::Bad)?),
+        Some(n) => Picture::Seed(num(n).ok_or(Fail::Bad)?),
+        None => return Err(Fail::Bad),
+    };
     hit(clause::D3DX9_LOAD);
-    if matches!(df, 20 | 27 | 29 | 33) || !supported(df, false, false) {
+    let dxt = format(df).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
+    if into == Dest::Texture && !supported(df, false, false) {
+        // (CreateTexture as d3d9draw's textures, D3D9.FORMATS)
+        out.push(format!("load texture hr {INVALIDCALL:08x}"));
+        return Ok(());
+    }
+    if into == Dest::Plain && df != super::d3d9draw::fourcc(b"YUY2") && (matches!(df, 20 | 27 | 29 | 33) || dxt || !supported(df, false, false)) {
         // (MEASURED: CreateOffscreenPlainSurface takes none of the formats textures do not, nor
-        // R8G8B8, X8B8G8R8: d3dx9load)
+        // R8G8B8, X8B8G8R8, nor the DXT ones; of the YUV ones YUY2 but not UYVY: d3dx9load,
+        // load-into-*)
         out.push(format!("load surface hr {INVALIDCALL:08x}"));
         return Ok(());
     }
@@ -205,7 +237,14 @@ fn load(op: &Op, out: &mut Vec<String>) -> Res<()> {
     if sm.ch.iter().chain(&dm.ch).any(|c| is_bump(c.c)) {
         hit(clause::D3DX9_LOAD_SIGNED);
     }
-    let src = fill_bytes(&sm, wd, ht, seed);
+    let src = match picture {
+        Picture::Ramp => fill_bytes(&sm, wd, ht, -1),
+        Picture::Seed(seed) => fill_bytes(&sm, wd, ht, seed),
+        Picture::Given(mut b) => {
+            b.resize(fill_bytes(&sm, wd, ht, -1).len(), 0);
+            b
+        }
+    };
     out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
     // (MEASURED load-R16F .. load-A32B32G32R32F: halves of exponent 31 read as numbers and NaNs,
     // numbers past the half range written as f16_load has them, D3DX9.LOAD.F16RANGE; open: on
@@ -552,7 +591,8 @@ impl Api for D3dx9 {
                     Err(hr) => out.push(format!("declfvf hr {hr:08x}")),
                 }
             }
-            "x9load" => load(op, out)?,
+            "x9load" => load(op, out, Dest::Plain)?,
+            "x9loadtex" => load(op, out, Dest::Texture)?,
             _ => return Ok(false),
         }
         Ok(true)

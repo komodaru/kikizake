@@ -155,5 +155,51 @@ pub fn d3dx9load() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // (D3DX's YUY2 encoder by probes, 16 x 1 A8R8G8B8 pictures given byte by byte: pairs of one
+    // grey, one red, green or blue level; pairs of a mid grey and a level, and the other way round;
+    // and two rows)
+    let bgra = |px: &[(u8, u8, u8)]| px.iter().map(|&(r, g, b)| format!("{b:02x}{g:02x}{r:02x}ff")).collect::<String>();
+    let level = |k: usize, c: usize| -> (u8, u8, u8) {
+        let v = u8::try_from(k * 255 / 31).unwrap_or(255);
+        match c {
+            0 => (v, v, v),
+            1 => (v, 0, 0),
+            2 => (0, v, 0),
+            _ => (0, 0, v),
+        }
+    };
+    writeln!(s, "case load-yuy2-probe\ndevice swvp").unwrap();
+    for c in 0..4 {
+        for line in 0..4 {
+            let px: Vec<_> = (0..16).map(|x| level(line * 8 + x / 2, c)).collect();
+            writeln!(s, "x9load 844715353 21 16 1 b:{} 1", bgra(&px)).unwrap();
+        }
+    }
+    let mid = (128, 128, 128);
+    for c in 1..4 {
+        for first in [true, false] {
+            for line in 0..4 {
+                let px: Vec<_> = (0..16).map(|x| if (x % 2 == 0) == first { level(line * 8 + x / 2, c) } else { mid }).collect();
+                writeln!(s, "x9load 844715353 21 16 1 b:{} 1", bgra(&px)).unwrap();
+            }
+        }
+    }
+    let two: Vec<_> = (0..32).map(|x| if x < 16 { level(x, 1) } else { level(x - 16, 3) }).collect();
+    writeln!(s, "x9load 844715353 21 16 2 b:{} 1\nend", bgra(&two)).unwrap();
+    // (into DXT and UYVY through a system memory texture, which takes them, and A8R8G8B8 alike)
+    for dst in TEXTURE_FORMATS.iter().filter(|f| matches!(f.1, "DXT1" | "DXT2" | "DXT3" | "DXT4" | "DXT5" | "UYVY" | "A8R8G8B8")) {
+        writeln!(s, "case loadtex-into-{}\ndevice swvp\nx9loadtex {} 21 16 4 ramp 1", dst.1, dst.0).unwrap();
+        for (src, w, h) in [(21, 8, 8), (21, 4, 4), (21, 8, 4), (116, 8, 8)] {
+            writeln!(s, "x9loadtex {} {src} {w} {h} {:#x} 1", dst.0, r.next()).unwrap();
+        }
+        // (one colour a block, two colours a block, a gradient)
+        let solid: Vec<_> = (0..16).map(|_| (200u8, 100u8, 50u8)).collect();
+        let pair: Vec<_> = (0..16).map(|i| if i % 2 == 0 { (255u8, 0u8, 0u8) } else { (0, 0, 255) }).collect();
+        let grad: Vec<_> = (0..16).map(|i| level(i * 2, 0)).collect();
+        for px in [solid, pair, grad] {
+            writeln!(s, "x9loadtex {} 21 4 4 b:{} 1", dst.0, bgra(&px)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }

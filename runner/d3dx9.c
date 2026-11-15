@@ -130,19 +130,42 @@ static void op_f32(void) {
 /* x9load <dst fmt> <src fmt> <w> <h> <seed|ramp> <filter>: D3DXLoadSurfaceFromMemory of a
  * w x h picture of the source format (rows packed, bytes as d9texfill) into a system memory
  * surface of the destination format (`device` first), then the surface's picture */
-static void op_load(void) {
+static void load(int tex);
+static void op_load(void) { load(0); }
+/* x9loadtex: the same into level 0 of a system memory texture (the formats a plain surface does
+ * not take: DXT, UYVY) */
+static void op_loadtex(void) { load(1); }
+static void load(int tex) {
     HRESULT (WINAPI *f)(IDirect3DSurface9 *, const PALETTEENTRY *, const RECT *, const void *, D3DFORMAT, UINT, const PALETTEENTRY *, const RECT *, DWORD, D3DCOLOR) = fn("D3DXLoadSurfaceFromMemory");
-    long df = num(1), sf = num(2), w = num(3), h = num(4), seed = is(5, "ramp") ? -1 : num(5), filter = num(6);
+    /* (the picture: ramp, a seed, or b:<hex bytes> given, the rest 0) */
+    const char *given = ntok > 5 && !strncmp(tok[5], "b:", 2) ? tok[5] + 2 : NULL;
+    long df = num(1), sf = num(2), w = num(3), h = num(4), seed = is(5, "ramp") ? -1 : given ? 0 : num(5), filter = num(6);
     if (bad || w <= 0 || h <= 0 || w > 256 || h > 64 || !kz_fmt_bits(sf)) { bad = 1; return; }
     IDirect3DDevice9 *dev = kz_d3d9_device();
     if (!dev) { out("nodev\n"); return; }
     NEED(f);
     IDirect3DSurface9 *s;
-    HRESULT hr = IDirect3DDevice9_CreateOffscreenPlainSurface(dev, w, h, df, D3DPOOL_SYSTEMMEM, &s, NULL);
+    HRESULT hr;
+    if (tex) {
+        IDirect3DTexture9 *t;
+        hr = IDirect3DDevice9_CreateTexture(dev, w, h, 1, 0, df, D3DPOOL_SYSTEMMEM, &t, NULL);
+        if (FAILED(hr)) { out("load texture hr %08lx\n", hr); return; }
+        hr = IDirect3DTexture9_GetSurfaceLevel(t, 0, &s);
+        IDirect3DTexture9_Release(t);
+    } else
+        hr = IDirect3DDevice9_CreateOffscreenPlainSurface(dev, w, h, df, D3DPOOL_SYSTEMMEM, &s, NULL);
     if (FAILED(hr)) { out("load surface hr %08lx\n", hr); return; }
     int b = kz_fmt_bits(sf), pitch = b < 0 ? (w + 3) / 4 * -b : (w * b + 7) / 8;
     unsigned char *src = calloc(pitch, h + 4);
-    kz_fill_rows(src, pitch, w, h, sf, seed);
+    if (given)
+        for (int i = 0; i < pitch * h && given[2 * i] && given[2 * i + 1]; i++) {
+            unsigned v;
+            if (sscanf(given + 2 * i, "%2x", &v) != 1) { bad = 1; break; }
+            src[i] = (unsigned char)v;
+        }
+    else
+        kz_fill_rows(src, pitch, w, h, sf, seed);
+    if (bad) { free(src); IDirect3DSurface9_Release(s); return; }
     RECT r = { 0, 0, w, h };
     hr = f(s, NULL, NULL, src, sf, pitch, NULL, &r, filter, 0);
     free(src);
@@ -166,6 +189,7 @@ static const struct kz_op d3dx9_ops[] = {
     { "x9f16", op_f16 },
     { "x9f32", op_f32 },
     { "x9load", op_load },
+    { "x9loadtex", op_loadtex },
     { 0 },
 };
 const struct kz_api d3dx9_api = { "d3dx9", d3dx9_ops, NULL };
