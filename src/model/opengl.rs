@@ -1198,7 +1198,7 @@ pub enum LineColor {
 pub enum FirstEnd {
     /// inside, or cut by a plane other than the one across the line's runs
     Kept,
-    /// cut by the left plane (y-major) or the top one (x-major): tri::Stroke::Entering
+    /// on or past the left plane (y-major) or the top one (x-major): tri::Stroke::Entering
     CutAcross,
 }
 
@@ -2764,7 +2764,8 @@ impl Ctx {
         if a[3] != 1.0 || b[3] != 1.0 {
             hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
         }
-        let (cut_left, cut_top, on_top) = (a[0] < -a[3], a[1] > a[3], a[1] == a[3]);
+        // (on or past the left and top planes, before the cut)
+        let (at_left, at_top) = (a[0] <= -a[3], a[1] >= a[3]);
         let ends = match color {
             LineColor::Flat(c) => [c; 2],
             LineColor::Smooth(ca, cb) => [ca, cb],
@@ -2789,12 +2790,7 @@ impl Ctx {
         let (ea, eb) = (exact(a), exact(b));
         let ymajor = (eb[1] - ea[1]).abs() > (eb[0] - ea[0]).abs();
         let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
-        // (a wide x-major line whose first end is past the left plane and on the top one:
-        // moved about 1/4 pixel down, not measured, golden opengl-32 prim-6)
-        if wide && !ymajor && cut_left && on_top {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
-        let first = if wide && ((ymajor && cut_left) || (!ymajor && cut_top)) { FirstEnd::CutAcross } else { FirstEnd::Kept };
+        let first = if wide && ((ymajor && at_left) || (!ymajor && at_top)) { FirstEnd::CutAcross } else { FirstEnd::Kept };
         let pixels = self.line_pixels(ea, eb, first)?;
         let bits = match self.pf.depth {
             _ if !self.cap(DEPTH_TEST) || za == zb => None,
@@ -2835,7 +2831,11 @@ impl Ctx {
         let stroke = match (self.cap(LINE_SMOOTH), first) {
             (true, _) => tri::Stroke::Smooth,
             (false, FirstEnd::Kept) => tri::Stroke::Aliased(w),
-            (false, FirstEnd::CutAcross) => tri::Stroke::Entering(w),
+            (false, FirstEnd::CutAcross) => {
+                let [vx, vy, _, vh] = self.viewport;
+                let ymajor = (b[1] - a[1]).abs() > (b[0] - a[0]).abs();
+                tri::Stroke::Entering(w, tri::WindowEdge(if ymajor { vx } else { vy + vh }))
+            }
         };
         Ok(tri::line(a, b, self.viewport, stroke))
     }
@@ -4268,13 +4268,17 @@ pub mod tri {
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
     pub enum Stroke {
         Aliased(LineWidth),
-        /// a wide line whose first end the view volume's left plane cut (y-major) or its top
-        /// plane (x-major): its runs moved (width - 1) / 2 into the window (MEASURED, golden
-        /// opengl-32 line-wide-9..16, prim-5, prim-6: as if the run were placed from the cut
-        /// end's side, the ends where they were)
-        Entering(LineWidth),
+        /// a wide line whose first end lies on or past the view volume's left plane (y-major)
+        /// or its top plane (x-major), that plane's window edge: its runs placed as if the line
+        /// were at the edge at its first step, moved (width - 1) / 2 into the window (MEASURED,
+        /// golden opengl-32 line-wide-9..19, prim-5, prim-6: the ends where they were)
+        Entering(LineWidth, WindowEdge),
         Smooth,
     }
+
+    /// A window edge across a line's runs: the x of the left one, the y of the top one.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct WindowEdge(pub i64);
 
     /// A line's width in pixels: glLineWidth's rounded, a half up, held to 1..10 (MEASURED,
     /// golden opengl-32 line-wide-*: 0.25 draws 1, 1.5 draws 2, 2.5 draws 3, 142.5 draws 10).
@@ -4331,10 +4335,9 @@ pub mod tri {
     /// lower one's boundary in 1/256 (`floor(f * 256)`), the other 255 less that (MEASURED,
     /// golden opengl-32 raster-mode-4: 33 columns of four blended lines)
     pub fn line_covered(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], stroke: Stroke) -> Vec<(i64, i64, Coverage)> {
-        let (width, smooth, entering) = match stroke {
-            Stroke::Aliased(w) => (w, false, false),
-            Stroke::Entering(w) => (w, false, true),
-            Stroke::Smooth => (LineWidth::ONE, true, false),
+        let (width, smooth) = match stroke {
+            Stroke::Aliased(w) | Stroke::Entering(w, _) => (w, false),
+            Stroke::Smooth => (LineWidth::ONE, true),
         };
         super::hit(super::clause::GL_RASTER_LINE);
         let [vx, vy, vw, vh] = viewport;
@@ -4375,10 +4378,20 @@ pub mod tri {
         let span = i128::from(dmaj.abs());
         // (entering: the line across at the first center as at the cut end, MEASURED, golden
         // opengl-32 line-wide-9..16)
-        let first = if entering {
-            i128::from(a[minor].0) * span
-        } else {
-            div_even((i128::from(a[minor].0) * i128::from(dmaj) + i128::from(center(j0).0 - a[major].0) * i128::from(dmin)) * i128::from(step), span) * span
+        let along = div_even((i128::from(a[minor].0) * i128::from(dmaj) + i128::from(center(j0).0 - a[major].0) * i128::from(dmin)) * i128::from(step), span) * span;
+        // (entering: the line across at the first center no nearer the edge than (width - 1) / 2
+        // inside it, right of the left edge when y-major, below the top one when x-major; the
+        // steps on from there, MEASURED, golden opengl-32 line-wide-9..19)
+        let first = match stroke {
+            Stroke::Entering(_, edge) => {
+                let inside = i128::from(width.0 - 1) * 128 * span;
+                if ymajor {
+                    along.max(i128::from(snap(edge.0 as f64, vx, vw).0) * span + inside)
+                } else {
+                    along.min(i128::from(snap(edge.0 as f64, vy, vh).0) * span - inside)
+                }
+            }
+            Stroke::Aliased(_) | Stroke::Smooth => along,
         };
         let mut j = j0;
         let mut n: i128 = 0;
@@ -4387,14 +4400,7 @@ pub mod tri {
             // first pixel past it, at it when y-major (a 1-pixel line's floor, an exact value
             // going below when x-major, GL.RASTER.LINE.TIE)
             let den = 256 * span;
-            // (entering: the line across moved (width - 1) / 2 right when y-major, down when
-            // x-major)
-            let moved = match (entering, ymajor) {
-                (false, _) => 0,
-                (true, true) => i128::from(width.0 - 1) * den / 2,
-                (true, false) => -i128::from(width.0 - 1) * den / 2,
-            };
-            let num = first + n * 256 * i128::from(dmin) - i128::from(width.0 + 1) * den / 2 + moved;
+            let num = first + n * 256 * i128::from(dmin) - i128::from(width.0 + 1) * den / 2;
             let (q, exact) = (num.div_euclid(den) as i64, num.rem_euclid(den) == 0);
             if exact {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);

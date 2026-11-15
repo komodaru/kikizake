@@ -235,7 +235,7 @@ proptest! {
         let a = [0.0, f64::from(y) / 256.0];
         let b = [f64::from(b.0 % 1024) / 256.0 + 1.0, f64::from(b.1 % 2048) / 256.0 + if b.1 % 2 == 0 { 8.0 } else { -6.0 } + 4.0];
         prop_assume!((b[1] - a[1]).abs() > (b[0] - a[0]).abs() + 0.1);
-        let p = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Entering(tri::LineWidth::of(w as f32)));
+        let p = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Entering(tri::LineWidth::of(w as f32), tri::WindowEdge(0)));
         let Some(&(_, row)) = p.first() else { return Ok(()) };
         let mut first: Vec<i64> = p.iter().filter(|q| q.1 == row).map(|q| q.0).collect();
         first.sort();
