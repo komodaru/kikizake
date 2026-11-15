@@ -436,6 +436,34 @@ fn ties_round_symmetrically() {
     assert!(moved > 1000, "{moved}");
 }
 
+/// a triangle one row tall from exactly row 0 (D3D7.TRI.EDGE): its top off a pixel, its bottom
+/// vertex on a pixel of row 1 from 2 on, its middle on either side; row 1, where both edges meet
+/// at the bottom vertex, is empty and row 0 is drawn by the walk alone, on both soft drawers
+#[test]
+fn one_row_tops_leave_row_1_empty() {
+    let mut n = 0;
+    for dev in ["rgb", "mmx"] {
+        for tx in (1..176).step_by(7).filter(|x| x % 16 != 0) {
+            for px in 2..=10 {
+                for my in [3, 8, 13] {
+                    for off in [-40, 40] {
+                        let bx = 16 * px;
+                        let mx = tx + (bx - tx) * my / 16 + off;
+                        if !(0..=176).contains(&mx) {
+                            continue;
+                        }
+                        let out = try_run(&format!("d3d 7\nd3ddev {dev} 565 12 4\nd3drs set 22 1\nd3dclear 0xff000000\nd3dtri 0xffffffff {tx} 0 {bx} 16 {mx} {my}\nd3ddump\n")).unwrap();
+                        let r = rows(&out, "dd rt");
+                        assert!(r[1].chars().all(|c| c == '0'), "{dev} ({tx},0) ({bx},16) ({mx},{my}): {}", r[1]);
+                        n += 1;
+                    }
+                }
+            }
+        }
+    }
+    assert!(n > 1000, "{n}");
+}
+
 /// the long edge's tie (D3D7.TRI.TIE, D3D7.TRI.EDGE): its f32 slope rounds toward zero, so an
 /// edge whose first-row x is exact (a top on a row) and whose slope is positive never lies past
 /// the pixel, the edge mirrored about x = 0 never past when the edge is, and a slope exact in f32

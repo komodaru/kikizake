@@ -1092,11 +1092,10 @@ enum Side {
 }
 
 /// one edge's walk, from top t to bottom b (in 16ths, t above b): the rows it spans, each with
-/// its x as the next pixel at or right of the edge, and whether that row's x is left open
-/// (D3D7.TRI.EDGE)
+/// its x as the next pixel at or right of the edge
 struct EdgeWalk {
     first: i64,
-    xs: Vec<(i64, bool)>,
+    xs: Vec<i64>,
 }
 
 impl EdgeWalk {
@@ -1114,26 +1113,50 @@ impl EdgeWalk {
         let one = 1i128 << 64;
         let mut xs = Vec::new();
         if first <= last {
-            let Some((x0, slope)) = f32_edge(t, b, first, round) else { return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE)) };
+            // (a vertex past ±2048 pixels, out of the f32 walk's range: far outside the target)
+            let Some((x0, slope)) = f32_edge(t, b, first, round) else { return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)) };
             let whole = x0.rem_euclid(one) == 0;
             let ceil = |x: i128| -> Res<i64> { i64::try_from(-((-x).div_euclid(one))).map_err(|_| Fail::Bad) };
             let shift = i64::from(whole && x0 >= 2 * one);
             for y in first..=last {
                 let k = y - first;
                 let x = slope.checked_mul(i128::from(k)).and_then(|d| d.checked_add(x0)).ok_or(Fail::Bad)?;
-                // (a top exactly on row 0, off a pixel: 2 of 2 x on a pixel the row after went a
-                // pixel right, d3d7edge center-*-bot; on row 1, longseq-rgb-0, it did not)
-                let open = matches!(side, Side::Long) && t.1 == 0 && !whole && (1..=2).contains(&k) && x.rem_euclid(one) == 0;
-                if k > 0 && x.rem_euclid(one) == 0 {
+                let tie = k > 0 && x.rem_euclid(one) == 0;
+                if tie {
                     hit(clause::D3D7_TRI_TIE);
                 }
-                xs.push((ceil(x)? + shift, open));
+                // (a long edge one row tall from exactly row 0, off a pixel, to its bottom vertex
+                // on a pixel of row 1: a pixel right of it there, D3D7.TRI.EDGE; d3d7edge
+                // center-*-bot, toprow-rgb-left: 7 of 7; taller ones from row 0 and ones from row
+                // 1 go by the walk, toprow-*, longseq-rgb-0)
+                let one_row = matches!(side, Side::Long) && t.1 == 0 && b.1 == 16 && !whole && tie;
+                if one_row {
+                    hit(clause::D3D7_TRI_EDGE);
+                }
+                xs.push(ceil(x)? + shift + i64::from(one_row));
             }
         }
         Ok(EdgeWalk { first, xs })
     }
-    fn at(&self, y: i64) -> Option<(i64, bool)> {
+    fn at(&self, y: i64) -> Option<i64> {
         usize::try_from(y - self.first).ok().and_then(|k| self.xs.get(k).copied())
+    }
+}
+
+/// a triangle's vertices top to bottom; of two at the same height the one nearer the third in x
+/// is the top vertex (above) or the bottom vertex (below), so the long edge runs from it: the
+/// steeper of the two (d3d7edge center-mmx-bot: a flat top's left vertex, the bottom left of it;
+/// d3d7shade gstep-*: a flat top's right one, the bottom right of it, as the long edge's side
+/// carries the Gouraud anchor)
+fn top_middle_bottom(v: [(i64, i64); 3]) -> [(i64, i64); 3] {
+    let mut s = v;
+    s.sort_by_key(|p| p.1);
+    let [t, m, b] = s;
+    let nearer = |p: (i64, i64), q: (i64, i64), r: (i64, i64)| (p.0 - r.0).abs() <= (q.0 - r.0).abs();
+    match (t.1 == m.1, m.1 == b.1) {
+        (true, false) if !nearer(t, m, b) => [m, t, b],
+        (false, true) if !nearer(b, m, t) => [t, b, m],
+        _ => [t, m, b],
     }
 }
 
@@ -1157,9 +1180,7 @@ enum Spans {
 /// end go on into the next row, as in memory. An x exactly on a pixel past an edge's first row
 /// goes by the edge's Tie (D3D7.TRI.TIE; the long edge on the left: D3D7.TRI.EDGE)
 fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
-    let mut s = v;
-    s.sort_by_key(|p| p.1);
-    let [t, m, b] = s;
+    let [t, m, b] = top_middle_bottom(v);
     hit(clause::D3D7_TRI_WALK);
     let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
     let long = EdgeWalk::new(t, b, Side::Long)?;
@@ -1170,10 +1191,7 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
     for y in 0..h {
         let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
         let (Some(l), Some(r)) = (long.at(y), short) else { continue };
-        let ((xl, tl), (xr, tr)) = if long_left { (l, r) } else { (r, l) };
-        if tl || tr {
-            return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE));
-        }
+        let (xl, xr) = if long_left { (l, r) } else { (r, l) };
         match spans {
             Spans::Spill(fmt) => {
                 let b = i64::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?;
@@ -1329,9 +1347,7 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
 /// the long edge's side (its first pixel when the long edge is on the left, its last one when on
 /// the right), as walk() finds the spans
 fn anchors(v: [(i64, i64); 3], h: i64) -> Res<Vec<Option<i64>>> {
-    let mut s = v;
-    s.sort_by_key(|p| p.1);
-    let [t, m, b] = s;
+    let [t, m, b] = top_middle_bottom(v);
     let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
     let long = EdgeWalk::new(t, b, Side::Long)?;
     let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Side::Short)).transpose()?;
@@ -1339,7 +1355,7 @@ fn anchors(v: [(i64, i64); 3], h: i64) -> Res<Vec<Option<i64>>> {
     Ok((0..h)
         .map(|y| {
             let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
-            let (Some((l, _)), Some((r, _))) = (long.at(y), short) else { return None };
+            let (Some(l), Some(r)) = (long.at(y), short) else { return None };
             let (xl, xr) = if long_left { (l, r) } else { (r, l) };
             (xl < xr).then_some(if long_left { xl } else { xr - 1 })
         })

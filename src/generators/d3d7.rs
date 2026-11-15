@@ -576,6 +576,31 @@ pub fn d3d7edge() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // a long edge one row tall, from exactly row 0 off a pixel to a bottom vertex on a pixel of row
+    // 1 (D3D7.TRI.EDGE: 7 of 7 went a pixel right there), on either side, both soft drawers; and
+    // its controls, a top above row 0 (-1/2) and one just under it (1/16), which go by the walk
+    let mut ro = XorShift32::new(0x00d3_d7e5);
+    for dev in ["rgb", "mmx"] {
+        for side in ["left", "right"] {
+            writeln!(s, "case onerow-{dev}-{side}\nd3d 7\nd3ddev {dev} 565 12 4\nd3drs set 22 1").unwrap();
+            let mut n = 0;
+            while n < 36 {
+                let ty = [0, 0, 0, 0, -8, 1][usize::try_from(n % 6).unwrap_or(0)];
+                let tx = ro.range(1, 175);
+                let bx = 16 * ro.range(0, 10);
+                let my = ro.range(2, 14);
+                let along = tx + (bx - tx) * (my - ty) / (16 - ty);
+                let mx = if side == "left" { along + ro.range(24, 80) } else { along - ro.range(24, 80) };
+                if tx % 16 == 0 || !(0..=176).contains(&mx) {
+                    continue;
+                }
+                let (t, b, c) = (V16 { x: tx, y: ty }, V16 { x: bx, y: 16 }, V16 { x: mx, y: my });
+                writeln!(s, "{}", tri(t, b, c)).unwrap();
+                n += 1;
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
     // long-left edges through a whole pixel every few rows down a tall target (D3D7.TRI.EDGE):
     // a pixel slope a/b, the edge through pixel P and its vertices whole steps of (a, b)
     // sixteenths from P, so its x is a whole pixel on every b-th row; how each such row settles
