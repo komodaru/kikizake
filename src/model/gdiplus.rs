@@ -7,7 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
-use crate::spec::{clause, open};
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -972,10 +972,6 @@ impl HatchStyle {
     pub fn get(self) -> u8 {
         self.0
     }
-    /// whether the pattern has texels between fore and back (the weights of data/gdiplus_hatch.bin)
-    pub fn between(self) -> bool {
-        HATCH[self.0 as usize * 64..][..64].iter().any(|&w| w != 0 && w != 255)
-    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -1054,6 +1050,12 @@ fn premultiplied(c: u32) -> u32 {
     (0..3).fold(c & 0xff00_0000, |o, k| o | (premultiply((c >> (8 * k) & 255) as u64, (c >> 24) as u64) as u32) << (8 * k))
 }
 
+/// (MEASURED, golden gdipluspaint hatchedge16-*, hatchrun16-22, hatchbetween16-*, hatchcarry-*:
+/// gamma corrected, a hatch texel between fore and back mixes its alpha with 6 more before the
+/// shift: hatchrun16-22's 60154 carries, texels 8 short do not; every weight is even (64, 234), so
+/// the mix is even and 6 and 7 are the same)
+const GAMMA_ALPHA_CARRY: u32 = 6;
+
 /// the subsamples at p + k / n (k = 0 .. n) in [a, b)
 fn samples(p: i64, a: f64, b: f64, n: u32) -> u32 {
     (0..n).filter(|&k| (a..b).contains(&(p as f64 + k as f64 / n as f64))).count() as u32
@@ -1073,16 +1075,6 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
         Brush::Solid(_) => Source::Solid,
         Brush::Hatch { .. } => Source::Texture { origin: (ox, oy) },
     };
-    // (a texel between a fore and a translucent back, gamma corrected over 555/565: one channel
-    // in a fill comes out 1 lower than the model makes it (golden gdipluspaint hatchrun16-22),
-    // not fitted yet)
-    let between = match brush {
-        Brush::Hatch { style, back, .. } => style.between() && back >> 24 != 255,
-        Brush::Solid(_) => false,
-    };
-    if between && !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
-        return Err(Fail::Unmodeled(open::GP_PAINT_GAMMA_BETWEEN));
-    }
     // (the brush's color at a pixel, premultiplied)
     let color = |px: u32, py: u32| -> u32 {
         match brush {
@@ -1091,14 +1083,22 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
                 hit(clause::GP_PAINT_HATCH);
                 let (hx, hy) = ((px as i64 - ox).rem_euclid(8), (py as i64 - oy).rem_euclid(8));
                 let wt = HATCH[style.get() as usize * 64 + hy as usize * 8 + hx as usize] as u32;
-                // (premultiplied; between them (antialiased styles) f w + b (256 - w), >> 8)
+                // (premultiplied; between them (antialiased styles) f w + b (256 - w), >> 8;
+                // gamma corrected, the alpha with GAMMA_ALPHA_CARRY more before the shift)
                 let (fore, back) = (pre(fore), pre(back));
+                let carry = if q.gamma() && !copy { GAMMA_ALPHA_CARRY } else { 0 };
                 match wt {
                     0 => back,
                     255 => fore,
                     _ => (0..4).fold(0, |o, k| {
                         let (f, g) = (fore >> (8 * k) & 255, back >> (8 * k) & 255);
-                        o | ((f * wt + g * (256 - wt)) >> 8) << (8 * k)
+                        let more = if k == 3 && carry > 0 {
+                            hit(clause::GP_PAINT_GAMMA_BETWEEN);
+                            carry
+                        } else {
+                            0
+                        };
+                        o | ((f * wt + g * (256 - wt) + more) >> 8) << (8 * k)
                     }),
                 }
             }

@@ -300,6 +300,21 @@ pub fn gdipluspaint() -> String {
         let (x, w) = if i < 32 { (7, 6) } else { (0, 16) };
         writeln!(s, "case hatchedge16-{i}\ngpbitmap 0 16 8 16bppRGB555\ngpwrite 0 16bppRGB555 seed {seed}\ngpbrush 0 hatch 5 0xfff7eb79 0x169c4d6e\ngppaint 0 0 {x} 0 {w} 5 over 2 0 0 {ox} {oy}\ngpread 0 16bppRGB555\nend").unwrap();
     }
+    // GP.PAINT.GAMMA.BETWEEN's carry: texels whose alpha mix fa 234 + ba 22 (always even) falls 4,
+    // 6, 8 or 10 short of a multiple of 256, gamma corrected over 32bppARGB / PARGB / 555
+    for i in 0..48 {
+        let short = [4, 6, 8, 10][i / 12];
+        let (fa, ba) = loop {
+            let (fa, ba) = (r.range(1, 255) as u32, r.range(1, 254) as u32);
+            if 256 - (fa * 234 + ba * 22) % 256 == short {
+                break (fa, ba);
+            }
+        };
+        let fore = fa << 24 | r.next() & 0xff_ffff;
+        let back = ba << 24 | r.next() & 0xff_ffff;
+        let f = ["32bppARGB", "32bppPARGB", "16bppRGB555"][i % 3];
+        writeln!(s, "case hatchcarry-{i}\ngpbitmap 0 8 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch 5 {fore:#010x} {back:#010x}\ngppaint 0 0 0 0 8 8 over {} 0 0 0 0\ngpread 0 {f}\nend", r.next(), r.range(2, 3)).unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s
