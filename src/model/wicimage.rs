@@ -2320,7 +2320,7 @@ struct EncodeOptions {
 /// PNG's InterlaceOption and FilterOption (1 to 6), TIFF's TiffCompressionMethod 0 (don't care),
 /// 1 (none), 4 (LZW), 5 (RLE), 6 (ZIP) and 7 (LZW with differencing) change only the file;
 /// TiffCompressionMethod 2 (CCITT3) and 3 (CCITT4) make the frame BlackWhite
-/// (golden opt-tiff-*); WMP's Lossless keeps every pixel; PNG takes no ImageQuality. Other names and values are not measured.
+/// (golden opt-tiff-*); WMP's Lossless and ImageQuality 1.0 keep every pixel; PNG takes no ImageQuality. Other names and values are not measured.
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
     Ok(match (cont, name, val) {
@@ -2329,7 +2329,9 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         ("bmp", "EnableV5Header32bppBGRA", "1") => EncodeOption::V5Header(true),
         ("tiff", "TiffCompressionMethod", "2" | "3") => EncodeOption::BlackWhite,
         ("png", "ImageQuality", _) => EncodeOption::Rejected,
-        ("wmp", "Lossless", "1") => EncodeOption::WmpLossless,
+        // (Encoder options: JPEG XR's ImageQuality 1.0 is lossless; MEASURED golden opt-19-*: every
+        // pixel kept, as Lossless=1)
+        ("wmp", "Lossless", "1") | ("wmp", "ImageQuality", "1.0" | "1") => EncodeOption::WmpLossless,
         ("jpeg", "ImageQuality", v) => EncodeOption::JpegQuality((v.parse::<f64>().map_err(|_| Fail::Bad)? * 100.0).round() as i64),
         ("jpeg", "SuppressApp0", v) => EncodeOption::JpegNoApp0(v != "0"),
         ("jpeg", "JpegYCrCbSubsampling", "3") => EncodeOption::Jpeg444,

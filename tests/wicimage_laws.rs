@@ -478,10 +478,10 @@ proptest! {
 #[test]
 fn encoder_options_are_typed() {
     use wi::EncodeOption as O;
-    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::Jpeg444), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
+    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::Jpeg444), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
         assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
     }
-    for (c, o) in [("wmp", "ImageQuality=1.0"), ("tiff", "TiffCompressionMethod=8"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
+    for (c, o) in [("wmp", "ImageQuality=0.5"), ("tiff", "TiffCompressionMethod=8"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
         assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
