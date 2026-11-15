@@ -52,7 +52,7 @@ impl Map {
     /// MEASURED (GDI.MAP.ISOPOINTS, isomore-*, iso-51): LPtoDP and DPtoLP in MM_ISOTROPIC map
     /// through the extents stored shrunk once more, y only: when the rule would now shrink x,
     /// they keep those stored
-    fn ve_points(&self) -> (i32, i32) {
+    pub fn ve_points(&self) -> (i32, i32) {
         let v = self.ve();
         if self.mode != 7 || self.unsettled {
             return v;
@@ -282,14 +282,6 @@ pub fn device_op(m: &mut Map, pos: (i32, i32), op: &Op) -> Res<Option<(Op, (i32,
             let to = (n(op, 2)?, n(op, 3)?);
             let a = lp(i64::from(pos.0), i64::from(pos.1))?;
             let b = lp(to.0, to.1)?;
-            let whole = m.whole(pos) && m.whole((i32::try_from(to.0).map_err(|_| Fail::Bad)?, i32::try_from(to.1).map_err(|_| Fail::Bad)?));
-            let e = m.ve_points();
-            let flips_up = |w: i32, v: i32| (w < 0) != (v < 0) && v.abs() > w.abs();
-            if !whole && (flips_up(m.wext.0, e.0) || flips_up(m.wext.1, e.1)) {
-                // (a mapping that mirrors and magnifies an axis: draw-45 and fracclip-8/14/20/23
-                // light the end pixel and take the other halfway step; open)
-                return Ok(None);
-            }
             // MEASURED (fracline-*, 48 of 48, both archs): a line whose ends fall between
             // pixels is the integer line between its ends rounded as LPtoDP rounds them
             // (GDI.MAP.DRAWPTS)

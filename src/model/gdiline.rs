@@ -304,6 +304,19 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let Some((d, from)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         };
+        // MEASURED (xform fracmirror-*, draw-45, fracclip-*): a pen of width 1 follows the
+        // mapping's x stretch alone: thin while x shrinks or stays (y magnified 3 times or not),
+        // wide when x doubles or more (y-major lines 2 or 3 pixels across, x-major ones still
+        // one row with their end pixel lit: GDI.PEN.WIDE); between, GDI.MAP.DRAW
+        if matches!(t0, "lineto") && matches!(sl.ext.pen, Pen::Plain { width: 1, .. }) {
+            let (w, e) = (sl.ext.map.wext.0.unsigned_abs(), sl.ext.map.ve_points().0.unsigned_abs());
+            if e >= 2 * w {
+                return Err(Fail::Unmodeled(open::GDI_PEN_WIDE));
+            }
+            if e > w {
+                return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
+            }
+        }
         let map = std::mem::take(&mut sl.ext.map);
         sl.ext.pos = from;
         let r = op_device(g, k, &d, out);
