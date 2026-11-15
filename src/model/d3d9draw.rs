@@ -1857,9 +1857,10 @@ impl D3d9 {
             return Err(Fail::Bad);
         }
         let projected = pos == 3 && keys.iter().any(|k| k.xform.is_some_and(|(t, _)| t & 0x100 != 0 && t & 0xff != 1));
-        if projected && (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| (5..=7).any(|f| self.samp(st, f) != [1, 1, 0][(f - 5) as usize])) {
-            // (projected coordinates under a filter that reads their footprint: no case, open)
-            return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
+        if projected {
+            // (MEASURED tci-proj-*: projected coordinates under LINEAR and ANISOTROPIC filters,
+            // their footprint from the 2 x 2 quad, D3D9.STAGE.PROJFOOT)
+            hit(clause::D3D9_STAGE_PROJFOOT);
         }
         let stride = words.len() / nv;
         if stride < size {
@@ -2431,6 +2432,28 @@ impl D3d9 {
                         hit(clause::D3D9_SHADE_GOURAUD);
                         (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k]))
                     };
+                    if !persp {
+                        // (projected coordinates: their footprint as Direct3D 10's coarse
+                        // derivatives, the quad's top-left pixel's s/q, t/q against its right and
+                        // lower neighbours', D3D9.STAGE.PROJFOOT)
+                        let attr = |ox: f32, oy: f32| -> [f64; ATTRS] {
+                            match &planes {
+                                Some(p) => p.at(sx + ox, sy + oy),
+                                None => std::array::from_fn(|k| {
+                                    let (dx, dy) = grads[k];
+                                    f64::from(piece[0].at[k] + dy * (sy + oy - y[0]) + dx * (sx + ox - x[0]))
+                                }),
+                            }
+                        };
+                        for (i, &q) in Q_AT.iter().enumerate() {
+                            if grads[q] == (0.0, 0.0) {
+                                continue;
+                            }
+                            let (ox, oy) = (-((px & 1) as f32), -((py & 1) as f32));
+                            let (c, r, d) = (st_of(&attr(ox, oy))[i], st_of(&attr(ox + 1.0, oy))[i], st_of(&attr(ox, oy + 1.0))[i]);
+                            self.draw.duv[i] = ((r[0] - c[0], d[0] - c[0]), (r[1] - c[1], d[1] - c[1]));
+                        }
+                    }
                     self.pixel(px, py, at[0], diffuse, specular, st_of(&at))?;
                 }
             }
