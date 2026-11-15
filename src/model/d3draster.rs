@@ -1743,9 +1743,9 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 }
             };
             let uv = uv_at(px, py)?;
-            // (sample_c: each texel's red against the reference, the color's z, by the sampler's
-            // comparison function; a comparison filter only, sample with one and sample_c with
-            // another not measured)
+            // (MEASURED, WARP: probe-sample-cmp-*) sample_c: each texel's red against the
+            // reference, the color's z, by the sampler's comparison function, 1 or 0, filtered as
+            // floats
             let cmp = match (ps == "pssamplec", s[0] & 0x80 != 0) {
                 (true, true) => {
                     hit(clause::D3DRASTER_SAMPLE_CMP);
@@ -1755,8 +1755,15 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     };
                     Some((reference, s[4]))
                 }
-                (false, false) => None,
-                (true, false) | (false, true) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                // (MEASURED, WARP: probe-samplec-nocmp) through a sampler without comparison:
+                // zeros
+                (true, false) => {
+                    hit(clause::D3DRASTER_SAMPLE_CMP);
+                    return Ok([0; 4]);
+                }
+                // (MEASURED, WARP: probe-sample-cmp) sample through a comparison sampler filters
+                // as its filter without the comparison
+                (false, _) => None,
             };
             let filter = Filter::of(s[0] & !0x80).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
@@ -1846,7 +1853,6 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
                 // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
                 // 1/256 below the fraction
-                // (comparisons' results filtered as floats: to verify, probe-sample-cmp-*)
                 let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))? };
                 if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);

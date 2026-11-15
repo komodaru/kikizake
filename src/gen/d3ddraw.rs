@@ -487,10 +487,10 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "case shader-bad\n{dev}\nshader 0 ps {}\nshader 1 ps {}\nshader 2 vs {}\nshader 3 ps 00\nend", hex(&broken), hex(&short), hex(&shader("ps"))).unwrap();
     // an input layout that the program's input signature does not match
     writeln!(s, "case layout-bad\n{dev}\nshader 0 vs {}\nlayout 0 2\nlayout 0 2 2 2\nlayout 0 0x1c 2\nlayout 0 0x29 2\nlayout 0 0 2\nlayout 1 2 2\nend", hex(&shader("vs"))).unwrap();
-    // what D3DRASTER.FILTER leaves open: sample_c through a sampler without comparison, and
-    // sample through one with it (undefined by the documentation: near the end, as WARP may end
-    // the executor on them)
-    for (name, ps, filter) in [("samplec-nocmp", "pssamplec", 0x15u32), ("sample-cmp", "pssample", 0x95)] {
+    // sample_c through a sampler without comparison, sample through one with it, and the
+    // minimum and maximum filters (what D3DRASTER.FILTER leaves open; undefined by the
+    // documentation, or a tier WARP may lack: near the end, as WARP may end the executor on them)
+    for (name, ps, filter) in [("samplec-nocmp", "pssamplec", 0x15u32), ("sample-cmp", "pssample", 0x95), ("sample-min", "pssample", 0x115), ("sample-max", "pssample", 0x195), ("sample-min-point", "pssample", 0x100)] {
         writeln!(s, "case probe-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
         writeln!(s, "tex 1 2 4 4 1 1 56 0 8 0 0 1 0 init 400 8 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3 2").unwrap();
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader("vs")), hex(&shader(ps))).unwrap();
