@@ -1894,4 +1894,39 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // 1-pixel lines with an end on a diamond's border: on each corner and edge middle of pixel
+    // (8, 8), leaving or arriving from 16 directions (along the axes, the edges, and between):
+    // which border parts a diamond holds
+    let at: [(f64, f64); 8] = [(8.5, 8.0), (9.0, 8.5), (8.5, 9.0), (8.0, 8.5), (8.25, 8.25), (8.75, 8.25), (8.75, 8.75), (8.25, 8.75)];
+    let dirs: [(f64, f64); 16] = [(2.25, 0.625), (0.625, 2.25), (-0.625, 2.25), (-2.25, 0.625), (-2.25, -0.625), (-0.625, -2.25), (0.625, -2.25), (2.25, -0.625), (2.0, 0.0), (0.0, 2.0), (-2.0, 0.0), (0.0, -2.0), (1.5, 1.5), (-1.5, 1.5), (-1.5, -1.5), (1.5, -1.5)];
+    for (k, p) in at.into_iter().enumerate() {
+        start(s, format!("line-tie-{k}"), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        for d in dirs {
+            for ends in [false, true] {
+                let (a, b) = if ends { ((p.0 - d.0, p.1 - d.1), p) } else { (p, (p.0 + d.0, p.1 + d.1)) };
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+                glf(s, "glVertex2f", &[a.0, a.1]);
+                glf(s, "glVertex2f", &[b.0, b.1]);
+                writeln!(s, "gl glEnd\nglread 5 5 7 7 {} {} 196", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // wide lines inside the window, one per image: widths 2, 3, 4 and 2.5, x- and y-major
+    let mut r = XorShift32::new(0x31de_4a07);
+    for (k, width) in [2.0, 2.0, 3.0, 3.0, 4.0, 2.5].into_iter().enumerate() {
+        start(s, format!("line-wide-{k}"), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        glf(s, "glLineWidth", &[width]);
+        for _ in 0..16 {
+            let mut v = || f64::from(r.next() % 97) / 8.0 + 2.0;
+            let (a, b) = ((v(), v()), (v(), v()));
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+            glf(s, "glVertex2f", &[a.0, a.1]);
+            glf(s, "glVertex2f", &[b.0, b.1]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
