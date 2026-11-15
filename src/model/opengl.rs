@@ -416,6 +416,9 @@ pub struct Ctx {
     /// which framebuffer channels hold undefined content (GL.UNDEFINED): a new alpha buffer's,
     /// and whatever is made from undefined content; a read gives "??" for their bytes
     pub fb_undefined: Vec<[bool; 4]>,
+    /// which depth and stencil values are undefined (GL.UNDEFINED), as fb_undefined
+    pub depth_undefined: Vec<bool>,
+    pub stencil_undefined: Vec<bool>,
     pub color_mask: [bool; 4],
     /// the GLboolean bytes glColorMask was given (glGet gives them back as they are: GL.COLORMASK)
     pub color_mask_raw: [u32; 4],
@@ -510,6 +513,8 @@ impl Ctx {
             index_mask,
             acc: vec![[None; 4]; W * H],
             fb_undefined: vec![[false, false, false, alpha_init != 0]; W * H],
+            depth_undefined: vec![false; W * H],
+            stencil_undefined: vec![false; W * H],
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
             viewport: [0, 0, W as i64, H as i64],
@@ -1661,6 +1666,8 @@ impl Ctx {
                     saved.stencil = Vec::new();
                     saved.acc = Vec::new();
                     saved.fb_undefined = Vec::new();
+                    saved.depth_undefined = Vec::new();
+                    saved.stencil_undefined = Vec::new();
                     self.attrib.push((u(a, 0), saved));
                 }
             }
@@ -2386,6 +2393,24 @@ impl Ctx {
     }
 
     /// a pixel's channels over their largest values, a missing alpha 1, in f64
+    /// a fragment whose outcome is undefined (GL.UNDEFINED): the writable color channels, and the
+    /// stencil and depth values when they may be written, become undefined
+    fn spoil(&mut self, i: usize, stencil: bool, depth: bool) {
+        hit(clause::GL_UNDEFINED);
+        let bits = self.bits();
+        for k in 0..4 {
+            if self.color_mask[k] && bits[k] > 0 {
+                self.fb_undefined[i][k] = true;
+            }
+        }
+        if stencil && self.stencil_mask & low_bits(self.pf.stencil) != 0 {
+            self.stencil_undefined[i] = true;
+        }
+        if depth {
+            self.depth_undefined[i] = true;
+        }
+    }
+
     fn dst_color_raw(&self, p: [u32; 4]) -> [f64; 4] {
         let b = self.bits();
         [0, 1, 2, 3].map(|k| if b[k] == 0 { 1.0 } else { f64::from(p[k]) / ((1u64 << b[k]) - 1) as f64 })
@@ -2435,6 +2460,11 @@ impl Ctx {
             Some(z) if z.bits == self.pf.depth => z.value,
             _ => Ctx::depth_fixed(f.z, self.pf.depth)?,
         };
+        if has_stencil && self.stencil_undefined[i] && self.stencil_func.0 != NEVER && self.stencil_func.0 != ALWAYS {
+            // (a test on an undefined value: the fragment's outcome undefined, GL.UNDEFINED)
+            self.spoil(i, true, self.pf.depth > 0 && self.cap(DEPTH_TEST) && self.depth_mask);
+            return Ok(());
+        }
         if has_stencil {
             hit(clause::GL_STENCIL_TEST);
             let (func, r, m) = self.stencil_func;
@@ -2454,6 +2484,10 @@ impl Ctx {
             // viewport draws nothing; one the viewport cuts is drawn whole, its depth not written,
             // once a rectangle inside it has been drawn under NEVER and while the depth mask is on,
             // and draws nothing before)
+            if self.depth_undefined[i] && self.depth_func != NEVER && self.depth_func != ALWAYS {
+                self.spoil(i, has_stencil && self.stencil_op[1] != self.stencil_op[2], self.depth_mask);
+                return Ok(());
+            }
             let pass = if self.depth_func == NEVER {
                 hit(clause::GL_DEPTH_NEVER_CLIP);
                 match self.never {
@@ -2462,7 +2496,17 @@ impl Ctx {
                         false
                     }
                     NeverPath::Clipped => self.never_primed && self.depth_mask,
-                    NeverPath::Other => return Err(Fail::Unmodeled(open::GL_DEPTH_NEVER)),
+                    NeverPath::Other => {
+                        // (MEASURED, golden opengl-32 / 64 depth-0, never-more-*: some of the
+                        // fragments are drawn, in no pattern the primitive or the executor fixes:
+                        // which ones is undefined, the depth left as it is: GL.DEPTH.NEVER)
+                        hit(clause::GL_DEPTH_NEVER);
+                        self.spoil(i, has_stencil && self.stencil_op[1] != self.stencil_op[2], false);
+                        if has_stencil {
+                            self.stencil_update(i, self.stencil_op[1]);
+                        }
+                        return Ok(());
+                    }
                 }
             } else {
                 compare_u(self.depth_func, z, self.depth[i].0)
@@ -2476,6 +2520,7 @@ impl Ctx {
             // (a rectangle drawn under NEVER leaves the depth as it is)
             if self.depth_mask && self.depth_func != NEVER {
                 self.depth[i] = Depth(z);
+                self.depth_undefined[i] = false;
             }
         }
         if has_stencil {
@@ -2613,6 +2658,7 @@ impl Ctx {
         let p = y as usize * W + x as usize;
         let m = self.stencil_mask & low_bits(self.pf.stencil);
         self.stencil[p] = (self.stencil[p] & !m) | (index_bits(v) & m);
+        self.stencil_undefined[p] &= m != low_bits(self.pf.stencil);
     }
 
     fn stencil_update(&mut self, i: usize, op: u32) {
@@ -2630,6 +2676,8 @@ impl Ctx {
         };
         let m = self.stencil_mask & smax;
         self.stencil[i] = (s & !m) | (n & m);
+        // (an undefined value stays undefined unless the whole of it is replaced)
+        self.stencil_undefined[i] &= !(matches!(op, ZERO | REPLACE) && m == smax);
     }
 
     /// blending on a 32-bit DIB in the 0..255 domain (MEASURED, golden opengl-32 blend-*):
@@ -2910,10 +2958,12 @@ impl Ctx {
                 }
                 if m & DEPTH_BUFFER_BIT != 0 && self.depth_mask {
                     self.depth[i] = Depth(u64::from(z));
+                    self.depth_undefined[i] = false;
                 }
                 if m & STENCIL_BUFFER_BIT != 0 {
                     let mk = self.stencil_mask & smax;
                     self.stencil[i] = (self.stencil[i] & !mk) | (self.clear_stencil as u32 & mk);
+                    self.stencil_undefined[i] &= mk != smax;
                 }
             }
         }
@@ -3332,6 +3382,10 @@ impl Ctx {
                         continue;
                     };
                     if v & 1 != 0 { *b |= m } else { *b &= !m }
+                    if f != COLOR_INDEX && self.stencil_undefined[p] {
+                        hit(clause::GL_UNDEFINED);
+                        undefined[at] = true;
+                    }
                 }
             }
             return Ok(());
@@ -3353,7 +3407,9 @@ impl Ctx {
                     let und = match which {
                         0..=3 => self.fb_undefined[p][*which],
                         4 => self.fb_undefined[p][..3].iter().any(|u| *u),
-                        _ => false,
+                        5 => self.depth_undefined[p],
+                        7 => false,
+                        _ => self.stencil_undefined[p],
                     };
                     let mut e = match which {
                         0..=3 => from_float(c[*which], t),
