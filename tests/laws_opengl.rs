@@ -238,4 +238,30 @@ proptest! {
         b.sort();
         prop_assert_eq!(a, b);
     }
+    /// GL 1.1 3.5.1 (smooth shading): a fan triangle's color plane does not depend on the order
+    /// of its corners, gives each corner its own color, and keeps every covered pixel's color
+    /// between the corners' colors
+    #[test]
+    fn color_plane_is_barycentric(v in any::<[(i16, i16); 3]>(), c in any::<[[u8; 4]; 3]>()) {
+        let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8), y: Sub(i64::from(y) / 8) });
+        let c = c.map(|q| q.map(|b| f64::from(b) / 255.0));
+        let area = (v[1].x.0 - v[0].x.0) * (v[2].y.0 - v[0].y.0) - (v[2].x.0 - v[0].x.0) * (v[1].y.0 - v[0].y.0);
+        prop_assume!(area != 0);
+        let near = |a: [f64; 4], b: [f64; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
+        for (x, y) in tri::pixels(&v, 16, 16) {
+            let at = tri::plane(v, c, x, y);
+            for p in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
+                prop_assert!(near(at, tri::plane(p.map(|k| v[k]), p.map(|k| c[k]), x, y)));
+            }
+            for k in 0..4 {
+                let (lo, hi) = (c.iter().map(|q| q[k]).fold(f64::INFINITY, f64::min), c.iter().map(|q| q[k]).fold(f64::NEG_INFINITY, f64::max));
+                prop_assert!(at[k] >= lo - 1e-9 && at[k] <= hi + 1e-9, "{at:?} out of {c:?}");
+            }
+        }
+        for k in 0..3 {
+            // a corner on a pixel center gets its own color
+            let w = v.map(|p| Vertex { x: Sub(p.x.0 * 256 + 128), y: Sub(p.y.0 * 256 + 128) });
+            prop_assert!(near(tri::plane(w, c, v[k].x.0, v[k].y.0), c[k]));
+        }
+    }
 }

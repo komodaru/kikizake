@@ -2013,29 +2013,42 @@ impl Ctx {
         Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
     }
 
-    /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE): cut to the view volume, then a
-    /// fan from its first vertex, convex or not (golden poly-nc-*, prim-11; tie-x-2: the fan's
-    /// diagonal taking in a corner on a center).
-    fn fill(&self, q: &[([f64; 3], [f32; 4])]) -> Res<Vec<(i64, i64)>> {
+    /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
+    /// (one per vertex) interpolate to there: cut to the view volume (the colors with it), then
+    /// a fan from its first vertex, convex or not (golden poly-nc-*, prim-11; tie-x-2: the
+    /// fan's diagonal taking in a corner on a center), each triangle's colors a plane through
+    /// its rounded corners (GL.RASTER.INTERPOLATE).
+    fn fill(&self, q: &[([f64; 3], [f32; 4])], colors: &[[f64; 4]]) -> Res<Vec<(i64, i64, [f64; 4])>> {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
-        let ndc: Vec<[f64; 2]> = q.iter().map(|v| self.ndc(v.0).map(|c| [c[0], c[1]])).collect::<Res<_>>()?;
+        let ndc: Vec<[f64; 6]> = q.iter().zip(colors).map(|(v, c)| self.ndc(v.0).map(|n| [n[0], n[1], c[0], c[1], c[2], c[3]])).collect::<Res<_>>()?;
         let poly = tri::clip(&ndc);
         if poly.len() < 3 {
             return Ok(Vec::new());
         }
-        let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
         if poly != ndc {
             hit(clause::GL_RASTER_CLIP_XY);
         }
+        let v: Vec<tri::Vertex> = poly.iter().map(|c| tri::Vertex { x: tri::Sub::snap(c[0], vw, center.0), y: tri::Sub::snap(c[1], vh, center.1) }).collect();
+        let col: Vec<[f64; 4]> = poly.iter().map(|c| [c[2], c[3], c[4], c[5]]).collect();
         let (w, h) = (W as i64, H as i64);
-        Ok((1..v.len() - 1).flat_map(|k| tri::pixels(&[v[0], v[k], v[k + 1]], w, h)).collect())
+        let mut out = Vec::new();
+        for k in 1..v.len() - 1 {
+            let at = [v[0], v[k], v[k + 1]];
+            let value = [col[0], col[k], col[k + 1]];
+            for (x, y) in tri::pixels(&at, w, h) {
+                let c = if value[1] == value[0] && value[2] == value[0] { value[0] } else { tri::plane(at, value, x, y) };
+                out.push((x, y, c));
+            }
+        }
+        Ok(out)
     }
 
-    /// A filled polygon of one color and depth (GL.RASTER.TRIANGLE).
-    fn polygon(&mut self, q: &[([f64; 3], [f32; 4])]) -> Res<()> {
-        // (filled, flat polygons only: other polygon modes, stipple, antialiasing and offsets
-        // on triangles are not measured)
+    /// A filled polygon of one depth (GL.RASTER.TRIANGLE), its colors flat (the `provoking`
+    /// vertex's, GL 1.1 2.13.7) or smooth.
+    fn polygon(&mut self, q: &[([f64; 3], [f32; 4])], provoking: usize) -> Res<()> {
+        // (filled polygons only: other polygon modes, stipple, antialiasing and offsets on
+        // triangles are not measured)
         if self.poly_mode != [0x1b02, 0x1b02] || self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
@@ -2043,11 +2056,16 @@ impl Ctx {
             return Ok(());
         }
         let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
-        let last = q[q.len() - 1];
-        let c = self.fogged(last.1, last.0);
-        if q.iter().any(|v| v.1 != last.1 || self.fogged(v.1, v.0) != c) || w.iter().any(|p| p[2] != w[0][2]) {
+        if w.iter().any(|p| p[2] != w[0][2]) {
             return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
         }
+        let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
+        let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
+        // (smooth colors under fog or lighting are not measured)
+        if !flat && (self.cap(FOG) || self.cap(LIGHTING)) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+        }
+        let colors: Vec<[f64; 4]> = if flat { vec![fogged[provoking].map(f64::from); q.len()] } else { fogged.iter().map(|c| c.map(f64::from)).collect() };
         let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
         if self.cap(CULL_FACE) {
             hit(clause::GL_CULL);
@@ -2061,14 +2079,20 @@ impl Ctx {
                 return Ok(());
             }
         }
-        let px = self.fill(q)?;
+        let px = self.fill(q, &colors)?;
         hit(clause::GL_RASTER_TRIANGLE);
         if q.len() > 3 {
             hit(clause::GL_RASTER_POLYGON);
         }
+        // (MEASURED, golden opengl-32 interp-*, smooth-*: a smooth polygon's channels one 32nd
+        // added and truncated, as fogged ones: GL.RASTER.INTERPOLATE)
+        let fixed = if flat { self.span() } else { ToFixed::Span };
+        if !flat {
+            hit(clause::GL_RASTER_INTERPOLATE_COLOR);
+        }
         self.never = NeverPath::Other;
-        for (x, y) in px {
-            self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
+        for (x, y, c) in px {
+            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: w[0][2], fixed, zfixed: None })?;
         }
         Ok(())
     }
@@ -2160,7 +2184,7 @@ impl Ctx {
                     let xs = [w[0][0], w[1][0], w[2][0], w[3][0]];
                     let ys = [w[0][1], w[1][1], w[2][1], w[3][1]];
                     if !(xs[0] == xs[3] && xs[1] == xs[2] && ys[0] == ys[1] && ys[2] == ys[3]) {
-                        self.polygon(q)?;
+                        self.polygon(q, 3)?;
                         continue;
                     }
                     // clipped to the view volume: the viewport's rectangle (GL.RASTER.CLIP.XY)
@@ -2288,9 +2312,9 @@ impl Ctx {
                         self.never = NeverPath::Other;
                         continue;
                     }
-                    let mut px = self.fill(q)?;
-                    px.sort_by_key(|(x, y)| (*y, *x));
-                    for (x, y) in px {
+                    let mut px = self.fill(q, &[c.map(f64::from); 4])?;
+                    px.sort_by_key(|(x, y, _)| (*y, *x));
+                    for (x, y, _) in px {
                         let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                         if r.is_err() {
                             self.never = NeverPath::Other;
@@ -2313,8 +2337,15 @@ impl Ctx {
                     _ if n >= 3 => vec![(0..n).collect()],
                     _ => Vec::new(),
                 };
+                // (the vertex a flat polygon takes its color from: a polygon's first, a quad
+                // strip quad's 2i+3, a triangle's last, GL 1.1 table 2.2)
+                let provoking = match mode {
+                    POLYGON_MODE_POLYGON => 0,
+                    QUAD_STRIP => 2,
+                    _ => 2,
+                };
                 for p in polys {
-                    self.polygon(&p.iter().map(|k| verts[*k]).collect::<Vec<_>>())?;
+                    self.polygon(&p.iter().map(|k| verts[*k]).collect::<Vec<_>>(), provoking)?;
                 }
             }
             LINES | LINE_LOOP | LINE_STRIP => {
@@ -3913,7 +3944,7 @@ pub mod tri {
     /// y = 1, y = -1 in turn): each edge from the previous vertex to the next adds where it
     /// crosses the plane, then its end when inside (golden prim-11, rect-13, tie-x-2: the order
     /// a fan from the first vertex starts from).
-    pub fn clip(poly: &[[f64; 2]]) -> Vec<[f64; 2]> {
+    pub fn clip<const D: usize>(poly: &[[f64; D]]) -> Vec<[f64; D]> {
         let mut poly = poly.to_vec();
         for (axis, sign) in [(0, 1.0), (0, -1.0), (1, 1.0), (1, -1.0)] {
             let mut out = Vec::new();
@@ -3922,7 +3953,7 @@ pub mod tri {
                 let (da, db) = (1.0 - sign * a[axis], 1.0 - sign * b[axis]);
                 if (da >= 0.0) != (db >= 0.0) {
                     let t = da / (da - db);
-                    out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
+                    out.push(std::array::from_fn(|k| a[k] + t * (b[k] - a[k])));
                 }
                 if db >= 0.0 {
                     out.push(*b);
@@ -3931,6 +3962,17 @@ pub mod tri {
             poly = out;
         }
         poly
+    }
+
+    /// The value at pixel (x, y)'s center of the plane through `at` taking `value` at each
+    /// (the colors a smooth triangle interpolates, GL.RASTER.INTERPOLATE).
+    pub fn plane(at: [Vertex; 3], value: [[f64; 4]; 3], x: i64, y: i64) -> [f64; 4] {
+        let (cx, cy) = ((x * 256 + 128) as f64, (y * 256 + 128) as f64);
+        let [a, b, c] = at.map(|v| (v.x.0 as f64, v.y.0 as f64));
+        let area = (b.0 - a.0) * (c.1 - a.1) - (c.0 - a.0) * (b.1 - a.1);
+        let l1 = ((cx - a.0) * (c.1 - a.1) - (c.0 - a.0) * (cy - a.1)) / area;
+        let l2 = ((b.0 - a.0) * (cy - a.1) - (cx - a.0) * (b.1 - a.1)) / area;
+        std::array::from_fn(|k| value[0][k] + (value[1][k] - value[0][k]) * l1 + (value[2][k] - value[0][k]) * l2)
     }
 
     /// The pixels (x, y) of a `w` by `h` window whose centers a triangle (or any convex polygon)
