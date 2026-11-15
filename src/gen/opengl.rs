@@ -1510,4 +1510,20 @@ fn measure(s: &mut String) {
             writeln!(s, "glerr\nend").unwrap();
         }
     }
+    // the PROBE triangles swept sideways by -8/1024 .. 8/1024 pixel under a viewport that cuts
+    // nothing: where each of a triangle's edges flips in each row, against the lone edges of
+    // tri-edge-*, which Windows puts where they are
+    for (k, part) in PROBE.chunks(5).enumerate() {
+        writeln!(s, "case tri-sweep-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for t in part {
+            for j in -8..=8 {
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+                for (x, y) in t {
+                    glf(s, "glVertex2f", &[f64::from(*x + j) / 1024.0, f64::from(*y) / 1024.0]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
