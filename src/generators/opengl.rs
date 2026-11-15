@@ -1929,4 +1929,55 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // under a projection: lines the view volume cuts (sides, near plane, behind the eye), with
+    // their depths; triangles of glVertex4f corners (w 2, 1/2, -1) at w = 1 projections; culled
+    // triangles with a corner behind the eye
+    let mut r = XorShift32::new(0x6c0f_2d95);
+    for k in 0..8 {
+        writeln!(s, "case persp-more-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glMatrixMode 0x1701\ngl glLoadIdentity", ctx(32)).unwrap();
+        match k {
+            0..=2 => glf(s, "glFrustum", &[-1.0, 1.0, -1.0, 1.0, 1.0, 8.0]),
+            3..=5 => writeln!(s, "gl glOrtho 0 16 0 16 -1 1").unwrap(),
+            _ => {
+                glf(s, "glFrustum", &[-1.0, 1.0, -1.0, 1.0, 1.0, 8.0]);
+                writeln!(s, "gl glEnable 0xb44\ngl glCullFace {}", if k == 6 { "0x405" } else { "0x404" }).unwrap();
+            }
+        }
+        writeln!(s, "gl glMatrixMode 0x1700").unwrap();
+        for _ in 0..6 {
+            writeln!(s, "gl glClear 0x4100").unwrap();
+            writeln!(s, "gl glColor4ub {} {} {} 255", r.next() % 256, r.next() % 256, r.next() % 256).unwrap();
+            let mut c = |lo: i32, hi: i32| f64::from(lo + (r.next() % (hi - lo + 1) as u32) as i32) / 8.0;
+            match k {
+                0..=2 => {
+                    writeln!(s, "gl glBegin 1").unwrap();
+                    for _ in 0..2 {
+                        let z = if k == 2 { c(-24, 8) } else { c(-24, -4) };
+                        let v = [c(-24, 24), c(-24, 24), z];
+                        glf(s, "glVertex3f", &v);
+                    }
+                }
+                3..=5 => {
+                    writeln!(s, "gl glBegin 4").unwrap();
+                    for _ in 0..3 {
+                        let w = [2.0, 0.5, -1.0, 1.0][(c(0, 3) * 8.0) as usize];
+                        let v = [c(0, 128) * w / 8.0, c(0, 128) * w / 8.0, c(-6, 6) * w / 8.0, w];
+                        glf(s, "glVertex4f", &v);
+                    }
+                }
+                _ => {
+                    writeln!(s, "gl glBegin 4").unwrap();
+                    for i in 0..3 {
+                        let z = if i == 0 { c(1, 16) } else { c(-32, -10) };
+                        let v = [c(-16, 16), c(-16, 16), z];
+                        glf(s, "glVertex3f", &v);
+                    }
+                }
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
