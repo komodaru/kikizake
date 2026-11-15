@@ -1425,6 +1425,19 @@ impl Filter {
 /// (MEASURED, WARP: probe-filter-*, 2425 values) a bilinear result n in 1/128 of a byte (n of
 /// 32640 for 1.0) as a float: the f32 nearest n ceil(2^46 / 32640) / 2^46, a hair above
 /// n / 32640 (seven values at 0.498 ulp past an f32 round up)
+/// a + (b - a) t as SSE computes it, NaNs included: an operation's result is its first operand
+/// when that is a NaN, else its second, quieted (MEASURED, WARP: probe-filter-r11g11b10, 72
+/// NaN values of differing payloads)
+fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
+    let op = |x: f32, y: f32, r: f32| {
+        let quiet = |n: f32| f32::from_bits(n.to_bits() | 0x40_0000);
+        if x.is_nan() { quiet(x) } else if y.is_nan() { quiet(y) } else { r }
+    };
+    let d = op(b, a, b - a);
+    let m = op(d, t, d * t);
+    op(a, m, a + m)
+}
+
 /// the level or levels a sample reads
 #[derive(Clone, Copy)]
 enum Level {
@@ -1667,16 +1680,18 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
                 // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
                 // 1/256 below the fraction
-                let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && (f.comps.iter().all(|&c| c == 16) || f.comps == [10, 10, 10, 2]));
+                let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && (f.comps.iter().all(|&c| c == 16) || f.comps == [10, 10, 10, 2]) || matches!(v.format(), 26 | 67 | 85 | 86 | 115));
+                // (and R11G11B10, R9G9B9E5, 5-6-5, 5-5-5-1 and 4-4-4-4 UNORM: probe-filter-r11g11b10, -rgb9e5, -b5g6r5, -b5g5r5a1, -b4g4r4a4;
+                // NaNs as SSE passes them on, D3DRASTER.FILTER.FLOAT)
                 if wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
                     let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
                     return Ok(Filtered::Wide([0, 1, 2, 3].map(|k| {
-                        let l = a[k] + (c[k] - a[k]) * fv;
-                        let r = b[k] + (e[k] - b[k]) * fv;
-                        l + (r - l) * fu
+                        let l = lerp_sse(a[k], c[k], fv);
+                        let r = lerp_sse(b[k], e[k], fv);
+                        lerp_sse(l, r, fu)
                     })));
                 }
                 if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
@@ -1705,10 +1720,10 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // in f32, 8-bit UNORM too
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
                     (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed([0, 1, 2, 3].map(|k| (a[k] * (256 - f) + b[k] * f) >> 8)))),
-                    (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * (f as f32 / 256.0))))),
+                    (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| lerp_sse(a[k], b[k], f as f32 / 256.0))))),
                     (Filtered::Point(a), Filtered::Point(b)) => {
                         let (a, b) = (a.map(f32::from_bits), b.map(f32::from_bits));
-                        mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * (f as f32 / 256.0)))))
+                        mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| lerp_sse(a[k], b[k], f as f32 / 256.0)))))
                     }
                     (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
                 },
