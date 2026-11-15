@@ -411,16 +411,35 @@ fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
         let p = hq_plain(&wic_convert(s, "prgba")?, w, h)?;
         return wic_convert(&p, "rgba");
     }
-    // (64bppRGBA: premultiplied too, but its 16-bit premultiplying and back are not worked out,
-    // golden rgrid-hqcubic-rgba64-*: colors 1 or 2 below the exact)
+    // (MEASURED: golden rgrid-hqcubic-rgba64-*, fmt-rgba64-hqcubic: 64bppRGBA is premultiplied
+    // too, color = (c*a)>>16, and back = floor(c*65536/a) clamped, 0 where alpha is 0)
     if s.fmt == "rgba64" {
-        return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
+        let mut p = s.clone();
+        for px in p.px.chunks_exact_mut(8) {
+            let a = u32::from(u16::from_le_bytes([px[6], px[7]]));
+            for k in 0..3 {
+                let v = u32::from(u16::from_le_bytes([px[2 * k], px[2 * k + 1]]));
+                let v = u16::try_from(v * a >> 16).expect("c*a>>16 < 65536");
+                px[2 * k..2 * k + 2].copy_from_slice(&v.to_le_bytes());
+            }
+        }
+        let mut q = hq_plain(&p, w, h)?;
+        for px in q.px.chunks_exact_mut(8) {
+            let a = u32::from(u16::from_le_bytes([px[6], px[7]]));
+            for k in 0..3 {
+                let v = u32::from(u16::from_le_bytes([px[2 * k], px[2 * k + 1]]));
+                let v = if a == 0 { 0 } else { (v * 65536 / a).min(65535) };
+                let v = u16::try_from(v).expect("clamped to 65535");
+                px[2 * k..2 * k + 2].copy_from_slice(&v.to_le_bytes());
+            }
+        }
+        return Ok(q);
     }
     hq_plain(s, w, h)
 }
 
 fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
-    let wide = matches!(s.fmt, "gray16" | "rgb48");
+    let wide = matches!(s.fmt, "gray16" | "rgb48" | "rgba64");
     let size = if wide { 2 } else { 1 };
     let c = bits_of(s.fmt) as usize / (8 * size);
     let max = if wide { 65535.0 } else { 255.0 };
@@ -436,9 +455,10 @@ fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
             let sum = |f: &dyn Fn(usize, usize) -> f64| -> f64 { a.iter().map(|&(jy, wy)| wy * b.iter().map(|&(jx, wx)| wx * f(jx, jy)).sum::<f64>()).sum() };
             for k in 0..c {
                 let v = sum(&|x, y| src(x, y, k));
-                // (MEASURED: golden rgrid-hqcubic-gray16-7x7-3x3, -rgb48-4x4-9x9, -8x6-3x13: 16-bit
-                // sums within 0.015 of a half round either way, its f32 order not found)
-                if wide && (v - v.floor() - 0.5).abs() < 0.02 {
+                // (MEASURED: golden rgrid-hqcubic-gray16-7x7-3x3, -rgb48-4x4-9x9, -8x6-3x13,
+                // -rgba64-4x4-9x9, -7x7-3x3: 16-bit sums within 0.005 of a half round either way
+                // (one at 0.002..0.005), its f32 order not found)
+                if wide && (v - v.floor() - 0.5).abs() < 0.005 {
                     return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
                 }
                 let v = (v + 0.5).floor().clamp(0.0, max) as u16;
