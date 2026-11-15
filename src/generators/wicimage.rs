@@ -1530,6 +1530,16 @@ pub fn wicencode() -> String {
             writeln!(s, "case backsweep-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(png)).unwrap();
         }
     }
+    // (the other three quarters of the 16-bit levels as float and half: every level)
+    for j in 1..4u32 {
+        let lv: Vec<u16> = (0..16384u32).map(|k| (k * 4 + (k + j) % 4) as u16).collect();
+        let png = sweep(&lv, 128);
+        for (via, tos) in [("rgbafloat", ["rgba64", "bgra"]), ("rgba64half", ["rgba64", "bgra"]), ("grayfloat", ["gray16", "gray8"])] {
+            for to in tos {
+                writeln!(s, "case backsweep{j}-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(&png)).unwrap();
+            }
+        }
+    }
     s
 }
 
