@@ -34428,6 +34428,39 @@ gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case clip-z
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glColor4ub 200 100 50 255
+gl glBegin 0
+gl glVertex3f 2.5 2.5 1.5
+gl glVertex3f 4.5 2.5 -1.5
+gl glVertex3f 6.5 2.5 0.5
+gl glEnd
+gl glBegin 1
+gl glVertex3f 0.3 6.2 -3
+gl glVertex3f 15.1 7.9 -1.25
+gl glVertex3f 0.3 9.2 0.25
+gl glVertex3f 15.1 10.9 0.25
+gl glEnd
+gl glBegin 7
+gl glVertex3f 1 12 1.01
+gl glVertex3f 5 12 1.01
+gl glVertex3f 5 15 1.01
+gl glVertex3f 1 15 1.01
+gl glVertex3f 9 12 0.99
+gl glVertex3f 13 12 0.99
+gl glVertex3f 13 15 0.99
+gl glVertex3f 9 15 0.99
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
 case fog-rects-0
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glMatrixMode 0x1701

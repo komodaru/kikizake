@@ -1358,6 +1358,10 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // primitives wholly past the near or far plane, beside ones inside
+    write!(s, "case clip-z\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glColor4ub 200 100 50 255\ngl glBegin 0\ngl glVertex3f 2.5 2.5 1.5\ngl glVertex3f 4.5 2.5 -1.5\ngl glVertex3f 6.5 2.5 0.5\ngl glEnd\ngl glBegin 1\ngl glVertex3f 0.3 6.2 -3\ngl glVertex3f 15.1 7.9 -1.25\ngl glVertex3f 0.3 9.2 0.25\ngl glVertex3f 15.1 10.9 0.25\ngl glEnd\ngl glBegin 7\ngl glVertex3f 1 12 1.01\ngl glVertex3f 5 12 1.01\ngl glVertex3f 5 15 1.01\ngl glVertex3f 1 15 1.01\ngl glVertex3f 9 12 0.99\ngl glVertex3f 13 12 0.99\ngl glVertex3f 13 15 0.99\ngl glVertex3f 9 15 0.99\ngl glEnd\n", ctx(32)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
     // fog over flat quads, one depth each, in every mode on the RGBA bit depths, a fog color,
     // the state read back; and color index fog and points
     let mut q = XorShift32::new(0x0960_200b);

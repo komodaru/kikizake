@@ -1952,6 +1952,21 @@ impl Ctx {
         out
     }
 
+    /// whether every vertex is past the same near or far plane, the primitive then not drawn
+    /// (MEASURED, golden opengl-32 edge-raster-clip: a quad at z 2 under glOrtho(.., -1, 1)
+    /// draws nothing: GL.RASTER.CLIP.Z)
+    fn culled_z(&self, vs: &[[f64; 3]]) -> bool {
+        let z: Vec<f64> = vs.iter().map(|v| xform(self.top(1), xform(self.top(0), [v[0], v[1], v[2], 1.0]))).filter(|c| c[3] == 1.0).map(|c| c[2]).collect();
+        if z.len() != vs.len() || z.is_empty() {
+            return false;
+        }
+        let out = z.iter().all(|z| *z < -1.0) || z.iter().all(|z| *z > 1.0);
+        if out {
+            hit(clause::GL_RASTER_CLIP_Z);
+        }
+        out
+    }
+
     fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
         let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
         let c = xform(self.top(1), e);
@@ -1961,7 +1976,8 @@ impl Ctx {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
         if c[2] < -1.0 || c[2] > 1.0 {
-            return Err(Fail::Unmodeled(open::GL_RASTER_CLIP));
+            // (a primitive the near or far plane cuts: depths across the cut part)
+            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
         }
         hit(clause::GL_RASTER_WINDOW);
         Ok([(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0])
@@ -1977,6 +1993,9 @@ impl Ctx {
             POINTS => {
                 hit(clause::GL_POINT);
                 for (v, c) in verts {
+                    if self.culled_z(&[v]) {
+                        continue;
+                    }
                     let w = self.window(v)?;
                     // (MEASURED, golden opengl-32 points-*: a coordinate on a pixel boundary belongs
                     // to the pixel right of it in x and below it in y: the rows counted from the top)
@@ -2040,6 +2059,9 @@ impl Ctx {
             }
             QUADS => {
                 for q in verts.chunks(4).filter(|q| q.len() == 4) {
+                    if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
+                        continue;
+                    }
                     let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
                     if q.iter().any(|v| v.1 != q[3].1) || w.iter().any(|p| p[2] != w[0][2]) {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
@@ -2224,6 +2246,9 @@ impl Ctx {
                 };
                 for (i, j) in pairs {
                     let (a, b) = (&verts[i], &verts[j]);
+                    if self.culled_z(&[a.0, b.0]) {
+                        continue;
+                    }
                     let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
                     if a.1 != b.1 || wa[2] != wb[2] {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));

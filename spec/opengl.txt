@@ -139,7 +139,7 @@ GL.RASTER.POLYGON open | (none) | quads that are not axis-aligned rectangles
 GL.RASTER.MODE open | glBegin | wide, stippled and antialiased lines, triangles, triangle and quad strips, fans and polygons not modelled
 GL.RASTER.PERSPECTIVE open | (none) | a clip w other than 1
 GL.RASTER.CLIP.XY measured | (none) | a rectangle past the view volume's sides drawn as its part inside the viewport (opengl golden tie-vp-*: viewports at (4, 4) and (-4, -4))
-GL.RASTER.CLIP open | (none) | a vertex outside the near and far planes
+GL.RASTER.CLIP.Z measured | (none) | a point, line or quad whose every vertex is past the same near or far plane is not drawn; one the planes cut has depths that differ across its drawn part (GL.RASTER.INTERPOLATE) (opengl golden edge-raster-clip)
 GL.POINT measured | glPointSize | a 1-pixel point fills the pixel the window position lies in (opengl golden points-*)
 GL.POINT.TIE measured | glBegin (GL_POINTS) | a point's coordinate on a pixel boundary goes to the pixel on the side of the tie pivot (normalized device coordinates (0.5, -0.5)), a column through the pivot to the pixel right of it and a row through it to the pixel below (opengl golden point-edge-*: 64 points)
 GL.POINT.WIDE measured | glPointSize | a point of width n (the size rounded, held to 1..10) covers n x n pixels: odd n centered on the pixel the position is in, even n with its corner on the pixel boundary nearest the position, ties as GL.POINT.TIE (opengl golden prim-*)
