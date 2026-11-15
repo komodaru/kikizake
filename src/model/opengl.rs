@@ -1637,16 +1637,13 @@ impl Ctx {
             }
             "glVertex4f" if fl(a, 3) != 1.0 => {
                 // (a point of w other than 1: as (x, y, z) / w when w > 0, past the view volume
-                // when w < 0, its clip coordinates' w then negative, GL 1.1 2.11; a corner of
-                // w = 0 not measured: persp-more-11)
+                // when w <= 0, its clip coordinates' w then not positive, GL 1.1 2.11; a corner
+                // of w = 0 a point at infinity, cut as any other: golden opengl-32 persp-more-11)
                 let w = fl(a, 3);
                 if self.in_begin.is_none() {
                     // (ignored, as any other vertex outside glBegin: persp-more-11)
                     hit(clause::GL_VERTEX_OUTSIDE);
                     return Ok(());
-                }
-                if w == 0.0 {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
                 }
                 hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
                 if self.in_begin != Some(POINTS) {
@@ -2048,8 +2045,10 @@ impl Ctx {
         }
         if !c[..3].iter().all(|q| (-c[3]..=c[3]).contains(q)) {
             if c[3] != 1.0 {
-                // (a primitive cut in clip coordinates of w other than 1)
-                return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+                // (a vertex of w other than 1 past the view volume: its primitive is cut in
+                // clip coordinates before it gets here, tri::clip, tri::clip_segment; the
+                // rectangle test of a quad drops the error and cuts it as a polygon)
+                return Err(Fail::Bad);
             }
             if c[2] < -1.0 || c[2] > 1.0 {
                 // (a primitive the near or far plane cuts: depths across the cut part)
