@@ -452,5 +452,16 @@ pub fn gdiplusdraw() -> String {
         let (w, h) = (r.range(1, 24), r.range(1, 24));
         writeln!(s, "case filteralpha-{i}\ngpbitmap 0 24 24 32bppARGB\ngpbitmap 1 8 8 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpdraw 0 1 - 0 0 {w} {h} 0 0 8 8 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next()).unwrap();
     }
+    // one source column across 64 destination columns, the step exactly 1/64: column k reads
+    // the bicubic weights' table at entry k, against eight rows of three channels (the table of
+    // each filtering mode pinned entry by entry); then the same down
+    for i in 0..24 {
+        let im = [4, 6, 7][i % 3];
+        writeln!(s, "case cubicq-{i}\ngpbitmap 0 64 8 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - 0 0 64 8 3 0 1 8 copy 0 {im} 3\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
+    for i in 0..12 {
+        let im = [4, 6, 7][i % 3];
+        writeln!(s, "case cubicqy-{i}\ngpbitmap 0 8 64 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - 0 0 8 64 0 3 8 1 copy 0 {im} 3\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
     s
 }
