@@ -7350,9 +7350,9 @@ wconv rgba64half
 wconv bgra
 wpixels
 end
-case opt-tiff-name-bgra
+case opt-jpeg-sub1-bgra
 wbits bgra 6 4 1903624449
-wencode tiff TiffCompression=1
+wencode jpeg JpegYCrCbSubsampling=1
 wredecode
 wframe 0
 winfo

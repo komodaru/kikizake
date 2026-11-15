@@ -1331,7 +1331,7 @@ wicencode gridtie-idx8-few-0
 wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2
 wicencode gridtie-idx8-few-3
-wicencode opt-tiff-name-bgra
+wicencode opt-jpeg-sub1-bgra
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic

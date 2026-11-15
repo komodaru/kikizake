@@ -1488,7 +1488,7 @@ pub fn wicencode() -> String {
     for (k, (f, t)) in [("rgba64fixed", "bgra"), ("rgbafloat", "bgra"), ("rgb48fixed", "rgb48"), ("grayfix16", "gray8"), ("rgba64half", "bgra")].into_iter().enumerate() {
         writeln!(s, "case back-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xbac0_0000u32 + k as u32).unwrap();
     }
-    writeln!(s, "case opt-tiff-name-bgra\nwbits bgra 6 4 {}\nwencode tiff TiffCompression=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
+    writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     s
 }
 
