@@ -1444,4 +1444,50 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // triangles whose pixels Windows decides otherwise than the exact edges do (tri-many-*,
+    // tri-clip-*: up to 0.006 pixels inward or outward), each under seven viewports, the object
+    // coordinates kept as window coordinates: the window's own (the clip volume cuts the ones past
+    // it), ones reaching 2, 16, 64 and 512 pixels past every side (nothing cut, the window
+    // coordinates' viewport-relative values growing), a 64-pixel one from the corner and one
+    // centred off the window; in 1/1024 pixels
+    const PROBE: [[(i32, i32); 3]; 25] = [
+        [(14080, 6144), (16512, 5248), (4736, 16640)],
+        [(768, 17152), (3712, -1792), (768, 18304)],
+        [(9600, -1280), (2560, 12032), (17408, 13696)],
+        [(2304, 3712), (4224, 17408), (5248, 14080)],
+        [(17664, -1664), (768, 16896), (2560, 7296)],
+        [(12288, 3712), (1792, 10752), (-640, 1152)],
+        [(9728, 3584), (3328, -1920), (13952, 4864)],
+        [(4003, 1441), (-2015, 5913), (12488, 8749)],
+        [(12820, 2569), (7157, -254), (888, 12289)],
+        [(11830, 14545), (567, 1947), (10463, 9922)],
+        [(2693, 11098), (-1703, -121), (-111, 15748)],
+        [(-729, 2669), (17378, 6285), (4140, 14637)],
+        [(18415, 2167), (11953, 12950), (15173, 11829)],
+        [(9933, 1039), (1728, 5155), (17096, 6949)],
+        [(14464, 18304), (16896, 12928), (6144, 0)],
+        [(9984, 2816), (12800, 6784), (17024, 14976)],
+        [(4992, 16384), (1792, 5248), (17152, 6656)],
+        [(128, 8064), (4608, 9984), (9856, 17536)],
+        [(896, 1664), (8832, 10368), (12032, -640)],
+        [(5421, 10975), (-576, 4799), (-68, 16443)],
+        [(14741, 12632), (14955, -655), (-423, 14514)],
+        [(16209, 7038), (45, -161), (4635, -230)],
+        [(15123, 12624), (17881, 4557), (4775, 12871)],
+        [(12032, 14976), (8704, 9728), (8960, 12288)],
+        [(17294, 15114), (12459, 14799), (7281, 6022)]
+    ];
+    for (k, part) in PROBE.chunks(5).enumerate() {
+        writeln!(s, "case tri-probe-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glMatrixMode 0x1701", ctx(32)).unwrap();
+        for t in part {
+            for (vp, o) in [("0 0 16 16", "0 16 0 16"), ("-2 -2 20 20", "-2 18 -2 18"), ("-16 -16 48 48", "-16 32 -16 32"), ("-64 -64 144 144", "-64 80 -64 80"), ("-512 -512 1040 1040", "-512 528 -512 528"), ("0 0 64 64", "0 64 0 64"), ("-48 -48 64 64", "-48 16 -48 16")] {
+                writeln!(s, "gl glViewport {vp}\ngl glLoadIdentity\ngl glOrtho {o} -1 1\ngl glClear 0x4000\ngl glBegin 4").unwrap();
+                for (x, y) in t {
+                    glf(s, "glVertex2f", &[f64::from(*x) / 1024.0, f64::from(*y) / 1024.0]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
