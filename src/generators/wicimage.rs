@@ -1379,6 +1379,13 @@ pub fn wicencode() -> String {
     for (f, w, h, seed) in [("gray8", 9u32, 9u32, 0x0dd5_0001u32), ("gray8", 6, 10, 0x0dd5_0002), ("gray16", 8, 12, 0x0dd5_0003), ("bgra", 9, 9, 0x0dd5_0004), ("bgr24", 4, 8, 0x0dd5_0005)] {
         writeln!(s, "case encdds-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode dds\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
     }
+    // every 16-bit gray level into 48bppRGB (16bppGray's own path into 64bppRGBAFixedPoint goes
+    // through it, fixpath-gray16-rgb48)
+    {
+        let every: Vec<Vec<u8>> = (0..256u32).map(|y| (0..256u32).flat_map(|x| ((y * 256 + x) as u16).to_be_bytes()).collect()).collect();
+        let f = png(256, 256, 16, 0, false, &[], &png_filter(&every, 2, &[0]), 4096);
+        writeln!(s, "case gray16-every-rgb48\nwdecode {}\nwframe 0\nwconv rgb48\nwpixels\nend", hex(&f)).unwrap();
+    }
     // many single DDS blocks (one 4x4 picture each, its own seed): the start and the stop of the
     // color fit, and the alpha fit
     for (f, n) in [("bgr24", 48u32), ("bgra", 32), ("gray8", 16)] {

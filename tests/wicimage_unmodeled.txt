@@ -2558,6 +2558,7 @@ wicencode fixpath-gray16-rgba64half
 wicencode fixpath-gray16-rgbafloat
 wicencode fixpath-gray16-rgbfloat
 wicencode gifalpha-full256
+wicencode gray16-every-rgb48
 wicencode gridtie-idx8-few-0
 wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2
