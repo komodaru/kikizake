@@ -877,6 +877,25 @@ fn probes(s: &mut String, dev: &str) {
         }
         writeln!(s, "end").unwrap();
     }
+    // x-major lines from a corner shared by two pixels above each other (a top corner going
+    // up, a bottom one going down, rightward and leftward), of five slopes and three lengths:
+    // probe-rt-ms4-lines-over lit the lower pixel where the 1.5-pixel lines of probe-linevert-*
+    // light the upper one; two lines a case, in the upper and lower halves
+    let long: Vec<(f32, f32, f32)> = [1.5f32, 4.0, 14.0].into_iter().flat_map(|len| [0.125f32, 0.25, 0.414, 0.5, 0.75].into_iter().flat_map(move |k| [(1.0f32, -1.0f32), (1.0, 1.0), (-1.0, -1.0), (-1.0, 1.0)].into_iter().map(move |(sx, sy)| (len * sx, len * k * sy, sy)))).collect();
+    for (i, pair) in long.chunks(2).enumerate() {
+        begin(s, dev, &format!("probe-linecorner-{i}"), 16, 16, 28, "ps");
+        for (half, &(dx, dy, sy)) in pair.iter().enumerate() {
+            // (the start on the corner between rows 3 and 4, or 11 and 12, at column 1 or 14's
+            // center)
+            let x = if dx > 0.0 { 1.5 } else { 14.5 };
+            let y = if half == 0 { 4.0 } else { 12.0 } + if sy < 0.0 { 3.0 } else { -3.0 } * f32::from(u8::from(dy.abs() > 3.0));
+            vertex(s, x, y, 0.5, color(i as u32 * 7 + 2 * half as u32), 16.0, 16.0);
+            vertex(s, x + dx, y + dy, 0.5, color(i as u32 * 7 + 2 * half as u32 + 1), 16.0, 16.0);
+        }
+        writeln!(s, "draw 2 4 32").unwrap();
+        read_rt(s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
     for i in 0..4u32 {
         begin(s, dev, &format!("probe-linesw-{i}"), 16, 16, 2, "ps");
         for _ in 0..8 {
