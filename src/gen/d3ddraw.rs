@@ -710,6 +710,27 @@ fn probes(s: &mut String, dev: &str) {
         read_rt(s, 0, 2, 16, 16);
         writeln!(s, "end").unwrap();
     }
+    // depths that vary over unclipped triangles: read through SV_Position (w = 1 and with w),
+    // and tested against a 32-bit float and a 16-bit UNORM depth view
+    let mut rz = XorShift32::new(0x2_9a7e);
+    for i in 0..6u32 {
+        let (ps, fmt) = if i < 4 { ("pspos", 2u32) } else { ("ps", 28) };
+        begin(s, dev, &format!("probe-zplane-{i}"), 16, 16, fmt, ps);
+        if i >= 4 {
+            let df = if i == 4 { 40 } else { 55 };
+            writeln!(s, "tex 1 2 16 16 1 1 {df} 0 0x40 0 0 1 0\ndsv 1 1 nodesc\ncleards 1 3 {} 0\ntarget 0 1\ndepthst 1 1 2", fb(0.5)).unwrap();
+        }
+        for _ in 0..3 {
+            let (x, y, z) = (px(&mut rz, 1, 15), px(&mut rz, 1, 15), unit(&mut rz));
+            let w = if i == 1 || i == 3 { 0.5 + 1.5 * unit(&mut rz) } else { 1.0 };
+            let (nx, ny) = (x / 16.0 * 2.0 - 1.0, 1.0 - y / 16.0 * 2.0);
+            let c = color(i * 3);
+            writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(nx * w), fb(ny * w), fb(z * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+        }
+        writeln!(s, "draw 4 3 32").unwrap();
+        read_rt(s, 0, fmt, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
     // to separate the interpolation's parts: w = 1 inside the target (the plane equations'
     // arithmetic), inside with w (the perspective division), one vertex past one edge (the
     // clipping and its triangles), with w = 1 and with w

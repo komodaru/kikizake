@@ -993,7 +993,7 @@ impl Line {
         // the triangles are given, not turned
         let iw = t.map(|v| if v.1 { self.iwb } else { self.iwa });
         let aw = [0, 1, 2].map(|i| (if t[i].1 { self.cb } else { self.ca }).map(|a| a * iw[i]));
-        (mask, Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw }))
+        (mask, Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw, zs: [self.z; 3] }))
     }
 
     /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels;
@@ -1265,7 +1265,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let planes = unclipped.then(|| Planes::new(tri, |q| {
         let (x, y) = snap2(q);
         (x as f32 / 256.0, y as f32 / 256.0)
-    }));
+    }, |q| minz + q[2] / q[3] * (maxz - minz)));
     let pieces: Vec<[(i64, i64); 3]> = if unclipped {
         vec![v]
     } else {
@@ -1323,6 +1323,14 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                     continue;
                 }
                 hit(clause::D3DRASTER_TOPLEFT);
+                // (a depth that varies over an unclipped triangle: its plane at the pixel
+                // center, as the attributes' (D3DRASTER.INTERP.DEPTH))
+                let z = z.or_else(|| {
+                    let p = planes.as_ref()?;
+                    hit(clause::D3DRASTER_INTERP_DEPTH);
+                    let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
+                    Some(p.plane(p.zs, cx, cy).max(lo).min(hi))
+                });
                 let out = shade(m, ps, tri, planes.as_ref(), lead, prim, front, (px, py), z, d)?;
                 output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
                 continue;
@@ -1456,10 +1464,12 @@ struct Planes {
     ys: [f32; 3],
     iw: [f32; 3],
     aw: [[f32; 4]; 3],
+    /// the vertices' depths on the viewport's range (D3DRASTER.INTERP.DEPTH)
+    zs: [f32; 3],
 }
 
 impl Planes {
-    fn new(tri: &[Vert; 3], screen: impl Fn(&[f32; 4]) -> (f32, f32)) -> Planes {
+    fn new(tri: &[Vert; 3], screen: impl Fn(&[f32; 4]) -> (f32, f32), depth: impl Fn(&[f32; 4]) -> f32) -> Planes {
         // (the last of the least clip x, as a stable rotation: MEASURED, WARP, probe-filter-float,
         // -unorm16, where two share it)
         let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] <= tri[k].pos[0] { i } else { k });
@@ -1467,7 +1477,7 @@ impl Planes {
         let s = t.map(|v| screen(&v.pos));
         let iw = t.map(|v| 1.0 / v.pos[3]);
         let aw = [0, 1, 2].map(|i| t[i].color.map(|a| a * iw[i]));
-        Planes { xs: s.map(|p| p.0), ys: s.map(|p| p.1), iw, aw }
+        Planes { xs: s.map(|p| p.0), ys: s.map(|p| p.1), iw, aw, zs: t.map(|v| depth(&v.pos)) }
     }
 
     fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
@@ -1508,9 +1518,6 @@ impl Filter {
     }
 }
 
-/// (MEASURED, WARP: probe-filter-*, 2425 values) a bilinear result n in 1/128 of a byte (n of
-/// 32640 for 1.0) as a float: the f32 nearest n ceil(2^46 / 32640) / 2^46, a hair above
-/// n / 32640 (seven values at 0.498 ulp past an f32 round up)
 /// a + (b - a) t as SSE computes it, NaNs included: an operation's result is its first operand
 /// when that is a NaN, else its second, quieted (MEASURED, WARP: probe-filter-r11g11b10, 72
 /// NaN values of differing payloads)
@@ -1540,6 +1547,9 @@ enum Filtered {
     Fixed([i64; 4]),
 }
 
+/// (MEASURED, WARP: probe-filter-*, 2425 values) a bilinear result n in 1/128 of a byte (n of
+/// 32640 for 1.0) as a float: the f32 nearest n ceil(2^46 / 32640) / 2^46, a hair above
+/// n / 32640 (seven values at 0.498 ulp past an f32 round up)
 fn linear_float(n: i64) -> f32 {
     const M: i64 = (1 << 46) / 32640 + 1;
     const _: () = assert!(M * 32640 > 1 << 46 && (M - 1) * 32640 < 1 << 46);
