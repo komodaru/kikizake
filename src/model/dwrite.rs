@@ -10,6 +10,7 @@
 //! "IDWriteTextLayout"; the OpenType specification for the tables. What the documentation
 //! leaves to the font tables' details is MEASURED from Windows' answers (golden dwrite-32/-64).
 pub mod bidi;
+pub mod fallback;
 pub mod linebreak;
 pub mod raster;
 pub mod script;
@@ -196,7 +197,13 @@ pub enum Fallback {
     None,
 }
 
-/// a text layout of the face's font alone
+/// a layout's maxBidiReorderingDepth: MEASURED (golden dwrite, fallback-*: 48 layouts) the most
+/// runs of one resolved level on a line (left to right, right to left, left to right: 3)
+fn depth(lv: &[u8], lines: &[(usize, usize)]) -> usize {
+    lines.iter().map(|&(s, e)| 1 + lv[s..e].windows(2).filter(|w| w[0] != w[1]).count()).max().unwrap_or(1)
+}
+
+/// a text layout of the face's font, and the fallback's
 fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, fallback: Fallback, cps: &[u32]) -> Res<Vec<String>> {
     let mut out = Vec::new();
     let name = p.family.encode_utf16().map(|u| format!(" {u}")).collect::<String>();
@@ -210,18 +217,50 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, fallback: Fallback, cps: &[
     out.push(format!("dwlayout families 1 hr 00000000 name{name}"));
     if cps.iter().any(|&c| glyph_of(p, c) == 0) {
         match fallback {
-            Fallback::System => return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK)),
+            Fallback::System => hit(clause::DW_LAYOUT_FALLBACK),
             Fallback::None => hit(clause::DW_LAYOUT_NOFALLBACK),
         }
     }
-    let br = linebreak::breaks(cps);
-    let scale = em as f32 / p.upm as f32;
-    let adv: Vec<f32> = cps.iter().map(|&c| p.hmtx[glyph_of(p, c) as usize].0 as f32 * scale).collect();
+    // each character's font: its design advance and the font's line metrics
     let m = metrics(p);
+    let own = fallback::LineMetrics { upm: m.upm, asc: m.asc, desc: m.desc, gap: m.gap };
+    let fonts: Vec<(u16, fallback::LineMetrics)> = match fallback {
+        Fallback::None => cps.iter().map(|&c| (p.hmtx[glyph_of(p, c) as usize].0, own)).collect(),
+        Fallback::System => {
+            let mut v = Vec::new();
+            for pc in fallback::pieces(p, cps)? {
+                let fm = match pc.pick {
+                    fallback::Pick::Own | fallback::Pick::None => own,
+                    fallback::Pick::Sys(s) => s.metrics(),
+                };
+                v.extend(pc.glyphs.iter().map(|g| (g.1, fm)));
+            }
+            v
+        }
+    };
+    // (the break analysis is of UTF-16 units: a character's is its first unit's, the break
+    // after it its last's)
+    let len = |c: u32| if c >= 0x10000 { 2 } else { 1 };
+    let bu = linebreak::breaks(cps);
+    let mut br = Vec::with_capacity(cps.len());
+    let mut u = 0;
+    for &c in cps {
+        br.push((bu[u].0, bu[u + len(c) - 1].1, bu[u].2, bu[u].3));
+        u += len(c);
+    }
+    let adv: Vec<f32> = fonts.iter().map(|&(a, fm)| a as f32 * (em as f32 / fm.upm as f32)).collect();
     hit(clause::DW_LAYOUT_LINE);
-    // MEASURED: the line gap above the ascent
-    let base = (m.asc as i32 + m.gap as i32) as f32 * em as f32 / p.upm as f32;
-    let lh = base + m.desc as f32 * em as f32 / p.upm as f32;
+    // MEASURED: the line gap above the ascent; a line of several fonts takes the greatest
+    // baseline and the greatest descent of its characters' fonts
+    let line_metrics = |s: usize, e: usize| {
+        let mut base = 0.0f32;
+        let mut desc = 0.0f32;
+        for &(_, fm) in &fonts[s..e] {
+            base = base.max((fm.asc as i32 + fm.gap as i32) as f32 * em as f32 / fm.upm as f32);
+            desc = desc.max(fm.desc as f32 * em as f32 / fm.upm as f32);
+        }
+        (base, base + desc)
+    };
     let maxw = mw4 as f32 / 4.0;
     let ws = |i: usize| br[i].2 != 0;
     // lines: [start, end) by the break opportunities (MEASURED: greedy, the width without trailing
@@ -281,14 +320,22 @@ fn layout(p: &Parsed, em: i64, mw4: i64, wrap: bool, fallback: Fallback, cps: &[
     let wtrail = widths.iter().map(|w| w.1).fold(0.0f32, f32::max);
     let b = |v: f32| format!("{:08x}", v.to_bits());
     // (MEASURED: the last line's height is its baseline plus the descent)
-    let height: f32 = (0..lines.len()).map(|_| lh).fold(0.0, |a, b| a + b);
+    let height: f32 = lines.iter().map(|&(s, e)| line_metrics(s, e).1).fold(0.0, |a, b| a + b);
+    // the resolved bidi levels (MEASURED: a left-to-right paragraph); a cluster at an odd one
+    // is right to left
+    let classes: Vec<bidi::Class> = cps.iter().map(|&c| bidi::class(c)).collect();
+    let (_, lv) = bidi::analyze(&classes, 0);
+    hit(clause::DW_LAYOUT_DEPTH);
+    let depth = depth(&lv, &lines);
     // (MEASURED: left is negative zero)
-    out.push(format!("metrics hr 00000000 left {} top 00000000 width {} wtrail {} height {} lines {} depth 1", b(-0.0), b(width), b(wtrail), b(height), lines.len()));
+    out.push(format!("metrics hr 00000000 left {} top 00000000 width {} wtrail {} height {} lines {} depth {depth}", b(-0.0), b(width), b(wtrail), b(height), lines.len()));
+    let units = |s: usize, e: usize| cps[s..e].iter().map(|&c| len(c)).sum::<usize>();
     for (&(s, e), w) in lines.iter().zip(&widths) {
-        out.push(format!("line {} trail {} nl 0 height {} base {} trimmed 0", e - s, w.2, b(lh), b(base)));
+        let (base, lh) = line_metrics(s, e);
+        out.push(format!("line {} trail {} nl 0 height {} base {} trimmed 0", units(s, e), w.2, b(lh), b(base)));
     }
     hit(clause::DW_LAYOUT_CLUSTERS);
-    let cl: Vec<String> = (0..cps.len()).map(|i| format!(" {}/1/{}{}0{}0", b(adv[i]), (br[i].1 == linebreak::CAN) as u8, br[i].2, br[i].3)).collect();
+    let cl: Vec<String> = (0..cps.len()).map(|i| format!(" {}/{}/{}{}0{}{}", b(adv[i]), len(cps[i]), (br[i].1 == linebreak::CAN) as u8, br[i].2, br[i].3, lv[i] % 2)).collect();
     out.push(format!("clusters hr 00000000 n {}{}", cps.len(), cl.concat()));
     Ok(out)
 }
@@ -591,15 +638,50 @@ impl Dwrite {
                 if t.len() < 2 {
                     return Err(Fail::Empty);
                 }
-                let _ = face!();
-                return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK));
+                let mut cps = Vec::new();
+                for i in 1..t.len() {
+                    let c = n(i)?;
+                    if !(0..=0x10ffff).contains(&c) || (0xd800..0xe000).contains(&c) {
+                        return Err(Fail::Bad);
+                    }
+                    cps.push(c as u32);
+                }
+                let p = face!();
+                if p.family.is_empty() {
+                    // (the collection of a font without a family name has no family: as the layout's)
+                    hit(clause::DW_LAYOUT_NAME);
+                    out.push("dwfallback hr 80004005".into());
+                    return Ok(true);
+                }
+                out.push("dwfallback hr 00000000".into());
+                let utf16 = |s: &str| s.encode_utf16().map(|u| format!(" {u}")).collect::<String>();
+                for pc in fallback::pieces(p, &cps)? {
+                    // MEASURED: the scale is always 1
+                    out.push(format!("map {} scale 3f800000", pc.units()));
+                    let (name, m) = match pc.pick {
+                        fallback::Pick::None => {
+                            out.push("nofont".into());
+                            continue;
+                        }
+                        fallback::Pick::Own => {
+                            let m = metrics(p);
+                            (utf16(&p.family), fallback::LineMetrics { upm: m.upm, asc: m.asc, desc: m.desc, gap: m.gap })
+                        }
+                        fallback::Pick::Sys(s) => (utf16(s.name()), s.metrics()),
+                    };
+                    // MEASURED: normal weight, style and stretch (the own font's OS/2: 400,
+                    // REGULAR, 5), no simulation
+                    out.push(format!("font 400 0 5 sim 0 name{name}"));
+                    out.push(format!("fmetrics upm {} asc {} desc {} gap {}", m.upm, m.asc, m.desc, m.gap));
+                    out.push(format!("glyphs{}", pc.glyphs.iter().map(|(g, a)| format!(" {g}/{a}")).collect::<String>()));
+                }
             }
             "dwlayout" | "dwlayoutnf" => {
                 let (em, mw4, wrap) = (n(1)?, n(2)?, n(3)?);
                 let mut cps = Vec::new();
                 for i in 4..t.len() {
                     let c = n(i)?;
-                    if !(0..0x10000).contains(&c) {
+                    if !(0..=0x10ffff).contains(&c) || (0xd800..0xe000).contains(&c) {
                         return Err(Fail::Bad);
                     }
                     cps.push(c as u32);

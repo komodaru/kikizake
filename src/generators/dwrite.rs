@@ -430,6 +430,31 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
         writeln!(s, "end").unwrap();
     }
+    // where the fallback's pieces end: every two of the characters side by side (one font, or
+    // two; one block, or two), and after and before the font's own
+    writeln!(s, "case fallback-pairs\n{}", font_line(&font(0x0fe3_0000))).unwrap();
+    for a in FB {
+        let row: Vec<String> = FB.iter().map(|b| format!("{a:#x} {b:#x}")).collect();
+        for r in row {
+            writeln!(s, "dwfallback {r}").unwrap();
+        }
+    }
+    writeln!(s, "end").unwrap();
+    // the fallback, and a layout, of a font without a family name; layouts without fallback of
+    // supplementary characters
+    let mut f = font(0x0fe3_0001);
+    f.family = String::new();
+    writeln!(s, "case fallback-noname\n{}\ndwfallback 0x41 0x4e00\ndwlayout 12 400 1 0x41 0x4e00\nend", font_line(&f)).unwrap();
+    writeln!(s, "case fallback-nf\n{}\ndwlayoutnf 12 400 1 0x41 0x1f601 0x10fffd 0x42\ndwlayoutnf 20 80 1 0x1f601 0x20 0x1f601 0x20 0x41 0x1f601\nend", font_line(&font(0x0fe3_0002))).unwrap();
+    // right-to-left runs at a line's start, middle and end, alone on a line and across lines
+    // (the reordering depth)
+    writeln!(s, "case fallback-bidi\n{}", font_line(&font(0x0fe3_0003))).unwrap();
+    for t in ["0x627", "0x627 0x41", "0x41 0x627", "0x41 0x627 0x41 0x5d1 0x41", "0x627 0x20 0x628", "0x41 0x20 0x627 0x20 0x41 0x20 0x5d1 0x20 0x41", "0x627 0x628 0x20 0x41 0x41 0x20 0x5d1", "0x41 0x30 0x627 0x31 0x41"] {
+        for (w, wrap) in [(800, 0), (40, 1), (100, 1)] {
+            writeln!(s, "dwlayout 16 {w} {wrap} {t}").unwrap();
+        }
+    }
+    writeln!(s, "end").unwrap();
     // layouts without font fallback: characters the font does not map among those it does
     for i in 0..12u32 {
         let f = font(0x0fe0_0000 + i);
