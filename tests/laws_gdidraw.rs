@@ -211,6 +211,20 @@ proptest! {
         prop_assert!(v[4].0.iter().all(|p| *p == c[12]), "the last Bézier has no length");
     }
 
+    /// RoundRect with corners as large as the box (or larger) is Ellipse, its sides of no length
+    #[test]
+    fn round_rect_of_the_whole_box_is_the_ellipse(l in -20i32..20, t in -20i32..20, w in 3i32..30, h in 3i32..30, more in (0i32..40, 0i32..40), cw in proptest::bool::ANY) {
+        use kikizake::model::gdipath::{ellipse_points, round_rect_points};
+        let (r, b) = (l + w, t + h);
+        let q = round_rect_points((l, t, r, b), (2 * w + more.0, 2 * h + more.1), cw);
+        let e = ellipse_points(l, t, r, b, cw);
+        for i in [4, 8, 12] {
+            prop_assert_eq!(q[i], q[i - 1], "a side of no length");
+        }
+        let without: Vec<(i32, i32)> = q.iter().enumerate().filter(|(i, _)| ![4, 8, 12].contains(i)).map(|(_, p)| *p).collect();
+        prop_assert_eq!(without, e.to_vec());
+    }
+
     /// drawing through a viewport origin is drawing shifted by it (PatBlt, Rectangle, LineTo)
     #[test]
     fn viewport_origin_shifts_drawing(o in (-6i32..7, -6i32..7), a in (-4i32..14, -4i32..14), d in (-6i32..9, -6i32..9), kind in 0u8..3) {
@@ -244,7 +258,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 342), ("region", 506), ("xform", 670), ("path", 175), ("text", 25), ("blend", 915), ("ddb", 59)];
+    let floor = [("lines", 342), ("region", 506), ("xform", 670), ("path", 429), ("text", 25), ("blend", 915), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {

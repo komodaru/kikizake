@@ -209,6 +209,22 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             close(p);
             out.push("ret 1".into());
         }
+        "roundrect" => {
+            let [a, b, wh] = pts[..] else { return Err(Fail::Bad) };
+            if wh.0 < 0 || wh.1 < 0 {
+                // (a corner of negative size: not measured)
+                return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+            }
+            hit(clause::GDI_PATH_ROUNDRECT);
+            let (l, r) = (a.0.min(b.0), a.0.max(b.0));
+            let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
+            let c = round_rect_points((l, t, r, bt), wh, sl.ext.arcdir == 2);
+            for (i, q) in c.iter().enumerate() {
+                p.push(Pt::fix(*q, if i == 0 { Kind::Move } else if i % 4 == 0 { Kind::Line } else { Kind::Bezier }));
+            }
+            close(p);
+            out.push("ret 1".into());
+        }
         "arc" | "arcto" | "pie" | "chord" => {
             let [a, b, rs, re] = pts[..] else { return Err(Fail::Bad) };
             let (l, r) = (a.0.min(b.0), a.0.max(b.0));
@@ -274,6 +290,34 @@ pub fn ellipse_points(l: i32, t: i32, r: i32, bt: i32, cw: bool) -> [(i32, i32);
     let dy = if cw { inset(fb - ft).floor() } else { inset(fb - ft).ceil() } as i32;
     let (xp, xm, ym, yp) = (fr - dx, fl + dx, ft + dy, fb - dy);
     let mut c = [(fr, cy), (fr, ym), (xp, ft), (cx, ft), (xm, ft), (fl, ym), (fl, cy), (fl, yp), (xm, fb), (cx, fb), (xp, fb), (fr, yp), (fr, cy)];
+    if cw {
+        for q in c.iter_mut() {
+            q.1 = ft + fb - q.1;
+        }
+    }
+    c
+}
+
+/// RoundRect's 16 points in 28.4 (MEASURED, GDI.PATH.ROUNDRECT, path rrgrid-* arcpath-* curve-*
+/// 240 of 240 GetPath): the box (l, t) - (r - 1, b - 1) as Ellipse's; each corner's radius its
+/// width (height) times 8, shrunk as the box is, (W - 1) / W, to the nearest 1/16 pixel (halves
+/// up), at most half the box; from the right side's upper end counterclockwise (the lower end
+/// clockwise, mirrored), each corner a quarter of Ellipse's (its control points the radius
+/// times 1 - 4/3 (sqrt 2 - 1) in, rounded as Ellipse rounds them), the sides lines
+pub fn round_rect_points(bx: (i32, i32, i32, i32), wh: (i32, i32), cw: bool) -> [(i32, i32); 16] {
+    let (l, t, r, bt) = bx;
+    let (fl, fr, ft, fb) = (l * 16, (r - 1) * 16, t * 16, (bt - 1) * 16);
+    // (d * 8 * (n - 1) / n, halves up)
+    let radius = |d: i32, n: i32, half: i32| -> i32 {
+        let (d, n) = (i64::from(d), i64::from(n.max(1)));
+        let v = (2 * d * 8 * (n - 1) + n).div_euclid(2 * n);
+        i32::try_from(v).unwrap_or(i32::MAX).min(half)
+    };
+    let (rx, ry) = (radius(wh.0, r - l, (fr - fl) / 2), radius(wh.1, bt - t, (fb - ft) / 2));
+    let inset = |rad: i32| f64::from(rad) * (1.0 - 0.552_284_749_8);
+    let ix = inset(rx).floor() as i32;
+    let iy = if cw { inset(ry).floor() } else { inset(ry).ceil() } as i32;
+    let mut c = [(fr, ft + ry), (fr, ft + iy), (fr - ix, ft), (fr - rx, ft), (fl + rx, ft), (fl + ix, ft), (fl, ft + iy), (fl, ft + ry), (fl, fb - ry), (fl, fb - iy), (fl + ix, fb), (fl + rx, fb), (fr - rx, fb), (fr - ix, fb), (fr, fb - iy), (fr, fb - ry)];
     if cw {
         for q in c.iter_mut() {
             q.1 = ft + fb - q.1;

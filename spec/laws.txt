@@ -148,5 +148,6 @@ tests/laws_gdidraw.rs::isotropic_shrinks_one_axis_to_the_others_ratio pbt GDI.MA
 tests/laws_gdidraw.rs::giq_of_whole_ends_is_the_integer_line pbt GDI.LINE.GIQ GDI.LINE.PIXELS GDI.LINE.TIE
 tests/laws_gdidraw.rs::giq_shifts_with_whole_pixels pbt GDI.LINE.GIQ
 tests/laws_gdidraw.rs::arc_whole_turn_is_the_ellipse pbt GDI.PATH.ARC GDI.PATH.ELLIPSE
+tests/laws_gdidraw.rs::round_rect_of_the_whole_box_is_the_ellipse pbt GDI.PATH.ROUNDRECT GDI.PATH.ELLIPSE
 tests/laws_gdidraw.rs::viewport_origin_shifts_drawing pbt GDI.MAP.DRAWPTS GDI.BLT.PATNEG
 tests/laws_gdidraw.rs::world_whole_maps_are_exact_both_ways pbt GDI.XFORM.WORLDPOINT GDI.XFORM.WORLDINV GDI.XFORM.WARMX86
