@@ -487,18 +487,26 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         }
         return Err(Fail::Unmodeled(open::D3DRASTER_TOPOLOGY));
     };
-    let view = m.views[tv].clone().unwrap();
-    // (a view whose resource's slot was emptied since, by a failed creation there: the model
-    // has lost the resource)
-    if m.res[view.res].is_none() || d.depth.is_some_and(|v| m.views[v].as_ref().is_some_and(|dv| m.res[dv.res].is_none())) {
+    // (a view, or its resource, whose slot was emptied since, by a failed creation there: the
+    // model has lost it)
+    let Some(view) = m.views[tv].clone() else {
+        return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
+    };
+    if m.res[view.res].is_none() || d.depth.is_some_and(|v| m.views[v].as_ref().is_none_or(|dv| m.res[dv.res].is_none())) {
         return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
     }
     let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_RTFMT))?;
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
     let (rw, rh, _) = {
         let r = m.res[view.res].as_ref().unwrap();
-        if r.d.dim != 2 {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        // (MEASURED, WARP: probe-rt-3d) a 3D texture's view from its first depth slice: the
+        // draw lands on that slice only (no SV_RenderTargetArrayIndex), as a 2D array's first
+        // slice (probe-rt-array)
+        let first_w = view.dim() == 8 && view.u(1, matches!(dev, Dev::D11(_))) == 0;
+        match r.d.dim {
+            2 => {}
+            3 if first_w => hit(clause::D3DRASTER_RT_3D),
+            _ => return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND)),
         }
         r.size(r.mip_of(rt_sub))
     };
@@ -1871,6 +1879,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let (base, mips) = match (v.words.get(1), v.words.get(2), v.words.get(3)) {
                 _ if r.d.mips == 1 => (0, 1),
                 (Some(&4), Some(&b), Some(&n)) if b < r.d.mips => (b, n.min(r.d.mips - b).max(1)),
+                // (MEASURED, WARP: probe-filter-array-mips) a 2D array's view from slice 0 through
+                // a Texture2D: slice 0's levels
+                (Some(&5), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4) == Some(&0) => {
+                    hit(clause::D3DRASTER_FILTER_ARRAY);
+                    (b, n.min(r.d.mips - b).max(1))
+                }
                 // (other kinds of views of textures with mips: not measured)
                 _ => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
             };
