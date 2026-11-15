@@ -513,7 +513,13 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                 if points && whole && r.d.q == 0 {
                     hit(clause::D3DRASTER_MS_POINTS);
                 }
-                if !whole || !(aliased_lines || points || matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) && d.rast[0] != 2) || r.d.q != 0 {
+                // (MEASURED, WARP: probe-rt-ms4-wire) wireframe's aliased edges likewise
+                let tris = matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj);
+                let wire = tris && d.rast[0] == 2 && d.rast[8] == 0 && d.rast[9] == 0 && r.samples.iter().all(Option::is_none);
+                if wire && whole && r.d.q == 0 {
+                    hit(clause::D3DRASTER_MS_LINES);
+                }
+                if !whole || !(aliased_lines || points || wire || tris && d.rast[0] != 2) || r.d.q != 0 {
                     return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                 }
                 Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
@@ -1695,10 +1701,15 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             };
             match level {
                 Level::One(l) => done(one(l)?),
-                // (MEASURED, WARP: probe-filter-trilinear) between two levels
+                // (MEASURED, WARP: probe-filter-trilinear*) between two levels; point texels blend
+                // in f32, 8-bit UNORM too
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
                     (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed([0, 1, 2, 3].map(|k| (a[k] * (256 - f) + b[k] * f) >> 8)))),
                     (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * (f as f32 / 256.0))))),
+                    (Filtered::Point(a), Filtered::Point(b)) => {
+                        let (a, b) = (a.map(f32::from_bits), b.map(f32::from_bits));
+                        mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * (f as f32 / 256.0)))))
+                    }
                     (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
                 },
             }

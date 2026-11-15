@@ -582,6 +582,53 @@ fn probes(s: &mut String, dev: &str) {
         vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 11\nread 1 0 128 16 1\nend").unwrap();
+    // what D3DRASTER.RTKIND leaves open: depth per sample, a viewport off whole pixels, lines
+    // with the multisample state, points through pspos and over differing samples on a
+    // multisampled target; a depth view alone
+    let ms4 = |s: &mut String, name: &str, rast: &str, vp: (f32, f32), ps: &str| {
+        writeln!(s, "case probe-rt-ms4-{name}\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast {rast}\nviewport {} {} {} {} 0 {}", hex(&shader("vs")), hex(&shader(ps)), fb(vp.0), fb(vp.1), fb(16.0), fb(16.0), fb(1.0)).unwrap();
+    };
+    ms4(s, "depth", "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), "ps");
+    writeln!(s, "tex 2 2 16 16 1 1 40 0 0x40 0 0 4 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0)).unwrap();
+    for (k, (t, z)) in [([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], 0.25f32), ([(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], 0.75), ([(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)], 0.5)].into_iter().enumerate() {
+        for (i, (x, y)) in t.into_iter().enumerate() {
+            vertex(s, x, y, z, color(k as u32 * 3 + i as u32), 16.0, 16.0);
+        }
+    }
+    writeln!(s, "draw 4 9 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    ms4(s, "vphalf", "3 1 0 0 0 0 1 0 0 0", (0.5, 0.25), "ps");
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    for (name, rast) in [("linesms", "3 1 0 0 0 0 1 0 1 0"), ("linesaa", "3 1 0 0 0 0 1 0 0 1"), ("linesboth", "3 1 0 0 0 0 1 0 1 1")] {
+        ms4(s, name, rast, (0.0, 0.0), "ps");
+        for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
+            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        }
+        writeln!(s, "draw 2 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    }
+    ms4(s, "points-pspos", "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), "pspos");
+    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 1 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    ms4(s, "points-over", "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), "ps");
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
+    }
+    writeln!(s, "draw 4 3 32").unwrap();
+    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 1.25), (5.5, 0.75)].into_iter().enumerate() {
+        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(s, "draw 1 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    writeln!(s, "case probe-depth-alone\n{dev}\ntex 1 2 8 8 1 1 40 0 0x40 0 0 1 0\ndsv 1 1 nodesc\ncleards 1 3 {} 0\ntarget - 1\ndepthst 1 1 8", fb(1.0)).unwrap();
+    writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(8.0), fb(8.0), fb(1.0)).unwrap();
+    for (x, y) in [(0.0f32, 0.0f32), (8.0, 1.5), (0.5, 7.0)] {
+        vertex(s, x, y, 0.375, [1.0; 4], 8.0, 8.0);
+    }
+    writeln!(s, "draw 4 3 32\nread 1 0 32 8 1\nend").unwrap();
     // what D3DRASTER.RTKIND leaves open: wireframe on a multisampled target
     writeln!(s, "case probe-rt-ms4-wire\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 2 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(16.0), fb(16.0), fb(1.0)).unwrap();
@@ -843,7 +890,7 @@ fn probes(s: &mut String, dev: &str) {
     // what D3DRASTER.FILTER leaves open: anisotropic filtering, linear filtering of sRGB and
     // SNORM texels, minifying a texture with mips (two texels a pixel), between two levels
     // (spans of 1.0625, 1.25, sqrt 2, 1.75, 2.5 and 3 texels; float, 16-bit UNORM and point texels)
-    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5)), ("trilinear", 0x15, 28, 3, (-1.5, 4.5)), ("aniso-min", 0x55, 28, 1, (-3.5, 4.5)), ("r10", 0x15, 24, 1, (-0.2, 0.9)), ("mips-point", 0x14, 28, 3, (-1.5, 4.5)), ("trilinear-1", 0x15, 28, 3, (-1.0, 3.25)), ("trilinear-2", 0x15, 28, 3, (-1.0, 4.0)), ("trilinear-3", 0x15, 28, 3, (-1.0, 4.656854)), ("trilinear-4", 0x15, 28, 3, (-1.0, 6.0)), ("trilinear-5", 0x15, 28, 3, (-1.0, 9.0)), ("trilinear-6", 0x15, 28, 3, (-1.0, 11.0)), ("trilinear-float", 0x15, 2, 3, (-1.5, 4.5)), ("trilinear-point", 0x1, 28, 3, (-1.5, 4.5)), ("trilinear-unorm16", 0x15, 11, 3, (-1.0, 6.0)), ("r11g11b10", 0x15, 26, 1, (-0.2, 0.9)), ("rgb9e5", 0x15, 67, 1, (-0.2, 0.9)), ("b5g6r5", 0x15, 85, 1, (-0.2, 0.9)), ("b5g5r5a1", 0x15, 86, 1, (-0.2, 0.9)), ("b4g4r4a4", 0x15, 115, 1, (-0.2, 0.9)), ("r8g8b8a8-uint", 0x15, 30, 1, (-0.2, 0.9))] {
+    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5)), ("trilinear", 0x15, 28, 3, (-1.5, 4.5)), ("aniso-min", 0x55, 28, 1, (-3.5, 4.5)), ("r10", 0x15, 24, 1, (-0.2, 0.9)), ("mips-point", 0x14, 28, 3, (-1.5, 4.5)), ("trilinear-1", 0x15, 28, 3, (-1.0, 3.25)), ("trilinear-2", 0x15, 28, 3, (-1.0, 4.0)), ("trilinear-3", 0x15, 28, 3, (-1.0, 4.656854)), ("trilinear-4", 0x15, 28, 3, (-1.0, 6.0)), ("trilinear-5", 0x15, 28, 3, (-1.0, 9.0)), ("trilinear-6", 0x15, 28, 3, (-1.0, 11.0)), ("trilinear-float", 0x15, 2, 3, (-1.5, 4.5)), ("trilinear-point", 0x1, 28, 3, (-1.5, 4.5)), ("trilinear-unorm16", 0x15, 11, 3, (-1.0, 6.0)), ("r11g11b10", 0x15, 26, 1, (-0.2, 0.9)), ("rgb9e5", 0x15, 67, 1, (-0.2, 0.9)), ("b5g6r5", 0x15, 85, 1, (-0.2, 0.9)), ("b5g5r5a1", 0x15, 86, 1, (-0.2, 0.9)), ("b4g4r4a4", 0x15, 115, 1, (-0.2, 0.9)), ("r8g8b8a8-uint", 0x15, 30, 1, (-0.2, 0.9)), ("trilinear-point-2", 0x1, 28, 3, (-1.0, 6.0)), ("trilinear-point-float", 0x1, 2, 3, (-1.0, 9.0))] {
         writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
         let pitch = format(fmt).unwrap().row_bytes(4);
         writeln!(s, "tex 1 2 4 4 1 {mips} {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3").unwrap();
