@@ -6,7 +6,7 @@
 //! "SetGraphicsMode", "SetWorldTransform", "ModifyWorldTransform", "CombineTransform",
 //! "LPtoDP", "DPtoLP", "Transformation of Coordinate Spaces" (the formulas).
 
-use crate::spec::{clause, open};
+use crate::spec::clause;
 use super::gdi::Gdi;
 use super::{Fail, Res};
 use crate::case::{num, Op};
@@ -144,20 +144,21 @@ impl Map {
         let wy = x * f64::from(w[1]) + y * f64::from(w[3]) + f64::from(w[5]);
         axis(wx, self.wext.0, e.0, self.worg.0, self.vorg.0) && axis(wy, self.wext.1, e.1, self.worg.1, self.vorg.1)
     }
-    /// the world transform times the page scale, in f32: each of the world's six numbers times
-    /// vext / wext (an f32 quotient) of its axis (GDI.XFORM.WORLDPOINT); None with the origins
-    /// not 0, whose place in it no case measures yet (GDI.XFORM.ROUNDWORLD)
+    /// the world transform times the page transform, in f32: each of the world's six numbers
+    /// times vext / wext (an f32 quotient) of its axis, the offsets plus vO - wO * that
+    /// (GDI.XFORM.WORLDPOINT, GDI.XFORM.ROUNDWORLD)
     fn device_matrix(&self) -> Res<Xform> {
-        if self.worg != (0, 0) || self.vorg != (0, 0) {
-            return Err(Fail::Unmodeled(open::GDI_XFORM_ROUNDWORLD));
-        }
-        let e = self.ve();
+        let e = self.ve_points();
         if self.wext.0 == 0 || self.wext.1 == 0 {
             return Err(Fail::Bad);
         }
         let (sx, sy) = (e.0 as f32 / self.wext.0 as f32, e.1 as f32 / self.wext.1 as f32);
         let w = self.world;
-        Ok([w[0] * sx, w[1] * sy, w[2] * sx, w[3] * sy, w[4] * sx, w[5] * sy])
+        if self.worg != (0, 0) || self.vorg != (0, 0) {
+            hit(clause::GDI_XFORM_ROUNDWORLD);
+        }
+        let (ox, oy) = (self.vorg.0 as f32 - self.worg.0 as f32 * sx, self.vorg.1 as f32 - self.worg.1 as f32 * sy);
+        Ok([w[0] * sx, w[1] * sy, w[2] * sx, w[3] * sy, w[4] * sx + ox, w[5] * sy + oy])
     }
     /// MEASURED (GDI.XFORM.WORLDPOINT, 5120 of 5120 world-* coordinates each arch): LPtoDP
     /// through a world transform: each axis the point times the f32 matrix (device_matrix),
@@ -338,11 +339,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "gmode" => {
             let v = n(op, 2)?;
             hit(clause::GDI_XFORM_GMODE);
-            // MEASURED (world-*): GM_COMPATIBLE over a world transform other than the identity
-            // returns the mode as it was, as a success, and the transform stays (the doc: it
-            // cannot be set then; cases gmodeback-* ask the mode afterwards)
+            // MEASURED (world-*, gmodeback-*): GM_COMPATIBLE over a world transform other than
+            // the identity is set all the same (not the doc's failure), the transform staying
+            // and still mapping points; ModifyWorldTransform then fails as in GM_COMPATIBLE
             let out_mode = match v {
-                1 | 2 if v == 1 && m.world != IDENTITY => m.gmode,
                 1 | 2 => std::mem::replace(&mut m.gmode, v),
                 _ => 0,
             };
