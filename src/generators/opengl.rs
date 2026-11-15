@@ -1980,4 +1980,29 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // long 1-pixel lines whose exact path meets pixel boundaries partway (slopes p/q with q
+    // not a power of 2, ends on pixel centers): how Windows steps across, in fixed or float
+    let slopes: [(i32, i32); 8] = [(1, 3), (2, 3), (1, 5), (3, 7), (1, 6), (5, 6), (2, 7), (4, 9)];
+    for k in 0..4 {
+        start(s, format!("line-dda-{k}"), 32);
+        writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+        for (i, (p, q)) in slopes.into_iter().enumerate() {
+            for flip in [false, true] {
+                // (k: 0 x-major rising, 1 x-major falling, 2 y-major, 3 starting off center)
+                let n = 14 / q * q;
+                let (major0, minor0) = (0.5 + f64::from(i as i32 % 2), 1.0 + f64::from(i as i32) / 4.0);
+                let off = if k == 3 { 0.25 } else { 0.0 };
+                let (dmaj, dmin) = (f64::from(n), f64::from(n / q * p) * if k == 1 { -1.0 } else { 1.0 });
+                let minor0 = if k == 1 { minor0 + 13.0 } else { minor0 };
+                let (a, b) = ((major0 + off, minor0), (major0 + off + dmaj, minor0 + dmin));
+                let (a, b) = if flip { (b, a) } else { (a, b) };
+                let (a, b) = if k == 2 { ((a.1, a.0), (b.1, b.0)) } else { (a, b) };
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+                glf(s, "glVertex2f", &[a.0, a.1]);
+                glf(s, "glVertex2f", &[b.0, b.1]);
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
