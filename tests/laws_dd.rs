@@ -3,7 +3,7 @@
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
-use kikizake::model::d3d7::{clear_z, f32_past, gouraud_channel, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
+use kikizake::model::d3d7::{clear_z, f32_past, SlopeRound, gouraud_channel, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
 use kikizake::model::ddraw::{pal_entries, pitch};
 use kikizake::model::{self, run_case, Fail};
 
@@ -292,7 +292,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 34, 0), ("d3d7dev", 83, 0), ("d3d7shade", 43, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 8, 0), ("d3d7dev", 83, 0), ("d3d7shade", 42, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -421,7 +421,7 @@ fn ties_round_symmetrically() {
                     let (t, b) = ((tx, ty), (tx + dx, ty + dy));
                     let (tm, bm) = ((-tx, ty), (-tx - dx, ty + dy));
                     for k in 1..4 {
-                        let (Some(p), Some(q)) = (f32_past(t, b, first, k), f32_past(tm, bm, first, k)) else { continue };
+                        let (Some(p), Some(q)) = (f32_past(t, b, first, k, SlopeRound::Nearest), f32_past(tm, bm, first, k, SlopeRound::Nearest)) else { continue };
                         assert!(!(p && q), "{t:?} {b:?} row {k}");
                         if [16, 32].contains(&dy) {
                             assert!(!p && !q, "{t:?} {b:?} row {k}: exact in f32");
@@ -434,6 +434,40 @@ fn ties_round_symmetrically() {
     }
     // (most slopes are not exact in f32: some edges move)
     assert!(moved > 1000, "{moved}");
+}
+
+/// the long edge's tie (D3D7.TRI.TIE, D3D7.TRI.EDGE): its f32 slope rounds toward zero, so an
+/// edge whose first-row x is exact (a top on a row) and whose slope is positive never lies past
+/// the pixel, the edge mirrored about x = 0 never past when the edge is, and a slope exact in f32
+/// leaves both on it; for every edge of a small domain, rows 1 to 3 after its first
+#[test]
+fn long_ties_round_toward_zero() {
+    let (mut moved, mut checked) = (0, 0);
+    for tx in (-24..=24).step_by(5) {
+        for ty in 0..20 {
+            let first = (ty + 15) / 16;
+            for dy in 1..48 {
+                for dx in -48..=48 {
+                    let (t, b) = ((tx, ty), (tx + dx, ty + dy));
+                    let (tm, bm) = ((-tx, ty), (-tx - dx, ty + dy));
+                    for k in 1..4 {
+                        let (Some(p), Some(q)) = (f32_past(t, b, first, k, SlopeRound::TowardZero), f32_past(tm, bm, first, k, SlopeRound::TowardZero)) else { continue };
+                        checked += 1;
+                        assert!(!(p && q), "{t:?} {b:?} row {k}");
+                        if ty == first * 16 && dx > 0 {
+                            assert!(!p, "{t:?} {b:?} row {k}: a slope cut toward zero");
+                        }
+                        if [16, 32].contains(&dy) {
+                            assert!(!p && !q, "{t:?} {b:?} row {k}: exact in f32");
+                        }
+                        moved += usize::from(p || q);
+                    }
+                }
+            }
+        }
+    }
+    // (a negative slope cut toward zero lies past: some edges move)
+    assert!(moved > 1000 && checked > 100_000, "{moved} {checked}");
 }
 
 /// D3D7.LINE: a line (|dx| > |dy|, or the other way) draws exactly one pixel in each whole column

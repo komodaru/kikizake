@@ -1010,20 +1010,6 @@ fn ceil_f32(num: i64, den: i64) -> i64 {
     (x + (1.0 - f32::EPSILON)).floor() as i64
 }
 
-/// how an edge settles an x exactly on a pixel on a row past its first (D3D7.TRI.TIE)
-#[derive(Clone, Copy)]
-enum Tie {
-    /// a short edge: by where its x lies in single precision, the first row's x (top x + (row −
-    /// top y) · slope, the slope (bottom x − top x) / (bottom y − top y), each step rounded to
-    /// f32) and the f32 slope times the rows after it taken exactly: a pixel more when that is
-    /// past the pixel
-    F32,
-    /// the long edge on the right: never a pixel more
-    Exact,
-    /// the long edge on the left: not worked out (D3D7.TRI.EDGE)
-    Open,
-}
-
 /// a finite f32 times 2^64, when that is a whole number that fits
 fn f32_scaled(v: f32) -> Option<i128> {
     let bits = v.to_bits();
@@ -1053,73 +1039,98 @@ fn px_f32(c: i64) -> Option<f32> {
     i16::try_from(c).ok().map(|c| f32::from(c) / 16.0)
 }
 
-/// whether the f32 walk of edge t..b lies past the pixel on the k-th row after its first row
-/// `first`, where the exact x is a whole pixel (Tie::F32); None where the arithmetic leaves i128
-pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64) -> Option<bool> {
+/// how an edge's f32 slope (bottom x − top x) / (bottom y − top y) is rounded
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SlopeRound {
+    /// to nearest (the short edges)
+    Nearest,
+    /// toward zero (the long edge, top to bottom vertex)
+    TowardZero,
+}
+
+/// an edge's f32 walk from its row `first`: (its x there, its slope), each times 2^64. The slope
+/// (bottom x − top x) / (bottom y − top y) of the vertices in f32 pixels, rounded by `round`; the
+/// x top x + (first − top y) · slope, each step rounded to nearest; None where a vertex or the
+/// arithmetic leaves f32 or i128
+fn f32_edge(t: (i64, i64), b: (i64, i64), first: i64, round: SlopeRound) -> Option<(i128, i128)> {
     let (tx, ty, bx, by) = (px_f32(t.0)?, px_f32(t.1)?, px_f32(b.0)?, px_f32(b.1)?);
-    let slope = (bx - tx) / (by - ty);
+    let nearest = (bx - tx) / (by - ty);
+    let slope = match round {
+        SlopeRound::Nearest => nearest,
+        SlopeRound::TowardZero => {
+            // (one f32 step toward zero, the magnitude's bits less one, when rounding to nearest
+            // went past the exact slope 16 dx / 16 dy, dy > 0)
+            let past = f32_scaled(nearest)?.checked_mul(i128::from(b.1 - t.1))?.checked_sub(i128::from(b.0 - t.0).checked_mul(1i128 << 64)?)?;
+            if nearest != 0.0 && past != 0 && (past > 0) == (nearest > 0.0) { f32::from_bits(nearest.to_bits() - 1) } else { nearest }
+        }
+    };
     let x0 = tx + (f32::from(i16::try_from(first).ok()?) - ty) * slope;
+    Some((f32_scaled(x0)?, f32_scaled(slope)?))
+}
+
+/// whether the f32 walk of edge t..b (f32_edge) lies past the pixel on the k-th row after its
+/// first row `first`, where the exact x is a whole pixel; None where the arithmetic leaves i128
+pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64, round: SlopeRound) -> Option<bool> {
+    let (x0, slope) = f32_edge(t, b, first, round)?;
     let (dxn, dyn_) = (i128::from(b.0 - t.0), i128::from(b.1 - t.1));
     let den = 16 * dyn_;
     let num = i128::from(t.0) * dyn_ + i128::from(first * 16 - t.1) * dxn;
     let one = 1i128 << 64;
     // ((x0 − num / den) + k (slope − 16 dxn / den)) · den · 2^64
-    let e0 = f32_scaled(x0)?.checked_mul(den)?.checked_sub(num.checked_mul(one)?)?;
-    let ed = f32_scaled(slope)?.checked_mul(den)?.checked_sub((16 * dxn).checked_mul(one)?)?;
+    let e0 = x0.checked_mul(den)?.checked_sub(num.checked_mul(one)?)?;
+    let ed = slope.checked_mul(den)?.checked_sub((16 * dxn).checked_mul(one)?)?;
     Some(e0.checked_add(ed.checked_mul(i128::from(k))?)? > 0)
 }
 
+/// which of a triangle's edges an EdgeWalk is
+#[derive(Clone, Copy)]
+enum Side {
+    /// top to bottom vertex: its slope rounded toward zero
+    Long,
+    /// top to middle or middle to bottom: its slope rounded to nearest
+    Short,
+}
+
 /// one edge's walk, from top t to bottom b (in 16ths, t above b): the rows it spans, each with
-/// its x as the next pixel at or right of the edge, and whether that row's x lies exactly on a
-/// pixel past the first row where the edge's Tie leaves it open
+/// its x as the next pixel at or right of the edge, and whether that row's x is left open
+/// (D3D7.TRI.EDGE)
 struct EdgeWalk {
     first: i64,
     xs: Vec<(i64, bool)>,
 }
 
 impl EdgeWalk {
-    fn new(t: (i64, i64), b: (i64, i64), tie: Tie) -> EdgeWalk {
-        let (dxn, dyn_) = (b.0 - t.0, b.1 - t.1);
-        let first = ceil_f32(t.1, 16);
+    /// the f32 walk (f32_edge) from the edge's first row (the f32 ceiling of its top, row 0 for
+    /// a top above the target): its x there the f32 ceiling of the f32 x (an x on a pixel, from
+    /// 2 on, one more: which moves the whole edge one pixel right), each later row the ceiling of
+    /// that x plus the rows times the f32 slope, taken exactly (D3D7.TRI.TIE)
+    fn new(t: (i64, i64), b: (i64, i64), side: Side) -> Res<EdgeWalk> {
+        let round = match side {
+            Side::Long => SlopeRound::TowardZero,
+            Side::Short => SlopeRound::Nearest,
+        };
+        let first = ceil_f32(t.1, 16).max(0);
         let last = b.1.div_euclid(16);
-        // x at row y = (t.x dy + (16 y − t.y) dx) / (16 dy)
-        let den = 16 * dyn_;
-        let num = t.0 * dyn_ + (first * 16 - t.1) * dxn;
-        let mut xi = ceil_f32(num, den);
-        // the error to the next pixel, in 1/den: with xi it walks the edge; an x on a pixel
-        // on the first row (x + 1 there, but no error) moves the whole edge one pixel right
-        let mut err = (-num).rem_euclid(den);
-        let (fl, fr) = ((16 * dxn).div_euclid(den), (16 * dxn).rem_euclid(den));
+        let one = 1i128 << 64;
         let mut xs = Vec::new();
-        for y in first..=last {
-            let mut open = false;
-            if y > first {
-                xi += fl;
-                err -= fr;
-                if err < 0 {
-                    xi += 1;
-                    err += den;
+        if first <= last {
+            let Some((x0, slope)) = f32_edge(t, b, first, round) else { return Err(Fail::Unmodeled(open::D3D7_TRI_EDGE)) };
+            let whole = x0.rem_euclid(one) == 0;
+            let ceil = |x: i128| -> Res<i64> { i64::try_from(-((-x).div_euclid(one))).map_err(|_| Fail::Bad) };
+            let shift = i64::from(whole && x0 >= 2 * one);
+            for y in first..=last {
+                let k = y - first;
+                let x = slope.checked_mul(i128::from(k)).and_then(|d| d.checked_add(x0)).ok_or(Fail::Bad)?;
+                // (a top exactly on row 0, off a pixel: 2 of 2 x on a pixel the row after went a
+                // pixel right, d3d7edge center-*-bot; on row 1, longseq-rgb-0, it did not)
+                let open = matches!(side, Side::Long) && t.1 == 0 && !whole && (1..=2).contains(&k) && x.rem_euclid(one) == 0;
+                if k > 0 && x.rem_euclid(one) == 0 {
+                    hit(clause::D3D7_TRI_TIE);
                 }
-                if err == 0 {
-                    // (past the pixel: the pixel after it, its error a whole den)
-                    match tie {
-                        Tie::F32 => match f32_past(t, b, first, y - first) {
-                            Some(true) => {
-                                hit(clause::D3D7_TRI_TIE);
-                                xi += 1;
-                                err += den;
-                            }
-                            Some(false) => hit(clause::D3D7_TRI_TIE),
-                            None => open = true,
-                        },
-                        Tie::Exact => hit(clause::D3D7_TRI_TIE),
-                        Tie::Open => open = true,
-                    }
-                }
+                xs.push((ceil(x)? + shift, open));
             }
-            xs.push((xi, open));
         }
-        EdgeWalk { first, xs }
+        Ok(EdgeWalk { first, xs })
     }
     fn at(&self, y: i64) -> Option<(i64, bool)> {
         usize::try_from(y - self.first).ok().and_then(|k| self.xs.get(k).copied())
@@ -1151,9 +1162,9 @@ fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
     let [t, m, b] = s;
     hit(clause::D3D7_TRI_WALK);
     let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
-    let long = EdgeWalk::new(t, b, if long_left { Tie::Open } else { Tie::Exact });
-    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Tie::F32));
-    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Tie::F32));
+    let long = EdgeWalk::new(t, b, Side::Long)?;
+    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Side::Short)).transpose()?;
+    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Side::Short)).transpose()?;
     let n = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
     let mut cover = vec![false; n];
     for y in 0..h {
@@ -1299,22 +1310,22 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
 /// the pixel of each row a software rasterizer starts its color from: the walked span's end on
 /// the long edge's side (its first pixel when the long edge is on the left, its last one when on
 /// the right), as walk() finds the spans
-fn anchors(v: [(i64, i64); 3], h: i64) -> Vec<Option<i64>> {
+fn anchors(v: [(i64, i64); 3], h: i64) -> Res<Vec<Option<i64>>> {
     let mut s = v;
     s.sort_by_key(|p| p.1);
     let [t, m, b] = s;
     let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
-    let long = EdgeWalk::new(t, b, if long_left { Tie::Open } else { Tie::Exact });
-    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Tie::F32));
-    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Tie::F32));
-    (0..h)
+    let long = EdgeWalk::new(t, b, Side::Long)?;
+    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Side::Short)).transpose()?;
+    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Side::Short)).transpose()?;
+    Ok((0..h)
         .map(|y| {
             let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
             let (Some((l, _)), Some((r, _))) = (long.at(y), short) else { return None };
             let (xl, xr) = if long_left { (l, r) } else { (r, l) };
             (xl < xr).then_some(if long_left { xl } else { xr - 1 })
         })
-        .collect()
+        .collect::<Vec<_>>())
 }
 
 /// the pixels of D3DFILL_WIREFRAME: MEASURED (d3d7dev fillmode-*-2-*: 96 + 5 x 24 random
@@ -1546,7 +1557,7 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     // end into the next go by that row's anchor: not measured)
     let inside = v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..=h * 16).contains(&y));
     let anchor = match (st.fill, family, inside) {
-        (Fill::Solid, Family::Soft { .. }, true) => anchors(v, h),
+        (Fill::Solid, Family::Soft { .. }, true) => anchors(v, h)?,
         (Fill::Solid | Fill::Point | Fill::Wireframe, Family::Soft { .. } | Family::Ramp | Family::Hw { .. }, _) => Vec::new(),
     };
     paint(dev, st, tri, &cover, &anchor)
