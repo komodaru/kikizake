@@ -248,7 +248,7 @@ impl Gdi {
         if matches!(t0, "patblt" | "bitblt" | "stretchblt" | "getpixel" | "setpixel" | "clip") && self.slot(op, 1)?.ext.mapped() {
             let sl = self.slot(op, 1)?;
             let pos = sl.ext.pos;
-            let Some((d, _)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
+            let Some((d, _)) = super::gdixform::device_op(&mut sl.ext.map, pos, (sl.s.w, sl.s.h.abs()), op)? else {
                 return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
             };
             let map = std::mem::take(&mut self.slot(op, 1)?.ext.map);

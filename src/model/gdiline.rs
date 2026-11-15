@@ -181,7 +181,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         }
         let pos = sl.ext.pos;
-        let Some((d, from)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
+        let Some((d, from)) = super::gdixform::device_op(&mut sl.ext.map, pos, (sl.s.w, sl.s.h.abs()), op)? else {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         };
         let map = std::mem::take(&mut sl.ext.map);

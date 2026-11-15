@@ -6490,3 +6490,731 @@ lineto 0 3 28
 lineto 0 4 20
 dump 0
 end
+case fraclineadv-0
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 114 -57
+lineto 0 -138 49
+lineto 0 -59 139
+dump 0
+end
+case fraclineadv-1
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 0.0625 12 12
+moveto 0 159 152
+lineto 0 141 28
+lineto 0 106 -58
+dump 0
+end
+case fraclineadv-2
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 -0.0625 12 12
+moveto 0 121 -64
+lineto 0 50 -149
+lineto 0 -96 -34
+dump 0
+end
+case fraclineadv-3
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 -0.0625 12 12
+moveto 0 -59 -19
+lineto 0 1 -56
+lineto 0 -11 -48
+dump 0
+end
+case fraclineadv-4
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 124 -45
+lineto 0 142 36
+lineto 0 -43 71
+dump 0
+end
+case fraclineadv-5
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 -13 -125
+lineto 0 129 -55
+lineto 0 134 -39
+dump 0
+end
+case fraclineadv-6
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 10 73
+lineto 0 -5 76
+lineto 0 86 18
+dump 0
+end
+case fraclineadv-7
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 -149 16
+lineto 0 -127 -106
+lineto 0 158 45
+dump 0
+end
+case fraclineadv-8
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 58 14
+lineto 0 116 160
+lineto 0 144 -136
+dump 0
+end
+case fraclineadv-9
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 0.0625 12 12
+moveto 0 -4 60
+lineto 0 -52 158
+lineto 0 -49 -104
+dump 0
+end
+case fraclineadv-10
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 -0.0625 12 12
+moveto 0 62 148
+lineto 0 -153 120
+lineto 0 -86 -19
+dump 0
+end
+case fraclineadv-11
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 -0.0625 12 12
+moveto 0 -52 -137
+lineto 0 113 79
+lineto 0 -154 -59
+dump 0
+end
+case fraclineadv-12
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 71 61
+lineto 0 57 -115
+lineto 0 64 1
+dump 0
+end
+case fraclineadv-13
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 113 116
+lineto 0 -50 108
+lineto 0 100 -140
+dump 0
+end
+case fraclineadv-14
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 -124 -66
+lineto 0 20 -92
+lineto 0 106 100
+dump 0
+end
+case fraclineadv-15
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 -124 -144
+lineto 0 -105 -1
+lineto 0 -145 -153
+dump 0
+end
+case fraclineadv-16
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -132 -19
+lineto 0 150 -14
+lineto 0 17 -132
+dump 0
+end
+case fraclineadv-17
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 0.0625 12 12
+moveto 0 11 73
+lineto 0 -28 -61
+lineto 0 -48 -61
+dump 0
+end
+case fraclineadv-18
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 -0.0625 12 12
+moveto 0 -37 -42
+lineto 0 -128 -8
+lineto 0 137 -62
+dump 0
+end
+case fraclineadv-19
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 -0.0625 12 12
+moveto 0 123 78
+lineto 0 105 -21
+lineto 0 -131 -134
+dump 0
+end
+case fraclineadv-20
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 12 -136
+lineto 0 73 56
+lineto 0 75 -65
+dump 0
+end
+case fraclineadv-21
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 -156 -10
+lineto 0 -41 -69
+lineto 0 15 73
+dump 0
+end
+case fraclineadv-22
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 120 104
+lineto 0 110 156
+lineto 0 97 -48
+dump 0
+end
+case fraclineadv-23
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 -79 54
+lineto 0 5 144
+lineto 0 77 140
+dump 0
+end
+case fraclineadv-24
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -15 148
+lineto 0 -113 39
+lineto 0 -87 -46
+dump 0
+end
+case fraclineadv-25
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 0.0625 12 12
+moveto 0 -33 98
+lineto 0 -10 152
+lineto 0 -52 -77
+dump 0
+end
+case fraclineadv-26
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 -0.0625 12 12
+moveto 0 159 30
+lineto 0 -71 -2
+lineto 0 -18 -14
+dump 0
+end
+case fraclineadv-27
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0 0 -0.0625 12 12
+moveto 0 17 -151
+lineto 0 -93 71
+lineto 0 -102 -138
+dump 0
+end
+case fraclineadv-28
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 -70 -72
+lineto 0 21 154
+lineto 0 -12 -32
+dump 0
+end
+case fraclineadv-29
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 0.0625 12 12
+moveto 0 -116 -42
+lineto 0 59 -99
+lineto 0 -63 13
+dump 0
+end
+case fraclineadv-30
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 32 146
+lineto 0 30 98
+lineto 0 -26 -157
+dump 0
+end
+case fraclineadv-31
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 -0.0625 0.03125 -0.015625 -0.0625 12 12
+moveto 0 19 -128
+lineto 0 52 0
+lineto 0 35 0
+dump 0
+end
+case fraclineadv-32
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 2 0 0 2 3 3
+moveto 0 6 7
+lineto 0 9 8
+dump 0
+end
+case fraclineadv-33
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1.5 0 0 1.5 2 2
+moveto 0 2 2
+lineto 0 7 9
+dump 0
+end
+case fraclineadv-34
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 3 0 0 1 1 1
+moveto 0 8 6
+lineto 0 6 0
+dump 0
+end
+case fraclineadv-35
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1 0 0 3 1 1
+moveto 0 8 1
+lineto 0 3 5
+dump 0
+end
+case fraclineadv-36
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 2 1 0 1 0 0
+moveto 0 7 5
+lineto 0 2 7
+dump 0
+end
+case fraclineadv-37
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1 0 0 0.5 4 4
+moveto 0 7 4
+lineto 0 2 2
+dump 0
+end
+case fraclineadv-38
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 0.5 0 0 0.5 9 9
+moveto 0 6 3
+lineto 0 7 7
+dump 0
+end
+case fraclineadv-39
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1 1 -1 1 12 0
+moveto 0 4 0
+lineto 0 4 9
+dump 0
+end
+case fraclineadv-40
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 2 0 0 2 3 3
+moveto 0 0 6
+lineto 0 5 0
+dump 0
+end
+case fraclineadv-41
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1.5 0 0 1.5 2 2
+moveto 0 7 7
+lineto 0 6 4
+dump 0
+end
+case fraclineadv-42
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 3 0 0 1 1 1
+moveto 0 7 9
+lineto 0 9 9
+dump 0
+end
+case fraclineadv-43
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1 0 0 3 1 1
+moveto 0 7 5
+lineto 0 6 9
+dump 0
+end
+case fraclineadv-44
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 2 1 0 1 0 0
+moveto 0 2 6
+lineto 0 9 0
+dump 0
+end
+case fraclineadv-45
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1 0 0 0.5 4 4
+moveto 0 6 5
+lineto 0 9 4
+dump 0
+end
+case fraclineadv-46
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 0.5 0 0 0.5 9 9
+moveto 0 5 4
+lineto 0 7 3
+dump 0
+end
+case fraclineadv-47
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+gmode 0 2
+setxform 0 1 1 -1 1 12 0
+moveto 0 2 8
+lineto 0 7 5
+dump 0
+end
+case fracclip-0
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -318 -116
+lineto 0 88 -24
+dump 0
+end
+case fracclip-1
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -116 1
+lineto 0 -34 9
+dump 0
+end
+case fracclip-2
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 23 4
+lineto 0 8 -7
+dump 0
+end
+case fracclip-3
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 444 118
+lineto 0 153 -159
+dump 0
+end
+case fracclip-4
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -100 -18
+lineto 0 26 -13
+dump 0
+end
+case fracclip-5
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 -14 -9
+lineto 0 9 6
+dump 0
+end
+case fracclip-6
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 41 -101
+lineto 0 96 -102
+dump 0
+end
+case fracclip-7
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -65 27
+lineto 0 31 -39
+dump 0
+end
+case fracclip-8
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 20 -3
+lineto 0 1 8
+dump 0
+end
+case fracclip-9
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -231 -120
+lineto 0 -35 -1
+dump 0
+end
+case fracclip-10
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 81 -8
+lineto 0 14 14
+dump 0
+end
+case fracclip-11
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 26 2
+lineto 0 8 -8
+dump 0
+end
+case fracclip-12
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 237 -89
+lineto 0 68 132
+dump 0
+end
+case fracclip-13
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -75 -34
+lineto 0 -23 -3
+dump 0
+end
+case fracclip-14
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 2 1
+lineto 0 1 3
+dump 0
+end
+case fracclip-15
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -34 124
+lineto 0 -78 106
+dump 0
+end
+case fracclip-16
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 65 12
+lineto 0 35 -9
+dump 0
+end
+case fracclip-17
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 22 6
+lineto 0 -10 -9
+dump 0
+end
+case fracclip-18
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 159 -32
+lineto 0 35 -43
+dump 0
+end
+case fracclip-19
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 -103 8
+lineto 0 -33 -25
+dump 0
+end
+case fracclip-20
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 24 3
+lineto 0 -1 -8
+dump 0
+end
+case fracclip-21
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 16 16
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 280 -32
+lineto 0 139 43
+dump 0
+end
+case fracclip-22
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 4
+vpext 0 1 1
+vporg 0 12 12
+moveto 0 95 -38
+lineto 0 20 -24
+dump 0
+end
+case fracclip-23
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 14 -4
+lineto 0 2 5
+dump 0
+end

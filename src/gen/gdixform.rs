@@ -130,5 +130,32 @@ pub fn xform() -> String {
         let (a, b, c) = (p(), p(), p());
         writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1, c.0, c.1).unwrap();
     }
+    // lines through a GM_ADVANCED world transform: 1/16 scales (ends in 28.4) with a cosmetic
+    // pen, and whole scales with a pen of width 1 (does its width scale?); lines that leave the
+    // surface with their ends between pixels (their own stream)
+    let mut r = XorShift32::new(0x0adf_11e5);
+    for i in 0..48 {
+        writeln!(s, "case fraclineadv-{i}\ndib 0 24 24 8\npen 0 0 {} #ffffff\ngmode 0 2", if i < 32 { 0 } else { 1 }).unwrap();
+        if i < 32 {
+            let (sx, sy) = [(1, 1), (-1, 1), (1, -1), (-1, -1)][i % 4];
+            let sh = if i % 8 < 4 { "0 0" } else { "0.03125 -0.015625" };
+            writeln!(s, "setxform 0 {} {sh} {} 12 12", f64::from(sx) / 16.0, f64::from(sy) / 16.0).unwrap();
+            let mut p = || (r.range(-160, 160), r.range(-160, 160));
+            let (a, b, c) = (p(), p(), p());
+            writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1, c.0, c.1).unwrap();
+        } else {
+            let w = ["2 0 0 2 3 3", "1.5 0 0 1.5 2 2", "3 0 0 1 1 1", "1 0 0 3 1 1", "2 1 0 1 0 0", "1 0 0 0.5 4 4", "0.5 0 0 0.5 9 9", "1 1 -1 1 12 0"][i % 8];
+            writeln!(s, "setxform 0 {w}").unwrap();
+            let mut p = || (r.range(0, 9), r.range(0, 9));
+            let (a, b) = (p(), p());
+            writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1).unwrap();
+        }
+    }
+    for i in 0..24 {
+        writeln!(s, "case fracclip-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nmapmode 0 8\nwinext 0 {} {}\nvpext 0 {} 1\nvporg 0 12 12", [16, 4, 1][i % 3], [16, 4, 4][i % 3], [1, 1, -2][i % 3]).unwrap();
+        let k = [16, 4, 1][i % 3];
+        let (a, b) = ((r.range(-30 * k, 30 * k), r.range(-10 * k, 10 * k)), (r.range(-10 * k, 10 * k), r.range(-10 * k, 10 * k)));
+        writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1).unwrap();
+    }
     s
 }
