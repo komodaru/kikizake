@@ -374,3 +374,42 @@ proptest! {
         prop_assert_eq!(a, b);
     }
 }
+
+proptest! {
+    /// Tessellate of a convex polygon on the 1/64 grid (points on a circle in turn): every
+    /// triangle turns the same way and none is empty, and they cover the polygon exactly once
+    /// (their areas sum to its area) whichever corner it starts at and whichever way it turns
+    #[test]
+    fn convex_tessellations_tile(cx in -256i32..256, cy in -256i32..256, rad in 64i32..1024, n in 3usize..9, start in 0usize..9, back in proptest::bool::ANY, jit in proptest::collection::vec(0u32..1000, 9)) {
+        let mut a: Vec<f64> = (0..n).map(|i| (i as f64 + f64::from(jit[i]) / 2000.0) / n as f64 * std::f64::consts::TAU).collect();
+        a.sort_by(f64::total_cmp);
+        let mut pts: Vec<(f32, f32)> = a.iter().map(|t| {
+            let x = (f64::from(cx) + f64::from(rad) * t.cos()).round() / 64.0;
+            let y = (f64::from(cy) + f64::from(rad) * t.sin()).round() / 64.0;
+            (x as f32, y as f32)
+        }).collect();
+        pts.dedup();
+        if back {
+            pts.reverse();
+        }
+        let k = start % pts.len();
+        pts.rotate_left(k);
+        let n = pts.len();
+        let cr = |a: (f32, f32), b: (f32, f32), c: (f32, f32)| (f64::from(b.0) - f64::from(a.0)) * (f64::from(c.1) - f64::from(a.1)) - (f64::from(b.1) - f64::from(a.1)) * (f64::from(c.0) - f64::from(a.0));
+        // only strictly convex rounded polygons
+        prop_assume!(n >= 3);
+        let turns: Vec<f64> = (0..n).map(|i| cr(pts[i], pts[(i + 1) % n], pts[(i + 2) % n])).collect();
+        prop_assume!(turns.iter().all(|&t| t > 0.0) || turns.iter().all(|&t| t < 0.0));
+        let g = path(true, &[&pts]);
+        let ts = tessellate(&g, 0.25);
+        prop_assert!(ts.is_some());
+        let ts = ts.unwrap_or_default();
+        let s: Vec<f64> = ts.iter().map(|t| cr(t[0], t[1], t[2])).collect();
+        prop_assert!(s.iter().all(|&v| v != 0.0));
+        prop_assert!(s.iter().all(|&v| v > 0.0) || s.iter().all(|&v| v < 0.0));
+        let tri: f64 = s.iter().map(|v| v.abs()).sum();
+        let poly: f64 = (0..n).map(|i| f64::from(pts[i].0) * f64::from(pts[(i + 1) % n].1) - f64::from(pts[(i + 1) % n].0) * f64::from(pts[i].1)).sum::<f64>().abs();
+        prop_assert_eq!(tri, poly);
+        prop_assert_eq!(ts.len(), n - 2);
+    }
+}

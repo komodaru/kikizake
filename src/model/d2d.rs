@@ -748,7 +748,7 @@ pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: 
     area
 }
 
-/// FITTED, OPEN (D2D.AREA.CURVE: every carea-* value, the centered ell-area/rrect-area ones 1-3
+/// FITTED, OPEN (D2D.AREA.CURVE: carea-* values 1-5 ulps below Windows, the centered ell-area/rrect-area ones 1-3
 /// ulps high): milcore's CArea scanner: the
 /// geometry is moved to its bounds' center and scaled so their larger side is 2^26, every point
 /// rounded to an integer there (f64), each cubic flattened there in f64 with the tolerance
@@ -810,8 +810,15 @@ pub fn area(g: &Geom, tol: f32) -> Res<Measure> {
         hit(clause::D2D_AREA_RECT);
         return Ok(Measure::Value(((r - l) * (b - t)).abs()));
     }
-    hit(clause::D2D_AREA_POLY);
-    Ok(Measure::Value(region_area(&polys(&figs, &m), wind) as f32))
+    let ps = polys(&figs, &m);
+    // (MEASURED, parea-3/5/7/11/18/24: off the integer grid Windows' value is not the exact area
+    // but 1-18 ulps from it, mostly above, as the curves' are: D2D.AREA.CURVE, open)
+    if ps.iter().flatten().all(|&(x, y)| x.fract() == 0.0 && y.fract() == 0.0) {
+        hit(clause::D2D_AREA_POLY);
+    } else {
+        hit(clause::D2D_AREA_CURVE);
+    }
+    Ok(Measure::Value(region_area(&ps, wind) as f32))
 }
 
 /// ComputeLength. MEASURED (golden d2d-32/-64, 66 paths bit for bit): each side's length as
@@ -1506,6 +1513,13 @@ impl D2d {
                     return Err(Fail::Bad);
                 }
                 let Some(g) = g else { return Ok(true) };
+                if t[0] == "d2tess" {
+                    let tol = if len > at { f(op, at)? } else { 0.25 };
+                    let ts = tessellate(&g, tol).ok_or(Fail::Unmodeled(open::D2D_SIMP))?;
+                    let body: String = ts.iter().map(|t| format!(" T {} {} {} {} {} {}", hex(t[0].0), hex(t[0].1), hex(t[1].0), hex(t[1].1), hex(t[2].0), hex(t[2].1))).collect();
+                    out.push(format!("tess{body} hr 00000000"));
+                    return Ok(true);
+                }
                 let Some(simp) = simp else { return Err(Fail::Unmodeled(open::D2D_SIMP)) };
                 hit(clause::D2D_SIMPLIFY);
                 let tol = if len > at { f(op, at)? } else { 0.25 };
@@ -2362,6 +2376,106 @@ fn fill_union(tg: &mut Target, pieces: Vec<Figure>, paint: &Paint) -> Res<()> {
         }
     }
     Ok(())
+}
+
+/// FITTED (D2D.SIMP, tess-0, tess-4, tess-5, carea-*, parea-*: 39 cases bit for bit):
+/// Tessellate of one convex figure: its points and control points rounded to 1/64 pixel, then
+/// flattened as Simplify's lines (rounded again), repeats dropped; then
+/// zipped from the bottom (largest y) up between its left and right chains: a step up the
+/// right chain gives (new right, old right, left), one up the left chain (old left, new left,
+/// right), the chain whose next point is lower going first (the right one on a tie, the left
+/// one into a shared top point), empty triangles left out. None for what is not one convex
+/// figure (not modelled yet)
+pub fn tessellate(g: &Geom, tol: f32) -> Option<Vec<[P; 3]>> {
+    let (_, _, figs) = shape(g);
+    let q = |v: f32| (v * 64.0).round() / 64.0;
+    let qq = |v: P| (q(v.0), q(v.1));
+    let snapped: Vec<Fig> = figs.iter().map(|f| Fig {
+        start: qq(f.start),
+        segs: f.segs.iter().map(|s| match *s {
+            Seg::L(v) => Seg::L(qq(v)),
+            Seg::C(a, b, c) => Seg::C(qq(a), qq(b), qq(c)),
+        }).collect(),
+        closed: f.closed,
+    }).collect();
+    let figs = flat_figs(&snapped, tol);
+    let [fg] = figs.as_slice() else { return None };
+    let mut p: Vec<P> = Vec::new();
+    for v in std::iter::once(fg.start).chain(fg.segs.iter().map(|s| match *s {
+        Seg::L(v) => v,
+        Seg::C(_, _, v) => v,
+    })) {
+        let v = (q(v.0), q(v.1));
+        if p.last() != Some(&v) {
+            p.push(v);
+        }
+    }
+    while p.len() > 1 && p.first() == p.last() {
+        p.pop();
+    }
+    let n = p.len();
+    if n < 3 || !p.iter().all(|v| v.0.is_finite() && v.1.is_finite()) {
+        return None;
+    }
+    let cr = |o: P, a: P, b: P| (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0);
+    let turns: Vec<f32> = (0..n).map(|i| cr(p[i], p[(i + 1) % n], p[(i + 2) % n])).collect();
+    if !(turns.iter().all(|&c| c >= 0.0) || turns.iter().all(|&c| c <= 0.0)) || turns.iter().any(|&c| c == 0.0) {
+        return None;
+    }
+    // (convex and simple: y turns round twice going round, a star's more)
+    let dys: Vec<f32> = (0..n).map(|i| p[(i + 1) % n].1 - p[i].1).filter(|&d| d != 0.0).collect();
+    if (0..dys.len()).filter(|&i| (dys[i] > 0.0) != (dys[(i + 1) % dys.len()] > 0.0)).count() != 2 {
+        return None;
+    }
+    // the bottom and top points, leftmost and rightmost among equals
+    let ymax = p.iter().map(|v| v.1).fold(f32::NEG_INFINITY, f32::max);
+    let ymin = p.iter().map(|v| v.1).fold(f32::INFINITY, f32::min);
+    let pick = |y: f32, left: bool| (0..n).filter(|&i| p[i].1 == y).min_by(|&a, &b| if left { p[a].0.total_cmp(&p[b].0) } else { p[b].0.total_cmp(&p[a].0) }).unwrap_or(0);
+    let (bl, br, tl, tr) = (pick(ymax, true), pick(ymax, false), pick(ymin, true), pick(ymin, false));
+    // the left chain leaves the bottom left point toward the neighbor left of the other one
+    let (prev, next) = ((bl + n - 1) % n, (bl + 1) % n);
+    let step: usize = if bl != br {
+        if next == br { n - 1 } else { 1 }
+    } else if cr(p[bl], p[prev], p[next]) > 0.0 {
+        n - 1
+    } else {
+        1
+    };
+    let walk = |from: usize, to: usize, by: usize| {
+        let mut c = vec![p[from]];
+        let mut i = from;
+        while i != to {
+            i = (i + by) % n;
+            c.push(p[i]);
+        }
+        c
+    };
+    let lc = walk(bl, tl, step);
+    let rc = walk(br, tr, n - step);
+    let (mut li, mut ri) = (0, 0);
+    let mut out = Vec::new();
+    let mut emit = |t: [P; 3]| {
+        if t[0] != t[1] && t[1] != t[2] && t[0] != t[2] {
+            out.push(t);
+        }
+    };
+    loop {
+        let (ln, rn) = (lc.get(li + 1), rc.get(ri + 1));
+        let right = match (ln, rn) {
+            (None, None) => break,
+            (Some(_), None) => false,
+            (None, Some(_)) => true,
+            (Some(a), Some(b)) => a != b && b.1 >= a.1,
+        };
+        if right {
+            emit([rc[ri + 1], rc[ri], lc[li]]);
+            ri += 1;
+        } else {
+            emit([lc[li], lc[li + 1], rc[ri]]);
+            li += 1;
+        }
+    }
+    Some(out)
 }
 
 fn fill(tg: &mut Target, g: &Geom, paint: &Paint) -> Res<()> {
