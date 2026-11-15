@@ -1660,42 +1660,30 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             if r.d.mips > 1 && !(v.words.get(1) == Some(&4) && v.words.get(2) == Some(&0) && v.words.get(3).is_some_and(|&n| n == r.d.mips || n == u32::MAX)) {
                 return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
             }
-            let aniso = s[0] == 0x55;
-            let (linear, level) = if filter.min == filter.mag && r.d.mips == 1 && !aniso {
+            // (MEASURED, WARP: probe-filter-aniso, -aniso-min, -aniso-2, -4, -16, -aniso-mips,
+            // -aniso-mips-2) anisotropic filtering is the linear one, between levels too, the level
+            // by the longer span
+            if s[0] == 0x55 {
+                hit(clause::D3DRASTER_FILTER_ANISO);
+            }
+            let (linear, level) = if filter.min == filter.mag && r.d.mips == 1 {
                 (filter.mag, Level::One(0))
             } else {
                 let (qx, qy) = (px & !1, py & !1);
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
                 let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * w as f64).powi(2) + (f64::from(b[1] - a[1]) * h as f64).powi(2)).sqrt();
-                let (sx, sy) = (span(q[0], q[1]), span(q[0], q[2]));
-                let rho = sx.max(sy);
+                let rho = span(q[0], q[1]).max(span(q[0], q[2]));
                 // (MEASURED, WARP: probe-filter-min, -min-point, -rho-*) a span of up to one texel
-                // magnifies, past it minifies (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25); with
-                // more than one mip level the level is not measured
+                // magnifies, past it minifies (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25)
                 if rho <= 1.0 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
-                    if aniso {
-                        // (MEASURED, WARP: probe-filter-aniso) anisotropic filtering where a quad
-                        // spans a texel or less is the linear filter
-                        hit(clause::D3DRASTER_FILTER_ANISO);
-                    }
                     (filter.mag, Level::One(0))
-                } else if aniso && (sx != sy || r.d.mips > 1) {
-                    // (a footprint longer one way than the other, or a texture with mips: not
-                    // measured)
-                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 } else if r.d.mips == 1 {
-                    // (MEASURED, WARP: probe-filter-aniso-min) anisotropic filtering over a square
-                    // footprint is the linear filter
-                    if aniso {
-                        hit(clause::D3DRASTER_FILTER_ANISO);
-                    }
                     hit(clause::D3DRASTER_FILTER_MINMAG);
                     (filter.min, Level::One(0))
                 } else {
-                    // (MEASURED, WARP: probe-filter-mips) past one texel the level is log2 of the
-                    // span: a whole level of it samples that level alone (mip point or linear);
-                    // between levels not measured
+                    // (MEASURED, WARP: probe-filter-mips, -mips-point, -trilinear*) past one texel
+                    // the level is log2 of the span
                     let lod = rho.log2();
                     let last = f64::from(r.d.mips - 1);
                     let level = if s[0] & 1 == 0 {
