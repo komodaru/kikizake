@@ -176,9 +176,29 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let k = n(op, 1)?;
     super::gdi::get(&g.slots, k)?;
     let sl = g.slots[k as usize].as_mut().unwrap();
-    if sl.ext.mapped() && !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir") {
-        return super::gdixform::mapped_line_op(sl, op, out);
+    if sl.ext.mapped() && !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir" | "moveto" | "getpos") {
+        if !matches!(sl.ext.path, super::gdipath::Path::None) {
+            return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
+        }
+        let pos = sl.ext.pos;
+        let Some((d, from)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
+            return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
+        };
+        let map = std::mem::take(&mut sl.ext.map);
+        sl.ext.pos = from;
+        let r = op_device(g, k, &d, out);
+        let sl = g.slots[k as usize].as_mut().unwrap();
+        sl.ext.map = map;
+        sl.ext.pos = if t0 == "lineto" { (n(op, 2)? as i32, n(op, 3)? as i32) } else { pos };
+        return r;
     }
+    op_device(g, k, op, out)
+}
+
+/// an op in device coordinates (or with the mapping the identity)
+fn op_device(g: &mut Gdi, k: i64, op: &Op, out: &mut Vec<String>) -> Res<bool> {
+    let t0 = op.tok[0].as_str();
+    let sl = g.slots[k as usize].as_mut().unwrap();
     if !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir" | "getpos" | "fillrect" | "framerect" | "invertrect") && super::gdipath::record(sl, op, out)? {
         return Ok(true);
     }

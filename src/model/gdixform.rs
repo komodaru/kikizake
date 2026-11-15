@@ -7,7 +7,7 @@
 //! "LPtoDP", "DPtoLP", "Transformation of Coordinate Spaces" (the formulas).
 
 use crate::spec::{clause, open};
-use super::gdi::{Gdi, Slot};
+use super::gdi::Gdi;
 use super::{Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -133,6 +133,17 @@ impl Map {
 }
 
 impl Map {
+    /// whether a point maps to a whole device point (no rounding), the world's numbers and the
+    /// page's quotient exact in f64
+    fn whole(&self, p: (i32, i32)) -> bool {
+        let w = self.world;
+        let e = self.ve_points();
+        let axis = |x: f64, we: i32, ve: i32, wo: i32, vo: i32| -> bool { we != 0 && ((x - f64::from(wo)) * f64::from(ve) / f64::from(we) + f64::from(vo)).fract() == 0.0 };
+        let (x, y) = (f64::from(p.0), f64::from(p.1));
+        let wx = x * f64::from(w[0]) + y * f64::from(w[2]) + f64::from(w[4]);
+        let wy = x * f64::from(w[1]) + y * f64::from(w[3]) + f64::from(w[5]);
+        axis(wx, self.wext.0, e.0, self.worg.0, self.vorg.0) && axis(wy, self.wext.1, e.1, self.worg.1, self.vorg.1)
+    }
     /// the world transform times the page scale, in f32: each of the world's six numbers times
     /// vext / wext (an f32 quotient) of its axis (GDI.XFORM.WORLDPOINT); None with the origins
     /// not 0, whose place in it no case measures yet (GDI.XFORM.ROUNDWORLD)
@@ -238,15 +249,47 @@ pub fn multiply(a: &Xform, b: &Xform) -> Xform {
     ]
 }
 
-/// a line op of gdiline.c on a slot whose logical coordinates are not device coordinates
-pub fn mapped_line_op(_sl: &mut Slot, _op: &Op, _out: &mut Vec<String>) -> Res<bool> {
-    Err(Fail::Unmodeled(open::GDI_MAP_DRAW))
-}
-
-/// an op of gdi.c (PatBlt, BitBlt, ...) on a slot whose logical coordinates are not device
-/// coordinates
-pub fn mapped_gdi_op(_g: &mut Gdi, _op: &Op, _out: &mut Vec<String>) -> Res<bool> {
-    Err(Fail::Unmodeled(open::GDI_MAP_DRAW))
+/// a line op of gdiline.c or an op of gdi.c on a slot whose logical coordinates are not device
+/// coordinates, as the op in device coordinates: lineto from the current position (logical)
+/// to the point, rectangle and patblt by their two corners, each point through LPtoDP
+/// (GDI.MAP.DRAW), with the current position (device) it starts from; None for an op or a transform no case measures (rotations, shears)
+pub fn device_op(m: &mut Map, pos: (i32, i32), op: &Op) -> Res<Option<(Op, (i32, i32))>> {
+    let t0 = op.tok[0].as_str();
+    if m.world[1] != 0.0 || m.world[2] != 0.0 {
+        return Ok(None);
+    }
+    m.settle();
+    hit(clause::GDI_MAP_DRAWPTS);
+    let lp = |x: i64, y: i64| -> Res<(i32, i32)> {
+        let q = m.lp_to_dp((i32::try_from(x).map_err(|_| Fail::Bad)?, i32::try_from(y).map_err(|_| Fail::Bad)?))?;
+        Ok(q)
+    };
+    let tok = |v: Vec<String>, from: (i32, i32)| Some((Op { line: op.line, tok: v }, from));
+    let k = op.tok.get(1).cloned().ok_or(Fail::Bad)?;
+    Ok(match t0 {
+        "lineto" => {
+            let to = (n(op, 2)?, n(op, 3)?);
+            if !m.whole(pos) || !m.whole((i32::try_from(to.0).map_err(|_| Fail::Bad)?, i32::try_from(to.1).map_err(|_| Fail::Bad)?)) {
+                // (a line between points that fall between pixels is drawn in 28.4: draw-45)
+                return Ok(None);
+            }
+            let a = lp(i64::from(pos.0), i64::from(pos.1))?;
+            let b = lp(to.0, to.1)?;
+            tok(vec!["lineto".into(), k, b.0.to_string(), b.1.to_string()], a)
+        }
+        "rectangle" => {
+            let a = lp(n(op, 2)?, n(op, 3)?)?;
+            let b = lp(n(op, 4)?, n(op, 5)?)?;
+            tok(vec!["rectangle".into(), k, a.0.to_string(), a.1.to_string(), b.0.to_string(), b.1.to_string()], pos)
+        }
+        "patblt" => {
+            let (x, y) = (n(op, 2)?, n(op, 3)?);
+            let a = lp(x, y)?;
+            let b = lp(x + n(op, 4)?, y + n(op, 5)?)?;
+            tok(vec!["patblt".into(), k, a.0.to_string(), a.1.to_string(), (b.0 - a.0).to_string(), (b.1 - a.1).to_string(), op.tok.get(6).cloned().ok_or(Fail::Bad)?], pos)
+        }
+        _ => None,
+    })
 }
 
 pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {

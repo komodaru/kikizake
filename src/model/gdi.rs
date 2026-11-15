@@ -246,7 +246,15 @@ impl Gdi {
     fn op_inner(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t0 = op.tok[0].as_str();
         if matches!(t0, "patblt" | "bitblt" | "stretchblt" | "getpixel" | "setpixel" | "clip") && self.slot(op, 1)?.ext.mapped() {
-            return super::gdixform::mapped_gdi_op(self, op, out);
+            let sl = self.slot(op, 1)?;
+            let pos = sl.ext.pos;
+            let Some((d, _)) = super::gdixform::device_op(&mut sl.ext.map, pos, op)? else {
+                return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
+            };
+            let map = std::mem::take(&mut self.slot(op, 1)?.ext.map);
+            let r = self.op_inner(&d, out);
+            self.slot(op, 1)?.ext.map = map;
+            return r;
         }
         match t0 {
             "dib" => {

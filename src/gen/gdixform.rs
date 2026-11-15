@@ -119,5 +119,16 @@ pub fn xform() -> String {
         let w = ["2 0 0 1 3 -2", "1 0.5 0 1 0 0", "1 0 0 1 0.5 0.25", "-1 0 0 1 0 0"][i];
         writeln!(s, "case gmodeback-{i}\ndib 0 8 8 32\ngmode 0 2\nsetxform 0 {w}\ngmode 0 1\ngmode 0 2\ngmode 0 1\ngetxform 0\n{}\nmodxform 0 1 1 0 0 1 0 0\ngmode 0 1\ngmode 0 1\nend", grid("lptodp")).unwrap();
     }
+    // lines whose ends fall between pixels: a 1/16 window over whole viewport units, so each
+    // logical unit is 1/16 pixel (28.4 exactly), and a few coarser fractions (their own stream)
+    let mut r = XorShift32::new(0x0f7a_c11e);
+    for i in 0..48 {
+        writeln!(s, "case fracline-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nmapmode 0 8").unwrap();
+        let (we, ve) = [((16, 16), (1, 1)), ((16, 16), (-1, 1)), ((16, 16), (1, -1)), ((8, 4), (1, 1)), ((4, 2), (1, 1)), ((3, 5), (1, 1))][i % 6];
+        writeln!(s, "winext 0 {} {}\nvpext 0 {} {}\nvporg 0 12 12", we.0, we.1, ve.0, ve.1).unwrap();
+        let mut p = || (r.range(-10 * we.0 as i64, 10 * we.0 as i64), r.range(-10 * we.1 as i64, 10 * we.1 as i64));
+        let (a, b, c) = (p(), p(), p());
+        writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1, c.0, c.1).unwrap();
+    }
     s
 }
