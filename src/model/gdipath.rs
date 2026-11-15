@@ -179,19 +179,7 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             // box's edge, that inset rounded down across, and down the box rounded up
             // counterclockwise, down clockwise
             hit(clause::GDI_PATH_ELLIPSE);
-            let (fl, fr, ft, fb) = (l * 16, (r - 1) * 16, t * 16, (bt - 1) * 16);
-            let (cx, cy) = ((fl + fr) / 2, (ft + fb) / 2);
-            let inset = |rad2: i32| f64::from(rad2) * 0.5 * (1.0 - 0.552_284_749_8);
-            let cw = sl.ext.arcdir == 2;
-            let dx = inset(fr - fl).floor() as i32;
-            let dy = if cw { inset(fb - ft).floor() } else { inset(fb - ft).ceil() } as i32;
-            let (xp, xm, ym, yp) = (fr - dx, fl + dx, ft + dy, fb - dy);
-            let mut c = [(fr, cy), (fr, ym), (xp, ft), (cx, ft), (xm, ft), (fl, ym), (fl, cy), (fl, yp), (xm, fb), (cx, fb), (xp, fb), (fr, yp), (fr, cy)];
-            if cw {
-                for q in c.iter_mut() {
-                    q.1 = ft + fb - q.1;
-                }
-            }
+            let c = ellipse_points(l, t, r, bt, sl.ext.arcdir == 2);
             p.push(Pt::fix(c[0], Kind::Move));
             for q in &c[1..] {
                 p.push(Pt::fix(*q, Kind::Bezier));
@@ -199,9 +187,126 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             close(p);
             out.push("ret 1".into());
         }
+        "arc" | "arcto" | "pie" | "chord" => {
+            let [a, b, rs, re] = pts[..] else { return Err(Fail::Bad) };
+            let (l, r) = (a.0.min(b.0), a.0.max(b.0));
+            let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
+            if t0 == "arc" && (r == l || bt == t) {
+                // MEASURED (curve-24, curve-30): an empty box records nothing, the call succeeds
+                hit(clause::GDI_PATH_ARC);
+                out.push("ret 1".into());
+                return Ok(true);
+            }
+            if r - l < 3 || bt - t < 3 {
+                // (an arc of 2 pixels or less across: not measured yet)
+                return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+            }
+            hit(clause::GDI_PATH_ARC);
+            let segs = arc_beziers((l, t, r, bt), rs, re, sl.ext.arcdir == 2).ok_or(Fail::Bad)?;
+            let first = segs.first().ok_or(Fail::Bad)?[0];
+            if t0 == "arcto" {
+                start(p, sl.ext.pos);
+                p.push(Pt::fix(first, Kind::Line));
+            } else {
+                // (a new figure, replacing a lone MoveToEx as PolyBezier does)
+                if p.last().is_some_and(|l| l.kind == Kind::Move) {
+                    p.pop();
+                }
+                p.push(Pt::fix(first, Kind::Move));
+            }
+            for g in &segs {
+                for q in &g[1..] {
+                    p.push(Pt::fix(*q, Kind::Bezier));
+                }
+            }
+            match t0 {
+                "pie" => {
+                    let c = ellipse_points(l, t, r, bt, false);
+                    p.push(Pt::fix((c[3].0, c[0].1), Kind::Line));
+                    close(p);
+                }
+                "chord" => close(p),
+                "arcto" => {
+                    let last = p.last().ok_or(Fail::Bad)?;
+                    sl.ext.pos = (last.x.round(), last.y.round());
+                }
+                _ => {}
+            }
+            out.push("ret 1".into());
+        }
         _ => return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
     }
     Ok(true)
+}
+
+/// Ellipse's 13 points in 28.4 (GDI.PATH.ELLIPSE): four Béziers around (l, t) - (r - 1, b - 1)
+/// from the right end of the middle row, counterclockwise or (cw) clockwise
+fn ellipse_points(l: i32, t: i32, r: i32, bt: i32, cw: bool) -> [(i32, i32); 13] {
+    let (fl, fr, ft, fb) = (l * 16, (r - 1) * 16, t * 16, (bt - 1) * 16);
+    let (cx, cy) = ((fl + fr) / 2, (ft + fb) / 2);
+    let inset = |rad2: i32| f64::from(rad2) * 0.5 * (1.0 - 0.552_284_749_8);
+    let dx = inset(fr - fl).floor() as i32;
+    let dy = if cw { inset(fb - ft).floor() } else { inset(fb - ft).ceil() } as i32;
+    let (xp, xm, ym, yp) = (fr - dx, fl + dx, ft + dy, fb - dy);
+    let mut c = [(fr, cy), (fr, ym), (xp, ft), (cx, ft), (xm, ft), (fl, ym), (fl, cy), (fl, yp), (xm, fb), (cx, fb), (xp, fb), (fr, yp), (fr, cy)];
+    if cw {
+        for q in c.iter_mut() {
+            q.1 = ft + fb - q.1;
+        }
+    }
+    c
+}
+
+/// Arc's Béziers in 28.4 (MEASURED, GDI.PATH.ARC, path curve-* 49 of 49 GetPath): the angles
+/// of the radials through the logical box (l, t) - (r, b), normalized by its half sizes; the
+/// arc from the start's angle to the end's (a whole turn when they are equal) the way of the
+/// arc direction, cut at the quarter points; a whole quarter is Ellipse's, a part of one the
+/// Bézier of that angle span on the ellipse of (l, t) - (r - 1, b - 1) in floating point
+/// (control points 4/3 tan(span / 4) along the tangents), each point rounded to 28.4
+pub fn arc_beziers(bx: (i32, i32, i32, i32), rs: (i32, i32), re: (i32, i32), cw: bool) -> Option<Vec<[(i32, i32); 4]>> {
+    use std::f64::consts::{FRAC_PI_2, TAU};
+    let (l, t, r, bt) = bx;
+    let c = ellipse_points(l, t, r, bt, cw);
+    let (fl, fr, ft, fb) = (f64::from(l * 16), f64::from((r - 1) * 16), f64::from(t * 16), f64::from((bt - 1) * 16));
+    // (counterclockwise throughout: clockwise mirrors y about the box's middle)
+    let s = ft + fb;
+    let mir = |y: f64| if cw { s - y } else { y };
+    let (lx0, lx1) = (f64::from(l * 16), f64::from(r * 16));
+    let (ly0, ly1) = if cw { (s - f64::from(bt * 16), s - f64::from(t * 16)) } else { (f64::from(t * 16), f64::from(bt * 16)) };
+    let (lcx, lcy, lrx, lry) = ((lx0 + lx1) / 2.0, (ly0 + ly1) / 2.0, (lx1 - lx0) / 2.0, (ly1 - ly0) / 2.0);
+    let angle = |q: (i32, i32)| (((lcy - mir(f64::from(q.1 * 16))) / lry).atan2((f64::from(q.0 * 16) - lcx) / lrx)).rem_euclid(TAU);
+    let a0 = angle(rs);
+    let mut a1 = angle(re);
+    if a1 <= a0 {
+        a1 += TAU;
+    }
+    let mut cuts = vec![a0];
+    let mut k = (a0 / FRAC_PI_2).floor() + 1.0;
+    while k * FRAC_PI_2 < a1 {
+        cuts.push(k * FRAC_PI_2);
+        k += 1.0;
+    }
+    cuts.push(a1);
+    let (cx, cy, rx, ry) = ((fl + fr) / 2.0, (ft + fb) / 2.0, (fr - fl) / 2.0, (fb - ft) / 2.0);
+    let on_quarter = |v: f64| (v / FRAC_PI_2 - (v / FRAC_PI_2).round()).abs() < 1e-12;
+    let fix = |x: f64, y: f64| -> Option<(i32, i32)> {
+        let (x, y) = (x.round(), mir(y).round());
+        (x.abs() < 1e9 && y.abs() < 1e9).then_some((x as i32, y as i32))
+    };
+    let mut v = Vec::with_capacity(cuts.len());
+    for w in cuts.windows(2) {
+        let (al, be) = (w[0], w[1]);
+        let q = ((al / FRAC_PI_2 + 1e-12).floor() as usize) % 4;
+        if on_quarter(al) && on_quarter(be) && (be - al - FRAC_PI_2).abs() < 1e-9 {
+            v.push([c[3 * q], c[3 * q + 1], c[3 * q + 2], c[3 * q + 3]]);
+            continue;
+        }
+        let k = 4.0 / 3.0 * ((be - al) / 4.0).tan();
+        let (p0, p3) = ((cx + rx * al.cos(), cy - ry * al.sin()), (cx + rx * be.cos(), cy - ry * be.sin()));
+        let (d0, d1) = ((-rx * al.sin(), -ry * al.cos()), (-rx * be.sin(), -ry * be.cos()));
+        v.push([fix(p0.0, p0.1)?, fix(p0.0 + k * d0.0, p0.1 + k * d0.1)?, fix(p3.0 - k * d1.0, p3.1 - k * d1.1)?, fix(p3.0, p3.1)?]);
+    }
+    Some(v)
 }
 
 /// MoveToEx in a path: a new figure at the point (a lone PT_MOVETO is replaced by the next)

@@ -48,7 +48,8 @@ impl Gdi {
         self.rgns.get_mut(k as usize).ok_or(Fail::Bad)
     }
     fn rgn(&mut self, op: &Op, i: usize) -> Res<Rgn> {
-        self.rslot(op, i)?.clone().ok_or(Fail::Bad)
+        // (an empty slot: the executor prints "bad line N" and goes on, as golden path curve-24 shows)
+        self.rslot(op, i)?.clone().ok_or(Fail::Empty)
     }
 }
 
