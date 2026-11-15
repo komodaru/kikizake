@@ -111,5 +111,11 @@ pub fn path() -> String {
         let q = |r: &mut XorShift32, n: usize| (0..n).map(|_| c(r).to_string()).collect::<Vec<_>>().join(" ");
         writeln!(s, "case arcflat-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\narc 0 {}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i % 2, q(&mut r, 8)).unwrap();
     }
+    // RoundRect's corners over a grid of corner sizes, a box wide enough for each, both
+    // directions: GetPath before and after FlattenPath
+    for i in 0..200 {
+        let (w, h, dir) = (i % 10 + 1, i / 10 % 10 + 1, 1 + i / 100);
+        writeln!(s, "case rrgrid-{i}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nroundrect 0 3 2 40 33 {w} {h}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend").unwrap();
+    }
     s
 }
