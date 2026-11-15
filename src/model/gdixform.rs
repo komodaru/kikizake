@@ -236,7 +236,38 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             *o = if t0.starts_with("offset") { (old.0 + x, old.1 + y) } else { (x, y) };
             out.push(format!("org 1 {} {}", old.0, old.1));
         }
-        "scalewin" | "scalevp" => return Err(Fail::Unmodeled(open::GDI_MAP_SCALE)),
+        "scalewin" | "scalevp" => {
+            let (xn, xd, yn, yd) = (n(op, 2)?, n(op, 3)?, n(op, 4)?, n(op, 5)?);
+            if m.mode < 7 {
+                // (the fixed modes keep their extents, succeeding, as SetWindowExtEx does in
+                // them: cases scalemode-* measure it)
+                hit(clause::GDI_MAP_SCALE);
+                let e = if t0 == "scalewin" { m.wext } else { m.vext };
+                out.push(format!("ext 1 {} {}", e.0, e.1));
+                return Ok(true);
+            }
+            // MEASURED (MM_ANISOTROPIC): each extent times num / denom truncated toward zero;
+            // a 0 among the four, or an extent that comes out 0, fails and changes nothing;
+            // ScaleWindowExtEx then leaves the SIZE unwritten, ScaleViewportExtEx writes the old
+            hit(clause::GDI_MAP_SCALE);
+            let win = t0 == "scalewin";
+            let e = if win { &mut m.wext } else { &mut m.vext };
+            let old = *e;
+            let scale = |v: i32, num: i64, den: i64| -> Option<i32> {
+                if num == 0 || den == 0 {
+                    return None;
+                }
+                i32::try_from(i64::from(v) * num / den).ok().filter(|&r| r != 0)
+            };
+            match (scale(old.0, xn, xd), scale(old.1, yn, yd)) {
+                (Some(x), Some(y)) => {
+                    *e = (x, y);
+                    out.push(format!("ext 1 {} {}", old.0, old.1));
+                }
+                _ if win => out.push("ext 0 -1 -1".into()),
+                _ => out.push(format!("ext 0 {} {}", old.0, old.1)),
+            }
+        }
         "getmap" => {
             hit(clause::GDI_MAP_GET);
             out.push(format!("map {} {} wext {} {} vext {} {} worg {} {} vorg {} {}", m.mode, m.gmode, m.wext.0, m.wext.1, m.ve().0, m.ve().1, m.worg.0, m.worg.1, m.vorg.0, m.vorg.1));

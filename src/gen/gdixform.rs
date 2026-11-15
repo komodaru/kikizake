@@ -91,5 +91,13 @@ pub fn xform() -> String {
         }
         writeln!(s, "dump 0\nend").unwrap();
     }
+    // ScaleWindowExtEx / ScaleViewportExtEx in MM_TEXT, a metric mode and MM_ISOTROPIC (their
+    // own stream)
+    let mut r = XorShift32::new(0x5ca1_e0de);
+    for i in 0..24 {
+        let mode = [1, 2, 7][i % 3];
+        writeln!(s, "case scalemode-{i}\ndib 0 8 8 32\nmapmode 0 {mode}\nwinext 0 {} {}\nvpext 0 {} {}\ngetmap 0", r.range(1, 50), r.range(1, 50), r.range(1, 50), r.range(1, 50)).unwrap();
+        writeln!(s, "scalewin 0 {} {} {} {}\ngetmap 0\nscalevp 0 {} {} {} {}\ngetmap 0\n{}\nend", r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), r.range(-3, 5), r.range(-1, 5), grid("lptodp")).unwrap();
+    }
     s
 }

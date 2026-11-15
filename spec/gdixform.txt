@@ -4,7 +4,7 @@ GDI.MAP.METRIC measured | golden xform mapmode-2..7 | SetMapMode to MM_LOMETRIC,
 GDI.MAP.EXT doc | SetWindowExtEx, SetViewportExtEx | sets the extent in MM_ANISOTROPIC; in MM_TEXT and the metric modes the call is ignored; returns nonzero and the previous extent
 GDI.MAP.ZEROEXT measured | golden xform aniso-81 | an extent of 0 in MM_ANISOTROPIC: the call succeeds and the extents stay as they were
 GDI.MAP.ORG doc | SetWindowOrgEx, SetViewportOrgEx, OffsetWindowOrgEx, OffsetViewportOrgEx | sets (or moves) the origin in any mode; returns the previous one
-GDI.MAP.SCALE open | ScaleWindowExtEx, ScaleViewportExtEx | the scaled extents (rounding, a 0 denominator)
+GDI.MAP.SCALE measured | golden xform scale-* (80 calls per arch) | ScaleWindowExtEx, ScaleViewportExtEx in MM_ANISOTROPIC: each extent times num / denom, truncated toward zero; a 0 among the four arguments, or an extent that would come out 0, fails (0) and changes nothing, ScaleWindowExtEx then leaving the SIZE unwritten and ScaleViewportExtEx writing the old extents; MM_ISOTROPIC taken as the same and the fixed modes as keeping their extents and succeeding (cases scalemode-* measure those)
 GDI.MAP.GET doc | GetMapMode, GetWindowExtEx, GetViewportExtEx, GetWindowOrgEx, GetViewportOrgEx, GetGraphicsMode | the state as set
 GDI.MAP.FORMULA doc | Transformation of Coordinate Spaces (page space to device space) | Dx = (Lx - xWO) * xVE / xWE + xVO, and likewise for y
 GDI.MAP.INVERSE doc | DPtoLP | the inverse: Lx = (Dx - xVO) * xWE / xVE + xWO
