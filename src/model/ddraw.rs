@@ -198,19 +198,16 @@ struct Within {
 /// 4 wide, the source's right side on a dword) writes dx mod 4 more pixels left of the
 /// destination, each from dx left and dy down of it in memory, through Blt and BltFast, clipped
 /// or not, not mirrored (overlap8alignfast, -clip, -key, -down, -mirrorlr, -mirrorud); an
-/// overlapping stretch takes the source by floor(x·s / d) (overlap8alignstretch: 50 of 50). An
-/// overlapping stretch at 16, 24 or 32 bpp is not measured
+/// overlapping stretch, at every depth, takes the source by floor(x·s / d) (overlap8alignstretch:
+/// 50 of 50; ddraw overlapstretch-565, -24, -32: exact, the DDA misses 565 and 32)
 fn overlap(s: &Surf, sr: Rect, dr: Rect, k: &Keys) -> Res<Within> {
     let (dx, dy) = (dr.0 - sr.0, dr.1 - sr.1);
     let w = sr.2 - sr.0;
     let overlapping = dr.0 < sr.2 && sr.0 < dr.2 && dr.1 < sr.3 && sr.1 < dr.3;
     let stretched = (dr.2 - dr.0, dr.3 - dr.1) != (w, sr.3 - sr.1);
     if s.bpp != 8 {
-        if overlapping && stretched {
-            return Err(Fail::Unmodeled(open::DDRAW_OVERLAP8));
-        }
         hit(clause::DDRAW_OVERLAP);
-        return Ok(Within::default());
+        return Ok(Within { extra: 0, floor: overlapping && stretched });
     }
     hit(clause::DDRAW_OVERLAP8);
     if overlapping && stretched {
