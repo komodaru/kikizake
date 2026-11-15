@@ -18,6 +18,9 @@ pub mod e {
 
     pub const POINTS: u32 = 0;
     pub const QUADS: u32 = 7;
+    pub const TRIANGLES: u32 = 4;
+    pub const TRIANGLE_STRIP: u32 = 5;
+    pub const TRIANGLE_FAN: u32 = 6;
     pub const LINES: u32 = 1;
     pub const LINE_LOOP: u32 = 2;
     pub const LINE_STRIP: u32 = 3;
@@ -2251,6 +2254,59 @@ impl Ctx {
                     self.never = NeverPath::Other;
                 }
             }
+            TRIANGLES | TRIANGLE_STRIP | TRIANGLE_FAN => {
+                // (GL 1.1 2.6.1: a strip's triangle i is (i, i+1, i+2) with every other one
+                // turned so all face as the first; a fan's is (0, i+1, i+2))
+                let n = verts.len();
+                let tris: Vec<[usize; 3]> = match mode {
+                    TRIANGLES => (0..n / 3).map(|k| [3 * k, 3 * k + 1, 3 * k + 2]).collect(),
+                    TRIANGLE_STRIP => (0..n.saturating_sub(2)).map(|k| if k % 2 == 0 { [k, k + 1, k + 2] } else { [k + 1, k, k + 2] }).collect(),
+                    _ => (1..n.saturating_sub(1)).map(|k| [0, k, k + 1]).collect(),
+                };
+                // (filled, flat polygons only: other polygon modes, stipple, antialiasing and
+                // offsets on triangles are not measured)
+                if self.poly_mode != [0x1b02, 0x1b02] || self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                }
+                for t in tris {
+                    let q = t.map(|k| verts[k]);
+                    if self.culled_z(&q.map(|v| v.0)) {
+                        continue;
+                    }
+                    let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
+                    let c = self.fogged(q[2].1, q[2].0);
+                    if q.iter().any(|v| v.1 != q[2].1 || self.fogged(v.1, v.0) != c) || w.iter().any(|p| p[2] != w[0][2]) {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                    }
+                    // (a triangle past the view volume's sides: Windows' clipped vertices are not
+                    // pinned, golden tri-clip-*)
+                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                    if w.iter().any(|p| p[0] < vx || p[0] > vx + vw || p[1] < vy || p[1] > vy + vh) {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
+                    }
+                    let area = (w[1][0] - w[0][0]) * (w[2][1] - w[0][1]) - (w[2][0] - w[0][0]) * (w[1][1] - w[0][1]);
+                    if self.cap(CULL_FACE) {
+                        hit(clause::GL_CULL);
+                        let front = (area > 0.0) == (self.front_face == CCW);
+                        let culled = match self.cull_mode {
+                            FRONT => front,
+                            BACK => !front,
+                            _ => true,
+                        };
+                        if culled {
+                            continue;
+                        }
+                    }
+                    let origin = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+                    let v = [0, 1, 2].map(|k| tri::Vertex { x: tri::Sub::snap(w[k][0], origin.0), y: tri::Sub::snap(w[k][1], origin.1) });
+                    hit(clause::GL_RASTER_TRIANGLE);
+                    let px = tri::pixels(v, W as i64, H as i64).map_err(|tri::Undecided| Fail::Unmodeled(open::GL_RASTER_TIE))?;
+                    self.never = NeverPath::Other;
+                    for (x, y) in px {
+                        self.fragment(Frag { x, y, c, z: w[0][2], fixed: self.span(), zfixed: None })?;
+                    }
+                }
+            }
             LINES | LINE_LOOP | LINE_STRIP => {
                 // (wide, stippled and antialiased lines are not measured)
                 if self.line_width != 1.0 || self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
@@ -3733,5 +3789,143 @@ impl Ctx {
             rows.push(hex(&b));
         }
         Ok(rows)
+    }
+}
+
+/// Filled triangles as Windows' generic OpenGL draws them (MEASURED, golden opengl-32 and
+/// opengl-64 tri-near-*, tri-edge-*, tri-low-*, tri-hair*-*, tri-fine-*, tri-sweep-*,
+/// tri-probe-*, tri-snap-*: GL.RASTER.TRIANGLE):
+/// - each window coordinate is rounded to 1/256 pixel by its distance from the viewport's
+///   center, an exact half toward the center ([`Sub::snap`]);
+/// - each edge is walked down from its upper vertex: its x at the first pixel row center below
+///   that vertex rounded to 1/256 (an exact half up), then stepped by the slope of the rounded
+///   vertices, exactly;
+/// - a row takes the pixel centers strictly right of its left edge and at or left of its right
+///   edge, the rows from an edge's lower vertex up to (not at) its upper one.
+///
+/// Windows' answer for a center within 1/128 pixel of an edge (measured along x, or along y for
+/// edges steeper than 1) still differs from that by up to 1/256 pixel in a way the cases have not
+/// pinned (with viewports 20 and 64 wide, and long edges whose slope is not dyadic): those are
+/// GL.RASTER.TIE.
+pub mod tri {
+    /// A window coordinate in units of 1/256 pixel.
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+    pub struct Sub(pub i64);
+
+    /// A pixel row or column center, in units of 1/256 pixel.
+    const fn center(i: i64) -> i64 {
+        i * 256 + 128
+    }
+
+    impl Sub {
+        /// `v` rounded to 1/256 by its distance from `origin` (the viewport's center, itself on
+        /// the 1/256 grid), an exact half toward the origin.
+        pub fn snap(v: f64, origin: Sub) -> Sub {
+            // (to 1/65536 of the unit first: the model's double-precision transform leaves
+            // noise far below what the cases resolve, which would push an exact half past it)
+            let d = ((v - origin.0 as f64 / 256.0) * 256.0 * 65536.0).round() / 65536.0;
+            let r = (d.abs() - 0.5).ceil().max(0.0).copysign(d);
+            Sub(origin.0 + r as i64)
+        }
+    }
+
+    /// A vertex in 1/256 pixel.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct Vertex {
+        pub x: Sub,
+        pub y: Sub,
+    }
+
+    /// An x position num / den (in 1/256 pixel), den > 0.
+    #[derive(Clone, Copy, Debug)]
+    struct Ratio {
+        num: i128,
+        den: i128,
+    }
+
+    fn floor_div(a: i128, b: i128) -> i128 {
+        let q = a / b;
+        if (a % b != 0) && ((a < 0) != (b < 0)) { q - 1 } else { q }
+    }
+
+    /// An edge going up from `lo` to `hi` (hi.y > lo.y).
+    #[derive(Clone, Copy, Debug)]
+    struct Edge {
+        lo: Vertex,
+        hi: Vertex,
+    }
+
+    impl Edge {
+        fn new(a: Vertex, b: Vertex) -> Option<Edge> {
+            match a.y.cmp(&b.y) {
+                std::cmp::Ordering::Less => Some(Edge { lo: a, hi: b }),
+                std::cmp::Ordering::Greater => Some(Edge { lo: b, hi: a }),
+                std::cmp::Ordering::Equal => None,
+            }
+        }
+        fn dx(&self) -> i128 {
+            i128::from(self.hi.x.0 - self.lo.x.0)
+        }
+        fn dy(&self) -> i128 {
+            i128::from(self.hi.y.0 - self.lo.y.0)
+        }
+        /// whether the row through center y is drawn along this edge
+        fn spans(&self, y: i64) -> bool {
+            self.lo.y.0 <= y && y < self.hi.y.0
+        }
+        /// the line's own x at row center y
+        fn exact(&self, y: i64) -> Ratio {
+            Ratio { num: i128::from(self.lo.x.0) * self.dy() + i128::from(y - self.lo.y.0) * self.dx(), den: self.dy() }
+        }
+        /// Windows' x at row center y: walked down from the upper vertex
+        fn walked(&self, y: i64) -> Ratio {
+            let top = self.hi.y.0;
+            // the first row center strictly below the upper vertex
+            let first = (top - 128 - 1).div_euclid(256) * 256 + 128;
+            let (dx, dy) = (self.dx(), self.dy());
+            let num = i128::from(self.hi.x.0) * dy + i128::from(first - top) * dx;
+            let start = floor_div(2 * num + dy, 2 * dy);
+            let n = i128::from((first - y) / 256);
+            Ratio { num: start * dy - n * 256 * dx, den: dy }
+        }
+        /// whether center x lies within 1/128 pixel of the walked x (along y when steep)
+        fn near(&self, at: Ratio, x: i64) -> bool {
+            (at.num - i128::from(x) * at.den).abs() < 2 * at.den.max(self.dx().abs())
+        }
+    }
+
+    fn less(a: Ratio, b: Ratio) -> bool {
+        a.num * b.den < b.num * a.den
+    }
+
+    /// A center near an edge, where Windows' rule is not known (GL.RASTER.TIE).
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct Undecided;
+
+    /// The pixels (x, y) of a `w` by `h` window whose centers the triangle covers.
+    pub fn pixels(v: [Vertex; 3], w: i64, h: i64) -> Result<Vec<(i64, i64)>, Undecided> {
+        let edges: Vec<Edge> = (0..3).filter_map(|i| Edge::new(v[i], v[(i + 1) % 3])).collect();
+        let mut out = Vec::new();
+        for row in 0..h {
+            let y = center(row);
+            let live: Vec<&Edge> = edges.iter().filter(|e| e.spans(y)).collect();
+            let [a, b] = live[..] else {
+                continue;
+            };
+            let (l, r) = if less(b.exact(y), a.exact(y)) { (b, a) } else { (a, b) };
+            let (lx, rx) = (l.walked(y), r.walked(y));
+            for col in 0..w {
+                let x = center(col);
+                if l.near(lx, x) || r.near(rx, x) {
+                    return Err(Undecided);
+                }
+                let inside_l = lx.num < i128::from(x) * lx.den;
+                let inside_r = i128::from(x) * rx.den <= rx.num;
+                if inside_l && inside_r {
+                    out.push((col, row));
+                }
+            }
+        }
+        Ok(out)
     }
 }
