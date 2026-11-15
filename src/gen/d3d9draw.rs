@@ -1040,6 +1040,20 @@ fn suite(v8: bool) -> String {
         let m = (20.0 / dx.abs().max(dy.abs())).ceil();
         line(&mut s, &format!("line-corner-{i}"), (b.0 + dx * m, b.1 + dy * m), b);
     }
+    // projected coordinates (TEXTURETRANSFORMFLAGS COUNT3 | PROJECTED) under filters that read
+    // the footprint: LINEAR both ways, LINEAR minifying only, a mip filter, ANISOTROPIC
+    for (i, (fm, fn_, fp, fa)) in [(2u32, 2u32, 0u32, 1u32), (1, 2, 0, 1), (2, 2, 2, 1), (3, 3, 0, 4)].into_iter().enumerate() {
+        open(&mut s, &format!("tci-proj-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\nrs set 7 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        writeln!(s, "{mag} {fm}\n{min} {fn_}\n{mip} {fp}\n{aniso} {fa}\ntss set 0 24 0x103\nd9xform 16{tm}\nd9fvf 0x152").unwrap();
+        let mut l = "d9draw 5 4".to_string();
+        for (x, y) in [(-0.9f32, 0.9f32), (0.9, 0.9), (-0.9, -0.9), (0.9, -0.9)] {
+            let (u, v) = (x * 1.5 + 0.5, 0.5 - y * 1.5);
+            write!(l, " {} {} {} {} {} {} {:#x} {} {}", fb(x), fb(y), fb(0.5), fb(0.0), fb(0.0), fb(-1.0), r.next() | 0xff00_0000, fb(u), fb(v)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 
