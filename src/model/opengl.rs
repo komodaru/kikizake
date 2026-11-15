@@ -412,7 +412,10 @@ pub struct Ctx {
     pub index_mask: u32,
     /// the accumulation buffer, signed channels at the format's accumulation bits; None while its
     /// content is still undefined (nothing loaded or cleared into it yet)
-    pub acc: Option<Vec<[i64; 4]>>,
+    pub acc: Vec<[Option<i64>; 4]>,
+    /// which framebuffer channels hold undefined content (GL.UNDEFINED): a new alpha buffer's,
+    /// and whatever is made from undefined content; a read gives "??" for their bytes
+    pub fb_undefined: Vec<[bool; 4]>,
     pub color_mask: [bool; 4],
     /// the GLboolean bytes glColorMask was given (glGet gives them back as they are: GL.COLORMASK)
     pub color_mask_raw: [u32; 4],
@@ -472,6 +475,7 @@ impl Ctx {
     pub fn new(pf: Pfd, bpp: u32) -> Ctx {
         hit(clause::GL_INIT);
         let stencil_bits = pf.stencil;
+        let alpha_init = u32::from(pf.rgba[3].0 != 0);
         let index_mask = if pf.ty != 0 { low_bits(pf.color) } else { 0 };
         let mut caps = std::collections::BTreeMap::new();
         for c in CAPS {
@@ -504,7 +508,8 @@ impl Ctx {
             index: 1.0,
             clear_index: 0.0,
             index_mask,
-            acc: None,
+            acc: vec![[None; 4]; W * H],
+            fb_undefined: vec![[false, false, false, alpha_init != 0]; W * H],
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
             viewport: [0, 0, W as i64, H as i64],
@@ -529,6 +534,9 @@ impl Ctx {
             cull_mode: BACK,
             front_face: CCW,
             poly_mode: [0x1b02, 0x1b02],
+            // (MEASURED, golden opengl-32 / 64 edge-blend-alpha-buffer: a new alpha buffer holds
+            // whatever its memory held, 1 in every pixel on one executor and scattered bytes on
+            // the other: GL.UNDEFINED; the color buffer the DIB's zeros)
             fb: vec![[0; 4]; W * H],
             depth: vec![Depth(0); W * H],
             stencil: vec![0; W * H],
@@ -1086,9 +1094,12 @@ impl Gl {
                     return Err(Fail::Bad);
                 }
                 let mut buf = vec![0xccu8; v[6] as usize + 64];
-                ctx.read_pixels(v[0], v[1], v[2], v[3], v[4] as u32, v[5] as u32, &mut buf)?;
+                let mut undefined = vec![false; buf.len()];
+                ctx.read_pixels(v[0], v[1], v[2], v[3], v[4] as u32, v[5] as u32, &mut buf, &mut undefined)?;
                 let n = v[6] as usize;
-                out.push(format!("read {}", hex(&buf[..n])));
+                // (an undefined byte as "??": any byte matches it, crate::compare)
+                let text: String = buf[..n].iter().zip(&undefined).map(|(b, u)| if *u { "??".to_string() } else { format!("{b:02x}") }).collect();
+                out.push(format!("read {text}"));
                 if buf[n..].iter().any(|b| *b != 0xcc) {
                     out.push("over".into());
                 }
@@ -1648,7 +1659,8 @@ impl Ctx {
                     saved.fb = Vec::new();
                     saved.depth = Vec::new();
                     saved.stencil = Vec::new();
-                    saved.acc = None;
+                    saved.acc = Vec::new();
+                    saved.fb_undefined = Vec::new();
                     self.attrib.push((u(a, 0), saved));
                 }
             }
@@ -2532,16 +2544,22 @@ impl Ctx {
                 };
             }
         }
+        let mut undefined = if self.cap(BLEND) { blend_undefined(self.blend, self.fb_undefined[i]) } else { [false; 4] };
         if self.cap(COLOR_LOGIC_OP) {
             hit(clause::GL_LOGICOP_APPLY);
             for k in 0..4 {
                 let m = low_bits(bits[k]);
                 v[k] = logic(self.logic_op, v[k], self.fb[i][k]) & m;
+                undefined[k] |= logic_reads_dst(self.logic_op) && self.fb_undefined[i][k];
             }
         }
         for k in 0..4 {
             if self.color_mask[k] {
                 self.fb[i][k] = v[k];
+                if undefined[k] {
+                    hit(clause::GL_UNDEFINED);
+                }
+                self.fb_undefined[i][k] = undefined[k];
             }
         }
         Ok(())
@@ -2640,11 +2658,7 @@ impl Ctx {
             }
             return Ok(r);
         }
-        if bits[3] != 0 {
-            // (golden opengl-32 blend-fmt-2, 5: 13 of 24576 channels one above the float sum,
-            // all sums just under a whole number; blend-alpha-* measure every pair)
-            return Err(Fail::Unmodeled(open::GL_BLEND_FORMAT));
-        }
+        hit(clause::GL_BLEND_DSTALPHA);
         // (24-bit DIBs as 32-bit ones: golden opengl-32 blend-fmt-1, 4)
         let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
         Ok(blend_bytes(self.blend, s, d, if bits[3] != 0 { Some(d[3]) } else { None }))
@@ -2809,64 +2823,43 @@ impl Ctx {
     fn accum(&mut self, op: AccumOp, v: f32) -> Res<()> {
         hit(clause::GL_ACCUM);
         let idx = self.scissored();
-        let acc = match (op, self.acc.take()) {
-            (AccumOp::Load, a) => {
-                let mut a = a.unwrap_or_else(|| vec![[0; 4]; W * H]);
-                for &i in &idx {
-                    for k in 0..4 {
-                        a[i][k] = self.acc_wrap(self.acc_scaled(v, i, k).trunc() as i64, k);
-                    }
-                }
-                a
+        let mut acc = std::mem::take(&mut self.acc);
+        // (content never loaded or cleared is undefined, GL 1.1 4.2.3, and what is made from it
+        // too: GL.UNDEFINED)
+        for &i in &idx {
+            for k in 0..4 {
+                let fb = (!self.fb_undefined[i][k]).then_some(());
+                acc[i][k] = match op {
+                    AccumOp::Load => fb.map(|()| self.acc_wrap(self.acc_scaled(v, i, k).trunc() as i64, k)),
+                    AccumOp::Accum => acc[i][k].zip(fb).map(|(a, ())| self.acc_wrap(a + self.acc_scaled(v, i, k).trunc() as i64, k)),
+                    AccumOp::Mult => acc[i][k].map(|a| self.acc_wrap((a as f32 * v).trunc() as i64, k)),
+                    AccumOp::Add => acc[i][k].map(|a| self.acc_wrap(a + (v * self.acc_max(k) + 0.5).trunc() as i64, k)),
+                    AccumOp::Return => acc[i][k],
+                };
             }
-            // accumulating into undefined content keeps it undefined
-            (AccumOp::Accum | AccumOp::Mult | AccumOp::Add, None) => return Ok(()),
-            // the content was never defined (GL 1.1 4.2.3: undefined at creation)
-            (AccumOp::Return, None) => return Err(Fail::Unmodeled(open::GL_ACCUM_RETURN)),
-            (AccumOp::Accum, Some(mut a)) => {
-                for &i in &idx {
-                    for k in 0..4 {
-                        a[i][k] = self.acc_wrap(a[i][k] + self.acc_scaled(v, i, k).trunc() as i64, k);
+        }
+        if op == AccumOp::Return && self.buffers[0] != 0 {
+            hit(clause::GL_ACCUM_STEPS);
+            let bits = self.bits();
+            for &i in &idx {
+                for k in 0..4 {
+                    if bits[k] == 0 || !self.color_mask[k] {
+                        continue;
                     }
+                    let Some(a) = acc[i][k] else {
+                        hit(clause::GL_UNDEFINED);
+                        self.fb_undefined[i][k] = true;
+                        continue;
+                    };
+                    let cm = ((1u64 << bits[k]) - 1) as f32;
+                    let x = a as f32 * (v / self.acc_max(k)) * cm;
+                    let m = if self.bpp <= 16 { (x + 0.5).floor() } else { x.trunc() };
+                    self.fb[i][k] = m.clamp(0.0, cm) as u32;
+                    self.fb_undefined[i][k] = false;
                 }
-                a
             }
-            (AccumOp::Mult, Some(mut a)) => {
-                for &i in &idx {
-                    for k in 0..4 {
-                        a[i][k] = self.acc_wrap((a[i][k] as f32 * v).trunc() as i64, k);
-                    }
-                }
-                a
-            }
-            (AccumOp::Add, Some(mut a)) => {
-                for &i in &idx {
-                    for k in 0..4 {
-                        a[i][k] = self.acc_wrap(a[i][k] + (v * self.acc_max(k) + 0.5).trunc() as i64, k);
-                    }
-                }
-                a
-            }
-            (AccumOp::Return, Some(a)) => {
-                hit(clause::GL_ACCUM_STEPS);
-                let bits = self.bits();
-                if self.buffers[0] != 0 {
-                    for &i in &idx {
-                        for k in 0..4 {
-                            if bits[k] == 0 || !self.color_mask[k] {
-                                continue;
-                            }
-                            let cm = ((1u64 << bits[k]) - 1) as f32;
-                            let x = a[i][k] as f32 * (v / self.acc_max(k)) * cm;
-                            let m = if self.bpp <= 16 { (x + 0.5).floor() } else { x.trunc() };
-                            self.fb[i][k] = m.clamp(0.0, cm) as u32;
-                        }
-                    }
-                }
-                a
-            }
-        };
-        self.acc = Some(acc);
+        }
+        self.acc = acc;
         Ok(())
     }
 
@@ -2881,11 +2874,9 @@ impl Ctx {
         if m & ACCUM_BUFFER_BIT != 0 && self.pf.accum > 0 {
             hit(clause::GL_CLEAR_ACCUM);
             let cv: Vec<i64> = (0..4).map(|k| self.acc_fixed(self.clear_accum[k], k)).collect();
-            let mut acc = self.acc.take().unwrap_or_else(|| vec![[0; 4]; W * H]);
             for i in self.scissored() {
-                acc[i] = [cv[0], cv[1], cv[2], cv[3]];
+                self.acc[i] = [Some(cv[0]), Some(cv[1]), Some(cv[2]), Some(cv[3])];
             }
-            self.acc = Some(acc);
         }
         let dither = self.cap(DITHER) && self.bits()[0] < 8 && m & COLOR_BUFFER_BIT != 0;
         let bits = self.bits();
@@ -2913,6 +2904,7 @@ impl Ctx {
                     for k in 0..4 {
                         if self.color_mask[k] {
                             self.fb[i][k] = if dither && bits[k] > 0 { dithered(x, y, k) } else { cv[k] };
+                            self.fb_undefined[i][k] = false;
                         }
                     }
                 }
@@ -2950,7 +2942,8 @@ fn blend_factor(f: u32, s: f64, sa: f64, d: f64, da: f64) -> f64 {
 pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4], dst_alpha: Option<u32>) -> [u32; 4] {
     let mut r = [0u32; 4];
     let n = if dst_alpha.is_some() { 4 } else { 3 };
-    if f == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) {
+    // (MEASURED, golden opengl-32 blend-dstalpha-*: with destination alpha this pair too in floats)
+    if f == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) && dst_alpha.is_none() {
         hit(clause::GL_BLEND_ALPHA);
         let a = s[3] as i64;
         for k in 0..n {
@@ -2978,10 +2971,13 @@ pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4], dst_alpha: Option<u3
             // (MEASURED, golden opengl-32 blend-fmt-5: min(As, 1 - Ad) in floats)
             _ => return v * (s[3] as f32 * inv).min(1.0 - da as f32 * inv),
         };
-        if matches!(f, ONE_MINUS_SRC_COLOR | ONE_MINUS_SRC_ALPHA | ONE_MINUS_DST_COLOR | ONE_MINUS_DST_ALPHA) {
-            v * (1.0 - x as f32 * inv)
-        } else {
-            (v * x as f32) * inv
+        // (MEASURED, golden opengl-32 blend-dstalpha-*: every pair on 145408 channels: an alpha
+        // factor is a float of its own, x / 255, the channel times it; a color factor is the
+        // channel times x, over 255; a one-minus factor 1 - x / 255)
+        match f {
+            ONE_MINUS_SRC_COLOR | ONE_MINUS_SRC_ALPHA | ONE_MINUS_DST_COLOR | ONE_MINUS_DST_ALPHA => v * (1.0 - x as f32 * inv),
+            SRC_ALPHA | DST_ALPHA => v * (x as f32 * inv),
+            _ => (v * x as f32) * inv,
         }
     };
     for k in 0..n {
@@ -2989,6 +2985,22 @@ pub fn blend_bytes(f: (u32, u32), s: [u32; 4], d: [u32; 4], dst_alpha: Option<u3
         r[k] = (v.floor().clamp(0.0, 255.0)) as u32;
     }
     r
+}
+
+/// which channels of a blend's result are undefined, given the destination's (GL.UNDEFINED):
+/// channel k reads the destination's channel k unless the destination factor is zero and the
+/// source factor no destination color, and every channel reads the destination alpha under a
+/// factor made from it
+pub fn blend_undefined(f: (u32, u32), dst: [bool; 4]) -> [bool; 4] {
+    let reads_color = f.1 != ZERO || matches!(f.0, DST_COLOR | ONE_MINUS_DST_COLOR);
+    let reads_alpha = [f.0, f.1].iter().any(|g| matches!(*g, DST_ALPHA | ONE_MINUS_DST_ALPHA | SRC_ALPHA_SATURATE));
+    [0, 1, 2, 3].map(|k| (reads_color && dst[k]) || (reads_alpha && dst[3]))
+}
+
+/// whether a logic operation's result depends on the destination (all but CLEAR, COPY,
+/// COPY_INVERTED, SET)
+pub fn logic_reads_dst(op: u32) -> bool {
+    !matches!(op, 0x1500 | 0x1503 | 0x150c | 0x150f)
 }
 
 fn compare_u(f: u32, a: u64, b: u64) -> bool {
@@ -3294,7 +3306,7 @@ impl Ctx {
         Ok(r)
     }
 
-    pub fn read_pixels(&mut self, x: i64, y: i64, w: i64, h: i64, f: u32, t: u32, buf: &mut [u8]) -> Res<()> {
+    pub fn read_pixels(&mut self, x: i64, y: i64, w: i64, h: i64, f: u32, t: u32, buf: &mut [u8], undefined: &mut [bool]) -> Res<()> {
         let Some((comps, size)) = self.pixel_args(w, h, f, t, true)? else { return Ok(()) };
         if self.pack[0] != 0 && size > 1 {
             hit(clause::GL_PIXELSTORE_SWAP);
@@ -3338,6 +3350,11 @@ impl Ctx {
                 let c = self.dst_color(p).map(|v| v as f64);
                 let c = self.transfer(c)?.map(|v| v as f32);
                 for (n, which) in comps.iter().enumerate() {
+                    let und = match which {
+                        0..=3 => self.fb_undefined[p][*which],
+                        4 => self.fb_undefined[p][..3].iter().any(|u| *u),
+                        _ => false,
+                    };
                     let mut e = match which {
                         0..=3 => from_float(c[*which], t),
                         4 => {
@@ -3432,6 +3449,10 @@ impl Ctx {
                         continue;
                     }
                     buf[at..at + size].copy_from_slice(&e);
+                    if und {
+                        hit(clause::GL_UNDEFINED);
+                        undefined[at..at + size].fill(true);
+                    }
                 }
             }
         }

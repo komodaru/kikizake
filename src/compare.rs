@@ -20,6 +20,17 @@ fn first_pixel(want: &str, got: &str, bpp: u32) -> Option<usize> {
     Some(if bpp >= 8 { i / (bpp as usize / 4) } else { i / 2 * (8 / bpp as usize) })
 }
 
+/// a wanted line against a got one: the same, or the same but where the wanted line has "?"
+/// (a model's undefined byte, "??"), which any hex digit matches
+pub fn line_matches(want: Option<&str>, got: Option<&str>) -> bool {
+    match (want, got) {
+        (Some(w), Some(g)) if w.len() == g.len() && w.contains('?') => {
+            w.bytes().zip(g.bytes()).all(|(a, b)| a == b || (a == b'?' && b.is_ascii_hexdigit()))
+        }
+        _ => want == got,
+    }
+}
+
 pub fn compare(want: &Output, got: &Output) -> Report {
     let mut r = Report::default();
     let mut gi = 0;
@@ -51,7 +62,7 @@ pub fn compare(want: &Output, got: &Output) -> Report {
             if let Some(px) = a.and_then(|a| a.strip_prefix("px ")) {
                 bpp = px.split(' ').nth(3).and_then(|v| v.parse().ok()).unwrap_or(0);
             }
-            if a != b {
+            if !line_matches(a, b) {
                 let mut d = format!("{name}: line {}: want {:?} got {:?}", i + 1, a.unwrap_or("(none)"), b.unwrap_or("(none)"));
                 if let (Some(a), Some(b), true) = (a, b, bpp > 0) {
                     if a.len() == b.len() && a.bytes().all(|c| c.is_ascii_hexdigit()) {

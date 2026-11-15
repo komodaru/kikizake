@@ -1426,4 +1426,22 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // blending with dithering on 16, 8 and 4-bit DIBs: random factor pairs, a random picture
+    // drawn undithered under each, one random color over it dithered
+    let mut q = XorShift32::new(0x0960_200d);
+    for (k, (bpp, pf)) in [(16u32, 0u32), (8, 25), (4, 31)].iter().enumerate() {
+        let head = if *pf == 0 { ctx(*bpp) } else { format!("glctx {bpp} {pf}\n") };
+        writeln!(s, "case blend-dither-{k}\n{head}{ORTHO}").unwrap();
+        for _ in 0..24 {
+            let (sf, df) = (*q.pick(BLEND_SRC), *q.pick(BLEND_DST));
+            writeln!(s, "gl glDisable 0xbd0\ngl glDisable 0xbe2").unwrap();
+            random_dst(s, q.next() & 0xffff);
+            gl(s, "glBlendFunc", &[sf, df]);
+            writeln!(s, "gl glEnable 0xbd0\ngl glEnable 0xbe2").unwrap();
+            let c: Vec<u32> = (0..4).map(|_| q.next() & 255).collect();
+            gl(s, "glColor4ub", &c);
+            writeln!(s, "gl glRectf 0 0 16 16\ngldib").unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

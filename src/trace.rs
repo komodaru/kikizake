@@ -189,7 +189,7 @@ pub fn trace(dir: &Path) -> BTreeMap<String, Evidence> {
                 let kind = match (&r, want) {
                     (_, None) => 3,
                     (Err(_), _) => 2,
-                    (Ok(l), Some(w)) if l == w => 0,
+                    (Ok(l), Some(w)) if l.len() == w.len() && l.iter().zip(w.iter()).all(|(a, b)| crate::compare::line_matches(Some(a.as_str()), Some(b.as_str()))) => 0,
                     _ => 1,
                 };
                 for id in hits {
