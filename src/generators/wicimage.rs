@@ -1358,6 +1358,14 @@ pub fn wicencode() -> String {
     for (f, w, h, seed) in [("gray8", 9u32, 9u32, 0x0dd5_0001u32), ("gray8", 6, 10, 0x0dd5_0002), ("gray16", 8, 12, 0x0dd5_0003), ("bgra", 9, 9, 0x0dd5_0004), ("bgr24", 4, 8, 0x0dd5_0005)] {
         writeln!(s, "case encdds-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode dds\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
     }
+    // 16bppGray into 64bppRGBAFixedPoint through each other format: which path Windows takes
+    {
+        let rows: Vec<Vec<u8>> = (0..64usize).map(|y| (0..64usize).flat_map(|x| { let k = y * 64 + x; ((k * 16 + k % 16) as u16).to_be_bytes() }).collect()).collect();
+        let f = png(64, 64, 16, 0, false, &[], &png_filter(&rows, 2, &[0]), 4096);
+        for mid in ["grayfloat", "rgbafloat", "prgbafloat", "rgbfloat", "rgb96float", "grayfix16", "grayfix32", "grayhalf", "rgba64half", "rgb64half", "rgb48half", "rgb48", "rgba64", "rgb48fixed", "rgb64fixed", "rgb96fixed", "rgba128fixed", "rgb128fixed", "bgra64fixed"] {
+            writeln!(s, "case fixpath-gray16-{mid}\nwdecode {}\nwframe 0\nwconv {mid}\nwinfo\nwpixels\nwconv rgba64fixed\nwpixels\nend", hex(&f)).unwrap();
+        }
+    }
     s
 }
 

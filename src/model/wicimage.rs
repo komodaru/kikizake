@@ -31,7 +31,9 @@ pub const FORMATS: &[(&str, u32)] = &[
     ("rgba64", 64), ("cmyk", 32), ("alpha8", 8), ("idx1", 1), ("idx2", 2), ("idx4", 4), ("idx8", 8),
     ("bgr48", 48), ("bgra64", 64), ("prgba64", 64), ("pbgra64", 64), ("bgr101010", 32), ("grayfloat", 32), ("rgbafloat", 128),
     ("prgbafloat", 128), ("rgbfloat", 128), ("rgba64fixed", 64), ("bgra64fixed", 64), ("rgba64half", 64), ("rgb96float", 96),
-    ("cmyk64", 64), ("cmyka40", 40), ("cmyka80", 80),
+    ("cmyk64", 64), ("cmyka40", 40), ("cmyka80", 80), ("grayfix16", 16), ("grayhalf", 16), ("grayfix32", 32),
+    ("rgb48fixed", 48), ("rgb48half", 48), ("rgb64fixed", 64), ("rgb64half", 64), ("rgba128fixed", 128), ("rgb128fixed", 128),
+    ("rgb96fixed", 96),
 ];
 
 pub fn bits_of(f: &str) -> u32 {
