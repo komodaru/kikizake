@@ -1182,10 +1182,6 @@ impl Given {
     }
 }
 
-/// whether blended antialiased lines (raster-mode-4) are modelled yet (they are not: see the
-/// window path of `end`)
-const SMOOTH_BLEND_FITTED: bool = false;
-
 /// A line's colors: one (flat, or both ends alike) or one per end (smooth)
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum LineColor {
@@ -1220,6 +1216,9 @@ pub enum ToFixed {
     Span,
     /// a smooth line's: truncated on channels of every size (GL.RASTER.INTERPOLATE.LINECOLOR)
     Floor,
+    /// an antialiased line's blended into 8-bit channels without alpha, of this alpha in
+    /// 1/256 (GL.RASTER.LINE.SMOOTH.BLEND)
+    Covered(u16),
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2633,17 +2632,18 @@ impl Ctx {
                             continue;
                         }
                         if self.cap(LINE_SMOOTH) && blended {
-                            // (each pixel's alpha its coverage, a coverage c of 255 as c + c / 128,
-                            // then blended: fits raster-mode-4's x-major lines drawn rightward;
-                            // leftward and y-major ones are a 1/256 off either way, measured by
-                            // line-smooth-blend-*: GL.RASTER.MODE)
-                            if !SMOOTH_BLEND_FITTED {
+                            // (each pixel's alpha its coverage, then blended, GL.RASTER.LINE.SMOOTH.BLEND;
+                            // other factors and channels under 8 bits are not measured)
+                            if self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) || self.bits()[..3] != [8, 8, 8] || c[3] != 1.0 {
                                 return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                             }
                             for (x, y, k) in tri::line_covered([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, tri::Stroke::Smooth) {
-                                let mut c = c;
-                                c[3] = (f64::from(c[3]) * f64::from((u32::from(k.0) + (u32::from(k.0) >> 7)).min(255)) / 255.0) as f32;  // TRY
-                                self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                                // (a coverage c of 255 an alpha of c - 1 of 256; 1 and less draw
+                                // nothing)
+                                if k.0 <= 1 {
+                                    continue;
+                                }
+                                self.fragment(Frag { x, y, c, z: wa[2], fixed: ToFixed::Covered(u16::from(k.0) - 1), zfixed: None })?;
                             }
                             continue;
                         }
@@ -3086,7 +3086,19 @@ impl Ctx {
         let bits = self.bits();
         let mut v = [0u32; 4];
         if self.cap(BLEND) {
-            v = self.blend(c, self.fb[i], dither.then_some(threshold))?;
+            v = match f.fixed {
+                ToFixed::Covered(a) => {
+                    // (MEASURED, golden opengl-32 line-smooth-blend-*: 4500 channels over black,
+                    // gray and in colors: the color rounded times a / 256 and the channel times
+                    // (255 - a) / 256, each truncated, then added)
+                    hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
+                    let a = u32::from(a);
+                    let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
+                    let d = self.fb[i];
+                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { ((s[k] * a) >> 8) + ((d[k] * (255 - a)) >> 8) })
+                }
+                ToFixed::Nearest | ToFixed::Trunc | ToFixed::Span | ToFixed::Floor => self.blend(c, self.fb[i], dither.then_some(threshold))?,
+            };
         } else {
             for k in 0..4 {
                 v[k] = if bits[k] == 0 {
@@ -4451,22 +4463,16 @@ pub mod tri {
             if exact {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);
             }
-            let k0 = if exact && !ymajor { q } else { q + 1 };
+            let k0 = if exact && !ymajor && !smooth { q } else { q + 1 };
             // (antialiased: the 1-pixel line's pixel and the one below it when x-major, right
             // of it when y-major, GL.RASTER.LINE.SMOOTH)
             let (k0, count) = if smooth { (if ymajor { k0 } else { k0 - 1 }, 2) } else { (k0, width.0) };
-            // (the line's fraction past the floor in 1/256: the upper pixel's floor(f * 256) when
-            // x-major, the left one's floor((1 - f) * 256) when y-major, the other 255 less)
-            // (of the line itself, not rounded at the first center)
-            let unrounded = (i128::from(a[minor].0) * i128::from(dmaj) + i128::from(center(j0).0 - a[major].0) * i128::from(dmin)) * i128::from(step) + n * 256 * i128::from(dmin) - den;
-            let rem = unrounded.rem_euclid(den);
-            let (first_part, other) = if ymajor {
-                let left = ((den - rem) * 256 / den).min(255) as u8;
-                (left, 255 - left)
-            } else {
-                let upper = (rem * 256 / den) as u8;
-                (255 - upper, upper)
-            };
+            // (the line's fraction f past the floor, as rounded at the first center: the pixel
+            // above (x-major) or right (y-major) covers floor(f * 256), 1 less at an x-major
+            // line's first step, the other 255 less)
+            let far = ((num.rem_euclid(den) * 256) / den) as u8;
+            let far = if n == 0 && !ymajor { far.saturating_sub(1) } else { far };
+            let (first_part, other) = (255 - far, far);
             for k in k0..k0 + count {
                 let (x, y) = if ymajor { (k, j) } else { (j, k) };
                 let cover = match (smooth, k == k0) {

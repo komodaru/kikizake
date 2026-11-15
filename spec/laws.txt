@@ -172,6 +172,7 @@ tests/laws_opengl.rs::smooth_lines_cover_the_same_both_ways pbt GL.RASTER.LINE.S
 tests/laws_opengl.rs::entering_lines_start_at_the_edge pbt GL.RASTER.LINE.WIDE
 tests/laws_opengl.rs::draw_reads_the_given_bytes_then_zeros pbt GL.DRAW.BUFFER
 tests/laws_opengl.rs::line_colors_run_between_the_ends pbt GL.RASTER.INTERPOLATE.LINECOLOR
+tests/laws_opengl.rs::smooth_line_pairs_cover_one_pixel pbt GL.RASTER.LINE.SMOOTH.BLEND
 tests/laws_opengl.rs::smooth_triangles_share_a_rectangle pbt GL.RASTER.TIE
 tests/laws_opengl.rs::smooth_triangles_move_with_whole_pixels pbt GL.RASTER.TIE
 tests/laws_opengl.rs::convex_outlines_cross_a_plane_at_most_twice pbt GL.RASTER.CLIP.XY

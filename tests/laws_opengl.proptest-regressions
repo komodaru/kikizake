@@ -7,3 +7,5 @@
 cc 1e006478bc15298065c6be210ae3f3f0d3f6160459c9bb875e955e361921e0a0 # shrinks to a = 0, len = 256, back = false, z = [0, 11566], first = 2
 cc 5a58b4ae3236423c951170307584ff53c7d702de2d91e5d90b21a21665ff1552 # shrinks to v = [(151, 153), (104, 72)], w = 5.5549483
 cc da1d91ba69bbd72c18314b6aaea9baade58a31e24fec38241194e4b965d7154f # shrinks to v = [(227, 6), (100, 116)]
+cc 5e2a8cb6a9d47c6fa10232050a9267acbab6ade1e7e1f188c06b904b02020dfc # shrinks to v = [(63, 210), (226, 121)]
+cc 1f258da2b47624071fceeb4905bc0943b579e6110de938b4b26df64ffb52275b # shrinks to v = [(15336, 1184), (19320, -28608), (10792, 9784)], c = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]

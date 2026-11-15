@@ -197,7 +197,9 @@ proptest! {
     }
 
     /// GL.RASTER.LINE.SMOOTH: an antialiased line is its aliased pixels and, for each, the
-    /// one below (x-major) or right of it (y-major), nothing else
+    /// one below (x-major) or right of it (y-major), nothing else; where an x-major line lies
+    /// exactly on a row boundary (the aliased pixel the one below it, GL.RASTER.LINE.TIE) the
+    /// pair is the two about the boundary, the aliased one and the one above
     #[test]
     fn smooth_lines_add_one_neighbor(v in any::<[(u8, u8); 2]>()) {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
@@ -205,11 +207,33 @@ proptest! {
         let thin = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Aliased(tri::LineWidth::ONE));
         let smooth = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Smooth);
         let ymajor = thin.windows(2).all(|p| p[0].1 != p[1].1) && (b[1] - a[1]).abs() >= (b[0] - a[0]).abs();
-        let mut want: Vec<(i64, i64)> = thin.iter().flat_map(|&(x, y)| [(x, y), if ymajor { (x + 1, y) } else { (x, y - 1) }]).collect();
+        // (x-major: the one below, or above where the line lies exactly on the boundary
+        // between them; the aliased pixel then is the lower)
         let mut got = smooth.clone();
-        want.sort();
         got.sort();
-        prop_assert_eq!(got, want);
+        prop_assert_eq!(got.len(), 2 * thin.len());
+        for &(x, y) in &thin {
+            prop_assert!(got.binary_search(&(x, y)).is_ok());
+            if ymajor {
+                prop_assert!(got.binary_search(&(x + 1, y)).is_ok());
+            } else {
+                prop_assert!(got.binary_search(&(x, y - 1)).is_ok() || got.binary_search(&(x, y + 1)).is_ok());
+            }
+        }
+    }
+
+    /// GL.RASTER.LINE.SMOOTH.BLEND: an antialiased line's two pixels across at each step cover
+    /// 255 between them, each its share
+    #[test]
+    fn smooth_line_pairs_cover_one_pixel(v in any::<[(u8, u8); 2]>()) {
+        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
+        let (a, b) = (end(v[0]), end(v[1]));
+        let p = tri::line_covered(a, b, [0, 0, 16, 16], tri::Stroke::Smooth);
+        prop_assert_eq!(p.len() % 2, 0);
+        for pair in p.chunks(2) {
+            prop_assert_eq!(u16::from(pair[0].2.0) + u16::from(pair[1].2.0), 255);
+            prop_assert!((pair[0].0 - pair[1].0).abs() + (pair[0].1 - pair[1].1).abs() == 1);
+        }
     }
 
     /// GL.RASTER.LINE.SMOOTH: an antialiased line into a buffer with alpha covers each pixel
