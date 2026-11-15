@@ -168,5 +168,19 @@ pub fn xform() -> String {
         let k = r.range(4, 60);
         writeln!(s, "case diagline-{i}\ndib 0 24 24 8\npen 0 0 0 #ffffff\ngmode 0 2\nsetxform 0 0.0625 0 0 0.0625 12 12\nmoveto 0 {} {}\nlineto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, a.0 + sx * k, a.1 + sy * k, a.0 + sx * k + 20, a.1 + sy * k - 9).unwrap();
     }
+    // GM_COMPATIBLE lines with ends between pixels through a mapping that mirrors and
+    // magnifies an axis, both ends on the surface, both ways (their own stream)
+    let mut r = XorShift32::new(0x0f1a_e3a2);
+    for i in 0..48 {
+        // (the mirrored magnifying axis, the other one shrinking to fractions; the last pair
+        // mirrors and magnifies both by 3/2)
+        let ((wx, vx), (wy, vy)): ((i64, i64), (i64, i64)) = [((1, -2), (4, 1)), ((1, -3), (3, 2)), ((2, -3), (4, 1)), ((4, -5), (5, 2)), ((4, 1), (1, -2)), ((3, 2), (1, -3)), ((4, 1), (2, -3)), ((2, -3), (2, -3))][i % 8];
+        writeln!(s, "case fracmirror-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nmapmode 0 8\nwinext 0 {wx} {wy}\nvpext 0 {vx} {vy}\nvporg 0 12 12").unwrap();
+        // (logical ranges keeping the device point within 10 pixels of the origin)
+        let (kx, ky) = (10 * wx / vx.abs(), 10 * wy / vy.abs());
+        let mut p = || (r.range(-kx, kx), r.range(-ky, ky));
+        let (a, b) = (p(), p());
+        writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1).unwrap();
+    }
     s
 }

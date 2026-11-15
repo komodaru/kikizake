@@ -7458,3 +7458,531 @@ lineto 0 -48 72
 lineto 0 -28 63
 dump 0
 end
+case fracmirror-0
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 0 -19
+lineto 0 -1 29
+dump 0
+end
+case fracmirror-1
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 3
+vpext 0 -3 2
+vporg 0 12 12
+moveto 0 3 -2
+lineto 0 -3 -4
+dump 0
+end
+case fracmirror-2
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 4
+vpext 0 -3 1
+vporg 0 12 12
+moveto 0 5 -2
+lineto 0 -6 23
+dump 0
+end
+case fracmirror-3
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 5
+vpext 0 -5 2
+vporg 0 12 12
+moveto 0 -7 -18
+lineto 0 4 13
+dump 0
+end
+case fracmirror-4
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 1
+vpext 0 1 -2
+vporg 0 12 12
+moveto 0 -25 5
+lineto 0 6 -1
+dump 0
+end
+case fracmirror-5
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 3 1
+vpext 0 2 -3
+vporg 0 12 12
+moveto 0 6 1
+lineto 0 5 -3
+dump 0
+end
+case fracmirror-6
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 2
+vpext 0 1 -3
+vporg 0 12 12
+moveto 0 26 1
+lineto 0 3 0
+dump 0
+end
+case fracmirror-7
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 2
+vpext 0 -3 -3
+vporg 0 12 12
+moveto 0 5 6
+lineto 0 0 0
+dump 0
+end
+case fracmirror-8
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 -3 -21
+lineto 0 -5 -35
+dump 0
+end
+case fracmirror-9
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 3
+vpext 0 -3 2
+vporg 0 12 12
+moveto 0 2 4
+lineto 0 2 -15
+dump 0
+end
+case fracmirror-10
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 4
+vpext 0 -3 1
+vporg 0 12 12
+moveto 0 6 -15
+lineto 0 5 35
+dump 0
+end
+case fracmirror-11
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 5
+vpext 0 -5 2
+vporg 0 12 12
+moveto 0 -3 21
+lineto 0 7 -15
+dump 0
+end
+case fracmirror-12
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 1
+vpext 0 1 -2
+vporg 0 12 12
+moveto 0 -35 4
+lineto 0 36 -1
+dump 0
+end
+case fracmirror-13
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 3 1
+vpext 0 2 -3
+vporg 0 12 12
+moveto 0 3 -1
+lineto 0 -12 -1
+dump 0
+end
+case fracmirror-14
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 2
+vpext 0 1 -3
+vporg 0 12 12
+moveto 0 -6 3
+lineto 0 -32 0
+dump 0
+end
+case fracmirror-15
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 2
+vpext 0 -3 -3
+vporg 0 12 12
+moveto 0 0 -3
+lineto 0 0 4
+dump 0
+end
+case fracmirror-16
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 1 7
+lineto 0 -3 -11
+dump 0
+end
+case fracmirror-17
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 3
+vpext 0 -3 2
+vporg 0 12 12
+moveto 0 -3 -9
+lineto 0 -2 -3
+dump 0
+end
+case fracmirror-18
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 4
+vpext 0 -3 1
+vporg 0 12 12
+moveto 0 4 1
+lineto 0 5 29
+dump 0
+end
+case fracmirror-19
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 5
+vpext 0 -5 2
+vporg 0 12 12
+moveto 0 -4 25
+lineto 0 5 -6
+dump 0
+end
+case fracmirror-20
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 1
+vpext 0 1 -2
+vporg 0 12 12
+moveto 0 -31 -4
+lineto 0 40 5
+dump 0
+end
+case fracmirror-21
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 3 1
+vpext 0 2 -3
+vporg 0 12 12
+moveto 0 8 -1
+lineto 0 -11 -2
+dump 0
+end
+case fracmirror-22
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 2
+vpext 0 1 -3
+vporg 0 12 12
+moveto 0 10 -4
+lineto 0 7 4
+dump 0
+end
+case fracmirror-23
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 2
+vpext 0 -3 -3
+vporg 0 12 12
+moveto 0 4 -2
+lineto 0 -5 -3
+dump 0
+end
+case fracmirror-24
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 -4 20
+lineto 0 -2 -20
+dump 0
+end
+case fracmirror-25
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 3
+vpext 0 -3 2
+vporg 0 12 12
+moveto 0 1 -10
+lineto 0 1 -11
+dump 0
+end
+case fracmirror-26
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 4
+vpext 0 -3 1
+vporg 0 12 12
+moveto 0 6 -10
+lineto 0 -6 0
+dump 0
+end
+case fracmirror-27
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 5
+vpext 0 -5 2
+vporg 0 12 12
+moveto 0 -2 6
+lineto 0 -1 25
+dump 0
+end
+case fracmirror-28
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 1
+vpext 0 1 -2
+vporg 0 12 12
+moveto 0 -13 -3
+lineto 0 -8 1
+dump 0
+end
+case fracmirror-29
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 3 1
+vpext 0 2 -3
+vporg 0 12 12
+moveto 0 15 -1
+lineto 0 15 -1
+dump 0
+end
+case fracmirror-30
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 2
+vpext 0 1 -3
+vporg 0 12 12
+moveto 0 -16 -4
+lineto 0 -23 -2
+dump 0
+end
+case fracmirror-31
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 2
+vpext 0 -3 -3
+vporg 0 12 12
+moveto 0 2 -2
+lineto 0 -1 6
+dump 0
+end
+case fracmirror-32
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 0 -7
+lineto 0 -5 -2
+dump 0
+end
+case fracmirror-33
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 3
+vpext 0 -3 2
+vporg 0 12 12
+moveto 0 -2 -6
+lineto 0 0 15
+dump 0
+end
+case fracmirror-34
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 4
+vpext 0 -3 1
+vporg 0 12 12
+moveto 0 -6 39
+lineto 0 3 25
+dump 0
+end
+case fracmirror-35
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 5
+vpext 0 -5 2
+vporg 0 12 12
+moveto 0 4 -24
+lineto 0 -2 -24
+dump 0
+end
+case fracmirror-36
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 1
+vpext 0 1 -2
+vporg 0 12 12
+moveto 0 -16 1
+lineto 0 -4 -4
+dump 0
+end
+case fracmirror-37
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 3 1
+vpext 0 2 -3
+vporg 0 12 12
+moveto 0 -12 2
+lineto 0 -10 2
+dump 0
+end
+case fracmirror-38
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 2
+vpext 0 1 -3
+vporg 0 12 12
+moveto 0 11 5
+lineto 0 23 2
+dump 0
+end
+case fracmirror-39
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 2
+vpext 0 -3 -3
+vporg 0 12 12
+moveto 0 -1 6
+lineto 0 1 5
+dump 0
+end
+case fracmirror-40
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 4
+vpext 0 -2 1
+vporg 0 12 12
+moveto 0 1 32
+lineto 0 1 -34
+dump 0
+end
+case fracmirror-41
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 1 3
+vpext 0 -3 2
+vporg 0 12 12
+moveto 0 2 -14
+lineto 0 3 -8
+dump 0
+end
+case fracmirror-42
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 4
+vpext 0 -3 1
+vporg 0 12 12
+moveto 0 2 -21
+lineto 0 2 24
+dump 0
+end
+case fracmirror-43
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 5
+vpext 0 -5 2
+vporg 0 12 12
+moveto 0 8 -14
+lineto 0 8 6
+dump 0
+end
+case fracmirror-44
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 1
+vpext 0 1 -2
+vporg 0 12 12
+moveto 0 -37 3
+lineto 0 -5 -5
+dump 0
+end
+case fracmirror-45
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 3 1
+vpext 0 2 -3
+vporg 0 12 12
+moveto 0 -9 -3
+lineto 0 -11 2
+dump 0
+end
+case fracmirror-46
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 4 2
+vpext 0 1 -3
+vporg 0 12 12
+moveto 0 6 -6
+lineto 0 5 5
+dump 0
+end
+case fracmirror-47
+dib 0 24 24 8
+pen 0 0 1 #ffffff
+mapmode 0 8
+winext 0 2 2
+vpext 0 -3 -3
+vporg 0 12 12
+moveto 0 -5 1
+lineto 0 -4 6
+dump 0
+end
