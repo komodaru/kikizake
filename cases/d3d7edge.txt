@@ -2954,3 +2954,589 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 5 79 26 142 163 106
 d3ddump
 end
+case longmoves-rgb
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 32 3 109 90 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 109 90 60 80 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 32 19 109 106 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 48 3 125 90 76
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 61 63 128 160 141 137
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 160 141 137 61 63
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 77 63 144 160 157 137
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 61 79 128 176 141 153
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 21 14 102 142 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 14 102 142 69 137 21
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 21 30 102 158 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 37 14 118 142 85
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 32 48 81 134 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 81 134 35 48 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 32 64 81 150 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 48 48 97 134 51
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 163 44 16 128 100 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 128 100 91 163 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 179 44 32 128 116 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 163 60 16 144 100 107
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 22 75 126 127 93 106
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 126 127 93 106 22 75
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 38 75 142 127 109 106
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 22 91 126 143 93 122
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 44 87 140 166 126
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 87 140 166 126 63 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 79 44 103 140 182 126
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 60 87 156 166 142
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 34 17 128 96 126 84
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 96 126 84 34 17
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 50 17 144 96 142 84
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 34 33 128 112 126 100
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 36 31 148 115 98 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 148 115 98 39 36 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 52 31 164 115 114 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 36 47 148 131 98 55
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 5 36 138 72 50
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 36 138 72 50 74 5
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 90 5 52 138 88 50
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 21 36 154 72 66
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 54 28 45 106 155 98
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 45 106 155 98 54 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 70 28 61 106 171 98
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 54 44 45 122 155 114
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 75 1 0 64 36 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 64 36 35 75 1
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 91 1 16 64 52 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 75 17 0 80 36 51
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 136 21 128 144 168 72
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 144 168 72 136 21
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 152 21 144 144 184 72
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 136 37 128 160 168 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 23 0 92 35 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 92 35 31 0 23
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 23 16 92 51 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 39 0 108 35 47
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 29 75 96 144 170 83
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 144 170 83 29 75
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 45 75 112 144 186 83
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 29 91 96 160 170 99
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 123 71 37 153 158 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 37 153 158 91 123 71
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 139 71 53 153 174 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 123 87 37 169 158 107
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 69 11 124 116 157 46
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 124 116 157 46 69 11
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 85 11 140 116 173 46
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 69 27 124 132 157 62
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 38 74 116 110 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 116 110 53 83 38
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 99 38 90 116 126 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 54 74 132 110 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 127 1 96 48 164 30
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 48 164 30 127 1
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 143 1 112 48 180 30
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 127 17 96 64 164 46
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 60 0 72 144 161 37
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 72 144 161 37 60 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 76 0 88 144 177 37
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 60 16 72 160 161 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 71 23 153 125 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 23 153 125 88 137 71
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 71 39 153 141 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 87 23 169 125 104
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 78 32 0 80 128 33
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 80 128 33 78 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 94 32 16 80 144 33
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 78 48 0 96 128 49
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 28 32 128 109 78
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 128 109 78 3 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 19 28 48 128 125 78
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 44 32 144 109 94
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 160 20 16 119 76 113
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 119 76 113 160 20
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 176 20 32 119 92 113
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 160 36 16 135 76 129
+d3ddump
+end
+case longmoves-mmx
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 32 3 109 90 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 109 90 60 80 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 32 19 109 106 60
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 80 48 3 125 90 76
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 61 63 128 160 141 137
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 160 141 137 61 63
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 77 63 144 160 157 137
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 61 79 128 176 141 153
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 21 14 102 142 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 14 102 142 69 137 21
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 21 30 102 158 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 37 14 118 142 85
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 32 48 81 134 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 81 134 35 48 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 64 32 64 81 150 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 48 48 48 97 134 51
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 163 44 16 128 100 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 128 100 91 163 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 179 44 32 128 116 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 163 60 16 144 100 107
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 22 75 126 127 93 106
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 126 127 93 106 22 75
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 38 75 142 127 109 106
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 22 91 126 143 93 122
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 44 87 140 166 126
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 87 140 166 126 63 44
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 79 44 103 140 182 126
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 63 60 87 156 166 142
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 34 17 128 96 126 84
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 96 126 84 34 17
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 50 17 144 96 142 84
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 34 33 128 112 126 100
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 36 31 148 115 98 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 148 115 98 39 36 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 52 31 164 115 114 39
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 36 47 148 131 98 55
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 5 36 138 72 50
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 36 138 72 50 74 5
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 90 5 52 138 88 50
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 21 36 154 72 66
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 54 28 45 106 155 98
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 45 106 155 98 54 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 70 28 61 106 171 98
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 54 44 45 122 155 114
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 75 1 0 64 36 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 64 36 35 75 1
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 91 1 16 64 52 35
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 75 17 0 80 36 51
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 136 21 128 144 168 72
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 128 144 168 72 136 21
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 152 21 144 144 184 72
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 136 37 128 160 168 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 23 0 92 35 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 92 35 31 0 23
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 23 16 92 51 31
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 39 0 108 35 47
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 29 75 96 144 170 83
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 144 170 83 29 75
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 45 75 112 144 186 83
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 29 91 96 160 170 99
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 123 71 37 153 158 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 37 153 158 91 123 71
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 139 71 53 153 174 91
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 123 87 37 169 158 107
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 69 11 124 116 157 46
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 124 116 157 46 69 11
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 85 11 140 116 173 46
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 69 27 124 132 157 62
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 38 74 116 110 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 74 116 110 53 83 38
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 99 38 90 116 126 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 83 54 74 132 110 69
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 127 1 96 48 164 30
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 96 48 164 30 127 1
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 143 1 112 48 180 30
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 127 17 96 64 164 46
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 60 0 72 144 161 37
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 72 144 161 37 60 0
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 76 0 88 144 177 37
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 60 16 72 160 161 53
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 71 23 153 125 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 23 153 125 88 137 71
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 153 71 39 153 141 88
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 137 87 23 169 125 104
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 78 32 0 80 128 33
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 0 80 128 33 78 32
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 94 32 16 80 144 33
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 78 48 0 96 128 49
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 28 32 128 109 78
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 32 128 109 78 3 28
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 19 28 48 128 125 78
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 3 44 32 144 109 94
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 160 20 16 119 76 113
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 16 119 76 113 160 20
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 176 20 32 119 92 113
+d3ddump
+d3dclear 0xff000000
+d3dtri 0xffffffff 160 36 16 135 76 129
+d3ddump
+end

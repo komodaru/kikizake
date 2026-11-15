@@ -508,6 +508,33 @@ pub fn d3d7edge() -> String {
             writeln!(s, "end").unwrap();
         }
     }
+    // the same long-left ties on both drawers: each triangle as drawn, its vertices rotated,
+    // moved a whole pixel across and down (which of those keep a tie's side)
+    let mut rm = XorShift32::new(0x00d3_d7e2);
+    let mut base = Vec::new();
+    while base.len() < 24 {
+        let t = V16 { x: rm.range(0, 170), y: rm.range(0, 80) };
+        let b = V16 { x: rm.range(0, 170), y: rm.range(t.y + 40, 170) };
+        let (dx, dy) = (b.x - t.x, b.y - t.y);
+        let first = (t.y + 15) / 16 + 1;
+        let tie = (first..=b.y / 16).any(|y| (t.x * dy + (16 * y - t.y) * dx).rem_euclid(16 * dy) == 0);
+        let third = V16 { x: rm.range(0, 170), y: rm.range(t.y + 1, b.y - 1) };
+        let right = dx * (third.y - t.y) - dy * (third.x - t.x) < 0;
+        let moved = |v: V16| V16 { x: v.x + 16, y: v.y + 16 };
+        if tie && right && stays_in(&[t, b, third]) && stays_in(&[moved(t), moved(b), moved(third)]) {
+            base.push((t, b, third));
+        }
+    }
+    for dev in ["rgb", "mmx"] {
+        writeln!(s, "case longmoves-{dev}\nd3d 7\nd3ddev {dev} 565 12 12\nd3drs set 22 1").unwrap();
+        for &(t, b, c) in &base {
+            let (x, y) = (|v: V16| V16 { x: v.x + 16, y: v.y }, |v: V16| V16 { x: v.x, y: v.y + 16 });
+            for (p, q, r) in [(t, b, c), (b, c, t), (x(t), x(b), x(c)), (y(t), y(b), y(c))] {
+                writeln!(s, "{}", tri(p, q, r)).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
 
@@ -625,6 +652,34 @@ pub fn d3d7dev() -> String {
             }
             writeln!(s, "end").unwrap();
         }
+    }
+    // the same tie lines on every drawer: each as drawn, reversed, moved a whole pixel across
+    // and down, and moved 1/16 along its major axis (which of those keep a tie's side)
+    let mut rp = XorShift32::new(0x00d3_d713);
+    let mut base = Vec::new();
+    while base.len() < 24 {
+        let p: Vec<i64> = (0..4).map(|_| rp.range(16, 223)).collect();
+        if tie(&p) {
+            base.push(p);
+        }
+    }
+    for &(v, d) in DRAWERS {
+        writeln!(s, "case linemoves-{v}-{d}\nd3d {v}\nd3ddev {d} 565 16 16\nd3drs set 22 1").unwrap();
+        for p in &base {
+            let major_x = (p[2] - p[0]).abs() > (p[3] - p[1]).abs();
+            let nudge = if major_x { [1, 0, 1, 0] } else { [0, 1, 0, 1] };
+            let moved: [[i64; 4]; 5] = [
+                [p[0], p[1], p[2], p[3]],
+                [p[2], p[3], p[0], p[1]],
+                [p[0] + 16, p[1], p[2] + 16, p[3]],
+                [p[0], p[1] + 16, p[2], p[3] + 16],
+                [p[0] + nudge[0], p[1] + nudge[1], p[2] + nudge[2], p[3] + nudge[3]],
+            ];
+            for q in moved {
+                writeln!(s, "d3dclear 0\nd3dline 0xffffffff {} {} {} {}\nd3ddump", q[0], q[1], q[2], q[3]).unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
     }
     s
 }
