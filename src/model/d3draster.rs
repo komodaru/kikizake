@@ -461,13 +461,15 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         hit(clause::D3DRASTER_INCOMPLETE);
         return Ok(());
     };
-    let Some(tv) = d.target else {
-        if d.depth.is_some() {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-        }
+    // (MEASURED, WARP: probe-depth-alone) a depth view alone: the depth test and writes as
+    // with a target, the depth view in the target's place for the pixels drawn
+    let Some(tv) = d.target.or(d.depth) else {
         hit(clause::D3DRASTER_INCOMPLETE);
         return Ok(());
     };
+    if d.target.is_none() {
+        hit(clause::D3DRASTER_DEPTH_ALONE);
+    }
     let Some(vp) = d.viewport else {
         hit(clause::D3DRASTER_NOVIEWPORT);
         return Ok(());
@@ -492,34 +494,32 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         }
         r.size(r.mip_of(rt_sub))
     };
-    // (a multisampled target: D3DRASTER.MS.SAMPLES, triangles only, the viewport on whole
-    // pixels, quality 0)
+    // (a multisampled target: D3DRASTER.MS.SAMPLES, quality 0; the viewport anywhere,
+    // probe-rt-ms4-vphalf)
     let samples = {
         let r = m.res[view.res].as_ref().unwrap();
         match r.d.count {
             0 | 1 => None,
             n => {
-                let [vx, vy, vw, vh, _, _] = vp;
-                let whole = [vx, vy, vx + vw, vy + vh].iter().all(|v| v.fract() == 0.0);
                 // (MEASURED, WARP: probe-rt-ms4-lines) aliased lines (neither line state) light
                 // every sample of the pixels they light
-                let aliased_lines = matches!(topo, Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj) && d.rast[8] == 0 && d.rast[9] == 0 && r.samples.iter().all(Option::is_none);
-                if aliased_lines && whole && r.d.q == 0 {
+                let aliased_lines = matches!(topo, Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj) && d.rast[8] == 0 && d.rast[9] == 0;
+                if aliased_lines && r.d.q == 0 {
                     hit(clause::D3DRASTER_MS_LINES);
                 }
                 // (MEASURED, WARP: probe-rt-ms4-points) a point covers the samples of the pixel
                 // square about it, by the top-left rule
-                let points = topo == Topo::Points && r.samples.iter().all(Option::is_none);
-                if points && whole && r.d.q == 0 {
+                let points = topo == Topo::Points;
+                if points && r.d.q == 0 {
                     hit(clause::D3DRASTER_MS_POINTS);
                 }
                 // (MEASURED, WARP: probe-rt-ms4-wire) wireframe's aliased edges likewise
                 let tris = matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj);
-                let wire = tris && d.rast[0] == 2 && d.rast[8] == 0 && d.rast[9] == 0 && r.samples.iter().all(Option::is_none);
-                if wire && whole && r.d.q == 0 {
+                let wire = tris && d.rast[0] == 2 && d.rast[8] == 0 && d.rast[9] == 0;
+                if wire && r.d.q == 0 {
                     hit(clause::D3DRASTER_MS_LINES);
                 }
-                if !whole || !(aliased_lines || points || wire || tris && d.rast[0] != 2) || r.d.q != 0 {
+                if !(aliased_lines || points || wire || tris && d.rast[0] != 2) || r.d.q != 0 {
                     return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                 }
                 Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
@@ -686,7 +686,11 @@ impl Target<'_> {
 
     fn put(&self, m: &mut D3dres, d: &Draw, (px, py): (i64, i64), z: f32, out: [u32; 4]) -> Res<()> {
         let at = (usize::try_from(px).unwrap_or(0), usize::try_from(py).unwrap_or(0), self.size.0 as usize);
-        output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out)
+        match self.samples {
+            // (on a multisampled target every sample of the pixel, D3DRASTER.MS.LINES)
+            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out, &vec![true; pattern.len()]),
+            None => output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out),
+        }
     }
 }
 
@@ -741,10 +745,6 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
     let s = snapped(tg.vp, &q);
     if let Some(pattern) = tg.samples {
         let z = tg.depth(z);
-        let out = prim_out(ps, v.color, (0, 0), z, Some(q[3]), prim, true)?;
-        if ps == "pspos" {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
-        }
         for py in (s.y - 128).div_euclid(256) - 1..=(s.y + 128).div_euclid(256) + 1 {
             for px in (s.x - 128).div_euclid(256) - 1..=(s.x + 128).div_euclid(256) + 1 {
                 if !tg.drawable(d, (px, py)) {
@@ -755,6 +755,8 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
                     s.x - 128 <= sx && sx < s.x + 128 && s.y - 128 <= sy && sy < s.y + 128
                 }).collect();
                 if mask.contains(&true) {
+                    // (MEASURED, WARP: probe-rt-ms4-points-pspos) each pixel shaded at its center
+                    let out = prim_out(ps, v.color, (px, py), z, Some(q[3]), prim, true)?;
                     put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), out, &mask)?;
                 }
             }
@@ -1317,45 +1319,101 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
 #[allow(clippy::too_many_arguments)]
 fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, at: (usize, usize, usize), z: Option<f32>, out: [u32; 4], mask: &[bool]) -> Res<()> {
     let (px, py) = (at.0, at.1);
-    let r = m.res[view.res].as_ref().unwrap();
-    if mask.iter().all(|&k| k) && r.samples.get(rt_sub as usize).is_none_or(Option::is_none) {
+    let n = mask.len();
+    let stored = |m: &D3dres, res: usize, sub: u32| m.res[res].as_ref().unwrap().samples.get(sub as usize).is_some_and(Option::is_some);
+    // the color target's place, and the depth view's (MEASURED, WARP: probe-rt-ms4-depth, depth
+    // per sample: each sample tested and written as its own)
+    let mut slots = vec![Slot::of(m, view.res, rt_sub, rt_fmt, (px, py))?];
+    if let Some(dv) = dsv {
+        let df = format(dv.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_DEPTHFMT))?;
+        let dres = m.res[dv.res].as_ref().unwrap();
+        // (a depth view of another sample count: not measured)
+        if dres.d.count.max(1) as usize != n {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
+        let dsub = super::d3dres::view_subs(dev, dv, dres)[0];
+        slots.push(Slot::of(m, dv.res, dsub, df, (px, py))?);
+    }
+    if mask.iter().all(|&k| k) && slots.iter().all(|s| !stored(m, s.res, s.sub)) {
         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
         return Ok(());
     }
-    // (samples that differ: depth per sample is not measured)
     if dsv.is_some() {
-        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        hit(clause::D3DRASTER_MS_DEPTH);
     }
-    let (rb, _, _) = r.layout(rt_sub);
-    let el = (rt_fmt.bits / 8) as usize;
-    let off = py as usize * rb + px as usize * el;
-    let r = m.res[view.res].as_mut().unwrap();
-    let base = r.subs[rt_sub as usize].clone().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
-    let n = mask.len();
-    // (the model keeps samples of targets up to 64 MiB of them)
-    if base.len().saturating_mul(n) > 64 << 20 {
-        return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+    for s in &slots {
+        s.keep(m, n)?;
     }
-    if r.samples.len() <= rt_sub as usize {
-        r.samples.resize(rt_sub as usize + 1, None);
-    }
-    let planes_n = r.samples[rt_sub as usize].get_or_insert_with(|| base.repeat(n)).len() / n;
-    // (each covered sample through the pixel's own output: its value put in the
-    // subresource's place for the blend, then taken back)
+    // (each covered sample through the pixel's own output: its values put in the
+    // subresources' places for the blend and the depth test, then taken back)
     for (k, _) in mask.iter().enumerate().filter(|(_, c)| **c) {
-        let r = m.res[view.res].as_mut().unwrap();
-        let sv = r.samples[rt_sub as usize].as_ref().unwrap()[k * planes_n + off..][..el].to_vec();
-        r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&sv);
-        output(m, dev, d, view, rt_fmt, rt_sub, None, at, z, out)?;
-        let r = m.res[view.res].as_mut().unwrap();
-        let nv = r.subs[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
-        r.samples[rt_sub as usize].as_mut().unwrap()[k * planes_n + off..][..el].copy_from_slice(&nv);
+        for s in &slots {
+            s.swap(m, n, k, true);
+        }
+        output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
+        for s in &slots {
+            s.swap(m, n, k, false);
+        }
     }
-    // (the subresource's own place keeps sample 0)
-    let r = m.res[view.res].as_mut().unwrap();
-    let s0 = r.samples[rt_sub as usize].as_ref().unwrap()[off..off + el].to_vec();
-    r.subs[rt_sub as usize].as_mut().unwrap()[off..off + el].copy_from_slice(&s0);
+    // (the subresources' own places keep sample 0)
+    for s in &slots {
+        s.swap(m, n, 0, true);
+    }
     Ok(())
+}
+
+/// one element of a subresource kept per sample (D3DRASTER.MS.SAMPLES)
+struct Slot {
+    res: usize,
+    sub: u32,
+    off: usize,
+    el: usize,
+}
+
+impl Slot {
+    fn of(m: &D3dres, res: usize, sub: u32, f: &Format, (px, py): (usize, usize)) -> Res<Slot> {
+        let r = m.res[res].as_ref().unwrap();
+        let (rb, _, _) = r.layout(sub);
+        let el = (f.bits / 8) as usize;
+        let off = py * rb + px * el;
+        let len = r.subs.get(sub as usize).and_then(Option::as_ref).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?.len();
+        // (a view of wider elements than its resource's: not measured)
+        if off + el > len {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
+        Ok(Slot { res, sub, off, el })
+    }
+
+    /// the subresource's samples, made from its one value at first (the model keeps up to 64 MiB
+    /// of them)
+    fn keep(&self, m: &mut D3dres, n: usize) -> Res<()> {
+        let r = m.res[self.res].as_mut().unwrap();
+        let base = r.subs[self.sub as usize].as_ref().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
+        if base.len().saturating_mul(n) > 64 << 20 {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
+        let base = base.clone();
+        if r.samples.len() <= self.sub as usize {
+            r.samples.resize(self.sub as usize + 1, None);
+        }
+        r.samples[self.sub as usize].get_or_insert_with(|| base.repeat(n));
+        Ok(())
+    }
+
+    /// sample k into the subresource's place (in) or back from it
+    fn swap(&self, m: &mut D3dres, n: usize, k: usize, into: bool) {
+        let r = m.res[self.res].as_mut().unwrap();
+        let (Some(sub), Some(Some(samples))) = (r.subs[self.sub as usize].as_mut(), r.samples.get_mut(self.sub as usize)) else {
+            return;
+        };
+        let plane = samples.len() / n;
+        let (place, sample) = (&mut sub[self.off..self.off + self.el], &mut samples[k * plane + self.off..][..self.el]);
+        if into {
+            place.copy_from_slice(sample);
+        } else {
+            sample.copy_from_slice(place);
+        }
+    }
 }
 
 /// (MEASURED, WARP: probe-interp-affine-*, probe-interp-persp-*, every pixel bit for bit) a
@@ -1766,6 +1824,10 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
                 write_depth(df, e, true, z, false, 0)?;
             }
         }
+    }
+    // (a depth view alone: no color to write, D3DRASTER.DEPTH.ALONE)
+    if d.target.is_none() {
+        return Ok(());
     }
     let res = m.res[view.res].as_mut().unwrap();
     let (rb, _, _) = res.layout(sub);

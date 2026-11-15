@@ -623,6 +623,18 @@ fn probes(s: &mut String, dev: &str) {
         vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
     }
     writeln!(s, "draw 1 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    // lines and wireframe over samples that differ
+    for (name, rast, top) in [("lines-over", "3 1 0 0 0 0 1 0 0 0", 2u32), ("wire-over", "2 1 0 0 0 0 1 0 0 0", 4)] {
+        ms4(s, name, "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), "ps");
+        for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+            vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
+        }
+        writeln!(s, "draw 4 3 32\nrast {rast}").unwrap();
+        for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75), (0.5, 9.0), (15.0, 3.0)].into_iter().enumerate() {
+            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        }
+        writeln!(s, "draw {top} 6 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend").unwrap();
+    }
     writeln!(s, "case probe-depth-alone\n{dev}\ntex 1 2 8 8 1 1 40 0 0x40 0 0 1 0\ndsv 1 1 nodesc\ncleards 1 3 {} 0\ntarget - 1\ndepthst 1 1 8", fb(1.0)).unwrap();
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader("vs")), hex(&shader("ps")), fb(8.0), fb(8.0), fb(1.0)).unwrap();
     for (x, y) in [(0.0f32, 0.0f32), (8.0, 1.5), (0.5, 7.0)] {
