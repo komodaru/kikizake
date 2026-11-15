@@ -29,16 +29,29 @@ enum Scale {
     Fixed16,
 }
 
+/// a design coordinate in 1/64 pixel at em pixels per em, Scale::Direct: MEASURED (golden
+/// dwrite, rastertie, gdisideupm): half a 1/64 pixel rounds up, but away from zero below zero
+/// at units per em not a power of 2
+fn direct(v: i16, em: i64, upm: i64) -> i64 {
+    let n = v as i64 * em * 64 * 2;
+    if n < 0 && !(upm as u64).is_power_of_two() { -((-n + upm).div_euclid(2 * upm)) } else { (n + upm).div_euclid(2 * upm) }
+}
+
+/// the top of glyph `gid`'s outline in 1/64 pixel (y up) at `ppem`, as the raster scales it; 0
+/// without one
+pub fn top(p: &Parsed, ppem: i64, gid: u16) -> i64 {
+    let gid = if gid >= p.num_glyphs { 0 } else { gid };
+    match p.glyphs.get(gid as usize) {
+        Some(Some((_, contours))) => contours.iter().flatten().map(|q| direct(q.1, ppem, p.upm as i64)).max().unwrap_or(0),
+        _ => 0,
+    }
+}
+
 fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
     let upm = p.upm as i64;
     let s16 = ((em << 17) / upm + 1) >> 1;
     let sc = |v: i16| match scale {
-        // (MEASURED, golden dwrite, rastertie, gdisideupm: half a 1/64 pixel rounds up, but
-        // away from zero below zero at units per em not a power of 2)
-        Scale::Direct => {
-            let n = v as i64 * em * 64 * 2;
-            if n < 0 && !(upm as u64).is_power_of_two() { -((-n + upm).div_euclid(2 * upm)) } else { (n + upm).div_euclid(2 * upm) }
-        }
+        Scale::Direct => direct(v, em, upm),
         Scale::Fixed16 => (v as i64 * s16 + 0x200) >> 10,
     };
     // (a position in 1/64 sample snapped to 1/q pixel, a step of 64 n / q of them)

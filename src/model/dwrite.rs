@@ -16,7 +16,6 @@ pub mod raster;
 pub mod script;
 
 use crate::spec::clause;
-use crate::spec::open;
 use super::{Fail, Res};
 use crate::spec::hit;
 use crate::ttf::{analyze, face_at, glyph_of, parse_face, FileType, Parsed};
@@ -197,9 +196,10 @@ enum Edge {
 /// half a ppem; gdivmixed; gdivadv, gdivadvp, gdisideupm: 24938 sideways glyphs): k pixels' em
 /// fraction k * 65536 / ppem in 16.16 rounds up where the remainder r of k * 65536 by ppem
 /// reaches ppem - h: h is ppem / 2 (rounded down) for the origin and one less for the advance
-/// (an advance rounds up only past the half), with sizes of their own (HALF) and 5 remainders
-/// of their own (MIXED); OPEN: the least k of each of those sideways
-fn edge_fraction(e: Edge, ppem: i64, k: i64, sideways: bool) -> Res<i64> {
+/// (an advance rounds up only past the half), with sizes of their own (HALF) and 7 remainders
+/// of their own (MIXED), one by the glyph's top (Way::Top: `top` is the glyph's top in
+/// 1/64 pixel, as the raster scales it)
+fn edge_fraction(e: Edge, ppem: i64, k: i64, sideways: bool, top: i64) -> Res<i64> {
     let n = k * 65536;
     let t = 2 * n.rem_euclid(ppem) - ppem;
     if let Some(m) = MIXED.iter().find(|m| m.0 == e && m.1 == ppem && m.2 == t) {
@@ -208,15 +208,20 @@ fn edge_fraction(e: Edge, ppem: i64, k: i64, sideways: bool) -> Res<i64> {
         let way = match pts.iter().position(|x| x.0 >= k) {
             Some(i) if pts[i].0 == k => pts[i].1,
             Some(i) if i > 0 && pts[i - 1].1 == pts[i].1 => pts[i].1,
-            _ => Way::Open,
+            // (past the k measured: every one an i16 vmtx holds at 4096 units per em; the
+            // generators write none)
+            _ => return Err(Fail::Bad),
         };
-        return match way {
-            Way::Open => Err(Fail::Unmodeled(open::DW_GDI_EDGE)),
-            Way::Up | Way::Down => {
-                hit(clause::DW_GDI_EDGE);
-                Ok(n.div_euclid(ppem) + (way == Way::Up) as i64)
-            }
+        hit(clause::DW_GDI_EDGE);
+        let up = match way {
+            Way::Up => true,
+            Way::Down => false,
+            // (MEASURED, golden dwrite, gdiv97top, gdiv97row: down where the top is under the
+            // origin and 6 to 15 of 32 1/64 pixels past a half pixel, whatever the units per em,
+            // the bottom and the width)
+            Way::Top => !((0..64 * k).contains(&top) && (6..=15).contains(&top.rem_euclid(32))),
         };
+        return Ok(n.div_euclid(ppem) + up as i64);
     }
     hit(clause::DW_GDI_EDGE);
     let d = HALF.iter().find(|x| x.0 == ppem).map_or(0, |x| match e {
@@ -232,25 +237,26 @@ fn edge_fraction(e: Edge, ppem: i64, k: i64, sideways: bool) -> Res<i64> {
 enum Way {
     Up,
     Down,
-    /// both ways (by units per em)
-    Open,
+    /// by the glyph's top (see edge_fraction)
+    Top,
 }
 
-use Way::{Down as D, Open as O, Up as U};
+use Way::{Down as D, Top as T, Up as U};
 
 /// (edge, ppem, 2 r - ppem, horizontal, sideways: each k of the remainder measured and how it
 /// rounds): MEASURED (golden dwrite, gdivmixed: every k of these remainders up to the largest an
 /// i16 holds at 4096 units per em, horizontal and sideways, at units per em from 4096 to 16384):
 /// against their size's rule, by k (larger k up at 62 ppem) and by the direction (the least k
-/// sideways); open: 66 at 97 ppem sideways, up at most units per em but down at 5590 and 8191
+/// sideways); 66 at 97 ppem sideways by the glyph's top (Way::Top)
 type Points = &'static [(i64, Way)];
-const MIXED: [(Edge, i64, i64, Points, Points); 6] = [
+const MIXED: [(Edge, i64, i64, Points, Points); 7] = [
     (Edge::Advance, 66, 2, &[(16, U), (49, U), (82, U), (115, U), (148, U), (214, U)], &[(16, D), (49, U), (82, U), (115, U), (148, U), (214, U)]),
     (Edge::Advance, 62, -2, &[(15, D), (46, D), (77, D), (108, D), (139, U), (170, U), (201, U), (232, U), (263, U), (294, U)], &[(15, D), (46, D), (77, D), (108, D), (139, D), (170, D), (201, D), (232, D), (263, U), (294, U)]),
+    (Edge::Advance, 97, 1, &[(66, U), (163, U), (260, U), (357, U), (454, U)], &[(66, D), (163, U), (260, U), (357, U), (454, U)]),
     (Edge::Origin, 26, -2, &[(4, D), (17, D), (30, D), (43, D), (56, D), (69, D), (82, D), (108, D), (134, D)], &[(4, U), (17, D), (30, D), (43, D), (56, D), (69, D), (82, D), (108, D), (134, D)]),
     (Edge::Origin, 50, -2, &[(9, D), (34, D), (59, D), (84, D), (109, D), (134, D), (159, D), (184, D), (209, D), (234, D), (259, D)], &[(9, U), (34, D), (59, D), (84, D), (109, D), (134, D), (159, D), (184, D), (209, D), (234, D), (259, D)]),
     (Edge::Origin, 62, -2, &[(15, D), (46, D), (77, D), (108, D), (139, U), (170, U), (201, U), (232, U), (263, U), (294, U)], &[(15, U), (46, D), (77, D), (108, D), (139, U), (170, U), (201, U), (232, U), (263, U), (294, U)]),
-    (Edge::Origin, 97, 1, &[(66, U), (163, U), (260, U), (357, U), (454, U)], &[(66, O), (163, U), (260, U), (357, U), (454, U)]),
+    (Edge::Origin, 97, 1, &[(66, U), (163, U), (260, U), (357, U), (454, U)], &[(66, T), (163, U), (260, U), (357, U), (454, U)]),
 ];
 
 /// (ppem, the advance's h less its rule's, the origin's)
@@ -636,8 +642,7 @@ impl Dwrite {
                         // (beyond the sizes measured: the generators write none)
                         return Err(Fail::Bad);
                     }
-                    let efa = |k: i64| edge_fraction(Edge::Advance, ppem, k, sideways);
-                    let efo = |k: i64| edge_fraction(Edge::Origin, ppem, k, sideways);
+                    let efa = |k: i64| edge_fraction(Edge::Advance, ppem, k, sideways, 0);
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
                         (Some(_), _) => (None, None),
                         (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
@@ -648,6 +653,8 @@ impl Dwrite {
                         let (nx, ny) = if sideways { (1, 6) } else { (6, 1) };
                         let bb = raster::black_box(p, ppem, *gid, nx, ny)?.unwrap_or((0, 0, 0, 0));
                         let (advp, voyp, advhp) = (px(g.adv as i32), pxv(vorg.unwrap_or(g.voy)), pxa(vadv.unwrap_or(g.advh as i32)));
+                        let top = raster::top(p, ppem, *gid);
+                        let efo = |k: i64| edge_fraction(Edge::Origin, ppem, k, sideways, top);
                         *g = GlyphMetrics {
                             adv: du(advp, 1) as u32,
                             lsb: du(bb.0, nx),

@@ -813,6 +813,12 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             let b: Vec<_> = c.iter().map(|&j| (0, u / 4, at(j))).collect();
             put(format!("gdiv97row-{i}"), 0x0fda_0000 + i as u32, &b);
         }
+        // (tops under the baseline, the box a pixel tall: rows 1 to 84 below)
+        let rows: Vec<i64> = (1..=84).collect();
+        for (i, c) in rows.chunks(14).enumerate() {
+            let b: Vec<_> = c.iter().map(|&j| (-at(j) - u / 97, u / 4, -at(j))).collect();
+            put(format!("gdiv97neg-{i}"), 0x0fdd_0000 + i as u32, &b);
+        }
         for (i, &j) in [145i64, 146, 109, 36].iter().enumerate() {
             let b: Vec<_> = (0..14).map(|y| (at(y * 6 / 5), u / 4, at(j))).collect();
             put(format!("gdiv97bot-{j}"), 0x0fdb_0000 + i as u32, &b);
