@@ -1489,6 +1489,32 @@ pub fn wicencode() -> String {
         writeln!(s, "case back-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xbac0_0000u32 + k as u32).unwrap();
     }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
+    // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
+    // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
+    // makes no wide format, so no values out of 0..=1 here)
+    let lin = crate::model::wicimage::linear16;
+    let g48 = crate::model::wicimage::gray16_rgb48;
+    let mut pick = vec![None; 8193];
+    for v in 0..=65535u16 {
+        let k = (f64::from(lin(g48(v))) * 8192.0 + 0.5).floor() as usize;
+        if k <= 8192 && pick[k].is_none() {
+            pick[k] = Some(v);
+        }
+    }
+    let fixlv: Vec<u16> = pick.iter().flatten().copied().collect();
+    let sweep = |lv: &[u16], w: usize| -> Vec<u8> {
+        let h = lv.len().div_ceil(w);
+        let rows: Vec<Vec<u8>> = (0..h).map(|y| (0..w).flat_map(|x| lv[(y * w + x).min(lv.len() - 1)].to_be_bytes()).collect()).collect();
+        png(w as u32, h as u32, 16, 0, false, &[], &png_filter(&rows, 2, &[0]), 4096)
+    };
+    let fixpng = sweep(&fixlv, 128);
+    let quarter: Vec<u16> = (0..16384u32).map(|k| (k * 4 + k % 4) as u16).collect();
+    let flpng = sweep(&quarter, 128);
+    for (via, png, tos) in [("rgba64fixed", &fixpng, &["rgba64", "bgra", "rgb48", "bgr24"][..]), ("grayfix16", &fixpng, &["gray16", "gray8"]), ("rgbafloat", &flpng, &["rgba64", "bgra"]), ("rgba64half", &flpng, &["rgba64", "bgra"]), ("grayfloat", &flpng, &["gray16", "gray8"])] {
+        for to in tos {
+            writeln!(s, "case backsweep-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(png)).unwrap();
+        }
+    }
     s
 }
 
