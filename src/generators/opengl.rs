@@ -1560,4 +1560,28 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // edges a hair off the vertical and off slope 1 (non-dyadic slopes, every row's pixel centre
+    // within 8/1024 of the edge), lower vertex far below or inside the window, as the left and the
+    // right boundary: whether a slope that is no short binary fraction moves the edge row by row
+    const HAIR: [f64; 4] = [1.0 / 3000.0, -1.0 / 3000.0, 1.0 + 1.0 / 3000.0, 1.0 - 1.0 / 2900.0];
+    let mut cfg = Vec::new();
+    for sl in HAIR {
+        for ya in [-100.0, 1.3125] {
+            for dx in [10.0, -10.0] {
+                cfg.push((sl, ya, dx));
+            }
+        }
+    }
+    for (k, (sl, ya, dx)) in cfg.into_iter().enumerate() {
+        writeln!(s, "case tri-hair-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for j in -8..=8 {
+            let x0 = 8.5 - sl * 0.5 + f64::from(j) / 1024.0;
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            glf(s, "glVertex2f", &[x0 + sl * (ya - 8.0), ya]);
+            glf(s, "glVertex2f", &[x0 + sl * 108.0, 116.0]);
+            glf(s, "glVertex2f", &[x0 + sl * (ya + 1.0 - 8.0) + dx, ya + 1.0]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
