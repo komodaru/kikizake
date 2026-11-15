@@ -332,19 +332,14 @@ fn encode_alpha(px: &[Px; 16]) -> [u8; 8] {
     out
 }
 
-/// one BC3 block; None when the color part depends on the start diagonal (open) and the
-/// block is not gray
+/// one BC3 block; None when the color part depends on the start diagonal (open; even a gray
+/// block's can: golden encdds-gray8-6x10)
 pub fn encode_bc3(px: &[Px; 16]) -> Option<[u8; 16]> {
-    let gray = px.iter().all(|p| p[0] == p[1] && p[1] == p[2]);
-    let color = if gray {
-        encode_color(px, None)
-    } else {
-        let first = encode_color(px, Some(Diagonal::ALL[0]));
-        if Diagonal::ALL[1..].iter().any(|&d| encode_color(px, Some(d)) != first) {
-            return None;
-        }
-        first
-    };
+    let first = encode_color(px, Some(Diagonal::ALL[0]));
+    if Diagonal::ALL[1..].iter().any(|&d| encode_color(px, Some(d)) != first) {
+        return None;
+    }
+    let color = first;
     let mut out = [0u8; 16];
     out[0..8].copy_from_slice(&encode_alpha(px));
     out[8..16].copy_from_slice(&color);

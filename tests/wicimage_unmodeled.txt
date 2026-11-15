@@ -2391,6 +2391,9 @@ wicencode enc-dds-bgr555
 wicencode enc-dds-bgr565
 wicencode enc-dds-bgra
 wicencode enc-dds-cmyk
+wicencode enc-dds-gray16
+wicencode enc-dds-gray4
+wicencode enc-dds-gray8
 wicencode enc-dds-idx1
 wicencode enc-dds-idx2
 wicencode enc-dds-idx4
@@ -2428,6 +2431,8 @@ wicencode enc-wmp-rgba64
 wicencode encas-bmp-rgba64
 wicencode encdds-bgr24-4x8
 wicencode encdds-bgra-9x9
+wicencode encdds-gray16-8x12
+wicencode encdds-gray8-6x10
 wicencode fixed-gray16-all
 wicencode fixed-gray16-lo
 wicencode gifalpha-full256
