@@ -1206,6 +1206,11 @@ wicdecode png-ihdr-method-11-1
 wicdecode png-ihdr-method-11-255
 wicdecode png-ihdr-method-12-2
 wicdecode png-ihdr-method-12-255
+wicencode back-grayfix16-gray8
+wicencode back-rgb48fixed-rgb48
+wicencode back-rgba64fixed-bgra
+wicencode back-rgba64half-bgra
+wicencode back-rgbafloat-bgra
 wicencode ddsblock-bgr24-10
 wicencode ddsblock-bgr24-11
 wicencode ddsblock-bgr24-13
@@ -1326,10 +1331,7 @@ wicencode gridtie-idx8-few-0
 wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2
 wicencode gridtie-idx8-few-3
-wicencode opt-tiff-8-bgra
-wicencode rgba64fixed-from-pbgra
-wicencode rgba64fixed-from-prgba
-wicencode rgba64fixed-from-rgba
+wicencode opt-tiff-name-bgra
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic

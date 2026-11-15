@@ -1483,6 +1483,12 @@ pub fn wicencode() -> String {
         writeln!(s, "case rgba64fixed-from-{f}\nwbits {f} 16 16 {}\nwconv rgba64fixed\nwpixels\nend", 0x64f1_0000u32 + k as u32).unwrap();
     }
     writeln!(s, "case opt-tiff-8-bgra\nwbits bgra 6 4 {}\nwencode tiff TiffCompressionMethod=8\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0100u32).unwrap();
+    // (not measured yet: the fixed-point and float formats back into 8 bits, and an option name
+    // no encoder has)
+    for (k, (f, t)) in [("rgba64fixed", "bgra"), ("rgbafloat", "bgra"), ("rgb48fixed", "rgb48"), ("grayfix16", "gray8"), ("rgba64half", "bgra")].into_iter().enumerate() {
+        writeln!(s, "case back-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xbac0_0000u32 + k as u32).unwrap();
+    }
+    writeln!(s, "case opt-tiff-name-bgra\nwbits bgra 6 4 {}\nwencode tiff TiffCompression=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     s
 }
 

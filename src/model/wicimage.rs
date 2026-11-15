@@ -359,22 +359,35 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if let Some(r) = wide_to_rgba64fixed(s, to) {
         return r;
     }
-    if matches!(s.fmt, "bgr24" | "bgra" | "gray8") && to == "rgba64fixed" {
+    if matches!(s.fmt, "bgr24" | "bgra" | "gray8" | "pbgra" | "rgba" | "prgba") && to == "rgba64fixed" {
         // MEASURED (golden wicencode encas-bmp-rgba64, rgba64fixed-every-bgr24, -bgra, -gray8:
-        // every level): each 8-bit color channel the LINEAR16 value of its 16-bit level (c * 257)
-        // times 8192 rounded, not premultiplied; alpha a / 255 times 8192 rounded, 1 where none
+        // every level; rgba64fixed-from-pbgra, -rgba, -prgba: 256 random pixels each): each 8-bit
+        // color channel the LINEAR16 value of its 16-bit level (c * 257) times 8192 rounded, not
+        // premultiplied; a premultiplied one first divided by alpha through a reciprocal table,
+        // (c * ((255 << 16) / a)) >> 16 at most 255, 0 where alpha is 0; alpha a / 255 times 8192
+        // rounded, 1 where none
         hit(clause::WICIMAGE_CONVERT_BYTE_FIXED);
         let mut o = Img::new(s.w, s.h, to);
         o.dpi = s.dpi;
         let ost = o.stride();
         let fix = |c: u8| (f64::from(linear16(u16::from(c) * 257)) * 8192.0 + 0.5).floor() as i16;
+        let unpremultiply = |c: u8, a: u8| -> u8 {
+            match a {
+                0 => 0,
+                _ => u8::try_from(((u32::from(c) * ((255 << 16) / u32::from(a))) >> 16).min(255)).unwrap_or(u8::MAX),
+            }
+        };
         for y in 0..s.h {
             for x in 0..s.w {
                 let p = s.get(x, y);
+                let alpha = |a: u8| (f64::from(a) / 255.0 * 8192.0 + 0.5).floor() as i16;
                 let v: [i16; 4] = match s.fmt {
                     "gray8" => [fix(p[0]), fix(p[0]), fix(p[0]), 8192],
                     "bgr24" => [fix(p[2]), fix(p[1]), fix(p[0]), 8192],
-                    _ => [fix(p[2]), fix(p[1]), fix(p[0]), (f64::from(p[3]) / 255.0 * 8192.0 + 0.5).floor() as i16],
+                    "bgra" => [fix(p[2]), fix(p[1]), fix(p[0]), alpha(p[3])],
+                    "rgba" => [fix(p[0]), fix(p[1]), fix(p[2]), alpha(p[3])],
+                    "pbgra" => [2, 1, 0].map(|k| fix(unpremultiply(p[k], p[3]))).into_iter().chain([alpha(p[3])]).collect::<Vec<_>>().try_into().map_err(|_| Fail::Bad)?,
+                    _ => [0, 1, 2].map(|k| fix(unpremultiply(p[k], p[3]))).into_iter().chain([alpha(p[3])]).collect::<Vec<_>>().try_into().map_err(|_| Fail::Bad)?,
                 };
                 let at = y as usize * ost + x as usize * 8;
                 for (k, c) in v.iter().enumerate() {
@@ -2228,6 +2241,9 @@ pub enum EncodeOption {
     BlackWhite,
     /// an option of another encoder: IPropertyBag2::Write fails (E_FAIL)
     Rejected,
+    /// a value past the option's enumeration: IWICBitmapFrameEncode::Initialize fails
+    /// WINCODEC_ERR_VALUEOUTOFRANGE
+    OutOfRange,
     /// WMP's Lossless
     WmpLossless,
     /// JPEG's ImageQuality, as IJG's quality 0..=100
@@ -2335,6 +2351,9 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         ("bmp", "EnableV5Header32bppBGRA", "0") => EncodeOption::V5Header(false),
         ("bmp", "EnableV5Header32bppBGRA", "1") => EncodeOption::V5Header(true),
         ("tiff", "TiffCompressionMethod", "2" | "3") => EncodeOption::BlackWhite,
+        // (WICTiffCompressionOption ends at 7, WICTiffCompressionLZWHDifferencing; MEASURED golden
+        // opt-tiff-8-bgra: 8 fails the frame's Initialize 0x88982f05)
+        ("tiff", "TiffCompressionMethod", v) if v.parse::<u8>().is_ok_and(|v| v > 7) => EncodeOption::OutOfRange,
         ("png", "ImageQuality", _) => EncodeOption::Rejected,
         // (Encoder options: JPEG XR's ImageQuality 1.0 is lossless; MEASURED golden opt-19-*: every
         // pixel kept, as Lossless=1)
@@ -2661,6 +2680,11 @@ impl WicImage {
                         EncodeOption::Rejected => {
                             hit(clause::WICIMAGE_ENCODE_OPTION_FOREIGN);
                             out.push(format!("wencode 80004005 {fmt} option"));
+                            return Ok(true);
+                        }
+                        EncodeOption::OutOfRange => {
+                            hit(clause::WICIMAGE_ENCODE_OPTION_RANGE);
+                            out.push(format!("wencode 88982f05 {fmt} frameinit"));
                             return Ok(true);
                         }
                     }

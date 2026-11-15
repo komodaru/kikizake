@@ -7320,3 +7320,41 @@ wframe 0
 winfo
 wpixels
 end
+case back-rgba64fixed-bgra
+wbits bgra 16 16 3133145088
+wconv rgba64fixed
+wconv bgra
+wpixels
+end
+case back-rgbafloat-bgra
+wbits bgra 16 16 3133145089
+wconv rgbafloat
+wconv bgra
+wpixels
+end
+case back-rgb48fixed-rgb48
+wbits bgra 16 16 3133145090
+wconv rgb48fixed
+wconv rgb48
+wpixels
+end
+case back-grayfix16-gray8
+wbits bgra 16 16 3133145091
+wconv grayfix16
+wconv gray8
+wpixels
+end
+case back-rgba64half-bgra
+wbits bgra 16 16 3133145092
+wconv rgba64half
+wconv bgra
+wpixels
+end
+case opt-tiff-name-bgra
+wbits bgra 6 4 1903624449
+wencode tiff TiffCompression=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
