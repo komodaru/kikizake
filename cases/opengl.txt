@@ -62004,6 +62004,5670 @@ gl glEnd
 glread 0 0 16 16 0x1903 0x1401 256
 glerr
 end
+case tri-snap-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.669596354166664 -100
+gl glVertex2f 44.33040364583333 116
+gl glVertex2f 408.4970703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.669474283854164 -100
+gl glVertex2f 44.33052571614583 116
+gl glVertex2f 408.4971923828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.669352213541664 -100
+gl glVertex2f 44.33064778645833 116
+gl glVertex2f 408.497314453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.669230143229164 -100
+gl glVertex2f 44.33076985677083 116
+gl glVertex2f 408.4974365234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.669108072916664 -100
+gl glVertex2f 44.33089192708333 116
+gl glVertex2f 408.49755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668986002604164 -100
+gl glVertex2f 44.33101399739583 116
+gl glVertex2f 408.4976806640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668863932291664 -100
+gl glVertex2f 44.33113606770833 116
+gl glVertex2f 408.497802734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668741861979164 -100
+gl glVertex2f 44.33125813802083 116
+gl glVertex2f 408.4979248046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668619791666664 -100
+gl glVertex2f 44.33138020833333 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668497721354164 -100
+gl glVertex2f 44.33150227864583 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668375651041664 -100
+gl glVertex2f 44.33162434895833 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668253580729164 -100
+gl glVertex2f 44.33174641927083 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668131510416664 -100
+gl glVertex2f 44.33186848958333 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668009440104164 -100
+gl glVertex2f 44.33199055989583 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667887369791664 -100
+gl glVertex2f 44.33211263020833 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667765299479164 -100
+gl glVertex2f 44.33223470052083 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667643229166664 -100
+gl glVertex2f 44.33235677083333 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667521158854164 -100
+gl glVertex2f 44.33247884114583 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667399088541664 -100
+gl glVertex2f 44.33260091145833 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667277018229164 -100
+gl glVertex2f 44.33272298177083 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667154947916664 -100
+gl glVertex2f 44.33284505208333 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667032877604164 -100
+gl glVertex2f 44.33296712239583 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666910807291664 -100
+gl glVertex2f 44.33308919270833 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666788736979164 -100
+gl glVertex2f 44.33321126302083 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666666666666664 -100
+gl glVertex2f 44.33333333333333 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666544596354164 -100
+gl glVertex2f 44.33345540364583 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666422526041664 -100
+gl glVertex2f 44.33357747395833 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666300455729164 -100
+gl glVertex2f 44.33369954427083 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666178385416664 -100
+gl glVertex2f 44.33382161458333 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666056315104164 -100
+gl glVertex2f 44.33394368489583 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665934244791664 -100
+gl glVertex2f 44.33406575520833 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665812174479164 -100
+gl glVertex2f 44.33418782552083 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665690104166664 -100
+gl glVertex2f 44.33430989583333 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665568033854164 -100
+gl glVertex2f 44.33443196614583 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665445963541664 -100
+gl glVertex2f 44.33455403645833 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665323893229164 -100
+gl glVertex2f 44.33467610677083 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665201822916664 -100
+gl glVertex2f 44.33479817708333 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665079752604164 -100
+gl glVertex2f 44.33492024739583 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664957682291664 -100
+gl glVertex2f 44.33504231770833 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664835611979164 -100
+gl glVertex2f 44.33516438802083 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664713541666664 -100
+gl glVertex2f 44.33528645833333 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664591471354164 -100
+gl glVertex2f 44.33540852864583 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664469401041664 -100
+gl glVertex2f 44.33553059895833 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664347330729164 -100
+gl glVertex2f 44.33565266927083 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664225260416664 -100
+gl glVertex2f 44.33577473958333 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664103190104164 -100
+gl glVertex2f 44.33589680989583 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663981119791664 -100
+gl glVertex2f 44.33601888020833 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663859049479164 -100
+gl glVertex2f 44.33614095052083 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663736979166664 -100
+gl glVertex2f 44.33626302083333 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668619791666664 -100
+gl glVertex2f 44.33138020833333 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668497721354164 -100
+gl glVertex2f 44.33150227864583 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668375651041664 -100
+gl glVertex2f 44.33162434895833 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668253580729164 -100
+gl glVertex2f 44.33174641927083 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668131510416664 -100
+gl glVertex2f 44.33186848958333 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.668009440104164 -100
+gl glVertex2f 44.33199055989583 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667887369791664 -100
+gl glVertex2f 44.33211263020833 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667765299479164 -100
+gl glVertex2f 44.33223470052083 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667643229166664 -100
+gl glVertex2f 44.33235677083333 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667521158854164 -100
+gl glVertex2f 44.33247884114583 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667399088541664 -100
+gl glVertex2f 44.33260091145833 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667277018229164 -100
+gl glVertex2f 44.33272298177083 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667154947916664 -100
+gl glVertex2f 44.33284505208333 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667032877604164 -100
+gl glVertex2f 44.33296712239583 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666910807291664 -100
+gl glVertex2f 44.33308919270833 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666788736979164 -100
+gl glVertex2f 44.33321126302083 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666666666666664 -100
+gl glVertex2f 44.33333333333333 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666544596354164 -100
+gl glVertex2f 44.33345540364583 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666422526041664 -100
+gl glVertex2f 44.33357747395833 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666300455729164 -100
+gl glVertex2f 44.33369954427083 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666178385416664 -100
+gl glVertex2f 44.33382161458333 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666056315104164 -100
+gl glVertex2f 44.33394368489583 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665934244791664 -100
+gl glVertex2f 44.33406575520833 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665812174479164 -100
+gl glVertex2f 44.33418782552083 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665690104166664 -100
+gl glVertex2f 44.33430989583333 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665568033854164 -100
+gl glVertex2f 44.33443196614583 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665445963541664 -100
+gl glVertex2f 44.33455403645833 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665323893229164 -100
+gl glVertex2f 44.33467610677083 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665201822916664 -100
+gl glVertex2f 44.33479817708333 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665079752604164 -100
+gl glVertex2f 44.33492024739583 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664957682291664 -100
+gl glVertex2f 44.33504231770833 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664835611979164 -100
+gl glVertex2f 44.33516438802083 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664713541666664 -100
+gl glVertex2f 44.33528645833333 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664591471354164 -100
+gl glVertex2f 44.33540852864583 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664469401041664 -100
+gl glVertex2f 44.33553059895833 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664347330729164 -100
+gl glVertex2f 44.33565266927083 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664225260416664 -100
+gl glVertex2f 44.33577473958333 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664103190104164 -100
+gl glVertex2f 44.33589680989583 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663981119791664 -100
+gl glVertex2f 44.33601888020833 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663859049479164 -100
+gl glVertex2f 44.33614095052083 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663736979166664 -100
+gl glVertex2f 44.33626302083333 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663614908854164 -100
+gl glVertex2f 44.33638509114583 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663492838541664 -100
+gl glVertex2f 44.33650716145833 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663370768229164 -100
+gl glVertex2f 44.33662923177083 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663248697916664 -100
+gl glVertex2f 44.33675130208333 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663126627604164 -100
+gl glVertex2f 44.33687337239583 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663004557291664 -100
+gl glVertex2f 44.33699544270833 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662882486979164 -100
+gl glVertex2f 44.33711751302083 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662760416666664 -100
+gl glVertex2f 44.33723958333333 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667643229166664 -100
+gl glVertex2f 44.33235677083333 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667521158854164 -100
+gl glVertex2f 44.33247884114583 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667399088541664 -100
+gl glVertex2f 44.33260091145833 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667277018229164 -100
+gl glVertex2f 44.33272298177083 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667154947916664 -100
+gl glVertex2f 44.33284505208333 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.667032877604164 -100
+gl glVertex2f 44.33296712239583 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666910807291664 -100
+gl glVertex2f 44.33308919270833 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666788736979164 -100
+gl glVertex2f 44.33321126302083 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666666666666664 -100
+gl glVertex2f 44.33333333333333 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666544596354164 -100
+gl glVertex2f 44.33345540364583 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666422526041664 -100
+gl glVertex2f 44.33357747395833 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666300455729164 -100
+gl glVertex2f 44.33369954427083 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666178385416664 -100
+gl glVertex2f 44.33382161458333 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666056315104164 -100
+gl glVertex2f 44.33394368489583 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665934244791664 -100
+gl glVertex2f 44.33406575520833 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665812174479164 -100
+gl glVertex2f 44.33418782552083 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665690104166664 -100
+gl glVertex2f 44.33430989583333 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665568033854164 -100
+gl glVertex2f 44.33443196614583 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665445963541664 -100
+gl glVertex2f 44.33455403645833 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665323893229164 -100
+gl glVertex2f 44.33467610677083 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665201822916664 -100
+gl glVertex2f 44.33479817708333 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665079752604164 -100
+gl glVertex2f 44.33492024739583 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664957682291664 -100
+gl glVertex2f 44.33504231770833 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664835611979164 -100
+gl glVertex2f 44.33516438802083 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664713541666664 -100
+gl glVertex2f 44.33528645833333 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664591471354164 -100
+gl glVertex2f 44.33540852864583 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664469401041664 -100
+gl glVertex2f 44.33553059895833 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664347330729164 -100
+gl glVertex2f 44.33565266927083 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664225260416664 -100
+gl glVertex2f 44.33577473958333 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664103190104164 -100
+gl glVertex2f 44.33589680989583 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663981119791664 -100
+gl glVertex2f 44.33601888020833 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663859049479164 -100
+gl glVertex2f 44.33614095052083 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663736979166664 -100
+gl glVertex2f 44.33626302083333 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663614908854164 -100
+gl glVertex2f 44.33638509114583 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663492838541664 -100
+gl glVertex2f 44.33650716145833 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663370768229164 -100
+gl glVertex2f 44.33662923177083 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663248697916664 -100
+gl glVertex2f 44.33675130208333 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663126627604164 -100
+gl glVertex2f 44.33687337239583 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663004557291664 -100
+gl glVertex2f 44.33699544270833 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662882486979164 -100
+gl glVertex2f 44.33711751302083 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662760416666664 -100
+gl glVertex2f 44.33723958333333 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662638346354164 -100
+gl glVertex2f 44.33736165364583 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662516276041664 -100
+gl glVertex2f 44.33748372395833 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662394205729164 -100
+gl glVertex2f 44.33760579427083 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662272135416664 -100
+gl glVertex2f 44.33772786458333 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662150065104164 -100
+gl glVertex2f 44.33784993489583 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662027994791664 -100
+gl glVertex2f 44.33797200520833 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661905924479164 -100
+gl glVertex2f 44.33809407552083 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661783854166664 -100
+gl glVertex2f 44.33821614583333 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666666666666664 -100
+gl glVertex2f 44.33333333333333 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666544596354164 -100
+gl glVertex2f 44.33345540364583 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666422526041664 -100
+gl glVertex2f 44.33357747395833 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666300455729164 -100
+gl glVertex2f 44.33369954427083 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666178385416664 -100
+gl glVertex2f 44.33382161458333 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.666056315104164 -100
+gl glVertex2f 44.33394368489583 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665934244791664 -100
+gl glVertex2f 44.33406575520833 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665812174479164 -100
+gl glVertex2f 44.33418782552083 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665690104166664 -100
+gl glVertex2f 44.33430989583333 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665568033854164 -100
+gl glVertex2f 44.33443196614583 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665445963541664 -100
+gl glVertex2f 44.33455403645833 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665323893229164 -100
+gl glVertex2f 44.33467610677083 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665201822916664 -100
+gl glVertex2f 44.33479817708333 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.665079752604164 -100
+gl glVertex2f 44.33492024739583 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664957682291664 -100
+gl glVertex2f 44.33504231770833 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664835611979164 -100
+gl glVertex2f 44.33516438802083 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664713541666664 -100
+gl glVertex2f 44.33528645833333 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664591471354164 -100
+gl glVertex2f 44.33540852864583 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664469401041664 -100
+gl glVertex2f 44.33553059895833 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664347330729164 -100
+gl glVertex2f 44.33565266927083 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664225260416664 -100
+gl glVertex2f 44.33577473958333 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.664103190104164 -100
+gl glVertex2f 44.33589680989583 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663981119791664 -100
+gl glVertex2f 44.33601888020833 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663859049479164 -100
+gl glVertex2f 44.33614095052083 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663736979166664 -100
+gl glVertex2f 44.33626302083333 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663614908854164 -100
+gl glVertex2f 44.33638509114583 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663492838541664 -100
+gl glVertex2f 44.33650716145833 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663370768229164 -100
+gl glVertex2f 44.33662923177083 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663248697916664 -100
+gl glVertex2f 44.33675130208333 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663126627604164 -100
+gl glVertex2f 44.33687337239583 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.663004557291664 -100
+gl glVertex2f 44.33699544270833 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662882486979164 -100
+gl glVertex2f 44.33711751302083 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662760416666664 -100
+gl glVertex2f 44.33723958333333 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662638346354164 -100
+gl glVertex2f 44.33736165364583 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662516276041664 -100
+gl glVertex2f 44.33748372395833 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662394205729164 -100
+gl glVertex2f 44.33760579427083 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662272135416664 -100
+gl glVertex2f 44.33772786458333 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662150065104164 -100
+gl glVertex2f 44.33784993489583 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.662027994791664 -100
+gl glVertex2f 44.33797200520833 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661905924479164 -100
+gl glVertex2f 44.33809407552083 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661783854166664 -100
+gl glVertex2f 44.33821614583333 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661661783854164 -100
+gl glVertex2f 44.33833821614583 116
+gl glVertex2f 408.5050048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661539713541664 -100
+gl glVertex2f 44.33846028645833 116
+gl glVertex2f 408.505126953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661417643229164 -100
+gl glVertex2f 44.33858235677083 116
+gl glVertex2f 408.5052490234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661295572916664 -100
+gl glVertex2f 44.33870442708333 116
+gl glVertex2f 408.50537109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661173502604164 -100
+gl glVertex2f 44.33882649739583 116
+gl glVertex2f 408.5054931640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.661051432291664 -100
+gl glVertex2f 44.33894856770833 116
+gl glVertex2f 408.505615234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.660929361979164 -100
+gl glVertex2f 44.33907063802083 116
+gl glVertex2f 408.5057373046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -27.660807291666664 -100
+gl glVertex2f 44.33919270833333 116
+gl glVertex2f 408.505859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202929687500003 -100
+gl glVertex2f 29.9970703125 116
+gl glVertex2f 408.4970703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202807617187503 -100
+gl glVertex2f 29.9971923828125 116
+gl glVertex2f 408.4971923828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202685546875003 -100
+gl glVertex2f 29.997314453125 116
+gl glVertex2f 408.497314453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202563476562503 -100
+gl glVertex2f 29.9974365234375 116
+gl glVertex2f 408.4974365234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202441406250003 -100
+gl glVertex2f 29.99755859375 116
+gl glVertex2f 408.49755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202319335937503 -100
+gl glVertex2f 29.9976806640625 116
+gl glVertex2f 408.4976806640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202197265625003 -100
+gl glVertex2f 29.997802734375 116
+gl glVertex2f 408.497802734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.202075195312503 -100
+gl glVertex2f 29.9979248046875 116
+gl glVertex2f 408.4979248046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201953125000003 -100
+gl glVertex2f 29.998046875 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201831054687503 -100
+gl glVertex2f 29.9981689453125 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201708984375003 -100
+gl glVertex2f 29.998291015625 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201586914062503 -100
+gl glVertex2f 29.9984130859375 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201464843750003 -100
+gl glVertex2f 29.99853515625 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201342773437503 -100
+gl glVertex2f 29.9986572265625 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201220703125003 -100
+gl glVertex2f 29.998779296875 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201098632812503 -100
+gl glVertex2f 29.9989013671875 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200976562500003 -100
+gl glVertex2f 29.9990234375 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200854492187503 -100
+gl glVertex2f 29.9991455078125 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200732421875003 -100
+gl glVertex2f 29.999267578125 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200610351562503 -100
+gl glVertex2f 29.9993896484375 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200488281250003 -100
+gl glVertex2f 29.99951171875 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200366210937503 -100
+gl glVertex2f 29.9996337890625 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200244140625003 -100
+gl glVertex2f 29.999755859375 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200122070312503 -100
+gl glVertex2f 29.9998779296875 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200000000000003 -100
+gl glVertex2f 30 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199877929687503 -100
+gl glVertex2f 30.0001220703125 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199755859375003 -100
+gl glVertex2f 30.000244140625 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199633789062503 -100
+gl glVertex2f 30.0003662109375 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199511718750003 -100
+gl glVertex2f 30.00048828125 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199389648437503 -100
+gl glVertex2f 30.0006103515625 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199267578125003 -100
+gl glVertex2f 30.000732421875 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199145507812503 -100
+gl glVertex2f 30.0008544921875 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199023437500003 -100
+gl glVertex2f 30.0009765625 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198901367187503 -100
+gl glVertex2f 30.0010986328125 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198779296875003 -100
+gl glVertex2f 30.001220703125 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198657226562503 -100
+gl glVertex2f 30.0013427734375 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198535156250003 -100
+gl glVertex2f 30.00146484375 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198413085937503 -100
+gl glVertex2f 30.0015869140625 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198291015625003 -100
+gl glVertex2f 30.001708984375 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198168945312503 -100
+gl glVertex2f 30.0018310546875 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198046875000003 -100
+gl glVertex2f 30.001953125 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197924804687503 -100
+gl glVertex2f 30.0020751953125 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197802734375003 -100
+gl glVertex2f 30.002197265625 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197680664062503 -100
+gl glVertex2f 30.0023193359375 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197558593750003 -100
+gl glVertex2f 30.00244140625 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197436523437503 -100
+gl glVertex2f 30.0025634765625 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197314453125003 -100
+gl glVertex2f 30.002685546875 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197192382812503 -100
+gl glVertex2f 30.0028076171875 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197070312500003 -100
+gl glVertex2f 30.0029296875 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201953125000003 -100
+gl glVertex2f 29.998046875 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201831054687503 -100
+gl glVertex2f 29.9981689453125 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201708984375003 -100
+gl glVertex2f 29.998291015625 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201586914062503 -100
+gl glVertex2f 29.9984130859375 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201464843750003 -100
+gl glVertex2f 29.99853515625 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201342773437503 -100
+gl glVertex2f 29.9986572265625 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201220703125003 -100
+gl glVertex2f 29.998779296875 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.201098632812503 -100
+gl glVertex2f 29.9989013671875 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200976562500003 -100
+gl glVertex2f 29.9990234375 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200854492187503 -100
+gl glVertex2f 29.9991455078125 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200732421875003 -100
+gl glVertex2f 29.999267578125 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200610351562503 -100
+gl glVertex2f 29.9993896484375 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200488281250003 -100
+gl glVertex2f 29.99951171875 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200366210937503 -100
+gl glVertex2f 29.9996337890625 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200244140625003 -100
+gl glVertex2f 29.999755859375 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200122070312503 -100
+gl glVertex2f 29.9998779296875 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200000000000003 -100
+gl glVertex2f 30 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199877929687503 -100
+gl glVertex2f 30.0001220703125 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199755859375003 -100
+gl glVertex2f 30.000244140625 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199633789062503 -100
+gl glVertex2f 30.0003662109375 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199511718750003 -100
+gl glVertex2f 30.00048828125 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199389648437503 -100
+gl glVertex2f 30.0006103515625 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199267578125003 -100
+gl glVertex2f 30.000732421875 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199145507812503 -100
+gl glVertex2f 30.0008544921875 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199023437500003 -100
+gl glVertex2f 30.0009765625 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198901367187503 -100
+gl glVertex2f 30.0010986328125 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198779296875003 -100
+gl glVertex2f 30.001220703125 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198657226562503 -100
+gl glVertex2f 30.0013427734375 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198535156250003 -100
+gl glVertex2f 30.00146484375 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198413085937503 -100
+gl glVertex2f 30.0015869140625 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198291015625003 -100
+gl glVertex2f 30.001708984375 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198168945312503 -100
+gl glVertex2f 30.0018310546875 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198046875000003 -100
+gl glVertex2f 30.001953125 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197924804687503 -100
+gl glVertex2f 30.0020751953125 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197802734375003 -100
+gl glVertex2f 30.002197265625 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197680664062503 -100
+gl glVertex2f 30.0023193359375 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197558593750003 -100
+gl glVertex2f 30.00244140625 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197436523437503 -100
+gl glVertex2f 30.0025634765625 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197314453125003 -100
+gl glVertex2f 30.002685546875 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197192382812503 -100
+gl glVertex2f 30.0028076171875 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197070312500003 -100
+gl glVertex2f 30.0029296875 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196948242187503 -100
+gl glVertex2f 30.0030517578125 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196826171875003 -100
+gl glVertex2f 30.003173828125 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196704101562503 -100
+gl glVertex2f 30.0032958984375 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196582031250003 -100
+gl glVertex2f 30.00341796875 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196459960937503 -100
+gl glVertex2f 30.0035400390625 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196337890625003 -100
+gl glVertex2f 30.003662109375 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196215820312503 -100
+gl glVertex2f 30.0037841796875 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196093750000003 -100
+gl glVertex2f 30.00390625 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-6
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200976562500003 -100
+gl glVertex2f 29.9990234375 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200854492187503 -100
+gl glVertex2f 29.9991455078125 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200732421875003 -100
+gl glVertex2f 29.999267578125 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200610351562503 -100
+gl glVertex2f 29.9993896484375 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200488281250003 -100
+gl glVertex2f 29.99951171875 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200366210937503 -100
+gl glVertex2f 29.9996337890625 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200244140625003 -100
+gl glVertex2f 29.999755859375 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200122070312503 -100
+gl glVertex2f 29.9998779296875 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200000000000003 -100
+gl glVertex2f 30 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199877929687503 -100
+gl glVertex2f 30.0001220703125 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199755859375003 -100
+gl glVertex2f 30.000244140625 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199633789062503 -100
+gl glVertex2f 30.0003662109375 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199511718750003 -100
+gl glVertex2f 30.00048828125 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199389648437503 -100
+gl glVertex2f 30.0006103515625 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199267578125003 -100
+gl glVertex2f 30.000732421875 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199145507812503 -100
+gl glVertex2f 30.0008544921875 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199023437500003 -100
+gl glVertex2f 30.0009765625 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198901367187503 -100
+gl glVertex2f 30.0010986328125 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198779296875003 -100
+gl glVertex2f 30.001220703125 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198657226562503 -100
+gl glVertex2f 30.0013427734375 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198535156250003 -100
+gl glVertex2f 30.00146484375 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198413085937503 -100
+gl glVertex2f 30.0015869140625 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198291015625003 -100
+gl glVertex2f 30.001708984375 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198168945312503 -100
+gl glVertex2f 30.0018310546875 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198046875000003 -100
+gl glVertex2f 30.001953125 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197924804687503 -100
+gl glVertex2f 30.0020751953125 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197802734375003 -100
+gl glVertex2f 30.002197265625 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197680664062503 -100
+gl glVertex2f 30.0023193359375 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197558593750003 -100
+gl glVertex2f 30.00244140625 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197436523437503 -100
+gl glVertex2f 30.0025634765625 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197314453125003 -100
+gl glVertex2f 30.002685546875 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197192382812503 -100
+gl glVertex2f 30.0028076171875 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197070312500003 -100
+gl glVertex2f 30.0029296875 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196948242187503 -100
+gl glVertex2f 30.0030517578125 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196826171875003 -100
+gl glVertex2f 30.003173828125 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196704101562503 -100
+gl glVertex2f 30.0032958984375 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196582031250003 -100
+gl glVertex2f 30.00341796875 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196459960937503 -100
+gl glVertex2f 30.0035400390625 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196337890625003 -100
+gl glVertex2f 30.003662109375 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196215820312503 -100
+gl glVertex2f 30.0037841796875 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196093750000003 -100
+gl glVertex2f 30.00390625 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195971679687503 -100
+gl glVertex2f 30.0040283203125 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195849609375003 -100
+gl glVertex2f 30.004150390625 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195727539062503 -100
+gl glVertex2f 30.0042724609375 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195605468750003 -100
+gl glVertex2f 30.00439453125 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195483398437503 -100
+gl glVertex2f 30.0045166015625 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195361328125003 -100
+gl glVertex2f 30.004638671875 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195239257812503 -100
+gl glVertex2f 30.0047607421875 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195117187500003 -100
+gl glVertex2f 30.0048828125 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-7
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.200000000000003 -100
+gl glVertex2f 30 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199877929687503 -100
+gl glVertex2f 30.0001220703125 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199755859375003 -100
+gl glVertex2f 30.000244140625 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199633789062503 -100
+gl glVertex2f 30.0003662109375 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199511718750003 -100
+gl glVertex2f 30.00048828125 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199389648437503 -100
+gl glVertex2f 30.0006103515625 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199267578125003 -100
+gl glVertex2f 30.000732421875 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199145507812503 -100
+gl glVertex2f 30.0008544921875 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.199023437500003 -100
+gl glVertex2f 30.0009765625 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198901367187503 -100
+gl glVertex2f 30.0010986328125 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198779296875003 -100
+gl glVertex2f 30.001220703125 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198657226562503 -100
+gl glVertex2f 30.0013427734375 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198535156250003 -100
+gl glVertex2f 30.00146484375 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198413085937503 -100
+gl glVertex2f 30.0015869140625 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198291015625003 -100
+gl glVertex2f 30.001708984375 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198168945312503 -100
+gl glVertex2f 30.0018310546875 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.198046875000003 -100
+gl glVertex2f 30.001953125 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197924804687503 -100
+gl glVertex2f 30.0020751953125 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197802734375003 -100
+gl glVertex2f 30.002197265625 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197680664062503 -100
+gl glVertex2f 30.0023193359375 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197558593750003 -100
+gl glVertex2f 30.00244140625 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197436523437503 -100
+gl glVertex2f 30.0025634765625 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197314453125003 -100
+gl glVertex2f 30.002685546875 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197192382812503 -100
+gl glVertex2f 30.0028076171875 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.197070312500003 -100
+gl glVertex2f 30.0029296875 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196948242187503 -100
+gl glVertex2f 30.0030517578125 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196826171875003 -100
+gl glVertex2f 30.003173828125 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196704101562503 -100
+gl glVertex2f 30.0032958984375 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196582031250003 -100
+gl glVertex2f 30.00341796875 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196459960937503 -100
+gl glVertex2f 30.0035400390625 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196337890625003 -100
+gl glVertex2f 30.003662109375 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196215820312503 -100
+gl glVertex2f 30.0037841796875 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.196093750000003 -100
+gl glVertex2f 30.00390625 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195971679687503 -100
+gl glVertex2f 30.0040283203125 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195849609375003 -100
+gl glVertex2f 30.004150390625 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195727539062503 -100
+gl glVertex2f 30.0042724609375 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195605468750003 -100
+gl glVertex2f 30.00439453125 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195483398437503 -100
+gl glVertex2f 30.0045166015625 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195361328125003 -100
+gl glVertex2f 30.004638671875 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195239257812503 -100
+gl glVertex2f 30.0047607421875 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.195117187500003 -100
+gl glVertex2f 30.0048828125 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194995117187503 -100
+gl glVertex2f 30.0050048828125 116
+gl glVertex2f 408.5050048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194873046875003 -100
+gl glVertex2f 30.005126953125 116
+gl glVertex2f 408.505126953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194750976562503 -100
+gl glVertex2f 30.0052490234375 116
+gl glVertex2f 408.5052490234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194628906250003 -100
+gl glVertex2f 30.00537109375 116
+gl glVertex2f 408.50537109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194506835937503 -100
+gl glVertex2f 30.0054931640625 116
+gl glVertex2f 408.5054931640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194384765625003 -100
+gl glVertex2f 30.005615234375 116
+gl glVertex2f 408.505615234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194262695312503 -100
+gl glVertex2f 30.0057373046875 116
+gl glVertex2f 408.5057373046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -13.194140625000003 -100
+gl glVertex2f 30.005859375 116
+gl glVertex2f 408.505859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-8
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83626302083333 -100
+gl glVertex2f 80.16373697916666 116
+gl glVertex2f 408.4970703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83614095052083 -100
+gl glVertex2f 80.16385904947916 116
+gl glVertex2f 408.4971923828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83601888020833 -100
+gl glVertex2f 80.16398111979166 116
+gl glVertex2f 408.497314453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83589680989583 -100
+gl glVertex2f 80.16410319010416 116
+gl glVertex2f 408.4974365234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83577473958333 -100
+gl glVertex2f 80.16422526041666 116
+gl glVertex2f 408.49755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83565266927083 -100
+gl glVertex2f 80.16434733072916 116
+gl glVertex2f 408.4976806640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83553059895833 -100
+gl glVertex2f 80.16446940104166 116
+gl glVertex2f 408.497802734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83540852864583 -100
+gl glVertex2f 80.16459147135416 116
+gl glVertex2f 408.4979248046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83528645833333 -100
+gl glVertex2f 80.16471354166666 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83516438802083 -100
+gl glVertex2f 80.16483561197916 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83504231770833 -100
+gl glVertex2f 80.16495768229166 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83492024739583 -100
+gl glVertex2f 80.16507975260416 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83479817708333 -100
+gl glVertex2f 80.16520182291666 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83467610677083 -100
+gl glVertex2f 80.16532389322916 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83455403645833 -100
+gl glVertex2f 80.16544596354166 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83443196614583 -100
+gl glVertex2f 80.16556803385416 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83430989583333 -100
+gl glVertex2f 80.16569010416666 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83418782552083 -100
+gl glVertex2f 80.16581217447916 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83406575520833 -100
+gl glVertex2f 80.16593424479166 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83394368489583 -100
+gl glVertex2f 80.16605631510416 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83382161458333 -100
+gl glVertex2f 80.16617838541666 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83369954427083 -100
+gl glVertex2f 80.16630045572916 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83357747395833 -100
+gl glVertex2f 80.16642252604166 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83345540364583 -100
+gl glVertex2f 80.16654459635416 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83333333333333 -100
+gl glVertex2f 80.16666666666666 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83321126302083 -100
+gl glVertex2f 80.16678873697916 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83308919270833 -100
+gl glVertex2f 80.16691080729166 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83296712239583 -100
+gl glVertex2f 80.16703287760416 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83284505208333 -100
+gl glVertex2f 80.16715494791666 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83272298177083 -100
+gl glVertex2f 80.16727701822916 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83260091145833 -100
+gl glVertex2f 80.16739908854166 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83247884114583 -100
+gl glVertex2f 80.16752115885416 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83235677083333 -100
+gl glVertex2f 80.16764322916666 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83223470052083 -100
+gl glVertex2f 80.16776529947916 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83211263020833 -100
+gl glVertex2f 80.16788736979166 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83199055989583 -100
+gl glVertex2f 80.16800944010416 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83186848958333 -100
+gl glVertex2f 80.16813151041666 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83174641927083 -100
+gl glVertex2f 80.16825358072916 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83162434895833 -100
+gl glVertex2f 80.16837565104166 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83150227864583 -100
+gl glVertex2f 80.16849772135416 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83138020833333 -100
+gl glVertex2f 80.16861979166666 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83125813802083 -100
+gl glVertex2f 80.16874186197916 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83113606770833 -100
+gl glVertex2f 80.16886393229166 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83101399739583 -100
+gl glVertex2f 80.16898600260416 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83089192708333 -100
+gl glVertex2f 80.16910807291666 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83076985677083 -100
+gl glVertex2f 80.16923014322916 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83064778645833 -100
+gl glVertex2f 80.16935221354166 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83052571614583 -100
+gl glVertex2f 80.16947428385416 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83040364583333 -100
+gl glVertex2f 80.16959635416666 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-9
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83528645833333 -100
+gl glVertex2f 80.16471354166666 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83516438802083 -100
+gl glVertex2f 80.16483561197916 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83504231770833 -100
+gl glVertex2f 80.16495768229166 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83492024739583 -100
+gl glVertex2f 80.16507975260416 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83479817708333 -100
+gl glVertex2f 80.16520182291666 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83467610677083 -100
+gl glVertex2f 80.16532389322916 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83455403645833 -100
+gl glVertex2f 80.16544596354166 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83443196614583 -100
+gl glVertex2f 80.16556803385416 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83430989583333 -100
+gl glVertex2f 80.16569010416666 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83418782552083 -100
+gl glVertex2f 80.16581217447916 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83406575520833 -100
+gl glVertex2f 80.16593424479166 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83394368489583 -100
+gl glVertex2f 80.16605631510416 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83382161458333 -100
+gl glVertex2f 80.16617838541666 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83369954427083 -100
+gl glVertex2f 80.16630045572916 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83357747395833 -100
+gl glVertex2f 80.16642252604166 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83345540364583 -100
+gl glVertex2f 80.16654459635416 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83333333333333 -100
+gl glVertex2f 80.16666666666666 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83321126302083 -100
+gl glVertex2f 80.16678873697916 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83308919270833 -100
+gl glVertex2f 80.16691080729166 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83296712239583 -100
+gl glVertex2f 80.16703287760416 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83284505208333 -100
+gl glVertex2f 80.16715494791666 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83272298177083 -100
+gl glVertex2f 80.16727701822916 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83260091145833 -100
+gl glVertex2f 80.16739908854166 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83247884114583 -100
+gl glVertex2f 80.16752115885416 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83235677083333 -100
+gl glVertex2f 80.16764322916666 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83223470052083 -100
+gl glVertex2f 80.16776529947916 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83211263020833 -100
+gl glVertex2f 80.16788736979166 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83199055989583 -100
+gl glVertex2f 80.16800944010416 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83186848958333 -100
+gl glVertex2f 80.16813151041666 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83174641927083 -100
+gl glVertex2f 80.16825358072916 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83162434895833 -100
+gl glVertex2f 80.16837565104166 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83150227864583 -100
+gl glVertex2f 80.16849772135416 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83138020833333 -100
+gl glVertex2f 80.16861979166666 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83125813802083 -100
+gl glVertex2f 80.16874186197916 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83113606770833 -100
+gl glVertex2f 80.16886393229166 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83101399739583 -100
+gl glVertex2f 80.16898600260416 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83089192708333 -100
+gl glVertex2f 80.16910807291666 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83076985677083 -100
+gl glVertex2f 80.16923014322916 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83064778645833 -100
+gl glVertex2f 80.16935221354166 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83052571614583 -100
+gl glVertex2f 80.16947428385416 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83040364583333 -100
+gl glVertex2f 80.16959635416666 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83028157552083 -100
+gl glVertex2f 80.16971842447916 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83015950520833 -100
+gl glVertex2f 80.16984049479166 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83003743489583 -100
+gl glVertex2f 80.16996256510416 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82991536458333 -100
+gl glVertex2f 80.17008463541666 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82979329427083 -100
+gl glVertex2f 80.17020670572916 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82967122395833 -100
+gl glVertex2f 80.17032877604166 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82954915364583 -100
+gl glVertex2f 80.17045084635416 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82942708333333 -100
+gl glVertex2f 80.17057291666666 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-10
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83430989583333 -100
+gl glVertex2f 80.16569010416666 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83418782552083 -100
+gl glVertex2f 80.16581217447916 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83406575520833 -100
+gl glVertex2f 80.16593424479166 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83394368489583 -100
+gl glVertex2f 80.16605631510416 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83382161458333 -100
+gl glVertex2f 80.16617838541666 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83369954427083 -100
+gl glVertex2f 80.16630045572916 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83357747395833 -100
+gl glVertex2f 80.16642252604166 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83345540364583 -100
+gl glVertex2f 80.16654459635416 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83333333333333 -100
+gl glVertex2f 80.16666666666666 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83321126302083 -100
+gl glVertex2f 80.16678873697916 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83308919270833 -100
+gl glVertex2f 80.16691080729166 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83296712239583 -100
+gl glVertex2f 80.16703287760416 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83284505208333 -100
+gl glVertex2f 80.16715494791666 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83272298177083 -100
+gl glVertex2f 80.16727701822916 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83260091145833 -100
+gl glVertex2f 80.16739908854166 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83247884114583 -100
+gl glVertex2f 80.16752115885416 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83235677083333 -100
+gl glVertex2f 80.16764322916666 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83223470052083 -100
+gl glVertex2f 80.16776529947916 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83211263020833 -100
+gl glVertex2f 80.16788736979166 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83199055989583 -100
+gl glVertex2f 80.16800944010416 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83186848958333 -100
+gl glVertex2f 80.16813151041666 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83174641927083 -100
+gl glVertex2f 80.16825358072916 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83162434895833 -100
+gl glVertex2f 80.16837565104166 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83150227864583 -100
+gl glVertex2f 80.16849772135416 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83138020833333 -100
+gl glVertex2f 80.16861979166666 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83125813802083 -100
+gl glVertex2f 80.16874186197916 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83113606770833 -100
+gl glVertex2f 80.16886393229166 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83101399739583 -100
+gl glVertex2f 80.16898600260416 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83089192708333 -100
+gl glVertex2f 80.16910807291666 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83076985677083 -100
+gl glVertex2f 80.16923014322916 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83064778645833 -100
+gl glVertex2f 80.16935221354166 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83052571614583 -100
+gl glVertex2f 80.16947428385416 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83040364583333 -100
+gl glVertex2f 80.16959635416666 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83028157552083 -100
+gl glVertex2f 80.16971842447916 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83015950520833 -100
+gl glVertex2f 80.16984049479166 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83003743489583 -100
+gl glVertex2f 80.16996256510416 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82991536458333 -100
+gl glVertex2f 80.17008463541666 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82979329427083 -100
+gl glVertex2f 80.17020670572916 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82967122395833 -100
+gl glVertex2f 80.17032877604166 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82954915364583 -100
+gl glVertex2f 80.17045084635416 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82942708333333 -100
+gl glVertex2f 80.17057291666666 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82930501302083 -100
+gl glVertex2f 80.17069498697916 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82918294270833 -100
+gl glVertex2f 80.17081705729166 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82906087239583 -100
+gl glVertex2f 80.17093912760416 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82893880208333 -100
+gl glVertex2f 80.17106119791666 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82881673177083 -100
+gl glVertex2f 80.17118326822916 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82869466145833 -100
+gl glVertex2f 80.17130533854166 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82857259114583 -100
+gl glVertex2f 80.17142740885416 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82845052083333 -100
+gl glVertex2f 80.17154947916666 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-11
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83333333333333 -100
+gl glVertex2f 80.16666666666666 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83321126302083 -100
+gl glVertex2f 80.16678873697916 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83308919270833 -100
+gl glVertex2f 80.16691080729166 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83296712239583 -100
+gl glVertex2f 80.16703287760416 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83284505208333 -100
+gl glVertex2f 80.16715494791666 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83272298177083 -100
+gl glVertex2f 80.16727701822916 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83260091145833 -100
+gl glVertex2f 80.16739908854166 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83247884114583 -100
+gl glVertex2f 80.16752115885416 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83235677083333 -100
+gl glVertex2f 80.16764322916666 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83223470052083 -100
+gl glVertex2f 80.16776529947916 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83211263020833 -100
+gl glVertex2f 80.16788736979166 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83199055989583 -100
+gl glVertex2f 80.16800944010416 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83186848958333 -100
+gl glVertex2f 80.16813151041666 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83174641927083 -100
+gl glVertex2f 80.16825358072916 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83162434895833 -100
+gl glVertex2f 80.16837565104166 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83150227864583 -100
+gl glVertex2f 80.16849772135416 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83138020833333 -100
+gl glVertex2f 80.16861979166666 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83125813802083 -100
+gl glVertex2f 80.16874186197916 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83113606770833 -100
+gl glVertex2f 80.16886393229166 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83101399739583 -100
+gl glVertex2f 80.16898600260416 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83089192708333 -100
+gl glVertex2f 80.16910807291666 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83076985677083 -100
+gl glVertex2f 80.16923014322916 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83064778645833 -100
+gl glVertex2f 80.16935221354166 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83052571614583 -100
+gl glVertex2f 80.16947428385416 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83040364583333 -100
+gl glVertex2f 80.16959635416666 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83028157552083 -100
+gl glVertex2f 80.16971842447916 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83015950520833 -100
+gl glVertex2f 80.16984049479166 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.83003743489583 -100
+gl glVertex2f 80.16996256510416 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82991536458333 -100
+gl glVertex2f 80.17008463541666 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82979329427083 -100
+gl glVertex2f 80.17020670572916 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82967122395833 -100
+gl glVertex2f 80.17032877604166 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82954915364583 -100
+gl glVertex2f 80.17045084635416 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82942708333333 -100
+gl glVertex2f 80.17057291666666 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82930501302083 -100
+gl glVertex2f 80.17069498697916 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82918294270833 -100
+gl glVertex2f 80.17081705729166 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82906087239583 -100
+gl glVertex2f 80.17093912760416 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82893880208333 -100
+gl glVertex2f 80.17106119791666 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82881673177083 -100
+gl glVertex2f 80.17118326822916 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82869466145833 -100
+gl glVertex2f 80.17130533854166 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82857259114583 -100
+gl glVertex2f 80.17142740885416 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82845052083333 -100
+gl glVertex2f 80.17154947916666 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82832845052083 -100
+gl glVertex2f 80.17167154947916 116
+gl glVertex2f 408.5050048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82820638020833 -100
+gl glVertex2f 80.17179361979166 116
+gl glVertex2f 408.505126953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82808430989583 -100
+gl glVertex2f 80.17191569010416 116
+gl glVertex2f 408.5052490234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82796223958333 -100
+gl glVertex2f 80.17203776041666 116
+gl glVertex2f 408.50537109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82784016927083 -100
+gl glVertex2f 80.17215983072916 116
+gl glVertex2f 408.5054931640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82771809895833 -100
+gl glVertex2f 80.17228190104166 116
+gl glVertex2f 408.505615234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82759602864583 -100
+gl glVertex2f 80.17240397135416 116
+gl glVertex2f 408.5057373046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -63.82747395833333 -100
+gl glVertex2f 80.17252604166666 116
+gl glVertex2f 408.505859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-12
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0029296875 -100
+gl glVertex2f 54.56849888392857 116
+gl glVertex2f 408.4970703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0028076171875 -100
+gl glVertex2f 54.56862095424107 116
+gl glVertex2f 408.4971923828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.002685546875 -100
+gl glVertex2f 54.56874302455357 116
+gl glVertex2f 408.497314453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0025634765625 -100
+gl glVertex2f 54.56886509486607 116
+gl glVertex2f 408.4974365234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.00244140625 -100
+gl glVertex2f 54.56898716517857 116
+gl glVertex2f 408.49755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0023193359375 -100
+gl glVertex2f 54.56910923549107 116
+gl glVertex2f 408.4976806640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.002197265625 -100
+gl glVertex2f 54.56923130580357 116
+gl glVertex2f 408.497802734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0020751953125 -100
+gl glVertex2f 54.56935337611607 116
+gl glVertex2f 408.4979248046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.001953125 -100
+gl glVertex2f 54.56947544642857 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0018310546875 -100
+gl glVertex2f 54.56959751674107 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.001708984375 -100
+gl glVertex2f 54.56971958705357 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0015869140625 -100
+gl glVertex2f 54.56984165736607 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.00146484375 -100
+gl glVertex2f 54.56996372767857 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0013427734375 -100
+gl glVertex2f 54.57008579799107 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.001220703125 -100
+gl glVertex2f 54.57020786830357 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0010986328125 -100
+gl glVertex2f 54.57032993861607 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0009765625 -100
+gl glVertex2f 54.57045200892857 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0008544921875 -100
+gl glVertex2f 54.57057407924107 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.000732421875 -100
+gl glVertex2f 54.57069614955357 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0006103515625 -100
+gl glVertex2f 54.57081821986607 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.00048828125 -100
+gl glVertex2f 54.57094029017857 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0003662109375 -100
+gl glVertex2f 54.57106236049107 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.000244140625 -100
+gl glVertex2f 54.57118443080357 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0001220703125 -100
+gl glVertex2f 54.57130650111607 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38 -100
+gl glVertex2f 54.57142857142857 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9998779296875 -100
+gl glVertex2f 54.57155064174107 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999755859375 -100
+gl glVertex2f 54.57167271205357 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9996337890625 -100
+gl glVertex2f 54.57179478236607 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99951171875 -100
+gl glVertex2f 54.57191685267857 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9993896484375 -100
+gl glVertex2f 54.57203892299107 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999267578125 -100
+gl glVertex2f 54.57216099330357 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9991455078125 -100
+gl glVertex2f 54.57228306361607 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9990234375 -100
+gl glVertex2f 54.57240513392857 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9989013671875 -100
+gl glVertex2f 54.57252720424107 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998779296875 -100
+gl glVertex2f 54.57264927455357 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9986572265625 -100
+gl glVertex2f 54.57277134486607 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99853515625 -100
+gl glVertex2f 54.57289341517857 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9984130859375 -100
+gl glVertex2f 54.57301548549107 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998291015625 -100
+gl glVertex2f 54.57313755580357 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9981689453125 -100
+gl glVertex2f 54.57325962611607 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998046875 -100
+gl glVertex2f 54.57338169642857 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9979248046875 -100
+gl glVertex2f 54.57350376674107 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997802734375 -100
+gl glVertex2f 54.57362583705357 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9976806640625 -100
+gl glVertex2f 54.57374790736607 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99755859375 -100
+gl glVertex2f 54.57386997767857 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9974365234375 -100
+gl glVertex2f 54.57399204799107 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997314453125 -100
+gl glVertex2f 54.57411411830357 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9971923828125 -100
+gl glVertex2f 54.57423618861607 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9970703125 -100
+gl glVertex2f 54.57435825892857 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-13
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.001953125 -100
+gl glVertex2f 54.56947544642857 116
+gl glVertex2f 408.498046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0018310546875 -100
+gl glVertex2f 54.56959751674107 116
+gl glVertex2f 408.4981689453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.001708984375 -100
+gl glVertex2f 54.56971958705357 116
+gl glVertex2f 408.498291015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0015869140625 -100
+gl glVertex2f 54.56984165736607 116
+gl glVertex2f 408.4984130859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.00146484375 -100
+gl glVertex2f 54.56996372767857 116
+gl glVertex2f 408.49853515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0013427734375 -100
+gl glVertex2f 54.57008579799107 116
+gl glVertex2f 408.4986572265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.001220703125 -100
+gl glVertex2f 54.57020786830357 116
+gl glVertex2f 408.498779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0010986328125 -100
+gl glVertex2f 54.57032993861607 116
+gl glVertex2f 408.4989013671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0009765625 -100
+gl glVertex2f 54.57045200892857 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0008544921875 -100
+gl glVertex2f 54.57057407924107 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.000732421875 -100
+gl glVertex2f 54.57069614955357 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0006103515625 -100
+gl glVertex2f 54.57081821986607 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.00048828125 -100
+gl glVertex2f 54.57094029017857 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0003662109375 -100
+gl glVertex2f 54.57106236049107 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.000244140625 -100
+gl glVertex2f 54.57118443080357 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0001220703125 -100
+gl glVertex2f 54.57130650111607 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38 -100
+gl glVertex2f 54.57142857142857 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9998779296875 -100
+gl glVertex2f 54.57155064174107 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999755859375 -100
+gl glVertex2f 54.57167271205357 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9996337890625 -100
+gl glVertex2f 54.57179478236607 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99951171875 -100
+gl glVertex2f 54.57191685267857 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9993896484375 -100
+gl glVertex2f 54.57203892299107 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999267578125 -100
+gl glVertex2f 54.57216099330357 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9991455078125 -100
+gl glVertex2f 54.57228306361607 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9990234375 -100
+gl glVertex2f 54.57240513392857 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9989013671875 -100
+gl glVertex2f 54.57252720424107 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998779296875 -100
+gl glVertex2f 54.57264927455357 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9986572265625 -100
+gl glVertex2f 54.57277134486607 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99853515625 -100
+gl glVertex2f 54.57289341517857 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9984130859375 -100
+gl glVertex2f 54.57301548549107 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998291015625 -100
+gl glVertex2f 54.57313755580357 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9981689453125 -100
+gl glVertex2f 54.57325962611607 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998046875 -100
+gl glVertex2f 54.57338169642857 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9979248046875 -100
+gl glVertex2f 54.57350376674107 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997802734375 -100
+gl glVertex2f 54.57362583705357 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9976806640625 -100
+gl glVertex2f 54.57374790736607 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99755859375 -100
+gl glVertex2f 54.57386997767857 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9974365234375 -100
+gl glVertex2f 54.57399204799107 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997314453125 -100
+gl glVertex2f 54.57411411830357 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9971923828125 -100
+gl glVertex2f 54.57423618861607 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9970703125 -100
+gl glVertex2f 54.57435825892857 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9969482421875 -100
+gl glVertex2f 54.57448032924107 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.996826171875 -100
+gl glVertex2f 54.57460239955357 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9967041015625 -100
+gl glVertex2f 54.57472446986607 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99658203125 -100
+gl glVertex2f 54.57484654017857 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9964599609375 -100
+gl glVertex2f 54.57496861049107 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.996337890625 -100
+gl glVertex2f 54.57509068080357 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9962158203125 -100
+gl glVertex2f 54.57521275111607 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99609375 -100
+gl glVertex2f 54.57533482142857 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-14
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0009765625 -100
+gl glVertex2f 54.57045200892857 116
+gl glVertex2f 408.4990234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0008544921875 -100
+gl glVertex2f 54.57057407924107 116
+gl glVertex2f 408.4991455078125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.000732421875 -100
+gl glVertex2f 54.57069614955357 116
+gl glVertex2f 408.499267578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0006103515625 -100
+gl glVertex2f 54.57081821986607 116
+gl glVertex2f 408.4993896484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.00048828125 -100
+gl glVertex2f 54.57094029017857 116
+gl glVertex2f 408.49951171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0003662109375 -100
+gl glVertex2f 54.57106236049107 116
+gl glVertex2f 408.4996337890625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.000244140625 -100
+gl glVertex2f 54.57118443080357 116
+gl glVertex2f 408.499755859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38.0001220703125 -100
+gl glVertex2f 54.57130650111607 116
+gl glVertex2f 408.4998779296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38 -100
+gl glVertex2f 54.57142857142857 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9998779296875 -100
+gl glVertex2f 54.57155064174107 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999755859375 -100
+gl glVertex2f 54.57167271205357 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9996337890625 -100
+gl glVertex2f 54.57179478236607 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99951171875 -100
+gl glVertex2f 54.57191685267857 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9993896484375 -100
+gl glVertex2f 54.57203892299107 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999267578125 -100
+gl glVertex2f 54.57216099330357 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9991455078125 -100
+gl glVertex2f 54.57228306361607 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9990234375 -100
+gl glVertex2f 54.57240513392857 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9989013671875 -100
+gl glVertex2f 54.57252720424107 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998779296875 -100
+gl glVertex2f 54.57264927455357 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9986572265625 -100
+gl glVertex2f 54.57277134486607 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99853515625 -100
+gl glVertex2f 54.57289341517857 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9984130859375 -100
+gl glVertex2f 54.57301548549107 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998291015625 -100
+gl glVertex2f 54.57313755580357 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9981689453125 -100
+gl glVertex2f 54.57325962611607 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998046875 -100
+gl glVertex2f 54.57338169642857 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9979248046875 -100
+gl glVertex2f 54.57350376674107 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997802734375 -100
+gl glVertex2f 54.57362583705357 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9976806640625 -100
+gl glVertex2f 54.57374790736607 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99755859375 -100
+gl glVertex2f 54.57386997767857 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9974365234375 -100
+gl glVertex2f 54.57399204799107 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997314453125 -100
+gl glVertex2f 54.57411411830357 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9971923828125 -100
+gl glVertex2f 54.57423618861607 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9970703125 -100
+gl glVertex2f 54.57435825892857 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9969482421875 -100
+gl glVertex2f 54.57448032924107 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.996826171875 -100
+gl glVertex2f 54.57460239955357 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9967041015625 -100
+gl glVertex2f 54.57472446986607 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99658203125 -100
+gl glVertex2f 54.57484654017857 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9964599609375 -100
+gl glVertex2f 54.57496861049107 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.996337890625 -100
+gl glVertex2f 54.57509068080357 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9962158203125 -100
+gl glVertex2f 54.57521275111607 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99609375 -100
+gl glVertex2f 54.57533482142857 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9959716796875 -100
+gl glVertex2f 54.57545689174107 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.995849609375 -100
+gl glVertex2f 54.57557896205357 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9957275390625 -100
+gl glVertex2f 54.57570103236607 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99560546875 -100
+gl glVertex2f 54.57582310267857 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9954833984375 -100
+gl glVertex2f 54.57594517299107 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.995361328125 -100
+gl glVertex2f 54.57606724330357 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9952392578125 -100
+gl glVertex2f 54.57618931361607 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9951171875 -100
+gl glVertex2f 54.57631138392857 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-snap-15
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -38 -100
+gl glVertex2f 54.57142857142857 116
+gl glVertex2f 408.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9998779296875 -100
+gl glVertex2f 54.57155064174107 116
+gl glVertex2f 408.5001220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999755859375 -100
+gl glVertex2f 54.57167271205357 116
+gl glVertex2f 408.500244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9996337890625 -100
+gl glVertex2f 54.57179478236607 116
+gl glVertex2f 408.5003662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99951171875 -100
+gl glVertex2f 54.57191685267857 116
+gl glVertex2f 408.50048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9993896484375 -100
+gl glVertex2f 54.57203892299107 116
+gl glVertex2f 408.5006103515625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.999267578125 -100
+gl glVertex2f 54.57216099330357 116
+gl glVertex2f 408.500732421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9991455078125 -100
+gl glVertex2f 54.57228306361607 116
+gl glVertex2f 408.5008544921875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9990234375 -100
+gl glVertex2f 54.57240513392857 116
+gl glVertex2f 408.5009765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9989013671875 -100
+gl glVertex2f 54.57252720424107 116
+gl glVertex2f 408.5010986328125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998779296875 -100
+gl glVertex2f 54.57264927455357 116
+gl glVertex2f 408.501220703125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9986572265625 -100
+gl glVertex2f 54.57277134486607 116
+gl glVertex2f 408.5013427734375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99853515625 -100
+gl glVertex2f 54.57289341517857 116
+gl glVertex2f 408.50146484375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9984130859375 -100
+gl glVertex2f 54.57301548549107 116
+gl glVertex2f 408.5015869140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998291015625 -100
+gl glVertex2f 54.57313755580357 116
+gl glVertex2f 408.501708984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9981689453125 -100
+gl glVertex2f 54.57325962611607 116
+gl glVertex2f 408.5018310546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.998046875 -100
+gl glVertex2f 54.57338169642857 116
+gl glVertex2f 408.501953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9979248046875 -100
+gl glVertex2f 54.57350376674107 116
+gl glVertex2f 408.5020751953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997802734375 -100
+gl glVertex2f 54.57362583705357 116
+gl glVertex2f 408.502197265625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9976806640625 -100
+gl glVertex2f 54.57374790736607 116
+gl glVertex2f 408.5023193359375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99755859375 -100
+gl glVertex2f 54.57386997767857 116
+gl glVertex2f 408.50244140625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9974365234375 -100
+gl glVertex2f 54.57399204799107 116
+gl glVertex2f 408.5025634765625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.997314453125 -100
+gl glVertex2f 54.57411411830357 116
+gl glVertex2f 408.502685546875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9971923828125 -100
+gl glVertex2f 54.57423618861607 116
+gl glVertex2f 408.5028076171875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9970703125 -100
+gl glVertex2f 54.57435825892857 116
+gl glVertex2f 408.5029296875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9969482421875 -100
+gl glVertex2f 54.57448032924107 116
+gl glVertex2f 408.5030517578125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.996826171875 -100
+gl glVertex2f 54.57460239955357 116
+gl glVertex2f 408.503173828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9967041015625 -100
+gl glVertex2f 54.57472446986607 116
+gl glVertex2f 408.5032958984375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99658203125 -100
+gl glVertex2f 54.57484654017857 116
+gl glVertex2f 408.50341796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9964599609375 -100
+gl glVertex2f 54.57496861049107 116
+gl glVertex2f 408.5035400390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.996337890625 -100
+gl glVertex2f 54.57509068080357 116
+gl glVertex2f 408.503662109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9962158203125 -100
+gl glVertex2f 54.57521275111607 116
+gl glVertex2f 408.5037841796875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99609375 -100
+gl glVertex2f 54.57533482142857 116
+gl glVertex2f 408.50390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9959716796875 -100
+gl glVertex2f 54.57545689174107 116
+gl glVertex2f 408.5040283203125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.995849609375 -100
+gl glVertex2f 54.57557896205357 116
+gl glVertex2f 408.504150390625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9957275390625 -100
+gl glVertex2f 54.57570103236607 116
+gl glVertex2f 408.5042724609375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99560546875 -100
+gl glVertex2f 54.57582310267857 116
+gl glVertex2f 408.50439453125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9954833984375 -100
+gl glVertex2f 54.57594517299107 116
+gl glVertex2f 408.5045166015625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.995361328125 -100
+gl glVertex2f 54.57606724330357 116
+gl glVertex2f 408.504638671875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9952392578125 -100
+gl glVertex2f 54.57618931361607 116
+gl glVertex2f 408.5047607421875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9951171875 -100
+gl glVertex2f 54.57631138392857 116
+gl glVertex2f 408.5048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9949951171875 -100
+gl glVertex2f 54.57643345424107 116
+gl glVertex2f 408.5050048828125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.994873046875 -100
+gl glVertex2f 54.57655552455357 116
+gl glVertex2f 408.505126953125 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9947509765625 -100
+gl glVertex2f 54.57667759486607 116
+gl glVertex2f 408.5052490234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.99462890625 -100
+gl glVertex2f 54.57679966517857 116
+gl glVertex2f 408.50537109375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9945068359375 -100
+gl glVertex2f 54.57692173549107 116
+gl glVertex2f 408.5054931640625 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.994384765625 -100
+gl glVertex2f 54.57704380580357 116
+gl glVertex2f 408.505615234375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.9942626953125 -100
+gl glVertex2f 54.57716587611607 116
+gl glVertex2f 408.5057373046875 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -37.994140625 -100
+gl glVertex2f 54.57728794642857 116
+gl glVertex2f 408.505859375 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

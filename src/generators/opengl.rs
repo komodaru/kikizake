@@ -1634,4 +1634,23 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // a sloped left edge through (8.5 + p / 1024, 8.5) with far vertices, swept by 1/8192: where
+    // Windows rounds vertices with other fractions of 1/256 (tri-fine-5: the slope-1/3 line
+    // moves 2/8192 later than rounding half down would have it)
+    let mut k = 0;
+    for sl in [1.0 / 3.0, 1.0 / 5.0, 2.0 / 3.0, 3.0 / 7.0] {
+        for p in 0..4 {
+            writeln!(s, "case tri-snap-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+            for j in -24..=24 {
+                let d = f64::from(p) / 1024.0 + f64::from(j) / 8192.0;
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+                for (x, y) in [(8.5 - 108.5 * sl + d, -100.0), (8.5 + 107.5 * sl + d, 116.0), (408.5 + d, 8.0)] {
+                    glf(s, "glVertex2f", &[x, y]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+            writeln!(s, "glerr\nend").unwrap();
+            k += 1;
+        }
+    }
 }
