@@ -501,7 +501,13 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             n => {
                 let [vx, vy, vw, vh, _, _] = vp;
                 let whole = [vx, vy, vx + vw, vy + vh].iter().all(|v| v.fract() == 0.0);
-                if !whole || !matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) || d.rast[0] == 2 || r.d.q != 0 {
+                // (MEASURED, WARP: probe-rt-ms4-lines) aliased lines (neither line state) light
+                // every sample of the pixels they light
+                let aliased_lines = matches!(topo, Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj) && d.rast[8] == 0 && d.rast[9] == 0 && r.samples.iter().all(Option::is_none);
+                if aliased_lines && whole && r.d.q == 0 {
+                    hit(clause::D3DRASTER_MS_LINES);
+                }
+                if !whole || !(aliased_lines || matches!(topo, Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj) && d.rast[0] != 2) || r.d.q != 0 {
                     return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                 }
                 Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
@@ -1363,6 +1369,8 @@ impl Filter {
             0x04 | 0x05 => Some(Filter { min: false, mag: true }),
             0x10 | 0x11 => Some(Filter { min: true, mag: false }),
             0x14 | 0x15 => Some(Filter { min: true, mag: true }),
+            // (anisotropic: as linear where it magnifies, D3DRASTER.FILTER.ANISO)
+            0x55 => Some(Filter { min: true, mag: true }),
             _ => None,
         }
     }
@@ -1515,8 +1523,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let filter = Filter::of(s[0]).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
             // pixel spans, as the 2 x 2 quad's differences give them)
-            let linear = if filter.min == filter.mag && r.d.mips == 1 {
-                filter.mag
+            // (a view of its own range of levels: not measured)
+            if r.d.mips > 1 && !(v.words.get(1) == Some(&4) && v.words.get(2) == Some(&0) && v.words.get(3).is_some_and(|&n| n == r.d.mips || n == u32::MAX)) {
+                return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+            }
+            let aniso = s[0] == 0x55;
+            let (linear, level) = if filter.min == filter.mag && r.d.mips == 1 && !aniso {
+                (filter.mag, 0)
             } else {
                 let (qx, qy) = (px & !1, py & !1);
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
@@ -1527,17 +1540,33 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // more than one mip level the level is not measured
                 if rho <= 1.0 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
-                    filter.mag
+                    if aniso {
+                        // (MEASURED, WARP: probe-filter-aniso) anisotropic filtering where a quad
+                        // spans a texel or less is the linear filter
+                        hit(clause::D3DRASTER_FILTER_ANISO);
+                    }
+                    (filter.mag, 0)
+                } else if aniso {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 } else if r.d.mips == 1 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
-                    filter.min
+                    (filter.min, 0)
                 } else {
-                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                    // (MEASURED, WARP: probe-filter-mips) past one texel the level is log2 of the
+                    // span: a whole level of it samples that level alone (mip point or linear);
+                    // between levels not measured
+                    let lod = rho.log2();
+                    if lod.fract() != 0.0 && lod < f64::from(r.d.mips - 1) {
+                        return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                    }
+                    hit(clause::D3DRASTER_FILTER_LEVEL);
+                    (filter.min, (lod as u32).min(r.d.mips - 1))
                 }
             };
+            let (w, h, _) = r.size(level);
             let at = |i: i64, j: i64| -> Res<[u32; 4]> {
                 match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
-                    (Some(x), Some(y)) => texel(r, 0, v.format(), x as u32, y as u32),
+                    (Some(x), Some(y)) => texel(r, level, v.format(), x as u32, y as u32),
                     _ => {
                         hit(clause::D3DRASTER_BORDER);
                         Ok([0; 4])
@@ -1557,11 +1586,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 (i as i64, ((s - i) * 256.0).floor() as i64)
             };
             let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
-            // (MEASURED, WARP: probe-filter-float, -unorm16, 2048 values) float texels and
-            // 16-bit UNORM ones (as their floats): in f32, between the rows first, l = a + (c -
+            // (MEASURED, WARP: probe-filter-float, -unorm16, -srgb, -snorm, every value) float
+            // texels, 16-bit UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
             // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
             // 1/256 below the fraction
-            let wide = format(v.format()).is_some_and(|f| f.num == Num::Float || f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16));
+            let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16));
             if wide {
                 hit(clause::D3DRASTER_FILTER_FLOAT);
                 let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);

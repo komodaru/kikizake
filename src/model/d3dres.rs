@@ -365,16 +365,18 @@ impl D3dres {
                     return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
                 };
                 let w = srb.min(drb);
-                // (MEASURED, WARP: probe-rt-ms*-edges, probe-rt-ms4-colors-*) samples that differ
-                // resolve to their mean: of 8-bit UNORM bytes as integers rounded half up,
-                // (sum + n / 2) / n; of 32-bit floats in f32
+                // (MEASURED, WARP: probe-rt-ms*-edges, probe-rt-ms4-colors-*, -unorm16) samples
+                // that differ resolve to their mean: of 8-bit UNORM bytes as integers rounded half
+                // up, (sum + n / 2) / n; of 16-bit UNORM as floats (v / 65535 in f32, summed, / n)
+                // times 65535 rounded half to even; of 32-bit floats in f32
                 if let Some(Some(samp)) = src.samples.get(ss as usize) {
                     hit(clause::D3DRES_RESOLVE_MEAN);
                     let f = format(f).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
                     let el = (f.bits / 8) as usize;
                     let bytes = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 8);
+                    let words = f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16);
                     let floats = f.num == Num::Float && f.comps.iter().all(|&c| c == 32);
-                    if !bytes && !floats {
+                    if !bytes && !words && !floats {
                         return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
                     }
                     let (n, plane) = (src.d.count as usize, sv.len());
@@ -385,6 +387,11 @@ impl D3dres {
                                 (0..el).map(|i| {
                                     let sum: usize = (0..n).map(|k| usize::from(samp[at(k) + i])).sum();
                                     u8::try_from((sum + n / 2) / n).unwrap_or(u8::MAX)
+                                }).collect()
+                            } else if words {
+                                (0..el / 2).flat_map(|i| {
+                                    let mean = (0..n).fold(0f32, |a, k| a + f32::from(u16::from_le_bytes([samp[at(k) + 2 * i], samp[at(k) + 2 * i + 1]])) / 65535.0) / n as f32;
+                                    ((mean * 65535.0).round_ties_even() as u16).to_le_bytes()
                                 }).collect()
                             } else {
                                 (0..el / 4).flat_map(|i| {
