@@ -689,9 +689,15 @@ impl Target<'_> {
     /// a depth in the clip volume's [0, 1] onto the viewport's range
     fn depth(&self, z: f32) -> f32 {
         let [_, _, _, _, minz, maxz] = self.vp;
+        self.clamp_depth(minz + z * (maxz - minz))
+    }
+
+    /// a depth onto the viewport's range, clamped
+    fn clamp_depth(&self, z: f32) -> f32 {
+        let [_, _, _, _, minz, maxz] = self.vp;
         let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
         // (max and min, not clamp: a range of NaN leaves the value)
-        (minz + z * (maxz - minz)).max(lo).min(hi)
+        z.max(lo).min(hi)
     }
 
     fn put(&self, m: &mut D3dres, d: &Draw, (px, py): (i64, i64), z: f32, out: [u32; 4]) -> Res<()> {
@@ -835,7 +841,8 @@ struct Line {
     w: Option<f32>,
     /// |dy| > |dx|: the y-major diamond (its right corner in)
     ymaj: bool,
-    z: f32,
+    /// the ends' depths on the viewport's range, minz + z (1/w) (maxz - minz), not clamped
+    z: [f32; 2],
 }
 
 /// the diamond of half-diagonal 1/2 pixel, in 1/256
@@ -1030,7 +1037,7 @@ impl Line {
         // the triangles are given, not turned
         let iw = t.map(|v| if v.1 { self.iwb } else { self.iwa });
         let aw = [0, 1, 2].map(|i| (if t[i].1 { self.cb } else { self.ca }).map(|a| a * iw[i]));
-        (mask, Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw, zs: [self.z; 3] }))
+        (mask, Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw, zs: [self.z[0]; 3] }))
     }
 
     /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels;
@@ -1038,17 +1045,29 @@ impl Line {
     /// the major axis for 1/w and for each channel's c/w, g = 1 / (b - a), the gradient
     /// (vb - va) g, C = va - gradient a, the value C + gradient c at the pixel center, in f32;
     /// the channel's value times 1 / (the value of 1/w)
-    fn color(&self, (px, py): (i64, i64)) -> [f32; 4] {
+    fn color(&self, px: (i64, i64)) -> [f32; 4] {
+        let q = 1.0 / self.plane(px, self.iwa, self.iwb);
+        [0, 1, 2, 3].map(|k| self.plane(px, self.ca[k] * self.iwa, self.cb[k] * self.iwb) * q)
+    }
+
+    /// a value along the major axis at the pixel center, as for the color
+    fn plane(&self, (px, py): (i64, i64), va: f32, vb: f32) -> f32 {
         let (a, b, c) = if self.ymaj { (self.a.y, self.b.y, py as f32 + 0.5) } else { (self.a.x, self.b.x, px as f32 + 0.5) };
         let (a, b) = (a as f32 / 256.0, b as f32 / 256.0);
         let g = 1.0 / (b - a);
-        let plane = |va: f32, vb: f32| {
-            let grad = (vb - va) * g;
-            let c0 = va - grad * a;
-            c0 + grad * c
-        };
-        let q = 1.0 / plane(self.iwa, self.iwb);
-        [0, 1, 2, 3].map(|k| plane(self.ca[k] * self.iwa, self.cb[k] * self.iwb) * q)
+        let grad = (vb - va) * g;
+        let c0 = va - grad * a;
+        c0 + grad * c
+    }
+
+    /// (MEASURED, WARP: probe-line-clip-z) the depth along the line: the ends' depths planed
+    /// over the major axis as the color (no perspective), clamped to the viewport's range
+    fn depth(&self, tg: &Target, px: (i64, i64)) -> f32 {
+        if self.z[0] == self.z[1] {
+            return tg.clamp_depth(self.z[0]);
+        }
+        hit(clause::D3DRASTER_LINE_DEPTH);
+        tg.clamp_depth(self.plane(px, self.z[0], self.z[1]))
     }
 }
 
@@ -1081,6 +1100,39 @@ fn clip_line(mut a: Vert, mut b: Vert) -> Option<(Vert, Vert)> {
     Some((a, b))
 }
 
+/// a line clipped to 0 <= z <= w, as clip_line; None when wholly out
+fn clip_line_z(mut a: Vert, mut b: Vert) -> Option<(Vert, Vert)> {
+    for plane in [ZPlane::Near, ZPlane::Far] {
+        let dist = |q: &Vert| match plane {
+            ZPlane::Near => q.pos[2],
+            ZPlane::Far => q.pos[3] - q.pos[2],
+        };
+        let (da, db) = (dist(&a), dist(&b));
+        match (da >= 0.0, db >= 0.0) {
+            (false, false) => return None,
+            (true, true) => continue,
+            (ina, _) => {
+                let t = da / (da - db);
+                let lerp = |p: [f32; 4], q: [f32; 4]| [0, 1, 2, 3].map(|k| p[k] + (q[k] - p[k]) * t);
+                let v = Vert { pos: lerp(a.pos, b.pos), color: lerp(a.color, b.color) };
+                if ina {
+                    b = v;
+                } else {
+                    a = v;
+                }
+            }
+        }
+    }
+    Some((a, b))
+}
+
+/// the depth range's planes
+#[derive(Clone, Copy)]
+enum ZPlane {
+    Near,
+    Far,
+}
+
 /// the lines of one draw (line lists and strips, the edges of wireframe triangles), in order
 fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<()> {
     if segs.is_empty() {
@@ -1094,19 +1146,33 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         drawable_w(&s.b)?;
         let (za, zb) = (s.a.pos[2] / s.a.pos[3], s.b.pos[2] / s.b.pos[3]);
         let inside = |z: f32| (0.0..=1.0).contains(&z);
-        if d.rast[6] != 0 && !(inside(za) && inside(zb)) {
-            if za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0 {
-                hit(clause::D3DRASTER_DEPTHCLIP);
-                continue;
-            }
-            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPZ));
+        let zclip = d.rast[6] != 0 && !(inside(za) && inside(zb));
+        if zclip && (za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0) {
+            hit(clause::D3DRASTER_DEPTHCLIP);
+            continue;
         }
-        if za != zb {
+        // (a depth that varies along a multisample or antialiased line: not measured)
+        if za != zb && !matches!(mode, LineMode::Aliased) {
             return Err(Fail::Unmodeled(open::D3DRASTER_INTERP));
         }
-        let Some((a, b)) = clip_line(s.a, s.b) else {
+        // (MEASURED, WARP: probe-line-clip-z) a line across the depth range is cut where it
+        // leaves it (0 <= z <= w), as clip_line
+        let (sa, sb) = if zclip {
+            hit(clause::D3DRASTER_CLIPZ_LINE);
+            match clip_line_z(s.a, s.b) {
+                Some(v) => v,
+                None => continue,
+            }
+        } else {
+            (s.a, s.b)
+        };
+        let Some((a, b)) = clip_line(sa, sb) else {
             hit(clause::D3DRASTER_CLIP);
             continue;
+        };
+        let zs = |v: &Vert| {
+            let [_, _, _, _, minz, maxz] = tg.vp;
+            minz + v.pos[2] * (1.0 / v.pos[3]) * (maxz - minz)
         };
         let (pa, pb) = (snapped(tg.vp, &a.pos), snapped(tg.vp, &b.pos));
         if pa == pb {
@@ -1115,7 +1181,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
             continue;
         }
         let ymaj = (pb.y - pa.y).abs() > (pb.x - pa.x).abs();
-        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: (a.pos[3] == b.pos[3]).then_some(a.pos[3]), ymaj, z: tg.depth(za) });
+        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: (a.pos[3] == b.pos[3]).then_some(a.pos[3]), ymaj, z: [zs(&a), zs(&b)] });
     }
     let center = |(px, py): (i64, i64)| (i128::from(px) * 256 + 128, i128::from(py) * 256 + 128);
     for l in &ls {
@@ -1157,11 +1223,12 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                         l.color((px, py)).map(f32::to_bits)
                     }
                     ("ps", Some(p)) => p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits),
-                    _ => prim_out(ps, l.lead, (px, py), l.z, l.w, l.prim, l.front)?,
+                    _ => prim_out(ps, l.lead, (px, py), l.depth(tg, (px, py)), l.w, l.prim, l.front)?,
                 };
+                let z = l.depth(tg, (px, py));
                 match mask {
-                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(l.z), out, &mask)?,
-                    None => tg.put(m, d, (px, py), l.z, out)?,
+                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), out, &mask)?,
+                    None => tg.put(m, d, (px, py), z, out)?,
                 }
             }
         }

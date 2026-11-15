@@ -1040,6 +1040,15 @@ fn probes(s: &mut String, dev: &str) {
     writeln!(s, "draw 2 2 32").unwrap();
     read_rt(s, 0, 2, 16, 16);
     writeln!(s, "end").unwrap();
+    // depths that vary along unclipped lines, x-major and y-major, w = 1 and not
+    begin(s, dev, "probe-line-z", 16, 16, 2, "pspos");
+    vertex(s, 0.75, 1.25, 0.125, [1.0; 4], 16.0, 16.0);
+    vertex(s, 15.25, 6.5, 0.875, [1.0; 4], 16.0, 16.0);
+    vertex(s, 3.25, 7.5, 0.9, [1.0; 4], 16.0, 16.0);
+    vertex(s, 9.75, 15.5, 0.05, [1.0; 4], 16.0, 16.0);
+    writeln!(s, "draw 2 4 32").unwrap();
+    read_rt(s, 0, 2, 16, 16);
+    writeln!(s, "end").unwrap();
     begin(s, dev, "probe-clip-z-pos", 16, 16, 2, "pspos");
     tri(s, [-0.5, 0.5, 1.5], one);
     writeln!(s, "draw 4 3 32").unwrap();
