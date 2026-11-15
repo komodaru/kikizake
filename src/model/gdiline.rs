@@ -495,6 +495,13 @@ fn op_device(g: &mut Gdi, k: i64, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             out.push("ret 1".into());
         }
+        "ellipse" if sl.ext.arcdir == 1 && !matches!(sl.ext.pen, Pen::Null) => {
+            let p = points(op, 2)?;
+            let [a, b] = p[..] else { return Err(Fail::Bad) };
+            let filled = !matches!(sl.brush, super::gdi::Brush::Null);
+            super::gdipath::ellipse_shape(sl, a, b, filled)?;
+            out.push("ret 1".into());
+        }
         "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
         "polybezier" | "polybezierto" => {
             let pts = points(op, 2)?;

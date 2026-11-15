@@ -191,8 +191,9 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let [a, b] = pts[..] else { return Err(Fail::Bad) };
             let (l, r) = (a.0.min(b.0), a.0.max(b.0));
             let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
-            if r - l < 3 || bt - t < 3 {
-                // (an ellipse of 2 pixels or less across: not measured yet)
+            if r == l || bt == t {
+                // (an empty box: FillPath and StrokeAndFillPath succeed over it drawing nothing,
+                // curve-57 curve-63; its figure not measured)
                 return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
             }
             // MEASURED: four Béziers in 28.4 around (l, t) - (r - 1, b - 1), from the right
@@ -278,6 +279,64 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         _ => return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
     }
     Ok(true)
+}
+
+/// StrokePath's lines (MEASURED): the flattened path's lines in 28.4 (GDI.LINE.GIQ; whole points
+/// give the integer lines), each figure closed where PT_CLOSEFIGURE says
+fn stroke(sl: &mut Slot, p: &[Pt]) -> Res<()> {
+    let fix = |q: &Pt| Fix28(i64::from(q.x.0), i64::from(q.y.0));
+    let mut fig_start = Fix28(0, 0);
+    let mut prev = Fix28(0, 0);
+    for q in &flatten(p)? {
+        let at = fix(q);
+        match q.kind {
+            Kind::Move => fig_start = at,
+            Kind::Bezier => return Err(Fail::Bad),
+            Kind::Line => {
+                sl.line_fix(prev, at)?;
+                if q.close {
+                    sl.line_fix(at, fig_start)?;
+                }
+            }
+        }
+        prev = at;
+    }
+    Ok(())
+}
+
+/// Ellipse outside a path (MEASURED, GDI.SHAPE.ELLIPSEPEN, lines ellipse-frame-* 169 of 169,
+/// ellipse-both-* 169 of 169): the path's Ellipse (counterclockwise), with the null brush
+/// stroked as StrokePath strokes it, else filled and outlined as StrokeAndFillPath does
+pub fn ellipse_shape(sl: &mut Slot, a: (i32, i32), b: (i32, i32), filled: bool) -> Res<()> {
+    let (l, r) = (a.0.min(b.0), a.0.max(b.0));
+    let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
+    if r == l || bt == t || ((a.0 > b.0 || a.1 > b.1) && (r - l < 2 || bt - t < 2)) {
+        // (empty boxes, and inverted boxes one pixel thin (random-34): not measured outside a path)
+        return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE));
+    }
+    hit(clause::GDI_SHAPE_ELLIPSEPEN);
+    let c = ellipse_points(l, t, r, bt, false);
+    let mut p = vec![Pt::fix(c[0], Kind::Move)];
+    for q in &c[1..] {
+        p.push(Pt::fix(*q, Kind::Bezier));
+    }
+    if let Some(last) = p.last_mut() {
+        last.close = true;
+    }
+    if !filled {
+        return stroke(sl, &p);
+    }
+    let figs = figures(&p)?;
+    for q in super::rgn::fix_polygon_pixels(&figs, sl.ext.polyfill == 2).rects() {
+        sl.fill_shape(q.0, q.1, q.2, q.3)?;
+    }
+    for f in &figs {
+        for i in 0..f.len() {
+            let (a, b) = (f[i], f[(i + 1) % f.len()]);
+            sl.line_fix(Fix28(i64::from(a.0), i64::from(a.1)), Fix28(i64::from(b.0), i64::from(b.1)))?;
+        }
+    }
+    Ok(())
 }
 
 /// Ellipse's 13 points in 28.4 (GDI.PATH.ELLIPSE): four Béziers around (l, t) - (r - 1, b - 1)
@@ -547,25 +606,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push("strokepath 0".into());
                 return Ok(true);
             };
-            // MEASURED: the flattened path's lines in 28.4 (GDI.LINE.GIQ; whole points give the
-            // integer lines), each figure closed where PT_CLOSEFIGURE says
-            let fix = |q: &Pt| Fix28(i64::from(q.x.0), i64::from(q.y.0));
-            let mut fig_start = Fix28(0, 0);
-            let mut prev = Fix28(0, 0);
-            for q in &flatten(&p)? {
-                let at = fix(q);
-                match q.kind {
-                    Kind::Move => fig_start = at,
-                    Kind::Bezier => return Err(Fail::Bad),
-                    Kind::Line => {
-                        sl.line_fix(prev, at)?;
-                        if q.close {
-                            sl.line_fix(at, fig_start)?;
-                        }
-                    }
-                }
-                prev = at;
-            }
+            stroke(sl, &p)?;
             true
         }
         "fillpath" | "strokefill" | "selclippath" | "pathrgn" => {
@@ -614,7 +655,19 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             if t0 == "strokefill" {
                 // (StrokeAndFillPath: the outline of every figure, closed)
-                let Some(figs) = ints else { return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)) };
+                let Some(figs) = ints else {
+                    // (between pixels: each figure's closed outline in 28.4, GDI.LINE.GIQ, as
+                    // StrokePath draws a curve's lines)
+                    hit(clause::GDI_PATH_STROKEFILLFIX);
+                    for f in &figs {
+                        for i in 0..f.len() {
+                            let (a, b) = (f[i], f[(i + 1) % f.len()]);
+                            sl.line_fix(Fix28(i64::from(a.0), i64::from(a.1)), Fix28(i64::from(b.0), i64::from(b.1)))?;
+                        }
+                    }
+                    out.push(format!("{t0} 1"));
+                    return Ok(true);
+                };
                 for f in &figs {
                     for i in 0..f.len() {
                         sl.line(f[i], f[(i + 1) % f.len()])?;
