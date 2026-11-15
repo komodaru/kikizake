@@ -252940,4 +252940,3844 @@ dwgdiglyph hr 00000000
 glyph adv 3471 lsb 0 rsb 1706 tsb 3481 advh 5236 bsb 0 voy 5236
 dwgdiglyph hr 00000000
 glyph adv 3501 lsb 0 rsb 1750 tsb 3501 advh 5251 bsb 0 voy 5251
+case gdivadvp-10-1-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -2457 advh 1638 bsb 0 voy 1639
+case gdivadvp-10-1-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -2101 advh 1401 bsb 0 voy 1401
+case gdivadvp-10-1-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -1802 advh 1201 bsb 0 voy 1201
+case gdivadvp-10-1-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -1501 advh 1001 bsb 0 voy 1001
+case gdivadvp-10-1-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -2457 advh 1638 bsb 0 voy 1639
+case gdivadvp-10-1-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -2101 advh 1401 bsb 0 voy 1401
+case gdivadvp-10-1-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -1802 advh 1201 bsb 0 voy 1201
+case gdivadvp-10-1-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -1501 advh 1001 bsb 0 voy 1001
+case gdivadvp-10-2-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -2457 advh 3277 bsb 1638 voy 1639
+case gdivadvp-10-2-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -2101 advh 2802 bsb 1401 voy 1401
+case gdivadvp-10-2-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -1802 advh 2402 bsb 1201 voy 1201
+case gdivadvp-10-2-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -1501 advh 2001 bsb 1001 voy 1001
+case gdivadvp-10-2-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -2457 advh 3277 bsb 1638 voy 1639
+case gdivadvp-10-2-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -2101 advh 2802 bsb 1401 voy 1401
+case gdivadvp-10-2-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -1802 advh 2402 bsb 1201 voy 1201
+case gdivadvp-10-2-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -1501 advh 2001 bsb 1001 voy 1001
+case gdivadvp-10-3-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -819 advh 4915 bsb 1639 voy 3277
+case gdivadvp-10-3-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -700 advh 4203 bsb 1401 voy 2802
+case gdivadvp-10-3-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -601 advh 3603 bsb 1201 voy 2402
+case gdivadvp-10-3-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -500 advh 3002 bsb 1001 voy 2001
+case gdivadvp-10-3-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -819 advh 4915 bsb 1639 voy 3277
+case gdivadvp-10-3-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -700 advh 4203 bsb 1401 voy 2802
+case gdivadvp-10-3-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -601 advh 3603 bsb 1201 voy 2402
+case gdivadvp-10-3-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -500 advh 3002 bsb 1001 voy 2001
+case gdivadvp-10-4-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb -819 advh 6554 bsb 3277 voy 3277
+case gdivadvp-10-4-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb -700 advh 5604 bsb 2802 voy 2802
+case gdivadvp-10-4-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb -601 advh 4804 bsb 2402 voy 2402
+case gdivadvp-10-4-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb -500 advh 4003 bsb 2001 voy 2001
+case gdivadvp-10-4-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 819 advh 6554 bsb 1638 voy 4915
+case gdivadvp-10-4-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 700 advh 5604 bsb 1401 voy 4203
+case gdivadvp-10-4-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 601 advh 4804 bsb 1201 voy 3603
+case gdivadvp-10-4-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 500 advh 4003 bsb 1001 voy 3002
+case gdivadvp-10-5-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 819 advh 8192 bsb 3277 voy 4915
+case gdivadvp-10-5-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 700 advh 7005 bsb 2802 voy 4203
+case gdivadvp-10-5-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 601 advh 6006 bsb 2402 voy 3603
+case gdivadvp-10-5-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 500 advh 5004 bsb 2001 voy 3002
+case gdivadvp-10-5-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 819 advh 8192 bsb 3277 voy 4915
+case gdivadvp-10-5-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 700 advh 7005 bsb 2802 voy 4203
+case gdivadvp-10-5-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 601 advh 6006 bsb 2402 voy 3603
+case gdivadvp-10-5-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 500 advh 5004 bsb 2001 voy 3002
+case gdivadvp-10-6-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 2458 advh 9830 bsb 3277 voy 6554
+case gdivadvp-10-6-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 2101 advh 8405 bsb 2802 voy 5604
+case gdivadvp-10-6-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 1802 advh 7206 bsb 2402 voy 4804
+case gdivadvp-10-6-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 1501 advh 6004 bsb 2001 voy 4003
+case gdivadvp-10-6-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 2458 advh 9830 bsb 3277 voy 6554
+case gdivadvp-10-6-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 2101 advh 8405 bsb 2802 voy 5604
+case gdivadvp-10-6-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 1802 advh 7206 bsb 2402 voy 4804
+case gdivadvp-10-6-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 1501 advh 6004 bsb 2001 voy 4003
+case gdivadvp-10-7-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 2458 advh 11469 bsb 4915 voy 6554
+case gdivadvp-10-7-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 2101 advh 9806 bsb 4203 voy 5604
+case gdivadvp-10-7-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 1802 advh 8408 bsb 3603 voy 4804
+case gdivadvp-10-7-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 1501 advh 7005 bsb 3002 voy 4003
+case gdivadvp-10-7-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 2458 advh 11469 bsb 4915 voy 6554
+case gdivadvp-10-7-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 2101 advh 9806 bsb 4203 voy 5604
+case gdivadvp-10-7-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 1802 advh 8408 bsb 3603 voy 4804
+case gdivadvp-10-7-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 1501 advh 7005 bsb 3002 voy 4003
+case gdivadvp-10-8-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 4096 advh 13107 bsb 4915 voy 8192
+case gdivadvp-10-8-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 3502 advh 11207 bsb 4203 voy 7005
+case gdivadvp-10-8-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 3003 advh 9609 bsb 3603 voy 6006
+case gdivadvp-10-8-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 2502 advh 8006 bsb 3002 voy 5004
+case gdivadvp-10-8-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 4096 advh 13107 bsb 4915 voy 8192
+case gdivadvp-10-8-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 3502 advh 11207 bsb 4203 voy 7005
+case gdivadvp-10-8-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 3003 advh 9609 bsb 3603 voy 6006
+case gdivadvp-10-8-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 2502 advh 8006 bsb 3002 voy 5004
+case gdivadvp-10-9-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 4096 advh 14746 bsb 6554 voy 8192
+case gdivadvp-10-9-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 3502 advh 12608 bsb 5604 voy 7005
+case gdivadvp-10-9-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 3003 advh 10810 bsb 4804 voy 6006
+case gdivadvp-10-9-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 2502 advh 9006 bsb 4003 voy 5004
+case gdivadvp-10-9-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 5735 advh 14746 bsb 4915 voy 9831
+case gdivadvp-10-9-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 4903 advh 12608 bsb 4203 voy 8405
+case gdivadvp-10-9-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 4204 advh 10810 bsb 3603 voy 7207
+case gdivadvp-10-9-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 3503 advh 9006 bsb 3002 voy 6004
+case gdivadvp-10-10-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 5735 advh 16384 bsb 6554 voy 9831
+case gdivadvp-10-10-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 4903 advh 14009 bsb 5604 voy 8405
+case gdivadvp-10-10-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 4204 advh 12011 bsb 4804 voy 7207
+case gdivadvp-10-10-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 3503 advh 10007 bsb 4003 voy 6004
+case gdivadvp-10-10-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 5735 advh 16384 bsb 6554 voy 9831
+case gdivadvp-10-10-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 4903 advh 14009 bsb 5604 voy 8405
+case gdivadvp-10-10-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 4204 advh 12011 bsb 4804 voy 7207
+case gdivadvp-10-10-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 3503 advh 10007 bsb 4003 voy 6004
+case gdivadvp-10-11-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 7373 advh 18022 bsb 6554 voy 11469
+case gdivadvp-10-11-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 6304 advh 15410 bsb 5604 voy 9806
+case gdivadvp-10-11-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 5405 advh 13212 bsb 4804 voy 8408
+case gdivadvp-10-11-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 4503 advh 11008 bsb 4003 voy 7005
+case gdivadvp-10-11-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 7373 advh 18022 bsb 6554 voy 11469
+case gdivadvp-10-11-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 6304 advh 15410 bsb 5604 voy 9806
+case gdivadvp-10-11-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 5405 advh 13212 bsb 4804 voy 8408
+case gdivadvp-10-11-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 4503 advh 11008 bsb 4003 voy 7005
+case gdivadvp-10-12-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 7373 advh 19661 bsb 8192 voy 11469
+case gdivadvp-10-12-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 6304 advh 16811 bsb 7005 voy 9806
+case gdivadvp-10-12-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 5405 advh 14413 bsb 6006 voy 8408
+case gdivadvp-10-12-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 4503 advh 12008 bsb 5004 voy 7005
+case gdivadvp-10-12-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 7373 advh 19661 bsb 8192 voy 11469
+case gdivadvp-10-12-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 6304 advh 16811 bsb 7005 voy 9806
+case gdivadvp-10-12-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 5405 advh 14413 bsb 6006 voy 8408
+case gdivadvp-10-12-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 4503 advh 12008 bsb 5004 voy 7005
+case gdivadvp-10-13-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 9011 advh 21299 bsb 8192 voy 13107
+case gdivadvp-10-13-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 7705 advh 18212 bsb 7005 voy 11207
+case gdivadvp-10-13-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 6606 advh 15614 bsb 6006 voy 9609
+case gdivadvp-10-13-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 5504 advh 13009 bsb 5004 voy 8006
+case gdivadvp-10-13-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 9011 advh 21299 bsb 8192 voy 13107
+case gdivadvp-10-13-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 7705 advh 18212 bsb 7005 voy 11207
+case gdivadvp-10-13-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 6606 advh 15614 bsb 6006 voy 9609
+case gdivadvp-10-13-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 5504 advh 13009 bsb 5004 voy 8006
+case gdivadvp-10-14-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 9011 advh 22938 bsb 9830 voy 13107
+case gdivadvp-10-14-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 7705 advh 19613 bsb 8405 voy 11207
+case gdivadvp-10-14-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 6606 advh 16815 bsb 7206 voy 9609
+case gdivadvp-10-14-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 5504 advh 14010 bsb 6004 voy 8006
+case gdivadvp-10-14-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 10650 advh 22938 bsb 8192 voy 14746
+case gdivadvp-10-14-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 9106 advh 19613 bsb 7005 voy 12608
+case gdivadvp-10-14-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 7807 advh 16815 bsb 6006 voy 10810
+case gdivadvp-10-14-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 6504 advh 14010 bsb 5004 voy 9006
+case gdivadvp-10-15-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 10650 advh 24576 bsb 9831 voy 14746
+case gdivadvp-10-15-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 9106 advh 21014 bsb 8405 voy 12608
+case gdivadvp-10-15-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 7807 advh 18017 bsb 7207 voy 10810
+case gdivadvp-10-15-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 6504 advh 15011 bsb 6004 voy 9006
+case gdivadvp-10-15-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 10650 advh 24576 bsb 9831 voy 14746
+case gdivadvp-10-15-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 9106 advh 21014 bsb 8405 voy 12608
+case gdivadvp-10-15-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 7807 advh 18017 bsb 7207 voy 10810
+case gdivadvp-10-15-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 6504 advh 15011 bsb 6004 voy 9006
+case gdivadvp-10-16-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 12288 advh 26214 bsb 9830 voy 16384
+case gdivadvp-10-16-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 10507 advh 22414 bsb 8405 voy 14009
+case gdivadvp-10-16-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 9008 advh 19217 bsb 7206 voy 12011
+case gdivadvp-10-16-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 7505 advh 16011 bsb 6004 voy 10007
+case gdivadvp-10-16-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 12288 advh 26214 bsb 9830 voy 16384
+case gdivadvp-10-16-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 10507 advh 22414 bsb 8405 voy 14009
+case gdivadvp-10-16-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 9008 advh 19217 bsb 7206 voy 12011
+case gdivadvp-10-16-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 7505 advh 16011 bsb 6004 voy 10007
+case gdivadvp-10-17-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 12288 advh 27853 bsb 11469 voy 16384
+case gdivadvp-10-17-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 10507 advh 23815 bsb 9806 voy 14009
+case gdivadvp-10-17-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 9008 advh 20419 bsb 8408 voy 12011
+case gdivadvp-10-17-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 7505 advh 17012 bsb 7005 voy 10007
+case gdivadvp-10-17-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 12288 advh 27853 bsb 11469 voy 16384
+case gdivadvp-10-17-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 10507 advh 23815 bsb 9806 voy 14009
+case gdivadvp-10-17-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 9008 advh 20419 bsb 8408 voy 12011
+case gdivadvp-10-17-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 7505 advh 17012 bsb 7005 voy 10007
+case gdivadvp-10-18-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 13927 advh 29491 bsb 11469 voy 18023
+case gdivadvp-10-18-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 11908 advh 25216 bsb 9806 voy 15410
+case gdivadvp-10-18-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 10209 advh 21620 bsb 8408 voy 13212
+case gdivadvp-10-18-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 8506 advh 18013 bsb 7005 voy 11008
+case gdivadvp-10-18-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 13927 advh 29491 bsb 11469 voy 18023
+case gdivadvp-10-18-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 11908 advh 25216 bsb 9806 voy 15410
+case gdivadvp-10-18-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 10209 advh 21620 bsb 8408 voy 13212
+case gdivadvp-10-18-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 8506 advh 18013 bsb 7005 voy 11008
+case gdivadvp-10-19-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 13927 advh 31130 bsb 13107 voy 18023
+case gdivadvp-10-19-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 11908 advh 26617 bsb 11207 voy 15410
+case gdivadvp-10-19-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 10209 advh 22821 bsb 9609 voy 13212
+case gdivadvp-10-19-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 8506 advh 19013 bsb 8005 voy 11008
+case gdivadvp-10-19-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 15565 advh 31130 bsb 11469 voy 19661
+case gdivadvp-10-19-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 13309 advh 26617 bsb 9806 voy 16811
+case gdivadvp-10-19-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 11410 advh 22821 bsb 8408 voy 14413
+case gdivadvp-10-19-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 9507 advh 19013 bsb 7005 voy 12008
+case gdivadvp-10-20-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 15565 advh 32768 bsb 13107 voy 19661
+case gdivadvp-10-20-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 13309 advh 28018 bsb 11207 voy 16811
+case gdivadvp-10-20-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 11410 advh 24022 bsb 9609 voy 14413
+case gdivadvp-10-20-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 9507 advh 20014 bsb 8006 voy 12008
+case gdivadvp-10-20-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 15565 advh 4294934528 bsb -52429 voy 19661
+case gdivadvp-10-20-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 13309 advh 28018 bsb 11207 voy 16811
+case gdivadvp-10-20-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 11410 advh 24022 bsb 9609 voy 14413
+case gdivadvp-10-20-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 9507 advh 20014 bsb 8006 voy 12008
+case gdivadvp-10-21-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 17203 advh 4294936167 bsb -52429 voy 21299
+case gdivadvp-10-21-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 14709 advh 29419 bsb 11207 voy 18212
+case gdivadvp-10-21-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 12612 advh 25223 bsb 9609 voy 15614
+case gdivadvp-10-21-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 10507 advh 21015 bsb 8005 voy 13009
+case gdivadvp-10-21-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 17203 advh 4294936167 bsb -52429 voy 21299
+case gdivadvp-10-21-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 14709 advh 29419 bsb 11207 voy 18212
+case gdivadvp-10-21-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 12612 advh 25223 bsb 9609 voy 15614
+case gdivadvp-10-21-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 10507 advh 21015 bsb 8005 voy 13009
+case gdivadvp-10-22-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 17203 advh 4294937805 bsb -50790 voy 21299
+case gdivadvp-10-22-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 14709 advh 30820 bsb 12608 voy 18212
+case gdivadvp-10-22-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 12612 advh 26424 bsb 10810 voy 15614
+case gdivadvp-10-22-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 10507 advh 22015 bsb 9006 voy 13009
+case gdivadvp-10-22-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 17203 advh 4294937805 bsb -50790 voy 21299
+case gdivadvp-10-22-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 14709 advh 30820 bsb 12608 voy 18212
+case gdivadvp-10-22-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 12612 advh 26424 bsb 10810 voy 15614
+case gdivadvp-10-22-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 10507 advh 22015 bsb 9006 voy 13009
+case gdivadvp-10-23-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 18842 advh 4294939443 bsb -50790 voy 22938
+case gdivadvp-10-23-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 16110 advh 32221 bsb 12608 voy 19613
+case gdivadvp-10-23-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 13813 advh 27625 bsb 10810 voy 16815
+case gdivadvp-10-23-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 11508 advh 23016 bsb 9006 voy 14010
+case gdivadvp-10-23-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 18842 advh 4294939443 bsb -50790 voy 22938
+case gdivadvp-10-23-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 16110 advh 32221 bsb 12608 voy 19613
+case gdivadvp-10-23-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 13813 advh 27625 bsb 10810 voy 16815
+case gdivadvp-10-23-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 11508 advh 23016 bsb 9006 voy 14010
+case gdivadvp-10-24-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 18842 advh 4294941082 bsb -49152 voy 22938
+case gdivadvp-10-24-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 16110 advh 4294935075 bsb -51833 voy 19613
+case gdivadvp-10-24-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 13813 advh 28826 bsb 12011 voy 16815
+case gdivadvp-10-24-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 11508 advh 24017 bsb 10007 voy 14010
+case gdivadvp-10-24-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3277 tsb 20480 advh 4294941082 bsb -50790 voy 24576
+case gdivadvp-10-24-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 2802 tsb 17511 advh 4294936476 bsb -51833 voy 21014
+case gdivadvp-10-24-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2402 tsb 15014 advh 28826 bsb 10810 voy 18017
+case gdivadvp-10-24-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2001 tsb 12509 advh 24017 bsb 9006 voy 15011
+case gdivadvp-22-1-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -3351 advh 745 bsb 0 voy 745
+case gdivadvp-22-1-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2865 advh 637 bsb 0 voy 637
+case gdivadvp-22-1-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -2457 advh 546 bsb 0 voy 546
+case gdivadvp-22-1-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -2047 advh 455 bsb 0 voy 455
+case gdivadvp-22-1-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -3351 advh 745 bsb 0 voy 745
+case gdivadvp-22-1-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2865 advh 637 bsb 0 voy 637
+case gdivadvp-22-1-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -2457 advh 546 bsb 0 voy 546
+case gdivadvp-22-1-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -2047 advh 455 bsb 0 voy 455
+case gdivadvp-22-2-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -3351 advh 1490 bsb 745 voy 745
+case gdivadvp-22-2-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2865 advh 1274 bsb 637 voy 637
+case gdivadvp-22-2-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -2457 advh 1092 bsb 546 voy 546
+case gdivadvp-22-2-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -2047 advh 910 bsb 455 voy 455
+case gdivadvp-22-2-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -3351 advh 1490 bsb 745 voy 745
+case gdivadvp-22-2-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2865 advh 1274 bsb 637 voy 637
+case gdivadvp-22-2-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -2457 advh 1092 bsb 546 voy 546
+case gdivadvp-22-2-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -2047 advh 910 bsb 455 voy 455
+case gdivadvp-22-3-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -2606 advh 2234 bsb 745 voy 1490
+case gdivadvp-22-3-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2229 advh 1910 bsb 637 voy 1274
+case gdivadvp-22-3-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -1911 advh 1638 bsb 546 voy 1092
+case gdivadvp-22-3-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -1592 advh 1365 bsb 455 voy 910
+case gdivadvp-22-3-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -2606 advh 2234 bsb 745 voy 1490
+case gdivadvp-22-3-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2229 advh 1910 bsb 637 voy 1274
+case gdivadvp-22-3-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -1911 advh 1638 bsb 546 voy 1092
+case gdivadvp-22-3-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -1592 advh 1365 bsb 455 voy 910
+case gdivadvp-22-4-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -2606 advh 2979 bsb 1490 voy 1490
+case gdivadvp-22-4-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -2229 advh 2547 bsb 1274 voy 1274
+case gdivadvp-22-4-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -1911 advh 2184 bsb 1092 voy 1092
+case gdivadvp-22-4-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -1592 advh 1820 bsb 910 voy 910
+case gdivadvp-22-4-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1862 advh 2979 bsb 745 voy 2234
+case gdivadvp-22-4-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -1592 advh 2547 bsb 637 voy 1910
+case gdivadvp-22-4-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -1365 advh 2184 bsb 546 voy 1638
+case gdivadvp-22-4-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -1137 advh 1820 bsb 455 voy 1365
+case gdivadvp-22-5-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1862 advh 3724 bsb 1489 voy 2234
+case gdivadvp-22-5-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -1592 advh 3184 bsb 1273 voy 1910
+case gdivadvp-22-5-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -1365 advh 2730 bsb 1092 voy 1638
+case gdivadvp-22-5-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -1137 advh 2274 bsb 910 voy 1365
+case gdivadvp-22-5-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1862 advh 3724 bsb 1489 voy 2234
+case gdivadvp-22-5-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -1592 advh 3184 bsb 1273 voy 1910
+case gdivadvp-22-5-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -1365 advh 2730 bsb 1092 voy 1638
+case gdivadvp-22-5-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -1137 advh 2274 bsb 910 voy 1365
+case gdivadvp-22-6-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1117 advh 4468 bsb 1489 voy 2979
+case gdivadvp-22-6-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -955 advh 3821 bsb 1273 voy 2547
+case gdivadvp-22-6-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -819 advh 3276 bsb 1092 voy 2184
+case gdivadvp-22-6-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -682 advh 2729 bsb 910 voy 1820
+case gdivadvp-22-6-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1117 advh 4468 bsb 1489 voy 2979
+case gdivadvp-22-6-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -955 advh 3821 bsb 1273 voy 2547
+case gdivadvp-22-6-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -819 advh 3276 bsb 1092 voy 2184
+case gdivadvp-22-6-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -682 advh 2729 bsb 910 voy 1820
+case gdivadvp-22-7-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1117 advh 5213 bsb 2234 voy 2979
+case gdivadvp-22-7-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -955 advh 4457 bsb 1910 voy 2547
+case gdivadvp-22-7-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -819 advh 3822 bsb 1638 voy 2184
+case gdivadvp-22-7-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -682 advh 3184 bsb 1364 voy 1820
+case gdivadvp-22-7-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -1117 advh 5213 bsb 2234 voy 2979
+case gdivadvp-22-7-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -955 advh 4457 bsb 1910 voy 2547
+case gdivadvp-22-7-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -819 advh 3822 bsb 1638 voy 2184
+case gdivadvp-22-7-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -682 advh 3184 bsb 1364 voy 1820
+case gdivadvp-22-8-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -372 advh 5958 bsb 2234 voy 3724
+case gdivadvp-22-8-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -318 advh 5094 bsb 1910 voy 3184
+case gdivadvp-22-8-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -273 advh 4368 bsb 1638 voy 2730
+case gdivadvp-22-8-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -227 advh 3639 bsb 1364 voy 2274
+case gdivadvp-22-8-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -372 advh 5958 bsb 2234 voy 3724
+case gdivadvp-22-8-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -318 advh 5094 bsb 1910 voy 3184
+case gdivadvp-22-8-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -273 advh 4368 bsb 1638 voy 2730
+case gdivadvp-22-8-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -227 advh 3639 bsb 1364 voy 2274
+case gdivadvp-22-9-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb -372 advh 6703 bsb 2979 voy 3724
+case gdivadvp-22-9-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb -318 advh 5731 bsb 2547 voy 3184
+case gdivadvp-22-9-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb -273 advh 4914 bsb 2184 voy 2730
+case gdivadvp-22-9-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb -227 advh 4094 bsb 1819 voy 2274
+case gdivadvp-22-9-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 372 advh 6703 bsb 2234 voy 4468
+case gdivadvp-22-9-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 318 advh 5731 bsb 1910 voy 3821
+case gdivadvp-22-9-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 273 advh 4914 bsb 1638 voy 3276
+case gdivadvp-22-9-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 227 advh 4094 bsb 1365 voy 2729
+case gdivadvp-22-10-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 372 advh 7447 bsb 2979 voy 4468
+case gdivadvp-22-10-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 318 advh 6368 bsb 2547 voy 3821
+case gdivadvp-22-10-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 273 advh 5460 bsb 2184 voy 3276
+case gdivadvp-22-10-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 227 advh 4549 bsb 1820 voy 2729
+case gdivadvp-22-10-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 372 advh 7447 bsb 2979 voy 4468
+case gdivadvp-22-10-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 318 advh 6368 bsb 2547 voy 3821
+case gdivadvp-22-10-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 273 advh 5460 bsb 2184 voy 3276
+case gdivadvp-22-10-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 227 advh 4549 bsb 1820 voy 2729
+case gdivadvp-22-11-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1117 advh 8192 bsb 2979 voy 5213
+case gdivadvp-22-11-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 955 advh 7005 bsb 2547 voy 4457
+case gdivadvp-22-11-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 819 advh 6006 bsb 2184 voy 3822
+case gdivadvp-22-11-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 682 advh 5004 bsb 1820 voy 3184
+case gdivadvp-22-11-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1117 advh 8192 bsb 2979 voy 5213
+case gdivadvp-22-11-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 955 advh 7005 bsb 2547 voy 4457
+case gdivadvp-22-11-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 819 advh 6006 bsb 2184 voy 3822
+case gdivadvp-22-11-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 682 advh 5004 bsb 1820 voy 3184
+case gdivadvp-22-12-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1117 advh 8937 bsb 3724 voy 5213
+case gdivadvp-22-12-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 955 advh 7641 bsb 3184 voy 4457
+case gdivadvp-22-12-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 819 advh 6551 bsb 2730 voy 3822
+case gdivadvp-22-12-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 682 advh 5458 bsb 2274 voy 3184
+case gdivadvp-22-12-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1117 advh 8937 bsb 3724 voy 5213
+case gdivadvp-22-12-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 955 advh 7641 bsb 3184 voy 4457
+case gdivadvp-22-12-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 819 advh 6551 bsb 2730 voy 3822
+case gdivadvp-22-12-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 682 advh 5458 bsb 2274 voy 3184
+case gdivadvp-22-13-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1862 advh 9682 bsb 3724 voy 5958
+case gdivadvp-22-13-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 1592 advh 8278 bsb 3184 voy 5094
+case gdivadvp-22-13-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 1365 advh 7097 bsb 2730 voy 4368
+case gdivadvp-22-13-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 1137 advh 5913 bsb 2274 voy 3639
+case gdivadvp-22-13-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1862 advh 9682 bsb 3724 voy 5958
+case gdivadvp-22-13-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 1592 advh 8278 bsb 3184 voy 5094
+case gdivadvp-22-13-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 1365 advh 7097 bsb 2730 voy 4368
+case gdivadvp-22-13-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 1137 advh 5913 bsb 2274 voy 3639
+case gdivadvp-22-14-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 1862 advh 10426 bsb 4469 voy 5958
+case gdivadvp-22-14-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 1592 advh 8915 bsb 3821 voy 5094
+case gdivadvp-22-14-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 1365 advh 7643 bsb 3276 voy 4368
+case gdivadvp-22-14-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 1137 advh 6368 bsb 2729 voy 3639
+case gdivadvp-22-14-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 2607 advh 10426 bsb 3724 voy 6703
+case gdivadvp-22-14-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2229 advh 8915 bsb 3184 voy 5731
+case gdivadvp-22-14-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 1911 advh 7643 bsb 2730 voy 4914
+case gdivadvp-22-14-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 1592 advh 6368 bsb 2274 voy 4094
+case gdivadvp-22-15-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 2607 advh 11171 bsb 4469 voy 6703
+case gdivadvp-22-15-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2229 advh 9552 bsb 3821 voy 5731
+case gdivadvp-22-15-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 1911 advh 8189 bsb 3276 voy 4914
+case gdivadvp-22-15-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 1592 advh 6823 bsb 2729 voy 4094
+case gdivadvp-22-15-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 2607 advh 11171 bsb 4469 voy 6703
+case gdivadvp-22-15-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2229 advh 9552 bsb 3821 voy 5731
+case gdivadvp-22-15-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 1911 advh 8189 bsb 3276 voy 4914
+case gdivadvp-22-15-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 1592 advh 6823 bsb 2729 voy 4094
+case gdivadvp-22-16-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 3351 advh 11916 bsb 4468 voy 7447
+case gdivadvp-22-16-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2865 advh 10188 bsb 3821 voy 6368
+case gdivadvp-22-16-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 2457 advh 8735 bsb 3276 voy 5460
+case gdivadvp-22-16-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2047 advh 7278 bsb 2729 voy 4549
+case gdivadvp-22-16-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 3351 advh 11916 bsb 4468 voy 7447
+case gdivadvp-22-16-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2865 advh 10188 bsb 3821 voy 6368
+case gdivadvp-22-16-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 2457 advh 8735 bsb 3276 voy 5460
+case gdivadvp-22-16-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2047 advh 7278 bsb 2729 voy 4549
+case gdivadvp-22-17-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 3351 advh 12660 bsb 5213 voy 7447
+case gdivadvp-22-17-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2865 advh 10825 bsb 4457 voy 6368
+case gdivadvp-22-17-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 2457 advh 9281 bsb 3822 voy 5460
+case gdivadvp-22-17-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2047 advh 7733 bsb 3184 voy 4549
+case gdivadvp-22-17-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 3351 advh 12660 bsb 5213 voy 7447
+case gdivadvp-22-17-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 2865 advh 10825 bsb 4457 voy 6368
+case gdivadvp-22-17-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 2457 advh 9281 bsb 3822 voy 5460
+case gdivadvp-22-17-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2047 advh 7733 bsb 3184 voy 4549
+case gdivadvp-22-18-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 4096 advh 13405 bsb 5213 voy 8192
+case gdivadvp-22-18-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 3502 advh 11462 bsb 4457 voy 7005
+case gdivadvp-22-18-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 3003 advh 9827 bsb 3822 voy 6006
+case gdivadvp-22-18-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2502 advh 8187 bsb 3184 voy 5004
+case gdivadvp-22-18-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 4096 advh 13405 bsb 5213 voy 8192
+case gdivadvp-22-18-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 3502 advh 11462 bsb 4457 voy 7005
+case gdivadvp-22-18-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 3003 advh 9827 bsb 3822 voy 6006
+case gdivadvp-22-18-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2502 advh 8187 bsb 3184 voy 5004
+case gdivadvp-22-19-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 4096 advh 14150 bsb 5958 voy 8192
+case gdivadvp-22-19-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 3502 advh 12099 bsb 5094 voy 7005
+case gdivadvp-22-19-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 3003 advh 10373 bsb 4368 voy 6006
+case gdivadvp-22-19-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2502 advh 8642 bsb 3639 voy 5004
+case gdivadvp-22-19-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 4841 advh 14150 bsb 5213 voy 8937
+case gdivadvp-22-19-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4139 advh 12099 bsb 4457 voy 7641
+case gdivadvp-22-19-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 3549 advh 10373 bsb 3822 voy 6551
+case gdivadvp-22-19-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2957 advh 8642 bsb 3184 voy 5458
+case gdivadvp-22-20-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 4841 advh 14895 bsb 5958 voy 8937
+case gdivadvp-22-20-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4139 advh 12735 bsb 5094 voy 7641
+case gdivadvp-22-20-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 3549 advh 10919 bsb 4368 voy 6551
+case gdivadvp-22-20-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2957 advh 9097 bsb 3639 voy 5458
+case gdivadvp-22-20-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 4841 advh 14895 bsb 5958 voy 8937
+case gdivadvp-22-20-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4139 advh 12735 bsb 5094 voy 7641
+case gdivadvp-22-20-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 3549 advh 10919 bsb 4368 voy 6551
+case gdivadvp-22-20-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 2957 advh 9097 bsb 3639 voy 5458
+case gdivadvp-22-21-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 5586 advh 15639 bsb 5958 voy 9682
+case gdivadvp-22-21-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4776 advh 13372 bsb 5094 voy 8278
+case gdivadvp-22-21-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4095 advh 11465 bsb 4368 voy 7097
+case gdivadvp-22-21-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3412 advh 9552 bsb 3639 voy 5913
+case gdivadvp-22-21-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 5586 advh 15639 bsb 5958 voy 9682
+case gdivadvp-22-21-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4776 advh 13372 bsb 5094 voy 8278
+case gdivadvp-22-21-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4095 advh 11465 bsb 4368 voy 7097
+case gdivadvp-22-21-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3412 advh 9552 bsb 3639 voy 5913
+case gdivadvp-22-22-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 5586 advh 16384 bsb 6703 voy 9682
+case gdivadvp-22-22-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4776 advh 14009 bsb 5731 voy 8278
+case gdivadvp-22-22-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4095 advh 12011 bsb 4914 voy 7097
+case gdivadvp-22-22-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3412 advh 10007 bsb 4094 voy 5913
+case gdivadvp-22-22-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 5586 advh 16384 bsb 6703 voy 9682
+case gdivadvp-22-22-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 4776 advh 14009 bsb 5731 voy 8278
+case gdivadvp-22-22-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4095 advh 12011 bsb 4914 voy 7097
+case gdivadvp-22-22-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3412 advh 10007 bsb 4094 voy 5913
+case gdivadvp-22-23-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 6330 advh 17129 bsb 6703 voy 10426
+case gdivadvp-22-23-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 5413 advh 14646 bsb 5731 voy 8915
+case gdivadvp-22-23-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4641 advh 12557 bsb 4914 voy 7643
+case gdivadvp-22-23-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3866 advh 10462 bsb 4094 voy 6368
+case gdivadvp-22-23-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 6330 advh 17129 bsb 6703 voy 10426
+case gdivadvp-22-23-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 5413 advh 14646 bsb 5731 voy 8915
+case gdivadvp-22-23-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4641 advh 12557 bsb 4914 voy 7643
+case gdivadvp-22-23-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3866 advh 10462 bsb 4094 voy 6368
+case gdivadvp-22-24-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 6330 advh 17874 bsb 7447 voy 10426
+case gdivadvp-22-24-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 5413 advh 15283 bsb 6368 voy 8915
+case gdivadvp-22-24-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 4641 advh 13103 bsb 5460 voy 7643
+case gdivadvp-22-24-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 3866 advh 10917 bsb 4549 voy 6368
+case gdivadvp-22-24-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3724 tsb 7075 advh 17874 bsb 6703 voy 11171
+case gdivadvp-22-24-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3184 tsb 6049 advh 15283 bsb 5731 voy 9552
+case gdivadvp-22-24-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2730 tsb 5187 advh 13103 bsb 4914 voy 8189
+case gdivadvp-22-24-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2274 tsb 4321 advh 10917 bsb 4094 voy 6823
+case gdivadvp-18-1-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -3186 advh 910 bsb 0 voy 910
+case gdivadvp-18-1-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -2724 advh 778 bsb 0 voy 778
+case gdivadvp-18-1-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -2335 advh 667 bsb 0 voy 667
+case gdivadvp-18-1-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1946 advh 556 bsb 0 voy 556
+case gdivadvp-18-1-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -3186 advh 910 bsb 0 voy 910
+case gdivadvp-18-1-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -2724 advh 778 bsb 0 voy 778
+case gdivadvp-18-1-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -2335 advh 667 bsb 0 voy 667
+case gdivadvp-18-1-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1946 advh 556 bsb 0 voy 556
+case gdivadvp-18-2-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -3186 advh 1821 bsb 910 voy 910
+case gdivadvp-18-2-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -2724 advh 1557 bsb 778 voy 778
+case gdivadvp-18-2-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -2335 advh 1335 bsb 667 voy 667
+case gdivadvp-18-2-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1946 advh 1112 bsb 556 voy 556
+case gdivadvp-18-2-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -3186 advh 1821 bsb 910 voy 910
+case gdivadvp-18-2-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -2724 advh 1557 bsb 778 voy 778
+case gdivadvp-18-2-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -2335 advh 1335 bsb 667 voy 667
+case gdivadvp-18-2-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1946 advh 1112 bsb 556 voy 556
+case gdivadvp-18-3-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -2275 advh 2731 bsb 910 voy 1821
+case gdivadvp-18-3-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -1946 advh 2335 bsb 778 voy 1557
+case gdivadvp-18-3-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -1668 advh 2002 bsb 667 voy 1335
+case gdivadvp-18-3-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1390 advh 1668 bsb 556 voy 1112
+case gdivadvp-18-3-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -2275 advh 2731 bsb 910 voy 1821
+case gdivadvp-18-3-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -1946 advh 2335 bsb 778 voy 1557
+case gdivadvp-18-3-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -1668 advh 2002 bsb 667 voy 1335
+case gdivadvp-18-3-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1390 advh 1668 bsb 556 voy 1112
+case gdivadvp-18-4-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -2275 advh 3641 bsb 1821 voy 1821
+case gdivadvp-18-4-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -1946 advh 3113 bsb 1557 voy 1557
+case gdivadvp-18-4-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -1668 advh 2669 bsb 1335 voy 1335
+case gdivadvp-18-4-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -1390 advh 2224 bsb 1112 voy 1112
+case gdivadvp-18-4-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -1365 advh 3641 bsb 910 voy 2731
+case gdivadvp-18-4-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -1167 advh 3113 bsb 778 voy 2335
+case gdivadvp-18-4-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -1001 advh 2669 bsb 667 voy 2002
+case gdivadvp-18-4-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -834 advh 2224 bsb 556 voy 1668
+case gdivadvp-18-5-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -1365 advh 4551 bsb 1820 voy 2731
+case gdivadvp-18-5-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -1167 advh 3891 bsb 1556 voy 2335
+case gdivadvp-18-5-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -1001 advh 3336 bsb 1334 voy 2002
+case gdivadvp-18-5-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -834 advh 2780 bsb 1112 voy 1668
+case gdivadvp-18-5-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -1365 advh 4551 bsb 1820 voy 2731
+case gdivadvp-18-5-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -1167 advh 3891 bsb 1556 voy 2335
+case gdivadvp-18-5-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -1001 advh 3336 bsb 1334 voy 2002
+case gdivadvp-18-5-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -834 advh 2780 bsb 1112 voy 1668
+case gdivadvp-18-6-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -455 advh 5461 bsb 1820 voy 3641
+case gdivadvp-18-6-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -389 advh 4670 bsb 1556 voy 3113
+case gdivadvp-18-6-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -334 advh 4004 bsb 1334 voy 2669
+case gdivadvp-18-6-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -278 advh 3336 bsb 1112 voy 2224
+case gdivadvp-18-6-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -455 advh 5461 bsb 1820 voy 3641
+case gdivadvp-18-6-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -389 advh 4670 bsb 1556 voy 3113
+case gdivadvp-18-6-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -334 advh 4004 bsb 1334 voy 2669
+case gdivadvp-18-6-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -278 advh 3336 bsb 1112 voy 2224
+case gdivadvp-18-7-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -455 advh 6372 bsb 2731 voy 3641
+case gdivadvp-18-7-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -389 advh 5448 bsb 2335 voy 3113
+case gdivadvp-18-7-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -334 advh 4671 bsb 2002 voy 2669
+case gdivadvp-18-7-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -278 advh 3892 bsb 1668 voy 2224
+case gdivadvp-18-7-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb -455 advh 6372 bsb 2731 voy 3641
+case gdivadvp-18-7-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb -389 advh 5448 bsb 2335 voy 3113
+case gdivadvp-18-7-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb -334 advh 4671 bsb 2002 voy 2669
+case gdivadvp-18-7-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb -278 advh 3892 bsb 1668 voy 2224
+case gdivadvp-18-8-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 455 advh 7282 bsb 2731 voy 4551
+case gdivadvp-18-8-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 389 advh 6226 bsb 2335 voy 3891
+case gdivadvp-18-8-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 334 advh 5338 bsb 2002 voy 3336
+case gdivadvp-18-8-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 278 advh 4448 bsb 1668 voy 2780
+case gdivadvp-18-8-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 455 advh 7282 bsb 2731 voy 4551
+case gdivadvp-18-8-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 389 advh 6226 bsb 2335 voy 3891
+case gdivadvp-18-8-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 334 advh 5338 bsb 2002 voy 3336
+case gdivadvp-18-8-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 278 advh 4448 bsb 1668 voy 2780
+case gdivadvp-18-9-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 455 advh 8192 bsb 3641 voy 4551
+case gdivadvp-18-9-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 389 advh 7005 bsb 3113 voy 3891
+case gdivadvp-18-9-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 334 advh 6006 bsb 2669 voy 3336
+case gdivadvp-18-9-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 278 advh 5004 bsb 2224 voy 2780
+case gdivadvp-18-9-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 1365 advh 8192 bsb 2731 voy 5461
+case gdivadvp-18-9-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1167 advh 7005 bsb 2335 voy 4670
+case gdivadvp-18-9-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1001 advh 6006 bsb 2002 voy 4004
+case gdivadvp-18-9-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 834 advh 5004 bsb 1668 voy 3336
+case gdivadvp-18-10-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 1365 advh 9102 bsb 3641 voy 5461
+case gdivadvp-18-10-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1167 advh 7783 bsb 3113 voy 4670
+case gdivadvp-18-10-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1001 advh 6673 bsb 2669 voy 4004
+case gdivadvp-18-10-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 834 advh 5559 bsb 2224 voy 3336
+case gdivadvp-18-10-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 1365 advh 9102 bsb 3641 voy 5461
+case gdivadvp-18-10-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1167 advh 7783 bsb 3113 voy 4670
+case gdivadvp-18-10-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1001 advh 6673 bsb 2669 voy 4004
+case gdivadvp-18-10-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 834 advh 5559 bsb 2224 voy 3336
+case gdivadvp-18-11-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 2276 advh 10013 bsb 3641 voy 6372
+case gdivadvp-18-11-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1946 advh 8561 bsb 3113 voy 5448
+case gdivadvp-18-11-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1668 advh 7340 bsb 2669 voy 4671
+case gdivadvp-18-11-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1390 advh 6115 bsb 2224 voy 3892
+case gdivadvp-18-11-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 2276 advh 10013 bsb 3641 voy 6372
+case gdivadvp-18-11-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1946 advh 8561 bsb 3113 voy 5448
+case gdivadvp-18-11-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1668 advh 7340 bsb 2669 voy 4671
+case gdivadvp-18-11-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1390 advh 6115 bsb 2224 voy 3892
+case gdivadvp-18-12-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 2276 advh 10923 bsb 4551 voy 6372
+case gdivadvp-18-12-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1946 advh 9339 bsb 3892 voy 5448
+case gdivadvp-18-12-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1668 advh 8007 bsb 3336 voy 4671
+case gdivadvp-18-12-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1390 advh 6671 bsb 2780 voy 3892
+case gdivadvp-18-12-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 2276 advh 10923 bsb 4551 voy 6372
+case gdivadvp-18-12-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 1946 advh 9339 bsb 3892 voy 5448
+case gdivadvp-18-12-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 1668 advh 8007 bsb 3336 voy 4671
+case gdivadvp-18-12-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1390 advh 6671 bsb 2780 voy 3892
+case gdivadvp-18-13-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 3186 advh 11833 bsb 4551 voy 7282
+case gdivadvp-18-13-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 2724 advh 10118 bsb 3892 voy 6226
+case gdivadvp-18-13-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 2335 advh 8675 bsb 3336 voy 5338
+case gdivadvp-18-13-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1946 advh 7227 bsb 2780 voy 4448
+case gdivadvp-18-13-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 3186 advh 11833 bsb 4551 voy 7282
+case gdivadvp-18-13-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 2724 advh 10118 bsb 3892 voy 6226
+case gdivadvp-18-13-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 2335 advh 8675 bsb 3336 voy 5338
+case gdivadvp-18-13-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1946 advh 7227 bsb 2780 voy 4448
+case gdivadvp-18-14-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 3186 advh 12743 bsb 5461 voy 7282
+case gdivadvp-18-14-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 2724 advh 10896 bsb 4670 voy 6226
+case gdivadvp-18-14-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 2335 advh 9342 bsb 4004 voy 5338
+case gdivadvp-18-14-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 1946 advh 7783 bsb 3336 voy 4448
+case gdivadvp-18-14-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 4096 advh 12743 bsb 4551 voy 8192
+case gdivadvp-18-14-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 3502 advh 10896 bsb 3891 voy 7005
+case gdivadvp-18-14-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3003 advh 9342 bsb 3336 voy 6006
+case gdivadvp-18-14-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 2502 advh 7783 bsb 2780 voy 5004
+case gdivadvp-18-15-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 4096 advh 13653 bsb 5461 voy 8192
+case gdivadvp-18-15-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 3502 advh 11674 bsb 4670 voy 7005
+case gdivadvp-18-15-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3003 advh 10009 bsb 4004 voy 6006
+case gdivadvp-18-15-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 2502 advh 8339 bsb 3336 voy 5004
+case gdivadvp-18-15-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 4096 advh 13653 bsb 5461 voy 8192
+case gdivadvp-18-15-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 3502 advh 11674 bsb 4670 voy 7005
+case gdivadvp-18-15-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3003 advh 10009 bsb 4004 voy 6006
+case gdivadvp-18-15-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 2502 advh 8339 bsb 3336 voy 5004
+case gdivadvp-18-16-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5006 advh 14564 bsb 5461 voy 9102
+case gdivadvp-18-16-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 4281 advh 12452 bsb 4670 voy 7783
+case gdivadvp-18-16-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3670 advh 10676 bsb 4004 voy 6673
+case gdivadvp-18-16-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3058 advh 8895 bsb 3336 voy 5559
+case gdivadvp-18-16-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5006 advh 14564 bsb 5461 voy 9102
+case gdivadvp-18-16-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 4281 advh 12452 bsb 4670 voy 7783
+case gdivadvp-18-16-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3670 advh 10676 bsb 4004 voy 6673
+case gdivadvp-18-16-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3058 advh 8895 bsb 3336 voy 5559
+case gdivadvp-18-17-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5006 advh 15474 bsb 6372 voy 9102
+case gdivadvp-18-17-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 4281 advh 13231 bsb 5448 voy 7783
+case gdivadvp-18-17-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3670 advh 11344 bsb 4671 voy 6673
+case gdivadvp-18-17-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3058 advh 9451 bsb 3892 voy 5559
+case gdivadvp-18-17-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5006 advh 15474 bsb 6372 voy 9102
+case gdivadvp-18-17-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 4281 advh 13231 bsb 5448 voy 7783
+case gdivadvp-18-17-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 3670 advh 11344 bsb 4671 voy 6673
+case gdivadvp-18-17-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3058 advh 9451 bsb 3892 voy 5559
+case gdivadvp-18-18-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5917 advh 16384 bsb 6372 voy 10013
+case gdivadvp-18-18-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 5059 advh 14009 bsb 5448 voy 8561
+case gdivadvp-18-18-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 4337 advh 12011 bsb 4671 voy 7340
+case gdivadvp-18-18-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3614 advh 10007 bsb 3892 voy 6115
+case gdivadvp-18-18-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5917 advh 16384 bsb 6372 voy 10013
+case gdivadvp-18-18-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 5059 advh 14009 bsb 5448 voy 8561
+case gdivadvp-18-18-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 4337 advh 12011 bsb 4671 voy 7340
+case gdivadvp-18-18-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3614 advh 10007 bsb 3892 voy 6115
+case gdivadvp-18-19-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 5917 advh 17294 bsb 7282 voy 10013
+case gdivadvp-18-19-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 5059 advh 14787 bsb 6226 voy 8561
+case gdivadvp-18-19-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 4337 advh 12678 bsb 5338 voy 7340
+case gdivadvp-18-19-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 3614 advh 10563 bsb 4448 voy 6115
+case gdivadvp-18-19-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 6827 advh 17294 bsb 6372 voy 10923
+case gdivadvp-18-19-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 5837 advh 14787 bsb 5448 voy 9339
+case gdivadvp-18-19-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5005 advh 12678 bsb 4671 voy 8007
+case gdivadvp-18-19-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4170 advh 10563 bsb 3892 voy 6671
+case gdivadvp-18-20-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 6827 advh 18205 bsb 7282 voy 10923
+case gdivadvp-18-20-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 5837 advh 15566 bsb 6226 voy 9339
+case gdivadvp-18-20-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5005 advh 13346 bsb 5338 voy 8007
+case gdivadvp-18-20-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4170 advh 11119 bsb 4448 voy 6671
+case gdivadvp-18-20-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 6827 advh 18205 bsb 7282 voy 10923
+case gdivadvp-18-20-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 5837 advh 15566 bsb 6226 voy 9339
+case gdivadvp-18-20-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5005 advh 13346 bsb 5338 voy 8007
+case gdivadvp-18-20-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4170 advh 11119 bsb 4448 voy 6671
+case gdivadvp-18-21-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 7737 advh 19115 bsb 7282 voy 11833
+case gdivadvp-18-21-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 6615 advh 16344 bsb 6226 voy 10118
+case gdivadvp-18-21-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5672 advh 14013 bsb 5338 voy 8675
+case gdivadvp-18-21-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4726 advh 11675 bsb 4448 voy 7227
+case gdivadvp-18-21-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 7737 advh 19115 bsb 7282 voy 11833
+case gdivadvp-18-21-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 6615 advh 16344 bsb 6226 voy 10118
+case gdivadvp-18-21-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5672 advh 14013 bsb 5338 voy 8675
+case gdivadvp-18-21-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4726 advh 11675 bsb 4448 voy 7227
+case gdivadvp-18-22-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 7737 advh 20025 bsb 8192 voy 11833
+case gdivadvp-18-22-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 6615 advh 17122 bsb 7005 voy 10118
+case gdivadvp-18-22-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5672 advh 14680 bsb 6006 voy 8675
+case gdivadvp-18-22-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4726 advh 12231 bsb 5004 voy 7227
+case gdivadvp-18-22-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 7737 advh 20025 bsb 8192 voy 11833
+case gdivadvp-18-22-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 6615 advh 17122 bsb 7005 voy 10118
+case gdivadvp-18-22-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 5672 advh 14680 bsb 6006 voy 8675
+case gdivadvp-18-22-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 4726 advh 12231 bsb 5004 voy 7227
+case gdivadvp-18-23-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 8647 advh 20935 bsb 8192 voy 12743
+case gdivadvp-18-23-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 7394 advh 17900 bsb 7005 voy 10896
+case gdivadvp-18-23-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 6339 advh 15347 bsb 6006 voy 9342
+case gdivadvp-18-23-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 5281 advh 12787 bsb 5004 voy 7783
+case gdivadvp-18-23-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 8647 advh 20935 bsb 8192 voy 12743
+case gdivadvp-18-23-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 7394 advh 17900 bsb 7005 voy 10896
+case gdivadvp-18-23-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 6339 advh 15347 bsb 6006 voy 9342
+case gdivadvp-18-23-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 5281 advh 12787 bsb 5004 voy 7783
+case gdivadvp-18-24-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 8647 advh 21845 bsb 9102 voy 12743
+case gdivadvp-18-24-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 7394 advh 18679 bsb 7783 voy 10896
+case gdivadvp-18-24-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 6339 advh 16015 bsb 6673 voy 9342
+case gdivadvp-18-24-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 5281 advh 13343 bsb 5559 voy 7783
+case gdivadvp-18-24-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3641 tsb 9557 advh 21845 bsb 8192 voy 13653
+case gdivadvp-18-24-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3113 tsb 8172 advh 18679 bsb 7005 voy 11674
+case gdivadvp-18-24-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2669 tsb 7006 advh 16015 bsb 6006 voy 10009
+case gdivadvp-18-24-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2224 tsb 5837 advh 13343 bsb 5004 voy 8339
+case gdivadvp-26-1-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -3466 advh 630 bsb 0 voy 630
+case gdivadvp-26-1-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2963 advh 539 bsb 0 voy 539
+case gdivadvp-26-1-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2541 advh 462 bsb 0 voy 462
+case gdivadvp-26-1-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -2117 advh 385 bsb 0 voy 385
+case gdivadvp-26-1-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -3466 advh 630 bsb 0 voy 630
+case gdivadvp-26-1-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2963 advh 539 bsb 0 voy 539
+case gdivadvp-26-1-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2541 advh 462 bsb 0 voy 462
+case gdivadvp-26-1-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -2117 advh 385 bsb 0 voy 385
+case gdivadvp-26-2-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -3466 advh 1260 bsb 630 voy 630
+case gdivadvp-26-2-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2963 advh 1078 bsb 539 voy 539
+case gdivadvp-26-2-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2541 advh 924 bsb 462 voy 462
+case gdivadvp-26-2-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -2117 advh 770 bsb 385 voy 385
+case gdivadvp-26-2-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -3466 advh 1260 bsb 630 voy 630
+case gdivadvp-26-2-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2963 advh 1078 bsb 539 voy 539
+case gdivadvp-26-2-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2541 advh 924 bsb 462 voy 462
+case gdivadvp-26-2-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -2117 advh 770 bsb 385 voy 385
+case gdivadvp-26-3-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -2836 advh 1891 bsb 630 voy 1260
+case gdivadvp-26-3-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2425 advh 1616 bsb 539 voy 1078
+case gdivadvp-26-3-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2079 advh 1386 bsb 462 voy 924
+case gdivadvp-26-3-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -1732 advh 1155 bsb 385 voy 770
+case gdivadvp-26-3-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -2836 advh 1891 bsb 630 voy 1260
+case gdivadvp-26-3-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2425 advh 1616 bsb 539 voy 1078
+case gdivadvp-26-3-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2079 advh 1386 bsb 462 voy 924
+case gdivadvp-26-3-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -1732 advh 1155 bsb 385 voy 770
+case gdivadvp-26-4-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -2836 advh 2521 bsb 1260 voy 1260
+case gdivadvp-26-4-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -2425 advh 2155 bsb 1078 voy 1078
+case gdivadvp-26-4-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -2079 advh 1848 bsb 924 voy 924
+case gdivadvp-26-4-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -1732 advh 1539 bsb 770 voy 770
+case gdivadvp-26-4-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -2205 advh 2521 bsb 630 voy 1891
+case gdivadvp-26-4-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1886 advh 2155 bsb 539 voy 1616
+case gdivadvp-26-4-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1617 advh 1848 bsb 462 voy 1386
+case gdivadvp-26-4-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -1347 advh 1539 bsb 385 voy 1155
+case gdivadvp-26-5-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -2205 advh 3151 bsb 1260 voy 1891
+case gdivadvp-26-5-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1886 advh 2694 bsb 1078 voy 1616
+case gdivadvp-26-5-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1617 advh 2310 bsb 924 voy 1386
+case gdivadvp-26-5-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -1347 advh 1924 bsb 770 voy 1155
+case gdivadvp-26-5-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -2205 advh 3151 bsb 1260 voy 1891
+case gdivadvp-26-5-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1886 advh 2694 bsb 1078 voy 1616
+case gdivadvp-26-5-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1617 advh 2310 bsb 924 voy 1386
+case gdivadvp-26-5-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -1347 advh 1924 bsb 770 voy 1155
+case gdivadvp-26-6-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -1575 advh 3781 bsb 1260 voy 2521
+case gdivadvp-26-6-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1347 advh 3233 bsb 1078 voy 2155
+case gdivadvp-26-6-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1155 advh 2772 bsb 924 voy 1848
+case gdivadvp-26-6-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -962 advh 2309 bsb 770 voy 1540
+case gdivadvp-26-6-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -1575 advh 3781 bsb 1260 voy 2521
+case gdivadvp-26-6-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1347 advh 3233 bsb 1078 voy 2155
+case gdivadvp-26-6-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1155 advh 2772 bsb 924 voy 1848
+case gdivadvp-26-6-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -962 advh 2309 bsb 770 voy 1540
+case gdivadvp-26-7-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -1575 advh 4411 bsb 1890 voy 2521
+case gdivadvp-26-7-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1347 advh 3772 bsb 1616 voy 2155
+case gdivadvp-26-7-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1155 advh 3234 bsb 1386 voy 1848
+case gdivadvp-26-7-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -962 advh 2694 bsb 1155 voy 1540
+case gdivadvp-26-7-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -1575 advh 4411 bsb 1890 voy 2521
+case gdivadvp-26-7-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -1347 advh 3772 bsb 1616 voy 2155
+case gdivadvp-26-7-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -1155 advh 3234 bsb 1386 voy 1848
+case gdivadvp-26-7-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -962 advh 2694 bsb 1155 voy 1540
+case gdivadvp-26-8-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -945 advh 5041 bsb 1891 voy 3151
+case gdivadvp-26-8-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -808 advh 4310 bsb 1616 voy 2694
+case gdivadvp-26-8-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -693 advh 3696 bsb 1386 voy 2310
+case gdivadvp-26-8-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -577 advh 3079 bsb 1155 voy 1924
+case gdivadvp-26-8-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -945 advh 5041 bsb 1891 voy 3151
+case gdivadvp-26-8-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -808 advh 4310 bsb 1616 voy 2694
+case gdivadvp-26-8-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -693 advh 3696 bsb 1386 voy 2310
+case gdivadvp-26-8-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -577 advh 3079 bsb 1155 voy 1924
+case gdivadvp-26-9-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -945 advh 5672 bsb 2521 voy 3151
+case gdivadvp-26-9-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -808 advh 4849 bsb 2155 voy 2694
+case gdivadvp-26-9-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -693 advh 4158 bsb 1848 voy 2310
+case gdivadvp-26-9-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -577 advh 3464 bsb 1540 voy 1924
+case gdivadvp-26-9-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -315 advh 5672 bsb 1891 voy 3781
+case gdivadvp-26-9-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -269 advh 4849 bsb 1616 voy 3233
+case gdivadvp-26-9-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -231 advh 4158 bsb 1386 voy 2772
+case gdivadvp-26-9-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -192 advh 3464 bsb 1155 voy 2309
+case gdivadvp-26-10-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -315 advh 6302 bsb 2521 voy 3781
+case gdivadvp-26-10-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -269 advh 5388 bsb 2155 voy 3233
+case gdivadvp-26-10-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -231 advh 4620 bsb 1848 voy 2772
+case gdivadvp-26-10-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -192 advh 3849 bsb 1539 voy 2309
+case gdivadvp-26-10-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb -315 advh 6302 bsb 2521 voy 3781
+case gdivadvp-26-10-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb -269 advh 5388 bsb 2155 voy 3233
+case gdivadvp-26-10-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb -231 advh 4620 bsb 1848 voy 2772
+case gdivadvp-26-10-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb -192 advh 3849 bsb 1539 voy 2309
+case gdivadvp-26-11-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 315 advh 6932 bsb 2521 voy 4411
+case gdivadvp-26-11-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 269 advh 5927 bsb 2155 voy 3772
+case gdivadvp-26-11-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 231 advh 5082 bsb 1848 voy 3234
+case gdivadvp-26-11-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 192 advh 4234 bsb 1540 voy 2694
+case gdivadvp-26-11-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 315 advh 6932 bsb 2521 voy 4411
+case gdivadvp-26-11-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 269 advh 5927 bsb 2155 voy 3772
+case gdivadvp-26-11-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 231 advh 5082 bsb 1848 voy 3234
+case gdivadvp-26-11-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 192 advh 4234 bsb 1540 voy 2694
+case gdivadvp-26-12-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 315 advh 7562 bsb 3151 voy 4411
+case gdivadvp-26-12-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 269 advh 6466 bsb 2694 voy 3772
+case gdivadvp-26-12-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 231 advh 5543 bsb 2310 voy 3234
+case gdivadvp-26-12-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 192 advh 4619 bsb 1924 voy 2694
+case gdivadvp-26-12-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 315 advh 7562 bsb 3151 voy 4411
+case gdivadvp-26-12-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 269 advh 6466 bsb 2694 voy 3772
+case gdivadvp-26-12-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 231 advh 5543 bsb 2310 voy 3234
+case gdivadvp-26-12-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 192 advh 4619 bsb 1924 voy 2694
+case gdivadvp-26-13-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 945 advh 8192 bsb 3151 voy 5041
+case gdivadvp-26-13-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 808 advh 7005 bsb 2694 voy 4310
+case gdivadvp-26-13-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 693 advh 6006 bsb 2310 voy 3696
+case gdivadvp-26-13-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 577 advh 5004 bsb 1924 voy 3079
+case gdivadvp-26-13-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 945 advh 8192 bsb 3151 voy 5041
+case gdivadvp-26-13-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 808 advh 7005 bsb 2694 voy 4310
+case gdivadvp-26-13-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 693 advh 6006 bsb 2310 voy 3696
+case gdivadvp-26-13-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 577 advh 5004 bsb 1924 voy 3079
+case gdivadvp-26-14-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 945 advh 8822 bsb 3781 voy 5041
+case gdivadvp-26-14-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 808 advh 7543 bsb 3233 voy 4310
+case gdivadvp-26-14-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 693 advh 6468 bsb 2772 voy 3696
+case gdivadvp-26-14-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 577 advh 5388 bsb 2309 voy 3079
+case gdivadvp-26-14-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 1576 advh 8822 bsb 3151 voy 5672
+case gdivadvp-26-14-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1347 advh 7543 bsb 2694 voy 4849
+case gdivadvp-26-14-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1155 advh 6468 bsb 2310 voy 4158
+case gdivadvp-26-14-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 962 advh 5388 bsb 1924 voy 3464
+case gdivadvp-26-15-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 1576 advh 9452 bsb 3781 voy 5672
+case gdivadvp-26-15-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1347 advh 8082 bsb 3233 voy 4849
+case gdivadvp-26-15-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1155 advh 6929 bsb 2772 voy 4158
+case gdivadvp-26-15-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 962 advh 5773 bsb 2309 voy 3464
+case gdivadvp-26-15-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 1576 advh 9452 bsb 3781 voy 5672
+case gdivadvp-26-15-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1347 advh 8082 bsb 3233 voy 4849
+case gdivadvp-26-15-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1155 advh 6929 bsb 2772 voy 4158
+case gdivadvp-26-15-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 962 advh 5773 bsb 2309 voy 3464
+case gdivadvp-26-16-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2206 advh 10083 bsb 3781 voy 6302
+case gdivadvp-26-16-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1886 advh 8621 bsb 3233 voy 5388
+case gdivadvp-26-16-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1617 advh 7391 bsb 2772 voy 4620
+case gdivadvp-26-16-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1347 advh 6158 bsb 2309 voy 3849
+case gdivadvp-26-16-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2206 advh 10083 bsb 3781 voy 6302
+case gdivadvp-26-16-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1886 advh 8621 bsb 3233 voy 5388
+case gdivadvp-26-16-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1617 advh 7391 bsb 2772 voy 4620
+case gdivadvp-26-16-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1347 advh 6158 bsb 2309 voy 3849
+case gdivadvp-26-17-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2206 advh 10713 bsb 4411 voy 6302
+case gdivadvp-26-17-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1886 advh 9160 bsb 3772 voy 5388
+case gdivadvp-26-17-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1617 advh 7853 bsb 3234 voy 4620
+case gdivadvp-26-17-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1347 advh 6543 bsb 2694 voy 3849
+case gdivadvp-26-17-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2206 advh 10713 bsb 4411 voy 6302
+case gdivadvp-26-17-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 1886 advh 9160 bsb 3772 voy 5388
+case gdivadvp-26-17-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 1617 advh 7853 bsb 3234 voy 4620
+case gdivadvp-26-17-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1347 advh 6543 bsb 2694 voy 3849
+case gdivadvp-26-18-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2836 advh 11343 bsb 4411 voy 6932
+case gdivadvp-26-18-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 2425 advh 9699 bsb 3772 voy 5927
+case gdivadvp-26-18-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 2079 advh 8315 bsb 3234 voy 5082
+case gdivadvp-26-18-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1732 advh 6928 bsb 2694 voy 4234
+case gdivadvp-26-18-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2836 advh 11343 bsb 4411 voy 6932
+case gdivadvp-26-18-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 2425 advh 9699 bsb 3772 voy 5927
+case gdivadvp-26-18-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 2079 advh 8315 bsb 3234 voy 5082
+case gdivadvp-26-18-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1732 advh 6928 bsb 2694 voy 4234
+case gdivadvp-26-19-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 2836 advh 11973 bsb 5041 voy 6932
+case gdivadvp-26-19-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 2425 advh 10237 bsb 4310 voy 5927
+case gdivadvp-26-19-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 2079 advh 8777 bsb 3696 voy 5082
+case gdivadvp-26-19-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 1732 advh 7313 bsb 3079 voy 4234
+case gdivadvp-26-19-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 3466 advh 11973 bsb 4411 voy 7562
+case gdivadvp-26-19-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 2963 advh 10237 bsb 3772 voy 6466
+case gdivadvp-26-19-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 2541 advh 8777 bsb 3234 voy 5543
+case gdivadvp-26-19-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2117 advh 7313 bsb 2694 voy 4619
+case gdivadvp-26-20-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 3466 advh 12603 bsb 5041 voy 7562
+case gdivadvp-26-20-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 2963 advh 10776 bsb 4310 voy 6466
+case gdivadvp-26-20-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 2541 advh 9239 bsb 3696 voy 5543
+case gdivadvp-26-20-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2117 advh 7698 bsb 3079 voy 4619
+case gdivadvp-26-20-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 3466 advh 12603 bsb 5041 voy 7562
+case gdivadvp-26-20-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 2963 advh 10776 bsb 4310 voy 6466
+case gdivadvp-26-20-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 2541 advh 9239 bsb 3696 voy 5543
+case gdivadvp-26-20-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2117 advh 7698 bsb 3079 voy 4619
+case gdivadvp-26-21-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4096 advh 13233 bsb 5041 voy 8192
+case gdivadvp-26-21-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 3502 advh 11315 bsb 4310 voy 7005
+case gdivadvp-26-21-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3003 advh 9701 bsb 3696 voy 6006
+case gdivadvp-26-21-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2502 advh 8083 bsb 3079 voy 5004
+case gdivadvp-26-21-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4096 advh 13233 bsb 5041 voy 8192
+case gdivadvp-26-21-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 3502 advh 11315 bsb 4310 voy 7005
+case gdivadvp-26-21-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3003 advh 9701 bsb 3696 voy 6006
+case gdivadvp-26-21-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2502 advh 8083 bsb 3079 voy 5004
+case gdivadvp-26-22-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4096 advh 13864 bsb 5672 voy 8192
+case gdivadvp-26-22-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 3502 advh 11854 bsb 4849 voy 7005
+case gdivadvp-26-22-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3003 advh 10163 bsb 4158 voy 6006
+case gdivadvp-26-22-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2502 advh 8468 bsb 3464 voy 5004
+case gdivadvp-26-22-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4096 advh 13864 bsb 5672 voy 8192
+case gdivadvp-26-22-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 3502 advh 11854 bsb 4849 voy 7005
+case gdivadvp-26-22-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3003 advh 10163 bsb 4158 voy 6006
+case gdivadvp-26-22-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2502 advh 8468 bsb 3464 voy 5004
+case gdivadvp-26-23-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4726 advh 14494 bsb 5671 voy 8822
+case gdivadvp-26-23-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 4041 advh 12393 bsb 4849 voy 7543
+case gdivadvp-26-23-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3465 advh 10625 bsb 4158 voy 6468
+case gdivadvp-26-23-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2887 advh 8852 bsb 3464 voy 5388
+case gdivadvp-26-23-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4726 advh 14494 bsb 5671 voy 8822
+case gdivadvp-26-23-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 4041 advh 12393 bsb 4849 voy 7543
+case gdivadvp-26-23-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3465 advh 10625 bsb 4158 voy 6468
+case gdivadvp-26-23-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2887 advh 8852 bsb 3464 voy 5388
+case gdivadvp-26-24-0-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 4726 advh 15124 bsb 6302 voy 8822
+case gdivadvp-26-24-0-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 4041 advh 12931 bsb 5388 voy 7543
+case gdivadvp-26-24-0-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3465 advh 11087 bsb 4620 voy 6468
+case gdivadvp-26-24-0-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 2887 advh 9237 bsb 3849 voy 5388
+case gdivadvp-26-24-1-16384
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 8192 lsb 0 rsb 3781 tsb 5356 advh 15124 bsb 5672 voy 9452
+case gdivadvp-26-24-1-14009
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 7005 lsb 0 rsb 3233 tsb 4580 advh 12931 bsb 4849 voy 8082
+case gdivadvp-26-24-1-12011
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 6006 lsb 0 rsb 2772 tsb 3927 advh 11087 bsb 4158 voy 6929
+case gdivadvp-26-24-1-10007
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwgdiglyph hr 00000000
+glyph adv 5004 lsb 0 rsb 2309 tsb 3271 advh 9237 bsb 3464 voy 5773
 done
