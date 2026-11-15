@@ -1675,4 +1675,28 @@ fn measure(s: &mut String) {
             k += 1;
         }
     }
+    // one triangle under viewports of ten sizes, all centered on (8, 8): a vertical left edge at
+    // x = 8.5 + d, a flat lower edge at y = 8.5 + d, a 1/3 slope through (8.5, 8.5) + d; where
+    // the coverage of the pixel next to the edge flips tells where each viewport snaps it
+    let shapes: [fn(f64) -> [(f64, f64); 3]; 3] = [
+        |d| [(8.5 + d, 1.0), (8.5 + d, 15.0), (15.0, 8.0)],
+        |d| [(1.0, 8.5 + d), (15.0, 8.5 + d), (8.0, 15.0)],
+        |d| [(8.5 - 7.5 / 3.0 + d, 1.0), (8.5 + 6.5 / 3.0 + d, 15.0), (15.0, 8.0)],
+    ];
+    let mut k = 0;
+    for vw in [16, 20, 32, 48, 64, 144, 272, 528, 1040, 2064] {
+        let lo = 8 - vw / 2;
+        for shape in shapes {
+            writeln!(s, "case tri-vp-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport {lo} {lo} {vw} {vw}\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho {lo} {} {lo} {} -1 1\ngl glMatrixMode 0x1700", ctx(32), lo + vw, lo + vw).unwrap();
+            for j in -24..=24 {
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+                for (x, y) in shape(f64::from(j) / 8192.0) {
+                    glf(s, "glVertex2f", &[x, y]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+            writeln!(s, "glerr\nend").unwrap();
+            k += 1;
+        }
+    }
 }
