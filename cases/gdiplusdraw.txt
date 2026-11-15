@@ -7154,3 +7154,5219 @@ gpwrite 1 32bppRGB seed 1768709164
 gpdraw 0 1 - 0 0 8 64 0 3 8 1 copy 0 7 3
 gpread 0 32bppARGB
 end
+case hqx-6-0-25-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-25-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-25-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-25-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-25-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-25-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-25-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-25-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-25-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-25-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-25-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-25-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-25-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-25-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-25-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-25-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-25-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-25-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-25-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-25-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-25-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-25-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-25-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-25-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 25 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-31-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-31-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-31-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-31-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-31-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-31-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-31-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-31-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-31-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-31-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-31-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-31-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-31-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-31-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-31-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-31-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-31-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-31-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-31-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-31-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-31-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-31-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-31-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-31-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 31 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-40-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-40-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-40-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-40-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-40-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-40-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-40-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-40-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-40-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-40-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-40-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-40-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-40-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-40-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-40-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-40-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-40-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-40-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-40-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-40-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-40-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-40-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-40-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-40-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 40 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-47-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-47-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-47-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-47-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-47-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-47-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-47-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-47-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-47-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-47-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-47-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-47-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-47-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-47-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-47-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-47-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-47-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-47-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-47-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-47-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-47-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-47-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-47-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-47-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 47 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-53-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-53-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-53-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-53-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-53-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-53-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-53-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-53-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-53-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-53-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-53-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-53-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-53-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-53-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-53-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-53-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-53-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-53-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-53-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-53-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-53-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-53-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-53-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-53-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 53 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-13-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-13-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-13-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-13-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 13 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-11-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-11-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-11-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-11-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 11 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-7-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-7-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-7-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-7-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 7 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-0-5-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-6-2-5-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-0-5-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-0
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 4 0 1 4 0xffffaa55 copy 0
+gpfill 1 14 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-1
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 5 0 1 4 0xffffaa55 copy 0
+gpfill 1 15 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-2
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 6 0 1 4 0xffffaa55 copy 0
+gpfill 1 16 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-3
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 7 0 1 4 0xffffaa55 copy 0
+gpfill 1 17 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-4
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 8 0 1 4 0xffffaa55 copy 0
+gpfill 1 18 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-5
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 9 0 1 4 0xffffaa55 copy 0
+gpfill 1 19 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-6
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 10 0 1 4 0xffffaa55 copy 0
+gpfill 1 20 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-7
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 11 0 1 4 0xffffaa55 copy 0
+gpfill 1 21 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-8
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 12 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqx-7-2-5-9
+gpbitmap 0 64 4 32bppARGB
+gpbitmap 1 26 4 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 13 0 1 4 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 5 4 4 0 18 4 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-25-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-25-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-25-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-25-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-25-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-25-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-25-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-25-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-25-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-25-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-25-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-25-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-25-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-25-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-25-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-25-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-25-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-25-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-25-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-25-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-25-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-25-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-25-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-25-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 25 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-31-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-31-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-31-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-31-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-31-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-31-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-31-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-31-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-31-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-31-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-31-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-31-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-31-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-31-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-31-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-31-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-31-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-31-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-31-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-31-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-31-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-31-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-31-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-31-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 31 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-40-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-40-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-40-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-40-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-40-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-40-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-40-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-40-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-40-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-40-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-40-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-40-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-40-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-40-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-40-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-40-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-40-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-40-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-40-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-40-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-40-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-40-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-40-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-40-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 40 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-47-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-47-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-47-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-47-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-47-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-47-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-47-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-47-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-47-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-47-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-47-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-47-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-47-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-47-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-47-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-47-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-47-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-47-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-47-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-47-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-47-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-47-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-47-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-47-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 47 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-53-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-53-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-53-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-53-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-53-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-53-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-53-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-53-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-53-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-53-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-53-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-53-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-53-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-53-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-53-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-53-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-53-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-53-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-53-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-53-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-53-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-53-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-53-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-53-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 53 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-13-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-13-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-13-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-13-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 13 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-11-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-11-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-11-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-11-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 11 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-7-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-7-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-7-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-7-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 7 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-0-5-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 0
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-6-2-5-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 6 2
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-0-5-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 0
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-0
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 4 4 1 0xffffaa55 copy 0
+gpfill 1 0 14 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-1
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 5 4 1 0xffffaa55 copy 0
+gpfill 1 0 15 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-2
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 6 4 1 0xffffaa55 copy 0
+gpfill 1 0 16 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-3
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 7 4 1 0xffffaa55 copy 0
+gpfill 1 0 17 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-4
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 8 4 1 0xffffaa55 copy 0
+gpfill 1 0 18 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-5
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 9 4 1 0xffffaa55 copy 0
+gpfill 1 0 19 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-6
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 10 4 1 0xffffaa55 copy 0
+gpfill 1 0 20 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-7
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 11 4 1 0xffffaa55 copy 0
+gpfill 1 0 21 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-8
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 12 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
+case hqy-7-2-5-9
+gpbitmap 0 4 64 32bppARGB
+gpbitmap 1 4 26 32bppRGB
+gpclear 1 0xff000000
+gpfill 1 0 13 4 1 0xffffaa55 copy 0
+gpdraw 0 1 - 0 0 4 5 0 4 4 18 copy 0 7 2
+gpread 0 32bppARGB
+end
