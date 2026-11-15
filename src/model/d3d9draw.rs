@@ -1380,33 +1380,64 @@ impl D3d9 {
                 let ratio = major / minor.max(1.0);
                 let limit = self.samp(st, 10);
                 if major > 1.0 && limit > 1 && ratio > 1.0 {
-                    if limit > 3 && ratio >= 2.0 - 1.0 / 1024.0 {
-                        // (more taps: MAXANISOTROPY past 3 with the axes 2 or more apart,
-                        // aniso-axis-*; at 2 itself, as f32 rounds, aniso-4, -5, -17 mix two
-                        // taps with more)
+                    if limit > 3 && (ratio - 2.0).abs() < 1.0 / 1024.0 {
+                        // (at 2 itself, as f32 rounds: aniso-4, -5, -17 mix two taps with more)
                         return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
                     }
-                    // (MEASURED aniso-0, -1, -2, -6, -9, -12, -13, -15, -16, -19, -24, -25, -28
-                    // .. -30: two bilinear taps along the major axis, min(ratio - 1, 1) texels
-                    // apart about the center, ratio = major / max(minor, 1), their weighted sums
-                    // averaged and truncated)
-                    hit(clause::D3D9_TEX_ANISO2);
-                    let off = (ratio - 1.0).min(1.0) / 2.0;
-                    // (the taps' coordinates in f32: the offset turned to (u, v) and added to
-                    // them, aniso-30)
+                    let (taps, spacing) = if limit <= 3 || ratio < 2.0 {
+                        // (MEASURED aniso-0, -1, -2, -6, -9, -12, -13, -15, -16, -19, -24, -25,
+                        // -28 .. -30, aniso-axis-*: two bilinear taps along the major axis,
+                        // min(ratio - 1, 1) texels apart about the center)
+                        hit(clause::D3D9_TEX_ANISO2);
+                        (2u32, (ratio - 1.0).min(1.0))
+                    } else {
+                        // (MEASURED aniso-axis-*, aniso-7, -10, -14, -22, -26: as many taps
+                        // as the largest power of 2 MAXANISOTROPY holds, min(ratio, taps) /
+                        // (taps + 1) texels apart)
+                        hit(clause::D3D9_TEX_ANISON);
+                        let n = 1u32 << limit.min(16).ilog2();
+                        if minor > 1.0 + 1.0 / 64.0 && axis.0 != 0.0 && axis.1 != 0.0 && n > 4 && ratio < n as f64 / 2.0 {
+                            // (a slanted footprint, its minor axis past a texel, eight taps or
+                            // more and the ratio under half of them: aniso-27 differs at one
+                            // pixel, open)
+                            return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+                        }
+                        (n, ratio.min(n as f64) / (n as f64 + 1.0))
+                    };
+                    // (MEASURED aniso-22, aniso-30, aniso-axis-*: in f32, the step between taps
+                    // the major axis's direction times the spacing, in (u, v); two taps at the
+                    // center less and plus half of it, more from the first, center less
+                    // (taps / 2 - 1/2) steps, a step added for each)
                     let f = |a: f64| a as f32 as f64;
-                    let (du, dv) = (f(axis.0 / major * off / w), f(axis.1 / major * off / h));
+                    let (du, dv) = (f(f(f(axis.0 / major) * f(spacing)) / w), f(f(f(axis.1 / major) * f(spacing)) / h));
                     let (u, v) = (f(u), f(v));
                     let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
-                    let tap = |s: f64| self.bilinear_sum(st, tx, f(u + s * du) * w, f(v + s * dv) * h, mu, mv);
-                    let (Weighted::Bytes(a), Weighted::Bytes(b)) = (tap(-1.0)?, tap(1.0)?) else {
-                        // (texels other than 8-bit ones: no case)
-                        return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
-                    };
-                    // (MEASURED: each tap's sum truncated to a 64th of 1/255 before the two are
-                    // averaged and truncated; to 32nds or 128ths, or rounded, misses pixels)
+                    // (each tap's weighted sum truncated to a 64th of 1/255; to 32nds or 128ths,
+                    // or rounded, misses pixels)
                     const TAP: i64 = BILERP_ONE / 64;
-                    return Ok(std::array::from_fn(|k| (((a[k] / TAP + b[k] / TAP) / (2 * 64)) as f32 / 255.0) as f64));
+                    let back = taps as f64 / 2.0 - 0.5;
+                    let (mut pu, mut pv) = (f(u - back * du), f(v - back * dv));
+                    let mut vals: Vec<[i64; 4]> = Vec::new();
+                    for j in 0..taps {
+                        let (tu, tv) = if taps == 2 {
+                            let c = j as f64 - 0.5;
+                            (f(u + c * du), f(v + c * dv))
+                        } else {
+                            (pu, pv)
+                        };
+                        let Weighted::Bytes(t) = self.bilinear_sum(st, tx, tu * w, tv * h, mu, mv)? else {
+                            // (texels other than 8-bit ones: no case)
+                            return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
+                        };
+                        vals.push(t.map(|x| x / TAP));
+                        (pu, pv) = (f(pu + du), f(pv + dv));
+                    }
+                    // (MEASURED aniso-axis-*: the taps averaged in pairs of neighbors, truncated,
+                    // until one is left; summing them all misses pixels)
+                    while vals.len() > 1 {
+                        vals = vals.chunks(2).map(|p| std::array::from_fn(|k| (p[0][k] + p[1][k]) / 2)).collect();
+                    }
+                    return Ok(vals[0].map(|s| ((s / 64) as f32 / 255.0) as f64));
                 }
                 TexFilter::Linear
             }
