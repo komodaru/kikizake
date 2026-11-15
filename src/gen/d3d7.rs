@@ -483,6 +483,31 @@ pub fn d3d7edge() -> String {
             writeln!(s, "end").unwrap();
         }
     }
+    // the long edge on the left with an exact tie on a later row (D3D7.TRI.EDGE): a third
+    // vertex right of it, between its ends; cases of 12 (its own generator)
+    let mut rl = XorShift32::new(0x00d3_d7e1);
+    for dev in ["rgb", "mmx"] {
+        for chunk in 0..8 {
+            writeln!(s, "case longleft-{dev}-{chunk}\nd3d 7\nd3ddev {dev} 565 12 12\nd3drs set 22 1").unwrap();
+            let mut n = 0;
+            while n < 12 {
+                let t = V16 { x: rl.range(0, 191), y: rl.range(0, 100) };
+                let b = V16 { x: rl.range(0, 191), y: rl.range(t.y + 40, 191) };
+                let (dx, dy) = (b.x - t.x, b.y - t.y);
+                let first = (t.y + 15) / 16 + 1;
+                let tie = (first..=b.y / 16).any(|y| (t.x * dy + (16 * y - t.y) * dx).rem_euclid(16 * dy) == 0);
+                let third = V16 { x: rl.range(0, 191), y: rl.range(t.y + 1, b.y - 1) };
+                // (left: the third vertex right of the long edge)
+                let right = dx * (third.y - t.y) - dy * (third.x - t.x) < 0;
+                if !tie || !right || !stays_in(&[t, b, third]) {
+                    continue;
+                }
+                writeln!(s, "{}", tri(t, b, third)).unwrap();
+                n += 1;
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
     s
 }
 
