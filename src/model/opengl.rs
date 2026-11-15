@@ -2627,34 +2627,31 @@ impl Ctx {
     }
 
     /// the pixels of an antialiased point at window (x, y) (MEASURED, golden opengl-32
-    /// smooth-points-*: 51 images of points 0.5 to 9.25 wide: its size held to 0.5..10 and
-    /// rounded to the granularity 1/8, the pixels with any of 4 by 4 samples at ((i + 1/2) / 4,
-    /// (j + 1/2) / 4) strictly inside the circle of that diameter: GL.POINT.SMOOTH); a sample
-    /// within 0.004 of the circle is GL.RASTER.TIE (13 images on both sides of it)
+    /// smooth-points-*: 51 images of points 0.5 to 9.25 wide, other-calls-7): its size held to
+    /// 0.5..10 and rounded to the granularity 1/8; its center snapped as a polygon's corner
+    /// (`tri::Sub::snap`); the pixels with any of 4 by 4 samples at ((i + 1/2) / 4,
+    /// (j + 1/2) / 4) strictly inside the circle of that diameter, exactly, with the count of
+    /// them: GL.POINT.SMOOTH
     fn smooth_point(&self, x: f64, y: f64) -> Res<Vec<(i64, i64, u32)>> {
-        // (where alpha shows the coverage, every sample near the circle undecided)
-        let alpha_used = self.pf.rgba[3].0 > 0 || self.cap(BLEND) || self.cap(ALPHA_TEST);
         hit(clause::GL_POINT_SMOOTH);
         let size = (f64::from(self.point_size.clamp(0.5, 10.0)) * 8.0 + 0.5).floor() / 8.0;
-        let r = size / 2.0;
+        // (in 1/256 pixel: the radius a multiple of 1/16, the samples of 1/8)
+        let r = (size * 128.0) as i64;
+        let [vx, vy, vw, vh] = self.viewport;
+        let snap = |v: f64, o: i64, size: i64| {
+            let size = size as f64;
+            tri::Sub::snap((v - o as f64) * 2.0 / size - 1.0, size, tri::Sub((o as f64 * 256.0 + size * 128.0) as i64)).0
+        };
+        let (cx, cy) = (snap(x, vx, vw), snap(y, vy, vh));
         let mut out = Vec::new();
         for py in 0..H as i64 {
             for px in 0..W as i64 {
                 let mut k = 0;
-                let mut dmin = f64::INFINITY;
                 for i in 0..4 {
                     for j in 0..4 {
-                        let (sx, sy) = (px as f64 + (i as f64 + 0.5) / 4.0, py as f64 + (j as f64 + 0.5) / 4.0);
-                        let d = ((sx - x).powi(2) + (sy - y).powi(2)).sqrt();
-                        if alpha_used && (d - r).abs() < 0.004 {
-                            return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
-                        }
-                        dmin = dmin.min(d);
-                        k += u32::from(d < r);
+                        let (sx, sy) = (px * 256 + (2 * i + 1) * 32, py * 256 + (2 * j + 1) * 32);
+                        k += u32::from((sx - cx).pow(2) + (sy - cy).pow(2) < r * r);
                     }
-                }
-                if (dmin - r).abs() < 0.004 {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
                 }
                 if k > 0 {
                     out.push((px, py, k));

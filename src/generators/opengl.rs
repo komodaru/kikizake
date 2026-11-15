@@ -2145,6 +2145,15 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // antialiased rectangles into a buffer with alpha whose edges fall on samples (at 1/8 and
+    // 3/8 of a pixel), near the viewport's center and away from it
+    writeln!(s, "case raster-mode-10\nglctx 32 5\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glColor4ub 200 100 50 255").unwrap();
+    for r in [[8.125, 8.125, 8.875, 8.875], [7.375, 7.625, 9.625, 9.375], [5.125, 6.375, 7.875, 9.125], [2.125, 2.125, 13.875, 4.375], [9.375, 3.125, 14.625, 13.875], [6.0, 6.0, 10.0, 10.0]] {
+        writeln!(s, "gl glClear 0x4000").unwrap();
+        glf(s, "glRectf", &r);
+        read_all(s);
+    }
+    writeln!(s, "glerr\nend").unwrap();
     // 1-pixel lines with an end on a diamond's border, as line-tie-* but about pixels on the
     // other sides of the tie pivot (13, 9), (13, 2), (8, 2)
     for (q, (px, py, read)) in [(13.0, 9.0, "10 6 6 7"), (13.0, 2.0, "10 0 6 6"), (8.0, 2.0, "5 0 7 6")].into_iter().enumerate() {
