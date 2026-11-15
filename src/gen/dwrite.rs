@@ -405,6 +405,31 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "dwscript {c:#x} 0x20\ndwscript {c:#x} 0x20 0x41\ndwscript 0x41 {c:#x} 0x20\ndwscript 0x5d0 {c:#x} 0x20 0x41\ndwscript {c:#x} 0x300\ndwscript {c:#x} 0x2e 0x5d0\ndwscript 0x378 0x20 {c:#x}").unwrap();
     }
     writeln!(s, "end").unwrap();
+    // the system font fallback: which of the machine's fonts maps each character the font does
+    // not (alone, and among the font's own), and layouts that take it
+    const FB: [u32; 20] = [0x4e00, 0x3042, 0x30a2, 0xac00, 0x627, 0x628, 0x5d1, 0x915, 0xe01, 0x3b1, 0x430, 0x1f601, 0x2603, 0x2192, 0x378, 0xe000, 0x10fffd, 0x20ac, 0xe9, 0x7e];
+    writeln!(s, "case fallback-chars\n{}", font_line(&font(0x0fe1_0000))).unwrap();
+    for c in FB {
+        writeln!(s, "dwfallback {c:#x}\ndwfallback 0x41 {c:#x} 0x42\ndwfallback {c:#x} {c:#x} 0x20 {c:#x}").unwrap();
+    }
+    writeln!(s, "dwfallback 0x41 0x42 0x20 0x61\nend").unwrap();
+    for i in 0..12u32 {
+        let f = font(0x0fe2_0000 + i);
+        writeln!(s, "case fallback-{i}\n{}", font_line(&f)).unwrap();
+        let mut rl = XorShift32::new(0x1a71_0000 + i);
+        for _ in 0..4 {
+            let n = rl.range(1, 14);
+            let t: Vec<String> = (0..n)
+                .map(|_| {
+                    let (a, b) = (FB[rl.range(0, 19) as usize], FB[rl.range(0, 19) as usize]);
+                    format!("{:#x}", *rl.pick(&[0x41, 0x61, 0x20, 0x20, 0x2d, a, b]))
+                })
+                .collect();
+            writeln!(s, "dwfallback {}", t.join(" ")).unwrap();
+            writeln!(s, "dwlayout {} {} {} {}", rl.range(6, 48), rl.range(40, 800), rl.range(0, 1), t.join(" ")).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     // layouts without font fallback: characters the font does not map among those it does
     for i in 0..12u32 {
         let f = font(0x0fe0_0000 + i);

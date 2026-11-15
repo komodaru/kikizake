@@ -587,6 +587,13 @@ impl Dwrite {
                 out.push("dwrun hr 00000000".into());
                 out.extend(raster::run(p, mode, fit, em, x4, y4, &run)?);
             }
+            "dwfallback" => {
+                if t.len() < 2 {
+                    return Err(Fail::Empty);
+                }
+                let _ = face!();
+                return Err(Fail::Unmodeled(open::DW_LAYOUT_FALLBACK));
+            }
             "dwlayout" | "dwlayoutnf" => {
                 let (em, mw4, wrap) = (n(1)?, n(2)?, n(3)?);
                 let mut cps = Vec::new();

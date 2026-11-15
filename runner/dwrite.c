@@ -486,9 +486,91 @@ static void op_dwlayoutnf(void) {
     nofallback = 0;
 }
 
+/* dwfallback <cp>...: the system font fallback (IDWriteFactory2::GetSystemFontFallback) asked
+ * to map the text, its base font the face's family in a collection of the face's file alone
+ * (normal weight, style, stretch, en-us), as a layout of it would. Prints each mapped piece:
+ * "map <length> scale <bits>" and, when a system font maps it, "font <weight> <style> <stretch>
+ * sim <n> name <family name's UTF-16 units>", "fmetrics upm <n> asc <n> desc <n> gap <n>" and
+ * "glyphs <glyph>/<design advance>..." of its code points; "nofont" when none does. */
+static void op_dwfallback(void) {
+    artl = 0;
+    alen = utf16(1, atext, 256);
+    if (bad || !alen) { bad = 1; return; }
+    if (!needface()) return;
+    IDWriteFontSetBuilder1 *sb = NULL;
+    IDWriteFontSet *set = NULL;
+    IDWriteFontCollection1 *col = NULL;
+    IDWriteFontFamily *fam = NULL;
+    IDWriteLocalizedStrings *names = NULL;
+    IDWriteFontFallback *ff = NULL;
+    WCHAR fname[128] = { 0 };
+    HRESULT hr = IDWriteFactory5_CreateFontSetBuilder(dw, &sb);
+    if (SUCCEEDED(hr)) hr = IDWriteFontSetBuilder1_AddFontFile(sb, dwfile);
+    if (SUCCEEDED(hr)) hr = IDWriteFontSetBuilder1_CreateFontSet(sb, &set);
+    if (SUCCEEDED(hr)) hr = IDWriteFactory5_CreateFontCollectionFromFontSet(dw, set, &col);
+    UINT32 nf = SUCCEEDED(hr) ? IDWriteFontCollection1_GetFontFamilyCount(col) : 0;
+    if (SUCCEEDED(hr)) hr = nf ? IDWriteFontCollection1_GetFontFamily(col, 0, (IDWriteFontFamily1 **)&fam) : E_FAIL;
+    if (SUCCEEDED(hr)) hr = IDWriteFontFamily_GetFamilyNames(fam, &names);
+    if (SUCCEEDED(hr)) hr = IDWriteLocalizedStrings_GetString(names, 0, fname, 128);
+    if (SUCCEEDED(hr)) hr = IDWriteFactory5_GetSystemFontFallback(dw, &ff);
+    out("dwfallback hr %08lx\n", hr);
+    if (FAILED(hr)) goto done;
+    for (UINT32 at = 0; at < (UINT32)alen;) {
+        UINT32 len = 0;
+        IDWriteFont *f = NULL;
+        FLOAT scale = 0;
+        hr = IDWriteFontFallback_MapCharacters(ff, &src, at, alen - at, (IDWriteFontCollection *)col, fname, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, &len, &f, &scale);
+        if (FAILED(hr) || !len) { out("map hr %08lx\n", hr); if (f) IDWriteFont_Release(f); break; }
+        out("map %u scale %08x\n", len, fbits(scale));
+        if (!f) { out("nofont\n"); at += len; continue; }
+        IDWriteFontFamily *mf = NULL;
+        IDWriteLocalizedStrings *mn = NULL;
+        WCHAR mname[128] = { 0 };
+        if (SUCCEEDED(IDWriteFont_GetFontFamily(f, &mf)) && SUCCEEDED(IDWriteFontFamily_GetFamilyNames(mf, &mn))) {
+            UINT32 k = 0;
+            BOOL ex = FALSE;
+            if (FAILED(IDWriteLocalizedStrings_FindLocaleName(mn, L"en-us", &k, &ex)) || !ex) k = 0;
+            IDWriteLocalizedStrings_GetString(mn, k, mname, 128);
+        }
+        out("font %d %d %d sim %d name", IDWriteFont_GetWeight(f), IDWriteFont_GetStyle(f), IDWriteFont_GetStretch(f), IDWriteFont_GetSimulations(f));
+        for (int i = 0; mname[i]; i++) out(" %u", mname[i]);
+        out("\n");
+        DWRITE_FONT_METRICS m;
+        IDWriteFont_GetMetrics(f, &m);
+        out("fmetrics upm %u asc %u desc %u gap %d\n", m.designUnitsPerEm, m.ascent, m.descent, m.lineGap);
+        IDWriteFontFace *mface = NULL;
+        out("glyphs");
+        if (SUCCEEDED(IDWriteFont_CreateFontFace(f, &mface))) {
+            for (UINT32 i = at; i < at + len; i++) {
+                UINT32 c = atext[i];
+                if (c >= 0xd800 && c < 0xdc00 && i + 1 < at + len) { c = 0x10000 + ((c - 0xd800) << 10) + (atext[i + 1] - 0xdc00); i++; }
+                UINT16 g = 0;
+                DWRITE_GLYPH_METRICS gm;
+                memset(&gm, 0, sizeof gm);
+                IDWriteFontFace_GetGlyphIndices(mface, &c, 1, &g);
+                IDWriteFontFace_GetDesignGlyphMetrics(mface, &g, 1, &gm, FALSE);
+                out(" %u/%u", g, gm.advanceWidth);
+            }
+            IDWriteFontFace_Release(mface);
+        }
+        out("\n");
+        if (mn) IDWriteLocalizedStrings_Release(mn);
+        if (mf) IDWriteFontFamily_Release(mf);
+        IDWriteFont_Release(f);
+        at += len;
+    }
+done:
+    if (ff) IDWriteFontFallback_Release(ff);
+    if (names) IDWriteLocalizedStrings_Release(names);
+    if (fam) IDWriteFontFamily_Release(fam);
+    if (col) IDWriteFontCollection1_Release(col);
+    if (set) IDWriteFontSet_Release(set);
+    if (sb) IDWriteFontSetBuilder1_Release(sb);
+}
+
 static const struct kz_op dwrite_ops[] = {
     { "dwfont", op_dwfont }, { "dwinfo", op_dwinfo }, { "dwmetrics", op_dwmetrics }, { "dwgdimetrics", op_dwgdimetrics }, { "dwcmap", op_dwcmap }, { "dwglyph", op_dwglyph },
     { "dwgdiglyph", op_dwgdiglyph }, { "dwscript", op_dwscript }, { "dwbidi", op_dwbidi }, { "dwbreak", op_dwbreak }, { "dwshape", op_dwshape }, { "dwrun", op_dwrun },
-    { "dwlayout", op_dwlayout }, { "dwlayoutnf", op_dwlayoutnf }, { 0 },
+    { "dwlayout", op_dwlayout }, { "dwlayoutnf", op_dwlayoutnf }, { "dwfallback", op_dwfallback }, { 0 },
 };
 const struct kz_api dwrite_api = { "dwrite", dwrite_ops, dwrite_reset };
