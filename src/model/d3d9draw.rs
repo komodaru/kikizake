@@ -1757,10 +1757,12 @@ impl D3d9 {
         if tcis.iter().any(|&t| t != 0) {
             hit(clause::D3D9_STAGE_TCI);
         }
-        let moved = [256u32, 2].iter().any(|t| self.draw.xform.get(t).is_some_and(|m| *m != std::array::from_fn::<f32, 16, _>(|i| if i % 5 == 0 { 1.0 } else { 0.0 })));
-        if (0..8).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.tss(st, 24) != 0) || tcis.iter().any(|&t| t >> 16 != 0) && pos == 3 && fvf & 0x10 != 0 && (moved || self.rs(143) != 0) {
-            // (texture coordinates generated from normals under world or view matrices or
-            // NORMALIZENORMALS, or transformed by TEXTURETRANSFORMFLAGS: no case, open)
+        // (MEASURED tci-gen2-4, -5: TEXTURETRANSFORMFLAGS COUNT2 on stage 0 of XYZ vertices
+        // takes its set through TEXTURE0's matrix, D3D9.STAGE.TEXXFORM)
+        let ttf0 = self.tss(0, 24);
+        if (1..8).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.tss(st, 24) != 0) || ttf0 != 0 && (ttf0 != 2 || pos != 3 || tcis[0] >> 16 == 0 && sets[0] < ntex && tsize(sets[0]) != 2) {
+            // (TEXTURETRANSFORMFLAGS past stage 0, other counts, PROJECTED, sets not 2-D,
+            // pretransformed vertices: cases tci-ttf-*, open)
             return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN));
         }
         let stride = words.len() / nv;
@@ -1801,28 +1803,45 @@ impl D3d9 {
                     // CAMERASPACEREFLECTIONVECTOR R = 2 (E.N) N - E, E = -P / |P| (LOCALVIEWER);
                     // SPHEREMAP from R, m = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2), (Rx / m + 1/2,
                     // Ry / m + 1/2); D3D9.STAGE.TCIGEN)
-                    let uv = std::array::from_fn(|k| match TexGen::of(tcis[k], self.v8) {
-                        TexGen::Passthru => uv[k],
+                    let uv: [[f64; 2]; 2] = std::array::from_fn(|k| match TexGen::of(tcis[k], self.v8) {
+                        TexGen::Passthru => {
+                            if k == 0 && ttf0 == 2 {
+                                hit(clause::D3D9_STAGE_TEXXFORM);
+                                let t = self.tex_matrix([uv[k][0] as f32, uv[k][1] as f32, 1.0, 0.0]);
+                                [t[0] as f64, t[1] as f64]
+                            } else {
+                                uv[k]
+                            }
+                        }
                         gen => {
                             hit(clause::D3D9_STAGE_TCIGEN);
                             let c = self.camera_space(p);
-                            // (the vertex's normal as it is, world and view the identity; none: 0)
-                            let nn = if fvf & 0x10 != 0 { [w[pos], w[pos + 1], w[pos + 2]].map(f32::from_bits) } else { [0.0f32; 3] };
+                            // (the vertex's normal through the inverse transpose of world then
+                            // view, normalized under NORMALIZENORMALS; none: 0)
+                            let nn = if fvf & 0x10 != 0 { self.camera_normal([w[pos], w[pos + 1], w[pos + 2]].map(f32::from_bits)) } else { [0.0f32; 3] };
                             let pl = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
                             // (MEASURED tci-gen-4, -5: without LOCALVIEWER E = (0, 0, 1))
                             let e = if self.rs(142) != 0 { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
                             let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
                             let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
-                            match gen {
-                                TexGen::Passthru => [0.0, 0.0],
-                                TexGen::Normal => [nn[0] as f64, nn[1] as f64],
-                                TexGen::Position => [c[0] as f64, c[1] as f64],
-                                TexGen::Reflection => [r[0] as f64, r[1] as f64],
+                            let g: [f32; 3] = match gen {
+                                TexGen::Passthru => [0.0; 3],
+                                TexGen::Normal => nn,
+                                TexGen::Position => [c[0], c[1], c[2]],
+                                TexGen::Reflection => r,
                                 TexGen::SphereMap => {
                                     let m = 2.0 * (r[0] * r[0] + r[1] * r[1] + (r[2] - 1.0) * (r[2] - 1.0)).sqrt();
-                                    [(r[0] / m + 0.5) as f64, (r[1] / m + 0.5) as f64]
+                                    [r[0] / m + 0.5, r[1] / m + 0.5, 0.0]
                                 }
-                            }
+                            };
+                            let g = if k == 0 && ttf0 == 2 {
+                                hit(clause::D3D9_STAGE_TEXXFORM);
+                                let t = self.tex_matrix([g[0], g[1], g[2], 1.0]);
+                                [t[0], t[1], 0.0]
+                            } else {
+                                g
+                            };
+                            [g[0] as f64, g[1] as f64]
                         }
                     });
                     let (x, y, z, rhw, clip) = self.transform(p);
@@ -1869,6 +1888,38 @@ impl D3d9 {
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
         let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
         xv(xv([p[0], p[1], p[2], 1.0], m(256)), m(2))
+    }
+
+    /// a normal in camera space: through the inverse transpose of world then view's upper 3 x 3,
+    /// in f32, normalized under NORMALIZENORMALS
+    fn camera_normal(&self, n: [f32; 3]) -> [f32; 3] {
+        let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
+        let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
+        let (a, b) = (m(256), m(2));
+        let wv: [f32; 9] = std::array::from_fn(|i| (0..3).fold(0.0f32, |s, k| s + a[i / 3 * 4 + k] * b[k * 4 + i % 3]));
+        // (the cofactors: the inverse transpose up to 1 / det)
+        let e = |r: usize, c: usize| wv[r * 3 + c];
+        let cof: [f32; 9] = std::array::from_fn(|i| {
+            let (r, c) = (i / 3, i % 3);
+            let (r0, r1, c0, c1) = ((r + 1) % 3, (r + 2) % 3, (c + 1) % 3, (c + 2) % 3);
+            e(r0, c0) * e(r1, c1) - e(r0, c1) * e(r1, c0)
+        });
+        let det = e(0, 0) * cof[0] + e(0, 1) * cof[1] + e(0, 2) * cof[2];
+        // n' = n (M^-1)^T: (M^-1)^T = cof / det, row vector times it
+        let t: [f32; 3] = std::array::from_fn(|j| (0..3).fold(0.0f32, |s, k| s + n[k] * cof[k * 3 + j]) / det);
+        if self.rs(143) != 0 {
+            let l = (t[0] * t[0] + t[1] * t[1] + t[2] * t[2]).sqrt();
+            t.map(|x| x / l)
+        } else {
+            t
+        }
+    }
+
+    /// texture coordinates through stage 0's texture matrix (TEXTURE0, 16), a row vector
+    fn tex_matrix(&self, v: [f32; 4]) -> [f32; 4] {
+        let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
+        let a = *self.draw.xform.get(&16).unwrap_or(&id);
+        std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j]))
     }
 
     fn transform(&self, p: [f32; 3]) -> (f32, f32, f32, f32, [f32; 4]) {

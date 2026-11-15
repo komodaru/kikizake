@@ -966,6 +966,52 @@ fn suite(v8: bool) -> String {
             }
         }
     }
+    // texture matrices further (D3D9.STAGE.OPEN): the other counts and PROJECTED on passed and
+    // generated sets, 3-D sets, stage 1's matrix, pretransformed vertices
+    let tm = mat([0.5, 0.25, 0.1, 0.05, -0.25, 0.75, 0.2, 0.1, 0.1, 0.2, 0.9, 0.3, 0.3, 0.1, 0.4, 1.2]);
+    let ttfs: [(u32, u32, u32, u32); 14] = [(1, 0, 0x152, 0), (3, 0, 0x152, 0), (4, 0, 0x152, 0), (0x103, 0, 0x152, 0), (0x104, 0, 0x152, 0), (0x102, 0, 0x152, 0), (3, 0x20000, 0x152, 0), (0x103, 0x20000, 0x152, 0), (0x104, 0x20000, 0x152, 0), (2, 0, 0x10152, 0), (0x103, 0, 0x10152, 0), (2, 0, 0x152, 1), (2, 0, 0x144, 0), (0x103, 0, 0x144, 0)];
+    for (i, (ttf, tci, fvf, st)) in ttfs.into_iter().enumerate() {
+        open(&mut s, &format!("tci-ttf-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0\nrs set 22 1\nrs set 137 0\nrs set 7 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0", r.next()).unwrap();
+        texture_stage(&mut s);
+        writeln!(s, "tss set 0 11 {tci:#x}").unwrap();
+        if st == 1 {
+            writeln!(s, "d9tex 1 16 16 21\nd9texfill 1 {:#x}\nd9settex 1 1\ntss set 1 1 4\ntss set 1 2 2\ntss set 1 3 1\ntss set 1 11 0", r.next()).unwrap();
+        }
+        writeln!(s, "tss set {st} 24 {ttf:#x}\nd9xform {}{tm}\nd9fvf {fvf:#x}", 16 + st).unwrap();
+        let mut l = "d9draw 5 4".to_string();
+        for (x, y) in [(-0.9f32, 0.9f32), (0.9, 0.9), (-0.9, -0.9), (0.9, -0.9)] {
+            let (u, v) = (x * 0.5 + 0.5, 0.5 - y * 0.5);
+            if fvf == 0x144 {
+                write!(l, " {} {} {} {}", fb(u * 16.0 - 0.5), fb(v * 16.0 - 0.5), fb(0.5), fb(1.0)).unwrap();
+            } else {
+                let (nx, ny) = (r.range(-8, 8) as f32 / 10.0, r.range(-8, 8) as f32 / 10.0);
+                let nz = -(1.0 - (nx * nx + ny * ny).min(1.0)).sqrt();
+                write!(l, " {} {} {} {} {} {}", fb(x), fb(y), fb(0.5), fb(nx), fb(ny), fb(nz)).unwrap();
+            }
+            write!(l, " {:#x} {} {}", r.next() | 0xff00_0000, fb(u), fb(v)).unwrap();
+            if fvf & 0x10000 != 0 {
+                write!(l, " {}", fb(0.25 + u * 0.5)).unwrap();
+            }
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
+    // three stages, each reading its own set (D3D9.STAGE.OPEN: a third TEXCOORDINDEX)
+    for i in 0..2usize {
+        open(&mut s, &format!("tci-three-{i}"), 21, 16, 16);
+        writeln!(s, "d9clear 1 0 0 0").unwrap();
+        for t in 0..3 {
+            writeln!(s, "d9tex {t} 16 16 21\nd9texfill {t} {:#x}\nd9settex {t} {t}", r.next()).unwrap();
+        }
+        texture_stage(&mut s);
+        let sets = if i == 0 { [0u32, 1, 2] } else { [2, 0, 1] };
+        writeln!(s, "tss set 0 11 {}\ntss set 1 1 4\ntss set 1 2 2\ntss set 1 3 1\ntss set 1 11 {}\ntss set 2 1 {}\ntss set 2 2 2\ntss set 2 3 1\ntss set 2 11 {}\nd9fvf 0x344", sets[0], sets[1], [7u32, 10][i], sets[2]).unwrap();
+        let mut l = "d9draw 5 4".to_string();
+        for (x, y, u, v) in [(-0.5f32, -0.5f32, 0.0f32, 0.0f32), (15.5, -0.5, 1.0, 0.0), (-0.5, 15.5, 0.0, 1.0), (15.5, 15.5, 1.0, 1.0)] {
+            write!(l, " {} {} {} {} {:#x} {} {} {} {} {} {}", fb(x), fb(y), fb(0.0), fb(1.0), r.next(), fb(u), fb(v), fb(0.7 - v * 0.6), fb(0.1 + u * 0.8), fb(1.0 - u * 0.7), fb(0.2 + v * 0.5)).unwrap();
+        }
+        writeln!(s, "{l}\nd9rt\nend").unwrap();
+    }
     s
 }
 
