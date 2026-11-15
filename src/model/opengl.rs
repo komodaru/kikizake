@@ -1161,6 +1161,9 @@ pub struct FixedZ {
     pub value: u64,
 }
 
+/// a pixel a polygon fills: x, y, color, depth when it varies
+type Filled = (i64, i64, [f64; 4], Option<FixedZ>);
+
 /// a fragment: window position, color, depth in 0..1
 #[derive(Clone, Copy, Debug)]
 pub struct Frag {
@@ -2018,7 +2021,7 @@ impl Ctx {
     /// a fan from its first vertex, convex or not (golden poly-nc-*, prim-11; tie-x-2: the
     /// fan's diagonal taking in a corner on a center), each triangle's colors a plane through
     /// its rounded corners (GL.RASTER.INTERPOLATE).
-    fn fill(&self, q: &[([f64; 3], [f32; 4])], colors: &[[f64; 4]]) -> Res<Vec<(i64, i64, [f64; 4])>> {
+    fn fill(&self, q: &[([f64; 3], [f32; 4])], colors: &[[f64; 4]], depth: Option<(&[f32], tri::DepthBits)>) -> Res<Vec<Filled>> {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
         let ndc: Vec<[f64; 6]> = q.iter().zip(colors).map(|(v, c)| self.ndc(v.0).map(|n| [n[0], n[1], c[0], c[1], c[2], c[3]])).collect::<Res<_>>()?;
@@ -2036,9 +2039,15 @@ impl Ctx {
         for k in 1..v.len() - 1 {
             let at = [v[0], v[k], v[k + 1]];
             let value = [col[0], col[k], col[k + 1]];
-            for (x, y) in tri::pixels(&at, w, h) {
-                let c = if value[1] == value[0] && value[2] == value[0] { value[0] } else { tri::plane(at, value, x, y) };
-                out.push((x, y, c));
+            let color = |x, y| if value[1] == value[0] && value[2] == value[0] { value[0] } else { tri::plane(at, value, x, y) };
+            match depth {
+                None => out.extend(tri::pixels(&at, w, h).into_iter().map(|(x, y)| (x, y, color(x, y), None))),
+                Some((zs, bits)) if poly == ndc && zs.len() == v.len() => {
+                    let fixed = |z| FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(z)) };
+                    out.extend(tri::depths(at, [zs[0], zs[k], zs[k + 1]], w, h, bits).into_iter().map(|(x, y, z)| (x, y, color(x, y), Some(fixed(z)))));
+                }
+                // (depths that vary across a cut polygon are not measured)
+                Some(_) => return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE)),
             }
         }
         Ok(out)
@@ -2056,9 +2065,21 @@ impl Ctx {
             return Ok(());
         }
         let w: Vec<[f64; 3]> = q.iter().map(|v| self.window(v.0)).collect::<Res<_>>()?;
-        if w.iter().any(|p| p[2] != w[0][2]) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
-        }
+        let zs: Vec<f32> = w.iter().map(|p| p[2] as f32).collect();
+        // (depths that vary across the polygon, where a depth test reads them: in a 32-bit
+        // buffer GL.RASTER.INTERPOLATE.DEPTH, in a 16-bit one not measured)
+        let depth = if self.pf.depth > 0 && self.cap(DEPTH_TEST) && zs.iter().any(|z| *z != zs[0]) {
+            let bits = match self.pf.depth {
+                32 => tri::DepthBits::D32,
+                16 => tri::DepthBits::D16,
+                // (the formats have 32 or 16 depth bits only: WGL.FORMATS)
+                _ => return Err(Fail::Bad),
+            };
+            hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
+            Some((zs.as_slice(), bits))
+        } else {
+            None
+        };
         let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
         let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
         // (smooth colors under fog or lighting are not measured)
@@ -2079,7 +2100,7 @@ impl Ctx {
                 return Ok(());
             }
         }
-        let px = self.fill(q, &colors)?;
+        let px = self.fill(q, &colors, depth)?;
         hit(clause::GL_RASTER_TRIANGLE);
         if q.len() > 3 {
             hit(clause::GL_RASTER_POLYGON);
@@ -2091,8 +2112,8 @@ impl Ctx {
             hit(clause::GL_RASTER_INTERPOLATE_COLOR);
         }
         self.never = NeverPath::Other;
-        for (x, y, c) in px {
-            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: w[0][2], fixed, zfixed: None })?;
+        for (x, y, c, zfixed) in px {
+            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: w[0][2], fixed, zfixed })?;
         }
         Ok(())
     }
@@ -2312,9 +2333,9 @@ impl Ctx {
                         self.never = NeverPath::Other;
                         continue;
                     }
-                    let mut px = self.fill(q, &[c.map(f64::from); 4])?;
-                    px.sort_by_key(|(x, y, _)| (*y, *x));
-                    for (x, y, _) in px {
+                    let mut px = self.fill(q, &[c.map(f64::from); 4], None)?;
+                    px.sort_by_key(|(x, y, _, _)| (*y, *x));
+                    for (x, y, _, _) in px {
                         let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                         if r.is_err() {
                             self.never = NeverPath::Other;
@@ -3975,10 +3996,20 @@ pub mod tri {
         std::array::from_fn(|k| value[0][k] + (value[1][k] - value[0][k]) * l1 + (value[2][k] - value[0][k]) * l2)
     }
 
-    /// The pixels (x, y) of a `w` by `h` window whose centers a triangle (or any convex polygon)
-    /// covers: its two chains from the top vertex down to the bottom one, the left one by its
-    /// turn; per row, the centers L < x <= R.
-    pub fn pixels(v: &[Vertex], w: i64, h: i64) -> Vec<(i64, i64)> {
+    /// A row a polygon crosses: its center, the left and right edges' x there, and the upper
+    /// vertex of the left edge.
+    struct Span {
+        y: Sub,
+        l: Fine,
+        r: Fine,
+        /// the left edge's upper vertex and step per row
+        left_from: usize,
+        step: Step,
+    }
+
+    /// The rows a polygon (convex, in either turn) crosses, top down: its two chains from the
+    /// top vertex down to the bottom one, the left one by its turn.
+    fn spans(v: &[Vertex]) -> Vec<Span> {
         let n = v.len();
         let twice_area: i128 = (0..n).map(|k| i128::from(v[k].x.0) * i128::from(v[(k + 1) % n].y.0) - i128::from(v[(k + 1) % n].x.0) * i128::from(v[k].y.0)).sum();
         if n < 3 || twice_area == 0 {
@@ -3988,12 +4019,12 @@ pub mod tri {
         // (the chain going forward from the top vertex is the left one when the polygon turns
         // counterclockwise)
         let bottom = (0..n).min_by_key(|k| (v[*k].y, *k)).unwrap_or(0);
-        let chain = |step: usize| -> Vec<Edge> {
+        let chain = |step: usize| -> Vec<(Edge, usize)> {
             let mut out = Vec::new();
             let mut k = top;
             while k != bottom {
                 let next = (k + step) % n;
-                out.extend(Edge::new(v[k], v[next]));
+                out.extend(Edge::new(v[k], v[next]).map(|e| (e, k)));
                 k = next;
             }
             out
@@ -4001,16 +4032,135 @@ pub mod tri {
         let (fwd, back) = (chain(1), chain(n - 1));
         let (left, right) = if twice_area > 0 { (fwd, back) } else { (back, fwd) };
         let mut out = Vec::new();
-        for row in 0..h {
-            let y = center(row);
-            let (Some(l), Some(r)) = (left.iter().find(|e| e.spans(y)), right.iter().find(|e| e.spans(y))) else {
+        let mut y = Sub((v[top].y.0 - 129).div_euclid(256) * 256 + 128);
+        while y >= v[bottom].y {
+            if let (Some((l, from)), Some((r, _))) = (left.iter().find(|e| e.0.spans(y)), right.iter().find(|e| e.0.spans(y))) {
+                out.push(Span { y, l: l.walked(y), r: r.walked(y), left_from: *from, step: l.step });
+            }
+            y = Sub(y.0 - 256);
+        }
+        out
+    }
+
+    /// The pixel row or column whose center is at `c`.
+    fn index(c: Sub) -> i64 {
+        (c.0 - 128).div_euclid(256)
+    }
+
+    /// The first column whose center is right of `l`.
+    fn first_right(l: Fine) -> i64 {
+        (l.0.div_euclid(FINE_PER_SUB) - 128).div_euclid(256) + 1
+    }
+
+    /// The pixels (x, y) of a `w` by `h` window whose centers a triangle (or any convex polygon)
+    /// covers: per row, the centers L < x <= R.
+    pub fn pixels(v: &[Vertex], w: i64, h: i64) -> Vec<(i64, i64)> {
+        let mut out = Vec::new();
+        for s in spans(v) {
+            let row = index(s.y);
+            if !(0..h).contains(&row) {
                 continue;
-            };
-            let (l, r) = (l.walked(y), r.walked(y));
+            }
             for col in 0..w {
                 let x = center(col).fine();
-                if l < x && x <= r {
+                if s.l < x && x <= s.r {
                     out.push((col, row));
+                }
+            }
+        }
+        out
+    }
+
+    /// A depth buffer's fixed point: the scale a depth in 0..1 is multiplied by before it is
+    /// truncated to 32 bits, and how the buffer keeps the result.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum DepthBits {
+        /// 32 bits: units of 2^-31, kept doubled
+        D32,
+        /// 16 bits: units of 1 / (32767 * 65536), the top 15 bits kept doubled
+        D16,
+    }
+
+    impl DepthBits {
+        fn scale(self) -> f64 {
+            match self {
+                DepthBits::D32 => f64::from(1u32 << 31),
+                DepthBits::D16 => 32767.0 * 65536.0,
+            }
+        }
+        /// what the buffer keeps of an interpolated depth
+        pub fn stored(self, z: Fixed) -> u32 {
+            let u = z.0 as u32;
+            match self {
+                DepthBits::D32 => u << 1,
+                DepthBits::D16 => ((u >> 16) & 0x7fff) << 1,
+            }
+        }
+    }
+
+    /// A depth in a buffer's fixed point (`DepthBits`), wrapping as Windows' 32-bit integers do.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct Fixed(pub i32);
+
+    /// `v` times the buffer's scale truncated to a 32-bit integer; out of range, as the x86 and
+    /// x64 conversions give, the integer indefinite -2^31 (golden opengl-32 zinterp-9..15: thin
+    /// triangles whose depth changes by more than the whole range per pixel).
+    fn fixed(v: f32, bits: DepthBits) -> i32 {
+        let t = (f64::from(v) * bits.scale()).trunc();
+        if (-2_147_483_648.0..2_147_483_648.0).contains(&t) { t as i32 } else { i32::MIN }
+    }
+
+    /// The pixels (x, y) a triangle covers (as `pixels`), each with its depth (golden
+    /// opengl-32 zinterp-*, smooth-*, persp-*, GL.RASTER.INTERPOLATE.DEPTH):
+    /// - the change per pixel across and up, a and b, in float32 from the bottom vertex's edges
+    ///   to the top and middle ones: 1 / area, then each edge's dy and dx times it, times the
+    ///   depth differences;
+    /// - at each new left edge, the row's first pixel: its upper vertex's depth plus a times the
+    ///   distance across, then b times the distance up, to the pixel's center, in float32;
+    /// - each row below along the same edge: the row above's plus -b + a * t in float32, t the
+    ///   edge's step per row truncated toward zero, plus the change across for each column the
+    ///   first pixel moved beyond t;
+    /// - then the change across per pixel;
+    ///
+    /// each float32 is fixed as `fixed`, the integers adding as 32-bit ones.
+    pub fn depths(v: [Vertex; 3], z: [f32; 3], w: i64, h: i64, bits: DepthBits) -> Vec<(i64, i64, Fixed)> {
+        let top = (0..3).max_by_key(|k| (v[*k].y, std::cmp::Reverse(*k))).unwrap_or(0);
+        let bottom = (0..3).min_by_key(|k| (v[*k].y, *k)).unwrap_or(0);
+        let mid = 3 - top - bottom;
+        let px = |c: Sub| c.0 as f32 / 256.0;
+        let (o, p, q) = (v[bottom], v[top], v[mid]);
+        let (dx1, dy1, dx2, dy2) = (px(p.x) - px(o.x), px(p.y) - px(o.y), px(q.x) - px(o.x), px(q.y) - px(o.y));
+        let (dz1, dz2) = (z[top] - z[bottom], z[mid] - z[bottom]);
+        let inv = 1.0 / (dx1 * dy2 - dx2 * dy1);
+        let a = dz1 * (dy2 * inv) - dz2 * (dy1 * inv);
+        let b = dz2 * (dx1 * inv) - dz1 * (dx2 * inv);
+        let gx = fixed(a, bits);
+        let start = |k: usize, col: i64, y: Sub| {
+            let dx = (center(col).0 - v[k].x.0) as f32 / 256.0;
+            let dy = (y.0 - v[k].y.0) as f32 / 256.0;
+            fixed(z[k] + a * dx + b * dy, bits)
+        };
+        let mut out = Vec::new();
+        let mut prev: Option<(usize, i32, i64)> = None;
+        for s in spans(&v) {
+            let first = first_right(s.l);
+            let zr = match prev {
+                Some((from, zr, pfirst)) if from == s.left_from => {
+                    let t = s.step.0 / (1 << 22);
+                    let outer = fixed(-b + a * t as f32, bits);
+                    zr.wrapping_add(outer).wrapping_add(gx.wrapping_mul((first - pfirst - t) as i32))
+                }
+                _ => start(s.left_from, first, s.y),
+            };
+            prev = Some((s.left_from, zr, first));
+            let row = index(s.y);
+            if !(0..h).contains(&row) {
+                continue;
+            }
+            for col in 0..w {
+                let x = center(col).fine();
+                if s.l < x && x <= s.r {
+                    out.push((col, row, Fixed(zr.wrapping_add(gx.wrapping_mul((col - first) as i32)))));
                 }
             }
         }

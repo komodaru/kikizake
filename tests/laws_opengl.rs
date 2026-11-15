@@ -264,4 +264,43 @@ proptest! {
             prop_assert!(near(tri::plane(w, c, v[k].x.0, v[k].y.0), c[k]));
         }
     }
+    /// GL.RASTER.INTERPOLATE.DEPTH: a triangle's depths cover exactly its pixels, one depth
+    /// everywhere when its corners share it, and do not depend on the order of corners at
+    /// different heights
+    #[test]
+    fn depths_cover_the_pixels_and_ignore_order(v in any::<[(i16, i16); 3]>(), z in any::<[u16; 3]>(), wide in any::<bool>()) {
+        let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8), y: Sub(i64::from(y) / 8) });
+        let z = z.map(|q| f32::from(q) / 65535.0);
+        let bits = if wide { tri::DepthBits::D32 } else { tri::DepthBits::D16 };
+        let sorted = |mut p: Vec<(i64, i64, tri::Fixed)>| { p.sort_by_key(|q| (q.0, q.1)); p };
+        let d = sorted(tri::depths(v, z, 16, 16, bits));
+        let mut at: Vec<(i64, i64)> = d.iter().map(|q| (q.0, q.1)).collect();
+        at.sort();
+        let mut px = tri::pixels(&v, 16, 16);
+        px.sort();
+        prop_assert_eq!(&at, &px);
+        let flat = sorted(tri::depths(v, [z[0]; 3], 16, 16, bits));
+        prop_assert!(flat.windows(2).all(|w| w[0].2 == w[1].2));
+        if v[0].y != v[1].y && v[1].y != v[2].y && v[0].y != v[2].y {
+            for p in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
+                prop_assert_eq!(&d, &sorted(tri::depths(p.map(|k| v[k]), p.map(|k| z[k]), 16, 16, bits)));
+            }
+        }
+    }
+
+    /// GL.RASTER.INTERPOLATE.DEPTH: where the depth changes by less than 1/64 per pixel, each
+    /// pixel's depth is within 2^-16 of the plane through the corners
+    #[test]
+    fn depths_follow_the_plane(v in any::<[(i16, i16); 3]>(), z in any::<[u16; 3]>()) {
+        let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8 + 2048), y: Sub(i64::from(y) / 8 + 2048) });
+        let z = z.map(|q| f32::from(q) / 65535.0 * 0.5 + 0.25);
+        let c = z.map(f64::from);
+        for (x, y, d) in tri::depths(v, z, 16, 16, tri::DepthBits::D32) {
+            let plane = tri::plane(v, [[c[0]; 4], [c[1]; 4], [c[2]; 4]], x, y)[0];
+            let near = |k: usize| tri::plane(v, [[c[0]; 4], [c[1]; 4], [c[2]; 4]], x + [1, 0][k], y + [0, 1][k])[0];
+            prop_assume!((near(0) - plane).abs() < 1.0 / 64.0 && (near(1) - plane).abs() < 1.0 / 64.0);
+            let got = f64::from(d.0) / f64::from(1u32 << 31);
+            prop_assert!((got - plane).abs() < 1.0 / 65536.0, "{got} vs {plane}");
+        }
+    }
 }
