@@ -1762,7 +1762,8 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
         let p = png(d)?.map_err(|_| Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN))?;
         hit(clause::WICIMAGE_ICO_PNG);
         // (only 32bppBGRA entries get here: ico() refuses the others)
-        return Ok(Img { pal: None, dpi: (96.0, 96.0), ..p });
+        // (a 32bppBGRA PNG has no palette)
+        return Ok(Img { dpi: (96.0, 96.0), ..p });
     }
     let broken = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
@@ -2205,7 +2206,7 @@ impl WicImage {
                 if w * h > 1 << 22 || c.px.is_empty() {
                     // (a picture the model does not hold: its size only)
                     let (wf, _) = scale_formats(c.fmt, m);
-                    self.cur = Some(Img { w: w as u32, h: h as u32, px: vec![], pal: None, fmt: scale_formats(c.fmt, m).1, ..Img::new(1, 1, wf) });
+                    self.cur = Some(Img { w: w as u32, h: h as u32, px: vec![], fmt: scale_formats(c.fmt, m).1, ..Img::new(1, 1, wf) });
                     self.cur.as_mut().unwrap().dpi = c.dpi;
                     return Ok(true);
                 }

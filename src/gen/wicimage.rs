@@ -118,6 +118,10 @@ pub fn wicscale() -> String {
         let (w, h) = (r.range(1, dw - x), r.range(1, dh - y));
         writeln!(s, "case rect-{i}\nwbits bgr24 {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels {x} {y} {w} {h}\nend", r.next()).unwrap();
     }
+    // a large scaler of a mode that works in another format, and one scaled again
+    for m in ["hqcubic", "fant", "linear"] {
+        writeln!(s, "case bigsize-fmt-{m}\nwbits bgra 4 4 77\nwscale 4096 2048 {m}\nwinfo\nwscale 3 2 nn\nwinfo\nend").unwrap();
+    }
     s
 }
 
@@ -197,6 +201,11 @@ pub fn wictransform() -> String {
         }
         s += &l;
         s += "winfo\nwpixels\nend\n";
+    }
+    // a decoded picture of unequal resolutions turned: which resolution goes with which side
+    let f = bmp(40, 3, 2, 24, 0, [0; 4], 0, &[], &[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0], false, (2835, 5906));
+    for o in [0, 1, 2, 3, 9, 11] {
+        writeln!(s, "case flip-dpi-{o}\nwdecode {}\nwframe 0\nwflip {o}\nwinfo\nwpixels\nend", hex(&f)).unwrap();
     }
     s
 }
@@ -1198,6 +1207,16 @@ pub fn wicdecode() -> String {
         }
         f.extend_from_slice(&bytes(&mut r, 64 * array as usize));
         decode_case(&mut s, &format!("dds-dx10-{fmt}-{array}"), &f, array, false);
+    }
+    // an ICO's PNG entry with a resolution of its own (pHYs 150 by 72 dots an inch)
+    {
+        let mut r = XorShift32::new(0x1c0d);
+        let raw: Vec<Vec<u8>> = (0..3).map(|_| bytes(&mut r, 3 * 4)).collect();
+        let mut phys = 5906u32.to_be_bytes().to_vec();
+        phys.extend_from_slice(&2835u32.to_be_bytes());
+        phys.push(1);
+        let p = png(3, 3, 8, 6, false, &[(b"pHYs", phys)], &png_filter(&raw, 4, &[0, 0, 0]), 100);
+        decode_case(&mut s, "ico-png-phys", &ico(&[(3, 3, 32, p)]), 1, false);
     }
     s
 }

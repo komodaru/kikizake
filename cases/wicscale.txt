@@ -14179,3 +14179,24 @@ wbits bgr24 3 9 3942820242
 wscale 9 9 fant
 wpixels 4 1 2 7
 end
+case bigsize-fmt-hqcubic
+wbits bgra 4 4 77
+wscale 4096 2048 hqcubic
+winfo
+wscale 3 2 nn
+winfo
+end
+case bigsize-fmt-fant
+wbits bgra 4 4 77
+wscale 4096 2048 fant
+winfo
+wscale 3 2 nn
+winfo
+end
+case bigsize-fmt-linear
+wbits bgra 4 4 77
+wscale 4096 2048 linear
+winfo
+wscale 3 2 nn
+winfo
+end
