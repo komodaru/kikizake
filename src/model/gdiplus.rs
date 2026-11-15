@@ -1669,37 +1669,62 @@ impl Gdiplus {
                     return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
                 }
                 match interp {
-                    Interp::NearestNeighbor => {}
-                    Interp::Other => return Err(Fail::Unmodeled(open::GP_DRAW_SCALED)),
+                    Interp::NearestNeighbor | Interp::Bilinear => {}
+                    Interp::Bicubic | Interp::HighQualityBilinear | Interp::HighQualityBicubic => {
+                        return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                    }
                 }
                 hit(clause::GP_DRAW);
-                if !one {
-                    hit(clause::GP_DRAW_NEAREST);
-                }
                 let src = self.bmp[s].clone().unwrap();
                 let b = self.bmp[d].as_mut().unwrap();
                 let (dx, dy, w, h, sx, sy, sw, sh) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+                let matrix = attr.as_ref().and_then(|a| a.matrix);
+                // a source pixel through the attributes, premultiplied; None past the bitmap
+                let texel = |px: i64, py: i64| -> Res<Option<u32>> {
+                    if px < 0 || py < 0 || px >= i64::from(src.w) || py >= i64::from(src.h) {
+                        return Ok(None);
+                    }
+                    let p = src.px(px as u32, py as u32);
+                    Ok(Some(match matrix {
+                        None => convert(src.f, Pf::Pargb32, p, &[])? as u32,
+                        Some((m, flags)) => {
+                            let argb = convert(src.f, Pf::Argb32, p, &[])? as u32;
+                            convert(Pf::Argb32, Pf::Pargb32, u64::from(recolor(argb, &m, flags)), &[])? as u32
+                        }
+                    }))
+                };
                 let mut colors = std::collections::HashMap::new();
                 for y in dy.max(0)..(dy + h).min(b.h as i64) {
                     for x in dx.max(0)..(dx + w).min(b.w as i64) {
-                        let (kx, ky) = (nearest_x(x - dx, sw, w, po), nearest_y(y - dy, sh, h, po));
-                        // (a corner offset rounds the last rows and columns past the source
-                        // rectangle: such rows are left as they are, such columns read the
-                        // source pixel past the rectangle)
-                        if ky >= sh {
-                            continue;
-                        }
-                        let (px, py) = (sx + kx, sy + ky);
-                        if px < 0 || py < 0 || px >= src.w as i64 || py >= src.h as i64 {
-                            continue;
-                        }
-                        let p = src.px(px as u32, py as u32);
-                        let c = match attr.as_ref().and_then(|a| a.matrix) {
-                            None => convert(src.f, Pf::Pargb32, p, &[])? as u32,
-                            Some((m, flags)) => {
-                                let argb = convert(src.f, Pf::Argb32, p, &[])? as u32;
-                                convert(Pf::Argb32, Pf::Pargb32, u64::from(recolor(argb, &m, flags)), &[])? as u32
+                        let c = match interp {
+                            Interp::NearestNeighbor => {
+                                if !one {
+                                    hit(clause::GP_DRAW_NEAREST);
+                                }
+                                let (kx, ky) = (nearest_x(x - dx, sw, w, po), nearest_y(y - dy, sh, h, po));
+                                // (a corner offset rounds the last rows and columns past the source
+                                // rectangle: such rows are left as they are, such columns read the
+                                // source pixel past the rectangle)
+                                if ky >= sh {
+                                    continue;
+                                }
+                                match texel(sx + kx, sy + ky)? {
+                                    Some(c) => c,
+                                    None => continue,
+                                }
                             }
+                            Interp::Bilinear => {
+                                hit(clause::GP_DRAW_BILINEAR);
+                                let (tx, ty) = (Tap::bilinear(x, dx, w, sx, sw, po), Tap::bilinear(y, dy, h, sy, sh, po));
+                                let mut q4 = [[0u32; 2]; 2];
+                                for (j, row) in q4.iter_mut().enumerate() {
+                                    for (i, t) in row.iter_mut().enumerate() {
+                                        *t = texel(tx.at + i as i64, ty.at + j as i64)?.unwrap_or(0);
+                                    }
+                                }
+                                bilinear(q4, tx.w, ty.w)
+                            }
+                            Interp::Bicubic | Interp::HighQualityBilinear | Interp::HighQualityBicubic => unreachable!(),
                         };
                         colors.insert((x as u32, y as u32), c);
                     }
@@ -1713,21 +1738,90 @@ impl Gdiplus {
     }
 }
 
-/// InterpolationMode: NearestNeighbor (5) measured, the filtering modes open (GP.DRAW.SCALED)
+/// InterpolationMode: Default, LowQuality and Bilinear (0, 1, 3) draw alike, HighQuality as
+/// HighQualityBicubic (2, 7) (golden gdiplusdraw filter*-*)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Interp {
     NearestNeighbor,
-    Other,
+    Bilinear,
+    Bicubic,
+    HighQualityBilinear,
+    HighQualityBicubic,
 }
 
 impl Interp {
     pub fn new(v: i64) -> Option<Interp> {
         match v {
+            0 | 1 | 3 => Some(Interp::Bilinear),
+            2 | 7 => Some(Interp::HighQualityBicubic),
+            4 => Some(Interp::Bicubic),
             5 => Some(Interp::NearestNeighbor),
-            0..=7 => Some(Interp::Other),
+            6 => Some(Interp::HighQualityBilinear),
             _ => None,
         }
     }
+}
+
+/// a bilinear tap on one axis: the source pixel at and the weight of the one after it, out of
+/// Tap::one() (x86 256, x86-64 2048)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Tap {
+    pub at: i64,
+    pub w: u32,
+}
+
+impl Tap {
+    pub fn one() -> u32 {
+        if super::arch() == 32 { 256 } else { 2048 }
+    }
+    /// destination pixel p of a draw from d0 (length dn) of source s0 (length sn), in 16.16 fixed
+    /// point (GP.DRAW.BILINEAR): x86 steps from destination pixel 0 (the origin there rounded
+    /// once, the step s / d rounded), x86-64 rounds each pixel's place; pixel centers at +1/2
+    /// for a half pixel offset
+    pub fn bilinear(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset) -> Tap {
+        // places times 2 dn 65536, so that each is an integer
+        let den = 2 * dn;
+        let half = if po.half() { sn * 65536 - dn * 65536 } else { 0 };
+        let u = if super::arch() == 32 {
+            let step = (2 * sn * 65536 + dn).div_euclid(den);
+            let origin = (2 * dn * s0 * 65536 - 2 * d0 * sn * 65536 + half + dn).div_euclid(den);
+            origin + p * step
+        } else {
+            (2 * (p - d0) * sn * 65536 + 2 * dn * s0 * 65536 + half + dn).div_euclid(den)
+        };
+        let f = u & 0xffff;
+        if super::arch() == 32 {
+            Tap { at: u >> 16, w: (f >> 8) as u32 }
+        } else {
+            // (11 bits, rounded: a weight of 2048 takes the next pixel whole)
+            let w = (f + 16) >> 5;
+            Tap { at: (u >> 16) + (w >> 11), w: (w & 2047) as u32 }
+        }
+    }
+}
+
+/// four premultiplied texels [[top left, top right], [bottom left, bottom right]] weighted
+/// (GP.DRAW.BILINEAR): x86 across then down, each rounded to 8 bits; x86-64 the products of the
+/// weights at once, rounded
+pub fn bilinear(q: [[u32; 2]; 2], wx: u32, wy: u32) -> u32 {
+    let one = Tap::one();
+    let mut o = 0;
+    for sh in [0, 8, 16, 24] {
+        let c = |i: usize, j: usize| q[j][i] >> sh & 255;
+        let v = if super::arch() == 32 {
+            let top = (c(0, 0) * (one - wx) + c(1, 0) * wx + 128) >> 8;
+            let bottom = (c(0, 1) * (one - wx) + c(1, 1) * wx + 128) >> 8;
+            (top * (one - wy) + bottom * wy + 128) >> 8
+        } else {
+            let s = u64::from(c(0, 0)) * u64::from((one - wx) * (one - wy))
+                + u64::from(c(1, 0)) * u64::from(wx * (one - wy))
+                + u64::from(c(0, 1)) * u64::from((one - wx) * wy)
+                + u64::from(c(1, 1)) * u64::from(wx * wy);
+            ((s + (1 << 21)) >> 22) as u32
+        };
+        o |= v << sh;
+    }
+    o
 }
 
 /// the source column of destination column k of a NearestNeighbor draw (GP.DRAW.NEAREST):

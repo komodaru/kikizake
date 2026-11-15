@@ -324,4 +324,26 @@ proptest! {
             prop_assert_eq!(gp::nearest_x(k, s, s * n, po), k / n);
         }
     }
+    /// Bilinear: a texel weighted alone comes back as it is, and four equal texels give it back,
+    /// on either arch
+    #[test]
+    fn bilinear_keeps_a_lone_or_uniform_texel(c in any::<u32>(), wx in 0u32..2048, wy in 0u32..2048, arch in prop_oneof![Just(32u32), Just(64)]) {
+        kikizake::model::set_arch(arch);
+        let one = gp::Tap::one();
+        let (wx, wy) = (wx % one, wy % one);
+        prop_assert_eq!(gp::bilinear([[c, 0], [0, 0]], 0, 0), c);
+        prop_assert_eq!(gp::bilinear([[c, c], [c, c]], wx, wy), c);
+    }
+    /// Bilinear places: a 1:1 draw lands each pixel on its texel with no weight, and the places
+    /// never step back
+    #[test]
+    fn bilinear_places(p in 0i64..64, d0 in 0i64..32, dn in 1i64..64, s0 in 0i64..32, sn in 1i64..64, po in 0i64..5, arch in prop_oneof![Just(32u32), Just(64)]) {
+        kikizake::model::set_arch(arch);
+        let po = gp::PixelOffset::from_value(po).unwrap();
+        let t = gp::Tap::bilinear(d0 + p % dn, d0, dn, s0, dn, po);
+        prop_assert_eq!(t, gp::Tap { at: s0 + p % dn, w: 0 });
+        let (a, b) = (gp::Tap::bilinear(d0 + p, d0, dn, s0, sn, po), gp::Tap::bilinear(d0 + p + 1, d0, dn, s0, sn, po));
+        prop_assert!((b.at, b.w) >= (a.at, a.w));
+    }
 }
+
