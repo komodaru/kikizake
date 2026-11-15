@@ -292,7 +292,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 8, 0), ("d3d7dev", 83, 0), ("d3d7shade", 42, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 8, 0), ("d3d7dev", 36, 0), ("d3d7shade", 42, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -470,15 +470,16 @@ fn long_ties_round_toward_zero() {
     assert!(moved > 1000 && checked > 100_000, "{moved} {checked}");
 }
 
-/// D3D7.LINE: a line (|dx| > |dy|, or the other way) draws exactly one pixel in each whole column
-/// of its major axis strictly between its ends, the same one walked either way; LASTPIXEL off
-/// draws the same pixels but at most the last one's; for every line between two points of a
-/// grid of fifths of a pixel up to (5, 5) on a 6 x 6 target, on the RGB and ramp rasterizers
+/// D3D7.LINE: a line (|dx| >= |dy|, or the other way) draws exactly one pixel in each whole
+/// column of its major axis strictly between its ends, the same one walked either way but at an
+/// exact tie, where the two ways' f32 walks may lie side by side; LASTPIXEL off draws the same
+/// pixels but at most the last one's; for every line between two points of a grid of fifths of a
+/// pixel up to (5, 5) on a 6 x 6 target, on the RGB and ramp rasterizers
 #[test]
 fn lines_cross_each_column_once() {
     let (w, h) = (6i64, 6i64);
     let pts: Vec<(i64, i64)> = (0..17).flat_map(|i| (0..17).map(move |j| (i * 5, j * 5))).collect();
-    let mut drawn = 0;
+    let (mut drawn, mut ties) = (0, 0);
     for family in [Family::Soft { mmx: false }, Family::Ramp] {
         for &a in &pts {
             for &b in &pts {
@@ -506,16 +507,21 @@ fn lines_cross_each_column_once() {
                             })
                             .collect()
                     };
-                    // (an end's pixel may share the column with the line's)
+                    // (an end's pixel may share the column with the line's); the two ways meet
+                    // but at an exact tie (v + 7/16 a whole pixel), where they lie side by side
                     let (one, two) = (cells(&on), cells(&back));
                     let mid: Vec<i64> = one.iter().copied().filter(|n| two.contains(n)).collect();
-                    assert!(!mid.is_empty() && one.len() <= 2, "{a:?} {b:?} column {m}: {one:?}");
+                    let ((a0, b0), (a1, b1)) = if xmajor { (a, b) } else { ((a.1, a.0), (b.1, b.0)) };
+                    let tie = ((b0 + 7) * (a1 - a0) + (m * 16 - a0) * (b1 - b0)).rem_euclid(16 * (a1 - a0)) == 0;
+                    let near = one.iter().any(|p| two.iter().any(|q| (p - q).abs() == 1));
+                    assert!(one.len() <= 2 && (!mid.is_empty() || (tie && near)), "{a:?} {b:?} column {m}: {one:?} {two:?}");
+                    ties += usize::from(tie && mid.is_empty());
                 }
             }
         }
     }
-    // (most lines have no exact tie)
-    assert!(drawn > 100_000, "{drawn}");
+    // (exact ties are walked too, and some go apart)
+    assert!(drawn > 100_000 && ties > 100, "{drawn} {ties}");
 }
 
 proptest! {

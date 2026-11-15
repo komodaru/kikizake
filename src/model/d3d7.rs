@@ -1218,15 +1218,15 @@ enum End {
     Last,
 }
 
-/// the pixels of a line from v[0] to v[1] (1/16 pixel units): MEASURED (d3d7dev lines-*: 64
-/// random lines inside the target per drawer, LASTPIXEL on and off) on the software rasterizers
-/// and the ramp device, the line crosses each whole column m of its major axis (x when |dx| >
-/// |dy|) strictly between its ends at floor(v + 7/16), v the exact line there; an end on a whole
-/// column takes that rule too, another one its diamond: the pixel of centre (ceil(x - 1/2),
-/// ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the diamond's corner; the start's pixel
-/// is drawn, the last one's drawn with LASTPIXEL and taken out without. Exact ties, a corner at
-/// the last end of a line within 1/4 pixel of the diagonal, |dx| = |dy|, ends outside the target
-/// and the HAL's lines are not worked out (D3D7.STATES.OTHER)
+/// the pixels of a line from v[0] to v[1] (1/16 pixel units): MEASURED (d3d7dev lines-*,
+/// lineties-*, linemoves-*, lineseq-*: 2552 of 2552 soft lines, 820 of 820 ties) on the software
+/// rasterizers and the ramp device, the line crosses each whole column m of its major axis (x when
+/// |dx| >= |dy|) strictly between its ends at the floor of its f32 walk there (about v + 7/16, v
+/// the exact line); an end on a whole column takes that rule too, another one its diamond: the
+/// pixel of centre (ceil(x - 1/2), ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the
+/// diamond's corner; the start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out
+/// without. A corner at the last end of a line within 1/4 pixel of the diagonal, ends outside the
+/// target and the HAL's lines are not worked out (D3D7.STATES.OTHER)
 pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
     let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
     match family {
@@ -1245,24 +1245,40 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
     let xmajor = match dx.abs().cmp(&dy.abs()) {
         std::cmp::Ordering::Greater => true,
         std::cmp::Ordering::Less => false,
-        // MEASURED (d3d7dev linediag-*, lineties-*, linecorner-*: 109 soft diagonals) as
-        // x-major, but for a diagonal along the pixels' diamonds' sides (y ∓ x half a pixel past
-        // a whole one, its ends on those sides; 14 lines, D3D7.STATES.OTHER)
-        std::cmp::Ordering::Equal if (v[0].1 - dx.signum() * dy.signum() * v[0].0).rem_euclid(16) == 8 => return Err(other),
+        // MEASURED (d3d7dev linediag-*, lineties-*, linecorner-*: 123 soft diagonals) as x-major
         std::cmp::Ordering::Equal => true,
     };
+    // a diagonal along the pixels' diamonds' sides (y ∓ x half a pixel past a whole one): an end
+    // on a diamond's lower side is inside it, a start on its right corner goes to the pixel on the
+    // right (d3d7dev linediag-*: 14 such lines)
+    let along_sides = dx.abs() == dy.abs() && (v[0].1 - dx.signum() * dy.signum() * v[0].0).rem_euclid(16) == 8;
     // (major, minor) of each end
     let ends = v.map(|(x, y)| if xmajor { (x, y) } else { (y, x) });
     let ((a0, b0), (a1, b1)) = (ends[0], ends[1]);
-    // the line's minor pixel at whole column m: floor(b + 7/16) as num / den, den > 0
+    // the line's f32 walk (D3D7.LINE): slope (b1 − b0) · (1 / (a1 − a0)), each step rounded to
+    // f32, from column c0: the start's pixel's when the start lies inside its diamond, else the
+    // first whole one from the start on; there w0 = (b0 + 7/16) + (c0 − a0) · slope in f32, and
+    // at whole column m the pixel floor(w0 + (m − c0) · slope), taken exactly
+    let unmodeled = || Fail::Unmodeled(open::D3D7_STATES_OTHER);
+    let f = |c: i64| px_f32(c).ok_or_else(unmodeled);
+    let (fa0, fb0, fa1, fb1) = (f(a0)?, f(b0)?, f(a1)?, f(b1)?);
+    let slope = (fb1 - fb0) * (1.0 / (fa1 - fa0));
+    let in_diamond = {
+        let (ca, cb) = ((a0 + 7).div_euclid(16), (b0 + 7).div_euclid(16));
+        (a0 - ca * 16).abs() + (b0 - cb * 16).abs() < 8
+    };
+    let c0 = match (in_diamond, a1 > a0) {
+        (true, true) => (a0 + 8).div_euclid(16),
+        (true, false) => (a0 + 7).div_euclid(16),
+        (false, true) => (a0 + 15).div_euclid(16),
+        (false, false) => a0.div_euclid(16),
+    };
+    let w0 = (fb0 + 0.4375) + (f32::from(i16::try_from(c0).map_err(|_| unmodeled())?) - fa0) * slope;
+    let (w0, step) = (f32_scaled(w0).ok_or_else(unmodeled)?, f32_scaled(slope).ok_or_else(unmodeled)?);
     let column = |m: i64| -> Res<Along> {
-        let (da, db) = (a1 - a0, b1 - b0);
-        let num = (b0 + 7) * da + (m * 16 - a0) * db;
-        let (num, den) = if da < 0 { (-num, -16 * da) } else { (num, 16 * da) };
-        if num.rem_euclid(den) == 0 {
-            return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
-        }
-        Ok(Along { major: m, minor: num.div_euclid(den) })
+        let x = step.checked_mul(i128::from(m - c0)).and_then(|d| d.checked_add(w0)).ok_or_else(unmodeled)?;
+        let minor = i64::try_from(x.div_euclid(1i128 << 64)).map_err(|_| unmodeled())?;
+        Ok(Along { major: m, minor })
     };
     let mut px: Vec<Along> = Vec::new();
     let (lo, hi) = (a0.min(a1), a0.max(a1));
@@ -1282,12 +1298,14 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
             let corner = d == 8 && (ua == 8 || ub == 8);
             match (d < 8, corner, end) {
                 (true, _, _) => Some(Along { major: ca, minor: cb }),
+                (false, true, End::Start) if along_sides && ua == 8 => Some(Along { major: ca + 1, minor: cb }),
                 (false, true, End::Start) => Some(Along { major: ca, minor: cb }),
                 // MEASURED (d3d7dev linecorner-*: 186 lines ending on a corner) as at the
                 // start; a line within 1/4 pixel of the diagonal (|dx| − |dy|, in 16ths) went
                 // the other way in 3 of 8 (D3D7.STATES.OTHER)
                 (false, true, End::Last) if (dx.abs() - dy.abs()).abs() > 4 => Some(Along { major: ca, minor: cb }),
                 (false, true, End::Last) => return Err(other),
+                (false, false, _) if along_sides && ub > 0 => Some(Along { major: ca, minor: cb }),
                 (false, false, _) => None,
             }
         };
