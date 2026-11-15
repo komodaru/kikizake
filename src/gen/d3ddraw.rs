@@ -841,8 +841,9 @@ fn probes(s: &mut String, dev: &str) {
         writeln!(s, "draw 5 4 32\nread 0 0 256 16 1\nend").unwrap();
     }
     // what D3DRASTER.FILTER leaves open: anisotropic filtering, linear filtering of sRGB and
-    // SNORM texels, minifying a texture with mips (two texels a pixel)
-    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5)), ("trilinear", 0x15, 28, 3, (-1.5, 4.5)), ("aniso-min", 0x55, 28, 1, (-3.5, 4.5)), ("r10", 0x15, 24, 1, (-0.2, 0.9)), ("mips-point", 0x14, 28, 3, (-1.5, 4.5))] {
+    // SNORM texels, minifying a texture with mips (two texels a pixel), between two levels
+    // (spans of 1.0625, 1.25, sqrt 2, 1.75, 2.5 and 3 texels; float, 16-bit UNORM and point texels)
+    for (name, filter, fmt, mips, uv) in [("aniso", 0x55u32, 28u32, 1u32, (-0.2f32, 0.9f32)), ("srgb", 0x15, 29, 1, (-0.2, 0.9)), ("snorm", 0x15, 31, 1, (-0.2, 0.9)), ("mips", 0x15, 28, 3, (-3.5, 4.5)), ("trilinear", 0x15, 28, 3, (-1.5, 4.5)), ("aniso-min", 0x55, 28, 1, (-3.5, 4.5)), ("r10", 0x15, 24, 1, (-0.2, 0.9)), ("mips-point", 0x14, 28, 3, (-1.5, 4.5)), ("trilinear-1", 0x15, 28, 3, (-1.0, 3.25)), ("trilinear-2", 0x15, 28, 3, (-1.0, 4.0)), ("trilinear-3", 0x15, 28, 3, (-1.0, 4.656854)), ("trilinear-4", 0x15, 28, 3, (-1.0, 6.0)), ("trilinear-5", 0x15, 28, 3, (-1.0, 9.0)), ("trilinear-6", 0x15, 28, 3, (-1.0, 11.0)), ("trilinear-float", 0x15, 2, 3, (-1.5, 4.5)), ("trilinear-point", 0x1, 28, 3, (-1.5, 4.5)), ("trilinear-unorm16", 0x15, 11, 3, (-1.0, 6.0))] {
         writeln!(s, "case probe-filter-{name}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0").unwrap();
         let pitch = format(fmt).unwrap().row_bytes(4);
         writeln!(s, "tex 1 2 4 4 1 {mips} {fmt} 0 8 0 0 1 0 init 400 {pitch} 0\nsrv 1 1 nodesc\ntsrv 1\nsamp {filter:#x} 3 3 3").unwrap();

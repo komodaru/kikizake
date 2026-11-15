@@ -1419,6 +1419,22 @@ impl Filter {
 /// (MEASURED, WARP: probe-filter-*, 2425 values) a bilinear result n in 1/128 of a byte (n of
 /// 32640 for 1.0) as a float: the f32 nearest n ceil(2^46 / 32640) / 2^46, a hair above
 /// n / 32640 (seven values at 0.498 ulp past an f32 round up)
+/// the level or levels a sample reads
+#[derive(Clone, Copy)]
+enum Level {
+    One(u32),
+    /// between a level and the next, the weight of the next in 1/256
+    Two(u32, i64),
+}
+
+/// a level's filtered value before it is output
+enum Filtered {
+    Point([u32; 4]),
+    Wide([f32; 4]),
+    /// 8-bit UNORM: the value in 1/32640
+    Fixed([i64; 4]),
+}
+
 fn linear_float(n: i64) -> f32 {
     const M: i64 = (1 << 46) / 32640 + 1;
     const _: () = assert!(M * 32640 > 1 << 46 && (M - 1) * 32640 < 1 << 46);
@@ -1569,7 +1585,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             }
             let aniso = s[0] == 0x55;
             let (linear, level) = if filter.min == filter.mag && r.d.mips == 1 && !aniso {
-                (filter.mag, 0)
+                (filter.mag, Level::One(0))
             } else {
                 let (qx, qy) = (px & !1, py & !1);
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
@@ -1585,78 +1601,99 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                         // spans a texel or less is the linear filter
                         hit(clause::D3DRASTER_FILTER_ANISO);
                     }
-                    (filter.mag, 0)
+                    (filter.mag, Level::One(0))
                 } else if aniso {
                     return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 } else if r.d.mips == 1 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
-                    (filter.min, 0)
+                    (filter.min, Level::One(0))
                 } else {
                     // (MEASURED, WARP: probe-filter-mips) past one texel the level is log2 of the
                     // span: a whole level of it samples that level alone (mip point or linear);
                     // between levels not measured
                     let lod = rho.log2();
+                    let last = f64::from(r.d.mips - 1);
                     let level = if s[0] & 1 == 0 {
                         // (mip point: the nearest level)
-                        (lod + 0.5).floor()
-                    } else if lod.fract() == 0.0 || lod >= f64::from(r.d.mips - 1) {
-                        lod.floor()
+                        Level::One(((lod + 0.5).floor().min(last)) as u32)
+                    } else if lod.fract() == 0.0 || lod >= last {
+                        Level::One(lod.floor().min(last) as u32)
                     } else {
-                        return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                        Level::Two(lod.floor() as u32, (lod.fract() * 256.0).round() as i64)
                     };
                     hit(clause::D3DRASTER_FILTER_LEVEL);
-                    (filter.min, (level as u32).min(r.d.mips - 1))
+                    (filter.min, level)
                 }
             };
-            let (w, h, _) = r.size(level);
-            let at = |i: i64, j: i64| -> Res<[u32; 4]> {
-                match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
-                    (Some(x), Some(y)) => texel(r, level, v.format(), x as u32, y as u32),
-                    _ => {
-                        hit(clause::D3DRASTER_BORDER);
-                        Ok([0; 4])
+            let one = |level: u32| -> Res<Filtered> {
+                let (w, h, _) = r.size(level);
+                let at = |i: i64, j: i64| -> Res<[u32; 4]> {
+                    match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
+                        (Some(x), Some(y)) => texel(r, level, v.format(), x as u32, y as u32),
+                        _ => {
+                            hit(clause::D3DRASTER_BORDER);
+                            Ok([0; 4])
+                        }
                     }
+                };
+                // (MEASURED, WARP: probe-filter-*, every pixel) point: the texel floor(u w),
+                // floor(v h), the products in f32
+                if !linear {
+                    hit(clause::D3DRASTER_FILTER_POINT);
+                    return at((uv[0] * w as f32).floor() as i64, (uv[1] * h as f32).floor() as i64).map(Filtered::Point);
                 }
+                hit(clause::D3DRASTER_FILTER_LINEAR);
+                let split = |c: f32, n: u32| {
+                    let s = c * n as f32 - 0.5;
+                    let i = s.floor();
+                    (i as i64, ((s - i) * 256.0).floor() as i64)
+                };
+                let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
+                // (MEASURED, WARP: probe-filter-float, -unorm16, -srgb, -snorm, every value) float
+                // texels, 16-bit UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
+                // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
+                // 1/256 below the fraction
+                let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16));
+                if wide {
+                    hit(clause::D3DRASTER_FILTER_FLOAT);
+                    let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
+                    let f = |t: [u32; 4]| t.map(f32::from_bits);
+                    let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
+                    return Ok(Filtered::Wide([0, 1, 2, 3].map(|k| {
+                        let l = a[k] + (c[k] - a[k]) * fv;
+                        let r = b[k] + (e[k] - b[k]) * fv;
+                        l + (r - l) * fu
+                    })));
+                }
+                if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
+                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
+                }
+                let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
+                let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
+                Ok(Filtered::Fixed([0, 1, 2, 3].map(|k| {
+                    let l = (a[k] * (256 - wv) + c[k] * wv) >> 1;
+                    let r = (b[k] * (256 - wv) + e[k] * wv) >> 1;
+                    (l * (256 - wu) + r * wu) >> 8
+                })))
             };
-            // (MEASURED, WARP: probe-filter-*, every pixel) point: the texel floor(u w),
-            // floor(v h), the products in f32
-            if !linear {
-                hit(clause::D3DRASTER_FILTER_POINT);
-                return at((uv[0] * w as f32).floor() as i64, (uv[1] * h as f32).floor() as i64);
-            }
-            hit(clause::D3DRASTER_FILTER_LINEAR);
-            let split = |c: f32, n: u32| {
-                let s = c * n as f32 - 0.5;
-                let i = s.floor();
-                (i as i64, ((s - i) * 256.0).floor() as i64)
+            let done = |t: Filtered| match t {
+                Filtered::Point(t) => t,
+                Filtered::Wide(t) => t.map(f32::to_bits),
+                Filtered::Fixed(t) => t.map(|n| linear_float(n).to_bits()),
             };
-            let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
-            // (MEASURED, WARP: probe-filter-float, -unorm16, -srgb, -snorm, every value) float
-            // texels, 16-bit UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
-            // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
-            // 1/256 below the fraction
-            let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && f.comps.iter().all(|&c| c == 16));
-            if wide {
-                hit(clause::D3DRASTER_FILTER_FLOAT);
-                let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
-                let f = |t: [u32; 4]| t.map(f32::from_bits);
-                let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
-                return Ok([0, 1, 2, 3].map(|k| {
-                    let l = a[k] + (c[k] - a[k]) * fv;
-                    let r = b[k] + (e[k] - b[k]) * fv;
-                    (l + (r - l) * fu).to_bits()
-                }));
+            let mip_linear = |t: [u32; 4]| {
+                hit(clause::D3DRASTER_FILTER_MIPLINEAR);
+                t
+            };
+            match level {
+                Level::One(l) => done(one(l)?),
+                // (MEASURED, WARP: probe-filter-trilinear) between two levels
+                Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
+                    (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed([0, 1, 2, 3].map(|k| (a[k] * (256 - f) + b[k] * f) >> 8)))),
+                    (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| a[k] + (b[k] - a[k]) * (f as f32 / 256.0))))),
+                    (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                },
             }
-            if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
-                return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
-            }
-            let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
-            let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
-            [0, 1, 2, 3].map(|k| {
-                let l = (a[k] * (256 - wv) + c[k] * wv) >> 1;
-                let r = (b[k] * (256 - wv) + e[k] * wv) >> 1;
-                linear_float((l * (256 - wu) + r * wu) >> 8).to_bits()
-            })
         }
         _ => return Err(Fail::Unmodeled(open::D3DRASTER_PS)),
     })
