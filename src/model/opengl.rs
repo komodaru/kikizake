@@ -79,6 +79,11 @@ pub mod e {
     pub const FOG_MODE: u32 = 0xb65;
     pub const FOG_COLOR: u32 = 0xb66;
     pub const POLYGON_OFFSET_FILL: u32 = 0x8037;
+    pub const POLYGON_OFFSET_LINE: u32 = 0x2a02;
+    pub const POLYGON_OFFSET_POINT: u32 = 0x2a01;
+    pub const POLY_POINT: u32 = 0x1b00;
+    pub const POLY_LINE: u32 = 0x1b01;
+    pub const POLY_FILL: u32 = 0x1b02;
     pub const LIGHTING: u32 = 0xb50;
     pub const COLOR_MATERIAL: u32 = 0xb57;
     pub const POINT_SMOOTH: u32 = 0xb10;
@@ -2098,7 +2103,81 @@ impl Ctx {
     fn polygon(&mut self, q: &[([f64; 3], [f32; 4])], provoking: usize) -> Res<()> {
         // (filled polygons only: other polygon modes, stipple, antialiasing and offsets on
         // triangles are not measured)
-        if self.poly_mode != [0x1b02, 0x1b02] || self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
+        if self.poly_mode != [POLY_FILL, POLY_FILL] {
+            // (a polygon drawn as its edges or its corners, GL 1.1 3.5.4: by which way it
+            // faces, after culling; under a projection, or with edge flags, not measured)
+            let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
+            if clip.iter().any(|c| c[3] != 1.0) || self.cap(POLYGON_OFFSET_LINE) || self.cap(POLYGON_OFFSET_POINT) {
+                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            }
+            let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0]), f64::from(c[1])]).collect();
+            let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
+            let front = (area > 0.0) == (self.front_face == CCW);
+            if self.cap(CULL_FACE) {
+                hit(clause::GL_CULL);
+                let culled = match self.cull_mode {
+                    FRONT => front,
+                    BACK => !front,
+                    _ => true,
+                };
+                if culled {
+                    return Ok(());
+                }
+            }
+            let face = self.poly_mode[usize::from(!front)];
+            if face != POLY_FILL {
+                hit(clause::GL_RASTER_POLYGON_MODE);
+                // (the colors of a flat polygon's edges or corners: the provoking vertex's)
+                // (GL 1.1 3.5.4: the polygon cut to the view volume first, its edges and corners
+                // then those of the cut polygon: golden opengl-32 polymode-1, a corner past the
+                // window's bottom drawn as the cut's corners on it)
+                if self.cap(FOG) || self.cap(LIGHTING) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                }
+                let c = q[provoking].1;
+                let at: Vec<[f32; 8]> = clip
+                    .iter()
+                    .zip(q)
+                    .map(|(p, v)| {
+                        let c = if self.shade == FLAT { c } else { v.1 };
+                        [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3]]
+                    })
+                    .collect();
+                let cut = tri::clip(&at);
+                if cut != at {
+                    hit(clause::GL_RASTER_CLIP_XY);
+                }
+                let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                let win: Vec<([f64; 3], [f32; 4])> = cut
+                    .iter()
+                    .map(|p| {
+                        let n = [p[0], p[1]].map(f64::from);
+                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2]))], [p[4], p[5], p[6], p[7]])
+                    })
+                    .collect();
+                if face == POLY_POINT {
+                    hit(clause::GL_POINT);
+                    for (w, c) in win {
+                        self.point(w, c)?;
+                    }
+                    return Ok(());
+                }
+                if self.line_width != 1.0 || self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                }
+                for k in 0..win.len() {
+                    let (a, b) = (win[k], win[(k + 1) % win.len()]);
+                    if a.1 != b.1 || a.0[2] != b.0[2] {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                    }
+                    for (x, y) in self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]])? {
+                        self.fragment(Frag { x, y, c: a.1, z: a.0[2], fixed: self.span(), zfixed: None })?;
+                    }
+                }
+                return Ok(());
+            }
+        }
+        if self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
@@ -2193,64 +2272,7 @@ impl Ctx {
                         continue;
                     }
                     let w = self.window(v)?;
-                    // (MEASURED, golden opengl-32 points-*: a coordinate on a pixel boundary belongs
-                    // to the pixel right of it in x and below it in y: the rows counted from the top)
-                    // (MEASURED, golden opengl-32 point-edge-*: a coordinate on a pixel boundary
-                    // goes to the pixel toward the tie pivot, the pivot's own column to the right
-                    // and its own row below: GL.POINT.TIE)
-                    let (px, py) = self.tie_pivot();
-                    let x = if w[0].fract() == 0.0 {
-                        hit(clause::GL_POINT_TIE);
-                        if w[0] <= px { w[0] } else { w[0] - 1.0 }
-                    } else {
-                        w[0].floor()
-                    };
-                    let y = if w[1].fract() == 0.0 {
-                        hit(clause::GL_POINT_TIE);
-                        if w[1] < py { w[1] } else { w[1] - 1.0 }
-                    } else {
-                        w[1].floor()
-                    };
-                    let _ = (x, y);
-                    // (MEASURED, golden opengl-32 prim-*: a wide point whose position is outside
-                    // the viewport is clipped whole, one on its border kept: GL.RASTER.CLIP.XY)
-                    let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-                    if w[0] < vx || w[0] > vx + vw || w[1] < vy || w[1] > vy + vh {
-                        hit(clause::GL_RASTER_CLIP_XY);
-                        continue;
-                    }
-                    // (MEASURED, golden opengl-32 prim-*: a point of width n, its size rounded and
-                    // held to the size range, covers n x n pixels: for odd n centered on the pixel
-                    // the position is in, for even n with its corner at the pixel boundary nearest
-                    // the position, ties toward the pivot as for 1-pixel points: GL.POINT.WIDE)
-                    if self.cap(POINT_SMOOTH) {
-                        for (x, y, k) in self.smooth_point(w[0], w[1])? {
-                            let mut c = self.fogged(c, v);
-                            c[3] *= k as f32 / 16.0;
-                            self.fragment(Frag { x, y, c, z: w[2], fixed: self.smooth_fixed(), zfixed: None })?;
-                        }
-                        continue;
-                    }
-                    let n = f64::from(self.point_size.clamp(1.0, 10.0)).round();
-                    if n > 1.0 {
-                        hit(clause::GL_POINT_WIDE);
-                    }
-                    let half = (n / 2.0).floor();
-                    let (x0, y0) = if n % 2.0 == 1.0 {
-                        (x - half, y - half)
-                    } else {
-                        // (the boundary nearest the position; one halfway between two, toward the pivot)
-                        let near = |v: f64, p: f64| if (v + 0.5).fract() != 0.0 { (v + 0.5).floor() } else if v < p { v + 0.5 } else { v - 0.5 };
-                        (near(w[0], px) - half, near(w[1], py) - half)
-                    };
-                    for j in 0..n as i64 {
-                        for i in 0..n as i64 {
-                            let (x, y) = (x0 as i64 + i, y0 as i64 + j);
-                            if (0..W as i64).contains(&x) && (0..H as i64).contains(&y) {
-                                self.fragment(Frag { x, y, c: self.fogged(c, v), z: w[2], fixed: self.point_fixed(), zfixed: None })?;
-                            }
-                        }
-                    }
+                    self.point(w, self.fogged(c, v))?;
                 }
             }
             QUADS => {
@@ -2433,8 +2455,15 @@ impl Ctx {
                 }
             }
             LINES | LINE_LOOP | LINE_STRIP => {
-                // (wide, stippled and antialiased lines are not measured)
-                if self.line_width != 1.0 || self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
+                // (stippled and antialiased lines are not measured)
+                if self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                }
+                // (a wide line, GL 1.1 3.4.2: its width rounded, each fragment of the 1-pixel
+                // line a run of that many across its minor axis, from - floor((n - 1) / 2))
+                // (wide lines: not a run of round(w) about the 1-pixel line, nor the columns whose
+                // centers a w-tall band about the line holds, golden opengl-32 prim-5, 6, 14)
+                if self.line_width != 1.0 {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let n = verts.len();
@@ -2463,6 +2492,69 @@ impl Ctx {
                 }
             }
             _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+        }
+        Ok(())
+    }
+
+    /// A 1-pixel or wide or antialiased point at window position `w` in color `c` (GL.POINT).
+    fn point(&mut self, w: [f64; 3], c: [f32; 4]) -> Res<()> {
+        // (MEASURED, golden opengl-32 points-*: a coordinate on a pixel boundary belongs
+        // to the pixel right of it in x and below it in y: the rows counted from the top)
+        // (MEASURED, golden opengl-32 point-edge-*: a coordinate on a pixel boundary
+        // goes to the pixel toward the tie pivot, the pivot's own column to the right
+        // and its own row below: GL.POINT.TIE)
+        let (px, py) = self.tie_pivot();
+        let x = if w[0].fract() == 0.0 {
+            hit(clause::GL_POINT_TIE);
+            if w[0] <= px { w[0] } else { w[0] - 1.0 }
+        } else {
+            w[0].floor()
+        };
+        let y = if w[1].fract() == 0.0 {
+            hit(clause::GL_POINT_TIE);
+            if w[1] < py { w[1] } else { w[1] - 1.0 }
+        } else {
+            w[1].floor()
+        };
+        let _ = (x, y);
+        // (MEASURED, golden opengl-32 prim-*: a wide point whose position is outside
+        // the viewport is clipped whole, one on its border kept: GL.RASTER.CLIP.XY)
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        if w[0] < vx || w[0] > vx + vw || w[1] < vy || w[1] > vy + vh {
+            hit(clause::GL_RASTER_CLIP_XY);
+            return Ok(());
+        }
+        // (MEASURED, golden opengl-32 prim-*: a point of width n, its size rounded and
+        // held to the size range, covers n x n pixels: for odd n centered on the pixel
+        // the position is in, for even n with its corner at the pixel boundary nearest
+        // the position, ties toward the pivot as for 1-pixel points: GL.POINT.WIDE)
+        if self.cap(POINT_SMOOTH) {
+            for (x, y, k) in self.smooth_point(w[0], w[1])? {
+                let mut c = c;
+                c[3] *= k as f32 / 16.0;
+                self.fragment(Frag { x, y, c, z: w[2], fixed: self.smooth_fixed(), zfixed: None })?;
+            }
+            return Ok(());
+        }
+        let n = f64::from(self.point_size.clamp(1.0, 10.0)).round();
+        if n > 1.0 {
+            hit(clause::GL_POINT_WIDE);
+        }
+        let half = (n / 2.0).floor();
+        let (x0, y0) = if n % 2.0 == 1.0 {
+            (x - half, y - half)
+        } else {
+            // (the boundary nearest the position; one halfway between two, toward the pivot)
+            let near = |v: f64, p: f64| if (v + 0.5).fract() != 0.0 { (v + 0.5).floor() } else if v < p { v + 0.5 } else { v - 0.5 };
+            (near(w[0], px) - half, near(w[1], py) - half)
+        };
+        for j in 0..n as i64 {
+            for i in 0..n as i64 {
+                let (x, y) = (x0 as i64 + i, y0 as i64 + j);
+                if (0..W as i64).contains(&x) && (0..H as i64).contains(&y) {
+                    self.fragment(Frag { x, y, c, z: w[2], fixed: self.point_fixed(), zfixed: None })?;
+                }
+            }
         }
         Ok(())
     }
@@ -2510,38 +2602,7 @@ impl Ctx {
     /// |x - xc| + |y - yc| < 1/2 the segment meets, unless b is inside it, inside the viewport:
     /// GL.RASTER.LINE); a segment touching a diamond's border or ending on one is GL.RASTER.TIE
     fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
-        hit(clause::GL_RASTER_LINE);
-        // (MEASURED, golden opengl-32 lines-0: the ends first rounded to 1/64 of a pixel, a line
-        // 0.0004 from a diamond falling on the other side)
-        let snap = |v: f64| (v * 64.0).round() / 64.0;
-        let (a, b) = ([snap(a[0]), snap(a[1])], [snap(b[0]), snap(b[1])]);
-        let l1 = |p: [f64; 2], xc: f64, yc: f64| (p[0] - xc).abs() + (p[1] - yc).abs();
-        let [vx, vy, vw, vh] = self.viewport;
-        let mut out = Vec::new();
-        if a == b {
-            return Ok(out);
-        }
-        for y in vy.max(0)..(vy + vh).min(H as i64) {
-            for x in vx.max(0)..(vx + vw).min(W as i64) {
-                let (xc, yc) = (x as f64 + 0.5, y as f64 + 0.5);
-                // the least |x - xc| + |y - yc| on the segment: at an end or where it crosses
-                // the center's row or column
-                let mut d = l1(a, xc, yc).min(l1(b, xc, yc));
-                for t in [(xc - a[0]) / (b[0] - a[0]), (yc - a[1]) / (b[1] - a[1])] {
-                    if (0.0..=1.0).contains(&t) {
-                        d = d.min(l1([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])], xc, yc));
-                    }
-                }
-                let e = l1(b, xc, yc);
-                if d == 0.5 || e == 0.5 {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_TIE));
-                }
-                if d < 0.5 && e > 0.5 {
-                    out.push((x, y));
-                }
-            }
-        }
-        Ok(out)
+        tri::line(a, b, self.viewport).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_TIE))
     }
 
     fn bits(&self) -> [u32; 4] {
@@ -3929,6 +3990,87 @@ impl Ctx {
 ///   a row takes the centers strictly right of its left edge and at or left of its right edge,
 ///   the rows from an edge's lower vertex up to (not at) its upper one.
 pub mod tri {
+    /// A line touching a diamond where Windows' choice is not measured (GL.RASTER.TIE).
+    #[derive(Debug, PartialEq, Eq)]
+    pub struct Tie;
+
+    /// the pixels of a 1-pixel line from a to b in window coordinates (MEASURED, golden opengl-32
+    /// prim-3..8, 14, 15, lines-*: the ends rounded to 1/64, then the diamond-exit rule, GL 1.1 3.4.1: a pixel whose diamond
+    /// |x - xc| + |y - yc| < 1/2 the segment meets, unless b is inside it, inside the viewport:
+    /// GL.RASTER.LINE)
+    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> Result<Vec<(i64, i64)>, Tie> {
+        use std::cmp::Ordering;
+        super::hit(super::clause::GL_RASTER_LINE);
+        // (MEASURED, golden opengl-32 lines-0: the ends first rounded to 1/64 of a pixel, a line
+        // 0.0004 from a diamond falling on the other side)
+        let snap = |v: f64| (v * 64.0).round() / 64.0;
+        let (a, b) = ([snap(a[0]), snap(a[1])], [snap(b[0]), snap(b[1])]);
+        let l1 = |p: [f64; 2], xc: f64, yc: f64| (p[0] - xc).abs() + (p[1] - yc).abs();
+        let [vx, vy, vw, vh] = viewport;
+        let mut out = Vec::new();
+        if a == b {
+            return Ok(out);
+        }
+        for y in vy.max(0)..(vy + vh).min(super::H as i64) {
+            for x in vx.max(0)..(vx + vw).min(super::W as i64) {
+                let (xc, yc) = (x as f64 + 0.5, y as f64 + 0.5);
+                // the least |x - xc| + |y - yc| on the segment: at an end or where it crosses
+                // the center's row or column
+                let mut pts = vec![a, b];
+                for t in [(xc - a[0]) / (b[0] - a[0]), (yc - a[1]) / (b[1] - a[1])] {
+                    if (0.0..=1.0).contains(&t) {
+                        pts.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
+                    }
+                }
+                let d = pts.iter().map(|p| l1(*p, xc, yc)).fold(f64::INFINITY, f64::min);
+                let e = l1(b, xc, yc);
+                if d == 0.5 || e == 0.5 {
+                    // (MEASURED, golden opengl-32 prim-3, 4, 8, 15, polymode-0, 5: a diamond keeps
+                    // its bottom and right corners and the edge between them, not its top and
+                    // left corners: GL.RASTER.LINE.TIE; an end on a corner, and the other three
+                    // edges, not measured)
+                    let on: Vec<[f64; 2]> = pts.iter().copied().filter(|p| l1(*p, xc, yc) == 0.5).collect();
+                    let corner = |p: [f64; 2]| p[0] == xc || p[1] == yc;
+                    if (l1(a, xc, yc) == 0.5 && corner(a)) || (e == 0.5 && corner(b)) {
+                        return Err(Tie);
+                    }
+                    let mut touch = on.clone();
+                    for i in 0..on.len() {
+                        for j in i + 1..on.len() {
+                            touch.push([(on[i][0] + on[j][0]) / 2.0, (on[i][1] + on[j][1]) / 2.0]);
+                        }
+                    }
+                    let inc = |p: [f64; 2]| -> Result<bool, Tie> {
+                        let (dx, dy) = (p[0] - xc, p[1] - yc);
+                        if (dx.abs() + dy.abs()) != 0.5 {
+                            return Ok(dx.abs() + dy.abs() < 0.5);
+                        }
+                        Ok(match (dx.partial_cmp(&0.0), dy.partial_cmp(&0.0)) {
+                            // the bottom and right corners, the edge between them
+                            (Some(Ordering::Equal), Some(Ordering::Less)) | (Some(Ordering::Greater), Some(Ordering::Equal)) | (Some(Ordering::Greater), Some(Ordering::Less)) => true,
+                            // the top and left corners
+                            (Some(Ordering::Equal), Some(Ordering::Greater)) | (Some(Ordering::Less), Some(Ordering::Equal)) => false,
+                            _ => return Err(Tie),
+                        })
+                    };
+                    super::hit(super::clause::GL_RASTER_LINE_TIE);
+                    let mut hits = d < 0.5;
+                    for p in &touch {
+                        hits |= inc(*p)?;
+                    }
+                    if hits && !inc(b)? {
+                        out.push((x, y));
+                    }
+                    continue;
+                }
+                if d < 0.5 && e > 0.5 {
+                    out.push((x, y));
+                }
+            }
+        }
+        Ok(out)
+    }
+
     /// A window coordinate in units of 1/256 pixel.
     #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
     pub struct Sub(pub i64);
