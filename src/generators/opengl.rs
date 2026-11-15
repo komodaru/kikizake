@@ -2402,4 +2402,58 @@ fn measure(s: &mut String) {
         read_all(s);
     }
     writeln!(s, "glerr\nend").unwrap();
+    // smooth lines (colors changing along them) of every direction, some cut by the window's
+    // sides, at 32, 24 and 16 bits; flat-shaded lines, strips and loops of a color per vertex
+    let mut r = XorShift32::new(0x11e_c010);
+    for k in 0..5 {
+        let bpp = [32, 32, 24, 16, 32][k];
+        writeln!(s, "case line-color-{k}\n{}{ORTHO}gl glDisable 0xbd0", ctx(bpp)).unwrap();
+        if k == 4 {
+            writeln!(s, "gl glShadeModel 0x1d00").unwrap();
+        }
+        for n in 0..12 {
+            let (mode, count) = if k == 4 { [(1, 2), (3, 3), (2, 3)][n % 3] } else { (1, 2) };
+            writeln!(s, "gl glClear 0x4000\ngl glBegin {mode}").unwrap();
+            for _ in 0..count {
+                color(s, &mut r);
+                let (lo, hi) = if k == 1 { (-6, 22) } else { (-1, 17) };
+                glf(s, "glVertex2f", &[v8(&mut r, lo, hi), v8(&mut r, lo, hi)]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // what smooth colors do with lighting, as polygon outlines, antialiased lines (with and
+    // without an alpha buffer) and on a rectangle fogged across under a rotation
+    let setups = [
+        ("gl glEnable 0xb50\ngl glEnable 0x4000", 4, 3),
+        ("gl glPolygonMode 0x408 0x1b01", 4, 3),
+        ("gl glEnable 0xb20", 1, 2),
+        ("gl glEnable 0xb20", 1, 2),
+        ("gl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glTranslatef 8 8 0\ngl glRotatef 20 0 1 0", 0, 0),
+    ];
+    for (k, (setup, mode, count)) in setups.into_iter().enumerate() {
+        let context = if k == 3 { "glctx 32 choose 0x38 0 32 8 0 32 8\n".to_string() } else { ctx(32) };
+        writeln!(s, "case interp-open-{k}\n{context}{ORTHO}gl glDisable 0xbd0\n{setup}").unwrap();
+        for _ in 0..6 {
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            if count == 0 {
+                color(s, &mut r);
+                glf(s, "glRectf", &[v8(&mut r, -2, 0), v8(&mut r, -7, 0), v8(&mut r, 1, 3), v8(&mut r, 1, 7)]);
+            } else {
+                writeln!(s, "gl glBegin {mode}").unwrap();
+                for _ in 0..count {
+                    color(s, &mut r);
+                    if k == 0 {
+                        glf(s, "glNormal3f", &[r.range(-8, 8) as f64 / 8.0, r.range(-8, 8) as f64 / 8.0, 1.0]);
+                    }
+                    glf(s, "glVertex2f", &[v8(&mut r, -1, 17), v8(&mut r, -1, 17)]);
+                }
+                writeln!(s, "gl glEnd").unwrap();
+            }
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

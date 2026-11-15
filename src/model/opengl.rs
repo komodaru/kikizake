@@ -1182,6 +1182,13 @@ impl Given {
     }
 }
 
+/// A line's colors: one (flat, or both ends alike) or one per end (smooth)
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum LineColor {
+    Flat([f32; 4]),
+    Smooth([f32; 4], [f32; 4]),
+}
+
 /// How a line's first end came through the view volume.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FirstEnd {
@@ -2564,11 +2571,28 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
-                    let c = self.fogged(a.1, a.0);
-                    if a.1 != b.1 || self.fogged(b.1, b.0) != c {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                    // (fogged at the ends; flat: the second end's color, GL 1.1 2.13.7 table 2.8,
+                    // segment i takes vertex i + 1's)
+                    let (fa, fb) = (self.fogged(a.1, a.0), self.fogged(b.1, b.0));
+                    if self.shade == FLAT && fa != fb {
+                        hit(clause::GL_RASTER_LINE_FLAT);
                     }
+                    let color = match (self.shade == FLAT, fa == fb) {
+                        (true, _) | (false, true) => LineColor::Flat(fb),
+                        (false, false) => LineColor::Smooth(fa, fb),
+                    };
                     let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
+                    let c = match color {
+                        LineColor::Flat(c) => c,
+                        LineColor::Smooth(..) => {
+                            // (antialiased smooth lines are not measured)
+                            if self.cap(LINE_SMOOTH) {
+                                return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                            }
+                            self.deep_line(ca, cb, color)?;
+                            continue;
+                        }
+                    };
                     // (a wide line: cut to the view volume as one under a projection, golden
                     // opengl-32 prim-6, prim-14, line-wide-9..16)
                     // (w = 1 between the near and far planes, one depth: not cut, as measured
@@ -2591,7 +2615,7 @@ impl Ctx {
                         }
                         continue;
                     }
-                    self.deep_line(ca, cb, c)?;
+                    self.deep_line(ca, cb, LineColor::Flat(c))?;
                 }
             }
             _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
@@ -2710,7 +2734,7 @@ impl Ctx {
     /// `tri::line` gives for their window positions, each with its depth `tri::line_depth` (of
     /// the ends snapped as a polygon's corners, `tri::Sub::snap`) where the depth test reads
     /// it: GL.RASTER.INTERPOLATE.LINE
-    fn deep_line(&mut self, a: [f32; 4], b: [f32; 4], c: [f32; 4]) -> Res<()> {
+    fn deep_line(&mut self, a: [f32; 4], b: [f32; 4], color: LineColor) -> Res<()> {
         hit(clause::GL_RASTER_INTERPOLATE_LINE);
         // (antialiased lines under a projection or cut: not measured)
         if self.cap(LINE_SMOOTH) {
@@ -2720,7 +2744,11 @@ impl Ctx {
             hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
         }
         let (cut_left, cut_top, on_top) = (a[0] < -a[3], a[1] > a[3], a[1] == a[3]);
-        let Some((a, b)) = tri::clip_segment(a, b) else {
+        let ends = match color {
+            LineColor::Flat(c) => [c; 2],
+            LineColor::Smooth(ca, cb) => [ca, cb],
+        };
+        let Some(((a, b), ends)) = tri::clip_segment_carrying(a, b, ends) else {
             hit(clause::GL_RASTER_CLIP_XY);
             return Ok(());
         };
@@ -2767,7 +2795,14 @@ impl Ctx {
                 }
                 _ => None,
             };
-            self.fragment(Frag { x, y, c, z: f64::from(za), fixed: self.span(), zfixed })?;
+            let (c, fixed) = match (color, first) {
+                (LineColor::Smooth(..), Some(first)) => {
+                    hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
+                    (tri::line_color([pa[major], pb[major]], ends, first, [x, y][major]), ToFixed::Span)
+                }
+                _ => (ends[1], self.span()),
+            };
+            self.fragment(Frag { x, y, c, z: f64::from(za), fixed, zfixed })?;
         }
         Ok(())
     }
@@ -4488,7 +4523,13 @@ pub mod tri {
     /// A line cut to the view volume as `clip` cuts a polygon's edges (the planes in the same
     /// order, each cut point interpolated from the end inside it), or None when one plane has
     /// both ends past it (MEASURED, golden opengl-32 persp-more-0..2).
-    pub fn clip_segment(mut a: [f32; 4], mut b: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
+    pub fn clip_segment(a: [f32; 4], b: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
+        clip_segment_carrying(a, b, [[0.0; 4]; 2]).map(|(ends, _)| ends)
+    }
+
+    /// `clip_segment`, cutting the ends' colors `c` where it cuts the ends, in float32 alike
+    pub fn clip_segment_carrying(mut a: [f32; 4], mut b: [f32; 4], c: [[f32; 4]; 2]) -> Option<(([f32; 4], [f32; 4]), [[f32; 4]; 2])> {
+        let [mut ca, mut cb] = c;
         for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
             let (da, db) = (a[3] - sign * a[axis], b[3] - sign * b[axis]);
             match (da >= 0.0, db >= 0.0) {
@@ -4497,14 +4538,28 @@ pub mod tri {
                 (true, false) => {
                     let t = da / (da - db);
                     b = std::array::from_fn(|k| a[k] + t * (b[k] - a[k]));
+                    cb = std::array::from_fn(|k| ca[k] + t * (cb[k] - ca[k]));
                 }
                 (false, true) => {
                     let t = db / (db - da);
                     a = std::array::from_fn(|k| b[k] + t * (a[k] - b[k]));
+                    ca = std::array::from_fn(|k| cb[k] + t * (ca[k] - cb[k]));
                 }
             }
         }
-        Some((a, b))
+        Some(((a, b), [ca, cb]))
+    }
+
+    /// The color of a smooth line's pixel at index `j` along its major axis, whose (cut) ends
+    /// there are `major` (snapped) with colors `c`, the first pixel drawn at index `first`
+    /// (MEASURED, golden opengl-32 smooth-5: three lines, two cut): the first pixel drawn has
+    /// the first end's color (not the color at its center, as depths have), each next one
+    /// the change of color over the major length more, in float32.
+    pub fn line_color(major: [Sub; 2], c: [[f32; 4]; 2], first: i64, j: i64) -> [f32; 4] {
+        let run = major[1].0 - major[0].0;
+        let n = ((j - first) * run.signum()) as f32;
+        let per = 1.0 / (run.abs() as f32 / 256.0);
+        std::array::from_fn(|k| c[0][k] + n * ((c[1][k] - c[0][k]) * per))
     }
 
     /// The depth of a line's pixel at index `j` along its major axis, whose ends there are

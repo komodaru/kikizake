@@ -242,6 +242,22 @@ proptest! {
         prop_assert_eq!(first, (0..w).collect::<Vec<i64>>());
     }
 
+    /// GL.RASTER.INTERPOLATE.LINECOLOR: a smooth line's first pixel has its first end's color,
+    /// and the color moves by the same amount at each pixel, reaching the other end's color one
+    /// major length on, whichever way the line runs
+    #[test]
+    fn line_colors_run_between_the_ends(a in 0i64..16, len in 1i64..16, down in any::<bool>(), c in any::<[[u8; 4]; 2]>()) {
+        let c = c.map(|e| e.map(|v| f32::from(v) / 255.0));
+        let (m0, m1) = if down { (a + len, a) } else { (a, a + len) };
+        let major = [Sub(m0 * 256 + 128), Sub(m1 * 256 + 128)];
+        let at = |j| tri::line_color(major, c, m0, j);
+        prop_assert_eq!(at(m0), c[0]);
+        let end = at(m1);
+        for k in 0..4 {
+            prop_assert!((end[k] - c[1][k]).abs() < 1e-5, "{k}: {} for {}", end[k], c[1][k]);
+        }
+    }
+
     /// GL.DRAW.BUFFER: the bytes glDrawPixels reads are the given ones, then the runner's
     /// zeros to the end of its buffer; past the buffer is no answer
     #[test]
