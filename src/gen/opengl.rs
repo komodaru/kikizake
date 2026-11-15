@@ -1407,4 +1407,23 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glget f 0x8038 1\nglget f 0x2a00 1\ngl glPushAttrib 0x8\ngl glPolygonOffset 3 4\ngl glPopAttrib\nglget f 0x8038 1\nglget f 0x2a00 1\nglerr\nend").unwrap();
     }
+    // the same triangle twice: under the window's own viewport, where the clip volume cuts the
+    // ones past the window, and under a viewport reaching 16 pixels past every side, where
+    // nothing is cut and only the window bounds the pixels; vertices on the eighth grid (0, 1)
+    // and anywhere (2, 3)
+    let mut q = XorShift32::new(0x0960_200c);
+    for k in 0..4 {
+        writeln!(s, "case tri-clip-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glMatrixMode 0x1701\ngl glLoadIdentity", ctx(32)).unwrap();
+        for _ in 0..32 {
+            let v: Vec<(f64, f64)> = (0..3).map(|_| if k < 2 { (v8(&mut q, -2, 18), v8(&mut q, -2, 18)) } else { (q.range(-2048, 18 * 1024) as f64 / 1024.0, q.range(-2048, 18 * 1024) as f64 / 1024.0) }).collect();
+            for (vp, o) in [("0 0 16 16", "0 16 0 16"), ("-16 -16 48 48", "-16 32 -16 32")] {
+                writeln!(s, "gl glViewport {vp}\ngl glLoadIdentity\ngl glOrtho {o} -1 1\ngl glClear 0x4000\ngl glBegin 4").unwrap();
+                for (x, y) in &v {
+                    glf(s, "glVertex2f", &[*x, *y]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
