@@ -103,5 +103,13 @@ pub fn path() -> String {
         };
         writeln!(s, "case arcpath-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i / 6 % 2).unwrap();
     }
+    // large arcs (their own stream): FlattenPath's many lines show a part-quarter Bézier's
+    // control points to a fraction of a pixel
+    let mut r = XorShift32::new(0x0a2c_f1a7);
+    for i in 0..64 {
+        let c = |r: &mut XorShift32| r.range(-300, 300);
+        let q = |r: &mut XorShift32, n: usize| (0..n).map(|_| c(r).to_string()).collect::<Vec<_>>().join(" ");
+        writeln!(s, "case arcflat-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\narc 0 {}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i % 2, q(&mut r, 8)).unwrap();
+    }
     s
 }

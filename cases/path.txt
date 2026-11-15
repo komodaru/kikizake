@@ -5567,3 +5567,643 @@ getpath 0
 flatten 0
 getpath 0
 end
+case arcflat-0
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -117 -286 -67 123 152 -273 243 -165
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-1
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 265 287 -265 256 103 -7 260 170
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-2
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 250 220 138 -40 112 265 -133 -27
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-3
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -196 142 5 -181 177 -124 -236 93
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-4
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 39 -8 244 132 -34 -114 44 146
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-5
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -84 216 41 -34 -7 -292 -209 135
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-6
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -165 -12 -275 -158 -298 97 160 -155
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-7
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 184 122 -52 92 153 228 159 286
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-8
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -133 -40 -225 -73 -189 129 22 -77
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-9
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 75 -243 139 -53 -135 -74 169 -285
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-10
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 192 188 -245 25 -125 66 200 203
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-11
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -236 -6 156 -68 -118 -251 153 -106
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-12
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -20 126 -127 204 -269 237 -292 246
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-13
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 146 74 8 39 -76 -204 271 285
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-14
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -281 262 -176 -186 262 241 -114 -89
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-15
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -269 -163 -131 -238 -232 131 -231 -225
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-16
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 136 88 22 73 219 198 -51 -64
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-17
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 133 185 -286 -283 -165 -214 -137 31
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-18
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 51 263 25 -281 -95 244 280 226
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-19
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 269 84 155 260 260 175 21 -50
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-20
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 250 -245 -270 149 159 27 95 -152
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-21
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 168 -87 -257 129 -100 -185 223 -181
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-22
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 130 -137 137 183 -207 -98 187 152
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-23
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -101 75 166 -185 85 133 12 255
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-24
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 104 -249 217 209 52 51 97 -191
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-25
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -71 -220 -224 247 27 79 -142 85
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-26
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -212 -241 -259 38 9 -54 -39 214
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-27
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -176 32 256 179 -189 -279 213 -169
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-28
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 117 261 -236 -217 152 1 6 -256
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-29
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 142 -55 141 173 -67 -209 -130 110
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-30
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 61 240 23 205 -133 209 -203 215
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-31
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 270 -121 197 151 30 70 83 156
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-32
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 239 222 -167 -54 -11 291 222 -20
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-33
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 8 48 65 -180 -259 237 251 -152
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-34
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 77 -230 -50 -142 25 -149 -142 140
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-35
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 240 145 138 -276 119 287 -78 156
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-36
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 113 -112 150 206 -151 248 117 108
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-37
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -209 143 296 -247 -168 15 -207 265
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-38
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -25 -217 -241 -222 -299 -289 -228 105
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-39
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 186 64 137 232 -149 108 -108 -87
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-40
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 135 273 201 -10 218 -126 209 -33
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-41
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -199 140 129 22 276 -200 115 -87
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-42
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -174 -176 -294 32 54 -251 120 100
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-43
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 56 -11 42 227 -161 22 264 -147
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-44
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 181 -186 -239 -18 -219 126 -17 56
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-45
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -236 50 -71 287 -268 -27 -285 9
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-46
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 283 158 -140 -155 -171 -147 -99 -160
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-47
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 72 210 -247 -290 230 -256 -229 -15
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-48
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -283 61 294 -187 -11 244 211 -185
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-49
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -39 -271 -185 223 25 239 -132 -58
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-50
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -106 42 30 -170 288 148 204 -1
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-51
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -265 -109 -211 -163 159 -136 -257 288
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-52
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 282 -130 110 -283 225 54 260 -104
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-53
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 255 83 -81 149 -247 -239 -3 118
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-54
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 26 -125 -25 56 -10 -236 -239 285
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-55
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 174 -224 -300 -136 157 -219 -125 265
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-56
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 96 -149 190 171 -239 -203 17 -143
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-57
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 294 -138 221 -240 -217 -76 -96 -134
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-58
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 198 115 -109 139 -78 -27 124 -49
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-59
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -114 255 -257 215 195 8 -287 204
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-60
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 -197 237 -99 -173 -236 -292 220 73
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-61
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -235 40 253 -96 190 -120 254 -106
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-62
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+arc 0 182 19 -204 274 209 212 239 34
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end
+case arcflat-63
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+arc 0 -185 -196 -157 96 243 -212 152 148
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+end

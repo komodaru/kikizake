@@ -282,7 +282,7 @@ pub fn arc_beziers(bx: (i32, i32, i32, i32), rs: (i32, i32), re: (i32, i32), cw:
     }
     let mut cuts = vec![a0];
     let mut k = (a0 / FRAC_PI_2).floor() + 1.0;
-    while k * FRAC_PI_2 < a1 {
+    while k * FRAC_PI_2 <= a1 {
         cuts.push(k * FRAC_PI_2);
         k += 1.0;
     }

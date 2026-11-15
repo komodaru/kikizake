@@ -133,17 +133,6 @@ impl Map {
 }
 
 impl Map {
-    /// whether a point maps to a whole device point (no rounding), the world's numbers and the
-    /// page's quotient exact in f64
-    fn whole(&self, p: (i32, i32)) -> bool {
-        let w = self.world;
-        let e = self.ve_points();
-        let axis = |x: f64, we: i32, ve: i32, wo: i32, vo: i32| -> bool { we != 0 && ((x - f64::from(wo)) * f64::from(ve) / f64::from(we) + f64::from(vo)).fract() == 0.0 };
-        let (x, y) = (f64::from(p.0), f64::from(p.1));
-        let wx = x * f64::from(w[0]) + y * f64::from(w[2]) + f64::from(w[4]);
-        let wy = x * f64::from(w[1]) + y * f64::from(w[3]) + f64::from(w[5]);
-        axis(wx, self.wext.0, e.0, self.worg.0, self.vorg.0) && axis(wy, self.wext.1, e.1, self.worg.1, self.vorg.1)
-    }
     /// the world transform times the page transform, in f32: each of the world's six numbers
     /// times vext / wext (an f32 quotient) of its axis, the offsets plus vO - wO * that
     /// (GDI.XFORM.WORLDPOINT, GDI.XFORM.ROUNDWORLD)
