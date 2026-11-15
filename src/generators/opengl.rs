@@ -1738,6 +1738,28 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256\nglerr\nend", h(RED), h(UNSIGNED_BYTE)).unwrap();
     }
+    // smooth triangles over the whole window, inside a 1040 viewport (no clipping): corners
+    // at (-56, -56), (200, -56), (-56, 200) so each channel's plane steps by (c1 - c0) / 256
+    // a pixel along x and (c2 - c0) / 256 along y; colors from a sweep, each order of the
+    // corners: how Windows interpolates
+    let mut r = XorShift32::new(0x1f7e_4a0d);
+    for k in 0..8 {
+        writeln!(s, "case interp-{k}\n{}gl glDisable 0xbd0\ngl glShadeModel 0x1d01\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700", ctx(32)).unwrap();
+        for _ in 0..4 {
+            let cols: [[u32; 3]; 3] = std::array::from_fn(|_| std::array::from_fn(|_| r.next() % 256));
+            let corners = [(-56.0, -56.0), (200.0, -56.0), (-56.0, 200.0)];
+            for order in [[0, 1, 2], [1, 2, 0], [2, 0, 1], [0, 2, 1]] {
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+                for i in order {
+                    let c = cols[i];
+                    writeln!(s, "gl glColor4ub {} {} {} 255", c[0], c[1], c[2]).unwrap();
+                    glf(s, "glVertex2f", &[corners[i].0, corners[i].1]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // polygons that are not convex (a bow tie, an arrow, a pentagon with a notch, a pentagram),
     // each from every vertex both ways round, as GL_POLYGON and four-cornered ones as GL_QUADS:
     // how Windows splits them
