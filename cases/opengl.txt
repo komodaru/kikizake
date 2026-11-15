@@ -88200,6 +88200,186 @@ gl glEnd
 glread 0 0 16 16 0x1903 0x1401 256
 glerr
 end
+case tri-tie
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -1 -1 18 18
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -1 17 -1 17 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 12.5 1
+gl glVertex2f 12.5 15
+gl glVertex2f 16.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 3.5 1
+gl glVertex2f 3.5 15
+gl glVertex2f -0.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1 12.5
+gl glVertex2f 15 12.5
+gl glVertex2f 8 16.5
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1 3.5
+gl glVertex2f 15 3.5
+gl glVertex2f 8 -0.5
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glViewport -3 -3 18 18
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -3 15 -3 15 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 10.5 1
+gl glVertex2f 10.5 15
+gl glVertex2f 14.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1.5 1
+gl glVertex2f 1.5 15
+gl glVertex2f -2.5 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1 10.5
+gl glVertex2f 15 10.5
+gl glVertex2f 8 14.5
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1 1.5
+gl glVertex2f 15 1.5
+gl glVertex2f 8 -2.5
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-start-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 26.375 -12.875
+gl glVertex2f 8.60546875 28.08984375
+gl glVertex2f 60 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-start-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -9.7734375 -1.76171875
+gl glVertex2f 8.33203125 19.5390625
+gl glVertex2f 60 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-start-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 14.359375 -12.4375
+gl glVertex2f 10.13671875 19.1875
+gl glVertex2f 60 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-start-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 9.22265625 -8.43359375
+gl glVertex2f 4.74609375 30.36328125
+gl glVertex2f 60 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-start-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f -16.10546875 -21.6640625
+gl glVertex2f 6.9375 27.1328125
+gl glVertex2f 60 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
+case tri-start-5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glDisable 0xbd0
+gl glColor4ub 255 0 0 255
+gl glViewport -512 -512 1040 1040
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho -512 528 -512 528 -1 1
+gl glMatrixMode 0x1700
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 16.640625 -27.0703125
+gl glVertex2f 0.95703125 39.1015625
+gl glVertex2f 60 8
+gl glEnd
+glread 0 0 16 16 0x1903 0x1401 256
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

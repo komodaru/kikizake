@@ -1699,4 +1699,43 @@ fn measure(s: &mut String) {
             k += 1;
         }
     }
+    // a vertex at NDC +-1/2 under an 18 wide viewport lands on an exact half of a 1/256 step
+    // (8 + 1/2 (9 - 1/256) = 12.498046875) right beside a pixel center: which way a tie snaps
+    writeln!(s, "case tri-tie\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255", ctx(32)).unwrap();
+    for lo in [-1, -3] {
+        let c = f64::from(lo + 9);
+        writeln!(s, "gl glViewport {lo} {lo} 18 18\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho {lo} {} {lo} {} -1 1\ngl glMatrixMode 0x1700", lo + 18, lo + 18).unwrap();
+        for tri in [
+            [(c + 4.5, 1.0), (c + 4.5, 15.0), (c + 8.5, 8.0)],
+            [(c - 4.5, 1.0), (c - 4.5, 15.0), (c - 8.5, 8.0)],
+            [(1.0, c + 4.5), (15.0, c + 4.5), (8.0, c + 8.5)],
+            [(1.0, c - 4.5), (15.0, c - 4.5), (8.0, c - 8.5)],
+        ] {
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            for (x, y) in tri {
+                glf(s, "glVertex2f", &[x, y]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+        }
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    // long left edges whose first x lands near a half of a 1/256 step, where an exact start,
+    // a float32 start, a start from the float32 slope and one from the 2^-22 slope round apart
+    for (k, tri) in [
+        [(26.375, -12.875), (8.60546875, 28.08984375)],
+        [(-9.7734375, -1.76171875), (8.33203125, 19.5390625)],
+        [(14.359375, -12.4375), (10.13671875, 19.1875)],
+        [(9.22265625, -8.43359375), (4.74609375, 30.36328125)],
+        [(-16.10546875, -21.6640625), (6.9375, 27.1328125)],
+        [(16.640625, -27.0703125), (0.95703125, 39.1015625)],
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        writeln!(s, "case tri-start-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700\ngl glClear 0x4000\ngl glBegin 4", ctx(32)).unwrap();
+        for (x, y) in [tri[0], tri[1], (60.0, 8.0)] {
+            glf(s, "glVertex2f", &[x, y]);
+        }
+        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256\nglerr\nend", h(RED), h(UNSIGNED_BYTE)).unwrap();
+    }
 }
