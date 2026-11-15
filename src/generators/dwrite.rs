@@ -768,6 +768,28 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             }
         }
     }
+    // the same origin, with the glyph's top moved: 14 tops a unit apart about a quarter em, and
+    // 14 spread over the em, at 97 of those units per em (DW.GDI.EDGE: does the top decide it?)
+    {
+        let (pp, k) = (97i64, 66i64);
+        let fu = |f: i64, u: i64| (2 * f * u + 65536).div_euclid(131072);
+        let f0 = k * 65536 / pp;
+        let us: Vec<i64> = (2048..=16384i64).filter(|&u| fu(f0, u) != fu(f0 + 1, u)).collect();
+        let pick: Vec<i64> = us.iter().copied().filter(|&u| u <= 9300).step_by(8).chain(us.iter().copied().filter(|&u| u > 9300).step_by(80)).collect();
+        for &u in &pick {
+            for (h, tops) in [(0, (0..14).map(|j| u / 4 - 7 + j).collect::<Vec<i64>>()), (1, (0..14).map(|j| u * (j + 1) / 16).collect())] {
+                let gs: Vec<_> = tops.iter().map(|&t| ((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, t as i16)])).collect();
+                let mut f = font_with(0x0fd9_0000 + (u * 2 + h) as u32, u as u16, &gs);
+                f.vertical = true;
+                let v = (2 * k * u + pp).div_euclid(2 * pp);
+                for (i, &t) in tops.iter().enumerate() {
+                    f.glyphs[i + 1].vert = (v as u16, (v - t) as i16);
+                }
+                let gids: Vec<String> = (1..=tops.len()).map(|g| g.to_string()).collect();
+                writeln!(s, "case gdiv97top-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" ")).unwrap();
+            }
+        }
+    }
     // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
