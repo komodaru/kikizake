@@ -2294,11 +2294,27 @@ impl Ctx {
                 }
                 for k in 0..win.len() {
                     let (a, b) = (win[k], win[(k + 1) % win.len()]);
-                    if a.1 != b.1 || a.0[2] != b.0[2] {
+                    if a.0[2] != b.0[2] {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
-                    for (x, y) in self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]], FirstEnd::Kept)? {
-                        self.fragment(Frag { x, y, c: a.1, z: a.0[2], fixed: self.span(), zfixed: None })?;
+                    let pixels = self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]], FirstEnd::Kept)?;
+                    if a.1 == b.1 {
+                        for (x, y) in pixels {
+                            self.fragment(Frag { x, y, c: a.1, z: a.0[2], fixed: self.span(), zfixed: None })?;
+                        }
+                        continue;
+                    }
+                    // (an edge whose ends' colors differ: as a smooth line's,
+                    // GL.RASTER.INTERPOLATE.LINECOLOR)
+                    hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
+                    let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+                    let snap = |p: [f64; 3]| [tri::Sub::snap((p[0] - vx) * 2.0 / vw - 1.0, vw, center.0), tri::Sub::snap((p[1] - vy) * 2.0 / vh - 1.0, vh, center.1)];
+                    let (pa, pb) = (snap(a.0), snap(b.0));
+                    let major = usize::from((pb[1].0 - pa[1].0).abs() >= (pb[0].0 - pa[0].0).abs());
+                    let Some(first) = pixels.first().map(|p| [p.0, p.1][major]) else { continue };
+                    for (x, y) in pixels {
+                        let c = tri::line_color([pa[major], pb[major]], [a.1, b.1], first, [x, y][major]);
+                        self.fragment(Frag { x, y, c, z: a.0[2], fixed: ToFixed::Floor, zfixed: None })?;
                     }
                 }
                 return Ok(());
@@ -2591,9 +2607,9 @@ impl Ctx {
                     let c = match color {
                         LineColor::Flat(c) => c,
                         LineColor::Smooth(..) => {
-                            // (antialiased smooth lines are not measured)
                             if self.cap(LINE_SMOOTH) {
-                                return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                                self.smooth_aa_line(ca, cb, color)?;
+                                continue;
                             }
                             self.deep_line(ca, cb, color)?;
                             continue;
@@ -2820,6 +2836,36 @@ impl Ctx {
                 _ => (ends[1], self.span()),
             };
             self.fragment(Frag { x, y, c, z: f64::from(za), fixed, zfixed })?;
+        }
+        Ok(())
+    }
+
+    /// an antialiased line whose ends' colors differ, from its clip coordinates: inside the
+    /// view volume at one depth into a buffer without alpha, the pixels of GL.RASTER.LINE.SMOOTH
+    /// in the colors of GL.RASTER.INTERPOLATE.LINECOLOR (MEASURED, golden opengl-32
+    /// interp-open-2)
+    fn smooth_aa_line(&mut self, a: [f32; 4], b: [f32; 4], color: LineColor) -> Res<()> {
+        let flat = |c: [f32; 4]| c[3] == 1.0 && c[..3].iter().all(|v| (-1.0..=1.0).contains(v));
+        let LineColor::Smooth(ca, cb) = color else { return Err(Fail::Bad) };
+        // (cut, of depths that differ, or into a buffer with alpha: each pixel of the cone a
+        // color about a step on from its own row's, not settled, golden opengl-32
+        // interp-open-3: GL.RASTER.INTERPOLATE)
+        if !flat(a) || !flat(b) || a[2] != b[2] || self.pf.rgba[3].0 > 0 {
+            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+        }
+        hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+        let win = |c: [f32; 4]| [(f64::from(c[0]) + 1.0) * vw / 2.0 + vx, (f64::from(c[1]) + 1.0) * vh / 2.0 + vy];
+        let snap = |c: [f32; 4]| [tri::Sub::snap(f64::from(c[0]), vw, center.0), tri::Sub::snap(f64::from(c[1]), vh, center.1)];
+        let (pa, pb) = (snap(a), snap(b));
+        let major = usize::from((pb[1].0 - pa[1].0).abs() >= (pb[0].0 - pa[0].0).abs());
+        let pixels = self.line_pixels(win(a), win(b), FirstEnd::Kept)?;
+        let Some(first) = pixels.first().map(|p| [p.0, p.1][major]) else { return Ok(()) };
+        let z = self.window_z(a[2]);
+        for (x, y) in pixels {
+            let c = tri::line_color([pa[major], pb[major]], [ca, cb], first, [x, y][major]);
+            self.fragment(Frag { x, y, c, z: f64::from(z), fixed: ToFixed::Floor, zfixed: None })?;
         }
         Ok(())
     }
