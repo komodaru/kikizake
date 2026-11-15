@@ -88,5 +88,20 @@ pub fn path() -> String {
         let tail = if i % 2 == 0 { "getpath 0\nflatten 0\ngetpath 0\npathrgn 0 0\nrgndata 0".to_string() } else { format!("{} 0\ndump 0", ["fillpath", "strokepath", "strokefill"][r.range(0, 2) as usize]) };
         writeln!(s, "case curve-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\narcdir 0 {dir}\nbeginpath 0\n{sh}\nendpath 0\n{tail}\nend", r.range(1, 2)).unwrap();
     }
+    // round rectangles and arcs in a path, both directions, their Bézier points and FlattenPath's
+    // lines only (their own stream): corner radii from 0 past the box, arcs of every span
+    let mut r = XorShift32::new(0x0a2c_9a7e);
+    for i in 0..96 {
+        let c = |r: &mut XorShift32| r.range(-3, 26);
+        let q = |r: &mut XorShift32, n: usize| (0..n).map(|_| c(r).to_string()).collect::<Vec<_>>().join(" ");
+        let sh = match i % 6 {
+            0 | 1 => format!("roundrect 0 {} {} {}", q(&mut r, 4), r.range(0, 24), r.range(0, 24)),
+            2 => format!("arc 0 {}", q(&mut r, 8)),
+            3 => format!("arcto 0 {}", q(&mut r, 8)),
+            4 => format!("pie 0 {}", q(&mut r, 8)),
+            _ => format!("chord 0 {}", q(&mut r, 8)),
+        };
+        writeln!(s, "case arcpath-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i / 6 % 2).unwrap();
+    }
     s
 }
