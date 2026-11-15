@@ -2592,4 +2592,34 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // antialiased wide lines past GL.RASTER.LINE.SMOOTH.WIDE (raster-mode-6, 7): widths under
+    // 1.5 and past 3 (0); blended in colors over gray (1); into a buffer with alpha (2); in
+    // colors that differ (3)
+    let wides = [0.5, 1.25, 3.5, 4.0, 5.75, 7.0, 10.0, 12.5];
+    for k in 0..4 {
+        let alpha = if k == 2 { 8 } else { 0 };
+        writeln!(s, "case line-aa-wide-{k}\nglctx 32 choose 0x38 0 32 {alpha} 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20").unwrap();
+        if k == 1 {
+            writeln!(s, "gl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.4 0.5 0.6 1").unwrap();
+        }
+        for n in 0..8 {
+            let w = match k {
+                0 => wides[n],
+                _ => [1.5, 2.0, 2.5, 3.0][n % 4],
+            };
+            writeln!(s, "gl glLineWidth {}\ngl glClear 0x4000\ngl glBegin 1", f(w)).unwrap();
+            let l = [v8(&mut r, 2, 14), v8(&mut r, 2, 14), v8(&mut r, 2, 14), v8(&mut r, 2, 14)];
+            for e in 0..2 {
+                // (one color a line but in 3)
+                if k == 0 || k == 2 {
+                    writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+                } else if k == 3 || e == 0 {
+                    color(s, &mut r);
+                }
+                glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

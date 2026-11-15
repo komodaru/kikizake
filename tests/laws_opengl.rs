@@ -222,6 +222,25 @@ proptest! {
         }
     }
 
+    /// GL.RASTER.LINE.SMOOTH.WIDE: a wider antialiased line covers every pixel a narrower one
+    /// covers, each at least as much, and none more than whole
+    #[test]
+    fn wider_smooth_lines_cover_more(v in any::<[(u8, u8); 2]>(), w in 0u8..40, more in 1u8..40) {
+        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
+        let (a, b) = (end(v[0]), end(v[1]));
+        let (w0, w1) = (1.0 + f64::from(w) / 8.0, 1.0 + f64::from(w) / 8.0 + f64::from(more) / 8.0);
+        let thin = tri::smooth_line(a, b, [0, 0, 16, 16], tri::SmoothWidth(w0));
+        let wide = tri::smooth_line(a, b, [0, 0, 16, 16], tri::SmoothWidth(w1));
+        for &(x, y, f) in &thin {
+            prop_assert!(f > 0.0 && f <= 1.0);
+            let g = wide.iter().find(|p| (p.0, p.1) == (x, y)).map(|p| p.2);
+            prop_assert!(g.is_some_and(|g| g >= f), "({x}, {y}) {f} then {g:?}");
+        }
+        for &(_, _, g) in &wide {
+            prop_assert!(g > 0.0 && g <= 1.0);
+        }
+    }
+
     /// GL.RASTER.LINE.FLAT: a flat-shaded line is one pixel per major step from its first end's,
     /// each next to the last, the second end's not drawn; drawn the other way it lights the same
     /// pixels between the ends (the ties go the same way whichever way it runs), each within half
@@ -274,8 +293,8 @@ proptest! {
     fn smooth_lines_cover_the_same_both_ways(v in any::<[(u8, u8); 2]>()) {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 4.0, f64::from(y) / 32.0 + 4.0];
         let (a, b) = (end(v[0]), end(v[1]));
-        let there = tri::smooth_line(a, b, [0, 0, 16, 16]);
-        let back = tri::smooth_line(b, a, [0, 0, 16, 16]);
+        let there = tri::smooth_line(a, b, [0, 0, 16, 16], tri::SmoothWidth::ONE);
+        let back = tri::smooth_line(b, a, [0, 0, 16, 16], tri::SmoothWidth::ONE);
         prop_assert_eq!(there.len(), back.len());
         for (p, q) in there.iter().zip(&back) {
             prop_assert_eq!((p.0, p.1), (q.0, q.1));

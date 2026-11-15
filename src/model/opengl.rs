@@ -1219,6 +1219,9 @@ pub enum ToFixed {
     /// an antialiased line's blended into 8-bit channels without alpha, of this alpha in
     /// 1/256 (GL.RASTER.LINE.SMOOTH.BLEND)
     Covered(u16),
+    /// a wide antialiased line's blended into 8-bit channels without alpha, its coverage in the
+    /// alpha: (color a + channel (1 - a)) * 255 in floats, truncated (GL.RASTER.LINE.SMOOTH.WIDE)
+    Weighed,
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2578,7 +2581,7 @@ impl Ctx {
                 // alpha tested, are not measured)
                 // (blended into a buffer without alpha: GL.RASTER.LINE.SMOOTH.BLEND)
                 let blended = self.cap(BLEND) && self.pf.rgba[3].0 == 0;
-                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST) || self.line_width != 1.0)) {
+                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST) || (self.line_width != 1.0 && (self.pf.rgba[3].0 > 0 || !(1.0..=3.0).contains(&self.line_width))))) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
@@ -2608,6 +2611,10 @@ impl Ctx {
                         LineColor::Flat(c) => c,
                         LineColor::Smooth(..) => {
                             if self.cap(LINE_SMOOTH) {
+                                // (a wide one in colors: not measured)
+                                if wide {
+                                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                                }
                                 self.smooth_aa_line(ca, cb, color)?;
                                 continue;
                             }
@@ -2620,15 +2627,32 @@ impl Ctx {
                     // (w = 1 between the near and far planes, one depth: not cut, as measured
                     // at w = 1, golden opengl-32 lines-0, prim-15)
                     let flat = |c: [f32; 4]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]);
-                    if !wide && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
+                    if (!wide || self.cap(LINE_SMOOTH)) && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
                         let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
-                        if self.cap(LINE_SMOOTH) && self.pf.rgba[3].0 > 0 {
+                        if self.cap(LINE_SMOOTH) && (self.pf.rgba[3].0 > 0 || wide) {
                             // (into a buffer with alpha: every pixel the line's cone reaches,
-                            // its alpha times the coverage, truncated, GL.RASTER.LINE.SMOOTH)
-                            for (x, y, f) in tri::smooth_line([wa[0], wa[1]], [wb[0], wb[1]], self.viewport) {
+                            // its alpha times the coverage, truncated, GL.RASTER.LINE.SMOOTH;
+                            // a wide one so too without alpha, its width as given,
+                            // GL.RASTER.LINE.SMOOTH.WIDE)
+                            let width = if wide {
+                                hit(clause::GL_RASTER_LINE_SMOOTH_WIDE);
+                                tri::SmoothWidth(f64::from(self.line_width))
+                            } else {
+                                tri::SmoothWidth::ONE
+                            };
+                            // (a wide one blended: as measured, SRC_ALPHA, ONE_MINUS_SRC_ALPHA on 8 bits)
+                            let fixed = if wide && self.cap(BLEND) {
+                                if self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) || self.bits()[..3] != [8, 8, 8] {
+                                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                                }
+                                ToFixed::Weighed
+                            } else {
+                                self.smooth_fixed()
+                            };
+                            for (x, y, f) in tri::smooth_line([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, width) {
                                 let mut c = c;
                                 c[3] = (f64::from(c[3]) * f) as f32;
-                                self.fragment(Frag { x, y, c, z: wa[2], fixed: self.smooth_fixed(), zfixed: None })?;
+                                self.fragment(Frag { x, y, c, z: wa[2], fixed, zfixed: None })?;
                             }
                             continue;
                         }
@@ -2652,6 +2676,10 @@ impl Ctx {
                             self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
                         }
                         continue;
+                    }
+                    // (an antialiased wide line cut or of depths that differ: not measured)
+                    if self.cap(LINE_SMOOTH) && wide {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
                     self.deep_line(ca, cb, LineColor::Flat(c))?;
                 }
@@ -3117,6 +3145,14 @@ impl Ctx {
                     let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
                     let d = self.fb[i];
                     [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { ((s[k] * a) >> 8) + ((d[k] * (255 - a)) >> 8) })
+                }
+                ToFixed::Weighed => {
+                    // (MEASURED, golden opengl-32 raster-mode-6: 1024 channels, white over black,
+                    // floor(255 coverage))
+                    hit(clause::GL_RASTER_LINE_SMOOTH_WIDE);
+                    let d = self.fb[i];
+                    let a = f64::from(c[3]);
+                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { ((f64::from(c[k]) * a + f64::from(d[k]) / 255.0 * (1.0 - a)) * 255.0).floor() as u32 })
                 }
                 ToFixed::Nearest | ToFixed::Trunc | ToFixed::Span | ToFixed::Floor => self.blend(c, self.fb[i], dither.then_some(threshold))?,
             };
@@ -4313,7 +4349,7 @@ pub mod tri {
     /// a pixel's center d its distance from the line and s its distance along the line inside
     /// the nearer end (negative past it), the coverage (1 - |d|) times s + 1/2 held to 0..1,
     /// the pixels where it is above 0, inside the viewport (GL.RASTER.LINE.SMOOTH)
-    pub fn smooth_line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> Vec<(i64, i64, f64)> {
+    pub fn smooth_line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: SmoothWidth) -> Vec<(i64, i64, f64)> {
         super::hit(super::clause::GL_RASTER_LINE_SMOOTH);
         let [vx, vy, vw, vh] = viewport;
         let snap = |v: f64, o: i64, size: i64| {
@@ -4334,13 +4370,23 @@ pub mod tri {
                 let d = (px * dy - py * dx) / len;
                 let along = (px * dx + py * dy) / len;
                 let s = along.min(len - along);
-                let f = (s + 0.5).clamp(0.0, 1.0) * (1.0 - d.abs()).max(0.0);
+                let f = (s + 0.5).clamp(0.0, 1.0) * ((width.0 + 1.0) / 2.0 - d.abs()).clamp(0.0, 1.0);
                 if f > 0.0 {
                     out.push((x, y, f));
                 }
             }
         }
         out
+    }
+
+    /// An antialiased line's width as given (not rounded: GL.RASTER.LINE.SMOOTH.WIDE), across
+    /// which a pixel center within (width + 1) / 2 of the line is covered by that less its
+    /// distance, up to 1.
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct SmoothWidth(pub f64);
+
+    impl SmoothWidth {
+        pub const ONE: SmoothWidth = SmoothWidth(1.0);
     }
 
     /// How a line is drawn: aliased of a width, or antialiased (1 pixel wide).
