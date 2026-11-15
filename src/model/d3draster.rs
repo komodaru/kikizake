@@ -1208,10 +1208,6 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             hit(clause::D3DRASTER_DEPTHCLIP);
             return Ok(());
         }
-        // (the depth of what is left is not measured: only where nothing reads it)
-        if dsv.is_some() || ps == "pspos" {
-            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPZ));
-        }
         zclip = true;
     }
     // the viewport transform, then 16.8 fixed point
@@ -1277,6 +1273,15 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let (x, y) = snap2(q);
         (x as f32 / 256.0, y as f32 / 256.0)
     }, |q| minz + q[2] / q[3] * (maxz - minz)));
+    // (MEASURED, WARP: probe-clip-z-pos) a triangle cut by the depth range takes its depth from
+    // the whole triangle's plane (D3DRASTER.INTERP.DEPTH)
+    let zplanes = zclip.then(|| {
+        hit(clause::D3DRASTER_CLIPZ_DEPTH);
+        Planes::new(tri, |q| {
+            let (x, y) = snap2(q);
+            (x as f32 / 256.0, y as f32 / 256.0)
+        }, |q| minz + q[2] / q[3] * (maxz - minz))
+    });
     let pieces: Vec<[(i64, i64); 3]> = if unclipped {
         vec![v]
     } else {
@@ -1337,7 +1342,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 // (a depth that varies over an unclipped triangle: its plane at the pixel
                 // center, as the attributes' (D3DRASTER.INTERP.DEPTH))
                 let z = z.or_else(|| {
-                    let p = planes.as_ref()?;
+                    let p = planes.as_ref().or(zplanes.as_ref())?;
                     hit(clause::D3DRASTER_INTERP_DEPTH);
                     let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
                     Some(p.plane(p.zs, cx, cy).max(lo).min(hi))

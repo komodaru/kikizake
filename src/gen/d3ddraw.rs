@@ -978,6 +978,13 @@ fn probes(s: &mut String, dev: &str) {
     writeln!(s, "draw 4 3 32").unwrap();
     read_rt(s, 0, 2, 16, 16);
     writeln!(s, "end").unwrap();
+    // a line crossing the depth range, depth clipping on: read through SV_Position
+    begin(s, dev, "probe-line-clip-z", 16, 16, 2, "pspos");
+    vertex(s, 1.5, 2.25, -0.5, [1.0; 4], 16.0, 16.0);
+    vertex(s, 14.25, 13.5, 1.5, [1.0; 4], 16.0, 16.0);
+    writeln!(s, "draw 2 2 32").unwrap();
+    read_rt(s, 0, 2, 16, 16);
+    writeln!(s, "end").unwrap();
     begin(s, dev, "probe-clip-z-pos", 16, 16, 2, "pspos");
     tri(s, [-0.5, 0.5, 1.5], one);
     writeln!(s, "draw 4 3 32").unwrap();

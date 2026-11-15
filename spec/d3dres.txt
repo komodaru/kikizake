@@ -106,7 +106,8 @@ D3DRASTER.CLIPW open | (none) | a vertex at w not positive whose triangle keeps 
 D3DRASTER.CLIPW.AWAY measured | Rasterization Rules, the clip volume; probe-clip-w (WARP) | a triangle with a vertex at w <= 0 is clipped to the viewport planes in homogeneous coordinates; when what is left has no area once snapped, nothing is drawn
 D3DRASTER.CLIPW.AREA measured | Clipping; probe-clip-w2 (WARP) | a triangle with a vertex at w <= 0 keeping an area: the pieces of the homogeneous clipping (then 0 <= z <= w with depth clipping on) snapped and fanned from the first, each by the top-left rule
 D3DRASTER.DEPTHCLIP doc | D3D11_RASTERIZER_DESC (DepthClipEnable) | a triangle wholly in front of 0 or past 1 is clipped away; without depth clipping its depth is clamped to the viewport's range
-D3DRASTER.CLIPZ open | (none) | the depth of a triangle that crosses the depth range (its pixels' depth, tested or read as SV_Position)
+D3DRASTER.CLIPZ open | (none) | a line that crosses the depth range with depth clipping on (where it is cut, its depth; probe-line-clip-z)
+D3DRASTER.CLIPZ.DEPTH measured | Rasterization Rules, the clip volume; probe-clip-z-pos (WARP) | a triangle cut by the depth range takes its pixels' depth from the whole triangle's plane (D3DRASTER.INTERP.DEPTH), read through SV_Position as any
 D3DRASTER.CLIPZ.PIECES measured | Rasterization Rules, the clip volume; probe-clip-z (WARP) | with depth clipping a triangle that crosses the depth range is clipped after the viewport planes to 0 <= z then z <= w, in f32, the pieces fanned as D3DRASTER.CLIP
 D3DRASTER.SNAP assumed | Rasterization Rules | vertices snapped to 1/256 of a pixel, rounding half to even
 D3DRASTER.DEGENERATE doc | Rasterization Rules | a triangle of zero area draws nothing
