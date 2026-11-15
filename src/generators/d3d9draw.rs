@@ -1068,6 +1068,16 @@ fn suite(v8: bool) -> String {
             }
         }
     }
+    // (D3D9.STAGE.OPEN) TEXTUREOPs past LERP as COLOROP and as ALPHAOP: 27, 32, 0x7fffffff
+    for (i, op) in [27u32, 32, 0x7fff_ffff].into_iter().enumerate() {
+        for (j, which) in [1u32, 4].into_iter().enumerate() {
+            open(&mut s, &format!("top-past-{i}-{j}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nrs set 60 {:#x}", r.next(), r.next(), r.next()).unwrap();
+            writeln!(s, "tss set 0 1 2\ntss set 0 2 2\ntss set 0 4 2\ntss set 0 5 2\ntss set 0 {which} {op}").unwrap();
+            quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+            writeln!(s, "d9rt\nend").unwrap();
+        }
+    }
     s
 }
 
