@@ -479,7 +479,7 @@ pub struct Ctx {
     /// the DIB's bits a pixel
     pub bpp: u32,
     /// the vertices since glBegin: object position, color
-    pub verts: Vec<([f64; 3], [f32; 4])>,
+    pub verts: Vec<(Obj, [f32; 4])>,
 }
 
 pub const IDENTITY: [f32; 16] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0];
@@ -1166,6 +1166,19 @@ pub struct FixedZ {
     pub value: u64,
 }
 
+/// A vertex as glVertex gave it: its object coordinates and w (1 but for glVertex4f).
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct Obj {
+    pub xyz: [f64; 3],
+    pub w: f64,
+}
+
+impl Obj {
+    pub const fn at(xyz: [f64; 3]) -> Obj {
+        Obj { xyz, w: 1.0 }
+    }
+}
+
 /// a pixel a polygon fills: x, y, color, depth when it varies
 type Filled = (i64, i64, [f64; 4], Option<FixedZ>);
 
@@ -1551,10 +1564,13 @@ impl Ctx {
                 let v = [fl(a, 0), fl(a, 1), 0.0];
                 let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
                 let c = xform(self.top(1), e);
+                // (under a projection: inside the view volume of its w, then divided by it,
+                // golden opengl-32 persp-more-9)
                 if c[3] != 1.0 {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
+                    hit(clause::GL_RASTER_PERSPECTIVE);
                 }
-                let inside = c[..3].iter().all(|v| (-1.0..=1.0).contains(v));
+                let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v));
+                let c = c.map(|v| v / c[3]);
                 let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
                 let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
                 self.raster = inside.then(|| [(c[0] + 1.0) * vw / 2.0 + vx, (c[1] + 1.0) * vh / 2.0 + vy, ((f - n) * c[2] + n + f) / 2.0]);
@@ -1624,12 +1640,16 @@ impl Ctx {
                 // when w < 0, its clip coordinates' w then negative, GL 1.1 2.11; other
                 // primitives, and fog from such eye coordinates, not measured)
                 let w = fl(a, 3);
-                if self.in_begin != Some(POINTS) || w == 0.0 || self.cap(FOG) {
+                if self.in_begin.is_none() || w == 0.0 || self.cap(FOG) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
                 }
                 hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
-                if w > 0.0 {
-                    self.verts.push(([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w], self.lit(self.current())));
+                if self.in_begin != Some(POINTS) {
+                    // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
+                    // (x, y, z, w), cut and divided as any others)
+                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w }, self.lit(self.current())));
+                } else if w > 0.0 {
+                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]), self.lit(self.current())));
                 } else {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -1637,7 +1657,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((v, self.lit(self.current())));
+                    self.verts.push((Obj::at(v), self.lit(self.current())));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -1657,7 +1677,7 @@ impl Ctx {
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
-                    self.verts.push(([x, y, 0.0], self.lit(self.current())));
+                    self.verts.push((Obj::at([x, y, 0.0]), self.lit(self.current())));
                 }
                 self.rect_call = true;
                 let r = self.end(QUADS);
@@ -1896,12 +1916,12 @@ impl Ctx {
 
     /// a vertex's color fogged at its eye z (GL.FOG.APPLY): the RGB toward the fog color, alpha
     /// kept; a color index plus the fog index times one less the factor
-    fn fogged(&self, c: [f32; 4], v: [f64; 3]) -> [f32; 4] {
+    fn fogged(&self, c: [f32; 4], v: Obj) -> [f32; 4] {
         if !self.cap(FOG) {
             return c;
         }
         hit(clause::GL_FOG_APPLY);
-        self.fog_at(c, xform(self.top(0), [v[0], v[1], v[2], 1.0])[2])
+        self.fog_at(c, xform(self.top(0), [v.xyz[0], v.xyz[1], v.xyz[2], v.w])[2])
     }
 
     /// a color fogged at eye z (GL.FOG.APPLY), whatever GL_FOG
@@ -2001,8 +2021,8 @@ impl Ctx {
     /// whether every vertex is past the same near or far plane, the primitive then not drawn
     /// (MEASURED, golden opengl-32 edge-raster-clip: a quad at z 2 under glOrtho(.., -1, 1)
     /// draws nothing: GL.RASTER.CLIP.Z)
-    fn culled_z(&self, vs: &[[f64; 3]]) -> bool {
-        let z: Vec<f64> = vs.iter().map(|v| xform(self.top(1), xform(self.top(0), [v[0], v[1], v[2], 1.0]))).filter(|c| c[3] == 1.0).map(|c| c[2]).collect();
+    fn culled_z(&self, vs: &[Obj]) -> bool {
+        let z: Vec<f64> = vs.iter().map(|v| xform(self.top(1), xform(self.top(0), [v.xyz[0], v.xyz[1], v.xyz[2], v.w]))).filter(|c| c[3] == 1.0).map(|c| c[2]).collect();
         if z.len() != vs.len() || z.is_empty() {
             return false;
         }
@@ -2014,7 +2034,7 @@ impl Ctx {
     }
 
     /// A vertex's normalized device coordinates (w = 1 only).
-    fn ndc(&self, v: [f64; 3]) -> Res<[f64; 3]> {
+    fn ndc(&self, v: Obj) -> Res<[f64; 3]> {
         // (MEASURED, golden opengl-32 persp-*: in float32, through the modelview matrix, then
         // the projection, then divided by w: GL.RASTER.PERSPECTIVE)
         let c = self.clip_coords(v);
@@ -2035,7 +2055,7 @@ impl Ctx {
         Ok([c[0] * inv, c[1] * inv, c[2] * inv].map(f64::from))
     }
 
-    fn window(&self, v: [f64; 3]) -> Res<[f64; 3]> {
+    fn window(&self, v: Obj) -> Res<[f64; 3]> {
         let c = self.ndc(v)?;
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
@@ -2047,12 +2067,12 @@ impl Ctx {
 
     /// A vertex's clip coordinates (MEASURED, golden opengl-32 persp-*: in float32, through the
     /// modelview matrix, then the projection: GL.RASTER.PERSPECTIVE.DIVIDE).
-    fn clip_coords(&self, v: [f64; 3]) -> [f32; 4] {
+    fn clip_coords(&self, v: Obj) -> [f32; 4] {
         // (MEASURED, golden opengl-32 persp-turn-*, persp-4, persp-5: through one matrix, the
         // projection times the modelview in float32, each row's sum begun from its w term)
         let m = mat_mul(self.top(1), self.top(0));
-        let v = [v[0] as f32, v[1] as f32, v[2] as f32];
-        std::array::from_fn(|row| ((m[12 + row] + m[row] * v[0]) + m[4 + row] * v[1]) + m[8 + row] * v[2])
+        let (w, v) = (v.w as f32, v.xyz.map(|c| c as f32));
+        std::array::from_fn(|row| ((m[12 + row] * w + m[row] * v[0]) + m[4 + row] * v[1]) + m[8 + row] * v[2])
     }
 
     /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
@@ -2061,7 +2081,7 @@ impl Ctx {
     /// convex or not (golden poly-nc-*, prim-11; tie-x-2: the fan's diagonal taking in a corner
     /// on a center), each triangle's colors a plane through its rounded corners
     /// (GL.RASTER.INTERPOLATE.COLOR), its depths `tri::depths`.
-    fn fill(&self, q: &[([f64; 3], [f32; 4])], colors: &[[f64; 4]], depth: Option<tri::DepthBits>) -> Res<Vec<Filled>> {
+    fn fill(&self, q: &[(Obj, [f32; 4])], colors: &[[f64; 4]], depth: Option<tri::DepthBits>) -> Res<Vec<Filled>> {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
         let clip: Vec<[f32; 8]> = q
@@ -2118,7 +2138,7 @@ impl Ctx {
 
     /// A filled polygon of one depth (GL.RASTER.TRIANGLE), its colors flat (the `provoking`
     /// vertex's, GL 1.1 2.13.7) or smooth.
-    fn polygon(&mut self, q: &[([f64; 3], [f32; 4])], provoking: usize) -> Res<()> {
+    fn polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize) -> Res<()> {
         // (filled polygons only: other polygon modes, stipple, antialiasing and offsets on
         // triangles are not measured)
         if self.poly_mode != [POLY_FILL, POLY_FILL] {
@@ -2221,12 +2241,15 @@ impl Ctx {
         };
         // (one depth: the window depth of the first vertex, GL.DEPTH.FIXED)
         let z0 = f64::from(zs[0]);
-        // (which way it turns, for culling: in normalized device coordinates; with a vertex at
-        // or behind the eye not measured)
-        if self.cap(CULL_FACE) && clip.iter().any(|c| c[3] <= 0.0) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_PERSPECTIVE));
-        }
-        let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
+        // (MEASURED, golden opengl-32 persp-more-6, persp-more-7: with a corner at or behind
+        // the eye, the way the polygon cut to the view volume turns)
+        let cut: Vec<[f32; 4]> = if clip.iter().any(|c| c[3] <= 0.0) {
+            hit(clause::GL_RASTER_PERSPECTIVE);
+            tri::clip(&clip)
+        } else {
+            clip.clone()
+        };
+        let w: Vec<[f64; 2]> = cut.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
         let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
         let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
         // (smooth colors under fog or lighting are not measured)
@@ -2276,6 +2299,13 @@ impl Ctx {
                 hit(clause::GL_POINT);
                 for (v, c) in verts {
                     if self.culled_z(&[v]) {
+                        continue;
+                    }
+                    // (a point under a projection outside the view volume: not drawn, as one at
+                    // w = 1 outside the near or far plane)
+                    let p = self.clip_coords(v);
+                    if p[3] != 1.0 && !p[..3].iter().all(|q| (-p[3]..=p[3]).contains(q)) {
+                        hit(clause::GL_RASTER_PERSPECTIVE);
                         continue;
                     }
                     let w = self.window(v)?;
@@ -2466,10 +2496,8 @@ impl Ctx {
                 if self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
-                // (a wide line, GL 1.1 3.4.2: its width rounded, each fragment of the 1-pixel
-                // line a run of that many across its minor axis, from - floor((n - 1) / 2))
-                // (wide lines: not a run of round(w) about the 1-pixel line, nor the columns whose
-                // centers a w-tall band about the line holds, golden opengl-32 prim-5, 6, 14)
+                // (wide lines: the n pixels from floor(v + 1/2 - n/2) across each step fit
+                // line-wide-0..7, but not one starting column of line-wide-8: not measured)
                 if self.line_width != 1.0 {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
@@ -2485,17 +2513,22 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
-                    let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
-                    if a.1 != b.1 || wa[2] != wb[2] {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
-                    }
                     let c = self.fogged(a.1, a.0);
-                    if self.fogged(b.1, b.0) != c {
+                    if a.1 != b.1 || self.fogged(b.1, b.0) != c {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
-                    for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]])? {
-                        self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                    let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
+                    // (w = 1 between the near and far planes, one depth: not cut, as measured
+                    // at w = 1, golden opengl-32 lines-0, prim-15)
+                    let flat = |c: [f32; 4]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]);
+                    if flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
+                        let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
+                        for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]])? {
+                            self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                        }
+                        continue;
                     }
+                    self.deep_line(ca, cb, c)?;
                 }
             }
             _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
@@ -2604,9 +2637,63 @@ impl Ctx {
         Ok(out)
     }
 
+    /// A line of clip coordinates `a` to `b` (w other than 1, or cut by the view volume, or of
+    /// depths that differ) in color `c` (MEASURED, golden opengl-32 persp-more-0..2): cut to
+    /// the view volume (`tri::clip_segment`), each end times 1 / w in float32; the pixels
+    /// `tri::line` gives for their window positions, each with its depth `tri::line_depth` (of
+    /// the ends snapped as a polygon's corners, `tri::Sub::snap`) where the depth test reads
+    /// it: GL.RASTER.INTERPOLATE.LINE
+    fn deep_line(&mut self, a: [f32; 4], b: [f32; 4], c: [f32; 4]) -> Res<()> {
+        hit(clause::GL_RASTER_INTERPOLATE_LINE);
+        if a[3] != 1.0 || b[3] != 1.0 {
+            hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
+        }
+        let Some((a, b)) = tri::clip_segment(a, b) else {
+            hit(clause::GL_RASTER_CLIP_XY);
+            return Ok(());
+        };
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+        let end = |c: [f32; 4]| {
+            let n = [c[0], c[1], c[2]].map(|v| v * (1.0 / c[3]));
+            ([tri::Sub::snap(f64::from(n[0]), vw, center.0), tri::Sub::snap(f64::from(n[1]), vh, center.1)], self.window_z(n[2]))
+        };
+        let ((pa, za), (pb, zb)) = (end(a), end(b));
+        // (the pixels: of the cut ends' exact window positions, not the snapped ones, golden
+        // opengl-32 persp-more-1, persp-more-2)
+        let exact = |c: [f32; 4]| {
+            let n = [c[0], c[1]].map(|v| f64::from(v * (1.0 / c[3])));
+            [(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy]
+        };
+        let pixels = self.line_pixels(exact(a), exact(b))?;
+        let bits = match self.pf.depth {
+            _ if !self.cap(DEPTH_TEST) || za == zb => None,
+            32 => Some(tri::DepthBits::D32),
+            16 => Some(tri::DepthBits::D16),
+            0 => None,
+            // (the formats have 32 or 16 depth bits only: WGL.FORMATS)
+            _ => return Err(Fail::Bad),
+        };
+        let (dx, dy) = ((pb[0].0 - pa[0].0).abs(), (pb[1].0 - pa[1].0).abs());
+        let major = usize::from(dy > dx || (dy == dx && self.line_width == 1.0));
+        let first = pixels.first().map(|p| [p.0, p.1][major]);
+        for (x, y) in pixels {
+            let zfixed = match (bits, first) {
+                (Some(bits), Some(first)) => {
+                    hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
+                    let z = tri::line_depth([pa[major], pb[major]], [za, zb], first, [x, y][major], bits);
+                    Some(FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(z)) })
+                }
+                _ => None,
+            };
+            self.fragment(Frag { x, y, c, z: f64::from(za), fixed: self.span(), zfixed })?;
+        }
+        Ok(())
+    }
+
     /// the pixels of a 1-pixel line from a to b in window coordinates (`tri::line`)
     fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
-        Ok(tri::line(a, b, self.viewport, self.tie_pivot()))
+        tri::line(a, b, self.viewport, self.tie_pivot(), self.line_width).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_TIE))
     }
 
     fn bits(&self) -> [u32; 4] {
@@ -3994,6 +4081,17 @@ impl Ctx {
 ///   a row takes the centers strictly right of its left edge and at or left of its right edge,
 ///   the rows from an edge's lower vertex up to (not at) its upper one.
 pub mod tri {
+    /// A line where Windows' choice is not measured (GL.RASTER.TIE).
+    #[derive(Debug, PartialEq, Eq)]
+    pub struct Tie;
+
+    /// whether `p` (1/64 units) lies on some pixel's diamond border
+    fn diamond_border(p: [Q64; 2]) -> bool {
+        let (dx, dy) = ((p[0].0 - 32).rem_euclid(64), (p[1].0 - 32).rem_euclid(64));
+        let (dx, dy) = (dx.min(64 - dx), dy.min(64 - dy));
+        dx + dy == 32
+    }
+
     /// A window coordinate in units of 1/64 pixel, where a line's ends are rounded to.
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
     pub struct Q64(pub i64);
@@ -4037,16 +4135,20 @@ pub mod tri {
     /// is at or past a) up to, not including, the same for b; across, the line at each one's
     /// center, floor, a value on a pixel boundary going toward the tie pivot as a point's;
     /// inside the viewport: GL.RASTER.LINE, GL.RASTER.LINE.TIE
-    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], pivot: (f64, f64)) -> Vec<(i64, i64)> {
+    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], pivot: (f64, f64), wide: f32) -> Result<Vec<(i64, i64)>, Tie> {
+        // (a wide line's width rounded half up, held to 1..10)
+        let width = (f64::from(wide.clamp(1.0, 10.0)) + 0.5).floor() as i64;
+        let half = width as f32 / 2.0;
         super::hit(super::clause::GL_RASTER_LINE);
         let q = |v: f64| Q64((v * 64.0).round() as i64);
         let pivot = [q(pivot.0), q(pivot.1)];
         let (a, b) = ([q(a[0]), q(a[1])], [q(b[0]), q(b[1])]);
         let (dx, dy) = (b[0].0 - a[0].0, b[1].0 - a[1].0);
         if dx == 0 && dy == 0 {
-            return Vec::new();
+            return Ok(Vec::new());
         }
-        let ymajor = dy.abs() >= dx.abs();
+        // (a diagonal: y-major, but x-major when wide, golden opengl-32 line-wide-5)
+        let ymajor = dy.abs() > dx.abs() || (dy.abs() == dx.abs() && width == 1);
         let (major, minor) = if ymajor { (1, 0) } else { (0, 1) };
         let (dmaj, dmin) = if ymajor { (dy, dx) } else { (dx, dy) };
         let step = dmaj.signum();
@@ -4057,6 +4159,10 @@ pub mod tri {
             None if step > 0 => (p[major].0 - 32 + 63).div_euclid(64),
             None => (p[major].0 - 32).div_euclid(64),
         };
+        // (a wide line with an end on a diamond's border: not measured)
+        if width > 1 && [a, b].iter().any(|p| diamond_border(*p)) {
+            return Err(Tie);
+        }
         let (j0, j1) = (index(a), index(b));
         let [vx, vy, vw, vh] = viewport;
         let (x0, y0, x1, y1) = (vx.max(0), vy.max(0), (vx + vw).min(super::W as i64), (vy + vh).min(super::H as i64));
@@ -4076,9 +4182,16 @@ pub mod tri {
                 }
             };
             across = Some(v);
+            // (a wide line: the run of `width` pixels across whose centers are past
+            // v - width / 2)
+            let v = v + 0.5 - half;
             let mut k = v.floor() as i64;
             // (on a boundary: toward the tie pivot, as a point's; on the pivot itself the way the
             // line goes across, golden opengl-32 prim-7, prim-8)
+            if v == v.floor() && width > 1 {
+                // (a wide line's run starting on a center exactly: not measured)
+                return Err(Tie);
+            }
             if v == v.floor() {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);
                 let at = k * 64 - pivot[minor].0;
@@ -4086,13 +4199,15 @@ pub mod tri {
                     k -= 1;
                 }
             }
-            let (x, y) = if ymajor { (k, j) } else { (j, k) };
-            if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
-                out.push((x, y));
+            for k in k..k + width {
+                let (x, y) = if ymajor { (k, j) } else { (j, k) };
+                if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
+                    out.push((x, y));
+                }
             }
             j += step;
         }
-        out
+        Ok(out)
     }
 
     /// A window coordinate in units of 1/256 pixel.
@@ -4229,6 +4344,43 @@ pub mod tri {
             poly = out;
         }
         (poly, most)
+    }
+
+    /// A line cut to the view volume as `clip` cuts a polygon's edges (the planes in the same
+    /// order, each cut point interpolated from the end inside it), or None when one plane has
+    /// both ends past it (MEASURED, golden opengl-32 persp-more-0..2).
+    pub fn clip_segment(mut a: [f32; 4], mut b: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
+        for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
+            let (da, db) = (a[3] - sign * a[axis], b[3] - sign * b[axis]);
+            match (da >= 0.0, db >= 0.0) {
+                (false, false) => return None,
+                (true, true) => {}
+                (true, false) => {
+                    let t = da / (da - db);
+                    b = std::array::from_fn(|k| a[k] + t * (b[k] - a[k]));
+                }
+                (false, true) => {
+                    let t = db / (db - da);
+                    a = std::array::from_fn(|k| b[k] + t * (a[k] - b[k]));
+                }
+            }
+        }
+        Some((a, b))
+    }
+
+    /// The depth of a line's pixel at index `j` along its major axis, whose ends there are
+    /// `major` (snapped, `Sub::snap`) at window depths `z`, the first pixel drawn at index
+    /// `first` (MEASURED, golden opengl-32 persp-more-0..2: 12 lines cut by the sides and the
+    /// near plane): the change per pixel the depth difference times 1 / the major
+    /// length in float32; the first pixel drawn its depth at its center in float32, fixed
+    /// (`fixed`); each next one the last plus the change per pixel fixed, as 32-bit integers.
+    pub fn line_depth(major: [Sub; 2], z: [f32; 2], first: i64, j: i64, bits: DepthBits) -> Fixed {
+        let run = major[1].0 - major[0].0;
+        let dz = (z[1] - z[0]) * (1.0 / (run as f32 / 256.0));
+        let step = run.signum();
+        let at = z[0] + ((first * 256 + 128 - major[0].0) as f32 / 256.0) * dz;
+        let n = i32::try_from((j - first) * step).unwrap_or(i32::MAX);
+        Fixed(fixed(at, bits).wrapping_add(fixed(dz * step as f32, bits).wrapping_mul(n)))
     }
 
     /// The value at pixel (x, y)'s center of the plane through `at` taking `value` at each

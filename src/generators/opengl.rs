@@ -2078,4 +2078,50 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // under a projection: points inside and past the sides, the near plane and the eye (1 and
+    // 3 pixels wide); raster positions images are drawn at; fog at glVertex4f corners
+    let mut r = XorShift32::new(0x1f3a_9c55);
+    for k in 0..3 {
+        writeln!(s, "case persp-more-{}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glMatrixMode 0x1701\ngl glLoadIdentity", 8 + k, ctx(32)).unwrap();
+        if k < 2 {
+            glf(s, "glFrustum", &[-1.0, 1.0, -1.0, 1.0, 1.0, 8.0]);
+        } else {
+            writeln!(s, "gl glOrtho 0 16 0 16 -1 1\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 -0.5\ngl glFogf 0xb64 0.5\nglfogv 0xb66 0.25 0.5 0.75 1").unwrap();
+        }
+        writeln!(s, "gl glMatrixMode 0x1700").unwrap();
+        for i in 0..6 {
+            writeln!(s, "gl glClear 0x4100").unwrap();
+            writeln!(s, "gl glColor4ub {} {} {} 255", r.next() % 256, r.next() % 256, r.next() % 256).unwrap();
+            let mut c = |lo: i32, hi: i32| f64::from(lo + (r.next() % (hi - lo + 1) as u32) as i32) / 8.0;
+            match k {
+                0 => {
+                    glf(s, "glPointSize", &[if i % 2 == 0 { 1.0 } else { 3.0 }]);
+                    writeln!(s, "gl glBegin 0").unwrap();
+                    for _ in 0..8 {
+                        let v = [c(-24, 24), c(-24, 24), c(-24, 8)];
+                        glf(s, "glVertex3f", &v);
+                    }
+                    writeln!(s, "gl glEnd").unwrap();
+                }
+                1 => {
+                    writeln!(s, "gl glLoadIdentity").unwrap();
+                    glf(s, "glTranslatef", &[0.0, 0.0, c(-24, 4)]);
+                    glf(s, "glRasterPos2f", &[c(-16, 16), c(-16, 16)]);
+                    writeln!(s, "gldraw 4 4 {} {} {} 64", h(RGBA), h(UNSIGNED_BYTE), 92 + i).unwrap();
+                }
+                _ => {
+                    writeln!(s, "gl glBegin 4").unwrap();
+                    for _ in 0..3 {
+                        let w = [2.0, 0.5, 1.0, 0.25][(c(0, 31) * 8.0) as usize % 4];
+                        let v = [c(8, 120) * w, c(8, 120) * w, c(-8, 8) * w / 8.0, w];
+                        glf(s, "glVertex4f", &v);
+                    }
+                    writeln!(s, "gl glEnd").unwrap();
+                }
+            }
+            read_all(s);
+            writeln!(s, "glread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

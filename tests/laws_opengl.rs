@@ -157,7 +157,7 @@ proptest! {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 3.0, f64::from(y) / 32.0 + 3.0];
         let (a, b) = (end(v[0]), end(v[1]));
         let (vp, pivot) = ([0, 0, 16, 16], (100.0, -100.0));
-        let p = tri::line(a, b, vp, pivot);
+        let p = tri::line(a, b, vp, pivot, 1.0).unwrap();
         let xmajor = (b[0] - a[0]).abs() > (b[1] - a[1]).abs();
         let mut seen = std::collections::BTreeSet::new();
         for &(x, y) in &p {
@@ -169,7 +169,7 @@ proptest! {
         let span = if xmajor { (b[0] - a[0]).abs() } else { (b[1] - a[1]).abs() };
         prop_assert!((p.len() as f64 - span).abs() <= 2.0, "{} pixels for {span}", p.len());
         let shift = |c: [f64; 2]| [c[0] + dx as f64, c[1] + dy as f64];
-        let q = tri::line(shift(a), shift(b), vp, pivot);
+        let q = tri::line(shift(a), shift(b), vp, pivot, 1.0).unwrap();
         let moved: Vec<(i64, i64)> = p.iter().map(|(x, y)| (x + dx, y + dy)).collect();
         prop_assert_eq!(q, moved);
     }
@@ -343,6 +343,58 @@ proptest! {
             prop_assume!((near(0) - plane).abs() < 1.0 / 64.0 && (near(1) - plane).abs() < 1.0 / 64.0);
             let got = f64::from(d.0) / f64::from(1u32 << 31);
             prop_assert!((got - plane).abs() < 1.0 / 65536.0, "{got} vs {plane}");
+        }
+    }
+
+    /// GL.RASTER.INTERPOLATE.LINE: a line cut to the view volume keeps its ends inside it (to
+    /// float32 rounding) and on the line; one inside it is not cut; the cut is the same whichever
+    /// end comes first (to rounding)
+    #[test]
+    fn cut_lines_stay_on_the_line_inside(a in any::<[i16; 4]>(), b in any::<[i16; 4]>()) {
+        let c = |v: [i16; 4]| [f32::from(v[0]) / 4096.0, f32::from(v[1]) / 4096.0, f32::from(v[2]) / 4096.0, f32::from(v[3]) / 8192.0 + 4.5];
+        let (a, b) = (c(a), c(b));
+        let Some((p, q)) = tri::clip_segment(a, b) else {
+            return Ok(());
+        };
+        let inside = |v: [f32; 4]| (0..3).all(|k| v[k].abs() <= v[3] * (1.0 + 1e-5));
+        prop_assert!(inside(p) && inside(q), "{p:?} {q:?}");
+        // (on the line: each a + t (b - a), one t for every coordinate)
+        for v in [p, q] {
+            let k = (0..4).max_by(|i, j| (b[*i] - a[*i]).abs().total_cmp(&(b[*j] - a[*j]).abs())).unwrap_or(0);
+            let t = if b[k] == a[k] { 0.0 } else { (v[k] - a[k]) / (b[k] - a[k]) };
+            for j in 0..4 {
+                prop_assert!((a[j] + t * (b[j] - a[j]) - v[j]).abs() < 1e-3, "{v:?} off the line");
+            }
+        }
+        if inside(a) && inside(b) {
+            prop_assert_eq!((p, q), (a, b));
+        }
+        if let Some((q2, p2)) = tri::clip_segment(b, a) {
+            for (u, v) in [(p, p2), (q, q2)] {
+                prop_assert!((0..4).all(|k| (u[k] - v[k]).abs() < 1e-3), "{u:?} {v:?}");
+            }
+        }
+    }
+
+    /// GL.RASTER.INTERPOLATE.LINE: a line's depths change by one fixed step per pixel, and stay
+    /// within 2^-16 of the line between its ends where the step is under 1/64
+    #[test]
+    fn line_depths_step_evenly(a in 0i64..4096, len in 256i64..4096, back in any::<bool>(), z in any::<[u16; 2]>(), first in 0i64..4) {
+        let (a, b) = if back { (Sub(a + len), Sub(a)) } else { (Sub(a), Sub(a + len)) };
+        let z = z.map(|q| f32::from(q) / 65535.0 * 0.5 + 0.25);
+        let step = (b.0 - a.0).signum();
+        let j0 = (a.0 - 128).div_euclid(256) + first * step;
+        let d: Vec<i32> = (0..8).map(|n| tri::line_depth([a, b], z, j0, j0 + n * step, tri::DepthBits::D32).0).collect();
+        // (as 32-bit integers, wrapping)
+        prop_assert!(d.windows(3).all(|w| w[1].wrapping_sub(w[0]) == w[2].wrapping_sub(w[1])));
+        let per = f64::from(z[1] - z[0]) / ((b.0 - a.0).abs() as f64 / 256.0);
+        prop_assume!(per.abs() < 1.0 / 64.0);
+        for (n, got) in d.iter().enumerate() {
+            let j = j0 + n as i64 * step;
+            let t = ((j * 256 + 128 - a.0) as f64) / ((b.0 - a.0) as f64);
+            let want = f64::from(z[0]) + t * f64::from(z[1] - z[0]);
+            prop_assume!((0.0..1.0).contains(&want));
+            prop_assert!((f64::from(*got) / f64::from(1u32 << 31) - want).abs() < 1.0 / 65536.0, "{got} vs {want}");
         }
     }
 }
