@@ -282,6 +282,16 @@ pub fn gdipluspaint() -> String {
         let (x, ox, oy) = (i % 8, (i / 8) as i64 * 3 - 4, r.range(-4, 4));
         writeln!(s, "case hatchline16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch 0 {fore:#010x} {back:#010x}\ngppaint 0 0 {x} 0 {} 8 over {} 0 0 {ox} {oy}\ngpread 0 {f}\nend", r.next(), 16 - x, r.range(2, 3)).unwrap();
     }
+    // the antialiased styles (texels between fore and back) over a translucent back, gamma
+    // corrected over 555/565, from column 0 and origin 0 and off them
+    for i in 0..48 {
+        let f = *r.pick(&["16bppRGB555", "16bppRGB565"]);
+        let fore = (r.range(1, 255) as u32) << 24 | r.next() & 0xff_ffff;
+        let back = (r.range(1, 254) as u32) << 24 | r.next() & 0xff_ffff;
+        let style = *r.pick(&[2, 3, 5]);
+        let (x, ox, oy) = if i < 16 { (0, 0, 0) } else { (r.range(0, 7), r.range(-4, 4), r.range(-4, 4)) };
+        writeln!(s, "case hatchbetween16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch {style} {fore:#010x} {back:#010x}\ngppaint 0 0 {x} 0 {} 8 over {} 0 0 {ox} {oy}\ngpread 0 {f}\nend", r.next(), 16 - x, r.range(2, 3)).unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s

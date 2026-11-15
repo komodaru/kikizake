@@ -819,7 +819,8 @@ impl Src {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Source {
     Solid,
-    Texture,
+    /// a texture placed at the rendering origin (ox, oy)
+    Texture { origin: (i64, i64) },
 }
 
 /// a fill of the pixels of a box (clipped to the bitmap; empty when x0 >= x1 or y0 >= y1), each
@@ -831,10 +832,20 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
     // from the start of the pixel's run of opaque, or of translucent, source pixels in its row; a
     // run of one pixel takes column 2)
     let opaque = |x: u32, y: u32| c(x, y).map(|v| v >> 24 == 255);
-    let column = |x: u32, y: u32| -> u32 {
-        if !gamma || kind == Source::Solid {
-            return x;
+    let texture = match kind {
+        Source::Texture { origin } if gamma => Some(origin),
+        Source::Texture { .. } | Source::Solid => None,
+    };
+    // (MEASURED, golden gdipluspaint hatchshift16-*, hatchrun16-*: the dither's row counts from
+    // the rendering origin's y)
+    let row = |y: u32| -> u32 {
+        match texture {
+            Some((_, oy)) => (i64::from(y) - oy).rem_euclid(4) as u32,
+            None => y,
         }
+    };
+    let column = |x: u32, y: u32| -> u32 {
+        let Some((ox, _)) = texture else { return x };
         hit(clause::GP_PAINT_GAMMA_RUNS);
         let o = opaque(x, y);
         let (mut a0, mut a1) = (x, x + 1);
@@ -846,8 +857,15 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
         }
         // (x86: column 2 for a run of one pixel, and for the last pixel of a translucent run of
         // odd length)
-        let odd_end = (a1 - a0) % 2 == 1 && x == a1 - 1 && (o == Some(false) || a1 - a0 == 1);
-        if odd_end && super::arch() == 32 { 2 } else { x - a0 }
+        let odd_end = (a1 - a0) % 2 == 1 && x == a1 - 1 && (o == Some(false) || a1 - a0 == 1 || i64::from(a1) == x1.min(bw));
+        let at = if odd_end && super::arch() == 32 { 2 } else { x - a0 };
+        // (MEASURED, golden gdipluspaint hatchshift16-*, hatchrun16-*: every run of the row
+        // takes the phase of the fill's left edge from the rendering origin's x)
+        let mut left = x0.max(0);
+        while left < i64::from(x) && c(left as u32, y).is_none() {
+            left += 1;
+        }
+        (i64::from(at) + left - ox).rem_euclid(4) as u32
     };
     let pargb = Pf::Pargb32;
     let argb = Pf::Argb32;
@@ -919,7 +937,7 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
                     over_truncated(s.sp, d)
                 };
                 let col = column(x, y);
-                b.set_px(x, y, dither(b.f, p, col, y));
+                b.set_px(x, y, dither(b.f, p, col, row(y)));
             }
         }
     } else {
@@ -953,6 +971,10 @@ impl HatchStyle {
     }
     pub fn get(self) -> u8 {
         self.0
+    }
+    /// whether the pattern has texels between fore and back (the weights of data/gdiplus_hatch.bin)
+    pub fn between(self) -> bool {
+        HATCH[self.0 as usize * 64..][..64].iter().any(|&w| w != 0 && w != 255)
     }
 }
 
@@ -1049,14 +1071,17 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
     let pre = |c: u32| premultiplied(c);
     let kind = match brush {
         Brush::Solid(_) => Source::Solid,
-        Brush::Hatch { .. } => Source::Texture,
+        Brush::Hatch { .. } => Source::Texture { origin: (ox, oy) },
     };
-    // (the runs' dither (GP.PAINT.GAMMA.RUNS) is fitted for a fill from column 0 with the
-    // rendering origin at 0 only: from another column or origin the dither's row and column move
-    // by an amount not fitted yet (golden gdipluspaint hatchrun16-*))
-    let off_zero = ox != 0 || oy != 0 || x > 0.0;
-    if kind == Source::Texture && !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) && off_zero {
-        return Err(Fail::Unmodeled(open::GP_PAINT_GAMMA_RUNS_OFFSET));
+    // (a texel between a fore and a translucent back, gamma corrected over 555/565: one channel
+    // in a fill comes out 1 lower than the model makes it (golden gdipluspaint hatchrun16-22),
+    // not fitted yet)
+    let between = match brush {
+        Brush::Hatch { style, back, .. } => style.between() && back >> 24 != 255,
+        Brush::Solid(_) => false,
+    };
+    if between && !copy && q.gamma() && matches!(b.f, Pf::Rgb555 | Pf::Rgb565) {
+        return Err(Fail::Unmodeled(open::GP_PAINT_GAMMA_BETWEEN));
     }
     // (the brush's color at a pixel, premultiplied)
     let color = |px: u32, py: u32| -> u32 {
