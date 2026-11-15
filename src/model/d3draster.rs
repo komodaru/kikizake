@@ -1670,7 +1670,18 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             });
             let v = m.views[sv].as_ref().unwrap();
             let r = m.res[v.res].as_ref().unwrap();
-            let (w, h, _) = r.size(0);
+            // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) a view of its own range of
+            // levels: its most detailed level is level 0 for the span and the levels
+            let (base, mips) = match (v.words.get(1), v.words.get(2), v.words.get(3)) {
+                _ if r.d.mips == 1 => (0, 1),
+                (Some(&4), Some(&b), Some(&n)) if b < r.d.mips => (b, n.min(r.d.mips - b).max(1)),
+                // (other kinds of views of textures with mips: not measured)
+                _ => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+            };
+            if base != 0 || mips != r.d.mips {
+                hit(clause::D3DRASTER_FILTER_VIEW);
+            }
+            let (w, h, _) = r.size(base);
             let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
                 match planes {
                     Some(p) => {
@@ -1684,17 +1695,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let filter = Filter::of(s[0]).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
             // pixel spans, as the 2 x 2 quad's differences give them)
-            // (a view of its own range of levels: not measured)
-            if r.d.mips > 1 && !(v.words.get(1) == Some(&4) && v.words.get(2) == Some(&0) && v.words.get(3).is_some_and(|&n| n == r.d.mips || n == u32::MAX)) {
-                return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
-            }
             // (MEASURED, WARP: probe-filter-aniso, -aniso-min, -aniso-2, -4, -16, -aniso-mips,
             // -aniso-mips-2) anisotropic filtering is the linear one, between levels too, the level
             // by the longer span
             if s[0] == 0x55 {
                 hit(clause::D3DRASTER_FILTER_ANISO);
             }
-            let (linear, level) = if filter.min == filter.mag && r.d.mips == 1 {
+            let (linear, level) = if filter.min == filter.mag && mips == 1 {
                 (filter.mag, Level::One(0))
             } else {
                 let (qx, qy) = (px & !1, py & !1);
@@ -1706,14 +1713,14 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 if rho <= 1.0 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
                     (filter.mag, Level::One(0))
-                } else if r.d.mips == 1 {
+                } else if mips == 1 {
                     hit(clause::D3DRASTER_FILTER_MINMAG);
                     (filter.min, Level::One(0))
                 } else {
                     // (MEASURED, WARP: probe-filter-mips, -mips-point, -trilinear*) past one texel
                     // the level is log2 of the span
                     let lod = rho.log2();
-                    let last = f64::from(r.d.mips - 1);
+                    let last = f64::from(mips - 1);
                     let level = if s[0] & 1 == 0 {
                         // (mip point: the nearest level)
                         Level::One(((lod + 0.5).floor().min(last)) as u32)
@@ -1727,10 +1734,10 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 }
             };
             let one = |level: u32| -> Res<Filtered> {
-                let (w, h, _) = r.size(level);
+                let (w, h, _) = r.size(base + level);
                 let at = |i: i64, j: i64| -> Res<[u32; 4]> {
                     match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
-                        (Some(x), Some(y)) => texel(r, level, v.format(), x as u32, y as u32),
+                        (Some(x), Some(y)) => texel(r, base + level, v.format(), x as u32, y as u32),
                         _ => {
                             hit(clause::D3DRASTER_BORDER);
                             Ok([0; 4])
@@ -1768,7 +1775,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                         lerp_sse(l, r, fu)
                     })));
                 }
-                if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88) {
+                if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88 | 71 | 77 | 98) {
                     return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
