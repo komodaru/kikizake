@@ -1326,8 +1326,6 @@ wicencode gridtie-idx8-few-0
 wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2
 wicencode gridtie-idx8-few-3
-wicencode rgba64fixed-every-bgra
-wicencode rgba64fixed-every-gray8
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic
