@@ -2483,4 +2483,35 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // antialiased lines blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) into a buffer without alpha,
+    // white over black, one at a time: x-major drawn right, left; y-major up, down; then over
+    // a gray and in a color
+    for k in 0..6 {
+        writeln!(s, "case line-smooth-blend-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303", ctx(32)).unwrap();
+        if k == 4 {
+            writeln!(s, "gl glClearColor 0.4 0.6 0.2 1").unwrap();
+        }
+        for i in 0..12u32 {
+            let (run, rise) = (v8(&mut r, 5, 14), v8(&mut r, -4, 4) * if i % 3 == 0 { 0.25 } else { 1.0 });
+            let (x0, y0) = (v8(&mut r, 1, 15 - run as i64), v8(&mut r, 5, 11));
+            let (a, b) = match k % 4 {
+                0 => ((x0, y0), (x0 + run, y0 + rise)),
+                1 => ((x0 + run, y0 + rise), (x0, y0)),
+                2 => ((y0, x0), (y0 + rise, x0 + run)),
+                _ => ((y0 + rise, x0 + run), (y0, x0)),
+            };
+            let (a, b) = if k >= 4 && i % 2 == 1 { (b, a) } else { (a, b) };
+            writeln!(s, "gl glClear 0x4000").unwrap();
+            if k == 5 {
+                color(s, &mut r);
+            } else {
+                writeln!(s, "gl glColor4ub 255 255 255 255").unwrap();
+            }
+            writeln!(s, "gl glBegin 1").unwrap();
+            glf(s, "glVertex2f", &[a.0, a.1]);
+            glf(s, "glVertex2f", &[b.0, b.1]);
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

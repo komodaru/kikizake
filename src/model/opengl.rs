@@ -1182,6 +1182,10 @@ impl Given {
     }
 }
 
+/// whether blended antialiased lines (raster-mode-4) are modelled yet (they are not: see the
+/// window path of `end`)
+const SMOOTH_BLEND_FITTED: bool = false;
+
 /// A line's colors: one (flat, or both ends alike) or one per end (smooth)
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum LineColor {
@@ -2555,7 +2559,9 @@ impl Ctx {
             LINES | LINE_LOOP | LINE_STRIP => {
                 // (stippled lines, and antialiased ones wide, under a projection, blended or
                 // alpha tested, are not measured)
-                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && (self.cap(BLEND) || self.cap(ALPHA_TEST) || self.line_width != 1.0)) {
+                // (blended into a buffer without alpha: GL.RASTER.LINE.SMOOTH.BLEND)
+                let blended = self.cap(BLEND) && self.pf.rgba[3].0 == 0;
+                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST) || self.line_width != 1.0)) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
@@ -2607,6 +2613,21 @@ impl Ctx {
                                 let mut c = c;
                                 c[3] = (f64::from(c[3]) * f) as f32;
                                 self.fragment(Frag { x, y, c, z: wa[2], fixed: self.smooth_fixed(), zfixed: None })?;
+                            }
+                            continue;
+                        }
+                        if self.cap(LINE_SMOOTH) && blended {
+                            // (each pixel's alpha its coverage, a coverage c of 255 as c + c / 128,
+                            // then blended: fits raster-mode-4's x-major lines drawn rightward;
+                            // leftward and y-major ones are a 1/256 off either way, measured by
+                            // line-smooth-blend-*: GL.RASTER.MODE)
+                            if !SMOOTH_BLEND_FITTED {
+                                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                            }
+                            for (x, y, k) in tri::line_covered([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, tri::Stroke::Smooth) {
+                                let mut c = c;
+                                c[3] = (f64::from(c[3]) * f64::from((u32::from(k.0) + (u32::from(k.0) >> 7)).min(255)) / 255.0) as f32;  // TRY
+                                self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
                             }
                             continue;
                         }
@@ -4300,6 +4321,14 @@ pub mod tri {
     /// y-major; a wide line the run of its width about that value (GL.RASTER.LINE.WIDE);
     /// inside the viewport: GL.RASTER.LINE, GL.RASTER.LINE.TIE
     pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], stroke: Stroke) -> Vec<(i64, i64)> {
+        line_covered(a, b, viewport, stroke).into_iter().map(|(x, y, _)| (x, y)).collect()
+    }
+
+    /// `line`, each pixel with its coverage: an aliased line's all 255; an antialiased one's
+    /// pair across, the pixel above (x-major) or right (y-major) the line's fraction past the
+    /// lower one's boundary in 1/256 (`floor(f * 256)`), the other 255 less that (MEASURED,
+    /// golden opengl-32 raster-mode-4: 33 columns of four blended lines)
+    pub fn line_covered(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], stroke: Stroke) -> Vec<(i64, i64, Coverage)> {
         let (width, smooth, entering) = match stroke {
             Stroke::Aliased(w) => (w, false, false),
             Stroke::Entering(w) => (w, false, true),
@@ -4364,6 +4393,9 @@ pub mod tri {
                 (true, false) => -i128::from(width.0 - 1) * den / 2,
             };
             let num = first + n * 256 * i128::from(dmin) - i128::from(width.0 + 1) * den / 2 + moved;
+            // (antialiased: of the line itself, not rounded at the first center)
+            let unrounded = (i128::from(a[minor].0) * i128::from(dmaj) + i128::from(center(j0).0 - a[major].0) * i128::from(dmin)) * i128::from(step) + n * 256 * i128::from(dmin) - den;
+            let num = if smooth { unrounded } else { num };
             let (q, exact) = (num.div_euclid(den) as i64, num.rem_euclid(den) == 0);
             if exact {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);
@@ -4372,16 +4404,39 @@ pub mod tri {
             // (antialiased: the 1-pixel line's pixel and the one below it when x-major, right
             // of it when y-major, GL.RASTER.LINE.SMOOTH)
             let (k0, count) = if smooth { (if ymajor { k0 } else { k0 - 1 }, 2) } else { (k0, width.0) };
+            // (the line's fraction past the floor in 1/256: the upper pixel's floor(f * 256) when
+            // x-major, the left one's floor((1 - f) * 256) when y-major, the other 255 less)
+            let rem = num.rem_euclid(den);
+            let (first_part, other) = if ymajor {
+                let left = ((den - rem) * 256 / den).min(255) as u8;
+                (left, 255 - left)
+            } else {
+                let upper = (rem * 256 / den) as u8;
+                (255 - upper, upper)
+            };
             for k in k0..k0 + count {
                 let (x, y) = if ymajor { (k, j) } else { (j, k) };
+                let cover = match (smooth, k == k0) {
+                    (false, _) => Coverage::WHOLE,
+                    (true, true) => Coverage(first_part),
+                    (true, false) => Coverage(other),
+                };
                 if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
-                    out.push((x, y));
+                    out.push((x, y, cover));
                 }
             }
             j += step;
             n += 1;
         }
         out
+    }
+
+    /// How much of a pixel an antialiased line covers, in 1/255 (255: all of it).
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+    pub struct Coverage(pub u8);
+
+    impl Coverage {
+        pub const WHOLE: Coverage = Coverage(255);
     }
 
     /// A window coordinate in units of 1/256 pixel.
