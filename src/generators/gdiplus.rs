@@ -486,5 +486,22 @@ pub fn gdiplusdraw() -> String {
             }
         }
     }
+    // the same for HighQualityBicubic on a gray ground (its negative lobes show) eight pixels
+    // across the other axis (its middle rows reach no edge)
+    for (axis, (dn, gap)) in ["x", "y"].iter().flat_map(|a| [(25, 6), (31, 6), (40, 6), (47, 6), (53, 6), (13, 10), (11, 10), (7, 10), (5, 10)].map(|d| (*a, d))) {
+        for po in [0, 2] {
+            for k in 0..gap {
+                let mut c = format!("case hqc{axis}-{po}-{dn}-{k}\n");
+                let (bw, bh, dw, dh) = if axis == "x" { (26, 8, 64, 8) } else { (8, 26, 8, 64) };
+                c += &format!("gpbitmap 0 {dw} {dh} 32bppARGB\ngpbitmap 1 {bw} {bh} 32bppRGB\ngpclear 1 0xff808080\n");
+                for at in (4 + k..22).step_by(gap as usize) {
+                    c += &if axis == "x" { format!("gpfill 1 {at} 0 1 8 0xffffaa55 copy 0\n") } else { format!("gpfill 1 0 {at} 8 1 0xffffaa55 copy 0\n") };
+                }
+                let rect = if axis == "x" { format!("0 0 {dn} 8 4 0 18 8") } else { format!("0 0 8 {dn} 0 4 8 18") };
+                c += &format!("gpdraw 0 1 - {rect} copy 0 7 {po}\ngpread 0 32bppARGB\nend");
+                writeln!(s, "{c}").unwrap();
+            }
+        }
+    }
     s
 }

@@ -1670,6 +1670,8 @@ impl Gdiplus {
                 }
                 match interp {
                     Interp::NearestNeighbor | Interp::Bilinear | Interp::Bicubic => {}
+                    // (reductions with HighQualityBilinear not fitted yet)
+                    Interp::HighQualityBilinear if v[6] <= v[2] && v[7] <= v[3] => {}
                     Interp::HighQualityBilinear | Interp::HighQualityBicubic => {
                         return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
                     }
@@ -1735,7 +1737,28 @@ impl Gdiplus {
                                 }
                                 bicubic(q16, tx.entry, ty.entry)
                             }
-                            Interp::HighQualityBilinear | Interp::HighQualityBicubic => unreachable!(),
+                            Interp::HighQualityBilinear if one => match texel(x - dx + sx, y - dy + sy)? {
+                                Some(c) => c,
+                                None => continue,
+                            },
+                            Interp::HighQualityBilinear => {
+                                hit(clause::GP_DRAW_HQ_BILINEAR);
+                                let px = Place128::high_bilinear(x, dx, w, sx, sw, po, Axis::Across);
+                                let py = Place128::high_bilinear(y, dy, h, sy, sh, po, Axis::Down);
+                                // (rows past the source rectangle by more than one are not read)
+                                let rows: Vec<(i64, i64)> = py.taps().filter(|&(r, _)| sh == h || (sy - 1..=sy + sh).contains(&r)).collect();
+                                let mut mids = Vec::with_capacity(rows.len());
+                                for &(r, wy) in &rows {
+                                    let mut line = Vec::with_capacity(4);
+                                    for (c, wx) in px.taps() {
+                                        line.push((texel(c, r)?.unwrap_or(0), wx));
+                                    }
+                                    // (x86 truncates the weights down to 1/16384)
+                                    mids.push((spline_pass(&line, 15), if super::arch() == 32 { wy >> 1 } else { wy }));
+                                }
+                                spline_pass(&mids, if super::arch() == 32 { 14 } else { 15 })
+                            }
+                            Interp::HighQualityBicubic => unreachable!(),
                         };
                         colors.insert((x as u32, y as u32), c);
                     }
@@ -1809,6 +1832,65 @@ impl Tap {
             Tap { at: (u >> 16) + (w >> 11), w: (w & 2047) as u32 }
         }
     }
+}
+
+/// an axis of a draw
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Axis {
+    Across,
+    Down,
+}
+
+/// a place in a source row or column, in 1/128 pixel
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Place128(pub i64);
+
+impl Place128 {
+    /// HighQualityBilinear's place of destination pixel p (GP.DRAW.HQ_BILINEAR): a 16.16 step
+    /// (s / d rounded) from the rectangle's first pixel, for a half pixel offset the first
+    /// place across half the step rounded up less one half, down (s - d) / 2d rounded; rounded
+    /// up to 1/128; across, a half offset's place at a fraction of exactly 1/2 moves 1/128 on
+    pub fn high_bilinear(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset, axis: Axis) -> Place128 {
+        let step = (2 * sn * 65536 + dn).div_euclid(2 * dn);
+        let start = match (po.half(), axis) {
+            (false, _) => 0,
+            (true, Axis::Across) => (step + 1).div_euclid(2) - 32768,
+            (true, Axis::Down) => ((sn - dn) * 65536 + dn).div_euclid(2 * dn),
+        };
+        let u = s0 * 65536 + start + (p - d0) * step;
+        let lift = match axis {
+            Axis::Across => po.half() && (u + 32768).rem_euclid(65536) == 0,
+            Axis::Down => false,
+        };
+        Place128((u + 511).div_euclid(512) + i64::from(lift))
+    }
+    /// the source pixels the quadratic spline reaches from here, with their weights in 1/32768
+    pub fn taps(self) -> impl Iterator<Item = (i64, i64)> {
+        let at = self.0.div_euclid(128);
+        (at - 1..=at + 2).map(move |c| (c, spline2(self.0 - 128 * c))).filter(|&(_, w)| w > 0)
+    }
+}
+
+/// the quadratic B-spline (a tent of one pixel each side through a one pixel box) at t / 128,
+/// in 1/32768: 3/4 - t^2 inside 1/2, (3/2 - |t|)^2 / 2 inside 3/2
+pub const fn spline2(t: i64) -> i64 {
+    let t = t.abs();
+    if t < 64 {
+        24576 - 2 * t * t
+    } else if t < 192 {
+        (192 - t) * (192 - t)
+    } else {
+        0
+    }
+}
+const _: () = assert!(spline2(0) + 2 * spline2(128) == 32768 && spline2(64) + spline2(-64) == 32768 && spline2(192) == 0);
+
+/// premultiplied pixels weighted in 1/2^bits, each channel rounded half up and clamped to a byte
+pub fn spline_pass(line: &[(u32, i64)], bits: u32) -> u32 {
+    [0, 8, 16, 24].iter().fold(0, |o, &sh| {
+        let s: i64 = line.iter().map(|&(p, w)| i64::from(p >> sh & 255) * w).sum();
+        o | (((s + (1 << (bits - 1))) >> bits).clamp(0, 255) as u32) << sh
+    })
 }
 
 /// a bicubic tap: the source pixel at (the taps at - 1 ..= at + 2) and the entry of the weights'

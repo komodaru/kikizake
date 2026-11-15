@@ -357,6 +357,35 @@ proptest! {
         prop_assert_eq!(gp::bicubic(q, zero, zero), c);
         prop_assert_eq!(gp::bicubic([[c; 4]; 4], gp::Entry::of(ex), gp::Entry::of(ey)), c);
     }
+    /// HighQualityBilinear: the spline's taps from any place sum to one and keep a uniform line;
+    /// a 1:1 axis lands on its texel; places never step back, and an enlargement's never pass
+    /// its source rectangle by more than a pixel
+    #[test]
+    fn high_bilinear_places_and_weights(p in 0i64..64, d0 in 0i64..32, dn in 1i64..64, s0 in 0i64..32, sn in 1i64..64, po in 0i64..5, down in any::<bool>(), c in any::<u32>()) {
+        let po = gp::PixelOffset::from_value(po).unwrap();
+        let axis = if down { gp::Axis::Down } else { gp::Axis::Across };
+        let at = gp::Place128::high_bilinear(d0 + p, d0, dn, s0, sn, po, axis);
+        let taps: Vec<(i64, i64)> = at.taps().collect();
+        prop_assert_eq!(taps.iter().map(|t| t.1).sum::<i64>(), 32768);
+        let line: Vec<(u32, i64)> = taps.iter().map(|&(_, w)| (c, w)).collect();
+        prop_assert_eq!(gp::spline_pass(&line, 15), c);
+        prop_assert_eq!(gp::Place128::high_bilinear(d0 + p % dn, d0, dn, s0, dn, po, axis), gp::Place128(128 * (s0 + p % dn)));
+        let next = gp::Place128::high_bilinear(d0 + p + 1, d0, dn, s0, sn, po, axis);
+        prop_assert!(next.0 >= at.0);
+        if sn <= dn && p < dn {
+            prop_assert!(at.0 >= 128 * s0 - 64 && at.0 <= 128 * (s0 + sn));
+        }
+    }
+}
+
+/// the quadratic spline: the shape's halves meet, each tap pair one half apart sums to one
+#[test]
+fn spline2_is_a_partition_of_one() {
+    for t in -256..=256 {
+        assert_eq!(gp::spline2(t), gp::spline2(-t));
+        let s: i64 = (-3..=3).map(|k| gp::spline2(t + 128 * k)).sum();
+        assert_eq!(s, 32768, "t {t}");
+    }
 }
 
 
