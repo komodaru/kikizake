@@ -19086,3 +19086,343 @@ ddfill 0 3
 ddblt 0 0 0 20 1 1 0 0 9 1 mirrorlr mirrorud
 dddump 0 0 0 20 1
 end
+case overlap8padpoke-29
+dd
+ddsurf 0 29 6 8
+ddfill 0 5155
+ddlock 0 all
+ddpoke 0 29 0 e2d9be
+ddpoke 0 29 1 362ac1
+ddpoke 0 29 2 ff223c
+ddpoke 0 29 3 b916a4
+ddpoke 0 29 4 0ba272
+ddpoke 0 29 5 96f65d
+ddunlock 0 none
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 7106
+ddlock 0 all
+ddpoke 0 29 0 5b6800
+ddpoke 0 29 1 dbb572
+ddpoke 0 29 2 99fa3a
+ddpoke 0 29 3 a7fe74
+ddpoke 0 29 4 674d06
+ddpoke 0 29 5 d0ce23
+ddunlock 0 none
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 9757
+ddlock 0 all
+ddpoke 0 29 0 94217d
+ddpoke 0 29 1 6620f5
+ddpoke 0 29 2 0e37c4
+ddpoke 0 29 3 18c7ca
+ddpoke 0 29 4 630387
+ddpoke 0 29 5 2d8c09
+ddunlock 0 none
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 369
+ddlock 0 all
+ddpoke 0 29 0 5a727b
+ddpoke 0 29 1 1fed3a
+ddpoke 0 29 2 58639e
+ddpoke 0 29 3 791f99
+ddpoke 0 29 4 7c4d03
+ddpoke 0 29 5 57ea6a
+ddunlock 0 none
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 3448
+ddlock 0 all
+ddpoke 0 29 0 3b3a7b
+ddpoke 0 29 1 df6e44
+ddpoke 0 29 2 6e5df1
+ddpoke 0 29 3 739939
+ddpoke 0 29 4 375c75
+ddpoke 0 29 5 37a707
+ddunlock 0 none
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 8590
+ddlock 0 all
+ddpoke 0 29 0 da956e
+ddpoke 0 29 1 18f142
+ddpoke 0 29 2 763b33
+ddpoke 0 29 3 76d018
+ddpoke 0 29 4 772530
+ddpoke 0 29 5 dbaba5
+ddunlock 0 none
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 274
+ddlock 0 all
+ddpoke 0 29 0 589ab2
+ddpoke 0 29 1 262a0a
+ddpoke 0 29 2 9c7aa5
+ddpoke 0 29 3 13e2b3
+ddpoke 0 29 4 6e45f9
+ddpoke 0 29 5 3733d5
+ddunlock 0 none
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+end
+case overlap8padpoke-30
+dd
+ddsurf 0 30 6 8
+ddfill 0 1876
+ddlock 0 all
+ddpoke 0 30 0 917b
+ddpoke 0 30 1 18b1
+ddpoke 0 30 2 3ca8
+ddpoke 0 30 3 38bb
+ddpoke 0 30 4 a75f
+ddpoke 0 30 5 acd6
+ddunlock 0 none
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 1849
+ddlock 0 all
+ddpoke 0 30 0 760d
+ddpoke 0 30 1 3d80
+ddpoke 0 30 2 510c
+ddpoke 0 30 3 1676
+ddpoke 0 30 4 d3c1
+ddpoke 0 30 5 a43b
+ddunlock 0 none
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 7289
+ddlock 0 all
+ddpoke 0 30 0 fb7d
+ddpoke 0 30 1 6a77
+ddpoke 0 30 2 2481
+ddpoke 0 30 3 28af
+ddpoke 0 30 4 6ebe
+ddpoke 0 30 5 a463
+ddunlock 0 none
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 2974
+ddlock 0 all
+ddpoke 0 30 0 5dd0
+ddpoke 0 30 1 4e11
+ddpoke 0 30 2 4ffa
+ddpoke 0 30 3 fa14
+ddpoke 0 30 4 7589
+ddpoke 0 30 5 2a73
+ddunlock 0 none
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 1308
+ddlock 0 all
+ddpoke 0 30 0 10d8
+ddpoke 0 30 1 7038
+ddpoke 0 30 2 67fd
+ddpoke 0 30 3 ddc1
+ddpoke 0 30 4 0157
+ddpoke 0 30 5 c0a4
+ddunlock 0 none
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 3708
+ddlock 0 all
+ddpoke 0 30 0 6c6a
+ddpoke 0 30 1 b48e
+ddpoke 0 30 2 9f63
+ddpoke 0 30 3 0111
+ddpoke 0 30 4 9d49
+ddpoke 0 30 5 d3a6
+ddunlock 0 none
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 508
+ddlock 0 all
+ddpoke 0 30 0 c8d5
+ddpoke 0 30 1 c373
+ddpoke 0 30 2 ca20
+ddpoke 0 30 3 3544
+ddpoke 0 30 4 d397
+ddpoke 0 30 5 2cf3
+ddunlock 0 none
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+end
+case overlap8padpoke-31
+dd
+ddsurf 0 31 6 8
+ddfill 0 4834
+ddlock 0 all
+ddpoke 0 31 0 ab
+ddpoke 0 31 1 e7
+ddpoke 0 31 2 92
+ddpoke 0 31 3 42
+ddpoke 0 31 4 a9
+ddpoke 0 31 5 bf
+ddunlock 0 none
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 7669
+ddlock 0 all
+ddpoke 0 31 0 0d
+ddpoke 0 31 1 2f
+ddpoke 0 31 2 d6
+ddpoke 0 31 3 17
+ddpoke 0 31 4 9f
+ddpoke 0 31 5 ff
+ddunlock 0 none
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 240
+ddlock 0 all
+ddpoke 0 31 0 b8
+ddpoke 0 31 1 40
+ddpoke 0 31 2 5a
+ddpoke 0 31 3 22
+ddpoke 0 31 4 b8
+ddpoke 0 31 5 51
+ddunlock 0 none
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 2520
+ddlock 0 all
+ddpoke 0 31 0 91
+ddpoke 0 31 1 93
+ddpoke 0 31 2 06
+ddpoke 0 31 3 3c
+ddpoke 0 31 4 89
+ddpoke 0 31 5 12
+ddunlock 0 none
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 8725
+ddlock 0 all
+ddpoke 0 31 0 6c
+ddpoke 0 31 1 4c
+ddpoke 0 31 2 a7
+ddpoke 0 31 3 26
+ddpoke 0 31 4 f9
+ddpoke 0 31 5 50
+ddunlock 0 none
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 6408
+ddlock 0 all
+ddpoke 0 31 0 95
+ddpoke 0 31 1 38
+ddpoke 0 31 2 a7
+ddpoke 0 31 3 76
+ddpoke 0 31 4 9f
+ddpoke 0 31 5 44
+ddunlock 0 none
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 4104
+ddlock 0 all
+ddpoke 0 31 0 d7
+ddpoke 0 31 1 22
+ddpoke 0 31 2 7f
+ddpoke 0 31 3 d4
+ddpoke 0 31 4 8b
+ddpoke 0 31 5 51
+ddunlock 0 none
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+end
+case overlap8padfresh-29
+dd
+ddsurf 0 29 6 8
+ddfill 0 1919
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 3575
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 5676
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 1040
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 6640
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 2405
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 7242
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+end
+case overlap8padfresh-30
+dd
+ddsurf 0 30 6 8
+ddfill 0 3710
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 6298
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 6888
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 6304
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 8584
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 6775
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 70
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+end
+case overlap8padfresh-31
+dd
+ddsurf 0 31 6 8
+ddfill 0 8969
+ddblt 0 1 2 5 4 0 0 2 4 4
+dddump 0
+ddfill 0 5833
+ddblt 0 2 2 6 4 0 0 2 4 4
+dddump 0
+ddfill 0 6142
+ddblt 0 3 2 7 4 0 0 2 4 4
+dddump 0
+ddfill 0 3265
+ddblt 0 1 1 9 3 0 0 2 8 4
+dddump 0
+ddfill 0 1073
+ddblt 0 2 1 10 3 0 0 2 8 4
+dddump 0
+ddfill 0 8714
+ddblt 0 3 1 11 3 0 0 2 8 4
+dddump 0
+ddfill 0 2763
+ddblt 0 3 1 7 3 0 0 2 4 4
+dddump 0
+end
+case overlap8front
+dd
+ddsurf 0 32 6 8
+ddfill 0 3544
+ddblt 0 1 0 5 2 0 0 0 4 2
+dddump 0
+ddfill 0 786
+ddblt 0 2 0 6 2 0 0 0 4 2
+dddump 0
+ddfill 0 56
+ddblt 0 3 0 7 2 0 0 0 4 2
+dddump 0
+ddfill 0 6332
+ddblt 0 1 0 9 2 0 0 0 8 2
+dddump 0
+ddfill 0 1628
+ddblt 0 2 0 10 2 0 0 0 8 2
+dddump 0
+ddfill 0 7570
+ddblt 0 3 0 11 2 0 0 0 8 2
+dddump 0
+end

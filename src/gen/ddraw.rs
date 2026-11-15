@@ -551,5 +551,31 @@ pub fn dd8() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // the extra pixels of the 8 bpp backward copy (DDRAW.OVERLAP8) whose bytes lie in a row's
+    // padding (widths 29..31: a pitch of 32 on both runtimes), poked first (DDRAW.LOCK.PAD) or as
+    // the surface was made, and before the surface (a blit on row 0, its source at column 0)
+    let mut rp = XorShift32::new(0x0dd8_9ad0);
+    for kind in ["poke", "fresh"] {
+        for w in [29i64, 30, 31] {
+            writeln!(s, "case overlap8pad{kind}-{w}\ndd\nddsurf 0 {w} 6 8").unwrap();
+            for (sw, dx, dy) in [(4i64, 1i64, 0i64), (4, 2, 0), (4, 3, 0), (8, 1, -1), (8, 2, -1), (8, 3, -1), (4, 3, -1)] {
+                writeln!(s, "ddfill 0 {}", rp.range(1, 9999)).unwrap();
+                if kind == "poke" {
+                    writeln!(s, "ddlock 0 all").unwrap();
+                    for y in 0..6 {
+                        writeln!(s, "ddpoke 0 {w} {y} {}", (w..32).map(|_| format!("{:02x}", rp.range(0, 255))).collect::<String>()).unwrap();
+                    }
+                    writeln!(s, "ddunlock 0 none").unwrap();
+                }
+                writeln!(s, "ddblt 0 {dx} {} {} {} 0 0 2 {sw} 4\ndddump 0", 2 + dy, dx + sw, 4 + dy).unwrap();
+            }
+            writeln!(s, "end").unwrap();
+        }
+    }
+    writeln!(s, "case overlap8front\ndd\nddsurf 0 32 6 8").unwrap();
+    for (sw, dx) in [(4i64, 1i64), (4, 2), (4, 3), (8, 1), (8, 2), (8, 3)] {
+        writeln!(s, "ddfill 0 {}\nddblt 0 {dx} 0 {} 2 0 0 0 {sw} 2\ndddump 0", rp.range(1, 9999), dx + sw).unwrap();
+    }
+    writeln!(s, "end").unwrap();
     s
 }
