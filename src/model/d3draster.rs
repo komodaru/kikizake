@@ -1531,6 +1531,30 @@ fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
     op(a, m, a + m)
 }
 
+/// how a format's texels are filtered linearly
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum FilterPath {
+    /// 8-bit UNORM and the block formats decoded to bytes: D3DRASTER.FILTER.LINEAR
+    Fixed,
+    /// as f32: D3DRASTER.FILTER.FLOAT
+    Wide,
+}
+
+/// (MEASURED, WARP: probe-filter-*) the path of a format's linear filtering; None where not
+/// measured (integer formats end the executor)
+fn filter_path(id: u32) -> Option<FilterPath> {
+    let f = format(id)?;
+    match (f.num, id) {
+        // R8G8B8A8, R8G8, R8, A8, B8G8R8A8, B8G8R8X8 UNORM; BC1, BC2, BC3, BC7 UNORM
+        (_, 28 | 49 | 61 | 65 | 87 | 88 | 71 | 74 | 77 | 98) => Some(FilterPath::Fixed),
+        // R11G11B10, R9G9B9E5, B5G6R5, B5G5R5A1, B4G4R4A4; BC1 sRGB, BC4 UNORM and SNORM, BC5 UNORM, BC6H
+        (_, 26 | 67 | 85 | 86 | 115 | 72 | 80 | 81 | 83 | 95) => Some(FilterPath::Wide),
+        (Num::Float | Num::Srgb | Num::Snorm, _) if f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) => Some(FilterPath::Wide),
+        (Num::Unorm, _) if f.comps.iter().all(|&c| c == 16) || f.comps == [10, 10, 10, 2] => Some(FilterPath::Wide),
+        _ => None,
+    }
+}
+
 /// the level or levels a sample reads
 #[derive(Clone, Copy)]
 enum Level {
@@ -1771,10 +1795,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
                 // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
                 // 1/256 below the fraction
-                let wide = format(v.format()).is_some_and(|f| matches!(f.num, Num::Float | Num::Srgb | Num::Snorm) && f.comps.iter().all(|c| matches!(c, 8 | 16 | 32)) || f.num == Num::Unorm && (f.comps.iter().all(|&c| c == 16) || f.comps == [10, 10, 10, 2]) || matches!(v.format(), 26 | 67 | 85 | 86 | 115));
-                // (and R11G11B10, R9G9B9E5, 5-6-5, 5-5-5-1 and 4-4-4-4 UNORM: probe-filter-r11g11b10, -rgb9e5, -b5g6r5, -b5g5r5a1, -b4g4r4a4;
-                // NaNs as SSE passes them on, D3DRASTER.FILTER.FLOAT)
-                if wide {
+                let path = filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
+                if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
                     let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
@@ -1784,9 +1806,6 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                         let r = lerp_sse(b[k], e[k], fv);
                         lerp_sse(l, r, fu)
                     })));
-                }
-                if !matches!(v.format(), 28 | 49 | 61 | 65 | 87 | 88 | 71 | 77 | 98) {
-                    return Err(Fail::Unmodeled(open::D3DRASTER_FILTER));
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
                 let (a, b, c, e) = (bytes(at(i, j)?), bytes(at(i + 1, j)?), bytes(at(i, j + 1)?), bytes(at(i + 1, j + 1)?));
