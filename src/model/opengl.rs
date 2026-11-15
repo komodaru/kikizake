@@ -1205,6 +1205,22 @@ pub enum Axis {
     Y,
 }
 
+/// The way a flat-shaded line is drawn (GL.RASTER.LINE.FLAT).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum FlatPath {
+    /// as GDI's LineTo on the DIB
+    Gdi,
+    /// through the GL pipeline as any line, in this end's color
+    Pipeline(LineEnd),
+}
+
+/// One end of a line segment, as drawn.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum LineEnd {
+    First,
+    Second,
+}
+
 /// how a fragment's color components become channel values
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ToFixed {
@@ -2600,12 +2616,17 @@ impl Ctx {
                     // (fogged at the ends; flat-shaded lines are drawn at other pixels than smooth
                     // ones, a step along apart, golden opengl-32 line-color-4, not settled:
                     // GL.RASTER.MODE)
-                    if self.shade == FLAT {
-                        self.flat_line(a, b)?;
-                        continue;
-                    }
                     let (fa, fb) = (self.fogged(a.1, a.0), self.fogged(b.1, b.0));
-                    let color = if fa == fb { LineColor::Flat(fb) } else { LineColor::Smooth(fa, fb) };
+                    let color = match (self.shade == FLAT).then(|| self.flat_path()).transpose()? {
+                        Some(FlatPath::Gdi) => {
+                            self.flat_line(a, b)?;
+                            continue;
+                        }
+                        Some(FlatPath::Pipeline(LineEnd::First)) => LineColor::Flat(fa),
+                        Some(FlatPath::Pipeline(LineEnd::Second)) => LineColor::Flat(fb),
+                        None if fa == fb => LineColor::Flat(fb),
+                        None => LineColor::Smooth(fa, fb),
+                    };
                     let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
                     let c = match color {
                         LineColor::Flat(c) => c,
@@ -2899,21 +2920,61 @@ impl Ctx {
         Ok(())
     }
 
+    /// How a flat-shaded line is drawn (MEASURED, golden opengl-32 line-flat-*): with no
+    /// per-fragment operation on, as GDI's line on the DIB (GL.RASTER.LINE.FLAT); with a depth
+    /// test, blending or a scissor box on, as any 1-pixel line (GL.RASTER.LINE), the same pixels
+    /// as a smooth one (line-flat-8, 9, 10); the rest, and wide
+    /// ones, not measured (GL.RASTER.MODE).
+    fn flat_path(&self) -> Res<FlatPath> {
+        let unmeasured = self.cap(LINE_SMOOTH) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
+        let width = tri::LineWidth::of(self.line_width).pixels();
+        let pipeline = self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST) || self.cap(BLEND);
+        if unmeasured || width > 2 || (width == 2 && pipeline) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        hit(clause::GL_RASTER_LINE_FLAT);
+        // (MEASURED, line-flat-8, 10: depth tested or scissored, in the first end's color; 9:
+        // blended, the second's; both at once not measured)
+        Ok(match (self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST), self.cap(BLEND)) {
+            (false, false) => FlatPath::Gdi,
+            (true, false) => FlatPath::Pipeline(LineEnd::First),
+            (false, true) => FlatPath::Pipeline(LineEnd::Second),
+            (true, true) => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+        })
+    }
+
     /// A flat-shaded line from a to b in b's color (GL.RASTER.LINE.FLAT, measured for 1-pixel lines
     /// inside the window without depth test, blending, fog, stencil or masks into a 32-bit DIB;
     /// the rest open: GL.RASTER.MODE).
     fn flat_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4])) -> Res<()> {
         let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
-        let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
-        let inside = |c: [f32; 4], w: [f64; 3]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]) && (0.0..W as f64).contains(&w[0]) && (0.0..H as f64).contains(&w[1]);
-        let plain = !self.cap(LINE_SMOOTH) && !self.cap(DEPTH_TEST) && !self.cap(BLEND) && !self.cap(FOG) && !self.cap(STENCIL_TEST) && !self.cap(ALPHA_TEST) && !self.cap(COLOR_LOGIC_OP) && !self.cap(INDEX_LOGIC_OP) && !self.cap(SCISSOR_TEST);
-        if !plain || tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE || self.bpp != 32 || self.viewport != [0, 0, W as i64, H as i64] || self.color_mask != [true; 4] || !inside(ca, wa) || !inside(cb, wb) {
+        // (cut to the view volume as any line, GL.RASTER.CLIP.XY; under a viewport smaller than
+        // the window and cut: not measured)
+        let Some((ka, kb)) = tri::clip_segment(ca, cb) else {
+            hit(clause::GL_RASTER_CLIP_XY);
+            return Ok(());
+        };
+        if (ka, kb) != (ca, cb) && self.viewport != [0, 0, W as i64, H as i64] {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
+        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let h = H as i64;
-        for p in tri::flat_line(tri::DevicePixel::of([wa[0], wa[1]], h), tri::DevicePixel::of([wb[0], wb[1]], h)) {
-            let (x, y) = p.window(h);
-            self.fragment(Frag { x, y, c: b.1, z: wb[2], fixed: self.span(), zfixed: None })?;
+        // (each end's pixel held inside the window: line-flat-4, line-color-4)
+        let device = |c: [f32; 4]| {
+            let n = [c[0], c[1]].map(|v| f64::from(v * (1.0 / c[3])));
+            let p = tri::DevicePixel::of([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy], h).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_MODE))?;
+            Ok::<_, Fail>(tri::DevicePixel { x: p.x.clamp(0, W as i64 - 1), row: p.row.clamp(0, h - 1) })
+        };
+        let z = self.window(b.0)?[2];
+        let (da, db) = (device(ka)?, device(kb)?);
+        // (2 wide: each pixel and the next one down the DIB's rows when x-major, right when
+        // y-major, line-flat-12; wider ones not measured, flat_path)
+        let across = if (db.x - da.x).abs() >= (db.row - da.row).abs() { tri::DevicePixel { x: 0, row: 1 } } else { tri::DevicePixel { x: 1, row: 0 } };
+        for p in tri::flat_line(da, db) {
+            for k in 0..tri::LineWidth::of(self.line_width).pixels() {
+                let (x, y) = tri::DevicePixel { x: p.x + k * across.x, row: p.row + k * across.row }.window(h);
+                self.fragment(Frag { x, y, c: b.1, z, fixed: self.span(), zfixed: None })?;
+            }
         }
         Ok(())
     }
@@ -4450,9 +4511,16 @@ pub mod tri {
     }
 
     impl DevicePixel {
-        /// the pixel a window position (x, y) lands on: floor(x - 1/2), floor(height - y - 1/2)
-        pub fn of(w: [f64; 2], height: i64) -> DevicePixel {
-            DevicePixel { x: (w[0] - 0.5).floor() as i64, row: (height as f64 - w[1] - 0.5).floor() as i64 }
+        /// the pixel a window position (x, y) lands on: each coordinate rounded to 1/16 (28.4),
+        /// then floor(x - 1/2), floor(height - y - 1/2); a coordinate exactly between two 16ths
+        /// is not measured (Tie)
+        pub fn of(w: [f64; 2], height: i64) -> Result<DevicePixel, Tie> {
+            let fix = |v: f64| {
+                let v = v * 16.0;
+                if (v - v.floor()) == 0.5 { Err(Tie) } else { Ok(v.round() as i64) }
+            };
+            let (x, y) = (fix(w[0])?, fix(w[1])?);
+            Ok(DevicePixel { x: (x - 8).div_euclid(16), row: (height * 16 - y - 8).div_euclid(16) })
         }
         /// back to the window's (column, row from the bottom)
         pub fn window(self, height: i64) -> (i64, i64) {
@@ -4461,7 +4529,7 @@ pub mod tri {
     }
 
     /// The pixels of a flat-shaded 1-pixel line from a to b (MEASURED, golden opengl-32
-    /// line-flat-0, 1: 12 lines, every pixel; GL.RASTER.LINE.FLAT): each end to the DIB pixel
+    /// line-flat-0, 1, 3, 11, 13: 60 lines, every pixel; GL.RASTER.LINE.FLAT): each end to the DIB pixel
     /// DevicePixel::of, then Bresenham's between them as GDI's LineTo (the last pixel not drawn,
     /// the minor step at each major one round(i * minor / major); at exactly a half, toward the
     /// next pixel when x-major running up the DIB's rows, or y-major running left, else back)

@@ -2592,6 +2592,37 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // flat-shaded lines whose ends lie exactly between two 16ths (GL.RASTER.LINE.FLAT's 28.4
+    // rounding of a half: up, down, to even?), every one in x and y
+    writeln!(s, "case line-flat-14\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00", ctx(32)).unwrap();
+    for _ in 0..24 {
+        writeln!(s, "gl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255").unwrap();
+        let mut v = || (r.range(16, 239) as f64 * 2.0 + 1.0) / 32.0;
+        let l = [v(), v(), v(), v()];
+        glf(s, "glVertex2f", &[l[0], l[1]]);
+        glf(s, "glVertex2f", &[l[2], l[3]]);
+        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    // flat-shaded wide lines past line-flat-12's width 2: widths 3, 4, 5, 7 (15); 2 wide past
+    // the window (16); 2 wide depth tested (17)
+    for k in 15..18 {
+        writeln!(s, "case line-flat-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00", ctx(32)).unwrap();
+        if k == 17 {
+            writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x201").unwrap();
+        }
+        let set: &[[f64; 4]] = if k == 16 { &past } else { &lines };
+        for (n, l) in set.iter().enumerate() {
+            let w = if k == 15 { [3, 4, 5, 7][n % 4] } else { 2 };
+            writeln!(s, "gl glLineWidth {w}\ngl glClear 0x4100\ngl glBegin 1").unwrap();
+            for e in 0..2 {
+                color(s, &mut r);
+                glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // antialiased wide lines past GL.RASTER.LINE.SMOOTH.WIDE (raster-mode-6, 7): widths under
     // 1.5 and past 3 (0); blended in colors over gray (1); into a buffer with alpha (2); in
     // colors that differ (3)
