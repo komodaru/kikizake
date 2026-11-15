@@ -365,6 +365,27 @@ pub fn d3d7shade() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // the Gouraud fixed point (D3D7.GOURAUD): random triangles with long spans in a 64 x 16
+    // target, and ones whose colors change along x only (two vertices one color, on a column)
+    // (its own generator, so that the cases before keep theirs)
+    let mut rg = XorShift32::new(0x00d3_d7a5);
+    for d in ["rgb", "mmx"] {
+        writeln!(s, "case gstep-{d}\nd3d 7\nd3ddev {d} 32 64 16\nd3drs set 22 1").unwrap();
+        for _ in 0..48 {
+            let c: Vec<u32> = (0..3).map(|_| rg.next()).collect();
+            let p: Vec<i64> = (0..3).flat_map(|_| [rg.range(0, 1023), rg.range(0, 255)]).collect();
+            writeln!(s, "d3dclear 0\nd3dtri {:#x}/{:#x}/{:#x} {} {} {} {} {} {}\nd3ddump", c[0], c[1], c[2], p[0], p[1], p[2], p[3], p[4], p[5]).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        writeln!(s, "case gstepx-{d}\nd3d 7\nd3ddev {d} 32 64 16\nd3drs set 22 1").unwrap();
+        for _ in 0..48 {
+            let (a, b) = (rg.next(), rg.next());
+            let (x0, x1) = (rg.range(0, 200), rg.range(600, 1023));
+            let (y0, y1, y2) = (rg.range(0, 40), rg.range(216, 255), rg.range(0, 255));
+            writeln!(s, "d3dclear 0\nd3dtri {a:#x}/{b:#x}/{a:#x} {x0} {y0} {x1} {y2} {x0} {y1}\nd3ddump").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
 
