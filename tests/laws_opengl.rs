@@ -156,7 +156,7 @@ proptest! {
     fn line_is_thin_and_moves_with_its_ends(v in any::<[(u8, u8); 2]>(), dx in -3i64..4, dy in -3i64..4) {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 4.0, f64::from(y) / 32.0 + 4.0];
         let (a, b) = (end(v[0]), end(v[1]));
-        let p = tri::line(a, b, [0, 0, 16, 16], tri::LineWidth::ONE);
+        let p = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Aliased(tri::LineWidth::ONE));
         let xmajor = (b[0] - a[0]).abs() > (b[1] - a[1]).abs();
         let mut seen = std::collections::BTreeSet::new();
         for &(x, y) in &p {
@@ -168,7 +168,7 @@ proptest! {
         let span = if xmajor { (b[0] - a[0]).abs() } else { (b[1] - a[1]).abs() };
         prop_assert!((p.len() as f64 - span).abs() <= 2.0, "{} pixels for {span}", p.len());
         let shift = |c: [f64; 2]| [c[0] + dx as f64, c[1] + dy as f64];
-        let q = tri::line(shift(a), shift(b), [dx, dy, 16, 16], tri::LineWidth::ONE);
+        let q = tri::line(shift(a), shift(b), [dx, dy, 16, 16], tri::Stroke::Aliased(tri::LineWidth::ONE));
         let moved: Vec<(i64, i64)> = p.iter().map(|(x, y)| (x + dx, y + dy)).collect();
         prop_assert_eq!(q, moved);
     }
@@ -180,9 +180,9 @@ proptest! {
     fn wide_lines_hold_the_thin_line(v in any::<[(u8, u8); 2]>(), w in 1f32..10.4) {
         let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
         let (a, b) = (end(v[0]), end(v[1]));
-        let thin = tri::line(a, b, [0, 0, 16, 16], tri::LineWidth::ONE);
+        let thin = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Aliased(tri::LineWidth::ONE));
         let n = tri::LineWidth::of(w);
-        let wide = tri::line(a, b, [0, 0, 16, 16], n);
+        let wide = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Aliased(n));
         let (dx, dy) = ((b[0] - a[0]).abs(), (b[1] - a[1]).abs());
         // (not within the snapping of a diagonal)
         prop_assume!((dx - dy).abs() > 1.0 / 32.0);
@@ -194,6 +194,22 @@ proptest! {
             prop_assert!(run.windows(2).all(|r| r[1] == r[0] + 1), "not one run: {run:?}");
             prop_assert!(run.contains(if xmajor { y } else { x }), "({x}, {y}) not in {run:?}");
         }
+    }
+
+    /// GL.RASTER.LINE.SMOOTH: an antialiased line is its aliased pixels and, for each, the
+    /// one below (x-major) or right of it (y-major), nothing else
+    #[test]
+    fn smooth_lines_add_one_neighbor(v in any::<[(u8, u8); 2]>()) {
+        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
+        let (a, b) = (end(v[0]), end(v[1]));
+        let thin = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Aliased(tri::LineWidth::ONE));
+        let smooth = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Smooth);
+        let ymajor = thin.windows(2).all(|p| p[0].1 != p[1].1) && (b[1] - a[1]).abs() >= (b[0] - a[0]).abs();
+        let mut want: Vec<(i64, i64)> = thin.iter().flat_map(|&(x, y)| [(x, y), if ymajor { (x + 1, y) } else { (x, y - 1) }]).collect();
+        let mut got = smooth.clone();
+        want.sort();
+        got.sort();
+        prop_assert_eq!(got, want);
     }
 
     /// A triangle (convex) crosses each plane of the view volume at most twice; a bow tie

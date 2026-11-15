@@ -88,6 +88,7 @@ pub mod e {
     pub const COLOR_MATERIAL: u32 = 0xb57;
     pub const POINT_SMOOTH: u32 = 0xb10;
     pub const POLYGON_SMOOTH: u32 = 0xb41;
+    pub const POLYGON_STIPPLE: u32 = 0xb42;
     pub const MAP_COLOR: u32 = 0xd10;
     pub const INDEX_SHIFT: u32 = 0xd12;
     pub const INDEX_OFFSET: u32 = 0xd13;
@@ -2135,6 +2136,28 @@ impl Ctx {
     }
 
     /// A normalized device depth in the window (in float32: golden opengl-32 persp-*).
+    /// A flat polygon's depth `z` under GL_POLYGON_OFFSET_FILL (MEASURED, golden opengl-32
+    /// other-calls-1, poly-offset-*, raster-mode-3): moved by the units, the factor times its
+    /// zero slope adding nothing (GL.POLYGON.OFFSET); without it as it is.
+    fn offset_z(&self, z: f64) -> (f64, Option<FixedZ>) {
+        match (self.cap(POLYGON_OFFSET_FILL), self.pf.depth) {
+            (false, _) => (z, None),
+            (true, 16) => {
+                // (golden poly-offset-1: on 16 bits units of 1/32767, z times 32767 plus the
+                // units truncated, shifted left by one; past 1.0 the buffer's 0, below 0 its 0)
+                hit(clause::GL_POLYGON_OFFSET);
+                let v = (z as f32 * 32767.0 + self.offset.1).floor();
+                let v = if (0.0..32768.0).contains(&v) { (v as u64) << 1 } else { 0 };
+                (z, Some(FixedZ { bits: 16, value: v }))
+            }
+            (true, _) => {
+                // (in floats: golden poly-offset-0, -0.5 units on 0.8755)
+                hit(clause::GL_POLYGON_OFFSET);
+                (f64::from(z as f32 + self.offset.1 * 2f32.powi(-23)), None)
+            }
+        }
+    }
+
     fn window_z(&self, z: f32) -> f32 {
         let (n, f) = (self.depth_range[0] as f64, self.depth_range[1] as f64);
         z * ((f - n) / 2.0) as f32 + ((n + f) / 2.0) as f32
@@ -2219,7 +2242,12 @@ impl Ctx {
                 return Ok(());
             }
         }
-        if self.cap(0xb42) || self.cap(POLYGON_SMOOTH) || self.cap(POLYGON_OFFSET_FILL) {
+        // (stippled by the pattern, all set: glPolygonStipple is not among the calls the
+        // executor makes, so every pixel, golden opengl-32 raster-mode-1)
+        if self.cap(POLYGON_STIPPLE) {
+            hit(clause::GL_POLYGON_STIPPLE);
+        }
+        if self.cap(POLYGON_SMOOTH) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
@@ -2243,8 +2271,12 @@ impl Ctx {
         } else {
             None
         };
-        // (one depth: the window depth of the first vertex, GL.DEPTH.FIXED)
-        let z0 = f64::from(zs[0]);
+        // (one depth: the window depth of the first vertex, GL.DEPTH.FIXED; moved by an offset
+        // when flat, an offset of depths that vary not measured)
+        if self.cap(POLYGON_OFFSET_FILL) && depth.is_some() {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        let (z0, offset_fixed) = self.offset_z(f64::from(zs[0]));
         // (MEASURED, golden opengl-32 persp-more-6, persp-more-7: with a corner at or behind
         // the eye, the way the polygon cut to the view volume turns)
         let cut: Vec<[f32; 4]> = if clip.iter().any(|c| c[3] <= 0.0) {
@@ -2287,7 +2319,7 @@ impl Ctx {
         }
         self.never = NeverPath::Other;
         for (x, y, c, zfixed) in px {
-            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed })?;
+            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed: zfixed.or(offset_fixed) })?;
         }
         Ok(())
     }
@@ -2393,23 +2425,7 @@ impl Ctx {
                     // (MEASURED, golden opengl-32 other-calls-1: a flat polygon's depth moved by
                     // units times 2^-23 under GL_POLYGON_OFFSET_FILL, the factor times its zero
                     // slope adding nothing: GL.POLYGON.OFFSET)
-                    let (z, zfixed) = match (self.cap(POLYGON_OFFSET_FILL), self.pf.depth) {
-                        (false, _) => (w[0][2], None),
-                        (true, 16) => {
-                            // (MEASURED, golden opengl-32 poly-offset-1: on 16 bits units of
-                            // 1/32767, z times 32767 plus the units truncated, shifted left by one;
-                            // past 1.0 the buffer's 0, below 0 its 0)
-                            hit(clause::GL_POLYGON_OFFSET);
-                            let v = (w[0][2] as f32 * 32767.0 + self.offset.1).floor();
-                            let v = if (0.0..32768.0).contains(&v) { (v as u64) << 1 } else { 0 };
-                            (w[0][2], Some(FixedZ { bits: 16, value: v }))
-                        }
-                        (true, _) => {
-                            // (in floats: golden poly-offset-0, -0.5 units on 0.8755)
-                            hit(clause::GL_POLYGON_OFFSET);
-                            (f64::from(w[0][2] as f32 + self.offset.1 * 2f32.powi(-23)), None)
-                        }
-                    };
+                    let (z, zfixed) = self.offset_z(w[0][2]);
                     if smooth && !alpha_used {
                         for y in 0..H as i64 {
                             for x in 0..W as i64 {
@@ -2496,8 +2512,9 @@ impl Ctx {
                 }
             }
             LINES | LINE_LOOP | LINE_STRIP => {
-                // (stippled and antialiased lines are not measured)
-                if self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
+                // (stippled lines, and antialiased ones wide, under a projection or whose
+                // coverage would show in alpha, are not measured)
+                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && (alpha_used || self.line_width != 1.0)) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
@@ -2651,6 +2668,10 @@ impl Ctx {
     /// it: GL.RASTER.INTERPOLATE.LINE
     fn deep_line(&mut self, a: [f32; 4], b: [f32; 4], c: [f32; 4]) -> Res<()> {
         hit(clause::GL_RASTER_INTERPOLATE_LINE);
+        // (antialiased lines under a projection or cut: not measured)
+        if self.cap(LINE_SMOOTH) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
         if a[3] != 1.0 || b[3] != 1.0 {
             hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
         }
@@ -2699,7 +2720,8 @@ impl Ctx {
 
     /// the pixels of a 1-pixel line from a to b in window coordinates (`tri::line`)
     fn line_pixels(&self, a: [f64; 2], b: [f64; 2]) -> Res<Vec<(i64, i64)>> {
-        Ok(tri::line(a, b, self.viewport, tri::LineWidth::of(self.line_width)))
+        let stroke = if self.cap(LINE_SMOOTH) { tri::Stroke::Smooth } else { tri::Stroke::Aliased(tri::LineWidth::of(self.line_width)) };
+        Ok(tri::line(a, b, self.viewport, stroke))
     }
 
     fn bits(&self) -> [u32; 4] {
@@ -4091,6 +4113,13 @@ pub mod tri {
     #[derive(Debug, PartialEq, Eq)]
     pub struct Tie;
 
+    /// How a line is drawn: aliased of a width, or antialiased (1 pixel wide).
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum Stroke {
+        Aliased(LineWidth),
+        Smooth,
+    }
+
     /// A line's width in pixels: glLineWidth's rounded, a half up, held to 1..10 (MEASURED,
     /// golden opengl-32 line-wide-*: 0.25 draws 1, 1.5 draws 2, 2.5 draws 3, 142.5 draws 10).
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -4137,7 +4166,11 @@ pub mod tri {
     /// floor, a value on a pixel boundary going to the pixel below when x-major and right when
     /// y-major; a wide line the run of its width about that value (GL.RASTER.LINE.WIDE);
     /// inside the viewport: GL.RASTER.LINE, GL.RASTER.LINE.TIE
-    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: LineWidth) -> Vec<(i64, i64)> {
+    pub fn line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], stroke: Stroke) -> Vec<(i64, i64)> {
+        let (width, smooth) = match stroke {
+            Stroke::Aliased(w) => (w, false),
+            Stroke::Smooth => (LineWidth::ONE, true),
+        };
         super::hit(super::clause::GL_RASTER_LINE);
         let [vx, vy, vw, vh] = viewport;
         let snap = |v: f64, o: i64, size: i64| {
@@ -4153,6 +4186,9 @@ pub mod tri {
         let ymajor = dy.abs() > dx.abs() || (dy.abs() == dx.abs() && width.0 == 1);
         if width.0 > 1 {
             super::hit(super::clause::GL_RASTER_LINE_WIDE);
+        }
+        if smooth {
+            super::hit(super::clause::GL_RASTER_LINE_SMOOTH);
         }
         let (major, minor) = if ymajor { (1, 0) } else { (0, 1) };
         let (dmaj, dmin) = if ymajor { (dy, dx) } else { (dx, dy) };
@@ -4186,7 +4222,10 @@ pub mod tri {
                 super::hit(super::clause::GL_RASTER_LINE_TIE);
             }
             let k0 = if exact && !ymajor { q } else { q + 1 };
-            for k in k0..k0 + width.0 {
+            // (antialiased: the 1-pixel line's pixel and the one below it when x-major, right
+            // of it when y-major, GL.RASTER.LINE.SMOOTH)
+            let (k0, count) = if smooth { (if ymajor { k0 } else { k0 - 1 }, 2) } else { (k0, width.0) };
+            for k in k0..k0 + count {
                 let (x, y) = if ymajor { (k, j) } else { (j, k) };
                 if (x0..x1).contains(&x) && (y0..y1).contains(&y) {
                     out.push((x, y));

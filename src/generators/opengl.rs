@@ -2092,6 +2092,33 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // antialiased lines and polygons whose coverage shows: blended over black by their alpha
+    // (lines 1 pixel and 1.5, 2, 3 wide; polygons), and lines antialiased 2 and 3 wide
+    let mut q = XorShift32::new(0x3c5e_a917);
+    for k in 0..4 {
+        start(s, format!("raster-mode-{}", k + 4), 32);
+        let setup = match k {
+            0 => "gl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303",
+            1 => "gl glEnable 0xb41\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303",
+            2 => "gl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303",
+            _ => "gl glEnable 0xb20",
+        };
+        writeln!(s, "{setup}\ngl glColor4ub 255 255 255 255").unwrap();
+        for i in 0..8 {
+            if k >= 2 {
+                glf(s, "glLineWidth", &[[1.5, 2.0, 3.0, 2.5][i % 4]]);
+            }
+            let mut v = || f64::from(q.next() % 113) / 8.0 + 1.0;
+            writeln!(s, "gl glClear 0x4100\ngl glBegin {}", if k == 1 { 4 } else if i % 2 == 0 { 1 } else { 3 }).unwrap();
+            for _ in 0..if k == 1 { 3 } else { 2 + i % 2 } {
+                let p = [v(), v()];
+                glf(s, "glVertex2f", &p);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // 1-pixel lines with an end on a diamond's border, as line-tie-* but about pixels on the
     // other sides of the tie pivot (13, 9), (13, 2), (8, 2)
     for (q, (px, py, read)) in [(13.0, 9.0, "10 6 6 7"), (13.0, 2.0, "10 0 6 6"), (8.0, 2.0, "5 0 7 6")].into_iter().enumerate() {
