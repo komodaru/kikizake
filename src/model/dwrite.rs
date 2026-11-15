@@ -194,15 +194,29 @@ enum Edge {
 }
 
 /// MEASURED (golden dwrite, gdivtie: every size of 1 to 160 ppem, the remainders within 9/2 of
-/// half a ppem; gdivadv, gdivadvp, gdisideupm: 24938 sideways glyphs): k pixels' em fraction
-/// k * 65536 / ppem in 16.16 rounds up where the remainder r of k * 65536 by ppem reaches
-/// ppem - h: h is ppem / 2 (rounded down) for the origin and one less for the advance (an
-/// advance rounds up only past the half), with sizes of their own (HALF); OPEN where one
-/// remainder at a size rounds both ways (MIXED: another k or units per em)
-fn edge_fraction(e: Edge, ppem: i64, k: i64) -> Res<i64> {
+/// half a ppem; gdivmixed; gdivadv, gdivadvp, gdisideupm: 24938 sideways glyphs): k pixels' em
+/// fraction k * 65536 / ppem in 16.16 rounds up where the remainder r of k * 65536 by ppem
+/// reaches ppem - h: h is ppem / 2 (rounded down) for the origin and one less for the advance
+/// (an advance rounds up only past the half), with sizes of their own (HALF) and 5 remainders
+/// of their own (MIXED); OPEN: the least k of each of those sideways
+fn edge_fraction(e: Edge, ppem: i64, k: i64, sideways: bool) -> Res<i64> {
     let n = k * 65536;
-    if MIXED.contains(&(e, ppem, 2 * n.rem_euclid(ppem) - ppem)) {
-        return Err(Fail::Unmodeled(open::DW_GDI_EDGE));
+    let t = 2 * n.rem_euclid(ppem) - ppem;
+    if let Some(m) = MIXED.iter().find(|m| m.0 == e && m.1 == ppem && m.2 == t) {
+        let pts = if sideways { m.4 } else { m.3 };
+        // (a k measured, or between two that round alike)
+        let way = match pts.iter().position(|x| x.0 >= k) {
+            Some(i) if pts[i].0 == k => pts[i].1,
+            Some(i) if i > 0 && pts[i - 1].1 == pts[i].1 => pts[i].1,
+            _ => Way::Open,
+        };
+        return match way {
+            Way::Open => Err(Fail::Unmodeled(open::DW_GDI_EDGE)),
+            Way::Up | Way::Down => {
+                hit(clause::DW_GDI_EDGE);
+                Ok(n.div_euclid(ppem) + (way == Way::Up) as i64)
+            }
+        };
     }
     hit(clause::DW_GDI_EDGE);
     let d = HALF.iter().find(|x| x.0 == ppem).map_or(0, |x| match e {
@@ -213,6 +227,32 @@ fn edge_fraction(e: Edge, ppem: i64, k: i64) -> Res<i64> {
     Ok((n + h).div_euclid(ppem))
 }
 
+/// how one k of a remainder of MIXED rounds
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Way {
+    Up,
+    Down,
+    /// both ways (by units per em)
+    Open,
+}
+
+use Way::{Down as D, Open as O, Up as U};
+
+/// (edge, ppem, 2 r - ppem, horizontal, sideways: each k of the remainder measured and how it
+/// rounds): MEASURED (golden dwrite, gdivmixed: every k of these remainders up to the largest an
+/// i16 holds at 4096 units per em, horizontal and sideways, at units per em from 4096 to 16384):
+/// against their size's rule, by k (larger k up at 62 ppem) and by the direction (the least k
+/// sideways); open: 66 at 97 ppem sideways, up at most units per em but down at 5590 and 8191
+type Points = &'static [(i64, Way)];
+const MIXED: [(Edge, i64, i64, Points, Points); 6] = [
+    (Edge::Advance, 66, 2, &[(16, U), (49, U), (82, U), (115, U), (148, U), (214, U)], &[(16, D), (49, U), (82, U), (115, U), (148, U), (214, U)]),
+    (Edge::Advance, 62, -2, &[(15, D), (46, D), (77, D), (108, D), (139, U), (170, U), (201, U), (232, U), (263, U), (294, U)], &[(15, D), (46, D), (77, D), (108, D), (139, D), (170, D), (201, D), (232, D), (263, U), (294, U)]),
+    (Edge::Origin, 26, -2, &[(4, D), (17, D), (30, D), (43, D), (56, D), (69, D), (82, D), (108, D), (134, D)], &[(4, U), (17, D), (30, D), (43, D), (56, D), (69, D), (82, D), (108, D), (134, D)]),
+    (Edge::Origin, 50, -2, &[(9, D), (34, D), (59, D), (84, D), (109, D), (134, D), (159, D), (184, D), (209, D), (234, D), (259, D)], &[(9, U), (34, D), (59, D), (84, D), (109, D), (134, D), (159, D), (184, D), (209, D), (234, D), (259, D)]),
+    (Edge::Origin, 62, -2, &[(15, D), (46, D), (77, D), (108, D), (139, U), (170, U), (201, U), (232, U), (263, U), (294, U)], &[(15, U), (46, D), (77, D), (108, D), (139, U), (170, U), (201, U), (232, U), (263, U), (294, U)]),
+    (Edge::Origin, 97, 1, &[(66, U), (163, U), (260, U), (357, U), (454, U)], &[(66, O), (163, U), (260, U), (357, U), (454, U)]),
+];
+
 /// (ppem, the advance's h less its rule's, the origin's)
 const HALF: [(i64, i8, i8); 32] = [
     (10, -1, 0), (13, 0, 1), (14, -1, 0), (22, -1, 0), (37, 0, 1), (45, 0, 1), (46, 0, 1), (50, 0, 1),
@@ -221,16 +261,6 @@ const HALF: [(i64, i8, i8); 32] = [
     (134, 0, 1), (138, 0, 1), (139, 0, 1), (147, 0, 1), (153, 0, 1), (154, 0, 1), (158, 0, 1), (159, 0, 1),
 ];
 
-/// (edge, ppem, 2 r - ppem): remainders that round up at one k or units per em and down at
-/// another (advance 16 down, 49 and 82 up at 66 ppem; origin 4 up, 17 down at 26; 34 at 50 and 66
-/// at 97 down at some units per em, up at others; 15 up, 46 down at 62)
-const MIXED: [(Edge, i64, i64); 5] = [
-    (Edge::Advance, 66, 2),
-    (Edge::Origin, 26, -2),
-    (Edge::Origin, 50, -2),
-    (Edge::Origin, 62, -2),
-    (Edge::Origin, 97, 1),
-];
 
 fn glyph_line(g: &GlyphMetrics) -> String {
     format!("glyph adv {} lsb {} rsb {} tsb {} advh {} bsb {} voy {}", g.adv, g.lsb, g.rsb, g.tsb, g.advh, g.bsb, g.voy)
@@ -606,8 +636,8 @@ impl Dwrite {
                         // (beyond the sizes measured: the generators write none)
                         return Err(Fail::Bad);
                     }
-                    let efa = |k: i64| edge_fraction(Edge::Advance, ppem, k);
-                    let efo = |k: i64| edge_fraction(Edge::Origin, ppem, k);
+                    let efa = |k: i64| edge_fraction(Edge::Advance, ppem, k, sideways);
+                    let efo = |k: i64| edge_fraction(Edge::Origin, ppem, k, sideways);
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
                         (Some(_), _) => (None, None),
                         (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
