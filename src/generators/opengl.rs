@@ -1760,6 +1760,31 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // depth across one-colored triangles, read back as 32-bit integers: the window's corners
+    // under big triangles in a 1040 viewport (planes of dyadic and other slopes) and small
+    // ones inside a 16 viewport, each from every corner: how Windows steps depth
+    let mut r = XorShift32::new(0x2e1d_7c53);
+    for k in 0..8 {
+        let big = k < 4;
+        let view = if big { "gl glViewport -512 -512 1040 1040\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho -512 528 -512 528 -1 1\ngl glMatrixMode 0x1700" } else { "gl glViewport 0 0 16 16\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700" };
+        writeln!(s, "case zinterp-{k}\n{}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glColor4ub 255 0 0 255\n{view}", ctx(32)).unwrap();
+        for _ in 0..4 {
+            let corners: [(f64, f64); 3] = if big {
+                [(-56.0, -56.0), (200.0, -56.0), (-56.0, 200.0)]
+            } else {
+                std::array::from_fn(|_| (f64::from(r.next() % 113) / 8.0 + 1.0, f64::from(r.next() % 113) / 8.0 + 1.0))
+            };
+            let z: [f64; 3] = std::array::from_fn(|i| if k % 2 == 0 && i < 3 { f64::from(r.next() % 257) / 128.0 - 1.0 } else { f64::from(r.next() % 2001) / 1000.0 - 1.0 });
+            for order in [[0, 1, 2], [1, 2, 0], [2, 0, 1], [0, 2, 1]] {
+                writeln!(s, "gl glClear 0x4100\ngl glBegin 4").unwrap();
+                for i in order {
+                    glf(s, "glVertex3f", &[corners[i].0, corners[i].1, z[i]]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(DEPTH_COMPONENT), h(UNSIGNED_INT)).unwrap();
+            }
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
     // polygons that are not convex (a bow tie, an arrow, a pentagon with a notch, a pentagram),
     // each from every vertex both ways round, as GL_POLYGON and four-cornered ones as GL_QUADS:
     // how Windows splits them
