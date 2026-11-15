@@ -292,6 +292,14 @@ pub fn gdipluspaint() -> String {
         let (x, ox, oy) = if i < 16 { (0, 0, 0) } else { (r.range(0, 7), r.range(-4, 4), r.range(-4, 4)) };
         writeln!(s, "case hatchbetween16-{i}\ngpbitmap 0 16 8 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 hatch {style} {fore:#010x} {back:#010x}\ngppaint 0 0 {x} 0 {} 8 over {} 0 0 {ox} {oy}\ngpread 0 {f}\nend", r.next(), 16 - x, r.range(2, 3)).unwrap();
     }
+    // hatchrun16-22's brush (the pixel GP.PAINT.GAMMA.BETWEEN is about): the same fill over
+    // other destinations, the same destination with other origins, and whole-bitmap fills
+    for i in 0..48 {
+        let seed = if i == 0 || (16..32).contains(&i) { 564_120_086 } else { r.next() };
+        let (ox, oy) = if (16..32).contains(&i) { (i % 4 - 1, i / 4 % 4 - 1) } else { (3, 3) };
+        let (x, w) = if i < 32 { (7, 6) } else { (0, 16) };
+        writeln!(s, "case hatchedge16-{i}\ngpbitmap 0 16 8 16bppRGB555\ngpwrite 0 16bppRGB555 seed {seed}\ngpbrush 0 hatch 5 0xfff7eb79 0x169c4d6e\ngppaint 0 0 {x} 0 {w} 5 over 2 0 0 {ox} {oy}\ngpread 0 16bppRGB555\nend").unwrap();
+    }
     writeln!(s, "case paint-nobrush\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 0 0 4 4 copy 0 0 0 0 0\nend").unwrap();
     writeln!(s, "case brush-solid\ngpbrush 1 solid 0x12345678\ngpbitmap 0 4 4 32bppARGB\ngppaint 0 1 1 1 2 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
     s
