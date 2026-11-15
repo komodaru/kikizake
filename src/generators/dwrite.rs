@@ -622,4 +622,32 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             k += 1;
         }
     }
+    // the sideways bottom side bearings the model has a unit off, again at units per em from
+    // 4096 to 16384 (vertical origin, advance and bottoms scaled with it: the same pixels): a
+    // bearing back in design units at so many scales pins the 16.16 em fraction Windows has
+    // before it (which of advance, origin and bottom is off, and by how much)
+    let gdo: Vec<i64> = (-8..20i64).map(|r| -((2 * r + 1) * 2000).div_euclid(12 * 13)).collect();
+    let bot = |b0: i64| (0..14i64).map(|j| b0 + j).collect::<Vec<i64>>();
+    // (pixels per em, units per em, vertical origin, advance height, bottoms: at those units)
+    let rows: [(i64, i64, i64, i64, Vec<i64>); 6] = [
+        (13, 2000, 1486, 1692, gdo.clone()),
+        (13, 2000, 1340, 1692, gdo.clone()),
+        (13, 2000, 1510, 1629, bot(-346)),
+        (27, 2048, 1398, 2211, bot(440)),
+        (13, 2000, 1538, 1692, gdo.clone()),
+        (27, 2048, 1365, 2200, bot(440)),
+    ];
+    for (k, (pp, u0, vorg, vadv, bs)) in rows.iter().enumerate() {
+        for (h, bs) in bs.chunks(14).enumerate() {
+        for u in (4096..=16384i64).step_by(512) {
+            let sc = |v: i64| (2 * v * u + u0).div_euclid(2 * u0);
+            let gs: Vec<_> = bs.iter().map(|&b| ((u / 2) as u16, vec![(0i16, sc(b) as i16, (u / 4) as i16, (sc(b) + u / 4) as i16)])).collect();
+            let mut f = font_with(0x0fd2_0000 + k as u32 * 128 + h as u32 * 64 + (u / 512) as u32, u as u16, &gs);
+            f.os2 = Some(4);
+            f.typo = (sc(*vorg) as i16, (sc(*vorg) - sc(*vadv)) as i16, 0);
+            let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
+            writeln!(s, "case gdisideupm-{k}{}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", ["", "b"][h], font_line(&f), gids.join(" "), gids.join(" "), gids.join(" ")).unwrap();
+        }
+        }
+    }
 }
