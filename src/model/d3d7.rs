@@ -469,8 +469,49 @@ const DITHER: [[u32; 4]; 4] = [[7, 1, 6, 0], [3, 5, 2, 4], [6, 0, 7, 1], [2, 4, 
 
 /// an 8-bit channel dithered down to `bits` at (x, y)
 pub fn dither(v: u32, bits: u32, x: i64, y: i64) -> u32 {
+    dither_fix(Fix88::whole(v), bits, x, y)
+}
+
+/// a channel in 8.8 fixed point dithered down to `bits` at (x, y), the threshold against the
+/// whole 8.8 value (measured for whole values only: dither())
+pub fn dither_fix(v: Fix88, bits: u32, x: i64, y: i64) -> u32 {
     let (xi, yi) = (usize::try_from(x.rem_euclid(4)).unwrap_or(0), usize::try_from(y.rem_euclid(4)).unwrap_or(0));
-    (((v << bits) + DITHER[yi][xi] * 32 + 16) >> 8).min((1 << bits) - 1)
+    (((v.0 << bits) + (DITHER[yi][xi] * 32 + 16) * 256) >> 16).min((1 << bits) - 1)
+}
+
+/// a color channel in 8.8 fixed point (0..=0xffff)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Fix88(u32);
+
+impl Fix88 {
+    pub const fn whole(v: u32) -> Fix88 {
+        Fix88(v << 8)
+    }
+    pub const fn int(self) -> u32 {
+        self.0 >> 8
+    }
+    /// in 256ths
+    pub const fn raw(self) -> u32 {
+        self.0
+    }
+}
+
+/// a shaded channel: its 8-bit value, and its fraction where the rasterizer's is known
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Shade {
+    /// (flat, or the software rasterizers' 8.8 Gouraud)
+    Fix(Fix88),
+    /// the 8-bit value only (the HAL's, or a Gouraud color of a triangle crossing the target)
+    Int(u32),
+}
+
+impl Shade {
+    fn int(self) -> u32 {
+        match self {
+            Shade::Fix(f) => f.int(),
+            Shade::Int(v) => v,
+        }
+    }
 }
 
 impl D3d7 {
@@ -678,7 +719,7 @@ impl D3d7 {
                 let d = self.dev.as_mut().ok_or(Fail::Bad)?;
                 let cover = line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?;
                 let tri = Tri { v: [v[0], v[1], v[1]], c: [c; 3], spec: [0; 3], z: 0.5 };
-                paint(d, &st, &tri, &cover)?;
+                paint(d, &st, &tri, &cover, &[])?;
             }
             "d3dtri" => {
                 let c = colors(t.get(1).ok_or(Fail::Bad)?)?;
@@ -1245,6 +1286,27 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
     Ok(cover)
 }
 
+/// the pixel of each row a software rasterizer starts its color from: the walked span's end on
+/// the long edge's side (its first pixel when the long edge is on the left, its last one when on
+/// the right), as walk() finds the spans
+fn anchors(v: [(i64, i64); 3], h: i64) -> Vec<Option<i64>> {
+    let mut s = v;
+    s.sort_by_key(|p| p.1);
+    let [t, m, b] = s;
+    let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
+    let long = EdgeWalk::new(t, b, if long_left { Tie::Open } else { Tie::Exact });
+    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Tie::F32));
+    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Tie::F32));
+    (0..h)
+        .map(|y| {
+            let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
+            let (Some((l, _)), Some((r, _))) = (long.at(y), short) else { return None };
+            let (xl, xr) = if long_left { (l, r) } else { (r, l) };
+            (xl < xr).then_some(if long_left { xl } else { xr - 1 })
+        })
+        .collect()
+}
+
 /// the pixels of D3DFILL_WIREFRAME: MEASURED (d3d7dev fillmode-*-2-*: 96 + 5 x 24 random
 /// triangles, LASTPIXEL on and off, the software rasterizers and the ramp device) its three
 /// edges v0 v1, v1 v2, v2 v0 drawn as lines (D3D7.LINE)
@@ -1282,7 +1344,7 @@ fn points(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> 
 }
 
 /// one channel (at bit `sh` of ARGB) of the color at pixel (px, py): flat, or Gouraud
-fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Res<u32> {
+fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64, anchor: Option<i64>) -> Res<Shade> {
     let ch = |c: u32| c >> sh & 255;
     let c = tri.c;
     if flat || (ch(c[0]) == ch(c[1]) && ch(c[0]) == ch(c[2])) {
@@ -1290,7 +1352,7 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Re
         if flat {
             hit(clause::D3D7_FLAT);
         }
-        return Ok(ch(c[0]));
+        return Ok(Shade::Fix(Fix88::whole(ch(c[0]))));
     }
     let p = |i: usize| (tri.v[i].0 as f64 / 16.0, tri.v[i].1 as f64 / 16.0);
     let (a, b, cc) = (p(0), p(1), p(2));
@@ -1305,8 +1367,12 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Re
     let gx = ((f(c[1]) - f(c[0])) * (cc.1 - a.1) - (f(c[2]) - f(c[0])) * (b.1 - a.1)) / den;
     let gy = ((f(c[2]) - f(c[0])) * (b.0 - a.0) - (f(c[1]) - f(c[0])) * (cc.0 - a.0)) / den;
     let margin = 1.0 / 32.0 + (gx.abs() + gy.abs()) / 128.0;
+    if let (Family::Soft { .. }, Some(a)) = (family, anchor) {
+        return Ok(Shade::Fix(gouraud_soft(tri, sh, px, py, a)));
+    }
     match family {
-        // MEASURED (d3d7shade gouraud-*): the software rasterizers take the floor of the exact
+        // (a triangle crossing the target: its spans' anchors not measured) the software
+        // rasterizers take the floor of the exact
         // value; near a whole number (nearer as the color changes faster across the pixels)
         // their fixed point decides (D3D7.GOURAUD)
         Family::Soft { .. } | Family::Ramp => {
@@ -1314,7 +1380,7 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Re
                 return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
             }
             hit(clause::D3D7_GOURAUD);
-            Ok(val.floor().clamp(0.0, 255.0) as u32)
+            Ok(Shade::Int(val.floor().clamp(0.0, 255.0) as u32))
         }
         // MEASURED: the HAL rounds; near a half its float arithmetic decides
         Family::Hw { .. } => {
@@ -1322,9 +1388,44 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Re
                 return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
             }
             hit(clause::D3D7_GOURAUD);
-            Ok(val.round().clamp(0.0, 255.0) as u32)
+            Ok(Shade::Int(val.round().clamp(0.0, 255.0) as u32))
         }
     }
+}
+
+/// one channel of a Gouraud-shaded pixel of the software rasterizers: MEASURED (d3d7shade
+/// gouraud-*, gstep-*, gstepx-*: 121389 of 121389 channels, spans up to 64 pixels) in 8.8 fixed
+/// point from the span's anchor pixel a (anchors()): C = floor(256 · the exact color at (a, py)),
+/// a step D = trunc(256 · dc/dx) (one less in magnitude when that is a whole number and the
+/// triangle's doubled area in 256ths of a pixel is no power of two: the reciprocal of the area
+/// rounded down), the pixel C + (px − a) · D, clamped to 0..255 (its fraction goes on to the
+/// dither)
+fn gouraud_soft(tri: &Tri, sh: u32, px: i64, py: i64, a: i64) -> Fix88 {
+    gouraud_channel(tri.v, tri.c.map(|c| u8::try_from(c >> sh & 255).unwrap_or(u8::MAX)), px, py, a)
+}
+
+/// gouraud_soft() of one channel of 8-bit vertex colors
+pub fn gouraud_channel(v: [(i64, i64); 3], col: [u8; 3], px: i64, py: i64, a: i64) -> Fix88 {
+    hit(clause::D3D7_GOURAUD);
+    let ch = |i: usize| i128::from(col[i]);
+    let p = |i: usize| (i128::from(v[i].0), i128::from(v[i].1));
+    let ((x0, y0), (x1, y1), (x2, y2)) = (p(0), p(1), p(2));
+    let (c0, c1, c2) = (ch(0), ch(1), ch(2));
+    // all in 16ths of a pixel; den: the doubled area in 256ths (non-zero: a drawn triangle)
+    let den = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
+    let (sx, sy) = (i128::from(a) * 16, i128::from(py) * 16);
+    let l1 = (sx - x0) * (y2 - y0) - (x2 - x0) * (sy - y0);
+    let l2 = (x1 - x0) * (sy - y0) - (sx - x0) * (y1 - y0);
+    let num = c0 * den + l1 * (c1 - c0) + l2 * (c2 - c0);
+    // 256 · num / den and 256 · dc/dx = 256 · 16 · g / den, den made positive
+    let (num, g, den) = if den < 0 { (-num, -((c1 - c0) * (y2 - y0) - (c2 - c0) * (y1 - y0)), -den) } else { (num, (c1 - c0) * (y2 - y0) - (c2 - c0) * (y1 - y0), den) };
+    let c = (256 * num).div_euclid(den);
+    let (e, r) = ((4096 * g.abs()) / den, (4096 * g.abs()) % den);
+    let mag = if r == 0 && e != 0 && den.count_ones() != 1 { e - 1 } else { e };
+    let d = if g < 0 { -mag } else { mag };
+    let v = c + (i128::from(px) - i128::from(a)) * d;
+    // (0..=0xffff: 8.8 of 0..=255)
+    Fix88(u32::try_from(v.clamp(0, 0xffff)).unwrap_or(0))
 }
 
 /// the software blend factors (source, destination) of one channel in 256ths (ONE = 256): s, d,
@@ -1431,12 +1532,19 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         Fill::Wireframe => wireframe(family, v, st.lastpixel, w, h)?,
         Fill::Solid => coverage(family, v, w, h, rt.fmt)?,
     };
-    paint(dev, st, tri, &cover)
+    // (the spans' anchors of a triangle inside the target, walked; pixels spilt past a row's
+    // end into the next go by that row's anchor: not measured)
+    let inside = v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..=h * 16).contains(&y));
+    let anchor = match (st.fill, family, inside) {
+        (Fill::Solid, Family::Soft { .. }, true) => anchors(v, h),
+        (Fill::Solid | Fill::Point | Fill::Wireframe, Family::Soft { .. } | Family::Ramp | Family::Hw { .. }, _) => Vec::new(),
+    };
+    paint(dev, st, tri, &cover, &anchor)
 }
 
 /// the covered pixels of a primitive of one color per vertex written through the pixel pipeline
 /// (alpha test, depth, shading, specular, fog, blend or dither)
-fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool]) -> Res<()> {
+fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool], anchor: &[Option<i64>]) -> Res<()> {
     let family = dev.family;
     let rt = &mut dev.rt;
     let (w, h) = (rt.w, rt.h);
@@ -1493,11 +1601,13 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool]) -> Res<()> {
                         None => [0x80, 0, 0x80],
                         Some(fc) => [16u32, 8, 0].map(|sh| ((fc >> sh & 255) * 255) >> 8),
                     }
+                    .map(|c| Shade::Fix(Fix88::whole(c)))
                 }
                 Family::Soft { .. } | Family::Hw { .. } => {
-                    let mut src = [0u32; 3];
+                    let mut src = [Shade::Int(0); 3];
                     for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
-                        let mut c = shade(family, st.flat, tri, sh, px, py)?;
+                        let sc = shade(family, st.flat, tri, sh, px, py, usize::try_from(py).ok().and_then(|k| anchor.get(k)).copied().flatten())?;
+                        let mut c = sc.int();
                         // MEASURED (d3d7shade specular-*): the specular color added, saturating
                         if st.specular {
                             hit(clause::D3D7_SPECULAR);
@@ -1514,11 +1624,20 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool]) -> Res<()> {
                                 Family::Hw { .. } => ((f64::from(c) * f64::from(f) + f64::from(fv) * f64::from(255 - f)) / 255.0).round() as u32,
                             };
                         }
-                        src[i] = c;
+                        // (a fraction through specular or fog: not measured; a whole value
+                        // stays whole)
+                        src[i] = match sc {
+                            Shade::Fix(f) if f == Fix88::whole(f.int()) || !(st.specular || st.fog.is_some()) => {
+                                if st.specular || st.fog.is_some() { Shade::Fix(Fix88::whole(c)) } else { sc }
+                            }
+                            Shade::Fix(_) | Shade::Int(_) => Shade::Int(c),
+                        };
                     }
                     src
                 }
             };
+            let srcf = src;
+            let src = srcf.map(Shade::int);
             let dst = fmt.channels(rt.px[k]);
             if st.blend.is_some() {
                 hit(clause::D3D7_BLEND);
@@ -1542,7 +1661,18 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool]) -> Res<()> {
                     if dith {
                         hit(clause::D3D7_DITHER);
                     }
-                    [0, 1, 2].map(|i| if dith { dither(src[i], bits[i], px, py) } else { src[i] >> (8 - bits[i]) })
+                    let mut q = [0u32; 3];
+                    for i in 0..3 {
+                        q[i] = match (dith, srcf[i]) {
+                            (false, _) => src[i] >> (8 - bits[i]),
+                            (true, Shade::Fix(f)) if f == Fix88::whole(f.int()) => dither_fix(f, bits[i], px, py),
+                            // (a Gouraud color between whole values: neither its 8-bit value nor
+                            // its 8.8 one dithered as measured gives Windows' pixels in d3d7
+                            // shade-1, -9, -13: D3D7.GOURAUD)
+                            (true, Shade::Fix(_) | Shade::Int(_)) => return Err(Fail::Unmodeled(open::D3D7_GOURAUD)),
+                        };
+                    }
+                    q
                 }
                 // MEASURED (all 169 pairs on 32 bits; 565 and 555): floor(max · clamp(s·Fs +
                 // d·Fd) + 0.5) in floats, the destination its exact fraction q / max

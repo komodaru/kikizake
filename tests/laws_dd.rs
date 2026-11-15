@@ -3,7 +3,7 @@
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
-use kikizake::model::d3d7::{clear_z, f32_past, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
+use kikizake::model::d3d7::{clear_z, f32_past, gouraud_channel, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
 use kikizake::model::ddraw::{pal_entries, pitch};
 use kikizake::model::{self, run_case, Fail};
 
@@ -292,7 +292,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 44, 0), ("d3d7dev", 76, 0), ("d3d7shade", 52, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 36, 0), ("d3d7dev", 76, 0), ("d3d7shade", 49, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -482,4 +482,39 @@ fn lines_cross_each_column_once() {
     }
     // (most lines have no exact tie)
     assert!(drawn > 100_000, "{drawn}");
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig { cases: 2048, ..ProptestConfig::default() })]
+
+    /// D3D7.GOURAUD (software): at the span's anchor the 8.8 color is the floor of 256 · the
+    /// exact color; each step across strays from the exact color by at most 1/256 more (the
+    /// step is the exact one cut toward zero); one color at every vertex is that color, whole,
+    /// everywhere
+    #[test]
+    fn gouraud_steps_from_the_anchor(v in prop::array::uniform3((0i64..1024, 0i64..256)), col: [u8; 3], py in 0i64..16, a in 0i64..64, px in 0i64..64) {
+        let den = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
+        prop_assume!(den != 0);
+        let exact = |x: i64| -> f64 {
+            let (x, y) = (x as f64 * 16.0, py as f64 * 16.0);
+            let p = |i: usize| (v[i].0 as f64, v[i].1 as f64);
+            let ((x0, y0), (x1, y1), (x2, y2)) = (p(0), p(1), p(2));
+            let d = den as f64;
+            let l1 = ((x - x0) * (y2 - y0) - (x2 - x0) * (y - y0)) / d;
+            let l2 = ((x1 - x0) * (y - y0) - (x - x0) * (y1 - y0)) / d;
+            let c = |i: usize| f64::from(col[i]);
+            c(0) + l1 * (c(1) - c(0)) + l2 * (c(2) - c(0))
+        };
+        let at = |x: i64| f64::from(gouraud_channel(v, col, x, py, a).raw());
+        let e = 256.0 * exact(a);
+        if (0.0..65535.0).contains(&e) {
+            prop_assert!((at(a) - e.floor()).abs() <= 1.0, "{} {}", at(a), e);
+        }
+        let (ex, k) = (256.0 * exact(px), (px - a).abs() as f64);
+        if (0.0..65535.0).contains(&ex) && (0.0..65535.0).contains(&e) {
+            prop_assert!((at(px) - ex).abs() <= k + 2.0, "{} {} {}", at(px), ex, k);
+        }
+        let one = gouraud_channel(v, [col[0]; 3], px, py, a);
+        prop_assert_eq!(one.raw(), u32::from(col[0]) << 8);
+    }
 }
