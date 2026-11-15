@@ -522,8 +522,9 @@ impl Dwrite {
                         return Ok(true);
                     }
                     if sideways {
-                        // (sideways: 9 of 5795 bottom side bearings a design unit off the model,
-                        // at em fraction ties: DW.GDI.GLYPH)
+                        // (sideways: 12 of 22943 glyphs' advance heights or bearings a design
+                        // unit off the model below, at 10 and 22 ppem and on a sample's edge:
+                        // DW.GDI.GLYPH)
                         return Err(Fail::Unmodeled(open::DW_GDI_GLYPH));
                     }
                     hit(clause::DW_GDI_GLYPH_H);
@@ -555,6 +556,10 @@ impl Dwrite {
                     // is the difference of its two edges' em fractions, each rounded on its own)
                     let ef = |k: i64, n: i64| (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
                     let fu = |f: i64| (2 * f * upm + 65536).div_euclid(131072) as i32;
+                    // MEASURED (golden dwrite, gdivadv, gdisideupm: 10844 of 10848 advances): the
+                    // advance height's em fraction rounds k / ppem up only past the half by more
+                    // than 1/65536 of a pixel: (k * 65536 - 1) / ppem rounded half up
+                    let efa = |k: i64| (2 * (k * 65536 - 1) + ppem).div_euclid(2 * ppem);
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
                         (Some(_), _) => (None, None),
                         (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
@@ -570,8 +575,8 @@ impl Dwrite {
                             lsb: du(bb.0, nx),
                             rsb: fu(ef(advp, 1) - ef(bb.2, nx)),
                             tsb: fu(ef(voyp, 1) + ef(bb.1, ny)),
-                            advh: du(advhp, 1) as u32,
-                            bsb: fu(ef(advhp, 1) - ef(voyp, 1) - ef(bb.3, ny)),
+                            advh: fu(efa(advhp)) as u32,
+                            bsb: fu(efa(advhp) - ef(voyp, 1) - ef(bb.3, ny)),
                             voy: du(voyp, 1),
                         };
                     }
