@@ -7218,3 +7218,243 @@ moveto 0 14 -4
 lineto 0 2 5
 dump 0
 end
+case diagline-0
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -114 -122
+lineto 0 -91 -99
+lineto 0 -71 -108
+dump 0
+end
+case diagline-1
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -72 -144
+lineto 0 -121 -193
+lineto 0 -101 -202
+dump 0
+end
+case diagline-2
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -89 177
+lineto 0 -52 140
+lineto 0 -32 131
+dump 0
+end
+case diagline-3
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 80 -152
+lineto 0 44 -116
+lineto 0 64 -125
+dump 0
+end
+case diagline-4
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -10 -98
+lineto 0 8 -80
+lineto 0 28 -89
+dump 0
+end
+case diagline-5
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -27 -19
+lineto 0 -77 -69
+lineto 0 -57 -78
+dump 0
+end
+case diagline-6
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 26 -98
+lineto 0 33 -105
+lineto 0 53 -114
+dump 0
+end
+case diagline-7
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 30 90
+lineto 0 -27 147
+lineto 0 -7 138
+dump 0
+end
+case diagline-8
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -89 -209
+lineto 0 -54 -174
+lineto 0 -34 -183
+dump 0
+end
+case diagline-9
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -55 -95
+lineto 0 -113 -153
+lineto 0 -93 -162
+dump 0
+end
+case diagline-10
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -19 59
+lineto 0 4 36
+lineto 0 24 27
+dump 0
+end
+case diagline-11
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 96 24
+lineto 0 45 75
+lineto 0 65 66
+dump 0
+end
+case diagline-12
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -63 -39
+lineto 0 -20 4
+lineto 0 0 -5
+dump 0
+end
+case diagline-13
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -102 -190
+lineto 0 -159 -247
+lineto 0 -139 -256
+dump 0
+end
+case diagline-14
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -91 163
+lineto 0 -81 153
+lineto 0 -61 144
+dump 0
+end
+case diagline-15
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 13 27
+lineto 0 -1 41
+lineto 0 19 32
+dump 0
+end
+case diagline-16
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 63 87
+lineto 0 99 123
+lineto 0 119 114
+dump 0
+end
+case diagline-17
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 74 18
+lineto 0 33 -23
+lineto 0 53 -32
+dump 0
+end
+case diagline-18
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 3 69
+lineto 0 54 18
+lineto 0 74 9
+dump 0
+end
+case diagline-19
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -69 61
+lineto 0 -82 74
+lineto 0 -62 65
+dump 0
+end
+case diagline-20
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -16 72
+lineto 0 -4 84
+lineto 0 16 75
+dump 0
+end
+case diagline-21
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -105 -193
+lineto 0 -161 -249
+lineto 0 -141 -258
+dump 0
+end
+case diagline-22
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 26 62
+lineto 0 60 28
+lineto 0 80 19
+dump 0
+end
+case diagline-23
+dib 0 24 24 8
+pen 0 0 0 #ffffff
+gmode 0 2
+setxform 0 0.0625 0 0 0.0625 12 12
+moveto 0 -43 67
+lineto 0 -48 72
+lineto 0 -28 63
+dump 0
+end

@@ -107,12 +107,16 @@ pub struct Fix28(pub i64, pub i64);
 /// the pixels of a cosmetic line between two 28.4 points by grid intersect quantization
 /// (MEASURED, GDI.LINE.GIQ: PolyBezier's flattened polylines, 14 of 14): a pixel is lit when the
 /// line crosses its diamond, the open square |x - cx| + |y - cy| < 1/2 with its right and bottom
-/// corners, and does not end inside it; whole ends give line_pixels' pixels
-pub fn giq_pixels(a: Fix28, b: Fix28) -> Vec<(i32, i32)> {
+/// corners, and does not end inside it; whole ends give line_pixels' pixels. None for a
+/// diagonal running along diamond edges (path curve-47 lights other pixels; open)
+pub fn giq_pixels(a: Fix28, b: Fix28) -> Option<Vec<(i32, i32)>> {
     hit(clause::GDI_LINE_GIQ);
     let (dx, dy) = (i128::from(b.0 - a.0), i128::from(b.1 - a.1));
     if dx == 0 && dy == 0 {
-        return Vec::new();
+        return Some(Vec::new());
+    }
+    if dx.abs() == dy.abs() && (a.0 + if dx == dy { -a.1 } else { a.1 }).rem_euclid(16) == 8 {
+        return None;
     }
     // (corner (x, y) on the segment: collinear, and between the ends)
     let on = |x: i128, y: i128| -> bool {
@@ -146,7 +150,7 @@ pub fn giq_pixels(a: Fix28, b: Fix28) -> Vec<(i32, i32)> {
             }
         }
     }
-    v
+    Some(v)
 }
 
 /// whether a line's minor step at exactly half a pixel is taken: the half goes to the smaller
@@ -193,7 +197,8 @@ impl Slot {
     /// a line between 28.4 points with the pen (GDI.LINE.GIQ)
     pub fn line_fix(&mut self, a: Fix28, b: Fix28) -> Res<()> {
         if let Some(v) = self.pen_value()? {
-            for (x, y) in giq_pixels(a, b) {
+            let Some(px) = giq_pixels(a, b) else { return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)) };
+            for (x, y) in px {
                 self.plot(x, y, v);
             }
         }

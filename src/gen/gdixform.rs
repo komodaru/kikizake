@@ -157,5 +157,16 @@ pub fn xform() -> String {
         let (a, b) = ((r.range(-30 * k, 30 * k), r.range(-10 * k, 10 * k)), (r.range(-10 * k, 10 * k), r.range(-10 * k, 10 * k)));
         writeln!(s, "moveto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, b.0, b.1).unwrap();
     }
+    // 28.4 diagonals along diamond edges (x - y or x + y half a pixel off), through a 1/16
+    // GM_ADVANCED world, cosmetic pen (their own stream)
+    let mut r = XorShift32::new(0x0d1a_9011);
+    for i in 0..24 {
+        let (sx, sy) = [(1, 1), (-1, -1), (1, -1), (-1, 1)][i % 4];
+        let a = (r.range(-120, 120), r.range(-120, 120));
+        // (the start's x - y, or x + y for the other diagonal, is 8 mod 16)
+        let a = if sx == sy { (a.0, a.0 - 8 - 16 * r.range(-7, 7)) } else { (a.0, -a.0 + 8 + 16 * r.range(-7, 7)) };
+        let k = r.range(4, 60);
+        writeln!(s, "case diagline-{i}\ndib 0 24 24 8\npen 0 0 0 #ffffff\ngmode 0 2\nsetxform 0 0.0625 0 0 0.0625 12 12\nmoveto 0 {} {}\nlineto 0 {} {}\nlineto 0 {} {}\ndump 0\nend", a.0, a.1, a.0 + sx * k, a.1 + sy * k, a.0 + sx * k + 20, a.1 + sy * k - 9).unwrap();
+    }
     s
 }

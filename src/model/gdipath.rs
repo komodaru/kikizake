@@ -6,6 +6,7 @@
 //! "SelectClipPath", "SetMiterLimit", "Paths" (which functions a path records).
 
 use crate::spec::{clause, open};
+use super::gdiline::Fix28;
 use super::gdi::{Gdi, Slot};
 use super::{Fail, Res};
 use crate::case::{num, Op};
@@ -368,17 +369,20 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 out.push("strokepath 0".into());
                 return Ok(true);
             };
-            let mut fig_start = (0, 0);
-            let mut prev = (0, 0);
-            for q in &p {
-                let at = whole(q.at())?;
+            // MEASURED: the flattened path's lines in 28.4 (GDI.LINE.GIQ; whole points give the
+            // integer lines), each figure closed where PT_CLOSEFIGURE says
+            let fix = |q: &Pt| Fix28(i64::from(q.x.0), i64::from(q.y.0));
+            let mut fig_start = Fix28(0, 0);
+            let mut prev = Fix28(0, 0);
+            for q in &flatten(&p)? {
+                let at = fix(q);
                 match q.kind {
                     Kind::Move => fig_start = at,
-                    Kind::Bezier => return Err(Fail::Unmodeled(open::GDI_PATH_CURVE)),
+                    Kind::Bezier => return Err(Fail::Bad),
                     Kind::Line => {
-                        sl.line(prev, at)?;
+                        sl.line_fix(prev, at)?;
                         if q.close {
-                            sl.line(at, fig_start)?;
+                            sl.line_fix(at, fig_start)?;
                         }
                     }
                 }
