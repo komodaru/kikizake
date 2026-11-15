@@ -1,0 +1,6 @@
+# The Rust toolchain every build uses, CI's included: one compiler for everyone, so a new
+# release's warnings land in one commit (the runner image's stable is whatever it was built with).
+[toolchain]
+channel = "1.100.0"
+profile = "minimal"
+components = ["clippy"]

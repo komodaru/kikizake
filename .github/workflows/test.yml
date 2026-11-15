@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
-      - run: echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
+      - run: rustup toolchain install --no-self-update && echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
       - id: cache
         uses: actions/cache/restore@v6.1.0
         with:

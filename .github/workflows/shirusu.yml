@@ -97,7 +97,7 @@ jobs:
           path: |
             ~/.cargo/registry
             shirusu/target
-          key: shirusu-${{ hashFiles('shirusu.rev') }}-windows-2025
+          key: shirusu-${{ hashFiles('shirusu.rev', 'rust-toolchain.toml') }}-windows-2025
       - name: Build shirusu (x86 and x86-64) and kikizake
         shell: bash
         run: |
