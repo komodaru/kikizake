@@ -318,6 +318,8 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
     }
     // every face op before a font is loaded
+    // a cmap lookup of one character
+    writeln!(s, "case cmap-one\n{}\ndwcmap 0x41\ndwcmap 0x5d0\nend", font_line(&font(0x0f00_0001))).unwrap();
     writeln!(s, "case noface\ndwinfo\ndwmetrics\ndwgdimetrics 12 1\ndwcmap 0x41 0x42\ndwglyph 0 1 2\ndwgdiglyph 12 1 0 0 1\ndwshape 12 0x41 0x42\ndwrun aliased 12 0 0 1 0\ndwlayout 12 400 1 0x41 0x42\nend").unwrap();
     // a layout of a font without a family name (no name ID 1)
     let mut f = font(0x0fc1_0000);

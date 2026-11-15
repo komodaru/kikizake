@@ -486,7 +486,7 @@ impl Dwrite {
                     let pxv = |v: i32| (128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm);
                     let px = |v: i32| match (nat, side != 0) {
                         (true, false) => (128 * v as i64 * ppem + 69 * upm).div_euclid(128 * upm),
-                        (_, true) => (128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm),
+                        (_, true) => pxv(v),
                         (false, false) => (v as i64 * fix + 0x8000) >> 16,
                     };
                     // (a length of k / n pixels in design units, rounded)
