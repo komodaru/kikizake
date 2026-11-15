@@ -1653,4 +1653,26 @@ fn measure(s: &mut String) {
             k += 1;
         }
     }
+    // the same lines from y = -1 with the upper vertex at 116, 64, 32 or 18, and the last three
+    // under narrower viewports (20, 48, 144 wide, centered on (8, 8)) that still hold them:
+    // whether the slope-dependent offset of tri-snap-* grows with the rows walked, and whether
+    // the viewport's size moves it
+    let mut k = 0;
+    for sl in [1.0 / 3.0, 1.0 / 5.0, 2.0 / 3.0, 3.0 / 7.0] {
+        for (top, vw) in [(116.0, 1040), (64.0, 1040), (32.0, 1040), (18.0, 1040), (18.0, 20), (32.0, 48), (64.0, 144)] {
+            let lo = 8 - vw / 2;
+            writeln!(s, "case tri-len-{k}\n{}gl glDisable 0xbd0\ngl glColor4ub 255 0 0 255\ngl glViewport {lo} {lo} {vw} {vw}\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho {lo} {} {lo} {} -1 1\ngl glMatrixMode 0x1700", ctx(32), lo + vw, lo + vw).unwrap();
+            let bottom = -1.0;
+            for j in -24..=24 {
+                let d = f64::from(j) / 8192.0;
+                writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+                for (x, y) in [(8.5 + (bottom - 8.5) * sl + d, bottom), (8.5 + (top - 8.5) * sl + d, top), (8.5 + (8.0 - 8.5) * sl + d + 4.0, 8.0)] {
+                    glf(s, "glVertex2f", &[x, y]);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 256", h(RED), h(UNSIGNED_BYTE)).unwrap();
+            }
+            writeln!(s, "glerr\nend").unwrap();
+            k += 1;
+        }
+    }
 }
