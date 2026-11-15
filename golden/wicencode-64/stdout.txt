@@ -15517,6 +15517,182 @@ wpixels 00000000 32
 7b4d65ff848e70ff730c5aff730c5aff
 848e70ff730c5aff730c5aff7b4d65ff
 730c5aff730c5aff848e70ff8cce7bff
+case opt-tiff-0-bgra
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bgra 96.000 96.000
+wpixels 00000000 32
+dbc9c79ea31d72220e1b4bfc981dab1d13e61e070cbcfbbb
+23905c10c5a63e454bfc3736a3ee0351bc91e4891ccf8c0f
+b340b33a669c27e79c3dd5d9cec56a4869a1f1eefc03a0f5
+8a3b3c0710de998bca137ab98ee52172cc973895122d3c12
+case opt-tiff-0-bgr24
+wbits 00000000
+wencode 00000000 bgr24 ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bgr24 96.000 96.000
+wpixels 00000000 24
+fac802d172cd68902b6f80cb12b35eac1bee
+8f1e3f0510f4d1b9f9f41e9869514ad4d7c2
+590c7d564d8ba7aeab26c95b1ec58889aa49
+933348690654a3e36a8f091125a411cf2e64
+case opt-tiff-0-gray8
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 gray8 96.000 96.000
+wpixels 00000000 8
+99cb4598b93e
+2b94242081c1
+913995e3ac19
+2b9c84547122
+case opt-tiff-0-bw
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+b8
+c8
+80
+d4
+case opt-tiff-3-bgra
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+ac
+e8
+54
+b4
+case opt-tiff-3-bgr24
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+a8
+bc
+d4
+68
+case opt-tiff-3-gray8
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+48
+e8
+98
+80
+case opt-tiff-3-bw
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+3c
+cc
+84
+d8
+case opt-tiff-4-bgra
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bgra 96.000 96.000
+wpixels 00000000 32
+d3c1eee42f118ef5fcfeeb735c4f6ea2e7c317cc9bbf6698
+0585b23d381315a05303534d9197c3b38e67e3d18d56a8c1
+aac144d92a3190daed0a26339a87db9bd92eef9e2596bc86
+af061992ddee58e29c017aaeffe886519cb7d332a1b7e0a2
+case opt-tiff-4-bgr24
+wbits 00000000
+wencode 00000000 bgr24 ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bgr24 96.000 96.000
+wpixels 00000000 24
+f2c02babfec19447d98a2044d6e19b13efcb
+86d5a8068dd7f7ac17d9e32d42b4522bb3b9
+6b75bdb47f7da0f63abfed9507447f6ae6e4
+240e395ef5bef7a1db5cb99e3bd4c85a3217
+case opt-tiff-4-gray8
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 gray8 96.000 96.000
+wpixels 00000000 8
+91c36ce23532
+d743d6c5214e
+556b505c583c
+22571357ec01
+case opt-tiff-4-bw
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+b0
+c0
+a8
+ac
+case opt-tiff-5-bgra
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bgra 96.000 96.000
+wpixels 00000000 32
+57c5eae81b7677a65cbb179d773be0d8bdee8f65109e5496
+8c8d87bb3955b45429215185803afdee4d12f9cce7318277
+cb119c45602107a0fb4a9b1979b578f3ba15a9e0a6dcbf78
+7d949891499e9b202bef8c0af5b06f651b50d5e1e4c113e0
+case opt-tiff-5-bgr24
+wbits 00000000
+wencode 00000000 bgr24 ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bgr24 96.000 96.000
+wpixels 00000000 24
+76c42fa7caa66d1479cfdcaafd951569b5e6
+1e7c2327bfd97ea4225fe26be3402809b171
+7ad883e9bc08baeb50d8c7236694a7f6acf4
+b3742f1e489414937834daa57daa4b1031e9
+case opt-tiff-5-gray8
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 gray8 96.000 96.000
+wpixels 00000000 8
+15c768ee0155
+2e107680dda0
+7e1fde260211
+bafe9876de0f
+case opt-tiff-5-bw
+wbits 00000000
+wencode 00000000 bw ok
+wredecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 6 4 bw 96.000 96.000
+wpixels 00000000 1
+34
+c4
+ac
+a0
 case gray16-every-rgb48
 wdecode 00000000 png frames 1
 wframe 00000000
