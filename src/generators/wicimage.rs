@@ -122,6 +122,12 @@ pub fn wicscale() -> String {
     for m in ["hqcubic", "fant", "linear"] {
         writeln!(s, "case bigsize-fmt-{m}\nwbits bgra 4 4 77\nwscale 4096 2048 {m}\nwinfo\nwscale 3 2 nn\nwinfo\nend").unwrap();
     }
+    // (HighQualityCubic of 16 bits one pass at a time: 64 random rows scaled across only, 64
+    // random columns scaled down only: each pass's f32 order apart)
+    for (i, (a, b)) in [(8u32, 3u32), (3, 8), (4, 9), (7, 3), (6, 7), (5, 2), (13, 4), (2, 5)].into_iter().enumerate() {
+        writeln!(s, "case hq16row-{a}-{b}\nwbits gray16 {a} 64 {}\nwscale {b} 64 hqcubic\nwpixels\nend", 90_000 + i).unwrap();
+        writeln!(s, "case hq16col-{a}-{b}\nwbits gray16 64 {a} {}\nwscale 64 {b} hqcubic\nwpixels\nend", 90_100 + i).unwrap();
+    }
     s
 }
 

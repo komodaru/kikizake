@@ -14200,3 +14200,83 @@ winfo
 wscale 3 2 nn
 winfo
 end
+case hq16row-8-3
+wbits gray16 8 64 90000
+wscale 3 64 hqcubic
+wpixels
+end
+case hq16col-8-3
+wbits gray16 64 8 90100
+wscale 64 3 hqcubic
+wpixels
+end
+case hq16row-3-8
+wbits gray16 3 64 90001
+wscale 8 64 hqcubic
+wpixels
+end
+case hq16col-3-8
+wbits gray16 64 3 90101
+wscale 64 8 hqcubic
+wpixels
+end
+case hq16row-4-9
+wbits gray16 4 64 90002
+wscale 9 64 hqcubic
+wpixels
+end
+case hq16col-4-9
+wbits gray16 64 4 90102
+wscale 64 9 hqcubic
+wpixels
+end
+case hq16row-7-3
+wbits gray16 7 64 90003
+wscale 3 64 hqcubic
+wpixels
+end
+case hq16col-7-3
+wbits gray16 64 7 90103
+wscale 64 3 hqcubic
+wpixels
+end
+case hq16row-6-7
+wbits gray16 6 64 90004
+wscale 7 64 hqcubic
+wpixels
+end
+case hq16col-6-7
+wbits gray16 64 6 90104
+wscale 64 7 hqcubic
+wpixels
+end
+case hq16row-5-2
+wbits gray16 5 64 90005
+wscale 2 64 hqcubic
+wpixels
+end
+case hq16col-5-2
+wbits gray16 64 5 90105
+wscale 64 2 hqcubic
+wpixels
+end
+case hq16row-13-4
+wbits gray16 13 64 90006
+wscale 4 64 hqcubic
+wpixels
+end
+case hq16col-13-4
+wbits gray16 64 13 90106
+wscale 64 4 hqcubic
+wpixels
+end
+case hq16row-2-5
+wbits gray16 2 64 90007
+wscale 5 64 hqcubic
+wpixels
+end
+case hq16col-2-5
+wbits gray16 64 2 90107
+wscale 64 5 hqcubic
+wpixels
+end
