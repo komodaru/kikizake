@@ -975,9 +975,10 @@ mod tstate {
     pub const DEPTH_READ: u32 = 0x20;
     pub const GENERIC_READ: u32 = 0xac3;
     pub const RAYTRACING_AS: u32 = 0x40_0000;
-    /// any texture: shader resources, copies, resolves, the video states
-    pub const ANY: u32 = 0x40 | 0x80 | 0x400 | 0x800 | 0x1000 | 0x2000 | 0xf_0000 | 0x20_0000 | 0x80_0000;
-    /// the states that write (the documentation: one alone)
+    /// any texture: shader resources, copies, resolves, the video states, SHADING_RATE_SOURCE
+    pub const ANY: u32 = 0x40 | 0x80 | 0x400 | 0x800 | 0x1000 | 0x2000 | 0xf_0000 | 0x20_0000 | 0x80_0000 | 0x100_0000;
+    /// the states that write, taken alone only (MEASURED, create-state2-*: every pair of them
+    /// with another state refused, the read states paired with each other taken)
     pub const WRITES: u32 = RENDER_TARGET | UNORDERED_ACCESS | DEPTH_WRITE | 0x100 | 0x400 | 0x1000 | 0x2_0000 | 0x8_0000 | 0x80_0000;
 }
 
@@ -985,9 +986,9 @@ mod tstate {
 fn tex_state_ok(state: u32, flags: u32) -> bool {
     use tstate::*;
     if flags & 0x20 != 0 {
-        // (MEASURED: a simultaneous-access texture takes every bit, undefined ones too, and all
-        // of them at once, but RAYTRACING_ACCELERATION_STRUCTURE alone; with more bits a guess,
-        // create-state2-sim)
+        // (MEASURED, create-state-sim, create-state2-sim: a simultaneous-access texture takes
+        // every bit, undefined ones too, any two and all at once, but
+        // RAYTRACING_ACCELERATION_STRUCTURE alone)
         return state != RAYTRACING_AS;
     }
     if state == GENERIC_READ {
@@ -996,8 +997,8 @@ fn tex_state_ok(state: u32, flags: u32) -> bool {
         return true;
     }
     let allowed = ANY | if flags & 1 != 0 { RENDER_TARGET } else { 0 } | if flags & 4 != 0 { UNORDERED_ACCESS } else { 0 } | if flags & 2 != 0 { DEPTH_WRITE | DEPTH_READ } else { 0 };
-    // (MEASURED: DEPTH_WRITE | DEPTH_READ refused on a depth texture; other writes with more
-    // bits are a guess, create-state2-*)
+    // (MEASURED, create-state2-*: GENERIC_READ less or plus any bit refused; bits 24..30 but
+    // SHADING_RATE_SOURCE refused)
     state & !allowed == 0 && (state & WRITES == 0 || state.count_ones() == 1)
 }
 
