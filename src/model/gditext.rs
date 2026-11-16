@@ -18,6 +18,10 @@ fn n(op: &Op, i: usize) -> Res<i64> {
 
 pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let t0 = op.tok[0].as_str();
+    if t0 == "memfont" {
+        // (a font file the case makes, added for the case: what it measures and draws is open)
+        return Err(Fail::Unmodeled(open::GDI_TEXT_FONT));
+    }
     if !matches!(t0, "font" | "metrics" | "face" | "extent" | "extentex" | "widths" | "abc" | "textout" | "exttext" | "align" | "extra" | "glyph") {
         return Ok(false);
     }

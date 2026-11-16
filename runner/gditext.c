@@ -4,6 +4,8 @@
 
 static HGDIOBJ made[64];
 static int nmade;
+static HANDLE mem[16];
+static int nmem;
 
 /* text of token i ('_' -> ' '), in a static buffer */
 static char *txt(int i) {
@@ -137,8 +139,27 @@ static void op_glyph(void) {
     free(b);
 }
 
+/* memfont <hex>: AddFontMemResourceEx of the font file given ("memfont <fonts added>", 0 when
+ * it fails); the fonts stay until the case ends */
+static void op_memfont(void) {
+    if (ntok != 2 || nmem >= 16) { bad = 1; return; }
+    int n = (int)strlen(tok[1]) / 2;
+    unsigned char *b = malloc(n + 1);
+    for (int i = 0; i < n; i++) {
+        unsigned v;
+        if (sscanf(tok[1] + 2 * i, "%2x", &v) != 1) { bad = 1; free(b); return; }
+        b[i] = (unsigned char)v;
+    }
+    DWORD count = 0;
+    HANDLE h = AddFontMemResourceEx(b, n, NULL, &count);
+    free(b);
+    if (h) mem[nmem++] = h;
+    out("memfont %lu\n", h ? count : 0);
+}
+
 static void gditext_reset(void) {
     while (nmade) DeleteObject(made[--nmade]);
+    while (nmem) RemoveFontMemResourceEx(mem[--nmem]);
 }
 
 static const struct kz_op gditext_ops[] = {
@@ -154,6 +175,7 @@ static const struct kz_op gditext_ops[] = {
     { "align", op_set },
     { "extra", op_set },
     { "glyph", op_glyph },
+    { "memfont", op_memfont },
     { 0 },
 };
 const struct kz_api gditext_api = { "gditext", gditext_ops, gditext_reset };

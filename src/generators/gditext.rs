@@ -56,5 +56,23 @@ pub fn text() -> String {
     }
     // TA_UPDATECP: the current position moves with the text
     writeln!(s, "case updatecp\ndib 0 64 16 1\nfont 0 -11 0 0 400 0 3 Arial\nalign 0 1\nmoveto 0 2 2\ntextout 0 0 0 ab\ngetpos 0\ntextout 0 0 0 cd\ngetpos 0\nexttext 0 0 0 0 0 0 0 0 ef\ngetpos 0\ndump 0\nend").unwrap();
+    // fonts made for the suite (rectangle glyphs, every table field chosen, as the dwrite
+    // suite's), added with AddFontMemResourceEx and taken by their family name: what GDI
+    // measures and draws from a font's own tables (their own stream)
+    let mut r = XorShift32::new(0x7e47_f0f0);
+    for i in 0..48 {
+        let f = super::dwrite::font(0x7e47_1000 + i);
+        let fam = &f.family;
+        let hex: String = f.bytes().iter().map(|b| format!("{b:02x}")).collect();
+        let h = *r.pick(&[-8, -9, -11, -12, -13, -16, -20, -32, 10, 13, 16, 24, 0]);
+        let wt = *r.pick(&[400, 400, 700]);
+        writeln!(s, "case mfont-{i}\ndib 0 40 24 32\nmemfont {hex}\nfont 0 {h} 0 0 {wt} 0 3 {fam}\nface 0\nmetrics 0\nwidths 0 32 98\nabc 0 48 69\nextent 0 ABab01\nextentex 0 30 ABCDE").unwrap();
+        for ch in [b'A', b'b', b'0', b' '] {
+            for fmt in [0, 1, 6] {
+                writeln!(s, "glyph 0 {ch} {fmt}").unwrap();
+            }
+        }
+        writeln!(s, "text 0 #ffffff\nbk 0 #000000\nbkmode 0 1\ntextout 0 {} {} ABab01-\ndump 0\nend", r.range(-2, 6), r.range(-2, 8)).unwrap();
+    }
     s
 }
