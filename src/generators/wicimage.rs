@@ -1503,6 +1503,15 @@ pub fn wicencode() -> String {
     for (k, (f, t)) in [("rgba64fixed", "rgba64"), ("rgbafloat", "rgba64"), ("rgba64half", "rgba64")].into_iter().enumerate() {
         writeln!(s, "case backalpha-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xba1f_0000u32 + k as u32).unwrap();
     }
+    // 8-bit color into 16bppGrayFixedPoint as it is (the luma's sums and rounding): random
+    // pixels, and every level of each primary and of gray
+    for (k, f) in ["bgra", "bgr24", "rgba", "pbgra", "gray8"].into_iter().enumerate() {
+        writeln!(s, "case grayfix-from-{f}\nwbits {f} 64 64 {}\nwconv grayfix16\nwpixels\nend", 0x6f10_0000u32 + k as u32).unwrap();
+    }
+    for (name, px) in [("red", [0u8, 0, 1]), ("green", [0, 1, 0]), ("blue", [1, 0, 0]), ("gray", [1, 1, 1])] {
+        let rows: Vec<Vec<u8>> = (0..16usize).map(|y| (0..16usize).flat_map(|x| { let c = (y * 16 + x) as u8; [px[2] * c, px[1] * c, px[0] * c] }).collect()).collect();
+        writeln!(s, "case grayfix-every-{name}\nwdecode {}\nwframe 0\nwconv bgr24\nwconv grayfix16\nwpixels\nend", hex(&png(16, 16, 8, 2, false, &[], &png_filter(&rows, 3, &[0]), 4096))).unwrap();
+    }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
