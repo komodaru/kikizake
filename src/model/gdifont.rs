@@ -15,6 +15,25 @@ pub struct TextFont {
     /// lfHeight (0: the default height)
     pub height: i64,
     pub weight: Weight,
+    pub slant: Slant,
+}
+
+/// lfItalic
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Slant {
+    Upright,
+    /// synthesized: the suite's fonts have no italic face
+    Italic,
+}
+
+impl Slant {
+    pub fn of(v: i64) -> Option<Slant> {
+        match v {
+            0 => Some(Slant::Upright),
+            1 => Some(Slant::Italic),
+            _ => None,
+        }
+    }
 }
 
 /// the weights the model knows (CreateFont's FW_NORMAL and FW_BOLD)
@@ -82,6 +101,8 @@ pub struct Tm {
     pub max: i64,
     pub weight: i64,
     pub pitch: i64,
+    /// tmItalic
+    pub italic: i64,
 }
 
 /// what the measuring takes from a font and the request
@@ -148,7 +169,10 @@ pub fn metrics(p: &Parsed, f: TextFont) -> Option<Tm> {
         (true, true) => 6,
         (true, false) => 0x36,
     };
-    Some(Tm { height, ascent, descent, internal: height - z.ppem, external: s.px(e.max(0)), ave, max: s.px(bw) + bold, weight: f.weight.value(), pitch })
+    Some(Tm { height, ascent, descent, internal: height - z.ppem, external: s.px(e.max(0)), ave, max: s.px(bw) + bold, weight: f.weight.value(), pitch, italic: match f.slant {
+        Slant::Upright => 0,
+        Slant::Italic => 255,
+    } })
 }
 
 /// GetCharWidth32 of a code point (GDI.TEXT.WIDTH): the advance scaled, the bold pixel added
@@ -197,27 +221,34 @@ pub fn abc(p: &Parsed, f: TextFont, c: u32) -> Option<Abc> {
     Some(Abc { a, b, c: w - a - b, black: Black::Box })
 }
 
-/// GetTextExtentPoint32 (GDI.TEXT.EXTENT): the widths' sum, the font's height
-pub fn extent(p: &Parsed, f: TextFont, s: &[u32]) -> Option<(i64, i64)> {
+/// a width with the character extra (GDI.TEXT.EXTRAEXTENT): a negative extra leaves a
+/// character at least 1 pixel wide, one of width 0 at 0
+fn with_extra(w: i64, extra: i64) -> i64 {
+    (w + extra).max(w.min(1))
+}
+
+/// GetTextExtentPoint32 (GDI.TEXT.EXTENT, GDI.TEXT.EXTRAEXTENT): the widths' sum, each
+/// with the character extra, the font's height
+pub fn extent(p: &Parsed, f: TextFont, s: &[u32], extra: i64) -> Option<(i64, i64)> {
     let mut x = 0;
     for &c in s {
-        x += width(p, f, c)?;
+        x += with_extra(width(p, f, c)?, extra);
     }
     Some((x, metrics(p, f)?.height))
 }
 
 /// GetTextExtentExPoint (GDI.TEXT.EXTENT): the characters that fit in max, each one's
 /// running width, and the whole extent
-pub fn extent_ex(p: &Parsed, f: TextFont, s: &[u32], max: i64) -> Option<(usize, Vec<i64>, (i64, i64))> {
+pub fn extent_ex(p: &Parsed, f: TextFont, s: &[u32], max: i64, extra: i64) -> Option<(usize, Vec<i64>, (i64, i64))> {
     let mut dx = Vec::new();
     let mut x = 0;
     for &c in s {
-        x += width(p, f, c)?;
+        x += with_extra(width(p, f, c)?, extra);
         dx.push(x);
     }
     let fit = dx.iter().take_while(|&&v| v <= max).count();
     dx.truncate(fit);
-    Some((fit, dx, extent(p, f, s)?))
+    Some((fit, dx, extent(p, f, s, extra)?))
 }
 
 /// a glyph's outline as the suite writes it: rectangles in font units, each one contour of

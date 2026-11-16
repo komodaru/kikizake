@@ -258,7 +258,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 506), ("xform", 670), ("path", 444), ("text", 121), ("blend", 927), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 506), ("xform", 670), ("path", 444), ("text", 148), ("blend", 927), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -355,10 +355,10 @@ proptest! {
     /// advance that is not 0
     #[test]
     fn font_measures_add_up(seed in 0u32..4096, h in -40i64..40, bold in any::<bool>(), max in 0i64..200) {
-        use kikizake::model::gdifont::{abc, extent, extent_ex, metrics, width, TextFont, Weight};
+        use kikizake::model::gdifont::{abc, extent, extent_ex, metrics, width, Slant, TextFont, Weight};
         let fnt = kikizake::generators::dwrite::font(0x5eed_0000 + seed);
         let p = kikizake::ttf::parse(&fnt.bytes()).unwrap();
-        let f = TextFont { file: 0, height: h, weight: if bold { Weight::Bold } else { Weight::Normal } };
+        let f = TextFont { file: 0, height: h, weight: if bold { Weight::Bold } else { Weight::Normal }, slant: Slant::Upright };
         let Some(t) = metrics(&p, f) else { return Ok(()) };
         prop_assert_eq!(t.height, t.ascent + t.descent);
         prop_assert!(t.descent >= 0);
@@ -375,8 +375,8 @@ proptest! {
             let adv = p.hmtx[kikizake::ttf::glyph_of(&p, c) as usize].0;
             prop_assert_eq!(w - n, if bold && adv > 0 { 1 } else { 0 });
         }
-        prop_assert_eq!(extent(&p, f, &s).unwrap(), (sum, t.height));
-        let (fit, dx, e) = extent_ex(&p, f, &s, max).unwrap();
+        prop_assert_eq!(extent(&p, f, &s, 0).unwrap(), (sum, t.height));
+        let (fit, dx, e) = extent_ex(&p, f, &s, max, 0).unwrap();
         prop_assert_eq!(e, (sum, t.height));
         prop_assert_eq!(dx.len(), fit);
         let mut run = 0;
@@ -396,10 +396,10 @@ proptest! {
     /// the bitmap's pixels within the box's rows
     #[test]
     fn glyph_bitmaps_agree(seed in 0u32..4096, h in -40i64..-1, bold in any::<bool>(), c in 0x20u32..0x7f) {
-        use kikizake::model::gdifont::{abc, glyph, metrics, text_pixels, Format, TextFont, Weight};
+        use kikizake::model::gdifont::{abc, glyph, metrics, text_pixels, Format, Slant, TextFont, Weight};
         let fnt = kikizake::generators::dwrite::font(0x5eed_0000 + seed);
         let p = kikizake::ttf::parse(&fnt.bytes()).unwrap();
-        let f = TextFont { file: 0, height: h, weight: if bold { Weight::Bold } else { Weight::Normal } };
+        let f = TextFont { file: 0, height: h, weight: if bold { Weight::Bold } else { Weight::Normal }, slant: Slant::Upright };
         let (Some(m), Some(b), Some(g)) = (glyph(&p, f, c, Format::Metrics), glyph(&p, f, c, Format::Mono), glyph(&p, f, c, Format::Gray8)) else { return Ok(()) };
         prop_assert_eq!((m.black, m.origin, m.inc), (b.black, b.origin, b.inc));
         prop_assert!(m.bytes.is_empty() && m.size == 1);
@@ -439,10 +439,10 @@ proptest! {
     /// a larger em (lfHeight below 0) never measures narrower or shorter
     #[test]
     fn font_measures_grow_with_the_em(seed in 0u32..4096, h in 1i64..60, c in 0x20u32..0x7f) {
-        use kikizake::model::gdifont::{metrics, width, TextFont, Weight};
+        use kikizake::model::gdifont::{metrics, width, Slant, TextFont, Weight};
         let fnt = kikizake::generators::dwrite::font(0x5eed_0000 + seed);
         let p = kikizake::ttf::parse(&fnt.bytes()).unwrap();
-        let f = |h: i64| TextFont { file: 0, height: -h, weight: Weight::Normal };
+        let f = |h: i64| TextFont { file: 0, height: -h, weight: Weight::Normal, slant: Slant::Upright };
         let (Some(a), Some(b)) = (metrics(&p, f(h)), metrics(&p, f(h + 1))) else { return Ok(()) };
         prop_assert!(b.height >= a.height && b.ave >= a.ave && b.max >= a.max);
         prop_assert!(width(&p, f(h + 1), c).unwrap() >= width(&p, f(h), c).unwrap());
