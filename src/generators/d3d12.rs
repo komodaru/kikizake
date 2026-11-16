@@ -671,8 +671,42 @@ pub fn d3d12() -> String {
     for (hsize, off) in [(131072u32, 65536u32), (131072, 65537), (131071, 65536), (65536, 0)] {
         edge.push((format!("placed-edge-{hsize}-{off}"), format!("placed12 1 0 {hsize} {off} 0 {}", desc_str(&b))));
     }
+    // (added after) tight alignment (D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT, DirectX-Specs "Tight
+    // Resource Alignment"): buffers and textures at each alignment, with the 64KB layouts
+    let tb = Desc { flags: 0x400, ..Desc::buffer(1000) };
+    for al in [0u32, 1, 3, 8, 16, 256, 512, 4096, 8192, 65536, 131072] {
+        edge.push((format!("create-tight-buffer-{al:x}"), format!("create12 1 0 {}", desc_str(&Desc { align: al, ..tb }))));
+        edge.push((format!("alloc-tight-buffer-{al:x}"), format!("alloc12 {}", desc_str(&Desc { align: al, ..tb }))));
+    }
+    let tt = Desc { flags: 0x400, ..Desc::tex(3, 64, 64, 1, 1, 28) };
+    for al in [0u32, 256, 4096, 8192, 16384, 65536, 131072, 4194304, 3] {
+        edge.push((format!("create-tight-tex-{al:x}"), format!("create12 1 0 {}", desc_str(&Desc { align: al, ..tt }))));
+        edge.push((format!("alloc-tight-tex-{al:x}"), format!("alloc12 {}", desc_str(&Desc { align: al, ..tt }))));
+    }
+    for l in [2u32, 3] {
+        edge.push((format!("create-tight-tex-layout{l}"), format!("create12 1 0 {}", desc_str(&Desc { layout: l, ..tt }))));
+    }
+    edge.push(("create-tight-rt".into(), format!("create12 1 0 {}", desc_str(&Desc { flags: 0x401, ..tt }))));
+    edge.push(("alloc-tight-rt".into(), format!("alloc12 {}", desc_str(&Desc { flags: 0x401, ..tt }))));
+    edge.push(("alloc-tight-small".into(), format!("alloc12 {}", desc_str(&Desc { flags: 0x400, ..Desc::tex(3, 8, 8, 1, 1, 28) }))));
     for (n, l) in edge {
         writeln!(s, "case {n}\ndevice12\n{l}\nend").unwrap();
+    }
+    // (added after) every feature CheckFeatureSupport knows of, at every size (last: the
+    // executor might stop at one)
+    let inputs = |f: u32| -> Vec<Vec<u32>> {
+        match f {
+            7 => vec![vec![0x69], vec![0x60], vec![0x70]],
+            12 => vec![vec![3], vec![1], vec![4]],
+            20 => vec![vec![0, 100], vec![0, 10000], vec![2, 0]],
+            _ => vec![vec![]],
+        }
+    };
+    for f in (0u32..=64).filter(|f| !matches!(f, 3 | 4 | 5)) {
+        for (k, i) in inputs(f).iter().enumerate() {
+            let l: String = i.iter().map(|v| format!(" {}", hexw(*v))).collect();
+            writeln!(s, "case featscan-{f}-{k}\ndevice12\nfeatscan12 {f}{l}\nend").unwrap();
+        }
     }
 
     s

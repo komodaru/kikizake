@@ -502,7 +502,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" | "featscan12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -604,6 +604,17 @@ impl D3d12 {
                         out.push(format!("cleardsv12 hr {E_INVALIDARG:08x}"));
                     }
                 }
+            }
+            "featscan12" => {
+                if t.len() < 2 || t.len() > 18 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..])?;
+                hit(clause::D3D12_FEATURE_SCAN);
+                out.push(match super::d3d12_features::answer(w[0], &w[1..]) {
+                    Some((size, bytes)) => format!("feat size {size:x} hr {S_OK:08x} {bytes}"),
+                    None => format!("feat none hr {E_INVALIDARG:08x}"),
+                });
             }
             "feature12" | "msq12" | "incr12" => {
                 if t.len() != match name {

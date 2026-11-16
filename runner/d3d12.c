@@ -536,7 +536,35 @@ static void op_remove(void) {
     oflush();
 }
 
+/* featscan12 <feature> [<input word>...]: CheckFeatureSupport of the feature with a zeroed buffer
+ * whose first words are the inputs, at each size 4, 8, .. 512 until one succeeds: "feat size <n>"
+ * and the n bytes, or "feat none hr <hr at size 4>" */
+static void op_featscan(void) {
+    if (!on12) { out("nodev\n"); return; }
+    if (ntok < 2 || ntok > 2 + 16) { bad = 1; return; }
+    UINT f = num(1);
+    UINT in[16];
+    int nin = ntok - 2;
+    for (int i = 0; i < nin; i++) in[i] = num(2 + i);
+    if (bad) return;
+    HRESULT first = S_OK;
+    for (UINT n = 4; n <= 512; n += 4) {
+        UINT b[128];
+        memset(b, 0, sizeof b);
+        for (int i = 0; i < nin && i < (int)(n / 4); i++) b[i] = in[i];
+        HRESULT hr = ID3D12Device_CheckFeatureSupport(dev12, (D3D12_FEATURE)f, b, n);
+        if (n == 4) first = hr;
+        if (SUCCEEDED(hr)) {
+            out("feat size %x hr %08lx ", n, hr);
+            out_hex((const unsigned char *)b, n);
+            return;
+        }
+    }
+    out("feat none hr %08lx\n", first);
+}
+
 static const struct kz_op d3d12_ops[] = {
+    { "featscan12", op_featscan },
     { "remove12", op_remove },
     { "rootsig12", op_rootsig },
     { "copy12", op_copy },

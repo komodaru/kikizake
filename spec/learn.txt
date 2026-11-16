@@ -612,3 +612,5 @@ ID3D12Device::CreateRootSignature | https://learn.microsoft.com/en-us/windows/wi
 ID3D12Device5::RemoveDevice | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device5-removedevice
 Graphics::DrawImage | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-drawimage(image_constrect__int_int_int_int_unit_constimageattributes_drawimageabort_void)
 ImageAttributes::SetColorMatrix | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusimageattributes/nf-gdiplusimageattributes-imageattributes-setcolormatrix
+D3D12_FEATURE | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_feature
+ID3D12Device::CheckFeatureSupport | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport

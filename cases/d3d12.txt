@@ -17012,3 +17012,455 @@ case placed-edge-65536-0
 device12
 placed12 1 0 65536 0 0 1 0 0x10000 1 1 1 0 1 0 1 0
 end
+case create-tight-buffer-0
+device12
+create12 1 0 1 0 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-0
+device12
+alloc12 1 0 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-1
+device12
+create12 1 0 1 1 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-1
+device12
+alloc12 1 1 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-3
+device12
+create12 1 0 1 3 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-3
+device12
+alloc12 1 3 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-8
+device12
+create12 1 0 1 8 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-8
+device12
+alloc12 1 8 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-10
+device12
+create12 1 0 1 0x10 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-10
+device12
+alloc12 1 0x10 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-100
+device12
+create12 1 0 1 0x100 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-100
+device12
+alloc12 1 0x100 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-200
+device12
+create12 1 0 1 0x200 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-200
+device12
+alloc12 1 0x200 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-1000
+device12
+create12 1 0 1 0x1000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-1000
+device12
+alloc12 1 0x1000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-2000
+device12
+create12 1 0 1 0x2000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-2000
+device12
+alloc12 1 0x2000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-10000
+device12
+create12 1 0 1 0x10000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-10000
+device12
+alloc12 1 0x10000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-buffer-20000
+device12
+create12 1 0 1 0x20000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case alloc-tight-buffer-20000
+device12
+alloc12 1 0x20000 0x3e8 1 1 1 0 1 0 1 0x400
+end
+case create-tight-tex-0
+device12
+create12 1 0 3 0 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-0
+device12
+alloc12 3 0 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-100
+device12
+create12 1 0 3 0x100 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-100
+device12
+alloc12 3 0x100 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-1000
+device12
+create12 1 0 3 0x1000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-1000
+device12
+alloc12 3 0x1000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-2000
+device12
+create12 1 0 3 0x2000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-2000
+device12
+alloc12 3 0x2000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-4000
+device12
+create12 1 0 3 0x4000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-4000
+device12
+alloc12 3 0x4000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-10000
+device12
+create12 1 0 3 0x10000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-10000
+device12
+alloc12 3 0x10000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-20000
+device12
+create12 1 0 3 0x20000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-20000
+device12
+alloc12 3 0x20000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-400000
+device12
+create12 1 0 3 0x400000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-400000
+device12
+alloc12 3 0x400000 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-3
+device12
+create12 1 0 3 3 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case alloc-tight-tex-3
+device12
+alloc12 3 3 0x40 0x40 1 1 0x1c 1 0 0 0x400
+end
+case create-tight-tex-layout2
+device12
+create12 1 0 3 0 0x40 0x40 1 1 0x1c 1 0 2 0x400
+end
+case create-tight-tex-layout3
+device12
+create12 1 0 3 0 0x40 0x40 1 1 0x1c 1 0 3 0x400
+end
+case create-tight-rt
+device12
+create12 1 0 3 0 0x40 0x40 1 1 0x1c 1 0 0 0x401
+end
+case alloc-tight-rt
+device12
+alloc12 3 0 0x40 0x40 1 1 0x1c 1 0 0 0x401
+end
+case alloc-tight-small
+device12
+alloc12 3 0 8 8 1 1 0x1c 1 0 0 0x400
+end
+case featscan-0-0
+device12
+featscan12 0
+end
+case featscan-1-0
+device12
+featscan12 1
+end
+case featscan-2-0
+device12
+featscan12 2
+end
+case featscan-6-0
+device12
+featscan12 6
+end
+case featscan-7-0
+device12
+featscan12 7 0x69
+end
+case featscan-7-1
+device12
+featscan12 7 0x60
+end
+case featscan-7-2
+device12
+featscan12 7 0x70
+end
+case featscan-8-0
+device12
+featscan12 8
+end
+case featscan-9-0
+device12
+featscan12 9
+end
+case featscan-10-0
+device12
+featscan12 10
+end
+case featscan-11-0
+device12
+featscan12 11
+end
+case featscan-12-0
+device12
+featscan12 12 3
+end
+case featscan-12-1
+device12
+featscan12 12 1
+end
+case featscan-12-2
+device12
+featscan12 12 4
+end
+case featscan-13-0
+device12
+featscan12 13
+end
+case featscan-14-0
+device12
+featscan12 14
+end
+case featscan-15-0
+device12
+featscan12 15
+end
+case featscan-16-0
+device12
+featscan12 16
+end
+case featscan-17-0
+device12
+featscan12 17
+end
+case featscan-18-0
+device12
+featscan12 18
+end
+case featscan-19-0
+device12
+featscan12 19
+end
+case featscan-20-0
+device12
+featscan12 20 0 0x64
+end
+case featscan-20-1
+device12
+featscan12 20 0 0x2710
+end
+case featscan-20-2
+device12
+featscan12 20 2 0
+end
+case featscan-21-0
+device12
+featscan12 21
+end
+case featscan-22-0
+device12
+featscan12 22
+end
+case featscan-23-0
+device12
+featscan12 23
+end
+case featscan-24-0
+device12
+featscan12 24
+end
+case featscan-25-0
+device12
+featscan12 25
+end
+case featscan-26-0
+device12
+featscan12 26
+end
+case featscan-27-0
+device12
+featscan12 27
+end
+case featscan-28-0
+device12
+featscan12 28
+end
+case featscan-29-0
+device12
+featscan12 29
+end
+case featscan-30-0
+device12
+featscan12 30
+end
+case featscan-31-0
+device12
+featscan12 31
+end
+case featscan-32-0
+device12
+featscan12 32
+end
+case featscan-33-0
+device12
+featscan12 33
+end
+case featscan-34-0
+device12
+featscan12 34
+end
+case featscan-35-0
+device12
+featscan12 35
+end
+case featscan-36-0
+device12
+featscan12 36
+end
+case featscan-37-0
+device12
+featscan12 37
+end
+case featscan-38-0
+device12
+featscan12 38
+end
+case featscan-39-0
+device12
+featscan12 39
+end
+case featscan-40-0
+device12
+featscan12 40
+end
+case featscan-41-0
+device12
+featscan12 41
+end
+case featscan-42-0
+device12
+featscan12 42
+end
+case featscan-43-0
+device12
+featscan12 43
+end
+case featscan-44-0
+device12
+featscan12 44
+end
+case featscan-45-0
+device12
+featscan12 45
+end
+case featscan-46-0
+device12
+featscan12 46
+end
+case featscan-47-0
+device12
+featscan12 47
+end
+case featscan-48-0
+device12
+featscan12 48
+end
+case featscan-49-0
+device12
+featscan12 49
+end
+case featscan-50-0
+device12
+featscan12 50
+end
+case featscan-51-0
+device12
+featscan12 51
+end
+case featscan-52-0
+device12
+featscan12 52
+end
+case featscan-53-0
+device12
+featscan12 53
+end
+case featscan-54-0
+device12
+featscan12 54
+end
+case featscan-55-0
+device12
+featscan12 55
+end
+case featscan-56-0
+device12
+featscan12 56
+end
+case featscan-57-0
+device12
+featscan12 57
+end
+case featscan-58-0
+device12
+featscan12 58
+end
+case featscan-59-0
+device12
+featscan12 59
+end
+case featscan-60-0
+device12
+featscan12 60
+end
+case featscan-61-0
+device12
+featscan12 61
+end
+case featscan-62-0
+device12
+featscan12 62
+end
+case featscan-63-0
+device12
+featscan12 63
+end
+case featscan-64-0
+device12
+featscan12 64
+end
