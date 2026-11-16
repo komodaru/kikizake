@@ -2749,4 +2749,15 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // stippled flat-shaded lines in colors: which end's (line-stipple-2 drew them white)
+    writeln!(s, "case line-stipple-4\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb24\ngl glShadeModel 0x1d00\ngl glLineStipple 1 0xf3f7", ctx(32)).unwrap();
+    for l in &lines {
+        writeln!(s, "gl glClear 0x4000\ngl glBegin 1").unwrap();
+        for e in 0..2 {
+            color(s, &mut r);
+            glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+        }
+        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }

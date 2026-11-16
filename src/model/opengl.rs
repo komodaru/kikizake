@@ -465,6 +465,9 @@ pub struct Ctx {
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
+    /// the stipple counter: the next step's count, and the major coordinate and count of the
+    /// step being drawn (GL.RASTER.LINE.STIPPLE)
+    stipple: (i64, Option<(i64, i64)>),
     pub point_size: f32,
     pub cull_mode: u32,
     pub front_face: u32,
@@ -549,6 +552,7 @@ impl Ctx {
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
+            stipple: (0, None),
             point_size: 1.0,
             cull_mode: BACK,
             front_face: CCW,
@@ -2606,7 +2610,7 @@ impl Ctx {
                 // alpha tested, are not measured)
                 // (blended into a buffer without alpha: GL.RASTER.LINE.SMOOTH.BLEND)
                 let blended = self.cap(BLEND) && self.pf.rgba[3].0 == 0;
-                if self.cap(LINE_STIPPLE) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST))) {
+                if (self.cap(LINE_STIPPLE) && self.cap(LINE_SMOOTH)) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST))) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
@@ -2617,7 +2621,14 @@ impl Ctx {
                     _ if n < 2 => Vec::new(),
                     _ => (0..n).map(|k| (k, (k + 1) % n)).collect(),
                 };
+                // (the stipple counter from 0 at glBegin, and at each segment of GL_LINES; a strip's
+                // and a loop's run on: GL 1.1 3.4.2)
+                self.stipple = (0, None);
                 for (i, j) in pairs {
+                    if mode == LINES {
+                        self.stipple = (0, None);
+                    }
+                    self.stipple.1 = None;
                     let (a, b) = (&verts[i], &verts[j]);
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
@@ -2708,8 +2719,11 @@ impl Ctx {
                             }
                             continue;
                         }
+                        let major = usize::from((wb[1] - wa[1]).abs() > (wb[0] - wa[0]).abs());
                         for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]], FirstEnd::Kept)? {
-                            self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                            if self.stipple_keeps([x, y][major]) {
+                                self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                            }
                         }
                         continue;
                     }
@@ -2885,6 +2899,9 @@ impl Ctx {
         let major = usize::from(dy > dx || (dy == dx && tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE));
         let first = pixels.first().map(|p| [p.0, p.1][major]);
         for (x, y) in pixels {
+            if !self.stipple_keeps([x, y][major]) {
+                continue;
+            }
             let zfixed = match (bits, first) {
                 (Some(bits), Some(first)) => {
                     hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
@@ -2935,6 +2952,27 @@ impl Ctx {
         Ok(())
     }
 
+    /// Whether the line stipple keeps the step at major coordinate `major` (MEASURED, golden
+    /// opengl-32 line-stipple-1..3; GL.RASTER.LINE.STIPPLE): each new step along the line takes
+    /// the counter's next count s, its pixels drawn when bit (s / factor) mod 16 of the pattern
+    /// is set; always without GL_LINE_STIPPLE.
+    fn stipple_keeps(&mut self, major: i64) -> bool {
+        if !self.cap(LINE_STIPPLE) {
+            return true;
+        }
+        hit(clause::GL_RASTER_LINE_STIPPLE);
+        let s = match self.stipple.1 {
+            Some((m, s)) if m == major => s,
+            _ => {
+                let s = self.stipple.0;
+                self.stipple = (s + 1, Some((major, s)));
+                s
+            }
+        };
+        let (factor, pattern) = self.line_stipple;
+        pattern >> ((s / factor) % 16) & 1 == 1
+    }
+
     /// How a flat-shaded line is drawn (MEASURED, golden opengl-32 line-flat-*): with no
     /// per-fragment operation on, as GDI's line on the DIB (GL.RASTER.LINE.FLAT); with a depth
     /// test, blending or a scissor box on, as any 1-pixel line (GL.RASTER.LINE), the same pixels
@@ -2948,8 +2986,9 @@ impl Ctx {
         // (MEASURED, line-flat-8, 10: 1 pixel wide with only a depth test or a scissor box on,
         // in the first end's color; every other way the second's: blended (9), wide and depth
         // tested (17), blended and depth tested (25), stencil or alpha tested, a logic op, fog
-        // or a color mask (20..24))
-        let others = self.cap(BLEND) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
+        // or a color mask (20..24); stippled, the pipeline's pixels (line-stipple-2), its color
+        // end measured by line-stipple-4)
+        let others = self.cap(LINE_STIPPLE) || self.cap(BLEND) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
         let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
         Ok(match (self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST), others) {
             (false, false) => FlatPath::Gdi,
@@ -2989,6 +3028,9 @@ impl Ctx {
         let across = if (wb[0] - wa[0]).abs() >= (wb[1] - wa[1]).abs() { tri::DevicePixel { x: 0, row: 1 } } else { tri::DevicePixel { x: 1, row: 0 } };
         let width = tri::LineWidth::of(self.line_width).pixels();
         for p in tri::flat_line(da, db) {
+            if !self.stipple_keeps(if across.row == 1 { p.x } else { p.row }) {
+                continue;
+            }
             for k in -((width - 1) / 2)..width - (width - 1) / 2 {
                 let (x, y) = tri::DevicePixel { x: p.x + k * across.x, row: p.row + k * across.row }.window(h);
                 self.fragment(Frag { x, y, c: b.1, z, fixed: self.span(), zfixed: None })?;
