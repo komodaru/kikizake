@@ -1,4 +1,4 @@
-kikizake calls text-64 cases cf16e2026e09afc3 src bdce0f986da6c4b6cfbafbc7b82d16a816175023c90e362578797d0e48790b37 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 14090 other 0
+kikizake calls text-64 cases 353628d9fe365c7a src 5592053c0c65e62032d19484b3a6e66f8ef9991d05f8d23a0ea645312a6910ad shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 15434 other 0
 case state
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
@@ -3701,7 +3701,6 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h4) = 1
 case mfont-0
-out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -3713,6 +3712,817 @@ GetCharWidth32A(h1,32,98,p) = 1
 GetCharABCWidthsA(h1,48,69,p) = 1
 GetTextExtentPoint32A(h1,p,6,p) = 1
 GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-1
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1788,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-2
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1760,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-3
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1772,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-4
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1760,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-5
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1676,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-6
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2016,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-7
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1848,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-8
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1940,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-9
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2012,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-10
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1848,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-11
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2040,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-12
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2012,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-13
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1876,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-14
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2040,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-15
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1888,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-16
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1776,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-17
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1976,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-18
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1756,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-19
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1864,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-20
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1836,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-21
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1960,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-22
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1892,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-23
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2016,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-24
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1672,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-25
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1932,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-26
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1708,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-27
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1784,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-28
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1868,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-29
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1732,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-30
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1692,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-31
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2128,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-32
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1588,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-33
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1848,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-34
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1944,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-35
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1992,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-36
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2024,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-37
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1676,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-38
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1956,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-39
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2088,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-40
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1896,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-41
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1980,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-42
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1796,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-43
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1756,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-44
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,2108,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-45
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1992,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-46
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1936,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mfont-47
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1812,h0,p) = h4
+SelectObject(h1,h5) = h6
+GetTextFaceA(h1,64,p) = 17
+GetTextMetricsA(h1,p) = 1
+GetCharWidth32A(h1,32,98,p) = 1
+GetCharABCWidthsA(h1,48,69,p) = 1
+GetTextExtentPoint32A(h1,p,6,p) = 1
+GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+DeleteObject(h5) = 1
+RemoveFontMemResourceEx(h4) = 1
+case mglyph-0
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+AddFontMemResourceEx(p,1688,h0,p) = h4
+SelectObject(h1,h5) = h6
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 36
@@ -3745,19 +4555,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-1
+case mglyph-1
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1788,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
@@ -3790,19 +4594,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-2
+case mglyph-2
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1760,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 60
 GetGlyphOutlineA(h1,65,0,p,60,p,p) = 60
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 56
@@ -3835,19 +4633,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-3
+case mglyph-3
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1772,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 44
@@ -3880,19 +4672,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-4
+case mglyph-4
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1760,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 12
@@ -3925,19 +4711,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-5
+case mglyph-5
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1676,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 52
 GetGlyphOutlineA(h1,65,0,p,52,p,p) = 52
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 68
@@ -3970,19 +4750,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-6
+case mglyph-6
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2016,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 8
@@ -4015,19 +4789,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-7
+case mglyph-7
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1848,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
@@ -4060,19 +4828,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-8
+case mglyph-8
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1940,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 76
 GetGlyphOutlineA(h1,65,0,p,76,p,p) = 76
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 120
@@ -4105,19 +4867,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-9
+case mglyph-9
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2012,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
@@ -4150,19 +4906,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-10
+case mglyph-10
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1848,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 4
@@ -4195,19 +4945,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-11
+case mglyph-11
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2040,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 40
 GetGlyphOutlineA(h1,65,0,p,40,p,p) = 40
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 48
@@ -4240,19 +4984,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-12
+case mglyph-12
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2012,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
@@ -4285,19 +5023,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-13
+case mglyph-13
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1876,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 76
 GetGlyphOutlineA(h1,65,0,p,76,p,p) = 76
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 76
@@ -4330,19 +5062,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-14
+case mglyph-14
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2040,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 56
 GetGlyphOutlineA(h1,65,0,p,56,p,p) = 56
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 76
@@ -4375,19 +5101,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-15
+case mglyph-15
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1888,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 32
@@ -4420,19 +5140,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-16
+case mglyph-16
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1776,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 4
@@ -4465,19 +5179,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-17
+case mglyph-17
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1976,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 28
@@ -4510,19 +5218,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-18
+case mglyph-18
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1756,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 44
@@ -4555,19 +5257,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-19
+case mglyph-19
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1864,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 48
 GetGlyphOutlineA(h1,65,0,p,48,p,p) = 48
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 64
@@ -4600,19 +5296,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-20
+case mglyph-20
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1836,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 32
 GetGlyphOutlineA(h1,65,0,p,32,p,p) = 32
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 56
@@ -4645,19 +5335,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-21
+case mglyph-21
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1960,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 56
 GetGlyphOutlineA(h1,65,0,p,56,p,p) = 56
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 76
@@ -4690,19 +5374,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-22
+case mglyph-22
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1892,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 40
@@ -4735,19 +5413,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-23
+case mglyph-23
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2016,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 56
 GetGlyphOutlineA(h1,65,0,p,56,p,p) = 56
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 76
@@ -4780,19 +5452,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-24
+case mglyph-24
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1672,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 4
@@ -4825,19 +5491,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-25
+case mglyph-25
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1932,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 20
@@ -4870,19 +5530,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-26
+case mglyph-26
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1708,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 16
@@ -4915,19 +5569,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-27
+case mglyph-27
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1784,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 44
@@ -4960,19 +5608,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-28
+case mglyph-28
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1868,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 52
 GetGlyphOutlineA(h1,65,0,p,52,p,p) = 52
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 72
@@ -5005,19 +5647,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-29
+case mglyph-29
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1732,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 4
@@ -5050,19 +5686,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-30
+case mglyph-30
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1692,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
@@ -5095,19 +5725,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-31
+case mglyph-31
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2128,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 48
 GetGlyphOutlineA(h1,65,0,p,48,p,p) = 48
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 60
@@ -5140,19 +5764,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-32
+case mglyph-32
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1588,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 32
 GetGlyphOutlineA(h1,65,0,p,32,p,p) = 32
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 32
@@ -5185,19 +5803,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-33
+case mglyph-33
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1848,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 4
@@ -5230,19 +5842,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-34
+case mglyph-34
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1944,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 44
 GetGlyphOutlineA(h1,65,0,p,44,p,p) = 44
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 56
@@ -5275,19 +5881,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-35
+case mglyph-35
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1992,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 4
@@ -5320,19 +5920,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-36
+case mglyph-36
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2024,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 32
@@ -5365,19 +5959,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-37
+case mglyph-37
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1676,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 32
@@ -5410,19 +5998,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-38
+case mglyph-38
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1956,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
@@ -5455,19 +6037,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-39
+case mglyph-39
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2088,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 28
@@ -5500,19 +6076,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-40
+case mglyph-40
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1896,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 32
 GetGlyphOutlineA(h1,65,0,p,32,p,p) = 32
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 52
@@ -5545,19 +6115,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-41
+case mglyph-41
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1980,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 28
 GetGlyphOutlineA(h1,65,0,p,28,p,p) = 28
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 40
@@ -5590,19 +6154,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-42
+case mglyph-42
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1796,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 72
 GetGlyphOutlineA(h1,65,0,p,72,p,p) = 72
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 72
@@ -5635,19 +6193,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-43
+case mglyph-43
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1756,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 32
@@ -5680,19 +6232,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-44
+case mglyph-44
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,2108,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 32
 GetGlyphOutlineA(h1,65,0,p,32,p,p) = 32
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 60
@@ -5725,19 +6271,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-45
+case mglyph-45
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1992,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 112
 GetGlyphOutlineA(h1,65,0,p,112,p,p) = 112
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 124
@@ -5770,19 +6310,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-46
+case mglyph-46
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1936,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 20
 GetGlyphOutlineA(h1,65,0,p,20,p,p) = 20
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 12
@@ -5815,19 +6349,13 @@ DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h5) = 1
 RemoveFontMemResourceEx(h4) = 1
-case mfont-47
+case mglyph-47
 out truncated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
 AddFontMemResourceEx(p,1812,h0,p) = h4
 SelectObject(h1,h5) = h6
-GetTextFaceA(h1,64,p) = 17
-GetTextMetricsA(h1,p) = 1
-GetCharWidth32A(h1,32,98,p) = 1
-GetCharABCWidthsA(h1,48,69,p) = 1
-GetTextExtentPoint32A(h1,p,6,p) = 1
-GetTextExtentExPointA(h1,p,5,30,p,p,p) = 1
 GetGlyphOutlineA(h1,65,0,p,0,h0,p) = 24
 GetGlyphOutlineA(h1,65,0,p,24,p,p) = 24
 GetGlyphOutlineA(h1,65,1,p,0,h0,p) = 24
