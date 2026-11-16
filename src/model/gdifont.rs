@@ -276,30 +276,51 @@ pub type Px = (i64, i64);
 /// that crosses a rectangle between two of them lights the left (lower) one, or the right
 /// (upper) one where the left lies before the glyph's black box (its left edge rounded half
 /// down, as GetCharABCWidths')
-fn samples(z: &Sized, r: &[(i64, i64, i64, i64)], k: i64) -> std::collections::BTreeSet<Px> {
+fn samples(z: &Sized, r: &[(i64, i64, i64, i64)], k: i64) -> Option<std::collections::BTreeSet<Px>> {
     let q = |v: i64| rnd(v * z.ppem * 64, z.upm) * k;
     let r: Vec<_> = r.iter().map(|&(a, b, c, d)| (q(a), q(b), q(c), q(d))).collect();
     let mut lit = std::collections::BTreeSet::new();
     let (Some(mx), Some(my)) = (r.iter().map(|x| x.0).min(), r.iter().map(|x| x.1).min()) else {
-        return lit;
+        return Some(lit);
     };
     let (bx, by) = (ceil(mx - 32, 64), ceil(my - 32, 64));
+    // the dropout pixel of a crossing between edges lo and hi, and the other one
+    let drop = |lo: i64, b: i64| {
+        let k = (lo - 32).div_euclid(64);
+        if k < b { (k + 1, k) } else { (k, k + 1) }
+    };
+    let (mut across, mut down) = (Vec::new(), Vec::new());
     for &(x0, y0, x1, y1) in &r {
-        let cols = ceil(x0 - 32, 64)..=(x1 - 32).div_euclid(64);
-        let rows = ceil(y0 - 32, 64)..=(y1 - 32).div_euclid(64);
-        let near = |lo: i64, b: i64| {
-            let k = (lo - 32).div_euclid(64);
-            if k < b { k + 1 } else { k }
-        };
-        let cols: Vec<i64> = if cols.is_empty() { vec![near(x0, bx)] } else { cols.collect() };
-        let rows: Vec<i64> = if rows.is_empty() { vec![near(y0, by)] } else { rows.collect() };
+        let cols: Vec<i64> = (ceil(x0 - 32, 64)..=(x1 - 32).div_euclid(64)).collect();
+        let rows: Vec<i64> = (ceil(y0 - 32, 64)..=(y1 - 32).div_euclid(64)).collect();
         for &i in &cols {
             for &j in &rows {
                 lit.insert((i, j));
             }
         }
+        match (cols.is_empty(), rows.is_empty()) {
+            (false, false) => {}
+            (true, false) => across.extend(rows.iter().map(|&j| (drop(x0, bx), j))),
+            (false, true) => down.extend(cols.iter().map(|&i| (i, drop(y0, by)))),
+            // (a rectangle between sample points both ways: not measured)
+            (true, true) => return None,
+        }
     }
-    lit
+    // (MEASURED: a dropout pixel is not lit where the other pixel of its crossing is: the
+    // scan lines' own pixels for a row's crossings, those and the rows' dropouts for a column's)
+    let spans = lit.clone();
+    for ((p, o), j) in across {
+        if !spans.contains(&(o, j)) {
+            lit.insert((p, j));
+        }
+    }
+    let rows = lit.clone();
+    for (i, (p, o)) in down {
+        if !rows.contains(&(i, o)) {
+            lit.insert((i, p));
+        }
+    }
+    Some(lit)
 }
 
 /// GetGlyphOutline's answer for a bitmap format
@@ -322,6 +343,10 @@ pub enum Format {
     Metrics,
     /// GGO_BITMAP: 1 bit per pixel
     Mono,
+    /// GGO_GRAY2_BITMAP: a byte per pixel, 0 to 4
+    Gray2,
+    /// GGO_GRAY4_BITMAP: a byte per pixel, 0 to 16
+    Gray4,
     /// GGO_GRAY8_BITMAP: a byte per pixel, 0 to 64
     Gray8,
 }
@@ -331,25 +356,30 @@ impl Format {
         match f {
             0 => Some(Format::Metrics),
             1 => Some(Format::Mono),
+            4 => Some(Format::Gray2),
+            5 => Some(Format::Gray4),
             6 => Some(Format::Gray8),
             _ => None,
         }
     }
 }
 
-/// a glyph's pixels with their values (Mono: 1; Gray8: the sample count, 0 to 64), bold
+/// a glyph's pixels with their values (Mono: 1; GrayN: the samples lit of a k x k grid, k 2,
+/// 4 or 8), bold
 /// applied: each pixel adds its left neighbour's value, at most the format's top
 /// (GDI.TEXT.BITMAP, GDI.TEXT.GRAY)
-fn pixels(z: &Sized, r: &[(i64, i64, i64, i64)], f: Format) -> std::collections::BTreeMap<Px, i64> {
+fn pixels(z: &Sized, r: &[(i64, i64, i64, i64)], f: Format) -> Option<std::collections::BTreeMap<Px, i64>> {
     let (k, top) = match f {
         Format::Metrics | Format::Mono => (1, 1),
+        Format::Gray2 => (2, 4),
+        Format::Gray4 => (4, 16),
         Format::Gray8 => (8, 64),
     };
     let mut v = std::collections::BTreeMap::new();
-    for (i, j) in samples(z, r, k) {
+    for (i, j) in samples(z, r, k)? {
         *v.entry((i.div_euclid(k), j.div_euclid(k))).or_insert(0) += 1;
     }
-    match z.bold {
+    Some(match z.bold {
         Weight::Normal => v,
         Weight::Bold => {
             let mut b = std::collections::BTreeMap::new();
@@ -361,7 +391,7 @@ fn pixels(z: &Sized, r: &[(i64, i64, i64, i64)], f: Format) -> std::collections:
             }
             b
         }
-    }
+    })
 }
 
 /// GetGlyphOutline of a code point (GDI.TEXT.BITMAP, GDI.TEXT.GRAY): the bitmap of every pixel
@@ -371,21 +401,21 @@ pub fn glyph(p: &Parsed, f: TextFont, c: u32, fmt: Format) -> Option<Bits> {
     let z = sized(p, f)?;
     let r = rects(p, crate::ttf::glyph_of(p, c))?;
     let inc = width(p, f, c)?;
-    let v = pixels(&z, &r, fmt);
+    let v = pixels(&z, &r, fmt)?;
     let (Some(x0), Some(x1), Some(y0), Some(y1)) = (v.keys().map(|k| k.0).min(), v.keys().map(|k| k.0).max(), v.keys().map(|k| k.1).min(), v.keys().map(|k| k.1).max()) else {
         return Some(Bits { size: if fmt == Format::Metrics { 1 } else { 0 }, black: (1, 1), origin: (0, 0), inc, bytes: Vec::new() });
     };
     let w = x1 - x0 + 1;
     let stride = match fmt {
         Format::Metrics | Format::Mono => (w + 31) / 32 * 4,
-        Format::Gray8 => (w + 3) / 4 * 4,
+        Format::Gray2 | Format::Gray4 | Format::Gray8 => (w + 3) / 4 * 4,
     };
     let mut bytes = vec![0u8; (stride * (y1 - y0 + 1)) as usize];
     for (&(i, j), &n) in &v {
         let at = ((y1 - j) * stride) as usize;
         match fmt {
             Format::Metrics | Format::Mono => bytes[at + ((i - x0) / 8) as usize] |= 0x80 >> ((i - x0) % 8),
-            Format::Gray8 => bytes[at + (i - x0) as usize] = n as u8,
+            Format::Gray2 | Format::Gray4 | Format::Gray8 => bytes[at + (i - x0) as usize] = n as u8,
         }
     }
     let (lo, hi) = clip_rows(&z);
@@ -394,7 +424,7 @@ pub fn glyph(p: &Parsed, f: TextFont, c: u32, fmt: Format) -> Option<Bits> {
     };
     let size = match fmt {
         Format::Metrics => 1,
-        Format::Mono | Format::Gray8 => bytes.len(),
+        Format::Mono | Format::Gray2 | Format::Gray4 | Format::Gray8 => bytes.len(),
     };
     if fmt == Format::Metrics {
         bytes.clear();
@@ -419,7 +449,7 @@ pub fn text_pixels(p: &Parsed, f: TextFont, s: &[u32], x: i64, y: i64) -> Option
     let mut out = Vec::new();
     for &c in s {
         let r = rects(p, crate::ttf::glyph_of(p, c))?;
-        for ((i, j), _) in pixels(&z, &r, Format::Mono) {
+        for ((i, j), _) in pixels(&z, &r, Format::Mono)? {
             if (lo..hi).contains(&j) {
                 out.push((pen + i, y + asc - j - 1));
             }

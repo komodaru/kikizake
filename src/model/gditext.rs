@@ -170,7 +170,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let b = gdifont::glyph(p, f, c as u32, fmt).ok_or(unm())?;
             hit(match fmt {
                 gdifont::Format::Metrics | gdifont::Format::Mono => clause::GDI_TEXT_BITMAP,
-                gdifont::Format::Gray8 => clause::GDI_TEXT_GRAY,
+                gdifont::Format::Gray2 | gdifont::Format::Gray4 | gdifont::Format::Gray8 => clause::GDI_TEXT_GRAY,
             });
             out.push(format!("glyph {} {} {} {} {} {} 0", b.size, b.black.0, b.black.1, b.origin.0, b.origin.1, b.inc));
             if !b.bytes.is_empty() {
