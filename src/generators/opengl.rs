@@ -2705,7 +2705,7 @@ fn measure(s: &mut String) {
         "gl glEnable 0xb90\ngl glStencilFunc 0x207 0 255",
         "gl glEnable 0xbc0\ngl glAlphaFunc 0x207 0",
         "gl glEnable 0xbf2\ngl glLogicOp 0x1503",
-        "gl glEnable 0xb60\ngl glFogi 0xb65 9729\ngl glFogf 0xb63 -1\ngl glFogf 0xb64 1",
+        "gl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 -1\ngl glFogf 0xb64 1",
         "gl glColorMask 1 1 0 1",
         "gl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glEnable 0xbe2\ngl glBlendFunc 1 0",
         "gl glViewport 2 3 11 9",

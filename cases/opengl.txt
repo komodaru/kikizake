@@ -110165,7 +110165,7 @@ gl glMatrixMode 0x1700
 gl glDisable 0xbd0
 gl glShadeModel 0x1d00
 gl glEnable 0xb60
-gl glFogi 0xb65 9729
+gl glFogf 0xb65 9729
 gl glFogf 0xb63 -1
 gl glFogf 0xb64 1
 gl glClear 0x4500
