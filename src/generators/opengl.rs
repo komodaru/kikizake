@@ -2723,4 +2723,30 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // stippled lines (GL.RASTER.MODE): the state read back (0); 1-pixel lines, segments and
+    // strips, of patterns and factors, smooth (1), flat (2), wide (3)
+    writeln!(s, "case line-stipple-0\n{}{ORTHO}", ctx(32)).unwrap();
+    for (f, p) in [(3, 0xf0f3), (300, 0x12345), (0, 0x8001), (-5, 0xaaaa), (256, 0x0f0f)] {
+        writeln!(s, "gl glLineStipple {f} {p}\nglget i 0xb25 1\nglget i 0xb26 1\nglerr").unwrap();
+    }
+    writeln!(s, "end").unwrap();
+    for k in 1..4 {
+        writeln!(s, "case line-stipple-{k}\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb24", ctx(32)).unwrap();
+        if k == 2 {
+            writeln!(s, "gl glShadeModel 0x1d00").unwrap();
+        }
+        if k == 3 {
+            writeln!(s, "gl glLineWidth 3").unwrap();
+        }
+        for (n, l) in lines.iter().enumerate() {
+            let (f, p) = [(1, 0xf0f3), (2, 0x3c5a), (3, 0x8421), (1, 0x5555)][n % 4];
+            writeln!(s, "gl glLineStipple {f} {p}\ngl glClear 0x4000\ngl glBegin {}\ngl glColor4ub 255 255 255 255", [1, 3][n % 2]).unwrap();
+            let m = &lines[(n + 5) % lines.len()];
+            for q in [[l[0], l[1]], [l[2], l[3]], [m[0], m[1]], [m[2], m[3]]] {
+                glf(s, "glVertex2f", &q);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }

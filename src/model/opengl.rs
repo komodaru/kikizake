@@ -463,6 +463,8 @@ pub struct Ctx {
     /// glPolygonOffset: (factor, units)
     pub offset: (f32, f32),
     pub line_width: f32,
+    /// glLineStipple's repeat factor (1..256) and pattern
+    pub line_stipple: (i64, u16),
     pub point_size: f32,
     pub cull_mode: u32,
     pub front_face: u32,
@@ -546,6 +548,7 @@ impl Ctx {
             offset: (0.0, 0.0),
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
+            line_stipple: (1, 0xffff),
             point_size: 1.0,
             cull_mode: BACK,
             front_face: CCW,
@@ -633,8 +636,8 @@ impl Ctx {
             0xb09 => vec![F(0.0)],
             0xb11 => vec![F(self.point_size)],
             0xb21 => vec![F(self.line_width)],
-            0xb25 => i(0xffff),
-            0xb26 => i(1),
+            0xb25 => i(i64::from(self.line_stipple.1)),
+            0xb26 => i(self.line_stipple.0),
             0xb30 | 0xb32 | 0xb33 => i(0),
             0xb40 => self.poly_mode.iter().map(|m| I(*m as i64)).collect(),
             0xb43 => vec![B(true)],
@@ -819,7 +822,7 @@ pub const CALLS: &[(&str, &str)] = &[
     ("glEnable", "i"), ("glDisable", "i"), ("glMatrixMode", "i"), ("glBegin", "i"), ("glClear", "i"), ("glLogicOp", "i"), ("glDepthFunc", "i"),
     ("glShadeModel", "i"), ("glCullFace", "i"), ("glFrontFace", "i"), ("glStencilMask", "i"), ("glDepthMask", "i"), ("glPushAttrib", "i"),
     ("glDrawBuffer", "i"), ("glReadBuffer", "i"), ("glClearStencil", "i"), ("glIndexMask", "i"), ("glIndexi", "i"),
-    ("glBlendFunc", "ii"), ("glPixelStorei", "ii"), ("glHint", "ii"), ("glPolygonMode", "ii"), ("glVertex2i", "ii"), ("glPixelTransferi", "ii"),
+    ("glBlendFunc", "ii"), ("glPixelStorei", "ii"), ("glHint", "ii"), ("glPolygonMode", "ii"), ("glVertex2i", "ii"), ("glPixelTransferi", "ii"), ("glLineStipple", "ii"),
     ("glStencilOp", "iii"), ("glStencilFunc", "iii"), ("glColor3ub", "iii"), ("glVertex3i", "iii"),
     ("glViewport", "iiii"), ("glScissor", "iiii"), ("glColorMask", "iiii"), ("glColor4ub", "iiii"), ("glRecti", "iiii"),
     ("glLineWidth", "f"), ("glPointSize", "f"), ("glClearIndex", "f"),
@@ -1680,6 +1683,12 @@ impl Ctx {
                     hit(clause::GL_VIEWPORT);
                     self.viewport = [v[0], v[1], v[2].min(16384), v[3].min(16384)];
                 }
+            }
+            "glLineStipple" => {
+                // (the factor held to 1..256, the pattern's low 16 bits: GL 1.1 3.4.2,
+                // GL.LINE.STIPPLE.STATE)
+                hit(clause::GL_LINE_STIPPLE_STATE);
+                self.line_stipple = (int(a, 0).clamp(1, 256), (u(a, 1) & 0xffff) as u16);
             }
             "glLineWidth" | "glPointSize" => {
                 let v = fl(a, 0) as f32;

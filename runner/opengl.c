@@ -153,7 +153,7 @@ static const struct { const char *name, *sig; } glcalls[] = {
     { "glStencilMask", "i" }, { "glDepthMask", "i" }, { "glPushAttrib", "i" }, { "glDrawBuffer", "i" },
     { "glReadBuffer", "i" }, { "glClearStencil", "i" }, { "glIndexMask", "i" }, { "glIndexi", "i" },
     { "glBlendFunc", "ii" }, { "glPixelStorei", "ii" }, { "glHint", "ii" }, { "glPolygonMode", "ii" }, { "glVertex2i", "ii" },
-    { "glPixelTransferi", "ii" },
+    { "glPixelTransferi", "ii" }, { "glLineStipple", "ii" },
     { "glStencilOp", "iii" }, { "glStencilFunc", "iii" }, { "glColor3ub", "iii" }, { "glVertex3i", "iii" },
     { "glViewport", "iiii" }, { "glScissor", "iiii" }, { "glColorMask", "iiii" }, { "glColor4ub", "iiii" }, { "glRecti", "iiii" },
     { "glLineWidth", "f" }, { "glPointSize", "f" }, { "glClearIndex", "f" },
