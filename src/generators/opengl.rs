@@ -2760,4 +2760,24 @@ fn measure(s: &mut String) {
         writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
     }
     writeln!(s, "glerr\nend").unwrap();
+    // flat lines from ends exactly where the pixel changes (window x or y = j + 15/32), one per
+    // row or column, both ways along each axis, under viewports moved and scaled: which way
+    // each tie goes, by the window coordinate or by where it is in the viewport
+    writeln!(s, "case line-flat-27\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00", ctx(32)).unwrap();
+    for (ox, oy, w) in [(0, 0, 16), (-6, -3, 16), (5, 6, 16), (0, 0, 32), (-16, -16, 32)] {
+        writeln!(s, "gl glViewport {ox} {oy} {w} {w}").unwrap();
+        let obj = |v: f64, o: i64| (v - o as f64) * 16.0 / w as f64;
+        for (axis, way) in [(0, 2.25), (0, -2.25), (1, 2.25), (1, -2.25)] {
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255").unwrap();
+            for j in 1..15 {
+                let (tie, at) = (j as f64 + 15.0 / 32.0, j as f64 + 0.25);
+                for along in [tie, tie + way] {
+                    let (x, y) = if axis == 0 { (along, at) } else { (at, along) };
+                    glf(s, "glVertex2f", &[obj(x, ox), obj(y, oy)]);
+                }
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }
