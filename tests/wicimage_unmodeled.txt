@@ -1324,11 +1324,6 @@ wicencode encdds-bgra-9x9
 wicencode encdds-gray16-8x12
 wicencode encdds-gray8-6x10
 wicencode fixpath-gray16-rgba64
-wicencode graysweep-rgba64fixed-gray16
-wicencode graysweep0-rgbafloat-gray16
-wicencode graysweep1-rgbafloat-gray16
-wicencode graysweep2-rgbafloat-gray16
-wicencode graysweep3-rgbafloat-gray16
 wicencode gridtie-idx8-few-0
 wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2

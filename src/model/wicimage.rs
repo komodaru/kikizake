@@ -428,7 +428,7 @@ fn wide_to_rgba64fixed(s: &Img, to: &'static str) -> Option<Res<Img>> {
 /// no bitmap the executor makes has them)
 fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (n, back) = match (s.fmt, to) {
-        ("rgba64fixed", "rgba64" | "rgb48" | "bgra" | "bgr24") => (4usize, FixBack::Color),
+        ("rgba64fixed", "rgba64" | "rgb48" | "bgra" | "bgr24" | "gray16") => (4usize, FixBack::Color),
         ("rgb48fixed", "rgb48") => (3, FixBack::Color),
         ("grayfix16", "gray16" | "gray8" | "bgra") => (1, FixBack::Gray),
         _ => return None,
@@ -450,6 +450,12 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 // cross-grayfix16-bgra)
                 1 => [color(0), color(0), color(0), Some(u16::MAX)].into_iter().collect(),
                 3 => [color(0), color(1), color(2), Some(u16::MAX)].into_iter().collect(),
+                // (64bppRGBAFixedPoint into 16bppGray: a gray as 16bppGrayFixedPoint's table,
+                // graysweep-rgba64fixed-gray16; a color open, cross-rgba64fixed-gray16)
+                _ if to == "gray16" => match (at(0), at(1), at(2)) {
+                    (Some(r), Some(g), Some(b)) if r == g && g == b => Some(vec![fix13_srgb16(r, FixBack::Gray)]),
+                    _ => None,
+                },
                 _ => [color(0), color(1), color(2), alpha(3)].into_iter().collect(),
             };
             let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
@@ -483,7 +489,7 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
 /// a * 65535 + 0.5 in f32 truncated, into 8 bits a * 255 + 0.5. Others open (CONVERT.OTHER)
 fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (n, half) = match (s.fmt, to) {
-        ("rgbafloat", "rgba64" | "bgra") => (4usize, false),
+        ("rgbafloat", "rgba64" | "bgra" | "gray16") => (4usize, false),
         ("rgba64half", "rgba64" | "bgra") => (4, true),
         ("grayfloat", "gray16" | "gray8") => (1, false),
         _ => return None,
@@ -513,6 +519,12 @@ fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
             };
             let v: Option<Vec<u16>> = match n {
                 1 => [float_srgb(at(0), back)].into_iter().collect(),
+                // (128bppRGBAFloat into 16bppGray: a gray as float_srgb of its f32 luma,
+                // graysweep*-rgbafloat-gray16; a color open, cross-rgbafloat-gray16)
+                _ if to == "gray16" => {
+                    let (r, g, b) = (at(0), at(1), at(2));
+                    if r == g && g == b { [float_srgb((r * 0.2126f32 + g * 0.7152f32) + b * 0.0722f32, back)].into_iter().collect() } else { None }
+                }
                 _ => [float_srgb(at(0), back), float_srgb(at(1), back), float_srgb(at(2), back), alpha(at(3))].into_iter().collect(),
             };
             let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
