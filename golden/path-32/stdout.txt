@@ -15980,6 +15980,1768 @@ path 3
 pt -158 -56 6
 pt -158 -50 2
 pt -158 -42 2
+case arcfix-0
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case arcfix-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -448 -408 6
+pt -448 -456 4
+pt -458 -496 4
+pt -472 -496 4
+pt -486 -496 4
+pt -496 -456 4
+pt -496 -408 4
+pt -496 -360 4
+pt -486 -320 4
+pt -472 -320 4
+pt -458 -320 4
+pt -448 -360 4
+pt -448 -408 5
+case arcfix-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3552 2728 6
+pt 3552 2609 4
+pt 2317 2512 4
+pt 792 2512 4
+pt -733 2512 4
+pt -1968 2609 4
+pt -1968 2728 4
+pt -1968 2847 4
+pt -733 2944 4
+pt 792 2944 4
+pt 2317 2944 4
+pt 3552 2847 4
+pt 3552 2728 5
+case arcfix-3
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 -57 6
+pt 0 -59 4
+pt 0 -62 4
+pt 0 -64 4
+pt 0 -90 4
+pt 0 -112 4
+pt 0 -112 4
+pt 0 -112 4
+pt 0 -90 4
+pt 0 -64 4
+pt 0 -61 4
+pt 0 -59 4
+pt 0 -56 4
+pt 0 -64 3
+case arcfix-4
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 272 -95 6
+pt 272 -93 4
+pt 272 -91 4
+pt 272 -90 4
+pt 384 -80 3
+case arcfix-5
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt -3875 -1509 6
+pt -3905 -1363 4
+pt -3920 -1214 4
+pt -3920 -1064 4
+pt -3920 195 4
+pt -2864 1216 4
+pt -1560 1216 4
+pt -641 1216 4
+pt 194 701 4
+pt 580 -104 4
+pt -1560 -1064 3
+case arcfix-6
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt -40 -76 6
+pt -43 -79 4
+pt -45 -80 4
+pt -48 -80 4
+pt -57 -80 4
+pt -64 -65 4
+pt -64 -48 4
+pt -64 -41 4
+pt -63 -34 4
+pt -61 -28 5
+case arcfix-7
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -192 214 6
+pt -192 198 4
+pt -192 182 4
+pt -193 166 5
+case arcfix-8
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 2700 -1635 6
+pt 2805 -1840 4
+pt 2864 -2107 4
+pt 2864 -2384 4
+pt 2864 -3002 4
+pt 2578 -3504 4
+pt 2224 -3504 4
+pt 1927 -3504 4
+pt 1670 -3147 4
+pt 1601 -2643 5
+case arcfix-9
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 13 -16 6
+pt 8 -16 4
+pt 4 -16 4
+pt 0 -16 4
+pt -36 -16 4
+pt -64 -16 4
+pt -64 -16 4
+pt -64 -16 4
+pt -39 -16 4
+pt -7 -16 4
+case arcfix-10
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 69 0 6
+pt 21 0 4
+pt -16 0 4
+pt -16 0 4
+pt -16 0 4
+pt 26 0 4
+pt 80 0 4
+pt 134 0 4
+pt 176 0 4
+pt 176 0 4
+pt 176 0 4
+pt 134 0 4
+pt 80 0 4
+pt 78 0 4
+pt 77 0 4
+pt 76 0 4
+case arcfix-11
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 1065 -2656 6
+pt 1050 -2652 4
+pt 1034 -2647 4
+pt 1017 -2644 4
+case arcfix-12
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt -21 77 6
+pt -38 73 4
+pt -48 65 4
+pt -48 56 4
+pt -48 44 4
+pt -30 34 4
+pt -6 32 4
+pt 0 56 3
+case arcfix-13
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt -106 130 6
+pt -17 141 4
+pt 48 198 4
+pt 48 264 4
+pt 48 340 4
+pt -34 400 4
+pt -136 400 4
+pt -179 400 4
+pt -221 389 4
+pt -255 368 4
+pt -136 264 3
+case arcfix-14
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -944 -389 6
+pt 514 -334 4
+pt 1568 -84 4
+pt 1568 208 4
+pt 1568 544 4
+pt 182 816 4
+pt -1528 816 4
+pt -3238 816 4
+pt -4624 544 4
+pt -4624 208 4
+pt -4624 -114 4
+pt -3346 -380 4
+pt -1709 -399 4
+pt -1528 208 3
+case arcfix-15
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 96 -20 6
+pt 96 -21 4
+pt 96 -21 4
+pt 96 -22 5
+case arcfix-16
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 153 -293 6
+pt 189 -251 4
+pt 208 -202 4
+pt 208 -152 4
+pt 208 -6 4
+pt 51 112 4
+pt -144 112 4
+pt -194 112 4
+pt -243 104 4
+pt -289 89 5
+case arcfix-17
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt -2685 411 6
+pt -2653 122 4
+pt -2604 -48 4
+pt -2552 -48 4
+pt -2510 -48 4
+pt -2469 62 4
+pt -2438 261 5
+case arcfix-18
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 7 48 6
+pt 7 48 4
+pt 6 48 4
+pt 6 48 4
+case arcfix-19
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 41 320 6
+pt 22 320 4
+pt 3 321 4
+pt -15 321 4
+case arcfix-20
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 2787 1408 6
+pt 1908 1408 4
+pt 1200 1415 4
+pt 1200 1424 4
+pt 1200 1433 4
+pt 1901 1440 4
+pt 2774 1440 4
+case arcfix-21
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt 96 -80 6
+pt 96 -80 4
+pt 96 -80 4
+pt 96 -80 4
+pt 96 -80 3
+case arcfix-22
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 34 -78 6
+pt 33 -57 4
+pt 32 -37 4
+pt 32 -16 4
+pt 32 56 4
+pt 39 127 4
+pt 51 190 4
+pt 192 -16 3
+case arcfix-23
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 291 3744 6
+pt 277 3744 4
+pt 262 3744 4
+pt 248 3744 4
+pt 239 3744 4
+pt 231 3744 4
+pt 222 3744 4
+pt 248 3784 3
+case arcfix-24
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case arcfix-25
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt -155 -251 6
+pt -148 -275 4
+pt -144 -301 4
+pt -144 -328 4
+pt -144 -336 4
+pt -144 -344 4
+pt -145 -352 5
+case arcfix-26
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -2748 -1569 6
+pt -2743 -1636 4
+pt -2739 -1703 4
+pt -2738 -1771 5
+case arcfix-27
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt -16 47 6
+pt -54 44 4
+pt -80 35 4
+pt -80 24 4
+pt -80 21 4
+pt -78 18 4
+pt -74 16 4
+case arcfix-28
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 17 -252 6
+pt 16 -263 4
+pt 16 -276 4
+pt 16 -288 4
+pt 16 -342 4
+pt 19 -384 4
+pt 24 -384 4
+pt 28 -384 4
+pt 32 -343 4
+pt 32 -291 4
+case arcfix-29
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -2321 -2573 6
+pt -2320 -2537 4
+pt -2320 -2498 4
+pt -2320 -2456 4
+pt -2320 -1656 4
+pt -2427 -1008 4
+pt -2560 -1008 4
+pt -2693 -1008 4
+pt -2800 -1656 4
+pt -2800 -2456 4
+pt -2800 -2619 4
+pt -2795 -2781 4
+pt -2786 -2935 4
+case arcfix-30
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case arcfix-31
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt 156 -192 6
+pt 152 -192 4
+pt 148 -192 4
+pt 144 -192 4
+pt 82 -192 4
+pt 32 -206 4
+pt 32 -224 4
+pt 32 -242 4
+pt 82 -256 4
+pt 144 -256 4
+pt 206 -256 4
+pt 256 -242 4
+pt 256 -224 4
+pt 256 -212 4
+pt 232 -201 4
+pt 193 -195 4
+pt 144 -224 3
+case arcfix-32
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 158 -1596 6
+pt 384 -1630 4
+pt 623 -1648 4
+pt 864 -1648 4
+pt 2084 -1648 4
+pt 3072 -1208 4
+pt 3072 -664 4
+pt 3072 -120 4
+pt 2084 320 4
+pt 864 320 4
+pt -176 320 4
+pt -1075 -3 4
+pt -1294 -456 4
+pt 864 -664 3
+case arcfix-33
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -64 53 6
+pt -65 86 4
+pt -75 112 4
+pt -88 112 4
+pt -102 112 4
+pt -112 84 4
+pt -112 48 4
+pt -112 12 4
+pt -102 -16 4
+pt -88 -16 4
+pt -85 -16 4
+pt -82 -15 4
+pt -79 -12 5
+case arcfix-34
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case arcfix-35
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 884 -146 6
+pt 155 -164 4
+pt -400 -315 4
+pt -400 -496 4
+pt -400 -613 4
+pt -166 -722 4
+pt 225 -787 5
+case arcfix-36
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -24 -128 6
+pt -11 -128 4
+pt 0 -128 4
+pt 0 -128 4
+pt 0 -128 4
+pt -10 -128 4
+pt -24 -128 4
+pt -38 -128 4
+pt -48 -128 4
+pt -48 -128 4
+pt -48 -128 4
+pt -40 -128 4
+pt -28 -128 4
+case arcfix-37
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 128 -448 6
+pt 91 -458 4
+pt 46 -464 4
+pt 0 -464 4
+pt -124 -464 4
+pt -224 -424 4
+pt -224 -376 4
+pt -224 -349 4
+pt -193 -324 4
+pt -139 -307 4
+case arcfix-38
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt -511 -3445 6
+pt -496 -2834 4
+pt -211 -2352 4
+pt 136 -2352 4
+pt 494 -2352 4
+pt 784 -2865 4
+pt 784 -3496 4
+pt 784 -3539 4
+pt 783 -3581 4
+pt 780 -3621 4
+case arcfix-39
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case arcfix-40
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -192 -113 6
+pt -192 -112 4
+pt -192 -114 4
+pt -192 -120 4
+pt -192 -309 4
+pt -192 -464 4
+pt -192 -464 4
+pt -192 -464 4
+pt -192 -309 4
+pt -192 -120 4
+pt -192 -114 4
+pt -192 -113 4
+pt -192 -117 4
+pt -192 -120 3
+case arcfix-41
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt -2212 1335 6
+pt -2133 1927 4
+pt -2014 2272 4
+pt -1888 2272 4
+pt -1658 2272 4
+pt -1472 1147 4
+pt -1472 -240 4
+pt -1472 -1627 4
+pt -1658 -2752 4
+pt -1888 -2752 4
+pt -2118 -2752 4
+pt -2304 -1627 4
+pt -2304 -240 4
+pt -2304 233 4
+pt -2282 695 4
+pt -2240 1094 4
+pt -1888 -240 3
+case arcfix-42
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 23 -46 6
+pt 0 -40 4
+pt -16 -21 4
+pt -16 0 4
+pt -16 26 4
+pt 9 48 4
+pt 40 48 4
+pt 71 48 4
+pt 96 26 4
+pt 96 0 4
+pt 96 -17 4
+pt 85 -33 4
+pt 68 -41 5
+case arcfix-43
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 50 -161 6
+pt 47 -148 4
+pt 44 -134 4
+pt 41 -119 5
+case arcfix-44
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 130 746 6
+pt 44 968 4
+pt 0 1202 4
+pt 0 1440 4
+pt 0 2544 4
+pt 934 3440 4
+pt 2088 3440 4
+pt 2774 3440 4
+pt 3417 3117 4
+pt 3806 2576 5
+case arcfix-45
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 8 -80 6
+pt 21 -80 4
+pt 32 -41 4
+pt 32 8 4
+pt 32 57 4
+pt 22 96 4
+pt 8 96 4
+pt -6 96 4
+pt -16 57 4
+pt -16 8 4
+pt -16 -9 4
+pt -15 -26 4
+pt -12 -41 4
+case arcfix-46
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -347 -294 6
+pt -338 -302 4
+pt -329 -310 4
+pt -319 -317 4
+case arcfix-47
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 395 -3376 6
+pt 358 -3376 4
+pt 309 -3376 4
+pt 248 -3376 4
+pt -623 -3376 4
+pt -1467 -3402 4
+pt -2139 -3449 4
+case arcfix-48
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 8 0 6
+pt 57 0 4
+pt 96 18 4
+pt 96 40 4
+pt 96 60 4
+pt 65 76 4
+pt 22 79 4
+pt 8 40 3
+case arcfix-49
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -119 78 6
+pt -135 54 4
+pt -144 23 4
+pt -144 -8 4
+pt -144 -84 4
+pt -94 -144 4
+pt -32 -144 4
+pt 30 -144 4
+pt 80 -84 4
+pt 80 -8 4
+pt 80 20 4
+pt 73 47 4
+pt 60 70 4
+pt -32 -8 3
+case arcfix-50
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -675 398 6
+pt -662 531 4
+pt -656 668 4
+pt -656 808 4
+pt -656 2112 4
+pt -1196 3168 4
+pt -1864 3168 4
+pt -2532 3168 4
+pt -3072 2112 4
+pt -3072 808 4
+pt -3072 42 4
+pt -2882 -676 4
+pt -2562 -1118 4
+pt -1864 808 3
+case arcfix-51
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt -65 -33 6
+pt -64 -30 4
+pt -64 -27 4
+pt -64 -24 4
+pt -64 -1 4
+pt -74 16 4
+pt -88 16 4
+pt -102 16 4
+pt -112 -1 4
+pt -112 -24 4
+pt -112 -47 4
+pt -102 -64 4
+pt -88 -64 4
+pt -77 -64 4
+pt -68 -52 4
+pt -65 -35 5
+case arcfix-52
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt -419 221 6
+pt -417 227 4
+pt -416 233 4
+pt -416 240 4
+pt -416 241 4
+pt -416 243 4
+pt -416 244 5
+case arcfix-53
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 3237 -3045 6
+pt 2948 -2448 4
+pt 1848 -1996 4
+pt 489 -1917 5
+case arcfix-54
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt -2 -71 6
+pt -6 -77 4
+pt -11 -80 4
+pt -16 -80 4
+pt -34 -80 4
+pt -48 -44 4
+pt -48 0 4
+pt -48 44 4
+pt -34 80 4
+pt -16 80 4
+pt 2 80 4
+pt 16 44 4
+pt 16 0 4
+pt 16 -16 4
+pt 14 -33 4
+pt 10 -46 4
+case arcfix-55
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -119 -77 6
+pt -66 -101 4
+pt -32 -155 4
+pt -32 -216 4
+pt -32 -299 4
+pt -96 -368 4
+pt -176 -368 4
+pt -256 -368 4
+pt -320 -299 4
+pt -320 -216 4
+pt -320 -196 4
+pt -316 -177 4
+pt -309 -158 4
+case arcfix-56
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 2285 465 6
+pt 3078 203 4
+pt 3568 -290 4
+pt 3568 -824 4
+pt 3568 -1641 4
+pt 2440 -2304 4
+pt 1048 -2304 4
+pt 74 -2304 4
+pt -813 -1974 4
+pt -1230 -1457 4
+case arcfix-57
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt -27 -84 6
+pt -19 -81 4
+pt -9 -80 4
+pt 0 -80 4
+pt 3 -80 4
+pt 6 -80 4
+pt 8 -80 4
+pt 0 -104 3
+case arcfix-58
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -240 108 6
+pt -230 58 4
+pt -224 -10 4
+pt -224 -80 4
+pt -224 -230 4
+pt -249 -352 4
+pt -280 -352 4
+pt -311 -352 4
+pt -336 -230 4
+pt -336 -80 4
+pt -336 -68 4
+pt -336 -56 4
+pt -336 -45 4
+pt -280 -80 3
+case arcfix-59
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt -501 1505 6
+pt -153 1337 4
+pt 90 1099 4
+pt 190 831 4
+pt -1688 560 3
+case arcfix-60
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -19 -34 6
+pt -14 -34 4
+pt -9 -35 4
+pt -5 -36 5
+case arcfix-61
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 144 -300 6
+pt 144 -294 4
+pt 145 -287 4
+pt 145 -281 5
+case arcfix-62
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt 1447 650 6
+pt 1266 622 4
+pt 1081 608 4
+pt 896 608 4
+pt -483 608 4
+pt -1600 1368 4
+pt -1600 2304 4
+pt -1600 3240 4
+pt -483 4000 4
+pt 896 4000 4
+pt 2275 4000 4
+pt 3392 3240 4
+pt 3392 2304 4
+pt 3392 1531 4
+pt 2622 856 4
+pt 1521 662 5
+case arcfix-63
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -16 16 6
+pt 2 17 4
+pt 19 21 4
+pt 32 27 4
+case arcfix-64
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt -62 346 6
+pt -60 310 4
+pt -54 288 4
+pt -48 288 4
+pt -42 288 4
+pt -37 310 4
+pt -34 344 4
+case arcfix-65
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 1553 -4311 6
+pt 2505 -4219 4
+pt 3072 -4067 4
+pt 3072 -3904 4
+pt 3072 -3645 4
+pt 1647 -3429 4
+pt -196 -3410 4
+case arcfix-66
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 40 22 6
+pt 44 18 4
+pt 50 16 4
+pt 56 16 4
+pt 70 16 4
+pt 80 26 4
+pt 80 40 4
+pt 80 54 4
+pt 70 64 4
+pt 56 64 4
+pt 44 64 4
+pt 34 55 4
+pt 32 43 4
+pt 56 40 3
+case arcfix-67
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 80 115 6
+pt 80 121 4
+pt 80 128 4
+pt 80 136 4
+pt 80 309 4
+pt 77 448 4
+pt 72 448 4
+pt 68 448 4
+pt 64 315 4
+pt 64 146 4
+pt 72 136 3
+case arcfix-68
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt -358 -752 6
+pt -367 -752 4
+pt -346 -752 4
+pt -296 -752 4
+pt 1388 -752 4
+pt 2752 -706 4
+pt 2752 -648 4
+pt 2752 -592 4
+pt 1465 -546 4
+pt -166 -544 4
+pt -296 -648 3
+case arcfix-69
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 13 31 6
+pt 6 32 4
+pt -1 32 4
+pt -8 32 4
+pt -48 32 4
+pt -80 22 4
+pt -80 8 4
+pt -80 -2 4
+pt -62 -11 4
+pt -35 -14 5
+case arcfix-70
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 181 245 6
+pt 107 314 4
+pt 7 352 4
+pt -96 352 4
+pt -167 352 4
+pt -238 334 4
+pt -299 299 5
+case arcfix-71
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt 841 -155 6
+pt 941 200 4
+pt 992 574 4
+pt 992 952 4
+pt 992 2804 4
+pt -211 4304 4
+pt -1696 4304 4
+pt -2525 4304 4
+pt -3306 3828 4
+pt -3815 3013 5
+case arcfix-72
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 62 1 6
+pt 60 0 4
+pt 58 0 4
+pt 56 0 4
+pt 46 0 4
+pt 38 8 4
+pt 34 19 4
+case arcfix-73
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -224 -105 6
+pt -224 -95 4
+pt -224 -83 4
+pt -224 -72 4
+pt -224 29 4
+pt -217 112 4
+pt -208 112 4
+pt -199 112 4
+pt -192 29 4
+pt -192 -72 4
+pt -192 -102 4
+pt -193 -131 4
+pt -194 -157 4
+case arcfix-74
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 1528 -198 6
+pt 1661 -99 4
+pt 1809 -48 4
+pt 1960 -48 4
+pt 2077 -48 4
+pt 2192 -79 4
+pt 2300 -139 4
+case arcfix-75
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 8
+pt 23 -46 6
+pt 11 -77 4
+pt -14 -96 4
+pt -40 -96 4
+pt -61 -96 4
+pt -81 -84 4
+pt -94 -63 4
+pt -40 0 3
+case arcfix-76
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt -432 137 6
+pt -432 -37 4
+pt -432 -176 4
+pt -432 -176 4
+pt -432 -176 4
+pt -432 -32 4
+pt -432 144 4
+pt -432 320 4
+pt -432 464 4
+pt -432 464 4
+pt -432 464 4
+pt -432 320 4
+pt -432 144 4
+pt -432 142 4
+pt -432 141 4
+pt -432 139 4
+pt -432 144 3
+case arcfix-77
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt -65 -2183 6
+pt -267 -2189 4
+pt -475 -2192 4
+pt -688 -2192 4
+pt -2677 -2192 4
+pt -4288 -1923 4
+pt -4288 -1592 4
+pt -4288 -1270 4
+pt -2762 -1005 4
+pt -832 -993 4
+pt -688 -1592 3
+case arcfix-78
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt -96 -26 6
+pt -96 -30 4
+pt -96 -35 4
+pt -96 -39 5
+case arcfix-79
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -53 434 6
+pt -60 438 4
+pt -64 450 4
+pt -64 464 4
+pt -64 481 4
+pt -57 496 4
+pt -48 496 4
+pt -39 496 4
+pt -32 481 4
+pt -32 464 4
+pt -32 450 4
+pt -36 438 4
+pt -43 434 5
+case arcfix-80
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -2134 181 6
+pt -2141 295 4
+pt -2144 411 4
+pt -2144 528 4
+pt -2144 1826 4
+pt -1729 2880 4
+pt -1216 2880 4
+pt -703 2880 4
+pt -288 1826 4
+pt -288 528 4
+pt -288 413 4
+pt -291 298 4
+pt -298 184 5
+case arcfix-81
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 4
+pt 13 64 6
+pt 14 64 4
+pt 15 64 4
+pt 16 64 4
+case arcfix-82
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt -132 -214 6
+pt -99 -241 4
+pt -58 -256 4
+pt -16 -256 4
+pt 91 -256 4
+pt 176 -163 4
+pt 176 -48 4
+pt 176 67 4
+pt 91 160 4
+pt -16 160 4
+pt -123 160 4
+pt -208 67 4
+pt -208 -48 4
+pt -208 -99 4
+pt -191 -148 4
+pt -159 -186 4
+case arcfix-83
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 426 -672 6
+pt 441 -445 4
+pt 448 -208 4
+pt 448 32 4
+pt 448 1499 4
+pt 180 2688 4
+pt -152 2688 4
+pt -484 2688 4
+pt -752 1499 4
+pt -752 32 4
+pt -752 -617 4
+pt -698 -1242 4
+pt -601 -1727 4
+case arcfix-84
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt 0 -11 6
+pt 0 -51 4
+pt 0 -80 4
+pt 0 -80 4
+pt 0 -80 4
+pt 0 -45 4
+pt 0 0 4
+pt 0 45 4
+pt 0 80 4
+pt 0 80 4
+pt 0 80 4
+pt 0 45 4
+pt 0 2 4
+pt 0 0 3
+case arcfix-85
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -192 -164 6
+pt -194 -135 4
+pt -219 -112 4
+pt -248 -112 4
+pt -279 -112 4
+pt -304 -137 4
+pt -304 -168 4
+pt -304 -199 4
+pt -279 -224 4
+pt -248 -224 4
+pt -248 -224 4
+pt -248 -224 4
+pt -248 -224 4
+pt -248 -168 3
+case arcfix-86
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 11
+pt 2661 946 6
+pt 2658 754 4
+pt 2656 559 4
+pt 2656 360 4
+pt 2656 -1942 4
+pt 2867 -3808 4
+pt 3128 -3808 4
+pt 3218 -3808 4
+pt 3305 -3583 4
+pt 3381 -3159 4
+pt 3128 360 3
+case arcfix-87
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt 80 -10 6
+pt 80 -17 4
+pt 80 -25 4
+pt 80 -32 4
+pt 80 -35 4
+pt 80 -38 4
+pt 80 -40 5
+case arcfix-88
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case arcfix-89
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 7
+pt -1230 3873 6
+pt -1352 4106 4
+pt -1831 4272 4
+pt -2384 4272 4
+pt -2654 4272 4
+pt -2915 4232 4
+pt -3124 4159 5
+case arcfix-90
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt -96 67 6
+pt -96 66 4
+pt -96 65 4
+pt -96 64 4
+pt -96 47 4
+pt -99 32 4
+pt -104 32 4
+pt -109 32 4
+pt -112 47 4
+pt -112 64 4
+pt -112 81 4
+pt -109 96 4
+pt -104 96 4
+pt -100 96 4
+pt -97 84 4
+pt -96 69 4
+case arcfix-91
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 10
+pt -431 -434 6
+pt -432 -431 4
+pt -432 -428 4
+pt -432 -424 4
+pt -432 -376 4
+pt -354 -336 4
+pt -256 -336 4
+pt -178 -336 4
+pt -110 -361 4
+pt -87 -399 4
+case arcfix-92
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 16
+pt -113 1350 6
+pt -266 1597 4
+pt -352 1942 4
+pt -352 2304 4
+pt -352 3028 4
+pt -12 3616 4
+pt 408 3616 4
+pt 828 3616 4
+pt 1168 3028 4
+pt 1168 2304 4
+pt 1168 1580 4
+pt 828 992 4
+pt 408 992 4
+pt 309 992 4
+pt 210 1026 4
+pt 118 1091 4
+case arcfix-93
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 17
+pt -47 -4 6
+pt -37 -7 4
+pt -32 -12 4
+pt -32 -16 4
+pt -32 -24 4
+pt -53 -32 4
+pt -80 -32 4
+pt -107 -32 4
+pt -128 -24 4
+pt -128 -16 4
+pt -128 -8 4
+pt -107 0 4
+pt -80 0 4
+pt -69 0 4
+pt -58 -1 4
+pt -49 -4 4
+pt -80 -16 3
+case arcfix-94
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 5
+pt -48 65 6
+pt -48 67 4
+pt -48 69 4
+pt -48 72 4
+pt -24 80 3
+case arcfix-95
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 14
+pt -1374 1910 6
+pt -1600 2173 4
+pt -1728 2542 4
+pt -1728 2928 4
+pt -1728 3696 4
+pt -1231 4320 4
+pt -616 4320 4
+pt -1 4320 4
+pt 496 3696 4
+pt 496 2928 4
+pt 496 2847 4
+pt 490 2767 4
+pt 479 2690 4
+pt -616 2928 3
 case rrgrid-0
 arcdir 1
 beginpath 1
