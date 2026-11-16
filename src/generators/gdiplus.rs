@@ -505,3 +505,78 @@ pub fn gdiplusdraw() -> String {
     }
     s
 }
+
+/// the gdiplusbrush suite: LinearGradientBrush and TextureBrush filling rectangles
+pub fn gdiplusbrush() -> String {
+    let mut s = String::from("# kikizake suite gdiplusbrush: GDI+ linear gradient and texture brushes filling rectangles (SPEC.md). Made by `kikizake gen gdiplusbrush`.\n");
+    let mut r = XorShift32::new(0x9a17_0b01);
+    let names: Vec<&str> = Pf::ALL.iter().map(|f| f.name()).collect();
+    // what CreateLineBrushI takes: every WrapMode and past it, equal points
+    for wrap in -1..=5 {
+        for (k, (x2, y2)) in [(8, 0), (0, 0), (3, 5)].iter().enumerate() {
+            writeln!(s, "case linstatus-{wrap}-{k}\ngpbitmap 0 8 2 32bppARGB\ngpbrush 0 linear 0 0 {x2} {y2} 0xff000000 0xffffffff {wrap}\ngppaint 0 0 0 0 8 2 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
+        }
+    }
+    // black to white across: each length 1..40, from columns off 0, every tiling
+    for len in 1..=40 {
+        let x1 = len % 5 - 2;
+        let wrap = len % 4;
+        writeln!(s, "case linx-{len}\ngpbitmap 0 48 1 32bppARGB\ngpbrush 0 linear {x1} 0 {} 0 0xff000000 0xffffffff {wrap}\ngppaint 0 0 0 0 48 1 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", x1 + len).unwrap();
+    }
+    // the same per channel: one channel each way, and the pixel offset modes
+    for i in 0..20 {
+        let len = r.range(2, 40);
+        let po = r.range(0, 4);
+        writeln!(s, "case linxc-{i}\ngpbitmap 0 48 1 32bppARGB\ngpbrush 0 linear 0 0 {len} 0 0xff00ff00 0xffff00ff {}\ngppaint 0 0 0 0 48 1 copy 0 0 {po} 0 0\ngpread 0 32bppARGB\nend", r.range(0, 3)).unwrap();
+    }
+    // down, and back to front
+    for len in 1..=20 {
+        writeln!(s, "case liny-{len}\ngpbitmap 0 1 32 32bppARGB\ngpbrush 0 linear 0 {len} 0 0 0xff000000 0xffffffff {}\ngppaint 0 0 0 0 1 32 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", len % 4).unwrap();
+    }
+    // any two points, any colors, read straight and premultiplied
+    for i in 0..60 {
+        let (x1, y1, x2, y2) = (r.range(-8, 24), r.range(-8, 24), r.range(-8, 24), r.range(-8, 24));
+        let f = *r.pick(&["32bppARGB", "32bppPARGB"]);
+        writeln!(s, "case lindiag-{i}\ngpbitmap 0 16 16 {f}\ngpbrush 0 linear {x1} {y1} {x2} {y2} {:#010x} {:#010x} {}\ngppaint 0 0 0 0 16 16 copy 0 0 0 0 0\ngpread 0 {f}\nend", rargb(&mut r), rargb(&mut r), r.range(0, 3)).unwrap();
+    }
+    // over a destination, every quality, every format
+    for i in 0..40 {
+        let f = *r.pick(&names);
+        let (x2, y2) = (r.range(-16, 16), r.range(-4, 4));
+        writeln!(s, "case linblend-{i}\ngpbitmap 0 16 4 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 linear 0 0 {x2} {y2} {:#010x} {:#010x} {}\ngppaint 0 0 0 0 16 4 over {} 0 0 0 0\ngpread 0 {f}\nend", r.next(), rargb(&mut r), rargb(&mut r), r.range(0, 3), r.range(0, 4)).unwrap();
+    }
+    // rectangles in float coordinates under the smoothing and pixel offset modes
+    for i in 0..40 {
+        let (x, y, w, h) = (rcoord(&mut r), rcoord(&mut r), rsize(&mut r), rsize(&mut r));
+        writeln!(s, "case linrect-{i}\ngpbitmap 0 12 12 32bppARGB\ngpbrush 0 linear 0 0 {} {} 0xff0000ff 0xffffff00 0\ngppaint 0 0 {x} {y} {w} {h} copy 0 {} {} {} {}\ngpread 0 32bppARGB\nend", r.range(1, 14), r.range(-6, 6), r.range(0, 6), r.range(0, 5), r.range(-4, 4), r.range(-4, 4)).unwrap();
+    }
+    // what CreateTexture takes: every WrapMode and past it, of each format
+    for wrap in -1..=5 {
+        writeln!(s, "case texstatus-{wrap}\ngpbitmap 1 3 2 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 8 4 32bppARGB\ngpbrush 0 texture 1 {wrap}\ngppaint 0 0 0 0 8 4 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
+    // a texture of each format, tiled over a 32bppARGB bitmap
+    for f in &names {
+        writeln!(s, "case texfmt-{f}\ngpbitmap 1 5 3 {f}\ngpwrite 1 {f} seed {}\ngpbitmap 0 12 7 32bppARGB\ngpbrush 0 texture 1 0\ngppaint 0 0 0 0 12 7 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", r.next()).unwrap();
+    }
+    // every tiling from rectangles and rendering origins off the corner
+    for i in 0..40 {
+        let (tw, th) = (r.range(1, 6), r.range(1, 6));
+        let (x, y) = (r.range(0, 6), r.range(0, 6));
+        writeln!(s, "case textile-{i}\ngpbitmap 1 {tw} {th} 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 texture 1 {}\ngppaint 0 0 {x} {y} {} {} copy 0 0 {} {} {}\ngpread 0 32bppARGB\nend", r.next(), r.range(0, 4), 16 - x, 16 - y, r.range(0, 4), r.range(-9, 9), r.range(-9, 9)).unwrap();
+    }
+    // the texture is the bitmap as it was: the bitmap written after the brush is made
+    for i in 0..4 {
+        writeln!(s, "case texsnap-{i}\ngpbitmap 1 4 4 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 8 8 32bppARGB\ngpbrush 0 texture 1 {i}\ngpwrite 1 32bppARGB seed {}\ngppaint 0 0 0 0 8 8 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", r.next(), r.next()).unwrap();
+    }
+    // over a destination of any format, every quality
+    for i in 0..40 {
+        let f = *r.pick(&names);
+        writeln!(s, "case texblend-{i}\ngpbitmap 1 3 3 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 9 4 {f}\ngpwrite 0 {f} seed {}\ngpbrush 0 texture 1 {}\ngppaint 0 0 0 0 9 4 over {} 0 0 0 0\ngpread 0 {f}\nend", r.next(), r.next(), r.range(0, 4), r.range(0, 4)).unwrap();
+    }
+    // rectangles in float coordinates under the smoothing and pixel offset modes
+    for i in 0..40 {
+        let (x, y, w, h) = (rcoord(&mut r), rcoord(&mut r), rsize(&mut r), rsize(&mut r));
+        writeln!(s, "case texrect-{i}\ngpbitmap 1 3 2 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 12 12 32bppARGB\ngpbrush 0 texture 1 {}\ngppaint 0 0 {x} {y} {w} {h} copy 0 {} {} {} {}\ngpread 0 32bppARGB\nend", r.next(), r.range(0, 4), r.range(0, 6), r.range(0, 5), r.range(-4, 4), r.range(-4, 4)).unwrap();
+    }
+    s
+}

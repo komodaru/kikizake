@@ -13,6 +13,7 @@ typedef int GpStatus;
 typedef struct { UINT Width, Height; INT Stride; INT PixelFormat; void *Scan0; UINT_PTR Reserved; } GpBitmapData;
 typedef struct { INT X, Y, Width, Height; } GpRect;
 typedef struct { float X, Y; } GpPointF;
+typedef struct { INT X, Y; } GpPoint;
 typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressBackgroundThread, SuppressExternalCodecs; } GpStartupInput;
 
 #define GP_FUNCS(X) \
@@ -46,6 +47,8 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipIsMatrixInvertible, (void *, BOOL *)) \
     X(GdipTransformMatrixPoints, (void *, GpPointF *, INT)) \
     X(GdipCreateHatchBrush, (INT, DWORD, DWORD, void **)) \
+    X(GdipCreateLineBrushI, (const GpPoint *, const GpPoint *, DWORD, DWORD, INT, void **)) \
+    X(GdipCreateTexture, (void *, INT, void **)) \
     X(GdipFillRectangle, (void *, void *, float, float, float, float)) \
     X(GdipSetSmoothingMode, (void *, INT)) \
     X(GdipSetPixelOffsetMode, (void *, INT)) \
@@ -409,7 +412,9 @@ static void op_matpts(void) {
 
 /* brushes in slots of their own:
  * gpbrush <b> solid <argb>: CreateSolidFill; gpbrush <b> hatch <HatchStyle> <fore> <back>:
- * CreateHatchBrush: "brush <st>"
+ * CreateHatchBrush; gpbrush <b> linear <x1> <y1> <x2> <y2> <argb1> <argb2> <WrapMode>:
+ * CreateLineBrushI; gpbrush <b> texture <bitmap slot> <WrapMode>: CreateTexture of the bitmap as
+ * it is then: "brush <st>"
  * gppaint <slot> <brush> <x> <y> <w> <h> <over|copy> <CompositingQuality> <SmoothingMode>
  * <PixelOffsetMode> <origin x> <origin y>: a Graphics of the bitmap in those modes, its rendering
  * origin, FillRectangle (floats, written as decimals): "paint 0 <st>" */
@@ -422,16 +427,27 @@ static float fdec(int i) {
 }
 static void op_brush(void) {
     int b = slot(1);
-    int solid = is(2, "solid"), hatch = is(2, "hatch");
-    if (!solid && !hatch) bad = 1;
-    DWORD c = (DWORD)num(3);
-    DWORD back = hatch ? (DWORD)num(5) : 0;
-    long style = hatch ? num(3) : 0;
-    if (hatch) c = (DWORD)num(4);
+    int solid = is(2, "solid"), hatch = is(2, "hatch"), linear = is(2, "linear"), texture = is(2, "texture");
+    if (!solid && !hatch && !linear && !texture) bad = 1;
+    DWORD c = 0, back = 0;
+    long style = 0, wrap = 0;
+    int src = 0;
+    GpPoint p1 = { 0, 0 }, p2 = { 0, 0 };
+    if (solid) c = (DWORD)num(3);
+    if (hatch) { style = num(3); c = (DWORD)num(4); back = (DWORD)num(5); }
+    if (linear) {
+        p1.X = num(3); p1.Y = num(4); p2.X = num(5); p2.Y = num(6);
+        c = (DWORD)num(7); back = (DWORD)num(8); wrap = num(9);
+    }
+    if (texture) { src = slot(3); wrap = num(4); }
     if (bad || !gp()) return;
+    if (texture && !the(src)) return;
     if (brush[b]) { GdipDeleteBrush(brush[b]); brush[b] = NULL; }
     void *br = NULL;
-    GpStatus st = solid ? GdipCreateSolidFill(c, &br) : GdipCreateHatchBrush(style, c, back, &br);
+    GpStatus st = solid ? GdipCreateSolidFill(c, &br)
+        : hatch ? GdipCreateHatchBrush(style, c, back, &br)
+        : linear ? GdipCreateLineBrushI(&p1, &p2, c, back, wrap, &br)
+        : GdipCreateTexture(bmp[src], wrap, &br);
     out("brush %d\n", st);
     if (!st) brush[b] = br;
 }

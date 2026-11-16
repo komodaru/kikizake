@@ -54,6 +54,8 @@ GP.MATRIX.X86 measured | (none) | the arithmetic below is x86's: float, rounded 
 GP.MATRIX.X64 measured | (none) | x86-64's GDI+ does the matrix arithmetic of GP.MATRIX.X86 in float rounded toward minus infinity (an exact zero sum -0): products, points, the determinant, its reciprocal and the inverse (golden gdiplus-64 matrix-*, gdiplusmat-64; first all 3390 numbers of 120 cases, round to nearest 564 of the 720 first points)
 GP.BRUSH doc | SolidBrush::SolidBrush, HatchBrush::HatchBrush | a solid brush of one color; a hatch brush of a HatchStyle, a fore and a back color
 GP.BRUSH.HATCH.RANGE measured | HatchStyle | a style past HatchStyleMin ..= HatchStyleMax (0 ..= 52): InvalidParameter, no brush (golden gdipluspaint hatch--1, hatch-53)
+GP.BRUSH.LINEAR open | LinearGradientBrush::LinearGradientBrush(const Point&, const Point&, const Color&, const Color&), WrapMode | a linear gradient brush between two points and two colors, tiled by a WrapMode, filling rectangles: not fitted yet (suite gdiplusbrush)
+GP.BRUSH.TEXTURE open | TextureBrush::TextureBrush(Image*, WrapMode) | a texture brush of a bitmap, tiled by a WrapMode, filling rectangles: not fitted yet (suite gdiplusbrush)
 GP.PAINT.NOBRUSH measured | (none) | the executor's own: a paint with an empty brush slot draws nothing and says "paint nobrush"
 GP.PAINT doc | Graphics::FillRectangle | a rectangle filled with a brush, in float coordinates, under the Graphics' smoothing and pixel offset modes
 GP.PAINT.MODES measured | SmoothingMode, PixelOffsetMode | GDI+ 1.0 takes SmoothingMode 0..5 (AntiAlias8x8 = 5 included) and PixelOffsetMode 0..4; past them: InvalidParameter, nothing drawn (golden gdipluspaint rectf-*)

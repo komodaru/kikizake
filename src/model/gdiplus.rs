@@ -1546,6 +1546,17 @@ impl Gdiplus {
                         let (fore, back) = (n(t, 4)? as u32, n(t, 5)? as u32);
                         HatchStyle::new(n(t, 3)?).map(|style| Brush::Hatch { style, fore, back })
                     }
+                    Some("linear") => {
+                        for i in 3..=9 {
+                            n(t, i)?;
+                        }
+                        return Err(Fail::Unmodeled(open::GP_BRUSH_LINEAR));
+                    }
+                    Some("texture") => {
+                        Self::slot(t, 3)?;
+                        n(t, 4)?;
+                        return Err(Fail::Unmodeled(open::GP_BRUSH_TEXTURE));
+                    }
                     _ => return Err(Fail::Bad),
                 };
                 match b {
