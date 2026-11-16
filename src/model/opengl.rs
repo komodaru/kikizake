@@ -2674,6 +2674,12 @@ impl Ctx {
                                 let mut c = c;
                                 c[3] = (f64::from(c[3]) * f) as f32;
                                 self.fragment(Frag { x, y, c, z: wa[2], fixed, zfixed: None })?;
+                                // (a wide one's faint pixels, of coverage under 1/10, Windows
+                                // draws or not by a rule not settled: 9 of them left undrawn
+                                // in line-aa-wide-0..2, GL.RASTER.MODE)
+                                if wide && f < 0.1 {
+                                    self.unsettled(x, y);
+                                }
                             }
                             continue;
                         }
@@ -2927,16 +2933,17 @@ impl Ctx {
     /// ones, not measured (GL.RASTER.MODE).
     fn flat_path(&self) -> Res<FlatPath> {
         let unmeasured = self.cap(LINE_SMOOTH) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
-        let width = tri::LineWidth::of(self.line_width).pixels();
-        let pipeline = self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST) || self.cap(BLEND);
-        if unmeasured || width > 2 || (width == 2 && pipeline) {
+        if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         hit(clause::GL_RASTER_LINE_FLAT);
-        // (MEASURED, line-flat-8, 10: depth tested or scissored, in the first end's color; 9:
-        // blended, the second's; both at once not measured)
+        // (MEASURED, line-flat-8, 10: 1 pixel wide depth tested or scissored, in the first end's
+        // color; 9: blended, the second's; 17: wide and depth tested, the second's; depth tested
+        // and blended at once not measured)
+        let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
         Ok(match (self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST), self.cap(BLEND)) {
             (false, false) => FlatPath::Gdi,
+            (true, false) if wide => FlatPath::Pipeline(LineEnd::Second),
             (true, false) => FlatPath::Pipeline(LineEnd::First),
             (false, true) => FlatPath::Pipeline(LineEnd::Second),
             (true, true) => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
@@ -2960,18 +2967,24 @@ impl Ctx {
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let h = H as i64;
         // (each end's pixel held inside the window: line-flat-4, line-color-4)
-        let device = |c: [f32; 4]| {
+        let window = |c: [f32; 4]| {
             let n = [c[0], c[1]].map(|v| f64::from(v * (1.0 / c[3])));
-            let p = tri::DevicePixel::of([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy], h).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_MODE))?;
+            [(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy]
+        };
+        let device = |w: [f64; 2]| {
+            let p = tri::DevicePixel::of(w, h).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_MODE))?;
             Ok::<_, Fail>(tri::DevicePixel { x: p.x.clamp(0, W as i64 - 1), row: p.row.clamp(0, h - 1) })
         };
         let z = self.window(b.0)?[2];
-        let (da, db) = (device(ka)?, device(kb)?);
-        // (2 wide: each pixel and the next one down the DIB's rows when x-major, right when
-        // y-major, line-flat-12; wider ones not measured, flat_path)
-        let across = if (db.x - da.x).abs() >= (db.row - da.row).abs() { tri::DevicePixel { x: 0, row: 1 } } else { tri::DevicePixel { x: 1, row: 0 } };
+        let (wa, wb) = (window(ka), window(kb));
+        let (da, db) = (device(wa)?, device(wb)?);
+        // (wide: each pixel's run of the width across, down the DIB's rows when x-major, right
+        // when y-major (by the cut ends' window positions, not their pixels: line-flat-16), from
+        // (width - 1) / 2 (rounded down) before it, line-flat-12, 15)
+        let across = if (wb[0] - wa[0]).abs() >= (wb[1] - wa[1]).abs() { tri::DevicePixel { x: 0, row: 1 } } else { tri::DevicePixel { x: 1, row: 0 } };
+        let width = tri::LineWidth::of(self.line_width).pixels();
         for p in tri::flat_line(da, db) {
-            for k in 0..tri::LineWidth::of(self.line_width).pixels() {
+            for k in -((width - 1) / 2)..width - (width - 1) / 2 {
                 let (x, y) = tri::DevicePixel { x: p.x + k * across.x, row: p.row + k * across.row }.window(h);
                 self.fragment(Frag { x, y, c: b.1, z, fixed: self.span(), zfixed: None })?;
             }
@@ -3023,6 +3036,22 @@ impl Ctx {
         }
         // (MEASURED, golden opengl-32 read-*: times the reciprocal, not divided)
         v as f32 * (1.0 / ((1u64 << b) - 1) as f32)
+    }
+
+    /// a pixel whose outcome Windows decides by a rule not settled (GL.RASTER.MODE, open): its
+    /// writable color channels are not compared
+    fn unsettled(&mut self, x: i64, y: i64) {
+        hit(clause::GL_RASTER_MODE);
+        if !(0..W as i64).contains(&x) || !(0..H as i64).contains(&y) {
+            return;
+        }
+        let i = y as usize * W + x as usize;
+        let bits = self.bits();
+        for k in 0..4 {
+            if self.color_mask[k] && bits[k] > 0 {
+                self.fb_undefined[i][k] = true;
+            }
+        }
     }
 
     /// a pixel's channels over their largest values, a missing alpha 1, in f64

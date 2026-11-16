@@ -2653,4 +2653,38 @@ fn measure(s: &mut String) {
         }
         writeln!(s, "glerr\nend").unwrap();
     }
+    // (appended last: each case takes from `r` after the ones before it)
+    // flat-shaded lines with every end exactly where GDI's pixel changes, x = n + 15/32 and
+    // 16 - y = n + 15/32 (18); wide ones blended and scissored (19)
+    writeln!(s, "case line-flat-18\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00", ctx(32)).unwrap();
+    for _ in 0..32 {
+        writeln!(s, "gl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255").unwrap();
+        let mut v = || r.range(1, 14) as f64 + 15.0 / 32.0;
+        let l = [v(), 16.0 - v(), v(), 16.0 - v()];
+        glf(s, "glVertex2f", &[l[0], l[1]]);
+        glf(s, "glVertex2f", &[l[2], l[3]]);
+        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    writeln!(s, "case line-flat-19\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00", ctx(32)).unwrap();
+    for (n, l) in lines.iter().enumerate() {
+        let on = if n % 2 == 0 { "gl glEnable 0xbe2\ngl glBlendFunc 1 0\ngl glDisable 0xc11" } else { "gl glDisable 0xbe2\ngl glEnable 0xc11\ngl glScissor 0 0 16 16" };
+        writeln!(s, "{on}\ngl glLineWidth {}\ngl glClear 0x4000\ngl glBegin 1", [2, 3, 4][n % 3]).unwrap();
+        for e in 0..2 {
+            color(s, &mut r);
+            glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+        }
+        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
+    // antialiased wide lines into alpha, for which faint pixels Windows draws (line-aa-wide-4)
+    writeln!(s, "case line-aa-wide-4\nglctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glColor4ub 255 255 255 255").unwrap();
+    for n in 0..32 {
+        writeln!(s, "gl glLineWidth {}\ngl glClear 0x4000\ngl glBegin 1", f([2.5, 3.5, 5.75, 2.0][n % 4])).unwrap();
+        let l = [v8(&mut r, 1, 15), v8(&mut r, 1, 15), v8(&mut r, 1, 15), v8(&mut r, 1, 15)];
+        glf(s, "glVertex2f", &[l[0], l[1]]);
+        glf(s, "glVertex2f", &[l[2], l[3]]);
+        writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }
