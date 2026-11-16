@@ -723,6 +723,24 @@ pub fn d3d12() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // (added after) the same states two at a time, GENERIC_READ less and plus each bit, and the
+    // high bits alone
+    let named: [u32; 22] = [1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x1_0000, 0x2_0000, 0x4_0000, 0x8_0000, 0x20_0000, 0x40_0000, 0x80_0000, 0x100_0000];
+    let mut combos: Vec<u32> = (24..31).map(|b| 1u32 << b).collect();
+    for (i, a) in named.iter().enumerate() {
+        for b in &named[i + 1..] {
+            combos.push(a | b);
+        }
+    }
+    combos.extend(named.iter().filter(|b| 0xac3 & **b != 0).map(|b| 0xac3 & !b));
+    combos.extend(named.iter().filter(|b| 0xac3 & **b == 0).map(|b| 0xac3 | b));
+    for (name, base) in [("tex", Desc::tex(3, 64, 32, 1, 1, 28)), ("rt", Desc { flags: 1, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("ds", Desc { flags: 2, ..Desc::tex(3, 64, 32, 1, 1, 40) }), ("uav", Desc { flags: 4, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("rtuav", Desc { flags: 5, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("sim", Desc { flags: 0x21, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("buf", Desc { flags: 4, ..Desc::buffer(1024) }), ("buf0", Desc::buffer(1024))] {
+        writeln!(s, "case create-state2-{name}\ndevice12").unwrap();
+        for st in &combos {
+            writeln!(s, "create12 1 {} {}", hexw(*st), desc_str(&base)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
 
     s
 }
