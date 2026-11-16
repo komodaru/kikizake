@@ -169,8 +169,20 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             if t.len() > 3 || r.is_some_and(|v| v >= 16) || ds.is_some_and(|v| v >= 16) {
                 return Err(Fail::Bad);
             }
-            d.target = r.filter(|&v| m.views[v].as_ref().is_some_and(|x| x.kind == 1));
-            d.depth = ds.filter(|&v| m.views[v].as_ref().is_some_and(|x| x.kind == 2));
+            let target = r.filter(|&v| m.views[v].as_ref().is_some_and(|x| x.kind == 1));
+            let depth = ds.filter(|&v| m.views[v].as_ref().is_some_and(|x| x.kind == 2));
+            // (MEASURED, WARP: probe-rt-ms4-depth1, -depth1-prev; DXVK's ValidateRenderTargets: native
+            // D3D11 keeps the bound views when they are incompatible) a target and a depth view of
+            // other sample counts: the call changes nothing
+            let samples = |v: usize| m.views[v].as_ref().and_then(|x| m.res[x.res].as_ref()).map_or(1, |r| r.d.count.max(1));
+            if let (Some(a), Some(b)) = (target, depth)
+                && samples(a) != samples(b)
+            {
+                hit(clause::D3DRASTER_MS_DEPTHCOUNT);
+                return Ok(());
+            }
+            d.target = target;
+            d.depth = depth;
         }
         "viewport" => {
             if t.len() != 7 {
@@ -535,16 +547,9 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             }
         }
     };
-    // (MEASURED, WARP: probe-rt-ms4-depth1) a depth view of another sample count than the
-    // target's is not bound: the draw goes on without the depth test
-    let samples_of = |v: &super::d3dres::View| m.res[v.res].as_ref().map_or(1, |r| r.d.count.max(1));
-    let dsv = d.depth.map(|v| m.views[v].clone().unwrap()).filter(|dv| {
-        let same = samples_of(dv) == samples_of(&view);
-        if !same {
-            hit(clause::D3DRASTER_MS_DEPTHCOUNT);
-        }
-        same
-    });
+    // (a depth view of another sample count is never bound, D3DRASTER.MS.DEPTHCOUNT; one whose
+    // slot was emptied: guarded above)
+    let dsv = d.depth.and_then(|v| m.views[v].clone());
     let instances = inst.max(1);
     // the vertices through the vertex shader
     let fetch = |v: u32, i: u32| -> Res<Vert> {

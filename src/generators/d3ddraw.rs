@@ -700,7 +700,7 @@ fn probes(s: &mut String, dev: &str) {
     writeln!(s, "draw 4 3 32\ncopy 2 0\nresolve 1 0 2 0 28\nread 1 0 64 16 1\nend").unwrap();
     // what D3DRASTER.RTKIND leaves open: a whole-subresource region copy of differing samples,
     // a depth view of one sample under a 4-sample target, a region copy with a box, an update
-    for (name, setup, after) in [("copysub", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0\nresolve 1 0 2 0 28"), ("depth1", "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 0x3f000000 0\ntarget 0 2\ndepthst 1 1 2", "resolve 1 0 0 0 28"), ("copysub-box", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0 0 0 0 8 8 1\nresolve 1 0 2 0 28"), ("update", "", "update 0 0 7 64 0\nresolve 1 0 0 0 28")] {
+    for (name, setup, after) in [("copysub", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0\nresolve 1 0 2 0 28"), ("depth1", "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 0x3f000000 0\ntarget 0 2\ndepthst 1 1 2", "resolve 1 0 0 0 28"), ("depth1-prev", "rtv 1 1 nodesc\ntarget 1\ntex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 0x3f000000 0\ntarget 0 2\ndepthst 1 1 2", "read 1 0 64 16 1\nresolve 1 0 0 0 28"), ("copysub-box", "tex 2 2 16 16 1 1 28 0 0x20 0 0 4 0", "copysub 2 0 0 0 0 0 0 0 0 0 8 8 1\nresolve 1 0 2 0 28"), ("update", "", "update 0 0 7 64 0\nresolve 1 0 0 0 28")] {
         writeln!(s, "case probe-rt-ms4-{name}\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0").unwrap();
         if !setup.is_empty() {
             writeln!(s, "{setup}").unwrap();
