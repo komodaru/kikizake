@@ -1591,9 +1591,17 @@ pub fn wicencode() -> String {
         }
     }
     // (where each 16-bit and 8-bit level starts as a float: the executor bisects the bits of
-    // 0..1 per level, WICIMAGE.CONVERT.FLOAT.STEPS)
+    // 0..1 per level, WICIMAGE.CONVERT.FLOAT.NARROW)
     for (from, to) in [("grayfloat", "gray16"), ("grayfloat", "gray8"), ("rgbafloat", "rgba64"), ("rgbafloat", "bgra")] {
         writeln!(s, "case steps-{from}-{to}\nwsteps {from} {to}\nend").unwrap();
+    }
+    // (floats outside 0..1 back into 8 and 16 bits: a 32bppGrayFloat TIFF of them)
+    let odd: Vec<u8> = [-1.0f32, -0.0, -1e-30, f32::from_bits(1), 1.0000001, 1.5, 2.0, 1e30, f32::INFINITY, f32::NEG_INFINITY, f32::NAN, f32::from_bits(0xffc0_0000), 0.5, 1.0, 0.0, -0.5]
+        .iter().flat_map(|f| f.to_le_bytes()).collect();
+    let tf = tiff(false, &[TiffImage { w: 16, h: 1, photometric: 1, bits: 32, samples: 1, extra: None, planar: 1, rps: 1, px: odd, map: vec![], res: None, format: 3 }]);
+    for (via, to) in [("", "gray16"), ("", "gray8"), ("", "rgba64"), ("rgbafloat", "rgba64"), ("rgbafloat", "bgra"), ("rgbafloat", "gray16"), ("rgba64half", "rgba64"), ("rgba64fixed", "rgba64")] {
+        let conv = if via.is_empty() { String::new() } else { format!("wconv {via}\n") };
+        writeln!(s, "case floatout-{}{to}\nwdecode {}\nwframe 0\n{conv}wconv {to}\nwpixels\nend", if via.is_empty() { String::new() } else { format!("{via}-") }, hex(&tf)).unwrap();
     }
     s
 }

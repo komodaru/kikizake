@@ -735,6 +735,26 @@ fn floats_go_back_in_order() {
 }
 
 proptest! {
+    #![proptest_config(ProptestConfig::with_cases(2000))]
+
+    /// every float of 0..1 has a level (no gaps), the levels climb with the bits of the float,
+    /// and the 8-bit level is never far from the 16-bit one's 257ths
+    #[test]
+    fn every_float_has_its_level(a in 0u32..=0x3f80_0000, b in 0u32..=0x3f80_0000) {
+        let (lo, hi) = (a.min(b), a.max(b));
+        for t in [wi::FloatBack::Bits16, wi::FloatBack::Bits8] {
+            let l = wi::float_srgb(f32::from_bits(lo), t);
+            let h = wi::float_srgb(f32::from_bits(hi), t);
+            prop_assert!(l.is_some() && h.is_some());
+            prop_assert!(l <= h);
+        }
+        let x = f32::from_bits(lo);
+        let (w, n) = (wi::float_srgb(x, wi::FloatBack::Bits16).unwrap(), wi::float_srgb(x, wi::FloatBack::Bits8).unwrap());
+        prop_assert!((f64::from(w) / 257.0 - f64::from(n)).abs() <= 1.0, "{x}: {w} and {n}");
+    }
+}
+
+proptest! {
     #![proptest_config(ProptestConfig::with_cases(200))]
 
     /// 16bppGrayFixedPoint of a color lies between its darkest and brightest channel as
