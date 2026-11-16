@@ -796,6 +796,14 @@ fn clip_line(a: (f32, f32), b: (f32, f32), max: (f32, f32)) -> Option<((f32, f32
     Some((at(t0), at(t1)))
 }
 
+/// where a segment starts: on its own (a line list's, a strip's first) or where the strip's last
+/// segment ended
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Start {
+    Free,
+    Joined,
+}
+
 /// a line's snapped ends (1/256 pixel, Direct3D 9's pixel centers at whole pixels)
 struct Seg9 {
     a: (i128, i128),
@@ -1805,6 +1813,21 @@ impl D3d9 {
                     21 => (1.0 - a1[i]) * a2[i] + a1[3],
                     25 => a0[i] + a1[i] * a2[i],
                     26 => a0[i] * a1[i] + (1.0 - a0[i]) * a2[i],
+                    // (MEASURED top-past-*, both runtimes, stage 0: a COLOROP past LERP makes
+                    // black; as ALPHAOP 27 and 0x7fffffff leave the diffuse alpha, 32 makes 1,
+                    // D3D9.STAGE.PASTOP)
+                    27 | 32 | 0x7fff_ffff if st == 0 && !alpha => {
+                        hit(clause::D3D9_STAGE_PASTOP);
+                        0.0
+                    }
+                    27 | 0x7fff_ffff if st == 0 => {
+                        hit(clause::D3D9_STAGE_PASTOP);
+                        da
+                    }
+                    32 if st == 0 => {
+                        hit(clause::D3D9_STAGE_PASTOP);
+                        1.0
+                    }
                     _ => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
                 };
                 hit(clause::D3D9_STAGE_OP);
@@ -1956,7 +1979,7 @@ impl D3d9 {
             2 | 3 => {
                 let segs: Vec<(usize, usize)> = if ty == 2 { (0..nv / 2).map(|i| (2 * i, 2 * i + 1)).collect() } else { (0..nv.saturating_sub(1)).map(|i| (i, i + 1)).collect() };
                 for (i, j) in segs {
-                    self.line(vs[i], vs[j])?;
+                    self.line(vs[i], vs[j], if ty == 3 && i > 0 { Start::Joined } else { Start::Free })?;
                 }
                 return Ok(());
             }
@@ -2049,7 +2072,7 @@ impl D3d9 {
     /// edges and bottom corner, a y-major line's right corner too; the colors a plane over the
     /// major axis), in Direct3D 9's pixel centers (MEASURED d3d9draw, d3d8draw line-*,
     /// points-lines-*)
-    fn line(&mut self, a: Vtx, b: Vtx) -> Res<()> {
+    fn line(&mut self, a: Vtx, b: Vtx, start: Start) -> Res<()> {
         let Some(rt) = &self.draw.rt else {
             hit(clause::D3D9_CLEAR_BACKBUFFER);
             return Ok(());
@@ -2068,13 +2091,13 @@ impl D3d9 {
         // (the segment rasterized: a line past the target cut to it in f32 and snapped again)
         let r = match (inside(&a), inside(&b)) {
             (true, true) => {
-                // (open: a line starting on the corner of a diamond that a tie gives the pixel
-                // and running left, d3d8draw points-lines-5 does not light it; to the right it
-                // does, line-end-2-2-in, -2-5-in, -4-2-in, -4-5-in; cases line-start-*)
+                // (MEASURED line-start-*: a line starting on a diamond's corner lights its pixel
+                // as any start, D3D9.DRAW.LINES; open: a line strip's later segment starting on
+                // a corner a tie gives the pixel, d3d8draw points-lines-5 does not light it)
                 let ymaj = (l.b.1 - l.a.1).abs() > (l.b.0 - l.a.0).abs();
                 let tie_corner = |c: (i128, i128)| l.a == (c.0, c.1 + DIAMOND) || ymaj && l.a == (c.0 + DIAMOND, c.1);
                 let mut centers = (0..h).flat_map(|py| (0..w).map(move |px| (px as i128 * 256, py as i128 * 256)));
-                if l.b.0 < l.a.0 && centers.any(tie_corner) {
+                if start == Start::Joined && centers.any(tie_corner) {
                     return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES));
                 }
                 Seg9 { a: l.a, b: l.b }

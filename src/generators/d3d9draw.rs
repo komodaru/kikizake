@@ -1078,6 +1078,35 @@ fn suite(v8: bool) -> String {
             writeln!(s, "d9rt\nend").unwrap();
         }
     }
+    // (D3D9.DRAW.POINTSLINES) line strips of two segments joined on a corner of pixel (8, 8)'s
+    // diamond: the first from each of four directions, the second on each of eight
+    let dirs = [(4.0f32, 1.0f32), (4.0, -2.0), (-4.0, 3.0), (-4.0, -1.0), (1.0, 4.0), (-2.0, 4.0), (3.0, -4.0), (-1.0, -4.0)];
+    let mut n = 0;
+    for (ci, c) in [(8.0f32, 7.5f32), (8.0, 8.5), (7.5, 8.0), (8.5, 8.0)].into_iter().enumerate() {
+        for &(ix, iy) in &dirs[..4] {
+            for &(ox, oy) in &dirs {
+                open(&mut s, &format!("line-joint-{ci}-{n}"), 21, 16, 16);
+                let (a, b) = ((c.0 - ix * 1.25, c.1 - iy * 1.25), (c.0 + ox * 1.25, c.1 + oy * 1.25));
+                writeln!(s, "d9clear 1 0 0 0\nd9fvf {FVF_TL:#x}\nd9draw 3 3 {} {} {}\nd9rt\nend", v(a.0, a.1, 0.0, 0xffff_ffff, None), v(c.0, c.1, 0.0, 0xffff_ffff, None), v(b.0, b.1, 0.0, 0xffff_ffff, None)).unwrap();
+                n += 1;
+            }
+        }
+    }
+    // (D3D9.STAGE.OPEN) more TEXTUREOPs past LERP on stage 0, and past ones on stage 1 over
+    // stage 0's MODULATE
+    for (i, (st, op)) in [(0u32, 28u32), (0, 31), (0, 33), (0, 64), (0, 0x8000_0000), (0, 0xffff_ffff), (1, 27), (1, 32), (1, 0x7fff_ffff)].into_iter().enumerate() {
+        for (j, which) in [1u32, 4].into_iter().enumerate() {
+            open(&mut s, &format!("top-past-later-{i}-{j}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nrs set 60 {:#x}", r.next(), r.next(), r.next()).unwrap();
+            writeln!(s, "tss set 0 1 4\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 4\ntss set 0 5 2\ntss set 0 6 0").unwrap();
+            if st == 1 {
+                writeln!(s, "tss set 1 1 2\ntss set 1 2 1\ntss set 1 4 2\ntss set 1 5 1").unwrap();
+            }
+            writeln!(s, "tss set {st} {which} {op}").unwrap();
+            quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+            writeln!(s, "d9rt\nend").unwrap();
+        }
+    }
     s
 }
 
