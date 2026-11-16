@@ -201,6 +201,8 @@ pub struct Gdi {
     pub slots: Vec<Option<Slot>>,
     /// gdirgn.c's region slots
     pub rgns: Vec<Option<Rgn>>,
+    /// gditext.c's font files added with AddFontMemResourceEx, in order
+    pub fonts: Vec<crate::ttf::Parsed>,
 }
 
 fn n(op: &Op, i: usize) -> Result<i64, Fail> {
@@ -221,7 +223,7 @@ pub fn get<T>(v: &[Option<T>], k: i64) -> Result<&T, Fail> {
 
 impl Gdi {
     pub fn new() -> Gdi {
-        Gdi { slots: vec![None; 8], rgns: vec![None; 8] }
+        Gdi { slots: vec![None; 8], rgns: vec![None; 8], fonts: Vec::new() }
     }
     fn slot(&mut self, op: &Op, i: usize) -> Result<&mut Slot, Fail> {
         let k = n(op, i)?;

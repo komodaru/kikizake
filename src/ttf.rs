@@ -451,6 +451,8 @@ pub struct Parsed {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Os2 {
     pub version: u16,
+    /// xAvgCharWidth
+    pub avg: i16,
     pub script: [i16; 8],
     pub strike: (i16, i16),
     pub fs_selection: u16,
@@ -593,7 +595,7 @@ pub fn parse_face(f: &[u8], at: usize) -> Option<Parsed> {
         for (i, s) in script.iter_mut().enumerate() {
             *s = o.i16(10 + 2 * i)?;
         }
-        let mut os2 = Os2 { version, script, strike: (o.i16(26)?, o.i16(28)?), fs_selection: o.u16(62)?, typo: (o.i16(68)?, o.i16(70)?, o.i16(72)?), win: (o.u16(74)?, o.u16(76)?), ..Default::default() };
+        let mut os2 = Os2 { version, avg: o.i16(2)?, script, strike: (o.i16(26)?, o.i16(28)?), fs_selection: o.u16(62)?, typo: (o.i16(68)?, o.i16(70)?, o.i16(72)?), win: (o.u16(74)?, o.u16(76)?), ..Default::default() };
         if version >= 2 {
             os2.x_height = o.i16(86)?;
             os2.cap_height = o.i16(88)?;

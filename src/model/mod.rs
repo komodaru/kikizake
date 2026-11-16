@@ -21,6 +21,7 @@ pub mod d3d9draw;
 pub mod d3dx9;
 pub mod gdi;
 pub mod gdiplus;
+pub mod gdifont;
 pub mod gdiline;
 pub mod rgn;
 pub mod gdirgn;

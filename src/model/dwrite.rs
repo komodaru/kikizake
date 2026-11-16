@@ -27,7 +27,7 @@ pub struct Dwrite {
     file: Option<FileType>,
 }
 
-fn hex(t: &str) -> Option<Vec<u8>> {
+pub(crate) fn hex(t: &str) -> Option<Vec<u8>> {
     if t.len() % 2 != 0 {
         return None;
     }

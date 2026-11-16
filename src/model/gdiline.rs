@@ -34,6 +34,8 @@ pub struct Draw {
     /// SetTextAlign, SetTextCharacterExtra
     pub align: i64,
     pub extra: i64,
+    /// the font selected: one of the case's font files (None: the stock font)
+    pub font: Option<super::gdifont::TextFont>,
     /// SetMiterLimit's limit
     pub miter: f32,
 }
@@ -41,7 +43,7 @@ pub struct Draw {
 impl Default for Draw {
     /// a new DC: the black pen, R2_COPYPEN, (0, 0), ALTERNATE, AD_COUNTERCLOCKWISE
     fn default() -> Draw {
-        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0, miter: 10.0 }
+        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0, font: None, miter: 10.0 }
     }
 }
 
