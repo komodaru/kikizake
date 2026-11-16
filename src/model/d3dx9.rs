@@ -231,7 +231,8 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         return Ok(());
     }
     let (sm, dm) = (format(sf).ok_or(Fail::Bad)?, format(df).ok_or(Fail::Bad)?);
-    if !matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) {
+    let yuy2 = df == super::d3d9draw::fourcc(b"YUY2");
+    if !(matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) || yuy2 && matches!(sm.kind, Kind::Int | Kind::F32) && !sm.ch.iter().any(|c| is_bump(c.c))) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
     }
     if sm.ch.iter().chain(&dm.ch).any(|c| is_bump(c.c)) {
@@ -275,10 +276,38 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         }
         return Ok(());
     }
+    if yuy2 {
+        hit(clause::D3DX9_LOAD_YUY2);
+        for row in pixels.chunks(wd as usize) {
+            let bytes: Vec<u8> = row.chunks(2).flat_map(yuy2_pair).collect();
+            out.push(bytes[..row.len() * 2].iter().map(|x| format!("{x:02x}")).collect());
+        }
+        return Ok(());
+    }
     for row in pixels.chunks(wd as usize) {
         out.push(row.iter().enumerate().flat_map(|(i, &p)| load_encode(&dm, sm.kind, p, (i, wd as usize))).map(|x| format!("{x:02x}")).collect());
     }
     Ok(())
+}
+
+/// a pair of pixels into YUY2 as D3DX writes it (MEASURED load-into-YUY2, load-yuy2-probe):
+/// each Y 16 + (65.481 R + 128.553 G + 24.966 B) / 255, U and V the first pixel's
+/// 128 + (-37.797 R - 74.203 G + 112 B) / 255 and 128 + (112 R - 93.786 G - 18.214 B) / 255,
+/// of R, G, B in 0 .. 255, each offset plus 1/2 truncated toward 0
+fn yuy2_pair(p: &[[Sample; 4]]) -> [u8; 4] {
+    let rgb = |s: &[Sample; 4]| -> [f64; 3] {
+        std::array::from_fn(|k| match s[k] {
+            Sample::Unsigned(v) | Sample::Signed(v) => f64::from(v.clamp(0.0, 1.0)) * 255.0,
+        })
+    };
+    let q = |v: f64| (v + 0.5).trunc();
+    let byte = |v: f64| u8::try_from(v as i64).unwrap_or(if v < 0.0 { 0 } else { 255 });
+    let y = |c: [f64; 3]| byte(16.0 + q((65.481 * c[0] + 128.553 * c[1] + 24.966 * c[2]) / 255.0));
+    let c0 = rgb(&p[0]);
+    let c1 = p.get(1).map_or(c0, rgb);
+    let u = byte(128.0 + q((-37.797 * c0[0] - 74.203 * c0[1] + 112.0 * c0[2]) / 255.0));
+    let v = byte(128.0 + q((112.0 * c0[0] - 93.786 * c0[1] - 18.214 * c0[2]) / 255.0));
+    [y(c0), u, y(c1), v]
 }
 
 /// a channel as D3DX holds it between formats: an unsigned one in 0..1 (unorm) or as it is
