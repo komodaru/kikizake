@@ -685,5 +685,49 @@ pub fn gdiplusline() -> String {
         let shape = if i % 2 == 0 { format!("pen 0 - over {} {} 0 line {} {} {} {}", r.range(0, 4), r.range(0, 5), rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)) } else { format!("brush 0 - over {} {} 0 ellipse {} {} {} {}", r.range(0, 4), r.range(0, 5), rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)) };
         writeln!(s, "case shapeblend-{i}\n{head}\ngpwrite 0 32bppARGB seed {}\ngppen 0 {:#010x} {}\ngpbrush 0 solid {:#010x}\ngpshape 0 {shape}\ngpread 0 32bppARGB\nend", r.next(), rargb(&mut r), r.range(1, 4), rargb(&mut r)).unwrap();
     }
+    lineprobe(&mut s);
     s
+}
+
+/// probes of the aliased thin line (a generator of its own, so the cases before keep their
+/// numbers): long lines whose every column is a decision, ends at each eighth of a pixel, short
+/// lines with both ends fractional, ends past the bitmap, coordinates off the 1/16 grid
+fn lineprobe(s: &mut String) {
+    let mut r = XorShift32::new(0x11e_9b0b);
+    let x16 = |r: &mut XorShift32, lo: i64, hi: i64| format!("{}", r.range(lo * 16, hi * 16) as f32 / 16.0);
+    for i in 0..40 {
+        let (sm, po) = if i < 32 { (3, 3) } else { (*r.pick(&[0, 1, 3]), *r.pick(&[0, 1, 3])) };
+        let (a, b) = ((x16(&mut r, 0, 1), x16(&mut r, 0, 12)), (x16(&mut r, 62, 63), x16(&mut r, 0, 12)));
+        let (a, b) = if i % 2 == 0 { (a, b) } else { (b, a) };
+        writeln!(s, "case lineprobe-long-{i}\ngpbitmap 0 64 12 32bppARGB\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 {sm} {po} line {} {} {} {}\ngpread 0 32bppARGB\nend", a.0, a.1, b.0, b.1).unwrap();
+    }
+    // (eight horizontal lines a case, one a row: start fraction i / 8, end fraction j / 8)
+    for k in 0..16 {
+        let (i, d) = (k % 8, if k < 8 { 1 } else { -1 });
+        let mut ops = String::new();
+        for j in 0..8 {
+            let (x0, x1) = (2.0 + i as f32 / 8.0, 11.0 + j as f32 / 8.0);
+            let (x0, x1) = if d > 0 { (x0, x1) } else { (x1, x0) };
+            writeln!(ops, "gpshape 0 pen 0 - copy 0 3 3 line {x0} {j} {x1} {j}").unwrap();
+        }
+        writeln!(s, "case lineprobe-end-{k}\ngpbitmap 0 16 8 32bppARGB\ngppen 0 0xffff0000 1\n{ops}gpread 0 32bppARGB\nend").unwrap();
+    }
+    for i in 0..40 {
+        let v: Vec<String> = (0..4).map(|_| x16(&mut r, 1, 15)).collect();
+        writeln!(s, "case lineprobe-short-{i}\ngpbitmap 0 16 16 32bppARGB\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 3 3 line {}\ngpread 0 32bppARGB\nend", v.join(" ")).unwrap();
+    }
+    for i in 0..20 {
+        let v: Vec<String> = (0..4).map(|_| x16(&mut r, -6, 22)).collect();
+        writeln!(s, "case lineprobe-clip-{i}\ngpbitmap 0 16 16 32bppARGB\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 3 3 line {}\ngpread 0 32bppARGB\nend", v.join(" ")).unwrap();
+    }
+    for i in 0..20 {
+        let v: Vec<String> = (0..4).map(|_| format!("{}", r.range(1000, 15000) as f32 / 1000.0)).collect();
+        writeln!(s, "case lineprobe-grid-{i}\ngpbitmap 0 16 16 32bppARGB\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 3 3 line {}\ngpread 0 32bppARGB\nend", v.join(" ")).unwrap();
+    }
+    // (antialiased: the coverage of a long thin line, column by column)
+    for i in 0..24 {
+        let (sm, po) = (*r.pick(&[2, 4, 5]), *r.pick(&[3, 4]));
+        let v = [x16(&mut r, 0, 1), x16(&mut r, 0, 12), x16(&mut r, 62, 63), x16(&mut r, 0, 12)];
+        writeln!(s, "case lineprobe-aa-{i}\ngpbitmap 0 64 12 32bppARGB\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 {sm} {po} line {}\ngpread 0 32bppARGB\nend", v.join(" ")).unwrap();
+    }
 }

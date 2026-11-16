@@ -3801,3 +3801,1075 @@ gpbrush 0 solid 0x92b8be66
 gpshape 0 brush 0 - over 3 1 0 ellipse 15.25 16 0.5 0
 gpread 0 32bppARGB
 end
+case lineprobe-long-0
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.625 0.5625 62.5 11.75
+gpread 0 32bppARGB
+end
+case lineprobe-long-1
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.125 2.9375 0.1875 9.0625
+gpread 0 32bppARGB
+end
+case lineprobe-long-2
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.1875 8.875 62.8125 1.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-3
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.375 4 0.5 3.5
+gpread 0 32bppARGB
+end
+case lineprobe-long-4
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.1875 7.4375 62.5 6.6875
+gpread 0 32bppARGB
+end
+case lineprobe-long-5
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.4375 9.375 0.4375 1.3125
+gpread 0 32bppARGB
+end
+case lineprobe-long-6
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.375 6.875 62.8125 5.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-7
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.4375 4.3125 0.4375 11.3125
+gpread 0 32bppARGB
+end
+case lineprobe-long-8
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.9375 4.875 62.6875 10.25
+gpread 0 32bppARGB
+end
+case lineprobe-long-9
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.125 1.5625 0 3.1875
+gpread 0 32bppARGB
+end
+case lineprobe-long-10
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.8125 5.25 62.4375 4.6875
+gpread 0 32bppARGB
+end
+case lineprobe-long-11
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.625 11.1875 0.125 10.875
+gpread 0 32bppARGB
+end
+case lineprobe-long-12
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.25 1.8125 62.875 9.9375
+gpread 0 32bppARGB
+end
+case lineprobe-long-13
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 63 11.25 0.1875 3.75
+gpread 0 32bppARGB
+end
+case lineprobe-long-14
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.1875 12 62.875 10.125
+gpread 0 32bppARGB
+end
+case lineprobe-long-15
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.125 4.6875 0.25 11.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-16
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.25 7.875 62.0625 7.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-17
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.0625 7.6875 0.0625 8.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-18
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.4375 4.0625 62.625 1.1875
+gpread 0 32bppARGB
+end
+case lineprobe-long-19
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.625 8.5 0.1875 8.25
+gpread 0 32bppARGB
+end
+case lineprobe-long-20
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.9375 1.75 62.0625 9.0625
+gpread 0 32bppARGB
+end
+case lineprobe-long-21
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.375 9.9375 0.625 8.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-22
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.375 5.5 62.5 11.3125
+gpread 0 32bppARGB
+end
+case lineprobe-long-23
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.1875 3.9375 0.875 8.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-24
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.5 9.5625 62.125 11.25
+gpread 0 32bppARGB
+end
+case lineprobe-long-25
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.1875 4.5625 0.75 2.625
+gpread 0 32bppARGB
+end
+case lineprobe-long-26
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.125 1.9375 62.8125 10.3125
+gpread 0 32bppARGB
+end
+case lineprobe-long-27
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.1875 0 0.1875 2.0625
+gpread 0 32bppARGB
+end
+case lineprobe-long-28
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.4375 4 62 4.625
+gpread 0 32bppARGB
+end
+case lineprobe-long-29
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.75 3.3125 0.75 2.375
+gpread 0 32bppARGB
+end
+case lineprobe-long-30
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.375 5.4375 63 4
+gpread 0 32bppARGB
+end
+case lineprobe-long-31
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 62.875 3.8125 0.125 8.25
+gpread 0 32bppARGB
+end
+case lineprobe-long-32
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 1 line 0.4375 2.0625 62.625 1.5625
+gpread 0 32bppARGB
+end
+case lineprobe-long-33
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 line 62.5 11 0.3125 6.125
+gpread 0 32bppARGB
+end
+case lineprobe-long-34
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.1875 7.0625 62.125 5.5
+gpread 0 32bppARGB
+end
+case lineprobe-long-35
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 0 line 62.875 6.125 0.625 5.625
+gpread 0 32bppARGB
+end
+case lineprobe-long-36
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 0.25 0.9375 62.1875 11.4375
+gpread 0 32bppARGB
+end
+case lineprobe-long-37
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 1 line 62.875 0.625 0.9375 5.25
+gpread 0 32bppARGB
+end
+case lineprobe-long-38
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 1 line 0.125 4.3125 62.625 9.9375
+gpread 0 32bppARGB
+end
+case lineprobe-long-39
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 0 line 62.75 11.9375 0.625 5.0625
+gpread 0 32bppARGB
+end
+case lineprobe-end-0
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-1
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.125 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-2
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-3
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-4
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-5
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.625 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-6
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.75 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-7
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 0 11 0
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 1 11.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 2 11.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 3 11.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 4 11.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 5 11.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 6 11.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 2.875 7 11.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-8
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-9
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.125 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.125 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.125 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.125 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.125 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.125 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.125 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.125 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-10
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.25 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.25 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.25 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.25 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.25 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.25 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.25 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.25 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-11
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.375 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.375 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.375 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.375 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.375 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.375 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.375 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.375 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-12
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.5 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.5 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.5 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.5 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.5 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.5 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.5 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.5 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-13
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.625 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.625 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.625 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.625 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.625 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.625 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.625 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.625 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-14
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.75 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.75 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.75 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.75 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.75 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.75 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.75 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.75 7
+gpread 0 32bppARGB
+end
+case lineprobe-end-15
+gpbitmap 0 16 8 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 0 2.875 0
+gpshape 0 pen 0 - copy 0 3 3 line 11.125 1 2.875 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.25 2 2.875 2
+gpshape 0 pen 0 - copy 0 3 3 line 11.375 3 2.875 3
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 4 2.875 4
+gpshape 0 pen 0 - copy 0 3 3 line 11.625 5 2.875 5
+gpshape 0 pen 0 - copy 0 3 3 line 11.75 6 2.875 6
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 7 2.875 7
+gpread 0 32bppARGB
+end
+case lineprobe-short-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.375 11 12.5625 6.8125
+gpread 0 32bppARGB
+end
+case lineprobe-short-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.25 14.375 2.1875 6.625
+gpread 0 32bppARGB
+end
+case lineprobe-short-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 9.6875 6.5 14.125 11.5
+gpread 0 32bppARGB
+end
+case lineprobe-short-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 10.1875 13.4375 2.375 10.6875
+gpread 0 32bppARGB
+end
+case lineprobe-short-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.5625 8 13 11.5
+gpread 0 32bppARGB
+end
+case lineprobe-short-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 10.25 6.8125 9.25 4.0625
+gpread 0 32bppARGB
+end
+case lineprobe-short-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 10.875 12.9375 9.75 5.5625
+gpread 0 32bppARGB
+end
+case lineprobe-short-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.5 2.75 1.375 1
+gpread 0 32bppARGB
+end
+case lineprobe-short-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 5.5 14.1875 8.4375 7.75
+gpread 0 32bppARGB
+end
+case lineprobe-short-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.8125 13.25 6.25 4.3125
+gpread 0 32bppARGB
+end
+case lineprobe-short-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.8125 8 4.9375 2.9375
+gpread 0 32bppARGB
+end
+case lineprobe-short-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 4.5625 13.625 13.4375 2.625
+gpread 0 32bppARGB
+end
+case lineprobe-short-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 3.125 10.875 4.0625 1.1875
+gpread 0 32bppARGB
+end
+case lineprobe-short-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 13.6875 4.8125 10.0625 2.4375
+gpread 0 32bppARGB
+end
+case lineprobe-short-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 12 9.25 12.25 13
+gpread 0 32bppARGB
+end
+case lineprobe-short-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 5.5625 12.6875 14.75 5.875
+gpread 0 32bppARGB
+end
+case lineprobe-short-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 13.5 4.5625 5 2.375
+gpread 0 32bppARGB
+end
+case lineprobe-short-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 14.375 11.0625 4.6875 4.25
+gpread 0 32bppARGB
+end
+case lineprobe-short-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.875 5.375 5.25 10.8125
+gpread 0 32bppARGB
+end
+case lineprobe-short-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 7.3125 12.4375 13.4375 2.9375
+gpread 0 32bppARGB
+end
+case lineprobe-short-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 12.4375 2.625 8.1875 14.25
+gpread 0 32bppARGB
+end
+case lineprobe-short-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.3125 10.5 6.8125 14.875
+gpread 0 32bppARGB
+end
+case lineprobe-short-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.1875 8.875 5.5625 12.8125
+gpread 0 32bppARGB
+end
+case lineprobe-short-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 8.75 12.6875 13.5625 1.0625
+gpread 0 32bppARGB
+end
+case lineprobe-short-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 9.8125 10 13.25 8
+gpread 0 32bppARGB
+end
+case lineprobe-short-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 5.6875 10.6875 3.125 3.75
+gpread 0 32bppARGB
+end
+case lineprobe-short-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.8125 10.5625 10.3125 10.3125
+gpread 0 32bppARGB
+end
+case lineprobe-short-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 10.0625 14.25 12.75 9.5
+gpread 0 32bppARGB
+end
+case lineprobe-short-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.6875 14.4375 6 10.8125
+gpread 0 32bppARGB
+end
+case lineprobe-short-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.375 6.8125 7.5 5.5625
+gpread 0 32bppARGB
+end
+case lineprobe-short-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.25 7 8.6875 1.375
+gpread 0 32bppARGB
+end
+case lineprobe-short-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 14.6875 7 1.1875 12.0625
+gpread 0 32bppARGB
+end
+case lineprobe-short-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 10.9375 4.625 14.25 5.5625
+gpread 0 32bppARGB
+end
+case lineprobe-short-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 8.5 14.875 12.0625 3.25
+gpread 0 32bppARGB
+end
+case lineprobe-short-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 7.6875 9.6875 14.875 6.9375
+gpread 0 32bppARGB
+end
+case lineprobe-short-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 14.8125 4.1875 5.8125 12.0625
+gpread 0 32bppARGB
+end
+case lineprobe-short-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 9.3125 5.5 6.8125 5.625
+gpread 0 32bppARGB
+end
+case lineprobe-short-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.4375 7.75 14.4375 3.625
+gpread 0 32bppARGB
+end
+case lineprobe-short-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.9375 4.625 9.3125 5.6875
+gpread 0 32bppARGB
+end
+case lineprobe-short-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.8125 9.4375 9.125 10.6875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 16.375 1.5 20.3125 11.1875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 19.25 17.5625 0.625 5.875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -0.25 0.25 6.375 0.75
+gpread 0 32bppARGB
+end
+case lineprobe-clip-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 0.8125 2.0625 -2.875 10.6875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -4.6875 9 5.4375 -0.8125
+gpread 0 32bppARGB
+end
+case lineprobe-clip-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 14.125 20.375 -0.875 -0.1875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 16.5 -5.5 11.9375 -5.875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 7.25 21.625 5.125 5.125
+gpread 0 32bppARGB
+end
+case lineprobe-clip-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -4.6875 8.25 17.375 0.125
+gpread 0 32bppARGB
+end
+case lineprobe-clip-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 4.8125 5.4375 9.8125 -5.625
+gpread 0 32bppARGB
+end
+case lineprobe-clip-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 5.375 -4.125 13 -4.875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -3.3125 17.375 7 7.4375
+gpread 0 32bppARGB
+end
+case lineprobe-clip-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 20.25 11.6875 0.8125 3.6875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 9.875 15.8125 5.6875 10.5625
+gpread 0 32bppARGB
+end
+case lineprobe-clip-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 10 10.375 -1.5625 13.875
+gpread 0 32bppARGB
+end
+case lineprobe-clip-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.4375 5.5 -0.625 12
+gpread 0 32bppARGB
+end
+case lineprobe-clip-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 4.8125 3.25 17 7.9375
+gpread 0 32bppARGB
+end
+case lineprobe-clip-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -1.9375 0.4375 -2.3125 4.5
+gpread 0 32bppARGB
+end
+case lineprobe-clip-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.3125 6 20.1875 18.625
+gpread 0 32bppARGB
+end
+case lineprobe-clip-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 21.8125 14.5 -0.5625 20.125
+gpread 0 32bppARGB
+end
+case lineprobe-grid-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.099 10.448 7.528 12.954
+gpread 0 32bppARGB
+end
+case lineprobe-grid-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 3.943 10.361 13.963 14.48
+gpread 0 32bppARGB
+end
+case lineprobe-grid-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.944 2.102 13.033 8.033
+gpread 0 32bppARGB
+end
+case lineprobe-grid-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.083 3.817 10.203 11.725
+gpread 0 32bppARGB
+end
+case lineprobe-grid-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 8.864 3.736 13.056 5.651
+gpread 0 32bppARGB
+end
+case lineprobe-grid-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11.771 13.091 2.936 1.815
+gpread 0 32bppARGB
+end
+case lineprobe-grid-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 14.964 9.814 7.001 14.204
+gpread 0 32bppARGB
+end
+case lineprobe-grid-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 8.326 14.548 1.373 10.283
+gpread 0 32bppARGB
+end
+case lineprobe-grid-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 7.226 13.767 13.815 10.786
+gpread 0 32bppARGB
+end
+case lineprobe-grid-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 12.5 3.425 14.202 4.647
+gpread 0 32bppARGB
+end
+case lineprobe-grid-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 6.038 11.608 5.06 10.005
+gpread 0 32bppARGB
+end
+case lineprobe-grid-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 9.027 8.707 8.035 1.59
+gpread 0 32bppARGB
+end
+case lineprobe-grid-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.559 11.499 1.792 6.175
+gpread 0 32bppARGB
+end
+case lineprobe-grid-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 13.231 4.383 11.298 5.546
+gpread 0 32bppARGB
+end
+case lineprobe-grid-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 12.631 1.303 8.632 11.602
+gpread 0 32bppARGB
+end
+case lineprobe-grid-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 5.624 12.698 10.255 13.874
+gpread 0 32bppARGB
+end
+case lineprobe-grid-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 1.494 6.799 13.032 5.882
+gpread 0 32bppARGB
+end
+case lineprobe-grid-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 9.696 12.529 8.58 13.491
+gpread 0 32bppARGB
+end
+case lineprobe-grid-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 4.829 10.294 4.842 13.886
+gpread 0 32bppARGB
+end
+case lineprobe-grid-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 4.241 12.979 2.913 2.259
+gpread 0 32bppARGB
+end
+case lineprobe-aa-0
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 3 line 0.625 7.1875 62.8125 6.5
+gpread 0 32bppARGB
+end
+case lineprobe-aa-1
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 0.9375 7.1875 62.75 11.75
+gpread 0 32bppARGB
+end
+case lineprobe-aa-2
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 0.75 11.9375 62.625 8.8125
+gpread 0 32bppARGB
+end
+case lineprobe-aa-3
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 0.0625 4.375 62.125 7.75
+gpread 0 32bppARGB
+end
+case lineprobe-aa-4
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 0.25 4.9375 62.875 8.875
+gpread 0 32bppARGB
+end
+case lineprobe-aa-5
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 0.3125 4.9375 62.25 6.4375
+gpread 0 32bppARGB
+end
+case lineprobe-aa-6
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 3 line 0.75 0 62.375 1.25
+gpread 0 32bppARGB
+end
+case lineprobe-aa-7
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 0.4375 0 62.125 4
+gpread 0 32bppARGB
+end
+case lineprobe-aa-8
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 3 line 0.375 2.5625 63 3.5
+gpread 0 32bppARGB
+end
+case lineprobe-aa-9
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 0.5625 3.125 62.875 5.1875
+gpread 0 32bppARGB
+end
+case lineprobe-aa-10
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 1 1.625 62.3125 3.625
+gpread 0 32bppARGB
+end
+case lineprobe-aa-11
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 0.5 7.1875 62.8125 4.875
+gpread 0 32bppARGB
+end
+case lineprobe-aa-12
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 0.4375 6.1875 62.1875 9.5625
+gpread 0 32bppARGB
+end
+case lineprobe-aa-13
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 0 5.625 62 5.5625
+gpread 0 32bppARGB
+end
+case lineprobe-aa-14
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 0.8125 10.5 62.0625 5
+gpread 0 32bppARGB
+end
+case lineprobe-aa-15
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 0 11.8125 62.375 2.25
+gpread 0 32bppARGB
+end
+case lineprobe-aa-16
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 0.5625 11.1875 62.4375 11.8125
+gpread 0 32bppARGB
+end
+case lineprobe-aa-17
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 0 9.9375 62.0625 6.625
+gpread 0 32bppARGB
+end
+case lineprobe-aa-18
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 0.625 7.5625 62.9375 9.5
+gpread 0 32bppARGB
+end
+case lineprobe-aa-19
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 0.875 5.0625 62.75 5.6875
+gpread 0 32bppARGB
+end
+case lineprobe-aa-20
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 1 6.625 62.1875 8.1875
+gpread 0 32bppARGB
+end
+case lineprobe-aa-21
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 0.8125 9.125 62.625 3.125
+gpread 0 32bppARGB
+end
+case lineprobe-aa-22
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 0.75 6.8125 62.125 0.0625
+gpread 0 32bppARGB
+end
+case lineprobe-aa-23
+gpbitmap 0 64 12 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 0.375 5.875 63 0.0625
+gpread 0 32bppARGB
+end
