@@ -2800,4 +2800,23 @@ fn measure(s: &mut String) {
         }
     }
     writeln!(s, "glerr\nend").unwrap();
+    // more of them (line-aa-wide-5): slopes 1/2, 3/4 and 19/20 across, widths 2 to 3, the
+    // start moved across by sixteenths, up and down
+    writeln!(s, "case line-aa-wide-6\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20", ctx(32)).unwrap();
+    for (n, lean) in [0.5f64, 0.75, 0.95].into_iter().enumerate() {
+        for (k, width) in [2.0, 2.5, 3.0].into_iter().enumerate() {
+            for off in 0..4 {
+                let x0 = 2.0 + f64::from(off) / 16.0 + (k as f64) / 4.0;
+                let ends = [[x0, 2.625], [x0 + 10.0 * lean, 12.625]];
+                let ends = if (n + k + off as usize) % 2 == 1 { [ends[1], ends[0]] } else { ends };
+                writeln!(s, "gl glLineWidth {width}\ngl glClear 0x4000\ngl glBegin 1").unwrap();
+                for (e, at) in ends.iter().enumerate() {
+                    writeln!(s, "gl glColor4ub {} 128 {} 255", 250 * e, 250 - 250 * e).unwrap();
+                    glf(s, "glVertex2f", at);
+                }
+                writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+            }
+        }
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }
