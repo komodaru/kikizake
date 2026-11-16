@@ -20,6 +20,7 @@ pub mod d3d7;
 pub mod d3d9;
 pub mod d3d9draw;
 pub mod d3dx9;
+pub mod dxtenc;
 pub mod gdi;
 pub mod gdiplus;
 pub mod gdifont;

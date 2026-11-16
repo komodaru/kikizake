@@ -232,7 +232,11 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
     }
     let (sm, dm) = (format(sf).ok_or(Fail::Bad)?, format(df).ok_or(Fail::Bad)?);
     let yuy2 = df == super::d3d9draw::fourcc(b"YUY2");
-    if !(matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) || yuy2 && matches!(sm.kind, Kind::Int | Kind::F32) && !sm.ch.iter().any(|c| is_bump(c.c))) {
+    let into_dxt = match dm.kind {
+        Kind::Dxt(n) => DxtAlpha::of(n),
+        Kind::Int | Kind::F16 | Kind::F32 | Kind::Yuv => None,
+    };
+    if !(matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) || into_dxt.is_some() && wd % 4 == 0 && ht % 4 == 0 || yuy2 && matches!(sm.kind, Kind::Int | Kind::F32) && !sm.ch.iter().any(|c| is_bump(c.c))) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
     }
     if sm.ch.iter().chain(&dm.ch).any(|c| is_bump(c.c)) {
@@ -246,7 +250,9 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
             b
         }
     };
-    out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
+    if into_dxt.is_none() {
+        out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
+    }
     // (MEASURED load-R16F .. load-A32B32G32R32F: halves of exponent 31 read as numbers and NaNs,
     // numbers past the half range written as f16_load has them, D3DX9.LOAD.F16RANGE; open: on
     // x64 a denormal half into R16F rounded or truncated, b75ffa2a rounded and b66623f9 not)
@@ -276,6 +282,34 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         }
         return Ok(());
     }
+    if let Some(alpha) = into_dxt {
+        hit(clause::D3DX9_LOAD_DXTENC);
+        let bsz = if alpha == DxtAlpha::Punch { 8 } else { 16 };
+        out.push(format!("px rt {wd} {ht} -{bsz}"));
+        // (MEASURED loadtex-into-DXT*: floats clamped to 0..1 first, a NaN as 1)
+        let unit = |x: Sample| {
+            let v = match (x, sm.kind) {
+                (Sample::Unsigned(v), _) | (Sample::Signed(v), Kind::F16 | Kind::F32) => v,
+                (Sample::Signed(v), _) => (v + 1.0) / 2.0,
+            };
+            if v.is_nan() { 1.0 } else { v.clamp(0.0, 1.0) }
+        };
+        for by in 0..ht / 4 {
+            let mut row = String::new();
+            for bx in 0..wd / 4 {
+                let at = |i: usize| pixels[usize::try_from((by * 4 + i as i32 / 4) * wd + bx * 4 + i as i32 % 4).unwrap_or(0)];
+                // (MEASURED loadtex-into-DXT* x64: in f32; open: x86 on the x87, 5 of 90 blocks
+                // differ from f32 and from double alike)
+                if crate::model::arch() != 64 {
+                    return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
+                }
+                let block = dxt_block::<f32>(alpha, std::array::from_fn(|i| { let p = at(i); std::array::from_fn(|k| unit(p[k])) }));
+                row.extend(block.iter().map(|x| format!("{x:02x}")));
+            }
+            out.push(row);
+        }
+        return Ok(());
+    }
     if yuy2 {
         hit(clause::D3DX9_LOAD_YUY2);
         for row in pixels.chunks(wd as usize) {
@@ -288,6 +322,29 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         out.push(row.iter().enumerate().flat_map(|(i, &p)| load_encode(&dm, sm.kind, p, (i, wd as usize))).map(|x| format!("{x:02x}")).collect());
     }
     Ok(())
+}
+
+/// a 4 x 4 block into DXT1 .. DXT5 as D3DX encodes it (D3DX9.LOAD.DXTENC)
+fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Vec<u8> {
+    use super::dxtenc::{encode_alpha4, encode_alpha8, encode_bc1, Steps};
+    let premul = |px: [[F; 4]; 16]| px.map(|c| [c[0] * c[3], c[1] * c[3], c[2] * c[3], c[3]]);
+    match alpha {
+        DxtAlpha::Punch => {
+            let keyed = px.iter().filter(|c| c[3] < F::of(0.5)).count();
+            if keyed == 16 {
+                return vec![0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff];
+            }
+            encode_bc1(&px, if keyed > 0 { Steps::Three } else { Steps::Four }).to_vec()
+        }
+        DxtAlpha::Explicit { premultiplied } => {
+            let px = if premultiplied { premul(px) } else { px };
+            [encode_alpha4(&px), encode_bc1(&px, Steps::Four)].concat()
+        }
+        DxtAlpha::Interpolated { premultiplied } => {
+            let px = if premultiplied { premul(px) } else { px };
+            [encode_alpha8(&px), encode_bc1(&px, Steps::Four)].concat()
+        }
+    }
 }
 
 /// a pair of pixels into YUY2 as D3DX writes it (MEASURED load-into-YUY2, load-yuy2-probe):
