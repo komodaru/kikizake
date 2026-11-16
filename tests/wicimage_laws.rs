@@ -718,13 +718,13 @@ fn fixed_point_goes_back_where_it_came_from() {
 fn floats_go_back_in_order() {
     for t in [wi::FloatBack::Bits16, wi::FloatBack::Bits8] {
         let top = if t == wi::FloatBack::Bits16 { 65535 } else { 255 };
-        assert_eq!((wi::float_srgb(0.0, t), wi::float_srgb(1.0, t)), (Some(0), Some(top)));
-        for x in [-0.0001f32, 1.0001, f32::NAN, f32::INFINITY] {
-            assert_eq!(wi::float_srgb(x, t), None);
+        assert_eq!((wi::float_srgb(0.0, t), wi::float_srgb(1.0, t)), (0, top));
+        for (x, want) in [(-0.0001f32, 0), (-0.0, 0), (f32::NEG_INFINITY, 0), (f32::NAN, 0), (-f32::NAN, 0), (1.0001, top), (f32::INFINITY, top)] {
+            assert_eq!(wi::float_srgb(x, t), want, "{x}");
         }
         let mut was = 0;
         for v in 0..=65535u16 {
-            let got = wi::float_srgb(wi::linear16(v), t).unwrap();
+            let got = wi::float_srgb(wi::linear16(v), t);
             assert!(got >= was);
             was = got;
             if t == wi::FloatBack::Bits16 {
@@ -737,7 +737,7 @@ fn floats_go_back_in_order() {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(2000))]
 
-    /// every float of 0..1 has a level (no gaps), the levels climb with the bits of the float,
+    /// every float of 0..1 has a level of its own steps, the levels climb with the bits of the float,
     /// and the 8-bit level is never far from the 16-bit one's 257ths
     #[test]
     fn every_float_has_its_level(a in 0u32..=0x3f80_0000, b in 0u32..=0x3f80_0000) {
@@ -745,11 +745,10 @@ proptest! {
         for t in [wi::FloatBack::Bits16, wi::FloatBack::Bits8] {
             let l = wi::float_srgb(f32::from_bits(lo), t);
             let h = wi::float_srgb(f32::from_bits(hi), t);
-            prop_assert!(l.is_some() && h.is_some());
             prop_assert!(l <= h);
         }
         let x = f32::from_bits(lo);
-        let (w, n) = (wi::float_srgb(x, wi::FloatBack::Bits16).unwrap(), wi::float_srgb(x, wi::FloatBack::Bits8).unwrap());
+        let (w, n) = (wi::float_srgb(x, wi::FloatBack::Bits16), wi::float_srgb(x, wi::FloatBack::Bits8));
         prop_assert!((f64::from(w) / 257.0 - f64::from(n)).abs() <= 1.0, "{x}: {w} and {n}");
     }
 }

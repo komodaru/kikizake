@@ -167,6 +167,12 @@ impl Fix13 {
     pub fn new(v: i16) -> Option<Self> {
         u16::try_from(v).ok().filter(|&v| v <= 8192).map(Self)
     }
+    /// MEASURED (golden wicencode floatout-rgba64fixed-rgba64: 32bppGrayFloat of -1, 1.5, 2,
+    /// 1e30, infinities and NaN through 64bppRGBAFixedPoint into 64bppRGBA as the floats go): a
+    /// color level below 0 as 0, past 1 as 1
+    pub fn clamped(v: i16) -> Self {
+        Self(v.clamp(0, 8192).unsigned_abs())
+    }
 }
 
 /// which table an s2.13 level goes back to 16 bits through
@@ -180,7 +186,7 @@ pub enum FixBack {
 /// level goes back as the float v / 8192 does (float_srgb); a gray through GRAYFIX16_GRAY16
 pub fn fix13_srgb16(v: Fix13, t: FixBack) -> u16 {
     match t {
-        FixBack::Color => float_srgb(f32::from(v.0) / 8192.0f32, FloatBack::Bits16).unwrap_or(u16::MAX),
+        FixBack::Color => float_srgb(f32::from(v.0) / 8192.0f32, FloatBack::Bits16),
         FixBack::Gray => {
             let k = usize::from(v.0) * 2;
             u16::from_le_bytes([GRAYFIX16_GRAY16[k], GRAYFIX16_GRAY16[k + 1]])
@@ -205,23 +211,22 @@ pub enum FloatBack {
     Bits8,
 }
 
-/// a float of 0..1 back into 8 or 16 bits sRGB (None outside 0..1)
-pub fn float_srgb(x: f32, t: FloatBack) -> Option<u16> {
-    if !(0.0..=1.0).contains(&x) {
-        return None;
-    }
+/// a float back into 8 or 16 bits sRGB. MEASURED (golden wicencode floatout-*): below 0, -0,
+/// -inf and NaN of either sign 0; past 1 and +inf the top level
+pub fn float_srgb(x: f32, t: FloatBack) -> u16 {
     let tab: &[u8] = match t {
         FloatBack::Bits16 => FLOAT_SRGB16,
         FloatBack::Bits8 => FLOAT_SRGB8,
     };
     let at = |n: usize| f32::from_bits(u32::from_le_bytes([tab[n * 4], tab[n * 4 + 1], tab[n * 4 + 2], tab[n * 4 + 3]]));
     // (the levels reached at or below x)
+    // (the levels reached at or below x; NaN reaches none)
     let (mut lo, mut hi) = (0usize, tab.len() / 4);
     while lo < hi {
         let m = (lo + hi) / 2;
         if at(m) <= x { lo = m + 1 } else { hi = m }
     }
-    u16::try_from(lo).ok()
+    u16::try_from(lo).unwrap_or(u16::MAX)
 }
 
 /// MEASURED (golden wicencode steps-grayfloat-gray16: every level's float is the color one's
@@ -446,7 +451,13 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 let i = y * st + (x * n + k) * 2;
                 Fix13::new(i16::from_le_bytes([s.px[i], s.px[i + 1]]))
             };
-            let color = |k: usize| at(k).map(|v| fix13_srgb16(v, back));
+            let color = |k: usize| match back {
+                FixBack::Color => {
+                    let i = y * st + (x * n + k) * 2;
+                    Some(fix13_srgb16(Fix13::clamped(i16::from_le_bytes([s.px[i], s.px[i + 1]])), back))
+                }
+                FixBack::Gray => at(k).map(|v| fix13_srgb16(v, back)),
+            };
             let alpha = |k: usize| at(k).map(|v| (f32::from(v.0) / 8192.0f32 * 65535.0f32 + 0.5f32).floor() as u16);
             let v: Option<Vec<u16>> = match n {
                 // (16bppGrayFixedPoint into 32bppBGRA: the gray in each color, opaque: golden
@@ -546,7 +557,11 @@ fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 let i = y * st + (x * n + k) * size;
                 let b = &s.px[i..i + size];
                 if half {
-                    crate::model::d3d9draw::f16_to_f64(u16::from_le_bytes([b[0], b[1]])) as f32
+                    // (MEASURED, floatout-rgba64half-rgba64: a half NaN of sign 0 goes to the top
+                    // level as +inf does, one of sign 1 to 0)
+                    let h = u16::from_le_bytes([b[0], b[1]]);
+                    let v = crate::model::d3d9draw::f16_to_f64(h) as f32;
+                    if v.is_nan() && h & 0x8000 == 0 { f32::INFINITY } else { v }
                 } else {
                     f32::from_le_bytes([b[0], b[1], b[2], b[3]])
                 }
@@ -560,13 +575,13 @@ fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
             let v: Option<Vec<u16>> = match n {
                 // (into 16bppGray through the luma of three channels of it, into 8bppGray as it is:
                 // steps-grayfloat-gray8 is steps-rgbafloat-bgra)
-                1 if to == "gray16" => [float_srgb(gray_luma(at(0), at(0), at(0)), back)].into_iter().collect(),
-                1 if to == "rgba64" => { let c = float_srgb(at(0), back); [c, c, c, Some(u16::MAX)].into_iter().collect() }
-                1 => [float_srgb(at(0), back)].into_iter().collect(),
+                1 if to == "gray16" => Some(vec![float_srgb(gray_luma(at(0), at(0), at(0)), back)]),
+                1 if to == "rgba64" => { let c = float_srgb(at(0), back); Some(vec![c, c, c, u16::MAX]) }
+                1 => Some(vec![float_srgb(at(0), back)]),
                 // (128bppRGBAFloat into 16bppGray: float_srgb of the f32 luma, graysweep*-,
                 // gapsweep-*-rgbafloat-gray16)
-                _ if to == "gray16" => [float_srgb(gray_luma(at(0), at(1), at(2)), back)].into_iter().collect(),
-                _ => [float_srgb(at(0), back), float_srgb(at(1), back), float_srgb(at(2), back), alpha(at(3))].into_iter().collect(),
+                _ if to == "gray16" => Some(vec![float_srgb(gray_luma(at(0), at(1), at(2)), back)]),
+                _ => alpha(at(3)).map(|a| vec![float_srgb(at(0), back), float_srgb(at(1), back), float_srgb(at(2), back), a]),
             };
             let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
             let lo = |c: u16| c.to_le_bytes()[0];
@@ -624,11 +639,45 @@ fn byte_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
     Some(Ok(o))
 }
 
+/// MEASURED (golden wicencode floatout-rgbafloat-*, -rgba64half-rgba64: the values come back as
+/// the gray floats do, outside 0..1 too): 32bppGrayFloat into 128bppRGBAFloat the float in each
+/// color, alpha 1; into 64bppRGBAHalf those rounded to half
+fn grayfloat_to_wide(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    let half = match (s.fmt, to) {
+        ("grayfloat", "rgbafloat") => false,
+        ("grayfloat", "rgba64half") => true,
+        _ => return None,
+    };
+    hit(clause::WICIMAGE_CONVERT_FLOAT_NARROW);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (st, ost) = (s.stride(), o.stride());
+    for y in 0..s.h as usize {
+        for x in 0..s.w as usize {
+            let i = y * st + x * 4;
+            let v = f32::from_le_bytes([s.px[i], s.px[i + 1], s.px[i + 2], s.px[i + 3]]);
+            for (k, c) in [v, v, v, 1.0f32].into_iter().enumerate() {
+                if half {
+                    let j = y * ost + x * 8 + k * 2;
+                    o.px[j..j + 2].copy_from_slice(&crate::model::d3d9draw::f32_to_f16(c).to_le_bytes());
+                } else {
+                    let j = y * ost + x * 16 + k * 4;
+                    o.px[j..j + 4].copy_from_slice(&c.to_le_bytes());
+                }
+            }
+        }
+    }
+    Some(Ok(o))
+}
+
 pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if s.fmt == to {
         return Ok(s.clone());
     }
     if let Some(r) = wide_to_float(s, to) {
+        return r;
+    }
+    if let Some(r) = grayfloat_to_wide(s, to) {
         return r;
     }
     if let Some(r) = gray16_to_wide(s, to) {
