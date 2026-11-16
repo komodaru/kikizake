@@ -2086,8 +2086,8 @@ present hr 00000000 index 1
 case chain-edge2-size-16384x14000x2
 device12 ok
 factory ok
-swapchain = 4000 36b0 57 0 1 0 20 2 0 4 0 0 index 0
-present hr 00000000 index 1
+swapchain hr 8007000e
+nochain
 case chain-edge2-size-16384x15000x2
 device12 ok
 factory ok

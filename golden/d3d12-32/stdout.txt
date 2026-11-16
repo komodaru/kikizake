@@ -21795,4 +21795,343 @@ placed12 hr 80070057
 case placed-edge-65536-0
 device12 ok
 placed12 hr 00000000
+case create-tight-buffer-0
+device12 ok
+create hr 00000001
+case alloc-tight-buffer-0
+device12 ok
+alloc 10000 10000
+case create-tight-buffer-1
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-1
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-3
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-3
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-8
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-8
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-10
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-10
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-100
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-100
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-200
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-200
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-1000
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-1000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-2000
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-2000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-buffer-10000
+device12 ok
+create hr 00000001
+case alloc-tight-buffer-10000
+device12 ok
+alloc 10000 10000
+case create-tight-buffer-20000
+device12 ok
+create hr 80070057
+case alloc-tight-buffer-20000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-0
+device12 ok
+create hr 00000001
+case alloc-tight-tex-0
+device12 ok
+alloc 10000 10000
+case create-tight-tex-100
+device12 ok
+create hr 80070057
+case alloc-tight-tex-100
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-1000
+device12 ok
+create hr 00000001
+case alloc-tight-tex-1000
+device12 ok
+alloc 4000 1000
+case create-tight-tex-2000
+device12 ok
+create hr 80070057
+case alloc-tight-tex-2000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-4000
+device12 ok
+create hr 80070057
+case alloc-tight-tex-4000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-10000
+device12 ok
+create hr 00000001
+case alloc-tight-tex-10000
+device12 ok
+alloc 10000 10000
+case create-tight-tex-20000
+device12 ok
+create hr 80070057
+case alloc-tight-tex-20000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-400000
+device12 ok
+create hr 80070057
+case alloc-tight-tex-400000
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-3
+device12 ok
+create hr 80070057
+case alloc-tight-tex-3
+device12 ok
+alloc ffffffffffffffff 10000
+case create-tight-tex-layout2
+device12 ok
+create hr 00000001
+case create-tight-tex-layout3
+device12 ok
+create hr 00000001
+case create-tight-rt
+device12 ok
+create hr 00000001
+case alloc-tight-rt
+device12 ok
+alloc 10000 10000
+case alloc-tight-small
+device12 ok
+alloc 10000 10000
+case featscan-0-0
+device12 ok
+feat size 3c hr 00000000 0100000001000000030000000300000003000000010000000100000001000000030000001f0000000100000000000000010000000100000002000000
+case featscan-1-0
+device12 ok
+feat size 10 hr 00000000 00000000000000000100000001000000
+case featscan-2-0
+device12 ok
+feat none hr 80070057
+case featscan-6-0
+device12 ok
+feat size 8 hr 00000000 1f0000001f000000
+case featscan-7-0
+device12 ok
+feat size 4 hr 00000000 68000000
+case featscan-7-1
+device12 ok
+feat size 4 hr 00000000 60000000
+case featscan-7-2
+device12 ok
+feat none hr 80070057
+case featscan-8-0
+device12 ok
+feat size 18 hr 00000000 010000000400000004000000100000000100000001000000
+case featscan-9-0
+device12 ok
+feat none hr 80070057
+case featscan-10-0
+device12 ok
+feat size 8 hr 00000000 0000000000000000
+case featscan-11-0
+device12 ok
+feat none hr 80070057
+case featscan-12-0
+device12 ok
+feat size 4 hr 00000000 03000000
+case featscan-12-1
+device12 ok
+feat size 4 hr 00000000 01000000
+case featscan-12-2
+device12 ok
+feat none hr 80070057
+case featscan-13-0
+device12 ok
+feat none hr 80070057
+case featscan-14-0
+device12 ok
+feat none hr 80070057
+case featscan-15-0
+device12 ok
+feat none hr 80070057
+case featscan-16-0
+device12 ok
+feat size 14 hr 00000000 0000000000000000010000000100000000000000
+case featscan-17-0
+device12 ok
+feat size 4 hr 00000000 00000000
+case featscan-18-0
+device12 ok
+feat size 8 hr 00000000 0100000002000000
+case featscan-19-0
+device12 ok
+feat size 4 hr 00000000 63000000
+case featscan-20-0
+device12 ok
+feat size c hr 00000000 000000006400000001000000
+case featscan-20-1
+device12 ok
+feat size c hr 00000000 000000001027000000000000
+case featscan-20-2
+device12 ok
+feat size c hr 00000000 020000000000000001000000
+case featscan-21-0
+device12 ok
+feat size 14 hr 00000000 01000000010000000f0000000100000001000000
+case featscan-22-0
+device12 ok
+feat size 4 hr 00000000 01000000
+case featscan-23-0
+device12 ok
+feat size c hr 00000000 010000000200000001000000
+case featscan-24-0
+device12 ok
+feat size 8 hr 00000000 000000000a000000
+case featscan-25-0
+device12 ok
+feat size 8 hr 00000000 0000000000000000
+case featscan-26-0
+device12 ok
+feat none hr 80070057
+case featscan-27-0
+device12 ok
+feat size c hr 00000000 01000000000000000b000000
+case featscan-28-0
+device12 ok
+feat size 8 hr 00000000 0000000000000000
+case featscan-29-0
+device12 ok
+feat none hr 80070057
+case featscan-30-0
+device12 ok
+feat size 14 hr 00000000 0100000000000000010000000000000000000000
+case featscan-31-0
+device12 ok
+feat none hr 80070057
+case featscan-32-0
+device12 ok
+feat size 8 hr 00000000 0a00000064000000
+case featscan-33-0
+device12 ok
+feat size 8 hr 00000000 0000000000000000
+case featscan-34-0
+device12 ok
+feat size c hr 00000000 000000000000000000000000
+case featscan-35-0
+device12 ok
+feat none hr 80070057
+case featscan-36-0
+device12 ok
+feat size 4 hr 00000000 01000000
+case featscan-37-0
+device12 ok
+feat size 18 hr 00000000 010000000100000001000000010000000100000000000000
+case featscan-38-0
+device12 ok
+feat none hr 80070057
+case featscan-39-0
+device12 ok
+feat size 8 hr 00000000 0000000000000000
+case featscan-40-0
+device12 ok
+feat size 4 hr 00000000 01000000
+case featscan-41-0
+device12 ok
+feat size c hr 00000000 000000000100000001000000
+case featscan-42-0
+device12 ok
+feat size 18 hr 00000000 010000000100000001000000000000000100000001000000
+case featscan-43-0
+device12 ok
+feat size c hr 00000000 010000000100000001000000
+case featscan-44-0
+device12 ok
+feat size 8 hr 00000000 0100000001000000
+case featscan-45-0
+device12 ok
+feat size 8 hr 00000000 0100000001000000
+case featscan-46-0
+device12 ok
+feat size 8 hr 00000000 0100000000000000
+case featscan-47-0
+device12 ok
+feat size 4 hr 00000000 01000000
+case featscan-48-0
+device12 ok
+feat size 28 hr 00000000 010000001f0000000100000001000000010000000100000000002000000020000000200000000000
+case featscan-49-0
+device12 ok
+feat size 8 hr 00000000 0000000000000000
+case featscan-50-0
+device12 ok
+feat none hr 8000ffff
+case featscan-51-0
+device12 ok
+feat none hr 80070057
+case featscan-52-0
+device12 ok
+feat none hr 8000ffff
+case featscan-53-0
+device12 ok
+feat size 10 hr 00000000 0a0000000b0000000100000001000000
+case featscan-54-0
+device12 ok
+feat size 4 hr 00000000 00000000
+case featscan-55-0
+device12 ok
+feat size 10 hr 00000000 00000000000000000000000000000000
+case featscan-56-0
+device12 ok
+feat size 4 hr 00000000 00000000
+case featscan-57-0
+device12 ok
+feat size 4 hr 00000000 01000000
+case featscan-58-0
+device12 ok
+feat size 4 hr 00000000 00000000
+case featscan-59-0
+device12 ok
+feat none hr 80070057
+case featscan-60-0
+device12 ok
+feat none hr 80070057
+case featscan-61-0
+device12 ok
+feat none hr 80070057
+case featscan-62-0
+device12 ok
+feat none hr 80070057
+case featscan-63-0
+device12 ok
+feat none hr 80070057
+case featscan-64-0
+device12 ok
+feat none hr 80070057
 done
