@@ -2313,24 +2313,6 @@ dxgifactory 0
 swapchain 0x4000 0x2710 0x57 0 1 0 0x20 2 0 4 0 0
 scpresent 0 0
 end
-case chain-edge2-size-16384x12000x2
-device12
-dxgifactory 0
-swapchain 0x4000 0x2ee0 0x57 0 1 0 0x20 2 0 4 0 0
-scpresent 0 0
-end
-case chain-edge2-size-16384x13000x2
-device12
-dxgifactory 0
-swapchain 0x4000 0x32c8 0x57 0 1 0 0x20 2 0 4 0 0
-scpresent 0 0
-end
-case chain-edge2-size-16384x14000x2
-device12
-dxgifactory 0
-swapchain 0x4000 0x36b0 0x57 0 1 0 0x20 2 0 4 0 0
-scpresent 0 0
-end
 case chain-edge2-size-16384x15000x2
 device12
 dxgifactory 0
@@ -2432,22 +2414,4 @@ device12
 dxgifactory 0
 swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
 sclatency 0x2b
-end
-case chain-edge3-size-16384x14250x2
-device12
-dxgifactory 0
-swapchain 0x4000 0x37aa 0x57 0 1 0 0x20 2 0 4 0 0
-scpresent 0 0
-end
-case chain-edge3-size-16384x14500x2
-device12
-dxgifactory 0
-swapchain 0x4000 0x38a4 0x57 0 1 0 0x20 2 0 4 0 0
-scpresent 0 0
-end
-case chain-edge3-size-16384x14750x2
-device12
-dxgifactory 0
-swapchain 0x4000 0x399e 0x57 0 1 0 0x20 2 0 4 0 0
-scpresent 0 0
 end

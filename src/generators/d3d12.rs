@@ -896,7 +896,8 @@ pub fn dxgi() -> String {
     for n in [16u32, 17, 18, 64, 0x100, 0x1000, 0xffff, 0x10000, 0x100_0000] {
         edge.push((format!("chain-edge2-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
     }
-    for h in [10000u32, 12000, 13000, 14000, 15000, 16000] {
+    // (not 12000..14750: near the bound the answer changes from run to run, golden dxgi-32 of 2e5b541 against the one before)
+    for h in [10000u32, 15000, 16000] {
         let mut d = CHAIN;
         d[0] = 16384;
         d[1] = h;
@@ -911,13 +912,6 @@ pub fn dxgi() -> String {
     }
     for n in [41u32, 42, 43] {
         edge.push((format!("chain-edge5-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
-    }
-    for h in [14250u32, 14500, 14750] {
-        let mut d = CHAIN;
-        d[0] = 16384;
-        d[1] = h;
-        d[7] = 2;
-        edge.push((format!("chain-edge3-size-16384x{h}x2"), d, "scpresent 0 0".into()));
     }
     for (n, d, l) in edge {
         writeln!(s, "case {n}\ndevice12\ndxgifactory 0").unwrap();

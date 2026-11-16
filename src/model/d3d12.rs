@@ -961,8 +961,9 @@ const SINGLE2D_MAX: u32 = 1 << 23;
 /// chain-edge*-latency-*: 40 taken, 41 not)
 const LATENCY_MAX: u32 = 40;
 
-/// the bytes of buffers a 32-bit process runs out of memory making a swap chain of (16384 x 14000
-/// x 2 taken, 16384 x 14250 x 2 not: the first measured that failed, golden dxgi-32 chain-edge*-size-*)
+/// the bytes of buffers a 32-bit process runs out of memory making a swap chain of (golden dxgi-32
+/// chain-edge*-size-*: 16384 x 10000 x 2 taken, 16384 x 15000 x 2 not; between, 14000 to 14750,
+/// the answer changed from run to run, so no case asks there)
 const CHAIN32_OOM: u64 = 16384 * 14250 * 8;
 
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
