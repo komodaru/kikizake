@@ -1,4 +1,4 @@
-kikizake calls lines-64 cases 4ced8cc69d2128e4 src 252181740c21e1105f747f74a41bb2291c6fcd6e8c17bbb4285eec4aa67ccf60 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 60444 other 0
+kikizake calls lines-64 cases f7e93a6b6ce99794 src 863198a11736305f3cb6b0055ba52d1f6e9f8409f110cfdfc365e40726f149a0 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 62076 other 0
 case line-out-0
 out truncated
 CreateCompatibleDC(h0) = h1
@@ -27737,3 +27737,771 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h4) = 1
+case ellbig-0
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,11,29,16,60) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-1
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,29,6,56,31) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-2
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,19,30,37,57) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-3
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,6,19,10,46) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-4
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,4,20,29,51) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-5
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,5,5,26,19) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-6
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,29,5,33,34) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-7
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,19,14,36,39) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-8
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,22,4,26,6) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-9
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,22,1,24,3) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-10
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,26,25,38,27) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-11
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,28,21,56,51) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-12
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,4,3,22,25) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-13
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,5,13,37,32) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-14
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,28,9,43,34) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-15
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,23,14,48,26) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-16
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,29,7,50,25) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-17
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,29,12,52,42) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-18
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,0,15,20,35) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-19
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,4,13,16,25) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-20
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,30,12,43,32) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-21
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,10,1,14,12) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-22
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,28,16,44,31) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-23
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,26,14,54,40) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-24
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,27,23,57,34) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-25
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,11,17,17,33) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-26
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,12,5,35,25) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-27
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,24,17,45,24) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-28
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,0,6,19,39) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-29
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,27,12,51,30) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-30
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,21,22,41,43) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-31
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,20,19,38,48) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-32
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,16,8,49,14) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-33
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,21,28,30,50) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-34
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,14,19,41,34) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-35
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,12,10,34,16) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-36
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,17,17,40,34) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-37
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,5,19,35,52) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-38
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,29,28,39,52) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-39
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,18,3,21,34) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-40
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,9,16,22,26) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-41
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,20,19,38,23) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-42
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,14,22,45,55) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-43
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,26,22,43,37) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-44
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,18,28,30,46) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-45
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,22,27,51,54) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-46
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,11,20,43,38) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case ellbig-47
+out truncated
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+GetStockObject(8) = h4
+SelectObject(h1,h4) = h5
+CreateSolidBrush(0xffffff) = h6
+SelectObject(h1,h6) = h7
+Ellipse(h1,15,30,30,63) = 1
+GdiFlush() = 1
+SelectObject(h1,h7) = h6
+DeleteObject(h6) = 1
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
