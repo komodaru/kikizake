@@ -403,3 +403,37 @@ fn cubic_tables_sum_to_one_and_mirror() {
         }
     }
 }
+
+proptest! {
+    /// a texture brush's tiles (GP.BRUSH.TEXTURE.PAINT): Tile repeats every tile; each flip mode
+    /// mirrors every other tile on its axes and repeats every two; Clamp gives the one tile at
+    /// (0, 0) and nothing past it; every mode is the bitmap itself on that tile
+    #[test]
+    fn texture_tiles(w in 1u32..7, h in 1u32..7, seed: u32, x in -40i64..40, y in -40i64..40) {
+        use gp::{Texels, Wrap};
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let px: Vec<u32> = (0..w * h).map(|_| r.next()).collect();
+        let t = Texels::new(w, h, px.clone()).unwrap();
+        let (wi, hi) = (i64::from(w), i64::from(h));
+        let inside = (0..wi).contains(&x) && (0..hi).contains(&y);
+        for wrap in [Wrap::Tile, Wrap::TileFlipX, Wrap::TileFlipY, Wrap::TileFlipXY, Wrap::Clamp] {
+            if inside {
+                prop_assert_eq!(t.at(wrap, x, y), Some(px[(y * wi + x) as usize]));
+            }
+        }
+        prop_assert_eq!(t.at(Wrap::Tile, x, y), t.at(Wrap::Tile, x + wi, y - hi));
+        prop_assert_eq!(t.at(Wrap::TileFlipX, x, y), t.at(Wrap::TileFlipX, 2 * wi - 1 - x, y));
+        prop_assert_eq!(t.at(Wrap::TileFlipX, x, y), t.at(Wrap::TileFlipX, x + 2 * wi, y + hi));
+        prop_assert_eq!(t.at(Wrap::TileFlipY, x, y), t.at(Wrap::TileFlipY, x + wi, 2 * hi - 1 - y));
+        prop_assert_eq!(t.at(Wrap::TileFlipXY, x, y), t.at(Wrap::TileFlipXY, 2 * wi - 1 - x, 2 * hi - 1 - y));
+        prop_assert_eq!(t.at(Wrap::Clamp, x, y).is_some(), inside);
+    }
+}
+
+/// Texels::new takes exactly w h texels, neither side 0
+#[test]
+fn texels_sizes() {
+    assert!(gp::Texels::new(2, 3, vec![0; 6]).is_some());
+    assert!(gp::Texels::new(2, 3, vec![0; 5]).is_none());
+    assert!(gp::Texels::new(0, 3, vec![]).is_none());
+}

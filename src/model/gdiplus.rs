@@ -978,10 +978,71 @@ impl HatchStyle {
     }
 }
 
+/// WrapMode: how a texture (or gradient) repeats past its first tile
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Wrap {
+    Tile,
+    TileFlipX,
+    TileFlipY,
+    TileFlipXY,
+    Clamp,
+}
+impl Wrap {
+    pub fn from_value(v: i64) -> Option<Wrap> {
+        Some(match v {
+            0 => Wrap::Tile,
+            1 => Wrap::TileFlipX,
+            2 => Wrap::TileFlipY,
+            3 => Wrap::TileFlipXY,
+            4 => Wrap::Clamp,
+            _ => return None,
+        })
+    }
+    /// (flip across, flip down) of every other tile
+    fn flips(self) -> (bool, bool) {
+        match self {
+            Wrap::Tile | Wrap::Clamp => (false, false),
+            Wrap::TileFlipX => (true, false),
+            Wrap::TileFlipY => (false, true),
+            Wrap::TileFlipXY => (true, true),
+        }
+    }
+}
+
+/// a texture brush's texels: the bitmap as it was when the brush was made, premultiplied
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct Texels {
+    w: u32,
+    h: u32,
+    px: Vec<u32>,
+}
+impl Texels {
+    /// a w x h tile of premultiplied texels, row by row (None unless there are w h of them)
+    pub fn new(w: u32, h: u32, px: Vec<u32>) -> Option<Texels> {
+        (w > 0 && h > 0 && px.len() == (w as usize) * (h as usize)).then_some(Texels { w, h, px })
+    }
+    /// the texel a device pixel takes, the tile anchored at the rendering origin; None past the
+    /// one tile of Clamp
+    pub fn at(&self, wrap: Wrap, x: i64, y: i64) -> Option<u32> {
+        let (w, h) = (i64::from(self.w), i64::from(self.h));
+        if wrap == Wrap::Clamp && !((0..w).contains(&x) && (0..h).contains(&y)) {
+            return None;
+        }
+        let (fx, fy) = wrap.flips();
+        let fold = |v: i64, n: i64, flip: bool| {
+            let m = v.rem_euclid(n);
+            if flip && v.div_euclid(n) % 2 != 0 { n - 1 - m } else { m }
+        };
+        let (tx, ty) = (fold(x, w, fx), fold(y, h, fy));
+        Some(self.px[(ty * w + tx) as usize])
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Brush {
     Solid(u32),
     Hatch { style: HatchStyle, fore: u32, back: u32 },
+    Texture { texels: Texels, wrap: Wrap },
 }
 
 /// SmoothingMode as GDI+ 1.0 takes it (AntiAlias8x8 and past it: InvalidParameter)
@@ -1105,21 +1166,31 @@ fn samples(p: i64, a: f64, b: f64, n: u32) -> u32 {
 /// FillRectangle of a brush in float coordinates (MEASURED, golden gdipluspaint rectf-*,
 /// rectfblend-*, hatch*-*)
 #[allow(clippy::too_many_arguments)]
-fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), copy: bool, q: Quality, sm: Smoothing, po: PixelOffset, (ox, oy): (i64, i64)) -> Res<()> {
+fn paint_rect(b: &mut Bitmap, brush: &Brush, (x, y, w, h): (f32, f32, f32, f32), copy: bool, q: Quality, sm: Smoothing, po: PixelOffset, (ox, oy): (i64, i64)) -> Res<()> {
     if w < 0.0 || h < 0.0 {
         hit(clause::GP_PAINT_NEGATIVE);
         return Ok(());
     }
     let (x, y, w, h) = (x as f64, y as f64, w as f64, h as f64);
     let pre = |c: u32| premultiplied(c);
-    let kind = match brush {
+    let kind = match *brush {
         Brush::Solid(_) => Source::Solid,
         Brush::Hatch { .. } => Source::Texture { origin: (ox, oy) },
+        // (MEASURED, golden gdiplusbrush textile-*: a texture brush is anchored at the device's
+        // (0, 0); the rendering origin moves hatches only)
+        Brush::Texture { .. } => Source::Texture { origin: (0, 0) },
     };
     // (the brush's color at a pixel, premultiplied)
-    let color = |px: u32, py: u32| -> u32 {
-        match brush {
+    let color = |px: u32, py: u32| -> Option<u32> {
+        Some(match *brush {
             Brush::Solid(c) => pre(c),
+            Brush::Texture { ref texels, wrap } => {
+                hit(clause::GP_BRUSH_TEXTURE_PAINT);
+                // (past a Clamp tile the brush is a transparent texel, blended like any other: a
+                // 64bpp destination comes back through premultiplication there, MEASURED golden
+                // gdiplusbrush texblend-7, -20, -21)
+                return Some(texels.at(wrap, i64::from(px), i64::from(py)).unwrap_or(0));
+            }
             Brush::Hatch { style, fore, back } => {
                 hit(clause::GP_PAINT_HATCH);
                 let (hx, hy) = ((px as i64 - ox).rem_euclid(8), (py as i64 - oy).rem_euclid(8));
@@ -1142,7 +1213,7 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
                     Weight::Most => lerp(234),
                 }
             }
-        }
+        })
     };
     match sm.rows() {
         None => {
@@ -1150,7 +1221,7 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
             let off = if po.half() { 0.5 } else { 0.0 };
             let edge = |v: f64| (v - off).ceil() as i64;
             let bx = (edge(x).max(0), edge(y).max(0), edge(x + w).min(b.w as i64), edge(y + h).min(b.h as i64));
-            fill_area(b, bx, &|px, py| Some(color(px, py)), kind, copy, q)
+            fill_area(b, bx, &color, kind, copy, q)
         }
         Some(n) => {
             hit(clause::GP_PAINT_AA);
@@ -1160,11 +1231,9 @@ fn paint_rect(b: &mut Bitmap, brush: Brush, (x, y, w, h): (f32, f32, f32, f32), 
             let bx = (0, 0, b.w as i64, b.h as i64);
             fill_area(b, bx, &|px, py| {
                 let c = cov(px, py);
-                (c > 0).then(|| {
-                    // (each premultiplied channel times the share of subsamples, rounded, halves up)
-                    let c0 = color(px, py);
-                    (0..4).fold(0, |o, k| o | ((2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full)) << (8 * k))
-                })
+                // (each premultiplied channel times the share of subsamples, rounded, halves up)
+                let c0 = color(px, py).filter(|_| c > 0)?;
+                Some((0..4).fold(0, |o, k| o | ((2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full)) << (8 * k)))
             }, kind, copy, q)
         }
     }
@@ -1553,9 +1622,27 @@ impl Gdiplus {
                         return Err(Fail::Unmodeled(open::GP_BRUSH_LINEAR));
                     }
                     Some("texture") => {
-                        Self::slot(t, 3)?;
-                        n(t, 4)?;
-                        return Err(Fail::Unmodeled(open::GP_BRUSH_TEXTURE));
+                        let src = Self::slot(t, 3)?;
+                        let wrap = n(t, 4)?;
+                        let Some(img) = &self.bmp[src] else {
+                            out.push("gpbrush nobitmap".into());
+                            return Ok(true);
+                        };
+                        // (MEASURED, golden gdiplusbrush texstatus-*, texfmt-16bppGrayScale: a
+                        // WrapMode past 0 ..= 4, or a 16bppGrayScale bitmap: OutOfMemory)
+                        match (Wrap::from_value(wrap), img.f) {
+                            (Some(wrap), f) if f != Pf::Gray16 => {
+                                hit(clause::GP_BRUSH_TEXTURE);
+                                let px = (0..img.h).flat_map(|y| (0..img.w).map(move |x| (x, y))).map(|(x, y)| convert(img.f, Pf::Pargb32, img.px(x, y), &img.pal).map(|v| v as u32)).collect::<Res<Vec<u32>>>()?;
+                                out.push("brush 0".into());
+                                self.brush[s] = Some(Brush::Texture { texels: Texels::new(img.w, img.h, px).ok_or(Fail::Bad)?, wrap });
+                            }
+                            _ => {
+                                hit(clause::GP_BRUSH_TEXTURE_STATUS);
+                                out.push(format!("brush {OUT_OF_MEMORY}"));
+                            }
+                        }
+                        return Ok(true);
                     }
                     _ => return Err(Fail::Bad),
                 };
@@ -1571,8 +1658,22 @@ impl Gdiplus {
                 }
             }
             "gpbrushinfo" => {
-                Self::slot(t, 1)?;
-                return Err(Fail::Unmodeled(open::GP_BRUSH_LINEAR));
+                let b = Self::slot(t, 1)?;
+                // (MEASURED, golden gdiplusbrush texinfo: GetBrushType's BrushType, a texture's
+                // transform the identity it was made with)
+                let Some(brush) = &self.brush[b] else {
+                    out.push("brushinfo nobrush".into());
+                    return Ok(true);
+                };
+                hit(clause::GP_BRUSH_INFO);
+                out.push(match brush {
+                    Brush::Solid(_) => format!("brushinfo {OK} 0"),
+                    Brush::Hatch { .. } => format!("brushinfo {OK} 1"),
+                    Brush::Texture { .. } => {
+                        let id = [1.0f32, 0.0, 0.0, 1.0, 0.0, 0.0].map(|e| format!(" {:08x}", e.to_bits())).concat();
+                        format!("brushinfo {OK} 2 {OK}{id}")
+                    }
+                });
             }
             "gppen" => {
                 Self::slot(t, 1)?;
@@ -1596,7 +1697,7 @@ impl Gdiplus {
                     out.push("gppaint nobitmap".into());
                     return Ok(true);
                 };
-                let Some(brush) = self.brush[k] else {
+                let Some(brush) = self.brush[k].clone() else {
                     hit(clause::GP_PAINT_NOBRUSH);
                     out.push("paint nobrush".into());
                     return Ok(true);
@@ -1622,7 +1723,7 @@ impl Gdiplus {
                     out.push(format!("paint 0 {INVALID_PARAMETER}"));
                     return Ok(true);
                 };
-                paint_rect(b, brush, (x, y, w, h), copy, q, sm, po, origin)?;
+                paint_rect(b, &brush, (x, y, w, h), copy, q, sm, po, origin)?;
                 out.push("paint 0 0".into());
             }
             "gpattr" => {
