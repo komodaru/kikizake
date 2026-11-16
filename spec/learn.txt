@@ -614,3 +614,5 @@ Graphics::DrawImage | https://learn.microsoft.com/en-us/windows/win32/api/gdiplu
 ImageAttributes::SetColorMatrix | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusimageattributes/nf-gdiplusimageattributes-imageattributes-setcolormatrix
 D3D12_FEATURE | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_feature
 ID3D12Device::CheckFeatureSupport | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport
+Tight Resource Alignment | https://microsoft.github.io/DirectX-Specs/d3d/D3D12TightPlacedResourceAlignment.html
+GPU Upload Heaps | https://microsoft.github.io/DirectX-Specs/d3d/D3D12GPUUploadHeaps.html

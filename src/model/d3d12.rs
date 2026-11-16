@@ -613,6 +613,7 @@ impl D3d12 {
                 hit(clause::D3D12_FEATURE_SCAN);
                 out.push(match super::d3d12_features::answer(w[0], &w[1..]) {
                     Some((size, bytes)) => format!("feat size {size:x} hr {S_OK:08x} {bytes}"),
+                    None if super::d3d12_features::UNEXPECTED.contains(&w[0]) => format!("feat none hr {:08x}", Hr(0x8000_ffff)),
                     None => format!("feat none hr {E_INVALIDARG:08x}"),
                 });
             }
@@ -981,6 +982,12 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         return Ok(E_NOTIMPL);
     }
     let flags = d.flags;
+    if flags & 0x400 != 0 {
+        // (MEASURED, golden d3d12-* create-tight-*, alloc-tight-*: WARP has no tight alignment
+        // (featscan-54: tier 0), yet takes USE_TIGHT_ALIGNMENT and ignores it, against
+        // DirectX-Specs' E_INVALIDARG without the cap)
+        hit(clause::D3D12_TIGHT_IGNORED);
+    }
     // (MEASURED: these flags; 0x10 needs a shared heap, the video ones a video device)
     if no(flags & !(1 | 2 | 4 | 8 | 0x20 | 0x100 | 0x400) != 0 || flags & 3 == 3 || flags & 6 == 6, clause::D3D12_DESC_FLAGS) {
         return Ok(E_INVALIDARG);
