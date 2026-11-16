@@ -4873,3 +4873,363 @@ gppen 0 0xffff0000 1
 gpshape 0 pen 0 - copy 0 2 4 line 0.375 5.875 63 0.0625
 gpread 0 32bppARGB
 end
+case fillprobe-poly-0
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 polygon 2 7 -1 3.5 0.25 9.75 1.75 8 16.75 17 9.75 0.5 3.5 13.25 7.25 3.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-1
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 polygon 0 10 16.25 -0.75 4 13.75 3.5 1.25 3.5 8.75 0.25 11.75 15 8 8.5 16.75 12.25 1.25 6.75 3.25 6 17
+gpread 0 32bppARGB
+end
+case fillprobe-poly-2
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 polygon 1 9 4.75 1.25 -0.25 -0.75 17 3 2.25 17.75 5.25 7.5 15.25 1.25 -1.5 1.75 4.5 0.25 6.75 13.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-3
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 polygon 1 6 0.5 13 17.25 -0.25 6.25 1 2.5 2.75 6.75 4.5 7.75 -0.5
+gpread 0 32bppARGB
+end
+case fillprobe-poly-4
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 1 5 6 11.25 15 9.25 2.5 10.25 15.5 -1.5 1 15.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-5
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 0 6 16.25 8.25 3.75 11 8.5 14.75 16.5 7.75 7.25 -0.25 6.5 10.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-6
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 polygon 0 8 13.25 11.25 14 -1.25 11.25 6 12.25 10.75 10 2.5 9.75 7.25 0.75 1 4.5 1.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-7
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 2 5 1.75 7.5 10.75 8.5 -0.25 7.75 -2 12.5 6.25 7.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-8
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 2 10 -1.25 6.75 11.25 0 16.25 12.25 2 0.25 10.75 1.25 7.5 10 15.75 0.5 12.75 0.25 2.25 12.75 7.25 -1.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-9
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 2 5 16.5 9.5 0.5 15.75 -1 16.5 10.5 1.75 13.25 -1.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-10
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 2 10 17.25 8.75 6.25 17.5 12.25 9.5 13.5 12.5 7 -0.25 11.25 -1 12 15.5 14.5 16.25 1.5 4.5 3.25 3.5
+gpread 0 32bppARGB
+end
+case fillprobe-poly-11
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 polygon 1 5 17 16.25 6.25 11.75 12.25 4.25 0.75 -1.25 13.25 16.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-12
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 polygon 2 5 8.5 3.25 10.25 1 9.75 7.75 13.25 11.25 8.5 7
+gpread 0 32bppARGB
+end
+case fillprobe-poly-13
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 1 7 14 -1.25 5.25 5.5 17 15.25 9.75 9 9.75 2 5.5 14.25 13.5 9.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-14
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 polygon 0 9 4 13.25 -0.5 1.5 8 16 8 9 10 0.5 -1.75 10.25 14.5 11 13.75 0.75 7.25 7.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-15
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 1 5 12 9.25 11.5 5 16 9 5.25 4.75 4.25 9.5
+gpread 0 32bppARGB
+end
+case fillprobe-poly-16
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 polygon 2 10 -1.5 1.25 16.75 -0.25 16 18 -0.5 9 3.5 9.25 15.75 8.75 6.75 8 1.25 4.75 6.25 -1.75 6.75 18
+gpread 0 32bppARGB
+end
+case fillprobe-poly-17
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 0 10 -1.5 16 -2 6.75 14.75 11 7.5 14.5 4 9 1.5 5.25 0 7 8.75 6 -0.5 2 5.5 14
+gpread 0 32bppARGB
+end
+case fillprobe-poly-18
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 polygon 0 6 14 0 6.5 -0.5 -1.75 3.5 6 -1.5 5.5 9.25 4.5 7.5
+gpread 0 32bppARGB
+end
+case fillprobe-poly-19
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 polygon 2 6 15.5 13 11.75 17 14.75 -1 4.25 15.25 14 9.75 10.5 6
+gpread 0 32bppARGB
+end
+case fillprobe-poly-20
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 1 5 10.25 16.75 17.75 5.5 17.75 17.5 0.75 1.5 0.5 6.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-21
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 2 10 3.75 6.75 -1.75 10.25 4.25 2 12.25 16 -2 5.25 9 8.75 15 -0.5 9.75 14.25 -2 12 5.75 12.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-22
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 0 10 15.25 13.75 2.75 6.75 6.25 5 16.75 6.75 2.5 14.75 12 1.25 15.25 4.75 18 1.25 11.5 17 15.5 14
+gpread 0 32bppARGB
+end
+case fillprobe-poly-23
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 0 7 0.75 3.75 11.75 10.75 16.5 12.25 8 7.5 9.5 9.75 6.75 15.25 6.5 10.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-24
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 polygon 1 9 15.25 16.75 15 0.75 10 -1.5 -1.25 -2 11.75 3.25 4.75 3 4 12.25 12 5.75 5.75 14.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-25
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 1 8 5.25 2 10 15 12.75 4 8.25 7.5 13 15 6.25 12.75 16.75 1.75 5.75 8.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-26
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 1 8 13 5.75 2.75 7.75 1.75 16.25 6.25 6.75 4.25 2 15.25 17.25 6.75 5.25 0.5 1.75
+gpread 0 32bppARGB
+end
+case fillprobe-poly-27
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 2 10 10.75 10.25 8.25 13.75 -1 4 3.5 -1.5 15.75 2.5 6.75 6.25 0.25 2.75 1.25 4 5 -1.25 -1.25 4.25
+gpread 0 32bppARGB
+end
+case fillprobe-poly-28
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 polygon 2 10 9 -2 3.5 5.75 8.25 -0.75 10.25 15.75 7 7.25 10.75 17.5 7 17 0.25 11.5 -1.5 9.5 4 1.5
+gpread 0 32bppARGB
+end
+case fillprobe-poly-29
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 polygon 2 8 14.5 4.5 4.75 5.75 5.25 3.5 14.25 6.5 15.25 1.25 4.75 17.25 0.75 1 7.25 15.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-0
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 ellipse 2.75 4.75 51.5 41
+gpread 0 32bppARGB
+end
+case fillprobe-curve-1
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 pie 8 6 31.25 46.25 210 -20
+gpread 0 32bppARGB
+end
+case fillprobe-curve-2
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 closedcurve 0.25 0 5 7 2 40 34.75 30.25 44.25 52.5 42.25 29.25 46.5
+gpread 0 32bppARGB
+end
+case fillprobe-curve-3
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 ellipse 6.5 6.5 39 26.5
+gpread 0 32bppARGB
+end
+case fillprobe-curve-4
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 pie 1.5 1.5 44 32 301 92
+gpread 0 32bppARGB
+end
+case fillprobe-curve-5
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 closedcurve 0.75 1 4 59 11.5 28.5 53.25 61 57.5 4.25 24
+gpread 0 32bppARGB
+end
+case fillprobe-curve-6
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 ellipse 4.5 6.5 33.75 25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-7
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 pie 0.25 1.75 50.25 46.25 -319 -282
+gpread 0 32bppARGB
+end
+case fillprobe-curve-8
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 closedcurve 1.75 2 4 41 54.75 58.75 52.75 35.5 35 60 36.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-9
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 ellipse 7 8 41.25 22.75
+gpread 0 32bppARGB
+end
+case fillprobe-curve-10
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 pie 0.75 5.5 55.25 23 -212 28
+gpread 0 32bppARGB
+end
+case fillprobe-curve-11
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 closedcurve 1.5 0 4 47.75 39.5 5.5 59.25 27 12 2.25 38.75
+gpread 0 32bppARGB
+end
+case fillprobe-curve-12
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 ellipse 1.5 4 36.25 55.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-13
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 pie 6.25 3.25 50.25 34.5 -107 188
+gpread 0 32bppARGB
+end
+case fillprobe-curve-14
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 closedcurve 1.25 2 4 25.25 37.25 31 4.75 9.75 26.5 21.5 41.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-15
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 ellipse 7.75 8 50.25 33.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-16
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 pie 7.5 6.25 35.5 39.75 -260 165
+gpread 0 32bppARGB
+end
+case fillprobe-curve-17
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 closedcurve 1.75 0 6 41 51.25 14.75 25.75 11.25 51.25 12 25.25 42.5 42.5 28.75 15.75
+gpread 0 32bppARGB
+end
+case fillprobe-curve-18
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 ellipse 5.5 8 24.75 20.75
+gpread 0 32bppARGB
+end
+case fillprobe-curve-19
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 pie 2.75 6 47 50.75 309 307
+gpread 0 32bppARGB
+end
+case fillprobe-curve-20
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 closedcurve 1.75 1 7 47.5 61 31.75 21.5 27.25 13.25 21.25 16 8.25 59 56.5 26.75 24.5 16.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-21
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 ellipse 2.5 4.5 49.5 24.25
+gpread 0 32bppARGB
+end
+case fillprobe-curve-22
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 pie 4.75 5 42.75 36.75 76 232
+gpread 0 32bppARGB
+end
+case fillprobe-curve-23
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 closedcurve 1.5 1 4 39.5 41 23.5 28.25 2.5 32.75 48 19.5
+gpread 0 32bppARGB
+end
+case fillprobe-curve-24
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 ellipse 2.25 3 53.25 46
+gpread 0 32bppARGB
+end
+case fillprobe-curve-25
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 pie 2.25 7.25 33.75 39.25 -54 -255
+gpread 0 32bppARGB
+end
+case fillprobe-curve-26
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 closedcurve 0.75 1 5 47 38.5 50 11.75 15 35.25 39.75 26.25 49.75 13
+gpread 0 32bppARGB
+end
+case fillprobe-curve-27
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 ellipse 4.5 0.75 49.75 47
+gpread 0 32bppARGB
+end
+case fillprobe-curve-28
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 pie 3.5 2.25 42 50 -90 291
+gpread 0 32bppARGB
+end
+case fillprobe-curve-29
+gpbitmap 0 64 64 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 closedcurve 0.25 0 6 19.5 38.25 27.25 25.75 60.75 57.5 42 24.25 16.75 54.75 34.5 20.25
+gpread 0 32bppARGB
+end

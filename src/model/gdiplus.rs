@@ -1166,12 +1166,83 @@ fn samples(p: i64, a: f64, b: f64, n: u32) -> u32 {
 /// FillRectangle of a brush in float coordinates (MEASURED, golden gdipluspaint rectf-*,
 /// rectfblend-*, hatch*-*)
 #[allow(clippy::too_many_arguments)]
-fn paint_rect(b: &mut Bitmap, brush: &Brush, (x, y, w, h): (f32, f32, f32, f32), copy: bool, q: Quality, sm: Smoothing, po: PixelOffset, (ox, oy): (i64, i64)) -> Res<()> {
+fn paint_rect(b: &mut Bitmap, brush: &Brush, (x, y, w, h): (f32, f32, f32, f32), copy: bool, q: Quality, sm: Smoothing, po: PixelOffset, origin: (i64, i64)) -> Res<()> {
     if w < 0.0 || h < 0.0 {
         hit(clause::GP_PAINT_NEGATIVE);
         return Ok(());
     }
-    let (x, y, w, h) = (x as f64, y as f64, w as f64, h as f64);
+    paint(b, brush, Area::Rect(x as f64, y as f64, w as f64, h as f64), copy, q, sm, po, origin)
+}
+
+/// a fill mode as FillPolygon takes it
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum FillMode {
+    Alternate,
+    Winding,
+}
+impl FillMode {
+    pub fn from_value(v: i64) -> Option<FillMode> {
+        match v {
+            0 => Some(FillMode::Alternate),
+            1 => Some(FillMode::Winding),
+            _ => None,
+        }
+    }
+}
+
+/// a polygon of points on the 1/16 grid (the device's 28.4), closed from the last to the first
+#[derive(Clone, PartialEq, Debug)]
+pub struct Polygon {
+    pts: Vec<(f64, f64)>,
+}
+impl Polygon {
+    /// none for a point off the 1/16 grid or past +-2^20 (not measured: GDI+ rounds them somehow)
+    pub fn new(pts: &[(f32, f32)]) -> Option<Polygon> {
+        let on = |v: f32| v.is_finite() && v.abs() < 1048576.0 && (v * 16.0).fract() == 0.0;
+        pts.iter().all(|&(x, y)| on(x) && on(y)).then(|| Polygon { pts: pts.iter().map(|&(x, y)| (x as f64, y as f64)).collect() })
+    }
+    /// the winding number at (x, y): an edge counts where it crosses the sample's row, the row
+    /// taken half open ([top, bottom)), an edge at or left of the sample counted
+    pub fn winding(&self, x: f64, y: f64) -> i64 {
+        let n = self.pts.len();
+        (0..n)
+            .map(|i| {
+                let ((x0, y0), (x1, y1)) = (self.pts[i], self.pts[(i + 1) % n]);
+                if !((y0 <= y && y < y1) || (y1 <= y && y < y0)) {
+                    return 0;
+                }
+                // (the crossing x0 + (y - y0) (x1 - x0) / (y1 - y0) <= x, multiplied out: exact,
+                // the coordinates on the 1/16 grid and the samples on the 1/64 grid)
+                let (l, r) = ((x - x0) * (y1 - y0), (y - y0) * (x1 - x0));
+                let left = if y1 > y0 { r <= l } else { r >= l };
+                match (left, y1 > y0) {
+                    (true, true) => 1,
+                    (true, false) => -1,
+                    (false, _) => 0,
+                }
+            })
+            .sum()
+    }
+    pub fn inside(&self, fm: FillMode, x: f64, y: f64) -> bool {
+        let w = self.winding(x, y);
+        match fm {
+            FillMode::Alternate => w % 2 != 0,
+            FillMode::Winding => w != 0,
+        }
+    }
+}
+
+/// what a brush fills
+#[derive(Clone, Copy)]
+enum Area<'a> {
+    Rect(f64, f64, f64, f64),
+    Polygon(&'a Polygon, FillMode),
+}
+
+/// a brush filling an area (the rules of FillRectangle hold for a polygon: MEASURED, golden
+/// gdiplusline fill-polygon-*)
+#[allow(clippy::too_many_arguments)]
+fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: Smoothing, po: PixelOffset, (ox, oy): (i64, i64)) -> Res<()> {
     let pre = |c: u32| premultiplied(c);
     let kind = match *brush {
         Brush::Solid(_) => Source::Solid,
@@ -1215,18 +1286,39 @@ fn paint_rect(b: &mut Bitmap, brush: &Brush, (x, y, w, h): (f32, f32, f32, f32),
             }
         })
     };
-    match sm.rows() {
-        None => {
+    match (sm.rows(), area) {
+        (None, Area::Rect(x, y, w, h)) => {
             hit(clause::GP_PAINT_ALIASED);
             let off = if po.half() { 0.5 } else { 0.0 };
             let edge = |v: f64| (v - off).ceil() as i64;
             let bx = (edge(x).max(0), edge(y).max(0), edge(x + w).min(b.w as i64), edge(y + h).min(b.h as i64));
             fill_area(b, bx, &color, kind, copy, q)
         }
-        Some(n) => {
+        (None, Area::Polygon(poly, fm)) => {
+            hit(clause::GP_SHAPE_POLYGON);
+            // (a pixel is in when its sample is: at (x, y), or (x + 1/2, y + 1/2) for a half
+            // pixel offset)
+            let off = if po.half() { 0.5 } else { 0.0 };
+            let bx = (0, 0, b.w as i64, b.h as i64);
+            fill_area(b, bx, &|px, py| color(px, py).filter(|_| poly.inside(fm, px as f64 + off, py as f64 + off)), kind, copy, q)
+        }
+        (Some(n), area) => {
             hit(clause::GP_PAINT_AA);
             let s = if po.half() { 0.0 } else { 0.5 };
-            let cov = |px: u32, py: u32| samples(px as i64, x + s, x + w + s, 8) * samples(py as i64, y + s, y + h + s, n);
+            let cov = |px: u32, py: u32| match area {
+                Area::Rect(x, y, w, h) => samples(px as i64, x + s, x + w + s, 8) * samples(py as i64, y + s, y + h + s, n),
+                Area::Polygon(poly, fm) => {
+                    hit(clause::GP_SHAPE_POLYGON);
+                    // (the subsamples at (x - s + i / 8, y - s + j / n))
+                    let mut c = 0;
+                    for i in 0..8 {
+                        for j in 0..n {
+                            c += u32::from(poly.inside(fm, px as f64 - s + f64::from(i) / 8.0, py as f64 - s + f64::from(j) / f64::from(n)));
+                        }
+                    }
+                    c
+                }
+            };
             let full = 8 * n;
             let bx = (0, 0, b.w as i64, b.h as i64);
             fill_area(b, bx, &|px, py| {
@@ -1682,13 +1774,59 @@ impl Gdiplus {
                 return Err(Fail::Unmodeled(open::GP_PEN));
             }
             "gpshape" => {
-                Self::slot(t, 1)?;
+                let s = Self::slot(t, 1)?;
                 let pen = match t.get(2).map(String::as_str) {
                     Some("pen") => true,
                     Some("brush") => false,
                     _ => return Err(Fail::Bad),
                 };
-                return Err(Fail::Unmodeled(if pen { open::GP_PEN } else { open::GP_SHAPE_FILL }));
+                if pen {
+                    return Err(Fail::Unmodeled(open::GP_PEN));
+                }
+                let k = Self::slot(t, 3)?;
+                let matrix = match t.get(4).map(String::as_str) {
+                    Some("-") => None,
+                    _ => Some(Self::slot(t, 4)?),
+                };
+                let copy = match t.get(5).map(String::as_str) {
+                    Some("copy") => true,
+                    Some("over") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                let q = Quality::from_value(n(t, 6)?).ok_or(Fail::Bad)?;
+                let (sm, po) = (n(t, 7)?, n(t, 8)?);
+                // (only a polygon is modelled: the other shapes are flattened curves, and a world
+                // transform's floats are not measured)
+                if t.get(9).map(String::as_str) != Some("polygon") || matrix.is_some() {
+                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                }
+                let fm = FillMode::from_value(n(t, 10)?).ok_or(Fail::Unmodeled(open::GP_SHAPE_FILL))?;
+                let count = n(t, 11)?;
+                if !(0..=32).contains(&count) {
+                    return Err(Fail::Bad);
+                }
+                let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
+                let pts = (0..count as usize).map(|j| Ok((f(12 + 2 * j)?, f(13 + 2 * j)?))).collect::<Res<Vec<_>>>()?;
+                if count < 3 {
+                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                }
+                let poly = Polygon::new(&pts).ok_or(Fail::Unmodeled(open::GP_SHAPE_FILL))?;
+                let Some(b) = self.bmp[s].as_mut() else {
+                    out.push("gpshape nobitmap".into());
+                    return Ok(true);
+                };
+                let Some(brush) = self.brush[k].clone() else {
+                    out.push("shape nobrush".into());
+                    return Ok(true);
+                };
+                if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
+                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                }
+                let (Some(sm), Some(po)) = (Smoothing::from_value(sm), PixelOffset::from_value(po)) else {
+                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                };
+                paint(b, &brush, Area::Polygon(&poly, fm), copy, q, sm, po, (0, 0))?;
+                out.push("shape 0 0".into());
             }
             "gppaint" => {
                 let s = Self::slot(t, 1)?;

@@ -686,6 +686,7 @@ pub fn gdiplusline() -> String {
         writeln!(s, "case shapeblend-{i}\n{head}\ngpwrite 0 32bppARGB seed {}\ngppen 0 {:#010x} {}\ngpbrush 0 solid {:#010x}\ngpshape 0 {shape}\ngpread 0 32bppARGB\nend", r.next(), rargb(&mut r), r.range(1, 4), rargb(&mut r)).unwrap();
     }
     lineprobe(&mut s);
+    fillprobe(&mut s);
     s
 }
 
@@ -729,5 +730,31 @@ fn lineprobe(s: &mut String) {
         let (sm, po) = (*r.pick(&[2, 4, 5]), *r.pick(&[3, 4]));
         let v = [x16(&mut r, 0, 1), x16(&mut r, 0, 12), x16(&mut r, 62, 63), x16(&mut r, 0, 12)];
         writeln!(s, "case lineprobe-aa-{i}\ngpbitmap 0 64 12 32bppARGB\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 {sm} {po} line {}\ngpread 0 32bppARGB\nend", v.join(" ")).unwrap();
+    }
+}
+
+/// probes of the fills: polygons in the Winding mode (self crossing, wound twice), and large
+/// ellipses, pies and closed curves whose flattening shows in the pixels
+fn fillprobe(s: &mut String) {
+    let mut r = XorShift32::new(0xf111_9b0b);
+    let q4 = |r: &mut XorShift32, lo: i64, hi: i64| format!("{}", r.range(lo * 4, hi * 4) as f32 / 4.0);
+    for i in 0..30 {
+        let (fm, sm, po) = (r.range(0, 2), *r.pick(&[3, 3, 4, 5]), *r.pick(&[3, 4]));
+        let n = r.range(5, 10) as usize;
+        let pts: Vec<String> = (0..2 * n).map(|_| q4(&mut r, -2, 18)).collect();
+        writeln!(s, "case fillprobe-poly-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 solid 0xff00ff00\ngpshape 0 brush 0 - copy 0 {sm} {po} polygon {fm} {n} {}\ngpread 0 32bppARGB\nend", pts.join(" ")).unwrap();
+    }
+    for i in 0..30 {
+        let (sm, po) = (*r.pick(&[3, 3, 4, 5]), *r.pick(&[3, 4]));
+        let shape = match i % 3 {
+            0 => format!("ellipse {} {} {} {}", q4(&mut r, 0, 8), q4(&mut r, 0, 8), q4(&mut r, 20, 56), q4(&mut r, 20, 56)),
+            1 => format!("pie {} {} {} {} {} {}", q4(&mut r, 0, 8), q4(&mut r, 0, 8), q4(&mut r, 20, 56), q4(&mut r, 20, 56), r.range(-360, 360), r.range(-360, 360)),
+            _ => {
+                let n = r.range(3, 7) as usize;
+                let pts: Vec<String> = (0..2 * n).map(|_| q4(&mut r, 2, 62)).collect();
+                format!("closedcurve {} {} {n} {}", r.range(0, 8) as f32 / 4.0, r.range(0, 2), pts.join(" "))
+            }
+        };
+        writeln!(s, "case fillprobe-curve-{i}\ngpbitmap 0 64 64 32bppARGB\ngpbrush 0 solid 0xff00ff00\ngpshape 0 brush 0 - copy 0 {sm} {po} {shape}\ngpread 0 32bppARGB\nend").unwrap();
     }
 }

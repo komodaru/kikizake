@@ -437,3 +437,54 @@ fn texels_sizes() {
     assert!(gp::Texels::new(2, 3, vec![0; 5]).is_none());
     assert!(gp::Texels::new(0, 3, vec![]).is_none());
 }
+
+/// run a case of a 16 x 16 32bppARGB bitmap and the given ops; its pixel rows
+fn fill_rows(ops: &str) -> Vec<String> {
+    let text = format!("case p\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 solid 0xc0408020\n{ops}gpread 0 32bppARGB\nend\n");
+    let c = &kikizake::case::parse_cases(&text)[0];
+    let out = kikizake::model::run_case(c).unwrap();
+    out[out.len() - 16..].to_vec()
+}
+
+proptest! {
+    /// FillPolygon of an axis-aligned rectangle (GP.SHAPE.POLYGON) is FillRectangle of it, under
+    /// every smoothing and pixel offset mode and both compositing modes
+    #[test]
+    fn polygon_rectangle_is_fill_rectangle(x in -8i32..72, y in -8i32..72, w in 0i32..60, h in 0i32..60, sm in 0i64..6, po in 0i64..5, copy: bool, fm in 0i64..2) {
+        let (x, y, w, h) = (x as f32 / 4.0, y as f32 / 4.0, w as f32 / 4.0, h as f32 / 4.0);
+        let mode = if copy { "copy" } else { "over" };
+        let rect = fill_rows(&format!("gppaint 0 0 {x} {y} {w} {h} {mode} 0 {sm} {po} 0 0\n"));
+        let poly = fill_rows(&format!("gpshape 0 brush 0 - {mode} 0 {sm} {po} polygon {fm} 4 {x} {y} {} {y} {} {} {x} {}\n", x + w, x + w, y + h, y + h));
+        prop_assert_eq!(rect, poly);
+    }
+
+    /// a polygon fills the same whichever way round and from whichever point it is given
+    /// (GP.SHAPE.POLYGON), and both fill modes agree on a convex one (a triangle)
+    #[test]
+    fn polygon_order_does_not_matter(p in proptest::collection::vec((-8i32..72, -8i32..72), 3..7), sm in 0i64..6, po in 0i64..5, fm in 0i64..2, k in 0usize..7) {
+        let s = |p: &[(i32, i32)]| p.iter().map(|&(x, y)| format!("{} {}", x as f32 / 4.0, y as f32 / 4.0)).collect::<Vec<_>>().join(" ");
+        let op = |p: &[(i32, i32)], fm: i64| fill_rows(&format!("gpshape 0 brush 0 - copy 0 {sm} {po} polygon {fm} {} {}\n", p.len(), s(p)));
+        let base = op(&p, fm);
+        let mut rev = p.clone();
+        rev.reverse();
+        prop_assert_eq!(&base, &op(&rev, fm));
+        let mut rot = p.clone();
+        rot.rotate_left(k % p.len());
+        prop_assert_eq!(&base, &op(&rot, fm));
+        prop_assert_eq!(op(&p[..3], 0), op(&p[..3], 1));
+    }
+}
+
+/// a point off the 1/16 grid is not modelled (GDI+'s rounding of it is not measured)
+#[test]
+fn polygon_grid() {
+    assert!(gp::Polygon::new(&[(0.0, 0.0), (1.0625, 0.0), (0.0, 3.5)]).is_some());
+    assert!(gp::Polygon::new(&[(0.0, 0.0), (1.03, 0.0), (0.0, 3.5)]).is_none());
+    let sq = gp::Polygon::new(&[(0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0)]).unwrap();
+    // (half open: the top and left edges in, the bottom and right out)
+    let a = |x, y| sq.inside(gp::FillMode::Alternate, x, y);
+    assert_eq!((a(0.0, 0.0), a(2.0, 1.0), a(1.0, 2.0), a(1.0, 1.0), a(-0.01, 1.0)), (true, false, false, true, false));
+    let twice = gp::Polygon::new(&[(0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0), (0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0)]).unwrap();
+    assert!(twice.inside(gp::FillMode::Winding, 1.0, 1.0));
+    assert!(!twice.inside(gp::FillMode::Alternate, 1.0, 1.0));
+}

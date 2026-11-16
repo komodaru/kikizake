@@ -250,6 +250,7 @@ ExcludeClipRect | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-
 ExtCreatePen | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-extcreatepen
 ExtSelectClipRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-extselectcliprgn
 ExtTextOutA | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-exttextouta
+FillMode | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-fillmode
 FillPath | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-fillpath
 FillRect | https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-fillrect
 FillRgn | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-fillrgn
@@ -287,6 +288,7 @@ GetWindowOrgEx | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-w
 GetWorldTransform | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getworldtransform
 GradientFill | https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-gradientfill
 Graphics::Clear | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-clear
+Graphics::FillPolygon | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-fillpolygon(constbrush_constpointf_int_fillmode)
 Graphics::FillRectangle | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-fillrectangle(constbrush_int_int_int_int)
 Graphics::SetRenderingOrigin | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusgraphics/nf-gdiplusgraphics-graphics-setrenderingorigin
 HatchBrush::HatchBrush | https://learn.microsoft.com/en-us/windows/win32/api/gdiplusbrush/nf-gdiplusbrush-hatchbrush-hatchbrush(consthatchbrush_)
