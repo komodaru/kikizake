@@ -122,7 +122,7 @@ static void op_set(void) {
 }
 
 /* glyph <s> <char> <format>: GetGlyphOutlineA with the identity matrix: "glyph <size> <bw>
- * <bh> <ox> <oy> <incx> <incy>" and the buffer as hex */
+ * <bh> <ox> <oy> <incx> <incy>" and the buffer as hex (GGO_METRICS: size 1 for any success, no buffer) */
 static void op_glyph(void) {
     HDC dc = gdi_dc(1);
     int ch = num(2), f = num(3);
@@ -131,8 +131,10 @@ static void op_glyph(void) {
     memset(&gm, 0, sizeof gm);
     MAT2 m = { { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 } };
     DWORD n = GetGlyphOutlineA(dc, ch, f, &gm, 0, NULL, &m);
-    out("glyph %ld %u %u %ld %ld %d %d\n", (long)n, gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmptGlyphOrigin.x, gm.gmptGlyphOrigin.y, gm.gmCellIncX, gm.gmCellIncY);
-    if (n == GDI_ERROR || n == 0 || n > 65536) return;
+    /* GGO_METRICS: only success is documented ("greater than zero"), not the value */
+    long r = n == GDI_ERROR ? -1 : f == GGO_METRICS && n > 0 ? 1 : (long)n;
+    out("glyph %ld %u %u %ld %ld %d %d\n", r, gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmptGlyphOrigin.x, gm.gmptGlyphOrigin.y, gm.gmCellIncX, gm.gmCellIncY);
+    if (f == GGO_METRICS || n == GDI_ERROR || n == 0 || n > 65536) return;
     unsigned char *b = calloc(1, n);
     GetGlyphOutlineA(dc, ch, f, &gm, n, b, &m);
     out_hex(b, n);
