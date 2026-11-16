@@ -463,7 +463,7 @@ pub struct Ctx {
     /// glPolygonOffset: (factor, units)
     pub offset: (f32, f32),
     pub line_width: f32,
-    /// glLineStipple's repeat factor (1..256) and pattern
+    /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
     pub point_size: f32,
     pub cull_mode: u32,
@@ -1685,10 +1685,10 @@ impl Ctx {
                 }
             }
             "glLineStipple" => {
-                // (the factor held to 1..256, the pattern's low 16 bits: GL 1.1 3.4.2,
+                // (MEASURED, line-stipple-0: the factor held to 1..255, not GL 1.1 3.4.2's 256; the pattern's low 16 bits,
                 // GL.LINE.STIPPLE.STATE)
                 hit(clause::GL_LINE_STIPPLE_STATE);
-                self.line_stipple = (int(a, 0).clamp(1, 256), (u(a, 1) & 0xffff) as u16);
+                self.line_stipple = (int(a, 0).clamp(1, 255), (u(a, 1) & 0xffff) as u16);
             }
             "glLineWidth" | "glPointSize" => {
                 let v = fl(a, 0) as f32;
@@ -2941,21 +2941,20 @@ impl Ctx {
     /// as a smooth one (line-flat-8, 9, 10); the rest, and wide
     /// ones, not measured (GL.RASTER.MODE).
     fn flat_path(&self) -> Res<FlatPath> {
-        let unmeasured = self.cap(LINE_SMOOTH) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
-        if unmeasured {
+        if self.cap(LINE_SMOOTH) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         hit(clause::GL_RASTER_LINE_FLAT);
-        // (MEASURED, line-flat-8, 10: 1 pixel wide depth tested or scissored, in the first end's
-        // color; 9: blended, the second's; 17: wide and depth tested, the second's; depth tested
-        // and blended at once not measured)
+        // (MEASURED, line-flat-8, 10: 1 pixel wide with only a depth test or a scissor box on,
+        // in the first end's color; every other way the second's: blended (9), wide and depth
+        // tested (17), blended and depth tested (25), stencil or alpha tested, a logic op, fog
+        // or a color mask (20..24))
+        let others = self.cap(BLEND) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
         let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
-        Ok(match (self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST), self.cap(BLEND)) {
+        Ok(match (self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST), others) {
             (false, false) => FlatPath::Gdi,
-            (true, false) if wide => FlatPath::Pipeline(LineEnd::Second),
-            (true, false) => FlatPath::Pipeline(LineEnd::First),
-            (false, true) => FlatPath::Pipeline(LineEnd::Second),
-            (true, true) => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+            (true, false) if !wide => FlatPath::Pipeline(LineEnd::First),
+            _ => FlatPath::Pipeline(LineEnd::Second),
         })
     }
 
@@ -2964,15 +2963,12 @@ impl Ctx {
     /// the rest open: GL.RASTER.MODE).
     fn flat_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4])) -> Res<()> {
         let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
-        // (cut to the view volume as any line, GL.RASTER.CLIP.XY; under a viewport smaller than
-        // the window and cut: not measured)
+        // (cut to the view volume as any line, GL.RASTER.CLIP.XY, under a smaller viewport too:
+        // line-flat-26)
         let Some((ka, kb)) = tri::clip_segment(ca, cb) else {
             hit(clause::GL_RASTER_CLIP_XY);
             return Ok(());
         };
-        if (ka, kb) != (ca, cb) && self.viewport != [0, 0, W as i64, H as i64] {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let h = H as i64;
         // (each end's pixel held inside the window: line-flat-4, line-color-4)
