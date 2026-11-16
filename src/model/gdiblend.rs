@@ -343,11 +343,17 @@ fn grad_pixel(s: &super::gdi::Surf, num: impl Fn(usize) -> i64, den: i64, r: Rou
     match (s.bpp, r) {
         (32, _) => Some(c(3) << 24 | c(0) << 16 | c(1) << 8 | c(2)),
         (24, _) => Some(c(0) << 16 | c(1) << 8 | c(2)),
-        (16, Round::Floor) => {
+        (16, _) => {
             hit(clause::GDI_GRAD_DITHER16);
             let d = BAYER4[y.rem_euclid(4) as usize][x.rem_euclid(4) as usize];
+            // (the 16 bit value as the format's 8 bit channels take it, GDI.GRAD.RECTH or
+            // GDI.GRAD.TRIROUND)
+            let v16 = |i: usize| match r {
+                Round::Floor => num(i) / den,
+                Round::Nearest16 => (2 * num(i) + den).div_euclid(2 * den),
+            };
             // (5 bits from 1/128 steps; 5-6-5's green, 6 bits from 1/64 steps)
-            let cn = |i: usize, unit: i64, max: i64| ((num(i) / den / unit + d) / 16).clamp(0, max) as u32;
+            let cn = |i: usize, unit: i64, max: i64| ((v16(i) / unit + d) / 16).clamp(0, max) as u32;
             Some(if s.f565 { cn(0, 128, 31) << 11 | cn(1, 64, 63) << 5 | cn(2, 128, 31) } else { cn(0, 128, 31) << 10 | cn(1, 128, 31) << 5 | cn(2, 128, 31) })
         }
         // (color tables: not the ordered dither of 16 bpp onto 3 levels a channel, Windows'
