@@ -1540,6 +1540,19 @@ pub fn wicencode() -> String {
             writeln!(s, "case graysweep{j}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&gray(&lv))).unwrap();
         }
     }
+    // (where inside the gaps between neighbouring gray levels the steps into 16 bits sit: red
+    // and green at a 16-bit level v, blue from v to v + 15, so that the luma creeps across the
+    // gap above v in 16 steps; three stretches of 256 levels)
+    for (k, base) in [2560u32, 25600, 51200].into_iter().enumerate() {
+        let rows: Vec<Vec<u8>> = (0..32u32).map(|y| (0..128u32).flat_map(|x| {
+            let v = base + y * 8 + x / 16;
+            let b = (v + x % 16).min(65535);
+            [v as u16, v as u16, b as u16].into_iter().flat_map(|c| c.to_be_bytes())
+        }).collect()).collect();
+        let f = png(128, 32, 16, 2, false, &[], &png_filter(&rows, 6, &[0]), 4096);
+        writeln!(s, "case gapsweep-{k}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&f)).unwrap();
+        writeln!(s, "case gapsweep-{k}-rgbafloat-rgba64\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv rgba64\nwpixels\nend", hex(&f)).unwrap();
+    }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
