@@ -897,8 +897,64 @@ fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
     hq_plain(s, w, h)
 }
 
+/// Catmull-Rom in f32 by Horner's rule
+fn catmull_rom32(x: f32) -> f32 {
+    let x = x.abs();
+    if x < 1.0 {
+        (1.5f32 * x - 2.5f32) * x * x + 1.0f32
+    } else if x < 2.0 {
+        ((-0.5f32 * x + 2.5f32) * x - 4.0f32) * x + 2.0f32
+    } else {
+        0.0
+    }
+}
+
+/// which way a HighQualityCubic pass of 16 bits a channel runs
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum HqPass {
+    /// taps clamped at the edges, each its own weight
+    Across,
+    /// taps clamped at the edges, the weights of one source row added together first
+    Down,
+}
+
+/// MEASURED (golden wicscale hq16row-*, hq16col-*: 5248 values, every one as this): the weights
+/// of a 16-bit HighQualityCubic pass in f32: center (i + 0.5) * f32(n / d) - 0.5, radius the scale
+/// at least 1, Catmull-Rom by Horner at (j - center) / radius over the taps within twice the
+/// radius, each times the f32 reciprocal of their f32 sum in tap order; down, the taps of one
+/// clamped source row are first added together (in tap order, before the reciprocal)
+pub fn hq_taps32(n: u32, d: u32, pass: HqPass) -> Vec<Vec<(usize, f32)>> {
+    let sc = (f64::from(n) / f64::from(d)) as f32;
+    let r = sc.max(1.0);
+    (0..d)
+        .map(|i| {
+            let p = (i as f32 + 0.5f32) * sc - 0.5f32;
+            let (lo, hi) = ((f64::from(p) - 2.0 * f64::from(r)).floor() as i64, (f64::from(p) + 2.0 * f64::from(r)).ceil() as i64);
+            let raw: Vec<(usize, f32)> = (lo..=hi).map(|j| (j.clamp(0, i64::from(n) - 1) as usize, catmull_rom32((j as f32 - p) / r))).collect();
+            let inv = 1.0f32 / raw.iter().fold(0.0f32, |a, t| a + t.1);
+            let taps = match pass {
+                HqPass::Across => raw,
+                HqPass::Down => {
+                    let mut m: Vec<(usize, f32)> = vec![];
+                    for (k, wt) in raw {
+                        match m.iter_mut().find(|t| t.0 == k) {
+                            Some(t) => t.1 += wt,
+                            None => m.push((k, wt)),
+                        }
+                    }
+                    m
+                }
+            };
+            taps.into_iter().map(|(k, wt)| (k, wt * inv)).collect()
+        })
+        .collect()
+}
+
 fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
     let wide = matches!(s.fmt, "gray16" | "rgb48" | "rgba64");
+    if wide {
+        return hq_wide16(s, w, h);
+    }
     let size = if wide { 2 } else { 1 };
     let c = bits_of(s.fmt) as usize / (8 * size);
     let max = if wide { 65535.0 } else { 255.0 };
@@ -931,6 +987,60 @@ fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
         }
     }
     Ok(o)
+}
+
+/// HighQualityCubic over 16 bits a channel: across, then down, in f32 (hq_taps32), each product
+/// rounded and added in tap order, the last sum rounded half up
+fn hq_wide16(s: &Img, w: u32, h: u32) -> Res<Img> {
+    let (mut o, v) = hq16_sums(s, w, h);
+    let (n, ost) = (v.len() / h.max(1) as usize, o.stride());
+    for (k, v) in v.into_iter().enumerate() {
+        // (OPEN SCALE.WIDE: with both passes at work a sum one f32 step below a half may round
+        // either way: rgrid-hqcubic-rgba64-7x7-3x3's 30754.498 goes up, the others' down)
+        if s.w != w && s.h != h && v > 1.0 && v == f32::from_bits((v.floor() + 0.5f32).to_bits() - 1) {
+            return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_WIDE));
+        }
+        let v = round16(v);
+        let i = k / n * ost + k % n * 2;
+        o.px[i..i + 2].copy_from_slice(&v.to_le_bytes());
+    }
+    Ok(o)
+}
+
+/// a 16-bit sum rounded half up into 0..=65535
+fn round16(v: f32) -> u16 {
+    (f64::from(v) + 0.5).floor().clamp(0.0, 65535.0) as u16
+}
+
+/// the picture HighQualityCubic makes of 16 bits a channel, and its sums in f32 before rounding
+/// (rows of w * channels, no padding: 16-bit rows are a multiple of 4 bytes only by chance)
+fn hq16_sums(s: &Img, w: u32, h: u32) -> (Img, Vec<f32>) {
+    hit(clause::WICIMAGE_SCALE_HQ16);
+    let c = bits_of(s.fmt) as usize / 16;
+    let src = |x: usize, y: usize, k: usize| {
+        let i = y * s.stride() + (x * c + k) * 2;
+        f32::from(u16::from_le_bytes([s.px[i], s.px[i + 1]]))
+    };
+    let (tx, ty) = (hq_taps32(s.w, w, HqPass::Across), hq_taps32(s.h, h, HqPass::Down));
+    let ow = w as usize;
+    let mut mid = vec![0f32; ow * s.h as usize * c];
+    for y in 0..s.h as usize {
+        for (x, t) in tx.iter().enumerate() {
+            for k in 0..c {
+                mid[(y * ow + x) * c + k] = t.iter().fold(0.0f32, |a, &(j, wt)| a + wt * src(j, y, k));
+            }
+        }
+    }
+    let mut out = vec![0f32; ow * h as usize * c];
+    for (y, t) in ty.iter().enumerate() {
+        for x in 0..ow {
+            for k in 0..c {
+                out[(y * ow + x) * c + k] = t.iter().fold(0.0f32, |a, &(j, wt)| a + wt * mid[(j * ow + x) * c + k]);
+            }
+        }
+    }
+    let o = Img { w, h, px: vec![0; stride(s.fmt, w) * h as usize], ..s.clone() };
+    (o, out)
 }
 
 /// a filter over a picture of f32 channels (32bppGrayFloat, 128bppPRGBAFloat)
