@@ -1603,6 +1603,17 @@ pub fn wicencode() -> String {
         let conv = if via.is_empty() { String::new() } else { format!("wconv {via}\n") };
         writeln!(s, "case floatout-{}{to}\nwdecode {}\nwframe 0\n{conv}wconv {to}\nwpixels\nend", if via.is_empty() { String::new() } else { format!("{via}-") }, hex(&tf)).unwrap();
     }
+    // (alpha outside 0..1: a 128bppRGBAFloat TIFF of gray 0.5 under those floats as alpha; and
+    // 16bppGrayFixedPoint outside 0..1, from those gray floats)
+    let vals = [-1.0f32, -0.0, -1e-30, f32::from_bits(1), 1.0000001, 1.5, 2.0, 1e30, f32::INFINITY, f32::NEG_INFINITY, f32::NAN, f32::from_bits(0xffc0_0000), 0.5, 1.0, 0.0, -0.5];
+    let px: Vec<u8> = vals.iter().flat_map(|&a| [0.5f32, 0.5, 0.5, a]).flat_map(|f| f.to_le_bytes()).collect();
+    let ta = tiff(false, &[TiffImage { w: 16, h: 1, photometric: 2, bits: 32, samples: 4, extra: Some(2), planar: 1, rps: 1, px, map: vec![], res: None, format: 3 }]);
+    for to in ["rgba64", "bgra"] {
+        writeln!(s, "case floatalpha-{to}\nwdecode {}\nwframe 0\nwinfo\nwconv {to}\nwpixels\nend", hex(&ta)).unwrap();
+    }
+    for to in ["gray16", "gray8", "bgra"] {
+        writeln!(s, "case grayfixout-{to}\nwdecode {}\nwframe 0\nwconv grayfix16\nwpixels\nwconv {to}\nwpixels\nend", hex(&tf)).unwrap();
+    }
     s
 }
 
