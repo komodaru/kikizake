@@ -430,7 +430,7 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (n, back) = match (s.fmt, to) {
         ("rgba64fixed", "rgba64" | "rgb48" | "bgra" | "bgr24") => (4usize, FixBack::Color),
         ("rgb48fixed", "rgb48") => (3, FixBack::Color),
-        ("grayfix16", "gray16" | "gray8") => (1, FixBack::Gray),
+        ("grayfix16", "gray16" | "gray8" | "bgra") => (1, FixBack::Gray),
         _ => return None,
     };
     hit(clause::WICIMAGE_CONVERT_FIXED_NARROW);
@@ -446,7 +446,9 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
             let color = |k: usize| at(k).map(|v| fix13_srgb16(v, back));
             let alpha = |k: usize| at(k).map(|v| (f32::from(v.0) / 8192.0f32 * 65535.0f32 + 0.5f32).floor() as u16);
             let v: Option<Vec<u16>> = match n {
-                1 => [color(0)].into_iter().collect(),
+                // (16bppGrayFixedPoint into 32bppBGRA: the gray in each color, opaque: golden
+                // cross-grayfix16-bgra)
+                1 => [color(0), color(0), color(0), Some(u16::MAX)].into_iter().collect(),
                 3 => [color(0), color(1), color(2), Some(u16::MAX)].into_iter().collect(),
                 _ => [color(0), color(1), color(2), alpha(3)].into_iter().collect(),
             };
