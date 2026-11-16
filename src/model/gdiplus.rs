@@ -1208,17 +1208,22 @@ impl Polygon {
         (0..n)
             .map(|i| {
                 let ((x0, y0), (x1, y1)) = (self.pts[i], self.pts[(i + 1) % n]);
-                if !((y0 <= y && y < y1) || (y1 <= y && y < y0)) {
+                // (a horizontal edge crosses no row; one going down winds +1, up -1)
+                let (up, (top, bottom)) = match y0.partial_cmp(&y1) {
+                    Some(std::cmp::Ordering::Less) => (false, (y0, y1)),
+                    Some(std::cmp::Ordering::Greater) => (true, (y1, y0)),
+                    Some(std::cmp::Ordering::Equal) | None => return 0,
+                };
+                if !(top <= y && y < bottom) {
                     return 0;
                 }
                 // (the crossing x0 + (y - y0) (x1 - x0) / (y1 - y0) <= x, multiplied out: exact,
                 // the coordinates on the 1/16 grid and the samples on the 1/64 grid)
                 let (l, r) = ((x - x0) * (y1 - y0), (y - y0) * (x1 - x0));
-                let left = if y1 > y0 { r <= l } else { r >= l };
-                match (left, y1 > y0) {
-                    (true, true) => 1,
-                    (true, false) => -1,
-                    (false, _) => 0,
+                match (up, if up { r >= l } else { r <= l }) {
+                    (false, true) => 1,
+                    (true, true) => -1,
+                    (_, false) => 0,
                 }
             })
             .sum()
@@ -1800,7 +1805,7 @@ impl Gdiplus {
                 if t.get(9).map(String::as_str) != Some("polygon") || matrix.is_some() {
                     return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
                 }
-                let fm = FillMode::from_value(n(t, 10)?).ok_or(Fail::Unmodeled(open::GP_SHAPE_FILL))?;
+                let fm = FillMode::from_value(n(t, 10)?);
                 let count = n(t, 11)?;
                 if !(0..=32).contains(&count) {
                     return Err(Fail::Bad);
@@ -1824,6 +1829,13 @@ impl Gdiplus {
                 }
                 let (Some(sm), Some(po)) = (Smoothing::from_value(sm), PixelOffset::from_value(po)) else {
                     return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                };
+                // (MEASURED, golden gdiplusline fillprobe-poly-*: a FillMode past 0 ..= 1 is
+                // InvalidParameter, nothing filled)
+                let Some(fm) = fm else {
+                    hit(clause::GP_SHAPE_POLYGON);
+                    out.push(format!("shape 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
                 };
                 paint(b, &brush, Area::Polygon(&poly, fm), copy, q, sm, po, (0, 0))?;
                 out.push("shape 0 0".into());

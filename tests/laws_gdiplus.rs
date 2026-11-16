@@ -484,6 +484,9 @@ fn polygon_grid() {
     // (half open: the top and left edges in, the bottom and right out)
     let a = |x, y| sq.inside(gp::FillMode::Alternate, x, y);
     assert_eq!((a(0.0, 0.0), a(2.0, 1.0), a(1.0, 2.0), a(1.0, 1.0), a(-0.01, 1.0)), (true, false, false, true, false));
+    // (clockwise on the screen, y down: the left edge goes up, -1; drawn the other way +1)
+    assert_eq!(sq.winding(1.0, 1.0), -1);
+    assert_eq!(gp::Polygon::new(&[(0.0, 0.0), (0.0, 2.0), (2.0, 2.0), (2.0, 0.0)]).unwrap().winding(1.0, 1.0), 1);
     let twice = gp::Polygon::new(&[(0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0), (0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0)]).unwrap();
     assert!(twice.inside(gp::FillMode::Winding, 1.0, 1.0));
     assert!(!twice.inside(gp::FillMode::Alternate, 1.0, 1.0));
