@@ -1332,6 +1332,10 @@ wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2
 wicencode gridtie-idx8-few-3
 wicencode opt-jpeg-sub1-bgra
+wicencode steps-grayfloat-gray16
+wicencode steps-grayfloat-gray8
+wicencode steps-rgbafloat-bgra
+wicencode steps-rgbafloat-rgba64
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic
