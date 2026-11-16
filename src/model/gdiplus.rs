@@ -1570,6 +1570,10 @@ impl Gdiplus {
                     }
                 }
             }
+            "gpbrushinfo" => {
+                Self::slot(t, 1)?;
+                return Err(Fail::Unmodeled(open::GP_BRUSH_LINEAR));
+            }
             "gppen" => {
                 Self::slot(t, 1)?;
                 n(t, 2)?;

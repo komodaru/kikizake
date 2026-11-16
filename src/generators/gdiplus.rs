@@ -550,6 +550,14 @@ pub fn gdiplusbrush() -> String {
         let (x, y, w, h) = (rcoord(&mut r), rcoord(&mut r), rsize(&mut r), rsize(&mut r));
         writeln!(s, "case linrect-{i}\ngpbitmap 0 12 12 32bppARGB\ngpbrush 0 linear 0 0 {} {} 0xff0000ff 0xffffff00 0\ngppaint 0 0 {x} {y} {w} {h} copy 0 {} {} {} {}\ngpread 0 32bppARGB\nend", r.range(1, 14), r.range(-6, 6), r.range(0, 6), r.range(0, 5), r.range(-4, 4), r.range(-4, 4)).unwrap();
     }
+    // the brush's rectangle and transform beside what it paints (black to white, so that only
+    // the place along the gradient matters), any two points, both pixel offsets
+    for i in 0..120 {
+        let (x1, y1) = (r.range(-8, 24), r.range(-8, 24));
+        let (x2, y2) = if i < 16 { (x1 + [1, 0, -1, 0][i % 4] * (i as i64 + 1), y1 + [0, 1, 0, -1][i % 4] * (i as i64 + 1)) } else { (r.range(-8, 24), r.range(-8, 24)) };
+        let (x2, y2) = if (x2, y2) == (x1, y1) { (x1 + 1, y1) } else { (x2, y2) };
+        writeln!(s, "case lininfo-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 linear {x1} {y1} {x2} {y2} 0xff000000 0xffffffff 0\ngpbrushinfo 0\ngppaint 0 0 0 0 16 16 copy 0 0 {} 0 0\ngpread 0 32bppARGB\nend", if i % 3 == 2 { 2 } else { 0 }).unwrap();
+    }
     // what CreateTexture takes: every WrapMode and past it, of each format
     for wrap in -1..=5 {
         writeln!(s, "case texstatus-{wrap}\ngpbitmap 1 3 2 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 8 4 32bppARGB\ngpbrush 0 texture 1 {wrap}\ngppaint 0 0 0 0 8 4 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", r.next()).unwrap();
@@ -564,6 +572,8 @@ pub fn gdiplusbrush() -> String {
         let (x, y) = (r.range(0, 6), r.range(0, 6));
         writeln!(s, "case textile-{i}\ngpbitmap 1 {tw} {th} 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 texture 1 {}\ngppaint 0 0 {x} {y} {} {} copy 0 0 {} {} {}\ngpread 0 32bppARGB\nend", r.next(), r.range(0, 4), 16 - x, 16 - y, r.range(0, 4), r.range(-9, 9), r.range(-9, 9)).unwrap();
     }
+    // a texture brush's transform
+    writeln!(s, "case texinfo\ngpbitmap 1 3 2 32bppARGB\ngpbrush 0 texture 1 0\ngpbrushinfo 0\ngpbrush 1 solid 0xff000000\ngpbrushinfo 1\ngpbrush 1 hatch 3 0xff000000 0xffffffff\ngpbrushinfo 1\nend").unwrap();
     // the texture is the bitmap as it was: the bitmap written after the brush is made
     for i in 0..4 {
         writeln!(s, "case texsnap-{i}\ngpbitmap 1 4 4 32bppARGB\ngpwrite 1 32bppARGB seed {}\ngpbitmap 0 8 8 32bppARGB\ngpbrush 0 texture 1 {i}\ngpwrite 1 32bppARGB seed {}\ngppaint 0 0 0 0 8 8 copy 0 0 0 0 0\ngpread 0 32bppARGB\nend", r.next(), r.next()).unwrap();

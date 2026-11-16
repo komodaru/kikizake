@@ -1485,9 +1485,849 @@ gpbrush 0 linear 0 0 1 0 0xff0000ff 0xffffff00 0
 gppaint 0 0 12.5 14.3125 7.25 9.8125 copy 0 3 1 -1 2
 gpread 0 32bppARGB
 end
+case lininfo-0
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 13 -4 14 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-1
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 24 8 24 10 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-2
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 9 23 6 23 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-3
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 0 -4 0 -8 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-4
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 3 15 8 15 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-5
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 19 -4 19 2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-6
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 2 16 -5 16 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-7
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 16 4 16 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-8
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -4 -4 5 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-9
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 6 19 6 29 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-10
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 22 12 11 12 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-11
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 1 24 1 12 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-12
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 9 7 22 7 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-13
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 3 16 3 30 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-14
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 11 -8 -4 -8 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-15
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -6 6 -6 -10 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-16
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 11 7 7 11 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-17
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 7 24 -2 -1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-18
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 17 9 13 21 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-19
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 -8 16 16 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-20
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 18 24 6 -3 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-21
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 18 5 23 -7 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-22
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 20 14 -3 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-23
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 -3 6 12 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-24
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -7 19 -7 18 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-25
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 12 -6 2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-26
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -8 15 9 15 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-27
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -5 23 24 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-28
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 7 -3 1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-29
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -3 -7 -7 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-30
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 18 10 24 16 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-31
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 5 7 0 8 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-32
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 9 18 11 2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-33
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 3 9 -8 9 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-34
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 5 20 21 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-35
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 19 4 6 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-36
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -4 11 12 16 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-37
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 1 12 -8 10 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-38
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 23 -6 7 23 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-39
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 22 24 -2 24 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-40
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -8 3 4 24 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-41
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -2 21 4 10 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-42
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 6 -1 -7 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-43
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 14 -2 5 9 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-44
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 2 5 -3 22 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-45
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -1 2 13 7 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-46
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 24 -5 15 5 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-47
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 0 5 4 -5 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-48
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 4 1 -3 23 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-49
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 9 -2 12 11 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-50
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 24 22 5 9 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-51
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 1 1 -6 -6 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-52
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -1 18 1 14 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-53
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 20 17 9 -1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-54
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 7 8 2 8 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-55
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 15 3 5 0 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-56
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 20 17 9 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-57
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 6 9 -5 2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-58
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -3 24 19 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-59
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 9 -5 2 0 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-60
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 13 20 3 13 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-61
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 2 12 4 2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-62
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 23 10 19 14 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-63
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 -2 22 24 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-64
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 3 3 -8 13 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-65
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 24 1 22 16 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-66
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 16 23 16 13 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-67
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 23 17 22 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-68
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -1 17 23 -6 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-69
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 13 18 -1 -5 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-70
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 1 15 -6 16 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-71
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 24 8 21 7 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-72
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 3 0 16 -2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-73
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 5 11 9 18 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-74
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 14 17 -2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-75
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 6 12 10 -2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-76
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 14 18 18 9 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-77
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -8 17 3 22 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-78
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 4 -3 20 8 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-79
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 2 0 -3 24 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-80
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 20 -8 12 2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-81
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 16 4 9 0 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-82
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 -7 10 15 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-83
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -2 12 7 5 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-84
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 16 -4 0 19 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-85
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 14 6 -1 1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-86
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 8 22 23 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-87
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 16 -5 3 -3 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-88
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 19 13 20 21 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-89
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 17 -3 9 17 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-90
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 0 14 5 -1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-91
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 16 -7 -5 10 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-92
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 6 -7 24 11 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-93
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 7 2 16 1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-94
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -5 12 24 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-95
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 19 0 11 -3 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-96
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 19 21 7 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-97
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -1 15 18 3 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-98
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 18 -4 1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-99
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 5 5 -5 3 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-100
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -3 14 15 24 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-101
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 11 -5 18 6 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-102
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 22 23 15 -7 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-103
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -6 2 3 21 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-104
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -5 -2 12 -5 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-105
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 12 6 8 11 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-106
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 4 2 11 21 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-107
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -3 20 10 9 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-108
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 7 20 16 22 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-109
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -6 13 21 3 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-110
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 3 12 23 6 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-111
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 0 21 10 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-112
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 13 -7 7 20 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-113
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -6 13 -6 8 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-114
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 2 -2 -4 -2 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-115
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 0 14 -1 23 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-116
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 2 -3 -4 14 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
+case lininfo-117
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 15 8 -3 -1 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-118
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear -7 -1 15 -4 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 0 0 0
+gpread 0 32bppARGB
+end
+case lininfo-119
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 linear 10 -7 18 22 0xff000000 0xffffffff 0
+gpbrushinfo 0
+gppaint 0 0 0 0 16 16 copy 0 0 2 0 0
+gpread 0 32bppARGB
+end
 case texstatus--1
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2698967391
+gpwrite 1 32bppARGB seed 456576917
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 -1
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1495,7 +2335,7 @@ gpread 0 32bppARGB
 end
 case texstatus-0
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2169631237
+gpwrite 1 32bppARGB seed 2588266519
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1503,7 +2343,7 @@ gpread 0 32bppARGB
 end
 case texstatus-1
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1563474989
+gpwrite 1 32bppARGB seed 681780916
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 1
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1511,7 +2351,7 @@ gpread 0 32bppARGB
 end
 case texstatus-2
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 470947735
+gpwrite 1 32bppARGB seed 3267727694
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 2
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1519,7 +2359,7 @@ gpread 0 32bppARGB
 end
 case texstatus-3
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2197537799
+gpwrite 1 32bppARGB seed 1835093560
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 3
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1527,7 +2367,7 @@ gpread 0 32bppARGB
 end
 case texstatus-4
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3037757050
+gpwrite 1 32bppARGB seed 3496730891
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 4
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1535,7 +2375,7 @@ gpread 0 32bppARGB
 end
 case texstatus-5
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3778216373
+gpwrite 1 32bppARGB seed 621818606
 gpbitmap 0 8 4 32bppARGB
 gpbrush 0 texture 1 5
 gppaint 0 0 0 0 8 4 copy 0 0 0 0 0
@@ -1543,7 +2383,7 @@ gpread 0 32bppARGB
 end
 case texfmt-1bppIndexed
 gpbitmap 1 5 3 1bppIndexed
-gpwrite 1 1bppIndexed seed 2713307095
+gpwrite 1 1bppIndexed seed 1257343560
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1551,7 +2391,7 @@ gpread 0 32bppARGB
 end
 case texfmt-4bppIndexed
 gpbitmap 1 5 3 4bppIndexed
-gpwrite 1 4bppIndexed seed 2972583350
+gpwrite 1 4bppIndexed seed 212747540
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1559,7 +2399,7 @@ gpread 0 32bppARGB
 end
 case texfmt-8bppIndexed
 gpbitmap 1 5 3 8bppIndexed
-gpwrite 1 8bppIndexed seed 1116164666
+gpwrite 1 8bppIndexed seed 1167607122
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1567,7 +2407,7 @@ gpread 0 32bppARGB
 end
 case texfmt-16bppGrayScale
 gpbitmap 1 5 3 16bppGrayScale
-gpwrite 1 16bppGrayScale seed 2965933338
+gpwrite 1 16bppGrayScale seed 3950402219
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1575,7 +2415,7 @@ gpread 0 32bppARGB
 end
 case texfmt-16bppRGB555
 gpbitmap 1 5 3 16bppRGB555
-gpwrite 1 16bppRGB555 seed 2350393423
+gpwrite 1 16bppRGB555 seed 608599546
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1583,7 +2423,7 @@ gpread 0 32bppARGB
 end
 case texfmt-16bppRGB565
 gpbitmap 1 5 3 16bppRGB565
-gpwrite 1 16bppRGB565 seed 2871006247
+gpwrite 1 16bppRGB565 seed 2496678086
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1591,7 +2431,7 @@ gpread 0 32bppARGB
 end
 case texfmt-16bppARGB1555
 gpbitmap 1 5 3 16bppARGB1555
-gpwrite 1 16bppARGB1555 seed 2637217365
+gpwrite 1 16bppARGB1555 seed 617611874
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1599,7 +2439,7 @@ gpread 0 32bppARGB
 end
 case texfmt-24bppRGB
 gpbitmap 1 5 3 24bppRGB
-gpwrite 1 24bppRGB seed 3585162792
+gpwrite 1 24bppRGB seed 3071694252
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1607,7 +2447,7 @@ gpread 0 32bppARGB
 end
 case texfmt-32bppRGB
 gpbitmap 1 5 3 32bppRGB
-gpwrite 1 32bppRGB seed 3170674002
+gpwrite 1 32bppRGB seed 3386803421
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1615,7 +2455,7 @@ gpread 0 32bppARGB
 end
 case texfmt-32bppARGB
 gpbitmap 1 5 3 32bppARGB
-gpwrite 1 32bppARGB seed 579395161
+gpwrite 1 32bppARGB seed 836773791
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1623,7 +2463,7 @@ gpread 0 32bppARGB
 end
 case texfmt-32bppPARGB
 gpbitmap 1 5 3 32bppPARGB
-gpwrite 1 32bppPARGB seed 289390072
+gpwrite 1 32bppPARGB seed 2540208086
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1631,7 +2471,7 @@ gpread 0 32bppARGB
 end
 case texfmt-48bppRGB
 gpbitmap 1 5 3 48bppRGB
-gpwrite 1 48bppRGB seed 916003256
+gpwrite 1 48bppRGB seed 2328658047
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1639,7 +2479,7 @@ gpread 0 32bppARGB
 end
 case texfmt-64bppARGB
 gpbitmap 1 5 3 64bppARGB
-gpwrite 1 64bppARGB seed 2691464847
+gpwrite 1 64bppARGB seed 1118752478
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
@@ -1647,1045 +2487,1054 @@ gpread 0 32bppARGB
 end
 case texfmt-64bppPARGB
 gpbitmap 1 5 3 64bppPARGB
-gpwrite 1 64bppPARGB seed 3624706929
+gpwrite 1 64bppPARGB seed 4124913636
 gpbitmap 0 12 7 32bppARGB
 gpbrush 0 texture 1 0
 gppaint 0 0 0 0 12 7 copy 0 0 0 0 0
 gpread 0 32bppARGB
 end
 case textile-0
-gpbitmap 1 3 4 32bppARGB
-gpwrite 1 32bppARGB seed 2861316660
+gpbitmap 1 3 6 32bppARGB
+gpwrite 1 32bppARGB seed 269664292
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 5 5 11 11 copy 0 0 2 -6 5
+gpbrush 0 texture 1 4
+gppaint 0 0 6 5 10 11 copy 0 0 1 2 8
 gpread 0 32bppARGB
 end
 case textile-1
-gpbitmap 1 6 3 32bppARGB
-gpwrite 1 32bppARGB seed 2787995874
+gpbitmap 1 4 6 32bppARGB
+gpwrite 1 32bppARGB seed 1347980198
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 6 5 10 11 copy 0 0 1 5 7
+gpbrush 0 texture 1 2
+gppaint 0 0 3 3 13 13 copy 0 0 3 -9 8
 gpread 0 32bppARGB
 end
 case textile-2
-gpbitmap 1 5 2 32bppARGB
-gpwrite 1 32bppARGB seed 1288396028
+gpbitmap 1 6 6 32bppARGB
+gpwrite 1 32bppARGB seed 4249474553
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 5 1 11 15 copy 0 0 1 -5 -9
+gpbrush 0 texture 1 0
+gppaint 0 0 3 2 13 14 copy 0 0 4 1 0
 gpread 0 32bppARGB
 end
 case textile-3
-gpbitmap 1 3 6 32bppARGB
-gpwrite 1 32bppARGB seed 399677414
+gpbitmap 1 1 6 32bppARGB
+gpwrite 1 32bppARGB seed 1967936780
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 2 3 14 13 copy 0 0 0 -1 6
+gpbrush 0 texture 1 1
+gppaint 0 0 1 5 15 11 copy 0 0 1 4 -4
 gpread 0 32bppARGB
 end
 case textile-4
-gpbitmap 1 2 3 32bppARGB
-gpwrite 1 32bppARGB seed 246749321
+gpbitmap 1 5 6 32bppARGB
+gpwrite 1 32bppARGB seed 3724748978
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 6 3 10 13 copy 0 0 1 -5 7
+gpbrush 0 texture 1 3
+gppaint 0 0 4 4 12 12 copy 0 0 4 8 5
 gpread 0 32bppARGB
 end
 case textile-5
-gpbitmap 1 2 3 32bppARGB
-gpwrite 1 32bppARGB seed 341006327
+gpbitmap 1 4 5 32bppARGB
+gpwrite 1 32bppARGB seed 2799000325
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 2 4 14 12 copy 0 0 3 -2 5
+gpbrush 0 texture 1 0
+gppaint 0 0 3 3 13 13 copy 0 0 1 -3 8
 gpread 0 32bppARGB
 end
 case textile-6
-gpbitmap 1 3 4 32bppARGB
-gpwrite 1 32bppARGB seed 3443835949
+gpbitmap 1 6 5 32bppARGB
+gpwrite 1 32bppARGB seed 2715360194
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 0 3 16 13 copy 0 0 3 1 -5
+gpbrush 0 texture 1 1
+gppaint 0 0 0 4 16 12 copy 0 0 3 -1 1
 gpread 0 32bppARGB
 end
 case textile-7
-gpbitmap 1 6 5 32bppARGB
-gpwrite 1 32bppARGB seed 3035274158
+gpbitmap 1 2 1 32bppARGB
+gpwrite 1 32bppARGB seed 4042299529
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 6 3 10 13 copy 0 0 3 -7 -4
+gpbrush 0 texture 1 4
+gppaint 0 0 5 0 11 16 copy 0 0 2 9 5
 gpread 0 32bppARGB
 end
 case textile-8
-gpbitmap 1 4 3 32bppARGB
-gpwrite 1 32bppARGB seed 2868626105
+gpbitmap 1 4 1 32bppARGB
+gpwrite 1 32bppARGB seed 3738083068
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 0 2 16 14 copy 0 0 4 -4 -7
+gpbrush 0 texture 1 1
+gppaint 0 0 4 4 12 12 copy 0 0 2 6 -6
 gpread 0 32bppARGB
 end
 case textile-9
-gpbitmap 1 4 3 32bppARGB
-gpwrite 1 32bppARGB seed 1416871561
+gpbitmap 1 4 5 32bppARGB
+gpwrite 1 32bppARGB seed 420537056
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 3 1 13 15 copy 0 0 2 -6 -5
+gpbrush 0 texture 1 1
+gppaint 0 0 6 4 10 12 copy 0 0 3 6 -4
 gpread 0 32bppARGB
 end
 case textile-10
-gpbitmap 1 5 2 32bppARGB
-gpwrite 1 32bppARGB seed 3249582393
+gpbitmap 1 3 2 32bppARGB
+gpwrite 1 32bppARGB seed 757289694
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 1 5 15 11 copy 0 0 1 3 -5
+gpbrush 0 texture 1 4
+gppaint 0 0 0 6 16 10 copy 0 0 4 -5 0
 gpread 0 32bppARGB
 end
 case textile-11
-gpbitmap 1 5 3 32bppARGB
-gpwrite 1 32bppARGB seed 1192259901
+gpbitmap 1 5 1 32bppARGB
+gpwrite 1 32bppARGB seed 1696064859
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 5 4 11 12 copy 0 0 3 3 2
+gpbrush 0 texture 1 2
+gppaint 0 0 6 1 10 15 copy 0 0 3 -1 5
 gpread 0 32bppARGB
 end
 case textile-12
-gpbitmap 1 3 4 32bppARGB
-gpwrite 1 32bppARGB seed 174551087
+gpbitmap 1 5 5 32bppARGB
+gpwrite 1 32bppARGB seed 2816601384
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 3 1 13 15 copy 0 0 0 -9 -1
+gpbrush 0 texture 1 3
+gppaint 0 0 6 2 10 14 copy 0 0 3 -3 1
 gpread 0 32bppARGB
 end
 case textile-13
 gpbitmap 1 5 2 32bppARGB
-gpwrite 1 32bppARGB seed 970327492
+gpwrite 1 32bppARGB seed 3015517057
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 4 2 12 14 copy 0 0 0 -6 -1
+gpbrush 0 texture 1 0
+gppaint 0 0 2 2 14 14 copy 0 0 3 8 3
 gpread 0 32bppARGB
 end
 case textile-14
-gpbitmap 1 1 5 32bppARGB
-gpwrite 1 32bppARGB seed 2137178025
+gpbitmap 1 3 6 32bppARGB
+gpwrite 1 32bppARGB seed 1629598560
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 0 6 16 10 copy 0 0 4 -7 2
+gpbrush 0 texture 1 3
+gppaint 0 0 0 6 16 10 copy 0 0 1 1 -5
 gpread 0 32bppARGB
 end
 case textile-15
-gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2660441103
+gpbitmap 1 5 6 32bppARGB
+gpwrite 1 32bppARGB seed 627447331
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 0 6 16 10 copy 0 0 2 -6 6
+gpbrush 0 texture 1 0
+gppaint 0 0 6 1 10 15 copy 0 0 2 -6 -1
 gpread 0 32bppARGB
 end
 case textile-16
-gpbitmap 1 1 6 32bppARGB
-gpwrite 1 32bppARGB seed 3548239032
+gpbitmap 1 6 1 32bppARGB
+gpwrite 1 32bppARGB seed 4088502467
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 6 6 10 10 copy 0 0 1 -1 -2
+gpbrush 0 texture 1 4
+gppaint 0 0 2 0 14 16 copy 0 0 3 -8 1
 gpread 0 32bppARGB
 end
 case textile-17
-gpbitmap 1 6 6 32bppARGB
-gpwrite 1 32bppARGB seed 1809853890
+gpbitmap 1 2 6 32bppARGB
+gpwrite 1 32bppARGB seed 1745049109
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 1 5 15 11 copy 0 0 0 2 5
+gpbrush 0 texture 1 3
+gppaint 0 0 0 5 16 11 copy 0 0 2 -9 9
 gpread 0 32bppARGB
 end
 case textile-18
-gpbitmap 1 5 1 32bppARGB
-gpwrite 1 32bppARGB seed 1523007700
+gpbitmap 1 2 4 32bppARGB
+gpwrite 1 32bppARGB seed 1489542980
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 3 0 13 16 copy 0 0 2 3 1
+gpbrush 0 texture 1 1
+gppaint 0 0 2 3 14 13 copy 0 0 3 -6 6
 gpread 0 32bppARGB
 end
 case textile-19
-gpbitmap 1 6 5 32bppARGB
-gpwrite 1 32bppARGB seed 1951618496
+gpbitmap 1 6 4 32bppARGB
+gpwrite 1 32bppARGB seed 2220659616
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 3 0 13 16 copy 0 0 0 4 -9
+gpbrush 0 texture 1 4
+gppaint 0 0 4 1 12 15 copy 0 0 1 -5 -5
 gpread 0 32bppARGB
 end
 case textile-20
-gpbitmap 1 6 4 32bppARGB
-gpwrite 1 32bppARGB seed 1622729001
+gpbitmap 1 4 5 32bppARGB
+gpwrite 1 32bppARGB seed 3006662283
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 0 2 16 14 copy 0 0 1 4 3
+gpbrush 0 texture 1 3
+gppaint 0 0 6 3 10 13 copy 0 0 0 -2 -9
 gpread 0 32bppARGB
 end
 case textile-21
-gpbitmap 1 6 4 32bppARGB
-gpwrite 1 32bppARGB seed 3503168373
+gpbitmap 1 2 3 32bppARGB
+gpwrite 1 32bppARGB seed 1549669984
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 4 1 12 15 copy 0 0 3 -5 4
+gpbrush 0 texture 1 1
+gppaint 0 0 2 4 14 12 copy 0 0 0 0 -6
 gpread 0 32bppARGB
 end
 case textile-22
-gpbitmap 1 5 6 32bppARGB
-gpwrite 1 32bppARGB seed 944103236
+gpbitmap 1 6 6 32bppARGB
+gpwrite 1 32bppARGB seed 3704819889
 gpbitmap 0 16 16 32bppARGB
 gpbrush 0 texture 1 4
-gppaint 0 0 0 6 16 10 copy 0 0 0 6 8
+gppaint 0 0 0 1 16 15 copy 0 0 0 -6 4
 gpread 0 32bppARGB
 end
 case textile-23
-gpbitmap 1 6 4 32bppARGB
-gpwrite 1 32bppARGB seed 132704739
+gpbitmap 1 6 3 32bppARGB
+gpwrite 1 32bppARGB seed 3483282718
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 5 2 11 14 copy 0 0 2 7 7
+gpbrush 0 texture 1 4
+gppaint 0 0 3 6 13 10 copy 0 0 3 3 -9
 gpread 0 32bppARGB
 end
 case textile-24
-gpbitmap 1 5 4 32bppARGB
-gpwrite 1 32bppARGB seed 2761708150
+gpbitmap 1 2 4 32bppARGB
+gpwrite 1 32bppARGB seed 1094693117
 gpbitmap 0 16 16 32bppARGB
 gpbrush 0 texture 1 2
-gppaint 0 0 6 4 10 12 copy 0 0 4 -6 -9
+gppaint 0 0 4 3 12 13 copy 0 0 4 4 -9
 gpread 0 32bppARGB
 end
 case textile-25
-gpbitmap 1 5 1 32bppARGB
-gpwrite 1 32bppARGB seed 1714024523
+gpbitmap 1 1 3 32bppARGB
+gpwrite 1 32bppARGB seed 3253517599
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 4 4 12 12 copy 0 0 3 3 4
+gpbrush 0 texture 1 3
+gppaint 0 0 0 0 16 16 copy 0 0 3 -5 -5
 gpread 0 32bppARGB
 end
 case textile-26
-gpbitmap 1 1 3 32bppARGB
-gpwrite 1 32bppARGB seed 1487560740
+gpbitmap 1 5 4 32bppARGB
+gpwrite 1 32bppARGB seed 4218075516
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 3 0 13 16 copy 0 0 1 8 7
+gpbrush 0 texture 1 3
+gppaint 0 0 3 0 13 16 copy 0 0 1 5 3
 gpread 0 32bppARGB
 end
 case textile-27
-gpbitmap 1 4 5 32bppARGB
-gpwrite 1 32bppARGB seed 2582932850
+gpbitmap 1 3 4 32bppARGB
+gpwrite 1 32bppARGB seed 2880010264
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 6 2 10 14 copy 0 0 4 -1 8
+gpbrush 0 texture 1 1
+gppaint 0 0 1 6 15 10 copy 0 0 2 2 7
 gpread 0 32bppARGB
 end
 case textile-28
-gpbitmap 1 6 6 32bppARGB
-gpwrite 1 32bppARGB seed 460184464
+gpbitmap 1 3 5 32bppARGB
+gpwrite 1 32bppARGB seed 2683670942
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 0 3 16 13 copy 0 0 1 -2 9
+gpbrush 0 texture 1 2
+gppaint 0 0 4 2 12 14 copy 0 0 2 1 8
 gpread 0 32bppARGB
 end
 case textile-29
-gpbitmap 1 5 2 32bppARGB
-gpwrite 1 32bppARGB seed 3887805971
+gpbitmap 1 6 5 32bppARGB
+gpwrite 1 32bppARGB seed 232310358
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 6 5 10 11 copy 0 0 0 -4 1
+gpbrush 0 texture 1 0
+gppaint 0 0 3 0 13 16 copy 0 0 2 6 -8
 gpread 0 32bppARGB
 end
 case textile-30
-gpbitmap 1 2 1 32bppARGB
-gpwrite 1 32bppARGB seed 2719153346
+gpbitmap 1 3 4 32bppARGB
+gpwrite 1 32bppARGB seed 1441811373
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 5 5 11 11 copy 0 0 1 0 -8
+gpbrush 0 texture 1 0
+gppaint 0 0 5 5 11 11 copy 0 0 0 6 1
 gpread 0 32bppARGB
 end
 case textile-31
-gpbitmap 1 4 6 32bppARGB
-gpwrite 1 32bppARGB seed 1989951537
+gpbitmap 1 1 4 32bppARGB
+gpwrite 1 32bppARGB seed 3432631605
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 2 6 14 10 copy 0 0 1 3 -4
+gpbrush 0 texture 1 3
+gppaint 0 0 1 3 15 13 copy 0 0 1 8 -2
 gpread 0 32bppARGB
 end
 case textile-32
-gpbitmap 1 3 5 32bppARGB
-gpwrite 1 32bppARGB seed 1973778394
+gpbitmap 1 4 3 32bppARGB
+gpwrite 1 32bppARGB seed 3745563440
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 0 3 16 13 copy 0 0 4 2 1
+gpbrush 0 texture 1 2
+gppaint 0 0 3 6 13 10 copy 0 0 0 9 -4
 gpread 0 32bppARGB
 end
 case textile-33
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3511861942
+gpbitmap 1 2 1 32bppARGB
+gpwrite 1 32bppARGB seed 2517275001
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 4 5 12 11 copy 0 0 3 -6 7
+gpbrush 0 texture 1 4
+gppaint 0 0 1 2 15 14 copy 0 0 4 -9 6
 gpread 0 32bppARGB
 end
 case textile-34
-gpbitmap 1 5 3 32bppARGB
-gpwrite 1 32bppARGB seed 1861858522
+gpbitmap 1 6 6 32bppARGB
+gpwrite 1 32bppARGB seed 1887275412
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 1 4 15 12 copy 0 0 3 0 9
+gpbrush 0 texture 1 1
+gppaint 0 0 0 1 16 15 copy 0 0 4 8 6
 gpread 0 32bppARGB
 end
 case textile-35
-gpbitmap 1 6 2 32bppARGB
-gpwrite 1 32bppARGB seed 2403322365
+gpbitmap 1 3 5 32bppARGB
+gpwrite 1 32bppARGB seed 1108968854
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 2 3 14 13 copy 0 0 0 9 -6
+gpbrush 0 texture 1 1
+gppaint 0 0 3 5 13 11 copy 0 0 4 -5 -5
 gpread 0 32bppARGB
 end
 case textile-36
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 208106357
+gpbitmap 1 5 1 32bppARGB
+gpwrite 1 32bppARGB seed 1022021820
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 4 1 12 15 copy 0 0 0 -3 6
+gpbrush 0 texture 1 3
+gppaint 0 0 4 2 12 14 copy 0 0 1 -9 6
 gpread 0 32bppARGB
 end
 case textile-37
-gpbitmap 1 4 2 32bppARGB
-gpwrite 1 32bppARGB seed 2278863305
+gpbitmap 1 1 6 32bppARGB
+gpwrite 1 32bppARGB seed 1424890835
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 5 5 11 11 copy 0 0 0 -5 1
+gpbrush 0 texture 1 2
+gppaint 0 0 4 0 12 16 copy 0 0 4 6 5
 gpread 0 32bppARGB
 end
 case textile-38
-gpbitmap 1 4 5 32bppARGB
-gpwrite 1 32bppARGB seed 316544327
+gpbitmap 1 1 1 32bppARGB
+gpwrite 1 32bppARGB seed 354322829
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 3 4 13 12 copy 0 0 4 6 8
+gpbrush 0 texture 1 2
+gppaint 0 0 4 4 12 12 copy 0 0 4 6 -7
 gpread 0 32bppARGB
 end
 case textile-39
-gpbitmap 1 5 4 32bppARGB
-gpwrite 1 32bppARGB seed 1227383022
+gpbitmap 1 4 2 32bppARGB
+gpwrite 1 32bppARGB seed 65449375
 gpbitmap 0 16 16 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 2 3 14 13 copy 0 0 0 0 -5
+gpbrush 0 texture 1 0
+gppaint 0 0 0 1 16 15 copy 0 0 3 4 -7
 gpread 0 32bppARGB
+end
+case texinfo
+gpbitmap 1 3 2 32bppARGB
+gpbrush 0 texture 1 0
+gpbrushinfo 0
+gpbrush 1 solid 0xff000000
+gpbrushinfo 1
+gpbrush 1 hatch 3 0xff000000 0xffffffff
+gpbrushinfo 1
 end
 case texsnap-0
 gpbitmap 1 4 4 32bppARGB
-gpwrite 1 32bppARGB seed 3541597960
+gpwrite 1 32bppARGB seed 1506784031
 gpbitmap 0 8 8 32bppARGB
 gpbrush 0 texture 1 0
-gpwrite 1 32bppARGB seed 1138442228
+gpwrite 1 32bppARGB seed 1512873449
 gppaint 0 0 0 0 8 8 copy 0 0 0 0 0
 gpread 0 32bppARGB
 end
 case texsnap-1
 gpbitmap 1 4 4 32bppARGB
-gpwrite 1 32bppARGB seed 2693796134
+gpwrite 1 32bppARGB seed 4222287105
 gpbitmap 0 8 8 32bppARGB
 gpbrush 0 texture 1 1
-gpwrite 1 32bppARGB seed 4096036860
+gpwrite 1 32bppARGB seed 626749316
 gppaint 0 0 0 0 8 8 copy 0 0 0 0 0
 gpread 0 32bppARGB
 end
 case texsnap-2
 gpbitmap 1 4 4 32bppARGB
-gpwrite 1 32bppARGB seed 3736903473
+gpwrite 1 32bppARGB seed 1574089201
 gpbitmap 0 8 8 32bppARGB
 gpbrush 0 texture 1 2
-gpwrite 1 32bppARGB seed 3859393052
+gpwrite 1 32bppARGB seed 1987974375
 gppaint 0 0 0 0 8 8 copy 0 0 0 0 0
 gpread 0 32bppARGB
 end
 case texsnap-3
 gpbitmap 1 4 4 32bppARGB
-gpwrite 1 32bppARGB seed 3120706713
+gpwrite 1 32bppARGB seed 683113558
 gpbitmap 0 8 8 32bppARGB
 gpbrush 0 texture 1 3
-gpwrite 1 32bppARGB seed 1857827057
+gpwrite 1 32bppARGB seed 545662664
 gppaint 0 0 0 0 8 8 copy 0 0 0 0 0
 gpread 0 32bppARGB
 end
 case texblend-0
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2108086909
-gpbitmap 0 9 4 1bppIndexed
-gpwrite 0 1bppIndexed seed 2076969001
-gpbrush 0 texture 1 4
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 1bppIndexed
+gpwrite 1 32bppARGB seed 1911037
+gpbitmap 0 9 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 89757180
+gpbrush 0 texture 1 3
+gppaint 0 0 0 0 9 4 over 0 0 0 0 0
+gpread 0 64bppPARGB
 end
 case texblend-1
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1438699808
-gpbitmap 0 9 4 24bppRGB
-gpwrite 0 24bppRGB seed 3011128466
-gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 24bppRGB
+gpwrite 1 32bppARGB seed 1303542441
+gpbitmap 0 9 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1577853082
+gpbrush 0 texture 1 1
+gppaint 0 0 0 0 9 4 over 0 0 0 0 0
+gpread 0 32bppPARGB
 end
 case texblend-2
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2687537703
+gpwrite 1 32bppARGB seed 748208179
 gpbitmap 0 9 4 16bppRGB565
-gpwrite 0 16bppRGB565 seed 4243671229
-gpbrush 0 texture 1 4
+gpwrite 0 16bppRGB565 seed 2806642172
+gpbrush 0 texture 1 2
 gppaint 0 0 0 0 9 4 over 3 0 0 0 0
 gpread 0 16bppRGB565
 end
 case texblend-3
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 583603536
-gpbitmap 0 9 4 16bppRGB565
-gpwrite 0 16bppRGB565 seed 201439553
-gpbrush 0 texture 1 1
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 16bppRGB565
+gpwrite 1 32bppARGB seed 3208877787
+gpbitmap 0 9 4 8bppIndexed
+gpwrite 0 8bppIndexed seed 2123010807
+gpbrush 0 texture 1 3
+gppaint 0 0 0 0 9 4 over 1 0 0 0 0
+gpread 0 8bppIndexed
 end
 case texblend-4
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1901564245
-gpbitmap 0 9 4 32bppPARGB
-gpwrite 0 32bppPARGB seed 3973279115
-gpbrush 0 texture 1 2
+gpwrite 1 32bppARGB seed 3790269067
+gpbitmap 0 9 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 734088726
+gpbrush 0 texture 1 1
 gppaint 0 0 0 0 9 4 over 3 0 0 0 0
-gpread 0 32bppPARGB
+gpread 0 64bppPARGB
 end
 case texblend-5
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1872515662
-gpbitmap 0 9 4 16bppARGB1555
-gpwrite 0 16bppARGB1555 seed 1600779300
-gpbrush 0 texture 1 4
+gpwrite 1 32bppARGB seed 2543350860
+gpbitmap 0 9 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 3139870788
+gpbrush 0 texture 1 0
 gppaint 0 0 0 0 9 4 over 3 0 0 0 0
-gpread 0 16bppARGB1555
+gpread 0 32bppPARGB
 end
 case texblend-6
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 873766577
-gpbitmap 0 9 4 64bppPARGB
-gpwrite 0 64bppPARGB seed 1604274000
+gpwrite 1 32bppARGB seed 2335785495
+gpbitmap 0 9 4 32bppRGB
+gpwrite 0 32bppRGB seed 3422914282
 gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 3 0 0 0 0
-gpread 0 64bppPARGB
+gppaint 0 0 0 0 9 4 over 0 0 0 0 0
+gpread 0 32bppRGB
 end
 case texblend-7
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 209863770
-gpbitmap 0 9 4 64bppPARGB
-gpwrite 0 64bppPARGB seed 3308121502
-gpbrush 0 texture 1 3
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 64bppPARGB
+gpwrite 1 32bppARGB seed 687160570
+gpbitmap 0 9 4 64bppARGB
+gpwrite 0 64bppARGB seed 1647137455
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 1 0 0 0 0
+gpread 0 64bppARGB
 end
 case texblend-8
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2309590807
-gpbitmap 0 9 4 64bppARGB
-gpwrite 0 64bppARGB seed 2972538226
-gpbrush 0 texture 1 1
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 64bppARGB
+gpwrite 1 32bppARGB seed 44161953
+gpbitmap 0 9 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 57216555
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 4bppIndexed
 end
 case texblend-9
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2641539109
-gpbitmap 0 9 4 8bppIndexed
-gpwrite 0 8bppIndexed seed 2780350046
-gpbrush 0 texture 1 3
-gppaint 0 0 0 0 9 4 over 0 0 0 0 0
-gpread 0 8bppIndexed
+gpwrite 1 32bppARGB seed 2237255290
+gpbitmap 0 9 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 776787473
+gpbrush 0 texture 1 1
+gppaint 0 0 0 0 9 4 over 4 0 0 0 0
+gpread 0 16bppARGB1555
 end
 case texblend-10
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1490898322
-gpbitmap 0 9 4 4bppIndexed
-gpwrite 0 4bppIndexed seed 3699495301
-gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 4bppIndexed
+gpwrite 1 32bppARGB seed 3048796762
+gpbitmap 0 9 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3582923715
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 16bppRGB565
 end
 case texblend-11
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2083413718
-gpbitmap 0 9 4 16bppARGB1555
-gpwrite 0 16bppARGB1555 seed 1231839404
-gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 16bppARGB1555
+gpwrite 1 32bppARGB seed 2615149953
+gpbitmap 0 9 4 16bppRGB555
+gpwrite 0 16bppRGB555 seed 4049431817
+gpbrush 0 texture 1 1
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 16bppRGB555
 end
 case texblend-12
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 681780916
-gpbitmap 0 9 4 64bppPARGB
-gpwrite 0 64bppPARGB seed 3267727694
-gpbrush 0 texture 1 0
+gpwrite 1 32bppARGB seed 900318353
+gpbitmap 0 9 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 2856821644
+gpbrush 0 texture 1 1
 gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 64bppPARGB
+gpread 0 16bppARGB1555
 end
 case texblend-13
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1257343560
-gpbitmap 0 9 4 32bppPARGB
-gpwrite 0 32bppPARGB seed 212747540
-gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 32bppPARGB
+gpwrite 1 32bppARGB seed 3497064406
+gpbitmap 0 9 4 24bppRGB
+gpwrite 0 24bppRGB seed 532693747
+gpbrush 0 texture 1 1
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 24bppRGB
 end
 case texblend-14
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2496678086
-gpbitmap 0 9 4 8bppIndexed
-gpwrite 0 8bppIndexed seed 617611874
-gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 8bppIndexed
+gpwrite 1 32bppARGB seed 2640375720
+gpbitmap 0 9 4 24bppRGB
+gpwrite 0 24bppRGB seed 2451592098
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 4 0 0 0 0
+gpread 0 24bppRGB
 end
 case texblend-15
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2540208086
-gpbitmap 0 9 4 24bppRGB
-gpwrite 0 24bppRGB seed 2328658047
-gpbrush 0 texture 1 3
+gpwrite 1 32bppARGB seed 477765241
+gpbitmap 0 9 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 2836866499
+gpbrush 0 texture 1 4
 gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 24bppRGB
+gpread 0 4bppIndexed
 end
 case texblend-16
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 482826635
-gpbitmap 0 9 4 16bppRGB555
-gpwrite 0 16bppRGB555 seed 155061360
+gpwrite 1 32bppARGB seed 1543762571
+gpbitmap 0 9 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1745024994
 gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 16bppRGB555
+gppaint 0 0 0 0 9 4 over 4 0 0 0 0
+gpread 0 16bppARGB1555
 end
 case texblend-17
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3397541246
-gpbitmap 0 9 4 24bppRGB
-gpwrite 0 24bppRGB seed 2761318632
-gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 24bppRGB
+gpwrite 1 32bppARGB seed 2744801385
+gpbitmap 0 9 4 32bppARGB
+gpwrite 0 32bppARGB seed 4202072162
+gpbrush 0 texture 1 1
+gppaint 0 0 0 0 9 4 over 4 0 0 0 0
+gpread 0 32bppARGB
 end
 case texblend-18
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 4222619327
-gpbitmap 0 9 4 64bppPARGB
-gpwrite 0 64bppPARGB seed 3063276044
-gpbrush 0 texture 1 3
+gpwrite 1 32bppARGB seed 1404880814
+gpbitmap 0 9 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 2724537162
+gpbrush 0 texture 1 1
 gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 64bppPARGB
+gpread 0 32bppPARGB
 end
 case texblend-19
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1707356511
-gpbitmap 0 9 4 16bppGrayScale
-gpwrite 0 16bppGrayScale seed 2652616104
-gpbrush 0 texture 1 1
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 16bppGrayScale
-end
-case texblend-20
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2262275325
-gpbitmap 0 9 4 16bppGrayScale
-gpwrite 0 16bppGrayScale seed 4249474553
-gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 16bppGrayScale
-end
-case texblend-21
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3747978807
-gpbitmap 0 9 4 16bppRGB565
-gpwrite 0 16bppRGB565 seed 4174005414
-gpbrush 0 texture 1 1
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 16bppRGB565
-end
-case texblend-22
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1967936780
-gpbitmap 0 9 4 64bppARGB
-gpwrite 0 64bppARGB seed 39384506
-gpbrush 0 texture 1 1
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 64bppARGB
-end
-case texblend-23
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2863219186
+gpwrite 1 32bppARGB seed 1672393844
 gpbitmap 0 9 4 4bppIndexed
-gpwrite 0 4bppIndexed seed 3498006425
-gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 4bppIndexed
-end
-case texblend-24
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3652424248
-gpbitmap 0 9 4 16bppARGB1555
-gpwrite 0 16bppARGB1555 seed 3580641154
+gpwrite 0 4bppIndexed seed 288207460
 gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 3 0 0 0 0
-gpread 0 16bppARGB1555
-end
-case texblend-25
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 160589338
-gpbitmap 0 9 4 4bppIndexed
-gpwrite 0 4bppIndexed seed 4017197810
-gpbrush 0 texture 1 1
 gppaint 0 0 0 0 9 4 over 0 0 0 0 0
 gpread 0 4bppIndexed
 end
-case texblend-26
+case texblend-20
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2322998521
-gpbitmap 0 9 4 48bppRGB
-gpwrite 0 48bppRGB seed 2479706669
+gpwrite 1 32bppARGB seed 284042647
+gpbitmap 0 9 4 64bppARGB
+gpwrite 0 64bppARGB seed 1607030937
 gpbrush 0 texture 1 4
 gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 48bppRGB
+gpread 0 64bppARGB
+end
+case texblend-21
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 299716174
+gpbitmap 0 9 4 64bppPARGB
+gpwrite 0 64bppPARGB seed 3129907908
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 0 0 0 0 0
+gpread 0 64bppPARGB
+end
+case texblend-22
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 1983407387
+gpbitmap 0 9 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 704393878
+gpbrush 0 texture 1 2
+gppaint 0 0 0 0 9 4 over 1 0 0 0 0
+gpread 0 16bppGrayScale
+end
+case texblend-23
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 3379272423
+gpbitmap 0 9 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 4241741948
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 16bppRGB565
+end
+case texblend-24
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 160959361
+gpbitmap 0 9 4 64bppARGB
+gpwrite 0 64bppARGB seed 367907157
+gpbrush 0 texture 1 0
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 64bppARGB
+end
+case texblend-25
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 1285745532
+gpbitmap 0 9 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 677449946
+gpbrush 0 texture 1 2
+gppaint 0 0 0 0 9 4 over 1 0 0 0 0
+gpread 0 1bppIndexed
+end
+case texblend-26
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 456212531
+gpbitmap 0 9 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 1439698088
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 4bppIndexed
 end
 case texblend-27
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3504918438
-gpbitmap 0 9 4 16bppARGB1555
-gpwrite 0 16bppARGB1555 seed 3935374888
-gpbrush 0 texture 1 4
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 16bppARGB1555
+gpwrite 1 32bppARGB seed 35444340
+gpbitmap 0 9 4 64bppARGB
+gpwrite 0 64bppARGB seed 2190563773
+gpbrush 0 texture 1 1
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 64bppARGB
 end
 case texblend-28
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2036351931
-gpbitmap 0 9 4 1bppIndexed
-gpwrite 0 1bppIndexed seed 1408531760
-gpbrush 0 texture 1 1
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 1bppIndexed
+gpwrite 1 32bppARGB seed 3872729540
+gpbitmap 0 9 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1046253170
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 16bppARGB1555
 end
 case texblend-29
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 407179395
-gpbitmap 0 9 4 16bppRGB565
-gpwrite 0 16bppRGB565 seed 4042299529
-gpbrush 0 texture 1 4
+gpwrite 1 32bppARGB seed 4160849847
+gpbitmap 0 9 4 48bppRGB
+gpwrite 0 48bppRGB seed 3591862860
+gpbrush 0 texture 1 2
 gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 16bppRGB565
+gpread 0 48bppRGB
 end
 case texblend-30
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2473427728
-gpbitmap 0 9 4 16bppRGB555
-gpwrite 0 16bppRGB555 seed 1123926135
-gpbrush 0 texture 1 4
-gppaint 0 0 0 0 9 4 over 3 0 0 0 0
-gpread 0 16bppRGB555
+gpwrite 1 32bppARGB seed 1051462245
+gpbitmap 0 9 4 32bppPARGB
+gpwrite 0 32bppPARGB seed 1140737845
+gpbrush 0 texture 1 2
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 32bppPARGB
 end
 case texblend-31
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3738083068
-gpbitmap 0 9 4 16bppRGB555
-gpwrite 0 16bppRGB555 seed 2939295476
-gpbrush 0 texture 1 2
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 16bppRGB555
+gpwrite 1 32bppARGB seed 1588090524
+gpbitmap 0 9 4 16bppRGB565
+gpwrite 0 16bppRGB565 seed 3674499201
+gpbrush 0 texture 1 3
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 16bppRGB565
 end
 case texblend-32
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 15927531
-gpbitmap 0 9 4 24bppRGB
-gpwrite 0 24bppRGB seed 1545952156
+gpwrite 1 32bppARGB seed 3206740110
+gpbitmap 0 9 4 64bppARGB
+gpwrite 0 64bppARGB seed 3864681079
 gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 24bppRGB
+gppaint 0 0 0 0 9 4 over 1 0 0 0 0
+gpread 0 64bppARGB
 end
 case texblend-33
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2899372166
-gpbitmap 0 9 4 8bppIndexed
-gpwrite 0 8bppIndexed seed 2312010918
-gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 8bppIndexed
+gpwrite 1 32bppARGB seed 2630611426
+gpbitmap 0 9 4 4bppIndexed
+gpwrite 0 4bppIndexed seed 3155153849
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 4bppIndexed
 end
 case texblend-34
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2798438407
-gpbitmap 0 9 4 8bppIndexed
-gpwrite 0 8bppIndexed seed 3326790593
-gpbrush 0 texture 1 3
-gppaint 0 0 0 0 9 4 over 4 0 0 0 0
-gpread 0 8bppIndexed
+gpwrite 1 32bppARGB seed 2199884985
+gpbitmap 0 9 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 1083769821
+gpbrush 0 texture 1 4
+gppaint 0 0 0 0 9 4 over 0 0 0 0 0
+gpread 0 16bppARGB1555
 end
 case texblend-35
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 43448359
+gpwrite 1 32bppARGB seed 1367204416
 gpbitmap 0 9 4 1bppIndexed
-gpwrite 0 1bppIndexed seed 1876732718
-gpbrush 0 texture 1 4
+gpwrite 0 1bppIndexed seed 1267142554
+gpbrush 0 texture 1 3
 gppaint 0 0 0 0 9 4 over 3 0 0 0 0
 gpread 0 1bppIndexed
 end
 case texblend-36
 gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3554477632
-gpbitmap 0 9 4 16bppARGB1555
-gpwrite 0 16bppARGB1555 seed 296928906
-gpbrush 0 texture 1 4
-gppaint 0 0 0 0 9 4 over 2 0 0 0 0
-gpread 0 16bppARGB1555
-end
-case texblend-37
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 3975582656
-gpbitmap 0 9 4 16bppRGB565
-gpwrite 0 16bppRGB565 seed 4015987815
-gpbrush 0 texture 1 0
-gppaint 0 0 0 0 9 4 over 1 0 0 0 0
-gpread 0 16bppRGB565
-end
-case texblend-38
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 1744731158
-gpbitmap 0 9 4 64bppPARGB
-gpwrite 0 64bppPARGB seed 2816601384
-gpbrush 0 texture 1 3
-gppaint 0 0 0 0 9 4 over 3 0 0 0 0
-gpread 0 64bppPARGB
-end
-case texblend-39
-gpbitmap 1 3 3 32bppARGB
-gpwrite 1 32bppARGB seed 2969966808
+gpwrite 1 32bppARGB seed 3920830111
 gpbitmap 0 9 4 32bppARGB
-gpwrite 0 32bppARGB seed 834214678
-gpbrush 0 texture 1 3
+gpwrite 0 32bppARGB seed 3329740367
+gpbrush 0 texture 1 2
 gppaint 0 0 0 0 9 4 over 3 0 0 0 0
 gpread 0 32bppARGB
 end
+case texblend-37
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 4271109008
+gpbitmap 0 9 4 16bppGrayScale
+gpwrite 0 16bppGrayScale seed 2631389152
+gpbrush 0 texture 1 2
+gppaint 0 0 0 0 9 4 over 3 0 0 0 0
+gpread 0 16bppGrayScale
+end
+case texblend-38
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 1463738907
+gpbitmap 0 9 4 1bppIndexed
+gpwrite 0 1bppIndexed seed 3838128901
+gpbrush 0 texture 1 2
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 1bppIndexed
+end
+case texblend-39
+gpbitmap 1 3 3 32bppARGB
+gpwrite 1 32bppARGB seed 2801616769
+gpbitmap 0 9 4 16bppARGB1555
+gpwrite 0 16bppARGB1555 seed 3483463783
+gpbrush 0 texture 1 0
+gppaint 0 0 0 0 9 4 over 2 0 0 0 0
+gpread 0 16bppARGB1555
+end
 case texrect-0
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 4215958087
+gpwrite 1 32bppARGB seed 3475010345
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 4
-gppaint 0 0 14.25 -2.0625 7.5625 2.125 copy 0 5 5 -1 -2
+gpbrush 0 texture 1 1
+gppaint 0 0 -1.625 5.5 -1.3125 -1.4375 copy 0 6 0 0 -1
 gpread 0 32bppARGB
 end
 case texrect-1
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2461380635
+gpwrite 1 32bppARGB seed 1153275412
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 5.9375 8.3125 4.5 2.125 copy 0 5 2 1 -3
+gpbrush 0 texture 1 3
+gppaint 0 0 12.0625 9.75 0.25 0.625 copy 0 6 2 3 0
 gpread 0 32bppARGB
 end
 case texrect-2
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1048622783
+gpwrite 1 32bppARGB seed 1197082374
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 3 1.75 7.3125 -0.25 copy 0 2 5 4 -4
+gpbrush 0 texture 1 3
+gppaint 0 0 2.9375 10.5 9.625 2.25 copy 0 6 4 3 -2
 gpread 0 32bppARGB
 end
 case texrect-3
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3553105415
+gpwrite 1 32bppARGB seed 919634779
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 12.375 3.5 6.1875 8.625 copy 0 5 1 -3 -3
+gpbrush 0 texture 1 1
+gppaint 0 0 12.5625 -0.875 6.8125 9.8125 copy 0 0 1 -3 0
 gpread 0 32bppARGB
 end
 case texrect-4
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1248943012
+gpwrite 1 32bppARGB seed 112716961
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 7.25 -2.0625 9.875 5.3125 copy 0 2 2 -2 2
+gpbrush 0 texture 1 3
+gppaint 0 0 13.25 12.8125 5.8125 0.25 copy 0 0 2 0 -2
 gpread 0 32bppARGB
 end
 case texrect-5
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1715552392
+gpwrite 1 32bppARGB seed 2333476515
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 9.8125 8.5 8.5 2.5 copy 0 4 0 -4 -1
+gpbrush 0 texture 1 4
+gppaint 0 0 7.875 9 3.75 0.3125 copy 0 3 0 -1 -3
 gpread 0 32bppARGB
 end
 case texrect-6
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3006662283
+gpwrite 1 32bppARGB seed 4263940991
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 7.8125 13.875 5.125 3.5 copy 0 3 0 -1 0
+gpbrush 0 texture 1 1
+gppaint 0 0 6 5.125 0.4375 0.875 copy 0 4 3 0 4
 gpread 0 32bppARGB
 end
 case texrect-7
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1289321481
+gpwrite 1 32bppARGB seed 4239988615
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 0
-gppaint 0 0 8.6875 11.1875 -1.125 4.375 copy 0 2 0 1 -2
+gppaint 0 0 13.4375 3.5625 -1.25 7.3125 copy 0 4 0 -2 1
 gpread 0 32bppARGB
 end
 case texrect-8
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 4010226780
+gpwrite 1 32bppARGB seed 3634809363
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 3
-gppaint 0 0 11.9375 7.625 3.75 6.875 copy 0 5 5 4 1
+gppaint 0 0 8.8125 2.875 8.6875 9.875 copy 0 0 3 3 -3
 gpread 0 32bppARGB
 end
 case texrect-9
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2079049001
+gpwrite 1 32bppARGB seed 2946350622
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 2
-gppaint 0 0 3.125 3.5625 6.875 -0.375 copy 0 1 3 -2 -4
+gppaint 0 0 5.25 14.5 7.1875 6.3125 copy 0 1 5 -4 3
 gpread 0 32bppARGB
 end
 case texrect-10
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3808322494
+gpwrite 1 32bppARGB seed 431133388
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 12.8125 -0.9375 0.9375 4.75 copy 0 6 1 1 0
+gpbrush 0 texture 1 3
+gppaint 0 0 3.375 3.4375 8.5 0.8125 copy 0 2 5 3 3
 gpread 0 32bppARGB
 end
 case texrect-11
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 641248504
+gpwrite 1 32bppARGB seed 1478800944
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 3
-gppaint 0 0 0.9375 11.125 7.9375 2.5 copy 0 3 5 -1 2
+gppaint 0 0 -0.9375 1 6 8.125 copy 0 4 0 -3 4
 gpread 0 32bppARGB
 end
 case texrect-12
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3208067901
+gpwrite 1 32bppARGB seed 1510567156
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 3
-gppaint 0 0 10.1875 1.8125 8.1875 8.5 copy 0 6 4 2 -2
+gppaint 0 0 14.5 -1.125 3.5 -1.0625 copy 0 5 5 3 0
 gpread 0 32bppARGB
 end
 case texrect-13
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3223591879
+gpwrite 1 32bppARGB seed 4055369370
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 4.375 14.3125 5.625 9.3125 copy 0 1 3 1 2
+gpbrush 0 texture 1 0
+gppaint 0 0 11.25 2.4375 2 -1.125 copy 0 1 1 -2 -4
 gpread 0 32bppARGB
 end
 case texrect-14
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3338259295
+gpwrite 1 32bppARGB seed 434798121
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 12.25 11.875 3.8125 4.0625 copy 0 1 5 0 -3
+gpbrush 0 texture 1 4
+gppaint 0 0 3.5 13.3125 5.75 3.625 copy 0 1 3 -1 4
 gpread 0 32bppARGB
 end
 case texrect-15
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1441811373
+gpwrite 1 32bppARGB seed 3928913746
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 10.1875 13.625 0.75 8.9375 copy 0 5 0 4 2
+gpbrush 0 texture 1 1
+gppaint 0 0 -2.3125 1.25 9.6875 7.3125 copy 0 6 1 0 -4
 gpread 0 32bppARGB
 end
 case texrect-16
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1390273258
+gpwrite 1 32bppARGB seed 418714943
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 1
-gppaint 0 0 1.25 1.5 1.5 3.5 copy 0 1 1 -4 1
+gppaint 0 0 13.0625 -2.125 7.625 1.6875 copy 0 3 3 1 -1
 gpread 0 32bppARGB
 end
 case texrect-17
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3627491510
+gpwrite 1 32bppARGB seed 3980375219
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 13.4375 -0.8125 8.5 0.8125 copy 0 5 1 2 -4
+gpbrush 0 texture 1 1
+gppaint 0 0 14.25 12.8125 -0.4375 6.0625 copy 0 1 4 4 2
 gpread 0 32bppARGB
 end
 case texrect-18
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3488969297
+gpwrite 1 32bppARGB seed 1209340364
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 12.0625 6.875 2.8125 4.0625 copy 0 2 5 -4 3
+gpbrush 0 texture 1 2
+gppaint 0 0 4.625 6 -0.4375 5.25 copy 0 2 1 0 2
 gpread 0 32bppARGB
 end
 case texrect-19
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3560932154
+gpwrite 1 32bppARGB seed 3438779147
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 10.25 9.9375 1.25 2.8125 copy 0 3 2 3 1
+gpbrush 0 texture 1 0
+gppaint 0 0 -1.9375 0.8125 1.6875 1.625 copy 0 5 5 2 4
 gpread 0 32bppARGB
 end
 case texrect-20
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2796443710
+gpwrite 1 32bppARGB seed 500051990
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 2
-gppaint 0 0 -2 -0.625 1.0625 3.875 copy 0 4 0 -4 -4
+gppaint 0 0 4.0625 7.875 4.375 0.3125 copy 0 6 4 4 4
 gpread 0 32bppARGB
 end
 case texrect-21
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1618241777
+gpwrite 1 32bppARGB seed 1522048434
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 6.9375 -1.0625 8.1875 0.375 copy 0 0 5 -2 4
+gpbrush 0 texture 1 0
+gppaint 0 0 6.0625 0.125 -0.5625 8.75 copy 0 2 4 0 4
 gpread 0 32bppARGB
 end
 case texrect-22
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 685977016
+gpwrite 1 32bppARGB seed 3254701887
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 13.8125 6 3.8125 1.875 copy 0 0 0 -2 -2
+gpbrush 0 texture 1 0
+gppaint 0 0 7.9375 8.5 8.75 9.9375 copy 0 1 3 0 4
 gpread 0 32bppARGB
 end
 case texrect-23
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1237248034
+gpwrite 1 32bppARGB seed 456955669
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 9.9375 3.875 9.4375 5.1875 copy 0 0 2 1 3
+gpbrush 0 texture 1 2
+gppaint 0 0 6.75 -2.1875 3 6.5 copy 0 5 4 -3 4
 gpread 0 32bppARGB
 end
 case texrect-24
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1574089201
+gpwrite 1 32bppARGB seed 3734884280
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 4.75 14.3125 4.75 0.125 copy 0 1 2 3 0
+gpbrush 0 texture 1 4
+gppaint 0 0 -1.1875 -2.0625 -0.5 2.6875 copy 0 5 5 4 -1
 gpread 0 32bppARGB
 end
 case texrect-25
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1303542441
+gpwrite 1 32bppARGB seed 1827286271
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 12.5 -2.25 7.5625 4.25 copy 0 1 5 -1 -3
+gpbrush 0 texture 1 0
+gppaint 0 0 8.1875 7.125 3.9375 -1.375 copy 0 4 4 -4 0
 gpread 0 32bppARGB
 end
 case texrect-26
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3208877787
+gpwrite 1 32bppARGB seed 2538263342
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 7 10.6875 9.3125 2.6875 copy 0 0 2 4 0
+gpbrush 0 texture 1 4
+gppaint 0 0 0.9375 11.3125 2.9375 3 copy 0 3 0 2 3
 gpread 0 32bppARGB
 end
 case texrect-27
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2543350860
+gpwrite 1 32bppARGB seed 506260316
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 9.3125 -1.8125 -1 8.875 copy 0 1 4 3 2
+gpbrush 0 texture 1 0
+gppaint 0 0 0.0625 3.6875 -0.75 5.4375 copy 0 6 2 4 -3
 gpread 0 32bppARGB
 end
 case texrect-28
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 687160570
+gpwrite 1 32bppARGB seed 2903626724
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 6.9375 2.9375 -1.1875 9.625 copy 0 3 5 1 2
+gpbrush 0 texture 1 4
+gppaint 0 0 9.0625 13.9375 9.25 5.5 copy 0 1 5 2 3
 gpread 0 32bppARGB
 end
 case texrect-29
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2237255290
+gpwrite 1 32bppARGB seed 4247825725
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 5.1875 3.125 6.8125 0.4375 copy 0 3 4 -3 3
+gpbrush 0 texture 1 4
+gppaint 0 0 9.625 3 0.625 6.125 copy 0 3 3 3 4
 gpread 0 32bppARGB
 end
 case texrect-30
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2615149953
+gpwrite 1 32bppARGB seed 2085337409
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 9.3125 6.9375 2.0625 -0.5625 copy 0 6 4 -3 1
+gpbrush 0 texture 1 1
+gppaint 0 0 2.5625 6.4375 4.5625 -0.25 copy 0 5 0 1 -3
 gpread 0 32bppARGB
 end
 case texrect-31
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3497064406
+gpwrite 1 32bppARGB seed 3829084508
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 0 8.25 2 3.9375 copy 0 3 0 -2 -4
+gpbrush 0 texture 1 3
+gppaint 0 0 8.875 7.9375 8.875 3.375 copy 0 0 2 2 0
 gpread 0 32bppARGB
 end
 case texrect-32
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 477765241
+gpwrite 1 32bppARGB seed 1901046173
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 4
-gppaint 0 0 11.75 2.0625 9.0625 3.625 copy 0 2 2 2 1
+gppaint 0 0 -2.375 11.0625 8.5 2.6875 copy 0 0 3 0 3
 gpread 0 32bppARGB
 end
 case texrect-33
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 2744801385
+gpwrite 1 32bppARGB seed 3867544115
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 2
-gppaint 0 0 13.625 9 8.125 1.6875 copy 0 3 4 2 -2
+gpbrush 0 texture 1 1
+gppaint 0 0 -1.125 0.125 0.1875 9.875 copy 0 2 4 -3 -2
 gpread 0 32bppARGB
 end
 case texrect-34
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1672393844
+gpwrite 1 32bppARGB seed 3780297538
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 0
-gppaint 0 0 7.8125 5 7.6875 8.625 copy 0 5 5 2 -3
+gpbrush 0 texture 1 4
+gppaint 0 0 3.1875 -1 2.9375 1.25 copy 0 5 0 -4 -1
 gpread 0 32bppARGB
 end
 case texrect-35
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 299716174
+gpwrite 1 32bppARGB seed 2738249282
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 1.0625 -0.5625 0.4375 6.875 copy 0 1 0 3 1
+gpbrush 0 texture 1 4
+gppaint 0 0 3.625 12.6875 9.375 0.875 copy 0 4 2 4 -3
 gpread 0 32bppARGB
 end
 case texrect-36
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 3379272423
+gpwrite 1 32bppARGB seed 1517411349
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 3.5625 -2.0625 7.9375 2.0625 copy 0 6 2 -2 0
+gpbrush 0 texture 1 1
+gppaint 0 0 10.5625 1.125 7.5625 5 copy 0 5 0 -2 2
 gpread 0 32bppARGB
 end
 case texrect-37
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 1285745532
+gpwrite 1 32bppARGB seed 3118715533
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 1
-gppaint 0 0 2 12.125 7.0625 4.5625 copy 0 5 1 -1 -2
+gpbrush 0 texture 1 4
+gppaint 0 0 1.0625 -2.1875 9.75 8.4375 copy 0 6 1 4 -1
 gpread 0 32bppARGB
 end
 case texrect-38
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 35444340
+gpwrite 1 32bppARGB seed 1303150483
 gpbitmap 0 12 12 32bppARGB
-gpbrush 0 texture 1 3
-gppaint 0 0 3.8125 3.5 8.3125 2.8125 copy 0 1 5 -3 -2
+gpbrush 0 texture 1 1
+gppaint 0 0 3.1875 -0.875 2.625 6.75 copy 0 1 1 3 2
 gpread 0 32bppARGB
 end
 case texrect-39
 gpbitmap 1 3 2 32bppARGB
-gpwrite 1 32bppARGB seed 4160849847
+gpwrite 1 32bppARGB seed 2548217091
 gpbitmap 0 12 12 32bppARGB
 gpbrush 0 texture 1 0
-gppaint 0 0 0.8125 8.0625 6.1875 9.1875 copy 0 4 4 0 -1
+gppaint 0 0 2.625 13.5 3.9375 8.0625 copy 0 6 4 -4 2
 gpread 0 32bppARGB
 end

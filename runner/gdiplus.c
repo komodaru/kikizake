@@ -14,6 +14,7 @@ typedef struct { UINT Width, Height; INT Stride; INT PixelFormat; void *Scan0; U
 typedef struct { INT X, Y, Width, Height; } GpRect;
 typedef struct { float X, Y; } GpPointF;
 typedef struct { INT X, Y; } GpPoint;
+typedef struct { float X, Y, Width, Height; } GpRectF;
 typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressBackgroundThread, SuppressExternalCodecs; } GpStartupInput;
 
 #define GP_FUNCS(X) \
@@ -49,6 +50,10 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipCreateHatchBrush, (INT, DWORD, DWORD, void **)) \
     X(GdipCreateLineBrushI, (const GpPoint *, const GpPoint *, DWORD, DWORD, INT, void **)) \
     X(GdipCreateTexture, (void *, INT, void **)) \
+    X(GdipGetBrushType, (void *, INT *)) \
+    X(GdipGetLineRect, (void *, GpRectF *)) \
+    X(GdipGetLineTransform, (void *, void *)) \
+    X(GdipGetTextureTransform, (void *, void *)) \
     X(GdipCreatePen1, (DWORD, float, INT, void **)) \
     X(GdipDeletePen, (void *)) \
     X(GdipSetPenDashStyle, (void *, INT)) \
@@ -545,6 +550,34 @@ static void op_draw(void) {
     out("draw 0 %d\n", st);
 }
 
+/* gpbrushinfo <b>: the brush's type; a linear gradient's rectangle and transform, a texture's
+ * transform (floats as the hex of their bits): "brushinfo <st> <type> [<st> <rect x y w h>]
+ * [<st> <6 elements>]" */
+static void op_brushinfo(void) {
+    int b = slot(1);
+    if (bad || !gp()) return;
+    if (!brush[b]) { out("brushinfo nobrush\n"); return; }
+    INT type = -1;
+    GpStatus st = GdipGetBrushType(brush[b], &type);
+    out("brushinfo %d %d", st, type);
+    if (!st && (type == 4 || type == 2)) {
+        if (type == 4) {
+            GpRectF r = { 0 };
+            GpStatus rs = GdipGetLineRect(brush[b], &r);
+            out(" %d %08lx %08lx %08lx %08lx", rs, bitsf(r.X), bitsf(r.Y), bitsf(r.Width), bitsf(r.Height));
+        }
+        void *m = NULL;
+        GpStatus ms = GdipCreateMatrix2(1, 0, 0, 1, 0, 0, &m);
+        if (!ms) ms = type == 4 ? GdipGetLineTransform(brush[b], m) : GdipGetTextureTransform(brush[b], m);
+        float e[6] = { 0 };
+        if (!ms) ms = GdipGetMatrixElements(m, e);
+        out(" %d", ms);
+        for (int i = 0; i < 6 && !ms; i++) out(" %08lx", bitsf(e[i]));
+        if (m) GdipDeleteMatrix(m);
+    }
+    out("\n");
+}
+
 /* pens in slots of their own:
  * gppen <p> <argb> <width> [dash <DashStyle>] [cap <start> <end> <DashCap>] [join <LineJoin>]
  * [align <PenAlignment>] [miter <limit>]: CreatePen1 (UnitWorld), then each setter asked:
@@ -654,7 +687,7 @@ static const struct kz_op gdiplus_ops[] = {
     { "gprotate", op_rotate }, { "gpclone", op_clone }, { "gpmatrix", op_matrix },
     { "gpmatmul", op_matmul }, { "gpmatinv", op_matinv }, { "gpmatpts", op_matpts },
     { "gpbrush", op_brush }, { "gppaint", op_paint }, { "gpattr", op_attr }, { "gpdraw", op_draw },
-    { "gppen", op_pen }, { "gpshape", op_shape },
+    { "gppen", op_pen }, { "gpshape", op_shape }, { "gpbrushinfo", op_brushinfo },
     { 0 },
 };
 const struct kz_api gdiplus_api = { "gdiplus", gdiplus_ops, gdiplus_reset };
