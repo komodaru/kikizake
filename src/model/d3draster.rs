@@ -173,14 +173,20 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             let depth = ds.filter(|&v| m.views[v].as_ref().is_some_and(|x| x.kind == 2));
             // (MEASURED, WARP: probe-rt-ms4-depth1, -depth1-prev; DXVK's ValidateRenderTargets: native
             // D3D11 keeps the bound views when they are incompatible) a target and a depth view of
-            // other sample counts: the call changes nothing
+            // other sample counts: on Direct3D 11 the call changes nothing, on Direct3D 10 the
+            // target is bound and no depth view
             let samples = |v: usize| m.views[v].as_ref().and_then(|x| m.res[x.res].as_ref()).map_or(1, |r| r.d.count.max(1));
-            if let (Some(a), Some(b)) = (target, depth)
-                && samples(a) != samples(b)
-            {
-                hit(clause::D3DRASTER_MS_DEPTHCOUNT);
-                return Ok(());
-            }
+            let depth = match (target, depth, dev) {
+                (Some(a), Some(b), Dev::D11(_)) if samples(a) != samples(b) => {
+                    hit(clause::D3DRASTER_MS_DEPTHCOUNT);
+                    return Ok(());
+                }
+                (Some(a), Some(b), Dev::D10) if samples(a) != samples(b) => {
+                    hit(clause::D3DRASTER_MS_DEPTHCOUNT);
+                    None
+                }
+                (_, depth, _) => depth,
+            };
             d.target = target;
             d.depth = depth;
         }
