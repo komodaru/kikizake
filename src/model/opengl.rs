@@ -3010,18 +3010,17 @@ impl Ctx {
         };
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let h = H as i64;
-        // (each end's pixel held inside the window: line-flat-4, line-color-4)
+        // (the pixel toward zero: an end on the window's left or top edge on its first pixel,
+        // line-flat-4, line-color-4; one past it but in the viewport past it, line-flat-27)
+        let ndc = |c: [f32; 4]| [c[0], c[1]].map(|v| f64::from(v * (1.0 / c[3])));
         let window = |c: [f32; 4]| {
-            let n = [c[0], c[1]].map(|v| f64::from(v * (1.0 / c[3])));
+            let n = ndc(c);
             [(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy]
         };
-        let device = |w: [f64; 2]| {
-            let p = tri::DevicePixel::of(w, h).map_err(|tri::Tie| Fail::Unmodeled(open::GL_RASTER_MODE))?;
-            Ok::<_, Fail>(tri::DevicePixel { x: p.x.clamp(0, W as i64 - 1), row: p.row.clamp(0, h - 1) })
-        };
+        let device = |c: [f32; 4]| tri::DevicePixel::of(window(c), ndc(c), h);
         let z = self.window(b.0)?[2];
         let (wa, wb) = (window(ka), window(kb));
-        let (da, db) = (device(wa)?, device(wb)?);
+        let (da, db) = (device(ka), device(kb));
         // (wide: each pixel's run of the width across, down the DIB's rows when x-major, right
         // when y-major (by the cut ends' window positions, not their pixels: line-flat-16), from
         // (width - 1) / 2 (rounded down) before it, line-flat-12, 15)
@@ -4476,10 +4475,6 @@ impl Ctx {
 ///   a row takes the centers strictly right of its left edge and at or left of its right edge,
 ///   the rows from an edge's lower vertex up to (not at) its upper one.
 pub mod tri {
-    /// A line where Windows' choice is not measured (GL.RASTER.TIE).
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct Tie;
-
     /// The pixels of an antialiased 1-pixel line from a to b (window coordinates) drawn into a
     /// buffer with alpha, each with its coverage (MEASURED, golden opengl-32 raster-mode-8:
     /// 3072 pixels of 12 lines, every one exact): the ends snapped as a polygon's corners; at
@@ -4588,15 +4583,18 @@ pub mod tri {
 
     impl DevicePixel {
         /// the pixel a window position (x, y) lands on: each coordinate rounded to 1/16 (28.4),
-        /// then floor(x - 1/2), floor(height - y - 1/2); a coordinate exactly between two 16ths
-        /// is not measured (Tie)
-        pub fn of(w: [f64; 2], height: i64) -> Result<DevicePixel, Tie> {
-            let fix = |v: f64| {
+        /// then x - 1/2, height - y - 1/2 toward zero. A coordinate exactly between two 16ths
+        /// goes to the larger of the DIB's (right, down) but where the end's normalized
+        /// coordinate that way (x, or -y for the row) is 1/2 or more: then to the smaller
+        /// (MEASURED, line-flat-18, 27: 28 ties each way of the column and of the row, under 5
+        /// viewports moved and scaled; GL.RASTER.LINE.FLAT)
+        pub fn of(w: [f64; 2], ndc: [f64; 2], height: i64) -> DevicePixel {
+            let fix = |v: f64, toward: f64| {
                 let v = v * 16.0;
-                if (v - v.floor()) == 0.5 { Err(Tie) } else { Ok(v.round() as i64) }
+                (if v - v.floor() != 0.5 { v.round() } else if toward >= 0.5 { v.floor() } else { v.ceil() }) as i64
             };
-            let (x, y) = (fix(w[0])?, fix(w[1])?);
-            Ok(DevicePixel { x: (x - 8).div_euclid(16), row: (height * 16 - y - 8).div_euclid(16) })
+            let (x, row) = (fix(w[0], ndc[0]), fix(height as f64 - w[1], -ndc[1]));
+            DevicePixel { x: (x - 8) / 16, row: (row - 8) / 16 }
         }
         /// back to the window's (column, row from the bottom)
         pub fn window(self, height: i64) -> (i64, i64) {

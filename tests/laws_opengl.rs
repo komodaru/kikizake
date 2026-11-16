@@ -241,6 +241,22 @@ proptest! {
         }
     }
 
+    /// A window position's DIB pixel only moves on as the position does: a 32nd further right
+    /// (or down) never lands left (or up) of where it was, nor more than a pixel on; a position
+    /// exactly between two 16ths lands on one of its neighbors' pixels, whichever its
+    /// normalized coordinate; off the window, the pixel goes on past its edge
+    #[test]
+    fn device_pixels_move_on_with_the_position(x in -800i32..800, y in -800i32..800, n in any::<[i8; 2]>()) {
+        let at = |x: i32, y: i32| tri::DevicePixel::of([f64::from(x) / 32.0, f64::from(y) / 32.0], [f64::from(n[0]) / 64.0, f64::from(n[1]) / 64.0], 16);
+        let (p, right, down) = (at(x, y), at(x + 1, y), at(x, y - 1));
+        prop_assert!(right.x - p.x == 0 || right.x - p.x == 1, "{p:?} {right:?}");
+        prop_assert!(down.row - p.row == 0 || down.row - p.row == 1, "{p:?} {down:?}");
+        prop_assert_eq!((right.row, down.x), (p.row, p.x));
+        if x.rem_euclid(2) == 1 {
+            prop_assert!(p.x == at(x - 1, y).x || p.x == right.x);
+        }
+    }
+
     /// GL.RASTER.LINE.FLAT: a flat-shaded line is one pixel per major step from its first end's,
     /// each next to the last, the second end's not drawn; drawn the other way it lights the same
     /// pixels between the ends (the ties go the same way whichever way it runs), each within half

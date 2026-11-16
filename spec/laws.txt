@@ -169,6 +169,7 @@ tests/laws_opengl.rs::line_is_thin_and_moves_with_its_ends pbt GL.RASTER.LINE GL
 tests/laws_opengl.rs::wide_lines_hold_the_thin_line pbt GL.RASTER.LINE.WIDE
 tests/laws_opengl.rs::smooth_lines_add_one_neighbor pbt GL.RASTER.LINE.SMOOTH
 tests/laws_opengl.rs::flat_lines_run_alike_both_ways pbt GL.RASTER.LINE.FLAT
+tests/laws_opengl.rs::device_pixels_move_on_with_the_position pbt GL.RASTER.LINE.FLAT
 tests/laws_opengl.rs::wider_smooth_lines_cover_more pbt GL.RASTER.LINE.SMOOTH.WIDE
 tests/laws_opengl.rs::smooth_lines_cover_the_same_both_ways pbt GL.RASTER.LINE.SMOOTH
 tests/laws_opengl.rs::entering_lines_start_at_the_edge pbt GL.RASTER.LINE.WIDE
