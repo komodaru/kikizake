@@ -456,7 +456,11 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                     let i = y * st + (x * n + k) * 2;
                     Some(fix13_srgb16(Fix13::clamped(i16::from_le_bytes([s.px[i], s.px[i + 1]])), back))
                 }
-                FixBack::Gray => at(k).map(|v| fix13_srgb16(v, back)),
+                // (MEASURED, grayfixout-*: a gray level outside 0..=1 held to it as well)
+                FixBack::Gray => {
+                    let i = y * st + (x * n + k) * 2;
+                    Some(fix13_srgb16(Fix13::clamped(i16::from_le_bytes([s.px[i], s.px[i + 1]])), back))
+                }
             };
             let alpha = |k: usize| at(k).map(|v| (f32::from(v.0) / 8192.0f32 * 65535.0f32 + 0.5f32).floor() as u16);
             let v: Option<Vec<u16>> = match n {
@@ -566,10 +570,17 @@ fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                     f32::from_le_bytes([b[0], b[1], b[2], b[3]])
                 }
             };
+            // (MEASURED, floatalpha-*: into 16 bits below 0 and NaN 0, past 1 the top; into 8
+            // bits a * 255 + 0.5 truncated as a 32-bit integer, one past its range or NaN the
+            // integer's lowest, then held to 0..=255: 1e30 and +inf give 0)
             let alpha = |a: f32| -> Option<u16> {
-                (0.0..=1.0).contains(&a).then(|| match back {
-                    FloatBack::Bits16 => (a * 65535.0f32 + 0.5f32).floor() as u16,
-                    FloatBack::Bits8 => (a * 255.0f32 + 0.5f32).floor() as u16,
+                Some(match back {
+                    FloatBack::Bits16 => (a * 65535.0f32 + 0.5f32) as u16,
+                    FloatBack::Bits8 => {
+                        let v = a * 255.0f32 + 0.5f32;
+                        let i = if v.is_nan() || v >= 2147483648.0f32 || v < -2147483648.0f32 { i32::MIN } else { v as i32 };
+                        i.clamp(0, 255).unsigned_abs() as u16
+                    }
                 })
             };
             let v: Option<Vec<u16>> = match n {
@@ -731,6 +742,23 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
                 for (k, c) in v.iter().take(n).enumerate() {
                     o.px[at + k * 2..at + k * 2 + 2].copy_from_slice(&c.to_le_bytes());
                 }
+            }
+        }
+        return Ok(o);
+    }
+    if s.fmt == "grayfloat" && to == "grayfix16" {
+        // MEASURED (golden wicencode grayfixout-*: -1, 1.5, 2, 1e30, the infinities and NaNs):
+        // the float times 8192 rounded, held to the 16 bits (NaN 0)
+        hit(clause::WICIMAGE_CONVERT_WIDE_FIXED);
+        let mut o = Img::new(s.w, s.h, to);
+        o.dpi = s.dpi;
+        let (st, ost) = (s.stride(), o.stride());
+        for y in 0..s.h as usize {
+            for x in 0..s.w as usize {
+                let i = y * st + x * 4;
+                let v = f32::from_le_bytes([s.px[i], s.px[i + 1], s.px[i + 2], s.px[i + 3]]);
+                let q = (f64::from(v) * 8192.0 + 0.5).floor() as i16;
+                o.px[y * ost + x * 2..y * ost + x * 2 + 2].copy_from_slice(&q.to_le_bytes());
             }
         }
         return Ok(o);
@@ -2242,6 +2270,9 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
         (2, 16, 4, Some(0)) => "rgba64",
         (2, 8, 5, Some(_)) => "bgra",
         (2, 32, 3, None) => "rgb96float",
+        // (MEASURED, golden wicencode floatalpha-*: 32-bit float RGBA with an unassociated
+        // alpha as 128bppRGBAFloat)
+        (2, 32, 4, Some(2)) if sfmt == 3 => "rgbafloat",
         (1, 8, 2, Some(0)) => "gray8",
         (1, 8, 2, Some(1)) => "pbgra",
         (5, 8, 5, Some(1)) => "cmyka40",
@@ -2316,6 +2347,7 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Im
                 ("bgra" | "pbgra", _) => vec![s[2], s[1], s[0], s[3]],
                 ("gray16", _) => w16(0).to_vec(),
                 ("grayfloat", _) => w32(0).to_vec(),
+                ("rgbafloat", _) => [w32(0), w32(1), w32(2), w32(3)].concat(),
                 ("rgb48", _) => [w16(0), w16(1), w16(2)].concat(),
                 ("rgba64" | "prgba64" | "cmyk64", _) => [w16(0), w16(1), w16(2), w16(3)].concat(),
                 _ => s,
