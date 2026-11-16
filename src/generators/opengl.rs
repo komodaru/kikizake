@@ -2698,4 +2698,29 @@ fn measure(s: &mut String) {
         writeln!(s, "gl glRasterPos2i 0 {}\ngldraw 16 3 0x1900 {} {} {}\nglerr", 4 * k, h(ty), 90 + k, 48 * size).unwrap();
     }
     writeln!(s, "glread 0 0 16 16 {} {} 1024\nglerr\nend", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+    // flat-shaded lines under the other per-fragment states (GL.RASTER.MODE): a stencil test,
+    // an alpha test, a logic op, fog, a color mask, a depth test with blending, all passing
+    // everything; and under a viewport smaller than the window, cut
+    let states = [
+        "gl glEnable 0xb90\ngl glStencilFunc 0x207 0 255",
+        "gl glEnable 0xbc0\ngl glAlphaFunc 0x207 0",
+        "gl glEnable 0xbf2\ngl glLogicOp 0x1503",
+        "gl glEnable 0xb60\ngl glFogi 0xb65 9729\ngl glFogf 0xb63 -1\ngl glFogf 0xb64 1",
+        "gl glColorMask 1 1 0 1",
+        "gl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glEnable 0xbe2\ngl glBlendFunc 1 0",
+        "gl glViewport 2 3 11 9",
+    ];
+    for (k, on) in states.iter().enumerate() {
+        writeln!(s, "case line-flat-{}\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00\n{on}", 20 + k, ctx(32)).unwrap();
+        let set: &[[f64; 4]] = if k == 6 { &past } else { &lines };
+        for l in set.iter().take(12) {
+            writeln!(s, "gl glClear 0x4500\ngl glBegin 1").unwrap();
+            for e in 0..2 {
+                color(s, &mut r);
+                glf(s, "glVertex2f", &[l[2 * e], l[2 * e + 1]]);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
 }
