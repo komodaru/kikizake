@@ -1570,6 +1570,21 @@ impl Gdiplus {
                     }
                 }
             }
+            "gppen" => {
+                Self::slot(t, 1)?;
+                n(t, 2)?;
+                t.get(3).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad)?;
+                return Err(Fail::Unmodeled(open::GP_PEN));
+            }
+            "gpshape" => {
+                Self::slot(t, 1)?;
+                let pen = match t.get(2).map(String::as_str) {
+                    Some("pen") => true,
+                    Some("brush") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                return Err(Fail::Unmodeled(if pen { open::GP_PEN } else { open::GP_SHAPE_FILL }));
+            }
             "gppaint" => {
                 let s = Self::slot(t, 1)?;
                 let k = Self::slot(t, 2)?;

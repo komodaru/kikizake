@@ -1,0 +1,3803 @@
+# kikizake suite gdiplusline: GDI+ pens (widths, dashes, caps, joins, alignment) drawing lines and shapes, and brushes filling ellipses, pies, polygons, closed curves, under the smoothing and pixel offset modes and world transforms (SPEC.md). Made by `kikizake gen gdiplusline`.
+case penwidth-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 2 3 13 9
+gpread 0 32bppARGB
+end
+case penwidth-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0
+gpshape 0 pen 0 - copy 0 0 0 line 2 3 13 9
+gpread 0 32bppARGB
+end
+case penwidth-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 -1
+gpshape 0 pen 0 - copy 0 0 0 line 2 3 13 9
+gpread 0 32bppARGB
+end
+case penwidth-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2.5
+gpshape 0 pen 0 - copy 0 0 0 line 2 3 13 9
+gpread 0 32bppARGB
+end
+case penwidth-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.25
+gpshape 0 pen 0 - copy 0 0 0 line 2 3 13 9
+gpread 0 32bppARGB
+end
+case pendash--1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash -1
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 0
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 1
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 2
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 3
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 4
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 5
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pendash-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 6
+gpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4
+gpread 0 32bppARGB
+end
+case pencap-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 1 1 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 2 2 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 3 3 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 16 16 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 17 17 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 18 18 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 19 19 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 20 20 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 240 240 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 255 255 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 4 4 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pencap-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap -1 -1 0
+gpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8
+gpread 0 32bppARGB
+end
+case pendashcap--1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 cap 0 0 -1
+gpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8
+gpread 0 32bppARGB
+end
+case pendashcap-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8
+gpread 0 32bppARGB
+end
+case pendashcap-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 cap 0 0 1
+gpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8
+gpread 0 32bppARGB
+end
+case pendashcap-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 cap 0 0 2
+gpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8
+gpread 0 32bppARGB
+end
+case pendashcap-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 cap 0 0 3
+gpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8
+gpread 0 32bppARGB
+end
+case pendashcap-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 cap 0 0 4
+gpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8
+gpread 0 32bppARGB
+end
+case penjoin--1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join -1
+gpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12
+gpread 0 32bppARGB
+end
+case penjoin-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0
+gpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12
+gpread 0 32bppARGB
+end
+case penjoin-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 1
+gpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12
+gpread 0 32bppARGB
+end
+case penjoin-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 2
+gpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12
+gpread 0 32bppARGB
+end
+case penjoin-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 3
+gpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12
+gpread 0 32bppARGB
+end
+case penjoin-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 4
+gpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12
+gpread 0 32bppARGB
+end
+case penalign--1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 align -1
+gpshape 0 pen 0 - copy 0 0 0 rect 3 3 9 9
+gpread 0 32bppARGB
+end
+case penalign-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 align 0
+gpshape 0 pen 0 - copy 0 0 0 rect 3 3 9 9
+gpread 0 32bppARGB
+end
+case penalign-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 align 1
+gpshape 0 pen 0 - copy 0 0 0 rect 3 3 9 9
+gpread 0 32bppARGB
+end
+case penalign-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 align 2
+gpshape 0 pen 0 - copy 0 0 0 rect 3 3 9 9
+gpread 0 32bppARGB
+end
+case penmiter-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0 miter 0
+gpshape 0 pen 0 - copy 0 0 0 lines 3 1 14 8 3 1 14
+gpread 0 32bppARGB
+end
+case penmiter-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0 miter -1
+gpshape 0 pen 0 - copy 0 0 0 lines 3 1 14 8 3 1 14
+gpread 0 32bppARGB
+end
+case penmiter-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0 miter 1
+gpshape 0 pen 0 - copy 0 0 0 lines 3 1 14 8 3 1 14
+gpread 0 32bppARGB
+end
+case penmiter-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0 miter 4
+gpshape 0 pen 0 - copy 0 0 0 lines 3 1 14 8 3 1 14
+gpread 0 32bppARGB
+end
+case penmiter-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0 miter 100
+gpshape 0 pen 0 - copy 0 0 0 lines 3 1 14 8 3 1 14
+gpread 0 32bppARGB
+end
+case line-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 8.75 14 13 0.25
+gpread 0 32bppARGB
+end
+case line-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 3 line 16.25 11.5 6 12.25
+gpread 0 32bppARGB
+end
+case line-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 4 line 10.75 -1.75 8.25 16.5
+gpread 0 32bppARGB
+end
+case line-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 10.25 12 11 9.75
+gpread 0 32bppARGB
+end
+case line-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 2 line 17.25 -1.25 12.5 14.25
+gpread 0 32bppARGB
+end
+case line-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 16.75 10.5 11.25 17.75
+gpread 0 32bppARGB
+end
+case line-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 1 line 4.25 12.5 9 13.5
+gpread 0 32bppARGB
+end
+case line-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 10 5.5 9.5 8
+gpread 0 32bppARGB
+end
+case line-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 10.75 8 11.25 11.25
+gpread 0 32bppARGB
+end
+case line-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 16.25 17 4 4
+gpread 0 32bppARGB
+end
+case line-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 14 14.5 13.5 9.25
+gpread 0 32bppARGB
+end
+case line-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 4.5 2.75 6 6
+gpread 0 32bppARGB
+end
+case line-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 4.5 0 -2 12
+gpread 0 32bppARGB
+end
+case line-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 12.75 3 9.5 13.75
+gpread 0 32bppARGB
+end
+case line-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 15.25 11.75 11.5 16.5
+gpread 0 32bppARGB
+end
+case line-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 2.5 -1 10.5 8.25
+gpread 0 32bppARGB
+end
+case line-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 0 line 2.5 2 10 0.5
+gpread 0 32bppARGB
+end
+case line-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 2 line 1.25 12.75 2.5 12
+gpread 0 32bppARGB
+end
+case line-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 1 line 4.5 2.25 -0.5 17.75
+gpread 0 32bppARGB
+end
+case line-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 17.5 0.75 -1.25 17.5
+gpread 0 32bppARGB
+end
+case line-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 2 line 10.75 6.75 1 9.25
+gpread 0 32bppARGB
+end
+case line-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 3 line -2 11.5 10 3
+gpread 0 32bppARGB
+end
+case line-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -1.75 18 10.25 2
+gpread 0 32bppARGB
+end
+case line-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 1 line 6.25 11.5 13 16
+gpread 0 32bppARGB
+end
+case line-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 1 line -0.5 0 10.25 -1
+gpread 0 32bppARGB
+end
+case line-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 10 13.75 9.25 5
+gpread 0 32bppARGB
+end
+case line-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 3 line 5.75 6.25 2.75 -1.75
+gpread 0 32bppARGB
+end
+case line-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 2 line 4.5 7.25 1.5 10.5
+gpread 0 32bppARGB
+end
+case line-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 4.25 17 1.75 17.75
+gpread 0 32bppARGB
+end
+case line-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 2 line 9.25 15.75 8.75 14
+gpread 0 32bppARGB
+end
+case line-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 7 18 18 17.75
+gpread 0 32bppARGB
+end
+case line-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 1 line 1 11.5 0.5 -1
+gpread 0 32bppARGB
+end
+case line-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 0 line 6 12.75 16.5 14
+gpread 0 32bppARGB
+end
+case line-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 3 line 5.5 -0.75 17 0.25
+gpread 0 32bppARGB
+end
+case line-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 0 line 15 10 9.25 7.25
+gpread 0 32bppARGB
+end
+case line-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 16.75 8 16.5 10.25
+gpread 0 32bppARGB
+end
+case line-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 11 6.75 3.75 10.75
+gpread 0 32bppARGB
+end
+case line-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 1 15.5 10.5 9.5
+gpread 0 32bppARGB
+end
+case line-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 3.5 -1.25 16.25 0.75
+gpread 0 32bppARGB
+end
+case line-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line 9.5 14.75 9 17.25
+gpread 0 32bppARGB
+end
+case line-40
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 16.25 5.5 10.75 18
+gpread 0 32bppARGB
+end
+case line-41
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 0 line 2 9.5 15 11.25
+gpread 0 32bppARGB
+end
+case line-42
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 11.25 17.5 8 4
+gpread 0 32bppARGB
+end
+case line-43
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 1 line 6 11.75 13 -0.75
+gpread 0 32bppARGB
+end
+case line-44
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 8.25 -0.25 9 1.25
+gpread 0 32bppARGB
+end
+case line-45
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 1 line 16.5 9.75 17.25 0.25
+gpread 0 32bppARGB
+end
+case line-46
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 4 line -1.5 0.75 6.5 15.5
+gpread 0 32bppARGB
+end
+case line-47
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 2 line 10.5 14.25 15.75 11
+gpread 0 32bppARGB
+end
+case line-48
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line -1.25 2 16.25 13.75
+gpread 0 32bppARGB
+end
+case line-49
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 1 line 15.25 7.5 2 1.25
+gpread 0 32bppARGB
+end
+case line-50
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line -0.25 14.5 14.5 14.25
+gpread 0 32bppARGB
+end
+case line-51
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 2 line -0.5 8.25 10 16.5
+gpread 0 32bppARGB
+end
+case line-52
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 0 line 6.75 5.25 0 -0.5
+gpread 0 32bppARGB
+end
+case line-53
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 line 6 13.5 16.5 5.5
+gpread 0 32bppARGB
+end
+case line-54
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 11 18 14.5 17.5
+gpread 0 32bppARGB
+end
+case line-55
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 1 line 4.75 2.75 -1.75 10.25
+gpread 0 32bppARGB
+end
+case line-56
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 4 line 10.25 10.75 10.75 0.5
+gpread 0 32bppARGB
+end
+case line-57
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 17.5 2 5.5 -0.5
+gpread 0 32bppARGB
+end
+case line-58
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 13.75 9 13 7.5
+gpread 0 32bppARGB
+end
+case line-59
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 3.75 5.75 6.75 7.75
+gpread 0 32bppARGB
+end
+case line-60
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 0 line 16.5 3.5 17.75 8
+gpread 0 32bppARGB
+end
+case line-61
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 1 line 13.25 1 18 1.75
+gpread 0 32bppARGB
+end
+case line-62
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 line 4 18 12.25 11.75
+gpread 0 32bppARGB
+end
+case line-63
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 3 line 3.25 10.25 14.25 11
+gpread 0 32bppARGB
+end
+case line-64
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 0 line 10.75 17.75 17 13.5
+gpread 0 32bppARGB
+end
+case line-65
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 2 line -0.75 12.75 14.5 16.5
+gpread 0 32bppARGB
+end
+case line-66
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 0 line 6.5 11.25 6.75 3.75
+gpread 0 32bppARGB
+end
+case line-67
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 0 line 15 0.5 5 10.25
+gpread 0 32bppARGB
+end
+case line-68
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 17.25 17.25 13.75 16
+gpread 0 32bppARGB
+end
+case line-69
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 2 line 13.25 1.75 15.5 13.25
+gpread 0 32bppARGB
+end
+case line-70
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 15.25 6.75 7.5 -0.5
+gpread 0 32bppARGB
+end
+case line-71
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 6 -1.75 6 6
+gpread 0 32bppARGB
+end
+case line-72
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 2 line 17.25 2.5 8.25 -1.5
+gpread 0 32bppARGB
+end
+case line-73
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 4 line 17.25 4.5 7.5 15.5
+gpread 0 32bppARGB
+end
+case line-74
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 line 14.25 16.5 1.5 9
+gpread 0 32bppARGB
+end
+case line-75
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line 10.5 6.25 16.25 10.75
+gpread 0 32bppARGB
+end
+case line-76
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 7 -1.75 16.75 11
+gpread 0 32bppARGB
+end
+case line-77
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 5.25 -0.5 8 7.75
+gpread 0 32bppARGB
+end
+case line-78
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line 1.75 7.25 10.75 12
+gpread 0 32bppARGB
+end
+case line-79
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 2 line 5 12 10.25 -0.75
+gpread 0 32bppARGB
+end
+case line-80
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 line 16.75 15 0.25 3.75
+gpread 0 32bppARGB
+end
+case line-81
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 0 line 8.25 10.75 0.25 2
+gpread 0 32bppARGB
+end
+case line-82
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 line 5 9.75 7.75 13
+gpread 0 32bppARGB
+end
+case line-83
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 1 line -1.25 2.5 15.25 10
+gpread 0 32bppARGB
+end
+case line-84
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 12 13.25 -1.25 12.75
+gpread 0 32bppARGB
+end
+case line-85
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 3 line 11 1.5 8.75 -2
+gpread 0 32bppARGB
+end
+case line-86
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 3 line 0.5 14.5 10.5 5
+gpread 0 32bppARGB
+end
+case line-87
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 2 line 0 10.75 14.5 7.5
+gpread 0 32bppARGB
+end
+case line-88
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 2 line 13.75 10.75 -1.5 5.75
+gpread 0 32bppARGB
+end
+case line-89
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 2 line 3.5 14.5 16.5 4.75
+gpread 0 32bppARGB
+end
+case line-90
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 3 line 12.75 3.5 15.5 5.25
+gpread 0 32bppARGB
+end
+case line-91
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 0 line 6.75 0.5 2.5 17
+gpread 0 32bppARGB
+end
+case line-92
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 line 3.25 1.25 12.5 -0.5
+gpread 0 32bppARGB
+end
+case line-93
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 2 line 0.75 -1.75 -0.75 7
+gpread 0 32bppARGB
+end
+case line-94
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 line 10.5 12.25 2.75 6.25
+gpread 0 32bppARGB
+end
+case line-95
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 2.5 -0.75 6.25 5.5
+gpread 0 32bppARGB
+end
+case line-96
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 1 line 11.75 18 -0.75 15
+gpread 0 32bppARGB
+end
+case line-97
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 2 line 10.75 11.5 9.25 17.75
+gpread 0 32bppARGB
+end
+case line-98
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line 14.5 9.5 11 13.75
+gpread 0 32bppARGB
+end
+case line-99
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line 5.75 17 5 15
+gpread 0 32bppARGB
+end
+case line-100
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 1 line 5.5 4.25 7.25 0.5
+gpread 0 32bppARGB
+end
+case line-101
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 line 13.75 7.5 14.25 11.75
+gpread 0 32bppARGB
+end
+case line-102
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 0 line 6.5 11 8.25 11
+gpread 0 32bppARGB
+end
+case line-103
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 0 line 1.25 12 17.25 1.75
+gpread 0 32bppARGB
+end
+case line-104
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 4 line 11.25 8 11.25 16.5
+gpread 0 32bppARGB
+end
+case line-105
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 3 line 9 16.5 -0.75 11.75
+gpread 0 32bppARGB
+end
+case line-106
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 8.25 4.25 17.25 9
+gpread 0 32bppARGB
+end
+case line-107
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 line 5.5 13.25 3 13
+gpread 0 32bppARGB
+end
+case line-108
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 3 line 4 1 12.25 4.25
+gpread 0 32bppARGB
+end
+case line-109
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 line 13.25 5 9.25 15
+gpread 0 32bppARGB
+end
+case line-110
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 0 line 2 4.75 13.75 14
+gpread 0 32bppARGB
+end
+case line-111
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 4 line 1.75 8.5 15.25 -1
+gpread 0 32bppARGB
+end
+case line-112
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 4 line 10 15.25 1.25 8.75
+gpread 0 32bppARGB
+end
+case line-113
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line 6.5 0.25 17.25 4
+gpread 0 32bppARGB
+end
+case line-114
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 4 line 8.5 13 8.5 11
+gpread 0 32bppARGB
+end
+case line-115
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 line -2 10.25 6.25 14.5
+gpread 0 32bppARGB
+end
+case line-116
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 line 10.75 5.25 1.5 0.75
+gpread 0 32bppARGB
+end
+case line-117
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 line 1 16.5 13 17.75
+gpread 0 32bppARGB
+end
+case line-118
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 2 line 1 17 -1.25 11.25
+gpread 0 32bppARGB
+end
+case line-119
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 2 line 1.25 5.5 12.75 5.5
+gpread 0 32bppARGB
+end
+case linewide-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.75 cap 19 19 0
+gpshape 0 pen 0 - copy 0 4 1 line 8 12 4.75 11.25
+gpread 0 32bppARGB
+end
+case linewide-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5 cap 16 16 0
+gpshape 0 pen 0 - copy 0 0 1 line 3.25 11.25 11.75 6.5
+gpread 0 32bppARGB
+end
+case linewide-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 17 17 0
+gpshape 0 pen 0 - copy 0 0 1 line 4.25 -0.25 5.75 8
+gpread 0 32bppARGB
+end
+case linewide-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1 cap 20 20 0
+gpshape 0 pen 0 - copy 0 4 0 line 4 1.25 7 -1.25
+gpread 0 32bppARGB
+end
+case linewide-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.5 cap 17 17 0
+gpshape 0 pen 0 - copy 0 4 1 line 6.5 -0.25 4.75 0
+gpread 0 32bppARGB
+end
+case linewide-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 4.5 cap 18 18 0
+gpshape 0 pen 0 - copy 0 2 2 line 17.75 14.25 4.75 12.5
+gpread 0 32bppARGB
+end
+case linewide-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.75 cap 3 3 0
+gpshape 0 pen 0 - copy 0 3 1 line 8.25 17.75 14 16
+gpread 0 32bppARGB
+end
+case linewide-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 4.75 cap 1 1 0
+gpshape 0 pen 0 - copy 0 3 4 line 16 7.75 6 1.75
+gpread 0 32bppARGB
+end
+case linewide-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 0.5 cap 2 2 0
+gpshape 0 pen 0 - copy 0 1 4 line 13.75 -1.75 14.5 18
+gpread 0 32bppARGB
+end
+case linewide-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 4.5 cap 17 17 0
+gpshape 0 pen 0 - copy 0 4 0 line 3.75 0.25 6.25 10.75
+gpread 0 32bppARGB
+end
+case linewide-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.75 cap 19 19 0
+gpshape 0 pen 0 - copy 0 0 0 line 9.5 3.5 18 -1
+gpread 0 32bppARGB
+end
+case linewide-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.75 cap 2 2 0
+gpshape 0 pen 0 - copy 0 3 0 line 3.75 8.5 7.75 9.25
+gpread 0 32bppARGB
+end
+case linewide-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 0.75 cap 3 3 0
+gpshape 0 pen 0 - copy 0 2 2 line 16.25 2.25 0.25 16.5
+gpread 0 32bppARGB
+end
+case linewide-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.5 cap 0 0 0
+gpshape 0 pen 0 - copy 0 0 0 line -1.25 12.25 8.5 -0.25
+gpread 0 32bppARGB
+end
+case linewide-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3 cap 3 3 0
+gpshape 0 pen 0 - copy 0 0 2 line 10.75 14.25 14.75 1.25
+gpread 0 32bppARGB
+end
+case linewide-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2 cap 18 18 0
+gpshape 0 pen 0 - copy 0 0 0 line -1.5 18 -1.25 -0.25
+gpread 0 32bppARGB
+end
+case linewide-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.75 cap 1 1 0
+gpshape 0 pen 0 - copy 0 1 2 line 18 -0.25 9.5 2
+gpread 0 32bppARGB
+end
+case linewide-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.25 cap 3 3 0
+gpshape 0 pen 0 - copy 0 5 3 line 12.25 4 7.25 6.25
+gpread 0 32bppARGB
+end
+case linewide-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3 cap 17 17 0
+gpshape 0 pen 0 - copy 0 2 0 line 5 15 0.25 15.75
+gpread 0 32bppARGB
+end
+case linewide-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 18 18 0
+gpshape 0 pen 0 - copy 0 3 3 line 17.25 10.5 -1.75 17.5
+gpread 0 32bppARGB
+end
+case linewide-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 2 line 14.75 1.75 3.5 13.5
+gpread 0 32bppARGB
+end
+case linewide-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2 cap 16 16 0
+gpshape 0 pen 0 - copy 0 1 1 line -1.5 4.75 13.75 16.25
+gpread 0 32bppARGB
+end
+case linewide-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.5 cap 18 18 0
+gpshape 0 pen 0 - copy 0 0 3 line 9.5 12.25 5.75 17.25
+gpread 0 32bppARGB
+end
+case linewide-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3 cap 20 20 0
+gpshape 0 pen 0 - copy 0 0 2 line 1 9 11 2
+gpread 0 32bppARGB
+end
+case linewide-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 0 line 2 11 5 16
+gpread 0 32bppARGB
+end
+case linewide-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 6 cap 2 2 0
+gpshape 0 pen 0 - copy 0 3 4 line 2.5 9.5 17.75 -1.25
+gpread 0 32bppARGB
+end
+case linewide-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2 cap 19 19 0
+gpshape 0 pen 0 - copy 0 5 3 line 17.75 18 7.5 18
+gpread 0 32bppARGB
+end
+case linewide-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.5 cap 17 17 0
+gpshape 0 pen 0 - copy 0 0 3 line 15 2 10 11.25
+gpread 0 32bppARGB
+end
+case linewide-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.75 cap 2 2 0
+gpshape 0 pen 0 - copy 0 0 4 line 2.25 9.5 2.5 14.75
+gpread 0 32bppARGB
+end
+case linewide-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 4.75 cap 1 1 0
+gpshape 0 pen 0 - copy 0 1 0 line 6.5 2.5 -1.25 15.5
+gpread 0 32bppARGB
+end
+case linewide-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.5 cap 20 20 0
+gpshape 0 pen 0 - copy 0 1 0 line -0.75 17.5 5.5 3.5
+gpread 0 32bppARGB
+end
+case linewide-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.5 cap 17 17 0
+gpshape 0 pen 0 - copy 0 1 3 line 5.25 14.5 6 6.25
+gpread 0 32bppARGB
+end
+case linewide-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.5 cap 19 19 0
+gpshape 0 pen 0 - copy 0 4 3 line 9 3 5.5 3.25
+gpread 0 32bppARGB
+end
+case linewide-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.5 cap 20 20 0
+gpshape 0 pen 0 - copy 0 4 0 line 4.5 -0.75 11.25 10
+gpread 0 32bppARGB
+end
+case linewide-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.25 cap 3 3 0
+gpshape 0 pen 0 - copy 0 2 0 line 1 -2 15 12.25
+gpread 0 32bppARGB
+end
+case linewide-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.5 cap 17 17 0
+gpshape 0 pen 0 - copy 0 4 4 line -1 3 14.25 17
+gpread 0 32bppARGB
+end
+case linewide-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.75 cap 3 3 0
+gpshape 0 pen 0 - copy 0 3 3 line 15.25 12.5 9.5 9.5
+gpread 0 32bppARGB
+end
+case linewide-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.75 cap 1 1 0
+gpshape 0 pen 0 - copy 0 4 1 line 5.25 9.25 1.25 0.5
+gpread 0 32bppARGB
+end
+case linewide-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.75 cap 3 3 0
+gpshape 0 pen 0 - copy 0 4 1 line 6.25 2 15.75 1
+gpread 0 32bppARGB
+end
+case linewide-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 16 16 0
+gpshape 0 pen 0 - copy 0 5 1 line 14.75 5.5 5.25 10.75
+gpread 0 32bppARGB
+end
+case linewide-40
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 6 cap 1 1 0
+gpshape 0 pen 0 - copy 0 1 4 line 16.5 3 18 2.25
+gpread 0 32bppARGB
+end
+case linewide-41
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.25 cap 16 16 0
+gpshape 0 pen 0 - copy 0 5 2 line 3.75 8.5 6.75 9.5
+gpread 0 32bppARGB
+end
+case linewide-42
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 0.75 cap 16 16 0
+gpshape 0 pen 0 - copy 0 2 1 line -1.75 0.75 1.75 10.75
+gpread 0 32bppARGB
+end
+case linewide-43
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.75 cap 20 20 0
+gpshape 0 pen 0 - copy 0 5 4 line 3.75 4 6 6
+gpread 0 32bppARGB
+end
+case linewide-44
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1 cap 17 17 0
+gpshape 0 pen 0 - copy 0 5 4 line 12.75 9 6.25 7.5
+gpread 0 32bppARGB
+end
+case linewide-45
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3 cap 19 19 0
+gpshape 0 pen 0 - copy 0 1 0 line 5.25 9.25 10.5 17.25
+gpread 0 32bppARGB
+end
+case linewide-46
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 2 2 0
+gpshape 0 pen 0 - copy 0 4 0 line 14.5 0 9.25 12.25
+gpread 0 32bppARGB
+end
+case linewide-47
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1 cap 19 19 0
+gpshape 0 pen 0 - copy 0 2 4 line 16.75 10.75 7 4.5
+gpread 0 32bppARGB
+end
+case linewide-48
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 0 0 0
+gpshape 0 pen 0 - copy 0 5 1 line -2 -0.25 8 15.25
+gpread 0 32bppARGB
+end
+case linewide-49
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.5 cap 2 2 0
+gpshape 0 pen 0 - copy 0 0 3 line 10.75 14.25 16.75 17.75
+gpread 0 32bppARGB
+end
+case linewide-50
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.5 cap 17 17 0
+gpshape 0 pen 0 - copy 0 0 2 line 0 3.5 0.25 11
+gpread 0 32bppARGB
+end
+case linewide-51
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.75 cap 2 2 0
+gpshape 0 pen 0 - copy 0 5 0 line 2.25 9.5 9.25 5.75
+gpread 0 32bppARGB
+end
+case linewide-52
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5 cap 2 2 0
+gpshape 0 pen 0 - copy 0 1 4 line 13.75 3.5 12.25 6.25
+gpread 0 32bppARGB
+end
+case linewide-53
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.5 cap 0 0 0
+gpshape 0 pen 0 - copy 0 2 4 line -1.25 7.5 9.75 3.75
+gpread 0 32bppARGB
+end
+case linewide-54
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 1.25 cap 19 19 0
+gpshape 0 pen 0 - copy 0 0 4 line 10.75 -1 16.75 -1.75
+gpread 0 32bppARGB
+end
+case linewide-55
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 3.25 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 3 line 3.5 7.25 2.75 2.25
+gpread 0 32bppARGB
+end
+case linewide-56
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 4.25 cap 16 16 0
+gpshape 0 pen 0 - copy 0 2 4 line 8.5 16.5 18 15.25
+gpread 0 32bppARGB
+end
+case linewide-57
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.75 cap 16 16 0
+gpshape 0 pen 0 - copy 0 5 1 line 0.75 5.25 12.75 18
+gpread 0 32bppARGB
+end
+case linewide-58
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 2.25 cap 17 17 0
+gpshape 0 pen 0 - copy 0 0 0 line 0.25 8 12 1
+gpread 0 32bppARGB
+end
+case linewide-59
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff00ff00 5.75 cap 2 2 0
+gpshape 0 pen 0 - copy 0 1 2 line 13 1.25 -0.75 14.75
+gpread 0 32bppARGB
+end
+case linedash-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 3 cap 0 0 3
+gpshape 0 pen 0 - copy 0 2 0 line 5.25 16.5 7 12
+gpread 0 32bppARGB
+end
+case linedash-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 1 cap 0 0 2
+gpshape 0 pen 0 - copy 0 2 0 line -1.25 12 13.25 15.25
+gpread 0 32bppARGB
+end
+case linedash-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 3 cap 0 0 0
+gpshape 0 pen 0 - copy 0 5 0 line 12.5 9.75 4 12.75
+gpread 0 32bppARGB
+end
+case linedash-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 4 cap 0 0 3
+gpshape 0 pen 0 - copy 0 1 0 line 14.75 12.75 1.5 1.25
+gpread 0 32bppARGB
+end
+case linedash-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 2 cap 0 0 3
+gpshape 0 pen 0 - copy 0 0 0 line 6.25 12.5 0 0
+gpread 0 32bppARGB
+end
+case linedash-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 2 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 0 line 9.75 9.5 8 18
+gpread 0 32bppARGB
+end
+case linedash-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 0 line 9 9.75 16.5 13
+gpread 0 32bppARGB
+end
+case linedash-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 1 cap 0 0 3
+gpshape 0 pen 0 - copy 0 2 0 line 7 16 1.5 14.5
+gpread 0 32bppARGB
+end
+case linedash-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 4 cap 0 0 3
+gpshape 0 pen 0 - copy 0 5 0 line 5 15.75 16.5 11.75
+gpread 0 32bppARGB
+end
+case linedash-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 1 cap 0 0 2
+gpshape 0 pen 0 - copy 0 2 0 line 17.75 17.75 14.25 8.5
+gpread 0 32bppARGB
+end
+case linedash-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 5 0 line 14.25 1.25 4 15.75
+gpread 0 32bppARGB
+end
+case linedash-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 3 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 0 line -0.75 5.25 12.75 -0.5
+gpread 0 32bppARGB
+end
+case linedash-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 0 line 12.75 8.5 15.25 1.25
+gpread 0 32bppARGB
+end
+case linedash-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 2 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 0 line 16 13.75 12.25 0.25
+gpread 0 32bppARGB
+end
+case linedash-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 2 0 line -1.25 10.25 9 6.25
+gpread 0 32bppARGB
+end
+case linedash-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 0 0 line 8.75 16.75 16.25 1.75
+gpread 0 32bppARGB
+end
+case linedash-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 2 cap 0 0 2
+gpshape 0 pen 0 - copy 0 1 0 line 7.5 16.25 17.5 14
+gpread 0 32bppARGB
+end
+case linedash-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 3 cap 0 0 3
+gpshape 0 pen 0 - copy 0 0 0 line 3.75 4.75 13.25 15.5
+gpread 0 32bppARGB
+end
+case linedash-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 3 cap 0 0 3
+gpshape 0 pen 0 - copy 0 0 0 line 5 0 0.5 12.75
+gpread 0 32bppARGB
+end
+case linedash-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 0 line -1.75 9 6 7.25
+gpread 0 32bppARGB
+end
+case linedash-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 3 cap 0 0 2
+gpshape 0 pen 0 - copy 0 4 0 line 0 3.5 13.5 6.5
+gpread 0 32bppARGB
+end
+case linedash-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 2 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 0 line 1.5 11.5 0 6
+gpread 0 32bppARGB
+end
+case linedash-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 1 cap 0 0 3
+gpshape 0 pen 0 - copy 0 5 0 line 8.75 8.75 9 18
+gpread 0 32bppARGB
+end
+case linedash-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 1 cap 0 0 2
+gpshape 0 pen 0 - copy 0 3 0 line 12.75 10.5 5.5 4.25
+gpread 0 32bppARGB
+end
+case linedash-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 2 cap 0 0 3
+gpshape 0 pen 0 - copy 0 4 0 line 12 14.5 4 -0.5
+gpread 0 32bppARGB
+end
+case linedash-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 2 cap 0 0 2
+gpshape 0 pen 0 - copy 0 4 0 line 2.75 8 1.25 15.5
+gpread 0 32bppARGB
+end
+case linedash-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 2 cap 0 0 0
+gpshape 0 pen 0 - copy 0 5 0 line 16.25 14.75 17 12.75
+gpread 0 32bppARGB
+end
+case linedash-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 3 dash 2 cap 0 0 0
+gpshape 0 pen 0 - copy 0 0 0 line 15.75 7 3.75 11.25
+gpread 0 32bppARGB
+end
+case linedash-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 5 0 line -1 5.75 13.25 7.5
+gpread 0 32bppARGB
+end
+case linedash-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 1 0 line 17.5 17.5 0.25 14.25
+gpread 0 32bppARGB
+end
+case linedash-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 4 cap 0 0 2
+gpshape 0 pen 0 - copy 0 1 0 line 6.5 17.25 1.25 7.25
+gpread 0 32bppARGB
+end
+case linedash-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 0 line 5 0 17 0.75
+gpread 0 32bppARGB
+end
+case linedash-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 2 cap 0 0 2
+gpshape 0 pen 0 - copy 0 0 0 line 14.5 13.75 1.25 -0.75
+gpread 0 32bppARGB
+end
+case linedash-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 2 0 line 13 1.25 4.75 16.25
+gpread 0 32bppARGB
+end
+case linedash-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 1 cap 0 0 0
+gpshape 0 pen 0 - copy 0 4 0 line 3.5 5.25 -2 2.25
+gpread 0 32bppARGB
+end
+case linedash-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 2 cap 0 0 3
+gpshape 0 pen 0 - copy 0 5 0 line 11.75 4.75 15.75 2
+gpread 0 32bppARGB
+end
+case linedash-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 4 cap 0 0 2
+gpshape 0 pen 0 - copy 0 2 0 line -0.25 7.5 8.5 17.75
+gpread 0 32bppARGB
+end
+case linedash-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 4 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 0 line -0.75 13.25 15.5 13.5
+gpread 0 32bppARGB
+end
+case linedash-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 2 dash 1 cap 0 0 3
+gpshape 0 pen 0 - copy 0 5 0 line -0.25 -1 16.75 6.75
+gpread 0 32bppARGB
+end
+case linedash-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xff0000ff 1 dash 3 cap 0 0 3
+gpshape 0 pen 0 - copy 0 4 0 line 12.5 -0.75 -2 -2
+gpread 0 32bppARGB
+end
+case outline-rect-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 2 rect 6 13.5 10.5 17.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 3 ellipse 1.5 -1.75 10.5 -2
+gpread 0 32bppARGB
+end
+case outline-bezier-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 5 3 bezier 11.75 3.5 18 16.25 6.75 -1.5 0.25 5
+gpread 0 32bppARGB
+end
+case outline-arc-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 0 2 arc 1 3.5 16 9.5 46 89
+gpread 0 32bppARGB
+end
+case outline-pie-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 3 pie 13 12.5 14.5 14.25 -176 206
+gpread 0 32bppARGB
+end
+case outline-rect-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 4 1 rect 2.75 17.5 10 -1
+gpread 0 32bppARGB
+end
+case outline-ellipse-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 2 1 ellipse 0 11.75 14.75 -2
+gpread 0 32bppARGB
+end
+case outline-bezier-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 1 bezier 0.5 10.75 10.25 9 0.75 7.5 0.25 11.25
+gpread 0 32bppARGB
+end
+case outline-arc-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 0 2 arc 3.25 6.75 12.25 13.5 188 -37
+gpread 0 32bppARGB
+end
+case outline-pie-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 4 3 pie 13.25 5.75 16.75 7.75 284 -83
+gpread 0 32bppARGB
+end
+case outline-rect-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 4 1 rect 17.75 6 10.25 17.25
+gpread 0 32bppARGB
+end
+case outline-ellipse-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 2 ellipse -0.25 13 -1.5 0.75
+gpread 0 32bppARGB
+end
+case outline-bezier-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 2 0 bezier 18 0.75 11.75 6.25 7.5 8.25 3.75 3
+gpread 0 32bppARGB
+end
+case outline-arc-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 2 1 arc 14.75 6.5 4 5 -74 -92
+gpread 0 32bppARGB
+end
+case outline-pie-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 pie 11 3.75 11.25 0.75 368 276
+gpread 0 32bppARGB
+end
+case outline-rect-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 2 rect 7.75 16.25 14.75 10.25
+gpread 0 32bppARGB
+end
+case outline-ellipse-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 0 1 ellipse 10.75 1 9.5 10.75
+gpread 0 32bppARGB
+end
+case outline-bezier-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 1 4 bezier 17.25 -1.5 -1 0.25 0.75 -1.75 17.5 15.25
+gpread 0 32bppARGB
+end
+case outline-arc-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 1 arc 4 7.5 12.25 1.5 175 -362
+gpread 0 32bppARGB
+end
+case outline-pie-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 pie 7.5 0.25 13.75 2.5 -260 271
+gpread 0 32bppARGB
+end
+case outline-rect-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 5 2 rect 2 7.75 10.75 0.25
+gpread 0 32bppARGB
+end
+case outline-ellipse-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 ellipse 5.5 0.75 1.75 2.25
+gpread 0 32bppARGB
+end
+case outline-bezier-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 2 bezier 14 12.5 5.75 16.25 2.5 13.75 -0.75 6.5
+gpread 0 32bppARGB
+end
+case outline-arc-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 3 arc -1 16.25 5.5 17.75 -78 177
+gpread 0 32bppARGB
+end
+case outline-pie-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 4 0 pie -1.5 8.5 17.25 7.75 177 10
+gpread 0 32bppARGB
+end
+case outline-rect-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 1 rect 5.5 5.5 8.75 10
+gpread 0 32bppARGB
+end
+case outline-ellipse-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 3 ellipse -0.25 6.25 15.5 7.25
+gpread 0 32bppARGB
+end
+case outline-bezier-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 3 0 bezier 17.25 17 5.25 7.5 7.75 3 -1 13.25
+gpread 0 32bppARGB
+end
+case outline-arc-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 arc 1.25 10.25 -1.5 8.5 140 -11
+gpread 0 32bppARGB
+end
+case outline-pie-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 1 pie 1.5 -0.5 -1.25 0.5 -124 367
+gpread 0 32bppARGB
+end
+case outline-rect-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 3 rect 18 -1.5 12.25 12.5
+gpread 0 32bppARGB
+end
+case outline-ellipse-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 0 2 ellipse 17.75 -0.75 10.75 1.5
+gpread 0 32bppARGB
+end
+case outline-bezier-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 3 bezier -0.25 12.25 2.75 13.25 -0.75 3 5 14.75
+gpread 0 32bppARGB
+end
+case outline-arc-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 3 arc -1.5 15.25 15 12.5 -270 141
+gpread 0 32bppARGB
+end
+case outline-pie-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 pie 6.75 2 5.75 13.25 -356 -362
+gpread 0 32bppARGB
+end
+case outline-rect-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 4 3 rect 16 11.75 14.5 1.5
+gpread 0 32bppARGB
+end
+case outline-ellipse-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 4 ellipse 6.75 11.25 14.5 14
+gpread 0 32bppARGB
+end
+case outline-bezier-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 0 2 bezier 15.25 14.5 4.75 -1.25 14 6 2.25 4.5
+gpread 0 32bppARGB
+end
+case outline-arc-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 4 1 arc 3.5 8 12.25 11.5 -133 297
+gpread 0 32bppARGB
+end
+case outline-pie-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 0 pie -1.25 4.5 3 9 114 -400
+gpread 0 32bppARGB
+end
+case outline-rect-40
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 0 rect -0.5 2.75 17.25 14.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-41
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 1 2 ellipse 2.5 14.5 11.5 11.75
+gpread 0 32bppARGB
+end
+case outline-bezier-42
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 3 1 bezier 15.75 4 16.25 1.75 6.5 15 10.5 6.75
+gpread 0 32bppARGB
+end
+case outline-arc-43
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 0 arc 12.75 15.25 15.75 11 -281 -57
+gpread 0 32bppARGB
+end
+case outline-pie-44
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 5 3 pie 11.75 7.5 14.75 7 -204 -337
+gpread 0 32bppARGB
+end
+case outline-rect-45
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 rect 17.75 -1.5 7 10.5
+gpread 0 32bppARGB
+end
+case outline-ellipse-46
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 3 ellipse 2.75 12.75 7.5 8.75
+gpread 0 32bppARGB
+end
+case outline-bezier-47
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 3 bezier 9.75 17 2.25 3.25 1.75 8.5 -0.75 4.5
+gpread 0 32bppARGB
+end
+case outline-arc-48
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 3 2 arc 4.25 1.25 8.75 8.75 -213 -236
+gpread 0 32bppARGB
+end
+case outline-pie-49
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 1 4 pie 6.5 5.5 2.25 15.75 124 -357
+gpread 0 32bppARGB
+end
+case outline-rect-50
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 rect 13 5.25 12.75 4
+gpread 0 32bppARGB
+end
+case outline-ellipse-51
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 2 ellipse 6.5 14.25 9.5 14.75
+gpread 0 32bppARGB
+end
+case outline-bezier-52
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 2 1 bezier 12.25 1.75 11.5 -0.5 7.75 13.75 17.5 3.5
+gpread 0 32bppARGB
+end
+case outline-arc-53
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 4 4 arc 11 11.75 13.75 4.75 -18 125
+gpread 0 32bppARGB
+end
+case outline-pie-54
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 3 0 pie 10 12.25 15.5 11.25 -148 -302
+gpread 0 32bppARGB
+end
+case outline-rect-55
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 1 rect 5.75 2 12.5 4.25
+gpread 0 32bppARGB
+end
+case outline-ellipse-56
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 3 ellipse 17 9.5 10.25 5.25
+gpread 0 32bppARGB
+end
+case outline-bezier-57
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 4 bezier 2 0.5 2 2 2.75 9.5 6.75 0.5
+gpread 0 32bppARGB
+end
+case outline-arc-58
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 5 4 arc 17 8.75 14.25 11.5 -111 68
+gpread 0 32bppARGB
+end
+case outline-pie-59
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 0 pie 9.75 11.25 5 17.25 247 -79
+gpread 0 32bppARGB
+end
+case outline-rect-60
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 1 rect 2 15.5 15.5 16.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-61
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 2 ellipse 16.5 2.5 13.75 13.25
+gpread 0 32bppARGB
+end
+case outline-bezier-62
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 1 2 bezier 7.25 11 6.5 6.5 12 13 0 14.5
+gpread 0 32bppARGB
+end
+case outline-arc-63
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 3 arc 16.5 -0.75 16.75 5.5 301 24
+gpread 0 32bppARGB
+end
+case outline-pie-64
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 1 2 pie 3 5.25 11.5 12 -202 -293
+gpread 0 32bppARGB
+end
+case outline-rect-65
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 5 2 rect 9 6 17 17.25
+gpread 0 32bppARGB
+end
+case outline-ellipse-66
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 0 ellipse 11.25 8 1.25 1.25
+gpread 0 32bppARGB
+end
+case outline-bezier-67
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 2 0 bezier 12.75 17.5 6.5 11.5 16.75 5 2.5 7
+gpread 0 32bppARGB
+end
+case outline-arc-68
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 0 2 arc 11.25 2.75 7 11 208 -166
+gpread 0 32bppARGB
+end
+case outline-pie-69
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 4 pie 13.75 10.25 9.75 13.5 229 -112
+gpread 0 32bppARGB
+end
+case outline-rect-70
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 2 3 rect 13 -1.5 11.5 -0.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-71
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 3 1 ellipse 7.5 12.5 16.5 13
+gpread 0 32bppARGB
+end
+case outline-bezier-72
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 1 bezier 17.5 -1.25 15.25 -1 -2 15 7 15.5
+gpread 0 32bppARGB
+end
+case outline-arc-73
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 5 4 arc 3.5 16.5 14 10.5 40 133
+gpread 0 32bppARGB
+end
+case outline-pie-74
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 4 pie 7.5 9 3.25 11 -346 335
+gpread 0 32bppARGB
+end
+case outline-rect-75
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 5 3 rect 1.5 10.25 11.5 8
+gpread 0 32bppARGB
+end
+case outline-ellipse-76
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 0 ellipse 4.5 4.5 6.5 12.25
+gpread 0 32bppARGB
+end
+case outline-bezier-77
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 1 4 bezier 6.75 0.25 3.75 17.5 8 17.5 15.75 9.75
+gpread 0 32bppARGB
+end
+case outline-arc-78
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 5 4 arc 17.75 10.25 0.75 8 -285 -337
+gpread 0 32bppARGB
+end
+case outline-pie-79
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 3 0 pie 5 3 5.5 13.25 -130 -31
+gpread 0 32bppARGB
+end
+case outline-rect-80
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 0 rect 9.25 0 0.25 11.25
+gpread 0 32bppARGB
+end
+case outline-ellipse-81
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 2 ellipse 17.25 16.25 11.25 15
+gpread 0 32bppARGB
+end
+case outline-bezier-82
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 0 bezier 14.75 1 16.25 16 10.25 5.5 5.5 10.75
+gpread 0 32bppARGB
+end
+case outline-arc-83
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 0 3 arc 12 0.5 3 9 267 -11
+gpread 0 32bppARGB
+end
+case outline-pie-84
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 4 2 pie 16 14.25 14.25 14.75 234 -107
+gpread 0 32bppARGB
+end
+case outline-rect-85
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 2 1 rect 17.25 10.5 0.25 11.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-86
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 2 4 ellipse 11 3.25 -0.75 15.75
+gpread 0 32bppARGB
+end
+case outline-bezier-87
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 1 0 bezier 7 0.25 -1.25 0.5 11 6.25 -1 7.25
+gpread 0 32bppARGB
+end
+case outline-arc-88
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1
+gpshape 0 pen 0 - copy 0 3 4 arc 12 12 -1.5 16 81 27
+gpread 0 32bppARGB
+end
+case outline-pie-89
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 1 4 pie 0.25 17 9 0.25 363 -142
+gpread 0 32bppARGB
+end
+case outline-rect-90
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 5 3 rect 12.5 16.75 14.75 2.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-91
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 0 ellipse 18 16 2.5 16.75
+gpread 0 32bppARGB
+end
+case outline-bezier-92
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 1 4 bezier 15.5 8.5 15 4.5 1 4.75 9.75 13.25
+gpread 0 32bppARGB
+end
+case outline-arc-93
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 2 1 arc 2.75 0.5 7.75 7.5 209 33
+gpread 0 32bppARGB
+end
+case outline-pie-94
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4
+gpshape 0 pen 0 - copy 0 5 4 pie 4.75 3.5 7.25 13 -107 -232
+gpread 0 32bppARGB
+end
+case outline-rect-95
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 4 2 rect 7.25 -1.5 10.5 5.75
+gpread 0 32bppARGB
+end
+case outline-ellipse-96
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 4 3 ellipse 8.5 1.5 5 15.75
+gpread 0 32bppARGB
+end
+case outline-bezier-97
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 0 3 bezier 10.75 13 0.25 16.25 12 7.5 15.25 18
+gpread 0 32bppARGB
+end
+case outline-arc-98
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 - copy 0 4 4 arc 15 6.5 8 11.5 267 -342
+gpread 0 32bppARGB
+end
+case outline-pie-99
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3
+gpshape 0 pen 0 - copy 0 5 4 pie 18 6.25 3.5 1.25 101 105
+gpread 0 32bppARGB
+end
+case outline-closedcurve-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 1
+gpshape 0 pen 0 - copy 0 4 0 closedcurve 1.75 2 9.25 9.25 1.75 16.25
+gpread 0 32bppARGB
+end
+case outline-curve-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 2
+gpshape 0 pen 0 - copy 0 5 4 curve 1.75 2 8.75 9 16 16.5
+gpread 0 32bppARGB
+end
+case outline-polygon-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 5 3 polygon 4 17.75 7 1.25 11.25 12.25 13.5 -1.75 4.5
+gpread 0 32bppARGB
+end
+case outline-curve-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 3
+gpshape 0 pen 0 - copy 0 5 3 curve 0.25 5 8 15.5 -0.25 14 5.25 14 11.75 13 11.25 15.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 2
+gpshape 0 pen 0 - copy 0 5 4 closedcurve 0 2 17.75 11.25 16.5 17.75
+gpread 0 32bppARGB
+end
+case outline-closedcurve-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 0
+gpshape 0 pen 0 - copy 0 3 2 closedcurve 1.75 5 8.25 2.75 -1.25 13.75 -1.25 -1.25 4.75 16 12.5 8.5
+gpread 0 32bppARGB
+end
+case outline-lines-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 3
+gpshape 0 pen 0 - copy 0 4 1 lines 5 -0.75 10.75 4.5 3.5 13 7.75 7.25 10 10 17.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 1
+gpshape 0 pen 0 - copy 0 4 4 closedcurve 0 3 6 8 14.25 11.75 4.25 4.75
+gpread 0 32bppARGB
+end
+case outline-polygon-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 2
+gpshape 0 pen 0 - copy 0 3 4 polygon 6 -1.25 0.5 8.25 4 11.5 6.25 8.5 4.75 8.25 8.25 12.75 15.75
+gpread 0 32bppARGB
+end
+case outline-lines-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 1
+gpshape 0 pen 0 - copy 0 1 2 lines 6 1 -1.25 2.25 1.5 1.25 9.5 10 4.25 -1.75 8.5 7 14
+gpread 0 32bppARGB
+end
+case outline-lines-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 1
+gpshape 0 pen 0 - copy 0 3 3 lines 4 13.25 17.25 3.75 9 14.25 9 0 2.75
+gpread 0 32bppARGB
+end
+case outline-closedcurve-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 2
+gpshape 0 pen 0 - copy 0 3 2 closedcurve 2 4 14.25 7.5 -0.5 11 15.5 1.75 3.25 1
+gpread 0 32bppARGB
+end
+case outline-lines-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0
+gpshape 0 pen 0 - copy 0 4 0 lines 6 16.5 15.75 3.25 15.25 14 1.75 12 13.5 2.5 13 5 2.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 2
+gpshape 0 pen 0 - copy 0 2 2 closedcurve 0.75 2 11.75 7.5 -0.75 -1
+gpread 0 32bppARGB
+end
+case outline-closedcurve-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 2 3 closedcurve 1.75 6 12 0.5 6.75 12.5 7 1.5 9.25 4.75 8 5.5 9.75 8
+gpread 0 32bppARGB
+end
+case outline-curve-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 2
+gpshape 0 pen 0 - copy 0 4 4 curve 0.75 5 14.25 0.75 8.25 15.5 13.25 6.25 5.75 8.75 13.25 -0.25
+gpread 0 32bppARGB
+end
+case outline-curve-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 3
+gpshape 0 pen 0 - copy 0 2 4 curve 0.75 6 -1.75 13 4.75 5.25 17.5 15 1.25 16.5 12 15.75 10 5.75
+gpread 0 32bppARGB
+end
+case outline-lines-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 4 1 lines 3 9.25 5.25 5.75 11.5 8 -1
+gpread 0 32bppARGB
+end
+case outline-polygon-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 3
+gpshape 0 pen 0 - copy 0 4 4 polygon 6 5.75 16.75 4.25 1.25 6 12.5 12 3.5 10.75 0.75 -0.75 4.5
+gpread 0 32bppARGB
+end
+case outline-polygon-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 0
+gpshape 0 pen 0 - copy 0 0 4 polygon 3 7.5 3.75 5.5 8.5 -1.5 16.25
+gpread 0 32bppARGB
+end
+case outline-polygon-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 2
+gpshape 0 pen 0 - copy 0 4 3 polygon 3 8.75 9.25 9.5 17.5 4.75 1.5
+gpread 0 32bppARGB
+end
+case outline-lines-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 1
+gpshape 0 pen 0 - copy 0 2 2 lines 2 11.75 8.75 3.75 4.75
+gpread 0 32bppARGB
+end
+case outline-curve-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 3
+gpshape 0 pen 0 - copy 0 0 2 curve 0.25 4 6.5 12.75 15.5 9.75 11.75 5.5 4 15.25
+gpread 0 32bppARGB
+end
+case outline-curve-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 0
+gpshape 0 pen 0 - copy 0 4 4 curve 1.75 6 12.25 5 17 8.25 0 -1.25 7.25 4.25 14.25 12.25 5 4.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 1
+gpshape 0 pen 0 - copy 0 0 1 closedcurve 1.75 2 6.5 17.75 18 8.5
+gpread 0 32bppARGB
+end
+case outline-lines-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 2
+gpshape 0 pen 0 - copy 0 1 4 lines 3 -1.5 13.75 17 6.5 7 4.25
+gpread 0 32bppARGB
+end
+case outline-lines-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 0
+gpshape 0 pen 0 - copy 0 5 4 lines 3 9.5 1.75 5 10 9.5 3
+gpread 0 32bppARGB
+end
+case outline-lines-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 3 4 lines 3 1.5 1.75 2.75 16.5 17.5 15.25
+gpread 0 32bppARGB
+end
+case outline-polygon-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 0
+gpshape 0 pen 0 - copy 0 3 4 polygon 4 9.25 3 -2 -1 7.25 0 15 16.5
+gpread 0 32bppARGB
+end
+case outline-lines-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 3
+gpshape 0 pen 0 - copy 0 4 4 lines 3 14 3.5 0 6.75 4.25 8.25
+gpread 0 32bppARGB
+end
+case outline-closedcurve-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 2
+gpshape 0 pen 0 - copy 0 5 0 closedcurve 0.75 4 5 7.25 5 18 1.25 8.25 11.5 7.75
+gpread 0 32bppARGB
+end
+case outline-polygon-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 3
+gpshape 0 pen 0 - copy 0 1 0 polygon 3 3.25 10.25 8.5 -1.75 15 9.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 1
+gpshape 0 pen 0 - copy 0 2 1 closedcurve 0.75 4 10.5 4.75 -0.5 15.25 13.25 13.5 -1.25 12.75
+gpread 0 32bppARGB
+end
+case outline-closedcurve-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0
+gpshape 0 pen 0 - copy 0 0 0 closedcurve 1 2 0.75 15.25 4.5 0.5
+gpread 0 32bppARGB
+end
+case outline-polygon-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 2
+gpshape 0 pen 0 - copy 0 0 4 polygon 2 11.75 5.25 -1.5 13.5
+gpread 0 32bppARGB
+end
+case outline-polygon-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 0
+gpshape 0 pen 0 - copy 0 1 0 polygon 5 -0.75 8 13.25 -1.75 13.25 6.5 17.75 7.25 13.5 11.5
+gpread 0 32bppARGB
+end
+case outline-polygon-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 3
+gpshape 0 pen 0 - copy 0 4 4 polygon 5 0.25 10.25 1.5 2.75 7.75 11.25 4 7.5 15.25 14.75
+gpread 0 32bppARGB
+end
+case outline-lines-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 2
+gpshape 0 pen 0 - copy 0 5 3 lines 3 -1.25 -1 8.5 5.75 14 -1.75
+gpread 0 32bppARGB
+end
+case outline-curve-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 1
+gpshape 0 pen 0 - copy 0 3 4 curve 0.75 6 7 -0.5 13.75 3.5 14 16.25 2.5 10.25 9 10 13.25 7
+gpread 0 32bppARGB
+end
+case outline-polygon-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 1
+gpshape 0 pen 0 - copy 0 4 4 polygon 4 -1 3.5 10.25 13 5.25 0.25 -1 2.25
+gpread 0 32bppARGB
+end
+case outline-polygon-40
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 1
+gpshape 0 pen 0 - copy 0 4 2 polygon 6 17.5 10.5 15.25 -1 16.75 -2 -1.25 17.75 0.5 2.25 -1.75 11.25
+gpread 0 32bppARGB
+end
+case outline-lines-41
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 1
+gpshape 0 pen 0 - copy 0 3 0 lines 6 1.75 4.75 2.75 11.5 0.5 16.75 12.25 17 12.25 15.75 13.5 6.25
+gpread 0 32bppARGB
+end
+case outline-polygon-42
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 2
+gpshape 0 pen 0 - copy 0 5 2 polygon 6 7.25 8.5 3 4.75 18 12.25 3.75 10.5 7.75 0.25 1 10.5
+gpread 0 32bppARGB
+end
+case outline-curve-43
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 4 2 curve 0.25 5 17.75 5.5 14.25 -1.5 9.5 14 2.75 3.5 2 13.75
+gpread 0 32bppARGB
+end
+case outline-closedcurve-44
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 1
+gpshape 0 pen 0 - copy 0 4 1 closedcurve 0.5 2 4 4 14.5 13
+gpread 0 32bppARGB
+end
+case outline-closedcurve-45
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 3
+gpshape 0 pen 0 - copy 0 5 1 closedcurve 1 6 4.75 -0.25 14.25 12.75 13.75 13.25 16.25 1 13.75 0 10.25 6.5
+gpread 0 32bppARGB
+end
+case outline-curve-46
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 3
+gpshape 0 pen 0 - copy 0 1 4 curve 0 6 15 16.5 15 16.25 5 0.75 6.75 16 12.25 17.75 13.75 17.25
+gpread 0 32bppARGB
+end
+case outline-closedcurve-47
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 2
+gpshape 0 pen 0 - copy 0 0 3 closedcurve 1.25 6 3 15.25 11.25 14.25 16 2.25 4 16.75 14.25 -0.75 8.5 16.75
+gpread 0 32bppARGB
+end
+case outline-curve-48
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 3
+gpshape 0 pen 0 - copy 0 0 0 curve 0.5 2 5 7.5 -1 0.5
+gpread 0 32bppARGB
+end
+case outline-curve-49
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 3
+gpshape 0 pen 0 - copy 0 4 4 curve 1 2 12 8.5 7.25 16
+gpread 0 32bppARGB
+end
+case outline-lines-50
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 5 0 lines 5 13.5 6.75 17 10.75 7.75 11.25 4 16 14.75 10.25
+gpread 0 32bppARGB
+end
+case outline-closedcurve-51
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 join 0
+gpshape 0 pen 0 - copy 0 4 1 closedcurve 2 4 4.5 1.5 10.5 16.75 -1.25 12.5 11 15
+gpread 0 32bppARGB
+end
+case outline-lines-52
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 3 1 lines 4 7.25 8.25 11 12.5 0.5 8.75 11.25 15.5
+gpread 0 32bppARGB
+end
+case outline-lines-53
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 2
+gpshape 0 pen 0 - copy 0 4 3 lines 2 8.5 4.75 11.5 16.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-54
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 join 3
+gpshape 0 pen 0 - copy 0 0 1 closedcurve 2 2 11 5.25 0 13.25
+gpread 0 32bppARGB
+end
+case outline-polygon-55
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0
+gpshape 0 pen 0 - copy 0 0 0 polygon 3 -2 1.25 5.75 -1.75 2.25 4.75
+gpread 0 32bppARGB
+end
+case outline-closedcurve-56
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 join 2
+gpshape 0 pen 0 - copy 0 0 3 closedcurve 1.25 3 1.25 4 5.25 5.25 15.75 -0.5
+gpread 0 32bppARGB
+end
+case outline-curve-57
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 2
+gpshape 0 pen 0 - copy 0 3 2 curve 0.25 3 3.75 8.5 12.25 2.25 13 13
+gpread 0 32bppARGB
+end
+case outline-lines-58
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 0
+gpshape 0 pen 0 - copy 0 2 3 lines 6 3 -2 3.25 16.5 6.5 0.75 14.5 5.75 8.25 7.75 7.25 11.5
+gpread 0 32bppARGB
+end
+case outline-closedcurve-59
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 join 3
+gpshape 0 pen 0 - copy 0 4 4 closedcurve 2 4 -0.75 -1.75 -0.75 7.75 -1.75 -1.5 17.75 8.5
+gpread 0 32bppARGB
+end
+case fill-ellipse-0
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 ellipse -0.5 -0.25 -2 16
+gpread 0 32bppARGB
+end
+case fill-closedcurve-1
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 4 closedcurve 1.5 1 5 17.75 11 1.75 -1.75 1 0.75 15.25 16.75 11 13
+gpread 0 32bppARGB
+end
+case fill-pie-2
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 1 pie 11.5 3.75 6.5 16 -201 -234
+gpread 0 32bppARGB
+end
+case fill-ellipse-3
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 3 ellipse 0 0.5 -1.75 -1.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-4
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 1 ellipse 14.75 -0.5 10.75 14.5
+gpread 0 32bppARGB
+end
+case fill-closedcurve-5
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 closedcurve 1.5 1 5 8 -0.25 15.25 3.75 7.75 16.25 15 -2 -2 0.5
+gpread 0 32bppARGB
+end
+case fill-ellipse-6
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 0 ellipse 2.5 2.75 9.5 -1.5
+gpread 0 32bppARGB
+end
+case fill-closedcurve-7
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 1 closedcurve 1.75 1 5 -2 1 10.25 16.5 3 5.75 15.75 8 9.75 0.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-8
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 3 ellipse 9.75 6.5 1.75 -0.75
+gpread 0 32bppARGB
+end
+case fill-pie-9
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 2 pie 12.5 6 12.5 4.25 174 109
+gpread 0 32bppARGB
+end
+case fill-ellipse-10
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 4 ellipse 16.25 9.25 8.75 -2
+gpread 0 32bppARGB
+end
+case fill-closedcurve-11
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 0 closedcurve 0.75 1 3 3.25 3.75 9.5 12.25 5.75 16.5
+gpread 0 32bppARGB
+end
+case fill-polygon-12
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 polygon 0 6 0.75 1.5 9.5 15 9.75 -1.5 12 6 4.75 6 9.5 16.25
+gpread 0 32bppARGB
+end
+case fill-closedcurve-13
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 0 closedcurve 2 1 6 -1 3.5 1.75 -1.5 11 12.75 13.5 12.5 13.25 8 14.5 10.25
+gpread 0 32bppARGB
+end
+case fill-closedcurve-14
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 closedcurve 0.25 1 5 16 6.75 17 15.5 6 11.25 12.25 6 9.75 0.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-15
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 4 ellipse 18 0.75 5.5 2.75
+gpread 0 32bppARGB
+end
+case fill-polygon-16
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 2 polygon 1 6 2.5 12.5 -2 9.25 12.5 12 -0.75 12.25 -2 4.75 12.5 11.75
+gpread 0 32bppARGB
+end
+case fill-polygon-17
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 polygon 0 7 9.25 5 3.25 5.5 14.25 12.75 10.75 3.75 2 4 0.25 6.75 14.5 -0.5
+gpread 0 32bppARGB
+end
+case fill-ellipse-18
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 4 ellipse -1.25 18 12.25 -1.25
+gpread 0 32bppARGB
+end
+case fill-closedcurve-19
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 closedcurve 0.5 1 5 7.5 11.5 12.75 5.75 15 3 5.75 2.25 12.5 11.75
+gpread 0 32bppARGB
+end
+case fill-polygon-20
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 0 polygon 1 5 13 1.75 6 10.75 15.75 11 7.25 13.75 10.75 5.25
+gpread 0 32bppARGB
+end
+case fill-polygon-21
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 1 3 5.75 0.75 16 13.75 -1.75 1.5
+gpread 0 32bppARGB
+end
+case fill-polygon-22
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 2 polygon 1 6 16.5 -1.75 11.75 11.5 1.75 7.5 10.75 16.75 6.25 1.75 3 14.75
+gpread 0 32bppARGB
+end
+case fill-pie-23
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 pie 2.25 -0.5 9 10 125 394
+gpread 0 32bppARGB
+end
+case fill-ellipse-24
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 3 ellipse 17.5 3.75 1 17
+gpread 0 32bppARGB
+end
+case fill-ellipse-25
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 1 ellipse 2.75 10.5 4.25 -0.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-26
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 4 ellipse 12.25 10.25 7 9.5
+gpread 0 32bppARGB
+end
+case fill-polygon-27
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 0 polygon 0 3 -0.25 5.5 4.25 11.25 14 15
+gpread 0 32bppARGB
+end
+case fill-polygon-28
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 2 polygon 0 6 14.5 5 17.5 5.25 14.75 8.5 6.5 -0.25 17 12.75 1.75 7.75
+gpread 0 32bppARGB
+end
+case fill-polygon-29
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 2 polygon 1 7 17 3.25 8.5 6.75 -1.25 4.75 11.5 10.75 6.75 8.75 4.5 3.5 0.25 7.25
+gpread 0 32bppARGB
+end
+case fill-closedcurve-30
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 3 closedcurve 0.5 1 5 3.25 14 1.75 3.75 4 4.5 17 9 5.25 9.5
+gpread 0 32bppARGB
+end
+case fill-closedcurve-31
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 2 closedcurve 0.75 0 5 9.75 17.25 10.5 7.75 17 16 13.75 12 16.5 0
+gpread 0 32bppARGB
+end
+case fill-ellipse-32
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 0 ellipse 0.75 11.25 13.25 8
+gpread 0 32bppARGB
+end
+case fill-pie-33
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 2 pie 6.75 17.75 14.75 9.25 -26 365
+gpread 0 32bppARGB
+end
+case fill-ellipse-34
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 0 ellipse 13.75 5.5 6.25 5.75
+gpread 0 32bppARGB
+end
+case fill-closedcurve-35
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 closedcurve 0.5 1 3 7 3 5.75 12 12.75 7
+gpread 0 32bppARGB
+end
+case fill-polygon-36
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 polygon 1 6 16.5 1.5 4.5 10 1.5 9 9.75 4.5 10.25 6.5 4.5 13
+gpread 0 32bppARGB
+end
+case fill-closedcurve-37
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 1 closedcurve 1.75 1 4 14 9.25 0.5 13.5 9 10.75 8 3.5
+gpread 0 32bppARGB
+end
+case fill-polygon-38
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 polygon 0 4 1 5 -1.25 7.5 5 6.5 9.75 18
+gpread 0 32bppARGB
+end
+case fill-pie-39
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 pie 9.25 11.75 9.75 1.5 -265 222
+gpread 0 32bppARGB
+end
+case fill-pie-40
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 pie 9.5 -1.75 3.75 16.25 -143 -29
+gpread 0 32bppARGB
+end
+case fill-closedcurve-41
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 1 closedcurve 0 1 5 -1.5 8.75 8 10.5 14.75 10.25 0.25 7.75 7.25 12.5
+gpread 0 32bppARGB
+end
+case fill-pie-42
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 pie 4 10 16.25 9.25 -69 287
+gpread 0 32bppARGB
+end
+case fill-ellipse-43
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 ellipse -1 -0.5 -2 2.25
+gpread 0 32bppARGB
+end
+case fill-polygon-44
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 2 polygon 1 4 9.25 17.5 2 2 1.75 -0.75 1 15.25
+gpread 0 32bppARGB
+end
+case fill-pie-45
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 pie 12.75 -1.25 16.25 0 -139 25
+gpread 0 32bppARGB
+end
+case fill-closedcurve-46
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 1 closedcurve 0.25 1 3 0 5.25 16 6 7.25 16
+gpread 0 32bppARGB
+end
+case fill-polygon-47
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 0 polygon 1 4 2 7.5 1.5 9.5 3.75 12.5 16 1.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-48
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 2 ellipse 10 6 16 15.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-49
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 3 ellipse 16.5 4 6 7
+gpread 0 32bppARGB
+end
+case fill-ellipse-50
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 1 ellipse 15 14.25 -1.75 5.25
+gpread 0 32bppARGB
+end
+case fill-pie-51
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 pie -1 12 17.75 10.5 -361 -258
+gpread 0 32bppARGB
+end
+case fill-ellipse-52
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 2 ellipse 6 4.75 11 1.25
+gpread 0 32bppARGB
+end
+case fill-polygon-53
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 1 polygon 1 5 8.5 3 7.25 8.5 6.75 4.25 3.5 7.25 16.75 17.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-54
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 1 ellipse 14.5 17.75 0 16
+gpread 0 32bppARGB
+end
+case fill-closedcurve-55
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 0 closedcurve 1.5 0 6 5.5 3.75 3.5 12.5 -0.25 14 11 7.75 4.5 16.5 -1 8
+gpread 0 32bppARGB
+end
+case fill-pie-56
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 pie 16.75 2.25 10.75 4.5 304 -70
+gpread 0 32bppARGB
+end
+case fill-closedcurve-57
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 closedcurve 0.75 0 6 -2 2.75 -0.5 12.75 10.25 5.75 -1.25 10.25 5 1.75 16.75 11.75
+gpread 0 32bppARGB
+end
+case fill-polygon-58
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 0 polygon 0 4 14.5 14 9.25 16.75 -2 17.5 2 7
+gpread 0 32bppARGB
+end
+case fill-ellipse-59
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 0 ellipse -0.75 6.75 16 7.5
+gpread 0 32bppARGB
+end
+case fill-ellipse-60
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 ellipse 16.25 6.25 3.5 2
+gpread 0 32bppARGB
+end
+case fill-ellipse-61
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 ellipse 9.5 -0.75 1.5 1.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-62
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 ellipse -1 4 13.75 12.5
+gpread 0 32bppARGB
+end
+case fill-polygon-63
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 3 polygon 0 4 14.25 7.5 1.5 2.5 14 16.75 6.75 6
+gpread 0 32bppARGB
+end
+case fill-polygon-64
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 3 polygon 1 4 17.5 1.75 7.75 2.25 11.75 14.25 18 10.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-65
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 2 ellipse 17.5 3.75 3.75 -1
+gpread 0 32bppARGB
+end
+case fill-polygon-66
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 4 polygon 1 6 0 6.25 16.5 6.75 2.25 10.75 7 13.5 14 13 5.75 5.75
+gpread 0 32bppARGB
+end
+case fill-polygon-67
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 polygon 0 4 4.25 11.5 6 -1 15 13.5 13.75 5.25
+gpread 0 32bppARGB
+end
+case fill-polygon-68
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 1 polygon 0 6 10.75 -0.75 0 7.25 12.75 9.25 -1.75 2.75 5.25 -0.5 8.25 4
+gpread 0 32bppARGB
+end
+case fill-closedcurve-69
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 2 closedcurve 0.75 0 3 3.5 15 2.75 3 0.25 6.25
+gpread 0 32bppARGB
+end
+case fill-pie-70
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 2 pie 7.5 17 8.75 15.5 76 -257
+gpread 0 32bppARGB
+end
+case fill-ellipse-71
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 ellipse 5 8 0 5.75
+gpread 0 32bppARGB
+end
+case fill-closedcurve-72
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 4 closedcurve 2 1 5 -0.75 15.25 13.5 8 4.75 6.75 2.5 0.75 11.75 11.5
+gpread 0 32bppARGB
+end
+case fill-polygon-73
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 2 polygon 0 7 3 3.25 -0.75 -2 11.5 6.75 5 12.25 16.25 12.5 11.5 1 0.75 4
+gpread 0 32bppARGB
+end
+case fill-closedcurve-74
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 4 closedcurve 1.75 1 4 7 10 3.75 10.75 6 1.75 -0.75 -2
+gpread 0 32bppARGB
+end
+case fill-closedcurve-75
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 0 closedcurve 1 0 4 9.75 12.25 4.5 13.25 3.25 0.25 -2 3.75
+gpread 0 32bppARGB
+end
+case fill-polygon-76
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 1 polygon 0 5 -1.25 9.5 3.75 9.25 15.25 17.5 -0.25 13 16.75 12.5
+gpread 0 32bppARGB
+end
+case fill-ellipse-77
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 2 ellipse 13 -0.25 6.5 3.5
+gpread 0 32bppARGB
+end
+case fill-closedcurve-78
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 1 closedcurve 1.25 0 6 8 3.25 3 16 -0.75 3.75 15 3.25 2 6 -1.75 14.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-79
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 3 ellipse 9.25 7.25 -1.25 1.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-80
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 2 ellipse 7 5.25 14.75 -0.25
+gpread 0 32bppARGB
+end
+case fill-polygon-81
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 polygon 0 7 1.5 16.5 7 14.75 13.75 8.5 8.5 17.5 11.5 12 -1 -1 6.5 0.5
+gpread 0 32bppARGB
+end
+case fill-closedcurve-82
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 2 closedcurve 1.5 0 4 17.25 -1 6.25 5 2.25 2.5 8.75 -1.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-83
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 ellipse 7.5 4.5 1.75 5.5
+gpread 0 32bppARGB
+end
+case fill-polygon-84
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 0 polygon 1 4 10.5 14.75 -1.25 9.25 7.25 8.5 0 0.5
+gpread 0 32bppARGB
+end
+case fill-polygon-85
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 3 polygon 0 4 2.5 1 7.5 11.25 4.75 17.5 4 0.75
+gpread 0 32bppARGB
+end
+case fill-closedcurve-86
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 4 closedcurve 2 0 4 15.5 4.75 9 8 2.5 9.25 12.75 2.5
+gpread 0 32bppARGB
+end
+case fill-pie-87
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 0 pie 13.25 -0.5 13.5 9 133 131
+gpread 0 32bppARGB
+end
+case fill-polygon-88
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 4 polygon 1 4 -0.5 5.25 0.25 15 14.25 2.5 -1 12.5
+gpread 0 32bppARGB
+end
+case fill-polygon-89
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 1 3 polygon 0 6 12.75 18 4.75 8 14 10.5 18 17.25 17.75 15 15.5 15.75
+gpread 0 32bppARGB
+end
+case fill-ellipse-90
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 0 ellipse 10.25 11 18 11.5
+gpread 0 32bppARGB
+end
+case fill-ellipse-91
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 0 ellipse 11.25 -1.5 12 1
+gpread 0 32bppARGB
+end
+case fill-ellipse-92
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 ellipse 14.5 8.5 17.25 5.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-93
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 0 0 ellipse 7.25 6.75 13 -2
+gpread 0 32bppARGB
+end
+case fill-polygon-94
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 5 4 polygon 0 4 0.5 5.75 -1.75 15.25 7 8.25 10.5 9.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-95
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 0 ellipse 17 3.25 10.25 1.25
+gpread 0 32bppARGB
+end
+case fill-ellipse-96
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 0 ellipse 10 9.25 13.75 2.75
+gpread 0 32bppARGB
+end
+case fill-closedcurve-97
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 3 0 closedcurve 0 0 5 11 -0.25 15.5 6.5 14.75 7.75 16 1.5 16 10.5
+gpread 0 32bppARGB
+end
+case fill-pie-98
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 4 0 pie 0.25 2.75 5.25 5.25 35 -168
+gpread 0 32bppARGB
+end
+case fill-ellipse-99
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 - copy 0 2 3 ellipse 13.75 14.75 3 1.5
+gpread 0 32bppARGB
+end
+case world-0
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbe83d98d 0xbedb6f4f 0x3f5b6f4f 0xbf03d98d 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 2 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-1
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3fc3ea32 0x3f5931d8 0xbef838f7 0x3f5fe714 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 4 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-2
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f12d5e8 0x3f51b3f3 0xbf51b3f3 0x3f12d5e8 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 2 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-3
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3fbdf678 0xbf6d6762 0x3f07a8ca 0x3f5919ae 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 4 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-4
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf6eff21 0x3eb77c00 0xbeb77c00 0xbf6eff21 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 0 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-5
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3e8c2a54 0xbfdd3e00 0x3f7cd924 0x3e203060 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 5 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-6
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f4961ed 0xbf78afcc 0x3f46f30a 0x3f211b24 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 4 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-7
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf02f197 0x3f0c6b7e 0xbf3b39fd 0xbf2e9774 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 1 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-8
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbfb79c4a 0xbee08aae 0x3e95b1c9 0xbf74d062 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 1 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-9
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3ec5c64e 0x3f24937d 0xbf5b6f51 0x3f03d989 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 4 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-10
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf3d553c 0xbfcb0351 0x3f6803ca 0xbed86169 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 3 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-11
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf07a8cb 0x3f5919ad 0xbf5919ad 0xbf07a8cb 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 0 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-12
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbe128a8c 0xbf3c78f1 0x3f7b4bec 0xbe436365 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 2 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-13
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x31ccde2e 0xbf000000 0x3f800000 0x324cde2e 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 1 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-14
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf7746e9 0xbe8483f7 0x3e8483f7 0xbf7746e9 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 1 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-15
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3fbef2bd 0xbe208e56 0x3dd6131e 0x3f7e98fc 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 5 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-16
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbfb826a4 0xbfb1d525 0x3f31d525 0xbf3826a4 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 1 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-17
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f3826a6 0x3f31d522 0xbf31d522 0x3f3826a6 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 1 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-18
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3ec41b7d 0x3ea48dbb 0xbf248dbb 0x3f441b7d 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 1 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-19
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3faf6697 0xbf1c2fd3 0x3ed03fc4 0x3f69de1f 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 5 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-20
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbfbf44f6 0xbe05df0f 0x3db27ebf 0xbf7f069e 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 5 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-21
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f76d498 0x3f93149e 0xbf441b7d 0x3f248dbb 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 2 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-22
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf5fe713 0xbef838fa 0x3ef838fa 0xbf5fe713 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 4 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-23
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf56bae6 0xbf9f2cdb 0x3f543bcf 0xbf0f2744 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 2 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-24
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf369a54 0x3e6d5338 0xbe9e377b 0xbf737870 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 2 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-25
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf974c4e 0x3f6c69fc 0xbf1d9bfd 0xbf49bb13 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 3 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-26
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf5b6f51 0x3f03d988 0xbf03d988 0xbf5b6f51 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 5 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-27
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf66bcae 0x3fc00167 0xbf5b6f51 0xbf03d988 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 2 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-28
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3eb77c02 0x3f6eff20 0xbf6eff20 0x3eb77c02 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 4 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-29
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f7fa62f 0xbd565e3c 0x3d565e3c 0x3f7fa62f 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 4 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-30
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbec6f30b 0x3ea11b22 0xbf211b22 0xbf46f30b 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 4 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-31
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbe60722e 0x3ee6175e 0xbf66175e 0xbee0722e 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 5 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-32
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf831078 0x3f378b62 0xbf12d5e8 0xbf51b3f3 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 2 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-33
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbe9d9bfd 0x3ec9bb13 0xbf49bb13 0xbf1d9bfd 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 5 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-34
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3e58616b 0x3ee803ca 0xbf6803ca 0x3ed8616b 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 5 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-35
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f7c1c5c 0x3e31d0d5 0xbe31d0d5 0x3f7c1c5c 0x41000000 0x41000000
+gppen 0 0xffff0000 3
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 1 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-36
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbf5fe715 0x3ef838f5 0xbef838f5 0xbf5fe715 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 5 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-37
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0xbea2490f 0xbf2e02d8 0x3f6803ca 0xbed86169 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 4 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case world-38
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3ed1b3f6 0xbe92d5e4 0x3f12d5e4 0x3f51b3f6 0x41000000 0x41000000
+gppen 0 0xffff0000 2
+gpbrush 0 solid 0xff0000ff
+gpshape 0 pen 0 0 copy 0 2 0 line -6 -3 6 3
+gpread 0 32bppARGB
+end
+case world-39
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3e1c2ee6 0x3fdf25ca 0xbf7f069e 0x3db27ebe 0x41000000 0x41000000
+gppen 0 0xffff0000 1
+gpbrush 0 solid 0xff0000ff
+gpshape 0 brush 0 0 copy 0 5 0 ellipse -5 -3 10 6
+gpread 0 32bppARGB
+end
+case shapeblend-0
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1334367111
+gppen 0 0xff3a10e7 1
+gpbrush 0 solid 0xebbce86e
+gpshape 0 pen 0 - over 3 5 0 line 0.5 14.5 1.25 9.5
+gpread 0 32bppARGB
+end
+case shapeblend-1
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2576084802
+gppen 0 0xa93e25ee 4
+gpbrush 0 solid 0xc046df66
+gpshape 0 brush 0 - over 0 0 0 ellipse 2.75 16.5 4.75 0.75
+gpread 0 32bppARGB
+end
+case shapeblend-2
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3484548597
+gppen 0 0xd12ec57c 1
+gpbrush 0 solid 0xb6a4eadd
+gpshape 0 pen 0 - over 1 2 0 line 4.25 0.25 -2 5.75
+gpread 0 32bppARGB
+end
+case shapeblend-3
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1261953409
+gppen 0 0x80ff0000 1
+gpbrush 0 solid 0x253e6f28
+gpshape 0 brush 0 - over 4 4 0 ellipse 15.75 15.25 8.5 10
+gpread 0 32bppARGB
+end
+case shapeblend-4
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3611014612
+gppen 0 0x00ffffff 1
+gpbrush 0 solid 0x4f18a854
+gpshape 0 pen 0 - over 1 1 0 line 9.75 2.75 10.75 -1.75
+gpread 0 32bppARGB
+end
+case shapeblend-5
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 4219973326
+gppen 0 0x4a4f68d4 3
+gpbrush 0 solid 0xfe808080
+gpshape 0 brush 0 - over 3 1 0 ellipse -0.25 11 17.5 5.25
+gpread 0 32bppARGB
+end
+case shapeblend-6
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3941426217
+gppen 0 0x80ff0000 4
+gpbrush 0 solid 0x00ffffff
+gpshape 0 pen 0 - over 0 4 0 line 1 16.75 4 5.25
+gpread 0 32bppARGB
+end
+case shapeblend-7
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1450679101
+gppen 0 0x330a842a 2
+gpbrush 0 solid 0xfe808080
+gpshape 0 brush 0 - over 3 4 0 ellipse 11.75 -2 5 -1.75
+gpread 0 32bppARGB
+end
+case shapeblend-8
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2034396011
+gppen 0 0xff440b55 3
+gpbrush 0 solid 0xf3a127a0
+gpshape 0 pen 0 - over 2 1 0 line 12.25 10 17.75 7
+gpread 0 32bppARGB
+end
+case shapeblend-9
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1263964948
+gppen 0 0x04bf25d5 4
+gpbrush 0 solid 0x8f0be802
+gpshape 0 brush 0 - over 2 2 0 ellipse 3 13.75 0.5 10
+gpread 0 32bppARGB
+end
+case shapeblend-10
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1752268800
+gppen 0 0xb74b1789 1
+gpbrush 0 solid 0xf2db44be
+gpshape 0 pen 0 - over 4 3 0 line -0.75 1.5 -0.75 -1.5
+gpread 0 32bppARGB
+end
+case shapeblend-11
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 546627629
+gppen 0 0xffa35eb0 3
+gpbrush 0 solid 0xfddaccae
+gpshape 0 brush 0 - over 1 3 0 ellipse 2.5 5.25 17.5 16.75
+gpread 0 32bppARGB
+end
+case shapeblend-12
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 4036611471
+gppen 0 0xeca3334c 2
+gpbrush 0 solid 0xffa67a23
+gpshape 0 pen 0 - over 1 3 0 line 7 9.5 17.5 -1.25
+gpread 0 32bppARGB
+end
+case shapeblend-13
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 163270582
+gppen 0 0xff43eb34 3
+gpbrush 0 solid 0x762b98fc
+gpshape 0 brush 0 - over 3 1 0 ellipse 6.25 15.5 2.75 -1
+gpread 0 32bppARGB
+end
+case shapeblend-14
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1822872713
+gppen 0 0x54780dae 1
+gpbrush 0 solid 0xfe808080
+gpshape 0 pen 0 - over 3 3 0 line -0.25 14.5 15.5 1.5
+gpread 0 32bppARGB
+end
+case shapeblend-15
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 686366187
+gppen 0 0xffffffff 1
+gpbrush 0 solid 0x35db917c
+gpshape 0 brush 0 - over 2 2 0 ellipse 16.75 6.75 6.25 4.75
+gpread 0 32bppARGB
+end
+case shapeblend-16
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3359499185
+gppen 0 0xee995edf 3
+gpbrush 0 solid 0x2f242387
+gpshape 0 pen 0 - over 2 3 0 line 4.5 3 7 17.75
+gpread 0 32bppARGB
+end
+case shapeblend-17
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3839813887
+gppen 0 0x10958051 3
+gpbrush 0 solid 0x03ee58aa
+gpshape 0 brush 0 - over 0 0 0 ellipse 1 12.5 6.5 17.75
+gpread 0 32bppARGB
+end
+case shapeblend-18
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1877191842
+gppen 0 0xf5405f37 1
+gpbrush 0 solid 0xb7151a9c
+gpshape 0 pen 0 - over 3 4 0 line 8.5 6.25 4.5 13
+gpread 0 32bppARGB
+end
+case shapeblend-19
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2493369712
+gppen 0 0x6da8e921 4
+gpbrush 0 solid 0x80ff0000
+gpshape 0 brush 0 - over 4 4 0 ellipse 14.5 8.25 2.75 6.75
+gpread 0 32bppARGB
+end
+case shapeblend-20
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1539759276
+gppen 0 0xed385e1f 3
+gpbrush 0 solid 0xd63114fe
+gpshape 0 pen 0 - over 0 3 0 line 2.25 12.75 16.5 1.25
+gpread 0 32bppARGB
+end
+case shapeblend-21
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 457415501
+gppen 0 0x2dfd79a8 1
+gpbrush 0 solid 0x2d453412
+gpshape 0 brush 0 - over 0 0 0 ellipse 0.75 16.5 4.25 10.25
+gpread 0 32bppARGB
+end
+case shapeblend-22
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1889923156
+gppen 0 0x00ffffff 3
+gpbrush 0 solid 0xea2fc032
+gpshape 0 pen 0 - over 0 2 0 line 9.75 7.5 1 2.25
+gpread 0 32bppARGB
+end
+case shapeblend-23
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3132963984
+gppen 0 0x7f00ff00 3
+gpbrush 0 solid 0xff41f5b5
+gpshape 0 brush 0 - over 4 4 0 ellipse 16 11.25 0.25 13.75
+gpread 0 32bppARGB
+end
+case shapeblend-24
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1775162782
+gppen 0 0xffcdb3c8 3
+gpbrush 0 solid 0xc7835e45
+gpshape 0 pen 0 - over 3 2 0 line 16.75 11 -2 13
+gpread 0 32bppARGB
+end
+case shapeblend-25
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1813336571
+gppen 0 0x80ff0000 1
+gpbrush 0 solid 0x5d6743e7
+gpshape 0 brush 0 - over 4 3 0 ellipse 14.75 6.5 0.25 8.75
+gpread 0 32bppARGB
+end
+case shapeblend-26
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2415339835
+gppen 0 0x0d27d6df 2
+gpbrush 0 solid 0x80ff0000
+gpshape 0 pen 0 - over 1 0 0 line 15.75 10.5 13.75 0
+gpread 0 32bppARGB
+end
+case shapeblend-27
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 846718972
+gppen 0 0xb29c39e7 4
+gpbrush 0 solid 0x77d12cae
+gpshape 0 brush 0 - over 0 4 0 ellipse 11 17.5 17.25 15.75
+gpread 0 32bppARGB
+end
+case shapeblend-28
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 611989952
+gppen 0 0x1ae92104 1
+gpbrush 0 solid 0xfe808080
+gpshape 0 pen 0 - over 4 2 0 line 12.75 0.75 12 0.5
+gpread 0 32bppARGB
+end
+case shapeblend-29
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2840468364
+gppen 0 0x28d196f9 3
+gpbrush 0 solid 0x15bbdb46
+gpshape 0 brush 0 - over 3 0 0 ellipse 7.25 14.5 -1.5 10.5
+gpread 0 32bppARGB
+end
+case shapeblend-30
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3910470637
+gppen 0 0xffffffff 4
+gpbrush 0 solid 0xffcd3720
+gpshape 0 pen 0 - over 3 2 0 line -1.5 1.5 2.5 8
+gpread 0 32bppARGB
+end
+case shapeblend-31
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 1572461107
+gppen 0 0xcff5dea7 4
+gpbrush 0 solid 0x7f00ff00
+gpshape 0 brush 0 - over 2 4 0 ellipse 7.25 -1 3.75 4.75
+gpread 0 32bppARGB
+end
+case shapeblend-32
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 55008029
+gppen 0 0xff7d653b 3
+gpbrush 0 solid 0xff853e74
+gpshape 0 pen 0 - over 4 1 0 line 11.25 5 13.25 1.5
+gpread 0 32bppARGB
+end
+case shapeblend-33
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2429501749
+gppen 0 0x010000ff 1
+gpbrush 0 solid 0xffc8239b
+gpshape 0 brush 0 - over 3 5 0 ellipse 17 15 2.75 5.5
+gpread 0 32bppARGB
+end
+case shapeblend-34
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 638473419
+gppen 0 0x19c4ce77 3
+gpbrush 0 solid 0x007152a2
+gpshape 0 pen 0 - over 0 3 0 line 7.5 17.5 16.75 8.25
+gpread 0 32bppARGB
+end
+case shapeblend-35
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 2469666370
+gppen 0 0xff6e9c9c 3
+gpbrush 0 solid 0x7f00ff00
+gpshape 0 brush 0 - over 0 5 0 ellipse 5.75 8.25 -0.25 8.75
+gpread 0 32bppARGB
+end
+case shapeblend-36
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 863227278
+gppen 0 0xfff34c9c 1
+gpbrush 0 solid 0x17ee30b9
+gpshape 0 pen 0 - over 1 2 0 line 11 6 2.5 16.25
+gpread 0 32bppARGB
+end
+case shapeblend-37
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3374232747
+gppen 0 0xfc845d3c 2
+gpbrush 0 solid 0xffffffff
+gpshape 0 brush 0 - over 3 2 0 ellipse 18 -0.75 10.75 17.5
+gpread 0 32bppARGB
+end
+case shapeblend-38
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3751328928
+gppen 0 0x3379990b 4
+gpbrush 0 solid 0x395fb918
+gpshape 0 pen 0 - over 3 0 0 line 10.5 15.75 8.25 17
+gpread 0 32bppARGB
+end
+case shapeblend-39
+gpbitmap 0 16 16 32bppARGB
+gpwrite 0 32bppARGB seed 3168670373
+gppen 0 0xf50df773 3
+gpbrush 0 solid 0x92b8be66
+gpshape 0 brush 0 - over 3 1 0 ellipse 15.25 16 0.5 0
+gpread 0 32bppARGB
+end

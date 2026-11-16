@@ -580,3 +580,100 @@ pub fn gdiplusbrush() -> String {
     }
     s
 }
+
+/// a coordinate in quarters over a 16 pixel bitmap, a little past it
+fn rq(r: &mut XorShift32) -> String {
+    format!("{}", r.range(-8, 72) as f32 / 4.0)
+}
+
+/// the gdiplusline suite: pens drawing lines and shapes, brushes filling ellipses, pies,
+/// polygons and closed curves
+pub fn gdiplusline() -> String {
+    let mut s = String::from("# kikizake suite gdiplusline: GDI+ pens (widths, dashes, caps, joins, alignment) drawing lines and shapes, and brushes filling ellipses, pies, polygons, closed curves, under the smoothing and pixel offset modes and world transforms (SPEC.md). Made by `kikizake gen gdiplusline`.\n");
+    let mut r = XorShift32::new(0x9a17_0c01);
+    let head = "gpbitmap 0 16 16 32bppARGB";
+    let pts = |r: &mut XorShift32, n: usize| -> String { (0..2 * n).map(|_| rq(r)).collect::<Vec<_>>().join(" ") };
+    // what CreatePen1 and the setters take
+    for (i, w) in ["1", "0", "-1", "2.5", "0.25"].iter().enumerate() {
+        writeln!(s, "case penwidth-{i}\n{head}\ngppen 0 0xffff0000 {w}\ngpshape 0 pen 0 - copy 0 0 0 line 2 3 13 9\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    for v in -1..=6 {
+        writeln!(s, "case pendash-{v}\n{head}\ngppen 0 0xffff0000 1 dash {v}\ngpshape 0 pen 0 - copy 0 0 0 line 0 4 16 4\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    for (i, c) in [0, 1, 2, 3, 0x10, 0x11, 0x12, 0x13, 0x14, 0xf0, 0xff, 4, -1].iter().enumerate() {
+        writeln!(s, "case pencap-{i}\n{head}\ngppen 0 0xffff0000 4 cap {c} {c} 0\ngpshape 0 pen 0 - copy 0 0 0 line 4 8 12 8\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    for d in [-1, 0, 1, 2, 3, 4] {
+        writeln!(s, "case pendashcap-{d}\n{head}\ngppen 0 0xffff0000 2 dash 1 cap 0 0 {d}\ngpshape 0 pen 0 - copy 0 0 0 line 0 8 16 8\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    for j in -1..=4 {
+        writeln!(s, "case penjoin-{j}\n{head}\ngppen 0 0xffff0000 3 join {j}\ngpshape 0 pen 0 - copy 0 0 0 lines 3 2 12 8 3 14 12\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    for a in -1..=2 {
+        writeln!(s, "case penalign-{a}\n{head}\ngppen 0 0xffff0000 3 align {a}\ngpshape 0 pen 0 - copy 0 0 0 rect 3 3 9 9\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    for (i, m) in ["0", "-1", "1", "4", "100"].iter().enumerate() {
+        writeln!(s, "case penmiter-{i}\n{head}\ngppen 0 0xffff0000 3 join 0 miter {m}\ngpshape 0 pen 0 - copy 0 0 0 lines 3 1 14 8 3 1 14\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    // thin lines between points on a quarter grid: every smoothing and pixel offset mode
+    for i in 0..120 {
+        let (sm, po) = (r.range(0, 5), r.range(0, 4));
+        writeln!(s, "case line-{i}\n{head}\ngppen 0 0xffff0000 1\ngpshape 0 pen 0 - copy 0 {sm} {po} line {} {} {} {}\ngpread 0 32bppARGB\nend", rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)).unwrap();
+    }
+    // wide lines, each cap
+    for i in 0..60 {
+        let w = r.range(2, 24) as f32 / 4.0;
+        let c = *r.pick(&[0, 1, 2, 3, 0x10, 0x11, 0x12, 0x13, 0x14]);
+        writeln!(s, "case linewide-{i}\n{head}\ngppen 0 0xff00ff00 {w} cap {c} {c} 0\ngpshape 0 pen 0 - copy 0 {} {} line {} {} {} {}\ngpread 0 32bppARGB\nend", r.range(0, 5), r.range(0, 4), rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)).unwrap();
+    }
+    // dashed lines
+    for i in 0..40 {
+        let w = r.range(1, 3);
+        writeln!(s, "case linedash-{i}\n{head}\ngppen 0 0xff0000ff {w} dash {} cap 0 0 {}\ngpshape 0 pen 0 - copy 0 {} 0 line {} {} {} {}\ngpread 0 32bppARGB\nend", r.range(1, 4), *r.pick(&[0, 2, 3]), r.range(0, 5), rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)).unwrap();
+    }
+    // the other outlines
+    let outline: &[(&str, usize)] = &[("rect", 4), ("ellipse", 4), ("bezier", 8), ("arc", 6), ("pie", 6)];
+    for i in 0..100 {
+        let (name, n) = outline[i % outline.len()];
+        let args: Vec<String> = (0..n).map(|k| if n == 6 && k >= 4 { format!("{}", r.range(-400, 400)) } else { rq(&mut r) }).collect();
+        writeln!(s, "case outline-{name}-{i}\n{head}\ngppen 0 0xffff0000 {}\ngpshape 0 pen 0 - copy 0 {} {} {name} {}\ngpread 0 32bppARGB\nend", r.range(1, 4), r.range(0, 5), r.range(0, 4), args.join(" ")).unwrap();
+    }
+    for i in 0..60 {
+        let name = *r.pick(&["lines", "polygon", "curve", "closedcurve"]);
+        let n = r.range(2, 6) as usize;
+        let tension = if name.ends_with("curve") { format!("{} ", r.range(0, 8) as f32 / 4.0) } else { String::new() };
+        writeln!(s, "case outline-{name}-{i}\n{head}\ngppen 0 0xffff0000 {} join {}\ngpshape 0 pen 0 - copy 0 {} {} {name} {tension}{n} {}\ngpread 0 32bppARGB\nend", r.range(1, 4), r.range(0, 3), r.range(0, 5), r.range(0, 4), pts(&mut r, n)).unwrap();
+    }
+    // filled shapes, both fill modes
+    for i in 0..100 {
+        let name = *r.pick(&["ellipse", "pie", "polygon", "closedcurve"]);
+        let args = match name {
+            "ellipse" => (0..4).map(|_| rq(&mut r)).collect::<Vec<_>>().join(" "),
+            "pie" => format!("{} {} {} {} {} {}", rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r), r.range(-400, 400), r.range(-400, 400)),
+            "polygon" => {
+                let n = r.range(3, 7) as usize;
+                format!("{} {n} {}", r.range(0, 1), pts(&mut r, n))
+            }
+            _ => {
+                let n = r.range(3, 6) as usize;
+                format!("{} {} {n} {}", r.range(0, 8) as f32 / 4.0, r.range(0, 1), pts(&mut r, n))
+            }
+        };
+        writeln!(s, "case fill-{name}-{i}\n{head}\ngpbrush 0 solid 0xff00ff00\ngpshape 0 brush 0 - copy 0 {} {} {name} {args}\ngpread 0 32bppARGB\nend", r.range(0, 5), r.range(0, 4)).unwrap();
+    }
+    // through a world transform (scales, rotations, shears: the matrices' floats as bits)
+    for i in 0..40 {
+        let ang = r.range(0, 360) as f32 * std::f32::consts::PI / 180.0;
+        let k = r.range(2, 8) as f32 / 4.0;
+        let m = [ang.cos() * k, ang.sin() * k, -ang.sin(), ang.cos(), 8.0, 8.0].map(|v: f32| format!("{:#010x}", v.to_bits())).join(" ");
+        let shape = if i % 2 == 0 { "pen 0 - copy 0 X 0 line -6 -3 6 3".to_string() } else { "brush 0 - copy 0 X 0 ellipse -5 -3 10 6".to_string() };
+        let shape = shape.replace(" - ", " 0 ").replace('X', &r.range(0, 5).to_string());
+        writeln!(s, "case world-{i}\n{head}\ngpmatrix 0 {m}\ngppen 0 0xffff0000 {}\ngpbrush 0 solid 0xff0000ff\ngpshape 0 {shape}\ngpread 0 32bppARGB\nend", r.range(1, 3)).unwrap();
+    }
+    // translucent pens and brushes over a destination, every quality
+    for i in 0..40 {
+        let shape = if i % 2 == 0 { format!("pen 0 - over {} {} 0 line {} {} {} {}", r.range(0, 4), r.range(0, 5), rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)) } else { format!("brush 0 - over {} {} 0 ellipse {} {} {} {}", r.range(0, 4), r.range(0, 5), rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r)) };
+        writeln!(s, "case shapeblend-{i}\n{head}\ngpwrite 0 32bppARGB seed {}\ngppen 0 {:#010x} {}\ngpbrush 0 solid {:#010x}\ngpshape 0 {shape}\ngpread 0 32bppARGB\nend", r.next(), rargb(&mut r), r.range(1, 4), rargb(&mut r)).unwrap();
+    }
+    s
+}

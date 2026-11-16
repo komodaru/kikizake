@@ -49,6 +49,28 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipCreateHatchBrush, (INT, DWORD, DWORD, void **)) \
     X(GdipCreateLineBrushI, (const GpPoint *, const GpPoint *, DWORD, DWORD, INT, void **)) \
     X(GdipCreateTexture, (void *, INT, void **)) \
+    X(GdipCreatePen1, (DWORD, float, INT, void **)) \
+    X(GdipDeletePen, (void *)) \
+    X(GdipSetPenDashStyle, (void *, INT)) \
+    X(GdipSetPenLineCap197819, (void *, INT, INT, INT)) \
+    X(GdipSetPenLineJoin, (void *, INT)) \
+    X(GdipSetPenMode, (void *, INT)) \
+    X(GdipSetPenMiterLimit, (void *, float)) \
+    X(GdipSetWorldTransform, (void *, void *)) \
+    X(GdipDrawLine, (void *, void *, float, float, float, float)) \
+    X(GdipDrawLines, (void *, void *, const GpPointF *, INT)) \
+    X(GdipDrawRectangle, (void *, void *, float, float, float, float)) \
+    X(GdipDrawEllipse, (void *, void *, float, float, float, float)) \
+    X(GdipFillEllipse, (void *, void *, float, float, float, float)) \
+    X(GdipDrawPolygon, (void *, void *, const GpPointF *, INT)) \
+    X(GdipFillPolygon, (void *, void *, const GpPointF *, INT, INT)) \
+    X(GdipDrawBezier, (void *, void *, float, float, float, float, float, float, float, float)) \
+    X(GdipDrawArc, (void *, void *, float, float, float, float, float, float)) \
+    X(GdipDrawPie, (void *, void *, float, float, float, float, float, float)) \
+    X(GdipFillPie, (void *, void *, float, float, float, float, float, float)) \
+    X(GdipDrawCurve2, (void *, void *, const GpPointF *, INT, float)) \
+    X(GdipDrawClosedCurve2, (void *, void *, const GpPointF *, INT, float)) \
+    X(GdipFillClosedCurve2, (void *, void *, const GpPointF *, INT, float, INT)) \
     X(GdipFillRectangle, (void *, void *, float, float, float, float)) \
     X(GdipSetSmoothingMode, (void *, INT)) \
     X(GdipSetPixelOffsetMode, (void *, INT)) \
@@ -104,6 +126,7 @@ static void *bmp[SLOTS];
 static void *mat[SLOTS];
 static void *brush[SLOTS];
 static void *attr[SLOTS];
+static void *pen[SLOTS];
 
 static void gdiplus_reset(void) {
     for (int i = 0; i < SLOTS; i++) {
@@ -111,6 +134,7 @@ static void gdiplus_reset(void) {
         if (mat[i]) { GdipDeleteMatrix(mat[i]); mat[i] = NULL; }
         if (brush[i]) { GdipDeleteBrush(brush[i]); brush[i] = NULL; }
         if (attr[i]) { GdipDisposeImageAttributes(attr[i]); attr[i] = NULL; }
+        if (pen[i]) { GdipDeletePen(pen[i]); pen[i] = NULL; }
     }
 }
 
@@ -521,12 +545,116 @@ static void op_draw(void) {
     out("draw 0 %d\n", st);
 }
 
+/* pens in slots of their own:
+ * gppen <p> <argb> <width> [dash <DashStyle>] [cap <start> <end> <DashCap>] [join <LineJoin>]
+ * [align <PenAlignment>] [miter <limit>]: CreatePen1 (UnitWorld), then each setter asked:
+ * "pen <st> <st of each setter>" */
+static void op_pen(void) {
+    int p = slot(1);
+    DWORD c = (DWORD)num(2);
+    float w = fdec(3);
+    if (bad || !gp()) return;
+    if (pen[p]) { GdipDeletePen(pen[p]); pen[p] = NULL; }
+    void *pn = NULL;
+    GpStatus st = GdipCreatePen1(c, w, 0, &pn);
+    out("pen %d", st);
+    for (int i = 4; i < ntok && !st && !bad;) {
+        GpStatus r;
+        if (is(i, "dash")) { r = GdipSetPenDashStyle(pn, num(i + 1)); i += 2; }
+        else if (is(i, "cap")) { r = GdipSetPenLineCap197819(pn, num(i + 1), num(i + 2), num(i + 3)); i += 4; }
+        else if (is(i, "join")) { r = GdipSetPenLineJoin(pn, num(i + 1)); i += 2; }
+        else if (is(i, "align")) { r = GdipSetPenMode(pn, num(i + 1)); i += 2; }
+        else if (is(i, "miter")) { r = GdipSetPenMiterLimit(pn, fdec(i + 1)); i += 2; }
+        else { bad = 1; break; }
+        out(" %d", r);
+    }
+    out("\n");
+    if (!st) pen[p] = pn;
+}
+
+/* gpshape <slot> <pen|brush> <k> <matrix | -> <over|copy> <CompositingQuality> <SmoothingMode>
+ * <PixelOffsetMode> <shape> <args>: a Graphics of the bitmap in those modes and that world
+ * transform, then
+ *   pen:   line x1 y1 x2 y2 | rect x y w h | ellipse x y w h | bezier 4 points | arc x y w h start
+ *          sweep | pie x y w h start sweep | lines n points | polygon n points | curve tension n
+ *          points | closedcurve tension n points
+ *   brush: ellipse x y w h | pie x y w h start sweep | polygon FillMode n points | closedcurve
+ *          tension FillMode n points
+ * (floats as decimals): "shape 0 <st>" */
+#define SHAPE_PTS 32
+static void op_shape(void) {
+    int s = slot(1);
+    int usepen = is(2, "pen");
+    if (!usepen && !is(2, "brush")) bad = 1;
+    int k = slot(3);
+    int m = is(4, "-") ? -1 : slot(4);
+    int copy = is(5, "copy");
+    if (!copy && !is(5, "over")) bad = 1;
+    long q = num(6), sm = num(7), po = num(8);
+    const char *shape = ntok > 9 ? tok[9] : "";
+    float a[8] = { 0 };
+    GpPointF pt[SHAPE_PTS];
+    int n = 0, fixed = 0;
+    float tension = 0;
+    long fm = 0;
+    int i = 10;
+    if (!strcmp(shape, "line") || !strcmp(shape, "rect") || !strcmp(shape, "ellipse")) fixed = 4;
+    else if (!strcmp(shape, "arc") || !strcmp(shape, "pie")) fixed = 6;
+    else if (!strcmp(shape, "bezier")) fixed = 8;
+    if (fixed) for (int j = 0; j < fixed; j++) a[j] = fdec(i + j);
+    else {
+        if (!strcmp(shape, "curve") || !strcmp(shape, "closedcurve")) tension = fdec(i++);
+        if (!usepen && (!strcmp(shape, "polygon") || !strcmp(shape, "closedcurve"))) fm = num(i++);
+        long c = num(i++);
+        if (c < 0 || c > SHAPE_PTS) bad = 1;
+        n = bad ? 0 : (int)c;
+        for (int j = 0; j < n; j++) { pt[j].X = fdec(i + 2 * j); pt[j].Y = fdec(i + 2 * j + 1); }
+    }
+    static const char *const penshapes[] = { "line", "rect", "ellipse", "bezier", "arc", "pie", "lines", "polygon", "curve", "closedcurve", 0 };
+    static const char *const brushshapes[] = { "ellipse", "pie", "polygon", "closedcurve", 0 };
+    int known = 0;
+    for (const char *const *e = usepen ? penshapes : brushshapes; *e; e++) known |= !strcmp(shape, *e);
+    if (!known) bad = 1;
+    if (bad || !gp() || !the(s)) return;
+    if (m >= 0 && !mat[m]) { out("shape nomatrix\n"); return; }
+    void *tool = usepen ? pen[k] : brush[k];
+    if (!tool) { out("shape no%s\n", usepen ? "pen" : "brush"); return; }
+    void *g = graphics(s, "shape");
+    if (!g) return;
+    GdipSetCompositingMode(g, copy);
+    GpStatus st = GdipSetCompositingQuality(g, q);
+    if (!st) st = GdipSetSmoothingMode(g, sm);
+    if (!st) st = GdipSetPixelOffsetMode(g, po);
+    if (!st && m >= 0) st = GdipSetWorldTransform(g, mat[m]);
+    if (!st) {
+#define SH(name) !strcmp(shape, name)
+        if (usepen && SH("line")) st = GdipDrawLine(g, tool, a[0], a[1], a[2], a[3]);
+        else if (usepen && SH("rect")) st = GdipDrawRectangle(g, tool, a[0], a[1], a[2], a[3]);
+        else if (usepen && SH("ellipse")) st = GdipDrawEllipse(g, tool, a[0], a[1], a[2], a[3]);
+        else if (usepen && SH("bezier")) st = GdipDrawBezier(g, tool, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+        else if (usepen && SH("arc")) st = GdipDrawArc(g, tool, a[0], a[1], a[2], a[3], a[4], a[5]);
+        else if (usepen && SH("pie")) st = GdipDrawPie(g, tool, a[0], a[1], a[2], a[3], a[4], a[5]);
+        else if (usepen && SH("lines")) st = GdipDrawLines(g, tool, pt, n);
+        else if (usepen && SH("polygon")) st = GdipDrawPolygon(g, tool, pt, n);
+        else if (usepen && SH("curve")) st = GdipDrawCurve2(g, tool, pt, n, tension);
+        else if (usepen && SH("closedcurve")) st = GdipDrawClosedCurve2(g, tool, pt, n, tension);
+        else if (!usepen && SH("ellipse")) st = GdipFillEllipse(g, tool, a[0], a[1], a[2], a[3]);
+        else if (!usepen && SH("pie")) st = GdipFillPie(g, tool, a[0], a[1], a[2], a[3], a[4], a[5]);
+        else if (!usepen && SH("polygon")) st = GdipFillPolygon(g, tool, pt, n, fm);
+        else st = GdipFillClosedCurve2(g, tool, pt, n, tension, fm);
+#undef SH
+    }
+    GdipDeleteGraphics(g);
+    out("shape 0 %d\n", st);
+}
+
 static const struct kz_op gdiplus_ops[] = {
     { "gpbitmap", op_bitmap }, { "gpwrite", op_write }, { "gpread", op_read }, { "gpset", op_set },
     { "gpget", op_get }, { "gpinfo", op_info }, { "gpfill", op_fill }, { "gpclear", op_clear },
     { "gprotate", op_rotate }, { "gpclone", op_clone }, { "gpmatrix", op_matrix },
     { "gpmatmul", op_matmul }, { "gpmatinv", op_matinv }, { "gpmatpts", op_matpts },
     { "gpbrush", op_brush }, { "gppaint", op_paint }, { "gpattr", op_attr }, { "gpdraw", op_draw },
+    { "gppen", op_pen }, { "gpshape", op_shape },
     { 0 },
 };
 const struct kz_api gdiplus_api = { "gdiplus", gdiplus_ops, gdiplus_reset };
