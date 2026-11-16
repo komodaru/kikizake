@@ -188,5 +188,13 @@ pub fn lines() -> String {
         }
         writeln!(s, "dump 0\nend").unwrap();
     }
+    // Ellipse with the null pen over larger boxes, anywhere in a 64 pixel square (their own
+    // stream): the filled pixels alone
+    let mut r = XorShift32::new(0x0e11_f177);
+    for i in 0..48 {
+        let (x0, y0) = (r.range(0, 30), r.range(0, 30));
+        let (x1, y1) = (x0 + r.range(2, 33), y0 + r.range(2, 33));
+        writeln!(s, "case ellbig-{i}\ndib 0 64 64 8\npen 0 null\nbrush 0 solid #ffffff\nellipse 0 {x0} {y0} {x1} {y1}\ndump 0\nend").unwrap();
+    }
     s
 }

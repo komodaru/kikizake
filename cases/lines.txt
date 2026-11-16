@@ -12624,3 +12624,339 @@ moveto 0 13 7
 lineto 0 4 14
 dump 0
 end
+case ellbig-0
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 11 29 16 60
+dump 0
+end
+case ellbig-1
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 29 6 56 31
+dump 0
+end
+case ellbig-2
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 19 30 37 57
+dump 0
+end
+case ellbig-3
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 6 19 10 46
+dump 0
+end
+case ellbig-4
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 4 20 29 51
+dump 0
+end
+case ellbig-5
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 5 5 26 19
+dump 0
+end
+case ellbig-6
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 29 5 33 34
+dump 0
+end
+case ellbig-7
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 19 14 36 39
+dump 0
+end
+case ellbig-8
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 22 4 26 6
+dump 0
+end
+case ellbig-9
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 22 1 24 3
+dump 0
+end
+case ellbig-10
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 26 25 38 27
+dump 0
+end
+case ellbig-11
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 28 21 56 51
+dump 0
+end
+case ellbig-12
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 4 3 22 25
+dump 0
+end
+case ellbig-13
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 5 13 37 32
+dump 0
+end
+case ellbig-14
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 28 9 43 34
+dump 0
+end
+case ellbig-15
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 23 14 48 26
+dump 0
+end
+case ellbig-16
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 29 7 50 25
+dump 0
+end
+case ellbig-17
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 29 12 52 42
+dump 0
+end
+case ellbig-18
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 0 15 20 35
+dump 0
+end
+case ellbig-19
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 4 13 16 25
+dump 0
+end
+case ellbig-20
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 30 12 43 32
+dump 0
+end
+case ellbig-21
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 10 1 14 12
+dump 0
+end
+case ellbig-22
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 28 16 44 31
+dump 0
+end
+case ellbig-23
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 26 14 54 40
+dump 0
+end
+case ellbig-24
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 27 23 57 34
+dump 0
+end
+case ellbig-25
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 11 17 17 33
+dump 0
+end
+case ellbig-26
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 12 5 35 25
+dump 0
+end
+case ellbig-27
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 24 17 45 24
+dump 0
+end
+case ellbig-28
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 0 6 19 39
+dump 0
+end
+case ellbig-29
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 27 12 51 30
+dump 0
+end
+case ellbig-30
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 21 22 41 43
+dump 0
+end
+case ellbig-31
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 20 19 38 48
+dump 0
+end
+case ellbig-32
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 16 8 49 14
+dump 0
+end
+case ellbig-33
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 21 28 30 50
+dump 0
+end
+case ellbig-34
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 14 19 41 34
+dump 0
+end
+case ellbig-35
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 12 10 34 16
+dump 0
+end
+case ellbig-36
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 17 17 40 34
+dump 0
+end
+case ellbig-37
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 5 19 35 52
+dump 0
+end
+case ellbig-38
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 29 28 39 52
+dump 0
+end
+case ellbig-39
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 18 3 21 34
+dump 0
+end
+case ellbig-40
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 9 16 22 26
+dump 0
+end
+case ellbig-41
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 20 19 38 23
+dump 0
+end
+case ellbig-42
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 14 22 45 55
+dump 0
+end
+case ellbig-43
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 26 22 43 37
+dump 0
+end
+case ellbig-44
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 18 28 30 46
+dump 0
+end
+case ellbig-45
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 22 27 51 54
+dump 0
+end
+case ellbig-46
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 11 20 43 38
+dump 0
+end
+case ellbig-47
+dib 0 64 64 8
+pen 0 null
+brush 0 solid #ffffff
+ellipse 0 15 30 30 63
+dump 0
+end

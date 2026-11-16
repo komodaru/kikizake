@@ -111,6 +111,18 @@ pub fn path() -> String {
         let q = |r: &mut XorShift32, n: usize| (0..n).map(|_| c(r).to_string()).collect::<Vec<_>>().join(" ");
         writeln!(s, "case arcflat-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\narc 0 {}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i % 2, q(&mut r, 8)).unwrap();
     }
+    // arcs drawn through a 1/16 mapping (their own stream): logical units of a sixteenth of a
+    // device pixel, so GetPath shows the 28.4 points themselves; a whole Ellipse first to show
+    // the mapping keeps the device path as it is
+    let mut r = XorShift32::new(0x0a2c_f1f6);
+    for i in 0..96 {
+        let n = [8, 32, 300][i % 3];
+        let c = |r: &mut XorShift32| r.range(-n, n);
+        let q = |r: &mut XorShift32, k: usize| (0..k).map(|_| (16 * c(r)).to_string()).collect::<Vec<_>>().join(" ");
+        let sh = ["arc", "pie", "chord"][i / 3 % 3];
+        let sh = if i < 3 { format!("ellipse 0 {}", q(&mut r, 4)) } else { format!("{sh} 0 {}", q(&mut r, 8)) };
+        writeln!(s, "case arcfix-{i}\ndib 0 8 8 8\nmapmode 0 8\nwinext 0 16 16\nvpext 0 1 1\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nend", 1 + i / 9 % 2).unwrap();
+    }
     // RoundRect's corners over a grid of corner sizes, a box wide enough for each, both
     // directions: GetPath before and after FlattenPath
     for i in 0..200 {
