@@ -511,13 +511,13 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
     let (rw, rh, _) = {
         let r = m.res[view.res].as_ref().unwrap();
-        // (MEASURED, WARP: probe-rt-3d) a 3D texture's view from its first depth slice: the
-        // draw lands on that slice only (no SV_RenderTargetArrayIndex), as a 2D array's first
-        // slice (probe-rt-array)
-        let first_w = view.dim() == 8 && view.u(1, matches!(dev, Dev::D11(_))) == 0;
+        // (MEASURED, WARP: probe-rt-3d, -3d-slice1) a 3D texture's view: the draw lands on its
+        // first depth slice only (no SV_RenderTargetArrayIndex), as a 2D array's first slice
+        // (probe-rt-array)
+        let in_depth = view.dim() == 8 && view.u(1, matches!(dev, Dev::D11(_))) < r.size(r.mip_of(rt_sub)).2;
         match r.d.dim {
             2 => {}
-            3 if first_w => hit(clause::D3DRASTER_RT_3D),
+            3 if in_depth => hit(clause::D3DRASTER_RT_3D),
             _ => return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND)),
         }
         r.size(r.mip_of(rt_sub))
@@ -1890,6 +1890,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     hit(clause::D3DRASTER_FILTER_ARRAY);
                     (b, n.min(r.d.mips - b).max(1))
                 }
+                // (MEASURED, WARP: probe-filter-cube-mips) a cube's view through a Texture2D: face
+                // 0's levels, as a 2D array's
+                (Some(&9), Some(&b), Some(&n)) if b < r.d.mips => {
+                    hit(clause::D3DRASTER_FILTER_ARRAY);
+                    (b, n.min(r.d.mips - b).max(1))
+                }
                 // (other kinds of views of textures with mips: not measured)
                 _ => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
             };
@@ -2131,11 +2137,13 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         return Ok(());
     }
     let res = m.res[view.res].as_mut().unwrap();
-    let (rb, _, _) = res.layout(sub);
+    let (rb, rows, _) = res.layout(sub);
+    // (a 3D view's first depth slice, D3DRASTER.RT.3D)
+    let slice = if res.d.dim == 3 && view.dim() == 8 { view.u(1, matches!(dev, Dev::D11(_))) as usize } else { 0 };
     let el = (f.bits / 8) as usize;
     let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     // (a view whose elements are wider than its resource's, as mutations make: not measured)
-    let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
+    let e = b.get_mut(slice * rows * rb + y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
     let new = match f.num {
         Num::Uint | Num::Sint => {
             if d.blend.0[0] != 0 {
