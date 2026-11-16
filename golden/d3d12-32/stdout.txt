@@ -22134,4 +22134,202 @@ feat none hr 80070057
 case featscan-64-0
 device12 ok
 feat none hr 80070057
+case featscan-1-n1
+device12 ok
+feat none hr 80070057
+case featscan-11-n1
+device12 ok
+feat none hr 80070057
+case featscan-16-n1
+device12 ok
+feat none hr 80070057
+case featscan-24-n1
+device12 ok
+feat none hr 80070057
+case featscan-30-n1
+device12 ok
+feat size 14 hr 00000000 0100000000000000010000000000000000000000
+case featscan-31-n1
+device12 ok
+feat none hr 80070057
+case create-state-tex
+device12 ok
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 80070057
+case create-state-rt
+device12 ok
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 80070057
+case create-state-ds
+device12 ok
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 80070057
+case create-state-uav
+device12 ok
+create hr 80070057
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 80070057
+create hr 80070057
+case create-state-sim
+device12 ok
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 80070057
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+case create-state-buf
+device12 ok
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
+create hr 00000001
 done
