@@ -2780,4 +2780,24 @@ fn measure(s: &mut String) {
         }
     }
     writeln!(s, "glerr\nend").unwrap();
+    // antialiased wide lines in colors (GL.RASTER.MODE, line-aa-wide-3): red from 0 to 250 over
+    // a major length of 10, so each pixel's step shows, upright and leaning a little or nearly 45
+    // degrees (19 in 20) either way, up and down, from ends 1/8 to 7/8 into a pixel
+    writeln!(s, "case line-aa-wide-5\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20", ctx(32)).unwrap();
+    for (n, lean) in [0.0f64, 0.25, -0.25, 1.0, -1.0].into_iter().enumerate() {
+        for (k, from) in [2.125, 2.375, 2.625, 2.875].into_iter().enumerate() {
+            let width = [2.0, 3.0, 2.5, 4.0][(n + k) % 4];
+            let (x0, x1) = if lean.abs() < 1.0 { (7.5, 7.5 + 10.0 * lean) } else { (8.0 - 4.75 * lean, 8.0 + 4.75 * lean) };
+            let (y0, y1) = if lean.abs() < 1.0 { (from, from + 10.0) } else { (from + 0.5, from + 10.5) };
+            let ends = [[x0, y0], [x1, y1]];
+            let ends = if k % 2 == 1 { [ends[1], ends[0]] } else { ends };
+            writeln!(s, "gl glLineWidth {width}\ngl glClear 0x4000\ngl glBegin 1").unwrap();
+            for (e, at) in ends.iter().enumerate() {
+                writeln!(s, "gl glColor4ub {} 128 {} 255", 250 * e, 250 - 250 * e).unwrap();
+                glf(s, "glVertex2f", at);
+            }
+            writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
+        }
+    }
+    writeln!(s, "glerr\nend").unwrap();
 }
