@@ -1516,6 +1516,30 @@ pub fn wicencode() -> String {
     for (k, (f, t)) in [("rgba64fixed", "gray16"), ("rgbafloat", "gray16"), ("grayfix16", "bgra"), ("grayfloat", "rgba64")].into_iter().enumerate() {
         writeln!(s, "case cross-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xc055_0000u32 + k as u32).unwrap();
     }
+    // (color into gray from the wide formats: every 16-bit level as RGBA float, every s2.13
+    // level as RGBA fixed point, gray all three channels)
+    {
+        let lin = crate::model::wicimage::linear16;
+        let g48 = crate::model::wicimage::gray16_rgb48;
+        let mut pick = vec![None; 8193];
+        for v in 0..=65535u16 {
+            let k = (f64::from(lin(g48(v))) * 8192.0 + 0.5).floor() as usize;
+            if k <= 8192 && pick[k].is_none() {
+                pick[k] = Some(v);
+            }
+        }
+        let gray = |lv: &[u16]| -> Vec<u8> {
+            let h = lv.len().div_ceil(128);
+            let rows: Vec<Vec<u8>> = (0..h).map(|y| (0..128).flat_map(|x| lv[(y * 128 + x).min(lv.len() - 1)].to_be_bytes()).collect()).collect();
+            png(128, h as u32, 16, 0, false, &[], &png_filter(&rows, 2, &[0]), 4096)
+        };
+        let fixlv: Vec<u16> = pick.iter().flatten().copied().collect();
+        writeln!(s, "case graysweep-rgba64fixed-gray16\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwconv gray16\nwpixels\nend", hex(&gray(&fixlv))).unwrap();
+        for j in 0..4u32 {
+            let lv: Vec<u16> = (0..16384u32).map(|k| (k * 4 + (k + j) % 4) as u16).collect();
+            writeln!(s, "case graysweep{j}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&gray(&lv))).unwrap();
+        }
+    }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
