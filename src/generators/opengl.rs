@@ -2687,4 +2687,15 @@ fn measure(s: &mut String) {
         writeln!(s, "gl glEnd\nglread 0 0 16 16 {} {} 1024", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
     }
     writeln!(s, "glerr\nend").unwrap();
+    // color indices drawn in RGBA mode into a buffer with alpha (GL.DRAW.INDEX): bytes, shorts
+    // and floats, shifted and offset, over a cleared color: each through the initial one-entry
+    // maps
+    writeln!(s, "case draw-index-0\nglctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glClearColor 0.2 0.4 0.6 0.8\ngl glClear 0x4000").unwrap();
+    for (k, (ty, size)) in [(0x1401, 1), (0x1403, 2), (0x1406, 4), (0x1400, 1)].into_iter().enumerate() {
+        if k == 2 {
+            writeln!(s, "gl glPixelTransferi 0xd12 3\ngl glPixelTransferi 0xd13 7").unwrap();
+        }
+        writeln!(s, "gl glRasterPos2i 0 {}\ngldraw 16 3 0x1900 {} {} {}\nglerr", 4 * k, h(ty), 90 + k, 48 * size).unwrap();
+    }
+    writeln!(s, "glread 0 0 16 16 {} {} 1024\nglerr\nend", h(RGBA), h(UNSIGNED_BYTE)).unwrap();
 }
