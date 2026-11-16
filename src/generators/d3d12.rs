@@ -708,6 +708,21 @@ pub fn d3d12() -> String {
             writeln!(s, "case featscan-{f}-{k}\ndevice12\nfeatscan12 {f}{l}\nend").unwrap();
         }
     }
+    // (added after) features whose first field is a NodeIndex, asked of node 1 (WARP has one
+    // node; vkd3d-proton refuses NodeIndex != 0, to be measured)
+    for f in [1u32, 11, 16, 24, 30, 31] {
+        writeln!(s, "case featscan-{f}-n1\ndevice12\nfeatscan12 {f} 1\nend").unwrap();
+    }
+    // (added after) a texture's initial state, every bit alone, for each usage (vkd3d-proton
+    // checks RENDER_TARGET, DEPTH_WRITE/READ and RAYTRACING_AS against the flags; measured here)
+    let tex_states: Vec<u32> = (0..24).map(|b| 1u32 << b).chain([0x30, 0xac3, 0x8000_0000, 0xffff_ffff]).collect();
+    for (name, base) in [("tex", Desc::tex(3, 64, 32, 1, 1, 28)), ("rt", Desc { flags: 1, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("ds", Desc { flags: 2, ..Desc::tex(3, 64, 32, 1, 1, 40) }), ("uav", Desc { flags: 4, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("sim", Desc { flags: 0x21, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("buf", Desc { flags: 4, ..Desc::buffer(1024) })] {
+        writeln!(s, "case create-state-{name}\ndevice12").unwrap();
+        for st in &tex_states {
+            writeln!(s, "create12 1 {} {}", hexw(*st), desc_str(&base)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
 
     s
 }
