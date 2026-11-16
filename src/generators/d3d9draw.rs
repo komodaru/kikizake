@@ -1107,6 +1107,45 @@ fn suite(v8: bool) -> String {
             writeln!(s, "d9rt\nend").unwrap();
         }
     }
+    // (D3D9.DRAW.POINTSLINES) the same joints entered by a y-major segment, as d3d8draw
+    // points-lines-5 does, and that strip's two segments drawn alone, as a list and as a strip
+    let mut n = 0;
+    for (ci, c) in [(8.0f32, 7.5f32), (8.0, 8.5), (7.5, 8.0), (8.5, 8.0)].into_iter().enumerate() {
+        for &(ix, iy) in &dirs[4..] {
+            for &(ox, oy) in &dirs {
+                open(&mut s, &format!("line-joint-y-{ci}-{n}"), 21, 16, 16);
+                let (a, b) = ((c.0 - ix * 1.25, c.1 - iy * 1.25), (c.0 + ox * 1.25, c.1 + oy * 1.25));
+                writeln!(s, "d9clear 1 0 0 0\nd9fvf {FVF_TL:#x}\nd9draw 3 3 {} {} {}\nd9rt\nend", v(a.0, a.1, 0.0, 0xffff_ffff, None), v(c.0, c.1, 0.0, 0xffff_ffff, None), v(b.0, b.1, 0.0, 0xffff_ffff, None)).unwrap();
+                n += 1;
+            }
+        }
+    }
+    let (p, q, t) = ((15.5f32, 1.0f32), (13.0f32, 9.5f32), (3.5f32, 4.25f32));
+    for (i, (ty, vs)) in [(3u32, vec![p, q, t]), (2, vec![p, q, q, t]), (2, vec![p, q]), (2, vec![q, t]), (2, vec![q, p]), (2, vec![t, q])].into_iter().enumerate() {
+        open(&mut s, &format!("line-joint-pl5-{i}"), 21, 16, 16);
+        let vs: Vec<String> = vs.iter().map(|&(x, y)| v(x, y, 0.0, 0xffff_ffff, None)).collect();
+        writeln!(s, "d9clear 1 0 0 0\nd9fvf {FVF_TL:#x}\nd9draw {ty} {} {}\nd9rt\nend", vs.len(), vs.join(" ")).unwrap();
+    }
+    // (D3D9.STAGE.PASTOP) the other TEXTUREOPs past LERP on stage 1, and past ones on stages 0
+    // and 1 with a stage after them adding TFACTOR to CURRENT: whether the chain goes on
+    for (i, (st, op)) in [(1u32, 28u32), (1, 31), (1, 33), (1, 64), (1, 0x8000_0000), (1, 0xffff_ffff), (0, 27), (0, 0xffff_ffff), (1, 27), (1, 0xffff_ffff)].into_iter().enumerate() {
+        let next = i >= 6;
+        for (j, which) in [1u32, 4].into_iter().enumerate() {
+            open(&mut s, &format!("top-past-chain-{i}-{j}"), 21, 16, 16);
+            writeln!(s, "d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nrs set 60 {:#x}", r.next(), r.next(), r.next() & 0x3f3f_3f3f).unwrap();
+            writeln!(s, "tss set 0 1 4\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 4\ntss set 0 5 2\ntss set 0 6 0").unwrap();
+            if st == 1 || next {
+                writeln!(s, "tss set 1 1 2\ntss set 1 2 1\ntss set 1 4 2\ntss set 1 5 1").unwrap();
+            }
+            if next {
+                let at = st + 1;
+                writeln!(s, "tss set {at} 1 7\ntss set {at} 2 1\ntss set {at} 3 3\ntss set {at} 4 7\ntss set {at} 5 1\ntss set {at} 6 3").unwrap();
+            }
+            writeln!(s, "tss set {st} {which} {op}").unwrap();
+            quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+            writeln!(s, "d9rt\nend").unwrap();
+        }
+    }
     s
 }
 

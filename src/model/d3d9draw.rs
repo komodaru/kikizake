@@ -1813,20 +1813,30 @@ impl D3d9 {
                     21 => (1.0 - a1[i]) * a2[i] + a1[3],
                     25 => a0[i] + a1[i] * a2[i],
                     26 => a0[i] * a1[i] + (1.0 - a0[i]) * a2[i],
-                    // (MEASURED top-past-*, both runtimes, stage 0: a COLOROP past LERP makes
-                    // black; as ALPHAOP 27 and 0x7fffffff leave the diffuse alpha, 32 makes 1,
-                    // D3D9.STAGE.PASTOP)
-                    27 | 32 | 0x7fff_ffff if st == 0 && !alpha => {
+                    // (MEASURED top-past-*, top-past-later-*, both runtimes, stage 0: a COLOROP
+                    // past LERP makes black; as ALPHAOP 32 makes 1, the others leave the diffuse
+                    // alpha, D3D9.STAGE.PASTOP)
+                    27.. if st == 0 && !alpha => {
                         hit(clause::D3D9_STAGE_PASTOP);
                         0.0
-                    }
-                    27 | 0x7fff_ffff if st == 0 => {
-                        hit(clause::D3D9_STAGE_PASTOP);
-                        da
                     }
                     32 if st == 0 => {
                         hit(clause::D3D9_STAGE_PASTOP);
                         1.0
+                    }
+                    27.. if st == 0 => {
+                        hit(clause::D3D9_STAGE_PASTOP);
+                        da
+                    }
+                    // (MEASURED top-past-later-*: on a later stage 27, 32 and 0x7fffffff leave
+                    // CURRENT, as COLOROP and as ALPHAOP; open: the others, top-past-chain-*)
+                    27 | 32 | 0x7fff_ffff if !alpha => {
+                        hit(clause::D3D9_STAGE_PASTOP);
+                        r.current[i] as f32
+                    }
+                    27 | 32 | 0x7fff_ffff => {
+                        hit(clause::D3D9_STAGE_PASTOP);
+                        ca
                     }
                     _ => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
                 };
