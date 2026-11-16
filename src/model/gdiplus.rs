@@ -1778,6 +1778,10 @@ impl Gdiplus {
                 t.get(3).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad)?;
                 return Err(Fail::Unmodeled(open::GP_PEN));
             }
+            "gppath" | "gpadd" | "gpflat" | "gpwiden" | "gppathinfo" | "gpfillpath" => {
+                Self::slot(t, 1)?;
+                return Err(Fail::Unmodeled(open::GP_PATH));
+            }
             "gpshape" => {
                 let s = Self::slot(t, 1)?;
                 let pen = match t.get(2).map(String::as_str) {

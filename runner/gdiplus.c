@@ -84,7 +84,29 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipDisposeImageAttributes, (void *)) \
     X(GdipSetImageAttributesColorMatrix, (void *, INT, BOOL, const float *, const float *, INT)) \
     X(GdipSetInterpolationMode, (void *, INT)) \
-    X(GdipDrawImageRectRectI, (void *, void *, INT, INT, INT, INT, INT, INT, INT, INT, INT, void *, void *, void *))
+    X(GdipDrawImageRectRectI, (void *, void *, INT, INT, INT, INT, INT, INT, INT, INT, INT, void *, void *, void *)) \
+    X(GdipCreatePath, (INT, void **)) \
+    X(GdipDeletePath, (void *)) \
+    X(GdipAddPathLine, (void *, float, float, float, float)) \
+    X(GdipAddPathLine2, (void *, const GpPointF *, INT)) \
+    X(GdipAddPathBezier, (void *, float, float, float, float, float, float, float, float)) \
+    X(GdipAddPathBeziers, (void *, const GpPointF *, INT)) \
+    X(GdipAddPathRectangle, (void *, float, float, float, float)) \
+    X(GdipAddPathEllipse, (void *, float, float, float, float)) \
+    X(GdipAddPathArc, (void *, float, float, float, float, float, float)) \
+    X(GdipAddPathPie, (void *, float, float, float, float, float, float)) \
+    X(GdipAddPathPolygon, (void *, const GpPointF *, INT)) \
+    X(GdipAddPathCurve2, (void *, const GpPointF *, INT, float)) \
+    X(GdipAddPathClosedCurve2, (void *, const GpPointF *, INT, float)) \
+    X(GdipClosePathFigure, (void *)) \
+    X(GdipStartPathFigure, (void *)) \
+    X(GdipFlattenPath, (void *, void *, float)) \
+    X(GdipWidenPath, (void *, void *, void *, float)) \
+    X(GdipGetPointCount, (void *, INT *)) \
+    X(GdipGetPathTypes, (void *, BYTE *, INT)) \
+    X(GdipGetPathPoints, (void *, GpPointF *, INT)) \
+    X(GdipGetPathWorldBounds, (void *, GpRectF *, void *, void *)) \
+    X(GdipFillPath, (void *, void *, void *))
 
 #define X(n, a) static GpStatus (WINAPI *n) a;
 GP_FUNCS(X)
@@ -132,6 +154,7 @@ static void *mat[SLOTS];
 static void *brush[SLOTS];
 static void *attr[SLOTS];
 static void *pen[SLOTS];
+static void *path[SLOTS];
 
 static void gdiplus_reset(void) {
     for (int i = 0; i < SLOTS; i++) {
@@ -140,6 +163,7 @@ static void gdiplus_reset(void) {
         if (brush[i]) { GdipDeleteBrush(brush[i]); brush[i] = NULL; }
         if (attr[i]) { GdipDisposeImageAttributes(attr[i]); attr[i] = NULL; }
         if (pen[i]) { GdipDeletePen(pen[i]); pen[i] = NULL; }
+        if (path[i]) { GdipDeletePath(path[i]); path[i] = NULL; }
     }
 }
 
@@ -681,6 +705,124 @@ static void op_shape(void) {
     out("shape 0 %d\n", st);
 }
 
+/* paths in slots of their own:
+ * gppath <p> <FillMode>: CreatePath: "path <st>"
+ * gpadd <p> line x1 y1 x2 y2 | bezier (8) | rect x y w h | ellipse x y w h | arc x y w h start
+ * sweep | pie (6) | lines <n> pts | beziers <n> pts | polygon <n> pts | curve <tension> <n> pts |
+ * closedcurve <tension> <n> pts | close | start: AddPath*, ClosePathFigure, StartPathFigure (floats
+ * as decimals): "add <st>"
+ * gpflat <p> <matrix slot|-> <flatness>: FlattenPath: "flat <st>"
+ * gpwiden <p> <pen> <matrix slot|-> <flatness>: WidenPath: "widen <st>"
+ * gppathinfo <p>: "pathinfo <st> <count>" then "pathpts" and each point's type (2 hex digits) and
+ * float bits "tt xxxxxxxx yyyyyyyy", at most 4096; then "bounds <st> x y w h" (GetPathWorldBounds,
+ * no matrix, no pen)
+ * gpfillpath <bitmap> <brush> <p> <over|copy> <CompositingQuality> <SmoothingMode>
+ * <PixelOffsetMode>: FillPath: "fillpath 0 <st>" */
+#define PATH_PTS 4096
+static void *the_path(int p) {
+    if (!path[p]) out("%s nopath\n", tok[0]);
+    return path[p];
+}
+static void op_path(void) {
+    int p = slot(1);
+    long fm = num(2);
+    if (bad || !gp()) return;
+    if (path[p]) { GdipDeletePath(path[p]); path[p] = NULL; }
+    out("path %d\n", GdipCreatePath(fm, &path[p]));
+}
+static void op_add(void) {
+    int p = slot(1);
+    const char *what = ntok > 2 ? tok[2] : "";
+    float a[8] = { 0 };
+    static GpPointF pt[64];
+    int n = 0, fixed = -1;
+    float tension = 0;
+#define W(name) !strcmp(what, name)
+    if (W("line") || W("rect") || W("ellipse")) fixed = 4;
+    else if (W("arc") || W("pie")) fixed = 6;
+    else if (W("bezier")) fixed = 8;
+    else if (W("close") || W("start")) fixed = 0;
+    else if (W("lines") || W("beziers") || W("polygon") || W("curve") || W("closedcurve")) {
+        int i = 3;
+        if (W("curve") || W("closedcurve")) tension = fdec(i++);
+        long c = num(i++);
+        if (c < 0 || c > 64) bad = 1;
+        n = bad ? 0 : (int)c;
+        for (int j = 0; j < n; j++) { pt[j].X = fdec(i + 2 * j); pt[j].Y = fdec(i + 2 * j + 1); }
+    } else bad = 1;
+    for (int j = 0; j < fixed; j++) a[j] = fdec(3 + j);
+    if (bad || !gp() || !the_path(p)) return;
+    void *q = path[p];
+    GpStatus st;
+    if (W("line")) st = GdipAddPathLine(q, a[0], a[1], a[2], a[3]);
+    else if (W("rect")) st = GdipAddPathRectangle(q, a[0], a[1], a[2], a[3]);
+    else if (W("ellipse")) st = GdipAddPathEllipse(q, a[0], a[1], a[2], a[3]);
+    else if (W("arc")) st = GdipAddPathArc(q, a[0], a[1], a[2], a[3], a[4], a[5]);
+    else if (W("pie")) st = GdipAddPathPie(q, a[0], a[1], a[2], a[3], a[4], a[5]);
+    else if (W("bezier")) st = GdipAddPathBezier(q, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+    else if (W("close")) st = GdipClosePathFigure(q);
+    else if (W("start")) st = GdipStartPathFigure(q);
+    else if (W("lines")) st = GdipAddPathLine2(q, pt, n);
+    else if (W("beziers")) st = GdipAddPathBeziers(q, pt, n);
+    else if (W("polygon")) st = GdipAddPathPolygon(q, pt, n);
+    else if (W("curve")) st = GdipAddPathCurve2(q, pt, n, tension);
+    else st = GdipAddPathClosedCurve2(q, pt, n, tension);
+#undef W
+    out("add %d\n", st);
+}
+static void op_flat(void) {
+    int p = slot(1);
+    int m = is(2, "-") ? -1 : slot(2);
+    float f = fdec(3);
+    if (bad || !gp() || !the_path(p)) return;
+    if (m >= 0 && !mat[m]) { out("flat nomatrix\n"); return; }
+    out("flat %d\n", GdipFlattenPath(path[p], m >= 0 ? mat[m] : NULL, f));
+}
+static void op_widen(void) {
+    int p = slot(1), k = slot(2);
+    int m = is(3, "-") ? -1 : slot(3);
+    float f = fdec(4);
+    if (bad || !gp() || !the_path(p)) return;
+    if (m >= 0 && !mat[m]) { out("widen nomatrix\n"); return; }
+    if (!pen[k]) { out("widen nopen\n"); return; }
+    out("widen %d\n", GdipWidenPath(path[p], pen[k], m >= 0 ? mat[m] : NULL, f));
+}
+static void op_pathinfo(void) {
+    int p = slot(1);
+    if (bad || !gp() || !the_path(p)) return;
+    INT n = 0;
+    GpStatus st = GdipGetPointCount(path[p], &n);
+    out("pathinfo %d %d\n", st, n);
+    if (!st && n > 0 && n <= PATH_PTS) {
+        static GpPointF pt[PATH_PTS];
+        static BYTE ty[PATH_PTS];
+        GpStatus a = GdipGetPathTypes(path[p], ty, n), b = GdipGetPathPoints(path[p], pt, n);
+        out("pathpts %d %d", a, b);
+        for (int i = 0; i < n && !a && !b; i++) out(" %02x %08lx %08lx", ty[i], bitsf(pt[i].X), bitsf(pt[i].Y));
+        out("\n");
+    }
+    GpRectF r = { 0 };
+    GpStatus bs = GdipGetPathWorldBounds(path[p], &r, NULL, NULL);
+    out("bounds %d %08lx %08lx %08lx %08lx\n", bs, bitsf(r.X), bitsf(r.Y), bitsf(r.Width), bitsf(r.Height));
+}
+static void op_fillpath(void) {
+    int s = slot(1), k = slot(2), p = slot(3);
+    int copy = is(4, "copy");
+    if (!copy && !is(4, "over")) bad = 1;
+    long q = num(5), sm = num(6), po = num(7);
+    if (bad || !gp() || !the(s) || !the_path(p)) return;
+    if (!brush[k]) { out("fillpath nobrush\n"); return; }
+    void *g = graphics(s, "fillpath");
+    if (!g) return;
+    GdipSetCompositingMode(g, copy);
+    GpStatus st = GdipSetCompositingQuality(g, q);
+    if (!st) st = GdipSetSmoothingMode(g, sm);
+    if (!st) st = GdipSetPixelOffsetMode(g, po);
+    if (!st) st = GdipFillPath(g, brush[k], path[p]);
+    GdipDeleteGraphics(g);
+    out("fillpath 0 %d\n", st);
+}
+
 static const struct kz_op gdiplus_ops[] = {
     { "gpbitmap", op_bitmap }, { "gpwrite", op_write }, { "gpread", op_read }, { "gpset", op_set },
     { "gpget", op_get }, { "gpinfo", op_info }, { "gpfill", op_fill }, { "gpclear", op_clear },
@@ -688,6 +830,8 @@ static const struct kz_op gdiplus_ops[] = {
     { "gpmatmul", op_matmul }, { "gpmatinv", op_matinv }, { "gpmatpts", op_matpts },
     { "gpbrush", op_brush }, { "gppaint", op_paint }, { "gpattr", op_attr }, { "gpdraw", op_draw },
     { "gppen", op_pen }, { "gpshape", op_shape }, { "gpbrushinfo", op_brushinfo },
+    { "gppath", op_path }, { "gpadd", op_add }, { "gpflat", op_flat }, { "gpwiden", op_widen },
+    { "gppathinfo", op_pathinfo }, { "gpfillpath", op_fillpath },
     { 0 },
 };
 const struct kz_api gdiplus_api = { "gdiplus", gdiplus_ops, gdiplus_reset };

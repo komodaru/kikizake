@@ -758,3 +758,66 @@ fn fillprobe(s: &mut String) {
         writeln!(s, "case fillprobe-curve-{i}\ngpbitmap 0 64 64 32bppARGB\ngpbrush 0 solid 0xff00ff00\ngpshape 0 brush 0 - copy 0 {sm} {po} {shape}\ngpread 0 32bppARGB\nend").unwrap();
     }
 }
+
+/// the gdipluspath suite: GraphicsPath (the points each Add makes, FlattenPath's and WidenPath's
+/// points, the bounds) and FillPath
+pub fn gdipluspath() -> String {
+    let mut s = String::from("# kikizake suite gdipluspath: GDI+ GraphicsPath: the points and types AddLine, AddBezier(s), AddRectangle, AddEllipse, AddArc, AddPie, AddPolygon, AddCurve, AddClosedCurve make, FlattenPath's and WidenPath's points, GetPathWorldBounds, FillPath (SPEC.md). Made by `kikizake gen gdipluspath`.\n");
+    let mut r = XorShift32::new(0x9a7b_0c02);
+    let q4 = |r: &mut XorShift32, lo: i64, hi: i64| format!("{}", r.range(lo * 4, hi * 4) as f32 / 4.0);
+    let pts = |r: &mut XorShift32, n: usize| (0..2 * n).map(|_| q4(r, -2, 40)).collect::<Vec<_>>().join(" ");
+    // statuses
+    for (i, (fm, add)) in [(0, "line 1 2 3 4"), (1, "line 1 2 3 4"), (2, "line 1 2 3 4"), (-1, "line 1 2 3 4"), (0, "lines 1 1 1"), (0, "lines 0"), (0, "beziers 3 0 0 1 1 2 2"), (0, "beziers 5 0 0 1 1 2 2 3 3 4 4"), (0, "polygon 2 0 0 1 1"), (0, "curve 0.5 1 3 3"), (0, "curve -1 3 0 0 4 4 8 0"), (0, "closedcurve 0.5 2 0 0 4 4"), (0, "rect 0 0 -4 4"), (0, "ellipse 0 0 0 4"), (0, "arc 0 0 8 8 0 0"), (0, "pie 0 0 8 8 30 0"), (0, "close"), (0, "start")].iter().enumerate() {
+        writeln!(s, "case pathstatus-{i}\ngppath 0 {fm}\ngpadd 0 {add}\ngppathinfo 0\nend").unwrap();
+    }
+    for i in 0..40 {
+        writeln!(s, "case pathellipse-{i}\ngppath 0 0\ngpadd 0 ellipse {} {} {} {}\ngppathinfo 0\nend", q4(&mut r, -4, 40), q4(&mut r, -4, 40), q4(&mut r, -8, 60), q4(&mut r, -8, 60)).unwrap();
+    }
+    for i in 0..60 {
+        let what = if i % 2 == 0 { "arc" } else { "pie" };
+        let ang = |r: &mut XorShift32| if r.chance(3) { format!("{}", 45 * r.range(-8, 8)) } else { format!("{}", r.range(-7200, 7200) as f32 / 10.0) };
+        writeln!(s, "case path{what}-{i}\ngppath 0 0\ngpadd 0 {what} {} {} {} {} {} {}\ngppathinfo 0\nend", q4(&mut r, -4, 40), q4(&mut r, -4, 40), q4(&mut r, 1, 60), q4(&mut r, 1, 60), ang(&mut r), ang(&mut r)).unwrap();
+    }
+    for i in 0..60 {
+        let add = match i % 6 {
+            0 => format!("rect {} {} {} {}", q4(&mut r, -4, 40), q4(&mut r, -4, 40), q4(&mut r, 0, 40), q4(&mut r, 0, 40)),
+            1 => format!("lines {n} {}", pts(&mut r, 5), n = 5),
+            2 => format!("polygon {n} {}", pts(&mut r, 4), n = 4),
+            3 => format!("beziers 7 {}", pts(&mut r, 7)),
+            4 => format!("curve {} {n} {}", r.range(0, 8) as f32 / 4.0, pts(&mut r, 4), n = 4),
+            _ => format!("closedcurve {} {n} {}", r.range(0, 8) as f32 / 4.0, pts(&mut r, 4), n = 4),
+        };
+        writeln!(s, "case pathadd-{i}\ngppath 0 0\ngpadd 0 {add}\ngpadd 0 line 1 2 3 4\ngpadd 0 close\ngpadd 0 line 5 6 7 8\ngppathinfo 0\nend").unwrap();
+    }
+    // flattened: the flattener's points, at FlattenPath's default flatness 0.25 and others
+    for i in 0..80 {
+        let add = match i % 5 {
+            0 => format!("ellipse {} {} {} {}", q4(&mut r, -4, 20), q4(&mut r, -4, 20), q4(&mut r, 1, 80), q4(&mut r, 1, 80)),
+            1 => format!("arc {} {} {} {} {} {}", q4(&mut r, -4, 20), q4(&mut r, -4, 20), q4(&mut r, 1, 80), q4(&mut r, 1, 80), r.range(-360, 360), r.range(-360, 360)),
+            2 => format!("bezier {}", pts(&mut r, 4)),
+            3 => format!("curve {} 4 {}", r.range(0, 8) as f32 / 4.0, pts(&mut r, 4)),
+            _ => format!("pie {} {} {} {} {} {}", q4(&mut r, -4, 20), q4(&mut r, -4, 20), q4(&mut r, 1, 80), q4(&mut r, 1, 80), r.range(-360, 360), r.range(-360, 360)),
+        };
+        let fl = *r.pick(&["0.25", "0.25", "0.25", "0.1", "1", "2", "0.01", "0"]);
+        writeln!(s, "case pathflat-{i}\ngppath 0 0\ngpadd 0 {add}\ngpflat 0 - {fl}\ngppathinfo 0\nend").unwrap();
+    }
+    // widened by pens of widths, caps and joins
+    for i in 0..40 {
+        let add = match i % 4 {
+            0 => format!("line {} {} {} {}", q4(&mut r, 0, 30), q4(&mut r, 0, 30), q4(&mut r, 0, 30), q4(&mut r, 0, 30)),
+            1 => format!("lines 3 {}", pts(&mut r, 3)),
+            2 => format!("rect {} {} {} {}", q4(&mut r, 0, 20), q4(&mut r, 0, 20), q4(&mut r, 1, 20), q4(&mut r, 1, 20)),
+            _ => format!("ellipse {} {} {} {}", q4(&mut r, 0, 20), q4(&mut r, 0, 20), q4(&mut r, 1, 20), q4(&mut r, 1, 20)),
+        };
+        let cap = *r.pick(&[0, 1, 2, 3]);
+        writeln!(s, "case pathwiden-{i}\ngppen 0 0xff000000 {} cap {cap} {cap} 0 join {}\ngppath 0 0\ngpadd 0 {add}\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend", r.range(1, 24) as f32 / 4.0, r.range(0, 3)).unwrap();
+    }
+    // filled: a path's ellipse against the same ellipse flattened first
+    for i in 0..30 {
+        let (sm, po) = (*r.pick(&[3, 4, 5]), *r.pick(&[3, 4]));
+        let e = format!("ellipse {} {} {} {}", q4(&mut r, 0, 10), q4(&mut r, 0, 10), q4(&mut r, 8, 40), q4(&mut r, 8, 40));
+        let flat = if i % 2 == 1 { "gpflat 0 - 0.25\n" } else { "" };
+        writeln!(s, "case pathfill-{i}\ngpbitmap 0 48 48 32bppARGB\ngpbrush 0 solid 0xff00ff00\ngppath 0 0\ngpadd 0 {e}\n{flat}gpfillpath 0 0 0 copy 0 {sm} {po}\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    s
+}

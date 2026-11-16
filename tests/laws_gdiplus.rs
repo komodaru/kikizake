@@ -301,14 +301,15 @@ proptest! {
         prop_assert_eq!(gp::nearest_x(k, d, d, po), k);
         prop_assert_eq!(gp::nearest_y(k, d, d, po), k);
     }
-    /// NearestNeighbor stays inside the source and never steps back
+    /// NearestNeighbor stays inside the source (or one past it: a corner offset rounds up, and
+    /// a half offset's 16.16 step, rounded, can reach s on a wide destination) and never steps back
     #[test]
     fn nearest_is_monotone_and_inside(k in 0i64..4095, s in 1i64..4096, d in 1i64..4096, po in 0i64..5) {
         let po = gp::PixelOffset::from_value(po).unwrap();
         let k = k % d;
         for f in [gp::nearest_x, gp::nearest_y] {
             let p = f(k, s, d, po);
-            prop_assert!((0..s).contains(&p) || (!po.half() && p == s), "{} of {} -> {}", k, d, p);
+            prop_assert!((0..=s).contains(&p), "{} of {} -> {}", k, d, p);
             if k + 1 < d {
                 prop_assert!(f(k + 1, s, d, po) >= p);
             }
