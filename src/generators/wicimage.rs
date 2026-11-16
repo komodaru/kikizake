@@ -1590,6 +1590,11 @@ pub fn wicencode() -> String {
             }
         }
     }
+    // (where each 16-bit and 8-bit level starts as a float: the executor bisects the bits of
+    // 0..1 per level, WICIMAGE.CONVERT.FLOAT.STEPS)
+    for (from, to) in [("grayfloat", "gray16"), ("grayfloat", "gray8"), ("rgbafloat", "rgba64"), ("rgbafloat", "bgra")] {
+        writeln!(s, "case steps-{from}-{to}\nwsteps {from} {to}\nend").unwrap();
+    }
     s
 }
 

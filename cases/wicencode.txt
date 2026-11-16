@@ -7784,3 +7784,15 @@ wconv grayfloat
 wconv gray8
 wpixels
 end
+case steps-grayfloat-gray16
+wsteps grayfloat gray16
+end
+case steps-grayfloat-gray8
+wsteps grayfloat gray8
+end
+case steps-rgbafloat-rgba64
+wsteps rgbafloat rgba64
+end
+case steps-rgbafloat-bgra
+wsteps rgbafloat bgra
+end

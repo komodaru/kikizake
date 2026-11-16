@@ -309,6 +309,76 @@ static void op_pixels(void) {
     free(b);
 }
 
+/* wsteps <grayfloat|rgbafloat> <gray16|gray8|rgba64|bgra>: where a float of 0..1 steps into each
+ * level of the target: per level n (1 up to the largest) the smallest float (its bits, f32 little
+ * endian, 64 a line) whose conversion is n or more, by bisection over the bits of 0..1 (all levels
+ * at once, one bitmap of them a round). For rgbafloat red, green and blue all the float, alpha 1,
+ * the red of the target read. "wsteps <hr> <levels> <level of 1.0> <pixels whose green or blue
+ * differs from red at the end>" */
+static void steps_conv(int from, int to, const unsigned *v, int n, unsigned *lv, int *odd, HRESULT *hr) {
+    int ch = fmts[from].bits == 128 ? 4 : 1;
+    int W = 256, H = (n + W - 1) / W;
+    float *px = calloc((size_t)W * H * ch, sizeof(float));
+    for (int i = 0; i < W * H; i++) {
+        float x;
+        unsigned b = i < n ? v[i] : 0x3f800000u;
+        memcpy(&x, &b, 4);
+        for (int k = 0; k < ch; k++) px[i * ch + k] = k == 3 ? 1.0f : x;
+    }
+    IWICBitmap *bm = NULL;
+    IWICFormatConverter *c = NULL;
+    int tb = fmts[to].bits;
+    int stride = (W * tb + 7) / 8;
+    unsigned char *o = calloc((size_t)stride * H, 1);
+    *hr = IWICImagingFactory_CreateBitmapFromMemory(fac, W, H, &fmts[from].g, W * ch * 4, W * H * ch * 4, (BYTE *)px, &bm);
+    if (SUCCEEDED(*hr)) *hr = IWICImagingFactory_CreateFormatConverter(fac, &c);
+    if (SUCCEEDED(*hr)) *hr = IWICFormatConverter_Initialize(c, (IWICBitmapSource *)bm, &fmts[to].g, WICBitmapDitherTypeNone, NULL, 0, WICBitmapPaletteTypeMedianCut);
+    if (SUCCEEDED(*hr)) *hr = IWICFormatConverter_CopyPixels(c, NULL, stride, stride * H, o);
+    *odd = 0;
+    for (int i = 0; i < n && SUCCEEDED(*hr); i++) {
+        const unsigned char *q = o + (i / W) * stride + (i % W) * (tb / 8);
+        unsigned r, g, b;
+        if (tb == 16) r = g = b = q[0] | q[1] << 8;
+        else if (tb == 8) r = g = b = q[0];
+        else if (tb == 64) { r = q[0] | q[1] << 8; g = q[2] | q[3] << 8; b = q[4] | q[5] << 8; }
+        else { b = q[0]; g = q[1]; r = q[2]; }
+        lv[i] = r;
+        if (g != r || b != r) (*odd)++;
+    }
+    if (c) IWICFormatConverter_Release(c);
+    if (bm) IWICBitmap_Release(bm);
+    free(px);
+    free(o);
+}
+static void op_steps(void) {
+    int from = fmt_at(1), to = fmt_at(2);
+    if (bad || !(is(1, "grayfloat") || is(1, "rgbafloat")) || !(is(2, "gray16") || is(2, "gray8") || is(2, "rgba64") || is(2, "bgra"))) { bad = 1; return; }
+    if (!init()) return;
+    int n = fmts[to].bits == 8 || fmts[to].bits == 32 ? 255 : 65535;
+    unsigned *lo = calloc(n, 4), *hi = calloc(n, 4), *mid = calloc(n, 4), *lv = calloc(n, 4);
+    unsigned one = 0x3f800000u, top = 0;
+    int odd = 0;
+    HRESULT hr;
+    steps_conv(from, to, &one, 1, lv, &odd, &hr);
+    top = lv[0];
+    for (int i = 0; i < n; i++) { lo[i] = 0; hi[i] = one; }
+    for (int round = 0; round < 32 && SUCCEEDED(hr); round++) {
+        int open = 0;
+        for (int i = 0; i < n; i++) { mid[i] = lo[i] + (hi[i] - lo[i]) / 2; open += hi[i] - lo[i] > 1; }
+        if (!open) break;
+        steps_conv(from, to, mid, n, lv, &odd, &hr);
+        for (int i = 0; i < n && SUCCEEDED(hr); i++) {
+            if (hi[i] - lo[i] <= 1) continue;
+            if (lv[i] >= (unsigned)(i + 1)) hi[i] = mid[i]; else lo[i] = mid[i];
+        }
+    }
+    if (SUCCEEDED(hr)) steps_conv(from, to, hi, n, lv, &odd, &hr);
+    out("wsteps %08lx %d %u %d\n", hr, n, top, odd);
+    if (SUCCEEDED(hr))
+        for (int i = 0; i < n; i += 64) out_hex((const unsigned char *)(hi + i), (n - i < 64 ? n - i : 64) * 4);
+    free(lo); free(hi); free(mid); free(lv);
+}
+
 static void put_palette(const char *op, IWICPalette *p, HRESULT hr) {
     WICColor c[256];
     UINT n = 0;
@@ -543,6 +613,7 @@ static const struct kz_op wicimage_ops[] = {
     { "wencode", op_encode },
     { "wbytes", op_bytes },
     { "wredecode", op_redecode },
+    { "wsteps", op_steps },
     { 0 },
 };
 const struct kz_api wicimage_api = { "wicimage", wicimage_ops, reset };

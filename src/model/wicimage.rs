@@ -487,6 +487,43 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
 /// 256 random pixels each): 128bppRGBAFloat, 64bppRGBAHalf and 32bppGrayFloat back into
 /// 64bppRGBA, 32bppBGRA, 16bppGray, 8bppGray: each color channel through float_srgb; alpha
 /// a * 65535 + 0.5 in f32 truncated, into 8 bits a * 255 + 0.5. Others open (CONVERT.OTHER)
+/// the executor's wsteps bitmap: the floats (bits) 256 a row, the last row filled with 1.0, red,
+/// green and blue each the float and alpha 1 in 128bppRGBAFloat, converted as wconv; the level of
+/// red for each float and how many pixels' green or blue differ from red
+fn steps_conv(from: &'static str, to: &'static str, v: &[u32]) -> Res<(Vec<u32>, usize)> {
+    let (w, h) = (256usize, v.len().div_ceil(256));
+    let ch = if from == "rgbafloat" { 4 } else { 1 };
+    let mut s = Img::new(w as u32, h as u32, from);
+    for i in 0..w * h {
+        let x = v.get(i).copied().unwrap_or(1.0f32.to_bits());
+        for k in 0..ch {
+            let f = if k == 3 { 1.0f32 } else { f32::from_bits(x) };
+            s.px[(i * ch + k) * 4..(i * ch + k) * 4 + 4].copy_from_slice(&f.to_le_bytes());
+        }
+    }
+    let o = float_to_narrow(&s, fmt_static(to)).ok_or(Fail::Bad)??;
+    let st = o.stride();
+    let mut odd = 0;
+    let lv = (0..v.len()).map(|i| {
+        let q = &o.px[(i / w) * st..];
+        let x = i % w;
+        let (r, g, b) = match to {
+            "gray16" => { let c = u32::from(u16::from_le_bytes([q[x * 2], q[x * 2 + 1]])); (c, c, c) }
+            "gray8" => { let c = u32::from(q[x]); (c, c, c) }
+            "rgba64" => {
+                let c = |k: usize| u32::from(u16::from_le_bytes([q[x * 8 + k * 2], q[x * 8 + k * 2 + 1]]));
+                (c(0), c(1), c(2))
+            }
+            _ => (u32::from(q[x * 4 + 2]), u32::from(q[x * 4 + 1]), u32::from(q[x * 4])),
+        };
+        if g != r || b != r {
+            odd += 1;
+        }
+        r
+    }).collect();
+    Ok((lv, odd))
+}
+
 fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (n, half) = match (s.fmt, to) {
         ("rgbafloat", "rgba64" | "bgra" | "gray16") => (4usize, false),
@@ -2756,7 +2793,7 @@ pub struct WicImage {
     enc: Option<Encoded>,
 }
 
-const OPS: &[&str] = &["wbits", "wscale", "wflip", "wclip", "wconv", "wcolor", "wctx", "winfo", "wpixels", "wpalette", "wsrcpal", "wdecode", "wframe", "wencode", "wbytes", "wredecode"];
+const OPS: &[&str] = &["wbits", "wscale", "wflip", "wclip", "wconv", "wcolor", "wctx", "winfo", "wpixels", "wpalette", "wsrcpal", "wdecode", "wframe", "wencode", "wbytes", "wredecode", "wsteps"];
 
 fn hexs(b: &[u8]) -> String {
     b.iter().map(|b| format!("{b:02x}")).collect()
@@ -2769,7 +2806,7 @@ impl WicImage {
             return Ok(false);
         }
         let n = |i: usize| t.get(i).and_then(|v| crate::case::num(v)).ok_or(Fail::Bad);
-        let needs_cur = !matches!(t[0], "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
+        let needs_cur = !matches!(t[0], "wsteps" | "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
         if needs_cur {
             match (self.fail, t[0]) {
                 // (a frame without size or format: the executor prints its failure and knows no
@@ -2902,6 +2939,35 @@ impl WicImage {
                     // (MEASURED: golden wiccolor xf-idx8-idx8-11, xf-cmyk-cmyk-11, xf-gray8-gray8-11:
                     // the source's pixels as they are)
                     hit(clause::WICIMAGE_COLOR_SAME);
+                }
+            }
+            "wsteps" => {
+                let (from, to) = (*t.get(1).ok_or(Fail::Bad)?, *t.get(2).ok_or(Fail::Bad)?);
+                if t.len() != 3 || !matches!(from, "grayfloat" | "rgbafloat") || !matches!(to, "gray16" | "gray8" | "rgba64" | "bgra") {
+                    return Err(Fail::Bad);
+                }
+                let n = if matches!(to, "gray8" | "bgra") { 255usize } else { 65535 };
+                let one = 1.0f32.to_bits();
+                let (from, to) = (fmt_static(from), fmt_static(to));
+                let conv = |v: &[u32]| -> Res<(Vec<u32>, usize)> { steps_conv(from, to, v) };
+                let top = conv(&[one])?.0[0];
+                let (mut lo, mut hi) = (vec![0u32; n], vec![one; n]);
+                for _ in 0..32 {
+                    let mid: Vec<u32> = lo.iter().zip(&hi).map(|(&l, &h)| l + (h - l) / 2).collect();
+                    if lo.iter().zip(&hi).all(|(&l, &h)| h - l <= 1) {
+                        break;
+                    }
+                    let lv = conv(&mid)?.0;
+                    for i in 0..n {
+                        if hi[i] - lo[i] > 1 {
+                            if lv[i] as usize > i { hi[i] = mid[i] } else { lo[i] = mid[i] }
+                        }
+                    }
+                }
+                let odd = conv(&hi)?.1;
+                out.push(format!("wsteps 00000000 {n} {top} {odd}"));
+                for c in hi.chunks(64) {
+                    out.push(hexs(&c.iter().flat_map(|v| v.to_le_bytes()).collect::<Vec<u8>>()));
                 }
             }
             "wctx" => {
