@@ -241,6 +241,25 @@ proptest! {
         }
     }
 
+    /// GL.RASTER.LINE.SMOOTH.WIDE: an upright antialiased wide line's colors go by rows alone,
+    /// the same across each row; a line in one color keeps it everywhere
+    #[test]
+    fn wide_smooth_colors_step_by_rows(x in 4u8..12, y0 in 0u8..64, run in 32u8..160, w in 12u8..40, c in any::<[u8; 8]>()) {
+        let (x, y0) = (f64::from(x) + 0.5, 2.0 + f64::from(y0) / 16.0);
+        let (a, b) = ([x, y0], [x, y0 + f64::from(run) / 16.0]);
+        let width = tri::SmoothWidth(f64::from(w) / 8.0);
+        let c = [[0, 1, 2, 3], [4, 5, 6, 7]].map(|i| i.map(|k| f32::from(c[k]) / 255.0));
+        let vp = [0, 0, 16, 16];
+        let row = |y: i64| tri::wide_smooth_color(a, b, vp, width, c, x as i64, y);
+        for y in y0.floor() as i64..(b[1].ceil() as i64) {
+            for dx in -2..=2 {
+                prop_assert_eq!(tri::wide_smooth_color(a, b, vp, width, c, x as i64 + dx, y), row(y));
+            }
+        }
+        let one = tri::wide_smooth_color(a, b, vp, width, [c[0], c[0]], x as i64 + 1, y0 as i64 + 3);
+        prop_assert_eq!(one, c[0]);
+    }
+
     /// A window position's DIB pixel only moves on as the position does: a 32nd further right
     /// (or down) never lands left (or up) of where it was, nor more than a pixel on; a position
     /// exactly between two 16ths lands on one of its neighbors' pixels, whichever its

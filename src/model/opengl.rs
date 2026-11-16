@@ -1245,6 +1245,9 @@ pub enum ToFixed {
     /// a wide antialiased line's blended into 8-bit channels without alpha, its coverage in the
     /// alpha: (color a + channel (1 - a)) * 255 in floats, truncated (GL.RASTER.LINE.SMOOTH.WIDE)
     Weighed,
+    /// a wide antialiased line's in colors into channels without alpha, not blended: truncated
+    /// toward zero and wrapped past the channel's top, not clamped (GL.RASTER.LINE.SMOOTH.WIDE)
+    Wrapped,
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2652,15 +2655,20 @@ impl Ctx {
                         LineColor::Flat(c) => c,
                         LineColor::Smooth(..) => {
                             if self.cap(LINE_SMOOTH) {
-                                // (a wide one in colors: not measured)
-                                if wide {
+                                // (a wide one in colors: by tri::wide_smooth_color, measured
+                                // into a buffer without alpha, not blended)
+                                if !wide {
+                                    self.smooth_aa_line(ca, cb, color)?;
+                                    continue;
+                                }
+                                if self.pf.rgba[3].0 > 0 || self.cap(BLEND) {
                                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                                 }
-                                self.smooth_aa_line(ca, cb, color)?;
+                                fa
+                            } else {
+                                self.deep_line(ca, cb, color)?;
                                 continue;
                             }
-                            self.deep_line(ca, cb, color)?;
-                            continue;
                         }
                     };
                     // (a wide line: cut to the view volume as one under a projection, golden
@@ -2687,11 +2695,16 @@ impl Ctx {
                                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                                 }
                                 ToFixed::Weighed
+                            } else if matches!(color, LineColor::Smooth(..)) {
+                                ToFixed::Wrapped
                             } else {
                                 self.smooth_fixed()
                             };
                             for (x, y, f) in tri::smooth_line([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, width) {
-                                let mut c = c;
+                                let mut c = match color {
+                                    LineColor::Flat(_) => c,
+                                    LineColor::Smooth(c0, c1) => tri::wide_smooth_color([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, width, [c0, c1], x, y),
+                                };
                                 c[3] = (f64::from(c[3]) * f) as f32;
                                 self.fragment(Frag { x, y, c, z: wa[2], fixed, zfixed: None })?;
                                 // (a wide one's faint pixels, of coverage under 1/10, Windows
@@ -3152,7 +3165,7 @@ impl Ctx {
                 return Ok(());
             }
         }
-        let c = f.c.map(|v| v.clamp(0.0, 1.0));
+        let c = if f.fixed == ToFixed::Wrapped { f.c } else { f.c.map(|v| v.clamp(0.0, 1.0)) };
         if self.cap(ALPHA_TEST) {
             hit(clause::GL_ALPHA_TEST);
             // (MEASURED, golden opengl-32 alphatest-*: in 8-bit fixed point, the reference truncated)
@@ -3291,6 +3304,8 @@ impl Ctx {
                     [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { ((f64::from(c[k]) * a + f64::from(d[k]) / 255.0 * (1.0 - a)) * 255.0).floor() as u32 })
                 }
                 ToFixed::Nearest | ToFixed::Trunc | ToFixed::Span | ToFixed::Floor => self.blend(c, self.fb[i], dither.then_some(threshold))?,
+                // (blended: not measured)
+                ToFixed::Wrapped => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
             };
         } else {
             for k in 0..4 {
@@ -3298,6 +3313,10 @@ impl Ctx {
                     0
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
+                } else if f.fixed == ToFixed::Wrapped {
+                    // (MEASURED, golden opengl-32 line-aa-wide-3: a short line's color steps past
+                    // 1 wrap around on 8 bits; line-aa-wide-5, 6: a step a hair under 0 is 0)
+                    (c[k] * ((1u64 << bits[k]) - 1) as f32).trunc() as i64 as u32 & ((1u32 << bits[k]) - 1)
                 } else if f.fixed == ToFixed::Floor {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
                 } else if f.fixed == ToFixed::Span && bits[k] == 8 {
@@ -4484,11 +4503,7 @@ pub mod tri {
     pub fn smooth_line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: SmoothWidth) -> Vec<(i64, i64, f64)> {
         super::hit(super::clause::GL_RASTER_LINE_SMOOTH);
         let [vx, vy, vw, vh] = viewport;
-        let snap = |v: f64, o: i64, size: i64| {
-            let size = size as f64;
-            Sub::snap((v - o as f64) * 2.0 / size - 1.0, size, Sub((o as f64 * 256.0 + size * 128.0) as i64)).0 as f64 / 256.0
-        };
-        let (a, b) = ([snap(a[0], vx, vw), snap(a[1], vy, vh)], [snap(b[0], vx, vw), snap(b[1], vy, vh)]);
+        let (a, b) = smooth_ends(a, b, viewport);
         let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
         let len = dx.hypot(dy);
         let mut out = Vec::new();
@@ -4509,6 +4524,54 @@ pub mod tri {
             }
         }
         out
+    }
+
+    /// An antialiased line's ends (window coordinates) snapped as a polygon's corners.
+    fn smooth_ends(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> ([f64; 2], [f64; 2]) {
+        let [vx, vy, vw, vh] = viewport;
+        let snap = |v: f64, o: i64, size: i64| {
+            let size = size as f64;
+            Sub::snap((v - o as f64) * 2.0 / size - 1.0, size, Sub((o as f64 * 256.0 + size * 128.0) as i64)).0 as f64 / 256.0
+        };
+        ([snap(a[0], vx, vw), snap(a[1], vy, vh)], [snap(b[0], vx, vw), snap(b[1], vy, vh)])
+    }
+
+    /// The color of pixel (x, y) of an antialiased wide line from a to b (window coordinates)
+    /// in colors `c` (MEASURED, golden opengl-32 line-aa-wide-3, 5, 6: 64 lines of widths 1.5 to
+    /// 4, upright to nearly diagonal, every pixel; GL.RASTER.LINE.SMOOTH.WIDE): the line drawn
+    /// as 1-pixel lines side by side along the minor axis, each the pixels floor(m + h) + k
+    /// along the major one (m the line's minor coordinate at the pixel row's center, h 1/2 when
+    /// floor(width * length / major length) is even, else 0); each begins at its first pixel
+    /// whose center is more than 1/2 along the line from a (snapped), its colors from a's on
+    /// by `line_color`'s step a pixel.
+    pub fn wide_smooth_color(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: SmoothWidth, c: [[f32; 4]; 2], x: i64, y: i64) -> [f32; 4] {
+        let (a, b) = smooth_ends(a, b, viewport);
+        let d = [b[0] - a[0], b[1] - a[1]];
+        let len = d[0].hypot(d[1]);
+        let major = usize::from(d[1].abs() >= d[0].abs());
+        let minor = 1 - major;
+        let sg = if d[major] > 0.0 { 1 } else { -1 };
+        let slope = d[minor] / d[major];
+        let half = if (width.0 * len / d[major].abs()).floor() as i64 % 2 == 0 { 0.5 } else { 0.0 };
+        let path = |r: i64, k: i64| (a[minor] + (r as f64 + 0.5 - a[major]) * slope + half).floor() as i64 + k;
+        let along = |r: i64, k: i64| {
+            let mut p = [0.0; 2];
+            p[minor] = path(r, k) as f64 + 0.5;
+            p[major] = r as f64 + 0.5;
+            ((p[0] - a[0]) * d[0] + (p[1] - a[1]) * d[1]) / len
+        };
+        let at = [x, y];
+        let k = at[minor] - path(at[major], 0);
+        let mut r = at[major];
+        // (each walk ends within the line's length and a pixel either way)
+        while along(r - sg, k) > -0.5 {
+            r -= sg;
+        }
+        while along(r, k) <= -0.5 {
+            r += sg;
+        }
+        let ends = [Sub((a[major] * 256.0).round() as i64), Sub((b[major] * 256.0).round() as i64)];
+        line_color(ends, c, r, at[major])
     }
 
     /// An antialiased line's width as given (not rounded: GL.RASTER.LINE.SMOOTH.WIDE), across
