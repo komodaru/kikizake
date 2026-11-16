@@ -625,6 +625,25 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
         }
         return Ok(o);
     }
+    if matches!(s.fmt, "bgr24" | "bgra" | "rgba" | "pbgra" | "gray8") && to == "grayfix16" {
+        // MEASURED (golden wicencode grayfix-from-*: 4096 random pixels of each, grayfix-every-*:
+        // every level of each primary; back-grayfix16-gray8): each channel first as into
+        // 64bppRGBAFixedPoint, then (r * 0.2126 + g * 0.7152) + b * 0.0722 + 0.5 in f32,
+        // truncated; alpha dropped (8bppGray's levels come out as they went in)
+        hit(clause::WICIMAGE_CONVERT_BYTE_GRAYFIX);
+        let f = wic_convert(s, "rgba64fixed")?;
+        let mut o = Img::new(s.w, s.h, to);
+        o.dpi = s.dpi;
+        let (st, ost) = (f.stride(), o.stride());
+        for y in 0..s.h as usize {
+            for x in 0..s.w as usize {
+                let c = |k: usize| f32::from(i16::from_le_bytes([f.px[y * st + x * 8 + k * 2], f.px[y * st + x * 8 + k * 2 + 1]]));
+                let v = ((c(0) * 0.2126f32 + c(1) * 0.7152f32) + c(2) * 0.0722f32 + 0.5f32).floor() as i16;
+                o.px[y * ost + x * 2..y * ost + x * 2 + 2].copy_from_slice(&v.to_le_bytes());
+            }
+        }
+        return Ok(o);
+    }
     if (s.fmt, to) == ("gray16", "rgb48") {
         hit(clause::WICIMAGE_CONVERT_GRAY16_RGB48);
         let mut o = Img::new(s.w, s.h, to);

@@ -7465,6 +7465,30 @@ wconv bgr24
 wconv grayfix16
 wpixels
 end
+case cross-rgba64fixed-gray16
+wbits bgra 16 16 3226796032
+wconv rgba64fixed
+wconv gray16
+wpixels
+end
+case cross-rgbafloat-gray16
+wbits bgra 16 16 3226796033
+wconv rgbafloat
+wconv gray16
+wpixels
+end
+case cross-grayfix16-bgra
+wbits bgra 16 16 3226796034
+wconv grayfix16
+wconv bgra
+wpixels
+end
+case cross-grayfloat-rgba64
+wbits bgra 16 16 3226796035
+wconv grayfloat
+wconv rgba64
+wpixels
+end
 case opt-jpeg-sub1-bgra
 wbits bgra 6 4 1903624449
 wencode jpeg JpegYCrCbSubsampling=1

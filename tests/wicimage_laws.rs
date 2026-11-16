@@ -733,3 +733,26 @@ fn floats_go_back_in_order() {
         }
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(200))]
+
+    /// 16bppGrayFixedPoint of a color lies between its darkest and brightest channel as
+    /// 64bppRGBAFixedPoint, and a gray color (r = g = b) keeps its level exactly
+    #[test]
+    fn grayfix_is_a_mean_of_the_channels(w in 1u32..20, h in 1u32..10, seed: u32) {
+        let i = img("bgra", w, h, seed);
+        let f = wi::wic_convert(&i, "rgba64fixed").unwrap();
+        let g = wi::wic_convert(&i, "grayfix16").unwrap();
+        for k in 0..(w * h) as usize {
+            let c = |j: usize| i16::from_le_bytes([f.px[k * 8 + j * 2], f.px[k * 8 + j * 2 + 1]]);
+            let y = i16::from_le_bytes([g.px[k * 2], g.px[k * 2 + 1]]);
+            let (lo, hi) = (c(0).min(c(1)).min(c(2)), c(0).max(c(1)).max(c(2)));
+            prop_assert!(lo <= y && y <= hi);
+        }
+        let gray = img("gray8", w, h, seed);
+        let a = wi::wic_convert(&gray, "grayfix16").unwrap();
+        let b = wi::wic_convert(&wi::wic_convert(&gray, "bgr24").unwrap(), "grayfix16").unwrap();
+        prop_assert_eq!(a.px, b.px);
+    }
+}

@@ -1206,7 +1206,10 @@ wicdecode png-ihdr-method-11-1
 wicdecode png-ihdr-method-11-255
 wicdecode png-ihdr-method-12-2
 wicdecode png-ihdr-method-12-255
-wicencode back-grayfix16-gray8
+wicencode cross-grayfix16-bgra
+wicencode cross-grayfloat-rgba64
+wicencode cross-rgba64fixed-gray16
+wicencode cross-rgbafloat-gray16
 wicencode ddsblock-bgr24-10
 wicencode ddsblock-bgr24-11
 wicencode ddsblock-bgr24-13
@@ -1322,15 +1325,6 @@ wicencode encdds-bgra-9x9
 wicencode encdds-gray16-8x12
 wicencode encdds-gray8-6x10
 wicencode fixpath-gray16-rgba64
-wicencode grayfix-every-blue
-wicencode grayfix-every-gray
-wicencode grayfix-every-green
-wicencode grayfix-every-red
-wicencode grayfix-from-bgr24
-wicencode grayfix-from-bgra
-wicencode grayfix-from-gray8
-wicencode grayfix-from-pbgra
-wicencode grayfix-from-rgba
 wicencode gridtie-idx8-few-0
 wicencode gridtie-idx8-few-1
 wicencode gridtie-idx8-few-2

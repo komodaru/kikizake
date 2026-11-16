@@ -1512,6 +1512,10 @@ pub fn wicencode() -> String {
         let rows: Vec<Vec<u8>> = (0..16usize).map(|y| (0..16usize).flat_map(|x| { let c = (y * 16 + x) as u8; [px[2] * c, px[1] * c, px[0] * c] }).collect()).collect();
         writeln!(s, "case grayfix-every-{name}\nwdecode {}\nwframe 0\nwconv bgr24\nwconv grayfix16\nwpixels\nend", hex(&png(16, 16, 8, 2, false, &[], &png_filter(&rows, 3, &[0]), 4096))).unwrap();
     }
+    // (not measured yet: color wide formats into gray, gray wide formats into color)
+    for (k, (f, t)) in [("rgba64fixed", "gray16"), ("rgbafloat", "gray16"), ("grayfix16", "bgra"), ("grayfloat", "rgba64")].into_iter().enumerate() {
+        writeln!(s, "case cross-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xc055_0000u32 + k as u32).unwrap();
+    }
     writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
