@@ -236,7 +236,35 @@ unsafe impl Send for Raw {} //~ masu-unsafe_send_sync
 
 pub const TREE: &str = "vnvm-tree"; //~ masu-wire_tree
 
+// (an #[allow] counts as its own lint, and does not hide what it allows: clippy runs with
+// --force-warn)
 #[allow(clippy::unwrap_used)] //~ allow-attr
 pub fn silenced(o: Option<u32>) -> u32 {
-    o.unwrap()
+    o.unwrap() //~ unwrap_used
 }
+
+#[allow( //~ allow-attr
+    dead_code,
+    clippy::unwrap_used,
+)]
+pub fn silenced_over_lines(o: Option<u32>) -> u32 {
+    o.unwrap() //~ unwrap_used
+}
+
+#[cfg_attr(all(), expect(clippy::unwrap_used))] //~ allow-attr
+pub fn silenced_by_cfg_attr(o: Option<u32>) -> u32 {
+    o.unwrap() //~ unwrap_used
+}
+
+macro_rules! silenced_in_macro {
+    () => {
+        #[allow(clippy::unwrap_used)] //~ allow-attr
+        pub fn silenced_in_macro(o: Option<u32>) -> u32 {
+            o.unwrap() // (clippy does not look inside a macro's expansion; the attribute still counts)
+        }
+    };
+}
+silenced_in_macro!();
+
+#[cfg_attr(not(test), allow(dead_code))]
+pub fn allows_only_an_untracked_lint() {}

@@ -200,7 +200,8 @@ pub fn clippy(repo: &Repo, disallowed: &BTreeMap<String, Option<String>>) -> Res
         let mut c = std::process::Command::new("cargo");
         c.args(["clippy", "--workspace"]).args(targets).args(["--keep-going", "--message-format=json", "--", "--cap-lints", "warn", "-A", "clippy::all"]);
         for l in clippy_lints(first) {
-            c.args(["-W", &l]);
+            // (forced: an #[allow] in the code does not hide a counted lint from the count)
+            c.args(["--force-warn", &l]);
         }
         // (the warnings are what it counts: CI's CARGO_BUILD_WARNINGS=deny would fail the run)
         c.current_dir(&repo.root).env("CARGO_BUILD_WARNINGS", "warn").env("CLIPPY_CONF_DIR", &repo.conf).stderr(std::process::Stdio::inherit());
@@ -278,23 +279,96 @@ fn sources(repo: &Repo) -> Vec<(Rel, String)> {
     out
 }
 
-/// `allow`/`expect` attributes naming a tracked lint, line by line in the raw text
+/// `allow`/`expect` attributes naming a tracked lint, read as tokens: outer and inner, over several
+/// lines, inside `cfg_attr(...)` and inside macro bodies (comments are not tokens). A file that does
+/// not lex falls back to the raw text, line by line.
 pub fn allow_attrs(files: &[(Rel, String)]) -> Vec<Hit> {
-    let (Some(allow), Some(tracked)) = (ALLOW.as_ref(), TRACKED.as_ref()) else { return vec![] };
+    let Some(tracked) = TRACKED.as_ref() else { return vec![] };
     let mut out = vec![];
     for (rel, text) in files {
-        for (k, line) in text.split('\n').enumerate() {
-            for c in allow.captures_iter(line) {
-                if let (Some(all), Some(inner)) = (c.get(0), c.get(1))
-                    && tracked.is_match(inner.as_str())
-                {
-                    let col = line.get(..all.start()).map_or(0, |p| p.chars().count()).saturating_add(1);
-                    out.push(Hit { file: rel.clone(), line: k.saturating_add(1), col, lint: "allow-attr".into() });
+        match text.parse::<proc_macro2::TokenStream>() {
+            Ok(ts) => attrs_in(ts, &mut |line, col, body| {
+                if tracked.is_match(&body) {
+                    out.push(Hit { file: rel.clone(), line, col, lint: "allow-attr".into() });
+                }
+            }),
+            Err(_) => {
+                let Some(allow) = ALLOW.as_ref() else { continue };
+                for (k, line) in text.split('\n').enumerate() {
+                    for c in allow.captures_iter(line) {
+                        if let (Some(all), Some(inner)) = (c.get(0), c.get(1))
+                            && tracked.is_match(inner.as_str())
+                        {
+                            let col = line.get(..all.start()).map_or(0, |p| p.chars().count()).saturating_add(1);
+                            out.push(Hit { file: rel.clone(), line: k.saturating_add(1), col, lint: "allow-attr".into() });
+                        }
+                    }
                 }
             }
         }
     }
     out
+}
+
+/// each `#[allow(..)]`, `#![expect(..)]`, `#[cfg_attr(.., allow(..))]` in `ts`: (line, column, the
+/// lint list with whitespace removed)
+fn attrs_in(ts: proc_macro2::TokenStream, f: &mut impl FnMut(usize, usize, String)) {
+    use proc_macro2::{Delimiter, TokenTree};
+    let toks: Vec<TokenTree> = ts.into_iter().collect();
+    for (i, t) in toks.iter().enumerate() {
+        match t {
+            TokenTree::Punct(p) if p.as_char() == '#' => {
+                let mut j = i.saturating_add(1);
+                if matches!(toks.get(j), Some(TokenTree::Punct(b)) if b.as_char() == '!') {
+                    j = j.saturating_add(1);
+                }
+                if let Some(TokenTree::Group(g)) = toks.get(j)
+                    && g.delimiter() == Delimiter::Bracket
+                    && let Some(lints) = allowed(g.stream(), true)
+                {
+                    let s = p.span().start();
+                    f(s.line, s.column.saturating_add(1), lints);
+                }
+            }
+            TokenTree::Group(g) => attrs_in(g.stream(), f),
+            TokenTree::Punct(_) | TokenTree::Ident(_) | TokenTree::Literal(_) => {}
+        }
+    }
+}
+
+/// an attribute's inside: the lints it allows (`allow(..)`, `expect(..)`, or either nested in
+/// `cfg_attr(cond, ..)`), whitespace removed; None when it allows nothing
+fn allowed(inside: proc_macro2::TokenStream, top: bool) -> Option<String> {
+    use proc_macro2::{Delimiter, TokenTree};
+    let toks: Vec<TokenTree> = inside.into_iter().collect();
+    let mut found: Option<String> = None;
+    for (k, t) in toks.iter().enumerate() {
+        let TokenTree::Ident(id) = t else { continue };
+        let Some(TokenTree::Group(g)) = toks.get(k.saturating_add(1)) else { continue };
+        if g.delimiter() != Delimiter::Parenthesis {
+            continue;
+        }
+        let name = id.to_string();
+        let got = if name == "allow" || name == "expect" {
+            Some(g.stream().to_string().split_whitespace().collect::<String>())
+        } else if name == "cfg_attr" {
+            allowed(g.stream(), false)
+        } else {
+            None
+        };
+        if let Some(g) = got {
+            found = Some(match found {
+                Some(f) => format!("{f},{g}"),
+                None => g,
+            });
+        }
+        // (at the top only the attribute's own name counts: `path(..)` in `#[x(path(allow(..)))]` does
+        // not; inside cfg_attr every attribute after the condition does)
+        if top {
+            break;
+        }
+    }
+    found
 }
 
 /// the masu-* lints found by text: static mut, unsafe impl Send/Sync, the wire format's name
