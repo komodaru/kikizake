@@ -1,6 +1,6 @@
 //! Each marked line is one regression; the mark after it (two slashes, a tilde) lists every counted
 //! lint that must fire on that line
-//! (tools/ci/lint-ratchet.py --self-test). Nothing here runs.
+//! (the ratchet_tests of the lint crate). Nothing here runs.
 #![allow(dead_code, unused)]
 
 pub mod storage {

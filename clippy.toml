@@ -1,8 +1,8 @@
-# (tools/lint-ratchet.py: tests may unwrap; the code they test may not)
+# (kikizake-lint, tools/lint: tests may unwrap; the code they test may not)
 allow-unwrap-in-tests = true
 allow-expect-in-tests = true
-# (tools/lint-ratchet.py counts these per file as masu-*: unsafe functions named by their type,
-# not by a text search; its DISALLOWED lists the same paths)
+# (kikizake-lint counts these per file under the masu-* name each reason starts with: unsafe
+# functions named by their type, not by a text search)
 disallowed-methods = [
     { path = "alloc::vec::Vec::set_len", reason = "masu-set_len: Vec::resize / truncate / a typed buffer" },
     { path = "core::slice::from_raw_parts", reason = "masu-from_raw_parts: a Range or a typed view (sake::mem::view)" },

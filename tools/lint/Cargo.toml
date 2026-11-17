@@ -1,0 +1,11 @@
+[package]
+name = "kikizake-lint"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "kikizake's type-safety lint ratchet over clippy (a copy of masu's masu-lint ratchet)"
+
+[dependencies]
+regex = "1"
+serde_json = "1"

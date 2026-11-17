@@ -34,16 +34,16 @@ jobs:
       - name: Laws, case files, clauses, models against Windows
         run: cargo test -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
       # (clippy's type-safety and robustness lints and the masu-* checks, per file: they only go
-      # down; tools/lint-ratchet.py, a copy of masu's)
+      # down; tools/lint (kikizake-lint), a copy of masu's masu-lint ratchet)
       - name: Lint ratchet
         if: ${{ !cancelled() }}
         timeout-minutes: 10
-        run: python3 tools/lint-ratchet.py
+        run: cargo run -q --release -p kikizake-lint
       # (each counted lint against tools/lint-fixtures/ratchet, one marked line per regression: a
       # lint a clippy upgrade renamed or a clippy.toml path that stopped resolving fails here)
       - name: Lint ratchet fixtures
         if: ${{ !cancelled() }}
-        run: python3 tools/lint-ratchet.py --self-test
+        run: cargo test -q --release -p kikizake-lint
       - name: Summary
         if: always()
         run: |

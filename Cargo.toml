@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 description = "Conformance tests for the Windows graphics APIs: cases, executable specification models, Windows' recorded answers"
 
 [workspace]
+members = [".", "tools/lint"]
 
 [dependencies]
 
