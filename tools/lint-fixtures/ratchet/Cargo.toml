@@ -1,0 +1,9 @@
+# tools/lint-ratchet.py --self-test: a crate of its own (not this repository's workspace), whose
+# lines each bring back what one counted lint is there to catch. Never built by the repository's cargo.
+[workspace]
+
+[package]
+name = "kikizake-lint-fixture"
+version = "0.0.0"
+edition = "2024"
+publish = false

@@ -39,6 +39,11 @@ jobs:
         if: ${{ !cancelled() }}
         timeout-minutes: 10
         run: python3 tools/lint-ratchet.py
+      # (each counted lint against tools/lint-fixtures/ratchet, one marked line per regression: a
+      # lint a clippy upgrade renamed or a clippy.toml path that stopped resolving fails here)
+      - name: Lint ratchet fixtures
+        if: ${{ !cancelled() }}
+        run: python3 tools/lint-ratchet.py --self-test
       - name: Summary
         if: always()
         run: |

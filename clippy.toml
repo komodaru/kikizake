@@ -1,3 +1,14 @@
 # (tools/lint-ratchet.py: tests may unwrap; the code they test may not)
 allow-unwrap-in-tests = true
 allow-expect-in-tests = true
+# (tools/lint-ratchet.py counts these per file as masu-*: unsafe functions named by their type,
+# not by a text search; its DISALLOWED lists the same paths)
+disallowed-methods = [
+    { path = "alloc::vec::Vec::set_len", reason = "masu-set_len: Vec::resize / truncate / a typed buffer" },
+    { path = "core::slice::from_raw_parts", reason = "masu-from_raw_parts: a Range or a typed view (sake::mem::view)" },
+    { path = "core::slice::from_raw_parts_mut", reason = "masu-from_raw_parts: a Range or a typed view (sake::mem::view_mut)" },
+    { path = "core::intrinsics::transmute", reason = "masu-transmute: from_le_bytes / a safe cast" },
+    { path = "core::mem::transmute_copy", reason = "masu-transmute: from_le_bytes / a safe cast" },
+    { path = "core::mem::zeroed", reason = "masu-uninit: Default / a value" },
+    { path = "core::mem::MaybeUninit::assume_init", reason = "masu-uninit: a value made whole" },
+]

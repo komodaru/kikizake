@@ -4,3 +4,4 @@ fuzz/corpus/
 fuzz/artifacts/
 spec/tla/states/
 spec/tla/*_TTrace_*
+/tools/lint-fixtures/ratchet/Cargo.lock
