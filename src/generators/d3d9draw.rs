@@ -1120,6 +1120,17 @@ fn suite(v8: bool) -> String {
             }
         }
     }
+    // Free starts on a vertical diamond corner. Vary the origin, direction
+    // and length around line-joint-pl5-3 to distinguish rounding at setup.
+    for (i, (x, y)) in [(13.0, 9.5), (12.0, 8.5), (10.0, 7.5), (2.0, 2.5)].into_iter().enumerate() {
+        for (j, (dx, dy)) in [(-9.5, -5.25), (-9.5, -5.0), (-9.5, -5.5), (-9.0, -5.25),
+            (-4.75, -2.625), (-9.5, 5.25), (9.5, 5.25), (5.25, 9.5)].into_iter().enumerate() {
+            let b = (x + dx, y + dy);
+            if (0.0..=15.5).contains(&b.0) && (0.0..=15.5).contains(&b.1) {
+                line(&mut s, &format!("line-free-corner-{i}-{j}"), (x, y), b);
+            }
+        }
+    }
     let (p, q, t) = ((15.5f32, 1.0f32), (13.0f32, 9.5f32), (3.5f32, 4.25f32));
     for (i, (ty, vs)) in [(3u32, vec![p, q, t]), (2, vec![p, q, q, t]), (2, vec![p, q]), (2, vec![q, t]), (2, vec![q, p]), (2, vec![t, q])].into_iter().enumerate() {
         open(&mut s, &format!("line-joint-pl5-{i}"), 21, 16, 16);

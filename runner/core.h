@@ -24,6 +24,8 @@ int is(int i, const char *s);
 
 /* a 64x64 popup window, created once (devices and cooperative levels want one) */
 HWND kz_window(void);
+void kz_d3d_session_reset(void);
+void kz_d3d11_reset(void);
 
 /* a module's op table: the line's first token -> its function, ended by { 0 } */
 struct kz_op { const char *name; void (*run)(void); };

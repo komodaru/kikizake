@@ -15,7 +15,7 @@ static int resdim[SLOTS]; /* 1, 2, 3: textures; 4: buffer */
 static int viewkind[SLOTS]; /* 0 srv, 1 rtv, 2 dsv, 3 uav */
 
 static void draw_reset(void);
-static void d3dres_reset(void) {
+void kz_d3d_session_reset(void) {
     draw_reset();
     for (int i = 0; i < SLOTS; i++) {
         if (view[i]) IUnknown_Release(view[i]);
@@ -23,6 +23,7 @@ static void d3dres_reset(void) {
         view[i] = res[i] = NULL;
     }
     if (dev10) { ID3D10Device_Release(dev10); dev10 = NULL; }
+    kz_d3d11_reset();
 }
 
 static ID3D11DeviceContext *ctx11(void) {
@@ -41,7 +42,7 @@ static int nodev(void) {
 /* device10: D3D10CreateDevice (d3d10.dll); device10_1 <feature level>: D3D10CreateDevice1
  * (d3d10_1.dll); hardware, else WARP */
 static void op_device10(void) {
-    d3dres_reset();
+    kz_d3d_session_reset();
     int one = is(0, "device10_1");
     D3D10_FEATURE_LEVEL1 fl = one ? (D3D10_FEATURE_LEVEL1)num(1) : 0;
     if (bad) return;
@@ -739,4 +740,4 @@ static const struct kz_op d3dres_ops[] = {
     { "cbuf", op_bindres },
     { 0 },
 };
-const struct kz_api d3dres_api = { "d3dres", d3dres_ops, d3dres_reset };
+const struct kz_api d3dres_api = { "d3dres", d3dres_ops, kz_d3d_session_reset };

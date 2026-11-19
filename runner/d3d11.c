@@ -7,7 +7,7 @@ ID3D11Device *dev11; /* (runner/d3dres.c uses it too) */
 static IUnknown *objs[OBJS];
 static int nobjs;
 
-static void d3d11_reset(void) {
+void kz_d3d11_reset(void) {
     for (int i = 0; i < nobjs; i++)
         if (objs[i]) IUnknown_Release(objs[i]);
     nobjs = 0;
@@ -17,7 +17,7 @@ static void d3d11_reset(void) {
 /* device11 [<feature level>]: D3D11CreateDevice, hardware (WARP if refused), feature level 11_0
  * or the one given asked */
 static void op_device11(void) {
-    d3d11_reset();
+    kz_d3d_session_reset();
     static HRESULT (WINAPI *create)(void *, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL *, UINT, UINT, ID3D11Device **, D3D_FEATURE_LEVEL *, void **);
     if (!create) {
         HMODULE m = LoadLibraryA("d3d11.dll");
@@ -95,4 +95,4 @@ static const struct kz_op d3d11_ops[] = {
     { "sampler", op_state11 },
     { 0 },
 };
-const struct kz_api d3d11_api = { "d3d11", d3d11_ops, d3d11_reset };
+const struct kz_api d3d11_api = { "d3d11", d3d11_ops, NULL };

@@ -116,6 +116,7 @@ static void op_fill(void) {
     unsigned x = (unsigned)num(2);
     if (bad) return;
     if (!x) x = 0x9e3779b9;
+    GdiFlush();
     unsigned char *b = s->bits ? s->bits : malloc(s->stride * s->h);
     for (int i = 0; i < s->stride * s->h; i++) {
         x ^= x << 13; x ^= x >> 17; x ^= x << 5;
@@ -154,6 +155,7 @@ static void op_poke(void) {
     struct slot *s = slot(1);
     int x = num(2), y = num(3);
     if (bad || !s->bits || s->bpp < 8 || x < 0 || y < 0 || x >= s->w || y >= s->h || ntok < 5) { bad = 1; return; }
+    GdiFlush();
     unsigned char *p = row(s, y) + x * (s->bpp / 8);
     for (int i = 0; tok[4][2 * i] && tok[4][2 * i + 1] && i < s->bpp / 8; i++) {
         char b[3] = { tok[4][2 * i], tok[4][2 * i + 1], 0 };
@@ -194,7 +196,9 @@ static void op_brush(void) {
         bh->biBitCount = p->bpp;
         bh->biCompression = BI_RGB;
         bh->biClrUsed = ncol;
+        GdiFlush();
         memcpy((char *)(bh + 1), p->pal, ncol * 4);
+        GdiFlush();
         memcpy((char *)(bh + 1) + ncol * 4, p->bits, p->stride * p->h);
         set_brush(s, CreateDIBPatternBrushPt(bh, DIB_RGB_COLORS));
         free(bh);

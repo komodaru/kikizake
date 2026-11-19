@@ -104,6 +104,7 @@ jobs:
             # (bash -e: an executor that crashes must not end the loop; its exit status is the answer)
             st=0
             timeout 600 "./exe/$n.exe" > "ref/$n/stdout.txt" 2> "ref/$n/stderr.txt" || st=$?
+            if [[ $st == 124 || $st == 125 ]]; then echo "$n: measurement failed ($st)"; exit 1; fi
             echo $st > "ref/$n/exit"
             echo "$n: exit $(cat "ref/$n/exit"), $(wc -l < "ref/$n/stdout.txt") lines, $((SECONDS - s)) s"
           done

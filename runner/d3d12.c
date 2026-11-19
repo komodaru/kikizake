@@ -35,14 +35,28 @@ static void d3d12_reset(void) {
 
 void *kz_d3d12_queue(void) { return on12 ? queue12 : NULL; }
 
-/* the queue's work done */
+/* An incomplete submission cannot supply a measurement. Stop before reading or
+ * releasing resources still owned by the GPU. Exit 125 is reserved by windows.yml. */
+static void wait_error(HRESULT hr) {
+    out("measurement failed: d3d12 wait %08lx\n", hr);
+    oflush();
+    ExitProcess(125);
+}
+
 void kz_d3d12_wait(void) {
-    if (!queue12) return;
-    ID3D12CommandQueue_Signal(queue12, fence12, ++fenced);
-    if (ID3D12Fence_GetCompletedValue(fence12) < fenced) {
-        ID3D12Fence_SetEventOnCompletion(fence12, fenced, event12);
-        WaitForSingleObject(event12, 10000);
-    }
+    if (!queue12 || !fence12 || !event12) wait_error(E_HANDLE);
+    HRESULT hr = ID3D12CommandQueue_Signal(queue12, fence12, ++fenced);
+    if (FAILED(hr)) wait_error(hr);
+    UINT64 done = ID3D12Fence_GetCompletedValue(fence12);
+    if (done == (~(UINT64)0)) wait_error(DXGI_ERROR_DEVICE_REMOVED);
+    if (done >= fenced) return;
+    hr = ID3D12Fence_SetEventOnCompletion(fence12, fenced, event12);
+    if (FAILED(hr)) wait_error(hr);
+    DWORD result = WaitForSingleObject(event12, 10000);
+    if (result == WAIT_TIMEOUT) wait_error(HRESULT_FROM_WIN32(ERROR_TIMEOUT));
+    if (result != WAIT_OBJECT_0) wait_error(HRESULT_FROM_WIN32(GetLastError()));
+    done = ID3D12Fence_GetCompletedValue(fence12);
+    if (done == (~(UINT64)0) || done < fenced) wait_error(E_FAIL);
 }
 
 static void hex64(UINT64 v) {
