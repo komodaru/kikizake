@@ -49,9 +49,12 @@ jobs:
         if: always()
         run: |
           grep -E '^kikizake_|test result' test.log >> "$GITHUB_STEP_SUMMARY" || true
-          cargo run -q -- spec | tail -1 >> "$GITHUB_STEP_SUMMARY" || true
+          set -o pipefail
+          cargo run -q --release -- spec | tail -1 >> "$GITHUB_STEP_SUMMARY"
           # (each clause's evidence: cases against Windows, laws; and the gaps per API)
-          { echo '```'; cargo run -q --release -- trace | grep '^#'; echo '```'; } >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cargo run -q --release -- trace | grep '^#' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       # (only the registry crates' builds are worth keeping)
       - if: ${{ !cancelled() && steps.cache.outputs.cache-hit != 'true' }}
         run: rm -rf target/debug/incremental target/debug/deps/*kikizake* target/debug/.fingerprint/kikizake-*
