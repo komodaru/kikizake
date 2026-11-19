@@ -54,18 +54,21 @@ pub fn checked_cases(text: &str) -> Result<Vec<Case>, String> {
         let tok = tokens(line);
         let Some(first) = tok.first() else { continue };
         match first.as_str() {
-            "case" if current.is_none() && tok.len() == 2 => {
+            "case" if tok.len() == 2 => {
+                if let Some(case) = current { return Err(format!("line {number}: missing end for {} before next case", case.name)); }
                 current = tok.last().map(|name| Case { name: name.clone(), ops: Vec::new() });
             }
             "end" if tok.len() == 1 && current.is_some() => cases.extend(current.take()),
-            "case" | "end" => return Err(format!("line {}: invalid case delimiter", number)),
+            "case" => return Err(format!("line {number}: expected case <name>")),
+            "end" if tok.len() == 1 => return Err(format!("line {number}: end outside a case")),
+            "end" => return Err(format!("line {number}: end takes no arguments")),
             _ => {
                 let case = current.as_mut().ok_or_else(|| format!("line {}: operation outside a case", number))?;
                 case.ops.push(Op { line: number, tok });
             }
         }
     }
-    if let Some(case) = current { return Err(format!("missing end for {}", case.name)); }
+    if let Some(case) = current { return Err(format!("line {}: missing end for {}", text.lines().count(), case.name)); }
     Ok(cases)
 }
 

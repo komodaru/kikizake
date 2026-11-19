@@ -78,6 +78,9 @@ Every clause has to show the evidence its status claims; `cargo test` (tests/spe
 properties, the fuzz target covers every parser and model through `model::run`, and
 `cargo mutants` must find no surviving mutant in a new model.
 
+Run `cargo run -p kikizake-lint -- --cases` to check case blocks and generated files before
+recording on Windows. The default lint command also runs this check.
+
 ## Windows' answers
 
 Push to main: the `windows` workflow builds the executors, runs those whose sources changed

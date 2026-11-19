@@ -183,6 +183,7 @@ dependencies = [
 name = "kikizake-lint"
 version = "0.0.0"
 dependencies = [
+ "kikizake",
  "proc-macro2",
  "regex",
  "serde_json",

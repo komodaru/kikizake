@@ -33,6 +33,8 @@ jobs:
       stale: ${{ steps.stale.outputs.list }}
     steps:
       - uses: actions/checkout@v7.0.1
+      - name: Lint case inputs before building the Windows executors
+        run: cargo run --locked -q -p kikizake-lint -- --cases
       # (mingw-w64's packages, downloaded once and kept)
       - id: debs
         uses: actions/cache/restore@v6.1.0

@@ -3,6 +3,7 @@
 //!   cargo run -q --release -p kikizake-lint [-- --update [--raise FILE...]]
 //!
 //! `cargo test -p kikizake-lint` proves each counted lint fires on its regression.
+mod cases;
 mod code;
 mod ratchet;
 mod tree;
@@ -44,6 +45,13 @@ fn main() -> ExitCode {
     let update = args.iter().any(|a| a == "--update");
     let raise: BTreeSet<Rel> = args.iter().skip_while(|a| *a != "--raise").skip(1).map(|a| Rel::new(a)).collect();
     let root = root();
+    if let Err(error) = cases::check(&root) {
+        eprintln!("{error}");
+        return ExitCode::FAILURE;
+    }
+    if args == ["--cases"] {
+        return ExitCode::SUCCESS;
+    }
     let repo = ratchet::Repo { root: root.clone(), dirs: vec!["src"], conf: root.clone(), target: None };
     match ratchet::run(&repo, &ratchet::repo_paths(&root), update, &raise) {
         Ok(m) => {
