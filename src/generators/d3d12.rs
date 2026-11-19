@@ -738,7 +738,7 @@ pub fn dxgi() -> String {
     for f in [2, 4, 0x10, 0x8000_0000u32, 0] {
         writeln!(s, "dxgifactory {}\ndxgiwarp", hexw(f)).unwrap();
     }
-    writeln!(s, "case tearing\ndxgifactory 0\ndxgitearing\nend\ncase adapters\ndxgifactory 0\ndxgiadapters\nend").unwrap();
+    writeln!(s, "end\ncase tearing\ndxgifactory 0\ndxgitearing\nend\ncase adapters\ndxgifactory 0\ndxgiadapters\nend").unwrap();
     for cs in (0u32..=25).chain([0xffff_ffff]) {
         writeln!(s, "case color-{cs}\ndevice12\ndxgifactory 0").unwrap();
         chain_line(&mut s, "swapchain", &CHAIN);
@@ -764,7 +764,7 @@ pub fn dxgi() -> String {
         writeln!(s, "end").unwrap();
     }
     // (DXGI_CREATE_FACTORY_DEBUG on its own: its answer depends on the Graphics Tools being there)
-    writeln!(s, "end\ncase factory-debug\ndxgifactory 1\ndxgiwarp").unwrap();
+    writeln!(s, "case factory-debug\ndxgifactory 1\ndxgiwarp").unwrap();
     writeln!(s, "end\ncase assoc\ndxgifactory 0").unwrap();
     for f in (0..=8).chain([0x10, 0x100, 0x8000_0000u32]) {
         writeln!(s, "dxgiassoc {}", hexw(f)).unwrap();

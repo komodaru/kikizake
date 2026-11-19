@@ -13,6 +13,7 @@ dxgifactory 0x80000000
 dxgiwarp
 dxgifactory 0
 dxgiwarp
+end
 case tearing
 dxgifactory 0
 dxgitearing
@@ -688,7 +689,6 @@ sccolor 1
 sccolor 0xc
 sccolor 0xe
 sccolor 0x11
-end
 end
 case factory-debug
 dxgifactory 1

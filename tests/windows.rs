@@ -254,7 +254,7 @@ fn no_generated_line_is_bad() {
         if only.as_ref().is_some_and(|o| !o.split(',').any(|x| x == *s)) {
             continue;
         }
-        let cases = case::parse_cases(&generators::suite(s).unwrap());
+        let cases = case::checked_cases(&generators::suite(s).unwrap()).unwrap_or_else(|e| panic!("{s}: {e}"));
         for arch in [32, 64] {
             model::set_arch(arch);
             let (_, invalid) = model::run_report(s, &cases);
