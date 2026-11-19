@@ -218,7 +218,19 @@ proptest! {
         prop_assert_eq!(f16_x64(bits, true), ieee);
         prop_assert_eq!(f16_x64(bits, false), ieee);
         let tie = bits & 0x1fff == 0x1000;
-        prop_assert_eq!(f16_block(bits), if tie && ieee & 1 == 0 { ieee - 1 } else { ieee });
+        prop_assert_eq!(f16_block(bits), if tie && bits & 0x2000 != 0 { ieee - 1 } else { ieee });
+    }
+}
+
+#[test]
+fn half_midpoint_neighbors() {
+    use kikizake::model::d3dx9::f16_block;
+    for sign in [0u32, 0x8000_0000] {
+        for (base, half) in [(0x3f80_0000, 0x3c00), (0x3f80_2000, 0x3c01)] {
+            for (tail, up) in [(0xfff, 0), (0x1000, 0), (0x1001, 1)] {
+                assert_eq!(f16_block(sign | base | tail), (sign >> 16) as u16 | (half + up));
+            }
+        }
     }
 }
 

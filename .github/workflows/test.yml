@@ -32,7 +32,7 @@ jobs:
           key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: test-${{ env.RUST_KEY }}-
       - name: Laws, case files, clauses, models against Windows
-        run: cargo test -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
+        run: cargo test --no-fail-fast -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
       # (clippy's type-safety and robustness lints and the masu-* checks, per file: they only go
       # down; tools/lint (kikizake-lint), a copy of masu's masu-lint ratchet)
       - name: Lint ratchet
