@@ -1,4 +1,4 @@
-kikizake calls path-64 cases 015d3b0dd74790cd src d7a22a6c8b8ed5cb0004eaad7ff7718e1bfd0602e9425d16ee59c20d65e17d48 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 38984 other 0
+kikizake calls path-64 cases 015d3b0dd74790cd src 80fd875446991147c565a4f6a6b1938cae5f40ee0e932b27b29a6f9ad1e5b3c4 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 39018 other 0
 case shape-0-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
@@ -130,6 +130,7 @@ case clip-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 MoveToEx(h1,2,3,p) = 1
 LineTo(h1,9,4) = 1
@@ -282,6 +283,7 @@ case clip-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 MoveToEx(h1,2,3,p) = 1
 LineTo(h1,9,4) = 1
@@ -420,6 +422,7 @@ case clip-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Rectangle(h1,2,3,12,9) = 1
 EndPath(h1) = 1
@@ -555,6 +558,7 @@ case clip-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Rectangle(h1,12,9,2,3) = 1
 EndPath(h1) = 1
@@ -690,6 +694,7 @@ case clip-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Ellipse(h1,2,3,12,9) = 1
 EndPath(h1) = 1
@@ -825,6 +830,7 @@ case clip-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Ellipse(h1,1,1,4,4) = 1
 EndPath(h1) = 1
@@ -960,6 +966,7 @@ case clip-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 RoundRect(h1,2,3,14,11,5,4) = 1
 EndPath(h1) = 1
@@ -1095,6 +1102,7 @@ case clip-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Arc(h1,2,3,14,11,14,3,2,11) = 1
 EndPath(h1) = 1
@@ -1230,6 +1238,7 @@ case clip-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 ArcTo(h1,2,3,14,11,14,3,2,11) = 1
 EndPath(h1) = 1
@@ -1365,6 +1374,7 @@ case clip-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Pie(h1,2,3,14,11,14,3,2,11) = 1
 EndPath(h1) = 1
@@ -1500,6 +1510,7 @@ case clip-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Chord(h1,2,3,14,11,14,3,2,11) = 1
 EndPath(h1) = 1
@@ -1635,6 +1646,7 @@ case clip-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Polyline(h1,p,4) = 1
 EndPath(h1) = 1
@@ -1770,6 +1782,7 @@ case clip-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 Polygon(h1,p,4) = 1
 EndPath(h1) = 1
@@ -1910,6 +1923,7 @@ case clip-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 MoveToEx(h1,1,1,p) = 1
 PolyBezier(h1,p,4) = 1
@@ -2051,6 +2065,7 @@ case clip-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 MoveToEx(h1,1,1,p) = 1
 PolyBezierTo(h1,p,3) = 1
@@ -2192,6 +2207,7 @@ case clip-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 MoveToEx(h1,1,1,p) = 1
 PolylineTo(h1,p,2) = 1
@@ -2353,6 +2369,7 @@ case clip-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 BeginPath(h1) = 1
 MoveToEx(h1,1,1,p) = 1
 LineTo(h1,5,5) = 1

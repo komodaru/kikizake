@@ -1,4 +1,4 @@
-kikizake calls text-64 cases 862691160b29a2e8 src 6398a845d32465bbdd47aad29d4212ff1781a02a6d8678625fac1928c6b43796 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 15008 other 0
+kikizake calls text-64 cases 862691160b29a2e8 src 00ce545d3c9a719df937ea021c0009052985675a09df45f5ff9b3fd58bac782e shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 15056 other 0
 case state
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
@@ -1460,6 +1460,7 @@ case opaque-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xd97429) = 0xffffff
 ExtTextOutA(h1,4,2,2,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1470,6 +1471,7 @@ case opaque-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xf0c44c) = 0xffffff
 ExtTextOutA(h1,1,0,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1480,6 +1482,7 @@ case opaque-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x4cab00) = 0xffffff
 ExtTextOutA(h1,0,4,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1490,6 +1493,7 @@ case opaque-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x74cb0f) = 0xffffff
 ExtTextOutA(h1,0,4,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1500,6 +1504,7 @@ case opaque-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xb52a9f) = 0xffffff
 ExtTextOutA(h1,3,2,6,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1510,6 +1515,7 @@ case opaque-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x61a147) = 0xffffff
 ExtTextOutA(h1,0,3,2,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1520,6 +1526,7 @@ case opaque-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xa1c38d) = 0xffffff
 ExtTextOutA(h1,5,4,6,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1530,6 +1537,7 @@ case opaque-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xb030b0) = 0xffffff
 ExtTextOutA(h1,3,0,2,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1540,6 +1548,7 @@ case opaque-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x202be8) = 0xffffff
 ExtTextOutA(h1,2,5,0,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1550,6 +1559,7 @@ case opaque-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x11a9eb) = 0xffffff
 ExtTextOutA(h1,1,5,2,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1560,6 +1570,7 @@ case opaque-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x8d1b4a) = 0xffffff
 ExtTextOutA(h1,0,2,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1570,6 +1581,7 @@ case opaque-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x63160f) = 0xffffff
 ExtTextOutA(h1,0,2,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1580,6 +1592,7 @@ case opaque-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xffdaef) = 0xffffff
 ExtTextOutA(h1,5,5,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1590,6 +1603,7 @@ case opaque-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xbed92b) = 0xffffff
 ExtTextOutA(h1,4,2,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1600,6 +1614,7 @@ case opaque-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x5cb5d1) = 0xffffff
 ExtTextOutA(h1,5,1,0,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1610,6 +1625,7 @@ case opaque-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xeeb724) = 0xffffff
 ExtTextOutA(h1,2,1,0,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1620,6 +1636,7 @@ case opaque-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x28ca0a) = 0xffffff
 ExtTextOutA(h1,5,3,0,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1630,6 +1647,7 @@ case opaque-17
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xdf55c3) = 0xffffff
 ExtTextOutA(h1,5,4,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1640,6 +1658,7 @@ case opaque-18
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x9efb11) = 0xffffff
 ExtTextOutA(h1,3,3,0,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1650,6 +1669,7 @@ case opaque-19
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x1b4707) = 0xffffff
 ExtTextOutA(h1,3,4,0,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1660,6 +1680,7 @@ case opaque-20
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x885c33) = 0xffffff
 ExtTextOutA(h1,3,4,4,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1670,6 +1691,7 @@ case opaque-21
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0xc94192) = 0xffffff
 ExtTextOutA(h1,4,4,2,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1680,6 +1702,7 @@ case opaque-22
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,0x918936) = 0xffffff
 ExtTextOutA(h1,3,1,6,p,p,0,h0) = 1
 GdiFlush() = 1
@@ -1690,6 +1713,7 @@ case opaque-23
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SetBkColor(h1,32348) = 0xffffff
 ExtTextOutA(h1,2,2,0,p,p,0,h0) = 1
 GdiFlush() = 1

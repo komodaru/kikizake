@@ -1,4 +1,4 @@
-kikizake calls xform-32 cases 907ca250a9776895 src fc6e169e55ff6623ad7e95e12f9a639b4a4efb4c6e5b66dc1bb4de261f12d9d7 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 1099194 other 0
+kikizake calls xform-32 cases 907ca250a9776895 src 5b20e3cb2edc3f4ffd1adc6e102b30c55499dedfd59fd486bb0da17839fe8e5a shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 1099194 other 0
 case defaults
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2

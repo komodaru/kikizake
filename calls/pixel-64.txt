@@ -1,8 +1,9 @@
-kikizake calls pixel-64 cases 95956f70cf3c4a0f src 04e1b6d51a680ea84fd6501cfa9b62f397875f533a2aa997cce271cb27e78c2d shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 2656 other 0
+kikizake calls pixel-64 cases 95956f70cf3c4a0f src 011087226278191da0d07101b8ea487e0bffcaf86a02a7441f79d2e356476036 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 2768 other 0
 case pixel-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 0
 GetPixel(h1,1,0) = 0xffffff
 GetPixel(h1,2,0) = 0
@@ -58,6 +59,7 @@ case pixel-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 32768
 GetPixel(h1,1,0) = 0xff00ff
 GetPixel(h1,2,0) = 128
@@ -113,6 +115,7 @@ case pixel-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 65498
 GetPixel(h1,1,0) = 0x55ffff
 GetPixel(h1,2,0) = 0xaa006d
@@ -168,6 +171,7 @@ case pixel-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 0x188cef
 GetPixel(h1,1,0) = 0x9ca594
 GetPixel(h1,2,0) = 0xb521d6
@@ -223,6 +227,7 @@ case pixel-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 0xad0cc6
 GetPixel(h1,1,0) = 0x63aeb5
 GetPixel(h1,2,0) = 0xefba8c
@@ -278,6 +283,7 @@ case pixel-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 0x24bf91
 GetPixel(h1,1,0) = 0x17eb03
 GetPixel(h1,2,0) = 0xf130f1
@@ -333,6 +339,7 @@ case pixel-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 GetPixel(h1,0,0) = 0xef1e56
 GetPixel(h1,1,0) = 0x927411
 GetPixel(h1,2,0) = 0x438f3
@@ -388,6 +395,7 @@ case dibits-1-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -402,6 +410,7 @@ case dibits-1-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -416,6 +425,7 @@ case dibits-1-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -430,6 +440,7 @@ case dibits-1-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -444,6 +455,7 @@ case dibits-1-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -458,6 +470,7 @@ case dibits-1-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -472,6 +485,7 @@ case dibits-1-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -486,6 +500,7 @@ case dibits-4-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -500,6 +515,7 @@ case dibits-4-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -514,6 +530,7 @@ case dibits-4-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -528,6 +545,7 @@ case dibits-4-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -542,6 +560,7 @@ case dibits-4-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -556,6 +575,7 @@ case dibits-4-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -570,6 +590,7 @@ case dibits-4-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -584,6 +605,7 @@ case dibits-8-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -598,6 +620,7 @@ case dibits-8-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -612,6 +635,7 @@ case dibits-8-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -626,6 +650,7 @@ case dibits-8-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -640,6 +665,7 @@ case dibits-8-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -654,6 +680,7 @@ case dibits-8-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -668,6 +695,7 @@ case dibits-8-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -682,6 +710,7 @@ case dibits-16-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -696,6 +725,7 @@ case dibits-16-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -710,6 +740,7 @@ case dibits-16-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -724,6 +755,7 @@ case dibits-16-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -738,6 +770,7 @@ case dibits-16-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -752,6 +785,7 @@ case dibits-16-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -766,6 +800,7 @@ case dibits-16-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -780,6 +815,7 @@ case dibits-16565-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -794,6 +830,7 @@ case dibits-16565-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -808,6 +845,7 @@ case dibits-16565-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -822,6 +860,7 @@ case dibits-16565-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -836,6 +875,7 @@ case dibits-16565-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -850,6 +890,7 @@ case dibits-16565-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -864,6 +905,7 @@ case dibits-16565-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -878,6 +920,7 @@ case dibits-24-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -892,6 +935,7 @@ case dibits-24-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -906,6 +950,7 @@ case dibits-24-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -920,6 +965,7 @@ case dibits-24-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -934,6 +980,7 @@ case dibits-24-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -948,6 +995,7 @@ case dibits-24-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -962,6 +1010,7 @@ case dibits-24-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -976,6 +1025,7 @@ case dibits-32-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -990,6 +1040,7 @@ case dibits-32-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -1004,6 +1055,7 @@ case dibits-32-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -1018,6 +1070,7 @@ case dibits-32-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -1032,6 +1085,7 @@ case dibits-32-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -1046,6 +1100,7 @@ case dibits-32-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3
@@ -1060,6 +1115,7 @@ case dibits-32-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 SelectObject(h1,h3) = h2
 GetDIBits(h1,h2,0,3,p,p,0) = 3
 SelectObject(h1,h2) = h3

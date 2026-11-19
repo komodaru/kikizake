@@ -1,4 +1,4 @@
-kikizake calls region-32 cases 81ef4d20ea47fecd src 68d2da5bc65bf88dc5db9eeedb02803e3c1bc7a1fc7e0569bc74b2a5389b82b9 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 610492 other 0
+kikizake calls region-32 cases 81ef4d20ea47fecd src 416fb4592b12fddb7248295439e21db13657d8425d3cae0c4a37cb09f5254b2d shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 610788 other 0
 case combine-0
 CreateRectRgn(10,12,20,10) = h1
 CreateRectRgn(-3,0,1,9) = h2
@@ -7845,6 +7845,7 @@ case draw-fillrgn-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x46d0c6) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(8,2,15,9) = h6
@@ -7864,6 +7865,7 @@ case draw-framergn-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x435d8d) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(9,6,11,14) = h6
@@ -7883,6 +7885,7 @@ case draw-invertrgn-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x49f9a0) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(2,6,10,9) = h6
@@ -7902,6 +7905,7 @@ case draw-paintrgn-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(3,0,6,10) = h6
@@ -7921,6 +7925,7 @@ case draw-fillrgn-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe5b6bf) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(6,-2,12,6) = h6
@@ -7940,6 +7945,7 @@ case draw-framergn-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6fcf20) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(8,0,13,6) = h6
@@ -7959,6 +7965,7 @@ case draw-invertrgn-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x72ce1c) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(-1,10,0,12) = h6
@@ -7978,6 +7985,7 @@ case draw-paintrgn-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x120228) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(6,8,13,10) = h6
@@ -7997,6 +8005,7 @@ case draw-fillrgn-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf890eb) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(9,8,10,13) = h6
@@ -8016,6 +8025,7 @@ case draw-framergn-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x13fd1) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(-2,7,5,14) = h6
@@ -8035,6 +8045,7 @@ case draw-invertrgn-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x8e84d3) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(5,1,4,0) = h6
@@ -8054,6 +8065,7 @@ case draw-paintrgn-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xaf5e8f) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(10,-1,10,9) = h6
@@ -8073,6 +8085,7 @@ case draw-fillrgn-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(255) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(7,0,16,6) = h6
@@ -8092,6 +8105,7 @@ case draw-framergn-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x462bbc) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(-1,7,-3,14) = h6
@@ -8111,6 +8125,7 @@ case draw-invertrgn-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(255) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(-2,3,1,1) = h6
@@ -8130,6 +8145,7 @@ case draw-paintrgn-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x4b3daf) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(6,-1,14,6) = h6
@@ -8149,6 +8165,7 @@ case draw-fillrgn-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x962f1b) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(2,8,2,10) = h6
@@ -8168,6 +8185,7 @@ case draw-framergn-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1f3cb1) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(9,0,12,5) = h6
@@ -8187,6 +8205,7 @@ case draw-invertrgn-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf7bf7a) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(10,-2,19,6) = h6
@@ -8206,6 +8225,7 @@ case draw-paintrgn-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc5ba28) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(0,7,9,16) = h6
@@ -8225,6 +8245,7 @@ case draw-fillrgn-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7f7f7f) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(7,8,13,9) = h6
@@ -8244,6 +8265,7 @@ case draw-framergn-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf42263) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(1,1,-1,-1) = h6
@@ -8263,6 +8285,7 @@ case draw-invertrgn-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb5b891) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(-2,10,6,12) = h6
@@ -8282,6 +8305,7 @@ case draw-paintrgn-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc7f8e3) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(9,3,17,3) = h6
@@ -8301,6 +8325,7 @@ case draw-fillrgn-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd6ac26) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(3,10,1,13) = h6
@@ -8320,6 +8345,7 @@ case draw-framergn-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(255) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(10,2,17,12) = h6
@@ -8339,6 +8365,7 @@ case draw-invertrgn-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc86412) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(4,2,6,2) = h6
@@ -8358,6 +8385,7 @@ case draw-paintrgn-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0) = h4
 SelectObject(h1,h4) = h5
 CreateRectRgn(0,6,3,11) = h6
@@ -8377,6 +8405,7 @@ case clip-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x708914) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8407,6 +8436,7 @@ case clip-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6d95e1) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8443,6 +8473,7 @@ case clip-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xba74f0) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8473,6 +8504,7 @@ case clip-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1b1d0e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8505,6 +8537,7 @@ case clip-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1f2dc3) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8539,6 +8572,7 @@ case clip-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xea9ce4) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8571,6 +8605,7 @@ case clip-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x746534) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8601,6 +8636,7 @@ case clip-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe2961a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8629,6 +8665,7 @@ case clip-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe8acf0) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8661,6 +8698,7 @@ case clip-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1eb145) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8691,6 +8729,7 @@ case clip-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe7ce1f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8721,6 +8760,7 @@ case clip-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x183532) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8749,6 +8789,7 @@ case clip-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x87bfa2) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8781,6 +8822,7 @@ case clip-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xae0c23) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8811,6 +8853,7 @@ case clip-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf8b806) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8839,6 +8882,7 @@ case clip-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x655c5e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8865,6 +8909,7 @@ case clip-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x61f4ba) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8897,6 +8942,7 @@ case clip-17
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xfca0e7) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8925,6 +8971,7 @@ case clip-18
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xfa4037) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8957,6 +9004,7 @@ case clip-19
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x38b50c) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -8987,6 +9035,7 @@ case clip-20
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xefb8cb) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9013,6 +9062,7 @@ case clip-21
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x860734) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9039,6 +9089,7 @@ case clip-22
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x5881ba) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9065,6 +9116,7 @@ case clip-23
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x534ed9) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9097,6 +9149,7 @@ case clip-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7ba82f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9129,6 +9182,7 @@ case clip-25
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x570ad5) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9155,6 +9209,7 @@ case clip-26
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe76869) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9185,6 +9240,7 @@ case clip-27
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7231ba) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9213,6 +9269,7 @@ case clip-28
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x740dd7) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9239,6 +9296,7 @@ case clip-29
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe687b2) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9267,6 +9325,7 @@ case clip-30
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x908a79) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9295,6 +9354,7 @@ case clip-31
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd2d7f9) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9331,6 +9391,7 @@ case clip-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xbc8e69) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9367,6 +9428,7 @@ case clip-33
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x2be472) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9393,6 +9455,7 @@ case clip-34
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x293fa2) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9423,6 +9486,7 @@ case clip-35
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb0745c) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9453,6 +9517,7 @@ case clip-36
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7c655e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9479,6 +9544,7 @@ case clip-37
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf3633a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9509,6 +9575,7 @@ case clip-38
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x15f3f3) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9539,6 +9606,7 @@ case clip-39
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb18f76) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9567,6 +9635,7 @@ case clip-40
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x610824) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9595,6 +9664,7 @@ case clip-41
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xcc747c) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9627,6 +9697,7 @@ case clip-42
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x2c4830) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9661,6 +9732,7 @@ case clip-43
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6fb1bc) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9693,6 +9765,7 @@ case clip-44
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd7ae1f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9723,6 +9796,7 @@ case clip-45
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x22bee8) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9749,6 +9823,7 @@ case clip-46
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb3800e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9785,6 +9860,7 @@ case clip-47
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x27be5a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9813,6 +9889,7 @@ case clip-48
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x352a23) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9849,6 +9926,7 @@ case clip-49
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x297196) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9875,6 +9953,7 @@ case clip-50
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7fe4a6) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9909,6 +9988,7 @@ case clip-51
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd85511) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9939,6 +10019,7 @@ case clip-52
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x455b8d) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -9975,6 +10056,7 @@ case clip-53
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf9b205) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10003,6 +10085,7 @@ case clip-54
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc9317a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10029,6 +10112,7 @@ case clip-55
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xdcf00f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10059,6 +10143,7 @@ case clip-56
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd17765) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10089,6 +10174,7 @@ case clip-57
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc86dab) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10119,6 +10205,7 @@ case clip-58
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x310763) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10153,6 +10240,7 @@ case clip-59
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6bd56b) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10179,6 +10267,7 @@ case clip-60
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1e6e34) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10211,6 +10300,7 @@ case clip-61
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x775b54) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10243,6 +10333,7 @@ case clip-62
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x2e641) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10273,6 +10364,7 @@ case clip-63
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x87b7dc) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10303,6 +10395,7 @@ case clip-64
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x787872) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10337,6 +10430,7 @@ case clip-65
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x2bf228) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10367,6 +10461,7 @@ case clip-66
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf93656) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10395,6 +10490,7 @@ case clip-67
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xace517) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10425,6 +10521,7 @@ case clip-68
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x619194) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10457,6 +10554,7 @@ case clip-69
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x345b7) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10485,6 +10583,7 @@ case clip-70
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1d16c9) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10511,6 +10610,7 @@ case clip-71
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x83cef5) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10539,6 +10639,7 @@ case clip-72
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf061cc) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10569,6 +10670,7 @@ case clip-73
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6ad34c) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10601,6 +10703,7 @@ case clip-74
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x4f2492) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10637,6 +10740,7 @@ case clip-75
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc1f204) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10671,6 +10775,7 @@ case clip-76
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7d601b) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10705,6 +10810,7 @@ case clip-77
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc05e13) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10735,6 +10841,7 @@ case clip-78
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xdda0b5) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10767,6 +10874,7 @@ case clip-79
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x821199) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10797,6 +10905,7 @@ case clip-80
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x5aff8e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10823,6 +10932,7 @@ case clip-81
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x4c319a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10855,6 +10965,7 @@ case clip-82
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x9919cf) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10889,6 +11000,7 @@ case clip-83
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x891933) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10915,6 +11027,7 @@ case clip-84
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe1345a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10947,6 +11060,7 @@ case clip-85
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe6b61a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -10977,6 +11091,7 @@ case clip-86
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd861bf) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11007,6 +11122,7 @@ case clip-87
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xbc28eb) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11039,6 +11155,7 @@ case clip-88
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf9c977) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11069,6 +11186,7 @@ case clip-89
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x14e780) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11097,6 +11215,7 @@ case clip-90
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xbd97ff) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11127,6 +11246,7 @@ case clip-91
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf1b367) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11157,6 +11277,7 @@ case clip-92
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb5b9a1) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11189,6 +11310,7 @@ case clip-93
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x37c6a1) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11215,6 +11337,7 @@ case clip-94
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x41de3e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11245,6 +11368,7 @@ case clip-95
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xdbcee6) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11275,6 +11399,7 @@ case clip-96
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x2bab57) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11309,6 +11434,7 @@ case clip-97
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xea0f44) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11341,6 +11467,7 @@ case clip-98
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xbd4b41) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11375,6 +11502,7 @@ case clip-99
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xcdc6c0) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11405,6 +11533,7 @@ case clip-100
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf6a456) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11435,6 +11564,7 @@ case clip-101
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xdb2e0f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11463,6 +11593,7 @@ case clip-102
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb29c64) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11497,6 +11628,7 @@ case clip-103
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xa48fde) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11527,6 +11659,7 @@ case clip-104
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x42ca82) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11565,6 +11698,7 @@ case clip-105
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x16b21e) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11591,6 +11725,7 @@ case clip-106
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7d490c) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11619,6 +11754,7 @@ case clip-107
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xa58a1a) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11653,6 +11789,7 @@ case clip-108
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x755230) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11685,6 +11822,7 @@ case clip-109
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x818587) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11717,6 +11855,7 @@ case clip-110
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6f4a00) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11745,6 +11884,7 @@ case clip-111
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x56894f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11773,6 +11913,7 @@ case clip-112
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xecb5d4) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11801,6 +11942,7 @@ case clip-113
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf3bd20) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11829,6 +11971,7 @@ case clip-114
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc50af8) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11857,6 +12000,7 @@ case clip-115
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x8b6f7f) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11885,6 +12029,7 @@ case clip-116
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x59ff85) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11917,6 +12062,7 @@ case clip-117
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xbc3141) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11951,6 +12097,7 @@ case clip-118
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x70f942) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2
@@ -11983,6 +12130,7 @@ case clip-119
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc0ee39) = h4
 SelectObject(h1,h4) = h5
 GetClipBox(h1,p) = 2

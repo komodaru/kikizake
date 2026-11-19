@@ -1,4 +1,4 @@
-kikizake calls lines-32 cases f7e93a6b6ce99794 src 482511fad7e5a2b1da2673df4c2eeb2820236b0ce3aba60c40a328dba436a4b4 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 1794492 other 0
+kikizake calls lines-32 cases f7e93a6b6ce99794 src 4579ccf862e8fa5564e7091d0a772ce4c3b840d4b850f9f1346e4432ca5b4087 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 1795052 other 0
 case line-out-0
 out truncated
 CreateCompatibleDC(h0) = h1
@@ -8381,6 +8381,7 @@ case rop2-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xb1ad15) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8442,6 +8443,7 @@ case rop2-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8503,6 +8505,7 @@ case rop2-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xff0000) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8564,6 +8567,7 @@ case rop2-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xc540a) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8625,6 +8629,7 @@ case rop2-16565
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xe36ff2) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8686,6 +8691,7 @@ case rop2-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,7976) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8747,6 +8753,7 @@ case rop2-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,1) = 13
@@ -8808,6 +8815,7 @@ case rop2-zero
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,255) = h4
 SelectObject(h1,h4) = h5
 SetROP2(h1,7) = 13
@@ -23112,6 +23120,7 @@ case fillrect-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7841d2) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23126,6 +23135,7 @@ case fillrect-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe014e5) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23140,6 +23150,7 @@ case fillrect-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xa42014) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23154,6 +23165,7 @@ case fillrect-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x74f08c) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23168,6 +23180,7 @@ case fillrect-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xecbd74) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23182,6 +23195,7 @@ case fillrect-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(5,0x2403b1) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23196,6 +23210,7 @@ case fillrect-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x274602) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23210,6 +23225,7 @@ case fillrect-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x3bc02e) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23224,6 +23240,7 @@ case fillrect-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1eb6e7) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23238,6 +23255,7 @@ case fillrect-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x20668b) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23252,6 +23270,7 @@ case fillrect-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x707358) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23266,6 +23285,7 @@ case fillrect-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(1,0x92d5f6) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23280,6 +23300,7 @@ case fillrect-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x3b9dc) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23294,6 +23315,7 @@ case fillrect-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xcafc6f) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23308,6 +23330,7 @@ case fillrect-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x37bdef) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23322,6 +23345,7 @@ case fillrect-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xe3ab79) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23336,6 +23360,7 @@ case fillrect-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf0e5ae) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23350,6 +23375,7 @@ case fillrect-17
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(0,0x42a4fc) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23364,6 +23390,7 @@ case fillrect-18
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xdf2ce8) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23378,6 +23405,7 @@ case fillrect-19
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xa3c520) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23392,6 +23420,7 @@ case fillrect-20
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x32a671) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23406,6 +23435,7 @@ case fillrect-21
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x50d700) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23420,6 +23450,7 @@ case fillrect-22
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf1a7c) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23434,6 +23465,7 @@ case fillrect-23
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(3,0x38a4df) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23448,6 +23480,7 @@ case framerect-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x9e6e35) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23462,6 +23495,7 @@ case framerect-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf93635) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23476,6 +23510,7 @@ case framerect-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x942240) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23490,6 +23525,7 @@ case framerect-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x69b411) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23504,6 +23540,7 @@ case framerect-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x2cf36c) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23518,6 +23555,7 @@ case framerect-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(4,0x6aaffd) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23532,6 +23570,7 @@ case framerect-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf19c22) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23546,6 +23585,7 @@ case framerect-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x3e8c72) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23560,6 +23600,7 @@ case framerect-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1930d1) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23574,6 +23615,7 @@ case framerect-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xfe3f2d) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23588,6 +23630,7 @@ case framerect-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc42d92) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23602,6 +23645,7 @@ case framerect-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(2,0x1c7c38) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23616,6 +23660,7 @@ case framerect-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x6d754e) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23630,6 +23675,7 @@ case framerect-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x5eba05) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23644,6 +23690,7 @@ case framerect-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x754dbf) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23658,6 +23705,7 @@ case framerect-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xfdf52b) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23672,6 +23720,7 @@ case framerect-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xa41553) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23686,6 +23735,7 @@ case framerect-17
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(4,0xff530c) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23700,6 +23750,7 @@ case framerect-18
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x1b78f6) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23714,6 +23765,7 @@ case framerect-19
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x218f21) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23728,6 +23780,7 @@ case framerect-20
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x72df8b) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23742,6 +23795,7 @@ case framerect-21
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x3faaff) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23756,6 +23810,7 @@ case framerect-22
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd5f6d9) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23770,6 +23825,7 @@ case framerect-23
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(5,0xabd328) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23784,6 +23840,7 @@ case invertrect-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb9307c) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23798,6 +23855,7 @@ case invertrect-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb38936) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23812,6 +23870,7 @@ case invertrect-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x12ffe6) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23826,6 +23885,7 @@ case invertrect-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xcbea81) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23840,6 +23900,7 @@ case invertrect-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xf95128) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23854,6 +23915,7 @@ case invertrect-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(2,0x6323af) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23868,6 +23930,7 @@ case invertrect-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x5efec) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23882,6 +23945,7 @@ case invertrect-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x4a30b7) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23896,6 +23960,7 @@ case invertrect-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x16a621) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23910,6 +23975,7 @@ case invertrect-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x20191e) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23924,6 +23990,7 @@ case invertrect-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd6b55e) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23938,6 +24005,7 @@ case invertrect-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(3,0x9c12f8) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23952,6 +24020,7 @@ case invertrect-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xdf2cbc) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23966,6 +24035,7 @@ case invertrect-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xc4236e) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23980,6 +24050,7 @@ case invertrect-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xba882) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -23994,6 +24065,7 @@ case invertrect-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7f8db9) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24008,6 +24080,7 @@ case invertrect-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x762810) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24022,6 +24095,7 @@ case invertrect-17
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(0,0xf372fb) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24036,6 +24110,7 @@ case invertrect-18
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xcb1d2a) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24050,6 +24125,7 @@ case invertrect-19
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x35074e) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24064,6 +24140,7 @@ case invertrect-20
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xd73d46) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24078,6 +24155,7 @@ case invertrect-21
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0xb1dd64) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24092,6 +24170,7 @@ case invertrect-22
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateSolidBrush(0x7d5ff4) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24106,6 +24185,7 @@ case invertrect-23
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreateHatchBrush(4,0x36441b) = h4
 SelectObject(h1,h4) = h5
 GetCurrentObject(h1,2) = h4
@@ -24120,6 +24200,7 @@ case random-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x5121d1) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9d7a79) = h6
@@ -24137,6 +24218,7 @@ case random-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x3905c8) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x62b7c2) = h6
@@ -24155,6 +24237,7 @@ case random-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xff0000) = h6
@@ -24173,6 +24256,7 @@ case random-3
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x2d6061) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(18650) = h6
@@ -24191,6 +24275,7 @@ case random-4
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x25e6c4) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x75958) = h6
@@ -24209,6 +24294,7 @@ case random-5
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x4f26ce) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9d54a4) = h6
@@ -24226,6 +24312,7 @@ case random-6
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xf80e14) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb1b17) = h6
@@ -24244,6 +24331,7 @@ case random-7
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xe1bd73) = h6
@@ -24261,6 +24349,7 @@ case random-8
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x8b7664) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xeb9b6d) = h6
@@ -24280,6 +24369,7 @@ case random-9
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x429a90) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x3c303c) = h6
@@ -24296,6 +24386,7 @@ case random-10
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xe07649) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xecccb1) = h6
@@ -24316,6 +24407,7 @@ case random-11
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xcf9a9e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f7f7f) = h6
@@ -24335,6 +24427,7 @@ case random-12
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x92eb58) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x5548ff) = h6
@@ -24354,6 +24447,7 @@ case random-13
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x7f2817) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x39e69c) = h6
@@ -24373,6 +24467,7 @@ case random-14
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xf5e61f) = h6
@@ -24390,6 +24485,7 @@ case random-15
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xdd6f50) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9c232c) = h6
@@ -24406,6 +24502,7 @@ case random-16
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x1f77b8) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc418ee) = h6
@@ -24423,6 +24520,7 @@ case random-17
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x1dae2d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -24442,6 +24540,7 @@ case random-18
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x12e3c8) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xaada48) = h6
@@ -24462,6 +24561,7 @@ case random-19
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xff0000) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -24479,6 +24579,7 @@ case random-20
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x633bf2) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xff3a84) = h6
@@ -24499,6 +24600,7 @@ case random-21
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xe8939d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x5f816) = h6
@@ -24516,6 +24618,7 @@ case random-22
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xcdabce) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb92951) = h6
@@ -24534,6 +24637,7 @@ case random-23
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x8a436a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd579b6) = h6
@@ -24554,6 +24658,7 @@ case random-24
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xaa24ff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(55844) = h6
@@ -24570,6 +24675,7 @@ case random-25
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xff0000) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x936fd5) = h6
@@ -24588,6 +24694,7 @@ case random-26
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xeb90fd) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x36b172) = h6
@@ -24607,6 +24714,7 @@ case random-27
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x854b7e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x313670) = h6
@@ -24625,6 +24733,7 @@ case random-28
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x797ae7) = h6
@@ -24642,6 +24751,7 @@ case random-29
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f7f7f) = h6
@@ -24658,6 +24768,7 @@ case random-30
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x39ecd1) = h6
@@ -24678,6 +24789,7 @@ case random-31
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xc8a47f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa4422e) = h6
@@ -24698,6 +24810,7 @@ case random-32
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xe1a242) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4d5253) = h6
@@ -24717,6 +24830,7 @@ case random-33
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xe9ce78) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xdc9fed) = h6
@@ -24735,6 +24849,7 @@ case random-34
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x8c15d3) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4ee0fc) = h6
@@ -24755,6 +24870,7 @@ case random-35
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xaa141a) = h6
@@ -24773,6 +24889,7 @@ case random-36
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xc926e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9f7232) = h6
@@ -24789,6 +24906,7 @@ case random-37
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x1d14fb) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb66212) = h6
@@ -24807,6 +24925,7 @@ case random-38
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -24826,6 +24945,7 @@ case random-39
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xd1892a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7a1661) = h6
@@ -24842,6 +24962,7 @@ case random-40
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x874564) = h6
@@ -24858,6 +24979,7 @@ case random-41
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xd7231c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x5ec863) = h6
@@ -24875,6 +24997,7 @@ case random-42
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x199a24) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xe62e95) = h6
@@ -24894,6 +25017,7 @@ case random-43
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x5af256) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd17236) = h6
@@ -24911,6 +25035,7 @@ case random-44
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x72d590) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb54ca1) = h6
@@ -24930,6 +25055,7 @@ case random-45
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xaab9ca) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x800000) = h6
@@ -24949,6 +25075,7 @@ case random-46
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x632bb2) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x834415) = h6
@@ -24968,6 +25095,7 @@ case random-47
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x95cb7c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -24988,6 +25116,7 @@ case random-48
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x4d0c01) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc4f085) = h6
@@ -25007,6 +25136,7 @@ case random-49
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x961884) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x55b600) = h6
@@ -25025,6 +25155,7 @@ case random-50
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x1c2056) = h6
@@ -25043,6 +25174,7 @@ case random-51
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xd85de0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -25061,6 +25193,7 @@ case random-52
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x4f276c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xbac479) = h6
@@ -25079,6 +25212,7 @@ case random-53
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x7f684d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x63af52) = h6
@@ -25098,6 +25232,7 @@ case random-54
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x2132b4) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -25119,6 +25254,7 @@ case random-55
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x671592) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f7f7f) = h6
@@ -25138,6 +25274,7 @@ case random-56
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xe3b009) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xe83a3b) = h6
@@ -25155,6 +25292,7 @@ case random-57
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x1a8ade) = h6
@@ -25172,6 +25310,7 @@ case random-58
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x808080) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4b0fdc) = h6
@@ -25192,6 +25331,7 @@ case random-59
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xaa4709) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x3e1be5) = h6
@@ -25209,6 +25349,7 @@ case random-60
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x55ffb6) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x3f71d1) = h6
@@ -25227,6 +25368,7 @@ case random-61
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x4b3554) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x5185f4) = h6
@@ -25247,6 +25389,7 @@ case random-62
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xffff00) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xaf0467) = h6
@@ -25265,6 +25408,7 @@ case random-63
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xd5497d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xdd7844) = h6
@@ -25284,6 +25428,7 @@ case random-64
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xae4ff4) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7ea18f) = h6
@@ -25303,6 +25448,7 @@ case random-65
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xaada91) = h6
@@ -25320,6 +25466,7 @@ case random-66
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x670580) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x726c03) = h6
@@ -25337,6 +25484,7 @@ case random-67
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x225139) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x190172) = h6
@@ -25354,6 +25502,7 @@ case random-68
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xff0000) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xf8d047) = h6
@@ -25373,6 +25522,7 @@ case random-69
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x816ddb) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xccb0e3) = h6
@@ -25389,6 +25539,7 @@ case random-70
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x230e9d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x5fd181) = h6
@@ -25408,6 +25559,7 @@ case random-71
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xf95e82) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(255) = h6
@@ -25425,6 +25577,7 @@ case random-72
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9beede) = h6
@@ -25444,6 +25597,7 @@ case random-73
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xc3c30e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(255) = h6
@@ -25461,6 +25615,7 @@ case random-74
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4ae2c9) = h6
@@ -25478,6 +25633,7 @@ case random-75
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xdaa368) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x6fe26a) = h6
@@ -25496,6 +25652,7 @@ case random-76
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,28159) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -25514,6 +25671,7 @@ case random-77
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x70ebf2) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(65280) = h6
@@ -25533,6 +25691,7 @@ case random-78
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xdfaa2f) = h6
@@ -25549,6 +25708,7 @@ case random-79
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x8dd3c0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4c861c) = h6
@@ -25566,6 +25726,7 @@ case random-80
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x6ba47d) = h6
@@ -25584,6 +25745,7 @@ case random-81
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,182) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd0afe9) = h6
@@ -25601,6 +25763,7 @@ case random-82
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x5d122) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa9c044) = h6
@@ -25619,6 +25782,7 @@ case random-83
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x7f7f7f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x5b04b6) = h6
@@ -25635,6 +25799,7 @@ case random-84
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xc2e035) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc3a220) = h6
@@ -25651,6 +25816,7 @@ case random-85
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x8a34a7) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc2bbbf) = h6
@@ -25671,6 +25837,7 @@ case random-86
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x2153df) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa2fea8) = h6
@@ -25691,6 +25858,7 @@ case random-87
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x1785c9) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808080) = h6
@@ -25710,6 +25878,7 @@ case random-88
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x8ac97c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xf312be) = h6
@@ -25728,6 +25897,7 @@ case random-89
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x6a244e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4e9ea6) = h6
@@ -25746,6 +25916,7 @@ case random-90
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,65280) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd07a1d) = h6
@@ -25762,6 +25933,7 @@ case random-91
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xa23ae) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x11c5cd) = h6
@@ -25780,6 +25952,7 @@ case random-92
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4d696) = h6
@@ -25797,6 +25970,7 @@ case random-93
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xe94400) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xf4faa8) = h6
@@ -25816,6 +25990,7 @@ case random-94
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,65280) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x66d810) = h6
@@ -25835,6 +26010,7 @@ case random-95
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xf2ad23) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(255) = h6
@@ -25853,6 +26029,7 @@ case random-96
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xfd435f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9ee2ff) = h6
@@ -25874,6 +26051,7 @@ case random-97
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x6074df) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa577eb) = h6
@@ -25892,6 +26070,7 @@ case random-98
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xe2f5e2) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xdec507) = h6
@@ -25910,6 +26089,7 @@ case random-99
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,128) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x54b52b) = h6
@@ -25931,6 +26111,7 @@ case random-100
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x655eaa) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xe1534a) = h6
@@ -25951,6 +26132,7 @@ case random-101
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x15554a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x1534c5) = h6
@@ -25968,6 +26150,7 @@ case random-102
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x4bb432) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -25986,6 +26169,7 @@ case random-103
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xbd8863) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4b9d8b) = h6
@@ -26003,6 +26187,7 @@ case random-104
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xddab4) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x8e83ca) = h6
@@ -26019,6 +26204,7 @@ case random-105
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xd1cb9e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -26036,6 +26222,7 @@ case random-106
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x9e559e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f7f7f) = h6
@@ -26053,6 +26240,7 @@ case random-107
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x59737b) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xbb86d3) = h6
@@ -26071,6 +26259,7 @@ case random-108
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,65280) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x77c640) = h6
@@ -26091,6 +26280,7 @@ case random-109
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x80f8ae) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x8f029c) = h6
@@ -26110,6 +26300,7 @@ case random-110
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,65280) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xdad01a) = h6
@@ -26129,6 +26320,7 @@ case random-111
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xf3462f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x645bca) = h6
@@ -26148,6 +26340,7 @@ case random-112
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -26167,6 +26360,7 @@ case random-113
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xe76bf0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xe871ae) = h6
@@ -26183,6 +26377,7 @@ case random-114
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x99d40d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808080) = h6
@@ -26202,6 +26397,7 @@ case random-115
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x52f40a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x20d676) = h6
@@ -26221,6 +26417,7 @@ case random-116
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xa8bc1b) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x102eca) = h6
@@ -26238,6 +26435,7 @@ case random-117
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,32768) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808080) = h6
@@ -26258,6 +26456,7 @@ case random-118
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xb56bc1) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f7f7f) = h6
@@ -26278,6 +26477,7 @@ case random-119
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x4f4580) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x61717f) = h6
@@ -26296,6 +26496,7 @@ case random-120
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xc9ffaa) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f7f7f) = h6
@@ -26316,6 +26517,7 @@ case random-121
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x8c59f2) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xff2e14) = h6
@@ -26336,6 +26538,7 @@ case random-122
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x9b0e92) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x905857) = h6
@@ -26356,6 +26559,7 @@ case random-123
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xcf5ab6) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd1b6e6) = h6
@@ -26373,6 +26577,7 @@ case random-124
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xaa486d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc1feb4) = h6
@@ -26392,6 +26597,7 @@ case random-125
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x34bf1a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa27bc0) = h6
@@ -26411,6 +26617,7 @@ case random-126
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x3e3aa6) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa72bda) = h6
@@ -26429,6 +26636,7 @@ case random-127
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x577e6f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -26447,6 +26655,7 @@ case random-128
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x645f16) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808000) = h6
@@ -26464,6 +26673,7 @@ case random-129
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x6dbb43) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc4f34e) = h6
@@ -26483,6 +26693,7 @@ case random-130
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x9c1e64) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xece647) = h6
@@ -26502,6 +26713,7 @@ case random-131
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xf330eb) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7c49f8) = h6
@@ -26520,6 +26732,7 @@ case random-132
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xdd47b5) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb81e3) = h6
@@ -26537,6 +26750,7 @@ case random-133
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,128) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb08cfe) = h6
@@ -26555,6 +26769,7 @@ case random-134
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x80e28d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -26573,6 +26788,7 @@ case random-135
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xf57ee6) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xf15915) = h6
@@ -26594,6 +26810,7 @@ case random-136
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xe35ae1) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -26612,6 +26829,7 @@ case random-137
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x7f7f7f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x639bfd) = h6
@@ -26629,6 +26847,7 @@ case random-138
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x2c459e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd7e0c8) = h6
@@ -26646,6 +26865,7 @@ case random-139
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x8ad805) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc95a86) = h6
@@ -26663,6 +26883,7 @@ case random-140
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x2d9cda) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xe4dfda) = h6
@@ -26679,6 +26900,7 @@ case random-141
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x87d471) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xdcc557) = h6
@@ -26698,6 +26920,7 @@ case random-142
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xa7c2f9) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x2c3693) = h6
@@ -26715,6 +26938,7 @@ case random-143
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x452a8a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd8d9e8) = h6
@@ -26732,6 +26956,7 @@ case random-144
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x5b1756) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4069a3) = h6
@@ -26748,6 +26973,7 @@ case random-145
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xcc39ca) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x50bafd) = h6
@@ -26765,6 +26991,7 @@ case random-146
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xddfc0a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x53daa6) = h6
@@ -26781,6 +27008,7 @@ case random-147
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x42e14f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x188e1) = h6
@@ -26797,6 +27025,7 @@ case random-148
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xa4d1f3) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd1650e) = h6
@@ -26813,6 +27042,7 @@ case random-149
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x480b63) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x6f596c) = h6
@@ -26830,6 +27060,7 @@ case random-150
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffff00) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x47bd26) = h6
@@ -26850,6 +27081,7 @@ case random-151
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x545bd7) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x6072e2) = h6
@@ -26866,6 +27098,7 @@ case random-152
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xa08f41) = h6
@@ -26883,6 +27116,7 @@ case random-153
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xb17a8c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4c2926) = h6
@@ -26899,6 +27133,7 @@ case random-154
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x2a7016) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xff4391) = h6
@@ -26919,6 +27154,7 @@ case random-155
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xaf9f2d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x55d321) = h6
@@ -26938,6 +27174,7 @@ case random-156
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x63c78a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xfe966b) = h6
@@ -26955,6 +27192,7 @@ case random-157
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x8cc003) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd730ba) = h6
@@ -26972,6 +27210,7 @@ case random-158
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x5e3355) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xbe74fd) = h6
@@ -26988,6 +27227,7 @@ case random-159
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xf5e0aa) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(55880) = h6
@@ -27006,6 +27246,7 @@ case random-160
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xd962d7) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x78e7d3) = h6
@@ -27023,6 +27264,7 @@ case random-161
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x2e5696) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x545086) = h6
@@ -27045,6 +27287,7 @@ case random-162
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x1c636) = h6
@@ -27063,6 +27306,7 @@ case random-163
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xa14f4c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9fd7fe) = h6
@@ -27080,6 +27324,7 @@ case random-164
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x523e5c) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xabd271) = h6
@@ -27097,6 +27342,7 @@ case random-165
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x3dce7d) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x1f26dc) = h6
@@ -27115,6 +27361,7 @@ case random-166
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x389b9a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x605153) = h6
@@ -27133,6 +27380,7 @@ case random-167
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x7acb13) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x531e0c) = h6
@@ -27155,6 +27403,7 @@ case random-168
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x397993) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x53a751) = h6
@@ -27174,6 +27423,7 @@ case random-169
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xaaff91) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7b8afb) = h6
@@ -27192,6 +27442,7 @@ case random-170
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xd0302) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xc683c9) = h6
@@ -27210,6 +27461,7 @@ case random-171
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xc58d04) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x9fba2b) = h6
@@ -27228,6 +27480,7 @@ case random-172
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808080) = h6
@@ -27245,6 +27498,7 @@ case random-173
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xff0000) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4ac16f) = h6
@@ -27264,6 +27518,7 @@ case random-174
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x89c683) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xde86d9) = h6
@@ -27283,6 +27538,7 @@ case random-175
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xffffff) = h6
@@ -27301,6 +27557,7 @@ case random-176
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x3961f0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x8b0084) = h6
@@ -27319,6 +27576,7 @@ case random-177
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xc5a4f8) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xceab4a) = h6
@@ -27339,6 +27597,7 @@ case random-178
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x468637) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x6fa2b6) = h6
@@ -27357,6 +27616,7 @@ case random-179
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x41e9e8) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x414cc8) = h6
@@ -27376,6 +27636,7 @@ case random-180
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x7f7f7f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x6b1a4) = h6
@@ -27396,6 +27657,7 @@ case random-181
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xfc85a8) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xfa9d22) = h6
@@ -27413,6 +27675,7 @@ case random-182
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xcb1a6f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0) = h6
@@ -27431,6 +27694,7 @@ case random-183
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x5fd9dc) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x87bc50) = h6
@@ -27448,6 +27712,7 @@ case random-184
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xb1b6a0) = h6
@@ -27469,6 +27734,7 @@ case random-185
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x7292c0) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x345936) = h6
@@ -27487,6 +27753,7 @@ case random-186
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xa74ca5) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7a2482) = h6
@@ -27504,6 +27771,7 @@ case random-187
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xec89b6) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xfbe68f) = h6
@@ -27521,6 +27789,7 @@ case random-188
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xf2228b) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4f9aa3) = h6
@@ -27538,6 +27807,7 @@ case random-189
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x62bb15) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808080) = h6
@@ -27556,6 +27826,7 @@ case random-190
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xefb12a) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xab64a4) = h6
@@ -27575,6 +27846,7 @@ case random-191
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x2b054e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x432d1a) = h6
@@ -27592,6 +27864,7 @@ case random-192
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0xffffff) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(65280) = h6
@@ -27610,6 +27883,7 @@ case random-193
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0xfc047) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(255) = h6
@@ -27627,6 +27901,7 @@ case random-194
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x648bbd) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0xd06ea6) = h6
@@ -27647,6 +27922,7 @@ case random-195
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x241d49) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x808080) = h6
@@ -27665,6 +27941,7 @@ case random-196
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,0,0x5e486e) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(65280) = h6
@@ -27682,6 +27959,7 @@ case random-197
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,255) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x4b4cde) = h6
@@ -27703,6 +27981,7 @@ case random-198
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x3445a1) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x23012d) = h6
@@ -27721,6 +28000,7 @@ case random-199
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
+GdiFlush() = 1
 CreatePen(0,1,0x7f7f7f) = h4
 SelectObject(h1,h4) = h5
 CreateSolidBrush(0x7f5049) = h6
