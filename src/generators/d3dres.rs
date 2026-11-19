@@ -71,6 +71,11 @@ fn suite(d3d11: bool) -> String {
     let name = if d3d11 { "d3d11res" } else { "d3d10res" };
     let mut s = format!("# gpu\n# kikizake suite {name}: Direct3D {} resources (SPEC.md). Made by `kikizake gen {name}`.\n", if d3d11 { 11 } else { 10 });
     let dev = if d3d11 { "device11" } else { "device10" };
+    if d3d11 {
+        s.push_str("case switch-devices\ndevice11\ndevice10\nfmt 28\nblend nodesc\ndevice11\nfmt 28\nend\n");
+        s.push_str("case recreate-device\ndevice11\nbuf 0 16 0 1 0 0 0\ndevice11\nread 0 0 16 1 1\nend\n");
+        s.push_str("case failed-device\ndevice11\ndevice11 0\nfmt 28\nblend nodesc\nend\n");
+    }
     // format support at every feature level
     let levels: &[(&str, &str)] = if d3d11 {
         &[("device11 0x9100", "9_1"), ("device11 0x9200", "9_2"), ("device11 0x9300", "9_3"), ("device11 0xa000", "10_0"), ("device11 0xa100", "10_1"), ("device11", "11_0"), ("device11 0xb100", "11_1")]

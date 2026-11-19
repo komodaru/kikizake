@@ -1,4 +1,10 @@
 # kikizake suite gdi: PatBlt and BitBlt into DIB sections (SPEC.md). Made by `kikizake gen gdi`.
+case draw-then-poke
+dib 0 1 1 32
+patblt 0 0 0 1 1 0xff0062
+poke 0 0 0 12345678
+dump 0
+end
 case rop3-1-solid
 dib 0 16 16 1
 fill 0 594743354

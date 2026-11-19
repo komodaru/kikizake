@@ -1,5 +1,25 @@
 # gpu
 # kikizake suite d3d11res: Direct3D 11 resources (SPEC.md). Made by `kikizake gen d3d11res`.
+case switch-devices
+device11
+device10
+fmt 28
+blend nodesc
+device11
+fmt 28
+end
+case recreate-device
+device11
+buf 0 16 0 1 0 0 0
+device11
+read 0 0 16 1 1
+end
+case failed-device
+device11
+device11 0
+fmt 28
+blend nodesc
+end
 case fmt-9_1
 device11 0x9100
 fmt 0

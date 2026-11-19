@@ -142,6 +142,7 @@ impl Resource {
 
 #[derive(Default)]
 pub struct D3dres {
+    states: super::d3d11::D3d11,
     pub dev: Option<Dev>,
     pub res: [Option<Resource>; 16],
     pub views: [Option<View>; 16],
@@ -213,8 +214,15 @@ impl D3dres {
             "device11" => {
                 *self = D3dres::default();
                 let fl = if t.len() > 1 { n(t, 1)? } else { 0xb000 };
+                if t.len() > 2 {
+                    return Err(Fail::Bad);
+                }
+                if fl == 0 {
+                    out.push("device11 failed 80070057".into());
+                    return Ok(true);
+                }
                 self.dev = Some(Dev::D11(fl));
-                return Ok(false);
+                return self.states.op(op, out);
             }
             "device10" | "device10_1" => {
                 *self = D3dres::default();
@@ -226,7 +234,7 @@ impl D3dres {
         }
         let drawing = super::d3draster::OPS.contains(&name);
         if !OPS.contains(&name) && !drawing {
-            return Ok(false);
+            return self.states.op(op, out);
         }
         let Some(dev) = self.dev else {
             if name == "vtx" {

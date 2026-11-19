@@ -3,6 +3,7 @@ use super::*;
 
 pub fn gdi() -> String {
     let mut s = String::from("# kikizake suite gdi: PatBlt and BitBlt into DIB sections (SPEC.md). Made by `kikizake gen gdi`.\n");
+    s.push_str("case draw-then-poke\ndib 0 1 1 32\npatblt 0 0 0 1 1 0xff0062\npoke 0 0 0 12345678\ndump 0\nend\n");
     // every ternary operation on every format, with a pattern brush so that P varies by pixel:
     // one 1x1 BitBlt per operation, its own pixel of a 16x16 picture
     for f in FORMATS {
