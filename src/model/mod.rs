@@ -122,6 +122,35 @@ pub fn cpu() -> Option<String> {
     CPU.with(|c| c.borrow().clone())
 }
 
+/// Conditions shared by every case in a particular reference recording.
+pub struct ModelContext {
+    pub arch: u32,
+    pub cpu: Option<String>,
+    pub fitted: Fitted,
+}
+
+impl ModelContext {
+    pub fn recorded(arch: u32, stdout: &str) -> Self {
+        Self { arch, cpu: stdout.lines().find(|l| l.starts_with("cpu ")).map(String::from), fitted: Fitted::Withheld }
+    }
+
+    pub fn evaluate<T>(&self, f: impl FnOnce() -> T) -> T {
+        struct Restore(ModelContext);
+        impl Drop for Restore {
+            fn drop(&mut self) {
+                set_arch(self.0.arch);
+                set_cpu(self.0.cpu.take());
+                set_fitted(self.0.fitted);
+            }
+        }
+        let _restore = Restore(ModelContext { arch: arch(), cpu: cpu(), fitted: FITTED.with(|c| c.get()) });
+        set_arch(self.arch);
+        set_cpu(self.cpu.clone());
+        set_fitted(self.fitted);
+        f()
+    }
+}
+
 /// one case's lines, or why the model has none
 pub fn run_case(case: &Case) -> Res<Vec<String>> {
     run_case_ended(case).0
@@ -216,9 +245,7 @@ fn apis() -> Vec<Box<dyn Api>> {
     vec![
         Box::new(gdi::Gdi::new()),
         Box::new(d3d9::D3d9::default()),
-        // (before d3d11: it sees device11 and leaves it to d3d11)
         Box::new(d3dres::D3dres::default()),
-        Box::new(d3d11::D3d11::default()),
         Box::new(Wic),
         Box::new(ddraw::Ddraw::default()),
         Box::new(d3d7::D3d7::default()),
@@ -263,26 +290,45 @@ fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
     (Ok(out), Ended::Next)
 }
 
+/// Evaluate in executor order. A crash includes the interrupted case.
+pub fn evaluate_cases(cases: &[Case]) -> impl Iterator<Item = (&Case, Res<Vec<String>>, Ended)> {
+    let mut stopped = false;
+    cases.iter().map_while(move |case| {
+        if stopped { return None; }
+        let (result, ended) = run_case_ended(case);
+        stopped = ended == Ended::Crash;
+        Some((case, result, ended))
+    })
+}
+
 /// the whole output for a case file of `suite`
 pub fn run(suite: &str, cases: &[Case]) -> String {
+    run_report(suite, cases).0
+}
+
+/// Serialized output and the names of cases rejected as malformed.
+pub fn run_report(suite: &str, cases: &[Case]) -> (String, Vec<String>) {
+    let mut invalid = Vec::new();
     let mut s = format!("kikizake {suite}\n");
-    for c in cases {
+    for (c, r, ended) in evaluate_cases(cases) {
         s += &format!("case {}\n", c.name);
-        let (r, ended) = run_case_ended(c);
         match r {
             Ok(lines) => lines.iter().for_each(|l| {
                 s += l;
                 s += "\n"
             }),
-            Err(Fail::Bad | Fail::Empty) => s += "unmodeled bad line\n",
+            Err(Fail::Bad | Fail::Empty) => {
+                invalid.push(c.name.clone());
+                s += "invalid case\n";
+            }
             Err(Fail::Unmodeled(why)) => s += &format!("unmodeled {why}\n"),
             Err(Fail::Crash) => unreachable!("run_ops answers a crash as its lines"),
         }
         match ended {
             Ended::Next => {}
             // (the executor's output ends there, without "done")
-            Ended::Crash => return s,
+            Ended::Crash => return (s, invalid),
         }
     }
-    s + "done\n"
+    (s + "done\n", invalid)
 }

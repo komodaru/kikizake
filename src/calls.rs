@@ -843,7 +843,7 @@ pub fn check_ops(cases: &[crate::case::Case], rec: &Recording, rules: &[Rule]) -
             bad.push(format!("{}: not recorded", case.name));
             continue;
         };
-        let mut slot: HashMap<&str, Handle> = HashMap::new();
+        let mut slot: HashMap<i64, Handle> = HashMap::new();
         let mut at = 0;
         for op in &case.ops {
             if got.bad.contains(&Line(op.line)) {
@@ -854,7 +854,40 @@ pub fn check_ops(cases: &[crate::case::Case], rec: &Recording, rules: &[Rule]) -
                 let (api, args) = match &r.does {
                     Does::Renew(ts) => {
                         for t in ts {
-                            slot.remove(tok(*t));
+                            let Some(id) = crate::case::num(tok(*t)) else {
+                                bad.push(format!("{} line {}: invalid DC slot", case.name, op.line));
+                                continue;
+                            };
+                            if r.op == "ddb" {
+                                let Some((idx, bitmap)) = got.calls.iter().enumerate().skip(at)
+                                    .find(|(_, c)| matches!(c.api.0.as_str(), "CreateBitmap" | "CreateCompatibleBitmap")) else {
+                                    bad.push(format!("{} line {}: missing bitmap creation", case.name, op.line));
+                                    continue;
+                                };
+                                at = idx.saturating_add(1);
+                                if !matches!(bitmap.ret, Ret::Value(Val::Handle(Handle(h))) if h != 0) { continue; }
+                            } else {
+                                slot.remove(&id);
+                            }
+                            let Some((index, creation)) = got.calls.iter().enumerate().skip(at).find(|(_, c)| c.api.0 == "CreateCompatibleDC") else {
+                                bad.push(format!("{} line {}: missing CreateCompatibleDC", case.name, op.line));
+                                continue;
+                            };
+                            at = index.saturating_add(1);
+                            if let Ret::Value(Val::Handle(h)) = creation.ret {
+                                if r.op == "ddb" {
+                                    let Some((idx, select)) = got.calls.iter().enumerate().skip(at).find(|(_, c)| c.api.0 == "SelectObject") else {
+                                        bad.push(format!("{} line {}: missing bitmap selection", case.name, op.line));
+                                        continue;
+                                    };
+                                    at = idx.saturating_add(1);
+                                    if !matches!(select.ret, Ret::Value(Val::Handle(Handle(old))) if old != 0) { continue; }
+                                }
+                                if slot.iter().any(|(other, value)| *other != id && *value == h) {
+                                    bad.push(format!("{} line {}: DC already assigned to a live slot", case.name, op.line));
+                                }
+                                slot.insert(id, h);
+                            }
                         }
                         continue;
                     }
@@ -877,7 +910,7 @@ pub fn check_ops(cases: &[crate::case::Case], rec: &Recording, rules: &[Rule]) -
                         Arg::Num(t) => num(*t).is_some_and(|x| v.int32() == Some(x) || (x == 0 && *v == Val::Null)),
                         Arg::Color(t) => crate::case::color(tok(*t)).is_some_and(|c| v.int32() == Some(colorref(c)) || (c == 0 && *v == Val::Null)),
                         Arg::Slot(t) => match v {
-                            Val::Handle(h) => *slot.entry(tok(*t)).or_insert(*h) == *h,
+                            Val::Handle(h) => crate::case::num(tok(*t)).is_some_and(|id| !slot.iter().any(|(s, other)| *s != id && other == h) && *slot.entry(id).or_insert(*h) == *h),
                             Val::Null | Val::Ptr | Val::Dec(_) | Val::Hex(_) | Val::Bool(_) | Val::Str(_) | Val::Bytes(_) | Val::Text(_) | Val::Missing(_) => false,
                         },
                     };
@@ -973,9 +1006,18 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
     let unstable: Vec<String> = std::fs::read_to_string(root.join("spec/unstable.txt"))
         .map(|t| t.lines().filter_map(|l| crate::case::tokens(l).first().cloned()).collect())
         .unwrap_or_default();
-    let mut names: Vec<String> = std::fs::read_dir(dir)
-        .map(|d| d.filter_map(|e| e.ok()?.file_name().to_str()?.strip_suffix(".txt").map(str::to_string)).collect())
-        .unwrap_or_default();
+    let mut names = Vec::new();
+    match std::fs::read_dir(dir) {
+        Ok(entries) => for entry in entries {
+            match entry {
+                Ok(e) => if let Some(name) = e.file_name().to_str().and_then(|s| s.strip_suffix(".txt")) {
+                    names.push(name.to_string());
+                },
+                Err(e) => ch.ops.push(format!("{}: {e}", dir.display())),
+            }
+        },
+        Err(e) => { ch.ops.push(format!("{}: {e}", dir.display())); return ch; }
+    }
     names.sort();
     let mut current: HashMap<String, Recording> = HashMap::new();
     for n in &names {
@@ -1001,6 +1043,8 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
         ch.info.push((n.clone(), format!("{} cases, {calls} calls, {} failed, {} case lines not as recorded, stdout {}", rec.cases.len(), f.len(), bad.len(), rec.header.stdout.name())));
         ch.ops.extend(bad.into_iter().map(|b| format!("{n} {b}")));
         ch.failures.extend(f.into_iter().map(|b| format!("{n} {b}")));
+        let truncated = rec.cases.iter().filter(|c| c.out == Stdout::Truncated).count();
+        if truncated > 0 { ch.info.push((n.clone(), format!("{truncated} cases with partial stdout"))); }
         let differ: Vec<&Case> = rec.cases.iter().filter(|c| c.out == Stdout::Differ).collect();
         for c in &differ {
             if !unstable.iter().any(|u| *u == c.name) {
@@ -1012,6 +1056,7 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
         }
         current.insert(n.clone(), rec);
     }
+    if current.is_empty() { ch.ops.push("no current call recordings".into()); }
     for (n, a) in &current {
         if let Some(s) = n.strip_suffix("-32") && let Some(b) = current.get(&format!("{s}-64")) {
             ch.arch.extend(differ(a, b, &arch).into_iter().map(|d| format!("{s} {d}")));

@@ -83,7 +83,7 @@ fn laws_name_tests_and_clauses() {
 #[test]
 fn clauses_have_their_evidence() {
     let dir = std::env::var_os("KIKIZAKE_GOLDEN").map(std::path::PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("golden"));
-    let t = kikizake::trace::trace(&dir);
+    let t = kikizake::trace::trace(&dir).unwrap();
     let learn = kikizake::trace::learn();
     let none = kikizake::trace::Evidence::default();
     let mut bad = Vec::new();

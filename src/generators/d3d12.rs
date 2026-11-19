@@ -2,36 +2,7 @@
 use super::*;
 use crate::model::dxgi_format::{block, channels, DEPTH};
 
-/// a D3D12_RESOURCE_DESC as the executor's 11 tokens
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Desc {
-    pub dim: u32,
-    pub align: u32,
-    pub w: u32,
-    pub h: u32,
-    pub d: u32,
-    pub mips: u32,
-    pub fmt: u32,
-    pub samples: u32,
-    pub quality: u32,
-    pub layout: u32,
-    pub flags: u32,
-}
-
-impl Desc {
-    pub fn words(&self) -> [u32; 11] {
-        [self.dim, self.align, self.w, self.h, self.d, self.mips, self.fmt, self.samples, self.quality, self.layout, self.flags]
-    }
-    pub fn from_words(w: &[u32]) -> Desc {
-        Desc { dim: w[0], align: w[1], w: w[2], h: w[3], d: w[4], mips: w[5], fmt: w[6], samples: w[7], quality: w[8], layout: w[9], flags: w[10] }
-    }
-    pub fn buffer(w: u32) -> Desc {
-        Desc { dim: 1, align: 0, w, h: 1, d: 1, mips: 1, fmt: 0, samples: 1, quality: 0, layout: 1, flags: 0 }
-    }
-    pub fn tex(dim: u32, w: u32, h: u32, d: u32, mips: u32, fmt: u32) -> Desc {
-        Desc { dim, align: 0, w, h, d, mips, fmt, samples: 1, quality: 0, layout: 0, flags: 0 }
-    }
-}
+pub use crate::resource_desc::Desc;
 
 fn hexw(v: u32) -> String {
     if v < 10 {

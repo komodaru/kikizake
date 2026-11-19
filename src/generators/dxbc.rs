@@ -96,6 +96,15 @@ pub fn checksum(data: &[u8]) -> [u32; 4] {
     st
 }
 
+/// Whether this is a DXBC container with its declared size and checksum intact.
+pub fn intact(bytes: &[u8]) -> bool {
+    let (Some(size), Some(expected), Some(payload)) = (bytes.get(24..28), bytes.get(4..20), bytes.get(20..)) else {
+        return false;
+    };
+    bytes.starts_with(b"DXBC") && u32::try_from(bytes.len()).is_ok_and(|n| size == n.to_le_bytes())
+        && checksum(payload).iter().flat_map(|w| w.to_le_bytes()).eq(expected.iter().copied())
+}
+
 /// kind: 0 pixel, 1 vertex
 pub fn blob(kind: u32, isgn: &[Sig], osgn: &[Sig], code: &[u32]) -> Vec<u8> {
     let mut shdr = vec![kind << 16 | 0x40, code.len() as u32 + 2];

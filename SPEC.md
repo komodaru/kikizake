@@ -180,3 +180,8 @@ Without a context the gl lines print `noctx`. A case's context and DIB are relea
 `kikizake model <suite>` prints what Windows prints, case by case. A case whose behavior the
 documentation does not settle and Windows' answers have not shown yet prints
 `unmodeled <why>` instead; it is then checked against Windows' recorded answers only.
+
+A model line of the form `oneof <line> | <line>` lists exact alternatives observed
+when repeating a measurement. The comparator requires one complete line from that list.
+An invalid case makes the model CLI fail. Comparison requires a nonempty sequence of
+matching case names in order, through the modeled stop or the final `done`.

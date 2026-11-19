@@ -164,61 +164,72 @@ pub fn executor(source: &str) -> bool {
     s.starts_with("(the executor") || s.starts_with("runner/") || s.starts_with("SPEC.md")
 }
 
-fn golden(dir: &Path, suite: &str, arch: u32) -> Option<BTreeMap<String, Vec<String>>> {
-    let t = std::fs::read_to_string(dir.join(format!("{suite}-{arch}/stdout.txt"))).ok()?;
-    Some(crate::case::parse_output(&t).cases.into_iter().collect())
+/// Check source digests before treating recorded output as evidence.
+pub fn verify_sources(dir: &Path, suites: &[&str]) -> std::io::Result<()> {
+    let script = Path::new(env!("CARGO_MANIFEST_DIR")).join("runner/golden.py");
+    let check = std::process::Command::new("python3").arg(script).arg("verify").arg(dir).args(suites).output()?;
+    if check.status.success() {
+        Ok(())
+    } else {
+        Err(std::io::Error::other(String::from_utf8_lossy(&check.stderr).into_owned()))
+    }
 }
 
 /// every suite's cases, each executor, through the models and against Windows' answers in `dir`
-pub fn trace(dir: &Path) -> BTreeMap<String, Evidence> {
+pub fn trace(dir: &Path) -> std::io::Result<BTreeMap<String, Evidence>> {
+    verify_sources(dir, crate::generators::SUITES)?;
     let mut m: BTreeMap<String, Evidence> = BTreeMap::new();
     for s in crate::generators::SUITES {
         let text = crate::generators::suite(s).unwrap();
         let cases = crate::case::parse_cases(&text);
-        for arch in [32, 64] {
-            if arch == 64 && text.contains("\n# x86 only") || arch == 32 && text.contains("\n# x64 only") {
-                continue;
-            }
-            crate::model::set_arch(arch);
-            let g = golden(dir, s, arch);
-            for c in &cases {
-                crate::spec::take();
-                let r = crate::model::run_case(c);
-                let hits = crate::spec::take();
-                let want = g.as_ref().and_then(|g| g.get(&c.name));
-                let kind = match (&r, want) {
-                    (_, None) => 3,
-                    (Err(_), _) => 2,
-                    (Ok(l), Some(w)) if l.len() == w.len() && l.iter().zip(w.iter()).all(|(a, b)| crate::compare::line_matches(Some(a.as_str()), Some(b.as_str()))) => 0,
-                    _ => 1,
-                };
-                for id in hits {
-                    let e = m.entry(id.to_string()).or_default();
-                    match kind {
-                        0 => e.same += 1,
-                        1 => e.differ += 1,
-                        2 => {
-                            e.unmodeled += 1;
-                            if let Err(crate::model::Fail::Unmodeled(why)) = &r && why.as_str() != id {
-                                *e.blocked.entry(why.to_string()).or_default() += 1;
+        for arch in crate::generators::architectures(&text) {
+            let path = dir.join(format!("{s}-{arch}/stdout.txt"));
+            let stdout = match std::fs::read_to_string(&path) {
+                Ok(text) => text,
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => String::new(),
+                Err(e) => return Err(std::io::Error::new(e.kind(), format!("{}: {e}", path.display()))),
+            };
+            let reference = crate::case::parse_output(&stdout);
+            crate::model::ModelContext::recorded(arch, &stdout).evaluate(|| {
+                for (i, c) in cases.iter().enumerate() {
+                    crate::spec::take();
+                    let (r, ended) = crate::model::run_case_ended(c);
+                    let hits = crate::spec::take();
+                    let want = reference.cases.get(i).filter(|(name, _)| *name == c.name).map(|(_, lines)| lines);
+                    let kind = match (&r, want) {
+                        (_, None) => 3,
+                        (Err(crate::model::Fail::Unmodeled(_)), _) => 2,
+                        (Ok(l), Some(w)) if l.len() == w.len() && l.iter().zip(w.iter()).all(|(a, b)| crate::compare::line_matches(Some(a.as_str()), Some(b.as_str()))) => 0,
+                        _ => 1,
+                    };
+                    for id in hits {
+                        let e = m.entry(id.to_string()).or_default();
+                        match kind {
+                            0 => e.same += 1,
+                            1 => e.differ += 1,
+                            2 => {
+                                e.unmodeled += 1;
+                                if let Err(crate::model::Fail::Unmodeled(why)) = &r && why.as_str() != id {
+                                    *e.blocked.entry(why.to_string()).or_default() += 1;
+                                }
                             }
+                            _ => e.unanswered += 1,
                         }
-                        _ => e.unanswered += 1,
+                        if e.cases.len() < 3 {
+                            e.cases.push(format!("{s}-{arch}:{}", c.name));
+                        }
                     }
-                    if e.cases.len() < 3 {
-                        e.cases.push(format!("{s}-{arch}:{}", c.name));
-                    }
+                    if ended == crate::model::Ended::Crash { break; }
                 }
-            }
+            });
         }
     }
-    crate::model::set_arch(32);
     for l in laws() {
         for id in &l.clauses {
             m.entry(id.clone()).or_default().laws.push(l.clone());
         }
     }
-    m
+    Ok(m)
 }
 
 fn blocked(e: &Evidence) -> String {
@@ -239,16 +250,16 @@ pub fn gaps(c: &Clause, e: &Evidence, learn: &BTreeMap<String, String>) -> Vec<S
     if e.reached() == 0 {
         v.push("no case reaches it".into());
     }
-    // (a case differing from Windows fails tests/windows.rs; a clause whose cases Windows has
-    // not answered yet waits for the windows workflow)
-    let pending = e.unanswered > 0;
+    if e.differ > 0 {
+        v.push(format!("{} cases differ from Windows", e.differ));
+    }
     match st {
         "doc" => {
             if undocumented(&c.source) {
                 v.push(format!("doc, but its source {:?} is no documentation", c.source));
             }
             if executor(&c.source) {
-                if e.same == 0 && !pending {
+                if e.same == 0 {
                     v.push(format!("the executor's own rule, but no case reaching it agrees with a Windows answer{}", blocked(e)));
                 }
                 return v;
@@ -258,16 +269,16 @@ pub fn gaps(c: &Clause, e: &Evidence, learn: &BTreeMap<String, String>) -> Vec<S
                     v.push(format!("page {p:?} not in spec/learn.txt"));
                 }
             }
-            if e.laws.is_empty() && e.same == 0 && !pending {
+            if e.laws.is_empty() && e.same == 0 {
                 v.push(format!("no law and no case Windows agrees with{}", blocked(e)));
             }
         }
         "measured" => {
-            if e.same == 0 && !pending {
+            if e.same == 0 {
                 v.push(format!("measured, but no case reaching it agrees with a Windows answer{}", blocked(e)));
             }
         }
-        "assumed" if e.laws.is_empty() && e.same == 0 && !pending => {
+        "assumed" if e.laws.is_empty() && e.same == 0 => {
             v.push(format!("no law and no case Windows agrees with{}", blocked(e)));
         }
         _ => {}
@@ -276,8 +287,8 @@ pub fn gaps(c: &Clause, e: &Evidence, learn: &BTreeMap<String, String>) -> Vec<S
 }
 
 /// one line per clause: id, status, cases same/differ/unmodeled/unanswered, laws, gaps
-pub fn table(dir: &Path) -> String {
-    let t = trace(dir);
+pub fn table(dir: &Path) -> std::io::Result<String> {
+    let t = trace(dir)?;
     let learn = learn();
     let mut s = String::from("# clause status same differ unmodeled unanswered laws(exhaustive/pbt) | gaps\n");
     let mut per: BTreeMap<&str, [usize; 8]> = BTreeMap::new();
@@ -307,5 +318,5 @@ pub fn table(dir: &Path) -> String {
     for (f, p) in per {
         s += &format!("# {f:10} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4}\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
     }
-    s
+    Ok(s)
 }

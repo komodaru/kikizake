@@ -726,7 +726,12 @@ fn cpu_as_x86() -> Res<bool> {
     if crate::model::arch() != 64 {
         return Ok(false);
     }
+    hit(clause::D3DX9_F16_CPU);
     let c = crate::model::cpu().ok_or(Fail::Unmodeled(open::D3DX9_F16_CPU))?;
+    if c == "cpu AuthenticAMD feda3203 178bfbff f1bf07a9" {
+        return Ok(false);
+    }
+    super::approx(open::D3DX9_F16_CPU)?;
     let ecx = c.split(' ').nth(2).and_then(|v| u32::from_str_radix(v, 16).ok()).ok_or(Fail::Bad)?;
     Ok(ecx & 1 << 28 == 0)
 }

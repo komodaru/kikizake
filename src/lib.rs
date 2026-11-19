@@ -12,11 +12,13 @@
 pub mod calls;
 pub mod case;
 pub mod compare;
+pub mod shaders;
 pub mod generators;
 pub mod json;
 pub mod learn;
 mod proofs;
 pub mod model;
+pub mod resource_desc;
 pub mod rng;
 pub mod spec;
 pub mod tla;

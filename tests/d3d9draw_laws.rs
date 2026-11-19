@@ -252,3 +252,11 @@ fn every_taken_format_is_decoded() {
         }
     }
 }
+
+#[test]
+fn free_line_start_selects_the_measured_row() {
+    let lines = picture("case x\ndevice swvp\nd9target 16 16 21\nd9clear 1 0 0 0\nd9fvf 0x44\nd9draw 2 2 0x41500000 0x41180000 0 0x3f800000 0xffffffff 0x40600000 0x40880000 0 0x3f800000 0xffffffff\nd9rt\nend");
+    let rows = &lines[lines.iter().position(|l| l == "px rt 16 16 32").unwrap() + 1..];
+    assert_eq!(&rows[9][13 * 8..14 * 8], "00000000");
+    assert_eq!(&rows[10][13 * 8..14 * 8], "ffffffff");
+}

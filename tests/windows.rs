@@ -2,18 +2,12 @@
 //!
 //! Windows' answers: golden/<suite>-<arch>/stdout.txt, recorded by the windows workflow
 //! (KIKIZAKE_GOLDEN=<dir> reads them from elsewhere), and golden/probes/: answers of masu's winref
-//! probes (github.com/a-kaibu/masu, tests/winref) that check the models independently. A suite
-//! with no answer yet is reported and skipped.
+//! probes (github.com/a-kaibu/masu, tests/winref) that check the models independently. The architecture declarations in each case file select the required recordings.
 use std::path::PathBuf;
 use kikizake::{case, compare, generators, model};
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-}
-
-fn golden(suite: &str, arch: u32) -> Option<String> {
-    let dir = std::env::var_os("KIKIZAKE_GOLDEN").map(PathBuf::from).unwrap_or_else(|| root().join("golden"));
-    std::fs::read_to_string(dir.join(format!("{suite}-{arch}/stdout.txt"))).ok()
 }
 
 #[test]
@@ -29,31 +23,27 @@ fn models_match_windows() {
     let mut bad = Vec::new();
     // (KIKIZAKE_SUITES=a,b: only those, as cargo mutants of one model wants)
     let only = std::env::var("KIKIZAKE_SUITES").ok();
+    let dir = std::env::var_os("KIKIZAKE_GOLDEN").map(PathBuf::from).unwrap_or_else(|| root().join("golden"));
+    if let Some(filter) = &only {
+        assert!(filter.split(',').all(|s| generators::SUITES.contains(&s)), "unknown suite in {filter}");
+    }
+    let selected: Vec<_> = only.as_deref().map_or_else(|| generators::SUITES.to_vec(), |s| s.split(',').collect());
+    if let Err(e) = kikizake::trace::verify_sources(&dir, &selected) {
+        bad.push(e.to_string());
+    }
     for s in generators::SUITES {
         if only.as_ref().is_some_and(|o| !o.split(',').any(|x| x == *s)) {
             continue;
         }
-        let cases = case::parse_cases(&generators::suite(s).unwrap());
-        for arch in [32, 64] {
-            model::set_arch(arch);
-            let want = model::run(s, &cases);
-            if arch == 64 && generators::suite(s).unwrap().contains("\n# x86 only") || arch == 32 && generators::suite(s).unwrap().contains("\n# x64 only") {
-                continue;
-            }
-            let Some(g) = golden(s, arch) else {
-                eprintln!("kikizake_{s}-{arch}: no answer from Windows yet");
-                continue;
-            };
-            // (the processor the answer came from, where it says: an input, model::set_cpu)
-            let want = match g.lines().find(|l| l.starts_with("cpu ")) {
-                Some(c) => {
-                    model::set_cpu(Some(c.to_string()));
-                    let w = model::run(s, &cases);
-                    model::set_cpu(None);
-                    w
-                }
-                None => want,
-            };
+        let input = generators::suite(s).unwrap();
+        let cases = case::parse_cases(&input);
+        for arch in generators::architectures(&input) {
+            let reference = dir.join(format!("{s}-{arch}"));
+            let g = std::fs::read_to_string(reference.join("stdout.txt")).unwrap_or_else(|e| panic!("{s}-{arch}: {e}"));
+            let status = std::fs::read_to_string(reference.join("exit")).unwrap();
+            let status: i64 = status.trim().parse().expect("numeric executor exit status");
+            let want = model::ModelContext::recorded(arch, &g).evaluate(|| model::run(s, &cases));
+            assert_eq!(case::parse_output(&want).done, status == 0, "{s}-{arch}: exit {status}");
             let r = compare::compare_text(&want, &g);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));
@@ -254,7 +244,7 @@ fn wic_matches_the_wicconv_probe() {
     assert!(n > 50, "{n} {open}");
 }
 
-/// the generators write no line a model refuses ("unmodeled bad line" would pass over a case
+/// the generators write no line a model refuses ("invalid case" would pass over a case
 /// unchecked: a model broken on its own cases must not look unmodeled)
 #[test]
 fn no_generated_line_is_bad() {
@@ -267,15 +257,8 @@ fn no_generated_line_is_bad() {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
             model::set_arch(arch);
-            let out = model::run(s, &cases);
-            let mut name = "";
-            for l in out.lines() {
-                if let Some(n) = l.strip_prefix("case ") {
-                    name = n;
-                } else if l == "unmodeled bad line" {
-                    bad.push(format!("{s}-{arch} {name}"));
-                }
-            }
+            let (_, invalid) = model::run_report(s, &cases);
+            bad.extend(invalid.into_iter().map(|name| format!("{s}-{arch} {name}")));
         }
     }
     model::set_arch(32);

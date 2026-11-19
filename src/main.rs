@@ -38,11 +38,28 @@ fn main() {
             if std::env::var("KIKIZAKE_FITTED").as_deref() == Ok("1") {
                 model::set_fitted(model::Fitted::Answered);
             }
+            if !generators::SUITES.contains(suite) || rest.len() > 1 {
+                eprintln!("expected a known suite and at most one case file: {suite}");
+                exit(2);
+            }
             let text = match rest {
                 [f] => read(f),
-                _ => generators::suite(suite).unwrap_or_default(),
+                _ => generators::suite(suite).unwrap_or_else(|| exit(2)),
             };
-            print!("{}", model::run(suite, &case::parse_cases(&text)));
+            let cases = case::checked_cases(&text).unwrap_or_else(|e| {
+                eprintln!("{suite}: {e}");
+                exit(2)
+            });
+            if cases.is_empty() {
+                eprintln!("no cases in {suite}");
+                exit(2);
+            }
+            let (output, invalid) = model::run_report(suite, &cases);
+            print!("{output}");
+            if !invalid.is_empty() {
+                eprintln!("invalid case input: {}", invalid.join(", "));
+                exit(2);
+            }
         }
         ["spec"] => {
             let cov = kikizake::spec::coverage();
@@ -52,7 +69,10 @@ fn main() {
         }
         ["learn", rest @ ..] => exit(kikizake::learn::main(rest)),
         ["tla", rest @ ..] => exit(kikizake::tla::main(rest)),
-        ["trace", rest @ ..] => print!("{}", kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden")))),
+        ["trace", rest @ ..] => match kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden"))) {
+            Ok(table) => print!("{table}"),
+            Err(e) => { eprintln!("{e}"); exit(2); }
+        },
         ["calls", "import", name, cases, jsonl, stdout, src, rev] => {
             let mut r = kikizake::calls::from_jsonl(&read(jsonl), std::fs::read_to_string(stdout).ok().as_deref()).unwrap_or_else(|e| {
                 eprintln!("{jsonl}: {e}");

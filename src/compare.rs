@@ -24,6 +24,9 @@ fn first_pixel(want: &str, got: &str, bpp: u32) -> Option<usize> {
 /// (a model's undefined byte, "??"), which any hex digit matches
 pub fn line_matches(want: Option<&str>, got: Option<&str>) -> bool {
     match (want, got) {
+        (Some(w), Some(g)) if w.starts_with("oneof ") => {
+            w.strip_prefix("oneof ").is_some_and(|lines| lines.split(" | ").any(|line| line == g))
+        }
         (Some(w), Some(g)) if w.len() == g.len() && w.contains('?') => {
             w.bytes().zip(g.bytes()).all(|(a, b)| a == b || (a == b'?' && b.is_ascii_hexdigit()))
         }
@@ -33,26 +36,30 @@ pub fn line_matches(want: Option<&str>, got: Option<&str>) -> bool {
 
 pub fn compare(want: &Output, got: &Output) -> Report {
     let mut r = Report::default();
-    let mut gi = 0;
-    for (name, wl) in &want.cases {
+    if want.after_done || got.after_done { r.differ.push("output after done".into()); }
+    if want.cases.is_empty() {
+        r.differ.push("no expected cases".into());
+    }
+    let suite = |o: &Output| o.head.iter().find(|l| l.starts_with("kikizake ")).cloned();
+    if suite(want) != suite(got) {
+        r.differ.push(format!("suite: want {:?}, got {:?}", suite(want), suite(got)));
+    }
+    for (i, (name, wl)) in want.cases.iter().enumerate() {
         r.cases += 1;
-        // (cases in the same order; a missing one does not shift the rest)
-        let found = got.cases[gi.min(got.cases.len())..].iter().position(|(n, _)| n == name);
-        if wl.first().is_some_and(|l| l.starts_with("unmodeled")) {
-            r.unmodeled += 1;
-            // (an unmodeled case passes over its answer, so that a later case of the same name
-            // is compared with its own; found only earlier, it is not missing either)
-            if found.is_none() && got.cases.iter().any(|(n, _)| n == name) {
-                continue;
-            }
-        }
-        let Some(k) = found else {
+        let Some((actual, gl)) = got.cases.get(i) else {
             r.differ.push(format!("{name}: missing (the program stopped or skipped it)"));
             continue;
         };
-        let gl = &got.cases[gi + k].1;
-        gi += k + 1;
-        if wl.first().is_some_and(|l| l.starts_with("unmodeled")) {
+        if actual != name {
+            r.differ.push(format!("case {}: want {name}, got {actual}", i + 1));
+            continue;
+        }
+        if wl.first().is_some_and(|l| l == "invalid case" || l == "unmodeled bad line") {
+            r.differ.push(format!("{name}: invalid model input"));
+            continue;
+        }
+        if wl.first().is_some_and(|l| l.starts_with("unmodeled ")) {
+            r.unmodeled += 1;
             continue;
         }
         let mut bpp = 0;
@@ -79,9 +86,10 @@ pub fn compare(want: &Output, got: &Output) -> Report {
             None => r.same += 1,
         }
     }
-    if !want.done && !got.done {
-        // (both died: nothing more to say)
-    } else if want.done != got.done {
+    for (name, _) in got.cases.iter().skip(want.cases.len()) {
+        r.differ.push(format!("{name}: unexpected case"));
+    }
+    if want.done != got.done {
         r.differ.push(format!("program end: want {} got {}", if want.done { "done" } else { "a crash" }, if got.done { "done" } else { "a crash" }));
     }
     r

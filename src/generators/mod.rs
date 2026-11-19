@@ -165,3 +165,11 @@ pub(crate) fn rop(r: &mut XorShift32) -> u32 {
     }
 }
 
+
+/// Architecture declarations shared with runner/build.sh.
+pub fn architectures(input: &str) -> impl Iterator<Item = u32> + '_ {
+    [32, 64].into_iter().filter(|arch| {
+        let excluded = if *arch == 64 { "# x86 only" } else { "# x64 only" };
+        !input.lines().any(|line| line.starts_with(excluded))
+    })
+}

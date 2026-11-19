@@ -82,6 +82,7 @@ properties, the fuzz target covers every parser and model through `model::run`, 
 
 Push to main: the `windows` workflow builds the executors, runs those whose sources changed
 since their answer on windows-2025 and commits `golden/`. A suite's sources are its case file,
-`build.sh`, `main.c`, `core.h` and the modules whose ops its lines use (`runner/golden.py`), so
-work on one API does not make the other suites' answers stale. Run it by hand (workflow_dispatch,
+`runner/build.sh`, and the C sources and headers linked by that script. Each executor invokes
+all registered reset functions. The source hash covers their modules and the registration in
+`runner/apis.h`. Rust model changes can use the existing recordings. Run it by hand (workflow_dispatch,
 `all`) to record everything again.

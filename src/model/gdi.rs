@@ -198,9 +198,9 @@ impl Slot {
 
 #[derive(Default)]
 pub struct Gdi {
-    pub slots: Vec<Option<Slot>>,
+    pub slots: [Option<Slot>; 8],
     /// gdirgn.c's region slots
-    pub rgns: Vec<Option<Rgn>>,
+    pub rgns: [Option<Rgn>; 8],
     /// gditext.c's font files added with AddFontMemResourceEx, in order
     pub fonts: Vec<crate::ttf::Parsed>,
 }
@@ -223,7 +223,7 @@ pub fn get<T>(v: &[Option<T>], k: i64) -> Result<&T, Fail> {
 
 impl Gdi {
     pub fn new() -> Gdi {
-        Gdi { slots: vec![None; 8], rgns: vec![None; 8], fonts: Vec::new() }
+        Self::default()
     }
     fn slot(&mut self, op: &Op, i: usize) -> Result<&mut Slot, Fail> {
         let k = n(op, i)?;

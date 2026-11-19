@@ -5,22 +5,37 @@
 //! (spec/tla/README.md).
 
 /// each state's log: its quoted strings in order
-pub fn logs(dump: &str) -> Vec<Vec<String>> {
-    let mut v = Vec::new();
-    for block in format!("\n{dump}").split("\nState ").skip(1) {
-        let Some(i) = block.find("/\\ log = ") else { continue };
-        let rest = &block[i + 9..];
-        let end = rest.find("\n/\\ ").unwrap_or(rest.len());
-        v.push(rest[..end].split('"').skip(1).step_by(2).map(String::from).collect());
+pub fn logs(dump: &str) -> Result<Vec<Vec<String>>, String> {
+    let mut states = Vec::new();
+    let dump = dump.trim();
+    if !dump.starts_with("State ") {
+        return Err("expected a TLC state dump".into());
     }
-    v
+    for block in dump.split("\nState ") {
+        let (header, body) = block.split_once('\n').ok_or("state missing its variables")?;
+        let (_, rest) = body.split_once("/\\ log = ").ok_or_else(|| format!("{header}: missing log"))?;
+        let tuple = rest.split("\n/\\ ").next().unwrap_or(rest).trim();
+        let mut items = tuple.strip_prefix("<<").and_then(|t| t.strip_suffix(">>"))
+            .ok_or_else(|| format!("{header}: malformed log tuple"))?.trim();
+        let mut lines = Vec::new();
+        while !items.is_empty() {
+            let (line, tail) = items.strip_prefix('"').and_then(|t| t.split_once('"'))
+                .ok_or_else(|| format!("{header}: expected a quoted log entry"))?;
+            lines.push(line.to_owned());
+            if tail.trim().is_empty() { break; }
+            items = tail.trim_start().strip_prefix(',').ok_or("expected a log separator")?.trim_start();
+            if items.is_empty() { return Err("missing final log entry".into()); }
+        }
+        states.push(lines);
+    }
+    Ok(states)
 }
 
 /// (states checked, how many differ, the first differences)
-pub fn check(dump: &str) -> (usize, usize, Vec<String>) {
+pub fn check(dump: &str) -> Result<(usize, usize, Vec<String>), String> {
     let mut bad = Vec::new();
     let mut differ = 0;
-    let all = logs(dump);
+    let all = logs(dump)?;
     for log in &all {
         let mut text = String::from("case tla\n");
         let mut want = Vec::new();
@@ -44,7 +59,7 @@ pub fn check(dump: &str) -> (usize, usize, Vec<String>) {
             bad.push(format!("{}\n  spec:  {:?}\n  model: {:?}", text.trim_end(), want, got));
         }
     }
-    (all.len(), differ, bad)
+    Ok((all.len(), differ, bad))
 }
 
 pub fn main(args: &[&str]) -> i32 {
@@ -52,8 +67,11 @@ pub fn main(args: &[&str]) -> i32 {
         eprintln!("usage: kikizake tla <TLC -dump file>");
         return 2;
     };
-    let text = std::fs::read_to_string(dump).unwrap_or_else(|e| panic!("{dump}: {e}"));
-    let (n, differ, bad) = check(&text);
+    let result = std::fs::read_to_string(dump).map_err(|e| e.to_string()).and_then(|text| check(&text));
+    let (n, differ, bad) = match result {
+        Ok(result) => result,
+        Err(e) => { eprintln!("{dump}: {e}"); return 2; }
+    };
     for b in &bad {
         println!("{b}");
     }

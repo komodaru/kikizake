@@ -45,6 +45,30 @@ pub fn parse_cases(text: &str) -> Vec<Case> {
     cases
 }
 
+/// Standalone files must have complete case blocks, so a missing delimiter
+/// cannot silently discard operations when the CLI evaluates a file.
+pub fn checked_cases(text: &str) -> Result<Vec<Case>, String> {
+    let mut cases = Vec::new();
+    let mut current: Option<Case> = None;
+    for (number, line) in (1..).zip(text.lines()) {
+        let tok = tokens(line);
+        let Some(first) = tok.first() else { continue };
+        match first.as_str() {
+            "case" if current.is_none() && tok.len() == 2 => {
+                current = tok.last().map(|name| Case { name: name.clone(), ops: Vec::new() });
+            }
+            "end" if tok.len() == 1 && current.is_some() => cases.extend(current.take()),
+            "case" | "end" => return Err(format!("line {}: invalid case delimiter", number)),
+            _ => {
+                let case = current.as_mut().ok_or_else(|| format!("line {}: operation outside a case", number))?;
+                case.ops.push(Op { line: number, tok });
+            }
+        }
+    }
+    if let Some(case) = current { return Err(format!("missing end for {}", case.name)); }
+    Ok(cases)
+}
+
 /// Executor output split by case: header lines (before the first case), then each case's name
 /// and lines, the final "done" (absent when the program died) as `done`.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -52,12 +76,14 @@ pub struct Output {
     pub head: Vec<String>,
     pub cases: Vec<(String, Vec<String>)>,
     pub done: bool,
+    pub after_done: bool,
 }
 
 pub fn parse_output(text: &str) -> Output {
     let mut o = Output::default();
     for l in text.lines() {
         let l = l.trim_end_matches('\r');
+        if o.done { o.after_done = true; }
         if let Some(n) = l.strip_prefix("case ") {
             o.cases.push((n.to_string(), Vec::new()));
         } else if l == "done" {

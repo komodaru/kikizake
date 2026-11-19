@@ -325,9 +325,8 @@ proptest! {
 /// repeats after an unmodeled case of that name
 #[test]
 fn repeated_case_names_compare_with_themselves() {
-    let text = "case a\nfoo\nend\ncase b\nfoo\nend\ncase a\nwbits gray8 1 2 7\nwscale 1 3 hqcubic\nwpixels\nend\n";
-    let out = kikizake::model::run("x", &kikizake::case::parse_cases(text));
-    let r = kikizake::compare::compare_text(&out, &out);
+    let out = "case a\nunmodeled WIC.SCALE\ncase b\nunmodeled WIC.SCALE\ncase a\nvalue\ndone\n";
+    let r = kikizake::compare::compare_text(out, out);
     assert!(r.differ.is_empty(), "{:?}", r.differ);
     assert_eq!((r.same, r.unmodeled), (1, 2));
 }

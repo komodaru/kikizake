@@ -396,3 +396,17 @@ proptest! {
         prop_assert!(u.iter().any(|l| l.starts_with("gdi32!SetStretchBltMode") && l.contains(&want)));
     }
 }
+
+#[test]
+fn created_dc_belongs_to_its_slot_until_recreated() {
+    let input = kikizake::case::parse_cases("case x\ndib 0 1 1 32\ndib 1 1 1 32\ntext 0 #000000\ntext 1 #000000\ndib 0 1 1 32\ntext 0 #000000\nend");
+    let create = |h| Call { api: Api("CreateCompatibleDC".into()), args: vec![], ret: Ret::Value(Val::Handle(Handle(h))), err: None };
+    let text = |h| Call { api: Api("SetTextColor".into()), args: vec![Val::Handle(Handle(h)), Val::Dec(0)], ret: Ret::Value(Val::Dec(0)), err: None };
+    let record = |a, b, c| calls::Recording { header: header(), cases: vec![calls::Case {
+        name: "x".into(), bad: vec![], out: calls::Stdout::Same,
+        calls: vec![create(1), create(2), text(a), text(b), create(3), text(c)],
+    }] };
+    for (a, b, c, valid) in [(1, 2, 3, true), (2, 1, 3, false), (1, 1, 3, false), (1, 2, 1, false)] {
+        assert_eq!(calls::check_ops(&input, &record(a, b, c), &rules()).is_empty(), valid);
+    }
+}

@@ -1,7 +1,7 @@
 //! Drawing on Direct3D 10 and 11: the input assembler (one vertex buffer, triangle lists and
 //! strips, instances), the viewport transform, the rasterizer (16.8 fixed point vertices, pixel
-//! centers, the top-left rule, culling, scissor), the pixel shaders the generator writes
-//! (src/generators/d3ddraw.rs, known here by their bytes), depth tests and blending.
+//! centers, the top-left rule, culling, scissor), the fixed shader programs
+//! (src/shaders.rs, identified here by their bytes), depth tests and blending.
 //!
 //! Sources (Microsoft Learn): "Rasterization Rules" (triangles: a pixel is drawn when its center
 //! is inside, the top-left rule on edges), "D3D11_RASTERIZER_DESC" (FrontCounterClockwise FALSE:
@@ -75,7 +75,7 @@ fn hexbytes(s: &str) -> Vec<u8> {
 /// the generator's programs: name, bytes, a vertex shader
 fn known(b: &[u8]) -> Option<(&'static str, bool)> {
     thread_local! {
-        static S: Vec<(&'static str, Vec<u8>)> = crate::generators::d3ddraw::shaders();
+        static S: Vec<(&'static str, Vec<u8>)> = crate::shaders::shaders();
     }
     S.with(|s| s.iter().find(|x| x.1 == b).map(|x| (x.0, x.0.starts_with("vs"))))
 }
@@ -104,7 +104,11 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             }
             hit(clause::D3DRASTER_SHADER);
             d.shaders[sl] = None;
-            let b = hexbytes(&t[3]);
+            let bytes = t.last().ok_or(Fail::Bad)?;
+            if !bytes.len().is_multiple_of(2) || !bytes.bytes().all(|c| c.is_ascii_hexdigit()) {
+                return Err(Fail::Bad);
+            }
+            let b = hexbytes(bytes);
             match known(&b) {
                 Some((name, is_vs)) if is_vs == vs => {
                     d.shaders[sl] = Some((name, vs));
@@ -113,6 +117,9 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                     } else {
                         d.ps = Some(name);
                     }
+                }
+                None if crate::generators::dxbc::intact(&b) => {
+                    return Err(Fail::Unmodeled(crate::spec::open::D3DRASTER_SHADER_BAD));
                 }
                 _ => {
                     // (checksum, size or kind wrong: assumed refused like any other bad bytecode)

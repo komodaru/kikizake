@@ -19,7 +19,7 @@ use crate::spec::clause;
 use super::dxgi_format::{block, channels, dims, planar_depth, Chan, Enc, FLIP};
 use super::{Fail, Res};
 use crate::case::{num, Op};
-use crate::generators::d3d12::Desc;
+use crate::resource_desc::Desc;
 use crate::spec::hit;
 
 /// an HRESULT: kept apart from the other numbers (printed as its 8 hex digits)
@@ -551,7 +551,7 @@ impl D3d12 {
                 if w[1] > 16 {
                     return Err(Fail::Bad);
                 }
-                let (fps, total) = footprints(w[0], w[1], w[2] as u64, &Desc::from_words(&w[3..]))?;
+                let (fps, total) = footprints(w[0], w[1], w[2] as u64, &Desc::from_abi_words(&w[3..]).ok_or(Fail::Bad)?)?;
                 for f in fps {
                     out.push(format!("fp {} {:x} {:x} {:x} {:x} {:x} {:x} {}", hex64(f.0), f.1, f.2, f.3, f.4, f.5 as u32, f.6, hex64(f.7)));
                 }
@@ -561,7 +561,7 @@ impl D3d12 {
                 if t.len() != 12 {
                     return Err(Fail::Bad);
                 }
-                let d = Desc::from_words(&words(&t[1..])?);
+                let d = Desc::from_abi_words(&words(&t[1..])?).ok_or(Fail::Bad)?;
                 let (size, al) = alloc(&d)?;
                 out.push(format!("alloc {size:x} {al:x}"));
             }
@@ -570,7 +570,7 @@ impl D3d12 {
                     return Err(Fail::Bad);
                 }
                 let w = words(&t[1..])?;
-                let (heap, state, d) = (w[0], w[1], Desc::from_words(&w[2..]));
+                let (heap, state, d) = (w[0], w[1], Desc::from_abi_words(&w[2..]).ok_or(Fail::Bad)?);
                 out.push(format!("create hr {:08x}", create_hr(Heap::of(heap), state, &d)?));
             }
             "clear12" => {
@@ -744,11 +744,16 @@ impl D3d12 {
                     "qheap12" => {
                         // (MEASURED: every type but video decode statistics (4), at least one query)
                         hit(clause::D3D12_MAKE_QUERYHEAP);
-                        let valid = w[0] <= 7 && w[0] != 4 && w[1] > 0;
-                        // (MEASURED, golden d3d12-32 make-167/168, 240..298: 7.75M queries of any
-                        // type are more than a 32-bit process has room for, 7.5M are not: WARP
-                        // keeps some 280 bytes a query whatever its type, in 2GB)
-                        if valid && super::arch() == 32 && w[1] >= QHEAP32_OOM {
+                        let [kind, count, ..] = w.as_slice() else { return Err(Fail::Bad) };
+                        let valid = *kind <= 7 && *kind != 4 && *count > 0;
+                        // Repeated Windows runs at the x86 allocation boundary:
+                        // make-285 and make-293 succeeded in a77fef4 and ran out of
+                        // memory in be51a9f, with matching executor source hashes.
+                        if super::arch() == 32 && *count == QHEAP32_OOM && matches!(*kind, 0 | 3) {
+                            out.push("oneof qheap12 hr 00000000 | qheap12 hr 8007000e".into());
+                            return Ok(true);
+                        }
+                        if valid && super::arch() == 32 && *count >= QHEAP32_OOM {
                             E_OUTOFMEMORY
                         } else {
                             ok(valid)
@@ -772,7 +777,7 @@ impl D3d12 {
                             out.push(format!("placed12 heap hr {h:08x}"));
                             return Ok(true);
                         }
-                        placed_hr(Heap::of(w[0]), w[1], w[2] as u64, w[3] as u64, w[4], &Desc::from_words(&w[5..]))?
+                        placed_hr(Heap::of(w[0]), w[1], w[2] as u64, w[3] as u64, w[4], &Desc::from_abi_words(&w[5..]).ok_or(Fail::Bad)?)?
                     }
                 };
                 out.push(format!("{name} hr {hr:08x}"));

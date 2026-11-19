@@ -31,8 +31,9 @@ jobs:
             target
           key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: test-${{ env.RUST_KEY }}-
+      - run: python3 -B tests/golden.py
       - name: Laws, case files, clauses, models against Windows
-        run: cargo test --no-fail-fast -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
+        run: cargo test --release --no-fail-fast -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
       # (clippy's type-safety and robustness lints and the masu-* checks, per file: they only go
       # down; tools/lint (kikizake-lint), a copy of masu's masu-lint ratchet)
       - name: Lint ratchet
@@ -50,7 +51,7 @@ jobs:
           grep -E '^kikizake_|test result' test.log >> "$GITHUB_STEP_SUMMARY" || true
           cargo run -q -- spec | tail -1 >> "$GITHUB_STEP_SUMMARY" || true
           # (each clause's evidence: cases against Windows, laws; and the gaps per API)
-          { echo '```'; cargo run -q -- trace | grep '^#'; echo '```'; } >> "$GITHUB_STEP_SUMMARY" || true
+          { echo '```'; cargo run -q --release -- trace | grep '^#'; echo '```'; } >> "$GITHUB_STEP_SUMMARY" || true
       # (only the registry crates' builds are worth keeping)
       - if: ${{ !cancelled() && steps.cache.outputs.cache-hit != 'true' }}
         run: rm -rf target/debug/incremental target/debug/deps/*kikizake* target/debug/.fingerprint/kikizake-*
@@ -62,3 +63,21 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ steps.cache.outputs.cache-primary-key }}
+
+  d3d12-wait:
+    runs-on: windows-2025
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Check the D3D12 readback barrier
+        shell: bash
+        run: |
+          gcc -O2 -o wait-test.exe tests/d3d12_wait.c -luuid
+          test "$(./wait-test.exe completed | tr -d '\r')" = "ready for readback"
+          for scenario in signal register timeout early removed; do
+            status=0
+            output=$(./wait-test.exe "$scenario") || status=$?
+            test "$status" = 125
+            [[ "$output" == "measurement failed: d3d12 wait "* ]]
+            [[ "$output" != *"ready for readback"* ]]
+          done
