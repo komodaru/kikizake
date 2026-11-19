@@ -1,4 +1,21 @@
 kikizake d3d11res
+case switch-devices
+device11 ok
+device10 ok
+fmt 28 00000000 7ef3f3 - - ms 1 1 1 1
+nodev
+device11 ok
+fmt 28 00000000 3fef3f3 00000000 106c0 ms 1 1 1 1
+case recreate-device
+device11 ok
+buf = 10 0 1 0 0 0
+device11 ok
+read nores
+case failed-device
+device11 ok
+device11 failed 80070057
+nodev
+nodev
 case fmt-9_1
 device11 ok
 fmt 0 80004005 0 80004005 0 ms 0 0 0 0

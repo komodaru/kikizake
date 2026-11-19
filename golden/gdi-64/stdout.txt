@@ -1,4 +1,8 @@
 kikizake gdi
+case draw-then-poke
+ret 1
+px 0 1 1 32
+12345678
 case rop3-1-solid
 ret 1
 ret 1
