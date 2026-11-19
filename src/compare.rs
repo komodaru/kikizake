@@ -40,9 +40,8 @@ pub fn compare(want: &Output, got: &Output) -> Report {
     if want.cases.is_empty() {
         r.differ.push("no expected cases".into());
     }
-    let suite = |o: &Output| o.head.iter().find(|l| l.starts_with("kikizake ")).cloned();
-    if suite(want) != suite(got) {
-        r.differ.push(format!("suite: want {:?}, got {:?}", suite(want), suite(got)));
+    if want.head != got.head {
+        r.differ.push(format!("output header: want {:?}, got {:?}", want.head, got.head));
     }
     for (i, (name, wl)) in want.cases.iter().enumerate() {
         r.cases += 1;

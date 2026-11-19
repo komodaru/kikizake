@@ -240,7 +240,7 @@ proptest! {
             match g.out {
                 calls::Stdout::Truncated => cut += 1,
                 calls::Stdout::Same => {}
-                calls::Stdout::Differ | calls::Stdout::Unknown => prop_assert!(false, "{} is {:?}", g.name, g.out),
+                calls::Stdout::Repeated | calls::Stdout::Differ | calls::Stdout::Unknown => prop_assert!(false, "{} is {:?}", g.name, g.out),
             }
         }
         let truncated = text.contains("\"capture\":\"truncated\"");
@@ -409,4 +409,16 @@ fn created_dc_belongs_to_its_slot_until_recreated() {
     for (a, b, c, valid) in [(1, 2, 3, true), (2, 1, 3, false), (1, 1, 3, false), (1, 2, 1, false)] {
         assert_eq!(calls::check_ops(&input, &record(a, b, c), &rules()).is_empty(), valid);
     }
+}
+
+#[test]
+fn a_repeat_must_reproduce_the_entire_case_in_the_same_stream() {
+    let (events, captured) = jsonl(&[("gradient".into(), vec![vec![]], vec!["row1\nrow2\n".into()])], &[]);
+    let plain = captured.replace("row1", "different");
+    let import = |repeat| calls::from_jsonl_with_repeats(&events, Some(&plain), &[repeat]);
+    let record = import(captured.clone()).unwrap();
+    assert_eq!(record.header.stdout, calls::Stdout::Repeated);
+    assert_eq!(calls::parse(&calls::format(&record)).unwrap().cases[0].out, calls::Stdout::Repeated);
+    assert_eq!(import(captured.replace("row2", "different")).unwrap().header.stdout, calls::Stdout::Differ);
+    assert!(import(captured.replace("gradient", "other")).is_err());
 }

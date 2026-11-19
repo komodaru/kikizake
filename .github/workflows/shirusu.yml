@@ -123,7 +123,20 @@ jobs:
             t0=$SECONDS
             st2=0; timeout 1800 "$bin/shirusu.exe" capture --dll "$bin/shirusu_agent_dll.dll" --mode full --order=global --output "rec/$n.trace" -- "./exe/$e.exe" > "rec/$n.capture.txt" 2>&1 || st2=$?
             "$bin/shirusu.exe" export "rec/$n.trace" --format jsonl --output "rec/$n.jsonl" || true
-            ./target/release/kikizake.exe calls import "$n" "cases/$s.txt" "rec/$n.jsonl" "rec/$n.out" "$(python runner/golden.py src "$n")" "$rev" > "new/$n.txt" || rm -f "new/$n.txt"
+            repeats=()
+            src=$(python runner/golden.py src "$n")
+            if [[ "$s" == blend || "$s" == gdi || "$s" == pixel ]]; then
+              # An 8-bpp DIB's palette indices can vary between plain runs.
+              # Keep the repeats with the trace; require a complete case match.
+              for i in {1..8}; do
+                timeout 600 "./exe/$e.exe" > "rec/$n.repeat-$i.out"
+                repeats+=("rec/$n.repeat-$i.out")
+              done
+              if [[ -f "golden/$n/src" && "$(cat "golden/$n/src")" == "$src" ]]; then
+                repeats+=("golden/$n/stdout.txt")
+              fi
+            fi
+            ./target/release/kikizake.exe calls import "$n" "cases/$s.txt" "rec/$n.jsonl" "rec/$n.out" "$src" "$rev" "${repeats[@]}" > "new/$n.txt"
             echo "$n: exit $st, capture exit $st2 in $((SECONDS - t0)) s, $(head -1 "new/$n.txt" 2>/dev/null)"
             tail -3 "rec/$n.capture.txt"
           done

@@ -5,7 +5,7 @@ use std::process::Command;
 fn comparison_requires_the_expected_sequence_and_end() {
     let want = "kikizake a\ncase x\nunmodeled example\ncase x\n42\ndone\n";
     assert!(compare::compare_text(want, want).differ.is_empty());
-    for got in [want.replace("kikizake a", "kikizake b"), want.replace("done", "case y\ndone"),
+    for got in [want.replace("kikizake a", "kikizake b"), format!("extra header\n{want}"), want.replace("done", "case y\ndone"),
         want.replace("case x\n42\n", ""), want.replace("done", ""), want.replace("done", "done\ndone")] {
         assert!(!compare::compare_text(want, &got).differ.is_empty());
     }

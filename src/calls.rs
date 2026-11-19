@@ -11,7 +11,7 @@
 //!     change what the executor prints.
 //!
 //! File format, one line each:
-//!   kikizake calls <suite>-<arch> cases <fnv64 of the case file> src <runner/golden.py src> shirusu <rev> stdout <same|differ|truncated|-> events <n> other <n>
+//!   kikizake calls <suite>-<arch> cases <fnv64 of the case file> src <runner/golden.py src> shirusu <rev> stdout <same|repeated|differ|truncated|-> events <n> other <n>
 //!   case <name>
 //!   bad <line>                                    a "bad line" the executor printed for it
 //!   <API>(<arg>,<arg>,...) = <return>[ ! <last error>]
@@ -239,10 +239,12 @@ impl Case {
     }
 }
 
-/// What the executor printed under shirusu against a run without it.
+/// What the executor printed under shirusu against independent plain runs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Stdout {
     Same,
+    /// Complete case output matched an independent repeat on the same executor.
+    Repeated,
     Differ,
     /// shirusu kept only the start of some WriteFile's data
     Truncated,
@@ -251,10 +253,11 @@ pub enum Stdout {
 }
 
 impl Stdout {
-    const ALL: [Stdout; 4] = [Stdout::Same, Stdout::Differ, Stdout::Truncated, Stdout::Unknown];
+    const ALL: [Stdout; 5] = [Stdout::Same, Stdout::Repeated, Stdout::Differ, Stdout::Truncated, Stdout::Unknown];
     fn name(self) -> &'static str {
         match self {
             Stdout::Same => "same",
+            Stdout::Repeated => "repeated",
             Stdout::Differ => "differ",
             Stdout::Truncated => "truncated",
             Stdout::Unknown => "-",
@@ -416,6 +419,11 @@ fn kept(module: &str) -> bool {
 /// `stdout`: the executor's output from a run without shirusu, compared with what the recorded
 /// WriteFile calls wrote.
 pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String> {
+    from_jsonl_with_repeats(jsonl, stdout, &[])
+}
+
+/// Independent plain runs must use the same executable and architecture.
+pub fn from_jsonl_with_repeats(jsonl: &str, stdout: Option<&str>, repeats: &[String]) -> Result<Recording, String> {
     let mut ev = Vec::new();
     for (i, l) in jsonl.lines().enumerate() {
         if l.trim().is_empty() {
@@ -434,6 +442,7 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
     let mut written: Vec<u8> = Vec::new();
     // (the cases whose output shirusu kept only the start of)
     let mut truncated: Vec<usize> = Vec::new();
+    let mut partial_mismatch = false;
     let mut other = 0;
     for (_, line, e) in &ev {
         let at = |m: String| format!("line {line}: {m}");
@@ -461,6 +470,9 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
                 // the case is then Truncated, its tail not checked)
                 let n = fields.iter().find(|(n, _)| n == "nNumberOfBytesToWrite").and_then(|(_, f)| f.get("value")).and_then(Json::u64).and_then(|n| usize::try_from(n).ok());
                 let rest = n.and_then(|n| written.len().checked_add(n)).and_then(|end| stdout?.as_bytes().get(written.len()..end));
+                if cut && rest.is_some_and(|full| !full.starts_with(&kept_bytes)) {
+                    partial_mismatch = true;
+                }
                 let bytes = match rest {
                     Some(full) if cut && full.starts_with(&kept_bytes) => full.to_vec(),
                     Some(_) | None => kept_bytes,
@@ -514,28 +526,49 @@ pub fn from_jsonl(jsonl: &str, stdout: Option<&str>) -> Result<Recording, String
     if let Some(out) = stdout {
         let mut by = HashMap::new();
         for (i, c) in cases.iter().enumerate() {
-            by.entry(c.name.clone()).or_insert(i);
+            by.entry(c.name.clone()).or_insert_with(std::collections::VecDeque::new).push_back(i);
         }
-        let traced: HashMap<String, Vec<String>> = crate::case::parse_output(&String::from_utf8_lossy(&written)).cases.into_iter().collect();
-        for (n, lines) in &crate::case::parse_output(out).cases {
-            if let Some(&i) = by.get(n) {
-                cases[i].bad = lines.iter().filter_map(|l| l.strip_prefix("bad line ")?.parse().ok().map(Line)).collect();
-                cases[i].out = if truncated.contains(&i) {
-                    Stdout::Truncated
-                } else if traced.get(n) == Some(lines) {
-                    Stdout::Same
-                } else {
-                    Stdout::Differ
-                };
-            }
+        let primary = crate::case::parse_output(out);
+        let actual_text = String::from_utf8_lossy(&written);
+        let actual = crate::case::parse_output(&actual_text);
+        let same_sequence = |o: &crate::case::Output| o.head == primary.head && o.done == primary.done
+            && !o.after_done && o.cases.iter().map(|c| &c.0).eq(primary.cases.iter().map(|c| &c.0));
+        let alternatives: Vec<_> = repeats.iter().map(|text| crate::case::parse_output(text)).collect();
+        if alternatives.iter().any(|o| !same_sequence(o)) {
+            return Err("plain repeat has a different header, case sequence or termination".into());
         }
-        stdout_all = if cases.iter().any(|c| c.out == Stdout::Differ) || out.as_bytes() != written.as_slice() {
-            // (or the same cases and something else around them: the header or "done")
-            Stdout::Differ
-        } else if truncated.is_empty() {
-            Stdout::Same
+        let mut observed_repeat = false;
+        for (position, (name, lines)) in primary.cases.iter().enumerate() {
+            let Some(i) = by.get_mut(name).and_then(|indices| indices.pop_front()) else { continue };
+            cases[i].bad = lines.iter().filter_map(|l| l.strip_prefix("bad line ")?.parse().ok().map(Line)).collect();
+            let captured = actual.cases.get(position);
+            cases[i].out = if truncated.contains(&i) {
+                Stdout::Truncated
+            } else if captured == primary.cases.get(position) {
+                Stdout::Same
+            } else if captured.is_some() && alternatives.iter().any(|run| run.cases.get(position) == captured) {
+                observed_repeat = true;
+                Stdout::Repeated
+            } else {
+                Stdout::Differ
+            };
+        }
+        let unmatched = partial_mismatch || cases.iter().any(|c| c.out == Stdout::Differ);
+        // Keep byte-level framing checks when all cases claim to match the primary.
+        // A repeat can explain only complete case outputs in the same stream.
+        let same_stream = if observed_repeat {
+            same_sequence(&actual) && out.ends_with('\n') == actual_text.ends_with('\n')
         } else {
+            out.as_bytes() == written.as_slice()
+        };
+        stdout_all = if unmatched || !same_stream {
+            Stdout::Differ
+        } else if !truncated.is_empty() {
             Stdout::Truncated
+        } else if observed_repeat {
+            Stdout::Repeated
+        } else {
+            Stdout::Same
         };
     }
     let stdout = stdout_all;
@@ -574,7 +607,7 @@ pub fn format(r: &Recording) -> String {
             s += &format!("bad {}\n", b.0);
         }
         match c.out {
-            Stdout::Differ | Stdout::Truncated => s += &format!("out {}\n", c.out.name()),
+            Stdout::Differ | Stdout::Truncated | Stdout::Repeated => s += &format!("out {}\n", c.out.name()),
             Stdout::Same | Stdout::Unknown => {}
         }
         let mut ids = Ids::default();
@@ -1043,6 +1076,8 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
         ch.info.push((n.clone(), format!("{} cases, {calls} calls, {} failed, {} case lines not as recorded, stdout {}", rec.cases.len(), f.len(), bad.len(), rec.header.stdout.name())));
         ch.ops.extend(bad.into_iter().map(|b| format!("{n} {b}")));
         ch.failures.extend(f.into_iter().map(|b| format!("{n} {b}")));
+        let repeated = rec.cases.iter().filter(|c| c.out == Stdout::Repeated).count();
+        if repeated > 0 { ch.info.push((n.clone(), format!("{repeated} complete case outputs matched a plain repeat"))); }
         let truncated = rec.cases.iter().filter(|c| c.out == Stdout::Truncated).count();
         if truncated > 0 { ch.info.push((n.clone(), format!("{truncated} cases with partial stdout"))); }
         let differ: Vec<&Case> = rec.cases.iter().filter(|c| c.out == Stdout::Differ).collect();

@@ -6,7 +6,7 @@
 //!   kikizake learn pages|resolve|check    the documentation the clauses cite (src/learn.rs)
 //!   kikizake tla <TLC dump>               a TLA+ spec's every state (spec/tla/) through the model
 //!   kikizake trace [golden dir]           each clause's evidence (cases against Windows, laws) and gaps, per API
-//!   kikizake calls import <suite>-<arch> <cases> <jsonl> <stdout> <src> <shirusu rev>
+//!   kikizake calls import <suite>-<arch> <cases> <jsonl> <stdout> <src> <shirusu rev> [plain repeat ...]
 //!                                         a shirusu recording of the executor as calls/<suite>-<arch>.txt (src/calls.rs)
 //!   kikizake calls check [calls dir]      the recordings against the cases, x86 against x86-64
 //!   kikizake calls usage <app.jsonl> [calls dir]  graphics calls and argument values an application (shirusu export) makes that no case does
@@ -73,8 +73,9 @@ fn main() {
             Ok(table) => print!("{table}"),
             Err(e) => { eprintln!("{e}"); exit(2); }
         },
-        ["calls", "import", name, cases, jsonl, stdout, src, rev] => {
-            let mut r = kikizake::calls::from_jsonl(&read(jsonl), std::fs::read_to_string(stdout).ok().as_deref()).unwrap_or_else(|e| {
+        ["calls", "import", name, cases, jsonl, stdout, src, rev, repeats @ ..] => {
+            let repeats: Vec<_> = repeats.iter().map(|f| read(f)).collect();
+            let mut r = kikizake::calls::from_jsonl_with_repeats(&read(jsonl), Some(&read(stdout)), &repeats).unwrap_or_else(|e| {
                 eprintln!("{jsonl}: {e}");
                 exit(2)
             });
