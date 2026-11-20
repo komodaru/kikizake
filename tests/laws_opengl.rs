@@ -418,6 +418,55 @@ proptest! {
         prop_assert_eq!(&b, &c);
     }
 
+    /// GL.POLYGON.SMOOTH: a smooth triangle covers the same samples, with the same color
+    /// points, whichever order its corners are listed in (each edge's line is built from its
+    /// end of smaller y, its side from the third corner)
+    #[test]
+    fn aa_triangles_ignore_the_corner_order(v in any::<[(u16, u16); 3]>(), nicest in any::<bool>()) {
+        let grid = if nicest { tri::AaGrid::Eight } else { tri::AaGrid::Four };
+        let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + f32::from(x % 1024) / 64.0, tri::RASTER_BIAS + f32::from(y % 1024) / 64.0]));
+        let a = tri::aa_triangle(r, grid);
+        for p in [[1, 2, 0], [2, 0, 1], [0, 2, 1], [2, 1, 0], [1, 0, 2]] {
+            prop_assert_eq!(&a, &tri::aa_triangle(p.map(|i| r[i]), grid));
+        }
+        let n = grid.side() * grid.side();
+        prop_assert!(a.iter().all(|p| (1..=n).contains(&p.cover.hits()) && p.cover.fraction() > 0.0 && p.cover.fraction() <= 1.0));
+    }
+
+    /// GL.POLYGON.SMOOTH: the two triangles of a convex quad split along a diagonal take each
+    /// sample at most once between them (a sample on the diagonal goes to one side only), and
+    /// a pixel wholly inside one is wholly covered
+    #[test]
+    fn aa_triangles_share_a_diagonal(v in any::<[(u16, u16); 2]>(), lean in 0u16..256) {
+        let at = |c: u16| f32::from(c % 512) / 32.0;
+        let (x0, x1) = (at(v[0].0).min(at(v[1].0)), at(v[0].0).max(at(v[1].0)));
+        let (y0, y1) = (at(v[0].1).min(at(v[1].1)), at(v[0].1).max(at(v[1].1)));
+        let d = f32::from(lean) / 256.0 * (x1 - x0);
+        let q = [(x0, y0), (x1, y0), (x1 + d, y1), (x0 + d, y1)].map(|(x, y)| tri::Raster([tri::RASTER_BIAS + x, tri::RASTER_BIAS + y]));
+        let mut got = std::collections::BTreeMap::new();
+        for t in [[0, 1, 2], [0, 2, 3]] {
+            for p in tri::aa_triangle(t.map(|i| q[i]), tri::AaGrid::Four) {
+                *got.entry((p.x, p.row)).or_insert(0u16) += p.cover.hits();
+            }
+        }
+        prop_assert!(got.values().all(|n| *n <= 16));
+    }
+
+    /// GL.POLYGON.SMOOTH: a pixel whose every sample a triangle covers takes its colors at the
+    /// pixel's center, and a plane through equal values gives that value back within a step
+    #[test]
+    fn aa_planes_of_one_value_hold_it(v in any::<[(u16, u16); 3]>(), c in 0u8..=255) {
+        let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + f32::from(x % 1024) / 64.0, tri::RASTER_BIAS + f32::from(y % 1024) / 64.0]));
+        let c = f32::from(c);
+        for p in tri::aa_triangle(r, tri::AaGrid::Four) {
+            if p.cover.hits() == 16 {
+                prop_assert_eq!(p.at, [(p.x + 40960) as f32 + 0.5, (p.row + 40960) as f32 + 0.5]);
+            }
+            let got = tri::aa_plane(r, [c; 3], p.at);
+            prop_assert!((got - c).abs() <= c.max(1.0) * 4.0 * f32::EPSILON, "{} {}", got, c);
+        }
+    }
+
     /// A triangle (convex) crosses each plane of the view volume at most twice; a bow tie
     /// moved past one plane by more than its middle crosses it four times
     #[test]

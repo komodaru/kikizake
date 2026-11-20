@@ -182,6 +182,9 @@ tests/laws_opengl.rs::line_colors_run_between_the_ends pbt GL.RASTER.INTERPOLATE
 tests/laws_opengl.rs::smooth_line_pairs_cover_one_pixel pbt GL.RASTER.LINE.SMOOTH.BLEND
 tests/laws_opengl.rs::smooth_triangles_share_a_rectangle pbt GL.RASTER.TIE
 tests/laws_opengl.rs::smooth_triangles_move_with_whole_pixels pbt GL.RASTER.TIE
+tests/laws_opengl.rs::aa_triangles_ignore_the_corner_order pbt GL.POLYGON.SMOOTH
+tests/laws_opengl.rs::aa_triangles_share_a_diagonal pbt GL.POLYGON.SMOOTH
+tests/laws_opengl.rs::aa_planes_of_one_value_hold_it pbt GL.POLYGON.SMOOTH
 tests/laws_opengl.rs::convex_outlines_cross_a_plane_at_most_twice pbt GL.RASTER.CLIP.XY
 tests/laws_opengl.rs::cut_lines_stay_on_the_line_inside pbt GL.RASTER.INTERPOLATE.LINE
 tests/laws_opengl.rs::line_depths_step_evenly pbt GL.RASTER.INTERPOLATE.LINE

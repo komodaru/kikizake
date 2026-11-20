@@ -88,6 +88,7 @@ pub mod e {
     pub const COLOR_MATERIAL: u32 = 0xb57;
     pub const POINT_SMOOTH: u32 = 0xb10;
     pub const POLYGON_SMOOTH: u32 = 0xb41;
+    pub const POLYGON_SMOOTH_HINT: u32 = 0xc53;
     pub const POLYGON_STIPPLE: u32 = 0xb42;
     pub const MAP_COLOR: u32 = 0xd10;
     pub const INDEX_SHIFT: u32 = 0xd12;
@@ -1248,6 +1249,10 @@ pub enum ToFixed {
     /// a wide antialiased line's in colors into channels without alpha, not blended: truncated
     /// toward zero and wrapped past the channel's top, not clamped (GL.RASTER.LINE.SMOOTH.WIDE)
     Wrapped,
+    /// a smooth polygon's: already in channel units, truncated, blended (SRC_ALPHA,
+    /// ONE_MINUS_SRC_ALPHA) without alpha bits as d (1 - a / scale) + c a / scale in float32,
+    /// unclamped (GL.POLYGON.SMOOTH)
+    Scaled,
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2261,6 +2266,46 @@ impl Ctx {
 
     /// A filled polygon of one depth (GL.RASTER.TRIANGLE), its colors flat (the `provoking`
     /// vertex's, GL 1.1 2.13.7) or smooth.
+    /// A smooth (GL_POLYGON_SMOOTH) polygon, a fan from its first vertex of triangles each
+    /// drawn on its own (`tri::aa_triangle`): every pixel with any samples covered a fragment
+    /// of the colors' planes at its `at` (the provoking vertex's when flat), in channel units
+    /// (the color times 2^bits - 1, alpha's times red's without alpha bits), alpha times the
+    /// coverage; then truncated (`ToFixed::Scaled`) (MEASURED, golden opengl-32 / 64
+    /// raster-mode-2, 5, 9, 11, 12, 13: GL.POLYGON.SMOOTH). Cut by the view volume, culled,
+    /// textured, lit, fogged, depth or alpha tested, dithered, under 8-bit channels or in color
+    /// index: not measured.
+    fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize) -> Res<()> {
+        let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
+        let unmeasured = [CULL_FACE, LIGHTING, FOG, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
+            || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
+            || self.pf.ty != 0
+            || self.bits()[..3].iter().any(|b| *b != 8)
+            || self.pf.rgba[3].0 % 8 != 0
+            || clip.iter().any(|c| c[3] <= 0.0 || c[..3].iter().any(|v| v.abs() > c[3]));
+        if unmeasured {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        hit(clause::GL_POLYGON_SMOOTH);
+        let grid = if self.hints[(POLYGON_SMOOTH_HINT - 0xc50) as usize] == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
+        let v: Vec<tri::Raster> = clip.iter().map(|c| tri::Raster::of(*c, self.viewport, H as i64)).collect();
+        let red = ((1u64 << self.bits()[0]) - 1) as f32;
+        let scale: [f32; 4] = std::array::from_fn(|k| match (k, self.bits()[k]) {
+            (3, 0) => red,
+            (_, b) => ((1u64 << b) - 1) as f32,
+        });
+        let colors: Vec<[f32; 4]> = q.iter().map(|v| std::array::from_fn(|k| v.1[k] * scale[k])).collect();
+        let flat = self.shade == FLAT;
+        for k in 1..v.len().saturating_sub(1) {
+            let t = [0, k, k + 1];
+            for p in tri::aa_triangle(t.map(|i| v[i]), grid) {
+                let mut c: [f32; 4] = if flat { colors[provoking] } else { std::array::from_fn(|ch| tri::aa_plane(t.map(|i| v[i]), t.map(|i| colors[i][ch]), p.at)) };
+                c[3] *= p.cover.fraction();
+                self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
+            }
+        }
+        Ok(())
+    }
+
     fn polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize) -> Res<()> {
         // (filled polygons only: other polygon modes, stipple, antialiasing and offsets on
         // triangles are not measured)
@@ -2359,10 +2404,8 @@ impl Ctx {
         if self.cap(POLYGON_STIPPLE) {
             hit(clause::GL_POLYGON_STIPPLE);
         }
-        // (antialiased triangles: which samples an edge 1/256 from them takes, raster-mode-5,
-        // -9, -11, not settled: GL.RASTER.MODE)
         if self.cap(POLYGON_SMOOTH) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            return self.smooth_polygon(q, provoking);
         }
         if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
             return Ok(());
@@ -3165,7 +3208,7 @@ impl Ctx {
                 return Ok(());
             }
         }
-        let c = if f.fixed == ToFixed::Wrapped { f.c } else { f.c.map(|v| v.clamp(0.0, 1.0)) };
+        let c = if matches!(f.fixed, ToFixed::Wrapped | ToFixed::Scaled) { f.c } else { f.c.map(|v| v.clamp(0.0, 1.0)) };
         if self.cap(ALPHA_TEST) {
             hit(clause::GL_ALPHA_TEST);
             // (MEASURED, golden opengl-32 alphatest-*: in 8-bit fixed point, the reference truncated)
@@ -3306,6 +3349,13 @@ impl Ctx {
                 ToFixed::Nearest | ToFixed::Trunc | ToFixed::Span | ToFixed::Floor => self.blend(c, self.fb[i], dither.then_some(threshold))?,
                 // (blended: not measured)
                 ToFixed::Wrapped => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+                ToFixed::Scaled if self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) && bits[3] == 0 => {
+                    let d = self.fb[i];
+                    let a = c[3] * (1.0 / ((1u64 << bits[0]) - 1) as f32);
+                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { (d[k] as f32 * (1.0 - a) + c[k] * a).trunc() as u32 })
+                }
+                // (other blends, or into alpha bits: not measured)
+                ToFixed::Scaled => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
             };
         } else {
             for k in 0..4 {
@@ -3313,6 +3363,8 @@ impl Ctx {
                     0
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
+                } else if f.fixed == ToFixed::Scaled {
+                    c[k].trunc() as u32
                 } else if f.fixed == ToFixed::Wrapped {
                     // (MEASURED, golden opengl-32 line-aa-wide-3: a short line's color steps past
                     // 1 wrap around on 8 bits; line-aa-wide-5, 6: a step a hair under 0 is 0)
@@ -4494,6 +4546,164 @@ impl Ctx {
 ///   a row takes the centers strictly right of its left edge and at or left of its right edge,
 ///   the rows from an edge's lower vertex up to (not at) its upper one.
 pub mod tri {
+    /// What window coordinates are offset by on the way to the rasterizer, and its rows flipped
+    /// (MEASURED, golden opengl-32 / 64 raster-mode-2, 5, 9, 11, 12, 13: GL.POLYGON.SMOOTH)
+    pub const RASTER_BIAS: f32 = 40960.0;
+
+    /// A vertex where the rasterizer has it, in float32: window x plus [`RASTER_BIAS`], and the
+    /// window height less window y plus [`RASTER_BIAS`] (rows grow down the window).
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct Raster(pub [f32; 2]);
+
+    impl Raster {
+        /// `clip` through a viewport `[x, y, width, height]` of a window `height` high: the
+        /// half sizes less 1/256 the scales (y's negated), the center plus the bias, and the
+        /// coordinate (clip times scale) times 1/w plus the center, each step in float32.
+        pub fn of(clip: [f32; 4], viewport: [i64; 4], height: i64) -> Raster {
+            let eps = 1.0f32 / 256.0;
+            let (hw, hh) = (viewport[2] as f32 * 0.5, viewport[3] as f32 * 0.5);
+            let scale = [hw - eps, -(hh - eps)];
+            let center = [(viewport[0] as f32 + hw) + RASTER_BIAS, (height as f32 - (viewport[1] as f32 + hh)) + RASTER_BIAS];
+            let inv = if clip[3] == 0.0 { 0.0 } else { 1.0 / clip[3] };
+            Raster([0, 1].map(|k| (clip[k] * scale[k]) * inv + center[k]))
+        }
+    }
+
+    /// The samples a smooth polygon's pixel is cut into, per side (GL_POLYGON_SMOOTH_HINT
+    /// NICEST: 8, otherwise 4).
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum AaGrid {
+        Four,
+        Eight,
+    }
+
+    impl AaGrid {
+        pub fn side(self) -> u16 {
+            match self {
+                AaGrid::Four => 4,
+                AaGrid::Eight => 8,
+            }
+        }
+    }
+
+    /// How many of a pixel's samples a smooth polygon covers, 1 ..= side squared.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct Cover {
+        hits: u16,
+        grid: AaGrid,
+    }
+
+    impl Cover {
+        pub fn hits(self) -> u16 {
+            self.hits
+        }
+        pub fn grid(self) -> AaGrid {
+            self.grid
+        }
+        /// The fraction of the fragment's alpha kept: hits times 1 / side squared, 1 when all.
+        pub fn fraction(self) -> f32 {
+            let n = self.grid.side() * self.grid.side();
+            if self.hits == n { 1.0 } else { f32::from(self.hits) * (1.0 / f32::from(n)) }
+        }
+    }
+
+    /// A pixel of a smooth polygon: its column and its row from the window's top, the samples
+    /// covered, and where its colors are taken (the center of the covered samples' box, the
+    /// pixel's center when all are, in raster coordinates).
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct AaPixel {
+        pub x: i64,
+        pub row: i64,
+        pub cover: Cover,
+        pub at: [f32; 2],
+    }
+
+    /// One edge's line A x + B y + C (from the end of smaller y, of smaller x on a tie) and
+    /// whether the third vertex is on its positive side.
+    #[derive(Clone, Copy)]
+    struct EdgeLine {
+        a: f32,
+        b: f32,
+        c: f32,
+        sign: bool,
+    }
+
+    impl EdgeLine {
+        fn of(p: Raster, q: Raster, r: Raster) -> EdgeLine {
+            let (p, q) = if (p.0[1], p.0[0]) <= (q.0[1], q.0[0]) { (p, q) } else { (q, p) };
+            let (dy, dx) = (q.0[1] - p.0[1], q.0[0] - p.0[0]);
+            let (a, b, c) = (-dy, dx, dy * p.0[0] - dx * p.0[1]);
+            EdgeLine { a, b, c, sign: (a * r.0[0] + b * r.0[1]) + c > 0.0 }
+        }
+        fn passes(self, x: f32, y: f32) -> bool {
+            ((self.a * x + self.b * y) + self.c > 0.0) == self.sign
+        }
+    }
+
+    /// The pixels a smooth triangle covers samples of (MEASURED, golden opengl-32 / 64
+    /// raster-mode-2, 5, 9, 11, 12, 13, all exact): no edge walk, every pixel of the box from
+    /// one left of / above the vertices' truncated least to one past their greatest sampled;
+    /// the samples at (k + 1/2) / side, reached by adding 1 / side; a sample inside when on each
+    /// edge line's side the third vertex is (`EdgeLine`, a sample on the line taken when the
+    /// third vertex is not strictly positive), all in float32; a triangle whose corners
+    /// truncated to 1/8 make no area covers nothing (GL.POLYGON.SMOOTH).
+    pub fn aa_triangle(v: [Raster; 3], grid: AaGrid) -> Vec<AaPixel> {
+        let snap = |a: f32| (a * 8.0).trunc() / 8.0;
+        let [(ax, ay), (bx, by), (cx, cy)] = v.map(|p| (snap(p.0[0]), snap(p.0[1])));
+        if (ax - cx) * (by - cy) - (bx - cx) * (ay - cy) == 0.0 {
+            return Vec::new();
+        }
+        let edges = [EdgeLine::of(v[0], v[1], v[2]), EdgeLine::of(v[1], v[2], v[0]), EdgeLine::of(v[2], v[0], v[1])];
+        let side = grid.side();
+        let d = 1.0 / f32::from(side);
+        let lo = 0.5 * d - 0.5;
+        let range = |k: usize| {
+            let (mn, mx) = v.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(mn, mx), p| (mn.min(p.0[k]), mx.max(p.0[k])));
+            (mn.trunc() as i64 - 1)..=(mx.trunc() as i64 + 1)
+        };
+        let bias = RASTER_BIAS as i64;
+        let mut out = Vec::new();
+        for y in range(1) {
+            for x in range(0) {
+                let (xc, yc) = (x as f32 + 0.5, y as f32 + 0.5);
+                let (mut hits, mut min, mut max) = (0u16, [999999.0f32; 2], [-1.0f32; 2]);
+                let mut px = xc + lo;
+                for _ in 0..side {
+                    let mut py = yc + lo;
+                    for _ in 0..side {
+                        if edges.iter().all(|e| e.passes(px, py)) {
+                            hits += 1;
+                            min = [min[0].min(px), min[1].min(py)];
+                            max = [max[0].max(px), max[1].max(py)];
+                        }
+                        py += d;
+                    }
+                    px += d;
+                }
+                if hits == 0 {
+                    continue;
+                }
+                let at = if hits == side * side { [xc, yc] } else { [(min[0] + max[0]) * 0.5, (min[1] + max[1]) * 0.5] };
+                out.push(AaPixel { x: x - bias, row: y - bias, cover: Cover { hits, grid }, at });
+            }
+        }
+        out
+    }
+
+    /// The value at `at` of the plane through the triangle's corners `v` with values `p`, in
+    /// float32 as the rasterizer has it (MEASURED, golden opengl-32 raster-mode-5, 9: white
+    /// taken a hair under 255 at some pixels, then truncated: GL.POLYGON.SMOOTH).
+    pub fn aa_plane(v: [Raster; 3], p: [f32; 3], at: [f32; 2]) -> f32 {
+        let ([ax, ay], [bx, by], [cx, cy]) = (v[0].0, v[1].0, v[2].0);
+        let (v1, v2) = ([bx - ax, by - ay, p[1] - p[0]], [cx - ax, cy - ay, p[2] - p[0]]);
+        let nx = v1[1] * v2[2] - v1[2] * v2[1];
+        let ny = v1[2] * v2[0] - v1[0] * v2[2];
+        let np = v1[0] * v2[1] - v1[1] * v2[0];
+        let (pa, pb) = (nx / np, ny / np);
+        let pd = -(((ay * ny + ax * nx) + p[0] * np) / np);
+        -((pa * at[0] + pb * at[1]) + pd)
+    }
+
     /// The pixels of an antialiased 1-pixel line from a to b (window coordinates) drawn into a
     /// buffer with alpha, each with its coverage (MEASURED, golden opengl-32 raster-mode-8:
     /// 3072 pixels of 12 lines, every one exact): the ends snapped as a polygon's corners; at
