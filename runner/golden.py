@@ -2,7 +2,7 @@
 """Windows' answers in golden/<suite>-<arch>/ (stdout.txt, exit, src).
 
     runner/golden.py stale <exe dir>    executors whose answer is missing or older than its sources
-    runner/golden.py import <run dir>   <run dir>/<name>/{stdout.txt,exit} -> golden/<name>/ (files skipped)
+    runner/golden.py import <run dir>   <run dir>/<name>/{stdout.txt,exit} -> golden/<name>/
     runner/golden.py verify <golden dir> [suite ...]   validate all required references
     runner/golden.py src <name>         the sha256 of an executor's sources
 
@@ -71,9 +71,6 @@ if __name__ == "__main__":
     elif a[:1] == ["import"] and len(a) == 2:
         for d in sorted(os.listdir(a[1])):
             run = os.path.join(a[1], d)
-            # (ref/winbins.txt, the binaries' keys, is not an executor's answer)
-            if not os.path.isdir(run):
-                continue
             error = measurement_error(run)
             if error:
                 sys.exit(f"{d}: {error}")

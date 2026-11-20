@@ -110,35 +110,6 @@ jobs:
             echo $st > "ref/$n/exit"
             echo "$n: exit $(cat "ref/$n/exit"), $(wc -l < "ref/$n/stdout.txt") lines, $((SECONDS - s)) s"
           done
-      # (the system's graphics binaries by name, version and symbol-server key: TimeDateStamp then
-      # SizeOfImage, what msdl.microsoft.com files each build under; for the clean-room analysis
-      # notes, which name the build they read. Only these keys are kept, never the binaries)
-      - name: Graphics binaries' keys
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $names = 'ddraw.dll','d3dim700.dll','d3dim.dll','d3dref.dll','d3d8.dll','d3d8thk.dll','d3d9.dll','d3d10warp.dll','d3d11.dll','d3d12.dll','d3d12core.dll','dxgi.dll','d2d1.dll','dwrite.dll','windowscodecs.dll','gdi32.dll','gdi32full.dll','gdiplus.dll','opengl32.dll','glu32.dll','msimg32.dll','win32kbase.sys','win32kfull.sys','d3dx9_43.dll','DWMCore.dll','dxcore.dll'
-          $out = foreach ($dir in "$env:windir\System32", "$env:windir\SysWOW64") {
-            foreach ($n in $names) {
-              $p = Join-Path $dir $n
-              if (-not (Test-Path $p)) { continue }
-              $b = [IO.File]::ReadAllBytes($p)
-              $pe = [BitConverter]::ToInt32($b, 0x3c)
-              $ts = [BitConverter]::ToUInt32($b, $pe + 8)
-              $size = [BitConverter]::ToUInt32($b, $pe + 24 + 56)
-              $v = (Get-Item $p).VersionInfo.FileVersion
-              '{0} {1} {2:X8}{3:x} {4}' -f (Split-Path $dir -Leaf), $n, $ts, $size, $v
-            }
-          }
-          $gdip = Get-ChildItem "$env:windir\WinSxS" -Recurse -Filter gdiplus.dll -ErrorAction SilentlyContinue | Select-Object -First 4
-          $out += foreach ($f in $gdip) {
-            $b = [IO.File]::ReadAllBytes($f.FullName)
-            $pe = [BitConverter]::ToInt32($b, 0x3c)
-            '{0} gdiplus.dll {1:X8}{2:x} {3}' -f $f.Directory.Name, [BitConverter]::ToUInt32($b, $pe + 8), [BitConverter]::ToUInt32($b, $pe + 24 + 56), $f.VersionInfo.FileVersion
-          }
-          "os $([Environment]::OSVersion.VersionString)" | Out-File -Encoding ascii ref/winbins.txt
-          $out | Out-File -Encoding ascii -Append ref/winbins.txt
-          Get-Content ref/winbins.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: windows
@@ -178,7 +149,6 @@ jobs:
                 echo "$n: its sources changed on main since ${GITHUB_SHA::7}, left for a later run"
               fi
             done < "$RUNNER_TEMP/imported"
-            if [ -f ref/winbins.txt ]; then cp ref/winbins.txt "$M/golden/winbins.txt"; fi
             git -C "$M" add golden
             if git -C "$M" diff --cached --quiet; then echo "no change"; exit 0; fi
             git -C "$M" commit -qm "golden: Windows' answers for${took} (${GITHUB_SHA::7})"
