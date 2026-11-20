@@ -32,6 +32,8 @@ static int hexbytes(int i, unsigned char *b, int max) {
 static void op_a2i(void) {
     unsigned char b[80];
     unsigned long base = (unsigned long)num(1);
+    /* (zeroed: RtlCharToInteger reads the byte after a leading blank, a NUL included) */
+    memset(b, 0, sizeof b);
     int n = hexbytes(2, b, (int)sizeof b - 1);
     if (bad) return;
     b[n] = 0;

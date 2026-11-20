@@ -160,9 +160,11 @@ pub fn unicode_to_integer(units: &[u16], length: usize, base: u32) -> (Status, u
         hit(clause::NT_U2I_EMPTY);
         return (Status::InvalidParameter, 0);
     }
-    let s: Vec<u32> = units.iter().take(length / 2).map(|&u| u32::from(u)).take_while(|&u| u != 0).collect();
+    let s: Vec<u32> = units.iter().take(length / 2).map(|&u| u32::from(u)).collect();
     hit(clause::NT_U2I_BLANK);
+    // (a 0 unit is white space too while it leads; after the white space it ends the number)
     let start = s.iter().position(|&u| u > 0x20).unwrap_or(s.len());
+    let s: Vec<u32> = s[start..].iter().copied().take_while(|&u| u != 0).collect();
     let radix = match base {
         0 => {
             hit(clause::NT_U2I_PREFIX);
@@ -176,7 +178,7 @@ pub fn unicode_to_integer(units: &[u16], length: usize, base: u32) -> (Status, u
             }
         },
     };
-    (Status::Success, number(&s[start..], radix))
+    (Status::Success, number(&s, radix))
 }
 
 /// RtlIntegerToChar's digits of `value`
