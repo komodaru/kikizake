@@ -1,0 +1,72 @@
+# Which graphics DLLs the Windows runner has (re/dlls.txt): for each one in System32 (x64) and
+# SysWOW64 (x86), its file version and the PE TimeDateStamp + SizeOfImage that key it on the
+# Microsoft symbol server, https://msdl.microsoft.com/download/symbols/<name>/<key>/<name>. The
+# clean-room analysis reads those binaries outside the repository (re/README.md); only this
+# list of identities is committed, never a binary or its disassembly.
+name: dlls
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dlls.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  list:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - name: List the DLLs
+        shell: pwsh
+        run: |
+          $names = 'gdiplus.dll','gdi32.dll','gdi32full.dll','win32u.dll','win32kbase.sys','win32kfull.sys','d2d1.dll','dwrite.dll','windowscodecs.dll','ddraw.dll','d3dim700.dll','d3d8.dll','d3d9.dll','d3d10.dll','d3d10_1.dll','d3d10warp.dll','d3d11.dll','d3d12.dll','d3d12core.dll','dxgi.dll','opengl32.dll','glu32.dll','msimg32.dll','d3dx9_43.dll','d3dcompiler_47.dll'
+          $out = @("# name arch version key (TimeDateStamp then SizeOfImage, hex)")
+          foreach ($d in @(@('64', "$env:SystemRoot\System32"), @('32', "$env:SystemRoot\SysWOW64"))) {
+            foreach ($n in $names) {
+              $p = Join-Path $d[1] $n
+              if (-not (Test-Path $p)) { continue }
+              $b = [IO.File]::ReadAllBytes($p)
+              $pe = [BitConverter]::ToInt32($b, 0x3c)
+              $ts = [BitConverter]::ToUInt32($b, $pe + 8)
+              $size = [BitConverter]::ToUInt32($b, $pe + 24 + 56)
+              $v = (Get-Item $p).VersionInfo.FileVersion -replace ' .*', ''
+              $out += "{0} {1} {2} {3:X8}{4:X}" -f $n, $d[0], $v, $ts, $size
+            }
+          }
+          New-Item -ItemType Directory -Force out | Out-Null
+          $out -join "`n" | Set-Content -NoNewline out/dlls.txt
+          Get-Content out/dlls.txt
+      - uses: actions/upload-artifact@v7.0.0
+        with:
+          name: dlls
+          path: out/dlls.txt
+  commit:
+    needs: list
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: dlls
+          path: out
+      - name: Commit the list
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git checkout -q --detach FETCH_HEAD
+            mkdir -p re && { cat out/dlls.txt; echo; } > re/dlls.txt
+            git add re/dlls.txt
+            if git diff --cached --quiet; then echo "no change"; exit 0; fi
+            git commit -qm "dlls: the Windows runner's graphics DLLs (${GITHUB_SHA::7})"
+            git push -q origin HEAD:main && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
