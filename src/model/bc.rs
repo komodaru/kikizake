@@ -1,384 +1,302 @@
 //! The DDS encoder's BC3 (DXT5) blocks, as WIC writes them.
 //!
-//! MEASURED (golden wicencode enc-dds-*, encdds-*: every byte): the D3DX family's block encoder,
-//! weighted by luminance: the color box the fit starts from is that of the points rounded to
-//! 5:6:5, the diagonal of it the one the points as they are spread along most (D3DX's sums of
-//! squares about the box's middle); the endpoints of both the color and the alpha line are then
-//! refitted by least squares to the steps the points (as they are) fall on until no point moves;
-//! each pixel's step is chosen from its color rounded to 5:6:5; past the picture a block repeats
-//! its last column and row.
-//! OPEN (WICIMAGE.ENCODE.LOSSY): Windows' fit is not this one everywhere (golden ddsblock-*:
-//! 152 of 172 blocks as this; ddsblock-bgr24-24, -38: the same steps but other ends, so its ends
-//! are not the least-squares fit of its steps; enc-dds-bgr555 block 1 starts from another
-//! diagonal; ddsblock-bgra-15, -28, -31: other alpha ends), so a block is modelled only where it
-//! comes out the same from every start diagonal, whether or not the start box and the steps take
-//! the points rounded, and after 2, 3, 4 or all refits.
+//! Found clean-room (WIC's own block encoder, not D3DX's) and confirmed by golden wicencode
+//! enc-dds-*, encdds-*, ddsblock-*: every byte. Integer arithmetic but for the least-squares
+//! refits, in f32. The color part weighs blue 1, green 10, red 3; it starts from the corners of
+//! the points' box that the signs of the blue-green and green-red covariances pick, rounds them
+//! to 5:6:5 by integer multiplies, gives each pixel the step its projection onto the line falls
+//! nearest (in integers), and refits the ends by least squares to those steps at most three
+//! times, until neither the ends nor the steps change. The alpha part takes the 8-value mode between the least and greatest alpha when no
+//! alpha is 0 or 255, else the 6-value mode between the other alphas with 0 and 255 as literals.
 
-/// one pixel: red, green, blue, alpha in 0..=1
-pub type Px = [f32; 4];
+/// one pixel as the DDS frame holds it: blue, green, red, alpha
+pub type Px = [u8; 4];
 
-/// the luminance weights (red and blue against green)
-const LUM: [f32; 3] = [0.2125f32 / 0.7154f32, 1.0, 0.0721f32 / 0.7154f32];
-const LUM_INV: [f32; 3] = [0.7154f32 / 0.2125f32, 1.0, 0.7154f32 / 0.0721f32];
+/// a pixel's color in the encoder's weighted units: blue, 10 times green, 3 times red
+type Wx = [i64; 3];
 
-/// at most this many refits (none of the goldens takes more than a few)
-const REFITS: usize = 64;
-
-/// a 0..=1 channel rounded to the 5:6:5 grid (5 bits red and blue, 6 green), as D3DX rounds
-fn grid565(c: [f32; 3]) -> [f32; 3] {
-    const LEVELS: [f32; 3] = [31.0, 63.0, 31.0];
-    std::array::from_fn(|k| trunc(c[k] * LEVELS[k] + 0.5) as f32 * (1.0 / LEVELS[k]))
+fn weighted(p: &Px) -> Wx {
+    [i64::from(p[0]), 10 * i64::from(p[1]), 3 * i64::from(p[2])]
 }
 
-/// a float to int as C's cast: toward zero
-fn trunc(x: f32) -> i32 {
-    x.trunc() as i32
+/// weighted units rounded half up to 5, 6 and 5 bits by integer multiplies
+fn pack(e: Wx) -> u16 {
+    let q = |v: i64, m: i64| ((v * m + 32768) >> 16) as u16;
+    q(e[2], 2655) << 11 | q(e[1], 1619) << 5 | q(e[0], 7967)
 }
 
-fn encode565(c: [f32; 3]) -> u16 {
-    let q = |v: f32, m: f32| trunc(v.clamp(0.0, 1.0) * m + 0.5);
-    let (r, g, b) = (q(c[0], 31.0), q(c[1], 63.0), q(c[2], 31.0));
-    // (the fields do not overlap: added, so that no mutant of the packing is equivalent)
-    u16::try_from((r << 11) + (g << 5) + b).unwrap_or(u16::MAX)
+/// a 5:6:5 color back in weighted units
+fn expand(c: u16) -> Wx {
+    let e = |v: u16, m: i64| (i64::from(v) * m + 32768) >> 16;
+    [e(c & 31, 538062), e(c >> 5 & 63, 2652647), e(c >> 11, 1617259)]
 }
 
-fn decode565(w: u16) -> [f32; 3] {
-    [f32::from((w >> 11) & 31) * (1.0 / 31.0), f32::from((w >> 5) & 63) * (1.0 / 63.0), f32::from(w & 31) * (1.0 / 31.0)]
+/// the start ends: the box's corners on the diagonal the signs of 16 * sum(xy) - sum(x) * sum(y)
+/// pick for blue-green and green-red (a 0 counted as positive), the first end of low green
+fn choose(x: &[Wx; 16]) -> (u16, u16) {
+    let mn: Wx = std::array::from_fn(|k| x.iter().map(|p| p[k]).min().unwrap_or(0));
+    let mx: Wx = std::array::from_fn(|k| x.iter().map(|p| p[k]).max().unwrap_or(0));
+    let s: Wx = std::array::from_fn(|k| x.iter().map(|p| p[k]).sum());
+    let p01: i64 = x.iter().map(|p| p[0] * p[1]).sum();
+    let p12: i64 = x.iter().map(|p| p[1] * p[2]).sum();
+    let (pos01, pos12) = (16 * p01 >= s[0] * s[1], 16 * p12 >= s[1] * s[2]);
+    let e0 = [if pos01 { mn[0] } else { mx[0] }, mn[1], if pos12 { mn[2] } else { mx[2] }];
+    let e1 = [if pos01 { mx[0] } else { mn[0] }, mx[1], if pos12 { mx[2] } else { mn[2] }];
+    (pack(e0), pack(e1))
 }
 
-/// which diagonal of the box the fit starts along: green and blue swapped or not
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct Diagonal {
-    swap_green: bool,
-    swap_blue: bool,
-}
-
-impl Diagonal {
-    pub const ALL: [Diagonal; 4] = [
-        Diagonal { swap_green: false, swap_blue: false },
-        Diagonal { swap_green: false, swap_blue: true },
-        Diagonal { swap_green: true, swap_blue: false },
-        Diagonal { swap_green: true, swap_blue: true },
-    ];
-}
-
-/// the step a point projects to on a line from `x` along `dir` (scaled so that the steps are
-/// 0, 1, ..): 0 and the last at the ends
-fn project(p: &[f32; 3], x: &[f32; 3], dir: &[f32; 3], last: f32, steps: usize) -> usize {
-    let dot = (p[0] - x[0]) * dir[0] + (p[1] - x[1]) * dir[1] + (p[2] - x[2]) * dir[2];
-    if dot <= 0.0 {
-        0
-    } else if dot >= last {
-        steps - 1
-    } else {
-        trunc(dot + 0.5) as usize
+/// the ends ordered so that the first is greater (the 4-color mode), and each pixel's step: its
+/// projection onto the line from the first end, in quarters rounded half up through a floored
+/// reciprocal of the squared length
+fn encode_colors(c0: u16, c1: u16, x: &[Wx; 16]) -> (u16, u16, u32) {
+    const ENC: [u32; 4] = [0, 2, 3, 1];
+    let (c0, c1) = if c0 < c1 { (c1, c0) } else { (c0, c1) };
+    let (p, q) = (expand(c0), expand(c1));
+    let d: Wx = std::array::from_fn(|k| q[k] - p[k]);
+    let l = d[0] * d[0] + d[1] * d[1] + d[2] * d[2];
+    let scale = 0xC000_0000u32 / u32::try_from(l).unwrap_or(u32::MAX);
+    let mut idx = 0u32;
+    for (i, px) in x.iter().enumerate() {
+        let t = (px[2] - p[2]) * d[2] + (px[0] - p[0]) * d[0] + (px[1] - p[1]) * d[1];
+        let code = if t > l {
+            1
+        } else if t < 0 {
+            0
+        } else {
+            let t = u32::try_from(t).unwrap_or(0);
+            ENC[((t * scale + 0x2000_0000) >> 30) as usize]
+        };
+        idx |= code << (2 * i);
     }
+    (c0, c1, idx)
 }
 
-/// the two ends of the color line through luminance-weighted points
-/// whether a stage takes the points rounded to 5:6:5 or as they are
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Rounding {
-    Grid,
-    Plain,
+/// a refitted end in weighted units into 5:6:5: at most 0 the bottom, from the top the top, else
+/// trunc(f32(f32(v * mult) + 0.5))
+fn pack_saturate(v: [f32; 3]) -> u16 {
+    const MAX: [f32; 3] = [255.0, 2550.0, 765.0];
+    const TOP: [u16; 3] = [31, 63, 31];
+    let mult = [f32::from_bits(0x3df8_f8f9), f32::from_bits(0x3cca_63fe), f32::from_bits(0x3d25_fb51)];
+    let q: [u16; 3] = std::array::from_fn(|k| {
+        if v[k] <= 0.0 {
+            0
+        } else if v[k] >= MAX[k] {
+            TOP[k]
+        } else {
+            (v[k] * mult[k] + 0.5f32) as u16
+        }
+    });
+    q[2] << 11 | q[1] << 5 | q[0]
 }
 
-impl Rounding {
-    const ALL: [Rounding; 2] = [Rounding::Grid, Rounding::Plain];
-}
-
-fn optimize_rgb(pts: &[[f32; 3]; 16], grid: &[[f32; 3]; 16], start: Option<Diagonal>, start_box: Rounding, refits: usize) -> ([f32; 3], [f32; 3]) {
-    let c4 = [1.0f32, 2.0 / 3.0, 1.0 / 3.0, 0.0];
-    let d4 = [0.0f32, 1.0 / 3.0, 2.0 / 3.0, 1.0];
-    let mut x = LUM;
-    let mut y = [0.0f32; 3];
-    // (the box of the points rounded to 5:6:5)
-    for p in match start_box { Rounding::Grid => grid, Rounding::Plain => pts } {
+/// the least-squares ends of the pixels' steps (None where the steps leave it undetermined)
+fn optimize_colors(x: &[Wx; 16], idx: u32) -> Option<(u16, u16)> {
+    const C0: [i64; 4] = [3, 0, 2, 1];
+    const C1: [i64; 4] = [0, 3, 1, 2];
+    let (mut sbb, mut sab, mut saa) = (0i64, 0i64, 0i64);
+    let (mut sxb, mut sxa) = ([0i64; 3], [0i64; 3]);
+    for (i, px) in x.iter().enumerate() {
+        let q = (idx >> (2 * i) & 3) as usize;
+        let (b, a) = (C0[q], C1[q]);
+        sbb += b * b;
+        sab += a * b;
+        saa += a * a;
         for k in 0..3 {
-            x[k] = x[k].min(p[k]);
-            y[k] = y[k].max(p[k]);
+            sxb[k] += px[k] * b;
+            sxa[k] += px[k] * a;
         }
     }
-    let ab = [y[0] - x[0], y[1] - x[1], y[2] - x[2]];
-    let fab = ab[0] * ab[0] + ab[1] * ab[1] + ab[2] * ab[2];
-    if fab < f32::MIN_POSITIVE {
-        return (x, y);
+    let det = saa * sbb - sab * sab;
+    if det == 0 {
+        return None;
     }
-    let inv = 1.0 / fab;
-    let dir = [ab[0] * inv, ab[1] * inv, ab[2] * inv];
-    let mid = [(x[0] + y[0]) * 0.5, (x[1] + y[1]) * 0.5, (x[2] + y[2]) * 0.5];
-    let mut fd = [0.0f32; 4];
-    for p in pts {
-        let t = [(p[0] - mid[0]) * dir[0], (p[1] - mid[1]) * dir[1], (p[2] - mid[2]) * dir[2]];
-        let f = [t[0] + t[1] + t[2], t[0] + t[1] - t[2], t[0] - t[1] + t[2], t[0] - t[1] - t[2]];
-        for j in 0..4 {
-            fd[j] += f[j] * f[j];
-        }
-    }
-    let mut best = 0;
-    for j in 1..4 {
-        if fd[j] > fd[best] {
-            best = j;
-        }
-    }
-    let d = start.unwrap_or(Diagonal::ALL[best]);
-    if d.swap_green {
-        std::mem::swap(&mut x[1], &mut y[1]);
-    }
-    if d.swap_blue {
-        std::mem::swap(&mut x[2], &mut y[2]);
-    }
-    if fab < 1.0 / 4096.0 {
-        return (x, y);
-    }
-    let mut was: Option<[usize; 16]> = None;
-    for _ in 0..refits {
-        let mut dir = [y[0] - x[0], y[1] - x[1], y[2] - x[2]];
-        let len = dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
-        if len < 1.0 / 4096.0 {
-            break;
-        }
-        let scale = 3.0 / len;
-        dir = dir.map(|v| v * scale);
-        let at: [usize; 16] = std::array::from_fn(|i| project(&pts[i], &x, &dir, 3.0, 4));
-        if was == Some(at) {
-            break;
-        }
-        was = Some(at);
-        let (mut sa, mut sb, mut sab) = (0.0f32, 0.0f32, 0.0f32);
-        let (mut ta, mut tb) = ([0.0f32; 3], [0.0f32; 3]);
-        for (p, &s) in pts.iter().zip(&at) {
-            let (a, b) = (c4[s], d4[s]);
-            sa += a * a;
-            sb += b * b;
-            sab += a * b;
-            for k in 0..3 {
-                ta[k] += a * p[k];
-                tb[k] += b * p[k];
+    let inv = 3.0f32 / det as f32;
+    let x0: [f32; 3] = std::array::from_fn(|k| (sxb[k] * saa - sxa[k] * sab) as f32 * inv);
+    let x1: [f32; 3] = std::array::from_fn(|k| (sxa[k] * sbb - sxb[k] * sab) as f32 * inv);
+    Some((pack_saturate(x0), pack_saturate(x1)))
+}
+
+fn encode_color(px: &[Px; 16]) -> [u8; 8] {
+    let x: [Wx; 16] = std::array::from_fn(|i| weighted(&px[i]));
+    let (mut c0, mut c1) = choose(&x);
+    let mut idx = 0;
+    if c0 != c1 {
+        (c0, c1, idx) = encode_colors(c0, c1, &x);
+        for _ in 0..3 {
+            let saved = (c0, c1);
+            if let Some(n) = optimize_colors(&x, idx) {
+                (c0, c1) = n;
+            }
+            if (c0, c1) == saved {
+                break;
+            }
+            if c0 == c1 {
+                idx = 0;
+                break;
+            }
+            let old = idx;
+            (c0, c1, idx) = encode_colors(c0, c1, &x);
+            if idx == old {
+                break;
             }
         }
-        let det = sa * sb - sab * sab;
-        if det == 0.0 {
-            break;
-        }
-        x = std::array::from_fn(|k| (sb * ta[k] - sab * tb[k]) / det);
-        y = std::array::from_fn(|k| (sa * tb[k] - sab * ta[k]) / det);
     }
-    (x, y)
+    let mut o = [0u8; 8];
+    o[0..2].copy_from_slice(&c0.to_le_bytes());
+    o[2..4].copy_from_slice(&c1.to_le_bytes());
+    o[4..8].copy_from_slice(&idx.to_le_bytes());
+    o
 }
 
-/// the 8 color bytes of a block (4 steps: endpoints, then 2 bits a pixel)
-fn encode_color(px: &[Px; 16], start: Option<Diagonal>, start_box: Rounding, steps_from: Rounding, refits: usize) -> [u8; 8] {
-    let lum = |c: [f32; 3]| -> [f32; 3] { std::array::from_fn(|k| c[k] * LUM[k]) };
-    let pts: [[f32; 3]; 16] = std::array::from_fn(|i| lum([px[i][0], px[i][1], px[i][2]]));
-    let grid: [[f32; 3]; 16] = std::array::from_fn(|i| lum(grid565([px[i][0], px[i][1], px[i][2]])));
-    let (a, b) = optimize_rgb(&pts, &grid, start, start_box, refits);
-    let wa = encode565(std::array::from_fn(|k| a[k] * LUM_INV[k]));
-    let wb = encode565(std::array::from_fn(|k| b[k] * LUM_INV[k]));
-    let mut out = [0u8; 8];
-    if wa == wb {
-        out[0..2].copy_from_slice(&wa.to_le_bytes());
-        out[2..4].copy_from_slice(&wb.to_le_bytes());
-        return out;
-    }
-    let (ca, cb) = (lum(decode565(wa)), lum(decode565(wb)));
-    // (4 steps: the larger endpoint first)
-    let (w0, w1, s0, s1) = if wa <= wb { (wb, wa, cb, ca) } else { (wa, wb, ca, cb) };
-    let order = [0u32, 2, 3, 1];
-    let mut dir = [s1[0] - s0[0], s1[1] - s0[1], s1[2] - s0[2]];
-    let scale = 3.0 / (dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
-    dir = dir.map(|v| v * scale);
-    let mut dw = 0u32;
-    for p in px {
-        // (each pixel's step from its color rounded to 5:6:5)
-        let c = lum(match steps_from { Rounding::Grid => grid565([p[0], p[1], p[2]]), Rounding::Plain => [p[0], p[1], p[2]] });
-        let dot = (c[0] - s0[0]) * dir[0] + (c[1] - s0[1]) * dir[1] + (c[2] - s0[2]) * dir[2];
-        let step = if dot <= 0.0 { 0 } else if dot >= 3.0 { 1 } else { order[trunc(dot + 0.5) as usize] };
-        dw = (step << 30) | (dw >> 2);
-    }
-    out[0..2].copy_from_slice(&w0.to_le_bytes());
-    out[2..4].copy_from_slice(&w1.to_le_bytes());
-    out[4..8].copy_from_slice(&dw.to_le_bytes());
-    out
-}
-
-/// whether the alpha block has the two extra steps 0 and 1 (6 between the ends) or 8
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum AlphaSteps {
-    Six,
+/// which of BC3's two alpha modes a block's ends make
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum AlphaMode {
+    /// first end greater: 8 values between them
     Eight,
+    /// first end not greater: 6 values between them, then 0 and 255
+    Six,
 }
 
-impl AlphaSteps {
-    fn count(self) -> usize {
+impl AlphaMode {
+    /// the weights of the first and second end at each code, and their sum
+    fn weights(self) -> (&'static [i64], &'static [i64], f32) {
         match self {
-            AlphaSteps::Six => 6,
-            AlphaSteps::Eight => 8,
+            Self::Eight => (&[7, 0, 6, 5, 4, 3, 2, 1], &[0, 7, 1, 2, 3, 4, 5, 6], 7.0),
+            Self::Six => (&[5, 0, 4, 3, 2, 1], &[0, 5, 1, 2, 3, 4], 5.0),
         }
     }
 }
 
-/// the step of an alpha value on the line `s0`..`s1` (the D3DX rule, plus the extra steps of
-/// six; MEASURED golden enc-dds-idx4: when the ends are one value, a value above them takes the
-/// far end, below the near one, the value itself step 0)
-fn alpha_step(v: f32, s0: f32, s1: f32, scale: f32, steps: AlphaSteps) -> usize {
-    let six = steps == AlphaSteps::Six;
-    let last = (steps.count() - 1) as f32;
-    let low = |v: f32| if six && v <= s0 * 0.5 { 6 } else { 0 };
-    let high = |v: f32| if six && v >= (s1 + 1.0) * 0.5 { 7 } else { 1 };
-    if s0 == s1 {
-        return if v > s0 { high(v) } else if v < s0 { low(v) } else { 0 };
-    }
-    let dot = (v - s0) * scale;
-    if dot <= 0.0 {
-        low(v)
-    } else if dot >= last {
-        high(v)
-    } else {
-        let i = trunc(dot + 0.5) as usize;
-        if i == 0 { 0 } else if i == steps.count() - 1 { 1 } else { i + 1 }
+/// every pixel's code where both ends are one value
+fn solid_alpha(m: AlphaMode, a: &[u8; 16]) -> [u8; 16] {
+    match m {
+        AlphaMode::Eight => [0; 16],
+        AlphaMode::Six => a.map(|v| match v {
+            0 => 6,
+            255 => 7,
+            _ => 0,
+        }),
     }
 }
 
-/// the ends of the alpha line, refitted by least squares
-fn optimize_alpha(pts: &[f32; 16], steps: AlphaSteps, refits: usize) -> (f32, f32) {
-    let n = steps.count();
-    let last = (n - 1) as f32;
-    let c = |s: usize| (n - 1 - s) as f32 / last;
-    let d = |s: usize| s as f32 / last;
-    let (mut x, mut y) = (1.0f32, 0.0f32);
-    for &p in pts {
-        match steps {
-            AlphaSteps::Eight => {
-                x = x.min(p);
-                y = y.max(p);
-            }
-            AlphaSteps::Six => {
-                if p < x && p > 0.0 {
-                    x = p;
-                }
-                if p > y && p < 1.0 {
-                    y = p;
+/// each pixel's code: its place between the ends in 7ths (5ths) rounded half up through a
+/// floored reciprocal of their distance (which wraps to a reciprocal 0 where the ends cross);
+/// in the 6-value mode a pixel outside the ends to the nearer of the end and the literal
+fn encode_alphas(m: AlphaMode, a0: u8, a1: u8, a: &[u8; 16]) -> [u8; 16] {
+    const ENC8: [u8; 8] = [1, 7, 6, 5, 4, 3, 2, 0];
+    const ENC6: [u8; 6] = [0, 2, 3, 4, 5, 1];
+    let (a0, a1) = (u32::from(a0), u32::from(a1));
+    a.map(|x| {
+        let x = u32::from(x);
+        match m {
+            AlphaMode::Eight => {
+                let scale = 0x70000 / a0.wrapping_sub(a1);
+                if x < a1 {
+                    1
+                } else if x > a0 {
+                    0
+                } else {
+                    ENC8[(((x - a1) * scale + 0x8000) >> 16) as usize]
                 }
             }
-        }
-    }
-    let mut was: Option<[usize; 16]> = None;
-    for _ in 0..refits {
-        if y - x < 1.0 / 256.0 {
-            break;
-        }
-        let scale = last / (y - x);
-        let at: [usize; 16] = std::array::from_fn(|i| {
-            let p = pts[i];
-            let dot = (p - x) * scale;
-            if dot <= 0.0 {
-                if steps == AlphaSteps::Six && p <= x * 0.5 { 6 } else { 0 }
-            } else if dot >= last {
-                if steps == AlphaSteps::Six && p >= (y + 1.0) * 0.5 { 7 } else { n - 1 }
-            } else {
-                trunc(dot + 0.5) as usize
-            }
-        });
-        if was == Some(at) {
-            break;
-        }
-        was = Some(at);
-        let (mut sa, mut sb, mut sab, mut ta, mut tb) = (0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32);
-        for (&p, &s) in pts.iter().zip(&at) {
-            if s < n {
-                let (a, b) = (c(s), d(s));
-                sa += a * a;
-                sb += b * b;
-                sab += a * b;
-                ta += a * p;
-                tb += b * p;
+            AlphaMode::Six => {
+                let (lo, hi) = (a0, a1);
+                let scale = 0x50000 / hi.wrapping_sub(lo);
+                if x < lo {
+                    if x <= lo >> 1 { 6 } else { 0 }
+                } else if x > hi {
+                    if x > (hi + 255) >> 1 { 7 } else { 1 }
+                } else {
+                    ENC6[(((x - lo) * scale + 0x8000) >> 16) as usize]
+                }
             }
         }
-        let det = sa * sb - sab * sab;
-        if det == 0.0 {
-            break;
-        }
-        x = (sb * ta - sab * tb) / det;
-        y = (sa * tb - sab * ta) / det;
-        if x > y {
-            std::mem::swap(&mut x, &mut y);
-        }
-    }
-    (x.clamp(0.0, 1.0), y.clamp(0.0, 1.0))
+    })
 }
 
-fn encode_alpha(px: &[Px; 16], refits: usize) -> [u8; 8] {
-    let q = |v: f32| trunc(v * 255.0 + 0.5);
-    let fa: [f32; 16] = std::array::from_fn(|i| q(px[i][3]) as f32 * (1.0 / 255.0));
-    let (mut lo, mut hi) = (px[0][3], px[0][3]);
-    for &v in &fa {
-        if v < lo {
-            lo = v;
-        } else if v > hi {
-            hi = v;
+/// the least-squares ends of the pixels' codes (the literals left out), each into 0..=255 as
+/// trunc(f32(v + 0.5)); None where the codes leave them undetermined
+fn optimize_alphas(m: AlphaMode, a: &[u8; 16], codes: &[u8; 16]) -> Option<(u8, u8)> {
+    let (c0, c1, k) = m.weights();
+    let (mut sbb, mut sab, mut saa, mut sxb, mut sxa) = (0i64, 0i64, 0i64, 0i64, 0i64);
+    for (&x, &q) in a.iter().zip(codes) {
+        let q = usize::from(q);
+        if q >= c0.len() {
+            continue;
         }
+        let (b, w) = (c0[q], c1[q]);
+        sbb += b * b;
+        sab += w * b;
+        saa += w * w;
+        sxb += i64::from(x) * b;
+        sxa += i64::from(x) * w;
     }
-    let mut out = [0u8; 8];
-    if lo == 1.0 {
-        out[0] = 0xff;
-        out[1] = 0xff;
-        return out;
+    let det = saa * sbb - sab * sab;
+    if det == 0 {
+        return None;
     }
-    let steps = if lo == 0.0 || hi == 1.0 { AlphaSteps::Six } else { AlphaSteps::Eight };
-    let (a, b) = optimize_alpha(&fa, steps, refits);
-    let byte = |v: f32| u8::try_from(q(v) & 0xff).unwrap_or(0);
-    let (ba, bb) = (byte(a), byte(b));
-    let (fa_, fb_) = (f32::from(ba) * (1.0 / 255.0), f32::from(bb) * (1.0 / 255.0));
-    if steps == AlphaSteps::Eight && ba == bb {
-        out[0] = ba;
-        out[1] = bb;
-        return out;
-    }
-    let (b0, b1, s0, s1) = match steps {
-        AlphaSteps::Six => (ba, bb, fa_, fb_),
-        AlphaSteps::Eight => (bb, ba, fb_, fa_),
+    let inv = k / det as f32;
+    let q = |v: f32| {
+        if v < 0.0 {
+            0
+        } else if v > 255.0 {
+            255
+        } else {
+            (v + 0.5f32) as u8
+        }
     };
-    out[0] = b0;
-    out[1] = b1;
-    let last = (steps.count() - 1) as f32;
-    let scale = if s0 != s1 { last / (s1 - s0) } else { 0.0 };
-    for half in 0..2 {
-        let mut dw = 0u32;
-        for p in &px[half * 8..half * 8 + 8] {
-            let s = alpha_step(p[3], s0, s1, scale, steps) as u32;
-            dw = (s << 21) | (dw >> 3);
-        }
-        out[2 + half * 3..5 + half * 3].copy_from_slice(&dw.to_le_bytes()[0..3]);
-    }
-    out
+    Some((q((sxb * saa - sxa * sab) as f32 * inv), q((sxa * sbb - sxb * sab) as f32 * inv)))
 }
 
-/// one BC3 block; None when the color part depends on the start diagonal (open; even a gray
-/// block's can: golden encdds-gray8-6x10)
-pub fn encode_bc3(px: &[Px; 16]) -> Option<[u8; 16]> {
-    let first = encode_color(px, Some(Diagonal::ALL[0]), Rounding::Grid, Rounding::Grid, REFITS);
-    // (modelled only where the block comes out the same from every start diagonal and whether
-    // or not the start box and the steps take the points rounded: the goldens' blocks that hang
-    // on them follow no one of the choices)
-    for d in Diagonal::ALL {
-        for b in Rounding::ALL {
-            for s in Rounding::ALL {
-                for r in [2, 3, 4, REFITS] {
-                    if encode_color(px, Some(d), b, s, r) != first {
-                        return None;
+fn encode_alpha(px: &[Px; 16]) -> [u8; 8] {
+    let a: [u8; 16] = px.map(|p| p[3]);
+    let zero = a.contains(&0);
+    let full = a.contains(&255);
+    let other: Vec<u8> = a.iter().copied().filter(|&v| v != 0 && v != 255).collect();
+    let (a0, a1, codes) = match (other.iter().min(), other.iter().max()) {
+        (Some(&lo), Some(&hi)) => {
+            let (m, mut a0, mut a1) = if zero || full { (AlphaMode::Six, lo, hi) } else { (AlphaMode::Eight, hi, lo) };
+            let mut codes = solid_alpha(m, &a);
+            if a0 != a1 {
+                codes = encode_alphas(m, a0, a1, &a);
+                for _ in 0..3 {
+                    let saved = (a0, a1);
+                    if let Some(n) = optimize_alphas(m, &a, &codes) {
+                        (a0, a1) = n;
+                    }
+                    if (a0, a1) == saved {
+                        break;
+                    }
+                    if a0 == a1 {
+                        codes = solid_alpha(m, &a);
+                        break;
+                    }
+                    let old = codes;
+                    codes = encode_alphas(m, a0, a1, &a);
+                    if codes == old {
+                        break;
                     }
                 }
             }
+            (a0, a1, codes)
         }
-    }
-    let alpha = encode_alpha(px, REFITS);
-    if [2, 3, 4].iter().any(|&r| encode_alpha(px, r) != alpha) {
-        return None;
-    }
-    let color = first;
+        // (only 0 and 255: both ends 255, the 6-value mode, 0 as its literal)
+        _ if zero && full => (255, 255, a.map(|v| if v == 0 { 6 } else { 0 })),
+        _ if zero => (0, 0, [0; 16]),
+        _ => (255, 255, [0; 16]),
+    };
+    let bits = codes.iter().enumerate().fold(0u64, |b, (i, &c)| b | u64::from(c) << (3 * i));
+    let mut o = [0u8; 8];
+    o[0] = a0;
+    o[1] = a1;
+    o[2..8].copy_from_slice(&bits.to_le_bytes()[0..6]);
+    o
+}
+
+/// one BC3 block: alpha in bytes 0..8, color in 8..16
+pub fn encode_bc3(px: &[Px; 16]) -> [u8; 16] {
     let mut out = [0u8; 16];
-    out[0..8].copy_from_slice(&alpha);
-    out[8..16].copy_from_slice(&color);
-    Some(out)
+    out[0..8].copy_from_slice(&encode_alpha(px));
+    out[8..16].copy_from_slice(&encode_color(px));
+    out
 }

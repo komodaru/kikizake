@@ -578,18 +578,16 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(256))]
 
     /// a block of one color decodes to that color within the 5:6:5 rounding, its alpha exactly;
-    /// a block of two alphas (or 0 and 255 with one more) keeps every alpha exactly; a gray
-    /// block is always modelled
+    /// a block of two alphas (or 0 and 255 with one more) keeps every alpha exactly
     #[test]
     fn bc3_keeps_what_it_can_hold(c: [u8; 3], alphas: [u8; 2], pick: u16, gray: bool) {
         use kikizake::model::bc;
-        let f = |v: u8| f32::from(v) * (1.0 / 255.0);
         let rgb = if gray { [c[0]; 3] } else { c };
         let px: [bc::Px; 16] = std::array::from_fn(|i| {
             let a = alphas[usize::from(pick >> i & 1)];
-            [f(rgb[0]), f(rgb[1]), f(rgb[2]), f(a)]
+            [rgb[2], rgb[1], rgb[0], a]
         });
-        let b = bc::encode_bc3(&px).expect("one color does not depend on the start diagonal");
+        let b = bc::encode_bc3(&px);
         let d = bc3_decode(&b);
         for (i, p) in d.iter().enumerate() {
             for k in 0..3 {

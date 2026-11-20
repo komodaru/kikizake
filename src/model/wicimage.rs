@@ -2867,9 +2867,9 @@ fn encode_dds(i: &Img) -> Res<Vec<u8>> {
                 let k = u32::try_from(k).unwrap_or(0);
                 let (x, y) = ((bx * 4 + k % 4).min(i.w - 1), (by * 4 + k / 4).min(i.h - 1));
                 let p = i.get(x, y);
-                [p[2], p[1], p[0], p[3]].map(|v| f32::from(v) * (1.0 / 255.0))
+                [p[0], p[1], p[2], p[3]]
             });
-            let b = crate::model::bc::encode_bc3(&px).ok_or(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY))?;
+            let b = crate::model::bc::encode_bc3(&px);
             blocks.extend_from_slice(&b);
         }
     }
