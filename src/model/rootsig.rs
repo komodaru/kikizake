@@ -44,9 +44,25 @@ pub enum Param {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Sampler {
     pub filter: u32,
+    /// AddressU, AddressV, AddressW
+    pub address: [u32; 3],
+    /// MipLODBias, MinLOD, MaxLOD as float bits
+    pub bias: u32,
+    pub aniso: u32,
+    pub cmp: u32,
+    pub border: u32,
+    pub min_lod: u32,
+    pub max_lod: u32,
     pub reg: u32,
     pub space: u32,
     pub vis: u32,
+}
+
+impl Sampler {
+    /// what "s" makes: wrap, no bias, 16 anisotropy, LESS, transparent black, LOD 0 to max
+    fn plain(filter: u32, reg: u32, space: u32, vis: u32) -> Sampler {
+        Sampler { filter, address: [1, 1, 1], bias: 0, aniso: 16, cmp: 1, border: 0, min_lod: 0, max_lod: f32::MAX.to_bits(), reg, space, vis }
+    }
 }
 
 /// D3D_ROOT_SIGNATURE_VERSION
@@ -92,8 +108,17 @@ pub fn parse(words: &[String]) -> Option<(Vec<Param>, Vec<Sampler>)> {
                 if ss.len() == MAX_SAMPLERS {
                     return None;
                 }
-                ss.push(Sampler { filter: at(i + 1)?, reg: at(i + 2)?, space: at(i + 3)?, vis: at(i + 4)? });
+                ss.push(Sampler::plain(at(i + 1)?, at(i + 2)?, at(i + 3)?, at(i + 4)?));
                 i += 5;
+                continue;
+            }
+            ("S", None) => {
+                if ss.len() == MAX_SAMPLERS {
+                    return None;
+                }
+                let w: Vec<u32> = (1..=13).map(|k| at(i + k)).collect::<Option<_>>()?;
+                ss.push(Sampler { filter: w[0], address: [w[1], w[2], w[3]], bias: w[4], aniso: w[5], cmp: w[6], border: w[7], min_lod: w[8], max_lod: w[9], reg: w[10], space: w[11], vis: w[12] });
+                i += 14;
                 continue;
             }
             _ if ps.len() == MAX_PARAMS => return None,
@@ -188,6 +213,21 @@ fn bindings(ps: &[Param], ss: &[Sampler]) -> Vec<Binding> {
 /// a static sampler's D3D12_FILTER: point or linear min (0x10), mag (4) and mip (1), or
 /// ANISOTROPIC (0x55, all linear), with a reduction (0x80 comparison, 0x100 minimum, 0x180 maximum)
 /// (MEASURED, golden d3d12-* rootsig-*: MIN_MAG_ANISOTROPIC_MIP_POINT, 0x54, refused)
+/// a static sampler's other fields (re/d3d12 objects 3.3, to be measured, golden d3d12-*
+/// rootsig-*: addresses WRAP..MIRROR_ONCE, a bias of -16 to 15.99, anisotropy up to 16 (0
+/// taken), a comparison function NEVER..ALWAYS only for comparison filters, LODs not NaN, any
+/// border color, MinLOD past MaxLOD taken)
+fn sampler_fields_ok(s: &Sampler) -> bool {
+    crate::spec::hit(crate::spec::clause::D3D12_ROOTSIG_SAMPLER);
+    let bias = f32::from_bits(s.bias);
+    s.address.iter().all(|a| (1..=5).contains(a))
+        && (-16.0..=15.99).contains(&bias)
+        && s.aniso <= 16
+        && (s.filter & 0x180 != 0x80 || (1..=8).contains(&s.cmp))
+        && !f32::from_bits(s.min_lod).is_nan()
+        && !f32::from_bits(s.max_lod).is_nan()
+}
+
 fn filter_ok(f: u32) -> bool {
     f & !0x1d5 == 0 && (f & 0x40 == 0 || f & 0x55 == 0x55)
 }
@@ -227,7 +267,7 @@ pub fn valid(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> bool {
         Param::Constants { vis, .. } => vis_ok(*vis),
         Param::Desc { vis, flags, .. } => vis_ok(*vis) && (!v11 || (*flags & !0xe == 0 && data_ok(*flags))),
     });
-    let samplers = ss.iter().all(|s| vis_ok(s.vis) && filter_ok(s.filter));
+    let samplers = ss.iter().all(|s| vis_ok(s.vis) && filter_ok(s.filter) && sampler_fields_ok(s));
     // (no register bound twice where the visibilities meet: golden rootsig-133..137, 157)
     let bs = bindings(ps, ss);
     let apart = bs.iter().enumerate().all(|(i, a)| {
@@ -315,7 +355,7 @@ pub fn rts0(ver: Version, flags: u32, ps: &[Param], ss: &[Sampler]) -> Vec<u8> {
     let so = v.len() as u32;
     v[16..20].copy_from_slice(&so.to_le_bytes());
     for s in ss {
-        for w in [s.filter, 1, 1, 1, 0, 16, 1, 0, 0, f32::MAX.to_bits(), s.reg, s.space, s.vis] {
+        for w in [s.filter, s.address[0], s.address[1], s.address[2], s.bias, s.aniso, s.cmp, s.border, s.min_lod, s.max_lod, s.reg, s.space, s.vis] {
             put(&mut v, w);
         }
     }

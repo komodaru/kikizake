@@ -712,6 +712,141 @@ pub fn d3d12() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // (added after) heap properties, heap flags and clear values in full (committed12, heapx12),
+    // rules from re/d3d12 notes to be measured
+    let cl = |p: [u32; 5], hf: u32, st: u32, clear: (u32, u32, [u32; 4]), d: &Desc| -> String {
+        let p: Vec<String> = p.iter().map(|v| hexw(*v)).collect();
+        let c: Vec<String> = clear.2.iter().map(|v| hexw(*v)).collect();
+        format!("committed12 {} {} {} {} {} {} {}", p.join(" "), hexw(hf), hexw(st), clear.0, clear.1, c.join(" "), desc_str(d))
+    };
+    let none = (0u32, 0u32, [0u32; 4]);
+    let buf = Desc::buffer(65536);
+    let ubuf = Desc { flags: 4, ..Desc::buffer(65536) };
+    let tex = Desc::tex(3, 64, 64, 1, 1, 28);
+    let rt = Desc { flags: 1, ..tex };
+    let ds = Desc { flags: 2, ..Desc::tex(3, 64, 64, 1, 1, 40) };
+    let mut blocks: Vec<(String, Vec<String>)> = Vec::new();
+    for t in 0..=6u32 {
+        let mut v = Vec::new();
+        for page in 0..=4u32 {
+            for pool in 0..=3u32 {
+                v.push(cl([t, page, pool, 0, 0], 0, 0, none, &buf));
+                v.push(cl([t, page, pool, 0, 0], 0, 0, none, &tex));
+            }
+        }
+        blocks.push((format!("props-type{t}"), v));
+    }
+    let nodes = [(0u32, 0u32), (1, 0), (0, 1), (1, 1), (2, 0), (0, 2), (2, 2), (1, 3), (3, 1), (2, 3), (3, 3), (0x8000_0000, 0), (0, 0x8000_0000)];
+    blocks.push(("props-nodes".into(), nodes.iter().flat_map(|(c, v)| [cl([1, 0, 0, *c, *v], 0, 0, none, &buf), cl([4, 1, 1, *c, *v], 0, 0, none, &buf)]).collect()));
+    let hflags: Vec<u32> = (0..16).map(|b| 1u32 << b).chain([0x21, 0x9, 0x29, 0x401, 0x201, 0xc0, 0x44, 0x84, 0x1801, 0x8000_0000]).collect();
+    for (pn, p) in [("default", [1u32, 0, 0, 0, 0]), ("upload", [2, 0, 0, 0, 0]), ("readback", [3, 0, 0, 0, 0]), ("gpuupload", [5, 0, 0, 0, 0]), ("custom-na", [4, 1, 1, 0, 0]), ("custom-wc", [4, 2, 1, 0, 0]), ("custom-wb", [4, 3, 1, 0, 0])] {
+        for (dn, d) in [("buf", ubuf), ("rt", rt), ("tex", tex)] {
+            let st = if p[0] == 3 { 0x400 } else if p[0] == 2 || p[0] == 5 { 0xac3 } else { 0 };
+            blocks.push((format!("committed-flags-{pn}-{dn}"), hflags.iter().map(|f| cl(p, *f, st, none, &d)).collect()));
+        }
+        blocks.push((format!("committed-custom-{pn}"), [0u32, 1, 4, 8, 0x10, 0x400, 0x800, 0xac3].iter().flat_map(|st| [cl(p, 0, *st, none, &Desc { flags: 5, ..Desc::buffer(65536) }), cl(p, 0, *st, none, &Desc { flags: 5, ..tex })]).collect()));
+    }
+    let mut disp = Vec::new();
+    for f in [28u32, 29, 87, 91, 24, 10, 2, 41, 40] {
+        for (hf, rf) in [(8u32, 0u32), (8, 1), (0x29, 0x11), (0x29, 0x10), (0x21, 0x11)] {
+            let d = Desc { flags: rf, layout: if rf & 0x10 != 0 { 1 } else { 0 }, ..Desc::tex(3, 64, 64, 1, 1, f) };
+            disp.push(cl([1, 0, 0, 0, 0], hf, 0, none, &d));
+        }
+    }
+    for d in [Desc { flags: 1, ..Desc::tex(3, 64, 64, 2, 1, 28) }, Desc { flags: 1, ..Desc::tex(3, 64, 64, 3, 1, 28) }, Desc { flags: 1, ..Desc::tex(3, 64, 64, 1, 2, 28) }, Desc { flags: 1, align: 65536, ..Desc::tex(3, 64, 64, 1, 1, 28) }, Desc { flags: 1, samples: 4, ..Desc::tex(3, 64, 64, 1, 1, 28) }, Desc { flags: 5, ..Desc::tex(3, 64, 64, 1, 1, 28) }, Desc::tex(2, 64, 1, 1, 1, 28), Desc { flags: 1, ..Desc::tex(4, 64, 64, 1, 1, 28) }] {
+        disp.push(cl([1, 0, 0, 0, 0], 8, 0, none, &d));
+    }
+    blocks.push(("committed-display".into(), disp));
+    let f1 = 1.0f32.to_bits();
+    let mut clr = Vec::new();
+    for f in [0u32, 27, 28, 29, 26, 2, 87, 41, 24, 200, 65] {
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0, (1, f, [f1, 0, 0, f1]), &rt));
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0, (1, f, [f1, 0, 0, f1]), &Desc { fmt: 27, ..rt }));
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0, (1, f, [f1, 0, 0, f1]), &Desc { fmt: 65, ..rt }));
+    }
+    for f in [0u32, 39, 40, 41, 45, 20, 55, 28, 44] {
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0x10, (2, f, [f1, 0, 0, 0]), &ds));
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0x10, (2, f, [f1, 0, 0, 0]), &Desc { fmt: 39, ..ds }));
+    }
+    for z in [0.0f32, 1.0, 0.5, -0.0, 1.0001, f32::NAN, -1.0, f32::INFINITY, f32::MIN_POSITIVE] {
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0x10, (2, 40, [z.to_bits(), 0xff, 0, 0]), &ds));
+    }
+    for (k, f) in [(1u32, 40u32), (2, 28), (1, 0), (2, 0)] {
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0, (k, f, [0; 4]), &tex));
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0, (k, f, [0; 4]), &buf));
+        clr.push(cl([1, 0, 0, 0, 0], 0, 0, (k, f, [0; 4]), &Desc { flags: 3 & !1 | 1, ..tex }));
+    }
+    clr.push(cl([1, 0, 0, 0, 0], 0, 0x10, (1, 40, [f1, 0, 0, 0]), &ds));
+    clr.push(cl([1, 0, 0, 0, 0], 0, 4, (2, 28, [f1, 0, 0, 0]), &rt));
+    blocks.push(("committed-clear".into(), clr));
+    let hx = |p: [u32; 5], size: u64, al: u32, f: u32| -> String {
+        let p: Vec<String> = p.iter().map(|v| hexw(*v)).collect();
+        format!("heapx12 {} {} {} {} {}", p.join(" "), hexw(size as u32), hexw((size >> 32) as u32), hexw(al), hexw(f))
+    };
+    for t in 0..=6u32 {
+        let mut v = Vec::new();
+        for page in 0..=4u32 {
+            for pool in 0..=3u32 {
+                v.push(hx([t, page, pool, 0, 0], 65536, 0, 0));
+            }
+        }
+        blocks.push((format!("heapx-type{t}"), v));
+    }
+    let sizes = [0u64, 1, 4096, 0xffff_0000, 0xffff_0001, 1 << 32, 0xffff_ffff_ffbf_ffff, 0xffff_ffff_ffc0_0000, u64::MAX];
+    for (pn, p) in [("default", [1u32, 0, 0, 0, 0]), ("upload", [2, 0, 0, 0, 0]), ("custom-wc", [4, 2, 1, 0, 0]), ("custom-na", [4, 1, 1, 0, 0])] {
+        let mut v: Vec<String> = sizes.iter().map(|z| hx(p, *z, 0, 0)).collect();
+        v.extend([1u32, 4096, 65536, 4194304, 8388608, 3].iter().map(|a| hx(p, 65536, *a, 0)));
+        v.extend(hflags.iter().chain(&[0x4u32, 0x40, 0x80, 0xc4, 0x48, 0x28, 0x2c1]).map(|f| hx(p, 65536, 0, *f)));
+        blocks.push((format!("heapx-{pn}"), v));
+    }
+    blocks.push(("heapx-nodes".into(), nodes.iter().map(|(c, v)| hx([1, 0, 0, *c, *v], 65536, 0, 0)).collect()));
+    for (n, v) in blocks {
+        writeln!(s, "case {n}\ndevice12").unwrap();
+        for l in v {
+            writeln!(s, "{l}").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    let mut rs2: Vec<String> = Vec::new();
+    // (added after) static samplers in full (S): each field through values of interest, from the
+    // re/d3d12 notes, to be measured
+    let fb = |x: f32| x.to_bits();
+    let base: [u32; 13] = [0x15, 1, 1, 1, 0, 16, 1, 0, 0, fb(f32::MAX), 0, 0, 0];
+    let fields: [Vec<u32>; 10] = [
+        vec![0x95, 0x94, 0xd5, 0x195],
+        vec![0, 1, 2, 3, 4, 5, 6, 0xffff_ffff],
+        vec![0, 5, 6],
+        vec![0, 5, 6],
+        vec![fb(-16.0), fb(-16.01), fb(15.99), fb(16.0), fb(15.995), fb(f32::NAN), fb(f32::INFINITY), fb(-0.0)],
+        vec![0, 1, 16, 17, 0xffff_ffff],
+        vec![0, 1, 8, 9, 0xffff_ffff],
+        vec![0, 1, 2, 3, 4, 99],
+        vec![fb(f32::NAN), fb(f32::NEG_INFINITY), fb(5.0), fb(-1.0)],
+        vec![fb(f32::NAN), fb(f32::INFINITY), fb(0.0), fb(-1.0)],
+    ];
+    for v in [1u32, 2] {
+        for (at, vals) in fields.iter().enumerate() {
+            for x in vals {
+                let mut w = base;
+                w[at] = *x;
+                let l: Vec<String> = w.iter().map(|v| hexw(*v)).collect();
+                rs2.push(format!("{v} 0 S {}", l.join(" ")));
+            }
+        }
+        // (a comparison filter's function, a plain filter's NONE)
+        for (f, c) in [(0x95u32, 0u32), (0x95, 9), (0x15, 0), (0x15, 9), (0x195, 0)] {
+            let mut w = base;
+            w[0] = f;
+            w[6] = c;
+            let l: Vec<String> = w.iter().map(|v| hexw(*v)).collect();
+            rs2.push(format!("{v} 0 S {}", l.join(" ")));
+        }
+        // (root constants of no values)
+        rs2.push(format!("{v} 0 c 0 0 0 0"));
+    }
+    for (i, l) in rs2.iter().enumerate() {
+        writeln!(s, "case rootsig2-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
+    }
 
     s
 }
@@ -922,5 +1057,80 @@ pub fn dxgi() -> String {
         chain_line(&mut s, "swapchain", &d);
         writeln!(s, "{l}\nend").unwrap();
     }
+    // (added after) rules from the re/dxgi notes, to be measured: DO_NOT_SEQUENCE before a frame,
+    // Present1's dirty and scroll rects, SetHDRMetaData, the waitable object, CheckFeatureSupport's
+    // arguments, EnumAdapterByGpuPreference
+    let seq = { let mut w = CHAIN; w[9] = 3; w };
+    let p1 = |sync: u32, fl: u32, scroll: Option<[i32; 6]>, rects: &[[i32; 4]]| -> String {
+        let sc = scroll.unwrap_or([0; 6]);
+        let mut l = format!("scpresent1 {sync} {} {} {}", hexw(fl), scroll.is_some() as u32, sc.iter().map(|v| hexw(*v as u32)).collect::<Vec<_>>().join(" "));
+        write!(l, " {}", rects.len()).unwrap();
+        for r in rects {
+            for v in r {
+                write!(l, " {}", hexw(*v as u32)).unwrap();
+            }
+        }
+        l
+    };
+    let full = [0, 0, 64, 64];
+    let mut re: Vec<(String, [u32; 12], Vec<String>)> = Vec::new();
+    for (en, c) in [("discard", CHAIN), ("seq", seq)] {
+        re.push((format!("dns-first-{en}"), c, vec!["scpresent 0 2".into(), "scpresent 0 0".into(), "scpresent 0 2".into()]));
+        re.push((format!("dns-test-{en}"), c, vec!["scpresent 0 1".into(), "scpresent 0 2".into(), "scpresent 0 0".into(), "scresize 0 0 0 0 0".into(), "scpresent 0 2".into()]));
+        re.push((format!("present1-none-{en}"), c, vec![p1(0, 0, None, &[]), p1(0, 2, None, &[]), p1(0, 1, None, &[])]));
+        re.push((format!("present1-full-{en}"), c, vec![p1(0, 0, None, &[full]), p1(0, 0, None, &[[0, 0, 8, 8]]), p1(0, 0, None, &[[0, 0, 8, 8], [8, 8, 16, 16]])]));
+        re.push((format!("present1-partial-first-{en}"), c, vec![p1(0, 0, None, &[[0, 0, 8, 8]]), p1(0, 0, None, &[full]), p1(0, 0, None, &[[0, 0, 8, 8]])]));
+        re.push((format!("present1-rects-{en}"), c, vec![
+            p1(0, 0, None, &[full]),
+            p1(0, 0, None, &[[4, 4, 4, 8]]),
+            p1(0, 0, None, &[[8, 8, 4, 4]]),
+            p1(0, 0, None, &[[-1, 0, 8, 8]]),
+            p1(0, 0, None, &[[0, 0, 65, 8]]),
+            p1(0, 0, None, &[[0, 0, 64, 65]]),
+            p1(0, 1, None, &[[0, 0, 8, 8]]),
+            p1(0, 2, None, &[[0, 0, 8, 8]]),
+            p1(5, 0, None, &[[0, 0, 8, 8]]),
+            p1(0, 0, None, &[[0, 0, 64, 64], [0, 0, 64, 64]]),
+        ]));
+        re.push((format!("present1-scroll-{en}"), c, vec![
+            p1(0, 0, None, &[full]),
+            p1(0, 0, Some([0, 0, 32, 32, 8, 8]), &[[0, 0, 8, 8]]),
+            p1(0, 0, Some([0, 0, 32, 32, 8, 8]), &[]),
+            p1(0, 0, Some([8, 8, 40, 40, 8, 8]), &[[0, 0, 8, 8]]),
+            p1(0, 0, Some([0, 0, 0, 32, 0, 0]), &[[0, 0, 8, 8]]),
+            p1(0, 0, Some([40, 40, 72, 72, 0, 0]), &[[0, 0, 8, 8]]),
+            p1(0, 0, Some([0, 0, 32, 32, -8, 0]), &[[0, 0, 8, 8]]),
+        ]));
+        re.push((format!("present1-resize-{en}"), c, vec![p1(0, 0, None, &[full]), "scresize 0 0 0 0 0".into(), p1(0, 0, None, &[[0, 0, 8, 8]]), p1(0, 0, None, &[full]), p1(0, 0, None, &[[0, 0, 8, 8]])]));
+    }
+    let mut hdr = Vec::new();
+    for t in [0u32, 1, 2, 3, 0xffff_ffff] {
+        for (z, n) in [(0u32, 1u32), (0, 0), (28, 0), (28, 1), (27, 0), (29, 0), (72, 0), (72, 1), (71, 0), (73, 0), (128, 0)] {
+            hdr.push(format!("schdr {} {z} {n}", hexw(t)));
+        }
+    }
+    re.push(("hdr-discard".into(), CHAIN, hdr.clone()));
+    re.push(("hdr-seq".into(), seq, hdr));
+    re.push(("wait-none".into(), CHAIN, vec!["scwait".into()]));
+    re.push(("wait-flag".into(), wait, vec!["scwait".into(), "scwait".into()]));
+    for (n, d, ls) in re {
+        writeln!(s, "case {n}\ndevice12\ndxgifactory 0").unwrap();
+        chain_line(&mut s, "swapchain", &d);
+        for l in ls {
+            writeln!(s, "{l}").unwrap();
+        }
+        writeln!(s, "end").unwrap();
+    }
+    writeln!(s, "case feat-args\ndxgifactory 0").unwrap();
+    for (f, z) in [(0u32, 4u32), (0, 0), (0, 1), (0, 3), (0, 5), (0, 8), (0, 16), (1, 4), (2, 4), (0xffff_ffff, 4)] {
+        writeln!(s, "dxgifeat {} {z}", hexw(f)).unwrap();
+    }
+    writeln!(s, "end\ncase pref-args\ndxgifactory 0").unwrap();
+    for i in 0u32..=2 {
+        for p in [0u32, 1, 2, 3, 4, 0x40, 0x4000_0000, 0xffff_ffff] {
+            writeln!(s, "dxgipref {i} {}", hexw(p)).unwrap();
+        }
+    }
+    writeln!(s, "end").unwrap();
     s
 }

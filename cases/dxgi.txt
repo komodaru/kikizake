@@ -2415,3 +2415,334 @@ dxgifactory 0
 swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
 sclatency 0x2b
 end
+case dns-first-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 2
+scpresent 0 0
+scpresent 0 2
+end
+case dns-test-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent 0 1
+scpresent 0 2
+scpresent 0 0
+scresize 0 0 0 0 0
+scpresent 0 2
+end
+case present1-none-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 0
+scpresent1 0 2 0 0 0 0 0 0 0 0
+scpresent1 0 1 0 0 0 0 0 0 0 0
+end
+case present1-full-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 2 0 0 8 8 8 8 0x10 0x10
+end
+case present1-partial-first-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+end
+case present1-rects-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 4 4 4 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 8 8 4 4
+scpresent1 0 0 0 0 0 0 0 0 0 1 0xffffffff 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x41 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x41
+scpresent1 0 1 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 2 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 5 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 2 0 0 0x40 0x40 0 0 0x40 0x40
+end
+case present1-scroll-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 1 0 0 0x20 0x20 8 8 1 0 0 8 8
+scpresent1 0 0 1 0 0 0x20 0x20 8 8 0
+scpresent1 0 0 1 8 8 0x28 0x28 8 8 1 0 0 8 8
+scpresent1 0 0 1 0 0 0 0x20 0 0 1 0 0 8 8
+scpresent1 0 0 1 0x28 0x28 0x48 0x48 0 0 1 0 0 8 8
+scpresent1 0 0 1 0 0 0x20 0x20 0xfffffff8 0 1 0 0 8 8
+end
+case present1-resize-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scresize 0 0 0 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+end
+case dns-first-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent 0 2
+scpresent 0 0
+scpresent 0 2
+end
+case dns-test-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent 0 1
+scpresent 0 2
+scpresent 0 0
+scresize 0 0 0 0 0
+scpresent 0 2
+end
+case present1-none-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 0
+scpresent1 0 2 0 0 0 0 0 0 0 0
+scpresent1 0 1 0 0 0 0 0 0 0 0
+end
+case present1-full-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 2 0 0 8 8 8 8 0x10 0x10
+end
+case present1-partial-first-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+end
+case present1-rects-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 4 4 4 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 8 8 4 4
+scpresent1 0 0 0 0 0 0 0 0 0 1 0xffffffff 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x41 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x41
+scpresent1 0 1 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 2 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 5 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 2 0 0 0x40 0x40 0 0 0x40 0x40
+end
+case present1-scroll-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 1 0 0 0x20 0x20 8 8 1 0 0 8 8
+scpresent1 0 0 1 0 0 0x20 0x20 8 8 0
+scpresent1 0 0 1 8 8 0x28 0x28 8 8 1 0 0 8 8
+scpresent1 0 0 1 0 0 0 0x20 0 0 1 0 0 8 8
+scpresent1 0 0 1 0x28 0x28 0x48 0x48 0 0 1 0 0 8 8
+scpresent1 0 0 1 0 0 0x20 0x20 0xfffffff8 0 1 0 0 8 8
+end
+case present1-resize-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scresize 0 0 0 0 0
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 0x40 0x40
+scpresent1 0 0 0 0 0 0 0 0 0 1 0 0 8 8
+end
+case hdr-discard
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+schdr 0 0 1
+schdr 0 0 0
+schdr 0 28 0
+schdr 0 28 1
+schdr 0 27 0
+schdr 0 29 0
+schdr 0 72 0
+schdr 0 72 1
+schdr 0 71 0
+schdr 0 73 0
+schdr 0 128 0
+schdr 1 0 1
+schdr 1 0 0
+schdr 1 28 0
+schdr 1 28 1
+schdr 1 27 0
+schdr 1 29 0
+schdr 1 72 0
+schdr 1 72 1
+schdr 1 71 0
+schdr 1 73 0
+schdr 1 128 0
+schdr 2 0 1
+schdr 2 0 0
+schdr 2 28 0
+schdr 2 28 1
+schdr 2 27 0
+schdr 2 29 0
+schdr 2 72 0
+schdr 2 72 1
+schdr 2 71 0
+schdr 2 73 0
+schdr 2 128 0
+schdr 3 0 1
+schdr 3 0 0
+schdr 3 28 0
+schdr 3 28 1
+schdr 3 27 0
+schdr 3 29 0
+schdr 3 72 0
+schdr 3 72 1
+schdr 3 71 0
+schdr 3 73 0
+schdr 3 128 0
+schdr 0xffffffff 0 1
+schdr 0xffffffff 0 0
+schdr 0xffffffff 28 0
+schdr 0xffffffff 28 1
+schdr 0xffffffff 27 0
+schdr 0xffffffff 29 0
+schdr 0xffffffff 72 0
+schdr 0xffffffff 72 1
+schdr 0xffffffff 71 0
+schdr 0xffffffff 73 0
+schdr 0xffffffff 128 0
+end
+case hdr-seq
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 3 0 0
+schdr 0 0 1
+schdr 0 0 0
+schdr 0 28 0
+schdr 0 28 1
+schdr 0 27 0
+schdr 0 29 0
+schdr 0 72 0
+schdr 0 72 1
+schdr 0 71 0
+schdr 0 73 0
+schdr 0 128 0
+schdr 1 0 1
+schdr 1 0 0
+schdr 1 28 0
+schdr 1 28 1
+schdr 1 27 0
+schdr 1 29 0
+schdr 1 72 0
+schdr 1 72 1
+schdr 1 71 0
+schdr 1 73 0
+schdr 1 128 0
+schdr 2 0 1
+schdr 2 0 0
+schdr 2 28 0
+schdr 2 28 1
+schdr 2 27 0
+schdr 2 29 0
+schdr 2 72 0
+schdr 2 72 1
+schdr 2 71 0
+schdr 2 73 0
+schdr 2 128 0
+schdr 3 0 1
+schdr 3 0 0
+schdr 3 28 0
+schdr 3 28 1
+schdr 3 27 0
+schdr 3 29 0
+schdr 3 72 0
+schdr 3 72 1
+schdr 3 71 0
+schdr 3 73 0
+schdr 3 128 0
+schdr 0xffffffff 0 1
+schdr 0xffffffff 0 0
+schdr 0xffffffff 28 0
+schdr 0xffffffff 28 1
+schdr 0xffffffff 27 0
+schdr 0xffffffff 29 0
+schdr 0xffffffff 72 0
+schdr 0xffffffff 72 1
+schdr 0xffffffff 71 0
+schdr 0xffffffff 73 0
+schdr 0xffffffff 128 0
+end
+case wait-none
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+scwait
+end
+case wait-flag
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0x40
+scwait
+scwait
+end
+case feat-args
+dxgifactory 0
+dxgifeat 0 4
+dxgifeat 0 0
+dxgifeat 0 1
+dxgifeat 0 3
+dxgifeat 0 5
+dxgifeat 0 8
+dxgifeat 0 16
+dxgifeat 1 4
+dxgifeat 2 4
+dxgifeat 0xffffffff 4
+end
+case pref-args
+dxgifactory 0
+dxgipref 0 0
+dxgipref 0 1
+dxgipref 0 2
+dxgipref 0 3
+dxgipref 0 4
+dxgipref 0 0x40
+dxgipref 0 0x40000000
+dxgipref 0 0xffffffff
+dxgipref 1 0
+dxgipref 1 1
+dxgipref 1 2
+dxgipref 1 3
+dxgipref 1 4
+dxgipref 1 0x40
+dxgipref 1 0x40000000
+dxgipref 1 0xffffffff
+dxgipref 2 0
+dxgipref 2 1
+dxgipref 2 2
+dxgipref 2 3
+dxgipref 2 4
+dxgipref 2 0x40
+dxgipref 2 0x40000000
+dxgipref 2 0xffffffff
+end

@@ -181,7 +181,87 @@ static void op_adapters(void) {
     out("adapters %x last %x %x %x\n", n, d.VendorId, d.DeviceId, d.Flags);
 }
 
+/* scpresent1 <sync> <flags> <scroll 0|1> <l t r b> <dx dy> <n> <n rects l t r b>: Present1 with
+ * those dirty rects and scroll: "present1 hr <hr> index <i>" */
+static void op_present1(void) {
+    if (!chain) { out("nochain\n"); return; }
+    if (ntok < 11) { bad = 1; return; }
+    UINT n = num(10);
+    if (n > 8 || ntok != 11 + 4 * (int)n) { bad = 1; return; }
+    RECT r[8], sc = { num(4), num(5), num(6), num(7) };
+    POINT off = { num(8), num(9) };
+    for (UINT i = 0; i < n; i++) { r[i].left = num(11 + 4 * i); r[i].top = num(12 + 4 * i); r[i].right = num(13 + 4 * i); r[i].bottom = num(14 + 4 * i); }
+    DXGI_PRESENT_PARAMETERS pp = { n, n ? r : NULL, num(3) ? &sc : NULL, num(3) ? &off : NULL };
+    UINT s = num(1), f = num(2);
+    if (bad) return;
+    HRESULT hr = IDXGISwapChain3_Present1(chain, s, f, &pp);
+    out("present1 hr %08lx index %x\n", hr, IDXGISwapChain3_GetCurrentBackBufferIndex(chain));
+}
+
+/* schdr <type> <size> <null 0|1>: SetHDRMetaData with a zeroed buffer of size bytes (at most 128)
+ * or NULL: "hdr hr <hr>"; scwait: GetFrameLatencyWaitableObject: "wait null" or "wait handle" */
+static void op_hdr(void) {
+    if (!chain) { out("nochain\n"); return; }
+    if (is(0, "scwait")) {
+        if (ntok != 1) { bad = 1; return; }
+        HANDLE h = IDXGISwapChain3_GetFrameLatencyWaitableObject(chain);
+        out("wait %s\n", h ? "handle" : "null");
+        if (h) CloseHandle(h);
+        return;
+    }
+    if (ntok != 4) { bad = 1; return; }
+    UINT t = num(1), size = num(2), null = num(3);
+    if (bad || size > 128) { bad = 1; return; }
+    static BYTE buf[128];
+    memset(buf, 0, sizeof buf);
+    IDXGISwapChain4 *c4 = NULL;
+    HRESULT hr = IDXGISwapChain3_QueryInterface(chain, &IID_IDXGISwapChain4, (void **)&c4);
+    if (FAILED(hr)) { out("hdr qi hr %08lx\n", hr); return; }
+    hr = IDXGISwapChain4_SetHDRMetaData(c4, t, size, null ? NULL : buf);
+    IDXGISwapChain4_Release(c4);
+    out("hdr hr %08lx\n", hr);
+}
+
+/* dxgifeat <feature> <size>: IDXGIFactory5::CheckFeatureSupport into 16 bytes of 0xcc: "feat hr
+ * <hr> <first dword>"; dxgipref <index> <preference>: IDXGIFactory6::EnumAdapterByGpuPreference:
+ * "pref hr <hr>" and " <vendor> <device> <flags>" */
+static void op_factory5(void) {
+    if (!factory) { out("nofactory\n"); return; }
+    if (ntok != 3) { bad = 1; return; }
+    UINT a = num(1), b = num(2);
+    if (bad) return;
+    if (is(0, "dxgifeat")) {
+        if (b > 16) { bad = 1; return; }
+        IDXGIFactory5 *f5 = NULL;
+        HRESULT hr = IDXGIFactory4_QueryInterface(factory, &IID_IDXGIFactory5, (void **)&f5);
+        if (FAILED(hr)) { out("feat qi hr %08lx\n", hr); return; }
+        UINT v[4] = { 0xcccccccc, 0xcccccccc, 0xcccccccc, 0xcccccccc };
+        hr = IDXGIFactory5_CheckFeatureSupport(f5, a, v, b);
+        IDXGIFactory5_Release(f5);
+        out("feat hr %08lx %x\n", hr, v[0]);
+        return;
+    }
+    IDXGIFactory6 *f6 = NULL;
+    HRESULT hr = IDXGIFactory4_QueryInterface(factory, &IID_IDXGIFactory6, (void **)&f6);
+    if (FAILED(hr)) { out("pref qi hr %08lx\n", hr); return; }
+    IDXGIAdapter1 *ad = NULL;
+    hr = IDXGIFactory6_EnumAdapterByGpuPreference(f6, a, b, &IID_IDXGIAdapter1, (void **)&ad);
+    IDXGIFactory6_Release(f6);
+    out("pref hr %08lx", hr);
+    if (SUCCEEDED(hr) && ad) {
+        DXGI_ADAPTER_DESC1 d;
+        if (SUCCEEDED(IDXGIAdapter1_GetDesc1(ad, &d))) out(" %x %x %x", d.VendorId, d.DeviceId, d.Flags);
+        IDXGIAdapter1_Release(ad);
+    }
+    out("\n");
+}
+
 static const struct kz_op dxgi_ops[] = {
+    { "scpresent1", op_present1 },
+    { "schdr", op_hdr },
+    { "scwait", op_hdr },
+    { "dxgifeat", op_factory5 },
+    { "dxgipref", op_factory5 },
     { "dxgitearing", op_tearing },
     { "sccolor", op_color },
     { "dxgiadapters", op_adapters },

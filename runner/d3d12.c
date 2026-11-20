@@ -439,6 +439,8 @@ static void op_copy(void) {
  *   cbv|srv|uav <register> <space> <visibility> <flags> a root descriptor (flags: 1.1)
  *   t <visibility> <ranges> then per range <type> <descriptors> <base> <space> <offset> <flags>
  *   s <filter> <register> <space> <visibility>           a static sampler (wrap, LOD 0..max)
+ *   S <filter> <address u v w> <bias bits> <anisotropy> <comparison> <border> <min lod bits>
+ *     <max lod bits> <register> <space> <visibility>     a static sampler in full
  * "rs hr <hr> size <bytes>", the blob past its 4-byte magic and 16-byte checksum as "rs <hex>"
  * lines of 64 bytes, "rs sum <checksum hex>", then "rsmake hr <hr>" */
 #define RSP 16
@@ -456,6 +458,20 @@ static void op_rootsig(void) {
     D3D12_STATIC_SAMPLER_DESC sm[RSP];
     int i = 3;
     while (i < ntok && !bad) {
+        if (is(i, "S")) {
+            if (ns == RSP || i + 13 >= ntok) { bad = 1; break; }
+            D3D12_STATIC_SAMPLER_DESC d;
+            UINT w[13];
+            for (int k = 0; k < 13; k++) w[k] = (UINT)num(i + 1 + k);
+            d.Filter = w[0]; d.AddressU = w[1]; d.AddressV = w[2]; d.AddressW = w[3];
+            memcpy(&d.MipLODBias, &w[4], 4);
+            d.MaxAnisotropy = w[5]; d.ComparisonFunc = w[6]; d.BorderColor = w[7];
+            memcpy(&d.MinLOD, &w[8], 4); memcpy(&d.MaxLOD, &w[9], 4);
+            d.ShaderRegister = w[10]; d.RegisterSpace = w[11]; d.ShaderVisibility = w[12];
+            sm[ns++] = d;
+            i += 14;
+            continue;
+        }
         if (is(i, "s")) {
             if (ns == RSP || i + 4 >= ntok) { bad = 1; break; }
             D3D12_STATIC_SAMPLER_DESC d = { num(i + 1), 1, 1, 1, 0, 16, 1, 0, 0, 3.402823466e+38f, num(i + 2), num(i + 3), num(i + 4) };
@@ -577,7 +593,53 @@ static void op_featscan(void) {
     out("feat none hr %08lx\n", first);
 }
 
+/* full heap properties from token i: <type> <cpu page> <memory pool> <creation node> <visible node> */
+static D3D12_HEAP_PROPERTIES hprops(int i) {
+    D3D12_HEAP_PROPERTIES p = { num(i), num(i + 1), num(i + 2), (UINT)num(i + 3), (UINT)num(i + 4) };
+    return p;
+}
+
+/* committed12 <heap properties 5> <heap flags> <state> <clear kind> <clear format> <c0> <c1> <c2>
+ * <c3> <desc>: CreateCommittedResource with every argument, ppvResource NULL (validation only);
+ * clear kind 0 none, 1 color (c0..c3 float bits), 2 depth (c0 float bits, c1 stencil):
+ * "committed12 hr <hr>".
+ * heapx12 <heap properties 5> <size low> <size high> <alignment> <flags>: CreateHeap with ppvHeap
+ * NULL: "heapx12 hr <hr>" */
+static void op_full(void) {
+    if (!on12) { out("nodev\n"); return; }
+    HRESULT hr;
+    if (is(0, "heapx12")) {
+        if (ntok != 10) { bad = 1; return; }
+        D3D12_HEAP_DESC d;
+        d.Properties = hprops(1);
+        d.SizeInBytes = (UINT64)(unsigned)num(6) | (UINT64)(unsigned)num(7) << 32;
+        d.Alignment = (unsigned)num(8);
+        d.Flags = num(9);
+        if (bad) return;
+        hr = ID3D12Device_CreateHeap(dev12, &d, &IID_ID3D12Heap, NULL);
+    } else {
+        if (ntok != 25) { bad = 1; return; }
+        D3D12_HEAP_PROPERTIES p = hprops(1);
+        D3D12_HEAP_FLAGS hf = num(6);
+        D3D12_RESOURCE_STATES st = num(7);
+        int kind = num(8);
+        D3D12_CLEAR_VALUE cv;
+        memset(&cv, 0, sizeof cv);
+        cv.Format = num(9);
+        unsigned c[4] = { (unsigned)num(10), (unsigned)num(11), (unsigned)num(12), (unsigned)num(13) };
+        if (kind == 1) memcpy(cv.Color, c, sizeof c);
+        else if (kind == 2) { memcpy(&cv.DepthStencil.Depth, c, 4); cv.DepthStencil.Stencil = (UINT8)c[1]; }
+        else if (kind != 0) bad = 1;
+        D3D12_RESOURCE_DESC d = rdesc(14);
+        if (bad) return;
+        hr = ID3D12Device_CreateCommittedResource(dev12, &p, hf, &d, st, kind ? &cv : NULL, &IID_ID3D12Resource, NULL);
+    }
+    out("%s hr %08lx\n", tok[0], hr);
+}
+
 static const struct kz_op d3d12_ops[] = {
+    { "committed12", op_full },
+    { "heapx12", op_full },
     { "featscan12", op_featscan },
     { "remove12", op_remove },
     { "rootsig12", op_rootsig },

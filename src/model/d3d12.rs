@@ -40,6 +40,7 @@ pub const E_FAIL: Hr = Hr(0x8000_4005);
 pub const DXGI_ERROR_DEVICE_REMOVED: Hr = Hr(0x887a_0005);
 pub const E_OUTOFMEMORY: Hr = Hr(0x8007_000e);
 pub const DXGI_ERROR_INVALID_CALL: Hr = Hr(0x887a_0001);
+pub const DXGI_ERROR_NOT_FOUND: Hr = Hr(0x887a_0002);
 pub const DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: Hr = Hr(0x887a_002b);
 
 /// D3D12_RESOURCE_DIMENSION: the description's dimension, the values past TEXTURE3D as Other
@@ -484,6 +485,9 @@ pub struct D3d12 {
     chain: Option<([u32; 12], u32)>,
     /// its maximum frame latency
     latency: u32,
+    /// no frame presented since the chain was made or resized (re/dxgi: DO_NOT_SEQUENCE and a
+    /// partial Present1 refused then)
+    fresh: bool,
 }
 
 fn words(t: &[String]) -> Res<Vec<u32>> {
@@ -502,7 +506,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" | "featscan12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" | "featscan12" | "committed12" | "heapx12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -696,6 +700,28 @@ impl D3d12 {
                 }
                 let first: String = (0..fps[0].7.min(16)).map(|k| format!("{:02x}", back(k))).collect();
                 out.push(format!("copy {diff:x} first {first}"));
+            }
+            "committed12" => {
+                if t.len() != 25 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..])?;
+                let c = match w[7] {
+                    0 => Clear::None,
+                    1 => Clear::Color(w[8]),
+                    2 => Clear::Depth(w[8], f32::from_bits(w[9])),
+                    _ => return Err(Fail::Bad),
+                };
+                let d = Desc::from_abi_words(&w[13..]).ok_or(Fail::Bad)?;
+                out.push(format!("committed12 hr {:08x}", committed_hr(Props::of(&w[..5]), w[5], w[6], c, &d)?));
+            }
+            "heapx12" => {
+                if t.len() != 10 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..])?;
+                let size = u64::from(w[5]) | u64::from(w[6]) << 32;
+                out.push(format!("heapx12 hr {:08x}", heapx_hr(Props::of(&w[..5]), size, u64::from(w[7]), w[8])));
             }
             "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" => {
                 let n = match name {
@@ -918,21 +944,237 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
 /// the measured counts that did)
 const QHEAP32_OOM: u32 = 31 << 18;
 
-pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
-    hit(clause::D3D12_MAKE_HEAP);
-    // (the deny flags only as a tier 2 heap takes them: none, or allowing only buffers, only
-    // render target and depth stencil textures, or only the other textures)
-    let deny = matches!(flags & 0xc4, 0 | 0xc0 | 0x44 | 0x84);
-    // (SHARED on the default heap, write watch on CPU heaps, atomics on the default one; hardware
-    // protected, not resident, not zeroed everywhere)
-    // (MEASURED, golden d3d12-* make-216..227: the GPU upload heap takes flags as the CPU heaps do)
-    let gpu = match heap {
-        Heap::Default => true,
-        Heap::Upload | Heap::Readback | Heap::Custom | Heap::GpuUpload | Heap::Other => false,
+/// D3D12_CPU_PAGE_PROPERTY
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CpuPage {
+    Unknown,
+    NotAvailable,
+    WriteCombine,
+    WriteBack,
+    Other,
+}
+
+impl CpuPage {
+    pub fn of(v: u32) -> CpuPage {
+        match v {
+            0 => CpuPage::Unknown,
+            1 => CpuPage::NotAvailable,
+            2 => CpuPage::WriteCombine,
+            3 => CpuPage::WriteBack,
+            _ => CpuPage::Other,
+        }
+    }
+}
+
+/// D3D12_MEMORY_POOL
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Pool {
+    Unknown,
+    L0,
+    L1,
+    Other,
+}
+
+impl Pool {
+    pub fn of(v: u32) -> Pool {
+        match v {
+            0 => Pool::Unknown,
+            1 => Pool::L0,
+            2 => Pool::L1,
+            _ => Pool::Other,
+        }
+    }
+}
+
+/// D3D12_HEAP_PROPERTIES
+#[derive(Clone, Copy, Debug)]
+pub struct Props {
+    pub heap: Heap,
+    pub page: CpuPage,
+    pub pool: Pool,
+    pub creation: u32,
+    pub visible: u32,
+}
+
+impl Props {
+    /// a heap type with no page properties and node masks 0 (what heap12 and create12 pass)
+    pub fn plain(heap: Heap) -> Props {
+        Props { heap, page: CpuPage::Unknown, pool: Pool::Unknown, creation: 0, visible: 0 }
+    }
+
+    pub fn of(w: &[u32]) -> Props {
+        Props { heap: Heap::of(w[0]), page: CpuPage::of(w[1]), pool: Pool::of(w[2]), creation: w[3], visible: w[4] }
+    }
+
+    /// the CPU maps it: upload, readback, GPU upload, or a custom heap of write-combined or
+    /// written-back pages
+    fn cpu_access(self) -> bool {
+        match self.heap {
+            Heap::Upload | Heap::Readback | Heap::GpuUpload => true,
+            Heap::Custom => matches!(self.page, CpuPage::WriteCombine | CpuPage::WriteBack),
+            Heap::Default | Heap::Other => false,
+        }
+    }
+
+    /// the heap type resource creation sees: a custom heap as the default one
+    fn as_type(self) -> Heap {
+        match self.heap {
+            Heap::Custom => Heap::Default,
+            Heap::Default | Heap::Upload | Heap::Readback | Heap::GpuUpload | Heap::Other => self.heap,
+        }
+    }
+}
+
+/// D3D12_HEAP_FLAGS bits
+mod hflag {
+    pub const SHARED: u32 = 0x1;
+    pub const ALLOW_DISPLAY: u32 = 0x8;
+    pub const CROSS_ADAPTER: u32 = 0x20;
+    pub const WRITE_WATCH: u32 = 0x200;
+    pub const ATOMICS: u32 = 0x400;
+    pub const DENY: u32 = 0xc4;
+    /// the bits a heap flag may have (0x2, 0x10, 0x4000 and up are none)
+    pub const KNOWN: u32 = 0x3fed;
+    /// TOOLS_USE_MANUAL_WRITE_TRACKING, which WARP does not support
+    pub const MANUAL_TRACKING: u32 = 0x2000;
+}
+
+/// the heap properties and flags CreateHeap (committed false) and CreateCommittedResource
+/// (committed true) take (re/d3d12: ValidateHeapPropertiesAndFlags; to be measured, golden
+/// d3d12-* props-*)
+pub fn props_ok(p: Props, flags: u32, committed: bool) -> bool {
+    use hflag::*;
+    hit(clause::D3D12_HEAP_PROPS);
+    if matches!(p.heap, Heap::Other) || matches!(p.page, CpuPage::Other) || matches!(p.pool, Pool::Other) || flags & !KNOWN != 0 || flags & MANUAL_TRACKING != 0 {
+        return false;
+    }
+    let props = match p.heap {
+        // (WARP is UMA: a custom heap's memory is L0)
+        Heap::Custom => p.page != CpuPage::Unknown && p.pool == Pool::L0,
+        Heap::Default | Heap::Upload | Heap::Readback | Heap::GpuUpload | Heap::Other => p.page == CpuPage::Unknown && p.pool == Pool::Unknown,
     };
-    let other = flags & !0xc4 & !(0x100 | 0x800 | 0x1000 | if gpu { 0x401 } else { 0x200 }) == 0;
-    let ok = heap.known() && size > 0 && size < 0xffff_ffff && matches!(al, 0 | 65536 | 4194304) && deny && other;
-    if ok {
+    if !props || p.cpu_access() && flags & SHARED != 0 || !p.cpu_access() && flags & WRITE_WATCH != 0 {
+        return false;
+    }
+    let deny = flags & DENY;
+    let deny_ok = if committed || flags & CROSS_ADAPTER != 0 { deny == 0 } else { matches!(deny, 0 | 0xc0 | 0x44 | 0x84) };
+    let node = |m: u32| if m == 0 { 1 } else { m };
+    if !deny_ok || node(p.visible) & node(p.creation) != node(p.creation) {
+        return false;
+    }
+    let cpu_type = matches!(p.heap, Heap::Upload | Heap::Readback | Heap::GpuUpload);
+    let gpu_only = p.heap != Heap::Custom || p.page == CpuPage::NotAvailable && p.pool == Pool::L0;
+    if flags & CROSS_ADAPTER != 0 {
+        flags & SHARED != 0 && !cpu_type && gpu_only && (flags & ALLOW_DISPLAY == 0 || committed)
+    } else if flags & ALLOW_DISPLAY != 0 {
+        !cpu_type && gpu_only && committed
+    } else if flags & ATOMICS != 0 {
+        p.heap == Heap::Custom || !p.cpu_access()
+    } else {
+        true
+    }
+}
+
+/// CreateHeap with ppvHeap NULL (S_FALSE where it would make the heap)
+pub fn heapx_hr(p: Props, size: u64, al: u64, flags: u32) -> Hr {
+    hit(clause::D3D12_MAKE_HEAP);
+    let size_ok = size != 0 && size < 0xffff_ffff_ffc0_0000 && !(size > 0xffff_0000 && p.cpu_access());
+    if props_ok(p, flags, false) && size_ok && matches!(al, 0 | 65536 | 4194304) {
+        S_FALSE
+    } else {
+        E_INVALIDARG
+    }
+}
+
+/// D3D12_CLEAR_VALUE as committed12 passes it
+#[derive(Clone, Copy, Debug)]
+pub enum Clear {
+    None,
+    Color(u32),
+    Depth(u32, f32),
+}
+
+/// the typeless family a format casts in, (typeless, members)
+const FAMILIES: &[(u32, &[u32])] = &[
+    (1, &[2, 3, 4]),
+    (5, &[6, 7, 8]),
+    (9, &[10, 11, 12, 13, 14]),
+    (15, &[16, 17, 18]),
+    (19, &[20, 21, 22]),
+    (23, &[24, 25]),
+    (27, &[28, 29, 30, 31, 32]),
+    (33, &[34, 35, 36, 37, 38]),
+    (39, &[40, 41, 42, 43]),
+    (44, &[45, 46, 47]),
+    (48, &[49, 50, 51, 52]),
+    (53, &[54, 55, 56, 57, 58, 59]),
+    (60, &[61, 62, 63, 64]),
+    (70, &[71, 72]),
+    (73, &[74, 75]),
+    (76, &[77, 78]),
+    (79, &[80, 81]),
+    (82, &[83, 84]),
+    (90, &[87, 91]),
+    (92, &[88, 93]),
+    (94, &[95, 96]),
+    (97, &[98, 99]),
+];
+
+fn family(f: u32) -> Option<u32> {
+    FAMILIES.iter().find(|(t, m)| *t == f || m.contains(&f)).map(|(t, _)| *t)
+}
+
+/// the clear value check of a texture's description (re/d3d12: ValidateResourceDescription; to
+/// be measured, golden d3d12-* committed-clear-*)
+fn clear_ok(c: Clear, d: &Desc) -> bool {
+    use super::dxgi_format::{support, DS, RT};
+    hit(clause::D3D12_COMMITTED_CLEAR);
+    let f = match c {
+        Clear::None => return true,
+        Clear::Color(f) | Clear::Depth(f, _) => f,
+    };
+    if d.kind() == Dim::Buffer || d.flags & 3 == 0 || super::dxgi_format::caps(f).is_none() || super::dxgi_format::TYPELESS.contains(&f) {
+        return false;
+    }
+    let same = match family(d.fmt) {
+        Some(t) => family(f) == Some(t),
+        None => f == d.fmt,
+    };
+    let depth = match c {
+        Clear::Depth(_, z) => (0.0..=1.0).contains(&z),
+        Clear::None | Clear::Color(_) => true,
+    };
+    same && (d.flags & 1 == 0 || support(f) & RT != 0) && (d.flags & 2 == 0 || support(f) & DS != 0 && depth)
+}
+
+/// CreateCommittedResource with every argument, ppvResource NULL (re/d3d12; to be measured)
+pub fn committed_hr(p: Props, flags: u32, state: u32, c: Clear, d: &Desc) -> Res<Hr> {
+    use hflag::*;
+    if !props_ok(p, flags, true) {
+        return Ok(E_INVALIDARG);
+    }
+    let r = create_hr(p.as_type(), state, d)?;
+    if r != S_FALSE {
+        return Ok(r);
+    }
+    hit(clause::D3D12_COMMITTED_FLAGS);
+    if flags & CROSS_ADAPTER != 0 || flags & ATOMICS != 0 && d.flags & 4 == 0 {
+        return Ok(E_INVALIDARG);
+    }
+    if flags & ALLOW_DISPLAY != 0 {
+        let display = super::dxgi_format::caps(d.fmt).and_then(|c| c.0).is_some_and(|s| s.0 & 0x8_0000 != 0);
+        if !(d.kind() == Dim::Tex2D && d.align == 0 && matches!(d.d, 1 | 2) && d.mips == 1 && d.samples == 1 && d.quality == 0 && d.layout == 0 && d.flags & 0xc2 == 0 && display) {
+            return Ok(E_INVALIDARG);
+        }
+    }
+    Ok(if clear_ok(c, d) { S_FALSE } else { E_INVALIDARG })
+}
+
+/// CreateHeap through heap12: the executor reads the size as a C long (32 bits on Windows) and
+/// widens it signed, so sizes from 2^31 reach CreateHeap as 0xffffffff_xxxxxxxx
+pub fn heap_hr(heap: Heap, size: u64, al: u64, flags: u32) -> Hr {
+    let wide = size as u32 as i32 as i64 as u64;
+    if heapx_hr(Props::plain(heap), wide, al, flags) == S_FALSE {
         S_OK
     } else {
         E_INVALIDARG
@@ -1155,7 +1397,7 @@ impl D3d12 {
     fn dxgi(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         let name = t[0].as_str();
-        if !matches!(name, "dxgifactory" | "dxgiwarp" | "dxgiassoc" | "swapchain" | "scresize" | "scbuffer" | "scpresent" | "sclatency" | "dxgitearing" | "dxgiadapters" | "sccolor") {
+        if !matches!(name, "dxgifactory" | "dxgiwarp" | "dxgiassoc" | "swapchain" | "scresize" | "scbuffer" | "scpresent" | "sclatency" | "dxgitearing" | "dxgiadapters" | "sccolor" | "scpresent1" | "schdr" | "scwait" | "dxgifeat" | "dxgipref") {
             return Ok(false);
         }
         if name == "dxgifactory" {
@@ -1177,7 +1419,7 @@ impl D3d12 {
             out.push("factory ok".into());
             return Ok(true);
         }
-        if !self.factory && matches!(name, "dxgiwarp" | "dxgiassoc" | "swapchain" | "dxgitearing" | "dxgiadapters") {
+        if !self.factory && matches!(name, "dxgiwarp" | "dxgiassoc" | "swapchain" | "dxgitearing" | "dxgiadapters" | "dxgifeat" | "dxgipref") {
             out.push("nofactory".into());
             return Ok(true);
         }
@@ -1197,6 +1439,33 @@ impl D3d12 {
                 let _ = null;
                 let ok = f & !7 == 0;
                 out.push(format!("assoc hr {:08x}", if ok { S_OK } else { DXGI_ERROR_INVALID_CALL }));
+            }
+            "dxgifeat" | "dxgipref" => {
+                if t.len() != 3 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..])?;
+                if name == "dxgifeat" {
+                    // (re/dxgi: only DXGI_FEATURE_PRESENT_ALLOW_TEARING, 4 bytes, always TRUE)
+                    hit(clause::DXGI_FEATURE_ARGS);
+                    if w[1] > 16 {
+                        return Err(Fail::Bad);
+                    }
+                    if w[0] != 0 || w[1] != 4 {
+                        out.push(format!("feat hr {DXGI_ERROR_INVALID_CALL:08x} cccccccc"));
+                    } else {
+                        out.push("feat hr 00000000 1".into());
+                    }
+                } else {
+                    // (re/dxgi: the preference not range checked; the runner's adapters in
+                    // EnumAdapters order, the last WARP)
+                    hit(clause::DXGI_ADAPTER_PREF);
+                    match w[0] {
+                        0 => out.push("pref hr 00000000 1414 8c 2".into()),
+                        1 => out.push("pref hr 00000000 1414 8c 2".into()),
+                        _ => out.push(format!("pref hr {DXGI_ERROR_NOT_FOUND:08x}")),
+                    }
+                }
             }
             "dxgitearing" | "dxgiadapters" => {
                 if t.len() != 1 {
@@ -1226,12 +1495,41 @@ impl D3d12 {
                     Ok(d) => {
                         self.chain = Some((d, 0));
                         self.latency = 1;
+                        self.fresh = true;
                         out.push(chain_line("swapchain", &d, 0));
                     }
                     Err(hr) => out.push(format!("swapchain hr {hr:08x}")),
                 }
             }
             _ if self.chain.is_none() => out.push("nochain".into()),
+            "scwait" => {
+                if t.len() != 1 {
+                    return Err(Fail::Bad);
+                }
+                // (re/dxgi: a handle only for a FRAME_LATENCY_WAITABLE_OBJECT chain)
+                hit(clause::DXGI_LATENCY);
+                let waitable = self.chain.is_some_and(|c| c.0[11] & 0x40 != 0);
+                out.push(format!("wait {}", if waitable { "handle" } else { "null" }));
+            }
+            "schdr" => {
+                if t.len() != 4 {
+                    return Err(Fail::Bad);
+                }
+                let w = words(&t[1..])?;
+                let (kind, size, null) = (w[0], w[1], w[2] != 0);
+                if size > 128 {
+                    return Err(Fail::Bad);
+                }
+                // (re/dxgi: NONE with no data, HDR10 28 bytes, HDR10+ 72 bytes; E_INVALIDARG else)
+                hit(clause::DXGI_HDR);
+                let ok = match kind {
+                    0 => size == 0 && null,
+                    1 => size == 28 && !null,
+                    2 => size == 72 && !null,
+                    _ => false,
+                };
+                out.push(format!("hdr hr {:08x}", if ok { S_OK } else { E_INVALIDARG }));
+            }
             "sccolor" => {
                 if t.len() != 2 {
                     return Err(Fail::Bad);
@@ -1270,6 +1568,8 @@ impl D3d12 {
                         // (TEST with any other flag refused: golden dxgi-* chain-edge-present-0-3,
                         // chain-edge-tear-0-201)
                         let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0) || flags & 1 != 0 && flags != 1;
+                        // (re/dxgi: DO_NOT_SEQUENCE on a flip chain that has not presented)
+                        let bad = bad || flags & 2 != 0 && self.fresh;
                         if flags & 4 != 0 {
                             // (MEASURED, golden dxgi-64 chain-present-restart: presents as without it)
                             hit(clause::DXGI_PRESENT_RESTART);
@@ -1279,6 +1579,7 @@ impl D3d12 {
                         } else {
                             if flags & 3 == 0 {
                                 *index = (*index + 1) % d[7];
+                                self.fresh = false;
                             } else {
                                 hit(clause::DXGI_PRESENT_TEST);
                             }
@@ -1305,7 +1606,40 @@ impl D3d12 {
                             (d[0], d[1]) = if rw == 0 || rh == 0 { (64, 64) } else { (rw, rh) };
                             d[11] = fl;
                             *index = 0;
+                            self.fresh = true;
                             out.push(chain_line("resize", d, 0));
+                        }
+                    }
+                    ("scpresent1", n) if n >= 10 => {
+                        hit(clause::DXGI_PRESENT_DIRTY);
+                        let (sync, flags, scroll) = (w[0], w[1], w[2] != 0);
+                        let count = w[9] as usize;
+                        if count > 8 || n != 10 + 4 * count {
+                            return Err(Fail::Bad);
+                        }
+                        let rect = |r: &[u32]| r.iter().map(|v| *v as i32).collect::<Vec<i32>>();
+                        let (bw, bh) = (d[0] as i32, d[1] as i32);
+                        let empty = |r: &[i32]| r[2] <= r[0] || r[3] <= r[1];
+                        let inside = |r: &[i32]| r[0] >= 0 && r[1] >= 0 && r[2] <= bw && r[3] <= bh;
+                        let dirty: Vec<Vec<i32>> = (0..count).map(|i| rect(&w[10 + 4 * i..14 + 4 * i])).collect();
+                        let sc = rect(&w[3..7]);
+                        let (dx, dy) = (w[7] as i32, w[8] as i32);
+                        let known = 1 | 2 | 4 | 0x100 | 0x200;
+                        let mut bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0) || flags & 1 != 0 && flags != 1 || flags & 2 != 0 && self.fresh;
+                        if count > 0 || scroll {
+                            let full = count == 1 && dirty[0] == [0, 0, bw, bh] && !scroll;
+                            let src = [sc[0] - dx, sc[1] - dy, sc[2] - dx, sc[3] - dy];
+                            bad = bad || self.fresh && !full || flags & 3 != 0 || count > 0 && d[9] == 4 || scroll && d[9] != 3;
+                            bad = bad || scroll && (empty(&sc) || !inside(&sc) || !inside(&src)) || dirty.iter().any(|r| empty(r) || !inside(r));
+                        }
+                        if bad {
+                            out.push(format!("present1 hr {DXGI_ERROR_INVALID_CALL:08x} index {index:x}"));
+                        } else {
+                            if flags & 3 == 0 {
+                                *index = (*index + 1) % d[7];
+                                self.fresh = false;
+                            }
+                            out.push(format!("present1 hr 00000000 index {index:x}"));
                         }
                     }
                     ("sclatency", 1) => {
