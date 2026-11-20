@@ -834,5 +834,19 @@ pub fn d3d7dev() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // the HAL's first pixel: a line from each 16th inside and on pixel (6, 6)'s diamond out far,
+    // in the same eight directions (which starts the diamond exit rule draws)
+    for (k, (dx, dy)) in [(160, 37), (160, -37), (-160, 37), (-160, -37), (37, 160), (-37, 160), (37, -160), (-37, -160)].into_iter().enumerate() {
+        writeln!(s, "case halstart-{k}\nd3d 7\nd3ddev hal 565 12 12\nd3drs set 22 1").unwrap();
+        for ex in -8i64..=8 {
+            for ey in -8i64..=8 {
+                if ex.abs() + ey.abs() <= 8 {
+                    let (x0, y0) = (96 + ex, 96 + ey);
+                    writeln!(s, "d3dclear 0\nd3dline 0xffffffff {x0} {y0} {} {}\nd3ddump", x0 + dx / 2, y0 + dy / 2).unwrap();
+                }
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     s
 }
