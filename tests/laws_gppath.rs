@@ -98,7 +98,7 @@ proptest! {
         let mut p = Path::new(0);
         p.add_lines(r, &[a, b]).unwrap();
         prop_assert_eq!(path::outline_nominal(r, &p, &m, rows, 16, 16).unwrap(), path::line_nominal(r, &m, a, b, rows, 16, 16));
-        prop_assert_eq!(path::outline_aliased(r, &p, &m, 16, 16).unwrap(), path::line_aliased(r, &m, a, b, 16, 16));
+        prop_assert_eq!(path::outline_aliased(r, &p, &m, 16, 16), path::line_aliased(r, &m, a, b, 16, 16));
     }
     /// a closed figure stroked by the DDA is each of its segments drawn, the closing one too
     #[test]
@@ -108,10 +108,10 @@ proptest! {
         let mut p = Path::new(0);
         p.add_polygon(r, &v).unwrap();
         let pts: Vec<(f32, f32)> = p.pts.iter().map(|q| (q.x, q.y)).collect();
-        let Some(got) = path::outline_aliased(r, &p, &m, 16, 16).unwrap() else { return Ok(()) };
+        let Ok(got) = path::outline_aliased(r, &p, &m, 16, 16) else { return Ok(()) };
         for y in 0..16 {
             for x in 0..16 {
-                let any = (0..pts.len()).any(|i| path::line_aliased(r, &m, pts[i], pts[(i + 1) % pts.len()], 16, 16).is_some_and(|c| c.count(x, y) == 1));
+                let any = (0..pts.len()).any(|i| path::line_aliased(r, &m, pts[i], pts[(i + 1) % pts.len()], 16, 16).is_ok_and(|c| c.count(x, y) == 1));
                 prop_assert_eq!(got.count(x, y) == 1, any, "pixel {} {}", x, y);
             }
         }

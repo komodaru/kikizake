@@ -1497,10 +1497,10 @@ impl Gdiplus {
             return Err(Fail::Unmodeled(open::GP_PEN));
         }
         let dev = gpp::device(r, world.as_ref(), po);
-        let how = gpp::stroke(r, &pen, world.as_ref()).ok_or(Fail::Unmodeled(open::GP_PEN))?;
+        let how = gpp::stroke(r, &pen, world.as_ref())?;
         let cov = match (line, how) {
             (Some((p0, p1)), Stroke::OnePixel) => match sm.rows() {
-                None => gpp::line_aliased(r, &dev, p0, p1, b.w, b.h).ok_or(Fail::Unmodeled(open::GP_PEN))?,
+                None => gpp::line_aliased(r, &dev, p0, p1, b.w, b.h)?,
                 Some(n) => gpp::line_nominal(r, &dev, p0, p1, Some(n), b.w, b.h),
             },
             (Some((p0, p1)), Stroke::Diamond) => gpp::line_nominal(r, &dev, p0, p1, sm.rows(), b.w, b.h),
@@ -1510,7 +1510,7 @@ impl Gdiplus {
             }
             (None, Stroke::OnePixel) if sm.rows().is_none() && !gpp::curved(&path) => {
                 hit(clause::GP_PEN_OUTLINE);
-                gpp::outline_aliased(r, &path, &dev, b.w, b.h)?.ok_or(Fail::Unmodeled(open::GP_PEN))?
+                gpp::outline_aliased(r, &path, &dev, b.w, b.h)?
             }
             (None, Stroke::OnePixel | Stroke::Diamond) => {
                 hit(clause::GP_PEN_OUTLINE);
@@ -2324,7 +2324,6 @@ impl Gdiplus {
                 if let Some(k) = high.filter(|_| !one) {
                     let draw = super::gpstretch::Draw { dst: (dx, dy, w, h), src: (sx, sy, sw, sh), half: po.half() };
                     let px = super::gpstretch::stretch(rounding(), k, &draw, (i64::from(src.w), i64::from(src.h)), (i64::from(b.w), i64::from(b.h)), super::arch() == 32, texel)?;
-                    let Some(px) = px else { return Err(Fail::Unmodeled(open::GP_DRAW_SCALED)) };
                     let (mut x0, mut y0, mut x1, mut y1) = (i64::MAX, i64::MAX, i64::MIN, i64::MIN);
                     for (x, y, c) in px {
                         (x0, y0, x1, y1) = (x0.min(x), y0.min(y), x1.max(x + 1), y1.max(y + 1));

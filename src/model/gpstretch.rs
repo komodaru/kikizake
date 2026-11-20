@@ -7,7 +7,8 @@
 use super::gdiplus::{Matrix, Round};
 use super::gplinear::infer;
 use super::gppath::apply;
-use super::Res;
+use super::{Fail, Res};
+use crate::spec::open;
 use crate::spec::{clause, hit};
 
 /// which stretch span: the tent (6) or Keys' cubic (7)
@@ -136,8 +137,10 @@ pub struct Draw {
 }
 
 /// the pixels a draw writes: (x, y, premultiplied color) on a bitmap of bw x bh, the source
-/// iw x ih read through texel (premultiplied, None past it); Ok(None) where not modelled
-pub fn stretch<F>(r: Round, k: Kernel, d: &Draw, (iw, ih): (i64, i64), (bw, bh): (i64, i64), x86: bool, texel: F) -> Res<Option<Vec<(i64, i64, u32)>>>
+/// iw x ih read through texel (premultiplied, None past it); the rows the bitmap cuts
+/// (ApplyVisibleClipToSourceRect) and x86's StretchMiddleScanline2_MMX are the spec's open
+/// GP.DRAW.SCALED
+pub fn stretch<F>(r: Round, k: Kernel, d: &Draw, (iw, ih): (i64, i64), (bw, bh): (i64, i64), x86: bool, texel: F) -> Res<Vec<(i64, i64, u32)>>
 where
     F: Fn(i64, i64) -> Res<Option<u32>>,
 {
@@ -173,13 +176,14 @@ where
     let top = (d.src.1 - m).max(0);
     let bottom = (r.add(sh, sy).ceil() as i64 + m).min(ih);
     if top > ih || bottom < 0 {
-        return Ok(Some(Vec::new()));
+        return Ok(Vec::new());
     }
     let lh = bottom - top;
     let ly = r.sub(sy, f(top));
     let (ux, uy) = if d.half { (r.sub(sx, 0.5), r.sub(ly, 0.5)) } else { (sx, ly) };
     // (DpDriver::DrawImage: the source to points, through the device matrix, its corners)
-    let Some(a) = infer(r, pts, (ux, uy, sw, sh)) else { return Ok(None) };
+    // (sizes of one pixel or more: the determinant is w h, never under FLT_EPSILON)
+    let a = infer(r, pts, (ux, uy, sw, sh)).ok_or(Fail::Bad)?;
     let mm: Matrix = [
         r.add(r.mul(1.0, a[0]), r.mul(0.0, a[1])),
         r.add(r.mul(0.0, a[0]), r.mul(1.0, a[1])),
@@ -194,8 +198,9 @@ where
     // (InitializeClass)
     let xscale = fl(r, r.mul(r.div(sw, ddw), 65536.0));
     let yscale = fl(r, r.mul(r.div(sh, ddh), 65536.0));
+    // (sizes of one pixel or more: steps of 0 or more)
     if xscale < 0 || yscale < 0 {
-        return Ok(None);
+        return Err(Fail::Bad);
     }
     let (rx, ry) = (r.div(ddw, sw), r.div(ddh, sh));
     let edges = |d0: f32, s: f32, ratio: f32| {
@@ -217,9 +222,9 @@ where
     let width = ((r16 + 0xffff) >> 16) - (l16 >> 16) + 1;
     // (the device pixels: the 28.4 edges ceiled)
     let (cols, rows) = (firstcol..(right + 15) >> 4, (tp + 15) >> 4..(bt + 15) >> 4);
-    // (ApplyVisibleClipToSourceRect clips the source when the bitmap cuts the rows: not asked)
+    // (ApplyVisibleClipToSourceRect clips the source when the bitmap cuts the rows: GP.DRAW.SCALED)
     if rows.start < 0 || rows.end > bh {
-        return Ok(None);
+        return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
     }
     // (x86 mode 7: the MMX columns, all taps inside)
     let c0 = sx0 - 0x8000;
@@ -227,10 +232,10 @@ where
         (true, Kernel::Cubic) => {
             let lo = (kx - c0 + xscale - 1) / xscale;
             let hi = ((((iw - 1) << 16) - c0 - kx) / xscale).min(width);
-            // (StretchMiddleScanline2_MMX, a 2x reduction of 16 columns or more: no case asks)
+            // (StretchMiddleScanline2_MMX, a 2x reduction of 16 columns or more: GP.DRAW.SCALED)
             let n = hi - lo.max(0);
             if n >= 16 && (xscale - 0x20000).abs() * n < 4 << 16 {
-                return Ok(None);
+                return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
             }
             lo.max(0)..hi
         }
@@ -273,7 +278,8 @@ where
                 continue;
             }
             let i = x - firstcol;
-            let Some(i) = usize::try_from(i).ok().filter(|&i| i < width as usize) else { return Ok(None) };
+            // (a device column of the rectangle: a buffer index by construction)
+            let i = usize::try_from(i).ok().filter(|&i| i < width as usize).ok_or(Fail::Bad)?;
             let s = if x86 {
                 sums(&ws.iter().map(|&(j, w)| (lines[j as usize][i], w >> 2)).collect::<Vec<_>>())
             } else {
@@ -287,5 +293,5 @@ where
             out.push((x, y, p));
         }
     }
-    Ok(Some(out))
+    Ok(out)
 }

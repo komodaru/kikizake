@@ -9,7 +9,7 @@
 
 use super::gdiplus::{FillMode, Matrix, PixelOffset, Round};
 use super::{Fail, Res};
-use crate::spec::{clause, hit};
+use crate::spec::{clause, hit, open};
 
 /// FLT_EPSILON: AddLines and AddBeziers join a figure's last point to a first point this close
 const EPS: f32 = 1.192_092_9e-7;
@@ -989,8 +989,10 @@ pub fn axes(r: Round, m: &Matrix) -> (f32, f32) {
     let mean = r.mul(r.add(r.add(sq(m[2]), a), sq(m[3])), 0.5);
     (NEAR.max(sqrt32(r, r.add(mean, rr))), NEAR.max(sqrt32(r, r.sub(mean, rr))))
 }
-/// which way a stroke goes (DpDriver::StrokePath); None where not modelled
-pub fn stroke(r: Round, p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
+/// which way a stroke goes (DpDriver::StrokePath); the widener's joins, caps, alignment, dashes
+/// and thin-pen snapping are the spec's open GP.PEN
+pub fn stroke(r: Round, p: &Pen, world: Option<&Matrix>) -> Res<Stroke> {
+    let pen = Fail::Unmodeled(open::GP_PEN);
     // (a world transform other than a translation scales the width by its major axis)
     let general = world.filter(|m| !translates_only(r, m));
     let device = match general {
@@ -1003,46 +1005,47 @@ pub fn stroke(r: Round, p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
     let custom = (p.start_cap | p.end_cap) & 0xf0 != 0;
     if device <= 1.5 && !custom && p.dash == 0 && p.color >> 24 == 0xff {
         hit(clause::GP_PEN_ONEPIXEL);
-        return Some(Stroke::OnePixel);
+        return Ok(Stroke::OnePixel);
     }
     if device <= 1.5 && !custom && p.dash == 0 {
         hit(clause::GP_PEN_ONEPIXEL);
-        return Some(Stroke::Diamond);
+        return Ok(Stroke::Diamond);
     }
     let cap = |c: i64| match c {
-        0 => Some(false),
-        1 => Some(true),
-        _ => None,
+        0 => Ok(false),
+        1 => Ok(true),
+        _ => Err(pen.clone()),
     };
     if p.dash != 0 || p.align != 0 {
-        return None;
+        return Err(pen);
     }
-    // (a pen under a device pixel thin across, CalculateNormals' snapping: not fitted)
+    // (a pen under a device pixel thin across: CalculateNormals' snapping, GP.PEN)
     if general.is_some_and(|m| r.mul(p.width, axes(r, m).1) < 1.000_05) {
-        return None;
+        return Err(pen);
     }
-    Some(Stroke::Wide { square_start: cap(p.start_cap)?, square_end: cap(p.end_cap)? })
+    Ok(Stroke::Wide { square_start: cap(p.start_cap)?, square_end: cap(p.end_cap)? })
 }
 
 /// a one-pixel aliased line (DrawSolidLineOnePixelAliased) through the device matrix (28.4,
-/// GP.RASTER.FILL's device), clipped to the w x h bitmap; None for a line of no length
-pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, f32), w: u32, h: u32) -> Option<Coverage> {
+/// GP.RASTER.FILL's device), clipped to the w x h bitmap
+pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, f32), w: u32, h: u32) -> Res<Coverage> {
     let snap = |x: f32, y: f32| {
         let (x, y) = apply(r, m, x, y);
         (ceil16(r, x), ceil16(r, y))
     };
     let mut cov = empty(w, h);
-    dda(r, snap(x1, y1), snap(x2, y2), &mut cov).then_some(cov)
+    dda(r, snap(x1, y1), snap(x2, y2), &mut cov)?;
+    Ok(cov)
 }
 
 /// one segment between 28.4 points drawn by the aliased one-pixel DDA into cov, its last pixel
-/// too; false for a segment of no length (not modelled)
-fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> bool {
+/// too; a segment of no length (both ends one 28.4 point) is the spec's open GP.PEN
+fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> Res<()> {
     hit(clause::GP_PEN_ALIASED);
     let (w, h) = (cov.w, cov.h);
     let (p1, p2) = ((i64::from(p1.0), i64::from(p1.1)), (i64::from(p2.0), i64::from(p2.1)));
     if p1 == p2 {
-        return false;
+        return Err(Fail::Unmodeled(open::GP_PEN));
     }
     let ymajor = (p2.1 - p1.1).abs() >= (p2.0 - p1.0).abs();
     // (major, minor)
@@ -1060,7 +1063,7 @@ fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> bool {
     let (lo, hi) = (-8, wmaj * 16 - 8);
     let (nlo, nhi) = (-8, wmin * 16 - 8);
     if b_maj < lo || a_maj > hi {
-        return true;
+        return Ok(());
     }
     let (mut o50, mut o54) = (0.0f32, 0.0f32);
     let mut clipped = false;
@@ -1090,7 +1093,7 @@ fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> bool {
         clipped = true;
     }
     if b_maj < a_maj {
-        return true;
+        return Ok(());
     }
     if o54 != 0.0 && b_min & 15 == 8 {
         b_min += 1;
@@ -1118,7 +1121,7 @@ fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> bool {
     let m1 = r.add(r.add(r.mul((esi - b_maj) as f32, slope), b_min as f32), o54).floor() as i64;
     let (first, mut last) = (ebp >> 4, esi >> 4);
     if last < first {
-        return true;
+        return Ok(());
     }
     let mut minor = ((m0 + 7) & !15) >> 4;
     let mut minor_end = (m1 + 7) >> 4;
@@ -1156,7 +1159,7 @@ fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> bool {
         }
         major += 1;
     }
-    true
+    Ok(())
 }
 
 fn empty(w: u32, h: u32) -> Coverage {
@@ -1245,9 +1248,8 @@ pub fn nominal(figs: &[Fig], rows: Option<u32>, w: u32, h: u32) -> Coverage {
 }
 
 /// a path stroked one pixel wide aliased by an opaque pen (SolidStrokePathOnePixel): each
-/// segment by the DDA, its last pixel too, a closed figure's closing segment as well; None where
-/// a segment has no length (not modelled)
-pub fn outline_aliased(r: Round, path: &Path, m: &Matrix, w: u32, h: u32) -> Res<Option<Coverage>> {
+/// segment by the DDA, its last pixel too, a closed figure's closing segment as well
+pub fn outline_aliased(r: Round, path: &Path, m: &Matrix, w: u32, h: u32) -> Res<Coverage> {
     let mut cov = empty(w, h);
     for f in enumerate(r, path, m)? {
         let mut pts = f.pts.clone();
@@ -1255,12 +1257,10 @@ pub fn outline_aliased(r: Round, path: &Path, m: &Matrix, w: u32, h: u32) -> Res
             pts.push(f.pts[0]);
         }
         for s in pts.windows(2) {
-            if !dda(r, s[0], s[1], &mut cov) {
-                return Ok(None);
-            }
+            dda(r, s[0], s[1], &mut cov)?;
         }
     }
-    Ok(Some(cov))
+    Ok(cov)
 }
 /// a path stroked one pixel wide by the nominal rasterizer
 pub fn outline_nominal(r: Round, path: &Path, m: &Matrix, rows: Option<u32>, w: u32, h: u32) -> Res<Coverage> {

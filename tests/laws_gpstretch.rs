@@ -37,9 +37,9 @@ proptest! {
         let c = c | 0xff00_0000;
         let k = if cubic { Kernel::Cubic } else { Kernel::Tent };
         let d = Draw { dst: (1, 1, dw, dh), src: (10, 10, sw, sh), half };
-        let px = st::stretch(Round::Down, k, &d, (40, 40), (32, 32), false, |_, _| Ok(Some(c))).unwrap();
-        prop_assert!(px.is_some());
-        if let Some(px) = px {
+        let px = st::stretch(Round::Down, k, &d, (40, 40), (32, 32), false, |_, _| Ok(Some(c)));
+        prop_assert!(px.is_ok());
+        if let Ok(px) = px {
             prop_assert!(!px.is_empty());
             let mid = |v: i64, n: i64| 3 * (v - 1) >= n && 3 * (v - 1) < 2 * n;
             for (x, y, p) in px {
@@ -55,7 +55,7 @@ proptest! {
         let k = if cubic { Kernel::Cubic } else { Kernel::Tent };
         let d = Draw { dst: (1, 1, dw, dh), src: (2, 2, sw, sh), half };
         let r = if x86 { Round::Nearest } else { Round::Down };
-        if let Some(px) = st::stretch(r, k, &d, (16, 16), (32, 32), x86, |x, y| Ok(Some((x * 16 + y) as u32 | 0xff00_0000))).unwrap() {
+        if let Ok(px) = st::stretch(r, k, &d, (16, 16), (32, 32), x86, |x, y| Ok(Some((x * 16 + y) as u32 | 0xff00_0000))) {
             let mut seen = std::collections::HashSet::new();
             for (x, y, _) in px {
                 prop_assert!((1..1 + dw).contains(&x) && (1..1 + dh).contains(&y), "pixel {} {}", x, y);
