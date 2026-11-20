@@ -1164,6 +1164,19 @@ fn suite(v8: bool) -> String {
         open(&mut s, &format!("line-end-minor-{i}"), 21, 16, 16);
         s.push_str(&format!("d9clear 1 0 0 0\nd9fvf {FVF_TL:#x}\nd9draw 2 2 {} {}\nd9rt\nend\n", v(a.0, a.1, 0.0, 0xffff_ffff, None), v(b.0, b.1, 0.0, 0xffff_ffff, None)));
     }
+    // (D3D9.STAGE.OPEN) an operation of 0 (below DISABLE) as COLOROP and as ALPHAOP, on stage 0
+    // and on stage 1 with a stage after it
+    for st in [0u32, 1] {
+        for which in [1u32, 4] {
+            open(&mut s, &format!("top-zero-{st}-{which}"), 21, 16, 16);
+            s.push_str(&format!("d9clear 1 {:#x} 0 0\nd9tex 0 16 16 21\nd9texfill 0 {:#x}\nd9settex 0 0\nrs set 60 {:#x}\n", r.next(), r.next(), r.next() & 0x3f3f_3f3f));
+            s.push_str("tss set 0 1 4\ntss set 0 2 2\ntss set 0 3 0\ntss set 0 4 4\ntss set 0 5 2\ntss set 0 6 0\n");
+            s.push_str("tss set 1 1 2\ntss set 1 2 1\ntss set 1 4 2\ntss set 1 5 1\ntss set 2 1 7\ntss set 2 2 1\ntss set 2 3 3\ntss set 2 4 7\ntss set 2 5 1\ntss set 2 6 3\n");
+            s.push_str(&format!("tss set {st} {which} 0\n"));
+            quad(&mut s, 0.0, 0.0, 16.0, 16.0, 0.0, r.next());
+            s.push_str("d9rt\nend\n");
+        }
+    }
     s
 }
 

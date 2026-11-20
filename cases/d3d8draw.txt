@@ -37379,3 +37379,119 @@ d9fvf 0x44
 d9draw 2 2 0x41420000 0x412e0000 0x0 0x3f800000 0xffffffff 0x40e00000 0x40d40000 0x0 0x3f800000 0xffffffff
 d9rt
 end
+case top-zero-0-1
+device8 swvp
+d9target 16 16 21
+d9clear 1 0x37f02331 0 0
+d9tex 0 16 16 21
+d9texfill 0 0x415545ba
+d9settex 0 0
+rs set 60 0x152c182b
+tss set 0 1 4
+tss set 0 2 2
+tss set 0 3 0
+tss set 0 4 4
+tss set 0 5 2
+tss set 0 6 0
+tss set 1 1 2
+tss set 1 2 1
+tss set 1 4 2
+tss set 1 5 1
+tss set 2 1 7
+tss set 2 2 1
+tss set 2 3 3
+tss set 2 4 7
+tss set 2 5 1
+tss set 2 6 3
+tss set 0 1 0
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0x8b8bf89f 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0x8b8bf89f 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0x8b8bf89f 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0x8b8bf89f 0x3f800000 0x3f800000
+d9rt
+end
+case top-zero-0-4
+device8 swvp
+d9target 16 16 21
+d9clear 1 0x679438b3 0 0
+d9tex 0 16 16 21
+d9texfill 0 0xf0c736b2
+d9settex 0 0
+rs set 60 0x143e0a3a
+tss set 0 1 4
+tss set 0 2 2
+tss set 0 3 0
+tss set 0 4 4
+tss set 0 5 2
+tss set 0 6 0
+tss set 1 1 2
+tss set 1 2 1
+tss set 1 4 2
+tss set 1 5 1
+tss set 2 1 7
+tss set 2 2 1
+tss set 2 3 3
+tss set 2 4 7
+tss set 2 5 1
+tss set 2 6 3
+tss set 0 4 0
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xa150050a 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0xa150050a 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0xa150050a 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0xa150050a 0x3f800000 0x3f800000
+d9rt
+end
+case top-zero-1-1
+device8 swvp
+d9target 16 16 21
+d9clear 1 0x9fd3abb2 0 0
+d9tex 0 16 16 21
+d9texfill 0 0xbe1642e0
+d9settex 0 0
+rs set 60 0x3f050125
+tss set 0 1 4
+tss set 0 2 2
+tss set 0 3 0
+tss set 0 4 4
+tss set 0 5 2
+tss set 0 6 0
+tss set 1 1 2
+tss set 1 2 1
+tss set 1 4 2
+tss set 1 5 1
+tss set 2 1 7
+tss set 2 2 1
+tss set 2 3 3
+tss set 2 4 7
+tss set 2 5 1
+tss set 2 6 3
+tss set 1 1 0
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xf214b4d1 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0xf214b4d1 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0xf214b4d1 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0xf214b4d1 0x3f800000 0x3f800000
+d9rt
+end
+case top-zero-1-4
+device8 swvp
+d9target 16 16 21
+d9clear 1 0xf55a7456 0 0
+d9tex 0 16 16 21
+d9texfill 0 0xc1cdde7e
+d9settex 0 0
+rs set 60 0x3a060c1f
+tss set 0 1 4
+tss set 0 2 2
+tss set 0 3 0
+tss set 0 4 4
+tss set 0 5 2
+tss set 0 6 0
+tss set 1 1 2
+tss set 1 2 1
+tss set 1 4 2
+tss set 1 5 1
+tss set 2 1 7
+tss set 2 2 1
+tss set 2 3 3
+tss set 2 4 7
+tss set 2 5 1
+tss set 2 6 3
+tss set 1 4 0
+d9fvf 0x144
+d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0x896f7bd5 0x0 0x0 0x41780000 0xbf000000 0x0 0x3f800000 0x896f7bd5 0x3f800000 0x0 0xbf000000 0x41780000 0x0 0x3f800000 0x896f7bd5 0x0 0x3f800000 0x41780000 0x41780000 0x0 0x3f800000 0x896f7bd5 0x3f800000 0x3f800000
+d9rt
+end

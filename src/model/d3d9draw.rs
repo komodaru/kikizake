@@ -1692,17 +1692,23 @@ impl D3d9 {
                         hit(clause::D3D9_STAGE_PASTOP);
                         da
                     }
-                    // (MEASURED top-past-later-*: on a later stage 27, 32 and 0x7fffffff leave
-                    // CURRENT, as COLOROP and as ALPHAOP; open: the others, top-past-chain-*)
-                    27 | 32 | 0x7fff_ffff if !alpha => {
+                    // (MEASURED top-past-later-*, top-past-chain-*: on a later stage any
+                    // operation past LERP leaves CURRENT, as COLOROP and as ALPHAOP, and the
+                    // stages after it go on)
+                    27.. if !alpha => {
                         hit(clause::D3D9_STAGE_PASTOP);
                         r.current[i] as f32
                     }
-                    27 | 32 | 0x7fff_ffff => {
+                    27.. => {
                         hit(clause::D3D9_STAGE_PASTOP);
                         ca
                     }
-                    _ => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
+                    // (never here: a COLOROP DISABLE ends the stages and an ALPHAOP DISABLE
+                    // runs as SELECTARG1; the bump mapping COLOROPs and DOTPRODUCT3 are run
+                    // before)
+                    1 | 22..=24 => return Err(Fail::Bad),
+                    // (open: an operation of 0, cases top-zero-*)
+                    0 => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
                 };
                 hit(clause::D3D9_STAGE_OP);
                 out[i] = v.clamp(0.0, 1.0) as f64;
