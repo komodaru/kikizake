@@ -415,6 +415,36 @@ fn suite(d3d11: bool) -> String {
     }
     // a patch list drawn without hull and domain programs: WARP ends the executor there, so
     // it comes last
+    // SV_Position's w along lines whose ends' w differ, and depth that varies along
+    // multisample lines
+    begin(&mut s, dev, "probe-line-w-pos", 16, 16, 2, "pspos");
+    for (x, y, z, w) in [(0.75f32, 1.25f32, 0.25f32, 0.5f32), (15.25, 6.5, 0.5, 3.0), (3.25, 7.5, 0.75, 1.5), (9.75, 15.5, 0.25, 0.75)] {
+        let (nx, ny) = (x / 16.0 * 2.0 - 1.0, 1.0 - y / 16.0 * 2.0);
+        writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(nx * w), fb(ny * w), fb(z * w), fb(w), fb(1.0), fb(1.0), fb(1.0), fb(1.0)).unwrap();
+    }
+    writeln!(&mut s, "draw 2 4 32").unwrap();
+    read_rt(&mut s, 0, 2, 16, 16);
+    writeln!(&mut s, "end").unwrap();
+    begin(&mut s, dev, "probe-linesms-z", 16, 16, 2, "pspos");
+    writeln!(&mut s, "rast 3 1 0 0 0 0 1 0 1 0").unwrap();
+    vertex(&mut s, 0.75, 1.25, 0.125, [1.0; 4], 16.0, 16.0);
+    vertex(&mut s, 15.25, 6.5, 0.875, [1.0; 4], 16.0, 16.0);
+    vertex(&mut s, 3.25, 7.5, 0.9, [1.0; 4], 16.0, 16.0);
+    vertex(&mut s, 9.75, 15.5, 0.05, [1.0; 4], 16.0, 16.0);
+    writeln!(&mut s, "draw 2 4 32").unwrap();
+    read_rt(&mut s, 0, 2, 16, 16);
+    writeln!(&mut s, "end").unwrap();
+    // topologies D3D11_PRIMITIVE_TOPOLOGY leaves undefined (they may end the executor too, so
+    // they come just before)
+    for top in [0u32, 6, 7, 8, 9, 65] {
+        begin(&mut s, dev, &format!("probe-topology-{top}"), 16, 16, 28, "ps");
+        for k in 0..3 {
+            vertex(&mut s, 2.0 + 5.0 * k as f32, 3.0 + 4.0 * k as f32, 0.5, color(k), 16.0, 16.0);
+        }
+        writeln!(s, "draw {top} 3 32").unwrap();
+        read_rt(&mut s, 0, 28, 16, 16);
+        writeln!(s, "end").unwrap();
+    }
     begin(&mut s, dev, "probe-topology-33", 16, 16, 28, "ps");
     for k in 0..3 {
         vertex(&mut s, 2.0 + 5.0 * k as f32, 3.0 + 4.0 * k as f32, 0.5, color(k), 16.0, 16.0);
