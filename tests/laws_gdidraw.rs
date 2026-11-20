@@ -267,7 +267,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 168), ("blend", 927), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 171), ("blend", 927), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -493,5 +493,46 @@ proptest! {
         let c = g.combine(&g, SetOp::Or);
         prop_assert_eq!(c.loose, None);
         prop_assert_eq!(c.bands, g.bands);
+    }
+}
+
+proptest! {
+    /// the synthesized italic leaves the advances and the font's metrics but tmItalic as they
+    /// are, its black boxes moved right for a glyph above the baseline and left for one below
+    /// it, and its glyph bitmaps' widths what GetCharABCWidths says
+    #[test]
+    fn italic_shears_but_keeps_the_advances(seed in 0u32..4096, h in -40i64..40, bold in any::<bool>()) {
+        use kikizake::model::gdifont::{abc, glyph, metrics, width, Format, Slant, TextFont, Weight};
+        let fnt = kikizake::generators::dwrite::font(0x5eed_0000 + seed);
+        let p = kikizake::ttf::parse(&fnt.bytes()).unwrap();
+        let u = TextFont { file: 0, height: h, weight: if bold { Weight::Bold } else { Weight::Normal }, slant: Slant::Upright };
+        let i = TextFont { slant: Slant::Italic, ..u };
+        let (Some(tu), Some(ti)) = (metrics(&p, u), metrics(&p, i)) else { return Ok(()) };
+        prop_assert_eq!(ti.italic, 255);
+        prop_assert_eq!(kikizake::model::gdifont::Tm { italic: 0, ..ti }, tu);
+        for c in 0x20..0x7fu32 {
+            prop_assert_eq!(width(&p, i, c), width(&p, u, c));
+            let (Some(a), Some(b)) = (abc(&p, u, c), abc(&p, i, c)) else { continue };
+            if a.black != kikizake::model::gdifont::Black::Box {
+                continue;
+            }
+            let (bx, contours) = p.glyphs[kikizake::ttf::glyph_of(&p, c) as usize].as_ref().unwrap();
+            // (a glyph whose header box is not its points' (the writer's lenient fonts): the
+            // upright box is the header's, the italic one the points')
+            let pts: Vec<(i16, i16)> = contours.iter().flatten().copied().collect();
+            if pts.iter().map(|q| q.0).min() != Some(bx.0) || pts.iter().map(|q| q.0).max() != Some(bx.2) {
+                continue;
+            }
+            // (above the baseline the shear moves every point right, below it left)
+            if pts.iter().all(|q| q.1 >= 0) {
+                prop_assert!(b.a >= a.a && b.a + b.b >= a.a + a.b, "{:?} left of {:?}", b, a);
+            }
+            if pts.iter().all(|q| q.1 <= 0) {
+                prop_assert!(b.a <= a.a && b.a + b.b <= a.a + a.b, "{:?} right of {:?}", b, a);
+            }
+            if let Some(g) = glyph(&p, i, c, Format::Mono) && g.size > 0 && !bold {
+                prop_assert!(g.black.0 <= b.b + 1, "{:?} vs {:?}", g, b);
+            }
+        }
     }
 }

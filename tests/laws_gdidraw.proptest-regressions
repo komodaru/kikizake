@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc a7b32f063c16507e33b2319cce1a239f007afaa5d97eaa45f954698aef37b15f # shrinks to p = [(0, -2155), (0, 3672), (0, -1414), (0, -950)]
+cc 47668ded86806e99907a584fa28eaa1de3f691f4e284729f18e0fdcc479cb3f5 # shrinks to seed = 420, h = 9, bold = false

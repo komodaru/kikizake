@@ -83,6 +83,28 @@ fn ceil(n: i64, d: i64) -> i64 {
     -(-n).div_euclid(d)
 }
 
+/// the synthesized italic's shear of a point y (1/64 pixel, up) along x: y times 0x5700 / 2^16,
+/// rounded half away from 0 (GDI.TEXT.ITALIC)
+fn shear(y: i64) -> i64 {
+    let p = y * 0x5700;
+    (p + 0x8000 - i64::from(p < 0)) >> 16
+}
+
+impl Sized {
+    /// a font unit on the rounded ppem in 1/64 pixel
+    fn q(&self, v: i64) -> i64 {
+        rnd(v * self.ppem * 64, self.upm)
+    }
+    /// a glyph point in 1/64 pixel, sheared when the italic is synthesized
+    fn point(&self, x: i64, y: i64) -> (i64, i64) {
+        let (x, y) = (self.q(x), self.q(y));
+        match self.slant {
+            Slant::Upright => (x, y),
+            Slant::Italic => (x + shear(y), y),
+        }
+    }
+}
+
 impl Scale {
     fn px(self, v: i64) -> i64 {
         rnd(v * self.num, self.den)
@@ -116,6 +138,7 @@ struct Sized {
     a: i64,
     d: i64,
     bold: Weight,
+    slant: Slant,
 }
 
 fn sized(p: &Parsed, f: TextFont) -> Option<Sized> {
@@ -137,7 +160,7 @@ fn sized(p: &Parsed, f: TextFont) -> Option<Sized> {
     // (MEASURED: lfHeight 0 is -16; below 0 it is the em in pixels, above 0 the cell)
     let h = if f.height == 0 { -16 } else { f.height };
     let scale = if h < 0 { Scale { num: -h, den: upm } } else { Scale { num: h, den: cell } };
-    Some(Sized { scale, ppem: rnd(scale.num * upm, scale.den), upm, a, d, bold: f.weight })
+    Some(Sized { scale, ppem: rnd(scale.num * upm, scale.den), upm, a, d, bold: f.weight, slant: f.slant })
 }
 
 /// GetTextMetrics (GDI.TEXT.TM, GDI.TEXT.AVE)
@@ -213,10 +236,17 @@ pub fn abc(p: &Parsed, f: TextFont, c: u32) -> Option<Abc> {
         return Some(Abc { a: 0, b: 1, c: w - 1, black: Black::Outside });
     }
     // (MEASURED: the box on the rounded ppem, snapped to 1/64 pixel; its left edge rounded
-    // half down, its right edge half up)
-    let q = |v: i64| rnd(v * z.ppem * 64, z.upm);
-    let a = ceil(q(x0) - 32, 64);
-    let right = (q(x1) + 32).div_euclid(64);
+    // half down, its right edge half up; italic: the box of the sheared points)
+    let (l, r) = match z.slant {
+        Slant::Upright => (z.q(x0), z.q(x1)),
+        Slant::Italic => {
+            let (_, contours) = p.glyphs.get(crate::ttf::glyph_of(p, c) as usize)?.as_ref()?;
+            let xs: Vec<i64> = contours.iter().flatten().map(|&(x, y)| z.point(x as i64, y as i64).0).collect();
+            (*xs.iter().min()?, *xs.iter().max()?)
+        }
+    };
+    let a = ceil(l - 32, 64);
+    let right = (r + 32).div_euclid(64);
     let b = (right - a).max(1) + z.bold.extra();
     Some(Abc { a, b, c: w - a - b, black: Black::Box })
 }
@@ -277,6 +307,9 @@ pub type Px = (i64, i64);
 /// (upper) one where the left lies before the glyph's black box (its left edge rounded half
 /// down, as GetCharABCWidths')
 fn samples(z: &Sized, r: &[(i64, i64, i64, i64)], k: i64) -> Option<std::collections::BTreeSet<Px>> {
+    if z.slant == Slant::Italic {
+        return slanted(z, r, k);
+    }
     let q = |v: i64| rnd(v * z.ppem * 64, z.upm) * k;
     let r: Vec<_> = r.iter().map(|&(a, b, c, d)| (q(a), q(b), q(c), q(d))).collect();
     let mut lit = std::collections::BTreeSet::new();
@@ -318,6 +351,49 @@ fn samples(z: &Sized, r: &[(i64, i64, i64, i64)], k: i64) -> Option<std::collect
     for (i, (p, o)) in down {
         if !rows.contains(&(i, o)) {
             lit.insert((i, p));
+        }
+    }
+    Some(lit)
+}
+
+/// the samples the synthesized italic's parallelograms light (GDI.TEXT.ITALIC): each
+/// rectangle's corners on the rounded ppem in 1/64 pixel, sheared, then scaled by k; a sample
+/// point inside or on an edge is lit; None where a scan line crosses a parallelogram between
+/// sample points (its dropout pixel: not measured)
+fn slanted(z: &Sized, r: &[(i64, i64, i64, i64)], k: i64) -> Option<std::collections::BTreeSet<Px>> {
+    let mut lit = std::collections::BTreeSet::new();
+    for &(x0, y0, x1, y1) in r {
+        let ((a0, b0), (a1, b1)) = (z.point(x0, y0), z.point(x0, y1));
+        let (c0, c1) = (z.point(x1, y0).0, z.point(x1, y1).0);
+        let (a0, a1, c0, c1, b0, b1) = (a0 * k, a1 * k, c0 * k, c1 * k, b0 * k, b1 * k);
+        let (dx, dy) = (a1 - a0, b1 - b0);
+        if dy == 0 {
+            // (a stroke of no height on this grid: its dropout, not measured)
+            return None;
+        }
+        // (the sides' x at y: x0 + dx (y - y0) / dy, as fractions over dy)
+        for j in ceil(b0 - 32, 64)..=(b1 - 32).div_euclid(64) {
+            let y = 64 * j + 32;
+            let (ln, rn) = (a0 * dy + dx * (y - b0), c0 * dy + dx * (y - b0));
+            // (pixel i's centre 64 i + 32 in [ln / dy, rn / dy])
+            let (i0, i1) = (ceil(ln - 32 * dy, 64 * dy), (rn - 32 * dy).div_euclid(64 * dy));
+            if i0 > i1 {
+                return None;
+            }
+            for i in i0..=i1 {
+                lit.insert((i, j));
+            }
+        }
+        // (a column crossing the parallelogram between rows: its dropout, not measured)
+        for i in ceil(a0.min(a1) - 32, 64)..=(c0.max(c1) - 32).div_euclid(64) {
+            let x = 64 * i + 32;
+            // (the y where the left side reaches x and where the right one does)
+            let top = if dx == 0 { b1 } else { (b0 + (x - c0) * dy / dx).max(b0) };
+            let hi = if dx == 0 { b1 } else { (b0 + (x - a0) * dy / dx).min(b1) };
+            let (lo, hi) = (top.max(b0), hi.min(b1));
+            if lo <= hi && !(ceil(lo - 32, 64)..=(hi - 32).div_euclid(64)).any(|j| lit.contains(&(i, j))) {
+                return None;
+            }
         }
     }
     Some(lit)

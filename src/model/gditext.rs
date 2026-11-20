@@ -109,8 +109,8 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         }
         "widths" | "abc" => {
             let (p, f) = sel(sl)?;
-            if t0 == "abc" && f.slant == Slant::Italic {
-                return Err(unm());
+            if f.slant == Slant::Italic {
+                hit(clause::GDI_TEXT_ITALIC);
             }
             let (a, b) = (n(op, 2)?, n(op, 3)?);
             if b < a || b - a > 255 || a < 0 || b > 0x7f {
@@ -137,6 +137,11 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let t = chars(op.tok.get(2).ok_or(Fail::Bad)?).ok_or(unm())?;
             let (x, y) = gdifont::extent(p, f, &t, sl.ext.extra).ok_or(unm())?;
             if sl.ext.extra != 0 {
+                if f.slant == Slant::Italic {
+                    // (italic with a character extra: a character wider and the height a pixel
+                    // less than the model's in mext-11, mext-22, mext-27, open)
+                    return Err(unm());
+                }
                 hit(clause::GDI_TEXT_EXTRAEXTENT);
             }
             hit(clause::GDI_TEXT_EXTENT);
@@ -148,6 +153,11 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let t = chars(op.tok.get(3).ok_or(Fail::Bad)?).ok_or(unm())?;
             let (fit, dx, (x, y)) = gdifont::extent_ex(p, f, &t, m, sl.ext.extra).ok_or(unm())?;
             if sl.ext.extra != 0 {
+                if f.slant == Slant::Italic {
+                    // (italic with a character extra: a character wider and the height a pixel
+                    // less than the model's in mext-11, mext-22, mext-27, open)
+                    return Err(unm());
+                }
                 hit(clause::GDI_TEXT_EXTRAEXTENT);
             }
             hit(clause::GDI_TEXT_EXTENT);
@@ -160,7 +170,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         "glyph" => {
             let (p, f) = sel(sl)?;
             if f.slant == Slant::Italic {
-                return Err(unm());
+                hit(clause::GDI_TEXT_ITALIC);
             }
             let (c, fmt) = (n(op, 2)?, n(op, 3)?);
             let fmt = gdifont::Format::of(fmt).ok_or(unm())?;
@@ -182,7 +192,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let (x, y) = (n(op, 2)?, n(op, 3)?);
             let t = chars(op.tok.get(4).ok_or(Fail::Bad)?).ok_or(unm())?;
             // (the suite's state: TA_TOP | TA_LEFT, TRANSPARENT)
-            if sl.ext.align != 0 || sl.bkmode != 1 || sl.ext.extra != 0 || f.slant == Slant::Italic {
+            if sl.ext.align != 0 || sl.bkmode != 1 || sl.ext.extra != 0 {
                 return Err(unm());
             }
             let px = gdifont::text_pixels(p, f, &t, x, y).ok_or(unm())?;
