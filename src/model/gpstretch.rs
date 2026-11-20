@@ -141,11 +141,6 @@ pub fn stretch<F>(r: Round, k: Kernel, d: &Draw, (iw, ih): (i64, i64), (bw, bh):
 where
     F: Fn(i64, i64) -> Res<Option<u32>>,
 {
-    // (x64 with a half pixel offset reducing: a place one 1/65536 off in a few cases, which op
-    // rounds it not known yet)
-    if !x86 && d.half && (d.src.2 > d.dst.2 || d.src.3 > d.dst.3) {
-        return Ok(None);
-    }
     hit(match k {
         Kernel::Tent => clause::GP_DRAW_HQ_BILINEAR,
         Kernel::Cubic => clause::GP_DRAW_HQ_BICUBIC,
@@ -158,7 +153,18 @@ where
     let m11 = r.div(r.sub(xr, dx), r.sub(sxr, sx));
     let m22 = r.div(r.sub(yb, dy), r.sub(syb, sy));
     let world: Matrix = [m11, 0.0, 0.0, m22, r.sub(xr, r.mul(m11, sxr)), r.sub(yb, r.mul(m22, syb))];
-    let pts = [apply(r, &world, sx, sy), apply(r, &world, sxr, sy), apply(r, &world, sx, syb)];
+    // (the matrix overload, a half pixel offset on a bitmap: the rectangle moved by -1/2, the
+    // matrix by half its scale; MEASURED, golden gdiplusdraw hqy-7-2-11-0, hqcy-2-11-0, filter-19
+    // on x64, where these round a place down)
+    let (world, px, py) = if d.half {
+        let mut w = world;
+        w[4] = r.add(w[4], r.add(r.mul(w[2], 0.5), r.mul(w[0], 0.5)));
+        w[5] = r.add(w[5], r.add(r.mul(w[1], 0.5), r.mul(w[3], 0.5)));
+        (w, r.add(sx, -0.5), r.add(sy, -0.5))
+    } else {
+        (world, sx, sy)
+    };
+    let pts = [apply(r, &world, px, py), apply(r, &world, r.add(px, sw), py), apply(r, &world, px, r.add(py, sh))];
     // (the world to device matrix: the half pixel offset)
     let o = if d.half { -0.5 } else { 0.0 };
     // (PipeLockBits: rows only, a margin by the y ratio)

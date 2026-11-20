@@ -30,8 +30,7 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(256))]
     /// a uniform opaque source drawn from well inside it is uniform on x64 (the weights sum to
     /// one exactly) in the rectangle's middle third, where the kernel reads no row past the
-    /// locked ones, at any scale up to a 2x reduction, both kernels, any pixel offset but x64's
-    /// unfitted half pixel reductions
+    /// locked ones, at any scale up to a 2x reduction, both kernels, any pixel offset
     #[test]
     fn uniform_stays_uniform(c in any::<u32>(), sw in 6i64..12, sh in 6i64..12, dw in 1i64..30, dh in 1i64..30, cubic: bool, half: bool) {
         prop_assume!(2 * dw >= sw && 2 * dh >= sh);
@@ -39,6 +38,7 @@ proptest! {
         let k = if cubic { Kernel::Cubic } else { Kernel::Tent };
         let d = Draw { dst: (1, 1, dw, dh), src: (10, 10, sw, sh), half };
         let px = st::stretch(Round::Down, k, &d, (40, 40), (32, 32), false, |_, _| Ok(Some(c))).unwrap();
+        prop_assert!(px.is_some());
         if let Some(px) = px {
             prop_assert!(!px.is_empty());
             let mid = |v: i64, n: i64| 3 * (v - 1) >= n && 3 * (v - 1) < 2 * n;
@@ -47,8 +47,6 @@ proptest! {
                     prop_assert_eq!(p, c, "pixel {} {}", x, y);
                 }
             }
-        } else {
-            prop_assert!(half && (sw > dw || sh > dh));
         }
     }
     /// the draw writes the destination rectangle's pixels, each once, and nothing outside
