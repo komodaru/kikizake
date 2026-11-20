@@ -1617,7 +1617,7 @@ pub fn wicencode() -> String {
     s
 }
 
-/// the order of the encoder's grid cells of equal pixel count (WICIMAGE.ENCODE.QUANTIZE): one-row
+/// the order of the encoder's grid cells of equal pixel count (WICIMAGE.ENCODE.GRID): one-row
 /// pictures with chosen counts per cell, every pixel its own color so that the grid is taken;
 /// a cell's pixels differ in the 3 bits below the 5 the grid looks at
 fn gridtie(s: &mut String) {

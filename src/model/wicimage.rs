@@ -3504,8 +3504,9 @@ pub fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     let ix = dither(w, h, &src, &rgb, &clear);
     let t = pal.len();
     if any_clear {
+        // (the grid left the entry: a full palette of exact colors and a transparent one took it)
         if t >> bits_of(nf) != 0 {
-            return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+            return Err(Fail::Bad);
         }
         hit(clause::WICIMAGE_ENCODE_TRANSPARENT);
         pal.push(0);
@@ -3519,25 +3520,17 @@ pub fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     Ok(o)
 }
 
-/// a box of the 5-bit RGB cube (both ends in), how many halvings made it (its volume is the
-/// cube's halved that often) and how many pixels fall in it
-#[derive(Clone, Copy)]
+/// a box of the 5-bit RGB cube (both ends in)
+#[derive(Clone, Copy, Debug)]
 struct Box5 {
     lo: [usize; 3],
     hi: [usize; 3],
-    depth: u32,
-    count: u32,
+    /// the weight of its cells (each cell 1 more than its pixels) and the weighted sums of its
+    /// levels, red, green, blue
+    n: u32,
+    sum: [u32; 3],
 }
 
-/// MEASURED (golden wicencode encpal-*, encq-*, gridtie-*: every palette, including the order
-/// of equal counts): more colors than the palette holds take boxes of the 5-bit RGB cube: from
-/// the whole cube, the box of most volume (then most pixels, then the first) is halved across
-/// its longest side (red, then green, then blue first) at the middle, the upper half keeping its
-/// place and the lower put last, until there are as many boxes as entries; then the boxes ordered
-/// by their pixels, most first, equal counts as they stand; each entry the middle of its box,
-/// widened by 255 / 31 rounded (so a picture whose colors fill the cube takes the 2x1x1, 4x2x2,
-/// 8x8x4 grid). OPEN (ENCODE.QUANTIZE): 256 entries where most boxes would be empty
-/// (gridtie-idx8-few-* split the full boxes finer)
 /// whether the grid leaves an entry of the palette for a transparent one
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Reserve {
@@ -3545,69 +3538,72 @@ enum Reserve {
     Transparent,
 }
 
+/// MEASURED (golden wicencode encpal-*, encq-*, gridtie-*, gifgrid-*, gifalpha-full256: every
+/// palette, including the order of equal counts; the rule from the clean-room note
+/// in the shared notes): more colors than the palette holds take a median cut of the 5-bit RGB
+/// cube whose every cell weighs 1 more than its pixels (at most 0x1fffff): from the whole cube,
+/// the box whose largest (hi - lo) * weight over its axes (red, then green, then blue on a tie) is
+/// greatest (the first on a tie; boxes of one empty cell never) is cut at the floor of its
+/// weighted mean level along that axis, the upper part keeping its place and the lower put last,
+/// until there are as many boxes as entries (one fewer where a transparent entry is to come);
+/// then the boxes ordered by weight, most first, equal ones as they stand; each entry the floor of
+/// the box's weighted mean level, widened as (m * 255 + 15) / 31
 fn grid_palette(b: &Img, bits: u32, reserve: Reserve) -> Res<Vec<u32>> {
     let at = |r: usize, g: usize, bl: usize| (r * 32 + g) * 32 + bl;
-    let mut hist = vec![0u32; 32 * 32 * 32];
+    let mut hist = vec![1u32; 32 * 32 * 32];
     for y in 0..b.h {
         for x in 0..b.w {
             let p = b.get(x, y);
-            hist[at(usize::from(p[2] >> 3), usize::from(p[1] >> 3), usize::from(p[0] >> 3))] += 1;
+            let c = &mut hist[at(usize::from(p[2] >> 3), usize::from(p[1] >> 3), usize::from(p[0] >> 3))];
+            *c = (*c + 1).min(0x1f_ffff);
         }
     }
-    let count = |lo: [usize; 3], hi: [usize; 3]| -> u32 {
-        let mut n = 0;
+    let weigh = |lo: [usize; 3], hi: [usize; 3]| -> Box5 {
+        let (mut n, mut sum) = (0u32, [0u32; 3]);
         for r in lo[0]..=hi[0] {
             for g in lo[1]..=hi[1] {
                 for bl in lo[2]..=hi[2] {
-                    n += hist[at(r, g, bl)];
+                    let w = hist[at(r, g, bl)];
+                    n = n.wrapping_add(w);
+                    for (k, v) in [r, g, bl].into_iter().enumerate() {
+                        sum[k] = sum[k].wrapping_add((v as u32).wrapping_mul(w));
+                    }
                 }
             }
         }
-        n
+        Box5 { lo, hi, n, sum }
     };
-    let total = count([0; 3], [31; 3]);
-    let mut boxes = vec![Box5 { lo: [0; 3], hi: [31; 3], depth: 0, count: total }];
     let entries: usize = match reserve {
         Reserve::Nothing => 1 << bits,
         Reserve::Transparent => (1 << bits) - 1,
     };
-    let next = |boxes: &[Box5]| (0..boxes.len()).max_by_key(|&i| (std::cmp::Reverse(boxes[i].depth), boxes[i].count, std::cmp::Reverse(i))).ok_or(Fail::Bad);
+    let mut boxes = vec![weigh([0; 3], [31; 3])];
     while boxes.len() < entries {
-        let best = next(&boxes)?;
-        let bx = boxes[best];
-        let axis = (0..3).max_by_key(|&k| (bx.hi[k] - bx.lo[k], std::cmp::Reverse(k))).ok_or(Fail::Bad)?;
-        if bx.hi[axis] == bx.lo[axis] {
-            return Err(Fail::Bad);
+        let mut best: Option<(usize, usize, u32)> = None;
+        for (i, bx) in boxes.iter().enumerate() {
+            if bx.n == 1 {
+                continue;
+            }
+            let d = |k: usize| ((bx.hi[k] - bx.lo[k]) as u32).wrapping_mul(bx.n);
+            let (axis, key) = if d(0) >= d(1) && d(0) >= d(2) { (0, d(0)) } else if d(1) >= d(2) { (1, d(1)) } else { (2, d(2)) };
+            if best.is_none_or(|(_, _, k)| key > k) && key > 0 {
+                best = Some((i, axis, key));
+            }
         }
-        let mid = (bx.lo[axis] + bx.hi[axis]) / 2;
-        let mut lower = Box5 { depth: bx.depth + 1, ..bx };
-        lower.hi[axis] = mid;
-        lower.count = count(lower.lo, lower.hi);
-        let mut upper = lower;
-        upper.lo[axis] = mid + 1;
-        upper.hi[axis] = bx.hi[axis];
-        upper.count = bx.count - lower.count;
-        boxes[best] = upper;
-        boxes.push(lower);
+        let Some((i, axis, _)) = best else { break };
+        let bx = boxes[i];
+        let m = (bx.sum[axis] / bx.n) as usize;
+        let (mut lhi, mut ulo) = (bx.hi, bx.lo);
+        lhi[axis] = m;
+        ulo[axis] = m + 1;
+        boxes[i] = weigh(ulo, bx.hi);
+        boxes.push(weigh(bx.lo, lhi));
     }
-    // (the goldens with 256 entries that agree have at most 199 boxes empty, those that do not 253)
-    if bits > 4 && boxes.iter().filter(|bx| bx.count == 0).count() * 8 > boxes.len() * 7 {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_QUANTIZE));
+    boxes.sort_by_key(|bx| std::cmp::Reverse(bx.n));
+    if reserve == Reserve::Transparent {
+        hit(clause::WICIMAGE_ENCODE_GRID_TRANSPARENT);
     }
-    // MEASURED (golden wicencode gifalpha-full256, gifgrid-*): with a transparent entry to come
-    // the grid stops a box short, and the box it would halve next comes first, the others after
-    // it by their pixels (the transparent ones counted at their colors), the transparent entry
-    // last
-    let first = match reserve {
-        Reserve::Nothing => None,
-        Reserve::Transparent => {
-            hit(clause::WICIMAGE_ENCODE_GRID_TRANSPARENT);
-            Some(boxes.remove(next(&boxes)?))
-        }
-    };
-    boxes.sort_by_key(|bx| std::cmp::Reverse(bx.count));
-    boxes.splice(0..0, first);
-    let level = |bx: &Box5, k: usize| u8::try_from(((bx.lo[k] + bx.hi[k]) / 2 * 255 * 2 + 31) / 62).map_err(|_| Fail::Bad);
+    let level = |bx: &Box5, k: usize| u8::try_from((bx.sum[k] / bx.n * 255 + 15) / 31).map_err(|_| Fail::Bad);
     hit(clause::WICIMAGE_ENCODE_GRID);
     boxes.iter().map(|bx| Ok(u32::from_be_bytes([0xff, level(bx, 0)?, level(bx, 1)?, level(bx, 2)?]))).collect()
 }

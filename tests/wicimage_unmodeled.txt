@@ -1322,10 +1322,6 @@ wicencode encdds-bgra-9x9
 wicencode encdds-gray16-8x12
 wicencode encdds-gray8-6x10
 wicencode fixpath-gray16-rgba64
-wicencode gridtie-idx8-few-0
-wicencode gridtie-idx8-few-1
-wicencode gridtie-idx8-few-2
-wicencode gridtie-idx8-few-3
 wicencode opt-jpeg-sub1-bgra
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
