@@ -30,7 +30,7 @@ enum Scale {
 }
 
 /// a design coordinate in 1/64 pixel at em pixels per em, Scale::Direct: the TrueType scaler's
-/// scale record (re/dwrite.md, scl_InitializeScaling, Follow-up B): ppem 128 / 2^g over upm 2 / 2^g,
+/// scale record (the clean-room notes, kikizake-re/dwrite, scl_InitializeScaling, Follow-up B): ppem 128 / 2^g over upm 2 / 2^g,
 /// g the common power of 2; a power of 2 divisor (upm one) shifts, half up below zero too
 /// (MEASURED, golden dwrite, rastertie, gdisideupm), another divides, half away from zero, and
 /// a numerator past 32767 (ppem / 2^g > 255) multiplies by its 16.16 ratio, half away from zero
@@ -251,14 +251,14 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
     // a pixel, origin to the pixel; gray (natural symmetric): 4 x 4, unsnapped; natural: 8 x 1,
     // y to the pixel; GDI classic and natural: 8 x 1, origin to the pixel; ClearType: 6 x 5,
     // origin to the sample)
-    // (re/dwrite.md, Follow-up D: ClearType's natural and GDI modes draw on 6 x 1 samples, the
+    // (the clean-room notes, kikizake-re/dwrite, Follow-up D: ClearType's natural and GDI modes draw on 6 x 1 samples, the
     // origin to the sample; GDI's to the pixel as its grayscale modes)
     let (g, clause) = match mode {
         Mode::Aliased | Mode::CtAliased => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_ALIASED),
         Mode::CtNatural => (Grid { nx: 6, ny: 1, qx: 6, qy: 1 }, clause::DW_RUN_CLEARTYPE_6X1),
         Mode::CtGdi | Mode::CtGdiNatural => (Grid { nx: 6, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_CLEARTYPE_6X1),
         Mode::Gray3x1 | Mode::Ct1x1 => {
-            // (re/dwrite.md, Follow-up D: an analysis answers only the texture type of its
+            // (the clean-room notes, kikizake-re/dwrite, Follow-up D: an analysis answers only the texture type of its
             // mode, an empty rect for the other)
             hit(clause::DW_RUN_TEXTURE);
             return Ok(vec!["bounds hr 00000000 0 0 0 0".into()]);
@@ -325,7 +325,7 @@ fn values(lit: &std::collections::BTreeSet<(i64, i64)>, g: Grid, cleartype: bool
     if cleartype {
         // MEASURED: a subpixel is 2 x 5 samples, the 5 rows weighted 4 9 10 9 4 (/36); each
         // subpixel's value is the sum of it and its two neighbours, of 255 for 6 x 36
-        // (re/dwrite.md, Follow-up D: on 6 x 1 samples the one row weighs all 36: (255 n + 3) / 6)
+        // (the clean-room notes, kikizake-re/dwrite, Follow-up D: on 6 x 1 samples the one row weighs all 36: (255 n + 3) / 6)
         let w: &[i64] = if g.ny == 1 { &[36] } else { &[4, 9, 10, 9, 4] };
         let mut acc: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
         for &(x, y) in lit {

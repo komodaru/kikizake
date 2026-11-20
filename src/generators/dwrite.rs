@@ -133,7 +133,7 @@ pub fn dwrite() -> String {
         writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" ")).unwrap();
     }
     // ClearType 3x1 from the natural and GDI modes (6 x 1 samples), ClearType's aliased mode, and
-    // each analysis asked for the other texture type (re/dwrite.md, Follow-up D): single glyphs at
+    // each analysis asked for the other texture type (the clean-room notes, kikizake-re/dwrite, Follow-up D): single glyphs at
     // many sizes and subpixel origins, runs, and the GDI ones with grid fit off and on
     {
         let mut r = XorShift32::new(0x0fe2_0001);
@@ -570,7 +570,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "case file-{name}\ndwfont {}\n{probe}\nend", hex(&b)).unwrap();
     }
     // grid fit disabled at 16 ppem, 2048 units per em (a 16.16 scale of 512): edges below and
-    // left of zero on an exact half of a 1/64 pixel, which re/dwrite.md (Follow-up E) says round
+    // left of zero on an exact half of a 1/64 pixel, which the clean-room notes, kikizake-re/dwrite (Follow-up E) says round
     // away from zero (nofittie)
     {
         let gs: Vec<_> = (0..14i64).map(|j| (1000u16, vec![((-(2 * j + 1) * 3) as i16, (-(2 * j + 1) * 5) as i16, 300i16, 400i16)])).collect();
@@ -868,7 +868,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             put(format!("gdiv97wid-{j}"), 0x0fdc_0000 + i as u32, &b);
         }
     }
-    // GetGdiCompatibleGlyphMetrics through float (re/dwrite.md): axis aligned, k whole pixels'
+    // GetGdiCompatibleGlyphMetrics through float (the clean-room notes, kikizake-re/dwrite): axis aligned, k whole pixels'
     // em fraction is k times 1 / (p p) times p in float32, which rounds away from the exact
     // fraction at larger k (gdihf32: the first 14 such k of each of these sizes, as the advance
     // height and the origin, horizontal), and at ppem == upm the design metrics come back as
@@ -916,7 +916,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case gdiupm-{u}\n{}\ndwgdiglyph {u} 1 0 0 {gl}\ndwgdiglyph {u} 1 1 0 {gl}\ndwgdiglyph {u} 1 0 1 {gl}\nend", font_line(&f)).unwrap();
         }
     }
-    // past 255 ppem (re/dwrite.md): the classic advance becomes the natural one, the scale of
+    // past 255 ppem (the clean-room notes, kikizake-re/dwrite): the classic advance becomes the natural one, the scale of
     // design units to 26.6 multiplies by a 16.16 ratio (half away from zero) where ppem / 2^g
     // passes 255, and at ppem == upm the design metrics come back (gdibig: random glyphs, and
     // edges on an exact half of a 1/64 pixel below zero; shapebig: placements)

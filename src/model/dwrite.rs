@@ -183,7 +183,7 @@ pub fn glyph_metrics(p: &Parsed, m: &Metrics, g: u16) -> Option<GlyphMetrics> {
     Some(GlyphMetrics { adv: adv as u32, lsb: x0, rsb: adv as i32 - x1, tsb: voy - y1, advh, bsb: advh as i32 - voy + y0, voy })
 }
 
-/// GetGdiCompatibleGlyphMetrics' way back from pixels to the em (re/dwrite.md: TrueTypeRasterizer
+/// GetGdiCompatibleGlyphMetrics' way back from pixels to the em (the clean-room notes, kikizake-re/dwrite: TrueTypeRasterizer
 /// GetMetrics, DisplayToEm, FloatToFixed): float32 through the inverse of the 16.16 transform
 /// {p, 0, 0, p} (sideways {0, -p, p, 0}), whose entries are 1 / (p p) times p, not 1 / p
 #[derive(Clone, Copy, Debug)]
@@ -219,7 +219,7 @@ impl ToEm {
     }
 }
 
-/// the scaler's advance phantom point (re/dwrite.md, scl_RoundCurrentSideBearingPnt): adv design
+/// the scaler's advance phantom point (the clean-room notes, kikizake-re/dwrite, scl_RoundCurrentSideBearingPnt): adv design
 /// units at ppem rounded half away from zero to 16.16, then to 26.6, then to a 1/16 pixel
 /// (axis aligned) or a whole pixel (sideways); the advance's whole pixels (half up)
 fn phantom_px(adv: i64, ppem: i64, upm: i64, sideways: bool) -> i64 {
@@ -587,7 +587,7 @@ impl Dwrite {
                     let upm = m.upm as i64;
                     let fix = (ppem << 16) / upm;
                     // (the vertical advance: rounded half down, and down up to 65/128)
-                    // (re/dwrite.md, scl_RoundCurrentSideBearingPnt: the vertical origin
+                    // (the clean-room notes, kikizake-re/dwrite, scl_RoundCurrentSideBearingPnt: the vertical origin
                     // phantom is the origin in 26.6 rounded to the pixel, the advance's end the
                     // origin less the advance height rounded half away to 16.16 and to 26.6,
                     // then rounded to the pixel; the advance width see phantom_px, but the
@@ -610,7 +610,7 @@ impl Dwrite {
                         return Err(Fail::Bad);
                     }
                     if ppem == upm && !sideways {
-                        // (re/dwrite.md: the transform is the em itself, the design metrics as they
+                        // (the clean-room notes, kikizake-re/dwrite: the transform is the em itself, the design metrics as they
                         // are)
                         hit(clause::DW_GDI_EDGE);
                         out.push(format!("{} hr 00000000", t[0]));
@@ -697,7 +697,7 @@ impl Dwrite {
                 // rounded to whole pixels (612 advances); GDI natural ones round up from a
                 // little below the half (between 0.4545 and 0.462 of a pixel, 612 advances)
                 hit(clause::DW_SHAPE_GDIPLACE);
-                // (re/dwrite.md: past 255 ppem the classic advance is the natural one)
+                // (the clean-room notes, kikizake-re/dwrite: past 255 ppem the classic advance is the natural one)
                 let fix = ((em << 16) / upm as i64) as i64;
                 let nat = |g: u16| phantom_px(adv(g) as i64, em, upm as i64, false) as f32;
                 out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(if em <= 255 { ((adv(g) as i64 * fix + 0x8000) >> 16) as f32 } else { nat(g) })).collect())));
