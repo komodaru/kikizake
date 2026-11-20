@@ -1085,6 +1085,306 @@ pub enum Place {
 pub enum Paint<'a> {
     Solid([u8; 4]),
     Bitmap { bmp: &'a Bitmap, place: Place, ext: (Extend, Extend), interp: Interp, opacity: u32 },
+    /// a linear gradient: its ramp texture sampled along u (D2D.GRAD)
+    Ramp(&'a Ramp),
+}
+
+/// a gradient's interpolation space (D2D1_GAMMA)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Gamma {
+    /// D2D1_GAMMA_2_2: the stops' sRGB values interpolated as they are
+    Srgb,
+    /// D2D1_GAMMA_1_0: interpolated in linear light
+    Linear,
+}
+
+/// a gradient stop: its position and straight (not premultiplied) RGBA, 0..1
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Stop {
+    pub pos: f32,
+    pub c: [f32; 4],
+}
+
+/// a linear gradient brush realized as Direct2D does (from the clean-room notes on
+/// LinearGradientBrushDataWrapper, CalcTextureSize, CGradientTextureGenerator): a ramp of n
+/// premultiplied B G R A texels, a pixel center's texel coordinate u (0..1 across the ramp),
+/// sampled bilinearly with 1/256 weights by the extend mode
+#[derive(Debug, PartialEq)]
+pub struct Ramp {
+    tex: Vec<[u8; 4]>,
+    u: [f32; 3],
+    ext: Extend,
+}
+
+/// the stop epsilon of CreateWellFormedGradientArray
+const STOP_EPS: f32 = f32::from_bits(0x35a00000);
+
+/// a float to a byte: nearest, ties up, clamped
+fn rnd_up(x: f32) -> u8 {
+    let r = x.round_ties_even();
+    let r = if r - x == -0.5 { r + 1.0 } else { r };
+    r.clamp(0.0, 255.0) as u8
+}
+
+fn mix(a: [f32; 4], b: [f32; 4], t: f32) -> [f32; 4] {
+    [0, 1, 2, 3].map(|k| (1.0 - t) * a[k] + t * b[k])
+}
+
+/// the stops as the ramp generator takes them: sorted, a stop at 0 and at 1, runs of one
+/// position cut to their first and last; and the colors of the ramp's two end texels
+fn well_formed(mut st: Vec<Stop>) -> (Vec<Stop>, [f32; 4], [f32; 4]) {
+    let close = |a: f32, b: f32| ((a - b) / if b == 0.0 { 1.0 } else { b }).abs() < STOP_EPS;
+    let near0 = |p: f32| p.abs() < STOP_EPS;
+    let at = |a: Stop, b: Stop, pos: f32| mix(a.c, b.c, (pos - a.pos) / (b.pos - a.pos));
+    st.sort_by(|a, b| a.pos.partial_cmp(&b.pos).unwrap_or(std::cmp::Ordering::Equal));
+    let n = st.len();
+    let mut out: Vec<Stop> = Vec::new();
+    let first;
+    let mut r;
+    if st[0].pos >= 0.0 && st[0].pos.abs() >= STOP_EPS {
+        out.push(Stop { pos: 0.0, c: st[0].c });
+        first = st[0].c;
+        r = 0;
+    } else {
+        r = 0;
+        while r < n && st[r].pos < 0.0 && !near0(st[r].pos) {
+            r += 1;
+        }
+        if r == n {
+            out.push(Stop { pos: 0.0, c: st[n - 1].c });
+            first = st[n - 1].c;
+        } else if near0(st[r].pos) {
+            first = st[r].c;
+            while r + 1 < n && near0(st[r + 1].pos) {
+                r += 1;
+            }
+            out.push(Stop { pos: 0.0, c: st[r].c });
+            r += 1;
+        } else {
+            let c = at(st[r - 1], st[r], 0.0);
+            out.push(Stop { pos: 0.0, c });
+            first = c;
+        }
+    }
+    // (a run of one position: its first and its last, the last at the first's position)
+    let mut run = 1;
+    while r < n && st[r].pos < 1.0 && !close(st[r].pos, 1.0) {
+        let prev = out[out.len() - 1];
+        if close(prev.pos, st[r].pos) {
+            if run >= 2 {
+                let k = out.len() - 1;
+                out[k].c = st[r].c;
+            } else {
+                out.push(Stop { pos: prev.pos, c: st[r].c });
+            }
+            run += 1;
+        } else {
+            out.push(st[r]);
+            run = 1;
+        }
+        r += 1;
+    }
+    let last;
+    if r == n {
+        last = st[n - 1].c;
+        out.push(Stop { pos: 1.0, c: last });
+    } else if close(st[r].pos, 1.0) {
+        out.push(Stop { pos: 1.0, c: st[r].c });
+        while r + 1 < n && close(st[r + 1].pos, 1.0) {
+            r += 1;
+        }
+        last = st[r].c;
+    } else {
+        let c = if r == 0 { st[0].c } else { at(st[r - 1], st[r], 1.0) };
+        out.push(Stop { pos: 1.0, c });
+        last = c;
+    }
+    (out, first, last)
+}
+
+/// D2D1_GAMMA_1_0's stops: r, g, b from sRGB to linear (f32), alpha as it is
+fn stop_to_linear(x: f32) -> f32 {
+    if x <= 0.0 {
+        0.0
+    } else if x >= 1.0 {
+        x
+    } else {
+        srgb_to_linear(x)
+    }
+}
+
+/// a texel from an interpolated color: clamped, premultiplied (B G R A)
+fn post(c: [f32; 4], gamma: Gamma) -> [u8; 4] {
+    let c = c.map(|v| v.clamp(0.0, 1.0));
+    let a = c[3];
+    match gamma {
+        Gamma::Srgb => {
+            let ch = |v: f32| rnd_up((v * a) * 255.0);
+            [ch(c[2]), ch(c[1]), ch(c[0]), rnd_up(a * 255.0)]
+        }
+        Gamma::Linear => {
+            let a8 = rnd_up(a * 255.0);
+            let enc = |v: f32| -> u8 {
+                if v <= 0.0 {
+                    0
+                } else if v >= 1.0 {
+                    255
+                } else {
+                    let i = f64::from(rnd_up_wide(v * 3354.0)) / 3354.0;
+                    let s = if i < 0.0031308 { 12.92 * i } else { 1.055 * i.powf(1.0 / 2.4) - 0.055 };
+                    (255.0 * s).round().clamp(0.0, 255.0) as u8
+                }
+            };
+            let pm = |ch: u8| -> u8 {
+                match a8 {
+                    255 => ch,
+                    0 => 0,
+                    _ => {
+                        let t = u32::from(ch) * u32::from(a8) + 128;
+                        ((t + (t >> 8)) >> 8) as u8
+                    }
+                }
+            };
+            [pm(enc(c[2])), pm(enc(c[1])), pm(enc(c[0])), a8]
+        }
+    }
+}
+
+/// rnd_up without the byte clamp
+fn rnd_up_wide(x: f32) -> u32 {
+    let r = x.round_ties_even();
+    let r = if r - x == -0.5 { r + 1.0 } else { r };
+    r.max(0.0) as u32
+}
+
+/// FillGradientSpan: m texels, each the color at its center, or where a stop falls inside it
+/// the colors of its pieces weighed by their widths
+fn fill_span(st: &[Stop], m: usize, gamma: Gamma) -> Vec<[u8; 4]> {
+    let mf = m as f32;
+    let dt = 1.0 / mf;
+    let half = dt * 0.5;
+    let mut out = Vec::with_capacity(m);
+    let mut k = 0;
+    let mut i = 0;
+    while i < m {
+        let (prev, next) = (st[k], st[k + 1]);
+        let e = (next.pos * mf).floor().clamp(0.0, mf) as usize;
+        while i < e {
+            let t = ((i as f32 * dt + half) - prev.pos) / (next.pos - prev.pos);
+            out.push(post(mix(prev.c, next.c, t), gamma));
+            i += 1;
+        }
+        if i >= m {
+            break;
+        }
+        let (lo, hi) = (i as f32 * dt, (i + 1) as f32 * dt);
+        i += 1;
+        let mut acc = [0f32; 4];
+        loop {
+            let (prev, next) = (st[k], st[k + 1]);
+            let a = lo.max(prev.pos);
+            let ov = hi.min(next.pos) - a;
+            if ov >= 0.0 && ov.abs() >= STOP_EPS {
+                let t = ((ov * 0.5 + a) - prev.pos) / (next.pos - prev.pos);
+                let c = mix(prev.c, next.c, t);
+                let w = ov * mf;
+                acc = [0, 1, 2, 3].map(|j| acc[j] + c[j] * w);
+            }
+            if hi > next.pos {
+                if k + 2 >= st.len() {
+                    break;
+                }
+                k += 1;
+                if st[k].pos == st[k + 1].pos {
+                    if k + 2 >= st.len() {
+                        break;
+                    }
+                    k += 1;
+                }
+                continue;
+            }
+            break;
+        }
+        out.push(post(acc, gamma));
+    }
+    out
+}
+
+impl Ramp {
+    /// a linear gradient from s to e (brush space) under the world transform w; None where
+    /// its direction has no length (not modelled)
+    pub fn linear(w: &M, s: P, e: P, stops: &[Stop], gamma: Gamma, ext: Extend) -> Option<Ramp> {
+        let p0 = apply(w, s.0, s.1);
+        let mut p1 = apply(w, e.0, e.1);
+        let q = (s.0 - (e.1 - s.1), (e.0 - s.0) + s.1);
+        let p2 = apply(w, q.0, q.1);
+        let n = (p2.0 - p0.0, -(p2.1 - p0.1));
+        let ln = (n.0 * n.0 + n.1 * n.1).sqrt();
+        if ln != 0.0 && !ln.is_nan() {
+            let k = 1.0 / ln;
+            let n = (n.0 * k, n.1 * k);
+            let d = (p1.1 - p0.1) * n.0 + (p1.0 - p0.0) * n.1;
+            p1 = (d * n.1 + p0.0, d * n.0 + p0.1);
+        }
+        let dist = |a: P, b: P| ((a.0 - b.0) * (a.0 - b.0) + (a.1 - b.1) * (a.1 - b.1)).sqrt();
+        let len = if dist(p0, p2) > 0.0 { dist(p0, p1) } else { f32::NAN };
+        let cnt = if len.is_nan() {
+            1
+        } else {
+            let fl = len.max(0.0).min(1024.0).floor() as usize;
+            match ext {
+                Extend::Clamp => fl + 2,
+                Extend::Wrap | Extend::Mirror => fl.max(1),
+            }
+        };
+        let tn = if cnt >= 1024 { 1024 } else { cnt.next_power_of_two() };
+        let (s0, s1) = match ext {
+            Extend::Clamp if tn != 1 => (1.0f32, (tn - 1) as f32),
+            Extend::Clamp | Extend::Wrap | Extend::Mirror => (0.0, tn as f32),
+        };
+        let (dx, dy) = (p1.0 - p0.0, p1.1 - p0.1);
+        let l2 = dy * dy + dx * dx;
+        if l2 == 0.0 || l2.is_nan() {
+            return None;
+        }
+        let k = (s1 - s0) / l2;
+        let (m11, m21, m31) = (dx * k, dy * k, s0 - (dy * p0.1 + dx * p0.0) * k);
+        let r = 1.0 / tn as f32;
+        let u = [m11 * r, m21 * r, m31 * r];
+        let mut st = stops.to_vec();
+        if gamma == Gamma::Linear {
+            for v in &mut st {
+                let c = v.c.map(|x| x.clamp(0.0, 1.0));
+                v.c = [stop_to_linear(c[0]), stop_to_linear(c[1]), stop_to_linear(c[2]), c[3]];
+            }
+        }
+        let (st, first, last) = well_formed(st);
+        let tex = match ext {
+            Extend::Clamp if tn == 1 => vec![post(mix(first, last, 0.5), gamma)],
+            Extend::Clamp => {
+                let mut t = vec![post(first, gamma)];
+                t.extend(fill_span(&st, tn - 2, gamma));
+                t.push(post(last, gamma));
+                t
+            }
+            Extend::Wrap | Extend::Mirror => fill_span(&st, tn, gamma),
+        };
+        Some(Ramp { tex, u, ext })
+    }
+
+    /// the color at pixel (x, y): u at its center, texel position u n - 1/2, the fraction
+    /// rounded to 1/256, the two texels lerped and rounded
+    fn at(&self, x: usize, y: usize) -> [u8; 4] {
+        let (cx, cy) = (x as f32 + 0.5, y as f32 + 0.5);
+        let u = (self.u[0] * cx + self.u[1] * cy) + self.u[2];
+        let n = self.tex.len();
+        let p = u * n as f32 - 0.5;
+        let i = p.floor();
+        let w = ((p - i) * 256.0 + 0.5).floor() as u32;
+        let i = i as i64;
+        let (c0, c1) = (self.tex[self.ext.index(i, n)], self.tex[self.ext.index(i + 1, n)]);
+        [0, 1, 2, 3].map(|k| ((u32::from(c0[k]) * (256 - w) + u32::from(c1[k]) * w + 128) >> 8) as u8)
+    }
 }
 
 /// a byte scaled by k / 255 rounded
@@ -1098,6 +1398,7 @@ impl Paint<'_> {
         match *self {
             Paint::Solid(c) => c,
             Paint::Bitmap { bmp, place, ext, interp, opacity } => texel_at(bmp, place, ext, interp, opacity, x, y),
+            Paint::Ramp(r) => r.at(x, y),
         }
     }
 }
@@ -1219,8 +1520,7 @@ pub struct Clip {
 pub enum ClipEdge {
     /// pushed under an axis preserving transform: 8 x 8 samples (D2D.CLIP.BLEND)
     Samples,
-    /// pushed under a turning transform: the bounds' edges floored to 1/256 pixel and the
-    /// covered area (D2D.CLIP.XF)
+    /// pushed under a turning transform: the edge strips' background coverage (D2D.CLIP.XF)
     Area,
 }
 
@@ -1334,15 +1634,7 @@ impl Target {
                         Antialias::Aliased => {
                             if center_in(c.r, x, y) { 255 } else { 0 }
                         }
-                        Antialias::PerPrimitive if c.edge == ClipEdge::Area => {
-                            // (MEASURED, clipxf-*: 4091 of 4096 pixels; four corner pixels a
-                            // step higher)
-                            let q = |v: f64| (v * 256.0).floor() / 256.0;
-                            let (ql, qt, qr, qb) = (q(l), q(t), q(r), q(b));
-                            let cx = (qr.min(fx + 1.0) - ql.max(fx)).max(0.0);
-                            let cy = (qb.min(fy + 1.0) - qt.max(fy)).max(0.0);
-                            (255.0 * cx * cy).round() as u32
-                        }
+                        Antialias::PerPrimitive if c.edge == ClipEdge::Area => strip_k(c.r, self.w, self.h, x, y),
                         Antialias::PerPrimitive => {
                             let mut n = 0u32;
                             for j in 0..8 {
@@ -1360,6 +1652,40 @@ impl Target {
             }
         }
     }
+}
+
+/// MEASURED (D2D.CLIP.XF, from the clean-room notes on ClipRectSubTarget, the composite fitted):
+/// an antialiased clip keeps what is drawn inside its rectangle (cut to the target) rounded
+/// out to whole pixels; at its edges the pixels saved before are put back with the strip's
+/// background coverage: a side's |floor(l) - l| (left), |ceil(r) - r| (right), likewise top and
+/// bottom, a corner's 1 - (1 - bx)(1 - by) in f32, a side on the target's edge none; the
+/// coverage rounded to 1/256, then to a byte o of 255; what the drawing keeps is k = 255 - o
+fn strip_k(r: [f32; 4], w: usize, h: usize, x: usize, y: usize) -> u32 {
+    let (tw, th) = (w as f32, h as f32);
+    let [l, t, rr, b] = [r[0].max(0.0), r[1].max(0.0), r[2].min(tw), r[3].min(th)];
+    let (fx, fy) = (x as f32, y as f32);
+    if !(l < rr && t < b) || fx < l.floor() || fx >= rr.ceil() || fy < t.floor() || fy >= b.ceil() {
+        return 0;
+    }
+    // (a side's strip and its background, None inside)
+    let side = |v: f32, lo: f32, hi: f32, elo: f32, ehi: f32| -> Option<f32> {
+        if v == lo.floor() && lo != elo {
+            Some((lo.floor() - lo).abs())
+        } else if v == hi.ceil() - 1.0 && hi != ehi {
+            Some((hi.ceil() - hi).abs())
+        } else {
+            None
+        }
+    };
+    let op = match (side(fx, l, rr, 0.0, tw), side(fy, t, b, 0.0, th)) {
+        (None, None) => 0.0,
+        (Some(bx), None) => bx,
+        (None, Some(by)) => by,
+        (Some(bx), Some(by)) => 1.0 - (1.0 - bx) * (1.0 - by),
+    };
+    let o256 = (op * 256.0 + 0.5).floor();
+    let o8 = (o256 * 255.0 / 256.0 + 0.5).floor() as u32;
+    255 - o8.min(255)
 }
 
 /// a straight color (r, g, b, a as 0..255) as the premultiplied bytes Clear and an opaque brush
@@ -1646,9 +1972,7 @@ impl D2d {
             "d2info" | "d2dpi" | "d2tags" | "d2flush" | "d2state" | "d2clip" | "d2unclip" | "d2layer" | "d2poplayer" => self.state(op, out)?,
             // (gradients, geometry strokes: asked, not modelled yet)
             "d2drawg" => self.draw(op, out)?,
-            "d2grad" => {
-                return Err(Fail::Unmodeled(open::D2D_RT));
-            }
+            "d2grad" => self.draw(op, out)?,
             _ => return Ok(false),
         }
         Ok(true)
@@ -1734,10 +2058,9 @@ impl D2d {
                     return Ok(());
                 }
                 let edge = if m[1] == 0.0 && m[2] == 0.0 { ClipEdge::Samples } else { ClipEdge::Area };
-                // (FITTED, OPEN, D2D.RT: an antialiased clip through a transform that turns the
-                // axes, clipxf-*: all but four corner pixels; two antialiased clips nested,
-                // clipnest-1: all but one pixel)
-                if matches!(aa, Antialias::PerPrimitive) && (matches!(edge, ClipEdge::Area) || tg.stack.iter().any(|p| matches!(p, Pushed::Clip(Clip { aa: Antialias::PerPrimitive, .. })))) {
+                // (FITTED, OPEN, D2D.RT: two antialiased clips nested, clipnest-1: all but two
+                // pixels one unit off)
+                if matches!(aa, Antialias::PerPrimitive) && tg.stack.iter().any(|p| matches!(p, Pushed::Clip(Clip { aa: Antialias::PerPrimitive, .. }))) {
                     super::approx(open::D2D_RT)?;
                 }
                 tg.stack.push(Pushed::Clip(Clip { r: corner_bounds(&m, r), aa, edge }));
@@ -2042,6 +2365,48 @@ impl D2d {
                     tg.keep_clipped(&before);
                     return Ok(());
                 }
+            }
+            "d2grad" => {
+                let r = [f(op, 1)?, f(op, 2)?, f(op, 3)?, f(op, 4)?];
+                let lin = match t.get(5).map(String::as_str) {
+                    Some("lin") => true,
+                    Some("rad") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                let gamma = match t.get(6).map(String::as_str) {
+                    Some("22") => Gamma::Srgb,
+                    Some("10") => Gamma::Linear,
+                    _ => return Err(Fail::Bad),
+                };
+                let ext = t.get(7).and_then(|t| Extend::parse(t)).ok_or(Fail::Bad)?;
+                let at = if lin { 12 } else { 14 };
+                let k = n(op, at)?;
+                if !(0..=12).contains(&k) || len != at + 1 + 5 * k as usize {
+                    return Err(Fail::Bad);
+                }
+                let mut stops = Vec::new();
+                for i in 0..k as usize {
+                    let c = color(at + 2 + 5 * i)?;
+                    stops.push(Stop { pos: f(op, at + 1 + 5 * i)?, c: c.map(|v| v as f32 / 255.0) });
+                }
+                let Some(tg) = &mut self.t else {
+                    out.push("nort".into());
+                    return Ok(());
+                };
+                // (radial gradients, a collection of no stops: not modelled)
+                if !lin || stops.is_empty() {
+                    return Err(Fail::Unmodeled(open::D2D_RT));
+                }
+                let (s0, e0) = ((f(op, 8)?, f(op, 9)?), (f(op, 10)?, f(op, 11)?));
+                let ramp = Ramp::linear(&tg.st.m, s0, e0, &stops, gamma, ext).ok_or(Fail::Unmodeled(open::D2D_RT))?;
+                if tg.fault.is_some() {
+                    return Ok(());
+                }
+                hit(clause::D2D_GRAD);
+                let before = tg.px.clone();
+                fill(tg, &Geom::Rect(r), &Paint::Ramp(&ramp))?;
+                tg.keep_clipped(&before);
+                return Ok(());
             }
             "d2fill" | "d2fillg" | "d2fillo" => {
                 let (g, c, o) = if t[0] == "d2fillg" {

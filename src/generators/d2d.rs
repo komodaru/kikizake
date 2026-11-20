@@ -625,7 +625,7 @@ fn target_more(s: &mut String, r: &mut XorShift32) {
 /// gradients made to read the interpolation off: one row of 64 pixels, two stops at 0 and 1,
 /// spans from 16 to 16384 pixels and starts far before the row, both gammas, a radial one
 fn gradfit(s: &mut String) {
-    let pairs = ["0 0 0 255 1 255 255 255 255", "0 255 0 0 255 1 0 0 255 255", "0 0 0 0 0 1 255 255 255 255", "0 10 200 90 255 1 240 30 160 128"];
+    let pairs = ["0 0 0 0 255 1 255 255 255 255", "0 255 0 0 255 1 0 0 255 255", "0 0 0 0 0 1 255 255 255 255", "0 10 200 90 255 1 240 30 160 128"];
     let spans = [(0.0, 64.0), (0.0, 16.0), (0.0, 256.0), (0.0, 1024.0), (0.0, 16384.0), (-192.0, 64.0), (32.0, 0.0), (0.25, 63.5)];
     let mut i = 0;
     for gamma in ["22", "10"] {
