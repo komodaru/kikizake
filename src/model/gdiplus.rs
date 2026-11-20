@@ -1611,10 +1611,10 @@ impl Gdiplus {
                     out.push(format!("fillpath 0 {INVALID_PARAMETER}"));
                     return Ok(true);
                 };
-                // (a path made with a FillMode past 0 ..= 1: not asked by the cases)
-                let Some(fm) = FillMode::from_value(path.fill) else {
-                    return Err(Fail::Unmodeled(open::GP_PATH_FILLMODE));
-                };
+                // (MEASURED, golden gdipluspath pathfillmode-*: a path's FillMode other than
+                // Alternate (0) fills Winding, 2, 3 and -1 too)
+                hit(clause::GP_PATH_FILLMODE);
+                let fm = if path.fill == 0 { FillMode::Alternate } else { FillMode::Winding };
                 let cov = super::gppath::fill(r, path, None, fm, sm.rows(), po, b.w, b.h)?;
                 paint(b, &brush, Area::Cover(&cov), copy, q, sm, po, (0, 0))?;
                 out.push(format!("fillpath 0 {OK}"));
