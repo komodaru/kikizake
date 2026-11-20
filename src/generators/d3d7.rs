@@ -246,14 +246,32 @@ pub fn d3d7rast() -> String {
     // by a clipped edge that the RGB walk cut at the sides does not): the one, shifted, and
     // random ones, a dump each
     let mut rc = XorShift32::new(0x00d3_d7c1);
+    let mut ramp = Vec::new();
     for d in ["ramp", "rgb"] {
         writeln!(s, "case clip-2-{d}\nd3d 2\nd3ddev {d} 565 12 12\nd3drs set 22 1").unwrap();
+        let mut tris = Vec::new();
         for k in 0..8 {
-            writeln!(s, "{}", line(&[(-13 - k, 27 + k), (103 + k, 47), (43, 127 - k)], perms[0], 0, 0, 0xffffffff)).unwrap();
+            tris.push([(-13 - k, 27 + k), (103 + k, 47), (43, 127 - k)]);
         }
         for _ in 0..40 {
             let v: Vec<i64> = (0..6).map(|_| rc.range(0, 260) - 40).collect();
-            writeln!(s, "{}", line(&[(v[0], v[1]), (v[2], v[3]), (v[4], v[5])], perms[0], 0, 0, 0xffffffff)).unwrap();
+            tris.push([(v[0], v[1]), (v[2], v[3]), (v[4], v[5])]);
+        }
+        for tv in &tris {
+            writeln!(s, "{}", line(tv, perms[0], 0, 0, 0xffffffff)).unwrap();
+        }
+        writeln!(s, "end").unwrap();
+        if d == "ramp" {
+            ramp = tris;
+        }
+    }
+    // the ramp device's clipped triangles with D3DRENDERSTATE_ZWRITEENABLE (14) set to 0 and to
+    // 1 (no z-buffer): whether the color of a clipped triangle follows the span function the z
+    // states choose (D3D7.TRI.CLIP)
+    for zw in [0, 1] {
+        writeln!(s, "case clip-2-ramp-zw{zw}\nd3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1\nd3drs set 14 {zw}").unwrap();
+        for tv in &ramp {
+            writeln!(s, "{}", line(tv, perms[0], 0, 0, 0xffffffff)).unwrap();
         }
         writeln!(s, "end").unwrap();
     }
