@@ -11,6 +11,7 @@ use super::gdi::{rop3, Brush, Gdi, Slot};
 use super::{Fail, Res};
 use crate::case::{color, num, Op};
 use crate::spec::hit;
+use super::gdiinvcmap::{Cell, Table};
 
 fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
@@ -337,12 +338,12 @@ fn c8(num: i64, den: i64, r: Round) -> u32 {
 
 /// one pixel of a gradient whose channel `i` (red, green, blue, alpha) is `num(i) / den`
 /// (16 bit), in `s`'s format; None where it is not known yet
-fn grad_pixel(s: &super::gdi::Surf, num: impl Fn(usize) -> i64, den: i64, r: Round, x: i32, y: i32) -> Option<u32> {
+fn grad_pixel(s: &super::gdi::Surf, inv: Option<&Table>, num: impl Fn(usize) -> i64, den: i64, r: Round, x: i32, y: i32) -> Res<u32> {
     let (num, den) = (|i: usize| if den < 0 { -num(i) } else { num(i) }, den.abs());
     let c = |i: usize| c8(num(i), den, r);
     match (s.bpp, r) {
-        (32, _) => Some(c(3) << 24 | c(0) << 16 | c(1) << 8 | c(2)),
-        (24, _) => Some(c(0) << 16 | c(1) << 8 | c(2)),
+        (32, _) => Ok(c(3) << 24 | c(0) << 16 | c(1) << 8 | c(2)),
+        (24, _) => Ok(c(0) << 16 | c(1) << 8 | c(2)),
         (16, _) => {
             hit(clause::GDI_GRAD_DITHER16);
             let d = BAYER4[y.rem_euclid(4) as usize][x.rem_euclid(4) as usize];
@@ -354,13 +355,54 @@ fn grad_pixel(s: &super::gdi::Surf, num: impl Fn(usize) -> i64, den: i64, r: Rou
             };
             // (5 bits from 1/128 steps; 5-6-5's green, 6 bits from 1/64 steps)
             let cn = |i: usize, unit: i64, max: i64| ((v16(i) / unit + d) / 16).clamp(0, max) as u32;
-            Some(if s.f565 { cn(0, 128, 31) << 11 | cn(1, 64, 63) << 5 | cn(2, 128, 31) } else { cn(0, 128, 31) << 10 | cn(1, 128, 31) << 5 | cn(2, 128, 31) })
+            Ok(if s.f565 { cn(0, 128, 31) << 11 | cn(1, 64, 63) << 5 | cn(2, 128, 31) } else { cn(0, 128, 31) << 10 | cn(1, 128, 31) << 5 | cn(2, 128, 31) })
         }
-        // (color tables: not the ordered dither of 16 bpp onto 3 levels a channel, Windows'
-        // answers show; open)
-        _ => None,
+        (1 | 4 | 8, _) => {
+            hit(clause::GDI_GRAD_INDEXED);
+            let d = i64::from(DITHER3[y.rem_euclid(16) as usize][x.rem_euclid(16) as usize]);
+            // (each channel to a 5 bit cell of GDI's inverse color table)
+            let cell = |i: usize| -> u8 {
+                let v = i64::from(c(i));
+                if s.bpp == 1 {
+                    if v + 2 * d >= 255 { 31 } else { 0 }
+                } else {
+                    match v + d {
+                        ..=127 => 0,
+                        128..=254 => 16,
+                        _ => 31,
+                    }
+                }
+            };
+            let inv = inv.ok_or(Fail::Bad)?;
+            // (a cell GDI's table builder never writes: Windows reads what that memory held)
+            let v = inv.get(Cell::of(cell(0), cell(1), cell(2))).ok_or(Fail::Unmodeled(open::GDI_GRAD_HOLE))?;
+            Ok(u32::from(v))
+        }
+        _ => Err(Fail::Bad),
     }
 }
+
+/// the 16x16 ordered dither of gradients into color tables (clean-room note on win32kfull,
+/// copied as it is: 126 four times, no 127)
+const DITHER3: [[u8; 16]; 16] = [
+    [8, 72, 24, 88, 12, 76, 28, 92, 9, 73, 25, 89, 13, 77, 29, 93],
+    [104, 40, 120, 56, 108, 44, 124, 60, 105, 41, 121, 57, 109, 45, 125, 61],
+    [16, 80, 0, 64, 20, 84, 4, 68, 17, 81, 1, 65, 21, 85, 5, 69],
+    [112, 48, 96, 32, 116, 52, 100, 36, 113, 49, 97, 33, 117, 53, 101, 37],
+    [14, 78, 30, 94, 10, 74, 26, 90, 15, 79, 31, 95, 11, 75, 27, 91],
+    [110, 46, 126, 62, 106, 42, 122, 58, 111, 47, 126, 63, 107, 43, 123, 59],
+    [22, 86, 6, 70, 18, 82, 2, 66, 23, 87, 7, 71, 19, 83, 3, 67],
+    [118, 54, 102, 38, 114, 50, 98, 34, 119, 55, 103, 39, 115, 51, 99, 35],
+    [9, 73, 25, 89, 13, 77, 29, 93, 8, 72, 24, 88, 12, 76, 28, 92],
+    [105, 41, 121, 57, 109, 45, 125, 61, 104, 40, 120, 56, 108, 44, 124, 60],
+    [17, 81, 1, 65, 21, 85, 5, 69, 16, 80, 0, 64, 20, 84, 4, 68],
+    [113, 49, 97, 33, 117, 53, 101, 37, 112, 48, 96, 32, 116, 52, 100, 36],
+    [15, 79, 31, 95, 11, 75, 27, 91, 14, 78, 30, 94, 10, 74, 26, 90],
+    [111, 47, 126, 63, 107, 43, 123, 59, 110, 46, 126, 62, 106, 42, 122, 58],
+    [23, 87, 7, 71, 19, 83, 3, 67, 22, 86, 6, 70, 18, 82, 2, 66],
+    [119, 55, 103, 39, 115, 51, 99, 35, 118, 54, 102, 38, 114, 50, 98, 34],
+];
+
 
 /// x of the edge (x1, y1)-(x2, y2) at row y, followed from its right end
 fn edge(y: i32, x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
@@ -373,6 +415,8 @@ fn edge(y: i32, x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
 
 /// GradientFill of one rectangle (v[0], v[1]) or triangle into `d`; false when it fails
 pub fn gradient(d: &mut Slot, mode: Grad, mut v: [Vert; 3]) -> Res<bool> {
+    // (GDI's inverse table of the bitmap's color table, GDI.GRAD.INDEXED)
+    let inv = (d.s.bpp <= 8).then(|| super::gdiinvcmap::table(&d.s.pal));
     let vis = |d: &Slot, x: i32, y: i32| d.visible(x, y);
     match mode {
         Grad::H | Grad::V => {
@@ -392,9 +436,7 @@ pub fn gradient(d: &mut Slot, mode: Grad, mut v: [Vert; 3]) -> Res<bool> {
                         continue;
                     }
                     let (pos, len) = if mode == Grad::H { ((x - v[0].x) as i64, (v[1].x - v[0].x) as i64) } else { ((y - v[0].y) as i64, (v[1].y - v[0].y) as i64) };
-                    let Some(p) = grad_pixel(&d.s, |i| v[0].c[i] * (len - pos) + v[1].c[i] * pos, len, Round::Floor, x, y) else {
-                        return Err(Fail::Unmodeled(open::GDI_GRAD_RECT));
-                    };
+                    let p = grad_pixel(&d.s, inv.as_ref(), |i| v[0].c[i] * (len - pos) + v[1].c[i] * pos, len, Round::Floor, x, y)?;
                     d.s.set(x, y, p);
                 }
             }
@@ -428,9 +470,7 @@ pub fn gradient(d: &mut Slot, mode: Grad, mut v: [Vert; 3]) -> Res<bool> {
                     let (px, py) = (x as i64, y as i64);
                     let l1 = (v[1].y - v[2].y) as i64 * (px - v[2].x as i64) - (v[1].x - v[2].x) as i64 * (py - v[2].y as i64);
                     let l2 = (v[2].y - v[0].y) as i64 * (px - v[2].x as i64) - (v[2].x - v[0].x) as i64 * (py - v[2].y as i64);
-                    let Some(p) = grad_pixel(&d.s, |i| v[0].c[i] * l1 + v[1].c[i] * l2 + v[2].c[i] * (det - l1 - l2), det, Round::Nearest16, x, y) else {
-                        return Err(Fail::Unmodeled(open::GDI_GRAD_TRIANGLE));
-                    };
+                    let p = grad_pixel(&d.s, inv.as_ref(), |i| v[0].c[i] * l1 + v[1].c[i] * l2 + v[2].c[i] * (det - l1 - l2), det, Round::Nearest16, x, y)?;
                     d.s.set(x, y, p);
                 }
             }

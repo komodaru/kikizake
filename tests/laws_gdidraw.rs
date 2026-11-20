@@ -267,7 +267,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 171), ("blend", 927), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 171), ("blend", 964), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -533,6 +533,36 @@ proptest! {
             if let Some(g) = glyph(&p, i, c, Format::Mono) && g.size > 0 && !bold {
                 prop_assert!(g.black.0 <= b.b + 1, "{:?} vs {:?}", g, b);
             }
+        }
+    }
+}
+
+proptest! {
+    /// GDI's inverse color table holds only the color table's indices, and each entry's own
+    /// cell holds an entry at most as far from the cell's centre as it (GDI.GRAD.INDEXED)
+    #[test]
+    fn inverse_table_holds_near_entries(pal in prop::collection::vec(0u32..0x100_0000, 1..40)) {
+        use kikizake::model::gdiinvcmap::{table, Cell};
+        let t = table(&pal);
+        let d = |e: u32, c: [i64; 3]| -> i64 {
+            let ch = [i64::from(e >> 16 & 0xff), i64::from(e >> 8 & 0xff), i64::from(e & 0xff)];
+            (0..3).map(|i| (ch[i] - 8 * c[i] - 4).pow(2)).sum()
+        };
+        for r in 0..32u8 {
+            for g in 0..32u8 {
+                for b in 0..32u8 {
+                    if let Some(i) = t.get(Cell::of(r, g, b)) {
+                        prop_assert!(usize::from(i) < pal.len());
+                    }
+                }
+            }
+        }
+        for &e in &pal {
+            let c = [(e >> 19 & 31) as u8, (e >> 11 & 31) as u8, (e >> 3 & 31) as u8];
+            let i = t.get(Cell::of(c[0], c[1], c[2]));
+            prop_assert!(i.is_some(), "{:06x}'s own cell is not written", e);
+            let cc = c.map(i64::from);
+            prop_assert!(d(pal[usize::from(i.unwrap())], cc) <= d(e, cc));
         }
     }
 }
