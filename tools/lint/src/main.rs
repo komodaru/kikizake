@@ -5,6 +5,7 @@
 //! `cargo test -p kikizake-lint` proves each counted lint fires on its regression.
 mod cases;
 mod code;
+mod escape;
 mod guards;
 mod ratchet;
 mod tree;
@@ -51,6 +52,10 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
     if let Err(error) = guards::check(&root) {
+        eprintln!("{error}");
+        return ExitCode::FAILURE;
+    }
+    if let Err(error) = escape::check(&root) {
         eprintln!("{error}");
         return ExitCode::FAILURE;
     }

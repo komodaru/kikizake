@@ -13,7 +13,7 @@ const E: f32 = f32::from_bits(0x3f7f_fffe);
 const TWO31: f32 = f32::from_bits(0x4f00_0000);
 
 /// an x87 result: the exact value (an f64 holding a product of two f32s exactly, or a quotient
-/// close enough to decide the f32 below it) rounded toward zero to f32: its sign, exponent and
+/// precise enough to decide the f32 below it) rounded toward zero to f32: its sign, exponent and
 /// top 23 fraction bits (0 below f32's normal range, infinity above it)
 fn x87(x: f64) -> f32 {
     let b = x.to_bits();
