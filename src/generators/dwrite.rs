@@ -826,11 +826,59 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             put(format!("gdiv97wid-{j}"), 0x0fdc_0000 + i as u32, &b);
         }
     }
-    // every size from 1 to 160 pixels per em (the GDI compatible sizes the cases ask for): the
+    // GetGdiCompatibleGlyphMetrics through float (re/dwrite.md): axis aligned, k whole pixels'
+    // em fraction is k times 1 / (p p) times p in float32, which rounds away from the exact
+    // fraction at larger k (gdihf32: the first 14 such k of each of these sizes, as the advance
+    // height and the origin, horizontal), and at ppem == upm the design metrics come back as
+    // they are (gdiupm)
+    {
+        let fixed = |f: f32| (((f * 65536.0 * 65536.0) as i64) + 0x8000) >> 16;
+        let fu = |f: i64, u: i64| (2 * f * u + 65536).div_euclid(131072);
+        for pp in [31i64, 45, 51, 62, 97, 113, 127, 160, 200, 255] {
+            let p = pp as f32;
+            let m = (1.0 / (p * p)) * p;
+            let flips: Vec<i64> = (1..4096i64).filter(|&k| fixed(k as f32 * m) != (2 * k * 65536 + pp).div_euclid(2 * pp)).collect();
+            // (each at the units per em that reads both fractions back, the box small)
+            let mut cs = Vec::new();
+            for &k in &flips {
+                let e = (2 * k * 65536 + pp).div_euclid(2 * pp);
+                let ok = |u: i64| fu(e, u) != fu(fixed(k as f32 * m), u) && (2 * k * u + pp).div_euclid(2 * pp) + u / 4 <= i16::MAX as i64;
+                if let Some(u) = (16..=16384i64).rev().find(|&u| ok(u)) {
+                    cs.push((k, u));
+                }
+                if cs.len() == 14 {
+                    break;
+                }
+            }
+            for (i, &(k, u)) in cs.iter().enumerate() {
+                let gs = vec![((u / 2) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 4) as i16)])];
+                let mut f = font_with(0x0fde_0000 + (pp * 16 + i as i64) as u32, u as u16, &gs);
+                f.vertical = true;
+                let v = (2 * k * u + pp).div_euclid(2 * pp);
+                f.glyphs[1].vert = (v as u16, (v - u / 4) as i16);
+                writeln!(s, "case gdihf32-{pp}-{k}\n{}\ndwgdiglyph {pp} 1 0 0 1\ndwgdiglyph {pp} 1 1 0 1\nend", font_line(&f)).unwrap();
+            }
+        }
+        for u in [16i64, 64, 100, 128, 200, 255] {
+            let mut f = font(0x0fdf_0000 + u as u32);
+            f.upm = u as u16;
+            f.vertical = true;
+            for (i, g) in f.glyphs.iter_mut().enumerate().skip(1) {
+                let t = (i as i64 * 37) % u;
+                g.rects = vec![((i as i64 % 5) as i16, (-(i as i64) % 7) as i16, (u / 3 + i as i64) as i16, t as i16)];
+                g.adv = (u / 4 + i as i64 * 3) as u16;
+                g.vert = ((u + i as i64) as u16, (u / 5 - t) as i16);
+            }
+            let gids: Vec<String> = (1..=14).map(|g| g.to_string()).collect();
+            let gl = gids.join(" ");
+            writeln!(s, "case gdiupm-{u}\n{}\ndwgdiglyph {u} 1 0 0 {gl}\ndwgdiglyph {u} 1 1 0 {gl}\ndwgdiglyph {u} 1 0 1 {gl}\nend", font_line(&f)).unwrap();
+        }
+    }
+    // every size from 1 to 255 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
     // come back as different design units (DW.GDI.GLYPH: where each size rounds the half)
-    for pp in 1..=160i64 {
+    for pp in 1..=255i64 {
         let g = gcd(65536, pp);
         let rs: Vec<i64> = (g..pp).step_by(g as usize).filter(|r| (2 * r - pp).abs() <= 9).collect();
         // (advance or origin, the residue k * 65536 mod ppem)

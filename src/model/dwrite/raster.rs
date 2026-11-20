@@ -37,16 +37,6 @@ fn direct(v: i16, em: i64, upm: i64) -> i64 {
     if n < 0 && !(upm as u64).is_power_of_two() { -((-n + upm).div_euclid(2 * upm)) } else { (n + upm).div_euclid(2 * upm) }
 }
 
-/// the top of glyph `gid`'s outline in 1/64 pixel (y up) at `ppem`, as the raster scales it; 0
-/// without one
-pub fn top(p: &Parsed, ppem: i64, gid: u16) -> i64 {
-    let gid = if gid >= p.num_glyphs { 0 } else { gid };
-    match p.glyphs.get(gid as usize) {
-        Some(Some((_, contours))) => contours.iter().flatten().map(|q| direct(q.1, ppem, p.upm as i64)).max().unwrap_or(0),
-        _ => 0,
-    }
-}
-
 fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
     let upm = p.upm as i64;
     let s16 = ((em << 17) / upm + 1) >> 1;
