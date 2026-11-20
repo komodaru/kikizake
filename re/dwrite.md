@@ -543,10 +543,202 @@ CreateAlphaTexture3x1 fills.
   - If Windows shows half-up there instead, the multiply is not DWRITE_FixMul (a float or
     floor path).
 
-## Still open after round 4
+## Still open after round 4 (partly answered by Follow-up F)
 
 - Dropout control and the exact on-centre vertex rule in the scan converter.
 - Advance and pen snapping for the GDI modes inside the GlyphRunAnalysis constructor and
   ComputeGlyphOrigins.
 - The instruction that produces s16 for the disabled grid fit (E is consistent but unconfirmed).
 - The second rect in GetAlphaTextureBounds.
+
+## Follow-up F. Dropout control, edges on sample centres, GDI origin snapping
+
+Coordinates below are in the scan converter's 26.6 sample space, so one "pixel" here is one
+sample of the analysis grid. Row and column k has its centre at 64k + 32. Rows count upward
+(+y).
+
+### F.1 Whether dropout is on for a glyph (SCANCTRL evaluation after hinting)
+
+After the glyph program runs, the scaler keeps two words from the graphics state: the last
+SCANCTRL value (C) and the last SCANTYPE value (T). It then stores one "scan kind" word K for
+the glyph:
+
+```
+p = min(hinting ppem, 255)                 # integer ppem byte
+rotated   = m01 != 0 or m10 != 0           # 16.16 matrix
+stretched = not (m00 == m11 and m01 == 0 and m10 == 0 and m11 >= 0)
+on = (C & 0x100 and p <= (C & 0xFF))
+  or (C & 0x100 and (C & 0xFF) == 0xFF)
+  or (C & 0x200 and rotated)
+  or (C & 0x400 and stretched)
+K = T if on else 2
+```
+
+- **Only the three "set if" bits are tested.** Bits 0x800, 0x1000 and 0x2000 (the "unless"
+  conditions in the spec) are ignored.
+- **The threshold is p <= threshold.** For example, a font whose prep does
+  `SCANCTRL 0x120` gets dropout at 32 ppem and below and none at 33 ppem and above.
+- **The ppem is the one used for hinting.** For the 6x1 and 6x5 modes that is the real ppem,
+  not the overscaled one, because the overscale comes after hinting (D.2). This is my
+  inference: I did not follow the producer of p past its clamp.
+- **No hinting means no dropout.** Before hinting, the per-glyph word is initialised to
+  0xFFFF or 3, and both have bit 0x2. If the glyph program never runs (grid fit disabled or
+  unhinted), K therefore keeps the "no dropout" bit. I inferred this from the
+  initialisations and did not trace the unhinted path end to end.
+- **There is no ppem cut-off in DWrite's own code.** Any ppem limit you observe comes from the
+  font's prep SCANCTRL threshold.
+
+K is used as a bit field, the same as the raw SCANTYPE values 0..7:
+
+| bit | meaning |
+|---|---|
+| 0x1 | exclude stubs |
+| 0x2 | no dropout control at all |
+| 0x4 | smart dropout |
+
+So T = 0 is simple dropout with stubs, 1 is simple without stubs, 2 and 3 are off, 4 is smart
+with stubs, 5 is smart without stubs, and 6 and 7 are off.
+
+Two adjustments apply:
+- If the glyph's pixel box had to be widened because it was empty (F.4), the fill pass clears
+  bit 0x1, so stubs are kept.
+- If measuring with smart dropout fails (internal error 0x1305), it is retried with bit 0x4
+  cleared, i.e. simple dropout.
+
+### F.2 Where the dropout pixel goes (fsc_FillBitMap)
+
+There are two passes: one over the horizontal scan lines (row centres) and one over the
+vertical scan lines (column centres; this list is also fed by horizontal edges, see F.3).
+
+- **When a dropout happens.** On one scan line, an on-transition and an off-transition land
+  between the same two adjacent pixel centres. That is, their crossing indices are equal, so
+  the normal span fill lights nothing there. Each such pair is a candidate.
+- **Already covered.** If either of the two pixels next to the gap is already set, nothing is
+  added.
+- **Stub test (only when bit 0x1 is set).**
+  - For a candidate on a vertical scan line at column c, between rows r-1 and r, it looks at
+    each side column (c-1 and c+1) separately.
+  - On each side it counts the crossings that would continue the contour: crossings with index
+    r on that side column, plus crossings with that side column's index on rows r-1 and r.
+  - If either side has fewer than 2, the candidate is treated as a stub and dropped.
+  - The horizontal pass mirrors this.
+- **Simple dropout (bit 0x4 clear).**
+  - Vertical scan line, gap between rows r-1 and r: row **r-1 (the lower pixel)** is lit.
+  - Horizontal scan line, gap between columns c-1 and c: column **c-1 (the left pixel)** is
+    lit.
+  - The result is clamped into the glyph box, [min, max-1].
+- **Smart dropout (bit 0x4 set).**
+  - The exact 26.6 crossing coordinates a and b of the two contours on that scan line are
+    recomputed with the per-edge-type callbacks (line or curve).
+  - The lit pixel is `(a + b - 1) >> 7`, which is the pixel containing the midpoint. A
+    midpoint exactly on a pixel boundary goes to the **lower or left** pixel.
+  - The result is clamped as above.
+  - If a contour endpoint record is of type 3, the pass aborts with internal error 0x1302. I
+    did not trace what the caller does then.
+
+### F.3 Edges, vertices on centres, horizontal edges, span fill (fsc_CalcLine / fsc_FillGlyph)
+
+- **Spans.** On each row, the on-crossings and the off-crossings are kept as two separately
+  sorted lists. The i-th on and i-th off form a span, and pixels with indices
+  **[on, off-1]** are set; a span with on >= off is skipped. This is the union of spans.
+- **Edge interior (rows).** An edge from y1 to y2 with y1 < y2 produces crossings on the rows
+  whose centre satisfies **y1 < centre < y2** (both ends open). Descending edges mirror this.
+- **Column index of a crossing.**
+  - The DDA (the incremental stepper that walks the edge from one pixel centre to the next)
+    decides, at each step, whether the edge meets the next row centre line or the next
+    column centre line first.
+  - On an exact tie (the edge passes exactly through a pixel centre), the row step is taken
+    first. The recorded column is then the first column whose centre is **>= x** of the
+    crossing.
+  - The descending-x branch starts its error term with a bias of +1, so the same "centre >= x"
+    rule holds whichever way the edge runs.
+  - Combined with the span rule, this means **a centre exactly on a left (on) edge is inside,
+    and a centre exactly on a right (off) edge is outside**. The tie order is traced; the left
+    and right orientation is my inference from the span rule.
+- **Vertices exactly on a row centre** ((y & 63) == 32). These are not handled by
+  fsc_CalcLine. fsc_FillGlyph detects them while walking the contour and calls a vertex
+  routine with the previous, current and next coordinates.
+  - If the contour passes through monotonically (y_prev < y < y_next or the reverse), it adds
+    one crossing at the vertex, in row `(y + 31) >> 6` and column `x >> 6`.
+  - At a local extremum (both neighbours on the same side) it records a "reversal" instead
+    (fsc_AddXReversal / fsc_AddYReversal). I did not trace the reversal bookkeeping exactly.
+  - Vertices exactly on a column centre get the same treatment for the vertical lists, only
+    when dropout is enabled.
+- **Horizontal edges (y1 == y2).** These add nothing to the row lists. When dropout is
+  enabled, they add only to the column lists (for dropout detection), starting from column
+  `(x + 31) >> 6`.
+- **Implied on-curve point** between two off-curve points: `(p + q + 1) >> 1`, per
+  coordinate. This rounds half up.
+
+### F.4 Glyph pixel box (fsc_MeasureGlyph), which is what the bounds use
+
+- The box is computed from **all outline points, including off-curve ones** (the control
+  box), not from the lit pixels:
+  - `left = (xmin + 31) >> 6`, `right = (xmax + 32) >> 6` (exclusive)
+  - `bottom = (ymin + 31) >> 6`, `top = (ymax + 32) >> 6` (exclusive)
+  - This is the set of pixels whose centres lie in [min, max], closed on both ends.
+- **Empty box.** If the width or height comes out 0, that axis is widened by one pixel to the
+  right or top, and the glyph is flagged. The flag also forces stubs on (F.1).
+- After that come the emboldening and alignment adjustments (not traced).
+- **The box is independent of the dropout setting.** A thin stem whose control box contains a
+  centre, but which lights no pixel because K says no dropout, still makes the bitmap and the
+  run bounds (D.6) one pixel wider. Together with F.1 this explains your observation
+  (bounds include a column the texture leaves empty above the font's threshold). The ppem
+  cut-off itself comes from the font's SCANCTRL threshold.
+- The run sample-bounds then get one more step in the constructor: when ovY > 1, top is
+  floored and bottom is ceiled to a multiple of ovY.
+
+### F.5 Origin snapping in the GDI modes (GlyphRunAnalysis constructor and ComputeGlyphOrigins)
+
+- **ComputeGlyphOrigins.**
+  - It only accumulates, in f32: `x_i = x0 + Σ advance` (subtracted for RTL) and `y = y0`.
+  - Glyph offsets are applied after: `x += advanceOffset` (minus for RTL) and
+    `y -= ascenderOffset`.
+  - If the caller passes no advances, they come from GetGlyphAdvances for the measuring mode.
+    For the GDI modes these are whole-pixel advances converted back to DIPs by
+    DesignToClientUnits. If the transform is not identity, it is applied per origin in f32.
+  - There is no rounding in this function.
+- **Pixel snap in the constructor**, after ComputeGlyphOrigins and before
+  ComputeGlyphBitmapPositions. It runs for each glyph when the rendering-mode attribute bit
+  **0x80000** (bit 19) is set, or when the glyph's cached bitmap carries flag 0x8000000:
+  ```
+  x_dip = f32( round_half_up(f32(scale * x_dip)) * f32(1/scale) )
+  ```
+  - Only x is snapped; |v| must be below 2^23.
+  - The rounding is half up: round to nearest, then +1 when the result is exactly v - 0.5.
+  - y is not touched here.
+- **Which modes have bit 19** (byte 2, bit 3 of the attribute word in D.1):
+
+| rendering mode | ClearType table | grayscale table |
+|---|---|---|
+| ALIASED | yes | — |
+| GDI_CLASSIC | yes | yes |
+| GDI_NATURAL | yes | yes |
+| NATURAL | no | no |
+| NATURAL_SYMMETRIC | no | no |
+| table slots 8 and 9 | yes | yes |
+| table slot 7 | no | no |
+
+  Table slots 7-9 are internal modes I did not identify.
+- **Bit 19 also forces an integer ppem.** The em size in pixels is rounded half up to an
+  integer before the scaler sees it (the "flag" in round 3's transform note; the other
+  trigger is a face flag, 0x10 at +0x60).
+- **Net result per GDI mode:**
+  - GDI classic and GDI natural (ClearType 6x1 and grayscale 8x1), and aliased: each glyph x
+    snaps to a **whole pixel**, which is ovX × that in samples. The baseline y rounds half up
+    to the sample grid, which with ovY = 1 is also a whole pixel.
+  - NATURAL and the symmetric modes: x is rounded only to the sample (1/6 px for ClearType,
+    1/8 px for grayscale). y is rounded to the sample (1/5 px for 6x5, 1/4 px for gray 4x4).
+  - The measuring mode itself only changes the advances (and only when the caller does not
+    supply them). The snapping is chosen by the rendering mode.
+
+### F.6 Still open after round 5
+
+- How reversals (local extrema exactly on a centre) are resolved into crossings: zero, one or
+  two.
+- The interpreter's SCANCTRL and SCANTYPE handlers. I assume they store the raw popped values,
+  but I read only their consumers.
+- The producer of the ppem byte, i.e. confirming it is the hinting ppem.
+- What sets glyph flag 0x8000000, which forces the x snap (possibly embedded-bitmap or
+  hinted-only glyphs).
+- What happens after the type-3 endpoint error (0x1302) in smart dropout.
