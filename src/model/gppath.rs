@@ -9,7 +9,7 @@
 
 use super::gdiplus::{FillMode, Matrix, PixelOffset, Round};
 use super::{Fail, Res};
-use crate::spec::{clause, hit, open};
+use crate::spec::{clause, hit};
 
 /// FLT_EPSILON: AddLines and AddBeziers join a figure's last point to a first point this close
 const EPS: f32 = 1.192_092_9e-7;
@@ -82,7 +82,9 @@ pub fn ceil16(r: Round, v: f32) -> i32 {
     i.wrapping_add(15) >> 4
 }
 
-/// how GpMatrix transforms a point: by the matrix's complexity
+/// how GpMatrix transforms a point: by the complexity ComputeComplexity gives the matrix, with a
+/// tolerance (MEASURED, golden gdipluspath patharc-20: an arc piece rotated by almost 180
+/// degrees transformed without its sin terms)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Complexity {
     Identity,
@@ -90,20 +92,35 @@ enum Complexity {
     Scale,
     General,
 }
-fn complexity(m: &Matrix) -> Complexity {
-    match (m[1] == 0.0 && m[2] == 0.0, m[0] == 1.0 && m[3] == 1.0, m[4] == 0.0 && m[5] == 0.0) {
-        (true, true, true) => Complexity::Identity,
-        (true, true, false) => Complexity::Translate,
-        (true, false, _) => Complexity::Scale,
-        (false, _, _) => Complexity::General,
+/// 0x3a1c4000, about 5.96e-4
+const NEAR: f32 = 5.960_464_5e-4;
+const _: () = assert!(NEAR.to_bits() == 0x3a1c_4000);
+fn complexity(r: Round, m: &Matrix) -> Complexity {
+    let big = m[0].abs().max(m[1].abs()).max(m[2].abs()).max(m[3].abs());
+    let tol = r.mul(NEAR, big);
+    let moved = !(m[4] == 0.0 && m[5] == 0.0);
+    if !(tol > m[1].abs() && tol > m[2].abs()) {
+        return Complexity::General;
+    }
+    match (NEAR > r.sub(m[0], 1.0).abs() && NEAR > r.sub(m[3], 1.0).abs(), moved) {
+        (true, false) => Complexity::Identity,
+        (true, true) => Complexity::Translate,
+        (false, _) => Complexity::Scale,
     }
 }
 pub fn apply(r: Round, m: &Matrix, x: f32, y: f32) -> (f32, f32) {
-    match complexity(m) {
+    match complexity(r, m) {
         Complexity::Identity => (x, y),
-        Complexity::Translate => (r.add(x, m[4]), r.add(y, m[5])),
-        Complexity::Scale => (r.add(r.mul(x, m[0]), m[4]), r.add(r.mul(y, m[3]), m[5])),
+        Complexity::Translate => (r.add(m[4], x), r.add(m[5], y)),
+        Complexity::Scale => (r.add(r.mul(m[0], x), m[4]), r.add(r.mul(y, m[3]), m[5])),
         Complexity::General => (r.add(r.add(r.mul(x, m[0]), r.mul(y, m[2])), m[4]), r.add(r.add(r.mul(x, m[1]), r.mul(y, m[3])), m[5])),
+    }
+}
+/// a matrix that only moves (or not even that)
+pub fn translates_only(r: Round, m: &Matrix) -> bool {
+    match complexity(r, m) {
+        Complexity::Identity | Complexity::Translate => true,
+        Complexity::Scale | Complexity::General => false,
     }
 }
 fn scaled(r: Round, m: &Matrix, k: f32) -> Matrix {
@@ -198,7 +215,7 @@ impl Path {
         self.new_figure = true;
     }
     pub fn add_rectangle(&mut self, r: Round, (x, y, w, h): (f32, f32, f32, f32)) -> Result<(), Refused> {
-        if w < 0.0 || h < 0.0 {
+        if w <= EPS || h <= EPS {
             return Ok(());
         }
         let (x1, y1) = (r.add(x, w), r.add(y, h));
@@ -211,6 +228,8 @@ impl Path {
         if pts.len() < 3 {
             return Err(Refused::InvalidParameter);
         }
+        // (a last point exactly on the first dropped, past three)
+        let pts = if pts.len() > 3 && pts[pts.len() - 1] == pts[0] { &pts[..pts.len() - 1] } else { pts };
         self.start_figure();
         self.add_lines(r, pts)?;
         self.close_figure();
@@ -282,23 +301,28 @@ impl Path {
         let first = self.pts[0];
         let (mut x0, mut y0, mut x1, mut y1) = (first.x, first.y, first.x, first.y);
         for p in &self.pts[1..] {
-            x0 = if p.x < x0 { p.x } else { x0 };
-            y0 = if p.y < y0 { p.y } else { y0 };
-            x1 = if p.x > x1 { p.x } else { x1 };
-            y1 = if p.y > y1 { p.y } else { y1 };
+            if x0 > p.x {
+                x0 = p.x;
+            } else if p.x > x1 {
+                x1 = p.x;
+            }
+            if y0 > p.y {
+                y0 = p.y;
+            } else if p.y > y1 {
+                y1 = p.y;
+            }
         }
-        // (the box made a rectangle, then its corners back to a width: x0 + (x1 - x0), - x0)
-        // (a size of -0 made +0: MEASURED, golden gdipluspath-64 pathstatus-13)
-        let size = |a: f32, b: f32| {
-            let w = r.sub(r.add(a, r.sub(b, a)), a);
-            if w == 0.0 { 0.0 } else { w }
-        };
-        let (w, h) = (size(x0, x1), size(y0, y1));
-        // (an empty box: all zeros)
-        if w == 0.0 && h == 0.0 {
+        // (CalcCacheBounds: a box under NEAR both ways is all zeros; GetBounds: the far corner,
+        // back to a size, one under NEAR made 0)
+        let (w, h) = (r.sub(x1, x0), r.sub(y1, y0));
+        if w < NEAR && h < NEAR {
             return (0.0, 0.0, 0.0, 0.0);
         }
-        (x0, y0, w, h)
+        let size = |a: f32, s: f32| {
+            let w = r.sub(r.add(a, s), a);
+            if w <= NEAR { 0.0 } else { w }
+        };
+        (x0, y0, size(x0, w), size(y0, h))
     }
     /// the figures: each point's index range
     fn figures(&self) -> Vec<&[Point]> {
@@ -398,7 +422,8 @@ fn normalize(r: Round, a: f32, w: f32, h: f32) -> f32 {
         (4, r.sub(360.0, a))
     };
     let t = to32(r, div64(r, mul64(r, b as f64, pi), 180.0)) as f64;
-    let f = to32(r, mul64(r, t.sin(), w as f64).atan2(mul64(r, h as f64, t.cos())));
+    // (the atan2 stored rounded down on either: x86-64's MXCSR, x86's x87 control word)
+    let f = to32(Round::Down, mul64(r, t.sin(), w as f64).atan2(mul64(r, h as f64, t.cos())));
     match q {
         1 => f,
         2 => r.sub(PI_F, f),
@@ -455,8 +480,7 @@ fn arc_points(r: Round, (x, y, w, h): (f32, f32, f32, f32), start: f32, sweep: f
             base[5],
         ];
         let take = if i + 1 == n { 4 } else { 3 };
-        // (the general order whatever the matrix)
-        out.extend(unit[..take].iter().map(|&(u, v)| (r.add(r.add(r.mul(u, m[0]), r.mul(v, m[2])), m[4]), r.add(r.add(r.mul(u, m[1]), r.mul(v, m[3])), m[5]))));
+        out.extend(unit[..take].iter().map(|&(u, v)| apply(r, &m, u, v)));
         st = r.add(st, if dir > 0.0 { HALF_PI_F } else { -HALF_PI_F });
         span = r.add(span, -HALF_PI_F);
     }
@@ -576,6 +600,110 @@ pub fn bezier32(q: [(i32, i32); 4]) -> Option<Vec<(i32, i32)>> {
     }
 }
 
+/// one axis of GDI's 64-bit hybrid forward differencing (28 fraction bits)
+#[derive(Clone, Copy, Debug)]
+struct Basis64 {
+    e0: i128,
+    e1: i128,
+    e2: i128,
+    e3: i128,
+}
+impl Basis64 {
+    fn new(p: [i128; 4]) -> Basis64 {
+        Basis64 { e0: p[0] << 28, e1: (p[3] - p[0]) << 28, e2: (3 * (p[1] - 2 * p[2] + p[3])) << 29, e3: (3 * (p[0] - 2 * p[1] + p[2])) << 29 }
+    }
+    fn err(&self) -> i128 {
+        self.e2.abs().max(self.e3.abs())
+    }
+    fn parent_err(&self) -> i128 {
+        (4 * self.e3).abs().max((8 * self.e2 - 4 * self.e3).abs())
+    }
+    fn halve(&mut self) {
+        self.e2 = (self.e2 + self.e3) >> 3;
+        self.e1 = (self.e1 - self.e2) >> 1;
+        self.e3 >>= 2;
+    }
+    fn double(&mut self) {
+        self.e3 <<= 2;
+        self.e1 = self.e2 + 2 * self.e1;
+        self.e2 = 8 * self.e2 - self.e3;
+    }
+    fn step(&mut self) {
+        self.e0 += self.e1;
+        self.e1 += self.e2;
+        let t = self.e2;
+        self.e2 = 2 * t - self.e3;
+        self.e3 = t;
+    }
+    /// back to four integer control points (/ 18 truncating toward 0)
+    fn untransform(&self) -> [i128; 4] {
+        let half = 1i128 << 27;
+        let r = 6 * self.e1 - self.e2;
+        [(self.e0 + half) >> 28, (self.e0 + half + (r - 2 * self.e3) / 18) >> 28, (self.e0 + half + (2 * r - self.e3) / 18) >> 28, (self.e0 + self.e1 + half) >> 28]
+    }
+}
+
+/// Bezier64: an outer pair of bases (tolerance 3 2^44) whose every step, made four points
+/// again, seeds an inner pair (2^34) that gives the points
+pub fn bezier64(q: [(i32, i32); 4]) -> Vec<(i32, i32)> {
+    const T1: i128 = 3 << 44;
+    const T2: i128 = 1 << 34;
+    let (mut ox, mut oy) = (Basis64::new(q.map(|p| i128::from(p.0))), Basis64::new(q.map(|p| i128::from(p.1))));
+    let mut n: i64 = 1;
+    while ox.err() > T1 || oy.err() > T1 {
+        n <<= 1;
+        ox.halve();
+        oy.halve();
+    }
+    let (mut ix, mut iy) = (ox, oy);
+    let mut ni: i64 = 0;
+    let mut out = Vec::new();
+    loop {
+        if ni == 0 {
+            (ix, iy) = (Basis64::new(ox.untransform()), Basis64::new(oy.untransform()));
+            ni = 1;
+            while ix.err() > T2 || iy.err() > T2 {
+                ni *= 2;
+                ix.halve();
+                iy.halve();
+            }
+            n -= 1;
+            if n != 0 {
+                ox.step();
+                oy.step();
+                if ox.err() > T1 || oy.err() > T1 {
+                    n <<= 1;
+                    ox.halve();
+                    oy.halve();
+                }
+                while n % 2 == 0 && ox.parent_err() <= T1 && oy.parent_err() <= T1 {
+                    ox.double();
+                    oy.double();
+                    n >>= 1;
+                }
+            }
+        }
+        ix.step();
+        iy.step();
+        let half = 1i128 << 27;
+        out.push((((ix.e0 + half) >> 28) as i32, ((iy.e0 + half) >> 28) as i32));
+        ni -= 1;
+        if ni == 0 && n == 0 {
+            return out;
+        }
+        if ix.err() > T2 || iy.err() > T2 {
+            ni *= 2;
+            ix.halve();
+            iy.halve();
+        }
+        while ni % 2 == 0 && ix.parent_err() <= T2 && iy.parent_err() <= T2 {
+            ix.double();
+            iy.double();
+            ni >>= 1;
+        }
+    }
+}
+
 /// a figure flattened in the integer space: its points (the start not repeated) and whether it
 /// was closed
 #[derive(Clone, Debug)]
@@ -607,10 +735,10 @@ fn enumerate(r: Round, path: &Path, m: &Matrix) -> Res<Vec<Fig>> {
                     }
                     let prev = conv(&f[i - 1]);
                     let q = [prev, conv(&f[i]), conv(&f[i + 1]), conv(&f[i + 2])];
-                    let Some(pts) = bezier32(q) else {
-                        return Err(Fail::Unmodeled(open::GP_PATH_FLATTEN_BIG));
-                    };
-                    out.extend(pts);
+                    out.extend(bezier32(q).unwrap_or_else(|| {
+                        hit(clause::GP_PATH_FLATTEN_BIG);
+                        bezier64(q)
+                    }));
                     i += 3;
                 }
             }
@@ -825,13 +953,16 @@ pub enum Stroke {
     /// at most 1.5 wide, solid, opaque, no custom caps: aliased the one-pixel DDA, antialiased
     /// the line swept by a half pixel diamond
     OnePixel,
+    /// at most 1.5 wide, solid but not opaque, no custom caps: the half pixel diamond line,
+    /// aliased or antialiased
+    Diamond,
     /// the widened outline filled: a rectangle for flat (0) and square (1) caps
     Wide { square_start: bool, square_end: bool },
 }
 /// which way a stroke goes (DpDriver::StrokePath); None where not modelled
 pub fn stroke(p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
     // (a world transform other than a translation scales the width test: not modelled)
-    if world.is_some_and(|m| !matches!(complexity(m), Complexity::Identity | Complexity::Translate)) {
+    if world.is_some_and(|m| !translates_only(Round::Nearest, m)) {
         return None;
     }
     let custom = (p.start_cap | p.end_cap) & 0xf0 != 0;
@@ -839,9 +970,9 @@ pub fn stroke(p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
         hit(clause::GP_PEN_ONEPIXEL);
         return Some(Stroke::OnePixel);
     }
-    // (a thinner pen not opaque is widened as well: its outline not measured)
-    if p.width <= 1.5 {
-        return None;
+    if p.width <= 1.5 && !custom && p.dash == 0 {
+        hit(clause::GP_PEN_ONEPIXEL);
+        return Some(Stroke::Diamond);
     }
     let cap = |c: i64| match c {
         0 => Some(false),
@@ -988,7 +1119,7 @@ fn empty(w: u32, h: u32) -> Coverage {
 
 /// a one-pixel antialiased line (RasterizePath, nominal width): the segment swept by a diamond
 /// of half a pixel, filled as GP.RASTER.FILL fills
-pub fn line_nominal(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, f32), rows: u32, w: u32, h: u32) -> Coverage {
+pub fn line_nominal(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, f32), rows: Option<u32>, w: u32, h: u32) -> Coverage {
     hit(clause::GP_PEN_NOMINAL);
     let snap = |x: f32, y: f32| {
         let (x, y) = apply(r, m, x, y);
@@ -1003,7 +1134,7 @@ pub fn line_nominal(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, 
     let add = |p: (i32, i32), q: (i32, i32)| (p.0 + q.0, p.1 + q.1);
     let sub = |p: (i32, i32), q: (i32, i32)| (p.0 - q.0, p.1 - q.1);
     let pts = vec![sub(p0, o(k)), add(p0, o(k + 1)), add(p0, o(k)), add(p1, o(k)), add(p1, o(k + 3)), sub(p1, o(k))];
-    rasterize(&[Fig { pts, closed: true }], FillMode::Winding, Some(rows), w, h)
+    rasterize(&[Fig { pts, closed: true }], FillMode::Winding, rows, w, h)
 }
 
 /// a wide straight line with flat or square caps: its outline, a rectangle about the line

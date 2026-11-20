@@ -1465,8 +1465,9 @@ impl Gdiplus {
         let cov = match gpp::stroke(&pen, world.as_ref()).ok_or(Fail::Unmodeled(open::GP_PEN))? {
             Stroke::OnePixel => match sm.rows() {
                 None => gpp::line_aliased(r, &dev, p0, p1, b.w, b.h).ok_or(Fail::Unmodeled(open::GP_PEN))?,
-                Some(n) => gpp::line_nominal(r, &dev, p0, p1, n, b.w, b.h),
+                Some(n) => gpp::line_nominal(r, &dev, p0, p1, Some(n), b.w, b.h),
             },
+            Stroke::Diamond => gpp::line_nominal(r, &dev, p0, p1, sm.rows(), b.w, b.h),
             Stroke::Wide { square_start, square_end } => {
                 let outline = gpp::line_wide(r, p0, p1, pen.width, (square_start, square_end));
                 gpp::fill(r, &outline, world.as_ref(), FillMode::Winding, sm.rows(), po, b.w, b.h)?
