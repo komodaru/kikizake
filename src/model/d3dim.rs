@@ -10,13 +10,22 @@ use super::{Fail, Res};
 /// 1 − 2^-23, the ceiling helper's addend
 const E: f32 = f32::from_bits(0x3f7f_fffe);
 /// 2^31, the edge walk's fraction scale
-const TWO31: f32 = 2_147_483_648.0;
+const TWO31: f32 = f32::from_bits(0x4f00_0000);
 
 /// an x87 result: the exact value (an f64 holding a product of two f32s exactly, or a quotient
-/// close enough to decide the f32 below it) rounded toward zero to f32
+/// close enough to decide the f32 below it) rounded toward zero to f32: its sign, exponent and
+/// top 23 fraction bits (0 below f32's normal range, infinity above it)
 fn x87(x: f64) -> f32 {
-    let f = x as f32;
-    if f.is_finite() && f64::from(f).abs() > x.abs() { f32::from_bits(f.to_bits() - 1) } else { f }
+    let b = x.to_bits();
+    let sign = u32::from(b >> 63 == 1) << 31;
+    let exp = i64::try_from(b >> 52 & 0x7ff).unwrap_or(0);
+    let e = exp.wrapping_sub(1023 - 127);
+    let man = u32::try_from(b >> 29 & 0x7f_ffff).unwrap_or(0);
+    match (exp, u32::try_from(e)) {
+        (0, _) | (_, Err(_)) | (_, Ok(0)) => f32::from_bits(sign),
+        (_, Ok(e @ 1..=254)) => f32::from_bits(sign | e << 23 | man),
+        (_, Ok(_)) => f32::from_bits(sign | 0x7f80_0000),
+    }
 }
 
 fn x87_div(a: f32, b: f32) -> f32 {
@@ -27,10 +36,19 @@ fn x87_mul(a: f32, b: f32) -> f32 {
     x87(f64::from(a) * f64::from(b))
 }
 
-/// float to int toward zero (the x87 fistp under chop, or cvttss2si), None outside i64
+/// float to int toward zero (the x87 fistp under chop, or cvttss2si), from its bits; None for
+/// 2^62 and above or not finite
 fn trunc(v: f32) -> Option<i64> {
-    let t = v.trunc();
-    (t.is_finite() && t.abs() < 9_223_372_036_854_775_808.0).then(|| t as i64)
+    let b = v.to_bits();
+    let exp = i64::from(b >> 23 & 0xff).wrapping_sub(127);
+    let man = i64::from(b & 0x7f_ffff | 0x80_0000);
+    let mag = match exp {
+        ..0 => 0,
+        0..=22 => man.checked_shr(u32::try_from(23i64.wrapping_sub(exp)).ok()?)?,
+        23..=61 => man.checked_shl(u32::try_from(exp.wrapping_sub(23)).ok()?)?,
+        62.. => return None,
+    };
+    Some(if b >> 31 == 1 { mag.wrapping_neg() } else { mag })
 }
 
 /// ICEIL: x + (1 − 2^-23) rounded to nearest, then truncated, for x > 0 (a whole x from 2 up
@@ -73,9 +91,14 @@ fn along(c0: [u16; 4], i: i64, step: [i64; 4]) -> [u16; 4] {
     c
 }
 
-fn f32_of(v: i64) -> f32 {
-    // (pixel counts and rows: small, exact)
-    v as f32
+/// an integer below 2^24 in magnitude as f32, exactly (two 16-bit halves); None above
+fn f32_of(v: i64) -> Option<f32> {
+    if v.unsigned_abs() >= 1 << 24 {
+        return None;
+    }
+    let hi = i16::try_from(v >> 16).ok()?;
+    let lo = u16::try_from(v & 0xffff).ok()?;
+    Some(f32::from(hi) * 65536.0 + f32::from(lo))
 }
 
 /// one edge's walk: its column on the current row and a 31-bit error term
@@ -99,24 +122,24 @@ impl Edge {
     /// the edge through x0 on its first row with this slope
     fn new(x0: f32, slope: f32) -> Option<Edge> {
         let x = iceil(x0)?;
-        let frac = x0 - f32_of(ifloor(x0)?);
+        let frac = x0 - f32_of(ifloor(x0)?)?;
         let f = trunc(x87_mul(frac, TWO31))?;
-        let err = u32::try_from((f - 1) & 0x7fff_ffff).ok()?;
+        let err = u32::try_from(f.wrapping_sub(1) & 0x7fff_ffff).ok()?;
         let istep = trunc(slope)?;
-        let fs = trunc(x87_mul(slope - f32_of(istep), TWO31))?;
+        let fs = trunc(x87_mul(slope - f32_of(istep)?, TWO31))?;
         // (the fraction's bits as the 32-bit add sees them: negative for a negative slope)
         let fstep = u32::try_from(fs.rem_euclid(1 << 32)).ok()?;
-        let cstep = if slope < 0.0 { istep - 1 } else { istep + 1 };
+        let cstep = if slope < 0.0 { istep.wrapping_sub(1) } else { istep.wrapping_add(1) };
         Some(Edge { x, err, istep, fstep, cstep })
     }
     fn step(&mut self) -> Step {
         self.err = self.err.wrapping_add(self.fstep);
         if self.err & 0x8000_0000 != 0 {
             self.err &= 0x7fff_ffff;
-            self.x += self.cstep;
+            self.x = self.x.wrapping_add(self.cstep);
             Step::Carry
         } else {
-            self.x += self.istep;
+            self.x = self.x.wrapping_add(self.istep);
             Step::Plain
         }
     }
@@ -195,6 +218,7 @@ struct Colors {
 /// drawn; `gouraud` false: the colours are the first vertex's, whole
 pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
     let bad = || Fail::Unmodeled(crate::spec::open::D3D7_TRI_CLIP);
+    let fl = |v: i64| f32_of(v).ok_or_else(bad);
     let [va, vb, vc] = v;
     let ([t, m, bo], _flip) = sort(va, vb, vc);
     let (px_, py_) = (m.x - t.x, m.y - t.y);
@@ -210,7 +234,8 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
     }
     let xs = [iceil(t.x).ok_or_else(bad)?, iceil(m.x).ok_or_else(bad)?, iceil(bo.x).ok_or_else(bad)?];
     let (xmin, xmax) = (xs.iter().copied().min().unwrap_or(0), xs.iter().copied().max().unwrap_or(0));
-    if !(xmin < clip.r && xmax > clip.l && xmax - xmin > 0) {
+    let width = xmax.wrapping_sub(xmin);
+    if !(xmin < clip.r && xmax > clip.l && width > 0) {
         return Ok(None);
     }
     let inside_h = xmin >= clip.l && xmax <= clip.r;
@@ -223,35 +248,31 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
     } else {
         ybot = ybot.min(clip.b);
     }
-    let (n1, n2) = (ymid - ytop, ybot - ymid);
-    if n1 + n2 <= 0 {
+    if ybot <= ytop {
         return Ok(None);
     }
     let whole_bottom = bo.y.fract() == 0.0 && iceil(bo.y) == trunc(bo.y);
     let slope_l = x87_div(qx, qy);
-    let fdy = f32_of(ytop) - t.y;
+    let fdy = fl(ytop)? - t.y;
     let pl = fdy * slope_l;
     let xl0 = pl + t.x;
     let mut long = Edge::new(xl0, slope_l).ok_or_else(bad)?;
-    let mut e1 = if n1 > 0 {
+    let mut e1 = if ymid > ytop {
         let s1 = px_ / py_;
         Some(Edge::new(s1 * fdy + t.x, s1).ok_or_else(bad)?)
     } else {
         None
     };
-    let mut e2 = if n2 > 0 {
+    let mut e2 = if ybot > ymid {
         let s2 = (bo.x - m.x) / (bo.y - m.y);
-        Some(Edge::new((f32_of(ymid) - m.y) * s2 + m.x, s2).ok_or_else(bad)?)
+        Some(Edge::new((fl(ymid)? - m.y) * s2 + m.x, s2).ok_or_else(bad)?)
     } else {
         None
     };
+    // (spans walked right to left: every column the last covered one, ICEIL − 1)
     if reversed {
-        long.x -= 1;
-        if let Some(e) = e1.as_mut() {
-            e.x -= 1;
-        }
-        if let Some(e) = e2.as_mut() {
-            e.x -= 1;
+        for e in [Some(&mut long), e1.as_mut(), e2.as_mut()].into_iter().flatten() {
+            e.x = e.x.wrapping_sub(1);
         }
     }
     // the colours: gradients from 1/det rounded toward zero
@@ -261,8 +282,8 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
         let mut dx = [0f32; 4];
         let mut dy = [0f32; 4];
         for ((((gx, gy), ct), cm), cb) in dx.iter_mut().zip(dy.iter_mut()).zip(t.c).zip(m.c).zip(bo.c) {
-            let d1 = f32_of(256 * (i64::from(cm) - i64::from(ct)));
-            let d2 = f32_of(256 * (i64::from(cb) - i64::from(ct)));
+            let d1 = fl(i64::from(cm).wrapping_sub(i64::from(ct)))? * 256.0;
+            let d2 = fl(i64::from(cb).wrapping_sub(i64::from(ct)))? * 256.0;
             *gx = b * d2 - d * d1;
             *gy = c * d1 - a * d2;
         }
@@ -271,30 +292,31 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
         Colors { dx: [0.0; 4], dy: [0.0; 4] }
     };
     let base = if gouraud { t.c } else { va.c };
-    let dir = if reversed { -1i64 } else { 1 };
+    let (dir, side) = if reversed { (-1i64, clip.r.wrapping_sub(1)) } else { (1, clip.l) };
     let sdx = col.dx.map(|g| if reversed { -g } else { g });
     // the per-pixel steps in 8.8; a colour changing by 128 levels a pixel or more: every pixel
     // its own span
     let steep = sdx.iter().any(|g| g.abs() >= 32768.0);
     let pstep = sdx.map(|g| trunc(g).unwrap_or(0));
     let max_span = if steep { 1 } else { 0x100 };
-    let walker = if inside_h && xmax - xmin <= max_span { Walker::NoClip } else { Walker::Clip };
+    let walker = if inside_h && width <= max_span { Walker::NoClip } else { Walker::Clip };
     // the first row's anchor: the long edge's pixel, held to the clip rectangle
-    let x_first = if reversed { long.x.min(clip.r - 1) } else { long.x.max(clip.l) };
-    let fdx = (f32_of(x_first) - xl0) + pl;
+    let x_first = if reversed { long.x.min(side) } else { long.x.max(side) };
+    let fdx = (fl(x_first)? - xl0) + pl;
     let mut acc = [0f32; 4];
     for (((o, gx), gy), cb) in acc.iter_mut().zip(col.dx).zip(col.dy).zip(base) {
-        *o = (fdx * gx + f32_of(256 * i64::from(cb))) + fdy * gy;
+        *o = (fdx * gx + f32::from(cb) * 256.0) + fdy * gy;
     }
-    let istep_l = f32_of(long.istep);
     let mut step_nc = col.dy;
-    add_scaled(&mut step_nc, istep_l, col.dx);
+    add_scaled(&mut step_nc, fl(long.istep)?, col.dx);
     let mut step_c = step_nc;
     add_scaled(&mut step_c, if long.cstep > long.istep { 1.0 } else { -1.0 }, col.dx);
-    let outside = |x: i64| if reversed { x >= clip.r } else { x < clip.l };
-    let side = if reversed { clip.r - 1 } else { clip.l };
+    let outside = |x: i64| if reversed { x > side } else { x < side };
+    // (how far the long edge's pixel lies outside its side, in pixels: negative inside)
+    let beyond = |x: i64| if reversed { x.wrapping_sub(side) } else { side.wrapping_sub(x) };
     let mut parked = walker == Walker::Clip && outside(long.x);
     let start16 = |a: [f32; 4]| -> [u16; 4] { a.map(|v| trunc(v).map_or(0, low16)) };
+    let at = |x0: i64, i: i64| x0.wrapping_add(dir.wrapping_mul(i));
     let mut out = Vec::new();
     let rows = (ytop..ymid).map(|y| (y, true)).chain((ymid..ybot).map(|y| (y, false)));
     for (y, upper) in rows {
@@ -303,10 +325,10 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
         let xs = short.x;
         match walker {
             Walker::NoClip => {
-                let n = if reversed { long.x - xs } else { xs - long.x };
+                let n = if reversed { long.x.wrapping_sub(xs) } else { xs.wrapping_sub(long.x) };
                 let c0 = start16(acc);
                 for i in 0..n.max(0) {
-                    out.push(Px { x: long.x + dir * i, y, c: along(c0, i, pstep) });
+                    out.push(Px { x: at(long.x, i), y, c: along(c0, i, pstep) });
                 }
             }
             Walker::Clip => {
@@ -315,20 +337,20 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
                     break;
                 }
                 let start = if parked { side } else { long.x };
-                let n = if reversed { start - xs.max(clip.l - 1) } else { xs.min(clip.r) - start };
+                let n = if reversed { start.wrapping_sub(xs.max(clip.l.wrapping_sub(1))) } else { xs.min(clip.r).wrapping_sub(start) };
                 let mut tmp = acc;
-                let mut done = 0;
+                let mut done = 0i64;
                 while done < n {
-                    let len = (n - done).min(max_span);
+                    let len = n.wrapping_sub(done).min(max_span);
                     if done > 0 {
                         // (a further chunk of the row: from a copy, by the previous chunk's length)
-                        add_scaled(&mut tmp, f32_of(max_span), sdx);
+                        add_scaled(&mut tmp, fl(max_span)?, sdx);
                     }
                     let c0 = start16(tmp);
                     for i in 0..len {
-                        out.push(Px { x: start + dir * (done + i), y, c: along(c0, i, pstep) });
+                        out.push(Px { x: at(start, done.wrapping_add(i)), y, c: along(c0, i, pstep) });
                     }
-                    done += len;
+                    done = done.wrapping_add(len);
                 }
             }
         }
@@ -337,23 +359,22 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
         if let Some(e) = if upper { e1.as_mut() } else { e2.as_mut() } {
             e.step();
         }
-        match walker {
-            Walker::NoClip => {
-                add(&mut acc, if st == Step::Carry { step_c } else { step_nc });
+        let along_edge = if st == Step::Carry { step_c } else { step_nc };
+        match (walker, parked) {
+            (Walker::NoClip, _) => add(&mut acc, along_edge),
+            // (parked at the side: straight down, then back onto the long edge when it returns)
+            (Walker::Clip, true) => {
+                add(&mut acc, col.dy);
+                if !outside(long.x) {
+                    add_scaled(&mut acc, fl(beyond(long.x).wrapping_neg())?, sdx);
+                    parked = false;
+                }
             }
-            Walker::Clip => {
-                if parked {
-                    add(&mut acc, col.dy);
-                    if !outside(long.x) {
-                        add_scaled(&mut acc, f32_of(if reversed { clip.r - 1 - long.x } else { long.x - clip.l }), sdx);
-                        parked = false;
-                    }
-                } else {
-                    add(&mut acc, if st == Step::Carry { step_c } else { step_nc });
-                    if outside(long.x) {
-                        add_scaled(&mut acc, f32_of(if reversed { long.x - clip.r + 1 } else { clip.l - long.x }), sdx);
-                        parked = true;
-                    }
+            (Walker::Clip, false) => {
+                add(&mut acc, along_edge);
+                if outside(long.x) {
+                    add_scaled(&mut acc, fl(beyond(long.x))?, sdx);
+                    parked = true;
                 }
             }
         }
