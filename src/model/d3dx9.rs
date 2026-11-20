@@ -298,12 +298,16 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
             let mut row = String::new();
             for bx in 0..wd / 4 {
                 let at = |i: usize| pixels[usize::try_from((by * 4 + i as i32 / 4) * wd + bx * 4 + i as i32 % 4).unwrap_or(0)];
-                // (MEASURED loadtex-into-DXT* x64: in f32; open: x86 on the x87, 5 of 90 blocks
-                // differ from f32 and from double alike)
-                if crate::model::arch() != 64 {
+                // (MEASURED loadtex-into-DXT*: x64 in f32, x86 on the x87 with its rounding
+                // control, the clean-room notes)
+                let px = |i: usize| -> [f32; 4] { let p = at(i); std::array::from_fn(|k| unit(p[k])) };
+                let block = match crate::model::arch() {
+                    64 => dxt_block::<f32>(alpha, std::array::from_fn(px)),
+                    _ => dxt_block::<super::dxtenc::X87>(alpha, std::array::from_fn(|i| px(i).map(<super::dxtenc::X87 as super::dxtenc::Real>::of))),
+                };
+                let Some(block) = block else {
                     return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
-                }
-                let block = dxt_block::<f32>(alpha, std::array::from_fn(|i| { let p = at(i); std::array::from_fn(|k| unit(p[k])) }));
+                };
                 row.extend(block.iter().map(|x| format!("{x:02x}")));
             }
             out.push(row);
@@ -325,24 +329,24 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
 }
 
 /// a 4 x 4 block into DXT1 .. DXT5 as D3DX encodes it (D3DX9.LOAD.DXTENC)
-fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Vec<u8> {
+fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Option<Vec<u8>> {
     use super::dxtenc::{encode_alpha4, encode_alpha8, encode_bc1, Steps};
     let premul = |px: [[F; 4]; 16]| px.map(|c| [c[0] * c[3], c[1] * c[3], c[2] * c[3], c[3]]);
     match alpha {
         DxtAlpha::Punch => {
             let keyed = px.iter().filter(|c| c[3] < F::of(0.5)).count();
             if keyed == 16 {
-                return vec![0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff];
+                return Some(vec![0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]);
             }
-            encode_bc1(&px, if keyed > 0 { Steps::Three } else { Steps::Four }).to_vec()
+            Some(encode_bc1(&px, if keyed > 0 { Steps::Three } else { Steps::Four })?.to_vec())
         }
         DxtAlpha::Explicit { premultiplied } => {
             let px = if premultiplied { premul(px) } else { px };
-            [encode_alpha4(&px), encode_bc1(&px, Steps::Four)].concat()
+            Some([encode_alpha4(&px), encode_bc1(&px, Steps::Four)?].concat())
         }
         DxtAlpha::Interpolated { premultiplied } => {
             let px = if premultiplied { premul(px) } else { px };
-            [encode_alpha8(&px), encode_bc1(&px, Steps::Four)].concat()
+            Some([encode_alpha8(&px), encode_bc1(&px, Steps::Four)?].concat())
         }
     }
 }

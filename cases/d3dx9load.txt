@@ -1717,3 +1717,33 @@ x9loadtex 1498831189 21 4 4 b:3264c8ff3264c8ff3264c8ff3264c8ff3264c8ff3264c8ff32
 x9loadtex 1498831189 21 4 4 b:0000ffffff0000ff0000ffffff0000ff0000ffffff0000ff0000ffffff0000ff0000ffffff0000ff0000ffffff0000ff0000ffffff0000ff0000ffffff0000ff 1
 x9loadtex 1498831189 21 4 4 b:000000ff101010ff202020ff313131ff414141ff525252ff626262ff737373ff838383ff949494ffa4a4a4ffb4b4b4ffc5c5c5ffd5d5d5ffe6e6e6fff6f6f6ff 1
 end
+case load-yuy2-from-113
+device swvp
+x9load 844715353 113 8 2 0xeb2c6bc5 1
+x9load 844715353 113 5 1 0xaccbe50f 1
+x9load 844715353 113 8 1 ramp 1
+end
+case load-yuy2-from-111
+device swvp
+x9load 844715353 111 8 2 0xdd27ca7a 1
+x9load 844715353 111 5 1 0xa97b918e 1
+x9load 844715353 111 8 1 ramp 1
+end
+case load-yuy2-from-60
+device swvp
+x9load 844715353 60 8 2 0xb20db94b 1
+x9load 844715353 60 5 1 0xa1bfa0f9 1
+x9load 844715353 60 8 1 ramp 1
+end
+case load-yuy2-from-63
+device swvp
+x9load 844715353 63 8 2 0xe1b5ef09 1
+x9load 844715353 63 5 1 0xd6c8c543 1
+x9load 844715353 63 8 1 ramp 1
+end
+case load-yuy2-from-64
+device swvp
+x9load 844715353 64 8 2 0x2788c13 1
+x9load 844715353 64 5 1 0x6ca6582e 1
+x9load 844715353 64 8 1 ramp 1
+end

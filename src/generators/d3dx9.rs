@@ -201,5 +201,14 @@ pub fn d3dx9load() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // (D3DX9.LOAD.FORMAT) into YUY2 from half and signed sources: A16B16G16R16F, R16F, V8U8,
+    // Q8W8V8U8, V16U16
+    for src in [113u32, 111, 60, 63, 64] {
+        writeln!(s, "case load-yuy2-from-{src}\ndevice swvp").unwrap();
+        for (w, h) in [(8, 2), (5, 1)] {
+            writeln!(s, "x9load 844715353 {src} {w} {h} {:#x} 1", r.next()).unwrap();
+        }
+        writeln!(s, "x9load 844715353 {src} 8 1 ramp 1\nend").unwrap();
+    }
     s
 }
