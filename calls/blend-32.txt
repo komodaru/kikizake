@@ -9392,7 +9392,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-6
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9421,7 +9420,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-9
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9440,7 +9438,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-11
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9450,6 +9447,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-12
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9459,7 +9457,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-1
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9478,7 +9475,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-3
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9524,6 +9520,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-8
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9533,6 +9530,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-9
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9542,6 +9540,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-10
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9560,7 +9559,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-12
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9597,6 +9595,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradtri-fmt-3
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9714,6 +9713,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradtri-fmt-16
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9768,6 +9768,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradtri-fmt-22
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9822,6 +9823,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradtri-fmt-28
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -10386,6 +10388,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect-dither-8-r0
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -10395,6 +10398,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect-dither-8-r1
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -10404,6 +10408,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect-dither-8-r2
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -10509,6 +10514,7 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect-dither-4-r3
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
