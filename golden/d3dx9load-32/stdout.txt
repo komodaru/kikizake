@@ -3851,4 +3851,49 @@ load texture hr 8876086c
 load texture hr 8876086c
 load texture hr 8876086c
 load texture hr 8876086c
+case load-yuy2-from-113
+device ok
+px rt 8 2 16
+d21111926aca10de91376a2310801080
+29f0106f515b29f01080aa8010801080
+px rt 5 1 16
+29f0106f2a7229806aca
+px rt 8 1 16
+108010801080118013811c80408ec878
+case load-yuy2-from-111
+device ok
+px rt 8 2 16
+eb80aa80aaa6aa11aaa6aa11aaa6eb11
+aaa6eb11eb80aa80aaa6aa11aaa6aa11
+px rt 5 1 16
+aaa6eb11b0a2aa1caaa6
+px rt 8 1 16
+aaa6aa11aaa6aa11aaa6aa11aaa6aa11
+case load-yuy2-from-60
+device ok
+px rt 8 2 16
+8db6a571a6a8828099af4a6ad88b5c61
+d58db96039e64d657fbf9f6b70c7e14f
+px rt 5 1 16
+aea3a6637bc1899588b9
+px rt 8 1 16
+8ab88c788eb68f7891b4927894b29578
+case load-yuy2-from-63
+device ok
+px rt 8 2 16
+9d85759343bd559ea02f3d75894bcdbd
+8e7ca1c181443a8e9d76611c8e542f6d
+px rt 5 1 16
+9d7e807688b984304a6f
+px rt 8 1 16
+7e818280858189808c818f8093819680
+case load-yuy2-from-64
+device ok
+px rt 8 2 16
+96b1598271c6d3d837e88279c4976a4c
+a4a9a39730ecc17879c2a09543e1a68d
+px rt 5 1 16
+7cc0a166afa3527b78c3
+px rt 8 1 16
+8cb78f7792b3957898b09b789eaca179
 done
