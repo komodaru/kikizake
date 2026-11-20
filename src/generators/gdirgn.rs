@@ -118,5 +118,27 @@ pub fn region() -> String {
     writeln!(s, "case selclip-null\ndib 0 6 4 32\nrgn 0 null\nselclip 0 0\nclipbox 0\nptvisible 0 0 0\nbrush 0 solid #ffffff\npatblt 0 0 0 6 4 0xf00021\ndump 0\nend").unwrap();
     // the region is copied: changing it afterwards leaves the clip region
     writeln!(s, "case selclip-copy\ndib 0 6 4 32\nrgn 0 rect 1 1 3 3\nselclip 0 0\noffsetrgn 0 2 0\nclipbox 0\nbrush 0 solid #ffffff\npatblt 0 0 0 6 4 0xf00021\ndump 0\nend").unwrap();
+    // CreatePolygonRgn with a fill mode out of range
+    for m in [0, 3, -1] {
+        writeln!(s, "case poly-mode-{m}\nrgn 0 poly {m} 0 0 8 1 3 9\nrgndata 0\nend").unwrap();
+    }
+    // the smallest and the largest elliptic regions (no empty box; the 64 bit flattener)
+    for (i, b) in ["0 0 0 0", "3 3 3 3", "0 0 1 1", "0 0 2 1", "0 0 1 5", "0 0 0 5", "0 0 2 2", "0 0 3 3", "-3 -3 3 3", "0 0 2048 6", "0 0 1100 1100"].iter().enumerate() {
+        writeln!(s, "case ellipse-size-{i}\nrgn 0 ellipse {b}\nrgndata 0\nrgnbox 0\nend").unwrap();
+    }
+    // a bound below the last row of pixels: slivers through each converter, then copied,
+    // offset and combined
+    let slivers = [
+        "1 0 0 9 4 9 5 0 0",
+        "1 0 0 8 2 8 6 8 3 0 0",
+        "2 0 0 6 6 7 9 6 6",
+        "1 0 0 10 0 10 1 4 1 4 1 4 7",
+    ];
+    for (i, p) in slivers.iter().enumerate() {
+        writeln!(s, "case loose-{i}\nrgn 0 poly {p}\nrgndata 0\nrgnbox 0\nrgn 1 null\ncombine 1 0 0 5\nrgndata 1\noffsetrgn 1 3 2\nrgndata 1\ncombine 1 0 0 2\nrgndata 1\nend").unwrap();
+    }
+    // a sliver of more than 40 points
+    let many: Vec<String> = (0..44).map(|i| format!("{} {}", i, if i < 22 { 0 } else { 8 - (i - 22) / 3 })).collect();
+    writeln!(s, "case loose-many\nrgn 0 poly 1 {}\nrgndata 0\nend", many.join(" ")).unwrap();
     s
 }

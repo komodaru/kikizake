@@ -42,6 +42,22 @@ fn data(g: &Rgn) -> Vec<String> {
     vec![format!("rgndata {} {} {} {} {}", rs.len(), b.0, b.1, b.2, b.3), l]
 }
 
+/// CreateEllipticRgn's pixels (GDI.RGN.ELLIPSE): Ellipse's figure of the ordered box moved to
+/// (16 l - 4, 16 t - 4) - (16 r - 28, 16 b - 28) in 28.4, flattened, its pixels' upper left
+/// corners inside it (alternate)
+pub fn elliptic(r: (i32, i32, i32, i32)) -> Res<Rgn> {
+    let (l, rr) = (r.0.min(r.2), r.0.max(r.2));
+    let (t, b) = (r.1.min(r.3), r.1.max(r.3));
+    let c = super::gdiarc::ellipse(16 * l - 4, 16 * t - 4, 16 * rr - 28, 16 * b - 28);
+    let mut poly = vec![c[0]];
+    for q in c[1..].as_chunks::<3>().0 {
+        let from = *poly.last().ok_or(Fail::Bad)?;
+        // (a curve too large for the 32 bit flattener: GDI's 64 bit one, open)
+        poly.extend(super::bezier::flatten([from, q[0], q[1], q[2]]).ok_or(Fail::Unmodeled(open::GDI_RGN_ROUND))?);
+    }
+    Ok(super::rgn::fix_polygon_pixels(&[poly], false))
+}
+
 impl Gdi {
     fn rslot(&mut self, op: &Op, i: usize) -> Res<&mut Option<Rgn>> {
         let k = n(op, i)?;
@@ -65,7 +81,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     hit(clause::GDI_RGN_RECT);
                     Rgn::rect(r.0, r.1, r.2, r.3)
                 }
-                "ellipse" | "round" => return Err(Fail::Unmodeled(open::GDI_RGN_ELLIPSE)),
+                "ellipse" => {
+                    let r = rect(op, 3)?;
+                    hit(clause::GDI_RGN_ELLIPSE);
+                    elliptic(r)?
+                }
+                "round" => return Err(Fail::Unmodeled(open::GDI_RGN_ROUND)),
                 "poly" => {
                     let mode = n(op, 3)?;
                     let t = &op.tok[4..];
@@ -141,7 +162,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 "equal" => {
                     let o = g.rgn(op, 2)?;
                     hit(clause::GDI_RGN_EQUAL);
-                    out.push(format!("equal {}", (o == r) as u8));
+                    out.push(format!("equal {}", (o.bands == r.bands) as u8));
                 }
                 _ => {
                     hit(clause::GDI_RGN_DATA);

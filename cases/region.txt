@@ -7775,3 +7775,122 @@ brush 0 solid #ffffff
 patblt 0 0 0 6 4 0xf00021
 dump 0
 end
+case poly-mode-0
+rgn 0 poly 0 0 0 8 1 3 9
+rgndata 0
+end
+case poly-mode-3
+rgn 0 poly 3 0 0 8 1 3 9
+rgndata 0
+end
+case poly-mode--1
+rgn 0 poly -1 0 0 8 1 3 9
+rgndata 0
+end
+case ellipse-size-0
+rgn 0 ellipse 0 0 0 0
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-1
+rgn 0 ellipse 3 3 3 3
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-2
+rgn 0 ellipse 0 0 1 1
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-3
+rgn 0 ellipse 0 0 2 1
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-4
+rgn 0 ellipse 0 0 1 5
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-5
+rgn 0 ellipse 0 0 0 5
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-6
+rgn 0 ellipse 0 0 2 2
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-7
+rgn 0 ellipse 0 0 3 3
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-8
+rgn 0 ellipse -3 -3 3 3
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-9
+rgn 0 ellipse 0 0 2048 6
+rgndata 0
+rgnbox 0
+end
+case ellipse-size-10
+rgn 0 ellipse 0 0 1100 1100
+rgndata 0
+rgnbox 0
+end
+case loose-0
+rgn 0 poly 1 0 0 9 4 9 5 0 0
+rgndata 0
+rgnbox 0
+rgn 1 null
+combine 1 0 0 5
+rgndata 1
+offsetrgn 1 3 2
+rgndata 1
+combine 1 0 0 2
+rgndata 1
+end
+case loose-1
+rgn 0 poly 1 0 0 8 2 8 6 8 3 0 0
+rgndata 0
+rgnbox 0
+rgn 1 null
+combine 1 0 0 5
+rgndata 1
+offsetrgn 1 3 2
+rgndata 1
+combine 1 0 0 2
+rgndata 1
+end
+case loose-2
+rgn 0 poly 2 0 0 6 6 7 9 6 6
+rgndata 0
+rgnbox 0
+rgn 1 null
+combine 1 0 0 5
+rgndata 1
+offsetrgn 1 3 2
+rgndata 1
+combine 1 0 0 2
+rgndata 1
+end
+case loose-3
+rgn 0 poly 1 0 0 10 0 10 1 4 1 4 1 4 7
+rgndata 0
+rgnbox 0
+rgn 1 null
+combine 1 0 0 5
+rgndata 1
+offsetrgn 1 3 2
+rgndata 1
+combine 1 0 0 2
+rgndata 1
+end
+case loose-many
+rgn 0 poly 1 0 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10 0 11 0 12 0 13 0 14 0 15 0 16 0 17 0 18 0 19 0 20 0 21 0 22 8 23 8 24 8 25 7 26 7 27 7 28 6 29 6 30 6 31 5 32 5 33 5 34 4 35 4 36 4 37 3 38 3 39 3 40 2 41 2 42 2 43 1
+rgndata 0
+end

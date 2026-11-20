@@ -45,25 +45,14 @@ pub struct Pt {
     pub kind: Kind,
     /// PT_CLOSEFIGURE
     pub close: bool,
-    /// how well the point is known
-    pub known: Known,
-}
-
-/// how well a point of the path is known
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Known {
-    /// to the 1/16 pixel
-    Exact,
-    /// only to the pixel GetPath rounds it to (a part-quarter arc's points: GDI.PATH.CURVE)
-    ToThePixel,
 }
 
 impl Pt {
     fn int(at: (i32, i32), kind: Kind) -> Pt {
-        Pt { x: Fix::int(at.0), y: Fix::int(at.1), kind, close: false, known: Known::Exact }
+        Pt { x: Fix::int(at.0), y: Fix::int(at.1), kind, close: false }
     }
     fn fix(at: (i32, i32), kind: Kind) -> Pt {
-        Pt { x: Fix(at.0), y: Fix(at.1), kind, close: false, known: Known::Exact }
+        Pt { x: Fix(at.0), y: Fix(at.1), kind, close: false }
     }
     /// GetPath's type byte
     fn ty(&self) -> u8 {
@@ -230,41 +219,34 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let [a, b, rs, re] = pts[..] else { return Err(Fail::Bad) };
             let (l, r) = (a.0.min(b.0), a.0.max(b.0));
             let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
-            if t0 == "arc" && (r == l || bt == t) {
+            hit(clause::GDI_PATH_ARC);
+            let Some(arc) = super::gdiarc::arc((l, t, r, bt), rs, re, sl.ext.arcdir == 2) else {
+                if t0 != "arc" {
+                    // (ArcTo, Pie and Chord of an empty box: not measured)
+                    return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+                }
                 // MEASURED (curve-24, curve-30): an empty box records nothing, the call succeeds
-                hit(clause::GDI_PATH_ARC);
                 out.push("ret 1".into());
                 return Ok(true);
-            }
-            if r - l < 3 || bt - t < 3 || r - l > 32 || bt - t > 32 {
-                // (an arc of 2 pixels or less across: not measured yet; one more than 32 across:
-                // a part quarter's points are a pixel off now and then, arcflat-*)
-                return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
-            }
-            hit(clause::GDI_PATH_ARC);
-            let segs = arc_beziers((l, t, r, bt), rs, re, sl.ext.arcdir == 2).ok_or(Fail::Bad)?;
-            let first = segs.first().ok_or(Fail::Bad)?.0[0];
+            };
             if t0 == "arcto" {
                 start(p, sl.ext.pos);
-                p.push(Pt::fix(first, Kind::Line));
+                p.push(Pt::fix(arc.start, Kind::Line));
             } else {
                 // (a new figure, replacing a lone MoveToEx as PolyBezier does)
                 if p.last().is_some_and(|l| l.kind == Kind::Move) {
                     p.pop();
                 }
-                p.push(Pt::fix(first, Kind::Move));
+                p.push(Pt::fix(arc.start, Kind::Move));
             }
-            for (g, known) in &segs {
-                for q in &g[1..] {
-                    let mut b = Pt::fix(*q, Kind::Bezier);
-                    b.known = *known;
-                    p.push(b);
+            for g in &arc.beziers {
+                for q in g {
+                    p.push(Pt::fix(*q, Kind::Bezier));
                 }
             }
             match t0 {
                 "pie" => {
-                    let c = ellipse_points(l, t, r, bt, false);
-                    p.push(Pt::fix((c[3].0, c[0].1), Kind::Line));
+                    p.push(Pt::fix(arc.middle, Kind::Line));
                     close(p);
                 }
                 "chord" => close(p),
@@ -407,58 +389,6 @@ pub fn round_rect_points(bx: (i32, i32, i32, i32), wh: (i32, i32), cw: bool) -> 
     c
 }
 
-/// Arc's Béziers in 28.4 (MEASURED, GDI.PATH.ARC, path curve-* 49 of 49 GetPath): the angles
-/// of the radials through the logical box (l, t) - (r, b), normalized by its half sizes; the
-/// arc from the start's angle to the end's (a whole turn when they are equal) the way of the
-/// arc direction, cut at the quarter points; a whole quarter is Ellipse's, a part of one the
-/// Bézier of that angle span on the ellipse of (l, t) - (r - 1, b - 1) in floating point
-/// (control points 4/3 tan(span / 4) along the tangents), each point rounded to 28.4
-pub fn arc_beziers(bx: (i32, i32, i32, i32), rs: (i32, i32), re: (i32, i32), cw: bool) -> Option<Vec<([(i32, i32); 4], Known)>> {
-    use std::f64::consts::{FRAC_PI_2, TAU};
-    let (l, t, r, bt) = bx;
-    let c = ellipse_points(l, t, r, bt, cw);
-    let (fl, fr, ft, fb) = (f64::from(l * 16), f64::from((r - 1) * 16), f64::from(t * 16), f64::from((bt - 1) * 16));
-    // (counterclockwise throughout: clockwise mirrors y about the box's middle)
-    let s = ft + fb;
-    let mir = |y: f64| if cw { s - y } else { y };
-    let (lx0, lx1) = (f64::from(l * 16), f64::from(r * 16));
-    let (ly0, ly1) = if cw { (s - f64::from(bt * 16), s - f64::from(t * 16)) } else { (f64::from(t * 16), f64::from(bt * 16)) };
-    let (lcx, lcy, lrx, lry) = ((lx0 + lx1) / 2.0, (ly0 + ly1) / 2.0, (lx1 - lx0) / 2.0, (ly1 - ly0) / 2.0);
-    let angle = |q: (i32, i32)| (((lcy - mir(f64::from(q.1 * 16))) / lry).atan2((f64::from(q.0 * 16) - lcx) / lrx)).rem_euclid(TAU);
-    let a0 = angle(rs);
-    let mut a1 = angle(re);
-    if a1 <= a0 {
-        a1 += TAU;
-    }
-    let mut cuts = vec![a0];
-    let mut k = (a0 / FRAC_PI_2).floor() + 1.0;
-    while k * FRAC_PI_2 <= a1 {
-        cuts.push(k * FRAC_PI_2);
-        k += 1.0;
-    }
-    cuts.push(a1);
-    let (cx, cy, rx, ry) = ((fl + fr) / 2.0, (ft + fb) / 2.0, (fr - fl) / 2.0, (fb - ft) / 2.0);
-    let on_quarter = |v: f64| (v / FRAC_PI_2 - (v / FRAC_PI_2).round()).abs() < 1e-12;
-    let fix = |x: f64, y: f64| -> Option<(i32, i32)> {
-        let (x, y) = (x.round(), mir(y).round());
-        (x.abs() < 1e9 && y.abs() < 1e9).then_some((x as i32, y as i32))
-    };
-    let mut v = Vec::with_capacity(cuts.len());
-    for w in cuts.windows(2) {
-        let (al, be) = (w[0], w[1]);
-        let q = ((al / FRAC_PI_2 + 1e-12).floor() as usize) % 4;
-        if on_quarter(al) && on_quarter(be) && (be - al - FRAC_PI_2).abs() < 1e-9 {
-            v.push(([c[3 * q], c[3 * q + 1], c[3 * q + 2], c[3 * q + 3]], Known::Exact));
-            continue;
-        }
-        let k = 4.0 / 3.0 * ((be - al) / 4.0).tan();
-        let (p0, p3) = ((cx + rx * al.cos(), cy - ry * al.sin()), (cx + rx * be.cos(), cy - ry * be.sin()));
-        let (d0, d1) = ((-rx * al.sin(), -ry * al.cos()), (-rx * be.sin(), -ry * be.cos()));
-        v.push(([fix(p0.0, p0.1)?, fix(p0.0 + k * d0.0, p0.1 + k * d0.1)?, fix(p3.0 - k * d1.0, p3.1 - k * d1.1)?, fix(p3.0, p3.1)?], Known::ToThePixel));
-    }
-    Some(v)
-}
-
 /// MoveToEx in a path: a new figure at the point (a lone PT_MOVETO is replaced by the next)
 fn record_move(p: &mut Vec<Pt>, at: (i32, i32)) -> Res<bool> {
     hit(clause::GDI_PATH_MOVETO);
@@ -485,10 +415,6 @@ fn flatten(p: &[Pt]) -> Res<Vec<Pt>> {
         let (Some(from), Some(c)) = (i.checked_sub(1).and_then(|j| p.get(j)), p.get(i..i + 3)) else { return Err(Fail::Bad) };
         if c.iter().any(|q| q.kind != Kind::Bezier) {
             return Err(Fail::Bad);
-        }
-        if c.iter().any(|q| q.known == Known::ToThePixel) {
-            // (a part-quarter arc: GetPath's pixels measured, its 1/16 pixels not)
-            return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
         }
         hit(clause::GDI_PATH_FLATTENHFD);
         let Some(line) = super::bezier::flatten([from.at(), c[0].at(), c[1].at(), c[2].at()]) else {

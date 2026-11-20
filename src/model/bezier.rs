@@ -4,8 +4,7 @@
 //! WpfGfx/core/geometry/bezier.cpp documents as GDI's, BEZIER_FLATTEN_GDI_COMPATIBLE).
 
 /// 28.4 to a finer fixed point than GDI's 18.14 (shift 10): its HFD32 asserts that no shift
-/// loses bits, so where it applies a finer one steps through the same values, and it also
-/// stands for the 64 bit flattener GDI takes for larger curves
+/// loses bits, so where it applies a finer one steps through the same values
 const INITIAL_SHIFT: u32 = 30;
 const GDI_INITIAL_SHIFT: u32 = 10;
 /// 18.14 to 15.17
@@ -15,8 +14,9 @@ const ROUND: i128 = 1 << (SHIFT - 1);
 /// six times an error of 2/3 in 18.14, in the finer point
 const TEST_INITIAL: i128 = (6 * 0x2aa0) << (INITIAL_SHIFT - GDI_INITIAL_SHIFT);
 const TEST: i128 = TEST_INITIAL << ADDITIONAL_SHIFT;
-/// the space taken: 2^20 pixels
-const MAX_SIZE: i128 = 1 << 24;
+/// the 32 bit flattener's reach: a control point 0x4000 (1024 pixels) or more from the bound
+/// box's corner takes GDI's 64 bit one (clean-room note; region edge-5 differs with this one)
+const MAX_SIZE: i128 = 0x4000 + 16;
 
 #[derive(Clone, Copy, Debug)]
 struct Basis {

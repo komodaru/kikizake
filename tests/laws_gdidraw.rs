@@ -195,20 +195,29 @@ proptest! {
         prop_assert!((n - (k / 16)).abs() <= 1, "{} pixels for a run of {}", n, k);
     }
 
-    /// a whole turn of Arc from the right end of the middle row is Ellipse's four Béziers, then
-    /// one of no length at the end (an arc ending on a quarter point keeps it), either way round
+    /// a whole turn of Arc from the right end of the middle row is Ellipse's figure: its points
+    /// within a 1/16 pixel of Ellipse's (the first quarter is a part one, in float32; the middle
+    /// two are Ellipse's own), then one Bézier of no length at the end, either way round
     #[test]
-    fn arc_whole_turn_is_the_ellipse(l in -20i32..20, t in -20i32..20, w in 3i32..30, h in 2i32..15, cw in proptest::bool::ANY) {
-        use kikizake::model::gdipath::{arc_beziers, ellipse_points};
+    fn arc_whole_turn_is_the_ellipse(l in -20i32..20, t in -20i32..20, w in 3i32..300, h in 2i32..150, cw in proptest::bool::ANY) {
+        use kikizake::model::gdipath::ellipse_points;
         let (r, b) = (l + w, t + 2 * h);
         let at = (r + 5, t + h);
-        let v = arc_beziers((l, t, r, b), at, at, cw).unwrap();
+        let v = kikizake::model::gdiarc::arc((l, t, r, b), at, at, cw).unwrap();
         let c = ellipse_points(l, t, r, b, cw);
-        prop_assert_eq!(v.len(), 5);
-        for (q, (g, _)) in v.iter().take(4).enumerate() {
-            prop_assert_eq!(g.to_vec(), c[3 * q..3 * q + 4].to_vec());
+        prop_assert_eq!(v.beziers.len(), 5);
+        prop_assert_eq!(v.start, c[0]);
+        for (q, g) in v.beziers.iter().take(4).enumerate() {
+            for (i, p) in g.iter().enumerate() {
+                let e = c[3 * q + 1 + i];
+                if q == 1 || q == 2 {
+                    prop_assert_eq!(*p, e);
+                } else {
+                    prop_assert!((p.0 - e.0).abs() <= 1 && (p.1 - e.1).abs() <= 1, "quarter {}: {:?} vs {:?}", q, p, e);
+                }
+            }
         }
-        prop_assert!(v[4].0.iter().all(|p| *p == c[12]), "the last Bézier has no length");
+        prop_assert!(v.beziers[4].iter().all(|p| *p == c[12]), "the last Bézier has no length");
     }
 
     /// RoundRect with corners as large as the box (or larger) is Ellipse, its sides of no length
@@ -258,7 +267,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 506), ("xform", 670), ("path", 444), ("text", 168), ("blend", 927), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 168), ("blend", 927), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -279,7 +288,8 @@ proptest! {
     /// control points' box (a Bézier lies in its control points' convex hull), each line
     /// shorter than the box is wide
     #[test]
-    fn flatten_ends_at_the_end(p in prop::array::uniform4((-40000i32..40000, -40000i32..40000))) {
+    fn flatten_ends_at_the_end(o in (-40000i32..40000, -40000i32..40000), p in prop::array::uniform4((0i32..0x4000, 0i32..0x4000))) {
+        let p = p.map(|q| (q.0 + o.0, q.1 + o.1));
         let v = kikizake::model::bezier::flatten(p).expect("in the flattener's space");
         prop_assert_eq!(v.last().copied(), Some(p[3]));
         let (l, r) = (p.iter().map(|q| q.0).min().unwrap(), p.iter().map(|q| q.0).max().unwrap());
@@ -446,5 +456,42 @@ proptest! {
         let (Some(a), Some(b)) = (metrics(&p, f(h)), metrics(&p, f(h + 1))) else { return Ok(()) };
         prop_assert!(b.height >= a.height && b.ave >= a.ave && b.max >= a.max);
         prop_assert!(width(&p, f(h + 1), c).unwrap() >= width(&p, f(h), c).unwrap());
+    }
+}
+
+proptest! {
+    /// an elliptic region lies in the box moved up and left by a pixel, its bound tight (no
+    /// rows of cancelled edges), the same for the box's corners in any order, and left to
+    /// right as well as top to bottom it is one run a row
+    #[test]
+    fn elliptic_region_is_one_run_a_row_in_its_box(l in -50i32..50, t in -50i32..50, w in 0i32..120, h in 0i32..120, swap in (proptest::bool::ANY, proptest::bool::ANY)) {
+        use kikizake::model::gdirgn::elliptic;
+        let (r, b) = (l + w, t + h);
+        let g = elliptic((l, t, r, b)).unwrap();
+        let (a, c) = (if swap.0 { (r, l) } else { (l, r) }, if swap.1 { (b, t) } else { (t, b) });
+        prop_assert_eq!(&elliptic((a.0, c.0, a.1, c.1)).unwrap(), &g);
+        prop_assert_eq!(g.loose, None);
+        for (top, bottom, s) in &g.bands {
+            prop_assert_eq!(s.len(), 1);
+            prop_assert!(l - 1 <= s[0].0 && s[0].1 <= r && t - 1 <= *top && *bottom <= b, "{:?} outside {:?}", (top, bottom, s), (l, t, r, b));
+        }
+    }
+
+    /// a region's loose bottom (GDI.RGN.LOOSE) moves with OffsetRgn and goes in CombineRgn
+    #[test]
+    fn loose_bound_moves_and_combines_away(x in 1i32..20, y in 1i32..20, dx in -9i32..9, dy in -9i32..9) {
+        use kikizake::model::rgn::{polygon, SetOp};
+        // (a triangle with a zigzag sliver of no width hanging below it, not y-monotone: the
+        // general converter's bound reaches the sliver's end)
+        let g = polygon(&[vec![(0, 0), (2 * x, 0), (x, y), (x, y + 5), (x, y + 2), (x, y + 6), (x, y)]], false).unwrap();
+        let low = g.bounds().3;
+        prop_assert_eq!(low, y + 6);
+        prop_assert!(g.bands.last().unwrap().1 <= y);
+        let mut o = g.clone();
+        o.offset(dx, dy);
+        prop_assert_eq!(o.bounds().3, low + dy);
+        let c = g.combine(&g, SetOp::Or);
+        prop_assert_eq!(c.loose, None);
+        prop_assert_eq!(c.bands, g.bands);
     }
 }

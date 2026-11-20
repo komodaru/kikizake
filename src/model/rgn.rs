@@ -6,6 +6,9 @@
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Rgn {
     pub bands: Vec<(i32, i32, Vec<(i32, i32)>)>,
+    /// the bound's bottom when the region's converter left empty rows below its last band
+    /// (GDI.RGN.LOOSE): kept by copies and offsets, gone in a combined region
+    pub loose: Option<i32>,
 }
 
 /// NULLREGION, SIMPLEREGION, COMPLEXREGION
@@ -74,7 +77,7 @@ impl Rgn {
         if l == r || t == b {
             return Rgn::empty();
         }
-        Rgn { bands: vec![(t, b, vec![(l, r)])] }
+        Rgn { bands: vec![(t, b, vec![(l, r)])], loose: None }
     }
     /// from rows of spans (y, spans), y increasing by one: equal neighbouring rows merged
     pub fn from_rows(rows: impl IntoIterator<Item = (i32, Vec<(i32, i32)>)>) -> Rgn {
@@ -126,12 +129,16 @@ impl Rgn {
         }
         let l = self.bands.iter().map(|b| b.2[0].0).min().unwrap();
         let r = self.bands.iter().map(|b| b.2.last().unwrap().1).max().unwrap();
-        (l, self.bands[0].0, r, self.bands.last().unwrap().1)
+        let b = self.bands.last().unwrap().1;
+        (l, self.bands[0].0, r, self.loose.map_or(b, |v| v.max(b)))
     }
     pub fn contains(&self, x: i32, y: i32) -> bool {
         inside(self.spans_at(y), x)
     }
     pub fn offset(&mut self, dx: i32, dy: i32) {
+        if let Some(v) = self.loose.as_mut() {
+            *v += dy;
+        }
         for b in self.bands.iter_mut() {
             b.0 += dy;
             b.1 += dy;
@@ -195,13 +202,31 @@ impl Edge {
 /// as X11's integer scan converter steps them; ALTERNATE pairs the edges in x order, WINDING
 /// keeps the spans of nonzero winding; a closed axis-aligned rectangle is that rectangle
 pub fn polygon(polys: &[Vec<(i32, i32)>], winding: bool) -> Result<Rgn, super::Fail> {
-    let (g, ymax) = scan(polys, winding);
+    let (mut g, ymax) = scan(polys, winding);
     if g.bands.last().is_some_and(|b| b.1 != ymax) {
-        // (rows left empty above the lowest vertex: Windows' bounding rectangle reaches down to
-        // that vertex in some such regions and not in others, open)
-        return Err(super::Fail::Unmodeled(crate::spec::open::GDI_RGN_POLYGON));
+        crate::spec::hit(crate::spec::clause::GDI_RGN_LOOSE);
+        if !fast_fill(polys) {
+            g.loose = Some(ymax);
+        }
     }
     Ok(g)
+}
+
+/// whether GDI's converter for one small y-monotone figure takes the polygon (GDI.RGN.LOOSE):
+/// one figure of at most 40 points whose y goes up once and down once round it
+pub fn fast_fill<T: Copy + Into<i64>>(polys: &[Vec<(T, T)>]) -> bool {
+    let [p] = polys else { return false };
+    if p.len() > 40 {
+        return false;
+    }
+    let ys: Vec<i64> = p.iter().map(|q| q.1.into()).collect();
+    // (the signs of the y steps round the figure, level ones left out)
+    let d: Vec<bool> = (0..ys.len()).filter_map(|i| {
+        let (a, b) = (ys[i], ys[(i + 1) % ys.len()]);
+        (a != b).then_some(b > a)
+    }).collect();
+    let turns = (0..d.len()).filter(|&i| d[i] != d[(i + 1) % d.len()]).count();
+    turns <= 2
 }
 
 /// the pixels of a polygon fill (Polygon, PolyPolygon, FillPath): those of its region
@@ -308,6 +333,18 @@ fn normalize(mut s: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
 /// left edge lies in [left, right); ALTERNATE pairs the edges in x order, WINDING keeps the
 /// spans of nonzero winding (MEASURED, GDI.PATH.FILLFIX)
 pub fn fix_polygon_pixels(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
+    let mut g = fix_polygon_rows(polys, winding);
+    // (the general converter's bound reaches the row after its edges' lowest: GDI.RGN.LOOSE)
+    let ceil16 = |v: i32| v.div_euclid(16) + i32::from(v.rem_euclid(16) != 0);
+    let low = polys.iter().filter(|p| p.len() >= 2).flatten().map(|q| ceil16(q.1)).max();
+    if let (Some(last), Some(low)) = (g.bands.last(), low) && last.1 < low && !fast_fill(polys) {
+        crate::spec::hit(crate::spec::clause::GDI_RGN_LOOSE);
+        g.loose = Some(low);
+    }
+    g
+}
+
+fn fix_polygon_rows(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
     let edges: Vec<((i64, i64), (i64, i64))> = polys
         .iter()
         .filter(|p| p.len() >= 2)

@@ -28,6 +28,7 @@ pub mod gdiline;
 pub mod rgn;
 pub mod gdirgn;
 pub mod gdixform;
+pub mod gdiarc;
 pub mod gdipath;
 pub mod bezier;
 pub mod gditext;

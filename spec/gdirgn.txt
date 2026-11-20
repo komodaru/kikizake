@@ -1,8 +1,10 @@
 # gdirgn clauses (spec/README.md): <id> <status> | <source> | <what it says>
 GDI.RGN.RECT doc | CreateRectRgn | the rectangle's region: right and bottom edges excluded; corners in either order (assumed: normalized), an empty rectangle is no region (NULLREGION)
 GDI.RGN.SETRECT doc | SetRectRgn | the region becomes the rectangle's
-GDI.RGN.ELLIPSE open | CreateEllipticRgn, CreateRoundRectRgn | which pixels an elliptic or round rectangle region holds
-GDI.RGN.POLYGON open | CreatePolygonRgn | the bounding rectangle of a polygon region whose rows above its lowest vertex are empty: in some Windows reaches down to that vertex, in others not
+GDI.RGN.ELLIPSE measured | CreateEllipticRgn; clean-room note on win32kfull (elliptic region); golden region ellipse-* edge-* | the box ordered and moved to (16 l - 4, 16 t - 4) - (16 r - 28, 16 b - 28) in 28.4 (no empty box: a box 0 wide is still a curve); its half axes (R - L + 1) >> 1 and (T - B + 1) >> 1; Ellipse's four Béziers of it (GDI.PATH.ELLIPSE, control points the half axis times 0x729D7775 / 2^32 in, rounded down) flattened (GDI.PATH.FLATTENHFD); the pixels whose upper left corner is inside it (alternate, GDI.RGN.POLYSCAN)
+GDI.RGN.ROUND open | CreateRoundRectRgn, and CreateEllipticRgn of curves too large for the 32-bit flattener | which pixels a round rectangle region holds
+GDI.RGN.POLYGON open | CreatePolygonRgn | a fill mode other than ALTERNATE (1) and WINDING (2)
+GDI.RGN.LOOSE measured | CreatePolygonRgn, PathToRegion; golden region poly-* path curve-76 curve-80 | a region from a polygon whose last rows are empty (cancelled edges, a sliver): one figure of at most 40 points going up once and down once round it has its bound at its last row with pixels, any other its bound's bottom at the row after its edges' lowest end (in 28.4, rounded up); top, left and right are always tight; CombineRgn's RGN_COPY keeps that bottom
 GDI.RGN.POLYSCAN measured | golden region poly-* (93 cases) | CreatePolygonRgn: each scanline y takes the spans between its edges' x (left included, right not), each edge stepped from its upper end by X11's integer polygon rule; ALTERNATE pairs the edges in x order, WINDING keeps nonzero winding; a closed axis-aligned rectangle is that rectangle
 GDI.RGN.COMBINE doc | CombineRgn | RGN_AND intersection, RGN_OR union, RGN_XOR union minus intersection, RGN_DIFF the first minus the second
 GDI.RGN.COPY doc | CombineRgn | RGN_COPY copies the first region
