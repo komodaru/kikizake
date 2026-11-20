@@ -531,6 +531,9 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         match r.d.dim {
             2 => {}
             3 if in_depth => hit(clause::D3DRASTER_RT_3D),
+            // (MEASURED, WARP: probe-rt-1d) a 1D texture's view (D3D11_RTV_DIMENSION_TEXTURE1D):
+            // a target one pixel high, the viewport's other rows dropped
+            1 if view.dim() == 2 => hit(clause::D3DRASTER_RT_1D),
             _ => return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND)),
         }
         r.size(r.mip_of(rt_sub))
@@ -2141,7 +2144,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 (Some(&4), Some(&b), Some(&n)) if b < r.d.mips => (b, n.min(r.d.mips - b).max(1)),
                 // (MEASURED, WARP: probe-filter-array-mips) a 2D array's view from slice 0 through
                 // a Texture2D: slice 0's levels
-                (Some(&5), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4) == Some(&0) => {
+                // (MEASURED, WARP: probe-filter-array1-mips) from a later slice: that slice's
+                (Some(&5), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
                     hit(clause::D3DRASTER_FILTER_ARRAY);
                     (b, n.min(r.d.mips - b).max(1))
                 }
@@ -2157,6 +2161,11 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             if base != 0 || mips != r.d.mips {
                 hit(clause::D3DRASTER_FILTER_VIEW);
             }
+            // (the subresources of the view's first array slice)
+            let first = match v.words.get(1) {
+                Some(&5) => v.words.get(4).copied().unwrap_or(0) * r.d.mips,
+                _ => 0,
+            };
             let (w, h, _) = r.size(base);
             let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
                 match planes {
@@ -2237,7 +2246,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 let at = |i: i64, j: i64| -> Res<[u32; 4]> {
                     match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
                         (Some(x), Some(y)) => {
-                            let t = texel(r, base + level, v.format(), x as u32, y as u32)?;
+                            let t = texel(r, first + base + level, v.format(), x as u32, y as u32)?;
                             Ok(match cmp {
                                 None => t,
                                 Some((reference, func)) => {
