@@ -1130,7 +1130,6 @@ wicdecode png-ihdr-method-11-1
 wicdecode png-ihdr-method-11-255
 wicdecode png-ihdr-method-12-2
 wicdecode png-ihdr-method-12-255
-wicencode cross-rgba64fixed-gray16
 wicencode ddsblock-bgr24-10
 wicencode ddsblock-bgr24-11
 wicencode ddsblock-bgr24-13

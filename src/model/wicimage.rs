@@ -10,6 +10,7 @@
 //! specifications (BMP: the BITMAPINFOHEADER pages; PNG: ISO/IEC 15948; GIF89a; TIFF 6.0; DDS:
 //! "Programming Guide for DDS" and the block compression page). spec/wicimage.txt has the clauses.
 
+use std::sync::OnceLock;
 use crate::spec::{clause, open};
 use super::{Fail, Res};
 use crate::spec::hit;
@@ -143,21 +144,10 @@ pub fn scale_formats(f: &str, mode: &str) -> (&'static str, &'static str) {
     }
 }
 
-/// MEASURED (golden wicencode float-gray16-every-rgbfloat: every 16-bit level): the linear value
-/// Windows gives each 16-bit sRGB level, as little-endian f32 (neither sRGB's curve in f32,
-/// 0.4% of the levels, nor the 8-bit table interpolated at v / 257, 43%, makes it)
-static LINEAR16: &[u8; 65536 * 4] = include_bytes!("data/wic_linear16.bin");
-
 /// MEASURED (golden wicencode gray16-every-rgb48: every 16-bit level): the 48bppRGB level
 /// Windows gives each 16bppGray level (not the level itself: 16510 of 65536 levels are one off,
 /// no 256-multiple but 0 comes out; no rule of the 8 bits and the rest found), little-endian
 static GRAY16_RGB48: &[u8; 65536 * 2] = include_bytes!("data/wic_gray16_rgb48.bin");
-
-/// MEASURED (golden wicencode backsweep-grayfix16-*, graysweep-rgba64fixed-gray16: every s2.13
-/// level 0..=8192): the 16-bit sRGB level of each gray (no formula found: not the float one,
-/// FLOAT_SRGB16, of v / 8192, which it is one below at a quarter of the levels, nor any table of
-/// 256 to 8192 pieces of the sRGB curve)
-static GRAYFIX16_GRAY16: &[u8; 8193 * 2] = include_bytes!("data/wic_grayfix16_gray16.bin");
 
 /// an s2.13 level inside 0..=1 (0..=8192)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -183,26 +173,100 @@ pub enum FixBack {
 }
 
 /// MEASURED (golden wicencode backsweep-rgba64fixed-*: every s2.13 level 0..=8192): a color
-/// level goes back as the float v / 8192 does (float_srgb); a gray through GRAYFIX16_GRAY16
+/// level goes back as the float v / 8192 does (float_srgb). A gray (found clean-room, confirmed
+/// by golden backsweep-grayfix16-*, graysweep-rgba64fixed-gray16: every level) goes so into 16
+/// bits, back to linear through linear16, and into 16 bits again as the luma of three of it
 pub fn fix13_srgb16(v: Fix13, t: FixBack) -> u16 {
     match t {
         FixBack::Color => float_srgb(f32::from(v.0) / 8192.0f32, FloatBack::Bits16),
-        FixBack::Gray => {
-            let k = usize::from(v.0) * 2;
-            u16::from_le_bytes([GRAYFIX16_GRAY16[k], GRAYFIX16_GRAY16[k + 1]])
-        }
+        FixBack::Gray => fix13_gray16([v; 3]),
     }
 }
 
-/// MEASURED (golden wicencode steps-rgbafloat-rgba64, steps-rgbafloat-bgra: the executor
-/// bisects the bits of 0..1 for every level): a float of 0..1 into 16 bits and into 8 bits is a
-/// monotone step function of its f32 value (the 8-bit one not the 16-bit one's high byte); per
-/// output level n (1..=65535, 1..=255) the smallest float that reaches it (f32 bits). The 16-bit
-/// one interpolates between the 256 8-bit levels' floats in steps of 1/256 (65280 steps, then
-/// spread over 65535 so that no multiple of 256 is reached), its rounding not found, so the
-/// steps are kept as measured
-static FLOAT_SRGB16: &[u8; 65535 * 4] = include_bytes!("data/wic_float_srgb16.bin");
-static FLOAT_SRGB8: &[u8; 255 * 4] = include_bytes!("data/wic_float_srgb8.bin");
+/// 64bppRGBAFixedPoint's color into 16bppGray (found clean-room, confirmed by golden wicencode
+/// cross-rgba64fixed-gray16, graysweep-rgba64fixed-gray16): through 64bppRGBA, each channel back
+/// to linear (linear16), the f32 luma of the three into 16 bits
+pub fn fix13_gray16(c: [Fix13; 3]) -> u16 {
+    let l = c.map(|v| linear16(fix13_srgb16(v, FixBack::Color)));
+    float_srgb(gray_luma(l[0], l[1], l[2]), FloatBack::Bits16)
+}
+
+/// Windows' 256 knots of the sRGB curve (found clean-room; the levels confirmed by goldens
+/// wicencode steps-*, float-gray16-every-rgbfloat): the linear value of each 8-bit sRGB level
+/// times 255, worked out in f64 and rounded once to f32, knot 15 one f32 step higher than that;
+/// a 257th knot 255
+fn knots() -> &'static [f32; 257] {
+    static T: OnceLock<[f32; 257]> = OnceLock::new();
+    T.get_or_init(|| {
+        let mut t = [255.0f32; 257];
+        for (i, k) in t.iter_mut().enumerate().take(256) {
+            let v = i as f64 / 255.0;
+            let lin = if v <= 0.04045 { v / 12.92 } else { ((v + 0.055) / 1.055).powf(2.4) };
+            *k = (255.0 * lin) as f32;
+        }
+        t[15] = f32::from_bits(t[15].to_bits() + 1);
+        t
+    })
+}
+
+/// Windows' 3355 bytes that a float times 3354 picks its 8-bit level from (found clean-room):
+/// the sRGB level of n / 3354, 255 times sRGB's curve in f64 plus 0.5, floored
+fn byte_levels() -> &'static [u8; 3355] {
+    static B: OnceLock<[u8; 3355]> = OnceLock::new();
+    B.get_or_init(|| {
+        let mut b = [0u8; 3355];
+        for (n, o) in b.iter_mut().enumerate() {
+            let x = n as f64 / 3354.0;
+            let s = if x <= 0.0031308 { 12.92 * x } else { 1.055 * x.powf(1.0 / 2.4) - 0.055 };
+            *o = (255.0 * s + 0.5).floor().clamp(0.0, 255.0) as u8;
+        }
+        b
+    })
+}
+
+/// a float into 8 bits sRGB (found clean-room, confirmed by golden wicencode steps-*-bgra): 0
+/// unless above 0 (NaN too), 255 from 1; else x * 3354 in f32 rounded to the nearest, a tie up,
+/// its byte_levels entry
+fn float_byte(x: f32) -> u8 {
+    if !(x > 0.0) {
+        return 0;
+    }
+    if !(x < 1.0) {
+        return 255;
+    }
+    let y = x * 3354.0f32;
+    let mut n = y.round_ties_even();
+    if n - y == -0.5 {
+        n += 1.0;
+    }
+    byte_levels()[n as usize]
+}
+
+/// a float into 16 bits sRGB (found clean-room, confirmed by golden wicencode steps-*: every
+/// level's smallest float): in f64, x * 255 placed between two knots, its 1/256ths across them
+/// (the knots' difference taken in f32) rounded half up, that 8.8 position u spread over 16
+/// bits as (u * 0x10101) >> 16, so that no multiple of 256 but 0 comes out
+fn float_u16(x: f32) -> u16 {
+    let t = knots();
+    let d = f64::from(x) * 255.0;
+    if !(d > 0.0) {
+        return 0;
+    }
+    if d >= 255.0 {
+        return u16::MAX;
+    }
+    let mut i = usize::from(float_byte(x)).min(254);
+    while f64::from(t[i]) > d {
+        i -= 1;
+    }
+    while d >= f64::from(t[i + 1]) {
+        i += 1;
+    }
+    let den = f64::from(t[i + 1] - t[i]);
+    let v = ((d - f64::from(t[i])) / den * 256.0 + 0.5).trunc() as u32;
+    let u = i as u32 * 256 + v;
+    u16::try_from((u * 0x10101) >> 16).unwrap_or(u16::MAX)
+}
 
 /// how many bits a float goes back into
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -214,19 +278,10 @@ pub enum FloatBack {
 /// a float back into 8 or 16 bits sRGB. MEASURED (golden wicencode floatout-*): below 0, -0,
 /// -inf and NaN of either sign 0; past 1 and +inf the top level
 pub fn float_srgb(x: f32, t: FloatBack) -> u16 {
-    let tab: &[u8] = match t {
-        FloatBack::Bits16 => FLOAT_SRGB16,
-        FloatBack::Bits8 => FLOAT_SRGB8,
-    };
-    let at = |n: usize| f32::from_bits(u32::from_le_bytes([tab[n * 4], tab[n * 4 + 1], tab[n * 4 + 2], tab[n * 4 + 3]]));
-    // (the levels reached at or below x)
-    // (the levels reached at or below x; NaN reaches none)
-    let (mut lo, mut hi) = (0usize, tab.len() / 4);
-    while lo < hi {
-        let m = (lo + hi) / 2;
-        if at(m) <= x { lo = m + 1 } else { hi = m }
+    match t {
+        FloatBack::Bits16 => float_u16(x),
+        FloatBack::Bits8 => u16::from(float_byte(x)),
     }
-    u16::try_from(lo).unwrap_or(u16::MAX)
 }
 
 /// MEASURED (golden wicencode steps-grayfloat-gray16: every level's float is the color one's
@@ -240,14 +295,23 @@ pub fn gray16_rgb48(v: u16) -> u16 {
     u16::from_le_bytes([GRAY16_RGB48[k], GRAY16_RGB48[k + 1]])
 }
 
+/// the linear value of a 16-bit sRGB level (found clean-room, confirmed by golden wicencode
+/// float-gray16-every-rgbfloat: every level): its place v * 65281 / 256 in 8.16 between the
+/// knots, interpolated in f64, times the f64 nearest 1/255, rounded to f32
 pub fn linear16(v: u16) -> f32 {
-    let k = usize::from(v) * 4;
-    f32::from_le_bytes([LINEAR16[k], LINEAR16[k + 1], LINEAR16[k + 2], LINEAR16[k + 3]])
+    let t = knots();
+    let p = (u32::from(v) * 0xFF01) >> 8;
+    let (i, fr) = ((p >> 16) as usize, p & 0xFFFF);
+    let mut l = f64::from(t[i]);
+    if fr != 0 {
+        l += (f64::from(t[i + 1]) - l) * f64::from(fr) * (1.0 / 65536.0);
+    }
+    (l * (1.0 / 255.0)) as f32
 }
 
 /// MEASURED (golden wicencode float-*, fixed-*: 4096 and 1024 levels of 16bppGray, 48bppRGB and
 /// 64bppRGBA, every value as this): 16 bits a channel into the float formats: each color channel
-/// its LINEAR16 value, alpha v / 65535 in f32; 128bppPRGBAFloat multiplies in f32; 32bppGrayFloat
+/// its linear16 value, alpha v / 65535 in f32; 128bppPRGBAFloat multiplies in f32; 32bppGrayFloat
 /// is (r * 0.2126 + g * 0.7152) + b * 0.0722 in f32; 64bppRGBAFixedPoint rounds the value times
 /// 8192 (16bppGray's own path there first through 48bppRGB: GRAY16_RGB48)
 fn wide_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
@@ -341,11 +405,11 @@ fn wide_layout(f: &str) -> Option<(usize, WideKind)> {
 }
 
 /// MEASURED (golden wicencode fixpath-gray16-*: 4096 levels of 16bppGray into each format, every
-/// value as this): into a half format each channel the LINEAR16 value rounded to the nearest
-/// half (even on a tie); into an s2.13 format the 48bppRGB level's (GRAY16_RGB48) LINEAR16 value
-/// times 8192 rounded; into an s7.24 format the 48bppRGB level's LINEAR16 value times 2^24 plus
+/// value as this): into a half format each channel the linear16 value rounded to the nearest
+/// half (even on a tie); into an s2.13 format the 48bppRGB level's (GRAY16_RGB48) linear16 value
+/// times 8192 rounded; into an s7.24 format the 48bppRGB level's linear16 value times 2^24 plus
 /// 0.5 in f32, truncated, and into 32bppGrayFixedPoint that value back in f32 (times 2^-24) as
-/// 32bppGrayFloat's sum of the three; 96bppRGBFloat the LINEAR16 value; the fourth channel 1
+/// 32bppGrayFloat's sum of the three; 96bppRGBFloat the linear16 value; the fourth channel 1
 fn gray16_to_wide(s: &Img, to: &'static str) -> Option<Res<Img>> {
     if s.fmt != "gray16" || matches!(to, "grayfloat" | "rgbafloat" | "prgbafloat" | "rgbfloat") {
         return None;
@@ -430,10 +494,10 @@ fn wide_to_rgba64fixed(s: &Img, to: &'static str) -> Option<Res<Img>> {
 
 /// MEASURED (golden wicencode backsweep-rgba64fixed-*, -grayfix16-*: every s2.13 level 0..=8192;
 /// back-rgba64fixed-bgra, back-rgb48fixed-rgb48: 256 random pixels each): s2.13 back into 8 and
-/// 16 bits: each color channel as the float v / 8192 (float_srgb), gray through its own measured
-/// table (GRAYFIX16_GRAY16), 8 bits its high byte; alpha a / 8192 * 65535 + 0.5 in f32, truncated, 8 bits its high byte
-/// (backalpha-rgba64fixed-rgba64: 4112 gives 32896, not 32895 as in exact arithmetic). Levels outside 0..=1 open (CONVERT.OTHER:
-/// no bitmap the executor makes has them)
+/// 16 bits: each color channel as the float v / 8192 (float_srgb), gray and 16bppGray out through
+/// 64bppRGBA and the luma (fix13_gray16), 8 bits its high byte; alpha a / 8192 * 65535 + 0.5 in f32, truncated, 8 bits its high byte
+/// (backalpha-rgba64fixed-rgba64: 4112 gives 32896, not 32895 as in exact arithmetic). Another pair is Fail::Bad:
+/// no case asks for it (a new one shows as a difference, not a silent gap)
 fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (n, back) = match (s.fmt, to) {
         ("rgba64fixed", "rgba64" | "rgb48" | "bgra" | "bgr24" | "gray16") => (4usize, FixBack::Color),
@@ -468,15 +532,18 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 // cross-grayfix16-bgra)
                 1 => [color(0), color(0), color(0), Some(u16::MAX)].into_iter().collect(),
                 3 => [color(0), color(1), color(2), Some(u16::MAX)].into_iter().collect(),
-                // (64bppRGBAFixedPoint into 16bppGray: a gray as 16bppGrayFixedPoint's table,
-                // graysweep-rgba64fixed-gray16; a color open, cross-rgba64fixed-gray16)
-                _ if to == "gray16" => match (at(0), at(1), at(2)) {
-                    (Some(r), Some(g), Some(b)) if r == g && g == b => Some(vec![fix13_srgb16(r, FixBack::Gray)]),
-                    _ => None,
-                },
+                // (64bppRGBAFixedPoint into 16bppGray: the luma of the three through 64bppRGBA,
+                // cross-rgba64fixed-gray16; a level outside 0..=1 held to it as in 64bppRGBA)
+                _ if to == "gray16" => {
+                    let c = |k: usize| {
+                        let i = y * st + (x * n + k) * 2;
+                        Fix13::clamped(i16::from_le_bytes([s.px[i], s.px[i + 1]]))
+                    };
+                    Some(vec![fix13_gray16([c(0), c(1), c(2)])])
+                }
                 _ => [color(0), color(1), color(2), alpha(3)].into_iter().collect(),
             };
-            let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
+            let Some(v) = v else { return Some(Err(Fail::Bad)) };
             let hi = |c: u16| c.to_be_bytes()[0];
             let d = &mut o.px[y * ost..];
             match to {
@@ -504,7 +571,7 @@ fn fixed_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
 /// level; backalpha-rgbafloat-rgba64, -rgba64half-rgba64, back-rgbafloat-bgra, back-rgba64half-bgra:
 /// 256 random pixels each): 128bppRGBAFloat, 64bppRGBAHalf and 32bppGrayFloat back into
 /// 64bppRGBA, 32bppBGRA, 16bppGray, 8bppGray: each color channel through float_srgb; alpha
-/// a * 65535 + 0.5 in f32 truncated, into 8 bits a * 255 + 0.5. Others open (CONVERT.OTHER)
+/// a * 65535 + 0.5 in f32 truncated, into 8 bits a * 255 + 0.5. Another pair is Fail::Bad (no case asks for it)
 /// the executor's wsteps bitmap: the floats (bits) 256 a row, the last row filled with 1.0, red,
 /// green and blue each the float and alpha 1 in 128bppRGBAFloat, converted as wconv; the level of
 /// red for each float and how many pixels' green or blue differ from red
@@ -594,7 +661,7 @@ fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
                 _ if to == "gray16" => Some(vec![float_srgb(gray_luma(at(0), at(1), at(2)), back)]),
                 _ => alpha(at(3)).map(|a| vec![float_srgb(at(0), back), float_srgb(at(1), back), float_srgb(at(2), back), a]),
             };
-            let Some(v) = v else { return Some(Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER))) };
+            let Some(v) = v else { return Some(Err(Fail::Bad)) };
             let lo = |c: u16| c.to_le_bytes()[0];
             let d = &mut o.px[y * ost..];
             match to {
@@ -614,7 +681,7 @@ fn float_to_narrow(s: &Img, to: &'static str) -> Option<Res<Img>> {
 
 /// MEASURED (through the goldens back-rgbafloat-bgra, back-rgba64half-bgra, backalpha-rgbafloat-*,
 /// -rgba64half-*: the pixels come back as Windows'): 32bppBGRA into 128bppRGBAFloat each color
-/// channel the LINEAR16 value of c * 257, alpha a / 255 in f32; into 64bppRGBAHalf those rounded
+/// channel the linear16 value of c * 257, alpha a / 255 in f32; into 64bppRGBAHalf those rounded
 /// to half
 fn byte_to_float(s: &Img, to: &'static str) -> Option<Res<Img>> {
     let (half, gray) = match (s.fmt, to) {
@@ -709,7 +776,7 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if matches!(s.fmt, "bgr24" | "bgra" | "gray8" | "pbgra" | "rgba" | "prgba") && (to == "rgba64fixed" || (s.fmt, to) == ("bgra", "rgb48fixed")) {
         // MEASURED (golden wicencode encas-bmp-rgba64, rgba64fixed-every-bgr24, -bgra, -gray8:
         // every level; rgba64fixed-from-pbgra, -rgba, -prgba: 256 random pixels each): each 8-bit
-        // color channel the LINEAR16 value of its 16-bit level (c * 257) times 8192 rounded, not
+        // color channel the linear16 value of its 16-bit level (c * 257) times 8192 rounded, not
         // premultiplied; a premultiplied one first divided by alpha through a reciprocal table,
         // (c * ((255 << 16) / a)) >> 16 at most 255, 0 where alpha is 0; alpha a / 255 times 8192
         // rounded, 1 where none
@@ -798,9 +865,11 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
         }
         return Ok(o);
     }
-    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER)) };
+    // (a pair model::wic has no format for, or a palette other than the executor's: no case
+    // asks for one, so Fail::Bad, which a new case would show as a difference)
+    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Bad) };
     if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {
-        return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER));
+        return Err(Fail::Bad);
     }
     let px = crate::model::wic::convert(fi, ti, s.w, s.h, &s.px)?;
     let pal = if crate::model::wic::indexed(ti) { Some(crate::model::wic::palette()) } else { None };
@@ -3712,7 +3781,7 @@ fn swap_red_blue16(p: &mut [u8]) {
 
 pub fn encode_bmp(i: &Img) -> Res<Vec<u8>> {
     if !["idx1", "idx4", "idx8", "bgr555", "bgr565", "bgr24", "bgr32", "bgra", "pbgra", "rgba64fixed"].contains(&i.fmt) {
-        return Err(Fail::Unmodeled(open::WICIMAGE_CONVERT_OTHER));
+        return Err(Fail::Bad);
     }
     hit(clause::WICIMAGE_ENCODE_BMP);
     let bpp = bits_of(i.fmt);

@@ -746,6 +746,9 @@ proptest! {
             let h = wi::float_srgb(f32::from_bits(hi), t);
             prop_assert!(l <= h);
         }
+        // (Windows spreads its 8.8 position over 16 bits so that no multiple of 256 but 0 is reached)
+        let w16 = wi::float_srgb(f32::from_bits(hi), wi::FloatBack::Bits16);
+        prop_assert!(w16 == 0 || w16 % 256 != 0, "{hi:#x}: {w16}");
         let x = f32::from_bits(lo);
         let (w, n) = (wi::float_srgb(x, wi::FloatBack::Bits16), wi::float_srgb(x, wi::FloatBack::Bits8));
         prop_assert!((f64::from(w) / 257.0 - f64::from(n)).abs() <= 1.0, "{x}: {w} and {n}");
