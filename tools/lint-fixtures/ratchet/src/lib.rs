@@ -217,6 +217,18 @@ pub fn uninit() -> u32 {
     unsafe { std::mem::zeroed() } //~ masu-uninit
 }
 
+pub fn leak(s: String) -> &'static str {
+    s.leak() //~ masu-leak
+}
+
+pub fn leak_box() -> &'static u32 {
+    Box::leak(Box::new(1)) //~ masu-leak
+}
+
+pub fn leak_vec() -> &'static [u8] {
+    vec![1u8].leak() //~ masu-leak
+}
+
 pub fn raw(p: *const u8) -> u8 {
     // SAFETY: fixture
     let s = unsafe { std::slice::from_raw_parts(p, 1) }; //~ masu-from_raw_parts not_unsafe_ptr_arg_deref

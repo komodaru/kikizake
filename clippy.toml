@@ -11,4 +11,9 @@ disallowed-methods = [
     { path = "core::mem::transmute_copy", reason = "masu-transmute: from_le_bytes / a safe cast" },
     { path = "core::mem::zeroed", reason = "masu-uninit: Default / a value" },
     { path = "core::mem::MaybeUninit::assume_init", reason = "masu-uninit: a value made whole" },
+    # (as masu's: 61153f30 there leaked a name per call; a leak is right once per process, a known
+    # site, and kikizake has none)
+    { path = "alloc::boxed::Box::leak", reason = "masu-leak: an owner (a static OnceLock, a table entry) or a borrow" },
+    { path = "alloc::string::String::leak", reason = "masu-leak: an owner (a static OnceLock, a table entry) or a borrow" },
+    { path = "alloc::vec::Vec::leak", reason = "masu-leak: an owner (a static OnceLock, a table entry) or a borrow" },
 ]
