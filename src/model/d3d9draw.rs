@@ -796,6 +796,13 @@ fn clip_line(a: (f32, f32), b: (f32, f32), max: (f32, f32)) -> Option<((f32, f32
     Some((at(t0), at(t1)))
 }
 
+/// dy / dx has a finite binary expansion: the odd part of dx divides dy (a zero dx: x-major
+/// lines never have one)
+pub fn dyadic_slope(dx: i128, dy: i128) -> bool {
+    let odd = i128::try_from(dx.unsigned_abs().checked_shr(dx.trailing_zeros()).unwrap_or(0)).unwrap_or(0);
+    dx != 0 && dy.checked_rem(odd) == Some(0)
+}
+
 /// where a segment starts: on its own (a line list's, a strip's first) or where the strip's last
 /// segment ended
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -2165,33 +2172,17 @@ impl D3d9 {
         let dy = r.b.1 - r.a.1;
         let ymaj = dy.abs() > dx.abs();
         let vertical_corner = r.a.0 % 256 == 0 && r.a.1.rem_euclid(256) == DIAMOND;
-        let mut lower_start = false;
-        if start == Start::Free && inside(&a) && inside(&b) && dx.abs() > dy.abs() && vertical_corner {
-            // A non-dyadic slope can put the first pixel on either side of
-            // the exact tie. Even a translation changes the observed answer.
-            let odd_divisor = dx.abs() >> dx.trailing_zeros();
-            if dy.checked_rem(odd_divisor) != Some(0) {
-                lower_start = match ((r.a.0, r.a.1), (dx, dy)) {
-                    // line-free-corner: origins (13,9.5), (12,8.5), (10,7.5)
-                    ((3328, 2432) | (3072, 2176) | (2560, 1920), delta) => match delta {
-                        (-2432, -1344) | (-2432, -1280) | (-1216, -672) => true,
-                        (-2432, -1408) | (-2304, -1344) => false,
-                        (-2432, 1344) => r.a == (2560, 1920),
-                        _ => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
-                    },
-                    ((512, 640), (2432, 1344)) => true,
-                    _ => return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES)),
-                };
-            }
+        if start == Start::Free && inside(&a) && inside(&b) && dx.abs() > dy.abs() && vertical_corner && !dyadic_slope(dx, dy) {
+            // (open, D3D9.DRAW.POINTSLINES: a free x-major line from a vertical diamond corner
+            // with a non-dyadic slope lights the row above or below the corner by WARP's own
+            // arithmetic; line-free-corner-* measure it, no rule found fits them all, so the
+            // model answers none of them rather than a table of the measured coordinates)
+            return Err(Fail::Unmodeled(open::D3D9_DRAW_POINTSLINES));
         }
         let mut lit = Vec::new();
         for py in 0..h {
             for px in 0..w {
                 let c = (px as i128 * 256, py as i128 * 256);
-                if lower_start && c.0 == r.a.0 && c.1.abs_diff(r.a.1) == 128 {
-                    if c.1 > r.a.1 { lit.push((px, py)); }
-                    continue;
-                }
                 match r.meets(c, ymaj) {
                     Meet::No => {}
                     // (open: a line running along diamonds' edges lights some of them and not

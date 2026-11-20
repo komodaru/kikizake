@@ -1035,7 +1035,8 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
             return ch;
         }
     };
-    // (cases whose answer Windows itself gives differently from run to run)
+    // (cases whose answer Windows itself gives differently from run to run) (optional: without
+    // the list every case must repeat, which is stricter, not laxer)
     let unstable: Vec<String> = std::fs::read_to_string(root.join("spec/unstable.txt"))
         .map(|t| t.lines().filter_map(|l| crate::case::tokens(l).first().cloned()).collect())
         .unwrap_or_default();

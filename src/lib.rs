@@ -12,6 +12,7 @@
 pub mod calls;
 pub mod case;
 pub mod compare;
+pub mod dxbc;
 pub mod shaders;
 pub mod generators;
 pub mod json;

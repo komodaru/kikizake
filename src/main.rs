@@ -20,6 +20,22 @@ fn read(p: &str) -> String {
     })
 }
 
+/// every recording (*.txt) in `dir`; none at all is an error too
+fn recordings(dir: &std::path::Path) -> Result<Vec<kikizake::calls::Recording>, String> {
+    let mut recs = Vec::new();
+    for e in std::fs::read_dir(dir).map_err(|e| e.to_string())? {
+        let p = e.map_err(|e| e.to_string())?.path();
+        if p.extension().is_some_and(|x| x == "txt") {
+            let text = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
+            recs.push(kikizake::calls::parse(&text).map_err(|e| format!("{}: {e}", p.display()))?);
+        }
+    }
+    if recs.is_empty() {
+        return Err("no call recordings".into());
+    }
+    Ok(recs)
+}
+
 fn main() {
     let a: Vec<String> = std::env::args().skip(1).collect();
     match a.iter().map(String::as_str).collect::<Vec<_>>().as_slice() {
@@ -87,12 +103,11 @@ fn main() {
         }
         ["calls", "usage", app, rest @ ..] => {
             let dir = std::path::Path::new(rest.first().copied().unwrap_or("calls"));
-            let recs: Vec<_> = std::fs::read_dir(dir)
-                .into_iter()
-                .flatten()
-                .filter_map(|e| Some(e.ok()?.path()).filter(|p| p.extension().is_some_and(|x| x == "txt")))
-                .filter_map(|p| kikizake::calls::parse(&std::fs::read_to_string(p).ok()?).ok())
-                .collect();
+            // (a directory or recording that cannot be read is an error, not "nothing recorded")
+            let recs = recordings(dir).unwrap_or_else(|e| {
+                eprintln!("{}: {e}", dir.display());
+                exit(2)
+            });
             match kikizake::calls::usage(&read(app), &recs) {
                 Ok(lines) => lines.iter().for_each(|l| println!("{l}")),
                 Err(e) => {

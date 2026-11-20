@@ -253,10 +253,50 @@ fn every_taken_format_is_decoded() {
     }
 }
 
+/// one pretransformed white line on a 16x16 target, as the generators write it
+fn free_line(a: (f32, f32), b: (f32, f32)) -> String {
+    let v = |p: (f32, f32)| format!("{:#x} {:#x} 0x0 0x3f800000 0xffffffff", p.0.to_bits(), p.1.to_bits());
+    format!("case l\ndevice swvp\nd9target 16 16 21\nd9clear 1 0 0 0\nd9fvf 0x44\nd9draw 2 2 {} {}\nd9rt\nend\n", v(a), v(b))
+}
+
+/// (D3D9.DRAW.POINTSLINES, review 2026-11-20 1.1) the single line of line-joint-pl5-3, (13, 9.5)
+/// to (3.5, 4.25): Windows lights (13, 10), not (13, 9); the model must not answer it with a
+/// rule it does not have (it answered (13, 9) at 90fcd881, then a table of measured origins)
 #[test]
-fn free_line_start_selects_the_measured_row() {
-    let lines = picture("case x\ndevice swvp\nd9target 16 16 21\nd9clear 1 0 0 0\nd9fvf 0x44\nd9draw 2 2 0x41500000 0x41180000 0 0x3f800000 0xffffffff 0x40600000 0x40880000 0 0x3f800000 0xffffffff\nd9rt\nend");
-    let rows = &lines[lines.iter().position(|l| l == "px rt 16 16 32").unwrap() + 1..];
-    assert_eq!(&rows[9][13 * 8..14 * 8], "00000000");
-    assert_eq!(&rows[10][13 * 8..14 * 8], "ffffffff");
+fn free_start_on_a_vertical_corner_is_unmodeled() {
+    for (a, b) in [((13.0, 9.5), (3.5, 4.25)), ((10.0, 7.5), (0.5, 12.75)), ((2.0, 2.5), (11.5, 7.75)), ((7.0, 6.5), (1.0, 3.25))] {
+        let c = parse_cases(&free_line(a, b));
+        assert!(matches!(run_case(&c[0]), Err(kikizake::model::Fail::Unmodeled(_))), "{a:?} {b:?}");
+    }
+    // (the same line the other way ends on the corner: the end rule answers it)
+    let c = parse_cases(&free_line((3.5, 4.25), (13.0, 9.5)));
+    assert!(run_case(&c[0]).is_ok());
+}
+
+proptest! {
+    /// (D3D9.DRAW.POINTSLINES) a free x-major line from a vertical diamond corner: a dyadic slope
+    /// has an exact tie the measured rules decide, any other slope is unmodeled, at any origin
+    #[test]
+    fn free_corner_starts_answer_only_dyadic_slopes(x in 1i32..15, y in 1i32..15, bx in 0i32..=62, by in 0i32..=62) {
+        // (the far end in quarter pixels inside the target, x-major)
+        let a = (x as f32, y as f32 + 0.5);
+        let b = (bx as f32 / 4.0, by as f32 / 4.0);
+        let (dx, dy) = (bx - 4 * x, by - (4 * y + 2));
+        prop_assume!(dx.abs() > dy.abs());
+        let c = parse_cases(&free_line(a, b));
+        let r = run_case(&c[0]);
+        if dyadic_slope(i128::from(dx) * 64, i128::from(dy) * 64) {
+            prop_assert!(r.is_ok() || matches!(r, Err(kikizake::model::Fail::Unmodeled(_))));
+        } else {
+            prop_assert!(matches!(r, Err(kikizake::model::Fail::Unmodeled(_))), "{a:?} {b:?}: {r:?}");
+        }
+    }
+}
+
+#[test]
+fn dyadic_slopes() {
+    assert!(dyadic_slope(2432 / 19 * 16, 1344));
+    assert!(!dyadic_slope(2432, 1344));
+    assert!(dyadic_slope(-256, 77));
+    assert!(!dyadic_slope(0, 0));
 }

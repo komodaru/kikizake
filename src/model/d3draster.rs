@@ -118,7 +118,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                         d.ps = Some(name);
                     }
                 }
-                None if crate::generators::dxbc::intact(&b) => {
+                None if crate::dxbc::intact(&b) => {
                     return Err(Fail::Unmodeled(crate::spec::open::D3DRASTER_SHADER_BAD));
                 }
                 _ => {

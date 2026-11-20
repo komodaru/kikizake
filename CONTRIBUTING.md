@@ -80,6 +80,11 @@ properties, the fuzz target covers every parser and model through `model::run`, 
 
 Run `cargo run -p kikizake-lint -- --cases` to check case blocks and generated files before
 recording on Windows. The default lint command also runs this check.
+Both also run the review guards (tools/lint/src/guards.rs, no baseline): no model reads the
+generators (shared material goes to a neutral module such as src/dxbc.rs), no unreadable file or
+directory is taken as an empty one, a type deriving Default has `new()` = `Self::default()`, a GDI
+module calls GdiFlush before touching a DIB section's memory, and no D3D12 signal or wait has its
+result thrown away.
 
 ## Windows' answers
 

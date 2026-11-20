@@ -104,7 +104,9 @@ proptest! {
         let (sa, sm) = (Sub::snap(a, size, o), Sub::snap(-a, size, o));
         prop_assert_eq!(sa.0 - o.0, o.0 - sm.0);
         let want = a * (size * 128.0 - 1.0);
-        prop_assert!(((sa.0 - o.0) as f64 - want).abs() <= 0.5 + 1e-6);
+        // (snap rounds to 1/65536 before the half to even, so a value up to 2^-17 under a half
+        // rounds as the half: 0.5 + 2^-17 at most, as o 0, size 583, a 0.24502499231386463 found)
+        prop_assert!(((sa.0 - o.0) as f64 - want).abs() <= 0.5 + 1.0 / 131072.0 + 1e-12);
         if a <= b {
             prop_assert!(sa <= Sub::snap(b, size, o));
         }
@@ -695,4 +697,15 @@ proptest! {
             prop_assert!((f64::from(*got) / f64::from(1u32 << 31) - want).abs() < 1.0 / 65536.0, "{got} vs {want}");
         }
     }
+}
+
+/// (the case proptest found, CI 2026-11-20) 0.245025 of 583 pixels scales to 18284.499998...:
+/// the 1/65536 pre-rounding makes it a half, which goes to even, 2^-17 more than half a step
+#[test]
+fn snap_pre_rounding_bound() {
+    let a = 0.24502499231386463f64;
+    let s = Sub::snap(a, 583.0, Sub(0));
+    let want = a * (583.0 * 128.0 - 1.0);
+    let err = (s.0 as f64 - want).abs();
+    assert!(err > 0.5 && err <= 0.5 + 1.0 / 131072.0, "{err}");
 }

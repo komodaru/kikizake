@@ -1,4 +1,4 @@
-use crate::generators::dxbc::*;
+use crate::dxbc::*;
 
 /// the programs the cases use, by name (the model knows each one by its bytes)
 pub fn shaders() -> Vec<(&'static str, Vec<u8>)> {
