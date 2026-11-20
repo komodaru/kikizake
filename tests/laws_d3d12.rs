@@ -201,6 +201,7 @@ fn suites_stay_modeled() {
             let un: Vec<_> = cases.iter().filter_map(|c| match run_case(c) {
                 Err(Fail::Unmodeled(id)) => Some(format!("{}: {id}", c.name)),
                 Err(Fail::Bad) => Some(format!("{}: bad", c.name)),
+                Err(Fail::NoInput(what)) => Some(format!("{}: no {what}", c.name)),
                 Ok(_) | Err(Fail::Empty | Fail::Crash) => None,
             }).collect();
             assert!(un.is_empty(), "{s}-{arch}: {un:?}");

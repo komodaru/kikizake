@@ -206,19 +206,33 @@ fn fvf_decl_round_trips() {
 
 proptest! {
     /// D3DX's float to half conversions agree with IEEE's (round to nearest even) on normal
-    /// halves; the 8 at a time one only differs at exact ties, by one toward zero; x64's 4 at a
-    /// time one is the one by one one but for NaNs, its one by one one truncates denormals
+    /// halves; the 8 at a time ones only differ at exact ties, by one toward zero; x64's 4 at
+    /// a time one and its one by one one are IEEE's there
     #[test]
     fn d3dx_halves(m in 0x3880_0000u32..0x477f_f000, sign: bool) {
-        use kikizake::model::d3dx9::{f16_block, f16_one, f16_x64};
+        use kikizake::model::d3dx9::{f16_block, f16_one, f16_sse, f16_x64, f16_x64_tail};
         let bits = m | (sign as u32) << 31;
         let x = f32::from_bits(bits);
         let ieee = f32_to_f16(x);
         prop_assert_eq!(f16_one(bits), ieee);
-        prop_assert_eq!(f16_x64(bits, true), ieee);
-        prop_assert_eq!(f16_x64(bits, false), ieee);
+        prop_assert_eq!(f16_x64(bits), ieee);
+        prop_assert_eq!(f16_x64_tail(bits), ieee);
         let tie = bits & 0x1fff == 0x1000;
         prop_assert_eq!(f16_block(bits), if tie && bits & 0x2000 != 0 { ieee - 1 } else { ieee });
+        prop_assert_eq!(f16_sse(bits), f16_block(bits));
+    }
+
+    /// below 2^-14: x64's one by one conversion never gives more than its 4 at a time one
+    /// (it rounds at a normal half's bit and then truncates), and the two 8 at a time ones
+    /// differ by at most one, the f32 add's never less
+    #[test]
+    fn d3dx_denormal_halves(m in 0u32..0x3880_0000, sign: bool) {
+        use kikizake::model::d3dx9::{f16_block, f16_sse, f16_x64, f16_x64_tail};
+        let bits = m | (sign as u32) << 31;
+        let (tail, four) = (f16_x64_tail(bits) & 0x7fff, f16_x64(bits) & 0x7fff);
+        prop_assert!(tail <= four && four - tail <= 1, "{bits:#x}: {tail:#x} {four:#x}");
+        let (sse, blk) = (f16_sse(bits), f16_block(bits));
+        prop_assert!(sse == blk || sse == blk + 1, "{bits:#x}: {sse:#x} {blk:#x}");
     }
 }
 

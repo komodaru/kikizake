@@ -198,7 +198,7 @@ pub fn trace(dir: &Path) -> std::io::Result<BTreeMap<String, Evidence>> {
                     let want = reference.cases.get(i).filter(|(name, _)| *name == c.name).map(|(_, lines)| lines);
                     let kind = match (&r, want) {
                         (_, None) => 3,
-                        (Err(crate::model::Fail::Unmodeled(_)), _) => 2,
+                        (Err(crate::model::Fail::Unmodeled(_) | crate::model::Fail::NoInput(_)), _) => 2,
                         (Ok(l), Some(w)) if l.len() == w.len() && l.iter().zip(w.iter()).all(|(a, b)| crate::compare::line_matches(Some(a.as_str()), Some(b.as_str()))) => 0,
                         _ => 1,
                     };

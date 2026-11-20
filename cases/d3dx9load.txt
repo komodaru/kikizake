@@ -1747,3 +1747,11 @@ x9load 844715353 64 8 2 0x2788c13 1
 x9load 844715353 64 5 1 0x6ca6582e 1
 x9load 844715353 64 8 1 ramp 1
 end
+case loadtex-dxt-negindex
+device swvp
+x9loadtex 827611204 21 4 4 b:a328ebff3232c4ffc0271afff632a2ff8e2ac4ffc32e6eff8e27fffffc2991ffe034a2ffde2a00ffeb2d68ffcf2c6dff6a154bff00e5ffffae27a8fff663c6ff 1
+x9loadtex 861165636 21 4 4 b:a328ebff3232c4ffc0271afff632a2ff8e2ac4ffc32e6eff8e27fffffc2991ffe034a2ffde2a00ffeb2d68ffcf2c6dff6a154bff00e5ffffae27a8fff663c6ff 1
+end
+case cpu
+x9cpu
+end

@@ -117,6 +117,15 @@ pub fn d3dx9() -> String {
         }
         writeln!(s, "end").unwrap();
     }
+    // (D3DX9.F16) floats just past a tie below 2^-14, where an 8-at-a-time conversion that adds
+    // 2^-14 in f32 (x64's intelsse3, the clean-room notes) rounds up and one that shifts the
+    // mantissa down rounds down: 8 at a time, then as an array's rest
+    let ties = [0x3300_0401u32, 0x3300_07a0, 0x33c0_0306, 0x3420_0101, 0x3460_01fc, 0x3490_00b1, 0x3508_0041, 0x3578_0075, 0x3602_0011, 0x364e_0016, 0x36d9_000b, 0x37f7_4003, 0xb300_0401, 0xb420_0101, 0xb508_0041, 0xb602_0011];
+    s.push_str("case f16-ties\n");
+    for c in [&ties[..8], &ties[8..], &ties[..3]] {
+        s.push_str(&format!("x9f16{}\n", c.iter().map(|x| format!(" {x:#x}")).collect::<String>()));
+    }
+    s.push_str("end\n");
     s
 }
 
@@ -204,11 +213,17 @@ pub fn d3dx9load() -> String {
     // (D3DX9.LOAD.FORMAT) into YUY2 from half and signed sources: A16B16G16R16F, R16F, V8U8,
     // Q8W8V8U8, V16U16
     for src in [113u32, 111, 60, 63, 64] {
-        writeln!(s, "case load-yuy2-from-{src}\ndevice swvp").unwrap();
+        s.push_str(&format!("case load-yuy2-from-{src}\ndevice swvp\n"));
         for (w, h) in [(8, 2), (5, 1)] {
-            writeln!(s, "x9load 844715353 {src} {w} {h} {:#x} 1", r.next()).unwrap();
+            s.push_str(&format!("x9load 844715353 {src} {w} {h} {:#x} 1\n", r.next()));
         }
-        writeln!(s, "x9load 844715353 {src} 8 1 ramp 1\nend").unwrap();
+        s.push_str(&format!("x9load 844715353 {src} 8 1 ramp 1\nend\n"));
     }
+    // (D3DX9.LOAD.FORMAT) a block whose x87 OptimizeRGB index falls below 0 (found by search
+    // on the model), into DXT1 and DXT3
+    let neg = "a328ebff3232c4ffc0271afff632a2ff8e2ac4ffc32e6eff8e27fffffc2991ffe034a2ffde2a00ffeb2d68ffcf2c6dff6a154bff00e5ffffae27a8fff663c6ff";
+    s.push_str(&format!("case loadtex-dxt-negindex\ndevice swvp\nx9loadtex 827611204 21 4 4 b:{neg} 1\nx9loadtex 861165636 21 4 4 b:{neg} 1\nend\n"));
+    // (the processor: x64's D3DX converts halves by it, D3DX9.F16.CPU)
+    s.push_str("case cpu\nx9cpu\nend\n");
     s
 }

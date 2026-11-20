@@ -60,6 +60,24 @@ pub enum Fail {
     /// the executor dies on this line (a crash inside Windows' code): the lines before it are
     /// the case's, and no later case runs
     Crash,
+    /// the recording compared with lacks an input the model depends on (an answer older than
+    /// the case that records it): no clause is open, the answer is stale
+    NoInput(Input),
+}
+
+/// an input of the model that comes from the recording, not the case
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Input {
+    /// the executor's "cpu ..." line (x9cpu)
+    Cpu,
+}
+
+impl std::fmt::Display for Input {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Cpu => "cpu line",
+        })
+    }
 }
 
 /// how the executor leaves a case
@@ -289,7 +307,7 @@ fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
                     out.truncate(flushed);
                     return (Ok(out), Ended::Crash);
                 }
-                Err(e @ (Fail::Bad | Fail::Unmodeled(_))) => return (Err(e), Ended::Next),
+                Err(e @ (Fail::Bad | Fail::Unmodeled(_) | Fail::NoInput(_))) => return (Err(e), Ended::Next),
             }
         }
         return (Err(Fail::Bad), Ended::Next);
@@ -329,6 +347,7 @@ pub fn run_report(suite: &str, cases: &[Case]) -> (String, Vec<String>) {
                 s += "invalid case\n";
             }
             Err(Fail::Unmodeled(why)) => s += &format!("unmodeled {why}\n"),
+            Err(Fail::NoInput(what)) => s += &format!("unmodeled input {what}\n"),
             Err(Fail::Crash) => unreachable!("run_ops answers a crash as its lines"),
         }
         match ended {

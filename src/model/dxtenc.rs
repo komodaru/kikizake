@@ -31,18 +31,6 @@ impl Real for f32 {
     }
 }
 
-impl Real for f64 {
-    fn of(v: f32) -> Self {
-        f64::from(v)
-    }
-    fn trunc_i(self) -> i32 {
-        self as i32
-    }
-    fn store(self) -> Self {
-        self as f32 as f64
-    }
-}
-
 /// a value on the x87 as the x86 build computes: every operation rounded to the thread's
 /// precision with the rounding control the encoder set (the clean-room notes)
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
@@ -75,15 +63,15 @@ fn round_x87(hi: f64, lo: f64, bits: u32) -> f64 {
     let below = lo != 0.0 && lo.signum() != hi.signum();
     if bits == 53 {
         return match rc {
-            Rc::Chop if below => f64::from_bits(hi.to_bits() - 1),
+            Rc::Chop if below => f64::from_bits(hi.to_bits().wrapping_sub(1)),
             Rc::Chop | Rc::Nearest => hi,
         };
     }
     let near = hi as f32;
-    let down = |m: f32| f64::from(f32::from_bits(m.to_bits() - 1));
+    let down = |m: f32| f64::from(f32::from_bits(m.to_bits().wrapping_sub(1)));
     match rc {
         Rc::Chop => {
-            if f64::from(near).abs() > hi.abs() || f64::from(near) == hi && below {
+            if f64::from(near).abs() > hi.abs() || f64::from(near).to_bits() == hi.to_bits() && below {
                 down(near)
             } else {
                 f64::from(near)
@@ -91,7 +79,8 @@ fn round_x87(hi: f64, lo: f64, bits: u32) -> f64 {
         }
         Rc::Nearest => {
             let other = 2.0 * hi - f64::from(near);
-            if lo != 0.0 && f64::from(other as f32) == other && other != f64::from(near) {
+            let beyond = f64::from(if f64::from(near) > hi { near.next_down() } else { near.next_up() });
+            if lo != 0.0 && beyond.to_bits() == other.to_bits() {
                 // hi is the midpoint of two f32: lo decides
                 if (lo > 0.0) == (f64::from(near) > hi) { f64::from(near) } else { other }
             } else {
@@ -258,7 +247,7 @@ fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Option<(C3<F>, C3<F
         return Some((x, y));
     }
     let n = steps.n();
-    let fsteps = F::of((n - 1) as f32);
+    let fsteps = F::of(f32::from(u8::try_from(n.saturating_sub(1)).unwrap_or(u8::MAX)));
     F::chop(true);
     let mut bad = false;
     for _ in 0..8 {
@@ -423,7 +412,7 @@ fn optimize_alpha<F: Real>(pts: &[F; 16], six: bool) -> (F, F) {
             y = F::of(1.0);
         }
     }
-    let fsteps = F::of((n - 1) as f32);
+    let fsteps = F::of(f32::from(u8::try_from(n.saturating_sub(1)).unwrap_or(u8::MAX)));
     F::chop(true);
     for _ in 0..8 {
         if (y - x) < F::of(1.0 / 256.0) {
@@ -526,8 +515,8 @@ pub fn encode_alpha8<F: Real>(px: &[[F; 4]; 16]) -> [u8; 8] {
         }
         &[0, 2, 3, 4, 5, 6, 7, 1]
     };
-    let n = if six { 6 } else { 8 };
-    let fsteps = F::of((n - 1) as f32);
+    let n: usize = if six { 6 } else { 8 };
+    let fsteps = F::of(f32::from(u8::try_from(n.saturating_sub(1)).unwrap_or(u8::MAX)));
     let scale = if st[0] != st[1] { fsteps / (st[1] - st[0]) } else { F::of(0.0) };
     let mut bits = 0u64;
     F::chop(true);

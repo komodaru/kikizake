@@ -236,7 +236,7 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         Kind::Dxt(n) => DxtAlpha::of(n),
         Kind::Int | Kind::F16 | Kind::F32 | Kind::Yuv => None,
     };
-    if !(matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) || into_dxt.is_some() && wd % 4 == 0 && ht % 4 == 0 || yuy2 && matches!(sm.kind, Kind::Int | Kind::F32) && !sm.ch.iter().any(|c| is_bump(c.c))) {
+    if !(matches!(dm.kind, Kind::Int | Kind::F16 | Kind::F32) || into_dxt.is_some() && wd % 4 == 0 && ht % 4 == 0 || yuy2 && matches!(sm.kind, Kind::Int | Kind::F16 | Kind::F32)) {
         return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
     }
     if sm.ch.iter().chain(&dm.ch).any(|c| is_bump(c.c)) {
@@ -254,8 +254,7 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         out.push(format!("px rt {wd} {ht} {}", dm.bytes * 8));
     }
     // (MEASURED load-R16F .. load-A32B32G32R32F: halves of exponent 31 read as numbers and NaNs,
-    // numbers past the half range written as f16_load has them, D3DX9.LOAD.F16RANGE; open: on
-    // x64 a denormal half into R16F rounded or truncated, b75ffa2a rounded and b66623f9 not)
+    // numbers past the half range written as f16_load has them, D3DX9.LOAD.F16RANGE)
     let pixels: Vec<[Sample; 4]> = match sm.kind {
         Kind::Dxt(n) => {
             let alpha = DxtAlpha::of(n).ok_or(Fail::Bad)?;
@@ -267,10 +266,6 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         }
         Kind::Int | Kind::F16 | Kind::F32 => src.chunks(sm.bytes).map(|p| load_decode(&sm, sf, p)).collect(),
     };
-    let one_denormal = |p: &[Sample; 4]| p.iter().take(1).any(|&(Sample::Unsigned(v) | Sample::Signed(v))| f16_x64(v.to_bits(), false) != f16_x64(v.to_bits(), true));
-    if crate::model::arch() == 64 && dm.kind == Kind::F16 && dm.ch.len() == 1 && sf != df && pixels.iter().any(one_denormal) {
-        return Err(Fail::Unmodeled(open::D3DX9_LOAD_F16RANGE));
-    }
     if sm.kind == Kind::F16 || dm.kind == Kind::F16 {
         hit(clause::D3DX9_LOAD_F16HALVES);
     }
@@ -323,7 +318,8 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
         return Ok(());
     }
     for row in pixels.chunks(wd as usize) {
-        out.push(row.iter().enumerate().flat_map(|(i, &p)| load_encode(&dm, sm.kind, p, (i, wd as usize))).map(|x| format!("{x:02x}")).collect());
+        let bytes: Vec<Vec<u8>> = row.iter().enumerate().map(|(i, &p)| load_encode(&dm, sm.kind, p, (i, wd as usize))).collect::<Res<_>>()?;
+        out.push(bytes.iter().flatten().map(|x| format!("{x:02x}")).collect());
     }
     Ok(())
 }
@@ -354,11 +350,13 @@ fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Optio
 /// a pair of pixels into YUY2 as D3DX writes it (MEASURED load-into-YUY2, load-yuy2-probe):
 /// each Y 16 + (65.481 R + 128.553 G + 24.966 B) / 255, U and V the first pixel's
 /// 128 + (-37.797 R - 74.203 G + 112 B) / 255 and 128 + (112 R - 93.786 G - 18.214 B) / 255,
-/// of R, G, B in 0 .. 255, each offset plus 1/2 truncated toward 0
+/// of R, G, B in 0 .. 255 (a signed one as (s + 1) / 2; load-yuy2-from-*), each offset plus 1/2
+/// truncated toward 0
 fn yuy2_pair(p: &[[Sample; 4]]) -> [u8; 4] {
     let rgb = |s: &[Sample; 4]| -> [f64; 3] {
         std::array::from_fn(|k| match s[k] {
-            Sample::Unsigned(v) | Sample::Signed(v) => f64::from(v.clamp(0.0, 1.0)) * 255.0,
+            Sample::Unsigned(v) => f64::from(v.clamp(0.0, 1.0)) * 255.0,
+            Sample::Signed(v) => f64::from(((v + 1.0) / 2.0).clamp(0.0, 1.0)) * 255.0,
         })
     };
     let q = |v: f64| (v + 0.5).trunc();
@@ -556,7 +554,7 @@ fn is_bump(c: u8) -> bool {
 /// (r, g, b, a) into a pixel as D3DX writes it: unorm channels rounded to nearest, X bits 0,
 /// luminance Rec. 709's 0.2125 r + 0.7154 g + 0.0721 b, halves rounded to nearest (MEASURED:
 /// d3dx9load)
-fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample; 4], (at, row): (usize, usize)) -> Vec<u8> {
+fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample; 4], (at, row): (usize, usize)) -> Res<Vec<u8>> {
     use super::d3d9draw::{round_even, Kind};
     hit(clause::D3DX9_LOAD_CONVERT);
     // (a signed channel into an unsigned or luminance one as (s + 1) / 2, into a float as it is)
@@ -593,8 +591,7 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
             _ => continue,
         };
         let raw = match f.kind {
-            // (a row's floats through D3DXFloat32To16Array: whole blocks, in this suite)
-            Kind::F16 => f16_load(v.to_bits(), f.ch.len(), ci + f.ch.len() * at, f.ch.len() * row) as u64,
+            Kind::F16 => u64::from(f16_load(v.to_bits(), f.ch.len(), ci + f.ch.len() * at, f.ch.len() * row)?),
             Kind::F32 => v.to_bits() as u64,
             _ => {
                 let m = ((1u64 << ch.bits) - 1) as f32;
@@ -608,22 +605,29 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
         };
         w |= (raw as u128) << ch.shift;
     }
-    w.to_le_bytes()[..f.bytes].to_vec()
+    Ok(w.to_le_bytes()[..f.bytes].to_vec())
 }
 
 /// a float as D3DXLoadSurfaceFromMemory writes it into a half channel, the channel k of n of
 /// the row's pixels (at = n x + k of len = n x width) (MEASURED d3dx9load load-R32F, -G32R32F,
 /// -A32B32G32R32F, -A16B16G16R16F): four halves a pixel as the row's array through
-/// D3DXFloat32To16Array; two a pixel as an array of the pixel's two; one through
-/// D3DXFloat32To16, as an array's rest on x86, as its bulk on x64
-fn f16_load(x: u32, n: usize, at: usize, len: usize) -> u16 {
-    match (n, crate::model::arch()) {
-        (4, 64) => f16_x64(x, at < len - len % 4),
-        (4, _) if at < len - len % 8 => f16_block(x),
-        (1, 64) => f16_x64(x, true),
-        (_, 64) => f16_x64(x, false),
-        _ => f16_one(x),
-    }
+/// D3DXFloat32To16Array; one or two a pixel as an array of the pixel's own, so as an array's
+/// rest (on x64 f16_x64_tail)
+fn f16_load(x: u32, n: usize, at: usize, len: usize) -> Res<u16> {
+    // (the clean-room notes: A16B16G16R16F's codec converts a row in one D3DXFloat32To16Array
+    // call, R16F's and G16R16F's a pixel at a time; MEASURED load-A32B32G32R32F)
+    hit(clause::D3DX9_LOAD_F16RANGE);
+    let conv = F16Array::of_executor()?;
+    // (the value's place in the array it goes through: the row's, or a lone one's)
+    let (at, len) = if n == 4 { (at, len) } else { (0, 1) };
+    let bulk = len - len % if conv == F16Array::Amd64 { 4 } else { 8 };
+    Ok(match (conv, at < bulk) {
+        (F16Array::X86, true) => f16_block(x),
+        (F16Array::IntelSse3, true) => f16_sse(x),
+        (F16Array::X86 | F16Array::IntelSse3, false) => f16_one(x),
+        (F16Array::Amd64, true) => f16_x64(x),
+        (F16Array::Amd64, false) => f16_x64_tail(x),
+    })
 }
 
 /// D3DXGetDeclVertexSize of stream 0: the end of the furthest element of the stream
@@ -650,7 +654,7 @@ impl Api for D3dx9 {
             "x9cpu" => {
                 // (the executor's processor, an input: crate::model::set_cpu)
                 let Some(c) = crate::model::cpu() else {
-                    return Err(Fail::Unmodeled(open::D3DX9_F16_CPU));
+                    return Err(Fail::NoInput(crate::model::Input::Cpu));
                 };
                 out.push(c);
             }
@@ -659,15 +663,8 @@ impl Api for D3dx9 {
                 let w = words(op, 1)?;
                 // (MEASURED, d3dx9 f16-*, 3688 values: x86 does the array 8 at a time and then
                 // the rest one by one; x64 4 at a time and then the rest, conversions that differ,
-                // or on another processor as x86 does: golden 465fd71)
-                let x64 = crate::model::arch() == 64 && !cpu_as_x86()?;
-                let bulk = if x64 { w.len() - w.len() % 4 } else { w.len() - w.len() % 8 };
-                let f = |i: usize, x: u32| match (x64, i < bulk) {
-                    (false, true) => f16_block(x),
-                    (false, false) => f16_one(x),
-                    (true, b) => f16_x64(x, b),
-                };
-                out.push(format!("f16{}", w.iter().enumerate().map(|(i, &x)| format!(" {:04x}", f(i, x))).collect::<String>()));
+                // or on GenuineIntel as x86 does: golden 465fd71)
+                out.push(format!("f16{}", F16Array::of_executor()?.convert(&w).iter().map(|h| format!(" {h:04x}")).collect::<String>()));
             }
             "x9f32" => {
                 hit(clause::D3DX9_F32);
@@ -698,6 +695,23 @@ pub fn f16_to_f32(h: u16) -> f32 {
 
 /// a float as a half the way D3DXFloat32To16Array does most of an array (8 at a time): IEEE,
 /// ties toward zero; infinity past 65504 and for infinities and NaNs (MEASURED: d3dx9 f16-*)
+/// a float as a half the way x64's intelsse3 D3DXFloat32To16Array does 8 at a time (the
+/// clean-room notes): below 2^-14 the magnitude plus 2^-14 in f32 (rounding to 2^-37), its
+/// bits less 2^23; the bits plus 0xc8000fff shifted down 13, at most 0x7c00
+pub fn f16_sse(x: u32) -> u16 {
+    let a = f32::from_bits(x & 0x7fff_ffff);
+    let tiny = a < f32::from_bits(0x3880_0000);
+    let b = if tiny { (a + f32::from_bits(0x3880_0000)).to_bits() - 0x80_0000 } else { a.to_bits() };
+    let r = b.wrapping_add(0xc800_0fff) >> 13;
+    low16(x >> 16 & 0x8000 | r.min(0x7c00))
+}
+
+/// the low 16 bits
+fn low16(v: u32) -> u16 {
+    let [a, b, _, _] = v.to_le_bytes();
+    u16::from_le_bytes([a, b])
+}
+
 pub fn f16_block(x: u32) -> u16 {
     let s = (x >> 16 & 0x8000) as u16;
     let i = x & 0x7fff_ffff;
@@ -720,40 +734,73 @@ pub fn f16_one(x: u32) -> u16 {
     s | ((b + 0xfff + (b >> 13 & 1)) >> 13) as u16
 }
 
-/// a float as a half the way x64's D3DXFloat32To16Array does: exponent 31 a number, ties to
-/// even, 0x7fff past 131008 and for infinities, a NaN's mantissa rounded with the quiet bit set;
-/// denormals rounded 4 at a time, the rest of the array's truncated (MEASURED: d3dx9 f16-*)
-/// whether x64's D3DXFloat32To16Array goes as x86's on the executor's processor (OPEN, guessed:
-/// where the processor lacks AVX, since an AMD one with AVX and F16C went 4 at a time;
-/// D3DX9.F16.CPU)
-fn cpu_as_x86() -> Res<bool> {
-    if crate::model::arch() != 64 {
-        return Ok(false);
-    }
-    hit(clause::D3DX9_F16_CPU);
-    let c = crate::model::cpu().ok_or(Fail::Unmodeled(open::D3DX9_F16_CPU))?;
-    if c == "cpu AuthenticAMD feda3203 178bfbff f1bf07a9" {
-        return Ok(false);
-    }
-    super::approx(open::D3DX9_F16_CPU)?;
-    let ecx = c.split(' ').nth(2).and_then(|v| u32::from_str_radix(v, 16).ok()).ok_or(Fail::Bad)?;
-    Ok(ecx & 1 << 28 == 0)
+/// the D3DXFloat32To16Array the executor's D3DX runs (D3DX9.F16.CPU): x86's; on x64 D3DX's
+/// fast table takes intelsse3's where cpuid's vendor is GenuineIntel, amdx64's otherwise (the
+/// clean-room notes; MEASURED golden d3dx9 of 4abddab, AuthenticAMD as amdx64's)
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum F16Array {
+    /// 8 at a time as f16_block, the rest one by one as f16_one
+    X86,
+    /// 8 at a time as f16_sse, the rest one by one as f16_one (c_D3DXFloat32To16Array)
+    IntelSse3,
+    /// 4 at a time as f16_x64, the rest one by one as f16_x64_tail
+    Amd64,
 }
 
-pub fn f16_x64(x: u32, four: bool) -> u16 {
-    let s = (x >> 16 & 0x8000) as u16;
-    let (i, m) = (x & 0x7fff_ffff, x & 0x7f_ffff);
-    if i > 0x7f80_0000 {
-        return s | 0x7e00 | ((m + 0xfff + (m >> 13 & 1)) >> 13 & 0x3ff) as u16;
+impl F16Array {
+    fn of_executor() -> Res<Self> {
+        if crate::model::arch() != 64 {
+            return Ok(Self::X86);
+        }
+        hit(clause::D3DX9_F16_CPU);
+        let c = crate::model::cpu().ok_or(Fail::NoInput(crate::model::Input::Cpu))?;
+        Ok(if c.split(' ').nth(1).ok_or(Fail::Bad)? == "GenuineIntel" { Self::IntelSse3 } else { Self::Amd64 })
     }
-    if i > 0x47ff_efff {
-        return s | 0x7fff;
+
+    /// an array of floats as halves
+    fn convert(self, w: &[u32]) -> Vec<u16> {
+        let step = if self == Self::Amd64 { 4 } else { 8 };
+        let bulk = w.len() - w.len() % step;
+        w.iter()
+            .enumerate()
+            .map(|(i, &x)| match (self, i < bulk) {
+                (Self::X86, true) => f16_block(x),
+                (Self::IntelSse3, true) => f16_sse(x),
+                (Self::X86 | Self::IntelSse3, false) => f16_one(x),
+                (Self::Amd64, true) => f16_x64(x),
+                (Self::Amd64, false) => f16_x64_tail(x),
+            })
+            .collect()
     }
-    let b = half_bits(i);
-    if i < 0x3880_0000 && !four {
-        return s | (b >> 13) as u16;
-    }
-    s | ((b + 0xfff + (b >> 13 & 1)) >> 13) as u16
+}
+
+/// x64's D3DXFloat32To16Array past its last 4 (the clean-room notes): clamped to +-131008
+/// (a NaN to -131008), rounded to a half's 11 bits by adding and taking off 8192 times
+/// itself, times 2^-112, the bits shifted down 13 (a denormal truncated)
+pub fn f16_x64_tail(x: u32) -> u16 {
+    let v = f32::from_bits(x);
+    let (lo, hi) = (-131008f32, 131008f32);
+    let m = if v > hi { hi } else { v };
+    let v = if !(m > lo) { lo } else if v > hi { hi } else { v };
+    let c = v * 8192.0;
+    let t = ((c + v) - c) * f32::from_bits(0x0780_0000);
+    let b = t.to_bits();
+    low16(v.to_bits() >> 16 & 0x8000 | b >> 13 & 0x7fff)
+}
+
+/// a float as a half the way x64's amdx64 D3DXFloat32To16Array does 4 at a time: exponent 31
+/// a number, ties to even, 0x7fff past 131008 and for infinities, a NaN's mantissa rounded
+/// with the quiet bit set (MEASURED: d3dx9 f16-*; the clean-room notes: clamped by minps and
+/// maxps, times 2^-112, rounded at bit 13)
+pub fn f16_x64(x: u32) -> u16 {
+    let (lo, hi) = (-131008f32, 131008f32);
+    // (minps and maxps: a NaN goes through)
+    let v = f32::from_bits(x);
+    let v = if hi < v { hi } else { v };
+    let v = if lo > v { lo } else { v };
+    let t = (v * f32::from_bits(0x0780_0000)).to_bits();
+    let r = t.wrapping_add(t >> 13 & 1).wrapping_add(0xfff) >> 13 & 0x7fff;
+    low16(v.to_bits() >> 16 & 0x8000 | r)
 }
 
 /// a float's magnitude (below 2^17) as a half shifted left 13: the exponent rebiased, or
