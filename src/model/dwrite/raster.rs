@@ -29,19 +29,41 @@ enum Scale {
     Fixed16,
 }
 
-/// a design coordinate in 1/64 pixel at em pixels per em, Scale::Direct: MEASURED (golden
-/// dwrite, rastertie, gdisideupm): half a 1/64 pixel rounds up, but away from zero below zero
-/// at units per em not a power of 2
-fn direct(v: i16, em: i64, upm: i64) -> i64 {
-    let n = v as i64 * em * 64 * 2;
-    if n < 0 && !(upm as u64).is_power_of_two() { -((-n + upm).div_euclid(2 * upm)) } else { (n + upm).div_euclid(2 * upm) }
+/// a design coordinate in 1/64 pixel at em pixels per em, Scale::Direct: the TrueType scaler's
+/// scale record (re/dwrite.md, scl_InitializeScaling, Follow-up B): ppem 128 / 2^g over upm 2 / 2^g,
+/// g the common power of 2; a power of 2 divisor (upm one) shifts, half up below zero too
+/// (MEASURED, golden dwrite, rastertie, gdisideupm), another divides, half away from zero, and
+/// a numerator past 32767 (ppem / 2^g > 255) multiplies by its 16.16 ratio, half away from zero
+pub fn direct(v: i64, em: i64, upm: i64) -> i64 {
+    let (mut n, mut d) = (em << 16, upm << 16);
+    let t = (n | d).trailing_zeros() as i64;
+    if t > 1 {
+        n >>= t - 1;
+        d >>= t - 1;
+    }
+    let numer = if n < 0x200_0000 {
+        n * 64
+    } else {
+        d >>= 6;
+        n
+    };
+    let away = |x: i64, d: i64| if x >= 0 { (x + d / 2) / d } else { -((d / 2 - x) / d) };
+    if numer > 0x7fff {
+        let fixed = away(numer << 16, d).clamp(i32::MIN as i64, i32::MAX as i64);
+        let m = v * fixed;
+        ((m + 0x8000 - (m < 0) as i64) >> 16).clamp(i32::MIN as i64, i32::MAX as i64)
+    } else if (d as u64).is_power_of_two() {
+        (v * numer + d / 2) >> d.trailing_zeros()
+    } else {
+        away(v * numer, d)
+    }
 }
 
 fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
     let upm = p.upm as i64;
     let s16 = ((em << 17) / upm + 1) >> 1;
     let sc = |v: i16| match scale {
-        Scale::Direct => direct(v, em, upm),
+        Scale::Direct => direct(v as i64, em, upm),
         Scale::Fixed16 => (v as i64 * s16 + 0x200) >> 10,
     };
     // (a position in 1/64 sample snapped to 1/q pixel, a step of 64 n / q of them)

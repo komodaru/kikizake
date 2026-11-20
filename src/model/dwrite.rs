@@ -219,6 +219,17 @@ impl ToEm {
     }
 }
 
+/// the scaler's advance phantom point (re/dwrite.md, scl_RoundCurrentSideBearingPnt): adv design
+/// units at ppem rounded half away from zero to 16.16, then to 26.6, then to a 1/16 pixel
+/// (axis aligned) or a whole pixel (sideways); the advance's whole pixels (half up)
+fn phantom_px(adv: i64, ppem: i64, upm: i64, sideways: bool) -> i64 {
+    let n = adv * (ppem << 16);
+    let a16 = if n >= 0 { (n + upm / 2) / upm } else { -((upm / 2 - n) / upm) };
+    let a26 = (a16 + 0x200) >> 10;
+    let q = if sideways { a26 } else { (a26 + 2) & !3 };
+    (q + 32) >> 6
+}
+
 /// the scaler's vectors are in 6 samples a pixel across, divided back as (v + 3) / 6 truncated
 fn down6(v: i64) -> i64 {
     (v + 3) / 6
@@ -576,20 +587,26 @@ impl Dwrite {
                     let upm = m.upm as i64;
                     let fix = (ppem << 16) / upm;
                     // (the vertical advance: rounded half down, and down up to 65/128)
-                    let pxa = |v: i32| -((-128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm));
-                    let pxv = |v: i32| (128 * v as i64 * ppem + 65 * upm).div_euclid(128 * upm);
-                    let px = |v: i32| match (nat, sideways) {
-                        (true, false) => (128 * v as i64 * ppem + 69 * upm).div_euclid(128 * upm),
-                        (_, true) => pxv(v),
-                        (false, false) => (v as i64 * fix + 0x8000) >> 16,
+                    // (re/dwrite.md, scl_RoundCurrentSideBearingPnt: the vertical origin
+                    // phantom is the origin in 26.6 rounded to the pixel, the advance's end the
+                    // origin less the advance height rounded half away to 16.16 and to 26.6,
+                    // then rounded to the pixel; the advance width see phantom_px, but the
+                    // classic one below 256 ppem the 16.16 truncated scale's)
+                    let p3 = |v: i32| (raster::direct(v as i64, ppem, upm) + 32) & !63;
+                    let pxv = |v: i32| p3(v) >> 6;
+                    let pxa = |o: i32, h: i32| {
+                        let n = -(h as i64) * (ppem << 16);
+                        let h16 = if n >= 0 { (n + upm / 2) / upm } else { -((upm / 2 - n) / upm) };
+                        (p3(o) - ((p3(o) + 32 + ((h16 + 0x200) >> 10)) & !63)) >> 6
                     };
+                    let classic = !nat && !sideways && ppem <= 255;
+                    let px = |v: i32| if classic { (v as i64 * fix + 0x8000) >> 16 } else { phantom_px(v as i64, ppem, upm, sideways) };
                     // (the em fraction alone, and a fraction back in design units: a side bearing
                     // is the difference of its two edges' em fractions, each rounded on its own)
                     let ef = |k: i64, n: i64| (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
                     let fu = |f: i64| (2 * f * upm + 65536).div_euclid(131072) as i32;
-                    if ppem > 255 {
-                        // (past a byte the compatible width path is off: not measured, and the
-                        // generators write none)
+                    if ppem > 4096 {
+                        // (past the sizes measured: the generators write none)
                         return Err(Fail::Bad);
                     }
                     if ppem == upm && !sideways {
@@ -610,7 +627,8 @@ impl Dwrite {
                         // (sideways: the glyph's y is drawn across, so the 6 samples are its y)
                         let (nx, ny) = if sideways { (1, 6) } else { (6, 1) };
                         let bb = raster::black_box(p, ppem, *gid, nx, ny)?.unwrap_or((0, 0, 0, 0));
-                        let (advp, voyp, advhp) = (px(g.adv as i32), pxv(vorg.unwrap_or(g.voy)), pxa(vadv.unwrap_or(g.advh as i32)));
+                        let o = vorg.unwrap_or(g.voy);
+                        let (advp, voyp, advhp) = (px(g.adv as i32), pxv(o), pxa(o, vadv.unwrap_or(g.advh as i32)));
                         hit(clause::DW_GDI_EDGE);
                         // (each edge's em fraction in 16.16: the origin, the advances and the box)
                         let (eo, eah, eaw, left, top, right, bottom) = if sideways {
@@ -623,7 +641,7 @@ impl Dwrite {
                             (eo, eah, to.whole(advp), to.whole(bb.0), to.sixths(bb.1, -1.0), to.whole(bb.2), to.sixths(bb.3, -1.0))
                         } else {
                             // (classic advances: an exact fraction of the whole pixels)
-                            let eaw = if nat { to.whole(advp) } else { ef(advp, 1) };
+                            let eaw = if classic { ef(advp, 1) } else { to.whole(advp) };
                             (to.whole(voyp), to.whole(advhp), eaw, to.sixths(bb.0, 1.0), to.whole(-bb.1), to.sixths(bb.2, 1.0), to.whole(-bb.3))
                         };
                         *g = GlyphMetrics {
@@ -679,10 +697,12 @@ impl Dwrite {
                 // rounded to whole pixels (612 advances); GDI natural ones round up from a
                 // little below the half (between 0.4545 and 0.462 of a pixel, 612 advances)
                 hit(clause::DW_SHAPE_GDIPLACE);
+                // (re/dwrite.md: past 255 ppem the classic advance is the natural one)
                 let fix = ((em << 16) / upm as i64) as i64;
-                out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(((adv(g) as i64 * fix + 0x8000) >> 16) as f32)).collect())));
+                let nat = |g: u16| phantom_px(adv(g) as i64, em, upm as i64, false) as f32;
+                out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(if em <= 255 { ((adv(g) as i64 * fix + 0x8000) >> 16) as f32 } else { nat(g) })).collect())));
                 hit(clause::DW_SHAPE_NATPLACE);
-                out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f((adv(g) as i64 * em * 128 + 69 * upm as i64).div_euclid(128 * upm as i64) as f32)).collect())));
+                out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f(nat(g))).collect())));
             }
             "dwrun" => {
                 let (mode, fit) = raster::Mode::parse(t.get(1).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;

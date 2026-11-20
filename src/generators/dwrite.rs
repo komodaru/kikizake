@@ -874,6 +874,32 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             writeln!(s, "case gdiupm-{u}\n{}\ndwgdiglyph {u} 1 0 0 {gl}\ndwgdiglyph {u} 1 1 0 {gl}\ndwgdiglyph {u} 1 0 1 {gl}\nend", font_line(&f)).unwrap();
         }
     }
+    // past 255 ppem (re/dwrite.md): the classic advance becomes the natural one, the scale of
+    // design units to 26.6 multiplies by a 16.16 ratio (half away from zero) where ppem / 2^g
+    // passes 255, and at ppem == upm the design metrics come back (gdibig: random glyphs, and
+    // edges on an exact half of a 1/64 pixel below zero; shapebig: placements)
+    for (i, &(pp, u)) in [(256i64, 2048i64), (257, 2048), (300, 1000), (384, 2048), (511, 4096), (640, 1000), (700, 1400), (1000, 1000), (1024, 2048), (2048, 2048)].iter().enumerate() {
+        let mut f = font(0x0fe0_0000 + i as u32);
+        f.upm = u as u16;
+        f.vertical = true;
+        // (a coordinate whose 26.6 value is an exact half: v pp 64 / u = n + 1/2)
+        let w = 30 * u / pp;
+        let half: Vec<i64> = (-w..0).rev().filter(|&v| (2 * v * pp * 64).rem_euclid(2 * u) == u).take(7).collect();
+        for (j, g) in f.glyphs.iter_mut().enumerate().skip(1) {
+            let a = j as i64;
+            // (a box some 30 pixels across, so the black box stays quick to draw)
+            let lo = half.get(j % 7).copied().unwrap_or(-w / 3);
+            g.rects = vec![(((a * 13) % w) as i16, lo as i16, (w + a * 7) as i16, (w + a * 11) as i16)];
+            g.adv = (u / 3 + a * 17 + (u / pp).max(1) * a / 3) as u16;
+            g.vert = ((u + a * 29) as u16, (u / 7 - a * 3) as i16);
+        }
+        let gl = (1..=14).map(|g| g.to_string()).collect::<Vec<_>>().join(" ");
+        // (sideways too where the box is small enough to draw)
+        let side = if pp <= 1024 { format!("\ndwgdiglyph {pp} 1 0 1 {gl}") } else { String::new() };
+        writeln!(s, "case gdibig-{pp}-{u}\n{}\ndwgdiglyph {pp} 1 0 0 {gl}\ndwgdiglyph {pp} 1 1 0 {gl}{side}\nend", font_line(&f)).unwrap();
+        let chars: Vec<String> = CHARS[..13].iter().map(|c| format!("{c:#x}")).collect();
+        writeln!(s, "case shapebig-{pp}-{u}\n{}\ndwshape {pp} {}\nend", font_line(&f), chars.join(" ")).unwrap();
+    }
     // every size from 1 to 255 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
     // 9/2 of 1/ppem of a half, each at a units per em where the fraction and the one above it
