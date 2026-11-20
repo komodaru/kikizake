@@ -1251,5 +1251,3 @@ wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic
 wicscale fmt-cmyk-linear
 wicscale fmt-cmyk-nn
-wicscale rgrid-hqcubic-rgba64-4x4-9x9
-wicscale rgrid-hqcubic-rgba64-7x7-3x3

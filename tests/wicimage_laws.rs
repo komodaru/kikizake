@@ -777,3 +777,27 @@ proptest! {
         prop_assert_eq!(a.px, b.px);
     }
 }
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(500))]
+
+    /// a 16-bit HighQualityCubic pass's weights: one window per output inside the source, its
+    /// weights adding to 1 within f32 rounding, and a pass of the same size the source itself
+    #[test]
+    fn hq16_weights_add_to_one(n in 1u32..200, d in 1u32..200) {
+        let t = wi::hq_taps32(n, d);
+        prop_assert_eq!(t.len(), d as usize);
+        for o in &t {
+            prop_assert!(!o.w.is_empty() && o.start + o.w.len() <= n as usize);
+            let sum: f32 = o.w.iter().sum();
+            prop_assert!((sum - 1.0).abs() < 1e-5, "{n}->{d}: {sum}");
+        }
+        if n == d {
+            for (i, o) in wi::hq_taps32(n, n).iter().enumerate() {
+                for (m, &w) in o.w.iter().enumerate() {
+                    prop_assert_eq!(w, if o.start + m == i { 1.0 } else { 0.0 });
+                }
+            }
+        }
+    }
+}
