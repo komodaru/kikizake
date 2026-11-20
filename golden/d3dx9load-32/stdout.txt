@@ -3896,4 +3896,12 @@ px rt 5 1 16
 7cc0a166afa3527b78c3
 px rt 8 1 16
 8cb78f7792b3957898b09b789eaca179
+case loadtex-dxt-negindex
+device ok
+px rt 4 4 -8
+1ff0d5915ff75577
+px rt 4 4 -16
+ffffffffffffffffe0ff5689555555d1
+case cpu
+cpu GenuineIntel fefa3203 1f8bfbff f1bf2fb9
 done
