@@ -976,18 +976,36 @@ pub enum Stroke {
     /// the widened outline filled: a rectangle for flat (0) and square (1) caps
     Wide { square_start: bool, square_end: bool },
 }
+/// the axes a world matrix stretches a unit circle to (GetMajorAndMinorAxis): (major, minor),
+/// each at least NEAR, in the arch's rounding (MEASURED, golden gdiplusline world-8: a major
+/// axis of 1.50000007 is 1.5 on x64, a one-pixel line, but 1.5000001 on x86, a widened one)
+pub fn axes(r: Round, m: &Matrix) -> (f32, f32) {
+    let sq = |v: f32| r.mul(v, v);
+    let a = r.add(sq(m[1]), sq(m[0]));
+    let b = r.add(r.mul(m[3], m[1]), r.mul(m[2], m[0]));
+    let half = r.mul(r.sub(a, r.add(sq(m[2]), sq(m[3]))), 0.5);
+    let r2 = r.add(sq(b), sq(half));
+    let rr = if r2 > 0.0 { sqrt32(r, r2) } else { r2 };
+    let mean = r.mul(r.add(r.add(sq(m[2]), a), sq(m[3])), 0.5);
+    (NEAR.max(sqrt32(r, r.add(mean, rr))), NEAR.max(sqrt32(r, r.sub(mean, rr))))
+}
 /// which way a stroke goes (DpDriver::StrokePath); None where not modelled
-pub fn stroke(p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
-    // (a world transform other than a translation scales the width test: not modelled)
-    if world.is_some_and(|m| !translates_only(Round::Nearest, m)) {
-        return None;
-    }
+pub fn stroke(r: Round, p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
+    // (a world transform other than a translation scales the width by its major axis)
+    let general = world.filter(|m| !translates_only(r, m));
+    let device = match general {
+        None => p.width,
+        Some(m) => {
+            hit(clause::GP_PEN_WORLD);
+            r.mul(p.width, axes(r, m).0)
+        }
+    };
     let custom = (p.start_cap | p.end_cap) & 0xf0 != 0;
-    if p.width <= 1.5 && !custom && p.dash == 0 && p.color >> 24 == 0xff {
+    if device <= 1.5 && !custom && p.dash == 0 && p.color >> 24 == 0xff {
         hit(clause::GP_PEN_ONEPIXEL);
         return Some(Stroke::OnePixel);
     }
-    if p.width <= 1.5 && !custom && p.dash == 0 {
+    if device <= 1.5 && !custom && p.dash == 0 {
         hit(clause::GP_PEN_ONEPIXEL);
         return Some(Stroke::Diamond);
     }
@@ -999,20 +1017,32 @@ pub fn stroke(p: &Pen, world: Option<&Matrix>) -> Option<Stroke> {
     if p.dash != 0 || p.align != 0 {
         return None;
     }
+    // (a pen under a device pixel thin across, CalculateNormals' snapping: not fitted)
+    if general.is_some_and(|m| r.mul(p.width, axes(r, m).1) < 1.000_05) {
+        return None;
+    }
     Some(Stroke::Wide { square_start: cap(p.start_cap)?, square_end: cap(p.end_cap)? })
 }
 
 /// a one-pixel aliased line (DrawSolidLineOnePixelAliased) through the device matrix (28.4,
 /// GP.RASTER.FILL's device), clipped to the w x h bitmap; None for a line of no length
 pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, f32), w: u32, h: u32) -> Option<Coverage> {
-    hit(clause::GP_PEN_ALIASED);
     let snap = |x: f32, y: f32| {
         let (x, y) = apply(r, m, x, y);
-        (i64::from(ceil16(r, x)), i64::from(ceil16(r, y)))
+        (ceil16(r, x), ceil16(r, y))
     };
-    let (p1, p2) = (snap(x1, y1), snap(x2, y2));
+    let mut cov = empty(w, h);
+    dda(r, snap(x1, y1), snap(x2, y2), &mut cov).then_some(cov)
+}
+
+/// one segment between 28.4 points drawn by the aliased one-pixel DDA into cov, its last pixel
+/// too; false for a segment of no length (not modelled)
+fn dda(r: Round, p1: (i32, i32), p2: (i32, i32), cov: &mut Coverage) -> bool {
+    hit(clause::GP_PEN_ALIASED);
+    let (w, h) = (cov.w, cov.h);
+    let (p1, p2) = ((i64::from(p1.0), i64::from(p1.1)), (i64::from(p2.0), i64::from(p2.1)));
     if p1 == p2 {
-        return None;
+        return false;
     }
     let ymajor = (p2.1 - p1.1).abs() >= (p2.0 - p1.0).abs();
     // (major, minor)
@@ -1030,7 +1060,7 @@ pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, 
     let (lo, hi) = (-8, wmaj * 16 - 8);
     let (nlo, nhi) = (-8, wmin * 16 - 8);
     if b_maj < lo || a_maj > hi {
-        return Some(empty(w, h));
+        return true;
     }
     let (mut o50, mut o54) = (0.0f32, 0.0f32);
     let mut clipped = false;
@@ -1060,7 +1090,7 @@ pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, 
         clipped = true;
     }
     if b_maj < a_maj {
-        return Some(empty(w, h));
+        return true;
     }
     if o54 != 0.0 && b_min & 15 == 8 {
         b_min += 1;
@@ -1087,9 +1117,8 @@ pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, 
     }
     let m1 = r.add(r.add(r.mul((esi - b_maj) as f32, slope), b_min as f32), o54).floor() as i64;
     let (first, mut last) = (ebp >> 4, esi >> 4);
-    let mut cov = empty(w, h);
     if last < first {
-        return Some(cov);
+        return true;
     }
     let mut minor = ((m0 + 7) & !15) >> 4;
     let mut minor_end = (m1 + 7) >> 4;
@@ -1127,7 +1156,7 @@ pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, 
         }
         major += 1;
     }
-    Some(cov)
+    true
 }
 
 fn empty(w: u32, h: u32) -> Coverage {
@@ -1137,21 +1166,109 @@ fn empty(w: u32, h: u32) -> Coverage {
 /// a one-pixel antialiased line (RasterizePath, nominal width): the segment swept by a diamond
 /// of half a pixel, filled as GP.RASTER.FILL fills
 pub fn line_nominal(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, f32), rows: Option<u32>, w: u32, h: u32) -> Coverage {
-    hit(clause::GP_PEN_NOMINAL);
     let snap = |x: f32, y: f32| {
         let (x, y) = apply(r, m, x, y);
         (ceil16(r, x), ceil16(r, y))
     };
-    let (p0, p1) = (snap(x1, y1), snap(x2, y2));
-    let (dx, dy) = (p1.0 - p0.0, p1.1 - p0.1);
+    nominal(&[Fig { pts: vec![snap(x1, y1), snap(x2, y2)], closed: false }], rows, w, h)
+}
+
+/// the half pixel offsets along the minor axis, by octant class
+const O: [(i32, i32); 4] = [(0, -8), (-8, 0), (0, 8), (8, 0)];
+/// a segment's octant class: x-major right 0, left 2; y-major down 3, up 1 (a diagonal x-major)
+fn class(p: (i32, i32), q: (i32, i32)) -> usize {
+    let (dx, dy) = (q.0 - p.0, q.1 - p.1);
     let idx = usize::from(dx < 0) | usize::from(dy < 0) << 1 | usize::from(dy.abs() > dx.abs()) << 2;
-    let k = [0usize, 2, 0, 2, 3, 3, 1, 1][idx];
-    const O: [(i32, i32); 4] = [(0, -8), (-8, 0), (0, 8), (8, 0)];
-    let o = |j: usize| O[j % 4];
+    [0, 2, 0, 2, 3, 3, 1, 1][idx]
+}
+/// InitializeNominal: a polyline (28.4) swept by the half pixel diamond, the forward chain then
+/// the backward stack reversed; None for a polyline of one point
+pub fn sweep(pts: &[(i32, i32)]) -> Option<Vec<(i32, i32)>> {
+    let mut p: Vec<(i32, i32)> = Vec::with_capacity(pts.len());
+    for &q in pts {
+        if p.last() != Some(&q) {
+            p.push(q);
+        }
+    }
+    if p.len() < 2 {
+        return None;
+    }
     let add = |p: (i32, i32), q: (i32, i32)| (p.0 + q.0, p.1 + q.1);
     let sub = |p: (i32, i32), q: (i32, i32)| (p.0 - q.0, p.1 - q.1);
-    let pts = vec![sub(p0, o(k)), add(p0, o(k + 1)), add(p0, o(k)), add(p1, o(k)), add(p1, o(k + 3)), sub(p1, o(k))];
-    rasterize(&[Fig { pts, closed: true }], FillMode::Winding, rows, w, h)
+    let mut k = class(p[0], p[1]);
+    let mut fwd = vec![sub(p[0], O[k]), add(p[0], O[(k + 1) & 3])];
+    let mut back = Vec::new();
+    for i in 0..p.len() - 1 {
+        fwd.extend([add(p[i], O[k]), add(p[i + 1], O[k])]);
+        back.extend([sub(p[i], O[k]), sub(p[i + 1], O[k])]);
+        let Some(&next) = p.get(i + 2) else { break };
+        let k2 = class(p[i + 1], next);
+        if k2 == k {
+            continue;
+        }
+        let ((x0, y0), (x1, y1), (x2, y2)) = (p[i], p[i + 1], next);
+        let a = i64::from(x1 - x0) * i64::from(y2 - y1);
+        let b = i64::from(y1 - y0) * i64::from(x2 - x1);
+        if a < b {
+            if k2 != (k + 1) & 3 {
+                back.push(sub(p[i + 1], O[(k + 1) & 3]));
+            }
+            fwd.push(p[i + 1]);
+        } else {
+            if k2 != (k + 3) & 3 {
+                fwd.push(add(p[i + 1], O[(k + 3) & 3]));
+            }
+            back.push(p[i + 1]);
+        }
+        k = k2;
+    }
+    let end = p[p.len() - 1];
+    fwd.extend([add(end, O[(k + 3) & 3]), sub(end, O[k])]);
+    fwd.extend(back.into_iter().rev());
+    Some(fwd)
+}
+/// figures (28.4) stroked one pixel wide by the nominal rasterizer: each swept by the diamond
+/// (a closed one with its closing segment), filled with Winding
+pub fn nominal(figs: &[Fig], rows: Option<u32>, w: u32, h: u32) -> Coverage {
+    hit(clause::GP_PEN_NOMINAL);
+    let outlines: Vec<Fig> = figs
+        .iter()
+        .filter_map(|f| {
+            let mut pts = f.pts.clone();
+            if f.closed {
+                pts.push(f.pts[0]);
+            }
+            sweep(&pts).map(|pts| Fig { pts, closed: true })
+        })
+        .collect();
+    rasterize(&outlines, FillMode::Winding, rows, w, h)
+}
+
+/// a path stroked one pixel wide aliased by an opaque pen (SolidStrokePathOnePixel): each
+/// segment by the DDA, its last pixel too, a closed figure's closing segment as well; None where
+/// a segment has no length (not modelled)
+pub fn outline_aliased(r: Round, path: &Path, m: &Matrix, w: u32, h: u32) -> Res<Option<Coverage>> {
+    let mut cov = empty(w, h);
+    for f in enumerate(r, path, m)? {
+        let mut pts = f.pts.clone();
+        if f.closed {
+            pts.push(f.pts[0]);
+        }
+        for s in pts.windows(2) {
+            if !dda(r, s[0], s[1], &mut cov) {
+                return Ok(None);
+            }
+        }
+    }
+    Ok(Some(cov))
+}
+/// a path stroked one pixel wide by the nominal rasterizer
+pub fn outline_nominal(r: Round, path: &Path, m: &Matrix, rows: Option<u32>, w: u32, h: u32) -> Res<Coverage> {
+    Ok(nominal(&enumerate(r, path, m)?, rows, w, h))
+}
+/// whether a path holds a Bezier point (strokes of such go the nominal way)
+pub fn curved(path: &Path) -> bool {
+    path.pts.iter().any(|p| matches!(p.kind, Kind::Bezier))
 }
 
 /// a wide straight line with flat or square caps: its outline, a rectangle about the line

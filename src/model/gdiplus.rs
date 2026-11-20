@@ -1441,10 +1441,30 @@ impl Gdiplus {
         let q = Quality::from_value(n(t, 6)?).ok_or(Fail::Bad)?;
         let (sm, po) = (n(t, 7)?, n(t, 8)?);
         let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
-        if t.get(9).map(String::as_str) != Some("line") {
-            return Err(Fail::Unmodeled(open::GP_PEN));
-        }
-        let (p0, p1) = ((f(10)?, f(11)?), (f(12)?, f(13)?));
+        let list = |at: usize| -> Res<Vec<(f32, f32)>> {
+            let c = n(t, at)?;
+            if !(0..=32).contains(&c) {
+                return Err(Fail::Bad);
+            }
+            (0..c as usize).map(|j| Ok((f(at + 1 + 2 * j)?, f(at + 2 + 2 * j)?))).collect()
+        };
+        let r = rounding();
+        let rect = || -> Res<(f32, f32, f32, f32)> { Ok((f(10)?, f(11)?, f(12)?, f(13)?)) };
+        // (the shape a path, as the Draw* calls make it: a line on its own way)
+        let mut path = gpp::Path::new(0);
+        let (line, made) = match t.get(9).map(String::as_str) {
+            Some("line") => (Some(((f(10)?, f(11)?), (f(12)?, f(13)?))), Ok(())),
+            Some("rect") => (None, path.add_rectangle(r, rect()?)),
+            Some("ellipse") => (None, path.add_ellipse(r, rect()?)),
+            Some("arc") => (None, path.add_arc(r, rect()?, f(14)?, f(15)?)),
+            Some("pie") => (None, path.add_pie(r, rect()?, f(14)?, f(15)?)),
+            Some("bezier") => (None, path.add_beziers(r, &[(f(10)?, f(11)?), (f(12)?, f(13)?), (f(14)?, f(15)?), (f(16)?, f(17)?)])),
+            Some("lines") => (None, path.add_lines(r, &list(10)?)),
+            Some("polygon") => (None, path.add_polygon(r, &list(10)?)),
+            Some("curve") => (None, path.add_curve(r, &list(11)?, f(10)?)),
+            Some("closedcurve") => (None, path.add_closed_curve(r, &list(11)?, f(10)?)),
+            _ => return Err(Fail::Bad),
+        };
         let Some(b) = self.bmp[s].as_mut() else {
             out.push("gpshape nobitmap".into());
             return Ok(true);
@@ -1473,18 +1493,31 @@ impl Gdiplus {
             out.push(format!("shape 0 {INVALID_PARAMETER}"));
             return Ok(true);
         };
-        let r = rounding();
+        if made.is_err() {
+            return Err(Fail::Unmodeled(open::GP_PEN));
+        }
         let dev = gpp::device(r, world.as_ref(), po);
-        let cov = match gpp::stroke(&pen, world.as_ref()).ok_or(Fail::Unmodeled(open::GP_PEN))? {
-            Stroke::OnePixel => match sm.rows() {
+        let how = gpp::stroke(r, &pen, world.as_ref()).ok_or(Fail::Unmodeled(open::GP_PEN))?;
+        let cov = match (line, how) {
+            (Some((p0, p1)), Stroke::OnePixel) => match sm.rows() {
                 None => gpp::line_aliased(r, &dev, p0, p1, b.w, b.h).ok_or(Fail::Unmodeled(open::GP_PEN))?,
                 Some(n) => gpp::line_nominal(r, &dev, p0, p1, Some(n), b.w, b.h),
             },
-            Stroke::Diamond => gpp::line_nominal(r, &dev, p0, p1, sm.rows(), b.w, b.h),
-            Stroke::Wide { square_start, square_end } => {
+            (Some((p0, p1)), Stroke::Diamond) => gpp::line_nominal(r, &dev, p0, p1, sm.rows(), b.w, b.h),
+            (Some((p0, p1)), Stroke::Wide { square_start, square_end }) => {
                 let outline = gpp::line_wide(r, p0, p1, pen.width, (square_start, square_end));
                 gpp::fill(r, &outline, world.as_ref(), FillMode::Winding, sm.rows(), po, b.w, b.h)?
             }
+            (None, Stroke::OnePixel) if sm.rows().is_none() && !gpp::curved(&path) => {
+                hit(clause::GP_PEN_OUTLINE);
+                gpp::outline_aliased(r, &path, &dev, b.w, b.h)?.ok_or(Fail::Unmodeled(open::GP_PEN))?
+            }
+            (None, Stroke::OnePixel | Stroke::Diamond) => {
+                hit(clause::GP_PEN_OUTLINE);
+                gpp::outline_nominal(r, &path, &dev, sm.rows(), b.w, b.h)?
+            }
+            // (the widener's joins and caps: GP.PEN)
+            (None, Stroke::Wide { .. }) => return Err(Fail::Unmodeled(open::GP_PEN)),
         };
         paint(b, &Brush::Solid(pen.color), Area::Cover(&cov), copy, q, sm, po, (0, 0))?;
         out.push("shape 0 0".into());

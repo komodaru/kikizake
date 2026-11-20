@@ -72,6 +72,50 @@ proptest! {
         let b = path::fill(r, &p, None, fm(wind), rows, PixelOffset::None, 16, 16).unwrap();
         prop_assert_eq!(a, b);
     }
+    /// the diamond sweep of a polyline is one closed loop: it starts and ends on the first
+    /// point's inner side, P0 - O[k]
+    #[test]
+    fn sweep_is_a_closed_loop(p in proptest::collection::vec((-200i32..200, -200i32..200), 1..8)) {
+        let mut q = p.clone();
+        q.dedup();
+        match path::sweep(&p) {
+            None => prop_assert_eq!(q.len(), 1),
+            Some(o) => {
+                prop_assert!(q.len() >= 2);
+                prop_assert_eq!(o.first(), o.last());
+                prop_assert!(o.len() >= 4 * q.len());
+            }
+        }
+    }
+    /// a two point path stroked one pixel wide is the line drawn: aliased by the DDA,
+    /// antialiased or aliased-translucent by the sweep
+    #[test]
+    fn a_two_point_outline_is_the_line(a in (-4f32..20.0, -4f32..20.0), b in (-4f32..20.0, -4f32..20.0), down: bool, aa in 0u32..3, half: bool) {
+        let r = if down { Round::Down } else { Round::Nearest };
+        let rows = [None, Some(4), Some(8)][aa as usize];
+        let po = if half { PixelOffset::Half } else { PixelOffset::None };
+        let m = path::device(r, None, po);
+        let mut p = Path::new(0);
+        p.add_lines(r, &[a, b]).unwrap();
+        prop_assert_eq!(path::outline_nominal(r, &p, &m, rows, 16, 16).unwrap(), path::line_nominal(r, &m, a, b, rows, 16, 16));
+        prop_assert_eq!(path::outline_aliased(r, &p, &m, 16, 16).unwrap(), path::line_aliased(r, &m, a, b, 16, 16));
+    }
+    /// a closed figure stroked by the DDA is each of its segments drawn, the closing one too
+    #[test]
+    fn a_polygon_outline_is_its_segments(v in proptest::collection::vec((-4f32..20.0, -4f32..20.0), 3..7), down: bool) {
+        let r = if down { Round::Down } else { Round::Nearest };
+        let m = path::device(r, None, PixelOffset::None);
+        let mut p = Path::new(0);
+        p.add_polygon(r, &v).unwrap();
+        let pts: Vec<(f32, f32)> = p.pts.iter().map(|q| (q.x, q.y)).collect();
+        let Some(got) = path::outline_aliased(r, &p, &m, 16, 16).unwrap() else { return Ok(()) };
+        for y in 0..16 {
+            for x in 0..16 {
+                let any = (0..pts.len()).any(|i| path::line_aliased(r, &m, pts[i], pts[(i + 1) % pts.len()], 16, 16).is_some_and(|c| c.count(x, y) == 1));
+                prop_assert_eq!(got.count(x, y) == 1, any, "pixel {} {}", x, y);
+            }
+        }
+    }
 }
 
 /// a path's types: AddLines joins the open figure, a point on its last one dropped
