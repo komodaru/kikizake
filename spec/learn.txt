@@ -616,3 +616,7 @@ D3D12_FEATURE | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d
 ID3D12Device::CheckFeatureSupport | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport
 Tight Resource Alignment | https://microsoft.github.io/DirectX-Specs/d3d/D3D12TightPlacedResourceAlignment.html
 GPU Upload Heaps | https://microsoft.github.io/DirectX-Specs/d3d/D3D12GPUUploadHeaps.html
+RtlCharToInteger | https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-rtlchartointeger
+RtlUnicodeStringToInteger | https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-rtlunicodestringtointeger
+RtlIntegerToUnicodeString | https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-rtlintegertounicodestring
+RtlAnsiStringToUnicodeString | https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-rtlansistringtounicodestring

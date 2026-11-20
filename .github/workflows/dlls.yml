@@ -1,4 +1,4 @@
-# Which graphics DLLs the Windows runner has (re/dlls.txt): for each one in System32 (x64) and
+# Which graphics (and Win32 base) DLLs the Windows runner has (re/dlls.txt): for each one in System32 (x64) and
 # SysWOW64 (x86), its file version and the PE TimeDateStamp + SizeOfImage that key it on the
 # Microsoft symbol server, https://msdl.microsoft.com/download/symbols/<name>/<key>/<name>. The
 # clean-room analysis reads those binaries outside the repository (re/README.md); only this
@@ -23,7 +23,7 @@ jobs:
       - name: List the DLLs
         shell: pwsh
         run: |
-          $names = 'gdiplus.dll','gdi32.dll','gdi32full.dll','win32u.dll','win32kbase.sys','win32kfull.sys','d2d1.dll','dwrite.dll','windowscodecs.dll','ddraw.dll','d3dim700.dll','d3d8.dll','d3d9.dll','d3d10.dll','d3d10_1.dll','d3d10warp.dll','d3d11.dll','d3d12.dll','d3d12core.dll','dxgi.dll','opengl32.dll','glu32.dll','msimg32.dll','d3dx9_43.dll','d3dcompiler_47.dll'
+          $names = 'gdiplus.dll','gdi32.dll','gdi32full.dll','win32u.dll','win32kbase.sys','win32kfull.sys','d2d1.dll','dwrite.dll','windowscodecs.dll','ddraw.dll','d3dim700.dll','d3d8.dll','d3d9.dll','d3d10.dll','d3d10_1.dll','d3d10warp.dll','d3d11.dll','d3d12.dll','d3d12core.dll','dxgi.dll','opengl32.dll','glu32.dll','msimg32.dll','d3dx9_43.dll','d3dcompiler_47.dll','ntdll.dll','kernel32.dll','kernelbase.dll','user32.dll'
           $out = @("# name arch version key (TimeDateStamp then SizeOfImage, hex)")
           foreach ($d in @(@('64', "$env:SystemRoot\System32"), @('32', "$env:SystemRoot\SysWOW64"))) {
             foreach ($n in $names) {

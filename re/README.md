@@ -1,6 +1,7 @@
-# Clean-room analysis of Windows' graphics DLLs
+# Clean-room analysis of Windows' graphics and Win32 base DLLs
 
-The owner allows reverse engineering Windows' graphics DLLs to make the models exact, done
+The owner allows reverse engineering Windows' graphics DLLs and the Win32 base DLLs (ntdll,
+kernel32, kernelbase, user32) to make the models exact, done
 clean-room:
 
 * An analyst reads a DLL (the runner's own build, listed in `dlls.txt` by the `dlls` workflow

@@ -125,3 +125,12 @@ WICIMAGE.ENCODE.LOSSY open
 WICIMAGE.ENCODE.OPTIONS open
 WICIMAGE.SCALE.BIG excluded
 WICIMAGE.TIFF.OTHER excluded
+# assumed
+NT.A2I.BLANK assumed
+NT.U2I.BLANK assumed
+NT.DIGITS assumed
+NT.I2A.DIGITS assumed
+NT.I2A.LENGTH assumed
+NT.I2A.PAD assumed
+NT.I2U.ANSI assumed
+NT.A2U.SIZE assumed

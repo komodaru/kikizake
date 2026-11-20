@@ -1,7 +1,8 @@
 # kikizake
 
 Conformance tests for the Windows graphics APIs: GDI, DirectDraw, Direct3D 8, 9 and 11, WIC so
-far, then the rest (GDI+, Direct2D, DirectWrite). Written to check any
+far, then the rest (GDI+, Direct2D, DirectWrite), and the Win32 base functions next to them
+(ntdll's conversions so far: suite ntstr). Written to check any
 implementation of them (Wine, an emulator, a translation layer) against real Windows, and to
 be usable without a Windows machine.
 

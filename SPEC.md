@@ -175,6 +175,21 @@ runner) this is Microsoft's GDI generic OpenGL 1.1.
 
 Without a context the gl lines print `noctx`. A case's context and DIB are released at `end`.
 
+## Win32: ntdll's integer <-> string conversions (ntstr)
+
+The first suite past graphics: the Win32 base functions games and runtimes call, checked the same
+way. ntdll is found with GetModuleHandle and the functions with GetProcAddress (`<op> none` where
+one is missing). Strings are hex: bytes (`-` is none), or for UTF-16 four hex digits per unit as
+written (`0031` is "1"). Statuses and values are 8 hex digits.
+
+| line | calls | prints |
+|---|---|---|
+| `a2i <base> <bytes>` | RtlCharToInteger of the bytes and a NUL | `a2i <status> <value>` (0xdeadbeef where the value was left as it was) |
+| `u2i <base> <length> <units>` | RtlUnicodeStringToInteger of {Length = length bytes (at most the units + 1, odd allowed), the units} | `u2i <status> <value>` |
+| `i2a <value> <base> <length>` | RtlIntegerToChar into 40 bytes of 0xcc (-40 <= length <= 40) | `i2a <status> <the 40 bytes>` |
+| `i2u <value> <base> <maximum> [null]` | RtlIntegerToUnicodeString into {Length 0x5555, MaximumLength (<= 80), 80 bytes of 0xcc or NULL} | `i2u <status> <Length> <MaximumLength> <buf\|null> <the 80 bytes>` |
+| `a2u <length> <maximum> <bytes> [null]` | RtlAnsiStringToUnicodeString(dst, {length, length + 1, the ASCII bytes}, FALSE) into dst as i2u's | as i2u, `a2u ...` |
+
 ## Models
 
 `kikizake model <suite>` prints what Windows prints, case by case. A case whose behavior the

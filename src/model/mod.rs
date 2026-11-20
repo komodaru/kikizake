@@ -35,6 +35,7 @@ pub mod bezier;
 pub mod gditext;
 pub mod gdiblend;
 pub mod gdiddb;
+pub mod ntstr;
 pub mod opengl;
 pub mod wic;
 pub mod dwrite;
@@ -258,6 +259,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(wicimage::WicImage::default()),
         Box::new(d3dx9::D3dx9),
         Box::new(opengl::Gl::default()),
+        Box::new(ntstr::Ntstr),
     ]
 }
 
