@@ -2430,10 +2430,7 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         }
         entries.push(IcoEntry { bpp, png, w, h, img: ico_entry(d) });
     }
-    // MEASURED (golden wicdecode ico-three, ico-order-*, ico-png-*-bmp: the same sizes in every
-    // depth, the same depth in every size, PNG and BMP entries, directories that say 0 bits): the
-    // frames by the entries' own depth, deepest first, of one depth PNG entries first, then the
-    // last in the file first (not by size)
+    // (the frames in ico_order's order)
     if entries.is_empty() {
         hit(clause::WICIMAGE_ICO_SHORT);
         return Ok(Err(BAD_IMAGE));
@@ -2466,49 +2463,53 @@ struct IcoEntry {
     img: Res<Img>,
 }
 
-/// MEASURED (golden wicdecode icopair-*: every 32-bit PNG of 1..5 x 1..5 beside every 32-bit
-/// BMP of 1..4 x 1..4 in both file orders, 384 pairs; icodepth-*: PNGs of 3, 8, 16 beside BMPs of
-/// 3 and 16 of 1, 4, 8, 24 bits; icosmall-*, icoseed-*, icopng-*): a file of one PNG entry and one
-/// BMP entry: the PNG first when it is near the BMP, the BMP first when far, the later in the file
-/// first when just between. The distance: the heights' difference, plus the widths' difference
-/// when the PNG is the wider or twice it when the narrower, plus twice the bits the BMP has fewer;
-/// near: below the lesser height, just between: equal to it
-fn ico_png_vs_bmp(p: (u32, u32), b: (u32, u32, u32)) -> std::cmp::Ordering {
-    let dw = if p.0 >= b.0 { p.0 - b.0 } else { 2 * (b.0 - p.0) };
-    let d = p.1.abs_diff(b.1) + dw + 2 * 32u32.saturating_sub(b.2);
-    d.cmp(&p.1.min(b.1))
-}
-
 /// the frames' order: MEASURED (golden wicdecode ico-order-size/depth/zero, ico-png-*-bmp,
-/// icopair-*, icodepth-*, icosmall-*): BMP entries by their own depth, deepest first, of one depth
-/// the last in the file first; one PNG entry beside one BMP entry by `ico_png_vs_bmp`
-fn ico_order(mut entries: Vec<IcoEntry>) -> Res<Vec<IcoEntry>> {
-    use std::cmp::Ordering;
-    if let [a, b] = &entries[..]
-        && a.png != b.png
-    {
-        let ((p, m), png_first_in_file) = if a.png { ((a, b), true) } else { ((b, a), false) };
-        let png_first = match ico_png_vs_bmp((p.w, p.h), (m.w, m.h, m.bpp)) {
-            Ordering::Less => true,
-            Ordering::Greater => false,
-            Ordering::Equal => !png_first_in_file,
-        };
-        if png_first != png_first_in_file {
-            entries.reverse();
+/// icopair-*: 384 pairs, icodepth-*, icosmall-*, icotri-*, ico-three, ico-order-mixed; the rule
+/// found clean-room): each entry scores its distance from the largest BMP entry, the heights' (a
+/// BMP's doubled, as its header has it, against half the largest BMP header height) plus twice
+/// the depths' (a PNG 32 bits) plus the widths', each difference counting twice where the entry
+/// falls short; then a Shell sort of gaps n/2, n/4 .. 1 that, for each i below n - gap, from j = i
+/// down by the gap, stops where entry j scores less than entry j + 1 and otherwise swaps entries
+/// j and j + gap (so equal scores come last in the file first, and four or more entries need not
+/// end up sorted)
+fn ico_order(mut e: Vec<IcoEntry>) -> Res<Vec<IcoEntry>> {
+    // (a BMP's header height is the picture's doubled: colors and AND mask)
+    let hdr_h = |x: &IcoEntry| if x.png { x.h as i32 } else { (2 * x.h) as i32 };
+    let bmps = || e.iter().filter(|x| !x.png);
+    let max_w = bmps().map(|x| x.w as i32).max().unwrap_or(0);
+    let max_h = bmps().map(hdr_h).max().unwrap_or(0) >> 1;
+    let max_b = bmps().map(|x| x.bpp as i32).max().unwrap_or(0);
+    let term = |v: i32, m: i32| {
+        let d = v.wrapping_sub(m);
+        if d < 0 { d.wrapping_mul(-2) } else { d }
+    };
+    let score: Vec<i32> = e.iter().map(|x| {
+        let bpp = if x.png { 32 } else { x.bpp as i32 };
+        term(hdr_h(x), max_h).wrapping_add(term(bpp, max_b).wrapping_mul(2)).wrapping_add(term(x.w as i32, max_w))
+    }).collect();
+    let mut order: Vec<usize> = (0..e.len()).collect();
+    let n = order.len();
+    let mut gap = n >> 1;
+    while gap != 0 {
+        for i in 0..n - gap {
+            let mut j = i as isize;
+            while j >= 0 {
+                let ju = j as usize;
+                if score[order[ju]] < score[order[ju + 1]] {
+                    break;
+                }
+                order.swap(ju, ju + gap);
+                j -= gap as isize;
+            }
         }
-        hit(clause::WICIMAGE_ICO_ORDER_PNG_PAIR);
-        return Ok(entries);
+        gap >>= 1;
     }
-    // (OPEN: a PNG among three or more entries, or two PNGs: the frames are no sort of the pair
-    // rule (golden icotri-*: the BMPs then come by size, a PNG before a BMP the pair rule puts
-    // first), WICIMAGE.ICO.PNG.SMALL)
-    if entries.iter().any(|e| e.png) {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ICO_PNG_SMALL));
-    }
-    entries.reverse();
-    entries.sort_by_key(|e| std::cmp::Reverse(e.bpp));
     hit(clause::WICIMAGE_ICO_ORDER);
-    Ok(entries)
+    if e.iter().any(|x| x.png) {
+        hit(clause::WICIMAGE_ICO_ORDER_PNG_PAIR);
+    }
+    let mut slots: Vec<Option<IcoEntry>> = e.drain(..).map(Some).collect();
+    order.into_iter().map(|k| slots[k].take().ok_or(Fail::Bad)).collect()
 }
 
 fn ico_entry(d: &[u8]) -> Res<Img> {
