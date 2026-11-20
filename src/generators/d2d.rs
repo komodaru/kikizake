@@ -49,6 +49,7 @@ pub fn d2d() -> String {
     strokewide(&mut s, &mut r);
     gradscan(&mut s);
     strokelobe(&mut s, &mut r);
+    xfell(&mut s, &mut r);
     s
 }
 
@@ -921,5 +922,21 @@ fn strokelobe(s: &mut String, r: &mut XorShift32) {
         let w = fmt((r.range(8, 24) as f64) / 4.0);
         let aa = if i % 2 == 1 { "d2aa aliased\n" } else { "" };
         writeln!(s, "case strokelobe-{i}\nd2target 16 12\n{aa}d2clear {}\nd2path 0 alt m {pts} {end}\nd2drawg 0 {w} {}\nd2read\nend", color(r, true), color(r, false)).unwrap();
+    }
+}
+
+/// ellipses and rounded rectangles through CreateTransformedGeometry, bounds with and without a
+/// world transform: the inner geometry's bounds through both transforms (D2D.XF, D2D.BOUNDS.ELLXF)
+fn xfell(s: &mut String, r: &mut XorShift32) {
+    for i in 0..16 {
+        let q = |r: &mut XorShift32, a: i64, b: i64| fmt(r.range(a, b) as f64 / 8.0);
+        let g = if i % 2 == 0 {
+            format!("d2ell 0 {} {} {} {}", q(r, -64, 64), q(r, -64, 64), q(r, 4, 64), q(r, 4, 64))
+        } else {
+            format!("d2rrect 0 {} {} {} {} {} {}", q(r, -64, 0), q(r, -64, 0), q(r, 8, 64), q(r, 8, 64), q(r, 0, 24), q(r, 0, 24))
+        };
+        let m = |r: &mut XorShift32| (0..6).map(|_| q(r, -16, 16)).collect::<Vec<_>>().join(" ");
+        let (m1, m2) = (m(r), m(r));
+        writeln!(s, "case xfell-{i}\n{g}\nd2xf 1 0 {m1}\nd2bounds 1\nd2bounds 1 {m2}\nend").unwrap();
     }
 }

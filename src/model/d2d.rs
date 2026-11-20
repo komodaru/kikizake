@@ -223,11 +223,6 @@ pub struct Fig {
     pub closed: bool,
 }
 
-/// MEASURED (D2D.ARCS): a quarter of an ellipse is a cubic whose control points lie this
-/// fraction of the radius in from the box's edges, each computed from the edge it sits on
-/// (one minus d2d1's kappa, 0x3ee53aef; ellipse and rounded rectangle alike)
-pub const ARC_IN: f32 = f32::from_bits(0x3ee53aef);
-
 /// a geometry as Simplify hands it on with D2D1_GEOMETRY_SIMPLIFICATION_OPTION_CUBICS_AND_LINES:
 /// the fill mode, whether the segments are flagged FORCE_ROUND_LINE_JOIN, and the figures
 pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
@@ -245,21 +240,16 @@ pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
         ),
         Geom::Ell([cx, cy, rx, ry]) => {
             // (MEASURED, simp-ell-*: from the left end clockwise, four cubics with a line of no
-            // length to the end of each of the first three; a negative radius counts as its size)
+            // length (or an ulp) to the end of each of the first three; a negative radius counts
+            // as its size. From the clean-room notes: an ellipse is the rounded rectangle of its
+            // f32 box with the radii cut to half the box's sides)
             hit(clause::D2D_ARCS);
-            let (cx, cy, rx, ry) = (*cx, *cy, rx.abs(), ry.abs());
-            let (l, t, r, b) = (cx - rx, cy - ry, cx + rx, cy + ry);
-            let (il, it, ir, ib) = (l + rx * ARC_IN, t + ry * ARC_IN, r - rx * ARC_IN, b - ry * ARC_IN);
-            let segs = vec![
-                Seg::C((l, it), (il, t), (cx, t)),
-                Seg::L((cx, t)),
-                Seg::C((ir, t), (r, it), (r, cy)),
-                Seg::L((r, cy)),
-                Seg::C((r, ib), (ir, b), (cx, b)),
-                Seg::L((cx, b)),
-                Seg::C((il, b), (l, ib), (l, cy)),
-            ];
-            (false, true, vec![Fig { start: (l, cy), segs, closed: true }])
+            let (rx, ry) = (rx.abs(), ry.abs());
+            let (l, r, t, b) = (cx - rx, cx + rx, cy - ry, cy + ry);
+            let half = |lo: f32, hi: f32| if lo > hi { 0.0 } else { (hi - lo) * 0.5 };
+            let rx = if rx > half(l, r) { half(l, r) } else { rx };
+            let ry = if ry > half(t, b) { half(t, b) } else { ry };
+            (false, true, vec![rrect_fig(rrect_points(l, t, r, b, rx, ry))])
         }
         Geom::RRect([l, t, r, b, rx, ry]) => {
             // (MEASURED, simp-rrect-*: the rectangle put in order, each radius taken as its size
@@ -267,19 +257,7 @@ pub fn shape(g: &Geom) -> (bool, bool, Vec<Fig>) {
             // every corner and a line along every side, of no length when the radius is half)
             hit(clause::D2D_ARCS);
             let (l, r, t, b) = (lo(*l, *r), hi(*l, *r), lo(*t, *b), hi(*t, *b));
-            let rx = rx.abs().min((r - l) * 0.5);
-            let ry = ry.abs().min((b - t) * 0.5);
-            let (il, it, ir, ib) = (l + rx * ARC_IN, t + ry * ARC_IN, r - rx * ARC_IN, b - ry * ARC_IN);
-            let segs = vec![
-                Seg::C((l, it), (il, t), (l + rx, t)),
-                Seg::L((r - rx, t)),
-                Seg::C((ir, t), (r, it), (r, t + ry)),
-                Seg::L((r, b - ry)),
-                Seg::C((r, ib), (ir, b), (r - rx, b)),
-                Seg::L((l + rx, b)),
-                Seg::C((il, b), (l, ib), (l, b - ry)),
-            ];
-            (false, true, vec![Fig { start: (l, t + ry), segs, closed: true }])
+            (false, true, vec![rrect_fig(rrect_points(l, t, r, b, rx.abs(), ry.abs()))])
         }
         Geom::Xf(g, m) => {
             let (wind, round, figs) = shape(g);
@@ -468,19 +446,20 @@ fn hi(a: f32, b: f32) -> f32 {
 /// even without one, are four NaNs with every bit set
 const NAN_BOUNDS: [f32; 4] = [f32::from_bits(!0); 4];
 
-/// FITTED, OPEN (D2D.BOUNDS.ELLXF/RRECTXF: 184 of 192 values of cbounds/ell-xf/rrect-xf): milcore's CBounds in floats: the bounds of the
+/// MEASURED (D2D.BOUNDS.ELLXF/RRECTXF: every value of cbounds/ell-xf/rrect-xf/xfb-*): milcore's CBounds in floats: the bounds of the
 /// transformed points, and of each cubic's value where a coordinate's derivative is 0; the
 /// derivative's zeros are those of a(1-t)^2 + 2b t(1-t) + c t^2 (a, b, c the control points'
 /// differences in f32), solved as a quadratic in s = (1-t)/t (|a| > |c|) or t/(1-t) in f64,
-/// each positive root kept as an f32 and turned into t in f32; the value is
+/// each positive root kept as an f32 and turned into t in f32 (none when |b| 1e-6 in f32 is above
+/// both |a| and |c|); the value is
 /// a s^3 + 3b t s^2 + 3c t^2 s + d t^3 in f32
 fn curve_zeros(a: f32, b: f32, c: f32, d: f32) -> Vec<f32> {
     if (b - a) * (d - b) >= 0.0 && (c - a) * (d - c) >= 0.0 {
         return vec![];
     }
     let (a, b, c) = (b - a, c - b, d - c);
-    let fuzz = f64::from(b.abs()) * 1e-6;
-    if f64::from(a.abs()) < fuzz && f64::from(c.abs()) < fuzz {
+    let fuzz = b.abs() * f32::from_bits(0x358637bd);
+    if fuzz > a.abs() && fuzz > c.abs() {
         return vec![];
     }
     let roots = |a: f32, b: f32, c: f32| -> Vec<f32> {
@@ -546,10 +525,10 @@ fn curve_bounds(g: &Geom, m: &M) -> Res<[f32; 4]> {
     if nan {
         return Ok(NAN_BOUNDS);
     }
-    super::approx(match g {
-        Geom::RRect(_) => open::D2D_BOUNDS_RRECTXF,
-        _ => open::D2D_BOUNDS_ELLXF,
-    })?;
+    hit(match g {
+        Geom::RRect(_) => clause::D2D_BOUNDS_RRECTXF,
+        _ => clause::D2D_BOUNDS_ELLXF,
+    });
     Ok(b)
 }
 
@@ -612,9 +591,8 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
             Ok([x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1)])
         }
         (Geom::Xf(inner, m0), _) => {
-            if !matches!(**inner, Geom::Rect(_) | Geom::Path { .. }) {
-                return Err(Fail::Unmodeled(open::D2D_BOUNDS_ELLXF));
-            }
+            // (the inner geometry's bounds through both transforms, the geometry's first; an
+            // ellipse's or rounded rectangle's as D2D.BOUNDS.ELLXF says, xfell-*)
             hit(clause::D2D_XF);
             bounds(inner, Some(&mul(m0, m.unwrap_or(&IDENTITY))))
         }
@@ -748,48 +726,132 @@ pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: 
     area
 }
 
-/// FITTED, OPEN (D2D.AREA.CURVE: carea-* values 1-5 ulps below Windows, the centered ell-area/rrect-area ones 1-3
-/// ulps high): milcore's CArea scanner: the
-/// geometry is moved to its bounds' center and scaled so their larger side is 2^26, every point
-/// rounded to an integer there (f64), each cubic flattened there in f64 with the tolerance
-/// scaled alike and its points rounded; the area is half the sum of the edges' cross products,
-/// scaled back, in f64, as an f32
-fn curve_area(g: &Geom, tol: f32) -> Res<Measure> {
-    let bb = bounds(g, None)?;
-    let ext = (f64::from(bb[2]) - f64::from(bb[0])).max(f64::from(bb[3]) - f64::from(bb[1]));
-    // (MEASURED, ell-area-4: bounds not finite fail with D2DERR_BAD_NUMBER, the area untouched;
-    // a geometry of no size has none)
-    if !ext.is_finite() {
-        return Ok(Measure::BadNumber);
+/// ComputeArea's workspace: every point, control points too, scaled by 2^20 about the origin
+/// and rounded half away from zero to an integer (f64); the scale back is 2^-20 per axis
+const AREA_SCALE: f64 = 1048576.0;
+
+/// a point in the area workspace: (v 2^20 +- 0.5) truncated
+fn area_snap(v: f64) -> f64 {
+    let u = v * AREA_SCALE;
+    (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc()
+}
+
+/// an ellipse's or rounded rectangle's figure from its 16 points: a cubic per corner, a line
+/// along every side
+fn rrect_fig(p: [P; 16]) -> Fig {
+    let mut segs = Vec::new();
+    for k in 0..4 {
+        segs.push(Seg::C(p[4 * k + 1], p[4 * k + 2], p[4 * k + 3]));
+        if k < 3 {
+            segs.push(Seg::L(p[4 * k + 4]));
+        }
     }
-    if !(ext >= f64::from(f32::MIN_POSITIVE)) {
-        return Ok(Measure::Value(0.0));
-    }
-    super::approx(open::D2D_AREA_CURVE)?;
-    let scale = 67108864.0 / ext;
-    let inv = 1.0 / scale;
-    let (cx, cy) = ((f64::from(bb[0]) + f64::from(bb[2])) / 2.0, (f64::from(bb[1]) + f64::from(bb[3])) / 2.0);
-    let ws = |p: P| [((f64::from(p.0) - cx) * scale).round_ties_even(), ((f64::from(p.1) - cy) * scale).round_ties_even()];
-    let (_, _, figs) = shape(g);
-    let mut a = 0f64;
+    Fig { start: p[0], segs, closed: true }
+}
+
+/// the f32 points of an ellipse or rounded rectangle (D2D.ARCS, from the clean-room notes): the rectangle's
+/// corners and its radii (each cut to half its side), one minus kappa times each radius in f64
+/// rounded to f32, from the top of the left side clockwise: [start, then per corner a cubic's
+/// three points and the side's end]
+fn rrect_points(l: f32, t: f32, r: f32, b: f32, rx: f32, ry: f32) -> [P; 16] {
+    const IN: f64 = 0.44771525016920655;
+    let rx = (0.5 * (r - l)).min(rx);
+    let ry = (0.5 * (b - t)).min(ry);
+    let kx = (f64::from(rx) * IN) as f32;
+    let ky = (f64::from(ry) * IN) as f32;
+    [
+        (l, t + ry), (l, t + ky), (l + kx, t), (l + rx, t),
+        (r - rx, t), (r - kx, t), (r, t + ky), (r, t + ry),
+        (r, b - ry), (r, b - ky), (r - kx, b), (r - rx, b),
+        (l + rx, b), (l + kx, b), (l, b - ky), (l, b - ry),
+    ]
+}
+
+/// the figures ComputeArea's scanner sweeps, in workspace units, and the fill mode (winding);
+/// None for a geometry the analysis does not cover yet
+fn area_figures(g: &Geom, tol: f32, ext: f64) -> Option<(bool, Vec<Vec<(f64, f64)>>)> {
+    let ws = |p: P| (area_snap(f64::from(p.0)), area_snap(f64::from(p.1)));
+    let (wind, _, figs) = match g {
+        Geom::Ell(_) | Geom::RRect(_) => shape(g),
+        Geom::Path { wind, figs } => {
+            return Some((*wind, figs.iter().map(|f| f.pts.iter().map(|&p| ws(p)).collect()).collect()));
+        }
+        Geom::Rect(_) | Geom::Xf(..) => return None,
+    };
+    // (the tolerance: 0.25 when not above 0, at least 1e-6, at least 3e-12 of the bounds'
+    // larger side, in workspace units)
+    let tol = if tol > 0.0 { tol.max(f32::from_bits(0x358637bd)) } else { 0.25 };
+    let tol = AREA_SCALE * f64::from(tol).max(ext * 3e-12);
+    // (the flattened points are rounded to integers too, half away from zero)
+    let r = |u: f64| (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc();
+    let mut all = Vec::new();
     for f in &figs {
-        let mut q = vec![ws(f.start)];
+        let mut out = vec![ws(f.start)];
         for sg in &f.segs {
             match *sg {
-                Seg::L(p) => q.push(ws(p)),
+                Seg::L(p) => out.push(ws(p)),
                 Seg::C(p1, p2, p3) => {
-                    let b = [*q.last().unwrap_or(&[0.0, 0.0]), ws(p1), ws(p2), ws(p3)];
-                    q.extend(flatten_in(b, f64::from(tol) * scale).into_iter().map(|v| [v[0].round_ties_even(), v[1].round_ties_even()]));
-                    q.push(b[3]);
+                    let p0 = out[out.len() - 1];
+                    let b = [p0, ws(p1), ws(p2), ws(p3)].map(|p| [p.0, p.1]);
+                    out.extend(flatten_in(b, tol).into_iter().map(|v| (r(v[0]), r(v[1]))));
+                    out.push(ws(p3));
                 }
             }
         }
-        for i in 0..q.len() {
-            let (u, v) = (q[i], q[(i + 1) % q.len()]);
-            a += u[0] * v[1] - u[1] * v[0];
+        all.push(out);
+    }
+    Some((wind, all))
+}
+
+/// whether two figures' edges cross or touch anywhere but at shared ends of neighbours (exact
+/// for integers below 2^26)
+fn simple_polygon(p: &[(f64, f64)]) -> bool {
+    let n = p.len();
+    let e: Vec<Edge> = (0..n).map(|i| (p[i], p[(i + 1) % n])).filter(|(a, b)| a != b).collect();
+    let m = e.len();
+    for i in 0..m {
+        for j in i + 1..m {
+            if j == i + 1 || (i == 0 && j == m - 1) {
+                continue;
+            }
+            let ((a, b), (c, d)) = (e[i], e[j]);
+            if meet(a, b, c, d) {
+                return false;
+            }
         }
     }
-    Ok(Measure::Value((a.abs() * inv * inv * 0.5) as f32))
+    true
+}
+
+/// ComputeArea of what is not a rectangle. MEASURED (D2D.AREA.POLY, from the clean-room notes on
+/// CArea, the scanner's workspace; crossing figures D2D.AREA.CURVE, open): points snapped to the 2^-20 grid (area_snap), curves
+/// flattened there in f64 and their points snapped; the area is half the sum of the cross
+/// products of the filled region's boundary edges, times 2^-20 2^-20, in f64, as an f32
+fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
+    let bb = bounds(g, None)?;
+    let ext = (f64::from(bb[2]) - f64::from(bb[0])).max(f64::from(bb[3]) - f64::from(bb[1]));
+    // (MEASURED, ell-area-4: bounds not finite fail with D2DERR_BAD_NUMBER, the area untouched)
+    if !ext.is_finite() {
+        return Ok(Measure::BadNumber);
+    }
+    // (beyond about 1.8e8 the workspace is centered and scaled to 2^48 instead: not modelled)
+    let big = 2f64.powi(48);
+    let inside = (f64::from(bb[0]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[1]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[2]) + 1.0) * AREA_SCALE * 1.5 < big && (f64::from(bb[3]) + 1.0) * AREA_SCALE * 1.5 < big;
+    let Some((wind, figs)) = area_figures(g, tol, ext).filter(|_| inside) else {
+        return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
+    };
+    let inv = 1.0 / AREA_SCALE;
+    let a = if let [f] = figs.as_slice() && simple_polygon(f) {
+        let n = f.len();
+        (0..n).map(|i| f[i].0 * f[(i + 1) % n].1 - f[(i + 1) % n].0 * f[i].1).sum::<f64>().abs() * 0.5
+    } else {
+        // (crossings: the intersection points are not on the grid and the order of the sum is
+        // not settled; the area of what the fill mode fills, in f64)
+        super::approx(open::D2D_AREA_CURVE)?;
+        region_area(&figs, wind)
+    };
+    hit(clause::D2D_AREA_POLY);
+    Ok(Measure::Value(((inv * inv) * a) as f32))
 }
 
 /// what ComputeArea / ComputeLength answer
@@ -803,23 +865,19 @@ pub enum Measure {
 /// ComputeArea. MEASURED (golden d2d-32/-64, 66 paths of up to three figures, self-crossing and
 /// overlapping ones too): the area the fill mode fills, open figures filled as closed
 pub fn area(g: &Geom, tol: f32) -> Res<Measure> {
-    let Some((wind, figs, m)) = g.lines() else {
-        return curve_area(g, tol);
-    };
     if let Geom::Rect([l, t, r, b]) = g {
         hit(clause::D2D_AREA_RECT);
         return Ok(Measure::Value(((r - l) * (b - t)).abs()));
     }
-    let ps = polys(&figs, &m);
-    // (MEASURED, parea-3/5/7/11/18/24: off the integer grid Windows' value is not the exact area
-    // but 1-18 ulps from it, mostly above, as the curves' are: D2D.AREA.CURVE, open; a
-    // rectangle through a transform, xbounds-*, is exact)
-    if !matches!(g, Geom::Path { .. }) || ps.iter().flatten().all(|&(x, y)| x.fract() == 0.0 && y.fract() == 0.0) {
+    if let Geom::Xf(..) = g {
+        // (MEASURED, xbounds-*: a rectangle through a transform, exact)
+        let Some((wind, figs, m)) = g.lines() else {
+            return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
+        };
         hit(clause::D2D_AREA_POLY);
-    } else {
-        super::approx(open::D2D_AREA_CURVE)?;
+        return Ok(Measure::Value(region_area(&polys(&figs, &m), wind) as f32));
     }
-    Ok(Measure::Value(region_area(&ps, wind) as f32))
+    scanner_area(g, tol)
 }
 
 /// ComputeLength. MEASURED (golden d2d-32/-64, 66 paths bit for bit): each side's length as
