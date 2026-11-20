@@ -2819,4 +2819,45 @@ fn measure(s: &mut String) {
         }
     }
     writeln!(s, "glerr\nend").unwrap();
+    // antialiased rectangles of one color set outside glBegin (raster-mode-10's fourth and fifth)
+    // drawn by glRectf, as a GL_QUADS quad, as its two triangles (v0 v1 v2, v2 v3 v0) and as a
+    // quad with a red ramp across its corners: whether the colors come from planes, on the
+    // executor's format 5 and on a chosen one with alpha
+    for (k, ctx_line) in ["glctx 32 5", "glctx 32 choose 0x38 0 32 8 0 32 8"].into_iter().enumerate() {
+        writeln!(s, "case raster-mode-{}\n{ctx_line}\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41", 14 + k).unwrap();
+        for r in [[2.125f64, 2.125, 13.875, 4.375], [9.375, 3.125, 14.625, 13.875]] {
+            let v = [[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]]];
+            writeln!(s, "gl glColor4ub 200 100 50 255\ngl glClear 0x4000").unwrap();
+            glf(s, "glRectf", &r);
+            read_all(s);
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 7").unwrap();
+            for p in &v {
+                glf(s, "glVertex2f", p);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 4").unwrap();
+            for i in [0, 1, 2, 2, 3, 0] {
+                glf(s, "glVertex2f", &v[i]);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+            writeln!(s, "gl glClear 0x4000\ngl glBegin 7").unwrap();
+            for (i, p) in v.iter().enumerate() {
+                writeln!(s, "gl glColor4ub {} 100 50 255", if i < 2 { 255 } else { 0 }).unwrap();
+                glf(s, "glVertex2f", p);
+            }
+            writeln!(s, "gl glEnd").unwrap();
+            read_all(s);
+        }
+        writeln!(s, "glerr\nend").unwrap();
+    }
+    // a polygon drawn as its edges whose corners' depths differ (GL.RASTER.INTERPOLATE), and a
+    // stippled antialiased line (GL.RASTER.MODE): still open, measured to settle them
+    writeln!(s, "case interp-open-5\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
+    writeln!(s, "case raster-open-1\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb24\ngl glLineStipple 1 0xf0f0\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32)).unwrap();
+    read_all(s);
+    writeln!(s, "glerr\nend").unwrap();
 }

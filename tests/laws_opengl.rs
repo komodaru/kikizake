@@ -198,70 +198,6 @@ proptest! {
         }
     }
 
-    /// GL.RASTER.LINE.SMOOTH: an antialiased line is its aliased pixels and, for each, the
-    /// one below (x-major) or right of it (y-major), nothing else; where an x-major line lies
-    /// exactly on a row boundary (the aliased pixel the one below it, GL.RASTER.LINE.TIE) the
-    /// pair is the two about the boundary, the aliased one and the one above
-    #[test]
-    fn smooth_lines_add_one_neighbor(v in any::<[(u8, u8); 2]>()) {
-        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
-        let (a, b) = (end(v[0]), end(v[1]));
-        let thin = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Aliased(tri::LineWidth::ONE));
-        let smooth = tri::line(a, b, [0, 0, 16, 16], tri::Stroke::Smooth);
-        let ymajor = thin.windows(2).all(|p| p[0].1 != p[1].1) && (b[1] - a[1]).abs() >= (b[0] - a[0]).abs();
-        // (x-major: the one below, or above where the line lies exactly on the boundary
-        // between them; the aliased pixel then is the lower)
-        let mut got = smooth.clone();
-        got.sort();
-        prop_assert_eq!(got.len(), 2 * thin.len());
-        for &(x, y) in &thin {
-            prop_assert!(got.binary_search(&(x, y)).is_ok());
-            if ymajor {
-                prop_assert!(got.binary_search(&(x + 1, y)).is_ok());
-            } else {
-                prop_assert!(got.binary_search(&(x, y - 1)).is_ok() || got.binary_search(&(x, y + 1)).is_ok());
-            }
-        }
-    }
-
-    /// GL.RASTER.LINE.SMOOTH.WIDE: a wider antialiased line covers every pixel a narrower one
-    /// covers, each at least as much, and none more than whole
-    #[test]
-    fn wider_smooth_lines_cover_more(v in any::<[(u8, u8); 2]>(), w in 0u8..40, more in 1u8..40) {
-        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
-        let (a, b) = (end(v[0]), end(v[1]));
-        let (w0, w1) = (1.0 + f64::from(w) / 8.0, 1.0 + f64::from(w) / 8.0 + f64::from(more) / 8.0);
-        let thin = tri::smooth_line(a, b, [0, 0, 16, 16], tri::SmoothWidth(w0));
-        let wide = tri::smooth_line(a, b, [0, 0, 16, 16], tri::SmoothWidth(w1));
-        for &(x, y, f) in &thin {
-            prop_assert!(f > 0.0 && f <= 1.0);
-            let g = wide.iter().find(|p| (p.0, p.1) == (x, y)).map(|p| p.2);
-            prop_assert!(g.is_some_and(|g| g >= f), "({x}, {y}) {f} then {g:?}");
-        }
-        for &(_, _, g) in &wide {
-            prop_assert!(g > 0.0 && g <= 1.0);
-        }
-    }
-
-    /// GL.RASTER.LINE.SMOOTH.WIDE: an upright antialiased wide line's colors go by rows alone,
-    /// the same across each row; a line in one color keeps it everywhere
-    #[test]
-    fn wide_smooth_colors_step_by_rows(x in 4u8..12, y0 in 0u8..64, run in 32u8..160, w in 12u8..40, c in any::<[u8; 8]>()) {
-        let (x, y0) = (f64::from(x) + 0.5, 2.0 + f64::from(y0) / 16.0);
-        let (a, b) = ([x, y0], [x, y0 + f64::from(run) / 16.0]);
-        let width = tri::SmoothWidth(f64::from(w) / 8.0);
-        let c = [[0, 1, 2, 3], [4, 5, 6, 7]].map(|i| i.map(|k| f32::from(c[k]) / 255.0));
-        let vp = [0, 0, 16, 16];
-        let row = |y: i64| tri::wide_smooth_color(a, b, vp, width, c, x as i64, y);
-        for y in y0.floor() as i64..(b[1].ceil() as i64) {
-            for dx in -2..=2 {
-                prop_assert_eq!(tri::wide_smooth_color(a, b, vp, width, c, x as i64 + dx, y), row(y));
-            }
-        }
-        let one = tri::wide_smooth_color(a, b, vp, width, [c[0], c[0]], x as i64 + 1, y0 as i64 + 3);
-        prop_assert_eq!(one, c[0]);
-    }
-
     /// A window position's DIB pixel only moves on as the position does: a 32nd further right
     /// (or down) never lands left (or up) of where it was, nor more than a pixel on; a position
     /// exactly between two 16ths lands on one of its neighbors' pixels, whichever its
@@ -308,36 +244,6 @@ proptest! {
         one.dedup();
         other.dedup();
         prop_assert_eq!(one, other);
-    }
-
-    /// GL.RASTER.LINE.SMOOTH.BLEND: an antialiased line's two pixels across at each step cover
-    /// 255 between them, each its share
-    #[test]
-    fn smooth_line_pairs_cover_one_pixel(v in any::<[(u8, u8); 2]>()) {
-        let end = |(x, y): (u8, u8)| [f64::from(x) / 64.0 + 6.0, f64::from(y) / 64.0 + 6.0];
-        let (a, b) = (end(v[0]), end(v[1]));
-        let p = tri::line_covered(a, b, [0, 0, 16, 16], tri::Stroke::Smooth);
-        prop_assert_eq!(p.len() % 2, 0);
-        for pair in p.chunks(2) {
-            prop_assert_eq!(u16::from(pair[0].2.0) + u16::from(pair[1].2.0), 255);
-            prop_assert!((pair[0].0 - pair[1].0).abs() + (pair[0].1 - pair[1].1).abs() == 1);
-        }
-    }
-
-    /// GL.RASTER.LINE.SMOOTH: an antialiased line into a buffer with alpha covers each pixel
-    /// by at most 1, the same drawn either way, and fully nowhere farther than its ends allow
-    #[test]
-    fn smooth_lines_cover_the_same_both_ways(v in any::<[(u8, u8); 2]>()) {
-        let end = |(x, y): (u8, u8)| [f64::from(x) / 32.0 + 4.0, f64::from(y) / 32.0 + 4.0];
-        let (a, b) = (end(v[0]), end(v[1]));
-        let there = tri::smooth_line(a, b, [0, 0, 16, 16], tri::SmoothWidth::ONE);
-        let back = tri::smooth_line(b, a, [0, 0, 16, 16], tri::SmoothWidth::ONE);
-        prop_assert_eq!(there.len(), back.len());
-        for (p, q) in there.iter().zip(&back) {
-            prop_assert_eq!((p.0, p.1), (q.0, q.1));
-            prop_assert!((p.2 - q.2).abs() < 1e-9, "{p:?} {q:?}");
-            prop_assert!(p.2 > 0.0 && p.2 <= 1.0);
-        }
     }
 
     /// GL.RASTER.LINE.WIDE: a wide y-major line entering through the left edge has the
@@ -418,6 +324,75 @@ proptest! {
         let c: Vec<(i64, i64, u16)> = tri::smooth_triangle([moved[2], moved[1], moved[0]], 16, 16).into_iter().map(|(x, y, k)| (x, y, k.count())).collect();
         prop_assert_eq!(&a, &b);
         prop_assert_eq!(&b, &c);
+    }
+
+    /// GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.WIDE: a smooth line by the general path
+    /// covers each pixel by more than 0 and at most 1, once per row it walks, and a line of one
+    /// color keeps it (only alpha takes the coverage)
+    #[test]
+    fn aa_lines_cover_at_most_one(v in any::<[(u16, u16); 2]>(), w in 1u16..80, c in any::<[u8; 4]>()) {
+        let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + f32::from(x % 1024) / 64.0, tri::RASTER_BIAS + f32::from(y % 1024) / 64.0]));
+        let c = c.map(f32::from);
+        let p = tri::aa_line(r[0], r[1], [c, c], tri::AaWidth::of(f32::from(w) / 8.0));
+        let mut seen = std::collections::BTreeSet::new();
+        for f in &p {
+            prop_assert!(f.cover > 0.0 && f.cover <= 1.0);
+            prop_assert_eq!(&f.c[..3], &c[..3]);
+            prop_assert_eq!(f.c[3], c[3] * f.cover);
+            prop_assert!(seen.insert((f.x, f.row)), "{:?} twice", (f.x, f.row));
+        }
+    }
+
+    /// GL.RASTER.LINE.SMOOTH.WIDE: the width held to 0.5 ..= 10 and a multiple of 1/8, the
+    /// nearest one
+    #[test]
+    fn aa_widths_round_to_eighths(w in 0.01f32..20.0) {
+        let g = tri::AaWidth::of(w).get();
+        prop_assert!((0.5..=10.0).contains(&g));
+        prop_assert_eq!((g * 8.0).fract(), 0.0);
+        prop_assert!((0.5..10.0).contains(&w) == false || (g - w).abs() <= 1.0 / 16.0 + 1e-6);
+    }
+
+    /// GL.RASTER.LINE.SMOOTH.BLEND: a fast smooth line's two pixels at each step are next to
+    /// each other across it, weighing 255 between them, one step along apart from the last
+    #[test]
+    fn fast_aa_line_pairs_weigh_one_pixel(v in any::<[(u16, u16); 2]>()) {
+        let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + 2.0 + f32::from(x % 768) / 64.0, tri::RASTER_BIAS + 2.0 + f32::from(y % 768) / 64.0]));
+        let b = tri::RASTER_BIAS as i64;
+        let p = tri::aa_line_fast(r[0], r[1], [[255.0; 4]; 2], 255.0, [[b, b + 16], [b, b + 16]]);
+        prop_assert_eq!(p.len() % 2, 0);
+        for pair in p.chunks(2) {
+            prop_assert_eq!(u16::from(pair[0].weight) + u16::from(pair[1].weight), 255);
+            prop_assert_eq!((pair[0].x - pair[1].x).abs() + (pair[0].row - pair[1].row).abs(), 1);
+        }
+        for two in p.chunks(2).collect::<Vec<_>>().windows(2) {
+            let (s, t) = (two[0][0], two[1][0]);
+            prop_assert!((s.x - t.x).abs() <= 1 && (s.row - t.row).abs() <= 1);
+        }
+    }
+
+    /// GL.RASTER.INTERPOLATE.LINE: a line inside the view volume is not cut; one with both ends
+    /// past the same plane is gone; a cut end lies on the plane it was cut at, within rounding,
+    /// and its color between the ends'
+    #[test]
+    fn cut_lines_end_on_the_plane(v in any::<[(i16, i16); 2]>(), c in any::<[u8; 2]>()) {
+        let end = |(x, y): (i16, i16), c: u8| tri::ClipEnd { clip: [f32::from(x) / 8192.0, f32::from(y) / 8192.0, 0.0, 1.0], c: [f32::from(c); 4] };
+        let (a, b) = (end(v[0], c[0]), end(v[1], c[1]));
+        let inside = |e: &tri::ClipEnd| e.clip[..2].iter().all(|v| v.abs() <= 1.0);
+        match tri::cut_line(a, b, true) {
+            None => prop_assert!(!(inside(&a) && inside(&b))),
+            Some((e, cut)) => {
+                prop_assert_eq!(cut, [!inside(&a), !inside(&b)]);
+                let (lo, hi) = (f32::from(c[0].min(c[1])), f32::from(c[0].max(c[1])));
+                for (k, e) in e.iter().enumerate() {
+                    prop_assert!(e.clip[..2].iter().all(|v| v.abs() <= 1.0 + 1e-5), "{:?}", e);
+                    if cut[k] {
+                        prop_assert!(e.clip[..2].iter().any(|v| (v.abs() - 1.0).abs() <= 1e-5));
+                    }
+                    prop_assert!(e.c[0] >= lo - 1e-3 && e.c[0] <= hi + 1e-3);
+                }
+            }
+        }
     }
 
     /// GL.POLYGON.SMOOTH: a smooth triangle covers the same samples, with the same color

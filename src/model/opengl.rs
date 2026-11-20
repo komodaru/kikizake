@@ -89,6 +89,7 @@ pub mod e {
     pub const POINT_SMOOTH: u32 = 0xb10;
     pub const POLYGON_SMOOTH: u32 = 0xb41;
     pub const POLYGON_SMOOTH_HINT: u32 = 0xc53;
+    pub const LINE_SMOOTH_HINT: u32 = 0xc52;
     pub const POLYGON_STIPPLE: u32 = 0xb42;
     pub const MAP_COLOR: u32 = 0xd10;
     pub const INDEX_SHIFT: u32 = 0xd12;
@@ -1240,19 +1241,14 @@ pub enum ToFixed {
     Span,
     /// a smooth line's: truncated on channels of every size (GL.RASTER.INTERPOLATE.LINECOLOR)
     Floor,
-    /// an antialiased line's blended into 8-bit channels without alpha, of this alpha in
-    /// 1/256 (GL.RASTER.LINE.SMOOTH.BLEND)
-    Covered(u16),
-    /// a wide antialiased line's blended into 8-bit channels without alpha, its coverage in the
-    /// alpha: (color a + channel (1 - a)) * 255 in floats, truncated (GL.RASTER.LINE.SMOOTH.WIDE)
-    Weighed,
-    /// a wide antialiased line's in colors into channels without alpha, not blended: truncated
-    /// toward zero and wrapped past the channel's top, not clamped (GL.RASTER.LINE.SMOOTH.WIDE)
-    Wrapped,
     /// a smooth polygon's: already in channel units, truncated, blended (SRC_ALPHA,
     /// ONE_MINUS_SRC_ALPHA) without alpha bits as d (1 - a / scale) + c a / scale in float32,
     /// unclamped (GL.POLYGON.SMOOTH)
     Scaled,
+    /// a fast smooth line's: the channels' bytes, written as they are; blended (SRC_ALPHA,
+    /// ONE_MINUS_SRC_ALPHA) as m(255 - w, d) + m(w, c) with w = m(weight, alpha) and
+    /// m(h, l) = (h l) >> 8 (GL.RASTER.LINE.SMOOTH.BLEND)
+    Wu { weight: u8, alpha: u8 },
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2274,7 +2270,63 @@ impl Ctx {
     /// raster-mode-2, 5, 9, 11, 12, 13: GL.POLYGON.SMOOTH). Cut by the view volume, culled,
     /// textured, lit, fogged, depth or alpha tested, dithered, under 8-bit channels or in color
     /// index: not measured.
-    fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize) -> Res<()> {
+    /// A smooth (GL_LINE_SMOOTH) smooth-shaded line from a to b as Windows draws it: cut to
+    /// the view volume (`tri::cut_line`, colors in channel units), then into a buffer without
+    /// alpha, 1 pixel wide and not under GL_NICEST the fast path (`tri::aa_line_fast`), else
+    /// the general one (`tri::aa_line`), each fragment truncated (MEASURED, golden opengl-32 /
+    /// 64: GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.WIDE, GL.RASTER.LINE.SMOOTH.BLEND).
+    /// Flat-shaded, stippled, fogged, lit, textured, depth, stencil or alpha tested, masked,
+    /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
+    /// channels or in color index: not measured.
+    fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4])) -> Res<()> {
+        let unmeasured = [LINE_STIPPLE, ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, STENCIL_TEST, COLOR_LOGIC_OP, SCISSOR_TEST].iter().any(|c| self.cap(*c))
+            || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
+            || (self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA))
+            || self.color_mask != [true; 4]
+            || self.shade == FLAT
+            || self.pf.ty != 0
+            || self.bits()[..3].iter().any(|b| *b != 8)
+            || self.pf.rgba[3].0 % 8 != 0;
+        if unmeasured {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        let red = ((1u64 << self.bits()[0]) - 1) as f32;
+        let scale: [f32; 4] = std::array::from_fn(|k| match (k, self.bits()[k]) {
+            (3, 0) => red,
+            (_, b) => ((1u64 << b) - 1) as f32,
+        });
+        let end = |v: &(Obj, [f32; 4])| tri::ClipEnd { clip: self.clip_coords(v.0), c: std::array::from_fn(|k| v.1[k] * scale[k]) };
+        let Some((e, cut)) = tri::cut_line(end(a), end(b), true) else { return Ok(()) };
+        if cut.iter().any(|c| *c) {
+            hit(clause::GL_RASTER_INTERPOLATE_LINE);
+        }
+        if e[0].c != e[1].c {
+            hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
+        }
+        let r: [tri::Raster; 2] = std::array::from_fn(|k| if cut[k] { tri::Raster::of_cut(e[k].clip, self.viewport, H as i64) } else { tri::Raster::of(e[k].clip, self.viewport, H as i64) });
+        let colors = [e[0].c, e[1].c];
+        let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
+        if self.pf.rgba[3].0 == 0 && thin && self.hints[(LINE_SMOOTH_HINT - 0xc50) as usize] != NICEST {
+            hit(clause::GL_RASTER_LINE_SMOOTH);
+            if self.cap(BLEND) {
+                hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
+            }
+            let bias = tri::RASTER_BIAS as i64;
+            let bounds = [[bias, bias + W as i64], [bias, bias + H as i64]];
+            for p in tri::aa_line_fast(r[0], r[1], colors, scale[3], bounds) {
+                let c = [f32::from(p.c[0]), f32::from(p.c[1]), f32::from(p.c[2]), 0.0];
+                self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c, z: 0.0, fixed: ToFixed::Wu { weight: p.weight, alpha: p.alpha }, zfixed: None })?;
+            }
+            return Ok(());
+        }
+        hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
+        for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width)) {
+            self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c: p.c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
+        }
+        Ok(())
+    }
+
+    fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize, quad: bool) -> Res<()> {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
         let unmeasured = [CULL_FACE, LIGHTING, FOG, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
@@ -2295,10 +2347,18 @@ impl Ctx {
         });
         let colors: Vec<[f32; 4]> = q.iter().map(|v| std::array::from_fn(|k| v.1[k] * scale[k])).collect();
         let flat = self.shade == FLAT;
-        for k in 1..v.len().saturating_sub(1) {
-            let t = [0, k, k + 1];
-            for p in tri::aa_triangle(t.map(|i| v[i]), grid) {
-                let mut c: [f32; 4] = if flat { colors[provoking] } else { std::array::from_fn(|ch| tri::aa_plane(t.map(|i| v[i]), t.map(|i| colors[i][ch]), p.at)) };
+        // (a quad's triangles v0 v1 v2 and v2 v3 v0, a polygon's the fan from v0; each sorted
+        // up the raster rows before it is filled, one of no area dropped)
+        let tris: Vec<[usize; 3]> = if quad { vec![[0, 1, 2], [2, 3, 0]] } else { (1..v.len().saturating_sub(1)).map(|k| [0, k, k + 1]).collect() };
+        for t in tris {
+            let t = tri::Raster::up_the_rows(t, &v);
+            let r = t.map(|i| v[i]);
+            let [(ax, ay), (bx, by), (cx, cy)] = r.map(|p| (p.0[0], p.0[1]));
+            if (ax - cx) * (by - cy) - (ay - cy) * (bx - cx) == 0.0 {
+                continue;
+            }
+            for p in tri::aa_triangle(r, grid) {
+                let mut c: [f32; 4] = if flat { colors[provoking] } else { std::array::from_fn(|ch| tri::aa_plane(r, t.map(|i| colors[i][ch]), p.at)) };
                 c[3] *= p.cover.fraction();
                 self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
             }
@@ -2405,7 +2465,7 @@ impl Ctx {
             hit(clause::GL_POLYGON_STIPPLE);
         }
         if self.cap(POLYGON_SMOOTH) {
-            return self.smooth_polygon(q, provoking);
+            return self.smooth_polygon(q, provoking, false);
         }
         if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
             return Ok(());
@@ -2655,10 +2715,6 @@ impl Ctx {
                 // (stippled lines, and antialiased ones wide, under a projection, blended or
                 // alpha tested, are not measured)
                 // (blended into a buffer without alpha: GL.RASTER.LINE.SMOOTH.BLEND)
-                let blended = self.cap(BLEND) && self.pf.rgba[3].0 == 0;
-                if (self.cap(LINE_STIPPLE) && self.cap(LINE_SMOOTH)) || (self.cap(LINE_SMOOTH) && ((self.cap(BLEND) && !blended) || self.cap(ALPHA_TEST))) {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                }
                 let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
                 let n = verts.len();
                 let pairs: Vec<(usize, usize)> = match mode {
@@ -2679,6 +2735,10 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
+                    if self.cap(LINE_SMOOTH) {
+                        self.aa_line(a, b)?;
+                        continue;
+                    }
                     // (fogged at the ends; flat-shaded lines are drawn at other pixels than smooth
                     // ones, a step along apart, golden opengl-32 line-color-4, not settled:
                     // GL.RASTER.MODE)
@@ -2697,21 +2757,8 @@ impl Ctx {
                     let c = match color {
                         LineColor::Flat(c) => c,
                         LineColor::Smooth(..) => {
-                            if self.cap(LINE_SMOOTH) {
-                                // (a wide one in colors: by tri::wide_smooth_color, measured
-                                // into a buffer without alpha, not blended)
-                                if !wide {
-                                    self.smooth_aa_line(ca, cb, color)?;
-                                    continue;
-                                }
-                                if self.pf.rgba[3].0 > 0 || self.cap(BLEND) {
-                                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                                }
-                                fa
-                            } else {
-                                self.deep_line(ca, cb, color)?;
-                                continue;
-                            }
+                            self.deep_line(ca, cb, color)?;
+                            continue;
                         }
                     };
                     // (a wide line: cut to the view volume as one under a projection, golden
@@ -2719,62 +2766,8 @@ impl Ctx {
                     // (w = 1 between the near and far planes, one depth: not cut, as measured
                     // at w = 1, golden opengl-32 lines-0, prim-15)
                     let flat = |c: [f32; 4]| c[3] == 1.0 && (-1.0..=1.0).contains(&c[2]);
-                    if (!wide || self.cap(LINE_SMOOTH)) && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
+                    if !wide && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
                         let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
-                        if self.cap(LINE_SMOOTH) && (self.pf.rgba[3].0 > 0 || wide) {
-                            // (into a buffer with alpha: every pixel the line's cone reaches,
-                            // its alpha times the coverage, truncated, GL.RASTER.LINE.SMOOTH;
-                            // a wide one so too without alpha, its width as given,
-                            // GL.RASTER.LINE.SMOOTH.WIDE)
-                            let width = if wide {
-                                hit(clause::GL_RASTER_LINE_SMOOTH_WIDE);
-                                tri::SmoothWidth(f64::from(self.line_width.min(10.0)))
-                            } else {
-                                tri::SmoothWidth::ONE
-                            };
-                            // (a wide one blended: as measured, SRC_ALPHA, ONE_MINUS_SRC_ALPHA on 8 bits)
-                            let fixed = if wide && self.cap(BLEND) {
-                                if self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) || self.bits()[..3] != [8, 8, 8] {
-                                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                                }
-                                ToFixed::Weighed
-                            } else if matches!(color, LineColor::Smooth(..)) {
-                                ToFixed::Wrapped
-                            } else {
-                                self.smooth_fixed()
-                            };
-                            for (x, y, f) in tri::smooth_line([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, width) {
-                                let mut c = match color {
-                                    LineColor::Flat(_) => c,
-                                    LineColor::Smooth(c0, c1) => tri::wide_smooth_color([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, width, [c0, c1], x, y),
-                                };
-                                c[3] = (f64::from(c[3]) * f) as f32;
-                                self.fragment(Frag { x, y, c, z: wa[2], fixed, zfixed: None })?;
-                                // (a wide one's faint pixels, of coverage under 1/10, Windows
-                                // draws or not by a rule not settled: 9 of them left undrawn
-                                // in line-aa-wide-0..2, GL.RASTER.MODE)
-                                if wide && f < 0.1 {
-                                    self.unsettled(x, y);
-                                }
-                            }
-                            continue;
-                        }
-                        if self.cap(LINE_SMOOTH) && blended {
-                            // (each pixel's alpha its coverage, then blended, GL.RASTER.LINE.SMOOTH.BLEND;
-                            // other factors and channels under 8 bits are not measured)
-                            if self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) || self.bits()[..3] != [8, 8, 8] || c[3] != 1.0 {
-                                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                            }
-                            for (x, y, k) in tri::line_covered([wa[0], wa[1]], [wb[0], wb[1]], self.viewport, tri::Stroke::Smooth) {
-                                // (a coverage c of 255 an alpha of c - 1 of 256; 1 and less draw
-                                // nothing)
-                                if k.0 <= 1 {
-                                    continue;
-                                }
-                                self.fragment(Frag { x, y, c, z: wa[2], fixed: ToFixed::Covered(u16::from(k.0) - 1), zfixed: None })?;
-                            }
-                            continue;
-                        }
                         let major = usize::from((wb[1] - wa[1]).abs() > (wb[0] - wa[0]).abs());
                         for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]], FirstEnd::Kept)? {
                             if self.stipple_keeps([x, y][major]) {
@@ -2782,10 +2775,6 @@ impl Ctx {
                             }
                         }
                         continue;
-                    }
-                    // (an antialiased wide line cut or of depths that differ: not measured)
-                    if self.cap(LINE_SMOOTH) && wide {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
                     self.deep_line(ca, cb, LineColor::Flat(c))?;
                 }
@@ -2978,36 +2967,6 @@ impl Ctx {
         Ok(())
     }
 
-    /// an antialiased line whose ends' colors differ, from its clip coordinates: inside the
-    /// view volume at one depth into a buffer without alpha, the pixels of GL.RASTER.LINE.SMOOTH
-    /// in the colors of GL.RASTER.INTERPOLATE.LINECOLOR (MEASURED, golden opengl-32
-    /// interp-open-2)
-    fn smooth_aa_line(&mut self, a: [f32; 4], b: [f32; 4], color: LineColor) -> Res<()> {
-        let flat = |c: [f32; 4]| c[3] == 1.0 && c[..3].iter().all(|v| (-1.0..=1.0).contains(v));
-        let LineColor::Smooth(ca, cb) = color else { return Err(Fail::Bad) };
-        // (cut, of depths that differ, or into a buffer with alpha: each pixel of the cone a
-        // color about a step on from its own row's, not settled, golden opengl-32
-        // interp-open-3: GL.RASTER.INTERPOLATE)
-        if !flat(a) || !flat(b) || a[2] != b[2] || self.pf.rgba[3].0 > 0 {
-            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
-        }
-        hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
-        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
-        let win = |c: [f32; 4]| [(f64::from(c[0]) + 1.0) * vw / 2.0 + vx, (f64::from(c[1]) + 1.0) * vh / 2.0 + vy];
-        let snap = |c: [f32; 4]| [tri::Sub::snap(f64::from(c[0]), vw, center.0), tri::Sub::snap(f64::from(c[1]), vh, center.1)];
-        let (pa, pb) = (snap(a), snap(b));
-        let major = usize::from((pb[1].0 - pa[1].0).abs() >= (pb[0].0 - pa[0].0).abs());
-        let pixels = self.line_pixels(win(a), win(b), FirstEnd::Kept)?;
-        let Some(first) = pixels.first().map(|p| [p.0, p.1][major]) else { return Ok(()) };
-        let z = self.window_z(a[2]);
-        for (x, y) in pixels {
-            let c = tri::line_color([pa[major], pb[major]], [ca, cb], first, [x, y][major]);
-            self.fragment(Frag { x, y, c, z: f64::from(z), fixed: ToFixed::Floor, zfixed: None })?;
-        }
-        Ok(())
-    }
-
     /// Whether the line stipple keeps the step at major coordinate `major` (MEASURED, golden
     /// opengl-32 line-stipple-1..3; GL.RASTER.LINE.STIPPLE): each new step along the line takes
     /// the counter's next count s, its pixels drawn when bit (s / factor) mod 16 of the pattern
@@ -3140,22 +3099,6 @@ impl Ctx {
         v as f32 * (1.0 / ((1u64 << b) - 1) as f32)
     }
 
-    /// a pixel whose outcome Windows decides by a rule not settled (GL.RASTER.MODE, open): its
-    /// writable color channels are not compared
-    fn unsettled(&mut self, x: i64, y: i64) {
-        hit(clause::GL_RASTER_MODE);
-        if !(0..W as i64).contains(&x) || !(0..H as i64).contains(&y) {
-            return;
-        }
-        let i = y as usize * W + x as usize;
-        let bits = self.bits();
-        for k in 0..4 {
-            if self.color_mask[k] && bits[k] > 0 {
-                self.fb_undefined[i][k] = true;
-            }
-        }
-    }
-
     /// a pixel's channels over their largest values, a missing alpha 1, in f64
     /// a fragment whose outcome is undefined (GL.UNDEFINED): the writable color channels, and the
     /// stencil and depth values when they may be written, become undefined
@@ -3208,7 +3151,7 @@ impl Ctx {
                 return Ok(());
             }
         }
-        let c = if matches!(f.fixed, ToFixed::Wrapped | ToFixed::Scaled) { f.c } else { f.c.map(|v| v.clamp(0.0, 1.0)) };
+        let c = if matches!(f.fixed, ToFixed::Scaled | ToFixed::Wu { .. }) { f.c } else { f.c.map(|v| v.clamp(0.0, 1.0)) };
         if self.cap(ALPHA_TEST) {
             hit(clause::GL_ALPHA_TEST);
             // (MEASURED, golden opengl-32 alphatest-*: in 8-bit fixed point, the reference truncated)
@@ -3328,31 +3271,22 @@ impl Ctx {
         let mut v = [0u32; 4];
         if self.cap(BLEND) {
             v = match f.fixed {
-                ToFixed::Covered(a) => {
-                    // (MEASURED, golden opengl-32 line-smooth-blend-*: 4500 channels over black,
-                    // gray and in colors: the color rounded times a / 256 and the channel times
-                    // (255 - a) / 256, each truncated, then added)
-                    hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
-                    let a = u32::from(a);
-                    let s = c.map(|v| (v * 255.0 + 0.5).floor() as u32);
-                    let d = self.fb[i];
-                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { ((s[k] * a) >> 8) + ((d[k] * (255 - a)) >> 8) })
-                }
-                ToFixed::Weighed => {
-                    // (MEASURED, golden opengl-32 raster-mode-6: 1024 channels, white over black,
-                    // floor(255 coverage))
-                    hit(clause::GL_RASTER_LINE_SMOOTH_WIDE);
-                    let d = self.fb[i];
-                    let a = f64::from(c[3]);
-                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { ((f64::from(c[k]) * a + f64::from(d[k]) / 255.0 * (1.0 - a)) * 255.0).floor() as u32 })
-                }
                 ToFixed::Nearest | ToFixed::Trunc | ToFixed::Span | ToFixed::Floor => self.blend(c, self.fb[i], dither.then_some(threshold))?,
-                // (blended: not measured)
-                ToFixed::Wrapped => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
-                ToFixed::Scaled if self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) && bits[3] == 0 => {
+                ToFixed::Scaled if self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) => {
+                    // (MEASURED, golden opengl-32 raster-mode-5, 6, 7, line-aa-wide-0..2: the
+                    // alpha over the alpha scale (red's without alpha bits), d (1 - a) + c a in
+                    // float32, truncated, alpha alike)
                     let d = self.fb[i];
-                    let a = c[3] * (1.0 / ((1u64 << bits[0]) - 1) as f32);
-                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { (d[k] as f32 * (1.0 - a) + c[k] * a).trunc() as u32 })
+                    let scale = ((1u64 << if bits[3] == 0 { bits[0] } else { bits[3] }) - 1) as f32;
+                    let a = c[3] * (1.0 / scale);
+                    [0, 1, 2, 3].map(|k| if k == 3 && bits[3] == 0 { 0 } else if k == 3 { ((c[3] * a + d[3] as f32 * (1.0 - a)).trunc() as i64 as u32) & low_bits(bits[3]) } else { ((d[k] as f32 * (1.0 - a) + c[k] * a).trunc() as i64 as u32) & low_bits(bits[k]) })
+                }
+                ToFixed::Wu { weight, alpha } => {
+                    // (MEASURED, golden opengl-32 line-smooth-blend-0..5, raster-mode-4)
+                    let m = |h: u32, l: u32| (h * l) >> 8;
+                    let w = m(u32::from(weight), u32::from(alpha));
+                    let d = self.fb[i];
+                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { m(255 - w, d[k]) + m(w, c[k] as u32) })
                 }
                 // (other blends, or into alpha bits: not measured)
                 ToFixed::Scaled => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
@@ -3363,12 +3297,8 @@ impl Ctx {
                     0
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
-                } else if f.fixed == ToFixed::Scaled {
-                    c[k].trunc() as u32
-                } else if f.fixed == ToFixed::Wrapped {
-                    // (MEASURED, golden opengl-32 line-aa-wide-3: a short line's color steps past
-                    // 1 wrap around on 8 bits; line-aa-wide-5, 6: a step a hair under 0 is 0)
-                    (c[k] * ((1u64 << bits[k]) - 1) as f32).trunc() as i64 as u32 & ((1u32 << bits[k]) - 1)
+                } else if matches!(f.fixed, ToFixed::Scaled | ToFixed::Wu { .. }) {
+                    (c[k].trunc() as i64 as u32) & low_bits(bits[k])
                 } else if f.fixed == ToFixed::Floor {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
                 } else if f.fixed == ToFixed::Span && bits[k] == 8 {
@@ -4567,6 +4497,20 @@ pub mod tri {
             let inv = if clip[3] == 0.0 { 0.0 } else { 1.0 / clip[3] };
             Raster([0, 1].map(|k| (clip[k] * scale[k]) * inv + center[k]))
         }
+
+        /// The corners `t` (indices into `v`) in the order the triangle is filled: up the raster
+        /// rows, by y (a strict less; an equal y keeps the order the cases below give).
+        pub fn up_the_rows(t: [usize; 3], v: &[Raster]) -> [usize; 3] {
+            let [p, q, r] = t;
+            let y = |i: usize| v[i].0[1];
+            if y(p) < y(q) {
+                if y(q) < y(r) { [p, q, r] } else if y(p) < y(r) { [p, r, q] } else { [r, p, q] }
+            } else if y(q) < y(r) {
+                if y(p) < y(r) { [q, p, r] } else { [q, r, p] }
+            } else {
+                [r, q, p]
+            }
+        }
     }
 
     /// The samples a smooth polygon's pixel is cut into, per side (GL_POLYGON_SMOOTH_HINT
@@ -4640,6 +4584,314 @@ pub mod tri {
         }
     }
 
+    /// A line's end on its way to the rasterizer: clip coordinates and colors in channel units.
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct ClipEnd {
+        pub clip: [f32; 4],
+        pub c: [f32; 4],
+    }
+
+    /// A line cut to the view volume as Windows cuts it (MEASURED, golden opengl-32 / 64
+    /// interp-open-2, 3: GL.RASTER.LINE.CUT): the planes -w <= x, x <= w, -w <= y, y <= w,
+    /// -w <= z, z <= w in turn, each that either end's first codes are outside of; per plane
+    /// the distances x + w (or w - x, ...) of the ends as they stand, an end outside when its
+    /// distance is below 0; both outside, nothing; else t = d_in / (d_in - d_out) and every
+    /// coordinate and (`smooth`) color (out - in) t + in, the end keeping its place. Gives the
+    /// ends and whether each was cut.
+    pub fn cut_line(a: ClipEnd, b: ClipEnd, smooth: bool) -> Option<([ClipEnd; 2], [bool; 2])> {
+        let code = |c: [f32; 4]| -> u8 {
+            (0..6).map(|bit| {
+                let (v, w) = (c[bit / 2], c[3]);
+                let out = if bit % 2 == 0 { -w > v } else { v > w };
+                u8::from(out) << bit
+            }).sum()
+        };
+        let (ka, kb) = (code(a.clip), code(b.clip));
+        if ka & kb != 0 {
+            return None;
+        }
+        let mut e = [a, b];
+        for bit in 0..6 {
+            if (ka | kb) >> bit & 1 == 0 {
+                continue;
+            }
+            let d = |c: [f32; 4]| if bit % 2 == 0 { c[bit / 2] + c[3] } else { c[3] - c[bit / 2] };
+            let (d0, d1) = (d(e[0].clip), d(e[1].clip));
+            let out = match (d0 < 0.0, d1 < 0.0) {
+                (true, true) => return None,
+                (false, false) => continue,
+                (true, false) => 0,
+                (false, true) => 1,
+            };
+            let (din, dout) = if out == 0 { (d1, d0) } else { (d0, d1) };
+            let (i, o) = (e[1 - out], e[out]);
+            let t = din / (din - dout);
+            let mix = |o: [f32; 4], i: [f32; 4]| -> [f32; 4] { std::array::from_fn(|k| (o[k] - i[k]) * t + i[k]) };
+            e[out] = ClipEnd { clip: mix(o.clip, i.clip), c: if smooth { mix(o.c, i.c) } else { o.c } };
+        }
+        Some((e, [ka != 0, kb != 0]))
+    }
+
+    impl Raster {
+        /// A cut end's raster position: as any, then held inside the viewport's box, its far
+        /// sides less 1/256 (GL.RASTER.LINE.CUT).
+        pub fn of_cut(clip: [f32; 4], viewport: [i64; 4], height: i64) -> Raster {
+            let r = Raster::of(clip, viewport, height);
+            let bias = RASTER_BIAS as i64;
+            let lo = [(viewport[0] + bias) as f32, ((height - viewport[1] + bias) - viewport[3]) as f32];
+            let hi = [(viewport[0] + bias + viewport[2]) as f32, (height - viewport[1] + bias) as f32];
+            Raster([0, 1].map(|k| if lo[k] > r.0[k] { lo[k] } else if r.0[k] >= hi[k] { hi[k] - 1.0 / 256.0 } else { r.0[k] }))
+        }
+    }
+
+    /// A smooth line's width as the rasterizer has it: held to 0.5 ..= 10 and rounded to the
+    /// nearest 1/8 (GL.RASTER.LINE.SMOOTH.WIDE).
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct AaWidth(f32);
+
+    impl AaWidth {
+        pub fn of(w: f32) -> AaWidth {
+            AaWidth(if w <= 0.5 { 0.5 } else if w >= 10.0 { 10.0 } else { 0.5 + ((w - 0.5) / 0.125 + 0.5).trunc() * 0.125 })
+        }
+        pub fn get(self) -> f32 {
+            self.0
+        }
+    }
+
+    /// One pixel of a smooth line by the general path: column, row from the top, its colors
+    /// (alpha times the coverage) in channel units.
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct AaLineFrag {
+        pub x: i64,
+        pub row: i64,
+        pub c: [f32; 4],
+        pub cover: f32,
+    }
+
+    /// Minor steps of a Bresenham walk in 1/2^31: on a carry past bit 31 the big step.
+    #[derive(Clone, Copy)]
+    struct Walk {
+        big: [i64; 2],
+        little: [i64; 2],
+        dl: [f32; 2],
+        dd: [f32; 2],
+    }
+
+    /// A smooth line by the general path (MEASURED, golden opengl-32 / 64 raster-mode-6, 7, 8,
+    /// interp-open-3, line-aa-wide-0..6, every pixel: GL.RASTER.LINE.SMOOTH,
+    /// GL.RASTER.LINE.SMOOTH.WIDE): in float32 on raster coordinates, the octant's big and
+    /// little steps; ceil(width length / major) + 1 rows side by side, each walked back while
+    /// its distance along the line from `a` is over -1/2 and on while it is at or below, then
+    /// numPixels = ceil(major) + 1 pixels; a pixel's coverage across min(1, w/2 + 1/2 - |d|),
+    /// along (s + 1/2) near `a` and (length - 1/2 - s + 1) near `b`; 0 drops it; colors from
+    /// `a`'s by (b - a) / major a pixel along each row, each row from `a`'s again.
+    pub fn aa_line(a: Raster, b: Raster, c: [[f32; 4]; 2], width: AaWidth) -> Vec<AaLineFrag> {
+        let ([x0, y0], [x1, y1]) = (a.0, b.0);
+        let (dx, dy) = (x1 - x0, y1 - y0);
+        let real = (f64::from(dx * dx + dy * dy)).sqrt() as f32;
+        let inv = if real == 0.0 { 0.0 } else { 1.0 / real };
+        let (dldx, dldy) = (dx * inv, dy * inv);
+        let (dddx, dddy) = (-dldy, dldx);
+        let sw = width.get();
+        // (per octant: x major or y, the big step's signs and deltas)
+        let (xmajor, sx, sy) = if dx > 0.0 {
+            if dy > 0.0 { (dx > dy, 1, 1) } else { (dx > -dy, 1, -1) }
+        } else if dy > 0.0 {
+            (-dx > dy, -1, 1)
+        } else {
+            (dx < dy, -1, -1)
+        };
+        let (fx, fy) = (sx as f32, sy as f32);
+        let (dl_big, dd_big) = (fx * dldx + fy * dldy, fx * dddx + fy * dddy);
+        let big = [sx, sy];
+        let (little, dl_little, dd_little) = if xmajor { ([sx, 0], fx * dldx, fx * dddx) } else { ([0, sy], fy * dldy, fy * dddy) };
+        // (the major axis' start, offset, length; the minor axis' start and fraction)
+        let (m0, m1, n0, dm, dn, s) = if xmajor { (x0, x1, y0, dx, dy, fx) } else { (y0, y1, x0, dy, dx, fy) };
+        let start = m0.trunc() as i64;
+        let offset = if s > 0.0 { (start as f32 + 0.5) - m0 } else { m0 - (start as f32 + 0.5) };
+        let slope = dn / (s * dm);
+        let length = s * dm;
+        if length == 0.0 {
+            return Vec::new();
+        }
+        let pixels = (s * (m1 - m0)).ceil() as i64 + 1;
+        let w = (s * sw * real / dm).ceil();
+        let rows = w as i64 + 1;
+        let minor = n0 + offset * slope - w * 0.5;
+        let minor_int = minor.trunc() as i64;
+        let mut fraction = ((minor - minor_int as f32) * 2147483648.0) as i32;
+        let dfraction = (slope * 2147483648.0) as i32;
+        let (mut x, mut y) = if xmajor { (start, minor_int) } else { (minor_int, start) };
+        let walk = Walk { big, little, dl: [dl_big, dl_little], dd: [dd_big, dd_little] };
+        let inv_delta = 1.0 / length;
+        let dc: [f32; 4] = std::array::from_fn(|k| (c[1][k] - c[0][k]) * inv_delta);
+        let (ex, ey) = ((x as f32 + 0.5) - x0, (y as f32 + 0.5) - y0);
+        let (mut l, mut d) = (ey * dldy + ex * dldx, ex * dddx + ey * dddy);
+        let (line_width, line_length) = (0.5 * sw - 0.5, real - 0.5);
+        let step = |f: &mut i32, l: &mut f32, d: &mut f32, x: &mut i64, y: &mut i64, sign: i32| {
+            *f = if sign > 0 { f.wrapping_add(dfraction) } else { f.wrapping_sub(dfraction) };
+            let k = if *f < 0 {
+                *f &= i32::MAX;
+                0
+            } else {
+                1
+            };
+            let (m, dl, dd) = ([walk.big, walk.little][k], walk.dl[k], walk.dd[k]);
+            if sign > 0 {
+                *l += dl;
+                *d += dd;
+                *x += m[0];
+                *y += m[1];
+            } else {
+                *l -= dl;
+                *d -= dd;
+                *x -= m[0];
+                *y -= m[1];
+            }
+        };
+        let bias = RASTER_BIAS as i64;
+        let mut out = Vec::new();
+        for _ in 0..rows {
+            while l > -0.5 {
+                step(&mut fraction, &mut l, &mut d, &mut x, &mut y, -1);
+            }
+            while l <= -0.5 {
+                step(&mut fraction, &mut l, &mut d, &mut x, &mut y, 1);
+            }
+            let (mut sl, mut sd, mut sf, mut px, mut py) = (l, d, fraction, x, y);
+            let mut col = c[0];
+            for _ in 0..pixels {
+                let mut cover = if sd > line_width { (line_width - sd) + 1.0 } else if sd < -line_width { (sd + line_width) + 1.0 } else { 1.0 };
+                if cover >= 0.0 {
+                    if sl < 0.5 {
+                        cover *= sl + 0.5;
+                    } else if sl > line_length {
+                        cover *= (line_length - sl) + 1.0;
+                    }
+                }
+                if cover > 0.0 {
+                    let mut c = col;
+                    c[3] *= cover;
+                    out.push(AaLineFrag { x: px - bias, row: py - bias, c, cover });
+                }
+                col = std::array::from_fn(|k| col[k] + dc[k]);
+                step(&mut sf, &mut sl, &mut sd, &mut px, &mut py, 1);
+            }
+            if xmajor {
+                y += 1;
+                l += dldy;
+                d += dddy;
+            } else {
+                x += 1;
+                l += dldx;
+                d += dddx;
+            }
+        }
+        out
+    }
+
+    /// One pixel of a smooth line by the fast path: column, row from the top, its channels
+    /// (bytes), alpha byte and Wu weight 0..=255.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct FastFrag {
+        pub x: i64,
+        pub row: i64,
+        pub c: [u8; 3],
+        pub alpha: u8,
+        pub weight: u8,
+    }
+
+    /// A raster coordinate's whole part and its fraction in 1/256 (the float's low 8 bits, as
+    /// raster coordinates lie in 32768 ..= 65535).
+    fn whole_and_frac(v: f32) -> (i64, i64) {
+        let b = v.to_bits();
+        (i64::from(((b & 0x7F_FF00) | 0x80_0000) >> 8), i64::from(b & 0xFF))
+    }
+
+    /// A 1-pixel smooth line by the fast path, into a buffer without alpha (MEASURED, golden
+    /// opengl-32 / 64 raster-mode-0, 4, interp-open-2, line-smooth-blend-0..5, every pixel:
+    /// GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.BLEND): the major axis' pixels from the
+    /// diamond exit of each end (in 1/256), the minor coordinate at the first center
+    /// (offset slope + start) whole and its fraction in 1/256, held to the clip box `bounds` (x, y); per
+    /// step two pixels, at the minor coordinate (weight 255 - f) and one past it (f), f the
+    /// fraction's top byte, stepping by |slope| 2^31 toward the line's minor direction (a carry
+    /// or borrow past 0 the minor step); colors 16.16 from `a`'s, alpha 16.16 by 255 / scale.
+    pub fn aa_line_fast(a: Raster, b: Raster, c: [[f32; 4]; 2], alpha_scale: f32, bounds: [[i64; 2]; 2]) -> Vec<FastFrag> {
+        let (db, dyb) = (i64::from(b.0[0].to_bits()) - i64::from(a.0[0].to_bits()), i64::from(b.0[1].to_bits()) - i64::from(a.0[1].to_bits()));
+        let xmajor = db.abs() > dyb.abs();
+        let (m, n) = if xmajor { (0, 1) } else { (1, 0) };
+        let (m0, n0, m1, n1) = (a.0[m], a.0[n], b.0[m], b.0[n]);
+        let ((im0, fm0), (_, fn0), (im1, fm1), (_, fn1)) = (whole_and_frac(m0), whole_and_frac(n0), whole_and_frac(m1), whole_and_frac(n1));
+        let dmb = if xmajor { db } else { dyb };
+        let (start, end, step) = if dmb > 0 {
+            (im0 + i64::from(fm0 + (fn0 - 128).abs() - 256 > 0), im1 + i64::from(fm1 + (fn1 - 128).abs() - 256 > 0), 1)
+        } else if dmb < 0 {
+            (im0 - i64::from((fn0 - 128).abs() - fm0 > 0), im1 - i64::from((fn1 - 128).abs() - fm1 > 0), -1)
+        } else {
+            return Vec::new();
+        };
+        let count = (end - start) * step;
+        if count <= 0 {
+            return Vec::new();
+        }
+        let (dm, dn) = (m1 - m0, n1 - n0);
+        let inv = 1.0 / dm;
+        let slope = inv * dn;
+        let offset = (start as f32 + 0.5) - m0;
+        let at = offset * slope + n0;
+        let rows = bounds[n];
+        let (mut minor, f) = whole_and_frac(at);
+        let mut fraction: i64 = f << 23;
+        if minor < rows[0] {
+            minor = rows[0];
+            fraction = 0;
+        } else if minor > rows[1] - 1 {
+            minor = rows[1] - 1;
+            fraction = 0xFF << 23;
+        }
+        let dfraction = i64::from((slope.abs() * 2147483648.0) as i32);
+        let down = dn < 0.0;
+        let inv_major = 1.0 / dm.abs();
+        let fixed = |v: f32| v as i32;
+        let mut col: [i32; 3] = std::array::from_fn(|k| fixed(c[0][k] * 65536.0));
+        let dc: [i32; 3] = std::array::from_fn(|k| if c[1][k] - c[0][k] == 0.0 { 0 } else { fixed((c[1][k] - c[0][k]) * inv_major * 65536.0) });
+        let k = 16711680.0 / alpha_scale;
+        let mut alpha = fixed(c[0][3] * k);
+        let da = if c[1][3] - c[0][3] == 0.0 { 0 } else { fixed((c[1][3] - c[0][3]) * inv_major * k) };
+        let bias = RASTER_BIAS as i64;
+        let mut out = Vec::new();
+        let mut major = start;
+        for _ in 0..count {
+            let f8 = ((fraction >> 23) & 0xFF) as u8;
+            let bytes = col.map(|v| ((v >> 16) & 0xFF) as u8);
+            let a8 = ((alpha >> 16) & 0xFF) as u8;
+            for (mn, weight) in [(minor, 255 - f8), (minor + 1, f8)] {
+                if mn != minor && mn >= rows[1] {
+                    continue;
+                }
+                let (x, y) = if xmajor { (major, mn) } else { (mn, major) };
+                out.push(FastFrag { x: x - bias, row: y - bias, c: bytes, alpha: a8, weight });
+            }
+            col = std::array::from_fn(|k| col[k].wrapping_add(dc[k]));
+            alpha = alpha.wrapping_add(da);
+            major += step;
+            if down {
+                fraction -= dfraction;
+                if fraction < 0 {
+                    fraction += 1 << 31;
+                    minor -= 1;
+                }
+            } else {
+                fraction += dfraction;
+                if fraction >= 1 << 31 {
+                    fraction -= 1 << 31;
+                    minor += 1;
+                }
+            }
+        }
+        out
+    }
+
     /// The pixels a smooth triangle covers samples of (MEASURED, golden opengl-32 / 64
     /// raster-mode-2, 5, 9, 11, 12, 13, all exact): no edge walk, every pixel of the box from
     /// one left of / above the vertices' truncated least to one past their greatest sampled;
@@ -4702,96 +4954,6 @@ pub mod tri {
         let (pa, pb) = (nx / np, ny / np);
         let pd = -(((ay * ny + ax * nx) + p[0] * np) / np);
         -((pa * at[0] + pb * at[1]) + pd)
-    }
-
-    /// The pixels of an antialiased 1-pixel line from a to b (window coordinates) drawn into a
-    /// buffer with alpha, each with its coverage (MEASURED, golden opengl-32 raster-mode-8:
-    /// 3072 pixels of 12 lines, every one exact): the ends snapped as a polygon's corners; at
-    /// a pixel's center d its distance from the line and s its distance along the line inside
-    /// the nearer end (negative past it), the coverage (1 - |d|) times s + 1/2 held to 0..1,
-    /// the pixels where it is above 0, inside the viewport (GL.RASTER.LINE.SMOOTH)
-    pub fn smooth_line(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: SmoothWidth) -> Vec<(i64, i64, f64)> {
-        super::hit(super::clause::GL_RASTER_LINE_SMOOTH);
-        let [vx, vy, vw, vh] = viewport;
-        let (a, b) = smooth_ends(a, b, viewport);
-        let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
-        let len = dx.hypot(dy);
-        let mut out = Vec::new();
-        if len == 0.0 {
-            return out;
-        }
-        let (x0, y0, x1, y1) = (vx.max(0), vy.max(0), (vx + vw).min(super::W as i64), (vy + vh).min(super::H as i64));
-        for y in y0..y1 {
-            for x in x0..x1 {
-                let (px, py) = (x as f64 + 0.5 - a[0], y as f64 + 0.5 - a[1]);
-                let d = (px * dy - py * dx) / len;
-                let along = (px * dx + py * dy) / len;
-                let s = along.min(len - along);
-                let f = (s + 0.5).clamp(0.0, 1.0) * ((width.0 + 1.0) / 2.0 - d.abs()).clamp(0.0, 1.0);
-                if f > 0.0 {
-                    out.push((x, y, f));
-                }
-            }
-        }
-        out
-    }
-
-    /// An antialiased line's ends (window coordinates) snapped as a polygon's corners.
-    fn smooth_ends(a: [f64; 2], b: [f64; 2], viewport: [i64; 4]) -> ([f64; 2], [f64; 2]) {
-        let [vx, vy, vw, vh] = viewport;
-        let snap = |v: f64, o: i64, size: i64| {
-            let size = size as f64;
-            Sub::snap((v - o as f64) * 2.0 / size - 1.0, size, Sub((o as f64 * 256.0 + size * 128.0) as i64)).0 as f64 / 256.0
-        };
-        ([snap(a[0], vx, vw), snap(a[1], vy, vh)], [snap(b[0], vx, vw), snap(b[1], vy, vh)])
-    }
-
-    /// The color of pixel (x, y) of an antialiased wide line from a to b (window coordinates)
-    /// in colors `c` (MEASURED, golden opengl-32 line-aa-wide-3, 5, 6: 64 lines of widths 1.5 to
-    /// 4, upright to nearly diagonal, every pixel; GL.RASTER.LINE.SMOOTH.WIDE): the line drawn
-    /// as 1-pixel lines side by side along the minor axis, each the pixels floor(m + h) + k
-    /// along the major one (m the line's minor coordinate at the pixel row's center, h 1/2 when
-    /// floor(width * length / major length) is even, else 0); each begins at its first pixel
-    /// whose center is more than 1/2 along the line from a (snapped), its colors from a's on
-    /// by `line_color`'s step a pixel.
-    pub fn wide_smooth_color(a: [f64; 2], b: [f64; 2], viewport: [i64; 4], width: SmoothWidth, c: [[f32; 4]; 2], x: i64, y: i64) -> [f32; 4] {
-        let (a, b) = smooth_ends(a, b, viewport);
-        let d = [b[0] - a[0], b[1] - a[1]];
-        let len = d[0].hypot(d[1]);
-        let major = usize::from(d[1].abs() >= d[0].abs());
-        let minor = 1 - major;
-        let sg = if d[major] > 0.0 { 1 } else { -1 };
-        let slope = d[minor] / d[major];
-        let half = if (width.0 * len / d[major].abs()).floor() as i64 % 2 == 0 { 0.5 } else { 0.0 };
-        let path = |r: i64, k: i64| (a[minor] + (r as f64 + 0.5 - a[major]) * slope + half).floor() as i64 + k;
-        let along = |r: i64, k: i64| {
-            let mut p = [0.0; 2];
-            p[minor] = path(r, k) as f64 + 0.5;
-            p[major] = r as f64 + 0.5;
-            ((p[0] - a[0]) * d[0] + (p[1] - a[1]) * d[1]) / len
-        };
-        let at = [x, y];
-        let k = at[minor] - path(at[major], 0);
-        let mut r = at[major];
-        // (each walk ends within the line's length and a pixel either way)
-        while along(r - sg, k) > -0.5 {
-            r -= sg;
-        }
-        while along(r, k) <= -0.5 {
-            r += sg;
-        }
-        let ends = [Sub((a[major] * 256.0).round() as i64), Sub((b[major] * 256.0).round() as i64)];
-        line_color(ends, c, r, at[major])
-    }
-
-    /// An antialiased line's width as given (not rounded: GL.RASTER.LINE.SMOOTH.WIDE), across
-    /// which a pixel center within (width + 1) / 2 of the line is covered by that less its
-    /// distance, up to 1.
-    #[derive(Clone, Copy, PartialEq, Debug)]
-    pub struct SmoothWidth(pub f64);
-
-    impl SmoothWidth {
-        pub const ONE: SmoothWidth = SmoothWidth(1.0);
     }
 
     /// How a line is drawn: aliased of a width, or antialiased (1 pixel wide).
