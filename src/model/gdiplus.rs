@@ -823,6 +823,9 @@ impl Src {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Source {
     Solid,
+    /// a gradient: on x86 a pixel of it clear still drawn (MEASURED, golden gdiplusbrush
+    /// linblend-27: 555's unused top bit cleared under it on x86, kept on x86-64)
+    Gradient,
     /// a texture placed at the rendering origin (ox, oy)
     Texture { origin: (i64, i64) },
 }
@@ -838,7 +841,7 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
     let opaque = |x: u32, y: u32| c(x, y).map(|v| v >> 24 == 255);
     let texture = match kind {
         Source::Texture { origin } if gamma => Some(origin),
-        Source::Texture { .. } | Source::Solid => None,
+        Source::Texture { .. } | Source::Solid | Source::Gradient => None,
     };
     // (MEASURED, golden gdipluspaint hatchshift16-*, hatchrun16-*: the dither's row counts from
     // the rendering origin's y)
@@ -924,7 +927,7 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
                 let (x, y) = (x as u32, y as u32);
                 let Some(s) = src(x, y)? else { continue };
                 // (a clear brush over draws nothing: 555's unused top bit stays; drawn, it is 0)
-                if !copy && s.sp >> 24 == 0 {
+                if !copy && s.sp >> 24 == 0 && (kind != Source::Gradient || super::arch() == 64) {
                     continue;
                 }
                 let v = b.px(x, y) as u32;
@@ -1038,11 +1041,12 @@ impl Texels {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Brush {
     Solid(u32),
     Hatch { style: HatchStyle, fore: u32, back: u32 },
     Texture { texels: Texels, wrap: Wrap },
+    Linear(super::gplinear::Linear),
 }
 
 /// SmoothingMode as GDI+ 1.0 takes it (AntiAlias8x8 and past it: InvalidParameter)
@@ -1256,11 +1260,20 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
         // (MEASURED, golden gdiplusbrush textile-*: a texture brush is anchored at the device's
         // (0, 0); the rendering origin moves hatches only)
         Brush::Texture { .. } => Source::Texture { origin: (0, 0) },
+        Brush::Linear(_) => Source::Gradient,
     };
+    let span = match brush {
+        Brush::Linear(l) => super::gplinear::Span::new(rounding(), l, po.half()),
+        Brush::Solid(_) | Brush::Hatch { .. } | Brush::Texture { .. } => None,
+    };
+    if matches!(brush, Brush::Linear(_)) && span.is_none() {
+        return Ok(());
+    }
     // (the brush's color at a pixel, premultiplied)
     let color = |px: u32, py: u32| -> Option<u32> {
         Some(match *brush {
             Brush::Solid(c) => pre(c),
+            Brush::Linear(_) => span.as_ref()?.at(i64::from(px), i64::from(py)),
             Brush::Texture { ref texels, wrap } => {
                 hit(clause::GP_BRUSH_TEXTURE_PAINT);
                 // (past a Clamp tile the brush is a transparent texel, blended like any other: a
@@ -1940,10 +1953,19 @@ impl Gdiplus {
                         HatchStyle::new(n(t, 3)?).map(|style| Brush::Hatch { style, fore, back })
                     }
                     Some("linear") => {
-                        for i in 3..=9 {
-                            n(t, i)?;
-                        }
-                        return Err(Fail::Unmodeled(open::GP_BRUSH_LINEAR));
+                        use super::gplinear::Refused;
+                        let v = (3..=9).map(|i| n(t, i)).collect::<Res<Vec<i64>>>()?;
+                        let pt = |a: i64, b: i64| -> Res<(i32, i32)> { Ok((i32::try_from(a).map_err(|_| Fail::Bad)?, i32::try_from(b).map_err(|_| Fail::Bad)?)) };
+                        let st = match super::gplinear::new(rounding(), pt(v[0], v[1])?, pt(v[2], v[3])?, (v[4] as u32, v[5] as u32), v[6]) {
+                            Ok(l) => {
+                                self.brush[s] = Some(Brush::Linear(l));
+                                OK
+                            }
+                            Err(Refused::InvalidParameter) => INVALID_PARAMETER,
+                            Err(Refused::OutOfMemory) => OUT_OF_MEMORY,
+                        };
+                        out.push(format!("brush {st}"));
+                        return Ok(true);
                     }
                     Some("texture") => {
                         let src = Self::slot(t, 3)?;
@@ -1996,6 +2018,11 @@ impl Gdiplus {
                     Brush::Texture { .. } => {
                         let id = [1.0f32, 0.0, 0.0, 1.0, 0.0, 0.0].map(|e| format!(" {:08x}", e.to_bits())).concat();
                         format!("brushinfo {OK} 2 {OK}{id}")
+                    }
+                    Brush::Linear(l) => {
+                        let (x, y, w, h) = l.rect;
+                        let m = l.matrix.map(|e| format!(" {:08x}", e.to_bits())).concat();
+                        format!("brushinfo {OK} 4 {OK} {:08x} {:08x} {:08x} {:08x} {OK}{m}", x.to_bits(), y.to_bits(), w.to_bits(), h.to_bits())
                     }
                 });
             }

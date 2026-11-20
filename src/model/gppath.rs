@@ -40,7 +40,24 @@ pub fn sqrt32(r: Round, a: f32) -> f32 {
         Round::Down => q,
     }
 }
-fn mul64(r: Round, a: f64, b: f64) -> f64 {
+pub fn add64(r: Round, a: f64, b: f64) -> f64 {
+    let s = a + b;
+    match r {
+        Round::Nearest => s,
+        Round::Down => {
+            if !s.is_finite() {
+                return s;
+            }
+            let bb = s - a;
+            let e = (a - (s - bb)) + (b - bb);
+            if s == 0.0 && e == 0.0 {
+                return if a.is_sign_positive() && b.is_sign_positive() { 0.0 } else { -0.0 };
+            }
+            if e < 0.0 { s.next_down() } else { s }
+        }
+    }
+}
+pub fn mul64(r: Round, a: f64, b: f64) -> f64 {
     let p = a * b;
     match r {
         Round::Nearest => p,
@@ -52,7 +69,7 @@ fn mul64(r: Round, a: f64, b: f64) -> f64 {
         }
     }
 }
-fn div64(r: Round, a: f64, b: f64) -> f64 {
+pub fn div64(r: Round, a: f64, b: f64) -> f64 {
     let q = a / b;
     match r {
         Round::Nearest => q,
