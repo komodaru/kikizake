@@ -292,3 +292,101 @@ multiply/divide; this fits "different below zero when upm is not a power of 2").
 1. Confirm the inferred pieces in `fsc_MeasureGlyph` and the phantom rounding (see Q1 unsure).
 2. The GDI natural advance (Q2) and the shaping callback.
 3. Q3 scaling arithmetic.
+
+---------------------------------------------------------------------------------------------
+
+## Follow-up A. The three inferred pieces (now read in the code)
+
+All x64 RVAs; x86 has the same functions (see the symbol table above for the pattern).
+
+1. **x_os = 6 * x26: CONFIRMED** (in the scaler's glyph routine after grid fitting, around
+   x64 0x87f82..0x8808e, inside the code that follows `fsg_GridFit`). When the scaler's
+   subpixel flag (bit 0 of its flag word) is set, it multiplies **every point, including all 8
+   phantom points** (indices up to lastPoint + 9), as `x = FixMul(x, ovX<<16)` and
+   `y = FixMul(y, ovY<<16)` with ovX = 6, ovY = 1. FixMul is defined below. With integer
+   factors this is exactly 6*x and 1*y. This happens after hinting and phantom rounding, so
+   the rounding happens at 1x (the os scaling comes after). In the GDI classic
+   "compatible width" case (flag bit 1), grid fitting runs again first, then the same multiply.
+2. **Phantom points whole pixels: CONFIRMED, with one exception**. This is
+   `scl_RoundCurrentSideBearingPnt` (0x8c8d0), called after `scl_ScaleOldPhantomPoints` /
+   `scl_AdjustOldSideBearingPoints` / `scl_CopyCurrentPhantomPoints`, before the glyph program.
+   - Horizontal advance: `a16 = rha(adv_design * xScale16 / upm)` (64-bit; rha = round half away
+     from zero, using a sign-aware +upm/2), `a26 = (a16 + 0x200) >> 10`.
+     - If (flags & 5) == 1: `a26q = (a26 + 2) & ~3` (**1/16 pixel**).
+     - Else: `a26q = (a26 + 32) & ~63` (whole pixel).
+     - Then `P2.x = P1.x + a26q`.
+   - Vertical: `P3.y = (P3.y + 32) & ~63` (whole pixel). `h16 = rha((ooy[P4]-ooy[P3]) * yScale16 / upm)`
+     (negative), `P4.y = (P3.y + 32 + ((h16 + 0x200) >> 10)) & ~63`.
+   - Flag bit 2 (value 4) is set by `fs_NewTransformation` (around 0x854b8) exactly when the
+     caller asks for subpixel and **matrix m00 == 0 (the sideways 90 degree case)**. Bit 1 (2,
+     compatible widths) is set only when m01 == 0. So: **not sideways (classic and natural):
+     the advance phantom rounds to 1/16 px. Sideways: whole pixels.** (Bit 0 is always set in
+     both GDI modes, unless the face property that sets rendering flag 0x40 is present. Then
+     there is no subpixel at all.)
+3. **os bounds rule: CONFIRMED in form** in `fsc_MeasureGlyph` (0x74050). Each extremum (a
+   "reversal") becomes a scan-line index: a minimum v (coming in rising) uses `(v + 31) >> 6`,
+   a maximum uses `(v + 32) >> 6`, in os 26.6. So the left/bottom bound is
+   `floor((x_os + 31)/64)`, as inferred. MeasureGlyph does no scaling itself; it receives the
+   already 6x outline.
+
+## Follow-up B (Q3). Design units to 26.6: the scaler's scale record
+
+Built by `scl_InitializeScaling` (0x85ab8), applied by `scl_ScaleOldCharPoints` (0xc817c) and
+the phantom/twilight variants. Per axis (x record and y record):
+```
+N = axis scale, 16.16 px per em     # GDI: ppem<<16 (rounded to a whole px when the round flag is set);
+                                    # "hint at em square": upm<<16
+D = upm << 16
+t = ctz(N | D);  if t > 1: N >>= (t-1); D >>= (t-1)    # keeps exactly one common factor of 2
+if N < 0x2000000: numer = N*64           else: numer = N; D >>= 6
+fixed = sat32( FixDivRound(numer<<16, D) )    # (numer<<16 +- D/2)/D, half away from zero
+if numer > 0x7FFF:            x26 = FixMul(v, fixed)                     # half away from 0
+elif D is a power of two:     x26 = (v*numer + D/2) >> log2(D)           # 32-bit, floor: half UP, also below 0
+else:                         x26 = v>=0 ? (v*numer + D/2) / D           # C division
+                                         : -((D/2 - v*numer) / D)        # half AWAY from zero
+```
+Here `FixMul(a,b) = sat32((a*b + 0x8000 - (a*b < 0)) >> 16)`, which rounds half away from 0.
+After the reduction, `numer = 128*ppem / 2^g` and `D = 2*upm / 2^g`, with
+g = min(ctz(ppem), ctz(upm)). D is a power of two **exactly when upm is a power of two**. That
+is your measured "half up, but away from zero below zero when upm is not a power of 2".
+**New limit:** when `ppem / 2^g > 255` (numer > 32767) the fixed path is used instead, at
+any upm.
+
+Predictions:
+- upm 512, ppem 4, v = -1 (exact -0.5 in 26.6): 0 (shift path, half up).
+- upm 768, ppem 3, v = -2 (exact -0.5 in 26.6): -1 (divide path, away from zero).
+- **upm 2048, ppem 257, v = -16** (exact -128.5): fixed = 526336, so -129 (half away from zero).
+  The shift path would give -128. For v = +16 both give 129.
+
+The GDI classic / DISABLED-fit scale you measured (`s16 = ((em<<17)/upm + 1) >> 1`, then
+`(v*s16 + 0x200) >> 10`) is **not** this record. I did not locate it in this pass. It looks like
+`FixDivRound(em<<16, upm<<16)` followed by a multiply in 26.6. If it uses `FixMul(v*64, s16)`,
+negative ties would round away from zero instead of half up: check `v*s16 ≡ -0x200 (mod 0x400)`
+cases.
+
+## Follow-up C (Q2). The GDI natural advance, and the advance past 255 ppem
+
+- **Natural (useGdiNatural, not sideways)**: no compatible width (ShouldCheckHdmx rejects
+  flags 0x20). The advance phantom is rounded to **1/16 px** (Follow-up A.2). Then x6 in os,
+  scaled back by `tdiv(v+3,6)` (exact for positive multiples of 6), then DisplayToEmX rounds to
+  the whole pixel:
+  ```
+  a26 = (rha(adv*(ppem<<16)/upm) + 0x200) >> 10
+  q   = (a26 + 2) & ~3
+  k   = (q + 32) >> 6            # rounds up iff round(64x) mod 64 >= 30  <=>  frac >= 59/128 (via 26.6)
+  E   = FloatToFixed(f32(f32(k) * m0))      # m0 = f32(f32(1/(p*p))*p); advance = (upm*E+0x8000)>>16
+  ```
+  This is where 69/128 comes from: 30/64 after the 26.6 rounding equals floor(x + 69/128) in
+  terms of x. In placements, the pixel k is the advance.
+- **Classic past 255 ppem** (ppemByte = 0, so no hdmx and no linear compatible width): the
+  same phantom path with the same 1/16 rounding (not sideways), so **the same formula as
+  natural**. Below 256 ppem, classic keeps `floor(ppem*65536/upm)*adv` rounded and FixDiv
+  (Q1). Sideways uses whole-pixel phantom rounding at every ppem.
+- **Unsure**: `rha(adv*xScale16/upm)`. The divisor is the G argument of
+  `scl_RoundCurrentSideBearingPnt` (passed by its caller), and I take it to be upm (it fits
+  the measured natural threshold exactly). The 0x40 face property (no subpixel) path is untested.
+
+## Not done in this pass
+
+- Q4 (IDWriteGlyphRunAnalysis sample positions, coverage, dropout).
+- Locating the DWrite-side Fixed16 scale for the DISABLED grid fit.
