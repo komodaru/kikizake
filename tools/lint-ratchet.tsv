@@ -15,6 +15,12 @@ file	src/case.rs	unwrap_used	1
 file	src/compare.rs	arithmetic_side_effects	8
 file	src/compare.rs	as_conversions	2
 file	src/compare.rs	indexing_slicing	5
+file	src/dxbc.rs	arithmetic_side_effects	13
+file	src/dxbc.rs	as_conversions	11
+file	src/dxbc.rs	cast_possible_truncation	10
+file	src/dxbc.rs	cast_precision_loss	1
+file	src/dxbc.rs	cast_sign_loss	1
+file	src/dxbc.rs	indexing_slicing	10
 file	src/generators/d2d.rs	arithmetic_side_effects	34
 file	src/generators/d2d.rs	as_conversions	60
 file	src/generators/d2d.rs	cast_precision_loss	48
@@ -87,12 +93,6 @@ file	src/generators/dwrite.rs	cast_possible_truncation	159
 file	src/generators/dwrite.rs	cast_sign_loss	60
 file	src/generators/dwrite.rs	indexing_slicing	26
 file	src/generators/dwrite.rs	unwrap_used	125
-file	src/dxbc.rs	arithmetic_side_effects	13
-file	src/dxbc.rs	as_conversions	11
-file	src/dxbc.rs	cast_possible_truncation	10
-file	src/dxbc.rs	cast_precision_loss	1
-file	src/dxbc.rs	cast_sign_loss	1
-file	src/dxbc.rs	indexing_slicing	10
 file	src/generators/gdi.rs	arithmetic_side_effects	16
 file	src/generators/gdi.rs	as_conversions	3
 file	src/generators/gdi.rs	cast_possible_truncation	2
@@ -447,6 +447,8 @@ file	src/model/rootsig.rs	cast_possible_truncation	10
 file	src/model/rootsig.rs	cast_precision_loss	1
 file	src/model/rootsig.rs	cast_sign_loss	2
 file	src/model/rootsig.rs	indexing_slicing	21
+file	src/model/warpline.rs	as_conversions	1
+file	src/model/warpline.rs	cast_precision_loss	1
 file	src/model/wic.rs	arithmetic_side_effects	39
 file	src/model/wic.rs	as_conversions	52
 file	src/model/wic.rs	cast_possible_truncation	18

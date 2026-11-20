@@ -541,6 +541,20 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     for (name, b) in files {
         writeln!(s, "case file-{name}\ndwfont {}\n{probe}\nend", hex(&b)).unwrap();
     }
+    // grid fit disabled at 16 ppem, 2048 units per em (a 16.16 scale of 512): edges below and
+    // left of zero on an exact half of a 1/64 pixel, which re/dwrite.md (Follow-up E) says round
+    // away from zero (nofittie)
+    {
+        let gs: Vec<_> = (0..14i64).map(|j| (1000u16, vec![((-(2 * j + 1) * 3) as i16, (-(2 * j + 1) * 5) as i16, 300i16, 400i16)])).collect();
+        let f = font_with(0x0fe1_0000, 2048, &gs);
+        writeln!(s, "case nofittie\n{}", font_line(&f)).unwrap();
+        for mode in ["gdi", "gdinatural"] {
+            for g in 1..=14 {
+                writeln!(s, "dwrun {mode}.nofit 16 160 160 {g} 0").unwrap();
+            }
+        }
+        writeln!(s, "end").unwrap();
+    }
     // GDI modes with grid fit disabled: single boxes at sizes 6..96, edges anywhere in a pixel
     for mode in ["gdi", "gdinatural"] {
         for i in 0..6u32 {

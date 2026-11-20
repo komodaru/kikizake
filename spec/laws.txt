@@ -26,6 +26,7 @@ tests/laws_gdidraw.rs::font_measures_add_up pbt GDI.TEXT.TM GDI.TEXT.WIDTH GDI.T
 tests/laws_gdidraw.rs::font_measures_grow_with_the_em pbt GDI.TEXT.TM GDI.TEXT.AVE GDI.TEXT.WIDTH
 tests/laws_gdidraw.rs::glyph_bitmaps_agree pbt GDI.TEXT.BITMAP GDI.TEXT.GRAY GDI.TEXT.DRAW GDI.TEXT.ABC
 tests/laws_gdidraw.rs::italic_shears_but_keeps_the_advances pbt GDI.TEXT.ITALIC GDI.TEXT.WIDTH GDI.TEXT.ABC
+tests/laws_gdidraw.rs::inverse_table_holds_near_entries pbt GDI.GRAD.INDEXED
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
@@ -192,3 +193,4 @@ tests/laws_opengl.rs::aa_planes_of_one_value_hold_it pbt GL.POLYGON.SMOOTH
 tests/laws_opengl.rs::convex_outlines_cross_a_plane_at_most_twice pbt GL.RASTER.CLIP.XY
 tests/laws_opengl.rs::cut_lines_stay_on_the_line_inside pbt GL.RASTER.INTERPOLATE.LINE
 tests/laws_opengl.rs::line_depths_step_evenly pbt GL.RASTER.INTERPOLATE.LINE
+tests/d3d9draw_laws.rs::warp_lines_are_the_diamond_exit_rule pbt D3D9.DRAW.LINES

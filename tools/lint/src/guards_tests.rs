@@ -74,3 +74,8 @@ fn the_repository_passes() {
         panic!("{e}");
     }
 }
+
+#[test]
+fn every_pattern_compiles() {
+    assert!(pats().is_some(), "{BROKEN}");
+}

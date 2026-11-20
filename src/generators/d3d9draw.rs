@@ -1157,6 +1157,13 @@ fn suite(v8: bool) -> String {
             writeln!(s, "d9rt\nend").unwrap();
         }
     }
+    // (D3D9.DRAW.POINTSLINES) lines ending in their pixel's diamond, eight whose end pixel WARP's
+    // line coverage lights (it crosses that pixel's other center line before the end) and
+    // eight it does not, x- and y-major: the end rule beyond Direct3D 10's diamond exit
+    for (i, (a, b)) in [((1.75, 3.5), (2.75, 6.875)), ((8.5, 14.875), (4.875, 7.0)), ((9.625, 2.625), (10.125, 4.875)), ((5.375, 3.875), (14.875, 13.25)), ((7.125, 3.5), (13.125, 13.75)), ((2.125, 3.125), (10.875, 10.875)), ((8.0, 3.0), (3.0, 1.0)), ((15.0, 11.75), (11.0, 4.25)), ((3.875, 12.0), (4.125, 7.125)), ((3.625, 3.25), (5.125, 2.0)), ((6.25, 5.75), (14.0, 10.625)), ((8.5, 12.25), (3.75, 1.875)), ((1.625, 12.25), (3.875, 10.875)), ((6.625, 9.375), (5.0, 13.375)), ((6.75, 11.875), (12.875, 14.0)), ((12.125, 10.875), (7.0, 6.625))].into_iter().enumerate() {
+        open(&mut s, &format!("line-end-minor-{i}"), 21, 16, 16);
+        s.push_str(&format!("d9clear 1 0 0 0\nd9fvf {FVF_TL:#x}\nd9draw 2 2 {} {}\nd9rt\nend\n", v(a.0, a.1, 0.0, 0xffff_ffff, None), v(b.0, b.1, 0.0, 0xffff_ffff, None)));
+    }
     s
 }
 

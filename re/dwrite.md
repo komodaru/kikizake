@@ -386,7 +386,167 @@ cases.
   `scl_RoundCurrentSideBearingPnt` (passed by its caller), and I take it to be upm (it fits
   the measured natural threshold exactly). The 0x40 face property (no subpixel) path is untested.
 
-## Not done in this pass
+## Not done in this pass (superseded: see Follow-ups D and E below)
 
 - Q4 (IDWriteGlyphRunAnalysis sample positions, coverage, dropout).
 - Locating the DWrite-side Fixed16 scale for the DISABLED grid fit.
+
+## Follow-up D (Q4). IDWriteGlyphRunAnalysis: sample grid, coverage, 3x1 filter, bounds
+
+### D.1 Per-mode attribute word (from GetRenderingModeAttributes)
+
+There is one 32-bit word for each DWRITE_RENDERING_MODE value (index 0..9). One table is for
+ClearType analyses and one is for grayscale (antialias-mode grayscale) analyses. The bit fields
+below were confirmed from GetAlphaTextureBounds and CreateAlphaTexture3x1:
+
+| bits | meaning |
+|---|---|
+| 0-3 | ovX (horizontal samples per pixel) |
+| 4-7 | ovY (vertical samples per pixel) |
+| 8-11 | log2(ovX) when ovX is a power of two (shift path), else 0 (divide path) |
+| 12-15 | log2(ovY), same rule |
+| 16 | texture type produced: 0 = ALIASED_1x1, 1 = CLEARTYPE_3x1 |
+| 24-25 | filter margin in samples, added on each side in x |
+| others | not identified |
+
+ClearType table, mode -> (ovX x ovY, texture type, margin):
+- ALIASED: 1x1, aliased, 0
+- GDI_CLASSIC, GDI_NATURAL, NATURAL: 6x1, 3x1, 2
+- NATURAL_SYMMETRIC, OUTLINE-slot and the symmetric modes: 6x5, 3x1, 2
+
+Grayscale table:
+- classic and natural: 8x1, aliased texture, 0, shift 3
+- symmetric: 4x4, aliased texture, 0, shift 2/2
+
+A grayscale analysis therefore answers only the ALIASED_1x1 texture type. GetAlphaTextureBounds
+for the other type returns an empty rect with S_OK. A type other than 0 or 1 returns
+E_INVALIDARG and an empty rect.
+
+### D.2 Glyph placement (sample units)
+
+This is in addition to round 3 (ComputeGlyphBitmapPositions). Each glyph origin is
+`round_half_up(f32(f32(ov*scale) * coord))` in samples: x uses ovX, y uses ovY, and in the
+run-level variant y is taken once from the first glyph. The cached glyph bitmap carries its
+own left and top in samples. The glyph is placed at `left = sx + bm.left` and
+`top = sy - bm.top`. There is no extra 1/4 px or 1/64 px pen quantisation in this step; any
+such quantisation is already in the origins handed in. I did not trace the advance snapping
+of the GDI modes in ComputeGlyphOrigins this round.
+
+The outline is scaled by the scaler record at the real ppem (Follow-up B). The overscale
+(×ovX, ×ovY) is applied after hinting, as found before. Disabled grid fit is Follow-up E.
+
+### D.3 Coverage is binary per sample
+
+- Each glyph is rasterised by the TrueType scan converter into a **1-bit** mask at the sample
+  grid (one bit per sample).
+- The run is composed by **OR**ing the glyph masks into one 1-bit buffer, in 32-bit words with
+  the low bit leftmost. The function names are MergeUncompressedGlyph1Bit and
+  MergeCompressedGlyph1Bit. Overlaps saturate, so there is no accumulation.
+- In ALIASED mode (1x1) a set bit gives an output byte of 255 and a clear bit gives 0.
+- In the 3x1 mode, samples x in [6*L - 2, 6*R + 2) are composed for the pixel rect
+  [L, R). The 2-sample margin feeds the filter.
+
+The scan-conversion rule, as far as traced (fsc_CalcLine):
+- Sample centres are at 64k + 32 in 26.6 (pixel centres of the sample grid).
+- For an edge from c1 to c2 with c1 < c2 along the stepping axis, the centres it crosses are
+  those with **c1 < centre < c2**: first index `(c1 + 32) >> 6`, last index `(c2 - 33) >> 6`.
+- The descending case mirrors this.
+- Horizontal edges and edges that end exactly on a centre take separate branches. I have not
+  resolved those branches, so treat vertices that land exactly on a sample centre as
+  unconfirmed.
+- I did **not** trace dropout control (SCANCTRL / SCANTYPE handling in fsc_FillBitMap) this
+  round.
+
+### D.4 CLEARTYPE_3x1 values (CreateAlphaTexture3x1)
+
+The alpha texture always uses **g_classicPlattFilterRGB**. It does not depend on rendering
+params, pixel geometry or ClearType level; those apply only to the D2D/GDI render paths
+(D.5).
+
+Notation:
+- `b[s]` is the 1-bit sample at sample column s.
+- For output pixel X, `s0 = 6*X`.
+- `n(a, k)` is the number of set bits among `b[a .. a+k-1]` (k consecutive bits).
+
+**6x1 modes** (ApplyFilterImpl with no vertical taps):
+```
+nR = n(s0-2, 6)   nG = n(s0, 6)   nB = n(s0+2, 6)          # each 0..6
+out[3X+0] = R = T1[nR], out[3X+1] = G = T1[nG], out[3X+2] = B = T1[nB]
+T1[n] = (255*n + 3) / 6  (integer)  = {0,43,85,128,170,213,255}
+```
+Each channel is therefore a 6-sample box (two subpixels wide on each side) centred on its own
+subpixel: R on samples 0-1, G on 2-3 and B on 4-5. The bytes are stored R, G, B in that order.
+
+**6x5 modes** (symmetric): there are 5 sample rows per pixel row, and each channel's per-row
+counts are combined with vertical weights:
+```
+idx = 4*n_row0 + 9*n_row1 + 10*n_row2 + 9*n_row3 + 4*n_row4       # 0..216
+value = T5[idx],  T5[i] = (255*i + 108) / 216  (integer, round half up)
+```
+
+The tables in the binary are linear: I checked every entry against the per-bit weights. The
+dll stores them as 10-bit-index LUTs of packed 5:5:5 channel counts, which is only an
+implementation detail.
+
+### D.5 The other ClearType filters (render paths, not the alpha texture)
+
+GetFilterInternal(pixelGeometry, clearTypeLevel) selects:
+- FLAT geometry, or level < 0.25: grayscale. Each channel is n(s0, 6), so R = G = B.
+- 0.25 <= level <= 0.75: "intermediate".
+  - RGB: R = n(s0-1, 6), G = n(s0, 6), B = n(s0+1, 6).
+  - BGR mirrors this.
+  - The margin is 1 sample.
+- level > 0.75: "classic". RGB is as in D.4; BGR swaps the R and B windows.
+
+All of these normalise through the same T1 / T5 tables.
+
+### D.6 GetAlphaTextureBounds
+
+The input is the sample-space union rect from round 3 (empty bitmaps are skipped).
+1. If the texture type matches and the rect is non-empty, apply the margin:
+   `left -= m; right += m` (m = 2 for the ClearType modes, 0 otherwise).
+2. Convert to pixels, flooring left and top and ceiling right and bottom:
+   - x: `left = floor(left/ovX)`, `right = ceil(right/ovX)`. The shift path gives identical
+     results.
+   - y: the same with ovY, only when ovY > 1.
+3. The result is unioned with a second rect stored in the analysis object, used only when both
+   rects are non-empty. If the first is empty, the second is returned as is. I did not
+   identify the second rect; it is presumably empty for plain runs.
+
+For ClearType the result is `[floor((sl-2)/6), ceil((sr+2)/6))`, which matches the column range
+CreateAlphaTexture3x1 fills.
+
+## Follow-up E. Fixed16 scale for the disabled grid fit
+
+- **DWRITE_FixMul rounding (confirmed):** `(p + 0x8000 - (p < 0)) >> 16`, arithmetic shift,
+  saturated to int32. This is round half up **except negative exact ties, which round down
+  (away from zero)**. It agrees with floor((p + 0x8000)/65536) everywhere except
+  p ≡ -0x8000 (mod 0x10000) with p < 0.
+- **Transform hand-off (NewTransform):**
+  - The rasterizer receives an integer size (`size<<16`) plus a 16.16 matrix, with resolution
+    96/96.
+  - Render flag 0x4 adds the synthetic oblique: m01 += FixMul(m00, 0x5700) and
+    m11 += FixMul(m10, 0x5700), or the sideways variant m00 -= FixMul(m01, ..), and so on.
+  - The fractional part of the em size travels in the matrix, which is FloatToFixed per entry
+    (round 3).
+  - Outline points are then transformed with mth_FixXYMul: a sum of separately rounded
+    FixMuls (round 3).
+- **I have not yet tied the measured s16 to a specific instruction.** The structure is
+  consistent with s16 = FixDiv(em<<16, upm<<16), which rounds half away from zero and
+  therefore equals `((em<<17)/upm + 1) >> 1` for positive values. That would be followed by
+  x26 = FixMul(64*v, s16). For v >= 0 this is exactly the measured `(v*s16 + 0x200) >> 10`.
+- **Prediction to test on Windows:** for v < 0 with `|v|*s16 ≡ 0x200 (mod 0x400)`, Windows
+  gives `-((|v|*s16 + 0x200) >> 10)`. That is one less than the half-up formula's
+  `(v*s16 + 0x200) >> 10`. Every other negative v agrees with half-up.
+  - Example: upm 2048, em 16 gives s16 = 512, and v = -1 is a tie. Half-up gives 0;
+    FixMul gives -1.
+  - If Windows shows half-up there instead, the multiply is not DWRITE_FixMul (a float or
+    floor path).
+
+## Still open after round 4
+
+- Dropout control and the exact on-centre vertex rule in the scan converter.
+- Advance and pen snapping for the GDI modes inside the GlyphRunAnalysis constructor and
+  ComputeGlyphOrigins.
+- The instruction that produces s16 for the disabled grid fit (E is consistent but unconfirmed).
+- The second rect in GetAlphaTextureBounds.
