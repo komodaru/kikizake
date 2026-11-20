@@ -1241,7 +1241,8 @@ impl Polygon {
 #[derive(Clone, Copy)]
 enum Area<'a> {
     Rect(f64, f64, f64, f64),
-    Polygon(&'a Polygon, FillMode),
+    /// what the scan converter covered (GP.RASTER.FILL)
+    Cover(&'a super::gppath::Coverage),
 }
 
 /// a brush filling an area (the rules of FillRectangle hold for a polygon: MEASURED, golden
@@ -1299,30 +1300,16 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
             let bx = (edge(x).max(0), edge(y).max(0), edge(x + w).min(b.w as i64), edge(y + h).min(b.h as i64));
             fill_area(b, bx, &color, kind, copy, q)
         }
-        (None, Area::Polygon(poly, fm)) => {
-            hit(clause::GP_SHAPE_POLYGON);
-            // (a pixel is in when its sample is: at (x, y), or (x + 1/2, y + 1/2) for a half
-            // pixel offset)
-            let off = if po.half() { 0.5 } else { 0.0 };
+        (None, Area::Cover(c)) => {
             let bx = (0, 0, b.w as i64, b.h as i64);
-            fill_area(b, bx, &|px, py| color(px, py).filter(|_| poly.inside(fm, px as f64 + off, py as f64 + off)), kind, copy, q)
+            fill_area(b, bx, &|px, py| color(px, py).filter(|_| c.count(px, py) > 0), kind, copy, q)
         }
         (Some(n), area) => {
             hit(clause::GP_PAINT_AA);
             let s = if po.half() { 0.0 } else { 0.5 };
             let cov = |px: u32, py: u32| match area {
                 Area::Rect(x, y, w, h) => samples(px as i64, x + s, x + w + s, 8) * samples(py as i64, y + s, y + h + s, n),
-                Area::Polygon(poly, fm) => {
-                    hit(clause::GP_SHAPE_POLYGON);
-                    // (the subsamples at (x - s + i / 8, y - s + j / n))
-                    let mut c = 0;
-                    for i in 0..8 {
-                        for j in 0..n {
-                            c += u32::from(poly.inside(fm, px as f64 - s + f64::from(i) / 8.0, py as f64 - s + f64::from(j) / f64::from(n)));
-                        }
-                    }
-                    c
-                }
+                Area::Cover(c) => c.count(px, py),
             };
             let full = 8 * n;
             let bx = (0, 0, b.w as i64, b.h as i64);
@@ -1336,12 +1323,17 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
     }
 }
 
+/// an Add* of a path, its arguments parsed
+type Add = Box<dyn FnOnce(&mut super::gppath::Path) -> Result<(), super::gppath::Refused>>;
+
 #[derive(Default)]
 pub struct Gdiplus {
     pub bmp: [Option<Bitmap>; 2],
     pub mat: [Option<Matrix>; 2],
     pub brush: [Option<Brush>; 2],
     pub attr: [Option<Attr>; 2],
+    pub path: [Option<super::gppath::Path>; 2],
+    pub pen: [Option<super::gppath::Pen>; 2],
 }
 
 /// a 5 x 5 ColorMatrix, row by row: [r g b a 1] times it
@@ -1417,6 +1409,240 @@ impl Gdiplus {
             return Err(Fail::Bad);
         }
         Ok(s as usize)
+    }
+
+    /// gpshape with a pen: a straight line (GP.PEN.*)
+    fn pen_shape(&mut self, t: &[String], out: &mut Vec<String>) -> Res<bool> {
+        use super::gppath::{self as gpp, Stroke};
+        let s = Self::slot(t, 1)?;
+        let k = Self::slot(t, 3)?;
+        let matrix = match t.get(4).map(String::as_str) {
+            Some("-") => None,
+            _ => Some(Self::slot(t, 4)?),
+        };
+        let copy = match t.get(5).map(String::as_str) {
+            Some("copy") => true,
+            Some("over") => false,
+            _ => return Err(Fail::Bad),
+        };
+        let q = Quality::from_value(n(t, 6)?).ok_or(Fail::Bad)?;
+        let (sm, po) = (n(t, 7)?, n(t, 8)?);
+        let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
+        if t.get(9).map(String::as_str) != Some("line") {
+            return Err(Fail::Unmodeled(open::GP_PEN));
+        }
+        let (p0, p1) = ((f(10)?, f(11)?), (f(12)?, f(13)?));
+        let Some(b) = self.bmp[s].as_mut() else {
+            out.push("gpshape nobitmap".into());
+            return Ok(true);
+        };
+        let world = match matrix {
+            None => None,
+            Some(m) => match self.mat[m] {
+                Some(m) => Some(m),
+                None => {
+                    out.push("shape nomatrix".into());
+                    return Ok(true);
+                }
+            },
+        };
+        let Some(pen) = self.pen[k].clone() else {
+            out.push("shape nopen".into());
+            return Ok(true);
+        };
+        if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
+            hit(clause::GP_FILL_NOGRAPHICS);
+            out.push(format!("shape {OUT_OF_MEMORY}"));
+            return Ok(true);
+        }
+        let (Some(sm), Some(po)) = (Smoothing::from_value(sm), PixelOffset::from_value(po)) else {
+            hit(clause::GP_PAINT_MODES);
+            out.push(format!("shape 0 {INVALID_PARAMETER}"));
+            return Ok(true);
+        };
+        let r = rounding();
+        let dev = gpp::device(r, world.as_ref(), po);
+        let cov = match gpp::stroke(&pen, world.as_ref()).ok_or(Fail::Unmodeled(open::GP_PEN))? {
+            Stroke::OnePixel => match sm.rows() {
+                None => gpp::line_aliased(r, &dev, p0, p1, b.w, b.h).ok_or(Fail::Unmodeled(open::GP_PEN))?,
+                Some(n) => gpp::line_nominal(r, &dev, p0, p1, n, b.w, b.h),
+            },
+            Stroke::Wide { square_start, square_end } => {
+                let outline = gpp::line_wide(r, p0, p1, pen.width, (square_start, square_end));
+                gpp::fill(r, &outline, world.as_ref(), FillMode::Winding, sm.rows(), po, b.w, b.h)?
+            }
+        };
+        paint(b, &Brush::Solid(pen.color), Area::Cover(&cov), copy, q, sm, po, (0, 0))?;
+        out.push("shape 0 0".into());
+        Ok(true)
+    }
+
+    /// the path ops (GP.PATH.*)
+    fn path_op(&mut self, t: &[String], out: &mut Vec<String>) -> Res<bool> {
+        use super::gppath::{Path, Refused};
+        let name = t[0].as_str();
+        let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
+        let r = rounding();
+        match name {
+            "gppath" => {
+                let p = Self::slot(t, 1)?;
+                self.path[p] = Some(Path::new(n(t, 2)?));
+                out.push(format!("path {OK}"));
+                return Ok(true);
+            }
+            "gpfillpath" => {
+                let (s, k, p) = (Self::slot(t, 1)?, Self::slot(t, 2)?, Self::slot(t, 3)?);
+                let copy = match t.get(4).map(String::as_str) {
+                    Some("copy") => true,
+                    Some("over") => false,
+                    _ => return Err(Fail::Bad),
+                };
+                let q = Quality::from_value(n(t, 5)?).ok_or(Fail::Bad)?;
+                let (sm, po) = (n(t, 6)?, n(t, 7)?);
+                let Some(b) = self.bmp[s].as_mut() else {
+                    out.push("gpfillpath nobitmap".into());
+                    return Ok(true);
+                };
+                let Some(path) = &self.path[p] else {
+                    out.push("gpfillpath nopath".into());
+                    return Ok(true);
+                };
+                let Some(brush) = self.brush[k].clone() else {
+                    out.push("fillpath nobrush".into());
+                    return Ok(true);
+                };
+                if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
+                    hit(clause::GP_FILL_NOGRAPHICS);
+                    out.push(format!("fillpath {OUT_OF_MEMORY}"));
+                    return Ok(true);
+                }
+                let (Some(sm), Some(po)) = (Smoothing::from_value(sm), PixelOffset::from_value(po)) else {
+                    hit(clause::GP_PAINT_MODES);
+                    out.push(format!("fillpath 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
+                };
+                // (a path made with a FillMode past 0 ..= 1: not asked by the cases)
+                let Some(fm) = FillMode::from_value(path.fill) else {
+                    return Err(Fail::Unmodeled(open::GP_PATH_FILLMODE));
+                };
+                let cov = super::gppath::fill(r, path, None, fm, sm.rows(), po, b.w, b.h)?;
+                paint(b, &brush, Area::Cover(&cov), copy, q, sm, po, (0, 0))?;
+                out.push(format!("fillpath 0 {OK}"));
+                return Ok(true);
+            }
+            _ => {}
+        }
+        let p = Self::slot(t, 1)?;
+        // (the arguments parsed before the slot is looked at, as the executor does)
+        let parsed: Option<Add> = match name {
+            "gpadd" => {
+                let what = t.get(2).map(String::as_str).ok_or(Fail::Bad)?;
+                let a = |k: usize| f(3 + k);
+                let list = |at: usize| -> Res<Vec<(f32, f32)>> {
+                    let c = n(t, at)?;
+                    if !(0..=64).contains(&c) {
+                        return Err(Fail::Bad);
+                    }
+                    (0..c as usize).map(|j| Ok((f(at + 1 + 2 * j)?, f(at + 2 + 2 * j)?))).collect()
+                };
+                Some(match what {
+                    "line" => {
+                        let v = [a(0)?, a(1)?, a(2)?, a(3)?];
+                        Box::new(move |q: &mut Path| q.add_lines(r, &[(v[0], v[1]), (v[2], v[3])]))
+                    }
+                    "rect" => {
+                        let v = (a(0)?, a(1)?, a(2)?, a(3)?);
+                        Box::new(move |q: &mut Path| q.add_rectangle(r, v))
+                    }
+                    "ellipse" => {
+                        let v = (a(0)?, a(1)?, a(2)?, a(3)?);
+                        Box::new(move |q: &mut Path| q.add_ellipse(r, v))
+                    }
+                    "arc" | "pie" => {
+                        let (v, s, w) = ((a(0)?, a(1)?, a(2)?, a(3)?), a(4)?, a(5)?);
+                        if what == "arc" { Box::new(move |q: &mut Path| q.add_arc(r, v, s, w)) } else { Box::new(move |q: &mut Path| q.add_pie(r, v, s, w)) }
+                    }
+                    "bezier" => {
+                        let v = [a(0)?, a(1)?, a(2)?, a(3)?, a(4)?, a(5)?, a(6)?, a(7)?];
+                        Box::new(move |q: &mut Path| q.add_beziers(r, &[(v[0], v[1]), (v[2], v[3]), (v[4], v[5]), (v[6], v[7])]))
+                    }
+                    "close" => Box::new(|q: &mut Path| {
+                        q.close_figure();
+                        Ok(())
+                    }),
+                    "start" => Box::new(|q: &mut Path| {
+                        q.start_figure();
+                        Ok(())
+                    }),
+                    "lines" | "beziers" | "polygon" => {
+                        let v = list(3)?;
+                        match what {
+                            "lines" => Box::new(move |q: &mut Path| q.add_lines(r, &v)),
+                            "beziers" => Box::new(move |q: &mut Path| q.add_beziers(r, &v)),
+                            _ => Box::new(move |q: &mut Path| q.add_polygon(r, &v)),
+                        }
+                    }
+                    "curve" | "closedcurve" => {
+                        let tension = f(3)?;
+                        let v = list(4)?;
+                        if what == "curve" { Box::new(move |q: &mut Path| q.add_curve(r, &v, tension)) } else { Box::new(move |q: &mut Path| q.add_closed_curve(r, &v, tension)) }
+                    }
+                    _ => return Err(Fail::Bad),
+                })
+            }
+            _ => None,
+        };
+        let matrix = |i: usize| -> Res<Option<usize>> {
+            match t.get(i).map(String::as_str) {
+                Some("-") => Ok(None),
+                _ => Self::slot(t, i).map(Some),
+            }
+        };
+        let (flat, widen) = match name {
+            "gpflat" => (Some((matrix(2)?, f(3)?)), None),
+            "gpwiden" => (None, Some((Self::slot(t, 2)?, matrix(3)?, f(4)?))),
+            _ => (None, None),
+        };
+        let Some(path) = self.path[p].as_mut() else {
+            out.push(format!("{name} nopath"));
+            return Ok(true);
+        };
+        if let Some(add) = parsed {
+            hit(clause::GP_PATH_BUILD);
+            let st = match add(path) {
+                Ok(()) => OK,
+                Err(Refused::InvalidParameter) => INVALID_PARAMETER,
+            };
+            out.push(format!("add {st}"));
+        } else if let Some((m, flatness)) = flat {
+            let m = match m {
+                None => None,
+                Some(m) => match self.mat[m] {
+                    Some(m) => Some(m),
+                    None => {
+                        out.push("flat nomatrix".into());
+                        return Ok(true);
+                    }
+                },
+            };
+            path.flatten(r, m.as_ref(), flatness)?;
+            out.push(format!("flat {OK}"));
+        } else if widen.is_some() {
+            return Err(Fail::Unmodeled(open::GP_PEN));
+        } else {
+            // gppathinfo
+            out.push(format!("pathinfo {OK} {}", path.pts.len()));
+            if !path.pts.is_empty() && path.pts.len() <= 4096 {
+                let mut l = format!("pathpts {OK} {OK}");
+                for q in &path.pts {
+                    l += &format!(" {:02x} {:08x} {:08x}", q.type_byte(), q.x.to_bits(), q.y.to_bits());
+                }
+                out.push(l);
+            }
+            let (x, y, w, h) = path.bounds(r);
+            out.push(format!("bounds {OK} {:08x} {:08x} {:08x} {:08x}", x.to_bits(), y.to_bits(), w.to_bits(), h.to_bits()));
+        }
+        Ok(true)
     }
 
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
@@ -1773,15 +1999,43 @@ impl Gdiplus {
                 });
             }
             "gppen" => {
-                Self::slot(t, 1)?;
-                n(t, 2)?;
-                t.get(3).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad)?;
-                return Err(Fail::Unmodeled(open::GP_PEN));
+                // (MEASURED, golden gdiplusline pen*-*: every setter takes any value, Ok)
+                let p = Self::slot(t, 1)?;
+                let fl = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
+                let mut pen = super::gppath::Pen::new(n(t, 2)? as u32, fl(3)?);
+                hit(clause::GP_PEN_MAKE);
+                let mut l = format!("pen {OK}");
+                let mut i = 4;
+                while i < t.len() {
+                    i += match t[i].as_str() {
+                        "dash" => {
+                            pen.dash = n(t, i + 1)?;
+                            2
+                        }
+                        "cap" => {
+                            (pen.start_cap, pen.end_cap, pen.dash_cap) = (n(t, i + 1)?, n(t, i + 2)?, n(t, i + 3)?);
+                            4
+                        }
+                        "join" => {
+                            pen.join = n(t, i + 1)?;
+                            2
+                        }
+                        "align" => {
+                            pen.align = n(t, i + 1)?;
+                            2
+                        }
+                        "miter" => {
+                            pen.miter = fl(i + 1)?;
+                            2
+                        }
+                        _ => return Err(Fail::Bad),
+                    };
+                    l += &format!(" {OK}");
+                }
+                self.pen[p] = Some(pen);
+                out.push(l);
             }
-            "gppath" | "gpadd" | "gpflat" | "gpwiden" | "gppathinfo" | "gpfillpath" => {
-                Self::slot(t, 1)?;
-                return Err(Fail::Unmodeled(open::GP_PATH));
-            }
+            "gppath" | "gpadd" | "gpflat" | "gpwiden" | "gppathinfo" | "gpfillpath" => return self.path_op(t, out),
             "gpshape" => {
                 let s = Self::slot(t, 1)?;
                 let pen = match t.get(2).map(String::as_str) {
@@ -1790,7 +2044,7 @@ impl Gdiplus {
                     _ => return Err(Fail::Bad),
                 };
                 if pen {
-                    return Err(Fail::Unmodeled(open::GP_PEN));
+                    return self.pen_shape(t, out);
                 }
                 let k = Self::slot(t, 3)?;
                 let matrix = match t.get(4).map(String::as_str) {
@@ -1804,44 +2058,72 @@ impl Gdiplus {
                 };
                 let q = Quality::from_value(n(t, 6)?).ok_or(Fail::Bad)?;
                 let (sm, po) = (n(t, 7)?, n(t, 8)?);
-                // (only a polygon is modelled: the other shapes are flattened curves, and a world
-                // transform's floats are not measured)
-                if t.get(9).map(String::as_str) != Some("polygon") || matrix.is_some() {
-                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
-                }
-                let fm = FillMode::from_value(n(t, 10)?);
-                let count = n(t, 11)?;
-                if !(0..=32).contains(&count) {
-                    return Err(Fail::Bad);
-                }
                 let f = |i: usize| -> Res<f32> { t.get(i).and_then(|v| v.parse::<f32>().ok()).ok_or(Fail::Bad) };
-                let pts = (0..count as usize).map(|j| Ok((f(12 + 2 * j)?, f(13 + 2 * j)?))).collect::<Res<Vec<_>>>()?;
-                if count < 3 {
-                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
-                }
-                let poly = Polygon::new(&pts).ok_or(Fail::Unmodeled(open::GP_SHAPE_FILL))?;
+                let list = |at: usize| -> Res<Vec<(f32, f32)>> {
+                    let c = n(t, at)?;
+                    if !(0..=32).contains(&c) {
+                        return Err(Fail::Bad);
+                    }
+                    (0..c as usize).map(|j| Ok((f(at + 1 + 2 * j)?, f(at + 2 + 2 * j)?))).collect()
+                };
+                let r = rounding();
+                // (every shape a path filled: GP.RASTER.FILL)
+                let mut path = super::gppath::Path::new(0);
+                let (fm, made) = match t.get(9).map(String::as_str) {
+                    Some("ellipse") => (0, path.add_ellipse(r, (f(10)?, f(11)?, f(12)?, f(13)?))),
+                    Some("pie") => (0, path.add_pie(r, (f(10)?, f(11)?, f(12)?, f(13)?), f(14)?, f(15)?)),
+                    Some("polygon") => {
+                        let fm = n(t, 10)?;
+                        (fm, path.add_polygon(r, &list(11)?))
+                    }
+                    Some("closedcurve") => {
+                        let tension = f(10)?;
+                        let fm = n(t, 11)?;
+                        (fm, path.add_closed_curve(r, &list(12)?, tension))
+                    }
+                    _ => return Err(Fail::Bad),
+                };
                 let Some(b) = self.bmp[s].as_mut() else {
                     out.push("gpshape nobitmap".into());
                     return Ok(true);
+                };
+                let world = match matrix {
+                    None => None,
+                    Some(m) => match self.mat[m] {
+                        Some(m) => Some(m),
+                        None => {
+                            out.push("shape nomatrix".into());
+                            return Ok(true);
+                        }
+                    },
                 };
                 let Some(brush) = self.brush[k].clone() else {
                     out.push("shape nobrush".into());
                     return Ok(true);
                 };
                 if matches!(b.f, Pf::Gray16 | Pf::Argb1555) {
-                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                    hit(clause::GP_FILL_NOGRAPHICS);
+                    out.push(format!("shape {OUT_OF_MEMORY}"));
+                    return Ok(true);
                 }
                 let (Some(sm), Some(po)) = (Smoothing::from_value(sm), PixelOffset::from_value(po)) else {
-                    return Err(Fail::Unmodeled(open::GP_SHAPE_FILL));
+                    hit(clause::GP_PAINT_MODES);
+                    out.push(format!("shape 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
                 };
                 // (MEASURED, golden gdiplusline fillprobe-poly-*: a FillMode past 0 ..= 1 is
                 // InvalidParameter, nothing filled)
-                let Some(fm) = fm else {
+                let Some(fm) = FillMode::from_value(fm) else {
                     hit(clause::GP_SHAPE_POLYGON);
                     out.push(format!("shape 0 {INVALID_PARAMETER}"));
                     return Ok(true);
                 };
-                paint(b, &brush, Area::Polygon(&poly, fm), copy, q, sm, po, (0, 0))?;
+                if made.is_err() {
+                    out.push(format!("shape 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
+                }
+                let cov = super::gppath::fill(r, &path, world.as_ref(), fm, sm.rows(), po, b.w, b.h)?;
+                paint(b, &brush, Area::Cover(&cov), copy, q, sm, po, (0, 0))?;
                 out.push("shape 0 0".into());
             }
             "gppaint" => {

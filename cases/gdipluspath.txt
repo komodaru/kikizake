@@ -2084,3 +2084,60 @@ gpflat 0 - 0.25
 gpfillpath 0 0 0 copy 0 4 4
 gpread 0 32bppARGB
 end
+case pathfillmode-0
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff0000ff
+gppath 0 2
+gpadd 0 rect 1 1 10 10
+gpadd 0 rect 4 4 10 10
+gpfillpath 0 0 0 copy 0 0 0
+gpread 0 32bppARGB
+end
+case pathfillmode-1
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff0000ff
+gppath 0 -1
+gpadd 0 rect 1 1 10 10
+gpadd 0 rect 4 4 10 10
+gpfillpath 0 0 0 copy 0 0 0
+gpread 0 32bppARGB
+end
+case pathfillmode-2
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff0000ff
+gppath 0 3
+gpadd 0 rect 1 1 10 10
+gpadd 0 rect 4 4 10 10
+gpfillpath 0 0 0 copy 0 0 0
+gpread 0 32bppARGB
+end
+case pathfillmode-3
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff0000ff
+gppath 0 1
+gpadd 0 rect 1 1 10 10
+gpadd 0 rect 4 4 10 10
+gpfillpath 0 0 0 copy 0 0 0
+gpread 0 32bppARGB
+end
+case pathfillmode-4
+gpbitmap 0 16 16 32bppARGB
+gpbrush 0 solid 0xff0000ff
+gppath 0 0
+gpadd 0 rect 1 1 10 10
+gpadd 0 rect 4 4 10 10
+gpfillpath 0 0 0 copy 0 0 0
+gpread 0 32bppARGB
+end
+case pathfillwho-0
+gpfillpath 0 0 0 copy 0 0 0
+gpbitmap 0 4 4 32bppARGB
+gpfillpath 0 0 0 copy 0 0 0
+gppath 0 0
+gpfillpath 0 0 0 copy 0 0 0
+gpbrush 0 solid 0xff0000ff
+gpfillpath 0 0 0 copy 0 9 0
+gpfillpath 0 0 0 copy 0 0 9
+gpbitmap 1 4 4 16bppGrayScale
+gpfillpath 1 0 0 copy 0 0 0
+end

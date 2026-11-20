@@ -819,5 +819,11 @@ pub fn gdipluspath() -> String {
         let flat = if i % 2 == 1 { "gpflat 0 - 0.25\n" } else { "" };
         writeln!(s, "case pathfill-{i}\ngpbitmap 0 48 48 32bppARGB\ngpbrush 0 solid 0xff00ff00\ngppath 0 0\ngpadd 0 {e}\n{flat}gpfillpath 0 0 0 copy 0 {sm} {po}\ngpread 0 32bppARGB\nend").unwrap();
     }
+    // (a path made with a FillMode past 0 ..= 1, filled; two crossing figures tell the modes
+    // apart; and the ops' order of complaints)
+    for (i, fm) in [2, -1, 3, 1, 0].into_iter().enumerate() {
+        writeln!(s, "case pathfillmode-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 solid 0xff0000ff\ngppath 0 {fm}\ngpadd 0 rect 1 1 10 10\ngpadd 0 rect 4 4 10 10\ngpfillpath 0 0 0 copy 0 0 0\ngpread 0 32bppARGB\nend").unwrap();
+    }
+    writeln!(s, "case pathfillwho-0\ngpfillpath 0 0 0 copy 0 0 0\ngpbitmap 0 4 4 32bppARGB\ngpfillpath 0 0 0 copy 0 0 0\ngppath 0 0\ngpfillpath 0 0 0 copy 0 0 0\ngpbrush 0 solid 0xff0000ff\ngpfillpath 0 0 0 copy 0 9 0\ngpfillpath 0 0 0 copy 0 0 9\ngpbitmap 1 4 4 16bppGrayScale\ngpfillpath 1 0 0 copy 0 0 0\nend").unwrap();
     s
 }
