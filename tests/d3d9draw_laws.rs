@@ -260,43 +260,77 @@ fn free_line(a: (f32, f32), b: (f32, f32)) -> String {
 }
 
 /// (D3D9.DRAW.POINTSLINES, review 2026-11-20 1.1) the single line of line-joint-pl5-3, (13, 9.5)
-/// to (3.5, 4.25): Windows lights (13, 10), not (13, 9); the model must not answer it with a
-/// rule it does not have (it answered (13, 9) at 90fcd881, then a table of measured origins)
+/// to (3.5, 4.25), starts on the corner rows 9 and 10 share: Windows lights (13, 10), not (13, 9)
+/// (the model said (13, 9) at 90fcd881); and the translated line-free-corner-2-5 / -0-5 pair,
+/// whose rows differ
 #[test]
-fn free_start_on_a_vertical_corner_is_unmodeled() {
-    for (a, b) in [((13.0, 9.5), (3.5, 4.25)), ((10.0, 7.5), (0.5, 12.75)), ((2.0, 2.5), (11.5, 7.75)), ((7.0, 6.5), (1.0, 3.25))] {
-        let c = parse_cases(&free_line(a, b));
-        assert!(matches!(run_case(&c[0]), Err(kikizake::model::Fail::Unmodeled(_))), "{a:?} {b:?}");
+fn free_start_on_a_vertical_corner() {
+    let px = |a, b, x: usize, y: usize| {
+        let lines = picture(&free_line(a, b));
+        let rows = &lines[lines.iter().position(|l| l == "px rt 16 16 32").unwrap() + 1..];
+        &rows[y][x * 8..x * 8 + 8] != "00000000"
+    };
+    assert!(px((13.0, 9.5), (3.5, 4.25), 13, 10) && !px((13.0, 9.5), (3.5, 4.25), 13, 9));
+    assert!(px((13.0, 9.5), (3.5, 14.75), 13, 9) && !px((13.0, 9.5), (3.5, 14.75), 13, 10));
+    assert!(px((10.0, 7.5), (0.5, 12.75), 10, 8) && !px((10.0, 7.5), (0.5, 12.75), 10, 7));
+}
+
+/// the diamond-exit rule (Rasterization Rules, Direct3D 10) in f64 for a line whose distances
+/// are all far from the diamonds' bounds (None otherwise): a pixel is lit when the segment meets
+/// its diamond and does not end in it; ends in 1/256 pixel
+fn exit_rule(a: (i32, i32), b: (i32, i32), w: i32, h: i32) -> Option<Vec<(i32, i32)>> {
+    let f = |v: i32| f64::from(v) / 256.0;
+    let (x0, y0, x1, y1) = (f(a.0), f(a.1), f(b.0), f(b.1));
+    let at = |t: f64| (x0 + t * (x1 - x0), y0 + t * (y1 - y0));
+    let mut lit = Vec::new();
+    for j in 0..h {
+        for i in 0..w {
+            let (cx, cy) = (f64::from(i) + 0.5, f64::from(j) + 0.5);
+            let d = |p: (f64, f64)| (p.0 - cx).abs() + (p.1 - cy).abs();
+            // (the L1 distance along the segment is convex and piecewise linear: its least is at an
+            // end or where the segment crosses the center column or row)
+            let mut ts = vec![0.0, 1.0];
+            if x1 != x0 { ts.push((cx - x0) / (x1 - x0)); }
+            if y1 != y0 { ts.push((cy - y0) / (y1 - y0)); }
+            let near = ts.into_iter().filter(|t| (0.0..=1.0).contains(t)).map(|t| d(at(t))).fold(f64::INFINITY, f64::min);
+            let end = d((x1, y1));
+            if (near - 0.5).abs() < 1e-3 || (end - 0.5).abs() < 1e-3 {
+                return None;
+            }
+            if near < 0.5 && end > 0.5 {
+                lit.push((i, j));
+            }
+        }
     }
-    // (the same line the other way ends on the corner: the end rule answers it)
-    let c = parse_cases(&free_line((3.5, 4.25), (13.0, 9.5)));
-    assert!(run_case(&c[0]).is_ok());
+    Some(lit)
 }
 
 proptest! {
-    /// (D3D9.DRAW.POINTSLINES) a free x-major line from a vertical diamond corner: a dyadic slope
-    /// has an exact tie the measured rules decide, any other slope is unmodeled, at any origin
+    /// (D3D9.DRAW.LINES, D3D9.DRAW.LINEEND) away from ties WARP's f32 line is Direct3D 10's
+    /// diamond-exit rule: the pixels whose diamond it meets, the end's own excluded; one pixel per
+    /// column (row, y-major)
     #[test]
-    fn free_corner_starts_answer_only_dyadic_slopes(x in 1i32..15, y in 1i32..15, bx in 0i32..=62, by in 0i32..=62) {
-        // (the far end in quarter pixels inside the target, x-major)
-        let a = (x as f32, y as f32 + 0.5);
-        let b = (bx as f32 / 4.0, by as f32 / 4.0);
-        let (dx, dy) = (bx - 4 * x, by - (4 * y + 2));
-        prop_assume!(dx.abs() > dy.abs());
-        let c = parse_cases(&free_line(a, b));
-        let r = run_case(&c[0]);
-        if dyadic_slope(i128::from(dx) * 64, i128::from(dy) * 64) {
-            prop_assert!(r.is_ok() || matches!(r, Err(kikizake::model::Fail::Unmodeled(_))));
-        } else {
-            prop_assert!(matches!(r, Err(kikizake::model::Fail::Unmodeled(_))), "{a:?} {b:?}: {r:?}");
+    fn warp_lines_are_the_diamond_exit_rule(a in (0i32..16 * 256, 0i32..16 * 256), b in (0i32..16 * 256, 0i32..16 * 256)) {
+        prop_assume!(a != b);
+        let got = kikizake::model::warpline::pixels(a, b, 16, 16);
+        if let Some(want) = exit_rule(a, b, 16, 16) {
+            // (WARP's own: the end's pixel, when the end is in its diamond, is lit if the line
+            // crosses the pixel's other center line inside it before the end; lines-end-minor-*)
+            let own = ((b.0 + 255) / 256 - 1, (b.1 + 255) / 256 - 1);
+            let but = |v: &Vec<(i32, i32)>| v.iter().copied().filter(|&p| p != own).collect::<Vec<_>>();
+            prop_assert_eq!(but(&got), but(&want));
         }
+        let xmajor = (b.0 - a.0).abs() >= (b.1 - a.1).abs();
+        let mut cols: Vec<i32> = got.iter().map(|&(i, j)| if xmajor { i } else { j }).collect();
+        cols.sort_unstable();
+        prop_assert!(cols.windows(2).all(|w| w[0] != w[1]), "two pixels in one column: {got:?}");
     }
-}
 
-#[test]
-fn dyadic_slopes() {
-    assert!(dyadic_slope(2432 / 19 * 16, 1344));
-    assert!(!dyadic_slope(2432, 1344));
-    assert!(dyadic_slope(-256, 77));
-    assert!(!dyadic_slope(0, 0));
+    /// a line of both ends in one diamond lights nothing, whatever its direction
+    #[test]
+    fn warp_line_inside_one_diamond_is_empty(c in (1i32..15, 1i32..15), d in (-40i32..40, -40i32..40), e in (-40i32..40, -40i32..40)) {
+        prop_assume!(d.0.abs() + d.1.abs() < 120 && e.0.abs() + e.1.abs() < 120 && d != e);
+        let at = |o: (i32, i32)| (c.0 * 256 + 128 + o.0, c.1 * 256 + 128 + o.1);
+        prop_assert!(kikizake::model::warpline::pixels(at(d), at(e), 16, 16).is_empty());
+    }
 }

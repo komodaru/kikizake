@@ -192,3 +192,4 @@ tests/laws_opengl.rs::aa_planes_of_one_value_hold_it pbt GL.POLYGON.SMOOTH
 tests/laws_opengl.rs::convex_outlines_cross_a_plane_at_most_twice pbt GL.RASTER.CLIP.XY
 tests/laws_opengl.rs::cut_lines_stay_on_the_line_inside pbt GL.RASTER.INTERPOLATE.LINE
 tests/laws_opengl.rs::line_depths_step_evenly pbt GL.RASTER.INTERPOLATE.LINE
+tests/d3d9draw_laws.rs::warp_lines_are_the_diamond_exit_rule pbt D3D9.DRAW.LINES
