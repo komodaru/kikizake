@@ -132,6 +132,34 @@ pub fn dwrite() -> String {
         writeln!(s, "case run-{i}-multi\n{}", font_line(&f)).unwrap();
         writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" ")).unwrap();
     }
+    // ClearType 3x1 from the natural and GDI modes (6 x 1 samples), ClearType's aliased mode, and
+    // each analysis asked for the other texture type (re/dwrite.md, Follow-up D): single glyphs at
+    // many sizes and subpixel origins, runs, and the GDI ones with grid fit off and on
+    {
+        let mut r = XorShift32::new(0x0fe2_0001);
+        let modes = ["ctaliased", "ctnatural", "ctgdi", "ctgdinatural", "gray3x1", "ct1x1"];
+        for i in 0..40u32 {
+            let f = font(0x0fe2_0000 + i);
+            for mode in modes {
+                let g = r.range(0, 8);
+                writeln!(s, "case ctrun-{i}-{mode}\n{}", font_line(&f)).unwrap();
+                writeln!(s, "dwrun {mode} {} {} {} {g} 0\nend", r.range(4, 40), r.range(-8, 40), r.range(16, 96)).unwrap();
+            }
+            let mode = *r.pick(&modes[..4]);
+            let n = r.range(2, 5);
+            let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(0, 8), r.range(0, 60))).collect();
+            writeln!(s, "case ctrun-{i}-multi\n{}", font_line(&f)).unwrap();
+            writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" ")).unwrap();
+            if i < 10 {
+                let mode = ["ctgdi", "ctgdinatural"][i as usize % 2];
+                writeln!(s, "case ctrun-{i}-fit\n{}", font_line(&f)).unwrap();
+                for fit in ["fit", "nofit"] {
+                    writeln!(s, "dwrun {mode}.{fit} {} {} {} {} 0", r.range(6, 64), r.range(0, 40), r.range(160, 200), r.range(1, 8)).unwrap();
+                }
+                writeln!(s, "end").unwrap();
+            }
+        }
+    }
     // layout: a line of the font's characters, with and without wrapping
     for i in 0..30u32 {
         let f = font(0x0f30_0000 + i);

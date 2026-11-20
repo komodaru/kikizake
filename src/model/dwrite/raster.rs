@@ -196,6 +196,18 @@ pub enum Mode {
     Gdi,
     /// GDI natural rendering and measuring
     GdiNatural,
+    /// rendering aliased, antialias ClearType
+    CtAliased,
+    /// natural, ClearType 3x1
+    CtNatural,
+    /// GDI classic, ClearType 3x1
+    CtGdi,
+    /// GDI natural, ClearType 3x1
+    CtGdiNatural,
+    /// natural symmetric grayscale, asked for the ClearType 3x1 texture
+    Gray3x1,
+    /// natural symmetric ClearType, asked for the aliased texture
+    Ct1x1,
 }
 
 /// the grid fit mode asked for
@@ -222,6 +234,12 @@ impl Mode {
             "natural" => Mode::Natural,
             "gdi" => Mode::Gdi,
             "gdinatural" => Mode::GdiNatural,
+            "ctaliased" => Mode::CtAliased,
+            "ctnatural" => Mode::CtNatural,
+            "ctgdi" => Mode::CtGdi,
+            "ctgdinatural" => Mode::CtGdiNatural,
+            "gray3x1" => Mode::Gray3x1,
+            "ct1x1" => Mode::Ct1x1,
             _ => return None,
         };
         Some((m, f))
@@ -233,8 +251,18 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
     // a pixel, origin to the pixel; gray (natural symmetric): 4 x 4, unsnapped; natural: 8 x 1,
     // y to the pixel; GDI classic and natural: 8 x 1, origin to the pixel; ClearType: 6 x 5,
     // origin to the sample)
+    // (re/dwrite.md, Follow-up D: ClearType's natural and GDI modes draw on 6 x 1 samples, the
+    // origin to the sample; GDI's to the pixel as its grayscale modes)
     let (g, clause) = match mode {
-        Mode::Aliased => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_ALIASED),
+        Mode::Aliased | Mode::CtAliased => (Grid { nx: 1, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_ALIASED),
+        Mode::CtNatural => (Grid { nx: 6, ny: 1, qx: 6, qy: 1 }, clause::DW_RUN_CLEARTYPE_6X1),
+        Mode::CtGdi | Mode::CtGdiNatural => (Grid { nx: 6, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_CLEARTYPE_6X1),
+        Mode::Gray3x1 | Mode::Ct1x1 => {
+            // (re/dwrite.md, Follow-up D: an analysis answers only the texture type of its
+            // mode, an empty rect for the other)
+            hit(clause::DW_RUN_TEXTURE);
+            return Ok(vec!["bounds hr 00000000 0 0 0 0".into()]);
+        }
         Mode::Gray => (Grid { nx: 4, ny: 4, qx: 0, qy: 0 }, clause::DW_RUN_GRAY),
         Mode::Natural => (Grid { nx: 8, ny: 1, qx: 0, qy: 1 }, clause::DW_RUN_NATURAL),
         Mode::Gdi | Mode::GdiNatural => (Grid { nx: 8, ny: 1, qx: 1, qy: 1 }, clause::DW_RUN_GDI),
@@ -250,13 +278,14 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
     // where the texture itself has them off
     let (mut lit, mut on) = (std::collections::BTreeSet::new(), std::collections::BTreeSet::new());
     let scale = match (mode, fit) {
-        (Mode::Gdi | Mode::GdiNatural, Fit::Disabled) => {
+        (Mode::Gdi | Mode::GdiNatural | Mode::CtGdi | Mode::CtGdiNatural, Fit::Disabled) => {
             hit(clause::DW_RUN_FIT_GDI);
             Scale::Fixed16
         }
         // MEASURED: grid fit enabled or disabled draws as the default, but for GDI disabled
         (_, Fit::Default) => Scale::Direct,
-        (Mode::Gdi | Mode::GdiNatural, Fit::Enabled) | (Mode::Aliased | Mode::Gray | Mode::ClearType | Mode::Natural, Fit::Enabled | Fit::Disabled) => {
+        (Mode::Gdi | Mode::GdiNatural | Mode::CtGdi | Mode::CtGdiNatural, Fit::Enabled)
+        | (Mode::Aliased | Mode::CtAliased | Mode::Gray | Mode::ClearType | Mode::Natural | Mode::CtNatural | Mode::Gray3x1 | Mode::Ct1x1, Fit::Enabled | Fit::Disabled) => {
             hit(clause::DW_RUN_FIT);
             Scale::Direct
         }
@@ -265,7 +294,7 @@ pub fn run(p: &Parsed, mode: Mode, fit: Fit, em: i64, x4: i64, y4: i64, run: &[(
         lit.extend(aliased(&r, Dropout::at(em))?);
         on.extend(aliased(&r, Dropout::On)?);
     }
-    let cleartype = mode == Mode::ClearType;
+    let cleartype = matches!(mode, Mode::ClearType | Mode::CtNatural | Mode::CtGdi | Mode::CtGdiNatural);
     let val = values(&lit, g, cleartype);
     let bound = values(&on, g, cleartype);
     let bpp = if cleartype { 3 } else { 1 };
@@ -296,12 +325,13 @@ fn values(lit: &std::collections::BTreeSet<(i64, i64)>, g: Grid, cleartype: bool
     if cleartype {
         // MEASURED: a subpixel is 2 x 5 samples, the 5 rows weighted 4 9 10 9 4 (/36); each
         // subpixel's value is the sum of it and its two neighbours, of 255 for 6 x 36
-        const W: [i64; 5] = [4, 9, 10, 9, 4];
+        // (re/dwrite.md, Follow-up D: on 6 x 1 samples the one row weighs all 36: (255 n + 3) / 6)
+        let w: &[i64] = if g.ny == 1 { &[36] } else { &[4, 9, 10, 9, 4] };
         let mut acc: std::collections::BTreeMap<(i64, i64), i64> = Default::default();
         for &(x, y) in lit {
             let s = x.div_euclid(2);
             for d in -1..=1 {
-                *acc.entry((s + d, y.div_euclid(5))).or_default() += W[y.rem_euclid(5) as usize];
+                *acc.entry((s + d, y.div_euclid(g.ny))).or_default() += w[y.rem_euclid(g.ny) as usize];
             }
         }
         for (k, v) in acc {

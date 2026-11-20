@@ -345,10 +345,14 @@ static void op_dwshape(void) {
  * adv4 / 4 pixels, no transform. Modes: aliased (rendering aliased, antialias grayscale, texture
  * ALIASED_1x1), gray (natural symmetric, grayscale, ALIASED_1x1), cleartype (natural symmetric,
  * cleartype, CLEARTYPE_3x1), natural (natural, grayscale), gdi (GDI classic rendering and
- * measuring, grayscale), gdinatural (GDI natural rendering and measuring, grayscale); grid fit
+ * measuring, grayscale), gdinatural (GDI natural rendering and measuring, grayscale), ctaliased,
+ * ctnatural, ctgdi, ctgdinatural (those rendering modes with the cleartype antialias mode and
+ * CLEARTYPE_3x1, ctaliased ALIASED_1x1), gray3x1 (gray asking CLEARTYPE_3x1), ct1x1 (cleartype
+ * asking ALIASED_1x1); grid fit
  * default, or enabled when the mode ends in .fit, disabled in .nofit. Prints "dwrun hr", the texture bounds, then each row's bytes. */
 static void op_dwrun(void) {
-    static const char *modes[] = { "aliased", "gray", "cleartype", "natural", "gdi", "gdinatural" };
+    static const char *modes[] = { "aliased", "gray", "cleartype", "natural", "gdi", "gdinatural", "ctaliased", "ctnatural", "ctgdi", "ctgdinatural", "gray3x1", "ct1x1" };
+    enum { NMODES = sizeof modes / sizeof *modes };
     int mode = -1;
     DWRITE_GRID_FIT_MODE fit = DWRITE_GRID_FIT_MODE_DEFAULT;
     char m[32] = "";
@@ -360,7 +364,7 @@ static void op_dwrun(void) {
         else if (!strcmp(dot, "nofit")) fit = DWRITE_GRID_FIT_MODE_DISABLED;
         else bad = 1;
     }
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < NMODES; i++)
         if (!strcmp(m, modes[i])) mode = i;
     long em = num(2), x4 = num(3), y4 = num(4);
     int n = (ntok - 5) / 2;
@@ -374,15 +378,20 @@ static void op_dwrun(void) {
     }
     if (bad || mode < 0 || n < 1 || (ntok - 5) % 2) { bad = 1; return; }
     if (!needface()) return;
-    static const DWRITE_RENDERING_MODE1 rm[] = { DWRITE_RENDERING_MODE1_ALIASED, DWRITE_RENDERING_MODE1_NATURAL_SYMMETRIC, DWRITE_RENDERING_MODE1_NATURAL_SYMMETRIC, DWRITE_RENDERING_MODE1_NATURAL,
-                                                 DWRITE_RENDERING_MODE1_GDI_CLASSIC, DWRITE_RENDERING_MODE1_GDI_NATURAL };
-    static const DWRITE_MEASURING_MODE mm[] = { DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL,
-                                                DWRITE_MEASURING_MODE_GDI_CLASSIC, DWRITE_MEASURING_MODE_GDI_NATURAL };
-    DWRITE_TEXTURE_TYPE tt = mode == 2 ? DWRITE_TEXTURE_CLEARTYPE_3x1 : DWRITE_TEXTURE_ALIASED_1x1;
+    static const DWRITE_RENDERING_MODE1 rm[NMODES] = { DWRITE_RENDERING_MODE1_ALIASED, DWRITE_RENDERING_MODE1_NATURAL_SYMMETRIC, DWRITE_RENDERING_MODE1_NATURAL_SYMMETRIC, DWRITE_RENDERING_MODE1_NATURAL,
+                                                 DWRITE_RENDERING_MODE1_GDI_CLASSIC, DWRITE_RENDERING_MODE1_GDI_NATURAL, DWRITE_RENDERING_MODE1_ALIASED, DWRITE_RENDERING_MODE1_NATURAL,
+                                                 DWRITE_RENDERING_MODE1_GDI_CLASSIC, DWRITE_RENDERING_MODE1_GDI_NATURAL, DWRITE_RENDERING_MODE1_NATURAL_SYMMETRIC, DWRITE_RENDERING_MODE1_NATURAL_SYMMETRIC };
+    static const DWRITE_MEASURING_MODE mm[NMODES] = { DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL,
+                                                DWRITE_MEASURING_MODE_GDI_CLASSIC, DWRITE_MEASURING_MODE_GDI_NATURAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL,
+                                                DWRITE_MEASURING_MODE_GDI_CLASSIC, DWRITE_MEASURING_MODE_GDI_NATURAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_MEASURING_MODE_NATURAL };
+    /* (cleartype antialias, CLEARTYPE_3x1 texture) */
+    static const char ct[NMODES] = { 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1 };
+    static const char t3[NMODES] = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0 };
+    DWRITE_TEXTURE_TYPE tt = t3[mode] ? DWRITE_TEXTURE_CLEARTYPE_3x1 : DWRITE_TEXTURE_ALIASED_1x1;
     DWRITE_GLYPH_RUN run = { face, (float)em, n, g, adv, off, FALSE, 0 };
     IDWriteGlyphRunAnalysis *a = NULL;
     HRESULT hr = IDWriteFactory3_CreateGlyphRunAnalysis((IDWriteFactory3 *)dw, &run, NULL, rm[mode], mm[mode], fit,
-                                                        mode == 2 ? DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE : DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE, x4 / 4.0f, y4 / 4.0f, &a);
+                                                        ct[mode] ? DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE : DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE, x4 / 4.0f, y4 / 4.0f, &a);
     out("dwrun hr %08lx\n", hr);
     if (FAILED(hr) || !a) return;
     RECT r = { 0 };
