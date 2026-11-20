@@ -1077,12 +1077,15 @@ enum End {
 /// pixel of centre (ceil(x - 1/2), ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the
 /// diamond's corner; the start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out
 /// without. A corner at the last end of a line within 1/4 pixel of the diagonal, ends outside the
-/// target and the HAL's lines are not worked out (D3D7.STATES.OTHER)
+/// target are not worked out (D3D7.STATES.OTHER); the HAL's: crate::model::warp (D3D7.LINE.HW)
 pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
     let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
     match family {
         Family::Soft { .. } | Family::Ramp => {}
-        Family::Hw { .. } => return Err(other),
+        Family::Hw { .. } => {
+            hit(clause::D3D7_LINE_HW);
+            return crate::model::warp::line(v, w, h)?.ok_or(other);
+        }
     }
     if !v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..h * 16).contains(&y)) {
         return Err(other);

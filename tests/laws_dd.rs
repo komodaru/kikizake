@@ -186,6 +186,29 @@ proptest! {
         }
     }
 
+    /// WARP's aliased lines (the HAL devices): every lit pixel's centre lies within a pixel of the
+    /// segment (diamonds of half a pixel, moved endpoints), and a line never lights more pixels
+    /// than its major length plus two (a pixel at each end)
+    #[test]
+    fn warp_lines_stay_by_the_segment(v in prop::array::uniform4(-160i64..800)) {
+        let (w, h) = (40i64, 36i64);
+        let (a, b) = ((v[0], v[1]), (v[2], v[3]));
+        let Some(cover) = kikizake::model::warp::line([a, b], w, h).unwrap() else { return Ok(()) };
+        let (ax, ay, bx, by) = (a.0 as f64 / 16.0, a.1 as f64 / 16.0, b.0 as f64 / 16.0, b.1 as f64 / 16.0);
+        let (dx, dy) = (bx - ax, by - ay);
+        let len2 = dx * dx + dy * dy;
+        let mut lit = 0;
+        for k in 0..cover.len() {
+            if !cover[k] { continue; }
+            lit += 1;
+            let (px, py) = ((k as i64 % w) as f64, (k as i64 / w) as f64);
+            let t = if len2 > 0.0 { (((px - ax) * dx + (py - ay) * dy) / len2).clamp(0.0, 1.0) } else { 0.0 };
+            let (qx, qy) = (ax + t * dx - px, ay + t * dy - py);
+            prop_assert!(qx.abs() <= 1.0 && qy.abs() <= 1.0, "{a:?} {b:?}: pixel ({px}, {py})");
+        }
+        prop_assert!(lit as f64 <= dx.abs().max(dy.abs()) + 2.0, "{a:?} {b:?}: {lit} pixels");
+    }
+
     /// the software rasterizers' walk of a triangle inside or across the target: every pixel more than
     /// 1.5 px inside its three edges is drawn, and none more than 1.5 px outside one (the walk's
     /// shifts and ties move edges by at most a pixel; a pixel past the right side spills into
@@ -323,7 +346,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 44, 0), ("d3d7shade", 17, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 17, 0), ("d3d7shade", 17, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

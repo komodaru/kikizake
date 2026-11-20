@@ -6,3 +6,4 @@
 # everyone who runs the test benefits from these saved cases.
 cc 4adc7ba751c40bcfed87716d23d73ad5ab4adcbb6fb9dbd78babf4f08be2e8c7 # shrinks to v = 2, f = "565", w = 1, h = 1, c = 0
 cc ed94f7c2e8c7333cd75e82a3666ae2c1fc25c3156db98ac22b502649b40281b4 # shrinks to seed = 1, c = 0, f = "32"
+cc f2817111f36fcf20cf668f284bc628b3171edfaea9619197f84360f5e07e6cbc # shrinks to v = [173, 366, 556, 174]
