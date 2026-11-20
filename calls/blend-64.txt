@@ -1,4 +1,4 @@
-kikizake calls blend-64 cases 3c33373976054c13 src 37fed71ba204ef98eed531858b811d19e3f06145793bbb6af07a1161d0acbc8f shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 47630 other 0
+kikizake calls blend-64 cases 3c33373976054c13 src 2da23b5552eef652a92d2eac2d252d78ae6408ec1405e36ff0c979d76abb1e3e shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 47630 other 0
 case constant-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
@@ -9392,7 +9392,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-6
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9411,7 +9410,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-8
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9421,7 +9419,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-9
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9440,7 +9437,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-0-11
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9459,7 +9455,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-1
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9478,7 +9473,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-3
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -9560,7 +9554,6 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 case gradrect8-1-12
-out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
