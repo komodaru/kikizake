@@ -28,6 +28,7 @@ pub mod warpline;
 pub mod gdiplus;
 pub mod gppath;
 pub mod gplinear;
+pub mod gpstretch;
 pub mod gdifont;
 pub mod gdiline;
 pub mod rgn;
