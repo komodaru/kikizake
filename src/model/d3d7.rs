@@ -721,7 +721,7 @@ impl D3d7 {
                 let d = self.dev.as_mut().ok_or(Fail::Bad)?;
                 let cover = line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?;
                 let tri = Tri { v: [v[0], v[1], v[1]], c: [c; 3], spec: [0; 3], z: 0.5 };
-                paint(d, &st, &tri, &cover, &[])?;
+                paint(d, &st, &tri, &cover_writes(&cover, d.rt.w))?;
             }
             "d3dtri" => {
                 let c = colors(t.get(1).ok_or(Fail::Bad)?)?;
@@ -937,12 +937,10 @@ impl States {
 }
 
 /// which pixels a triangle covers
-fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64, fmt: Fmt) -> Res<Vec<bool>> {
+fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
     let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
     let (a, b, c) = if area > 0 { (v[0], v[1], v[2]) } else { (v[0], v[2], v[1]) };
     let edges = [(a, b), (b, c), (c, a)];
-    // (a vertex on the right side itself crosses the target: d3d7rast rand-17)
-    let inside = v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..=h * 16).contains(&y));
     let mut cover = Vec::with_capacity(usize::try_from(w * h).map_err(|_| Fail::Bad)?);
     for py in 0..h {
         for px in 0..w {
@@ -979,36 +977,11 @@ fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64, fmt: Fmt) -> Res
             hit(clause::D3D7_TRI_HW);
             Ok(cover)
         }
-        Family::Soft { .. } | Family::Ramp => {
-            if !inside && cover.iter().all(|&c| c) {
-                hit(clause::D3D7_TRI_COVERALL);
-                return Ok(cover);
-            }
-            match (inside, family) {
-                (true, _) => {
-                    hit(clause::D3D7_TRI);
-                    walk(v, w, h, Spans::Spill(fmt))
-                }
-                // (the ramp device drew one more pixel by a clipped edge, d3d7rast dev-2-ramp)
-                (false, Family::Ramp) => Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)),
-                (false, Family::Soft { .. }) => {
-                    hit(clause::D3D7_TRI_GUARD);
-                    walk(v, w, h, Spans::Clamp)
-                }
-                // (the HAL's coverage is the arm above)
-                (false, Family::Hw { .. }) => Err(Fail::Bad),
-            }
-        }
+        // (the software rasterizers: soft_writes)
+        Family::Soft { .. } | Family::Ramp => Err(Fail::Bad),
     }
 }
 
-/// f32's "ceiling" of the software rasterizers: x + (1 − 2^-23) in single precision (rounded to
-/// nearest), then its floor: the next integer above x, but x itself for an integer x below 2
-fn ceil_f32(num: i64, den: i64) -> i64 {
-    // (num / den: below 2^24 · den here, a vertex within the target)
-    let x = (num as f64 / den as f64) as f32;
-    (x + (1.0 - f32::EPSILON)).floor() as i64
-}
 
 /// a finite f32 times 2^64, when that is a whole number that fits
 fn f32_scaled(v: f32) -> Option<i128> {
@@ -1080,146 +1053,6 @@ pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64, round: SlopeRo
     let e0 = x0.checked_mul(den)?.checked_sub(num.checked_mul(one)?)?;
     let ed = slope.checked_mul(den)?.checked_sub((16 * dxn).checked_mul(one)?)?;
     Some(e0.checked_add(ed.checked_mul(i128::from(k))?)? > 0)
-}
-
-/// which of a triangle's edges an EdgeWalk is
-#[derive(Clone, Copy)]
-enum Side {
-    /// top to bottom vertex: its slope rounded toward zero
-    Long,
-    /// top to middle or middle to bottom: its slope rounded to nearest
-    Short,
-}
-
-/// one edge's walk, from top t to bottom b (in 16ths, t above b): the rows it spans, each with
-/// its x as the next pixel at or right of the edge
-struct EdgeWalk {
-    first: i64,
-    xs: Vec<i64>,
-}
-
-impl EdgeWalk {
-    /// the f32 walk (f32_edge) from the edge's first row (the f32 ceiling of its top, row 0 for
-    /// a top above the target): its x there the f32 ceiling of the f32 x (an x on a pixel, from
-    /// 2 on, one more: which moves the whole edge one pixel right), each later row the ceiling of
-    /// that x plus the rows times the f32 slope, taken exactly (D3D7.TRI.TIE)
-    fn new(t: (i64, i64), b: (i64, i64), side: Side) -> Res<EdgeWalk> {
-        let round = match side {
-            Side::Long => SlopeRound::TowardZero,
-            Side::Short => SlopeRound::Nearest,
-        };
-        let first = ceil_f32(t.1, 16).max(0);
-        let last = b.1.div_euclid(16);
-        let one = 1i128 << 64;
-        let mut xs = Vec::new();
-        if first <= last {
-            // (a vertex past ±2048 pixels, out of the f32 walk's range: far outside the target)
-            let Some((x0, slope)) = f32_edge(t, b, first, round) else { return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)) };
-            let whole = x0.rem_euclid(one) == 0;
-            let ceil = |x: i128| -> Res<i64> { i64::try_from(-((-x).div_euclid(one))).map_err(|_| Fail::Bad) };
-            let shift = i64::from(whole && x0 >= 2 * one);
-            for y in first..=last {
-                let k = y - first;
-                let x = slope.checked_mul(i128::from(k)).and_then(|d| d.checked_add(x0)).ok_or(Fail::Bad)?;
-                let tie = k > 0 && x.rem_euclid(one) == 0;
-                if tie {
-                    hit(clause::D3D7_TRI_TIE);
-                }
-                xs.push(ceil(x)? + shift);
-            }
-        }
-        Ok(EdgeWalk { first, xs })
-    }
-    fn at(&self, y: i64) -> Option<i64> {
-        usize::try_from(y - self.first).ok().and_then(|k| self.xs.get(k).copied())
-    }
-}
-
-/// a triangle's vertices top to bottom; of two at the same height the one nearer the third in x
-/// is the top vertex (above) or the bottom vertex (below), so the long edge runs from it: the
-/// steeper of the two (d3d7edge center-mmx-bot: a flat top's left vertex, the bottom left of it;
-/// d3d7shade gstep-*: a flat top's right one, the bottom right of it, as the long edge's side
-/// carries the Gouraud anchor)
-fn top_middle_bottom(v: [(i64, i64); 3]) -> [(i64, i64); 3] {
-    let mut s = v;
-    s.sort_by_key(|p| p.1);
-    let [t, m, b] = s;
-    let nearer = |p: (i64, i64), q: (i64, i64), r: (i64, i64)| (p.0 - r.0).abs() <= (q.0 - r.0).abs();
-    match (t.1 == m.1, m.1 == b.1) {
-        (true, false) if !nearer(t, m, b) => [m, t, b],
-        (false, true) if !nearer(b, m, t) => [t, b, m],
-        _ => [t, m, b],
-    }
-}
-
-/// how a walked row meets the target's sides
-#[derive(Clone, Copy)]
-enum Spans {
-    /// a triangle inside the target: past the right side on in memory, into the row's padding
-    /// (a system-memory surface's pitch, DDRAW.PITCH) and then the next row
-    Spill(Fmt),
-    /// a triangle crossing the target (its guard band): cut at the sides
-    Clamp,
-}
-
-/// the pixels the RGB, MMX and ramp rasterizers draw of a triangle inside the target: MEASURED
-/// (d3d7rast, d3d7edge, d3d7, d3d7shade: 2400 of 2400 dumps with no exact tie on a later row)
-/// each edge walked down from its first row (the f32 ceiling of its top: rows below the top,
-/// and the top's own row when that is 0 or 1) to the row of its bottom (inclusive), its x the
-/// f32 ceiling of the edge's x on the first row, then stepped by a whole part and an exact
-/// error; the long edge (top to bottom vertex) against the two short ones, a row drawn from the
-/// left edge's x to the right edge's x less 1 (nothing when they cross); pixels past the row's
-/// end go on into the next row, as in memory. An x exactly on a pixel past an edge's first row
-/// goes by the edge's Tie (D3D7.TRI.TIE; the long edge on the left: D3D7.TRI.EDGE)
-fn walk(v: [(i64, i64); 3], w: i64, h: i64, spans: Spans) -> Res<Vec<bool>> {
-    let [t, m, b] = top_middle_bottom(v);
-    hit(clause::D3D7_TRI_WALK);
-    let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
-    let long = EdgeWalk::new(t, b, Side::Long)?;
-    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Side::Short)).transpose()?;
-    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Side::Short)).transpose()?;
-    let n = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
-    let mut cover = vec![false; n];
-    for y in 0..h {
-        let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
-        let (Some(l), Some(r)) = (long.at(y), short) else { continue };
-        let (xl, xr) = if long_left { (l, r) } else { (r, l) };
-        // (a bottom vertex on a pixel of row 1, the edges meeting there: that row is empty,
-        // D3D7.TRI.EDGE; d3d7edge center-*-bot, toprow-rgb-left, onerow-*: every one, tops at
-        // -1/2, 0 and 1/16, either side; a bottom vertex on a pixel of a row below goes by the walk,
-        // toprow-* on row 2, whole-*, longleft-*)
-        if m.1 != b.1 && b.1 == 16 && y == 1 && b.0.rem_euclid(16) == 0 {
-            hit(clause::D3D7_TRI_EDGE);
-            continue;
-        }
-        match spans {
-            Spans::Spill(fmt) => {
-                let b = i64::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?;
-                let p = crate::model::ddraw::pitch(w, 8 * u32::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?);
-                for x in xl..xr {
-                    let a = y * p + x * b;
-                    // (a pixel past the surface's last byte writes the memory after it:
-                    // d3d7edge-32 died in the case after whole-rgb-short, whose triangle 36 did;
-                    // one across a row's end is not measured)
-                    if a < 0 || a + b > h * p || (a % p) % b != 0 || (a % p < w * b && a % p + b > w * b) {
-                        return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-                    }
-                    let (row, col) = (a / p, a % p / b);
-                    if col < w && let Some(c) = usize::try_from(row * w + col).ok().and_then(|k| cover.get_mut(k)) {
-                        *c = true;
-                    }
-                }
-            }
-            Spans::Clamp => {
-                for x in xl.max(0)..xr.min(w) {
-                    if let Some(c) = usize::try_from(y * w + x).ok().and_then(|k| cover.get_mut(k)) {
-                        *c = true;
-                    }
-                }
-            }
-        }
-    }
-    Ok(cover)
 }
 
 /// a pixel of a line: its column along the major axis and its row across (a pixel index each)
@@ -1343,24 +1176,6 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
     Ok(cover)
 }
 
-/// the pixel of each row a software rasterizer starts its color from: the walked span's end on
-/// the long edge's side (its first pixel when the long edge is on the left, its last one when on
-/// the right), as walk() finds the spans
-fn anchors(v: [(i64, i64); 3], h: i64) -> Res<Vec<Option<i64>>> {
-    let [t, m, b] = top_middle_bottom(v);
-    let long_left = (b.0 - t.0) * (m.1 - t.1) - (b.1 - t.1) * (m.0 - t.0) < 0;
-    let long = EdgeWalk::new(t, b, Side::Long)?;
-    let upper = (t.1 != m.1).then(|| EdgeWalk::new(t, m, Side::Short)).transpose()?;
-    let lower = (m.1 != b.1).then(|| EdgeWalk::new(m, b, Side::Short)).transpose()?;
-    Ok((0..h)
-        .map(|y| {
-            let short = lower.as_ref().and_then(|e| e.at(y)).or_else(|| upper.as_ref().and_then(|e| e.at(y)));
-            let (Some(l), Some(r)) = (long.at(y), short) else { return None };
-            let (xl, xr) = if long_left { (l, r) } else { (r, l) };
-            (xl < xr).then_some(if long_left { xl } else { xr - 1 })
-        })
-        .collect::<Vec<_>>())
-}
 
 /// the pixels of D3DFILL_WIREFRAME: MEASURED (d3d7dev fillmode-*-2-*: 96 + 5 x 24 random
 /// triangles, LASTPIXEL on and off, the software rasterizers and the ramp device) its three
@@ -1399,7 +1214,7 @@ fn points(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> 
 }
 
 /// one channel (at bit `sh` of ARGB) of the color at pixel (px, py): flat, or Gouraud
-fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64, anchor: Option<i64>) -> Res<Shade> {
+fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64) -> Res<Shade> {
     let ch = |c: u32| c >> sh & 255;
     let c = tri.c;
     if flat || (ch(c[0]) == ch(c[1]) && ch(c[0]) == ch(c[2])) {
@@ -1422,14 +1237,9 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64, ancho
     let gx = ((f(c[1]) - f(c[0])) * (cc.1 - a.1) - (f(c[2]) - f(c[0])) * (b.1 - a.1)) / den;
     let gy = ((f(c[2]) - f(c[0])) * (b.0 - a.0) - (f(c[1]) - f(c[0])) * (cc.0 - a.0)) / den;
     let margin = 1.0 / 32.0 + (gx.abs() + gy.abs()) / 128.0;
-    if let (Family::Soft { .. }, Some(a)) = (family, anchor) {
-        return Ok(Shade::Fix(gouraud_soft(tri, sh, px, py, a)));
-    }
     match family {
-        // (a triangle crossing the target: its spans' anchors not measured) the software
-        // rasterizers take the floor of the exact
-        // value; near a whole number (nearer as the color changes faster across the pixels)
-        // their fixed point decides (D3D7.GOURAUD)
+        // (points and wireframe of the software rasterizers: the floor of the exact value; near a
+        // whole number their fixed point decides, D3D7.GOURAUD)
         Family::Soft { .. } | Family::Ramp => {
             if fr < margin || fr > 1.0 - margin {
                 return Err(Fail::Unmodeled(open::D3D7_GOURAUD));
@@ -1448,18 +1258,10 @@ fn shade(family: Family, flat: bool, tri: &Tri, sh: u32, px: i64, py: i64, ancho
     }
 }
 
-/// one channel of a Gouraud-shaded pixel of the software rasterizers: MEASURED (d3d7shade
-/// gouraud-*, gstep-*, gstepx-*: 121389 of 121389 channels, spans up to 64 pixels) in 8.8 fixed
-/// point from the span's anchor pixel a (anchors()): C = floor(256 · the exact color at (a, py)),
-/// a step D = trunc(256 · dc/dx) (one less in magnitude when that is a whole number and the
-/// triangle's doubled area in 256ths of a pixel is no power of two: the reciprocal of the area
-/// rounded down), the pixel C + (px − a) · D, clamped to 0..255 (its fraction goes on to the
-/// dither)
-fn gouraud_soft(tri: &Tri, sh: u32, px: i64, py: i64, a: i64) -> Fix88 {
-    gouraud_channel(tri.v, tri.c.map(|c| u8::try_from(c >> sh & 255).unwrap_or(u8::MAX)), px, py, a)
-}
-
-/// gouraud_soft() of one channel of 8-bit vertex colors
+/// one channel of a Gouraud-shaded pixel: an earlier fit (C = floor(256 · the exact colour at
+/// the span's anchor a), D = trunc(256 · dc/dx), one less for a whole step on a doubled area no
+/// power of two) at (px, py) of one channel of 8-bit vertex colors, which crate::model::d3dim
+/// now derives from the rasterizer's own arithmetic
 pub fn gouraud_channel(v: [(i64, i64); 3], col: [u8; 3], px: i64, py: i64, a: i64) -> Fix88 {
     hit(clause::D3D7_GOURAUD);
     let ch = |i: usize| i128::from(col[i]);
@@ -1582,27 +1384,102 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         return Ok(());
     }
     let (w, h) = (rt.w, rt.h);
-    let cover = match st.fill {
-        Fill::Point => points(family, v, w, h)?,
-        Fill::Wireframe => wireframe(family, v, st.lastpixel, w, h)?,
-        Fill::Solid => coverage(family, v, w, h, rt.fmt)?,
+    let writes = match (st.fill, family) {
+        (Fill::Solid, Family::Soft { .. } | Family::Ramp) => soft_writes(family, st, tri, w, h, rt.fmt)?,
+        (Fill::Point | Fill::Wireframe, _) | (Fill::Solid, Family::Hw { .. }) => {
+            let cover = match st.fill {
+                Fill::Point => points(family, v, w, h)?,
+                Fill::Wireframe => wireframe(family, v, st.lastpixel, w, h)?,
+                Fill::Solid => coverage(family, v, w, h)?,
+            };
+            cover_writes(&cover, w)
+        }
     };
-    // (the spans' anchors of a triangle inside the target, walked; pixels spilt past a row's
-    // end into the next go by that row's anchor: not measured)
-    let inside = v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..=h * 16).contains(&y));
-    let anchor = match (st.fill, family, inside) {
-        (Fill::Solid, Family::Soft { .. }, true) => anchors(v, h)?,
-        (Fill::Solid | Fill::Point | Fill::Wireframe, Family::Soft { .. } | Family::Ramp | Family::Hw { .. }, _) => Vec::new(),
+    paint(dev, st, tri, &writes)
+}
+
+/// the covered pixels of a target w wide, row by row, their colours left to shade()
+fn cover_writes(cover: &[bool], w: i64) -> Vec<Write> {
+    let w = usize::try_from(w).unwrap_or(1).max(1);
+    cover.iter().enumerate().filter(|&(_, &c)| c).map(|(k, _)| Write { k, x: i64::try_from(k % w).unwrap_or(0), y: i64::try_from(k / w).unwrap_or(0), c: None }).collect()
+}
+
+/// one pixel a primitive writes: its index in the target, its column and row as walked (a
+/// software span past the right side writes on into memory: k is where), and its colour R, G,
+/// B in 8.8 where the rasterizer gave one
+struct Write {
+    k: usize,
+    x: i64,
+    y: i64,
+    c: Option<[Fix88; 3]>,
+}
+
+/// a solid triangle of the RGB, MMX or ramp rasterizer (crate::model::d3dim: the setup, edge
+/// walk and Gouraud spans of d3dim700): the pixels it writes, a span past the right side on in
+/// memory, into the row's padding (a system-memory surface's pitch, DDRAW.PITCH) and then the
+/// next row
+fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Write>> {
+    let vert = |i: usize| -> Res<crate::model::d3dim::Vert> {
+        let c = tri.c[i];
+        let ch = |sh: u32| u8::try_from(c >> sh & 255).unwrap_or(u8::MAX);
+        let px = |v: i64| i16::try_from(v).map(|v| f32::from(v) / 16.0).map_err(|_| Fail::Unmodeled(open::D3D7_TRI_CLIP));
+        Ok(crate::model::d3dim::Vert { x: px(tri.v[i].0)?, y: px(tri.v[i].1)?, c: [ch(0), ch(8), ch(16), ch(24)] })
     };
-    paint(dev, st, tri, &cover, &anchor)
+    let clip = crate::model::d3dim::Clip { l: 0, t: 0, r: w, b: h };
+    let gouraud = !st.flat;
+    hit(clause::D3D7_TRI_WALK);
+    let Some(r) = crate::model::d3dim::raster([vert(0)?, vert(1)?, vert(2)?], clip, gouraud)? else { return Ok(Vec::new()) };
+    if r.whole_bottom {
+        hit(clause::D3D7_TRI_EDGE);
+    }
+    if r.px.iter().any(|p| p.y > r.px[0].y) {
+        hit(clause::D3D7_TRI_TIE);
+    }
+    if gouraud {
+        hit(clause::D3D7_GOURAUD);
+    } else {
+        hit(clause::D3D7_FLAT);
+    }
+    let walker = r.walker;
+    match (walker, family) {
+        (crate::model::d3dim::Walker::NoClip, _) => hit(clause::D3D7_TRI),
+        (crate::model::d3dim::Walker::Clip, Family::Soft { .. } | Family::Ramp | Family::Hw { .. }) => hit(clause::D3D7_TRI_GUARD),
+    }
+    let b = i64::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?;
+    let p = crate::model::ddraw::pitch(w, 8 * u32::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?);
+    let mut out = Vec::with_capacity(r.px.len());
+    for q in &r.px {
+        let a = q.y * p + q.x * b;
+        // (a pixel past the surface's last byte writes the memory after it: d3d7edge-32 died in
+        // the case after whole-rgb-short, whose triangle 36 did; one across a row's end is not
+        // measured)
+        if a < 0 || a + b > h * p || (a % p) % b != 0 || (a % p < w * b && a % p + b > w * b) {
+            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+        }
+        let (row, col) = (a / p, a % p / b);
+        if col >= w {
+            continue;
+        }
+        let k = usize::try_from(row * w + col).map_err(|_| Fail::Bad)?;
+        let f = |i: usize| Fix88(u32::from(q.c[i]));
+        out.push(Write { k, x: q.x, y: q.y, c: Some([f(2), f(1), f(0)]) });
+    }
+    let all = out.len() == usize::try_from(w * h).unwrap_or(0);
+    match (walker, family, all) {
+        (crate::model::d3dim::Walker::Clip, _, true) => hit(clause::D3D7_TRI_COVERALL),
+        // (the ramp device's red on a triangle crossing the target but not covering it: 0x80 or
+        // 0xf8 in 565, d3d7rast clip-2-ramp; D3D7.TRI.CLIP)
+        (crate::model::d3dim::Walker::Clip, Family::Ramp, false) => return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)),
+        (crate::model::d3dim::Walker::Clip, Family::Soft { .. } | Family::Hw { .. }, false) | (crate::model::d3dim::Walker::NoClip, _, _) => {}
+    }
+    Ok(out)
 }
 
 /// the covered pixels of a primitive of one color per vertex written through the pixel pipeline
 /// (alpha test, depth, shading, specular, fog, blend or dither)
-fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool], anchor: &[Option<i64>]) -> Res<()> {
+fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> {
     let family = dev.family;
     let rt = &mut dev.rt;
-    let (w, h) = (rt.w, rt.h);
     let z = tri.z;
     let zv = match (st.zenable, rt.depth, family) {
         (false, _, _) => None,
@@ -1617,11 +1494,11 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool], anchor: &[Opt
         Family::Ramp => 0,
         Family::Soft { .. } | Family::Hw { .. } => tri.c[0] >> 24,
     };
-    for py in 0..h {
-        for px in 0..w {
-            let k = usize::try_from(py * w + px).map_err(|_| Fail::Bad)?;
-            if !cover[k] {
-                continue;
+    for wr in writes {
+        {
+            let (k, px, py) = (wr.k, wr.x, wr.y);
+            if k >= rt.px.len() {
+                return Err(Fail::Bad);
             }
             // MEASURED (d3d7shade alphatest-*: each function and reference against 8 alphas,
             // every device): the documented compare of the vertex alpha (ramp: 0) with ALPHAREF
@@ -1661,7 +1538,10 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool], anchor: &[Opt
                 Family::Soft { .. } | Family::Hw { .. } => {
                     let mut src = [Shade::Int(0); 3];
                     for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
-                        let sc = shade(family, st.flat, tri, sh, px, py, usize::try_from(py).ok().and_then(|k| anchor.get(k)).copied().flatten())?;
+                        let sc = match wr.c {
+                            Some(c) => Shade::Fix(c[i]),
+                            None => shade(family, st.flat, tri, sh, px, py)?,
+                        };
                         let mut c = sc.int();
                         // MEASURED (d3d7shade specular-*): the specular color added, saturating
                         if st.specular {
@@ -1680,11 +1560,11 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, cover: &[bool], anchor: &[Opt
                             };
                         }
                         // (a fraction through specular or fog: not measured; a whole value
-                        // stays whole)
+                        // stays whole, and a specular of 0 without fog adds nothing)
+                        let adds = (st.specular && tri.spec[0] >> sh & 255 != 0) || st.fog.is_some();
                         src[i] = match sc {
-                            Shade::Fix(f) if f == Fix88::whole(f.int()) || !(st.specular || st.fog.is_some()) => {
-                                if st.specular || st.fog.is_some() { Shade::Fix(Fix88::whole(c)) } else { sc }
-                            }
+                            Shade::Fix(_) if !adds => sc,
+                            Shade::Fix(f) if f == Fix88::whole(f.int()) => Shade::Fix(Fix88::whole(c)),
                             Shade::Fix(_) | Shade::Int(_) => Shade::Int(c),
                         };
                     }

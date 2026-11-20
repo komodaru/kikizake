@@ -45,6 +45,7 @@ tests/laws_dd.rs::pitches_hold_a_row exhaustive DDRAW.PITCH DDRAW.LOCK
 tests/laws_dd.rs::clear_fills_the_target pbt D3D7.CLEAR D3D7.LOCK
 tests/laws_dd.rs::vertex_order_and_redraw pbt D3D7.TRI D3D7.CULL D3D7.FLAT
 tests/laws_dd.rs::walk_stays_by_the_edges pbt D3D7.TRI.WALK D3D7.TRI D3D7.TRI.GUARD
+tests/laws_dd.rs::gouraud_spans_follow_the_plane pbt D3D7.GOURAUD D3D7.TRI.GUARD
 tests/laws_dd.rs::ties_round_symmetrically exhaustive D3D7.TRI.TIE
 tests/laws_dd.rs::long_ties_round_toward_zero exhaustive D3D7.TRI.TIE
 tests/laws_dd.rs::one_row_tops_leave_row_1_empty exhaustive D3D7.TRI.EDGE

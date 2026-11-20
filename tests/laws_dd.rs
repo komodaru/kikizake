@@ -155,6 +155,37 @@ proptest! {
         }
     }
 
+    /// the software rasterizers' Gouraud spans (crate::model::d3dim, D3D7.GOURAUD): each pixel's
+    /// 8.8 colour, inside or across the target, lies within the f32 error and the truncated
+    /// per-pixel step of the exact colour plane at that pixel (a level and an eighth, plus the
+    /// span's length times 1/256), and the pixels are those of the walk alone
+    #[test]
+    fn gouraud_spans_follow_the_plane(v in prop::array::uniform6(-640i64..1280), c in prop::array::uniform3(any::<u32>())) {
+        use kikizake::model::d3dim::{raster, Clip, Vert};
+        let p = |i: usize| (v[2 * i], v[2 * i + 1]);
+        let vert = |i: usize| Vert { x: v[2 * i] as f32 / 16.0, y: v[2 * i + 1] as f32 / 16.0, c: c[i].to_le_bytes() };
+        let clip = Clip { l: 0, t: 0, r: 48, b: 40 };
+        let den = ((p(1).0 - p(0).0) * (p(2).1 - p(0).1) - (p(2).0 - p(0).0) * (p(1).1 - p(0).1)) as f64;
+        prop_assume!(den.abs() > 256.0 * 4.0);
+        let Some(r) = raster([vert(0), vert(1), vert(2)], clip, true).unwrap() else { return Ok(()) };
+        let g = raster([vert(0), vert(1), vert(2)], clip, false).unwrap().unwrap();
+        prop_assert_eq!(r.px.iter().map(|q| (q.x, q.y)).collect::<Vec<_>>(), g.px.iter().map(|q| (q.x, q.y)).collect::<Vec<_>>());
+        let width = r.px.iter().map(|q| q.x).max().unwrap_or(0) - r.px.iter().map(|q| q.x).min().unwrap_or(0) + 1;
+        for q in &r.px {
+            for k in 0..4 {
+                let ch = |i: usize| f64::from(c[i].to_le_bytes()[k]);
+                let (x, y) = (q.x as f64 * 16.0, q.y as f64 * 16.0);
+                let l1 = ((x - p(0).0 as f64) * (p(2).1 - p(0).1) as f64 - (p(2).0 - p(0).0) as f64 * (y - p(0).1 as f64)) / den;
+                let l2 = ((p(1).0 - p(0).0) as f64 * (y - p(0).1 as f64) - (x - p(0).0 as f64) * (p(1).1 - p(0).1) as f64) / den;
+                let exact = 256.0 * (ch(0) + l1 * (ch(1) - ch(0)) + l2 * (ch(2) - ch(0)));
+                // (a colour plane leaving 0..255 between the pixel centres wraps: left out)
+                prop_assume!((0.0..=65280.0).contains(&exact));
+                let got = f64::from(q.c[k]);
+                prop_assert!((got - exact).abs() <= 288.0 + width as f64 + exact.abs() * 1e-5, "{:?} channel {k}: {got} against {exact}", (q.x, q.y));
+            }
+        }
+    }
+
     /// the software rasterizers' walk of a triangle inside or across the target: every pixel more than
     /// 1.5 px inside its three edges is drawn, and none more than 1.5 px outside one (the walk's
     /// shifts and ties move edges by at most a pixel; a pixel past the right side spills into
@@ -292,7 +323,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 8, 0), ("d3d7dev", 44, 0), ("d3d7shade", 42, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 44, 0), ("d3d7shade", 17, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
