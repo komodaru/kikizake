@@ -186,6 +186,28 @@ proptest! {
         }
     }
 
+    /// WARP's Gouraud planes (the HAL devices): at every pixel centre inside the triangle's
+    /// bounds the single precision value written to 8 bits is within one of the exact
+    /// interpolation rounded, and a channel equal at the three vertices is that value everywhere
+    #[test]
+    fn warp_planes_follow_the_exact_plane(v in prop::array::uniform6(-640i64..1280), c in prop::array::uniform3(any::<u8>()), x in 0i64..80, y in 0i64..80) {
+        use kikizake::model::warp::{unorm, Plane};
+        let p = |i: usize| (v[2 * i], v[2 * i + 1]);
+        let den = ((p(1).0 - p(0).0) * (p(2).1 - p(0).1) - (p(2).0 - p(0).0) * (p(1).1 - p(0).1)) as f64;
+        prop_assume!(den.abs() > 256.0 * 16.0);
+        let Some(pl) = Plane::new([p(0), p(1), p(2)], c).unwrap() else { return Ok(()) };
+        let (fx, fy) = (x as f64 * 16.0, y as f64 * 16.0);
+        let l1 = ((fx - p(0).0 as f64) * (p(2).1 - p(0).1) as f64 - (p(2).0 - p(0).0) as f64 * (fy - p(0).1 as f64)) / den;
+        let l2 = ((p(1).0 - p(0).0) as f64 * (fy - p(0).1 as f64) - (fx - p(0).0 as f64) * (p(1).1 - p(0).1) as f64) / den;
+        prop_assume!(l1.abs() <= 2.0 && l2.abs() <= 2.0);
+        let ch = |i: usize| f64::from(c[i]);
+        let exact = (ch(0) + l1 * (ch(1) - ch(0)) + l2 * (ch(2) - ch(0))).clamp(0.0, 255.0).round();
+        let got = f64::from(unorm(pl.at(x, y).unwrap(), 8).unwrap());
+        prop_assert!((got - exact).abs() <= 1.0, "{:?} at ({x}, {y}): {got} against {exact}", v);
+        let flat = Plane::new([p(0), p(1), p(2)], [c[0]; 3]).unwrap().unwrap();
+        prop_assert_eq!(unorm(flat.at(x, y).unwrap(), 8).unwrap(), u32::from(c[0]));
+    }
+
     /// WARP's aliased lines (the HAL devices): every lit pixel's centre lies within a pixel of the
     /// segment (diamonds of half a pixel, moved endpoints), and a line never lights more pixels
     /// than its major length plus two (a pixel at each end)
@@ -346,7 +368,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 17, 0), ("d3d7shade", 17, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 17, 0), ("d3d7shade", 7, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

@@ -129,3 +129,58 @@ pub fn line(v: [(i64, i64); 2], w: i64, h: i64) -> Res<Option<Vec<bool>>> {
     // measured lines lit it, d3d7dev linecorner-7-hal-1 one not)
     Ok(if tie { None } else { Some(cover) })
 }
+
+/// WARP's plane of one colour channel over a triangle (D3D7.GOURAUD, the HAL): set up in single
+/// precision from vertex 0 as ddraw hands the triangle on
+#[derive(Clone, Copy, Debug)]
+pub struct Plane {
+    ddx: f32,
+    ddy: f32,
+    c: f32,
+}
+
+impl Plane {
+    /// the plane through the channel values a (bytes, read as a / 255) at v (16ths of a pixel,
+    /// D3D7's pixel centres on whole numbers); None for a triangle of no area
+    pub fn new(v: [(i64, i64); 3], a: [u8; 3]) -> Res<Option<Plane>> {
+        let bad = || Fail::Bad;
+        // in 256ths of a pixel, WARP's centres at i + 1/2
+        let p = v.map(|(x, y)| (i128::from(x) * 16 + 128, i128::from(y) * 16 + 128));
+        let det = (p[1].0 - p[0].0) * (p[2].1 - p[0].1) - (p[2].0 - p[0].0) * (p[1].1 - p[0].1);
+        if det == 0 {
+            return Ok(None);
+        }
+        let px = |n: i128| ratio_f32(n, 256).ok_or_else(bad);
+        let (x0, y0) = (px(p[0].0)?, px(p[0].1)?);
+        let (e1x, e2x) = (px(p[1].0 - p[0].0)?, px(p[0].0 - p[2].0)?);
+        let (e1y, e2y) = (px(p[0].1 - p[1].1)?, px(p[2].1 - p[0].1)?);
+        // 1 / f32(f32(det) · 2^-16): the fixed determinant in pixels squared
+        let inv = 1.0 / (ratio_f32(det, 1).ok_or_else(bad)? * f32::from_bits(0x3780_0000));
+        let a = a.map(|b| ratio_f32(i128::from(b), 255));
+        let [Some(a0), Some(a1), Some(a2)] = a else { return Err(bad()) };
+        let (d1, d2) = (a1 - a0, a2 - a0);
+        let ddx = (d1 * e2y + d2 * e1y) * inv;
+        let ddy = (d1 * e2x + d2 * e1x) * inv;
+        Ok(Some(Plane { ddx, ddy, c: (a0 - ddx * x0) - ddy * y0 }))
+    }
+
+    /// the channel at the centre of pixel (x, y)
+    pub fn at(self, x: i64, y: i64) -> Res<f32> {
+        let bad = || Fail::Bad;
+        let c = |i: i64| -> Res<f32> { Ok(ratio_f32(i128::from(i) * 2 + 1, 2).ok_or_else(bad)?) };
+        Ok((c(y)? * self.ddy + self.c) + c(x)? * self.ddx)
+    }
+}
+
+/// a float written to an n-bit UNORM channel: RNE(clamp(v, 0, 1) · (2^n − 1)), denormals as 0
+pub fn unorm(v: f32, bits: u32) -> Res<u32> {
+    let bad = || Fail::Bad;
+    if !(1..=16).contains(&bits) {
+        return Err(bad());
+    }
+    let max = (1u32 << bits) - 1;
+    let v = if v.is_subnormal() || v.is_nan() { 0.0 } else { v.clamp(0.0, 1.0) };
+    let s = v * ratio_f32(i128::from(max), 1).ok_or_else(bad)?;
+    let q = crate::model::d3dim::trunc(s.round_ties_even()).ok_or_else(bad)?;
+    u32::try_from(q).map_err(|_| bad())
+}

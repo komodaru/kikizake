@@ -1497,6 +1497,19 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
         Family::Ramp => 0,
         Family::Soft { .. } | Family::Hw { .. } => tri.c[0] >> 24,
     };
+    // the HAL's Gouraud as WARP evaluates it: a single precision plane per channel (no
+    // specular or fog: those are not measured on fractions)
+    let warp = match family {
+        Family::Hw { .. } if !st.flat && !st.specular && st.fog.is_none() => {
+            let mut pl = [None; 3];
+            for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
+                let ch = |c: u32| u8::try_from(c >> sh & 255).unwrap_or(0);
+                pl[i] = crate::model::warp::Plane::new(tri.v, tri.c.map(ch))?;
+            }
+            pl
+        }
+        Family::Hw { .. } | Family::Soft { .. } | Family::Ramp => [None; 3],
+    };
     for wr in writes {
         {
             let (k, px, py) = (wr.k, wr.x, wr.y);
@@ -1541,9 +1554,13 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 Family::Soft { .. } | Family::Hw { .. } => {
                     let mut src = [Shade::Int(0); 3];
                     for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
-                        let sc = match wr.c {
-                            Some(c) => Shade::Fix(c[i]),
-                            None => shade(family, st.flat, tri, sh, px, py)?,
+                        let sc = match (wr.c, warp[i]) {
+                            (Some(c), _) => Shade::Fix(c[i]),
+                            (None, Some(pl)) => {
+                                hit(clause::D3D7_GOURAUD);
+                                Shade::Int(crate::model::warp::unorm(pl.at(px, py)?, 8)?)
+                            }
+                            (None, None) => shade(family, st.flat, tri, sh, px, py)?,
                         };
                         let mut c = sc.int();
                         // MEASURED (d3d7shade specular-*): the specular color added, saturating
@@ -1615,14 +1632,25 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 (Family::Hw { .. }, Some(f)) => [0, 1, 2].map(|i| {
                     let max = f64::from((1u32 << bits[i]) - 1);
                     let dq = rt.px[k] >> fmt.shifts()[i] & ((1 << bits[i]) - 1);
-                    let (s, d, al) = (f64::from(src[i]) / 255.0, f64::from(dq) / max, f64::from(a) / 255.0);
+                    let s = match warp[i] {
+                        Some(pl) => pl.at(px, py).map(|v| f64::from(v.clamp(0.0, 1.0))).unwrap_or(0.0),
+                        None => f64::from(src[i]) / 255.0,
+                    };
+                    let (d, al) = (f64::from(dq) / max, f64::from(a) / 255.0);
                     let (fs, fd) = factors_hw(f, s, d, al);
                     (max * (s * fs + d * fd).clamp(0.0, 1.0) + 0.5).floor() as u32
                 }),
                 // MEASURED (d3d7dev color-*): the HAL rounds
                 (Family::Hw { .. }, None) => {
                     hit(clause::D3D7_HW_COLOR);
-                    [0, 1, 2].map(|i| round_to(src[i], bits[i]))
+                    let mut q = [0u32; 3];
+                    for i in 0..3 {
+                        q[i] = match warp[i] {
+                            Some(pl) => crate::model::warp::unorm(pl.at(px, py)?, bits[i])?,
+                            None => round_to(src[i], bits[i]),
+                        };
+                    }
+                    q
                 }
             };
             rt.px[k] = fmt.pack(q);

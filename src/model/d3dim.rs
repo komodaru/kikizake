@@ -38,7 +38,7 @@ fn x87_mul(a: f32, b: f32) -> f32 {
 
 /// float to int toward zero (the x87 fistp under chop, or cvttss2si), from its bits; None for
 /// 2^62 and above or not finite
-fn trunc(v: f32) -> Option<i64> {
+pub(crate) fn trunc(v: f32) -> Option<i64> {
     let b = v.to_bits();
     let exp = i64::from(b >> 23 & 0xff).wrapping_sub(127);
     let man = i64::from(b & 0x7f_ffff | 0x80_0000);
