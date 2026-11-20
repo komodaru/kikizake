@@ -12476,49 +12476,49 @@ end
 case gradfit-0
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 0 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 0 0 64 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-1
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 0 0 16 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 0 0 16 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-2
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 0 0 256 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 0 0 256 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-3
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 0 0 1024 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 0 0 1024 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-4
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 0 0 16384 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 0 0 16384 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-5
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp -192 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp -192 0 64 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-6
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 32 0 0 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 32 0 0 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-7
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 0.25 0 63.5 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 0.25 0 63.5 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-8
@@ -12608,7 +12608,7 @@ end
 case gradfit-22
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 clamp 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 clamp 8 0 24 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-23
@@ -12620,7 +12620,7 @@ end
 case gradfit-24
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 wrap 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 wrap 8 0 24 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-25
@@ -12632,7 +12632,7 @@ end
 case gradfit-26
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 22 mirror 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 22 mirror 8 0 24 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-27
@@ -12644,49 +12644,49 @@ end
 case gradfit-28
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 0 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 0 0 64 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-29
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 0 0 16 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 0 0 16 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-30
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 0 0 256 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 0 0 256 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-31
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 0 0 1024 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 0 0 1024 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-32
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 0 0 16384 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 0 0 16384 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-33
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp -192 0 64 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp -192 0 64 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-34
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 32 0 0 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 32 0 0 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-35
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 0.25 0 63.5 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 0.25 0 63.5 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-36
@@ -12776,7 +12776,7 @@ end
 case gradfit-50
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 clamp 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 clamp 8 0 24 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-51
@@ -12788,7 +12788,7 @@ end
 case gradfit-52
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 wrap 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 wrap 8 0 24 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-53
@@ -12800,7 +12800,7 @@ end
 case gradfit-54
 d2target 64 1
 d2aa aliased
-d2grad 0 0 64 1 lin 10 mirror 8 0 24 0 2 0 0 0 255 1 255 255 255 255
+d2grad 0 0 64 1 lin 10 mirror 8 0 24 0 2 0 0 0 0 255 1 255 255 255 255
 d2read
 end
 case gradfit-55
@@ -19100,4 +19100,100 @@ d2clear 108 21 131 255
 d2path 0 alt m 12.859375 5 7.9375 5.875 8.5625 5.875 12.09375 3.75 z
 d2drawg 0 4 78 14 59 200
 d2read
+end
+case xfell-0
+d2ell 0 1.375 4 5.375 2.75
+d2xf 1 0 2 -1.875 1.375 -0.375 -1.375 1.25
+d2bounds 1
+d2bounds 1 -1.375 -1.625 -0.25 0.25 0.875 1.5
+end
+case xfell-1
+d2rrect 0 -0.125 -5.625 3.125 4.5 1.75 2
+d2xf 1 0 -0.125 -0.75 -1.375 -0.875 0.375 -2
+d2bounds 1
+d2bounds 1 -0.875 1.375 -2 0.5 -0.25 0
+end
+case xfell-2
+d2ell 0 3.5 2 1.625 7.5
+d2xf 1 0 -1.875 1.5 0.375 1.125 1.25 1
+d2bounds 1
+d2bounds 1 -0.125 -0.5 -0.25 1.75 0.75 1.5
+end
+case xfell-3
+d2rrect 0 -6.75 -7.375 3.125 8 1.5 3
+d2xf 1 0 1.375 0.25 0.125 1.625 1.5 0
+d2bounds 1
+d2bounds 1 0.75 1 -1.5 1.25 1.375 0.125
+end
+case xfell-4
+d2ell 0 6.25 7.875 6.75 1.25
+d2xf 1 0 0.625 0.375 0.125 2 -1.375 1
+d2bounds 1
+d2bounds 1 0 0.5 1.75 0.75 0.25 1.125
+end
+case xfell-5
+d2rrect 0 -3.5 -2.25 1.25 6 2.25 1.5
+d2xf 1 0 -1 1.75 1 -0.5 -0.75 1.625
+d2bounds 1
+d2bounds 1 0.375 -0.375 -1.75 -0.375 -0.25 -2
+end
+case xfell-6
+d2ell 0 -0.625 7.875 4 6.125
+d2xf 1 0 -1.5 0.75 -1.375 -0.5 -1.875 1.25
+d2bounds 1
+d2bounds 1 -0.875 -1.125 -0.5 -0.75 -0.5 1.625
+end
+case xfell-7
+d2rrect 0 -5.75 -7.25 6.25 3.25 0.5 0.625
+d2xf 1 0 -0.625 -1.25 0.375 -0.75 1.125 1
+d2bounds 1
+d2bounds 1 1.125 -0.25 1 2 -0.625 -0.5
+end
+case xfell-8
+d2ell 0 -2 2 4.125 5.5
+d2xf 1 0 -0.25 0.875 -0.75 1.375 -0.125 1.125
+d2bounds 1
+d2bounds 1 -1.875 -1.5 -1.375 -0.375 -0.125 -2
+end
+case xfell-9
+d2rrect 0 -2 -2.625 5.25 5.625 1.625 1
+d2xf 1 0 0.625 -0.5 -1.375 0 -1.625 1.75
+d2bounds 1
+d2bounds 1 -0.75 0.375 1 -0.125 -1.25 0.875
+end
+case xfell-10
+d2ell 0 -1 1.375 8 3.25
+d2xf 1 0 0.375 0.25 1.375 1.875 1.5 1.375
+d2bounds 1
+d2bounds 1 -1.5 0.625 1.375 -2 -2 -2
+end
+case xfell-11
+d2rrect 0 -4.5 -2.125 3.875 5.5 1.25 2
+d2xf 1 0 -1.625 1.375 -0.625 -1.625 0.875 -0.125
+d2bounds 1
+d2bounds 1 1.625 -1 0.375 1.5 -2 -1
+end
+case xfell-12
+d2ell 0 -3.125 -2.5 4.125 3.75
+d2xf 1 0 1.5 0.75 0.625 1.125 1 -0.875
+d2bounds 1
+d2bounds 1 -1.125 0.625 -0.375 1.5 -0.875 -1.375
+end
+case xfell-13
+d2rrect 0 -6.875 -5.75 7.625 1 2.75 2.625
+d2xf 1 0 1.625 -0.5 -1.5 1.75 0.75 0.875
+d2bounds 1
+d2bounds 1 0.375 -0.875 -0.625 0.75 0.375 0.25
+end
+case xfell-14
+d2ell 0 -3.75 1.625 1.875 6.25
+d2xf 1 0 1.125 1.25 1.25 -0.875 -1.25 0.25
+d2bounds 1
+d2bounds 1 0.5 0.875 0.125 -1.75 -1.875 -1.25
+end
+case xfell-15
+d2rrect 0 -6.25 -1.375 7.625 3.25 2.125 1.75
+d2xf 1 0 2 -1.5 -1.125 -1.75 -1.375 -0.125
+d2bounds 1
+d2bounds 1 1.625 0.375 1.125 0.75 -0.125 -0.5
 end
