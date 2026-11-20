@@ -1,4 +1,4 @@
-kikizake calls region-64 cases 81ef4d20ea47fecd src 416fb4592b12fddb7248295439e21db13657d8425d3cae0c4a37cb09f5254b2d shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 29412 other 0
+kikizake calls region-64 cases 5a16aa5a219df3b7 src e8fd341fbcbf31985be963b81be8dd22324c824f807af1f052c533fc8752dd1a shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 29796 other 0
 case combine-0
 CreateRectRgn(10,12,20,10) = h1
 CreateRectRgn(-3,0,1,9) = h2
@@ -12311,3 +12311,152 @@ SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1
 DeleteObject(h4) = 1
+case poly-mode-0
+bad 7780
+CreatePolygonRgn(p,3,0) = h0
+case poly-mode-3
+bad 7784
+CreatePolygonRgn(p,3,3) = h0
+case poly-mode--1
+bad 7788
+CreatePolygonRgn(p,3,-1) = h0
+case ellipse-size-0
+CreateEllipticRgn(0,0,0,0) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case ellipse-size-1
+CreateEllipticRgn(3,3,3,3) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case ellipse-size-2
+CreateEllipticRgn(0,0,1,1) = h1
+GetRegionData(h1,0,h0) = 32
+GetRegionData(h1,32,p) = 32
+GetRgnBox(h1,p) = 1
+DeleteObject(h1) = 1
+case ellipse-size-3
+CreateEllipticRgn(0,0,2,1) = h1
+GetRegionData(h1,0,h0) = 32
+GetRegionData(h1,32,p) = 32
+GetRgnBox(h1,p) = 1
+DeleteObject(h1) = 1
+case ellipse-size-4
+CreateEllipticRgn(0,0,1,5) = h1
+GetRegionData(h1,0,h0) = 32
+GetRegionData(h1,32,p) = 32
+GetRgnBox(h1,p) = 1
+DeleteObject(h1) = 1
+case ellipse-size-5
+CreateEllipticRgn(0,0,0,5) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case ellipse-size-6
+CreateEllipticRgn(0,0,2,2) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case ellipse-size-7
+CreateEllipticRgn(0,0,3,3) = h1
+GetRegionData(h1,0,h0) = 32
+GetRegionData(h1,32,p) = 32
+GetRgnBox(h1,p) = 1
+DeleteObject(h1) = 1
+case ellipse-size-8
+CreateEllipticRgn(-3,-3,3,3) = h1
+GetRegionData(h1,0,h0) = 112
+GetRegionData(h1,112,p) = 112
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case ellipse-size-9
+CreateEllipticRgn(0,0,2048,6) = h1
+GetRegionData(h1,0,h0) = 112
+GetRegionData(h1,112,p) = 112
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case ellipse-size-10
+out truncated
+CreateEllipticRgn(0,0,1100,1100) = h1
+GetRegionData(h1,0,h0) = 10416
+GetRegionData(h1,10416,p) = 10416
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case loose-0
+CreatePolygonRgn(p,4,1) = h1
+GetRegionData(h1,0,h0) = 96
+GetRegionData(h1,96,p) = 96
+GetRgnBox(h1,p) = 3
+CreateRectRgn(0,0,0,0) = h2
+CombineRgn(h2,h1,h1,5) = 3
+GetRegionData(h2,0,h0) = 96
+GetRegionData(h2,96,p) = 96
+OffsetRgn(h2,3,2) = 3
+GetRegionData(h2,0,h0) = 96
+GetRegionData(h2,96,p) = 96
+CombineRgn(h2,h1,h1,2) = 3
+GetRegionData(h2,0,h0) = 96
+GetRegionData(h2,96,p) = 96
+DeleteObject(h1) = 1
+DeleteObject(h2) = 1
+case loose-1
+CreatePolygonRgn(p,5,1) = h1
+GetRegionData(h1,0,h0) = 64
+GetRegionData(h1,64,p) = 64
+GetRgnBox(h1,p) = 3
+CreateRectRgn(0,0,0,0) = h2
+CombineRgn(h2,h1,h1,5) = 3
+GetRegionData(h2,0,h0) = 64
+GetRegionData(h2,64,p) = 64
+OffsetRgn(h2,3,2) = 3
+GetRegionData(h2,0,h0) = 64
+GetRegionData(h2,64,p) = 64
+CombineRgn(h2,h1,h1,2) = 3
+GetRegionData(h2,0,h0) = 64
+GetRegionData(h2,64,p) = 64
+DeleteObject(h1) = 1
+DeleteObject(h2) = 1
+case loose-2
+CreatePolygonRgn(p,4,2) = h1
+GetRegionData(h1,0,h0) = 32
+GetRegionData(h1,32,p) = 32
+GetRgnBox(h1,p) = 1
+CreateRectRgn(0,0,0,0) = h2
+CombineRgn(h2,h1,h1,5) = 1
+GetRegionData(h2,0,h0) = 32
+GetRegionData(h2,32,p) = 32
+OffsetRgn(h2,3,2) = 1
+GetRegionData(h2,0,h0) = 32
+GetRegionData(h2,32,p) = 32
+CombineRgn(h2,h1,h1,2) = 1
+GetRegionData(h2,0,h0) = 32
+GetRegionData(h2,32,p) = 32
+DeleteObject(h1) = 1
+DeleteObject(h2) = 1
+case loose-3
+CreatePolygonRgn(p,6,1) = h1
+GetRegionData(h1,0,h0) = 96
+GetRegionData(h1,96,p) = 96
+GetRgnBox(h1,p) = 3
+CreateRectRgn(0,0,0,0) = h2
+CombineRgn(h2,h1,h1,5) = 3
+GetRegionData(h2,0,h0) = 96
+GetRegionData(h2,96,p) = 96
+OffsetRgn(h2,3,2) = 3
+GetRegionData(h2,0,h0) = 96
+GetRegionData(h2,96,p) = 96
+CombineRgn(h2,h1,h1,2) = 3
+GetRegionData(h2,0,h0) = 96
+GetRegionData(h2,96,p) = 96
+DeleteObject(h1) = 1
+DeleteObject(h2) = 1
+case loose-many
+CreatePolygonRgn(p,38,1) = h1
+GetRegionData(h1,0,h0) = 160
+GetRegionData(h1,160,p) = 160
+DeleteObject(h1) = 1
