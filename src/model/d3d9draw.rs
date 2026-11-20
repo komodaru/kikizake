@@ -815,10 +815,17 @@ enum Side {
 }
 
 /// a polygon clipped to -0.5 ..= x1 and -0.5 ..= y1, a side at a time (Sutherland-Hodgman, each
-/// edge from its first vertex: p + t (q - p), t = dp / (dp - dq), in f32, the attributes alike)
-fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32) -> Vec<PolyVtx> {
-    let mut poly = poly.to_vec();
-    for side in [Side::Left, Side::Right, Side::Top, Side::Bottom] {
+/// edge from its first vertex: p + t (q - p), t = dp / (dp - dq), in f32, the attributes alike),
+/// on the sides (left, right, top, bottom) some vertex of the triangle is outside of; the new
+/// vertices then clamped into the viewport (the clean-room notes: WARP clamps them to its clip
+/// space's -w ..= w, so a new vertex past a side not clipped lands on it; MEASURED clip8-*,
+/// raster-3, -54, -90 of d3d8draw: on a side clipped at the size itself, Direct3D 8's, there)
+fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<PolyVtx> {
+    let mut poly: Vec<(PolyVtx, bool)> = poly.iter().map(|v| (*v, false)).collect();
+    for (si, side) in [Side::Left, Side::Right, Side::Top, Side::Bottom].into_iter().enumerate() {
+        if !sides[si] {
+            continue;
+        }
         let d = |v: &PolyVtx| match side {
             Side::Left => v.x + 0.5,
             Side::Right => x1 - v.x,
@@ -826,20 +833,27 @@ fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32) -> Vec<PolyVtx> {
             Side::Bottom => y1 - v.y,
         };
         let mut out = Vec::new();
-        for (i, p) in poly.iter().enumerate() {
-            let q = &poly[(i + 1) % poly.len()];
+        for (i, (p, pn)) in poly.iter().enumerate() {
+            let (q, _) = &poly[(i + 1) % poly.len()];
             let (dp, dq) = (d(p), d(q));
             if dp >= 0.0 {
-                out.push(*p);
+                out.push((*p, *pn));
             }
             if (dp >= 0.0) != (dq >= 0.0) {
                 let t = dp / (dp - dq);
-                out.push(PolyVtx { x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y), at: std::array::from_fn(|k| p.at[k] + t * (q.at[k] - p.at[k])) });
+                out.push((PolyVtx { x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y), at: std::array::from_fn(|k| p.at[k] + t * (q.at[k] - p.at[k])) }, true));
             }
         }
         poly = out;
     }
-    poly
+    let (cx, cy) = (if sides[1] { x1 } else { x1.min(x1.ceil() - 0.5) }, if sides[3] { y1 } else { y1.min(y1.ceil() - 0.5) });
+    poly.into_iter().map(|(mut v, new)| {
+        if new {
+            v.x = v.x.clamp(-0.5, cx);
+            v.y = v.y.clamp(-0.5, cy);
+        }
+        v
+    }).collect()
 }
 
 /// a convex polygon of n vertices cut into the strip v1 v2 v0 v3 v(n-1) v4 v(n-2) ... (MEASURED:
@@ -1329,68 +1343,76 @@ impl D3d9 {
                 // (MEASURED filter2-5-4, d3d8draw filter2-2-4: linear while no axis of the
                 // footprint is longer than a texel, aniso-3, -11, -18, -21, -23, -31: and with
                 // MAXANISOTROPY 1, aniso-8: and with axes of one length)
+                // (the clean-room notes: WARP's footprint in f32, one rounding an operation)
                 let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv[self.tex_set(st).at()];
-                let (w, h) = (tx.w as f64, tx.h as f64);
-                let (ax, ay) = ((dudx * w, dvdx * h), (dudy * w, dvdy * h));
-                let (lx, ly) = (ax.0.hypot(ax.1), ay.0.hypot(ay.1));
-                let (axis, major) = if lx >= ly { (ax, lx) } else { (ay, ly) };
-                // (MEASURED filter2-2-32, filter2-5-32: the minor axis the footprint's area over
-                // the major one, not the shorter derivative)
-                let minor = (ax.0 * ay.1 - ax.1 * ay.0).abs() / major;
-                let ratio = major / minor.max(1.0);
+                let f = |a: f64| a as f32;
+                let (w, h) = (tx.w as f32, tx.h as f32);
+                let (a, b) = ([f(dudx) * w, f(dvdx) * h], [f(dudy) * w, f(dvdy) * h]);
+                let x2 = a[0] * a[0] + a[1] * a[1];
+                let y2 = b[0] * b[0] + b[1] * b[1];
+                let area = (a[0] * b[1] - a[1] * b[0]).abs();
+                // (a tie takes ddy as the major axis)
+                let (m2, dir) = if x2 > y2 { (x2, a) } else { (y2, b) };
+                let m = m2.sqrt();
+                let inv = 1.0 / m;
+                let axis = dir.map(|c| c * inv);
+                // (the tap count: MAXANISOTROPY taken down to a power of 2, at most 16)
                 let limit = self.samp(st, 10);
-                if major > 1.0 && limit > 1 && ratio > 1.0 {
-                    if limit > 3 && (ratio - 2.0).abs() < 1.0 / 1024.0 {
-                        // (at 2 itself, as f32 rounds: aniso-4, -5, -17 mix two taps with more)
-                        return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
-                    }
-                    let (taps, spacing) = if limit <= 3 || ratio < 2.0 {
-                        // (MEASURED aniso-0, -1, -2, -6, -9, -12, -13, -15, -16, -19, -24, -25,
-                        // -28 .. -30, aniso-axis-*: two bilinear taps along the major axis,
-                        // min(ratio - 1, 1) texels apart about the center)
-                        hit(clause::D3D9_TEX_ANISO2);
-                        (2u32, (ratio - 1.0).min(1.0))
-                    } else {
-                        // (MEASURED aniso-axis-*, aniso-7, -10, -14, -22, -26: as many taps
-                        // as the largest power of 2 MAXANISOTROPY holds, min(ratio, taps) /
-                        // (taps + 1) texels apart)
-                        hit(clause::D3D9_TEX_ANISON);
-                        let n = 1u32 << limit.min(16).ilog2();
-                        if minor > 1.0 + 1.0 / 64.0 && axis.0 != 0.0 && axis.1 != 0.0 && n > 4 && ratio < n as f64 / 2.0 {
-                            // (a slanted footprint, its minor axis past a texel, eight taps or
-                            // more and the ratio under half of them: aniso-27 differs at one
-                            // pixel, open)
-                            return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
-                        }
-                        (n, ratio.min(n as f64) / (n as f64 + 1.0))
-                    };
-                    // (MEASURED aniso-22, aniso-30, aniso-axis-*: in f32, the step between taps
-                    // the major axis's direction times the spacing, in (u, v); two taps at the
-                    // center less and plus half of it, more from the first, center less
-                    // (taps / 2 - 1/2) steps, a step added for each)
-                    let f = |a: f64| a as f32 as f64;
-                    let (du, dv) = (f(f(f(axis.0 / major) * f(spacing)) / w), f(f(f(axis.1 / major) * f(spacing)) / h));
+                let n: u32 = match limit {
+                    0..=1 => 1,
+                    2..=3 => 2,
+                    4..=7 => 4,
+                    8..=15 => 8,
+                    _ => 16,
+                };
+                let nf = n as f32;
+                let mut r = m2 / area;
+                let clamped = r > nf;
+                if clamped {
+                    r = nf;
+                }
+                let minor = if clamped { m / r } else { area / m };
+                if minor < 1.0 {
+                    r = (r * minor).max(1.0);
+                }
+                let nan0 = |x: f32| if x.is_nan() { 0.0 } else { x };
+                let (r, axis) = (nan0(r), axis.map(nan0));
+                if r > 1.0 {
                     let (u, v) = (f(u), f(v));
                     let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
                     // (each tap's weighted sum truncated to a 64th of 1/255; to 32nds or 128ths,
                     // or rounded, misses pixels)
                     const TAP: i64 = BILERP_ONE / 64;
-                    let back = taps as f64 / 2.0 - 0.5;
-                    let (mut pu, mut pv) = (f(u - back * du), f(v - back * dv));
-                    let mut vals: Vec<[i64; 4]> = Vec::new();
-                    for j in 0..taps {
-                        let (tu, tv) = if taps == 2 {
-                            let c = j as f64 - 0.5;
-                            (f(u + c * du), f(v + c * dv))
-                        } else {
-                            (pu, pv)
-                        };
-                        let Weighted::Bytes(t) = self.bilinear_sum(st, tx, tu * w, tv * h, mu, mv)? else {
+                    let tap = |tu: f32, tv: f32| -> Res<[i64; 4]> {
+                        let Weighted::Bytes(t) = self.bilinear_sum(st, tx, f64::from(tu) * f64::from(w), f64::from(tv) * f64::from(h), mu, mv)? else {
                             // (texels other than 8-bit ones: no case)
                             return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
                         };
-                        vals.push(t.map(|x| x / TAP));
-                        (pu, pv) = (f(pu + du), f(pv + dv));
+                        Ok(t.map(|x| x / TAP))
+                    };
+                    let mut vals: Vec<[i64; 4]> = Vec::new();
+                    if r <= 2.0 {
+                        // (MEASURED aniso-*, aniso-axis-*: two taps, 0.5 (r - 1) along the
+                        // axis each way)
+                        hit(clause::D3D9_TEX_ANISO2);
+                        let hh = 0.5 * (r - 1.0);
+                        let off = [hh * axis[0] / w, hh * axis[1] / h];
+                        vals.push(tap(u + off[0], v + off[1])?);
+                        vals.push(tap(u - off[0], v - off[1])?);
+                    } else {
+                        // (MEASURED aniso-axis-*, aniso-*: n taps, the step 1/(n + 1) in f32
+                        // times r, the first at -r/2 plus a step, a step added for each)
+                        hit(clause::D3D9_TEX_ANISON);
+                        let k = 1.0 / (n + 1) as f32;
+                        let step = k * r;
+                        let start = -0.5 * r + step;
+                        let d = [axis[0] / w, axis[1] / h];
+                        let sv = [d[0] * step, d[1] * step];
+                        let (mut qu, mut qv) = (u + d[0] * start, v + d[1] * start);
+                        for _ in 0..n {
+                            vals.push(tap(qu, qv)?);
+                            (qu, qv) = (qu + sv[0], qv + sv[1]);
+                        }
                     }
                     // (MEASURED aniso-axis-*: the taps averaged in pairs of neighbors, truncated,
                     // until one is left; summing them all misses pixels)
@@ -2175,19 +2197,8 @@ impl D3d9 {
         // D3D9.RASTER.CLIP8SIDE)
         let at_w = self.v8 && pts.iter().any(|v| v.0 == w as f32);
         let at_h = self.v8 && pts.iter().any(|v| v.1 == h as f32);
-        // (MEASURED clip8-*, golden of 06020c5: on both runtimes, a vertex at the size on one axis and left of
-        // (above) the -0.5 side on the other draws as neither rule says for some offsets
-        // (d3d9draw clip8-0, -1, -9; d3d8draw raster-3, clip8-9): open)
-        if clipped && pts.iter().any(|v| (v.1 == h as f32 && v.0 < -0.5 && v.0 >= -1.0) || (v.0 == w as f32 && v.1 < -0.5 && v.1 >= -1.0)) {
-            return Err(Fail::Unmodeled(open::D3D9_RASTER_CLIP8));
-        }
         if clipped && (at_w || at_h) {
             hit(clause::D3D9_RASTER_CLIP8SIDE);
-            if pts.iter().any(|v| v.1 == h as f32 && v.0 < -0.5) {
-                // (a vertex at the height itself left of the left side: raster-3 draws as if the piece
-                // between the two new vertices on its sides were left out, open)
-                return Err(Fail::Unmodeled(open::D3D9_RASTER_CLIP8));
-            }
         }
         let flat = self.rs(9) == 1;
         let mut clipr = (0, 0, w, h);
@@ -2225,7 +2236,11 @@ impl D3d9 {
             let edge = if persp { 0.0 } else { 0.5 };
             let ex = if at_w { 0.0 } else { edge };
             let ey = if at_h { 0.0 } else { edge };
-            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - ex, h as f32 - ey)
+            // (the clean-room notes, MEASURED clip8-*: the sides some vertex is outside of,
+            // x < 0, x > the width, y < 0, y > the height, strictly, D3D9.RASTER.CLIP8)
+            hit(clause::D3D9_RASTER_CLIP8);
+            let sides = [pts.iter().any(|v| v.0 < 0.0), pts.iter().any(|v| v.0 > w as f32), pts.iter().any(|v| v.1 < 0.0), pts.iter().any(|v| v.1 > h as f32)];
+            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - ex, h as f32 - ey, sides)
                 .iter()
                 .map(|v| {
                     let (x, y) = snap(v);
@@ -2308,22 +2323,27 @@ impl D3d9 {
                         (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k]))
                     };
                     if !persp {
-                        // (projected coordinates: their footprint as Direct3D 10's coarse
-                        // derivatives, the quad's top-left pixel's s/q, t/q against its right and
-                        // lower neighbours', D3D9.STAGE.PROJFOOT)
+                        // (the footprint as Direct3D 10's coarse derivatives, the quad's top-left
+                        // pixel's s/q, t/q against its right and lower neighbours': projected
+                        // coordinates, D3D9.STAGE.PROJFOOT, and every other, the clean-room notes)
                         let attr = |ox: f32, oy: f32| -> [f64; ATTRS] {
                             match &planes {
                                 Some(p) => p.at(sx + ox, sy + oy),
+                                // (the clean-room notes and MEASURED aniso-4, -5, -17, -20, -27,
+                                // aniso-axis-11: the quad's values as the pixel shader's planes
+                                // give them, C + gy y + gx x, Direct3D 10's setup)
                                 None => std::array::from_fn(|k| {
-                                    let (dx, dy) = grads[k];
-                                    f64::from(piece[0].at[k] + dy * (sy + oy - y[0]) + dx * (sx + ox - x[0]))
+                                    let r = 1.0 / area32;
+                                    let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
+                                    let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
+                                    let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
+                                    let c = (piece[0].at[k] - gx * x[0]) - gy * y[0];
+                                    f64::from((c + gy * (sy + oy)) + gx * (sx + ox))
                                 }),
+
                             }
                         };
-                        for (i, &q) in Q_AT.iter().enumerate() {
-                            if grads[q] == (0.0, 0.0) {
-                                continue;
-                            }
+                        for i in 0..Q_AT.len() {
                             let (ox, oy) = (-((px & 1) as f32), -((py & 1) as f32));
                             let (c, r, d) = (st_of(&attr(ox, oy))[i], st_of(&attr(ox + 1.0, oy))[i], st_of(&attr(ox, oy + 1.0))[i]);
                             self.draw.duv[i] = ((r[0] - c[0], d[0] - c[0]), (r[1] - c[1], d[1] - c[1]));

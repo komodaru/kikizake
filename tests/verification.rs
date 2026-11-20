@@ -44,15 +44,20 @@ fn cases_have_independent_device_state() {
     assert_eq!(case::parse_output(&alone).cases[0], case::parse_output(&both).cases[1]);
 }
 
+/// x64's D3DXFloat32To16Array goes by cpuid's vendor (D3DX9.F16.CPU): any vendor but
+/// GenuineIntel as AuthenticAMD, and a recording without its cpu line has no answer
 #[test]
-fn unmeasured_cpu_dispatch_requires_fitted_mode() {
-    let cases = case::parse_cases("case x\nx9f16 0x3f801000\nend");
-    for cpu in ["cpu Unknown 0 0 0", "cpu Unknown 10000000 0 0"] {
-        let mut context = model::ModelContext::recorded(64, cpu);
-        assert!(matches!(context.evaluate(|| model::run_case(&cases[0])), Err(model::Fail::Unmodeled(_))));
-        context.fitted = model::Fitted::Answered;
-        assert!(context.evaluate(|| model::run_case(&cases[0])).is_ok());
-    }
+fn cpu_dispatch_goes_by_the_vendor_alone() {
+    let cases = case::parse_cases("case x\nx9f16 0x7fc00000 0x33000401 0x33000401 0x33000401 0x33000401 0x33000401 0x33000401 0x33000401 0x3f801000\nend");
+    let run = |cpu: &str| model::ModelContext::recorded(64, cpu).evaluate(|| model::run_case(&cases[0])).ok();
+    let amd = run("cpu AuthenticAMD feda3203 178bfbff f1bf07a9");
+    assert!(amd.is_some());
+    assert_eq!(run("cpu Unknown 0 0 0"), amd);
+    assert_eq!(run("cpu Unknown 10000000 0 0"), amd);
+    let intel = run("cpu GenuineIntel 0 0 0");
+    assert!(intel.is_some() && intel != amd);
+    let none = model::ModelContext::recorded(64, "").evaluate(|| model::run_case(&cases[0]));
+    assert!(matches!(none, Err(model::Fail::NoInput(model::Input::Cpu))));
 }
 
 #[test]

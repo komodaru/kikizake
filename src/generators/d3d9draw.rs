@@ -1177,6 +1177,20 @@ fn suite(v8: bool) -> String {
             s.push_str("d9rt\nend\n");
         }
     }
+    // (D3D9.TEX.FILTER) anisotropic filtering of texels other than 8-bit ones: R5G6B5,
+    // A16B16G16R16, A16B16G16R16F; two taps (ratio 1.5) and four (ratio 3)
+    for fmt in [23u32, 36, 113] {
+        for (j, big) in [1.5f32, 3.0].into_iter().enumerate() {
+            open(&mut s, &format!("aniso-fmt-{fmt}-{j}"), 21, 16, 16);
+            s.push_str(&format!("d9clear 1 0 0 0\nd9tex 0 32 32 {fmt}\nd9texfill 0 {:#x}\nd9settex 0 0\n", r.next()));
+            texture_stage(&mut s);
+            s.push_str(&format!("{mag} 2\n{min} 3\n{mip} 0\n{aniso} 4\n"));
+            let th = 0.5f32;
+            let (dx, dy) = ((big * th.cos(), big * th.sin()), (-th.sin(), th.cos()));
+            let uv = |a: f32, b: f32| Some((0.3 + (dx.0 * a + dy.0 * b) / 2.0, 0.2 + (dx.1 * a + dy.1 * b) / 2.0));
+            s.push_str(&format!("d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend\n", v(-0.5, -0.5, 0.0, !0, uv(0.0, 0.0)), v(15.5, -0.5, 0.0, !0, uv(1.0, 0.0)), v(-0.5, 15.5, 0.0, !0, uv(0.0, 1.0)), v(15.5, 15.5, 0.0, !0, uv(1.0, 1.0))));
+        }
+    }
     s
 }
 
