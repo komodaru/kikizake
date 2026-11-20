@@ -153,7 +153,8 @@ fn multiply(r: Round, a: &Matrix, b: &Matrix) -> Matrix {
         r.add(r.add(r.mul(a[4], b[1]), r.mul(a[5], b[3])), b[5]),
     ]
 }
-fn invert(r: Round, m: &Matrix) -> Option<Matrix> {
+/// GpMatrix::Invert
+pub fn invert(r: Round, m: &Matrix) -> Option<Matrix> {
     if *m == [1.0, 0.0, 0.0, 1.0, 0.0, 0.0] {
         return Some(*m);
     }

@@ -73,17 +73,18 @@ proptest! {
         prop_assert_eq!(a, b);
     }
     /// the diamond sweep of a polyline is one closed loop: it starts and ends on the first
-    /// point's inner side, P0 - O[k]
+    /// point's inner side, P0 - O[k]; one point (a segment of no length) is the whole diamond
     #[test]
     fn sweep_is_a_closed_loop(p in proptest::collection::vec((-200i32..200, -200i32..200), 1..8)) {
         let mut q = p.clone();
         q.dedup();
-        match path::sweep(&p) {
-            None => prop_assert_eq!(q.len(), 1),
-            Some(o) => {
-                prop_assert!(q.len() >= 2);
-                prop_assert_eq!(o.first(), o.last());
-                prop_assert!(o.len() >= 4 * q.len());
+        let o = path::sweep(&p).unwrap();
+        prop_assert_eq!(o.first(), o.last());
+        prop_assert!(o.len() >= 4 * q.len().max(2));
+        if q.len() == 1 {
+            let (x, y) = q[0];
+            for v in [(x, y + 8), (x - 8, y), (x, y - 8), (x + 8, y)] {
+                prop_assert!(o.contains(&v));
             }
         }
     }

@@ -29,6 +29,7 @@ pub mod gdiplus;
 pub mod gppath;
 pub mod gplinear;
 pub mod gpstretch;
+pub mod gpwiden;
 pub mod gdifont;
 pub mod gdiline;
 pub mod rgn;

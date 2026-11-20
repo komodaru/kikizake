@@ -1497,17 +1497,43 @@ impl Gdiplus {
             return Err(Fail::Unmodeled(open::GP_PEN));
         }
         let dev = gpp::device(r, world.as_ref(), po);
-        let how = gpp::stroke(r, &pen, world.as_ref())?;
+        let wtd = gpp::world_to_device(r, world.as_ref(), po);
+        // (DrawLine, DrawLines, DrawPolygon: points whose device box is under NEAR both ways draw
+        // nothing, MEASURED on GDI+ itself, both arches: (3, 3) - (3.0001, 3))
+        let whole: Vec<(f32, f32)> = match (line, t.get(9).map(String::as_str)) {
+            (Some((p0, p1)), _) => vec![p0, p1],
+            (None, Some("lines" | "polygon")) => path.pts.iter().map(|q| (q.x, q.y)).collect(),
+            (None, _) => vec![],
+        };
+        if !whole.is_empty() {
+            let d: Vec<(f32, f32)> = whole.iter().map(|&(x, y)| gpp::apply(r, &wtd, x, y)).collect();
+            let size = |k: fn(&(f32, f32)) -> f32| {
+                let (lo, hi) = d.iter().map(k).fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), v| (a.min(v), b.max(v)));
+                r.sub(hi, lo)
+            };
+            let wide = |v: f32| v.partial_cmp(&gpp::NEAR) == Some(std::cmp::Ordering::Greater);
+            if !wide(size(|q| q.0)) && !wide(size(|q| q.1)) {
+                hit(clause::GP_PEN_EMPTY);
+                out.push("shape 0 0".into());
+                return Ok(true);
+            }
+        }
+        let how = gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), super::gpwiden::pattern(pen.dash).is_some());
+        // (MEASURED, golden gdiplusline pendash-5: DashStyleCustom with no dash array set is
+        // OutOfMemory, nothing drawn; penjoin--1, penjoin-4: a wide stroke of a join past 0 ..= 3
+        // is OutOfMemory on x86, drawn with no interior join points on x64)
+        let nothing_join = matches!(super::gpwiden::Join::of(pen.join), Ok(super::gpwiden::Join::Nothing));
+        if pen.dash == 5 || (how == Stroke::Wide && nothing_join && super::arch() == 32) {
+            hit(clause::GP_PEN_DASH);
+            out.push(format!("shape 0 {OUT_OF_MEMORY}"));
+            return Ok(true);
+        }
         let cov = match (line, how) {
             (Some((p0, p1)), Stroke::OnePixel) => match sm.rows() {
                 None => gpp::line_aliased(r, &dev, p0, p1, b.w, b.h)?,
                 Some(n) => gpp::line_nominal(r, &dev, p0, p1, Some(n), b.w, b.h),
             },
             (Some((p0, p1)), Stroke::Diamond) => gpp::line_nominal(r, &dev, p0, p1, sm.rows(), b.w, b.h),
-            (Some((p0, p1)), Stroke::Wide { square_start, square_end }) => {
-                let outline = gpp::line_wide(r, p0, p1, pen.width, (square_start, square_end));
-                gpp::fill(r, &outline, world.as_ref(), FillMode::Winding, sm.rows(), po, b.w, b.h)?
-            }
             (None, Stroke::OnePixel) if sm.rows().is_none() && !gpp::curved(&path) => {
                 hit(clause::GP_PEN_OUTLINE);
                 gpp::outline_aliased(r, &path, &dev, b.w, b.h)?
@@ -1516,8 +1542,25 @@ impl Gdiplus {
                 hit(clause::GP_PEN_OUTLINE);
                 gpp::outline_nominal(r, &path, &dev, sm.rows(), b.w, b.h)?
             }
-            // (the widener's joins and caps: GP.PEN)
-            (None, Stroke::Wide { .. }) => return Err(Fail::Unmodeled(open::GP_PEN)),
+            (_, Stroke::DashedPixel) => {
+                if let Some((p0, p1)) = line {
+                    path.add_lines(r, &[p0, p1]).map_err(|_| Fail::Bad)?;
+                }
+                let dashes = super::gpwiden::dashed(r, &path, &pen)?.ok_or(Fail::Bad)?;
+                gpp::outline_dda(r, &dashes, &dev, gpp::Last::Skipped, b.w, b.h)?
+            }
+            (_, Stroke::Wide) => {
+                if let Some((p0, p1)) = line {
+                    path.add_lines(r, &[p0, p1]).map_err(|_| Fail::Bad)?;
+                }
+                match super::gpwiden::widen(r, &path, &pen, &wtd, 0.25)? {
+                    Ok(outline) => gpp::fill(r, &outline, None, FillMode::Winding, sm.rows(), PixelOffset::None, b.w, b.h)?,
+                    // (DpDriver::StrokePath of no inverse: nothing drawn)
+                    Err(super::gpwiden::Widened::NoInverse) => gpp::fill(r, &gpp::Path::new(1), None, FillMode::Winding, sm.rows(), PixelOffset::None, b.w, b.h)?,
+                    // (a closed figure of an invalid join: what StrokePath then fills is GP.PEN)
+                    Err(super::gpwiden::Widened::Unchanged) => return Err(Fail::Unmodeled(open::GP_PEN)),
+                }
+            }
         };
         paint(b, &Brush::Solid(pen.color), Area::Cover(&cov), copy, q, sm, po, (0, 0))?;
         out.push("shape 0 0".into());
@@ -1674,8 +1717,28 @@ impl Gdiplus {
             };
             path.flatten(r, m.as_ref(), flatness)?;
             out.push(format!("flat {OK}"));
-        } else if widen.is_some() {
-            return Err(Fail::Unmodeled(open::GP_PEN));
+        } else if let Some((k, m, flatness)) = widen {
+            let Some(pen) = self.pen[k].clone() else {
+                out.push("widen nopen".into());
+                return Ok(true);
+            };
+            let m = match m {
+                None => [1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+                Some(m) => match self.mat[m] {
+                    Some(m) => m,
+                    None => {
+                        out.push("widen nomatrix".into());
+                        return Ok(true);
+                    }
+                },
+            };
+            match super::gpwiden::widen(r, path, &pen, &m, flatness)? {
+                Ok(p) => *path = p,
+                Err(super::gpwiden::Widened::Unchanged) => {}
+                // (a matrix of no inverse: GdipWidenPath's status is GP.PEN)
+                Err(super::gpwiden::Widened::NoInverse) => return Err(Fail::Unmodeled(open::GP_PEN)),
+            }
+            out.push(format!("widen {OK}"));
         } else {
             // gppathinfo
             out.push(format!("pathinfo {OK} {}", path.pts.len()));
