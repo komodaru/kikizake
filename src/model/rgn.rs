@@ -124,13 +124,14 @@ impl Rgn {
     }
     /// GetRgnBox's rectangle (0 0 0 0 for no region)
     pub fn bounds(&self) -> (i32, i32, i32, i32) {
-        if self.bands.is_empty() {
+        let (Some(first), Some(last)) = (self.bands.first(), self.bands.last()) else {
             return (0, 0, 0, 0);
-        }
-        let l = self.bands.iter().map(|b| b.2[0].0).min().unwrap();
-        let r = self.bands.iter().map(|b| b.2.last().unwrap().1).max().unwrap();
-        let b = self.bands.last().unwrap().1;
-        (l, self.bands[0].0, r, self.loose.map_or(b, |v| v.max(b)))
+        };
+        // (every band has a span: push_band drops the empty ones)
+        let l = self.bands.iter().filter_map(|b| b.2.first()).map(|s| s.0).fold(i32::MAX, i32::min);
+        let r = self.bands.iter().filter_map(|b| b.2.last()).map(|s| s.1).fold(i32::MIN, i32::max);
+        let b = last.1;
+        (l, first.0, r, self.loose.map_or(b, |v| v.max(b)))
     }
     pub fn contains(&self, x: i32, y: i32) -> bool {
         inside(self.spans_at(y), x)
@@ -256,8 +257,7 @@ fn scan(polys: &[Vec<(i32, i32)>], winding: bool) -> (Rgn, i32) {
             table.push((top.1, Edge::new(top, bottom, down)));
         }
     }
-    let Some(ymin) = table.iter().map(|e| e.0).min() else { return (Rgn::empty(), 0) };
-    let ymax = table.iter().map(|e| e.1.ymax + 1).max().unwrap();
+    let (Some(ymin), Some(ymax)) = (table.iter().map(|e| e.0).min(), table.iter().map(|e| e.1.ymax + 1).max()) else { return (Rgn::empty(), 0) };
     // edges entering at one scanline, in x order (a later one before an earlier of equal x)
     let mut buckets: std::collections::BTreeMap<i32, Vec<Edge>> = Default::default();
     for (y, e) in table {
@@ -283,7 +283,7 @@ fn scan(polys: &[Vec<(i32, i32)>], winding: bool) -> (Rgn, i32) {
                 inside += if e.down { 1 } else { -1 };
                 match (was, inside != 0) {
                     (false, true) => start = Some(e.x),
-                    (true, false) => spans.push((start.take().unwrap(), e.x)),
+                    (true, false) => spans.extend(start.take().map(|s| (s, e.x))),
                     _ => {}
                 }
             }

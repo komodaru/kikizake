@@ -9,7 +9,7 @@
 use crate::spec::{clause, open};
 use super::gdi::{Brush, Gdi};
 use super::rgn::{Rgn, SetOp, NULLREGION};
-use super::{Fail, Res};
+use super::{filled, filled_mut, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
@@ -277,10 +277,10 @@ fn clip_op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     if g.slots.get(k as usize).and_then(|s| s.as_ref()).is_none() {
         return Err(Fail::Bad);
     }
-    if g.slots[k as usize].as_ref().unwrap().ext.mapped() {
+    if filled(&g.slots, k as usize)?.ext.mapped() {
         return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
     }
-    let sl = g.slots[k as usize].as_mut().unwrap();
+    let sl = filled_mut(&mut g.slots, k as usize)?;
     let dev = Rgn::rect(0, 0, sl.s.w, sl.s.h);
     match t0 {
         "selclip" => {

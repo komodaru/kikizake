@@ -8,7 +8,7 @@
 use crate::spec::open;
 use crate::spec::clause;
 use super::gdi::{rop3, Brush, Gdi, Slot};
-use super::{Fail, Res};
+use super::{filled_mut, Fail, Res};
 use crate::case::{color, num, Op};
 use crate::spec::hit;
 use super::gdiinvcmap::{Cell, Table};
@@ -123,7 +123,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 // MEASURED: sources with a color table (monochrome too) go through their colors
                 hit(if t0 == "alphablend" { clause::GDI_ALPHA_FORMATS } else { clause::GDI_TRANS_FORMATS });
             }
-            let dsl = g.slots[k].as_mut().unwrap();
+            let dsl = filled_mut(&mut g.slots, k)?;
             for j in 0..h {
                 for i in 0..w {
                     let (px, py) = (x + i, y + j);
@@ -206,7 +206,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 Brush::Solid(c) => d.s.from_rgb(*c),
                 _ => return Err(Fail::Unmodeled(open::GDI_SHAPE_BRUSH)),
             };
-            let dsl = g.slots[k].as_mut().unwrap();
+            let dsl = filled_mut(&mut g.slots, k)?;
             let mask = dsl.s.mask();
             for j in 0..h {
                 for i in 0..w {
@@ -237,7 +237,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 let c16 = |j: usize| -> Res<i64> { n(op, k + j).map(|c| c & 0xffff) };
                 *vi = Vert { x: n32(op, k)?, y: n32(op, k + 1)?, c: [c16(2)?, c16(3)?, c16(4)?, c16(5)?] };
             }
-            let dsl = g.slots[k].as_mut().unwrap();
+            let dsl = filled_mut(&mut g.slots, k)?;
             let ok = gradient(dsl, mode, v)?;
             out.push(format!("ret {}", ok as u8));
         }
@@ -249,7 +249,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 return Err(Fail::Unmodeled(open::GDI_PLG_MAP));
             }
             let ((x0, y0), (ax, ay), (bx, by)) = ((p[0], p[1]), (p[2] - p[0], p[3] - p[1]), (p[4] - p[0], p[5] - p[1]));
-            let dsl = g.slots[k].as_mut().unwrap();
+            let dsl = filled_mut(&mut g.slots, k)?;
             let mut put = |x: i64, y: i64, u: i64, v: i64| {
                 let (x, y) = (x as i32, y as i32);
                 if dsl.visible(x, y) {
@@ -452,7 +452,7 @@ pub fn gradient(d: &mut Slot, mode: Grad, mut v: [Vert; 3]) -> Res<bool> {
                 }
             }
             let det = ((v[2].y - v[1].y) * (v[2].x - v[0].x) - (v[2].x - v[1].x) * (v[2].y - v[0].y)) as i64;
-            let (l, r) = (v.iter().map(|p| p.x).min().unwrap(), v.iter().map(|p| p.x).max().unwrap());
+            let (l, r) = (v[0].x.min(v[1].x).min(v[2].x), v[0].x.max(v[1].x).max(v[2].x));
             let (t, b) = (v[0].y.max(0), v[2].y.min(d.s.h));
             if l.max(0) >= r.min(d.s.w) || t >= b {
                 return Ok(true);

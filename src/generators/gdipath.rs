@@ -27,24 +27,24 @@ pub fn path() -> String {
     let mut r = XorShift32::new(0x9a7b_0000);
     for (i, sh) in SHAPES.iter().enumerate() {
         for dir in [2, 1] {
-            writeln!(s, "case shape-{i}-{dir}\ndib 0 16 16 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\narcdir 0 {dir}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0").unwrap();
-            writeln!(s, "flatten 0\ngetpath 0\npathrgn 0 0\nrgndata 0\nend").unwrap();
+            writeln!(s, "case shape-{i}-{dir}\ndib 0 16 16 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\narcdir 0 {dir}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0");
+            writeln!(s, "flatten 0\ngetpath 0\npathrgn 0 0\nrgndata 0\nend");
         }
         for op in ["strokepath", "fillpath", "strokefill"] {
-            writeln!(s, "case draw-{i}-{op}\ndib 0 16 16 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\nbeginpath 0\n{sh}\nendpath 0\n{op} 0\ngetpath 0\ndump 0\nend", 1 + i % 2).unwrap();
+            writeln!(s, "case draw-{i}-{op}\ndib 0 16 16 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\nbeginpath 0\n{sh}\nendpath 0\n{op} 0\ngetpath 0\ndump 0\nend", 1 + i % 2);
         }
-        writeln!(s, "case clip-{i}\ndib 0 16 16 8\nfill 0 {}\nbeginpath 0\n{sh}\nendpath 0\nselclippath 0 {}\nclipbox 0\nbrush 0 solid #ffffff\npatblt 0 0 0 16 16 0xf00021\ndump 0\nend", r.next(), r.range(1, 5)).unwrap();
+        writeln!(s, "case clip-{i}\ndib 0 16 16 8\nfill 0 {}\nbeginpath 0\n{sh}\nendpath 0\nselclippath 0 {}\nclipbox 0\nbrush 0 solid #ffffff\npatblt 0 0 0 16 16 0xf00021\ndump 0\nend", r.next(), r.range(1, 5));
     }
     // WidenPath with geometric pens
     for (i, (st, w)) in [(0u32, 1), (0, 3), (0x10000, 3), (0x10100, 4), (0x10200, 3), (0x11000, 5), (0x12000, 5)].iter().enumerate() {
         for k in [2, 11, 4] {
-            writeln!(s, "case widen-{i}-{k}\ndib 0 16 16 8").unwrap();
+            writeln!(s, "case widen-{i}-{k}\ndib 0 16 16 8");
             if *st >= 0x10000 {
-                writeln!(s, "extpen 0 {st:#x} {w} #ffffff").unwrap();
+                writeln!(s, "extpen 0 {st:#x} {w} #ffffff");
             } else {
-                writeln!(s, "pen 0 {st} {w} #ffffff").unwrap();
+                writeln!(s, "pen 0 {st} {w} #ffffff");
             }
-            writeln!(s, "beginpath 0\n{}\nendpath 0\nwiden 0\ngetpath 0\nend", SHAPES[k]).unwrap();
+            writeln!(s, "beginpath 0\n{}\nendpath 0\nwiden 0\ngetpath 0\nend", SHAPES[k]);
         }
     }
     // the path's state machine: calls out of order
@@ -54,20 +54,20 @@ pub fn path() -> String {
         "beginpath 0\nendpath 0\ngetpath 0\npathrgn 0 1\nfillpath 0\ngetpath 0",
         "beginpath 0\nclosefig 0\nmoveto 0 3 3\nclosefig 0\nlineto 0 5 3\nclosefig 0\nclosefig 0\nendpath 0\ngetpath 0",
         "beginpath 0\nmoveto 0 1 1\nmoveto 0 2 2\nlineto 0 5 2\nmoveto 0 6 6\nendpath 0\ngetpath 0\nstrokepath 0\ngetpath 0"].iter().enumerate() {
-        writeln!(s, "case order-{i}\ndib 0 8 8 8\npen 0 0 1 #ffffff\n{c}\ndump 0\nend").unwrap();
+        writeln!(s, "case order-{i}\ndib 0 8 8 8\npen 0 0 1 #ffffff\n{c}\ndump 0\nend");
     }
     // Polyline and Polygon of one point in a path, then a line
-    writeln!(s, "case polyshort\ndib 0 8 8 8\npen 0 0 1 #ffffff\nbeginpath 0\npolyline 0 2 2\npolygon 0 3 3\nmoveto 0 1 1\nlineto 0 5 2\nendpath 0\ngetpath 0\nend").unwrap();
-    writeln!(s, "case miter\ndib 0 8 8 8\nmiter 0 3\nmiter 0 0.5\nmiter 0 20\nend").unwrap();
+    writeln!(s, "case polyshort\ndib 0 8 8 8\npen 0 0 1 #ffffff\nbeginpath 0\npolyline 0 2 2\npolygon 0 3 3\nmoveto 0 1 1\nlineto 0 5 2\nendpath 0\ngetpath 0\nend");
+    writeln!(s, "case miter\ndib 0 8 8 8\nmiter 0 3\nmiter 0 0.5\nmiter 0 20\nend");
     // random polygons and polylines, through a region and drawn
     for i in 0..60 {
-        writeln!(s, "case random-{i}\ndib 0 20 20 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\nbeginpath 0", 1 + i % 2).unwrap();
+        writeln!(s, "case random-{i}\ndib 0 20 20 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\nbeginpath 0", 1 + i % 2);
         for _ in 0..r.range(1, 3) {
             let n = r.range(2, 6);
             let p: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(-2, 22), r.range(-2, 22))).collect();
-            writeln!(s, "{} 0 {}", if r.chance(2) { "polygon" } else { "polyline" }, p.join(" ")).unwrap();
+            writeln!(s, "{} 0 {}", if r.chance(2) { "polygon" } else { "polyline" }, p.join(" "));
         }
-        writeln!(s, "endpath 0\ngetpath 0\n{} 0\ndump 0\nend", ["fillpath", "strokepath", "strokefill"][r.range(0, 2) as usize]).unwrap();
+        writeln!(s, "endpath 0\ngetpath 0\n{} 0\ndump 0\nend", ["fillpath", "strokepath", "strokefill"][r.range(0, 2) as usize]);
     }
     // random curves (their own stream): the Bézier points GetPath returns, FlattenPath's lines,
     // PathToRegion's pixels, and the path filled and stroked
@@ -86,7 +86,7 @@ pub fn path() -> String {
         };
         let dir = r.range(1, 2);
         let tail = if i % 2 == 0 { "getpath 0\nflatten 0\ngetpath 0\npathrgn 0 0\nrgndata 0".to_string() } else { format!("{} 0\ndump 0", ["fillpath", "strokepath", "strokefill"][r.range(0, 2) as usize]) };
-        writeln!(s, "case curve-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\narcdir 0 {dir}\nbeginpath 0\n{sh}\nendpath 0\n{tail}\nend", r.range(1, 2)).unwrap();
+        writeln!(s, "case curve-{i}\ndib 0 24 24 8\npen 0 0 1 #ffffff\nbrush 0 solid #ff0000\npolyfill 0 {}\narcdir 0 {dir}\nbeginpath 0\n{sh}\nendpath 0\n{tail}\nend", r.range(1, 2));
     }
     // round rectangles and arcs in a path, both directions, their Bézier points and FlattenPath's
     // lines only (their own stream): corner radii from 0 past the box, arcs of every span
@@ -101,7 +101,7 @@ pub fn path() -> String {
             4 => format!("pie 0 {}", q(&mut r, 8)),
             _ => format!("chord 0 {}", q(&mut r, 8)),
         };
-        writeln!(s, "case arcpath-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i / 6 % 2).unwrap();
+        writeln!(s, "case arcpath-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i / 6 % 2);
     }
     // large arcs (their own stream): FlattenPath's many lines show a part-quarter Bézier's
     // control points to a fraction of a pixel
@@ -109,7 +109,7 @@ pub fn path() -> String {
     for i in 0..64 {
         let c = |r: &mut XorShift32| r.range(-300, 300);
         let q = |r: &mut XorShift32, n: usize| (0..n).map(|_| c(r).to_string()).collect::<Vec<_>>().join(" ");
-        writeln!(s, "case arcflat-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\narc 0 {}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i % 2, q(&mut r, 8)).unwrap();
+        writeln!(s, "case arcflat-{i}\ndib 0 8 8 8\narcdir 0 {}\nbeginpath 0\narc 0 {}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend", 1 + i % 2, q(&mut r, 8));
     }
     // arcs drawn through a 1/16 mapping (their own stream): logical units of a sixteenth of a
     // device pixel, so GetPath shows the 28.4 points themselves; a whole Ellipse first to show
@@ -121,13 +121,13 @@ pub fn path() -> String {
         let q = |r: &mut XorShift32, k: usize| (0..k).map(|_| (16 * c(r)).to_string()).collect::<Vec<_>>().join(" ");
         let sh = ["arc", "pie", "chord"][i / 3 % 3];
         let sh = if i < 3 { format!("ellipse 0 {}", q(&mut r, 4)) } else { format!("{sh} 0 {}", q(&mut r, 8)) };
-        writeln!(s, "case arcfix-{i}\ndib 0 8 8 8\nmapmode 0 8\nwinext 0 16 16\nvpext 0 1 1\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nend", 1 + i / 9 % 2).unwrap();
+        writeln!(s, "case arcfix-{i}\ndib 0 8 8 8\nmapmode 0 8\nwinext 0 16 16\nvpext 0 1 1\narcdir 0 {}\nbeginpath 0\n{sh}\nendpath 0\ngetpath 0\nend", 1 + i / 9 % 2);
     }
     // RoundRect's corners over a grid of corner sizes, a box wide enough for each, both
     // directions: GetPath before and after FlattenPath
     for i in 0..200 {
         let (w, h, dir) = (i % 10 + 1, i / 10 % 10 + 1, 1 + i / 100);
-        writeln!(s, "case rrgrid-{i}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nroundrect 0 3 2 40 33 {w} {h}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend").unwrap();
+        writeln!(s, "case rrgrid-{i}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nroundrect 0 3 2 40 33 {w} {h}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend");
     }
     s
 }

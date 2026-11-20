@@ -33,16 +33,16 @@ pub fn d3dx9() -> String {
     let mut fvfs: Vec<u32> = FVFS.to_vec();
     fvfs.extend((0..300).map(|_| rfvf(&mut r)));
     for (i, chunk) in fvfs.chunks(40).enumerate() {
-        writeln!(s, "case fvf-{i}").unwrap();
+        writeln!(s, "case fvf-{i}");
         for f in chunk {
-            writeln!(s, "x9fvfsize {f:#x}\nx9fvfdecl {f:#x}").unwrap();
+            writeln!(s, "x9fvfsize {f:#x}\nx9fvfdecl {f:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // declarations: random elements (types, usages, offsets, streams), each asked for its FVF,
     // its vertex size and length
     for i in 0..8 {
-        writeln!(s, "case decl-{i}").unwrap();
+        writeln!(s, "case decl-{i}");
         for _ in 0..40 {
             let mut l = String::new();
             let mut off = 0u32;
@@ -52,27 +52,27 @@ pub fn d3dx9() -> String {
                 let ui = if r.chance(3) { r.range(0, 8) as u32 } else { 0 };
                 let stream = if r.chance(12) { 1 } else { 0 };
                 let o = if r.chance(10) { off + 4 } else { off };
-                write!(l, " {:#x} {:#x}", stream | o << 16, ty | usage << 16 | ui << 24).unwrap();
+                write!(l, " {:#x} {:#x}", stream | o << 16, ty | usage << 16 | ui << 24);
                 off = o + crate::model::d3d9draw::decl_type_size(ty).unwrap_or(4);
             }
-            writeln!(s, "x9declfvf{l}\nx9declsize{l}").unwrap();
+            writeln!(s, "x9declfvf{l}\nx9declsize{l}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // declarations made from FVFs, asked back for their FVF (and with one element changed)
     let decls: Vec<Vec<(u32, u32)>> = fvfs.iter().filter_map(|&f| crate::model::d3dx9::fvf_decl(f).ok()).collect();
     let mut q = XorShift32::new(0xdec1_f0f0);
     for (i, chunk) in decls.chunks(40).enumerate() {
-        writeln!(s, "case declfvf-{i}").unwrap();
+        writeln!(s, "case declfvf-{i}");
         for d in chunk {
             let mut d = d.clone();
             if q.chance(4) && !d.is_empty() {
                 let k = q.range(0, d.len() as i64 - 1) as usize;
                 d[k].1 ^= *q.pick(&[1u32, 1 << 16, 1 << 24, 1 << 8]);
             }
-            writeln!(s, "x9declfvf{}", d.iter().map(|(a, b)| format!(" {a:#x} {b:#x}")).collect::<String>()).unwrap();
+            writeln!(s, "x9declfvf{}", d.iter().map(|(a, b)| format!(" {a:#x} {b:#x}")).collect::<String>());
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // 32 -> 16 bits: special values, powers of two around the half range, every exponent's
     // rounding midpoints and their neighbors, random values
@@ -93,29 +93,29 @@ pub fn d3dx9() -> String {
     for (i, chunk) in v.chunks(70).collect::<Vec<_>>().chunks(10).enumerate() {
         if i == 0 {
             // (the processor: x64's D3DX converts by it, D3DX9.F16.CPU)
-            writeln!(s, "case cpu\nx9cpu\nend").unwrap();
+            writeln!(s, "case cpu\nx9cpu\nend");
         }
-        writeln!(s, "case f16-{i}").unwrap();
+        writeln!(s, "case f16-{i}");
         for c in chunk {
-            write!(s, "x9f16").unwrap();
+            write!(s, "x9f16");
             for x in *c {
-                write!(s, " {x:#x}").unwrap();
+                write!(s, " {x:#x}");
             }
-            writeln!(s).unwrap();
+            writeln!(s);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // 16 -> 32 bits: every half
     for (i, chunk) in (0..0x10000u32).collect::<Vec<_>>().chunks(70 * 64).enumerate() {
-        writeln!(s, "case f32-{i}").unwrap();
+        writeln!(s, "case f32-{i}");
         for c in chunk.chunks(70) {
-            write!(s, "x9f32").unwrap();
+            write!(s, "x9f32");
             for x in c {
-                write!(s, " {x:#x}").unwrap();
+                write!(s, " {x:#x}");
             }
-            writeln!(s).unwrap();
+            writeln!(s);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (D3DX9.F16) floats just past a tie below 2^-14, where an 8-at-a-time conversion that adds
     // 2^-14 in f32 (x64's intelsse3, the clean-room notes) rounds up and one that shifts the
@@ -145,24 +145,24 @@ pub fn d3dx9load() -> String {
     let mut r = XorShift32::new(0xd3d0_10ad);
     // (not the palette formats: a NULL source palette is not asked)
     for src in TEXTURE_FORMATS.iter().filter(|f| !matches!(f.0, 40 | 41)) {
-        writeln!(s, "case load-{}\ndevice swvp", src.1).unwrap();
-        writeln!(s, "x9load 21 {} 16 1 ramp 1\nx9load 116 {} 16 1 ramp 1", src.0, src.0).unwrap();
+        writeln!(s, "case load-{}\ndevice swvp", src.1);
+        writeln!(s, "x9load 21 {} 16 1 ramp 1\nx9load 116 {} 16 1 ramp 1", src.0, src.0);
         // (into the signed formats: a case of their own)
         let mut signed = String::new();
         for dst in TARGET_FORMATS {
             let l = format!("x9load {} {} 8 2 {:#x} 1\n", dst.0, src.0, r.next());
             if dst.0 == 60 { signed += &l } else { s += &l }
         }
-        writeln!(s, "end\ncase load-{}-signed\ndevice swvp\n{signed}x9load 60 {} 64 1 ramp 1\nend", src.1, src.0).unwrap();
+        writeln!(s, "end\ncase load-{}-signed\ndevice swvp\n{signed}x9load 60 {} 64 1 ramp 1\nend", src.1, src.0);
     }
     // (into the block and YUV formats: D3DX's encoders, from A8R8G8B8, A32B32G32R32F and X8R8G8B8,
     // a ramp, random pictures, a 1 x 1 and a 5 x 3 one past a block)
     for dst in TEXTURE_FORMATS.iter().filter(|f| matches!(f.1, "DXT1" | "DXT2" | "DXT3" | "DXT4" | "DXT5" | "UYVY" | "YUY2")) {
-        writeln!(s, "case load-into-{}\ndevice swvp\nx9load {} 21 16 4 ramp 1\nx9load {} 116 16 4 ramp 1", dst.1, dst.0, dst.0).unwrap();
+        writeln!(s, "case load-into-{}\ndevice swvp\nx9load {} 21 16 4 ramp 1\nx9load {} 116 16 4 ramp 1", dst.1, dst.0, dst.0);
         for (src, w, h) in [(21, 8, 8), (21, 8, 8), (21, 8, 4), (116, 8, 8), (22, 8, 4), (21, 1, 1), (21, 5, 3)] {
-            writeln!(s, "x9load {} {src} {w} {h} {:#x} 1", dst.0, r.next()).unwrap();
+            writeln!(s, "x9load {} {src} {w} {h} {:#x} 1", dst.0, r.next());
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (D3DX's YUY2 encoder by probes, 16 x 1 A8R8G8B8 pictures given byte by byte: pairs of one
     // grey, one red, green or blue level; pairs of a mid grey and a level, and the other way round;
@@ -177,11 +177,11 @@ pub fn d3dx9load() -> String {
             _ => (0, 0, v),
         }
     };
-    writeln!(s, "case load-yuy2-probe\ndevice swvp").unwrap();
+    writeln!(s, "case load-yuy2-probe\ndevice swvp");
     for c in 0..4 {
         for line in 0..4 {
             let px: Vec<_> = (0..16).map(|x| level(line * 8 + x / 2, c)).collect();
-            writeln!(s, "x9load 844715353 21 16 1 b:{} 1", bgra(&px)).unwrap();
+            writeln!(s, "x9load 844715353 21 16 1 b:{} 1", bgra(&px));
         }
     }
     let mid = (128, 128, 128);
@@ -189,26 +189,26 @@ pub fn d3dx9load() -> String {
         for first in [true, false] {
             for line in 0..4 {
                 let px: Vec<_> = (0..16).map(|x| if (x % 2 == 0) == first { level(line * 8 + x / 2, c) } else { mid }).collect();
-                writeln!(s, "x9load 844715353 21 16 1 b:{} 1", bgra(&px)).unwrap();
+                writeln!(s, "x9load 844715353 21 16 1 b:{} 1", bgra(&px));
             }
         }
     }
     let two: Vec<_> = (0..32).map(|x| if x < 16 { level(x, 1) } else { level(x - 16, 3) }).collect();
-    writeln!(s, "x9load 844715353 21 16 2 b:{} 1\nend", bgra(&two)).unwrap();
+    writeln!(s, "x9load 844715353 21 16 2 b:{} 1\nend", bgra(&two));
     // (into DXT and UYVY through a system memory texture, which takes them, and A8R8G8B8 alike)
     for dst in TEXTURE_FORMATS.iter().filter(|f| matches!(f.1, "DXT1" | "DXT2" | "DXT3" | "DXT4" | "DXT5" | "UYVY" | "A8R8G8B8")) {
-        writeln!(s, "case loadtex-into-{}\ndevice swvp\nx9loadtex {} 21 16 4 ramp 1", dst.1, dst.0).unwrap();
+        writeln!(s, "case loadtex-into-{}\ndevice swvp\nx9loadtex {} 21 16 4 ramp 1", dst.1, dst.0);
         for (src, w, h) in [(21, 8, 8), (21, 4, 4), (21, 8, 4), (116, 8, 8)] {
-            writeln!(s, "x9loadtex {} {src} {w} {h} {:#x} 1", dst.0, r.next()).unwrap();
+            writeln!(s, "x9loadtex {} {src} {w} {h} {:#x} 1", dst.0, r.next());
         }
         // (one colour a block, two colours a block, a gradient)
         let solid: Vec<_> = (0..16).map(|_| (200u8, 100u8, 50u8)).collect();
         let pair: Vec<_> = (0..16).map(|i| if i % 2 == 0 { (255u8, 0u8, 0u8) } else { (0, 0, 255) }).collect();
         let grad: Vec<_> = (0..16).map(|i| level(i * 2, 0)).collect();
         for px in [solid, pair, grad] {
-            writeln!(s, "x9loadtex {} 21 4 4 b:{} 1", dst.0, bgra(&px)).unwrap();
+            writeln!(s, "x9loadtex {} 21 4 4 b:{} 1", dst.0, bgra(&px));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (D3DX9.LOAD.FORMAT) into YUY2 from half and signed sources: A16B16G16R16F, R16F, V8U8,
     // Q8W8V8U8, V16U16

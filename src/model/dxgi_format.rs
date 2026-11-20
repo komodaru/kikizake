@@ -125,14 +125,14 @@ pub const FLIP: &[u32] = &[10, 24, 28, 87];
 /// and the others; MEASURED on WARP by GetCopyableFootprints, golden d3d12-32 fp-format-*, fp-blocks-*,
 /// fp-random-*, and d3d12-64 create-split: of the video and palette formats only AYUV, Y416, NV12, P010,
 /// P016, YUY2, Y210, Y216, in 2D)
-pub fn dims(f: u32) -> Option<u32> {
-    Some(match f {
+pub fn dims(f: u32) -> u32 {
+    match f {
         19..=22 | 40 | 44..=47 | 55 => 0b011,
         1..=65 | 67..=69 | 85..=88 | 90..=93 | 115 | 191 => 0b111,
         70..=84 | 94..=99 => 0b110,
         89 | 100..=105 | 107..=109 | 113 | 114 => 0b010,
         _ => 0,
-    })
+    }
 }
 
 pub const T1: u32 = 1;

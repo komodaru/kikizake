@@ -1,0 +1,15 @@
+error[E0080]: evaluation panicked: the name is not a format of the table
+ --> tests/ui/unknown_wic_format.rs:2:13
+  |
+2 |     let _ = kikizake::wic_fmt!("bgr48");
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `main::INDEX` failed inside this call
+  |
+note: inside `kikizake::model::wic::known`
+ --> $RUST/core/src/panic.rs
+  |
+  = note: the failure occurred here
+  |
+ ::: src/model/wic.rs
+  |
+  |     panic!("the name is not a format of the table")
+  |     ----------------------------------------------- in this macro invocation

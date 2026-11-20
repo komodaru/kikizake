@@ -3,7 +3,7 @@
 //! turn out to be.
 use kikizake::generators::d3d12::Desc;
 use kikizake::model::d3d12::{chain_desc, clear_texel, footprints, to_int, to_small_float, to_snorm, to_srgb, to_unorm, validate};
-use kikizake::model::dxgi_format::{block, channels};
+use kikizake::model::dxgi_format::{block, channels, dims, planar_depth};
 use proptest::prelude::*;
 
 /// "Data Conversion Rules": every UNORM value k is what k / (2^n - 1) converts to, and the
@@ -227,6 +227,17 @@ fn one_mip_formats_are_the_ones_without_mip_support() {
         assert_eq!(s & T2 != 0, s1 & 0x20 != 0, "format {f}: TEXTURE2D");
         if s & T2 != 0 {
             assert_eq!(s & (ONE_MIP | SINGLE) != 0, s1 & 0x1000 == 0, "format {f}: MIP");
+        }
+    }
+}
+
+/// every format a texture can have (a bit in dims) has a block, except the two-plane depth and
+/// video formats GetCopyableFootprints lays out plane by plane (what footprints relies on)
+#[test]
+fn dims_have_blocks() {
+    for f in 0..=u16::MAX as u32 {
+        if dims(f) != 0 && !planar_depth(f) && !(103..=105).contains(&f) {
+            assert!(block(f).is_some(), "format {f}");
         }
     }
 }

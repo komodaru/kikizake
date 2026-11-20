@@ -105,8 +105,8 @@ impl Img {
 /* bitmaps, transforms, CopyPixels */
 
 /// `wbits`: model::wic's source bytes, the executor's palette for indexed formats
-pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Img {
-    let f = crate::model::wic::format(fmt).unwrap();
+pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Res<Img> {
+    let f = crate::model::wic::format(fmt).ok_or(Fail::Bad)?;
     let mut i = Img::new(w, h, fmt);
     i.px = crate::model::wic::source(f, w, h, seed);
     // (MEASURED: a bitmap from memory has no resolution: 0 dpi)
@@ -118,7 +118,7 @@ pub fn bitmap(fmt: &str, w: u32, h: u32, seed: Option<u32>) -> Img {
     if fmt == "alpha8" {
         hit(clause::WICIMAGE_BITMAP_ALPHA8);
     }
-    i
+    Ok(i)
 }
 
 /// MEASURED (golden wicscale: every width 1..=8 to every width 1..=17, both directions):
@@ -1071,7 +1071,9 @@ fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
             let a = u32::from(u16::from_le_bytes([px[6], px[7]]));
             for k in 0..3 {
                 let v = u32::from(u16::from_le_bytes([px[2 * k], px[2 * k + 1]]));
-                let v = u16::try_from(v * a >> 16).expect("c*a>>16 < 65536");
+                // (the product's high half: c * a < 2^32)
+                let [_, _, lo, hi] = (v * a).to_le_bytes();
+                let v = u16::from_le_bytes([lo, hi]);
                 px[2 * k..2 * k + 2].copy_from_slice(&v.to_le_bytes());
             }
         }
@@ -1080,8 +1082,8 @@ fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
             let a = u32::from(u16::from_le_bytes([px[6], px[7]]));
             for k in 0..3 {
                 let v = u32::from(u16::from_le_bytes([px[2 * k], px[2 * k + 1]]));
-                let v = if a == 0 { 0 } else { (v * 65536 / a).min(65535) };
-                let v = u16::try_from(v).expect("clamped to 65535");
+                // (clamped to 65535)
+                let v = if a == 0 { 0 } else { u16::try_from(v * 65536 / a).unwrap_or(u16::MAX) };
                 px[2 * k..2 * k + 2].copy_from_slice(&v.to_le_bytes());
             }
         }
@@ -1540,10 +1542,14 @@ enum FrameFail {
 }
 
 fn rd16(b: &[u8], o: usize) -> Option<u32> {
-    Some(u16::from_le_bytes(b.get(o..o + 2)?.try_into().ok()?) as u32)
+    Some(u16::from_le_bytes(*b.get(o..)?.first_chunk()?) as u32)
 }
 fn rd32(b: &[u8], o: usize) -> Option<u32> {
-    Some(u32::from_le_bytes(b.get(o..o + 4)?.try_into().ok()?))
+    Some(u32::from_le_bytes(*b.get(o..)?.first_chunk()?))
+}
+/// the big-endian u32 at `o` (PNG's numbers), None past the end
+fn rd32be(b: &[u8], o: usize) -> Option<u32> {
+    Some(u32::from_be_bytes(*b.get(o..)?.first_chunk()?))
 }
 
 /// which decoder takes a file (by its first bytes)
@@ -1596,7 +1602,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
             return open;
         }
         let v: Vec<u32> = v.into_iter().map(Option::unwrap).collect();
-        (v[0] as i32, v[1] as i32, rd16(b, 28).unwrap(), v[3], v[6], (v[4], v[5]))
+        (v[0] as i32, v[1] as i32, rd16(b, 28).ok_or(Fail::Bad)?, v[3], v[6], (v[4], v[5]))
     };
     hit(clause::WICIMAGE_BMP_HEADER);
     let top = h < 0;
@@ -1659,7 +1665,7 @@ fn bmp(b: &[u8]) -> Res<Result<Img, u32>> {
                 let sy = if top { y } else { h - 1 - y } as usize;
                 for x in 0..w as usize {
                     let o = sy * src_stride + x * bpp as usize / 8;
-                    let v = if bpp == 16 { rd16(data, o).unwrap() } else { rd32(data, o).unwrap() };
+                    let v = if bpp == 16 { rd16(data, o).ok_or(Fail::Bad)? } else { rd32(data, o).ok_or(Fail::Bad)? };
                     let c = |k: usize| field(v, m[k]);
                     i.put(x as u32, y, &[c(2), c(1), c(0), 0]);
                 }
@@ -1868,7 +1874,7 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     // any other chunk nothing unless it is whole with its CRC)
     let mut broken = false;
     loop {
-        let Some(len) = b.get(p..p + 4).map(|x| u32::from_be_bytes(x.try_into().unwrap()) as usize) else {
+        let Some(len) = rd32be(b, p).map(|v| v as usize) else {
             broken = true;
             break;
         };
@@ -1893,9 +1899,8 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
         }
         p += 12 + len;
     }
-    let Some(ih) = ihdr.filter(|h| h.len() == 13) else { return open };
-    let be = |o: usize| u32::from_be_bytes(ih[o..o + 4].try_into().unwrap());
-    let (w, h, depth, ct, il) = (be(0), be(4), ih[8] as u32, ih[9], ih[12] == 1);
+    let Some(ih) = ihdr.as_deref().and_then(|h| <&[u8; 13]>::try_from(h).ok()) else { return open };
+    let (w, h, depth, ct, il) = (u32::from_be_bytes([ih[0], ih[1], ih[2], ih[3]]), u32::from_be_bytes([ih[4], ih[5], ih[6], ih[7]]), ih[8] as u32, ih[9], ih[12] == 1);
     // (an IHDR the format does not allow: cases png-ihdr-* to measure; found by fuzzing, a
     // depth of 0 read no samples)
     let allowed = matches!((ct, depth), (0, 1 | 2 | 4 | 8 | 16) | (3, 1 | 2 | 4 | 8) | (2 | 4 | 6, 8 | 16));
@@ -1918,7 +1923,7 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     // MEASURED: image data that inflates whole but whose Adler-32 is wrong: the frame is
     // there, its pixels all 0; data cut short: the rows it holds whole, the rest 0
     let Some((raw, whole)) = inflate_stored(&idat) else { return open };
-    let raw = if whole { Some(raw).filter(|r| idat.len() >= 4 && adler32(r) == u32::from_be_bytes(idat[idat.len() - 4..].try_into().unwrap())) } else { Some(raw) };
+    let raw = if whole { Some(raw).filter(|r| idat.last_chunk::<4>().is_some_and(|t| adler32(r) == u32::from_be_bytes(*t))) } else { Some(raw) };
     if !whole && il {
         // (interlaced pictures cut short: cases png-cut-adam7-* to measure)
         return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
@@ -1960,10 +1965,10 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     if il {
         hit(clause::WICIMAGE_PNG_ADAM7);
     }
-    let dpi = match phys {
-        Some(ph) if ph.len() == 9 && ph[8] == 1 => {
-            let px = u32::from_be_bytes(ph[0..4].try_into().unwrap());
-            let py = u32::from_be_bytes(ph[4..8].try_into().unwrap());
+    let dpi = match phys.as_deref().and_then(|ph| <&[u8; 9]>::try_from(ph).ok()) {
+        Some(ph) if ph[8] == 1 => {
+            let px = u32::from_be_bytes([ph[0], ph[1], ph[2], ph[3]]);
+            let py = u32::from_be_bytes([ph[4], ph[5], ph[6], ph[7]]);
             hit(clause::WICIMAGE_PNG_PHYS);
             (px as f64 * 0.0254, py as f64 * 0.0254)
         }
@@ -2501,7 +2506,7 @@ fn ico(b: &[u8]) -> Res<Result<Decoded, u32>> {
         }
         // (the entry's own depth and size: a PNG's IHDR, a BMP's header)
         let (w, h, bpp) = if d.starts_with(b"\x89PNG") {
-            let be = |o: usize| d.get(o..o + 4).map_or(0, |x| u32::from_be_bytes(x.try_into().unwrap()));
+            let be = |o: usize| rd32be(d, o).unwrap_or(0);
             (be(16), be(20), d.get(24).map_or(0, |&x| x as u32) * d.get(25).map_or(1, |&c| crate::generators::wicimage_png_channels(c)))
         } else {
             (rd32(d, 4).unwrap_or(0), rd32(d, 8).unwrap_or(0) / 2, rd16(d, 14).unwrap_or(0))
@@ -2644,7 +2649,7 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
                 16 => {
                     // (MEASURED: 555, widened by repeating bits)
                     hit(clause::WICIMAGE_ICO_DEPTH);
-                    let v = rd16(row, 2 * x as usize).unwrap();
+                    let v = rd16(row, 2 * x as usize).ok_or(Fail::Bad)?;
                     let x5 = |v: u32| ((v << 3) | (v >> 2)) as u8;
                     [x5(v & 31), x5(v >> 5 & 31), x5(v >> 10 & 31), 255]
                 }
@@ -2675,10 +2680,10 @@ fn rgb565(v: u32) -> ([u32; 3], [u32; 3]) {
 /// ("Texture Block Compression in Direct3D 11"). MEASURED (golden wicdecode dds-*: 522 samples
 /// of the interpolated colors): the thirds and halves are taken of the 5 and 6-bit values, then
 /// scaled to 8 bits and rounded, halves down (one half in 3-color mode: 10.5 of 63 is 42), round((p * c0 + q * c1) / d * 255 / max)
-pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
+pub fn bc_block(kind: u8, blk: &[u8]) -> Res<[[u8; 4]; 16]> {
     let (alpha, color) = if kind == 1 { (&blk[..0], blk) } else { (&blk[..8], &blk[8..]) };
-    let c0 = rd16(color, 0).unwrap();
-    let c1 = rd16(color, 2).unwrap();
+    let c0 = rd16(color, 0).ok_or(Fail::Bad)?;
+    let c1 = rd16(color, 2).ok_or(Fail::Bad)?;
     let ((a, m), (b, _)) = (rgb565(c0), rgb565(c1));
     let mix = |p: u32, q: u32, d: u32| -> [u32; 3] { [0, 1, 2].map(|i| (2 * (p * a[i] + q * b[i]) * 255 + d * m[i] - 1) / (2 * d * m[i])) };
     let four = kind != 1 || c0 > c1;
@@ -2690,7 +2695,7 @@ pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
         let x = mix(1, 1, 2);
         [[e0[0], e0[1], e0[2], 255], [e1[0], e1[1], e1[2], 255], [x[0], x[1], x[2], 255], [0, 0, 0, 0]]
     };
-    let idx = rd32(color, 4).unwrap();
+    let idx = rd32(color, 4).ok_or(Fail::Bad)?;
     let mut out = [[0u8; 4]; 16];
     // (MEASURED: BC3's alphas rounded, (p * a0 + q * a1 + d / 2) / d)
     let alphas: [u32; 8] = if kind == 3 {
@@ -2714,7 +2719,7 @@ pub fn bc_block(kind: u8, blk: &[u8]) -> [[u8; 4]; 16] {
         };
         *o = [c[0] as u8, c[1] as u8, c[2] as u8, al as u8];
     }
-    out
+    Ok(out)
 }
 
 /// DDS: BC1, BC2, BC3 ("DDS Format Overview"), each mip level a frame (ASSUMED), 32bppBGRA
@@ -2789,7 +2794,7 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
             for bx in 0..bw {
                 let Some(blk) = b.get(at..at + bs) else { return broken };
                 at += bs;
-                let px = bc_block(kind, blk);
+                let px = bc_block(kind, blk)?;
                 for (i, p) in px.iter().enumerate() {
                     let (x, y) = (bx * 4 + i as u32 % 4, by * 4 + i as u32 / 4);
                     if x < mw && y < mh {
@@ -3032,7 +3037,7 @@ impl WicImage {
                 }
                 let seed = if t[4] == "ramp" { None } else { Some(n(4)? as u32) };
                 out.push("wbits 00000000".into());
-                self.cur = Some(bitmap(crate::model::wic::FORMATS[f].0, w as u32, h as u32, seed));
+                self.cur = Some(bitmap(crate::model::wic::FORMATS[f].0, w as u32, h as u32, seed)?);
             }
             "wscale" => {
                 let (w, h) = (n(1)?, n(2)?);
@@ -3041,7 +3046,7 @@ impl WicImage {
                     return Err(Fail::Bad);
                 }
                 let (w, h) = (w as u32 as u64, h as u32 as u64);
-                let c = self.cur.clone().unwrap(); let c = &c;
+                let c = self.cur.clone().ok_or(Fail::Empty)?; let c = &c;
                 // MEASURED (golden wicscale size-*, bigsize-*): a size of 0 E_INVALIDARG, one
                 // whose rows (in bits) or picture (in bytes, rows padded to 4 bytes) pass 32 bits arithmetic overflow, the
                 // source kept; others are made, however large
@@ -3062,7 +3067,7 @@ impl WicImage {
                     // (a picture the model does not hold: its size only)
                     let (wf, _) = scale_formats(c.fmt, m);
                     self.cur = Some(Img { w: w as u32, h: h as u32, px: vec![], fmt: scale_formats(c.fmt, m).1, ..Img::new(1, 1, wf) });
-                    self.cur.as_mut().unwrap().dpi = c.dpi;
+                    self.cur.as_mut().ok_or(Fail::Empty)?.dpi = c.dpi;
                     return Ok(true);
                 }
                 let s = scale(c, w as u32, h as u32, m)?;
@@ -3078,11 +3083,11 @@ impl WicImage {
                 let o = o & 0x1b;
                 hit(clause::WICIMAGE_FLIP);
                 out.push("wflip 00000000".into());
-                self.cur = Some(flip(self.cur.as_ref().unwrap(), o));
+                self.cur = Some(flip(self.cur.as_ref().ok_or(Fail::Empty)?, o));
             }
             "wclip" => {
                 let (x, y, w, h) = (n(1)?, n(2)?, n(3)?, n(4)?);
-                let c = self.cur.as_ref().unwrap();
+                let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 if !inside(c, x, y, w, h) {
                     hit(clause::WICIMAGE_CLIP_RECT);
                     out.push(format!("wclip {E_INVALIDARG:08x}"));
@@ -3095,7 +3100,7 @@ impl WicImage {
             "wconv" => {
                 let to = fmt_static(t.get(1).ok_or(Fail::Bad)?);
                 hit(clause::WICIMAGE_CONVERT);
-                let c = wic_convert(self.cur.as_ref().unwrap(), to)?;
+                let c = wic_convert(self.cur.as_ref().ok_or(Fail::Empty)?, to)?;
                 out.push("wconv 00000000".into());
                 self.cur = Some(c);
             }
@@ -3160,12 +3165,12 @@ impl WicImage {
                 out.push(format!("wctx 00000000 type 2 exif 00000000 {}", v as u32));
             }
             "winfo" => {
-                let c = self.cur.as_ref().unwrap();
+                let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 hit(clause::WICIMAGE_INFO);
                 out.push(format!("winfo 00000000 {} {} {} {:.3} {:.3}", c.w, c.h, c.fmt, c.dpi.0, c.dpi.1));
             }
             "wpixels" => {
-                let c = self.cur.as_ref().unwrap();
+                let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 let rect = match t.len() {
                     1 => None,
                     5 | 7 => Some((n(1)?, n(2)?, n(3)?, n(4)?)),
@@ -3190,7 +3195,7 @@ impl WicImage {
                 palette_line("wpalette", hr, t, &c, out);
             }
             "wsrcpal" => {
-                let c = self.cur.as_ref().unwrap();
+                let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 match &c.pal {
                     Some(p) => {
                         hit(clause::WICIMAGE_SRCPAL);

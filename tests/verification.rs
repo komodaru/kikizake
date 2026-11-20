@@ -76,7 +76,7 @@ fn unanswered_is_insufficient_for_a_measured_clause() {
 
 #[test]
 fn unknown_shader_with_an_intact_container_is_unmodeled() {
-    let mut shader = kikizake::generators::d3ddraw::shader("ps");
+    let mut shader = kikizake::generators::d3ddraw::shader(kikizake::generators::d3ddraw::Prog::Ps);
     // The DXBC writer accepts a program with a different signature name.
     let index = shader.windows(9).position(|w| w == b"SV_Target").unwrap();
     shader[index + 3] = b't';

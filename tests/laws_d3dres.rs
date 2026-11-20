@@ -1,7 +1,7 @@
 //! Laws of the Direct3D 10/11 models (conversions, the rasterizer), apart from Windows' answers:
 //! exhaustive over the small formats, properties over the rest.
 use kikizake::case::parse_cases;
-use kikizake::generators::d3ddraw::shader;
+use kikizake::generators::d3ddraw::{shader, Prog};
 use kikizake::generators::dxbc::hex;
 use kikizake::model::dxgiconv::*;
 use kikizake::model::run_case;
@@ -94,7 +94,7 @@ proptest! {
 /// one color: 16/255 in red), drawn; the red bytes
 fn draw(tris: &[[(f32, f32); 3]]) -> Vec<u8> {
     let mut s = String::from("case law\ndevice11\ntex 0 2 16 16 1 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\n");
-    s += &format!("shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\n", hex(&shader("vs")), hex(&shader("ps")));
+    s += &format!("shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\n", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)));
     let f = |v: f32| format!("{:#x}", v.to_bits());
     s += &format!("viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0\nblend1 1 2 2 1 2 2 1 0xf\n", f(16.0), f(16.0), f(1.0));
     for t in tris {

@@ -5,6 +5,18 @@ use super::*;
 use crate::ttf::{Font, Glyph};
 
 /// the characters the fonts map, in glyph order from glyph 1 (glyph 0 is .notdef)
+/// (units per em, ppem) of the glyph edge tie cases: no two coordinates in a row are both ties
+/// (a tie at v and at v + 1 needs 128 ppem to be a multiple of 2 units per em), which the
+/// constant below checks when it is built
+const TIE_UNITS: [(i64, i64); 11] = [(6656, 13), (13312, 13), (4608, 27), (13824, 27), (3072, 12), (12288, 24), (2048, 27), (1024, 60), (256, 54), (4096, 26), (8192, 13)];
+const _: () = {
+    let mut i = 0;
+    while i < TIE_UNITS.len() {
+        assert!(128 * TIE_UNITS[i].1 % (2 * TIE_UNITS[i].0) != 0, "two ties in a row");
+        i += 1;
+    }
+};
+
 pub const CHARS: &[u32] = &[0x41, 0x42, 0x43, 0x44, 0x45, 0x61, 0x62, 0x20, 0x30, 0x31, 0x2d, 0xa0, 0x5d0, 0x1f600];
 
 fn rect(r: &mut XorShift32, upm: i64) -> (i16, i16, i16, i16) {
@@ -91,31 +103,31 @@ pub fn dwrite() -> String {
     // a face's metrics: each font, its info, design and GDI compatible metrics
     for i in 0..120u32 {
         let f = font(0x0f00_0000 + i);
-        writeln!(s, "case face-{i}\n{}\ndwinfo\ndwmetrics", font_line(&f)).unwrap();
+        writeln!(s, "case face-{i}\n{}\ndwinfo\ndwmetrics", font_line(&f));
         for _ in 0..3 {
-            writeln!(s, "dwgdimetrics {} {}", r.range(1, 80), *r.pick(&[1, 1, 2, 3])).unwrap();
+            writeln!(s, "dwgdimetrics {} {}", r.range(1, 80), *r.pick(&[1, 1, 2, 3]));
         }
         let cps: Vec<String> = CHARS.iter().chain(&[0x46, 0x5d1, 0x1f601, 0x10ffff, 0]).map(|c| format!("{c:#x}")).collect();
-        writeln!(s, "dwcmap {}\ndwglyph 0 {gids}\ndwglyph 1 {gids}\ndwglyph 0 {}", cps.join(" "), CHARS.len() + 1).unwrap();
-        writeln!(s, "end").unwrap();
+        writeln!(s, "dwcmap {}\ndwglyph 0 {gids}\ndwglyph 1 {gids}\ndwglyph 0 {}", cps.join(" "), CHARS.len() + 1);
+        writeln!(s, "end");
         // (GDI compatible glyph metrics in a case of their own: what is open there leaves the
         // rest of the face's lines compared)
-        writeln!(s, "case gdiglyph-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case gdiglyph-{i}\n{}", font_line(&f));
         for _ in 0..3 {
-            writeln!(s, "dwgdiglyph {} {} {} {} {gids}", r.range(1, 80), *r.pick(&[1, 1, 2]), r.range(0, 1), r.range(0, 1)).unwrap();
+            writeln!(s, "dwgdiglyph {} {} {} {} {gids}", r.range(1, 80), *r.pick(&[1, 1, 2]), r.range(0, 1), r.range(0, 1));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // shaping: the mapped characters (and some unmapped) at several sizes
     for i in 0..40u32 {
         let f = font(0x0f10_0000 + i);
-        writeln!(s, "case shape-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case shape-{i}\n{}", font_line(&f));
         for _ in 0..4 {
             let n = r.range(1, 12);
             let t: Vec<String> = (0..n).map(|_| format!("{:#x}", *r.pick(&[0x41, 0x42, 0x43, 0x44, 0x45, 0x61, 0x62, 0x20, 0x30, 0x31, 0x2d, 0x46]))).collect();
-            writeln!(s, "dwshape {} {}", r.range(1, 96), t.join(" ")).unwrap();
+            writeln!(s, "dwshape {} {}", r.range(1, 96), t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // rasterization: single glyphs at many sizes and subpixel origins, in every mode, then runs
     // (each line a case of its own: one mode left open leaves the others compared)
@@ -123,14 +135,14 @@ pub fn dwrite() -> String {
         let f = font(0x0f20_0000 + i);
         for mode in ["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"] {
             let g = r.range(0, 8);
-            writeln!(s, "case run-{i}-{mode}\n{}", font_line(&f)).unwrap();
-            writeln!(s, "dwrun {mode} {} {} {} {g} 0\nend", r.range(4, 40), r.range(-8, 40), r.range(16, 96)).unwrap();
+            writeln!(s, "case run-{i}-{mode}\n{}", font_line(&f));
+            writeln!(s, "dwrun {mode} {} {} {} {g} 0\nend", r.range(4, 40), r.range(-8, 40), r.range(16, 96));
         }
         let mode = *r.pick(&["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"]);
         let n = r.range(2, 5);
         let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(0, 8), r.range(0, 60))).collect();
-        writeln!(s, "case run-{i}-multi\n{}", font_line(&f)).unwrap();
-        writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" ")).unwrap();
+        writeln!(s, "case run-{i}-multi\n{}", font_line(&f));
+        writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" "));
     }
     // ClearType 3x1 from the natural and GDI modes (6 x 1 samples), ClearType's aliased mode, and
     // each analysis asked for the other texture type (the clean-room notes, kikizake-re/dwrite, Follow-up D): single glyphs at
@@ -142,92 +154,92 @@ pub fn dwrite() -> String {
             let f = font(0x0fe2_0000 + i);
             for mode in modes {
                 let g = r.range(0, 8);
-                writeln!(s, "case ctrun-{i}-{mode}\n{}", font_line(&f)).unwrap();
-                writeln!(s, "dwrun {mode} {} {} {} {g} 0\nend", r.range(4, 40), r.range(-8, 40), r.range(16, 96)).unwrap();
+                writeln!(s, "case ctrun-{i}-{mode}\n{}", font_line(&f));
+                writeln!(s, "dwrun {mode} {} {} {} {g} 0\nend", r.range(4, 40), r.range(-8, 40), r.range(16, 96));
             }
             let mode = *r.pick(&modes[..4]);
             let n = r.range(2, 5);
             let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(0, 8), r.range(0, 60))).collect();
-            writeln!(s, "case ctrun-{i}-multi\n{}", font_line(&f)).unwrap();
-            writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" ")).unwrap();
+            writeln!(s, "case ctrun-{i}-multi\n{}", font_line(&f));
+            writeln!(s, "dwrun {mode} {} {} {} {}\nend", r.range(6, 24), r.range(0, 16), r.range(32, 64), run.join(" "));
             if i < 10 {
                 let mode = ["ctgdi", "ctgdinatural"][i as usize % 2];
-                writeln!(s, "case ctrun-{i}-fit\n{}", font_line(&f)).unwrap();
+                writeln!(s, "case ctrun-{i}-fit\n{}", font_line(&f));
                 for fit in ["fit", "nofit"] {
-                    writeln!(s, "dwrun {mode}.{fit} {} {} {} {} 0", r.range(6, 64), r.range(0, 40), r.range(160, 200), r.range(1, 8)).unwrap();
+                    writeln!(s, "dwrun {mode}.{fit} {} {} {} {} 0", r.range(6, 64), r.range(0, 40), r.range(160, 200), r.range(1, 8));
                 }
-                writeln!(s, "end").unwrap();
+                writeln!(s, "end");
             }
         }
     }
     // layout: a line of the font's characters, with and without wrapping
     for i in 0..30u32 {
         let f = font(0x0f30_0000 + i);
-        writeln!(s, "case layout-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case layout-{i}\n{}", font_line(&f));
         for _ in 0..3 {
             let n = r.range(1, 16);
             let t: Vec<String> = (0..n).map(|_| format!("{:#x}", *r.pick(&[0x41, 0x42, 0x43, 0x61, 0x62, 0x20, 0x20, 0x30, 0x2d, 0xa0]))).collect();
-            writeln!(s, "dwlayout {} {} {} {}", r.range(6, 48), r.range(40, 800), r.range(0, 1), t.join(" ")).unwrap();
+            writeln!(s, "dwlayout {} {} {} {}", r.range(6, 48), r.range(40, 800), r.range(0, 1), t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // scripts: every pair of the characters, then random strings
     for (i, a) in SCRIPT_CHARS.iter().enumerate() {
-        writeln!(s, "case script-pairs-{i}").unwrap();
+        writeln!(s, "case script-pairs-{i}");
         for b in SCRIPT_CHARS {
-            writeln!(s, "dwscript {a:#x} {b:#x}").unwrap();
+            writeln!(s, "dwscript {a:#x} {b:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     for i in 0..40 {
-        writeln!(s, "case script-{i}").unwrap();
+        writeln!(s, "case script-{i}");
         for _ in 0..8 {
             let n = r.range(1, 12);
             let t: Vec<String> = (0..n).map(|_| format!("{:#x}", r.pick(SCRIPT_CHARS))).collect();
-            writeln!(s, "dwscript {}", t.join(" ")).unwrap();
+            writeln!(s, "dwscript {}", t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // bidi: every string of up to 3 of the classes, both paragraph directions, then random ones
     let k = BIDI_CHARS.len();
     for dir in ["ltr", "rtl"] {
         for a in 0..k {
-            writeln!(s, "case bidi-{dir}-{}", BIDI_CHARS[a].1).unwrap();
-            writeln!(s, "dwbidi {dir} {:#x}", BIDI_CHARS[a].0).unwrap();
+            writeln!(s, "case bidi-{dir}-{}", BIDI_CHARS[a].1);
+            writeln!(s, "dwbidi {dir} {:#x}", BIDI_CHARS[a].0);
             for b in 0..k {
-                writeln!(s, "dwbidi {dir} {:#x} {:#x}", BIDI_CHARS[a].0, BIDI_CHARS[b].0).unwrap();
+                writeln!(s, "dwbidi {dir} {:#x} {:#x}", BIDI_CHARS[a].0, BIDI_CHARS[b].0);
                 for c in 0..k {
-                    writeln!(s, "dwbidi {dir} {:#x} {:#x} {:#x}", BIDI_CHARS[a].0, BIDI_CHARS[b].0, BIDI_CHARS[c].0).unwrap();
+                    writeln!(s, "dwbidi {dir} {:#x} {:#x} {:#x}", BIDI_CHARS[a].0, BIDI_CHARS[b].0, BIDI_CHARS[c].0);
                 }
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     for i in 0..60 {
-        writeln!(s, "case bidi-random-{i}").unwrap();
+        writeln!(s, "case bidi-random-{i}");
         for _ in 0..8 {
             let n = r.range(4, 16);
             let t: Vec<String> = (0..n).map(|_| format!("{:#x}", r.pick(BIDI_CHARS).0)).collect();
-            writeln!(s, "dwbidi {} {}", r.pick(&["ltr", "rtl"]), t.join(" ")).unwrap();
+            writeln!(s, "dwbidi {} {}", r.pick(&["ltr", "rtl"]), t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // line breaks: every pair (with a letter either side), then random strings
     for (i, a) in BREAK_CHARS.iter().enumerate() {
-        writeln!(s, "case break-pairs-{i}").unwrap();
+        writeln!(s, "case break-pairs-{i}");
         for b in BREAK_CHARS {
-            writeln!(s, "dwbreak 0x61 {a:#x} {b:#x} 0x61").unwrap();
+            writeln!(s, "dwbreak 0x61 {a:#x} {b:#x} 0x61");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     for i in 0..40 {
-        writeln!(s, "case break-{i}").unwrap();
+        writeln!(s, "case break-{i}");
         for _ in 0..8 {
             let n = r.range(1, 14);
             let t: Vec<String> = (0..n).map(|_| format!("{:#x}", r.pick(BREAK_CHARS))).collect();
-            writeln!(s, "dwbreak {}", t.join(" ")).unwrap();
+            writeln!(s, "dwbreak {}", t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     targeted(&mut s, &mut r);
     s
@@ -257,7 +269,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         for (k, ch) in advs.chunks(13).enumerate() {
             let gs: Vec<_> = ch.iter().map(|&a| (a as u16, vec![(0, 0, 100, 100)])).collect();
             let f = font_with(0x0f40_0000 + em * 64 + k as u32, 2048, &gs);
-            writeln!(s, "case natplace-{em}-{k}\n{}\ndwshape {em} {}\nend", font_line(&f), chars[..ch.len()].join(" ")).unwrap();
+            writeln!(s, "case natplace-{em}-{k}\n{}\ndwshape {em} {}\nend", font_line(&f), chars[..ch.len()].join(" "));
         }
     }
     // thin stems: vertical and horizontal bars under a pixel wide at subpixel offsets
@@ -275,21 +287,21 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             gs.push((r.range(u / 4, u) as u16, vec![if r.chance(2) { (x, y, x + w, y + l) } else { (x, y, x + l, y + w) }]));
         }
         let f = font_with(0x0f50_0000 + i, upm, &gs);
-        writeln!(s, "case drop-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case drop-{i}\n{}", font_line(&f));
         for _ in 0..8 {
-            writeln!(s, "dwrun aliased {em} {} {} {} 0", r.range(0, 40), r.range(16, 96), r.range(1, 8)).unwrap();
+            writeln!(s, "dwrun aliased {em} {} {} {} 0", r.range(0, 40), r.range(16, 96), r.range(1, 8));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // aliased runs of wide glyphs (no stem thinner than a pixel): where each glyph goes
     for i in 0..40u32 {
         let u = 1000i64;
         let gs: Vec<_> = (0..8).map(|_| (r.range(200, 1000) as u16, vec![(r.range(0, 100) as i16, 0, r.range(300, 600) as i16, r.range(300, 700) as i16)])).collect();
         let f = font_with(0x0f60_0000 + i, u as u16, &gs);
-        writeln!(s, "case multi-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case multi-{i}\n{}", font_line(&f));
         let n = r.range(2, 4);
         let run: Vec<String> = (0..n).map(|_| format!("{} {}", r.range(1, 8), r.range(0, 200))).collect();
-        writeln!(s, "dwrun aliased {} {} {} {}\nend", r.range(8, 40), r.range(0, 40), r.range(40, 96), run.join(" ")).unwrap();
+        writeln!(s, "dwrun aliased {} {} {} {}\nend", r.range(8, 40), r.range(0, 40), r.range(40, 96), run.join(" "));
     }
     // a thin stem (or bar) and one other box, beside, above or below it, either contour first:
     // which way the dropout pixel goes in a glyph of several contours
@@ -304,11 +316,11 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             gs.push((1000u16, rects));
         }
         let f = font_with(0x0f70_0000 + i, 1000, &gs);
-        writeln!(s, "case drop2-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case drop2-{i}\n{}", font_line(&f));
         for g in 1..=8 {
-            writeln!(s, "dwrun aliased 10 {} {} {g} 0", r.range(0, 3), r.range(40, 43)).unwrap();
+            writeln!(s, "dwrun aliased 10 {} {} {g} 0", r.range(0, 3), r.range(40, 43));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // thin stems and bars, alone or crossing a box, at the larger sizes: up to which size the
     // rasterizer keeps dropout control on, in each mode
@@ -329,11 +341,11 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         }
         let f = font_with(0x0f80_0000 + em as u32, u as u16, &gs);
         for mode in ["aliased", "natural", "gray"] {
-            writeln!(s, "case dropem-{em}-{mode}\n{}", font_line(&f)).unwrap();
+            writeln!(s, "case dropem-{em}-{mode}\n{}", font_line(&f));
             for g in 1..=8 {
-                writeln!(s, "dwrun {mode} {em} {} {} {g} 0", r.range(0, 4), r.range(160, 164)).unwrap();
+                writeln!(s, "dwrun {mode} {em} {} {} {g} 0", r.range(0, 4), r.range(160, 164));
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     // the grid fit mode asked for (enabled, disabled), in each mode, small sizes to large: single
@@ -341,29 +353,29 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     for mode in ["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"] {
         for fit in ["fit", "nofit"] {
             let f = font_with(0x0f90_0000 + r.range(0, 1 << 16) as u32, 1000, &(0..8).map(|k| (r.range(300, 1000) as u16, if k % 2 == 0 { vec![(r.range(0, 300) as i16, r.range(-100, 100) as i16, r.range(400, 900) as i16, r.range(300, 800) as i16)] } else { vec![(300 + r.range(0, 99) as i16, 0, 300 + r.range(100, 160) as i16, 500), (0, 600, r.range(50, 500) as i16, 600 + r.range(5, 60) as i16)] })).collect::<Vec<_>>());
-            writeln!(s, "case fit-{mode}-{fit}\n{}", font_line(&f)).unwrap();
+            writeln!(s, "case fit-{mode}-{fit}\n{}", font_line(&f));
             for em in [6, 9, 12, 16, 20, 28, 36, 48, 64, 96] {
                 let run = if r.chance(2) { format!("{} 0", r.range(1, 8)) } else { format!("{} {} {} 0", r.range(1, 8), r.range(0, 200), r.range(1, 8)) };
-                writeln!(s, "dwrun {mode}.{fit} {em} {} {} {run}", r.range(0, 40), r.range(160, 200)).unwrap();
+                writeln!(s, "dwrun {mode}.{fit} {em} {} {} {run}", r.range(0, 40), r.range(160, 200));
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     // every face op before a font is loaded
     // a cmap lookup of one character
-    writeln!(s, "case cmap-one\n{}\ndwcmap 0x41\ndwcmap 0x5d0\nend", font_line(&font(0x0f00_0001))).unwrap();
-    writeln!(s, "case noface\ndwinfo\ndwmetrics\ndwgdimetrics 12 1\ndwcmap 0x41 0x42\ndwglyph 0 1 2\ndwgdiglyph 12 1 0 0 1\ndwshape 12 0x41 0x42\ndwrun aliased 12 0 0 1 0\ndwlayout 12 400 1 0x41 0x42\nend").unwrap();
+    writeln!(s, "case cmap-one\n{}\ndwcmap 0x41\ndwcmap 0x5d0\nend", font_line(&font(0x0f00_0001)));
+    writeln!(s, "case noface\ndwinfo\ndwmetrics\ndwgdimetrics 12 1\ndwcmap 0x41 0x42\ndwglyph 0 1 2\ndwgdiglyph 12 1 0 0 1\ndwshape 12 0x41 0x42\ndwrun aliased 12 0 0 1 0\ndwlayout 12 400 1 0x41 0x42\nend");
     // a layout of a font without a family name (no name ID 1)
     let mut f = font(0x0fc1_0000);
     f.family = String::new();
-    writeln!(s, "case noname\n{}\ndwinfo\ndwlayout 12 400 1 0x41 0x42\ndwlayout 20 30 1 0x41 0x20 0x42\nend", font_line(&f)).unwrap();
+    writeln!(s, "case noname\n{}\ndwinfo\ndwlayout 12 400 1 0x41 0x42\ndwlayout 20 30 1 0x41 0x20 0x42\nend", font_line(&f));
     // GDI compatible metrics at em sizes and pixels per dip of zero and below
     let f = font(0x0fc0_0000);
-    writeln!(s, "case gdiinvalid\n{}", font_line(&f)).unwrap();
+    writeln!(s, "case gdiinvalid\n{}", font_line(&f));
     for (em, ppd) in [(0, 1), (-1, 1), (-12, 1), (12, 0), (12, -1), (12, -2), (0, 0), (-12, -1)] {
-        writeln!(s, "dwgdimetrics {em} {ppd}\ndwgdiglyph {em} {ppd} 0 0 1 2\ndwgdiglyph {em} {ppd} 1 1 1 2").unwrap();
+        writeln!(s, "dwgdimetrics {em} {ppd}\ndwgdiglyph {em} {ppd} 0 0 1 2\ndwgdiglyph {em} {ppd} 1 1 1 2");
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // every script: the first, middle and last character of each Scripts.txt range, and of each
     // gap between them (unassigned), and every common and inherited character, alone
     let mut cps = Vec::new();
@@ -382,11 +394,11 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     cps.retain(|c| !(0xd800..=0xdfff).contains(c) && *c != 0);
     cps.dedup();
     for (i, ch) in cps.chunks(400).enumerate() {
-        writeln!(s, "case scriptall-{i}").unwrap();
+        writeln!(s, "case scriptall-{i}");
         for c in ch {
-            writeln!(s, "dwscript {c:#x}").unwrap();
+            writeln!(s, "dwscript {c:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // every line break class and bidi class: the first, middle and last character of each range
     // of LineBreak.txt and DerivedBidiClass.txt, between letters and alone
@@ -406,18 +418,18 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         v
     };
     for (i, ch) in samples(crate::ucd::line_break()).chunks(300).enumerate() {
-        writeln!(s, "case breakall-{i}").unwrap();
+        writeln!(s, "case breakall-{i}");
         for c in ch {
-            writeln!(s, "dwbreak 0x61 {c:#x} 0x61\ndwbreak {c:#x} {c:#x}").unwrap();
+            writeln!(s, "dwbreak 0x61 {c:#x} 0x61\ndwbreak {c:#x} {c:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     for (i, ch) in samples(crate::ucd::bidi_class()).chunks(300).enumerate() {
-        writeln!(s, "case bidiall-{i}").unwrap();
+        writeln!(s, "case bidiall-{i}");
         for c in ch {
-            writeln!(s, "dwbidi ltr 0x5d0 {c:#x} 0x5d0\ndwbidi rtl 0x61 {c:#x} 0x61\ndwbidi ltr {c:#x} 0x31").unwrap();
+            writeln!(s, "dwbidi ltr 0x5d0 {c:#x} 0x5d0\ndwbidi rtl 0x61 {c:#x} 0x61\ndwbidi ltr {c:#x} 0x31");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // a no-visual or unassigned character among others: every common control, format and
     // separator character and some unassigned ones, between, before and after letters
@@ -425,29 +437,29 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     let mut nv: Vec<u32> = crate::ucd::scripts().ranges().iter().filter(|r| r.2 == "Common").flat_map(|r| r.0..=r.1).filter(|&c| matches!(gc.get(c), Some("Cc" | "Cf" | "Zl" | "Zp")) && c != 0).collect();
     nv.extend([0x378, 0x5ff, 0xfffe, 0xffff, 0x2fffe, 0xe0080, 0x10ffff]);
     for (i, ch) in nv.chunks(60).enumerate() {
-        writeln!(s, "case scriptctx-{i}").unwrap();
+        writeln!(s, "case scriptctx-{i}");
         for c in ch {
-            writeln!(s, "dwscript 0x41 {c:#x} 0x41\ndwscript {c:#x} 0x41\ndwscript 0x41 {c:#x}\ndwscript 0x5d0 {c:#x} 0x41\ndwscript {c:#x} {c:#x}\ndwscript 0x20 {c:#x}").unwrap();
+            writeln!(s, "dwscript 0x41 {c:#x} 0x41\ndwscript {c:#x} 0x41\ndwscript 0x41 {c:#x}\ndwscript 0x5d0 {c:#x} 0x41\ndwscript {c:#x} {c:#x}\ndwscript 0x20 {c:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // a common character after a no-visual one
-    writeln!(s, "case scriptctx-after").unwrap();
+    writeln!(s, "case scriptctx-after");
     for c in [0x1, 0xad, 0x200b, 0x2028, 0xfeff, 0xe0001, 0xfffe, 0x1bca0, 0x1d173] {
-        writeln!(s, "dwscript {c:#x} 0x20\ndwscript {c:#x} 0x20 0x41\ndwscript 0x41 {c:#x} 0x20\ndwscript 0x5d0 {c:#x} 0x20 0x41\ndwscript {c:#x} 0x300\ndwscript {c:#x} 0x2e 0x5d0\ndwscript 0x378 0x20 {c:#x}").unwrap();
+        writeln!(s, "dwscript {c:#x} 0x20\ndwscript {c:#x} 0x20 0x41\ndwscript 0x41 {c:#x} 0x20\ndwscript 0x5d0 {c:#x} 0x20 0x41\ndwscript {c:#x} 0x300\ndwscript {c:#x} 0x2e 0x5d0\ndwscript 0x378 0x20 {c:#x}");
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // the system font fallback: which of the machine's fonts maps each character the font does
     // not (alone, and among the font's own), and layouts that take it
     const FB: [u32; 20] = [0x4e00, 0x3042, 0x30a2, 0xac00, 0x627, 0x628, 0x5d1, 0x915, 0xe01, 0x3b1, 0x430, 0x1f601, 0x2603, 0x2192, 0x378, 0xe000, 0x10fffd, 0x20ac, 0xe9, 0x7e];
-    writeln!(s, "case fallback-chars\n{}", font_line(&font(0x0fe1_0000))).unwrap();
+    writeln!(s, "case fallback-chars\n{}", font_line(&font(0x0fe1_0000)));
     for c in FB {
-        writeln!(s, "dwfallback {c:#x}\ndwfallback 0x41 {c:#x} 0x42\ndwfallback {c:#x} {c:#x} 0x20 {c:#x}").unwrap();
+        writeln!(s, "dwfallback {c:#x}\ndwfallback 0x41 {c:#x} 0x42\ndwfallback {c:#x} {c:#x} 0x20 {c:#x}");
     }
-    writeln!(s, "dwfallback 0x41 0x42 0x20 0x61\nend").unwrap();
+    writeln!(s, "dwfallback 0x41 0x42 0x20 0x61\nend");
     for i in 0..12u32 {
         let f = font(0x0fe2_0000 + i);
-        writeln!(s, "case fallback-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case fallback-{i}\n{}", font_line(&f));
         let mut rl = XorShift32::new(0x1a71_0000 + i);
         for _ in 0..4 {
             let n = rl.range(1, 14);
@@ -457,47 +469,47 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                     format!("{:#x}", *rl.pick(&[0x41, 0x61, 0x20, 0x20, 0x2d, a, b]))
                 })
                 .collect();
-            writeln!(s, "dwfallback {}", t.join(" ")).unwrap();
-            writeln!(s, "dwlayout {} {} {} {}", rl.range(6, 48), rl.range(40, 800), rl.range(0, 1), t.join(" ")).unwrap();
+            writeln!(s, "dwfallback {}", t.join(" "));
+            writeln!(s, "dwlayout {} {} {} {}", rl.range(6, 48), rl.range(40, 800), rl.range(0, 1), t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // where the fallback's pieces end: every two of the characters side by side (one font, or
     // two; one block, or two), and after and before the font's own
-    writeln!(s, "case fallback-pairs\n{}", font_line(&font(0x0fe3_0000))).unwrap();
+    writeln!(s, "case fallback-pairs\n{}", font_line(&font(0x0fe3_0000)));
     for a in FB {
         let row: Vec<String> = FB.iter().map(|b| format!("{a:#x} {b:#x}")).collect();
         for r in row {
-            writeln!(s, "dwfallback {r}").unwrap();
+            writeln!(s, "dwfallback {r}");
         }
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // the fallback, and a layout, of a font without a family name; layouts without fallback of
     // supplementary characters
     let mut f = font(0x0fe3_0001);
     f.family = String::new();
-    writeln!(s, "case fallback-noname\n{}\ndwfallback 0x41 0x4e00\ndwlayout 12 400 1 0x41 0x4e00\nend", font_line(&f)).unwrap();
-    writeln!(s, "case fallback-nf\n{}\ndwlayoutnf 12 400 1 0x41 0x1f601 0x10fffd 0x42\ndwlayoutnf 20 80 1 0x1f601 0x20 0x1f601 0x20 0x41 0x1f601\nend", font_line(&font(0x0fe3_0002))).unwrap();
+    writeln!(s, "case fallback-noname\n{}\ndwfallback 0x41 0x4e00\ndwlayout 12 400 1 0x41 0x4e00\nend", font_line(&f));
+    writeln!(s, "case fallback-nf\n{}\ndwlayoutnf 12 400 1 0x41 0x1f601 0x10fffd 0x42\ndwlayoutnf 20 80 1 0x1f601 0x20 0x1f601 0x20 0x41 0x1f601\nend", font_line(&font(0x0fe3_0002)));
     // right-to-left runs at a line's start, middle and end, alone on a line and across lines
     // (the reordering depth)
-    writeln!(s, "case fallback-bidi\n{}", font_line(&font(0x0fe3_0003))).unwrap();
+    writeln!(s, "case fallback-bidi\n{}", font_line(&font(0x0fe3_0003)));
     for t in ["0x627", "0x627 0x41", "0x41 0x627", "0x41 0x627 0x41 0x5d1 0x41", "0x627 0x20 0x628", "0x41 0x20 0x627 0x20 0x41 0x20 0x5d1 0x20 0x41", "0x627 0x628 0x20 0x41 0x41 0x20 0x5d1", "0x41 0x30 0x627 0x31 0x41"] {
         for (w, wrap) in [(800, 0), (40, 1), (100, 1)] {
-            writeln!(s, "dwlayout 16 {w} {wrap} {t}").unwrap();
+            writeln!(s, "dwlayout 16 {w} {wrap} {t}");
         }
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // layouts without font fallback: characters the font does not map among those it does
     for i in 0..12u32 {
         let f = font(0x0fe0_0000 + i);
-        writeln!(s, "case layoutnf-{i}\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case layoutnf-{i}\n{}", font_line(&f));
         let mut rl = XorShift32::new(0x1a70_0000 + i);
         for _ in 0..4 {
             let n = rl.range(1, 14);
             let t: Vec<String> = (0..n).map(|_| format!("{:#x}", *rl.pick(&[0x41, 0x61, 0x20, 0x20, 0x3b1, 0x4e00, 0x430, 0x2d, 0x7e, 0x26]))).collect();
-            writeln!(s, "dwlayoutnf {} {} {} {}", rl.range(6, 48), rl.range(40, 800), rl.range(0, 1), t.join(" ")).unwrap();
+            writeln!(s, "dwlayoutnf {} {} {} {}", rl.range(6, 48), rl.range(40, 800), rl.range(0, 1), t.join(" "));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // every pair of classes: a character of each line break class (the first the file lists)
     // before one of each, next to each other and with a space between; of each bidi class, in
@@ -518,28 +530,28 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     let lb = reps(crate::ucd::line_break());
     let pairs: Vec<(u32, u32)> = lb.iter().flat_map(|&a| lb.iter().map(move |&b| (a, b))).collect();
     for (i, ch) in pairs.chunks(200).enumerate() {
-        writeln!(s, "case breakpair-{i}").unwrap();
+        writeln!(s, "case breakpair-{i}");
         for (a, b) in ch {
-            writeln!(s, "dwbreak {a:#x} {b:#x}\ndwbreak {a:#x} 0x20 {b:#x}").unwrap();
+            writeln!(s, "dwbreak {a:#x} {b:#x}\ndwbreak {a:#x} 0x20 {b:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     let bc = reps(crate::ucd::bidi_class());
     let pairs: Vec<(u32, u32)> = bc.iter().flat_map(|&a| bc.iter().map(move |&b| (a, b))).collect();
     for (i, ch) in pairs.chunks(100).enumerate() {
-        writeln!(s, "case bidipair-{i}").unwrap();
+        writeln!(s, "case bidipair-{i}");
         for (a, b) in ch {
-            writeln!(s, "dwbidi ltr {a:#x} {b:#x}\ndwbidi rtl {a:#x} {b:#x}\ndwbidi ltr 0x5d0 {a:#x} {b:#x} 0x61\ndwbidi rtl 0x61 {a:#x} {b:#x} 0x5d0").unwrap();
+            writeln!(s, "dwbidi ltr {a:#x} {b:#x}\ndwbidi rtl {a:#x} {b:#x}\ndwbidi ltr 0x5d0 {a:#x} {b:#x} 0x61\ndwbidi rtl 0x61 {a:#x} {b:#x} 0x5d0");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     for (i, e) in [0x202a, 0x202b, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068].into_iter().enumerate() {
         let close = if e >= 0x2066 { 0x2069 } else { 0x202c };
-        writeln!(s, "case bidiembed-{i}").unwrap();
+        writeln!(s, "case bidiembed-{i}");
         for b in &bc {
-            writeln!(s, "dwbidi ltr 0x61 {e:#x} {b:#x} {close:#x} 0x5d0\ndwbidi rtl 0x5d0 {e:#x} {b:#x} {close:#x} 0x61\ndwbidi ltr {e:#x} {b:#x} 0x31\ndwbidi rtl {e:#x} {e:#x} {b:#x}").unwrap();
+            writeln!(s, "dwbidi ltr 0x61 {e:#x} {b:#x} {close:#x} 0x5d0\ndwbidi rtl 0x5d0 {e:#x} {b:#x} {close:#x} 0x61\ndwbidi ltr {e:#x} {b:#x} 0x31\ndwbidi rtl {e:#x} {e:#x} {b:#x}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // files that are not one TrueType font: collections, fonts short of a table or cut short,
     // other signatures, bytes at random; each then asked what a face answers
@@ -567,7 +579,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         files.push((format!("rand{i}"), (0..[3usize, 16, 64, 300, 1000, 4000][i]).map(|_| rb.range(0, 255) as u8).collect()));
     }
     for (name, b) in files {
-        writeln!(s, "case file-{name}\ndwfont {}\n{probe}\nend", hex(&b)).unwrap();
+        writeln!(s, "case file-{name}\ndwfont {}\n{probe}\nend", hex(&b));
     }
     // grid fit disabled at 16 ppem, 2048 units per em (a 16.16 scale of 512): edges below and
     // left of zero on an exact half of a 1/64 pixel, which the clean-room notes, kikizake-re/dwrite (Follow-up E) says round
@@ -575,25 +587,25 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     {
         let gs: Vec<_> = (0..14i64).map(|j| (1000u16, vec![((-(2 * j + 1) * 3) as i16, (-(2 * j + 1) * 5) as i16, 300i16, 400i16)])).collect();
         let f = font_with(0x0fe1_0000, 2048, &gs);
-        writeln!(s, "case nofittie\n{}", font_line(&f)).unwrap();
+        writeln!(s, "case nofittie\n{}", font_line(&f));
         for mode in ["gdi", "gdinatural"] {
             for g in 1..=14 {
-                writeln!(s, "dwrun {mode}.nofit 16 160 160 {g} 0").unwrap();
+                writeln!(s, "dwrun {mode}.nofit 16 160 160 {g} 0");
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // GDI modes with grid fit disabled: single boxes at sizes 6..96, edges anywhere in a pixel
     for mode in ["gdi", "gdinatural"] {
         for i in 0..6u32 {
             let gs: Vec<_> = (0..8).map(|_| (r.range(300, 1000) as u16, vec![(r.range(0, 400) as i16, r.range(-200, 200) as i16, r.range(450, 990) as i16, r.range(300, 900) as i16)])).collect();
             let f = font_with(0x0fb0_0000 + i * 2 + (mode == "gdi") as u32, 1000, &gs);
-            writeln!(s, "case fitgdi-{mode}-{i}\n{}", font_line(&f)).unwrap();
+            writeln!(s, "case fitgdi-{mode}-{i}\n{}", font_line(&f));
             for g in 1..=8 {
-                writeln!(s, "dwrun {mode}.nofit {} {} {} {g} 0", r.range(6, 96), r.range(0, 40), r.range(160, 200)).unwrap();
-                writeln!(s, "dwrun {mode}.fit {} {} {} {g} 0", r.range(6, 96), r.range(0, 40), r.range(160, 200)).unwrap();
+                writeln!(s, "dwrun {mode}.nofit {} {} {} {g} 0", r.range(6, 96), r.range(0, 40), r.range(160, 200));
+                writeln!(s, "dwrun {mode}.fit {} {} {} {g} 0", r.range(6, 96), r.range(0, 40), r.range(160, 200));
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     // GDI compatible metrics turned back into design units: advances whose whole pixel count k
@@ -608,7 +620,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             let gs: Vec<_> = ks.iter().map(|k| (((2 * k * u + pp) / (2 * pp)) as u16, vec![(0i16, 0i16, (u / 4) as i16, (u / 2) as i16)])).collect();
             let f = font_with(0x0fa0_0000 + u as u32 * 256 + pp as u32, upm, &gs);
             let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
-            writeln!(s, "case gdiback-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 0 {}\ndwgdiglyph {} 2 0 0 {}\nend", font_line(&f), gids.join(" "), pp / 2, gids.join(" ")).unwrap();
+            writeln!(s, "case gdiback-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 0 {}\ndwgdiglyph {} 2 0 0 {}\nend", font_line(&f), gids.join(" "), pp / 2, gids.join(" "));
         }
     }
     // sideways GDI compatible metrics: boxes whose bottoms step through the pixel (the bottom
@@ -619,7 +631,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             let gs: Vec<_> = (0..14i64).map(|j| ((u / 2) as u16, vec![(0i16, (j * u / 27 - u / 4) as i16, (u / 4) as i16, (j * u / 27 + u / 4) as i16)])).collect();
             let f = font_with(0x0fc0_0000 + u as u32 * 256 + pp as u32, upm, &gs);
             let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
-            writeln!(s, "case gdiside-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
+            writeln!(s, "case gdiside-{upm}-{pp}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" "));
         }
     }
     // sideways bottoms a design unit apart through one sample row, at the sizes and vertical
@@ -642,7 +654,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         f.os2 = Some(4);
         f.typo = (asc, desc, 0);
         let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
-        writeln!(s, "case gdisidebot-{k}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" "), gids.join(" ")).unwrap();
+        writeln!(s, "case gdisidebot-{k}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", font_line(&f), gids.join(" "), gids.join(" "), gids.join(" "));
     }
     // sideways bottoms one sample row apart (centred in it at 13 ppem, rows -8 to 19) under vertical origins
     // and advances of 9 to 11 and 0 to 3 pixels more, at 13, 26 and 39 ppem: where does the
@@ -660,11 +672,11 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             f.os2 = Some(4);
             f.typo = (asc, (asc as i64 - vadv) as i16, 0);
             let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
-            write!(s, "case gdisideorg-{k}\n{}\n", font_line(&f)).unwrap();
+            write!(s, "case gdisideorg-{k}\n{}\n", font_line(&f));
             for pp in [13, 26, 39] {
-                writeln!(s, "dwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}", gids.join(" "), gids.join(" ")).unwrap();
+                writeln!(s, "dwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}", gids.join(" "), gids.join(" "));
             }
-            writeln!(s, "dwglyph 1 {}\nend", gids.join(" ")).unwrap();
+            writeln!(s, "dwglyph 1 {}\nend", gids.join(" "));
             k += 1;
         }
     }
@@ -692,7 +704,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             f.os2 = Some(4);
             f.typo = (sc(*vorg) as i16, (sc(*vorg) - sc(*vadv)) as i16, 0);
             let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
-            writeln!(s, "case gdisideupm-{k}{}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", ["", "b"][h], font_line(&f), gids.join(" "), gids.join(" "), gids.join(" ")).unwrap();
+            writeln!(s, "case gdisideupm-{k}{}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 1 1 {}\ndwglyph 1 {}\nend", ["", "b"][h], font_line(&f), gids.join(" "), gids.join(" "), gids.join(" "));
         }
         }
     }
@@ -708,11 +720,11 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             f.os2 = Some(4);
             let (vadv, vorg) = ((ra * u + 5000) / 10000, (ro * u + 5000) / 10000);
             f.typo = (vorg as i16, (vorg - vadv) as i16, 0);
-            write!(s, "case gdivadv-{k}-{u}\n{}\n", font_line(&f)).unwrap();
+            write!(s, "case gdivadv-{k}-{u}\n{}\n", font_line(&f));
             for pp in 8..=120 {
-                writeln!(s, "dwgdiglyph {pp} 1 0 1 1").unwrap();
+                writeln!(s, "dwgdiglyph {pp} 1 0 1 1");
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     // the sideways advance heights at 10 and 22 ppem whose em fractions are lower than at
@@ -732,7 +744,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                     let mut f = font_with(0x0fd4_0000 + (pp * 256 + a * 4 + h) as u32, u as u16, &gs);
                     f.os2 = Some(4);
                     f.typo = (vorg as i16, (vorg - vadv) as i16, 0);
-                    writeln!(s, "case gdivadvp-{pp}-{a}-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f)).unwrap();
+                    writeln!(s, "case gdivadvp-{pp}-{a}-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f));
                 }
             }
         }
@@ -741,14 +753,16 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     // and are not powers of 2, where the tie decides a sample row or column of the black box
     // (sideways: y, 6 samples down; horizontal: x, 6 across): which way the scaled coordinate
     // rounds (DW.GDI.GLYPH)
-    for (u, em) in [(6656i64, 13i64), (13312, 13), (4608, 27), (13824, 27), (3072, 12), (12288, 24), (2048, 27), (1024, 60), (256, 54), (4096, 26), (8192, 13)] {
+    for (u, em) in TIE_UNITS {
         let tie = |v: i64| (2 * v * em * 64).rem_euclid(2 * u) == u;
         // (the two edges a tie gives, in 1/64 sample: does a sample centre lie between?)
         let matters = |v: i64| {
             let m = (v * em * 64).div_euclid(u) * 6;
             (m..=m + 6).any(|c| (c - 32).rem_euclid(64) == 0)
         };
-        let off = |v: i64, d: i64| (d..d + 64).map(|h| v + h).find(|&w| !tie(w)).unwrap();
+        // (the first of v + d, v + d + 1 that is no tie: two ties in a row would need
+        // 128 em to be a multiple of 2 u, which no pair of TIE_UNITS is)
+        let off = |v: i64, d: i64| if tie(v + d) { v + d + 1 } else { v + d };
         for axis in 0..2 {
             let mut gs = Vec::new();
             for (neg, low) in [(true, true), (true, false), (false, true), (false, false)] {
@@ -764,7 +778,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             f.os2 = Some(4);
             f.typo = ((u * 3 / 4) as i16, (-u / 4) as i16, 0);
             let gids: Vec<String> = (1..=gs.len()).map(|g| g.to_string()).collect();
-            writeln!(s, "case rastertie-{}-{u}-{em}\n{}\ndwgdiglyph {em} 1 0 0 {}\ndwgdiglyph {em} 1 0 1 {}\nend", ["y", "x"][axis as usize], font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
+            writeln!(s, "case rastertie-{}-{u}-{em}\n{}\ndwgdiglyph {em} 1 0 0 {}\ndwgdiglyph {em} 1 0 1 {}\nend", ["y", "x"][axis as usize], font_line(&f), gids.join(" "), gids.join(" "));
         }
     }
     // the remainders that round both ways (DW.GDI.EDGE): every k of the remainder, each at the
@@ -786,7 +800,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                 f.glyphs[i + 1].vert = (sc(k) as u16, (sc(k) - u / 4) as i16);
             }
             let gids: Vec<String> = (1..=ks.len()).map(|g| g.to_string()).collect();
-            writeln!(s, "case gdivmixed-{pp}-{j}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 0 0 {}\nend", font_line(&f), gids.join(" "), gids.join(" ")).unwrap();
+            writeln!(s, "case gdivmixed-{pp}-{j}\n{}\ndwgdiglyph {pp} 1 0 1 {}\ndwgdiglyph {pp} 1 0 0 {}\nend", font_line(&f), gids.join(" "), gids.join(" "));
             j += 1;
         }
     }
@@ -806,7 +820,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                 f.vertical = true;
                 let v = (2 * k * u + pp).div_euclid(2 * pp);
                 f.glyphs[1].vert = (v as u16, (v - u / 4) as i16);
-                writeln!(s, "case gdiv97-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f)).unwrap();
+                writeln!(s, "case gdiv97-{u}\n{}\ndwgdiglyph {pp} 1 0 1 1\nend", font_line(&f));
             }
         }
     }
@@ -828,7 +842,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                     f.glyphs[i + 1].vert = (v as u16, (v - t) as i16);
                 }
                 let gids: Vec<String> = (1..=tops.len()).map(|g| g.to_string()).collect();
-                writeln!(s, "case gdiv97top-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" ")).unwrap();
+                writeln!(s, "case gdiv97top-{h}-{u}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" "));
             }
         }
     }
@@ -848,7 +862,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                 f.glyphs[i + 1].vert = (v as u16, (v - t) as i16);
             }
             let gids: Vec<String> = (1..=boxes.len()).map(|g| g.to_string()).collect();
-            writeln!(s, "case {name}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" ")).unwrap();
+            writeln!(s, "case {name}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" "));
         };
         let rows: Vec<i64> = (1..=600).collect();
         for (i, c) in rows.chunks(14).enumerate() {
@@ -898,7 +912,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                 f.vertical = true;
                 let v = (2 * k * u + pp).div_euclid(2 * pp);
                 f.glyphs[1].vert = (v as u16, (v - u / 4) as i16);
-                writeln!(s, "case gdihf32-{pp}-{k}\n{}\ndwgdiglyph {pp} 1 0 0 1\ndwgdiglyph {pp} 1 1 0 1\nend", font_line(&f)).unwrap();
+                writeln!(s, "case gdihf32-{pp}-{k}\n{}\ndwgdiglyph {pp} 1 0 0 1\ndwgdiglyph {pp} 1 1 0 1\nend", font_line(&f));
             }
         }
         for u in [16i64, 64, 100, 128, 200, 255] {
@@ -913,7 +927,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             }
             let gids: Vec<String> = (1..=14).map(|g| g.to_string()).collect();
             let gl = gids.join(" ");
-            writeln!(s, "case gdiupm-{u}\n{}\ndwgdiglyph {u} 1 0 0 {gl}\ndwgdiglyph {u} 1 1 0 {gl}\ndwgdiglyph {u} 1 0 1 {gl}\nend", font_line(&f)).unwrap();
+            writeln!(s, "case gdiupm-{u}\n{}\ndwgdiglyph {u} 1 0 0 {gl}\ndwgdiglyph {u} 1 1 0 {gl}\ndwgdiglyph {u} 1 0 1 {gl}\nend", font_line(&f));
         }
     }
     // past 255 ppem (the clean-room notes, kikizake-re/dwrite): the classic advance becomes the natural one, the scale of
@@ -938,9 +952,9 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         let gl = (1..=14).map(|g| g.to_string()).collect::<Vec<_>>().join(" ");
         // (sideways too where the box is small enough to draw)
         let side = if pp <= 1024 { format!("\ndwgdiglyph {pp} 1 0 1 {gl}") } else { String::new() };
-        writeln!(s, "case gdibig-{pp}-{u}\n{}\ndwgdiglyph {pp} 1 0 0 {gl}\ndwgdiglyph {pp} 1 1 0 {gl}{side}\nend", font_line(&f)).unwrap();
+        writeln!(s, "case gdibig-{pp}-{u}\n{}\ndwgdiglyph {pp} 1 0 0 {gl}\ndwgdiglyph {pp} 1 1 0 {gl}{side}\nend", font_line(&f));
         let chars: Vec<String> = CHARS[..13].iter().map(|c| format!("{c:#x}")).collect();
-        writeln!(s, "case shapebig-{pp}-{u}\n{}\ndwshape {pp} {}\nend", font_line(&f), chars.join(" ")).unwrap();
+        writeln!(s, "case shapebig-{pp}-{u}\n{}\ndwshape {pp} {}\nend", font_line(&f), chars.join(" "));
     }
     // every size from 1 to 255 pixels per em (the GDI compatible sizes the cases ask for): the
     // advance heights and vertical origins (vmtx) whose em fraction k * 65536 / ppem is within
@@ -974,10 +988,15 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                 break;
             }
             let u = best.0;
-            let (got, rest): (Vec<_>, Vec<_>) = left.iter().partition(|t| at(t.1, u).is_some());
+            let (mut ka, mut kv, mut rest) = (Vec::new(), Vec::new(), Vec::new());
+            for t in left {
+                match (at(t.1, u), t.0) {
+                    (Some(k), false) => ka.push(k),
+                    (Some(k), true) => kv.push(k),
+                    (None, _) => rest.push(t),
+                }
+            }
             left = rest;
-            let ka: Vec<i64> = got.iter().filter(|t| !t.0).map(|t| at(t.1, u).unwrap()).collect();
-            let kv: Vec<i64> = got.iter().filter(|t| t.0).map(|t| at(t.1, u).unwrap()).collect();
             let n = ka.len().max(kv.len());
             let pairs: Vec<(i64, i64)> = (0..n).map(|i| (*ka.get(i).unwrap_or(&1), *kv.get(i).unwrap_or(&1))).collect();
             for c in pairs.chunks(14) {
@@ -989,7 +1008,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
                     f.glyphs[i + 1].vert = (sc(a) as u16, (sc(v) - u / 4) as i16);
                 }
                 let gids: Vec<String> = (1..=c.len()).map(|g| g.to_string()).collect();
-                writeln!(s, "case gdivtie-{pp}-{j}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" ")).unwrap();
+                writeln!(s, "case gdivtie-{pp}-{j}\n{}\ndwgdiglyph {pp} 1 0 1 {}\nend", font_line(&f), gids.join(" "));
                 j += 1;
             }
         }

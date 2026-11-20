@@ -23,26 +23,26 @@ fn state_suite(v8: bool) -> String {
         if name != "defaults" && !v8 {
             continue;
         }
-        writeln!(s, "case {name}\n{dev} {mode}").unwrap();
+        writeln!(s, "case {name}\n{dev} {mode}");
         for i in 0..256 {
-            writeln!(s, "rs get {i}").unwrap();
+            writeln!(s, "rs get {i}");
         }
         for st in 0..8 {
             for t in 0..stage_types {
-                writeln!(s, "tss get {st} {t}").unwrap();
+                writeln!(s, "tss get {st} {t}");
             }
         }
         if !v8 {
             for sm in (0..16).chain(256..=260) {
                 for t in 0..14 {
-                    writeln!(s, "ss get {sm} {t}").unwrap();
+                    writeln!(s, "ss get {sm} {t}");
                 }
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     let states = if v8 { all_states8(true) } else { all_states() };
-    let device = |s: &mut String, name: &str| writeln!(s, "case {name}\n{dev} swvp").unwrap();
+    let device = |s: &mut String, name: &str| writeln!(s, "case {name}\n{dev} swvp");
     let get = |s: &mut String, k: &crate::model::d3d9::Key| {
         use crate::model::d3d9::Key::*;
         match k {
@@ -50,7 +50,6 @@ fn state_suite(v8: bool) -> String {
             Tss(a, b) => writeln!(s, "tss get {a} {b}"),
             Ss(a, b) => writeln!(s, "ss get {a} {b}"),
         }
-        .unwrap()
     };
     let set = |s: &mut String, k: &crate::model::d3d9::Key, v: u32| {
         use crate::model::d3d9::Key::*;
@@ -59,7 +58,6 @@ fn state_suite(v8: bool) -> String {
             Tss(a, b) => writeln!(s, "tss set {a} {b} {v:#x}"),
             Ss(a, b) => writeln!(s, "ss set {a} {b} {v:#x}"),
         }
-        .unwrap()
     };
     // every documented state set to a value of its own and read back
     device(&mut s, "set-each");
@@ -69,20 +67,20 @@ fn state_suite(v8: bool) -> String {
     for (k, ..) in &states {
         get(&mut s, k);
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // each state block type: everything changed after the block was made, the block applied,
     // everything read
     for ty in 1..=3 {
         device(&mut s, &format!("create-{ty}"));
-        writeln!(s, "sb create 0 {ty}").unwrap();
+        writeln!(s, "sb create 0 {ty}");
         for (i, (k, ..)) in states.iter().enumerate() {
             set(&mut s, k, 0x2000 + i as u32);
         }
-        writeln!(s, "sb apply 0").unwrap();
+        writeln!(s, "sb apply 0");
         for (k, ..) in &states {
             get(&mut s, k);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // random sequences of sets, gets and state block calls
     let mut r = XorShift32::new(if v8 { 0xd3d8_0008 } else { 0xd3d9_0009 });
@@ -104,27 +102,27 @@ fn state_suite(v8: bool) -> String {
                 }
                 9..=12 => get(&mut s, &k),
                 13 if !recording => {
-                    writeln!(s, "sb begin").unwrap();
+                    writeln!(s, "sb begin");
                     recording = true;
                 }
                 14 if recording => {
-                    writeln!(s, "sb end {}", r.range(0, 3)).unwrap();
+                    writeln!(s, "sb end {}", r.range(0, 3));
                     recording = false;
                 }
-                15 if !recording => writeln!(s, "sb create {} {}", r.range(0, 3), r.range(1, 3)).unwrap(),
-                16 | 17 if !recording => writeln!(s, "sb apply {}", r.range(0, 3)).unwrap(),
-                18 if !recording => writeln!(s, "sb capture {}", r.range(0, 3)).unwrap(),
-                19 if !recording => writeln!(s, "sb release {}", r.range(0, 3)).unwrap(),
+                15 if !recording => writeln!(s, "sb create {} {}", r.range(0, 3), r.range(1, 3)),
+                16 | 17 if !recording => writeln!(s, "sb apply {}", r.range(0, 3)),
+                18 if !recording => writeln!(s, "sb capture {}", r.range(0, 3)),
+                19 if !recording => writeln!(s, "sb release {}", r.range(0, 3)),
                 _ => {}
             }
         }
         if recording {
-            writeln!(s, "sb end {}", r.range(0, 3)).unwrap();
+            writeln!(s, "sb end {}", r.range(0, 3));
         }
         // apply each block once more and read what the case touched
         for b in 0..3 {
             if r.chance(2) {
-                writeln!(s, "sb apply {b}").unwrap();
+                writeln!(s, "sb apply {b}");
             }
         }
         touched.sort();
@@ -132,10 +130,10 @@ fn state_suite(v8: bool) -> String {
         for k in &touched {
             get(&mut s, k);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // what the documentation leaves open (unmodeled until Windows' answers come)
-    let mut probe = |name: &str, body: &str| writeln!(s, "case edge-{name}\n{dev} swvp\n{body}\nend").unwrap();
+    let mut probe = |name: &str, body: &str| writeln!(s, "case edge-{name}\n{dev} swvp\n{body}\nend");
     probe("set-legacy-rs", "rs set 0 5\nrs get 0\nrs set 42 6\nrs get 42\nrs set 165 7\nrs get 165\nrs set 1 8\nrs get 1");
     if v8 {
         probe("set-legacy-tss", "tss set 0 0 5\ntss get 0 0\ntss set 1 12 6\ntss get 1 12\ntss set 2 29 7\ntss get 2 29");

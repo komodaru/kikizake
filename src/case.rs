@@ -26,22 +26,24 @@ pub fn tokens(line: &str) -> Vec<String> {
 /// The cases of a case file. Lines outside a case are ignored, as the executor ignores them.
 pub fn parse_cases(text: &str) -> Vec<Case> {
     let mut cases: Vec<Case> = Vec::new();
-    let mut open = false;
+    // the case whose lines are being read, until its "end" or the next "case"
+    let mut open: Option<Case> = None;
     for (i, l) in text.lines().enumerate() {
         let t = tokens(l);
         if t.is_empty() {
             continue;
         }
-        match t[0].as_str() {
-            "case" => {
-                cases.push(Case { name: t.get(1).cloned().unwrap_or_else(|| "?".into()), ops: Vec::new() });
-                open = true;
+        match (t[0].as_str(), &mut open) {
+            ("case", _) => {
+                cases.extend(open.take());
+                open = Some(Case { name: t.get(1).cloned().unwrap_or_else(|| "?".into()), ops: Vec::new() });
             }
-            "end" => open = false,
-            _ if open => cases.last_mut().unwrap().ops.push(Op { line: i + 1, tok: t }),
-            _ => {}
+            ("end", _) => cases.extend(open.take()),
+            (_, Some(case)) => case.ops.push(Op { line: i + 1, tok: t }),
+            (_, None) => {}
         }
     }
+    cases.extend(open);
     cases
 }
 

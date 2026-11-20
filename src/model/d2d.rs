@@ -198,12 +198,17 @@ impl Geom {
     /// the geometry as a set of figures and a transform, when it is made of straight lines
     fn lines(&self) -> Option<(bool, Vec<Figure>, M)> {
         match self {
-            Geom::Rect([l, t, r, b]) => Some((false, vec![Figure { pts: vec![(*l, *t), (*r, *t), (*r, *b), (*l, *b)], closed: true }], IDENTITY)),
+            Geom::Rect(r) => Some((false, vec![rect_figure(r)], IDENTITY)),
             Geom::Path { wind, figs } => Some((*wind, figs.clone(), IDENTITY)),
             Geom::Xf(g, m) => g.lines().map(|(w, f, m0)| (w, f, mul(&m0, m))),
             _ => None,
         }
     }
+}
+
+/// a rectangle as the closed figure of its corners, clockwise from the top left
+fn rect_figure(&[l, t, r, b]: &[f32; 4]) -> Figure {
+    Figure { pts: vec![(l, t), (r, t), (r, b), (l, b)], closed: true }
 }
 
 pub type P = (f32, f32);
@@ -544,36 +549,8 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
             Ok([lo(*l, *r), lo(*t, *b), hi(*l, *r), hi(*t, *b)])
         }
         (Geom::RRect(_), Some(m)) => curve_bounds(g, m),
-        (Geom::Rect(_) | Geom::Path { .. }, _) => {
-            let (_, figs, m0) = g.lines().unwrap();
-            let m = mul(&m0, m.unwrap_or(&IDENTITY));
-            // (MEASURED: a path with a NaN anywhere has four NaN bounds, every bit set)
-            if matches!(g, Geom::Path { .. }) && figs.iter().flat_map(|f| f.pts.iter()).any(|p| p.0.is_nan() || p.1.is_nan()) {
-                hit(clause::D2D_BOUNDS_PATHNAN);
-                return Ok(NAN_BOUNDS);
-            }
-            let mut b = [f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY];
-            hit(if matches!(g, Geom::Rect(_)) { clause::D2D_BOUNDS_RECTXF } else { clause::D2D_BOUNDS_PATH });
-            let (mut nx, mut ny) = (false, false);
-            for f in &figs {
-                for &(x, y) in &f.pts {
-                    let (x, y) = apply(&m, x, y);
-                    nx |= x.is_nan();
-                    ny |= y.is_nan();
-                    b = [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)];
-                }
-            }
-            // (MEASURED: an axis with a NaN corner has both its bounds NaN, every bit set)
-            if nx {
-                hit(clause::D2D_BOUNDS_NAN);
-                (b[0], b[2]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
-            }
-            if ny {
-                hit(clause::D2D_BOUNDS_NAN);
-                (b[1], b[3]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
-            }
-            Ok(b)
-        }
+        (Geom::Rect(r), _) => line_bounds(false, &[rect_figure(r)], m),
+        (Geom::Path { figs, .. }, _) => line_bounds(true, figs, m),
         (Geom::Ell([cx, cy, rx, ry]), _) => {
             let m = m.unwrap_or(&IDENTITY);
             if [cx, cy, rx, ry].iter().any(|v| v.is_nan()) {
@@ -597,6 +574,37 @@ pub fn bounds(g: &Geom, m: Option<&M>) -> Res<[f32; 4]> {
             bounds(inner, Some(&mul(m0, m.unwrap_or(&IDENTITY))))
         }
     }
+}
+
+/// GetBounds of a rectangle or a path (`path`): its figures' points through the world transform
+fn line_bounds(path: bool, figs: &[Figure], m: Option<&M>) -> Res<[f32; 4]> {
+    let m = mul(&IDENTITY, m.unwrap_or(&IDENTITY));
+    // (MEASURED: a path with a NaN anywhere has four NaN bounds, every bit set)
+    if path && figs.iter().flat_map(|f| f.pts.iter()).any(|p| p.0.is_nan() || p.1.is_nan()) {
+        hit(clause::D2D_BOUNDS_PATHNAN);
+        return Ok(NAN_BOUNDS);
+    }
+    let mut b = [f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY];
+    hit(if !path { clause::D2D_BOUNDS_RECTXF } else { clause::D2D_BOUNDS_PATH });
+    let (mut nx, mut ny) = (false, false);
+    for f in figs {
+        for &(x, y) in &f.pts {
+            let (x, y) = apply(&m, x, y);
+            nx |= x.is_nan();
+            ny |= y.is_nan();
+            b = [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)];
+        }
+    }
+    // (MEASURED: an axis with a NaN corner has both its bounds NaN, every bit set)
+    if nx {
+        hit(clause::D2D_BOUNDS_NAN);
+        (b[0], b[2]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
+    }
+    if ny {
+        hit(clause::D2D_BOUNDS_NAN);
+        (b[1], b[3]) = (NAN_BOUNDS[0], NAN_BOUNDS[0]);
+    }
+    Ok(b)
 }
 
 fn segs(p: &[(f64, f64)]) -> Vec<((f64, f64), (f64, f64))> {
@@ -1807,10 +1815,11 @@ impl D2d {
                 want(2 + k)?;
                 let v: Vec<f32> = (0..k).map(|i| f(op, 2 + i)).collect::<Res<_>>()?;
                 hit(clause::D2D_CREATE);
+                let four = || [v[0], v[1], v[2], v[3]];
                 self.g[g] = Some(match t[0].as_str() {
-                    "d2rect" => Geom::Rect(v.try_into().unwrap()),
-                    "d2ell" => Geom::Ell(v.try_into().unwrap()),
-                    _ => Geom::RRect(v.try_into().unwrap()),
+                    "d2rect" => Geom::Rect(four()),
+                    "d2ell" => Geom::Ell(four()),
+                    _ => Geom::RRect([v[0], v[1], v[2], v[3], v[4], v[5]]),
                 });
                 out.push(format!("{} 00000000", &t[0][2..]));
             }
@@ -1832,36 +1841,36 @@ impl D2d {
                     _ => return Err(Fail::Bad),
                 };
                 let mut figs: Vec<Figure> = Vec::new();
-                let mut infig = false;
+                // (the figure begun by "m" and not yet ended by "z" or "o")
+                let mut open: Option<Figure> = None;
                 let mut i = 3;
                 while i < len {
                     match t[i].as_str() {
                         "m" => {
-                            if infig {
+                            if open.is_some() {
                                 return Err(Fail::Bad);
                             }
-                            figs.push(Figure { pts: vec![(f(op, i + 1)?, f(op, i + 2)?)], closed: false });
-                            infig = true;
+                            open = Some(Figure { pts: vec![(f(op, i + 1)?, f(op, i + 2)?)], closed: false });
                             i += 3;
                         }
                         "z" | "o" => {
-                            if !infig {
+                            let Some(mut fig) = open.take() else {
                                 return Err(Fail::Bad);
-                            }
-                            figs.last_mut().unwrap().closed = t[i] == "z";
-                            infig = false;
+                            };
+                            fig.closed = t[i] == "z";
+                            figs.push(fig);
                             i += 1;
                         }
                         _ => {
-                            if !infig {
+                            let Some(fig) = &mut open else {
                                 return Err(Fail::Bad);
-                            }
-                            figs.last_mut().unwrap().pts.push((f(op, i)?, f(op, i + 1)?));
+                            };
+                            fig.pts.push((f(op, i)?, f(op, i + 1)?));
                             i += 2;
                         }
                     }
                 }
-                if infig {
+                if open.is_some() {
                     return Err(Fail::Bad);
                 }
                 hit(clause::D2D_PATH);

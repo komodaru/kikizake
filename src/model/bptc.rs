@@ -30,7 +30,7 @@ const W4: [i32; 16] = [0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 
 
 /// the BC6H texel (x, y) of a block: the three channels as 16-bit floats; a reserved mode gives
 /// zeros
-pub fn bc6h(b: &[u8], signed: bool, x: u32, y: u32) -> [u16; 3] {
+pub fn bc6h(b: &[u8; 16], signed: bool, x: u32, y: u32) -> [u16; 3] {
     // (the endpoint precision of each mode, then the delta precisions of r, g, b)
     const BITS: [[u32; 14]; 4] = [
         [10, 7, 11, 11, 11, 9, 8, 8, 8, 6, 10, 11, 12, 16],
@@ -38,7 +38,7 @@ pub fn bc6h(b: &[u8], signed: bool, x: u32, y: u32) -> [u16; 3] {
         [5, 6, 4, 5, 4, 5, 5, 6, 5, 6, 10, 9, 8, 4],
         [5, 6, 4, 4, 5, 5, 5, 5, 6, 6, 10, 9, 8, 4],
     ];
-    let mut s = Bits(u128::from_le_bytes(b[..16].try_into().unwrap()));
+    let mut s = Bits(u128::from_le_bytes(*b));
     let mut m = s.take(2);
     if m > 1 {
         m |= s.take(3) << 2;
@@ -128,11 +128,11 @@ fn finish(v: i32, signed: bool) -> u16 {
 }
 
 /// the BC7 texel (x, y) of a block, RGBA8; a reserved mode gives zeros
-pub fn bc7(b: &[u8], x: u32, y: u32) -> [u8; 4] {
+pub fn bc7(b: &[u8; 16], x: u32, y: u32) -> [u8; 4] {
     const RGB: [u32; 8] = [4, 6, 5, 7, 5, 7, 7, 5];
     const ALPHA: [u32; 8] = [0, 0, 0, 0, 6, 8, 7, 5];
     const PBITS: u32 = 0b1100_1011;
-    let mut s = Bits(u128::from_le_bytes(b[..16].try_into().unwrap()));
+    let mut s = Bits(u128::from_le_bytes(*b));
     let Some(mode) = (0..8).find(|_| s.take(1) == 1) else { return [0; 4] };
     let (mut parts, mut part, mut rot, mut isel) = (1, 0, 0, 0);
     if [0, 1, 2, 3, 7].contains(&mode) {

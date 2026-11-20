@@ -9,19 +9,19 @@ pub fn wic() -> String {
     let mut seed = 1u32;
     for from in &names {
         for to in &names {
-            writeln!(s, "case pair-{from}-{to}\nconvert {from} 8 4 {seed} {to}\nend").unwrap();
+            writeln!(s, "case pair-{from}-{to}\nconvert {from} 8 4 {seed} {to}\nend");
             seed += 1;
         }
     }
     // every byte value of each format to 32bppBGRA and back (byte i = i mod 256)
     for (f, from) in names.iter().enumerate() {
         let w = (256 * 8 / bits(f)).clamp(1, 256);
-        writeln!(s, "case ramp-{from}\nconvert {from} {w} 1 ramp bgra\nconvert bgra 64 1 ramp {from}\nend").unwrap();
+        writeln!(s, "case ramp-{from}\nconvert {from} {w} 1 ramp bgra\nconvert bgra 64 1 ramp {from}\nend");
     }
     // straight and premultiplied alpha over many (color, alpha) pairs
     for (i, f) in ["pbgra", "prgba", "bgra"].iter().enumerate() {
         for k in 0..4 {
-            writeln!(s, "case alpha-{f}-{k}\nconvert {f} 256 64 {} bgra\nconvert bgra 256 64 {} {f}\nend", 7000 + i * 10 + k, 7100 + i * 10 + k).unwrap();
+            writeln!(s, "case alpha-{f}-{k}\nconvert {f} 256 64 {} bgra\nconvert bgra 256 64 {} {f}\nend", 7000 + i * 10 + k, 7100 + i * 10 + k);
         }
     }
     // odd sizes: rows that end inside a byte, one-pixel pictures
@@ -29,7 +29,7 @@ pub fn wic() -> String {
     for i in 0..300 {
         let (from, to) = (*r.pick(&names), *r.pick(&names));
         let (w, h) = (r.range(1, 13), r.range(1, 4));
-        writeln!(s, "case odd-{i}\nconvert {from} {w} {h} {} {to}\nend", r.next()).unwrap();
+        writeln!(s, "case odd-{i}\nconvert {from} {w} {h} {} {to}\nend", r.next());
     }
     s
 }

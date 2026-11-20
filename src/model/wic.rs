@@ -23,6 +23,36 @@ pub fn format(name: &str) -> Option<usize> {
     FORMATS.iter().position(|f| f.0 == name)
 }
 
+/// The index of the format `name` of the table, for a name written in the source: evaluated
+/// when it is built through [`wic_fmt!`](crate::wic_fmt), so a name not in the table does not
+/// build (tests/ui/unknown_wic_format.rs).
+pub const fn known(name: &str) -> usize {
+    let mut i = 0;
+    while i < FORMATS.len() {
+        if FORMATS[i].0.as_bytes().len() == name.len() {
+            let (a, b) = (FORMATS[i].0.as_bytes(), name.as_bytes());
+            let mut k = 0;
+            while k < a.len() && a[k] == b[k] {
+                k += 1;
+            }
+            if k == a.len() {
+                return i;
+            }
+        }
+        i += 1;
+    }
+    panic!("the name is not a format of the table")
+}
+
+/// the index of a WIC format of the table by a name written in the source, checked when it is built
+#[macro_export]
+macro_rules! wic_fmt {
+    ($name:literal) => {{
+        const INDEX: usize = $crate::model::wic::known($name);
+        INDEX
+    }};
+}
+
 pub fn bits(f: usize) -> u32 {
     FORMATS[f].1
 }
@@ -236,7 +266,7 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
         }
         return Ok(o);
     }
-    let bgra = format("bgra").unwrap();
+    let bgra = crate::wic_fmt!("bgra");
     if from != bgra && to != bgra {
         if wide(from) && wide(to) || FORMATS[from].0 == "cmyk" || FORMATS[to].0 == "cmyk" {
             return Err(Fail::Unmodeled(open::WIC_PAIR_WIDE));

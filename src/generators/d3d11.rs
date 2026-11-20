@@ -70,7 +70,7 @@ fn d3d11_pool(k: Kind, i: usize) -> Vec<u32> {
 fn d3d11_line(s: &mut String, k: Kind, d: &[u32], check: bool) {
     let n = d.iter().rposition(|w| *w != 0).map_or(0, |i| i + 1);
     let words: Vec<String> = d[..n].iter().map(|w| if *w < 10 { w.to_string() } else { format!("{w:#x}") }).collect();
-    writeln!(s, "{}{} {}", k.name(), if check { " check" } else { "" }, words.join(" ")).unwrap();
+    writeln!(s, "{}{} {}", k.name(), if check { " check" } else { "" }, words.join(" "));
 }
 
 pub fn d3d11() -> String {
@@ -79,13 +79,13 @@ pub fn d3d11() -> String {
     // 60 lines a case (an executor case holds 64 objects)
     let sweep = |s: &mut String, name: &str, k: Kind, base: &[u32], at: usize, values: &[u32]| {
         for (c, chunk) in values.chunks(60).enumerate() {
-            writeln!(s, "case {name}-{c}\ndevice11").unwrap();
+            writeln!(s, "case {name}-{c}\ndevice11");
             for v in chunk {
                 let mut d = base.to_vec();
                 d[at] = *v;
                 d3d11_line(s, k, &d, false);
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     };
     // blend: each word of render target 0, 3 and 7, blending on and off, targets shared and not
@@ -141,7 +141,7 @@ pub fn d3d11() -> String {
     // validation only (ppState NULL)
     let mut r = XorShift32::new(0xd3d1_1011);
     for i in 0..300 {
-        writeln!(s, "case random-{i}\ndevice11").unwrap();
+        writeln!(s, "case random-{i}\ndevice11");
         let mut made: Vec<(Kind, Vec<u32>)> = Vec::new();
         for _ in 0..r.range(5, 40) {
             let (k, mut d) = if !made.is_empty() && r.chance(4) {
@@ -157,18 +157,18 @@ pub fn d3d11() -> String {
             d3d11_line(&mut s, k, &d, r.chance(10));
             made.push((k, d));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // the calls around the descriptions
-    writeln!(s, "case nodev").unwrap();
+    writeln!(s, "case nodev");
     for k in Kind::ALL {
         d3d11_line(&mut s, k, &d3d11_base(k), false);
     }
-    writeln!(s, "end\ncase nodesc\ndevice11").unwrap();
+    writeln!(s, "end\ncase nodesc\ndevice11");
     for k in Kind::ALL {
-        writeln!(s, "{} nodesc", k.name()).unwrap();
+        writeln!(s, "{} nodesc", k.name());
     }
-    writeln!(s, "end\ncase check\ndevice11").unwrap();
+    writeln!(s, "end\ncase check\ndevice11");
     for k in Kind::ALL {
         let mut bad = d3d11_base(k);
         bad[if k == Kind::Blend { 3 } else { 0 }] = 0;
@@ -177,15 +177,15 @@ pub fn d3d11() -> String {
         d3d11_line(&mut s, k, &d3d11_base(k), false);
         d3d11_line(&mut s, k, &d3d11_base(k), true);
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // what the documentation leaves open: 0.0 and -0.0
     for (k, at) in [(Kind::Raster, 4), (Kind::Raster, 5), (Kind::Sampler, 4), (Kind::Sampler, 11)] {
-        writeln!(s, "case edge-negzero-{}-w{at}\ndevice11", k.name()).unwrap();
+        writeln!(s, "case edge-negzero-{}-w{at}\ndevice11", k.name());
         let mut d = d3d11_base(k);
         d3d11_line(&mut s, k, &d, false);
         d[at] = 0x8000_0000;
         d3d11_line(&mut s, k, &d, false);
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     s
 }

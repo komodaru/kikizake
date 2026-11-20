@@ -8,7 +8,7 @@
 //! answers confirmed it, or the case is left `unmodeled` (only checked against Windows).
 
 use crate::spec::{clause, open};
-use super::{Fail, Res};
+use super::{filled, filled_mut, Fail, Res};
 use crate::case::{color, num, Op};
 use crate::rng::XorShift32;
 use crate::spec::hit;
@@ -399,7 +399,7 @@ impl Gdi {
                 self.slot(op, 1)?;
                 self.slot(op, 6)?;
                 let (x, y, w, h, sx, sy, sw, sh, rop) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8] as u32);
-                if self.slots[k].as_ref().unwrap().mode == 4 {
+                if filled(&self.slots, k)?.mode == 4 {
                     // MEASURED: HALFTONE differs from BitBlt even unscaled, between formats
                     return Err(Fail::Unmodeled(open::GDI_STRETCH_HALFTONE));
                 }
@@ -524,7 +524,7 @@ impl Gdi {
         if k == 7 || ks == 7 {
             return Err(Fail::Unmodeled(open::GDI_DIB_PARAMS));
         }
-        let mode = self.slots[k].as_ref().unwrap().mode;
+        let mode = filled(&self.slots, k)?.mode;
         if mode == 4 {
             // MEASURED: HALFTONE filters when enlarging too (stretch golden)
             return Err(Fail::Unmodeled(open::GDI_STRETCH_HALFTONE));
@@ -532,7 +532,7 @@ impl Gdi {
         if (sw > w || sh > h) && mode != 3 {
             return Err(Fail::Unmodeled(open::GDI_STRETCH_COMBINE));
         }
-        let src = self.slots[ks].as_ref().unwrap();
+        let src = filled(&self.slots, ks)?;
         if sx < 0 || sy < 0 || sx + sw > src.s.w || sy + sh > src.s.h {
             return Err(Fail::Unmodeled(open::GDI_STRETCH_SRCOUT));
         }
@@ -582,8 +582,8 @@ impl Gdi {
         if src.is_some_and(|(ks, ..)| ks == k) && uses_s(idx) {
             hit(clause::GDI_BLT_OVERLAP);
         }
-        let d = self.slots[k].as_ref().unwrap();
-        let sp = if uses_s(idx) { src.map(|(ks, sx, sy)| (self.slots[ks].as_ref().unwrap().clone(), sx, sy)) } else { None };
+        let d = filled(&self.slots, k)?;
+        let sp = if uses_s(idx) { src.map(|(ks, sx, sy)| filled(&self.slots, ks).map(|s| (s.clone(), sx, sy))).transpose()? } else { None };
         if uses_p(idx) {
             match &d.brush {
                 Brush::Null => return Err(Fail::Unmodeled(open::GDI_BRUSH_NULL)),
@@ -603,7 +603,7 @@ impl Gdi {
             }
             hit(clause::GDI_DDB_MONOBLT);
         }
-        let d = self.slots[k].as_mut().unwrap();
+        let d = filled_mut(&mut self.slots, k)?;
         hit(clause::GDI_FMT_LAYOUT);
         hit(clause::GDI_BLT_CLIP);
         let (x0, y0, x1, y1) = (x.max(0), y.max(0), (x + w).min(d.s.w), (y + h).min(d.s.h));

@@ -18,13 +18,13 @@ pub fn wicpalette() -> String {
     let mut s = format!("# kikizake suite wicpalette: WIC predefined palettes. {HEAD}\n");
     for t in 0..=14u32 {
         for a in 0..2 {
-            writeln!(s, "case predefined-{t}-{a}\nwpalette {t} {a}\nend").unwrap();
+            writeln!(s, "case predefined-{t}-{a}\nwpalette {t} {a}\nend");
         }
     }
-    writeln!(s, "case predefined-large\nwpalette 0x7fffffff 0\nend").unwrap();
+    writeln!(s, "case predefined-large\nwpalette 0x7fffffff 0\nend");
     // the palette of an indexed bitmap, and of one that has none
     for f in ["idx1", "idx2", "idx4", "idx8", "bgra", "gray8", "bw"] {
-        writeln!(s, "case srcpal-{f}\nwbits {f} 4 2 1\nwsrcpal\nend").unwrap();
+        writeln!(s, "case srcpal-{f}\nwbits {f} 4 2 1\nwsrcpal\nend");
     }
     s
 }
@@ -40,7 +40,7 @@ pub fn wicscale() -> String {
     for m in MODES {
         for sw in 1..=8 {
             for dw in 1..=17 {
-                writeln!(s, "case row-{m}-{sw}-{dw}\nwbits gray8 {sw} 1 ramp\nwscale {dw} 1 {m}\nwinfo\nwpixels\nend").unwrap();
+                writeln!(s, "case row-{m}-{sw}-{dw}\nwbits gray8 {sw} 1 ramp\nwscale {dw} 1 {m}\nwinfo\nwpixels\nend");
             }
         }
     }
@@ -49,12 +49,12 @@ pub fn wicscale() -> String {
     for (k, m) in MODES.iter().enumerate() {
         for sw in 1..=8 {
             for dw in 1..=17 {
-                writeln!(s, "case rrow-{m}-{sw}-{dw}\nwbits gray8 {sw} 1 {}\nwscale {dw} 1 {m}\nwpixels\nend", 1 + k * 1000 + sw * 20 + dw).unwrap();
+                writeln!(s, "case rrow-{m}-{sw}-{dw}\nwbits gray8 {sw} 1 {}\nwscale {dw} 1 {m}\nwpixels\nend", 1 + k * 1000 + sw * 20 + dw);
             }
         }
         for (i, (sw, dw)) in [(2, 251), (3, 250), (2, 255), (5, 241), (251, 2), (250, 3), (64, 17), (17, 64)].into_iter().enumerate() {
             for v in 0..3 {
-                writeln!(s, "case fine-{m}-{sw}-{dw}-{v}\nwbits gray8 {sw} 1 {}\nwscale {dw} 1 {m}\nwpixels\nend", 50_000 + k * 100 + i * 10 + v).unwrap();
+                writeln!(s, "case fine-{m}-{sw}-{dw}-{v}\nwbits gray8 {sw} 1 {}\nwscale {dw} 1 {m}\nwpixels\nend", 50_000 + k * 100 + i * 10 + v);
             }
         }
     }
@@ -63,7 +63,7 @@ pub fn wicscale() -> String {
     for (k, m) in MODES.iter().enumerate() {
         for sh in 1..=8 {
             for dh in 1..=17 {
-                writeln!(s, "case rcol-{m}-{sh}-{dh}\nwbits gray8 1 {sh} {}\nwscale 1 {dh} {m}\nwpixels\nend", 60_000 + k * 1000 + sh * 20 + dh).unwrap();
+                writeln!(s, "case rcol-{m}-{sh}-{dh}\nwbits gray8 1 {sh} {}\nwscale 1 {dh} {m}\nwpixels\nend", 60_000 + k * 1000 + sh * 20 + dh);
             }
         }
         // (64 random columns at once: each output row's weights solve from them)
@@ -71,44 +71,44 @@ pub fn wicscale() -> String {
             for sh in [2u32, 3, 4, 5, 7] {
                 for dh in [1u32, 2, 3, 5, 8, 11, 16, 17] {
                     if sh != dh {
-                        writeln!(s, "case vcols-{m}-{sh}-{dh}\nwbits gray8 64 {sh} {}\nwscale 64 {dh} {m}\nwpixels\nend", 80_000 + sh * 20 + dh).unwrap();
+                        writeln!(s, "case vcols-{m}-{sh}-{dh}\nwbits gray8 64 {sh} {}\nwscale 64 {dh} {m}\nwpixels\nend", 80_000 + sh * 20 + dh);
                     }
                 }
             }
         }
         for f in ["gray8", "bgr24", "bgra", "pbgra", "gray16", "rgb48", "rgba64", "rgba", "alpha8"] {
             for (i, (sw, sh, dw, dh)) in [(3, 4, 7, 5), (5, 3, 2, 8), (4, 4, 9, 9), (8, 6, 3, 13), (6, 2, 6, 7), (7, 7, 3, 3)].into_iter().enumerate() {
-                writeln!(s, "case rgrid-{m}-{f}-{sw}x{sh}-{dw}x{dh}\nwbits {f} {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels\nend", 70_000 + k * 100 + i).unwrap();
+                writeln!(s, "case rgrid-{m}-{f}-{sw}x{sh}-{dw}x{dh}\nwbits {f} {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels\nend", 70_000 + k * 100 + i);
             }
         }
     }
     // the same along columns, and in both directions at once
     for m in MODES {
         for (sh, dh) in [(3, 7), (7, 3), (5, 2), (2, 5), (4, 9)] {
-            writeln!(s, "case col-{m}-{sh}-{dh}\nwbits gray8 1 {sh} ramp\nwscale 1 {dh} {m}\nwpixels\nend").unwrap();
-            writeln!(s, "case both-{m}-{sh}-{dh}\nwbits bgra {sh} {dh} {}\nwscale {dh} {sh} {m}\nwpixels\nend", sh * 10 + dh).unwrap();
+            writeln!(s, "case col-{m}-{sh}-{dh}\nwbits gray8 1 {sh} ramp\nwscale 1 {dh} {m}\nwpixels\nend");
+            writeln!(s, "case both-{m}-{sh}-{dh}\nwbits bgra {sh} {dh} {}\nwscale {dh} {sh} {m}\nwpixels\nend", sh * 10 + dh);
         }
     }
     // every format through every mode: the output format, and the pixels
     for (i, f) in XFORMATS.iter().enumerate() {
         for (k, m) in MODES.iter().enumerate() {
-            writeln!(s, "case fmt-{f}-{m}\nwbits {f} 7 5 {}\nwscale 11 3 {m}\nwinfo\nwpixels\nend", 100 + i * 5 + k).unwrap();
+            writeln!(s, "case fmt-{f}-{m}\nwbits {f} 7 5 {}\nwscale 11 3 {m}\nwinfo\nwpixels\nend", 100 + i * 5 + k);
         }
     }
     // large ratios (Fant and high quality cubic average many pixels)
     for m in MODES {
-        writeln!(s, "case down-{m}\nwbits gray8 64 1 ramp\nwscale 5 1 {m}\nwpixels\nend").unwrap();
-        writeln!(s, "case down2-{m}\nwbits bgra 40 30 77\nwscale 3 4 {m}\nwpixels\nend").unwrap();
-        writeln!(s, "case up-{m}\nwbits bgra 2 2 78\nwscale 9 9 {m}\nwpixels\nend").unwrap();
-        writeln!(s, "case alpha-{m}\nwbits bgra 6 6 79\nwscale 4 9 {m}\nwpixels\nend").unwrap();
+        writeln!(s, "case down-{m}\nwbits gray8 64 1 ramp\nwscale 5 1 {m}\nwpixels\nend");
+        writeln!(s, "case down2-{m}\nwbits bgra 40 30 77\nwscale 3 4 {m}\nwpixels\nend");
+        writeln!(s, "case up-{m}\nwbits bgra 2 2 78\nwscale 9 9 {m}\nwpixels\nend");
+        writeln!(s, "case alpha-{m}\nwbits bgra 6 6 79\nwscale 4 9 {m}\nwpixels\nend");
     }
     // sizes Windows refuses, and rectangles of a scaled picture
     for (w, h) in [(0, 4), (4, 0), (0, 0), (0x10000, 1), (1, 0x10000)] {
-        writeln!(s, "case size-{w}-{h}\nwbits gray8 4 4 ramp\nwscale {w} {h} nn\nend").unwrap();
+        writeln!(s, "case size-{w}-{h}\nwbits gray8 4 4 ramp\nwscale {w} {h} nn\nend");
     }
     // (how large a scaler Windows makes)
     for (w, h) in [(0x10000, 1), (1, 0x10000), (100_000, 1), (1, 100_000), (0x10000, 0x10000), (65535, 65535), (0x7fff_ffff, 1), (1, 0x7fff_ffff), (0xffff_ffffu32, 1)] {
-        writeln!(s, "case bigsize-{w}-{h}\nwbits gray8 4 4 ramp\nwscale {w} {h} nn\nwinfo\nend").unwrap();
+        writeln!(s, "case bigsize-{w}-{h}\nwbits gray8 4 4 ramp\nwscale {w} {h} nn\nwinfo\nend");
     }
     let mut r = XorShift32::new(0x5ca1e);
     for i in 0..60 {
@@ -116,17 +116,17 @@ pub fn wicscale() -> String {
         let (sw, sh, dw, dh) = (r.range(1, 12), r.range(1, 12), r.range(1, 20), r.range(1, 20));
         let (x, y) = (r.range(0, dw - 1), r.range(0, dh - 1));
         let (w, h) = (r.range(1, dw - x), r.range(1, dh - y));
-        writeln!(s, "case rect-{i}\nwbits bgr24 {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels {x} {y} {w} {h}\nend", r.next()).unwrap();
+        writeln!(s, "case rect-{i}\nwbits bgr24 {sw} {sh} {}\nwscale {dw} {dh} {m}\nwpixels {x} {y} {w} {h}\nend", r.next());
     }
     // a large scaler of a mode that works in another format, and one scaled again
     for m in ["hqcubic", "fant", "linear"] {
-        writeln!(s, "case bigsize-fmt-{m}\nwbits bgra 4 4 77\nwscale 4096 2048 {m}\nwinfo\nwscale 3 2 nn\nwinfo\nend").unwrap();
+        writeln!(s, "case bigsize-fmt-{m}\nwbits bgra 4 4 77\nwscale 4096 2048 {m}\nwinfo\nwscale 3 2 nn\nwinfo\nend");
     }
     // (HighQualityCubic of 16 bits one pass at a time: 64 random rows scaled across only, 64
     // random columns scaled down only: each pass's f32 order apart)
     for (i, (a, b)) in [(8u32, 3u32), (3, 8), (4, 9), (7, 3), (6, 7), (5, 2), (13, 4), (2, 5)].into_iter().enumerate() {
-        writeln!(s, "case hq16row-{a}-{b}\nwbits gray16 {a} 64 {}\nwscale {b} 64 hqcubic\nwpixels\nend", 90_000 + i).unwrap();
-        writeln!(s, "case hq16col-{a}-{b}\nwbits gray16 64 {a} {}\nwscale 64 {b} hqcubic\nwpixels\nend", 90_100 + i).unwrap();
+        writeln!(s, "case hq16row-{a}-{b}\nwbits gray16 {a} 64 {}\nwscale {b} 64 hqcubic\nwpixels\nend", 90_000 + i);
+        writeln!(s, "case hq16col-{a}-{b}\nwbits gray16 64 {a} {}\nwscale 64 {b} hqcubic\nwpixels\nend", 90_100 + i);
     }
     s
 }
@@ -137,15 +137,15 @@ pub fn wictransform() -> String {
     let opts = [0u32, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27];
     for (i, f) in XFORMATS.iter().enumerate() {
         for o in opts {
-            writeln!(s, "case flip-{f}-{o}\nwbits {f} 5 3 {}\nwflip {o}\nwinfo\nwpixels\nend", 300 + i * 32 + o as usize).unwrap();
+            writeln!(s, "case flip-{f}-{o}\nwbits {f} 5 3 {}\nwflip {o}\nwinfo\nwpixels\nend", 300 + i * 32 + o as usize);
         }
     }
     for o in [4u32, 5, 7, 32, 0x7fffffff] {
-        writeln!(s, "case flip-bad-{o}\nwbits gray8 3 2 ramp\nwflip {o}\nwinfo\nend").unwrap();
+        writeln!(s, "case flip-bad-{o}\nwbits gray8 3 2 ramp\nwflip {o}\nwinfo\nend");
     }
     // (what the options outside the documented ones do to the pixels)
     for o in [4u32, 5, 6, 7, 12, 13, 20, 28, 31, 32, 33, 64, 0x80, 0x100, 0x8000_0000, 0x7fff_ffff, 0xffff_ffff] {
-        writeln!(s, "case flipbad-{o}\nwbits gray8 3 2 ramp\nwflip {o}\nwinfo\nwpixels\nend").unwrap();
+        writeln!(s, "case flipbad-{o}\nwbits gray8 3 2 ramp\nwflip {o}\nwinfo\nwpixels\nend");
     }
     // rectangles of a flipped picture (the rotator reads its source by rows or columns)
     let mut r = XorShift32::new(0xf11b);
@@ -155,24 +155,24 @@ pub fn wictransform() -> String {
         let (w, h) = (r.range(1, 9), r.range(1, 9));
         let (dw, dh) = if o & 1 != 0 { (h, w) } else { (w, h) };
         let (x, y) = (r.range(0, dw - 1), r.range(0, dh - 1));
-        writeln!(s, "case fliprect-{i}\nwbits {f} {w} {h} {}\nwflip {o}\nwpixels {x} {y} {} {}\nend", r.next(), r.range(1, dw - x), r.range(1, dh - y)).unwrap();
+        writeln!(s, "case fliprect-{i}\nwbits {f} {w} {h} {}\nwflip {o}\nwpixels {x} {y} {} {}\nend", r.next(), r.range(1, dw - x), r.range(1, dh - y));
     }
     // clippers: inside, at the edges, outside, empty
     for (i, f) in XFORMATS.iter().enumerate() {
-        writeln!(s, "case clip-{f}\nwbits {f} 9 7 {}\nwclip 1 2 5 4\nwinfo\nwpixels\nwpixels 1 1 3 2\nend", 900 + i).unwrap();
+        writeln!(s, "case clip-{f}\nwbits {f} 9 7 {}\nwclip 1 2 5 4\nwinfo\nwpixels\nwpixels 1 1 3 2\nend", 900 + i);
     }
     let rects: &[(i64, i64, i64, i64)] = &[(0, 0, 6, 5), (5, 4, 1, 1), (0, 0, 0, 0), (0, 0, 7, 5), (0, 0, 6, 6), (-1, 0, 2, 2), (0, -1, 2, 2), (6, 0, 1, 1), (2, 2, 0, 3), (3, 3, 4, 4), (0, 0, 0x7fffffff, 1)];
     for (i, (x, y, w, h)) in rects.iter().enumerate() {
-        writeln!(s, "case cliprect-{i}\nwbits bgra 6 5 7\nwclip {x} {y} {w} {h}\nwinfo\nwpixels\nend").unwrap();
+        writeln!(s, "case cliprect-{i}\nwbits bgra 6 5 7\nwclip {x} {y} {w} {h}\nwinfo\nwpixels\nend");
     }
     // CopyPixels: rectangles, strides and buffers Windows takes or refuses
     for (i, (x, y, w, h)) in rects.iter().enumerate() {
-        writeln!(s, "case copyrect-{i}\nwbits bgr24 6 5 8\nwpixels {x} {y} {w} {h}\nend").unwrap();
+        writeln!(s, "case copyrect-{i}\nwbits bgr24 6 5 8\nwpixels {x} {y} {w} {h}\nend");
     }
-    for f in ["bw", "gray4", "bgr24", "rgba64"] {
-        let st = crate::model::wic::stride(crate::model::wic::format(f).unwrap(), 5) as i64;
+    for (f, fi) in [("bw", crate::wic_fmt!("bw")), ("gray4", crate::wic_fmt!("gray4")), ("bgr24", crate::wic_fmt!("bgr24")), ("rgba64", crate::wic_fmt!("rgba64"))] {
+        let st = crate::model::wic::stride(fi, 5) as i64;
         for (k, (stride, size)) in [(st, st * 3), (st - 1, st * 3), (st + 3, (st + 3) * 3), (st + 3, (st + 3) * 2 + st), (st + 3, (st + 3) * 2 + st - 1), (st, st * 3 - 1), (0, 1000), (st, 0)].into_iter().enumerate() {
-            writeln!(s, "case stride-{f}-{k}\nwbits {f} 5 3 3\nwpixels 0 0 5 3 {stride} {size}\nend").unwrap();
+            writeln!(s, "case stride-{f}-{k}\nwbits {f} 5 3 3\nwpixels 0 0 5 3 {stride} {size}\nend");
         }
     }
     // chains: scale, flip, clip, convert in turn
@@ -211,7 +211,7 @@ pub fn wictransform() -> String {
     // a decoded picture of unequal resolutions turned: which resolution goes with which side
     let f = bmp(40, 3, 2, 24, 0, [0; 4], 0, &[], &[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0], false, (2835, 5906));
     for o in [0, 1, 2, 3, 9, 11] {
-        writeln!(s, "case flip-dpi-{o}\nwdecode {}\nwframe 0\nwflip {o}\nwinfo\nwpixels\nend", hex(&f)).unwrap();
+        writeln!(s, "case flip-dpi-{o}\nwdecode {}\nwframe 0\nwflip {o}\nwinfo\nwpixels\nend", hex(&f));
     }
     s
 }
@@ -219,19 +219,19 @@ pub fn wictransform() -> String {
 pub fn wiccolor() -> String {
     let mut s = format!("# kikizake suite wiccolor: WIC color contexts and transforms. {HEAD}\n");
     for n in [0u32, 1, 2, 3, 4, 5, 100, 65535, 2147483647] {
-        writeln!(s, "case ctx-{n}\nwctx {n}\nend").unwrap();
+        writeln!(s, "case ctx-{n}\nwctx {n}\nend");
     }
     let srcs = ["bgra", "bgr24", "rgb24", "gray8", "gray16", "pbgra", "rgba", "bgr565", "rgba64", "cmyk", "idx8", "bw"];
     let dsts = ["bgra", "bgr24", "gray8", "pbgra", "rgba64", "cmyk", "rgb48", "idx8"];
     for (i, f) in srcs.iter().enumerate() {
         for (k, t) in dsts.iter().enumerate() {
             for (a, b) in [(1, 1), (1, 2), (2, 1)] {
-                writeln!(s, "case xf-{f}-{t}-{a}{b}\nwbits {f} 8 2 {}\nwcolor {a} {b} {t}\nwinfo\nwpixels\nend", 1 + i * 64 + k * 4 + a * 2 + b).unwrap();
+                writeln!(s, "case xf-{f}-{t}-{a}{b}\nwbits {f} 8 2 {}\nwcolor {a} {b} {t}\nwinfo\nwpixels\nend", 1 + i * 64 + k * 4 + a * 2 + b);
             }
         }
     }
     for (a, b) in [(0, 1), (1, 0), (3, 1), (1, 3)] {
-        writeln!(s, "case xf-bad-{a}{b}\nwbits bgra 2 2 1\nwcolor {a} {b} bgra\nend").unwrap();
+        writeln!(s, "case xf-bad-{a}{b}\nwbits bgra 2 2 1\nwcolor {a} {b} bgra\nend");
     }
     // the transforms' curves and mixing: ramps of each primary, gray, and random colors, from a
     // 24-bit BMP, into 24bppBGR and 64bppRGBA (16 bits show the arithmetic), between every pair
@@ -249,13 +249,13 @@ pub fn wiccolor() -> String {
         let f = bmp(40, w as i32, h as i32, 24, 0, [0; 4], 0, &[], &rows, false, (3780, 3780));
         for (a, b) in [(1, 1), (1, 2), (2, 1), (2, 2), (0, 1), (1, 0), (3, 2), (65535, 1)] {
             for t in ["bgr24", "rgba64"] {
-                writeln!(s, "case cm-{name}-{a}{b}-{t}\nwdecode {}\nwframe 0\nwcolor {a} {b} {t}\nwpixels\nend", hex(&f)).unwrap();
+                writeln!(s, "case cm-{name}-{a}{b}-{t}\nwdecode {}\nwframe 0\nwcolor {a} {b} {t}\nwpixels\nend", hex(&f));
             }
         }
     }
     // every 8-bit level through sRGB to Adobe RGB and back
-    writeln!(s, "case levels-12\nwbits bgr24 256 1 ramp\nwcolor 1 2 bgr24\nwpixels\nend").unwrap();
-    writeln!(s, "case levels-21\nwbits bgr24 256 1 ramp\nwcolor 2 1 bgr24\nwpixels\nend").unwrap();
+    writeln!(s, "case levels-12\nwbits bgr24 256 1 ramp\nwcolor 1 2 bgr24\nwpixels\nend");
+    writeln!(s, "case levels-21\nwbits bgr24 256 1 ramp\nwcolor 2 1 bgr24\nwpixels\nend");
     s
 }
 
@@ -749,9 +749,9 @@ fn rand_pal(r: &mut XorShift32, n: usize) -> Vec<u32> {
 
 /// the decoder cases: each a file and what is asked of it
 fn decode_case(s: &mut String, name: &str, file: &[u8], frames: u32, pal: bool) {
-    writeln!(s, "case {name}\nwdecode {}", hex(file)).unwrap();
+    writeln!(s, "case {name}\nwdecode {}", hex(file));
     for f in 0..frames {
-        writeln!(s, "wframe {f}\nwinfo\nwpixels").unwrap();
+        writeln!(s, "wframe {f}\nwinfo\nwpixels");
         if pal {
             s.push_str("wsrcpal\n");
         }
@@ -892,9 +892,18 @@ pub fn wicdecode() -> String {
         let mut frames = Vec::new();
         for _ in 0..nf {
             let (fw, fh) = (r.range(1, w as i64) as u32, r.range(1, h as i64) as u32);
-            let local = if gl.is_none() || r.chance(3) { { let n = r.range(2, 64) as usize; Some(rand_pal(&mut r, n)) } } else { None };
-            let n = local.as_ref().or(gl.as_ref()).unwrap().len();
-            let bits = (1..=8).find(|b| 1usize << b >= n).unwrap() as u32;
+            // (a local table: always without a global one, else one frame in three)
+            let (local, n) = match &gl {
+                Some(g) if !r.chance(3) => (None, g.len()),
+                _ => {
+                    let n = r.range(2, 64) as usize;
+                    let p = rand_pal(&mut r, n);
+                    let len = p.len();
+                    (Some(p), len)
+                }
+            };
+            // (the bits of an index: the least of 1..=8 whose 2^bits colors hold the table's n)
+            let bits = n.next_power_of_two().trailing_zeros().max(1);
             let min = bits.max(2);
             let idx: Vec<u8> = (0..fw * fh).map(|_| (r.next() as usize % (1 << bits)) as u8).collect();
             frames.push(GifFrame { x: r.range(0, (w - fw) as i64) as u32, y: r.range(0, (h - fh) as i64) as u32, w: fw, h: fh, local, transparent: if r.chance(2) { Some(r.range(0, n as i64 - 1) as u8) } else { None }, interlace: r.chance(3), idx, min });
@@ -1043,7 +1052,7 @@ pub fn wicdecode() -> String {
                 // (a block whose first color is not above its second: the 3-color mode)
                 data[0..4].copy_from_slice(&[0x10, 0x00, 0x20, 0x00]);
             }
-            decode_case(&mut s, &format!("dds-{}-{w}x{h}-{mips}", std::str::from_utf8(fc).unwrap().to_lowercase()), &dds(w, h, mips, Some(fc), &data), mips, false);
+            decode_case(&mut s, &format!("dds-{}-{w}x{h}-{mips}", fc.iter().map(|&c| char::from(c.to_ascii_lowercase())).collect::<String>()), &dds(w, h, mips, Some(fc), &data), mips, false);
         }
     }
     decode_case(&mut s, "dds-argb", &dds(3, 2, 1, None, &bytes(&mut r, 24)), 1, false);
@@ -1202,7 +1211,7 @@ pub fn wicdecode() -> String {
     }
     // DDS of other FourCCs and of a DX10 header
     for fc in [b"DXT2", b"DXT4", b"ATI1", b"ATI2", b"BC4U", b"BC5U", b"DX10"] {
-        decode_case(&mut s, &format!("dds-{}", std::str::from_utf8(fc).unwrap().to_lowercase()), &dds(4, 4, 1, Some(fc), &bytes(&mut r, 32)), 1, false);
+        decode_case(&mut s, &format!("dds-{}", fc.iter().map(|&c| char::from(c.to_ascii_lowercase())).collect::<String>()), &dds(4, 4, 1, Some(fc), &bytes(&mut r, 32)), 1, false);
     }
     // DX10 headers: the BC formats (typeless, unorm, sRGB), BC4-BC7, 8-bit RGBA and BGRA, and an
     // array of two
@@ -1313,27 +1322,27 @@ pub fn wicencode() -> String {
             let bytes = if ["bmp", "gif", "jpeg", "wmp", "dds"].contains(c) { "wbytes\n" } else { "" };
             // (GIF: the palette it writes too)
             let pal = if *c == "gif" { "wsrcpal\n" } else { "" };
-            writeln!(s, "case enc-{c}-{f}\nwbits {f} 5 3 {seed}\nwencode {c}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\n{pal}end").unwrap();
+            writeln!(s, "case enc-{c}-{f}\nwbits {f} 5 3 {seed}\nwencode {c}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\n{pal}end");
             seed += 1;
         }
     }
     // a format other than the source's asked of SetPixelFormat
     for c in ["bmp", "png", "tiff"] {
         for f in ["bgra", "gray8", "idx8", "rgba64", "bw"] {
-            writeln!(s, "case encas-{c}-{f}\nwbits bgr24 4 2 {seed}\nwencode {c} {f}\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
+            writeln!(s, "case encas-{c}-{f}\nwbits bgr24 4 2 {seed}\nwencode {c} {f}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
             seed += 1;
         }
     }
     // color into BlackWhite: 16x16 of one gray at every level, of one primary every 5 levels
     let one = |c: [u8; 3]| bmp(40, 16, 16, 24, 0, [0; 4], 0, &[], &c.repeat(256), false, (0, 0));
     for v in 0..=255u8 {
-        writeln!(s, "case encbw-gray-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one([v; 3]))).unwrap();
+        writeln!(s, "case encbw-gray-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one([v; 3])));
     }
     for (k, ch) in ["b", "g", "r"].iter().enumerate() {
         for v in (0..=255u8).step_by(5) {
             let mut c = [0u8; 3];
             c[k] = v;
-            writeln!(s, "case encbw-{ch}-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one(c))).unwrap();
+            writeln!(s, "case encbw-{ch}-{v}\nwdecode {}\nwframe 0\nwencode png bw\nwredecode\nwframe 0\nwpixels\nend", hex(&one(c)));
         }
     }
     // 16-bit sources into 64bppRGBAFixedPoint (what the BMP encoder takes them as): every 16th
@@ -1350,21 +1359,21 @@ pub fn wicencode() -> String {
         let a = mk(4, &|k| vec![lv(k, lo), (k as u16).wrapping_mul(37), 65535 - lv(k, lo), (k as u16).wrapping_mul(7919)]);
         for (name, ct, rows, bpp) in [("gray16", 0u8, g, 2usize), ("rgb48", 2, c, 6), ("rgba64", 6, a, 8)] {
             let f = png(w, h, 16, ct, false, &[], &png_filter(&rows, bpp, &[0]), 4096);
-            writeln!(s, "case fixed-{name}-{tag}\nwdecode {}\nwframe 0\nwinfo\nwconv rgba64fixed\nwpixels\nend", hex(&f)).unwrap();
+            writeln!(s, "case fixed-{name}-{tag}\nwdecode {}\nwframe 0\nwinfo\nwconv rgba64fixed\nwpixels\nend", hex(&f));
             // (and into the float formats the Fant scaler works in)
             for to in ["grayfloat", "rgbafloat", "prgbafloat", "rgbfloat"] {
-                writeln!(s, "case float-{name}-{tag}-{to}\nwdecode {}\nwframe 0\nwconv {to}\nwpixels\nend", hex(&f)).unwrap();
+                writeln!(s, "case float-{name}-{tag}-{to}\nwdecode {}\nwframe 0\nwconv {to}\nwpixels\nend", hex(&f));
             }
         }
     }
     // a gray ramp and random pictures of 2 to 300 colors into 8bppIndexed: the palette chosen
     let mut r = XorShift32::new(0x9a1e);
     let ramp: Vec<u8> = (0..=255u8).flat_map(|v| [v; 3]).collect();
-    writeln!(s, "case encq-ramp\nwdecode {}\nwframe 0\nwencode png idx8\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&bmp(40, 16, 16, 24, 0, [0; 4], 0, &[], &ramp, false, (0, 0)))).unwrap();
+    writeln!(s, "case encq-ramp\nwdecode {}\nwframe 0\nwencode png idx8\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&bmp(40, 16, 16, 24, 0, [0; 4], 0, &[], &ramp, false, (0, 0))));
     for n in [2usize, 3, 16, 17, 100, 255, 256, 257, 300] {
         let cols: Vec<[u8; 3]> = (0..n).map(|_| [r.next() as u8, r.next() as u8, r.next() as u8]).collect();
         let px: Vec<u8> = (0..400).flat_map(|i| cols[if i < n { i } else { r.next() as usize % n }]).collect();
-        writeln!(s, "case encq-{n}\nwdecode {}\nwframe 0\nwencode png idx8\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&bmp(40, 20, 20, 24, 0, [0; 4], 0, &[], &px, false, (0, 0)))).unwrap();
+        writeln!(s, "case encq-{n}\nwdecode {}\nwframe 0\nwencode png idx8\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&bmp(40, 20, 20, 24, 0, [0; 4], 0, &[], &px, false, (0, 0))));
     }
     // options
     let opts: &[(&str, &str)] = &[
@@ -1392,7 +1401,7 @@ pub fn wicencode() -> String {
     ];
     for (k, (c, o)) in opts.iter().enumerate() {
         for f in ["bgra", "bgr24", "gray8"] {
-            writeln!(s, "case opt-{k}-{f}\nwbits {f} 6 4 {seed}\nwencode {c} {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
+            writeln!(s, "case opt-{k}-{f}\nwbits {f} 6 4 {seed}\nwencode {c} {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
             seed += 1;
         }
     }
@@ -1400,7 +1409,7 @@ pub fn wicencode() -> String {
     // first codes)
     for c in ["bmp", "png", "tiff", "gif"] {
         let f = if c == "gif" { "idx8" } else { "bgra" };
-        writeln!(s, "case big-{c}\nwbits {f} 40 30 {seed}\nwencode {c}\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
+        writeln!(s, "case big-{c}\nwbits {f} 40 30 {seed}\nwencode {c}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
         seed += 1;
     }
     // GIF from RGBA: every alpha (which go transparent), and a palette that fills 2^b or 256
@@ -1419,26 +1428,26 @@ pub fn wicencode() -> String {
     // and the Fant scaler start from)
     let every: Vec<Vec<u8>> = (0..256u32).map(|y| (0..256u32).flat_map(|x| ((y * 256 + x) as u16).to_be_bytes()).collect()).collect();
     let f = png(256, 256, 16, 0, false, &[], &png_filter(&every, 2, &[0]), 4096);
-    writeln!(s, "case float-gray16-every-rgbfloat\nwdecode {}\nwframe 0\nwconv rgbfloat\nwpixels\nend", hex(&f)).unwrap();
+    writeln!(s, "case float-gray16-every-rgbfloat\nwdecode {}\nwframe 0\nwconv rgbfloat\nwpixels\nend", hex(&f));
     // more colors than an indexed format holds: the palette the encoder makes, and the pixels
     for f in ["bw", "idx4", "idx8"] {
         for (k, (w, h, seed)) in [(4u32, 2u32, 212u32), (16, 16, 0x51), (16, 16, 0x52), (32, 32, 0x53)].iter().enumerate() {
-            writeln!(s, "case encpal-{f}-{k}\nwbits bgr24 {w} {h} {seed}\nwencode bmp {f}\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend").unwrap();
+            writeln!(s, "case encpal-{f}-{k}\nwbits bgr24 {w} {h} {seed}\nwencode bmp {f}\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend");
         }
     }
     for (n, f) in cases {
-        writeln!(s, "case gifalpha-{n}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&f)).unwrap();
+        writeln!(s, "case gifalpha-{n}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&f));
     }
     gridtie(&mut s);
     // DDS pictures of more than one row of blocks
     for (f, w, h, seed) in [("gray8", 9u32, 9u32, 0x0dd5_0001u32), ("gray8", 6, 10, 0x0dd5_0002), ("gray16", 8, 12, 0x0dd5_0003), ("bgra", 9, 9, 0x0dd5_0004), ("bgr24", 4, 8, 0x0dd5_0005)] {
-        writeln!(s, "case encdds-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode dds\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend").unwrap();
+        writeln!(s, "case encdds-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode dds\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
     }
     // the TIFF compression methods the options above leave out (0 don't care, 3 CCITT4, 4 LZW,
     // 5 RLE), on their own seeds
     for (k, m) in [0u32, 3, 4, 5].iter().enumerate() {
         for (j, f) in ["bgra", "bgr24", "gray8", "bw"].iter().enumerate() {
-            writeln!(s, "case opt-tiff-{m}-{f}\nwbits {f} 6 4 {}\nwencode tiff TiffCompressionMethod={m}\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0000u32 + (k * 4 + j) as u32).unwrap();
+            writeln!(s, "case opt-tiff-{m}-{f}\nwbits {f} 6 4 {}\nwencode tiff TiffCompressionMethod={m}\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0000u32 + (k * 4 + j) as u32);
         }
     }
     // every 16-bit gray level into 48bppRGB (16bppGray's own path into 64bppRGBAFixedPoint goes
@@ -1446,13 +1455,13 @@ pub fn wicencode() -> String {
     {
         let every: Vec<Vec<u8>> = (0..256u32).map(|y| (0..256u32).flat_map(|x| ((y * 256 + x) as u16).to_be_bytes()).collect()).collect();
         let f = png(256, 256, 16, 0, false, &[], &png_filter(&every, 2, &[0]), 4096);
-        writeln!(s, "case gray16-every-rgb48\nwdecode {}\nwframe 0\nwconv rgb48\nwpixels\nend", hex(&f)).unwrap();
+        writeln!(s, "case gray16-every-rgb48\nwdecode {}\nwframe 0\nwconv rgb48\nwpixels\nend", hex(&f));
     }
     // many single DDS blocks (one 4x4 picture each, its own seed): the start and the stop of the
     // color fit, and the alpha fit
     for (f, n) in [("bgr24", 48u32), ("bgra", 32), ("gray8", 16)] {
         for k in 0..n {
-            writeln!(s, "case ddsblock-{f}-{k}\nwbits {f} 4 4 {}\nwencode dds\nwbytes\nend", 0x0dd6_0000u32 + k * 7919 + n).unwrap();
+            writeln!(s, "case ddsblock-{f}-{k}\nwbits {f} 4 4 {}\nwencode dds\nwbytes\nend", 0x0dd6_0000u32 + k * 7919 + n);
         }
     }
     // 16bppGray into 64bppRGBAFixedPoint through each other format: which path Windows takes
@@ -1460,7 +1469,7 @@ pub fn wicencode() -> String {
         let rows: Vec<Vec<u8>> = (0..64usize).map(|y| (0..64usize).flat_map(|x| { let k = y * 64 + x; ((k * 16 + k % 16) as u16).to_be_bytes() }).collect()).collect();
         let f = png(64, 64, 16, 0, false, &[], &png_filter(&rows, 2, &[0]), 4096);
         for mid in ["grayfloat", "rgbafloat", "prgbafloat", "rgbfloat", "rgb96float", "grayfix16", "grayfix32", "grayhalf", "rgba64half", "rgb64half", "rgb48half", "rgb48", "rgba64", "rgb48fixed", "rgb64fixed", "rgb96fixed", "rgba128fixed", "rgb128fixed", "bgra64fixed"] {
-            writeln!(s, "case fixpath-gray16-{mid}\nwdecode {}\nwframe 0\nwconv {mid}\nwinfo\nwpixels\nwconv rgba64fixed\nwpixels\nend", hex(&f)).unwrap();
+            writeln!(s, "case fixpath-gray16-{mid}\nwdecode {}\nwframe 0\nwconv {mid}\nwinfo\nwpixels\nwconv rgba64fixed\nwpixels\nend", hex(&f));
         }
     }
     // every 8-bit level of 24bppBGR, 32bppBGRA (and every alpha) and 8bppGray into
@@ -1468,25 +1477,25 @@ pub fn wicencode() -> String {
     {
         let ramp: Vec<u8> = (0..256u32).flat_map(|v| [v as u8, (255 - v) as u8, (v * 7 % 256) as u8]).collect();
         let b = bmp(40, 256, 1, 24, 0, [0; 4], 0, &[], &ramp, true, (2835, 2835));
-        writeln!(s, "case rgba64fixed-every-bgr24\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&b)).unwrap();
+        writeln!(s, "case rgba64fixed-every-bgr24\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&b));
         let ramp: Vec<u8> = (0..256u32).flat_map(|v| [v as u8, (255 - v) as u8, (v * 7 % 256) as u8, (v * 13 % 256) as u8]).collect();
         let raw: Vec<Vec<u8>> = vec![ramp.chunks(4).flat_map(|c| [c[2], c[1], c[0], c[3]]).collect()];
         let p = png(256, 1, 8, 6, false, &[], &png_filter(&raw, 4, &[0]), 4096);
-        writeln!(s, "case rgba64fixed-every-bgra\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p)).unwrap();
+        writeln!(s, "case rgba64fixed-every-bgra\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p));
         let raw: Vec<Vec<u8>> = vec![(0..=255u8).collect()];
         let p = png(256, 1, 8, 0, false, &[], &png_filter(&raw, 1, &[0]), 4096);
-        writeln!(s, "case rgba64fixed-every-gray8\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p)).unwrap();
+        writeln!(s, "case rgba64fixed-every-gray8\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwpixels\nend", hex(&p));
     }
     // (not measured yet: premultiplied and RGBA order into 64bppRGBAFixedPoint, and a
     // TiffCompressionMethod past 7)
     for (k, f) in ["pbgra", "rgba", "prgba"].iter().enumerate() {
-        writeln!(s, "case rgba64fixed-from-{f}\nwbits {f} 16 16 {}\nwconv rgba64fixed\nwpixels\nend", 0x64f1_0000u32 + k as u32).unwrap();
+        writeln!(s, "case rgba64fixed-from-{f}\nwbits {f} 16 16 {}\nwconv rgba64fixed\nwpixels\nend", 0x64f1_0000u32 + k as u32);
     }
-    writeln!(s, "case opt-tiff-8-bgra\nwbits bgra 6 4 {}\nwencode tiff TiffCompressionMethod=8\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0100u32).unwrap();
+    writeln!(s, "case opt-tiff-8-bgra\nwbits bgra 6 4 {}\nwencode tiff TiffCompressionMethod=8\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0100u32);
     // (not measured yet: the fixed-point and float formats back into 8 bits, and an option name
     // no encoder has)
     for (k, (f, t)) in [("rgba64fixed", "bgra"), ("rgbafloat", "bgra"), ("rgb48fixed", "rgb48"), ("grayfix16", "gray8"), ("rgba64half", "bgra")].into_iter().enumerate() {
-        writeln!(s, "case back-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xbac0_0000u32 + k as u32).unwrap();
+        writeln!(s, "case back-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xbac0_0000u32 + k as u32);
     }
     // GIF from RGBA of more colors than 256 with transparent pixels (the grid a box short):
     // random colors, random colors of a few levels (counts differ), one transparent pixel or many
@@ -1496,25 +1505,25 @@ pub fn wicencode() -> String {
             let mut c = || (r.next() % levels * (255 / (levels - 1).max(1))).min(255) as u8;
             [c(), c(), c(), if i % every == every / 2 { 0 } else { 255 }]
         }).collect();
-        writeln!(s, "case gifgrid-{k}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&rgba(w, &|i| px[i]))).unwrap();
+        writeln!(s, "case gifgrid-{k}\nwdecode {}\nwframe 0\nwencode gif\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nwsrcpal\nend", hex(&rgba(w, &|i| px[i])));
     }
     // (64bppRGBAFixedPoint's alpha back into 16 bits, and the float and half formats' alpha:
     // random alphas)
     for (k, (f, t)) in [("rgba64fixed", "rgba64"), ("rgbafloat", "rgba64"), ("rgba64half", "rgba64")].into_iter().enumerate() {
-        writeln!(s, "case backalpha-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xba1f_0000u32 + k as u32).unwrap();
+        writeln!(s, "case backalpha-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xba1f_0000u32 + k as u32);
     }
     // 8-bit color into 16bppGrayFixedPoint as it is (the luma's sums and rounding): random
     // pixels, and every level of each primary and of gray
     for (k, f) in ["bgra", "bgr24", "rgba", "pbgra", "gray8"].into_iter().enumerate() {
-        writeln!(s, "case grayfix-from-{f}\nwbits {f} 64 64 {}\nwconv grayfix16\nwpixels\nend", 0x6f10_0000u32 + k as u32).unwrap();
+        writeln!(s, "case grayfix-from-{f}\nwbits {f} 64 64 {}\nwconv grayfix16\nwpixels\nend", 0x6f10_0000u32 + k as u32);
     }
     for (name, px) in [("red", [0u8, 0, 1]), ("green", [0, 1, 0]), ("blue", [1, 0, 0]), ("gray", [1, 1, 1])] {
         let rows: Vec<Vec<u8>> = (0..16usize).map(|y| (0..16usize).flat_map(|x| { let c = (y * 16 + x) as u8; [px[2] * c, px[1] * c, px[0] * c] }).collect()).collect();
-        writeln!(s, "case grayfix-every-{name}\nwdecode {}\nwframe 0\nwconv bgr24\nwconv grayfix16\nwpixels\nend", hex(&png(16, 16, 8, 2, false, &[], &png_filter(&rows, 3, &[0]), 4096))).unwrap();
+        writeln!(s, "case grayfix-every-{name}\nwdecode {}\nwframe 0\nwconv bgr24\nwconv grayfix16\nwpixels\nend", hex(&png(16, 16, 8, 2, false, &[], &png_filter(&rows, 3, &[0]), 4096)));
     }
     // (not measured yet: color wide formats into gray, gray wide formats into color)
     for (k, (f, t)) in [("rgba64fixed", "gray16"), ("rgbafloat", "gray16"), ("grayfix16", "bgra"), ("grayfloat", "rgba64")].into_iter().enumerate() {
-        writeln!(s, "case cross-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xc055_0000u32 + k as u32).unwrap();
+        writeln!(s, "case cross-{f}-{t}\nwbits bgra 16 16 {}\nwconv {f}\nwconv {t}\nwpixels\nend", 0xc055_0000u32 + k as u32);
     }
     // (color into gray from the wide formats: every 16-bit level as RGBA float, every s2.13
     // level as RGBA fixed point, gray all three channels)
@@ -1534,10 +1543,10 @@ pub fn wicencode() -> String {
             png(128, h as u32, 16, 0, false, &[], &png_filter(&rows, 2, &[0]), 4096)
         };
         let fixlv: Vec<u16> = pick.iter().flatten().copied().collect();
-        writeln!(s, "case graysweep-rgba64fixed-gray16\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwconv gray16\nwpixels\nend", hex(&gray(&fixlv))).unwrap();
+        writeln!(s, "case graysweep-rgba64fixed-gray16\nwdecode {}\nwframe 0\nwconv rgba64fixed\nwconv gray16\nwpixels\nend", hex(&gray(&fixlv)));
         for j in 0..4u32 {
             let lv: Vec<u16> = (0..16384u32).map(|k| (k * 4 + (k + j) % 4) as u16).collect();
-            writeln!(s, "case graysweep{j}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&gray(&lv))).unwrap();
+            writeln!(s, "case graysweep{j}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&gray(&lv)));
         }
     }
     // (where inside the gaps between neighbouring gray levels the steps into 16 bits sit: red
@@ -1550,10 +1559,10 @@ pub fn wicencode() -> String {
             [v as u16, v as u16, b as u16].into_iter().flat_map(|c| c.to_be_bytes())
         }).collect()).collect();
         let f = png(128, 32, 16, 2, false, &[], &png_filter(&rows, 6, &[0]), 4096);
-        writeln!(s, "case gapsweep-{k}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&f)).unwrap();
-        writeln!(s, "case gapsweep-{k}-rgbafloat-rgba64\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv rgba64\nwpixels\nend", hex(&f)).unwrap();
+        writeln!(s, "case gapsweep-{k}-rgbafloat-gray16\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv gray16\nwpixels\nend", hex(&f));
+        writeln!(s, "case gapsweep-{k}-rgbafloat-rgba64\nwdecode {}\nwframe 0\nwconv rgbafloat\nwconv rgba64\nwpixels\nend", hex(&f));
     }
-    writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32).unwrap();
+    writeln!(s, "case opt-jpeg-sub1-bgra\nwbits bgra 6 4 {}\nwencode jpeg JpegYCrCbSubsampling=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0101u32);
     // the wide formats back into 8 and 16 bits: every s2.13 value 0..=8192 (a 16bppGray level
     // whose 48bppRGB level lands on it), and every 4th 16-bit level as float and half (wbits
     // makes no wide format, so no values out of 0..=1 here)
@@ -1577,7 +1586,7 @@ pub fn wicencode() -> String {
     let flpng = sweep(&quarter, 128);
     for (via, png, tos) in [("rgba64fixed", &fixpng, &["rgba64", "bgra", "rgb48", "bgr24"][..]), ("grayfix16", &fixpng, &["gray16", "gray8"]), ("rgbafloat", &flpng, &["rgba64", "bgra"]), ("rgba64half", &flpng, &["rgba64", "bgra"]), ("grayfloat", &flpng, &["gray16", "gray8"])] {
         for to in tos {
-            writeln!(s, "case backsweep-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(png)).unwrap();
+            writeln!(s, "case backsweep-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(png));
         }
     }
     // (the other three quarters of the 16-bit levels as float and half: every level)
@@ -1586,14 +1595,14 @@ pub fn wicencode() -> String {
         let png = sweep(&lv, 128);
         for (via, tos) in [("rgbafloat", ["rgba64", "bgra"]), ("rgba64half", ["rgba64", "bgra"]), ("grayfloat", ["gray16", "gray8"])] {
             for to in tos {
-                writeln!(s, "case backsweep{j}-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(&png)).unwrap();
+                writeln!(s, "case backsweep{j}-{via}-{to}\nwdecode {}\nwframe 0\nwconv {via}\nwconv {to}\nwpixels\nend", hex(&png));
             }
         }
     }
     // (where each 16-bit and 8-bit level starts as a float: the executor bisects the bits of
     // 0..1 per level, WICIMAGE.CONVERT.FLOAT.NARROW)
     for (from, to) in [("grayfloat", "gray16"), ("grayfloat", "gray8"), ("rgbafloat", "rgba64"), ("rgbafloat", "bgra")] {
-        writeln!(s, "case steps-{from}-{to}\nwsteps {from} {to}\nend").unwrap();
+        writeln!(s, "case steps-{from}-{to}\nwsteps {from} {to}\nend");
     }
     // (floats outside 0..1 back into 8 and 16 bits: a 32bppGrayFloat TIFF of them)
     let odd: Vec<u8> = [-1.0f32, -0.0, -1e-30, f32::from_bits(1), 1.0000001, 1.5, 2.0, 1e30, f32::INFINITY, f32::NEG_INFINITY, f32::NAN, f32::from_bits(0xffc0_0000), 0.5, 1.0, 0.0, -0.5]
@@ -1601,7 +1610,7 @@ pub fn wicencode() -> String {
     let tf = tiff(false, &[TiffImage { w: 16, h: 1, photometric: 1, bits: 32, samples: 1, extra: None, planar: 1, rps: 1, px: odd, map: vec![], res: None, format: 3 }]);
     for (via, to) in [("", "gray16"), ("", "gray8"), ("", "rgba64"), ("rgbafloat", "rgba64"), ("rgbafloat", "bgra"), ("rgbafloat", "gray16"), ("rgba64half", "rgba64"), ("rgba64fixed", "rgba64")] {
         let conv = if via.is_empty() { String::new() } else { format!("wconv {via}\n") };
-        writeln!(s, "case floatout-{}{to}\nwdecode {}\nwframe 0\n{conv}wconv {to}\nwpixels\nend", if via.is_empty() { String::new() } else { format!("{via}-") }, hex(&tf)).unwrap();
+        writeln!(s, "case floatout-{}{to}\nwdecode {}\nwframe 0\n{conv}wconv {to}\nwpixels\nend", if via.is_empty() { String::new() } else { format!("{via}-") }, hex(&tf));
     }
     // (alpha outside 0..1: a 128bppRGBAFloat TIFF of gray 0.5 under those floats as alpha; and
     // 16bppGrayFixedPoint outside 0..1, from those gray floats)
@@ -1609,10 +1618,10 @@ pub fn wicencode() -> String {
     let px: Vec<u8> = vals.iter().flat_map(|&a| [0.5f32, 0.5, 0.5, a]).flat_map(|f| f.to_le_bytes()).collect();
     let ta = tiff(false, &[TiffImage { w: 16, h: 1, photometric: 2, bits: 32, samples: 4, extra: Some(2), planar: 1, rps: 1, px, map: vec![], res: None, format: 3 }]);
     for to in ["rgba64", "bgra"] {
-        writeln!(s, "case floatalpha-{to}\nwdecode {}\nwframe 0\nwinfo\nwconv {to}\nwpixels\nend", hex(&ta)).unwrap();
+        writeln!(s, "case floatalpha-{to}\nwdecode {}\nwframe 0\nwinfo\nwconv {to}\nwpixels\nend", hex(&ta));
     }
     for to in ["gray16", "gray8", "bgra"] {
-        writeln!(s, "case grayfixout-{to}\nwdecode {}\nwframe 0\nwconv grayfix16\nwpixels\nwconv {to}\nwpixels\nend", hex(&tf)).unwrap();
+        writeln!(s, "case grayfixout-{to}\nwdecode {}\nwframe 0\nwconv grayfix16\nwpixels\nwconv {to}\nwpixels\nend", hex(&tf));
     }
     s
 }
@@ -1641,7 +1650,7 @@ fn gridtie(s: &mut String) {
         bmp(40, px.len() as i32, 1, 24, 0, [0; 4], 0, &[], &row, false, (0, 0))
     };
     let case = |s: &mut String, name: &str, f: &str, px: &[[u8; 3]]| {
-        writeln!(s, "case gridtie-{name}\nwdecode {}\nwframe 0\nwencode bmp {f}\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&file(px))).unwrap();
+        writeln!(s, "case gridtie-{name}\nwdecode {}\nwframe 0\nwencode bmp {f}\nwredecode\nwframe 0\nwpixels\nwsrcpal\nend", hex(&file(px)));
     };
     let mut r = crate::rng::XorShift32::new(0x6e1d_7e00);
     for (f, sp) in grids {

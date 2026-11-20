@@ -8,7 +8,7 @@
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
 use crate::spec::{clause, open};
-use super::{Fail, Res};
+use super::{filled, filled_mut, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
@@ -1158,8 +1158,13 @@ fn gamma_alpha_234(f: u32, b: u32) -> u32 {
     if f == b {
         return b;
     }
-    let d = i64::from(f) - i64::from(b);
-    u32::try_from(i64::from(b) + (32 * d - 1).div_euclid(35)).expect("between b and f, 0..=255")
+    // (b + floor((32 (f - b) - 1) / 35), in unsigned steps: below f, b - ceil((32 (b - f) + 1) / 35),
+    // at most b - f under b, never under 0)
+    if f > b {
+        b + (32 * (f - b) - 1) / 35
+    } else {
+        b - (32 * (b - f) / 35 + 1)
+    }
 }
 
 /// the subsamples at p + k / n (k = 0 .. n) in [a, b)
@@ -1787,7 +1792,7 @@ impl Gdiplus {
             "gpwrite" => {
                 let s = Self::slot(t, 1)?;
                 let f = fmt_at(t, 2)?;
-                let b = self.bmp[s].as_mut().unwrap();
+                let b = filled_mut(&mut self.bmp, s)?;
                 let r = rect_after(t, b)?;
                 if !rect_ok(b, r) {
                     out.push(format!("write {INVALID_PARAMETER}"));
@@ -1812,7 +1817,7 @@ impl Gdiplus {
             "gpread" => {
                 let s = Self::slot(t, 1)?;
                 let f = fmt_at(t, 2)?;
-                let b = self.bmp[s].as_ref().unwrap();
+                let b = filled(&self.bmp, s)?;
                 let r = rect_after(t, b)?;
                 if !rect_ok(b, r) {
                     out.push(format!("read {INVALID_PARAMETER}"));
@@ -1839,7 +1844,7 @@ impl Gdiplus {
                 let s = Self::slot(t, 1)?;
                 let (x, y) = (n(t, 2)?, n(t, 3)?);
                 let c = if name == "gpset" { n(t, 4)? as u32 } else { 0 };
-                let b = self.bmp[s].as_mut().unwrap();
+                let b = filled_mut(&mut self.bmp, s)?;
                 let w = &name[2..];
                 if gray16(b.f) {
                     hit(clause::GP_GRAY16);
@@ -1862,7 +1867,7 @@ impl Gdiplus {
                 }
             }
             "gpinfo" => {
-                let b = self.bmp[Self::slot(t, 1)?].as_ref().unwrap();
+                let b = filled(&self.bmp, Self::slot(t, 1)?)?;
                 hit(clause::GP_INFO);
                 if b.pal.is_empty() {
                     hit(clause::GP_INFO_NOPALETTE);
@@ -1873,7 +1878,7 @@ impl Gdiplus {
                 }
             }
             "gpfill" | "gpclear" => {
-                let b = self.bmp[Self::slot(t, 1)?].as_mut().unwrap();
+                let b = filled_mut(&mut self.bmp, Self::slot(t, 1)?)?;
                 let w = &name[2..];
                 let (r, c, mode, q) = if name == "gpfill" {
                     let mode = match t.get(7).map(String::as_str) {
@@ -1913,7 +1918,7 @@ impl Gdiplus {
                 out.push(format!("{w} 0 0"));
             }
             "gprotate" => {
-                let b = self.bmp[Self::slot(t, 1)?].as_mut().unwrap();
+                let b = filled_mut(&mut self.bmp, Self::slot(t, 1)?)?;
                 let k = n(t, 2)?;
                 if !(0..8).contains(&k) {
                     return Err(Fail::Bad);
@@ -1990,7 +1995,7 @@ impl Gdiplus {
                     out.push(format!("{name} nomatrix"));
                     return Ok(true);
                 };
-                let a = self.mat[s].unwrap();
+                let a = *filled(&self.mat, s)?;
                 // (MatrixOrderPrepend 0: the passed matrix on the left)
                 let m = match order {
                     0 => mul_in(rd, &b, &a),
@@ -2008,7 +2013,7 @@ impl Gdiplus {
             }
             "gpmatinv" => {
                 let s = Self::slot(t, 1)?;
-                let m = self.mat[s].unwrap();
+                let m = *filled(&self.mat, s)?;
                 let rd = rounding();
                 match invert_in(rd, &m) {
                     Some(i) => {
@@ -2024,7 +2029,7 @@ impl Gdiplus {
             }
             "gpmatpts" => {
                 let s = Self::slot(t, 1)?;
-                let m = self.mat[s].unwrap();
+                let m = *filled(&self.mat, s)?;
                 let rd = rounding();
                 let k = t.len() - 2;
                 if !k.is_multiple_of(2) || !(2..=32).contains(&k) {
@@ -2360,8 +2365,8 @@ impl Gdiplus {
                     return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
                 }
                 hit(clause::GP_DRAW);
-                let src = self.bmp[s].clone().unwrap();
-                let b = self.bmp[d].as_mut().unwrap();
+                let src = filled(&self.bmp, s)?.clone();
+                let b = filled_mut(&mut self.bmp, d)?;
                 let (dx, dy, w, h, sx, sy, sw, sh) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
                 let matrix = attr.as_ref().and_then(|a| a.matrix);
                 // a source pixel through the attributes, premultiplied; None past the bitmap
@@ -2690,4 +2695,19 @@ pub fn rotate(b: &Bitmap, k: u32) -> Bitmap {
         }
     }
     o
+}
+
+#[cfg(test)]
+mod gamma_tests {
+    /// the unsigned steps of gamma_alpha_234 are b + floor((32 (f - b) - 1) / 35), for every pair
+    #[test]
+    fn gamma_alpha_234_is_the_floor() {
+        for f in 0..=255u32 {
+            for b in 0..=255u32 {
+                let d = i64::from(f) - i64::from(b);
+                let want = if f == b { i64::from(b) } else { i64::from(b) + (32 * d - 1).div_euclid(35) };
+                assert_eq!(i64::from(super::gamma_alpha_234(f, b)), want, "f {f} b {b}");
+            }
+        }
+    }
 }

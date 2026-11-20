@@ -95,6 +95,17 @@ pub enum Ended {
 
 pub type Res<T> = Result<T, Fail>;
 
+/// the value in slot `i` of a model's slots (bitmaps, resources, views, ...); an empty slot or
+/// one past the end is `Fail::Empty`, the executor's answer to an op on an empty slot
+pub fn filled<T>(slots: &[Option<T>], i: usize) -> Res<&T> {
+    slots.get(i).and_then(Option::as_ref).ok_or(Fail::Empty)
+}
+
+/// [`filled`], to change
+pub fn filled_mut<T>(slots: &mut [Option<T>], i: usize) -> Res<&mut T> {
+    slots.get_mut(i).and_then(Option::as_mut).ok_or(Fail::Empty)
+}
+
 thread_local! {
     static ARCH: std::cell::Cell<u32> = const { std::cell::Cell::new(32) };
 }

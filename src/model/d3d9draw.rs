@@ -140,7 +140,8 @@ pub fn format(f: u32) -> Option<Fmt> {
         while j < b.len() && b[j].is_ascii_digit() {
             j += 1;
         }
-        let bits: u32 = layout[i + 1..j].parse().unwrap();
+        // (the digits after the channel letter; the table's layouts give each one)
+        let bits = b[i + 1..j].iter().fold(0, |n, d| n * 10 + u32::from(d - b'0'));
         ch.push(Ch { c, shift, bits });
         shift += bits;
         i = j;
@@ -355,7 +356,7 @@ fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> [f64; 4] {
         c[3] = 0.0;
     }
     if n == 2 || n == 3 {
-        let a = u64::from_le_bytes(b[0..8].try_into().unwrap()) >> (4 * t) & 15;
+        let a = u64::from_le_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) >> (4 * t) & 15;
         c[3] = (a * 17) as f64 / 255.0;
     } else if n >= 4 {
         let (a0, a1) = (b[0] as u32, b[1] as u32);
@@ -397,10 +398,10 @@ pub struct Surface {
 }
 
 impl Surface {
-    fn px(&self, x: i32, y: i32) -> &[u8] {
-        let b = format(self.fmt).unwrap().bytes;
+    fn px(&self, x: i32, y: i32) -> Res<&[u8]> {
+        let b = format(self.fmt).ok_or(Fail::Bad)?.bytes;
         let i = (y * self.w + x) as usize * b;
-        &self.bytes[i..i + b]
+        Ok(&self.bytes[i..i + b])
     }
     fn set(&mut self, x: i32, y: i32, v: &[u8]) {
         let b = v.len();
@@ -530,8 +531,10 @@ pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
     if sets > 8 {
         hit(clause::D3D9_FVF_TEXCOUNT);
         for k in 8..sets {
-            let l = *e.last().unwrap();
-            e.push(elem((l.0 >> 16) + decl_type_size(l.1 & 255).unwrap(), 1, 5, k));
+            let Some(&l) = e.last() else {
+                return Err(Fail::Bad);
+            };
+            e.push(elem((l.0 >> 16) + decl_type_size(l.1 & 255).ok_or(Fail::Bad)?, 1, 5, k));
         }
     }
     if xyzw {
@@ -543,7 +546,11 @@ pub fn fvf_runtime_decl(fvf: u32) -> Res<Option<Vec<(u32, u32)>>> {
     }
     if fvf & 0x2000 != 0 {
         let at = e.iter().take_while(|x| x.1 >> 16 & 255 != 5).count();
-        let off = e.get(at).map_or_else(|| e.last().map_or(0, |l| (l.0 >> 16) + decl_type_size(l.1 & 255).unwrap()), |x| x.0 >> 16);
+        let off = match (e.get(at), e.last()) {
+            (Some(x), _) => x.0 >> 16,
+            (None, Some(l)) => (l.0 >> 16) + decl_type_size(l.1 & 255).ok_or(Fail::Bad)?,
+            (None, None) => 0,
+        };
         for x in e.iter_mut().skip(at) {
             x.0 += 4 << 16;
         }
@@ -990,7 +997,7 @@ impl D3d9 {
                 };
                 let all = [(0, 0, w, h)];
                 let list: &[(i32, i32, i32, i32)] = if rects.is_empty() { &all } else { &rects };
-                let fm = format(rt.fmt).unwrap();
+                let fm = format(rt.fmt).ok_or(Fail::Bad)?;
                 hit(clause::D3D9_CLEAR_COLOR);
                 let px = encode(&fm, argb(c));
                 let zq = unorm(z, 24) as u32;
@@ -1017,7 +1024,7 @@ impl D3d9 {
                     return Ok(true);
                 };
                 hit(clause::D3D9_RT_READ);
-                let b = format(rt.fmt).unwrap().bytes;
+                let b = format(rt.fmt).ok_or(Fail::Bad)?.bytes;
                 out.push(format!("px rt {} {} {}", rt.w, rt.h, b * 8));
                 for row in rt.bytes.chunks(rt.w as usize * b) {
                     out.push(row.iter().map(|x| format!("{x:02x}")).collect());
@@ -1103,10 +1110,10 @@ impl D3d9 {
                     out.push(format!("tex {i} none"));
                     return Ok(true);
                 };
-                tx.bytes = fill_bytes(&format(tx.fmt).unwrap(), tx.w, tx.h, seed);
+                tx.bytes = fill_bytes(&format(tx.fmt).ok_or(Fail::Bad)?, tx.w, tx.h, seed);
             }
             "d9palette" => {
-                let b = fill_bytes(&format(50).unwrap(), 1024, 1, n(op, 1)?);
+                let b = fill_bytes(&format(50).ok_or(Fail::Bad)?, 1024, 1, n(op, 1)?);
                 let mut e = Box::new([[0u8; 4]; 256]);
                 for (i, c) in b.chunks(4).enumerate() {
                     e[i].copy_from_slice(c);
@@ -1168,7 +1175,7 @@ impl D3d9 {
                     return Err(Fail::Bad);
                 }
                 hit(clause::D3D9_DRAW_XYZ);
-                self.draw.xform.insert(ty, m.try_into().unwrap());
+                self.draw.xform.insert(ty, std::array::from_fn(|i| m[i]));
             }
             "d9viewport" => {
                 let v: Vec<i64> = (1..5).map(|i| n(op, i)).collect::<Res<_>>()?;
@@ -1262,7 +1269,7 @@ impl D3d9 {
             hit(clause::D3D9_TEX_BORDER);
             return Ok(argb(self.samp(st, 4)));
         };
-        let fm = format(tx.fmt).unwrap();
+        let fm = format(tx.fmt).ok_or(Fail::Bad)?;
         hit(clause::D3D9_TEX_FORMAT);
         match fm.kind {
             Kind::Int | Kind::F16 | Kind::F32 if !fm.ch.iter().any(|c| c.c == b'p') => {}
@@ -1270,7 +1277,7 @@ impl D3d9 {
             Kind::Int if matches!(tx.fmt, 40 | 41) => {
                 // (MEASURED palette-*: the entry's color; P8's alpha the entry's flags, A8P8's its own)
                 hit(clause::D3D9_TEX_PALETTE);
-                let p = tx.px(x as i32, y as i32);
+                let p = tx.px(x as i32, y as i32)?;
                 let e = self.draw.palette.as_ref().ok_or(Fail::Bad)?[p[0] as usize];
                 let a = if tx.fmt == 40 { p[1] } else { e[3] };
                 return Ok([e[0] as f64 / 255.0, e[1] as f64 / 255.0, e[2] as f64 / 255.0, a as f64 / 255.0]);
@@ -1279,7 +1286,7 @@ impl D3d9 {
             _ => return Err(Fail::Bad),
         }
         hit(clause::D3D9_TEX_DECODE);
-        Ok(to_rgba(tx.fmt, &decode(&fm, tx.px(x as i32, y as i32))))
+        Ok(to_rgba(tx.fmt, &decode(&fm, tx.px(x as i32, y as i32)?)))
     }
 
     /// the bilinear filter at texel coordinates (x, y)
@@ -1304,7 +1311,7 @@ impl D3d9 {
         let (x0, y0) = (x0 as i64, y0 as i64);
         let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
         let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
-        let fm = format(tx.fmt).unwrap();
+        let fm = format(tx.fmt).ok_or(Fail::Bad)?;
         let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
         Ok(if bytes {
             Weighted::Bytes(std::array::from_fn(|k| (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum()))
@@ -1525,7 +1532,7 @@ impl D3d9 {
                             lum = Some((t[2] * m(22) + m(23)).clamp(0.0, 1.0));
                         }
                     }
-                    let mut t = self.sample(st, self.draw.texs[i].as_ref().unwrap(), u, v)?;
+                    let mut t = self.sample(st, self.draw.texs[i].as_ref().ok_or(Fail::Empty)?, u, v)?;
                     if let Some(l) = lum {
                         // (MEASURED bump-2, bump-chain-3: in f32, rounded to the nearest of 255,
                         // halves to even)
@@ -1595,7 +1602,7 @@ impl D3d9 {
             let mut out = out;
             if (cop == 17 || aop == 17) && st < 7 && self.tss(st + 1, 1) != 1 && let Some(i) = self.draw.stage_tex[st as usize + 1] {
                 hit(clause::D3D9_STAGE_BUMP);
-                let nt = self.sample(st + 1, self.draw.texs[i].as_ref().unwrap(), uv[self.tex_set(st + 1).at()][0], uv[self.tex_set(st + 1).at()][1])?;
+                let nt = self.sample(st + 1, self.draw.texs[i].as_ref().ok_or(Fail::Empty)?, uv[self.tex_set(st + 1).at()][0], uv[self.tex_set(st + 1).at()][1])?;
                 for k in 0..4 {
                     if (k < 3 && cop == 17) || (k == 3 && aop == 17) {
                         out[k] = ((out[k] as f32) * (nt[k] as f32)) as f64;
@@ -2124,23 +2131,22 @@ impl D3d9 {
             return Ok(());
         }
         self.draw.ccw = area < 0.0;
-        let xyz = vs.iter().all(|v| v.clip.is_some());
-        if xyz && !self.draw.in_piece {
+        // (every vertex's clip space position: untransformed vertices)
+        let clips: Option<Vec<[f32; 4]>> = vs.iter().map(|v| v.clip).collect();
+        let xyz = clips.is_some();
+        if let Some(clips) = clips.filter(|_| !self.draw.in_piece) {
             // (untransformed vertices: clipped in clip space to the viewport's pixels, the planes
             // half a pixel in, x = vx - 0.5 .. vx + w - 0.5 (as pretransformed vertices are,
             // D3D9.RASTER.CLIP), each new vertex a + (b - a) t; the polygon cut into a fan)
             let (vx, vy, vw, vh, ..) = self.viewport();
-            let sh = |v: &Vtx| {
-                let c = v.clip.unwrap();
-                [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]]
-            };
+            let sh = |c: &[f32; 4]| [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]];
             let dist = |q: &[f32; 4], plane: usize| match plane {
                 0 => q[3] + q[0],
                 1 => q[3] - q[0],
                 2 => q[3] + q[1],
                 _ => q[3] - q[1],
             };
-            let mut poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().map(|v| (sh(v), v.attrs())).collect();
+            let mut poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().zip(&clips).map(|(v, c)| (sh(c), v.attrs())).collect();
             if poly.iter().any(|(q, _)| (0..4).any(|p| dist(q, p) < 0.0)) {
                 hit(clause::D3D9_DRAW_XYZ_CLIP);
                 for plane in 0..4 {
@@ -2390,7 +2396,7 @@ impl D3d9 {
                 return Ok(());
             }
         }
-        let rt = self.draw.rt.as_ref().unwrap();
+        let rt = self.draw.rt.as_ref().ok_or(Fail::Empty)?;
         let k = (y * rt.w + x) as usize;
         // stencil, then depth
         let zq = unorm(z, 24);
@@ -2425,9 +2431,9 @@ impl D3d9 {
                 self.draw.depth[k] = zq as u32;
             }
         }
-        let rt = self.draw.rt.as_ref().unwrap();
-        let fm = format(rt.fmt).unwrap();
-        let old = to_rgba(rt.fmt, &decode(&fm, rt.px(x, y)));
+        let rt = self.draw.rt.as_ref().ok_or(Fail::Empty)?;
+        let fm = format(rt.fmt).ok_or(Fail::Bad)?;
+        let old = to_rgba(rt.fmt, &decode(&fm, rt.px(x, y)?));
         let mut new = c;
         if self.rs(27) != 0 {
             hit(clause::D3D9_BLEND);
@@ -2447,7 +2453,7 @@ impl D3d9 {
             hit(clause::D3D9_DRAW_XZERO);
         }
         let px = encode_x(&fm, new, false);
-        self.draw.rt.as_mut().unwrap().set(x, y, &px);
+        self.draw.rt.as_mut().ok_or(Fail::Empty)?.set(x, y, &px);
         Ok(())
     }
 
@@ -2528,7 +2534,7 @@ impl D3d9 {
     }
 
     fn blend(&self, fmt: u32, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
-        let fm = format(fmt).unwrap();
+        let fm = format(fmt).ok_or(Fail::Bad)?;
         if fm.kind != Kind::Int || fm.ch.iter().any(|c| c.c != b'x' && (c.bits != 8 || !matches!(c.c, b'r' | b'g' | b'b' | b'a'))) {
             hit(clause::D3D9_BLEND_FORMAT);
             return self.blend_float(s, d);

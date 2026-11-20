@@ -120,8 +120,8 @@ pub fn take() -> BTreeSet<&'static str> {
 /// every suite's cases through the models: clause -> the cases ("suite:case") that reach it
 pub fn coverage() -> std::collections::BTreeMap<String, Vec<String>> {
     let mut m: std::collections::BTreeMap<String, Vec<String>> = Default::default();
-    for s in crate::generators::SUITES {
-        for c in crate::case::parse_cases(&crate::generators::suite(s).unwrap()) {
+    for (s, generate) in crate::generators::GENERATORS {
+        for c in crate::case::parse_cases(&generate()) {
             for arch in [32, 64] {
                 crate::model::set_arch(arch);
                 take();

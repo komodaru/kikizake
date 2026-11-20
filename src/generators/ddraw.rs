@@ -25,15 +25,15 @@ pub fn ddraw() -> String {
     };
     for f in fmts {
         // copy, fill and the rectangle checks, one by one
-        writeln!(s, "case basic-{f}\ndd\nddsurf 0 12 9 {f}\nddsurf 1 7 5 {f}\nddfill 0 11\nddfill 1 12").unwrap();
+        writeln!(s, "case basic-{f}\ndd\nddsurf 0 12 9 {f}\nddsurf 1 7 5 {f}\nddfill 0 11\nddfill 1 12");
         for l in [
             "ddblt 0 0 0 7 5 1 all", "ddblt 0 all 0 all", "ddblt 0 5 4 12 9 1 all", "ddblt 0 2 1 5 3 1 3 2 6 4", "ddblt 0 6 4 13 9 1 all", "ddblt 0 -1 0 6 5 1 all",
             "ddblt 0 3 3 3 5 1 all", "ddblt 0 0 0 2 2 1 6 4 8 6", "ddblt 0 0 0 7 5 1 0 0 7 5 mirrorlr", "ddblt 0 1 2 8 7 1 all mirrorud", "ddblt 0 2 2 9 7 1 all mirrorlr mirrorud",
         ] {
-            writeln!(s, "{l}").unwrap();
+            writeln!(s, "{l}");
         }
         let m: u64 = if f == "32" { 0xffff_ffff } else { (1u64 << (8 * bytes(f))) - 1 };
-        writeln!(s, "ddcolor 0 1 1 4 3 {:#x}\nddcolor 0 all {:#x}\nddcolor 0 10 0 13 2 5\nddblt 0 4 4 11 9 1 all\ndddump 0\nend", 0x1234_5678 & m, 0x9abc_def0u64 & m).unwrap();
+        writeln!(s, "ddcolor 0 1 1 4 3 {:#x}\nddcolor 0 all {:#x}\nddcolor 0 10 0 13 2 5\nddblt 0 4 4 11 9 1 all\ndddump 0\nend", 0x1234_5678 & m, 0x9abc_def0u64 & m);
         // the color keys: each kind, with a key that occurs in the source
         let k = key(f, 7, 12, 2, 1);
         let kd = key(f, 12, 11, 3, 3);
@@ -48,29 +48,29 @@ pub fn ddraw() -> String {
             ("fastdestkey", format!("ddkey 0 dest {kd:#x}"), "ddfast 0 1 1 1 all destkey"),
             ("keynone", format!("ddkey 1 src {k:#x}\nddkey 1 src none\nddkey 1 src {k:#x}"), "ddblt 0 2 2 9 7 1 all keysrc"),
         ] {
-            writeln!(s, "case {name}-{f}\ndd\nddsurf 0 12 9 {f}\nddsurf 1 7 5 {f}\nddfill 0 11\nddfill 1 12\n{setup}\n{l}\ndddump 0\nend").unwrap();
+            writeln!(s, "case {name}-{f}\ndd\nddsurf 0 12 9 {f}\nddsurf 1 7 5 {f}\nddfill 0 11\nddfill 1 12\n{setup}\n{l}\ndddump 0\nend");
         }
         // within one surface, every direction of overlap
-        writeln!(s, "case overlap-{f}\ndd\nddsurf 0 16 12 {f}\nddfill 0 21").unwrap();
+        writeln!(s, "case overlap-{f}\ndd\nddsurf 0 16 12 {f}\nddfill 0 21");
         for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1), (2, 3), (-3, -2), (3, -1), (-2, 2)] {
             let (x, y) = (4 + dx, 4 + dy);
-            writeln!(s, "ddblt 0 {x} {y} {} {} 0 4 4 12 8\nddfast 0 {} {} 0 5 5 11 9", x + 8, y + 4, 5 - dx, 5 - dy).unwrap();
+            writeln!(s, "ddblt 0 {x} {y} {} {} 0 4 4 12 8\nddfast 0 {} {} 0 5 5 11 9", x + 8, y + 4, 5 - dx, 5 - dy);
         }
-        writeln!(s, "dddump 0\nend").unwrap();
+        writeln!(s, "dddump 0\nend");
     }
     // random blits: rectangles at and past the edges, keys from the source, mirroring
     for i in 0..300 {
         let f = *r.pick(&fmts);
         let (dw, dh, sw, sh) = (r.range(1, 20), r.range(1, 14), r.range(1, 14), r.range(1, 10));
         let (ds, ss) = (r.next() | 1, r.next() | 1);
-        writeln!(s, "case random-{i}\ndd\nddsurf 0 {dw} {dh} {f}\nddsurf 1 {sw} {sh} {f}\nddfill 0 {ds}\nddfill 1 {ss}").unwrap();
+        writeln!(s, "case random-{i}\ndd\nddsurf 0 {dw} {dh} {f}\nddsurf 1 {sw} {sh} {f}\nddfill 0 {ds}\nddfill 1 {ss}");
         let k = key(f, sw, ss, r.range(0, sw - 1), r.range(0, sh - 1));
         let kd = key(f, dw, ds, r.range(0, dw - 1), r.range(0, dh - 1));
         if r.chance(2) {
-            writeln!(s, "ddkey 1 src {k:#x}").unwrap();
+            writeln!(s, "ddkey 1 src {k:#x}");
         }
         if r.chance(3) {
-            writeln!(s, "ddkey 0 dest {kd:#x}").unwrap();
+            writeln!(s, "ddkey 0 dest {kd:#x}");
         }
         let src_key = s.lines().rev().take(3).any(|l| l.starts_with("ddkey 1 src"));
         let dest_key = s.lines().rev().take(3).any(|l| l.starts_with("ddkey 0 dest"));
@@ -92,9 +92,9 @@ pub fn ddraw() -> String {
                 4 if !fast => l += *r.pick(&[" mirrorlr", " mirrorud", " mirrorlr mirrorud"]),
                 _ => {}
             }
-            writeln!(s, "{l}").unwrap();
+            writeln!(s, "{l}");
         }
-        writeln!(s, "dddump 0\nend").unwrap();
+        writeln!(s, "dddump 0\nend");
     }
     // what the documentation leaves open
     for (name, body) in [
@@ -105,21 +105,21 @@ pub fn ddraw() -> String {
         ("fast-bothkeys", "ddsurf 0 12 9 32\nddsurf 1 5 3 32\nddfill 0 1\nddfill 1 2\nddkey 1 src 0\nddkey 0 dest 0\nddfast 0 0 0 1 all srckey destkey"),
         ("nosource", "ddsurf 0 12 9 32\nddfill 0 1\nddblt 0 all - all"),
     ] {
-        writeln!(s, "case edge-{name}\ndd\n{body}\ndddump 0\nend").unwrap();
+        writeln!(s, "case edge-{name}\ndd\n{body}\ndddump 0\nend");
     }
-    writeln!(s, "case nodev\nddsurf 0 4 4 32\nend").unwrap();
+    writeln!(s, "case nodev\nddsurf 0 4 4 32\nend");
     // stretches within one surface whose rectangles overlap (at 8 bpp they take floor(x·s / d),
     // dd8 overlap8alignstretch): growing and shrinking, moving every way, 16, 24 and 32 bpp
     let mut ro = XorShift32::new(0x00dd_57e7);
     for f in ["565", "24", "32"] {
-        writeln!(s, "case overlapstretch-{f}\ndd\nddsurf 0 24 12 {f}").unwrap();
+        writeln!(s, "case overlapstretch-{f}\ndd\nddsurf 0 24 12 {f}");
         for (sw, sh, dw, dh) in [(4, 3, 5, 4), (5, 4, 4, 3), (6, 2, 9, 3), (7, 5, 3, 2)] {
             for (dx, dy) in [(1i64, 0i64), (-1, 0), (0, 1), (0, -1), (2, 1), (-2, -1)] {
                 let (sx, sy) = (8, 4);
-                writeln!(s, "ddfill 0 {}\nddblt 0 {} {} {} {} 0 {sx} {sy} {} {}\ndddump 0", ro.range(1, 9999), sx + dx, sy + dy, sx + dx + dw, sy + dy + dh, sx + sw, sy + sh).unwrap();
+                writeln!(s, "ddfill 0 {}\nddblt 0 {} {} {} {} 0 {sx} {sy} {} {}\ndddump 0", ro.range(1, 9999), sx + dx, sy + dy, sx + dx + dw, sy + dy + dh, sx + sw, sy + sh);
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     s
 }
@@ -152,7 +152,7 @@ pub fn ddclip() -> String {
             ("many", "ddclip 0 0 0 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8 10 10 10 10 12 12 12 0 14 2 1 9 3 11\nddcliplist 0\nddblt 0 all 1 all"),
             ("overlapping", "ddclip 0 0 0 8 8 4 4 12 12\nddcliplist 0\nddblt 0 all 1 all"),
         ] {
-            writeln!(s, "case {name}-{f}\n{head}\n{body}\ndddump 0\nend").unwrap();
+            writeln!(s, "case {name}-{f}\n{head}\n{body}\ndddump 0\nend");
         }
     }
     // random clip lists (inside, across and past the surface) and blits
@@ -160,15 +160,15 @@ pub fn ddclip() -> String {
         let f = *r.pick(&["8", "555", "565", "24", "32"]);
         let (w, h) = (r.range(1, 20), r.range(1, 14));
         let (sw, sh) = (r.range(1, 14), r.range(1, 10));
-        writeln!(s, "case random-{i}\ndd\nddsurf 0 {w} {h} {f}\nddsurf 1 {sw} {sh} {f}\nddfill 0 {}\nddfill 1 {}", r.next() | 1, r.next() | 1).unwrap();
+        writeln!(s, "case random-{i}\ndd\nddsurf 0 {w} {h} {f}\nddsurf 1 {sw} {sh} {f}\nddfill 0 {}\nddfill 1 {}", r.next() | 1, r.next() | 1);
         let n = r.range(1, 4);
         let mut l = String::from("ddclip 0");
         for _ in 0..n {
             let (x0, y0) = (r.range(-2, w), r.range(-2, h));
             let (x1, y1) = (r.range(x0 + 1, w + 3), r.range(y0 + 1, h + 3));
-            write!(l, " {x0} {y0} {x1} {y1}").unwrap();
+            write!(l, " {x0} {y0} {x1} {y1}");
         }
-        writeln!(s, "{l}").unwrap();
+        writeln!(s, "{l}");
         for _ in 0..r.range(1, 4) {
             let (bw, bh) = (r.range(1, sw), r.range(1, sh));
             let (sx, sy) = (r.range(0, sw - bw), r.range(0, sh - bh));
@@ -178,9 +178,9 @@ pub fn ddclip() -> String {
                 1 => format!("ddblt 0 {dx} {dy} {} {} 1 {sx} {sy} {} {} {}", dx + bw, dy + bh, sx + bw, sy + bh, r.pick(&["mirrorlr", "mirrorud"])),
                 _ => format!("ddblt 0 {dx} {dy} {} {} 1 {sx} {sy} {} {}", dx + bw, dy + bh, sx + bw, sy + bh),
             };
-            writeln!(s, "{l}").unwrap();
+            writeln!(s, "{l}");
         }
-        writeln!(s, "dddump 0\nend").unwrap();
+        writeln!(s, "dddump 0\nend");
     }
     s
 }
@@ -193,7 +193,7 @@ pub fn ddpal() -> String {
     for size in sizes {
         for extra in ["", "allow256", "8bitentries", "initialize", "primary", "alpha", "allow256 8bitentries"] {
             let flags = format!("{size} {extra}");
-            writeln!(s, "case create-{k}\ndd\nddpal 0 {} {}\nddpalcaps 0\nddpalget 0 0 256\nddpalget 0 0 16\nend", k + 1, flags.trim()).unwrap();
+            writeln!(s, "case create-{k}\ndd\nddpal 0 {} {}\nddpalcaps 0\nddpalget 0 0 256\nddpalget 0 0 16\nend", k + 1, flags.trim());
             k += 1;
         }
     }
@@ -206,13 +206,13 @@ pub fn ddpal() -> String {
                 continue;
             }
             seen.push((st, cnt));
-            writeln!(s, "case entries-{size}-{st}-{cnt}\ndd\nddpal 0 7 {size}\nddpalset 0 {st} {cnt} 9\nddpalget 0 {st} {cnt}\nddpalget 0 0 {n}\nend").unwrap();
+            writeln!(s, "case entries-{size}-{st}-{cnt}\ndd\nddpal 0 7 {size}\nddpalset 0 {st} {cnt} 9\nddpalget 0 {st} {cnt}\nddpalget 0 0 {n}\nend");
         }
-        writeln!(s, "case entries8-{size}\ndd\nddpal 0 7 {size} 8bitentries\nddpalget 0 0 {n}\nddpalset 0 0 {n} 3\nddpalget 0 0 {n}\nend").unwrap();
+        writeln!(s, "case entries8-{size}\ndd\nddpal 0 7 {size} 8bitentries\nddpalget 0 0 {n}\nddpalset 0 0 {n} 3\nddpalget 0 0 {n}\nend");
     }
     // palettes on surfaces of each format
     for (f, _) in FMTS2 {
-        writeln!(s, "case surface-{f}\ndd\nddsurf 0 4 4 {f}\nddgetpal 0\nddpal 1 5 8bit\nddsetpal 0 1\nddgetpal 0\nddpal 2 6 4bit\nddsetpal 0 2\nddgetpal 0\nddsetpal 0 none\nddgetpal 0\nend").unwrap();
+        writeln!(s, "case surface-{f}\ndd\nddsurf 0 4 4 {f}\nddgetpal 0\nddpal 1 5 8bit\nddsetpal 0 1\nddgetpal 0\nddpal 2 6 4bit\nddsetpal 0 2\nddgetpal 0\nddsetpal 0 none\nddgetpal 0\nend");
     }
     for (name, body) in [
         ("replace", "ddsurf 0 4 4 8\nddpal 0 1 8bit\nddpal 1 2 8bit\nddsetpal 0 0\nddsetpal 0 1\nddgetpal 0\nddsetpal 0 1\nddgetpal 0"),
@@ -221,9 +221,9 @@ pub fn ddpal() -> String {
         ("released", "ddsurf 0 4 4 8\nddpal 0 1 8bit\nddsetpal 0 0\nddpal 0 3 8bit\nddgetpal 0"),
         ("nodd", "ddpalget 0 0 4"),
     ] {
-        writeln!(s, "case {name}\ndd\n{body}\nend").unwrap();
+        writeln!(s, "case {name}\ndd\n{body}\nend");
     }
-    writeln!(s, "case nodev\nddpal 0 1 8bit\nend").unwrap();
+    writeln!(s, "case nodev\nddpal 0 1 8bit\nend");
     s
 }
 
@@ -233,50 +233,50 @@ pub fn dddc() -> String {
     let mut r = XorShift32::new(0x00dd_0dc0);
     for (f, _) in FMTS2 {
         // every value of each channel through SetPixel / GetPixel, and FillRect
-        writeln!(s, "case bpp-{f}\ndd\nddsurf 0 8 4 {f}\nddgetdc 0\ndcbpp 0\nddreldc 0\nend").unwrap();
+        writeln!(s, "case bpp-{f}\ndd\nddsurf 0 8 4 {f}\nddgetdc 0\ndcbpp 0\nddreldc 0\nend");
         for ch in 0..3 {
-            writeln!(s, "case channel-{f}-{ch}\ndd\nddsurf 0 64 4 {f}\nddfill 0 1\nddgetdc 0").unwrap();
+            writeln!(s, "case channel-{f}-{ch}\ndd\nddsurf 0 64 4 {f}\nddfill 0 1\nddgetdc 0");
             for v in 0..256u32 {
                 let c = v << (8 * (2 - ch));
-                writeln!(s, "dcpix 0 {} {} #{c:06x}\ndcget 0 {} {}", v % 64, v / 64, v % 64, v / 64).unwrap();
+                writeln!(s, "dcpix 0 {} {} #{c:06x}\ndcget 0 {} {}", v % 64, v / 64, v % 64, v / 64);
             }
-            writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+            writeln!(s, "ddreldc 0\ndddump 0\nend");
         }
-        writeln!(s, "case rects-{f}\ndd\nddsurf 0 16 8 {f}\nddfill 0 2\nddgetdc 0").unwrap();
+        writeln!(s, "case rects-{f}\ndd\nddsurf 0 16 8 {f}\nddfill 0 2\nddgetdc 0");
         for _ in 0..12 {
             let (x0, y0) = (r.range(-2, 15), r.range(-2, 7));
             let (x1, y1) = (r.range(x0 - 1, 18), r.range(y0 - 1, 10));
-            writeln!(s, "dcrect 0 {x0} {y0} {x1} {y1} #{:06x}", r.next() & 0xffffff).unwrap();
+            writeln!(s, "dcrect 0 {x0} {y0} {x1} {y1} #{:06x}", r.next() & 0xffffff);
         }
-        writeln!(s, "dcpix 0 -1 0 #ffffff\ndcpix 0 16 0 #ffffff\ndcget 0 0 8\nddreldc 0\ndddump 0\nend").unwrap();
-        writeln!(s, "case random-{f}\ndd\nddsurf 0 16 8 {f}\nddfill 0 5\nddgetdc 0").unwrap();
+        writeln!(s, "dcpix 0 -1 0 #ffffff\ndcpix 0 16 0 #ffffff\ndcget 0 0 8\nddreldc 0\ndddump 0\nend");
+        writeln!(s, "case random-{f}\ndd\nddsurf 0 16 8 {f}\nddfill 0 5\nddgetdc 0");
         for _ in 0..64 {
             let (x, y) = (r.range(0, 15), r.range(0, 7));
-            writeln!(s, "dcpix 0 {x} {y} #{:06x}\ndcget 0 {x} {y}", r.next() & 0xffffff).unwrap();
+            writeln!(s, "dcpix 0 {x} {y} #{:06x}\ndcget 0 {x} {y}", r.next() & 0xffffff);
         }
-        writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+        writeln!(s, "ddreldc 0\ndddump 0\nend");
     }
     // 8 bpp: GetPixel through the palette, with and without one
-    writeln!(s, "case pal8-none\ndd\nddsurf 0 16 16 8\nddfill 0 1\nddgetdc 0").unwrap();
+    writeln!(s, "case pal8-none\ndd\nddsurf 0 16 16 8\nddfill 0 1\nddgetdc 0");
     for i in 0..16 {
-        writeln!(s, "dcget 0 {i} {i}").unwrap();
+        writeln!(s, "dcget 0 {i} {i}");
     }
-    writeln!(s, "ddreldc 0\nend").unwrap();
-    writeln!(s, "case pal8\ndd\nddsurf 0 16 16 8\nddpal 0 3 8bit allow256\nddsetpal 0 0\nddpalget 0 0 256\nddlock 0 all").unwrap();
+    writeln!(s, "ddreldc 0\nend");
+    writeln!(s, "case pal8\ndd\nddsurf 0 16 16 8\nddpal 0 3 8bit allow256\nddsetpal 0 0\nddpalget 0 0 256\nddlock 0 all");
     for i in 0..16 {
-        writeln!(s, "ddpoke 0 0 {i} {}", (0..16).map(|k| format!("{:02x}", i * 16 + k)).collect::<String>()).unwrap();
+        writeln!(s, "ddpoke 0 0 {i} {}", (0..16).map(|k| format!("{:02x}", i * 16 + k)).collect::<String>());
     }
-    writeln!(s, "ddunlock 0 all\nddgetdc 0").unwrap();
+    writeln!(s, "ddunlock 0 all\nddgetdc 0");
     for i in 0..256 {
-        writeln!(s, "dcget 0 {} {}", i % 16, i / 16).unwrap();
+        writeln!(s, "dcget 0 {} {}", i % 16, i / 16);
     }
-    writeln!(s, "ddreldc 0\nend").unwrap();
-    writeln!(s, "case pal8-set\ndd\nddsurf 0 16 4 8\nddfill 0 1\nddpal 0 3 8bit allow256\nddsetpal 0 0\nddpalget 0 0 256\nddgetdc 0").unwrap();
+    writeln!(s, "ddreldc 0\nend");
+    writeln!(s, "case pal8-set\ndd\nddsurf 0 16 4 8\nddfill 0 1\nddpal 0 3 8bit allow256\nddsetpal 0 0\nddpalget 0 0 256\nddgetdc 0");
     for i in 0..64u32 {
         let c = if i < 32 { [0x000000, 0xffffff, 0xff0000, 0x00ff00, 0x0000ff, 0x808080][i as usize % 6] } else { r.next() & 0xffffff };
-        writeln!(s, "dcpix 0 {} {} #{c:06x}", i % 16, i / 16).unwrap();
+        writeln!(s, "dcpix 0 {} {} #{c:06x}", i % 16, i / 16);
     }
-    writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+    writeln!(s, "ddreldc 0\ndddump 0\nend");
     // a held DC and the other calls
     for (name, body) in [
         ("twice", "ddgetdc 0\nddgetdc 0\nddreldc 0\nddreldc 0"),
@@ -289,7 +289,7 @@ pub fn dddc() -> String {
         ("lockpoke", "ddlock 0 all\nddpoke 0 4 1 ffffffff\nddunlock 0 all\nddgetdc 0\ndcget 0 1 1\nddreldc 0"),
         ("dump", "ddgetdc 0\ndddump 0\nddreldc 0"),
     ] {
-        writeln!(s, "case dc-{name}\ndd\nddsurf 0 8 4 32\nddsurf 1 8 4 32\nddfill 0 1\nddfill 1 2\n{body}\nend").unwrap();
+        writeln!(s, "case dc-{name}\ndd\nddsurf 0 8 4 32\nddsurf 1 8 4 32\nddfill 0 1\nddfill 1 2\n{body}\nend");
     }
     s
 }
@@ -300,26 +300,26 @@ pub fn ddlock() -> String {
     let mut r = XorShift32::new(0x00dd_10c4);
     // every width 1..=33 of each format: pitch and the description (an exhaustive small domain)
     for (f, _) in FMTS2 {
-        writeln!(s, "case pitch-{f}\ndd").unwrap();
+        writeln!(s, "case pitch-{f}\ndd");
         for w in 1..=33 {
-            writeln!(s, "ddsurf 0 {w} 2 {f}\nddlock 0 all\nddunlock 0 all\ndddesc 0").unwrap();
+            writeln!(s, "ddsurf 0 {w} 2 {f}\nddlock 0 all\nddunlock 0 all\ndddesc 0");
         }
-        writeln!(s, "end").unwrap();
-        writeln!(s, "case vid-{f}\ndd\nddsurf 0 17 3 {f} vid\ndddesc 0\nddlock 0 all\nddunlock 0 all\nend").unwrap();
+        writeln!(s, "end");
+        writeln!(s, "case vid-{f}\ndd\nddsurf 0 17 3 {f} vid\ndddesc 0\nddlock 0 all\nddunlock 0 all\nend");
     }
     for (f, b) in FMTS2 {
         // rectangles inside, at the edges and past them; the offsets of what Lock returns
-        writeln!(s, "case rects-{f}\ndd\nddsurf 0 13 9 {f}").unwrap();
+        writeln!(s, "case rects-{f}\ndd\nddsurf 0 13 9 {f}");
         for (x0, y0, x1, y1) in [(0, 0, 13, 9), (1, 2, 5, 7), (12, 8, 13, 9), (0, 0, 1, 1), (3, 3, 3, 5), (4, 4, 2, 6), (-1, 0, 4, 4), (0, -1, 4, 4), (10, 0, 14, 4), (0, 6, 4, 10), (5, 5, 5, 5), (13, 9, 14, 10)] {
-            writeln!(s, "ddlock 0 {x0} {y0} {x1} {y1}\nddunlock 0 {x0} {y0} {x1} {y1}").unwrap();
+            writeln!(s, "ddlock 0 {x0} {y0} {x1} {y1}\nddunlock 0 {x0} {y0} {x1} {y1}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
         // writing through a rectangle's lock, then reading the whole surface
-        writeln!(s, "case poke-{f}\ndd\nddsurf 0 13 9 {f}\nddfill 0 3\nddlock 0 2 3 9 7").unwrap();
+        writeln!(s, "case poke-{f}\ndd\nddsurf 0 13 9 {f}\nddfill 0 3\nddlock 0 2 3 9 7");
         for y in 0..4 {
-            writeln!(s, "ddpoke 0 {b} {y} {}", (0..*b * 3).map(|k| format!("{:02x}", (y * 40 + k) & 255)).collect::<String>()).unwrap();
+            writeln!(s, "ddpoke 0 {b} {y} {}", (0..*b * 3).map(|k| format!("{:02x}", (y * 40 + k) & 255)).collect::<String>());
         }
-        writeln!(s, "ddunlock 0 2 3 9 7\ndddump 0\ndddump 0 2 3 9 7\nend").unwrap();
+        writeln!(s, "ddunlock 0 2 3 9 7\ndddump 0\ndddump 0 2 3 9 7\nend");
     }
     for (name, body) in [
         ("twice", "ddlock 0 all\nddlock 0 all\nddunlock 0 all\nddunlock 0 all"),
@@ -334,19 +334,19 @@ pub fn ddlock() -> String {
         ("lockeddesc", "ddlock 0 2 2 4 4\ndddesc 0\nddunlock 0 2 2 4 4"),
         ("nolock", "ddpoke 0 0 0 00"),
     ] {
-        writeln!(s, "case {name}\ndd\nddsurf 0 8 8 32\nddsurf 1 8 8 32\n{body}\nend").unwrap();
+        writeln!(s, "case {name}\ndd\nddsurf 0 8 8 32\nddsurf 1 8 8 32\n{body}\nend");
     }
     // random rectangles on random sizes
     for i in 0..60 {
         let (f, _) = *r.pick(FMTS2);
         let (w, h) = (r.range(1, 40), r.range(1, 12));
-        writeln!(s, "case random-{i}\ndd\nddsurf 0 {w} {h} {f}").unwrap();
+        writeln!(s, "case random-{i}\ndd\nddsurf 0 {w} {h} {f}");
         for _ in 0..4 {
             let (x0, y0) = (r.range(-1, w), r.range(-1, h));
             let (x1, y1) = (r.range(x0, w + 1), r.range(y0, h + 1));
-            writeln!(s, "ddlock 0 {x0} {y0} {x1} {y1}\nddunlock 0 {x0} {y0} {x1} {y1}").unwrap();
+            writeln!(s, "ddlock 0 {x0} {y0} {x1} {y1}\nddunlock 0 {x0} {y0} {x1} {y1}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     s
 }
@@ -359,26 +359,26 @@ pub fn ddflip() -> String {
     for (lvl, coop) in [("normal", ""), ("exclusive", "ddcoop exclusive\n")] {
         for (k, caps) in capss.iter().enumerate() {
             for backs in [1, 2] {
-                writeln!(s, "case chain-{lvl}-{k}-{backs}\ndd\n{coop}ddchain 0 {backs} 8 4 {caps}\ndddesc 0\ndddesc 1\nend").unwrap();
+                writeln!(s, "case chain-{lvl}-{k}-{backs}\ndd\n{coop}ddchain 0 {backs} 8 4 {caps}\ndddesc 0\ndddesc 1\nend");
             }
         }
-        writeln!(s, "case primary-{lvl}\ndd\n{coop}ddchain 0 0 8 4 primary\nddchain 1 1 8 4 primary\nend").unwrap();
+        writeln!(s, "case primary-{lvl}\ndd\n{coop}ddchain 0 0 8 4 primary\nddchain 1 1 8 4 primary\nend");
     }
     // the flips: which buffer's pixels each surface shows after each one
     for (lvl, coop) in [("normal", ""), ("exclusive", "ddcoop exclusive\n")] {
         for (k, caps) in ["offscreen 3ddevice sysmem", "texture sysmem", "3ddevice sysmem"].iter().enumerate() {
             for backs in [1, 2, 3] {
-                writeln!(s, "case flip-{lvl}-{k}-{backs}\ndd\n{coop}ddchain 0 {backs} 4 2 {caps}").unwrap();
+                writeln!(s, "case flip-{lvl}-{k}-{backs}\ndd\n{coop}ddchain 0 {backs} 4 2 {caps}");
                 for i in 0..=backs {
-                    writeln!(s, "ddfill {i} {}", 10 + i).unwrap();
+                    writeln!(s, "ddfill {i} {}", 10 + i);
                 }
                 for _ in 0..backs + 1 {
-                    writeln!(s, "ddflip 0 - novsync").unwrap();
+                    writeln!(s, "ddflip 0 - novsync");
                     for i in 0..=backs {
-                        writeln!(s, "dddump {i}").unwrap();
+                        writeln!(s, "dddump {i}");
                     }
                 }
-                writeln!(s, "ddflip 0 {backs}\ndddump 0\nddflip 1 -\nddflip 0 0\nend").unwrap();
+                writeln!(s, "ddflip 0 {backs}\ndddump 0\nddflip 1 -\nddflip 0 0\nend");
             }
         }
     }
@@ -388,7 +388,7 @@ pub fn ddflip() -> String {
         ("coop", "ddcoop exclusive\nddcoop normal\nddcoop exclusive\nddcoop exclusive"),
         ("primaryflip", "ddcoop exclusive\nddchain 0 1 8 4 primary\nddflip 0 - novsync\nddcoop normal\nddflip 0 - novsync"),
     ] {
-        writeln!(s, "case {name}\ndd\n{body}\nend").unwrap();
+        writeln!(s, "case {name}\ndd\n{body}\nend");
     }
     s
 }
@@ -399,45 +399,45 @@ pub fn dd8() -> String {
     let mut s = String::from("# kikizake suite dd8: DirectDraw 8 bpp DCs, overlapping 8 bpp blits and stretching (SPEC.md). Made by `kikizake gen dd8`.\n");
     let mut r = XorShift32::new(0x00dd_0008);
     let idx_rows = |s: &mut String| {
-        writeln!(s, "ddlock 0 all").unwrap();
+        writeln!(s, "ddlock 0 all");
         for y in 0..16 {
-            writeln!(s, "ddpoke 0 0 {y} {}", (0..16).map(|x| format!("{:02x}", y * 16 + x)).collect::<String>()).unwrap();
+            writeln!(s, "ddpoke 0 0 {y} {}", (0..16).map(|x| format!("{:02x}", y * 16 + x)).collect::<String>());
         }
-        writeln!(s, "ddunlock 0 none").unwrap();
+        writeln!(s, "ddunlock 0 none");
     };
     // every index's color through a DC, without a palette and with one
     for pal in ["", "ddpal 0 3 8bit allow256\nddsetpal 0 0\n", "ddpal 0 5 8bit\nddsetpal 0 0\n"] {
-        writeln!(s, "case table-{}\ndd\nddsurf 0 16 16 8\n{pal}", pal.len()).unwrap();
+        writeln!(s, "case table-{}\ndd\nddsurf 0 16 16 8\n{pal}", pal.len());
         idx_rows(&mut s);
-        writeln!(s, "ddgetdc 0").unwrap();
+        writeln!(s, "ddgetdc 0");
         for i in 0..256 {
-            writeln!(s, "dcget 0 {} {}", i % 16, i / 16).unwrap();
+            writeln!(s, "dcget 0 {} {}", i % 16, i / 16);
         }
-        writeln!(s, "ddreldc 0\nend").unwrap();
+        writeln!(s, "ddreldc 0\nend");
     }
     // which entry SetPixel and FillRect pick for a color, without a palette and with one
     for (k, pal) in ["", "ddpal 0 3 8bit allow256\nddsetpal 0 0\n", "ddpal 0 9 8bit\nddsetpal 0 0\n"].iter().enumerate() {
         for part in 0..4 {
-            writeln!(s, "case nearest-{k}-{part}\ndd\nddsurf 0 16 16 8\n{pal}ddgetdc 0").unwrap();
+            writeln!(s, "case nearest-{k}-{part}\ndd\nddsurf 0 16 16 8\n{pal}ddgetdc 0");
             for i in 0..256 {
                 let c = match part {
                     0 => (i as u32) * 0x10101,
                     1 => ((i as u32 & 7) * 0x24 + 2) << 16 | ((i as u32 >> 3 & 7) * 0x24 + 2) << 8 | (i as u32 >> 6) * 0x55,
                     _ => r.next() & 0xffffff,
                 };
-                writeln!(s, "dcpix 0 {} {} #{c:06x}\ndcget 0 {} {}", i % 16, i / 16, i % 16, i / 16).unwrap();
+                writeln!(s, "dcpix 0 {} {} #{c:06x}\ndcget 0 {} {}", i % 16, i / 16, i % 16, i / 16);
             }
-            writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+            writeln!(s, "ddreldc 0\ndddump 0\nend");
         }
-        writeln!(s, "case nearestrect-{k}\ndd\nddsurf 0 16 16 8\n{pal}ddgetdc 0").unwrap();
+        writeln!(s, "case nearestrect-{k}\ndd\nddsurf 0 16 16 8\n{pal}ddgetdc 0");
         for i in 0..16 {
-            writeln!(s, "dcrect 0 {} {} {} {} #{:06x}", (i % 4) * 4, (i / 4) * 4, (i % 4) * 4 + 4, (i / 4) * 4 + 4, r.next() & 0xffffff).unwrap();
+            writeln!(s, "dcrect 0 {} {} {} {} #{:06x}", (i % 4) * 4, (i / 4) * 4, (i % 4) * 4 + 4, (i / 4) * 4 + 4, r.next() & 0xffffff);
         }
-        writeln!(s, "ddreldc 0\ndddump 0\nend").unwrap();
+        writeln!(s, "ddreldc 0\ndddump 0\nend");
     }
     // one blit within one 8 bpp surface at a time: every offset of a few sizes, Blt and BltFast
     for (w, h) in [(1, 1), (2, 1), (3, 2), (4, 3), (5, 2), (7, 3), (8, 4), (9, 2), (13, 5)] {
-        writeln!(s, "case overlap8-{w}x{h}\ndd\nddsurf 0 24 12 8").unwrap();
+        writeln!(s, "case overlap8-{w}x{h}\ndd\nddsurf 0 24 12 8");
         for dy in -2i64..=2 {
             for dx in -5i64..=5 {
                 if (dx, dy) == (0, 0) {
@@ -445,21 +445,21 @@ pub fn dd8() -> String {
                 }
                 let (sx, sy) = (6, 4);
                 let (x, y) = (sx + dx, sy + dy);
-                writeln!(s, "ddfill 0 {}\nddblt 0 {x} {y} {} {} 0 {sx} {sy} {} {}\ndddump 0", r.range(1, 9999), x + w, y + h, sx + w, sy + h).unwrap();
-                writeln!(s, "ddfill 0 {}\nddfast 0 {x} {y} 0 {sx} {sy} {} {}\ndddump 0", r.range(1, 9999), sx + w, sy + h).unwrap();
+                writeln!(s, "ddfill 0 {}\nddblt 0 {x} {y} {} {} 0 {sx} {sy} {} {}\ndddump 0", r.range(1, 9999), x + w, y + h, sx + w, sy + h);
+                writeln!(s, "ddfill 0 {}\nddfast 0 {x} {y} 0 {sx} {sy} {} {}\ndddump 0", r.range(1, 9999), sx + w, sy + h);
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // the overlap-8 sequence of ddraw (which differs from copies in places) with a dump after
     // every blit, at its width 16 and at 24
     for w in [16, 24] {
-        writeln!(s, "case overlap8seq-{w}\ndd\nddsurf 0 {w} 12 8\nddfill 0 21").unwrap();
+        writeln!(s, "case overlap8seq-{w}\ndd\nddsurf 0 {w} 12 8\nddfill 0 21");
         for (dx, dy) in [(1i64, 0i64), (-1, 0), (0, 1), (0, -1), (2, 3), (-3, -2), (3, -1), (-2, 2)] {
             let (x, y) = (4 + dx, 4 + dy);
-            writeln!(s, "ddblt 0 {x} {y} {} {} 0 4 4 12 8\ndddump 0\nddfast 0 {} {} 0 5 5 11 9\ndddump 0", x + 8, y + 4, 5 - dx, 5 - dy).unwrap();
+            writeln!(s, "ddblt 0 {x} {y} {} {} 0 4 4 12 8\ndddump 0\nddfast 0 {} {} 0 5 5 11 9\ndddump 0", x + 8, y + 4, 5 - dx, 5 - dy);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // Blt to the right within one row band (the overlap-8 sequence's blits from column 4 wrote
     // left of the destination, overlap8-*'s from column 6 did not): every source column 0..7,
@@ -467,27 +467,27 @@ pub fn dd8() -> String {
     // (its own generator, so that the cases after keep theirs)
     let mut ra = XorShift32::new(0x0dd8_a119);
     for sx in 0..8i64 {
-        writeln!(s, "case overlap8align-{sx}\ndd\nddsurf 0 32 6 8").unwrap();
+        writeln!(s, "case overlap8align-{sx}\ndd\nddsurf 0 32 6 8");
         for w in [1i64, 2, 3, 4, 5, 7, 8, 9, 13] {
             for dx in 1i64..=5 {
                 for dy in if dx == 1 { &[0i64, -1, 1][..] } else { &[0i64, -1][..] } {
                     let (x, y) = (sx + dx, 2 + dy);
-                    writeln!(s, "ddfill 0 {}\nddblt 0 {x} {y} {} {} 0 {sx} 2 {} 4\ndddump 0", ra.range(1, 9999), x + w, y + 2, sx + w).unwrap();
+                    writeln!(s, "ddfill 0 {}\nddblt 0 {x} {y} {} {} 0 {sx} 2 {} 4\ndddump 0", ra.range(1, 9999), x + w, y + 2, sx + w);
                 }
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // the backward copy on a dword (overlap8align: Blt writes dx mod 4 more pixels left) through
     // BltFast, with a source key, with a clip list on the surface, moving down by 2 and 3
     let mut rb = XorShift32::new(0x0dd8_b119);
     for kind in ["fast", "key", "clip", "down", "mirrorlr", "mirrorud", "stretch"] {
-        writeln!(s, "case overlap8align{kind}\ndd\nddsurf 0 32 6 8").unwrap();
+        writeln!(s, "case overlap8align{kind}\ndd\nddsurf 0 32 6 8");
         if kind == "key" {
-            writeln!(s, "ddkey 0 src 0x{:02x}", rb.range(0, 255)).unwrap();
+            writeln!(s, "ddkey 0 src 0x{:02x}", rb.range(0, 255));
         }
         if kind == "clip" {
-            writeln!(s, "ddclip 0 0 0 30 6").unwrap();
+            writeln!(s, "ddclip 0 0 0 30 6");
         }
         for (sx, w) in [(0i64, 4i64), (4, 8), (3, 5), (1, 7), (7, 9)] {
             for dx in 1i64..=5 {
@@ -498,58 +498,58 @@ pub fn dd8() -> String {
                     let y = if kind == "down" { top + dy } else { y };
                     let fill = rb.range(1, 9999);
                     match kind {
-                        "fast" => writeln!(s, "ddfill 0 {fill}\nddfast 0 {x} {y} 0 {sx} {top} {} {}\ndddump 0", sx + w, top + hgt).unwrap(),
-                        "key" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {} keysrc\ndddump 0", x + w, y + hgt, sx + w, top + hgt).unwrap(),
-                        "mirrorlr" | "mirrorud" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {} {kind}\ndddump 0", x + w, y + hgt, sx + w, top + hgt).unwrap(),
+                        "fast" => writeln!(s, "ddfill 0 {fill}\nddfast 0 {x} {y} 0 {sx} {top} {} {}\ndddump 0", sx + w, top + hgt),
+                        "key" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {} keysrc\ndddump 0", x + w, y + hgt, sx + w, top + hgt),
+                        "mirrorlr" | "mirrorud" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {} {kind}\ndddump 0", x + w, y + hgt, sx + w, top + hgt),
                         // (one column and one row more)
-                        "stretch" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {}\ndddump 0", x + w + 1, y + hgt + 1, sx + w, top + hgt).unwrap(),
-                        _ => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {}\ndddump 0", x + w, y + hgt, sx + w, top + hgt).unwrap(),
+                        "stretch" => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {}\ndddump 0", x + w + 1, y + hgt + 1, sx + w, top + hgt),
+                        _ => writeln!(s, "ddfill 0 {fill}\nddblt 0 {x} {y} {} {} 0 {sx} {top} {} {}\ndddump 0", x + w, y + hgt, sx + w, top + hgt),
                     }
                 }
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // stretching: each column count to each, each row count to each, then random rectangles,
     // mirrored too, of every format
     for f in ["8", "565", "24", "32"] {
-        writeln!(s, "case stretchx-{f}\ndd\nddsurf 0 20 1 {f}\nddsurf 1 20 1 {f}\nddfill 1 7").unwrap();
+        writeln!(s, "case stretchx-{f}\ndd\nddsurf 0 20 1 {f}\nddsurf 1 20 1 {f}\nddfill 1 7");
         for sw in 1..=9 {
             for dw in 1..=20 {
                 if sw != dw {
-                    writeln!(s, "ddfill 0 3\nddblt 0 0 0 {dw} 1 1 0 0 {sw} 1\ndddump 0").unwrap();
+                    writeln!(s, "ddfill 0 3\nddblt 0 0 0 {dw} 1 1 0 0 {sw} 1\ndddump 0");
                 }
             }
         }
-        writeln!(s, "end").unwrap();
-        writeln!(s, "case stretchy-{f}\ndd\nddsurf 0 1 20 {f}\nddsurf 1 1 20 {f}\nddfill 1 7").unwrap();
+        writeln!(s, "end");
+        writeln!(s, "case stretchy-{f}\ndd\nddsurf 0 1 20 {f}\nddsurf 1 1 20 {f}\nddfill 1 7");
         for sh in 1..=9 {
             for dh in [1, 2, 3, 5, 8, 13, 20] {
                 if sh != dh {
-                    writeln!(s, "ddfill 0 3\nddblt 0 0 0 1 {dh} 1 0 0 1 {sh}\ndddump 0").unwrap();
+                    writeln!(s, "ddfill 0 3\nddblt 0 0 0 1 {dh} 1 0 0 1 {sh}\ndddump 0");
                 }
             }
         }
-        writeln!(s, "end").unwrap();
-        writeln!(s, "case stretch-{f}\ndd\nddsurf 0 16 12 {f}\nddsurf 1 16 12 {f}\nddfill 1 9").unwrap();
+        writeln!(s, "end");
+        writeln!(s, "case stretch-{f}\ndd\nddsurf 0 16 12 {f}\nddsurf 1 16 12 {f}\nddfill 1 9");
         for k in 0..40 {
             let (sx, sy, sw, sh) = (r.range(0, 8), r.range(0, 6), r.range(1, 8), r.range(1, 6));
             let (dx, dy, dw, dh) = (r.range(0, 8), r.range(0, 6), r.range(1, 8), r.range(1, 6));
             let extra = match k % 4 { 1 => " mirrorlr", 2 => " mirrorud", 3 => " keysrcov 0", _ => "" };
-            writeln!(s, "ddfill 0 {k}\nddblt 0 {dx} {dy} {} {} 1 {sx} {sy} {} {}{extra}\ndddump 0", dx + dw, dy + dh, sx + sw, sy + sh).unwrap();
+            writeln!(s, "ddfill 0 {k}\nddblt 0 {dx} {dy} {} {} 1 {sx} {sy} {} {}{extra}\ndddump 0", dx + dw, dy + dh, sx + sw, sy + sh);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
         // mirrored: each column count to each, mirrored left-right and up-down at once (both
         // axes in one blit, each its own count)
-        writeln!(s, "case stretchmirror-{f}\ndd\nddsurf 0 20 20 {f}\nddsurf 1 20 20 {f}\nddfill 1 7").unwrap();
+        writeln!(s, "case stretchmirror-{f}\ndd\nddsurf 0 20 20 {f}\nddsurf 1 20 20 {f}\nddfill 1 7");
         for sw in 1..=9 {
             for dw in 1..=20 {
                 let (sh, dh) = (10 - sw, [1, 2, 3, 4, 5, 7, 8, 11, 13, 20][dw as usize % 10]);
                 let m = match dw % 3 { 0 => " mirrorlr", 1 => " mirrorud", _ => " mirrorlr mirrorud" };
-                writeln!(s, "ddfill 0 3\nddblt 0 0 0 {dw} {dh} 1 0 0 {sw} {sh}{m}\ndddump 0 0 0 20 {dh}").unwrap();
+                writeln!(s, "ddfill 0 3\nddblt 0 0 0 {dw} {dh} 1 0 0 {sw} {sh}{m}\ndddump 0 0 0 20 {dh}");
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // the extra pixels of the 8 bpp backward copy (DDRAW.OVERLAP8) whose bytes lie in a row's
     // padding (widths 29..31: a pitch of 32 on both runtimes), poked first (DDRAW.LOCK.PAD) or as
@@ -557,25 +557,25 @@ pub fn dd8() -> String {
     let mut rp = XorShift32::new(0x0dd8_9ad0);
     for kind in ["poke", "fresh"] {
         for w in [29i64, 30, 31] {
-            writeln!(s, "case overlap8pad{kind}-{w}\ndd\nddsurf 0 {w} 6 8").unwrap();
+            writeln!(s, "case overlap8pad{kind}-{w}\ndd\nddsurf 0 {w} 6 8");
             for (sw, dx, dy) in [(4i64, 1i64, 0i64), (4, 2, 0), (4, 3, 0), (8, 1, -1), (8, 2, -1), (8, 3, -1), (4, 3, -1)] {
-                writeln!(s, "ddfill 0 {}", rp.range(1, 9999)).unwrap();
+                writeln!(s, "ddfill 0 {}", rp.range(1, 9999));
                 if kind == "poke" {
-                    writeln!(s, "ddlock 0 all").unwrap();
+                    writeln!(s, "ddlock 0 all");
                     for y in 0..6 {
-                        writeln!(s, "ddpoke 0 {w} {y} {}", (w..32).map(|_| format!("{:02x}", rp.range(0, 255))).collect::<String>()).unwrap();
+                        writeln!(s, "ddpoke 0 {w} {y} {}", (w..32).map(|_| format!("{:02x}", rp.range(0, 255))).collect::<String>());
                     }
-                    writeln!(s, "ddunlock 0 none").unwrap();
+                    writeln!(s, "ddunlock 0 none");
                 }
-                writeln!(s, "ddblt 0 {dx} {} {} {} 0 0 2 {sw} 4\ndddump 0", 2 + dy, dx + sw, 4 + dy).unwrap();
+                writeln!(s, "ddblt 0 {dx} {} {} {} 0 0 2 {sw} 4\ndddump 0", 2 + dy, dx + sw, 4 + dy);
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
-    writeln!(s, "case overlap8front\ndd\nddsurf 0 32 6 8").unwrap();
+    writeln!(s, "case overlap8front\ndd\nddsurf 0 32 6 8");
     for (sw, dx) in [(4i64, 1i64), (4, 2), (4, 3), (8, 1), (8, 2), (8, 3)] {
-        writeln!(s, "ddfill 0 {}\nddblt 0 {dx} 0 {} 2 0 0 0 {sw} 2\ndddump 0", rp.range(1, 9999), dx + sw).unwrap();
+        writeln!(s, "ddfill 0 {}\nddblt 0 {dx} 0 {} 2 0 0 0 {sw} 2\ndddump 0", rp.range(1, 9999), dx + sw);
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     s
 }

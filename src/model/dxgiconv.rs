@@ -478,12 +478,12 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
         }
         95 | 96 => {
             hit(clause::CONV_BC6H);
-            let h = super::bptc::bc6h(b, f.id == 96, x, y);
+            let h = super::bptc::bc6h(b.first_chunk().ok_or(Fail::Bad)?, f.id == 96, x, y);
             [from_small_float(h[0] as u32, 5, 10, true), from_small_float(h[1] as u32, 5, 10, true), from_small_float(h[2] as u32, 5, 10, true), one]
         }
         98 => {
             hit(clause::CONV_BC7);
-            super::bptc::bc7(b, x, y).map(|c| un(c as u32, 8))
+            super::bptc::bc7(b.first_chunk().ok_or(Fail::Bad)?, x, y).map(|c| un(c as u32, 8))
         }
         // (the sRGB block formats: the UNORM block's codes through the sRGB table; the alpha as
         // it is)

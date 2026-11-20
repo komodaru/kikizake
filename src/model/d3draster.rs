@@ -16,7 +16,7 @@ use super::d3d11::{normalize, Kind};
 use super::d3dres::{texel, D3dres, Dev, E_INVALIDARG};
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
 use super::dxgifmt::{format, Format, Num};
-use super::{Fail, Res};
+use super::{filled, filled_mut, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
@@ -75,9 +75,9 @@ fn hexbytes(s: &str) -> Vec<u8> {
 /// the generator's programs: name, bytes, a vertex shader
 fn known(b: &[u8]) -> Option<(&'static str, bool)> {
     thread_local! {
-        static S: Vec<(&'static str, Vec<u8>)> = crate::shaders::shaders();
+        static S: crate::shaders::Programs = crate::shaders::shaders();
     }
-    S.with(|s| s.iter().find(|x| x.1 == b).map(|x| (x.0, x.0.starts_with("vs"))))
+    S.with(|s| s.find(b).map(|p| (p.name(), p.vertex())))
 }
 
 pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
@@ -286,7 +286,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             w.resize(5, 1);
             let desc = [w[0], w[1], w[2], w[3], 0, 1, w[4], 0, 0, 0, 0, 0xff7f_ffff, 0x7f7f_ffff];
             match normalize(Kind::Sampler, &desc) {
-                Some(_) => d.sampler = Some(w.try_into().unwrap()),
+                Some(_) => d.sampler = Some([w[0], w[1], w[2], w[3], w[4]]),
                 None => out.push(format!("samp hr {E_INVALIDARG:08x}")),
             }
         }
@@ -349,7 +349,7 @@ pub fn write_depth(f: &Format, e: &mut [u8], dw: bool, depth: f32, sw: bool, st:
             }
         }
         45 => {
-            let mut v = u32::from_le_bytes(e[..4].try_into().unwrap());
+            let mut v = u32::from_le_bytes([e[0], e[1], e[2], e[3]]);
             if dw {
                 v = v & 0xff00_0000 | to_unorm(depth, 24);
             }
@@ -380,8 +380,8 @@ pub fn write_depth(f: &Format, e: &mut [u8], dw: bool, depth: f32, sw: bool, st:
 fn stored_depth(f: &Format, e: &[u8]) -> f64 {
     match f.id {
         55 => u16::from_le_bytes([e[0], e[1]]) as f64,
-        45 => (u32::from_le_bytes(e[..4].try_into().unwrap()) & 0xff_ffff) as f64,
-        _ => f32::from_le_bytes(e[..4].try_into().unwrap()) as f64,
+        45 => (u32::from_le_bytes([e[0], e[1], e[2], e[3]]) & 0xff_ffff) as f64,
+        _ => f32::from_le_bytes([e[0], e[1], e[2], e[3]]) as f64,
     }
 }
 
@@ -521,9 +521,9 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
     }
     let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_RTFMT))?;
-    let rt_sub = super::d3dres::view_subs(dev, &view, m.res[view.res].as_ref().unwrap())[0];
+    let rt_sub = super::d3dres::view_subs(dev, &view, filled(&m.res, view.res)?)[0];
     let (rw, rh, _) = {
-        let r = m.res[view.res].as_ref().unwrap();
+        let r = filled(&m.res, view.res)?;
         // (MEASURED, WARP: probe-rt-3d, -3d-slice1) a 3D texture's view: the draw lands on its
         // first depth slice only (no SV_RenderTargetArrayIndex), as a 2D array's first slice
         // (probe-rt-array)
@@ -541,7 +541,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     // (a multisampled target: D3DRASTER.MS.SAMPLES, quality 0; the viewport anywhere,
     // probe-rt-ms4-vphalf)
     let samples = {
-        let r = m.res[view.res].as_ref().unwrap();
+        let r = filled(&m.res, view.res)?;
         match r.d.count {
             0 | 1 => None,
             n => {
@@ -1574,13 +1574,13 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
 fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, at: (usize, usize, usize), z: Option<f32>, out: [u32; 4], mask: &[bool]) -> Res<()> {
     let (px, py) = (at.0, at.1);
     let n = mask.len();
-    let stored = |m: &D3dres, res: usize, sub: u32| m.res[res].as_ref().unwrap().samples.get(sub as usize).is_some_and(Option::is_some);
+    let stored = |m: &D3dres, res: usize, sub: u32| -> Res<bool> { Ok(filled(&m.res, res)?.samples.get(sub as usize).is_some_and(Option::is_some)) };
     // the color target's place, and the depth view's (MEASURED, WARP: probe-rt-ms4-depth, depth
     // per sample: each sample tested and written as its own)
     let mut slots = vec![Slot::of(m, view.res, rt_sub, rt_fmt, (px, py))?];
     if let Some(dv) = dsv {
         let df = format(dv.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_DEPTHFMT))?;
-        let dres = m.res[dv.res].as_ref().unwrap();
+        let dres = filled(&m.res, dv.res)?;
         // (a depth view of another sample count is unbound, D3DRASTER.MS.DEPTHCOUNT)
         if dres.d.count.max(1) as usize != n {
             return Err(Fail::Bad);
@@ -1588,7 +1588,8 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
         let dsub = super::d3dres::view_subs(dev, dv, dres)[0];
         slots.push(Slot::of(m, dv.res, dsub, df, (px, py))?);
     }
-    if mask.iter().all(|&k| k) && slots.iter().all(|s| !stored(m, s.res, s.sub)) {
+    let kept = slots.iter().map(|s| stored(m, s.res, s.sub)).collect::<Res<Vec<bool>>>()?;
+    if mask.iter().all(|&k| k) && !kept.contains(&true) {
         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
         return Ok(());
     }
@@ -1602,16 +1603,16 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
     // subresources' places for the blend and the depth test, then taken back)
     for (k, _) in mask.iter().enumerate().filter(|(_, c)| **c) {
         for s in &slots {
-            s.swap(m, n, k, true);
+            s.swap(m, n, k, true)?;
         }
         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
         for s in &slots {
-            s.swap(m, n, k, false);
+            s.swap(m, n, k, false)?;
         }
     }
     // (the subresources' own places keep sample 0)
     for s in &slots {
-        s.swap(m, n, 0, true);
+        s.swap(m, n, 0, true)?;
     }
     Ok(())
 }
@@ -1626,8 +1627,8 @@ struct Slot {
 
 impl Slot {
     fn of(m: &D3dres, res: usize, sub: u32, f: &Format, (px, py): (usize, usize)) -> Res<Slot> {
-        let r = m.res[res].as_ref().unwrap();
-        let (rb, _, _) = r.layout(sub);
+        let r = filled(&m.res, res)?;
+        let (rb, _, _) = r.layout(sub)?;
         let el = (f.bits / 8) as usize;
         let off = py * rb + px * el;
         let len = r.subs.get(sub as usize).and_then(Option::as_ref).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?.len();
@@ -1641,7 +1642,7 @@ impl Slot {
     /// the subresource's samples, made from its one value at first (the model keeps up to 64 MiB
     /// of them)
     fn keep(&self, m: &mut D3dres, n: usize) -> Res<()> {
-        let r = m.res[self.res].as_mut().unwrap();
+        let r = filled_mut(&mut m.res, self.res)?;
         let base = r.subs[self.sub as usize].as_ref().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
         if base.len().saturating_mul(n) > 64 << 20 {
             return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
@@ -1655,10 +1656,10 @@ impl Slot {
     }
 
     /// sample k into the subresource's place (in) or back from it
-    fn swap(&self, m: &mut D3dres, n: usize, k: usize, into: bool) {
-        let r = m.res[self.res].as_mut().unwrap();
+    fn swap(&self, m: &mut D3dres, n: usize, k: usize, into: bool) -> Res<()> {
+        let r = filled_mut(&mut m.res, self.res)?;
         let (Some(sub), Some(Some(samples))) = (r.subs[self.sub as usize].as_mut(), r.samples.get_mut(self.sub as usize)) else {
-            return;
+            return Ok(());
         };
         let plane = samples.len() / n;
         let (place, sample) = (&mut sub[self.off..self.off + self.el], &mut samples[k * plane + self.off..][..self.el]);
@@ -1667,6 +1668,7 @@ impl Slot {
         } else {
             sample.copy_from_slice(place);
         }
+        Ok(())
     }
 }
 
@@ -2112,8 +2114,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 hit(clause::D3DRASTER_NOSRV);
                 return Ok([0; 4]);
             };
-            let v = m.views[sv].as_ref().unwrap();
-            let r = m.res[v.res].as_ref().unwrap();
+            let v = filled(&m.views, sv)?;
+            let r = filled(&m.res, v.res)?;
             let (w, h, _) = r.size(0);
             if px >= w as i64 || py >= h as i64 {
                 hit(clause::D3DRASTER_LD_OUT);
@@ -2135,8 +2137,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 hit(clause::D3DRASTER_NOSAMPLER);
                 [0x15, 3, 3, 3, 1]
             });
-            let v = m.views[sv].as_ref().unwrap();
-            let r = m.res[v.res].as_ref().unwrap();
+            let v = filled(&m.views, sv)?;
+            let r = filled(&m.res, v.res)?;
             // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) a view of its own range of
             // levels: its most detailed level is level 0 for the span and the levels
             let (base, mips) = match (v.words.get(1), v.words.get(2), v.words.get(3)) {
@@ -2368,9 +2370,9 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     if let Some(dv) = dsv {
         hit(clause::D3DRASTER_DEPTH);
         let df = format(dv.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_DEPTHFMT))?;
-        let dsub = super::d3dres::view_subs(dev, dv, m.res[dv.res].as_ref().unwrap())[0];
-        let dres = m.res[dv.res].as_mut().unwrap();
-        let (rb, _, _) = dres.layout(dsub);
+        let dsub = super::d3dres::view_subs(dev, dv, filled(&m.res, dv.res)?)[0];
+        let dres = filled_mut(&mut m.res, dv.res)?;
+        let (rb, _, _) = dres.layout(dsub)?;
         let el = (df.bits / 8) as usize;
         let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
         // (a depth view smaller than the target: not measured)
@@ -2400,8 +2402,8 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     if d.target.is_none() {
         return Ok(());
     }
-    let res = m.res[view.res].as_mut().unwrap();
-    let (rb, rows, _) = res.layout(sub);
+    let res = filled_mut(&mut m.res, view.res)?;
+    let (rb, rows, _) = res.layout(sub)?;
     // (a 3D view's first depth slice, D3DRASTER.RT.3D)
     let slice = if res.d.dim == 3 && view.dim() == 8 { view.u(1, matches!(dev, Dev::D11(_))) as usize } else { 0 };
     let el = (f.bits / 8) as usize;

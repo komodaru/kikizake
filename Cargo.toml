@@ -14,6 +14,12 @@ members = [".", "tools/lint"]
 
 [dev-dependencies]
 proptest = "1.12"
+trybuild = "1"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+
+# (a value that cannot fail is a type, one that can is a `?`: tests may unwrap, clippy.toml)
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

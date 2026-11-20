@@ -178,6 +178,37 @@ pub fn format(id: u32) -> Option<&'static Format> {
     FORMATS.iter().find(|f| f.id == id)
 }
 
+/// The format `id` of the table, for an id written in the source: evaluated when it is built
+/// through [`dxgi!`](crate::dxgi), so an id that is not in the table does not build
+/// (tests/ui/unknown_format.rs).
+pub const fn known(id: u32) -> &'static Format {
+    let mut i = 0;
+    while i < FORMATS.len() {
+        if FORMATS[i].id == id {
+            return &FORMATS[i];
+        }
+        i += 1;
+    }
+    panic!("the id is not a format of the table")
+}
+
+/// the DXGI format of the table by an id written in the source, checked when it is built
+#[macro_export]
+macro_rules! dxgi {
+    ($id:literal) => {{
+        const FORMAT: &$crate::model::dxgifmt::Format = $crate::model::dxgifmt::known($id);
+        FORMAT
+    }};
+}
+
+/// `[dxgi!(A), dxgi!(B), ...]`: formats of the table, by ids written in the source
+#[macro_export]
+macro_rules! fmts {
+    ($($id:literal),* $(,)?) => {
+        [$($crate::dxgi!($id)),*]
+    };
+}
+
 impl Format {
     /// bytes of one row of elements of a `w` pixel wide picture
     /// (saturated at u32::MAX: the 2D byte limit asks it of widths whose rows pass 4 GiB)

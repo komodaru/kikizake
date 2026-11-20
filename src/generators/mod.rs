@@ -34,7 +34,26 @@ pub use wicimage::{bmp as wicimage_bmp, gif as wicimage_gif, png as wicimage_png
 
 pub use d3d11::{d3d11_base, d3d11_floats};
 pub(crate) use crate::rng::XorShift32;
-pub(crate) use std::fmt::Write;
+pub(crate) use text::Write;
+
+/// The case text is written to a `String`, which cannot fail: `write!(s, ..)`/`writeln!(s, ..)`
+/// here are `()`, not a `fmt::Result` to unwrap (std's `fmt::Write` is not in scope in the
+/// generators; this trait takes its place under the same name).
+mod text {
+    use std::fmt;
+    pub(crate) trait Write {
+        fn write_fmt(&mut self, args: fmt::Arguments<'_>);
+    }
+    impl Write for String {
+        #[inline]
+        fn write_fmt(&mut self, args: fmt::Arguments<'_>) {
+            match args.as_str() {
+                Some(text) => self.push_str(text),
+                None => self.push_str(&fmt::format(args)),
+            }
+        }
+    }
+}
 use crate::model::gdi::default_palette;
 
 /// every suite: its name (cases/<name>.txt) and its generator, one line each
@@ -152,7 +171,7 @@ pub(crate) fn dib_line(r: &mut XorShift32, slot: u32, w: i64, h: i64, f: &(u32, 
         let n = pal.len().min(16);
         for e in pal.iter_mut().take(n) {
             *e = r.next() & 0xffffff;
-            write!(s, " #{e:06x}").unwrap();
+            write!(s, " #{e:06x}");
         }
     }
     (s, pal)

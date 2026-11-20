@@ -71,9 +71,10 @@ pub fn fvf_decl(fvf: u32) -> Result<Vec<Elem>, u32> {
     }
     let mut v = Vec::new();
     let mut off = 0;
-    let mut add = |ty: u32, usage: u32, index: u32| {
+    let mut add = |ty: u32, usage: u32, index: u32| -> Result<(), u32> {
         v.push(elem(off, ty, usage, index));
-        off += decl_type_size(ty).unwrap();
+        off += decl_type_size(ty).ok_or(INVALIDCALL)?;
+        Ok(())
     };
     let pos = fvf & 0x400e;
     if pos != 0 {
@@ -85,28 +86,28 @@ pub fn fvf_decl(fvf: u32) -> Result<Vec<Elem>, u32> {
             return Err(INVALIDCALL);
         }
         if pos == 4 {
-            add(3, 9, 0);
+            add(3, 9, 0)?;
         } else {
-            add(2, 0, 0);
+            add(2, 0, 0)?;
         }
         if blend {
             if count > 0 {
-                add(count - 1, 1, 0);
+                add(count - 1, 1, 0)?;
             }
             if fvf & 0x1000 != 0 {
-                add(5, 2, 0);
+                add(5, 2, 0)?;
             } else if fvf & 0x8000 != 0 {
-                add(4, 2, 0);
+                add(4, 2, 0)?;
             }
         }
     }
     for (bit, ty, usage, index) in [(0x10, 2, 3, 0), (0x20, 0, 4, 0), (0x40, 4, 10, 0), (0x80, 4, 10, 1)] {
         if fvf & bit != 0 {
-            add(ty, usage, index);
+            add(ty, usage, index)?;
         }
     }
     for i in 0..(fvf >> 8 & 0xf) {
-        add(tex_floats(fvf, i) - 1, 5, i);
+        add(tex_floats(fvf, i) - 1, 5, i)?;
     }
     Ok(v)
 }

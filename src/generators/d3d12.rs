@@ -53,50 +53,50 @@ pub fn clear_floats() -> Vec<u32> {
 pub fn d3d12() -> String {
     let mut s = String::from("# gpu\n# kikizake suite d3d12: Direct3D 12 resources (SPEC.md). Made by `kikizake gen d3d12`.\n");
     let fp = |s: &mut String, first: u32, count: u32, base: u32, d: &Desc| {
-        writeln!(s, "footprint12 {first} {count} {} {}", hexw(base), desc_str(d)).unwrap();
+        writeln!(s, "footprint12 {first} {count} {} {}", hexw(base), desc_str(d));
     };
     // footprints of every format: a 2D array with its mip chain, a 1D and a 3D texture
     for f in all_formats() {
-        writeln!(s, "case fp-format-{f}\ndevice12").unwrap();
+        writeln!(s, "case fp-format-{f}\ndevice12");
         let (bw, bh) = block(f).map_or((1, 1), |b| (b.1, b.2));
         let (w, h) = if bw > 1 { (16, 12) } else { (13, 7) };
         let _ = bh;
         fp(&mut s, 0, 8, 0, &Desc::tex(3, w, h, 2, 0, f));
         fp(&mut s, 0, 6, 0, &Desc::tex(2, 37, 1, 1, 0, f));
         fp(&mut s, 0, 4, 0, &Desc::tex(4, 9, 5, 3, 0, f));
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // block compressed and two-texel formats at sizes that are not multiples of their blocks
     for f in [68, 71, 74, 77, 80, 83, 95, 98, 107] {
-        writeln!(s, "case fp-blocks-{f}\ndevice12").unwrap();
+        writeln!(s, "case fp-blocks-{f}\ndevice12");
         for (w, h) in [(1, 1), (2, 2), (3, 5), (5, 3), (4, 4), (13, 7), (17, 9)] {
             fp(&mut s, 0, 1, 0, &Desc::tex(3, w, h, 1, 1, f));
             fp(&mut s, 0, 3, 0, &Desc::tex(3, w * 4, h * 4, 1, 3, f));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // buffers
-    writeln!(s, "case fp-buffer\ndevice12").unwrap();
+    writeln!(s, "case fp-buffer\ndevice12");
     for w in [1, 2, 255, 256, 257, 511, 512, 513, 4096, 65535, 65536, 65537, 0x10_0000, 0x7fff_ffff, 0xffff_ffff, 0] {
         fp(&mut s, 0, 1, 0, &Desc::buffer(w));
     }
     for base in [1, 256, 511, 512, 0x1234] {
         fp(&mut s, 0, 1, base, &Desc::buffer(1000));
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // base offsets, subresource ranges
-    writeln!(s, "case fp-base\ndevice12").unwrap();
+    writeln!(s, "case fp-base\ndevice12");
     let chain = Desc::tex(3, 100, 60, 3, 0, 28);
     for base in [0, 1, 255, 256, 511, 512, 513, 1000, 0x1_0000, 0x1234_5678] {
         fp(&mut s, 0, 7, base, &chain);
     }
-    writeln!(s, "end\ncase fp-range\ndevice12").unwrap();
+    writeln!(s, "end\ncase fp-range\ndevice12");
     for (first, count) in [(0, 0), (0, 1), (3, 2), (6, 1), (7, 9), (14, 4), (20, 1), (21, 1), (25, 1), (0, 16)] {
         fp(&mut s, first, count, 0, &chain);
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // descriptions the documentation calls invalid
-    writeln!(s, "case fp-invalid\ndevice12").unwrap();
+    writeln!(s, "case fp-invalid\ndevice12");
     let base = Desc::tex(3, 64, 32, 1, 1, 28);
     let mut bad = vec![];
     for dim in [0, 5, 0xffff_ffff] {
@@ -125,21 +125,20 @@ pub fn d3d12() -> String {
     for d in bad {
         fp(&mut s, 0, 1, 0, &d);
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // random textures: dimension, size, array, mips, format
     let mut r = XorShift32::new(0xd3d1_2f00);
-    let fmts: Vec<u32> = (1..=115).filter(|f| block(*f).is_some()).collect();
+    let fmts: Vec<(u32, (u32, u32, u32))> = (1..=115).filter_map(|f| block(f).map(|b| (f, b))).collect();
     for i in 0..200 {
-        writeln!(s, "case fp-random-{i}\ndevice12").unwrap();
+        writeln!(s, "case fp-random-{i}\ndevice12");
         for _ in 0..r.range(1, 4) {
             let dim = r.range(2, 4) as u32;
             let big = |r: &mut XorShift32| if r.chance(4) { r.range(1, 3000) as u32 } else { r.range(1, 70) as u32 };
             let w = big(&mut r);
             let h = if dim == 2 { 1 } else { big(&mut r) };
             let d = if dim == 4 { r.range(1, 20) as u32 } else { r.range(1, 4) as u32 };
-            let f = *r.pick(&fmts);
+            let (f, (_, bw, bh)) = *r.pick(&fmts);
             let mut desc = Desc::tex(dim, w, h, d, r.range(0, 4) as u32, f);
-            let (_, bw, bh) = block(f).unwrap();
             if bw > 1 || bh > 1 {
                 desc.w = desc.w.div_ceil(bw) * bw;
                 if dim != 2 {
@@ -152,20 +151,20 @@ pub fn d3d12() -> String {
             let base = if r.chance(3) { r.next() & 0xffff } else { 0 };
             fp(&mut s, first, count, base, &desc);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // allocation sizes: buffers (the documentation's rule), then textures (the driver's)
-    writeln!(s, "case alloc-buffer\ndevice12").unwrap();
+    writeln!(s, "case alloc-buffer\ndevice12");
     for w in [1, 4096, 65535, 65536, 65537, 131072, 1000000, 0x7fff_ffff, 0] {
-        writeln!(s, "alloc12 {}", desc_str(&Desc::buffer(w))).unwrap();
+        writeln!(s, "alloc12 {}", desc_str(&Desc::buffer(w)));
     }
     for align in [65536, 4096, 4194304, 1, 32768] {
-        writeln!(s, "alloc12 {}", desc_str(&Desc { align, ..Desc::buffer(100) })).unwrap();
+        writeln!(s, "alloc12 {}", desc_str(&Desc { align, ..Desc::buffer(100) }));
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     let mut r = XorShift32::new(0xd3d1_2a00);
     for (i, f) in [28u32, 2, 10, 61, 71, 98, 40, 45, 87].into_iter().enumerate() {
-        writeln!(s, "case alloc-texture-{f}\ndevice12").unwrap();
+        writeln!(s, "case alloc-texture-{f}\ndevice12");
         for _ in 0..30 {
             let dim = *r.pick(&[3, 3, 3, 2, 4]);
             let w = r.range(1, 1024) as u32 & !3;
@@ -179,22 +178,22 @@ pub fn d3d12() -> String {
                 d.flags = 1;
             }
             d.align = *r.pick(&[0, 0, 65536, 4096, 4194304]);
-            writeln!(s, "alloc12 {}", desc_str(&d)).unwrap();
+            writeln!(s, "alloc12 {}", desc_str(&d));
         }
         let _ = i;
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // CreateCommittedResource's validation: each field of a buffer and of a texture through
     // values of interest, on each heap type
     let states = [0u32, 0x1, 0x2, 0x4, 0x8, 0x10, 0x40, 0x80, 0x400, 0x800, 0xac3, 0x1000];
     let sweep = |s: &mut String, name: &str, heap: u32, state: u32, base: Desc, at: usize, vals: &[u32]| {
-        writeln!(s, "case create-{name}\ndevice12").unwrap();
+        writeln!(s, "case create-{name}\ndevice12");
         for v in vals {
             let mut w = base.words();
             w[at] = *v;
-            writeln!(s, "create12 {heap} {} {}", hexw(state), desc_str(&Desc::from_words(&w))).unwrap();
+            writeln!(s, "create12 {heap} {} {}", hexw(state), desc_str(&Desc::from_words(&w)));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     };
     let pools: [Vec<u32>; 11] = [
         (0..=5).chain([0xffff_ffff]).collect(),
@@ -216,142 +215,142 @@ pub fn d3d12() -> String {
             sweep(&mut s, &format!("buffer-h{heap}-{}", names[at]), heap, state, buf, at, &pools[at]);
         }
         sweep(&mut s, &format!("buffer-h{heap}-state"), heap, 0, buf, 10, &[0]);
-        writeln!(s, "case create-buffer-h{heap}-states\ndevice12").unwrap();
+        writeln!(s, "case create-buffer-h{heap}-states\ndevice12");
         for st in states {
-            writeln!(s, "create12 {heap} {} {}", hexw(st), desc_str(&buf)).unwrap();
+            writeln!(s, "create12 {heap} {} {}", hexw(st), desc_str(&buf));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     for heap in [0, 4, 5] {
-        writeln!(s, "case create-heap-{heap}\ndevice12\ncreate12 {heap} 0 {}\nend", desc_str(&buf)).unwrap();
+        writeln!(s, "case create-heap-{heap}\ndevice12\ncreate12 {heap} 0 {}\nend", desc_str(&buf));
     }
     for (name, base) in [("tex2d", Desc::tex(3, 64, 32, 2, 3, 28)), ("tex2drt", Desc { flags: 1, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("tex1d", Desc::tex(2, 64, 1, 2, 3, 28)), ("tex3d", Desc::tex(4, 16, 8, 4, 3, 28)), ("depth", Desc { flags: 2, ..Desc::tex(3, 64, 32, 1, 1, 40) }), ("msaa", Desc { flags: 1, samples: 4, ..Desc::tex(3, 64, 32, 1, 1, 28) })] {
         for at in 0..11 {
             sweep(&mut s, &format!("{name}-{}", names[at]), 1, 0, base, at, &pools[at]);
         }
-        writeln!(s, "case create-{name}-heaps\ndevice12").unwrap();
+        writeln!(s, "case create-{name}-heaps\ndevice12");
         for (heap, st) in [(2, 0xac3), (3, 0x400), (1, 0x4), (1, 0x10)] {
-            writeln!(s, "create12 {heap} {} {}", hexw(st), desc_str(&base)).unwrap();
+            writeln!(s, "create12 {heap} {} {}", hexw(st), desc_str(&base));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // a render target cleared in each format, read back; every value in every channel
     let floats = clear_floats();
     for f in (0..=191).filter(|f| channels(*f).is_some()) {
         for (c, chunk) in floats.chunks(25).enumerate() {
-            writeln!(s, "case clear-{f}-{c}\ndevice12").unwrap();
+            writeln!(s, "case clear-{f}-{c}\ndevice12");
             for (i, _) in chunk.iter().enumerate() {
                 let k = c * 25 + i;
                 let px: Vec<String> = (0..4).map(|j| format!("{:#x}", floats[(k + j * 7) % floats.len()])).collect();
-                writeln!(s, "clear12 {f} {}", px.join(" ")).unwrap();
+                writeln!(s, "clear12 {f} {}", px.join(" "));
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     for f in DEPTH {
-        writeln!(s, "case cleardsv-{f}\ndevice12").unwrap();
+        writeln!(s, "case cleardsv-{f}\ndevice12");
         for (i, v) in floats.iter().enumerate() {
-            writeln!(s, "cleardsv12 {f} {v:#x} {}", [0, 1, 0x80, 0xff, 0x1ff][i % 5]).unwrap();
+            writeln!(s, "cleardsv12 {f} {v:#x} {}", [0, 1, 0x80, 0xff, 0x1ff][i % 5]);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (not D32_FLOAT, which removes the device: the executor crashed after it, golden 936cec8)
-    writeln!(s, "case clear-unsupported\ndevice12").unwrap();
+    writeln!(s, "case clear-unsupported\ndevice12");
     for f in [0, 71, 192] {
-        writeln!(s, "clear12 {f} 0 0 0 0").unwrap();
+        writeln!(s, "clear12 {f} 0 0 0 0");
     }
-    writeln!(s, "cleardsv12 28 0 0\nend").unwrap();
+    writeln!(s, "cleardsv12 28 0 0\nend");
     // what the sweeps above leave open: 64KB layouts of 2D arrays and mip chains, the planar
     // video formats without mips, GPU upload heaps, 1D render target sizes
-    writeln!(s, "case create-split\ndevice12").unwrap();
+    writeln!(s, "case create-split\ndevice12");
     for (d, mips) in [(2, 1), (1, 3), (1, 0), (4, 1)] {
         for layout in [2, 3] {
-            writeln!(s, "create12 1 0 {}", desc_str(&Desc { layout, ..Desc::tex(3, 64, 32, d, mips, 28) })).unwrap();
+            writeln!(s, "create12 1 0 {}", desc_str(&Desc { layout, ..Desc::tex(3, 64, 32, d, mips, 28) }));
         }
     }
     for f in [103, 104, 105, 106, 107, 108, 109, 110, 100, 102] {
         for (w, h, d, mips) in [(64, 32, 1, 1), (63, 32, 1, 1), (64, 31, 1, 1), (64, 32, 2, 1), (64, 32, 1, 2)] {
-            writeln!(s, "create12 1 0 {}", desc_str(&Desc::tex(3, w, h, d, mips, f))).unwrap();
+            writeln!(s, "create12 1 0 {}", desc_str(&Desc::tex(3, w, h, d, mips, f)));
         }
-        writeln!(s, "footprint12 0 2 0 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, f))).unwrap();
+        writeln!(s, "footprint12 0 2 0 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, f)));
     }
-    writeln!(s, "end\ncase create-gpuupload\ndevice12").unwrap();
+    writeln!(s, "end\ncase create-gpuupload\ndevice12");
     for st in [0u32, 1, 4, 8, 0x400, 0xac3] {
-        writeln!(s, "create12 5 {} {}", hexw(st), desc_str(&buf)).unwrap();
+        writeln!(s, "create12 5 {} {}", hexw(st), desc_str(&buf));
     }
     for f in [0u32, 1, 4] {
-        writeln!(s, "create12 5 0 {}", desc_str(&Desc { flags: f, ..Desc::tex(3, 64, 32, 1, 1, 28) })).unwrap();
+        writeln!(s, "create12 5 0 {}", desc_str(&Desc { flags: f, ..Desc::tex(3, 64, 32, 1, 1, 28) }));
     }
-    writeln!(s, "create12 5 0 {}", desc_str(&Desc::tex(4, 16, 16, 4, 1, 28))).unwrap();
-    writeln!(s, "end\ncase alloc-rt1d\ndevice12").unwrap();
+    writeln!(s, "create12 5 0 {}", desc_str(&Desc::tex(4, 16, 16, 4, 1, 28)));
+    writeln!(s, "end\ncase alloc-rt1d\ndevice12");
     for (w, a, m, f) in [(944, 3, 3, 2), (944, 1, 1, 2), (944, 3, 1, 2), (944, 1, 3, 2), (4096, 1, 1, 28), (16384, 1, 1, 28), (100, 1, 1, 28), (1024, 2, 1, 10), (4000, 1, 1, 2), (2000, 4, 2, 87)] {
-        writeln!(s, "alloc12 {}", desc_str(&Desc { flags: 1, ..Desc::tex(2, w, 1, a, m, f) })).unwrap();
-        writeln!(s, "alloc12 {}", desc_str(&Desc::tex(2, w, 1, a, m, f))).unwrap();
+        writeln!(s, "alloc12 {}", desc_str(&Desc { flags: 1, ..Desc::tex(2, w, 1, a, m, f) }));
+        writeln!(s, "alloc12 {}", desc_str(&Desc::tex(2, w, 1, a, m, f)));
     }
     // multisampled, 64KB-swizzled and planar textures (sizes of the driver's own layout)
     // (one description a case, so that one the model lacks leaves the others compared)
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     let mut o = String::new();
     for (w, h, n, f) in [(64u32, 64u32, 2u32, 28u32), (64, 64, 4, 28), (256, 100, 8, 28), (1000, 700, 4, 10), (300, 200, 16, 2), (128, 128, 4, 45)] {
-        writeln!(o, "alloc12 {}", desc_str(&Desc { samples: n, flags: if f == 45 { 2 } else { 1 }, ..Desc::tex(3, w, h, 1, 1, f) })).unwrap();
+        writeln!(o, "alloc12 {}", desc_str(&Desc { samples: n, flags: if f == 45 { 2 } else { 1 }, ..Desc::tex(3, w, h, 1, 1, f) }));
     }
     for (w, h, m, f) in [(256u32, 256u32, 1u32, 28u32), (1000, 300, 1, 2), (64, 64, 1, 71)] {
-        writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
+        writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, w, h, 1, m, f) }));
     }
     for (w, h, m, f) in [(256u32, 256u32, 1u32, 20u32), (100, 60, 3, 20), (64, 64, 1, 103), (640, 480, 1, 103), (128, 64, 1, 44)] {
-        writeln!(o, "alloc12 {}", desc_str(&Desc { flags: if f == 103 { 0 } else { 2 }, ..Desc::tex(3, w, h, 1, m, f) })).unwrap();
+        writeln!(o, "alloc12 {}", desc_str(&Desc { flags: if f == 103 { 0 } else { 2 }, ..Desc::tex(3, w, h, 1, m, f) }));
     }
     // (P010, an NV12 array, standard swizzle, 64KB swizzle with mips, samples at 64KB)
-    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 1, 1, 104))).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 3, 1, 103))).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, 28) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 3, 28) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { samples: 4, align: 65536, flags: 1, ..Desc::tex(3, 64, 64, 1, 1, 28) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 1, 1, 104)));
+    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 640, 480, 3, 1, 103)));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, 28) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 3, 28) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { samples: 4, align: 65536, flags: 1, ..Desc::tex(3, 64, 64, 1, 1, 28) }));
     // (420_OPAQUE, standard swizzle with an array and BC1)
-    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, 106))).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 300, 200, 2, 2, 28) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 512, 256, 1, 0, 71) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(4, 64, 64, 64, 1, 28) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(4, 100, 50, 20, 2, 10) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 45) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 20) })).unwrap();
-    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 1, 103) })).unwrap();
+    writeln!(o, "alloc12 {}", desc_str(&Desc::tex(3, 64, 32, 1, 1, 106)));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 300, 200, 2, 2, 28) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(3, 512, 256, 1, 0, 71) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(4, 64, 64, 64, 1, 28) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 3, ..Desc::tex(4, 100, 50, 20, 2, 10) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 45) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, flags: 2, ..Desc::tex(3, 256, 256, 1, 1, 20) }));
+    writeln!(o, "alloc12 {}", desc_str(&Desc { layout: 2, ..Desc::tex(3, 256, 256, 1, 1, 103) }));
     for (i, l) in o.lines().enumerate() {
-        writeln!(s, "case alloc-other-{i}\ndevice12\n{l}\nend").unwrap();
+        writeln!(s, "case alloc-other-{i}\ndevice12\n{l}\nend");
     }
     // (standard swizzle of the two-plane formats, no target)
     for (i, f) in [45u32, 20, 103].into_iter().enumerate() {
-        writeln!(s, "case alloc-std-planar-{i}\ndevice12\nalloc12 {}\ncreate12 1 0 {}\nend", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) }), desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) })).unwrap();
+        writeln!(s, "case alloc-std-planar-{i}\ndevice12\nalloc12 {}\ncreate12 1 0 {}\nend", desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) }), desc_str(&Desc { layout: 3, ..Desc::tex(3, 256, 256, 1, 1, f) }));
     }
-    writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf)).unwrap();
+    writeln!(s, "case nodev\nfootprint12 0 1 0 {}\nalloc12 {}\ncreate12 1 0 {}\nclear12 28 0 0 0 0\nend", desc_str(&buf), desc_str(&buf), desc_str(&buf));
     // CheckFeatureSupport: every format's support, planes and multisample quality levels
     for f in (0u32..=191).chain([0xffff_ffff]) {
-        writeln!(s, "case fsup-{f}\ndevice12\nfeature12 {}\nend\ncase msq-{f}\ndevice12", hexw(f)).unwrap();
+        writeln!(s, "case fsup-{f}\ndevice12\nfeature12 {}\nend\ncase msq-{f}\ndevice12", hexw(f));
         for n in [0u32, 1, 2, 4, 8, 16, 32, 3] {
-            writeln!(s, "msq12 {} {n}", hexw(f)).unwrap();
+            writeln!(s, "msq12 {} {n}", hexw(f));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
-    writeln!(s, "case incr\ndevice12\nincr12\nend").unwrap();
+    writeln!(s, "case incr\ndevice12\nincr12\nend");
     // the stencil planes' footprints, and one mip level of R10G10B10_XR_BIAS_A2 and Y410
     for f in [19u32, 20, 44, 45] {
-        writeln!(s, "case fp-stencil-{f}\ndevice12\nfootprint12 0 2 0 {}\nfootprint12 0 6 0 {}\nfootprint12 1 2 64 {}\nend", desc_str(&Desc::tex(3, 100, 30, 1, 1, f)), desc_str(&Desc::tex(3, 64, 64, 3, 1, f)), desc_str(&Desc::tex(2, 300, 1, 2, 2, f))).unwrap();
+        writeln!(s, "case fp-stencil-{f}\ndevice12\nfootprint12 0 2 0 {}\nfootprint12 0 6 0 {}\nfootprint12 1 2 64 {}\nend", desc_str(&Desc::tex(3, 100, 30, 1, 1, f)), desc_str(&Desc::tex(3, 64, 64, 3, 1, f)), desc_str(&Desc::tex(2, 300, 1, 2, 2, f)));
     }
     for f in [89u32, 101, 113, 114] {
         for (dim, w, h, d) in [(2u32, 64u32, 1u32, 1u32), (3, 7, 3, 2), (4, 16, 8, 4)] {
-            writeln!(s, "case fp-onemip-{f}-{dim}\ndevice12\nfootprint12 0 1 0 {}\ncreate12 1 0 {}\nend", desc_str(&Desc::tex(dim, w, h, d, 1, f)), desc_str(&Desc::tex(dim, w, h, d, 1, f))).unwrap();
+            writeln!(s, "case fp-onemip-{f}-{dim}\ndevice12\nfootprint12 0 1 0 {}\ncreate12 1 0 {}\nend", desc_str(&Desc::tex(dim, w, h, d, 1, f)), desc_str(&Desc::tex(dim, w, h, d, 1, f)));
         }
     }
     // copies to a texture of each format and back (8x4: whole blocks)
     // (not 420_OPAQUE: the CPU has no access to it, and the executor stopped at it, golden 936cec8)
     for f in (1u32..=132).chain([189, 190, 191]).filter(|f| *f != 106) {
-        writeln!(s, "case copy-{f}\ndevice12\ncopy12 {f} 8 4 0\nend").unwrap();
+        writeln!(s, "case copy-{f}\ndevice12\ncopy12 {f} 8 4 0\nend");
     }
     for f in [20u32, 40, 45, 55] {
-        writeln!(s, "case copy-ds-{f}\ndevice12\ncopy12 {f} 8 4 1\nend").unwrap();
+        writeln!(s, "case copy-ds-{f}\ndevice12\ncopy12 {f} 8 4 1\nend");
     }
     for (w, h) in [(1u32, 1u32), (300, 7), (64, 64), (4096, 2)] {
-        writeln!(s, "case copy-size-{w}x{h}\ndevice12\ncopy12 28 {w} {h} 0\ncopy12 2 {w} {h} 0\nend").unwrap();
+        writeln!(s, "case copy-size-{w}x{h}\ndevice12\ncopy12 28 {w} {h} 0\ncopy12 2 {w} {h} 0\nend");
     }
     // object creation: one line a case, each field swept around a valid description
     let mut mk: Vec<String> = Vec::new();
@@ -439,7 +438,7 @@ pub fn d3d12() -> String {
         if l.starts_with("dheap12 4 ") || l.starts_with("dheap12 5 ") {
             continue;
         }
-        writeln!(s, "case make-{i}\ndevice12\n{l}\nend").unwrap();
+        writeln!(s, "case make-{i}\ndevice12\n{l}\nend");
     }
 
     // root signatures (D3D12SerializeVersionedRootSignature, CreateRootSignature): new lines only
@@ -495,19 +494,19 @@ pub fn d3d12() -> String {
         for _ in 0..r.range(0, 6) {
             let vis = r.range(0, 7);
             match r.range(0, 4) {
-                0 => write!(l, " c {} {} {} {vis}", r.range(0, 8), r.range(0, 3), r.range(1, 9)).unwrap(),
-                1 => write!(l, " {} {} {} {vis} {}", r.pick(&["cbv", "srv", "uav"]), r.range(0, 8), r.range(0, 3), r.pick(&[0u32, 2, 4, 8])).unwrap(),
+                0 => write!(l, " c {} {} {} {vis}", r.range(0, 8), r.range(0, 3), r.range(1, 9)),
+                1 => write!(l, " {} {} {} {vis} {}", r.pick(&["cbv", "srv", "uav"]), r.range(0, 8), r.range(0, 3), r.pick(&[0u32, 2, 4, 8])),
                 2 => {
                     let n = r.range(1, 4);
                     let sampler = r.chance(4);
-                    write!(l, " t {vis} {n}").unwrap();
+                    write!(l, " t {vis} {n}");
                     for _ in 0..n {
                         let ty = if sampler { 3 } else { r.range(0, 3) };
                         let f = if sampler { *r.pick(&[0u32, 1]) } else { *r.pick(&[0u32, 1, 2, 4, 8, 0x10000]) };
-                        write!(l, " {ty} {} {} {} {} {}", r.range(1, 9), r.range(0, 8), r.range(0, 3), hexw(*r.pick(&[0u32, 8, 0xffff_ffff])), hexw(f)).unwrap();
+                        write!(l, " {ty} {} {} {} {} {}", r.range(1, 9), r.range(0, 8), r.range(0, 3), hexw(*r.pick(&[0u32, 8, 0xffff_ffff])), hexw(f));
                     }
                 }
-                _ => write!(l, " s {} {} {} {vis}", hexw(*r.pick(&[0u32, 0x15, 0x55, 0x94])), r.range(0, 8), r.range(0, 3)).unwrap(),
+                _ => write!(l, " s {} {} {} {vis}", hexw(*r.pick(&[0u32, 0x15, 0x55, 0x94])), r.range(0, 8), r.range(0, 3)),
             }
         }
         rs.push(l);
@@ -551,7 +550,7 @@ pub fn d3d12() -> String {
         rs.push(format!("{v} 0 srv 0 0 0 0 t 0 1 0 0xffffffff 1 0 0 0"));
     }
     for (i, l) in rs.iter().enumerate() {
-        writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
+        writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end());
     }
 
     // edges: each limit and one past it, one description a case (cargo-mutants: the comparisons
@@ -661,7 +660,7 @@ pub fn d3d12() -> String {
     edge.push(("alloc-tight-rt".into(), format!("alloc12 {}", desc_str(&Desc { flags: 0x401, ..tt }))));
     edge.push(("alloc-tight-small".into(), format!("alloc12 {}", desc_str(&Desc { flags: 0x400, ..Desc::tex(3, 8, 8, 1, 1, 28) }))));
     for (n, l) in edge {
-        writeln!(s, "case {n}\ndevice12\n{l}\nend").unwrap();
+        writeln!(s, "case {n}\ndevice12\n{l}\nend");
     }
     // (added after) every feature CheckFeatureSupport knows of, at every size (last: the
     // executor might stop at one)
@@ -676,23 +675,23 @@ pub fn d3d12() -> String {
     for f in (0u32..=64).filter(|f| !matches!(f, 3 | 4 | 5)) {
         for (k, i) in inputs(f).iter().enumerate() {
             let l: String = i.iter().map(|v| format!(" {}", hexw(*v))).collect();
-            writeln!(s, "case featscan-{f}-{k}\ndevice12\nfeatscan12 {f}{l}\nend").unwrap();
+            writeln!(s, "case featscan-{f}-{k}\ndevice12\nfeatscan12 {f}{l}\nend");
         }
     }
     // (added after) features whose first field is a NodeIndex, asked of node 1 (WARP has one
     // node; vkd3d-proton refuses NodeIndex != 0, to be measured)
     for f in [1u32, 11, 16, 24, 30, 31] {
-        writeln!(s, "case featscan-{f}-n1\ndevice12\nfeatscan12 {f} 1\nend").unwrap();
+        writeln!(s, "case featscan-{f}-n1\ndevice12\nfeatscan12 {f} 1\nend");
     }
     // (added after) a texture's initial state, every bit alone, for each usage (vkd3d-proton
     // checks RENDER_TARGET, DEPTH_WRITE/READ and RAYTRACING_AS against the flags; measured here)
     let tex_states: Vec<u32> = (0..24).map(|b| 1u32 << b).chain([0x30, 0xac3, 0x8000_0000, 0xffff_ffff]).collect();
     for (name, base) in [("tex", Desc::tex(3, 64, 32, 1, 1, 28)), ("rt", Desc { flags: 1, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("ds", Desc { flags: 2, ..Desc::tex(3, 64, 32, 1, 1, 40) }), ("uav", Desc { flags: 4, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("sim", Desc { flags: 0x21, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("buf", Desc { flags: 4, ..Desc::buffer(1024) })] {
-        writeln!(s, "case create-state-{name}\ndevice12").unwrap();
+        writeln!(s, "case create-state-{name}\ndevice12");
         for st in &tex_states {
-            writeln!(s, "create12 1 {} {}", hexw(*st), desc_str(&base)).unwrap();
+            writeln!(s, "create12 1 {} {}", hexw(*st), desc_str(&base));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (added after) the same states two at a time, GENERIC_READ less and plus each bit, and the
     // high bits alone
@@ -706,11 +705,11 @@ pub fn d3d12() -> String {
     combos.extend(named.iter().filter(|b| 0xac3 & **b != 0).map(|b| 0xac3 & !b));
     combos.extend(named.iter().filter(|b| 0xac3 & **b == 0).map(|b| 0xac3 | b));
     for (name, base) in [("tex", Desc::tex(3, 64, 32, 1, 1, 28)), ("rt", Desc { flags: 1, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("ds", Desc { flags: 2, ..Desc::tex(3, 64, 32, 1, 1, 40) }), ("uav", Desc { flags: 4, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("rtuav", Desc { flags: 5, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("sim", Desc { flags: 0x21, ..Desc::tex(3, 64, 32, 1, 1, 28) }), ("buf", Desc { flags: 4, ..Desc::buffer(1024) }), ("buf0", Desc::buffer(1024))] {
-        writeln!(s, "case create-state2-{name}\ndevice12").unwrap();
+        writeln!(s, "case create-state2-{name}\ndevice12");
         for st in &combos {
-            writeln!(s, "create12 1 {} {}", hexw(*st), desc_str(&base)).unwrap();
+            writeln!(s, "create12 1 {} {}", hexw(*st), desc_str(&base));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (added after) heap properties, heap flags and clear values in full (committed12, heapx12),
     // rules from re/d3d12 notes to be measured
@@ -801,11 +800,11 @@ pub fn d3d12() -> String {
     }
     blocks.push(("heapx-nodes".into(), nodes.iter().map(|(c, v)| hx([1, 0, 0, *c, *v], 65536, 0, 0)).collect()));
     for (n, v) in blocks {
-        writeln!(s, "case {n}\ndevice12").unwrap();
+        writeln!(s, "case {n}\ndevice12");
         for l in v {
-            writeln!(s, "{l}").unwrap();
+            writeln!(s, "{l}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     let mut rs2: Vec<String> = Vec::new();
     // (added after) static samplers in full (S): each field through values of interest, from the
@@ -845,7 +844,7 @@ pub fn d3d12() -> String {
         rs2.push(format!("{v} 0 c 0 0 0 0"));
     }
     for (i, l) in rs2.iter().enumerate() {
-        writeln!(s, "case rootsig2-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end()).unwrap();
+        writeln!(s, "case rootsig2-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end());
     }
 
     s
@@ -856,7 +855,7 @@ pub fn d3d12() -> String {
 pub const CHAIN: [u32; 12] = [0, 0, 87, 0, 1, 0, 0x20, 2, 0, 4, 0, 0];
 
 fn chain_line(s: &mut String, op: &str, w: &[u32]) {
-    writeln!(s, "{op} {}", w.iter().map(|v| hexw(*v)).collect::<Vec<_>>().join(" ")).unwrap();
+    writeln!(s, "{op} {}", w.iter().map(|v| hexw(*v)).collect::<Vec<_>>().join(" "));
 }
 
 /// a D32_FLOAT render target removes the device (D3D12.CLEAR.REMOVED): alone in a suite, a
@@ -869,43 +868,43 @@ pub fn d3d12rm() -> String {
 
 pub fn dxgi() -> String {
     let mut s = String::from("# gpu\n# kikizake suite dxgi: DXGI factories and flip-model swap chains on Direct3D 12 (SPEC.md). Made by `kikizake gen dxgi`.\n");
-    writeln!(s, "case factory\ndxgifactory 0\ndxgiwarp").unwrap();
+    writeln!(s, "case factory\ndxgifactory 0\ndxgiwarp");
     for f in [2, 4, 0x10, 0x8000_0000u32, 0] {
-        writeln!(s, "dxgifactory {}\ndxgiwarp", hexw(f)).unwrap();
+        writeln!(s, "dxgifactory {}\ndxgiwarp", hexw(f));
     }
-    writeln!(s, "end\ncase tearing\ndxgifactory 0\ndxgitearing\nend\ncase adapters\ndxgifactory 0\ndxgiadapters\nend").unwrap();
+    writeln!(s, "end\ncase tearing\ndxgifactory 0\ndxgitearing\nend\ncase adapters\ndxgifactory 0\ndxgiadapters\nend");
     for cs in (0u32..=25).chain([0xffff_ffff]) {
-        writeln!(s, "case color-{cs}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case color-{cs}\ndevice12\ndxgifactory 0");
         chain_line(&mut s, "swapchain", &CHAIN);
-        writeln!(s, "sccolor {}\nend", hexw(cs)).unwrap();
+        writeln!(s, "sccolor {}\nend", hexw(cs));
     }
     for f in [10u32, 24, 28] {
         for cs in (0u32..=25).chain([0xffff_ffff]) {
-            writeln!(s, "case color-f{f}-{cs}\ndevice12\ndxgifactory 0").unwrap();
+            writeln!(s, "case color-f{f}-{cs}\ndevice12\ndxgifactory 0");
             let mut c = CHAIN;
             c[2] = f;
             chain_line(&mut s, "swapchain", &c);
-            writeln!(s, "sccolor {}\nend", hexw(cs)).unwrap();
+            writeln!(s, "sccolor {}\nend", hexw(cs));
         }
     }
     for f in [10u32, 24] {
-        writeln!(s, "case color-fmt{f}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case color-fmt{f}\ndevice12\ndxgifactory 0");
         let mut c = CHAIN;
         c[2] = f;
         chain_line(&mut s, "swapchain", &c);
         for cs in [0u32, 1, 12, 14, 17] {
-            writeln!(s, "sccolor {}", hexw(cs)).unwrap();
+            writeln!(s, "sccolor {}", hexw(cs));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // (DXGI_CREATE_FACTORY_DEBUG on its own: its answer depends on the Graphics Tools being there)
-    writeln!(s, "case factory-debug\ndxgifactory 1\ndxgiwarp").unwrap();
-    writeln!(s, "end\ncase assoc\ndxgifactory 0").unwrap();
+    writeln!(s, "case factory-debug\ndxgifactory 1\ndxgiwarp");
+    writeln!(s, "end\ncase assoc\ndxgifactory 0");
     for f in (0..=8).chain([0x10, 0x100, 0x8000_0000u32]) {
-        writeln!(s, "dxgiassoc {}", hexw(f)).unwrap();
-        writeln!(s, "dxgiassoc {} null", hexw(f)).unwrap();
+        writeln!(s, "dxgiassoc {}", hexw(f));
+        writeln!(s, "dxgiassoc {} null", hexw(f));
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // each field of the description through values of interest
     let pools: [Vec<u32>; 12] = [
         vec![0, 1, 2, 63, 64, 100, 8192, 16384, 16385],
@@ -924,17 +923,17 @@ pub fn dxgi() -> String {
     let names = ["width", "height", "format", "stereo", "samples", "quality", "usage", "buffers", "scaling", "effect", "alpha", "flags"];
     for (at, pool) in pools.iter().enumerate() {
         for (c, chunk) in pool.chunks(50).enumerate() {
-            writeln!(s, "case swapchain-{}-{c}\ndevice12\ndxgifactory 0", names[at]).unwrap();
+            writeln!(s, "case swapchain-{}-{c}\ndevice12\ndxgifactory 0", names[at]);
             for v in chunk {
                 let mut w = CHAIN;
                 w[at] = *v;
                 chain_line(&mut s, "swapchain", &w);
             }
-            writeln!(s, "end").unwrap();
+            writeln!(s, "end");
         }
     }
     // the other effects, scalings and formats together
-    writeln!(s, "case swapchain-pairs\ndevice12\ndxgifactory 0").unwrap();
+    writeln!(s, "case swapchain-pairs\ndevice12\ndxgifactory 0");
     for effect in [3, 4] {
         for scaling in 0..3 {
             for f in [10, 24, 28, 87, 29, 91] {
@@ -944,52 +943,52 @@ pub fn dxgi() -> String {
             }
         }
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // buffers, presents, resizes, frame latency
     for n in [2, 3, 5, 16] {
-        writeln!(s, "case chain-buffers-{n}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case chain-buffers-{n}\ndevice12\ndxgifactory 0");
         let mut w = CHAIN;
         w[7] = n;
         chain_line(&mut s, "swapchain", &w);
         for i in 0..=n {
-            writeln!(s, "scbuffer {i}").unwrap();
+            writeln!(s, "scbuffer {i}");
         }
-        writeln!(s, "scbuffer 0xffffffff").unwrap();
+        writeln!(s, "scbuffer 0xffffffff");
         for i in 0..n + 2 {
-            writeln!(s, "scpresent {} 0", i % 2).unwrap();
+            writeln!(s, "scpresent {} 0", i % 2);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
-    writeln!(s, "case chain-present\ndevice12\ndxgifactory 0").unwrap();
+    writeln!(s, "case chain-present\ndevice12\ndxgifactory 0");
     chain_line(&mut s, "swapchain", &CHAIN);
     for (sync, flags) in [(0, 0), (1, 0), (4, 0), (5, 0), (0, 1), (0, 2), (0, 0x200), (0, 0x8000_0000), (1, 0x200), (0, 0x100)] {
-        writeln!(s, "scpresent {sync} {}", hexw(flags)).unwrap();
+        writeln!(s, "scpresent {sync} {}", hexw(flags));
     }
     // (DXGI_PRESENT_RESTART apart: the model lacks it)
-    writeln!(s, "end\ncase chain-present-restart\ndevice12\ndxgifactory 0").unwrap();
+    writeln!(s, "end\ncase chain-present-restart\ndevice12\ndxgifactory 0");
     chain_line(&mut s, "swapchain", &CHAIN);
-    writeln!(s, "scpresent 0 4\nend").unwrap();
-    writeln!(s, "case chain-resize\ndevice12\ndxgifactory 0").unwrap();
+    writeln!(s, "scpresent 0 4\nend");
+    writeln!(s, "case chain-resize\ndevice12\ndxgifactory 0");
     chain_line(&mut s, "swapchain", &CHAIN);
     for (n, w, h, f, fl) in [(0u32, 0u32, 0u32, 0u32, 0u32), (3, 0, 0, 0, 0), (0, 100, 50, 0, 0), (0, 0, 0, 28, 0), (0, 0, 0, 10, 0), (0, 0, 0, 24, 0), (0, 0, 0, 29, 0), (0, 0, 0, 2, 0), (1, 0, 0, 0, 0), (16, 0, 0, 0, 0), (17, 0, 0, 0, 0), (2, 0, 0, 0, 0), (0, 16385, 1, 0, 0), (0, 0, 0, 0, 0x40), (0, 0, 0, 0, 0x800), (0, 0, 0, 0, 2), (0, 0, 0, 0, 0x8000_0000), (0, 0, 0, 0xffff_ffff, 0)] {
-        writeln!(s, "scresize {n} {w} {h} {f} {}", hexw(fl)).unwrap();
-        writeln!(s, "scpresent 0 0").unwrap();
+        writeln!(s, "scresize {n} {w} {h} {f} {}", hexw(fl));
+        writeln!(s, "scpresent 0 0");
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     for flags in [0, 0x40] {
-        writeln!(s, "case chain-latency-{flags:x}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case chain-latency-{flags:x}\ndevice12\ndxgifactory 0");
         let mut w = CHAIN;
         w[11] = flags;
         chain_line(&mut s, "swapchain", &w);
         for n in [0, 1, 2, 3, 16, 17, 0xffff_ffffu32] {
-            writeln!(s, "sclatency {}", hexw(n)).unwrap();
+            writeln!(s, "sclatency {}", hexw(n));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     // random descriptions near the valid ones
     let mut r = XorShift32::new(0xd61_5a00);
     for i in 0..60 {
-        writeln!(s, "case swapchain-random-{i}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case swapchain-random-{i}\ndevice12\ndxgifactory 0");
         for _ in 0..r.range(3, 12) {
             let mut w = CHAIN;
             for _ in 0..r.range(1, 3) {
@@ -998,14 +997,14 @@ pub fn dxgi() -> String {
             }
             chain_line(&mut s, "swapchain", &w);
             if r.chance(3) {
-                writeln!(s, "scpresent 0 0").unwrap();
+                writeln!(s, "scpresent 0 0");
             }
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
-    writeln!(s, "case nofactory\ndxgiwarp\ndxgiassoc 0\nswapchain 0 0 87 0 1 0 0x20 2 0 4 0 0\nend").unwrap();
-    writeln!(s, "case nochain\ndxgifactory 0\nscresize 0 0 0 0 0\nscbuffer 0\nscpresent 0 0\nsclatency 1\nend").unwrap();
-    writeln!(s, "case nodev\ndxgifactory 0\nswapchain 0 0 87 0 1 0 0x20 2 0 4 0 0\nend").unwrap();
+    writeln!(s, "case nofactory\ndxgiwarp\ndxgiassoc 0\nswapchain 0 0 87 0 1 0 0x20 2 0 4 0 0\nend");
+    writeln!(s, "case nochain\ndxgifactory 0\nscresize 0 0 0 0 0\nscbuffer 0\nscpresent 0 0\nsclatency 1\nend");
+    writeln!(s, "case nodev\ndxgifactory 0\nswapchain 0 0 87 0 1 0 0x20 2 0 4 0 0\nend");
     // edges, one question a case (added after)
     let tear = { let mut w = CHAIN; w[11] = 0x800; w };
     let wait = { let mut w = CHAIN; w[11] = 0x40; w };
@@ -1053,9 +1052,9 @@ pub fn dxgi() -> String {
         edge.push((format!("chain-edge5-latency-{n:x}"), wait, format!("sclatency {}", hexw(n))));
     }
     for (n, d, l) in edge {
-        writeln!(s, "case {n}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case {n}\ndevice12\ndxgifactory 0");
         chain_line(&mut s, "swapchain", &d);
-        writeln!(s, "{l}\nend").unwrap();
+        writeln!(s, "{l}\nend");
     }
     // (added after) rules from the re/dxgi notes, to be measured: DO_NOT_SEQUENCE before a frame,
     // Present1's dirty and scroll rects, SetHDRMetaData, the waitable object, CheckFeatureSupport's
@@ -1064,10 +1063,10 @@ pub fn dxgi() -> String {
     let p1 = |sync: u32, fl: u32, scroll: Option<[i32; 6]>, rects: &[[i32; 4]]| -> String {
         let sc = scroll.unwrap_or([0; 6]);
         let mut l = format!("scpresent1 {sync} {} {} {}", hexw(fl), scroll.is_some() as u32, sc.iter().map(|v| hexw(*v as u32)).collect::<Vec<_>>().join(" "));
-        write!(l, " {}", rects.len()).unwrap();
+        write!(l, " {}", rects.len());
         for r in rects {
             for v in r {
-                write!(l, " {}", hexw(*v as u32)).unwrap();
+                write!(l, " {}", hexw(*v as u32));
             }
         }
         l
@@ -1114,23 +1113,23 @@ pub fn dxgi() -> String {
     re.push(("wait-none".into(), CHAIN, vec!["scwait".into()]));
     re.push(("wait-flag".into(), wait, vec!["scwait".into(), "scwait".into()]));
     for (n, d, ls) in re {
-        writeln!(s, "case {n}\ndevice12\ndxgifactory 0").unwrap();
+        writeln!(s, "case {n}\ndevice12\ndxgifactory 0");
         chain_line(&mut s, "swapchain", &d);
         for l in ls {
-            writeln!(s, "{l}").unwrap();
+            writeln!(s, "{l}");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
-    writeln!(s, "case feat-args\ndxgifactory 0").unwrap();
+    writeln!(s, "case feat-args\ndxgifactory 0");
     for (f, z) in [(0u32, 4u32), (0, 0), (0, 1), (0, 3), (0, 5), (0, 8), (0, 16), (1, 4), (2, 4), (0xffff_ffff, 4)] {
-        writeln!(s, "dxgifeat {} {z}", hexw(f)).unwrap();
+        writeln!(s, "dxgifeat {} {z}", hexw(f));
     }
-    writeln!(s, "end\ncase pref-args\ndxgifactory 0").unwrap();
+    writeln!(s, "end\ncase pref-args\ndxgifactory 0");
     for i in 0u32..=2 {
         for p in [0u32, 1, 2, 3, 4, 0x40, 0x4000_0000, 0xffff_ffff] {
-            writeln!(s, "dxgipref {i} {}", hexw(p)).unwrap();
+            writeln!(s, "dxgipref {i} {}", hexw(p));
         }
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     s
 }

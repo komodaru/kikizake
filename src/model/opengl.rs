@@ -399,7 +399,7 @@ pub struct Ctx {
     pub caps: std::collections::BTreeMap<u32, bool>,
     pub mode: u32,
     /// the matrix stacks, column-major, the top last: modelview, projection, texture
-    pub stacks: [Vec<[f32; 16]>; 3],
+    pub stacks: [Stack; 3],
     pub clear_color: [f32; 4],
     /// a GLclampd, kept as a double (golden opengl-32 depth-types-0: 0.999 clears to 0xffbe76c6)
     pub clear_depth: f64,
@@ -508,7 +508,7 @@ impl Ctx {
             in_begin: None,
             caps,
             mode: MODELVIEW,
-            stacks: [vec![IDENTITY], vec![IDENTITY], vec![IDENTITY]],
+            stacks: [Stack::new(), Stack::new(), Stack::new()],
             clear_color: [0.0; 4],
             clear_depth: 1.0,
             clear_stencil: 0,
@@ -611,12 +611,50 @@ pub fn limits(p: u32) -> Option<Vec<V>> {
     })
 }
 
+/// a matrix stack: never empty, its top the current matrix
+#[derive(Clone, Debug)]
+pub struct Stack {
+    below: Vec<[f32; 16]>,
+    top: [f32; 16],
+}
+
+impl Stack {
+    /// the stack of one identity matrix
+    fn new() -> Stack {
+        Stack { below: Vec::new(), top: IDENTITY }
+    }
+    /// its depth (1 for one matrix)
+    pub fn len(&self) -> usize {
+        self.below.len() + 1
+    }
+    pub fn top(&self) -> &[f32; 16] {
+        &self.top
+    }
+    fn top_mut(&mut self) -> &mut [f32; 16] {
+        &mut self.top
+    }
+    /// glPushMatrix: the top copied above itself
+    fn push(&mut self) {
+        self.below.push(self.top);
+    }
+    /// glPopMatrix: the top dropped; false (nothing changed) for a stack of one matrix
+    fn pop(&mut self) -> bool {
+        match self.below.pop() {
+            Some(m) => {
+                self.top = m;
+                true
+            }
+            None => false,
+        }
+    }
+}
+
 impl Ctx {
     fn cap(&self, c: u32) -> bool {
         self.caps.get(&c).copied().unwrap_or(false)
     }
     fn top(&self, m: usize) -> &[f32; 16] {
-        self.stacks[m].last().unwrap()
+        self.stacks[m].top()
     }
 
     /// the values glGet gives for `p`, None for a name it does not know (INVALID_ENUM)
@@ -1000,7 +1038,7 @@ impl Gl {
                 } else {
                     hit(clause::GL_MATRIX_LOAD);
                     let i = ctx.mi();
-                    let top = ctx.stacks[i].last_mut().unwrap();
+                    let top = ctx.stacks[i].top_mut();
                     *top = if t[1] == "load" { m } else { mat_mul(top, &m) };
                 }
             }
@@ -1324,7 +1362,7 @@ impl Ctx {
             "glLoadIdentity" => {
                 hit(clause::GL_MATRIX_LOAD);
                 let i = self.mi();
-                *self.stacks[i].last_mut().unwrap() = IDENTITY;
+                *self.stacks[i].top_mut() = IDENTITY;
             }
             "glPushMatrix" => {
                 let i = self.mi();
@@ -1333,18 +1371,16 @@ impl Ctx {
                     self.error(STACK_OVERFLOW);
                 } else {
                     hit(clause::GL_MATRIX_PUSH);
-                    let top = *self.top(i);
-                    self.stacks[i].push(top);
+                    self.stacks[i].push();
                 }
             }
             "glPopMatrix" => {
                 let i = self.mi();
-                if self.stacks[i].len() == 1 {
+                if self.stacks[i].pop() {
+                    hit(clause::GL_MATRIX_POP);
+                } else {
                     hit(clause::GL_MATRIX_UNDERFLOW);
                     self.error(STACK_UNDERFLOW);
-                } else {
-                    hit(clause::GL_MATRIX_POP);
-                    self.stacks[i].pop();
                 }
             }
             "glTranslatef" | "glScalef" | "glRotatef" | "glOrtho" | "glFrustum" => {
@@ -1360,7 +1396,7 @@ impl Ctx {
                         // in place, so a negative factor gives their zeros a sign)
                         hit(clause::GL_MATRIX_SCALE);
                         let i = self.mi();
-                        let top = self.stacks[i].last_mut().unwrap();
+                        let top = self.stacks[i].top_mut();
                         for c in 0..3 {
                             for r in 0..4 {
                                 top[c * 4 + r] *= fl(a, c) as f32;
@@ -1419,7 +1455,7 @@ impl Ctx {
                     }
                 };
                 let i = self.mi();
-                let top = self.stacks[i].last_mut().unwrap();
+                let top = self.stacks[i].top_mut();
                 *top = mat_mul(top, &m);
             }
             "glClearAccum" => {

@@ -206,9 +206,10 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         let v = (0..count).map(|_| (base, 0, d.w, 1, 1, align(w, 256), 1, w)).collect();
         return Ok((v, if count == 0 { 0 } else { w }));
     }
-    let dm = dims(d.fmt).unwrap();
+    let dm = dims(d.fmt);
     hit(clause::D3D12_FORMAT_DIMS);
-    if dm & d.kind().tex_bit().expect("checked: a texture") == 0 {
+    // (no texture bit: Unknown and Other, which validate refuses as well)
+    if d.kind().tex_bit().is_none_or(|bit| dm & bit == 0) {
         return Ok(invalid_fps(count));
     }
     // (MEASURED: the two-texel formats want an even width, the packed video ones no mip levels)
@@ -244,7 +245,12 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         hit(clause::D3D12_FOOTPRINT_PLANAR);
         (39, (4, 1, 1), 512)
     } else {
-        (d.fmt, block(d.fmt).unwrap(), 256)
+        // (every format of a texture bit that is not two planes has a block:
+        // tests dims_have_blocks)
+        let Some(b) = block(d.fmt) else {
+            return Ok(invalid_fps(count));
+        };
+        (d.fmt, b, 256)
     };
     let mips = if d.mips == 0 {
         hit(clause::D3D12_FOOTPRINT_MIPS0);
@@ -870,7 +876,14 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
         let (bytes, bw, bh) = match d.fmt {
             19..=22 => (8, 1, 1),
             44..=47 => (4, 1, 1),
-            _ => block(d.fmt).expect("CreateCommittedResource refuses a swizzle of the other formats"),
+            f => match block(f) {
+                Some(b) => b,
+                // (CreateCommittedResource refuses a swizzle of the other formats)
+                None => {
+                    hit(clause::D3D12_ALLOC_INVALID);
+                    return Ok((u64::MAX, 65536));
+                }
+            },
         };
         hit(clause::D3D12_ALLOC_SWIZZLE);
         let (tw, th, td) = match (d.kind() == Dim::Tex2D, bytes) {
@@ -1297,7 +1310,8 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         // (MEASURED, golden d3d12-64 create-gpuupload: textures taken as on the default heap)
         hit(clause::D3D12_CREATE_GPUUPLOAD);
     }
-    if no(d.kind().tex_bit().is_none(), clause::D3D12_DESC_DIM) || no(d.w == 0 || d.h == 0 || d.d == 0 || d.kind() == Dim::Tex1D && d.h != 1 || d.d > 2048, clause::D3D12_DESC_SIZE) {
+    let dim = d.kind().tex_bit();
+    if no(dim.is_none(), clause::D3D12_DESC_DIM) || no(d.w == 0 || d.h == 0 || d.d == 0 || d.kind() == Dim::Tex1D && d.h != 1 || d.d > 2048, clause::D3D12_DESC_SIZE) {
         return Ok(E_INVALIDARG);
     }
     let ms = d.samples > 1;
@@ -1315,7 +1329,9 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         return Ok(E_INVALIDARG);
     }
     let fs = support(d.fmt);
-    let dimbit = d.kind().tex_bit().expect("checked: a texture");
+    let Some(dimbit) = dim else {
+        return Ok(E_INVALIDARG);
+    };
     if no(fs & dimbit == 0 && !(target && fs & (RT | DS) != 0 && d.kind() == Dim::Tex2D), clause::D3D12_CREATE_FORMAT) {
         return Ok(E_INVALIDARG);
     }
@@ -1489,7 +1505,7 @@ impl D3d12 {
                 if t.len() != 13 {
                     return Err(Fail::Bad);
                 }
-                let w: [u32; 12] = words(&t[1..])?.try_into().unwrap();
+                let w: [u32; 12] = words(&t[1..])?.try_into().map_err(|_| Fail::Bad)?;
                 self.chain = None;
                 match chain_desc(&w) {
                     Ok(d) => {
@@ -1530,26 +1546,26 @@ impl D3d12 {
                 };
                 out.push(format!("hdr hr {:08x}", if ok { S_OK } else { E_INVALIDARG }));
             }
-            "sccolor" => {
-                if t.len() != 2 {
-                    return Err(Fail::Bad);
-                }
-                let cs = words(&t[1..])?[0];
-                // (MEASURED, golden dxgi-* color-*, color-f*-*: the color spaces a flip chain
-                // presents in, by format; SetColorSpace1 takes exactly those)
-                let set: &[u32] = match self.chain.unwrap().0[2] {
-                    10 => &[1],
-                    24 | 28 | 87 => &[0, 2, 3, 12, 14, 17, 20, 21],
-                    f => unreachable!("chain_desc takes only the flip formats, not {f}"),
-                };
-                hit(clause::DXGI_COLORSPACE_FLIP);
-                let ok = set.contains(&cs);
-                out.push(format!("color {} set {:08x}", ok as u32, if ok { S_OK } else { E_INVALIDARG }));
-            }
             _ => {
-                let Some((d, index)) = self.chain.as_mut() else { unreachable!() };
+                let Some((d, index)) = self.chain.as_mut() else {
+                    out.push("nochain".into());
+                    return Ok(true);
+                };
                 let w = words(&t[1..])?;
                 match (name, w.len()) {
+                    ("sccolor", 1) => {
+                        let cs = w[0];
+                        // (MEASURED, golden dxgi-* color-*, color-f*-*: the color spaces a flip chain
+                        // presents in, by format; SetColorSpace1 takes exactly those)
+                        let set: &[u32] = match d[2] {
+                            10 => &[1],
+                            24 | 28 | 87 => &[0, 2, 3, 12, 14, 17, 20, 21],
+                            f => unreachable!("chain_desc takes only the flip formats, not {f}"),
+                        };
+                        hit(clause::DXGI_COLORSPACE_FLIP);
+                        let ok = set.contains(&cs);
+                        out.push(format!("color {} set {:08x}", ok as u32, if ok { S_OK } else { E_INVALIDARG }));
+                    }
                     ("scbuffer", 1) => {
                         hit(clause::DXGI_BUFFER);
                         // (a buffer: a 2D render target of the chain's size and format)

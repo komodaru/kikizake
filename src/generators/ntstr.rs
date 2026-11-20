@@ -46,7 +46,7 @@ fn u2i_lines(s: &mut String, base: u32, w: &[u16]) {
     lens.retain(|&l| l >= 0);
     lens.dedup();
     for l in lens {
-        writeln!(s, "u2i {base} {l} {}", hexw(w)).unwrap();
+        writeln!(s, "u2i {base} {l} {}", hexw(w));
     }
 }
 
@@ -54,76 +54,76 @@ pub fn ntstr() -> String {
     let mut s = String::from("# kikizake suite ntstr: ntdll's integer <-> string conversions (SPEC.md). Made by `kikizake gen ntstr`.\n");
     let mut r = XorShift32::new(0x4e75_0000);
     for &base in BASES {
-        writeln!(s, "case a2i-base-{base}").unwrap();
+        writeln!(s, "case a2i-base-{base}");
         for t in STRINGS {
-            writeln!(s, "a2i {base} {}", hexb(t)).unwrap();
+            writeln!(s, "a2i {base} {}", hexb(t));
         }
-        writeln!(s, "end\ncase u2i-base-{base}").unwrap();
+        writeln!(s, "end\ncase u2i-base-{base}");
         for t in STRINGS {
             u2i_lines(&mut s, base, &t.iter().map(|&b| u16::from(b)).collect::<Vec<_>>());
         }
         for w in WIDE {
             u2i_lines(&mut s, base, w);
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     for &base in BASES {
-        writeln!(s, "case i2a-base-{base}").unwrap();
+        writeln!(s, "case i2a-base-{base}");
         for &v in VALUES {
             let d = ndigits(v, base);
             let mut lens = vec![40, 0, 1, d - 1, d, d + 1, -1, -(d - 1), -d, -(d + 3), -40];
             lens.sort();
             lens.dedup();
             for l in lens.into_iter().filter(|l| (-40..=40).contains(l)) {
-                writeln!(s, "i2a {v:#x} {base} {l}").unwrap();
+                writeln!(s, "i2a {v:#x} {base} {l}");
             }
         }
-        writeln!(s, "end\ncase i2u-base-{base}").unwrap();
+        writeln!(s, "end\ncase i2u-base-{base}");
         for &v in VALUES {
             let d = 2 * ndigits(v, base);
             let mut maxes = vec![80, 0, 1, 2, d - 1, d, d + 1, d + 2, d + 3];
             maxes.sort();
             maxes.dedup();
             for m in maxes.into_iter().filter(|m| (0..=80).contains(m)) {
-                writeln!(s, "i2u {v:#x} {base} {m}").unwrap();
+                writeln!(s, "i2u {v:#x} {base} {m}");
             }
-            writeln!(s, "i2u {v:#x} {base} 80 null").unwrap();
+            writeln!(s, "i2u {v:#x} {base} 80 null");
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
-    writeln!(s, "case a2u").unwrap();
+    writeln!(s, "case a2u");
     for t in [&b""[..], b"a", b"abc", b"Hello, world", b"0123456789012345678901234567890123456789"] {
         let n = t.len() as i64;
         let mut maxes = vec![80, 0, 1, 2 * n, 2 * n + 1, 2 * n + 2, 2 * n + 3];
         maxes.sort();
         maxes.dedup();
         for m in maxes.into_iter().filter(|m| (0..=80).contains(m)) {
-            writeln!(s, "a2u {n} {m} {}", hexb(t)).unwrap();
+            writeln!(s, "a2u {n} {m} {}", hexb(t));
         }
-        writeln!(s, "a2u {n} 80 {} null", hexb(t)).unwrap();
+        writeln!(s, "a2u {n} 80 {} null", hexb(t));
         if n > 1 {
-            writeln!(s, "a2u {} 80 {}", n - 1, hexb(t)).unwrap();
+            writeln!(s, "a2u {} 80 {}", n - 1, hexb(t));
         }
     }
-    writeln!(s, "end").unwrap();
+    writeln!(s, "end");
     // random: strings of digits, signs, prefixes, white space and other bytes; values and lengths
     const ALPHABET: &[u8] = b"0123456789abcdefABCDEFxob+- \t\x00\x80\xff.zXOB";
     for k in 0..40 {
-        writeln!(s, "case random-{k}").unwrap();
+        writeln!(s, "case random-{k}");
         for _ in 0..25 {
             let base = *r.pick(&[0u32, 0, 0, 2, 8, 10, 16, 16]);
             let len = r.range(0, 14) as usize;
             let t: Vec<u8> = (0..len).map(|_| *r.pick(ALPHABET)).collect();
-            writeln!(s, "a2i {base} {}", hexb(&t)).unwrap();
+            writeln!(s, "a2i {base} {}", hexb(&t));
             let w: Vec<u16> = t.iter().map(|&b| u16::from(b)).collect();
             let l = r.range(0, 2 * len as i64 + 1);
-            writeln!(s, "u2i {base} {l} {}", hexw(&w)).unwrap();
+            writeln!(s, "u2i {base} {l} {}", hexw(&w));
             let v = r.next();
             let d = ndigits(v, base);
-            writeln!(s, "i2a {v:#x} {base} {}", r.range(-(d + 2), d + 3)).unwrap();
-            writeln!(s, "i2u {v:#x} {base} {}", r.range(0, 2 * d + 4)).unwrap();
+            writeln!(s, "i2a {v:#x} {base} {}", r.range(-(d + 2), d + 3));
+            writeln!(s, "i2u {v:#x} {base} {}", r.range(0, 2 * d + 4));
         }
-        writeln!(s, "end").unwrap();
+        writeln!(s, "end");
     }
     s
 }

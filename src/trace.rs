@@ -85,7 +85,7 @@ pub fn pages(source: &str) -> Vec<String> {
     let mut v: Vec<String> = Vec::new();
     for p in s.split([',', ';']) {
         // ("Page: section", "X::Method and the others")
-        let p = p.split(": ").next().unwrap().trim().trim_end_matches(':').trim_end_matches(" and the others").trim();
+        let p = p.split_once(": ").map_or(p, |(page, _)| page).trim().trim_end_matches(':').trim_end_matches(" and the others").trim();
         // (measured clauses name goldens and cases: no pages)
         if p.is_empty() || p.starts_with("runner/") || p == "SPEC.md" || p.starts_with("golden") || !p.starts_with(|c: char| c.is_ascii_uppercase()) {
             continue;
@@ -179,8 +179,8 @@ pub fn verify_sources(dir: &Path, suites: &[&str]) -> std::io::Result<()> {
 pub fn trace(dir: &Path) -> std::io::Result<BTreeMap<String, Evidence>> {
     verify_sources(dir, crate::generators::SUITES)?;
     let mut m: BTreeMap<String, Evidence> = BTreeMap::new();
-    for s in crate::generators::SUITES {
-        let text = crate::generators::suite(s).unwrap();
+    for (s, generate) in crate::generators::GENERATORS {
+        let text = generate();
         let cases = crate::case::parse_cases(&text);
         for arch in crate::generators::architectures(&text) {
             let path = dir.join(format!("{s}-{arch}/stdout.txt"));

@@ -7,7 +7,7 @@ use kikizake::model::wicimage::{self as wi, Img};
 const FMTS: &[&str] = &["bw", "gray2", "gray4", "gray8", "gray16", "bgr565", "bgr24", "bgra", "rgb48", "rgba64", "cmyk", "idx1", "idx4", "idx8"];
 
 fn img(f: &str, w: u32, h: u32, seed: u32) -> Img {
-    wi::bitmap(f, w, h, Some(seed))
+    wi::bitmap(f, w, h, Some(seed)).unwrap()
 }
 
 /// the pixels as values, so that bits past a row's end do not count
@@ -228,7 +228,7 @@ proptest! {
             let c0 = u16::from_le_bytes([col[0], col[1]]) as u32;
             let c1 = u16::from_le_bytes([col[2], col[3]]) as u32;
             let idx = u32::from_le_bytes([col[4], col[5], col[6], col[7]]);
-            let px = wi::bc_block(kind, b);
+            let px = wi::bc_block(kind, b).unwrap();
             for (i, p) in px.iter().enumerate() {
                 let k = idx >> (2 * i) & 3;
                 let e = if k == 0 { Some(c0) } else if k == 1 { Some(c1) } else { None };
