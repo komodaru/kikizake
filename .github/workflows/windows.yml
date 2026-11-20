@@ -97,6 +97,24 @@ jobs:
           $d = Start-Process -FilePath C:\dxredist\DXSETUP.exe -ArgumentList '/silent' -PassThru
           if (-not $d.WaitForExit(300000)) { Stop-Process -Id $d.Id -Force; throw "DXSETUP did not finish" }
           "DXSETUP exit $($d.ExitCode)"
+      # (the build of each graphics DLL measured: file version and the symbol server's key,
+      # TimeDateStamp and SizeOfImage, for clean-room analysis of the same build)
+      - name: DLL builds
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $names = 'dwrite', 'd2d1', 'gdi32', 'gdi32full', 'gdiplus', 'windowscodecs', 'ddraw', 'd3dim700', 'd3d8', 'd3d9', 'd3d10warp', 'd3d11', 'd3d12', 'd3d12core', 'dxgi', 'opengl32', 'dcomp'
+          foreach ($dir in 'System32', 'SysWOW64') {
+            foreach ($n in $names) {
+              $f = "$env:windir\$dir\$n.dll"
+              if (-not (Test-Path $f)) { continue }
+              $b = [IO.File]::ReadAllBytes($f)
+              $pe = [BitConverter]::ToInt32($b, 0x3c)
+              $ts = [BitConverter]::ToUInt32($b, $pe + 8)
+              $sz = [BitConverter]::ToUInt32($b, $pe + 0x18 + 0x38)
+              "dllbuild $dir $n $((Get-Item $f).VersionInfo.FileVersion) {0:X8}{1:x}" -f $ts, $sz
+            }
+          }
       - name: Run on Windows
         shell: bash
         run: |
