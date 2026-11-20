@@ -434,6 +434,20 @@ fn suite(d3d11: bool) -> String {
     writeln!(&mut s, "draw 2 4 32").unwrap();
     read_rt(&mut s, 0, 2, 16, 16);
     writeln!(&mut s, "end").unwrap();
+    // a vertex at w < 0 whose triangle keeps an area: culled either way, through SV_Position;
+    // a coordinate not finite
+    for (name, cull, ps) in [("cull2", 2u32, "ps"), ("cull3", 3, "ps"), ("pspos", 1, "pspos"), ("nan", 1, "ps")] {
+        begin(&mut s, dev, &format!("probe-clip-w-{name}"), 16, 16, 2, ps);
+        writeln!(&mut s, "rast 3 {cull} 0 0 0 0 1 0 0 0").unwrap();
+        for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
+            let c = color(k as u32 * 5 + 1);
+            let x = if name == "nan" && k == 1 { f32::NAN } else { x * w.abs() };
+            writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3])).unwrap();
+        }
+        writeln!(&mut s, "draw 4 3 32").unwrap();
+        read_rt(&mut s, 0, 2, 16, 16);
+        writeln!(&mut s, "end").unwrap();
+    }
     // topologies D3D11_PRIMITIVE_TOPOLOGY leaves undefined (they may end the executor too, so
     // they come just before)
     for top in [0u32, 6, 7, 8, 9, 65] {

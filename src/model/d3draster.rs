@@ -1371,6 +1371,29 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             }
             return Ok(());
         }
+        // (MEASURED, WARP: probe-clip-w3) colors that vary: the pieces of D3DRASTER.CLIP with
+        // their planes, D3DRASTER.INTERP.CLIP
+        if ps == "ps" && d.rast[1] == 1 && d.rast[0] != 2 && dsv.is_none() && samples.is_none() {
+            hit(clause::D3DRASTER_CLIPW_AREA);
+            let Some(poly) = clip_tri(tri, d.rast[6] != 0) else {
+                return Ok(());
+            };
+            let pieces = clip_pieces(&poly, vp, d.rast[6] != 0);
+            let [vx, vy, vw, vh, _, _] = vp;
+            for py in 0..i64::from(rh) {
+                for px in 0..i64::from(rw) {
+                    let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
+                    if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
+                        continue;
+                    }
+                    let c = (px * 256 + 128, py * 256 + 128);
+                    if let Some((_, p)) = pieces.iter().find(|(t, _)| tri_covers(*t, c)) {
+                        output(m, dev, d, view, rt_fmt, rt_sub, None, (px as usize, py as usize, rw as usize), None, p.at(cx, cy).map(f32::to_bits))?;
+                    }
+                }
+            }
+            return Ok(());
+        }
         return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
     }
     // depth clipping: whole triangles in these cases
@@ -1462,22 +1485,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         vec![(v, None)]
     } else {
         hit(clause::D3DRASTER_CLIP);
-        hit(clause::D3DRASTER_INTERP_CLIP);
-        let at: Vec<((i64, i64), f32, f32)> = poly
-            .iter()
-            .map(|c| if c.made { made_screen(vp, &c.pos, zclip) } else { (snap2(&c.pos), minz + c.pos[2] * (1.0 / c.pos[3]) * (maxz - minz), 1.0 / c.pos[3]) })
-            .collect();
-        (1..poly.len().saturating_sub(1))
-            .map(|i| [0, i, i + 1])
-            .filter(|k| cross(at[k[0]].0, at[k[1]].0, at[k[2]].0) != 0)
-            .map(|k| {
-                let t = k.map(|i| at[i].0);
-                let t = if cross(t[0], t[1], t[2]) > 0 { t } else { [t[0], t[2], t[1]] };
-                let iw = k.map(|i| at[i].2);
-                let p = Planes { xs: k.map(|i| at[i].0 .0 as f32 / 256.0), ys: k.map(|i| at[i].0 .1 as f32 / 256.0), iw, aw: [0, 1, 2].map(|j| poly[k[j]].color.map(|a| a * iw[j])), zs: k.map(|i| at[i].1) };
-                (t, Some(p))
-            })
-            .collect()
+        clip_pieces(&poly, vp, zclip).into_iter().map(|(t, p)| (t, Some(p))).collect()
     };
     // depth: one value per triangle in these cases
     let z = {
@@ -1940,6 +1948,39 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
         }
     }
     Some(poly)
+}
+
+/// a clipped polygon's fan triangles (D3DRASTER.CLIP), turned for the edge tests, with their
+/// planes (D3DRASTER.INTERP.CLIP); those of no area left out
+fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64); 3], Planes)> {
+    hit(clause::D3DRASTER_INTERP_CLIP);
+    let [_, _, _, _, minz, maxz] = vp;
+    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
+        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
+        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
+    };
+    let at: Vec<((i64, i64), f32, f32)> = poly
+        .iter()
+        .map(|c| {
+            if c.made {
+                made_screen(vp, &c.pos, zclip)
+            } else {
+                let s = snapped(vp, &c.pos);
+                ((s.x, s.y), minz + c.pos[2] * (1.0 / c.pos[3]) * (maxz - minz), 1.0 / c.pos[3])
+            }
+        })
+        .collect();
+    (1..poly.len().saturating_sub(1))
+        .map(|i| [0, i, i + 1])
+        .filter(|k| cross(at[k[0]].0, at[k[1]].0, at[k[2]].0) != 0)
+        .map(|k| {
+            let t = k.map(|i| at[i].0);
+            let t = if cross(t[0], t[1], t[2]) > 0 { t } else { [t[0], t[2], t[1]] };
+            let iw = k.map(|i| at[i].2);
+            let p = Planes { xs: k.map(|i| at[i].0 .0 as f32 / 256.0), ys: k.map(|i| at[i].0 .1 as f32 / 256.0), iw, aw: [0, 1, 2].map(|j| poly[k[j]].color.map(|a| a * iw[j])), zs: k.map(|i| at[i].1) };
+            (t, p)
+        })
+        .collect()
 }
 
 /// (MEASURED, WARP: probe-interp-clip*) a vertex the clipping made, on the screen: w' =
