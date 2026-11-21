@@ -269,3 +269,96 @@ fn bc4_snorm_steps_lie_between_their_endpoints() {
         }
     }
 }
+
+/// objects, slots and views in any order (the review of 8480456, 2.1: a view kept its
+/// resource's slot, and clearing it after the slot was given another texture wrote that one):
+/// random lines of making textures, views of them, clears through views and copies, against a
+/// reference of objects that views hold by identity (D3DRES.VIEW.HOLDS); every slot read back
+#[derive(Clone, Debug)]
+enum Life {
+    Tex(u8),
+    Rtv(u8, u8),
+    Clear(u8, u8),
+    Copy(u8, u8),
+}
+
+fn life() -> impl Strategy<Value = Life> {
+    prop_oneof![
+        (0u8..3).prop_map(Life::Tex),
+        (0u8..3, 0u8..3).prop_map(|(v, r)| Life::Rtv(v, r)),
+        (0u8..3, 0u8..4).prop_map(|(v, c)| Life::Clear(v, c)),
+        (0u8..3, 0u8..3).prop_map(|(d, s)| Life::Copy(d, s)),
+    ]
+}
+
+proptest! {
+    #[test]
+    fn views_hold_their_resources(ops in prop::collection::vec(life(), 1..24), d3d11: bool) {
+        // (1x1 R8G8B8A8_UNORM, render target and shader resource; the four clear colors)
+        let colors = ["0x3f800000 0 0 0x3f800000", "0 0x3f800000 0 0x3f800000", "0 0 0x3f800000 0x3f800000", "0x3f800000 0x3f800000 0x3f800000 0"];
+        let bytes: [[u8; 4]; 4] = [[255, 0, 0, 255], [0, 255, 0, 255], [0, 0, 255, 255], [255, 255, 255, 0]];
+        let mut text = String::from(if d3d11 { "device11\n" } else { "device10\n" });
+        let (mut objs, mut res, mut views): (Vec<[u8; 4]>, [Option<usize>; 3], [Option<usize>; 3]) = (Vec::new(), [None; 3], [None; 3]);
+        let mut want: Vec<String> = Vec::new();
+        for op in &ops {
+            match *op {
+                Life::Tex(s) => {
+                    text += &format!("tex {s} 2 1 1 1 1 0x1c 0 0x28 0 0 1 0\n");
+                    objs.push([0; 4]);
+                    res[s as usize] = Some(objs.len() - 1);
+                }
+                Life::Rtv(v, r) => {
+                    text += &format!("rtv {v} {r} nodesc\n");
+                    match res[r as usize] {
+                        Some(o) => {
+                            views[v as usize] = Some(o);
+                        }
+                        None => want.push("rtv nores".into()),
+                    }
+                }
+                Life::Clear(v, c) => {
+                    text += &format!("clear {v} {}\n", colors[c as usize]);
+                    match views[v as usize] {
+                        Some(o) => objs[o] = bytes[c as usize],
+                        None => want.push("clear noview".into()),
+                    }
+                }
+                Life::Copy(d, s) => {
+                    text += &format!("copy {d} {s}\n");
+                    match (res[d as usize], res[s as usize]) {
+                        (Some(a), Some(b)) => objs[a] = objs[b],
+                        _ => want.push("copy nores".into()),
+                    }
+                }
+            }
+        }
+        for s in 0..3 {
+            text += &format!("read {s} 0 4 1 1\n");
+        }
+        let got = run_case(&parse_cases(&format!("case p\n{text}end\n"))[0]).map_err(|e| TestCaseError::fail(format!("{e:?}")))?;
+        // (the reads: each slot's object as the reference has it)
+        let mut reads: Vec<String> = Vec::new();
+        for r in res {
+            match r {
+                Some(o) => reads.extend(["read 1 1".to_string(), objs[o].iter().map(|b| format!("{b:02x}")).collect()]),
+                None => reads.push("read nores".into()),
+            }
+        }
+        prop_assert!(got.ends_with(&reads), "{}\n{:?}\nwant {:?}", text, got, reads);
+        // (the refusals, in order)
+        let refused: Vec<&String> = got.iter().filter(|l| l.ends_with("nores") && !l.starts_with("read") || l.ends_with("noview")).collect();
+        let wanted: Vec<&String> = want.iter().filter(|l| l.ends_with("nores") || l.ends_with("noview")).collect();
+        prop_assert_eq!(refused, wanted, "{}", text);
+    }
+}
+
+/// the review's own sequence: a view of texture A, slot 0 given texture B, the old view cleared:
+/// B stays as made
+#[test]
+fn a_reused_slot_keeps_its_new_texture() {
+    for dev in ["device11", "device10"] {
+        let text = format!("{dev}\ntex 0 2 1 1 1 1 0x1c 0 0x28 0 0 1 0\nrtv 0 0 nodesc\ntex 0 2 1 1 1 1 0x1c 0 0x28 0 0 1 0\nclear 0 0x3f800000 0 0 0x3f800000\nread 0 0 4 1 1\n");
+        let got = run_case(&parse_cases(&format!("case p\n{text}end\n"))[0]).unwrap();
+        assert_eq!(got.last().map(String::as_str), Some("00000000"), "{dev}: {got:?}");
+    }
+}

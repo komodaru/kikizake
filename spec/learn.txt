@@ -328,6 +328,7 @@ ID2D1StrokeStyle::GetStartCap and the other getters | https://learn.microsoft.co
 ID3D11Device::CreateBlendState | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createblendstate
 ID3D11Device::CreateInputLayout | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createinputlayout
 ID3D11Device::CreatePixelShader | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createpixelshader
+ID3D11Device::CreateRenderTargetView | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createrendertargetview
 ID3D11Device::CreateTexture2D | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createtexture2d
 ID3D11Device::CreateVertexShader | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createvertexshader
 ID3D11DeviceContext::ClearDepthStencilView | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-cleardepthstencilview
@@ -336,6 +337,7 @@ ID3D11DeviceContext::CopyResource | https://learn.microsoft.com/en-us/windows/wi
 ID3D11DeviceContext::CopySubresourceRegion | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-copysubresourceregion
 ID3D11DeviceContext::Draw | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-draw
 ID3D11DeviceContext::DrawInstanced | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-drawinstanced
+ID3D11DeviceContext::OMSetRenderTargets | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-omsetrendertargets
 ID3D11DeviceContext::RSSetScissorRects | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-rssetscissorrects
 ID3D11DeviceContext::ResolveSubresource | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-resolvesubresource
 ID3D11DeviceContext::UpdateSubresource | https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-updatesubresource

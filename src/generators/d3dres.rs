@@ -537,6 +537,15 @@ fn suite(d3d11: bool) -> String {
         }
         writeln!(s, "end");
     }
+    // objects and their slots (the review of 8480456, 2.1): a view holds the resource it was
+    // made of, whatever its slot holds later (D3DRES.VIEW.HOLDS)
+    let t = |slot: &str| tex2(slot, 4, 4, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0));
+    let (red, green, blue) = ("0x3f800000 0 0 0x3f800000", "0 0x3f800000 0 0x3f800000", "0 0 0x3f800000 0x3f800000");
+    let read = |slot: u32| format!("read {slot} 0 16 4 1");
+    writeln!(s, "case life-slot-reuse\n{dev}\n{}\nrtv 0 0 nodesc\nclear 0 {red}\n{}\nrtv 1 0 nodesc\nclear 1 {blue}\nclear 0 {green}\n{}\nend", t("0"), t("0"), read(0));
+    writeln!(s, "case life-view-slot-reuse\n{dev}\n{}\n{}\nrtv 0 0 nodesc\nrtv 0 1 nodesc\nclear 0 {green}\n{}\n{}\nend", t("0"), t("1"), read(0), read(1));
+    writeln!(s, "case life-failed-create\n{dev}\n{}\nrtv 0 0 nodesc\n{}\nclear 0 {green}\n{}\nsrv 1 0 nodesc\nend", t("0"), tex2("0", 0, 4, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0)), read(0));
+    writeln!(s, "case life-copy-after-reuse\n{dev}\n{}\nrtv 1 0 nodesc\n{}\n{}\nclear 1 {red}\ncopy 2 0\n{}\nend", t("0"), t("0"), t("2"), read(2));
     // (an immutable texture made without initial data crashes the x86 WARP: give it some)
     let s = s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n";
     isolate_x86_crashes(&s, d3d11)

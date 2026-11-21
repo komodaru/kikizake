@@ -19,6 +19,7 @@ D3DRES.VIEW.BUF measured | D3D11_BUFFER_SRV, D3D11_BUFFER_RTV, D3D11_BUFFER_UAV;
 D3DRES.VIEW.DSVMS measured | view-t2*-dsv (WARP) | a depth view of dimension 2D array multisampled (11) or 2D multisampled (10) on a single-sampled array is refused with E_OUTOFMEMORY when made, accepted when only checked
 D3DRES.VIEW.BUFEX10 measured | D3D10_1_SHADER_RESOURCE_VIEW_DESC (BUFFEREX); view-b-bufex (180 views) | Direct3D 10 makes BUFFEREX views of a plain buffer and buffer render target views by the rules of 11 (no RAW flag on a plain buffer, other flags ignored)
 D3DRES.CHECK doc | ID3D11Device::CreateTexture2D (ppTexture2D NULL: S_FALSE) and the others | a NULL out pointer validates only: S_FALSE for an accepted description
+D3DRES.VIEW.HOLDS doc | ID3D11Device::CreateRenderTargetView, ID3D11DeviceContext::OMSetRenderTargets | a view is a view of the resource given when it was made (pResource), and a bound view stays bound: a later line that puts another resource in that resource's slot, or another view in the view's slot, changes nothing the view reaches (life-slot-reuse, life-view-slot-reuse, life-failed-create, life-copy-after-reuse)
 D3DRES.ZERO assumed | (none) | a resource made without initial data reads back as zeros
 D3DRES.INIT.PAST excluded | (none) | initial or update data read past the executor's 4 MiB (outside the program's memory)
 D3DRES.CLEAR.RTV doc | ID3D11DeviceContext::ClearRenderTargetView, Data Conversion Rules | every element of the view's subresources takes the color converted to the view's format

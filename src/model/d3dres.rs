@@ -15,6 +15,7 @@
 use crate::spec::{clause, open};
 use super::dxgiconv::{decode, encode, encode_bits};
 use super::dxgifmt::{format, Format, Num};
+use super::objects::{Id, Objects, Slot};
 use super::{filled, filled_mut, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -58,7 +59,9 @@ pub struct Resource {
 #[derive(Clone, Debug)]
 pub struct View {
     pub kind: u32,
-    pub res: usize,
+    /// the resource the view was made of (not its slot: the view keeps it when the slot is
+    /// given another, ID3D11Device::CreateRenderTargetView's pResource)
+    pub res: Id<Resource>,
     /// Format, ViewDimension, [Flags], the union words (as GetDesc gives them)
     pub words: Vec<u32>,
 }
@@ -148,8 +151,8 @@ impl Resource {
 pub struct D3dres {
     states: super::d3d11::D3d11,
     pub dev: Option<Dev>,
-    pub res: [Option<Resource>; 16],
-    pub views: [Option<View>; 16],
+    pub res: Objects<Resource>,
+    pub views: Objects<View>,
     pub draw: super::d3draster::Draw,
     /// (an update or copy past a subresource removed the device)
     pub removed: bool,
@@ -171,12 +174,10 @@ fn n(t: &[String], i: usize) -> Res<u32> {
     t.get(i).and_then(|s| num(s)).map(|v| v as u32).ok_or(Fail::Bad)
 }
 
-fn slot(t: &[String], i: usize) -> Res<usize> {
+/// the slot token `i` names (a resource's or a view's, as the line's place says)
+pub fn slot<T>(t: &[String], i: usize) -> Res<Slot<T>> {
     let v = t.get(i).and_then(|s| num(s)).ok_or(Fail::Bad)?;
-    if !(0..16).contains(&v) {
-        return Err(Fail::Bad);
-    }
-    Ok(v as usize)
+    Slot::new(u64::try_from(v).ok().ok_or(Fail::Bad)?)
 }
 
 /// whether CopyResource may copy between the formats: the same typeless group, or (10.1 and
@@ -270,7 +271,7 @@ impl D3dres {
                     if t.len() != 6 {
                         return Err(Fail::Bad);
                     }
-                    if self.res[slot(t, 1)?].is_none() {
+                    if self.res.at(slot(t, 1)?).is_none() {
                         out.push("read nores".into());
                         return Ok(true);
                     }
@@ -281,11 +282,10 @@ impl D3dres {
                 "tex" | "buf" | "srv" | "rtv" | "dsv" | "uav" if dev.d3d11() => {
                     hit(clause::D3DRES_REMOVED_OPS);
                     if t.get(1).is_some_and(|s| s != "check") && t.get(3).is_none_or(|s| s != "check") {
-                        let at = slot(t, 1)?;
                         if name == "tex" || name == "buf" {
-                            self.res[at] = None;
+                            self.res.empty(slot(t, 1)?);
                         } else {
-                            self.views[at] = None;
+                            self.views.empty(slot(t, 1)?);
                         }
                     }
                     out.push(format!("{name} hr 887a0005"));
@@ -314,7 +314,7 @@ impl D3dres {
         // UpdateSubresource", "CopySubresourceRegion": a multisampled resource takes neither,
         // nor a region of one) an update of a multisampled resource, or a region copy with a box
         // or an offset to or from one, changes nothing
-        if at.iter().any(|&i| slot(t, i).ok().and_then(|k| self.res[k].as_ref()).is_some_and(|r| r.d.count > 1)) {
+        if at.iter().any(|&i| slot(t, i).ok().and_then(|k| self.res.at(k)).is_some_and(|r| r.d.count > 1)) {
             hit(clause::D3DRES_MS_REGION);
             return Ok(true);
         }
@@ -333,7 +333,7 @@ impl D3dres {
                 let r = slot(t, 1)?;
                 let (sub, seed, rp, dp) = (n(t, 2)?, n(t, 3)?, n(t, 4)? as usize, n(t, 5)? as usize);
                 let bx = if t.len() == 12 { Some((6..12).map(|i| n(t, i)).collect::<Res<Vec<u32>>>()?) } else if t.len() == 6 { None } else { return Err(Fail::Bad) };
-                let Some(res) = self.res[r].as_mut() else {
+                let Some(res) = self.res.at_mut(r) else {
                     out.push("update nores".into());
                     return Ok(true);
                 };
@@ -344,21 +344,21 @@ impl D3dres {
                     return Err(Fail::Bad);
                 }
                 let (d, s) = (slot(t, 1)?, slot(t, 2)?);
-                let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
+                let (Some(_), Some(src)) = (self.res.at(d), self.res.at(s).cloned()) else {
                     out.push("copy nores".into());
                     return Ok(true);
                 };
-                let dst = filled_mut(&mut self.res, d)?;
+                let dst = self.res.at_mut(d).ok_or(Fail::Empty)?;
                 copy_resource(dev, dst, &src)?;
             }
             ResOp::Copysub => {
                 let (d, ds, x, y, z, s, ss) = (slot(t, 1)?, n(t, 2)?, n(t, 3)?, n(t, 4)?, n(t, 5)?, slot(t, 6)?, n(t, 7)?);
                 let bx = if t.len() == 14 { Some((8..14).map(|i| n(t, i)).collect::<Res<Vec<u32>>>()?) } else if t.len() == 8 { None } else { return Err(Fail::Bad) };
-                let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
+                let (Some(_), Some(src)) = (self.res.at(d), self.res.at(s).cloned()) else {
                     out.push("copysub nores".into());
                     return Ok(true);
                 };
-                let dst = filled_mut(&mut self.res, d)?;
+                let dst = self.res.at_mut(d).ok_or(Fail::Empty)?;
                 // (MEASURED, WARP: probe-rt-ms4-copysub) a whole multisampled subresource copies
                 // with its samples on Direct3D 11, and not at all on Direct3D 10 (as
                 // D3DRES.COPY)
@@ -383,12 +383,12 @@ impl D3dres {
                     return Err(Fail::Bad);
                 }
                 let (d, ds, s, ss, f) = (slot(t, 1)?, n(t, 2)?, slot(t, 3)?, n(t, 4)?, n(t, 5)?);
-                let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
+                let (Some(_), Some(src)) = (self.res.at(d), self.res.at(s).cloned()) else {
                     out.push("resolve nores".into());
                     return Ok(true);
                 };
                 hit(clause::D3DRES_RESOLVE);
-                let dst = filled_mut(&mut self.res, d)?;
+                let dst = self.res.at_mut(d).ok_or(Fail::Empty)?;
                 // (every sample holds the same value in these cases: the resolve is a copy)
                 // (MEASURED: a single-sampled source changes nothing, probe-resolve-single)
                 if src.d.count < 2 {
@@ -444,7 +444,7 @@ impl D3dres {
                 }
                 let r = slot(t, 1)?;
                 let (sub, rb, rows, slices) = (n(t, 2)?, n(t, 3)? as usize, n(t, 4)? as usize, n(t, 5)? as usize);
-                let Some(res) = &self.res[r] else {
+                let Some(res) = self.res.at(r) else {
                     out.push("read nores".into());
                     return Ok(true);
                 };
@@ -456,7 +456,8 @@ impl D3dres {
 
     fn create(&mut self, dev: Dev, t: &[String], out: &mut Vec<String>) -> Res<()> {
         let check = t.get(1).is_some_and(|s| s == "check");
-        let s = if check { 0 } else { slot(t, 1)? };
+        // (a check makes nothing: no slot)
+        let s: Option<Slot<Resource>> = if check { None } else { Some(slot(t, 1)?) };
         let buf = t[0] == "buf";
         let (d, init) = if buf {
             let v: Vec<u32> = (2..8).map(|i| n(t, i)).collect::<Res<_>>()?;
@@ -478,8 +479,8 @@ impl D3dres {
             };
             (Desc { dim: v[0], w: v[1], h: v[2], da: v[3], mips: v[4], fmt: v[5], usage: v[6], bind: v[7], cpu: v[8], misc: v[9], count: v[10], q: v[11] }, init)
         };
-        if !check {
-            self.res[s] = None;
+        if let Some(s) = s {
+            self.res.empty(s);
         }
         let kind = if buf { "buf" } else { "tex" };
         // (MEASURED: the x86 runtime dies on a texture of usage 0xffffffff, x86-usageff-0
@@ -497,11 +498,11 @@ impl D3dres {
             }
             Ok(g) => g,
         };
-        if check {
+        let Some(s) = s else {
             hit(clause::D3DRES_CHECK);
             out.push(format!("{kind} hr {S_FALSE:08x}"));
             return Ok(());
-        }
+        };
         if let Some(hr) = create_refused(dev, &g) {
             out.push(format!("{kind} hr {hr:08x}"));
             return Ok(());
@@ -532,7 +533,7 @@ impl D3dres {
                 }
             }
         }
-        self.res[s] = Some(r);
+        self.res.put(s, r);
         Ok(())
     }
 
@@ -555,7 +556,7 @@ impl D3dres {
             w.resize(8, 0);
             Some(w)
         };
-        let Some(res) = &self.res[r] else {
+        let Some((rid, res)) = self.res.id(r).zip(self.res.at(r)) else {
             out.push(format!("{} nores", t[0]));
             return Ok(());
         };
@@ -564,7 +565,7 @@ impl D3dres {
             return Ok(());
         }
         if !check {
-            self.views[v] = None;
+            self.views.empty(v);
         }
         match check_view(dev, kind, res, words.as_deref(), check)? {
             Err(hr) => out.push(format!("{} hr {hr:08x}", t[0])),
@@ -574,7 +575,7 @@ impl D3dres {
             }
             Ok(w) => {
                 out.push(format!("{} = {}", t[0], w.iter().map(|x| format!("{x:x}")).collect::<Vec<_>>().join(" ")));
-                self.views[v] = Some(View { kind, res: r, words: w });
+                self.views.put(v, View { kind, res: rid, words: w });
             }
         }
         Ok(())
@@ -600,11 +601,12 @@ impl D3dres {
             out.push("clearuav none".into());
             return Ok(());
         }
-        let Some(view) = self.views[v].clone().filter(|x| x.kind == want) else {
+        let Some(view) = self.views.at(v).cloned().filter(|x| x.kind == want) else {
             out.push(format!("{name} noview"));
             return Ok(());
         };
-        let res = filled_mut(&mut self.res, view.res)?;
+        hit(clause::D3DRES_VIEW_HOLDS);
+        let res = self.res.get_mut(view.res)?;
         let vf = format(view.format()).or_else(|| res.fmt());
         let subs = view_subs(dev, &view, res);
         match want {

@@ -31,6 +31,7 @@ pub mod d2dtess;
 pub mod d2dbool;
 pub mod d2dwiden;
 pub mod d3d11;
+pub mod objects;
 pub mod d3d12;
 pub mod rootsig;
 pub mod d3d12_features;

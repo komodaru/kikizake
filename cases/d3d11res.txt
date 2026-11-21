@@ -39091,6 +39091,46 @@ read 0 0 4 1 1
 clear 0 0x3f7fdb77 0x3f7fe7a4 0x3f7ff3d2 0
 read 0 0 4 1 1
 end
+case life-slot-reuse
+device11
+tex 0 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0 0x3f800000
+tex 0 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+rtv 1 0 nodesc
+clear 1 0 0 0x3f800000 0x3f800000
+clear 0 0 0x3f800000 0 0x3f800000
+read 0 0 16 4 1
+end
+case life-view-slot-reuse
+device11
+tex 0 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+tex 1 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+rtv 0 0 nodesc
+rtv 0 1 nodesc
+clear 0 0 0x3f800000 0 0x3f800000
+read 0 0 16 4 1
+read 1 0 16 4 1
+end
+case life-failed-create
+device11
+tex 0 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+rtv 0 0 nodesc
+tex 0 2 0 4 1 1 0x1c 0 0x28 0 0 1 0
+clear 0 0 0x3f800000 0 0x3f800000
+read 0 0 16 4 1
+srv 1 0 nodesc
+end
+case life-copy-after-reuse
+device11
+tex 0 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+rtv 1 0 nodesc
+tex 0 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+tex 2 2 4 4 1 1 0x1c 0 0x28 0 0 1 0
+clear 1 0x3f800000 0 0 0x3f800000
+copy 2 0
+read 2 0 16 4 1
+end
 case x86-immutable-bound-0
 device11
 tex 0 2 8 8 1 1 0x1c 1 0x28 0 0 1 0 init 1 32 256

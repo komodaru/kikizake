@@ -101,6 +101,8 @@ tests/laws_d3d12.rs::buffer_rules_are_the_documented_ones exhaustive D3D12.DESC.
 tests/laws_d3dres.rs::unorm_codes_round_trip exhaustive CONV.UNORM
 tests/laws_d3dres.rs::snorm_codes_round_trip exhaustive CONV.SNORM
 tests/laws_d3dres.rs::small_floats_round_trip exhaustive CONV.SMALLFLOAT CONV.F16 CONV.F11
+tests/laws_d3dres.rs::views_hold_their_resources pbt D3DRES.VIEW.HOLDS
+tests/laws_d3dres.rs::a_reused_slot_keeps_its_new_texture exhaustive D3DRES.VIEW.HOLDS
 tests/laws_d3dres.rs::unorm_is_monotone pbt CONV.UNORM
 tests/laws_d3dres.rs::small_float_truncates pbt CONV.SMALLFLOAT
 tests/laws_d3dres.rs::small_float_is_monotone pbt CONV.SMALLFLOAT
