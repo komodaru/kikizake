@@ -92,12 +92,12 @@ impl Rails {
             if dt > 0.0 {
                 return Ok(());
             }
-            // (a turn of 180 degrees: not modelled)
+            // (a turn of 180 degrees: the spec's open D2D.SIMP / D2D.RT, asked of Windows by widenturn-*, strketurn-*)
             return Err(unmodeled());
         }
         let lim = match join {
             Join::Miter(l) => l,
-            // (a round join with a real turn: its arcs are not modelled)
+            // (a round join with a real turn, its arcs: the spec's open D2D.SIMP / D2D.RT)
             Join::Round => return Err(unmodeled()),
         };
         let outer_left = det > 0.0;
@@ -170,7 +170,7 @@ fn tangents(p0: V, c1: V, c2: V, c3: V, tol: f64) -> (V, V) {
 pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<P>>> {
     let hw = (w.abs() * 0.5) as f32;
     let pm = [hw * m[0], hw * m[1], hw * m[2], hw * m[3]];
-    // (an elliptic pen: not modelled)
+    // (an elliptic pen: the spec's open D2D.SIMP / D2D.RT)
     if !(pm[0] == pm[3] && pm[1] == -pm[2]) {
         return Err(unmodeled());
     }
@@ -261,7 +261,7 @@ pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<
                                 need = true;
                             }
                         }
-                        // (the refinement arcs of a tight turn: not modelled)
+                        // (the refinement arcs of a tight turn: the spec's open D2D.SIMP / D2D.RT, asked of Windows by widentight-*, strketight-*)
                         if need {
                             return Err(unmodeled());
                         }
