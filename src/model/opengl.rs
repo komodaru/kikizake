@@ -2352,10 +2352,9 @@ impl Ctx {
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
     /// channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
-        let unmeasured = [ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, STENCIL_TEST, COLOR_LOGIC_OP].iter().any(|c| self.cap(*c))
+        let unmeasured = [ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, COLOR_LOGIC_OP].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
             || (self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA))
-            || self.color_mask != [true; 4]
             || self.shade == FLAT
             || self.pf.ty != 0
             || self.bits()[..3].iter().any(|b| *b != 8)
@@ -2389,8 +2388,9 @@ impl Ctx {
             None
         };
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
-        // (scissored: the general path, cut by the box per fragment, raster-open-14)
-        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) {
+        // (scissored, stencil tested or masked: the general path, the fragments cut by the box
+        // or tested, raster-open-14, 15, 16)
+        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] {
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
@@ -2458,12 +2458,12 @@ impl Ctx {
 
     fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize, quad: bool) -> Res<()> {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
-        let unmeasured = [LIGHTING, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
+        let unmeasured = [0xde0, 0xde1, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.pf.depth != 32)
             || self.pf.ty != 0
             || self.bits()[..3].iter().any(|b| *b != 8)
             || self.pf.rgba[3].0 % 8 != 0
-            || clip.iter().any(|c| c[3] <= 0.0 || c[..3].iter().any(|v| v.abs() > c[3]));
+            || clip.iter().any(|c| c[3] <= 0.0);
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
@@ -2474,14 +2474,35 @@ impl Ctx {
         }
         hit(clause::GL_POLYGON_SMOOTH);
         let grid = if self.hint(POLYGON_SMOOTH_HINT) == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
+        let scale = self.channel_scales();
+        let at_provoking = q.get(provoking).map(|v| tri::zip4(v.1, scale, |c, s| c * s)).ok_or(Fail::Bad)?;
+        // (each corner: clip coordinates, colors in channel units, fog factor; cut to the view
+        // volume as any polygon, then the fan from the first corner: raster-open-19)
+        let corners: Vec<[f32; 9]> = q
+            .iter()
+            .zip(&clip)
+            .map(|(v, c)| {
+                let [r, g, b, a] = tri::zip4(v.1, scale, |c, s| c * s);
+                let fog = self.fog.factor(xform(self.top(0), [v.0.xyz[0], v.0.xyz[1], v.0.xyz[2], v.0.w])[2]);
+                [c[0], c[1], c[2], c[3], r, g, b, a, fog]
+            })
+            .collect();
+        let cut = clip.iter().any(|c| c[..3].iter().any(|v| v.abs() > c[3]));
+        let corners = if cut {
+            hit(clause::GL_RASTER_CLIP_XY);
+            tri::clip(&corners)
+        } else {
+            corners
+        };
+        let quad = quad && !cut;
+        let clip: Vec<[f32; 4]> = corners.iter().map(|c| [c[0], c[1], c[2], c[3]]).collect();
         let v: Vec<tri::Raster> = clip.iter().map(|c| tri::Raster::of(*c, self.viewport, HEIGHT)).collect();
         // (a corner on a sample row or column: the edge lines' ties, GL.RASTER.TIE)
         let side = f32::from(grid.side());
         if v.iter().any(|p| p.0.iter().any(|c| { let k = c.fract() * 2.0 * side; k.fract() == 0.0 && tri::trunc(k) & 1 == 1 })) {
             hit(clause::GL_RASTER_TIE);
         }
-        let scale = self.channel_scales();
-        let colors: Vec<[f32; 4]> = q.iter().map(|v| tri::zip4(v.1, scale, |c, s| c * s)).collect();
+        let colors: Vec<[f32; 4]> = corners.iter().map(|c| [c[4], c[5], c[6], c[7]]).collect();
         let flat = self.shade == FLAT;
         // (depths: window z in 2^-32 as the rasterizer has it, its plane truncated, the low
         // 32 bits; raster-open-11)
@@ -2490,7 +2511,7 @@ impl Ctx {
         let (zscale, zcenter) = (tri::narrow((f - n) / 2.0 * 4_294_967_296.0), tri::narrow((n + f) / 2.0 * 4_294_967_296.0));
         let zr: Vec<f32> = clip.iter().map(|c| if c[3] == 1.0 { c[2] * zscale + zcenter } else { (c[2] * zscale) * (1.0 / c[3]) + zcenter }).collect();
         // (fogged: the vertices' fog factors' plane, then each fragment fogged: raster-open-13)
-        let fogs: Vec<f32> = q.iter().map(|v| self.fog.factor(xform(self.top(0), [v.0.xyz[0], v.0.xyz[1], v.0.xyz[2], v.0.w])[2])).collect();
+        let fogs: Vec<f32> = corners.iter().map(|c| c[8]).collect();
         let fog_color = tri::zip4(self.fog.color, scale, |c, s| c * s);
         let fogged = self.cap(FOG);
         if fogged {
@@ -2506,7 +2527,6 @@ impl Ctx {
             let [(ax, ay), (bx, by), (cx, cy)] = r.map(|p| (p.0[0], p.0[1]));
             let color = |i: usize| colors.get(i).copied().ok_or(Fail::Bad);
             let [c0, c1, c2] = [color(t[0])?, color(t[1])?, color(t[2])?];
-            let at_provoking = color(provoking)?;
             let corner = |list: &[f32], i: usize| list.get(i).copied().ok_or(Fail::Bad);
             let [z0, z1, z2] = [corner(&zr, t[0])?, corner(&zr, t[1])?, corner(&zr, t[2])?];
             let [f0, f1, f2] = [corner(&fogs, t[0])?, corner(&fogs, t[1])?, corner(&fogs, t[2])?];
@@ -3311,7 +3331,9 @@ impl Ctx {
         if self.cap(ALPHA_TEST) {
             hit(clause::GL_ALPHA_TEST);
             // (MEASURED, golden opengl-32 alphatest-*: in 8-bit fixed point, the reference truncated)
-            let a = (c[3] * 255.0 + 0.5).floor() as u64;
+            // (an antialiased primitive's alpha in channel units, times the coverage:
+            // truncated in 8-bit units, raster-open-18)
+            let a = if f.fixed == ToFixed::Scaled { u64::try_from(tri::trunc(c[3] * (255.0 / self.channel_scales()[3]))).unwrap_or(0) } else { (c[3] * 255.0 + 0.5).floor() as u64 };
             let r = (self.alpha.1 * 255.0).floor() as u64;
             if !compare_u(self.alpha.0, a, r) {
                 return Ok(());

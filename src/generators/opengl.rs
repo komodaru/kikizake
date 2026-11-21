@@ -2966,4 +2966,44 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-19\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex2f -3 2\ngl glColor4ub 0 255 0 255\ngl glVertex2f 13 4\ngl glColor4ub 0 0 255 255\ngl glVertex2f 6 19\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // an antialiased line alpha tested, into a buffer with alpha (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-20\nglctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xbc0\ngl glAlphaFunc 0x204 0.5\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd");
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased line under a logic op (XOR over a gray clear) (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-21\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xbf2\ngl glLogicOp 0x1506\ngl glClearColor 0.5 0.5 0.5 1\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased line blended (ONE, ONE) over a gray clear (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-22\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc 1 1\ngl glClearColor 0.25 0.25 0.25 1\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle with GL_TEXTURE_2D on and no image (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-23\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xde1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 2 2\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle under GL_POLYGON_STIPPLE (the pattern all set) (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-24\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xb42\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 2 2\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased smooth triangle into a 16-bit DIB (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-25\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(16));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle blended (SRC_ALPHA, ONE) over a gray clear (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-26\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 1\ngl glClearColor 0.25 0.25 0.25 1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a polygon outline under a perspective projection (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-27\n{}gl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glFrustum -1 1 -1 1 1 10\ngl glMatrixMode 0x1700\ngl glLoadIdentity\ngl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex3f -0.8 -0.7 -2\ngl glVertex3f 1.5 -0.3 -3\ngl glVertex3f 0.2 1.2 -2.5\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a polygon outline fogged (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-28\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a filled polygon offset under a depth test, its depths differing (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-29\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glPolygonOffset 1 2\ngl glEnable 0x8037\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }
