@@ -1169,13 +1169,16 @@ fn clear_ok(c: Clear, d: &Desc) -> bool {
 /// the formats an ALLOW_DISPLAY resource takes (MEASURED, golden d3d12-* committed-display,
 /// committed-display-fmt-*)
 fn display_format(f: u32) -> bool {
-    f != 2
+    // (refused: the 128 and 96-bit formats, R32G32 and R32G8X24, R24G8, A8_UNORM, R1_UNORM,
+    // the packed 4:2:2 RGB ones, block compressed, B5G6R5, B5G5R5A1, the palette formats,
+    // B4G4R4A4 and the last, A4B4G4R4)
+    !matches!(f, 1..=8 | 15..=22 | 44..=47 | 65 | 68..=86 | 94..=99 | 113..=115 | 191)
 }
 
 /// the formats a cross-adapter ROW_MAJOR texture takes (MEASURED, golden d3d12-*
 /// committed-display, committed-cross-fmt-*)
 fn cross_format(f: u32) -> bool {
-    matches!(f, 10 | 24 | 28 | 29 | 87 | 91)
+    matches!(f, 10 | 24 | 28 | 29 | 87 | 89 | 91)
 }
 
 /// CreateCommittedResource with every argument, ppvResource NULL (re/d3d12; to be measured)

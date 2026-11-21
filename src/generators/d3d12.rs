@@ -819,8 +819,9 @@ pub fn d3d12() -> String {
         vec![fb(-16.0), fb(-16.01), fb(15.99), fb(16.0), fb(15.995), fb(f32::NAN), fb(f32::INFINITY), fb(-0.0)],
         vec![0, 1, 16, 17, 0xffff_ffff],
         vec![0, 1, 8, 9, 0xffff_ffff],
-        // (99 stopped the x86 executor in CreateRootSignature, golden d3d12-32 of f46733e; x64 took it)
-        vec![0, 1, 2, 3, 4, 5],
+        // (99 and 5 stopped the x86 executor in CreateRootSignature, golden d3d12-32 of f46733e
+        // and 39f080d; x64 took 99)
+        vec![0, 1, 2, 3, 4],
         vec![fb(f32::NAN), fb(f32::NEG_INFINITY), fb(5.0), fb(-1.0)],
         vec![fb(f32::NAN), fb(f32::INFINITY), fb(0.0), fb(-1.0)],
     ];
