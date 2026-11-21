@@ -1,9 +1,11 @@
 //! Laws of the GDI+ widener and dashes (src/model/gpwiden.rs): a straight line widens to its
 //! rectangle, a straight vertex adds one point a side, a rectangle's frame fills as the frame,
-//! and dashes lie on the line no longer than their pattern.
+//! dashes lie on the line no longer than their pattern, every outline is well formed (Bezier
+//! runs of three), the round join stays on the pen, and anchor caps sit on the line's end.
 use kikizake::model::gdiplus::{FillMode, PixelOffset, Round};
 use kikizake::model::gppath::{self as path, Path, Pen};
-use kikizake::model::gpwiden::{self as wd, Cap, Join};
+use kikizake::model::gppath::Kind;
+use kikizake::model::gpwiden::{self as wd, Anchor, Cap, Join};
 use proptest::prelude::*;
 
 const ID: [f32; 6] = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
@@ -20,16 +22,13 @@ fn widened(r: Round, pts: &[(f32, f32)], pen: &Pen) -> Path {
 
 #[test]
 fn caps_and_joins_by_value() {
-    assert_eq!((Cap::line(0).unwrap(), Cap::line(1).unwrap(), Cap::line(2).unwrap(), Cap::line(3).unwrap()), (Cap::Flat, Cap::Square, Cap::Round, Cap::Triangle));
-    for v in [-1, 4, 5, 15, 0x20] {
-        assert_eq!(Cap::line(v).unwrap(), Cap::Flat, "cap {v}");
+    assert_eq!((Cap::line(0), Cap::line(1), Cap::line(2), Cap::line(3)), (Cap::Flat, Cap::Square, Cap::Round, Cap::Triangle));
+    for v in [-1, 4, 5, 15, 0x10, 0x15, 0x20, 0xf0, 0xff] {
+        assert_eq!(Cap::line(v), Cap::Flat, "cap {v}");
     }
-    for v in 0x10..=0x14 {
-        assert!(Cap::line(v).is_err());
-    }
+    assert_eq!([0x11, 0x12, 0x13, 0x14].map(Cap::line), [Anchor::Square, Anchor::Round, Anchor::Diamond, Anchor::Arrow].map(Cap::Anchor));
     assert_eq!((Cap::dash(1), Cap::dash(2), Cap::dash(3), Cap::dash(-1)), (Cap::Flat, Cap::Round, Cap::Triangle, Cap::Flat));
-    assert_eq!((Join::of(0).unwrap(), Join::of(1).unwrap(), Join::of(3).unwrap(), Join::of(4).unwrap(), Join::of(-1).unwrap()), (Join::Miter, Join::Bevel, Join::MiterClipped, Join::Nothing, Join::Nothing));
-    assert!(Join::of(2).is_err());
+    assert_eq!([0, 1, 2, 3, 4, -1].map(Join::of), [Join::Miter, Join::Bevel, Join::Round, Join::MiterClipped, Join::Nothing, Join::Nothing]);
     assert!(wd::pattern(0).is_none() && wd::pattern(5).is_none() && wd::pattern(-1).is_none());
 }
 
@@ -53,7 +52,6 @@ proptest! {
     /// a vertex on the straight line adds one point a side, whatever the join
     #[test]
     fn a_straight_vertex_adds_a_point(a in (-50f32..50.0, -50f32..50.0), d in (1f32..20.0, -20f32..20.0), w in 2f32..12.0, join in 0i64..4, down: bool) {
-        prop_assume!(join != 2);
         let r = round(down);
         let b = (a.0 + d.0, a.1 + d.1);
         let c = (a.0 + 2.0 * d.0, a.1 + 2.0 * d.1);
@@ -102,6 +100,84 @@ proptest! {
             let (lo, hi) = along.iter().fold((f32::MAX, f32::MIN), |(lo, hi), &v| (lo.min(v), hi.max(v)));
             prop_assert!(hi - lo <= long + 1e-3 * l.max(1.0));
             prop_assert!(lo >= -1e-3 * l.max(1.0) && hi <= l + 1e-3 * l.max(1.0));
+        }
+    }
+    /// every figure of every outline starts, closes, and its Bezier points come in threes
+    #[test]
+    fn outlines_are_well_formed(pts in proptest::collection::vec((-20f32..20.0, -20f32..20.0), 2..7), w in 0.5f32..8.0, join in -1i64..5, caps in (0i64..0x15, 0i64..0x15), closed: bool, down: bool) {
+        let r = round(down);
+        let mut p = Path::new(0);
+        if closed && pts.len() > 2 { p.add_polygon(r, &pts).unwrap() } else { p.add_lines(r, &pts).unwrap() }
+        let mut pen = Pen::new(0xff00_0000, w);
+        (pen.join, pen.start_cap, pen.end_cap) = (join, caps.0, caps.1);
+        let Ok(Ok(o)) = wd::widen(r, &p, &pen, &ID, 0.25) else { return Ok(()) };
+        for f in o.figures() {
+            prop_assert_eq!(f[0].kind, Kind::Start);
+            prop_assert!(f.last().unwrap().close);
+            let mut run = 0;
+            for q in &f[1..] {
+                match q.kind {
+                    Kind::Bezier => run += 1,
+                    Kind::Line | Kind::Start => {
+                        prop_assert_eq!(run % 3, 0);
+                        run = 0;
+                    }
+                }
+            }
+            prop_assert_eq!(run % 3, 0);
+        }
+        prop_assert!(path::fill(r, &o, None, FillMode::Winding, None, PixelOffset::None, 8, 8).is_ok());
+    }
+    /// a round join's points on the curve lie within the pen's half width of the polyline, its
+    /// arcs' ends on the circle about the vertex
+    #[test]
+    fn a_round_join_stays_on_the_pen(a in (-20f32..20.0, -20f32..20.0), b in (-20f32..20.0, -20f32..20.0), c in (-20f32..20.0, -20f32..20.0), w in 2f32..8.0, down: bool) {
+        prop_assume!((a.0 - b.0).hypot(a.1 - b.1) > 1.0 && (c.0 - b.0).hypot(c.1 - b.1) > 1.0);
+        let r = round(down);
+        let mut pen = Pen::new(0xff00_0000, w);
+        pen.join = 2;
+        let o = widened(r, &[a, b, c], &pen);
+        let dist = |q: (f32, f32), s: (f32, f32), e: (f32, f32)| {
+            let (dx, dy) = (e.0 - s.0, e.1 - s.1);
+            let t = (((q.0 - s.0) * dx + (q.1 - s.1) * dy) / (dx * dx + dy * dy)).clamp(0.0, 1.0);
+            (q.0 - s.0 - t * dx).hypot(q.1 - s.1 - t * dy)
+        };
+        let mut run = 0;
+        for q in &o.pts {
+            run = match q.kind { Kind::Bezier => run + 1, Kind::Line | Kind::Start => 0 };
+            if run % 3 == 0 {
+                let d = dist((q.x, q.y), a, b).min(dist((q.x, q.y), b, c));
+                prop_assert!(d < w / 2.0 + 1e-3 * w, "point {} {} at {}", q.x, q.y, d);
+            }
+            // (an arc's end points: on the circle about the vertex)
+            if run > 0 && run % 3 == 0 {
+                prop_assert!(((q.x - b.0).hypot(q.y - b.1) - w / 2.0).abs() < 1e-3 * w);
+            }
+        }
+    }
+    /// an arrow end cap: its tip on the line's end, the body pulled back by the pen width; a
+    /// square anchor's corners max(w, 2) from the end
+    #[test]
+    fn anchors_sit_on_the_end(a in (-20f32..20.0, -20f32..20.0), d in (-20f32..20.0, -20f32..20.0), w in 1f32..3.0, down: bool) {
+        let l = d.0.hypot(d.1);
+        prop_assume!(l > 8.0 * w);
+        let r = round(down);
+        let b = (a.0 + d.0, a.1 + d.1);
+        let mut pen = Pen::new(0xff00_0000, w);
+        pen.end_cap = 0x14;
+        let o = widened(r, &[a, b], &pen);
+        let figs = o.figures();
+        prop_assert_eq!(figs.len(), 2);
+        prop_assert_eq!((figs[1][0].x, figs[1][0].y), b);
+        prop_assert_eq!(figs[1].len(), 3);
+        let far = figs[0].iter().map(|q| ((q.x - a.0) * d.0 + (q.y - a.1) * d.1) / l).fold(f32::MIN, f32::max);
+        prop_assert!((far - (l - w)).abs() < 1e-3 * l, "body ends at {} of {}", far, l);
+        pen.end_cap = 0x11;
+        let o = widened(r, &[a, b], &pen);
+        let figs = o.figures();
+        prop_assert_eq!(figs[1].len(), 4);
+        for q in figs[1] {
+            prop_assert!(((q.x - b.0).hypot(q.y - b.1) - w.max(2.0)).abs() < 1e-3 * l);
         }
     }
 }
