@@ -1562,10 +1562,10 @@ impl Gdiplus {
                 return Ok(true);
             }
         }
-        let how = gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), super::gpwiden::pattern(pen.dash).is_some());
+        let how = gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), super::gpwiden::pattern(&pen).is_some());
         // (MEASURED, golden gdiplusline pendash-5: DashStyleCustom with no dash array set is
         // OutOfMemory, nothing drawn)
-        if pen.dash == 5 {
+        if pen.dash == 5 && pen.dash_array.is_empty() {
             hit(clause::GP_PEN_DASH);
             out.push(format!("shape 0 {OUT_OF_MEMORY}"));
             return Ok(true);
@@ -2183,7 +2183,30 @@ impl Gdiplus {
                     i += match t[i].as_str() {
                         "dash" => {
                             pen.dash = n(t, i + 1)?;
+                            if let Some(p) = super::gpwiden::preset(pen.dash) {
+                                pen.dash_array = p.to_vec();
+                            }
                             2
+                        }
+                        "dashoff" => {
+                            pen.dash_offset = fl(i + 1)?;
+                            2
+                        }
+                        "dasharray" => {
+                            let c = n(t, i + 1)?;
+                            if !(0..=16).contains(&c) {
+                                return Err(Fail::Bad);
+                            }
+                            let v: Vec<f32> = (0..c as usize).map(|k| fl(i + 2 + k)).collect::<Res<_>>()?;
+                            // (an empty array or an entry of 0 or less: InvalidParameter, the pen
+                            // as it was; else the style Custom, geometry.md 6a)
+                            if v.is_empty() || v.iter().any(|&x| 0.0 >= x) {
+                                status = INVALID_PARAMETER;
+                            } else {
+                                pen.dash_array = v;
+                                pen.dash = 5;
+                            }
+                            2 + c as usize
                         }
                         "cap" => {
                             (pen.start_cap, pen.end_cap, pen.dash_cap) = (n(t, i + 1)?, n(t, i + 2)?, n(t, i + 3)?);

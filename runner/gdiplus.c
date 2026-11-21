@@ -57,6 +57,8 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipCreatePen1, (DWORD, float, INT, void **)) \
     X(GdipDeletePen, (void *)) \
     X(GdipSetPenDashStyle, (void *, INT)) \
+    X(GdipSetPenDashOffset, (void *, float)) \
+    X(GdipSetPenDashArray, (void *, const float *, INT)) \
     X(GdipSetPenLineCap197819, (void *, INT, INT, INT)) \
     X(GdipSetPenLineJoin, (void *, INT)) \
     X(GdipSetPenMode, (void *, INT)) \
@@ -621,7 +623,8 @@ static GpStatus set_cap(void *pn, int end, void *cap, GpStatus st) {
 
 /* pens in slots of their own:
  * gppen <p> <argb> <width> [dash <DashStyle>] [cap <start> <end> <DashCap>] [join <LineJoin>]
- * [align <PenAlignment>] [miter <limit>] [compound <n> <n floats>]
+ * [align <PenAlignment>] [miter <limit>] [compound <n> <n floats>] [dashoff <offset>]
+ * [dasharray <n> <n floats>]
  * [arrowcap <0 start|1 end> <height> <width> <filled> <middle inset>]
  * [customcap <0 start|1 end> <0 fill|1 stroke> <baseCap> <baseInset> <widthScale> <stroke join>
  *  <stroke start cap> <stroke end cap> <n> <n points>]: CreatePen1 (UnitWorld), then each setter
@@ -649,6 +652,14 @@ static void op_pen(void) {
             if (n < 0 || n > 16) { bad = 1; break; }
             for (int k = 0; k < n; k++) v[k] = fdec(i + 2 + k);
             r = GdipSetPenCompoundArray(pn, v, n);
+            i += 2 + n;
+        } else if (is(i, "dashoff")) { r = GdipSetPenDashOffset(pn, fdec(i + 1)); i += 2; }
+        else if (is(i, "dasharray")) {
+            int n = num(i + 1);
+            float v[16];
+            if (n < 0 || n > 16) { bad = 1; break; }
+            for (int k = 0; k < n; k++) v[k] = fdec(i + 2 + k);
+            r = GdipSetPenDashArray(pn, v, n);
             i += 2 + n;
         } else if (is(i, "arrowcap")) {
             void *cap = NULL;

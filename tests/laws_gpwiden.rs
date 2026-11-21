@@ -47,7 +47,15 @@ fn caps_and_joins_by_value() {
     assert_eq!([0x11, 0x12, 0x13, 0x14].map(Cap::line), [Anchor::Square, Anchor::Round, Anchor::Diamond, Anchor::Arrow].map(Cap::Anchor));
     assert_eq!((Cap::dash(1), Cap::dash(2), Cap::dash(3), Cap::dash(-1)), (Cap::Flat, Cap::Round, Cap::Triangle, Cap::Flat));
     assert_eq!([0, 1, 2, 3, 4, -1].map(Join::of), [Join::Miter, Join::Bevel, Join::Round, Join::MiterClipped, Join::Nothing, Join::Nothing]);
-    assert!(wd::pattern(0).is_none() && wd::pattern(5).is_none() && wd::pattern(-1).is_none());
+    assert!(wd::preset(0).is_none() && wd::preset(5).is_none() && wd::preset(-1).is_none());
+    let pen = |dash: i64, arr: &[f32]| {
+        let mut p = Pen::new(0xff00_0000, 1.0);
+        (p.dash, p.dash_array) = (dash, arr.to_vec());
+        p
+    };
+    assert!(wd::pattern(&pen(5, &[])).is_none() && wd::pattern(&pen(0, &[2.0])).is_none() && wd::pattern(&pen(6, &[2.0])).is_none());
+    assert_eq!(wd::pattern(&pen(5, &[2.0, 0.5])), Some(&[2.0, 0.5][..]));
+    assert_eq!(wd::pattern(&pen(2, &[2.0, 0.5])), Some(&[1.0, 1.0][..]));
 }
 
 proptest! {
@@ -105,7 +113,7 @@ proptest! {
         let mut pen = Pen::new(0xff00_0000, w);
         pen.dash = style;
         let p = widened(r, &[a, b], &pen);
-        let long = wd::pattern(style).unwrap().iter().copied().fold(0f32, f32::max) * w;
+        let long = wd::preset(style).unwrap().iter().copied().fold(0f32, f32::max) * w;
         let (dx, dy) = (b.0 - a.0, b.1 - a.1);
         let l = dx.hypot(dy);
         for f in p.figures() {
@@ -270,5 +278,29 @@ proptest! {
         for q in fig {
             prop_assert!((q.x - e.0).hypot(q.y - e.1) <= reach, "{:?} from {:?}", q, e);
         }
+    }
+    /// a dash offset a whole pattern further dashes the same, and an array set as Custom dashes
+    /// as the style of the same array (geometry.md 6a, GpModF)
+    #[test]
+    fn a_pattern_further_dashes_the_same(n in 1usize..6, q in proptest::collection::vec(1i32..16, 6), o in -40i32..40, w in 0u8..3, style in 1i64..5, x1 in 8i32..60, y1 in -20i32..20, down: bool) {
+        let r = round(down);
+        let w = [1.0f32, 2.0, 4.0][w as usize];
+        let arr: Vec<f32> = q[..n].iter().map(|&v| f32::from(i16::try_from(v).unwrap_or(1)) / 4.0).collect();
+        let sum: f32 = arr.iter().sum();
+        let quarter = |v: i32| f32::from(i16::try_from(v).unwrap_or(0)) / 4.0;
+        let mut p = Path::new(0);
+        prop_assert!(p.add_lines(r, &[(0.5, 0.5), (quarter(x1), quarter(y1))]).is_ok());
+        let dashed = |dash: i64, arr: &[f32], off: f32| {
+            let mut pen = Pen::new(0xff00_0000, w);
+            pen.dash = dash;
+            pen.dash_array = arr.to_vec();
+            pen.dash_offset = off;
+            wd::dashed(r, &p, &pen).ok().flatten().map(|d| d.figures().iter().map(|f| f.iter().map(|q| (q.x, q.y)).collect::<Vec<_>>()).collect::<Vec<_>>())
+        };
+        let a = dashed(5, &arr, quarter(o));
+        prop_assert!(a.is_some());
+        prop_assert_eq!(&a, &dashed(5, &arr, quarter(o) + sum));
+        let preset = wd::preset(style).map(<[f32]>::to_vec).unwrap_or_default();
+        prop_assert_eq!(dashed(style, &preset, quarter(o)), dashed(5, &preset, quarter(o)));
     }
 }

@@ -968,6 +968,11 @@ pub struct Pen {
     pub join: i64,
     pub align: i64,
     pub miter: f32,
+    /// the dash array: GdipSetPenDashArray's (style Custom), or the one style 1 ..= 4 wrote
+    /// into it; empty for none
+    pub dash_array: Vec<f32>,
+    /// GdipSetPenDashOffset's, in pen widths
+    pub dash_offset: f32,
     /// GdipSetPenCompoundArray's array, empty for none
     pub compound: Vec<f32>,
     /// the custom cap objects GdipSetPenCustomStartCap and EndCap set
@@ -984,7 +989,7 @@ pub enum CustomCap {
 }
 impl Pen {
     pub fn new(color: u32, width: f32) -> Pen {
-        Pen { color, width, dash: 0, start_cap: 0, end_cap: 0, dash_cap: 0, join: 0, align: 0, miter: 10.0, compound: Vec::new(), custom: [None, None] }
+        Pen { color, width, dash: 0, start_cap: 0, end_cap: 0, dash_cap: 0, join: 0, align: 0, miter: 10.0, dash_array: Vec::new(), dash_offset: 0.0, compound: Vec::new(), custom: [None, None] }
     }
 }
 

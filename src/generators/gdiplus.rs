@@ -817,6 +817,25 @@ fn penprobe(s: &mut String) {
         writeln!(s, "case penworld-{i}\n{head}\ngpmatrix 0 {m}\ngppen 0 0xffff0000 2\ngpshape 0 pen 0 0 copy 0 0 0 line 2 3 12 9\ngpread 0 32bppARGB\nend");
         writeln!(s, "case brushworld-{i}\n{head}\ngpmatrix 0 {m}\ngpbrush 0 solid 0xff00ff00\ngpshape 0 brush 0 0 copy 0 0 0 ellipse 2 2 10 8\ngpread 0 32bppARGB\nend");
     }
+    // (GdipSetPenDashArray and GdipSetPenDashOffset: the checks, a style after an array, offsets
+    // past the pattern and negative, odd counts, thin aliased pens and wide ones, closed figures)
+    for (i, set) in ["dasharray 0", "dasharray 2 2 0", "dasharray 2 2 -1", "dasharray 3 2 1 0.5", "dasharray 2 2 1 dash 1", "dash 1 dash 5", "dash 2 dasharray 2 4 1", "dasharray 2 4 1 dash 5", "dasharray 2 4 1 dash 0", "dasharray 2 4 1 dash 0 dash 5", "dashoff 1.5", "dashoff -2.25 dash 3"].iter().enumerate() {
+        writeln!(s, "case pendashset-{i}\n{head}\ngppen 0 0xffff0000 1 {set}\ngpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8\ngpread 0 32bppARGB\nend");
+    }
+    for i in 0..48 {
+        let n = r.range(1, 6) as usize;
+        let arr: Vec<String> = (0..n).map(|_| format!("{}", r.range(1, 17) as f32 / 4.0)).collect();
+        let dash = if i % 4 == 0 { format!("dash {}", r.range(1, 5)) } else { format!("dasharray {n} {}", arr.join(" ")) };
+        let off = r.range(-40, 41) as f32 / 4.0;
+        let w = *r.pick(&[0.5, 1.0, 1.0, 2.0, 3.0, 4.5]);
+        let shape = match r.range(0, 4) {
+            0 => format!("lines 3 {}", pts(&mut r, 3)),
+            1 => format!("rect {} {} {} {}", r.range(4, 16) as f32 / 4.0, r.range(4, 16) as f32 / 4.0, r.range(16, 40) as f32 / 4.0, r.range(16, 40) as f32 / 4.0),
+            2 => format!("ellipse {} {} {} {}", r.range(4, 16) as f32 / 4.0, r.range(4, 16) as f32 / 4.0, r.range(16, 40) as f32 / 4.0, r.range(16, 40) as f32 / 4.0),
+            _ => format!("polygon 4 {}", pts(&mut r, 4)),
+        };
+        writeln!(s, "case pendashoff-{i}\n{head}\ngppen 0 0xffff0000 {w} {dash} dashoff {off} cap {} {} {}\ngpshape 0 pen 0 - copy 0 {} 0 {shape}\ngpread 0 32bppARGB\nend", r.range(0, 4), r.range(0, 4), *r.pick(&[0, 2, 3]), *r.pick(&[0, 0, 2, 3]));
+    }
 }
 
 /// probes of the aliased thin line (a generator of its own, so the cases before keep their

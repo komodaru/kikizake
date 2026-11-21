@@ -108,13 +108,22 @@ impl Make {
 
 /// the dash pattern of a dash style in pen widths; Solid, Custom with no array and the values
 /// past it draw solid
-pub fn pattern(style: i64) -> Option<&'static [f32]> {
+pub fn preset(style: i64) -> Option<&'static [f32]> {
     match style {
         1 => Some(&[3.0, 1.0]),
         2 => Some(&[1.0, 1.0]),
         3 => Some(&[3.0, 1.0, 1.0, 1.0]),
         4 => Some(&[3.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
         _ => None,
+    }
+}
+/// the dash array a pen strokes by: a style's own, Custom (5) the array set (none when empty),
+/// any other style none (geometry.md 6a)
+pub fn pattern(pen: &Pen) -> Option<&[f32]> {
+    match (preset(pen.dash), pen.dash) {
+        (Some(p), _) => Some(p),
+        (None, 5) if !pen.dash_array.is_empty() => Some(&pen.dash_array),
+        (None, _) => None,
     }
 }
 
@@ -601,7 +610,7 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
 fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix, (start, end): (Cap, Cap), inner: bool) -> Res<Result<Vec<Point>, Widened>> {
     let join = Join::of(pen.join);
     let (major, minor) = axes(r, m);
-    let subs: Vec<Sub> = match pattern(pen.dash) {
+    let subs: Vec<Sub> = match pattern(pen) {
         Some(pat) => {
             // (CreateDashedPath's own set-up: Flatten(M) and Transform(Minv) again, geometry.md 22f)
             let again: Vec<(Vec<P>, bool)> = figs.iter().map(|(p, c)| (p.iter().map(|&(x, y)| {
@@ -1034,7 +1043,7 @@ struct Dash {
 /// a path's dashes in world space (CreateDashedPath of no matrix and no cap adjustment, the
 /// aliased one-pixel route): open figures; None for a pen of no dash pattern
 pub fn dashed(r: Round, path: &Path, pen: &Pen) -> Res<Option<Path>> {
-    let Some(pat) = pattern(pen.dash) else { return Ok(None) };
+    let Some(pat) = pattern(pen) else { return Ok(None) };
     let mut c = path.clone();
     c.flatten(r, None, 0.25)?;
     let figs: Vec<(Vec<P>, bool)> = c.figures().iter().map(|f| (f.iter().map(|q| (q.x, q.y)).collect(), f.last().is_some_and(|q| q.close))).collect();
@@ -1081,7 +1090,7 @@ fn dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, major: f32, adjust: bool
     let mut out = Vec::new();
     for (p, closed) in figs {
         let c = if *closed && ins > 0.0 { k } else { 0.0 };
-        let off = r.sub(r.mul(pen.width, 0.0), c);
+        let off = r.sub(r.mul(pen.width, pen.dash_offset), c);
         for dash in walk(r, p, *closed, &d, off, pen.width) {
             let pick = |dashed: bool, line: Cap| if dashed { dash_cap } else { line };
             out.push(Sub { pts: dash.pts, closed: false, caps: (pick(dash.dash_ends.0, caps.0), pick(dash.dash_ends.1, caps.1)) });

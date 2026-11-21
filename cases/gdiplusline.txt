@@ -6259,3 +6259,363 @@ gpbrush 0 solid 0xff00ff00
 gpshape 0 brush 0 0 copy 0 0 0 ellipse 2 2 10 8
 gpread 0 32bppARGB
 end
+case pendashset-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 0
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 2 0
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 2 -1
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 3 2 1 0.5
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 2 1 dash 1
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 1 dash 5
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 2 dasharray 2 4 1
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 4 1 dash 5
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 4 1 dash 0
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 4 1 dash 0 dash 5
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dashoff 1.5
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashset-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dashoff -2.25 dash 3
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case pendashoff-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dash 5 dashoff -5 cap 4 0 2
+gpshape 0 pen 0 - copy 0 0 0 rect 1.25 3.25 9.25 8.25
+gpread 0 32bppARGB
+end
+case pendashoff-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 1 4 dashoff 1.25 cap 1 0 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 7.5 5 3.25 15 -1.75 7.5 18 11.5
+gpread 0 32bppARGB
+end
+case pendashoff-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 dasharray 5 2.5 2.25 0.25 3.75 1 dashoff -7 cap 3 1 2
+gpshape 0 pen 0 - copy 0 2 0 lines 3 7.75 12 1.25 13 9.5 -1.25
+gpread 0 32bppARGB
+end
+case pendashoff-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 4 1.25 2.75 0.75 2.5 dashoff -8.25 cap 1 4 2
+gpshape 0 pen 0 - copy 0 0 0 ellipse 1 1.5 6.75 6
+gpread 0 32bppARGB
+end
+case pendashoff-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dash 5 dashoff 7 cap 4 3 3
+gpshape 0 pen 0 - copy 0 0 0 lines 3 9.25 0.75 6.5 1 17.5 3.75
+gpread 0 32bppARGB
+end
+case pendashoff-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 6 1.5 3.5 3.75 2.5 1 3 dashoff -4 cap 3 0 2
+gpshape 0 pen 0 - copy 0 2 0 rect 2.25 1.75 5.75 8.25
+gpread 0 32bppARGB
+end
+case pendashoff-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 4 1.25 0.25 4.25 2.5 dashoff -9.25 cap 0 0 0
+gpshape 0 pen 0 - copy 0 3 0 lines 3 4.25 0.5 13.75 16 8 5
+gpread 0 32bppARGB
+end
+case pendashoff-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 4 0.5 0.5 2.25 0.25 dashoff 4.25 cap 0 1 2
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 17.75 8.75 8 6.25 4.25 7.75 7.75 1
+gpread 0 32bppARGB
+end
+case pendashoff-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 dash 2 dashoff 10.25 cap 1 4 0
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 6.5 5 15.75 1 11.25 6.25 11.5 4.25
+gpread 0 32bppARGB
+end
+case pendashoff-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 4 1.75 2.5 2.75 0.75 dashoff -1.5 cap 1 3 3
+gpshape 0 pen 0 - copy 0 0 0 lines 3 12 9.75 10.25 6 14 10.25
+gpread 0 32bppARGB
+end
+case pendashoff-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 6 4 3.5 4 0.5 0.25 1.25 dashoff -5.25 cap 1 3 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 15.5 2.5 9 16 17.5 2.5 17.5 6
+gpread 0 32bppARGB
+end
+case pendashoff-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 5 3.25 3.25 1.75 1.75 2.25 dashoff -4 cap 3 4 3
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 3.5 -1 11.25 17.25 17.25 0.25 1.5 2.25
+gpread 0 32bppARGB
+end
+case pendashoff-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dash 4 dashoff 9.75 cap 2 3 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 12.25 9.5 3.5 9.25 1.25 0 6.5 2.75
+gpread 0 32bppARGB
+end
+case pendashoff-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 2 2.5 1 dashoff -5 cap 4 1 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 -0.5 7.75 13.5 10.25 0.75 9.25 2.25 6
+gpread 0 32bppARGB
+end
+case pendashoff-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 2 1 1.75 dashoff -4.75 cap 1 3 0
+gpshape 0 pen 0 - copy 0 3 0 rect 1.5 4 10 9.25
+gpread 0 32bppARGB
+end
+case pendashoff-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 2 3 3.5 dashoff -8.25 cap 1 0 0
+gpshape 0 pen 0 - copy 0 3 0 rect 3.25 3.5 5.5 9
+gpread 0 32bppARGB
+end
+case pendashoff-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 4 dashoff -0.25 cap 3 0 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 9.25 16 2.75 10.25 16.25 3.75 9.25 10
+gpread 0 32bppARGB
+end
+case pendashoff-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dasharray 5 2.75 4 1.25 4.25 1.75 dashoff 1.5 cap 0 4 0
+gpshape 0 pen 0 - copy 0 3 0 rect 3.25 1 5 8
+gpread 0 32bppARGB
+end
+case pendashoff-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dasharray 5 1.25 3.75 4 1.75 3.75 dashoff 9.5 cap 4 4 2
+gpshape 0 pen 0 - copy 0 3 0 rect 2 3.75 7.75 8
+gpread 0 32bppARGB
+end
+case pendashoff-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 2 3 1 dashoff -4.25 cap 1 1 3
+gpshape 0 pen 0 - copy 0 2 0 lines 3 1.25 4.25 7.25 8.75 16.75 6
+gpread 0 32bppARGB
+end
+case pendashoff-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 2 dashoff -7.75 cap 3 1 3
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 3.75 10.5 12.25 5.25 17 1.5 17 6.75
+gpread 0 32bppARGB
+end
+case pendashoff-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 1 1 dashoff -8 cap 4 4 3
+gpshape 0 pen 0 - copy 0 0 0 ellipse 2.75 3 4 4
+gpread 0 32bppARGB
+end
+case pendashoff-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dasharray 1 3 dashoff -3.25 cap 3 0 0
+gpshape 0 pen 0 - copy 0 3 0 lines 3 5.75 -1.5 17.75 7.5 12 16.75
+gpread 0 32bppARGB
+end
+case pendashoff-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 3 3.25 1.75 3.5 dashoff 6 cap 1 2 2
+gpshape 0 pen 0 - copy 0 0 0 lines 3 10.25 4.25 7.25 10.75 17.25 -1.25
+gpread 0 32bppARGB
+end
+case pendashoff-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dash 5 dashoff 9.75 cap 2 4 3
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 1 9 2 -1.5 6 14.5 4.5 6.75
+gpread 0 32bppARGB
+end
+case pendashoff-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 6 2 2 2.5 3.75 3.75 2.5 dashoff 0.5 cap 0 3 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 11 11.25 6.25 1.25 13.5 -2 16.75 12.25
+gpread 0 32bppARGB
+end
+case pendashoff-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 dasharray 5 3 3 4.25 0.25 0.5 dashoff -9.75 cap 3 3 3
+gpshape 0 pen 0 - copy 0 0 0 ellipse 2 2.5 8.5 6.75
+gpread 0 32bppARGB
+end
+case pendashoff-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 1 2.25 dashoff 9.5 cap 4 2 2
+gpshape 0 pen 0 - copy 0 2 0 ellipse 3.75 1.25 10 5.25
+gpread 0 32bppARGB
+end
+case pendashoff-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dash 2 dashoff 2.25 cap 1 0 3
+gpshape 0 pen 0 - copy 0 3 0 ellipse 2.25 2 4.5 5
+gpread 0 32bppARGB
+end
+case pendashoff-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 3 3.5 1.25 1 dashoff 1 cap 4 3 3
+gpshape 0 pen 0 - copy 0 3 0 lines 3 13.75 8 1.75 1 12.75 -1
+gpread 0 32bppARGB
+end
+case pendashoff-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 1 2.5 dashoff -0.5 cap 4 1 3
+gpshape 0 pen 0 - copy 0 3 0 lines 3 0.5 9.75 1.5 8.25 2 6
+gpread 0 32bppARGB
+end
+case pendashoff-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dasharray 2 1.75 0.5 dashoff -9.5 cap 4 3 0
+gpshape 0 pen 0 - copy 0 3 0 lines 3 13.25 0 8.25 3.75 0.25 3
+gpread 0 32bppARGB
+end
+case pendashoff-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 4 dashoff 9 cap 0 0 0
+gpshape 0 pen 0 - copy 0 0 0 ellipse 4 3.25 7.5 4.75
+gpread 0 32bppARGB
+end
+case pendashoff-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dasharray 5 1.5 1.75 1 3 1.5 dashoff -0.75 cap 3 4 0
+gpshape 0 pen 0 - copy 0 3 0 polygon 4 2.25 17.5 8.75 11.25 11.75 11 9.75 1.25
+gpread 0 32bppARGB
+end
+case pendashoff-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 5 0.5 1.25 3.25 2.75 0.75 dashoff -8.5 cap 4 2 0
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 8.5 17 11 3.25 16.5 2.75 1 15.75
+gpread 0 32bppARGB
+end
+case pendashoff-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 6 3.75 1.25 4.25 1 4.25 1.75 dashoff 2.25 cap 2 0 2
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 -1.75 7.25 17 1.75 4.25 13.75 1 15
+gpread 0 32bppARGB
+end
+case pendashoff-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dash 5 dashoff 6 cap 2 0 2
+gpshape 0 pen 0 - copy 0 2 0 lines 3 8.5 8.75 -0.75 10 10 16.5
+gpread 0 32bppARGB
+end
+case pendashoff-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 4 3 2.75 0.25 1.75 dashoff -4.75 cap 3 0 2
+gpshape 0 pen 0 - copy 0 2 0 rect 2.25 2 6.75 6.25
+gpread 0 32bppARGB
+end
+case pendashoff-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 dasharray 5 3.5 1.25 1.5 2.75 2.25 dashoff 4.25 cap 4 1 2
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 1 15.75 12.75 6.75 11.5 17.75 0.25 2
+gpread 0 32bppARGB
+end
+case pendashoff-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 3 2.25 0.25 3 dashoff 7.5 cap 1 0 0
+gpshape 0 pen 0 - copy 0 2 0 rect 1.5 2 5.5 5.25
+gpread 0 32bppARGB
+end
+case pendashoff-40
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dash 3 dashoff -7.75 cap 1 4 0
+gpshape 0 pen 0 - copy 0 3 0 rect 2.5 1 5 8.25
+gpread 0 32bppARGB
+end
+case pendashoff-41
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 3 0.25 2.75 0.5 dashoff -7.75 cap 1 1 3
+gpshape 0 pen 0 - copy 0 2 0 ellipse 3 1.75 7.75 6
+gpread 0 32bppARGB
+end
+case pendashoff-42
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 5 0.75 3.5 3.5 2.5 1.5 dashoff 8 cap 0 2 3
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 3.75 12 8.5 16.75 -2 0.5 13.25 3
+gpread 0 32bppARGB
+end
+case pendashoff-43
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.5 dasharray 3 4 3.5 3.25 dashoff 8.25 cap 0 4 2
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 1.75 8.75 -0.75 4 2.25 5 7.5 13
+gpread 0 32bppARGB
+end
+case pendashoff-44
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 0.5 dash 4 dashoff 5.5 cap 4 0 3
+gpshape 0 pen 0 - copy 0 0 0 lines 3 -1 1.5 12.25 13.5 7.75 1.25
+gpread 0 32bppARGB
+end
+case pendashoff-45
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 3 2.5 4 3.5 dashoff -4.25 cap 4 2 2
+gpshape 0 pen 0 - copy 0 2 0 polygon 4 2 9 -1 5.75 16 14 2.5 10.25
+gpread 0 32bppARGB
+end
+case pendashoff-46
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dasharray 4 0.25 2.25 4 2.25 dashoff 8.25 cap 2 0 0
+gpshape 0 pen 0 - copy 0 0 0 polygon 4 10.75 17.75 9.75 3 6.5 3.75 7.25 16.5
+gpread 0 32bppARGB
+end
+case pendashoff-47
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 dasharray 5 1 1.5 3.25 0.25 0.25 dashoff 0 cap 2 3 3
+gpshape 0 pen 0 - copy 0 0 0 ellipse 1.75 3.25 10 5.75
+gpread 0 32bppARGB
+end
