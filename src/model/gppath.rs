@@ -735,7 +735,7 @@ pub struct Fig {
 
 /// FixedPointPathEnumerate: each figure's points through m, ceiled to integers, its Beziers
 /// flattened
-fn enumerate(r: Round, path: &Path, m: &Matrix) -> Res<Vec<Fig>> {
+pub fn enumerate(r: Round, path: &Path, m: &Matrix) -> Res<Vec<Fig>> {
     let conv = |p: &Point| {
         let (x, y) = apply(r, m, p.x, p.y);
         (ceil16(r, x), ceil16(r, y))

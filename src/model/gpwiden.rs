@@ -8,7 +8,7 @@ use super::gdiplus::{Matrix, Round};
 use super::gplinear::invert;
 use super::gppath::{add64, apply, axes, div64, mul64, sqrt32, to32, Kind, Path, Pen, Point, EPS, NEAR};
 use super::{Fail, Res};
-use crate::spec::{clause, hit, open};
+use crate::spec::{clause, hit};
 
 type P = (f32, f32);
 
@@ -472,12 +472,11 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         (q.x, q.y) = apply(r, &minv, q.x, q.y);
     }
     let mut figs: Vec<(Vec<P>, bool)> = c.figures().iter().map(|f| (f.iter().map(|q| (q.x, q.y)).collect(), f.last().is_some_and(|q| q.close))).collect();
-    // (PenAlignment Inset on a closed subpath: a 2w centred outline intersected with the
-    // shape as pixel regions, RegionToPath; the region step is the spec's open GP.PEN. Inset
-    // on open subpaths and every other value is Center, MEASURED in GDI+ itself, golden
+    // (PenAlignment Inset with a closed subpath: GetWidenedPath's regions; Inset on open
+    // subpaths only and every other value is Center, MEASURED in GDI+ itself, golden
     // penalign-0, -2, --1)
     if pen.align == 1 && figs.iter().any(|f| f.1) {
-        return Err(Fail::Unmodeled(open::GP_PEN));
+        return inset(r, path, pen, m, flatness);
     }
     let (major, minor) = axes(r, m);
     let caps = anchors(r, &mut figs, pen, major.min(minor), (start, end));
@@ -519,6 +518,41 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     out.extend(caps);
     for q in &mut out {
         (q.x, q.y) = apply(r, m, q.x, q.y);
+    }
+    Ok(Ok(Path::of(path.fill, out)))
+}
+
+/// GetWidenedPath of an Inset pen: each closed subpath's own 2w centred outline and the whole
+/// path's fill (its fill mode) as aliased device pixels (the pixel offset in m), ANDed, back to
+/// figures by RegionToPath; then the open subpaths widened centred w (clean-room notes
+/// geometry.md 17, MEASURED in GDI+ itself, golden penalign-1)
+fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Result<Path, Widened>> {
+    use super::gdiplus::FillMode;
+    use super::gpregion::{pixels, points, to_path};
+    hit(clause::GP_PEN_INSET);
+    let fm = if path.fill == 0 { FillMode::Alternate } else { FillMode::Winding };
+    let whole = pixels(r, path, m, fm)?;
+    let id = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
+    let centred = |w: f32| Pen { width: w, align: 0, ..pen.clone() };
+    let (mut out, mut open) = (Vec::new(), Vec::new());
+    for f in path.figures() {
+        if !f.last().is_some_and(|q| q.close) {
+            open.extend_from_slice(f);
+            continue;
+        }
+        let sub = Path::of(path.fill, f.to_vec());
+        let w = match widen(r, &sub, &centred(r.add(pen.width, pen.width)), m, flatness)? {
+            Ok(w) => w,
+            Err(e) => return Ok(Err(e)),
+        };
+        let own = pixels(r, &w, &id, FillMode::Winding)?;
+        out.extend(points(&to_path(&own.and(&whole))));
+    }
+    if !open.is_empty() {
+        match widen(r, &Path::of(path.fill, open), &centred(pen.width), m, flatness)? {
+            Ok(w) => out.extend(w.pts),
+            Err(e) => return Ok(Err(e)),
+        }
     }
     Ok(Ok(Path::of(path.fill, out)))
 }
