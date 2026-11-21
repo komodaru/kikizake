@@ -154,6 +154,12 @@ pub fn parse(words: &[String]) -> Option<(Vec<Param>, Vec<Sampler>)> {
 /// the executor's tokens a line at most (runner/core.h MAXTOK: the rest are dropped)
 pub const MAXTOK: usize = 80;
 
+/// the tokens a root signature has at most, rootsig12+ lines' and its own rootsig12 line's
+/// together (runner/d3d12.c RSTOK: past it the line is refused whole, as RSPOOL's bytes of
+/// rootsig12+ tokens with their terminators)
+pub const RSTOK: usize = 1024;
+pub const RSPOOL: usize = 16384;
+
 /// a register class: b (constant buffers and root constants), t, u, s
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Class {

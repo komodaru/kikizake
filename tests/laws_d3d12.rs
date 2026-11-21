@@ -268,3 +268,39 @@ fn device12_again_keeps_everything() {
     }
     assert!(n > 20, "{n}");
 }
+
+/// rootsig12+ lines and their rootsig12 line take RSTOK tokens together, and past that the
+/// line is bad, never cut short (the review of 8480456, 3: the executor dropped the tokens past
+/// 1024, and with them the last CBV, while the model read them all; D3D12.ROOTSIG.LONG):
+/// 64 detailed static samplers and n CBVs, each line within MAXTOK
+#[test]
+fn long_root_signatures_are_refused_whole() {
+    use kikizake::model::rootsig::{MAXTOK, RSTOK};
+    let lines = |cbvs: u32| {
+        let mut w: Vec<String> = Vec::new();
+        for k in 0..64u32 {
+            w.extend(format!("S 0x95 1 1 1 0 0x10 1 0 0 0x7f7fffff {k} 0 0").split(' ').map(String::from));
+        }
+        for k in 0..cbvs {
+            w.extend(format!("cbv {k} 0 0 0").split(' ').map(String::from));
+        }
+        let total = 3 + w.len();
+        let mut text = String::from("device12\n");
+        let (early, last) = w.split_at(w.len() - 20);
+        for c in early.chunks(MAXTOK - 1) {
+            text += &format!("rootsig12+ {}\n", c.join(" "));
+        }
+        text += &format!("rootsig12 1 0 {}\n", last.join(" "));
+        (total, kikizake::model::run_case(&kikizake::case::parse_cases(&format!("case p\n{text}end\n"))[0]))
+    };
+    for cbvs in 20..=40 {
+        let (total, r) = lines(cbvs);
+        if total <= RSTOK {
+            let out = r.unwrap_or_else(|e| panic!("{cbvs}: {e:?}"));
+            assert!(out.iter().any(|l| l.starts_with("rs hr 00000000")), "{cbvs}: {out:?}");
+        } else {
+            assert!(matches!(r, Err(kikizake::model::Fail::Bad)), "{cbvs} ({total} tokens): {r:?}");
+        }
+    }
+    assert_eq!(lines(25).0, RSTOK);
+}

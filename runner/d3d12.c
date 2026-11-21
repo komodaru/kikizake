@@ -483,9 +483,11 @@ static void op_rootsig(void) {
     if (!ser) { out("rs none\n"); return; }
     /* the tokens: this line's first three, those rootsig12+ lines before it left, the rest of it */
     rt = 0;
+    /* (more than RSTOK together is a line the executor cannot run: refused whole, never cut) */
+    if ((ntok < 3 ? ntok : 3) + nrsx + (ntok > 3 ? ntok - 3 : 0) > RSTOK) { bad = 1; return; }
     for (int k = 0; k < ntok && k < 3; k++) rtk[rt++] = tok[k];
-    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];
-    for (int k = 3; k < ntok && rt < RSTOK; k++) rtk[rt++] = tok[k];
+    for (int k = 0; k < nrsx; k++) rtk[rt++] = rsx[k];
+    for (int k = 3; k < ntok; k++) rtk[rt++] = tok[k];
     nrsx = 0;
     rsxlen = 0;
     UINT ver = rn(1), np = 0, ns = 0, nr = 0;

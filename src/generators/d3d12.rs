@@ -857,6 +857,19 @@ pub fn d3d12() -> String {
         }
         writeln!(s, "end");
     }
+    // (added after) a root signature of exactly the executor's RSTOK tokens (one more parameter
+    // is a bad line on both sides, never cut: the review of 8480456, 3, where the last CBV was
+    // dropped; D3D12.ROOTSIG.LONG, law long_root_signatures_are_refused_whole)
+    for (name, cbvs) in [("rootsig-long-1024", 25u32)] {
+        let mut l = String::from("1 0");
+        for k in 0..64u32 {
+            l.push_str(&format!(" S 0x95 1 1 1 0 0x10 1 0 0 0x7f7fffff {k} 0 0"));
+        }
+        for k in 0..cbvs {
+            l.push_str(&format!(" cbv {k} 0 0 0"));
+        }
+        writeln!(s, "case {name}\ndevice12\n{}\nfeature12 0\nend", rootsig_lines(&l));
+    }
 
     s
 }

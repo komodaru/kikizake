@@ -114,3 +114,14 @@ fn device12_dropping_the_chain_is_found() {
     assert!(r[0].contains("forbidden: device12 again"), "{r:?}");
     assert!(rust("src/model/d3d12.rs", "fn op() { match name { \"device12\" => { self.dev = true; } \"dxgifactory\" => { self.chain = None; } } }").is_empty());
 }
+
+#[test]
+fn silent_cuts_are_found() {
+    // (review of 8480456, 3: rootsig12 kept the first 1024 tokens of its rootsig12+ lines and its own)
+    let old = "static void op_rootsig(void) {\n    rt = 0;\n    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];\n}\n";
+    let r = c("runner/d3d12.c", old);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].starts_with("runner/d3d12.c:3: silent-cut: a copy stops at RSTOK"), "{r:?}");
+    assert!(c("runner/d3d12.c", "    if (nrsx > RSTOK) { bad = 1; return; }\n    for (int k = 0; k < nrsx; k++) rtk[rt++] = rsx[k];\n").is_empty());
+    assert!(c("runner/main.c", "for (char *t = strtok(l, \" \"); t && ntok < MAXTOK; t = strtok(NULL, \" \")) tok[ntok++] = t;").is_empty());
+}

@@ -22,6 +22,10 @@
 //! * `forbidden` (review of 8480456, 1.1): a construction Windows' answers refuted (`FORBIDDEN`):
 //!   JPEG 4:4:0's chroma repeated instead of interpolated; device12 again dropping the swap
 //!   chain (2.2).
+//! * `silent-cut` (review of 8480456, 3): an executor loop that copies only while a count is
+//!   below a capacity (`for (...; ... && n < CAP; ...)`) drops the rest without a word, and the
+//!   model reads it all: refuse past the capacity (`bad = 1`) instead. The line reader's MAXTOK
+//!   (runner/main.c, mirrored by the model's rootsig::MAXTOK) is the one cut allowed.
 use std::path::Path;
 use std::sync::LazyLock;
 
@@ -90,6 +94,9 @@ static C_FN: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?m)^[A-Za-z_][\w \
 static DIB: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"->bits\b|\brow\s*\("));
 /// (what only tests or sets the pointer: `!s->bits`, `s->bits ?`, `s->bits = ...`)
 static DIB_POINTER: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"!\s*[\w>.-]*->bits\b|->bits\s*\?|->bits\s*=[^=]"));
+static SILENT_CUT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"for\s*\([^;]*;[^;]*&&\s*\w+\s*<\s*([A-Z][A-Z0-9_]*)\s*;"));
+/// (file, capacity): the cuts allowed
+pub const CUTS: &[(&str, &str)] = &[("runner/main.c", "MAXTOK")];
 static WAIT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?m)^\s*(ID3D12CommandQueue_Signal|ID3D12Fence_SetEventOnCompletion|WaitForSingleObject)\s*\("));
 
 /// every pattern, compiled (None: one does not, an error of this file)
@@ -105,10 +112,11 @@ struct Pats {
     dib: &'static Regex,
     dib_pointer: &'static Regex,
     wait: &'static Regex,
+    silent_cut: &'static Regex,
 }
 
 fn pats() -> Option<Pats> {
-    Some(Pats { generators: GENERATORS.as_ref()?, fs_read: FS_READ.as_ref()?, swallow: SWALLOW.as_ref()?, stops: STOPS.as_ref()?, derive_default: DERIVE_DEFAULT.as_ref()?, new: NEW.as_ref()?, impls: IMPL.as_ref()?, c_fn: C_FN.as_ref()?, dib: DIB.as_ref()?, dib_pointer: DIB_POINTER.as_ref()?, wait: WAIT.as_ref()? })
+    Some(Pats { generators: GENERATORS.as_ref()?, fs_read: FS_READ.as_ref()?, swallow: SWALLOW.as_ref()?, stops: STOPS.as_ref()?, derive_default: DERIVE_DEFAULT.as_ref()?, new: NEW.as_ref()?, impls: IMPL.as_ref()?, c_fn: C_FN.as_ref()?, dib: DIB.as_ref()?, dib_pointer: DIB_POINTER.as_ref()?, wait: WAIT.as_ref()?, silent_cut: SILENT_CUT.as_ref()? })
 }
 
 const BROKEN: &str = "tools/lint/src/guards.rs: a pattern does not compile";
@@ -233,6 +241,12 @@ pub fn c(rel: &str, text: &str) -> Vec<String> {
     let Some(p) = pats() else { return vec![BROKEN.into()] };
     let code = c_code(text);
     let mut bad = Vec::new();
+    for c in p.silent_cut.captures_iter(&code) {
+        let (Some(all), Some(cap)) = (c.get(0), c.get(1)) else { continue };
+        if !CUTS.contains(&(rel, cap.as_str())) {
+            bad.push(format!("{rel}:{}: silent-cut: a copy stops at {} without refusing the rest; set bad past it", line_of(&code, all.start()), cap.as_str()));
+        }
+    }
     for m in p.wait.find_iter(&code) {
         bad.push(format!("{rel}:{}: wait-unchecked: the result of {} decides whether the GPU finished; check it", line_of(&code, m.start()), m.as_str().trim().trim_end_matches('(').trim()));
     }

@@ -530,6 +530,11 @@ impl D3d12 {
             "rootsig12+" => {
                 // (the executor reads the first MAXTOK tokens of a line)
                 let t = &t[..t.len().min(super::rootsig::MAXTOK)];
+                // (the executor keeps them in RSTOK places and RSPOOL bytes, or the line is bad)
+                let bytes = |v: &[String]| v.iter().map(|x| x.len() + 1).sum::<usize>();
+                if self.rs_more.len() + t.len() - 1 > super::rootsig::RSTOK || bytes(&self.rs_more) + bytes(&t[1..]) > super::rootsig::RSPOOL {
+                    return Err(Fail::Bad);
+                }
                 self.rs_more.extend(t[1..].iter().cloned());
             }
             "rootsig12" => {
@@ -542,6 +547,11 @@ impl D3d12 {
                 }
                 let w = words(&t[1..3])?;
                 let rest: Vec<String> = more.into_iter().chain(t[3..].iter().cloned()).collect();
+                // (RSTOK together, or the line is refused whole: the review of 8480456, 3)
+                hit(clause::D3D12_ROOTSIG_LONG);
+                if 3 + rest.len() > super::rootsig::RSTOK {
+                    return Err(Fail::Bad);
+                }
                 let (ps, ss) = parse(&rest).ok_or(Fail::Empty)?;
                 hit(clause::D3D12_ROOTSIG_VALID);
                 let ver = match Version::of(w[0]) {
