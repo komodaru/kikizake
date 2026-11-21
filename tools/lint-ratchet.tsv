@@ -178,12 +178,12 @@ file	src/model/d2dbool.rs	cast_possible_truncation	4
 file	src/model/d2dbool.rs	cast_precision_loss	14
 file	src/model/d2dbool.rs	float_cmp	2
 file	src/model/d2dbool.rs	indexing_slicing	69
-file	src/model/d2dtess.rs	arithmetic_side_effects	41
-file	src/model/d2dtess.rs	as_conversions	12
+file	src/model/d2dtess.rs	arithmetic_side_effects	43
+file	src/model/d2dtess.rs	as_conversions	14
 file	src/model/d2dtess.rs	cast_possible_truncation	4
 file	src/model/d2dtess.rs	cast_precision_loss	8
 file	src/model/d2dtess.rs	float_cmp	1
-file	src/model/d2dtess.rs	indexing_slicing	101
+file	src/model/d2dtess.rs	indexing_slicing	102
 file	src/model/d2dtess.rs	iter_over_hash_type	1
 file	src/model/d2dwiden.rs	arithmetic_side_effects	4
 file	src/model/d2dwiden.rs	as_conversions	4

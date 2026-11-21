@@ -44,7 +44,42 @@ impl Q {
 
 /// the sweep order: Less when `a` comes first (larger y, then larger x)
 pub(crate) fn sweep(a: Q, b: Q) -> Ordering {
-    (b.y * a.d).cmp(&(a.y * b.d)).then((b.x * a.d).cmp(&(a.x * b.d)))
+    mul_cmp(b.y, a.d, a.y, b.d).then(mul_cmp(b.x, a.d, a.x, b.d))
+}
+
+/// a b against c d, exactly (the products to 256 bits)
+fn mul_cmp(a: I, b: I, c: I, d: I) -> Ordering {
+    fn wide(a: I, b: I) -> (i8, u128, u128) {
+        let s = a.signum() as i8 * b.signum() as i8;
+        let (x, y) = (a.unsigned_abs(), b.unsigned_abs());
+        let (x1, x0, y1, y0) = (x >> 64, x & u128::from(u64::MAX), y >> 64, y & u128::from(u64::MAX));
+        let (lo, mid1, mid2, hi) = (x0 * y0, x0 * y1, x1 * y0, x1 * y1);
+        let (mid, c1) = mid1.overflowing_add(mid2);
+        let (lo2, c2) = lo.overflowing_add(mid << 64);
+        let hi2 = hi + (mid >> 64) + (u128::from(c1) << 64) + u128::from(c2);
+        (s, hi2, lo2)
+    }
+    let ((s1, h1, l1), (s2, h2, l2)) = (wide(a, b), wide(c, d));
+    if s1 != s2 {
+        return s1.cmp(&s2);
+    }
+    let m = (h1, l1).cmp(&(h2, l2));
+    if s1 < 0 { m.reverse() } else { m }
+}
+
+/// CLineSegmentIntersection's fraction along `l` of its crossing with `o`, in f64 as Windows
+/// computes it: the pair as A -> B and C -> D (each from its earlier end), `first` whether `l`
+/// is A -> B; den = AB x DC, along AB AC x DC / den, along CD AB x AC / den, clamped to [0, 1]
+fn pair_lambda(l: &Line, o: &Line, first: bool) -> f64 {
+    let f = |p: Pt| (p.0 as f64, p.1 as f64);
+    let (ab, cd) = if first { (l, o) } else { (o, l) };
+    let (a, b, c, d) = (f(ab.s), f(ab.e), f(cd.s), f(cd.e));
+    let v_ab = (b.0 - a.0, b.1 - a.1);
+    let v_dc = (c.0 - d.0, c.1 - d.1);
+    let v_ac = (c.0 - a.0, c.1 - a.1);
+    let den = v_ab.0 * v_dc.1 - v_ab.1 * v_dc.0;
+    let num = if first { v_ac.0 * v_dc.1 - v_ac.1 * v_dc.0 } else { v_ab.0 * v_ac.1 - v_ac.0 * v_ab.1 };
+    (num / den).clamp(0.0, 1.0)
 }
 
 /// an integer workspace point
@@ -199,9 +234,9 @@ impl Bands {
 /// the vertices on every line, in no order: its ends, crossings, touching points, overlaps'
 /// ends; and for every crossing off the grid the lines it is inside, each with its fraction
 /// along the line from its earlier end (numerator, denominator)
-pub(crate) fn cuts(lines: &[Line]) -> (Vec<Vec<Q>>, HashMap<Q, Vec<(usize, I, I)>>) {
+pub(crate) fn cuts(lines: &[Line]) -> (Vec<Vec<Q>>, HashMap<Q, Vec<(usize, I, I, usize)>>) {
     let mut on: Vec<Vec<Q>> = lines.iter().map(|l| vec![Q::int(l.s), Q::int(l.e)]).collect();
-    let mut inner: HashMap<Q, Vec<(usize, I, I)>> = HashMap::new();
+    let mut inner: HashMap<Q, Vec<(usize, I, I, usize)>> = HashMap::new();
     let within = |p: Pt, l: &Line| p.0 >= l.s.0.min(l.e.0) && p.0 <= l.s.0.max(l.e.0) && p.1 >= l.s.1.min(l.e.1) && p.1 <= l.s.1.max(l.e.1);
     for i in 0..lines.len() {
         for j in i + 1..lines.len() {
@@ -237,9 +272,9 @@ pub(crate) fn cuts(lines: &[Line]) -> (Vec<Vec<Q>>, HashMap<Q, Vec<(usize, I, I)
             on[j].push(v);
             if v.d != 1 {
                 let e = inner.entry(v).or_default();
-                for (k, num) in [(i, tn), (j, un)] {
+                for (k, num, o) in [(i, tn, j), (j, un, i)] {
                     if !e.iter().any(|x| x.0 == k) {
-                        e.push((k, num, den));
+                        e.push((k, num, den, o));
                     }
                 }
             }
@@ -268,7 +303,7 @@ fn workspace(g: &Geom, tol: f32, ext: f64) -> Res<(bool, Vec<Vec<Pt>>)> {
                 }
             }
         }
-        // (beyond 2^24 workspace units the exact arithmetic here could overflow: the spec's open D2D.SIMP, D2D.AREA.CURVE, asked of Windows by pareabig-*)
+        // (Tessellate and Outline keep to 2^24 workspace units: past it, the spec's open D2D.SIMP)
         if pts.iter().any(|p| !(p.0.abs() < 16777216.0 && p.1.abs() < 16777216.0)) {
             return Err(bad());
         }
@@ -305,9 +340,9 @@ pub struct Scan {
     pub acc: f64,
 }
 
-/// the scanner's sweep of integer figures (below 2^24 workspace units) by a fill mode
+/// the scanner's sweep of integer figures (below 2^31 workspace units, the crossing test exact in 256-bit products) by a fill mode
 pub fn scan(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
-    if figs.iter().flatten().any(|p| !(p.0.abs() < 1 << 24 && p.1.abs() < 1 << 24)) {
+    if figs.iter().flatten().any(|p| !(p.0.abs() < 1 << 31 && p.1.abs() < 1 << 31)) {
         return Err(bad());
     }
     let mut acc = 0f64;
@@ -356,9 +391,9 @@ pub fn scan(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
         }
     }
     for (v, ls) in &inner {
-        let &(k, num, den) = ls.iter().min_by(|a, b| tail_order(&lines[a.0], &lines[b.0])).ok_or_else(bad)?;
+        let &(k, _, _, o) = ls.iter().min_by(|a, b| tail_order(&lines[a.0], &lines[b.0])).ok_or_else(bad)?;
         let l = &lines[k];
-        let lambda = (num as f64 / den as f64).clamp(0.0, 1.0);
+        let lambda = pair_lambda(l, &lines[o], k < o);
         let (sx, sy, ex, ey) = (l.s.0 as f64, l.s.1 as f64, l.e.0 as f64, l.e.1 as f64);
         at.insert(*v, ((ex - sx) * lambda + sx, (ey - sy) * lambda + sy));
     }
