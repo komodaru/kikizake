@@ -1481,13 +1481,9 @@ impl Ctx {
             }
             "glColor4ub" | "glColor3ub" => {
                 hit(clause::GL_COLOR_UB);
-                // (MEASURED: between glBegin and glEnd times the float reciprocal of 255, golden
-                // opengl-32 errors-begin; outside divided by 255, attrib-*: 3 reads 0x3c40c0c1)
-                let inside = self.in_begin.is_some();
-                let c = |i: usize| {
-                    let b = (u(a, i) & 255) as f32;
-                    if inside { b * (1.0 / 255.0) } else { b / 255.0 }
-                };
+                // (MEASURED: divided by 255, attrib-*: 3 reads 0x3c40c0c1; what is left after
+                // glEnd, golden opengl-32 errors-begin: `Ctx::batch_ended`)
+                let c = |i: usize| (u(a, i) & 255) as f32 / 255.0;
                 self.color = [c(0), c(1), c(2), if a.len() == 4 { c(3) } else { 1.0 }];
             }
             "glIndexi" => {
@@ -1763,7 +1759,11 @@ impl Ctx {
                     hit(clause::GL_END_OUTSIDE);
                     self.error(INVALID_OPERATION);
                 }
-                Some(m) => self.end(m)?,
+                Some(m) => {
+                    let r = self.end(m);
+                    self.batch_ended();
+                    r?
+                }
             },
             "glNormal3f" => {
                 hit(clause::GL_NORMAL);
@@ -1818,6 +1818,7 @@ impl Ctx {
                 self.rect_call = true;
                 let r = self.end(QUADS);
                 self.rect_call = false;
+                self.batch_ended();
                 r?;
             }
             "glDrawBuffer" | "glReadBuffer" => {
@@ -2362,6 +2363,23 @@ impl Ctx {
         Ok(())
     }
 
+    /// What a batch of vertices (glBegin .. glEnd, glRect) leaves as the current color: its
+    /// channel-unit color times the float reciprocal of the scale, no longer the exact c / 255
+    /// glColor4ub gave (MEASURED, golden opengl-32 / 64 raster-mode-14, 15: a one-color
+    /// rectangle right after glColor4ub takes the plane's 199.99998, the same drawn after a
+    /// first batch 200: GL.POLYGON.SMOOTH)
+    fn batch_ended(&mut self) {
+        if self.pf.ty != 0 {
+            return;
+        }
+        let bits = self.bits();
+        let red = ((1u64 << bits[0]) - 1) as f32;
+        self.color = std::array::from_fn(|k| {
+            let scale = if k == 3 && bits[3] == 0 { red } else { ((1u64 << bits[k]) - 1) as f32 };
+            (self.color[k] * scale) * (1.0 / scale)
+        });
+    }
+
     fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize, quad: bool) -> Res<()> {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
         let unmeasured = [CULL_FACE, LIGHTING, FOG, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
@@ -2376,6 +2394,11 @@ impl Ctx {
         hit(clause::GL_POLYGON_SMOOTH);
         let grid = if self.hints[(POLYGON_SMOOTH_HINT - 0xc50) as usize] == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
         let v: Vec<tri::Raster> = clip.iter().map(|c| tri::Raster::of(*c, self.viewport, H as i64)).collect();
+        // (a corner on a sample row or column: the edge lines' ties, GL.RASTER.TIE)
+        let side = f32::from(grid.side());
+        if v.iter().any(|p| p.0.iter().any(|c| { let k = c.fract() * 2.0 * side; k.fract() == 0.0 && k as i64 % 2 == 1 })) {
+            hit(clause::GL_RASTER_TIE);
+        }
         let red = ((1u64 << self.bits()[0]) - 1) as f32;
         let scale: [f32; 4] = std::array::from_fn(|k| match (k, self.bits()[k]) {
             (3, 0) => red,
@@ -2691,24 +2714,8 @@ impl Ctx {
                         continue;
                     }
                     if smooth {
-                        // (MEASURED, golden opengl-32 other-calls-7, raster-mode-10: the quad's
-                        // two triangles (v0 v1 v2, then v0 v2 v3) each drawn on its own, of its
-                        // corners snapped, a pixel with k of 16 samples inside one
-                        // (`tri::smooth_triangle`) taking alpha times k / 16, the second's
-                        // fragments over the first's along the diagonal: GL.POLYGON.SMOOTH,
-                        // GL.RASTER.TIE)
-                        let corner: [tri::Vertex; 4] = std::array::from_fn(|k| tri::Vertex { x: tri::Sub(self.snap_window(xs[k].clamp(x0, x1), Axis::X)), y: tri::Sub(self.snap_window(ys[k].clamp(y0, y1), Axis::Y)) });
-                        if corner.iter().any(|v| v.x.0.rem_euclid(64) == 32 || v.y.0.rem_euclid(64) == 32) {
-                            hit(clause::GL_RASTER_TIE);
-                        }
-                        for t in [[0, 1, 2], [0, 2, 3]] {
-                            for (x, y, k) in tri::smooth_triangle(t.map(|k| corner[k]), W as i64, H as i64) {
-                                let mut c = c;
-                                c[3] *= k.coverage();
-                                self.fragment(Frag { x, y, c, z, fixed: self.smooth_fixed(), zfixed })?;
-                            }
-                        }
                         self.never = NeverPath::Other;
+                        self.smooth_polygon(q, 3, true)?;
                         continue;
                     }
                     let mut px = self.fill(q, &[c.map(f64::from); 4], None)?;
@@ -5476,70 +5483,6 @@ pub mod tri {
     /// The first column whose center is right of `l`.
     fn first_right(l: Fine) -> i64 {
         (l.0.div_euclid(FINE_PER_SUB) - 128).div_euclid(256) + 1
-    }
-
-    /// How many of a pixel's 4 by 4 samples an antialiased triangle covers, 1..=16.
-    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-    pub struct Samples(u16);
-
-    impl Samples {
-        pub fn count(self) -> u16 {
-            self.0
-        }
-        /// The fraction of the pixel's alpha its fragment keeps.
-        pub fn coverage(self) -> f32 {
-            f32::from(self.0) / 16.0
-        }
-    }
-
-    /// The pixels (x, y) of a `w` by `h` window that an antialiased triangle `v` (snapped,
-    /// [`Sub::snap`]) covers samples of, with how many (MEASURED, golden opengl-32
-    /// raster-mode-2, -5, -9, -10, other-calls-7): the samples at ((2i + 1) / 8, (2j + 1) / 8)
-    /// of the pixel; per sample row y, those with L <= x < R between the triangle's edges, the
-    /// rows of ymin <= y < ymax; an edge's x at a row walked from its lower end, that end's y
-    /// rounded up to 1/128 pixel first (raster-mode-10: a sample 0.9/256 above a rectangle's
-    /// diagonal not counted). A flat triangle covers nothing.
-    pub fn smooth_triangle(v: [Vertex; 3], w: i64, h: i64) -> Vec<(i64, i64, Samples)> {
-        let area = |v: &[Vertex; 3]| i128::from(v[1].x.0 - v[0].x.0) * i128::from(v[2].y.0 - v[0].y.0) - i128::from(v[1].y.0 - v[0].y.0) * i128::from(v[2].x.0 - v[0].x.0);
-        let v = match area(&v).signum() {
-            1 => v,
-            -1 => [v[0], v[2], v[1]],
-            _ => return Vec::new(),
-        };
-        let (ymin, ymax) = (v.iter().map(|p| p.y).min().unwrap_or(Sub(0)), v.iter().map(|p| p.y).max().unwrap_or(Sub(0)));
-        // (counterclockwise: an edge walked down bounds the triangle on the left)
-        let inside = |sx: i64, sy: i64| {
-            if !(ymin.0 <= sy && sy < ymax.0) {
-                return false;
-            }
-            (0..3).all(|a| {
-                let (p, q) = (v[a], v[(a + 1) % 3]);
-                let (lo, hi) = match p.y.cmp(&q.y) {
-                    std::cmp::Ordering::Equal => return true,
-                    std::cmp::Ordering::Less => (p, q),
-                    std::cmp::Ordering::Greater => (q, p),
-                };
-                if !(lo.y.0 <= sy && sy < hi.y.0) {
-                    return true;
-                }
-                let start = lo.y.0 + lo.y.0.rem_euclid(2);
-                // x at the row: lo.x + (sy - start) (hi.x - lo.x) / (hi.y - lo.y), compared
-                // times hi.y - lo.y > 0
-                let at = i128::from(sy - start) * i128::from(hi.x.0 - lo.x.0);
-                let s = i128::from(sx - lo.x.0) * i128::from(hi.y.0 - lo.y.0);
-                if q.y < p.y { s >= at } else { s < at }
-            })
-        };
-        let mut out = Vec::new();
-        for py in 0..h {
-            for px in 0..w {
-                let k: u16 = (0..4).flat_map(|i| (0..4).map(move |j| (i, j))).map(|(i, j)| u16::from(inside(px * 256 + (2 * i + 1) * 32, py * 256 + (2 * j + 1) * 32))).sum();
-                if k > 0 {
-                    out.push((px, py, Samples(k)));
-                }
-            }
-        }
-        out
     }
 
     /// The pixels (x, y) of a `w` by `h` window whose centers a triangle (or any convex polygon)

@@ -287,45 +287,6 @@ proptest! {
         prop_assert!(g.bytes(Given::BUFFER - n, n).is_ok());
     }
 
-    /// GL.RASTER.TIE: a rectangle's two antialiased triangles (v0 v1 v2, v0 v2 v3) share its
-    /// samples out between them, each once, the samples x0 <= x < x1, y0 <= y < y1 per pixel
-    #[test]
-    fn smooth_triangles_share_a_rectangle(v in any::<[(u16, u16); 2]>()) {
-        let at = |c: u16| i64::from(c % 3584) + 256;
-        let (x0, x1) = (at(v[0].0).min(at(v[1].0)), at(v[0].0).max(at(v[1].0)));
-        let (y0, y1) = (at(v[0].1).min(at(v[1].1)), at(v[0].1).max(at(v[1].1)));
-        let c = [(x1, y1), (x0, y1), (x0, y0), (x1, y0)].map(|(x, y)| Vertex { x: Sub(x), y: Sub(y) });
-        let mut got = std::collections::BTreeMap::new();
-        for t in [[0, 1, 2], [0, 2, 3]] {
-            for (x, y, k) in tri::smooth_triangle(t.map(|i| c[i]), 16, 16) {
-                *got.entry((x, y)).or_insert(0u16) += k.count();
-            }
-        }
-        let mut want = std::collections::BTreeMap::new();
-        for py in 0..16i64 {
-            for px in 0..16i64 {
-                let n = (0..4i64).flat_map(|i| (0..4i64).map(move |j| (px * 256 + (2 * i + 1) * 32, py * 256 + (2 * j + 1) * 32))).filter(|(x, y)| (x0..x1).contains(x) && (y0..y1).contains(y)).count();
-                if n > 0 {
-                    want.insert((px, py), u16::try_from(n).unwrap_or(u16::MAX));
-                }
-            }
-        }
-        prop_assert_eq!(got, want);
-    }
-
-    /// GL.RASTER.TIE: an antialiased triangle moved by whole pixels covers the same samples
-    /// moved with it, whichever way its corners are listed
-    #[test]
-    fn smooth_triangles_move_with_whole_pixels(v in any::<[(u16, u16); 3]>(), dx in 0i64..4, dy in 0i64..4) {
-        let t = v.map(|(x, y)| Vertex { x: Sub(i64::from(x % 2048) + 256), y: Sub(i64::from(y % 2048) + 256) });
-        let moved = t.map(|p| Vertex { x: Sub(p.x.0 + 256 * dx), y: Sub(p.y.0 + 256 * dy) });
-        let a: Vec<(i64, i64, u16)> = tri::smooth_triangle(t, 16, 16).into_iter().map(|(x, y, k)| (x + dx, y + dy, k.count())).collect();
-        let b: Vec<(i64, i64, u16)> = tri::smooth_triangle(moved, 16, 16).into_iter().map(|(x, y, k)| (x, y, k.count())).collect();
-        let c: Vec<(i64, i64, u16)> = tri::smooth_triangle([moved[2], moved[1], moved[0]], 16, 16).into_iter().map(|(x, y, k)| (x, y, k.count())).collect();
-        prop_assert_eq!(&a, &b);
-        prop_assert_eq!(&b, &c);
-    }
-
     /// GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.WIDE: a smooth line by the general path
     /// covers each pixel by more than 0 and at most 1, once per row it walks, and a line of one
     /// color keeps it (only alpha takes the coverage)
