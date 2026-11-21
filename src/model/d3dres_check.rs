@@ -478,6 +478,11 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     }
     let f = w[0];
     let Some(vf) = super::dxgifmt::format(f) else { return bad };
+    // (MEASURED, WARP: probe-filter-fmt107) a YUY2 texture's view in its own format is refused
+    if f == 107 && d.dim != 4 {
+        hit(clause::D3DRES_VIEW_YUY2);
+        return bad;
+    }
     let typeless = |x: u32| super::dxgifmt::format(x).is_some_and(|x| x.num == super::dxgifmt::Num::Typeless);
     let raw_buf = d.dim == 4 && d.misc & 0x20 != 0;
     if d.dim == 4 {

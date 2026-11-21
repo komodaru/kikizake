@@ -186,6 +186,8 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
             // other sample counts: on Direct3D 11 the call changes nothing, on Direct3D 10 the
             // target is bound and no depth view
             let samples = |v: usize| m.views[v].as_ref().and_then(|x| m.res[x.res].as_ref()).map_or(1, |r| r.d.count.max(1));
+            let size = |dev: Dev, v: usize| m.views[v].as_ref().and_then(|x| m.res[x.res].as_ref().map(|r| (x, r))).map(|(x, r)| r.size(r.mip_of(super::d3dres::view_subs(dev, x, r).first().copied().unwrap_or(0))));
+            let smaller = |dev: Dev, ds: usize, rt: usize| matches!((size(dev, ds), size(dev, rt)), (Some((dw, dh, _)), Some((w, h, _))) if dw < w || dh < h);
             let depth = match (target, depth, dev) {
                 (Some(a), Some(b), Dev::D11(_)) if samples(a) != samples(b) => {
                     hit(clause::D3DRASTER_MS_DEPTHCOUNT);
@@ -194,6 +196,13 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                 (Some(a), Some(b), Dev::D10) if samples(a) != samples(b) => {
                     hit(clause::D3DRASTER_MS_DEPTHCOUNT);
                     None
+                }
+                // (MEASURED, WARP: probe-rt-dsv-small, -small-fail, probe-rt-ms4-dsv-small) a
+                // depth view narrower or shorter than the target: on Direct3D 11 the call changes
+                // nothing; on Direct3D 10 both are bound and the draw stays inside the depth view
+                (Some(a), Some(b), Dev::D11(_)) if smaller(dev, b, a) => {
+                    hit(clause::D3DRASTER_DEPTH_SMALL);
+                    return Ok(());
                 }
                 (_, depth, _) => depth,
             };
@@ -1698,10 +1707,12 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
             return Err(Fail::Bad);
         }
         let dsub = super::d3dres::view_subs(dev, dv, dres)[0];
-        // (a depth view smaller than a multisampled target: not measured, probe-rt-ms4-dsv-small)
+        // (a depth view smaller than the target, on Direct3D 10: nothing drawn past it,
+        // D3DRASTER.DEPTH.SMALL)
         let (dw, dh, _) = dres.size(dres.mip_of(dsub));
         if index(dw) <= px || index(dh) <= py {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            hit(clause::D3DRASTER_DEPTH_SMALL);
+            return Ok(());
         }
         slots.push(Slot::of(m, dv.res, dsub, df, (px, py))?);
     }
@@ -2468,6 +2479,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
                 // a) fv, r = b + (d - b) fv, then l + (r - l) fu, with the weights fu, fv the
                 // 1/256 below the fraction
+                // (MEASURED, WARP: probe-filter-r8g8b8a8-uint, golden 878bb10, x86 and x86-64) an integer
+                // format's view sampled through a float one ends the executor
+                let integer = format(v.format()).is_some_and(|f| matches!(f.num, Num::Uint | Num::Sint));
+                if cmp.is_none() && integer {
+                    hit(clause::D3DRASTER_FILTER_INT);
+                    return Err(Fail::Crash);
+                }
                 let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))? };
                 if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
@@ -2557,16 +2575,14 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         let el = (df.bits / 8) as usize;
         let (dw, dh, _) = dres.size(dres.mip_of(dsub));
         let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
-        // (MEASURED, WARP: probe-rt-dsv-small) a depth view smaller than the target: the pixels
-        // past it are written, the depth left alone
-        let inside = index(dw) > x && index(dh) > y;
-        if !inside {
+        // (a depth view smaller than the target, on Direct3D 10: nothing drawn past it,
+        // D3DRASTER.DEPTH.SMALL)
+        if index(dw) <= x || index(dh) <= y {
             hit(clause::D3DRASTER_DEPTH_SMALL);
+            return Ok(());
         }
-        let e = if inside { Some(b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?) } else { None };
-        if let Some(e) = e
-            && d.depthst[0] != 0
-        {
+        let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Bad)?;
+        if d.depthst[0] != 0 {
             // (only a triangle with a vertex at w <= 0 comes without depth, and with no depth view)
             let z = z.ok_or(Fail::Bad)?;
             let (a, s) = (quantized_depth(df, z), stored_depth(df, e));
