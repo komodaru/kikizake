@@ -1283,14 +1283,19 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         Cull::Ccw => area < 0,
         Cull::Cw => area > 0,
     };
-    match st.fill {
-        Fill::Solid => {}
-        // (points or wireframe of a culled or flat triangle, or of several colors, not
-        // measured)
-        Fill::Point | Fill::Wireframe if st.cull == Cull::None && area != 0 && tri.c[0] == tri.c[1] && tri.c[0] == tri.c[2] && tri.spec[0] == tri.spec[1] && tri.spec[0] == tri.spec[2] => {}
-        Fill::Point | Fill::Wireframe => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
-    }
-    if area == 0 || culled {
+    let several = tri.c[0] != tri.c[1] || tri.c[0] != tri.c[2] || tri.spec[0] != tri.spec[1] || tri.spec[0] != tri.spec[2];
+    let drawn = match (st.fill, family) {
+        (Fill::Solid, _) => !culled,
+        // (points or wireframe of a flat triangle, the HAL's of several colors: not measured)
+        (Fill::Point | Fill::Wireframe, _) if area == 0 => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+        (Fill::Point | Fill::Wireframe, Family::Hw { .. }) if several => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+        // MEASURED (d3d7dev fillcull-*: 8 random triangles under the default CCW culling, every
+        // drawer): a culled triangle's wireframe is not drawn, nor the HAL's points; the
+        // software rasterizers draw its points
+        (Fill::Wireframe, _) | (Fill::Point, Family::Hw { .. }) => !culled,
+        (Fill::Point, Family::Soft { .. } | Family::Ramp) => true,
+    };
+    if area == 0 || !drawn {
         return Ok(());
     }
     // MEASURED (d3d7dev zrange: z from -1 to 2 on every device): a triangle with z below 0 or
@@ -1496,7 +1501,8 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
     let z = tri.z;
     let zv = match (st.zenable, rt.depth, family) {
         (false, _, _) => None,
-        (true, None, _) => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+        // MEASURED (d3d7dev znoz-*: every drawer): ZENABLE without a z-buffer tests nothing
+        (true, None, _) => None,
         (true, Some(dp), Family::Soft { .. } | Family::Ramp) => Some(Zw::Soft(dp)),
         (true, Some(Depth::Z16), Family::Hw { .. }) => Some(Zw::Hw(tri_z_hw(z))),
         (true, Some(Depth::Z24 | Depth::Z32), Family::Hw { .. }) => return Err(Fail::Bad),
