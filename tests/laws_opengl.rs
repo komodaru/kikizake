@@ -374,6 +374,29 @@ proptest! {
         }
     }
 
+    /// GL.RASTER.LINE.SMOOTH: a fast smooth line's step colors in channel units (5-bit ones,
+    /// raster-open-32) stay between its ends' for its first |major| steps (later ones go on
+    /// past the second end's, wrapping), the two pixels of a step in one color
+    #[test]
+    fn fast_aa_line_colors_stay_between_the_ends(v in any::<[(u16, u16); 2]>(), c in any::<[[u8; 3]; 2]>()) {
+        let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + 2.0 + f32::from(x % 768) / 64.0, tri::RASTER_BIAS + 2.0 + f32::from(y % 768) / 64.0]));
+        let b = tri::RASTER_BIAS as i64;
+        let unit = |k: [u8; 3]| [f32::from(k[0] % 32), f32::from(k[1] % 32), f32::from(k[2] % 32), 0.0];
+        let ends = [unit(c[0]), unit(c[1])];
+        let p = tri::aa_line_fast(r[0], r[1], ends, 255.0, [[b, b + 16], [b, b + 16]]);
+        let major = (r[1].0[0] - r[0].0[0]).abs().max((r[1].0[1] - r[0].0[1]).abs());
+        for (step, pair) in p.chunks(2).enumerate() {
+            prop_assert_eq!(pair[0].c, pair[pair.len() - 1].c);
+            if step as f32 > major {
+                continue;
+            }
+            for k in 0..3 {
+                let (lo, hi) = (ends[0][k].min(ends[1][k]), ends[0][k].max(ends[1][k]));
+                prop_assert!((lo..=hi).contains(&f32::from(pair[0].c[k])), "{:?} {:?}", pair[0].c, ends);
+            }
+        }
+    }
+
     /// GL.RASTER.INTERPOLATE.LINE: a line inside the view volume is not cut; one with both ends
     /// past the same plane is gone; a cut end lies on the plane it was cut at, within rounding,
     /// and its color between the ends'

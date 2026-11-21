@@ -2347,16 +2347,17 @@ impl Ctx {
     /// alpha, 1 pixel wide and not under GL_NICEST the fast path (`tri::aa_line_fast`), else
     /// the general one (`tri::aa_line`), each fragment truncated (MEASURED, golden opengl-32 /
     /// 64: GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.WIDE, GL.RASTER.LINE.SMOOTH.BLEND).
-    /// Stippled: `tri::AaStipple` (GL.RASTER.LINE.STIPPLE); flat-shaded: not this, the aliased
-    /// line in the first end's color (flat_path, raster-open-4). Fogged, lit, textured, depth, stencil or alpha tested, masked,
-    /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
-    /// channels or in color index: not measured.
+    /// Stippled: `tri::AaStipple` (GL.RASTER.LINE.STIPPLE); lit: the ends' lit colors (raster-open-33);
+    /// into channels under 8 bits: the fast path's pixels unweighted (raster-open-32); flat-shaded: not this, the aliased
+    /// line in the first end's color (flat_path, raster-open-4). Fogged, textured, depth, stencil or alpha tested, masked,
+    /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), dithered or blended under
+    /// 8-bit channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
-        let unmeasured = [FOG, LIGHTING, 0xde0, 0xde1].iter().any(|c| self.cap(*c))
+        let unmeasured = [FOG, 0xde0, 0xde1].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
             || self.shade == FLAT
             || self.pf.ty != 0
-            || self.bits()[..3].iter().any(|b| *b != 8)
+            || (self.cap(DITHER) && self.bits()[..3].iter().any(|b| *b < 8))
             || self.pf.rgba[3].0 % 8 != 0;
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
@@ -2390,6 +2391,10 @@ impl Ctx {
         // (scissored, stencil tested, masked, under a logic op or another blend: the general
         // path, the fragments cut by the box or tested, raster-open-14, 15, 16, 21, 22)
         if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
+            let narrow = self.bits()[..3].iter().any(|b| *b < 8);
+            if narrow && self.cap(BLEND) {
+                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            }
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
@@ -2398,9 +2403,16 @@ impl Ctx {
             let bounds = [[bias, bias.wrapping_add(WIDTH)], [bias, bias.wrapping_add(HEIGHT)]];
             for p in tri::aa_line_fast(r[0], r[1], colors, scale[3], bounds) {
                 let c = [f32::from(p.c[0]), f32::from(p.c[1]), f32::from(p.c[2]), 0.0];
-                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed: ToFixed::Wu { weight: p.weight, alpha: p.alpha }, zfixed: None })?;
+                // (channels under 8 bits: both pixels of a step written unweighted in the
+                // step's channel-unit color, raster-open-32)
+                let fixed = if narrow { ToFixed::Scaled } else { ToFixed::Wu { weight: p.weight, alpha: p.alpha } };
+                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed: None })?;
             }
             return Ok(());
+        }
+        // (the general path into channels under 8 bits: not measured)
+        if self.bits()[..3].iter().any(|b| *b < 8) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
         for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
@@ -2693,6 +2705,7 @@ impl Ctx {
         };
         // (one depth: the window depth of the first vertex, GL.DEPTH.FIXED; moved by an offset
         // when flat, an offset of depths that vary not measured)
+
         if self.cap(POLYGON_OFFSET_FILL) && depth.is_some() {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
