@@ -3107,6 +3107,7 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-61\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glLineWidth 3\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f -3 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(32));
     writeln!(s, "glerr\nend");
     textures(s);
+    gaps(s);
 }
 
 /// texturing (GL 1.1 3.8): objects, images and their formats, queries, environments, filters,
@@ -3264,4 +3265,149 @@ fn textures(s: &mut String) {
     writeln!(s, "gl glBindTexture {T2} 0");
     q(s, "level", &format!("{T2} 0 4096"), "i", 1);
     writeln!(s, "glerr\nend");
+}
+
+/// what the model does not follow yet, one open clause each (spec/opengl.txt GL.LIST .. WGL.OTHER):
+/// display lists, vertex arrays, evaluators, selection and feedback, lights and materials, clip
+/// planes, bitmaps, glCopyPixels, stipple patterns, pixel maps, the other forms of calls, WGL
+fn gaps(s: &mut String) {
+    let head = |s: &mut String, name: &str, bpp: u32| {
+        writeln!(s, "case {name}\n{}{ORTHO}gl glDisable 0xbd0", ctx(bpp));
+    };
+    let tri = "gl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex2f 2 2\ngl glColor4ub 0 255 0 255\ngl glVertex2f 13 4\ngl glColor4ub 0 0 255 255\ngl glVertex2f 6 13\ngl glEnd";
+    // display lists: names, compiling, executing, nesting, glCallLists' types and base, errors (GL.LIST)
+    head(s, "gap-list-0", 32);
+    writeln!(s, "glr glGenLists u i 3\nglr glIsList b i 1\ngl glNewList 1 0x1300\ngl glColor4ub 10 200 30 255\ngl glRectf 1 1 6 6\ngl glEndList\nglr glIsList b i 1\nglget i 0xb33 1\ngl glClear 0x4000");
+    read_all(s);
+    writeln!(s, "gl glNewList 2 0x1301\ngl glTranslatef 4 4 0\ngl glCallList 1\ngl glEndList\nglget f 0xba6 16");
+    read_all(s);
+    writeln!(s, "gl glLoadIdentity\ngl glListBase 1\nglp glCallLists ii 2 0x1401 ub 0 1\nglget i 0xb32 1\nglerr\ngl glEndList\nglerr\ngl glNewList 0 0x1300\nglerr\ngl glNewList 3 0x1302\nglerr\ngl glNewList 3 0x1300\ngl glNewList 4 0x1300\nglerr\ngl glEndList\ngl glDeleteLists 1 2\nglr glIsList b i 1\nglr glIsList b i 3\nglr glGenLists u i 0\nglr glGenLists i i -1\nglerr\nend");
+    // vertex arrays: pointers, client state, glArrayElement, glDrawArrays, glDrawElements,
+    // interleaved arrays, the client attribute stack, edge flags (GL.ARRAY)
+    head(s, "gap-array-0", 32);
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13 14 14\nglp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255 255 255 255 255\ngl glEnableClientState 0x8074\ngl glEnableClientState 0x8076\nglisen 8074\ngl glClear 0x4000\ngl glDrawArrays 4 0 3");
+    read_all(s);
+    writeln!(s, "gl glClear 0x4000\nglp glDrawElements iii 1 2 0x1403 us 0 3\ngl glBegin 0\ngl glArrayElement 3\ngl glEnd");
+    read_all(s);
+    writeln!(s, "glq glGetPointerv i 0x808e p 1\nglget i 0x807a 1\nglget i 0x807b 1\nglget i 0x807c 1\ngl glPushClientAttrib 2\ngl glDisableClientState 0x8074\ngl glPopClientAttrib\nglisen 8074\ngl glDrawArrays 4 0 -1\nglerr\ngl glDrawArrays 10 0 3\nglerr\nglp glDrawElements iii 4 3 0x1406 f 0 1 2\nglerr\nend");
+    head(s, "gap-array-1", 32);
+    writeln!(s, "glp glInterleavedArrays ii 0x2a22 0 ub 255 0 0 255 0 0 0 64 0 0 0 64 0 255 0 255 0 0 80 65 0 0 128 64 0 0 255 255 0 0 192 64 0 0 80 65\ngl glClear 0x4000\ngl glDrawArrays 4 0 3");
+    read_all(s);
+    writeln!(s, "glisen 8076\nglget i 0x8082 1\ngl glPolygonMode 0x408 0x1b01\ngl glClear 0x4000\ngl glBegin 4\ngl glEdgeFlag 0\ngl glVertex2f 2 2\ngl glEdgeFlag 1\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd");
+    read_all(s);
+    writeln!(s, "glget i 0xb43 1\nglerr\nend");
+    // evaluators: a 1D vertex and color map, grids and meshes, a 2D map, the queries (GL.EVAL)
+    head(s, "gap-eval-0", 32);
+    writeln!(s, "glp glMap1f iffii 0xd97 0 1 3 3 f 1 1 0 8 15 0 15 1 0\nglp glMap1f iffii 0xd90 0 1 4 2 f 1 0 0 1 0 0 1 1\ngl glEnable 0xd97\ngl glEnable 0xd90\ngl glClear 0x4000\ngl glBegin 3\ngl glEvalCoord1f 0\ngl glEvalCoord1f 0.25\ngl glEvalCoord1f 0.5\ngl glEvalCoord1d 0.75\ngl glEvalCoord1f 1\ngl glEnd");
+    read_all(s);
+    writeln!(s, "gl glMapGrid1f 8 0 1\ngl glClear 0x4000\ngl glEvalMesh1 0x1b00 0 8\ngl glEvalPoint1 4");
+    read_all(s);
+    writeln!(s, "glq glGetMapfv ii 0xd97 0xa00 f 9\nglq glGetMapiv ii 0xd97 0xa01 i 1\nglq glGetMapdv ii 0xd97 0xa02 d 2\nglget f 0xdd0 2\nglget i 0xdd1 1\nglerr\nglp glMap1f iffii 0xd97 1 1 3 3 f 0 0 0 0 0 0 0 0 0\nglerr\nglp glMap1f iffii 0xd97 0 1 3 40 f 0\nglerr");
+    writeln!(s, "glp glMap2f iffiiffii 0xdb7 0 1 3 2 0 1 6 2 f 1 1 0 14 1 0 1 14 0 14 14 0\ngl glEnable 0xdb7\ngl glMapGrid2f 4 0 1 4 0 1\ngl glClear 0x4000\ngl glEvalMesh2 0x1b02 0 4 0 4");
+    read_all(s);
+    writeln!(s, "gl glClear 0x4000\ngl glEvalMesh2 0x1b01 0 4 0 4");
+    read_all(s);
+    writeln!(s, "glq glGetMapiv ii 0xdb7 0xa01 i 2\nglerr\nend");
+    // selection: names, hits, overflow; feedback of each type, pass-through (GL.SELECT)
+    head(s, "gap-select-0", 32);
+    writeln!(s, "glp glSelectBuffer i 64 obuf\nglr glRenderMode i i 0x1c02\ngl glInitNames\ngl glPushName 7\ngl glRectf 1 1 4 4\ngl glLoadName 8\ngl glRectf 20 20 24 24\ngl glPushName 9\n{tri}\ngl glPopName\ngl glPopName\ngl glPopName\nglerr\nglr glRenderMode i i 0x1c00\nglobuf u 16\nglget i 0xc40 1\nglerr");
+    writeln!(s, "glp glSelectBuffer i 3 obuf\nglr glRenderMode i i 0x1c02\ngl glPushName 1\ngl glPushName 2\ngl glRectf 1 1 4 4\nglr glRenderMode i i 0x1c00\nglobuf u 4\nglerr\ngl glPushName 1\nglerr\nend");
+    for (k, ty) in [0x600u32, 0x601, 0x602, 0x603, 0x604].iter().enumerate() {
+        head(s, &format!("gap-select-{}", k.wrapping_add(1)), 32);
+        writeln!(s, "glp glFeedbackBuffer ii 128 {ty} obuf\nglr glRenderMode i i 0x1c01\ngl glPassThrough 3.5\n{tri}\ngl glBegin 1\ngl glVertex2f 1 15\ngl glVertex2f 15 1\ngl glEnd\ngl glBegin 0\ngl glVertex2f 8 8\ngl glEnd\ngl glRasterPos2f 3 3\ngldraw 1 1 0x1908 0x1401 1 4\nglr glRenderMode i i 0x1c00\nglobuf f 96\nglerr\nend");
+    }
+    // lights and materials: each parameter set and read back, a lit triangle (GL.LIGHT.STATE)
+    head(s, "gap-light-0", 32);
+    writeln!(s, "glq glGetLightfv ii 0x4001 0x1201 f 4\nglq glGetLightfv ii 0x4000 0x1203 f 4\nglq glGetLightiv ii 0x4000 0x1206 i 1\nglq glGetMaterialfv ii 0x404 0x1601 f 1\nglq glGetMaterialfv ii 0x404 0x1201 f 4");
+    writeln!(s, "gl glTranslatef 1 2 0\nglp glLightfv ii 0x4000 0x1203 f 0 0 1 0\nglp glLightfv ii 0x4000 0x1201 f 0.5 0.25 1 1\nglp glLightfv ii 0x4001 0x1204 f 0 0 -1\ngl glLightf 0x4001 0x1206 30\ngl glLighti 0x4001 0x1205 5\ngl glLightf 0x4001 0x1207 2\nglq glGetLightfv ii 0x4000 0x1203 f 4\nglq glGetLightfv ii 0x4001 0x1204 f 3\nglq glGetLightiv ii 0x4000 0x1201 i 4\nglq glGetLightfv ii 0x4001 0x1206 f 1\nglq glGetLightfv ii 0x4001 0x1207 f 1");
+    writeln!(s, "gl glLightf 0x4000 0x1206 100\nglerr\ngl glLightf 0x4000 0x1205 200\nglerr\ngl glLightModeli 0xb52 1\ngl glLightModelf 0xb51 1\nglp glLightModelfv i 0xb53 f 0.1 0.2 0.3 1\nglget f 0xb53 4\nglget i 0xb52 1\nglp glMaterialfv ii 0x408 0x1602 f 0.8 0.6 0.4 1\nglp glMaterialfv ii 0x404 0x1202 f 1 1 1 1\ngl glMaterialf 0x404 0x1601 20\ngl glMateriali 0x405 0x1601 200\nglerr\nglq glGetMaterialfv ii 0x405 0x1200 f 4\nglq glGetMaterialiv ii 0x404 0x1201 i 4\nglq glGetMaterialfv ii 0x404 0x1601 f 1");
+    writeln!(s, "gl glLoadIdentity\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glNormal3f 0 0 1\ngl glClear 0x4000\n{tri}");
+    read_all(s);
+    writeln!(s, "gl glColorMaterial 0x404 0x1201\ngl glEnable 0xb57\ngl glClear 0x4000\n{tri}");
+    read_all(s);
+    writeln!(s, "glget i 0xb55 1\nglget i 0xb56 1\ngl glColorMaterial 0x404 0x1500\nglerr\nend");
+    // user clip planes (GL.CLIPPLANE)
+    head(s, "gap-clip-0", 32);
+    writeln!(s, "gl glTranslatef 2 0 0\nglp glClipPlane i 0x3000 d 1 -1 0 0\ngl glLoadIdentity\nglq glGetClipPlane i 0x3000 d 4\ngl glEnable 0x3000\ngl glClear 0x4000\n{tri}");
+    read_all(s);
+    writeln!(s, "glp glClipPlane i 0x3001 d 0 1 0 -7.5\ngl glEnable 0x3001\ngl glClear 0x4000\ngl glRectf 0 0 16 16");
+    read_all(s);
+    writeln!(s, "glp glClipPlane i 0x3006 d 0 0 0 0\nglerr\nend");
+    // bitmaps: set bits at the raster position, the moves, the raster color, no raster position (GL.BITMAP)
+    head(s, "gap-bitmap-0", 32);
+    writeln!(s, "gl glColor4ub 200 100 50 255\ngl glRasterPos2f 2.5 3.5\ngl glColor4ub 0 0 255 255\ngl glClear 0x4000\nglp glBitmap iiffff 8 4 1 1 5 2 ub 129 255 66 60\nglget f 0xb07 4\nglp glBitmap iiffff 8 4 0 0 5 2 ub 15 240 15 240\nglget f 0xb07 4\nglget f 0xb04 4");
+    read_all(s);
+    writeln!(s, "gl glPixelStorei 0xcf1 1\ngl glClear 0x4000\nglp glBitmap iiffff 8 2 0 0 0 0 ub 3 192\ngl glRasterPos2f -4 2\nglp glBitmap iiffff 0 0 0 0 6 0 null\nglp glBitmap iiffff 8 2 0 0 0 0 ub 255 255\nglget i 0xb08 1\nglget f 0xb07 4");
+    read_all(s);
+    writeln!(s, "glp glBitmap iiffff -1 2 0 0 0 0 ub 255 255\nglerr\nend");
+    // glCopyPixels of color, depth and stencil, overlapping, zoomed, from outside (GL.COPYPIXELS)
+    head(s, "gap-copy-0", 32);
+    writeln!(s, "gldraw 16 16 0x1908 0x1401 21 1024\ngl glRasterPos2i 4 3\ngl glCopyPixels 1 1 6 5 0x1800");
+    read_all(s);
+    writeln!(s, "gl glRasterPos2i 2 2\ngl glPixelZoom 2 -1\ngl glCopyPixels 0 0 4 4 0x1800\ngl glPixelZoom 1 1\ngl glRasterPos2i 10 10\ngl glCopyPixels 12 12 8 8 0x1800");
+    read_all(s);
+    writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glClear 0x400\ngl glRectf 0 0 8 8\ngl glRasterPos2i 8 8\ngl glCopyPixels 0 0 8 8 0x1801\nglread 0 0 16 16 0x1902 0x1405 1024\ngl glCopyPixels 0 0 4 4 0x1802\nglread 0 0 16 16 0x1901 0x1401 256\ngl glCopyPixels 0 0 -1 4 0x1800\nglerr\ngl glCopyPixels 0 0 1 1 0x1900\nglerr\nend");
+    // a polygon stipple pattern, set, read back, masking (GL.POLYGON.STIPPLE.PATTERN)
+    head(s, "gap-stipple-0", 32);
+    let mut pat = String::new();
+    for k in 0u32..128 {
+        let v = k.wrapping_mul(37).wrapping_add(11) & 0xff;
+        pat.push_str(&format!(" {v}"));
+    }
+    writeln!(s, "glq glGetPolygonStipple - ub 128\nglp glPolygonStipple - ub{pat}\nglq glGetPolygonStipple - ub 128\ngl glEnable 0xb42\ngl glClear 0x4000\n{tri}");
+    read_all(s);
+    writeln!(s, "gl glPixelStorei 0xcf1 1\nglp glPolygonStipple - ub{pat}\ngl glPixelStorei 0xd01 1\nglq glGetPolygonStipple - ub 128\ngl glClear 0x4000\ngl glRectf 0 0 16 16");
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // pixel maps: sizes and values, drawn and read through them, the queries (GL.PIXELMAP)
+    head(s, "gap-pixelmap-0", 32);
+    writeln!(s, "glq glGetPixelMapfv i 0xc76 f 2\nglget i 0xcb6 1\nglp glPixelMapfv ii 0xc76 4 f 0 0.25 0.5 1\nglp glPixelMapuiv ii 0xc77 2 ui 0 4294967295\nglp glPixelMapusv ii 0xc78 3 us 65535 0 32768\nglp glPixelMapfv ii 0xc79 1 f 0.75\ngl glPixelTransferi 0xd10 1\ngl glRasterPos2i 0 0\ngldraw 16 4 0x1908 0x1401 22 256");
+    read_all(s);
+    writeln!(s, "glread 0 0 4 4 0x1908 0x1406 256\nglq glGetPixelMapfv i 0xc76 f 4\nglq glGetPixelMapuiv i 0xc77 ui 2\nglq glGetPixelMapusv i 0xc78 us 3\nglget i 0xcb6 1\nglget i 0xcb7 1\nglp glPixelMapfv ii 0xc76 3 f 0 0.5 1\nglerr\nglp glPixelMapfv ii 0xc70 2 f 1 2\nglerr\nglp glPixelMapfv ii 0xc76 0 f 0\nglerr\nend");
+    // the other forms of calls: each type's conversion and the vector forms (GL.VARIANTS)
+    head(s, "gap-forms-0", 32);
+    for c in ["glColor3b 127 -1 64", "glColor4b -128 100 0 127", "glColor3d 0.25 0.5 2", "glColor3i 2147483647 -1 1073741824", "glColor3s 32767 -32768 16384", "glColor3ui 4294967295 0 2147483648", "glColor3us 65535 32768 1", "glColor4d 0.1 0.2 0.3 0.4", "glColor4i -2147483648 0 1 2147483647", "glColor4s 1 2 3 4", "glColor4ui 1 2 3 4", "glColor4us 1 2 3 4"] {
+        writeln!(s, "gl {c}\nglget f 0xb00 4\nglget i 0xb00 4");
+    }
+    for c in ["glColor3fv - f 0.5 0.25 1", "glColor4ubv - ub 1 2 3 4", "glColor3bv - b 10 -20 30", "glColor4dv - d 1 0 0.5 0.25", "glColor3usv - us 1 2 65535", "glColor4iv - i 1 2 3 4"] {
+        writeln!(s, "glp {c}\nglget f 0xb00 4");
+    }
+    for c in ["glNormal3b 127 -128 0", "glNormal3d 0.5 0.5 0.5", "glNormal3i 2147483647 0 -2147483648", "glNormal3s 32767 -1 0"] {
+        writeln!(s, "gl {c}\nglget f 0xb02 3");
+    }
+    for c in ["glNormal3fv - f 1 2 3", "glNormal3bv - b 1 2 3", "glNormal3dv - d 0.1 0.2 0.3", "glNormal3iv - i 1 2 3", "glNormal3sv - s 1 2 3"] {
+        writeln!(s, "glp {c}\nglget f 0xb02 3");
+    }
+    for c in ["glIndexd 3.75", "glIndexf -2.5", "glIndexs 300", "glIndexub 200"] {
+        writeln!(s, "gl {c}\nglget f 0xb01 1");
+    }
+    for c in ["glIndexdv - d 7.5", "glIndexfv - f 1.25", "glIndexiv - i 9", "glIndexsv - s -4", "glIndexubv - ub 255"] {
+        writeln!(s, "glp {c}\nglget f 0xb01 1");
+    }
+    for c in ["glTexCoord1d 0.5", "glTexCoord1i 3", "glTexCoord1s 2", "glTexCoord2d 0.25 0.75", "glTexCoord2i 1 2", "glTexCoord2s 3 4", "glTexCoord3d 1 2 3", "glTexCoord3i 1 2 3", "glTexCoord3s 1 2 3", "glTexCoord4d 1 2 3 4", "glTexCoord4i 1 2 3 4", "glTexCoord4s 1 2 3 4"] {
+        writeln!(s, "gl {c}\nglget f 0xb03 4");
+    }
+    for c in ["glTexCoord2fv - f 0.5 0.5", "glTexCoord1dv - d 2", "glTexCoord3iv - i 1 2 3", "glTexCoord4sv - s 1 2 3 4", "glTexCoord2dv - d 1 2", "glTexCoord1fv - f 3", "glTexCoord1iv - i 4", "glTexCoord1sv - s 5", "glTexCoord2iv - i 6 7", "glTexCoord2sv - s 8 9", "glTexCoord3dv - d 1 2 3", "glTexCoord3fv - f 1 2 3", "glTexCoord3sv - s 1 2 3", "glTexCoord4dv - d 1 2 3 4", "glTexCoord4fv - f 1 2 3 4", "glTexCoord4iv - i 1 2 3 4"] {
+        writeln!(s, "glp {c}\nglget f 0xb03 4");
+    }
+    for c in ["glRasterPos2d 3.5 4.5", "glRasterPos2s 5 6", "glRasterPos3d 1 2 0.5", "glRasterPos3f 7.25 8.75 -0.5", "glRasterPos3i 2 3 0", "glRasterPos3s 4 5 0", "glRasterPos4d 2 2 0 2", "glRasterPos4f 6 6 0 2", "glRasterPos4i 4 4 0 2", "glRasterPos4s 8 8 0 4"] {
+        writeln!(s, "gl {c}\nglget f 0xb07 4\nglget i 0xb08 1");
+    }
+    for c in ["glRasterPos2fv - f 1.5 2.5", "glRasterPos2dv - d 3 4", "glRasterPos2iv - i 5 6", "glRasterPos2sv - s 7 8", "glRasterPos3dv - d 1 2 0", "glRasterPos3fv - f 1 2 0", "glRasterPos3iv - i 1 2 0", "glRasterPos3sv - s 1 2 0", "glRasterPos4dv - d 1 2 0 1", "glRasterPos4fv - f 1 2 0 1", "glRasterPos4iv - i 1 2 0 1", "glRasterPos4sv - s 1 2 0 1"] {
+        writeln!(s, "glp {c}\nglget f 0xb07 4");
+    }
+    writeln!(s, "glerr\nend");
+    head(s, "gap-forms-1", 32);
+    writeln!(s, "gl glClear 0x4000\ngl glColor4ub 255 0 0 255\ngl glRectd 1.5 1.5 5.5 5.5\ngl glRects 6 6 9 9\nglp glRectfv - f 10 1 14 4\nglp glRectdv - d 1 10 4 14\nglp glRectiv - i 6 11 8 15\nglp glRectsv - s 11 11 15 15");
+    read_all(s);
+    writeln!(s, "gl glClear 0x4000\ngl glBegin 4\ngl glVertex2d 2 2\ngl glVertex2s 13 4\ngl glVertex3d 6 13 0\ngl glVertex3s 14 14 0\ngl glVertex4d 30 2 0 2\ngl glVertex4i 30 30 0 2\ngl glVertex4s 1 15 0 1\nglp glVertex2fv - f 15 8\nglp glVertex2dv - d 10 15\nglp glVertex2iv - i 3 8\nglp glVertex2sv - s 9 1\nglp glVertex3dv - d 15 1 0\nglp glVertex3fv - f 8 8 0\nglp glVertex3iv - i 1 1 0\nglp glVertex3sv - s 4 12 0\nglp glVertex4dv - d 8 2 0 1\nglp glVertex4fv - f 14 10 0 1\nglp glVertex4iv - i 2 14 0 1\nglp glVertex4sv - s 12 2 0 1\ngl glEnd");
+    read_all(s);
+    writeln!(s, "gl glFogi 0xb65 0x2601\nglp glFogiv i 0xb66 i 2147483647 0 1073741824 2147483647\nglget f 0xb66 4\nglget i 0xb65 1\ngl glRotated 30 0 0 1\ngl glScaled 2 0.5 1\ngl glTranslated 1 2 3\nglget f 0xba6 16\nglp glLoadMatrixd - d 1 0 0 0 0 1 0 0 0 0 1 0 0.1 0.2 0.3 1\nglp glMultMatrixd - d 2 0 0 0 0 2 0 0 0 0 2 0 0 0 0 1\nglget f 0xba6 16\nglp glEdgeFlagv - ub 0\nglget i 0xb43 1\nglerr\nend");
+    // WGL: the other exports on the DIB's DC (WGL.OTHER)
+    head(s, "gap-wgl-0", 32);
+    writeln!(s, "wglx getpf\nwglx descpf 1\nwglx descpf 99\nwglx setpf 2\nwglx choose 0x38 0 32 0 0 32 8\nwglx swap\nwglx swaplayer 1\nwglx swapmultiple 1\nwglx proc glAddSwapHintRectWIN\nwglx proc glColorTableEXT\nwglx proc wglSwapIntervalEXT\nwglx proc glBegin\nwglx defproc glBegin\nwglx layer 1 1\nwglx layer 1 0\nwglx getlayerpal 1 0 4\nwglx setlayerpal 1 0 4\nwglx realize 1 1\nwglx layerctx 1\nwglx layerctx 0\nwglx share\nwglx copy 0x40000\nglerr\nend");
+    head(s, "gap-wgl-1", 32);
+    writeln!(s, "wglx fontbmp a 65 3 100\nglr glIsList b i 100\nglr glIsList b i 102\nglr glIsList b i 103\ngl glColor4ub 255 255 255 255\ngl glRasterPos2i 1 3\ngl glListBase 35\nglp glCallLists ii 3 0x1401 ub 65 66 67\nglget f 0xb07 4");
+    read_all(s);
+    writeln!(s, "wglx fontbmp w 0x3042 2 110\nwglx fontoutline a 65 2 120 0\nwglx fontoutline w 65 1 130 1\nglr glIsList b i 120\nglerr\nend");
 }

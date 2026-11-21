@@ -270,6 +270,8 @@ use super::{Fail, Res};
 
 #[path = "opengl_tex.rs"]
 pub mod tex;
+#[path = "opengl_gaps.rs"]
+mod gaps;
 use crate::case::{num, Op};
 use crate::spec::hit;
 use e::*;
@@ -910,6 +912,99 @@ pub const CALLS: &[(&str, &str)] = &[
     ("glTexCoord1f", "f"), ("glTexCoord2f", "ff"), ("glTexCoord3f", "fff"), ("glTexCoord4f", "ffff"),
     ("glCopyTexImage1D", "iiiiiii"), ("glCopyTexImage2D", "iiiiiiii"), ("glCopyTexSubImage1D", "iiiiii"),
     ("glCopyTexSubImage2D", "iiiiiiii"),
+    // (display lists .. other forms: gaps::)
+    ("glNewList", "ii"),
+    ("glEndList", ""),
+    ("glCallList", "i"),
+    ("glDeleteLists", "ii"),
+    ("glListBase", "i"),
+    ("glEnableClientState", "i"),
+    ("glDisableClientState", "i"),
+    ("glArrayElement", "i"),
+    ("glDrawArrays", "iii"),
+    ("glPushClientAttrib", "i"),
+    ("glPopClientAttrib", ""),
+    ("glEdgeFlag", "i"),
+    ("glEvalCoord1f", "f"),
+    ("glEvalCoord2f", "ff"),
+    ("glEvalCoord1d", "d"),
+    ("glEvalCoord2d", "dd"),
+    ("glEvalPoint1", "i"),
+    ("glEvalPoint2", "ii"),
+    ("glEvalMesh1", "iii"),
+    ("glEvalMesh2", "iiiii"),
+    ("glMapGrid1f", "iff"),
+    ("glMapGrid2f", "iffiff"),
+    ("glMapGrid1d", "idd"),
+    ("glMapGrid2d", "iddidd"),
+    ("glInitNames", ""),
+    ("glLoadName", "i"),
+    ("glPushName", "i"),
+    ("glPopName", ""),
+    ("glPassThrough", "f"),
+    ("glLightf", "iif"),
+    ("glLighti", "iii"),
+    ("glLightModelf", "if"),
+    ("glLightModeli", "ii"),
+    ("glMaterialf", "iif"),
+    ("glMateriali", "iii"),
+    ("glColorMaterial", "ii"),
+    ("glCopyPixels", "iiiii"),
+    ("glFogi", "ii"),
+    ("glColor3b", "iii"),
+    ("glColor3d", "ddd"),
+    ("glColor3i", "iii"),
+    ("glColor3s", "iii"),
+    ("glColor3ui", "iii"),
+    ("glColor3us", "iii"),
+    ("glColor4b", "iiii"),
+    ("glColor4d", "dddd"),
+    ("glColor4i", "iiii"),
+    ("glColor4s", "iiii"),
+    ("glColor4ui", "iiii"),
+    ("glColor4us", "iiii"),
+    ("glIndexd", "d"),
+    ("glIndexf", "f"),
+    ("glIndexs", "i"),
+    ("glIndexub", "i"),
+    ("glNormal3b", "iii"),
+    ("glNormal3d", "ddd"),
+    ("glNormal3i", "iii"),
+    ("glNormal3s", "iii"),
+    ("glVertex2d", "dd"),
+    ("glVertex2s", "ii"),
+    ("glVertex3d", "ddd"),
+    ("glVertex3s", "iii"),
+    ("glVertex4d", "dddd"),
+    ("glVertex4i", "iiii"),
+    ("glVertex4s", "iiii"),
+    ("glRasterPos2d", "dd"),
+    ("glRasterPos2s", "ii"),
+    ("glRasterPos3d", "ddd"),
+    ("glRasterPos3f", "fff"),
+    ("glRasterPos3i", "iii"),
+    ("glRasterPos3s", "iii"),
+    ("glRasterPos4d", "dddd"),
+    ("glRasterPos4f", "ffff"),
+    ("glRasterPos4i", "iiii"),
+    ("glRasterPos4s", "iiii"),
+    ("glRectd", "dddd"),
+    ("glRects", "iiii"),
+    ("glTexCoord1d", "d"),
+    ("glTexCoord1i", "i"),
+    ("glTexCoord1s", "i"),
+    ("glTexCoord2d", "dd"),
+    ("glTexCoord2i", "ii"),
+    ("glTexCoord2s", "ii"),
+    ("glTexCoord3d", "ddd"),
+    ("glTexCoord3i", "iii"),
+    ("glTexCoord3s", "iii"),
+    ("glTexCoord4d", "dddd"),
+    ("glTexCoord4i", "iiii"),
+    ("glTexCoord4s", "iiii"),
+    ("glRotated", "dddd"),
+    ("glScaled", "ddd"),
+    ("glTranslated", "ddd"),
 ];
 
 /// an argument: an integer as the executor passes it (a C long, 32 bits), or a float
@@ -966,7 +1061,7 @@ const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2
 
 crate::model::words! {
     /// the commands that run on the current context
-    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease", Gltex = "gltex", Gltexsub = "gltexsub", Glteximg = "glteximg", Gltexq = "gltexq", Gltexv = "gltexv", Glgentex = "glgentex", Gldeltex = "gldeltex", Glistex = "glistex", Glprio = "glprio", Glresident = "glresident" }
+    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease", Gltex = "gltex", Gltexsub = "gltexsub", Glteximg = "glteximg", Gltexq = "gltexq", Gltexv = "gltexv", Glgentex = "glgentex", Gldeltex = "gldeltex", Glistex = "glistex", Glprio = "glprio", Glresident = "glresident", Glp = "glp", Glq = "glq", Glr = "glr", Globuf = "globuf", Wglx = "wglx" }
 }
 
 impl Gl {
@@ -1188,6 +1283,8 @@ impl Gl {
             }
             // (texture images, objects and queries, GL 1.1 3.8: tex::)
             CtxOp::Gltex | CtxOp::Gltexsub | CtxOp::Glteximg | CtxOp::Gltexq | CtxOp::Gltexv | CtxOp::Glgentex | CtxOp::Gldeltex | CtxOp::Glistex | CtxOp::Glprio | CtxOp::Glresident => ctx.tex_op(t, out)?,
+            // (the calls of arrays and results: gaps::)
+            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
                 self.ctx = None;
@@ -1374,6 +1471,9 @@ impl Ctx {
 
     /// what a call does; errors as each function's page lists them
     fn call(&mut self, name: &str, a: &[A]) -> Res<()> {
+        if let Some(gap) = gaps::call(name) {
+            return Err(Fail::Unmodeled(gap));
+        }
         if self.in_begin.is_some() && !BEGIN_OK.contains(&name) {
             hit(clause::GL_BEGIN_ONLY);
             self.error(INVALID_OPERATION);

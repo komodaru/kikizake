@@ -1,6 +1,7 @@
 # Clauses not settled yet: open (not modelled), assumed (modelled, not settled by an answer),
 # excluded (not asked). This list only shrinks (tests/spec.rs unresolved_only_shrinks); the goal is
 # none. Settle one (model it, fit it to Windows' answers: doc or measured) and take its line out.
+# assumed
 CONV.F11 assumed
 CONV.F16 assumed
 CONV.OTHER excluded
@@ -81,9 +82,9 @@ GDI.PEN.WIDE open
 GDI.PIXEL.SETMONO open
 GDI.PLG.MAP open
 GDI.RGN.DATA assumed
+GDI.RGN.FRAME assumed
 GDI.RGN.POLYGON open
 GDI.RGN.ROUND open
-GDI.RGN.FRAME assumed
 GDI.ROP3.FLAGS open
 GDI.ROP3.LOWWORD assumed
 GDI.SHAPE.BRUSH open
@@ -94,8 +95,20 @@ GDI.STRETCH.MIRROR open
 GDI.STRETCH.SRCOUT open
 GDI.TEXT.FONT open
 GDI.TRANS.KEY assumed
+GL.ARRAY open
+GL.BITMAP open
+GL.CLIPPLANE open
+GL.COPYPIXELS open
+GL.EVAL open
+GL.LIGHT.STATE open
+GL.LIST open
+GL.PIXELMAP open
+GL.POLYGON.STIPPLE.PATTERN open
 GL.RASTER.MODE open
+GL.SELECT open
+GL.VARIANTS open
 GP.PEN open
+WGL.OTHER open
 WIC.CAN assumed
 WIC.FROM.CMYK open
 WIC.FROM.GRAY16 open
@@ -110,4 +123,3 @@ WICIMAGE.ENCODE.LOSSY open
 WICIMAGE.ENCODE.OPTIONS open
 WICIMAGE.SCALE.BIG excluded
 WICIMAGE.TIFF.OTHER excluded
-# assumed

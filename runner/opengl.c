@@ -170,6 +170,29 @@ static const struct { const char *name, *sig; } glcalls[] = {
     { "glTexCoord1f", "f" }, { "glTexCoord2f", "ff" }, { "glTexCoord3f", "fff" }, { "glTexCoord4f", "ffff" },
     { "glCopyTexImage1D", "iiiiiii" }, { "glCopyTexImage2D", "iiiiiiii" }, { "glCopyTexSubImage1D", "iiiiii" },
     { "glCopyTexSubImage2D", "iiiiiiii" },
+    /* display lists, arrays, evaluators, selection, lights, pixels and other forms (spec/opengl.txt
+     * GL.LIST .. GL.VARIANTS) */
+    { "glNewList", "ii" }, { "glEndList", "" }, { "glCallList", "i" }, { "glDeleteLists", "ii" }, { "glListBase", "i" },
+    { "glEnableClientState", "i" }, { "glDisableClientState", "i" }, { "glArrayElement", "i" }, { "glDrawArrays", "iii" },
+    { "glPushClientAttrib", "i" }, { "glPopClientAttrib", "" }, { "glEdgeFlag", "i" },
+    { "glEvalCoord1f", "f" }, { "glEvalCoord2f", "ff" }, { "glEvalCoord1d", "d" }, { "glEvalCoord2d", "dd" },
+    { "glEvalPoint1", "i" }, { "glEvalPoint2", "ii" }, { "glEvalMesh1", "iii" }, { "glEvalMesh2", "iiiii" },
+    { "glMapGrid1f", "iff" }, { "glMapGrid2f", "iffiff" }, { "glMapGrid1d", "idd" }, { "glMapGrid2d", "iddidd" },
+    { "glInitNames", "" }, { "glLoadName", "i" }, { "glPushName", "i" }, { "glPopName", "" }, { "glPassThrough", "f" },
+    { "glLightf", "iif" }, { "glLighti", "iii" }, { "glLightModelf", "if" }, { "glLightModeli", "ii" },
+    { "glMaterialf", "iif" }, { "glMateriali", "iii" }, { "glColorMaterial", "ii" },
+    { "glCopyPixels", "iiiii" }, { "glFogi", "ii" },
+    { "glColor3b", "iii" }, { "glColor3d", "ddd" }, { "glColor3i", "iii" }, { "glColor3s", "iii" }, { "glColor3ui", "iii" }, { "glColor3us", "iii" },
+    { "glColor4b", "iiii" }, { "glColor4d", "dddd" }, { "glColor4i", "iiii" }, { "glColor4s", "iiii" }, { "glColor4ui", "iiii" }, { "glColor4us", "iiii" },
+    { "glIndexd", "d" }, { "glIndexf", "f" }, { "glIndexs", "i" }, { "glIndexub", "i" },
+    { "glNormal3b", "iii" }, { "glNormal3d", "ddd" }, { "glNormal3i", "iii" }, { "glNormal3s", "iii" },
+    { "glVertex2d", "dd" }, { "glVertex2s", "ii" }, { "glVertex3d", "ddd" }, { "glVertex3s", "iii" }, { "glVertex4d", "dddd" }, { "glVertex4i", "iiii" }, { "glVertex4s", "iiii" },
+    { "glRasterPos2d", "dd" }, { "glRasterPos2s", "ii" }, { "glRasterPos3d", "ddd" }, { "glRasterPos3f", "fff" }, { "glRasterPos3i", "iii" }, { "glRasterPos3s", "iii" },
+    { "glRasterPos4d", "dddd" }, { "glRasterPos4f", "ffff" }, { "glRasterPos4i", "iiii" }, { "glRasterPos4s", "iiii" },
+    { "glRectd", "dddd" }, { "glRects", "iiii" },
+    { "glTexCoord1d", "d" }, { "glTexCoord1i", "i" }, { "glTexCoord1s", "i" }, { "glTexCoord2d", "dd" }, { "glTexCoord2i", "ii" }, { "glTexCoord2s", "ii" },
+    { "glTexCoord3d", "ddd" }, { "glTexCoord3i", "iii" }, { "glTexCoord3s", "iii" }, { "glTexCoord4d", "dddd" }, { "glTexCoord4i", "iiii" }, { "glTexCoord4s", "iiii" },
+    { "glRotated", "dddd" }, { "glScaled", "ddd" }, { "glTranslated", "ddd" },
     { 0 },
 };
 
@@ -220,6 +243,13 @@ static void op_gl(void) {
     else if (SIG("iiiiii")) ((void (WINAPI *)(long, long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4], a[5]);
     else if (SIG("iiiiiii")) ((void (WINAPI *)(long, long, long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
     else if (SIG("iiiiiiii")) ((void (WINAPI *)(long, long, long, long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+    else if (SIG("iiiii")) ((void (WINAPI *)(long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4]);
+    else if (SIG("iff")) ((void (WINAPI *)(long, float, float))p)(a[0], f[1], f[2]);
+    else if (SIG("iffiff")) ((void (WINAPI *)(long, float, float, long, float, float))p)(a[0], f[1], f[2], a[3], f[4], f[5]);
+    else if (SIG("idd")) ((void (WINAPI *)(long, double, double))p)(a[0], d[1], d[2]);
+    else if (SIG("iddidd")) ((void (WINAPI *)(long, double, double, long, double, double))p)(a[0], d[1], d[2], a[3], d[4], d[5]);
+    else if (SIG("ddd")) ((void (WINAPI *)(double, double, double))p)(d[0], d[1], d[2]);
+    else if (SIG("dddd")) ((void (WINAPI *)(double, double, double, double))p)(d[0], d[1], d[2], d[3]);
     else bad = 1;
 #undef SIG
 }
@@ -510,6 +540,287 @@ static void op_glrelease(void) {
     out("glrelease %d %d\n", a, b);
 }
 
+/* arrays a call reads (glp): 16 slots used in turn, so an array pointer kept by GL (glVertexPointer ..)
+ * stays valid for the next 15 glp lines; obuf: the buffer GL writes into (glSelectBuffer,
+ * glFeedbackBuffer), shown by globuf */
+static union { unsigned char b[4096]; double d[512]; } pslot[16];
+static int pnext;
+static union { unsigned char b[4096]; GLuint u[1024]; GLfloat f[1024]; } obuf;
+
+/* the size of an element of an array type: b ub s us i ui f d */
+static int elem_size(const char *t) {
+    if (!strcmp(t, "b") || !strcmp(t, "ub")) return 1;
+    if (!strcmp(t, "s") || !strcmp(t, "us")) return 2;
+    if (!strcmp(t, "i") || !strcmp(t, "ui") || !strcmp(t, "f")) return 4;
+    if (!strcmp(t, "d")) return 8;
+    return 0;
+}
+
+/* the leading arguments of a sig at tok[at..]: a ints, f floats, d doubles */
+static int lead_args(const char *sig, int at, long *a, float *f, double *d) {
+    if (!strcmp(sig, "-")) return 0;
+    int n = (int)strlen(sig);
+    if (n > 9) { bad = 1; return 0; }
+    for (int i = 0; i < n; i++) {
+        if (sig[i] == 'i') a[i] = num(at + i);
+        else if (sig[i] == 'f' || sig[i] == 'd') f[i] = (float)(d[i] = fl(at + i));
+        else bad = 1;
+    }
+    return n;
+}
+
+/* a call of a sig and a trailing pointer q (a void return) */
+static void call_lead(FARPROC p, const char *s, const long *a, const float *f, const double *d, void *q) {
+#define SIG(str) (!strcmp(s, str))
+    if (SIG("-")) ((void (WINAPI *)(void *))p)(q);
+    else if (SIG("i")) ((void (WINAPI *)(long, void *))p)(a[0], q);
+    else if (SIG("ii")) ((void (WINAPI *)(long, long, void *))p)(a[0], a[1], q);
+    else if (SIG("iii")) ((void (WINAPI *)(long, long, long, void *))p)(a[0], a[1], a[2], q);
+    else if (SIG("iiii")) ((void (WINAPI *)(long, long, long, long, void *))p)(a[0], a[1], a[2], a[3], q);
+    else if (SIG("iiiii")) ((void (WINAPI *)(long, long, long, long, long, void *))p)(a[0], a[1], a[2], a[3], a[4], q);
+    else if (SIG("iiiiii")) ((void (WINAPI *)(long, long, long, long, long, long, void *))p)(a[0], a[1], a[2], a[3], a[4], a[5], q);
+    else if (SIG("iiiiiii")) ((void (WINAPI *)(long, long, long, long, long, long, long, void *))p)(a[0], a[1], a[2], a[3], a[4], a[5], a[6], q);
+    else if (SIG("ffff")) ((void (WINAPI *)(float, float, float, float, void *))p)(f[0], f[1], f[2], f[3], q);
+    else if (SIG("iiffff")) ((void (WINAPI *)(long, long, float, float, float, float, void *))p)(a[0], a[1], f[2], f[3], f[4], f[5], q);
+    else if (SIG("iffii")) ((void (WINAPI *)(long, float, float, long, long, void *))p)(a[0], f[1], f[2], a[3], a[4], q);
+    else if (SIG("iddii")) ((void (WINAPI *)(long, double, double, long, long, void *))p)(a[0], d[1], d[2], a[3], a[4], q);
+    else if (SIG("iffiiffii")) ((void (WINAPI *)(long, float, float, long, long, float, float, long, long, void *))p)(a[0], f[1], f[2], a[3], a[4], f[5], f[6], a[7], a[8], q);
+    else if (SIG("iddiiddii")) ((void (WINAPI *)(long, double, double, long, long, double, double, long, long, void *))p)(a[0], d[1], d[2], a[3], a[4], d[5], d[6], a[7], a[8], q);
+    else bad = 1;
+#undef SIG
+}
+
+/* glp <name> <sig> <leading args> <type> <values> | glp <name> <sig> <leading args> obuf | glp
+ * <name> <sig> <leading args> null: name(<leading args>, a pointer to the values as an array of
+ * type, to obuf (filled with 0xcc first), or NULL); sig "-" for none (glColor3fv, glLightfv,
+ * glVertexPointer, glCallLists, glDrawElements, glMap1f, glSelectBuffer, ..) */
+static void op_glp(void) {
+    NOCTX();
+    if (ntok < 3) { bad = 1; return; }
+    const char *sig = tok[2];
+    long a[9]; float f[9]; double d[9];
+    int n = lead_args(sig, 3, a, f, d), at = 3 + n;
+    if (bad || at >= ntok) { bad = 1; return; }
+    void *q;
+    if (is(at, "obuf")) { memset(obuf.b, 0xcc, sizeof obuf.b); q = obuf.b; if (ntok != at + 1) bad = 1; }
+    else if (is(at, "null")) { q = NULL; if (ntok != at + 1) bad = 1; }
+    else {
+        int sz = elem_size(tok[at]), cnt = ntok - at - 1;
+        if (!sz || cnt * sz > 4096) { bad = 1; return; }
+        unsigned char *b = pslot[pnext].b;
+        pnext = (pnext + 1) % 16;
+        memset(b, 0, 4096);
+        for (int i = 0; i < cnt; i++) {
+            const char *t = tok[at];
+            if (!strcmp(t, "f")) { float v = (float)fl(at + 1 + i); memcpy(b + 4 * i, &v, 4); }
+            else if (!strcmp(t, "d")) { double v = fl(at + 1 + i); memcpy(b + 8 * i, &v, 8); }
+            else { long v = num(at + 1 + i); memcpy(b + sz * i, &v, sz); }
+        }
+        q = b;
+    }
+    if (bad) return;
+    FARPROC p = glf(tok[1]);
+    if (!p) { out("glp %s none\n", tok[1]); return; }
+    call_lead(p, sig, a, f, d, q);
+}
+
+/* glq <name> <sig> <leading args> <type> <n>: name(<leading args>, out) into an array of type filled
+ * with a sentinel first (0x7eadbeef for i ui, -12345 for f d, 0xcc bytes for b ub s us; p: pointers,
+ * shown as the glp slot they point into, 0 for NULL, -1 for elsewhere); "q <n values>" */
+static void op_glq(void) {
+    NOCTX();
+    if (ntok < 5) { bad = 1; return; }
+    const char *sig = tok[2];
+    long a[9]; float f[9]; double d[9];
+    int k = lead_args(sig, 3, a, f, d), at = 3 + k;
+    if (bad || ntok != at + 2) { bad = 1; return; }
+    const char *t = tok[at];
+    long n = num(at + 1);
+    int sz = is(at, "p") ? (int)sizeof(void *) : elem_size(t);
+    if (bad || !sz || n < 1 || n * sz > 4096) { bad = 1; return; }
+    static union { unsigned char b[4096 + 64]; double d[520]; } v;
+    for (int i = 0; i < 4096 / 4; i++) {
+        if (!strcmp(t, "i") || !strcmp(t, "ui")) { unsigned w = 0x7eadbeef; memcpy(v.b + 4 * i, &w, 4); }
+        else if (!strcmp(t, "f")) { float w = -12345.0f; memcpy(v.b + 4 * i, &w, 4); }
+        else memset(v.b + 4 * i, 0xcc, 4);
+    }
+    if (!strcmp(t, "d")) for (int i = 0; i < 512; i++) v.d[i] = -12345.0;
+    if (is(at, "p")) memset(v.b, 0, 4096);
+    FARPROC p = glf(tok[1]);
+    if (!p) { out("glq %s none\n", tok[1]); return; }
+    call_lead(p, sig, a, f, d, v.b);
+    out("q");
+    for (long i = 0; i < n; i++) {
+        if (!strcmp(t, "f")) { float w; memcpy(&w, v.b + 4 * i, 4); out(" %.9g", w); }
+        else if (!strcmp(t, "d")) out(" %.9g", v.d[i]);
+        else if (!strcmp(t, "i")) { int w; memcpy(&w, v.b + 4 * i, 4); out(" %d", w); }
+        else if (!strcmp(t, "ui")) { unsigned w; memcpy(&w, v.b + 4 * i, 4); out(" %u", w); }
+        else if (!strcmp(t, "s")) { short w; memcpy(&w, v.b + 2 * i, 2); out(" %d", w); }
+        else if (!strcmp(t, "us")) { unsigned short w; memcpy(&w, v.b + 2 * i, 2); out(" %u", w); }
+        else if (!strcmp(t, "b")) out(" %d", (int)(signed char)v.b[i]);
+        else if (!strcmp(t, "ub")) out(" %u", v.b[i]);
+        else {
+            unsigned char *w;
+            memcpy(&w, v.b + sizeof(void *) * i, sizeof w);
+            int slot = -1;
+            for (int j = 0; j < 16; j++) if (w >= pslot[j].b && w < pslot[j].b + 4096) slot = j + 1;
+            out(" %d", w ? slot : 0);
+        }
+    }
+    out("\n");
+}
+
+/* glr <name> b|i|u <sig of integers or -> <args>: name(args) returning GLboolean (its low byte), GLint or
+ * GLuint; "ret <value>" (glGenLists, glIsList, glRenderMode) */
+static void op_glr(void) {
+    NOCTX();
+    if (ntok < 4) { bad = 1; return; }
+    const char *sig = tok[3];
+    long a[9]; float f[9]; double d[9];
+    int k = lead_args(sig, 4, a, f, d);
+    if (bad || ntok != 4 + k || strchr(sig, 'f') || strchr(sig, 'd')) { bad = 1; return; }
+    FARPROC p = glf(tok[1]);
+    if (!p) { out("glr %s none\n", tok[1]); return; }
+    unsigned long r;
+    if (k == 0) r = ((unsigned long (WINAPI *)(void))p)();
+    else if (k == 1) r = ((unsigned long (WINAPI *)(long))p)(a[0]);
+    else if (k == 2) r = ((unsigned long (WINAPI *)(long, long))p)(a[0], a[1]);
+    else { bad = 1; return; }
+    if (is(2, "b")) out("ret %u\n", (unsigned)(r & 0xff));
+    else if (is(2, "i")) out("ret %ld\n", (long)(int)r);
+    else out("ret %lu\n", r & 0xffffffffUL);
+}
+
+/* globuf u|f <n>: the first n elements of obuf */
+static void op_globuf(void) {
+    long n = num(2);
+    if (bad || ntok != 3 || n < 1 || n > 1024 || !(is(1, "u") || is(1, "f"))) { bad = 1; return; }
+    out("obuf");
+    for (long i = 0; i < n; i++) {
+        if (is(1, "u")) out(" %u", obuf.u[i]);
+        else out(" %.9g", obuf.f[i]);
+    }
+    out("\n");
+}
+
+/* wglx <what> <args>: the other wgl functions on the context's DC (opengl32's own exports), each
+ * "wglx <what> <return value> [<last error>]":
+ * getpf; setpf <n>; descpf <n> (and the descriptor); choose <flags> <type> <color> <alpha> <accum>
+ * <depth> <stencil>; swap; swaplayer <planes>; swapmultiple <n>; proc <name> (1 for a non-null
+ * address); defproc <name>; layer <pf> <plane>; getlayerpal <plane> <start> <n>; setlayerpal <plane>
+ * <start> <n>; realize <plane> <0|1>; layerctx <plane>; share; copy <mask>; fontbmp a|w <first>
+ * <count> <list base>; fontoutline a|w <first> <count> <list base> <format> */
+static void op_wglx(void) {
+    NOCTX();
+    if (ntok < 2) { bad = 1; return; }
+    const char *w = tok[1];
+    SetLastError(0);
+#define WGL(name) glf(name)
+    if (!strcmp(w, "getpf")) {
+        if (ntok != 2) { bad = 1; return; }
+        out("wglx getpf %d\n", ((int (WINAPI *)(HDC))WGL("wglGetPixelFormat"))(gdc));
+    } else if (!strcmp(w, "setpf")) {
+        int n = num(2);
+        if (bad || ntok != 3) { bad = 1; return; }
+        PIXELFORMATDESCRIPTOR p;
+        DescribePixelFormat(gdc, n, sizeof p, &p);
+        int r = ((BOOL (WINAPI *)(HDC, int, const PIXELFORMATDESCRIPTOR *))WGL("wglSetPixelFormat"))(gdc, n, &p);
+        out("wglx setpf %d %lu\n", r, r ? 0 : GetLastError());
+    } else if (!strcmp(w, "descpf")) {
+        int n = num(2);
+        if (bad || ntok != 3) { bad = 1; return; }
+        PIXELFORMATDESCRIPTOR p;
+        memset(&p, 0xcc, sizeof p);
+        int r = ((int (WINAPI *)(HDC, int, UINT, PIXELFORMATDESCRIPTOR *))WGL("wglDescribePixelFormat"))(gdc, n, sizeof p, &p);
+        out("wglx descpf %d\n", r);
+        if (r) print_pfd(n, &p);
+    } else if (!strcmp(w, "choose")) {
+        PIXELFORMATDESCRIPTOR p;
+        want_pfd(&p, 2);
+        if (bad || ntok != 9) { bad = 1; return; }
+        out("wglx choose %d\n", ((int (WINAPI *)(HDC, const PIXELFORMATDESCRIPTOR *))WGL("wglChoosePixelFormat"))(gdc, &p));
+    } else if (!strcmp(w, "swap")) {
+        if (ntok != 2) { bad = 1; return; }
+        int r = ((BOOL (WINAPI *)(HDC))WGL("wglSwapBuffers"))(gdc);
+        out("wglx swap %d %lu\n", r, r ? 0 : GetLastError());
+    } else if (!strcmp(w, "swaplayer")) {
+        unsigned planes = (unsigned)num(2);
+        if (bad || ntok != 3) { bad = 1; return; }
+        int r = ((BOOL (WINAPI *)(HDC, UINT))WGL("wglSwapLayerBuffers"))(gdc, planes);
+        out("wglx swaplayer %d %lu\n", r, r ? 0 : GetLastError());
+    } else if (!strcmp(w, "swapmultiple")) {
+        long n = num(2);
+        if (bad || ntok != 3 || n < 0 || n > 16) { bad = 1; return; }
+        struct { HDC hdc; UINT flags; } s[16];
+        for (int i = 0; i < 16; i++) { s[i].hdc = gdc; s[i].flags = 1; }
+        DWORD r = ((DWORD (WINAPI *)(UINT, const void *))WGL("wglSwapMultipleBuffers"))((UINT)n, s);
+        out("wglx swapmultiple %lu %lu\n", (unsigned long)r, GetLastError());
+    } else if (!strcmp(w, "proc") || !strcmp(w, "defproc")) {
+        if (ntok != 3) { bad = 1; return; }
+        FARPROC f = WGL(!strcmp(w, "proc") ? "wglGetProcAddress" : "wglGetDefaultProcAddress");
+        void *r = f ? ((void *(WINAPI *)(const char *))f)(tok[2]) : NULL;
+        out("wglx %s %d\n", w, r != NULL);
+    } else if (!strcmp(w, "layer")) {
+        int pf = num(2), plane = num(3);
+        if (bad || ntok != 4) { bad = 1; return; }
+        LAYERPLANEDESCRIPTOR l;
+        memset(&l, 0xcc, sizeof l);
+        int r = ((BOOL (WINAPI *)(HDC, int, int, UINT, LAYERPLANEDESCRIPTOR *))WGL("wglDescribeLayerPlane"))(gdc, pf, plane, sizeof l, &l);
+        out("wglx layer %d %lu\n", r, r ? 0 : GetLastError());
+        if (r) out("layer %lx %d %d %d\n", l.dwFlags, l.iPixelType, l.cColorBits, l.iLayerPlane);
+    } else if (!strcmp(w, "getlayerpal") || !strcmp(w, "setlayerpal")) {
+        int plane = num(2), start = num(3), n = num(4);
+        if (bad || ntok != 5 || n < 0 || n > 256) { bad = 1; return; }
+        COLORREF c[256];
+        for (int i = 0; i < 256; i++) c[i] = 0x00010203 * (DWORD)i;
+        int r = !strcmp(w, "getlayerpal")
+            ? ((int (WINAPI *)(HDC, int, int, int, COLORREF *))WGL("wglGetLayerPaletteEntries"))(gdc, plane, start, n, c)
+            : ((int (WINAPI *)(HDC, int, int, int, const COLORREF *))WGL("wglSetLayerPaletteEntries"))(gdc, plane, start, n, c);
+        out("wglx %s %d %lu\n", w, r, GetLastError());
+    } else if (!strcmp(w, "realize")) {
+        int plane = num(2), on = num(3);
+        if (bad || ntok != 4) { bad = 1; return; }
+        int r = ((BOOL (WINAPI *)(HDC, int, BOOL))WGL("wglRealizeLayerPalette"))(gdc, plane, on);
+        out("wglx realize %d %lu\n", r, r ? 0 : GetLastError());
+    } else if (!strcmp(w, "layerctx")) {
+        int plane = num(2);
+        if (bad || ntok != 3) { bad = 1; return; }
+        HGLRC r = ((HGLRC (WINAPI *)(HDC, int))WGL("wglCreateLayerContext"))(gdc, plane);
+        out("wglx layerctx %d %lu\n", r != NULL, r ? 0 : GetLastError());
+        if (r) p_delete(r);
+    } else if (!strcmp(w, "share") || !strcmp(w, "copy")) {
+        unsigned mask = !strcmp(w, "copy") ? (unsigned)num(2) : 0;
+        if (bad || ntok != (!strcmp(w, "copy") ? 3 : 2)) { bad = 1; return; }
+        HGLRC other = p_create(gdc);
+        if (!other) { out("wglx %s create failed %lu\n", w, GetLastError()); return; }
+        int r = !strcmp(w, "share")
+            ? ((BOOL (WINAPI *)(HGLRC, HGLRC))WGL("wglShareLists"))(grc, other)
+            : ((BOOL (WINAPI *)(HGLRC, HGLRC, UINT))WGL("wglCopyContext"))(grc, other, mask);
+        out("wglx %s %d %lu\n", w, r, r ? 0 : GetLastError());
+        p_delete(other);
+    } else if (!strcmp(w, "fontbmp") || !strcmp(w, "fontoutline")) {
+        int outline = !strcmp(w, "fontoutline");
+        long first = num(3), count = num(4), base = num(5), fmt = outline ? num(6) : 0;
+        if (bad || ntok != (outline ? 7 : 6) || !(is(2, "a") || is(2, "w")) || count < 0 || count > 64) { bad = 1; return; }
+        HFONT font = CreateFontA(-12, 0, 0, 0, 400, 0, 0, 0, ANSI_CHARSET, 0, 0, NONANTIALIASED_QUALITY, 0, "Arial");
+        HGDIOBJ old = SelectObject(gdc, font);
+        int r;
+        if (!outline) {
+            r = ((BOOL (WINAPI *)(HDC, DWORD, DWORD, DWORD))WGL(is(2, "a") ? "wglUseFontBitmapsA" : "wglUseFontBitmapsW"))(gdc, first, count, base);
+            out("wglx %s %d %lu\n", w, r, r ? 0 : GetLastError());
+        } else {
+            static GLYPHMETRICSFLOAT gm[64];
+            memset(gm, 0, sizeof gm);
+            r = ((BOOL (WINAPI *)(HDC, DWORD, DWORD, DWORD, FLOAT, FLOAT, int, GLYPHMETRICSFLOAT *))WGL(is(2, "a") ? "wglUseFontOutlinesA" : "wglUseFontOutlinesW"))(gdc, first, count, base, 0.0f, 0.0f, (int)fmt, gm);
+            out("wglx %s %d %lu\n", w, r, r ? 0 : GetLastError());
+            if (r) for (long i = 0; i < count; i++) out("glyph %.9g %.9g %.9g %.9g %.9g %.9g\n", gm[i].gmfBlackBoxX, gm[i].gmfBlackBoxY, gm[i].gmfptGlyphOrigin.x, gm[i].gmfptGlyphOrigin.y, gm[i].gmfCellIncX, gm[i].gmfCellIncY);
+        }
+        SelectObject(gdc, old);
+        DeleteObject(font);
+    } else bad = 1;
+#undef WGL
+}
+
 static const struct kz_op opengl_ops[] = {
     { "glpf", op_glpf },
     { "glchoose", op_glchoose },
@@ -536,6 +847,11 @@ static const struct kz_op opengl_ops[] = {
     { "gldib", op_gldib },
     { "glcur", op_glcur },
     { "glrelease", op_glrelease },
+    { "glp", op_glp },
+    { "glq", op_glq },
+    { "glr", op_glr },
+    { "globuf", op_globuf },
+    { "wglx", op_wglx },
     { 0 },
 };
 const struct kz_api opengl_api = { "opengl", opengl_ops, opengl_reset };
