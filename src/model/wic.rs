@@ -163,7 +163,7 @@ fn to_bgra(f: usize, s: &[u8], v: u32, pal: &[u32]) -> Res<[u8; 4]> {
         "rgb48" | "rgba64" => clause::WIC_TO_HIGHBYTE,
         "pbgra" | "prgba" => clause::WIC_TO_UNPREMULTIPLY,
         "alpha8" => clause::WIC_TO_ALPHA,
-        "cmyk" => return Err(Fail::Unmodeled(open::WIC_TO_CMYK)),
+        "cmyk" => clause::WIC_TO_CMYK,
         n if n.starts_with("idx") => clause::WIC_TO_INDEXED,
         _ => clause::WIC_LAYOUT,
     };
@@ -194,6 +194,10 @@ fn to_bgra(f: usize, s: &[u8], v: u32, pal: &[u32]) -> Res<[u8; 4]> {
         "rgb48" => [s[5], s[3], s[1], 255],
         "rgba64" => [s[5], s[3], s[1], s[7]],
         "alpha8" => [255, 255, 255, s[0]],
+        "cmyk" => {
+            let [b, g, r] = super::cmyk::to_rgb().ok_or(Fail::Bad)?.bgr8([s[0], s[1], s[2], s[3]]);
+            [b, g, r, 255]
+        }
         _ => {
             // (MEASURED: an index past the palette's colors is opaque black)
             let c = pal.get(v as usize).copied().unwrap_or_else(|| {
@@ -282,7 +286,9 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
     }
     let bgra = crate::wic_fmt!("bgra");
     if from != bgra && to != bgra {
-        if wide(from) && wide(to) || FORMATS[from].0 == "cmyk" || FORMATS[to].0 == "cmyk" {
+        // (FOUND clean-room: a pair from 32bppCMYK is windowscodecsext's CMYK to 32bppBGRA, then
+        // 32bppBGRA to the target as any other pair: WIC.TO.CMYK)
+        if wide(from) && wide(to) || FORMATS[to].0 == "cmyk" {
             return Err(Fail::Unmodeled(open::WIC_PAIR_WIDE));
         }
         hit(clause::WIC_PAIR);

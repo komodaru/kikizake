@@ -904,6 +904,70 @@ proptest! {
     }
 }
 
+/// a float reference for WIC's CMYK: RSWOP's A2B0 read as plain numbers, its input curves and
+/// grid interpolated multilinearly, ICC v2 Lab to XYZ (D50), the inverse of the sRGB colorants,
+/// the sRGB function; 8-bit B, G, R as reals
+fn cmyk_float_reference(c: [u8; 4]) -> [f64; 3] {
+    use kikizake::model::cmyk::SwopTag;
+    let b = SwopTag::A2B0.bytes();
+    let be = |o: usize| f64::from(u16::from_be_bytes([b[o], b[o + 1]]));
+    let g = usize::from(b[10]);
+    let nin = be(48) as usize;
+    let curve = |k: usize, x: f64| {
+        let p = x * (nin - 1) as f64;
+        let i = (p as usize).min(nin - 2);
+        let f = p - i as f64;
+        (be(52 + 2 * (k * nin + i)) * (1.0 - f) + be(52 + 2 * (k * nin + i + 1)) * f) / 65535.0
+    };
+    let pos: [f64; 4] = std::array::from_fn(|k| curve(k, f64::from(c[k]) / 255.0) * (g - 1) as f64);
+    let idx = pos.map(|p| (p as usize).min(g - 2));
+    let clut = 52 + 2 * 4 * nin;
+    let mut lab = [0.0f64; 3];
+    for corner in 0..16usize {
+        let mut w = 1.0;
+        let mut at = 0;
+        for k in 0..4 {
+            let up = corner >> (3 - k) & 1;
+            let f = pos[k] - idx[k] as f64;
+            w *= if up == 1 { f } else { 1.0 - f };
+            at = at * g + idx[k] + up;
+        }
+        for (ch, v) in lab.iter_mut().enumerate() {
+            *v += w * be(clut + 2 * (3 * at + ch));
+        }
+    }
+    let (l, a, bb) = (lab[0] / 65280.0 * 100.0, lab[1] / 256.0 - 128.0, lab[2] / 256.0 - 128.0);
+    let fi = |t: f64| if t > 6.0 / 29.0 { t * t * t } else { 3.0 * (6.0f64 / 29.0).powi(2) * (t - 4.0 / 29.0) };
+    let fy = (l + 16.0) / 116.0;
+    let xyz = [0.9642 * fi(fy + a / 500.0), fi(fy), 0.8249 * fi(fy - bb / 200.0)];
+    let m: [[f64; 3]; 3] = std::array::from_fn(|r| std::array::from_fn(|k| f64::from(kikizake::model::icm::SRGB_XYZ[k][r]) / 65536.0));
+    let cof = |r: usize, k: usize| m[(r + 1) % 3][(k + 1) % 3] * m[(r + 2) % 3][(k + 2) % 3] - m[(r + 1) % 3][(k + 2) % 3] * m[(r + 2) % 3][(k + 1) % 3];
+    let det = m[0][0] * cof(0, 0) + m[0][1] * cof(0, 1) + m[0][2] * cof(0, 2);
+    let rgb: [f64; 3] = std::array::from_fn(|r| (0..3).map(|k| cof(k, r) / det * xyz[k]).sum());
+    let enc = |v: f64| {
+        let v = v.clamp(0.0, 1.0);
+        255.0 * if v <= 0.0031308 { 12.92 * v } else { 1.055 * v.powf(1.0 / 2.4) - 0.055 }
+    };
+    [enc(rgb[2]), enc(rgb[1]), enc(rgb[0])]
+}
+
+proptest! {
+    /// WIC's CMYK (model::cmyk, icm32's integer pipeline): within 8 levels of the float
+    /// colorimetric reading of the same RSWOP table (the integer simplex in a 16^4 table against
+    /// multilinear float); no ink is paper white, all ink near black
+    #[test]
+    fn cmyk_stays_near_float_reference(c in any::<[u8; 4]>()) {
+        let t = kikizake::model::cmyk::to_rgb().ok_or_else(|| TestCaseError::fail("no CMYK table"))?;
+        let got = t.bgr8(c);
+        let want = cmyk_float_reference(c);
+        for (g, w) in got.iter().zip(want) {
+            prop_assert!((f64::from(*g) - w).abs() <= 8.0, "{c:?}: {got:?} against {want:?}");
+        }
+        prop_assert_eq!(t.rgb16([0; 4]), [65535, 65362, 65033]);
+        prop_assert!(t.bgr8([255; 4]).iter().all(|&v| v <= 3));
+    }
+}
+
 proptest! {
     /// WIC's GIF row reader (model::gifread): the encoder's own LZW, in sub-blocks of 255,
     /// reads back as the pixels it was made of, row by row; any bytes at all read without a

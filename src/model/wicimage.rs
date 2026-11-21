@@ -1912,10 +1912,11 @@ fn unfilter(data: &[u8], rows: usize, bpr: usize, bpp: usize, part: bool) -> Opt
             Some(row) => (row.to_vec(), bpr),
             None if part => {
                 hit(clause::WICIMAGE_DECODE_EDGES);
-                let have = data.get(p + 1..).unwrap_or(&[]);
-                let mut row = have.to_vec();
+                // (MEASURED, golden wicdecode broken-png-part-*: the bytes past the data are 0
+                // and the row's filter runs over all of it)
+                let mut row = data.get(p + 1..).unwrap_or(&[]).to_vec();
                 row.resize(bpr, 0);
-                (row, have.len())
+                (row, bpr)
             }
             None => break,
         };
@@ -2044,6 +2045,19 @@ fn png(b: &[u8]) -> Res<Result<Img, u32>> {
     let mut full: Vec<Vec<u8>> = vec![Vec::new(); h as usize];
     let passes: Vec<(u32, u32, u32, u32)> = if il { crate::generators::WICIMAGE_ADAM7.to_vec() } else { vec![(0, 0, 1, 1)] };
     let mut at = 0;
+    // (an interlaced picture whose data ends inside its passes though the stream is whole:
+    // golden wicdecode broken-png-part-adam7 keeps the first pass only, WICIMAGE.DECODE.BROKEN)
+    let need: usize = passes
+        .iter()
+        .map(|&(x0, y0, dx, dy)| {
+            let pw = if x0 < w { (w - x0).div_ceil(dx) } else { 0 };
+            let ph = if y0 < h { (h - y0).div_ceil(dy) } else { 0 };
+            if pw == 0 { 0 } else { ph as usize * ((pw as usize * pbits as usize).div_ceil(8) + 1) }
+        })
+        .sum();
+    if il && !zero && raw.len() < need {
+        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
+    }
     for (x0, y0, dx, dy) in if zero { vec![] } else { passes } {
         let pw = if x0 < w { (w - x0).div_ceil(dx) } else { 0 };
         let ph = if y0 < h { (h - y0).div_ceil(dy) } else { 0 };
@@ -2225,14 +2239,6 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
     } else {
         None
     };
-    // FOUND clean-room (CGpGifDecoder::HrReadHeader) and MEASURED (golden wicdecode
-    // broken-big-gif-*): a logical screen of no width or height, or one whose width is past
-    // (2^29 - 1024) / height, is ERROR_ARITHMETIC_OVERFLOW
-    let (sw, sh) = (rd16(b, 6).unwrap_or(0), rd16(b, 8).unwrap_or(0));
-    if sw == 0 || sh == 0 || sw > 0x1fff_fc00 / sh {
-        hit(clause::WICIMAGE_DECODE_EDGES);
-        return Ok(Err(ARITHMETIC_OVERFLOW));
-    }
     let mut frames = Vec::new();
     let mut transparent: Option<u8> = None;
     loop {
@@ -2253,6 +2259,14 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
             }
             Some(0x2c) => {
                 let (Some(w), Some(h), Some(&f)) = (rd16(b, p + 5), rd16(b, p + 7), b.get(p + 9)) else { return short };
+                // FOUND clean-room (CGpGifDecoder::HrReadHeader) and MEASURED (golden wicdecode
+                // broken-big-gif-*, broken-gifsize-*: the logical screen's size is not looked
+                // at): a first image of no width or height, or one whose width is past
+                // (2^29 - 1024) / height, is ERROR_ARITHMETIC_OVERFLOW
+                if frames.is_empty() && (w == 0 || h == 0 || w > 0x1fff_fc00 / h.max(1)) {
+                    hit(clause::WICIMAGE_DECODE_EDGES);
+                    return Ok(Err(ARITHMETIC_OVERFLOW));
+                }
                 p += 10;
                 let local = if f & 0x80 != 0 {
                     let Some(t) = table(p, f) else { return short };
@@ -2443,8 +2457,8 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Fr
     let one = |k: u32, d: u32| t.get(&k).and_then(|v| v.first().copied()).unwrap_or(d);
     let (w, h) = (one(256, 0), one(257, 0));
     let (bits, ph, spp, planar) = (one(258, 1), one(262, 1), one(277, 1), one(284, 1));
-    // (the model does not hold pictures past 2^20 pixels)
-    if w as u64 * h as u64 > 1 << 20 || bits > 64 || spp > 16 {
+    // (the model does not hold pictures past 2^24 bytes: WICIMAGE.DECODE.BROKEN)
+    if bits > 64 || spp > 16 || w as u64 * h as u64 * u64::from((bits * spp).div_ceil(8)) > 1 << 24 {
         return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
     }
     let extra = t.get(&338).and_then(|v| v.first().copied());
@@ -3412,7 +3426,17 @@ impl WicImage {
                     hit(clause::WICIMAGE_COLOR_ENGINE);
                     out.extend(srgb_profile());
                 }
-                Some("swop") => return Err(Fail::Unmodeled(open::WIC_TO_CMYK)),
+                Some("swop") => {
+                    hit(clause::WIC_TO_CMYK);
+                    match t.get(2) {
+                        None => out.extend(super::cmyk::swop_profile()),
+                        Some(&tag) => {
+                            let tag = super::cmyk::SwopTag::parse(tag).ok_or(Fail::Bad)?;
+                            out.push(format!("wprofile 1 {:08x} {}", tag.sig(), tag.size()));
+                            out.extend(tag.bytes().chunks(64).map(hexs));
+                        }
+                    }
+                }
                 _ => return Err(Fail::Bad),
             },
             WOp::Wctx => {
@@ -3985,7 +4009,13 @@ pub fn encode_source(c: &Img, nf: &'static str) -> Res<Img> {
     }
     // past the palette's size: boxes of the cube (grid_palette), one fewer where a transparent
     // entry is to come
+    // (MEASURED, golden wicencode enc-gif-cmyk: from 32bppCMYK, whose pixels all come out
+    // opaque, the transparent entry is there as well)
     let any_clear = (0..c.h).any(|y| (0..c.w).any(|x| clear(x as usize, y as usize)));
+    if c.fmt == "cmyk" {
+        hit(clause::WICIMAGE_ENCODE_TRANSPARENT);
+    }
+    let any_clear = any_clear || c.fmt == "cmyk";
     if pal.len() + usize::from(any_clear) > 1usize << bits_of(nf) {
         pal = grid_palette(&b, bits_of(nf), if any_clear { Reserve::Transparent } else { Reserve::Nothing })?;
     }

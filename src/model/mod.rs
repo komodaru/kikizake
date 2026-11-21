@@ -84,6 +84,7 @@ pub mod bc;
 pub mod jpeg;
 pub mod jxr;
 pub mod icm;
+pub mod cmyk;
 pub mod gifread;
 
 use crate::case::Case;

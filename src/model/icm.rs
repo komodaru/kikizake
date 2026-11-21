@@ -114,7 +114,7 @@ fn elut_gamma(g: f64) -> [u32; 256] {
     e.map(|v| v as u32)
 }
 
-fn alut_curve(cv: &[u16]) -> [u32; 1024] {
+pub(crate) fn alut_curve(cv: &[u16]) -> [u32; 1024] {
     let mut cv: Vec<i64> = cv.iter().map(|&v| i64::from(v)).collect();
     let n = cv.len();
     for k in 0..n - 1 {
@@ -169,11 +169,23 @@ fn alut_gamma(g: f64) -> [u32; 1024] {
     a.map(|v| v as u32)
 }
 
+/// the linear output table DoMatrixForCube16 and the per-pixel step use when no curve follows
+pub(crate) fn linear_alut(j: i64) -> i64 {
+    ((0x7ff + j * 0x400fc) >> 12).min(65535)
+}
+
 /// one DoMatrixForCube16 pass with linear stage tables: each node through the matrix (scaled by
 /// 1023*16, rounded half away from zero) in 14-bit steps, negatives 0
 fn matrix_pass(cube: &mut [[u32; 3]], m: &[[f64; 3]; 3]) {
+    let al: [u32; 1024] = std::array::from_fn(|j| linear_alut(j as i64) as u32);
+    matrix_pass_to(cube, m, &al);
+}
+
+/// the pass with a linear input table and the output table `al` (interpolated in 8-bit
+/// fractions, its last entry from 1023 on)
+pub(crate) fn matrix_pass_to(cube: &mut [[u32; 3]], m: &[[f64; 3]; 3], al: &[u32; 1024]) {
     let el = |i: i64| i * 257;
-    let al = |j: i64| ((0x7ff + j * 0x400fc) >> 12).min(65535);
+    let al = |j: i64| i64::from(al[j as usize]);
     let k = 1023.0 * 16.0;
     let mi = m.map(|row| row.map(|x| { let v = x * k; if v > 0.0 { (v + 0.5) as i64 } else { (v - 0.5) as i64 } }));
     for node in cube.iter_mut() {
@@ -193,13 +205,13 @@ fn matrix_pass(cube: &mut [[u32; 3]], m: &[[f64; 3]; 3]) {
     }
 }
 
-fn inverse(m: &[[f64; 3]; 3]) -> [[f64; 3]; 3] {
+pub(crate) fn inverse(m: &[[f64; 3]; 3]) -> [[f64; 3]; 3] {
     let c = |r: usize, k: usize| m[(r + 1) % 3][(k + 1) % 3] * m[(r + 2) % 3][(k + 2) % 3] - m[(r + 1) % 3][(k + 2) % 3] * m[(r + 2) % 3][(k + 1) % 3];
     let det = m[0][0] * c(0, 0) + m[0][1] * c(0, 1) + m[0][2] * c(0, 2);
     std::array::from_fn(|r| std::array::from_fn(|k| c(k, r) / det))
 }
 
-fn half(p: &Profile) -> [[f64; 3]; 3] {
+pub(crate) fn half(p: &Profile) -> [[f64; 3]; 3] {
     p.colorants.map(|row| row.map(|v| f64::from(v) / 65536.0 / 2.0))
 }
 
