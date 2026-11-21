@@ -186,7 +186,9 @@ pub fn stretch<R: Read>(r: Round, k: Kernel, ch: &Chain, iw: i64, x86: bool, rea
             let lo = (kx - c0) / xscale;
             let hi = ((((iw - 1) << 16) - c0 - kx) + xscale + 1) / xscale;
             match (i32::try_from(lo), i32::try_from(hi)) {
-                (Ok(_), Ok(_)) => (lo.max(0)..hi.min(width), None),
+                // (a negative step: lo the right end, so the columns hi ..= lo; golden
+                // drawmirror-*)
+                (Ok(_), Ok(_)) => (hi.max(0)..lo.min(width), None),
                 _ => (0..0, None),
             }
         }
