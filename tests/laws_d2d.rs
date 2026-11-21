@@ -409,15 +409,142 @@ proptest! {
         let turns: Vec<f64> = (0..n).map(|i| cr(pts[i], pts[(i + 1) % n], pts[(i + 2) % n])).collect();
         prop_assume!(turns.iter().all(|&t| t > 0.0) || turns.iter().all(|&t| t < 0.0));
         let g = path(true, &[&pts]);
-        let ts = tessellate(&g, 0.25);
-        prop_assert!(ts.is_some());
+        let ts = kikizake::model::d2dtess::tessellate(&g, 0.25);
+        prop_assert!(ts.is_ok());
         let ts = ts.unwrap_or_default();
         let s: Vec<f64> = ts.iter().map(|t| cr(t[0], t[1], t[2])).collect();
-        prop_assert!(s.iter().all(|&v| v != 0.0));
-        prop_assert!(s.iter().all(|&v| v > 0.0) || s.iter().all(|&v| v < 0.0));
-        let tri: f64 = s.iter().map(|v| v.abs()).sum();
+        prop_assert!(s.iter().all(|&v| v > 0.0));
+        let tri: f64 = s.iter().sum();
         let poly: f64 = (0..n).map(|i| f64::from(pts[i].0) * f64::from(pts[(i + 1) % n].1) - f64::from(pts[(i + 1) % n].0) * f64::from(pts[i].1)).sum::<f64>().abs();
         prop_assert_eq!(tri, poly);
         prop_assert_eq!(ts.len(), n - 2);
+    }
+
+    /// Tessellate of any polygons on a small grid, crossing or touching themselves and each
+    /// other, by either fill mode: every triangle turns the same way, and the triangles cover
+    /// the filled region exactly once: a sample point off every line is in as many triangles
+    /// as the fill mode says it is filled (0 or 1); and the scanner's CArea sum is twice the
+    /// region's area
+    #[test]
+    fn tessellations_tile_the_fill(wind in proptest::bool::ANY, figs in proptest::collection::vec(proptest::collection::vec((0i32..9, 0i32..9), 3..7), 1..4)) {
+        let fs: Vec<Vec<(f32, f32)>> = figs.iter().map(|f| f.iter().map(|&(x, y)| (x as f32, y as f32)).collect()).collect();
+        let refs: Vec<&[(f32, f32)]> = fs.iter().map(Vec::as_slice).collect();
+        let g = path(wind, &refs);
+        let ts = kikizake::model::d2dtess::tessellate(&g, 0.25);
+        prop_assert!(ts.is_ok(), "{:?}", ts.err());
+        let ts = ts.unwrap_or_default();
+        let cr = |a: (f32, f32), b: (f32, f32), c: (f32, f32)| (f64::from(b.0) - f64::from(a.0)) * (f64::from(c.1) - f64::from(a.1)) - (f64::from(b.1) - f64::from(a.1)) * (f64::from(c.0) - f64::from(a.0));
+        // (an empty triangle of crossing points on one line comes out too, D2D.TESS: its f32
+        // corners may turn either way by an ulp)
+        prop_assert!(ts.iter().all(|t| cr(t[0], t[1], t[2]) >= -1e-4));
+        let polys: Vec<Vec<(f64, f64)>> = fs.iter().map(|f| f.iter().map(|&(x, y)| (f64::from(x), f64::from(y))).collect()).collect();
+        let inside = |p: (f64, f64)| {
+            let mut w = 0;
+            for f in &polys {
+                for i in 0..f.len() {
+                    let (a, b) = (f[i], f[(i + 1) % f.len()]);
+                    if (a.1 <= p.1) != (b.1 <= p.1) {
+                        let x = a.0 + (p.1 - a.1) * (b.0 - a.0) / (b.1 - a.1);
+                        if x > p.0 {
+                            w += if b.1 > a.1 { 1 } else { -1 };
+                        }
+                    }
+                }
+            }
+            if wind { w != 0 } else { w % 2 != 0 }
+        };
+        let tin = |t: &[(f32, f32); 3], p: (f64, f64)| {
+            let c = |a: (f32, f32), b: (f32, f32)| (f64::from(b.0) - f64::from(a.0)) * (p.1 - f64::from(a.1)) - (f64::from(b.1) - f64::from(a.1)) * (p.0 - f64::from(a.0));
+            c(t[0], t[1]) > 0.0 && c(t[1], t[2]) > 0.0 && c(t[2], t[0]) > 0.0
+        };
+        // (the f32 corners of the crossings round off: the sums agree to 1e-6)
+        // (sample points off the grid's lines and diagonals: irrational-ish offsets)
+        for i in 0..40 {
+            for j in 0..40 {
+                let p = (f64::from(i) * 0.2 + 0.0371, f64::from(j) * 0.2 + 0.0617);
+                let n = ts.iter().filter(|t| tin(t, p)).count();
+                prop_assert_eq!(n, usize::from(inside(p)), "at {:?}", p);
+            }
+        }
+        let ints: Vec<Vec<(i128, i128)>> = figs.iter().map(|f| f.iter().map(|&(x, y)| (i128::from(x) * 64, i128::from(y) * 64)).collect()).collect();
+        let sc = kikizake::model::d2dtess::scan(wind, &ints);
+        prop_assert!(sc.is_ok());
+        let acc = sc.map(|s| s.acc).unwrap_or_default() / 4096.0;
+        let tri: f64 = ts.iter().map(|t| cr(t[0], t[1], t[2])).sum();
+        prop_assert!((acc - tri).abs() <= 1e-6 * (1.0 + tri), "{} {}", acc, tri);
+    }
+}
+
+/// the shoelace sum of figures, f64
+fn shoelace(figs: &[Fig]) -> f64 {
+    let mut a = 0.0;
+    for f in figs {
+        let mut pts = vec![f.start];
+        pts.extend(f.segs.iter().map(|s| match *s {
+            Seg::L(p) | Seg::C(_, _, p) => p,
+        }));
+        for w in pts.windows(2) {
+            a += f64::from(w[0].0) * f64::from(w[1].1) - f64::from(w[1].0) * f64::from(w[0].1);
+        }
+    }
+    a / 2.0
+}
+
+proptest! {
+    /// Outline and CombineWithGeometry of grid polygons (crossing, touching, either fill mode):
+    /// every figure comes back to its start, the fill is on the right (the figures' signed areas sum to the
+    /// filled area, holes negative), and the four operations agree with each other: union +
+    /// intersect = A + B, xor = union - intersect, exclude = A - intersect
+    #[test]
+    fn outlines_bound_the_fill(wa in proptest::bool::ANY, wb in proptest::bool::ANY, fa in proptest::collection::vec((0i32..9, 0i32..9), 3..7), fb in proptest::collection::vec((0i32..9, 0i32..9), 3..7)) {
+        use kikizake::model::d2dbool::{outline, Op};
+        let to = |f: &[(i32, i32)]| f.iter().map(|&(x, y)| (x as f32, y as f32)).collect::<Vec<_>>();
+        let (pa, pb) = (to(&fa), to(&fb));
+        let (a, b) = (path(wa, &[&pa]), path(wb, &[&pb]));
+        let area = |g: &Geom| f64::from(ar(g));
+        let o = outline(&[&a], Op::Outline, 0.25);
+        prop_assert!(o.is_ok());
+        let o = o.unwrap_or_default();
+        // (each figure comes back to its start: exactly, or at a crossing to the other line's
+        // f64 copy of it, then left OPEN though the f32 points may be equal)
+        let end = |f: &Fig| f.segs.last().map(|s| match *s { Seg::L(p) | Seg::C(_, _, p) => p });
+        prop_assert!(o.iter().all(|f| end(f).is_some_and(|e| (e.0 - f.start.0).abs() < 1e-5 && (e.1 - f.start.1).abs() < 1e-5)));
+        prop_assert!((shoelace(&o) - area(&a)).abs() < 1e-4);
+        let op = |m: Op| outline(&[&a, &b], m, 0.25).map(|f| shoelace(&f)).unwrap_or(f64::NAN);
+        let (u, i, x, e) = (op(Op::Union), op(Op::Intersect), op(Op::Xor), op(Op::Exclude));
+        prop_assert!((u + i - area(&a) - area(&b)).abs() < 1e-4, "{} {} {} {}", u, i, area(&a), area(&b));
+        prop_assert!((x - (u - i)).abs() < 1e-4);
+        prop_assert!((e - (area(&a) - i)).abs() < 1e-4);
+    }
+
+    /// Widen of one straight line: the rectangle of its length by the width (its rails' points
+    /// at half the width either side, the figure turning one way)
+    #[test]
+    fn widened_lines_are_rectangles(x0 in -64i32..64, y0 in -64i32..64, x1 in -64i32..64, y1 in -64i32..64, w in 1i32..64) {
+        prop_assume!((x0, y0) != (x1, y1));
+        let pts = [(x0 as f32 / 4.0, y0 as f32 / 4.0), (x1 as f32 / 4.0, y1 as f32 / 4.0)];
+        let f = Fig { start: pts[0], segs: vec![Seg::L(pts[1])], closed: false };
+        let w = w as f32 / 8.0;
+        let r = kikizake::model::d2dwiden::widen(&[f], false, &IDENTITY, w, 0.25);
+        prop_assert!(r.is_ok());
+        let r = r.unwrap_or_default();
+        prop_assert_eq!(r.len(), 1);
+        let p = &r[0];
+        let poly = Fig { start: p[0], segs: p[1..].iter().map(|&v| Seg::L(v)).collect(), closed: true };
+        let len = (f64::from(pts[1].0 - pts[0].0).powi(2) + f64::from(pts[1].1 - pts[0].1).powi(2)).sqrt();
+        let a = shoelace(&[poly]);
+        prop_assert!((a.abs() - len * f64::from(w)).abs() < 1e-3 * (1.0 + len * f64::from(w)), "{} {}", a, len * f64::from(w));
+    }
+
+    /// a gradient of one color, linear or radial, any extend mode and gamma, fills that color
+    /// (its premultiplied bytes) wherever the mapping lands
+    #[test]
+    fn one_color_gradients_are_solid(rad in proptest::bool::ANY, g in 0usize..2, e in 0usize..3, c in proptest::collection::vec(0u8..=255, 3), k in 0i32..64, k2 in -16i32..16) {
+        let (gm, ex) = (["22", "10"][g], ["clamp", "wrap", "mirror"][e]);
+        let geo = if rad { format!("rad {gm} {ex} 8 2 {} 0 {} {}", f64::from(k2) / 8.0, 1.0 + f64::from(k) / 4.0, 1.0 + f64::from(k) / 8.0) } else { format!("lin {gm} {ex} 1 1 {} 3", 2.0 + f64::from(k) / 4.0) };
+        let col = format!("{} {} {} 255", c[0], c[1], c[2]);
+        let a = run(&format!("d2target 16 4\nd2aa aliased\nd2grad 0 0 16 4 {geo} 2 0 {col} 1 {col}\nd2read\n"));
+        let b = run(&format!("d2target 16 4\nd2aa aliased\nd2fill 0 0 16 4 {col}\nd2read\n"));
+        prop_assert_eq!(a, b);
     }
 }

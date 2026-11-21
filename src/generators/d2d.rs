@@ -50,6 +50,7 @@ pub fn d2d() -> String {
     gradscan(&mut s);
     strokelobe(&mut s, &mut r);
     xfell(&mut s, &mut r);
+    probes(&mut s, &mut r);
     s
 }
 
@@ -938,5 +939,24 @@ fn xfell(s: &mut String, r: &mut XorShift32) {
         let m = |r: &mut XorShift32| Vec::<_>::from_fn(6, |_| q(r, -16, 16)).join(" ");
         let (m1, m2) = (m(r), m(r));
         writeln!(s, "case xfell-{i}\n{g}\nd2xf 1 0 {m1}\nd2bounds 1\nd2bounds 1 {m2}\nend");
+    }
+}
+
+/// what the clean-room notes leave open, asked: crossing polygons past 16 DIP (ComputeArea's
+/// 2^20 workspace no longer exact; Tessellate's 1/64 one still is), a stroke turning back on
+/// itself (180 degrees), and tight curves under a wide pen (the widener's refinement arcs)
+fn probes(s: &mut String, r: &mut XorShift32) {
+    for i in 0..8 {
+        let n = r.range(4, 8);
+        let pts: Vec<String> = (0..n).map(|_| format!("{} {}", frac(r, -400, 400), frac(r, -400, 400))).collect();
+        let mode = if i % 2 == 0 { "alt" } else { "wind" };
+        writeln!(s, "case pareabig-{i}\nd2path 0 {mode} m {} z\nd2area 0\nd2tess 0\nend", pts.join(" "));
+    }
+    for (i, w) in ["1", "2.5"].iter().enumerate() {
+        let g = "d2path 0 alt m 2 6 12 6 5 6 o";
+        writeln!(s, "case widenturn-{i}\n{g}\nd2widen 0 {w}\nend\ncase strketurn-{i}\nd2target 16 12\n{g}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
+    }
+    for (i, (e, w)) in [("8 6 1.5 1", "4"), ("8 6 3 0.5", "3"), ("8 6 0.75 0.75", "2.5")].iter().enumerate() {
+        writeln!(s, "case widentight-{i}\nd2ell 0 {e}\nd2widen 0 {w}\nend\ncase strketight-{i}\nd2target 16 12\nd2ell 0 {e}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
     }
 }

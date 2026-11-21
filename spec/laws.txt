@@ -222,3 +222,8 @@ tests/laws_gpimage.rs::a_unit_scale_copies pbt GP.DRAW.SCALED
 tests/laws_gplinear.rs::one_color_is_solid pbt GP.BRUSH.LINEAR.PAINT
 tests/laws_gplinear.rs::infer_takes_corners_to_points pbt GP.BRUSH.LINEAR
 tests/laws_gplinear.rs::rect_is_symmetric pbt GP.BRUSH.LINEAR
+tests/laws_d2d.rs::convex_tessellations_tile pbt D2D.TESS
+tests/laws_d2d.rs::tessellations_tile_the_fill pbt D2D.TESS D2D.AREA.POLY
+tests/laws_d2d.rs::outlines_bound_the_fill pbt D2D.OUTLINE D2D.AREA.POLY
+tests/laws_d2d.rs::widened_lines_are_rectangles pbt D2D.WIDEN
+tests/laws_d2d.rs::one_color_gradients_are_solid pbt D2D.GRAD D2D.GRAD.RADIAL
