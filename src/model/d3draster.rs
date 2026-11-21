@@ -545,6 +545,9 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             // (MEASURED, WARP: probe-rt-1darray) a 1D array's view (TEXTURE1DARRAY): its first
             // slice, as a 2D array's (probe-rt-array)
             1 if matches!(view.dim(), 2 | 3) => hit(clause::D3DRASTER_RT_1D),
+            // (MEASURED, WARP: probe-rt-buffer) a buffer's view from its first element: one
+            // row, as a 1D texture's
+            4 if view.dim() == 1 && view.u(0, matches!(dev, Dev::D11(_))) == 0 => hit(clause::D3DRASTER_RT_1D),
             _ => return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND)),
         }
         r.size(r.mip_of(rt_sub))
@@ -716,7 +719,7 @@ impl Target<'_> {
     /// rectangle (D3DRASTER.VPCLIP)
     fn drawable(&self, d: &Draw, (px, py): (i64, i64)) -> bool {
         let [vx, vy, vw, vh, _, _] = self.vp;
-        let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
+        let (cx, cy) = (center_of(px), center_of(py));
         (0..i64::from(self.size.0)).contains(&px)
             && (0..i64::from(self.size.1)).contains(&py)
             && cx >= vx
@@ -748,6 +751,42 @@ impl Target<'_> {
             None => output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out),
         }
     }
+}
+
+/// v pixels in 1/256, rounding half to even (cvtss2si), saturated to i32
+fn snap_even(v: f32) -> i64 {
+    f64::from(v * 256.0).round_ties_even().clamp(-2147483648.0, 2147483647.0) as i64
+}
+
+/// a sample of pixel p, o/16 pixels off its center, in 1/256
+fn sample_sub(p: i64, o: i64) -> i64 {
+    p.saturating_mul(256).saturating_add(128).saturating_add(o.saturating_mul(16))
+}
+
+/// a sample offset of 1/16 pixels in pixels
+fn sixteenths(o: i64) -> f32 {
+    o as f32 / 16.0
+}
+
+/// a pixel coordinate as an index (the clipped bounds keep it at or above 0)
+fn index(v: impl TryInto<usize>) -> usize {
+    v.try_into().unwrap_or(usize::MAX)
+}
+
+/// two four-channel values joined channel by channel
+fn zip4<T: Copy, U>(a: [T; 4], b: [T; 4], f: impl Fn(T, T) -> U) -> [U; 4] {
+    let ([a0, a1, a2, a3], [b0, b1, b2, b3]) = (a, b);
+    [f(a0, b0), f(a1, b1), f(a2, b2), f(a3, b3)]
+}
+
+/// a pixel's center along one axis
+fn center_of(p: i64) -> f32 {
+    p as f32 + 0.5
+}
+
+/// a 16.8 fixed-point coordinate in pixels (exact below 2^24)
+fn pixels(v: i64) -> f32 {
+    v as f32 / 256.0
 }
 
 /// a position in 1/256 pixels (16.8 fixed point, D3DRASTER.SNAP)
@@ -807,13 +846,13 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
                     continue;
                 }
                 let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| {
-                    let (sx, sy) = (px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16);
+                    let (sx, sy) = (sample_sub(px, ox), sample_sub(py, oy));
                     s.x - 128 <= sx && sx < s.x + 128 && s.y - 128 <= sy && sy < s.y + 128
                 }).collect();
                 if mask.contains(&true) {
                     // (MEASURED, WARP: probe-rt-ms4-points-pspos) each pixel shaded at its center
                     let out = prim_out(ps, v.color, (px, py), z, q[3], prim, true)?;
-                    put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), None, out, &mask)?;
+                    put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (index(px), index(py), index(tg.size.0)), Some(z), None, out, &mask)?;
                 }
             }
         }
@@ -841,10 +880,10 @@ fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: f32, prim: u
         }
         "pspos" => {
             hit(clause::D3DRASTER_POS);
-            if w != 1.0 {
+            if w.to_bits() != 1.0f32.to_bits() {
                 hit(clause::D3DRASTER_POSW);
             }
-            Ok([px as f32 + 0.5, py as f32 + 0.5, z, w].map(f32::to_bits))
+            Ok([center_of(px), center_of(py), z, w].map(f32::to_bits))
         }
         "psprim" => {
             hit(clause::D3DRASTER_PRIM);
@@ -989,7 +1028,7 @@ fn diamond_holds(x: f32, y: f32, cx: f32, cy: f32, major: Major) -> bool {
 
 impl Cover {
     fn of(a: Sub, b: Sub, major: Major) -> Cover {
-        let f = |v: i64| v as f32 * (1.0 / 256.0);
+        let f = pixels;
         let (x0, y0, x1, y1) = (f(a.x), f(a.y), f(b.x), f(b.y));
         let (dx, dy) = (x1 - x0, y1 - y0);
         let (cx0, cy0, cx1, cy1) = (owner(x0), owner(y0), owner(x1), owner(y1));
@@ -1044,7 +1083,7 @@ impl Cover {
     /// (each f32 operation rounded on its own)
     fn covers(&self, (px, py): (i64, i64)) -> bool {
         let (inv_dx, inv_dy) = (-1.0 / self.dx, -1.0 / self.dy);
-        let (a, b) = (self.x0 - (px as f32 + 0.5), self.y0 - (py as f32 + 0.5));
+        let (a, b) = (self.x0 - (center_of(px)), self.y0 - (center_of(py)));
         let inside = |t: f32| (0.0..=1.0).contains(&t);
         let t = a * inv_dx;
         let col = inside(t) && {
@@ -1073,7 +1112,7 @@ impl Line {
 
     /// the quad's two triangles: corners in 1/256 pixels, and whether each is at b
     fn quad_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
-        let (ax, ay, bx, by) = (self.a.x as f32 / 256.0, self.a.y as f32 / 256.0, self.b.x as f32 / 256.0, self.b.y as f32 / 256.0);
+        let (ax, ay, bx, by) = (pixels(self.a.x), pixels(self.a.y), pixels(self.b.x), pixels(self.b.y));
         let (dx, dy) = (bx - ax, by - ay);
         let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
         let (nx, ny) = (-dy * k, dx * k);
@@ -1093,11 +1132,11 @@ impl Line {
     /// f32 snapped to 1/256 as o, the corners a - o, a + o, b + o, b - o as two triangles
     /// (0, 1, 2) and (0, 2, 3) by the top-left rule
     fn alpha_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
-        let f = |v: i64| v as f32 * (1.0 / 256.0);
+        let f = pixels;
         let (dyf, ndx) = (f(self.b.y - self.a.y), f(self.a.x - self.b.x));
         let len = (ndx * ndx + dyf * dyf).sqrt();
         let k = 2.0 / len;
-        let (ox, oy) = (((dyf * k) * 256.0).round_ties_even() as i64, ((ndx * k) * 256.0).round_ties_even() as i64);
+        let (ox, oy) = (snap_even(dyf * k), snap_even(ndx * k));
         let (a, b) = ((self.a.x, self.a.y), (self.b.x, self.b.y));
         let corner = [((a.0 - ox, a.1 - oy), false), ((a.0 + ox, a.1 + oy), false), ((b.0 + ox, b.1 + oy), true), ((b.0 - ox, b.1 - oy), true)];
         [[0, 1, 2], [0, 2, 3]].map(|t| t.map(|i| corner[i]))
@@ -1107,19 +1146,19 @@ impl Line {
     /// antialiased line at the pixel: the distance s from the line, its plane in f32 (A, B, C
     /// = (dy, -dx, y0 dx - x0 dy) / sqrt(dx^2 + dy^2)), clamp((1.5 - |s|) 0.45, 0, 1)
     fn alpha_cover(&self, (px, py): (i64, i64)) -> f32 {
-        let f = |v: i64| v as f32 * (1.0 / 256.0);
+        let f = pixels;
         let (dyf, dx) = (f(self.b.y - self.a.y), f(self.b.x - self.a.x));
         let (a0, b0) = (dyf, -dx);
         let c0 = f(self.a.y) * dx - f(self.a.x) * dyf;
         let inv = 1.0 / (b0 * b0 + dyf * dyf).sqrt();
         let (a, b, c) = (inv * a0, inv * b0, inv * c0);
-        let s = a * (px as f32 + 0.5) + (b * (py as f32 + 0.5) + c);
+        let s = a * (center_of(px)) + (b * (center_of(py)) + c);
         ((1.5 - s.abs()) * f32::from_bits(0x3EE6_6666)).clamp(0.0, 1.0)
     }
 
     /// the samples the triangles cover and the planes of the triangle covering the first
     fn tris_at(&self, tris: [[((i64, i64), bool); 3]; 2], (px, py): (i64, i64), pattern: &[(i64, i64)]) -> (Vec<bool>, Option<Planes>) {
-        let at = |(ox, oy): (i64, i64)| (px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16);
+        let at = |(ox, oy): (i64, i64)| (sample_sub(px, ox), sample_sub(py, oy));
         let mask: Vec<bool> = pattern.iter().map(|&o| tris.iter().any(|t| tri_covers(t.map(|v| v.0), at(o)))).collect();
         let Some(t) = pattern.iter().zip(&mask).filter(|(_, c)| **c).find_map(|(&o, _)| tris.into_iter().find(|t| tri_covers(t.map(|v| v.0), at(o)))) else {
             return (mask, None);
@@ -1128,7 +1167,7 @@ impl Line {
         // the triangles are given, not turned
         let iw = t.map(|v| if v.1 { self.iwb } else { self.iwa });
         let aw = [0, 1, 2].map(|i| (if t[i].1 { self.cb } else { self.ca }).map(|a| a * iw[i]));
-        (mask, Some(Planes { xs: t.map(|v| v.0 .0 as f32 / 256.0), ys: t.map(|v| v.0 .1 as f32 / 256.0), iw, aw, zs: t.map(|v| self.z[usize::from(v.1)]) }))
+        (mask, Some(Planes { xs: t.map(|v| pixels(v.0 .0)), ys: t.map(|v| pixels(v.0 .1)), iw, aw, zs: t.map(|v| if v.1 { self.z[1] } else { self.z[0] }) }))
     }
 
     /// (MEASURED, WARP: probe-lines-*, probe-linestrip-*, probe-wire-*, 904 pixels;
@@ -1155,8 +1194,8 @@ impl Line {
 
     /// a value along the major axis at the pixel center, as for the color
     fn plane(&self, (px, py): (i64, i64), va: f32, vb: f32) -> f32 {
-        let (a, b, c) = if self.major == Major::Y { (self.a.y, self.b.y, py as f32 + 0.5) } else { (self.a.x, self.b.x, px as f32 + 0.5) };
-        let (a, b) = (a as f32 / 256.0, b as f32 / 256.0);
+        let (a, b, c) = if self.major == Major::Y { (self.a.y, self.b.y, center_of(py)) } else { (self.a.x, self.b.x, center_of(px)) };
+        let (a, b) = (pixels(a), pixels(b));
         let g = 1.0 / (b - a);
         let grad = (vb - va) * g;
         let c0 = va - grad * a;
@@ -1322,7 +1361,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                 let z = match &quad {
                     Some(p) => {
                         hit(clause::D3DRASTER_LINE_DEPTH);
-                        tg.clamp_depth(p.plane(p.zs, px as f32 + 0.5, py as f32 + 0.5))
+                        tg.clamp_depth(p.plane(p.zs, center_of(px), center_of(py)))
                     }
                     None => l.depth(tg, (px, py)),
                 };
@@ -1331,7 +1370,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                         hit(clause::D3DRASTER_LINE_COLOR);
                         l.color((px, py)).map(f32::to_bits)
                     }
-                    ("ps", Some(p)) => p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits),
+                    ("ps", Some(p)) => p.at(center_of(px), center_of(py)).map(f32::to_bits),
                     _ => prim_out(ps, l.lead, (px, py), z, l.pos_w((px, py)), l.prim, l.front)?,
                 };
                 let out = match mode {
@@ -1344,7 +1383,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     LineMode::Aliased | LineMode::Quad => out,
                 };
                 match mask {
-                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), None, out, &mask)?,
+                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (index(px), index(py), index(tg.size.0)), Some(z), None, out, &mask)?,
                     None => tg.put(m, d, (px, py), z, out)?,
                 }
             }
@@ -1393,53 +1432,71 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let [vx, vy, vw, vh, _, _] = vp;
             for py in 0..i64::from(rh) {
                 for px in 0..i64::from(rw) {
-                    let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
+                    let (cx, cy) = (center_of(px), center_of(py));
                     if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
                         continue;
                     }
-                    let c = (px * 256 + 128, py * 256 + 128);
+                    let c = (sample_sub(px, 0), sample_sub(py, 0));
                     let lit = (1..q.len().saturating_sub(1)).any(|i| tri_covers([q[0], q[i], q[i + 1]], c));
                     if lit {
-                        output(m, dev, d, view, rt_fmt, rt_sub, None, (px as usize, py as usize, rw as usize), None, out)?;
+                        output(m, dev, d, view, rt_fmt, rt_sub, None, (index(px), index(py), index(rw)), None, out)?;
                     }
                 }
             }
             return Ok(());
         }
-        // (MEASURED, WARP: probe-clip-w3, probe-clip-w-cull2, -cull3, -pspos) colors that vary:
-        // the pieces of D3DRASTER.CLIP with their planes (D3DRASTER.INTERP.CLIP), each culled
-        // by its own facing
-        if d.rast[0] != 2 && dsv.is_none() && samples.is_none() {
-            hit(clause::D3DRASTER_CLIPW_AREA);
-            let Some(poly) = clip_tri(tri, d.rast[6] != 0) else {
-                return Ok(());
-            };
-            let pieces: Vec<([(i64, i64); 3], Planes, bool)> = clip_pieces(&poly, vp, d.rast[6] != 0)
-                .into_iter()
-                .filter(|(_, _, cw)| {
-                    let front = *cw != (d.rast[2] != 0);
-                    !(d.rast[1] == 2 && front || d.rast[1] == 3 && !front)
-                })
-                .collect();
-            let [vx, vy, vw, vh, minz, maxz] = vp;
-            let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-            for py in 0..i64::from(rh) {
-                for px in 0..i64::from(rw) {
-                    let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
-                    if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
-                        continue;
-                    }
-                    let c = (px * 256 + 128, py * 256 + 128);
-                    if let Some((_, p, cw)) = pieces.iter().find(|(t, _, _)| tri_covers(*t, c)) {
+        // (MEASURED, WARP: probe-clip-w3, probe-clip-w-cull2, -cull3, -pspos, -depth, -ms4) colors
+        // that vary: the pieces of D3DRASTER.CLIP with their planes (D3DRASTER.INTERP.CLIP), each
+        // culled by its own facing, depth tested and multisampled as any triangle
+        hit(clause::D3DRASTER_CLIPW_AREA);
+        let Some(poly) = clip_tri(tri, d.rast[6] != 0) else {
+            return Ok(());
+        };
+        let culled = |cw: bool| {
+            let front = cw != (d.rast[2] != 0);
+            d.rast[1] == 2 && front || d.rast[1] == 3 && !front
+        };
+        let pieces: Vec<([(i64, i64); 3], Planes, bool)> = clip_pieces(&poly, vp, d.rast[6] != 0).into_iter().filter(|(_, _, cw)| !culled(*cw)).collect();
+        // (wireframe: WARP draws the clipped polygon's edges but those along a clip plane, as
+        // lines, probe-clip-w-wire; one edge's values an ulp off that end's snapping, the line's
+        // direction and clipping each edge as a line do not explain)
+        if d.rast[0] == 2 {
+            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+        }
+        let [vx, vy, vw, vh, minz, maxz] = vp;
+        let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
+        let covering = |c: (i64, i64)| pieces.iter().find(|(t, _, _)| tri_covers(*t, c));
+        for py in 0..i64::from(rh) {
+            for px in 0..i64::from(rw) {
+                let (cx, cy) = (center_of(px), center_of(py));
+                if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
+                    continue;
+                }
+                let c = (sample_sub(px, 0), sample_sub(py, 0));
+                let at = (index(px), index(py), index(rw));
+                let Some(pattern) = samples else {
+                    if let Some((_, p, cw)) = covering(c) {
                         let z = p.plane(p.zs, cx, cy).max(lo).min(hi);
                         let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
-                        output(m, dev, d, view, rt_fmt, rt_sub, None, (px as usize, py as usize, rw as usize), None, out)?;
+                        output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), out)?;
                     }
+                    continue;
+                };
+                // (each piece a triangle of its own: shaded for the samples it covers)
+                let sample = |(ox, oy): (i64, i64)| (sample_sub(px, ox), sample_sub(py, oy));
+                for (t, p, cw) in &pieces {
+                    let mask: Vec<bool> = pattern.iter().map(|&o| tri_covers(*t, sample(o))).collect();
+                    if !mask.contains(&true) {
+                        continue;
+                    }
+                    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);
+                    let each: Vec<f32> = pattern.iter().map(|&(ox, oy)| p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)).max(lo).min(hi)).collect();
+                    let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
+                    put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), Some(&each), out, &mask)?;
                 }
             }
-            return Ok(());
         }
-        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+        return Ok(());
     }
     // depth clipping: whole triangles in these cases
     let zs: Vec<f32> = tri.iter().map(|v| v.pos[2] / v.pos[3]).collect();
@@ -1513,7 +1570,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let unclipped = poly.iter().all(|v| !v.made);
     let planes = unclipped.then(|| Planes::new(tri, |q| {
         let (x, y) = snap2(q);
-        (x as f32 / 256.0, y as f32 / 256.0)
+        (pixels(x), pixels(y))
     }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz)));
     // (MEASURED, WARP: probe-clip-z-pos) a triangle cut by the depth range takes its depth from
     // the whole triangle's plane (D3DRASTER.INTERP.DEPTH)
@@ -1521,7 +1578,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         hit(clause::D3DRASTER_CLIPZ_DEPTH);
         Planes::new(tri, |q| {
             let (x, y) = snap2(q);
-            (x as f32 / 256.0, y as f32 / 256.0)
+            (pixels(x), pixels(y))
         }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz))
     });
     // the pieces, turned for the edge tests, with their planes (the whole triangle's, or the
@@ -1559,7 +1616,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     }
     for py in y0..y1 {
         for px in x0..x1 {
-            let (cx, cy) = (px as f32 + 0.5, py as f32 + 0.5);
+            let (cx, cy) = (center_of(px), center_of(py));
             if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh {
                 continue;
             }
@@ -1575,15 +1632,15 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let inside = |c: (i64, i64)| covering(c).is_some();
             // the planes there: the whole triangle's, or the covering piece's
             let here = |c: (i64, i64)| planes.as_ref().or_else(|| covering(c).and_then(|(_, p)| p.as_ref()));
-            let at = (px as usize, py as usize, rw as usize);
+            let at = (index(px), index(py), index(rw));
             let Some(pattern) = samples else {
-                if !inside((px * 256 + 128, py * 256 + 128)) {
+                if !inside((sample_sub(px, 0), sample_sub(py, 0))) {
                     continue;
                 }
                 hit(clause::D3DRASTER_TOPLEFT);
                 // (a depth that varies over an unclipped triangle: its plane at the pixel
                 // center, as the attributes' (D3DRASTER.INTERP.DEPTH))
-                let c = (px * 256 + 128, py * 256 + 128);
+                let c = (sample_sub(px, 0), sample_sub(py, 0));
                 let z = z.or_else(|| {
                     let p = planes.as_ref().or(zplanes.as_ref()).or_else(|| here(c))?;
                     hit(clause::D3DRASTER_INTERP_DEPTH);
@@ -1597,12 +1654,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             // (MEASURED, WARP: probe-rt-ms*-edges) a pixel is shaded once, at its center,
             // when a sample is covered; the covered samples take the value
             hit(clause::D3DRASTER_MS_SAMPLES);
-            let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| inside((px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16))).collect();
+            let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| inside((sample_sub(px, ox), sample_sub(py, oy)))).collect();
             if !mask.contains(&true) {
                 continue;
             }
-            let p = pattern.iter().find_map(|&(ox, oy)| here((px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16)));
-            let pl = here((px * 256 + 128, py * 256 + 128)).or(p);
+            let p = pattern.iter().find_map(|&(ox, oy)| here((sample_sub(px, ox), sample_sub(py, oy))));
+            let pl = here((sample_sub(px, 0), sample_sub(py, 0))).or(p);
             // (MEASURED, WARP: probe-rt-ms4-zplane) a depth that varies: its plane at each
             // sample, for the depth test; at the pixel center for the shader
             let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
@@ -1610,7 +1667,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let each: Option<Vec<f32>> = match (z, q) {
                 (None, Some(q)) => {
                     hit(clause::D3DRASTER_MS_ZPLANE);
-                    Some(pattern.iter().map(|&(ox, oy)| q.plane(q.zs, cx + ox as f32 / 16.0, cy + oy as f32 / 16.0).max(lo).min(hi)).collect())
+                    Some(pattern.iter().map(|&(ox, oy)| q.plane(q.zs, cx + sixteenths(ox), cy + sixteenths(oy)).max(lo).min(hi)).collect())
                 }
                 (Some(_), _) | (None, None) => None,
             };
@@ -1934,17 +1991,6 @@ impl ClipPlane {
         }
     }
 
-    fn index(self) -> usize {
-        match self {
-            ClipPlane::Near => 0,
-            ClipPlane::Far => 1,
-            ClipPlane::Left => 2,
-            ClipPlane::Right => 3,
-            ClipPlane::Top => 4,
-            ClipPlane::Bottom => 5,
-        }
-    }
-
     fn depth(self) -> bool {
         match self {
             ClipPlane::Near | ClipPlane::Far => true,
@@ -1953,12 +1999,52 @@ impl ClipPlane {
     }
 }
 
+/// a vertex's distances from the clip planes, one per plane
+#[derive(Clone, Copy)]
+struct Dists {
+    near: f32,
+    far: f32,
+    left: f32,
+    right: f32,
+    top: f32,
+    bottom: f32,
+}
+
+impl Dists {
+    fn of(q: &[f32; 4]) -> Dists {
+        Dists { near: ClipPlane::Near.dist(q), far: ClipPlane::Far.dist(q), left: ClipPlane::Left.dist(q), right: ClipPlane::Right.dist(q), top: ClipPlane::Top.dist(q), bottom: ClipPlane::Bottom.dist(q) }
+    }
+
+    fn get(&self, p: ClipPlane) -> f32 {
+        match p {
+            ClipPlane::Near => self.near,
+            ClipPlane::Far => self.far,
+            ClipPlane::Left => self.left,
+            ClipPlane::Right => self.right,
+            ClipPlane::Top => self.top,
+            ClipPlane::Bottom => self.bottom,
+        }
+    }
+
+    fn set(&mut self, p: ClipPlane, v: f32) {
+        let d = match p {
+            ClipPlane::Near => &mut self.near,
+            ClipPlane::Far => &mut self.far,
+            ClipPlane::Left => &mut self.left,
+            ClipPlane::Right => &mut self.right,
+            ClipPlane::Top => &mut self.top,
+            ClipPlane::Bottom => &mut self.bottom,
+        };
+        *d = v;
+    }
+}
+
 /// a vertex of a clipped polygon: the triangle's own, or one the clipping made
 #[derive(Clone, Copy)]
 struct ClipVert {
     pos: [f32; 4],
     color: [f32; 4],
-    dist: [f32; 6],
+    dist: Dists,
     made: bool,
 }
 
@@ -1978,10 +2064,10 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
     let mut poly: Vec<ClipVert> = (0..3)
         .map(|i| {
             let v = &tri[(sel + i) % 3];
-            ClipVert { pos: v.pos, color: v.color, dist: CLIP_PLANES.map(|p| p.dist(&v.pos)), made: false }
+            ClipVert { pos: v.pos, color: v.color, dist: Dists::of(&v.pos), made: false }
         })
         .collect();
-    let out = |v: &ClipVert, p: ClipPlane| 0.0 > v.dist[p.index()];
+    let out = |v: &ClipVert, p: ClipPlane| 0.0 > v.dist.get(p);
     if planes.iter().any(|&p| poly.iter().all(|v| out(v, p))) {
         return None;
     }
@@ -1996,12 +2082,12 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
             }
             if ina != inb {
                 let (i, o) = if ina { (a, b) } else { (b, a) };
-                let (din, dout) = (i.dist[p.index()], o.dist[p.index()]);
+                let (din, dout) = (i.dist.get(p), o.dist.get(p));
                 let den = f64::from(din - dout);
                 let lerp = |vi: f32, vo: f32| ((f64::from(vo - vi) * f64::from(din)) / den + f64::from(vi)) as f32;
                 let mut dist = i.dist;
                 for q in &cut[k + 1..] {
-                    dist[q.index()] = lerp(i.dist[q.index()], o.dist[q.index()]);
+                    dist.set(*q, lerp(i.dist.get(*q), o.dist.get(*q)));
                 }
                 next.push(ClipVert { pos: [0, 1, 2, 3].map(|c| lerp(i.pos[c], o.pos[c])), color: [0, 1, 2, 3].map(|c| lerp(i.color[c], o.color[c])), dist, made: true });
             }
@@ -2034,15 +2120,19 @@ fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64)
             }
         })
         .collect();
-    (1..poly.len().saturating_sub(1))
-        .map(|i| [0, i, i + 1])
-        .filter(|k| cross(at[k[0]].0, at[k[1]].0, at[k[2]].0) != 0)
+    // (a fan from the first vertex: each piece's three corners)
+    let pieces = at.iter().zip(poly).skip(1).zip(at.iter().zip(poly).skip(2));
+    let first = at.first().zip(poly.first());
+    first
+        .into_iter()
+        .flat_map(|a| pieces.clone().map(move |(b, c)| [a, b, c]))
+        .filter(|k| cross(k[0].0 .0, k[1].0 .0, k[2].0 .0) != 0)
         .map(|k| {
-            let t = k.map(|i| at[i].0);
+            let t = k.map(|v| v.0 .0);
             let cw = cross(t[0], t[1], t[2]) > 0;
             let t = if cw { t } else { [t[0], t[2], t[1]] };
-            let iw = k.map(|i| at[i].2);
-            let p = Planes { xs: k.map(|i| at[i].0 .0 as f32 / 256.0), ys: k.map(|i| at[i].0 .1 as f32 / 256.0), iw, aw: [0, 1, 2].map(|j| poly[k[j]].color.map(|a| a * iw[j])), zs: k.map(|i| at[i].1) };
+            let iw = k.map(|v| v.0 .2);
+            let p = Planes { xs: k.map(|v| pixels(v.0 .0 .0)), ys: k.map(|v| pixels(v.0 .0 .1)), iw, aw: k.map(|v| v.1.color.map(|a| a * v.0 .2)), zs: k.map(|v| v.0 .1) };
             (t, p, cw)
         })
         .collect()
@@ -2063,7 +2153,7 @@ fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32, f32
     let z = if zclip { q[2].max(0.0).min(w) } else { q[2] };
     let rhw = 1.0 / w;
     let (sx, ox, sy, oy) = (vw * 0.5, vw * 0.5 + vx, -vh * 0.5, vh * 0.5 + vy);
-    let snap = |v: f32| f64::from(v * 256.0).round_ties_even().clamp(-2147483648.0, 2147483647.0) as i64;
+    let snap = snap_even;
     ((snap((rhw * x) * sx + ox), snap((rhw * y) * sy + oy)), (rhw * z) * (maxz - minz) + minz, rhw)
 }
 
@@ -2138,7 +2228,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
         "ps" => match planes {
             Some(p) => {
                 hit(clause::D3DRASTER_INTERP_PLANE);
-                p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits)
+                p.at(center_of(px), center_of(py)).map(f32::to_bits)
             }
             None => same(&|v| v.color)?.map(f32::to_bits),
         },
@@ -2154,16 +2244,16 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // (MEASURED, WARP: probe-zplane-1, -3) w that varies: 1 / the plane of 1/w
                 (Err(_), Some(p)) => {
                     hit(clause::D3DRASTER_POSW_PLANE);
-                    1.0 / p.plane(p.iw, px as f32 + 0.5, py as f32 + 0.5)
+                    1.0 / p.plane(p.iw, center_of(px), center_of(py))
                 }
                 (Err(e), None) => return Err(e),
             };
-            if w != 1.0 {
+            if w.to_bits() != 1.0f32.to_bits() {
                 hit(clause::D3DRASTER_POSW);
             }
             // (a drawn triangle's depth is its value or its plane's, D3DRASTER.INTERP.DEPTH)
             let z = z.ok_or(Fail::Bad)?;
-            [px as f32 + 0.5, py as f32 + 0.5, z, w].map(f32::to_bits)
+            [center_of(px), center_of(py), z, w].map(f32::to_bits)
         }
         "psprim" => {
             hit(clause::D3DRASTER_PRIM);
@@ -2206,6 +2296,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let (base, mips) = match (v.words.get(1), v.words.get(2), v.words.get(3)) {
                 _ if r.d.mips == 1 => (0, 1),
                 (Some(&4), Some(&b), Some(&n)) if b < r.d.mips => (b, n.min(r.d.mips - b).max(1)),
+                // (MEASURED, WARP: probe-filter-1d-mips) a 1D texture's view through a Texture2D:
+                // its levels as one row
+                (Some(&2), Some(&b), Some(&n)) if b < r.d.mips => {
+                    hit(clause::D3DRASTER_FILTER_ARRAY);
+                    (b, n.min(r.d.mips.saturating_sub(b)).max(1))
+                }
                 // (MEASURED, WARP: probe-filter-array-mips) a 2D array's view from slice 0 through
                 // a Texture2D: slice 0's levels
                 // (MEASURED, WARP: probe-filter-array1-mips) from a later slice: that slice's
@@ -2260,7 +2356,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 (true, true) => {
                     hit(clause::D3DRASTER_SAMPLE_CMP);
                     let reference = match planes {
-                        Some(p) => p.at(px as f32 + 0.5, py as f32 + 0.5)[2],
+                        Some(p) => p.at(center_of(px), center_of(py))[2],
                         None => same(&|v| v.color)?[2],
                     };
                     Some((reference, s[4]))
@@ -2367,7 +2463,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))? };
                 if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
-                    let (fu, fv) = (wu as f32 / 256.0, wv as f32 / 256.0);
+                    let (fu, fv) = (pixels(wu), pixels(wv));
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
                     if let Some(pick) = reduction.pick() {
@@ -2419,16 +2515,16 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                             Pick::Least => a[k].min(b[k]),
                             Pick::Greatest => a[k].max(b[k]),
                         }))),
-                        (Filtered::Point(a), Filtered::Point(b)) => [0, 1, 2, 3].map(|k| take(f32::from_bits(a[k]), f32::from_bits(b[k])).to_bits()),
+                        (Filtered::Point(a), Filtered::Point(b)) => zip4(a, b, |a, b| take(f32::from_bits(a), f32::from_bits(b)).to_bits()),
                         (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
                     }
                 }
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
-                    (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed([0, 1, 2, 3].map(|k| (a[k] * (256 - f) + b[k] * f) >> 8)))),
-                    (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| lerp_sse(a[k], b[k], f as f32 / 256.0))))),
+                    (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed(zip4(a, b, |a, b| (a * (256 - f) + b * f) >> 8)))),
+                    (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide(zip4(a, b, |a, b| lerp_sse(a, b, pixels(f)))))),
                     (Filtered::Point(a), Filtered::Point(b)) => {
                         let (a, b) = (a.map(f32::from_bits), b.map(f32::from_bits));
-                        mip_linear(done(Filtered::Wide([0, 1, 2, 3].map(|k| lerp_sse(a[k], b[k], f as f32 / 256.0)))))
+                        mip_linear(done(Filtered::Wide(zip4(a, b, |a, b| lerp_sse(a, b, pixels(f))))))
                     }
                     (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
                 },

@@ -441,8 +441,8 @@ fn suite(d3d11: bool) -> String {
     for (name, cull, ps) in [("cull2", 2u32, Prog::Ps), ("cull3", 3, Prog::Ps), ("pspos", 1, Prog::Pspos), ("nan", 1, Prog::Ps)] {
         begin(&mut s, dev, &format!("probe-clip-w-{name}"), 16, 16, 2, ps);
         writeln!(&mut s, "rast 3 {cull} 0 0 0 0 1 0 0 0");
-        for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
-            let c = color(k as u32 * 5 + 1);
+        for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter()) {
+            let c = color(k.wrapping_mul(5).wrapping_add(1));
             let x = if name == "nan" && k == 1 { f32::NAN } else { x * w.abs() };
             writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
         }
@@ -453,8 +453,8 @@ fn suite(d3d11: bool) -> String {
     // a 1D array's second slice as the target
     writeln!(&mut s, "case probe-rt-1darray\n{dev}\ntex 0 1 16 1 2 1 28 0 0x20 0 0 1 0\nrtv 0 0 28 3 0 1 1\nclear 0 0 0 0 0\ntarget 0");
     writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(&mut s, "draw 4 3 32\nread 0 0 64 1 1\nread 0 1 64 1 1\nend");
     // a cube array (2 cubes with mips) through its view from the second cube
@@ -468,8 +468,8 @@ fn suite(d3d11: bool) -> String {
     writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
     // a coordinate infinite
     begin(&mut s, dev, "probe-clip-w-inf", 16, 16, 2, Prog::Ps);
-    for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
-        let c = color(k as u32 * 5 + 1);
+    for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter()) {
+        let c = color(k.wrapping_mul(5).wrapping_add(1));
         let x = if k == 1 { f32::INFINITY } else { x * w.abs() };
         writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
     }
@@ -480,9 +480,9 @@ fn suite(d3d11: bool) -> String {
     writeln!(&mut s, "case probe-rt-ms4-zplane\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
     writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
     writeln!(&mut s, "tex 2 2 16 16 1 1 40 0 0x40 0 0 4 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0));
-    for (k, t) in [[(0.0f32, 0.0f32, 0.1f32), (16.0, 2.5, 0.9), (1.0, 14.0, 0.5)], [(3.0, 1.0, 0.8), (15.5, 15.0, 0.2), (0.0, 9.75, 0.45)]].into_iter().enumerate() {
-        for (i, (x, y, z)) in t.into_iter().enumerate() {
-            vertex(&mut s, x, y, z, color(k as u32 * 3 + i as u32), 16.0, 16.0);
+    for (k, t) in (0u32..).zip([[(0.0f32, 0.0f32, 0.1f32), (16.0, 2.5, 0.9), (1.0, 14.0, 0.5)], [(3.0, 1.0, 0.8), (15.5, 15.0, 0.2), (0.0, 9.75, 0.45)]].into_iter()) {
+        for (i, (x, y, z)) in (0u32..).zip(t.into_iter()) {
+            vertex(&mut s, x, y, z, color(k.wrapping_mul(3).wrapping_add(i)), 16.0, 16.0);
         }
     }
     writeln!(&mut s, "draw 4 6 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
@@ -498,8 +498,8 @@ fn suite(d3d11: bool) -> String {
     // a target of 16 samples
     writeln!(&mut s, "case probe-rt-ms16\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 16 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
     writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     // a vertex at w < 0 whose triangle keeps an area: in wireframe, with a depth view, on a
@@ -512,8 +512,8 @@ fn suite(d3d11: bool) -> String {
         if name == "depth" {
             writeln!(&mut s, "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0));
         }
-        for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
-            let c = color(k as u32 * 5 + 1);
+        for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter()) {
+            let c = color(k.wrapping_mul(5).wrapping_add(1));
             writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x * w.abs()), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
         }
         let read = if name == "ms4" { "resolve 1 0 0 0 2\nread 1 0 256 16 1" } else { "read 0 0 256 16 1" };
@@ -531,31 +531,58 @@ fn suite(d3d11: bool) -> String {
     // a float target of 4 samples, resolved where its samples differ
     writeln!(&mut s, "case probe-rt-ms4-float\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 2 0 0x20 0 0 1 0");
     writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 2\nread 1 0 256 16 1\nend");
     // a buffer's view (16 RGBA8 elements) as the target
     writeln!(&mut s, "case probe-rt-buffer\n{dev}\nbuf 0 64 0 0x20 0 0 0\nrtv 0 0 28 1 0 16\nclear 0 0 0 0 0\ntarget 0");
     writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(&mut s, "draw 4 3 32\nread 0 0 64 1 1\nend");
+    // linear filtering of the packed 4:2:2 formats R8G8_B8G8 and G8R8_G8B8
+    for fmt in [68u32, 69] {
+        writeln!(&mut s, "case probe-filter-fmt{fmt}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
+        writeln!(&mut s, "tex 1 2 4 4 1 1 {fmt} 0 8 0 0 1 0 init 400 16 0\nsrv 1 1 nodesc\ntsrv 1\nsamp 0x15 3 3 3");
+        writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader(Prog::Vs)), hex(&shader(Prog::Pssample)));
+        writeln!(&mut s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0));
+        for (x, y, u, v) in [(-1.0f32, 1.0f32, -0.2f32, -0.2f32), (1.0, 1.0, 0.9, -0.2), (-1.0, -1.0, -0.2, 0.9), (1.0, -1.0, 0.9, 0.9)] {
+            writeln!(&mut s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0));
+        }
+        writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
+    }
+    // a multisampled 2D array's second slice as the target (TEXTURE2DMSARRAY)
+    writeln!(&mut s, "case probe-rt-ms4-array1\n{dev}\ntex 0 2 16 16 2 1 28 0 0x20 0 0 4 0\nrtv 0 0 28 7 1 1\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nresolve 1 0 0 1 28\nread 1 0 64 16 1\nend");
+    // a depth view smaller than the target (8 x 8 under 16 x 16)
+    begin(&mut s, dev, "probe-rt-dsv-small", 16, 16, 28, Prog::Ps);
+    writeln!(&mut s, "tex 2 2 8 8 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0));
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32");
+    read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
+    writeln!(&mut s, "end");
     // topologies D3D11_PRIMITIVE_TOPOLOGY leaves undefined (they may end the executor too, so
     // they come just before)
     for top in [0u32, 6, 7, 8, 9, 65] {
         begin(&mut s, dev, &format!("probe-topology-{top}"), 16, 16, 28, Prog::Ps);
-        for k in 0..3 {
-            vertex(&mut s, 2.0 + 5.0 * k as f32, 3.0 + 4.0 * k as f32, 0.5, color(k), 16.0, 16.0);
+        for (k, f) in (0u32..).zip([0.0f32, 1.0, 2.0]) {
+            vertex(&mut s, 2.0 + 5.0 * f, 3.0 + 4.0 * f, 0.5, color(k), 16.0, 16.0);
         }
         writeln!(s, "draw {top} 3 32");
         read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
         writeln!(s, "end");
     }
     begin(&mut s, dev, "probe-topology-33", 16, 16, 28, Prog::Ps);
-    for k in 0..3 {
-        vertex(&mut s, 2.0 + 5.0 * k as f32, 3.0 + 4.0 * k as f32, 0.5, color(k), 16.0, 16.0);
+    for (k, f) in (0u32..).zip([0.0f32, 1.0, 2.0]) {
+        vertex(&mut s, 2.0 + 5.0 * f, 3.0 + 4.0 * f, 0.5, color(k), 16.0, 16.0);
     }
     writeln!(s, "draw 33 3 32");
     read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
@@ -632,9 +659,9 @@ fn probes(s: &mut String, dev: &str) {
     for (fmt, pitch) in [(28u32, 64u32), (2, 256), (10, 128), (24, 64), (29, 64), (87, 64), (85, 32), (26, 64), (31, 64), (16, 128), (35, 64), (41, 64), (13, 128), (86, 32), (115, 32)] {
         writeln!(s, "case probe-rt-ms4-colors-{fmt}\n{dev}\ntex 0 2 16 16 1 1 {fmt} 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 {fmt} 0 0x20 0 0 1 0");
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-        for (k, t) in [[(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], [(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], [(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)]].iter().enumerate() {
-            for (i, &(x, y)) in t.iter().enumerate() {
-                vertex(s, x, y, 0.5, color(k as u32 * 3 + i as u32), 16.0, 16.0);
+        for (k, t) in (0u32..).zip([[(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], [(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], [(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)]].iter()) {
+            for (i, &(x, y)) in (0u32..).zip(t.iter()) {
+                vertex(s, x, y, 0.5, color(k.wrapping_mul(3).wrapping_add(i)), 16.0, 16.0);
             }
         }
         writeln!(s, "draw 4 9 32\nresolve 1 0 0 0 {fmt}\nread 1 0 {pitch} 16 1\nend");
@@ -643,20 +670,20 @@ fn probes(s: &mut String, dev: &str) {
     // of differing samples of 16-bit UNORM, a vertex behind the eye under colors that differ
     writeln!(s, "case probe-rt-ms4-lines\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 2 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     writeln!(s, "case probe-rt-ms4-points\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 1 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     writeln!(s, "case probe-rt-ms4-unorm16\n{dev}\ntex 0 2 16 16 1 1 11 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 11 0 0x20 0 0 1 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i.wrapping_add(5)), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 11\nread 1 0 128 16 1\nend");
     // what D3DRASTER.RTKIND leaves open: depth per sample, a viewport off whole pixels, lines
@@ -668,47 +695,47 @@ fn probes(s: &mut String, dev: &str) {
     };
     ms4(s, "depth", "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), Prog::Ps);
     writeln!(s, "tex 2 2 16 16 1 1 40 0 0x40 0 0 4 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0));
-    for (k, (t, z)) in [([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], 0.25f32), ([(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], 0.75), ([(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)], 0.5)].into_iter().enumerate() {
-        for (i, (x, y)) in t.into_iter().enumerate() {
-            vertex(s, x, y, z, color(k as u32 * 3 + i as u32), 16.0, 16.0);
+    for (k, (t, z)) in (0u32..).zip([([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)], 0.25f32), ([(3.0, 1.0), (15.5, 15.0), (0.0, 9.75)], 0.75), ([(8.25, 0.0), (12.0, 16.0), (2.0, 12.5)], 0.5)].into_iter()) {
+        for (i, (x, y)) in (0u32..).zip(t.into_iter()) {
+            vertex(s, x, y, z, color(k.wrapping_mul(3).wrapping_add(i)), 16.0, 16.0);
         }
     }
     writeln!(s, "draw 4 9 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     ms4(s, "vphalf", "3 1 0 0 0 0 1 0 0 0", (0.5, 0.25), Prog::Ps);
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     for (name, rast) in [("linesms", "3 1 0 0 0 0 1 0 1 0"), ("linesaa", "3 1 0 0 0 0 1 0 0 1"), ("linesboth", "3 1 0 0 0 0 1 0 1 1")] {
         ms4(s, name, rast, (0.0, 0.0), Prog::Ps);
-        for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
-            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter()) {
+            vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
         }
         writeln!(s, "draw 2 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     }
     ms4(s, "points-pspos", "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), Prog::Pspos);
-    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 1 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     ms4(s, "points-over", "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), Prog::Ps);
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i.wrapping_add(5)), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32");
-    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 1.25), (5.5, 0.75)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 1.25), (5.5, 0.75)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 1 4 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     // lines and wireframe over samples that differ
     for (name, rast, top) in [("lines-over", "3 1 0 0 0 0 1 0 0 0", 2u32), ("wire-over", "2 1 0 0 0 0 1 0 0 0", 4)] {
         ms4(s, name, "3 1 0 0 0 0 1 0 0 0", (0.0, 0.0), Prog::Ps);
-        for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-            vertex(s, x, y, 0.5, color(i as u32 + 5), 16.0, 16.0);
+        for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+            vertex(s, x, y, 0.5, color(i.wrapping_add(5)), 16.0, 16.0);
         }
         writeln!(s, "draw 4 3 32\nrast {rast}");
-        for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75), (0.5, 9.0), (15.0, 3.0)].into_iter().enumerate() {
-            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25), (12.5, 0.75), (0.5, 9.0), (15.0, 3.0)].into_iter()) {
+            vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
         }
         writeln!(s, "draw {top} 6 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     }
@@ -716,8 +743,8 @@ fn probes(s: &mut String, dev: &str) {
     // target of quality 1
     writeln!(s, "case probe-rt-array\n{dev}\ntex 0 2 16 16 2 1 28 0 0x20 0 0 1 0\nrtv 0 0 28 5 0 1 1\nclear 0 0 0 0 0\ntarget 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nread 0 1 64 16 1\nread 0 0 64 16 1\nend");
     // what D3DRASTER.RTKIND leaves open: a 3D texture's view as the target (2 slices)
@@ -727,23 +754,23 @@ fn probes(s: &mut String, dev: &str) {
         let tex = if name == "rt-1d" { "tex 0 1 16 1 1 1 28 0 0x20 0 0 1 0" } else { "tex 0 3 16 16 2 1 28 0 0x20 0 0 1 0" };
         writeln!(s, "case probe-{name}\n{dev}\n{tex}\n{rtv}\nclear 0 0 0 0 0\ntarget 0");
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-        for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+            vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
         }
         let read = if name == "rt-1d" { "read 0 0 64 1 1" } else { "read 0 0 64 16 2" };
         writeln!(s, "draw 4 3 32\n{read}\nend");
     }
     writeln!(s, "case probe-rt-ms4-q1\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 1\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     // copies of differing samples: the whole resource, then resolved
     writeln!(s, "case probe-rt-ms4-copy\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0\ntex 2 2 16 16 1 1 28 0 0x20 0 0 4 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\ncopy 2 0\nresolve 1 0 2 0 28\nread 1 0 64 16 1\nend");
     // what D3DRASTER.RTKIND leaves open: a whole-subresource region copy of differing samples,
@@ -754,8 +781,8 @@ fn probes(s: &mut String, dev: &str) {
             writeln!(s, "{setup}");
         }
         writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-        for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
-            vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+        for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+            vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
         }
         writeln!(s, "draw 4 3 32\n{after}\nread 1 0 64 16 1\nend");
     }
@@ -768,8 +795,8 @@ fn probes(s: &mut String, dev: &str) {
     // what D3DRASTER.RTKIND leaves open: wireframe on a multisampled target
     writeln!(s, "case probe-rt-ms4-wire\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
     writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 2 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
-    for (i, (x, y)) in [(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25)].into_iter().enumerate() {
-        vertex(s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    for (i, (x, y)) in (0u32..).zip([(1.25f32, 2.5f32), (14.5, 11.75), (3.0, 15.25)].into_iter()) {
+        vertex(s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     // an input layout against a refused program
@@ -939,12 +966,12 @@ fn probes(s: &mut String, dev: &str) {
         } else {
             begin(s, dev, &format!("probe-linevert-{i}"), 16, 16, 28, Prog::Ps);
         }
-        for (cell, &(v, (dx, dy), starts)) in part.iter().enumerate() {
+        for (cell, &(v, (dx, dy), starts)) in (0u32..).zip(part.iter()) {
             let (cx, cy) = ((cell % 4 * 4) as f32 + 2.5, (cell / 4 * 4) as f32 + 2.5);
             let (vx, vy) = [(cx - 0.5, cy), (cx + 0.5, cy), (cx, cy - 0.5), (cx, cy + 0.5)][v];
             let (ax, ay, bx, by) = if starts { (vx, vy, vx + dx * 1.5, vy + dy * 1.5) } else { (vx - dx * 1.5, vy - dy * 1.5, vx, vy) };
-            vertex(s, ax, ay, 0.5, color(i as u32 * 37 + 2 * cell as u32), 16.0, 16.0);
-            vertex(s, bx, by, 0.5, color(i as u32 * 37 + 2 * cell as u32 + 1), 16.0, 16.0);
+            vertex(s, ax, ay, 0.5, color(i as u32 * 37 + 2 * cell), 16.0, 16.0);
+            vertex(s, bx, by, 0.5, color(i as u32 * 37 + 2 * cell + 1), 16.0, 16.0);
         }
         writeln!(s, "draw 2 32 32");
         if ms {
@@ -961,13 +988,13 @@ fn probes(s: &mut String, dev: &str) {
     let long: Vec<(f32, f32, f32)> = [1.5f32, 4.0, 14.0].into_iter().flat_map(|len| [0.125f32, 0.25, 0.414, 0.5, 0.75].into_iter().flat_map(move |k| [(1.0f32, -1.0f32), (1.0, 1.0), (-1.0, -1.0), (-1.0, 1.0)].into_iter().map(move |(sx, sy)| (len * sx, len * k * sy, sy)))).collect();
     for (i, pair) in long.chunks(2).enumerate() {
         begin(s, dev, &format!("probe-linecorner-{i}"), 16, 16, 28, Prog::Ps);
-        for (half, &(dx, dy, sy)) in pair.iter().enumerate() {
+        for (half, &(dx, dy, sy)) in (0u32..).zip(pair.iter()) {
             // (the start on the corner between rows 3 and 4, or 11 and 12, at column 1 or 14's
             // center)
             let x = if dx > 0.0 { 1.5 } else { 14.5 };
             let y = if half == 0 { 4.0 } else { 12.0 } + if sy < 0.0 { 3.0 } else { -3.0 } * f32::from(u8::from(dy.abs() > 3.0));
-            vertex(s, x, y, 0.5, color(i as u32 * 7 + 2 * half as u32), 16.0, 16.0);
-            vertex(s, x + dx, y + dy, 0.5, color(i as u32 * 7 + 2 * half as u32 + 1), 16.0, 16.0);
+            vertex(s, x, y, 0.5, color(i as u32 * 7 + 2 * half), 16.0, 16.0);
+            vertex(s, x + dx, y + dy, 0.5, color(i as u32 * 7 + 2 * half + 1), 16.0, 16.0);
         }
         writeln!(s, "draw 2 4 32");
         read_rt(s, 0, crate::dxgi!(28), 16, 16);
@@ -977,14 +1004,14 @@ fn probes(s: &mut String, dev: &str) {
     // 1/2) or every fourth (1/4), of major lengths 5 to 15, rightward and leftward, down and up:
     // probe-linecorner-22 lit the pixel below or above such a corner by its distance along the
     // line
-    for (k, (slope, sx)) in [(0.5f32, 1.0f32), (0.5, -1.0), (-0.5, 1.0), (0.25, 1.0), (0.25, -1.0), (-0.25, 1.0)].into_iter().enumerate() {
+    for (k, (slope, sx)) in (0u32..).zip([(0.5f32, 1.0f32), (0.5, -1.0), (-0.5, 1.0), (0.25, 1.0), (0.25, -1.0), (-0.25, 1.0)].into_iter()) {
         for len in 5..=15u8 {
             let len = f32::from(len);
             begin(s, dev, &format!("probe-linetie-{k}-{len}"), 16, 16, 28, Prog::Ps);
             let x = if sx > 0.0 { 0.5 } else { 15.5 };
             let y = if slope > 0.0 { 0.5 } else { 15.5 };
-            vertex(s, x, y, 0.5, color(k as u32 * 3), 16.0, 16.0);
-            vertex(s, x + sx * len, y + slope * len, 0.5, color(k as u32 * 3 + 1), 16.0, 16.0);
+            vertex(s, x, y, 0.5, color(k * 3), 16.0, 16.0);
+            vertex(s, x + sx * len, y + slope * len, 0.5, color(k * 3 + 1), 16.0, 16.0);
             writeln!(s, "draw 2 2 32");
             read_rt(s, 0, crate::dxgi!(28), 16, 16);
             writeln!(s, "end");
@@ -1084,8 +1111,8 @@ fn probes(s: &mut String, dev: &str) {
     read_rt(s, 0, crate::dxgi!(28), 16, 16);
     writeln!(s, "end");
     begin(s, dev, "probe-clip-w3", 16, 16, 2, Prog::Ps);
-    for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
-        let c = color(k as u32 * 5 + 1);
+    for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter()) {
+        let c = color(k * 5 + 1);
         writeln!(s, "vtx {} {} {} {} {} {} {} {}", fb(x * w.abs()), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
     }
     writeln!(s, "draw 4 3 32");
