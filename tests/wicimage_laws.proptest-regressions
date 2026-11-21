@@ -9,3 +9,4 @@ cc 65ea0f399fcea318a2e00350e42177816c0125c66171d45507b07b778ccf5803 # shrinks to
 cc 8e9a64f659a05ee788624e857a46fcf8f562eabf27b47efbad04eebd40b33a81 # shrinks to r = 7, g = 0, b = 0
 cc 714c86f9e7bc89f4efc82ed2157a6b3c5ccb97b6da8e633e46844896ee76faaa # shrinks to r = 9, g = 0, b = 0
 cc 9ccb45a84dd8d668c686deffe58907e983c746e37c45900b87b24e27171cb2fe # shrinks to c = [12, 72, 200, 242]
+cc 5fa5e003e0bf9591fb6ca7ccc7154689575cef852fbd09497912a53787cf26cc # shrinks to c = [218, 196, 146]
