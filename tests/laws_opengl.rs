@@ -665,6 +665,8 @@ proptest! {
             // (every pixel alike to the rounding of each left edge's start: a float32 ulp of
             // the start, the depth plus the offset)
             prop_assume!(first.abs() < scale / 4.0);
+            // (a start past the 32-bit range is the buffer's i32::MIN, not moved by the offset)
+            prop_assume!(q.2 .0 > 0 && p.2 .0 > 0 && moved[0].2 .0 > 0 && plain[0].2 .0 > 0);
             prop_assert!((shift - first).abs() <= 512.0 + first.abs() * 2f64.powi(-21), "{shift} {first}");
             prop_assert!(first.abs() <= f64::from(factor.abs()) * 4.0 * scale + 64.0 * 256.0 + 512.0);
         }

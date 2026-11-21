@@ -2383,6 +2383,22 @@ impl Ctx {
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), dithered or blended under
     /// 8-bit channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
+        let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
+        self.aa_line_clip((ca, a.1), (cb, b.1), fresh)
+    }
+
+    /// `aa_line` from its ends' clip coordinates and colors
+    fn aa_line_clip(&mut self, a: ([f32; 4], [f32; 4]), b: ([f32; 4], [f32; 4]), fresh: bool) -> Res<()> {
+        // (color index: the index, alpha 1 to carry the coverage; never the fast path,
+        // raster-open-45)
+        let index_mode = self.pf.ty != 0;
+        let scale = self.channel_scales();
+        let end = |v: ([f32; 4], [f32; 4])| tri::ClipEnd { clip: v.0, c: if index_mode { [v.1[0], 0.0, 0.0, 1.0] } else { tri::zip4(v.1, scale, |c, s| c * s) } };
+        self.aa_line_ends(end(a), end(b), fresh)
+    }
+
+    /// `aa_line` from its ends in clip coordinates, colors in channel units
+    fn aa_line_ends(&mut self, a: tri::ClipEnd, b: tri::ClipEnd, fresh: bool) -> Res<()> {
         // (GL_TEXTURE_1D / 2D on with no image: as without, raster-open-44)
         let unmeasured = self.cap(FOG)
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
@@ -2391,12 +2407,9 @@ impl Ctx {
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
-        // (color index: the index, alpha 1 to carry the coverage; never the fast path,
-        // raster-open-45)
         let index_mode = self.pf.ty != 0;
         let scale = self.channel_scales();
-        let end = |v: &(Obj, [f32; 4])| tri::ClipEnd { clip: self.clip_coords(v.0), c: if index_mode { [v.1[0], 0.0, 0.0, 1.0] } else { tri::zip4(v.1, scale, |c, s| c * s) } };
-        let Some((e, cut)) = tri::cut_line(end(a), end(b), true) else { return Ok(()) };
+        let Some((e, cut)) = tri::cut_line(a, b, true) else { return Ok(()) };
         if cut.iter().any(|c| *c) {
             hit(clause::GL_RASTER_INTERPOLATE_LINE);
         }
@@ -2522,10 +2535,8 @@ impl Ctx {
         }
         // (offset: not read by the antialiased fill, its depths from the corners' own, to be
         // seen in raster-open-37)
-        // (in color index mode: fogged not measured)
         let index_mode = self.pf.ty != 0;
-        let unmeasured = (index_mode && self.cap(FOG))
-            || self.pf.rgba[3].0 % 8 != 0
+        let unmeasured = self.pf.rgba[3].0 % 8 != 0
             || clip.iter().any(|c| c[3] <= 0.0);
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
@@ -2605,7 +2616,8 @@ impl Ctx {
                 if fogged {
                     let k = tri::aa_plane(r, [f0, f1, f2], p.at);
                     let a = c[3];
-                    c = tri::zip4(c, fog_color, |c, g| k * c + (1.0 - k) * g);
+                    // (color index: the index plus (1 - k) the fog index, raster-open-56)
+                    c = if index_mode { [c[0] + (1.0 - k) * self.fog.index, 0.0, 0.0, 0.0] } else { tri::zip4(c, fog_color, |c, g| k * c + (1.0 - k) * g) };
                     c[3] = a;
                 }
                 c[3] *= p.cover.fraction();
@@ -2671,11 +2683,15 @@ impl Ctx {
                 // the triangle's offset (as a fill's, tri::Offset) added to each corner's window
                 // depth, fl(z + offset), the edges then drawn as lines: GL.POLYGON.OFFSET;
                 // points, other polygons or cut ones not measured)
-                let offset_line = face == POLY_LINE && self.cap(POLYGON_OFFSET_LINE) && self.cap(DEPTH_TEST) && self.pf.depth > 0;
-                if (face == POLY_POINT && self.cap(POLYGON_OFFSET_POINT)) || (offset_line && (q.len() != 3 || cut != at)) {
+                // (GL_POLYGON_OFFSET_POINT on the corners alike, raster-open-54)
+                let offset_line = ((face == POLY_LINE && self.cap(POLYGON_OFFSET_LINE)) || (face == POLY_POINT && self.cap(POLYGON_OFFSET_POINT))) && self.cap(DEPTH_TEST) && self.pf.depth > 0;
+                if offset_line && (cut != at || (face == POLY_POINT && q.len() != 3)) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 self.line_z_offset = 0.0;
+                // (each fan triangle's own offset: an edge v0 v1 and v1 v2 the first's, vk vk+1
+                // the one of (v0, vk, vk+1), the last edge the last's: raster-open-55)
+                let mut fan: Vec<f32> = Vec::new();
                 if offset_line {
                     hit(clause::GL_POLYGON_OFFSET);
                     let center = self.viewport_center();
@@ -2684,38 +2700,63 @@ impl Ctx {
                         let n = [p[0], p[1], p[2]].map(|v| v * (1.0 / p[3]));
                         Ok((tri::Vertex { x: tri::Sub::snap(f64::from(n[0]), vw, center.0), y: tri::Sub::snap(f64::from(n[1]), vh, center.1) }, self.window_z(n[2])))
                     };
-                    let [(v0, z0), (v1, z1), (v2, z2)] = [corner(0)?, corner(1)?, corner(2)?];
-                    let (a, b) = tri::depth_slopes([v0, v1, v2], [z0, z1, z2]);
                     let units = if self.pf.depth == 32 { self.offset.1 * 2f32.powi(-23) } else { self.offset.1 * (1.0 / 32767.0) };
-                    self.line_z_offset = tri::Offset { factor: self.offset.0, units }.of(a, b);
+                    let (v0, z0) = corner(0)?;
+                    for k in 1..cut.len().saturating_sub(1) {
+                        let [(v1, z1), (v2, z2)] = [corner(k)?, corner(k.wrapping_add(1))?];
+                        let (a, b) = tri::depth_slopes([v0, v1, v2], [z0, z1, z2]);
+                        fan.push(tri::Offset { factor: self.offset.0, units }.of(a, b));
+                    }
+                    self.line_z_offset = fan.first().copied().unwrap_or(0.0);
                 }
+                let edge_offset = |k: usize| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0);
                 let win: Vec<([f64; 3], [f32; 4])> = cut
                     .iter()
                     .map(|p| {
                         // (divided by w, under a projection: raster-open-27)
                         let n = [p[0], p[1]].map(|v| f64::from(v * (1.0 / p[3])));
-                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2] * (1.0 / p[3])) + self.line_z_offset)], [p[4], p[5], p[6], p[7]])
+                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2] * (1.0 / p[3])))], [p[4], p[5], p[6], p[7]])
                     })
                     .collect();
                 if face == POLY_POINT {
                     hit(clause::GL_POINT);
                     for (w, c) in win {
-                        self.point(w, c)?;
+                        self.point([w[0], w[1], f64::from(tri::narrow(w[2]) + self.line_z_offset)], c)?;
                     }
+                    self.line_z_offset = 0.0;
                     return Ok(());
                 }
                 // (wide or antialiased edges: each edge v0 v1, v1 v2, .. by the line renderer of
                 // a GL_LINE_LOOP, the stipple running on, corners drawn by both edges
                 // (raster-open-48, 49); cut by the view volume or flat-shaded not measured)
                 if self.line_width != 1.0 || self.cap(LINE_SMOOTH) {
-                    if cut != at || self.shade == FLAT || offset_line {
+                    if offset_line || (cut != at && !(self.cap(LINE_SMOOTH) && !self.aliased_smooth_line())) {
                         return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                     }
-                    self.verts = q.to_vec();
+                    // (cut by the view volume, antialiased: the cut polygon's edges, raster-open-53)
+                    if cut != at {
+                        // (the corners' colors in channel units through the cut, as an
+                        // antialiased triangle's)
+                        let scale = self.channel_scales();
+                        let units: Vec<[f32; 8]> = at.iter().map(|p| [p[0], p[1], p[2], p[3], p[4] * scale[0], p[5] * scale[1], p[6] * scale[2], p[7] * scale[3]]).collect();
+                        let cut = tri::clip(&units);
+                        let corner = |p: &[f32; 8]| tri::ClipEnd { clip: [p[0], p[1], p[2], p[3]], c: [p[4], p[5], p[6], p[7]] };
+                        for (k, (p, n)) in cut.iter().zip(cut.iter().cycle().skip(1)).enumerate() {
+                            self.aa_line_ends(corner(p), corner(n), k == 0)?;
+                        }
+                        return Ok(());
+                    }
+                    // (flat-shaded: every edge in the provoking vertex's color, raster-open-52)
+                    self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
                     return self.end(LINE_LOOP);
                 }
                 self.stipple = (0, None);
-                for ((a, b), (p, q)) in win.iter().copied().zip(win.iter().copied().cycle().skip(1)).zip(cut.iter().copied().zip(cut.iter().copied().cycle().skip(1))) {
+                for (k, ((mut a, mut b), (p, q))) in win.iter().copied().zip(win.iter().copied().cycle().skip(1)).zip(cut.iter().copied().zip(cut.iter().copied().cycle().skip(1))).enumerate() {
+                    if offset_line {
+                        self.line_z_offset = edge_offset(k);
+                        a.0[2] = f64::from(tri::narrow(a.0[2]) + self.line_z_offset);
+                        b.0[2] = f64::from(tri::narrow(b.0[2]) + self.line_z_offset);
+                    }
                     // (depths that differ only matter where a depth test reads them: interp-open-5)
                     if a.0[2] != b.0[2] && self.cap(DEPTH_TEST) && self.pf.depth > 0 {
                         let color = if a.1 == b.1 { LineColor::Flat(a.1) } else { LineColor::Smooth(a.1, b.1) };

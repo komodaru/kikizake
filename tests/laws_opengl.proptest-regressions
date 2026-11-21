@@ -10,3 +10,4 @@ cc da1d91ba69bbd72c18314b6aaea9baade58a31e24fec38241194e4b965d7154f # shrinks to
 cc 5e2a8cb6a9d47c6fa10232050a9267acbab6ade1e7e1f188c06b904b02020dfc # shrinks to v = [(63, 210), (226, 121)]
 cc 1f258da2b47624071fceeb4905bc0943b579e6110de938b4b26df64ffb52275b # shrinks to v = [(15336, 1184), (19320, -28608), (10792, 9784)], c = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]
 cc 9cce888e942939a526aeecee679bb725b372551fe5a874f76151998b9dfe9dd7 # shrinks to o = 0, size = 583, a = 0.24502499231386463, b = 0.0
+cc 170fe4d5af03e2a2ebda43104912923ec95f6d1c28c55feaa571cde7616c4f93 # shrinks to v = [(1856, -14544), (-6792, 0), (-17128, 20544)], z = [43710, 0, 15937], factor = 3.8551342, units = 0
