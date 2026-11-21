@@ -1,4 +1,4 @@
-kikizake calls text-64 cases 862691160b29a2e8 src cefbb920eb786d0b13fe747dab3de8a20ccdb6ef8ff3f86a35ded85126909674 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 15056 other 0
+kikizake calls text-64 cases 862691160b29a2e8 src 5246bfee7add494f93bf11249174f5aa09bd848aad1c87b618ee61aee485f041 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 15056 other 0
 case state
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
