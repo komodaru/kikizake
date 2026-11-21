@@ -621,6 +621,14 @@ static void op_glp(void) {
     if (bad) return;
     FARPROC p = glf(tok[1]);
     if (!p) { out("glp %s none\n", tok[1]); return; }
+    /* (glRect*v take two pointers, the corners: the array's first and second halves) */
+    size_t len = strlen(tok[1]);
+    if (!strncmp(tok[1], "glRect", 6) && len > 7 && tok[1][len - 1] == 'v') {
+        if (!q || strcmp(sig, "-")) { bad = 1; return; }
+        int sz = elem_size(tok[at]);
+        ((void (WINAPI *)(const void *, const void *))p)(q, (unsigned char *)q + 2 * sz);
+        return;
+    }
     call_lead(p, sig, a, f, d, q);
 }
 
