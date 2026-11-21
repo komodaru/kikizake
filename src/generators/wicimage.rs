@@ -1610,6 +1610,22 @@ pub fn wicencode() -> String {
     for (k, (sub, f, w, h)) in [(0, "bgra", 6, 4), (2, "bgra", 6, 4), (4, "bgra", 6, 4), (2, "bgr24", 21, 13), (4, "bgr24", 21, 13), (1, "bgr24", 21, 13), (3, "bgr24", 21, 13), (2, "gray8", 9, 7), (4, "bgra", 2, 17), (2, "bgra", 2, 17)].into_iter().enumerate() {
         writeln!(s, "case opt-jpeg-subs-{k}-{sub}-{f}\nwbits {f} {w} {h} {}\nwencode jpeg JpegYCrCbSubsampling={sub}\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0200u32 + k as u32);
     }
+    // option values past the enumerations and names an encoder does not take
+    for (k, (c, o)) in [("jpeg", "JpegYCrCbSubsampling=5"), ("wmp", "ImageQuality=0.5"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1"), ("png", "FilterOption=7"), ("jpeg", "SuppressApp0=2")].into_iter().enumerate() {
+        writeln!(s, "case optother-{k}-bgra\nwbits bgra 6 4 {}\nwencode {c} {o}\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b7e_0000u32 + k as u32);
+    }
+    // the pairs of 16-bit formats (WIC.PAIR.WIDE): 64bppRGBA and 48bppRGB PNGs of random levels
+    // into each other, 16bppGray and 64bppRGBAFixedPoint
+    let mut rw = XorShift32::new(0x16b1);
+    for (ct, n, name) in [(6u8, 4usize, "rgba64"), (2, 3, "rgb48")] {
+        let raw: Vec<Vec<u8>> = (0..4).map(|_| bytes(&mut rw, 8 * n * 2)).collect();
+        let f = png(8, 4, 16, ct, false, &[], &png_filter(&raw, n * 2, &[0]), 100);
+        for to in ["rgba64", "rgb48", "gray16", "rgba64fixed"] {
+            if to != name {
+                writeln!(s, "case widepair-{name}-{to}\nwdecode {}\nwframe 0\nwinfo\nwconv {to}\nwpixels\nend", hex(&f));
+            }
+        }
+    }
     s
 }
 
