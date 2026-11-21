@@ -153,3 +153,12 @@ fn the_partial_calls_check_as_ci_condition_is_found() {
     assert!(rust("tests/calls.rs", old).iter().any(|b| b.contains("forbidden: the whole set's condition")));
     assert!(rust("tests/calls.rs", "fn r() { let c = kikizake::calls::check_complete(&d, &root, &req); }").is_empty());
 }
+
+#[test]
+fn parsers_slicing_strings_are_found() {
+    let calls = "fn p(l: &str) {\n    let open = l.find('(')?;\n    let close = l.rfind(\") = \")?;\n    let a = &l[open + 1..close];\n    let n = &l[..open];\n}\n";
+    assert_eq!(rust("src/calls.rs", calls).iter().filter(|b| b.contains("forbidden: a call line is split")).count(), 2);
+    let nt = "fn hex(t: &str) -> u8 { u8::from_str_radix(&t[0..2], 16).unwrap_or(0) }";
+    assert!(rust("src/model/ntstr.rs", nt).iter().any(|b| b.contains("forbidden: hex bytes")));
+    assert!(rust("src/calls.rs", "fn p(l: &str) { let (name, rest) = l.split_once('(')?; }").is_empty());
+}

@@ -422,3 +422,35 @@ fn a_repeat_must_reproduce_the_entire_case_in_the_same_stream() {
     assert_eq!(import(captured.replace("row2", "different")).unwrap().header.stdout, calls::Stdout::Differ);
     assert!(import(captured.replace("gradient", "other")).is_err());
 }
+
+/// the review of 8480456 (5.4): input that is not a recording or not a case line is an error,
+/// never a panic: ") = (" in a recording (its ')' before its '('), and a2i's hex bytes past ASCII
+/// ("aéa"), capitals and past the executor's buffer (as runner/ntstr.c's hexbytes: a bad line)
+#[test]
+fn malformed_input_is_an_error() {
+    let head = "kikizake calls gdi-32 cases 0000000000000000 src x shirusu y stdout same events 0 other 0\n";
+    // (the header and a call as written read back, so the errors below are the call lines')
+    let good = kikizake::calls::parse(&format!("{head}case p\nGdiFlush() = 1\nf(1,(2)) = (3\n"));
+    assert!(good.is_ok(), "{good:?}");
+    for body in ["case p\n) = (\n", "case p\nf) = (1\n", "case p\n(\n", "case p\n) = \n"] {
+        assert!(kikizake::calls::parse(&format!("{head}{body}")).is_err(), "{body:?}");
+    }
+    let run = |l: &str| kikizake::model::run_case(&kikizake::case::parse_cases(&format!("case p\n{l}\nend\n"))[0]);
+    for l in ["a2i 10 a\u{e9}a", "a2i 10 3A", "a2i 10 3", &format!("a2i 10 {}", "31".repeat(80)), "u2i 10 2 \u{e9}\u{e9}"] {
+        assert!(matches!(run(l), Err(kikizake::model::Fail::Bad)), "{l}: {:?}", run(l));
+    }
+    assert!(run(&format!("a2i 10 {}", "31".repeat(79))).is_ok());
+}
+
+proptest! {
+    /// any text through the recording parser and any ntstr line through the model: an answer
+    /// or an error, never a panic
+    #[test]
+    fn parsers_never_panic(body in "[a-z()= !,0-9\u{e9}\\n]{0,60}", hex in "[0-9a-fA-F\u{e9}g]{0,12}") {
+        let head = "kikizake calls gdi-32 cases 0000000000000000 src x shirusu y stdout same events 0 other 0\n";
+        let _ = kikizake::calls::parse(&format!("{head}case p\n{body}"));
+        for op in ["a2i 16", "u2i 16 4", "a2u 4 8"] {
+            let _ = kikizake::model::run_case(&kikizake::case::parse_cases(&format!("case p\n{op} {hex}\nend\n"))[0]);
+        }
+    }
+}

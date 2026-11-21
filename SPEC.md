@@ -179,8 +179,9 @@ Without a context the gl lines print `noctx`. A case's context and DIB are relea
 
 The first suite past graphics: the Win32 base functions games and runtimes call, checked the same
 way. ntdll is found with GetModuleHandle and the functions with GetProcAddress (`<op> none` where
-one is missing). Strings are hex: bytes (`-` is none), or for UTF-16 four hex digits per unit as
-written (`0031` is "1"). Statuses and values are 8 hex digits.
+one is missing). Strings are hex: bytes (`-` is none) as pairs of lowercase hex digits, at most the op's buffer
+(a2i and a2u 79 bytes, u2i 158; anything else, capitals and characters past ASCII among it, is a
+bad line on both sides), or for UTF-16 four hex digits per unit as written (`0031` is "1"). Statuses and values are 8 hex digits.
 
 | line | calls | prints |
 |---|---|---|

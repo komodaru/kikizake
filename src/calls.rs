@@ -702,18 +702,21 @@ pub fn parse(text: &str) -> Result<Recording, String> {
             c.bad.push(Line(b.parse().map_err(|_| e("bad line number"))?));
         } else if !l.is_empty() {
             let c = cases.last_mut().ok_or_else(|| e("outside a case"))?;
-            let open = l.find('(').ok_or_else(|| e("no '('"))?;
-            let close = l.rfind(") = ").ok_or_else(|| e("no ') = '"))?;
-            let (ret, err) = match l[close + 4..].split_once(" ! ") {
+            // (the name before the first '(', the arguments up to the last ") = " after it: split,
+            // not sliced by positions found apart, so ") = (" is an error and not a panic, the
+            // review of 8480456, 5.4)
+            let (name, rest) = l.split_once('(').ok_or_else(|| e("no '('"))?;
+            let (args, tail) = rest.rsplit_once(") = ").ok_or_else(|| e("no ') = ' after the '('"))?;
+            let (ret, err) = match tail.split_once(" ! ") {
                 Some((r, er)) => (r, Some(LastError(er.parse().map_err(|_| e("bad last error"))?))),
-                None => (&l[close + 4..], None),
+                None => (tail, None),
             };
             let ret = match ret {
                 "?" => Ret::Never,
                 "void" => Ret::Void,
                 v => Ret::Value(read_val(v)),
             };
-            c.calls.push(Call { api: Api(l[..open].to_string()), args: split_args(&l[open + 1..close]).iter().map(|t| read_val(t)).collect(), ret, err });
+            c.calls.push(Call { api: Api(name.to_string()), args: split_args(args).iter().map(|t| read_val(t)).collect(), ret, err });
         }
     }
     Ok(Recording { header, cases })

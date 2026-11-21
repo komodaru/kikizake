@@ -277,16 +277,31 @@ pub struct Ntstr;
 fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
 }
-fn hex(op: &Op, i: usize) -> Res<Vec<u8>> {
+/// token i as bytes, as the executor's hexbytes reads it: "-" none, else pairs of lowercase hex
+/// digits, at most MAX bytes (the op's buffer); anything else a bad line (the review of 8480456,
+/// 5.4: a byte past ASCII was sliced through and the model stopped; capitals and a length past
+/// the buffer were taken where the executor refuses them)
+fn hex<const MAX: usize>(op: &Op, i: usize) -> Res<Vec<u8>> {
     let t = op.tok.get(i).ok_or(Fail::Bad)?;
     if t == "-" {
         return Ok(Vec::new());
     }
-    if t.len() % 2 == 1 {
+    let digit = |c: u8| match c {
+        b'0'..=b'9' => Some(c - b'0'),
+        b'a'..=b'f' => Some(c - b'a' + 10),
+        _ => None,
+    };
+    let b = t.as_bytes();
+    if b.len() % 2 == 1 || b.len() / 2 > MAX {
         return Err(Fail::Bad);
     }
-    (0..t.len() / 2).map(|k| u8::from_str_radix(&t[2 * k..2 * k + 2], 16).map_err(|_| Fail::Bad)).collect()
+    b.chunks_exact(2).map(|p| digit(p[0]).zip(digit(p[1])).map(|(h, l)| h << 4 | l).ok_or(Fail::Bad)).collect()
 }
+
+/// the executor's buffers (runner/ntstr.c): a2i's and a2u's 80 bytes less the NUL, u2i's 158
+const A2I_BYTES: usize = 79;
+const U2I_BYTES: usize = 158;
+const A2U_BYTES: usize = 79;
 fn hexs(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02x}")).collect()
 }
@@ -299,12 +314,12 @@ impl Api for Ntstr {
     fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         match op.tok[0].as_str() {
             "a2i" => {
-                let (base, b) = (ulong(n(op, 1)?), hex(op, 2)?);
+                let (base, b) = (ulong(n(op, 1)?), hex::<A2I_BYTES>(op, 2)?);
                 let (st, v) = char_to_integer(&b, base);
                 out.push(format!("a2i {:08x} {:08x}", st.code(), v.unwrap_or(0xdead_beef)));
             }
             "u2i" => {
-                let (base, len, b) = (ulong(n(op, 1)?), n(op, 2)?, hex(op, 3)?);
+                let (base, len, b) = (ulong(n(op, 1)?), n(op, 2)?, hex::<U2I_BYTES>(op, 3)?);
                 if b.len() % 2 == 1 || len < 0 || len > b.len() as i64 + 1 {
                     return Err(Fail::Bad);
                 }
@@ -338,7 +353,7 @@ impl Api for Ntstr {
                 let st = if i2u {
                     integer_to_unicode(first, ulong(n(op, 2)?), &mut s)
                 } else {
-                    let (len, a) = (n(op, 1)?, hex(op, 3)?);
+                    let (len, a) = (n(op, 1)?, hex::<A2U_BYTES>(op, 3)?);
                     if len < 0 || len as usize > a.len() || a.len() > 79 || a.iter().any(|&x| x >= 0x80) {
                         return Err(Fail::Bad);
                     }

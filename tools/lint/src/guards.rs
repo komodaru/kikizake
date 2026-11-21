@@ -47,6 +47,8 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
 /// (file, what (a regular expression), why): `forbidden`
 pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated"),
+    ("src/calls.rs", r"\[\s*(open|close)\s*\+|\[\s*\.\.\s*open\s*\]", "a call line is split (split_once, rsplit_once), not sliced at positions found apart: \") = (\" panicked (review of 8480456, 5.4)"),
+    ("src/model/ntstr.rs", r"from_str_radix\s*\(\s*&\w+\s*\[", "hex bytes are read as the executor's hexbytes does, digit by digit of the bytes: a str slice through a character past ASCII panicked (review of 8480456, 5.4)"),
     ("tests/calls.rs", r"calls::check_dir\s*\(", "the whole set's condition is check_complete (every suite of spec/calls-suites.txt, current); check_dir checks only the recordings there are"),
     ("src/model/d3d12.rs", r#""device12"\s*=>\s*\{[^}]*self\.(chain|factory)\s*="#, "device12 again keeps the executor's device and what was made of it (dxgi device-again)"),
 ];
