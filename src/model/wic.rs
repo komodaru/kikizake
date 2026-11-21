@@ -8,7 +8,8 @@
 //! bits, 16-bit channels to 8 by their high byte, premultiplied alpha undone by a 16.16 reciprocal and
 //! truncated, 16bppGray levels to 8 bits by a measured table, nearest opaque palette entries).
 
-use crate::spec::{clause, open};
+use crate::spec::clause;
+use std::sync::OnceLock;
 use super::{Fail, Res};
 use crate::spec::hit;
 
@@ -86,6 +87,54 @@ pub fn stride(f: usize, w: u32) -> usize {
 /// the executor's palette (ARGB): 16 colors, entry 5 with alpha 0x40
 pub fn palette() -> Vec<u32> {
     (0..16u32).map(|i| (if i == 5 { 0x4000_0000 } else { 0xff00_0000 }) | (i * 17) << 16 | (255 - i * 13) << 8 | ((i * 71) & 255)).collect()
+}
+
+/// FOUND clean-room (windowscodecs CHalftone::BuildNearestEntryTable, FindNearestColor and the
+/// NearestColor op; confirmed by golden wic pair-*-idx*: every pixel): with no dithering a
+/// pixel's index is a 16x16x16 table's entry at its colors' top 4 bits; each cell holds the
+/// palette entry (the first 2^bits of it) nearest, by the sum of squares over B, G, R and A,
+/// the color of levels 17 times the cell's (alpha 255), the first of equals; the pixel's own
+/// alpha is not looked at
+fn nearest_entry(bits: u32, [b, g, r]: [u8; 3]) -> u8 {
+    static T: OnceLock<Vec<[u8; 4096]>> = OnceLock::new();
+    let t = T.get_or_init(|| {
+        let pal = palette();
+        [1u32, 2, 4, 8]
+            .iter()
+            .map(|&bits| {
+                let n = pal.len().min(1 << bits);
+                std::array::from_fn(|cell| {
+                    let c = [cell & 15, (cell >> 4) & 15, cell >> 8].map(|v| (v * 17) as i32);
+                    let d = |e: u32| -> i32 {
+                        let k = |s: u32| ((e >> s) & 0xff) as i32;
+                        (c[0] - k(0)).pow(2) + (c[1] - k(8)).pow(2) + (c[2] - k(16)).pow(2) + (255 - k(24)).pow(2)
+                    };
+                    let mut best = (i32::MAX, 0usize);
+                    for (i, &e) in pal.iter().take(n).enumerate() {
+                        if d(e) < best.0 {
+                            best = (d(e), i);
+                        }
+                    }
+                    best.1 as u8
+                })
+            })
+            .collect()
+    });
+    let k = match bits {
+        1 => 0,
+        2 => 1,
+        4 => 2,
+        _ => 3,
+    };
+    t[k][(usize::from(r >> 4) << 8) | usize::from(g & 0xf0) | usize::from(b >> 4)]
+}
+
+fn put_bits_or_byte(row: &mut [u8], x: usize, bits: u32, v: u32) {
+    if bits == 8 {
+        row[x] = v as u8;
+    } else {
+        put_bits(row, x as u32, bits, v);
+    }
 }
 
 fn get_bits(row: &[u8], x: u32, bits: u32) -> u32 {
@@ -214,13 +263,13 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
     let name = FORMATS[f].0;
     hit(match name {
         "bw" | "gray2" | "gray4" | "gray8" => clause::WIC_FROM_GRAY,
-        "gray16" => return Err(Fail::Unmodeled(open::WIC_FROM_GRAY16)),
+        "gray16" => clause::WIC_FROM_GRAY16,
         "bgr555" | "bgr565" => clause::WIC_FROM_TRUNCATE,
         "rgb48" | "rgba64" => clause::WIC_FROM_WIDEN,
         "pbgra" | "prgba" => clause::WIC_FROM_PREMULTIPLY,
         "bgr32" | "rgb32" => clause::WIC_FROM_X,
         "cmyk" => clause::WIC_FROM_CMYK,
-        n if n.starts_with("idx") => return Err(Fail::Unmodeled(open::WIC_FROM_INDEXED)),
+        n if n.starts_with("idx") => clause::WIC_FROM_INDEXED,
         _ => clause::WIC_LAYOUT,
     });
     let n = (bits(f) / 8) as usize;
@@ -241,6 +290,14 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
         "gray2" => put_bits(row, x as u32, 2, (gray() as u32 * 3 + 127) / 255),
         "gray4" => put_bits(row, x as u32, 4, gray() as u32 >> 4),
         "gray8" => row[o] = gray(),
+        // (FOUND clean-room: MIL's GammaConvert_32bppBGRA_128bppRGBA then
+        // GammaConvert_128bppRGBA_16bppGrayInt: each channel's linear float, the luma in f32,
+        // back into 16 bits sRGB)
+        "gray16" => {
+            use super::wicimage::{float_srgb, gray_luma, linear16, FloatBack};
+            let l = |c: u8| linear16(u16::from(c) * 257);
+            w16(row, o, float_srgb(gray_luma(l(r), l(g), l(b)), FloatBack::Bits16));
+        }
         "alpha8" => row[o] = a,
         "bgr555" => w16(row, o, ((r as u16 >> 3) << 10) | ((g as u16 >> 3) << 5) | (b as u16 >> 3)),
         "bgr565" => w16(row, o, ((r as u16 >> 3) << 11) | ((g as u16 >> 2) << 5) | (b as u16 >> 3)),
@@ -263,7 +320,10 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
                 w16(row, o + 2 * k, c as u16 * 257);
             }
         }
-        // (gray16, cmyk and the indexed formats answered Unmodeled above)
+        "idx1" | "idx2" | "idx4" | "idx8" => {
+            let b2 = bits(f);
+            put_bits_or_byte(row, x, b2, u32::from(nearest_entry(b2, [b, g, r])));
+        }
         _ => return Err(Fail::Bad),
     }
     Ok(())
@@ -289,8 +349,12 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
     if from != bgra && to != bgra {
         // (FOUND clean-room: a pair from or to 32bppCMYK goes through 32bppBGRA, windowscodecsext's
         // N-channel converter on the CMYK side: WIC.TO.CMYK, WIC.FROM.CMYK)
+        // (between the 16-bit formats: MIL's direct ops, as wicimage has them)
         if wide(from) && wide(to) {
-            return Err(Fail::Unmodeled(open::WIC_PAIR_WIDE));
+            hit(clause::WIC_PAIR);
+            let mut img = super::wicimage::Img::new(w, h, FORMATS[from].0);
+            img.px = data[..ss * h as usize].to_vec();
+            return Ok(super::wicimage::wic_convert(&img, FORMATS[to].0)?.px);
         }
         hit(clause::WIC_PAIR);
     }

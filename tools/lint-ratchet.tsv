@@ -512,11 +512,12 @@ file	src/model/rootsig.rs	cast_sign_loss	2
 file	src/model/rootsig.rs	indexing_slicing	34
 file	src/model/warpline.rs	as_conversions	1
 file	src/model/warpline.rs	cast_precision_loss	1
-file	src/model/wic.rs	arithmetic_side_effects	40
-file	src/model/wic.rs	as_conversions	52
-file	src/model/wic.rs	cast_possible_truncation	18
+file	src/model/wic.rs	arithmetic_side_effects	43
+file	src/model/wic.rs	as_conversions	58
+file	src/model/wic.rs	cast_possible_truncation	22
+file	src/model/wic.rs	cast_possible_wrap	2
 file	src/model/wic.rs	cast_sign_loss	3
-file	src/model/wic.rs	indexing_slicing	75
+file	src/model/wic.rs	indexing_slicing	80
 file	src/model/wicimage.rs	arithmetic_side_effects	510
 file	src/model/wicimage.rs	as_conversions	451
 file	src/model/wicimage.rs	cast_possible_truncation	116
