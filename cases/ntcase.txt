@@ -1,0 +1,3073 @@
+# kikizake suite ntcase: ntdll's case tables (SPEC.md). Made by `kikizake gen ntcase`.
+case up-00
+tab up 0
+end
+case up-01
+tab up 1
+end
+case up-02
+tab up 2
+end
+case up-03
+tab up 3
+end
+case up-04
+tab up 4
+end
+case up-05
+tab up 5
+end
+case up-06
+tab up 6
+end
+case up-07
+tab up 7
+end
+case up-08
+tab up 8
+end
+case up-09
+tab up 9
+end
+case up-0a
+tab up 10
+end
+case up-0b
+tab up 11
+end
+case up-0c
+tab up 12
+end
+case up-0d
+tab up 13
+end
+case up-0e
+tab up 14
+end
+case up-0f
+tab up 15
+end
+case up-10
+tab up 16
+end
+case up-11
+tab up 17
+end
+case up-12
+tab up 18
+end
+case up-13
+tab up 19
+end
+case up-14
+tab up 20
+end
+case up-15
+tab up 21
+end
+case up-16
+tab up 22
+end
+case up-17
+tab up 23
+end
+case up-18
+tab up 24
+end
+case up-19
+tab up 25
+end
+case up-1a
+tab up 26
+end
+case up-1b
+tab up 27
+end
+case up-1c
+tab up 28
+end
+case up-1d
+tab up 29
+end
+case up-1e
+tab up 30
+end
+case up-1f
+tab up 31
+end
+case up-20
+tab up 32
+end
+case up-21
+tab up 33
+end
+case up-22
+tab up 34
+end
+case up-23
+tab up 35
+end
+case up-24
+tab up 36
+end
+case up-25
+tab up 37
+end
+case up-26
+tab up 38
+end
+case up-27
+tab up 39
+end
+case up-28
+tab up 40
+end
+case up-29
+tab up 41
+end
+case up-2a
+tab up 42
+end
+case up-2b
+tab up 43
+end
+case up-2c
+tab up 44
+end
+case up-2d
+tab up 45
+end
+case up-2e
+tab up 46
+end
+case up-2f
+tab up 47
+end
+case up-30
+tab up 48
+end
+case up-31
+tab up 49
+end
+case up-32
+tab up 50
+end
+case up-33
+tab up 51
+end
+case up-34
+tab up 52
+end
+case up-35
+tab up 53
+end
+case up-36
+tab up 54
+end
+case up-37
+tab up 55
+end
+case up-38
+tab up 56
+end
+case up-39
+tab up 57
+end
+case up-3a
+tab up 58
+end
+case up-3b
+tab up 59
+end
+case up-3c
+tab up 60
+end
+case up-3d
+tab up 61
+end
+case up-3e
+tab up 62
+end
+case up-3f
+tab up 63
+end
+case up-40
+tab up 64
+end
+case up-41
+tab up 65
+end
+case up-42
+tab up 66
+end
+case up-43
+tab up 67
+end
+case up-44
+tab up 68
+end
+case up-45
+tab up 69
+end
+case up-46
+tab up 70
+end
+case up-47
+tab up 71
+end
+case up-48
+tab up 72
+end
+case up-49
+tab up 73
+end
+case up-4a
+tab up 74
+end
+case up-4b
+tab up 75
+end
+case up-4c
+tab up 76
+end
+case up-4d
+tab up 77
+end
+case up-4e
+tab up 78
+end
+case up-4f
+tab up 79
+end
+case up-50
+tab up 80
+end
+case up-51
+tab up 81
+end
+case up-52
+tab up 82
+end
+case up-53
+tab up 83
+end
+case up-54
+tab up 84
+end
+case up-55
+tab up 85
+end
+case up-56
+tab up 86
+end
+case up-57
+tab up 87
+end
+case up-58
+tab up 88
+end
+case up-59
+tab up 89
+end
+case up-5a
+tab up 90
+end
+case up-5b
+tab up 91
+end
+case up-5c
+tab up 92
+end
+case up-5d
+tab up 93
+end
+case up-5e
+tab up 94
+end
+case up-5f
+tab up 95
+end
+case up-60
+tab up 96
+end
+case up-61
+tab up 97
+end
+case up-62
+tab up 98
+end
+case up-63
+tab up 99
+end
+case up-64
+tab up 100
+end
+case up-65
+tab up 101
+end
+case up-66
+tab up 102
+end
+case up-67
+tab up 103
+end
+case up-68
+tab up 104
+end
+case up-69
+tab up 105
+end
+case up-6a
+tab up 106
+end
+case up-6b
+tab up 107
+end
+case up-6c
+tab up 108
+end
+case up-6d
+tab up 109
+end
+case up-6e
+tab up 110
+end
+case up-6f
+tab up 111
+end
+case up-70
+tab up 112
+end
+case up-71
+tab up 113
+end
+case up-72
+tab up 114
+end
+case up-73
+tab up 115
+end
+case up-74
+tab up 116
+end
+case up-75
+tab up 117
+end
+case up-76
+tab up 118
+end
+case up-77
+tab up 119
+end
+case up-78
+tab up 120
+end
+case up-79
+tab up 121
+end
+case up-7a
+tab up 122
+end
+case up-7b
+tab up 123
+end
+case up-7c
+tab up 124
+end
+case up-7d
+tab up 125
+end
+case up-7e
+tab up 126
+end
+case up-7f
+tab up 127
+end
+case up-80
+tab up 128
+end
+case up-81
+tab up 129
+end
+case up-82
+tab up 130
+end
+case up-83
+tab up 131
+end
+case up-84
+tab up 132
+end
+case up-85
+tab up 133
+end
+case up-86
+tab up 134
+end
+case up-87
+tab up 135
+end
+case up-88
+tab up 136
+end
+case up-89
+tab up 137
+end
+case up-8a
+tab up 138
+end
+case up-8b
+tab up 139
+end
+case up-8c
+tab up 140
+end
+case up-8d
+tab up 141
+end
+case up-8e
+tab up 142
+end
+case up-8f
+tab up 143
+end
+case up-90
+tab up 144
+end
+case up-91
+tab up 145
+end
+case up-92
+tab up 146
+end
+case up-93
+tab up 147
+end
+case up-94
+tab up 148
+end
+case up-95
+tab up 149
+end
+case up-96
+tab up 150
+end
+case up-97
+tab up 151
+end
+case up-98
+tab up 152
+end
+case up-99
+tab up 153
+end
+case up-9a
+tab up 154
+end
+case up-9b
+tab up 155
+end
+case up-9c
+tab up 156
+end
+case up-9d
+tab up 157
+end
+case up-9e
+tab up 158
+end
+case up-9f
+tab up 159
+end
+case up-a0
+tab up 160
+end
+case up-a1
+tab up 161
+end
+case up-a2
+tab up 162
+end
+case up-a3
+tab up 163
+end
+case up-a4
+tab up 164
+end
+case up-a5
+tab up 165
+end
+case up-a6
+tab up 166
+end
+case up-a7
+tab up 167
+end
+case up-a8
+tab up 168
+end
+case up-a9
+tab up 169
+end
+case up-aa
+tab up 170
+end
+case up-ab
+tab up 171
+end
+case up-ac
+tab up 172
+end
+case up-ad
+tab up 173
+end
+case up-ae
+tab up 174
+end
+case up-af
+tab up 175
+end
+case up-b0
+tab up 176
+end
+case up-b1
+tab up 177
+end
+case up-b2
+tab up 178
+end
+case up-b3
+tab up 179
+end
+case up-b4
+tab up 180
+end
+case up-b5
+tab up 181
+end
+case up-b6
+tab up 182
+end
+case up-b7
+tab up 183
+end
+case up-b8
+tab up 184
+end
+case up-b9
+tab up 185
+end
+case up-ba
+tab up 186
+end
+case up-bb
+tab up 187
+end
+case up-bc
+tab up 188
+end
+case up-bd
+tab up 189
+end
+case up-be
+tab up 190
+end
+case up-bf
+tab up 191
+end
+case up-c0
+tab up 192
+end
+case up-c1
+tab up 193
+end
+case up-c2
+tab up 194
+end
+case up-c3
+tab up 195
+end
+case up-c4
+tab up 196
+end
+case up-c5
+tab up 197
+end
+case up-c6
+tab up 198
+end
+case up-c7
+tab up 199
+end
+case up-c8
+tab up 200
+end
+case up-c9
+tab up 201
+end
+case up-ca
+tab up 202
+end
+case up-cb
+tab up 203
+end
+case up-cc
+tab up 204
+end
+case up-cd
+tab up 205
+end
+case up-ce
+tab up 206
+end
+case up-cf
+tab up 207
+end
+case up-d0
+tab up 208
+end
+case up-d1
+tab up 209
+end
+case up-d2
+tab up 210
+end
+case up-d3
+tab up 211
+end
+case up-d4
+tab up 212
+end
+case up-d5
+tab up 213
+end
+case up-d6
+tab up 214
+end
+case up-d7
+tab up 215
+end
+case up-d8
+tab up 216
+end
+case up-d9
+tab up 217
+end
+case up-da
+tab up 218
+end
+case up-db
+tab up 219
+end
+case up-dc
+tab up 220
+end
+case up-dd
+tab up 221
+end
+case up-de
+tab up 222
+end
+case up-df
+tab up 223
+end
+case up-e0
+tab up 224
+end
+case up-e1
+tab up 225
+end
+case up-e2
+tab up 226
+end
+case up-e3
+tab up 227
+end
+case up-e4
+tab up 228
+end
+case up-e5
+tab up 229
+end
+case up-e6
+tab up 230
+end
+case up-e7
+tab up 231
+end
+case up-e8
+tab up 232
+end
+case up-e9
+tab up 233
+end
+case up-ea
+tab up 234
+end
+case up-eb
+tab up 235
+end
+case up-ec
+tab up 236
+end
+case up-ed
+tab up 237
+end
+case up-ee
+tab up 238
+end
+case up-ef
+tab up 239
+end
+case up-f0
+tab up 240
+end
+case up-f1
+tab up 241
+end
+case up-f2
+tab up 242
+end
+case up-f3
+tab up 243
+end
+case up-f4
+tab up 244
+end
+case up-f5
+tab up 245
+end
+case up-f6
+tab up 246
+end
+case up-f7
+tab up 247
+end
+case up-f8
+tab up 248
+end
+case up-f9
+tab up 249
+end
+case up-fa
+tab up 250
+end
+case up-fb
+tab up 251
+end
+case up-fc
+tab up 252
+end
+case up-fd
+tab up 253
+end
+case up-fe
+tab up 254
+end
+case up-ff
+tab up 255
+end
+case down-00
+tab down 0
+end
+case down-01
+tab down 1
+end
+case down-02
+tab down 2
+end
+case down-03
+tab down 3
+end
+case down-04
+tab down 4
+end
+case down-05
+tab down 5
+end
+case down-06
+tab down 6
+end
+case down-07
+tab down 7
+end
+case down-08
+tab down 8
+end
+case down-09
+tab down 9
+end
+case down-0a
+tab down 10
+end
+case down-0b
+tab down 11
+end
+case down-0c
+tab down 12
+end
+case down-0d
+tab down 13
+end
+case down-0e
+tab down 14
+end
+case down-0f
+tab down 15
+end
+case down-10
+tab down 16
+end
+case down-11
+tab down 17
+end
+case down-12
+tab down 18
+end
+case down-13
+tab down 19
+end
+case down-14
+tab down 20
+end
+case down-15
+tab down 21
+end
+case down-16
+tab down 22
+end
+case down-17
+tab down 23
+end
+case down-18
+tab down 24
+end
+case down-19
+tab down 25
+end
+case down-1a
+tab down 26
+end
+case down-1b
+tab down 27
+end
+case down-1c
+tab down 28
+end
+case down-1d
+tab down 29
+end
+case down-1e
+tab down 30
+end
+case down-1f
+tab down 31
+end
+case down-20
+tab down 32
+end
+case down-21
+tab down 33
+end
+case down-22
+tab down 34
+end
+case down-23
+tab down 35
+end
+case down-24
+tab down 36
+end
+case down-25
+tab down 37
+end
+case down-26
+tab down 38
+end
+case down-27
+tab down 39
+end
+case down-28
+tab down 40
+end
+case down-29
+tab down 41
+end
+case down-2a
+tab down 42
+end
+case down-2b
+tab down 43
+end
+case down-2c
+tab down 44
+end
+case down-2d
+tab down 45
+end
+case down-2e
+tab down 46
+end
+case down-2f
+tab down 47
+end
+case down-30
+tab down 48
+end
+case down-31
+tab down 49
+end
+case down-32
+tab down 50
+end
+case down-33
+tab down 51
+end
+case down-34
+tab down 52
+end
+case down-35
+tab down 53
+end
+case down-36
+tab down 54
+end
+case down-37
+tab down 55
+end
+case down-38
+tab down 56
+end
+case down-39
+tab down 57
+end
+case down-3a
+tab down 58
+end
+case down-3b
+tab down 59
+end
+case down-3c
+tab down 60
+end
+case down-3d
+tab down 61
+end
+case down-3e
+tab down 62
+end
+case down-3f
+tab down 63
+end
+case down-40
+tab down 64
+end
+case down-41
+tab down 65
+end
+case down-42
+tab down 66
+end
+case down-43
+tab down 67
+end
+case down-44
+tab down 68
+end
+case down-45
+tab down 69
+end
+case down-46
+tab down 70
+end
+case down-47
+tab down 71
+end
+case down-48
+tab down 72
+end
+case down-49
+tab down 73
+end
+case down-4a
+tab down 74
+end
+case down-4b
+tab down 75
+end
+case down-4c
+tab down 76
+end
+case down-4d
+tab down 77
+end
+case down-4e
+tab down 78
+end
+case down-4f
+tab down 79
+end
+case down-50
+tab down 80
+end
+case down-51
+tab down 81
+end
+case down-52
+tab down 82
+end
+case down-53
+tab down 83
+end
+case down-54
+tab down 84
+end
+case down-55
+tab down 85
+end
+case down-56
+tab down 86
+end
+case down-57
+tab down 87
+end
+case down-58
+tab down 88
+end
+case down-59
+tab down 89
+end
+case down-5a
+tab down 90
+end
+case down-5b
+tab down 91
+end
+case down-5c
+tab down 92
+end
+case down-5d
+tab down 93
+end
+case down-5e
+tab down 94
+end
+case down-5f
+tab down 95
+end
+case down-60
+tab down 96
+end
+case down-61
+tab down 97
+end
+case down-62
+tab down 98
+end
+case down-63
+tab down 99
+end
+case down-64
+tab down 100
+end
+case down-65
+tab down 101
+end
+case down-66
+tab down 102
+end
+case down-67
+tab down 103
+end
+case down-68
+tab down 104
+end
+case down-69
+tab down 105
+end
+case down-6a
+tab down 106
+end
+case down-6b
+tab down 107
+end
+case down-6c
+tab down 108
+end
+case down-6d
+tab down 109
+end
+case down-6e
+tab down 110
+end
+case down-6f
+tab down 111
+end
+case down-70
+tab down 112
+end
+case down-71
+tab down 113
+end
+case down-72
+tab down 114
+end
+case down-73
+tab down 115
+end
+case down-74
+tab down 116
+end
+case down-75
+tab down 117
+end
+case down-76
+tab down 118
+end
+case down-77
+tab down 119
+end
+case down-78
+tab down 120
+end
+case down-79
+tab down 121
+end
+case down-7a
+tab down 122
+end
+case down-7b
+tab down 123
+end
+case down-7c
+tab down 124
+end
+case down-7d
+tab down 125
+end
+case down-7e
+tab down 126
+end
+case down-7f
+tab down 127
+end
+case down-80
+tab down 128
+end
+case down-81
+tab down 129
+end
+case down-82
+tab down 130
+end
+case down-83
+tab down 131
+end
+case down-84
+tab down 132
+end
+case down-85
+tab down 133
+end
+case down-86
+tab down 134
+end
+case down-87
+tab down 135
+end
+case down-88
+tab down 136
+end
+case down-89
+tab down 137
+end
+case down-8a
+tab down 138
+end
+case down-8b
+tab down 139
+end
+case down-8c
+tab down 140
+end
+case down-8d
+tab down 141
+end
+case down-8e
+tab down 142
+end
+case down-8f
+tab down 143
+end
+case down-90
+tab down 144
+end
+case down-91
+tab down 145
+end
+case down-92
+tab down 146
+end
+case down-93
+tab down 147
+end
+case down-94
+tab down 148
+end
+case down-95
+tab down 149
+end
+case down-96
+tab down 150
+end
+case down-97
+tab down 151
+end
+case down-98
+tab down 152
+end
+case down-99
+tab down 153
+end
+case down-9a
+tab down 154
+end
+case down-9b
+tab down 155
+end
+case down-9c
+tab down 156
+end
+case down-9d
+tab down 157
+end
+case down-9e
+tab down 158
+end
+case down-9f
+tab down 159
+end
+case down-a0
+tab down 160
+end
+case down-a1
+tab down 161
+end
+case down-a2
+tab down 162
+end
+case down-a3
+tab down 163
+end
+case down-a4
+tab down 164
+end
+case down-a5
+tab down 165
+end
+case down-a6
+tab down 166
+end
+case down-a7
+tab down 167
+end
+case down-a8
+tab down 168
+end
+case down-a9
+tab down 169
+end
+case down-aa
+tab down 170
+end
+case down-ab
+tab down 171
+end
+case down-ac
+tab down 172
+end
+case down-ad
+tab down 173
+end
+case down-ae
+tab down 174
+end
+case down-af
+tab down 175
+end
+case down-b0
+tab down 176
+end
+case down-b1
+tab down 177
+end
+case down-b2
+tab down 178
+end
+case down-b3
+tab down 179
+end
+case down-b4
+tab down 180
+end
+case down-b5
+tab down 181
+end
+case down-b6
+tab down 182
+end
+case down-b7
+tab down 183
+end
+case down-b8
+tab down 184
+end
+case down-b9
+tab down 185
+end
+case down-ba
+tab down 186
+end
+case down-bb
+tab down 187
+end
+case down-bc
+tab down 188
+end
+case down-bd
+tab down 189
+end
+case down-be
+tab down 190
+end
+case down-bf
+tab down 191
+end
+case down-c0
+tab down 192
+end
+case down-c1
+tab down 193
+end
+case down-c2
+tab down 194
+end
+case down-c3
+tab down 195
+end
+case down-c4
+tab down 196
+end
+case down-c5
+tab down 197
+end
+case down-c6
+tab down 198
+end
+case down-c7
+tab down 199
+end
+case down-c8
+tab down 200
+end
+case down-c9
+tab down 201
+end
+case down-ca
+tab down 202
+end
+case down-cb
+tab down 203
+end
+case down-cc
+tab down 204
+end
+case down-cd
+tab down 205
+end
+case down-ce
+tab down 206
+end
+case down-cf
+tab down 207
+end
+case down-d0
+tab down 208
+end
+case down-d1
+tab down 209
+end
+case down-d2
+tab down 210
+end
+case down-d3
+tab down 211
+end
+case down-d4
+tab down 212
+end
+case down-d5
+tab down 213
+end
+case down-d6
+tab down 214
+end
+case down-d7
+tab down 215
+end
+case down-d8
+tab down 216
+end
+case down-d9
+tab down 217
+end
+case down-da
+tab down 218
+end
+case down-db
+tab down 219
+end
+case down-dc
+tab down 220
+end
+case down-dd
+tab down 221
+end
+case down-de
+tab down 222
+end
+case down-df
+tab down 223
+end
+case down-e0
+tab down 224
+end
+case down-e1
+tab down 225
+end
+case down-e2
+tab down 226
+end
+case down-e3
+tab down 227
+end
+case down-e4
+tab down 228
+end
+case down-e5
+tab down 229
+end
+case down-e6
+tab down 230
+end
+case down-e7
+tab down 231
+end
+case down-e8
+tab down 232
+end
+case down-e9
+tab down 233
+end
+case down-ea
+tab down 234
+end
+case down-eb
+tab down 235
+end
+case down-ec
+tab down 236
+end
+case down-ed
+tab down 237
+end
+case down-ee
+tab down 238
+end
+case down-ef
+tab down 239
+end
+case down-f0
+tab down 240
+end
+case down-f1
+tab down 241
+end
+case down-f2
+tab down 242
+end
+case down-f3
+tab down 243
+end
+case down-f4
+tab down 244
+end
+case down-f5
+tab down 245
+end
+case down-f6
+tab down 246
+end
+case down-f7
+tab down 247
+end
+case down-f8
+tab down 248
+end
+case down-f9
+tab down 249
+end
+case down-fa
+tab down 250
+end
+case down-fb
+tab down 251
+end
+case down-fc
+tab down 252
+end
+case down-fd
+tab down 253
+end
+case down-fe
+tab down 254
+end
+case down-ff
+tab down 255
+end
+case towupper-00
+tab towupper 0
+end
+case towupper-01
+tab towupper 1
+end
+case towupper-02
+tab towupper 2
+end
+case towupper-03
+tab towupper 3
+end
+case towupper-04
+tab towupper 4
+end
+case towupper-05
+tab towupper 5
+end
+case towupper-06
+tab towupper 6
+end
+case towupper-07
+tab towupper 7
+end
+case towupper-08
+tab towupper 8
+end
+case towupper-09
+tab towupper 9
+end
+case towupper-0a
+tab towupper 10
+end
+case towupper-0b
+tab towupper 11
+end
+case towupper-0c
+tab towupper 12
+end
+case towupper-0d
+tab towupper 13
+end
+case towupper-0e
+tab towupper 14
+end
+case towupper-0f
+tab towupper 15
+end
+case towupper-10
+tab towupper 16
+end
+case towupper-11
+tab towupper 17
+end
+case towupper-12
+tab towupper 18
+end
+case towupper-13
+tab towupper 19
+end
+case towupper-14
+tab towupper 20
+end
+case towupper-15
+tab towupper 21
+end
+case towupper-16
+tab towupper 22
+end
+case towupper-17
+tab towupper 23
+end
+case towupper-18
+tab towupper 24
+end
+case towupper-19
+tab towupper 25
+end
+case towupper-1a
+tab towupper 26
+end
+case towupper-1b
+tab towupper 27
+end
+case towupper-1c
+tab towupper 28
+end
+case towupper-1d
+tab towupper 29
+end
+case towupper-1e
+tab towupper 30
+end
+case towupper-1f
+tab towupper 31
+end
+case towupper-20
+tab towupper 32
+end
+case towupper-21
+tab towupper 33
+end
+case towupper-22
+tab towupper 34
+end
+case towupper-23
+tab towupper 35
+end
+case towupper-24
+tab towupper 36
+end
+case towupper-25
+tab towupper 37
+end
+case towupper-26
+tab towupper 38
+end
+case towupper-27
+tab towupper 39
+end
+case towupper-28
+tab towupper 40
+end
+case towupper-29
+tab towupper 41
+end
+case towupper-2a
+tab towupper 42
+end
+case towupper-2b
+tab towupper 43
+end
+case towupper-2c
+tab towupper 44
+end
+case towupper-2d
+tab towupper 45
+end
+case towupper-2e
+tab towupper 46
+end
+case towupper-2f
+tab towupper 47
+end
+case towupper-30
+tab towupper 48
+end
+case towupper-31
+tab towupper 49
+end
+case towupper-32
+tab towupper 50
+end
+case towupper-33
+tab towupper 51
+end
+case towupper-34
+tab towupper 52
+end
+case towupper-35
+tab towupper 53
+end
+case towupper-36
+tab towupper 54
+end
+case towupper-37
+tab towupper 55
+end
+case towupper-38
+tab towupper 56
+end
+case towupper-39
+tab towupper 57
+end
+case towupper-3a
+tab towupper 58
+end
+case towupper-3b
+tab towupper 59
+end
+case towupper-3c
+tab towupper 60
+end
+case towupper-3d
+tab towupper 61
+end
+case towupper-3e
+tab towupper 62
+end
+case towupper-3f
+tab towupper 63
+end
+case towupper-40
+tab towupper 64
+end
+case towupper-41
+tab towupper 65
+end
+case towupper-42
+tab towupper 66
+end
+case towupper-43
+tab towupper 67
+end
+case towupper-44
+tab towupper 68
+end
+case towupper-45
+tab towupper 69
+end
+case towupper-46
+tab towupper 70
+end
+case towupper-47
+tab towupper 71
+end
+case towupper-48
+tab towupper 72
+end
+case towupper-49
+tab towupper 73
+end
+case towupper-4a
+tab towupper 74
+end
+case towupper-4b
+tab towupper 75
+end
+case towupper-4c
+tab towupper 76
+end
+case towupper-4d
+tab towupper 77
+end
+case towupper-4e
+tab towupper 78
+end
+case towupper-4f
+tab towupper 79
+end
+case towupper-50
+tab towupper 80
+end
+case towupper-51
+tab towupper 81
+end
+case towupper-52
+tab towupper 82
+end
+case towupper-53
+tab towupper 83
+end
+case towupper-54
+tab towupper 84
+end
+case towupper-55
+tab towupper 85
+end
+case towupper-56
+tab towupper 86
+end
+case towupper-57
+tab towupper 87
+end
+case towupper-58
+tab towupper 88
+end
+case towupper-59
+tab towupper 89
+end
+case towupper-5a
+tab towupper 90
+end
+case towupper-5b
+tab towupper 91
+end
+case towupper-5c
+tab towupper 92
+end
+case towupper-5d
+tab towupper 93
+end
+case towupper-5e
+tab towupper 94
+end
+case towupper-5f
+tab towupper 95
+end
+case towupper-60
+tab towupper 96
+end
+case towupper-61
+tab towupper 97
+end
+case towupper-62
+tab towupper 98
+end
+case towupper-63
+tab towupper 99
+end
+case towupper-64
+tab towupper 100
+end
+case towupper-65
+tab towupper 101
+end
+case towupper-66
+tab towupper 102
+end
+case towupper-67
+tab towupper 103
+end
+case towupper-68
+tab towupper 104
+end
+case towupper-69
+tab towupper 105
+end
+case towupper-6a
+tab towupper 106
+end
+case towupper-6b
+tab towupper 107
+end
+case towupper-6c
+tab towupper 108
+end
+case towupper-6d
+tab towupper 109
+end
+case towupper-6e
+tab towupper 110
+end
+case towupper-6f
+tab towupper 111
+end
+case towupper-70
+tab towupper 112
+end
+case towupper-71
+tab towupper 113
+end
+case towupper-72
+tab towupper 114
+end
+case towupper-73
+tab towupper 115
+end
+case towupper-74
+tab towupper 116
+end
+case towupper-75
+tab towupper 117
+end
+case towupper-76
+tab towupper 118
+end
+case towupper-77
+tab towupper 119
+end
+case towupper-78
+tab towupper 120
+end
+case towupper-79
+tab towupper 121
+end
+case towupper-7a
+tab towupper 122
+end
+case towupper-7b
+tab towupper 123
+end
+case towupper-7c
+tab towupper 124
+end
+case towupper-7d
+tab towupper 125
+end
+case towupper-7e
+tab towupper 126
+end
+case towupper-7f
+tab towupper 127
+end
+case towupper-80
+tab towupper 128
+end
+case towupper-81
+tab towupper 129
+end
+case towupper-82
+tab towupper 130
+end
+case towupper-83
+tab towupper 131
+end
+case towupper-84
+tab towupper 132
+end
+case towupper-85
+tab towupper 133
+end
+case towupper-86
+tab towupper 134
+end
+case towupper-87
+tab towupper 135
+end
+case towupper-88
+tab towupper 136
+end
+case towupper-89
+tab towupper 137
+end
+case towupper-8a
+tab towupper 138
+end
+case towupper-8b
+tab towupper 139
+end
+case towupper-8c
+tab towupper 140
+end
+case towupper-8d
+tab towupper 141
+end
+case towupper-8e
+tab towupper 142
+end
+case towupper-8f
+tab towupper 143
+end
+case towupper-90
+tab towupper 144
+end
+case towupper-91
+tab towupper 145
+end
+case towupper-92
+tab towupper 146
+end
+case towupper-93
+tab towupper 147
+end
+case towupper-94
+tab towupper 148
+end
+case towupper-95
+tab towupper 149
+end
+case towupper-96
+tab towupper 150
+end
+case towupper-97
+tab towupper 151
+end
+case towupper-98
+tab towupper 152
+end
+case towupper-99
+tab towupper 153
+end
+case towupper-9a
+tab towupper 154
+end
+case towupper-9b
+tab towupper 155
+end
+case towupper-9c
+tab towupper 156
+end
+case towupper-9d
+tab towupper 157
+end
+case towupper-9e
+tab towupper 158
+end
+case towupper-9f
+tab towupper 159
+end
+case towupper-a0
+tab towupper 160
+end
+case towupper-a1
+tab towupper 161
+end
+case towupper-a2
+tab towupper 162
+end
+case towupper-a3
+tab towupper 163
+end
+case towupper-a4
+tab towupper 164
+end
+case towupper-a5
+tab towupper 165
+end
+case towupper-a6
+tab towupper 166
+end
+case towupper-a7
+tab towupper 167
+end
+case towupper-a8
+tab towupper 168
+end
+case towupper-a9
+tab towupper 169
+end
+case towupper-aa
+tab towupper 170
+end
+case towupper-ab
+tab towupper 171
+end
+case towupper-ac
+tab towupper 172
+end
+case towupper-ad
+tab towupper 173
+end
+case towupper-ae
+tab towupper 174
+end
+case towupper-af
+tab towupper 175
+end
+case towupper-b0
+tab towupper 176
+end
+case towupper-b1
+tab towupper 177
+end
+case towupper-b2
+tab towupper 178
+end
+case towupper-b3
+tab towupper 179
+end
+case towupper-b4
+tab towupper 180
+end
+case towupper-b5
+tab towupper 181
+end
+case towupper-b6
+tab towupper 182
+end
+case towupper-b7
+tab towupper 183
+end
+case towupper-b8
+tab towupper 184
+end
+case towupper-b9
+tab towupper 185
+end
+case towupper-ba
+tab towupper 186
+end
+case towupper-bb
+tab towupper 187
+end
+case towupper-bc
+tab towupper 188
+end
+case towupper-bd
+tab towupper 189
+end
+case towupper-be
+tab towupper 190
+end
+case towupper-bf
+tab towupper 191
+end
+case towupper-c0
+tab towupper 192
+end
+case towupper-c1
+tab towupper 193
+end
+case towupper-c2
+tab towupper 194
+end
+case towupper-c3
+tab towupper 195
+end
+case towupper-c4
+tab towupper 196
+end
+case towupper-c5
+tab towupper 197
+end
+case towupper-c6
+tab towupper 198
+end
+case towupper-c7
+tab towupper 199
+end
+case towupper-c8
+tab towupper 200
+end
+case towupper-c9
+tab towupper 201
+end
+case towupper-ca
+tab towupper 202
+end
+case towupper-cb
+tab towupper 203
+end
+case towupper-cc
+tab towupper 204
+end
+case towupper-cd
+tab towupper 205
+end
+case towupper-ce
+tab towupper 206
+end
+case towupper-cf
+tab towupper 207
+end
+case towupper-d0
+tab towupper 208
+end
+case towupper-d1
+tab towupper 209
+end
+case towupper-d2
+tab towupper 210
+end
+case towupper-d3
+tab towupper 211
+end
+case towupper-d4
+tab towupper 212
+end
+case towupper-d5
+tab towupper 213
+end
+case towupper-d6
+tab towupper 214
+end
+case towupper-d7
+tab towupper 215
+end
+case towupper-d8
+tab towupper 216
+end
+case towupper-d9
+tab towupper 217
+end
+case towupper-da
+tab towupper 218
+end
+case towupper-db
+tab towupper 219
+end
+case towupper-dc
+tab towupper 220
+end
+case towupper-dd
+tab towupper 221
+end
+case towupper-de
+tab towupper 222
+end
+case towupper-df
+tab towupper 223
+end
+case towupper-e0
+tab towupper 224
+end
+case towupper-e1
+tab towupper 225
+end
+case towupper-e2
+tab towupper 226
+end
+case towupper-e3
+tab towupper 227
+end
+case towupper-e4
+tab towupper 228
+end
+case towupper-e5
+tab towupper 229
+end
+case towupper-e6
+tab towupper 230
+end
+case towupper-e7
+tab towupper 231
+end
+case towupper-e8
+tab towupper 232
+end
+case towupper-e9
+tab towupper 233
+end
+case towupper-ea
+tab towupper 234
+end
+case towupper-eb
+tab towupper 235
+end
+case towupper-ec
+tab towupper 236
+end
+case towupper-ed
+tab towupper 237
+end
+case towupper-ee
+tab towupper 238
+end
+case towupper-ef
+tab towupper 239
+end
+case towupper-f0
+tab towupper 240
+end
+case towupper-f1
+tab towupper 241
+end
+case towupper-f2
+tab towupper 242
+end
+case towupper-f3
+tab towupper 243
+end
+case towupper-f4
+tab towupper 244
+end
+case towupper-f5
+tab towupper 245
+end
+case towupper-f6
+tab towupper 246
+end
+case towupper-f7
+tab towupper 247
+end
+case towupper-f8
+tab towupper 248
+end
+case towupper-f9
+tab towupper 249
+end
+case towupper-fa
+tab towupper 250
+end
+case towupper-fb
+tab towupper 251
+end
+case towupper-fc
+tab towupper 252
+end
+case towupper-fd
+tab towupper 253
+end
+case towupper-fe
+tab towupper 254
+end
+case towupper-ff
+tab towupper 255
+end
+case towlower-00
+tab towlower 0
+end
+case towlower-01
+tab towlower 1
+end
+case towlower-02
+tab towlower 2
+end
+case towlower-03
+tab towlower 3
+end
+case towlower-04
+tab towlower 4
+end
+case towlower-05
+tab towlower 5
+end
+case towlower-06
+tab towlower 6
+end
+case towlower-07
+tab towlower 7
+end
+case towlower-08
+tab towlower 8
+end
+case towlower-09
+tab towlower 9
+end
+case towlower-0a
+tab towlower 10
+end
+case towlower-0b
+tab towlower 11
+end
+case towlower-0c
+tab towlower 12
+end
+case towlower-0d
+tab towlower 13
+end
+case towlower-0e
+tab towlower 14
+end
+case towlower-0f
+tab towlower 15
+end
+case towlower-10
+tab towlower 16
+end
+case towlower-11
+tab towlower 17
+end
+case towlower-12
+tab towlower 18
+end
+case towlower-13
+tab towlower 19
+end
+case towlower-14
+tab towlower 20
+end
+case towlower-15
+tab towlower 21
+end
+case towlower-16
+tab towlower 22
+end
+case towlower-17
+tab towlower 23
+end
+case towlower-18
+tab towlower 24
+end
+case towlower-19
+tab towlower 25
+end
+case towlower-1a
+tab towlower 26
+end
+case towlower-1b
+tab towlower 27
+end
+case towlower-1c
+tab towlower 28
+end
+case towlower-1d
+tab towlower 29
+end
+case towlower-1e
+tab towlower 30
+end
+case towlower-1f
+tab towlower 31
+end
+case towlower-20
+tab towlower 32
+end
+case towlower-21
+tab towlower 33
+end
+case towlower-22
+tab towlower 34
+end
+case towlower-23
+tab towlower 35
+end
+case towlower-24
+tab towlower 36
+end
+case towlower-25
+tab towlower 37
+end
+case towlower-26
+tab towlower 38
+end
+case towlower-27
+tab towlower 39
+end
+case towlower-28
+tab towlower 40
+end
+case towlower-29
+tab towlower 41
+end
+case towlower-2a
+tab towlower 42
+end
+case towlower-2b
+tab towlower 43
+end
+case towlower-2c
+tab towlower 44
+end
+case towlower-2d
+tab towlower 45
+end
+case towlower-2e
+tab towlower 46
+end
+case towlower-2f
+tab towlower 47
+end
+case towlower-30
+tab towlower 48
+end
+case towlower-31
+tab towlower 49
+end
+case towlower-32
+tab towlower 50
+end
+case towlower-33
+tab towlower 51
+end
+case towlower-34
+tab towlower 52
+end
+case towlower-35
+tab towlower 53
+end
+case towlower-36
+tab towlower 54
+end
+case towlower-37
+tab towlower 55
+end
+case towlower-38
+tab towlower 56
+end
+case towlower-39
+tab towlower 57
+end
+case towlower-3a
+tab towlower 58
+end
+case towlower-3b
+tab towlower 59
+end
+case towlower-3c
+tab towlower 60
+end
+case towlower-3d
+tab towlower 61
+end
+case towlower-3e
+tab towlower 62
+end
+case towlower-3f
+tab towlower 63
+end
+case towlower-40
+tab towlower 64
+end
+case towlower-41
+tab towlower 65
+end
+case towlower-42
+tab towlower 66
+end
+case towlower-43
+tab towlower 67
+end
+case towlower-44
+tab towlower 68
+end
+case towlower-45
+tab towlower 69
+end
+case towlower-46
+tab towlower 70
+end
+case towlower-47
+tab towlower 71
+end
+case towlower-48
+tab towlower 72
+end
+case towlower-49
+tab towlower 73
+end
+case towlower-4a
+tab towlower 74
+end
+case towlower-4b
+tab towlower 75
+end
+case towlower-4c
+tab towlower 76
+end
+case towlower-4d
+tab towlower 77
+end
+case towlower-4e
+tab towlower 78
+end
+case towlower-4f
+tab towlower 79
+end
+case towlower-50
+tab towlower 80
+end
+case towlower-51
+tab towlower 81
+end
+case towlower-52
+tab towlower 82
+end
+case towlower-53
+tab towlower 83
+end
+case towlower-54
+tab towlower 84
+end
+case towlower-55
+tab towlower 85
+end
+case towlower-56
+tab towlower 86
+end
+case towlower-57
+tab towlower 87
+end
+case towlower-58
+tab towlower 88
+end
+case towlower-59
+tab towlower 89
+end
+case towlower-5a
+tab towlower 90
+end
+case towlower-5b
+tab towlower 91
+end
+case towlower-5c
+tab towlower 92
+end
+case towlower-5d
+tab towlower 93
+end
+case towlower-5e
+tab towlower 94
+end
+case towlower-5f
+tab towlower 95
+end
+case towlower-60
+tab towlower 96
+end
+case towlower-61
+tab towlower 97
+end
+case towlower-62
+tab towlower 98
+end
+case towlower-63
+tab towlower 99
+end
+case towlower-64
+tab towlower 100
+end
+case towlower-65
+tab towlower 101
+end
+case towlower-66
+tab towlower 102
+end
+case towlower-67
+tab towlower 103
+end
+case towlower-68
+tab towlower 104
+end
+case towlower-69
+tab towlower 105
+end
+case towlower-6a
+tab towlower 106
+end
+case towlower-6b
+tab towlower 107
+end
+case towlower-6c
+tab towlower 108
+end
+case towlower-6d
+tab towlower 109
+end
+case towlower-6e
+tab towlower 110
+end
+case towlower-6f
+tab towlower 111
+end
+case towlower-70
+tab towlower 112
+end
+case towlower-71
+tab towlower 113
+end
+case towlower-72
+tab towlower 114
+end
+case towlower-73
+tab towlower 115
+end
+case towlower-74
+tab towlower 116
+end
+case towlower-75
+tab towlower 117
+end
+case towlower-76
+tab towlower 118
+end
+case towlower-77
+tab towlower 119
+end
+case towlower-78
+tab towlower 120
+end
+case towlower-79
+tab towlower 121
+end
+case towlower-7a
+tab towlower 122
+end
+case towlower-7b
+tab towlower 123
+end
+case towlower-7c
+tab towlower 124
+end
+case towlower-7d
+tab towlower 125
+end
+case towlower-7e
+tab towlower 126
+end
+case towlower-7f
+tab towlower 127
+end
+case towlower-80
+tab towlower 128
+end
+case towlower-81
+tab towlower 129
+end
+case towlower-82
+tab towlower 130
+end
+case towlower-83
+tab towlower 131
+end
+case towlower-84
+tab towlower 132
+end
+case towlower-85
+tab towlower 133
+end
+case towlower-86
+tab towlower 134
+end
+case towlower-87
+tab towlower 135
+end
+case towlower-88
+tab towlower 136
+end
+case towlower-89
+tab towlower 137
+end
+case towlower-8a
+tab towlower 138
+end
+case towlower-8b
+tab towlower 139
+end
+case towlower-8c
+tab towlower 140
+end
+case towlower-8d
+tab towlower 141
+end
+case towlower-8e
+tab towlower 142
+end
+case towlower-8f
+tab towlower 143
+end
+case towlower-90
+tab towlower 144
+end
+case towlower-91
+tab towlower 145
+end
+case towlower-92
+tab towlower 146
+end
+case towlower-93
+tab towlower 147
+end
+case towlower-94
+tab towlower 148
+end
+case towlower-95
+tab towlower 149
+end
+case towlower-96
+tab towlower 150
+end
+case towlower-97
+tab towlower 151
+end
+case towlower-98
+tab towlower 152
+end
+case towlower-99
+tab towlower 153
+end
+case towlower-9a
+tab towlower 154
+end
+case towlower-9b
+tab towlower 155
+end
+case towlower-9c
+tab towlower 156
+end
+case towlower-9d
+tab towlower 157
+end
+case towlower-9e
+tab towlower 158
+end
+case towlower-9f
+tab towlower 159
+end
+case towlower-a0
+tab towlower 160
+end
+case towlower-a1
+tab towlower 161
+end
+case towlower-a2
+tab towlower 162
+end
+case towlower-a3
+tab towlower 163
+end
+case towlower-a4
+tab towlower 164
+end
+case towlower-a5
+tab towlower 165
+end
+case towlower-a6
+tab towlower 166
+end
+case towlower-a7
+tab towlower 167
+end
+case towlower-a8
+tab towlower 168
+end
+case towlower-a9
+tab towlower 169
+end
+case towlower-aa
+tab towlower 170
+end
+case towlower-ab
+tab towlower 171
+end
+case towlower-ac
+tab towlower 172
+end
+case towlower-ad
+tab towlower 173
+end
+case towlower-ae
+tab towlower 174
+end
+case towlower-af
+tab towlower 175
+end
+case towlower-b0
+tab towlower 176
+end
+case towlower-b1
+tab towlower 177
+end
+case towlower-b2
+tab towlower 178
+end
+case towlower-b3
+tab towlower 179
+end
+case towlower-b4
+tab towlower 180
+end
+case towlower-b5
+tab towlower 181
+end
+case towlower-b6
+tab towlower 182
+end
+case towlower-b7
+tab towlower 183
+end
+case towlower-b8
+tab towlower 184
+end
+case towlower-b9
+tab towlower 185
+end
+case towlower-ba
+tab towlower 186
+end
+case towlower-bb
+tab towlower 187
+end
+case towlower-bc
+tab towlower 188
+end
+case towlower-bd
+tab towlower 189
+end
+case towlower-be
+tab towlower 190
+end
+case towlower-bf
+tab towlower 191
+end
+case towlower-c0
+tab towlower 192
+end
+case towlower-c1
+tab towlower 193
+end
+case towlower-c2
+tab towlower 194
+end
+case towlower-c3
+tab towlower 195
+end
+case towlower-c4
+tab towlower 196
+end
+case towlower-c5
+tab towlower 197
+end
+case towlower-c6
+tab towlower 198
+end
+case towlower-c7
+tab towlower 199
+end
+case towlower-c8
+tab towlower 200
+end
+case towlower-c9
+tab towlower 201
+end
+case towlower-ca
+tab towlower 202
+end
+case towlower-cb
+tab towlower 203
+end
+case towlower-cc
+tab towlower 204
+end
+case towlower-cd
+tab towlower 205
+end
+case towlower-ce
+tab towlower 206
+end
+case towlower-cf
+tab towlower 207
+end
+case towlower-d0
+tab towlower 208
+end
+case towlower-d1
+tab towlower 209
+end
+case towlower-d2
+tab towlower 210
+end
+case towlower-d3
+tab towlower 211
+end
+case towlower-d4
+tab towlower 212
+end
+case towlower-d5
+tab towlower 213
+end
+case towlower-d6
+tab towlower 214
+end
+case towlower-d7
+tab towlower 215
+end
+case towlower-d8
+tab towlower 216
+end
+case towlower-d9
+tab towlower 217
+end
+case towlower-da
+tab towlower 218
+end
+case towlower-db
+tab towlower 219
+end
+case towlower-dc
+tab towlower 220
+end
+case towlower-dd
+tab towlower 221
+end
+case towlower-de
+tab towlower 222
+end
+case towlower-df
+tab towlower 223
+end
+case towlower-e0
+tab towlower 224
+end
+case towlower-e1
+tab towlower 225
+end
+case towlower-e2
+tab towlower 226
+end
+case towlower-e3
+tab towlower 227
+end
+case towlower-e4
+tab towlower 228
+end
+case towlower-e5
+tab towlower 229
+end
+case towlower-e6
+tab towlower 230
+end
+case towlower-e7
+tab towlower 231
+end
+case towlower-e8
+tab towlower 232
+end
+case towlower-e9
+tab towlower 233
+end
+case towlower-ea
+tab towlower 234
+end
+case towlower-eb
+tab towlower 235
+end
+case towlower-ec
+tab towlower 236
+end
+case towlower-ed
+tab towlower 237
+end
+case towlower-ee
+tab towlower 238
+end
+case towlower-ef
+tab towlower 239
+end
+case towlower-f0
+tab towlower 240
+end
+case towlower-f1
+tab towlower 241
+end
+case towlower-f2
+tab towlower 242
+end
+case towlower-f3
+tab towlower 243
+end
+case towlower-f4
+tab towlower 244
+end
+case towlower-f5
+tab towlower 245
+end
+case towlower-f6
+tab towlower 246
+end
+case towlower-f7
+tab towlower 247
+end
+case towlower-f8
+tab towlower 248
+end
+case towlower-f9
+tab towlower 249
+end
+case towlower-fa
+tab towlower 250
+end
+case towlower-fb
+tab towlower 251
+end
+case towlower-fc
+tab towlower 252
+end
+case towlower-fd
+tab towlower 253
+end
+case towlower-fe
+tab towlower 254
+end
+case towlower-ff
+tab towlower 255
+end

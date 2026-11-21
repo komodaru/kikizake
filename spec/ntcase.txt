@@ -1,0 +1,7 @@
+# ntcase clauses (spec/README.md): <id> <status> | <source> | <what it says>
+# ntdll's case tables over every UTF-16 unit. Learn names no table: the model takes Unicode's simple
+# case mappings (one BMP unit to one) until the golden ntcase answers settle the exceptions.
+NT.CASE.UP assumed | RtlUpcaseUnicodeChar | RtlUpcaseUnicodeChar returns the uppercase of a unit: Unicode's simple uppercase mapping where it is one BMP unit, else the unit itself
+NT.CASE.DOWN assumed | RtlDowncaseUnicodeChar | RtlDowncaseUnicodeChar returns the lowercase of a unit: Unicode's simple lowercase mapping where it is one BMP unit, else the unit itself
+NT.CASE.TOWUPPER assumed | (none) | ntdll's own towupper is RtlUpcaseUnicodeChar (the clean-room notes: a tail jump)
+NT.CASE.TOWLOWER assumed | (none) | ntdll's own towlower adds 0x20 to a unit its type table marks upper case, which is 'A'..'Z' and U+00C0..U+00DE but U+00D7, every other unit unchanged (the clean-room notes)

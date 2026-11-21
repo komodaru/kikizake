@@ -29,6 +29,7 @@ mod gditext;
 mod gdiblend;
 mod gdiddb;
 mod ntstr;
+mod ntcase;
 mod wicimage;
 pub use wicimage::{bmp as wicimage_bmp, gif as wicimage_gif, png as wicimage_png, png_filter as wicimage_png_filter, png_channels as wicimage_png_channels, ico as wicimage_ico, GifFrame as WicGifFrame, ADAM7 as WICIMAGE_ADAM7};
 
@@ -99,6 +100,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("wicencode", wicimage::wicencode),
     ("opengl", opengl::opengl),
     ("ntstr", ntstr::ntstr),
+    ("ntcase", ntcase::ntcase),
     ("ddclip", ddraw::ddclip),
     ("ddpal", ddraw::ddpal),
     ("dddc", ddraw::dddc),

@@ -628,3 +628,5 @@ IDXGISwapChain1::Present1 | https://learn.microsoft.com/en-us/windows/win32/api/
 DXGI_PRESENT_PARAMETERS | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_2/ns-dxgi1_2-dxgi_present_parameters
 IDXGISwapChain4::SetHDRMetaData | https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_5/nf-dxgi1_5-idxgiswapchain4-sethdrmetadata
 D3D12_STATIC_SAMPLER_DESC | https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_static_sampler_desc
+RtlUpcaseUnicodeChar | https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-rtlupcaseunicodechar
+RtlDowncaseUnicodeChar | https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-rtldowncaseunicodechar
