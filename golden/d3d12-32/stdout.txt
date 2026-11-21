@@ -18084,7 +18084,7 @@ device12 ok
 qheap12 hr 00000000
 case make-285
 device12 ok
-qheap12 hr 00000000
+qheap12 hr 8007000e
 case make-286
 device12 ok
 qheap12 hr 8007000e
@@ -18108,7 +18108,7 @@ device12 ok
 qheap12 hr 00000000
 case make-293
 device12 ok
-qheap12 hr 00000000
+qheap12 hr 8007000e
 case make-294
 device12 ok
 qheap12 hr 8007000e
