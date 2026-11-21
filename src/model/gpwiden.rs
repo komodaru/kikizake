@@ -1039,7 +1039,7 @@ fn norm(r: Round, (x, y): P) -> f32 {
     if v < f64::from(EPS) { 0.0 } else { to32(r, v) }
 }
 /// sqrt in double in the rounding mode
-fn sqrt64(r: Round, a: f64) -> f64 {
+pub fn sqrt64(r: Round, a: f64) -> f64 {
     let v = a.sqrt();
     match r {
         Round::Nearest => v,

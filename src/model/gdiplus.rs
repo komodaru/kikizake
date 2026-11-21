@@ -2427,7 +2427,6 @@ impl Gdiplus {
                         }
                     },
                 };
-                let one = v[2] == v[6] && v[3] == v[7];
                 // (GdipSetInterpolationMode takes 0 ..= 7, GdipSetPixelOffsetMode 0 ..= 4, any other
                 // value InvalidParameter; the runner then draws nothing, clean-room notes image.md
                 // 11, golden drawmode-*)
@@ -2436,11 +2435,9 @@ impl Gdiplus {
                     out.push(format!("draw 0 {INVALID_PARAMETER}"));
                     return Ok(true);
                 };
-                // (a bitmap onto itself and flipped rectangles not asked)
-                if d == s || v[2] <= 0 || v[3] <= 0 || v[6] <= 0 || v[7] <= 0 {
-                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
-                }
                 hit(clause::GP_DRAW);
+                // (a bitmap onto itself: DrvDrawImage draws from a 32bppPARGB clone made first,
+                // clean-room notes image.md 12a, golden drawself-*)
                 let src = filled(&self.bmp, s)?.clone();
                 let b = filled_mut(&mut self.bmp, d)?;
                 let (dx, dy, w, h, sx, sy, sw, sh) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
@@ -2460,77 +2457,49 @@ impl Gdiplus {
                     }))
                 };
                 let mut colors = std::collections::HashMap::new();
-                let high = match interp {
-                    Interp::HighQualityBilinear => Some(super::gpstretch::Kernel::Tent),
-                    Interp::HighQualityBicubic => Some(super::gpstretch::Kernel::Cubic),
-                    Interp::NearestNeighbor | Interp::Bilinear | Interp::Bicubic => None,
-                };
-                if let Some(k) = high.filter(|_| !one) {
-                    let draw = super::gpstretch::Draw { dst: (dx, dy, w, h), src: (sx, sy, sw, sh), half: po.half() };
-                    let px = super::gpstretch::stretch(rounding(), k, &draw, (i64::from(src.w), i64::from(src.h)), (i64::from(b.w), i64::from(b.h)), super::arch() == 32, texel)?;
-                    let (mut x0, mut y0, mut x1, mut y1) = (i64::MAX, i64::MAX, i64::MIN, i64::MIN);
-                    for (x, y, c) in px {
-                        (x0, y0, x1, y1) = (x0.min(x), y0.min(y), x1.max(x + 1), y1.max(y + 1));
-                        colors.insert((x as u32, y as u32), c);
+                // (1:1 on both axes, sizes positive: the copy span, golden gdiplusdraw copy-*)
+                if w > 0 && h > 0 && w == sw && h == sh {
+                    for y in dy.max(0)..(dy + h).min(i64::from(b.h)) {
+                        for x in dx.max(0)..(dx + w).min(i64::from(b.w)) {
+                            if let Some(c) = texel(x - dx + sx, y - dy + sy)? {
+                                colors.insert((x as u32, y as u32), c);
+                            }
+                        }
                     }
-                    if x0 < x1 {
-                        fill_area(b, (x0, y0, x1, y1), &|x, y| colors.get(&(x, y)).copied(), Source::Solid, copy, q)?;
-                    }
+                    fill_area(b, (dx, dy, dx + w, dy + h), &|x, y| colors.get(&(x, y)).copied(), Source::Solid, copy, q)?;
                     out.push("draw 0 0".into());
                     return Ok(true);
                 }
-                let mut colors = std::collections::HashMap::new();
-                for y in dy.max(0)..(dy + h).min(b.h as i64) {
-                    for x in dx.max(0)..(dx + w).min(b.w as i64) {
-                        let c = match interp {
-                            Interp::NearestNeighbor => {
-                                if !one {
-                                    hit(clause::GP_DRAW_NEAREST);
-                                }
-                                let (kx, ky) = (nearest_x(x - dx, sw, w, po), nearest_y(y - dy, sh, h, po));
-                                // (a corner offset rounds the last rows and columns past the source
-                                // rectangle: such rows are left as they are, such columns read the
-                                // source pixel past the rectangle)
-                                if ky >= sh {
-                                    continue;
-                                }
-                                match texel(sx + kx, sy + ky)? {
-                                    Some(c) => c,
-                                    None => continue,
-                                }
-                            }
-                            Interp::Bilinear => {
-                                hit(clause::GP_DRAW_BILINEAR);
-                                let (tx, ty) = (Tap::bilinear(x, dx, w, sx, sw, po), Tap::bilinear(y, dy, h, sy, sh, po));
-                                let mut q4 = [[0u32; 2]; 2];
-                                for (j, row) in q4.iter_mut().enumerate() {
-                                    for (i, t) in row.iter_mut().enumerate() {
-                                        *t = texel(tx.at + i as i64, ty.at + j as i64)?.unwrap_or(0);
-                                    }
-                                }
-                                bilinear(q4, tx.w, ty.w)
-                            }
-                            Interp::Bicubic => {
-                                hit(clause::GP_DRAW_BICUBIC);
-                                let (tx, ty) = (Cubic::across(x, dx, w, sx, sw, po), Cubic::down(y, dy, h, sy, sh, po));
-                                let mut q16 = [[0u32; 4]; 4];
-                                for (j, row) in q16.iter_mut().enumerate() {
-                                    for (i, t) in row.iter_mut().enumerate() {
-                                        *t = texel(tx.at - 1 + i as i64, ty.at - 1 + j as i64)?.unwrap_or(0);
-                                    }
-                                }
-                                bicubic(q16, tx.entry, ty.entry)
-                            }
-                            // (high quality 1:1 on both axes: the copy span)
-                            Interp::HighQualityBilinear | Interp::HighQualityBicubic => match texel(x - dx + sx, y - dy + sy)? {
-                                Some(c) => c,
-                                None => continue,
-                            },
-                        };
-                        colors.insert((x as u32, y as u32), c);
-                    }
+                use super::gpimage::{Draw, Span};
+                use super::gpstretch::Kernel;
+                let span = match interp {
+                    Interp::NearestNeighbor => Span::Nearest,
+                    Interp::Bilinear => Span::Bilinear,
+                    Interp::Bicubic => Span::Bicubic,
+                    Interp::HighQualityBilinear => Span::Stretch(Kernel::Tent),
+                    Interp::HighQualityBicubic => Span::Stretch(Kernel::Cubic),
+                };
+                match span {
+                    Span::Nearest => hit(clause::GP_DRAW_NEAREST),
+                    Span::Bilinear => hit(clause::GP_DRAW_BILINEAR),
+                    Span::Bicubic => hit(clause::GP_DRAW_BICUBIC),
+                    // (the stretch spans hit theirs)
+                    Span::Stretch(_) => {}
                 }
-                fill_area(b, (dx, dy, dx + w, dy + h), &|x, y| colors.get(&(x, y)).copied(), Source::Solid, copy, q)?;
+                let draw = Draw { dst: [dx, dy, w, h], src: [sx, sy, sw, sh], image: (i64::from(src.w), i64::from(src.h)), target: (i64::from(b.w), i64::from(b.h)), half: po.half() };
+                let Some(px) = super::gpimage::render(rounding(), span, &draw, super::arch() == 32, |x, y| Ok(texel(x, y)?.unwrap_or(0)))? else {
+                    // (a scale of exactly -1 on an axis: AnalyzeRotateFlip, RotateFlip and a
+                    // draw again, not read)
+                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                };
+                let (mut x0, mut y0, mut x1, mut y1) = (i64::MAX, i64::MAX, i64::MIN, i64::MIN);
+                for (x, y, c) in px {
+                    (x0, y0, x1, y1) = (x0.min(x), y0.min(y), x1.max(x + 1), y1.max(y + 1));
+                    colors.insert((x as u32, y as u32), c);
+                }
+                if x0 < x1 {
+                    fill_area(b, (x0, y0, x1, y1), &|x, y| colors.get(&(x, y)).copied(), Source::Solid, copy, q)?;
+                }
                 out.push("draw 0 0".into());
             }
             _ => return Ok(false),
@@ -2562,196 +2531,6 @@ impl Interp {
         }
     }
 }
-
-/// a bilinear tap on one axis: the source pixel at and the weight of the one after it, out of
-/// Tap::one() (x86 256, x86-64 2048)
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct Tap {
-    pub at: i64,
-    pub w: u32,
-}
-
-impl Tap {
-    pub fn one() -> u32 {
-        if super::arch() == 32 { 256 } else { 2048 }
-    }
-    /// destination pixel p of a draw from d0 (length dn) of source s0 (length sn), in 16.16 fixed
-    /// point (GP.DRAW.BILINEAR): x86 steps from destination pixel 0 (the origin there rounded
-    /// once, the step s / d rounded), x86-64 rounds each pixel's place; pixel centers at +1/2
-    /// for a half pixel offset
-    pub fn bilinear(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset) -> Tap {
-        // places times 2 dn 65536, so that each is an integer
-        let den = 2 * dn;
-        let half = if po.half() { sn * 65536 - dn * 65536 } else { 0 };
-        let u = if super::arch() == 32 {
-            let step = (2 * sn * 65536 + dn).div_euclid(den);
-            let origin = (2 * dn * s0 * 65536 - 2 * d0 * sn * 65536 + half + dn).div_euclid(den);
-            origin + p * step
-        } else {
-            (2 * (p - d0) * sn * 65536 + 2 * dn * s0 * 65536 + half + dn).div_euclid(den)
-        };
-        let f = u & 0xffff;
-        if super::arch() == 32 {
-            Tap { at: u >> 16, w: (f >> 8) as u32 }
-        } else {
-            // (11 bits, rounded: a weight of 2048 takes the next pixel whole)
-            let w = (f + 16) >> 5;
-            Tap { at: (u >> 16) + (w >> 11), w: (w & 2047) as u32 }
-        }
-    }
-}
-
-/// a bicubic tap: the source pixel at (the taps at - 1 ..= at + 2) and the entry of the weights'
-/// table, the place's fraction in 1/64 truncated (GP.DRAW.BICUBIC)
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct Cubic {
-    pub at: i64,
-    pub entry: Entry,
-}
-
-/// an entry of the bicubic weights' table, 0 ..= 63 by construction
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct Entry(u8);
-
-impl Entry {
-    pub fn of(fraction16: i64) -> Entry {
-        Entry(((fraction16 & 0xffff) >> 10) as u8)
-    }
-    pub fn get(self) -> usize {
-        usize::from(self.0)
-    }
-}
-
-impl Cubic {
-    /// across: a 16.16 step (s / d rounded) from the rectangle's first column, the first place
-    /// s / 2d rounded less one half for a half pixel offset
-    pub fn across(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset) -> Cubic {
-        let step = (2 * sn * 65536 + dn).div_euclid(2 * dn);
-        let start = if po.half() { (sn * 65536 + dn).div_euclid(2 * dn) - 32768 } else { 0 };
-        let u = s0 * 65536 + start + (p - d0) * step;
-        Cubic { at: u >> 16, entry: Entry::of(u) }
-    }
-    /// down: each row's place on its own, rounded to 16.16
-    pub fn down(p: i64, d0: i64, dn: i64, s0: i64, sn: i64, po: PixelOffset) -> Cubic {
-        let half = if po.half() { sn * 65536 - dn * 65536 } else { 0 };
-        let u = (2 * (p - d0) * sn * 65536 + 2 * dn * s0 * 65536 + half + dn).div_euclid(2 * dn);
-        Cubic { at: u >> 16, entry: Entry::of(u) }
-    }
-}
-
-/// x / 8 rounded, halves away from zero
-const fn round8(x: i64) -> i64 {
-    if x >= 0 { (x + 4) / 8 } else { -((-x + 4) / 8) }
-}
-/// 65536 times Keys' cubic (a = -1/2) at m / 64 for m in 0 ..= 64: (3 m^3 - 320 m^2 + 2^19) / 8
-const fn inner16(m: i64) -> i64 {
-    round8(3 * m * m * m - 320 * m * m + 524_288)
-}
-/// and at n / 64 for n in 64 ..= 128: (-n^3 + 320 n^2 - 32768 n + 2^20) / 8
-const fn outer16(n: i64) -> i64 {
-    round8(-n * n * n + 320 * n * n - 32768 * n + 1_048_576)
-}
-
-/// MEASURED (golden gdiplusdraw cubicq-*, filterx-*: every entry pinned on both arches): the
-/// weights of taps at - 1 ..= at + 2 for each entry q, Keys' cubic (a = -1/2) at 1 + q/64, q/64,
-/// 1 - q/64, 2 - q/64 in 1/65536 rounded, halves away from zero
-pub const CUBIC16: [[i64; 4]; 64] = {
-    let mut t = [[0; 4]; 64];
-    let mut q = 0;
-    while q < 64 {
-        let m = q as i64;
-        t[q] = [outer16(64 + m), inner16(m), inner16(64 - m), outer16(128 - m)];
-        q += 1;
-    }
-    t
-};
-const _: () = assert!(CUBIC16[0][1] == 65536 && CUBIC16[0][0] == 0 && CUBIC16[0][2] == 0 && CUBIC16[32][1] == CUBIC16[32][2]);
-
-/// x86's table: CUBIC16 / 4 rounded, halves away from zero (Q14)
-pub const CUBIC14: [[i64; 4]; 64] = {
-    let mut t = [[0; 4]; 64];
-    let mut q = 0;
-    while q < 64 {
-        let mut j = 0;
-        while j < 4 {
-            let w = CUBIC16[q][j];
-            t[q][j] = if w >= 0 { (w + 2) / 4 } else { -((-w + 2) / 4) };
-            j += 1;
-        }
-        q += 1;
-    }
-    t
-};
-
-/// four premultiplied texel values weighted by one entry, clamped to a byte: x86 each product
-/// in Q14 shifted down 11 (floored), the sum rounded from 1/8; x86-64 in Q16, the sum floored
-fn cubic_line(v: [u32; 4], e: Entry) -> u32 {
-    let s: i64 = if super::arch() == 32 {
-        let w = CUBIC14[e.get()];
-        let t: i64 = (0..4).map(|j| (i64::from(v[j]) * w[j]) >> 11).sum();
-        (t + 4) >> 3
-    } else {
-        let w = CUBIC16[e.get()];
-        (0..4).map(|j| i64::from(v[j]) * w[j]).sum::<i64>() >> 16
-    };
-    s.clamp(0, 255) as u32
-}
-
-/// sixteen premultiplied texels (rows top down) through the bicubic weights (GP.DRAW.BICUBIC):
-/// down each column first, each clamped to a byte, then across
-pub fn bicubic(q: [[u32; 4]; 4], ex: Entry, ey: Entry) -> u32 {
-    // (each pass cuts a premultiplied channel past its alpha to it, golden gdiplusdraw
-    // filterx-25, filter-67, filteralpha-*)
-    let cut = |o: u32| {
-        let a = o >> 24;
-        (0..3).fold(o & 0xff00_0000, |c, k| c | (o >> (8 * k) & 255).min(a) << (8 * k))
-    };
-    let pass = |v: [u32; 4], e: Entry| cut([0, 8, 16, 24].iter().fold(0, |o, &sh| o | cubic_line(v.map(|p| p >> sh & 255), e) << sh));
-    let mid: [u32; 4] = std::array::from_fn(|i| pass(std::array::from_fn(|j| q[j][i]), ey));
-    pass(mid, ex)
-}
-
-/// four premultiplied texels [[top left, top right], [bottom left, bottom right]] weighted
-/// (GP.DRAW.BILINEAR): x86 across then down, each rounded to 8 bits; x86-64 the products of the
-/// weights at once, rounded
-pub fn bilinear(q: [[u32; 2]; 2], wx: u32, wy: u32) -> u32 {
-    let one = Tap::one();
-    let mut o = 0;
-    for sh in [0, 8, 16, 24] {
-        let c = |i: usize, j: usize| q[j][i] >> sh & 255;
-        let v = if super::arch() == 32 {
-            let top = (c(0, 0) * (one - wx) + c(1, 0) * wx + 128) >> 8;
-            let bottom = (c(0, 1) * (one - wx) + c(1, 1) * wx + 128) >> 8;
-            (top * (one - wy) + bottom * wy + 128) >> 8
-        } else {
-            let s = u64::from(c(0, 0)) * u64::from((one - wx) * (one - wy))
-                + u64::from(c(1, 0)) * u64::from(wx * (one - wy))
-                + u64::from(c(0, 1)) * u64::from((one - wx) * wy)
-                + u64::from(c(1, 1)) * u64::from(wx * wy);
-            ((s + (1 << 21)) >> 22) as u32
-        };
-        o |= v << sh;
-    }
-    o
-}
-
-/// the source column of destination column k of a NearestNeighbor draw (GP.DRAW.NEAREST):
-/// a corner offset rounds k*s/d half up; a half offset steps in 16.16 fixed point from half a step
-pub fn nearest_x(k: i64, s: i64, d: i64, po: PixelOffset) -> i64 {
-    if po.half() {
-        let step = (2 * s * 65536 + d).div_euclid(2 * d);
-        let start = (s * 65536 + d).div_euclid(2 * d);
-        (start + k * step) >> 16
-    } else {
-        (2 * k * s + d).div_euclid(2 * d)
-    }
-}
-
-/// the source row of destination row k: a half offset floors (k + 1/2)*s/d
-pub fn nearest_y(k: i64, s: i64, d: i64, po: PixelOffset) -> i64 {
-    if po.half() { ((2 * k + 1) * s).div_euclid(2 * d) } else { (2 * k * s + d).div_euclid(2 * d) }
-}
-
 /// RotateFlipType k: k & 3 quarter turns clockwise, then (k >= 4) a horizontal flip
 pub fn rotate(b: &Bitmap, k: u32) -> Bitmap {
     let turns = k & 3;

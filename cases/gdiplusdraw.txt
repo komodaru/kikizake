@@ -15296,3 +15296,59 @@ gpwrite 1 32bppRGB seed 3269588121
 gpdraw 0 1 - 0 0 8 8 0 0 4 4 copy 0 5 5
 gpread 0 32bppARGB
 end
+case drawrot-0
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1915223712
+gpdraw 0 1 - 12 2 -8 6 0 1 8 6 copy 0 6 0
+gpread 0 32bppARGB
+end
+case drawrot-1
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3034196965
+gpdraw 0 1 - 3 10 8 -6 0 1 8 6 copy 0 5 1
+gpread 0 32bppARGB
+end
+case drawrot-2
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 41798462
+gpdraw 0 1 - 12 10 -8 -6 0 1 8 6 copy 0 1 2
+gpread 0 32bppARGB
+end
+case drawrot-3
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3385849880
+gpdraw 0 1 - 12 2 -8 6 0 1 8 6 copy 0 7 1
+gpread 0 32bppARGB
+end
+case drawrot-4
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3941798570
+gpdraw 0 1 - 3 10 8 -6 0 1 8 6 copy 0 7 0
+gpread 0 32bppARGB
+end
+case drawrot-5
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 1016294716
+gpdraw 0 1 - 12 10 -8 -6 0 1 8 6 copy 0 4 4
+gpread 0 32bppARGB
+end
+case drawrot-6
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 806129084
+gpdraw 0 1 - 12 2 -8 6 0 1 8 6 copy 0 7 1
+gpread 0 32bppARGB
+end
+case drawrot-7
+gpbitmap 0 16 16 32bppARGB
+gpbitmap 1 8 8 32bppRGB
+gpwrite 1 32bppRGB seed 3867587169
+gpdraw 0 1 - 3 10 8 -6 0 1 8 6 copy 0 1 3
+gpread 0 32bppARGB
+end

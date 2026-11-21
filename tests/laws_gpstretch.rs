@@ -1,7 +1,8 @@
 //! Laws of the GDI+ high quality stretch (src/model/gpstretch.rs): its kernel tables, and a
 //! uniform image drawn at any scale staying uniform where the kernel lies inside it.
 use kikizake::model::gdiplus::Round;
-use kikizake::model::gpstretch::{self as st, Draw, Kernel};
+use kikizake::model::gpimage::{render, Draw, Span};
+use kikizake::model::gpstretch::{self as st, Kernel};
 use proptest::prelude::*;
 
 /// the tent's running integral rises from 0 to 65536, symmetric about its middle
@@ -21,8 +22,8 @@ fn cubic_table_is_an_integral() {
         assert_eq!(st::cubic(i) + st::cubic(-1 - i), 65536, "i {i}");
     }
     let v: Vec<i64> = (-300..300).map(st::cubic).collect();
-    assert_eq!(*v.iter().min().unwrap(), -5461);
-    assert_eq!(*v.iter().max().unwrap(), 70997);
+    assert_eq!(v.iter().min(), Some(&-5461));
+    assert_eq!(v.iter().max(), Some(&70997));
     assert_eq!((st::cubic(-129), st::cubic(-128), st::cubic(127), st::cubic(128)), (-5461, -5461, 70997, 70997));
 }
 
@@ -36,10 +37,10 @@ proptest! {
         prop_assume!(2 * dw >= sw && 2 * dh >= sh);
         let c = c | 0xff00_0000;
         let k = if cubic { Kernel::Cubic } else { Kernel::Tent };
-        let d = Draw { dst: (1, 1, dw, dh), src: (10, 10, sw, sh), half };
-        let px = st::stretch(Round::Down, k, &d, (40, 40), (32, 32), false, |_, _| Ok(Some(c)));
-        prop_assert!(px.is_ok());
-        if let Ok(px) = px {
+        let d = Draw { dst: [1, 1, dw, dh], src: [10, 10, sw, sh], image: (40, 40), target: (32, 32), half };
+        let px = render(Round::Down, Span::Stretch(k), &d, false, |_, _| Ok(c));
+        prop_assert!(matches!(px, Ok(Some(_))));
+        if let Ok(Some(px)) = px {
             prop_assert!(!px.is_empty());
             let mid = |v: i64, n: i64| 3 * (v - 1) >= n && 3 * (v - 1) < 2 * n;
             for (x, y, p) in px {
@@ -53,9 +54,11 @@ proptest! {
     #[test]
     fn writes_its_rectangle(sw in 1i64..12, sh in 1i64..12, dw in 1i64..30, dh in 1i64..30, cubic: bool, half: bool, x86: bool) {
         let k = if cubic { Kernel::Cubic } else { Kernel::Tent };
-        let d = Draw { dst: (1, 1, dw, dh), src: (2, 2, sw, sh), half };
+        let d = Draw { dst: [1, 1, dw, dh], src: [2, 2, sw, sh], image: (16, 16), target: (32, 32), half };
         let r = if x86 { Round::Nearest } else { Round::Down };
-        if let Ok(px) = st::stretch(r, k, &d, (16, 16), (32, 32), x86, |x, y| Ok(Some((x * 16 + y) as u32 | 0xff00_0000))) {
+        let px = render(r, Span::Stretch(k), &d, x86, |x, y| Ok((x * 16 + y) as u32 | 0xff00_0000));
+        prop_assert!(matches!(px, Ok(Some(_))), "{:?}", px);
+        if let Ok(Some(px)) = px {
             let mut seen = std::collections::HashSet::new();
             for (x, y, _) in px {
                 prop_assert!((1..1 + dw).contains(&x) && (1..1 + dh).contains(&y), "pixel {} {}", x, y);

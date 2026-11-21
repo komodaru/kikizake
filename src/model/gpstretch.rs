@@ -4,11 +4,9 @@
 //! (GpGraphics::DrawImage, PipeLockBits' row window, DpDriver::DrawImage), then a separable
 //! filter: each needed source row stretched across into a cached line, then the lines stretched
 //! down. Every float op in the arch's rounding (x64 down, x86 nearest).
-use super::gdiplus::{Matrix, Round};
-use super::gplinear::infer;
-use super::gppath::apply;
+use super::gdiplus::Round;
+use super::gpimage::{cubic64, Chain, Read};
 use super::{Fail, Res};
-use crate::spec::open;
 use crate::spec::{clause, hit};
 
 /// which stretch span: the tent (6) or Keys' cubic (7)
@@ -70,7 +68,7 @@ impl Kernel {
         }
     }
     /// Margin(mode, ratio): the rows PipeLockBits keeps past the source rectangle
-    fn margin(self, r: Round, ratio: f32) -> f32 {
+    pub fn margin(self, r: Round, ratio: f32) -> f32 {
         let k = self.width().0;
         if ratio >= 1.0 { k } else { r.div(k, ratio) }
     }
@@ -129,79 +127,20 @@ fn mmx(s: [i64; 4]) -> [i64; 4] {
     s.map(|v| ((v + 0x2000) >> 14).clamp(-32768, 32767).clamp(0, 255))
 }
 
-/// the device rectangle and the source pixels of one draw
-pub struct Draw {
-    pub dst: (i64, i64, i64, i64),
-    pub src: (i64, i64, i64, i64),
-    pub half: bool,
-}
-
-/// the pixels a draw writes: (x, y, premultiplied color) on a bitmap of bw x bh, the source
-/// iw x ih read through texel (premultiplied, None past it); the rows the bitmap cuts
-/// (ApplyVisibleClipToSourceRect) and x86's StretchMiddleScanline2_MMX are the spec's open
-/// GP.DRAW.SCALED
-pub fn stretch<F>(r: Round, k: Kernel, d: &Draw, (iw, ih): (i64, i64), (bw, bh): (i64, i64), x86: bool, texel: F) -> Res<Vec<(i64, i64, u32)>>
-where
-    F: Fn(i64, i64) -> Res<Option<u32>>,
-{
+/// the pixels a draw writes: (x, y, premultiplied color), from the chain's source rectangle
+/// and device rectangle (flips negative), the source iw wide read through the locked rows
+pub fn stretch<R: Read>(r: Round, k: Kernel, ch: &Chain, iw: i64, x86: bool, read: &R) -> Res<Vec<(i64, i64, u32)>> {
     hit(match k {
         Kernel::Tent => clause::GP_DRAW_HQ_BILINEAR,
         Kernel::Cubic => clause::GP_DRAW_HQ_BICUBIC,
     });
     let f = |v: i64| v as f32;
-    let (dx, dy, dw, dh) = (f(d.dst.0), f(d.dst.1), f(d.dst.2), f(d.dst.3));
-    let (sx, sy, sw, sh) = (f(d.src.0), f(d.src.1), f(d.src.2), f(d.src.3));
-    // (GpGraphics::DrawImage: the source to world matrix, the source corners through it)
-    let (xr, yb, sxr, syb) = (r.add(dx, dw), r.add(dy, dh), r.add(sw, sx), r.add(sh, sy));
-    let m11 = r.div(r.sub(xr, dx), r.sub(sxr, sx));
-    let m22 = r.div(r.sub(yb, dy), r.sub(syb, sy));
-    let world: Matrix = [m11, 0.0, 0.0, m22, r.sub(xr, r.mul(m11, sxr)), r.sub(yb, r.mul(m22, syb))];
-    // (the matrix overload, a half pixel offset on a bitmap: the rectangle moved by -1/2, the
-    // matrix by half its scale; MEASURED, golden gdiplusdraw hqy-7-2-11-0, hqcy-2-11-0, filter-19
-    // on x64, where these round a place down)
-    let (world, px, py) = if d.half {
-        let mut w = world;
-        w[4] = r.add(w[4], r.add(r.mul(w[2], 0.5), r.mul(w[0], 0.5)));
-        w[5] = r.add(w[5], r.add(r.mul(w[1], 0.5), r.mul(w[3], 0.5)));
-        (w, r.add(sx, -0.5), r.add(sy, -0.5))
-    } else {
-        (world, sx, sy)
-    };
-    let pts = [apply(r, &world, px, py), apply(r, &world, r.add(px, sw), py), apply(r, &world, px, r.add(py, sh))];
-    // (the world to device matrix: the half pixel offset)
-    let o = if d.half { -0.5 } else { 0.0 };
-    // (PipeLockBits: rows only, a margin by the y ratio)
-    let ratio = r.div(r.sub(apply(r, &world, sx, syb).1, pts[0].1).abs(), sh);
-    let m = k.margin(r, ratio).ceil() as i64;
-    let top = (d.src.1 - m).max(0);
-    let bottom = (r.add(sh, sy).ceil() as i64 + m).min(ih);
-    if top > ih || bottom < 0 {
-        return Ok(Vec::new());
-    }
-    let lh = bottom - top;
-    let ly = r.sub(sy, f(top));
-    let (ux, uy) = if d.half { (r.sub(sx, 0.5), r.sub(ly, 0.5)) } else { (sx, ly) };
-    // (DpDriver::DrawImage: the source to points, through the device matrix, its corners)
-    // (sizes of one pixel or more: the determinant is w h, never under FLT_EPSILON)
-    let a = infer(r, pts, (ux, uy, sw, sh)).ok_or(Fail::Bad)?;
-    let mm: Matrix = [
-        r.add(r.mul(1.0, a[0]), r.mul(0.0, a[1])),
-        r.add(r.mul(0.0, a[0]), r.mul(1.0, a[1])),
-        r.add(r.mul(1.0, a[2]), r.mul(0.0, a[3])),
-        r.add(r.mul(0.0, a[2]), r.mul(1.0, a[3])),
-        r.add(r.add(r.mul(1.0, a[4]), r.mul(0.0, a[5])), o),
-        r.add(r.add(r.mul(0.0, a[4]), r.mul(1.0, a[5])), o),
-    ];
-    let (x0, y0) = apply(r, &mm, ux, uy);
-    let (x2, y2) = apply(r, &mm, r.add(ux, sw), r.add(uy, sh));
-    let (ddx, ddy, ddw, ddh) = (x0, y0, r.sub(x2, x0), r.sub(y2, y0));
+    let (ux, uy, sw, sh) = ch.sf;
+    let (ddx, ddy, ddw, ddh) = ch.d;
+    let lh = ch.rows;
     // (InitializeClass)
     let xscale = fl(r, r.mul(r.div(sw, ddw), 65536.0));
     let yscale = fl(r, r.mul(r.div(sh, ddh), 65536.0));
-    // (sizes of one pixel or more: steps of 0 or more)
-    if xscale < 0 || yscale < 0 {
-        return Err(Fail::Bad);
-    }
     let (rx, ry) = (r.div(ddw, sw), r.div(ddh, sh));
     let edges = |d0: f32, s: f32, ratio: f32| {
         let (a, b) = (fl(r, r.mul(d0, 16.0)), fl(r, r.mul(r.add(r.mul(s, ratio), d0), 16.0)));
@@ -209,10 +148,18 @@ where
     };
     let (left, right) = edges(ddx, sw, rx);
     let (tp, bt) = edges(ddy, sh, ry);
-    let (l16, r16, t16) = (left << 12, right << 12, tp << 12);
+    let (l16, r16, t16, b16) = (left << 12, right << 12, tp << 12, bt << 12);
     let firstcol = (left + 15) >> 4;
-    let sx0 = fl(r, r.mul(r.add(r.mul(r.mul(r.sub(ddx, f(l16 >> 16)), xscale as f32), 1.0 / 65536.0), ux), 65536.0));
-    let sy0 = fl(r, r.mul(r.add(r.mul(r.mul(r.sub(f(t16 >> 16), ddy), yscale as f32), 1.0 / 65536.0), uy), 65536.0));
+    let sx0 = if xscale >= 0 {
+        fl(r, r.mul(r.add(r.mul(r.mul(r.sub(ddx, f(l16 >> 16)), xscale as f32), 1.0 / 65536.0), ux), 65536.0))
+    } else {
+        fl(r, r.mul(r.add(r.mul(r.mul(r.sub(r.add(ddx, ddw), f((r16 + 0xffff) >> 16)), xscale as f32), 1.0 / 65536.0), ux), 65536.0))
+    };
+    let sy0 = if yscale >= 0 {
+        fl(r, r.mul(r.add(r.mul(r.mul(r.sub(f(t16 >> 16), ddy), yscale as f32), 1.0 / 65536.0), uy), 65536.0))
+    } else {
+        fl(r, r.mul(r.sub(uy, r.mul(r.mul(r.sub(f((b16 + 0xffff) >> 16), r.add(ddh, ddy)), yscale as f32), 1.0 / 65536.0)), 65536.0))
+    };
     let (kmul, kmin) = k.width();
     let half = |s: f32, d: f32| fl(r, r.mul(r.div(r.mul(kmul, s), d), 65536.0)).abs().max(kmin);
     let (kx, ky) = (half(sw, ddw), half(sh, ddh));
@@ -220,39 +167,57 @@ where
     let (kxi, kyi) = (inv(kx), inv(ky));
     let row0 = t16 >> 16;
     let width = ((r16 + 0xffff) >> 16) - (l16 >> 16) + 1;
-    // (the device pixels: the 28.4 edges ceiled)
-    let (cols, rows) = (firstcol..(right + 15) >> 4, (tp + 15) >> 4..(bt + 15) >> 4);
-    // (ApplyVisibleClipToSourceRect clips the source when the bitmap cuts the rows: GP.DRAW.SCALED)
-    if rows.start < 0 || rows.end > bh {
-        return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
-    }
-    // (x86 mode 7: the MMX columns, all taps inside)
+    // (x86 mode 7: the MMX columns, all taps inside; the divisions truncate)
     let c0 = sx0 - 0x8000;
-    let mmx_cols = match (x86, k) {
-        (true, Kernel::Cubic) => {
-            let lo = (kx - c0 + xscale - 1) / xscale;
+    let (mmx_cols, mmx2) = match (x86, k) {
+        (true, Kernel::Cubic) if xscale > 0 => {
+            let lo = ((kx - c0 + xscale - 1) / xscale).max(0);
             let hi = ((((iw - 1) << 16) - c0 - kx) / xscale).min(width);
-            // (StretchMiddleScanline2_MMX, a 2x reduction of 16 columns or more: GP.DRAW.SCALED)
-            let n = hi - lo.max(0);
-            if n >= 16 && (xscale - 0x20000).abs() * n < 4 << 16 {
-                return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
-            }
-            lo.max(0)..hi
+            // (StretchMiddleScanline2_MMX: 16 columns or more, the last source column twice the
+            // count past the first and 5 or 6)
+            let n = hi - lo;
+            let pos = c0 + lo * xscale;
+            let first = (pos - kx + 0xffff) >> 16;
+            let last = ((n - 1) * xscale + pos + kx) >> 16;
+            let two = n >= 16 && (last == first + 2 * n + 5 || last == first + 2 * n + 6);
+            (lo..hi, two.then_some((first, (pos + 0x8000) & 0xffff)))
         }
-        (true, Kernel::Tent) | (false, _) => 0..0,
+        (true, Kernel::Cubic) if xscale < 0 => {
+            let lo = (kx - c0) / xscale;
+            let hi = ((((iw - 1) << 16) - c0 - kx) + xscale + 1) / xscale;
+            match (i32::try_from(lo), i32::try_from(hi)) {
+                (Ok(_), Ok(_)) => (lo.max(0)..hi.min(width), None),
+                _ => (0..0, None),
+            }
+        }
+        (true, Kernel::Cubic) | (true, Kernel::Tent) | (false, _) => (0..0, None),
     };
+    let mmx2_weights = mmx2.map(|(_, frac)| -> [i64; 8] { std::array::from_fn(|m| cubic64(((((frac >> 2) - 0x10000) + m as i64 * 0x4000) >> 9).unsigned_abs() as usize) >> 3) });
     // (the horizontal pass, one cached line a locked row)
     let mut lines = Vec::with_capacity(lh as usize);
     for j in 0..lh {
+        let px = |x: i64| -> Res<u32> { if (0..iw).contains(&x) { read.at(x, j) } else { Ok(0) } };
         let mut line = Vec::with_capacity(width as usize);
         for i in 0..width {
+            if let (Some((first, _)), Some(w)) = (mmx2, mmx2_weights)
+                && mmx_cols.contains(&i)
+            {
+                let at = first + 2 * (i - mmx_cols.start);
+                let mut s = [0i64; 4];
+                for (m, &wm) in w.iter().enumerate() {
+                    let p = px(at + m as i64)?;
+                    for (c, v) in s.iter_mut().enumerate() {
+                        *v += channel(p, c) * wm;
+                    }
+                }
+                line.push(pack(capped(mmx(s))));
+                continue;
+            }
             let c = c0 + i * xscale;
             let t = taps(k, c, kx, kxi);
-            let px = |p: &(i64, i64)| -> Res<u32> { Ok(if (0..iw).contains(&p.0) { texel(p.0, top + j)?.unwrap_or(0) } else { 0 }) };
             let mut v = Vec::with_capacity(t.len());
-            let ws = weights(&t, if mmx_cols.contains(&i) { 2 } else { 0 });
-            for p in &ws {
-                v.push((px(p)?, p.1));
+            for p in &weights(&t, if mmx_cols.contains(&i) { 2 } else { 0 }) {
+                v.push((px(p.0)?, p.1));
             }
             let s = sums(&v);
             line.push(match k {
@@ -269,17 +234,13 @@ where
     }
     // (the vertical pass)
     let mut out = Vec::new();
-    for y in rows {
+    for y in ch.lines.clone() {
         let c = sy0 - 0x8000 + (y - row0) * yscale;
         let t = taps(k, c, ky, kyi);
         let ws: Vec<(i64, i64)> = weights(&t, 0).into_iter().filter(|&(j, _)| (0..lh).contains(&j)).collect();
-        for x in cols.clone() {
-            if !(0..bw).contains(&x) {
-                continue;
-            }
-            let i = x - firstcol;
+        for x in ch.cols.clone() {
             // (a device column of the rectangle: a buffer index by construction)
-            let i = usize::try_from(i).ok().filter(|&i| i < width as usize).ok_or(Fail::Bad)?;
+            let i = usize::try_from(x - firstcol).ok().filter(|&i| i < width as usize).ok_or(Fail::Bad)?;
             let s = if x86 {
                 sums(&ws.iter().map(|&(j, w)| (lines[j as usize][i], w >> 2)).collect::<Vec<_>>())
             } else {

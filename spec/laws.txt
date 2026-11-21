@@ -207,6 +207,10 @@ tests/laws_gpwiden.rs::anchors_sit_on_the_end pbt GP.PEN.WIDE
 tests/laws_gpregion.rs::region_to_path_keeps_the_pixels pbt GP.PEN.INSET GP.RASTER.FILL
 tests/laws_gpstretch.rs::uniform_stays_uniform pbt GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC
 tests/laws_gpstretch.rs::writes_its_rectangle pbt GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC
+tests/laws_gpimage.rs::cubic_weights_sum_to_one exhaustive GP.DRAW.BICUBIC
+tests/laws_gpimage.rs::writes_its_rectangle pbt GP.DRAW.NEAREST GP.DRAW.BILINEAR GP.DRAW.BICUBIC GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC
+tests/laws_gpimage.rs::uniform_stays_uniform pbt GP.DRAW.NEAREST GP.DRAW.BILINEAR GP.DRAW.BICUBIC GP.DRAW.HQ_BILINEAR
+tests/laws_gpimage.rs::nearest_repeats pbt GP.DRAW.NEAREST
 tests/laws_gplinear.rs::one_color_is_solid pbt GP.BRUSH.LINEAR.PAINT
 tests/laws_gplinear.rs::infer_takes_corners_to_points pbt GP.BRUSH.LINEAR
 tests/laws_gplinear.rs::rect_is_symmetric pbt GP.BRUSH.LINEAR

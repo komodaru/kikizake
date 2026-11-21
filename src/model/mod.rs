@@ -51,6 +51,7 @@ pub mod gdi;
 pub mod warpline;
 pub mod gdiplus;
 pub mod gppath;
+pub mod gpimage;
 pub mod gplinear;
 pub mod gpregion;
 pub mod gpstretch;

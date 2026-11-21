@@ -510,7 +510,7 @@ pub fn gdiplusdraw() -> String {
 /// probes of DrawImage past the first cases (a generator of its own, so the cases before keep
 /// their numbers): a bitmap onto itself, flipped rectangles, HQ draws whose rows the bitmap
 /// cuts, 2x HQ bicubic reductions of 16 columns and more, interpolation and pixel offset
-/// values past the enums
+/// values past the enums, scales of exactly -1
 fn drawprobe(s: &mut String) {
     let mut r = XorShift32::new(0xd7a3_0b0b);
     for im in [0, 5, 6, 7] {
@@ -533,6 +533,12 @@ fn drawprobe(s: &mut String) {
     }
     for (im, po) in [(-1, 0), (8, 0), (9, 0), (100, 0), (5, -1), (5, 5)] {
         writeln!(s, "case drawmode-{im}-{po}\ngpbitmap 0 8 8 32bppARGB\ngpbitmap 1 4 4 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - 0 0 8 8 0 0 4 4 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next());
+    }
+    // (a scale of exactly -1 on an axis: AnalyzeRotateFlip's branch)
+    for i in 0..8 {
+        let (fx, fy) = [(true, false), (false, true), (true, true)][i % 3];
+        let (dw, dh) = (if fx { -8 } else { 8 }, if fy { -6 } else { 6 });
+        writeln!(s, "case drawrot-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {} {} {dw} {dh} 0 1 8 6 copy 0 {} {}\ngpread 0 32bppARGB\nend", r.next(), if fx { 12 } else { 3 }, if fy { 10 } else { 2 }, *r.pick(&[1, 4, 5, 6, 7]), r.range(0, 5));
     }
 }
 
