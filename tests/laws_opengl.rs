@@ -311,10 +311,10 @@ proptest! {
         let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + f32::from(x % 1024) / 64.0, tri::RASTER_BIAS + f32::from(y % 1024) / 64.0]));
         let (c, w) = ([[255.0; 4]; 2], tri::AaWidth::of(1.0));
         let plain = tri::aa_line(r[0], r[1], c, w, None);
-        prop_assert_eq!(&tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern: 0xffff, repeat })), &plain);
-        let none = tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern: 0, repeat }));
+        prop_assert_eq!(&tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern: 0xffff, repeat, at: (0, 0) })), &plain);
+        let none = tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern: 0, repeat, at: (0, 0) }));
         prop_assert!(none.is_empty());
-        for f in tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern, repeat })) {
+        for f in tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern, repeat, at: (0, 0) })) {
             let p = plain.iter().find(|p| (p.x, p.row) == (f.x, f.row));
             prop_assert!(p.is_some_and(|p| f.cover <= p.cover));
         }

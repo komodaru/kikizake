@@ -1,4 +1,4 @@
-kikizake calls region-64 cases 5a16aa5a219df3b7 src 1604881a76856bc21001db41e09d31048f54f983424b0a00faa1232aceeb7571 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 29796 other 0
+kikizake calls region-64 cases 5f6cb5318a772412 src 78b89f6e1a867bd3af46fd1006e788b49e84b331b481dd7906d58605fdf08dd0 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 30022 other 0
 case combine-0
 CreateRectRgn(10,12,20,10) = h1
 CreateRectRgn(-3,0,1,9) = h2
@@ -12387,6 +12387,96 @@ GetRegionData(h1,0,h0) = 10416
 GetRegionData(h1,10416,p) = 10416
 GetRgnBox(h1,p) = 3
 DeleteObject(h1) = 1
+case rround-0
+CreateRoundRectRgn(0,0,10,10,4,4) = h1
+GetRegionData(h1,0,h0) = 80
+GetRegionData(h1,80,p) = 80
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-1
+CreateRoundRectRgn(0,0,10,6,0,0) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case rround-2
+CreateRoundRectRgn(1,2,9,8,20,20) = h1
+GetRegionData(h1,0,h0) = 112
+GetRegionData(h1,112,p) = 112
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-3
+CreateRoundRectRgn(0,0,5,5,2,2) = h1
+GetRegionData(h1,0,h0) = 80
+GetRegionData(h1,80,p) = 80
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-4
+CreateRoundRectRgn(0,0,3,3,1,1) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case rround-5
+CreateRoundRectRgn(0,0,10,6,0,3) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case rround-6
+CreateRoundRectRgn(0,0,10,6,-4,-3) = h1
+GetRegionData(h1,0,h0) = 80
+GetRegionData(h1,80,p) = 80
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-7
+CreateRoundRectRgn(10,6,0,0,4,3) = h1
+GetRegionData(h1,0,h0) = 80
+GetRegionData(h1,80,p) = 80
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-8
+CreateRoundRectRgn(0,0,0,5,2,2) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case rround-9
+CreateRoundRectRgn(0,0,1,1,1,1) = h1
+GetRegionData(h1,0,h0) = 32
+GetRegionData(h1,32,p) = 32
+GetRgnBox(h1,p) = 1
+DeleteObject(h1) = 1
+case rround-10
+CreateRoundRectRgn(0,0,8,8,1,1) = h1
+GetRegionData(h1,0,h0) = 48
+GetRegionData(h1,48,p) = 48
+GetRgnBox(h1,p) = 2
+DeleteObject(h1) = 1
+case rround-11
+CreateRoundRectRgn(-5,-3,7,9,9,4) = h1
+GetRegionData(h1,0,h0) = 112
+GetRegionData(h1,112,p) = 112
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-12
+CreateRoundRectRgn(0,0,30,12,7,30) = h1
+GetRegionData(h1,0,h0) = 144
+GetRegionData(h1,144,p) = 144
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-13
+CreateRoundRectRgn(0,0,2048,6,100,4) = h1
+GetRegionData(h1,0,h0) = 112
+GetRegionData(h1,112,p) = 112
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
+case rround-14
+CreateRoundRectRgn(0,0,9,9,-2147483648,3) = h1
+GetRegionData(h1,0,h0) = 80
+GetRegionData(h1,80,p) = 80
+GetRgnBox(h1,p) = 3
+DeleteObject(h1) = 1
 case loose-0
 CreatePolygonRgn(p,4,1) = h1
 GetRegionData(h1,0,h0) = 96
@@ -12455,8 +12545,3 @@ GetRegionData(h2,0,h0) = 96
 GetRegionData(h2,96,p) = 96
 DeleteObject(h1) = 1
 DeleteObject(h2) = 1
-case loose-many
-CreatePolygonRgn(p,38,1) = h1
-GetRegionData(h1,0,h0) = 160
-GetRegionData(h1,160,p) = 160
-DeleteObject(h1) = 1

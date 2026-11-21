@@ -165,6 +165,7 @@ const _: () = {
 pub const OK: u32 = 0;
 pub const INVALID_PARAMETER: u32 = 2;
 pub const OUT_OF_MEMORY: u32 = 3;
+pub const NOT_IMPLEMENTED: u32 = 6;
 
 pub fn bits(f: Pf) -> u32 {
     f.bits()
@@ -2163,6 +2164,7 @@ impl Gdiplus {
                 let mut l = format!("pen {OK}");
                 let mut i = 4;
                 while i < t.len() {
+                    let mut status = OK;
                     i += match t[i].as_str() {
                         "dash" => {
                             pen.dash = n(t, i + 1)?;
@@ -2177,16 +2179,61 @@ impl Gdiplus {
                             2
                         }
                         "align" => {
-                            pen.align = n(t, i + 1)?;
+                            // (Inset on a pen of a compound array: NotImplemented, the pen as it
+                            // was, clean-room notes geometry.md 11)
+                            match (n(t, i + 1)?, pen.compound.is_empty()) {
+                                (1, false) => status = NOT_IMPLEMENTED,
+                                (v, _) => pen.align = v,
+                            }
                             2
                         }
                         "miter" => {
                             pen.miter = fl(i + 1)?;
                             2
                         }
+                        "compound" => {
+                            let c = n(t, i + 1)?;
+                            if !(0..=16).contains(&c) {
+                                return Err(Fail::Bad);
+                            }
+                            let v: Vec<f32> = (0..c as usize).map(|k| fl(i + 2 + k)).collect::<Res<_>>()?;
+                            // (fewer than two, an odd count, a value past 0 ..= 1 or a decrease:
+                            // InvalidParameter, the pen as it was, clean-room notes geometry.md 14)
+                            let valid = v.len() >= 2 && v.len().is_multiple_of(2) && v.iter().all(|x| (0.0..=1.0).contains(x)) && v.windows(2).all(|w| w[0] <= w[1]);
+                            if valid {
+                                pen.compound = v;
+                            } else {
+                                status = INVALID_PARAMETER;
+                            }
+                            2 + c as usize
+                        }
+                        "arrowcap" => {
+                            let end = n(t, i + 1)? != 0;
+                            pen.custom[usize::from(end)] = Some(super::gppath::CustomCap::Arrow { height: fl(i + 2)?, width: fl(i + 3)?, filled: n(t, i + 4)? != 0, middle: fl(i + 5)? });
+                            *if end { &mut pen.end_cap } else { &mut pen.start_cap } = 0xff;
+                            6
+                        }
+                        "customcap" => {
+                            let end = n(t, i + 1)? != 0;
+                            let stroke = n(t, i + 2)? != 0;
+                            let c = n(t, i + 9)?;
+                            if !(0..=16).contains(&c) {
+                                return Err(Fail::Bad);
+                            }
+                            let pts: Vec<(f32, f32)> = (0..c as usize).map(|k| Ok((fl(i + 10 + 2 * k)?, fl(i + 11 + 2 * k)?))).collect::<Res<_>>()?;
+                            // (AddPathPolygon of fewer than three points, AddPathLine2 of none:
+                            // InvalidParameter, no cap made, GP.PATH.ADD)
+                            if pts.len() < if stroke { 1 } else { 3 } {
+                                status = INVALID_PARAMETER;
+                            } else {
+                                pen.custom[usize::from(end)] = Some(super::gppath::CustomCap::Path { stroke, pts, base_inset: fl(i + 4)?, width_scale: fl(i + 5)?, join: n(t, i + 6)?, caps: (n(t, i + 7)?, n(t, i + 8)?) });
+                                *if end { &mut pen.end_cap } else { &mut pen.start_cap } = 0xff;
+                            }
+                            10 + 2 * c as usize
+                        }
                         _ => return Err(Fail::Bad),
                     };
-                    l += &format!(" {OK}");
+                    l += &format!(" {status}");
                 }
                 self.pen[p] = Some(pen);
                 out.push(l);
@@ -2381,11 +2428,13 @@ impl Gdiplus {
                     },
                 };
                 let one = v[2] == v[6] && v[3] == v[7];
-                let Some(interp) = Interp::new(interp) else {
-                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
-                };
-                let Some(po) = PixelOffset::from_value(po) else {
-                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                // (GdipSetInterpolationMode takes 0 ..= 7, GdipSetPixelOffsetMode 0 ..= 4, any other
+                // value InvalidParameter; the runner then draws nothing, clean-room notes image.md
+                // 11, golden drawmode-*)
+                let (Some(interp), Some(po)) = (Interp::new(interp), PixelOffset::from_value(po)) else {
+                    hit(clause::GP_PAINT_MODES);
+                    out.push(format!("draw 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
                 };
                 // (a bitmap onto itself and flipped rectangles not asked)
                 if d == s || v[2] <= 0 || v[3] <= 0 || v[6] <= 0 || v[7] <= 0 {

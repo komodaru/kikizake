@@ -2868,4 +2868,22 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-2\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb24\ngl glLineStipple 2 0xc3a5\ngl glClear 0x4000\ngl glBegin 3\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 9.25 6.5\ngl glVertex2f 14.5 13.75\ngl glVertex2f 3.125 12.5\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // a smooth triangle the near plane cuts, under a depth test (GL.RASTER.INTERPOLATE), and a
+    // stippled antialiased line past the window's right edge (GL.RASTER.MODE): open
+    writeln!(s, "case interp-open-7\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 1.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0.5\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    writeln!(s, "case raster-open-3\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb24\ngl glLineStipple 1 0x3c3c\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f -1.5 3.25\ngl glVertex2f 17.5 12.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a rectangle fogged across: tilted about x so its corners' eye depths differ, linear fog
+    // (GL.RASTER.INTERPOLATE): open
+    writeln!(s, "case interp-open-8\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 -2\ngl glFogf 0xb64 2\ngl glRotatef 40 1 0 0\ngl glClear 0x4000\ngl glColor4ub 255 255 255 255\ngl glRectf 3 2 13 9", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a lit triangle whose corners' colors differ (GL_COLOR_MATERIAL, GL_LIGHT0), smooth
+    // shaded (GL.RASTER.INTERPOLATE): open
+    writeln!(s, "case interp-open-9\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glEnable 0xb57\ngl glClear 0x4000\ngl glBegin 4\ngl glNormal3f 0 0 1\ngl glColor4ub 255 0 0 255\ngl glVertex2f 2 2\ngl glColor4ub 0 255 0 255\ngl glVertex2f 13 4\ngl glColor4ub 0 0 255 255\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }

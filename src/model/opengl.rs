@@ -467,6 +467,8 @@ pub struct Ctx {
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
+    /// a smooth stippled strip's place in the pattern (position, count), `tri::AaStipple`
+    pub aa_stipple: (u8, u8),
     /// the stipple counter: the next step's count, and the major coordinate and count of the
     /// step being drawn (GL.RASTER.LINE.STIPPLE)
     stipple: (i64, Option<(i64, i64)>),
@@ -554,6 +556,7 @@ impl Ctx {
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
+            aa_stipple: (0, 0),
             stipple: (0, None),
             point_size: 1.0,
             cull_mode: BACK,
@@ -2348,14 +2351,19 @@ impl Ctx {
         }
         let r: [tri::Raster; 2] = std::array::from_fn(|k| if cut[k] { tri::Raster::of_cut(e[k].clip, self.viewport, H as i64) } else { tri::Raster::of(e[k].clip, self.viewport, H as i64) });
         let colors = [e[0].c, e[1].c];
-        // (stippled: the counter from 0 at each GL_LINES segment, measured; a strip's carried on,
-        // or a cut line's, not)
+        // (stippled: the counter from 0 at glBegin and each GL_LINES segment, a strip's carried
+        // on (raster-open-1, 2); a cut line's not measured)
         let stipple = if self.cap(LINE_STIPPLE) {
-            if !fresh || cut.iter().any(|c| *c) {
+            if cut.iter().any(|c| *c) {
                 return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
             }
             hit(clause::GL_RASTER_LINE_STIPPLE);
-            Some(tri::AaStipple { pattern: self.line_stipple.1, repeat: u8::try_from(self.line_stipple.0).map_err(|_| Fail::Bad)? })
+            if fresh {
+                self.aa_stipple = (0, 0);
+            }
+            let st = tri::AaStipple { pattern: self.line_stipple.1, repeat: u8::try_from(self.line_stipple.0).map_err(|_| Fail::Bad)?, at: self.aa_stipple };
+            self.aa_stipple = st.after(r[0], r[1]);
+            Some(st)
         } else {
             None
         };
@@ -2511,7 +2519,10 @@ impl Ctx {
                     let (a, b) = (win[k], win[(k + 1) % win.len()]);
                     // (depths that differ only matter where a depth test reads them: interp-open-5)
                     if a.0[2] != b.0[2] && self.cap(DEPTH_TEST) && self.pf.depth > 0 {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                        let (p, q) = (cut[k], cut[(k + 1) % cut.len()]);
+                        let color = if a.1 == b.1 { LineColor::Flat(a.1) } else { LineColor::Smooth(a.1, b.1) };
+                        self.deep_line([p[0], p[1], p[2], p[3]], [q[0], q[1], q[2], q[3]], color)?;
+                        continue;
                     }
                     let pixels = self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]], FirstEnd::Kept)?;
                     if a.1 == b.1 {
@@ -2797,7 +2808,7 @@ impl Ctx {
                         continue;
                     }
                     if self.cap(LINE_SMOOTH) {
-                        self.aa_line(a, b, mode == LINES)?;
+                        self.aa_line(a, b, mode == LINES || i == 0)?;
                         continue;
                     }
                     // (fogged at the ends; flat-shaded lines are drawn at other pixels than smooth
@@ -4719,25 +4730,38 @@ pub mod tri {
         }
     }
 
-    /// A line stipple as a smooth line's coverage takes it: the pattern and its repeat factor
-    /// (1..=255), the counter at the line's start 0.
+    /// A line stipple as a smooth line's coverage takes it: the pattern, its repeat factor
+    /// (1..=255) and where in it the line starts.
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
     pub struct AaStipple {
         pub pattern: u16,
         pub repeat: u8,
+        /// where the line starts in the pattern: the counter's position (0..16) and its count
+        /// within the repeat (0..repeat)
+        pub at: (u8, u8),
     }
 
     impl AaStipple {
-        /// The share of a pixel `length` along the line the pattern keeps: at o = max(length,
-        /// 1/2) - 1/2, bit floor(o) / repeat times 1 - frac(o) plus bit (floor(o) + 1) / repeat
+        /// The share of a pixel `length` along the line the pattern keeps: at o = position
+        /// repeat + count - 1/2 + max(length, 1/2), bit floor(o) / repeat times 1 - frac(o) plus bit (floor(o) + 1) / repeat
         /// times frac(o), the bits mod 16 (GL.RASTER.LINE.STIPPLE).
         fn keeps(self, length: f32) -> f32 {
-            let o = -0.5 + if length > 0.5 { length } else { 0.5 };
+            let start = (f32::from(self.at.0) * f32::from(self.repeat) + f32::from(self.at.1)) - 0.5;
+            let o = start + if length > 0.5 { length } else { 0.5 };
             let lo = f64::from(o).floor() as i64;
             let pct = o - lo as f32;
             let inv = 1.0 / f32::from(self.repeat);
             let bit = |n: i64| f32::from(self.pattern >> (((n as f32 * inv) as i64) & 15) & 1);
             bit(lo) * (1.0 - pct) + bit(lo + 1) * pct
+        }
+
+        /// Where the next line of a strip starts: n = ceil(the line's length) on, the position
+        /// by n / repeat (mod 16), the count by n (mod repeat) (golden raster-open-2).
+        pub fn after(self, a: Raster, b: Raster) -> (u8, u8) {
+            let (dx, dy) = (b.0[0] - a.0[0], b.0[1] - a.0[1]);
+            let n = f64::from(f64::from(dx * dx + dy * dy).sqrt() as f32).ceil() as i64;
+            let r = i64::from(self.repeat);
+            (((i64::from(self.at.0) + n / r) & 15) as u8, ((i64::from(self.at.1) + n) % r) as u8)
         }
     }
 

@@ -1,4 +1,4 @@
-kikizake calls ddb-64 cases bc31e0e3adf83766 src e2ea9af7c78668f2136bba97c1619bb4808627dfdfa741d2839483c3a9d9acaf shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 3240 other 0
+kikizake calls ddb-64 cases bc31e0e3adf83766 src 45538a23689e4a9a79d1ddd20772c840967095e4a2dd16e057f433895e5462dc shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 3240 other 0
 case kind-0
 CreateBitmap(9,5,1,1,h0) = h1
 CreateCompatibleDC(h0) = h2

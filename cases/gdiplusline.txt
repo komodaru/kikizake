@@ -5803,3 +5803,387 @@ gppen 0 0xffff0000 0.5 align 1
 gpshape 0 pen 0 - copy 0 2 0 rect 4.75 3.5 2.5 4
 gpread 0 32bppARGB
 end
+case penobject-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 8.5 cap 4 3 0 join 0 compound 4 0.125 0.375 0.5 0.875
+gpshape 0 pen 0 - copy 0 3 2 lines 5 12 0 15.25 10.75 0.25 9 17.25 1.25 7 17.75
+gpread 0 32bppARGB
+end
+case penobject-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.75 cap 1 2 0 join 3 compound 4 0.125 0.25 0.5 1.125
+gpshape 0 pen 0 - copy 0 0 4 polygon 3 10.5 12 3.75 4.5 11.25 10.75
+gpread 0 32bppARGB
+end
+case penobject-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 4 0 0 join 0 arrowcap 1 4 4.5 0 0
+gpshape 0 pen 0 - copy 0 2 2 lines 2 2.25 7.5 7.75 17.5
+gpread 0 32bppARGB
+end
+case penobject-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1.25 cap 2 1 0 join 2 customcap 0 1 1 0.5 2 1 0 2 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 4 2 lines 5 15.5 0.25 -2 16 4.25 17.5 16.75 -1 15.25 5.75
+gpread 0 32bppARGB
+end
+case penobject-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.5 cap 1 1 0 join 4 compound 4 0.125 0.125 0.5 0.75
+gpshape 0 pen 0 - copy 0 5 2 lines 4 4 1.75 8 2.5 17.5 12 9 15.75
+gpread 0 32bppARGB
+end
+case penobject-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 cap 1 4 0 join 2 compound 4 0 0.125 0.375 1
+gpshape 0 pen 0 - copy 0 4 4 lines 5 1.75 15.25 -2 -1.5 13.25 -2 11.25 5.5 17 10.75
+gpread 0 32bppARGB
+end
+case penobject-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 7 cap 3 1 0 join 2 arrowcap 2 4.5 4.5 0 0.5
+gpshape 0 pen 0 - copy 0 2 1 polygon 2 11.75 2.25 11.25 10.5
+gpread 0 32bppARGB
+end
+case penobject-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.25 cap 4 4 0 join 4 customcap 1 2 2 1 0.5 1 0 0 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 1 4 polygon 2 14.75 -0.75 16.5 10.5
+gpread 0 32bppARGB
+end
+case penobject-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.75 cap 1 4 0 join 4 compound 6 0 0.125 0.5 1 1 1.125
+gpshape 0 pen 0 - copy 0 4 3 polygon 3 5.25 8 15.5 2.25 0 3.75
+gpread 0 32bppARGB
+end
+case penobject-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 8 cap 3 4 0 join 2 compound 4 0 0.125 0.625 1
+gpshape 0 pen 0 - copy 0 1 0 lines 2 6.25 4.25 7.75 -0.5
+gpread 0 32bppARGB
+end
+case penobject-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.75 cap 2 4 0 join 4 arrowcap 2 3.5 2.5 1 0.5
+gpshape 0 pen 0 - copy 0 5 3 lines 4 1 16.75 1.25 2 11.75 3.25 10.75 9.25
+gpread 0 32bppARGB
+end
+case penobject-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2.25 cap 1 2 0 join 0 customcap 2 0 1 1 1 3 3 2 4 -1 -2 0 0 1 -2 0 -1
+gpshape 0 pen 0 - copy 0 5 4 lines 5 9.75 -0.75 11.75 10.25 4 -0.5 1.5 4.5 6.75 12.5
+gpread 0 32bppARGB
+end
+case penobject-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 cap 2 0 0 join 1 compound 4 0.5 0.625 0.75 0.875
+gpshape 0 pen 0 - copy 0 4 2 lines 2 1 8.5 3.75 15.25
+gpread 0 32bppARGB
+end
+case penobject-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 8 cap 3 1 0 join 3 compound 4 0 0.375 0.5 0.5
+gpshape 0 pen 0 - copy 0 4 0 polygon 3 4.75 8.75 -1.5 -1.5 9.5 2.75
+gpread 0 32bppARGB
+end
+case penobject-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6 cap 3 0 0 join 1 arrowcap 0 0.5 0.5 0 0
+gpshape 0 pen 0 - copy 0 1 0 lines 2 3.75 10.5 12.5 2.75
+gpread 0 32bppARGB
+end
+case penobject-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.5 cap 1 0 0 join 3 customcap 0 0 1 0.5 0.5 3 1 2 4 -1 -2 0 0 1 -2 0 -1
+gpshape 0 pen 0 - copy 0 2 1 lines 4 13 4.75 6.25 10.75 1.5 3 12.75 7.25
+gpread 0 32bppARGB
+end
+case penobject-16
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.5 cap 1 1 0 join 3 compound 4 0 0.375 0.625 1.125
+gpshape 0 pen 0 - copy 0 4 1 lines 5 18 8 8.75 4.5 10.75 11.75 12 10.5 6.75 8.25
+gpread 0 32bppARGB
+end
+case penobject-17
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6 cap 2 2 0 join 4 compound 4 0.125 0.375 0.5 0.625
+gpshape 0 pen 0 - copy 0 4 1 polygon 3 -0.75 18 10.75 1.25 13 -2
+gpread 0 32bppARGB
+end
+case penobject-18
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.75 cap 2 0 0 join 4 arrowcap 1 0.5 4.5 0 0
+gpshape 0 pen 0 - copy 0 1 4 lines 5 9.25 12.75 14.25 7.5 0.75 16.25 9.5 8 10.25 3.75
+gpread 0 32bppARGB
+end
+case penobject-19
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4 cap 2 3 0 join 0 customcap 2 2 0 0 0.5 0 1 0 4 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5
+gpshape 0 pen 0 - copy 0 3 3 lines 2 17 4.75 4 -0.5
+gpread 0 32bppARGB
+end
+case penobject-20
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1.5 cap 1 0 0 join 1 compound 6 0.125 0.125 0.25 0.625 0.625 0.75
+gpshape 0 pen 0 - copy 0 2 4 lines 4 8.75 8 1.5 4.25 5.25 -1.75 12.75 9.5
+gpread 0 32bppARGB
+end
+case penobject-21
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3.25 cap 3 4 0 join 3 compound 4 0 0.5 1 1
+gpshape 0 pen 0 - copy 0 3 4 polygon 3 5.75 5.75 11.25 14.75 1.75 15.75
+gpread 0 32bppARGB
+end
+case penobject-22
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.75 cap 4 0 0 join 2 arrowcap 2 3.5 1.5 1 -1
+gpshape 0 pen 0 - copy 0 3 2 polygon 3 15.75 5.75 2.5 -1.75 16.75 10.75
+gpread 0 32bppARGB
+end
+case penobject-23
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.5 cap 1 3 0 join 3 customcap 1 2 0 1 1 1 3 1 4 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5
+gpshape 0 pen 0 - copy 0 2 3 polygon 4 8.5 6 2.5 -2 16 14 8.75 11.75
+gpread 0 32bppARGB
+end
+case penobject-24
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.5 cap 2 4 0 join 3 compound 2 0 0.5
+gpshape 0 pen 0 - copy 0 4 4 lines 3 8 -0.25 -0.25 18 3.25 0.25
+gpread 0 32bppARGB
+end
+case penobject-25
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 9 cap 4 2 0 join 2 compound 6 0.25 0.375 0.5 0.625 0.625 0.875
+gpshape 0 pen 0 - copy 0 4 0 lines 2 0 7 11 -2
+gpread 0 32bppARGB
+end
+case penobject-26
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 7.25 cap 3 0 0 join 4 arrowcap 2 4.5 3 2 -1
+gpshape 0 pen 0 - copy 0 4 4 lines 4 14.5 12.5 5.5 14 8 3.25 12.75 13
+gpread 0 32bppARGB
+end
+case penobject-27
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2.5 cap 4 3 0 join 1 customcap 2 2 0 1 2 1 1 3 4 -1 -2 0 0 1 -2 0 -1
+gpshape 0 pen 0 - copy 0 1 2 lines 2 9.5 8.75 16 12.25
+gpread 0 32bppARGB
+end
+case penobject-28
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3.75 cap 2 4 0 join 3 compound 4 0.625 0.875 1 1
+gpshape 0 pen 0 - copy 0 1 2 polygon 4 18 -1.75 8.75 15.5 17.75 16.5 8.75 11
+gpread 0 32bppARGB
+end
+case penobject-29
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 cap 0 2 0 join 1 compound 4 0.375 0.5 0.75 1
+gpshape 0 pen 0 - copy 0 2 3 polygon 2 11.5 11 5.5 8
+gpread 0 32bppARGB
+end
+case penobject-30
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.75 cap 3 4 0 join 0 arrowcap 0 4 3.5 2 1
+gpshape 0 pen 0 - copy 0 4 4 lines 3 14.75 12.25 8 4.75 1.5 4.5
+gpread 0 32bppARGB
+end
+case penobject-31
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.5 cap 1 2 0 join 3 customcap 2 2 0 0 0.5 2 1 3 4 -1 -2 0 0 1 -2 0 -1
+gpshape 0 pen 0 - copy 0 5 1 lines 4 8.5 16.5 9.5 16 3.5 15.75 16.5 17.25
+gpread 0 32bppARGB
+end
+case penobject-32
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 4.75 cap 1 4 0 join 1 compound 4 0.375 0.625 0.75 1.125
+gpshape 0 pen 0 - copy 0 0 1 polygon 4 1.75 1.5 0 9.25 12.75 -0.5 6.25 12.25
+gpread 0 32bppARGB
+end
+case penobject-33
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1 cap 1 3 0 join 0 compound 4 0.25 0.25 0.375 1.125
+gpshape 0 pen 0 - copy 0 4 3 lines 5 4 5.5 8 7 -1.5 -0.5 3 3.25 -2 13.75
+gpread 0 32bppARGB
+end
+case penobject-34
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1.75 cap 2 0 0 join 1 arrowcap 2 2.5 2.5 1 0.5
+gpshape 0 pen 0 - copy 0 3 0 lines 5 13.5 3 3.75 2.75 1.25 2.25 0.75 -1 5.75 2.25
+gpread 0 32bppARGB
+end
+case penobject-35
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 7.5 cap 4 4 0 join 3 customcap 0 1 4 0.5 1 0 1 0 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 0 4 polygon 5 0 9.5 -2 -1 -1.5 10.5 11.75 5.25 11.25 -0.75
+gpread 0 32bppARGB
+end
+case penobject-36
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 8.75 cap 1 4 0 join 0 compound 4 0.25 0.375 0.5 0.625
+gpshape 0 pen 0 - copy 0 4 1 polygon 3 15.75 11.25 8.5 -1.75 -0.25 11
+gpread 0 32bppARGB
+end
+case penobject-37
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.75 cap 0 0 0 join 2 compound 4 0 0.5 1 1.125
+gpshape 0 pen 0 - copy 0 5 3 polygon 4 0.5 15.5 6.25 17.75 15.25 0 -0.75 3
+gpread 0 32bppARGB
+end
+case penobject-38
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 6.5 cap 0 3 0 join 3 arrowcap 0 2 0.5 0 1
+gpshape 0 pen 0 - copy 0 1 2 polygon 3 14 5.5 -0.75 5.5 8 3.75
+gpread 0 32bppARGB
+end
+case penobject-39
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 9 cap 2 1 0 join 3 customcap 1 0 3 0 0.5 3 2 1 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 3 1 lines 3 -1 9.75 8.75 -0.25 0.75 -0.75
+gpread 0 32bppARGB
+end
+case penobject-40
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 8 cap 4 2 0 join 1 compound 4 0.375 0.5 0.625 0.875
+gpshape 0 pen 0 - copy 0 4 1 lines 3 2.5 13.5 11.25 3.5 2 16.25
+gpread 0 32bppARGB
+end
+case penobject-41
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 cap 4 3 0 join 4 compound 4 0 0.25 0.625 0.75
+gpshape 0 pen 0 - copy 0 2 4 lines 2 10.25 3 15.5 3.25
+gpread 0 32bppARGB
+end
+case penobject-42
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 cap 1 0 0 join 0 arrowcap 2 2.5 1.5 0 1
+gpshape 0 pen 0 - copy 0 4 2 lines 3 5.5 7.75 9.5 9.5 17 9.75
+gpread 0 32bppARGB
+end
+case penobject-43
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 1.25 cap 0 0 0 join 3 customcap 0 2 3 0 1 2 2 2 4 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5
+gpshape 0 pen 0 - copy 0 1 0 lines 5 3.5 10 10 13.5 6.75 4.75 -1.5 12.75 3.25 -1
+gpread 0 32bppARGB
+end
+case penobject-44
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3.5 cap 3 2 0 join 1 compound 6 0.25 0.375 0.5 0.5 0.875 1.125
+gpshape 0 pen 0 - copy 0 5 2 lines 5 9.5 6.25 2.25 11.75 16.25 2.5 -1.25 6.25 0.5 2.5
+gpread 0 32bppARGB
+end
+case penobject-45
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 5.5 cap 3 3 0 join 0 compound 4 0 0.5 0.625 1.125
+gpshape 0 pen 0 - copy 0 3 1 lines 2 12.75 4.25 15.5 4.25
+gpread 0 32bppARGB
+end
+case penobject-46
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3.75 cap 3 3 0 join 0 arrowcap 0 1.5 2 1 0
+gpshape 0 pen 0 - copy 0 2 0 lines 2 9.5 3.5 8.75 5.5
+gpread 0 32bppARGB
+end
+case penobject-47
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 7.5 cap 1 0 0 join 1 customcap 0 1 1 0 2 3 1 2 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 0 4 lines 5 4 -1.25 15.75 4.5 6 17.5 13 17 12.5 15.25
+gpread 0 32bppARGB
+end
+case penset-0
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 1 0.5
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-1
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 3 0 0.5 1
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 2 0.5 0.25
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 2 -0.25 1
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 2 0 1.5
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 0
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 4 0 0.5 0.5 1
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-7
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 2 0 1 align 1
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-8
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 compound 4 0 0.25 0.75 1 align 1
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-9
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 arrowcap 1 0 2 1 0
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-10
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 arrowcap 1 3 0 1 0
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-11
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 arrowcap 1 3 2 1 3
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-12
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 arrowcap 0 3 2 1 0
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-13
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 arrowcap 1 -1 2 1 0
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-14
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 customcap 1 0 0 0 1 0 0 0 2 0 0 1 1
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
+case penset-15
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 customcap 1 1 0 0 1 0 0 0 1 0 0
+gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
+gpread 0 32bppARGB
+end
