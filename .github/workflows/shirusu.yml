@@ -12,6 +12,7 @@ on:
       - 'cases/**'
       - 'runner/**'
       - 'shirusu.rev'
+      - 'spec/calls-suites.txt'
       - 'src/calls.rs'
       - '.github/workflows/shirusu.yml'
   workflow_dispatch:
@@ -28,10 +29,6 @@ concurrency:
   group: shirusu-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  # the suites recorded (their calls go through import tables: GDI and its neighbours; COM
-  # methods are not recorded by shirusu yet)
-  SUITES: gdi stretch pixel lines region xform path text blend ddb
 
 jobs:
   build:
@@ -61,7 +58,7 @@ jobs:
         run: |
           rev=$(cat shirusu.rev)
           l=
-          for s in $SUITES; do
+          for s in $(grep -v '^#' spec/calls-suites.txt); do
             for a in 32 64; do
               n=$s-$a
               [ -f "exe/kikizake_$n.exe" ] || continue

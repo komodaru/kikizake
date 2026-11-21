@@ -1,0 +1,14 @@
+# The suites shirusu records on Windows (calls/<suite>-<arch>.txt; the shirusu workflow reads this
+# list): their calls go through import tables, GDI and its neighbours (COM methods are not recorded
+# by shirusu yet). `cargo test` (tests/calls.rs, calls::check_complete) wants a current recording of
+# each of them on every architecture its case file names.
+gdi
+stretch
+pixel
+lines
+region
+xform
+path
+text
+blend
+ddb

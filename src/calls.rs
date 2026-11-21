@@ -998,18 +998,25 @@ pub struct Check {
     /// recordings whose executor printed something else than without shirusu
     pub stdout: Vec<String>,
     pub failures: Vec<String>,
+    /// recordings a complete set wants and does not have current (check_complete only): a
+    /// suite and architecture missing, or recorded from other cases, another executor source or
+    /// another shirusu
+    pub missing: Vec<String>,
+    /// recordings whose stdout shirusu got only in part: their calls are checked, but not that
+    /// recording left the output of those cases alone (a result of its own, not a problem)
+    pub partial: Vec<String>,
 }
 
 impl Check {
     pub fn problems(&self) -> usize {
-        self.ops.len() + self.arch.len() + self.stdout.len()
+        self.ops.len() + self.arch.len() + self.stdout.len() + self.missing.len()
     }
     pub fn report(&self) -> String {
         let mut s = String::new();
         for (n, i) in &self.info {
             s += &format!("{n}: {i}\n");
         }
-        for (what, v) in [("case line", &self.ops), ("x86 / x86-64", &self.arch), ("output", &self.stdout), ("failed call", &self.failures)] {
+        for (what, v) in [("case line", &self.ops), ("x86 / x86-64", &self.arch), ("output", &self.stdout), ("missing", &self.missing), ("partial stdout", &self.partial), ("failed call", &self.failures)] {
             for l in v {
                 s += &format!("{what}: {l}\n");
             }
@@ -1079,7 +1086,10 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
         let repeated = rec.cases.iter().filter(|c| c.out == Stdout::Repeated).count();
         if repeated > 0 { ch.info.push((n.clone(), format!("{repeated} complete case outputs matched a plain repeat"))); }
         let truncated = rec.cases.iter().filter(|c| c.out == Stdout::Truncated).count();
-        if truncated > 0 { ch.info.push((n.clone(), format!("{truncated} cases with partial stdout"))); }
+        if truncated > 0 {
+            ch.info.push((n.clone(), format!("{truncated} cases with partial stdout")));
+            ch.partial.push(format!("{n}: {truncated} of {} cases (their calls checked, their output not)", rec.cases.len()));
+        }
         let differ: Vec<&Case> = rec.cases.iter().filter(|c| c.out == Stdout::Differ).collect();
         for c in &differ {
             if !unstable.iter().any(|u| *u == c.name) {
@@ -1099,6 +1109,67 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
     }
     ch.arch.sort();
     ch
+}
+
+/// What a header must say to be current: its cases' hash, the executor source's hash
+/// (runner/golden.py src) and the shirusu commit (shirusu.rev)
+pub struct Wanted {
+    pub cases: CasesHash,
+    pub src: String,
+    pub shirusu: String,
+}
+
+/// The problems of a set of recordings that is to be complete (`cargo test`, CI): every
+/// (suite, architecture) of `required` has a recording in `dir` whose header is `want`'s; what
+/// `check_dir` finds besides. `check_dir` alone checks the recordings there are (a partial
+/// directory, the workflow's fresh ones); this is the success condition of the whole set (the
+/// review of 8480456, 5.3: one recording alone, or one of an old source and shirusu, passed).
+pub fn check_complete(dir: &std::path::Path, root: &std::path::Path, required: &[(String, Wanted)]) -> Check {
+    let mut ch = check_dir(dir, root);
+    for (n, want) in required {
+        let path = dir.join(format!("{n}.txt"));
+        let header = match std::fs::read_to_string(&path).map_err(|e| e.to_string()).and_then(|t| parse(&t)) {
+            Ok(r) => r.header,
+            Err(e) => {
+                ch.missing.push(format!("{n}: {e}"));
+                continue;
+            }
+        };
+        if header.cases != want.cases {
+            ch.missing.push(format!("{n}: recorded from other cases"));
+        }
+        if header.src != want.src {
+            ch.missing.push(format!("{n}: recorded from executor source {}, now {}", header.src, want.src));
+        }
+        if header.shirusu != want.shirusu {
+            ch.missing.push(format!("{n}: recorded by shirusu {}, now {}", header.shirusu, want.shirusu));
+        }
+    }
+    if required.is_empty() {
+        ch.missing.push("no recordings required: spec/calls-suites.txt is empty".into());
+    }
+    ch
+}
+
+/// The recordings spec/calls-suites.txt asks for, each architecture its case file names, with
+/// what their headers must say now (the executor source by runner/golden.py src)
+pub fn required(root: &std::path::Path) -> Result<Vec<(String, Wanted)>, String> {
+    let list = std::fs::read_to_string(root.join("spec/calls-suites.txt")).map_err(|e| format!("spec/calls-suites.txt: {e}"))?;
+    let shirusu = std::fs::read_to_string(root.join("shirusu.rev")).map_err(|e| format!("shirusu.rev: {e}"))?.trim().to_string();
+    let mut v = Vec::new();
+    for s in list.lines().map(str::trim).filter(|l| !l.is_empty() && !l.starts_with('#')) {
+        let text = std::fs::read_to_string(root.join(format!("cases/{s}.txt"))).map_err(|e| format!("cases/{s}.txt: {e}"))?;
+        for arch in crate::generators::architectures(&text) {
+            let n = format!("{s}-{arch}");
+            let out = std::process::Command::new("python3").arg(root.join("runner/golden.py")).arg("src").arg(&n).current_dir(root).output().map_err(|e| format!("runner/golden.py: {e}"))?;
+            if !out.status.success() {
+                return Err(format!("runner/golden.py src {n}: {}", String::from_utf8_lossy(&out.stderr)));
+            }
+            let src = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            v.push((n, Wanted { cases: CasesHash::of(&text), src, shirusu: shirusu.clone() }));
+        }
+    }
+    Ok(v)
 }
 
 /// The modules whose calls `usage` looks at: Windows' graphics APIs.

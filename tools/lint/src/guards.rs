@@ -47,6 +47,7 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
 /// (file, what (a regular expression), why): `forbidden`
 pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated"),
+    ("tests/calls.rs", r"calls::check_dir\s*\(", "the whole set's condition is check_complete (every suite of spec/calls-suites.txt, current); check_dir checks only the recordings there are"),
     ("src/model/d3d12.rs", r#""device12"\s*=>\s*\{[^}]*self\.(chain|factory)\s*="#, "device12 again keeps the executor's device and what was made of it (dxgi device-again)"),
 ];
 
@@ -326,9 +327,19 @@ pub fn check(root: &Path) -> Result<(), String> {
             }
         }
     }
-    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)).chain(FORBIDDEN.iter().map(|f| f.0)) {
+    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)).chain(FORBIDDEN.iter().map(|f| f.0).filter(|f| f.starts_with("src/"))) {
         if !seen.iter().any(|s| s == f) {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
+        }
+    }
+    // (files outside src/ that a forbidden construction names)
+    for f in FORBIDDEN.iter().map(|f| f.0).filter(|f| !f.starts_with("src/")) {
+        match std::fs::read_to_string(root.join(f)) {
+            Ok(t) => {
+                bad.extend(rust(f, &t).into_iter().filter(|b| b.contains(": forbidden: ")));
+                seen.push(f.to_string());
+            }
+            Err(e) => bad.push(format!("{f}: {e}")),
         }
     }
     let lib = std::fs::read_to_string(root.join("src/lib.rs")).map_err(|e| format!("src/lib.rs: {e}"))?;

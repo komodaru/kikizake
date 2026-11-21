@@ -146,3 +146,10 @@ fn apis_kani_cannot_compile_are_found() {
     assert!(kani_gates(&[("src/x.rs".into(), "// Vec::from_fn(3, f)".into())], "").is_empty());
     assert_eq!(kani_gates(&src, "// #![cfg_attr(kani, feature(vec_from_fn))]\n").len(), 1);
 }
+
+#[test]
+fn the_partial_calls_check_as_ci_condition_is_found() {
+    let old = "fn recordings_match_the_cases() {\n    let c = kikizake::calls::check_dir(&root.join(\"calls\"), &root);\n}\n";
+    assert!(rust("tests/calls.rs", old).iter().any(|b| b.contains("forbidden: the whole set's condition")));
+    assert!(rust("tests/calls.rs", "fn r() { let c = kikizake::calls::check_complete(&d, &root, &req); }").is_empty());
+}
