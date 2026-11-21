@@ -1769,6 +1769,7 @@ impl Planes {
     }
 
     fn at(&self, cx: f32, cy: f32) -> [f32; 4] {
+        hit(clause::D3DRASTER_INTERP);
         let q = 1.0 / self.plane(self.iw, cx, cy);
         [0, 1, 2, 3].map(|k| self.plane(self.aw.map(|a| a[k]), cx, cy) * q)
     }
