@@ -2352,7 +2352,7 @@ impl Ctx {
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
     /// channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
-        let unmeasured = [ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, STENCIL_TEST, COLOR_LOGIC_OP, SCISSOR_TEST].iter().any(|c| self.cap(*c))
+        let unmeasured = [ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, STENCIL_TEST, COLOR_LOGIC_OP].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
             || (self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA))
             || self.color_mask != [true; 4]
@@ -2389,7 +2389,8 @@ impl Ctx {
             None
         };
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
-        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST {
+        // (scissored: the general path, cut by the box per fragment, raster-open-14)
+        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) {
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
@@ -2407,6 +2408,13 @@ impl Ctx {
             self.fragment(Frag { x: p.x, y: dib_row(p.row), c: p.c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
         }
         Ok(())
+    }
+
+    /// whether a GL_LINE_SMOOTH line is drawn aliased instead, through the pipeline in its
+    /// first end's color (MEASURED, golden opengl-32 / 64 raster-open-4: flat-shaded, 7:
+    /// fogged, 12: depth tested; GL.RASTER.LINE.SMOOTH)
+    fn aliased_smooth_line(&self) -> bool {
+        self.shade == FLAT || self.cap(FOG) || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
     }
 
     /// What a batch of vertices (glBegin .. glEnd, glRect) leaves as the current color: its
@@ -2450,8 +2458,8 @@ impl Ctx {
 
     fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize, quad: bool) -> Res<()> {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
-        let unmeasured = [LIGHTING, FOG, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
-            || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
+        let unmeasured = [LIGHTING, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
+            || (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.pf.depth != 32)
             || self.pf.ty != 0
             || self.bits()[..3].iter().any(|b| *b != 8)
             || self.pf.rgba[3].0 % 8 != 0
@@ -2475,6 +2483,19 @@ impl Ctx {
         let scale = self.channel_scales();
         let colors: Vec<[f32; 4]> = q.iter().map(|v| tri::zip4(v.1, scale, |c, s| c * s)).collect();
         let flat = self.shade == FLAT;
+        // (depths: window z in 2^-32 as the rasterizer has it, its plane truncated, the low
+        // 32 bits; raster-open-11)
+        let depth = self.cap(DEPTH_TEST) && self.pf.depth == 32;
+        let (n, f) = (f64::from(self.depth_range[0]), f64::from(self.depth_range[1]));
+        let (zscale, zcenter) = (tri::narrow((f - n) / 2.0 * 4_294_967_296.0), tri::narrow((n + f) / 2.0 * 4_294_967_296.0));
+        let zr: Vec<f32> = clip.iter().map(|c| if c[3] == 1.0 { c[2] * zscale + zcenter } else { (c[2] * zscale) * (1.0 / c[3]) + zcenter }).collect();
+        // (fogged: the vertices' fog factors' plane, then each fragment fogged: raster-open-13)
+        let fogs: Vec<f32> = q.iter().map(|v| self.fog.factor(xform(self.top(0), [v.0.xyz[0], v.0.xyz[1], v.0.xyz[2], v.0.w])[2])).collect();
+        let fog_color = tri::zip4(self.fog.color, scale, |c, s| c * s);
+        let fogged = self.cap(FOG);
+        if fogged {
+            hit(clause::GL_FOG_APPLY);
+        }
         // (a quad's triangles v0 v1 v2 and v2 v3 v0, a polygon's the fan from v0; each sorted
         // up the raster rows before it is filled, one of no area dropped)
         let tris: Vec<[usize; 3]> = if quad { vec![[0, 1, 2], [2, 3, 0]] } else { (1..v.len()).zip(2..v.len()).map(|(k, l)| [0, k, l]).collect() };
@@ -2486,14 +2507,28 @@ impl Ctx {
             let color = |i: usize| colors.get(i).copied().ok_or(Fail::Bad);
             let [c0, c1, c2] = [color(t[0])?, color(t[1])?, color(t[2])?];
             let at_provoking = color(provoking)?;
+            let corner = |list: &[f32], i: usize| list.get(i).copied().ok_or(Fail::Bad);
+            let [z0, z1, z2] = [corner(&zr, t[0])?, corner(&zr, t[1])?, corner(&zr, t[2])?];
+            let [f0, f1, f2] = [corner(&fogs, t[0])?, corner(&fogs, t[1])?, corner(&fogs, t[2])?];
             if (ax - cx) * (by - cy) - (ay - cy) * (bx - cx) == 0.0 {
                 continue;
             }
             for p in tri::aa_triangle(r, grid) {
                 let plane = |ch: fn([f32; 4]) -> f32| tri::aa_plane(r, [ch(c0), ch(c1), ch(c2)], p.at);
                 let mut c = if flat { at_provoking } else { [plane(|c| c[0]), plane(|c| c[1]), plane(|c| c[2]), plane(|c| c[3])] };
+                if fogged {
+                    let k = tri::aa_plane(r, [f0, f1, f2], p.at);
+                    let a = c[3];
+                    c = tri::zip4(c, fog_color, |c, g| k * c + (1.0 - k) * g);
+                    c[3] = a;
+                }
                 c[3] *= p.cover.fraction();
-                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
+                let zfixed = depth.then(|| {
+                    hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
+                    let z = tri::trunc(tri::aa_plane(r, [z0, z1, z2], p.at).trunc());
+                    FixedZ { bits: 32, value: u64::try_from(z & 0xFFFF_FFFF).unwrap_or(0) }
+                });
+                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed: ToFixed::Scaled, zfixed })?;
             }
         }
         Ok(())
@@ -2850,8 +2885,8 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
-                    // (flat-shaded or fogged: not antialiased, below)
-                    if self.cap(LINE_SMOOTH) && self.shade != FLAT && !self.cap(FOG) {
+                    // (flat-shaded, fogged, scissored or depth tested: not antialiased, below)
+                    if self.cap(LINE_SMOOTH) && !self.aliased_smooth_line() {
                         self.aa_line(a, b, mode == LINES || i == 0)?;
                         continue;
                     }

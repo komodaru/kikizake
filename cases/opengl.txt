@@ -112909,6 +112909,108 @@ gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case raster-open-15
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb20
+gl glEnable 0xb90
+gl glStencilFunc 0x207 0 255
+gl glStencilOp 0x1e00 0x1e00 0x1e02
+gl glClear 0x4400
+gl glBegin 1
+gl glColor4ub 255 255 255 255
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-open-16
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb20
+gl glColorMask 1 0 1 1
+gl glClear 0x4000
+gl glBegin 1
+gl glColor4ub 255 255 255 255
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-open-17
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb41
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glClear 0x4000
+gl glBegin 4
+gl glNormal3f 0 0 1
+gl glColor4ub 200 0 0 255
+gl glVertex2f 2 2
+gl glColor4ub 0 200 0 255
+gl glVertex2f 13 4
+gl glColor4ub 0 0 200 255
+gl glVertex2f 6 13
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-open-18
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb41
+gl glEnable 0xbc0
+gl glAlphaFunc 0x204 0.5
+gl glClear 0x4000
+gl glBegin 4
+gl glColor4ub 255 255 255 255
+gl glVertex2f 2 2
+gl glVertex2f 13 4
+gl glVertex2f 6 13
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-open-19
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb41
+gl glClear 0x4000
+gl glBegin 4
+gl glColor4ub 255 0 0 255
+gl glVertex2f -3 2
+gl glColor4ub 0 255 0 255
+gl glVertex2f 13 4
+gl glColor4ub 0 0 255 255
+gl glVertex2f 6 19
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

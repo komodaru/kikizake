@@ -2946,4 +2946,24 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-14\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xc11\ngl glScissor 4 3 7 6\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // an antialiased line under a stencil test (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-15\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb90\ngl glStencilFunc 0x207 0 255\ngl glStencilOp 0x1e00 0x1e00 0x1e02\ngl glClear 0x4400\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased line under a color mask (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-16\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glColorMask 1 0 1 1\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle lit (GL_LIGHT0, GL_COLOR_MATERIAL) (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-17\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glEnable 0xb57\ngl glClear 0x4000\ngl glBegin 4\ngl glNormal3f 0 0 1\ngl glColor4ub 200 0 0 255\ngl glVertex2f 2 2\ngl glColor4ub 0 200 0 255\ngl glVertex2f 13 4\ngl glColor4ub 0 0 200 255\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle alpha tested, into a buffer with alpha (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-18\nglctx 32 choose 0x38 0 32 8 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xbc0\ngl glAlphaFunc 0x204 0.5\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 2 2\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd");
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle the view volume cuts (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-19\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex2f -3 2\ngl glColor4ub 0 255 0 255\ngl glVertex2f 13 4\ngl glColor4ub 0 0 255 255\ngl glVertex2f 6 19\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }
