@@ -2886,4 +2886,31 @@ fn measure(s: &mut String) {
     writeln!(s, "case interp-open-9\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glEnable 0xb57\ngl glClear 0x4000\ngl glBegin 4\ngl glNormal3f 0 0 1\ngl glColor4ub 255 0 0 255\ngl glVertex2f 2 2\ngl glColor4ub 0 255 0 255\ngl glVertex2f 13 4\ngl glColor4ub 0 0 255 255\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // a flat-shaded line the far plane cuts (w = 1, the second end past it), no depth test
+    // (GL.RASTER.INTERPOLATE): open
+    writeln!(s, "case interp-open-10\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 200 100 50 255\ngl glVertex3f 2 2 0\ngl glVertex3f 14 10 -3\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a rectangle fogged across at one window depth: tilted about x, glDepthRange 0 0
+    // (GL.RASTER.INTERPOLATE): open
+    writeln!(s, "case interp-open-11\n{}{ORTHO}gl glDisable 0xbd0\ngl glDepthRange 0 0\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glRotatef 5 1 0 0\ngl glClear 0x4000\ngl glColor4ub 255 255 255 255\ngl glRectf 3 2 13 9", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased line flat-shaded, its ends' colors differing (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-4\n{}{ORTHO}gl glDisable 0xbd0\ngl glShadeModel 0x1d00\ngl glEnable 0xb20\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 0 0 255\ngl glVertex2f 1.5 2.25\ngl glColor4ub 0 0 255 255\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a stippled polygon outline (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-5\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb24\ngl glLineStipple 1 0x3c3c\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 2 2\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle under GL_CULL_FACE, front facing (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-6\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xb44\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 2 2\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a rectangle fogged across, tilted about x inside the view volume: drawn as a polygon
+    // (GL.RASTER.INTERPOLATE.COLOR)
+    writeln!(s, "case interp-open-12\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glRotatef 5 1 0 0\ngl glClear 0x4000\ngl glColor4ub 255 255 255 255\ngl glRectf 3 2 13 9", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }

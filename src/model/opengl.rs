@@ -2006,6 +2006,14 @@ impl Fog {
 }
 
 
+/// A vertex's color under GL_COLOR_MATERIAL (ambient and diffuse the current color `c`) with
+/// the scene's ambient `ambient` and GL_LIGHT0's n . L held to 0 `nl`: each channel's sum held
+/// to 0..1, alpha the color's (GL.LIGHTING; golden opengl-32 / 64 interp-open-9)
+pub fn color_material_lit(ambient: f32, nl: f32, c: [f32; 4]) -> [f32; 4] {
+    let lit = |v: f32| (ambient * v + nl * v).clamp(0.0, 1.0);
+    [lit(c[0]), lit(c[1]), lit(c[2]), c[3]]
+}
+
 fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
     let mut r = [0f64; 4];
     for row in 0..4 {
@@ -2135,8 +2143,10 @@ impl Ctx {
             // shininess being 0
             return [if d > 0.0 { 1.0 } else { 0.0 }, 0.0, 0.0, 0.0];
         }
+        // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
+        // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
         if self.cap(COLOR_MATERIAL) {
-            return [a * c[0] + d * c[0], a * c[1] + d * c[1], a * c[2] + d * c[2], c[3]];
+            return color_material_lit(a, d, c);
         }
         let l = a * 0.2 + d * 0.8;
         [l, l, l, 1.0]
@@ -2321,7 +2331,7 @@ impl Ctx {
     /// alpha, 1 pixel wide and not under GL_NICEST the fast path (`tri::aa_line_fast`), else
     /// the general one (`tri::aa_line`), each fragment truncated (MEASURED, golden opengl-32 /
     /// 64: GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.WIDE, GL.RASTER.LINE.SMOOTH.BLEND).
-    /// Flat-shaded, stippled, fogged, lit, textured, depth, stencil or alpha tested, masked,
+    /// Stippled: `tri::AaStipple` (GL.RASTER.LINE.STIPPLE). Flat-shaded, fogged, lit, textured, depth, stencil or alpha tested, masked,
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
     /// channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
@@ -2352,11 +2362,8 @@ impl Ctx {
         let r: [tri::Raster; 2] = std::array::from_fn(|k| if cut[k] { tri::Raster::of_cut(e[k].clip, self.viewport, H as i64) } else { tri::Raster::of(e[k].clip, self.viewport, H as i64) });
         let colors = [e[0].c, e[1].c];
         // (stippled: the counter from 0 at glBegin and each GL_LINES segment, a strip's carried
-        // on (raster-open-1, 2); a cut line's not measured)
+        // on (raster-open-1, 2); a cut line's counted from its cut end, raster-open-3)
         let stipple = if self.cap(LINE_STIPPLE) {
-            if cut.iter().any(|c| *c) {
-                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-            }
             hit(clause::GL_RASTER_LINE_STIPPLE);
             if fresh {
                 self.aa_stipple = (0, 0);
@@ -2593,10 +2600,7 @@ impl Ctx {
         let w: Vec<[f64; 2]> = cut.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
         let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
         let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
-        // (smooth colors under fog or lighting are not measured)
-        if !flat && self.cap(LIGHTING) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
-        }
+        // (smooth colors lit: the corners' colors, clamped, interpolated as any others)
         let colors: Vec<[f64; 4]> = if flat { vec![fogged[provoking].map(f64::from); q.len()] } else { fogged.iter().map(|c| c.map(f64::from)).collect() };
         let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
         if self.cap(CULL_FACE) {

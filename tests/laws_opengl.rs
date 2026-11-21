@@ -3,7 +3,7 @@
 use kikizake::compare::line_matches;
 use kikizake::model::opengl::e::*;
 use kikizake::model::opengl::tri::{self, Sub, Vertex};
-use kikizake::model::opengl::{blend_bytes, Given, blend_undefined, logic, logic_reads_dst, Fog, FogMode};
+use kikizake::model::opengl::{blend_bytes, color_material_lit, Given, blend_undefined, logic, logic_reads_dst, Fog, FogMode};
 use proptest::prelude::*;
 
 fn fog(mode: FogMode, density: f32, start: f32, end: f32) -> Fog {
@@ -11,6 +11,19 @@ fn fog(mode: FogMode, density: f32, start: f32, end: f32) -> Fog {
 }
 
 proptest! {
+    /// GL 1.1 2.13.8: a lit color is clamped to 0..1 at the vertex; under GL_COLOR_MATERIAL
+    /// alpha is the current color's, and more light never darkens a channel
+    #[test]
+    fn color_material_lights_hold_to_one(ambient in 0f32..1.0, nl in 0f32..1.0, more in 0f32..1.0, c in proptest::array::uniform4(0f32..=1.0)) {
+        let a = color_material_lit(ambient, nl, c);
+        let b = color_material_lit(ambient, nl + more, c);
+        prop_assert_eq!(a[3], c[3]);
+        for k in 0..3 {
+            prop_assert!((0.0..=1.0).contains(&a[k]));
+            prop_assert!(b[k] >= a[k]);
+        }
+    }
+
     /// GL 1.1 3.9: the factor is held to 0..1, is 1 at the eye for the exponential modes, 1 at
     /// the start and 0 at the end for the linear one, never grows with the distance, and depends
     /// on the distance only (|z|)

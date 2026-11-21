@@ -151,6 +151,7 @@ tests/laws_dd.rs::stretch_indices_are_monotone_and_cover pbt DDRAW.STRETCH
 tests/laws_dd.rs::nearest_entry_is_nearest pbt DDRAW.DC.NEAREST DDRAW.DC.NOPAL
 tests/laws_gdidraw.rs::flatten_ends_at_the_end pbt GDI.PATH.FLATTENHFD
 tests/laws_gdidraw.rs::fix_fill_rectangles_and_moves pbt GDI.PATH.FILLFIX
+tests/laws_opengl.rs::color_material_lights_hold_to_one pbt GL.LIGHTING
 tests/laws_opengl.rs::fog_factor_follows_the_modes pbt GL.FOG.APPLY
 tests/laws_opengl.rs::fog_modes_round_trip pbt GL.FOG.STATE GL.FOG.ENUM
 tests/laws_opengl.rs::blend_undefined_is_sound pbt GL.UNDEFINED
