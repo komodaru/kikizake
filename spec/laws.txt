@@ -183,6 +183,7 @@ tests/laws_opengl.rs::entering_lines_start_at_the_edge pbt GL.RASTER.LINE.WIDE
 tests/laws_opengl.rs::draw_reads_the_given_bytes_then_zeros pbt GL.DRAW.BUFFER
 tests/laws_opengl.rs::line_colors_run_between_the_ends pbt GL.RASTER.INTERPOLATE.LINECOLOR
 tests/laws_opengl.rs::aa_lines_cover_at_most_one pbt GL.RASTER.LINE.SMOOTH.WIDE
+tests/laws_opengl.rs::aa_stipples_only_take_coverage pbt GL.RASTER.LINE.STIPPLE
 tests/laws_opengl.rs::aa_widths_round_to_eighths pbt GL.RASTER.LINE.SMOOTH.WIDE
 tests/laws_opengl.rs::fast_aa_line_pairs_weigh_one_pixel pbt GL.RASTER.LINE.SMOOTH.BLEND
 tests/laws_opengl.rs::cut_lines_end_on_the_plane pbt GL.RASTER.INTERPOLATE.LINE

@@ -294,13 +294,29 @@ proptest! {
     fn aa_lines_cover_at_most_one(v in any::<[(u16, u16); 2]>(), w in 1u16..80, c in any::<[u8; 4]>()) {
         let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + f32::from(x % 1024) / 64.0, tri::RASTER_BIAS + f32::from(y % 1024) / 64.0]));
         let c = c.map(f32::from);
-        let p = tri::aa_line(r[0], r[1], [c, c], tri::AaWidth::of(f32::from(w) / 8.0));
+        let p = tri::aa_line(r[0], r[1], [c, c], tri::AaWidth::of(f32::from(w) / 8.0), None);
         let mut seen = std::collections::BTreeSet::new();
         for f in &p {
             prop_assert!(f.cover > 0.0 && f.cover <= 1.0);
             prop_assert_eq!(&f.c[..3], &c[..3]);
             prop_assert_eq!(f.c[3], c[3] * f.cover);
             prop_assert!(seen.insert((f.x, f.row)), "{:?} twice", (f.x, f.row));
+        }
+    }
+
+    /// GL.RASTER.LINE.STIPPLE: a smooth line stippled by all ones is the line unstippled, by
+    /// none nothing, and by any pattern no pixel covered more than unstippled
+    #[test]
+    fn aa_stipples_only_take_coverage(v in any::<[(u16, u16); 2]>(), pattern in any::<u16>(), repeat in 1u8..=255) {
+        let r = v.map(|(x, y)| tri::Raster([tri::RASTER_BIAS + f32::from(x % 1024) / 64.0, tri::RASTER_BIAS + f32::from(y % 1024) / 64.0]));
+        let (c, w) = ([[255.0; 4]; 2], tri::AaWidth::of(1.0));
+        let plain = tri::aa_line(r[0], r[1], c, w, None);
+        prop_assert_eq!(&tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern: 0xffff, repeat })), &plain);
+        let none = tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern: 0, repeat }));
+        prop_assert!(none.is_empty());
+        for f in tri::aa_line(r[0], r[1], c, w, Some(tri::AaStipple { pattern, repeat })) {
+            let p = plain.iter().find(|p| (p.x, p.row) == (f.x, f.row));
+            prop_assert!(p.is_some_and(|p| f.cover <= p.cover));
         }
     }
 

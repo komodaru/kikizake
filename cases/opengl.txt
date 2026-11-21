@@ -112512,6 +112512,48 @@ gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case interp-open-6
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb71
+gl glPolygonMode 0x408 0x1b01
+gl glClear 0x4100
+gl glBegin 4
+gl glColor4ub 255 0 0 255
+gl glVertex3f 2 2 0.5
+gl glColor4ub 0 255 0 255
+gl glVertex3f 13 4 -0.25
+gl glColor4ub 0 0 255 255
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-open-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glEnable 0xb20
+gl glEnable 0xb24
+gl glLineStipple 2 0xc3a5
+gl glClear 0x4000
+gl glBegin 3
+gl glColor4ub 255 255 255 255
+gl glVertex2f 1.5 2.25
+gl glVertex2f 9.25 6.5
+gl glVertex2f 14.5 13.75
+gl glVertex2f 3.125 12.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
 case edge-attrib
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glPushAttrib 0x4000

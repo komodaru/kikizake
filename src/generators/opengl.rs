@@ -2859,4 +2859,13 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-1\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb24\ngl glLineStipple 1 0xf0f0\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // a polygon drawn as its edges whose corners' depths differ under a depth test
+    // (GL.RASTER.INTERPOLATE), and a stippled antialiased line strip, its counter carried on
+    // (GL.RASTER.MODE): open, measured to settle them
+    writeln!(s, "case interp-open-6\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glPolygonMode 0x408 0x1b01\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    writeln!(s, "case raster-open-2\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb24\ngl glLineStipple 2 0xc3a5\ngl glClear 0x4000\ngl glBegin 3\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 9.25 6.5\ngl glVertex2f 14.5 13.75\ngl glVertex2f 3.125 12.5\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }

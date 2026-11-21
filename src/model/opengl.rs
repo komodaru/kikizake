@@ -2315,8 +2315,8 @@ impl Ctx {
     /// Flat-shaded, stippled, fogged, lit, textured, depth, stencil or alpha tested, masked,
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
     /// channels or in color index: not measured.
-    fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4])) -> Res<()> {
-        let unmeasured = [LINE_STIPPLE, ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, STENCIL_TEST, COLOR_LOGIC_OP, SCISSOR_TEST].iter().any(|c| self.cap(*c))
+    fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
+        let unmeasured = [ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, STENCIL_TEST, COLOR_LOGIC_OP, SCISSOR_TEST].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
             || (self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA))
             || self.color_mask != [true; 4]
@@ -2342,8 +2342,19 @@ impl Ctx {
         }
         let r: [tri::Raster; 2] = std::array::from_fn(|k| if cut[k] { tri::Raster::of_cut(e[k].clip, self.viewport, H as i64) } else { tri::Raster::of(e[k].clip, self.viewport, H as i64) });
         let colors = [e[0].c, e[1].c];
+        // (stippled: the counter from 0 at each GL_LINES segment, measured; a strip's carried on,
+        // or a cut line's, not)
+        let stipple = if self.cap(LINE_STIPPLE) {
+            if !fresh || cut.iter().any(|c| *c) {
+                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            }
+            hit(clause::GL_RASTER_LINE_STIPPLE);
+            Some(tri::AaStipple { pattern: self.line_stipple.1, repeat: u8::try_from(self.line_stipple.0).map_err(|_| Fail::Bad)? })
+        } else {
+            None
+        };
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
-        if self.pf.rgba[3].0 == 0 && thin && self.hints[(LINE_SMOOTH_HINT - 0xc50) as usize] != NICEST {
+        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hints[(LINE_SMOOTH_HINT - 0xc50) as usize] != NICEST {
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
@@ -2357,7 +2368,7 @@ impl Ctx {
             return Ok(());
         }
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
-        for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width)) {
+        for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
             self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c: p.c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
         }
         Ok(())
@@ -2492,7 +2503,8 @@ impl Ctx {
                 }
                 for k in 0..win.len() {
                     let (a, b) = (win[k], win[(k + 1) % win.len()]);
-                    if a.0[2] != b.0[2] {
+                    // (depths that differ only matter where a depth test reads them: interp-open-5)
+                    if a.0[2] != b.0[2] && self.cap(DEPTH_TEST) && self.pf.depth > 0 {
                         return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
                     }
                     let pixels = self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]], FirstEnd::Kept)?;
@@ -2779,7 +2791,7 @@ impl Ctx {
                         continue;
                     }
                     if self.cap(LINE_SMOOTH) {
-                        self.aa_line(a, b)?;
+                        self.aa_line(a, b, mode == LINES)?;
                         continue;
                     }
                     // (fogged at the ends; flat-shaded lines are drawn at other pixels than smooth
@@ -4701,6 +4713,28 @@ pub mod tri {
         }
     }
 
+    /// A line stipple as a smooth line's coverage takes it: the pattern and its repeat factor
+    /// (1..=255), the counter at the line's start 0.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct AaStipple {
+        pub pattern: u16,
+        pub repeat: u8,
+    }
+
+    impl AaStipple {
+        /// The share of a pixel `length` along the line the pattern keeps: at o = max(length,
+        /// 1/2) - 1/2, bit floor(o) / repeat times 1 - frac(o) plus bit (floor(o) + 1) / repeat
+        /// times frac(o), the bits mod 16 (GL.RASTER.LINE.STIPPLE).
+        fn keeps(self, length: f32) -> f32 {
+            let o = -0.5 + if length > 0.5 { length } else { 0.5 };
+            let lo = f64::from(o).floor() as i64;
+            let pct = o - lo as f32;
+            let inv = 1.0 / f32::from(self.repeat);
+            let bit = |n: i64| f32::from(self.pattern >> (((n as f32 * inv) as i64) & 15) & 1);
+            bit(lo) * (1.0 - pct) + bit(lo + 1) * pct
+        }
+    }
+
     /// One pixel of a smooth line by the general path: column, row from the top, its colors
     /// (alpha times the coverage) in channel units.
     #[derive(Clone, Copy, PartialEq, Debug)]
@@ -4727,8 +4761,9 @@ pub mod tri {
     /// its distance along the line from `a` is over -1/2 and on while it is at or below, then
     /// numPixels = ceil(major) + 1 pixels; a pixel's coverage across min(1, w/2 + 1/2 - |d|),
     /// along (s + 1/2) near `a` and (length - 1/2 - s + 1) near `b`; 0 drops it; colors from
-    /// `a`'s by (b - a) / major a pixel along each row, each row from `a`'s again.
-    pub fn aa_line(a: Raster, b: Raster, c: [[f32; 4]; 2], width: AaWidth) -> Vec<AaLineFrag> {
+    /// `a`'s by (b - a) / major a pixel along each row, each row from `a`'s again; stippled, the
+    /// coverage times the pattern's share (`AaStipple::keeps`, golden raster-open-1).
+    pub fn aa_line(a: Raster, b: Raster, c: [[f32; 4]; 2], width: AaWidth, stipple: Option<AaStipple>) -> Vec<AaLineFrag> {
         let ([x0, y0], [x1, y1]) = (a.0, b.0);
         let (dx, dy) = (x1 - x0, y1 - y0);
         let real = (f64::from(dx * dx + dy * dy)).sqrt() as f32;
@@ -4811,6 +4846,9 @@ pub mod tri {
                     } else if sl > line_length {
                         cover *= (line_length - sl) + 1.0;
                     }
+                }
+                if let Some(st) = stipple.filter(|_| cover > 0.0) {
+                    cover *= st.keeps(sl);
                 }
                 if cover > 0.0 {
                     let mut c = col;
