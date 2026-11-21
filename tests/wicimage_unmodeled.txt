@@ -80,6 +80,8 @@ wiccolor cm-rand-655351-bgr24
 wiccolor cm-rand-655351-rgba64
 wiccolor levels-12
 wiccolor levels-21
+wiccolor profile-srgb
+wiccolor profile-swop
 wiccolor xf-bad-01
 wiccolor xf-bad-10
 wiccolor xf-bad-13

@@ -3107,7 +3107,7 @@ pub struct WicImage {
 
 crate::model::words! {
     /// the image commands
-    enum WOp { Wbits = "wbits", Wscale = "wscale", Wflip = "wflip", Wclip = "wclip", Wconv = "wconv", Wcolor = "wcolor", Wctx = "wctx", Winfo = "winfo", Wpixels = "wpixels", Wpalette = "wpalette", Wsrcpal = "wsrcpal", Wdecode = "wdecode", Wframe = "wframe", Wencode = "wencode", Wbytes = "wbytes", Wredecode = "wredecode", Wsteps = "wsteps" }
+    enum WOp { Wbits = "wbits", Wscale = "wscale", Wflip = "wflip", Wclip = "wclip", Wconv = "wconv", Wcolor = "wcolor", Wctx = "wctx", Winfo = "winfo", Wpixels = "wpixels", Wpalette = "wpalette", Wsrcpal = "wsrcpal", Wdecode = "wdecode", Wframe = "wframe", Wencode = "wencode", Wbytes = "wbytes", Wredecode = "wredecode", Wsteps = "wsteps", Wprofile = "wprofile" }
 }
 
 fn hexs(b: &[u8]) -> String {
@@ -3121,7 +3121,7 @@ impl WicImage {
             return Ok(false);
         };
         let n = |i: usize| t.get(i).and_then(|v| crate::case::num(v)).ok_or(Fail::Bad);
-        let needs_cur = !matches!(t[0], "wsteps" | "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
+        let needs_cur = !matches!(t[0], "wsteps" | "wprofile" | "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
         if needs_cur {
             match (self.fail, t[0]) {
                 // (a frame without size or format: the executor prints its failure and knows no
@@ -3285,6 +3285,9 @@ impl WicImage {
                     out.push(hexs(&c.iter().flat_map(|v| v.to_le_bytes()).collect::<Vec<u8>>()));
                 }
             }
+            // (the numbers of the runner's color profiles the transforms are made of: read once
+            // from Windows, to become the model's data)
+            WOp::Wprofile => return Err(Fail::Unmodeled(open::WICIMAGE_COLOR_TRANSFORM)),
             WOp::Wctx => {
                 let v = n(1)?;
                 // (MEASURED, golden wiccolor ctx-*: any value taken and given back)

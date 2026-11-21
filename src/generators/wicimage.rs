@@ -256,6 +256,9 @@ pub fn wiccolor() -> String {
     // every 8-bit level through sRGB to Adobe RGB and back
     writeln!(s, "case levels-12\nwbits bgr24 256 1 ramp\nwcolor 1 2 bgr24\nwpixels\nend");
     writeln!(s, "case levels-21\nwbits bgr24 256 1 ramp\nwcolor 2 1 bgr24\nwpixels\nend");
+    // the profiles the transforms are made of (sRGB's, and the CMYK one that 32bppCMYK goes through)
+    writeln!(s, "case profile-srgb\nwprofile srgb\nend");
+    writeln!(s, "case profile-swop\nwprofile swop\nend");
     s
 }
 

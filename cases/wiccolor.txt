@@ -2260,3 +2260,9 @@ wbits bgr24 256 1 ramp
 wcolor 2 1 bgr24
 wpixels
 end
+case profile-srgb
+wprofile srgb
+end
+case profile-swop
+wprofile swop
+end

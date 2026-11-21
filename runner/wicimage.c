@@ -259,6 +259,49 @@ static void op_ctx(void) {
     if (c) IWICColorContext_Release(c);
 }
 
+/* wprofile <name>: the numbers of a profile in the system's color directory (srgb: "sRGB Color
+ * Space Profile.icm", swop: "RSWOP.icm"): "wprofile <found> <size> <version> <class> <space>
+ * <pcs> <intent> <tags>", then per tag "tag <sig> <type> <size>" and for XYZ the s15.16 values,
+ * for curv its entries (hex u16, 32 a line), for para its function and s15.16 parameters; the
+ * numbers only, never the file */
+static unsigned be32(const unsigned char *p) { return (unsigned)p[0] << 24 | (unsigned)p[1] << 16 | (unsigned)p[2] << 8 | p[3]; }
+static void op_profile(void) {
+    int swop = is(1, "swop");
+    if (!swop && !is(1, "srgb")) bad = 1;
+    if (bad) return;
+    char path[MAX_PATH];
+    GetWindowsDirectoryA(path, MAX_PATH);
+    strcat(path, "\\System32\\spool\\drivers\\color\\");
+    strcat(path, swop ? "RSWOP.icm" : "sRGB Color Space Profile.icm");
+    FILE *f = fopen(path, "rb");
+    if (!f) { out("wprofile 0\n"); return; }
+    static unsigned char b[1 << 20];
+    size_t len = fread(b, 1, sizeof b, f);
+    fclose(f);
+    if (len < 132) { out("wprofile 1 %u short\n", (unsigned)len); return; }
+    unsigned tags = be32(b + 128);
+    out("wprofile 1 %u %08x %08x %08x %08x %u %u\n", (unsigned)len, be32(b + 8), be32(b + 12), be32(b + 16), be32(b + 20), be32(b + 64), tags);
+    for (unsigned k = 0; k < tags && 132 + 12 * k + 12 <= len; k++) {
+        const unsigned char *e = b + 132 + 12 * k;
+        unsigned sig = be32(e), off = be32(e + 4), sz = be32(e + 8);
+        if (off + sz > len || sz < 8) { out("tag %08x bad %u %u\n", sig, off, sz); continue; }
+        const unsigned char *d = b + off;
+        unsigned ty = be32(d);
+        out("tag %08x %08x %u", sig, ty, sz);
+        if (ty == 0x58595a20) {
+            for (unsigned i = 8; i + 4 <= sz; i += 4) out(" %08x", be32(d + i));
+        } else if (ty == 0x70617261 && sz >= 12) {
+            out(" %u", (unsigned)(d[8] << 8 | d[9]));
+            for (unsigned i = 12; i + 4 <= sz; i += 4) out(" %08x", be32(d + i));
+        } else if (ty == 0x63757276 && sz >= 12) {
+            unsigned c = be32(d + 8);
+            out(" %u", c);
+            for (unsigned i = 0; i < c && 12 + 2 * i + 2 <= sz; i++) out("%s%04x", i % 32 ? " " : "\n", (unsigned)(d[12 + 2 * i] << 8 | d[13 + 2 * i]));
+        }
+        out("\n");
+    }
+}
+
 /* winfo: "winfo <hr> <w> <h> <fmt> <dpi x> <dpi y>" of the current source */
 static void op_info(void) {
     if (!need_cur()) return;
@@ -604,6 +647,7 @@ static const struct kz_op wicimage_ops[] = {
     { "wconv", op_conv },
     { "wcolor", op_color },
     { "wctx", op_ctx },
+    { "wprofile", op_profile },
     { "winfo", op_info },
     { "wpixels", op_pixels },
     { "wpalette", op_palette },
