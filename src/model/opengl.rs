@@ -2352,9 +2352,8 @@ impl Ctx {
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
     /// channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
-        let unmeasured = [ALPHA_TEST, FOG, LIGHTING, 0xde0, 0xde1, COLOR_LOGIC_OP].iter().any(|c| self.cap(*c))
+        let unmeasured = [FOG, LIGHTING, 0xde0, 0xde1].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
-            || (self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA))
             || self.shade == FLAT
             || self.pf.ty != 0
             || self.bits()[..3].iter().any(|b| *b != 8)
@@ -2388,9 +2387,9 @@ impl Ctx {
             None
         };
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
-        // (scissored, stencil tested or masked: the general path, the fragments cut by the box
-        // or tested, raster-open-14, 15, 16)
-        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] {
+        // (scissored, stencil tested, masked, under a logic op or another blend: the general
+        // path, the fragments cut by the box or tested, raster-open-14, 15, 16, 21, 22)
+        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
@@ -2458,11 +2457,16 @@ impl Ctx {
 
     fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize, quad: bool) -> Res<()> {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
-        let unmeasured = [0xde0, 0xde1, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
+        // (GL_TEXTURE_1D / 2D on with no image as off, raster-open-23; the stipple all set as
+        // none, raster-open-24)
+        if self.cap(POLYGON_STIPPLE) {
+            hit(clause::GL_POLYGON_STIPPLE);
+        }
+        let unmeasured = [POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.pf.depth != 32)
             || self.pf.ty != 0
-            || self.bits()[..3].iter().any(|b| *b != 8)
             || self.pf.rgba[3].0 % 8 != 0
+            || (self.cap(DITHER) && self.bits()[..3].iter().any(|b| *b < 8))
             || clip.iter().any(|c| c[3] <= 0.0);
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
@@ -2561,10 +2565,10 @@ impl Ctx {
             // (a polygon drawn as its edges or its corners, GL 1.1 3.5.4: by which way it
             // faces, after culling; under a projection, or with edge flags, not measured)
             let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
-            if clip.iter().any(|c| c[3] != 1.0) || self.cap(POLYGON_OFFSET_LINE) || self.cap(POLYGON_OFFSET_POINT) {
+            if self.cap(POLYGON_OFFSET_LINE) || self.cap(POLYGON_OFFSET_POINT) {
                 return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
             }
-            let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0]), f64::from(c[1])]).collect();
+            let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
             let area = tri::signed_area(&w);
             let front = (area > 0.0) == (self.front_face == CCW);
             if self.cap(CULL_FACE) {
@@ -2585,15 +2589,17 @@ impl Ctx {
                 // (GL 1.1 3.5.4: the polygon cut to the view volume first, its edges and corners
                 // then those of the cut polygon: golden opengl-32 polymode-1, a corner past the
                 // window's bottom drawn as the cut's corners on it)
-                if self.cap(FOG) || self.cap(LIGHTING) {
+                if self.cap(LIGHTING) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
-                let c = q[provoking].1;
+                // (fogged at the corners, raster-open-28)
+                let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
+                let c = fogged.get(provoking).copied().ok_or(Fail::Bad)?;
                 let at: Vec<[f32; 8]> = clip
                     .iter()
-                    .zip(q)
+                    .zip(&fogged)
                     .map(|(p, v)| {
-                        let c = if self.shade == FLAT { c } else { v.1 };
+                        let c = if self.shade == FLAT { c } else { *v };
                         [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3]]
                     })
                     .collect();
@@ -2605,8 +2611,9 @@ impl Ctx {
                 let win: Vec<([f64; 3], [f32; 4])> = cut
                     .iter()
                     .map(|p| {
-                        let n = [p[0], p[1]].map(f64::from);
-                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2]))], [p[4], p[5], p[6], p[7]])
+                        // (divided by w, under a projection: raster-open-27)
+                        let n = [p[0], p[1]].map(|v| f64::from(v * (1.0 / p[3])));
+                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2] * (1.0 / p[3])))], [p[4], p[5], p[6], p[7]])
                     })
                     .collect();
                 if face == POLY_POINT {
@@ -3469,8 +3476,23 @@ impl Ctx {
                     let wu = |d: u32, c: f32| m(255u32.wrapping_sub(w), d).wrapping_add(m(w, u32::try_from(tri::trunc(c)).unwrap_or(0)));
                     [wu(d[0], c[0]), wu(d[1], c[1]), wu(d[2], c[2]), 0]
                 }
-                // (other blends, or into alpha bits: not measured)
-                ToFixed::Scaled => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+                // (other blends: the channel-unit color over its scale, then blended as any
+                // fragment, raster-open-22, 26)
+                ToFixed::Scaled => {
+                    let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
+                    let scale = self.channel_scales();
+                    let unit = |v: f32, s: f32| f64::from(v / s);
+                    let (sa, da) = (unit(c[3], scale[3]), unit(tri::float(i64::from(d[3])), scale[3]));
+                    // (in channel units, float32: d df + c sf truncated, held to the channel)
+                    let over = |k: usize| {
+                        let (cv, dv, s) = (c.get(k).copied().unwrap_or(0.0), tri::float(i64::from(d.get(k).copied().unwrap_or(0))), scale.get(k).copied().unwrap_or(1.0));
+                        let sf = tri::narrow(blend_factor(self.blend.0, unit(cv, s), sa, unit(dv, s), da));
+                        let df = tri::narrow(blend_factor(self.blend.1, unit(cv, s), sa, unit(dv, s), da));
+                        let v = (dv * df + cv * sf).trunc();
+                        u32::try_from(tri::trunc(if v > s { s } else { v })).unwrap_or(0)
+                    };
+                    [over(0), over(1), over(2), if bits[3] == 0 { 0 } else { over(3) }]
+                }
             };
         } else {
             for k in 0..4 {
@@ -3479,7 +3501,8 @@ impl Ctx {
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
                 } else if matches!(f.fixed, ToFixed::Scaled | ToFixed::Wu { .. }) {
-                    scaled_channel(c[k], bits[k])
+                    // (channel units: rounded into channels under 8 bits, raster-open-25)
+                    if bits[k] < 8 { scaled_channel(c[k] + 0.5, bits[k]) } else { scaled_channel(c[k], bits[k]) }
                 } else if f.fixed == ToFixed::Floor {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
                 } else if f.fixed == ToFixed::Span && bits[k] == 8 {

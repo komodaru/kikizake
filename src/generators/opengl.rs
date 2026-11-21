@@ -3006,4 +3006,20 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-29\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glPolygonOffset 1 2\ngl glEnable 0x8037\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // an antialiased smooth triangle into a 16-bit DIB, dithered (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-30\n{}{ORTHO}gl glEnable 0xb41\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd", ctx(16));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a filled polygon offset under a depth test, its depths differing: the depths it
+    // writes (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-31\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb71\ngl glPolygonOffset 1 2\ngl glEnable 0x8037\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1902 0x1405 1024", ctx(32));
+    writeln!(s, "glerr\nend");
+    // an antialiased smooth line into a 16-bit DIB (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-32\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 0 0 255\ngl glVertex2f 1.5 2.25\ngl glColor4ub 0 0 255 255\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(16));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased line lit (GL_LIGHT0, GL_COLOR_MATERIAL) (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-33\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glEnable 0xb57\ngl glClear 0x4000\ngl glNormal3f 0 0 1\ngl glBegin 1\ngl glColor4ub 255 0 0 255\ngl glVertex2f 1.5 2.25\ngl glColor4ub 0 0 255 255\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }
