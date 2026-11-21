@@ -114,6 +114,8 @@ static void run(char *text) {
         if (is(0, "case")) {
             if (incase) { reset_all(); oflush(); }
             out("case %s\n", ntok > 1 ? tok[1] : "?");
+            /* (out at once: a stop inside the case shows which case it was, not the one before) */
+            oflush();
             incase = 1;
         } else if (is(0, "end")) { reset_all(); oflush(); incase = 0; }
         else dispatch();

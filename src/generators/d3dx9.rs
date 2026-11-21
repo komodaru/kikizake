@@ -29,6 +29,9 @@ fn rfvf(r: &mut XorShift32) -> u32 {
 
 pub fn d3dx9() -> String {
     let mut s = String::from("# kikizake suite d3dx9: D3DX 9's vertex format and 16-bit float functions (SPEC.md). Made by `kikizake gen d3dx9`.\n");
+    // (the processor first, an input of the model's x64 halves (D3DX9.F16.CPU): a stop later in
+    // the suite must not take it away)
+    s.push_str("case cpu\nx9cpu\nend\n");
     let mut r = XorShift32::new(0xd3d0_0009);
     let mut fvfs: Vec<u32> = FVFS.to_vec();
     fvfs.extend((0..300).map(|_| rfvf(&mut r)));
@@ -91,10 +94,6 @@ pub fn d3dx9() -> String {
     v.extend((0..400).map(|_| r.next()));
     v.extend((0..400).map(|_| (r.next() & 0x87ff_ffff) | 0x3000_0000));
     for (i, chunk) in v.chunks(70).collect::<Vec<_>>().chunks(10).enumerate() {
-        if i == 0 {
-            // (the processor: x64's D3DX converts by it, D3DX9.F16.CPU)
-            writeln!(s, "case cpu\nx9cpu\nend");
-        }
         writeln!(s, "case f16-{i}");
         for c in chunk {
             write!(s, "x9f16");
@@ -142,6 +141,9 @@ fn f16_bits_to_f32_ieee(h: u16) -> f32 {
 
 pub fn d3dx9load() -> String {
     let mut s = String::from("# gpu\n# kikizake suite d3dx9load: D3DXLoadSurfaceFromMemory between formats (SPEC.md). Made by `kikizake gen d3dx9load`.\n");
+    // (the processor first, an input of the half codecs on x64 (D3DX9.F16.CPU): the review of
+    // 8480456, 4, where a stop before the last case lost it and 42 answered cases with it)
+    s.push_str("case cpu\nx9cpu\nend\n");
     let mut r = XorShift32::new(0xd3d0_10ad);
     // (not the palette formats: a NULL source palette is not asked)
     for src in TEXTURE_FORMATS.iter().filter(|f| !matches!(f.0, 40 | 41)) {
@@ -223,7 +225,5 @@ pub fn d3dx9load() -> String {
     // on the model), into DXT1 and DXT3
     let neg = "a328ebff3232c4ffc0271afff632a2ff8e2ac4ffc32e6eff8e27fffffc2991ffe034a2ffde2a00ffeb2d68ffcf2c6dff6a154bff00e5ffffae27a8fff663c6ff";
     s.push_str(&format!("case loadtex-dxt-negindex\ndevice swvp\nx9loadtex 827611204 21 4 4 b:{neg} 1\nx9loadtex 861165636 21 4 4 b:{neg} 1\nend\n"));
-    // (the processor: x64's D3DX converts halves by it, D3DX9.F16.CPU)
-    s.push_str("case cpu\nx9cpu\nend\n");
     s
 }

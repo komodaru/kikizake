@@ -125,3 +125,12 @@ fn silent_cuts_are_found() {
     assert!(c("runner/d3d12.c", "    if (nrsx > RSTOK) { bad = 1; return; }\n    for (int k = 0; k < nrsx; k++) rtk[rt++] = rsx[k];\n").is_empty());
     assert!(c("runner/main.c", "for (char *t = strtok(l, \" \"); t && ntok < MAXTOK; t = strtok(NULL, \" \")) tok[ntok++] = t;").is_empty());
 }
+
+#[test]
+fn unflushed_case_headers_are_found() {
+    let old = "        if (incase) { reset_all(); oflush(); }\n        out(\"case %s\\n\", ntok > 1 ? tok[1] : \"?\");\n        incase = 1;\n";
+    assert!(c("runner/main.c", old)[0].contains("header-unflushed"));
+    let new = "        out(\"case %s\\n\", ntok > 1 ? tok[1] : \"?\");\n        /* (at once) */\n        oflush();\n";
+    assert!(c("runner/main.c", new).is_empty());
+    assert!(c("runner/gdi.c", old).is_empty());
+}

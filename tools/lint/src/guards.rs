@@ -26,6 +26,8 @@
 //!   below a capacity (`for (...; ... && n < CAP; ...)`) drops the rest without a word, and the
 //!   model reads it all: refuse past the capacity (`bad = 1`) instead. The line reader's MAXTOK
 //!   (runner/main.c, mirrored by the model's rootsig::MAXTOK) is the one cut allowed.
+//! * `header-unflushed` (review of 8480456, 4): runner/main.c writes a case's header out at once
+//!   (`oflush()` right after it), so a stop inside a case names that case.
 use std::path::Path;
 use std::sync::LazyLock;
 
@@ -246,6 +248,9 @@ pub fn c(rel: &str, text: &str) -> Vec<String> {
         if !CUTS.contains(&(rel, cap.as_str())) {
             bad.push(format!("{rel}:{}: silent-cut: a copy stops at {} without refusing the rest; set bad past it", line_of(&code, all.start()), cap.as_str()));
         }
+    }
+    if rel == "runner/main.c" && code.contains("out(\"case %s") && !rx(r#"out\("case %s\\n"[^;]*\);\s*oflush\(\);"#).is_some_and(|h| h.is_match(&code)) {
+        bad.push(format!("{rel}: header-unflushed: oflush() right after a case's header, so a stop inside the case names it"));
     }
     for m in p.wait.find_iter(&code) {
         bad.push(format!("{rel}:{}: wait-unchecked: the result of {} decides whether the GPU finished; check it", line_of(&code, m.start()), m.as_str().trim().trim_end_matches('(').trim()));

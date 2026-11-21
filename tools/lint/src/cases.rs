@@ -3,10 +3,20 @@ use std::path::Path;
 
 use kikizake::{case::checked_cases, generators::GENERATORS};
 
+/// the lines that record the executor's environment, an input of the model for the cases after
+/// (the review of 8480456, 4: d3dx9load's cpu case came last, and a stop before it lost the
+/// processor and with it 42 answered cases): only in a suite's first case
+const ENVIRONMENT: &[&str] = &["x9cpu"];
+
 fn blocks(label: &str, text: &str) -> Result<(), String> {
     let cases = checked_cases(text).map_err(|e| format!("{label}: {e}"))?;
     if cases.is_empty() {
         return Err(format!("{label}: no cases"));
+    }
+    for (i, c) in cases.iter().enumerate().skip(1) {
+        if let Some(op) = c.ops.iter().find(|o| o.tok.first().is_some_and(|t| ENVIRONMENT.contains(&t.as_str()))) {
+            return Err(format!("{label}: case {} ({}): {} records the environment: put it in the first case", i.saturating_add(1), c.name, op.tok.join(" ")));
+        }
     }
     Ok(())
 }
@@ -55,5 +65,8 @@ mod tests {
             assert!(suite("sample", valid, bad).unwrap_err().contains(&format!("generator for sample: {problem}")));
         }
         assert!(suite("sample", valid, "case other\nend").unwrap_err().contains("line 1: differs"));
+        // (the environment after another case)
+        let late = "case f16-0\nx9f16 0\nend\ncase cpu\nx9cpu\nend\n";
+        assert!(suite("sample", late, late).unwrap_err().contains("case 2 (cpu): x9cpu records the environment"));
     }
 }
