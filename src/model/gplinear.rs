@@ -153,17 +153,12 @@ fn multiply(r: Round, a: &Matrix, b: &Matrix) -> Matrix {
         r.add(r.add(r.mul(a[4], b[1]), r.mul(a[5], b[3])), b[5]),
     ]
 }
-/// GpMatrix::Invert
+/// GpMatrix::Invert: an identity as it is
 pub fn invert(r: Round, m: &Matrix) -> Option<Matrix> {
     if *m == [1.0, 0.0, 0.0, 1.0, 0.0, 0.0] {
         return Some(*m);
     }
-    let det = r.sub(r.mul(m[0], m[3]), r.mul(m[1], m[2]));
-    if det == 0.0 {
-        return None;
-    }
-    let q = r.div(1.0, det);
-    Some([r.mul(m[3], q), r.mul(-m[1], q), r.mul(-m[2], q), r.mul(m[0], q), r.mul(r.sub(r.mul(m[5], m[2]), r.mul(m[4], m[3])), q), r.mul(r.sub(r.mul(m[4], m[1]), r.mul(m[5], m[0])), q)])
+    super::gdiplus::inverse(r, m)
 }
 /// RoundSat: floor(v + 1/2) saturated to int32
 fn round_sat(r: Round, v: f32) -> i32 {

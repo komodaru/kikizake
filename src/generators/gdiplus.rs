@@ -800,6 +800,11 @@ fn penprobe(s: &mut String) {
         let (m, k) = if m.is_empty() { (String::new(), "-") } else { (format!("{m}\n"), "0") };
         writeln!(s, "case penopen-{i}\n{head}\n{m}gppen 0 0xffff0000 {pen}\ngpshape 0 pen 0 {k} copy 0 0 0 {shape}\ngpread 0 32bppARGB\nend");
     }
+    // (a world transform of no inverse: GdipSetWorldTransform refuses it)
+    for (i, m) in ["0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000", "0x3f800000 0x40000000 0x40000000 0x40800000 0x40000000 0x40000000"].iter().enumerate() {
+        writeln!(s, "case penworld-{i}\n{head}\ngpmatrix 0 {m}\ngppen 0 0xffff0000 2\ngpshape 0 pen 0 0 copy 0 0 0 line 2 3 12 9\ngpread 0 32bppARGB\nend");
+        writeln!(s, "case brushworld-{i}\n{head}\ngpmatrix 0 {m}\ngpbrush 0 solid 0xff00ff00\ngpshape 0 brush 0 0 copy 0 0 0 ellipse 2 2 10 8\ngpread 0 32bppARGB\nend");
+    }
 }
 
 /// probes of the aliased thin line (a generator of its own, so the cases before keep their
@@ -945,6 +950,13 @@ pub fn gdipluspath() -> String {
             _ => format!("rect {} {} {} {}", q4(&mut r, 0, 20), q4(&mut r, 0, 20), q4(&mut r, 1, 20), q4(&mut r, 1, 20)),
         };
         writeln!(s, "case pathwidenobj-{i}\ngppen 0 0xff000000 {} cap {} {} 0 join {} {}\ngppath 0 0\ngpadd 0 {add}\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend", r.range(4, 36) as f32 / 4.0, r.range(0, 4), r.range(0, 4), r.range(0, 4), pen_object(&mut r, i));
+    }
+    // widened through matrices of no inverse (zero, rank 1, an infinite element)
+    let singular = ["0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000", "0x3f800000 0x40000000 0x40000000 0x40800000 0x00000000 0x00000000", "0x00000000 0x00000000 0x00000000 0x3f800000 0x40400000 0x40800000", "0x7f800000 0x00000000 0x00000000 0x3f800000 0x00000000 0x00000000"];
+    for (i, m) in singular.iter().enumerate() {
+        for (j, add) in ["line 2 3 20 9", "rect 4 4 10 6", "bezier 1 1 8 20 16 -4 24 10"].iter().enumerate() {
+            writeln!(s, "case pathwidensing-{i}-{j}\ngpmatrix 0 {m}\ngppen 0 0xff000000 {}\ngppath 0 0\ngpadd 0 {add}\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend", 1 + j * 2);
+        }
     }
     s
 }

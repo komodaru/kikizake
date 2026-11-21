@@ -7,7 +7,7 @@
 //! "Bitmap::LockBits", "Bitmap::GetPixel", "Bitmap::SetPixel", "RotateFlipType", "Matrix::Matrix",
 //! "Matrix::Multiply", "Matrix::Invert", "CompositingMode", "CompositingQuality", "Status".
 
-use crate::spec::{clause, open};
+use crate::spec::clause;
 use super::{filled, filled_mut, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
@@ -713,19 +713,30 @@ pub fn invert(m: &Matrix) -> Option<Matrix> {
 }
 pub fn invert_in(r: Round, m: &Matrix) -> Option<Matrix> {
     hit(clause::GP_MATRIX_INVERT);
+    inverse(r, m)
+}
+/// GpMatrix::Invert's arithmetic: none for a determinant of 0, or when an element comes out
+/// infinite or NaN (an infinite determinant gives zeros; clean-room notes geometry.md 23b)
+pub fn inverse(r: Round, m: &Matrix) -> Option<Matrix> {
     let det = r.sub(r.mul(m[0], m[3]), r.mul(m[1], m[2]));
-    if det == 0.0 || !det.is_finite() {
+    if det == 0.0 {
         return None;
     }
     let q = r.div(1.0, det);
-    Some([
+    let e = [
         r.mul(m[3], q),
         r.mul(-m[1], q),
         r.mul(-m[2], q),
         r.mul(m[0], q),
         r.mul(r.sub(r.mul(m[2], m[5]), r.mul(m[3], m[4])), q),
         r.mul(r.sub(r.mul(m[1], m[4]), r.mul(m[0], m[5])), q),
-    ])
+    ];
+    e.iter().all(|v| v.is_finite()).then_some(e)
+}
+/// GdipSetWorldTransform refuses a matrix of no inverse (InvalidParameter): the shape is not
+/// drawn (geometry.md 23d)
+fn singular(r: Round, world: Option<&Matrix>) -> bool {
+    world.is_some_and(|m| inverse(r, m).is_none())
 }
 
 fn elements(m: &Matrix) -> String {
@@ -1517,6 +1528,11 @@ impl Gdiplus {
             out.push(format!("shape 0 {INVALID_PARAMETER}"));
             return Ok(true);
         };
+        if singular(r, world.as_ref()) {
+            hit(clause::GP_MATRIX_INVERT);
+            out.push(format!("shape 0 {INVALID_PARAMETER}"));
+            return Ok(true);
+        }
         // (a shape its Add* call refuses: InvalidParameter, nothing drawn, golden gdiplusline
         // outline-arc-28, outline-closedcurve-0)
         if made.is_err() {
@@ -1763,13 +1779,12 @@ impl Gdiplus {
             };
             match super::gpwiden::widen(r, path, &pen, &m, flatness)? {
                 Ok(p) => *path = p,
-                // (the path left as it was)
-                Err(super::gpwiden::Widened::Failed) => {
+                // (the path left as it was; a matrix of no inverse the same, GetWidenedPathInternal
+                // returning none, geometry.md 23c)
+                Err(super::gpwiden::Widened::Failed | super::gpwiden::Widened::NoInverse) => {
                     out.push(format!("widen {OUT_OF_MEMORY}"));
                     return Ok(true);
                 }
-                // (a matrix of no inverse: GdipWidenPath's status is GP.PEN)
-                Err(super::gpwiden::Widened::NoInverse) => return Err(Fail::Unmodeled(open::GP_PEN)),
             }
             out.push(format!("widen {OK}"));
         } else {
@@ -2314,6 +2329,11 @@ impl Gdiplus {
                     out.push(format!("shape 0 {INVALID_PARAMETER}"));
                     return Ok(true);
                 };
+                if singular(r, world.as_ref()) {
+                    hit(clause::GP_MATRIX_INVERT);
+                    out.push(format!("shape 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
+                }
                 // (MEASURED, golden gdiplusline fillprobe-poly-*: a FillMode past 0 ..= 1 is
                 // InvalidParameter, nothing filled)
                 let Some(fm) = FillMode::from_value(fm) else {

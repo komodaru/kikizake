@@ -6231,3 +6231,31 @@ gppen 0 0xffff0000 3 cap 3 1 0
 gpshape 0 pen 0 - copy 0 0 0 lines 3 6 6 10 10 2 2
 gpread 0 32bppARGB
 end
+case penworld-0
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 0 copy 0 0 0 line 2 3 12 9
+gpread 0 32bppARGB
+end
+case brushworld-0
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 0 copy 0 0 0 ellipse 2 2 10 8
+gpread 0 32bppARGB
+end
+case penworld-1
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f800000 0x40000000 0x40000000 0x40800000 0x40000000 0x40000000
+gppen 0 0xffff0000 2
+gpshape 0 pen 0 0 copy 0 0 0 line 2 3 12 9
+gpread 0 32bppARGB
+end
+case brushworld-1
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x3f800000 0x40000000 0x40000000 0x40800000 0x40000000 0x40000000
+gpbrush 0 solid 0xff00ff00
+gpshape 0 brush 0 0 copy 0 0 0 ellipse 2 2 10 8
+gpread 0 32bppARGB
+end

@@ -2421,3 +2421,99 @@ gpadd 0 lines 3 36.5 -1 34.25 31.75 22.75 21.5
 gpwiden 0 0 - 0.25
 gppathinfo 0
 end
+case pathwidensing-0-0
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+gppen 0 0xff000000 1
+gppath 0 0
+gpadd 0 line 2 3 20 9
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-0-1
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+gppen 0 0xff000000 3
+gppath 0 0
+gpadd 0 rect 4 4 10 6
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-0-2
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+gppen 0 0xff000000 5
+gppath 0 0
+gpadd 0 bezier 1 1 8 20 16 -4 24 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-1-0
+gpmatrix 0 0x3f800000 0x40000000 0x40000000 0x40800000 0x00000000 0x00000000
+gppen 0 0xff000000 1
+gppath 0 0
+gpadd 0 line 2 3 20 9
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-1-1
+gpmatrix 0 0x3f800000 0x40000000 0x40000000 0x40800000 0x00000000 0x00000000
+gppen 0 0xff000000 3
+gppath 0 0
+gpadd 0 rect 4 4 10 6
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-1-2
+gpmatrix 0 0x3f800000 0x40000000 0x40000000 0x40800000 0x00000000 0x00000000
+gppen 0 0xff000000 5
+gppath 0 0
+gpadd 0 bezier 1 1 8 20 16 -4 24 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-2-0
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x3f800000 0x40400000 0x40800000
+gppen 0 0xff000000 1
+gppath 0 0
+gpadd 0 line 2 3 20 9
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-2-1
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x3f800000 0x40400000 0x40800000
+gppen 0 0xff000000 3
+gppath 0 0
+gpadd 0 rect 4 4 10 6
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-2-2
+gpmatrix 0 0x00000000 0x00000000 0x00000000 0x3f800000 0x40400000 0x40800000
+gppen 0 0xff000000 5
+gppath 0 0
+gpadd 0 bezier 1 1 8 20 16 -4 24 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-3-0
+gpmatrix 0 0x7f800000 0x00000000 0x00000000 0x3f800000 0x00000000 0x00000000
+gppen 0 0xff000000 1
+gppath 0 0
+gpadd 0 line 2 3 20 9
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-3-1
+gpmatrix 0 0x7f800000 0x00000000 0x00000000 0x3f800000 0x00000000 0x00000000
+gppen 0 0xff000000 3
+gppath 0 0
+gpadd 0 rect 4 4 10 6
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathwidensing-3-2
+gpmatrix 0 0x7f800000 0x00000000 0x00000000 0x3f800000 0x00000000 0x00000000
+gppen 0 0xff000000 5
+gppath 0 0
+gpadd 0 bezier 1 1 8 20 16 -4 24 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
