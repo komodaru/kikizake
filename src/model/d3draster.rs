@@ -554,7 +554,8 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             // (MEASURED, WARP: probe-rt-buffer-off) one from a later element: pixel x on
             // element first + x
             4 if view.dim() == 1 => hit(clause::D3DRASTER_RT_1D),
-            _ => return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND)),
+            // (no other view of a resource is a target: OMSetRenderTargets takes only these)
+            _ => return Err(Fail::Bad),
         }
         r.size(r.mip_of(rt_sub))
     };
@@ -577,9 +578,10 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                 }
                 // (quality levels other than 0: not measured)
                 if r.d.q != 0 {
-                    return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+                    return Err(Fail::Bad);
                 }
-                Some(sample_pattern(n).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?)
+                // (WARP makes only quality 0 and counts 2, 4, 8 and 16, probe-rt-ms4-q1, -ms32)
+                Some(sample_pattern(n).ok_or(Fail::Bad)?)
             }
         }
     };
@@ -1760,9 +1762,9 @@ impl Slot {
         let el = (f.bits / 8) as usize;
         let off = py * rb + px * el;
         let len = r.subs.get(sub as usize).and_then(Option::as_ref).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?.len();
-        // (a view of wider elements than its resource's: not measured)
+        // (a view's elements are its resource's: views keep the format group)
         if off + el > len {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            return Err(Fail::Bad);
         }
         Ok(Slot { res, sub, off, el })
     }
@@ -1773,7 +1775,7 @@ impl Slot {
         let r = m.res.get_mut(self.res)?;
         let base = r.subs[self.sub as usize].as_ref().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
         if base.len().saturating_mul(n) > 64 << 20 {
-            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+            return Err(Fail::Unmodeled(open::D3DRES_DESC_BIGBYTES));
         }
         let base = base.clone();
         if r.samples.len() <= self.sub as usize {
@@ -2318,6 +2320,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     hit(clause::D3DRASTER_FILTER_ARRAY);
                     (b, n.min(r.d.mips.saturating_sub(b)).max(1))
                 }
+                // (MEASURED, WARP: probe-filter-1darray-mips) a 1D array's view (TEXTURE1DARRAY)
+                // through a Texture2D: its first slice's levels as one row
+                (Some(&3), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
+                    hit(clause::D3DRASTER_FILTER_ARRAY);
+                    (b, n.min(r.d.mips.saturating_sub(b)).max(1))
+                }
                 // (MEASURED, WARP: probe-filter-array-mips) a 2D array's view from slice 0 through
                 // a Texture2D: slice 0's levels
                 // (MEASURED, WARP: probe-filter-array1-mips) from a later slice: that slice's
@@ -2344,14 +2352,15 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     (b, n.min(r.d.mips - b).max(1))
                 }
                 // (other kinds of views of textures with mips: not measured)
-                _ => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                // (a view's levels lie in its texture's: CreateShaderResourceView checks them)
+                _ => return Err(Fail::Bad),
             };
             if base != 0 || mips != r.d.mips {
                 hit(clause::D3DRASTER_FILTER_VIEW);
             }
             // (the subresources of the view's first array slice)
             let first = match v.words.get(1) {
-                Some(&5 | &10) => v.words.get(4).copied().unwrap_or(0) * r.d.mips,
+                Some(&3 | &5 | &10) => v.words.get(4).copied().unwrap_or(0) * r.d.mips,
                 _ => 0,
             };
             let (w, h, _) = r.size(base);
@@ -2388,7 +2397,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 (false, _) => None,
             };
             let reduction = Reduction::of(s[0]);
-            let filter = Filter::of(s[0] & 0x7f).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))?;
+            let filter = Filter::of(s[0] & 0x7f).ok_or(Fail::Bad)?;
             // (the minifying and magnifying filters differ: which applies is by the texels a
             // pixel spans, as the 2 x 2 quad's differences give them)
             // (MEASURED, WARP: probe-filter-aniso, -aniso-min, -aniso-2, -4, -16, -aniso-mips,
@@ -2483,7 +2492,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     hit(clause::D3DRASTER_FILTER_INT);
                     return Err(Fail::Crash);
                 }
-                let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))? };
+                let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Bad)? };
                 if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
                     if matches!(v.format(), 68 | 69) {
@@ -2542,7 +2551,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                             Pick::Greatest => a[k].max(b[k]),
                         }))),
                         (Filtered::Point(a), Filtered::Point(b)) => zip4(a, b, |a, b| take(f32::from_bits(a), f32::from_bits(b)).to_bits()),
-                        (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                        (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Bad),
                     }
                 }
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
@@ -2552,7 +2561,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                         let (a, b) = (a.map(f32::from_bits), b.map(f32::from_bits));
                         mip_linear(done(Filtered::Wide(zip4(a, b, |a, b| lerp_sse(a, b, pixels(f))))))
                     }
-                    (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Unmodeled(open::D3DRASTER_FILTER)),
+                    (Filtered::Point(_) | Filtered::Wide(_) | Filtered::Fixed(_), _) => return Err(Fail::Bad),
                 },
             }
         }
@@ -2614,7 +2623,7 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     let el = (f.bits / 8) as usize;
     let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     // (a view whose elements are wider than its resource's, as mutations make: not measured)
-    let e = b.get_mut(slice * rows * rb + y * rb + (first + x) * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
+    let e = b.get_mut(slice * rows * rb + y * rb + (first + x) * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Bad)?;
     let new = match f.num {
         Num::Uint | Num::Sint => {
             if d.blend.0[0] != 0 {

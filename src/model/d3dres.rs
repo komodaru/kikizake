@@ -401,6 +401,11 @@ impl D3dres {
                     hit(clause::D3DRES_RESOLVE_IGNORED);
                     return Ok(true);
                 }
+                // (MEASURED, WARP: probe-rt-ms4-uint) an integer format: nothing changes
+                if format(f).is_some_and(|x| matches!(x.num, Num::Uint | Num::Sint)) {
+                    hit(clause::D3DRES_RESOLVE_IGNORED);
+                    return Ok(true);
+                }
                 // (MEASURED: a missing subresource, or textures of other dimensions: nothing
                 // changes, probe-resolve-dsub, probe-resolve-dim)
                 if ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.dim != src.d.dim {
@@ -423,7 +428,8 @@ impl D3dres {
                     hit(clause::D3DRES_RESOLVE_MEAN);
                     let f = format(f).ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
                     let el = (f.bits / 8) as usize;
-                    let mean = Mean::of(f).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
+                    // (every format a multisampled target takes, but the integer ones, has its Mean)
+                    let mean = Mean::of(f).ok_or(Fail::Bad)?;
                     let (n, plane) = (src.d.count as usize, sv.len());
                     for y in 0..srows.min(drows) {
                         for x in 0..w / el {
