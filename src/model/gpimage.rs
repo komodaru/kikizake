@@ -61,7 +61,7 @@ pub enum Flip {
 
 /// IsIntegerTranslate: no scale (within ComputeComplexity's tolerance), each translation within
 /// 1/64 of an integer
-fn integer_translate(r: Round, a: &Matrix) -> bool {
+pub fn integer_translate(r: Round, a: &Matrix) -> bool {
     let moves = match complexity(r, a) {
         Complexity::Identity | Complexity::Translate => true,
         Complexity::Scale | Complexity::General => false,
@@ -72,7 +72,7 @@ fn integer_translate(r: Round, a: &Matrix) -> bool {
 /// AnalyzeRotateFlip of the chain's matrix: m12 and m21 within 2^-23 of 0 (InferAffineMatrix of
 /// axis-aligned points; its rotations 1, 3, 5, 7 want m21 and m12 near +-1, a world transform,
 /// which DrawImageRectRectI has not), each scale +-1 within 2^-23, strictly
-fn analyze(r: Round, m: &Matrix) -> Option<Flip> {
+pub fn analyze(r: Round, m: &Matrix) -> Option<Flip> {
     let near = |a: f32, c: f32| r.sub(a, c).abs() < EPS;
     if !(m[1].abs() < EPS && m[2].abs() < EPS) {
         return None;

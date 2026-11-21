@@ -2,7 +2,8 @@
 //! (src/model/gpimage.rs): the tables, the pixels a draw writes (flips included), uniform
 //! sources staying uniform, integer enlargements repeating pixels.
 use kikizake::model::gdiplus::Round;
-use kikizake::model::gpimage::{cubic64, cubic86, render, Draw, Span};
+use kikizake::model::gpimage::{analyze, cubic64, cubic86, integer_translate, render, Draw, Flip, Span};
+use kikizake::model::Fail;
 use kikizake::model::gpstretch::Kernel;
 use proptest::prelude::*;
 
@@ -19,6 +20,38 @@ fn cubic_weights_sum_to_one() {
     }
     assert_eq!((cubic64(0), cubic64(64), cubic64(128)), (65536, 0, 0));
     assert_eq!((cubic86(0), cubic86(15), cubic86(79)), (16384, 14451, -1126));
+}
+
+/// AnalyzeRotateFlip: each element strictly within FLT_EPSILON of its +-1 or 0, on both arches
+#[test]
+fn rotate_flip_is_strict() {
+    let e = f32::EPSILON;
+    for r in [Round::Nearest, Round::Down] {
+        assert_eq!(analyze(r, &[-1.0, 0.0, 0.0, 1.0, 3.0, 0.0]), Some(Flip::X));
+        assert_eq!(analyze(r, &[1.0, 0.0, 0.0, -1.0, 0.0, 3.0]), Some(Flip::Y));
+        assert_eq!(analyze(r, &[-1.0, 0.0, 0.0, -1.0, 3.0, 3.0]), Some(Flip::Both));
+        assert_eq!(analyze(r, &[1.0, 0.0, 0.0, 1.0, 3.0, 3.0]), None);
+        assert_eq!(analyze(r, &[-1.0, e / 2.0, 0.0, 1.0, 0.0, 0.0]), Some(Flip::X));
+        assert_eq!(analyze(r, &[-1.0, e, 0.0, 1.0, 0.0, 0.0]), None);
+        assert_eq!(analyze(r, &[-1.0, 0.0, e, 1.0, 0.0, 0.0]), None);
+        assert_eq!(analyze(r, &[-1.0, 0.0, 0.0, 1.0 + 2.0 * e, 0.0, 0.0]), None);
+        assert_eq!(analyze(r, &[-1.0, 0.0, 0.0, -1.0 - 2.0 * e, 0.0, 0.0]), None);
+        assert_eq!(analyze(r, &[-1.0 + e / 2.0, 0.0, 0.0, -1.0, 0.0, 0.0]), Some(Flip::Both));
+    }
+}
+
+/// IsIntegerTranslate: a unit matrix whose translations lie within 1/64 of whole numbers
+#[test]
+fn integer_translate_within_a_64th() {
+    for r in [Round::Nearest, Round::Down] {
+        for k in -512i32..=512 {
+            let v = f32::from(i16::try_from(k).unwrap_or(0)) / 256.0;
+            let off = (k.rem_euclid(256)).min(256 - k.rem_euclid(256));
+            assert_eq!(integer_translate(r, &[1.0, 0.0, 0.0, 1.0, v, 0.0]), off <= 4, "x {v}");
+            assert_eq!(integer_translate(r, &[1.0, 0.0, 0.0, 1.0, 2.0, v]), off <= 4, "y {v}");
+        }
+        assert!(!integer_translate(r, &[2.0, 0.0, 0.0, 1.0, 0.0, 0.0]));
+    }
 }
 
 fn span(k: u8) -> Span {
@@ -115,5 +148,13 @@ proptest! {
                 prop_assert_eq!(p, (u * 16 + v) as u32 | 0xff00_0000, "pixel {} {}", x, y);
             }
         }
+    }
+    /// a draw reads no texel outside the image, wherever its rectangles reach
+    #[test]
+    fn reads_stay_in_the_image(sx in -6i64..18, sy in -6i64..18, sw in -12i64..12, sh in -12i64..12, dx in -8i64..30, dy in -8i64..30, dw in -24i64..24, dh in -24i64..24, k: u8, half: bool, x86: bool) {
+        prop_assume!(sw != 0 && sh != 0 && dw != 0 && dh != 0);
+        let d = Draw { dst: [dx, dy, dw, dh], src: [sx, sy, sw, sh], image: (12, 12), target: (24, 24), half };
+        let px = render(round(x86), span(k), &d, x86, |x, y| if (0..12).contains(&x) && (0..12).contains(&y) { Ok(0xff00_0000 | (x * 16 + y) as u32) } else { Err(Fail::Bad) });
+        prop_assert!(px.is_ok(), "{:?}", px);
     }
 }

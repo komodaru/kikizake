@@ -540,6 +540,18 @@ fn drawprobe(s: &mut String) {
         let (dw, dh) = (if fx { -8 } else { 8 }, if fy { -6 } else { 6 });
         writeln!(s, "case drawrot-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {} {} {dw} {dh} 0 1 8 6 copy 0 {} {}\ngpread 0 32bppARGB\nend", r.next(), if fx { 12 } else { 3 }, if fy { 10 } else { 2 }, *r.pick(&[1, 4, 5, 6, 7]), r.range(0, 5));
     }
+    // (wide mirrored HQ draws: on x86 the MMX columns of a negative step)
+    for i in 0..12 {
+        let sw = r.range(12, 40);
+        let dw = -(sw * r.range(5, 30) / 10).max(20);
+        let sx = r.range(0, 48 - sw);
+        writeln!(s, "case drawmirror-{i}\ngpbitmap 0 64 6 32bppARGB\ngpbitmap 1 48 6 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {} 0 {dw} 6 {sx} 0 {sw} 6 copy 0 {} {}\ngpread 0 32bppARGB\nend", r.next(), 63 + r.range(-2, 1), *r.pick(&[2, 7, 7, 6]), r.range(0, 5));
+    }
+    // (the visible clip of the source rows through the plain filters)
+    for i in 0..12 {
+        let (dy, dh) = (r.range(-10, 6), r.range(10, 24));
+        writeln!(s, "case drawcutlo-{i}\ngpbitmap 0 16 12 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {} {dy} {} {dh} 0 0 8 8 copy 0 {} {}\ngpread 0 32bppARGB\nend", r.next(), r.range(-4, 4), r.range(8, 20), *r.pick(&[1, 3, 4, 5]), r.range(0, 5));
+    }
 }
 
 /// the gdiplusbrush suite: LinearGradientBrush and TextureBrush filling rectangles
