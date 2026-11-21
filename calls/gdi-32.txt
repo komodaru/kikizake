@@ -1,4 +1,4 @@
-kikizake calls gdi-32 cases f2a5d6c4a150f15e src b7864203df3d9fc8cd14cba9636a832a37d1c25e2e76f70897a46d80dcbe62e3 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 351548 other 0
+kikizake calls gdi-32 cases f2a5d6c4a150f15e src e76e1c5205931f9dd9ec1fe2f3870ed454a214ad87428c39cac3840b327f6c35 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout repeated events 351548 other 0
 case draw-then-poke
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
@@ -4090,6 +4090,7 @@ SelectObject(h4,h3) = h5
 DeleteObject(h5) = 1
 DeleteDC(h4) = 1
 case convert-8-from-16
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -4124,6 +4125,7 @@ SelectObject(h4,h3) = h5
 DeleteObject(h5) = 1
 DeleteDC(h4) = 1
 case convert-8-from-24
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
@@ -4141,6 +4143,7 @@ SelectObject(h4,h3) = h5
 DeleteObject(h5) = 1
 DeleteDC(h4) = 1
 case convert-8-from-32
+out repeated
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
 SelectObject(h1,h2) = h3
