@@ -219,15 +219,34 @@ impl ToEm {
     }
 }
 
-/// the scaler's advance phantom point (the clean-room notes, kikizake-re/dwrite, scl_RoundCurrentSideBearingPnt): adv design
-/// units at ppem rounded half away from zero to 16.16, then to 26.6, then to a 1/16 pixel
-/// (axis aligned) or a whole pixel (sideways); the advance's whole pixels (half up)
-fn phantom_px(adv: i64, ppem: i64, upm: i64, sideways: bool) -> i64 {
+/// how the scaler's advance phantom point rounds
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Step {
+    /// to a 1/16 pixel first (GDI natural)
+    Sixteenth,
+    /// to the pixel (sideways, and GDI classic past 255 ppem)
+    Pixel,
+}
+
+/// the scaler's advance phantom point (the clean-room notes, kikizake-re/dwrite,
+/// scl_RoundCurrentSideBearingPnt): adv design units at ppem rounded half away from zero to
+/// 16.16, then to 26.6, then by `step`; the advance's whole pixels (half up)
+fn phantom_px(adv: i64, ppem: i64, upm: i64, step: Step) -> i64 {
     let n = adv * (ppem << 16);
     let a16 = if n >= 0 { (n + upm / 2) / upm } else { -((upm / 2 - n) / upm) };
     let a26 = (a16 + 0x200) >> 10;
-    let q = if sideways { a26 } else { (a26 + 2) & !3 };
+    let q = match step {
+        Step::Sixteenth => (a26 + 2) & !3,
+        Step::Pixel => a26,
+    };
     (q + 32) >> 6
+}
+
+/// GDI classic's advance in whole pixels: below 256 ppem the 16.16 truncated scale's (the
+/// compatible width), past it the phantom point's to the pixel (MEASURED, golden dwrite,
+/// gdibig-257, gdibig-300, shapebig: neither the notes' 1/16 pixel nor the truncated scale)
+fn classic_px(adv: i64, ppem: i64, upm: i64) -> i64 {
+    if ppem <= 255 { (adv * ((ppem << 16) / upm) + 0x8000) >> 16 } else { phantom_px(adv, ppem, upm, Step::Pixel) }
 }
 
 /// the scaler's vectors are in 6 samples a pixel across, divided back as (v + 3) / 6 truncated
@@ -585,7 +604,6 @@ impl Dwrite {
                     // across and 1 down (sideways: 1 across and 6 down), from its unsnapped origin
                     let nat = n(3)? != 0;
                     let upm = m.upm as i64;
-                    let fix = (ppem << 16) / upm;
                     // (the vertical advance: rounded half down, and down up to 65/128)
                     // (the clean-room notes, kikizake-re/dwrite, scl_RoundCurrentSideBearingPnt: the vertical origin
                     // phantom is the origin in 26.6 rounded to the pixel, the advance's end the
@@ -600,7 +618,11 @@ impl Dwrite {
                         (p3(o) - ((p3(o) + 32 + ((h16 + 0x200) >> 10)) & !63)) >> 6
                     };
                     let classic = !nat && !sideways && ppem <= 255;
-                    let px = |v: i32| if classic { (v as i64 * fix + 0x8000) >> 16 } else { phantom_px(v as i64, ppem, upm, sideways) };
+                    let px = |v: i32| match (nat, sideways) {
+                        (_, true) => phantom_px(v as i64, ppem, upm, Step::Pixel),
+                        (true, false) => phantom_px(v as i64, ppem, upm, Step::Sixteenth),
+                        (false, false) => classic_px(v as i64, ppem, upm),
+                    };
                     // (the em fraction alone, and a fraction back in design units: a side bearing
                     // is the difference of its two edges' em fractions, each rounded on its own)
                     let ef = |k: i64, n: i64| (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
@@ -697,10 +719,10 @@ impl Dwrite {
                 // rounded to whole pixels (612 advances); GDI natural ones round up from a
                 // little below the half (between 0.4545 and 0.462 of a pixel, 612 advances)
                 hit(clause::DW_SHAPE_GDIPLACE);
-                // (the clean-room notes, kikizake-re/dwrite: past 255 ppem the classic advance is the natural one)
-                let fix = ((em << 16) / upm as i64) as i64;
-                let nat = |g: u16| phantom_px(adv(g) as i64, em, upm as i64, false) as f32;
-                out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(if em <= 255 { ((adv(g) as i64 * fix + 0x8000) >> 16) as f32 } else { nat(g) })).collect())));
+                // (as GetGdiCompatibleGlyphMetrics: classic by the 16.16 truncated scale at every
+                // size, natural by the advance phantom point)
+                let nat = |g: u16| phantom_px(adv(g) as i64, em, upm as i64, Step::Sixteenth) as f32;
+                out.push(format!("gdiplace hr 00000000 {}", list(gids.iter().map(|&g| f(classic_px(adv(g) as i64, em, upm as i64) as f32)).collect())));
                 hit(clause::DW_SHAPE_NATPLACE);
                 out.push(format!("natplace hr 00000000 {}", list(gids.iter().map(|&g| f(nat(g))).collect())));
             }
