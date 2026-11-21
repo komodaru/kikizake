@@ -478,6 +478,9 @@ pub struct Ctx {
     pub normal: [f32; 3],
     /// glPolygonOffset: (factor, units)
     pub offset: (f32, f32),
+    /// what a polygon's edges' window depths are moved by under GL_POLYGON_OFFSET_LINE, while
+    /// they are drawn
+    pub line_z_offset: f32,
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
@@ -567,6 +570,7 @@ impl Ctx {
             raster_eye: 0.0,
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
+            line_z_offset: 0.0,
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
@@ -2264,7 +2268,10 @@ impl Ctx {
                 hit(clause::GL_POLYGON_OFFSET);
                 tri::Offset { factor: self.offset.0, units: self.offset.1 * 2f32.powi(-23) }
             }
-            (true, Some(tri::DepthBits::D16)) => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+            (true, Some(tri::DepthBits::D16)) => {
+                hit(clause::GL_POLYGON_OFFSET);
+                tri::Offset { factor: self.offset.0, units: self.offset.1 * (1.0 / 32767.0) }
+            }
         };
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
@@ -2363,17 +2370,19 @@ impl Ctx {
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), dithered or blended under
     /// 8-bit channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
-        let unmeasured = [FOG, 0xde0, 0xde1].iter().any(|c| self.cap(*c))
+        // (GL_TEXTURE_1D / 2D on with no image: as without, raster-open-44)
+        let unmeasured = self.cap(FOG)
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
             || self.shade == FLAT
-            || self.pf.ty != 0
-            || (self.cap(DITHER) && self.bits()[..3].iter().any(|b| *b < 8))
             || self.pf.rgba[3].0 % 8 != 0;
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
+        // (color index: the index, alpha 1 to carry the coverage; never the fast path,
+        // raster-open-45)
+        let index_mode = self.pf.ty != 0;
         let scale = self.channel_scales();
-        let end = |v: &(Obj, [f32; 4])| tri::ClipEnd { clip: self.clip_coords(v.0), c: tri::zip4(v.1, scale, |c, s| c * s) };
+        let end = |v: &(Obj, [f32; 4])| tri::ClipEnd { clip: self.clip_coords(v.0), c: if index_mode { [v.1[0], 0.0, 0.0, 1.0] } else { tri::zip4(v.1, scale, |c, s| c * s) } };
         let Some((e, cut)) = tri::cut_line(end(a), end(b), true) else { return Ok(()) };
         if cut.iter().any(|c| *c) {
             hit(clause::GL_RASTER_INTERPOLATE_LINE);
@@ -2400,11 +2409,9 @@ impl Ctx {
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
         // (scissored, stencil tested, masked, under a logic op or another blend: the general
         // path, the fragments cut by the box or tested, raster-open-14, 15, 16, 21, 22)
-        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
+        if !index_mode && self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
             let narrow = self.bits()[..3].iter().any(|b| *b < 8);
-            if narrow && self.cap(BLEND) {
-                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-            }
+
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
@@ -2412,21 +2419,30 @@ impl Ctx {
             let bias = tri::RASTER_BIAS_INT;
             let bounds = [[bias, bias.wrapping_add(WIDTH)], [bias, bias.wrapping_add(HEIGHT)]];
             for p in tri::aa_line_fast(r[0], r[1], colors, scale[3], bounds) {
-                let c = [f32::from(p.c[0]), f32::from(p.c[1]), f32::from(p.c[2]), 0.0];
+                // (channels under 8 bits dithered: the 16.16 color plus the threshold, each
+                // pixel its own cell, truncated, raster-open-34; exact in float32 below 2^24)
+                let c = if narrow && (self.cap(DITHER) || self.cap(BLEND)) {
+                    let unit = |v: i32| tri::float(i64::from(v)) * (1.0 / 65536.0);
+                    [unit(p.c16[0]), unit(p.c16[1]), unit(p.c16[2]), 0.0]
+                } else {
+                    [f32::from(p.c[0]), f32::from(p.c[1]), f32::from(p.c[2]), 0.0]
+                };
                 // (channels under 8 bits: both pixels of a step written unweighted in the
                 // step's channel-unit color, raster-open-32)
-                let fixed = if narrow { ToFixed::Scaled } else { ToFixed::Wu { weight: p.weight, alpha: p.alpha } };
+                let fixed = if narrow && !self.cap(BLEND) { ToFixed::Scaled } else { ToFixed::Wu { weight: p.weight, alpha: p.alpha } };
                 self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed: None })?;
             }
             return Ok(());
         }
-        // (the general path into channels under 8 bits: not measured)
-        if self.bits()[..3].iter().any(|b| *b < 8) {
+        // (the general path into channels under 8 bits: stored as an antialiased triangle's,
+        // raster-open-51; blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) as a triangle, raster-open-57; other blends not measured)
+        if !index_mode && self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) && self.bits()[..3].iter().any(|b| *b < 8) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
         for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
-            self.fragment(Frag { x: p.x, y: dib_row(p.row), c: p.c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
+            let (c, fixed) = if index_mode { ([tri::index_coverage(p.c[0], p.c[3]), 0.0, 0.0, 0.0], ToFixed::Trunc) } else { (p.c, ToFixed::Scaled) };
+            self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed: None })?;
         }
         Ok(())
     }
@@ -2485,11 +2501,11 @@ impl Ctx {
             hit(clause::GL_POLYGON_STIPPLE);
         }
         // (offset: not read by the antialiased fill, its depths from the corners' own, to be
-        // seen in raster-open-37; dithered and blended on channels under 8 bits: not measured)
-        let unmeasured = (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.pf.depth != 32)
-            || self.pf.ty != 0
+        // seen in raster-open-37)
+        // (in color index mode: fogged not measured)
+        let index_mode = self.pf.ty != 0;
+        let unmeasured = (index_mode && self.cap(FOG))
             || self.pf.rgba[3].0 % 8 != 0
-            || (self.cap(DITHER) && self.cap(BLEND) && self.bits()[..3].iter().any(|b| *b < 8))
             || clip.iter().any(|c| c[3] <= 0.0);
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
@@ -2501,7 +2517,7 @@ impl Ctx {
         }
         hit(clause::GL_POLYGON_SMOOTH);
         let grid = if self.hint(POLYGON_SMOOTH_HINT) == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
-        let scale = self.channel_scales();
+        let scale = if index_mode { [1.0; 4] } else { self.channel_scales() };
         let at_provoking = q.get(provoking).map(|v| tri::zip4(v.1, scale, |c, s| c * s)).ok_or(Fail::Bad)?;
         // (each corner: clip coordinates, colors in channel units, fog factor; cut to the view
         // volume as any polygon, then the fan from the first corner: raster-open-19)
@@ -2533,9 +2549,12 @@ impl Ctx {
         let flat = self.shade == FLAT;
         // (depths: window z in 2^-32 as the rasterizer has it, its plane truncated, the low
         // 32 bits; raster-open-11)
-        let depth = self.cap(DEPTH_TEST) && self.pf.depth == 32;
+        // (on 16 bits: window z in 1/32767 (the scale and center (f -+ n) / 2 * 32767), its
+        // plane truncated, stored as the low 16 bits: raster-open-36)
+        let depth = self.cap(DEPTH_TEST) && self.pf.depth > 0;
         let (n, f) = (f64::from(self.depth_range[0]), f64::from(self.depth_range[1]));
-        let (zscale, zcenter) = (tri::narrow((f - n) / 2.0 * 4_294_967_296.0), tri::narrow((n + f) / 2.0 * 4_294_967_296.0));
+        let range = if self.pf.depth == 32 { 4_294_967_296.0 } else { 32767.0 };
+        let (zscale, zcenter) = (tri::narrow((f - n) / 2.0 * range), tri::narrow((n + f) / 2.0 * range));
         let zr: Vec<f32> = clip.iter().map(|c| if c[3] == 1.0 { c[2] * zscale + zcenter } else { (c[2] * zscale) * (1.0 / c[3]) + zcenter }).collect();
         // (fogged: the vertices' fog factors' plane, then each fragment fogged: raster-open-13)
         let fogs: Vec<f32> = corners.iter().map(|c| c[8]).collect();
@@ -2570,12 +2589,15 @@ impl Ctx {
                     c[3] = a;
                 }
                 c[3] *= p.cover.fraction();
+                // (color index: the index's low 4 bits the coverage, trunc(cov 15 + 1/2), the
+                // index's own truncated; raster-open-46)
+                let (c, fixed) = if index_mode { ([tri::index_coverage(c[0], p.cover.fraction()), 0.0, 0.0, 0.0], ToFixed::Trunc) } else { (c, ToFixed::Scaled) };
                 let zfixed = depth.then(|| {
                     hit(clause::GL_RASTER_INTERPOLATE_DEPTH);
                     let z = tri::trunc(tri::aa_plane(r, [z0, z1, z2], p.at).trunc());
-                    FixedZ { bits: 32, value: u64::try_from(z & 0xFFFF_FFFF).unwrap_or(0) }
+                    if self.pf.depth == 32 { FixedZ { bits: 32, value: u64::try_from(z & 0xFFFF_FFFF).unwrap_or(0) } } else { FixedZ { bits: 16, value: u64::try_from(z & 0xFFFF).unwrap_or(0) << 1 } }
                 });
-                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed: ToFixed::Scaled, zfixed })?;
+                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed })?;
             }
         }
         Ok(())
@@ -2588,9 +2610,6 @@ impl Ctx {
             // (a polygon drawn as its edges or its corners, GL 1.1 3.5.4: by which way it
             // faces, after culling; under a projection, or with edge flags, not measured)
             let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
-            if self.cap(POLYGON_OFFSET_LINE) || self.cap(POLYGON_OFFSET_POINT) {
-                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-            }
             let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
             let area = tri::signed_area(&w);
             let front = (area > 0.0) == (self.front_face == CCW);
@@ -2612,9 +2631,6 @@ impl Ctx {
                 // (GL 1.1 3.5.4: the polygon cut to the view volume first, its edges and corners
                 // then those of the cut polygon: golden opengl-32 polymode-1, a corner past the
                 // window's bottom drawn as the cut's corners on it)
-                if self.cap(LIGHTING) {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                }
                 // (fogged at the corners, raster-open-28)
                 let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
                 let c = fogged.get(provoking).copied().ok_or(Fail::Bad)?;
@@ -2631,12 +2647,34 @@ impl Ctx {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
                 let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
+                // (MEASURED, golden opengl-32 / 64 raster-open-50: under GL_POLYGON_OFFSET_LINE
+                // the triangle's offset (as a fill's, tri::Offset) added to each corner's window
+                // depth, fl(z + offset), the edges then drawn as lines: GL.POLYGON.OFFSET;
+                // points, other polygons or cut ones not measured)
+                let offset_line = face == POLY_LINE && self.cap(POLYGON_OFFSET_LINE) && self.cap(DEPTH_TEST) && self.pf.depth > 0;
+                if (face == POLY_POINT && self.cap(POLYGON_OFFSET_POINT)) || (offset_line && (q.len() != 3 || cut != at)) {
+                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                }
+                self.line_z_offset = 0.0;
+                if offset_line {
+                    hit(clause::GL_POLYGON_OFFSET);
+                    let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+                    let corner = |k: usize| -> Res<(tri::Vertex, f32)> {
+                        let p = cut.get(k).ok_or(Fail::Bad)?;
+                        let n = [p[0], p[1], p[2]].map(|v| v * (1.0 / p[3]));
+                        Ok((tri::Vertex { x: tri::Sub::snap(f64::from(n[0]), vw, center.0), y: tri::Sub::snap(f64::from(n[1]), vh, center.1) }, self.window_z(n[2])))
+                    };
+                    let [(v0, z0), (v1, z1), (v2, z2)] = [corner(0)?, corner(1)?, corner(2)?];
+                    let (a, b) = tri::depth_slopes([v0, v1, v2], [z0, z1, z2]);
+                    let units = if self.pf.depth == 32 { self.offset.1 * 2f32.powi(-23) } else { self.offset.1 * (1.0 / 32767.0) };
+                    self.line_z_offset = tri::Offset { factor: self.offset.0, units }.of(a, b);
+                }
                 let win: Vec<([f64; 3], [f32; 4])> = cut
                     .iter()
                     .map(|p| {
                         // (divided by w, under a projection: raster-open-27)
                         let n = [p[0], p[1]].map(|v| f64::from(v * (1.0 / p[3])));
-                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2] * (1.0 / p[3])))], [p[4], p[5], p[6], p[7]])
+                        ([(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(p[2] * (1.0 / p[3])) + self.line_z_offset)], [p[4], p[5], p[6], p[7]])
                     })
                     .collect();
                 if face == POLY_POINT {
@@ -2646,8 +2684,15 @@ impl Ctx {
                     }
                     return Ok(());
                 }
+                // (wide or antialiased edges: each edge v0 v1, v1 v2, .. by the line renderer of
+                // a GL_LINE_LOOP, the stipple running on, corners drawn by both edges
+                // (raster-open-48, 49); cut by the view volume or flat-shaded not measured)
                 if self.line_width != 1.0 || self.cap(LINE_SMOOTH) {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                    if cut != at || self.shade == FLAT || offset_line {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                    }
+                    self.verts = q.to_vec();
+                    return self.end(LINE_LOOP);
                 }
                 self.stipple = (0, None);
                 for ((a, b), (p, q)) in win.iter().copied().zip(win.iter().copied().cycle().skip(1)).zip(cut.iter().copied().zip(cut.iter().copied().cycle().skip(1))) {
@@ -2682,6 +2727,7 @@ impl Ctx {
                         self.fragment(Frag { x, y, c, z: a.0[2], fixed: ToFixed::Floor, zfixed: None })?;
                     }
                 }
+                self.line_z_offset = 0.0;
                 return Ok(());
             }
         }
@@ -3117,7 +3163,7 @@ impl Ctx {
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
         let end = |c: [f32; 4]| {
             let n = [c[0], c[1], c[2]].map(|v| v * (1.0 / c[3]));
-            ([tri::Sub::snap(f64::from(n[0]), vw, center.0), tri::Sub::snap(f64::from(n[1]), vh, center.1)], self.window_z(n[2]))
+            ([tri::Sub::snap(f64::from(n[0]), vw, center.0), tri::Sub::snap(f64::from(n[1]), vh, center.1)], self.window_z(n[2]) + self.line_z_offset)
         };
         let ((pa, za), (pb, zb)) = (end(a), end(b));
         // (the pixels: of the cut ends' exact window positions, not the snapped ones, golden
@@ -3484,7 +3530,10 @@ impl Ctx {
                     // float32, truncated, alpha alike)
                     let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
                     let a = c[3] * (1.0 / self.channel_scales()[3]);
-                    let over = |d: u32, c: f32, bits: u32| scaled_channel(tri::float(i64::from(d)) * (1.0 - a) + c * a, bits);
+                    // (channels under 8 bits: then stored as any, plus one half or the dither
+                    // threshold, truncated: raster-open-57, 58, 59)
+                    let store = if !(bits[..3].iter().any(|b| *b < 8)) { 0.0 } else if dither { threshold } else { 0.5 };
+                    let over = |d: u32, c: f32, bits: u32| scaled_channel(tri::float(i64::from(d)) * (1.0 - a) + c * a + store, bits);
                     let (alpha, dst_alpha) = (c[3] * a, tri::float(i64::from(d[3])) * (1.0 - a));
                     [over(d[0], c[0], bits[0]), over(d[1], c[1], bits[1]), over(d[2], c[2], bits[2]), if bits[3] == 0 { 0 } else { scaled_channel(alpha + dst_alpha, bits[3]) }]
                 }
@@ -3495,7 +3544,18 @@ impl Ctx {
                     let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
                     // (c: the fast path's channel bytes)
                     let wu = |d: u32, c: f32| m(255u32.wrapping_sub(w), d).wrapping_add(m(w, u32::try_from(tri::trunc(c)).unwrap_or(0)));
-                    [wu(d[0], c[0]), wu(d[1], c[1]), wu(d[2], c[2]), 0]
+                    // (channels under 8 bits: in 8 bits, the 16.16 color c16 >> 13 and the
+                    // destination shifted up by 3 (no copied top bits), the sum shifted back
+                    // down, raster-open-35)
+                    let narrow = |d: u32, c: f32, b: u32| {
+                        let up = 8u32.saturating_sub(b);
+                        wu(d << up, (c * f32::from(1u16 << up)).trunc()) >> up
+                    };
+                    if bits[..3].iter().any(|b| *b < 8) {
+                        [narrow(d[0], c[0], bits[0]), narrow(d[1], c[1], bits[1]), narrow(d[2], c[2], bits[2]), 0]
+                    } else {
+                        [wu(d[0], c[0]), wu(d[1], c[1]), wu(d[2], c[2]), 0]
+                    }
                 }
                 // (other blends: the channel-unit color over its scale, then blended as any
                 // fragment, raster-open-22, 26)
@@ -5125,8 +5185,19 @@ pub mod tri {
         pub x: i64,
         pub row: i64,
         pub c: [u8; 3],
+        /// the step's colors in 16.16 (their bytes `c`)
+        pub c16: [i32; 3],
         pub alpha: u8,
         pub weight: u8,
+    }
+
+    /// An antialiased fragment's index in color index mode: the index truncated, its low 4 bits
+    /// the coverage times 15 rounded (MEASURED, golden opengl-32 / 64 raster-open-45, 46:
+    /// GL.RASTER.MODE)
+    pub fn index_coverage(index: f32, cover: f32) -> f32 {
+        let whole = trunc(index) & !15;
+        let low = trunc(cover * 15.0 + 0.5);
+        float(whole | low)
     }
 
     /// A raster coordinate's whole part and its fraction in 1/256 (the float's low 8 bits, as
@@ -5205,7 +5276,7 @@ pub mod tri {
                     continue;
                 }
                 let (x, y) = if xmajor { (major, mn) } else { (mn, major) };
-                out.push(FastFrag { x: x.wrapping_sub(bias), row: y.wrapping_sub(bias), c: bytes, alpha: a8, weight });
+                out.push(FastFrag { x: x.wrapping_sub(bias), row: y.wrapping_sub(bias), c: bytes, c16: col, alpha: a8, weight });
             }
             let ([c0, c1, c2], [d0, d1, d2]) = (col, dc);
             col = [c0.wrapping_add(d0), c1.wrapping_add(d1), c2.wrapping_add(d2)];
@@ -5871,6 +5942,25 @@ pub mod tri {
         }
     }
 
+    /// A triangle's depth change per pixel across and up, a and b, in float32 from the bottom
+    /// vertex's edges to the top and middle ones (as `depths`); a triangle of one height none
+    pub fn depth_slopes(v: [Vertex; 3], z: [f32; 3]) -> (f32, f32) {
+        let top = (0..3).max_by_key(|k| (v[*k].y, std::cmp::Reverse(*k))).unwrap_or(0);
+        let bottom = (0..3).min_by_key(|k| (v[*k].y, *k)).unwrap_or(0);
+        if top == bottom {
+            return (0.0, 0.0);
+        }
+        let mid = 3 - top - bottom;
+        let px = |c: Sub| c.0 as f32 / 256.0;
+        let (o, p, q) = (v[bottom], v[top], v[mid]);
+        let (dx1, dy1, dx2, dy2) = (px(p.x) - px(o.x), px(p.y) - px(o.y), px(q.x) - px(o.x), px(q.y) - px(o.y));
+        let (dz1, dz2) = (z[top] - z[bottom], z[mid] - z[bottom]);
+        let inv = 1.0 / (dx1 * dy2 - dx2 * dy1);
+        let a = dz1 * (dy2 * inv) - dz2 * (dy1 * inv);
+        let b = dz2 * (dx1 * inv) - dz1 * (dx2 * inv);
+        (a, b)
+    }
+
     /// `depths` under a polygon offset (MEASURED, golden opengl-32 / 64 raster-open-29, 31,
     /// 38..43: GL.POLYGON.OFFSET): the offset (`Offset::of` the plane's a and b) added once at
     /// each new left edge's start, as (a dx + z) + (b dy + offset), so every pixel moves alike
@@ -5882,14 +5972,7 @@ pub mod tri {
             // (all at one height: no row to fill)
             return Vec::new();
         }
-        let mid = 3 - top - bottom;
-        let px = |c: Sub| c.0 as f32 / 256.0;
-        let (o, p, q) = (v[bottom], v[top], v[mid]);
-        let (dx1, dy1, dx2, dy2) = (px(p.x) - px(o.x), px(p.y) - px(o.y), px(q.x) - px(o.x), px(q.y) - px(o.y));
-        let (dz1, dz2) = (z[top] - z[bottom], z[mid] - z[bottom]);
-        let inv = 1.0 / (dx1 * dy2 - dx2 * dy1);
-        let a = dz1 * (dy2 * inv) - dz2 * (dy1 * inv);
-        let b = dz2 * (dx1 * inv) - dz1 * (dx2 * inv);
+        let (a, b) = depth_slopes(v, z);
         let gx = fixed(a, bits);
         let off = offset.of(a, b);
         let start = |k: usize, col: i64, y: Sub| {

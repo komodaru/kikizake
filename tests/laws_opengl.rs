@@ -631,6 +631,18 @@ proptest! {
         }
     }
 
+    /// GL.POLYGON.SMOOTH: in color index mode an antialiased fragment keeps its index's whole
+    /// part above the low 4 bits and carries the coverage, rounded to fifteenths, in them
+    /// (raster-open-45, 46)
+    #[test]
+    fn index_coverage_fills_the_low_four_bits(index in 0u16..4096, frac in 0.0f32..1.0, cover in 0.0f32..=1.0) {
+        let v = tri::index_coverage(f32::from(index) + frac * 0.99, cover);
+        prop_assert_eq!(v.fract(), 0.0);
+        let k = v as i64;
+        prop_assert_eq!(k & !15, i64::from(index) & !15);
+        prop_assert!(((k & 15) as f32 - cover * 15.0).abs() <= 0.5 + 1e-4);
+    }
+
     /// GL.POLYGON.OFFSET: an offset fill covers the same pixels, no offset is `depths`, and each
     /// pixel moves by the offset (max |slope| times the factor plus the units) to the start's
     /// rounding (raster-open-29, 31)

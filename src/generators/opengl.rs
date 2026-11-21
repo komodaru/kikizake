@@ -3076,4 +3076,28 @@ fn measure(s: &mut String) {
     // an antialiased line 2.5 pixels wide into a 16-bit DIB, undithered: the general path (GL.RASTER.MODE): open
     writeln!(s, "case raster-open-51\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glLineWidth 2.5\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 0 0 255\ngl glVertex2f 1.5 2.25\ngl glColor4ub 0 0 255 255\ngl glVertex2f 14.5 11.75\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(16));
     writeln!(s, "glerr\nend");
+    // a triangle outlined (GL_LINE) 3 pixels wide, flat-shaded (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-52\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glShadeModel 0x1d00\ngl glLineWidth 3\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(32));
+    writeln!(s, "glerr\nend");
+    // a triangle outlined (GL_LINE) antialiased, cut by the view volume (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-53\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb20\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f -3 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(32));
+    writeln!(s, "glerr\nend");
+    // a triangle as its corners (GL_POINT) offset (GL_POLYGON_OFFSET_POINT, factor 1, units 2) under a depth test (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-54\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b00\ngl glEnable 0xb71\ngl glPolygonOffset 1 2\ngl glEnable 0x2a01\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024\nglread 0 0 16 16 0x1902 0x1405 1024", ctx(32));
+    writeln!(s, "glerr\nend");
+    // a quadrilateral (GL_POLYGON) outlined and offset (GL_POLYGON_OFFSET_LINE, factor 1, units 2) under a depth test (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-55\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb71\ngl glPolygonOffset 1 2\ngl glEnable 0x2a02\ngl glClear 0x4100\ngl glBegin 9\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 3 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 12 13 0\ngl glColor4ub 255 255 0 255\ngl glVertex3f 3 11 0.25\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024\nglread 0 0 16 16 0x1902 0x1405 1024", ctx(32));
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle in color index, fogged (linear 0..1, fog index 3) (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-56\n{}{ORTHO}gl glEnable 0xb41\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glFogf 0xb61 3\ngl glClear 0x4000\ngl glBegin 4\ngl glIndexi 9\ngl glVertex3f 2 2 0.5\ngl glIndexi 40\ngl glVertex3f 13 4 -0.25\ngl glIndexi 25\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1900 0x1401 256", "glctx 8 29\n");
+    writeln!(s, "glerr\nend");
+    // an antialiased line 2.5 pixels wide into a 16-bit DIB, blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), undithered (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-57\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glLineWidth 2.5\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 0 0 128\ngl glVertex2f 1.5 2.25\ngl glColor4ub 0 0 255 255\ngl glVertex2f 14.5 11.75\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(16));
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle into a 16-bit DIB, blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) and dithered (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-58\n{}{ORTHO}gl glEnable 0xb41\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(16));
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle into a 16-bit DIB, blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), undithered (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-59\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(16));
+    writeln!(s, "glerr\nend");
 }
