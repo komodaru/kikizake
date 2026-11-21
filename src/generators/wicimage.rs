@@ -1288,7 +1288,67 @@ pub fn wicdecode() -> String {
             }
         }
     }
+    // (probes for WICIMAGE.DECODE.BROKEN: a GIF image with no color table at all, PNG filter
+    // types past 4, a TIFF whose strip list is shorter than its picture, pictures past 2^20
+    // pixels read by rectangles)
+    let gw = [GifFrame { x: 0, y: 0, w: 3, h: 2, local: None, transparent: None, interlace: false, idx: vec![0, 1, 2, 3, 1, 0], min: 2 }];
+    decode_case(&mut s, "broken-gif-notable", &gif(3, 2, None, 0, &gw), 1, true);
+    for f in [5u8, 6, 255] {
+        let raw = [0u8, 10, 20, 30, f, 40, 50, 60, 1, 1, 2, 3];
+        decode_case(&mut s, &format!("broken-png-filter-{f}"), &png(3, 3, 8, 0, false, &[], &raw, 1 << 16), 1, false);
+    }
+    for k in 0..2 {
+        let im = TiffImage { w: 4, h: 4, photometric: 1, bits: 8, samples: 1, extra: None, planar: 1, rps: 2, px: (0..16).map(|v| v * 13).collect(), map: Vec::new(), res: None, format: 1 };
+        let mut f = tiff(false, &[im]);
+        // (two strips listed: RowsPerStrip written 1, or the height 6, so the picture wants more)
+        if k == 0 {
+            tiff_patch(&mut f, 278, 1);
+        } else {
+            tiff_patch(&mut f, 257, 6);
+        }
+        decode_case(&mut s, &format!("broken-tiff-strips-{k}"), &f, 1, false);
+    }
+    for (w, h) in [(1200u32, 1000u32), (40000, 40000)] {
+        let rects = [(0, 0, 4, 2), (w - 4, h - 2, 4, 2), (w / 2, h / 2, 3, 1)];
+        let big = |s: &mut String, name: &str, file: &[u8]| {
+            writeln!(s, "case {name}\nwdecode {}\nwframe 0\nwinfo", hex(file));
+            for (x, y, rw, rh) in rects {
+                writeln!(s, "wpixels {x} {y} {rw} {rh}");
+            }
+            s.push_str("end\n");
+        };
+        let pal = [0x102030u32, 0x405060];
+        big(&mut s, &format!("broken-big-bmp-{w}"), &bmp(40, w as i32, h as i32, 8, 1, [0; 4], 2, &pal, &[0, 0, 0, 1], false, (0, 0)));
+        big(&mut s, &format!("broken-big-png-{w}"), &png(w, h, 8, 0, false, &[], &[0, 1, 2], 1 << 16));
+        let mut g = b"GIF89a".to_vec();
+        le16(&mut g, w);
+        le16(&mut g, h);
+        g.extend_from_slice(&[0, 0, 0, 0x2c, 0, 0, 0, 0]);
+        le16(&mut g, w);
+        le16(&mut g, h);
+        // (a local table of 2 colors; LZW size 2: a clear code, then the end code)
+        g.extend_from_slice(&[0x80, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 2, 2, 0x2c, 0, 0, 0x3b]);
+        big(&mut s, &format!("broken-big-gif-{w}"), &g);
+    }
     s
+}
+
+/// a little-endian TIFF's first IFD: the entry for `tag` given the value `v` (SHORT or LONG)
+fn tiff_patch(f: &mut [u8], tag: u16, v: u32) {
+    if let Some(at) = tiff_entry(f, tag) {
+        let short = f[at + 2] == 3;
+        if short {
+            f[at + 8..at + 10].copy_from_slice(&(v as u16).to_le_bytes());
+        } else {
+            f[at + 8..at + 12].copy_from_slice(&v.to_le_bytes());
+        }
+    }
+}
+
+fn tiff_entry(f: &[u8], tag: u16) -> Option<usize> {
+    let ifd = u32::from_le_bytes(f.get(4..8)?.try_into().ok()?) as usize;
+    let n = usize::from(u16::from_le_bytes(f.get(ifd..ifd + 2)?.try_into().ok()?));
+    (0..n).map(|i| ifd + 2 + 12 * i).find(|&at| f.get(at..at + 2) == Some(&tag.to_le_bytes()[..]))
 }
 
 /// the containers WIC has encoders for

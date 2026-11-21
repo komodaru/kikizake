@@ -68,6 +68,7 @@ impl Space {
 /// the finished transform's tables: ELUT (8-bit in, descaled to grid units), the 32^3 table of
 /// u16 triples, ALUT (1024 entries)
 pub struct Transform {
+    e16: [u32; 256],
     elut: [u32; 256],
     cube: Vec<[u32; 3]>,
     alut: [u32; 1024],
@@ -217,7 +218,7 @@ impl Transform {
         let mut cube: Vec<[u32; 3]> = (0..32 * 32 * 32u32).map(|i| [node(i >> 10), node((i >> 5) & 31), node(i & 31)]).collect();
         matrix_pass(&mut cube, &half(from));
         matrix_pass(&mut cube, &inverse(&half(to)));
-        Transform { elut, cube, alut }
+        Transform { e16, elut, cube, alut }
     }
 
     /// the tetrahedral sums (< 2^27) of the three outputs for grid inputs e (11-bit fractions)
@@ -247,23 +248,82 @@ impl Transform {
         s.map(|s| (self.alut[(s >> 17) as usize] >> 8) as u8)
     }
 
-    /// LHCalc3toX_Di16_Do16_Lut16_G32: a 16-bit R, G, B to 16 bits
-    pub fn rgb16(&self, rgb: [u16; 3]) -> [u16; 3] {
+    /// the next entry past `idx` of the output table: past R's end G's first (the tables lie one
+    /// after another), past B's 0
+    fn alut_next(&self, idx: usize, ch: usize) -> u32 {
+        if idx + 1 < 1024 { self.alut[idx + 1] } else if ch < 2 { self.alut[0] } else { 0 }
+    }
+
+    /// CalcNDim_Data8To8_Lut16 (8-bit in, 16-bit out): the 8-bit kernel's grid point and
+    /// fractions as 16-bit weights (summing to 65536), the sum +s>>16 -s>>10, >>6, the output
+    /// table interpolated in 16-bit fractions
+    pub fn rgb8_16(&self, rgb: [u8; 3]) -> [u16; 3] {
+        self.ndim(rgb.map(|c| self.elut[usize::from(c)]))
+    }
+
+    /// the generic routine from grid inputs: the weights 32 times the 8-bit kernel's
+    fn ndim(&self, e: [u32; 3]) -> [u16; 3] {
+        let s = self.sums(e);
+        std::array::from_fn(|ch| {
+            let mut t = (s[ch] * 32) as u32;
+            t += t >> 16;
+            t -= t >> 10;
+            t >>= 6;
+            let (f, idx) = (t & 0xffff, (t >> 16) as usize);
+            ((self.alut[idx] * (65536 - f) + self.alut_next(idx, ch) * f) >> 16) as u16
+        })
+    }
+
+    /// Calc323Dim_Data8To8_Lut16 (16-bit in, 8-bit out): the 16-bit kernel's input and sums,
+    /// then +s>>16 -s>>10, >>1, the output table interpolated in 16-bit fractions (v, 16.16) and
+    /// (v - v>>8 + 2^23) >> 24
+    pub fn rgb16_8(&self, rgb: [u16; 3]) -> [u8; 3] {
+        let s = self.sums(self.input16(rgb));
+        std::array::from_fn(|ch| {
+            let mut t = s[ch] as u32;
+            t += t >> 16;
+            t -= t >> 10;
+            t >>= 1;
+            let (f, idx) = (t & 0xffff, (t >> 16) as usize);
+            let v = self.alut[idx] * (65536 - f) + self.alut_next(idx, ch) * f;
+            ((v - (v >> 8) + (1 << 23)) >> 24) as u8
+        })
+    }
+
+    /// CalcNDim_Data8To8_Lut16 (16-bit in, 8-bit 4-byte out): the input curve before its
+    /// descaling interpolated in 8-bit fractions, then descaled, the generic routine's 16 bits,
+    /// (v + 128) >> 8 at most 255
+    pub fn rgb16_8_generic(&self, rgb: [u16; 3]) -> [u8; 3] {
         let e = rgb.map(|v| {
+            let v = u32::from(v);
+            let d = v - (v >> 8);
+            let (i, f) = ((d >> 8) as usize, d & 0xff);
+            let next = if i < 255 { self.e16[i + 1] * f } else { 0 };
+            let e = (self.e16[i] * (256 - f) + next) >> 8;
+            ((u64::from(e) * 65536 / 65535) * 31 / 32) as u32
+        });
+        self.ndim(e).map(|v| ((u32::from(v) + 128) >> 8).min(255) as u8)
+    }
+
+    fn input16(&self, rgb: [u16; 3]) -> [u32; 3] {
+        rgb.map(|v| {
             let v = u32::from(v);
             let d = v - (v >> 8);
             let (i, f) = ((d >> 8) as usize, d & 0xff);
             let next = if i < 255 { self.elut[i + 1] * f } else { 0 };
             (self.elut[i] * (256 - f) + next) >> 8
-        });
-        let s = self.sums(e);
+        })
+    }
+
+    /// LHCalc3toX_Di16_Do16_Lut16_G32: a 16-bit R, G, B to 16 bits
+    pub fn rgb16(&self, rgb: [u16; 3]) -> [u16; 3] {
+        let s = self.sums(self.input16(rgb));
         std::array::from_fn(|ch| {
             let mut s = s[ch];
             s += s >> 16;
             s -= s >> 10;
             let (idx, g) = ((s >> 17) as usize, ((s >> 8) & 0x1ff) as u32);
-            // (the three tables lie one after another: past R's end is G's first entry)
-            let next = if idx + 1 < 1024 { self.alut[idx + 1] } else if ch < 2 { self.alut[0] } else { 0 };
+            let next = self.alut_next(idx, ch);
             ((self.alut[idx] * (512 - g) + next * g) >> 9) as u16
         })
     }

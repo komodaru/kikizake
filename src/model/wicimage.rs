@@ -2234,6 +2234,10 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                 // the rows as WIC's reader takes them (model::gifread); a code size of 1 decodes
                 // and then fills the frame with the background index (0 without a global table)
                 hit(clause::WICIMAGE_GIF_READ);
+                // (the model does not hold pictures past 2^20 pixels)
+                if u64::from(w) * u64::from(h) > 1 << 20 {
+                    return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
+                }
                 let rows_of = |data: &[u8]| -> Result<Vec<u8>, u32> {
                     let mut r = crate::model::gifread::Rows::new(data, min, w).ok_or(E_OUTOFMEMORY)?;
                     let mut idx = vec![0u8; (w * h) as usize];
@@ -3119,6 +3123,39 @@ crate::model::words! {
     enum WOp { Wbits = "wbits", Wscale = "wscale", Wflip = "wflip", Wclip = "wclip", Wconv = "wconv", Wcolor = "wcolor", Wctx = "wctx", Winfo = "winfo", Wpixels = "wpixels", Wpalette = "wpalette", Wsrcpal = "wsrcpal", Wdecode = "wdecode", Wframe = "wframe", Wencode = "wencode", Wbytes = "wbytes", Wredecode = "wredecode", Wsteps = "wsteps", Wprofile = "wprofile" }
 }
 
+/// Windows' sRGB Color Space Profile.icm as the runner prints it: its header (size, version,
+/// class, space, PCS, rendering intent, tag count), then each tag's signature, type, size and,
+/// for XYZ, its numbers; for a curve its entries, 32 to a line (MEASURED, golden wiccolor
+/// profile-srgb)
+fn srgb_profile() -> Vec<String> {
+    let xyz = |sig: &str, v: [i32; 3]| format!("tag {sig} 58595a20 20 {:08x} {:08x} {:08x}", v[0], v[1], v[2]);
+    let mut o = vec![
+        "wprofile 1 3144 02100000 6d6e7472 52474220 58595a20 0 17".to_string(),
+        "tag 63707274 74657874 51".to_string(),
+        "tag 64657363 64657363 108".to_string(),
+        xyz("77747074", [0xf351, 0x10000, 0x116cc]),
+        xyz("626b7074", [0, 0, 0]),
+        xyz("7258595a", super::icm::SRGB_XYZ[0]),
+        xyz("6758595a", super::icm::SRGB_XYZ[1]),
+        xyz("6258595a", super::icm::SRGB_XYZ[2]),
+        "tag 646d6e64 64657363 112".to_string(),
+        "tag 646d6464 64657363 136".to_string(),
+        "tag 76756564 64657363 134".to_string(),
+        "tag 76696577 76696577 36".to_string(),
+        xyz("6c756d69", [0x4c0956, 0x500000, 0x571fe7]),
+        "tag 6d656173 6d656173 36".to_string(),
+        "tag 74656368 73696720 12".to_string(),
+    ];
+    let curve = super::icm::srgb_curve();
+    for sig in ["72545243", "67545243", "62545243"] {
+        o.push(format!("tag {sig} 63757276 {} {}", 12 + 2 * curve.len(), curve.len()));
+        for row in curve.chunks(32) {
+            o.push(row.iter().map(|v| format!("{v:04x}")).collect::<Vec<_>>().join(" "));
+        }
+    }
+    o
+}
+
 fn hexs(b: &[u8]) -> String {
     b.iter().map(|b| format!("{b:02x}")).collect()
 }
@@ -3299,9 +3336,17 @@ impl WicImage {
                     out.push(hexs(&c.iter().flat_map(|v| v.to_le_bytes()).collect::<Vec<u8>>()));
                 }
             }
-            // (the numbers of the runner's color profiles the transforms are made of: read once
-            // from Windows, to become the model's data)
-            WOp::Wprofile => return Err(Fail::Unmodeled(open::WICIMAGE_COLOR_TRANSFORM)),
+            // (the runner's color profiles as Windows reads them: the sRGB one is the model's
+            // colorants and curve, its other tags as the file has them; the CMYK one feeds the
+            // CMYK transform: WIC.TO.CMYK)
+            WOp::Wprofile => match t.get(1).copied() {
+                Some("srgb") => {
+                    hit(clause::WICIMAGE_COLOR_ENGINE);
+                    out.extend(srgb_profile());
+                }
+                Some("swop") => return Err(Fail::Unmodeled(open::WIC_TO_CMYK)),
+                _ => return Err(Fail::Bad),
+            },
             WOp::Wctx => {
                 let v = n(1)?;
                 // (MEASURED, golden wiccolor ctx-*: any value taken and given back)
@@ -3565,8 +3610,24 @@ fn color_pixels(c: &Img, from: crate::model::icm::Space, to: crate::model::icm::
     let dst16 = dst == "rgba64";
     // (sources the engine reads after WIC's own steps the model has not got: PBGRA's
     // AlphaDivide, BGR565; and the generic 8 <-> 16 bit routine)
-    if src16 != dst16 || matches!(c.fmt, "pbgra" | "bgr565") {
-        return Err(Fail::Unmodeled(open::WICIMAGE_COLOR_TRANSFORM));
+    if c.fmt == "bgr565" {
+        // (FOUND clean-room: icm32's Convert565To8 makes R, G, B bytes, each its bits repeated
+        // past the top, (v << 3 | v >> 2) and (v << 2 | v >> 4); then as 24-bit)
+        let mut o = Img::new(c.w, c.h, "rgb24");
+        o.dpi = c.dpi;
+        for y in 0..c.h {
+            for x in 0..c.w {
+                let p = c.get(x, y);
+                let v = u16::from_le_bytes([p[0], p[1]]);
+                let (r, g, b) = ((v >> 11) as u8, ((v >> 5) & 0x3f) as u8, (v & 0x1f) as u8);
+                let at = (y * c.w + x) as usize * 3;
+                o.px[at..at + 3].copy_from_slice(&[r << 3 | r >> 2, g << 2 | g >> 4, b << 3 | b >> 2]);
+            }
+        }
+        return color_pixels(&o, from, to, dst);
+    }
+    if c.fmt == "pbgra" {
+        return color_pixels(&alpha_divide(c), from, to, dst);
     }
     hit(clause::WICIMAGE_COLOR_ENGINE);
     let mut o = Img::new(c.w, c.h, dst);
@@ -3576,8 +3637,8 @@ fn color_pixels(c: &Img, from: crate::model::icm::Space, to: crate::model::icm::
         for x in 0..c.w {
             let p = c.get(x, y);
             let at = y as usize * ost + x as usize * (bits_of(dst) as usize / 8);
-            if src16 {
-                let v = |k: usize| u16::from_le_bytes([p[2 * k], p[2 * k + 1]]);
+            let v = |k: usize| u16::from_le_bytes([p[2 * k], p[2 * k + 1]]);
+            if src16 && dst16 {
                 let q = t.rgb16([v(0), v(1), v(2)]);
                 for (k, w) in [q[0], q[1], q[2], v(3)].iter().enumerate() {
                     o.px[at + 2 * k..at + 2 * k + 2].copy_from_slice(&w.to_le_bytes());
@@ -3585,26 +3646,84 @@ fn color_pixels(c: &Img, from: crate::model::icm::Space, to: crate::model::icm::
                 continue;
             }
             let (rgb, a) = match c.fmt {
+                "rgba64" => {
+                    // (16 bits into 8: alpha the high byte of the source's)
+                    // (FOUND clean-room: a 3-byte target takes Calc323Dim, a 4-byte one the
+                    // generic routine)
+                    let q = if dst == "bgr24" { t.rgb16_8([v(0), v(1), v(2)]) } else { t.rgb16_8_generic([v(0), v(1), v(2)]) };
+                    put8(&mut o.px[at..], dst, q, Some((v(3) >> 8) as u8));
+                    continue;
+                }
                 "bgr24" => ([p[2], p[1], p[0]], None),
                 "rgb24" => ([p[0], p[1], p[2]], None),
                 "bgra" => ([p[2], p[1], p[0]], Some(p[3])),
                 "rgba" => ([p[0], p[1], p[2]], Some(p[3])),
                 _ => return Err(Fail::Bad),
             };
-            let q = t.rgb8(rgb);
-            let mut bgra = [q[2], q[1], q[0], a.unwrap_or(0xff)];
-            if dst == "pbgra" && a.is_some() {
-                let al = u32::from(bgra[3]);
-                for v in bgra.iter_mut().take(3) {
-                    let m = u32::from(*v) * al;
-                    *v = ((m + ((m + 0x80) >> 8) + 0x80) >> 8) as u8;
+            if dst16 {
+                // (8 bits into 16: alpha a8 * 0x101, a 24-bit source's 0xFFFF)
+                let q = t.rgb8_16(rgb);
+                let al = a.map_or(0xffff, |a| u16::from(a) * 0x101);
+                for (k, w) in [q[0], q[1], q[2], al].iter().enumerate() {
+                    o.px[at + 2 * k..at + 2 * k + 2].copy_from_slice(&w.to_le_bytes());
                 }
+                continue;
             }
-            let n = bits_of(dst) as usize / 8;
-            o.px[at..at + n].copy_from_slice(&bgra[..n]);
+            put8(&mut o.px[at..], dst, t.rgb8(rgb), a);
         }
     }
     Ok(o)
+}
+
+/// FOUND clean-room (WindowsCodecsExt AlphaDivide_32bppPBGRA, its AVX2 and SSE paths) and
+/// MEASURED (golden wiccolor xf-pbgra-*): 32bppPBGRA to 32bppBGRA before the transform, a row at
+/// a time: each color min(255, (c * floor(0xFF0000 / a)) >> 16), alpha 0 making 0; but a block
+/// of 8 pixels (then of 4 in the row's rest) whose alphas are all 0 or 255 is copied as it is
+fn alpha_divide(c: &Img) -> Img {
+    let mut o = c.clone();
+    o.fmt = "bgra";
+    let st = c.stride();
+    let w = c.w as usize;
+    let div = |p: &mut [u8]| {
+        let a = u32::from(p[3]);
+        if a == 255 {
+            return;
+        }
+        let t = if a == 0 { 0 } else { 0xff_0000 / a };
+        for v in p.iter_mut().take(3) {
+            *v = ((u32::from(*v) * t) >> 16).min(255) as u8;
+        }
+    };
+    for y in 0..c.h as usize {
+        let row = &mut o.px[y * st..y * st + w * 4];
+        let mut x = 0;
+        for n in [8usize, 4] {
+            while w - x >= n {
+                let block = &mut row[x * 4..(x + n) * 4];
+                if !block.chunks(4).all(|p| p[3] == 0 || p[3] == 255) {
+                    block.chunks_mut(4).for_each(div);
+                }
+                x += n;
+            }
+        }
+        row[x * 4..].chunks_mut(4).for_each(div);
+    }
+    o
+}
+
+/// an 8-bit R, G, B into a 24- or 32-bit target: the fourth byte the source's alpha (0xFF
+/// without), 32bppPBGRA premultiplied where the source had alpha
+fn put8(px: &mut [u8], dst: &str, q: [u8; 3], a: Option<u8>) {
+    let mut bgra = [q[2], q[1], q[0], a.unwrap_or(0xff)];
+    if dst == "pbgra" && a.is_some() {
+        let al = u32::from(bgra[3]);
+        for v in bgra.iter_mut().take(3) {
+            let m = u32::from(*v) * al;
+            *v = ((m + ((m + 0x80) >> 8) + 0x80) >> 8) as u8;
+        }
+    }
+    let n = bits_of(dst) as usize / 8;
+    px[..n].copy_from_slice(&bgra[..n]);
 }
 
 pub fn color_transform(from: &str, to: &str, same_context: bool) -> u32 {
