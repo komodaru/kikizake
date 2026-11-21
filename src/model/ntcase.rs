@@ -1,23 +1,20 @@
-//! The ntcase suite's model: ntdll's case tables (spec/ntcase.txt). Unicode's simple mappings,
-//! one BMP unit to one, until Windows' answers name the exceptions.
+//! The ntcase suite's model: ntdll's case tables (spec/ntcase.txt): the measured table of
+//! one-to-one pairs (ntcase_table.rs, a subset of Unicode's simple mappings) and towlower's
+//! Latin-1 rule.
 use super::{Api, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::{clause, hit};
 
-/// a unit's simple case mapping by `f` where it is one BMP unit, else the unit
-fn simple(u: u16, f: fn(char) -> Vec<char>) -> u16 {
-    match char::from_u32(u32::from(u)).map(f).as_deref() {
-        Some(&[c]) if (c as u32) < 0x10000 => c as u16,
-        _ => u,
-    }
+fn pair(t: &[(u16, u16)], u: u16) -> u16 {
+    t.binary_search_by_key(&u, |p| p.0).ok().and_then(|i| t.get(i)).map_or(u, |p| p.1)
 }
 pub fn upcase(u: u16) -> u16 {
     hit(clause::NT_CASE_UP);
-    simple(u, |c| c.to_uppercase().collect())
+    pair(&super::ntcase_table::BY_LOWER, u)
 }
 pub fn downcase(u: u16) -> u16 {
     hit(clause::NT_CASE_DOWN);
-    simple(u, |c| c.to_lowercase().collect())
+    pair(&super::ntcase_table::BY_UPPER, u)
 }
 pub fn towupper(u: u16) -> u16 {
     hit(clause::NT_CASE_TOWUPPER);

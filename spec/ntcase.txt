@@ -1,7 +1,7 @@
 # ntcase clauses (spec/README.md): <id> <status> | <source> | <what it says>
-# ntdll's case tables over every UTF-16 unit. Learn names no table: the model takes Unicode's simple
-# case mappings (one BMP unit to one) until the golden ntcase answers settle the exceptions.
-NT.CASE.UP assumed | RtlUpcaseUnicodeChar | RtlUpcaseUnicodeChar returns the uppercase of a unit: Unicode's simple uppercase mapping where it is one BMP unit, else the unit itself
-NT.CASE.DOWN assumed | RtlDowncaseUnicodeChar | RtlDowncaseUnicodeChar returns the lowercase of a unit: Unicode's simple lowercase mapping where it is one BMP unit, else the unit itself
-NT.CASE.TOWUPPER assumed | (none) | ntdll's own towupper is RtlUpcaseUnicodeChar (the clean-room notes: a tail jump)
-NT.CASE.TOWLOWER assumed | (none) | ntdll's own towlower adds 0x20 to a unit its type table marks upper case, which is 'A'..'Z' and U+00C0..U+00DE but U+00D7, every other unit unchanged (the clean-room notes)
+# ntdll's case tables over every UTF-16 unit, settled by the golden ntcase answers (ntcase-32 and
+# ntcase-64 agree with each other and with the model on all 1024 cases).
+NT.CASE.UP measured | RtlUpcaseUnicodeChar | RtlUpcaseUnicodeChar maps a unit by one table of 973 one-to-one (lowercase, uppercase) pairs, a subset of Unicode's simple mappings (not U+00B5, U+0131, U+017F, the title-case digraphs, U+03C2, U+03F4 or later additions); every other unit is itself (golden ntcase-32/-64)
+NT.CASE.DOWN measured | RtlDowncaseUnicodeChar | RtlDowncaseUnicodeChar maps a unit by the same table the other way (golden ntcase-32/-64)
+NT.CASE.TOWUPPER measured | (none) | ntdll's own towupper is RtlUpcaseUnicodeChar on every unit (golden ntcase-32/-64; the clean-room notes: a tail jump)
+NT.CASE.TOWLOWER measured | (none) | ntdll's own towlower adds 0x20 to 'A'..'Z' and U+00C0..U+00DE but U+00D7, every other unit unchanged (golden ntcase-32/-64; the clean-room notes)

@@ -193,8 +193,10 @@ written (`0031` is "1"). Statuses and values are 8 hex digits.
 ## Win32: ntdll's case tables (ntcase)
 
 Every UTF-16 unit through ntdll's case functions, 256 units per case: the NLS tables are data, so
-they are asked whole. The model is Unicode's simple mappings (one BMP unit to one) until the
-answers name where Windows differs (spec/ntcase.txt).
+they are asked whole. Windows answers by one table of 973 one-to-one (lower, upper) pairs, a
+subset of Unicode's simple mappings, for RtlUpcaseUnicodeChar, RtlDowncaseUnicodeChar and
+towupper, and towlower by Latin-1 alone; the model carries that table (src/model/ntcase_table.rs,
+from golden ntcase-32/-64, spec/ntcase.txt).
 
 | line | calls | prints |
 |---|---|---|

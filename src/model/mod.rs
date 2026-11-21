@@ -69,6 +69,7 @@ pub mod gdiblend;
 pub mod gdiddb;
 pub mod ntstr;
 pub mod ntcase;
+pub mod ntcase_table;
 pub mod opengl;
 pub mod wic;
 pub mod dwrite;
