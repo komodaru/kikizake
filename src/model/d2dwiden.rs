@@ -68,9 +68,73 @@ fn unmodeled() -> Fail {
     Fail::Unmodeled(open::D2D_RT)
 }
 
+/// the end of a rail
+fn end(rail: &[DSeg]) -> Res<V> {
+    match rail.last() {
+        Some(DSeg::L(p) | DSeg::C(_, _, p)) => Ok(*p),
+        None => Err(unmodeled()),
+    }
+}
+
+/// BezierDistance: the control point distance, in radii, of the cubic arc of a turn whose
+/// cosine is dt / R^2 (4/3 tan of a quarter of it)
+fn bezier_distance(dt: f64, r: f64) -> f64 {
+    let rr = r * r;
+    let c2 = (rr + dt) * 0.5;
+    if c2 < 0.0 {
+        return 0.0;
+    }
+    let s2 = rr - c2;
+    if s2 <= 0.0 {
+        return 0.0;
+    }
+    let sn = s2.sqrt();
+    let num = (r - c2.sqrt()) * (4.0 / 3.0);
+    if sn * 1e-6 >= num { 0.0 } else { num / sn }
+}
+
+/// RoundCorner: the arc from p0 (radius vector `from` around the spine point) to p3 (`to`):
+/// a line when the turn is within the refinement, one cubic up to 90 degrees, else two split at
+/// the bisector
+fn round_corner(pen: &Pen, at: V, p0: V, p3: V, from: V, to: V, sweep: bool) -> Vec<DSeg> {
+    let dt = dot(from, to);
+    if dt > pen.refine {
+        return vec![DSeg::L(p3)];
+    }
+    let rr = pen.r * pen.r;
+    if dt >= 0.0 {
+        let d = bezier_distance(dt, pen.r);
+        return vec![DSeg::C(add(p0, scale(from, d)), sub(p3, scale(to, d)), p3)];
+    }
+    let re = from.0 * to.0 - from.1 * to.1;
+    let im = to.0 * from.1 + from.0 * to.1;
+    let mut mx = ((rr + re) * 0.5).abs().sqrt();
+    let mut my = ((rr - re) * 0.5).abs().sqrt() * if im > 0.0 { 1.0 } else { -1.0 };
+    let c = if sweep { (-to.1) * mx + to.0 * my } else { to.1 * mx + (-to.0) * my };
+    if c < 0.0 {
+        mx = -mx;
+        my = -my;
+    }
+    let c2 = ((mx * to.0 + my * to.1).abs() + rr) * 0.5;
+    let mut d = 0.0;
+    if !(c2 < 0.0) && rr - c2 > 0.0 {
+        let sn = (rr - c2).sqrt();
+        let num = (pen.r - c2.sqrt()) * (4.0 / 3.0);
+        if !(sn * 1e-6 >= num) {
+            d = num / sn;
+        }
+    }
+    let q = if sweep { (-my, mx) } else { (my, -mx) };
+    let pm = add(at, q);
+    let mm = scale((mx, my), d);
+    vec![DSeg::C(add(p0, scale(from, d)), sub(pm, mm), pm), DSeg::C(add(pm, mm), sub(p3, scale(to, d)), p3)]
+}
+
 struct Rails {
-    l: Vec<V>,
-    r: Vec<V>,
+    /// rail 0, the spine point minus the offset (left in y-down device space)
+    l: Vec<DSeg>,
+    /// rail 1
+    r: Vec<DSeg>,
     /// the radius vector the rails were last offset by
     rad: V,
     /// the spine point
@@ -100,19 +164,27 @@ impl Rails {
             };
             hit(clause::D2D_WIDEN_TURN);
             let u = scale(pen.rad(vin), lim);
-            let (Some(&cl), Some(&cr)) = (self.l.last(), self.r.last()) else { return Err(unmodeled()) };
-            self.l.extend([add(cl, u), add(next_l, u), next_l]);
-            self.r.extend([add(cr, u), add(next_r, u), next_r]);
+            let (cl, cr) = (end(&self.l)?, end(&self.r)?);
+            self.l.extend([add(cl, u), add(next_l, u), next_l].map(DSeg::L));
+            self.r.extend([add(cr, u), add(next_r, u), next_r].map(DSeg::L));
             self.rad = rad_out;
             return Ok(());
         }
+        let outer_left = det > 0.0;
         let lim = match join {
             Join::Miter(l) => l,
-            // (a round join with a real turn, its arcs: the spec's open D2D.SIMP / D2D.RT)
-            Join::Round => return Err(unmodeled()),
+            Join::Round => {
+                // a round join: the inner rail to the spine point and on, the outer one the arc
+                hit(clause::D2D_WIDEN_ARC);
+                let (outer, inner, next, inext) = if outer_left { (&mut self.l, &mut self.r, next_l, next_r) } else { (&mut self.r, &mut self.l, next_r, next_l) };
+                inner.extend([DSeg::L(c), DSeg::L(inext)]);
+                let p0 = end(outer)?;
+                outer.extend(round_corner(pen, c, p0, next, self.rad, rad_out, !outer_left));
+                self.rad = rad_out;
+                return Ok(());
+            }
         };
-        let outer_left = det > 0.0;
-        let (cur, next) = if outer_left { (self.l[self.l.len() - 1], next_l) } else { (self.r[self.r.len() - 1], next_r) };
+        let (cur, next) = if outer_left { (end(&self.l)?, next_l) } else { (end(&self.r)?, next_r) };
         let dot_r = -dot(rad_out, self.rad);
         let rr = pen.r * pen.r;
         let ll = lim * pen.r;
@@ -146,12 +218,13 @@ impl Rails {
         }
         pts.push(next);
         let inner = if outer_left { next_r } else { next_l };
+        let pts = pts.into_iter().map(DSeg::L);
         if outer_left {
             self.l.extend(pts);
-            self.r.extend([c, inner]);
+            self.r.extend([DSeg::L(c), DSeg::L(inner)]);
         } else {
             self.r.extend(pts);
-            self.l.extend([c, inner]);
+            self.l.extend([DSeg::L(c), DSeg::L(inner)]);
         }
         self.rad = rad_out;
         Ok(())
@@ -160,10 +233,38 @@ impl Rails {
     /// both rails to p, offset by the radius vector
     fn to(&mut self, p: V, rad: V) {
         let o = off(rad);
-        self.l.push(sub(p, o));
-        self.r.push(add(p, o));
+        self.l.push(DSeg::L(sub(p, o)));
+        self.r.push(DSeg::L(add(p, o)));
         self.rad = rad;
         self.at = p;
+    }
+
+    /// RoundTo, polygon sink: the refinement of a curve turning tighter than the pen, at the
+    /// spine point `c` from the current radius vector to `rad_new`: the outer rail the arc, the
+    /// inner one the spine point and its new offset point, and rail 0 a closed pie of the pen
+    /// on the inner side (its old and new inner points, the arc between, the spine point)
+    fn round_to(&mut self, pen: &Pen, rad_new: V, c: V, vin: V, vout: V) -> Res<()> {
+        let o = off(rad_new);
+        let (n0, n1) = (sub(c, o), add(c, o));
+        let outer0 = cross(vin, vout) > 0.0;
+        let old_in = if outer0 { end(&self.r)? } else { end(&self.l)? };
+        if outer0 {
+            let p0 = end(&self.l)?;
+            self.l.extend(round_corner(pen, c, p0, n0, self.rad, rad_new, false));
+            self.r.extend([DSeg::L(c), DSeg::L(n1)]);
+        } else {
+            let p0 = end(&self.r)?;
+            self.r.extend(round_corner(pen, c, p0, n1, self.rad, rad_new, true));
+            self.l.extend([DSeg::L(c), DSeg::L(n0)]);
+        }
+        let (a, b, from, to) = if outer0 { (old_in, n1, scale(self.rad, -1.0), scale(rad_new, -1.0)) } else { (n0, old_in, rad_new, self.rad) };
+        let keep = end(&self.l)?;
+        self.l.push(DSeg::L(a));
+        self.l.extend(round_corner(pen, c, a, b, from, to, false));
+        self.l.extend([b, c, a, keep].map(DSeg::L));
+        self.rad = rad_new;
+        self.at = c;
+        Ok(())
     }
 }
 
@@ -178,7 +279,7 @@ fn tangents(p0: V, c1: V, c2: V, c3: V, tol: f64) -> (V, V) {
 /// the rails of every figure, f32, as Widen sends them: the right rail's start, the left rail,
 /// the right rail back to its start. `m` the world transform, `w` the stroke width, `round` the
 /// segments flagged FORCE_ROUND_LINE_JOIN, `tol` the flattening tolerance
-pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<P>>> {
+pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Fig>> {
     let hw = (w.abs() * 0.5) as f32;
     let pm = [hw * m[0], hw * m[1], hw * m[2], hw * m[3]];
     // (an elliptic pen: the spec's open D2D.SIMP / D2D.RT)
@@ -195,7 +296,7 @@ pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<
         return Err(unmodeled());
     }
     let rmax = if pm[1] == 0.0 { f64::from(pm[0].abs().max(pm[3].abs())) } else { f64::from(r as f32) };
-    let refine = if rmax < tol { -2.0 } else { r * r * (2.0 * (1.0 - tol / rmax) * (1.0 - tol / rmax) - 1.0) };
+    let refine = if rmax < tol { -2.0 * r * r } else { r * r * (2.0 * (1.0 - tol / rmax) * (1.0 - tol / rmax) - 1.0) };
     let pen = Pen { r, refine };
     let lf = |p: P| ((f64::from(m[0]) * f64::from(p.0) + f64::from(m[2]) * f64::from(p.1)) + f64::from(m[4]), (f64::from(m[1]) * f64::from(p.0) + f64::from(m[3]) * f64::from(p.1)) + f64::from(m[5]));
     let cf = |p: P| {
@@ -209,10 +310,10 @@ pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<
             Seg::L(p) => DSeg::L(lf(p)),
             Seg::C(a, b, c) => DSeg::C(cf(a), cf(b), cf(c)),
         }).collect();
-        let end = segs.last().map(|s| match *s {
+        let last_pt = segs.last().map(|s| match *s {
             DSeg::L(p) | DSeg::C(_, _, p) => p,
         });
-        if f.closed && end.is_some_and(|e| e != start) {
+        if f.closed && last_pt.is_some_and(|e| e != start) {
             segs.push(DSeg::L(start));
         }
         let mut rails: Option<Rails> = None;
@@ -261,22 +362,37 @@ pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<
                     let bz = [p, a, b, c].map(|v| [v.0, v.1]);
                     let mut pts: Vec<(V, V, bool)> = flatten_t(bz, tol).into_iter().map(|(v, _, t)| ((v[0], v[1]), (t[0], t[1]), false)).collect();
                     pts.push((c, t1, true));
-                    for (pt, tg, _) in pts {
+                    // AcceptCurvePoint: each point offset along its tangent, unless the turn
+                    // from the last is past the refinement or a rail would run backwards
+                    let (mut prev_p, mut prev_t) = (p, t0);
+                    for (pt, tg, last) in pts {
                         let rad = if dot(tg, tg) >= 1e-12 { pen.rad(tg) } else { rs.rad };
-                        let mut need = dot(rs.rad, rad) < pen.refine;
-                        if !need {
+                        let mut ok = dot(rad, rs.rad) >= pen.refine;
+                        if ok {
                             let o = off(rad);
                             let (nl, nr) = (sub(pt, o), add(pt, o));
-                            let (cl, cr) = (rs.l[rs.l.len() - 1], rs.r[rs.r.len() - 1]);
-                            if dot(sub(nl, cl), sub(nr, cr)) <= 0.0 {
-                                need = true;
+                            let (cl, cr) = (end(&rs.l)?, end(&rs.r)?);
+                            ok = (nr.1 - cr.1) * (nl.1 - cl.1) + (nr.0 - cr.0) * (nl.0 - cl.0) > 0.0;
+                        }
+                        if ok {
+                            rs.to(pt, rad);
+                            prev_t = tg;
+                        } else {
+                            let seg = sub(pt, prev_p);
+                            if dot(seg, seg) > 1e-12 {
+                                hit(clause::D2D_WIDEN_ARC);
+                                let rs_seg = pen.rad(seg);
+                                rs.round_to(&pen, rs_seg, prev_p, prev_t, seg)?;
+                                rs.to(pt, rs_seg);
+                                if last {
+                                    rs.round_to(&pen, rad, pt, seg, tg)?;
+                                    prev_t = tg;
+                                } else {
+                                    prev_t = seg;
+                                }
                             }
                         }
-                        // (the refinement arcs of a tight turn: the spec's open D2D.SIMP / D2D.RT, asked of Windows by widentight-*, strketight-*)
-                        if need {
-                            return Err(unmodeled());
-                        }
-                        rs.to(pt, rad);
+                        prev_p = pt;
                     }
                 }
             }
@@ -290,10 +406,24 @@ pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Vec<
             rs.corner(&pen, last_t, first, join)?;
         }
         let o = |v: V| (v.0 as f32, v.1 as f32);
-        let mut pts = vec![o(rs.r[0])];
-        pts.extend(rs.l.iter().map(|&v| o(v)));
-        pts.extend(rs.r.iter().rev().map(|&v| o(v)));
-        out.push(pts);
+        let seg = |s: &DSeg| match *s {
+            DSeg::L(p) => Seg::L(o(p)),
+            DSeg::C(a, b, c) => Seg::C(o(a), o(b), o(c)),
+        };
+        // rail 1's start, rail 0, then rail 1 back, each of its cubics turned around
+        let ends: Vec<V> = rs.r.iter().map(|s| match *s {
+            DSeg::L(p) | DSeg::C(_, _, p) => p,
+        }).collect();
+        let mut segs: Vec<Seg> = rs.l.iter().map(seg).collect();
+        segs.push(Seg::L(o(end(&rs.r)?)));
+        for (k, s) in rs.r.iter().enumerate().skip(1).rev() {
+            let back = o(ends.get(k.wrapping_sub(1)).copied().ok_or_else(unmodeled)?);
+            segs.push(match *s {
+                DSeg::L(_) => Seg::L(back),
+                DSeg::C(a, b, _) => Seg::C(o(b), o(a), back),
+            });
+        }
+        out.push(Fig { start: o(ends.first().copied().ok_or_else(unmodeled)?), segs, closed: false });
     }
     hit(clause::D2D_WIDEN);
     Ok(out)

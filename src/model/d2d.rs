@@ -443,10 +443,72 @@ fn widen_text(g: &Geom, w: f32, tol: f32) -> Res<String> {
         hit(clause::D2D_WIDEN);
         return Ok(sink_text(false, false, &figs));
     }
+    if let Some(figs) = round_widen(g, w) {
+        return Ok(round_widen_text(&figs));
+    }
     let (_, round, figs) = shape(g);
-    let rails = super::d2dwiden::widen(&figs, round, &IDENTITY, w, tol).map_err(|_| Fail::Unmodeled(open::D2D_SIMP))?;
-    let figs: Vec<Fig> = rails.into_iter().map(|p| Fig { start: p[0], segs: p[1..].iter().map(|&v| Seg::L(v)).collect(), closed: false }).collect();
+    let figs = super::d2dwiden::widen(&figs, round, &IDENTITY, w, tol).map_err(|_| Fail::Unmodeled(open::D2D_SIMP))?;
     Ok(sink_text(true, false, &figs))
+}
+
+/// MEASURED (D2D.WIDEN.ROUND, from the clean-room notes; golden d2d-32/-64: widentight-2): a
+/// circle, or a rounded rectangle of equal radii, is widened by CCompactShape's special case,
+/// not the widener: its box grown by f32(|w| 0.5) with the radius grown by it, and when the box
+/// is wider and higher than |w| the box shrunk by it, with the radius less it when above it,
+/// else sharp; filled ALTERNATE. Each rounded figure with a flag of FORCE_ROUND_LINE_JOIN
+fn round_widen(g: &Geom, w: f32) -> Option<Vec<(bool, Fig)>> {
+    let (l, t, r, b, rx, ry) = match *g {
+        Geom::Ell([cx, cy, rx, ry]) => {
+            let (rx, ry) = (rx.abs(), ry.abs());
+            let (l, r, t, b) = (cx - rx, cx + rx, cy - ry, cy + ry);
+            let half = |lo: f32, hi: f32| if lo > hi { 0.0 } else { (hi - lo) * 0.5 };
+            (l, t, r, b, if rx > half(l, r) { half(l, r) } else { rx }, if ry > half(t, b) { half(t, b) } else { ry })
+        }
+        Geom::RRect([l, t, r, b, rx, ry]) => {
+            let (l, r, t, b) = (lo(l, r), hi(l, r), lo(t, b), hi(t, b));
+            (l, t, r, b, (0.5 * (r - l)).min(rx.abs()), (0.5 * (b - t)).min(ry.abs()))
+        }
+        Geom::Rect(_) | Geom::Path { .. } | Geom::Xf(..) => return None,
+    };
+    // (the radii as stored, compared as f32)
+    if rx != ry {
+        return None;
+    }
+    let aw = w.abs();
+    let hw = aw * 0.5;
+    let mut figs = vec![(true, rrect_fig(rrect_points(l - hw, t - hw, r + hw, b + hw, hw + rx, hw + rx)))];
+    if r - l > aw && b - t > aw {
+        let (l, t, r, b) = (l + hw, t + hw, r - hw, b - hw);
+        figs.push(if rx > hw {
+            (true, rrect_fig(rrect_points(l, t, r, b, rx - hw, rx - hw)))
+        } else {
+            (false, Fig { start: (l, t), segs: vec![Seg::L((r, t)), Seg::L((r, b)), Seg::L((l, b))], closed: true })
+        });
+    }
+    hit(clause::D2D_WIDEN_ROUND);
+    Some(figs)
+}
+
+/// the special case's figures as the sink gets them: one SetFillMode(ALTERNATE), and the
+/// segment flags set where they change
+fn round_widen_text(figs: &[(bool, Fig)]) -> String {
+    let mut o = String::from(" F 0");
+    let mut flag = false;
+    for (round, f) in figs {
+        o += &format!(" B {} {} 0", hex(f.start.0), hex(f.start.1));
+        if *round != flag {
+            o += if *round { " S 2" } else { " S 0" };
+            flag = *round;
+        }
+        for s in &f.segs {
+            match *s {
+                Seg::L(p) => o += &format!(" L {} {}", hex(p.0), hex(p.1)),
+                Seg::C(a, b, c) => o += &format!(" C {} {} {} {} {} {}", hex(a.0), hex(a.1), hex(b.0), hex(b.1), hex(c.0), hex(c.1)),
+            }
+        }
+        o += &format!(" E {}", u32::from(f.closed));
+    }
+    o
 }
 
 pub fn sink_text(wind: bool, round: bool, figs: &[Fig]) -> String {
@@ -2680,10 +2742,31 @@ impl D2d {
                 }
                 if let Geom::Path { .. } | Geom::Ell(_) = g {
                     // (MEASURED, D2D.STROKE.POLY: the widener's polygon of every figure, filled
-                    // together by nonzero winding in device space)
-                    let (_, round, figs) = shape(&g);
-                    let polys = super::d2dwiden::widen(&figs, round, &tg.st.m, w, 0.25)?;
-                    let g = Geom::Path { wind: true, figs: polys.into_iter().map(|pts| Figure { pts, closed: true }).collect() };
+                    // together by nonzero winding in device space, its arcs flattened at 0.25;
+                    // a circle's special case (D2D.WIDEN.ROUND) transformed and filled ALTERNATE)
+                    let (wind, polys) = match round_widen(&g, w) {
+                        Some(figs) => {
+                            let m = tg.st.m;
+                            let a = |p: P| ((p.0 * m[0] + p.1 * m[2]) + m[4], (p.1 * m[3] + p.0 * m[1]) + m[5]);
+                            (false, figs.into_iter().map(|(_, f)| Fig {
+                                start: a(f.start),
+                                segs: f.segs.iter().map(|s| match *s {
+                                    Seg::L(p) => Seg::L(a(p)),
+                                    Seg::C(p, q, r) => Seg::C(a(p), a(q), a(r)),
+                                }).collect(),
+                                closed: true,
+                            }).collect())
+                        }
+                        None => {
+                            let (_, round, figs) = shape(&g);
+                            (true, super::d2dwiden::widen(&figs, round, &tg.st.m, w, 0.25)?)
+                        }
+                    };
+                    let figs = flat_figs(&polys, 0.25).into_iter().map(|f| Figure {
+                        pts: std::iter::once(f.start).chain(f.segs.iter().map(|s| match *s { Seg::L(p) | Seg::C(_, _, p) => p })).collect(),
+                        closed: true,
+                    }).collect();
+                    let g = Geom::Path { wind, figs };
                     hit(clause::D2D_STROKE_POLY);
                     let before = tg.px.clone();
                     let m = std::mem::replace(&mut tg.st.m, IDENTITY);

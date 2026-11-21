@@ -165,7 +165,7 @@ file	src/model/d2d.rs	cast_possible_wrap	10
 file	src/model/d2d.rs	cast_precision_loss	32
 file	src/model/d2d.rs	cast_sign_loss	30
 file	src/model/d2d.rs	eq_op	2
-file	src/model/d2d.rs	float_cmp	14
+file	src/model/d2d.rs	float_cmp	15
 file	src/model/d2d.rs	indexing_slicing	183
 file	src/model/d2d.rs	map_err_ignore	2
 file	src/model/d2d.rs	misrefactored_assign_op	1

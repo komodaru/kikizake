@@ -529,11 +529,32 @@ proptest! {
         prop_assert!(r.is_ok());
         let r = r.unwrap_or_default();
         prop_assert_eq!(r.len(), 1);
-        let p = &r[0];
-        let poly = Fig { start: p[0], segs: p[1..].iter().map(|&v| Seg::L(v)).collect(), closed: true };
+        let poly = Fig { closed: true, ..r[0].clone() };
         let len = (f64::from(pts[1].0 - pts[0].0).powi(2) + f64::from(pts[1].1 - pts[0].1).powi(2)).sqrt();
         let a = shoelace(&[poly]);
         prop_assert!((a.abs() - len * f64::from(w)).abs() < 1e-3 * (1.0 + len * f64::from(w)), "{} {}", a, len * f64::from(w));
+    }
+
+    /// Widen of any ellipse, however tight its ends against the pen (refinement arcs, cubics
+    /// among them): every point and control point of the rails lies within the ellipse's box
+    /// grown by the pen radius (the arcs bulge by at most 4/3 tan(turn/4) of it)
+    #[test]
+    fn widened_ellipses_stay_in_the_grown_box(rx in 1i32..64, ry in 1i32..64, w in 1i32..64) {
+        let (rx, ry, w) = (rx as f32 / 16.0, ry as f32 / 16.0, w as f32 / 8.0);
+        let (_, round, figs) = shape(&Geom::Ell([8.0, 6.0, rx, ry]));
+        let r = kikizake::model::d2dwiden::widen(&figs, round, &IDENTITY, w, 0.25);
+        prop_assert!(r.is_ok());
+        let hw = f64::from(w) * 0.5 * 1.25 + 1e-3;
+        let inside = |p: P| (f64::from(p.0) - 8.0).abs() <= f64::from(rx) + hw && (f64::from(p.1) - 6.0).abs() <= f64::from(ry) + hw;
+        for f in r.unwrap_or_default() {
+            prop_assert!(inside(f.start));
+            for s in &f.segs {
+                match *s {
+                    Seg::L(p) => prop_assert!(inside(p), "{:?}", p),
+                    Seg::C(a, b, c) => prop_assert!(inside(a) && inside(b) && inside(c), "{:?} {:?} {:?}", a, b, c),
+                }
+            }
+        }
     }
 
     /// a gradient of one color, linear or radial, any extend mode and gamma, fills that color

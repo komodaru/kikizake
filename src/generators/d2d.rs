@@ -944,7 +944,7 @@ fn xfell(s: &mut String, r: &mut XorShift32) {
 
 /// what the clean-room notes leave open, asked: crossing polygons past 16 DIP (ComputeArea's
 /// 2^20 workspace no longer exact; Tessellate's 1/64 one still is), a stroke turning back on
-/// itself (180 degrees), and tight curves under a wide pen (the widener's refinement arcs)
+/// itself (180 degrees), tight curves under a wide pen (the widener's refinement arcs, as lines and as cubics), and the special case of equal radii
 fn probes(s: &mut String, r: &mut XorShift32) {
     for i in 0..8 {
         let n = r.range(4, 8);
@@ -958,5 +958,16 @@ fn probes(s: &mut String, r: &mut XorShift32) {
     }
     for (i, (e, w)) in [("8 6 1.5 1", "4"), ("8 6 3 0.5", "3"), ("8 6 0.75 0.75", "2.5")].iter().enumerate() {
         writeln!(s, "case widentight-{i}\nd2ell 0 {e}\nd2widen 0 {w}\nend\ncase strketight-{i}\nd2target 16 12\nd2ell 0 {e}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
+    }
+    // the refinement arcs as cubics (turns past the refinement, past 90 degrees too), asked
+    for (i, (e, w)) in [("8 6 4 0.25", "6"), ("8 6 5 0.5", "8"), ("8 6 3 1", "5"), ("6 6 4 0.1", "1")].iter().enumerate() {
+        writeln!(s, "case widenarc-{i}\nd2ell 0 {e}\nd2widen 0 {w}\nend\ncase strkarc-{i}\nd2target 16 12\nd2ell 0 {e}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
+    }
+    // CCompactShape's special case of equal radii: an inner circle, a sharp inner rectangle
+    for (i, (g, w)) in [("d2ell 0 8 6 3 3", "2"), ("d2ell 0 8 6 1 1", "1.5"), ("d2rrect 0 2 2 14 10 1 1", "3"), ("d2rrect 0 2 2 14 10 2 2", "1"), ("d2rrect 0 2 2 14 10 9 9", "2")].iter().enumerate() {
+        writeln!(s, "case widenround-{i}\n{g}\nd2widen 0 {w}\nend");
+    }
+    for (i, (e, w)) in [("8 6 3 3", "2"), ("8 6 1 1", "1.5")].iter().enumerate() {
+        writeln!(s, "case strkround-{i}\nd2target 16 12\nd2ell 0 {e}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
     }
 }
