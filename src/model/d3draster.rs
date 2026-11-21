@@ -20,7 +20,10 @@ use super::{filled, filled_mut, Fail, Res};
 use crate::case::{num, Op};
 use crate::spec::hit;
 
-pub const OPS: &[&str] = &["shader", "layout", "vtx", "draw", "target", "viewport", "scissor", "rast", "blend1", "depthst", "tsrv", "samp", "cbuf"];
+crate::model::words! {
+    /// the drawing commands (d3dres routes them here)
+    pub enum DrawOp { Shader = "shader", Layout = "layout", Vtx = "vtx", Draw = "draw", Target = "target", Viewport = "viewport", Scissor = "scissor", Rast = "rast", Blend1 = "blend1", Depthst = "depthst", Tsrv = "tsrv", Samp = "samp", Cbuf = "cbuf" }
+}
 
 #[derive(Clone, Debug)]
 pub struct Draw {
@@ -80,11 +83,11 @@ fn known(b: &[u8]) -> Option<(&'static str, bool)> {
     S.with(|s| s.find(b).map(|p| (p.name(), p.vertex())))
 }
 
-pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
+pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>) -> Res<()> {
     let t = op.tok.as_slice();
     let d = &mut m.draw;
-    match t[0].as_str() {
-        "vtx" => {
+    match cmd {
+        DrawOp::Vtx => {
             for i in 1..t.len() {
                 if d.vtx.len() == 4096 {
                     return Err(Fail::Bad);
@@ -96,7 +99,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 return Ok(());
             }
         }
-        "shader" => {
+        DrawOp::Shader => {
             let sl = n(t, 1)? as usize;
             let vs = t.get(2).is_some_and(|s| s == "vs");
             if t.len() != 4 || sl >= 8 || !(vs || t[2] == "ps") {
@@ -131,7 +134,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 }
             }
         }
-        "layout" => {
+        DrawOp::Layout => {
             let sl = n(t, 1)? as usize;
             if sl >= 8 || t.len() < 3 || t.len() > 10 {
                 return Err(Fail::Bad);
@@ -170,7 +173,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 out.push(format!("layout hr {E_INVALIDARG:08x}"));
             }
         }
-        "target" => {
+        DrawOp::Target => {
             let r = if t.get(1).is_some_and(|s| s == "-") { None } else { Some(n(t, 1)? as usize) };
             let ds = if t.len() > 2 { Some(n(t, 2)? as usize) } else { None };
             if t.len() > 3 || r.is_some_and(|v| v >= 16) || ds.is_some_and(|v| v >= 16) {
@@ -197,7 +200,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             d.target = target;
             d.depth = depth;
         }
-        "viewport" => {
+        DrawOp::Viewport => {
             if t.len() != 7 {
                 return Err(Fail::Bad);
             }
@@ -218,7 +221,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             hit(clause::D3DRASTER_VIEWPORT);
             d.viewport = Some(v);
         }
-        "scissor" => {
+        DrawOp::Scissor => {
             if t.len() != 5 {
                 return Err(Fail::Bad);
             }
@@ -226,7 +229,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 d.scissor[i] = num(&t[i + 1]).ok_or(Fail::Bad)?;
             }
         }
-        "rast" => {
+        DrawOp::Rast => {
             if t.len() != 11 {
                 return Err(Fail::Bad);
             }
@@ -236,7 +239,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 None => out.push(format!("rast hr {E_INVALIDARG:08x}")),
             }
         }
-        "blend1" => {
+        DrawOp::Blend1 => {
             if t.len() != 9 && t.len() != 13 {
                 return Err(Fail::Bad);
             }
@@ -255,7 +258,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 None => out.push(format!("blend1 hr {E_INVALIDARG:08x}")),
             }
         }
-        "depthst" => {
+        DrawOp::Depthst => {
             if t.len() != 4 {
                 return Err(Fail::Bad);
             }
@@ -266,7 +269,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 None => out.push(format!("depthst hr {E_INVALIDARG:08x}")),
             }
         }
-        "tsrv" => {
+        DrawOp::Tsrv => {
             let v = n(t, 1)? as usize;
             if t.len() != 2 || v >= 16 {
                 return Err(Fail::Bad);
@@ -277,7 +280,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 out.push("tsrv noview".into());
             }
         }
-        "samp" => {
+        DrawOp::Samp => {
             if t.len() != 5 && t.len() != 6 {
                 return Err(Fail::Bad);
             }
@@ -291,7 +294,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             }
         }
         // (MEASURED: a bound constant buffer no program reads changes nothing, probe-cbuf)
-        "cbuf" => {
+        DrawOp::Cbuf => {
             hit(clause::D3DRASTER_CBUF);
             let b = n(t, 1)? as usize;
             if b >= 16 {
@@ -302,7 +305,7 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
                 out.push("cbuf nores".into());
             }
         }
-        "draw" => {
+        DrawOp::Draw => {
             if t.len() < 4 || t.len() > 5 {
                 return Err(Fail::Bad);
             }
@@ -311,7 +314,6 @@ pub fn op(m: &mut D3dres, dev: Dev, op: &Op, out: &mut Vec<String>) -> Res<()> {
             let vtx = std::mem::take(&mut d.vtx);
             draw(m, dev, top, count, stride, inst, &vtx)?;
         }
-        _ => unreachable!(),
     }
     Ok(())
 }

@@ -2,6 +2,30 @@
 //! the model cannot answer prints "unmodeled <why>" in place of its lines (and is then compared
 //! with Windows only).
 
+/// A model's command words as an enum (2026-11-21): `words! { pub(crate) enum DrawOp { Vtx =
+/// "vtx", .. } }` gives `DrawOp::parse(word) -> Option<DrawOp>`. The router parses
+/// the word once and hands the enum on, so the match that runs the command names every word (no
+/// `_ => unreachable!()` after a string test; kikizake-lint wildcard-unreachable).
+macro_rules! words {
+    ($(#[$m:meta])* $vis:vis enum $name:ident { $($v:ident = $s:literal),* $(,)? }) => {
+        $(#[$m])*
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        $vis enum $name {
+            $($v),*
+        }
+        impl $name {
+            $vis fn parse(word: &str) -> Option<$name> {
+                match word {
+                    $($s => Some($name::$v),)*
+                    _ => None,
+                }
+            }
+        }
+    };
+}
+pub(crate) use words;
+
+
 pub mod d2d;
 pub mod d3d11;
 pub mod d3d12;

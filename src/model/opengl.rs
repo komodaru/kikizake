@@ -930,11 +930,16 @@ fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
 
 const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glEnd"];
 
+crate::model::words! {
+    /// the commands that run on the current context
+    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease" }
+}
+
 impl Gl {
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         let name = t[0].as_str();
-        match name {
+        let cmd = match name {
             "glpf" => {
                 let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)?;
                 let f = formats();
@@ -999,15 +1004,17 @@ impl Gl {
                 out.push(format!("glcur {c} {c}"));
                 return Ok(true);
             }
-            "gl" | "glmat" | "glfogv" | "glerr" | "glget" | "glisen" | "glstr" | "glread" | "gldraw" | "gldib" | "glrelease" => {}
-            _ => return Ok(false),
-        }
+            w => match CtxOp::parse(w) {
+                Some(c) => c,
+                None => return Ok(false),
+            },
+        };
         let Some(ctx) = self.ctx.as_mut() else {
             out.push("noctx".into());
             return Ok(true);
         };
-        match name {
-            "gl" => {
+        match cmd {
+            CtxOp::Gl => {
                 let Some(call) = t.get(1).and_then(|n| CALLS.iter().find(|c| c.0 == n)) else { return Err(Fail::Bad) };
                 if t.len() != 2 + call.1.len() {
                     return Err(Fail::Bad);
@@ -1025,7 +1032,7 @@ impl Gl {
                 }
                 ctx.call(call.0, &a)?;
             }
-            "glmat" => {
+            CtxOp::Glmat => {
                 if t.len() != 18 || !(t[1] == "load" || t[1] == "mult") {
                     return Err(Fail::Bad);
                 }
@@ -1042,7 +1049,7 @@ impl Gl {
                     *top = if t[1] == "load" { m } else { mat_mul(top, &m) };
                 }
             }
-            "glfogv" => {
+            CtxOp::Glfogv => {
                 if t.len() < 3 || t.len() > 6 {
                     return Err(Fail::Bad);
                 }
@@ -1057,7 +1064,7 @@ impl Gl {
                     ctx.fog_param(p, &v, true);
                 }
             }
-            "glerr" => {
+            CtxOp::Glerr => {
                 // (MEASURED, golden opengl-32 errors-begin: inside glBegin / glEnd glGetError is
                 // itself INVALID_OPERATION and returns the error without clearing it, so the
                 // executor's loop of eight reads it eight times)
@@ -1071,7 +1078,7 @@ impl Gl {
                 let e = std::mem::replace(&mut ctx.err, NO_ERROR);
                 out.push(if e == NO_ERROR { "glerr 0".into() } else { format!("glerr {e:x}") });
             }
-            "glget" => {
+            CtxOp::Glget => {
                 let (Some(p), Some(n)) = (t.get(2).and_then(|v| num(v)), t.get(3).and_then(|v| num(v))) else { return Err(Fail::Bad) };
                 let kind = t[1].as_str();
                 if !(1..=16).contains(&n) || !["i", "f", "b", "d"].contains(&kind) || t.len() != 4 {
@@ -1101,7 +1108,7 @@ impl Gl {
                 }
                 out.push(s);
             }
-            "glisen" => {
+            CtxOp::Glisen => {
                 let Some(c) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
                 let c = c as u32;
                 if ctx.in_begin.is_some() {
@@ -1124,7 +1131,7 @@ impl Gl {
                 };
                 out.push(format!("isen {c:x} = {v}"));
             }
-            "glstr" => {
+            CtxOp::Glstr => {
                 let Some(n) = t.get(1).and_then(|v| num(v)) else { return Err(Fail::Bad) };
                 if ctx.in_begin.is_some() {
                     // (MEASURED, golden opengl-32 begin-string: answered as outside, no error)
@@ -1145,12 +1152,12 @@ impl Gl {
                 hit(clause::GL_STRINGS);
                 out.push(format!("str {:x} = {s}", n as u32));
             }
-            "glrelease" => {
+            CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
                 self.ctx = None;
                 out.push("glrelease 1 1".into());
             }
-            "glread" => {
+            CtxOp::Glread => {
                 let v: Option<Vec<i64>> = t[1..].iter().map(|x| num(x)).collect();
                 let v = v.ok_or(Fail::Bad)?;
                 if v.len() != 7 || !(1..=65536).contains(&v[6]) {
@@ -1167,7 +1174,7 @@ impl Gl {
                     out.push("over".into());
                 }
             }
-            "gldraw" => {
+            CtxOp::Gldraw => {
                 let v: Option<Vec<i64>> = t[1..].iter().map(|x| num(x)).collect();
                 let v = v.ok_or(Fail::Bad)?;
                 if v.len() != 6 || !(1..=65536).contains(&v[5]) {
@@ -1177,12 +1184,11 @@ impl Gl {
                 let given: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
                 ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &Given::new(given))?;
             }
-            "gldib" => {
+            CtxOp::Gldib => {
                 let rows = ctx.dib()?;
                 out.push(format!("px gl 16 16 {}", ctx.bpp));
                 out.extend(rows);
             }
-            _ => unreachable!(),
         }
         Ok(true)
     }

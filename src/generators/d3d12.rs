@@ -20,7 +20,7 @@ fn desc_str(d: &Desc) -> String {
 fn subresources(d: &Desc) -> u32 {
     let mips = if d.mips == 0 {
         let m = if d.dim == 4 { d.w.max(d.h).max(d.d) } else if d.dim == 3 { d.w.max(d.h) } else { d.w };
-        32 - m.max(1).leading_zeros()
+        m.max(1).bit_width()
     } else {
         d.mips
     };

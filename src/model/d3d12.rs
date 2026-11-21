@@ -135,7 +135,7 @@ pub fn full_chain(d: &Desc) -> u32 {
         Dim::Tex2D => d.w.max(d.h),
         Dim::Unknown | Dim::Buffer | Dim::Tex1D | Dim::Other => d.w,
     };
-    32 - m.max(1).leading_zeros()
+    m.max(1).bit_width()
 }
 
 /// why a description is refused (the clause), or Ok: GetCopyableFootprints' checks of a description

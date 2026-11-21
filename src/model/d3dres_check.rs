@@ -115,7 +115,7 @@ pub fn full_chain(d: &Desc) -> u32 {
         2 => d.w.max(d.h),
         _ => d.w.max(d.h).max(d.da),
     };
-    32 - m.max(1).leading_zeros()
+    m.max(1).bit_width()
 }
 
 /// a 2D texture past the level's sizes, which a check passes (DESC.BIG)

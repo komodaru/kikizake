@@ -2608,6 +2608,27 @@ fn ico_order(mut e: Vec<IcoEntry>) -> Res<Vec<IcoEntry>> {
     order.into_iter().map(|k| slots[k].take().ok_or(Fail::Bad)).collect()
 }
 
+/// the bit depths of an icon's BMP entry the decoder reads
+#[derive(Clone, Copy)]
+enum IcoDepth {
+    /// 1, 4 or 8 bits: an index into the entry's palette
+    Palette,
+    Bgr555,
+    Bgr24,
+    Bgra32,
+}
+impl IcoDepth {
+    fn of(bpp: u32) -> Option<IcoDepth> {
+        match bpp {
+            1 | 4 | 8 => Some(IcoDepth::Palette),
+            16 => Some(IcoDepth::Bgr555),
+            24 => Some(IcoDepth::Bgr24),
+            32 => Some(IcoDepth::Bgra32),
+            _ => None,
+        }
+    }
+}
+
 fn ico_entry(d: &[u8]) -> Res<Img> {
     if d.starts_with(b"\x89PNG\r\n\x1a\n") {
         let p = png(d)?.map_err(|_| Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN))?;
@@ -2620,9 +2641,11 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
     let (Some(hdr), Some(w), Some(h2), Some(bpp)) = (rd32(d, 0), rd32(d, 4), rd32(d, 8), rd16(d, 14)) else { return broken };
     let h = h2 / 2;
     // (the model does not hold pictures past 2^20 pixels)
-    if w as u64 * h as u64 > 1 << 20 || bpp > 32 {
+    if w as u64 * h as u64 > 1 << 20 {
         return broken;
     }
+    // (the depths ico() takes: a depth named once, so the pixel match below has no catch-all)
+    let Some(depth) = IcoDepth::of(bpp) else { return broken };
     let colors = if bpp <= 8 { 1usize << bpp } else { 0 };
     let used = rd32(d, 32).unwrap_or(0) as usize;
     let colors = if used > 0 && used < colors { used } else { colors };
@@ -2640,25 +2663,24 @@ fn ico_entry(d: &[u8]) -> Res<Img> {
         let row = &xor[sy * xs..];
         for x in 0..w {
             let m = (and[sy * ms + (x / 8) as usize] >> (7 - x % 8)) & 1;
-            let c: [u8; 4] = match bpp {
-                1 | 4 | 8 => {
+            let c: [u8; 4] = match depth {
+                IcoDepth::Palette => {
                     let v = get_sample_bits(row, x, bpp as u32)[0] as usize;
                     let c = *pal.get(v).unwrap_or(&0);
                     [c as u8, (c >> 8) as u8, (c >> 16) as u8, 255]
                 }
-                16 => {
+                IcoDepth::Bgr555 => {
                     // (MEASURED: 555, widened by repeating bits)
                     hit(clause::WICIMAGE_ICO_DEPTH);
                     let v = rd16(row, 2 * x as usize).ok_or(Fail::Bad)?;
                     let x5 = |v: u32| ((v << 3) | (v >> 2)) as u8;
                     [x5(v & 31), x5(v >> 5 & 31), x5(v >> 10 & 31), 255]
                 }
-                24 => [row[3 * x as usize], row[3 * x as usize + 1], row[3 * x as usize + 2], 255],
-                32 => {
+                IcoDepth::Bgr24 => [row[3 * x as usize], row[3 * x as usize + 1], row[3 * x as usize + 2], 255],
+                IcoDepth::Bgra32 => {
                     let p = &row[4 * x as usize..4 * x as usize + 4];
                     [p[0], p[1], p[2], p[3]]
                 }
-                _ => unreachable!("ico() refuses other depths"),
             };
             // (ASSUMED: alpha from the colors when any is set, else from the mask: 1 transparent)
             if !any_alpha && m != 0 {
@@ -2981,7 +3003,10 @@ pub struct WicImage {
     enc: Option<Encoded>,
 }
 
-const OPS: &[&str] = &["wbits", "wscale", "wflip", "wclip", "wconv", "wcolor", "wctx", "winfo", "wpixels", "wpalette", "wsrcpal", "wdecode", "wframe", "wencode", "wbytes", "wredecode", "wsteps"];
+crate::model::words! {
+    /// the image commands
+    enum WOp { Wbits = "wbits", Wscale = "wscale", Wflip = "wflip", Wclip = "wclip", Wconv = "wconv", Wcolor = "wcolor", Wctx = "wctx", Winfo = "winfo", Wpixels = "wpixels", Wpalette = "wpalette", Wsrcpal = "wsrcpal", Wdecode = "wdecode", Wframe = "wframe", Wencode = "wencode", Wbytes = "wbytes", Wredecode = "wredecode", Wsteps = "wsteps" }
+}
 
 fn hexs(b: &[u8]) -> String {
     b.iter().map(|b| format!("{b:02x}")).collect()
@@ -2990,9 +3015,9 @@ fn hexs(b: &[u8]) -> String {
 impl WicImage {
     pub fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         let t: Vec<&str> = op.tok.iter().map(String::as_str).collect();
-        if !OPS.contains(&t[0]) {
+        let Some(cmd) = WOp::parse(t[0]) else {
             return Ok(false);
-        }
+        };
         let n = |i: usize| t.get(i).and_then(|v| crate::case::num(v)).ok_or(Fail::Bad);
         let needs_cur = !matches!(t[0], "wsteps" | "wbits" | "wctx" | "wpalette" | "wdecode" | "wframe" | "wbytes" | "wredecode");
         if needs_cur {
@@ -3028,8 +3053,8 @@ impl WicImage {
             out.push(format!("{} -", t[0]));
             return Ok(true);
         }
-        match t[0] {
-            "wbits" => {
+        match cmd {
+            WOp::Wbits => {
                 let f = crate::model::wic::format(t.get(1).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
                 let (w, h) = (n(2)?, n(3)?);
                 if t.len() != 5 || !(1..=1024).contains(&w) || !(1..=1024).contains(&h) {
@@ -3039,7 +3064,7 @@ impl WicImage {
                 out.push("wbits 00000000".into());
                 self.cur = Some(bitmap(crate::model::wic::FORMATS[f].0, w as u32, h as u32, seed)?);
             }
-            "wscale" => {
+            WOp::Wscale => {
                 let (w, h) = (n(1)?, n(2)?);
                 let m = *t.get(3).ok_or(Fail::Bad)?;
                 if !["nn", "linear", "cubic", "fant", "hqcubic"].contains(&m) {
@@ -3073,7 +3098,7 @@ impl WicImage {
                 let s = scale(c, w as u32, h as u32, m)?;
                 self.cur = Some(s);
             }
-            "wflip" => {
+            WOp::Wflip => {
                 // MEASURED (golden wictransform flipbad-*: 17 values): the bits besides the
                 // rotation and the two flips are ignored
                 let o = n(1)? as u32;
@@ -3085,7 +3110,7 @@ impl WicImage {
                 out.push("wflip 00000000".into());
                 self.cur = Some(flip(self.cur.as_ref().ok_or(Fail::Empty)?, o));
             }
-            "wclip" => {
+            WOp::Wclip => {
                 let (x, y, w, h) = (n(1)?, n(2)?, n(3)?, n(4)?);
                 let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 if !inside(c, x, y, w, h) {
@@ -3097,14 +3122,14 @@ impl WicImage {
                     self.cur = Some(clip(c, x as u32, y as u32, w as u32, h as u32));
                 }
             }
-            "wconv" => {
+            WOp::Wconv => {
                 let to = fmt_static(t.get(1).ok_or(Fail::Bad)?);
                 hit(clause::WICIMAGE_CONVERT);
                 let c = wic_convert(self.cur.as_ref().ok_or(Fail::Empty)?, to)?;
                 out.push("wconv 00000000".into());
                 self.cur = Some(c);
             }
-            "wcolor" => {
+            WOp::Wcolor => {
                 let (a, b, f) = (n(1)?, n(2)?, fmt_static(t.get(3).ok_or(Fail::Bad)?));
                 // MEASURED (golden wiccolor cm-*-01, -10, -32, -655351-*: every pixel as from 1):
                 // a context of any value but 2 is sRGB
@@ -3129,7 +3154,7 @@ impl WicImage {
                     hit(clause::WICIMAGE_COLOR_SAME);
                 }
             }
-            "wsteps" => {
+            WOp::Wsteps => {
                 let (from, to) = (*t.get(1).ok_or(Fail::Bad)?, *t.get(2).ok_or(Fail::Bad)?);
                 if t.len() != 3 || !matches!(from, "grayfloat" | "rgbafloat") || !matches!(to, "gray16" | "gray8" | "rgba64" | "bgra") {
                     return Err(Fail::Bad);
@@ -3158,18 +3183,18 @@ impl WicImage {
                     out.push(hexs(&c.iter().flat_map(|v| v.to_le_bytes()).collect::<Vec<u8>>()));
                 }
             }
-            "wctx" => {
+            WOp::Wctx => {
                 let v = n(1)?;
                 // (MEASURED, golden wiccolor ctx-*: any value taken and given back)
                 hit(if v == 1 || v == 2 { clause::WICIMAGE_COLOR_EXIF } else { clause::WICIMAGE_COLOR_EXIF_BAD });
                 out.push(format!("wctx 00000000 type 2 exif 00000000 {}", v as u32));
             }
-            "winfo" => {
+            WOp::Winfo => {
                 let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 hit(clause::WICIMAGE_INFO);
                 out.push(format!("winfo 00000000 {} {} {} {:.3} {:.3}", c.w, c.h, c.fmt, c.dpi.0, c.dpi.1));
             }
-            "wpixels" => {
+            WOp::Wpixels => {
                 let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 let rect = match t.len() {
                     1 => None,
@@ -3189,12 +3214,12 @@ impl WicImage {
                     out.push(hexs(&r));
                 }
             }
-            "wpalette" => {
+            WOp::Wpalette => {
                 let (ty, a) = (n(1)?, n(2)?);
                 let (hr, t, c) = predefined(ty as u32, a != 0)?;
                 palette_line("wpalette", hr, t, &c, out);
             }
-            "wsrcpal" => {
+            WOp::Wsrcpal => {
                 let c = self.cur.as_ref().ok_or(Fail::Empty)?;
                 match &c.pal {
                     Some(p) => {
@@ -3207,7 +3232,7 @@ impl WicImage {
                     }
                 }
             }
-            "wdecode" => {
+            WOp::Wdecode => {
                 let h = *t.get(1).ok_or(Fail::Bad)?;
                 if t.len() != 2 || h.len() % 2 != 0 || !h.is_ascii() {
                     return Err(Fail::Bad);
@@ -3216,7 +3241,7 @@ impl WicImage {
                 let b = b.ok_or(Fail::Bad)?;
                 self.decode_into("wdecode", &b, out)?;
             }
-            "wframe" => {
+            WOp::Wframe => {
                 let i = n(1)? as usize;
                 let Some(d) = &self.dec else {
                     out.push("wframe -".into());
@@ -3247,7 +3272,7 @@ impl WicImage {
                     }
                 }
             }
-            "wencode" => {
+            WOp::Wencode => {
                 let Some(c) = self.cur.clone() else {
                     out.push("wencode -".into());
                     return Ok(true);
@@ -3335,7 +3360,7 @@ impl WicImage {
                 out.push(format!("wencode 00000000 {nf} ok"));
                 self.enc = Some(enc);
             }
-            "wbytes" => match &self.enc {
+            WOp::Wbytes => match &self.enc {
                 Some(Encoded::Bytes(b) | Encoded::Lossy(b, _, _)) => {
                     let (from, len) = if t.len() == 3 { (n(1)? as usize, n(2)? as usize) } else { (0, b.len()) };
                     let from = from.min(b.len());
@@ -3348,7 +3373,7 @@ impl WicImage {
                     out.push(String::new());
                 }
             },
-            "wredecode" => match self.enc.take() {
+            WOp::Wredecode => match self.enc.take() {
                 None => out.push("wredecode -".into()),
                 Some(Encoded::Bytes(b)) => {
                     self.decode_into("wredecode", &b, out)?;
@@ -3372,7 +3397,6 @@ impl WicImage {
                     self.enc = Some(Encoded::Lossy(b, cont, img));
                 }
             },
-            _ => unreachable!(),
         }
         Ok(true)
     }

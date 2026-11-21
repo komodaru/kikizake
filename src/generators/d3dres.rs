@@ -342,7 +342,7 @@ fn suite(d3d11: bool) -> String {
         let rp = f.row_bytes(w);
         writeln!(s, "case data-{}\n{dev}", f.id);
         writeln!(s, "{} init {} {rp} 0", tex2("0", w, ht, 2, 0, f.id, 0, SRV, 0, 0, (1, 0)), f.id);
-        let mips = 32 - w.max(ht).leading_zeros();
+        let mips = w.max(ht).bit_width();
         for sub in 0..mips * 2 {
             writeln!(s, "{}", read_line(0, sub, f, w, ht, 1, sub % mips));
         }

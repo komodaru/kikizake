@@ -3,10 +3,13 @@
 //!   cargo run -q --release -p kikizake-lint [-- --update [--raise FILE...]]
 //!
 //! `cargo test -p kikizake-lint` proves each counted lint fires on its regression.
+// (Rust 1.97: a pub item nothing in the binary uses is dead; tests use more of it, so not under test)
+#![cfg_attr(not(test), warn(dead_code_pub_in_binary))]
 mod cases;
 mod code;
 mod escape;
 mod guards;
+mod modern;
 mod ratchet;
 mod tree;
 
@@ -52,6 +55,10 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
     if let Err(error) = guards::check(&root) {
+        eprintln!("{error}");
+        return ExitCode::FAILURE;
+    }
+    if let Err(error) = modern::check(&root) {
         eprintln!("{error}");
         return ExitCode::FAILURE;
     }

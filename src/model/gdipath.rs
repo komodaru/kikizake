@@ -452,31 +452,36 @@ fn figures(p: &[Pt]) -> Res<Vec<Vec<(i32, i32)>>> {
     Ok(figs)
 }
 
+crate::model::words! {
+    /// the path commands
+    enum PathOp { Beginpath = "beginpath", Endpath = "endpath", Abortpath = "abortpath", Closefig = "closefig", Flatten = "flatten", Widen = "widen", Strokepath = "strokepath", Fillpath = "fillpath", Strokefill = "strokefill", Selclippath = "selclippath", Getpath = "getpath", Pathrgn = "pathrgn", Miter = "miter" }
+}
+
 pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let t0 = op.tok[0].as_str();
-    if !matches!(t0, "beginpath" | "endpath" | "abortpath" | "closefig" | "flatten" | "widen" | "strokepath" | "fillpath" | "strokefill" | "selclippath" | "getpath" | "pathrgn" | "miter") {
+    let Some(cmd) = PathOp::parse(t0) else {
         return Ok(false);
-    }
+    };
     let k = n(op, 1)?;
     let sl = g.slots.get_mut(k as usize).and_then(|s| s.as_mut()).ok_or(Fail::Bad)?;
     if sl.ext.mapped() {
         return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
     }
-    if t0 == "miter" {
-        let v: f32 = op.tok.get(2).and_then(|t| t.parse().ok()).ok_or(Fail::Bad)?;
-        // MEASURED: a limit below 1 fails and leaves the old value unwritten; the limit is kept
-        // as given (10 at first)
-        hit(clause::GDI_PATH_MITER);
-        if v < 1.0 {
-            out.push("miter 0 -1000".into());
-        } else {
-            out.push(format!("miter 1 {}", (std::mem::replace(&mut sl.ext.miter, v) * 1000.0) as i32));
-        }
-        return Ok(true);
-    }
     let path = &mut sl.ext.path;
-    let ok = match t0 {
-        "beginpath" => {
+    let ok = match cmd {
+        PathOp::Miter => {
+            let v: f32 = op.tok.get(2).and_then(|t| t.parse().ok()).ok_or(Fail::Bad)?;
+            // MEASURED: a limit below 1 fails and leaves the old value unwritten; the limit is kept
+            // as given (10 at first)
+            hit(clause::GDI_PATH_MITER);
+            if v < 1.0 {
+                out.push("miter 0 -1000".into());
+            } else {
+                out.push(format!("miter 1 {}", (std::mem::replace(&mut sl.ext.miter, v) * 1000.0) as i32));
+            }
+            return Ok(true);
+        }
+        PathOp::Beginpath => {
             hit(clause::GDI_PATH_BEGIN);
             if matches!(path, Path::Open(_)) {
                 // MEASURED: the points so far are dropped, a new path begins
@@ -485,7 +490,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             *path = Path::Open(Vec::new());
             true
         }
-        "endpath" => {
+        PathOp::Endpath => {
             hit(clause::GDI_PATH_END);
             match std::mem::take(path) {
                 Path::Open(mut p) => {
@@ -503,12 +508,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 }
             }
         }
-        "abortpath" => {
+        PathOp::Abortpath => {
             hit(clause::GDI_PATH_ABORT);
             *path = Path::None;
             true
         }
-        "closefig" => {
+        PathOp::Closefig => {
             hit(clause::GDI_PATH_CLOSE);
             match path {
                 Path::Open(p) if p.last().is_some_and(|l| l.kind != Kind::Move) => {
@@ -525,7 +530,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 _ => false,
             }
         }
-        "getpath" => {
+        PathOp::Getpath => {
             hit(clause::GDI_PATH_GET);
             match path {
                 Path::Closed(p) => {
@@ -538,7 +543,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             return Ok(true);
         }
-        "flatten" => {
+        PathOp::Flatten => {
             hit(clause::GDI_PATH_FLATTEN);
             match path {
                 Path::Closed(p) => {
@@ -548,7 +553,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 _ => false,
             }
         }
-        "strokepath" => {
+        PathOp::Strokepath => {
             hit(clause::GDI_PATH_STROKE);
             let Path::Closed(p) = std::mem::take(path) else {
                 out.push("strokepath 0".into());
@@ -557,7 +562,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             stroke(sl, &p)?;
             true
         }
-        "fillpath" | "strokefill" | "selclippath" | "pathrgn" => {
+        PathOp::Fillpath | PathOp::Strokefill | PathOp::Selclippath | PathOp::Pathrgn => {
             if !matches!(path, Path::Closed(_)) {
                 // (no closed path: the call fails, the DC keeps what it has)
                 hit(clause::GDI_PATH_NOPATH);
@@ -624,8 +629,7 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             true
         }
-        "widen" => return Err(Fail::Unmodeled(open::GDI_PATH_WIDEN)),
-        _ => unreachable!(),
+        PathOp::Widen => return Err(Fail::Unmodeled(open::GDI_PATH_WIDEN)),
     };
     out.push(format!("{t0} {}", ok as u8));
     Ok(true)

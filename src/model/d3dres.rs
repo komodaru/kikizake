@@ -155,7 +155,17 @@ pub struct D3dres {
     pub removed: bool,
 }
 
-pub const OPS: &[&str] = &["fmt", "tex", "buf", "srv", "rtv", "dsv", "uav", "clear", "cleards", "clearuav", "update", "copy", "copysub", "resolve", "read"];
+crate::model::words! {
+    /// the resource commands
+    pub enum ResOp { Fmt = "fmt", Tex = "tex", Buf = "buf", Srv = "srv", Rtv = "rtv", Dsv = "dsv", Uav = "uav", Clear = "clear", Cleards = "cleards", Clearuav = "clearuav", Update = "update", Copy = "copy", Copysub = "copysub", Resolve = "resolve", Read = "read" }
+}
+
+/// where a command goes: drawing (d3draster) or resources (here)
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Route {
+    Draw(super::d3draster::DrawOp),
+    Res(ResOp),
+}
 
 fn n(t: &[String], i: usize) -> Res<u32> {
     t.get(i).and_then(|s| num(s)).map(|v| v as u32).ok_or(Fail::Bad)
@@ -236,13 +246,14 @@ impl D3dres {
             }
             _ => {}
         }
-        let drawing = super::d3draster::OPS.contains(&name);
-        if !OPS.contains(&name) && !drawing {
-            return self.states.op(op, out);
-        }
+        let route = match (super::d3draster::DrawOp::parse(name), ResOp::parse(name)) {
+            (Some(d), _) => Route::Draw(d),
+            (None, Some(r)) => Route::Res(r),
+            (None, None) => return self.states.op(op, out),
+        };
         let Some(dev) = self.dev else {
-            if name == "vtx" {
-                return super::d3draster::op(self, Dev::D10, op, out).map(|_| true);
+            if route == Route::Draw(super::d3draster::DrawOp::Vtx) {
+                return super::d3draster::op(self, Dev::D10, super::d3draster::DrawOp::Vtx, op, out).map(|_| true);
             }
             hit(clause::D3DRES_NODEV);
             out.push("nodev".into());
@@ -283,10 +294,13 @@ impl D3dres {
                 _ => {}
             }
         }
-        if drawing {
-            super::d3draster::op(self, dev, op, out)?;
-            return Ok(true);
-        }
+        let cmd = match route {
+            Route::Draw(d) => {
+                super::d3draster::op(self, dev, d, op, out)?;
+                return Ok(true);
+            }
+            Route::Res(r) => r,
+        };
         // (samples that differ in a pixel, D3DRASTER.MS.SAMPLES: only clears, draws, resolves
         // and reads (zeros, D3DRES.READ.MS) are modeled on them)
         let at: &[usize] = match name {
@@ -304,18 +318,18 @@ impl D3dres {
             hit(clause::D3DRES_MS_REGION);
             return Ok(true);
         }
-        match name {
-            "fmt" => {
+        match cmd {
+            ResOp::Fmt => {
                 let f = n(t, 1)?;
                 out.push(fmt_line(dev, f)?);
             }
-            "tex" | "buf" => self.create(dev, t, out)?,
-            "srv" => self.view(dev, 0, t, out)?,
-            "rtv" => self.view(dev, 1, t, out)?,
-            "dsv" => self.view(dev, 2, t, out)?,
-            "uav" => self.view(dev, 3, t, out)?,
-            "clear" | "cleards" | "clearuav" => self.clear(dev, t, out)?,
-            "update" => {
+            ResOp::Tex | ResOp::Buf => self.create(dev, t, out)?,
+            ResOp::Srv => self.view(dev, 0, t, out)?,
+            ResOp::Rtv => self.view(dev, 1, t, out)?,
+            ResOp::Dsv => self.view(dev, 2, t, out)?,
+            ResOp::Uav => self.view(dev, 3, t, out)?,
+            ResOp::Clear | ResOp::Cleards | ResOp::Clearuav => self.clear(dev, t, out)?,
+            ResOp::Update => {
                 let r = slot(t, 1)?;
                 let (sub, seed, rp, dp) = (n(t, 2)?, n(t, 3)?, n(t, 4)? as usize, n(t, 5)? as usize);
                 let bx = if t.len() == 12 { Some((6..12).map(|i| n(t, i)).collect::<Res<Vec<u32>>>()?) } else if t.len() == 6 { None } else { return Err(Fail::Bad) };
@@ -325,7 +339,7 @@ impl D3dres {
                 };
                 self.removed |= update(res, sub, &xorbytes(seed, INIT), rp, dp, bx.as_deref())?;
             }
-            "copy" => {
+            ResOp::Copy => {
                 if t.len() != 3 {
                     return Err(Fail::Bad);
                 }
@@ -337,7 +351,7 @@ impl D3dres {
                 let dst = filled_mut(&mut self.res, d)?;
                 copy_resource(dev, dst, &src)?;
             }
-            "copysub" => {
+            ResOp::Copysub => {
                 let (d, ds, x, y, z, s, ss) = (slot(t, 1)?, n(t, 2)?, n(t, 3)?, n(t, 4)?, n(t, 5)?, slot(t, 6)?, n(t, 7)?);
                 let bx = if t.len() == 14 { Some((8..14).map(|i| n(t, i)).collect::<Res<Vec<u32>>>()?) } else if t.len() == 8 { None } else { return Err(Fail::Bad) };
                 let (Some(_), Some(src)) = (&self.res[d], self.res[s].clone()) else {
@@ -364,7 +378,7 @@ impl D3dres {
                     dst.samples[ds as usize] = v;
                 }
             }
-            "resolve" => {
+            ResOp::Resolve => {
                 if t.len() != 6 {
                     return Err(Fail::Bad);
                 }
@@ -424,7 +438,7 @@ impl D3dres {
                     dv[y * drb..][..w].copy_from_slice(&sv[y * srb..][..w]);
                 }
             }
-            "read" => {
+            ResOp::Read => {
                 if t.len() != 6 {
                     return Err(Fail::Bad);
                 }
@@ -436,7 +450,6 @@ impl D3dres {
                 };
                 read(dev, res, sub, rb, rows, slices, out)?;
             }
-            _ => unreachable!(),
         }
         Ok(true)
     }

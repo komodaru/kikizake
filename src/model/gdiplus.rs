@@ -1128,25 +1128,26 @@ enum Weight {
     Fore,
 }
 impl Weight {
-    const fn known(v: u8) -> bool {
-        matches!(v, 0 | 64 | 234 | 255)
-    }
-    fn of(v: u32) -> Weight {
+    /// a byte of the hatch table as its weight; a byte past the four stops the build (WEIGHTS)
+    const fn of(v: u8) -> Weight {
         match v {
             0 => Weight::Back,
             64 => Weight::Quarter,
             234 => Weight::Most,
             255 => Weight::Fore,
-            _ => unreachable!("a hatch weight past the table's four (the const assert below)"),
+            _ => panic!("a hatch weight past the table's four"),
         }
     }
 }
-const _: () = {
+/// HATCH as weights, made when the crate is built: a byte past the four is a build error
+const WEIGHTS: [Weight; HATCH.len()] = {
+    let mut out = [Weight::Back; HATCH.len()];
     let mut i = 0;
     while i < HATCH.len() {
-        assert!(Weight::known(HATCH[i]));
+        out[i] = Weight::of(HATCH[i]);
         i += 1;
     }
+    out
 };
 
 /// (MEASURED, golden gdipluspaint hatchedge16-*, hatchrun16-22, hatchbetween16-*, hatchcarry-*:
@@ -1289,7 +1290,7 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
             Brush::Hatch { style, fore, back } => {
                 hit(clause::GP_PAINT_HATCH);
                 let (hx, hy) = ((px as i64 - ox).rem_euclid(8), (py as i64 - oy).rem_euclid(8));
-                let wt = HATCH[style.get() as usize * 64 + hy as usize * 8 + hx as usize] as u32;
+                let wt = WEIGHTS[style.get() as usize * 64 + hy as usize * 8 + hx as usize];
                 // (premultiplied; between them (antialiased styles) f w + b (256 - w), >> 8;
                 // gamma corrected, the alpha of a texel of 234 as gamma_alpha_234 makes it)
                 let (fore, back) = (pre(fore), pre(back));
@@ -1301,7 +1302,7 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
                         o | v << (8 * k)
                     })
                 };
-                match Weight::of(wt) {
+                match wt {
                     Weight::Back => back,
                     Weight::Fore => fore,
                     Weight::Quarter => lerp(64),

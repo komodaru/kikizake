@@ -470,7 +470,7 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
 
 /// a coefficient (or DC difference) as its run/size symbol and its bits
 fn put_value(bits: &mut Bits, code: &[(u16, u8); 256], run: u32, v: i64) {
-    let n = 64 - v.unsigned_abs().leading_zeros();
+    let n = v.unsigned_abs().bit_width();
     let (c, l) = code[((run << 4) | n) as usize];
     bits.put(u32::from(c), u32::from(l));
     if n > 0 {

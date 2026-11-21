@@ -258,7 +258,8 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
                 w16(row, o + 2 * k, c as u16 * 257);
             }
         }
-        _ => unreachable!(),
+        // (gray16, cmyk and the indexed formats answered Unmodeled above)
+        _ => return Err(Fail::Bad),
     }
     Ok(())
 }

@@ -17,6 +17,9 @@ proptest = "1.12"
 trybuild = "1"
 
 [lints.rust]
+# (Rust 1.99: `&x as *const T` / `&mut x as *mut T` makes a reference first, with its aliasing
+# rules: write `&raw const x` / `&raw mut x`, or Box::as_ptr)
+raw_borrows_via_references = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
 
 # (a value that cannot fail is a type, one that can is a `?`: tests may unwrap, clippy.toml)
