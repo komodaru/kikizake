@@ -102,15 +102,15 @@ pub fn round_rect(r: (i32, i32, i32, i32), w: i32, h: i32) -> Res<Rgn> {
     let (ka, kb) = (k(a), k(c));
     let (pa, pb, pc, pd) = ((fr, ft), (fl, ft), (fl, fb), (fr, fb));
     let segs = [
-        Seg::Bezier((pa.0, pa.1 - kb), (pa.0 - ka, pa.1), (pa.0 - a, pa.1)),
-        Seg::Line((pb.0 + a, pb.1)),
-        Seg::Bezier((pb.0 + ka, pb.1), (pb.0, pb.1 - kb), (pb.0, pb.1 - c)),
-        Seg::Line((pc.0, pc.1 + c)),
-        Seg::Bezier((pc.0, pc.1 + kb), (pc.0 + ka, pc.1), (pc.0 + a, pc.1)),
-        Seg::Line((pd.0 - a, pd.1)),
-        Seg::Bezier((pd.0 - ka, pd.1), (pd.0, pd.1 + kb), (pd.0, pd.1 + c)),
+        Seg::Bezier((pa.0, pa.1.wrapping_sub(kb)), (pa.0.wrapping_sub(ka), pa.1), (pa.0.wrapping_sub(a), pa.1)),
+        Seg::Line((pb.0.wrapping_add(a), pb.1)),
+        Seg::Bezier((pb.0.wrapping_add(ka), pb.1), (pb.0, pb.1.wrapping_sub(kb)), (pb.0, pb.1.wrapping_sub(c))),
+        Seg::Line((pc.0, pc.1.wrapping_add(c))),
+        Seg::Bezier((pc.0, pc.1.wrapping_add(kb)), (pc.0.wrapping_add(ka), pc.1), (pc.0.wrapping_add(a), pc.1)),
+        Seg::Line((pd.0.wrapping_sub(a), pd.1)),
+        Seg::Bezier((pd.0.wrapping_sub(ka), pd.1), (pd.0, pd.1.wrapping_add(kb)), (pd.0, pd.1.wrapping_add(c))),
     ];
-    curve_region((pa.0, pa.1 - c), &segs)
+    curve_region((pa.0, pa.1.wrapping_sub(c)), &segs)
 }
 
 impl Gdi {

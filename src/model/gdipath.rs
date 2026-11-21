@@ -24,6 +24,11 @@ impl Fix {
     pub fn round(self) -> i32 {
         self.0.saturating_add(8) >> 4
     }
+    /// the integer below: the logical current position after AngleArc (MEASURED, golden path
+    /// anglearc-*)
+    pub fn floor(self) -> i32 {
+        self.0 >> 4
+    }
     /// the integer it is, when it is one
     pub fn exact(self) -> Option<i32> {
         (self.0 & 15 == 0).then_some(self.0 >> 4)
@@ -111,7 +116,7 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
         }
         let last = p.last().ok_or(Fail::Bad)?;
-        sl.ext.pos = (last.x.round(), last.y.round());
+        sl.ext.pos = (last.x.floor(), last.y.floor());
         out.push("ret 1".into());
         return Ok(true);
     }
@@ -612,6 +617,8 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             hit(clause::GDI_PATH_FILL);
             let ints: Option<Vec<Vec<(i32, i32)>>> = figs.iter().map(|f| f.iter().map(|&q| whole(q).ok()).collect()).collect();
             let r = match &ints {
+                // (PathToRegion's bound is CreatePolygonRgn's, loose too: golden path loose-41)
+                Some(f) if t0 == "pathrgn" || t0 == "selclippath" => super::rgn::polygon(f, sl.ext.polyfill == 2)?,
                 Some(f) => super::rgn::polygon_pixels(f, sl.ext.polyfill == 2),
                 None => {
                     hit(clause::GDI_PATH_FILLFIX);

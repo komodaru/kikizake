@@ -267,7 +267,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 627), ("xform", 670), ("path", 679), ("text", 171), ("blend", 964), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 645), ("xform", 670), ("path", 714), ("text", 171), ("blend", 972), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -582,6 +582,21 @@ proptest! {
         prop_assert_eq!(round_rect(b, w + more.0, h + more.1).unwrap().bands, elliptic(b).unwrap().bands);
         prop_assert_eq!(round_rect(b, 0, c).unwrap().bands, Rgn::rect(l, t, l + w - 1, t + h - 1).bands);
         prop_assert_eq!(round_rect(b, c, 0).unwrap().bands, Rgn::rect(l, t, l + w - 1, t + h - 1).bands);
+    }
+
+    /// CreateRoundRectRgn takes any corner sizes, i32::MIN too (whose |.| stays negative and
+    /// overflows the corners: GDI wraps, golden region rround-14), and stays inside its box (a
+    /// pixel around it for a box 0 across, whose 28.4 box is upside down: golden rround-8)
+    #[test]
+    fn round_rect_region_takes_any_corner(l in -40i32..40, t in -40i32..40, w in 0i32..120, h in 0i32..120, cw in any::<i32>(), ch in prop_oneof![Just(i32::MIN), Just(i32::MAX), any::<i32>()]) {
+        use kikizake::model::gdirgn::round_rect;
+        for (a, b) in [(cw, ch), (ch, cw), (i32::MIN, ch), (ch, i32::MIN)] {
+            // (corners past the 32 bit flattener: GDI's 64 bit one, open GDI.RGN.ROUND)
+            let Ok(g) = round_rect((l, t, l + w, t + h), a, b) else { continue };
+            for q in g.rects() {
+                prop_assert!(q.0 >= l - 1 && q.1 >= t - 1 && q.2 <= l + w + 1 && q.3 <= t + h + 1, "{:?}", q);
+            }
+        }
     }
 
     /// AngleArc's whole turn ends where it starts, and a negative sweep is the positive one
