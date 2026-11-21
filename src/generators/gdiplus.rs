@@ -721,6 +721,25 @@ pub fn gdiplusline() -> String {
     s
 }
 
+/// a pen setter of the pen objects: a compound array, an adjustable arrow cap or a custom cap
+/// (fill polygon or stroke lines), drawn from r
+fn pen_object(r: &mut XorShift32, i: usize) -> String {
+    match i % 4 {
+        0 | 1 => {
+            let n = *r.pick(&[2usize, 4, 4, 6]);
+            let mut v: Vec<i64> = (0..n).map(|_| r.range(0, 9)).collect();
+            v.sort();
+            format!("compound {n} {}", v.iter().map(|x| format!("{}", *x as f32 / 8.0)).collect::<Vec<_>>().join(" "))
+        }
+        2 => format!("arrowcap {} {} {} {} {}", r.range(0, 2), r.range(1, 9) as f32 / 2.0, r.range(1, 9) as f32 / 2.0, r.range(0, 2), *r.pick(&["0", "0", "0.5", "1", "-1"])),
+        _ => {
+            let stroke = r.range(0, 2);
+            let pts = if stroke == 1 { "3 -1 -1 0 0 1 -1" } else { *r.pick(&["3 -1 -1 0 0 1 -1", "4 -1 -2 0 0 1 -2 0 -1", "4 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5"]) };
+            format!("customcap {} {stroke} {} {} {} {} {} {} {pts}", r.range(0, 2), r.range(0, 4), *r.pick(&["0", "0", "1", "0.5"]), *r.pick(&["1", "1", "0.5", "2"]), r.range(0, 3), r.range(0, 3), r.range(0, 3))
+        }
+    }
+}
+
 /// probes of the pen past the first cases (a generator of its own, so the cases before keep
 /// their numbers): Draw* calls of too few points, the round join on random polylines, anchor
 /// caps on random lines of any width, Inset on rectangles off the pixel grid
@@ -747,6 +766,15 @@ fn penprobe(s: &mut String) {
     }
     for i in 0..10 {
         writeln!(s, "case inset-{i}\n{head}\ngppen 0 0xffff0000 {} align 1\ngpshape 0 pen 0 - copy 0 {} 0 rect {} {} {} {}\ngpread 0 32bppARGB\nend", r.range(2, 16) as f32 / 4.0, r.range(0, 5), r.range(4, 24) as f32 / 4.0, r.range(4, 24) as f32 / 4.0, r.range(8, 40) as f32 / 4.0, r.range(8, 40) as f32 / 4.0);
+    }
+    // the pen objects: compound arrays, adjustable arrows, custom caps; and the setters' checks
+    for i in 0..48 {
+        let n = r.range(2, 5) as usize;
+        let name = *r.pick(&["lines", "polygon", "lines"]);
+        writeln!(s, "case penobject-{i}\n{head}\ngppen 0 0xffff0000 {} cap {} {} 0 join {} {}\ngpshape 0 pen 0 - copy 0 {} {} {name} {n} {}\ngpread 0 32bppARGB\nend", r.range(4, 36) as f32 / 4.0, r.range(0, 4), r.range(0, 4), r.range(0, 4), pen_object(&mut r, i), r.range(0, 5), r.range(0, 4), pts(&mut r, n));
+    }
+    for (i, set) in ["compound 1 0.5", "compound 3 0 0.5 1", "compound 2 0.5 0.25", "compound 2 -0.25 1", "compound 2 0 1.5", "compound 0", "compound 4 0 0.5 0.5 1", "compound 2 0 1 align 1", "compound 4 0 0.25 0.75 1 align 1", "arrowcap 1 0 2 1 0", "arrowcap 1 3 0 1 0", "arrowcap 1 3 2 1 3", "arrowcap 0 3 2 1 0", "arrowcap 1 -1 2 1 0", "customcap 1 0 0 0 1 0 0 0 2 0 0 1 1", "customcap 1 1 0 0 1 0 0 0 1 0 0"].iter().enumerate() {
+        writeln!(s, "case penset-{i}\n{head}\ngppen 0 0xffff0000 3 {set}\ngpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8\ngpread 0 32bppARGB\nend");
     }
 }
 
@@ -885,5 +913,14 @@ pub fn gdipluspath() -> String {
         writeln!(s, "case pathfillmode-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbrush 0 solid 0xff0000ff\ngppath 0 {fm}\ngpadd 0 rect 1 1 10 10\ngpadd 0 rect 4 4 10 10\ngpfillpath 0 0 0 copy 0 0 0\ngpread 0 32bppARGB\nend");
     }
     writeln!(s, "case pathfillwho-0\ngpfillpath 0 0 0 copy 0 0 0\ngpbitmap 0 4 4 32bppARGB\ngpfillpath 0 0 0 copy 0 0 0\ngppath 0 0\ngpfillpath 0 0 0 copy 0 0 0\ngpbrush 0 solid 0xff0000ff\ngpfillpath 0 0 0 copy 0 9 0\ngpfillpath 0 0 0 copy 0 0 9\ngpbitmap 1 4 4 16bppGrayScale\ngpfillpath 1 0 0 copy 0 0 0\nend");
+    // widened by the pen objects (compound arrays, arrow and custom caps)
+    for i in 0..40 {
+        let add = match i % 3 {
+            0 => format!("lines 3 {}", pts(&mut r, 3)),
+            1 => format!("line {} {} {} {}", q4(&mut r, 0, 30), q4(&mut r, 0, 30), q4(&mut r, 0, 30), q4(&mut r, 0, 30)),
+            _ => format!("rect {} {} {} {}", q4(&mut r, 0, 20), q4(&mut r, 0, 20), q4(&mut r, 1, 20), q4(&mut r, 1, 20)),
+        };
+        writeln!(s, "case pathwidenobj-{i}\ngppen 0 0xff000000 {} cap {} {} 0 join {} {}\ngppath 0 0\ngpadd 0 {add}\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend", r.range(4, 36) as f32 / 4.0, r.range(0, 4), r.range(0, 4), r.range(0, 4), pen_object(&mut r, i));
+    }
     s
 }

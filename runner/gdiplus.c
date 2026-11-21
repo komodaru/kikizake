@@ -106,7 +106,17 @@ typedef struct { UINT32 GdiplusVersion; void *DebugEventCallback; BOOL SuppressB
     X(GdipGetPathTypes, (void *, BYTE *, INT)) \
     X(GdipGetPathPoints, (void *, GpPointF *, INT)) \
     X(GdipGetPathWorldBounds, (void *, GpRectF *, void *, void *)) \
-    X(GdipFillPath, (void *, void *, void *))
+    X(GdipFillPath, (void *, void *, void *)) \
+    X(GdipSetPenCompoundArray, (void *, const float *, INT)) \
+    X(GdipCreateAdjustableArrowCap, (float, float, BOOL, void **)) \
+    X(GdipSetAdjustableArrowCapMiddleInset, (void *, float)) \
+    X(GdipCreateCustomLineCap, (void *, void *, INT, float, void **)) \
+    X(GdipSetCustomLineCapWidthScale, (void *, float)) \
+    X(GdipSetCustomLineCapStrokeJoin, (void *, INT)) \
+    X(GdipSetCustomLineCapStrokeCaps, (void *, INT, INT)) \
+    X(GdipSetPenCustomStartCap, (void *, void *)) \
+    X(GdipSetPenCustomEndCap, (void *, void *)) \
+    X(GdipDeleteCustomLineCap, (void *))
 
 #define X(n, a) static GpStatus (WINAPI *n) a;
 GP_FUNCS(X)
@@ -602,10 +612,21 @@ static void op_brushinfo(void) {
     out("\n");
 }
 
+/* a custom cap set on a pen's start (0) or end (1): its status, then the first failing call's */
+static GpStatus set_cap(void *pn, int end, void *cap, GpStatus st) {
+    if (!st) st = end ? GdipSetPenCustomEndCap(pn, cap) : GdipSetPenCustomStartCap(pn, cap);
+    if (cap) GdipDeleteCustomLineCap(cap);
+    return st;
+}
+
 /* pens in slots of their own:
  * gppen <p> <argb> <width> [dash <DashStyle>] [cap <start> <end> <DashCap>] [join <LineJoin>]
- * [align <PenAlignment>] [miter <limit>]: CreatePen1 (UnitWorld), then each setter asked:
- * "pen <st> <st of each setter>" */
+ * [align <PenAlignment>] [miter <limit>] [compound <n> <n floats>]
+ * [arrowcap <0 start|1 end> <height> <width> <filled> <middle inset>]
+ * [customcap <0 start|1 end> <0 fill|1 stroke> <baseCap> <baseInset> <widthScale> <stroke join>
+ *  <stroke start cap> <stroke end cap> <n> <n points>]: CreatePen1 (UnitWorld), then each setter
+ * asked (a cap: made, set on the pen, deleted; the first failing call's status; the custom cap's
+ * path a polygon for fill, open lines for stroke): "pen <st> <st of each setter>" */
 static void op_pen(void) {
     int p = slot(1);
     DWORD c = (DWORD)num(2);
@@ -622,7 +643,36 @@ static void op_pen(void) {
         else if (is(i, "join")) { r = GdipSetPenLineJoin(pn, num(i + 1)); i += 2; }
         else if (is(i, "align")) { r = GdipSetPenMode(pn, num(i + 1)); i += 2; }
         else if (is(i, "miter")) { r = GdipSetPenMiterLimit(pn, fdec(i + 1)); i += 2; }
-        else { bad = 1; break; }
+        else if (is(i, "compound")) {
+            int n = num(i + 1);
+            float v[16];
+            if (n < 0 || n > 16) { bad = 1; break; }
+            for (int k = 0; k < n; k++) v[k] = fdec(i + 2 + k);
+            r = GdipSetPenCompoundArray(pn, v, n);
+            i += 2 + n;
+        } else if (is(i, "arrowcap")) {
+            void *cap = NULL;
+            r = GdipCreateAdjustableArrowCap(fdec(i + 2), fdec(i + 3), num(i + 4) != 0, &cap);
+            if (!r) r = GdipSetAdjustableArrowCapMiddleInset(cap, fdec(i + 5));
+            r = set_cap(pn, num(i + 1) != 0, cap, r);
+            i += 6;
+        } else if (is(i, "customcap")) {
+            int n = num(i + 9);
+            GpPointF q[16];
+            if (n < 0 || n > 16) { bad = 1; break; }
+            for (int k = 0; k < n; k++) { q[k].X = fdec(i + 10 + 2 * k); q[k].Y = fdec(i + 11 + 2 * k); }
+            void *path = NULL, *cap = NULL;
+            int stroke = num(i + 2) != 0;
+            r = GdipCreatePath(0, &path);
+            if (!r) r = stroke ? GdipAddPathLine2(path, q, n) : GdipAddPathPolygon(path, q, n);
+            if (!r) r = GdipCreateCustomLineCap(stroke ? NULL : path, stroke ? path : NULL, num(i + 3), fdec(i + 4), &cap);
+            if (!r) r = GdipSetCustomLineCapWidthScale(cap, fdec(i + 5));
+            if (!r) r = GdipSetCustomLineCapStrokeJoin(cap, num(i + 6));
+            if (!r) r = GdipSetCustomLineCapStrokeCaps(cap, num(i + 7), num(i + 8));
+            r = set_cap(pn, num(i + 1) != 0, cap, r);
+            if (path) GdipDeletePath(path);
+            i += 10 + 2 * n;
+        } else { bad = 1; break; }
         out(" %d", r);
     }
     out("\n");

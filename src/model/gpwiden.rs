@@ -6,9 +6,9 @@
 //! and by every stroke past the one-pixel test.
 use super::gdiplus::{Matrix, Round};
 use super::gplinear::invert;
-use super::gppath::{add64, apply, axes, div64, mul64, sqrt32, to32, Kind, Path, Pen, Point, EPS, NEAR};
+use super::gppath::{CustomCap, add64, apply, axes, div64, mul64, sqrt32, to32, Kind, Path, Pen, Point, EPS, NEAR};
 use super::{Fail, Res};
-use crate::spec::{clause, hit};
+use crate::spec::{clause, hit, open};
 
 type P = (f32, f32);
 
@@ -125,6 +125,15 @@ struct Seg {
     n: P,
 }
 
+/// how the widener's joins treat a turn's inner side (GpPathWidener's compound switch)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Mode {
+    /// a plain pen or a compound array of two: the inner side bevelled
+    Plain,
+    /// a compound array of four or more: a miter within the limit on both sides
+    Compound,
+}
+
 /// what one subpath's outline is made of
 struct Widener {
     r: Round,
@@ -134,6 +143,7 @@ struct Widener {
     wr: f32,
     lim: f32,
     join: Join,
+    mode: Mode,
 }
 
 /// an outline point
@@ -192,7 +202,10 @@ impl Widener {
             let q = r.sub(r.add(r.mul(dy, dy), r.mul(dx, dx)), r.mul(r.mul(cross, cross), self.lim));
             if q <= 0.0 {
                 miter = Some((r.div(dx, cross), r.div(dy, cross)));
-                (mit_l, mit_r) = (cross > 0.0, cross <= 0.0 && !inner_r);
+                (mit_l, mit_r) = match self.mode {
+                    Mode::Plain => (cross > 0.0, cross <= 0.0 && !inner_r),
+                    Mode::Compound => (true, true),
+                };
             } else {
                 let tt = sqrt32(r, r.add(r.mul(0.0, 0.0), r.sub(self.lim, 1.0)));
                 for (k, (inner, w)) in [(inner_l, self.wl), (inner_r, self.wr)].into_iter().enumerate() {
@@ -257,6 +270,13 @@ impl Widener {
         let om = r.sub(1.0, dot);
         let t = r.div(r.mul(r.sub(sqrt32(r, r.add(om, om)), cross.abs()), 4.0), r.mul(om, 3.0));
         let neg = |v: P| (-v.0, -v.1);
+        // (the inner miter: compound mode only, the round join's miter test of limit 3)
+        let ac = cross.abs();
+        let (dx, dy) = (r.sub(g0.0, g1.0), r.sub(g0.1, g1.1));
+        let miter = match self.mode {
+            Mode::Compound if EPS.partial_cmp(&ac) != Some(std::cmp::Ordering::Greater) && r.sub(r.add(r.mul(dy, dy), r.mul(dx, dx)), r.mul(r.mul(cross, cross), 9.0)).partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) => Some((r.div(dx, ac), r.div(dy, ac))),
+            Mode::Compound | Mode::Plain => None,
+        };
         let side = |w: f32| -> Vec<Out> {
             let (w, a, b) = if cross >= 0.0 { (w, n0, n1) } else { (-w, neg(n0), neg(n1)) };
             let at = |n: P| (r.add(r.mul(n.0, w), p.0), r.add(r.mul(n.1, w), p.1));
@@ -275,6 +295,8 @@ impl Widener {
                 vec![]
             } else if w == 0.0 {
                 vec![line(p)]
+            } else if let Some(m) = miter {
+                vec![line(at(m))]
             } else {
                 vec![line(at(a)), line(at(b))]
             }
@@ -372,7 +394,22 @@ impl Widener {
         }
         left.push(line(end_point(self.wl, false)));
         right.push(line(end_point(self.wr, false)));
+        // (an end point an inner miter falls behind takes that point's place, both kept:
+        // clean-room notes geometry.md 18b)
+        for side in [&mut left, &mut right] {
+            let n = side.len();
+            let dot = |a: P, b: P, g: P| r.add(r.mul(r.sub(b.0, a.0), g.0), r.mul(r.sub(b.1, a.1), g.1));
+            // (a side of no join point, a join past 0 ..= 3, is kept: golden anchor-0, -10)
+            if n > 2 && dot(side[0].p, side[1].p, first.g) < 0.0 {
+                side[0].p = side[1].p;
+            }
+            if n > 2 && dot(side[n - 2].p, side[n - 1].p, last.g) < 0.0 {
+                side[n - 1].p = side[n - 2].p;
+            }
+        }
         let first_left = left[0].p;
+        let first_right = right[0].p;
+        let last_left = left[left.len() - 1].p;
         let mut out = left;
         out[0].kind = Kind::Start;
         let mut back = reverse(right);
@@ -380,7 +417,10 @@ impl Widener {
             Cap::Triangle => out.push(line(self.tip(p[k - 1], last.g, false))),
             Cap::Round => {
                 out.pop();
-                out.extend(self.round(p[k - 1], last.g, false));
+                // (its first point the band's offset point, geometry.md 18d)
+                let mut c = self.round(p[k - 1], last.g, false);
+                c[0].p = last_left;
+                out.extend(c);
                 back.remove(0);
             }
             Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
@@ -394,10 +434,33 @@ impl Widener {
                 out.push(line(self.tip(p[0], first.g, true)));
                 out.push(line(first_left));
             }
-            Cap::Round => out.extend(self.round(p[0], first.g, true)),
+            Cap::Round => {
+                let mut c = self.round(p[0], first.g, true);
+                c[0].p = first_right;
+                out.extend(c);
+            }
             Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
         }
         out
+    }
+    /// AddCompoundCaps: a round or triangle cap over the whole width, its own closed figure,
+    /// from the right side to the left at the start and back at the end (geometry.md 18d)
+    fn whole_cap(&self, p: &[P], cap: Cap, start: bool) -> Option<Vec<Out>> {
+        let k = p.len();
+        let (at, s) = if start { (p[0], self.seg(p[0], p[1])) } else { (p[k - 1], self.seg(p[k - 2], p[k - 1])) };
+        let (a, b) = (self.off(self.wr, s.n, at), self.off(self.wl, s.n, at));
+        let mut f = match cap {
+            Cap::Triangle if start => vec![line(a), line(self.tip(at, s.g, true)), line(b)],
+            Cap::Triangle => vec![line(b), line(self.tip(at, s.g, false)), line(a)],
+            Cap::Round => {
+                let mut c = self.round(at, s.g, start);
+                c[0].p = if start { a } else { b };
+                c
+            }
+            Cap::Flat | Cap::Square | Cap::Anchor(_) => return None,
+        };
+        f[0].kind = Kind::Start;
+        Some(f)
     }
     /// a closed subpath's two figures: the left lists, then the right ones reversed
     fn closed(&self, p: &[P]) -> [Vec<Out>; 2] {
@@ -479,7 +542,7 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         return inset(r, path, pen, m, flatness);
     }
     let (major, minor) = axes(r, m);
-    let caps = match anchors(r, &mut figs, pen, major.min(minor), (start, end)) {
+    let caps = match anchors(r, &mut figs, pen, major.min(minor), (start, end))? {
         Ok(c) => c,
         Err(e) => return Ok(Err(e)),
     };
@@ -491,7 +554,17 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     let thin = thin_width > r.mul(pen.width, minor);
     let w = if thin { thin_width } else { pen.width };
     let wl = r.mul(w, 0.5);
-    let wd = Widener { r, w, wl, wr: r.sub(wl, w), lim: sq(r, pen.miter.max(1.0)), join };
+    let lim = sq(r, pen.miter.max(1.0));
+    let whole = Widener { r, w, wl, wr: r.sub(wl, w), lim, join, mode: Mode::Plain };
+    // (a compound array: one band a pair, h - c w each side, an empty pair none; four entries
+    // or more the compound switch, clean-room notes geometry.md 14, 18)
+    let (bands, mode): (Vec<(f32, f32)>, Mode) = match pen.compound.as_slice() {
+        [] => (vec![(whole.wl, whole.wr)], Mode::Plain),
+        c => (
+            c.chunks(2).filter(|q| q[0] != q[1]).map(|q| (r.sub(wl, r.mul(q[0], w)), r.sub(wl, r.mul(q[1], w)))).collect(),
+            if c.len() >= 4 { Mode::Compound } else { Mode::Plain },
+        ),
+    };
     let mut out = Vec::new();
     for s in subs {
         // (a thin pen: widened in device space, then back through the inverse)
@@ -505,11 +578,30 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         if pts.len() < 2 {
             continue;
         }
-        let figs = match (join, s.closed, super::arch()) {
-            (Join::Nothing, true, _) | (Join::Nothing, false, 32) => return Ok(Err(Widened::Failed)),
-            (Join::Miter | Join::Bevel | Join::Round | Join::MiterClipped, true, _) => wd.closed(&pts).to_vec(),
-            (Join::Miter | Join::Bevel | Join::Round | Join::MiterClipped | Join::Nothing, false, _) => vec![wd.open(&pts, s.caps)],
-        };
+        if let (Join::Nothing, true, _) | (Join::Nothing, false, 32) = (join, s.closed, super::arch()) {
+            return Ok(Err(Widened::Failed));
+        }
+        // (compound mode: round and triangle caps once over the whole width after the bands)
+        let apart = |c: Cap| mode == Mode::Compound && matches!(c, Cap::Round | Cap::Triangle);
+        let band_caps = (if apart(s.caps.0) { Cap::Flat } else { s.caps.0 }, if apart(s.caps.1) { Cap::Flat } else { s.caps.1 });
+        let mut figs = Vec::new();
+        for &(bl, br) in &bands {
+            let wd = Widener { wl: bl, wr: br, mode, ..whole };
+            if s.closed {
+                figs.extend(wd.closed(&pts));
+            } else {
+                figs.push(wd.open(&pts, band_caps));
+            }
+        }
+        if !s.closed {
+            for (cap, start) in [(s.caps.0, true), (s.caps.1, false)] {
+                if apart(cap)
+                    && let Some(f) = whole.whole_cap(&pts, cap, start)
+                {
+                    figs.push(f);
+                }
+            }
+        }
         for f in figs {
             let n = f.len();
             out.extend(f.into_iter().enumerate().map(|(i, o)| {
@@ -566,6 +658,10 @@ struct RefCap {
     fill: Vec<Point>,
     len: f32,
     base: f32,
+    /// the width scale (GdipSetCustomLineCapWidthScale; 1 for the anchors)
+    scale: f32,
+    /// every point on the end and no shortening (a degenerate adjustable arrow)
+    collapsed: bool,
 }
 fn reference(r: Round, a: Anchor) -> Res<RefCap> {
     let poly = |v: &[P]| -> Vec<Point> {
@@ -584,27 +680,55 @@ fn reference(r: Round, a: Anchor) -> Res<RefCap> {
         Anchor::Diamond => (poly(&[(0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (1.0, 0.0)]), 1.0, 0.0),
         Anchor::Arrow => (poly(&[(0.0, 0.0), (-1.0, -s3), (1.0, -s3)]), s3, 1.0),
     };
-    Ok(RefCap { fill, len, base })
+    Ok(RefCap { fill, len, base, scale: 1.0, collapsed: false })
 }
 
 /// GpEndCapCreator on each open subpath: the points within the cap's radius of a capped end
 /// erased, the first kept one moved to the circle pulled back by the base inset; the cap
 /// figures (start then end, path order) placed at the original ends
-fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps: (Cap, Cap)) -> Result<Vec<Point>, Widened> {
-    let mut out = Vec::new();
-    let pick = |c: Cap| match c {
-        Cap::Anchor(a) => reference(r, a).ok(),
-        Cap::Flat | Cap::Square | Cap::Round | Cap::Triangle => None,
+/// the cap figure of a pen's end: an anchor's reference cap, or its custom cap object's
+fn end_cap(r: Round, cap: Cap, value: i64, custom: Option<&CustomCap>) -> Res<Option<RefCap>> {
+    let poly = |v: &[P]| -> Vec<Point> {
+        let n = v.len();
+        v.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n }).collect()
     };
-    let (sc, ec) = (pick(caps.0), pick(caps.1));
-    if sc.is_none() && ec.is_none() {
-        return Ok(out);
+    match (cap, value, custom) {
+        (Cap::Anchor(a), _, _) => reference(r, a).map(Some),
+        // (GdipCreateAdjustableArrowCap filled: the fill path (-W/2, -H) (0, 0) (W/2, -H) and
+        // (0, middle - H) past a middle inset of 0, base inset H / W, its fill length H - middle
+        // at least 0; W or H of 0 three points on the end, a middle inset of H four, neither
+        // shortening: clean-room notes geometry.md 19c)
+        (Cap::Flat, 0xff, Some(&CustomCap::Arrow { height, width, filled: true, middle })) if height >= 0.0 && width >= 0.0 => {
+            let (hw, top) = (r.mul(width, 0.5), -height);
+            let mut v = vec![(-hw, top), (0.0, 0.0), (hw, top)];
+            if middle != 0.0 {
+                v.push((0.0, r.add(top, middle)));
+            }
+            let collapsed = match (width == 0.0 || height == 0.0, middle == 0.0, middle == height) {
+                (true, true, _) | (false, _, true) => true,
+                (true, false, _) => return Err(Fail::Unmodeled(open::GP_PEN)),
+                (false, _, false) => false,
+            };
+            let lowest = if middle == 0.0 { top } else { r.add(top, middle).min(0.0).min(top) };
+            let base = if width == 0.0 || height == 0.0 { 0.0 } else { r.div(height, width) };
+            Ok(Some(RefCap { fill: poly(&v), len: (-lowest).max(0.0), base, scale: 1.0, collapsed }))
+        }
+        // (stroke caps, the open arrow, fill paths of GdipCreateCustomLineCap: the spec's open
+        // GP.PEN)
+        (Cap::Flat, 0xff, Some(CustomCap::Arrow { .. } | CustomCap::Path { .. })) => Err(Fail::Unmodeled(open::GP_PEN)),
+        (Cap::Flat | Cap::Square | Cap::Round | Cap::Triangle, _, _) => Ok(None),
     }
-    let s1 = r.mul(1.0, pen.width);
+}
+
+fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps: (Cap, Cap)) -> Res<Result<Vec<Point>, Widened>> {
+    let mut out = Vec::new();
+    let sc = end_cap(r, caps.0, pen.start_cap, pen.custom[0].as_ref())?;
+    let ec = end_cap(r, caps.1, pen.end_cap, pen.custom[1].as_ref())?;
+    if sc.is_none() && ec.is_none() {
+        return Ok(Ok(out));
+    }
     let unit = r.div(1.0, min_axis);
-    let mm = if s1 > unit { s1 } else { unit };
     let s2 = r.div(2.0, min_axis);
-    let s = if s2 > s1 { s2 } else { s1 };
     for (pts, closed) in figs.iter_mut() {
         if *closed || pts.is_empty() {
             continue;
@@ -614,10 +738,17 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps
         let mut marked = vec![false; n];
         let ends: [(Option<&RefCap>, bool); 2] = [(sc.as_ref(), true), (ec.as_ref(), false)];
         for (cap, forward) in ends {
-            let Some(RefCap { fill, len: l, base }) = cap else { continue };
+            let Some(RefCap { fill, len: l, base, scale, collapsed }) = cap else { continue };
             let order: Vec<usize> = if forward { (0..n).collect() } else { (0..n).rev().collect() };
-            let g = shorten(r, pts, &mut marked, &order, *l, *base, mm);
             let o = orig[order[0]];
+            if *collapsed {
+                out.extend(fill.iter().map(|q| Point { x: o.0, y: o.1, ..*q }));
+                continue;
+            }
+            let s1 = r.mul(*scale, pen.width);
+            let mm = if s1 > unit { s1 } else { unit };
+            let s = if s2 > s1 { s2 } else { s1 };
+            let g = shorten(r, pts, &mut marked, &order, *l, *base, mm);
             let d = (-g.0, -g.1);
             let (a, b, cn) = (r.mul(d.0, s), r.mul(d.1, s), r.mul(-s, d.0));
             out.extend(fill.iter().map(|q| Point {
@@ -631,11 +762,11 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps
         // and leave it alone; GpPathWidener::Initialize then fails the whole call, OutOfMemory,
         // clean-room notes geometry.md 20, golden anchor-22, anchor-23; none left is no body)
         if kept.len() == 1 {
-            return Err(Widened::Failed);
+            return Ok(Err(Widened::Failed));
         }
         *pts = kept;
     }
-    Ok(out)
+    Ok(Ok(out))
 }
 
 /// one end's walk (ComputeCapGradient): the direction from the end into the line

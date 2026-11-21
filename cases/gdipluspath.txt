@@ -2141,3 +2141,283 @@ gpfillpath 0 0 0 copy 0 0 9
 gpbitmap 1 4 4 16bppGrayScale
 gpfillpath 1 0 0 copy 0 0 0
 end
+case pathwidenobj-0
+gppen 0 0xff000000 1.75 cap 2 0 0 join 3 compound 6 0 0.25 0.25 0.375 0.625 0.75
+gppath 0 0
+gpadd 0 lines 3 29 4 -1 27.5 27.25 22.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-1
+gppen 0 0xff000000 6 cap 0 1 0 join 4 compound 4 0.625 0.75 0.875 1
+gppath 0 0
+gpadd 0 line 18 6.75 9.5 20.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-2
+gppen 0 0xff000000 4.25 cap 1 2 0 join 0 arrowcap 1 3 3.5 2 0
+gppath 0 0
+gpadd 0 rect 2 11.25 11.5 16.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-3
+gppen 0 0xff000000 8.25 cap 1 2 0 join 1 customcap 2 0 1 0 2 3 1 3 4 -1 -2 0 0 1 -2 0 -1
+gppath 0 0
+gpadd 0 lines 3 13.75 21.5 33.75 35.25 24 30.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-4
+gppen 0 0xff000000 4.25 cap 1 1 0 join 1 compound 6 0 0.5 0.875 0.875 0.875 1
+gppath 0 0
+gpadd 0 line 29 27.75 2.5 1
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-5
+gppen 0 0xff000000 8.75 cap 1 1 0 join 4 compound 6 0 0.375 0.375 0.625 0.625 0.75
+gppath 0 0
+gpadd 0 rect 6.75 8.25 7.5 7.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-6
+gppen 0 0xff000000 2.5 cap 2 1 0 join 2 arrowcap 2 0.5 0.5 0 0
+gppath 0 0
+gpadd 0 lines 3 21 6.75 0 27.25 31.5 27.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-7
+gppen 0 0xff000000 8 cap 0 1 0 join 4 customcap 0 1 3 0 0.5 1 3 0 3 -1 -1 0 0 1 -1
+gppath 0 0
+gpadd 0 line 25.5 7.25 8 10
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-8
+gppen 0 0xff000000 2.25 cap 1 0 0 join 0 compound 2 0.25 1
+gppath 0 0
+gpadd 0 rect 18 15 11.5 7.5
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-9
+gppen 0 0xff000000 4.75 cap 0 3 0 join 3 compound 4 0.25 0.25 0.375 0.5
+gppath 0 0
+gpadd 0 lines 3 18.75 16 11 13.5 16.5 -1.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-10
+gppen 0 0xff000000 6 cap 1 1 0 join 0 arrowcap 0 2.5 3 2 -1
+gppath 0 0
+gpadd 0 line 27.5 21.25 20.5 23
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-11
+gppen 0 0xff000000 4.5 cap 1 1 0 join 2 customcap 2 1 2 0 0.5 3 0 0 3 -1 -1 0 0 1 -1
+gppath 0 0
+gpadd 0 rect 3.25 13.5 8.25 2.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-12
+gppen 0 0xff000000 6.75 cap 3 0 0 join 4 compound 6 0.25 0.375 0.5 0.5 1 1.125
+gppath 0 0
+gpadd 0 lines 3 20.75 30 5 15.75 24 5.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-13
+gppen 0 0xff000000 4.75 cap 4 3 0 join 3 compound 4 0 0.25 0.375 1
+gppath 0 0
+gpadd 0 line 11 4.75 18 8
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-14
+gppen 0 0xff000000 8.25 cap 1 4 0 join 2 arrowcap 1 4 0.5 2 0
+gppath 0 0
+gpadd 0 rect 12.75 2.25 10.75 6
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-15
+gppen 0 0xff000000 3.25 cap 3 0 0 join 3 customcap 2 1 2 0 0.5 0 1 2 3 -1 -1 0 0 1 -1
+gppath 0 0
+gpadd 0 lines 3 7.75 0.75 19.25 29 28.5 6
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-16
+gppen 0 0xff000000 5.5 cap 3 1 0 join 0 compound 2 0 0.5
+gppath 0 0
+gpadd 0 line 19.75 12.75 3.25 22.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-17
+gppen 0 0xff000000 6.5 cap 0 4 0 join 4 compound 4 0.875 1 1 1.125
+gppath 0 0
+gpadd 0 rect 8.75 18.75 19.25 3.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-18
+gppen 0 0xff000000 7.5 cap 0 3 0 join 3 arrowcap 0 4 0.5 1 0.5
+gppath 0 0
+gpadd 0 lines 3 19.25 18.75 31.75 9.25 18.25 0.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-19
+gppen 0 0xff000000 8.25 cap 4 4 0 join 3 customcap 1 0 0 0 1 1 3 2 4 -1 -2 0 0 1 -2 0 -1
+gppath 0 0
+gpadd 0 line 19.25 5.25 18.25 1.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-20
+gppen 0 0xff000000 4.75 cap 4 0 0 join 3 compound 4 0.125 0.75 0.75 1.125
+gppath 0 0
+gpadd 0 rect 17.25 15.25 8.5 20
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-21
+gppen 0 0xff000000 3.25 cap 0 4 0 join 0 compound 6 0.125 0.125 0.25 0.25 0.625 1
+gppath 0 0
+gpadd 0 lines 3 11.75 27.5 19.75 39.75 27.75 1.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-22
+gppen 0 0xff000000 6 cap 2 1 0 join 0 arrowcap 1 2.5 4.5 2 -1
+gppath 0 0
+gpadd 0 line 10.25 8 15 23.5
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-23
+gppen 0 0xff000000 7 cap 4 2 0 join 1 customcap 1 0 1 0.5 1 2 2 0 3 -1 -1 0 0 1 -1
+gppath 0 0
+gpadd 0 rect 2.75 0 8.5 4.25
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-24
+gppen 0 0xff000000 6.75 cap 2 2 0 join 0 compound 4 0.375 0.375 0.625 1.125
+gppath 0 0
+gpadd 0 lines 3 16.25 4.25 20.75 37.5 18 11.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-25
+gppen 0 0xff000000 3.5 cap 1 1 0 join 2 compound 4 0 0.125 0.75 1
+gppath 0 0
+gpadd 0 line 25.5 7 15.5 21
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-26
+gppen 0 0xff000000 8.5 cap 4 2 0 join 2 arrowcap 0 4 0.5 0 -1
+gppath 0 0
+gpadd 0 rect 7 14.5 11.25 6.5
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-27
+gppen 0 0xff000000 5 cap 1 3 0 join 4 customcap 2 0 2 1 1 3 0 2 4 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5
+gppath 0 0
+gpadd 0 lines 3 24 31.5 2 29.25 21 21
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-28
+gppen 0 0xff000000 4 cap 3 3 0 join 0 compound 2 0 0.5
+gppath 0 0
+gpadd 0 line 22 14.25 12.5 0.5
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-29
+gppen 0 0xff000000 8.5 cap 2 2 0 join 4 compound 2 0.5 0.875
+gppath 0 0
+gpadd 0 rect 8.5 14.75 5.75 4.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-30
+gppen 0 0xff000000 9 cap 1 3 0 join 2 arrowcap 2 3 1.5 1 0
+gppath 0 0
+gpadd 0 lines 3 5.5 15.25 24.75 10.25 12 37
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-31
+gppen 0 0xff000000 5.75 cap 4 4 0 join 1 customcap 0 0 1 0 2 3 0 3 4 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5
+gppath 0 0
+gpadd 0 line 30 2 18 25.75
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-32
+gppen 0 0xff000000 4.5 cap 4 4 0 join 0 compound 4 0.375 0.375 0.5 0.875
+gppath 0 0
+gpadd 0 rect 11.25 11.25 5.75 14
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-33
+gppen 0 0xff000000 4.5 cap 1 2 0 join 2 compound 4 0.125 1 1 1.125
+gppath 0 0
+gpadd 0 lines 3 35.25 36 3 13.5 19.75 6
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-34
+gppen 0 0xff000000 2.75 cap 1 4 0 join 4 arrowcap 0 2 2 1 1
+gppath 0 0
+gpadd 0 line 5.5 5.5 4 7
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-35
+gppen 0 0xff000000 2.25 cap 1 0 0 join 3 customcap 1 2 4 0 2 0 0 1 3 -1 -1 0 0 1 -1
+gppath 0 0
+gpadd 0 rect 10.5 13 13.75 10
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-36
+gppen 0 0xff000000 1.5 cap 1 2 0 join 2 compound 4 0 0.125 0.375 1.125
+gppath 0 0
+gpadd 0 lines 3 3 26.5 20.25 9.75 12 36.5
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-37
+gppen 0 0xff000000 2.25 cap 3 3 0 join 0 compound 6 0.25 0.375 0.375 0.625 1 1
+gppath 0 0
+gpadd 0 line 11.75 8.5 8.25 15
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-38
+gppen 0 0xff000000 9 cap 2 0 0 join 2 arrowcap 1 0.5 1.5 2 1
+gppath 0 0
+gpadd 0 rect 6.75 14.75 7 8
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwidenobj-39
+gppen 0 0xff000000 8.75 cap 1 1 0 join 2 customcap 1 2 2 0 2 3 2 1 4 -1 -2 0 0 1 -2 0 -1
+gppath 0 0
+gpadd 0 lines 3 36.5 -1 34.25 31.75 22.75 21.5
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end

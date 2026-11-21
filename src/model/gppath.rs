@@ -966,10 +966,23 @@ pub struct Pen {
     pub join: i64,
     pub align: i64,
     pub miter: f32,
+    /// GdipSetPenCompoundArray's array, empty for none
+    pub compound: Vec<f32>,
+    /// the custom cap objects GdipSetPenCustomStartCap and EndCap set
+    pub custom: [Option<CustomCap>; 2],
+}
+/// a custom line cap object
+#[derive(Clone, PartialEq, Debug)]
+pub enum CustomCap {
+    /// GdipCreateAdjustableArrowCap and its middle inset
+    Arrow { height: f32, width: f32, filled: bool, middle: f32 },
+    /// GdipCreateCustomLineCap of a fill (a polygon) or a stroke path (open lines), and its
+    /// setters
+    Path { stroke: bool, pts: Vec<(f32, f32)>, base_inset: f32, width_scale: f32, join: i64, caps: (i64, i64) },
 }
 impl Pen {
     pub fn new(color: u32, width: f32) -> Pen {
-        Pen { color, width, dash: 0, start_cap: 0, end_cap: 0, dash_cap: 0, join: 0, align: 0, miter: 10.0 }
+        Pen { color, width, dash: 0, start_cap: 0, end_cap: 0, dash_cap: 0, join: 0, align: 0, miter: 10.0, compound: Vec::new(), custom: [None, None] }
     }
 }
 
