@@ -164,6 +164,12 @@ static const struct { const char *name, *sig; } glcalls[] = {
     { "glClearDepth", "d" }, { "glDepthRange", "dd" }, { "glOrtho", "dddddd" }, { "glFrustum", "dddddd" },
     { "glAlphaFunc", "if" }, { "glPixelStoref", "if" }, { "glPixelTransferf", "if" }, { "glAccum", "if" }, { "glFogf", "if" },
     { "glPixelZoom", "ff" }, { "glRasterPos2i", "ii" }, { "glRasterPos2f", "ff" },
+    /* texturing (GL 1.1 3.8) */
+    { "glBindTexture", "ii" }, { "glTexParameteri", "iii" }, { "glTexParameterf", "iif" }, { "glTexEnvi", "iii" },
+    { "glTexEnvf", "iif" }, { "glTexGeni", "iii" }, { "glTexGenf", "iif" }, { "glTexGend", "iid" },
+    { "glTexCoord1f", "f" }, { "glTexCoord2f", "ff" }, { "glTexCoord3f", "fff" }, { "glTexCoord4f", "ffff" },
+    { "glCopyTexImage1D", "iiiiiii" }, { "glCopyTexImage2D", "iiiiiiii" }, { "glCopyTexSubImage1D", "iiiiii" },
+    { "glCopyTexSubImage2D", "iiiiiiii" },
     { 0 },
 };
 
@@ -185,9 +191,9 @@ static void op_gl(void) {
     if (!glcalls[k].name) { bad = 1; return; }
     const char *s = glcalls[k].sig;
     if (ntok != 2 + (int)strlen(s)) { bad = 1; return; }
-    long a[6];
-    float f[6];
-    double d[6];
+    long a[8];
+    float f[8];
+    double d[8];
     for (int i = 0; s[i]; i++) {
         if (s[i] == 'i') a[i] = num(2 + i);
         else f[i] = d[i] = fl(2 + i);
@@ -209,6 +215,11 @@ static void op_gl(void) {
     else if (SIG("dd")) ((void (WINAPI *)(double, double))p)(d[0], d[1]);
     else if (SIG("dddddd")) ((void (WINAPI *)(double, double, double, double, double, double))p)(d[0], d[1], d[2], d[3], d[4], d[5]);
     else if (SIG("if")) ((void (WINAPI *)(long, float))p)(a[0], f[1]);
+    else if (SIG("iif")) ((void (WINAPI *)(long, long, float))p)(a[0], a[1], f[2]);
+    else if (SIG("iid")) ((void (WINAPI *)(long, long, double))p)(a[0], a[1], d[2]);
+    else if (SIG("iiiiii")) ((void (WINAPI *)(long, long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4], a[5]);
+    else if (SIG("iiiiiii")) ((void (WINAPI *)(long, long, long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+    else if (SIG("iiiiiiii")) ((void (WINAPI *)(long, long, long, long, long, long, long, long))p)(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
     else bad = 1;
 #undef SIG
 }
@@ -305,19 +316,172 @@ static void op_glread(void) {
         if (rbuf[n + i] != 0xcc) { out("over\n"); break; }
 }
 
-/* gldraw <w> <h> <format> <type> <seed> <bytes>: glDrawPixels of <bytes> bytes from xorshift32,
- * zeros after them to the end of rbuf (what an image laid out past its bytes reads) */
-static void op_gldraw(void) {
-    NOCTX();
-    long w = num(1), h = num(2), f = num(3), t = num(4), seed = num(5), n = num(6);
-    if (bad || n < 1 || n > 65536) { bad = 1; return; }
+/* fill rbuf's first n bytes from xorshift32 seeded with seed (0: the golden ratio), zeros after */
+static void fill_rbuf(long seed, long n) {
     unsigned x = seed ? (unsigned)seed : 0x9e3779b9;
     memset(rbuf, 0, sizeof rbuf);
     for (int i = 0; i < n; i++) {
         x ^= x << 13; x ^= x >> 17; x ^= x << 5;
         rbuf[i] = x;
     }
+}
+
+/* gldraw <w> <h> <format> <type> <seed> <bytes>: glDrawPixels of <bytes> bytes from xorshift32,
+ * zeros after them to the end of rbuf (what an image laid out past its bytes reads) */
+static void op_gldraw(void) {
+    NOCTX();
+    long w = num(1), h = num(2), f = num(3), t = num(4), seed = num(5), n = num(6);
+    if (bad || n < 1 || n > 65536) { bad = 1; return; }
+    fill_rbuf(seed, n);
     ((void (WINAPI *)(GLsizei, GLsizei, GLenum, GLenum, const void *))glf("glDrawPixels"))(w, h, f, t, rbuf);
+}
+
+/* gltex <target> <level> <internal format> <w> <h> <border> <format> <type> <seed> <bytes>:
+ * glTexImage1D (target GL_TEXTURE_1D, h unused) or glTexImage2D of <bytes> bytes from
+ * xorshift32 (0 bytes: a null pointer) */
+static void op_gltex(void) {
+    NOCTX();
+    long tg = num(1), lv = num(2), ifmt = num(3), w = num(4), h = num(5), b = num(6), f = num(7), t = num(8), seed = num(9), n = num(10);
+    if (bad || ntok != 11 || n < 0 || n > 65536) { bad = 1; return; }
+    fill_rbuf(seed, n);
+    const void *px = n ? rbuf : NULL;
+    if (tg == 0x0de0) ((void (WINAPI *)(GLenum, GLint, GLint, GLsizei, GLint, GLenum, GLenum, const void *))glf("glTexImage1D"))(tg, lv, ifmt, w, b, f, t, px);
+    else ((void (WINAPI *)(GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const void *))glf("glTexImage2D"))(tg, lv, ifmt, w, h, b, f, t, px);
+}
+
+/* gltexsub <target> <level> <x> <y> <w> <h> <format> <type> <seed> <bytes>: glTexSubImage1D
+ * (GL_TEXTURE_1D, y and h unused) or glTexSubImage2D */
+static void op_gltexsub(void) {
+    NOCTX();
+    long tg = num(1), lv = num(2), x = num(3), y = num(4), w = num(5), h = num(6), f = num(7), t = num(8), seed = num(9), n = num(10);
+    if (bad || ntok != 11 || n < 1 || n > 65536) { bad = 1; return; }
+    fill_rbuf(seed, n);
+    if (tg == 0x0de0) ((void (WINAPI *)(GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const void *))glf("glTexSubImage1D"))(tg, lv, x, w, f, t, rbuf);
+    else ((void (WINAPI *)(GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void *))glf("glTexSubImage2D"))(tg, lv, x, y, w, h, f, t, rbuf);
+}
+
+/* glteximg <target> <level> <format> <type> <bytes>: glGetTexImage into rbuf, "read <hex>" as
+ * glread, "over" if it wrote past <bytes> */
+static void op_glteximg(void) {
+    NOCTX();
+    long tg = num(1), lv = num(2), f = num(3), t = num(4), n = num(5);
+    if (bad || ntok != 6 || n < 1 || n > 65536) { bad = 1; return; }
+    memset(rbuf, 0xcc, sizeof rbuf);
+    ((void (WINAPI *)(GLenum, GLint, GLenum, GLenum, void *))glf("glGetTexImage"))(tg, lv, f, t, rbuf);
+    out("read ");
+    out_hex(rbuf, n);
+    for (int i = 0; i < 64; i++)
+        if (rbuf[n + i] != 0xcc) { out("over\n"); break; }
+}
+
+/* gltexq param|level|env|gen <target or coord> [<level>] <pname> i|f <n>: glGetTexParameter,
+ * glGetTexLevelParameter, glGetTexEnv, glGetTexGen (iv or fv, dv for gen d), "texq <values>" */
+static void op_gltexq(void) {
+    NOCTX();
+    int lvl = is(1, "level"), at = 2;
+    long tg = num(at++), lv = lvl ? num(at++) : 0, pn = num(at++);
+    int isf = is(at, "f"), isd = is(at, "d");
+    if (!isf && !isd && !is(at, "i")) bad = 1;
+    long n = num(at + 1);
+    if (bad || ntok != at + 2 || n < 1 || n > 16) { bad = 1; return; }
+    const char *base = is(1, "param") ? "glGetTexParameter" : lvl ? "glGetTexLevelParameter" : is(1, "env") ? "glGetTexEnv" : is(1, "gen") ? "glGetTexGen" : NULL;
+    if (!base || (isd && !is(1, "gen"))) { bad = 1; return; }
+    char name[64];
+    snprintf(name, sizeof name, "%s%s", base, isd ? "dv" : isf ? "fv" : "iv");
+    FARPROC p = glf(name);
+    GLint iv[16]; GLfloat fv[16]; GLdouble dv[16];
+    for (int i = 0; i < 16; i++) { iv[i] = 0x7eadbeef; fv[i] = -12345.0f; dv[i] = -12345.0; }
+    void *v = isd ? (void *)dv : isf ? (void *)fv : (void *)iv;
+    if (lvl) ((void (WINAPI *)(GLenum, GLint, GLenum, void *))p)(tg, lv, pn, v);
+    else ((void (WINAPI *)(GLenum, GLenum, void *))p)(tg, pn, v);
+    out("texq");
+    for (int i = 0; i < n; i++) {
+        if (isd) out(" %.9g", dv[i]);
+        else if (isf) out(" %.9g", fv[i]);
+        else out(" %ld", (long)iv[i]);
+    }
+    out("\n");
+}
+
+/* gltexv param|env|gen <target or coord> <pname> i|f|d <1..4 values>: glTexParameter, glTexEnv,
+ * glTexGen in their iv, fv or dv forms */
+static void op_gltexv(void) {
+    NOCTX();
+    if (ntok < 6 || ntok > 9) { bad = 1; return; }
+    long tg = num(2), pn = num(3);
+    int isf = is(4, "f"), isd = is(4, "d");
+    if (!isf && !isd && !is(4, "i")) bad = 1;
+    GLint iv[4] = { 0, 0, 0, 0 }; GLfloat fv[4] = { 0, 0, 0, 0 }; GLdouble dv[4] = { 0, 0, 0, 0 };
+    for (int i = 5; i < ntok; i++) {
+        if (isf || isd) { dv[i - 5] = fl(i); fv[i - 5] = (float)dv[i - 5]; }
+        else iv[i - 5] = num(i);
+    }
+    const char *base = is(1, "param") ? "glTexParameter" : is(1, "env") ? "glTexEnv" : is(1, "gen") ? "glTexGen" : NULL;
+    if (bad || !base || (isd && !is(1, "gen"))) { bad = 1; return; }
+    char name[64];
+    snprintf(name, sizeof name, "%s%s", base, isd ? "dv" : isf ? "fv" : "iv");
+    void *v = isd ? (void *)dv : isf ? (void *)fv : (void *)iv;
+    ((void (WINAPI *)(GLenum, GLenum, const void *))glf(name))(tg, pn, v);
+}
+
+/* glgentex <n>: glGenTextures, "tex <names>"; gldeltex <names>: glDeleteTextures;
+ * glistex <name>: "istex <glIsTexture>"; glprio <prio> <names>: glPrioritizeTextures (each the one
+ * priority); glresident <names>: "resident <ret> <flags>" from glAreTexturesResident */
+static void op_glgentex(void) {
+    NOCTX();
+    long n = num(1);
+    if (bad || ntok != 2 || n < 0 || n > 16) { bad = 1; return; }
+    GLuint v[16] = { 0 };
+    ((void (WINAPI *)(GLsizei, GLuint *))glf("glGenTextures"))(n, v);
+    out("tex");
+    for (int i = 0; i < n; i++) out(" %lu", (unsigned long)v[i]);
+    out("\n");
+}
+
+static int read_names(int from, GLuint *v) {
+    int n = 0;
+    for (int i = from; i < ntok && n < 16; i++) v[n++] = (GLuint)num(i);
+    if (ntok - from > 16) bad = 1;
+    return n;
+}
+
+static void op_gldeltex(void) {
+    NOCTX();
+    GLuint v[16];
+    int n = read_names(1, v);
+    if (bad) return;
+    ((void (WINAPI *)(GLsizei, const GLuint *))glf("glDeleteTextures"))(n, v);
+}
+
+static void op_glistex(void) {
+    NOCTX();
+    long t = num(1);
+    if (bad || ntok != 2) { bad = 1; return; }
+    out("istex %d\n", (int)((GLboolean (WINAPI *)(GLuint))glf("glIsTexture"))((GLuint)t));
+}
+
+static void op_glprio(void) {
+    NOCTX();
+    float pr = (float)fl(1);
+    GLuint v[16];
+    GLclampf p[16];
+    int n = read_names(2, v);
+    if (bad) return;
+    for (int i = 0; i < n; i++) p[i] = pr;
+    ((void (WINAPI *)(GLsizei, const GLuint *, const GLclampf *))glf("glPrioritizeTextures"))(n, v, p);
+}
+
+static void op_glresident(void) {
+    NOCTX();
+    GLuint v[16];
+    GLboolean r[16];
+    int n = read_names(1, v);
+    if (bad) return;
+    memset(r, 0x5a, sizeof r);
+    GLboolean ret = ((GLboolean (WINAPI *)(GLsizei, const GLuint *, GLboolean *))glf("glAreTexturesResident"))(n, v, r);
+    out("resident %d", (int)ret);
+    for (int i = 0; i < n; i++) out(" %d", (int)r[i]);
+    out("\n");
 }
 
 /* gldib: glFinish, GdiFlush, then the DIB: "px gl 16 16 <bpp>" and each row, bottom row first */
@@ -359,6 +523,16 @@ static const struct kz_op opengl_ops[] = {
     { "glstr", op_glstr },
     { "glread", op_glread },
     { "gldraw", op_gldraw },
+    { "gltex", op_gltex },
+    { "gltexsub", op_gltexsub },
+    { "glteximg", op_glteximg },
+    { "gltexq", op_gltexq },
+    { "gltexv", op_gltexv },
+    { "glgentex", op_glgentex },
+    { "gldeltex", op_gldeltex },
+    { "glistex", op_glistex },
+    { "glprio", op_glprio },
+    { "glresident", op_glresident },
     { "gldib", op_gldib },
     { "glcur", op_glcur },
     { "glrelease", op_glrelease },

@@ -3100,4 +3100,162 @@ fn measure(s: &mut String) {
     // an antialiased triangle into a 16-bit DIB, blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), undithered (GL.RASTER.MODE): open
     writeln!(s, "case raster-open-59\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 255\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024", ctx(16));
     writeln!(s, "glerr\nend");
+    textures(s);
+}
+
+/// texturing (GL 1.1 3.8): objects, images and their formats, queries, environments, filters,
+/// wrapping, mipmaps, sub-images and copies, coordinate generation, the texture matrix, and
+/// textured primitives (GL.RASTER.MODE: open)
+fn textures(s: &mut String) {
+    const T2: u32 = 0xde1;
+    let head = |s: &mut String, name: &str, bpp: u32| {
+        writeln!(s, "case {name}\n{}{ORTHO}gl glDisable 0xbd0", ctx(bpp));
+    };
+    let q = |s: &mut String, kind: &str, args: &str, ty: &str, n: u32| {
+        writeln!(s, "gltexq {kind} {args} {ty} {n}");
+    };
+    // (a textured quad over the window, texture coordinates (s0, t0) .. (s1, t1))
+    let quad = |s: &mut String, s0: f32, t0: f32, s1: f32, t1: f32| {
+        writeln!(s, "gl glColor4ub 255 255 255 255\ngl glBegin 7\ngl glTexCoord2f {s0} {t0}\ngl glVertex2f 0 0\ngl glTexCoord2f {s1} {t0}\ngl glVertex2f 16 0\ngl glTexCoord2f {s1} {t1}\ngl glVertex2f 16 16\ngl glTexCoord2f {s0} {t1}\ngl glVertex2f 0 16\ngl glEnd");
+    };
+    let params = [0x2800u32, 0x2801, 0x2802, 0x2803, 0x8066, 0x8067];
+    let levels = [0x1000u32, 0x1001, 0x1003, 0x1005, 0x805c, 0x805d, 0x805e, 0x805f, 0x8060, 0x8061];
+    // objects: names, binding, residency, priorities, deletion, and the defaults
+    head(s, "tex-open-0", 32);
+    writeln!(s, "glgentex 3\nglistex 1\ngl glBindTexture {T2} 1\nglistex 1\nglerr");
+    for p in params {
+        q(s, "param", &format!("{T2} {p}"), "i", 1);
+    }
+    q(s, "param", &format!("{T2} 4100"), "f", 4);
+    writeln!(s, "glresident 1 2 3\nglprio 0.25 1 2\nglresident 1 2\nglerr");
+    q(s, "param", &format!("{T2} 32870"), "f", 1);
+    writeln!(s, "gldeltex 1 7\nglistex 1\nglistex 2\nglgentex 2\ngl glBindTexture 0xde0 2\ngl glBindTexture {T2} 2\nglerr\nend");
+    // images in every internal format, read back, and their level parameters
+    let formats = [1u32, 2, 3, 4, 0x1906, 0x1909, 0x190a, 0x8049, 0x803b, 0x803c, 0x803f, 0x8040, 0x8041, 0x8042, 0x8045, 0x8048, 0x804b, 0x804c, 0x804f, 0x8050, 0x8051, 0x8052, 0x8053, 0x8054, 0x8055, 0x8056, 0x8057, 0x8058, 0x8059, 0x805a, 0x805b, 0x2a10, 0x80e5];
+    for (k, f) in formats.iter().enumerate() {
+        head(s, &format!("tex-open-format-{k}"), 32);
+        writeln!(s, "gltex {T2} 0 {f} 4 2 0 0x1908 0x1401 {} 32\nglerr", k.wrapping_add(0x100));
+        for l in levels {
+            q(s, "level", &format!("{T2} 0 {l}"), "i", 1);
+        }
+        writeln!(s, "glteximg {T2} 0 0x1908 0x1401 32\nglteximg {T2} 0 0x1909 0x1406 32\nglerr\nend");
+    }
+    // source formats and types into RGBA8
+    let sources = [(0x1908u32, 0x1401u32), (0x1907, 0x1401), (0x1909, 0x1401), (0x190a, 0x1401), (0x1906, 0x1401), (0x1903, 0x1401), (0x1904, 0x1401), (0x1905, 0x1401), (0x80e1, 0x1401), (0x80e0, 0x1401), (0x1908, 0x1400), (0x1908, 0x1402), (0x1908, 0x1403), (0x1908, 0x1404), (0x1908, 0x1405), (0x1908, 0x1406), (0x1900, 0x1401), (0x1908, 0x1a00)];
+    for (k, (f, t)) in sources.iter().enumerate() {
+        head(s, &format!("tex-open-source-{k}"), 32);
+        writeln!(s, "gltex {T2} 0 0x8058 4 2 0 {f} {t} {} 256\nglerr\nglteximg {T2} 0 0x1908 0x1401 32\nglerr\nend", k.wrapping_add(0x200));
+    }
+    // errors: sizes not 2^n + 2 border, borders, levels, targets, formats, sub-images out of range
+    head(s, "tex-open-errors", 32);
+    for (tg, lv, ifmt, w, h, b, f, t) in [(T2, 0, 4, 3, 2, 0, 0x1908, 0x1401), (T2, 0, 4, 4, 2, 2, 0x1908, 0x1401), (T2, -1, 4, 4, 2, 0, 0x1908, 0x1401), (T2, 11, 4, 4, 2, 0, 0x1908, 0x1401), (0xde2, 0, 4, 4, 2, 0, 0x1908, 0x1401), (T2, 0, 5, 4, 2, 0, 0x1908, 0x1401), (T2, 0, 4, 4, 2, 0, 0x1902, 0x1401), (T2, 0, 4, 4, 2, 0, 0x1908, 0x1a00), (T2, 0, 4, 2048, 1, 0, 0x1908, 0x1401), (T2, 0, 4, 6, 6, 1, 0x1908, 0x1401), (T2, 0, 4, 0, 0, 0, 0x1908, 0x1401)] {
+        writeln!(s, "gltex {tg} {lv} {ifmt} {w} {h} {b} {f} {t} 1 128\nglerr");
+    }
+    writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 1 64\ngltexsub {T2} 0 2 2 4 4 0x1908 0x1401 2 64\nglerr\ngltexsub {T2} 0 -1 0 1 1 0x1908 0x1401 2 4\nglerr\ngltexsub {T2} 1 0 0 1 1 0x1908 0x1401 2 4\nglerr");
+    writeln!(s, "gl glTexParameteri {T2} 10241 7\nglerr\ngl glTexEnvi 8960 8704 7\nglerr\ngl glTexGeni 8192 9472 7\nglerr\ngl glBegin 7\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 1 64\nglerr\ngl glEnd\nglerr\nend");
+    // sub-images and copies from the color buffer, read back
+    head(s, "tex-open-sub", 32);
+    writeln!(s, "gltex {T2} 0 0x8058 8 8 0 0x1908 0x1401 3 256\ngltexsub {T2} 0 2 3 4 2 0x1908 0x1401 4 32\nglteximg {T2} 0 0x1908 0x1401 256\nglerr\nend");
+    for (k, ifmt) in [0x8058u32, 0x1907, 0x1909, 0x8056].iter().enumerate() {
+        head(s, &format!("tex-open-copy-{k}"), 32);
+        writeln!(s, "gldraw 16 16 0x1908 0x1401 {} 1024\ngl glCopyTexImage2D {T2} 0 {ifmt} 1 2 8 4 0\nglerr\nglteximg {T2} 0 0x1908 0x1401 128", k.wrapping_add(0x300));
+        writeln!(s, "gl glCopyTexSubImage2D {T2} 0 2 1 9 5 4 2\nglerr\nglteximg {T2} 0 0x1908 0x1401 128\ngl glCopyTexImage1D 0xde0 0 {ifmt} 3 4 8 0\nglerr\nglteximg 0xde0 0 0x1908 0x1401 32\ngl glCopyTexSubImage1D 0xde0 0 1 0 0 4\nglteximg 0xde0 0 0x1908 0x1401 32\nglerr\nend");
+    }
+    // the environments over a smooth background color, each base format
+    for (k, (mode, ifmt)) in [(0x2100u32, 4u32), (0x2100, 3), (0x2100, 0x1906), (0x2100, 0x1909), (0x2100, 0x190a), (0x2100, 0x8049), (0x2101, 4), (0x2101, 3), (0x0be2, 4), (0x0be2, 3), (0x0be2, 0x1909), (0x0be2, 0x8049), (0x1e01, 4), (0x1e01, 3), (0x1e01, 0x1906), (0x1e01, 0x8049)].iter().enumerate() {
+        head(s, &format!("tex-open-env-{k}"), 32);
+        writeln!(s, "gltex {T2} 0 {ifmt} 4 4 0 0x1908 0x1401 {} 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexParameteri {T2} 10240 9728\ngl glTexEnvi 8960 8704 {mode}\ngltexv env 8960 8705 f 0.25 0.5 0.75 0.5\ngl glEnable {T2}\ngl glClear 0x4000", k.wrapping_add(0x400));
+        writeln!(s, "gl glBegin 7\ngl glColor4ub 255 0 0 200\ngl glTexCoord2f 0 0\ngl glVertex2f 0 0\ngl glColor4ub 0 255 0 100\ngl glTexCoord2f 1 0\ngl glVertex2f 16 0\ngl glColor4ub 0 0 255 255\ngl glTexCoord2f 1 1\ngl glVertex2f 16 16\ngl glColor4ub 255 255 255 50\ngl glTexCoord2f 0 1\ngl glVertex2f 0 16\ngl glEnd");
+        q(s, "env", "8960 8704", "i", 1);
+        q(s, "env", "8960 8705", "f", 4);
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    // filters: magnified and minified, each min filter, with a full mipmap chain
+    for (k, (min, mag, s1)) in [(9728u32, 9728u32, 1.0f32), (9729, 9729, 1.0), (9728, 9729, 0.37), (9729, 9728, 0.37), (9984, 9728, 4.0), (9985, 9728, 4.0), (9986, 9728, 4.0), (9987, 9728, 4.0), (9987, 9728, 2.5), (9729, 9728, 4.0), (9984, 9728, 1.0), (9987, 9729, 0.5)].iter().enumerate() {
+        head(s, &format!("tex-open-filter-{k}"), 32);
+        writeln!(s, "gltex {T2} 0 4 8 8 0 0x1908 0x1401 {} 256\ngltex {T2} 1 4 4 4 0 0x1908 0x1401 {} 64\ngltex {T2} 2 4 2 2 0 0x1908 0x1401 {} 16\ngltex {T2} 3 4 1 1 0 0x1908 0x1401 {} 4", k.wrapping_add(0x500), k.wrapping_add(0x510), k.wrapping_add(0x520), k.wrapping_add(0x530));
+        writeln!(s, "gl glTexParameteri {T2} 10241 {min}\ngl glTexParameteri {T2} 10240 {mag}\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glClear 0x4000");
+        quad(s, 0.0, 0.0, *s1, s1.mul_add(0.75, 0.0));
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    // an incomplete mipmap chain under a mipmap filter, and a quad over the mip levels' ranges
+    head(s, "tex-open-incomplete", 32);
+    writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 9 64\ngl glTexParameteri {T2} 10241 9984\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glClear 0x4000");
+    quad(s, 0.0, 0.0, 1.0, 1.0);
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // wrapping and the border: REPEAT and CLAMP with coordinates past 0..1, a bordered image,
+    // the border color
+    for (k, (ws, wt, b)) in [(10497u32, 10497u32, 0u32), (10496, 10496, 0), (10497, 10496, 0), (10496, 10496, 1), (10497, 10497, 1)].iter().enumerate() {
+        for filter in [9728u32, 9729] {
+            head(s, &format!("tex-open-wrap-{k}-{filter}"), 32);
+            let side = b.wrapping_mul(2).wrapping_add(4);
+            writeln!(s, "gltex {T2} 0 4 {side} {side} {b} 0x1908 0x1401 {} {}\ngl glTexParameteri {T2} 10242 {ws}\ngl glTexParameteri {T2} 10243 {wt}\ngltexv param {T2} 4100 f 1 0.5 0 1\ngl glTexParameteri {T2} 10241 {filter}\ngl glTexParameteri {T2} 10240 {filter}\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glClear 0x4000", k.wrapping_add(0x600), side.wrapping_mul(side).wrapping_mul(4));
+            quad(s, -1.25, -0.75, 2.5, 2.0);
+            read_all(s);
+            writeln!(s, "glerr\nend");
+        }
+    }
+    // one-dimensional textures
+    head(s, "tex-open-1d", 32);
+    writeln!(s, "gltex 0xde0 0 4 8 1 0 0x1908 0x1401 11 32\ngl glTexParameteri 0xde0 10241 9729\ngl glTexEnvi 8960 8704 7681\ngl glEnable 0xde0\ngl glClear 0x4000\ngl glBegin 7\ngl glTexCoord1f -0.2\ngl glVertex2f 0 0\ngl glTexCoord1f 1.3\ngl glVertex2f 16 0\ngl glTexCoord1f 1.3\ngl glVertex2f 16 16\ngl glTexCoord1f -0.2\ngl glVertex2f 0 16\ngl glEnd");
+    read_all(s);
+    writeln!(s, "gl glEnable {T2}\nglerr\nend");
+    // perspective: a textured quad in a frustum under each perspective hint
+    for (k, hint) in [0x1100u32, 0x1101, 0x1102].iter().enumerate() {
+        writeln!(s, "case tex-open-persp-{k}\n{}gl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glFrustum -1 1 -1 1 1 10\ngl glMatrixMode 0x1700\ngl glLoadIdentity\ngl glDisable 0xbd0\ngl glHint 0xc50 {hint}", ctx(32));
+        writeln!(s, "gltex {T2} 0 4 8 8 0 0x1908 0x1401 12 256\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glClear 0x4000\ngl glBegin 7\ngl glTexCoord2f 0 0\ngl glVertex3f -1 -1 -1.2\ngl glTexCoord2f 1 0\ngl glVertex3f 1 -1 -1.2\ngl glTexCoord2f 1 1\ngl glVertex3f 1 1 -4\ngl glTexCoord2f 0 1\ngl glVertex3f -1 1 -4\ngl glEnd");
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    // the texture matrix and texture coordinate generation (each mode), and their queries
+    head(s, "tex-open-matrix", 32);
+    writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 13 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glMatrixMode 0x1702\ngl glTranslatef 0.25 0.125 0\ngl glRotatef 30 0 0 1\ngl glMatrixMode 0x1700\ngl glClear 0x4000");
+    quad(s, 0.0, 0.0, 1.0, 1.0);
+    read_all(s);
+    writeln!(s, "glget f 0xba8 16\nglerr\nend");
+    for (k, mode) in [9217u32, 9216, 9218].iter().enumerate() {
+        head(s, &format!("tex-open-gen-{k}"), 32);
+        writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 14 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glTexGeni 8192 9472 {mode}\ngl glTexGeni 8193 9472 {mode}\ngltexv gen 8192 9473 f 0.0625 0 0 0.1\ngltexv gen 8193 9473 f 0 0.0625 0 -0.2\ngltexv gen 8192 9474 f 0.125 0.03125 0 0\ngltexv gen 8193 9474 d 0 0.125 0 0.25\ngl glEnable 0xc60\ngl glEnable 0xc61\ngl glClear 0x4000\ngl glNormal3f 0.3 0.4 0.866");
+        quad(s, 0.0, 0.0, 1.0, 1.0);
+        read_all(s);
+        q(s, "gen", "8192 9472", "i", 1);
+        q(s, "gen", "8192 9473", "f", 4);
+        q(s, "gen", "8193 9474", "d", 4);
+        writeln!(s, "glerr\nend");
+    }
+    // textured lines, points, smooth triangles and lit, fogged and dithered textured polygons
+    let prims = [
+        ("line", 32, "gl glBegin 1\ngl glTexCoord2f 0 0\ngl glVertex2f 1.5 2.25\ngl glTexCoord2f 1 1\ngl glVertex2f 14.5 11.75\ngl glEnd"),
+        ("line-smooth", 32, "gl glEnable 0xb20\ngl glBegin 1\ngl glTexCoord2f 0 0\ngl glVertex2f 1.5 2.25\ngl glTexCoord2f 1 1\ngl glVertex2f 14.5 11.75\ngl glEnd"),
+        ("point", 32, "gl glPointSize 3\ngl glBegin 0\ngl glTexCoord2f 0.3 0.6\ngl glVertex2f 5.5 7.5\ngl glTexCoord2f 0.8 0.1\ngl glVertex2f 11.5 3.5\ngl glEnd"),
+        ("tri-smooth", 32, "gl glEnable 0xb41\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd"),
+        ("lit", 32, "gl glEnable 0xb50\ngl glEnable 0x4000\ngl glNormal3f 0 0 1\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd"),
+        ("fog", 32, "gl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex3f 2 2 0.5\ngl glTexCoord2f 1 0\ngl glVertex3f 13 4 -0.25\ngl glTexCoord2f 0.5 1\ngl glVertex3f 6 13 0\ngl glEnd"),
+        ("dither16", 16, "gl glEnable 0xbd0\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd"),
+        ("rect", 32, "gl glRectf 2 3 12 13"),
+        ("drawpixels", 32, "gl glRasterPos2i 3 3\ngldraw 4 4 0x1908 0x1401 9 64"),
+    ];
+    for (name, bpp, body) in prims {
+        head(s, &format!("tex-open-prim-{name}"), bpp);
+        writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 15 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable {T2}\ngl glClear 0x4000\ngl glColor4ub 200 150 100 255\n{body}");
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    // the texture bit of glPushAttrib, and texture objects' state across binds
+    head(s, "tex-open-state", 32);
+    writeln!(s, "glgentex 2\ngl glBindTexture {T2} 1\ngltex {T2} 0 4 2 2 0 0x1908 0x1401 16 16\ngl glTexParameteri {T2} 10241 9729\ngl glBindTexture {T2} 2\ngltex {T2} 0 3 4 4 0 0x1908 0x1401 17 64");
+    q(s, "param", &format!("{T2} 10241"), "i", 1);
+    q(s, "level", &format!("{T2} 0 4096"), "i", 1);
+    writeln!(s, "gl glBindTexture {T2} 1");
+    q(s, "param", &format!("{T2} 10241"), "i", 1);
+    q(s, "level", &format!("{T2} 0 4096"), "i", 1);
+    writeln!(s, "glget i 0x8069 1\ngl glPushAttrib 0x40000\ngl glBindTexture {T2} 2\ngl glTexEnvi 8960 8704 8449\ngl glEnable {T2}\ngl glPopAttrib\nglget i 0x8069 1\nglisen {T2}");
+    q(s, "env", "8960 8704", "i", 1);
+    q(s, "param", &format!("{T2} 10241"), "i", 1);
+    writeln!(s, "gl glBindTexture {T2} 0");
+    q(s, "level", &format!("{T2} 0 4096"), "i", 1);
+    writeln!(s, "glerr\nend");
 }

@@ -897,6 +897,11 @@ pub const CALLS: &[(&str, &str)] = &[
     ("glClearDepth", "d"), ("glDepthRange", "dd"), ("glOrtho", "dddddd"), ("glFrustum", "dddddd"),
     ("glAlphaFunc", "if"), ("glPixelStoref", "if"), ("glPixelTransferf", "if"), ("glAccum", "if"), ("glFogf", "if"),
     ("glPixelZoom", "ff"), ("glRasterPos2i", "ii"), ("glRasterPos2f", "ff"),
+    ("glBindTexture", "ii"), ("glTexParameteri", "iii"), ("glTexParameterf", "iif"), ("glTexEnvi", "iii"),
+    ("glTexEnvf", "iif"), ("glTexGeni", "iii"), ("glTexGenf", "iif"), ("glTexGend", "iid"),
+    ("glTexCoord1f", "f"), ("glTexCoord2f", "ff"), ("glTexCoord3f", "fff"), ("glTexCoord4f", "ffff"),
+    ("glCopyTexImage1D", "iiiiiii"), ("glCopyTexImage2D", "iiiiiiii"), ("glCopyTexSubImage1D", "iiiiii"),
+    ("glCopyTexSubImage2D", "iiiiiiii"),
 ];
 
 /// an argument: an integer as the executor passes it (a C long, 32 bits), or a float
@@ -949,11 +954,11 @@ fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
     r
 }
 
-const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glEnd"];
+const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
 
 crate::model::words! {
     /// the commands that run on the current context
-    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease" }
+    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease", Gltex = "gltex", Gltexsub = "gltexsub", Glteximg = "glteximg", Gltexq = "gltexq", Gltexv = "gltexv", Glgentex = "glgentex", Gldeltex = "gldeltex", Glistex = "glistex", Glprio = "glprio", Glresident = "glresident" }
 }
 
 impl Gl {
@@ -1172,6 +1177,10 @@ impl Gl {
                 };
                 hit(clause::GL_STRINGS);
                 out.push(format!("str {:x} = {s}", n as u32));
+            }
+            // (texture images, objects and queries, GL 1.1 3.8: not measured yet, tex-open-*)
+            CtxOp::Gltex | CtxOp::Gltexsub | CtxOp::Glteximg | CtxOp::Gltexq | CtxOp::Gltexv | CtxOp::Glgentex | CtxOp::Gldeltex | CtxOp::Glistex | CtxOp::Glprio | CtxOp::Glresident => {
+                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
             }
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
@@ -1904,6 +1913,10 @@ impl Ctx {
                     Ok(op) => self.accum(op, fl(a, 1) as f32)?,
                 }
             }
+            // (texturing, GL 1.1 3.8: not measured yet, tex-open-*)
+            "glBindTexture" | "glTexParameteri" | "glTexParameterf" | "glTexEnvi" | "glTexEnvf" | "glTexGeni" | "glTexGenf" | "glTexGend" | "glTexCoord1f" | "glTexCoord2f" | "glTexCoord3f" | "glTexCoord4f" | "glCopyTexImage1D" | "glCopyTexImage2D" | "glCopyTexSubImage1D" | "glCopyTexSubImage2D" => {
+                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            }
             // (every call of the executor's table is followed above: a name here is the model's bug)
             _ => return Err(Fail::Bad),
         }
@@ -2273,8 +2286,8 @@ impl Ctx {
                 tri::Offset { factor: self.offset.0, units: self.offset.1 * (1.0 / 32767.0) }
             }
         };
-        let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+        let [_, _, vw, vh] = self.viewport.map(|v| v as f64);
+        let center = self.viewport_center();
         let clip: Vec<[f32; 8]> = q
             .iter()
             .zip(colors)
@@ -2466,6 +2479,13 @@ impl Ctx {
         self.color = tri::zip4(self.color, self.channel_scales(), |c, s| (c * s) * (1.0 / s));
     }
 
+    /// the viewport's center in the rasterizer's 1/256 pixel units (x, y)
+    fn viewport_center(&self) -> (tri::Sub, tri::Sub) {
+        let [vx, vy, vw, vh] = self.viewport;
+        let sub = |v: i64, w: i64| tri::Sub(v.wrapping_mul(256).wrapping_add(w.wrapping_mul(128)));
+        (sub(vx, vw), sub(vy, vh))
+    }
+
     /// what a color times makes it channel units: each channel's largest value, alpha's red's
     /// without alpha bits
     fn channel_scales(&self) -> [f32; 4] {
@@ -2624,7 +2644,7 @@ impl Ctx {
                     return Ok(());
                 }
             }
-            let face = self.poly_mode[usize::from(!front)];
+            let face = if front { self.poly_mode[0] } else { self.poly_mode[1] };
             if face != POLY_FILL {
                 hit(clause::GL_RASTER_POLYGON_MODE);
                 // (the colors of a flat polygon's edges or corners: the provoking vertex's)
@@ -2658,7 +2678,7 @@ impl Ctx {
                 self.line_z_offset = 0.0;
                 if offset_line {
                     hit(clause::GL_POLYGON_OFFSET);
-                    let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+                    let center = self.viewport_center();
                     let corner = |k: usize| -> Res<(tri::Vertex, f32)> {
                         let p = cut.get(k).ok_or(Fail::Bad)?;
                         let n = [p[0], p[1], p[2]].map(|v| v * (1.0 / p[3]));
@@ -2717,11 +2737,11 @@ impl Ctx {
                     // (an edge whose ends' colors differ: as a smooth line's,
                     // GL.RASTER.INTERPOLATE.LINECOLOR)
                     hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
-                    let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+                    let center = self.viewport_center();
                     let snap = |p: [f64; 3]| [tri::Sub::snap((p[0] - vx) * 2.0 / vw - 1.0, vw, center.0), tri::Sub::snap((p[1] - vy) * 2.0 / vh - 1.0, vh, center.1)];
                     let (pa, pb) = (snap(a.0), snap(b.0));
                     let major = usize::from((pb[1].0 - pa[1].0).abs() >= (pb[0].0 - pa[0].0).abs());
-                    let Some(first) = pixels.first().map(|p| [p.0, p.1][major]) else { continue };
+                    let Some(first) = pixels.first().map(|p| if major == 1 { p.1 } else { p.0 }) else { continue };
                     for (x, y) in pixels {
                         let c = tri::line_color([pa[major], pb[major]], [a.1, b.1], first, [x, y][major]);
                         self.fragment(Frag { x, y, c, z: a.0[2], fixed: ToFixed::Floor, zfixed: None })?;
@@ -3160,7 +3180,7 @@ impl Ctx {
             return Ok(());
         };
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
-        let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
+        let center = self.viewport_center();
         let end = |c: [f32; 4]| {
             let n = [c[0], c[1], c[2]].map(|v| v * (1.0 / c[3]));
             ([tri::Sub::snap(f64::from(n[0]), vw, center.0), tri::Sub::snap(f64::from(n[1]), vh, center.1)], self.window_z(n[2]) + self.line_z_offset)
@@ -3532,7 +3552,7 @@ impl Ctx {
                     let a = c[3] * (1.0 / self.channel_scales()[3]);
                     // (channels under 8 bits: then stored as any, plus one half or the dither
                     // threshold, truncated: raster-open-57, 58, 59)
-                    let store = if !(bits[..3].iter().any(|b| *b < 8)) { 0.0 } else if dither { threshold } else { 0.5 };
+                    let store = if !bits.iter().take(3).any(|b| *b < 8) { 0.0 } else if dither { threshold } else { 0.5 };
                     let over = |d: u32, c: f32, bits: u32| scaled_channel(tri::float(i64::from(d)) * (1.0 - a) + c * a + store, bits);
                     let (alpha, dst_alpha) = (c[3] * a, tri::float(i64::from(d[3])) * (1.0 - a));
                     [over(d[0], c[0], bits[0]), over(d[1], c[1], bits[1]), over(d[2], c[2], bits[2]), if bits[3] == 0 { 0 } else { scaled_channel(alpha + dst_alpha, bits[3]) }]
@@ -3551,7 +3571,7 @@ impl Ctx {
                         let up = 8u32.saturating_sub(b);
                         wu(d << up, (c * f32::from(1u16 << up)).trunc()) >> up
                     };
-                    if bits[..3].iter().any(|b| *b < 8) {
+                    if bits.iter().take(3).any(|b| *b < 8) {
                         [narrow(d[0], c[0], bits[0]), narrow(d[1], c[1], bits[1]), narrow(d[2], c[2], bits[2]), 0]
                     } else {
                         [wu(d[0], c[0]), wu(d[1], c[1]), wu(d[2], c[2]), 0]
