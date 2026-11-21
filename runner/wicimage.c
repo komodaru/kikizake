@@ -267,7 +267,7 @@ static void op_ctx(void) {
 static unsigned be32(const unsigned char *p) { return (unsigned)p[0] << 24 | (unsigned)p[1] << 16 | (unsigned)p[2] << 8 | p[3]; }
 static void op_profile(void) {
     int swop = is(1, "swop");
-    if (!swop && !is(1, "srgb")) bad = 1;
+    if ((!swop && !is(1, "srgb")) || ntok > 3) bad = 1;
     if (bad) return;
     char path[MAX_PATH];
     GetWindowsDirectoryA(path, MAX_PATH);
@@ -280,6 +280,23 @@ static void op_profile(void) {
     fclose(f);
     if (len < 132) { out("wprofile 1 %u short\n", (unsigned)len); return; }
     unsigned tags = be32(b + 128);
+    /* wprofile swop <tag>: that tag's bytes, 64 to a line (the user chose, 2026-11-21, to read
+     * RSWOP.icm's tables into the suite for the CMYK transform) */
+    if (ntok == 3) {
+        const char *want = tok[2];
+        for (unsigned k = 0; k < tags && 132 + 12 * k + 12 <= len; k++) {
+            const unsigned char *e = b + 132 + 12 * k;
+            unsigned sig = be32(e), off = be32(e + 4), sz = be32(e + 8);
+            if (strlen(want) != 4 || be32((const unsigned char *)want) != sig) continue;
+            if (off + sz > len) { out("wprofile 1 bad\n"); return; }
+            out("wprofile 1 %08x %u", sig, sz);
+            for (unsigned i = 0; i < sz; i++) out("%s%02x", i % 64 ? "" : "\n", b[off + i]);
+            out("\n");
+            return;
+        }
+        out("wprofile 1 none\n");
+        return;
+    }
     out("wprofile 1 %u %08x %08x %08x %08x %u %u\n", (unsigned)len, be32(b + 8), be32(b + 12), be32(b + 16), be32(b + 20), be32(b + 64), tags);
     for (unsigned k = 0; k < tags && 132 + 12 * k + 12 <= len; k++) {
         const unsigned char *e = b + 132 + 12 * k;

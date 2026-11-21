@@ -2266,3 +2266,24 @@ end
 case profile-swop
 wprofile swop
 end
+case profile-swop-A2B0
+wprofile swop A2B0
+end
+case profile-swop-A2B1
+wprofile swop A2B1
+end
+case profile-swop-A2B2
+wprofile swop A2B2
+end
+case profile-swop-B2A0
+wprofile swop B2A0
+end
+case profile-swop-B2A1
+wprofile swop B2A1
+end
+case profile-swop-B2A2
+wprofile swop B2A2
+end
+case profile-swop-gamt
+wprofile swop gamt
+end

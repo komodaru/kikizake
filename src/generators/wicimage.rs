@@ -259,6 +259,11 @@ pub fn wiccolor() -> String {
     // the profiles the transforms are made of (sRGB's, and the CMYK one that 32bppCMYK goes through)
     writeln!(s, "case profile-srgb\nwprofile srgb\nend");
     writeln!(s, "case profile-swop\nwprofile swop\nend");
+    // (the tables of RSWOP.icm the CMYK transforms go through: read into the suite by the
+    // user's choice, 2026-11-21)
+    for t in ["A2B0", "A2B1", "A2B2", "B2A0", "B2A1", "B2A2", "gamt"] {
+        writeln!(s, "case profile-swop-{t}\nwprofile swop {t}\nend");
+    }
     s
 }
 

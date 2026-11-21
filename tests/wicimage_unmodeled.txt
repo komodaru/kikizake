@@ -1,4 +1,11 @@
 wiccolor profile-swop
+wiccolor profile-swop-A2B0
+wiccolor profile-swop-A2B1
+wiccolor profile-swop-A2B2
+wiccolor profile-swop-B2A0
+wiccolor profile-swop-B2A1
+wiccolor profile-swop-B2A2
+wiccolor profile-swop-gamt
 wicdecode broken-big-tiff-1200
 wicdecode broken-big-tiff-40000
 wicdecode broken-gifsize-frame
