@@ -295,7 +295,7 @@ fn hex<const MAX: usize>(op: &Op, i: usize) -> Res<Vec<u8>> {
     if b.len() % 2 == 1 || b.len() / 2 > MAX {
         return Err(Fail::Bad);
     }
-    b.chunks_exact(2).map(|p| digit(p[0]).zip(digit(p[1])).map(|(h, l)| h << 4 | l).ok_or(Fail::Bad)).collect()
+    b.as_chunks::<2>().0.iter().map(|&[h, l]| digit(h).zip(digit(l)).map(|(h, l)| h << 4 | l).ok_or(Fail::Bad)).collect()
 }
 
 /// the executor's buffers (runner/ntstr.c): a2i's and a2u's 80 bytes less the NUL, u2i's 158

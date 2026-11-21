@@ -15,8 +15,20 @@ pub trait Real: Copy + PartialOrd + Add<Output = Self> + Sub<Output = Self> + Mu
     /// the x87's rounding control toward zero (true) or to nearest, from here on (only the x87
     /// has one, the clean-room notes)
     fn chop(_on: bool) {}
-    /// the x87 build (OptimizeRGB has no test for a dot below 0 there, the clean-room notes)
-    const X87: bool = false;
+    /// what the build's OptimizeRGB does with an index below 0 (neither build tests the dot
+    /// below 0, the clean-room notes); no default, each build states its own
+    const BELOW: Below;
+}
+
+/// OptimizeRGB's index `trunc(dot + 0.5)` below 0 (a dot at or below -1.5): it reads outside
+/// the table of steps, differently on each build (the clean-room notes)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Below {
+    /// x86: the index a signed offset, it reads the stack below the table (bytes no case sets)
+    Unknown,
+    /// x64: the index's low 32 bits zero-extended before the scale, a read 16 GiB past the
+    /// table, always an access violation
+    Fault,
 }
 
 impl Real for f32 {
@@ -29,6 +41,7 @@ impl Real for f32 {
     fn store(self) -> Self {
         self
     }
+    const BELOW: Below = Below::Fault;
 }
 
 /// a value on the x87 as the x86 build computes: every operation rounded to the thread's
@@ -144,7 +157,7 @@ impl Real for X87 {
     fn chop(on: bool) {
         RC.with(|c| c.set(if on { Rc::Chop } else { Rc::Nearest }));
     }
-    const X87: bool = true;
+    const BELOW: Below = Below::Unknown;
 }
 
 type C3<F> = [F; 3];
@@ -197,7 +210,7 @@ fn decode565<F: Real>(w: u16) -> C3<F> {
 }
 
 /// the endpoints of the block's points (luminance-weighted colours)
-fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Option<(C3<F>, C3<F>)> {
+fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Result<(C3<F>, C3<F>), Below> {
     let eps = F::of((0.25 / 64.0) * (0.25 / 64.0));
     let (pc, pd): (&[f32], &[f32]) = match steps {
         Steps::Three => (&[1.0, 0.5, 0.0], &[0.0, 0.5, 1.0]),
@@ -218,7 +231,7 @@ fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Option<(C3<F>, C3<F
     let ab: C3<F> = std::array::from_fn(|k| y[k] - x[k]);
     let fab = ab[0] * ab[0] + ab[1] * ab[1] + ab[2] * ab[2];
     if fab < F::of(f32::MIN_POSITIVE) {
-        return Some((x, y));
+        return Ok((x, y));
     }
     let inv = F::of(1.0) / fab;
     let dir: C3<F> = std::array::from_fn(|k| ab[k] * inv);
@@ -244,12 +257,11 @@ fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Option<(C3<F>, C3<F
         std::mem::swap(&mut x[2], &mut y[2]);
     }
     if fab < F::of(1.0 / 4096.0) {
-        return Some((x, y));
+        return Ok((x, y));
     }
     let n = steps.n();
     let fsteps = F::of(f32::from(u8::try_from(n.saturating_sub(1)).unwrap_or(u8::MAX)));
     F::chop(true);
-    let mut bad = false;
     for _ in 0..8 {
         let st: Vec<C3<F>> = (0..n).map(|i| std::array::from_fn(|k| (F::of(pd[i]) * y[k] + x[k] * F::of(pc[i])).store())).collect();
         let d: C3<F> = std::array::from_fn(|k| (y[k] - x[k]).store());
@@ -263,15 +275,18 @@ fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Option<(C3<F>, C3<F
         let (mut dx, mut dy) = ([F::of(0.0); 3], [F::of(0.0); 3]);
         for p in pts {
             let dot = (((p[1] - x[1]) * d[1] + (p[0] - x[0]) * d[0]) + (p[2] - x[2]) * d[2]).store();
-            let i = if !F::X87 && dot <= F::of(0.0) {
-                0
-            } else if !(fsteps > dot) {
+            let i = if !(fsteps > dot) {
                 n - 1
             } else {
-                // (x87: no test below 0; a dot at or below -1.5 indexes outside the table)
-                let t = (dot + F::of(0.5)).store().trunc_i();
-                bad |= t < 0;
-                usize::try_from(t).unwrap_or(0)
+                // (no test below 0 on either build: a dot at or below -1.5 indexes outside the
+                // table, D3DX9.LOAD.FORMAT on x86, D3DX9.LOAD.NEGFAULT on x64)
+                match usize::try_from((dot + F::of(0.5)).store().trunc_i()) {
+                    Ok(i) => i,
+                    Err(_) => {
+                        F::chop(false);
+                        return Err(F::BELOW);
+                    }
+                }
             };
             let diff: C3<F> = std::array::from_fn(|k| (st[i][k] - p[k]).store());
             let fc = (F::of(pc[i]) * F::of(1.0 / 8.0)).store();
@@ -302,15 +317,12 @@ fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Option<(C3<F>, C3<F
         }
     }
     F::chop(false);
-    if bad {
-        return None;
-    }
-    Some((x, y))
+    Ok((x, y))
 }
 
 /// a DXT1 colour block of 16 (r, g, b, a) in 0..1; where steps is Three, the texels whose
 /// alpha is below one half become index 3
-pub fn encode_bc1<F: Real>(px: &[[F; 4]; 16], steps: Steps) -> Option<[u8; 8]> {
+pub fn encode_bc1<F: Real>(px: &[[F; 4]; 16], steps: Steps) -> Result<[u8; 8], Below> {
     let l = lum::<F>();
     let q = |v: F, m: f32| (F::of(f32::from(u8::try_from((v * F::of(m) + F::of(0.5)).store().trunc_i().clamp(0, 255)).unwrap_or(0))) * F::of(1.0 / m)).store();
     F::chop(true);
@@ -331,7 +343,7 @@ pub fn encode_bc1<F: Real>(px: &[[F; 4]; 16], steps: Steps) -> Option<[u8; 8]> {
         o
     };
     if steps == Steps::Four && wa == wb {
-        return Some(block(wa, wb, 0));
+        return Ok(block(wa, wb, 0));
     }
     let ca: C3<F> = {
         let d = decode565::<F>(wa);
@@ -369,7 +381,7 @@ pub fn encode_bc1<F: Real>(px: &[[F; 4]; 16], steps: Steps) -> Option<[u8; 8]> {
         dw = i << 30 | dw >> 2;
     }
     F::chop(false);
-    Some(block(c0, c1, dw))
+    Ok(block(c0, c1, dw))
 }
 
 /// DXT2 and DXT3's explicit alpha: each texel's alpha in 4 bits

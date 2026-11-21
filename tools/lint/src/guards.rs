@@ -21,7 +21,7 @@
 //!   F16Array::half, so the array and the load codecs cannot pick different ones.
 //! * `forbidden` (review of 8480456, 1.1): a construction Windows' answers refuted (`FORBIDDEN`):
 //!   JPEG 4:4:0's chroma repeated instead of interpolated; device12 again dropping the swap
-//!   chain (2.2).
+//!   chain (2.2); OptimizeRGB's index taken as 0 for a dot below 0 on x64 (4: Windows faults).
 //! * `silent-cut` (review of 8480456, 3): an executor loop that copies only while a count is
 //!   below a capacity (`for (...; ... && n < CAP; ...)`) drops the rest without a word, and the
 //!   model reads it all: refuse past the capacity (`bad = 1`) instead. The line reader's MAXTOK
@@ -52,6 +52,14 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("tests/calls.rs", r"calls::check_dir\s*\(", "the whole set's condition is check_complete (every suite of spec/calls-suites.txt, current); check_dir checks only the recordings there are"),
     ("src/model/d3d12.rs", r#""device12"\s*=>\s*\{[^}]*self\.(chain|factory)\s*="#, "device12 again keeps the executor's device and what was made of it (dxgi device-again)"),
 ];
+
+/// (file, function, what (a regular expression), why): `forbidden` inside one function only
+pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[(
+    "src/model/dxtenc.rs",
+    "optimize_rgb",
+    r"\bdot\s*<=?\s*F::of\s*\(\s*0(\.0)?\s*\)",
+    "neither build's OptimizeRGB tests the dot below 0: x64 faults on the index -1 (zero-extended, 16 GiB past the table), x86 reads below it (Below; loadtex-dxt-negindex)",
+)];
 
 /// the name of the function `at` lies in (the last `fn name` before it)
 fn enclosing_fn(code: &str, at: usize) -> &str {
@@ -201,6 +209,12 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
             None => bad.push(format!("{file}: forbidden: {pat} does not compile")),
         }
     }
+    for &(file, func, pat, why) in FORBIDDEN_IN.iter().filter(|f| f.0 == rel) {
+        match rx(pat) {
+            Some(re) => bad.extend(re.find_iter(&with_strings).filter(|m| enclosing_fn(&with_strings, m.start()) == func).map(|m| format!("{file}:{}: forbidden in {func}: {why}", line_of(text, m.start())))),
+            None => bad.push(format!("{file}: forbidden: {pat} does not compile")),
+        }
+    }
     let lines: Vec<&str> = text.split('\n').collect();
     for (at, st) in statements(&code) {
         if p.fs_read.is_match(st) && p.swallow.is_match(st) && !reports(&p, &code, at, st) {
@@ -329,7 +343,7 @@ pub fn check(root: &Path) -> Result<(), String> {
             }
         }
     }
-    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)).chain(FORBIDDEN.iter().map(|f| f.0).filter(|f| f.starts_with("src/"))) {
+    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)).chain(FORBIDDEN.iter().map(|f| f.0).filter(|f| f.starts_with("src/"))).chain(FORBIDDEN_IN.iter().map(|f| f.0)) {
         if !seen.iter().any(|s| s == f) {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
         }

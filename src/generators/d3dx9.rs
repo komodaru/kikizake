@@ -221,8 +221,8 @@ pub fn d3dx9load() -> String {
         }
         s.push_str(&format!("x9load 844715353 {src} 8 1 ramp 1\nend\n"));
     }
-    // (D3DX9.LOAD.FORMAT) a block whose x87 OptimizeRGB index falls below 0 (found by search
-    // on the model), into DXT1 and DXT3
+    // (D3DX9.LOAD.FORMAT on x86, D3DX9.LOAD.NEGFAULT on x64) a block whose OptimizeRGB index
+    // falls below 0 (found by search on the model), into DXT1 and DXT3: last, x64 dies on it
     let neg = "a328ebff3232c4ffc0271afff632a2ff8e2ac4ffc32e6eff8e27fffffc2991ffe034a2ffde2a00ffeb2d68ffcf2c6dff6a154bff00e5ffffae27a8fff663c6ff";
     s.push_str(&format!("case loadtex-dxt-negindex\ndevice swvp\nx9loadtex 827611204 21 4 4 b:{neg} 1\nx9loadtex 861165636 21 4 4 b:{neg} 1\nend\n"));
     s

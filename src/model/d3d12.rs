@@ -531,8 +531,9 @@ impl D3d12 {
                 // (the executor reads the first MAXTOK tokens of a line)
                 let t = &t[..t.len().min(super::rootsig::MAXTOK)];
                 // (the executor keeps them in RSTOK places and RSPOOL bytes, or the line is bad)
-                let bytes = |v: &[String]| v.iter().map(|x| x.len() + 1).sum::<usize>();
-                if self.rs_more.len() + t.len() - 1 > super::rootsig::RSTOK || bytes(&self.rs_more) + bytes(&t[1..]) > super::rootsig::RSPOOL {
+                let more = t.get(1..).unwrap_or_default();
+                let bytes = |v: &[String]| v.iter().map(|x| x.len().saturating_add(1)).fold(0usize, usize::saturating_add);
+                if self.rs_more.len().saturating_add(more.len()) > super::rootsig::RSTOK || bytes(&self.rs_more).saturating_add(bytes(more)) > super::rootsig::RSPOOL {
                     return Err(Fail::Bad);
                 }
                 self.rs_more.extend(t[1..].iter().cloned());
@@ -549,7 +550,7 @@ impl D3d12 {
                 let rest: Vec<String> = more.into_iter().chain(t[3..].iter().cloned()).collect();
                 // (RSTOK together, or the line is refused whole: the review of 8480456, 3)
                 hit(clause::D3D12_ROOTSIG_LONG);
-                if 3 + rest.len() > super::rootsig::RSTOK {
+                if rest.len().saturating_add(3) > super::rootsig::RSTOK {
                     return Err(Fail::Bad);
                 }
                 let (ps, ss) = parse(&rest).ok_or(Fail::Empty)?;

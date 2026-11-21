@@ -301,8 +301,13 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
                     64 => dxt_block::<f32>(alpha, std::array::from_fn(px)),
                     _ => dxt_block::<super::dxtenc::X87>(alpha, std::array::from_fn(|i| px(i).map(<super::dxtenc::X87 as super::dxtenc::Real>::of))),
                 };
-                let Some(block) = block else {
-                    return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT));
+                let block = match block {
+                    Ok(block) => block,
+                    Err(super::dxtenc::Below::Unknown) => return Err(Fail::Unmodeled(open::D3DX9_LOAD_FORMAT)),
+                    Err(super::dxtenc::Below::Fault) => {
+                        hit(clause::D3DX9_LOAD_NEGFAULT);
+                        return Err(Fail::Crash);
+                    }
                 };
                 row.extend(block.iter().map(|x| format!("{x:02x}")));
             }
@@ -326,24 +331,24 @@ fn load(op: &Op, out: &mut Vec<String>, into: Dest) -> Res<()> {
 }
 
 /// a 4 x 4 block into DXT1 .. DXT5 as D3DX encodes it (D3DX9.LOAD.DXTENC)
-fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Option<Vec<u8>> {
+fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Result<Vec<u8>, super::dxtenc::Below> {
     use super::dxtenc::{encode_alpha4, encode_alpha8, encode_bc1, Steps};
     let premul = |px: [[F; 4]; 16]| px.map(|c| [c[0] * c[3], c[1] * c[3], c[2] * c[3], c[3]]);
     match alpha {
         DxtAlpha::Punch => {
             let keyed = px.iter().filter(|c| c[3] < F::of(0.5)).count();
             if keyed == 16 {
-                return Some(vec![0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]);
+                return Ok(vec![0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]);
             }
-            Some(encode_bc1(&px, if keyed > 0 { Steps::Three } else { Steps::Four })?.to_vec())
+            Ok(encode_bc1(&px, if keyed > 0 { Steps::Three } else { Steps::Four })?.to_vec())
         }
         DxtAlpha::Explicit { premultiplied } => {
             let px = if premultiplied { premul(px) } else { px };
-            Some([encode_alpha4(&px), encode_bc1(&px, Steps::Four)?].concat())
+            Ok([encode_alpha4(&px), encode_bc1(&px, Steps::Four)?].concat())
         }
         DxtAlpha::Interpolated { premultiplied } => {
             let px = if premultiplied { premul(px) } else { px };
-            Some([encode_alpha8(&px), encode_bc1(&px, Steps::Four)?].concat())
+            Ok([encode_alpha8(&px), encode_bc1(&px, Steps::Four)?].concat())
         }
     }
 }

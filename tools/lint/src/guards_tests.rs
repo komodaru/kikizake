@@ -162,3 +162,15 @@ fn parsers_slicing_strings_are_found() {
     assert!(rust("src/model/ntstr.rs", nt).iter().any(|b| b.contains("forbidden: hex bytes")));
     assert!(rust("src/calls.rs", "fn p(l: &str) { let (name, rest) = l.split_once('(')?; }").is_empty());
 }
+
+#[test]
+fn optimize_rgb_testing_the_dot_below_zero_is_found() {
+    let old = "fn optimize_rgb() {\n    let i = if !F::X87 && dot <= F::of(0.0) {\n        0\n    } else {\n        t\n    };\n}\n";
+    let r = rust("src/model/dxtenc.rs", old);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].starts_with("src/model/dxtenc.rs:2: forbidden in optimize_rgb: neither build"), "{r:?}");
+    assert_eq!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { if dot < F::of(0) { } }").len(), 1);
+    assert!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { if !(fsteps > dot) { n - 1 } else { t } }").is_empty());
+    // (the alpha fit and the indices of encode_bc1 do test it)
+    assert!(rust("src/model/dxtenc.rs", "fn optimize_alpha() { let i = if dot <= F::of(0.0) { 0 } else { t }; }").is_empty());
+}
