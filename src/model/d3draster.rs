@@ -1698,6 +1698,11 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
             return Err(Fail::Bad);
         }
         let dsub = super::d3dres::view_subs(dev, dv, dres)[0];
+        // (a depth view smaller than a multisampled target: not measured, probe-rt-ms4-dsv-small)
+        let (dw, dh, _) = dres.size(dres.mip_of(dsub));
+        if index(dw) <= px || index(dh) <= py {
+            return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND));
+        }
         slots.push(Slot::of(m, dv.res, dsub, df, (px, py))?);
     }
     let kept = slots.iter().map(|s| stored(m, s.res, s.sub)).collect::<Res<Vec<bool>>>()?;
@@ -1931,6 +1936,9 @@ fn filter_path(id: u32) -> Option<FilterPath> {
     match (f.num, id) {
         // R8G8B8A8, R8G8, R8, A8, B8G8R8A8, B8G8R8X8 UNORM; BC1, BC2, BC3, BC7 UNORM
         (_, 28 | 49 | 61 | 65 | 87 | 88 | 71 | 74 | 77 | 98) => Some(FilterPath::Fixed),
+        // (MEASURED, WARP: probe-filter-fmt68, -fmt69, every pixel) R8G8_B8G8 and G8R8_G8B8, each
+        // texel its pair's red and blue with its own green, filtered as floats
+        (_, 68 | 69) => Some(FilterPath::Wide),
         // R11G11B10, R9G9B9E5, B5G6R5, B5G5R5A1, B4G4R4A4; BC1 sRGB, BC4 and BC5 UNORM and SNORM,
         // BC6H; R24_UNORM_X8 and R32_FLOAT_X8X24 (depth formats' views)
         (_, 26 | 67 | 85 | 86 | 115 | 72 | 80 | 81 | 83 | 84 | 95 | 46 | 21) => Some(FilterPath::Wide),
@@ -2463,6 +2471,9 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 let path = if cmp.is_some() { FilterPath::Wide } else { filter_path(v.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_FILTER))? };
                 if path == FilterPath::Wide {
                     hit(clause::D3DRASTER_FILTER_FLOAT);
+                    if matches!(v.format(), 68 | 69) {
+                        hit(clause::D3DRASTER_FILTER_PAIRS);
+                    }
                     let (fu, fv) = (pixels(wu), pixels(wv));
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
@@ -2544,10 +2555,18 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         let dres = filled_mut(&mut m.res, dv.res)?;
         let (rb, _, _) = dres.layout(dsub)?;
         let el = (df.bits / 8) as usize;
+        let (dw, dh, _) = dres.size(dres.mip_of(dsub));
         let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
-        // (a depth view smaller than the target: not measured)
-        let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
-        if d.depthst[0] != 0 {
+        // (MEASURED, WARP: probe-rt-dsv-small) a depth view smaller than the target: the pixels
+        // past it are written, the depth left alone
+        let inside = index(dw) > x && index(dh) > y;
+        if !inside {
+            hit(clause::D3DRASTER_DEPTH_SMALL);
+        }
+        let e = if inside { Some(b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?) } else { None };
+        if let Some(e) = e
+            && d.depthst[0] != 0
+        {
             // (only a triangle with a vertex at w <= 0 comes without depth, and with no depth view)
             let z = z.ok_or(Fail::Bad)?;
             let (a, s) = (quantized_depth(df, z), stored_depth(df, e));

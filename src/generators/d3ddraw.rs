@@ -569,6 +569,34 @@ fn suite(d3d11: bool) -> String {
     writeln!(&mut s, "draw 4 3 32");
     read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
     writeln!(&mut s, "end");
+    // the same with the depth cleared to 0: inside the depth view every pixel fails, outside it
+    // tells whether the test is made at all
+    begin(&mut s, dev, "probe-rt-dsv-small-fail", 16, 16, 28, Prog::Ps);
+    writeln!(&mut s, "tex 2 2 8 8 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(0.0));
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32");
+    read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
+    writeln!(&mut s, "end");
+    // a depth view smaller than a multisampled target (4 samples each)
+    begin(&mut s, dev, "probe-rt-ms4-dsv-small", 16, 16, 28, Prog::Ps);
+    writeln!(&mut s, "tex 3 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 3 3 nodesc\ntex 2 2 8 8 1 1 40 0 0x40 0 0 4 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 3 2\ndepthst 1 1 2", fb(1.0));
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32\nresolve 0 0 3 0 28");
+    read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
+    writeln!(&mut s, "end");
+    // linear filtering of the packed YUY2 (a pixel pair's Y0 U Y1 V)
+    writeln!(&mut s, "case probe-filter-fmt107\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
+    writeln!(&mut s, "tex 1 2 4 4 1 1 107 0 8 0 0 1 0 init 400 16 0\nsrv 1 1 nodesc\ntsrv 1\nsamp 0x15 3 3 3");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader(Prog::Vs)), hex(&shader(Prog::Pssample)));
+    writeln!(&mut s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0));
+    for (x, y, u, v) in [(-1.0f32, 1.0f32, -0.2f32, -0.2f32), (1.0, 1.0, 0.9, -0.2), (-1.0, -1.0, -0.2, 0.9), (1.0, -1.0, 0.9, 0.9)] {
+        writeln!(&mut s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0));
+    }
+    writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
     // topologies D3D11_PRIMITIVE_TOPOLOGY leaves undefined (they may end the executor too, so
     // they come just before)
     for top in [0u32, 6, 7, 8, 9, 65] {
