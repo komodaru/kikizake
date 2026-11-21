@@ -2913,4 +2913,21 @@ fn measure(s: &mut String) {
     writeln!(s, "case interp-open-12\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glRotatef 5 1 0 0\ngl glClear 0x4000\ngl glColor4ub 255 255 255 255\ngl glRectf 3 2 13 9", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // an antialiased line fogged (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-7\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex3f 1.5 2.25 -0.2\ngl glVertex3f 14.5 11.75 -0.7\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased triangle under a depth test, its corners' depths differing (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-8\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xb71\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex3f 2 2 0.5\ngl glVertex3f 13 4 -0.25\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // a stippled polygon outline under a depth test, its corners' depths differing (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-9\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb24\ngl glLineStipple 1 0x3c3c\ngl glEnable 0xb71\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex3f 2 2 0.5\ngl glVertex3f 13 4 -0.25\ngl glVertex3f 6 13 0\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // two stippled polygon outlines in one glBegin: the counter from 0 at each
+    // (GL.RASTER.LINE.STIPPLE)
+    writeln!(s, "case raster-open-10\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb24\ngl glLineStipple 2 0x5a5a\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1 1\ngl glVertex2f 7 2\ngl glVertex2f 3 7\ngl glVertex2f 8 8\ngl glVertex2f 15 9\ngl glVertex2f 10 15\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }

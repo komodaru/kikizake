@@ -2205,8 +2205,10 @@ impl Ctx {
                 return Err(Fail::Bad);
             }
             if c[2] < -1.0 || c[2] > 1.0 {
-                // (a primitive the near or far plane cuts: depths across the cut part)
-                return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                // (a primitive the near or far plane cuts is cut before it gets here: a point
+                // culled whole, culled_z; a line, tri::clip_segment; a quad's rectangle test
+                // drops the error)
+                return Err(Fail::Bad);
             }
         }
         let inv = 1.0 / c[3];
@@ -2331,7 +2333,8 @@ impl Ctx {
     /// alpha, 1 pixel wide and not under GL_NICEST the fast path (`tri::aa_line_fast`), else
     /// the general one (`tri::aa_line`), each fragment truncated (MEASURED, golden opengl-32 /
     /// 64: GL.RASTER.LINE.SMOOTH, GL.RASTER.LINE.SMOOTH.WIDE, GL.RASTER.LINE.SMOOTH.BLEND).
-    /// Stippled: `tri::AaStipple` (GL.RASTER.LINE.STIPPLE). Flat-shaded, fogged, lit, textured, depth, stencil or alpha tested, masked,
+    /// Stippled: `tri::AaStipple` (GL.RASTER.LINE.STIPPLE); flat-shaded: not this, the aliased
+    /// line in the first end's color (flat_path, raster-open-4). Fogged, lit, textured, depth, stencil or alpha tested, masked,
     /// scissored, a logic op, blended other than (SRC_ALPHA, ONE_MINUS_SRC_ALPHA), under 8-bit
     /// channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
@@ -2412,9 +2415,24 @@ impl Ctx {
         });
     }
 
+    /// whether GL_CULL_FACE drops a polygon of signed area `area` in normalized device
+    /// coordinates (GL.CULL)
+    fn culled_face(&self, area: f64) -> bool {
+        if !self.cap(CULL_FACE) {
+            return false;
+        }
+        hit(clause::GL_CULL);
+        let front = (area > 0.0) == (self.front_face == CCW);
+        match self.cull_mode {
+            FRONT => front,
+            BACK => !front,
+            _ => true,
+        }
+    }
+
     fn smooth_polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize, quad: bool) -> Res<()> {
         let clip: Vec<[f32; 4]> = q.iter().map(|v| self.clip_coords(v.0)).collect();
-        let unmeasured = [CULL_FACE, LIGHTING, FOG, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
+        let unmeasured = [LIGHTING, FOG, 0xde0, 0xde1, ALPHA_TEST, POLYGON_STIPPLE, POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
             || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
             || self.pf.ty != 0
             || self.bits()[..3].iter().any(|b| *b != 8)
@@ -2422,6 +2440,12 @@ impl Ctx {
             || clip.iter().any(|c| c[3] <= 0.0 || c[..3].iter().any(|v| v.abs() > c[3]));
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        // (culled as any polygon, then drawn antialiased: raster-open-6)
+        let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
+        let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
+        if self.culled_face(area) {
+            return Ok(());
         }
         hit(clause::GL_POLYGON_SMOOTH);
         let grid = if self.hints[(POLYGON_SMOOTH_HINT - 0xc50) as usize] == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
@@ -2519,9 +2543,10 @@ impl Ctx {
                     }
                     return Ok(());
                 }
-                if self.line_width != 1.0 || self.cap(LINE_STIPPLE) || self.cap(LINE_SMOOTH) {
+                if self.line_width != 1.0 || self.cap(LINE_SMOOTH) || (self.cap(LINE_STIPPLE) && self.cap(DEPTH_TEST) && self.pf.depth > 0) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
+                self.stipple = (0, None);
                 for k in 0..win.len() {
                     let (a, b) = (win[k], win[(k + 1) % win.len()]);
                     // (depths that differ only matter where a depth test reads them: interp-open-5)
@@ -2532,6 +2557,9 @@ impl Ctx {
                         continue;
                     }
                     let pixels = self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]], FirstEnd::Kept)?;
+                    let edge_major = usize::from((b.0[1] - a.0[1]).abs() > (b.0[0] - a.0[0]).abs());
+                    self.stipple.1 = None;
+                    let pixels: Vec<(i64, i64)> = pixels.into_iter().filter(|p| self.stipple_keeps([p.0, p.1][edge_major])).collect();
                     if a.1 == b.1 {
                         for (x, y) in pixels {
                             self.fragment(Frag { x, y, c: a.1, z: a.0[2], fixed: self.span(), zfixed: None })?;
@@ -2603,17 +2631,8 @@ impl Ctx {
         // (smooth colors lit: the corners' colors, clamped, interpolated as any others)
         let colors: Vec<[f64; 4]> = if flat { vec![fogged[provoking].map(f64::from); q.len()] } else { fogged.iter().map(|c| c.map(f64::from)).collect() };
         let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
-        if self.cap(CULL_FACE) {
-            hit(clause::GL_CULL);
-            let front = (area > 0.0) == (self.front_face == CCW);
-            let culled = match self.cull_mode {
-                FRONT => front,
-                BACK => !front,
-                _ => true,
-            };
-            if culled {
-                return Ok(());
-            }
+        if self.culled_face(area) {
+            return Ok(());
         }
         let px = self.fill(q, &colors, depth)?;
         hit(clause::GL_RASTER_TRIANGLE);
@@ -2728,8 +2747,11 @@ impl Ctx {
                     };
                     // fogged at the vertices: the rectangle's are at one depth in eye coordinates
                     let c = self.fogged(q[3].1, q[3].0);
+                    // (fogged across at one window depth: as a polygon, interp-open-11)
                     if q.iter().any(|v| self.fogged(q[3].1, v.0) != c) {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_INTERPOLATE));
+                        hit(clause::GL_RASTER_INTERPOLATE);
+                        self.polygon(q, 3)?;
+                        continue;
                     }
                     // (MEASURED, golden opengl-32 other-calls-1: a flat polygon's depth moved by
                     // units times 2^-23 under GL_POLYGON_OFFSET_FILL, the factor times its zero
@@ -2811,7 +2833,7 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
-                    if self.cap(LINE_SMOOTH) {
+                    if self.cap(LINE_SMOOTH) && self.shade != FLAT {
                         self.aa_line(a, b, mode == LINES || i == 0)?;
                         continue;
                     }
@@ -3070,8 +3092,11 @@ impl Ctx {
     /// as a smooth one (line-flat-8, 9, 10); the rest, and wide
     /// ones, not measured (GL.RASTER.MODE).
     fn flat_path(&self) -> Res<FlatPath> {
+        // (MEASURED, golden opengl-32 / 64 raster-open-4: a flat-shaded GL_LINE_SMOOTH line not
+        // antialiased, through the pipeline in the first end's color: GL.RASTER.LINE.SMOOTH)
         if self.cap(LINE_SMOOTH) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            hit(clause::GL_RASTER_LINE_SMOOTH);
+            return Ok(FlatPath::Pipeline(LineEnd::First));
         }
         hit(clause::GL_RASTER_LINE_FLAT);
         // (MEASURED, line-flat-8, 10: 1 pixel wide with only a depth test or a scissor box on,
@@ -3109,7 +3134,9 @@ impl Ctx {
             [(n[0] + 1.0) * vw / 2.0 + vx, (n[1] + 1.0) * vh / 2.0 + vy]
         };
         let device = |c: [f32; 4]| tri::DevicePixel::of(window(c), ndc(c), h);
-        let z = self.window(b.0)?[2];
+        // (the depth of the cut second end, interp-open-10: GL.RASTER.INTERPOLATE)
+        hit(clause::GL_RASTER_INTERPOLATE);
+        let z = f64::from(self.window_z(kb[2] * (1.0 / kb[3])));
         let (wa, wb) = (window(ka), window(kb));
         let (da, db) = (device(ka), device(kb));
         // (wide: each pixel's run of the width across, down the DIB's rows when x-major, right
