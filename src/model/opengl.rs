@@ -625,7 +625,7 @@ impl Stack {
     }
     /// its depth (1 for one matrix)
     pub fn len(&self) -> usize {
-        self.below.len() + 1
+        self.below.len().saturating_add(1)
     }
     pub fn top(&self) -> &[f32; 16] {
         &self.top

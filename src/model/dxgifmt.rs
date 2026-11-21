@@ -178,25 +178,28 @@ pub fn format(id: u32) -> Option<&'static Format> {
     FORMATS.iter().find(|f| f.id == id)
 }
 
-/// The format `id` of the table, for an id written in the source: evaluated when it is built
-/// through [`dxgi!`](crate::dxgi), so an id that is not in the table does not build
-/// (tests/ui/unknown_format.rs).
-pub const fn known(id: u32) -> &'static Format {
-    let mut i = 0;
-    while i < FORMATS.len() {
-        if FORMATS[i].id == id {
-            return &FORMATS[i];
+/// The format `id` of the table, None for an id it does not have: what [`dxgi!`](crate::dxgi)
+/// evaluates when it is built.
+pub const fn known(id: u32) -> Option<&'static Format> {
+    let mut rest = FORMATS;
+    while let [f, more @ ..] = rest {
+        if f.id == id {
+            return Some(f);
         }
-        i += 1;
+        rest = more;
     }
-    panic!("the id is not a format of the table")
+    None
 }
 
-/// the DXGI format of the table by an id written in the source, checked when it is built
+/// the DXGI format of the table by an id written in the source, found when it is built: an id
+/// the table does not have does not build (tests/ui/unknown_format.rs)
 #[macro_export]
 macro_rules! dxgi {
     ($id:literal) => {{
-        const FORMAT: &$crate::model::dxgifmt::Format = $crate::model::dxgifmt::known($id);
+        const FORMAT: &$crate::model::dxgifmt::Format = match $crate::model::dxgifmt::known($id) {
+            Some(f) => f,
+            None => panic!("the id is not a format of the table"),
+        };
         FORMAT
     }};
 }

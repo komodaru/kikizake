@@ -10,10 +10,10 @@ use crate::ttf::{Font, Glyph};
 /// constant below checks when it is built
 const TIE_UNITS: [(i64, i64); 11] = [(6656, 13), (13312, 13), (4608, 27), (13824, 27), (3072, 12), (12288, 24), (2048, 27), (1024, 60), (256, 54), (4096, 26), (8192, 13)];
 const _: () = {
-    let mut i = 0;
-    while i < TIE_UNITS.len() {
-        assert!(128 * TIE_UNITS[i].1 % (2 * TIE_UNITS[i].0) != 0, "two ties in a row");
-        i += 1;
+    let mut rest: &[(i64, i64)] = &TIE_UNITS;
+    while let [(u, em), more @ ..] = rest {
+        assert!(em.wrapping_mul(128) % u.wrapping_mul(2) != 0, "two ties in a row");
+        rest = more;
     }
 };
 
@@ -762,7 +762,10 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
         };
         // (the first of v + d, v + d + 1 that is no tie: two ties in a row would need
         // 128 em to be a multiple of 2 u, which no pair of TIE_UNITS is)
-        let off = |v: i64, d: i64| if tie(v + d) { v + d + 1 } else { v + d };
+        let off = |v: i64, d: i64| {
+            let w = v + d;
+            w + i64::from(tie(w))
+        };
         for axis in 0..2 {
             let mut gs = Vec::new();
             for (neg, low) in [(true, true), (true, false), (false, true), (false, false)] {

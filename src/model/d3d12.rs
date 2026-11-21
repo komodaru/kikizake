@@ -1505,7 +1505,9 @@ impl D3d12 {
                 if t.len() != 13 {
                     return Err(Fail::Bad);
                 }
-                let w: [u32; 12] = words(&t[1..])?.try_into().map_err(|_| Fail::Bad)?;
+                let Ok(w) = <[u32; 12]>::try_from(words(&t[1..])?) else {
+                    return Err(Fail::Bad);
+                };
                 self.chain = None;
                 match chain_desc(&w) {
                     Ok(d) => {

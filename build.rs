@@ -18,11 +18,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let head = l.split_once(" | ").map_or(l, |(head, _)| head);
             let (id, status) = head.split_once(' ').ok_or_else(|| format!("{}: no status: {l}", f.display()))?;
             let status = status.trim();
-            assert!(["doc", "measured", "assumed", "open", "excluded"].contains(&status), "{}: {id}: status {status:?}", f.display());
-            assert!(id.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '.' || c == '_'), "{}: clause id {id:?}", f.display());
+            if !["doc", "measured", "assumed", "open", "excluded"].contains(&status) {
+                return Err(format!("{}: {id}: status {status:?}", f.display()).into());
+            }
+            if !id.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '.' || c == '_') {
+                return Err(format!("{}: clause id {id:?}", f.display()).into());
+            }
             let ident = id.replace('.', "_");
             if let Some(other) = seen.insert(ident.clone(), id.to_string()) {
-                panic!("{}: clause {id} and {other} make the same name {ident}", f.display());
+                return Err(format!("{}: clause {id} and {other} make the same name {ident}", f.display()).into());
             }
             all.push_str(&format!("    /// spec/{name}.txt ({status})\n    pub const {ident}: ClauseId = ClauseId(\"{id}\");\n"));
             every.push_str(&format!("{ident}, "));

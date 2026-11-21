@@ -1815,11 +1815,11 @@ impl D2d {
                 want(2 + k)?;
                 let v: Vec<f32> = (0..k).map(|i| f(op, 2 + i)).collect::<Res<_>>()?;
                 hit(clause::D2D_CREATE);
-                let four = || [v[0], v[1], v[2], v[3]];
-                self.g[g] = Some(match t[0].as_str() {
-                    "d2rect" => Geom::Rect(four()),
-                    "d2ell" => Geom::Ell(four()),
-                    _ => Geom::RRect([v[0], v[1], v[2], v[3], v[4], v[5]]),
+                self.g[g] = Some(match (t[0].as_str(), v.as_slice()) {
+                    ("d2rect", &[l, top, r, b]) => Geom::Rect([l, top, r, b]),
+                    ("d2ell", &[l, top, r, b]) => Geom::Ell([l, top, r, b]),
+                    (_, &[l, top, r, b, rx, ry]) => Geom::RRect([l, top, r, b, rx, ry]),
+                    _ => return Err(Fail::Bad),
                 });
                 out.push(format!("{} 00000000", &t[0][2..]));
             }

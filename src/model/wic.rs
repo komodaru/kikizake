@@ -23,32 +23,45 @@ pub fn format(name: &str) -> Option<usize> {
     FORMATS.iter().position(|f| f.0 == name)
 }
 
-/// The index of the format `name` of the table, for a name written in the source: evaluated
-/// when it is built through [`wic_fmt!`](crate::wic_fmt), so a name not in the table does not
-/// build (tests/ui/unknown_wic_format.rs).
-pub const fn known(name: &str) -> usize {
-    let mut i = 0;
-    while i < FORMATS.len() {
-        if FORMATS[i].0.as_bytes().len() == name.len() {
-            let (a, b) = (FORMATS[i].0.as_bytes(), name.as_bytes());
-            let mut k = 0;
-            while k < a.len() && a[k] == b[k] {
-                k += 1;
-            }
-            if k == a.len() {
-                return i;
-            }
+/// The index of the format `name` of the table, None for a name it does not have: what
+/// [`wic_fmt!`](crate::wic_fmt) evaluates when it is built.
+pub const fn known(name: &str) -> Option<usize> {
+    let mut rest = FORMATS;
+    let mut i = 0usize;
+    while let [(f, _), more @ ..] = rest {
+        if same(f.as_bytes(), name.as_bytes()) {
+            return Some(i);
         }
-        i += 1;
+        rest = more;
+        i = i.wrapping_add(1);
     }
-    panic!("the name is not a format of the table")
+    None
+}
+
+/// byte strings alike (for a const fn, where `==` on slices is not)
+const fn same(mut a: &[u8], mut b: &[u8]) -> bool {
+    loop {
+        match (a, b) {
+            ([x, ra @ ..], [y, rb @ ..]) => {
+                if *x != *y {
+                    return false;
+                }
+                (a, b) = (ra, rb);
+            }
+            ([], []) => return true,
+            ([], [_, ..]) | ([_, ..], []) => return false,
+        }
+    }
 }
 
 /// the index of a WIC format of the table by a name written in the source, checked when it is built
 #[macro_export]
 macro_rules! wic_fmt {
     ($name:literal) => {{
-        const INDEX: usize = $crate::model::wic::known($name);
+        const INDEX: usize = match $crate::model::wic::known($name) {
+            Some(i) => i,
+            None => panic!("the name is not a format of the table"),
+        };
         INDEX
     }};
 }

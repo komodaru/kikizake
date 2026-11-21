@@ -2,14 +2,6 @@ error[E0080]: evaluation panicked: the id is not a format of the table
  --> tests/ui/unknown_format.rs:3:13
   |
 3 |     let _ = kikizake::dxgi!(200);
-  |             ^^^^^^^^^^^^^^^^^^^^ evaluation of `main::FORMAT` failed inside this call
+  |             ^^^^^^^^^^^^^^^^^^^^ evaluation of `main::FORMAT` failed here
   |
-note: inside `kikizake::model::dxgifmt::known`
- --> $RUST/core/src/panic.rs
-  |
-  = note: the failure occurred here
-  |
- ::: src/model/dxgifmt.rs
-  |
-  |     panic!("the id is not a format of the table")
-  |     --------------------------------------------- in this macro invocation
+  = note: this error originates in the macro `$crate::panic::panic_2021` which comes from the expansion of the macro `kikizake::dxgi` (in Nightly builds, run with -Z macro-backtrace for more info)

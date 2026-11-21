@@ -140,8 +140,7 @@ pub fn format(f: u32) -> Option<Fmt> {
         while j < b.len() && b[j].is_ascii_digit() {
             j += 1;
         }
-        // (the digits after the channel letter; the table's layouts give each one)
-        let bits = b[i + 1..j].iter().fold(0, |n, d| n * 10 + u32::from(d - b'0'));
+        let bits: u32 = layout.get(i + 1..j)?.parse().ok()?;
         ch.push(Ch { c, shift, bits });
         shift += bits;
         i = j;
@@ -325,7 +324,7 @@ pub fn round_even(x: f64) -> f64 {
 }
 
 /// one texel of a DXT1..DXT5 texture as rgba
-fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> [f64; 4] {
+fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> Res<[f64; 4]> {
     hit(clause::D3D9_TEX_DXT);
     let bsz = if n == 1 { 8 } else { 16 };
     let bi = ((y / 4) * ((w + 3) / 4) + x / 4) as usize * bsz;
@@ -356,7 +355,7 @@ fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> [f64; 4] {
         c[3] = 0.0;
     }
     if n == 2 || n == 3 {
-        let a = u64::from_le_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) >> (4 * t) & 15;
+        let a = u64::from_le_bytes(*b.first_chunk().ok_or(Fail::Bad)?) >> (4 * t) & 15;
         c[3] = (a * 17) as f64 / 255.0;
     } else if n >= 4 {
         let (a0, a1) = (b[0] as u32, b[1] as u32);
@@ -373,7 +372,7 @@ fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> [f64; 4] {
         };
         c[3] = v as f64 / 255.0;
     }
-    c
+    Ok(c)
 }
 
 /// float -> n-bit unsigned normalized: clamped, scaled, rounded to nearest (D3D9.RT.UNORM)
@@ -1273,7 +1272,7 @@ impl D3d9 {
         hit(clause::D3D9_TEX_FORMAT);
         match fm.kind {
             Kind::Int | Kind::F16 | Kind::F32 if !fm.ch.iter().any(|c| c.c == b'p') => {}
-            Kind::Dxt(n) => return Ok(dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32)),
+            Kind::Dxt(n) => return dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32),
             Kind::Int if matches!(tx.fmt, 40 | 41) => {
                 // (MEASURED palette-*: the entry's color; P8's alpha the entry's flags, A8P8's its own)
                 hit(clause::D3D9_TEX_PALETTE);
