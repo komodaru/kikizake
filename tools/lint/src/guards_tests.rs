@@ -96,3 +96,12 @@ fn unconfined_uses_are_found() {
     assert!(rust("src/model/gdi.rs", dd).is_empty());
     assert!(rust("src/model/d3dx9.rs", "// f16_one(x) in a comment\nfn f16_one(x: u32) -> u16 { 0 }\n").is_empty());
 }
+
+#[test]
+fn refuted_constructions_are_found() {
+    let old = "fn encode() {\n    match chroma {\n        Chroma::Full => d,\n        Chroma::H1V2 => repeat(&d),\n    }\n}\n";
+    let r = rust("src/model/jpeg.rs", old);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].starts_with("src/model/jpeg.rs:4: forbidden"), "{r:?}");
+    assert!(rust("src/model/jpeg.rs", "fn encode() { match c { Chroma::H1V2 => upsample_h1v2(&d, w, h), _ => repeat(&d) } }").is_empty());
+}

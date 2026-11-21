@@ -939,3 +939,27 @@ proptest! {
         }
     }
 }
+
+/// JPEG 4:4:0 (WICJpegYCrCbSubsampling440, chroma halved vertically only): the decoder
+/// interpolates the chroma rows 3:1 (h1v2 fancy upsampling), it does not repeat them (the
+/// review of 8480456: repeating gave 35/72, 723/819 and 95/102 bytes wrong). The three cases
+/// Windows answered, pinned against their goldens on both architectures: an odd height, a
+/// narrow image and edge rows, whatever KIKIZAKE_SUITES selects for the windows test
+#[test]
+fn jpeg_440_chroma_is_interpolated() {
+    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let all = kikizake::case::parse_cases(&std::fs::read_to_string(root.join("cases/wicencode.txt")).unwrap());
+    let names = ["opt-jpeg-subs-2-4-bgra", "opt-jpeg-subs-4-4-bgr24", "opt-jpeg-subs-8-4-bgra"];
+    let cases: Vec<_> = all.into_iter().filter(|c| names.contains(&c.name.as_str())).collect();
+    assert_eq!(cases.len(), 3);
+    for arch in [32, 64] {
+        let g = std::fs::read_to_string(root.join(format!("golden/wicencode-{arch}/stdout.txt"))).unwrap();
+        let want = kikizake::model::ModelContext::recorded(arch, &g).evaluate(|| kikizake::model::run("wicencode", &cases));
+        let golden = kikizake::case::parse_output(&g);
+        let mine = kikizake::case::parse_output(&want);
+        for n in names {
+            let (a, b) = (mine.cases.iter().find(|c| c.0 == n), golden.cases.iter().find(|c| c.0 == n));
+            assert!(a.is_some() && a == b, "{arch} {n}: {a:?} {b:?}");
+        }
+    }
+}

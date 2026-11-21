@@ -19,6 +19,8 @@
 //!   there (`CONFINED`): DirectDraw's pixels (`.px[`) only in Surf's accessors, so nothing reads
 //!   a byte the model does not know (Px::Unknown) as a value; D3DX's half routines only in
 //!   F16Array::half, so the array and the load codecs cannot pick different ones.
+//! * `forbidden` (review of 8480456, 1.1): a construction Windows' answers refuted (`FORBIDDEN`):
+//!   JPEG 4:4:0's chroma repeated instead of interpolated.
 use std::path::Path;
 use std::sync::LazyLock;
 
@@ -31,6 +33,9 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     ("src/model/ddraw.rs", r"\.px\[", &["get", "pixel", "set", "put"]),
     ("src/model/d3dx9.rs", r"\bf16_(sse|one|x64|x64_tail)\s*\(", &["half"]),
 ];
+
+/// (file, what (a regular expression), why): `forbidden`
+pub const FORBIDDEN: &[(&str, &str, &str)] = &[("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated")];
 
 /// the name of the function `at` lies in (the last `fn name` before it)
 fn enclosing_fn(code: &str, at: usize) -> &str {
@@ -151,6 +156,12 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
         }
     }
     bad.extend(confined(rel, &code, text));
+    for &(file, pat, why) in FORBIDDEN.iter().filter(|f| f.0 == rel) {
+        match rx(pat) {
+            Some(re) => bad.extend(re.find_iter(&code).map(|m| format!("{file}:{}: forbidden: {why}", line_of(text, m.start())))),
+            None => bad.push(format!("{file}: forbidden: {pat} does not compile")),
+        }
+    }
     let lines: Vec<&str> = text.split('\n').collect();
     for (at, st) in statements(&code) {
         if p.fs_read.is_match(st) && p.swallow.is_match(st) && !reports(&p, &code, at, st) {
@@ -266,7 +277,7 @@ pub fn check(root: &Path) -> Result<(), String> {
             }
         }
     }
-    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)) {
+    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)).chain(FORBIDDEN.iter().map(|f| f.0)) {
         if !seen.iter().any(|s| s == f) {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
         }
