@@ -2930,4 +2930,20 @@ fn measure(s: &mut String) {
     writeln!(s, "case raster-open-10\n{}{ORTHO}gl glDisable 0xbd0\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb24\ngl glLineStipple 2 0x5a5a\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1 1\ngl glVertex2f 7 2\ngl glVertex2f 3 7\ngl glVertex2f 8 8\ngl glVertex2f 15 9\ngl glVertex2f 10 15\ngl glEnd", ctx(32));
     read_all(s);
     writeln!(s, "glerr\nend");
+    // an antialiased triangle under a depth test: the depths it writes (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-11\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xb71\ngl glClear 0x4100\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex3f 2 2 0.5\ngl glVertex3f 13 4 -0.25\ngl glVertex3f 6 13 0\ngl glEnd\nglread 0 0 16 16 0x1902 0x1405 1024", ctx(32));
+    writeln!(s, "glerr\nend");
+    // an antialiased line under a depth test: its colors and the depths it writes
+    // (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-12\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xb71\ngl glClear 0x4100\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex3f 1.5 2.25 0.5\ngl glVertex3f 14.5 11.75 -0.25\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glread 0 0 16 16 0x1902 0x1405 1024\nglerr\nend");
+    // an antialiased triangle fogged across (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-13\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glClear 0x4000\ngl glBegin 4\ngl glColor4ub 255 255 255 255\ngl glVertex3f 2 2 -0.1\ngl glVertex3f 13 4 -0.8\ngl glVertex3f 6 13 -0.4\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    // an antialiased line under a scissor box (GL.RASTER.MODE): open
+    writeln!(s, "case raster-open-14\n{}{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb20\ngl glEnable 0xc11\ngl glScissor 4 3 7 6\ngl glClear 0x4000\ngl glBegin 1\ngl glColor4ub 255 255 255 255\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }

@@ -2561,7 +2561,7 @@ impl Ctx {
                     }
                     return Ok(());
                 }
-                if self.line_width != 1.0 || self.cap(LINE_SMOOTH) || (self.cap(LINE_STIPPLE) && self.cap(DEPTH_TEST) && self.pf.depth > 0) {
+                if self.line_width != 1.0 || self.cap(LINE_SMOOTH) {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 self.stipple = (0, None);
@@ -2569,6 +2569,8 @@ impl Ctx {
                     // (depths that differ only matter where a depth test reads them: interp-open-5)
                     if a.0[2] != b.0[2] && self.cap(DEPTH_TEST) && self.pf.depth > 0 {
                         let color = if a.1 == b.1 { LineColor::Flat(a.1) } else { LineColor::Smooth(a.1, b.1) };
+                        // (stippled, the counter running on: raster-open-9)
+                        self.stipple.1 = None;
                         self.deep_line([p[0], p[1], p[2], p[3]], [q[0], q[1], q[2], q[3]], color)?;
                         continue;
                     }
@@ -2848,7 +2850,8 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
-                    if self.cap(LINE_SMOOTH) && self.shade != FLAT {
+                    // (flat-shaded or fogged: not antialiased, below)
+                    if self.cap(LINE_SMOOTH) && self.shade != FLAT && !self.cap(FOG) {
                         self.aa_line(a, b, mode == LINES || i == 0)?;
                         continue;
                     }
@@ -2856,7 +2859,11 @@ impl Ctx {
                     // ones, a step along apart, golden opengl-32 line-color-4, not settled:
                     // GL.RASTER.MODE)
                     let (fa, fb) = (self.fogged(a.1, a.0), self.fogged(b.1, b.0));
-                    let color = match (self.shade == FLAT).then(|| self.flat_path()).transpose()? {
+                    // (MEASURED, golden opengl-32 / 64 raster-open-4, 7: a GL_LINE_SMOOTH line
+                    // flat-shaded or fogged drawn aliased through the pipeline in the first end's
+                    // (fogged) color: GL.RASTER.LINE.SMOOTH)
+                    let path = if self.cap(LINE_SMOOTH) { Some(self.flat_path()?) } else { (self.shade == FLAT).then(|| self.flat_path()).transpose()? };
+                    let color = match path {
                         Some(FlatPath::Gdi) => {
                             self.flat_line(a, b)?;
                             continue;
@@ -3010,10 +3017,6 @@ impl Ctx {
     /// it: GL.RASTER.INTERPOLATE.LINE
     fn deep_line(&mut self, a: [f32; 4], b: [f32; 4], color: LineColor) -> Res<()> {
         hit(clause::GL_RASTER_INTERPOLATE_LINE);
-        // (antialiased lines under a projection or cut: not measured)
-        if self.cap(LINE_SMOOTH) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
         if a[3] != 1.0 || b[3] != 1.0 {
             hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
         }
